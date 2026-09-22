@@ -1,0 +1,472 @@
+/* ---------------------------------------------------------------- tokens - */
+:root {
+  --paper: #f7f3ea;
+  --paper-raised: #fffdf8;
+  --ink: #17160f;
+  --ink-soft: #6b6659;
+  --ink-faint: #a9a396;
+  --accent: #b2412a;
+  --accent-soft: #e8d4cb;
+  --gold: #8a7233;
+  --rule: rgba(23, 22, 15, 0.12);
+  --shadow: 0 1px 2px rgba(23, 22, 15, 0.04), 0 12px 32px -18px rgba(23, 22, 15, 0.35);
+
+  --display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --ui: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --step: clamp(1rem, 3.5vw, 1.5rem);
+  --radius: 14px;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #14130e;
+    --paper-raised: #1d1c16;
+    --ink: #f3ece0;
+    --ink-soft: #a29a8b;
+    --ink-faint: #6b6559;
+    --accent: #e2765a;
+    --accent-soft: #46291f;
+    --gold: #c3a765;
+    --rule: rgba(243, 236, 224, 0.14);
+    --shadow: 0 12px 32px -20px rgba(0, 0, 0, 0.8);
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+/* ---------------------------------------------------------------- layout - */
+.stage {
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: 1fr;
+  place-items: center;
+  padding: clamp(1.25rem, 5vw, 3rem) clamp(1rem, 5vw, 2rem);
+}
+
+.sheet {
+  width: min(34rem, 100%);
+  display: grid;
+  gap: var(--step);
+}
+
+.sheet--wide {
+  width: min(42rem, 100%);
+}
+
+.stack {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.spread {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.rule {
+  height: 1px;
+  background: var(--rule);
+  border: 0;
+}
+
+/* ------------------------------------------------------------ typography - */
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.title {
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(2.5rem, 9vw, 3.5rem);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.lede {
+  color: var(--ink-soft);
+  max-width: 30ch;
+}
+
+.note {
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+}
+
+.serif {
+  font-family: var(--display);
+  font-weight: 500;
+}
+
+/* --------------------------------------------------------------- buttons - */
+.btn {
+  appearance: none;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 999px;
+  padding: 0.85rem 1.6rem;
+  font-weight: 550;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease, background 160ms ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border-color: var(--rule);
+}
+
+.btn--quiet {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink-faint);
+  padding: 0.5rem 0.75rem;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.btn--icon {
+  border-radius: 999px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-soft);
+  width: 2.25rem;
+  height: 2.25rem;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* ---------------------------------------------------------------- fields - */
+.field {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.field > label {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.02em;
+}
+
+.field input {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 0.1rem;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  transition: border-color 160ms ease;
+}
+
+.field input:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+
+.field input::placeholder {
+  color: var(--ink-faint);
+  font-family: var(--ui);
+  font-size: 0.95rem;
+}
+
+.segmented {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+}
+
+.segmented button {
+  flex: 1;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  padding: 0.5rem 0.4rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background 200ms ease, color 200ms ease;
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ----------------------------------------------------------------- card - */
+.card {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: clamp(1.25rem, 5vw, 2rem);
+}
+
+.letter {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(7rem, 34vw, 12rem);
+  line-height: 0.82;
+  text-align: center;
+  letter-spacing: -0.04em;
+  font-variation-settings: 'opsz' 144;
+}
+
+.letter-chip {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  width: 2.1rem;
+  height: 2.1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--paper-raised);
+  flex: none;
+}
+
+.categories {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+
+.categories li {
+  font-family: var(--display);
+  font-size: clamp(1.25rem, 5vw, 1.6rem);
+  font-weight: 500;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  gap: 0.9rem;
+  align-items: baseline;
+}
+
+.categories li .index {
+  font-family: var(--ui);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--ink-faint);
+  letter-spacing: 0.1em;
+}
+
+/* ---------------------------------------------------------------- timer - */
+.timer {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(6rem, 30vw, 10rem);
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  transition: color 400ms ease;
+}
+
+.timer--urgent {
+  color: var(--accent);
+  animation: breathe 1s ease-in-out infinite;
+}
+
+.progress {
+  height: 2px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: left;
+}
+
+.progress--urgent span {
+  background: var(--accent);
+}
+
+/* ----------------------------------------------------------- scoreboard - */
+.tally {
+  display: grid;
+  gap: 1rem;
+}
+
+.answer-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.answer-row .word {
+  font-family: var(--display);
+  font-size: 1.1rem;
+}
+
+.answer-row .word:empty::before {
+  content: '—';
+  color: var(--ink-faint);
+}
+
+.answer-row .points {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.85rem;
+  color: var(--ink-faint);
+}
+
+.word--unique {
+  color: var(--accent);
+}
+
+.word--shared {
+  color: var(--ink-soft);
+}
+
+.word--wrong-letter {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+
+.standings {
+  display: grid;
+  gap: 0;
+}
+
+.standing {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto;
+  align-items: baseline;
+  gap: 0.9rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.standing .rank {
+  font-size: 0.8rem;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.standing .name {
+  font-family: var(--display);
+  font-size: 1.25rem;
+}
+
+.standing .points {
+  font-family: var(--display);
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.standing--leader .name,
+.standing--leader .points,
+.standing--leader .rank {
+  color: var(--accent);
+}
+
+/* ------------------------------------------------------------ animation - */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes letter-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.enter {
+  animation: rise 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.enter-letter {
+  animation: letter-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
