@@ -78,9 +78,11 @@ export function App() {
         withExtraWords(
           pack,
           (community.current[pack.categoryId] ?? []).map((word) => ({
+            key: '',
             display: word.display,
             sitelinks: word.sitelinks,
             frequency: word.frequency,
+            notoriety: 0,
           })),
         ),
       )

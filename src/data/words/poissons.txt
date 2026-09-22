@@ -1,13 +1,36 @@
+abadèche|0|0.00
+abadèche barbiche|0|0.00
 Abadèche Boulotte|11|0.00
+abadèche du Cap|0|0.00
+abadèche lingue|0|0.00
+abadèche rose|0|0.00
 Abadioa|45|0.00
+able|0|0.14
+able argenté|0|0.00
 able de heckel|41|0.00
+able de Stymphale|0|0.00
 Ablette|57|0.41
+ablette biponctuée|0|0.00
+ablette commune|0|0.00
+ablette de rivière|0|0.00
+ablette grise|0|0.00
+ablette spirlin|0|0.00
+ablettes|57|0.54|ablette
 Abusseau|26|0.00
+abydoise amie|0|0.00
+acantholabre|0|0.00
+acanthoptérygien|0|0.00
+acanthure|0|0.00
 Acanthure à Pierreries|17|0.00
 Acanthure à Queue Jaune|29|0.00
+acara bleu|0|0.00
 Acara de l'Oelemari|8|0.00
 Acara noir|13|0.00
 Acedia|8|0.00
+achigan|0|0.00
+achigan à grande bouche|0|0.00
+achigan à petite bouche|0|0.00
+acoupa|0|0.00
 Acoupa Aile-courte|10|0.00
 Acoupa Argenté|10|0.00
 Acoupa Blanc|19|0.00
@@ -31,32 +54,69 @@ Acoupa Tident|9|0.00
 Acoupa Toeroe|14|0.00
 Acoupa Tonquiche|8|0.00
 Acoupa Totoaba|17|0.00
+actinoptérygien|0|0.00
 Actinoptérygiens|90|0.00
+agonidé|0|0.00
 Aguglia impériale|25|0.00
 Aholatza|21|0.00
+aigle-bar|0|0.00
 Aiglefin|64|0.07
+aigrefin|0|0.00
+aiguille|0|18.38
 Aiguille crocodile|1|0.00
 Aiguille de Mer|26|0.00
 aiguille voyeuse|6|0.00
+aiguilles|0|15.81|aiguille
+aiguillette|0|0.00
 Aiguillette Timucu|6|0.00
 Aiguillette Verte|12|0.00
 Aile ronde|25|0.00
 Akoupa|14|0.00
 Albacore|58|0.00
+albe|0|0.00
+albule|0|0.00
 Alépocephale|12|0.00
 Alépocéphale à Grands Yeux|7|0.00
 Alépocéphale de Baird|13|0.00
 Alépocéphale Multirai|13|0.00
 Alépocéphale Obscur|8|0.00
+alépocéphalidé|0|0.00
+alevin|0|0.07
+alevine|0|0.00
+alevins|0|0.61|alevin
 Alice Franche|8|0.00
 Allache|29|0.00
 Allemand|21|27.97
+allemande|21|25.34|allemand
+allemandes|21|12.97|allemand
+allemands|21|61.42|allemand
 Alón Volador|31|0.00
+alose|0|0.20
+alose de Reeves|0|0.00
+alose du Rhône|0|0.00
 alose feinte|42|0.00
+alose finte|0|0.00
+alose lacustre|0|0.00
 Alose Lame|6|0.00
 Alose Tyran|22|0.00
+alose vraie|0|0.00
+aloses|0|0.27|alose
+altavelle|0|0.00
 Amber Couvailli|38|0.00
+ami|0|140.14|amie
+amie|0|54.32
+amie chauve|0|0.00
+amies|0|16.22|amie
+amis|0|143.45|amie
+ammocète|0|0.00
+ammodyte|0|0.00
+amour argenté|0|0.00
+amour blanc|0|0.00
+amphiprion|0|0.00
+amphiprion à deux bandes|0|0.00
+amphiprion à trois bandes|0|0.00
 Amplovo|63|0.00
+anabas|0|0.00
 Anchois|63|2.57
 Anchois à Bande étroite|8|0.00
 Anchois à Grandes Écailles|9|0.00
@@ -74,6 +134,7 @@ Anchois de Balboa|7|0.00
 Anchois de California|19|0.00
 Anchois de Californie|19|0.00
 Anchois de Heller|9|0.00
+anchois de Norvège|0|0.00
 Anchois de Scofield|9|0.00
 Anchois de Starks|9|0.00
 Anchois Dentu|6|0.00
@@ -102,51 +163,89 @@ Anchois Queue Noire|9|0.00
 Anchois Samase|8|0.00
 Andorrève|5|0.00
 Âne|64|14.32
+ânes|64|4.26|ane
+ange de mer|0|0.00
+ange de mer épineux|0|0.00
 Ange de mer impérial|29|0.00
+angelot|0|0.74
+angelots|0|0.74|angelot
 anguille|81|2.03
 Anguille à Longue Nageoire|16|0.00
 Anguille à Nez Court|13|0.00
 Anguille à Tête Courte|8|0.00
 Anguille Bécasse|20|0.00
+anguille commune|0|0.00
 Anguille de Mer|54|0.00
 Anguille de Montagne|13|0.00
+anguille de sable|0|0.00
 Anguille de Vase|12|0.00
+anguille de verre|0|0.00
+anguille du Japon|0|0.00
 Anguille du Mozambique|16|0.00
 Anguille Egorgée Bécue|11|0.00
 Anguille Egorgée de Gray|11|0.00
 Anguille électrique|74|0.00
+anguille européenne|0|0.00
 Anguille marbrée|27|0.00
 Anguille rouge|13|0.00
 Anguille Serpent|10|0.00
 Anguille-serpent Aptère|13|0.00
 Anguille Sombre|12|0.00
+anguille-spaghetti|0|0.00
+anguilles|81|1.28|anguille
+anguilliforme|0|0.00
 Annobon scorpionfish|9|0.00
+anoli|0|0.00
 Anoli brasil|8|0.00
 Anoli Commun|13|0.00
 Anoli de Sable|11|0.00
 Anoli serpent|15|0.00
 Ânon|64|0.41
+ânons|64|0.07|anon
+antennaire|0|0.00
 Antennaire des Sargasses|26|0.00
+antennariidé|0|0.00
+anthias|0|0.00
 Antimora Bleu|17|0.00
 Antimore Bleu|17|0.00
 Antimore Violet|8|0.00
 Apahnius De Corse|27|0.00
+aphanius de Corse|0|0.00
 Aphanius saharien|13|0.00
 Apogon|24|0.00
 Apogon Commun|24|0.00
+apogonidé|0|0.00
+apron|0|0.00
 Ara Lunga|53|0.00
 Arapaïma|56|0.00
+arbalétrier|0|0.14
 Arbalétrier Gris|16|0.00
+arbalétriers|0|0.74|arbaletrier
 Arc en ciel jaune|18|0.00
+archer|0|0.41
+archères|0|0.07|archer
+archers|0|2.03|archer
 Argente|18|3.99
+argentée|18|1.89|argente
+argentées|18|1.96|argente
+argentés|18|2.70|argente
+argentin|0|2.57|argentine
+argentine|0|1.62
 Argentine à Langue Lisse|10|0.00
+argentine à nez brun|0|0.00
 Argentine à Petites Dents|10|0.00
 Argentine Alice|9|0.00
 Argentine du Pacifique Nord|9|0.00
+argentine mince|0|0.00
 Argentine striée|12|0.00
+argentines|0|0.68|argentine
+argentins|0|0.61|argentine
 Ariomme Brune|8|0.00
 Ariomme grise|8|0.00
 Ariomme pintade|9|0.00
+arlequin|0|0.07
+arlequins|0|0.41|arlequin
+arnoglosse|0|0.00
 Arnoglosse de Kessler|13|0.00
 Arnoglosse de Méditerranée|23|0.00
 Arnoglosse de Thor|18|0.00
@@ -154,8 +253,13 @@ Arnoglosse du Cap|10|0.00
 Arnoglosse Impérial|17|0.00
 Arnoglosse Lanterne|23|0.00
 Arnoglosse Tacheté|18|0.00
+arondelle|0|0.00
 Arrête-nef|29|0.00
 Arselet|59|0.00
+aspe|0|0.00
+aspidophore|0|0.00
+aspidophore armé|0|0.00
+assège|0|0.00
 Assiette Atlantique|11|0.00
 Atéléopode|10|0.00
 Atéléopode de Loppe|10|0.00
@@ -176,13 +280,26 @@ Athérine lacunaire|6|0.00
 Athérine Landia|6|0.00
 Athérine Panaméenne|9|0.00
 Athérine Tête-dure|10|0.00
+athérinidé|0|0.00
+atipa|0|0.00
 Atopochilus Atopochilus|12|0.00
+aubour|0|0.07
 Auggia imbriale|25|0.00
+aulostomidé|0|0.00
 Aurin|32|0.00
+aurion|0|0.00
 Auxide|28|0.00
+avaleur|0|0.41
+avaleurs|0|0.20|avaleur
+avaleuse|0|0.00|avaleur
+avelle|0|0.00
 Avocette Ruban|20|0.00
 Baba|12|1.42
+babas|12|0.47|baba
 Babonne|11|0.00
+bacaliau|0|0.00
+bacora|0|0.00
+bacorette|0|0.00
 Badeche|19|0.00
 Badeche Baillou|13|0.00
 Badeche Balai|11|0.00
@@ -195,6 +312,7 @@ Badeche Galopin|12|0.00
 Badeche Gueule Jaune|13|0.00
 Badeche Peigne|21|0.00
 Badeche Rouge|21|0.00
+baeri|0|0.00
 Balaou|22|0.00
 Balaou Atlantique|22|0.00
 Baliste|32|0.00
@@ -213,6 +331,7 @@ Baliste Noir|18|0.00
 Baliste Ponctué|12|0.00
 Baliste Royal|26|0.00
 Baliste Rude|16|0.00
+balistes|32|0.14|baliste
 Ballon à Bande Argentée|24|0.00
 Ballon à épaule Noire|28|0.00
 Ballon Constellé|27|0.00
@@ -221,37 +340,71 @@ Ballon Griffonné|20|0.00
 Ballon Maculé|25|0.00
 Ballon Pintade|28|0.00
 Banane|15|4.05
+banane de mer|0|0.00
 Banane Fil|9|0.00
+bananes|15|3.51|banane
 Bangamaree|12|0.00
 Bar|66|52.57
 Bar Commun|66|0.00
 Bar du Japon|16|0.00
 Bar Européen|66|0.00
 Bar Franc|66|0.00
+bar gigantesque|0|0.00
 Bar Moucheté|23|0.00
+bar noir|0|0.00
 Bar Tacheté|23|0.00
+bar Victoria|0|0.00
+barade|0|0.00
+baramundi|0|0.00
 Barbaray Jaune Et Gris|19|0.00
 Barbaray Rouge|19|0.00
 barbastelle|47|0.00
 Barbastelle Commune|47|0.00
 Barbastelle D'Europe|47|0.00
 barbeau|46|0.74
+barbeau argenté|0|0.00
+barbeau argenté de Thaïlande|0|0.00
+barbeau commun|0|0.00
+barbeau de Java|0|0.00
 Barbeau De Jullien|23|0.00
 Barbeau Du Desert|8|0.00
+barbeau fluviatile|0|0.00
+barbeau méridional|0|0.00
+barbeau truite|0|0.00
+barbeaux|46|0.34|barbeau
+barbet|0|0.34
 Barbet à deux Bandes|12|0.00
 Barbet souffré|14|0.00
+barbets|0|0.07|barbet
+barbette|0|0.20
 Barbiche Longue Aile|10|0.00
 Barbier|26|22.16
+barbier commun|0|0.00
 Barbier doncella|7|0.00
 Barbier fil|7|0.00
 Barbier Hirondelle|26|0.00
 Barbier Perroquet|13|0.00
+barbiers|26|0.34|barbier
 Barbillon|14|0.34
+barbillons|14|0.47|barbillon
+barbot|0|0.20
+barbote|0|0.20
+barbote brune|0|0.00
+barboteau|0|0.00
+barbotte|0|0.07
+barbotte brune|0|0.00
 barbotte noire|29|0.00
+barbottes|0|0.00|barbotte
+barbounia|0|0.00
+barbu|0|5.41
 Barbu Argente|9|0.00
 Barbu Aveugle|16|0.00
+barbu commun|0|0.00
 barbue|33|0.74
+barbue commune|0|0.00
+barbue de rivière|0|0.00
 Barbue Ocellée|17|0.00
+barbues|9|0.14|barbus
 Barbure à dos Sombre|6|0.00
 Barbure à Petite Bouche|8|0.00
 Barbure à Sept Doigts|6|0.00
@@ -263,15 +416,27 @@ Barbure jaune|6|0.00
 Barbus|9|2.03
 Barbus nain|10|0.00
 Bardot|45|0.07
+bardots|45|0.14|bardot
 Barracouda|40|0.00
 Barracouta|40|0.00
 Barracuda|40|0.34
+barracudas|40|0.00|barracuda
 Barracudine|10|0.00
 Barracudine Longue Quille|12|0.00
 Barracudine Pintade|12|0.00
+barrat|0|0.00
 barrcouda|40|0.00
+barreau|0|3.99
+barreaux|0|15.54|barreau
 Barrugue barbue|8|0.00
+bars|66|8.78|bar
+barset|0|0.00
+basilic|0|1.01
+batard|0|9.12
 Bâtarde|29|1.01
+bâtardes|29|0.20|batarde
+bâtards|29|2.23|batarde
+batrachoididé|0|0.00
 Baudroie|57|0.00
 Baudroie Commune|57|0.00
 Baudroie Diable|12|0.00
@@ -280,19 +445,35 @@ Baudroie épineuse|7|0.00
 Baudroie Pêcheuse|14|0.00
 Baudroie Reticulée|9|0.00
 Baudroie Rousse|24|0.00
+baudroies|57|0.07|baudroie
 Baudruche Zébrée|27|0.00
 Baveuse|27|0.95
 Baveuse Rouge|24|0.00
+baveuses|27|0.34|baveuse
+baveux|27|2.77|baveuse
+bayad|0|0.00
 Bayonetta|27|0.00
+bazoug|0|0.00
 Beauclaire|9|0.00
 Beauclaire Alalaua|7|0.00
 Beauclaire de roche|13|0.00
 Beauclaire du Large|10|0.00
+beauclaire lanterne|0|0.00
+beauclaire longue aile|0|0.00
+beauclaire miroir|0|0.00
+beauclaire pivoine|0|0.00
+beauclaire sanglant|0|0.00
 Beauclaire sémaphore|13|0.00
 Beauclaire Soleil|12|0.00
+beaux-yeux|0|0.00
+bec-de-perroquet|0|0.00
+bec-en-flûte|0|0.00
+bec-pointu|0|0.00
 Bécasse à Carreaux|19|0.00
 Bécasse de mer|25|0.00
 Bécasse de mer Tachetée|8|0.00
+bécassine de mer|0|0.00
+béchet|0|0.00
 Béchine|40|0.00
 Bècune|40|0.00
 Bécune Aiguille|10|0.00
@@ -301,16 +482,34 @@ Bécune Européenne|26|0.00
 Bécune Guachanche|15|0.00
 Bécune Mexicaine|11|0.00
 Bécune Pélican|12|0.00
+belluge|0|0.00
+bélonidé|0|0.00
+belouga|0|0.00
+beluga|0|0.07
+béluga européen|0|0.00
+benni|0|0.00
+béquet|0|0.00
+berdaou|0|0.00
 Bertorella Azul|17|0.00
 Béryx|25|0.00
 Béryx Commun|25|0.00
 Beryx Long|20|0.00
+béryx rouge|0|0.00
+bester|0|0.00
 Bevecca|18|0.00
+bhakur|0|0.00
 Bichique|11|0.00
 Bigoula|24|0.00
+binga|0|0.00
 Bis|38|1.82
+bises|38|0.61|bis
 Bizet|43|0.00
+black bass|0|0.07
 black bass à grande bouche|37|0.00
+black-bass à petite bouche|0|0.00
+blade|0|0.00
+blageon|0|0.00
+blanchaille|0|0.00
 Blanche|12|145.07
 Blanche à Pagaies|12|0.00
 Blanche argentée|7|0.00
@@ -324,12 +523,19 @@ Blanche Elégante|11|0.00
 Blanche espagnole|7|0.00
 Blanche Goubernail|12|0.00
 Blanche rayée|9|0.00
+blanches|12|60.68|blanche
+blanchet|0|1.15
+blanquette|0|0.88
+blanquettes|0|0.14|blanquette
+blanquillo|0|0.00
+blaouète|0|0.00
 Blennechis à dorsale Èlevée|10|0.00
 Blennie|14|0.00
 Blennie à Tête Noire|13|0.00
 Blennie Atlantique|12|0.00
 Blennie-basilic|17|0.00
 Blennie blanche|22|0.00
+blennie cagnotte|0|0.00
 Blennie Chevelue|14|0.00
 Blennie Coiffée|24|0.00
 Blennie Cornue|21|0.00
@@ -340,6 +546,7 @@ Blennie de l'Adriatique|16|0.00
 Blennie de Roux|22|0.00
 Blennie de Zvonimir|21|0.00
 Blennie Diabolo|20|0.00
+blennie fluviatile|0|0.00
 Blennie Gattorubine|27|0.00
 blennie gattorugine|27|0.00
 Blennie Licorne|21|0.00
@@ -354,11 +561,20 @@ Blennie Sphinx|22|0.00
 Blennie Trigloïde|20|0.00
 blennie vivipare|29|0.00
 Blennie Zebrée|17|0.00
+blike|0|0.00
+blobfish|0|0.00
+blonduelle|0|0.00
 Blountek|21|0.00
+boer|0|0.14
+boers|0|0.27|boer
 Boeteur|21|0.00
 Bog|66|0.00
 bogue|39|0.41
+bogues|39|0.07|bogue
+bondel|0|0.00
+bondelle|0|0.00
 Bonette|53|0.00
+bonita|0|0.00
 Bonite|60|0.00
 Bonite à Dos Rayé|42|0.00
 Bonite à Dos Tacheté|18|0.00
@@ -373,11 +589,22 @@ Bonite Plate|20|0.00
 Bonite queue Raide|29|0.00
 Bonite Ventre Rayé|60|0.00
 Bonitou|60|0.00
+bordelière|0|0.00
 Boucanelle|14|0.00
+bouche-en-flûte|0|0.00
+boudreuil|0|0.00
 Bouillabaisse|31|0.61
+bouiron|0|0.00
+bouiroun|0|0.00
+boulerot|0|0.00
 Bounicou|60|0.00
+bouqueteux|0|0.00
+bouqueton|0|0.00
+bouquetout|0|0.00
+bourbotte|0|0.00
 Bourgette|30|0.00
 Bourricot|64|0.34
+bourricots|64|0.74|bourricot
 Bourrugue chula|8|0.00
 Bourrugue coco|8|0.00
 Bourrugue Coquette|9|0.00
@@ -402,19 +629,47 @@ Bourse Loulou|21|0.00
 Bourse Mingo|10|0.00
 Bourse Pitaire|11|0.00
 Bourse Rayon de Miel|14|0.00
+bourses|26|1.96|bourse
+bousnel|0|0.00
+boutane|0|0.00
+boutargue|0|0.07
 bouvière|33|0.00
+bouvière amère|0|0.00
+bradyodonte|0|0.00
+brame|0|3.24
+brames|0|0.34|brame
+bramidé|0|0.00
+branchiostège|0|0.00
+brêle|0|0.00
 Brème|13|0.54
+brème argentée|0|0.00
+brème blanche|0|0.00
+brème bleue|0|0.00
 brème bordelière|46|0.00
 brème commune|78|0.00
 Brème de Mer|33|0.00
+brème franche|0|0.00
+brèmes|13|0.95|breme
+brémette|0|0.00
 Breton|12|3.99
 Breton Blanc|11|0.00
 Breton Longue|11|0.00
+bretonne|12|3.18|breton
+bretonnes|12|1.08|breton
+bretons|12|1.62|breton
+brigne|0|0.00
 Brigue|66|0.07
 Brisure|40|0.74
+brisures|40|0.20|brisure
 brochet|95|3.18
 Brochet de l'Atlantique|17|0.00
 Brochet de Mer|45|0.00
+brochet du Nord|0|0.00
+brochet-lance à long nez|0|0.00
+brocheton|0|0.00
+brochets|95|0.81|brochet
+brosme|0|0.00
+brosme commun|0|0.00
 Brosse à Dents|20|0.00
 Brotula Barbe|10|0.00
 Brotule Barbiche|8|0.00
@@ -422,9 +677,12 @@ Brotule de banc|10|0.00
 Brotule Liseree|8|0.00
 Brotule Sombre|6|0.00
 Brotule Tachetee|7|0.00
+burbot|0|0.00
 Cabasson|34|0.00
 Cabassoun|34|0.00
+cabillau|0|0.00
 Cabillaud|74|0.27
+caborgne|0|0.00
 Cabot|73|0.68
 Cabot Aux Yeux Verts|10|0.00
 Cabot Bouche Ronde|11|0.00
@@ -435,41 +693,76 @@ Cabot Negre|12|0.00
 Cabot noir|17|0.00
 Cabot Sale|15|0.00
 Cabot Sauteur|13|0.00
+cabotin|0|0.47
+cabotine|0|0.14|cabotin
+cabotines|0|0.07|cabotin
+cabotins|0|0.20|cabotin
+cabots|73|0.81|cabot
 Cacique Antarctique|12|0.00
 Cacique Lisse|12|0.00
 Caesio Azuror|16|0.00
 Cagna Cabinza|10|0.00
 Cagnassun|43|0.00
 Cagnassun de Paise|24|0.00
+cagnot|0|0.00
 Caille|29|2.97
+cailles|29|1.62|caille
+cailletot|0|0.00
+cailleu-tassart|0|0.00
 Calambe|14|0.00
 Calandre Antarctique|21|0.00
 Calever|64|0.00
 Calicagère Blanche|14|0.00
 Calicagère bleu|13|0.00
 Calicagère Bleue|15|0.00
+calicoba|0|0.00
+calimande|0|0.00
+callanthias|0|0.00
+callionyme|0|0.00
 Callionyme Bélène|19|0.00
 Callionyme Lyre|26|0.00
 callionyme réticule|14|0.00
+callionymidé|0|0.00
+callique|0|0.00
 Camard|25|0.27
+camarde|25|0.20|camard
+camards|25|0.07|camard
 Caméléon|24|0.68
+caméléons|24|0.14|cameleon
 Canapé|45|17.97
+canapés|45|2.30|canape
 Canard|21|16.15
 Canards|15|11.49
+candiru|0|0.00
+cane|21|1.55|canard
+canes|21|0.27|canard
+canthare|0|0.14
+canthares|0|0.07|canthare
+canthère|0|0.00
 Canthigaster à Bandes|15|0.00
 Canthigaster à Selle|20|0.00
 Canthigaster Couronné|12|0.00
 Canthigaster De Smith|13|0.00
 Canthigaster De Solander|16|0.00
 capelan|29|0.00
+capelan de France|0|0.00
+capelan de Méditerranée|0|0.00
+capelin|0|0.00
 Capitaine|9|88.45
+capitaines|9|4.12|capitaine
+caplan|0|0.00
+caproïdé|0|0.00
 Capucette|15|0.00
+capucette barrée|0|0.00
 Capucette de l'Atlantique|15|0.00
 Capucette Étoilée|7|0.00
 Capucette Nord-americaine|15|0.00
 Capucin Jaune|19|0.00
+carache|0|0.00
 Caran|26|0.00
 Caranga|27|0.00
+carange|0|0.00
+carangidé|0|0.00
 Carangue|26|0.00
 Carangue à Bouche Blanche|12|0.00
 Carangue à Plumes|17|0.00
@@ -496,8 +789,13 @@ Carangue Striée|12|0.00
 Carangue Tête Ronde|26|0.00
 Carangue Verte|14|0.00
 Carangue Vorace|28|0.00
+caranx|0|0.00
 Caranx ronfleur|17|0.00
 carassin|60|0.00
+carassin argenté|0|0.00
+carassin commun|0|0.00
+carassin doré|0|0.00
+carcharias|0|0.00
 Carde Roulesse|18|0.00
 Cardeau d'été|15|0.00
 Cardeau de Floride|10|0.00
@@ -507,18 +805,46 @@ Cardinal Gros Ecailles|14|0.00
 Cardinal Lancette|20|0.00
 Cardinal Petit Ecailles|13|0.00
 Cardinal Queue Jaune|10|0.00
+cardine|0|0.00
+cardine chevelue|0|0.00
+cardineau|0|0.00
 Carida|73|0.00
 Caridou|73|0.00
+caringue|0|0.00
 Carlottin Pétrale|12|0.00
 Carne A Carne|63|0.00
+carouche|0|0.00
+carouge|0|0.00
 Carpe|9|2.77
+carpe à grosse tête|0|0.00
+carpe à la lune|0|0.00
+carpe amour|0|0.00
 carpe argentée|50|0.00
+carpe chinoise|0|0.00
+carpe chinoise filtreuse|0|0.00
+carpe coï|0|0.00
 carpe commune|102|0.00
+carpe cuir|0|0.00
+carpe de Prusse|0|0.00
+carpe de roseau|0|0.00
+carpe dorée|0|0.00
 carpe herbivore|66|0.00
+carpe japonaise|0|0.00
+carpe koï|0|0.00
 carpe marbrée|46|0.00
+carpe miroir|0|0.00
 Carpe noire|37|0.00
+carpe prussienne|0|0.00
 Carpe Rouge|22|0.00
+carpeau|0|0.00
+carpes|9|1.08|carpe
+carpillon|0|0.27
+carpion|0|0.00
+carpione|0|0.00
+carreau|0|13.51
+carreaux|0|28.18|carreau
 Carrelet|54|1.69
+carrelets|54|0.14|carrelet
 Cassigné à Tête Noire|7|0.00
 Castagnole|30|0.00
 Castagnole à queue rayée|13|0.00
@@ -527,41 +853,78 @@ Castagnole Mignonne|12|0.00
 castagnole noire|30|0.00
 Castagnole Rouge|24|0.00
 Casteoudeou|22|0.00
+castillon|0|0.00
 Catagnole|28|0.00
 Catalufa|17|0.00
+cataphracte|0|0.00
+catla|0|0.00
 Caudène|19|0.00
 Caussinié|12|0.00
+cavaille|0|0.00
 Cavalli|25|0.00
 Cavalo Féroce|23|0.00
 Cavalo Ocelle|23|0.00
 Cavillone Lisse|9|0.00
+célan|0|0.00
+célerin|0|0.00
+céleste|0|5.81
+célestes|0|1.49|celeste
+centracanthidé|0|0.00
+centrine|0|0.00
+centrisque|0|0.00
+centrogastre|0|0.00
 centrolabre|19|0.00
+centrolabre de roche|0|0.00
 centrolophe|24|0.00
 Centrolophe Noir|24|0.00
+centronote|0|0.00
+centropode|0|0.00
+centropome|0|0.00
 Centropyge joueur de flûte|15|0.00
 Centropyge tout jaune|19|0.00
 cépole|18|0.00
 Cépole Commune|18|0.00
+cépolidé|0|0.00
+cératias|0|0.00
+cératide|0|0.00
+cératide abyssal|0|0.00
+cératiidé|0|0.00
 Cernia|31|0.00
 Cernier|31|0.00
 Cernier Atlantique|31|0.00
+cernier brun|0|0.00
 Cernier Commun|31|0.00
 Cernio Escourpena|31|0.00
+céteau|0|0.00
 chaboisseau|26|0.00
 Chaboisseau à épines courtes|26|0.00
 Chaboisseau de Mer|24|0.00
 chabot|44|0.00
 Chabot Buffle|24|0.00
+chabot commun|0|0.00
 Chabot de Mer|24|0.00
+chabot de rivière|0|0.00
 Chabot du Lez|19|0.00
 Chabot Nain|13|0.00
+chabots|44|0.07|chabot
+chabuisseau|0|0.00
 Chaetodon|15|0.00
 Chaetodon à demi masquè|19|0.00
 Chaetodon demi-deuil|13|0.00
 Chaffet Queue Jaune|14|0.00
+chagnot|0|0.00
 Chalinolobe Néo-calédonien|17|0.00
+chaluc|0|0.00
+chambo|0|0.00
 Chapon|33|0.20
+chapons|33|0.20|chapon
+characin|0|0.00
 Charan nain|7|0.00
+charbonnier|0|1.35
+charbonnière|0|0.34|charbonnier
+charbonnières|0|0.14|charbonnier
+charbonniers|0|1.01|charbonnier
+chardin|0|0.00
 Chardin des Galapágos|7|0.00
 Chardin Fil|11|0.00
 Chardin Gros Nez|11|0.00
@@ -570,6 +933,14 @@ Charlottin marbré|11|0.00
 Charlottin ocellé|11|0.00
 Charlottin Pétrale|12|0.00
 Charlottin têtard|12|0.00
+chassot|0|0.00
+chat|0|59.26
+chat de mer|0|0.00
+chatouille|0|0.74
+chatouilles|0|0.27|chatouille
+chats|0|38.11|chat
+chatte|0|29.12|chat
+chattes|0|4.26|chat
 Chauffet Acapulco|13|0.00
 Chauffet beau|13|0.00
 Chauffet Clarion|13|0.00
@@ -582,11 +953,18 @@ Chauffet Garibaldi|24|0.00
 Chauffet queue blanche|11|0.00
 Chauffet Soleil|25|0.00
 Chauffet tono|18|0.00
+chauliode|0|0.00
 Chauliode de Sloane|25|0.00
 Chauliode Très Lumineux|25|0.00
+chauliodontiné|0|0.00
 chauve-souris cendrée|0|0.00
+chauve-souris de mer|0|0.00
+chavaine|0|0.00
+chavasson|0|0.00
+chavot|0|0.00
 Chelmon à long bec|25|0.00
 Chelmon à très long bec|20|0.00
+chétodon|0|0.00
 Chétodon à chevrons|14|0.00
 Chétodon à collier|14|0.00
 Chétodon à croissant|25|0.00
@@ -616,14 +994,30 @@ Chevalier au nez pointu|8|0.00
 Chevalier au nez retroussé|9|0.00
 Chevalier bigle|8|0.00
 Chevalier cocodia|8|0.00
+chevalier cuivré|0|0.00
 Chevalier de Point Tuza|9|0.00
 Chevalier lancier|18|0.00
 Chevalier vermiculé|9|0.00
+chevanne|0|0.00
+chevenne|0|0.00
+chevesne|0|0.95
+chevesnes|0|0.41|chevesne
+chevin|0|0.00
 Chèvre de Mer|8|0.00
 Chèvre de Mer Noire|12|0.00
+chiasmodontidé|0|0.00
+chien|0|117.64
+chien espagnol|0|0.00
 Chien Katounou|21|0.00
 Chien noir|18|0.00
+chienne|0|11.55|chien
+chiennes|0|0.88|chien
+chiens|0|54.53|chien
+chiffe|0|1.55
+chiffes|0|0.07|chiffe
 Chiloglanis|12|0.00
+chimère commune|0|0.00
+chimère monstrueuse|0|0.00
 Chinchard|43|0.07
 Chinchard à Gros Yeux|20|0.00
 Chinchard à Queue Jaune|24|0.00
@@ -636,6 +1030,7 @@ Chinchard gros yeux|12|0.00
 Chinchard Jaune|17|0.00
 Chinchard jurel|13|0.00
 Chinchard Noir|43|0.00
+chirolophis|0|0.00
 Chirurgien|19|6.89
 Chirurgien à Balai|24|0.00
 Chirurgien à Brosses|24|0.00
@@ -652,51 +1047,92 @@ Chirurgien à Voile|22|0.00
 Chirurgien Aile Jaune|25|0.00
 Chirurgien bagnard|31|0.00
 Chirurgien Barbier|14|0.00
+chirurgien barré|0|0.00
 Chirurgien Bayolle|22|0.00
 Chirurgien Biafra|10|0.00
 Chirurgien Bleu|43|0.00
 Chirurgien Brun|24|0.00
 Chirurgien Chas-chas|16|0.00
+chirurgien-clown|0|0.00
 Chirurgien Couronné|30|0.00
 Chirurgien de Duss|30|0.00
 Chirurgien de Dussumier|30|0.00
 Chirurgien Docteur|18|0.00
 Chirurgien Fer à Cheval|24|0.00
+chirurgien jaune|0|0.00
+chirurgien-lieutenant|0|0.00
 Chirurgien Marron|17|0.00
 Chirurgien moucheté|20|0.00
 Chirurgien Noir|18|0.00
 Chirurgien Noirâtre|19|0.00
 Chirurgien Olive|25|0.00
+chirurgien pâle|0|0.00
+chirurgien-palette|0|0.00
+chirurgien-pintade|0|0.00
 Chirurgien Porteur de Feu|20|0.00
 Chirurgien Poudré|33|0.00
+chirurgien rayé|0|0.00
 Chirurgien Rond|15|0.00
 Chirurgien Rose|20|0.00
 Chirurgien Strié|18|0.00
 Chirurgien tabac|24|0.00
 Chirurgien Voilier|22|0.00
 Chirurgien Zébré|32|0.00
+chirurgienne|19|0.00|chirurgien
+chirurgiens|19|1.55|chirurgien
 Chitte|14|0.00
 Chiurgien d'Achille|26|0.00
 Chobie|24|0.00
+chondrichthyen|0|0.00
+chondrichthyens|0|0.00
+chondrostéen|0|0.00
+chouscle|0|0.00
+chromide|0|0.00
 Cicerelle|22|0.00
 Cicerelle de l'Atlantique|13|0.00
 Cicerelle de Méditerranée|22|0.00
 Cicerello du Cap|7|0.00
+cichlidé|0|0.00
+cichlidé-brochet de Johanna|0|0.00
+cingle|0|2.57
+cinglée|0|1.35|cingle
+cinglées|0|0.20|cingle
+cinglés|0|1.69|cingle
 Cirrhite à Nombreux Rayons|12|0.00
 Cisco|16|0.00
+cisco à mâchoires égales|0|0.00
+cisco à museau court|0|0.00
+cisco de lac|0|0.00
 Cithare|18|0.54
+cithares|18|0.41|cithare
+civelle|0|0.00
 Clarisse africain|17|0.00
 Clarisse clown|26|0.00
+clavel|0|0.00
 Clavière|18|0.00
 Clic|53|0.88
+clics|53|0.20|clic
 Cline Argenté|18|0.00
 Clinie Donzelle|7|0.00
+cliquette|0|0.47
+clown|0|6.49
+clown rouge|0|0.00
+clown tomate|0|0.00
+clowns|0|2.70|clown
+clupe|0|0.00
+clupée|0|0.00
+clupée spratte|0|0.00
+clupéidé|0|0.00
+cobalt|0|0.61
 Cobia|38|0.00
 Cocher|30|4.12
 Cocher blanc|39|0.00
 Cocher grégaire|22|0.00
 Cocher masque|19|0.00
 Cocher solitaire|30|0.00
+cochère|30|5.14|cocher
+cochères|30|1.15|cocher
+cochers|30|1.15|cocher
 Cochon de Mer|32|0.00
 Codène|10|0.00
 Coffre|11|25.14
@@ -706,23 +1142,37 @@ Coffre Bossu|21|0.00
 Coffre Polygone|19|0.00
 Coffre Taureau|18|0.00
 Coffre Zinga|20|0.00
+coffres|11|4.19|coffre
 Cohana Doré|18|0.00
+cola|25|0.34|colas
 Colas|25|0.41
 Colas Elégant|10|0.00
 Colas Gros Yeux|13|0.00
 Colas Vorace|11|0.00
 Colin|45|0.54
+colin lieu|0|0.00
+colin noir|0|0.00
+colineau|0|0.00
 Colinet|45|0.00
+colinot|0|0.00
 Colombine annelée|15|0.00
 Colombine pastel|17|0.00
+colonel|0|42.91
+colonelle|0|1.82|colonel
+colonels|0|2.30|colonel
 combattant|65|4.46
+combattante|65|12.91|combattant
+combattantes|65|0.61|combattant
+combattants|65|13.04|combattant
 Comète Coussut|17|0.00
 Comète Indienne|20|0.00
 Comète Maquereau|20|0.00
 Comète Mexicaine|8|0.00
 Comète Queue Rouge|8|0.00
+comète quiaquia|0|0.00
 Comete Saumon|29|0.00
 Communard|11|0.14
+communards|11|0.74|communard
 Compère|16|2.36
 Compère à Bandes|16|0.00
 Compère à Nez Long|11|0.00
@@ -748,12 +1198,14 @@ Compère pygmée|10|0.00
 Compère Rouge|14|0.00
 Compère Taché|11|0.00
 Compère Vert|11|0.00
+compères|16|1.49|compere
 Cone Bane|12|0.00
 Coné Essaim|14|0.00
 Cone Ouatabili|16|0.00
 Conger Dente|11|0.00
 Congre|54|0.14
 Congre-brochet Féroce|9|0.00
+congre commun|0|0.00
 Congre d'Amérique|18|0.00
 Congre D'Europe|54|0.00
 Congre de Guinée|8|0.00
@@ -762,29 +1214,58 @@ Congre Dentu|10|0.00
 Congre des Baléares|17|0.00
 Congre Gris|12|0.00
 Congre Jaune|10|0.00
+congre sorcier|0|0.00
 Congre vert|20|0.00
+congres|54|8.78|congre
 Congridae|45|0.00
+convreau|0|0.00
 Coq|24|15.68
 Coq D'Inde|10|0.00
+coq de roche|0|0.00
+coqs|24|3.45|coq
+coquette|0|2.84
+coquettes|0|0.61|coquette
+coracin|0|0.00
+coracin noir|0|0.00
 Corb|25|0.00
 Corb Commun|25|0.00
 Corb du Cameroun|25|0.00
 Corb Noir|25|0.00
+corbeau de mer|0|0.00
 Cordonnier|59|2.91
 Cordonnier blanc|19|0.00
 Cordonnier Bossu|21|0.00
 Cordonnier Fil|25|0.00
+cordonnière|59|0.07|cordonnier
+cordonniers|59|0.95|cordonnier
+corégone|0|0.00
+corégone blanc|0|0.00
+corégone gravenche|0|0.00
 corégone lavaret|45|0.00
+corégone oxyrhynque|0|0.00
 Coris à points bleus|26|0.00
+Coris julis|0|0.00
 Corne|30|9.80
+cornée|30|1.08|corne
+cornées|30|0.41|corne
+cornes|30|9.66|corne
+cornette|0|1.69
 Cornette à taches bleues|16|0.00
 Cornette fluteau|12|0.00
 Cornette tachetée|16|0.00
+cornettes|0|1.01|cornette
+cornuau|0|0.00
+corvine|0|0.00
+coryphaenidé|0|0.00
 Coryphène|53|0.00
 Coryphène Commune|53|0.00
 Coryphène Dauphin|24|0.00
 Cotte Blême|9|0.00
+cotte polaire|0|0.00
+cottidé|0|0.00
 Coubassou|34|0.00
+couette|0|1.28
+couettes|0|0.74|couette
 Couléhou|20|0.00
 Coulihou|20|0.00
 Coulirou|20|0.00
@@ -792,6 +1273,8 @@ Coulisou|20|0.00
 Coulouhou|20|0.00
 Coungre Nègre|54|0.00
 Coupe-fil|46|0.00
+courade|0|0.00
+courbail|0|0.00
 Courbine|38|0.00
 Courbine à Bouche Noire|8|0.00
 Courbine barbue|8|0.00
@@ -805,21 +1288,40 @@ Courbine reine|17|0.00
 Courbine tachetée|14|0.00
 Courbine Tiyeux|11|0.00
 Coureur Arc-en-ciel|29|0.00
+courlazo|0|0.00
+courpate|0|0.00
+courte-épine|0|0.00
 Couvalli|25|0.00
+couvreau|0|0.00
+coyau|0|0.00
+cradeau|0|0.00
+cradot|0|0.00
 Crapaud|9|6.08
+crapaud de mer|0|0.00
 Crapaud du Pacifique|10|0.00
 Crapaud Guyanais|15|0.00
 Crapaud-lusitanien|18|0.00
+crapauds|9|3.11|crapaud
+crapet|0|0.00
+crapet commun|0|0.00
+crapet jaune|0|0.00
+crapet-soleil|0|0.00
+crat|0|0.00
+créac|0|0.00
 Cremole|73|0.00
 Crénilabre|19|0.00
 Crénilabre à cinq taches|19|0.00
 Crénilabre cendrée|19|0.00
+crénilabre commun|0|0.00
 Crénilabre méditerranéen|19|0.00
 Crénilabre mélops|28|0.00
 Crénilabre ocellé|20|0.00
 Crènilabre Paon|27|0.00
 Crénilabre rouquié|19|0.00
+crénilabre tanche|0|0.00
+crénilabre vert tendre|0|0.00
 Crevaille|26|0.00
+crevale|0|0.00
 Crevalle|25|0.00
 Crevalle Toro|25|0.00
 Crève-valet|59|0.00
@@ -831,18 +1333,46 @@ Cténolabre|27|0.00
 cténolabre rupestre|27|0.00
 Cugüu|38|0.00
 Cuisinier|16|6.35
+cuisinière|16|16.08|cuisinier
+cuisinières|16|1.15|cuisinier
+cuisiniers|16|2.84|cuisinier
 Culotte De Singe|15|0.00
+cuorb|0|0.00
 Curate|12|0.00
+cycloptère|0|0.00
+cycloptéridé|0|0.00
 Cyclothone à Petites Dents|17|0.00
 Cyclothone Brun|17|0.00
 Cyclothone de Brauer|13|0.00
 Cyclothone Jaune|17|0.00
+cylindrosome|0|0.00
 Cynolebias Brillant|12|0.00
 Cynolebias De Constance|1|0.00
 Cynolebias Marbre|12|0.00
 Cynolebias Opalescent|12|0.00
 cyprin|44|1.62
+cyprin doré|0|0.00
+cypriniculture|0|0.00
+cyprinidé|0|0.07
+cyprinidés|0|0.07|cyprinide
+cypriniforme|0|0.00
+Cypriniformes|0|0.00
 cyprininés|14|0.00
+cyprinodon|0|0.00
+cyprinodonte|0|0.00
+cyprinodonte de Corse|0|0.00
+cyprinodonte desquamateur|0|0.00
+cyprinodonte ibérique|0|0.00
+cyprinodonte rubané|0|0.00
+cyprinodonte zébré|0|0.00
+cyprins|44|0.20|cyprin
+dactyloptère volant|0|0.00
+dactyloptéridé|0|0.00
+dame-berri|0|0.00
+damoiseau|17|0.00|demoiselle
+Danio|0|0.00
+dard|0|1.55
+dards|0|1.28|dard
 Daubanet Bélier|15|0.00
 Daubenet Bouton|14|0.00
 Daubenet Campèche|10|0.00
@@ -855,11 +1385,18 @@ Daubenet Titête|11|0.00
 Daubenet Trembleur|16|0.00
 Dauphin|53|1.22
 Dauphin Vert|29|0.00
+dauphine|53|9.26|dauphin
+dauphines|53|0.14|dauphin
+dauphins|53|1.22|dauphin
 Daurade|52|0.74
 Daurade à Gros Yeux|14|0.00
+daurade coryphène|0|0.00
 Daurade grise|12|0.00
 Daurade Rose|16|0.00
 Daurade Royale|52|0.00
+daurades|52|0.20|daurade
+daurat|0|0.00
+dauvin|0|0.00
 Dawa|30|0.00
 Demi-bec|8|0.00
 Demi-bec Africain|8|0.00
@@ -872,6 +1409,7 @@ Demoiselle chiririte|23|0.00
 Demoiselle de Clarion|14|0.00
 Demoiselle de Cortez|14|0.00
 Demoiselle royale|26|0.00
+demoiselles|17|7.36|demoiselle
 Denté|8|0.07
 Denté à Gros Yeux|14|0.00
 Denté à Long Fil|16|0.00
@@ -889,16 +1427,29 @@ Denté Du Natal|12|0.00
 Denté Guingham|9|0.00
 Denté Maculé|12|0.00
 Denté Nufar|12|0.00
+dentée|8|0.14|dente
+dentées|8|0.14|dente
+dentés|8|0.00|dente
+dentex|0|0.00
 Denti|39|0.00
 Dentón Angoleño|12|0.00
 Dérivant|12|1.22
 Dérivant Brun|12|0.00
+dérivante|12|0.00|derivant
+diable|0|51.01
+diable bleu|0|0.00
+diable de mer|0|0.00
+diables|0|3.78|diable
 Diagramme|12|0.00
 Diagramme à grosses lèvres|8|0.00
 Diagramme Gris|12|0.00
+diagrammes|12|0.14|diagramme
 Diavulellu|30|0.00
 Diodon|18|0.20
 Diol Pas Bleu|16|0.00
+dipneuste|0|0.00
+dipneustes|0|0.00
+dirette|0|0.00
 Dirette aile longue|8|0.00
 Dirette Argentée|13|0.00
 Dirette de Parin|12|0.00
@@ -906,30 +1457,55 @@ Diri|16|0.00
 Disque du Pacifique|13|0.00
 Disque Panaméen|12|0.00
 Distichodus|8|0.00
+doblade|0|0.00
+dobule|0|0.00
 Docteur|16|83.11
+docteurs|16|3.18|docteur
+doctoresse|16|1.08|docteur
+doguet|0|0.00
 Dómine Narizón|12|0.00
 Domingue|10|0.00
+donzelle|0|0.81
+donzelle à nageoires noires|0|0.00
 Donzelle à Nageoires Rouges|13|0.00
 Donzelle arc en ciel|15|0.00
 Donzelle Broche|11|0.00
 Donzelle créole|16|0.00
 Donzelle Lame|20|0.00
 Donzelle Rouge|13|0.00
+donzelles|0|0.41|donzelle
 Dorade|53|0.14
 Dorade Australe|13|0.00
 Dorade Coryphène|53|0.00
 Dorade grise|33|0.00
 Dorade Japonaise|24|0.00
 Dorade Marbré|30|0.00
+dorade rayée|0|0.00
 Dorade Rose|27|0.00
 Dorade Royale|52|0.00
+dorade tropicale|0|0.00
+dorades|53|0.34|dorade
 Doré|53|15.74
 Doré jaune|30|0.00
 Doré noir|21|0.00
 Dorede|53|0.00
+dorée|0|16.42
+dorées|53|8.45|dore
+dorés|53|9.86|dore
+dorie|0|0.00
+dorman|0|0.00
 Dormeur|24|3.11
+dormeurs|24|1.96|dormeur
+dormeuse|24|0.54|dormeur
+dormeuses|24|0.34|dormeur
+Dory|0|0.00
+doryaspis|0|0.00
+dos vert|0|0.00
+doucette|0|0.14
 Doumé|10|0.00
 Doux-rêve Ouvre-boîte|9|0.00
+draconcule|0|0.00
+dragon à écailles|0|0.00
 Dragon-boa|12|0.00
 Dragon de mer|22|0.00
 dragon de mer feuillu|48|0.00
@@ -940,17 +1516,30 @@ Dragonet de Baird|10|0.00
 Dragonet de Phaeton|13|0.00
 Dragonet de Shango|9|0.00
 Dragonet Lyre|26|0.00
+dragonneau|0|0.00
 Dragonnet|19|0.00
+dragonnet commun|0|0.00
 Dragonnet Élégant|18|0.00
 Dragonnet Fascié|13|0.00
 Dragonnet lyre|26|0.00
+dragonnet ocellé|0|0.00
 Dragonnet Réticulé|14|0.00
 Dragonnet Tacheté|19|0.00
 Dragonu Joue de Feu|10|0.00
 Drague à Godet|19|0.00
 Drague Sans Lampe|19|0.00
 Drelique|66|0.00
+drogan|0|0.00
+droitier|0|0.07
+droitière|0|0.07|droitier
+droitiers|0|0.14|droitier
 Druide|20|2.84
+druides|20|2.03|druide
+durdo|0|0.00
+durgan|0|0.00
+écharde|0|1.42
+échardes|0|1.49|echarde
+échénéide|0|0.00
 Écureuil à Grandes Mâchoires|20|0.00
 Écureuil à Points Noirs|9|0.00
 Écureuil à Rayures Jaunes|9|0.00
@@ -962,17 +1551,25 @@ Druide|20|2.84
 Écureuil Tacheté|13|0.00
 Écureuil Tahitien|11|0.00
 Eglefin|64|0.00
+élasmobranches|0|0.00
+elbot|0|0.00
+électrophoridé|0|0.00
 Élingue|20|0.00
+élops franc|0|0.00
+émissole|0|0.00
 Empereur|33|35.88
 Empéreur Atlantique|11|0.00
 Empereur Bleu|33|0.00
 Empereur Éventail|38|0.00
 Empereur Gueule de Vin|9|0.00
+empereurs|33|2.57|empereur
 Empéreux|27|0.00
 Empervier de Corail|10|0.00
 entelure|22|0.00
+entélure de mer|0|0.00
 éperlan|38|0.00
 Éperlan du Large|13|0.00
+éperlans|38|0.00|eperlan
 Épervier à Bande Noire|18|0.00
 Épervier à Nez Long|19|0.00
 Épervier à Points Rouges|16|0.00
@@ -989,31 +1586,47 @@ Epervier Sabot de Cheval|16|0.00
 Épervier Tacheté|10|0.00
 Épibule gourami|21|0.00
 Épibule trompeur|21|0.00
+épigonidé|0|0.00
+épinarde|0|0.00
 Épinart|59|0.00
 Épinglet|59|0.00
 Épinoche|59|0.00
 Épinoche à cinq épines|15|0.00
+épinoche à neuf épines|0|0.00
 Épinoche à Quatre Epines|15|0.00
 Épinoche à trois épines|59|0.00
 épinoche de mer|31|0.00
 Épinoche tachetée|13|0.00
 epinochette|34|0.00
+épirine lippue|0|0.00
+éplan|0|0.00
 Équille|16|0.00
+équille écailleuse|0|0.00
 Erou Oriflamime|24|0.00
+érythrin|0|0.00
+escolier|0|0.00
 Escolier Clair|13|0.00
 Escolier Long Nez|12|0.00
 Escolier Noir|26|0.00
 Escolier Rayé|9|0.00
 Escolier Reptile|10|0.00
 Escolier Serpent|20|0.00
+ésoces|0|0.00
+ésociforme|0|0.00
+espada|0|0.74
+espadas|0|0.07|espada
 Espadon|83|0.47
+espadon à long nez|0|0.00
 Espadon Voilier|38|0.00
+espadons|83|0.07|espadon
 Espadron|83|0.00
 esprot|49|0.00
+esquaque|0|0.00
 Estancelin|59|0.00
 Estranglo cat|59|0.00
 esturgeon|56|0.07
 Esturgeon À Nez Court|28|0.00
+esturgeon béluga|0|0.00
 Esturgeon Blanc|31|0.00
 Esturgeon Commun|56|0.00
 Esturgeon De L'Adriatique|34|0.00
@@ -1021,11 +1634,15 @@ Esturgeon Étoilé|42|0.00
 Esturgeon Jaune|28|0.00
 esturgeon noir|28|0.00
 Esturgeon noir d'Amérique|28|0.00
+esturgeon pâle|0|0.00
+esturgeon scaphirhynque|0|0.00
 Esturgeon sibérien|3|0.00
 Esturgeon Vert|30|0.00
+esturgeons|56|0.00|esturgeon
 Ethmalose|16|0.00
 Ethmalose d'Afrique|16|0.00
 Etincelle|16|5.07
+étincelles|16|7.91|etincelle
 Évêque|12|14.53
 Évêque bizarre|8|0.00
 Évêque étoilé|12|0.00
@@ -1033,6 +1650,7 @@ Etincelle|16|5.07
 Évêque gungo|9|0.00
 Évêque rayé|8|0.00
 Évêque Sombre|9|0.00
+évêques|12|4.80|eveque
 Exocet|31|0.00
 Exocet à Nageoires Tachetées|11|0.00
 Exocet à pointe blanche|9|0.00
@@ -1045,6 +1663,7 @@ Exocet-bouledouge|14|0.00
 Exocet Cadène|10|0.00
 Exocet californien|4|0.00
 Exocet Codène|10|0.00
+exocet commun|0|0.00
 Exocet de Bennett|10|0.00
 Exocet Méditerranéen|13|0.00
 Exocet Miroir|14|0.00
@@ -1054,10 +1673,14 @@ Exocet Rayè|9|0.00
 Exocet Tacheté|11|0.00
 Exocet tringa|7|0.00
 Exocet Volant|25|0.00
+exocétidé|0|0.00
 Fanfré|32|0.00
 Fanfre jaune|12|0.00
 Fanfre Noir|9|0.00
+fario|0|0.00
 Faufré Noir|9|0.00
+fausse allache|0|0.00
+fausse alose|0|0.00
 Fausse Bourse|16|0.00
 Fausse Carangue|11|0.00
 Fausse Daurade|13|0.00
@@ -1067,14 +1690,26 @@ Fausse Limande de Kessler|13|0.00
 Fausse Limande Paté|5|0.00
 Fausse limande sombre|8|0.00
 Fausse Palomète|27|0.00
+fausse plie|0|0.00
 fausse sole|24|0.00
 Faux Anchois du Panama|9|0.00
+faux éperlan|0|0.00
 Faux Perroquet|16|0.00
 Faux Poisson Coffre|16|0.00
 Faux Poisson Volant|31|0.00
+faux-scaphirhynque|0|0.00
 Felat|54|0.00
+fendule|0|0.00
+féra|0|59.66
+féras|0|13.18|fera
+férat|0|0.00
+féro|0|0.00
+feu de position|0|0.00
 Feuille|18|46.35
+feuilles|18|91.69|feuille
 Fiatole|17|0.00
+fiatole commune|0|0.00
+fiatolon|0|0.00
 Fiatone|17|0.00
 Fiélà|54|0.00
 Fielas|54|0.00
@@ -1084,39 +1719,108 @@ Filambase|27|0.00
 Filamenteux de Fond|14|0.00
 Fistulaire|16|0.00
 Fistulaire tabac|16|0.00
+fistulariidé|0|0.00
+flassade|0|0.00
 Flavetin|27|0.00
 Flavetoun|27|0.00
 Flèche|5|15.54
+fléchée|5|0.14|fleche
+fléchées|5|0.07|fleche
+flèches|5|9.46|fleche
 Flet|52|0.00
+flet commun|0|0.00
 Flet d'Europe|52|0.00
 flétan|42|0.07
 Flétan Atlantique|42|0.00
+flétan blanc|0|0.00
 Flétan de l'Atlantique|42|0.00
+flétan nain|0|0.00
+flétans|42|0.00|fletan
+fléteau|0|0.00
+flételet|0|0.00
+fléton|0|0.00
+flondre|0|0.00
+flossade|0|0.00
+floundre|0|0.00
 Flûte|27|8.92
 Flûte rayé|1|0.00
+flûtée|27|0.41|flute
+flûtes|27|1.69|flute
+fondule|0|0.00
+forgeron|0|3.38
 Forgeron ailé|8|0.00
+forgeronne|0|0.00|forgeron
+forgerons|0|1.01|forgeron
 Fouet|18|16.69
+fouets|18|1.62|fouet
 Fouille-roche zébré|14|0.00
+frai|0|0.07
 Franfré Rascas|31|0.00
+fridérici|0|0.00
 Friture|10|3.24
 Friture argentée|10|0.00
 Friture Rayée|12|0.00
+fritures|10|0.54|friture
+fugu|0|0.00
+fumat|0|0.07
+fusilier|0|0.00
+fusiliers|0|0.95|fusilier
+gabot|0|0.00
 Gadelle Imberbe|7|0.00
+gadicule|0|0.00
+gadidé|0|0.00
+gadiforme|0|0.00
+gadiformes|0|0.00
 Galame|14|0.00
 Galame rouge|19|0.00
 Galati|29|0.00
+galinette|0|0.00
 Galtorous|32|0.00
+gambusie|0|0.00
 Gaouta-roussa|32|0.00
 Gaouto-rouno|32|0.00
+garcette-goitre|0|0.00
+gardèche|0|0.00
 gardon|73|0.41
+gardon blanc|0|0.00
+gardon carpé|0|0.00
+gardon commun|0|0.00
+gardon de la mer Noire|0|0.00
+gardon galant|0|0.00
+gardon rouge|0|0.00
+gardons|73|2.03|gardon
+gargare|0|0.00
 Gargare Noir|24|0.00
+gari|0|0.14
+garlèche|0|0.00
 Garmot|14|0.00
 Garnaison|30|0.00
+garou|0|0.14
+garpique alligator|0|0.00
+garpique longnez|0|0.00
+gaspareau|0|0.00
+gasparot|0|0.00
+gaspereau|0|0.00
 Gastaudela|22|0.00
+Gastérostées|0|0.00
+gastérostéidé|0|0.00
+gatangier|0|0.00
+gate|0|3.58
+gâtée|0|1.42|gate
+gâtées|0|0.61|gate
+gâtés|0|0.74|gate
+gatte|0|0.00
+gaucher|0|0.20
+gauchère|0|0.61|gaucher
+gauchers|0|0.14|gaucher
+gavaron|0|0.00
 Gendarme|68|16.15
+gendarmes|68|27.57|gendarme
 Germon|53|0.00
 Germon Atlantique|53|0.00
 Gerres|12|0.00
+gibèle|0|0.00
+gilioro|0|0.00
 Girelle|37|0.00
 Girelle à bande jaune|9|0.00
 Girelle à épaule jaune|10|0.00
@@ -1128,6 +1832,7 @@ Girelle à Tache Caudale|17|0.00
 Girelle à tache orange|26|0.00
 Girelle arc-en-ciel|15|0.00
 Girelle bossue|26|0.00
+girelle commune|0|0.00
 Girelle crépuscule|13|0.00
 Girelle de Noël|17|0.00
 Girelle de Pélicier|9|0.00
@@ -1141,16 +1846,24 @@ Girelle nébuleuse|14|0.00
 Girelle paon|25|0.00
 Girelle paon de Hardwicke|16|0.00
 Girelle reine|20|0.00
+girelle royale|0|0.00
 Girelle taches d'encre|16|0.00
 Girelle trois points|13|0.00
+girelle turque|0|0.00
 Girelle verte|25|0.00
 Girelle zigzag|15|0.00
 Giromon|31|0.00
+gissu|0|0.00
+glane|0|0.27
+glanes|0|0.47|glane
+gleissin|0|0.00
+gobi|0|0.00
 Gobi milet|8|0.00
 Gobie|22|0.00
 Gobie à Bouche Rouge|21|0.00
 Gobie à Deux Taches|22|0.00
 Gobie à Grandes écailles|19|0.00
+gobie à grosse tête|0|0.00
 Gobie à Joues Poreuses|19|0.00
 Gobie à longue queue|17|0.00
 Gobie à moustaches|14|0.00
@@ -1164,6 +1877,7 @@ gobie buhotte|30|0.00
 Gobie-caméléon|12|0.00
 Gobie Cavernicole|17|0.00
 Gobie Cavernicole Trigloïde|17|0.00
+gobie céphalote|0|0.00
 Gobie Chauve|10|0.00
 Gobie Colonien|12|0.00
 Gobie Commun|27|0.00
@@ -1188,6 +1902,7 @@ Gobie des Baléares|16|0.00
 Gobie des Sables|30|0.00
 Gobie Doré|21|0.00
 Gobie Ensanglanté|21|0.00
+gobie fluviatile|0|0.00
 Gobie Génipore|19|0.00
 Gobie giurus|22|0.00
 Gobie grêle zébré|18|0.00
@@ -1206,6 +1921,7 @@ Gobie Nain de Ben-Tuvia|12|0.00
 Gobie Nain de Guillet|12|0.00
 Gobie Nain de Pruvot|8|0.00
 Gobie Nain des Canaries|8|0.00
+gobie nettoyeur|0|0.00
 gobie noir|37|0.00
 Gobie Noire|37|0.00
 Gobie Norvégien|20|0.00
@@ -1218,24 +1934,39 @@ Gobie Svelte|19|0.00
 gobie tacheté|27|0.00
 gobie varié|21|0.00
 Gobie Zébré|20|0.00
+gobiésocidé|0|0.00
+gobiidé|0|0.00
+golondrina|0|0.00
+gonelle|0|0.14
 gonnelle|26|0.00
 Gonostome a Grandes Dents|11|0.00
 Gonostome Étincelé|9|0.00
 Goret Corocoro|6|0.00
+gorette|0|0.00
 Gorette Blanche|13|0.00
 Gorette Grise|8|0.00
 Gorette Margate|9|0.00
 Gorette Rayée|10|0.00
 Gorette Tomtate|10|0.00
+gouania|0|0.00
 Gouanie|13|0.00
 goujon|56|0.81
+goujon commun|0|0.00
+goujon de rivière|0|0.00
 goujon fimbriate|7|0.00
+goujonneau|0|0.00
+goujons|56|0.54|goujon
+gourami|0|0.00
 Gourami à peau de serpent|23|0.00
 Gourami miel|25|0.00
 Gourami peau de serpent|23|0.00
+graisson|0|0.00
 Grand Avaleur|24|0.00
+grand barracuda|0|0.00
+grand brochet|0|0.00
 Grand corégone|23|0.00
 Grand Ecureuil de Mer|20|0.00
+grand esturgeon|0|0.00
 Grand Forte|21|0.00
 Grand Fouet|58|0.00
 Grand Gele|21|0.00
@@ -1245,22 +1976,46 @@ grand murin|43|0.00
 Grand Picot de Récif|19|0.00
 Grand Porc-épic|26|0.00
 Grand Queue|20|0.00
+grand rémora|0|0.00
+grand serpent de mer|0|0.00
+grand silure|0|0.00
 Grandcroc Petit Fil|25|0.00
 Grande Allache|19|0.00
+grande alose|0|0.00
+grande anguille marbrée|0|0.00
+grande argentine|0|0.00
 Grande Baveuse|27|0.00
 Grande Béchine|40|0.00
+grande brème|0|0.00
 Grande Carangue|25|0.00
 Grande Castagnole|28|0.00
+grande coryphène|0|0.00
+grande lamproie|0|0.00
 Grande Liche|27|0.00
 Grande Limace de Mer|20|0.00
+grande lingue|0|0.00
 Grande Noctule|41|0.00
 Grande Rascasse Rouge|33|0.00
+grande sériole|0|0.00
 Grande Sérotine|50|0.00
 grande vive|42|0.00
 Grandecastagnole|28|0.00
 Grandgousier Pélican|37|0.00
+grands-yeux|0|0.00
+grasdeau|0|0.00
+gravan|0|0.00
+gravanche|0|0.00
+gravelet|0|0.00
+greffier|0|3.18
+greffier barbicho|0|0.00
+greffière|0|0.00|greffier
+greffiers|0|0.47|greffier
+grelin|0|0.00
 grémille|0|0.00
+grémille commune|0|0.00
+grenadier|0|1.42
 Grenadier à Queue Mince|8|0.00
+grenadier à tête lisse|0|0.00
 Grenadier Abyssal|15|0.00
 Grenadier Armé|15|0.00
 Grenadier Barbiché|8|0.00
@@ -1271,16 +2026,30 @@ Grenadier Lisse|11|0.00
 Grenadier Raton|13|0.00
 Grenadier Roux|15|0.00
 Grenadier Scie|11|0.00
+grenadiers|0|2.64|grenadier
+grenaut|0|0.00
 Grenouille à queue barrée|9|0.00
 Grenouille de mer|24|0.00
 Grenouille Ocellée|10|0.00
 Grenouille saignante|11|0.00
+grenouiller|0|0.00
+greslin|0|0.00
 Gris Fin|18|0.00
+grise|0|49.39
+grisée|0|0.61|grise
+grisées|0|0.07|grise
+grisés|0|17.16|grise
 Griset|33|0.00
 Grisette|24|0.14
+grisettes|24|0.27|grisette
+grogneur|0|0.00
+grondeur|0|0.47
 Grondeur Métis|18|0.00
 Grondeur rayé|9|0.00
 Grondeur Selle|16|0.00
+grondeurs|0|0.07|grondeur
+grondeuse|0|0.68|grondeur
+grondeuses|0|0.14|grondeur
 Grondin|29|1.55
 Grondin Aile Bleue|17|0.00
 Grondin aile-courte|8|0.00
@@ -1292,6 +2061,7 @@ Grondin d'Oman|7|0.00
 Grondin de Carole|7|0.00
 Grondin de Dieuzeide|9|0.00
 Grondin de lagune|8|0.00
+grondin du Cap|0|0.00
 Grondin du gabon|11|0.00
 Grondin écailleux|7|0.00
 Grondin Encre|7|0.00
@@ -1308,72 +2078,168 @@ Grondin Sombre|15|0.00
 grondin strié|17|0.00
 Grondin vachette|7|0.00
 Grondin Volant|31|0.00
+grondins|29|0.14|grondin
 Grongu|54|0.00
+gros-argentin|0|0.00
 Gros Denté Rose|16|0.00
 Gros Oeil|9|0.00
+gros poutassou|0|0.00
 Gros Prêtre|32|0.00
 Gros Yeux|15|0.00
+gros-yeux commun|0|0.00
+grosse poule de mer|0|0.00
+grunion|0|0.00
 Guetteur à Nageoire Noire|12|0.00
 Gueule de Vin|9|0.00
 Gueule Pavée|20|0.00
+guimoisseron|0|0.00
+guimoisson|0|0.00
 Guinée Copace|15|0.00
 Guinée du Sénégal|15|0.00
 Guinée Machète du Pacifique|12|0.00
+guinée saumon|0|0.00
+guiseau|0|0.00
+guitare|0|11.55
+guitare commune|0|0.00
+guitare de mer|0|0.00
+guitare de mer commune|0|0.00
+guitare de mer fouisseuse|0|0.00
+guitare fouisseuse|0|0.00
+guitares|0|3.24|guitare
+gulper|0|0.00
+guppie|0|0.00
+guppy|0|0.00
+guppy cobra|0|0.00
+guppy de gaulle|0|0.00
+guppy doré|0|0.00
+guppy néon bleu|0|0.00
+guppy sauvage|0|0.00
+gurnard|0|0.00
+gurneau|0|0.00
 Gutgareo|66|0.00
 Guyanancistrus noir|10|0.00
+gymnarque|0|0.00
+gymnarque du Nil|0|0.00
 Gymnaste Atlantique|11|0.00
+gymnètre|0|0.00
+gymnote|0|0.00
 Habillot|64|0.00
 Hache d'argent à Épines|12|0.00
 Hache d'argent Diaphane|13|0.00
+haddock|0|0.54
+haemulidé|0|0.00
+hafle|0|0.00
+halibut|0|0.00
+halosaure|0|0.00
+halosauridé|0|0.00
+haranguet|0|0.00
 Hareng|68|2.91
 Hareng Atlantique|68|0.00
 Hareng de l'Atlantique|68|0.00
+hareng de lac|0|0.00
 Hareng du Pacifique|38|0.00
 Hareng Gracile|19|0.00
 Hareng Saur|68|0.00
+harengs|68|3.18|hareng
+harenguet|0|0.00
+harengule|0|0.00
 Harengule Écailleux|7|0.00
 Harengule Jagane|10|0.00
 Harengule Pacifique|7|0.00
 Harengule Piquitinga|10|0.00
 Harengule Piquitinge|8|0.00
+Hasel|0|0.00
+haut-bar|0|0.00
+hellebut|0|0.00
+hemerocet|0|0.00
 Hemichromis|16|0.00
 Hémirhombe à nageoire longue|7|0.00
 Hémirhombe à taches claires|6|0.00
 Hémirhombe de Baie|7|0.00
 Hémirhombe Oval|7|0.00
+hémirrhamphe|0|0.00
 Hénioche commun|30|0.00
 Hénioche cornu|19|0.00
+hépate|0|0.00
+hepset|0|0.00
+hérisson des mers|0|0.00
+héron de mer|0|0.00
 Hétéroconger|16|0.00
+hétérosomes|0|0.00
 Hippocampe|22|0.27
 Hippocampe à Museau Court|22|0.00
+hippocampe à nez court|0|0.00
+hippocampe commun|0|0.00
 hippocampe feuille|48|0.00
+hippocampe-feuillu|0|0.00
 Hippocampe Moucheté|31|0.00
 Hippocampe Rayé|20|0.00
+hippocampes|22|0.14|hippocampe
+hippoglosse|0|0.00
 Hirondelle|31|3.24
+hirondelle de mer|0|0.00
 Hoglet|45|0.00
+holacanthe|0|0.00
 Holacanthe empereur|29|0.00
 Holocentre Rouge|10|0.00
+hoplostète|0|0.00
 Hoplostète Argenté|8|0.00
 Hoplostète de Darwin|9|0.00
 Hoplostète Noir|6|0.00
+hoplostèthe|0|0.00
 Hoplostèthe orange|25|0.00
 Hoplostèthe rouge|25|0.00
+horreau|0|0.00
 Hottentot|12|0.00
 Hottentot Bleu|12|0.00
 Hottentot Bronze|11|0.00
+hotu|0|0.41
+hotu méridional|0|0.00
+hotus|0|0.41|hotu
+houperou|0|0.00
+houting|0|0.00
+huchem|0|0.00
+huchon|0|0.00
 Hynnis de Gorée|21|0.00
+hyodon|0|0.00
+hyphessobrycon|0|0.00
+ide|0|0.07
 ide mélanote|55|0.00
 Idiacanthe Ruban|10|0.00
 Ilisha du Pacifique|6|0.00
+inconnu|0|26.42
+inconnue|0|17.16|inconnu
+inconnues|0|9.05|inconnu
+inconnus|0|9.19|inconnu
+indien|13|3.18|indienne
 Indienne|13|4.53
+indiennes|13|1.42|indienne
+indiens|13|3.65|indienne
+ipnopidé|0|0.00
+iragne|0|0.00
 Jan|53|0.00
 Jaouna|32|0.00
+jaraqui|0|0.00
+jarret|0|1.28
 Jarretière|18|0.27
+jarretières|18|0.20|jarretiere
+jarrets|0|2.64|jarret
 Jean Doré|53|0.00
 Joël|34|0.00
+jol|0|0.00
+jourdin|0|0.00
 Juif|12|19.86
+juifs|12|30.88|juif
+juive|12|8.99|juif
+juives|12|1.35|juif
 Juliana|20|0.00
+julienne|0|1.01
+julienne espagnole|0|0.00
+juliennes|0|0.14|julienne
+juliennette|0|0.00
+juoil|0|0.00
 Jurel|26|0.00
+juscle|0|0.00
 Kakatoi|11|0.00
 Kakatoi Blanc|20|0.00
 Kakatoi Brisant|14|0.00
@@ -1382,6 +2248,9 @@ Kakatoi Rouge|12|0.00
 Kakatoi Vert|18|0.00
 Kalame|19|0.00
 Kavakava|16|0.00
+killi|0|0.00
+koi|0|0.00
+kuhli|0|0.00
 labéoninés|13|0.00
 Labre|29|0.07
 Labre à bandes noires|18|0.00
@@ -1408,7 +2277,10 @@ Labre exquis|17|0.00
 Labre lyre|19|0.00
 Labre masqué|16|0.00
 Labre nain d'herbier|11|0.00
+labre nettoyeur|0|0.00
 Labre oiseau|15|0.00
+labre palloni|0|0.00
+labre perroquet|0|0.00
 Labre Pintade|16|0.00
 Labre pointillé|14|0.00
 Labre prince|15|0.00
@@ -1418,17 +2290,42 @@ Labre traître|21|0.00
 Labre Trilobé|14|0.00
 Labre Vert|24|0.00
 Labre voile noir|10|0.00
+labres|29|0.14|labre
+labridé|0|0.00
+labroïde|0|0.00
+lacert|0|0.00
 Lactarius lactarius|26|0.00
+laimargue|0|0.00
+laiteau|0|0.00
 Lalo damier|18|0.00
 Lamnostome Ccellé|8|0.00
 Lamnostome Oriental|10|0.00
+lampridé|0|0.00
+lamprididé|0|0.00
+lamprillon|0|0.00
 Lampris|39|0.00
+lampris-lune|0|0.00
+lampris royal|0|0.00
+lamproie|0|0.07
+lamproie de rivière|0|0.00
+lamproie marbrée|0|0.00
+lamproies|0|0.34|lamproie
+lamproyon|0|0.00
+lampuge|0|0.00
+lanceron|0|0.00
 Lancette de Creux|9|0.00
+lancier|0|0.14
 Lancier Longnez|23|0.00
+lanciers|0|0.74|lancier
 Lançon|24|0.00
 Lançon Cicerèle|22|0.00
 Lançon Commun|24|0.00
+lançon équille|0|0.00
+lançon immaculé|0|0.00
+lançon jolivet|0|0.00
+landole|0|0.00
 Langaneu|19|0.00
+langue|0|103.78
 Langue à Joue Noire|9|0.00
 Langue à Nageoire Tachetée|9|0.00
 Langue Allongée|7|0.00
@@ -1445,6 +2342,7 @@ Langue Mouchetée|8|0.00
 Langue Terne|9|0.00
 Langue Tripe Noire|9|0.00
 Langue Zebrée|9|0.00
+langues|0|22.50|langue
 Lanterne|9|11.55
 Lanterne à Grandes Écailles|10|0.00
 Lanterne à Joue Pailletée|7|0.00
@@ -1458,21 +2356,45 @@ Lanterne de Madère|15|0.00
 Lanterne des Bermudes|11|0.00
 Lanterne Glaciaire|15|0.00
 Lanterne Ponctuée|19|0.00
+lanternes|9|5.27|lanterne
 Lanternule-opale costumée|10|0.00
+lapu-lapu|0|0.00
 Laquaiche aux yeux d'or|16|0.00
 Lascar|8|1.89
+lascars|8|2.03|lascar
+latès|0|0.00
+launet|0|0.00
+lavaret|0|0.00
+lavaret du Bourget|0|0.00
+léaud|0|0.00
 Lécaud|54|0.00
+légine|0|0.00
 Légine australe|35|0.00
 Lenguado mexicano|7|0.00
 Lenket|29|0.00
+lentillat|0|0.00
+lépadogaster|0|0.00
 Lépadogastère à Deux Taches|12|0.00
 Lépadogastère de Gouan|19|0.00
 Lépadogastre|19|0.00
 Lépadogastre Jaune|13|0.00
 Lépidion à Grands Yeux|8|0.00
+lépidostée|0|0.00
+lépidote|0|0.00
+lépisosté|0|0.00
+lépisosté à spatule|0|0.00
 Lépisosté osseux|24|0.00
+lépisostée|0|0.00
+lépisostée à spatule|0|0.00
+lépisostée-alligator|0|0.00
+lépisostée osseux|0|0.00
+léporinus à trois taches|0|0.00
+leptocéphale|0|0.00
 Les os verts|14|0.00
 Lézard|19|7.50
+lézarde|19|0.88|lezard
+lézardes|19|1.22|lezard
+lézards|19|1.82|lezard
 Lezia|13|0.00
 Lich Né-bé|27|0.00
 Liche|27|0.20
@@ -1483,21 +2405,43 @@ Liche Vadigo|27|0.00
 Lichié Amie|27|0.00
 Lichio|27|0.00
 Licorne|30|1.28
+licornes|30|0.54|licorne
+licornet|0|0.00
+lieu|0|213.38
 Lieu Jaune|35|0.00
+lieu noir|0|0.00
+lieus|0|0.07|lieu
+lieux|0|54.12|lieu
+lièvre de mer|0|0.00
+limace|0|4.05
 Limace Barrée|20|0.00
 limace de mer|20|0.00
+limaces|0|2.30|limace
 limande|37|0.61
 Limande commune|37|0.00
+limande du Japon|0|0.00
+limande rouge|0|0.00
+limande-sole|0|0.00
+limandelle|0|0.00
+limandes|37|0.07|limande
+limbert|0|0.00
 Limbert achigan|17|0.00
 Limbert Royal|11|0.00
 Lime à Taches Oranges|22|0.00
 Lime Beige|16|0.00
+lingard|0|0.00
+lingouard|0|0.00
+linguard|0|0.00
 Lingue|37|0.00
+lingue blanche|0|0.00
 Lingue Bleue|20|0.00
 Lingue Espagnole|20|0.00
+lingue franche|0|0.00
 Lion Gros Yeux|14|0.00
+liparis|0|0.00
 Lippu croupia|12|0.00
 Lirio|13|0.00
+lisette|0|0.00
 Lissa|29|1.15
 Listao|60|0.00
 Litcha|27|0.00
@@ -1511,15 +2455,20 @@ Loche baromètre|33|0.00
 Loche Bleue|14|0.00
 Loche Brique|14|0.00
 Loche Cameleon|20|0.00
+loche commune|0|0.00
 Loche Crasseuse|26|0.00
 Loche de Mer|21|0.00
 loche de rivière|34|0.00
 Loche De Sable|14|0.00
 loche détang|39|0.00
+loche épineuse|0|0.00
 Loche Escarlate|24|0.00
+loche franche|0|0.00
+loche kuhli|0|0.00
 Loche Morue|14|0.00
 Loche Mouchetee|22|0.00
 Loche peau de Serpent|17|0.00
+loche pierre|0|0.00
 Loche Pintade|18|0.00
 Loche Plat Grise|13|0.00
 Loche Ponctuee|11|0.00
@@ -1528,35 +2477,68 @@ Loche Rouge|24|0.00
 Loche Rouge Du Large|10|0.00
 Loche Saumonee|23|0.00
 Loche Uitoe|14|0.00
+loches|22|0.07|loche
 Lochet|21|0.00
 lompe|39|0.00
+lompénie-serpent|0|0.00
 Long Bec|20|0.00
 Longnaze Rayé|14|0.00
 Longue-flûte|23|0.00
 Longue girelle|25|0.00
+lontek|0|0.00
+lophiidé|0|0.00
+lophote|0|0.00
 Lophotes|15|0.00
+lophotidé|0|0.00
 Loquette|21|0.07
+loquette européenne|0|0.00
+loricaire|0|0.00
 Losera|8|0.00
+lote|0|0.00
+lote de rivière|0|0.00
 Lotte|74|0.07
 Lotte Allongée|20|0.00
+lotte de mer|0|0.00
 lotte de rivière|74|0.00
+lottes|74|0.07|lotte
 Loubas Negre|66|0.00
+loubassou|0|0.00
 Loubine|66|0.00
 Louise|21|0.00
+loup|0|22.30
 Loup de Mer|66|0.00
+loup des eaux|0|0.00
+loup européen|0|0.00
 Loupassou|66|0.00
+loups|0|18.24|loup
+louvar|0|0.00
 Louvareau|24|0.00
+louvaréou|0|0.00
+louve|0|3.51|loup
+louves|0|0.34|loup
+louvine|0|0.00
 Lubin|66|0.00
+lubine|0|0.00
 Lucerna|31|0.00
+lugnotte|0|0.00
 Luhelele|8|0.00
+lump|0|0.07
+lumpen|0|0.00
+lune de mer|0|0.00
+lurette|0|0.00
+luset|0|0.00
 Lussion à Bec de Canard|10|0.00
 Lussion Blanc|12|0.00
+lutjan|0|0.00
 Lutjanus|22|0.00
 Lutjanus Guineensis|12|0.00
 Luvassu|66|0.00
+lycode|0|0.00
 Lycode Plume|8|0.00
+maca|0|0.00
 Macabi|9|0.00
 Macabit|21|0.00
+machoiran|0|0.00
 Mâchoiron|8|0.00
 Mâchoiron besudo|12|0.00
 Mâchoiron Brun|11|0.00
@@ -1580,13 +2562,18 @@ Mâchoiron Requin|14|0.00
 Mâchoiron Rouge|11|0.00
 Mâchoiron sculptural|9|0.00
 Mâchoiron Tété|15|0.00
+mâchoiron titan|0|0.00
 Mâchoiron ventru|12|0.00
 Maconde|13|0.00
 Maconde lèvre mince|10|0.00
+macrai|0|0.00
+macroramphosidé|0|0.00
+macroure|0|0.00
 Madame tombe|14|0.00
 Madame Tombée|15|0.00
 Madame tombée ragé|19|0.00
 Mademoiselle|17|62.30
+mademoiselles|17|0.07|mademoiselle
 Mafou|38|0.00
 Magister à tête lisse|10|0.00
 Magister argenté|10|0.00
@@ -1599,18 +2586,26 @@ Magister Gris|8|0.00
 Magister lisse|9|0.00
 Magister noir|8|0.00
 Magister Pizarro|8|0.00
+mahi-mahi|0|0.00
 Maidague défense|20|0.00
 maigre|38|41.82
 Maigre Argenté|14|0.00
 Maigre Commun|38|0.00
 Maigre Du Sud|17|0.00
+maigres|38|20.88|maigre
+makaire|0|0.00
 Makaire à Longue Pectorale|20|0.00
 Makaire à Rostre Court|21|0.00
 Makaire Becune|20|0.00
 Makaire Blanc|28|0.00
+makaire bleu|0|0.00
+makaire de la Méditerranée|0|0.00
 Makaire Épée|18|0.00
 Makaire Noir|37|0.00
 Makriau|20|0.00
+malacoptérygien|0|0.00
+malaptérure|0|0.00
+malaptérure électrique|0|0.00
 Malarmat|16|0.00
 Malarmat Africain|16|0.00
 Maldague robuste|13|0.00
@@ -1625,8 +2620,15 @@ Mamselle épée|9|0.00
 Mamselle noire|12|0.00
 Mamselle ronco|9|0.00
 Mamselle Rouio|9|0.00
+mandoule|0|0.00
+manta|0|0.00
+mante|0|0.47
+mantes|0|1.22|mante
 Maquereau|76|3.38
+maquereau anglais|0|0.00
+maquereau bâtard|0|0.00
 Maquereau Blanc|38|0.00
+maquereau bleu|0|0.00
 Maquereau Bonite|16|0.00
 Maquereau Commun|76|0.00
 Maquereau des Îles|21|0.00
@@ -1635,15 +2637,24 @@ Maquereau Espagnol|38|0.00
 Maquereau Gros Veux|20|0.00
 Maquereau tacheté|27|0.00
 Maquereau Trapu|23|0.00
+maquereaux|76|2.03|maquereau
 Maquerelle|43|1.35
+maquerelles|76|0.41|maquereau
 Marache|57|0.00
 Marar|17|0.00
 Marbré|30|41.49
 Marbré De La Côte Ouest|11|0.00
 Marbré Du Cap|17|0.00
+marbrée|30|0.27|marbre
+marbrées|30|0.34|marbre
+marbres|30|1.55|marbre
 Mardel|16|0.00
+marène|0|0.00
+margaignon|0|0.00
 Margot|9|0.00
 Marguerite|25|0.54
+marguerites|25|2.43|marguerite
+marignan|0|0.00
 Marignan à Oeillères|11|0.00
 Marignan Aile Noire|10|0.00
 Marignan Ardoisé|8|0.00
@@ -1662,36 +2673,72 @@ Marignan Violacé|13|0.00
 Marignon Coq|17|0.00
 Marignon Mombin|13|0.00
 Marignon Soldat|16|0.00
+marlin|0|0.00
+marlin blanc|0|0.00
 Marlin Bleu|33|0.00
+marlin commun|0|0.00
 Marlin de la Méditerranée|25|0.00
 Marlin Noir|37|0.00
 Marlin Rayé|27|0.00
+marlus|0|0.00
+marmorène|0|0.00
 Marquereau Doux|39|0.00
 Marra|19|0.34
+marron|0|13.72
+marrons|0|3.92|marron
+marte-piquant|0|0.00
+maskinongé|0|0.07
+maskinongi|0|0.00
 Matajuel Blanc|9|0.00
 Matongo|20|0.00
 Matote noire|20|0.00
+médaille|0|9.53
+médaillée|0|0.07|medaille
+médailles|0|6.55|medaille
+médaka|0|0.00
 Meil|32|0.00
+mélamphéidé|0|0.00
+mélandre|0|0.00
+mélandrin|0|0.00
+melet|0|0.00
+melette|0|0.00
+melva|0|0.00
+mendol|0|0.00
 Mendole|22|0.00
+mené|0|21.49
 Menhaden|22|0.00
 Menhaden du Pacifique|8|0.00
 Menhaden Jaune|9|0.00
 Menhaden plat|6|0.00
 Menhaden Tyran|22|0.00
+ménomini|0|0.00
+ménomini des montagnes|0|0.00
+menuise|0|0.00
 Meou Grandes Ecailles|10|0.00
 Merlan|54|3.45
+merlan bleu|0|0.00
+merlan de Paris|0|0.00
+merlan du Nord|0|0.00
+merlan vert|0|0.00
+merlans|54|0.34|merlan
 Merle|23|2.64
+merles|23|1.55|merle
+merlin|0|0.20
 Merlu|54|0.14
 Merlu argenté|21|0.00
 Merlu Argenté du Large|18|0.00
 Merlu Blanc|45|0.00
 Merlu Commun|45|0.00
+merlu du Pacifique|0|0.00
 Merlu du Pacifique nord|20|0.00
 Merlu du Panama|12|0.00
 Merlu Européen|45|0.00
 merluche|45|0.20
 Merluche Blanche|35|0.00
+merluches|45|0.07|merluche
 Merluchon|45|0.00
+merlus|0|0.00
+merlusse|0|0.00
 Mero A Bout Large|10|0.00
 Mérot Gris|31|0.00
 Mérou|35|0.14
@@ -1700,6 +2747,7 @@ Merou A Capuchon|24|0.00
 Merou A Dessins Hexagonaux|11|0.00
 Merou A Flocons|15|0.00
 Merou A Lignes Blanches|19|0.00
+mérou à museau pointu|0|0.00
 Merou A Points Bleus|15|0.00
 Merou A Taches Blanches|18|0.00
 Merou A Treillis|21|0.00
@@ -1718,6 +2766,7 @@ Merou Bleu|14|0.00
 Merou Bord Clair|12|0.00
 Merou Bord Rouge|12|0.00
 Mérou Bride|11|0.00
+mérou bronzé|0|0.00
 Merou Brouillard|11|0.00
 Merou Brun|38|0.00
 Merou Cabrilla|17|0.00
@@ -1734,6 +2783,9 @@ Merou D'Ile|10|0.00
 Merou Darwin|6|0.00
 Mérou de Bosques|31|0.00
 Merou De Goree|11|0.00
+mérou de Méditerranée|0|0.00
+mérou de roche|0|0.00
+mérou de roche paon|0|0.00
 Merou Demi-deuil|15|0.00
 Merou Demi-lune|14|0.00
 Merou Demideuil|15|0.00
@@ -1751,6 +2803,7 @@ Merou Faraud|18|0.00
 Merou Fraise|13|0.00
 Merou Gateua De Cire|21|0.00
 Mérou Géant|35|0.00
+mérou géant du Pacifique|0|0.00
 Merou Gemine|14|0.00
 Merou Genet-queue|11|0.00
 Merou Gris|17|0.00
@@ -1799,6 +2852,7 @@ Merou Reseau|10|0.00
 Mérou Rocaille|10|0.00
 Merou Rondelet|11|0.00
 Merou Rouge|21|0.00
+mérou royal|0|0.00
 Merou Sanguin|18|0.00
 Merou Seie-queue|11|0.00
 Mérou Sellé|21|0.00
@@ -1806,6 +2860,7 @@ Merou Selle Noir|11|0.00
 Merou Sept Raies|8|0.00
 Merou Six Raies|12|0.00
 Mérou Somali|10|0.00
+mérou sombre|0|0.00
 Merou Summan|13|0.00
 Merou Taches Blanches|18|0.00
 Merou Taches Jaunes|11|0.00
@@ -1822,13 +2877,25 @@ Merou Zebre|11|0.00
 Meuil|73|0.00
 Meuille|32|0.00
 Meuille Blanc|32|0.00
+meule|0|4.73
+meulenard|0|0.00
+meules|0|3.65|meule
+meunier|0|0.74
+meunier noir|0|0.00
+meunière|0|0.14|meunier
+meuniers|0|0.14|meunier
 Migraine Tachetée|32|0.00
 Minioptère de Schreibers|39|0.00
 Minioptère Des Iles Loyauté|18|0.00
+mobular|0|0.00
+moï|0|1877.57
+moineau de rivière|0|0.00
 Môle|69|3.45
 Môle Commun|69|0.00
+moles|69|0.47|mole
 Mollase Atlantique|15|0.00
 Mollasse Atlantique|15|0.00
+molly taupe|0|0.00
 Molosse à crinière|22|0.00
 Molosse à glandes caudales|19|0.00
 Molosse d'Afrique du Sud|20|0.00
@@ -1842,30 +2909,49 @@ Molosse du Zaïre|19|0.00
 Molosse Midas|18|0.00
 Molosse pâle|22|0.00
 Molosse tacheté|21|0.00
+molve|0|0.00
+molve espagnole|0|0.00
+mombin|0|0.07
 Monacanthe Rayé|16|0.00
+monachelle|0|0.00
+monodactyle|0|0.00
 Monolène à Petite Bouche|9|0.00
 Monolène asaedae|6|0.00
 Monolène D'acapulco|8|0.00
 Monolène de Mertens|8|0.00
 Monolène Du Pacifique|8|0.00
 Monsieur L'abbé|12|0.00
+mora|0|0.00
 Mord-pointu|7|0.00
 Mordocet|24|0.00
 Morénésoce Coungré|7|0.00
 Morénésoce de Guinée|9|0.00
+moridé|0|0.00
 Moride de Vase|7|0.00
 Moride Péruvien|7|0.00
+moride rouge|0|0.00
+morme|0|0.00
+mormirot|0|0.00
 Mormyre|16|0.00
 Moro|21|0.00
 Moro Bleu|17|0.00
 Moro Commun|21|0.00
 Moro Imberbe|7|0.00
+moruau|0|0.00
 Morue|74|4.86
 Morue Commune|74|0.00
 Morue de l'Atlantique|74|0.00
+morue du Groenland|0|0.00
 Morue Franche|74|0.00
+morue-lingue|0|0.00
 Morue Longue|20|0.00
+morue noire|0|0.00
+morue polaire|0|0.00
+morues|74|0.74|morue
+moruette|0|0.00
+mostelle|0|0.00
 Mostelle à Plumet|10|0.00
+mostelle de fond|0|0.00
 Mostelle de Roche|23|0.00
 Motelle|23|0.00
 motelle à cinq barbillons|22|0.00
@@ -1874,14 +2960,32 @@ Motelle à taches blanches|7|0.00
 Motelle à Trois Barbillons|21|0.00
 Motelle Commune|21|0.00
 Motelle Nordique|10|0.00
+moucheronne|0|0.00
 Mougne|30|0.00
 Mougnette|27|0.00
+moulac|0|0.00
+moulu|0|0.68|moulue
+moulue|0|0.27
+moulues|0|0.14|moulue
+moulus|0|0.20|moulue
 Mourena|37|0.00
+mourine|0|0.00
+mourme|0|0.00
 Mourna-grounch|54|0.00
+moustèle|0|0.00
 Moustella|21|0.00
+moustelle|0|0.00
+moustelle blanche|0|0.00
+moustelle brune|0|0.00
+moustelle commune|0|0.00
+moustelle de vase|0|0.00
+moutelle|0|0.00
+mrigal|0|0.00
+mud-minnow|0|0.00
 Muga-flavetin|27|0.00
 Muge|73|0.00
 Muge à Groose Tête|73|0.00
+muge à grosse tête|0|0.00
 Muge à Grosses Lèvres|29|0.00
 Muge Cabot|73|0.00
 Muge Calusse|32|0.00
@@ -1896,12 +3000,17 @@ Muge Noir Blanc|29|0.00
 Muge Noir Chaluc|29|0.00
 Muge Noir Labru|29|0.00
 Muge Sauteur|27|0.00
+mugilidé|0|0.00
+mugiloïdes|0|0.00
 Mugo Fangous|73|0.00
 Mugon|27|0.00
 Mugon Labru|29|0.00
 Mujon|32|0.00
 Mujou|73|0.00
 Mujou-taco|32|0.00
+muksun|0|0.00
+mule|0|4.26
+mules|0|4.73|mule
 Mulet|73|2.77
 Mulet à grandes écailles|6|0.00
 Mulet à grandes nageoires|7|0.00
@@ -1920,6 +3029,7 @@ Mulet des îles du Cap Vert|9|0.00
 mulet doré|32|0.00
 Mulet écailleux|6|0.00
 Mulet Grande Gueule|15|0.00
+mulet gris|0|0.00
 Mulet Hospe|9|0.00
 Mulet Jaune|73|0.00
 Mulet Jeune|73|0.00
@@ -1937,10 +3047,15 @@ mulet porc|32|0.00
 Mulet Prassi|9|0.00
 Mulet Sauteur|27|0.00
 Mulet sauteur d'Afrique|9|0.00
+mulets|73|4.66|mulet
+mulle|0|0.00
+mulle rouget|0|0.00
 Mullet Diassanga|3|0.00
+mullidé|0|0.00
 Murena|37|0.00
 Murène|37|0.20
 Murène à bandes brunes|13|0.00
+murène à longue queue|0|0.00
 Murène à Pois|16|0.00
 Murène Anneau|12|0.00
 Murène Brune|15|0.00
@@ -1961,6 +3076,7 @@ Murène Robuste|13|0.00
 Murène Serpent|14|0.00
 Murène Tachetée|19|0.00
 Murène Verte|20|0.00
+murènes|37|0.27|murene
 Murénésoce de Guinée|9|0.00
 Murin à moustaches|48|0.00
 Murin à oreilles échancrées|40|0.00
@@ -1977,15 +3093,26 @@ Musso Carite|12|0.00
 Musso Corcovade|16|0.00
 Musso Pacifique|13|0.00
 Mussolini|21|0.00
+mustec|0|0.00
+mustèle|0|0.00
+myctophidé|0|0.00
+myliobate|0|0.00
+myre|0|0.00
+nadelle|0|0.00
 Nageoires sanglantes|22|0.00
 Nannaethiops|11|0.00
 Nannochorax|8|0.00
 Napoleon|33|0.81
 napoléon à voiles roses|9|0.00
+napoléons|33|0.47|napoleon
+nase|0|0.68
+nase commun|0|0.00
 Nasello|45|0.00
 Nasellu|54|0.00
+nases|0|0.07|nase
 Nasique|23|0.00
 Nasique à Eperons Oranges|23|0.00
+nason|0|0.00
 Nason à Eperons Bleus|30|0.00
 Nason à Eperons Oranges|25|0.00
 Nason à Gros Nez|20|0.00
@@ -2000,9 +3127,18 @@ Nason Noir|18|0.00
 Nason Pointillé|23|0.00
 Nason Vert|30|0.00
 Nason Zébré|20|0.00
+navaga|0|0.00
 Negre|12|15.54
+nègres|12|7.03|negre
+négresse|12|3.78|negre
+négresses|12|1.28|negre
 Néon|9|7.16
 Néon bleu|52|0.00
+néon noir|0|0.00
+néon rose|0|0.00
+néon rouge|0|0.00
+néons|9|3.65|neon
+nérophis|0|0.00
 nérophis lombricoïde|17|0.00
 Nérophis Ophidion|23|0.00
 Nérophis Tacheté|16|0.00
@@ -2013,11 +3149,32 @@ Noctule commune|47|0.00
 noctule de leisler|43|0.00
 Noctule Des Açores|23|0.00
 noir|1|184.86
+noire|1|140.88|noir
+noires|1|62.64|noir
+noirs|1|93.85|noir
 nonnat|28|0.00
 Noreil|7|0.00
+notacanthe|0|0.00
+notacanthidé|0|0.00
+notoptère|0|0.00
+nourrain|0|0.00
 Oblade|33|0.00
+odontognathe|0|0.00
+ogac|0|0.00
+ogcocephalidé|0|0.00
 Ogre|23|4.66
+ogres|23|1.28|ogre
+omble|0|0.07
+omble chevalier|0|0.00
+omble de fontaine|0|0.00
+omble du Canada|0|0.00
+ombles|0|0.07|omble
+ombre|0|190.61
+ombre chevalier|0|0.00
 ombre commun|43|0.00
+ombre de rivière|0|0.00
+ombres|0|42.84|ombre
+ombret|0|0.00
 Ombrine|14|0.00
 Ombrine à longue aile|9|0.00
 Ombrine à nageoire jaune|10|0.00
@@ -2034,7 +3191,12 @@ Ombrine Noire|14|0.00
 Ombrine Pétote|11|0.00
 Ombrine polla|10|0.00
 Ombrine Raye|9|0.00
+omoul|0|0.00
+omule|0|0.00
 Opah|39|0.00
+ophicéphale|0|0.00
+ophidie barbue|0|0.00
+ophidiidé|0|0.00
 Oreillard brun|53|0.00
 Oreillard D'Hemprich|31|0.00
 Oreillard de Tenerife|24|0.00
@@ -2045,10 +3207,16 @@ Oreillard montagnard|26|0.00
 Oreillard roux|53|0.00
 Oreillard Sarde|24|0.00
 Oreilles Noires|14|0.00
+orgeu|0|0.00
 Orphie|58|0.00
+orphie commune|0|0.00
 Orphie-maquereau|22|0.00
+orphie vulgaire|0|0.00
 Orratza|54|0.00
 Oryzias|21|0.00
+osméridé|0|0.00
+osphronème|0|0.00
+ostraciidé|0|0.00
 Otolithe|9|0.00
 Otolithe Bobo|13|0.00
 Otolithe Camerouonais|8|0.00
@@ -2057,10 +3225,17 @@ Otolithe Giuneèn|9|0.00
 Otolithe Nanka|11|0.00
 Otolithe Sénégalais|13|0.00
 Ouananiche|1|0.00
+ouananiches|1|0.07|ouananiche
 Ouatalibi|16|0.00
+ourdo|0|0.00
+outil|0|10.14
+outils|0|20.74|outil
+oxyrhynque|0|0.00
+pacu|0|0.00
 Pageau|29|0.00
 Pageau Gris|30|0.00
 Pagel|29|0.00
+pagelle|0|0.00
 Pageot|30|1.62
 Pageot à Tache Rouge|13|0.00
 Pageot Acarne|24|0.00
@@ -2069,6 +3244,7 @@ pageot commun|29|0.00
 Pageot D'Arabie|12|0.00
 Pageot Du Natal|12|0.00
 Pageot Rose|27|0.00
+pageots|30|0.47|pageot
 Pagre|16|0.00
 Pagre à Points Bleus|16|0.00
 Pagre à Points Bleux|16|0.00
@@ -2083,9 +3259,16 @@ Pagre Rayé|11|0.00
 Pagre Rouge|32|0.00
 Paguette|18|0.00
 Paiche|56|0.00
+pajel|0|0.00
+palée du Léman|0|0.00
 Palomète|20|0.00
 Palomette|20|0.00
 Palomine|20|0.00
+pampan|0|0.00
+panga|0|0.00
+panthère de mer|0|0.00
+pantodontidés|0|0.00
+pantouflier|0|0.00
 Papillon|20|10.68
 Papillon à dos noir|18|0.00
 Papillon à nez noir|15|0.00
@@ -2100,36 +3283,76 @@ Papillon jaune|24|0.00
 Papillon jaune et blanc|18|0.00
 Papillon longnez|25|0.00
 Papillon rayé|14|0.00
+papillons|20|9.39|papillon
+paracuta|0|0.00
 Parché|21|0.00
+pargneau|0|0.00
 Pargue Dent-chien|18|0.00
+parot|0|0.00
+parotique|0|0.00
 Parque|17|0.27
+parquée|17|0.07|parque
+parqués|17|1.28|parque
 Parquette|14|0.00
+parroquette|0|0.00
+passereau de rivière|0|0.00
+pataclet|0|0.00
+patafloues|0|0.00
 Patao|9|0.00
+patelet|0|0.00
 Pavillon|30|20.07
 Pavillon à dos noir|18|0.00
 Pavillon Tacheté|28|0.00
+pavillons|30|5.54|pavillon
 Pêche-cavale|20|0.00
 Pêche madame|25|0.00
 Pêche-madame Ceinture D'or|8|0.00
 Pêche-madame Indien|10|0.00
 Pêche-madame Japonais|14|0.00
+pêcheur à trèfle|0|0.00
 Pêcheur des Sargasses|26|0.00
 Pégase|22|0.00
 Pei Sant Peire|13|0.00
+peicoa|0|0.00
+peïcoua|0|0.00
+peis-coua|0|0.00
 Pèis de Noste Segne|53|0.00
 Pèis Saint-Pierre|53|0.00
 Pélamide|42|0.00
+pélamide sarde|0|0.00
 Pellonale|8|0.00
+pelmato|0|0.00
+pelon|0|0.00
 Péniche|16|5.27
+péniches|16|2.70|peniche
+perchaude|0|0.00
 perche|78|4.93
 Perche africaine|10|0.00
 Perche Africane|16|0.00
+perche arc-en-ciel|0|0.00
+perche-brochet|0|0.00
+perche commune|0|0.00
+perche de mer|0|0.00
 Perche De Verrehale|10|0.00
 Perche du Nil|51|0.00
+perche européenne|0|0.00
+perche franche|0|0.00
+perche gardonnée|0|0.00
+perche gougeonnière|0|0.00
 Perche Grimpeuse|40|0.00
+perche noirâtre|0|0.00
+perche noire|0|0.00
 Perche Rouget|14|0.00
 perche soleil|35|0.00
+perche-soleil commune|0|0.00
+perche truitée|0|0.00
+perches|78|2.70|perche
+perciforme|0|0.00
+percoïde|0|0.00
+perdrix de mer|0|0.00
 Périophthalme|26|0.00
+péristédion cataphracte|0|0.00
+perlon|0|0.00
 Péro-mérot|31|0.00
 Perpeire|7|0.00
 Perpeire a Quatre Taches|6|0.00
@@ -2183,6 +3406,7 @@ Perroquet Crème|20|0.00
 Perroquet de Bloch|13|0.00
 Perroquet de Guinée|11|0.00
 Perroquet de la Mer Rouge|11|0.00
+perroquet de mer|0|0.00
 Perroquet de Sinai|12|0.00
 Perroquet Dentu|11|0.00
 Perroquet des Carolines|15|0.00
@@ -2221,23 +3445,35 @@ Perroquet Tricolore|13|0.00
 Perroquet vert|18|0.00
 Perroquet Vieillard|24|0.00
 Perroquet Violet|15|0.00
+perroquets|24|1.42|perroquet
 Peskar Goat|31|0.00
+pesquit|0|0.00
 Pétaijde|17|0.00
+péteuse|0|0.54
+péteux|0|0.61|peteuse
 Petit Barbillon|14|0.00
 Petit Barracuda|15|0.00
+petit curé|0|0.00
 Petit dragon|22|0.00
+petit esturgeon|0|0.00
 Petit Gobie Svelte|20|0.00
+petit lançon|0|0.00
+petit lingue|0|0.00
 Petit murin|38|0.00
 Petit Negre|10|0.14
+petit prêtre|0|0.00
 Petit Sar|10|0.00
+petit tacaud|0|0.00
 Petit Thon|31|0.00
 Petit Turbot de Roche|18|0.00
 Petit Wiwa|10|0.00
 petite aiguille de mer|16|0.00
 Petite Anguille|8|0.00
+petite argentine|0|0.00
 Petite bouche|7|0.00
 petite castagnole|30|0.00
 Petite chauve-souris brune|31|0.00
+petite coryphène|0|0.00
 Petite dorade coryphène|24|0.00
 Petite gueule|7|0.00
 Petite Limace de Mer|15|0.00
@@ -2249,23 +3485,40 @@ Petite Sole Jaune|25|0.00
 Petite vieille|19|0.00
 petite vive|27|0.00
 Pharaon|9|1.62
+pharaonnes|9|0.07|pharaon
+pharaons|9|0.95|pharaon
 pholis|24|0.00
+phosichthyidé|0|0.00
+phrynorhombe|0|0.00
 phrynorhombe de norvège|18|0.00
+phrynorhombe unimaculé|0|0.00
+phycis|0|0.00
 Phycis de Roche|23|0.00
 Phyllorhine de Commerson|20|0.00
+physis de fond|0|0.00
+pibale|0|0.00
+picarel|0|0.00
 Picarel à Gros Yeux|9|0.00
+picarel commun|0|0.00
 Picarel De L'Atlantique|7|0.00
 Picarel Guetteur|19|0.00
 Picarel queue Noire|8|0.00
+picaud|0|0.00
 Picot à Deux Couteaux|14|0.00
 Picot Kanak|30|0.00
 Pigne|66|0.27
+pignes|66|0.20|pigne
+pilchard|0|0.00
 Pilchard de Californie|1|0.00
 Pilchard du Japon|1|0.00
 Pilchard sudamèricain|1|0.00
 Pilote|45|5.61
+pilote du requin|0|0.00
+pilotes|45|3.11|pilote
+pimperneau|0|0.00
 Pinge Namorade|8|0.00
 Pintade|23|0.54
+pintades|23|1.62|pintade
 Pipistrelle à ailes blanches|18|0.00
 Pipistrelle Commune|53|0.00
 Pipistrelle de Guinée|18|0.00
@@ -2280,9 +3533,22 @@ Pipistrelle naine|0|0.00
 pipistrelle pygmée|38|0.00
 Pipistrelle soleil|16|0.00
 Pipistrelle zouloue|18|0.00
+pique|0|11.55
+piquée|0|3.78|pique
+piquées|0|1.15|pique
+piques|0|2.57|pique
 Piquitingue du Pacifique|7|0.00
+pirabe|0|0.00
+piranha|0|0.00
+piranha à bande sombre|0|0.00
+piranha à ventre rouge|0|0.00
+piranhas|0|0.14|piranha
 Pitre|21|1.69
+pitres|21|0.27|pitre
+placoderme|0|0.00
+placoïdes|0|0.00
 Plagoptere Argente|14|0.00
+plagusie|0|0.00
 Plagusie à Queue Noire|11|0.00
 Plagusie de Norman|8|0.00
 Plagusie de Vanmelle|8|0.00
@@ -2291,17 +3557,37 @@ Plagusie Longue|12|0.00
 Plagusie Sombre|11|0.00
 Plat|18|44.26
 Plat Gris|21|0.00
+platax|0|0.00
+plate|18|17.50|plat
 Plate Ailes Jaues|18|0.00
+plates|18|7.23|plat
+plateuse|0|0.00
+platophrys|0|0.00
+plats|18|17.09|plat
 Platy|37|0.00
 Platycephale de Guinée|7|0.00
 Platycéphale Indien|20|0.00
+platytroctidé|0|0.00
+plectognathe|0|0.00
+plestie|0|0.00
+pleuronecte-guitare|0|0.00
+pleuronectidé|0|0.00
 Plie|54|10.27
 Plie à points noirs|10|0.00
 Plie Arctique|15|0.00
 Plie Commune|54|0.00
 plie cynoglosse|21|0.00
 Plie D'Europe|54|0.00
+plie grise|0|0.00
+plies|54|3.92|plie
+plon|0|0.00
+poignard|0|8.11
+poignards|0|2.03|poignard
+poison|0|9.86
+poisons|0|2.36|poison
+poisson|0|30.14
 Poisson à Gâchette|32|0.00
+poisson ananas|0|0.00
 Poisson ange|15|0.00
 Poisson ange à deux épines|21|0.00
 Poisson-ange à front jaune|22|0.00
@@ -2311,57 +3597,128 @@ Poisson-ange brun|14|0.00
 Poisson-ange duc|34|0.00
 Poisson ange impérial|29|0.00
 Poisson ange sombre|21|0.00
+poisson araignée|0|0.00
+poisson arc-en-ciel|0|0.00
 Poisson Ballon|22|0.00
 Poisson-ballon à Queue Jaune|25|0.00
 Poisson-ballon étoilé|27|0.00
 Poisson-ballon Pintade|28|0.00
+poisson-banane|0|0.00
 Poisson Bécasse à Carreaux|19|0.00
 Poisson-bécasse Ecossais|19|0.00
 Poisson Bécune|37|0.00
 Poisson Blanc|23|0.00
+poisson bleu|0|0.00
+poisson-blob|0|0.00
+poisson-boule|0|0.00
+poisson-cachemire|0|0.00
 Poisson Cardinal|17|0.00
+poisson cardinal blanc|0|0.00
+poisson-castor|0|0.00
 Poisson Ceinture|39|0.00
 Poisson chat|6|0.34
+poisson-chat africain|0|0.00
 Poisson-chat commun|29|0.00
+poisson-chat du Mékong|0|0.00
+poisson-chat électrique|0|0.00
+poisson-chat épineux|0|0.00
+poisson-chat européen|0|0.00
+poisson-chat géant|0|0.00
+poisson-chat géant du Mékong|0|0.00
+poisson-chat nébuleux|0|0.00
 Poisson-chat Nord-Africain|39|0.00
+poisson-chat nord-américain|0|0.00
+poisson chauve-souris|0|0.00
 Poisson chèvre robuste|16|0.00
+poisson-chien|0|0.00
 poisson-chien americain|21|0.00
+poisson-chirurgien|0|0.00
+poisson-clown|0|0.00
+poisson-clown à deux bandes|0|0.00
 Poisson-clown à trois bandes|37|0.00
+poisson-clown commun|0|0.00
+poisson-clown du Pacifique|0|0.00
+poisson-clown ocellé|0|0.00
+poisson-clown orange|0|0.00
+poisson-clown rouge|0|0.00
 Poisson-clown selle blanche|25|0.00
+poisson-clown tomate|0|0.00
 Poisson cocher|39|0.00
 Poisson-coffre|16|0.00
+poisson-coffre jaune|0|0.00
+poisson-cornet|0|0.00
+poisson cornu|0|0.00
 Poisson Courant|13|0.00
 Poisson-couteau|22|0.00
 Poisson Crapaud|18|0.00
+poisson cuirassé|0|0.00
 Poisson d'argent|10|0.00
+poisson-dauphin|0|0.00
 Poisson de Bois|31|0.00
 Poisson de Feu|24|0.00
+poisson de mai|0|0.00
 Poisson de Saint-Martin|53|0.00
 Poisson de verre|9|0.00
+poisson-demoiselle|0|0.00
 Poisson doctère|28|0.00
+poisson-docteur|0|0.00
 Poisson-dragon Commun|12|0.00
+poisson-écureuil|0|0.00
+poisson-écureuil diadème|0|0.00
+poisson-écureuil géant|0|0.00
+poisson-écureuil sabre|0|0.00
+poisson-écureuil sombre|0|0.00
+poisson-écureuil tahitien|0|0.00
+poisson-écureuil violet|0|0.00
+poisson-éléphant|0|0.00
+poisson-empereur|0|0.00
+poisson-épave|0|0.00
+poisson-épée|0|0.00
 Poisson-épervier|10|0.00
 Poisson-épervier à Arcade|16|0.00
 Poisson-épervier de Forster|18|0.00
 Poisson-épervier Taché|16|0.00
+poisson étoilé|0|0.00
+poisson-fantôme|0|0.00
+poisson feuille|0|0.00
 Poisson-flute|16|0.00
+poisson fourrage|0|0.00
 Poisson-gâchette|32|0.00
 Poisson Gendarme|25|0.00
 Poisson-globe|22|0.00
+poisson gras|0|0.00
+poisson-grenouille|0|0.00
+poisson guitare|0|0.00
+poisson guitare commun|0|0.00
 Poisson Guyanais|15|0.00
+poisson-hachette|0|0.00
+poisson-hérisson|0|0.00
 Poisson-hérisson ponctué|18|0.00
 Poisson-hérisson tacheté|28|0.00
+poisson incubateur|0|0.00
+poisson-juif de Californie|0|0.00
 Poisson Lampe|16|0.00
 Poisson Lanterne|12|0.00
+poisson-lapin|0|0.00
+poisson-lézard|0|0.00
 Poisson-lézard Rayé|19|0.00
+poisson licorne|0|0.00
+poisson-lime|0|0.00
 Poisson Limon|38|0.00
+poisson-loup|0|0.00
 Poisson Lune|69|0.07
 Poisson-lune argenté|25|0.00
+poisson-mandarin|0|0.00
 poisson mandarin bariolé|20|0.00
+poisson-million|0|0.00
+poisson missionnaire|0|0.00
 Poisson-montre|25|0.00
 Poisson Napoléon|14|0.00
+poisson nettoyeur|0|0.00
 Poisson nettoyeur commun|28|0.00
+poisson-ogre|0|0.00
 Poisson oiseau|18|0.00
+poisson-pagaie|0|0.00
 Poisson-papier de Dove|6|0.00
 Poisson-papier Dentu|9|0.00
 Poisson-papier guyanais|5|0.00
@@ -2370,8 +3727,12 @@ Poisson-papier Macabi|6|0.00
 Poisson-papier tropical|6|0.00
 Poisson-papier vaqueira|6|0.00
 Poisson papillon|36|0.00
+poisson-papillon à nez noir|0|0.00
+poisson-papillon de Meyer|0|0.00
 Poisson-papillon marqué|13|0.00
 Poisson papillon vagabond|20|0.00
+poisson-pêcheur|0|0.00
+poisson-perroquet|0|0.00
 Poisson-perroquet Baleine|23|0.00
 Poisson-perroquet Bleu|13|0.00
 Poisson-perroquet Chevalin|16|0.00
@@ -2380,15 +3741,21 @@ Poisson-perroquet Rude|15|0.00
 Poisson-perroquet Sale|18|0.00
 Poisson-perroquet Tricolore|13|0.00
 Poisson-perroquet Vineux|15|0.00
+poisson-pierre|0|0.00
 Poisson Pilote|45|0.07
+poisson-pincette|0|0.00
 Poisson-pique|25|0.00
+poisson plat|0|0.00
+poisson pomme de pin|0|0.00
 Poisson-porc|32|0.00
 Poisson Porc-épic|26|0.00
 Poisson Porte-épée|83|0.00
 Poisson-pyramide|18|0.00
 Poisson Queue Bleue|73|0.00
+poisson rayons X|0|0.00
 Poisson Rémora|14|0.00
 Poisson rouge|109|0.00
+poisson rouge commun|0|0.00
 Poisson Royal|39|0.00
 Poisson Ruban|17|0.00
 Poisson-ruban Licorne|15|0.00
@@ -2397,19 +3764,55 @@ Poisson Sabre Bécune|8|0.00
 Poisson Sabre Canal|9|0.00
 Poisson Sabre Commun|39|0.00
 Poisson Sabre Jarretière|8|0.00
+poisson-sanglier|0|0.00
 Poisson sans nom|25|0.00
+poisson-scie|0|0.00
+poisson-scie commun|0|0.00
+poisson-scie tident|0|0.00
 Poisson Scorpion|18|0.00
 poisson-scorpion à antennes|26|0.00
+poisson-soldat|0|0.00
+poisson-soldat à bande noire|0|0.00
+poisson-soldat rouge|0|0.00
+poisson-soldat violacé|0|0.00
+poisson-soleil|0|0.00
 Poisson Spatule|43|0.00
+poisson-spatule américain|0|0.00
 Poisson Squaw du Colorado|17|0.00
+poisson-tapir à épines|0|0.00
 Poisson-tapir Épineux|8|0.00
 Poisson-tapir Sombre|13|0.00
 poisson têtard|24|0.00
+poisson-torpille|0|0.00
+poisson trépied|0|0.00
+poisson tricolore|0|0.00
+poisson tripode|0|0.00
 Poisson-trompette|16|0.00
+poisson-vince|0|0.00
 Poisson-vipère|1|0.00
+poisson-vipère de Sloane|0|0.00
+poisson-voilier|0|0.00
 Poisson Volant|36|0.00
+poisson volant commun|0|0.00
+poisson volant méditerranéen|0|0.00
+poisson volant rayé|0|0.00
+poisson zèbre|0|0.00
+poissonnaille|0|0.00
+poissonneau|0|0.00
+poissonnet|0|0.00
+poissons|0|24.32|poisson
+poissons-chats|6|0.20|poisson chat
+poissons osseux|0|0.00
 Poissons Soldat Rouge|12|0.00
 Poissons Volant|11|0.00
+polyptère|0|0.00
+polyptère bichir|0|0.00
+polyptère du Nil|0|0.00
+polyptère du Sénégal|0|0.00
+pomacentridé|0|0.00
+pomatis|0|0.00
+pomatome|0|0.00
+pomatomidé|0|0.00
 Pompaneau Argenté|13|0.00
 Pompaneau Colombe|11|0.00
 Pompaneau Cordonnier|11|0.00
@@ -2419,7 +3822,9 @@ Pompaneau Guatie|18|0.00
 Pompaneau Plume|17|0.00
 Pompaneau sole|14|0.00
 Pompano|17|0.00
+pompile|0|0.00
 Pompon|12|1.35
+pompons|12|2.57|pompon
 Porc|31|11.15
 Porc-épic Ballon|28|0.00
 Porc-épic Boubou|26|0.00
@@ -2428,13 +3833,18 @@ Porc-épic Pointillé|26|0.00
 Porc-épine Ballon|28|0.00
 Porc-épine Boubou|26|0.00
 Porc-mullet|32|0.00
+porcs|31|3.31|porc
 Porqua|32|0.00
 Porqué|32|0.00
+porte-écuelle|0|0.00
 Porte-écuelle à Deux Taches|12|0.00
 Porte-écuelle des Oursins|11|0.00
 Porte-écuelle grêle|12|0.00
 Porte-enseigne|39|0.00
 Porte-épée De Monterrey|15|0.00
+potine|0|0.20
+pougaou|0|0.00
+poulamon|0|0.00
 Poule de Mer|53|0.00
 Poule de Mer D'eau|53|0.00
 Pourceau|15|0.34
@@ -2443,13 +3853,36 @@ Pourceau des îles|13|0.00
 Pourceau dos noir|17|0.00
 Pourceau du Natal|18|0.00
 Pourceau espagnol|18|0.00
+pourceaux|15|0.61|pourceau
+poutargue|0|0.07
+poutine|0|0.00
+powan|0|0.00
+préopercule|0|0.00
+prêteau|0|0.00
 prêtre|26|29.39
+prêtres|26|14.66|pretre
+prêtresse|26|0.88|pretre
+prêtresses|26|0.34|pretre
+prêtrot|0|0.00
+priacanthe|0|0.00
+priacanthe commun|0|0.00
+priacanthe de Bloch|0|0.00
+priacanthe rouge|0|0.00
+prionote|0|0.00
+prionote du Nord|0|0.00
+prionote volant|0|0.00
 Pristipome Rayé|9|0.00
+prochilodus noir|0|0.00
 Prude Rouge|21|0.00
 ptérois à antennes|26|0.00
 Quatre|18|282.64
+quatre-épées|0|0.00
+québot|0|0.00
+queue-de-rat|0|0.00
 Queue-de-rêve Cosmopolite|8|0.00
+quinnat|0|0.00
 Racasse épineuse|5|0.00
+raie-guitare|0|0.00
 Ramada|32|0.00
 Rambou Léopard du Pacifique|9|0.00
 Rambou Lune|15|0.00
@@ -2490,13 +3923,21 @@ Rascasse Sonore|8|0.00
 Rascasse Tachetée|9|0.00
 Rascasse volante|29|0.00
 Rascasses|29|0.41
+rasoir|0|15.61
+rasoirs|0|1.22|rasoir
 Rason|20|0.00
 Rason algue|16|0.00
 Rason deux taches|10|0.00
 Rason ocellé|10|0.00
 Rason paon|16|0.00
+rasoul|0|0.00
+rat de mer|0|0.00
 Ravil|29|0.00
 Rayon Épineux|13|0.00
+razon|0|0.00
+régalec|0|0.00
+régalecidé|0|0.00
+reine des plies|0|0.00
 Rémora|29|0.00
 Rémora Blanc des Marlins|14|0.00
 rémora commun|29|0.00
@@ -2507,20 +3948,36 @@ Rémora des Marlins|14|0.00
 Rémora des Requins|27|0.00
 Rémora fuselé|29|0.00
 rémora rayé|29|0.00
+rémore|0|0.00
 Renard|21|8.58
 Renard volant|24|0.00
 Renard Volant De Ponape|24|0.00
+renarde|21|0.20|renard
+renardes|21|0.00|renard
+renards|21|3.18|renard
 Requin Dormeur Fauve|12|0.00
+revenant nocturne|0|0.00
 Rêveur Cauchemar|7|0.00
 Rêveur Fer-de-lance|7|0.00
 Rêveur Piquant|9|0.00
+rhinobate|0|0.00
 Rhinolophe de Mehely|36|0.00
 Rhinolophe Euryale|39|0.00
 rhinolophe intermédiaire|26|0.00
 Rhinomurène Bleue|30|0.00
 Rhinomurène Noire|30|0.00
+rhipidistiens|0|0.00
+rhombe|0|0.07
 Rite à Trois Taches|8|0.00
 Rite éventail|8|0.00
+roblot|0|1.15
+rochau|0|0.00
+roche|0|14.12
+roches|0|9.26|roche
+rochier|0|0.00
+rohi|0|0.00
+rohu|0|0.00
+roi des harengs|0|0.00
 Roi des Rougets|24|0.00
 Rombou|19|0.00
 Rombou à Quatre Yeux|7|0.00
@@ -2533,11 +3990,19 @@ Rombou Podas|19|0.00
 Rombou Rayée|9|0.00
 Rombou Tropicale|17|0.00
 Rondanin|28|0.00
+rondeau|0|0.07
 Rondeau Brème|16|0.00
 Rondeau Mouton|21|0.00
+rone|0|0.00
 Ronfleur|18|0.54
+ronfleurs|18|0.07|ronfleur
+ronfleuse|18|0.07|ronfleur
+rosière|0|0.14
 rotengle|61|0.00
+rou|0|0.00
 Roucaou|25|0.00
+roucau|0|0.00
+rouffe|0|0.00
 Rouffe des Epaves|13|0.00
 Rouffe Rayé|7|0.00
 Rouge|18|195.27
@@ -2550,6 +4015,7 @@ Rouge Grand Queue|20|0.00
 Rouge L'Allie|18|0.00
 Rouge Peau Dure|13|0.00
 Rouge Sale|14|0.00
+rouges|18|77.97|rouge
 Rouget|15|0.54
 Rouget à Trois Bandes|16|0.00
 Rouget-barbet|42|0.00
@@ -2557,8 +4023,17 @@ Rouget-barbet de Roche|42|0.00
 Rouget-barbet trille|12|0.00
 rouget de roche|42|0.00
 Rouget de Vase|42|0.00
+rouget du Sénégal|0|0.00
+rouget-grondin|0|0.00
+rouget volant|0|0.00
+rougets|15|0.95|rouget
 Rougette|24|0.00
 Rouquié|27|0.00
+rouquier|0|0.00
+rousse|0|15.00
+rousseau|0|0.14
+rousseaux|0|0.07|rousseau
+rousses|0|4.73|rousse
 Roussette À Queue|18|0.00
 Roussette de Livingstone|32|0.00
 Roussette des Cailloux|19|0.00
@@ -2570,24 +4045,48 @@ Roussette des roches|19|0.00
 Roussette noire|24|0.00
 Roussette Rousse|20|0.00
 Rouvet|24|0.00
+roux|0|20.68|rousse
 Royac|18|0.00
+royan|0|0.00
 Ruchè|20|2.03
 Ruchè Tanca|27|0.00
+ruchée|20|0.07|ruche
+ruches|20|1.49|ruche
+rui|0|0.00
 Russa|27|0.00
 Sabre|39|13.85
 Sabre Argenté|23|0.00
+sabre de mer|0|0.00
+sabres|39|3.18|sabre
+saillot|0|0.00
 Saint Pierre|64|0.20
 Saint-Pierre Américain|10|0.00
 Saint Pierre Argenté|10|0.00
 Saint-Pierre Doré|53|0.00
 Saint Pierre du Cap|20|0.00
 Saint-Pierre du Pacifique|53|0.00
+Salmonidae|0|0.00
+salmonidés|0|0.00
+salmoniforme|0|0.00
+salpa|0|0.00
+salut|0|58.99
+saluts|0|2.84|salut
+salvelin|0|0.00
 San Pierre|53|0.00
+sandre|0|0.00
 Sandre canadien|21|0.00
+sandre doré européen|0|0.00
+sandres|0|0.07|sandre
+sandron|0|0.00
 Sanglier|23|5.34
 Sanglier à corps élevé|14|0.00
 Sanglier chevrette|14|0.00
+sanglier de mer|0|0.00
+sanglier de mer commun|0|0.00
 Sanglier Rond|7|0.00
+sangliers|23|3.45|sanglier
+sansonnet|0|0.41
+sansonnets|0|0.07|sansonnet
 Sapater|16|0.00
 Sapater du Pacifique|7|0.00
 Sapater Violine|11|0.00
@@ -2611,7 +4110,9 @@ Sar Noir Du Cap Vert|10|0.00
 Sar Rayé|3|0.00
 Sar Salème|14|0.00
 Sar Tambour|25|0.00
+saragou|0|0.00
 Saran|28|0.00
+sarda|0|0.00
 Sarde|18|0.00
 Sarde à Plume|15|0.00
 Sarde Blanche|9|0.00
@@ -2627,32 +4128,50 @@ Sardine de Whitehead|10|0.00
 Sardine des estuaires|16|0.00
 Sardine du Pacifique|1|0.00
 Sardinelle|29|0.00
+sardinelle auriculée|0|0.00
 Sardinelle Blanche|14|0.00
 Sardinelle de Madère|19|0.00
+sardinelle dorée|0|0.00
 Sardinelle Indienne|19|0.00
 Sardinelle janne|16|0.00
 Sardinelle jaune|16|0.00
 Sardinelle Plate|19|0.00
+sardinelle queue noire|0|0.00
 Sardinelle Ronde|29|0.00
+sardines|69|7.09|sardine
 Sardinops d'Afrique du Sud|1|0.00
 Sardinops d'Australie|1|0.00
 Sardinops du Chili|1|0.00
 Sardinops du Japon|1|0.00
+sargou|0|0.00
 Sargue|28|0.00
 Sargue à Gros Yeux|12|0.00
 Sargue Australe|12|0.00
 Sargue Doré|20|0.00
 Sargue Du Cap|13|0.00
 Sargue Haffara|12|0.00
+sarguet|0|0.00
 Sarran|28|0.00
+sarrau|0|1.28
+sarraus|0|0.14|sarrau
 Sarsotin|23|0.00
+sauclet|0|0.00
 saumon|77|3.65
+saumon argenté|0|0.00
+saumon atlantique|0|0.00
 saumon de fontaine|43|0.00
+saumon de Sibérie|0|0.00
 Saumon des Dieux|39|0.00
+saumon du Mackenzie|0|0.00
+saumon quinnat|0|0.00
+saumon rouge|0|0.00
+saumoné|23|0.07|saumonee
 Saumonee|23|0.20
 Saumonee Hirondelle|20|0.00
 Saumonée Léopard|23|0.00
 Saumonée Ocellée|15|0.00
+saumonées|23|0.20|saumonee
+saumons|77|1.08|saumon
 Saupe|36|0.00
 Saupe De Mer Rouge|15|0.00
 Saupe Grise à Lignes Jaunes|15|0.00
@@ -2663,22 +4182,59 @@ Sauteur|10|0.61
 Sauteur Castin|10|0.00
 sauteur de vase atlantique|26|0.00
 Sauteur Pelon|9|0.00
+sauteurs|10|0.20|sauteur
+sauteuse|10|0.95|sauteur
+sauteuses|10|0.14|sauteur
+savalle|0|0.00
+savetier|0|0.20
+savetiers|0|0.14|savetier
+scalaire|0|0.00
+scaphirhynque|0|0.00
+scaphirhynque blanc|0|0.00
+scare|0|0.00
+scaridé|0|0.00
+scélan|0|0.00
+schmerlé|0|0.00
+sciaenidé|0|0.00
+sciaenidés|0|0.00
+scie|0|8.11
+sciène|0|0.00
+sciène aigle|0|0.00
+sciénidé|0|0.00
+sciénoïdes|0|0.00
+scies|0|1.96|scie
 Scléropage D'Asie|34|0.00
 Scléropage Formosus|34|0.00
+scomberésocidé|0|0.00
+scombéroïdes|0|0.00
+scombre|0|0.00
+scombridé|0|0.00
+scombridés|0|0.00
+scophthalmidé|0|0.00
 Scorpène|33|0.00
+scorpion de mer|0|0.00
+scorpions de mer|0|0.00
 Scournou|38|0.00
+scyllion|0|0.00
 Scyris D'Alexandrie|21|0.00
+séarsiidé|0|0.00
 Sébaste|31|0.00
 Sébaste Atlantique|19|0.00
 Sébaste Chèvre|26|0.00
 Sébaste de Cortez|7|0.00
 Sébaste du Nord|19|0.00
+séchot|0|0.00
 Selar Coulisou|20|0.00
 Sélar Harengule|13|0.00
+sennal|0|0.00
+sergent|0|20.88
 Sergent ciseaux|12|0.00
 Sergent Cromis|12|0.00
 Sergent-major|25|1.28
+sergents|0|2.77|sergent
+sergents-majors|25|0.07|sergent major
 Sériole|38|0.00
+sériole ambrée|0|0.00
 Sériole Babiane|11|0.00
 Sériole bijou|11|0.00
 Sériole Chicard|24|0.00
@@ -2708,13 +4264,16 @@ Sérotine méditerranéen|13|0.00
 Sérotine minuscule|18|0.00
 Sérotine tropicale|23|0.00
 Serpent de Mer|7|0.00
+serpenton|0|0.00
 Serpenton à Grandes Taches|8|0.00
+serpenton à long nez|0|0.00
 Serpenton à Nez Long|18|0.00
 Serpenton à Selles|9|0.00
 Serpenton Antillais|7|0.00
 Serpenton Blanc|8|0.00
 Serpenton Dentu|11|0.00
 Serpenton Gris|7|0.00
+serpenton imberbe|0|0.00
 Serpenton Jaune|12|0.00
 Serpenton Léopard|9|0.00
 Serpenton Miro|16|0.00
@@ -2725,6 +4284,7 @@ Serpenton Tacheté|10|0.00
 Serran|17|0.00
 Serran à Ailes de Papillon|1|0.00
 Serran à Queue Noire|11|0.00
+serran à tache noire|0|0.00
 Serran Argentin|15|0.00
 Serran Belles Joues|8|0.00
 Serran bridé|8|0.00
@@ -2733,6 +4293,7 @@ Serran cabrilla|7|0.00
 Serran Cabrille|28|0.00
 Serran camotille|8|0.00
 Serran Chèvre|28|0.00
+serran chevrette|0|0.00
 Serran commun|28|0.00
 Serran de roche|9|0.00
 Serran des algues|15|0.00
@@ -2750,19 +4311,42 @@ Serran Impérial|11|0.00
 Serran perroquet|6|0.00
 Serran Tambour|17|0.00
 Serran Violon|13|0.00
+serranidé|0|0.00
 Serrivomer à Dents Courtes|9|0.00
 Serrivomer à Nageoire Longue|10|0.00
 Serrivomer Trapu|10|0.00
+séteau|0|0.00
+seuffe|0|0.00
+seuffle|0|0.00
 Severau|24|0.00
 Severeau|43|0.00
+severus|0|0.00
+sevruga|0|0.00
 Shadine de Angola|10|0.00
 Shadine Pisquette|8|0.00
+shal|0|0.00
 Silure|39|0.00
 Silure de verre|15|0.00
 Silure de verre géant|39|0.00
+silure électrique|0|0.00
+silure glane|0|0.00
+silure grenouille|0|0.00
+silure rayé|0|0.00
+silure rayé de Raphaël|0|0.00
+silure-spatule|0|0.00
+siluridé|0|0.00
+siluridés|0|0.00
 Siouclet|34|0.00
 siphonostome|25|0.00
 Siphonostome atlantique|25|0.00
+skrei|0|0.00
+smaris|0|0.00
+smaris vulgaire|0|0.00
+sockeye|0|0.00
+soclet|0|0.00
+soëf|0|0.00
+soffie|0|0.00
+soiffe|0|0.00
 Soldat à Bord Blanc|13|0.00
 Soldat à Grosse Ecailles|11|0.00
 Soldat à Nageoire Noire|10|0.00
@@ -2779,16 +4363,21 @@ Sole à Joue Tachetée|6|0.00
 Sole américaine|16|0.00
 Sole Australe Occidentale|15|0.00
 Sole Bavoche|13|0.00
+sole commune|0|0.00
 Sole de Herre|9|0.00
 Sole de Mazatlan|11|0.00
 Sole de Mer Egée|21|0.00
+sole de roche|0|0.00
 Sole des Profondeurs|9|0.00
 Sole du Sénégal|18|0.00
 Sole Égyptienne|16|0.00
+sole filets|0|0.00
 Sole Fluviatile|7|0.00
+sole franche|0|0.00
 Sole Garde-bouée|11|0.00
 Sole Grise|11|0.00
 Sole Jaune|25|0.00
+sole-langue nigérienne|0|0.00
 sole limande|27|0.00
 Sole Lusitanienne|8|0.00
 Sole Ocellée|15|0.00
@@ -2797,18 +4386,29 @@ Sole-perdix Commune|15|0.00
 Sole-perdrix Brune|11|0.00
 Sole-perdrix Ocellée|15|0.00
 Sole Pole|21|0.00
+sole portion|0|0.00
 Sole Ronde|8|0.00
+sole ruardon|0|0.00
 Sole Tachetée|12|0.00
 Sole Trémail|11|0.00
 Sole Tropicale|17|0.00
 Sole Velue|12|0.00
 Sole-verrue|21|0.00
 Soleil|11|328.78
+soleil franc|0|0.00
+soleils|11|5.61|soleil
+soles|18|0.61|sole
+solette|0|0.00
 Sonneur Commun|17|0.00
+sophie|0|0.00
 Sorcier|29|4.32
 Sorciére|8|6.42
 Sorcière à Queue Noire|8|0.00
+sorcières|8|2.30|sorciere
+sorciers|8|1.62|sorciere
 Sorte De Loche|24|0.00
+soudac|0|0.00
+soufflard|0|0.00
 Souffleur à épines|28|0.00
 Soultan|20|0.00
 souris de mer|21|0.00
@@ -2816,6 +4416,7 @@ Souris Jaune|19|0.00
 Sparaillon|28|0.00
 Sparaillon Africain|10|0.00
 Sparaillon Commun|28|0.00
+spare|0|0.00
 Spare à Front Rayé|10|0.00
 Spare à Selle Blanche|12|0.00
 Spare Broyeuse|13|0.00
@@ -2836,29 +4437,62 @@ Spare Royale|19|0.00
 Spare Sobaity|12|0.00
 Spare Soldat|12|0.00
 Sparide|14|0.00
+sparoïde|0|0.00
+spatule|0|1.62
+spatule américaine|0|0.00
+spatule chinoise|0|0.00
+spatule du Mississippi|0|0.00
+spatulée|0|0.00|spatule
+spatulées|0|0.07|spatule
+spatules|0|0.20|spatule
+spet|0|0.00
+sphyraenidé|0|0.00
+sphyrène|0|0.00
 Spinaubé|59|0.00
 Spinavaou|59|0.00
+spirlin|0|0.00
 Sprat|8|0.00
 Spratelle De Guinée|10|0.00
+sprats|8|0.14|sprat
 Stenode blanc|34|0.00
 Sténoderme Pseudo-vampire|20|0.00
+sterlet|0|0.00
+sternoptychidé|0|0.00
+stethacanthus|0|0.00
 Stichling|59|0.00
 Stomie Commune|12|0.00
+stomiidé|0|0.00
 Stromate du Japon|16|0.00
 Stromaté du Pacifique|10|0.00
 Stromaté Lune|18|0.00
 Stromaté Saléma|10|0.00
 Sublaire|21|0.00
+sublet|0|0.00
+suce-pierre|0|0.00
+sucet|0|0.00
+suceur|0|0.14
+suceurs|0|0.20|suceur
+suceuse|0|0.34|suceur
+suceuses|0|0.27|suceur
+surmulet|0|0.00
+surubi|0|0.00
 Sussand|20|0.00
+synancée|0|0.00
+synapture|0|0.00
 Syngnathe|23|0.00
 Syngnathe à double menton|10|0.00
 Syngnathe A Long Museau|16|0.00
 Syngnathe Aiguille|26|0.00
 Syngnathe brun|13|0.00
 Syngnathe commun|10|0.00
+syngnathe de lagune|0|0.00
+syngnathe des lagunes|0|0.00
+syngnathidé|0|0.00
 Synodont|11|0.00
 Synodontis nain|12|0.00
 tacaud|27|0.00
+tacaud commun|0|0.00
+tacaud norvégien|0|0.00
 Tadarida de Midas|18|0.00
 Tadaride à doigts blancs|17|0.00
 Tadaride à glande caudale|19|0.00
@@ -2885,6 +4519,7 @@ Tadaride naine|18|0.00
 Tadaride rouge|1|0.00
 Tadaride rousse|19|0.00
 Tadaride tachetée|21|0.00
+taimen|0|0.00
 Tamarin|20|0.07
 Tamarin à bandes noires|18|0.00
 Tamarin vert|16|0.00
@@ -2894,32 +4529,81 @@ Tambour Croca|17|0.00
 Tambour fin|8|0.00
 Tambour Rouge|23|0.00
 Tambour voilier|8|0.00
+tambours|17|8.78|tambour
 tanche|79|0.41
+tanche de mer|0|0.00
 Tanche Grise|16|0.00
 Tanche-tautogue|17|0.00
+tanches|79|0.34|tanche
+tancoïde|0|0.00
+tapecon|0|0.00
 Tapir à Grandes Écailles|13|0.00
+taquon|0|0.00
+tardineau|0|0.00
 targeur|18|0.00
+targie|0|0.00
 Targie Naine|18|0.00
+tarpon|0|0.00
+tarpon argenté|0|0.00
+tarpon des sables|0|0.00
+tarpon du Pacifique|0|0.00
+tarpon du pauvre|0|0.00
+tarpon indo-pacifique|0|0.00
+tassard|0|0.00
+tassart|0|0.00
 Tassergal|46|0.00
 Taurillon du pauvre|19|0.00
 Tautogue noir|20|0.00
 Tazard à Larges écailles|14|0.00
+tchékhon|0|0.00
+técou|0|0.00
+téléostéen|0|0.00
+téléostomiens|0|0.00
 Téraglin|14|0.00
 Testa Nuda|12|0.00
 Testard|73|0.00
 Testu|73|0.07
 Têtard|35|0.34
+têtards|35|1.55|tetard
 Tête-feuilles|11|0.00
+tête lisse|0|0.00
+tête lisse de Baird|0|0.00
+tête lisse de grenadier|0|0.00
+tête lisse de Longfin|0|0.00
+tête lisse de Risso|0|0.00
 Tête Ronde|17|0.00
+tetra|0|0.00
 Tétra africain|10|0.00
+tétra amande|0|0.00
 Tétra aveugle|26|0.00
+tétra cardinal|0|0.00
+tétra citron|0|0.00
+tétra de Rio|0|0.00
+tétra étincelle|0|0.00
 Tétra fantôme rouge|21|0.00
+tétra flamme|0|0.00
+tétra joyau|0|0.00
+tétra lumineux|0|0.00
+tétra mexicain|0|0.00
+tétra néon|0|0.00
+tétra néon noir|0|0.00
+tétra néon rose|0|0.00
+tétra noir|0|0.00
+tétra rose|0|0.00
+tétra serpae|0|0.00
+tétra vampire|0|0.00
+tétragonure|0|0.00
 Tétragonure Atlantique|8|0.00
 Tétragonure de Cuvier|12|0.00
 Tétraodon|16|0.00
 Tétraodon-lièvre Doré|18|0.00
 Tétrodon|22|0.00
 Tétrodon Constellé|15|0.00
+têtu|0|5.14
+têtue|0|2.77|tetu
+têtues|0|0.34|tetu
+têtus|0|0.95|tetu
+thazard|0|0.00
 Thazard Atlantique|23|0.00
 Thazard Australien|17|0.00
 Thazard Barré|28|0.00
@@ -2942,8 +4626,12 @@ Thazard Serra|18|0.00
 Thazard Sierra|15|0.00
 Thazard Tacheté du Sud|23|0.00
 Thazard Tigré|15|0.00
+thazard vrai|0|0.00
+thon|0|1.89
+thon à dents de chien|0|0.00
 Thon à Gros Yeux|29|0.00
 Thon à Nageoires Noires|31|0.00
+thon albacore|0|0.00
 Thon aux Grands Yeux|45|0.00
 Thon aux Gros Yeux|45|0.00
 Thon Banane|37|0.00
@@ -2953,51 +4641,107 @@ Thon Dents de Chien|29|0.00
 Thon élégant|22|0.00
 Thon Gros Yeux|45|0.00
 Thon Jaune|58|0.00
+thon listao|0|0.00
 Thon Mignon|37|0.00
 Thon Noir|31|0.00
 Thon Nuit|31|0.00
+thon obèse|0|0.00
 Thon Papillon|26|0.00
 Thon Rouge|29|0.00
+thon rouge de Méditerranée|0|0.00
+thon rouge du Nord|0|0.00
 Thon Rouge du Sud|35|0.00
 Thonine|30|0.00
 Thonine à Ventre Rayé|60|0.00
 Thonine Commune|29|0.00
 Thonine Noire|18|0.00
 Thonine Orientale|30|0.00
+thons|0|0.27|thon
+thrisse|0|0.00
+thymalle|0|0.00
 Ti-yeux|17|0.00
+tiburon|0|0.00
 Tiefsee-Beilbauchfish|12|0.00
+tilapia|0|0.00
 Tile à Raie Noire|11|0.00
 Tile de Hubbs|10|0.00
 Tile fin|11|0.00
 Tile Gris|8|0.00
 Tile Zèbre|10|0.00
+tiof|0|0.00
 Tire Bourre|12|0.00
+toby|0|0.00
+tocan|0|0.00
 Ton Rayé|60|0.00
+torpille|0|0.61
+torpilles|0|1.01|torpille
 Totoaba|17|0.00
+toucounaré|0|0.00
+touille|0|0.61
+touillée|0|0.07|touille
+touillées|0|0.07|touille
+touladi|0|0.00
+toupet marbré|0|0.00
+touradi|0|0.00
+tourd|0|0.00
+tourdre|0|0.00
+touret|0|0.07
+tourgan|0|0.00
+toxostome|0|0.00
+trachélyoptère tacheté|0|0.00
+trachichthyidé|0|0.00
+trachinidé|0|0.00
+trachiptère|0|0.00
+trachiptéridé|0|0.00
 Trachyptère Commun|17|0.00
 Trachyptère Ventru|19|0.00
 Tranchoir|39|0.14
+tranchoirs|39|0.20|tranchoir
 Treliuras|17|0.00
 Trident|24|0.68
+tridents|24|0.00|trident
 Triénope doré|16|0.00
+trigant|0|0.00
+trigle|0|0.00
+trigle à ailes bleues|0|0.00
+trigle cataphracte|0|0.00
+triglidé|0|0.00
+triodon|0|0.00
+triptérygiidé|0|0.00
+triptérygion|0|0.00
 Triptérygion Jaune|15|0.00
 Trogue|26|0.00
+trois-épines|0|0.00
 Trompette|25|5.61
+trompette de mer|0|0.00
+trompettes|25|5.88|trompette
 Truie|33|2.16
+truies|33|0.20|truie
 truite|25|3.38
 truite arc-en-ciel|73|0.00
 Truite de Mer|23|0.00
 truite de rivière|39|0.00
 truite fardée|32|0.00
 Truite fario|79|0.00
+truite grise|0|0.00
+truite mouchetée|0|0.00
 Truite Naine D'ifni|13|0.00
 Truite Naine Du Lac Ifni|13|0.00
+truitelle|0|0.07
+truites|25|4.53|truite
+truiton|0|0.00
+tuca|0|0.00
 Turbot|57|0.68
 Turbot de Sable|19|0.00
+turbot des grottes|0|0.00
 Turbot épineux|8|0.00
 Turbot épineux tacheté|8|0.00
 Turbot Tropical|17|0.00
+turbotin|0|0.00
+turgan|0|0.00
 Ueil Nègre|29|0.00
+umble|0|0.00
+umbre|0|0.00
 Uranoscope|30|0.00
 Uranoscope à Points Blancs|7|0.00
 Uranoscope boeuf|6|0.00
@@ -3005,18 +4749,37 @@ Uranoscope Bouledogue|7|0.00
 Uranoscope du Pacifique|10|0.00
 Uranoscope miou|6|0.00
 Uranoscope Tacheté|10|0.00
+uranoscopidé|0|0.00
 Vachette|29|0.34
+vachettes|29|0.07|vachette
 Vacuocua|8|0.00
+vairon|0|0.20
 vairon américain|19|0.00
+vairons|0|0.41|vairon
+vandière|0|0.00
 vandoise|52|0.00
+vandoise commune|0|0.00
 Varech|12|2.43
 Varech Pacifique|9|0.00
 Varech Veine|9|0.00
 Vareche Veine|9|0.00
+varechs|12|0.27|varech
+variole|0|0.34
 Varlet|54|0.07
+vastangue|0|0.00
+vaudois|0|0.68|vaudoise
+vaudoise|0|0.07
 Veille Fraise|13|0.00
+veirade|0|0.00
+veirat|0|0.00
+vengeron|0|0.00
 Verdocil Nez Court|13|0.00
+vergadelle|0|0.00
+vermeil|15|1.35|vermeille
 Vermeille|15|0.81
+vermeilles|15|1.08|vermeille
+vermeils|15|0.34|vermeille
+véron|0|0.00
 Verrue à stries noires|9|0.00
 Verrue argentée|8|0.00
 Verrue au nez-court|10|0.00
@@ -3029,6 +4792,9 @@ Verrue Titête|10|0.00
 Vespère de Savi|41|0.00
 vespertilion à moustache|48|0.00
 Vespertilion de Californie|22|0.00
+veuve noire|0|0.00
+victoria|0|0.34
+victorias|0|0.14|victoria
 Vieille|30|184.12
 Vieille à selle noire|18|0.00
 Vieille à tache rouge|14|0.00
@@ -3054,6 +4820,7 @@ Vieille Tache De Rousseur|12|0.00
 Vieille Taches Rousseur|12|0.00
 Vieille tachetée|19|0.00
 Vieille Triple Queue|14|0.00
+vieilles|30|55.47|vieille
 Vielle|18|0.47
 Vielle Abielle|11|0.00
 Vielle Ananas|21|0.00
@@ -3079,7 +4846,13 @@ Vielle Saint-sillac|11|0.00
 Vielle Six Taches|18|0.00
 Vielle Voleuse|21|0.00
 Vielle Voyant|17|0.00
+vielles|18|0.20|vielle
+vieux|30|273.31|vieille
+vimbe|0|0.00
+vimbre|0|0.00
 Vipère de Mer|25|0.00
+virlé|0|0.00
+virli|0|0.00
 Vivaneau|15|0.00
 Vivaneau à Raies Bleues|16|0.00
 Vivaneau Africain Rouge|22|0.00
@@ -3097,6 +4870,7 @@ Vivaneau de Gorée|12|0.00
 Vivaneau de Guinée|11|0.00
 Vivaneau Dent-chien|17|0.00
 Vivaneau Doré|12|0.00
+vivaneau flamme|0|0.00
 Vivaneau Fourche|14|0.00
 Vivaneau Fourche d'Afrique|14|0.00
 Vivaneau garance|11|0.00
@@ -3104,6 +4878,7 @@ Vivaneau Gazon|18|0.00
 Vivaneau Gazou|18|0.00
 Vivaneau huachinango|13|0.00
 Vivaneau jaune|14|0.00
+vivaneau la flamme|0|0.00
 Vivaneau mexicain|15|0.00
 Vivaneau Noir|13|0.00
 Vivaneau Oreille Noire|14|0.00
@@ -3118,22 +4893,48 @@ Vivaneau Ti-yeux|17|0.00
 Vivaneau Tiyeux|17|0.00
 Vivaneau Voyeur|11|0.00
 Vivanette Japonaise|11|0.00
+vivano|0|0.00
 Vivanot|15|0.00
 Vivanot Jolle-bleu|21|0.00
 vive|35|30.61
 Vive à tête rayonnée|21|0.00
 Vive Araignée|19|0.00
+vive commune|0|0.00
+vive dragon|0|0.00
 Vive du Cap Vert|11|0.00
 Vive Rayée|21|0.00
+vive vipère|0|0.00
+vivelle|0|0.00
+vives|35|12.70|vive
 Vizet|38|0.00
 Voilier|22|2.77
+voiliers|22|2.09|voilier
 Vomer|11|0.00
 Vomer de Gorée|21|0.00
+vracton|0|0.00
+vracton croissant noir|0|0.00
+vracton gorge bleue|0|0.00
+vracton paon|0|0.00
 vrai perroquet|13|0.00
 Vroissant|20|0.00
+wahoo|0|0.00
+wampi|0|0.00
 Xénocongre Bicolore|9|0.00
+xiphias|0|0.00
+xipho|0|0.00
+xiphophore|0|0.00
+yaboy|0|0.00
 Yellow House Bat|21|0.00
 Yeux de Boeuf|18|0.00
 Yol Nègre|32|0.00
 Z'anchois|29|0.00
+zambo|0|0.00
+zancle|0|0.00
+zèbre|0|3.04
+zébrée|0|0.41|zebre
+zébrées|0|0.14|zebre
+zèbres|0|2.09|zebre
+zée|0|0.00
 Zée Forgeron|53|0.00
+zéidé|0|0.00
+zoarcidé|0|0.00

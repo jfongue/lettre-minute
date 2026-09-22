@@ -39,15 +39,18 @@ export const PULLS: readonly Pull[] = [
   },
   { id: 'elements', of: 'Q11344', aliases: true },
   { id: 'colors', of: 'Q1075', deep: true },
+  { id: 'colors-sub', of: 'Q1075', subclass: true },
   // Instances of "profession": the subclass tree of "occupation" holds trade
   // families ("métier du bois"), not the jobs themselves. Their French label is
   // the double-gendered form, which the import splits in two.
   { id: 'professions', of: 'Q28640' },
+  { id: 'professions-sub', of: 'Q28640', subclass: true },
   { id: 'instruments', of: 'Q34379', subclass: true },
   { id: 'sports', of: 'Q31629', deep: true },
+  { id: 'sports-sub', of: 'Q349', subclass: true },
   { id: 'fruits', of: 'Q3314483', subclass: true },
   { id: 'vegetables', of: 'Q11004', subclass: true },
-  { id: 'communes-fr', of: 'Q484170', minPopulation: 4000 },
+  { id: 'communes-fr', of: 'Q484170', minPopulation: 2000 },
   // The everyday names — chat, chien, cheval — hang off "organism known by a
   // particular common name", not off the taxon tree, and no vernacular pull
   // brings them back.
@@ -69,6 +72,16 @@ export const PULLS: readonly Pull[] = [
   { id: 'grasshoppers', of: 'Q167810', vernacular: true },
   { id: 'molluscs', of: 'Q25326', vernacular: true },
   { id: 'crustaceans', of: 'Q25364', vernacular: true },
+  { id: 'arachnids', of: 'Q1358', vernacular: true },
+  { id: 'annelids', of: 'Q25522', vernacular: true },
+  { id: 'echinoderms', of: 'Q44631', vernacular: true },
+  { id: 'cockroaches', of: 'Q25309', vernacular: true },
+  { id: 'mantises', of: 'Q131250', vernacular: true },
+  { id: 'lacewings', of: 'Q156438', vernacular: true },
+  { id: 'earwigs', of: 'Q13676', vernacular: true },
+  { id: 'mayflies', of: 'Q174273', vernacular: true },
+  { id: 'caddisflies', of: 'Q184616', vernacular: true },
+  { id: 'fleas', of: 'Q388162', vernacular: true },
 ]
 
 export interface CategorySource {
@@ -78,7 +91,7 @@ export interface CategorySource {
 
 export const CATEGORY_SOURCES: readonly CategorySource[] = [
   { id: 'pays', pulls: ['countries'] },
-  { id: 'couleurs', pulls: ['colors'] },
+  { id: 'couleurs', pulls: ['colors', 'colors-sub'] },
   { id: 'fruits-legumes', pulls: ['fruits', 'vegetables'] },
   {
     id: 'animaux',
@@ -99,16 +112,26 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
       'grasshoppers',
       'molluscs',
       'crustaceans',
+      'arachnids',
+      'annelids',
+      'echinoderms',
+      'cockroaches',
+      'mantises',
+      'lacewings',
+      'earwigs',
+      'mayflies',
+      'caddisflies',
+      'fleas',
     ],
   },
   { id: 'oiseaux', pulls: ['birds'] },
   { id: 'poissons', pulls: ['fish-ray', 'fish-cartilaginous'] },
   {
     id: 'insectes',
-    pulls: ['beetles', 'butterflies', 'flies', 'hymenoptera', 'hemiptera', 'dragonflies', 'grasshoppers'],
+    pulls: ['beetles', 'butterflies', 'flies', 'hymenoptera', 'hemiptera', 'dragonflies', 'grasshoppers', 'cockroaches', 'mantises', 'lacewings', 'earwigs', 'mayflies', 'caddisflies', 'fleas'],
   },
-  { id: 'metiers', pulls: ['professions'] },
-  { id: 'sports', pulls: ['sports'] },
+  { id: 'metiers', pulls: ['professions', 'professions-sub'] },
+  { id: 'sports', pulls: ['sports', 'sports-sub'] },
   { id: 'instruments', pulls: ['instruments'] },
   { id: 'capitales', pulls: ['capitals'] },
   { id: 'villes-de-france', pulls: ['communes-fr'] },

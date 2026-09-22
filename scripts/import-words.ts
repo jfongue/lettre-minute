@@ -14,9 +14,40 @@ import { CATEGORY_SOURCES, PULLS, queryFor, type Pull } from './sources.ts'
 const ENDPOINT = 'https://query.wikidata.org/sparql'
 const AGENT = 'LettrineWordImport/0.1 (https://github.com/jfongue; jeremy@enaos.com)'
 const CACHE = '.cache/pulls'
+const WIKT_CACHE = '.cache/wiktionary'
+const WIKTIONARY_API = 'https://fr.wiktionary.org/w/api.php'
 const OUT = 'src/data/words'
 const LEXIQUE_URL = 'http://www.lexique.org/databases/Lexique383/Lexique383.tsv'
 const LEXIQUE_CACHE = '.cache/lexique383.tsv'
+
+/**
+ * Wiktionary is where the everyday French words live: Wikidata knows fifty
+ * breeds of cat but not "abeille", and a category of common nouns built on it
+ * alone leaves the obvious answers out.
+ */
+const WIKTIONARY: Record<string, readonly string[]> = {
+  couleurs: ['Couleurs en français'],
+  'fruits-legumes': ['Fruits en français', 'Légumes en français'],
+  animaux: [
+    'Animaux en français',
+    'Mammifères en français',
+    'Oiseaux en français',
+    'Poissons en français',
+    'Insectes en français',
+    'Reptiles en français',
+    'Amphibiens en français',
+    'Mollusques en français',
+    'Crustacés en français',
+    'Arachnides en français',
+  ],
+  oiseaux: ['Oiseaux en français'],
+  poissons: ['Poissons en français'],
+  insectes: ['Insectes en français'],
+  metiers: ['Métiers en français'],
+  sports: ['Sports en français'],
+  instruments: ['Instruments de musique en français'],
+  'elements-chimiques': ['Éléments chimiques en français'],
+}
 
 interface Row {
   display: string
@@ -117,6 +148,45 @@ async function sparql(query: string, attempt = 1): Promise<Row[]> {
   }
 }
 
+async function wiktionaryWords(title: string, force: boolean): Promise<string[]> {
+  const path = `${WIKT_CACHE}/${title.replace(/[^a-zA-Z0-9]+/g, '-')}.json`
+  if (!force && existsSync(path)) {
+    return JSON.parse(readFileSync(path, 'utf8')) as string[]
+  }
+
+  const words: string[] = []
+  let cursor: string | null = null
+  // The API caps a listing at 500 entries; a category of several thousand words
+  // is walked page by page.
+  do {
+    const url = new URL(WIKTIONARY_API)
+    url.searchParams.set('action', 'query')
+    url.searchParams.set('list', 'categorymembers')
+    url.searchParams.set('cmtitle', `Catégorie:${title}`)
+    url.searchParams.set('cmlimit', '500')
+    url.searchParams.set('cmnamespace', '0')
+    url.searchParams.set('format', 'json')
+    if (cursor) url.searchParams.set('cmcontinue', cursor)
+
+    const response = await fetch(url, {
+      headers: { 'User-Agent': AGENT },
+      signal: AbortSignal.timeout(60_000),
+    })
+    if (!response.ok) throw new Error(`wiktionnaire ${title}: HTTP ${response.status}`)
+
+    const payload = (await response.json()) as {
+      query?: { categorymembers?: { title: string }[] }
+      continue?: { cmcontinue?: string }
+    }
+    for (const member of payload.query?.categorymembers ?? []) words.push(member.title)
+    cursor = payload.continue?.cmcontinue ?? null
+  } while (cursor && words.length < 20_000)
+
+  writeFileSync(path, JSON.stringify(words))
+  console.log(`· wiktionnaire ${title}: ${words.length} mots`)
+  return words
+}
+
 async function pullRows(pull: Pull, force: boolean): Promise<Row[]> {
   const path = `${CACHE}/${pull.id}.json`
   if (!force && existsSync(path)) {
@@ -132,8 +202,21 @@ async function pullRows(pull: Pull, force: boolean): Promise<Row[]> {
   return rows
 }
 
-/** Lexique 3.83, kept only as "normalized form → occurrences per million in books". */
-async function lexiqueFrequencies(): Promise<Map<string, number>> {
+interface Lexique {
+  /** Normalized form → occurrences per million in books. */
+  frequency: Map<string, number>
+  /** Normalized form → the lemma it belongs to. */
+  lemmaOf: Map<string, string>
+  /** Normalized lemma → every noun and adjective form, in their own spelling. */
+  formsOf: Map<string, string[]>
+}
+
+/**
+ * Lexique 3.83 gives both how common a word is and how it bends. The game needs
+ * the second as much as the first: a player who types "chats" or "bleue" has
+ * answered, and only the inflected forms say so.
+ */
+async function loadLexique(): Promise<Lexique> {
   if (!existsSync(LEXIQUE_CACHE)) {
     console.log('· lexique: téléchargement')
     const response = await fetch(LEXIQUE_URL, { signal: AbortSignal.timeout(180_000) })
@@ -145,18 +228,39 @@ async function lexiqueFrequencies(): Promise<Map<string, number>> {
   const header = lines[0]!.split('\t')
   const orthoAt = header.indexOf('ortho')
   const freqAt = header.indexOf('freqlivres')
-  if (orthoAt < 0 || freqAt < 0) throw new Error('lexique: colonnes ortho/freqlivres introuvables')
+  const lemmaAt = header.indexOf('lemme')
+  const gramAt = header.indexOf('cgram')
+  if (orthoAt < 0 || freqAt < 0 || lemmaAt < 0 || gramAt < 0) {
+    throw new Error('lexique: colonnes ortho/freqlivres/lemme/cgram introuvables')
+  }
 
-  const frequencies = new Map<string, number>()
+  const frequency = new Map<string, number>()
+  const lemmaOf = new Map<string, string>()
+  const formsOf = new Map<string, string[]>()
+
   for (const line of lines.slice(1)) {
     const columns = line.split('\t')
-    const word = normalizeWord(columns[orthoAt] ?? '')
-    const frequency = Number(columns[freqAt] ?? 0)
-    if (word === '' || !Number.isFinite(frequency)) continue
-    frequencies.set(word, Math.max(frequencies.get(word) ?? 0, frequency))
+    const spelling = (columns[orthoAt] ?? '').trim()
+    const word = normalizeWord(spelling)
+    const value = Number(columns[freqAt] ?? 0)
+    if (word === '') continue
+    if (Number.isFinite(value)) frequency.set(word, Math.max(frequency.get(word) ?? 0, value))
+
+    // Verbs and function words would drag a category into forms nobody would
+    // accept as an answer; a noun or an adjective is what a category holds.
+    const gram = columns[gramAt] ?? ''
+    if (gram !== 'NOM' && gram !== 'ADJ') continue
+
+    const lemma = normalizeWord(columns[lemmaAt] ?? '')
+    if (lemma === '') continue
+    lemmaOf.set(word, lemma)
+    const forms = formsOf.get(lemma) ?? []
+    if (!forms.includes(spelling)) forms.push(spelling)
+    formsOf.set(lemma, forms)
   }
-  console.log(`· lexique: ${frequencies.size} formes`)
-  return frequencies
+
+  console.log(`· lexique: ${frequency.size} formes, ${formsOf.size} lemmes`)
+  return { frequency, lemmaOf, formsOf }
 }
 
 /**
@@ -173,6 +277,7 @@ function acceptable(display: string): boolean {
 
 function main(argv: readonly string[]) {
   mkdirSync(CACHE, { recursive: true })
+  mkdirSync(WIKT_CACHE, { recursive: true })
   mkdirSync(OUT, { recursive: true })
 
   const only = new Set(argv)
@@ -180,7 +285,7 @@ function main(argv: readonly string[]) {
   const wanted = PULLS.filter((pull) => only.size === 0 || force || only.has(pull.id))
 
   return (async () => {
-    const frequencies = await lexiqueFrequencies()
+    const lexique = await loadLexique()
     const byPull = new Map<string, Row[]>()
     const failed: string[] = []
     for (const pull of wanted) {
@@ -235,15 +340,49 @@ function main(argv: readonly string[]) {
         }
       }
 
-      const lines = [...best.entries()]
+      for (const title of WIKTIONARY[source.id] ?? []) {
+        try {
+          for (const word of await wiktionaryWords(title, false)) {
+            const display = word.trim().replace(/\s+/g, ' ')
+            if (!acceptable(display)) continue
+            const key = normalizeWord(display)
+            if (key === '' || best.has(key)) continue
+            // No sitelinks: a Wiktionary word is rated on its corpus frequency
+            // alone, which is exactly what a common noun has.
+            best.set(key, { display, sitelinks: 0 })
+          }
+        } catch (error) {
+          console.warn(`! wiktionnaire ${title}: ${(error as Error).message}`)
+        }
+      }
+
+      // Every inflected form of an accepted word is accepted too, pointing back
+      // at it: "chats" scores like "chat", and cannot be played twice in the
+      // same run under two spellings.
+      const rows = new Map<string, string>()
+      for (const [key, entry] of best) {
+        rows.set(key, `${entry.display}|${entry.sitelinks}|${(lexique.frequency.get(key) ?? 0).toFixed(2)}`)
+      }
+
+      let variants = 0
+      for (const [key, entry] of best) {
+        const lemma = lexique.lemmaOf.get(key)
+        if (!lemma) continue
+        for (const form of lexique.formsOf.get(lemma) ?? []) {
+          const formKey = normalizeWord(form)
+          if (formKey === '' || rows.has(formKey) || !acceptable(form)) continue
+          const frequency = lexique.frequency.get(formKey) ?? 0
+          rows.set(formKey, `${form}|${entry.sitelinks}|${frequency.toFixed(2)}|${key}`)
+          variants++
+        }
+      }
+
+      const lines = [...rows.entries()]
         .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-        .map(([key, entry]) => {
-          const frequency = frequencies.get(key) ?? 0
-          return `${entry.display}|${entry.sitelinks}|${frequency.toFixed(2)}`
-        })
+        .map(([, line]) => line)
 
       writeFileSync(`${OUT}/${source.id}.txt`, `${lines.join('\n')}\n`)
-      console.log(`→ ${source.id}: ${lines.length} mots`)
+      console.log(`→ ${source.id}: ${lines.length} mots (dont ${variants} formes fléchies)`)
     }
     if (failed.length > 0) console.warn(`! sources en échec : ${failed.join(', ')}`)
   })()

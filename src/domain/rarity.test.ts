@@ -2,22 +2,18 @@ import { describe, expect, it } from 'vitest'
 import { comboMultiplier, NO_USAGE, notoriety, pointsFor, rarityScore, tierOf } from './rarity'
 import type { WordEntry } from './words'
 
-const common: WordEntry = { display: 'Chat', sitelinks: 150, frequency: 120 }
-const obscure: WordEntry = { display: 'Zébu', sitelinks: 40, frequency: 0.3 }
-const famousProperNoun: WordEntry = { display: 'France', sitelinks: 428, frequency: 0 }
+const common: WordEntry = { key: 'chat', display: 'Chat', sitelinks: 150, frequency: 120, notoriety: 0.95 }
+const obscure: WordEntry = { key: 'zebu', display: 'Zébu', sitelinks: 40, frequency: 0.3, notoriety: 0.2 }
 
 describe('notoriety', () => {
-  it('reads a common noun through the corpus and a proper noun through its fame', () => {
-    expect(notoriety(common)).toBeGreaterThan(0.85)
-    expect(notoriety(famousProperNoun)).toBeGreaterThan(0.9)
-  })
-
-  it('leaves room between a known word and a rare one', () => {
+  it('reads the rank the dictionary computed', () => {
+    expect(notoriety(common)).toBe(0.95)
     expect(notoriety(obscure)).toBeLessThan(notoriety(common))
   })
 
-  it('stays within 0 and 1 for a word nothing knows', () => {
-    expect(notoriety({ display: 'X', sitelinks: 0, frequency: 0 })).toBe(0)
+  it('stays within 0 and 1 whatever it is handed', () => {
+    expect(notoriety({ key: 'x', display: 'X', sitelinks: 0, frequency: 0, notoriety: -1 })).toBe(0)
+    expect(notoriety({ key: 'y', display: 'Y', sitelinks: 0, frequency: 0, notoriety: 4 })).toBe(1)
   })
 })
 

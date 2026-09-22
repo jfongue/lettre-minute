@@ -33,6 +33,10 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Une catégorie du catalogue sans fichier de mots est écartée du tirage**
   (`src/App.tsx`) : ajouter une entrée à `CATALOGUE` ne suffit pas, il faut
   lancer `npm run import:words` et commiter le `.txt`.
+- **Le Wiktionnaire est la source des noms communs**, Wikidata celle des
+  entités : Wikidata connaît cinquante races de chat mais pas « abeille ». Une
+  catégorie de noms communs bâtie sur Wikidata seul laisse dehors les réponses
+  évidentes.
 - **L'import Wikidata est fragile par nature** : les requêtes lourdes (taxons)
   dépassent la limite serveur, et les réponses JSON reviennent parfois tronquées
   à un mégaoctet. D'où le cache par source sous `.cache/pulls`, le repli CSV à la
@@ -40,6 +44,13 @@ qu'un nouvel arrivant casserait sans le savoir.
   ont répondu. Un identifiant de taxon se vérifie auprès de l'API Wikidata avant
   d'être écrit dans `scripts/sources.ts` — une classe inexistante renvoie zéro
   ligne sans erreur.
+- **Une forme fléchie porte la clé du mot qu'elle fléchit** (`WordEntry.key`).
+  C'est ce qui empêche « chat » puis « chats » de marquer deux fois dans la même
+  partie — et ce qui fera la même chose pour « USA » et « États-Unis ». Toute
+  comparaison de mots joués passe par cette clé, jamais par la forme tapée.
+- **La notoriété est calculée au chargement du dictionnaire**
+  (`rankNotoriety`), pas à la volée : c'est un rang dans la catégorie, donc elle
+  dépend de l'ensemble du fichier et ne peut pas se déduire d'une entrée seule.
 - **Le chrono se recalcule depuis `Date.now()` à chaque frame**, pas en cumulant
   le delta : un onglet en arrière-plan suspend `requestAnimationFrame` mais pas
   l'horloge murale.

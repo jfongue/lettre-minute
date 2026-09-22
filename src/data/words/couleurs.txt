@@ -1,22 +1,48 @@
 abricot|17|1.15
+abricots|17|1.35|abricot
+absinthe|0|2.91
+Abtönfarbe|1|0.00
 acajou|12|5.81
+acajous|12|0.14|acajou
 aigue-marine|33|0.47
+aigues-marines|33|0.34|aigue marine
+albâtre|2|2.97
+albâtres|2|0.14|albatre
 alezan|22|1.01
 alezan brûlé|1|0.00
 alezan crins lavés|5|0.00
 Alezan dun|1|0.00
+alezane|22|1.82|alezan
+alezanes|22|0.07|alezan
+alezans|22|0.34|alezan
 Alvon|1|0.00
 amarante|22|0.54
+amarantes|22|0.34|amarante
 ambre|30|4.39
+ambrée|30|1.08|ambre
+ambrées|30|0.14|ambre
+ambrés|30|0.20|ambre
 amélanisme|5|0.00
 améthyste|15|0.27
+améthystes|15|0.54|amethyste
 anthracite|6|1.76
+anthracites|6|0.07|anthracite
 aposématisme|41|0.00
+arc-en-céleste|0|0.00
+arc-en-ciel|0|3.92
+arcencéleste|0|0.00
+arcs-en-ciel|0|0.54|arc en ciel
+Argel|1|0.00
 argent|57|194.32
+argents|57|0.07|argent
 Asperge|4|5.88
+asperges|4|2.77|asperge
 aubère|5|0.14
+aubères|5|0.14|aubere
 aubergine|12|0.61
+aubergines|12|0.74|aubergine
 azur|45|9.39
+azurs|45|0.14|azur
 bai|24|1.22
 bai-brun|10|0.00
 bai dun|2|0.00
@@ -28,16 +54,45 @@ baie grise|0|0.00
 baie noire|0|0.00
 baie rosée|0|0.00
 baillet|1|0.00
+bais|24|0.14|bai
+baise-moi-ma-mignonne|0|0.00
+baisez-moi-mignonne|0|0.00
+balzan|5|0.00
+bariolé|0|1.35
+bariolée|0|1.76|bariole
+bariolées|0|0.88|bariole
+bariolés|0|1.49|bariole
 beige|47|6.82
+beiges|47|1.28|beige
 Berliner Blau|1|0.00
+beurre|0|27.50
+beurrée|0|0.47|beurre
+beurrées|0|1.15|beurre
+beurres|0|0.47|beurre
+bichrome|0|0.00
+bicolore|0|0.47
+bicolores|0|0.20|bicolore
+bigarré|0|0.34
+bigarrée|0|0.88|bigarre
+bigarrées|0|0.07|bigarre
+bigarrés|0|0.34|bigarre
 bioluminescence|68|0.00
 bis|1|1.82
+bises|1|0.61|bis
+Bismarck brown|2|0.00
 bisque|4|0.54
+bisques|4|0.07|bisque
 blanc|184|152.03
 blanc cassé|2|0.00
 blanc de zinc|8|0.00
 blanc dominant|9|0.00
+blanc lunaire|1|0.00
 blanc sale|2|0.00
+blanche|184|145.07|blanc
+blanches|184|60.68|blanc
+blancheur|1|14.73
+blancheurs|1|0.54|blancheur
+blancs|184|72.77|blanc
 bleu|188|100.41
 bleu acier|9|0.00
 bleu ardoise|0|0.00
@@ -47,6 +102,7 @@ Bleu bondi|4|0.00
 Bleu Chalosse|0|0.00
 bleu charrette|1|0.00
 bleu ciel|43|0.07
+bleu clair|16|0.00
 bleu de cobalt|33|0.00
 Bleu de France|11|0.00
 bleu de schtroumpf|0|0.00
@@ -64,6 +120,7 @@ Bleu Majorelle|6|0.00
 bleu marine|31|0.00
 bleu maya|14|0.00
 bleu minéral|1|0.00
+bleu-noir|0|1.01
 bleu nuit|15|0.00
 bleu pâle|1|0.00
 bleu paon|4|0.00
@@ -76,42 +133,92 @@ bleu turquoise|2|0.00
 bleu-vert|12|0.47
 bleu-violet|2|0.00
 bleu YInMn|11|0.00
+bleue|188|53.11|bleu
+bleues|188|21.28|bleu
+bleus|188|32.84|bleu
 blond|1|21.28
 blond moyen|0|0.00
 blond vénitien|4|0.00
+blonde|1|29.93|blond
+blondes|1|7.16|blond
+blonds|1|18.38|blond
 bordeaux|24|3.78
 bourgogne|25|1.01
+bourgognes|25|0.34|bourgogne
+bouteille|0|70.41
+bouteilles|0|33.65|bouteille
+boyau de lièvre|0|0.00
 bringé|13|0.00
 brique|2|11.69
+briques|2|19.86|brique
 British Racing Green|14|0.00
 bronze|17|18.58
 bronze autrichien|19|0.00
+bronzée|17|1.55|bronze
+bronzées|17|1.22|bronze
+bronzes|17|1.08|bronze
 brun|134|21.35
 brun foncé|2|0.00
 brun gris|1|0.00
+brun-noir|0|0.00
 brun rosé|0|0.00
+brune|134|25.34|brun
+brunes|134|10.61|brun
+bruns|134|10.88|brun
+Buntfeh|1|0.00
 cacao|1|1.42
+cacaos|1|0.00|cacao
 cachou|1|0.41
+cachous|1|0.41|cachou
 Caesius|1|0.00
 café|8|154.93
 café au lait|0|0.00
+cafés|8|22.36|cafe
 cannelle|6|2.97
+capucine|2|0.27
+capucines|2|0.95|capucine
 caramel|1|2.30
+caramels|1|1.08|caramel
 carmin|22|0.68
+carmins|22|0.14|carmin
 carnation|15|1.08
 carotte|3|2.97
+carottes|3|5.34|carotte
 céleste|11|5.81
+célestes|11|1.49|celeste
 cendré|7|11.08
+cendrée|7|0.41|cendre
+cendrées|7|0.20|cendre
+cendres|7|17.77|cendre
 Cerise|18|3.31
+cerises|18|6.76|cerise
+chamarré|0|0.81
+chamarrée|0|0.27|chamarre
+chamarrées|0|0.14|chamarre
+chamarrés|0|0.61|chamarre
 chamois|21|2.57
 champagne|7|29.86
 Champagne or|1|0.00
+champagnes|7|0.00|champagne
 chartreuse|32|0.34
+chartreuses|32|0.14|chartreuse
+chartreux|32|0.68|chartreuse
 châtain|19|1.55
+châtaine|19|0.20|chatain
+châtaines|19|0.07|chatain
+châtains|19|2.43|chatain
+chatoiement|0|1.01
+chatoiements|0|0.34|chatoiement
+chatoyance|0|0.00
+chatoyant|0|0.74
+chatoyante|0|0.54|chatoyant
+chatoyantes|0|0.47|chatoyant
+chatoyants|0|0.27|chatoyant
 cheveux ambre|0|0.00
 cheveux argentés|1|0.00
 cheveux auburn|10|0.00
 cheveux blancs|25|0.00
+cheveux blancs précoces|4|0.00
 cheveux bleus|6|0.00
 cheveux blond platine|0|0.00
 cheveux blonds|59|0.00
@@ -131,62 +238,171 @@ cheveux roses|2|0.00
 cheveux roux|48|0.00
 cheveux verts|3|0.00
 chocolat|16|30.61
+chocolats|16|4.26|chocolat
+chromatophore|39|0.00
+Chromo|1|0.81
+chromos|1|1.35|chromo
+cinabre|1|0.14
+cinéma en noir et blanc|7|0.00
+clair|0|91.01
+claire|0|38.04|clair
+claires|0|12.91|clair
+clairs|0|14.73|clair
+coloration animale|19|0.00
+coloré|0|2.36
+colorée|0|2.09|colore
+colorées|0|2.36|colore
+colorés|0|2.70|colore
 contre-hermine|2|0.00
 contre-vair|2|0.00
 corail|30|2.97
+coraux|30|0.54|corail
 corinthe|0|0.07
-couleur|0|118.65
+couleur|230|118.65
+couleur chaude|0|0.00
+couleur complémentaire|38|0.00
+couleur de l'eau|20|0.00
 couleur de la peau humaine|46|0.00
 couleur des cheveux|32|0.00
+couleur des diamants|7|0.00
 couleur des fruits|0|0.00
+couleur des yeux|54|0.00
+couleur du Web|63|0.00
+couleur froide|0|0.00
+couleur impossible|12|0.00
 Couleur Lion|8|0.00
+couleur liturgique|31|0.00
+couleur locale|5|0.00
 couleur Pantone|0|0.00
+couleur politique|19|0.00
+couleur primaire|62|0.00
+couleur pure|0|0.00
+couleur quaternaire|1|0.00
+couleur rat|2|0.00
+couleur secondaire|28|0.00
+couleur sélective|3|0.00
+couleur spectrale|21|0.00
+couleur structurale|21|0.00
+couleur tertiaire|20|0.00
+couleurs|230|80.07|couleur
+Couleurs de l'icône|1|0.00
+Couleurs nationales|20|0.00
 cramoisi|41|2.70
+cramoisie|41|0.47|cramoisi
+cramoisies|41|0.47|cramoisi
+cramoisis|41|0.61|cramoisi
 crème|32|20.95
+crèmes|32|3.51|creme
+cristal photonique|26|0.00
+cristal phoxonique|1|0.00
 cuisse de Nymphe|3|0.00
 cuivre|22|30.68
+cuivrée|22|1.15|cuivre
+cuivrées|22|0.41|cuivre
+cuivres|22|5.41|cuivre
 cyan|80|0.00
+cyanisme|2|0.00
+de l'un à l'autre|1|0.00
+de l'un en l'autre|4|0.00
 denim|3|0.00
+denims|3|0.07|denim
+diapré|0|0.07
+diaprée|0|0.14|diapre
+diaprés|0|0.20|diapre
 Dunalino|0|0.00
 dunskin|0|0.00
 écarlate|45|5.95
+écarlates|45|2.64|ecarlate
 écru|17|0.34
+écrue|17|0.74|ecru
 Eigengrau|19|0.00
+émail|5|5.74
+emails|5|0.00|email
+émaux|5|0.68|email
 Fallow|8|0.00
+famille du bai|0|0.00
 fauve|9|7.77
+fauves|9|5.61|fauve
 feldgrau|15|0.47
+fibromélanose|1|0.00
+ficelle|0|13.38
+ficelles|0|7.84|ficelle
 Flax|8|0.00
+fluo|0|0.20
+fluorescence|69|0.14
+fluorescence lunaire|1|0.00
+fourrure|11|16.89
+fourrure de chat|3|0.00
+fourrures|11|4.53|fourrure
 fraise|3|3.92
+fraise écrasée|1|0.00
+fraises|3|6.15|fraise
 framboise|15|3.92
+framboise écrasé|0|0.00
+framboises|15|0.95|framboise
 fuchsia|27|0.34
+fuchsias|27|0.20|fuchsia
 fumée|4|55.88
+fumées|4|11.49|fumee
+Furvus|1|0.00
 garance|8|0.34
+Gène champagne|12|0.00
+gène dun|21|0.00
 Gène rouan du cheval|21|0.00
 Gène sooty|6|0.00
 glauque|15|6.82
+glauques|15|2.50|glauque
 gomme-gutte|21|0.00
 grenadine|2|3.72
+grenadines|2|0.27|grenadine
 grenat|9|3.85
+grenats|9|0.27|grenat
 gris|135|88.31
 gris acier|2|0.00
 gris ardoise|12|0.00
+gris-bleu|0|1.69
+gris brunâtre|0|0.00
 gris clair|4|0.00
 gris de lin|4|0.00
 gris de Payne|6|0.00
 gris sombre|5|0.00
+grise|135|49.39|gris
+grises|135|17.16|gris
 groseille|1|0.54
+groseilles|1|1.35|groseille
+guède|0|0.00
+gueule|23|100.14|gueules
 gueules|23|9.80
+havane|0|0.68
+havanes|0|0.47|havane
+Helesor|1|0.00
 héliotrope|10|0.27
+héliotropes|10|0.14|heliotrope
 herminais|1|0.00
+hermine|21|1.62
+hermines|21|0.07|hermine
+Hétérochromie chez le chat|14|0.00
 hétérochromie sectorielle|1|0.00
 incarnat|4|0.41
+incolore|3|3.92
+incolores|3|1.08|incolore
+indigo|0|1.55
 indigo et blanc|1|0.00
 International Klein Blue|13|0.00
+International orange|12|0.00
 iridescence|45|0.00
+iridescent|0|0.00
+iridescentes|0|0.07|iridescent
+irisé|0|0.41
+irisée|0|0.61|irise
+irisées|0|0.54|irise
+irisés|0|0.41|irise
 Isabelle|16|0.47
 Israël blue|0|0.00
 ivoire|25|7.84
+ivoires|25|0.54|ivoire
 jade|3|3.38
+jades|3|0.14|jade
 jaune|190|75.81
 jaune-blanc|0|0.00
 jaune-brun|0|0.00
@@ -194,143 +410,325 @@ jaune cédrat|6|0.00
 jaune citron|15|0.00
 Jaune de cadmium|13|0.00
 jaune de Naples|15|0.00
+jaune gomme-gutte|0|0.00
 Jaune indien|15|0.00
 jaune-orange|2|0.00
+jaune paille|0|0.00
 jaune-vert|0|0.20
+jaunes|190|34.05|jaune
+jauni|0|2.09
+jaunie|0|1.89|jauni
+jaunies|0|1.96|jauni
+jaunis|0|2.43|jauni
 kaki|51|5.34
+kakis|51|0.27|kaki
+Kula|1|0.07
 Latte cosmique|24|0.00
 lavande|23|6.82
+lavandes|23|0.41|lavande
 le vert saoudien|1|0.00
+leucistisme|32|0.00
 lie de vin|24|1.08
 lilas|40|5.47
 lime|35|2.91
+limes|35|0.74|lime
 Lubryka|1|0.00
 magenta|75|0.00
+malachite|3|0.27
+malvacé|0|0.00
 Marmoré|3|0.00
 marron|38|13.72
 marron clair|1|0.00
 marron foncé|1|0.00
+marron pourpré|0|0.00
+marrons|38|3.92|marron
 mauve|27|10.68
+mauves|27|6.96|mauve
+mélanisme|40|0.00
+mélanocyte|43|0.00
 menthe|2|9.39
+menthes|2|0.14|menthe
 menu-vair|2|0.00
+métal|6|41.82
+métallique|7|16.49
+métalliques|7|7.30|metallique
+métaux|6|2.91|metal
 mimétisme|58|1.55
+minorange|0|0.00
+monochromatique|5|0.00
 monochrome|27|0.20
+monochromes|27|0.20|monochrome
+monochromie|0|0.07
 moutarde|12|4.93
+moutardes|12|0.07|moutarde
+multicolore|1|3.04
+multicolores|1|10.68|multicolore
+mur|7|172.57|mure
 mûre|7|4.80
+mûres|7|2.70|mure
+murs|7|145.20|mure
+nacarat|3|0.20
 Natural Color System|20|0.00
 naturel|5|38.65
+naturelle|5|24.86|naturel
+naturelles|5|6.28|naturel
+naturels|5|5.88|naturel
+nègre|0|15.54
+nègres|0|7.03|negre
+négresse|0|3.78|negre
+négresses|0|1.28|negre
 Nigrysisme|1|0.00
+niveau de gris|24|0.00
+Niveus|1|0.00
 noir|196|184.86
 noir de jais|4|0.00
+noir et blanc|47|0.00
 noir réglisse|7|0.00
 noir rouan|2|0.00
 noir silver|1|0.00
 noir violacé|0|0.00
+noire|196|140.88|noir
+noires|196|62.64|noir
+noirs|196|93.85|noir
 noisette|5|1.82
+noisettes|5|2.30|noisette
+nuage iridescent|26|0.00
+nuance|0|10.88
+nuance de blanc|8|0.00
+nuancée|0|0.14|nuance
+nuancées|0|0.07|nuance
+nuances|0|9.93|nuance
+nuances de vert|5|0.00
 Nuancier de Munsell|24|0.00
 ocre|19|4.73
+ocrée|19|0.20|ocre
+ocres|19|0.68|ocre
+ognon|0|0.00
+oignon|0|5.34
+oignons|0|10.20|oignon
 olive|48|4.12
 olive brun|1|0.00
+olives|48|4.73|olive
+ombré hair|4|0.00
+opalin|0|0.41|opaline
+opaline|0|1.28
+opalines|0|0.07|opaline
+opalins|0|0.14|opaline
 or|61|127.23
 orange|151|12.03
 Orange cosmique|0|0.00
 orange-jaune|0|0.00
+orangée|151|1.62|orange
+orangées|151|0.61|orange
+oranges|151|7.57|orange
 orchidée|11|1.42
+orchidées|11|1.15|orchidee
+ors|61|2.77|or
 outremer véritable|1|0.00
 overo|5|0.00
 palomino|29|0.00
 Pantone Matching System|8|0.00
 Papaya|4|0.00
 parme|2|0.81
+pastel|21|2.30
+pastels|21|0.88|pastel
 péan|1|0.07
 peau blanche|12|0.00
 peau noire|10|0.00
 perlino|1|0.00
 pers|1|0.27
 pervenche|16|1.08
+pervenches|16|0.47|pervenche
 phosphorescence|52|0.68
+phosphorescences|52|0.20|phosphorescence
 pie|22|3.18
+pies|22|1.15|pie
 pigmentation|1|0.14
 Pink PP|2|0.00
+pisseux|0|1.89
+pissouille|0|0.00
 pistache|5|0.74
+pistaches|5|0.95|pistache
 plasticité phénotypique|29|0.00
 platine|9|3.18
+platinée|9|0.61|platine
+platinées|9|0.34|platine
+platines|9|0.14|platine
+plumage|23|2.30
+plumages|23|0.34|plumage
+polychrome|0|0.74
+polychromées|0|0.14|polychrome
+polychromes|0|0.34|polychrome
 ponceau|10|0.34
+ponceaux|10|0.07|ponceau
 pourpre|103|4.73
+pourpre de Tyr|38|0.00
+pourprée|103|0.14|pourpre
+pourpres|103|2.09|pourpre
 Protéine fluorescente verte|41|0.00
 prune|11|1.55
+prunes|11|4.12|prune
 puce|12|3.58
+puces|12|8.85|puce
+quadrichrome|0|0.00
+quadrichromie|0|0.34
+quadrichromies|0|0.14|quadrichromie
+quadrichromique|0|0.00
+quadricolore|0|0.00
 Rabicano|8|0.00
+robe|6|111.96
 robe blanche du cheval|14|0.00
 robe de cheval|27|0.00
+robe de chien|13|0.00
 robe du bovin|1|0.00
 Robe tachetée du cheval|14|0.00
+robes|6|36.22|robe
 rose|129|66.62
 Rose Baker-Miller|7|0.00
 Rose bonbon|6|0.00
 rose clair|1|0.00
+rose cochon|0|0.00
 rose Mountbatten|10|0.00
+rose pétant|0|0.00
+rose Pompadour|3|0.00
 rose shocking|9|0.00
 rose vif|25|0.00
+roses|129|29.46|rose
+rosette|8|1.76
+rosettes|8|0.27|rosette
 Rosso Corsa|8|0.00
 rouge|210|195.27
+Rouge anglais|1|0.00
+rouge brique|0|0.00
+rouge-brun|0|0.20
 rouge cardinal|20|0.00
 rouge d'Andrinople|8|0.00
+Rouge d'aniline|1|0.00
 rouge de cadmium|4|0.00
 rouge de Falun|26|0.00
+Rouge écrevisse|2|0.00
 rouge feu|7|0.07
 rouge foncé|5|0.00
 rouge indien|9|0.00
-rouge-orangé|0|0.00
+rouge-orangé|4|0.00
 rouge persan|7|0.00
 rouge pompéien|7|0.00
 rouge pourpre|2|0.00
 rouge signalisation|3|0.00
 rouge tomate|3|0.00
+Rouge tomette|1|0.00
 rouge Venise|0|0.00
 rouge-violet|10|0.00
+rouges|210|77.97|rouge
 rouille|21|8.72
+rouilles|21|4.26|rouille
+rousse|13|15.00|roux
+rousses|13|4.73|roux
 roux|13|20.68
+Rubidus|1|0.00
 rubis|10|3.11
+Russus|2|0.00
 sabino|8|0.00
 sable|23|87.91
+sablée|23|0.14|sable
+sablées|23|0.07|sable
+sables|23|8.65|sable
 safran|28|1.89
+Samoyède|50|0.07
 sang|10|205.20
+sangs|10|2.09|sang
 Sanguine|10|0.95
+sanguines|10|0.20|sanguine
 saphir|0|1.22
+saphirs|0|0.74|saphir
+sapin|0|9.86
+sapins|0|16.42|sapin
 sarcelle|30|0.27
+sarcelles|30|0.54|sarcelle
 saumon|25|3.65
+saumoné|0|0.07
+saumonée|0|0.20|saumone
+saumonées|0|0.20|saumone
+saumons|25|1.08|saumon
 sépia|36|1.08
+sépias|36|0.07|sepia
 sept couleurs prismatiques|0|0.00
 sinopia|15|0.00
 sinople|22|0.14
 Skotasme|1|0.00
 smoky cream|1|0.00
 solidago|4|0.00
+sombre|0|93.72
+sombres|0|32.03|sombre
+soufre|0|4.53
+soufrée|0|0.20|soufre
+soufrées|0|0.14|soufre
+soufrés|0|0.07|soufre
 souris|7|22.57
+Superprisme|3|0.00
+système de couleurs|4|0.00
 tan|18|0.20
 tangerine|8|0.14
 tanné|11|1.35
+tannée|11|1.08|tanne
+tannées|11|0.27|tanne
+tannes|11|0.27|tanne
+tans|18|0.00|tan
 Taupe|16|2.84
+taupes|16|1.55|taupe
+teint|0|23.58
 teint olive|13|0.00
+teinte|0|7.43|teint
+teintes|0|5.47|teint
+teints|0|1.62|teint
 terracotta|8|0.00
 terre d'ombre|25|0.00
 terre de Sienne|23|0.00
 terre verte|9|0.00
 tigre noir|9|0.00
+tilleul|0|5.00
+tilleuls|0|6.01|tilleul
 Tobiano|7|0.00
+Ton direct|8|0.00
+tourtereau|3|0.00|tourterelle
+tourtereaux|3|0.61|tourterelle
 tourterelle|3|1.01
+tourterelles|3|0.88|tourterelle
 Tovero|3|0.00
+trait|43|37.91
+traite|43|11.49|trait
+traites|43|7.03|trait
+traits|43|59.39|trait
+trichrome|0|0.00
+tricolore|0|6.08
+tricolores|0|1.42|tricolore
+turc|0|4.26
+turcs|0|2.09|turc
+turque|0|2.70|turc
+turques|0|1.49|turc
 turquoise|49|2.77
+turquoises|49|0.41|turquoise
 vair|18|0.27
 vair antique|2|0.00
 vair en pal|2|0.00
 vair en pointe|1|0.00
 vair potencé|1|0.00
 vairé|3|0.00
+vairon|0|0.20
+vairons|0|0.41|vairon
 vanille|1|3.38
+vanillée|1|0.07|vanille
+vanillées|1|0.07|vanille
+Vantablack|35|0.00
+varicolore|0|0.00
 Venetus|1|0.00
+vermeil|1|1.35
+vermeille|1|0.81|vermeil
+vermeilles|1|1.08|vermeil
+vermeils|1|0.34|vermeil
 vermillon|43|1.15
+vermillons|43|0.14|vermillon
+versicolore|0|0.00
 vert|194|59.12
 vert bouteille|3|0.00
 vert céladon|9|0.00
@@ -351,11 +749,22 @@ vert printemps|17|0.00
 vert sapin|5|0.00
 vert sauge|5|0.00
 vert tilleul|2|0.00
+vert wagon|0|0.00
+verte|194|38.45|vert
+vertes|194|23.72|vert
+verts|194|23.85|vert
 violet|115|7.91
 violet-brun|0|0.00
 violet d'Edo|2|0.00
 violet-noir|0|0.00
+violets|115|4.39|violet
+violette|115|9.12|violet
+violettes|115|4.86|violet
+violine|2|0.20
+violines|2|0.07|violine
 Viride|5|0.00
 vision des couleurs|43|0.00
+Waffenfarbe|9|0.00
+xanadu|0|0.00
 yeux clairs|1|0.00
 yeux sombres|1|0.00

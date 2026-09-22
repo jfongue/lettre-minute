@@ -7,9 +7,11 @@ accordéon chromatique|8|0.00
 accordéon de Styrie|6|0.00
 accordéon diatonique|22|0.00
 accordéon électrique|0|0.00
+accordéons|113|0.68|accordeon
 accordina|4|0.00
 Acoustic drums|0|0.00
 acoustique|2|0.74
+acoustiques|2|0.07|acoustique
 Adjalin|3|0.00
 Adufe|12|0.00
 Adungu|10|0.00
@@ -40,17 +42,23 @@ altmezzo|1|0.00
 alto|92|0.95
 alto bouffe|1|0.00
 alto garçon|0|0.00
+altos|92|0.14|alto
 Alzapúa|3|0.00
+anacara|0|0.00
 anagyre|13|0.00
+ancive|0|0.00
 Ang Kuy|1|0.00
 Angélique|10|3.85
+angéliques|10|1.01|angelique
 angklung|35|0.00
+antiphonel|0|0.00
 Apertintaille|1|0.00
 Apollonicon|3|0.00
 appareil phonatoire|16|0.00
 appareil vocal|3|0.00
 appeau|6|0.27
 appeau à canard|3|0.00
+appeaux|6|0.14|appeau
 arbajo|3|0.00
 arc-en-terre|3|0.00
 arc musical|18|0.00
@@ -61,6 +69,7 @@ archiquier|3|0.00
 Ardîn|10|0.07
 arghoul|11|0.00
 Aria Pro II|3|0.00
+ariston|0|0.00
 Armónico|7|0.00
 ARP Avatar|2|0.00
 ARP Odyssey|7|0.00
@@ -81,6 +90,7 @@ Atenteben|4|0.00
 atumpan|1|0.00
 aulos|39|0.07
 autoharpe|24|0.00
+automatophone|0|0.00
 Auxetophone|2|0.00
 avertisseur à air|9|0.00
 Axatse|4|0.00
@@ -96,14 +106,17 @@ Bajo quinto|4|0.00
 bajo sexto|11|0.00
 balaban|30|0.00
 balafon|35|0.07
+balafons|35|0.07|balafon
 balalaïka|58|0.14
 Balalaïka contrebasse|4|0.00
+balalaïkas|58|0.27|balalaika
 Balsie|1|0.00
 Bamboula|5|0.27
 Bandola|11|0.00
 Bandolim|5|0.00
 bandolón|2|0.00
 bandonéon|42|0.20
+bandonion|0|0.00
 bandore|9|0.00
 bandoura|44|0.00
 bandurria|26|0.00
@@ -114,14 +127,17 @@ banjo|72|0.81
 banjo basse|3|0.00
 banjo-ukulélé|8|0.00
 banjoline|8|0.00
+banjos|72|0.27|banjo
 bansurî|35|0.00
 Bara|0|0.00
 barbat|13|0.00
 barbitos|17|0.00
 barillet|5|1.96
+barillets|5|0.07|barillet
 baritenor|9|0.00
 barítona|1|0.00
 Baritone ukulele|1|0.00
+baroxiton|0|0.00
 barre de son|18|0.00
 baryton|64|2.50
 baryton à cordes|25|0.00
@@ -132,6 +148,7 @@ baryton lyrique|3|0.00
 baryton Martin|1|0.00
 Baryton-noble|0|0.00
 baryton Verdi|0|0.00
+barytons|64|0.20|baryton
 bas-dessus|1|0.00
 basolia|10|0.00
 bassanello|5|0.00
@@ -147,30 +164,41 @@ basse électrique|19|0.00
 basse fretless|13|0.00
 Basse Piccolo|3|0.00
 basse profonde|10|0.00
+basses|66|16.01|basse
 basson|76|0.07
+basson à fusée|0|0.00
 basson russe|2|0.00
 Basstar|0|0.00
 Bâton de pluie|22|0.00
 Bâton laid|2|0.00
 battant|3|9.26
+battante|3|2.16|battant
+battantes|3|1.28|battant
+battants|3|3.99|battant
 Battement|6|10.81
+battements|6|8.45|battement
 batterie|82|9.73
 batterie électronique|27|0.00
+batteries|82|5.81|batterie
 Battery|1|0.00
 Batuque|0|0.00
 batyphon|0|0.00
 bawu|13|0.00
 bayan|28|0.00
 Bazooka|12|0.81
+bazookas|12|0.07|bazooka
 beatboxing|54|0.00
 Bedon|2|0.20
+bedons|2|0.07|bedon
 bedug|14|0.00
 Begena|15|0.00
 Beigoma|8|0.00
+bellonéon|0|0.00
 bendir|20|0.00
 berimbau|31|0.00
 Bhankora|3|0.00
 bhapang|0|0.00
+biambo|0|0.00
 Bianqing|8|0.00
 Bianzhong|16|0.00
 Big conga|0|0.00
@@ -187,6 +215,7 @@ Blul|4|0.00
 bo|4|0.00
 bobre|2|0.00
 Bodega|5|0.14
+bodegas|5|0.00|bodega
 bodhrán|39|0.00
 boha|9|0.00
 bois|61|299.46
@@ -194,17 +223,24 @@ boîte à musique|42|0.00
 boîte à rythmes|36|0.00
 bol chantant|26|0.00
 Bolon|6|0.00
+bombalon|0|0.00
 bombarde|18|1.42
 bombarde basse|0|0.00
+bombardée|18|0.47|bombarde
+bombardées|18|0.47|bombarde
+bombardes|18|0.68|bombarde
 Bombardon|7|0.00
+bombardons|7|0.07|bombardon
 bombo|18|0.00
 Bonang|10|0.00
 Bond Electraglide|2|0.00
 bongo|44|0.07
+bongos|44|0.07|bongo
 Boobam|3|0.00
 Boomer|16|0.07
 Boomwhacker|7|0.00
 bordée|16|8.11
+bordées|16|3.72|bordee
 Bordonua|4|0.00
 borrindo|1|0.00
 Bose SoundDock|1|0.00
@@ -212,6 +248,7 @@ Bose SoundLink|2|0.00
 Bougarabou|3|0.00
 boula|1|0.07
 bourdonnement|12|9.19
+bourdonnements|12|1.35|bourdonnement
 bouteillophone|1|0.00
 bouzouki|44|0.47
 bouzouki irlandais|10|0.00
@@ -224,6 +261,7 @@ bucium|10|0.00
 Buddha Machine|2|0.00
 bugarija|3|0.00
 bugle|46|0.34
+bugles|46|0.00|bugle
 buisine|8|0.00
 Buk|9|0.00
 Bukkehorn|7|0.00
@@ -251,10 +289,12 @@ carillon|47|5.54
 carillon à vent|32|0.00
 carillon de gong|3|0.00
 carillon tubulaire|32|0.00
+carillons|47|0.34|carillon
 carnyx|22|0.00
 cascabel|0|0.00
 Casiotone|5|0.00
 casque audio|68|0.00
+castagnette|54|0.07|castagnettes
 castagnettes|54|2.50
 castrat mezzo-soprano|0|0.00
 castrat soprano|0|0.00
@@ -273,6 +313,7 @@ cervelas|11|0.27
 Cetera|5|0.00
 Cetra|2|0.00
 chabrette|2|0.00
+chacha|0|0.00
 Chaise sonore|3|0.00
 chajchas|7|0.00
 Chakhe|8|0.00
@@ -280,6 +321,7 @@ chalemie|35|0.00
 chalimou basson|0|0.00
 chalumeau|23|2.36
 chalumeau tenor|0|0.00
+chalumeaux|23|0.34|chalumeau
 Chande|5|0.00
 changi|6|0.00
 Chanza|8|0.00
@@ -294,6 +336,7 @@ chekeré|24|0.00
 Chenda|13|0.00
 chi|5|0.54
 Chiboni|2|0.00
+chichikoué|0|0.00
 chifonie|3|0.00
 chikara|4|0.00
 chikuzenbiwa|0|0.00
@@ -330,6 +373,7 @@ cithares tube|1|0.00
 cithrinchen|3|0.00
 citole|12|0.00
 clairon|35|4.32
+clairons|35|1.28|clairon
 Claps|0|0.00
 clapstick|4|0.00
 clarin|0|0.00
@@ -349,11 +393,13 @@ clarinette octo-contralto|4|0.00
 clarinette octo-contrebasse|4|0.00
 clarinette piccolo|7|0.00
 clarinette soprano|3|0.00
+clarinettes|108|0.47|clarinette
 Clarinettes des Balkans|1|0.00
 clarino|10|0.00
 clavecin|92|2.30
 Clavecin brisé|4|0.00
 clavecin électrique|6|0.00
+clavecins|92|0.14|clavecin
 claves|30|0.00
 Clavi-harpe|6|0.00
 Clavia Nord Electro|6|0.00
@@ -365,6 +411,7 @@ clavier|38|3.24
 clavier à lumières|4|0.00
 clavier d'orgue|11|0.00
 clavier électronique|37|0.00
+claviers|38|0.34|clavier
 clavinet|22|0.00
 clavioline|10|0.00
 claviorganum|14|0.00
@@ -381,13 +428,17 @@ cloche de signalisation|0|0.00
 Cloche de station|5|0.00
 cloche observatoire|4|0.00
 cloche plaque|3|0.00
+cloches|112|16.35|cloche
 clochette|23|2.50
 clochette d'autel|0|0.00
+clochettes|23|3.24|clochette
 cobza|14|0.00
 Colachon|8|0.00
 concertina|36|0.00
 Conga|39|0.07
+congas|39|0.00|conga
 conque|16|1.89
+conques|16|0.34|conque
 Console numérique|4|0.00
 console steel guitar|4|0.00
 continuum|13|0.27
@@ -396,10 +447,12 @@ contralto|57|0.20
 contralto colorature|0|0.00
 contralto dramatique|1|0.00
 contralto lyrique|0|0.00
+contraltos|57|0.07|contralto
 contrebasse|86|0.27
 contrebasse à anche|3|0.00
 contrebasse à vent|3|0.00
 contrebasse électrique|9|0.00
+contrebasses|86|0.07|contrebasse
 contrebassine|9|0.00
 contrebasson|41|0.00
 contreguitare|5|0.00
@@ -427,17 +480,26 @@ cordophone|37|0.00
 Cornamuse|9|0.00
 corne|17|9.80
 corne de brume|25|0.00
+cornée|17|1.08|corne
+cornées|17|0.41|corne
 cornemuse|80|0.34
 Cornemuse en Dordogne|0|0.00
+cornemuses|80|0.27|cornemuse
+cornes|17|9.66|corne
 cornet|2|6.15
 cornet à bouquin|32|0.00
 cornet à bouquin alto|0|0.00
 cornet à bouquin sopranino|2|0.00
 cornet à pistons|51|0.00
 cornet soprano|3|0.00
+cornets|2|1.89|cornet
 corno da caccia|4|0.00
 cornophone|3|0.00
 cornu|15|0.61
+cornue|15|0.47|cornu
+cornues|15|0.61|cornu
+cornus|15|0.54|cornu
+cors|10|1.55|cor
 Couesnophone|5|0.00
 coup de feu|11|0.00
 coup de semonce|13|0.00
@@ -445,22 +507,30 @@ couteau à gratter les anches|1|0.00
 couvre-bec|1|0.00
 crécelle|33|1.35
 crécelle liturgique|2|0.00
+crécelles|33|0.47|crecelle
 cricket|11|0.41
+crickets|11|0.00|cricket
 Cristal Baschet|6|0.00
 Croix Sonore|4|0.00
 cromorne|4|0.54
 crosspicking|2|0.00
+crotale|22|0.88|crotales
 crotales|22|0.07
 crotalum|13|0.00
 cruche|7|3.92
+cruches|7|0.54|cruche
 crwth|19|0.00
 csakan|6|0.00
 Cuatro|16|0.00
 cuenca|1|0.00
 Cuica|18|0.00
+cuiller|17|8.38|cuillers
 Cuillers|17|1.82
 cuivre|65|30.68
 cuivre chromatique|0|0.00
+cuivrée|65|1.15|cuivre
+cuivrées|65|0.41|cuivre
+cuivres|65|5.41|cuivre
 Cula|1|0.00
 Culoepuya|2|0.00
 curimbó|2|0.00
@@ -475,9 +545,12 @@ Cymbale crash-ride|2|0.00
 cymbale ride|13|0.00
 cymbale splash|9|0.00
 cymbale swish|3|0.00
+cymbales|66|1.76|cymbale
 cymbaliste|1|0.07
+cymbalistes|1|0.20|cymbaliste
 cymbalum|42|0.14
 Dabakan|7|0.00
+dactylion|0|0.00
 daf|37|0.00
 daguangxian|3|0.00
 Damaru|30|0.00
@@ -503,8 +576,10 @@ Dha|2|0.00
 dhimay|7|0.00
 Dholak|27|0.00
 Diable|10|51.01
+diables|10|3.78|diable
 diapason|65|1.42
 diapason à souffler|7|0.00
+diapasons|65|0.07|diapason
 diaphone|5|0.00
 Diaula|1|0.00
 diddley bow|11|0.00
@@ -563,10 +638,12 @@ Dvojnice|4|0.00
 EBow|10|0.00
 échantillonneur|38|0.00
 Écho|1|32.50
+échos|1|13.45|echo
 economy picking|3|0.00
 écouteurs Apple|15|0.00
 Écouteurs intra-auriculaire|3|0.00
 écouvillon|1|0.20
+écouvillons|1|0.00|ecouvillon
 éditeur MIDI|1|0.00
 Egek|1|0.00
 Eigenharp|4|0.00
@@ -578,19 +655,23 @@ Electric flute|0|0.00
 Electronic tablas|0|0.00
 Electronic Wind Instrument|9|0.00
 électrophone|29|2.97
+électrophones|29|0.07|electrophone
 Elgéphone|1|0.00
 Elka synthex|4|0.00
 Eltron|1|0.00
 EMS Synthi A|5|0.00
 EMS Synthi AKS|2|0.00
 Enclume|2|5.14
+enclumes|2|0.07|enclume
 Endongo|4|0.00
 Engalabi|5|0.00
 ennanga|5|0.00
+éoli-harpe|0|0.00
 éoliphone|19|0.00
 epigonion|7|0.00
 épinette|36|0.14
 épinette des Vosges|10|0.00
+épinettes|36|0.07|epinette
 Epiphone Casino|9|0.00
 Epiphone Sheraton|6|0.00
 erhu|45|0.00
@@ -601,11 +682,13 @@ Escopetarra|29|0.00
 ESP Tom Araya|3|0.00
 espina|1|0.00
 esraj|22|0.00
+estive|0|0.00
 étui porte-anches|0|0.00
 Euphone|3|0.00
 euphonium|46|0.00
 Euphonium à pavillon double|4|0.00
 Ever büree|3|0.00
+expandeur|0|0.00
 fadno|6|0.00
 fagottino|2|0.00
 Fairlight CMI|16|0.00
@@ -635,10 +718,12 @@ Ferrinho|5|0.00
 fiddle|23|0.00
 Fidget spinner|55|0.00
 fifre|17|1.22
+fifres|17|0.88|fifre
 Firebird|4|0.00
 fiscorn|5|0.00
 flabiol|10|0.00
 flageolet|28|0.34
+flageolets|28|1.15|flageolet
 flatpicking|5|0.00
 Flavta|1|0.00
 flexatone|19|0.00
@@ -670,16 +755,24 @@ Flûte subcontrebasse|4|0.00
 flûte traversière|26|0.00
 flûte traversière baroque|10|0.00
 flûte traversière moderne|25|0.00
+flûtée|144|0.41|flute
+flutéole|0|0.00
+flûtes|144|1.69|flute
 flûtes à conduit|4|0.00
+folle|8|46.01|fou
+folles|8|11.62|fou
 Fontomfrom|6|0.00
 forté-piano organisé|0|0.00
 fotuto|2|0.00
 Fou|8|82.03
 fouet|17|16.69
+fouets|17|1.62|fouet
 Four cello|0|0.00
+fous|8|34.46|fou
 Frestel|2|0.00
 Front fill|2|0.00
 frottoir|2|0.34
+frottoirs|2|0.07|frottoir
 fue|7|0.00
 Fujara|30|0.00
 Funkbox|0|0.00
@@ -687,6 +780,7 @@ Fuzz|13|0.00
 Gabbang|4|0.00
 gaboussi|1|0.00
 gadoulka|25|0.00
+gaffophone|0|0.00
 gaita|15|0.00
 Gaita asturiana|8|0.00
 Gaita de boto|7|0.00
@@ -700,9 +794,11 @@ ganzá|8|0.00
 gaohu|14|0.00
 garamut|5|0.00
 gardon|9|0.41
+gardons|9|2.03|gardon
 garmon|25|0.00
 Gasba|3|0.00
 Gasing uri|1|0.00
+gazou|0|0.00
 Gbedu|3|0.00
 gbofe|3|0.00
 Gedombak|1|0.00
@@ -732,6 +828,8 @@ Gibson SG Standard|2|0.00
 Gibson Tal Farlow|2|0.00
 Gibson Thunderbird|13|0.00
 giga|2|0.14
+gigas|2|0.00|giga
+ginglare|0|0.00
 glas|4|4.05
 glaw ng yao|6|0.00
 glockenspiel|41|0.07
@@ -743,15 +841,19 @@ Gologo|0|0.00
 gong|65|3.51
 Gong bass drum|5|0.00
 gong bumbung|1|0.00
+gongs|65|0.14|gong
 gottan|13|0.00
 Gousli|30|0.00
 Graïle|5|0.00
 Gralla|8|0.00
 gramophone|52|1.01
+gramophones|52|0.07|gramophone
 grand orgue|6|0.00
+grattouille|0|0.07
 Gravi-kora|4|0.00
 great Highland bagpipe|19|0.00
 grelot|34|1.82
+grelots|34|2.84|grelot
 Gristleism|1|0.00
 Groove machine|9|0.00
 grosse caisse|49|0.00
@@ -764,6 +866,7 @@ gudugudu|4|0.00
 Gue du Shetland|3|0.00
 guembri|10|0.00
 guimbarde|77|1.01
+guimbardes|77|0.68|guimbarde
 güira|8|0.00
 Güiro|27|0.00
 guitalin|2|0.00
@@ -800,6 +903,7 @@ guitare sans tête|2|0.00
 Guitare semi-acoustique|18|0.00
 guitare synthétiseur|9|0.00
 guitare ténor|8|0.00
+guitares|212|3.24|guitare
 Guitares maccaferri|7|0.00
 guitares par type|2|0.00
 Guitarra de golpe|5|0.00
@@ -819,14 +923,20 @@ handchime|7|0.00
 handpan|10|0.00
 Hang|35|0.00
 Harmonéon|2|0.00
+harmonette|0|0.00
 harmonica|94|1.69
 harmonica chromatique|5|0.00
 harmonica de verre|35|0.00
 harmonica diatonique simple|6|0.00
+harmonicas|94|0.07|harmonica
 harmonichord|4|0.00
+harmonicon|0|0.00
+harmonicorde|0|0.00
 Harmoniflûte|3|0.00
 harmonium|60|3.45
 harmonium indien|8|0.00
+harmonium-transpositeur|0|0.00
+harmoniums|60|0.07|harmonium
 harpe|103|4.86
 harpe à cadre|0|0.00
 harpe à pédales|10|0.00
@@ -842,6 +952,7 @@ harpe luth|0|0.00
 harpe paraguayenne|12|0.00
 Harpe triple|12|0.00
 harpejji|9|0.00
+harpes|103|0.47|harpe
 Harpes d'Ur|18|0.00
 hasapi|6|0.00
 Hass|1|0.00
@@ -850,6 +961,7 @@ haut-parleur à pavillon|13|0.00
 haut-parleur électrostatique|11|0.00
 Haut-parleur large bande|9|0.00
 haut-parleur piézoélectrique|9|0.00
+haut-parleurs|92|3.38|haut parleur
 hautbois|88|1.62
 hautbois baroque|4|0.00
 hautbois baryton|9|0.00
@@ -867,11 +979,14 @@ Heldentenor|8|0.00
 hélicon|30|0.00
 hélicophone|1|0.00
 hennissement|4|1.76
+hennissements|4|1.15|hennissement
 heurtoir|31|0.47
+heurtoirs|31|0.14|heurtoir
 Hichiriki|17|0.00
 hitoyogiri|3|0.00
 Hne|9|0.00
 hochet|22|1.01
+hochets|22|1.22|hochet
 hoddu|0|0.00
 Höfner Shorty|2|0.00
 Home Swinger|3|0.00
@@ -940,6 +1055,7 @@ instruments de Stradivarius|28|0.00
 instruments électriques|7|0.00
 Ion|4|0.07
 Ionophone|13|0.00
+ions|4|0.07|ion
 IPod Hi-Fi|14|0.00
 Irish flute|17|0.00
 Irish whistle|0|0.00
@@ -983,6 +1099,7 @@ Kankangui|2|0.00
 Kankara sanshin|5|0.00
 kannel|13|0.00
 kantele|40|0.00
+karanga|0|0.00
 Kartal|15|0.00
 karyenda|6|0.00
 Kashaka|9|0.00
@@ -990,6 +1107,7 @@ kaval|30|0.00
 kayagum|28|0.00
 Kayamb|7|0.00
 kazoo|40|0.00
+kazou|0|0.00
 Kebero|8|0.00
 Kecrek|1|0.00
 kelutviaq|3|0.00
@@ -1016,10 +1134,13 @@ Kinnor|17|0.07
 Kissar|7|0.00
 Kkwaenggwari|10|0.00
 Klaxon|3|3.24
+klaxons|3|2.50|klaxon
 Klaxophone|2|0.00
+klin|0|0.00
 Klockor|1|0.00
 Klon Centaur|6|0.00
 Klopotec|8|0.00
+kôauau|0|0.00
 kobyz|15|0.00
 Kobza|20|0.00
 Kokiriko|5|0.00
@@ -1033,6 +1154,7 @@ Konghou|13|0.00
 Kontigi|5|0.00
 kora|35|0.00
 Korg Polysix|5|0.00
+kôrohû|0|0.00
 kotamo|1|0.00
 koto|49|0.07
 Koudi|5|0.00
@@ -1060,6 +1182,7 @@ Kutiyapi|5|0.00
 Kuzhal|6|0.00
 Lali|7|0.00
 Lambeg|5|0.00
+lame sonore|0|0.00
 lamellophone|14|0.00
 langeleik|15|0.00
 langspil|10|0.00
@@ -1075,6 +1198,7 @@ leona|3|0.00
 Lesiba|5|0.00
 Lichtton-Orgel|4|0.00
 ligature|8|0.14
+ligatures|8|0.14|ligature
 lijerica|15|0.00
 Liliu ukulele|0|0.00
 limonaire|6|0.54
@@ -1115,11 +1239,13 @@ lyra byzantine|13|0.00
 lyra-viol|3|0.00
 lyre|69|1.15
 lyre guitare|5|0.00
+lyres|69|0.27|lyre
 Lyricon|7|0.00
 Ma'met|1|0.00
 Ma'wo|1|0.00
 madal|6|0.00
 Maddalam|8|0.00
+maestro|0|0.47
 magadis|4|0.00
 mallet-instrument|5|0.00
 Malunga|5|0.00
@@ -1129,6 +1255,7 @@ mandole algérienne|7|0.00
 mandoline|83|0.88
 Mandoline country|2|0.00
 mandoline électrique|2|0.00
+mandolines|83|0.27|mandoline
 mandoloncelle|15|0.00
 Mandoluth|4|0.00
 mandore|11|1.55
@@ -1145,16 +1272,22 @@ Marxophone|5|0.00
 masenqo|18|0.00
 mashak|2|0.00
 matou|2|3.18
+matous|2|0.95|matou
+mattauphone|0|0.00
 Mbira|41|0.00
 mbira Array|2|0.00
 mbira dzavdzimu|1|0.00
 Médium|15|1.08
+médiums|15|0.74|medium
 mégaphone|42|0.54
+mégaphones|42|0.07|megaphone
 mejorana|5|0.00
 mellophone|23|0.00
 mellotron|36|0.00
+méloca|0|0.00
 Mélodéon|5|0.00
 mélodica|35|0.00
+mélodion|0|0.00
 mélophone|4|0.00
 membranophone|46|0.00
 membranophones chantantes|5|0.00
@@ -1188,6 +1321,7 @@ microphone électrostatique|16|0.00
 microphone labial|3|0.00
 microphone omnidirectionnel|2|0.00
 microphone piézoélectrique|4|0.00
+microphones|111|0.34|microphone
 MIDI guitar|0|0.00
 MIDI maestro|0|0.00
 midwinterhoorn|7|0.00
@@ -1196,6 +1330,7 @@ mini-guitare|14|0.00
 Minimoog|19|0.00
 Minimoog Voyager|5|0.00
 mirliton|7|0.34
+mirlitons|7|0.81|mirliton
 Mizhâvu|11|0.00
 Mizmar|9|0.00
 module de sons|8|0.00
@@ -1207,6 +1342,7 @@ moniteur de studio|15|0.00
 monkey stick|5|0.00
 monocorde|25|2.09
 monocorde à clavier|2|0.00
+monocordes|25|0.47|monocorde
 Monome|4|0.00
 monowave synth|2|0.00
 Moodswinger|26|0.00
@@ -1224,10 +1360,12 @@ Multimoog|4|0.00
 musette|13|13.78
 musette de cour|13|0.00
 Musette du Poitou|1|0.00
+musettes|13|4.66|musette
 Music Man StingRay Bass|10|0.00
 Musique cambodgienne|2|0.00
 Musser vibraphone|0|0.00
 mutation|4|3.18
+mutations|4|1.15|mutation
 Mvet|7|0.00
 n'goni|13|0.00
 Nagara|29|0.00
@@ -1239,7 +1377,9 @@ Neo-Bechstein|6|0.00
 ney|36|0.14
 neyanban|4|0.00
 ngombi|7|0.00
+nguru|0|0.00
 nicolo|1|0.00
+nimfali|0|0.00
 nira|1|0.00
 Njarka|3|0.00
 North Drums|2|0.00
@@ -1249,6 +1389,7 @@ Nyabinghi|3|0.00
 Nyatiti|6|0.00
 nyckelharpa|28|0.00
 ocarina|54|0.20
+ocarinas|54|0.07|ocarina
 Occitan sifflé d'Aas|6|0.00
 Octaver|9|0.00
 octavin|2|0.00
@@ -1274,6 +1415,7 @@ orgue à chats|20|0.00
 orgue-clavicorde|0|0.00
 orgue d'église|4|0.00
 orgue de Barbarie|41|0.00
+orgue de chats|0|0.00
 orgue de concert|3|0.00
 orgue de danse|3|0.00
 Orgue de salon|6|0.00
@@ -1287,11 +1429,14 @@ Orgue marin|24|0.00
 Orgue numérique|4|0.00
 orgue portatif|19|0.00
 orgue sans tuyaux|1|0.00
+orgues|97|2.91|orgue
 Orlo|1|0.00
 orpharion|9|0.00
 Orphica|6|0.00
 Orutu|4|0.00
+os|0|49.73
 Osha|0|0.00
+otamatone|0|0.00
 oud|64|0.00
 pad d'entraînement|4|0.00
 pahu|4|0.00
@@ -1301,8 +1446,10 @@ pakhavaj|14|0.00
 Palendag|2|0.00
 Palmas|0|0.07
 pambai|6|0.00
+pan-mélodicon|0|0.00
 Pandeiro|20|0.00
 pandero|7|0.00
+pandola|0|0.00
 Pandoura|11|0.00
 Panduri|17|0.00
 pandurina|1|0.00
@@ -1316,6 +1463,7 @@ pedal steel guitar|21|0.00
 pédale d'effet|11|0.00
 pédale wah-wah|9|0.00
 pédalier|16|0.81
+pédaliers|16|0.20|pedalier
 pena|4|0.00
 pet d'aisselle|4|0.00
 pétadou|1|0.00
@@ -1324,6 +1472,7 @@ Petite harpe de Durango|1|0.00
 Phin|8|0.00
 Phonocapteur|9|0.00
 phonographe|77|5.41
+phonographes|77|0.61|phonographe
 phorminx|16|0.00
 Photoplayer|7|0.00
 physharmonica|4|0.00
@@ -1336,6 +1485,7 @@ piano à queue numérique|4|0.00
 piano à tangentes|7|0.00
 piano bastringue|4|0.00
 Piano carré|14|0.00
+piano de chats|0|0.00
 Piano de rue|5|0.00
 piano droit|23|0.00
 Piano électrique|30|0.00
@@ -1350,8 +1500,11 @@ piano numérique|19|0.00
 piano-pédalier|13|0.00
 piano préparé|29|0.00
 piano silencieux|9|0.00
+pianocktail|0|0.00
+pianos|172|2.77|piano
 pibgorn|7|0.00
 piccolo|57|0.07
+piccolos|57|0.00|piccolo
 picking|4|0.00
 pifano|2|0.00
 piffero|8|0.00
@@ -1359,11 +1512,16 @@ Pifilca|5|0.00
 Pikèr|0|0.00
 pinquillo|10|0.00
 Pint Pots|0|0.00
+pion|0|3.58|pionne
+pionne|0|0.14
+pions|0|2.77|pionne
 pipa|45|0.07
 pipasso|3|0.00
 Pipe|0|25.74
+pipes|0|7.09|pipe
 piri|12|0.00
 piston|2|2.50
+pistons|2|0.68|piston
 pitch shift|13|0.00
 piva|2|0.00
 Pixel Buds|13|0.00
@@ -1374,15 +1532,21 @@ planche à laver|13|0.00
 plaque-tonnerre|9|0.00
 platine tourne-disques|17|0.00
 Pluriarc|4|0.00
+pneumacorde|0|0.00
 Pochette|18|6.69
+pochettes|18|2.16|pochette
 podorythmie|2|0.00
 poïkilorgue|1|0.00
 Polymoog|8|0.00
 Polyphon|12|0.00
 pommer|13|0.00
 Pong lang|4|0.00
+porotiti|0|0.00
 positif|17|3.99
 positif dorsal|5|0.00
+positifs|17|0.54|positif
+positive|17|2.57|positif
+positives|17|0.61|positif
 poste d'édition musicale|8|0.00
 PowerBeats Pro|1|0.00
 pratique du tambour|0|0.00
@@ -1397,6 +1561,8 @@ psaltérion|28|0.00
 psaltérion à archet|5|0.00
 psaltérion balte|4|0.00
 Pungi|29|0.00
+purerehua|0|0.00
+pûtatara|0|0.00
 putipù|6|0.00
 Pûtôrino|4|0.00
 pututu|7|0.00
@@ -1419,6 +1585,7 @@ rabâb|37|0.00
 Rabel|3|0.00
 Ralé-poussé|2|0.00
 ramsinga|7|0.00
+ran-nan|0|0.00
 ranat|4|0.00
 ranat ek|3|0.00
 rasgueado|9|0.00
@@ -1456,6 +1623,7 @@ Roland V-Synth|2|0.00
 rommelpot|7|0.00
 Rompler|6|0.00
 rondador|5|0.00
+ronflon|0|0.00
 ronroco|5|0.00
 roof knocking|13|0.00
 rothophone|4|0.00
@@ -1514,6 +1682,7 @@ saxophone sopranino|12|0.00
 saxophone soprano|23|0.00
 saxophone sous-contrebasse|7|0.00
 saxophone ténor|25|0.00
+saxophones|110|0.07|saxophone
 saxotromba|6|0.00
 Saxtuba|4|0.00
 saz|49|0.00
@@ -1539,6 +1708,7 @@ Sept trompettes|19|0.00
 séquenceur musical|42|0.00
 Serinette|12|0.00
 serpent|35|13.24
+serpents|35|7.84|serpent
 setâr|27|0.00
 Seto|1|0.00
 Setor|4|0.00
@@ -1563,6 +1733,7 @@ Shuangqin|1|0.00
 sibizgi|0|0.00
 Side Man|1|0.00
 sifflement|42|10.47
+sifflements|42|3.31|sifflement
 sifflet|56|13.31
 Sifflet à chien|17|0.00
 sifflet à nez|6|0.00
@@ -1570,6 +1741,7 @@ Sifflet de la mort aztèque|8|0.00
 sifflet de police|2|0.00
 Sifflet de train|4|0.00
 sifflet sans-gêne|18|0.00
+sifflets|56|4.59|sifflet
 Sihu|7|0.00
 Siku|21|0.00
 simandre|22|0.00
@@ -1579,6 +1751,7 @@ Simulateur d'orgue|3|0.00
 Single coil|16|0.00
 Sipsi|4|0.00
 sirène|44|10.34
+sirènes|44|7.16|sirene
 Sirenette|0|0.00
 sistre|38|0.00
 sitar|64|0.00
@@ -1592,9 +1765,11 @@ small drum|0|0.00
 Small percussion|0|0.00
 Sodina|4|0.00
 sonnaille|23|0.20
+sonnailles|23|0.95|sonnaille
 sonnette|29|14.12
 Sonnette connectée|8|0.00
 Sonnette de table|5|0.00
+sonnettes|29|2.03|sonnette
 sons des insectes|1|0.00
 Sopilka|9|0.00
 sopraniste|19|0.00
@@ -1612,11 +1787,13 @@ soprano lyrique léger|2|0.00
 soprano sfogato|4|0.00
 soprano spinto|5|0.00
 soprano wagnérien|3|0.00
+sopranos|72|0.27|soprano
 sorud|18|0.00
 Sosso Bala|9|0.00
 soubassophone|43|0.00
 Soubrette|24|2.36
 soubrette colorature|0|0.00
+soubrettes|24|0.74|soubrette
 SPD|0|0.00
 Sperrhake|3|0.00
 Spinja|1|0.00
@@ -1625,6 +1802,7 @@ Sprechgesang|18|0.07
 Springtime|5|0.00
 sring|6|0.00
 Sringa|6|0.00
+stabule|0|0.00
 Starway|1|0.00
 station audio-numérique|33|0.00
 steel-drum|29|0.00
@@ -1649,6 +1827,9 @@ superbone|3|0.00
 sur|0|5320.47
 surbahar|16|0.00
 surdo|15|0.00
+sure|0|56.55|sur
+sures|0|2.91|sur
+surs|0|10.00|sur
 Sursingar|10|0.00
 Svirel|11|0.00
 Swarmandal|14|0.00
@@ -1666,6 +1847,7 @@ synthétiseur ANS|9|0.00
 synthétiseur logiciel|15|0.00
 synthétiseur modulaire|10|0.00
 synthétiseur polyphonique|0|0.00
+synthétiseurs|77|0.07|synthetiseur
 syrinx|25|0.07
 système d'alarme|29|0.00
 Taârija|3|0.00
@@ -1678,10 +1860,14 @@ Taepyeongso|9|0.00
 taiko|37|0.00
 taille|3|72.84
 taille des cornets|2|0.00
+taillée|3|4.32|taille
+taillées|3|2.30|taille
+tailles|3|3.85|taille
 Talerschwingen|2|0.00
 Talharpa|11|0.00
 Talkbox|20|0.00
 tam-tam|23|2.77
+tam-tams|23|0.68|tam tam
 Tama|26|0.00
 Tamak'|6|0.00
 Tambin|3|0.00
@@ -1690,6 +1876,7 @@ Tambora panaméen|1|0.00
 tamborí catalan|6|0.00
 tamborim|8|0.00
 Tamborita calentana|3|0.00
+tamboula|0|0.00
 tambour|150|10.54
 Tambour à boules fouettantes|7|0.00
 Tambour à corde|5|0.00
@@ -1712,6 +1899,8 @@ tambour sur cadre|16|0.00
 tambourin|71|0.47
 tambourin à cordes|10|0.00
 tambourin provençal|6|0.00
+tambourins|71|0.61|tambourin
+tambours|150|8.78|tambour
 Tambours de bronze|10|0.00
 tambur|32|0.00
 tambura|33|0.00
@@ -1750,6 +1939,7 @@ Tenor pan|0|0.00
 tenora|7|0.00
 tenorhorn|12|0.00
 Tenori-on|10|0.00
+ténors|68|0.68|tenor
 teponaztli|11|0.00
 terpodion|5|0.00
 Test des sirènes en Suisse|2|0.00
@@ -1759,6 +1949,7 @@ Thappu|7|0.00
 thavil|14|0.00
 The Handle|1|0.00
 théorbe|36|0.20
+théorbes|36|0.14|theorbe
 thérémine|51|0.00
 Therevox|2|0.00
 Third bridge|6|0.00
@@ -1766,11 +1957,13 @@ Thomo|1|0.00
 Thunderbolt|1|0.00
 Tianqin|1|0.00
 tibia|4|1.01
+tibias|4|2.03|tibia
 Tible|6|0.00
 Tiêu|1|0.00
 tifa dasar|0|0.00
 Tilinca|7|0.00
 timbal|13|0.00
+timbale|67|1.76|timbales
 timbales|67|0.68
 timbila|8|0.00
 Timila|8|0.00
@@ -1778,6 +1971,7 @@ Timple|14|0.00
 tin whistle|40|0.00
 Tindé|0|0.00
 tingsha|8|0.00
+tintinnabulaire|0|0.00
 tintinnabule|18|0.14
 tintinnabulum|15|0.00
 tinya|5|0.00
@@ -1791,12 +1985,15 @@ tololoche|6|0.00
 tom|27|0.14
 tom basse|13|0.00
 Tonette|4|0.00
+tongue drum|0|0.00
 tonkori|13|0.00
 torban|9|0.00
 toton|11|0.27
+totons|11|0.14|toton
 Touch guitar|4|0.00
 toupie|84|3.04
 toupie tippe-top|15|0.00
+toupies|84|0.88|toupie
 tournebout|19|0.00
 Tovshuur|9|0.00
 tracker|18|0.00
@@ -1810,6 +2007,7 @@ trémoloa|3|0.00
 tres|20|1120.81
 Treujenn-gaol|4|0.00
 triangle|55|10.68
+triangles|55|2.57|triangle
 triccheballacche|4|0.00
 trigonon|3|0.00
 trikiti|11|0.00
@@ -1824,8 +2022,13 @@ trombone contrebasse|3|0.00
 trombone piccolo|3|0.00
 trombone soprano|3|0.00
 trombone ténor|2|0.00
+trombones|89|0.88|trombone
 tromboon|3|0.00
+trompe|0|17.70
 trompe de chasse|5|0.00
+trompée|0|8.11|trompe
+trompées|0|0.41|trompe
+trompes|0|3.45|trompe
 Trompetica china|6|0.00
 trompette|141|5.61
 trompette à clés|8|0.00
@@ -1837,9 +2040,11 @@ trompette en bouleau|7|0.00
 trompette marine|16|0.00
 trompette naturelle|12|0.00
 trompette piccolo|19|0.00
+trompettes|141|5.88|trompette
 Trompo|14|0.00
 trutruca|10|0.00
 tsambouna|9|0.00
+tsibomba|0|0.00
 Tsuri-daiko|4|0.00
 tsuur|12|0.00
 Tsuzumi|20|0.00
@@ -1849,6 +2054,7 @@ Tuba curva|2|0.00
 tuba romaine|16|0.00
 tuba sous-contrebasse|3|0.00
 Tuba wagnérien|24|0.00
+tubas|82|0.07|tuba
 tubax|11|0.00
 tulum|18|0.00
 Tumbadora|1|0.00
@@ -1858,6 +2064,7 @@ Tumyr|1|0.00
 Tungehorn|3|0.00
 Tungso|5|0.00
 tuntina|1|0.00
+turlusiphon|0|0.00
 tweeter|21|0.00
 txalaparta|20|0.00
 txirula|2|0.00
@@ -1865,6 +2072,7 @@ txistu|8|0.00
 tympanon|1|0.20
 tympanum|10|0.00
 tzouras|6|0.00
+ud|0|0.00
 Udu|24|0.00
 udukai|5|0.00
 uilleann pipes|36|0.00
@@ -1873,6 +2081,10 @@ ukulélé|73|0.07
 Umpan|6|0.00
 UPIC|8|0.00
 Urumee|5|0.00
+vaccine|0|0.47
+vaccinée|0|0.20|vaccine
+vaccinés|0|0.20|vaccine
+vali|0|0.00
 Valiha|21|0.00
 Valiha instrument de musique|0|0.00
 valve trombone|6|0.00
@@ -1883,6 +2095,7 @@ verrillon|17|0.00
 Veuze|3|0.00
 veze|5|0.00
 vibraphone|46|0.07
+vibraphones|46|0.07|vibraphone
 Vibraslap|15|0.00
 vichitra vînâ|11|0.00
 Vidéo cliquable|5|0.00
@@ -1908,6 +2121,7 @@ viole de gambe|49|0.00
 viole de gambe alto|1|0.00
 viole ténor|1|0.00
 Violette|3|9.12
+violettes|3|4.86|violette
 Violin lap steel|0|0.00
 Violino piccolo|9|0.00
 violon|170|9.73
@@ -1922,12 +2136,17 @@ Violon Hardanger|24|0.00
 violon ténor|4|0.00
 violoncelle|106|3.31
 violoncelle électrique|8|0.00
+violoncelles|106|0.07|violoncelle
 violoncello da spalla|8|0.00
 violoncello piccolo|8|0.00
 violone|18|0.07
+violons|170|3.58|violon
 violotta|3|0.00
 virginal|32|0.95
 virginal muselar|4|0.00
+virginale|32|0.81|virginal
+virginales|32|0.20|virginal
+virginaux|32|0.34|virginal
 Vivo|2|0.00
 Vocaloid|35|0.00
 vocodeur|29|0.00
@@ -1959,6 +2178,7 @@ Xiao|21|0.00
 xun|16|0.00
 Xutuli|4|0.00
 xylophone|83|0.27
+xylophones|83|0.07|xylophone
 xylorimba|7|0.00
 Yamaha Pacifica|6|0.00
 Yamatogoto|9|0.00
@@ -1984,6 +2204,7 @@ zhetygen|8|0.00
 zhongdihu|8|0.00
 zhongruan|3|0.00
 zhuihu|5|0.00
+zil|0|0.00
 Zupfen|1|0.00
 zurna|47|0.00
 Zygia|1|0.00

@@ -1,9 +1,36 @@
+abax|0|0.00
+abeille|0|3.18
+abeille à culotte|0|0.00
+abeille à culottes|0|0.00
+abeille à miel|0|0.00
 abeille africaine|22|0.00
 Abeille carnolienne|27|0.00
 abeille charpentière|43|0.00
+abeille commune|0|0.00
+abeille crétoise|0|0.00
+abeille de Macédoine|0|0.00
+abeille des sables|0|0.00
+abeille domestique|0|0.00
+abeille du lierre|0|0.00
 Abeille européenne|106|0.00
+abeille géante|0|0.00
+abeille japonaise|0|0.00
+abeille maçonne|0|0.00
+abeille mellifère|0|0.00
+abeille mellifique|0|0.00
+abeille menuisière|0|0.00
+abeille métallique|0|0.00
+abeille naine|0|0.00
+abeille noire|0|0.00
+abeille perce-bois|0|0.00
+abeille sicilienne|0|0.00
+abeille solitaire|0|0.00
+abeille tapissière|0|0.00
+abeille tueuse|0|0.00
+abeilles|0|6.69|abeille
 Abeilles charpentières|4|0.00
 abromiade ochracée|10|0.00
+abu-markub|0|0.00
 acidalie à trois raies|11|0.00
 acidalie blanchâtre|10|0.00
 acidalie de bastelberger|12|0.00
@@ -16,8 +43,16 @@ acidalie jaunâtre|11|0.00
 acidalie retournée|9|0.00
 acidalie sobre|11|0.00
 acidalie sylvestre|10|0.00
+acilie|0|0.00
+acridien|0|0.00
+Acridiens|0|0.00
 actaeon|17|0.00
+aculéate|0|0.00
+acuminé|0|0.00
+adèle|0|0.00
 Adèle verdoyante|16|0.00
+ælie|0|0.00
+aeschne|0|0.00
 aeschne affine|23|0.00
 Aeschne Azurée|17|0.00
 aeschne bleue|37|0.00
@@ -34,7 +69,9 @@ aeschne printanière|30|0.00
 Aeschne Pygmée|10|0.00
 aeschne subarctique|19|0.00
 aeschne verte|23|0.00
+agapanthie|0|0.00
 agreste|29|0.68
+agrestes|29|0.14|agreste
 Agrile|27|0.00
 Agrion|22|0.00
 Agrion à Fer de Lance|24|0.00
@@ -72,64 +109,174 @@ Agrion Posé|12|0.00
 Agrion Résolu|13|0.00
 Agrion Rougeâtre de l'Est|11|0.00
 Agrion Vert|24|0.00
+agrippine|0|0.00
+agrotis|0|0.00
+aje|0|0.00
+alambic|0|1.08
+alambics|0|0.14|alambic
 albule|9|0.00
 alchimiste|12|2.16
+alchimistes|12|0.68|alchimiste
+aleurode|0|0.00
+aleurode des serres|0|0.00
+aleurode du tabac|0|0.00
+allotrie|0|0.00
 alsophile automnale|10|0.00
+alterne|18|0.47|alternee
 alternée|18|0.07
+alternées|18|0.47|alternee
+alternés|18|0.41|alternee
 Altise du chou|13|0.00
 Altise du colza|14|0.00
+alude|0|0.00
 amaryllis|30|1.22
+ambigu|8|4.05|ambigue
 ambiguë|8|2.57
+ambiguës|8|0.81|ambigue
+ambigus|8|1.55|ambigue
 amiral|71|11.22
+amirale|71|0.14|amiral
+amiraux|71|2.30|amiral
+ammophile|0|0.00
+ampède|0|0.00
+anax|0|0.00
+anax de juin|0|0.00
 Anax du Cap|12|0.00
 anax empereur|46|0.00
 anax napolitain|30|0.00
 Anax Noir|12|0.00
+andrène|0|0.00
 Andrène blonde|9|0.00
+annulaire|0|2.64
+anomalon|0|0.00
+anoploure|0|0.00
+anthérophage|0|0.00
+anthidie|0|0.00
+anthidie à manchettes|0|0.00
 antique|12|10.61
+antiques|12|4.93|antique
+aphaniptère|0|0.00
+aphidé|0|0.00
+aphididé|0|0.00
+aphidien|0|0.00
+aphis|0|0.00
 Apion des roses trémières|9|0.00
+Apis dorsata|0|0.00
+Apis florea|0|0.00
+Apis mellifera|0|0.00
+Apis nigrocincta|0|0.00
+apocrite|0|0.00
+apoïdes|0|0.00
 apollon|57|0.00
+apollons|57|0.14|apollon
+aptère|0|0.07
+aptères|0|0.07|aptere
+arabi|0|0.00
+archiptère|0|0.00
+arcyptère|0|0.00
+arcyptère bariolée|0|0.00
+arcyptère provençale|0|0.00
+ardent|21|6.15|ardente
 ardente|21|8.85
+ardentes|21|2.43|ardente
+ardents|21|4.46|ardente
+argenté|12|3.99|argentee
 argentée|12|1.89
+argentées|12|1.96|argentee
+argentés|12|2.70|argentee
 Argie Svelte|12|0.00
 argus bleu|0|0.00
 argus frêle|30|0.00
 argus myope|31|0.00
 argus satiné|34|0.00
 ariane|32|0.00
+ariste|0|0.00
 arlequinette jaune|13|0.00
 armigère|34|0.00
 aromie musquée|37|0.00
 arrangée|14|2.50
+artezon|0|0.00
+Ascalaphe soufré|19|0.00
+Ascalaphidés|29|0.00
 aspilate jaunâtre|12|0.00
 aspilate ochracée|12|0.00
+astate|0|0.00
+asticot|0|0.88
+asticots|0|1.35|asticot
 athétide du fer-à-cheval|8|0.00
+atropos|0|0.00
+atte|0|0.00
+attélabe|0|0.00
 aubépinière|12|0.00
 aunette|16|0.00
+aurélière|0|0.00
 aurore|55|9.39
 Aurore de Provence|21|0.00
+aurores|55|2.23|aurore
 avare|9|5.95
+avares|9|1.15|avare
+aville|0|0.00
 avrilière|16|0.00
+axicule|0|0.00
+azuré|0|0.07
 azuré commun|49|0.00
 Azuré de la chevrette|18|0.00
 azuré de la sanguisorbe|0|0.00
 azuré des nerpruns|40|0.00
 azuré du trèfle|32|0.00
 azuré porte-queue|40|0.00
+azurée|0|0.27|azure
+azurées|0|0.34|azure
+azurés|0|0.07|azure
+babarotte|0|0.00
+babotte|0|0.00
 bacchante|29|1.15
+bacchantes|29|1.55|bacchante
+bacille|0|0.34
+bacilles|0|0.81|bacille
 Balanin des noisettes|23|0.00
 bande noire|29|0.00
 bande rouge|13|0.00
+barbarote|0|0.00
+barbarotte|0|0.00
+bardane|0|0.20
+bardanes|0|0.14|bardane
+bargache|0|0.00
 bariolé|11|1.35
+bariolée|11|1.76|bariole
+bariolées|11|0.88|bariole
+bariolés|11|1.49|bariole
+baris|0|0.00
 barré dargent|12|0.00
+bâti|19|5.54|batis
+bâtie|19|4.32|batis
+bâties|19|1.89|batis
 batis|19|0.95
+beauvotte|0|0.00
+becmare|0|0.00
 belladone|12|0.41
+belladones|12|0.07|belladone
 belle dame|55|0.00
+bembex|0|0.00
+bembex à rostre|0|0.00
+bembex rostré|0|0.00
+bembidion|0|0.00
 berbère|12|0.81
+berbères|12|0.41|berbere
+besin|0|0.00
 Bête à Bon Dieu|64|0.00
+bibache|0|0.00
 bilieuse|12|0.20
+bilieuses|12|0.07|bilieuse
+bilieux|12|0.41|bilieuse
 binaire|10|0.27
+binaires|10|0.07|binaire
+blastophage|0|0.00
+blatte|0|0.14
+blattes|0|0.54|blatte
+blattoptère|0|0.00
 blême|13|11.62
+blêmes|13|3.11|bleme
 bleu nacré|0|0.00
 boarmie apparentée|11|0.00
 boarmie brune|10|0.00
@@ -152,13 +299,18 @@ Bombus vestalis|16|0.00
 bombyx de la ronce|24|0.00
 bombyx de laubépine|19|0.00
 bombyx du chêne|25|0.00
+bombyx du mûrier|0|0.00
 bombyx du peuplier|17|0.00
 bombyx du pin|28|0.00
 bombyx versicolore|24|0.00
 bordure ensanglantée|22|0.00
 bordure entrecoupée|18|0.00
+bostriche|0|0.00
 botys du sureau|13|0.00
 botys lancéolé|11|0.00
+boudrague|0|0.00
+bourdon|0|4.73
+bourdon à queue blanche|0|0.00
 Bourdon alpin|18|0.00
 Bourdon argilleux|18|0.00
 Bourdon cryptique|13|0.00
@@ -188,72 +340,168 @@ Bourdon inattendu|9|0.00
 Bourdon menteur|13|0.00
 Bourdon moisi|11|0.00
 Bourdon montagnard|16|0.00
+bourdon noir|0|0.00
 Bourdon pyrénéen|11|0.00
+bourdon roux|0|0.00
 Bourdon rudéral|18|0.00
 Bourdon sous-terrain|20|0.00
+bourdon sylvestre|0|0.00
 Bourdon terrestre|44|0.00
 Bourdon terricole|10|0.00
 Bourdon variable|20|0.00
 Bourdon velouté|16|0.00
 Bourdon vétéran|14|0.00
 Bourdon virgule|13|0.00
+bourdons|0|0.81|bourdon
+braconidé|0|0.00
 brassicaire|31|0.00
+brillant|13|16.62|brillante
 brillante|13|13.18
+brillantes|13|7.36|brillante
+brillants|13|16.15|brillante
 brocatelle dor|13|0.00
 bronzé|45|18.58
+bronzée|45|1.55|bronze
+bronzées|45|1.22|bronze
+bronzes|45|1.08|bronze
+brouille|10|3.51|brouillee
 brouillée|10|1.62
+brouillées|10|0.74|brouillee
+brouilles|10|1.76|brouillee
 Bruche du haricot|23|0.00
 Bruche du pois|26|0.00
+brûlot|0|0.74
+brûlots|0|0.61|brulot
 brunâtre|17|3.51
+brunâtres|17|1.69|brunatre
 brune de pissenlit|13|0.00
+brunette|0|0.47
 Brunette hivernale|27|0.00
+brunette sibérienne|0|0.00
+brunettes|0|0.07|brunette
 bryophile fraisillée|1|0.00
 bryophile vert-mousse|16|0.00
 Bubas bubale|11|0.00
 bupreste du rosier|12|0.00
+bupreste paresseux|0|0.00
+buprestidés|0|0.00
+buveur|25|1.49|buveuse
+buveurs|25|2.91|buveuse
 buveuse|25|0.27
 c noir|20|0.00
 cabère pustulée|15|0.00
 cabère virginale|13|0.00
+cafard|0|7.84
+cafarde|0|0.07|cafard
+cafards|0|1.96|cafard
+cafiche|0|0.00
+calandre|0|0.68
+calathe|0|0.00
+callichrome|0|0.00
 calophasie dhufnagel|12|0.00
 Caloptéryx|28|0.00
 Caloptéryx à Taches Apicales|11|0.00
+caloptéryx éclatant|0|0.00
+caloptéryx hémorroïdal|0|0.00
+caloptéryx maghrébin|0|0.00
+caloptéryx méditerranéen|0|0.00
 Caloptéryx Occitan|18|0.00
+caloptéryx vierge|0|0.00
+calosome|0|0.00
 camomillière|13|0.00
+campagnard|12|1.55|campagnarde
 campagnarde|12|2.84
+campagnardes|12|1.08|campagnarde
+campagnards|12|0.95|campagnarde
+cancouenne|0|0.00
+cancrelat|0|0.41
+cancrelats|0|0.54|cancrelat
+cannelé|9|0.00|cannelee
 cannelée|9|0.07
+cannelées|9|0.07|cannelee
+cannelés|9|0.07|cannelee
+cantarelle|0|0.00
 Cantharide de Frost|0|0.00
+cantharididés|0|0.00
+cantharidien|0|0.00
 Capricorne des maisons|39|0.00
 capside des près|9|0.00
 capside du noisetier|9|0.00
 Carabe doré|25|0.00
 carabe granuleux|22|0.00
 Carabe violet|26|0.00
+carabidé|0|0.00
 cardinal|33|4.80
+cardinale|33|0.68|cardinal
+cardinales|33|0.20|cardinal
+cardinaux|33|1.82|cardinal
+caria|0|0.00
+carpocapse|0|0.00
+carpomyze|0|0.00
 carte géographique|33|0.00
+cartonnière|0|0.00
 casque|13|21.62
+casquée|13|0.61|casque
+casquées|13|0.34|casque
+casques|13|7.57|casque
+cébrion|0|0.00
+cécidomyie|0|0.00
 ceinture jaune|10|0.00
 Célithème Bleu-minuit|10|0.00
 Célithème Indienne|11|0.00
 cendrée noirâtre|24|0.00
 cénobite|11|0.07
+cénobites|11|0.00|cenobite
+centipède|0|0.00
+centrote|0|0.00
 céphale|30|0.00
+céramie|0|0.00
+cératine|0|0.00
+cercope|0|0.00
 Cétoine grise|28|0.00
+chalcographe|0|0.00
+chalicodome|0|0.00
 cheimatobie du hêtre|14|0.00
 chésias des genêts|11|0.00
+cheval du bon dieu|0|0.00
 chevelure dorée|16|0.00
 chi|13|0.54
 chiffre|0|12.70
+chiffrée|0|0.41|chiffre
+chiffrées|0|0.20|chiffre
+chiffres|0|20.41|chiffre
+chilognathe|0|0.00
+chique|0|2.16
+chiques|0|0.07|chique
+chironome|0|0.00
 Chlorocordulie|24|0.00
+chlorocordulie alpestre|0|0.00
+chlorocordulie arctique|0|0.00
+chryside|0|0.00
+chrysidide|0|0.00
+chrysis|0|0.00
 chrysographe|11|0.00
 Chrysomèle à gros ventre|16|0.00
 Chrysomèle du millepertuis|17|0.00
 Chrysomèle du peuplier|22|0.00
 Chrysomèle fastueuse|11|0.00
 Chrysomèle Totoro|9|0.00
+chrysope|0|0.00
+chrysope verte|0|0.00
+Chrysoperla affinis|0|0.00
+chrysops|0|0.00
+cicadaire|0|0.00
+cicadelle|0|0.00
 cicadelle brune mineure|10|0.00
+cicadomorphe|0|0.00
+cicindèle|0|0.61
+cicindèle à six points|0|0.00
 cicindèle champêtre|32|0.00
+cicindèle germanique|0|0.00
+cicindèle hybride|0|0.00
+cicindèle maritime|0|0.00
 Cicindèle verte des pinèdes|10|0.00
+cicindèles|0|0.27|cicindele
 cidarie à bandes vertes|14|0.00
 cidarie à bec|11|0.00
 cidarie accompagnée|13|0.00
@@ -278,14 +526,26 @@ cidarie sinuée|10|0.00
 cidarie sylvestre|11|0.00
 cidarie variée|8|0.00
 cidarie verdâtre|12|0.00
+cigale|0|1.15
+cigales|0|3.78|cigale
+cigalou|0|0.07
 Cigarier|16|0.00
+cintre|18|2.91|cintree
 cintrée|18|0.54
+cintrées|18|0.27|cintree
+cintres|18|1.96|cintree
+cistèle|0|0.00
 citron|52|9.05
 Citron de Provence|32|0.00
 citronelle rouillée|18|0.00
 citronnelle|12|0.81
+citronnelles|12|0.07|citronnelle
+citrons|52|1.76|citron
 clé|13|35.00
+clés|13|13.58|cle
 cloporte|12|1.55
+cloportes|12|1.42|cloporte
+clypéastre|0|0.00
 Clyte bélier|33|0.00
 Coccinelle|64|1.35
 coccinelle à cinq points|16|0.00
@@ -299,15 +559,28 @@ coccinelle des melons|13|0.00
 coccinelle des roseaux|18|0.00
 coccinelle des saules|13|0.00
 coccinelle ocellée|19|0.00
+coccinelles|64|0.47|coccinelle
+coccinellidé|0|0.00
+cochenille|0|0.00
+cochenilles|0|0.00|cochenille
+cochylis|0|0.07
 Coléoptère|132|0.61
 Coléoptère bombardier|26|0.00
+coléoptères|132|0.88|coleoptere
+collète|0|0.27
+collète du lierre|0|0.00
 collier blanc|15|0.00
+comma|0|0.00
 comma blanc|11|0.00
+confus|16|19.86|confuse
 confuse|16|12.70
+confuses|16|4.66|confuse
 conigère|12|0.00
 conocéphale des roseaux|18|0.00
 conspicillaire|9|0.00
+copris|0|0.00
 Copris espagnol|17|0.00
+coquerelle|0|0.07
 cordon blanc|14|0.00
 Cordulegaster de Sicile|12|0.00
 cordulégastre annelé|27|0.00
@@ -315,9 +588,11 @@ Cordulegastre Bidenté|21|0.00
 Cordulegastre des Balkans|18|0.00
 Cordulégastre Oblique|7|0.00
 Cordulégastre Turc|6|0.00
+cordulie|0|0.00
 cordulie à corps fin|19|0.00
 cordulie à deux taches|23|0.00
 cordulie à taches jaunes|25|0.00
+cordulie alpestre|0|0.00
 cordulie arctique|20|0.00
 cordulie bronzée|28|0.00
 Cordulie Ceinturée|11|0.00
@@ -331,16 +606,38 @@ Cordulie Incurvée|12|0.00
 Cordulie Méridionale|15|0.00
 Cordulie Metallique|24|0.00
 Cordulie Splendide|20|0.00
+corise|0|0.00
 cosmie baie|10|0.00
 cosmie paillée|10|0.00
 cosmie pyraline|13|0.00
 cosmie rétuse|11|0.00
 cosmie roussâtre|12|0.00
+cosse|0|0.20
+cosses|0|0.47|cosse
 cossus gâte-bois|33|0.00
+courterolle|0|0.00
+courtilière|0|0.07
 courtilière commune|45|0.00
+courtilières|0|0.07|courtiliere
+cousin|0|39.05
 Cousin annelé|14|0.00
+cousin commun|0|0.00
+cousine|0|25.14|cousin
+cousines|0|5.14|cousin
+cousins|0|20.61|cousin
+crabron|0|0.00
+crabronide|0|0.00
+craintif|20|3.92|craintive
+craintifs|20|1.49|craintive
 craintive|20|2.23
+craintives|20|0.68|craintive
+crambite|0|0.00
+craspédie|0|0.00
+craspédonte|0|0.00
+cricri|0|1.28
+cricris|0|0.14|cricri
 Criocère de l'asperge|23|0.00
+criquet|0|0.34
 criquet des adrets|13|0.00
 criquet des clairières|20|0.00
 criquet des genévriers|17|0.00
@@ -351,22 +648,32 @@ criquet duettiste|17|0.00
 criquet egyptien|24|0.00
 Criquet élégant|10|0.00
 criquet ensanglanté|16|0.00
+criquet hérisson|0|0.00
 criquet ligné|15|0.00
 criquet marginé|16|0.00
+criquet marron|0|0.00
 criquet mélodieux|19|0.00
 criquet migrateur|38|0.00
 criquet noir-ébène|14|0.00
 criquet palustre|0|0.00
 Criquet pèlerin|43|0.00
+criquet Popeye|0|0.00
 Criquet puant|11|0.00
 criquet rouge-queue|12|0.00
 criquet turquoise|20|0.00
 criquet verdelet|17|0.00
 criquet verte-échine|12|0.00
+criquets|0|2.03|criquet
 Criquets puants|9|0.00
 crochet|14|9.80
 crochet blanc|15|0.00
+crochets|14|6.01|crochet
+crocise|0|0.00
 crocothémis écarlate|28|0.00
+crossote|0|0.00
+cténiope|0|0.00
+cténise|0|0.00
+cuceron|0|0.00
 cucullie de la camomille|12|0.00
 cucullie de la scrophulaire|12|0.00
 cucullie de labsinthe|13|0.00
@@ -374,34 +681,77 @@ cucullie de laster|10|0.00
 cuivré des marais|36|0.00
 cuivré écarlate|30|0.00
 cuivré mauvin|27|0.00
+cul-vert|0|0.00
+culbuteux|0|0.00
+culex|0|0.00
+curculionide|0|0.00
 cuspide|11|0.00
+cynips|0|0.00
 Cynips de l'érable|7|0.00
+cyriodère|0|0.00
 cythérée|13|0.00
 damas cendré|11|0.00
 damier de la succise|37|0.00
 Damier du frêne|25|0.00
 damier noir|27|0.00
+damoiseau|0|0.00|demoiselle
+dasypode|0|0.00
 découpure|19|0.34
+découpures|19|0.68|decoupure
+decticelle|0|0.00
 decticelle bariolée|18|0.00
 decticelle bicolore|7|0.00
 decticelle cendrée|18|0.00
 decticelle chagrinée|11|0.00
 decticelle des bruyères|16|0.00
+dectique|0|0.00
 dectique des brandes|10|0.00
 dectique verrucivore|24|0.00
 Déesse Gracieuse|11|0.00
 Déesse Précieuse|22|0.00
 demi-deuil|40|0.34
 Demi diable|15|0.00
+demoiselle|0|12.64
+demoiselles|0|7.36|demoiselle
+déplacé|21|6.22|deplacee
 déplacée|21|1.76
+déplacées|21|0.54|deplacee
+déplacés|21|0.88|deplacee
+dermaptère|0|0.00
 Dermeste|22|0.00
+désigné|11|9.93|designee
 désignée|11|1.35
+désignées|11|0.95|designee
+désignés|11|2.09|designee
+desmodère|0|0.00
+dexiaires|0|0.00
+diabase|0|0.00
+diable|0|51.01
+diable cherche-midi|0|0.00
+diables|0|3.78|diable
+diachrome|0|0.00
+diaspide|0|0.00
+diaspine|0|0.00
+diastatomme|0|0.00
+dictyoptère|0|0.00
 Diplacodes de Lefebvre|16|0.00
+diptères|0|0.07
+ditrysien|0|0.00
+divisé|14|2.91|divisee
 divisée|14|2.16
+divisées|14|0.41|divisee
+divisés|14|1.35|divisee
+dolichure|0|0.00
 Donacie|15|0.00
+dorcus|0|0.00
 doré|37|15.74
 dorée|12|16.42
+dorées|37|8.45|dore
+dorés|37|9.86|dore
+dorothée|0|0.00
+doryle|0|0.00
 Doryphore|81|0.34
+doryphores|81|0.47|doryphore
 dosithée naine|10|0.00
 double-bande brune|13|0.00
 double-feston|15|0.00
@@ -411,6 +761,7 @@ double-tache|24|0.00
 double zéro|12|0.00
 doublure jaune|20|0.00
 doucette|13|0.14
+dragon de Patagonie|0|0.00
 drap dor|10|0.00
 Drap mortuaire|28|0.00
 éborine|18|0.00
@@ -424,11 +775,26 @@ ecaille chinée|33|0.00
 écaille martre|35|0.00
 écaille pourprée|20|0.00
 écaille tigrée|21|0.00
+écalot|0|0.00
+échancré|14|0.47|echancree
 échancrée|14|0.34
+échancrées|14|0.20|echancree
+échancrés|14|0.20|echancree
+écrivain|0|32.43
+écrivaine|0|0.20|ecrivain
+écrivaines|0|0.14|ecrivain
+écrivains|0|16.22|ecrivain
 écu|10|1.49
+écus|10|3.11|ecu
 élagueuse|12|0.00
+élaphre|0|0.00
 Élénophore|2|0.00
+élu|17|4.46|elue
 élue|17|2.16
+élues|17|0.68|elue
+élus|17|4.12|elue
+empis|0|0.00
+empuse|0|0.00
 ennomos de laulne|13|0.00
 ennomos de lilas|13|0.00
 ennomos de tilleul|11|0.00
@@ -440,6 +806,10 @@ ennomos lunaire|10|0.00
 ennomos rongée|10|0.00
 ennonos illustre|13|0.00
 ensanglantée de loseille|10|0.00
+épéole|0|0.00
+éphémère|0|5.74
+éphémères|0|3.45|ephemere
+éphippigère|0|0.00
 ephippigère des vignes|14|0.00
 éphyre pupillée|12|0.00
 éphyre suspendue|13|0.00
@@ -448,17 +818,25 @@ ephippigère des vignes|14|0.00
 épione vespérale|11|0.00
 épirrite de christy|9|0.00
 épirrite diluée|9|0.00
+épithèque|0|0.00
 Épithèque à Queue Large|11|0.00
 Épithèque d'Uhler|9|0.00
 érastrie noirâtre|10|0.00
+érémiaphile|0|0.00
+Eretmocerus eremicus|0|0.00
+Eretmocerus mundus|0|0.00
 eristale des fleurs|16|0.00
 Éristale gluante|30|0.00
 Éristale opiniâtre|13|0.00
 Érythème des Étangs|13|0.00
 étrille|10|0.27
+étrilles|10|0.20|etrille
 eubolie âpre|10|0.00
 eubolie roussâtre|10|0.00
+eulophe|0|0.00
+eumène|0|0.00
 Eumolpe|14|0.00
+eumolpe de la vigne|0|0.00
 eupithécie à tirets|15|0.00
 eupithécie arrosée|12|0.00
 eupithécie austère|13|0.00
@@ -504,47 +882,103 @@ eupithécie substituée|12|0.00
 eupithécie triponctuée|12|0.00
 eupithécie trisignée|10|0.00
 eupithécie veinée|14|0.00
+évident|12|20.14|evidente
 évidente|12|9.32
+évidentes|12|2.43|evidente
+évidents|12|1.69|evidente
 fadet des tourbières|19|0.00
 fardée|9|2.23
 faucille|18|2.23
+faucilles|18|0.34|faucille
 faune|22|5.95
+faunes|22|0.54|faune
 fausse eupithécie|16|0.00
 fausse-timandre|10|0.00
 fauvette|12|1.62
+fauvettes|12|0.61|fauvette
+faux bourdon|0|0.07
 faux-casque|12|0.00
+féronie|0|0.00
+féronie noire|0|0.00
 ferruginée|11|0.00
 feuille dor|11|0.00
 feuille-morte du chêne|21|0.00
 feuille-morte du peuplier|14|0.00
 feuille-morte du prunier|15|0.00
+fiancé|20|9.73|fiancee
 fiancée|20|9.93
+fiancées|20|0.88|fiancee
+fiancés|20|2.57|fiancee
 fidonie des bruyères|11|0.00
 fidonie du pin|22|0.00
 fidonie hépatique|12|0.00
 flambé|53|1.82
+flambés|53|0.07|flambe
 flavicorne|17|0.00
 flocon de laine|17|0.00
+foreur|0|0.00|foreuse
+foreurs|0|0.07|foreuse
+foreuse|0|0.14
+foreuses|0|0.00|foreuse
+forficulaires|0|0.00
+forficule|0|0.00
+formica-leo|0|0.00
+fourmi|0|5.14
+fourmi ailée|0|0.00
+fourmi brigande|0|0.00
+fourmi charpentière|0|0.00
 Fourmi de feu rouge|32|0.00
 Fourmi électrique|19|0.00
+fourmi esclavagiste|0|0.00
+fourmi maçonne|0|0.00
+fourmi mineuse|0|0.00
+fourmi moissonneuse|0|0.00
 Fourmi noire|28|0.00
 fourmi noire des jardins|37|0.00
 Fourmi Pharaon|32|0.00
 Fourmi rousse des bois|42|0.00
 Fourmi tisserande|27|0.00
+fourmi volante|0|0.00
+fourmis|0|7.64|fourmi
 frange picotée|12|0.00
 frangée|17|0.68
+frelon|0|0.81
 frelon asiatique|44|0.00
+frelon européen|0|0.00
+frelons|0|1.01|frelon
 Fritillaire panachée|10|0.00
+fulgore|0|0.00
+fulgorelles|0|0.00
+fulgoriens|0|0.00
+fumerole|0|0.00
 funèbre|17|11.69
+funèbres|17|4.66|funebre
+galéode|0|0.00
+galéruque|0|0.00
 Galéruque de l'orme|16|0.00
 Galéruques|15|0.00
+galleuse|0|0.00
+gallinsecte|0|0.00
+gamase|0|0.00
 gamma|34|1.01
+gastrophile|0|0.00
 gazé|53|3.51
+gazée|53|0.07|gaze
+gazes|53|0.34|gaze
+gendarme|0|16.15
+gendarmes|0|27.57|gendarme
+gentil|26|37.36|gentille
 gentille|26|18.31
+gentilles|26|2.77|gentille
+gentils|26|6.42|gentille
+géocorise|0|0.00
 géomètre à barreaux|17|0.00
 géomètre papillonaire|22|0.00
+géotrupe|0|0.00
+gerris|0|0.00
+gloméris|0|0.00
 gnophos obscur|11|0.00
+gomphe|0|0.00
 gomphe à crochets|15|0.00
 gomphe à forceps|25|0.00
 gomphe à pattes jaunes|23|0.00
@@ -562,8 +996,11 @@ gomphe serpentin|26|0.00
 gomphe vulgaire|29|0.00
 gomphocère roux|15|0.00
 gomphocère tacheté|14|0.00
+goryte|0|0.00
 gothique|14|3.85
+gothiques|14|2.70|gothique
 goutte de sang|32|0.00
+grand abax|0|0.00
 grand argus bronzé|27|0.00
 Grand bombyle|21|0.00
 Grand bourdon des landes|13|0.00
@@ -573,6 +1010,7 @@ grand nacré|0|0.00
 grand paon de nuit|38|0.00
 grand porte-queue|70|0.00
 grand-renard|37|0.00
+grand sélésier|0|0.00
 grand sylvain|26|0.00
 Grande Aeschne|27|0.00
 Grande saperde|28|0.00
@@ -581,6 +1019,10 @@ grande tortue|37|0.00
 grande vanesse|19|0.00
 grande violette|32|0.00
 Graphium sarpedon|25|0.00
+gribouri|0|0.00
+grillon|0|2.09
+grillon champêtre|0|0.00
+grillon de Jérusalem|0|0.00
 grillon des bois|14|0.00
 grillon des champs|39|0.00
 grillon ditalie|15|0.00
@@ -588,21 +1030,46 @@ grillon domestique|43|0.00
 grillon provencal|20|0.00
 grillons|106|2.50
 grisette|29|0.14
+grisettes|29|0.27|grisette
 Grosse vrillette|28|0.00
+gryllide|0|0.00
+grylliens|0|0.00
+guêpe|0|2.84
+guêpe cartonnière|0|0.00
+guêpe fouisseuse|0|0.00
 Guêpe germanique|39|0.00
+guêpe maçonne|0|0.00
+guêpe papetière|0|0.00
+guêpe potière|0|0.00
 Guêpes|28|3.58
+guêpiaire|0|0.00
+gugano|0|0.00
+gymnétron|0|0.00
+gynandromorphe|0|0.00
 hachette|29|0.74
+hachettes|29|0.00|hachette
 Hagénie|11|0.00
+halicte|0|0.00
+haliple|0|0.00
 Hanneton du blé|19|0.00
 Hanneton foulon|33|0.00
 Hanneton lanigère|10|0.00
+harpale|0|0.00
 harpon|17|1.76
+harpons|17|0.27|harpon
+haustellé|0|0.00
+hélode|0|0.00
+hélope|0|0.00
 hélophile suspendu|16|0.00
+hémérobes|0|0.00
+hémiptère|0|0.07
+hémiptéroïdes|0|0.00
 hémithée du genêt|9|0.00
 hémithée éruginée|12|0.00
 hépathique|17|0.00
 hépiale du houblon|23|0.00
 herbacée|12|0.00
+hériade|0|0.00
 herminie de la vigne-blanche|12|0.00
 herminie dérivée|10|0.00
 herminie des myrtilles|10|0.00
@@ -624,31 +1091,80 @@ hespérie du dactyle|30|0.00
 Hespérie du Dakota|5|0.00
 hespérie du faux buis|22|0.00
 hespérie échiquier|38|0.00
+Hétérochèles|0|0.00
+hétéromères|0|0.00
+hétéroptère|0|0.07
+hexodon|0|0.00
 hibernie défeuillante|24|0.00
 hibernie grisâtre|10|0.00
 hibernie hâtive|14|0.00
 hibernie orangée|12|0.00
 himère-plume|16|0.00
+homoptère|0|0.00
 horisme des pulsatilles|8|0.00
 horisme élégant|9|0.00
+hulotte|0|0.34
+hulottes|0|0.27|hulotte
+hurebec|0|0.00
 hyacinthe|10|0.07
 hydrille des marais|10|0.00
+hydromètre|0|0.00
+hydrophile|0|0.88
+hydrophiles|0|0.14|hydrophile
+Hydroptile à belles antennes|5|0.00
+hygrobie|0|0.00
+hylée|0|0.00
 Hylésine du frêne|5|0.00
+hyménoptère|0|0.07
+hyménoptères|0|0.20|hymenoptere
 hypénode de la callune|10|0.00
 hypénode des tourbières|10|0.00
+ichneumon|0|0.00
 illégitime|10|0.61
+illégitimes|10|0.34|illegitime
+impoli|16|0.47|impolie
 impolie|16|0.20
+impolis|16|0.00|impolie
+imprévu|11|4.86|imprevue
 imprévue|11|3.18
+imprévues|11|0.95|imprevue
+imprévus|11|1.42|imprevue
+incertain|11|8.78|incertaine
 incertaine|11|6.76
+incertaines|11|2.64|incertaine
+incertains|11|2.77|incertaine
+inconstant|11|0.34|inconstante
 inconstante|11|0.20
+inconstants|11|0.14|inconstante
 inégale|13|1.69
+inégalée|13|0.27|inegale
+inégalées|13|0.07|inegale
+insecte|0|8.04
+insectes|0|14.66|insecte
+insectes ailés|0|0.00
+insondi|0|0.00
+intrus|13|4.46|intruse
 intruse|13|0.81
+intruses|13|0.20|intruse
 iota|14|0.34
+irrésolu|16|0.47|irresolue
 irrésolue|16|0.00
+irrésolues|16|0.07|irresolue
+irrésolus|16|0.14|irresolue
+isolé|12|4.46|isolee
 isolée|12|4.12
+isolées|12|1.55|isolee
+isolés|12|4.66|isolee
+isoptère|0|0.00
+iule|0|0.00
+iulidés|0|0.00
+ixodidés|0|0.00
 jaspe vert|10|0.00
 Jaune du pissenlit|14|0.00
 jumeau|29|2.09
+jumeaux|29|16.01|jumeau
+jumelle|29|2.36|jumeau
+jumelles|29|12.70|jumeau
 L'aeschne Affine|23|0.00
 L'aeschne Bleue|37|0.00
 L'aeschne Mixte|26|0.00
@@ -674,14 +1190,25 @@ La Quadrimaculée|36|0.00
 La Tortue|14|0.00
 lacertine|16|0.00
 laineuse du chêne|18|0.00
+lamellicorne|0|0.00
+lamie|0|0.07
 lampyre ibérique|8|0.00
+lampyrides|0|0.00
 lanax porte-selle|5|0.00
+lanfaron|0|0.00
 larantie des impatientes|11|0.00
 larentie arrosée|11|0.00
 larentie cloutée|12|0.00
 larentie de la clématite|10|0.00
 larentie lavée|12|0.00
 larentie mouchetée|12|0.00
+larve|0|1.69
+larvée|0|0.61|larve
+larvées|0|0.14|larve
+larves|0|2.23|larve
+lasiocampe|0|0.00
+lasiocampe du cyprès|0|0.00
+lasiocampe du peuplier|0|0.00
 Lasiocampidé|38|0.00
 Le faune|22|0.00
 Le faune punique|2|0.00
@@ -700,17 +1227,24 @@ Le Sympétrum Méridional|23|0.00
 Le Sympétrum Rouge Sang|33|0.00
 Le Sympétrum Sanguin|33|0.00
 Le Sympétrum Strié|32|0.00
+lécanie|0|0.00
 Léma à pieds noirs|24|0.00
+lépisme|0|0.00
 Lepture tachetée|27|0.00
+leste|0|1.08
 Leste à Grands Ptérostigmas|22|0.00
 leste brun|27|0.00
 leste dryade|25|0.00
 leste enfant|19|0.00
 leste fiancé|30|0.00
 leste sauvage|23|0.00
+leste tardif|0|0.00
 leste verdoyant|24|0.00
 leste vert|25|0.00
 Leste Vert Oriental|16|0.00
+lestée|0|0.41|leste
+lestées|0|0.14|leste
+lestes|0|0.54|leste
 leucanie obsolète|8|0.00
 leucanie orbicole|18|0.00
 leucanie paillée|13|0.00
@@ -724,11 +1258,20 @@ leucorrhine douteuse|26|0.00
 Leucorrhine Frigide|10|0.00
 Leucorrhine Glaciale|10|0.00
 leucorrhine rubiconde|15|0.00
+lève-cul|0|0.00
+libellule|0|2.16
 libellule à quatre taches|36|0.00
+libellule déprimée|0|0.00
 Libellule écarlate|28|0.00
+libellule émeraude|0|0.00
 libellule fauve|27|0.00
 Libellule Globe Trotter|28|0.00
+libellule gracieuse|0|0.00
+libellule mélancolique|0|0.00
 Libellule Quadrimaculée|36|0.00
+libellule voluptueuse|0|0.00
+libellules|0|1.22|libellule
+libette|0|0.00
 lichénée bleue|27|0.00
 Liodide|25|0.00
 lithosie complanule|18|0.00
@@ -737,31 +1280,73 @@ lithosie muscerde|16|0.00
 lithosie obtuse|12|0.00
 lithosie ocre|14|0.00
 lithosie quadrille|22|0.00
+litomastix|0|0.00
 livrée des arbres|37|0.00
+lixe|0|0.00
+lobe|13|1.35|lobee
 lobée|13|0.00
+lobes|13|0.74|lobee
 lobophore verdâtre|13|0.00
+locuste|0|0.00
+locustes|0|0.00|locuste
+longitarse|0|0.00
+lope|0|1.08
+lopes|0|0.61|lope
+lophyre|0|0.00
+loricère|0|0.00
+louvette|0|0.00
 lucane cerf-volant|57|0.00
 Lucane girafe|16|0.00
+lucanidés|0|0.00
 lucilie bouchère|19|0.00
 lucine|34|0.00
 luciole of lampyre|37|0.00
 lunaire|13|3.78
+lunaires|13|0.88|lunaire
+lunette|16|7.43|lunettes
 lunettes|16|67.84
+lycène Icare|0|0.00
+lycénidé|0|0.00
 lynx|12|1.22
+mâchoquet|0|0.00
+macronyque|0|0.00
 madope du saule|10|0.00
+magicienne dentelée|0|0.00
+mallophage|0|0.00
+mante|0|0.47
+Mante orchidée|31|0.00
+mante religieuse|0|0.00
 manteau à tête jaune|19|0.00
 manteau jaune|18|0.00
 manteau nain|6|0.00
 manteau safran|14|0.00
 mantelée|14|0.00
+mantes|0|1.22|mante
+manticore|0|0.00
+mantoptère|0|0.00
+marabunta|0|0.00
+marbre|17|41.49|marbree
 marbré de vert|33|0.00
 marbrée|17|0.27
+marbrées|17|0.34|marbree
+marbres|17|1.55|marbree
+marié|22|10.47|mariee
 mariée|22|10.74
+mariées|22|1.49|mariee
+mariés|22|5.20|mariee
+maringouin commun|0|0.00
+maringouin domestique|0|0.00
+marivole|0|0.00
 Mars|24|31.42
+masare|0|0.00
+masarides|0|0.00
 maure|16|1.01
+maures|16|0.41|maure
 méconème fragile|13|0.00
 mégacéphale|12|0.00
+mégachile|0|0.00
 mégère|33|0.54
+mégères|33|0.27|megere
 mélanippe claire|12|0.00
 mélanippe coupée|11|0.00
 mélanippe hastée|16|0.00
@@ -770,37 +1355,90 @@ mélanippe triste|11|0.00
 mélanthie du caille-lait|12|0.00
 mélanthie montagnarde|12|0.00
 mélanthie pie|9|0.00
+mélecte|0|0.00
 mélibée|21|0.00
+mélipone|0|0.00
 mélitée des digitales|17|0.00
 mélitée du mélampyre|33|0.00
 mélitée du plantain|31|0.00
 mélitée orangée|32|0.00
+méloé|0|0.00
+méloïdes|0|0.00
+mélolonthe|0|0.00
 Mélolonthiné|28|0.00
+mélophage|0|0.00
+membracide|0|0.00
+mendiant|20|5.20|mendiante
 mendiante|20|0.95
+mendiantes|20|0.14|mendiante
+mendiants|20|5.47|mendiante
 mercure|20|1.76
 merveille verte|2|0.00
+mestèque|0|0.00
+microgastre|0|0.00
+mille-pattes-araignée|0|0.00
+mille-pattes-minute|0|0.00
+mineuse|0|0.00
+mineuse du marronnier|0|0.00
+mirabande|0|0.00
 miroir|25|48.58
+miroirs|25|15.41|miroir
+miscophe|0|0.00
 modeste|10|23.38
+modestes|10|8.31|modeste
 moine|17|18.04
+moines|17|16.69|moine
 moiré blanc-fascié|27|0.00
 moiré franconien|20|0.00
 moiré sylvicole|20|0.00
+moissonneur|30|0.07|moissonneuse
+moissonneurs|30|0.81|moissonneuse
 moissonneuse|30|0.14
+moissonneuses|30|0.20|moissonneuse
 monarque|63|1.55
+monarques|63|0.41|monarque
+mondain|17|4.26|mondaine
 mondaine|17|4.53
+mondaines|17|2.64|mondaine
+mondains|17|1.82|mondaine
+monédule|0|0.00
+monochame|0|0.00
+monolectique|0|0.00
+mordelle|0|0.00
 morio|49|0.00
+morion|0|0.00
 moro-sphinx|48|0.00
+morpion|0|0.95
+morpions|0|0.81|morpion
+mouche|0|18.72
+mouche à miel|0|0.00
 Mouche bleue|30|0.00
+mouche de la Saint-Marc|0|0.00
+mouche de pierre|0|0.00
 mouche du vinaigre|66|0.00
 Mouche pisseuse|11|0.00
+mouche suzukii|0|0.00
+moucheron asiatique|0|0.00
+mouches|0|28.18|mouche
+moustique|0|1.49
 Moustique-aiguille allemand|16|0.00
 Moustique-aiguille roumain|7|0.00
+moustique commun|0|0.00
+moustique domestique|0|0.00
 Moustique pointu japonais|15|0.00
 Moustique typique domestique|42|0.00
 Moustique typique européen|5|0.00
 moustiques|196|6.08
+mout-mout|0|0.00
+moute-moute|0|0.00
+moutmout|0|0.00
 moyen nacré|14|0.00
+mulion|0|0.00
+mycétome|0|0.00
+myrméléon|0|0.00
+Myrmica rubra|0|0.00
 myrtil|42|0.00
+myzoxyle|0|0.00
 nacarat|11|0.20
 nacré de la canneberge|21|0.00
 Nacré de la sanguisorbe|32|0.00
@@ -808,9 +1446,22 @@ nacré de Pallas|19|0.00
 nacré des Magyars|19|0.00
 Nacré tyrrhénien|2|0.00
 naiade au corps vert|24|0.00
+naïs|0|0.27
 nasse|11|1.22
+nasses|11|0.61|nasse
+naucore|0|0.00
 nébuleuse|11|0.61
+nébuleuses|11|0.61|nebuleuse
+nébuleux|11|0.68|nebuleuse
+négril|0|0.07
+négrite|0|0.00
+néoptère|0|0.00
+nèpe|0|0.07
+nèpes|0|0.07|nepe
+Névroptère|71|0.00
 ni|17|662.36
+nitèle|0|0.00
+nitidules|0|0.00
 noctuelle à baïonnette|7|0.00
 noctuelle à macule blanche|11|0.00
 noctuelle à museau|16|0.00
@@ -894,7 +1545,10 @@ noctuelle turque|11|0.00
 noctuelle typique|13|0.00
 noctuelle veineuse|8|0.00
 noctuelle verte|10|0.00
+noirot|0|0.00
 Nolidés|25|0.00
+nomade|0|1.96
+nomades|0|3.24|nomade
 nonagrie de la canne|2|0.00
 nonagrie des canches|10|0.00
 nonagrie des laiches|1|0.00
@@ -903,25 +1557,44 @@ nonagrie fluide|1|0.00
 nonagrie neurique|8|0.00
 nonagrie roussâtre|10|0.00
 nonagrie rubanée|10|0.00
+nono|0|0.00
+nourricier|0|1.01|nourriciere
+nourricière|0|1.15
+nourricières|0|0.14|nourriciere
+nourriciers|0|0.61|nourriciere
 nubigère|8|0.00
 nudarie vieille|12|0.00
 numérie poudrée|11|0.00
 numéro quatre-vingt-dix-huit|71|0.00
+nyctéribie|0|0.00
 nymphagogue|12|0.00
 nymphale du peuplier|26|0.00
 nyssie hispide|10|0.00
+obisie|0|0.00
 occulte|12|1.76
+occultes|12|1.49|occulte
 ocellée-lichenée|14|0.00
 octogésime|12|0.00
+octopode|0|0.00
+odalisque|0|0.54
 Odalisque pruineuse|13|0.00
+odalisques|0|0.74|odalisque
 Odonata|118|0.00
 Odontomaque|25|0.00
 oecophore rosée|11|0.00
 ombrageuse|19|0.81
+ombrageuses|19|0.14|ombrageuse
+ombrageux|19|1.89|ombrageuse
 oméga|10|0.88
 omphaloscélis à lunule|10|0.00
+ondulé|11|1.55|ondulee
 ondulée|11|2.03
+ondulées|11|0.41|ondulee
+ondulés|11|1.22|ondulee
 onduleuse|13|0.68
+onduleuses|13|0.34|onduleuse
+onduleux|13|0.61|onduleuse
+onthophage|0|0.00
 Ophiogomphe Bariolé|12|0.00
 Ophiogomphe Boréal|9|0.00
 Ophiogomphe de Howe|10|0.00
@@ -929,34 +1602,77 @@ Ophiogomphe Saupoudré|10|0.00
 ophiuse de lastragale|14|0.00
 orangé|16|12.03
 orangée|7|1.62
+orangées|16|0.61|orange
+oranges|16|7.57|orange
+orgyie|0|0.00
+orné|12|8.38|ornee
 ornée|12|6.01
+ornées|12|2.77|ornee
+ornés|12|3.58|ornee
 Ornithoptère chimère|12|0.00
 Ornithoptère de paradis|14|0.00
 Ornithoptère méridional|12|0.00
+orphelin|13|5.00|orpheline
 orphéline|13|2.03
+orphelines|13|0.20|orpheline
+orphelins|13|2.30|orpheline
 orrhidie ligulée|11|0.00
+ortalide|0|0.00
 Orthétrum à Stylets Blancs|22|0.00
 orthétrum bleuissant|32|0.00
 orthétrum brun|22|0.00
 Orthétrum de Sicile|15|0.00
 Orthétrum Réticulé|33|0.00
+orthognathe|0|0.00
 ortholite acuminée|9|0.00
 ortholite biponctuée|8|0.00
 ortholite fortifiée|9|0.00
 ortholite plombée|10|0.00
 ortholite rétrécie|7|0.00
+orthosie|0|0.00
 Orycte du cocotier|24|0.00
+oryctère|0|0.00
+orysse|0|0.00
+oscine|0|0.00
+osmie|0|0.00
 Otiorhynque|20|0.00
+oxybèle|0|0.00
 oxydée|12|0.14
 Oxymire coureur|23|0.00
 pachycnémie des callunes|14|0.00
+paléoptère|0|0.00
 panaché|11|5.14
+panaches|11|2.23|panache
+panorpe|0|0.00
+panorpidé|0|0.00
+pantale|0|0.00
+pantale bimaculée|0|0.00
 Pantale Flavescente|28|0.00
+pantale globe-trotteur|0|0.00
 panthère|14|3.65
+panthères|14|1.76|panthere
+pantigue|0|0.00
 paon du jour|62|0.00
+papillon|0|10.68
 papillon à numéro|71|0.00
 Papillon lune|31|0.00
+papillons|0|9.39|papillon
+pappataci|0|0.00
+paranéoptère|0|0.00
+paranéoptères|0|0.00
+passale|0|0.00
+pélopée|0|0.00
 peltigère|11|0.00
+peltis|0|0.00
+peltoïde|0|0.00
+pemphredon|0|0.00
+pennipatte|0|0.00
+pennipatte blanchâtre|0|0.00
+pennipatte bleuâtre|0|0.00
+pennipatte orangé|0|0.00
+perce-oreille|0|0.07
+perce-oreilles|0|0.14|perce oreille
+pergue|0|0.00
 périzome contrastée|9|0.00
 périzome soulignée|10|0.00
 Petit bourdon des landes|18|0.00
@@ -1038,32 +1754,73 @@ phalène sobre|11|0.00
 phalène trilignée|13|0.00
 phalène velue|16|0.00
 phanéroptère commun|21|0.00
+phasme|0|0.00
+phasmide|0|0.00
 phidonie à cinq raies|10|0.00
 philobie alternée|13|0.00
 philobie des pins|12|0.00
 philobie des saules|8|0.00
 philobie effacée|14|0.00
 philobie tachtée|13|0.00
+phlébotome|0|0.00
+phlée|0|0.00
+phrygane|0|0.00
+phtirius|0|0.00
+phyllie|0|0.00
+phyllomorphe|0|0.00
+phyllophore|0|0.00
 Phylloxéra|49|0.47
+phymate|0|0.00
 piéride de la moutarde|36|0.00
 piéride de la rave|54|0.00
 piéride du chou|74|0.00
 piéride du navet|45|0.00
+pimélie|0|0.00
+pince-oreille|0|0.00
+platycnémis|0|0.00
+platyparée|0|0.00
+platype|0|0.00
 Platypsylle|7|0.00
+plée|0|0.00
+plégaire|0|0.00
+plusie|0|0.00
 plusie de lorcette|12|0.00
 plusie de lortie|12|0.00
 plusie topaze|12|0.00
+podures|0|0.00
 point blanc|13|0.00
 point de hongrie|32|0.00
 point noir|12|0.00
+pointerelle|0|0.00
+poliste|0|0.00
 polygone|9|0.47
+polygones|9|0.41|polygone
 polygonière|16|0.00
+pompile|0|0.00
 porphyre|7|1.35
+porphyres|7|0.14|porphyre
+porte-aiguillon|0|0.00
 porte-flèches|13|0.00
+potager|16|3.04|potagere
 potagère|16|0.07
+potagères|16|0.14|potagere
+potagers|16|0.34|potagere
+pou|0|1.42
+pou à poche blanche|0|0.00
+pou de bois|0|0.00
+pou du mouton|0|0.00
+poux|0|7.09|pou
+priocère|0|0.00
+prionophore|0|0.00
+processionnaire|0|0.20
 Processionnaire de Bonjean|11|0.00
+processionnaires|0|0.20|processionnaire
 procris|38|0.00
+progallinsecte|0|0.00
+promis|21|42.43|promise
 promise|21|4.12
+promises|21|0.81|promise
+prospaltelle|0|0.00
 protée|0|0.00
 psi|21|0.00
 Psithyre|19|0.00
@@ -1075,49 +1832,127 @@ Psithyre des rochers|18|0.00
 Psithyre norvégien|17|0.00
 Psithyre quadricolore|16|0.00
 Psithyre sylvestre|17|0.00
+ptérochroze|0|0.00
+ptérophore|0|0.00
+ptérygote|0|0.00
+Ptérygotes|0|0.00
 Ptine|14|0.00
+puce|0|3.58
+puce de parquet|0|0.00
+puceron|0|0.20
 Puceron de la laitue|10|0.00
+puceron des grains|0|0.00
+puceron lanigère|0|0.00
 Puceron vert du pois|24|0.00
+pucerone|0|0.00
+puceronne|0|0.00
+pucerons|0|0.27|puceron
+puces|0|8.85|puce
+pudis|0|0.00
+pulga|0|0.00
+punaise|0|1.76
 punaise à pattes rousses|20|0.00
+punaise de chauve-souris|0|0.00
+punaise de lit|0|0.00
+punaise des lits|0|0.00
+punaise diabolique|0|0.00
+punaise marbrée|0|0.00
+punaises|0|6.08|punaise
 pyrale de l'eupatoire|11|0.00
 pyrale du sureau|13|0.00
 pyramide|18|4.80
+pyramides|18|5.34|pyramide
+pyrochre|0|0.00
+Pyrochroïdes|0|0.00
+pyrrhocore|0|0.00
 ratissée|15|0.41
+ravet|0|0.00
+réduve|0|0.00
 Renia fraternelle|6|0.00
+rhagion|0|0.00
+rhipicéphale|0|0.00
+rhipiptère|0|0.00
+rhynchite|0|0.00
 Rhynchite bacchus|13|0.00
 Rhynchite doré|17|0.00
+rhynchophore|0|0.00
 riche|17|42.57
+riches|17|22.91|riche
 rieuse|16|3.24
+rieuses|16|0.88|rieuse
 robuste|13|7.03
+robustes|13|3.04|robuste
+ronge-bois|0|0.00
 rosette|19|1.76
+rosettes|19|0.27|rosette
+rouget|0|0.54
+rougets|0|0.95|rouget
 rouillée|13|2.91
 rousse|11|15.00
+rousses|11|4.73|rousse
+roux|11|20.68|rousse
 runique|10|0.00
+runiques|10|0.00|runique
 Safrané|24|0.14
+salde|0|0.00
 salie|12|1.42
 satellite|17|0.81
+satellites|17|1.15|satellite
+sauterelle|0|1.62
 sauterelle cymbalière|22|0.00
 sauterelle des chênes|17|0.00
 sauterelle ponctuée|16|0.00
+sauterelles|0|2.77|sauterelle
 Scarabée Atlas|25|0.00
+scarabée japonais|0|0.00
 Scarabée pique-prune|34|0.00
 Scarabée rhinocéros|8|0.00
 Scarabée rhinocéros japonais|25|0.00
+scarabéides|0|0.00
+scarite|0|0.00
 schrankie bicolore|14|0.00
 scolopacine|11|0.00
 scolyte|45|0.00
+scutigère|0|0.54
+scutigères|0|0.07|scutigere
 sérieuse|9|13.65
+sérieuses|9|9.53|serieuse
+sérieux|9|42.84|serieuse
 serpette|12|0.47
+serpillière|0|3.11
+serpillières|0|1.35|serpilliere
+sésamie|0|0.00
 Sésie du Groseillier|18|0.00
+simule|0|0.81
+simulée|0|0.34|simule
+simulées|0|0.00|simule
+simulés|0|0.07|simule
+simulie|0|0.00
 sinuée|12|0.00
+sique|0|0.00
 solitaire|25|20.88
+solitaires|25|6.08|solitaire
+sophie|0|0.00
 souci|38|39.80
+soucis|38|21.42|souci
 soufré|30|4.53
+soufrée|30|0.20|soufre
+soufrées|30|0.14|soufre
+soufrés|30|0.07|soufre
+soumis|12|13.65|soumise
 soumise|12|3.78
+soumises|12|1.69|soumise
 souris|13|22.57
+soutenu|13|8.92|soutenue
 soutenue|13|3.45
+soutenues|13|0.95|soutenue
+soutenus|13|1.69|soutenue
 soyeuse|15|4.12
+soyeuses|15|1.76|soyeuse
+soyeux|15|7.16|soyeuse
+sphége|0|0.00
 Sphéritide|7|0.00
+sphex|0|0.00
 Sphindide|16|0.00
 sphinx à tête de mort|51|0.00
 sphinx bourdon|24|0.00
@@ -1138,12 +1973,27 @@ sphinx nicéa|27|0.00
 Sphinx Phaenix|23|0.00
 sphinx-pygmée|15|0.00
 sphynx du tilleul|27|0.00
+staphylinide|0|0.00
 stéganie du peuplier|12|0.00
 Stégobie des pharmacies|25|0.00
 sténobothre nain|12|0.00
+sténographe|0|0.00
+stigme|0|0.00
+stomide|0|0.00
+stomoxe|0|0.00
+stratiome|0|0.00
+stridulants|0|0.00
+suceur|0|0.14
+suceurs|0|0.20|suceur
+suceuse|0|0.34|suceur
+suceuses|0|0.27|suceur
+suivant|17|21.89|suivante
 suivante|17|19.46
+suivantes|17|5.61|suivante
+suivants|17|9.19|suivante
 sylvain azuré|25|0.00
 sylvandre|22|0.00
+sylvie|0|2.09
 sylvine|18|0.00
 sympétrum à corps déprimé|17|0.00
 Sympétrum à Veinules Rouges|11|0.00
@@ -1154,22 +2004,41 @@ Sympétrum Intime|9|0.00
 sympétrum jaune dor|34|0.00
 sympétrum méridional|23|0.00
 sympétrum noir|25|0.00
+sympétrum rouge sang|0|0.00
 sympétrum sanguin|33|0.00
 sympétrum strié|32|0.00
 sympétrum vulgaire|29|0.00
 Syrphe ceinturé|25|0.00
 tabac d'Espagne|44|0.00
 tabac despagne|44|0.00
+tabanidé|0|0.00
+tabanidés|0|0.00
 tache effacée|8|0.00
 tachée|8|3.92
+tachine|0|0.00
+tachinidés|0|0.00
 tanagre du cerfeuil|17|0.00
+Tanystomes|0|0.00
+taon|0|0.14
+taons|0|0.47|taon
+tapinome|0|0.00
+taupe-grillon|0|0.00
 Taupin des moissons|22|0.00
+taurome|0|0.00
+téléphore|0|0.00
+téléphores|0|0.00
 téniocampe ambiguë|11|0.00
 téniocampe constante|15|0.00
 téniocampe du peuplier|8|0.00
 téniocampe grêle|8|0.00
 téniocampe peinte|10|0.00
 téniocampe riche|8|0.00
+térébrant|0|0.14
+térébrants|0|0.07
+termite|0|0.00
+termite du Japon|7|0.00
+termites|0|1.96|termite
+tétranyque|0|0.00
 tétrix calcicole|14|0.00
 tétrix des carrières|14|0.00
 tétrix des clairières|14|0.00
@@ -1182,16 +2051,41 @@ thécla du bouleau|33|0.00
 thécla du prunellier|24|0.00
 Thècle de la ronce|39|0.00
 Thècle du prunier|24|0.00
+théridiidés|0|0.00
+thrip|0|0.00
+thrips|0|0.00
+thysanoptère|0|0.00
+thysanure|0|0.00
+tibicine|0|0.00
+tigre|10|4.86|tigree
 Tigre du platane|20|0.00
 tigrée|10|0.41
+tigrées|10|0.14|tigree
+tigres|10|2.50|tigree
+tigresse|10|1.08|tigree
+tigresses|10|0.20|tigree
 timandre aimée|15|0.00
+timarque|0|0.00
+tinéites|0|0.00
+tipulaires|0|0.00
+tipule|0|0.07
+tipulides|0|0.00
 tircis|39|0.00
+tisserand|0|0.34
+tisserande|0|0.07|tisserand
+tisserands|0|0.68|tisserand
+titan|0|0.68
+titans|0|0.20|titan
 Tordeuse chagrinée|11|0.00
 tortue|14|4.66
 tortue faux-gamma|19|0.00
+tortues|14|1.55|tortue
 toupet|14|2.23
+toupets|14|0.07|toupet
 trapèze|15|3.04
+trapèzes|15|0.74|trapeze
 tréma blanc|6|0.00
+triatome|0|0.00
 Trichie fasciée|26|0.00
 Trichocéridé|23|0.00
 trimaculée|12|0.00
@@ -1204,23 +2098,52 @@ Trithémis écarlate|19|0.00
 troènière|14|0.00
 trois-cerceaux|10|0.00
 truie|13|2.16
+truies|13|0.20|truie
+tu poto|32|0.00
+tussah|0|0.00
+tussan|0|0.00
+tussau|0|0.00
+typhlodrome|0|0.00
+typographe|0|0.47
+typographes|0|0.61|typographe
+urebec|0|0.00
 v dor|14|0.00
+vagabond|11|3.38|vagabonde
 vagabonde|11|0.81
+vagabondes|11|0.41|vagabonde
+vagabonds|11|2.57|vagabonde
 vanesse amirale|71|0.00
 vanesse de l'orme|37|0.00
 vanesse de l'ortie|55|0.00
 Vanesse des perlières|18|0.00
 Vanesse du chardon|55|0.00
 vanesse du peuplier|19|0.00
+veine|9|15.27|veinee
 veinée|9|0.20
+veinées|9|0.27|veinee
+veines|9|20.14|veinee
+vélie|0|0.00
 ver à queue de rat|30|0.00
+ver blanc|0|0.00
 Ver des framboises|18|0.00
+verdau|0|0.00
 verdelet|12|0.07
+verdoyant|13|0.95|verdoyante
 verdoyante|13|0.68
+verdoyantes|13|0.47|verdoyante
+verdoyants|13|0.34|verdoyante
 vert-doré|22|0.00
+veuf|19|3.11|veuve
+veufs|19|0.47|veuve
 veuve|19|26.89
+veuves|19|3.99|veuve
+vieilli|13|9.39|vieillie
 vieillie|13|1.55
+vieillies|13|0.20|vieillie
+vieillis|13|1.89|vieillie
+virabelo|0|0.00
 virgule|33|3.04
+virgules|33|1.69|virgule
 volant doré|15|0.00
 vrillette du pain|25|0.00
 vrillette petite|25|0.00
@@ -1232,11 +2155,30 @@ xanthie falote|9|0.00
 xanthie lavée|10|0.00
 xanthie noisette|12|0.00
 xanthie safranée|9|0.00
+xérampéline|0|0.00
 xérampéline dhübner|8|0.00
 xyline du bouleau|13|0.00
 xyline du frêne|10|0.00
+xylocope|0|0.00
+xylocope brun|0|0.00
+xylocope de Darwin|0|0.00
+xylocope irisé|0|0.00
+xylocope panard|0|0.00
+xylocope violacé|0|0.00
+xylocope violet|0|0.00
+xylophage|0|0.00
+xylophile|0|0.00
+yen-yen|0|0.00
+yenyen|0|0.00
+yin-yin|0|0.00
+yinyin|0|0.00
+zabre bossu|0|0.00
+zabre des céréales|0|0.00
+zébré-de-vert|0|0.00
+zemb|0|0.00
 zérène de lorme|17|0.00
 zérène du groseillier|28|0.00
+zeuzère|0|0.00
 zeuzère du marronnier|29|0.00
 zeuzère du roseau|14|0.00
 Zygène de la Filipendule|38|0.00
@@ -1244,3 +2186,5 @@ Zygène des Lotiers|38|0.00
 Zygène du Pied-de-Poule|38|0.00
 Zygénidé|41|0.00
 Zygonyx du Désert|15|0.00
+zygoptère|0|0.00
+zyxomme|0|0.00

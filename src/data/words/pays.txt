@@ -12,7 +12,10 @@ Antigue-et-Barbude|266|0.00
 Arabie saoudite|350|0.00
 Arabie séoudite|350|0.00
 Archipel Cook|187|0.00
+argentin|372|2.57|argentine
 Argentine|372|1.62
+argentines|372|0.68|argentine
+argentins|372|0.61|argentine
 Arménie|352|0.00
 Aruba|200|0.00
 ARYM|326|0.00
@@ -31,7 +34,10 @@ Bélarus|359|0.00
 Belau|257|0.00
 Belgique|383|0.27
 Belize|281|0.00
+bénigne|307|1.69|benin
+bénignes|307|0.81|benin
 Bénin|307|0.74
+bénins|307|0.20|benin
 bf|308|0.00
 Bharatvarsh|403|0.00
 Bhoutan|304|0.00
@@ -47,6 +53,9 @@ brb|276|0.00
 Brésil|387|0.07
 Brésilien|387|1.69
 Brésilienne|387|1.55
+brésiliennes|387|0.61|bresilien
+brésiliens|387|1.08|bresilien
+brésils|387|0.14|bresil
 Brézil|387|0.00
 Brunei|298|0.00
 Brunéi Darussalam|298|0.00
@@ -64,10 +73,13 @@ Centrafrique|301|0.00
 Ceylan|308|0.00
 CG|300|0.00
 Chili|380|0.07
+chilis|380|0.07|chili
 Chine|399|0.54
 Chine communiste|399|0.00
 Chine continentale|399|0.00
 Chine populaire|399|0.00
+chinée|399|0.14|chine
+chinés|399|0.07|chine
 Chypre|325|0.14
 Chypre du Nord|183|0.00
 Chypre Nord|183|0.00
@@ -94,6 +106,7 @@ Côte d'Ivoire|311|0.00
 Croatie|356|0.00
 Cuba|312|0.00
 Curaçao|166|0.47
+curaçaos|166|0.07|curacao
 cy|325|0.00
 Danemark|369|0.00
 Danemark métropolitain|369|0.00
@@ -101,13 +114,17 @@ Danemark propre|369|0.00
 Djibouti|300|0.00
 dm|264|0.00
 Dominica|264|0.00
+dominicain|280|0.61|dominicaine
 Dominicaine|280|0.47
+dominicaines|280|0.07|dominicaine
+dominicains|280|1.89|dominicaine
 Dominique|264|0.00
 Dzayer|373|0.00
 É-U|427|0.00
 EFM|222|0.00
 Égypte|390|0.00
 El Salvador|287|0.00
+émirat|319|0.07|emirats
 Émirats|319|0.20
 Émirats arabes unis|319|0.00
 Équateur|315|1.55
@@ -116,6 +133,7 @@ Espagne|396|0.00
 Esthonie|354|0.00
 Estonie|354|0.00
 Eswatini|286|0.00
+état|427|192.03|etats
 État chypriote turc|183|0.00
 État d'Érythrée|308|0.00
 État d'Israël|379|0.00
@@ -161,6 +179,7 @@ Grande-Bretagne|396|0.00
 grd|251|0.00
 Grèce|378|0.00
 Grenade|251|6.49
+grenades|251|6.49|grenade
 Groenland|255|0.00
 GT|281|0.00
 Guatemala|281|0.00
@@ -169,12 +188,14 @@ Guinée-bissao|298|0.00
 Guinée-Bissau|298|0.00
 Guinée-Conakry|301|0.00
 Guinée équatoriale|284|0.00
+guinées|301|0.00|guinee
 Guyana|286|0.00
 Haïti|291|0.00
 Hanguk|355|0.00
 Hellas|378|0.00
 Helvétie|387|0.00
 Hexagone|428|0.47
+hexagones|428|0.14|hexagone
 Hindustan|403|0.00
 Hollande|374|0.07
 Honduras|297|0.00
@@ -194,6 +215,7 @@ Ile Maurice|283|0.00
 Îles Philippines|334|0.00
 Îles Salomon|244|0.00
 Inde|403|0.14
+indes|403|0.41|inde
 Indonésie|365|0.00
 Indostan|403|0.00
 Irak|350|0.00
@@ -208,6 +230,7 @@ Israël|379|0.00
 Italie|409|0.00
 Jamaïque|281|0.00
 Japon|419|0.20
+japons|419|0.07|japon
 Jordanie|314|0.00
 Katar|290|0.00
 Kazakhstan|350|0.00
@@ -224,6 +247,7 @@ Kossovo|283|0.00
 Koweït|305|0.00
 kp|311|0.00
 Kuwait|305|0.00
+lao|315|0.07|laos
 Laos|315|0.07
 LC|235|0.00
 Lesotho|280|0.00
@@ -238,6 +262,7 @@ LS|280|0.00
 Luxembourg|335|0.00
 Macedoine|326|0.41
 Macédoine du Nord|326|0.00
+macédoines|326|0.14|macedoine
 Madagascar|320|0.00
 Malaisie|339|0.00
 Malawi|298|0.00
@@ -251,6 +276,7 @@ Maurice|283|0.00
 Mauritanie|304|0.00
 mc|321|0.00
 ME|323|4264.32
+mes|323|1023.11|me
 Mexique|400|0.00
 MGL|321|0.00
 Micronésie|222|0.00
@@ -270,7 +296,10 @@ Nauru|265|0.00
 NCA|282|0.00
 nd Sint Maarten|126|0.00
 ne|302|7752.09
+née|302|22.36|ne
+nées|302|3.51|ne
 Népal|323|0.00
+nés|302|7.50|ne
 ng|349|0.00
 Ngwané|286|0.00
 ni|282|662.36
@@ -304,6 +333,7 @@ Palaos|257|0.00
 Palau|257|0.00
 Palestine|225|0.00
 Panama|302|1.22
+panamas|302|0.14|panama
 Papouasie-Nouvelle-Guinée|285|0.00
 Paraguay|311|0.00
 Pays-Bas|374|0.00
@@ -314,8 +344,12 @@ pays du soleil levant|419|0.00
 pe|333|0.00
 Pérou|333|0.00
 Perse|376|0.47
+perses|376|0.27|perse
 PG|285|0.00
+philippin|334|0.41|philippines
+philippine|334|0.20|philippines
 Philippines|334|0.54
+philippins|334|0.20|philippines
 pk|355|0.00
 PM|302|0.00
 Pologne|390|0.00
@@ -453,6 +487,7 @@ République togolaise|302|0.00
 République tunisienne|328|0.00
 République turque|425|0.00
 république unie de Tanzanie|320|0.00
+républiques|301|1.55|republique
 RF|428|0.00
 RFA|405|0.00
 Roumanie|348|0.00
@@ -519,6 +554,9 @@ States|427|0.00
 Sud Soudan|281|0.00
 Suède|370|0.07
 Suisse|387|6.62
+suisses|387|3.58|suisse
+suissesse|387|0.47|suisse
+suissesses|387|0.07|suisse
 Surinam|288|0.00
 Suriname|288|0.00
 SVG|238|0.00
@@ -539,6 +577,7 @@ TL|291|0.00
 TO|260|3.78
 Togo|302|0.00
 Tonga|260|0.00
+tos|260|0.00|to
 Trinidad-et-Tobago|251|0.00
 Trinité-et-Tobago|251|0.00
 Tunisie|328|0.00

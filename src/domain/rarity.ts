@@ -20,16 +20,12 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 /**
- * How well known a word is, on 0..1. Two signals are needed because neither
- * covers the whole catalogue: proper nouns (Kiribati, Praséodyme) are absent
- * from the book corpus, and common nouns (marteau) have no Wikipedia fame of
- * their own. The better-known of the two wins, so a word is only rare when
- * both agree that it is.
+ * How well known a word is, on 0..1 — its rank inside its own category, set
+ * when the dictionary is read. Going through this function rather than the
+ * field keeps the clamp in one place.
  */
 export function notoriety(entry: WordEntry): number {
-  const corpus = Math.log10(1 + entry.frequency) / 2.2
-  const fame = Math.log10(1 + entry.sitelinks) / 2.5
-  return clamp(Math.max(corpus, fame), 0, 1)
+  return clamp(entry.notoriety, 0, 1)
 }
 
 /**

@@ -4,8 +4,10 @@ Un jeu de mots en solo. Une lettre, une catégorie, quatre-vingt-quatorze
 secondes : on écrit, le jeu valide à la frappe, et les mots que personne
 n'écrit rapportent le plus.
 
-- **Validation immédiate** contre un dictionnaire embarqué de ~48 000 mots
-  français, importés de Wikidata et pondérés par la fréquence du corpus Lexique.
+- **Validation immédiate** contre un dictionnaire embarqué de ~64 000 mots
+  français : Wikidata pour les entités, le Wiktionnaire pour les noms communs,
+  et les formes fléchies de Lexique — « chats » et « bleue » sont acceptés, et
+  comptent comme « chat » et « bleu ».
 - **Catégories fermées et stables** (pays, animaux, couleurs, métiers…) : pas de
   films ni de célébrités, qu'un dictionnaire ne peut pas arbitrer.
 - **Bonus de rareté** : un mot rare dans la langue rapporte plus qu'un mot
@@ -39,18 +41,25 @@ considérer un changement terminé.
 | Série de mots validés | ×1,1 par mot enchaîné, plafonné à ×2 |
 | Passer | −5 secondes, série remise à zéro |
 
-La notoriété d'un mot combine deux signaux, parce qu'aucun ne couvre tout le
-dictionnaire : la fréquence dans le corpus Lexique (muette sur les noms propres)
-et le nombre d'éditions de Wikipédia qui décrivent la chose (muet sur les noms
-communs). Le plus connu des deux l'emporte : un mot n'est rare que si les deux
-sources sont d'accord.
+La notoriété d'un mot vaut moitié son rang dans sa propre catégorie, moitié la
+mesure absolue de deux signaux : la fréquence dans le corpus Lexique (muette sur
+les noms propres) et le nombre d'éditions de Wikipédia qui décrivent la chose
+(muet sur les noms communs).
+
+Les deux moitiés sont nécessaires. Le rang seul sacre « vermillon » mot courant,
+parce que la catégorie des couleurs est pleine de nuances plus obscures encore.
+L'échelle absolue seule traite « libellule » et « abeille » en trouvailles
+rares, parce que les livres les impriment peu. Ensemble, elles donnent le
+gradient attendu : magenta courant, menthe peu commun, malachite rare.
 
 ## Architecture
 
 - `src/domain/` — les règles, sans React, DOM ni réseau : tirage des couples
   lettre/catégorie, jugement d'une réponse, rareté, points, XP, déblocages.
   Tout y est testé.
-- `src/data/words/*.txt` — les dictionnaires, une ligne `mot|sitelinks|fréquence`.
+- `src/data/words/*.txt` — les dictionnaires, une ligne
+  `mot|sitelinks|fréquence|forme canonique`. Le quatrième champ n'est présent
+  que sur les formes fléchies, et pointe vers le mot dont elles dérivent.
 - `src/state/` — session de jeu, chrono, persistance locale.
 - `src/lib/` — Supabase : profil, parties, usage global des mots, propositions.
 - `src/ui/` — un composant par écran.

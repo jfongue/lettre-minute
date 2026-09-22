@@ -1,31 +1,55 @@
 abbé|13|31.28
+abbé commendataire|7|0.00
+abbés|13|1.22|abbe
+abbesse|13|0.41|abbe
+abbesses|13|0.61|abbe
+abbreviator|15|0.00
 ablader|1|0.00
 aboyeur|4|0.34
+aboyeurs|4|0.27|aboyeur
+Abrband|1|0.00
+Abrbandi|2|0.00
+académicien|32|0.74
+académicienne|32|0.00
+académiciens|32|0.81|academicien
 acarologue|4|0.00
 accessoiriste|15|0.00
+accessoiristes|15|0.14|accessoiriste
 accompagnant|1|5.00
 accompagnateur|27|0.27
 accompagnateur en montagne|1|0.00
 accompagnateur musical|4|0.00
 accompagnateur professionnel|2|0.00
+accompagnateurs|27|0.68|accompagnateur
+accompagnatrice|27|0.07|accompagnateur
+accompagnatrices|27|0.00|accompagnateur
 accordeur|10|0.61
 accordeuse de pianos|10|0.00
 accoucheuse traditionnelle|12|0.00
 accrocheur|2|0.14
+accrocheurs|2|0.14|accrocheur
+accrocheuse|2|0.00|accrocheur
+accrocheuses|2|0.07|accrocheur
+accueil familial|1|0.00
 accueillant éducatif|1|0.00
 acheteur|16|2.97
 acheteur d'art|1|0.00
 acheteur de laine|0|0.00
+acheteurs|16|2.16|acheteur
 acheteuse|16|0.14
+acheteuses|16|0.20|acheteur
+Achigs d'Azerbaïdjan|22|0.00
 acousticien|1|0.00
 acousticienne|1|0.00
 acrobate|11|2.57
+acrobates|11|1.55|acrobate
 acteur|188|15.47
 acteur de comédie musicale|4|0.00
 acteur de film d'action|1|0.00
 acteur de jeu vidéo|1|0.00
 acteur de radio|2|0.00
 acteur populaire|2|0.00
+acteurs|188|12.30|acteur
 action d'urgence|1|0.00
 Actor-manager|2|0.00
 actrice|188|7.57
@@ -34,12 +58,17 @@ actrice de doublage|15|0.00
 actrice de genre|30|0.00
 actrice de télévision|15|0.00
 actrice de voix-off|33|0.00
+actrices|188|2.97|acteur
 actuaire|54|0.00
 acupuncteur|3|0.07
 acupunctrice|3|0.00
 adaptateur|1|0.41
+adaptateurs|1|0.00|adaptateur
 addictologue|1|0.00
 adjoint|1|4.05
+adjointe|1|0.14|adjoint
+adjointes|1|0.00|adjoint
+adjoints|1|0.95|adjoint
 administrateur|48|3.78
 administrateur académique|3|0.00
 administrateur civil|1|0.00
@@ -53,27 +82,37 @@ administrateur du Sénat|1|0.00
 administrateur olympique|0|0.00
 administrateur sécurité|1|0.00
 administrateur système|5|0.00
+administrateurs|48|0.95|administrateur
+administration académique|5|0.00
+administration hospitalière|1|0.00
+administratrice|48|0.00|administrateur
 administratrice coloniale|2|0.00
 administratrice judiciaire|3|0.00
 administratrice réseau|28|0.00
 adoul|3|0.00
 aède|29|0.20
+aèdes|29|0.07|aede
 aérodynamicien|2|0.00
 aérodynamicienne|2|0.00
 aérostier|5|0.14
+aérostiers|5|0.07|aerostier
 affichiste|8|0.14
+affichistes|8|0.07|affichiste
 affineur|0|0.00
+affranchisseur de bétail|0|0.00
 affréteur|3|0.07
 affréteuse|3|0.00
 africaniste|3|0.00
 agent|41|22.50
 agent administratif|1|0.00
 agent artistique|20|0.00
+agent colonial|1|0.00
 agent commercial|13|0.00
 agent d'accueil touristique|1|0.00
 agent d'affaires|0|0.00
 agent d'artiste|2|0.00
 agent d'assurance|3|0.00
+agent d'expulsion|0|0.00
 agent de centre d'appels|1|0.00
 agent de change|37|0.00
 agent de communication|1|0.00
@@ -95,6 +134,7 @@ agent de sûreté ferroviaire|0|0.00
 agent de terrain|2|0.00
 agent de voyages|1|0.00
 agent dormant|12|0.00
+agent du FBI|1|0.00
 agent du FSB|0|0.00
 agent du gouvernement|0|0.00
 agent du Secret Service|0|0.00
@@ -112,6 +152,7 @@ agent technique agricole|0|0.00
 agent technique forestier|1|0.00
 agent voyer|1|0.00
 agent voyer en chef|0|0.00
+agente|41|0.07|agent
 agente commerciale|8|0.00
 agente de probation|6|0.00
 agente de voyages|6|0.00
@@ -119,7 +160,15 @@ agente double|31|0.00
 agente générale d'assurance|2|0.00
 agente immobilier|41|0.00
 agente technique forestière|1|0.00
+agents|41|16.69|agent
+agitator|0|0.00
+agonothète|11|0.00
+agoranome|13|0.00
+agriculteur|126|0.54
 agriculteur multiplicateur|1|0.00
+agriculteurs|126|1.08|agriculteur
+agricultrice|126|0.00
+agricultrices|126|0.14|agriculteur
 agrobiologiste|0|0.00
 agrochimiste|4|0.00
 agroclimatologue|0|0.00
@@ -127,6 +176,7 @@ agroécologue|1|0.00
 agroéconomiste|1|0.00
 agrologue|2|0.00
 agronome|38|0.20
+agronomes|38|0.14|agronome
 agronymiste|0|0.00
 agrostologue|2|0.00
 aide à domicile|1|0.00
@@ -134,31 +184,49 @@ aide-caissier|1|0.00
 aide-cuisinier|1|0.14
 aide d'élevage|0|0.00
 aide dentaire|12|0.00
+aide médico-psychologique|0|0.00
 aide-mineur|0|0.00
+aiguilleur du ciel|0|0.00
+aiguilleuse du ciel|0|0.00
 aïkidoka|7|0.00
+Ailier|13|1.22
+ailiers|13|0.14|ailier
 airman|6|0.00
 aizkolari|0|0.00
+Ajuinboer|0|0.00
 ajusteur|3|0.54
+ajusteurs|3|0.07|ajusteur
 ajusteuse|3|0.00
 akhound|24|0.00
 albanologue|1|0.00
+alcoolière|0|0.00
 alcoologue|0|0.00
 algébriste|1|0.07
+algébristes|1|0.07|algebriste
+algologiste|0|0.00
 algoriste|1|0.00
 aliéniste|1|0.00
 allocataire de recherche|1|0.00
 Allof|0|0.00
 allumettier|0|0.00
+almée|15|0.14
+almées|15|0.14|almee
 almoxarife|1|0.00
 alpiniste|18|1.15
+alpinistes|18|0.34|alpiniste
 Alpmeister|1|0.00
 alta cappella|9|0.00
 altiste|10|0.00
 ama|32|0.00
+amauta|6|0.00
 ambulancier|2|0.61
+ambulancière|2|0.14|ambulancier
+ambulancières|2|0.07|ambulancier
+ambulanciers|2|0.88|ambulancier
 aménageur|1|0.00
 aménageuse|1|0.00
 américaniste|3|0.00
+Amezaiku|13|0.00
 anagrapheus|4|0.00
 analyste|13|0.88
 analyste administratif|1|0.00
@@ -180,14 +248,18 @@ analyste programmeur|0|0.00
 analyste quantitatif|2|0.00
 analyste spatial|0|0.00
 analyste sportif|2|0.00
+analystes|13|0.20|analyste
 anatoliste|0|0.00
 anatomiste|9|0.27
+anatomistes|9|0.07|anatomiste
 anatomo-pathologiste|5|0.00
+Ancillae|6|0.00
 andragogue|2|0.00
 andrologue|6|0.00
 angéologue|4|0.00
 angiologue|3|0.00
 angliciste|5|0.00
+animal dans l'espace|23|0.00
 animateur|43|1.42
 animateur audiovisuel|1|0.00
 animateur clé|0|0.00
@@ -197,40 +269,56 @@ animateur de pastorale|0|0.00
 animateur des effets visuels|0|0.00
 animateur laïc en pastorale|6|0.00
 animateur socioculturel|7|0.00
+animateurs|43|0.61|animateur
 animatrice|43|0.14
 animatrice audiovisuelle|1|0.00
 animatrice culturelle|3|0.00
 animatrice de radio|26|0.00
+animatrice de télévision|41|0.00
 animatrice socioculturelle|7|0.00
+animatrices|43|0.07|animateur
 annaliste|0|0.00
 annélidologiste|1|0.00
 annonceur|3|0.20
 annonceur sportif|0|0.00
+annonceurs|3|0.07|annonceur
+annonceuse|3|0.27|annonceur
 annotateur|1|0.00
 anthologiste|3|0.00
 anthropogéographe|0|0.00
 anthropologue|26|0.07
 anthropologue culturel|4|0.00
 anthropologue légiste|0|0.00
+anthropologues|26|0.14|anthropologue
 antiquaire|27|3.58
+antiquaires|27|3.45|antiquaire
+Antoinette-Emilienne Grossé|2|0.00
+aogai|0|0.00
 aphoriste|4|0.00
 apiculteur|35|0.07
+apiculteurs|35|0.00|apiculteur
 apicultrice|35|0.00
 apiculture professionnelle|0|0.00
 apiologue|1|0.00
+apodecte|7|0.00
 Apoderado|4|0.00
 apologète|20|0.00
 apparatchik|24|0.27
+apparatchiks|24|0.07|apparatchik
 apparitores|6|0.00
 apprenti|38|10.95
 apprenti boulanger|0|0.00
 apprentie|38|0.47
+apprenties|38|0.27|apprenti
+apprentis|38|5.95|apprenti
 aquaculteur|1|0.00
 aquafortiste|7|0.00
 aquanaute|22|0.00
 aquariophile|5|0.00
+aquilifer|19|0.00
 arabisant|21|0.14
 arabisante|21|0.00
+arabisants|21|0.27|arabisant
 arachnologue|7|0.00
 aramaïsant|2|0.00
 aranéologue|0|0.00
@@ -260,6 +348,8 @@ arbitre de water-polo|0|0.00
 arbitre international|1|0.00
 arbitre sportif|57|0.00
 arbitre sportive|57|0.00
+arboriculteur|0|0.00
+arboricultrice|0|0.00
 arboriste|20|0.00
 arcaniste|3|0.00
 archéoastronome|0|0.00
@@ -275,13 +365,18 @@ archéologue classique|3|0.00
 archéologue médiéviste|1|0.00
 archéologue paléochrétien|0|0.00
 archéologue sous-marin|0|0.00
+archéologues|36|1.96|archeologue
 archéomalacologiste|0|0.00
 archéomètre|0|0.00
 archéomusicologue|0|0.00
 archéozoologue|1|0.00
 archer|5|0.41
 archère|5|0.00
+archères|5|0.07|archer
+archers|5|2.03|archer
 archetier|2|0.00
+archevêque d'Esztergom|3|0.00
+archevêque militaire|2|0.00
 archichapelain|5|0.00
 archidiaconé luthérien|1|0.00
 archidruide|2|0.00
@@ -296,30 +391,51 @@ architecte naval|1|0.00
 architecte restaurateur|0|0.00
 architecte systèmes|6|0.00
 architecte urbaniste|1|0.00
+architectes|110|2.77|architecte
 archiviste|37|1.22
 archiviste municipal|0|0.00
 archiviste numérique|0|0.00
+archivistes|37|0.34|archiviste
+archonte|52|0.14
+archonte athénien|5|0.00
+archonte d'Orchomène|0|0.00
+archonte éponyme|14|0.00
+archonte polémarque|3|0.00
+archonte-roi|11|0.00
 arithméticien|0|0.00
 arithméticienne|0|0.00
 armateur|28|1.42
+armateurs|28|0.88|armateur
 armaturier|9|0.00
 arménologue|1|0.00
 armurier|22|1.22
+armuriers|22|0.47|armurier
 arnaqueur|2|0.07
+arnaqueurs|2|0.47|arnaqueur
+arnaqueuse|2|0.00|arnaqueur
 aromachologiste|3|0.00
 aromathérapeute|1|0.00
 arpenteur|2|0.74
+arpenteurs|2|0.74|arpenteur
 arriero|8|0.00
+arrimeur|0|0.00
 art-thérapeute|0|0.00
+articlier|0|0.00
 artificier|4|0.68
 artificière|0|0.00
+artificiers|4|0.68|artificier
 artisan|52|5.00
 artisan beurrier|0|0.00
 artisan du cuir|3|0.00
 artisan manuel|5|0.00
 artisan plombier-zingueur|0|0.00
+artisanat|80|1.15
 Artisanat au Niger|1|0.00
+artisanat féminin|0|0.00
+artisanat japonais|7|0.00
+artisanat malgache|1|0.00
 artisane|52|0.07
+artisans|52|5.68|artisan
 artiste à la cour|2|0.00
 artiste animalier|10|0.00
 artiste CG|1|0.00
@@ -356,6 +472,8 @@ artiste sonore|1|0.00
 artiste textile|3|0.00
 artiste vidéo|5|0.00
 as de l'aviation|45|0.00
+Asantehemaa|2|0.00
+ashik|35|0.00
 assembleur d'ordinateur|1|0.00
 asset manager|1|0.00
 assistance sexuelle|11|0.00
@@ -373,6 +491,7 @@ assistant en médecine légale|0|0.00
 assistant familial|1|0.00
 assistant géomètre|1|0.00
 assistant juridique|15|0.00
+assistant médical|0|0.00
 assistant personnel|7|0.00
 assistant-physiothérapeute|1|0.00
 assistant privé|1|0.00
@@ -380,13 +499,18 @@ assistant producteur|3|0.00
 assistant réalisateur|24|0.00
 assistant social et de santé|7|0.00
 assistant technique|0|0.00
+assistante|11|5.54|assistant
 assistante administrative|6|0.00
 assistante de gestion|2|0.00
+assistante médicale|0|0.00
 assistante réalisatrice|24|0.00
 assistante sociale scolaire|0|0.00
 assistante son|11|0.00
+assistantes|11|0.95|assistant
+assistants|11|4.59|assistant
 assureur|3|0.20
 assureur maritime|0|0.00
+assureurs|3|0.20|assureur
 assyriologue|8|0.00
 astérosismologue|0|0.00
 astrobotaniste|0|0.00
@@ -396,31 +520,49 @@ astrodynamicienne|0|0.00
 astrogéologue|0|0.00
 astrolabiste|0|0.00
 astrologue|26|0.47
-astronaute|1|0.14
+astrologues|26|0.61|astrologue
+astronaute|131|0.14
 astronaute commercial|8|0.00
+astronautes|131|0.27|astronaute
 astronome|97|0.54
+astronomes|97|0.88|astronome
 astrophotographe|2|0.00
 astrophysicien|13|0.00
 astrophysicienne|13|0.00
 astrophysicienne nucléaire|0|0.00
+astrophysiciens|13|0.00|astrophysicien
+astynome|8|0.00
 athlète en fauteuil roulant|0|0.00
 athlète paralympique|1|0.00
 athlète professionnel|5|0.00
+athlothète|3|0.00
 attaché|9|13.85
 attaché commercial|0|0.00
 attaché militaire|36|0.00
 attaché scientifique|1|0.00
 attaché territorial|1|0.00
+attachée|9|6.28|attache
 attachée de presse|9|0.00
+attachées|9|1.89|attache
+attaches|9|6.96|attache
 atteleur|1|0.00
 aubergiste|10|2.91
+aubergistes|10|0.34|aubergiste
 audiencier|1|0.00
+audiologiste|12|0.00
 audioprothésiste|6|0.00
 auditeur|10|1.69
 auditeur comptable|5|0.00
 auditeur d'inventaire|1|0.00
+auditeurs|10|4.46|auditeur
+auditrice|10|0.07|auditeur
+auditrices|10|0.27|auditeur
 Aufseherin|17|0.00
 aumônier|15|3.72
+aumônière|15|0.27|aumonier
+aumônières|15|0.07|aumonier
+aumôniers|15|0.47|aumonier
+aurige|13|0.14
 Aussenkassierer|0|0.00
 auteur|12|32.30
 auteur comique|18|0.00
@@ -439,8 +581,16 @@ auteur de poésie ci|2|0.00
 auteur de roman graphique|0|0.00
 auteur gastronomique|1|0.00
 auteur tragique|1|0.00
+auteure|12|0.00|auteur
+auteurs|12|9.59|auteur
+auto-stoppeur|4|0.00
+auto-stoppeurs|4|0.00|auto stoppeur
+auto-stoppeuse|4|0.07|auto stoppeur
+auto-stoppeuses|4|0.14|auto stoppeur
 automaticien|5|0.00
 automaticienne|5|0.00
+automobiliste|6|1.76
+automobilistes|0|2.03
 autre matériau naturel|4|0.00
 autrice-compositrice|63|0.00
 autrice culinaire|1|0.00
@@ -451,6 +601,7 @@ autrice de non-fiction|6|0.00
 autrice de radio|0|0.00
 autrice de vignettes|2|0.00
 autrice en pédagogie|0|0.00
+auvergneur|0|0.00
 auxiliaire d'enseignement|27|0.00
 auxiliaire de puériculture|1|0.00
 auxiliaire de santé|0|0.00
@@ -458,48 +609,90 @@ auxiliaire de vie sociale|1|0.00
 auxiliaire vétérinaire|18|0.00
 Av Beth Din|6|0.00
 aviateur|84|4.05
+aviateur de la marine|0|0.00
+aviateur militaire|0|0.00
+aviateurs|84|4.73|aviateur
 aviatrice|84|0.00
+aviatrices|84|0.07|aviateur
 aviculteur|2|0.00
 avicultrice|2|0.00
+avitailleur|0|0.00
 avocat|4|24.32
 avocat associé|0|0.00
 avocat international|2|0.00
 avocat rotal|0|0.00
+avocate|4|1.55|avocat
 avocate de la défense|3|0.00
+avocates|4|0.00|avocat
+avocats|4|11.76|avocat
+avoyer|1|0.07
 axiologue|1|0.00
 Ayurvédacharya|1|0.00
 Azeb|1|0.00
 bactériologiste|19|0.00
 badiste|4|0.00
 bagagiste|20|0.07
+bagagistes|20|0.00|bagagiste
+baguiste|0|0.00
 Bail bondsman|7|0.00
+baile|0|0.27
+baile du Félibrige|0|0.00
+bailes|0|0.20|baile
 bailli|27|0.41
+baillis|27|0.07|bailli
 Bakuto|8|0.00
 balaitier|0|0.00
 balayeur|0|1.42
+balayeurs|0|1.35|balayeur
+balayeuse|0|0.07|balayeur
 balayeuse de parc|0|0.00
+balayeuses|0|0.14|balayeur
 baleinier|1|0.07
+baleinière|1|0.54|baleinier
+baleinières|1|0.07|baleinier
+baleiniers|1|0.14|baleinier
 balkanologue|1|0.00
 ballerine|5|1.22
+ballerines|5|0.95|ballerine
+Balloon buster|7|0.00
 balnéologue|2|0.00
 baltisant|2|0.00
 banderillero|8|0.00
+banderilleros|8|0.07|banderillero
+Bannière neutre|0|0.00
 banquier|28|8.38
 banquier d'affaires|3|0.00
+banquière|28|0.20|banquier
+banquières|28|0.14|banquier
+banquiers|28|3.99|banquier
 Barbapedana|4|0.00
 barbier|71|22.16
+barbier chirurgien|24|0.00
+barbiers|71|0.34|barbier
 barbouze|4|0.34
+barbouzes|4|0.34|barbouze
 barista en bikini|5|0.00
 bariste|45|0.00
 baron de Vitré|0|0.00
+baroudeur|4|0.34
+baroudeurs|4|0.14|baroudeur
+baroudeuse|4|0.20|baroudeur
 barreur|6|0.00
+barreurs|6|0.00|barreur
+barreuse|6|0.00|barreur
+barrister|43|0.00
 baryton-basse|0|0.00
 bascologue|0|0.00
+Bashaku|8|0.00
 basketteur|19|0.07
+basketteurs|19|0.07|basketteur
 basketteuse|19|0.00
+basketteuses|19|0.07|basketteur
+bassicotier|0|0.00
 bassiste de jazz|0|0.00
 batelier|3|0.61
 batelière|3|0.00
+bateliers|3|1.28|batelier
 batman|4|0.00
 batologue|1|0.00
 batteur d'armure|12|0.00
@@ -514,6 +707,8 @@ benthologiste|0|0.00
 berbérisant|0|0.00
 berger|57|11.15
 bergère|57|6.76
+bergères|57|2.70|berger
+bergers|57|4.19|berger
 Best boy|2|0.00
 bêta-lecteur|7|0.00
 Betelnut Beauty|9|0.00
@@ -526,16 +721,22 @@ bibliothécaire pour enfants|1|0.00
 bibliothécaire scolaire|0|0.00
 bibliothécaire spécialisé|0|0.00
 bibliothécaire universitaire|2|0.00
+bibliothécaires|68|0.20|bibliothecaire
 bibliothéconomiste|2|0.00
 bibliothérapeuthe|1|0.00
 bibliste|5|0.00
 bijoutier|14|1.62
+bijoutier de la cour|1|0.00
+bijoutière|14|0.41|bijoutier
+bijoutiers|14|0.68|bijoutier
+biker|7|0.00
 biniaouer|0|0.00
 bio électronicien|0|0.00
 bioacousticien|0|0.00
 bioacousticienne|0|0.00
 bioarchéologue|0|0.00
 biochimiste|28|0.00
+biochimistes|28|0.00|biochimiste
 bioclimatologue|0|0.00
 biocurateur|1|0.00
 bioéthicien|2|0.00
@@ -543,6 +744,7 @@ bioéthicienne|2|0.00
 biogéochimiste|1|0.00
 biogéographe|2|0.00
 biographe|14|0.61
+biographes|14|0.27|biographe
 biohygiéniste|1|0.00
 bioinformaticien|4|0.00
 bioingénieur|2|0.00
@@ -563,6 +765,7 @@ biologiste médicale|3|0.00
 biologiste moléculaire|7|0.00
 biologiste théoricien|2|0.00
 biologiste théoricienne|2|0.00
+biologistes|53|0.00|biologiste
 biomathématicien|1|0.00
 biomathématicienne|1|0.00
 biométricien|0|0.00
@@ -576,139 +779,242 @@ biostatisticien|4|0.00
 biostatisticienne|4|0.00
 biotechnologiste|3|0.00
 biotechnologiste végétal|1|0.00
+bitumeur|0|0.00
 black hat|28|0.00
 blogueur|0|0.00
+blogueur mode|1|0.00
 blogueuse culinaire|0|0.00
 bluegelhorniste|1|0.00
 bobeur|4|0.00
 bobeuse|4|0.00
+bocalier|0|0.00
 bodyboardeur|0|0.00
 bohémiste|2|0.00
+bombardier|5|0.68
+bombardiers|5|2.64|bombardier
+bombiste|0|0.00
 bonne|4|294.53
+bonnes|4|61.76|bonne
 bonnetier|0|0.00
 bookmaker|32|0.14
+bookmakers|32|0.07|bookmaker
 bootlegger|0|0.00
+bootleggers|0|0.07|bootlegger
 botaniste|23|0.61
+botanistes|23|0.14|botaniste
 botteresse|2|0.00
 bottier|2|0.68
 bottière orthopédiste|2|0.00
+bottiers|2|0.07|bottier
 boucher|68|7.70
 boucher-charcutier|0|0.00
 bouchère|68|0.81
+bouchères|68|0.14|boucher
 boucherie chevaline|4|0.00
+bouchers|68|2.91|boucher
 bouddhologue|3|0.00
 bouffon|3|1.69
+bouffonne|3|0.88|bouffon
+bouffonnes|3|0.20|bouffon
+bouffons|3|0.88|bouffon
 boulanger|64|8.78
 boulanger-pâtissier|0|0.14
 boulangère|64|2.30
+boulangères|64|0.14|boulanger
+boulangers|64|2.09|boulanger
 bouliste|0|0.00
+boulistes|0|0.61|bouliste
 bouquiniste|1|0.95
+bouquinistes|1|1.15|bouquiniste
 bourreau|66|7.09
+bourreaux|66|5.81|bourreau
 bourrelier|23|0.81
+bourreliers|23|0.07|bourrelier
 bouteiller|27|0.00
 boxeur|16|6.15
 boxeur à mains nues|0|0.00
 boxeur professionnel|2|0.00
+boxeurs|16|1.82|boxeur
 boxeuse|16|0.00
 boy|2|6.42
+boys|2|2.09|boy
 brancardier|5|0.54
 brancardière|5|0.00
+brancardiers|5|3.38|brancardier
 brasseur|8|0.34
+brasseurs|8|0.20|brasseur
 brasseuse|0|0.00
 Breacher|1|0.00
 breakdancer|3|0.00
 Brehon|8|0.00
 Brenner|2|0.00
 brésilianiste|4|0.00
+brevet randonneurs mondiaux|12|0.00
 briqueteur|1|0.00
 brocanteur|1|3.58
+brocanteurs|1|2.50|brocanteur
+brocanteuse|1|3.18|brocanteur
+broderie|75|2.36
+Broderie algérienne|1|0.00
+broderie chinoise|10|0.00
+broderie coréenne|8|0.00
+Broderie d'or|16|0.00
+Broderie d'or de Torjok|4|0.00
+Broderie de Cilaos|2|0.00
+broderie de perles|7|0.00
+broderie de Rechetylivka|8|0.00
+Broderie de Saint-Gall|4|0.00
+Broderie de Tenango|4|0.00
+broderie espagnole|2|0.00
+Broderie Hardanger|14|0.00
+Broderie indienne|3|0.00
+Broderie jacobine|3|0.00
+broderie sichuanaise|5|0.00
+broderie slave|1|0.00
+broderie sur blanc|0|0.00
+broderies|75|3.85|broderie
 brodeur|3|0.00
 bromatologue|2|0.00
 bronzier|2|0.07
 bronzière|2|0.00
+Brüder-Grimm-Poetikprofessur|3|0.00
 bruiteur|0|0.20
 bruiteuse|0|0.00
+brûleur de loups|0|0.00
 bryologiste|6|0.00
 bryozoologiste|2|0.00
 bûcheron|38|4.12
 bûcheronne|38|0.07
+bûcherons|38|4.12|bucheron
 buerie|1|0.00
 bulgariste|0|0.00
 bureaucrate|43|0.47
+bureaucrates|43|0.81|bureaucrate
 bushi|12|0.20
+business development|16|0.00
 buttero|9|0.00
+bûûmplanter|0|0.00
 byzantiniste|2|0.00
+cabochon|20|0.68
+cabochons|20|0.68|cabochon
 cadi|62|2.30
 cadi du cadiat du Kazakhstan|0|0.00
 cadre commercial|0|0.00
+cadre d'entreprise|8|0.00
 cadre de compagnie aérienne|0|0.00
+cadre de santé|1|0.00
 cadre dirigeant|7|0.00
 cadre dirigeante|7|0.00
 cadre du tertiaire|0|0.00
 cadre infirmier|4|0.00
+cadre intermédiaire|0|0.00
+cadre sup|0|0.00
 cadre supérieur|0|0.00
 caféiculteur|0|0.00
 cafetier|1|2.77
+cafetiers|1|0.20|cafetier
 caissier|32|1.96
 caissier de banque|9|0.00
 caissière|32|4.19
+caissières|32|0.74|caissier
+caissiers|32|0.20|caissier
 cake designer|0|0.00
 calculateur humain|24|0.00
 calfat|2|0.07
 calfateur|2|0.00
+calfats|2|0.20|calfat
 câlleur|4|0.00
 câlleuse|4|0.20
+calleuses|4|1.22|calleuse
+calleux|4|0.27|calleuse
 callgirl|39|0.00
 calligraphe|7|0.41
 calorifugeur|1|0.00
 calorifugeuse|1|0.00
+camérier|0|0.00
 camériste|9|0.81
+caméristes|9|0.20|cameriste
+camgirl|24|0.00
+Cammisaru|1|0.00
 campanologist|3|0.00
 canalisateur|3|0.00
 canalisatrice|3|0.00
 cantaor|0|0.00
 cantonnier|6|1.96
 cantonnière de la voirie|6|0.00
+cantonnières|6|0.07|cantonnier
+cantonniers|6|1.01|cantonnier
 cantor|33|0.00
 Cantore al liuto|3|0.00
 canut|6|0.07
+canuts|6|0.07|canut
 capitaine de navire|47|0.00
 capitaine de pêche|0|0.00
 capital-risqueur|1|0.00
 capitoulat|6|0.00
+caporal-détective|0|0.00
+caprin|0|0.00
+capsulier|0|0.00
 carabinier|21|0.20
+carabiniers|21|1.49|carabinier
 caravanier|4|0.07
+caravanière|4|0.34|caravanier
+caravanières|4|0.07|caravanier
+caravaniers|4|0.74|caravanier
 carcinologiste|5|0.00
 cardeur|9|0.20
+cardeuse|9|0.14|cardeur
+cardeuses|9|0.68|cardeur
 cardiologue|9|0.27
+cardiologues|9|0.00|cardiologue
 cardiopédiatre|0|0.00
 caricaturiste|11|0.27
+caricaturistes|11|0.27|caricaturiste
 carnettiste|1|0.00
 carreleur|5|0.20
+carreleurs|5|0.14|carreleur
 carreleuse|5|0.00
 Carreteiro|2|0.00
 carrier|5|0.47
+carriers|5|0.27|carrier
 carrossier|13|0.20
+carrossiers|13|0.07|carrossier
 cartier|1|0.00
 cartographe|16|0.27
 cartographe géologique|0|0.00
 cartographe maritime|0|0.00
+cartographes|16|0.34|cartographe
 cartonnier|2|0.20
+cartonniers|2|0.14|cartonnier
 caseworker|2|0.00
+casseur|0|1.76
+casseurs|0|1.28|casseur
+casseuse|0|0.14|casseur
+casseuses|0|0.07|casseur
 castellologue|1|0.00
 catalaniste|0|0.00
 catalogueur|0|0.00
 catcheur|8|0.27
+catcheurs|8|0.07|catcheur
+catcheuse|8|0.00|catcheur
+catcheuses|8|0.07|catcheur
+catéchiste|15|0.14
+Cathaoirleach|10|0.00
 caucasologue|1|0.00
 causidique|1|0.00
 cavalier|8|13.31
 cavalier de concours complet|2|0.00
 cavalier de dressage|3|0.00
 cavalier de rodéo|1|0.00
+cavalier de saut d'obstacles|2|0.00
 cavalier patrouilleur|1|0.00
 cavalier professionnel|34|0.00
+cavalière|8|1.62|cavalier
 cavalière professionnelle|34|0.00
+cavalières|8|0.41|cavalier
+cavaliers|8|18.85|cavalier
 caviste|3|0.14
+Ceann Comhairle|15|0.00
 ceinturier|0|0.00
 ceinturonnier|0|0.00
 céiste|5|0.00
@@ -717,66 +1023,115 @@ Ceklarz|1|0.00
 cellérier|2|0.07
 censeur|6|1.08
 censeur royal|0|0.00
+censeurs|6|0.88|censeur
+Céramique de Gjel|17|0.00
 céramiste|16|0.00
 céramologue|1|0.00
 cerf-voliste|0|0.00
 céroplaste|0|0.00
 cétologue|4|0.00
+chahbanou|19|0.00
+châlier|0|0.00
 chamarreuse|0|0.00
 chambellan|31|0.61
-chancelier|2|1.69
+chambellans|31|0.27|chambellan
+chamelier|1|0.20
+chameliers|1|0.20|chamelier
+chancelier|37|1.69
 chancelière|1|0.00
+chancelières|37|0.14|chancelier
+chanceliers|37|0.20|chancelier
 changeur|23|0.41
+changeurs|23|0.20|changeur
+changeuse|23|0.00|changeur
 chanoine|2|11.28
 chanoine séculier|5|0.00
+chanoines|2|0.68|chanoine
+chansonnier|0|0.61
+chansonniers|0|1.01|chansonnier
 chanteur|123|9.19
 chanteur d'opérette|2|0.00
 chanteur de bel canto|0|0.00
 chanteur de playback|29|0.00
 chanteur folk|0|0.00
 chanteur traditionnel|1|0.00
+chanteurs|123|4.93|chanteur
 chanteuse|123|4.39
 chanteuse traditionnelle|1|0.00
+chanteuses|123|1.55|chanteur
 chapelier|11|0.61
 chapelière|11|0.00
+chapeliers|11|0.27|chapelier
 charbonnier|20|1.35
 charbonnière|20|0.34
+charbonnières|20|0.14|charbonnier
+charbonniers|20|1.01|charbonnier
 charcutier|1|2.70
 charcutier-traiteur|0|0.00
 charcutière|1|0.95
 charcutière-traiteuse|0|0.00
-chargé|11|40.07
+charcutières|1|0.27|charcutier
+charcutiers|1|0.81|charcutier
+chargé|44|40.07
+chargé d'enseignement|2|0.00
 chargé de collections|0|0.00
 chargé de communication|5|0.00
 chargé de mission|4|0.00
+chargée|44|13.65|charge
 chargée de clientèle|11|0.00
+chargée de cours|44|0.00
 chargée de recherche au CNRS|0|0.00
+chargées|44|5.68|charge
+charges|44|18.24|charge
 Chargeur|2|2.77
+chargeurs|2|0.95|chargeur
 charmeur de serpents|24|0.00
 charpentier|2|1.82
 charpentier de marine|3|0.00
+charpentière|2|0.00|charpentier
+charpentiers|2|1.28|charpentier
 charretier|0|1.01
-charron|0|0.34
+charretière|0|0.34|charretier
+charretiers|0|0.54|charretier
+charron|26|0.34
+charrons|26|0.14|charron
 Chartered Surveyor|5|0.00
 chasse d'éclipses|6|0.00
 chasseresse|24|0.41
+chasseresses|24|0.07|chasseur
 chasseur|24|23.58
 chasseur d'esclaves|4|0.00
+chasseur de coûts|0|0.00
 chasseur de fantômes|1|0.00
+chasseur de fraude|0|0.00
 chasseur de nazis|24|0.00
 chasseur de phoques|0|0.00
 chasseur de primes|33|0.00
 chasseur de son|0|0.00
+chasseur de tendance|0|0.00
 chasseur immobilier|1|0.00
 chasseur professionnel|6|0.00
 chasseur sous-marin|1|0.00
+chasseurs|24|17.43|chasseur
+chasseuse|24|0.07|chasseur
 chasseuse de comètes|3|0.00
+chasseuse de coûts|0|0.00
+chasseuse de fraude|0|0.00
+chasseuse de tendance|0|0.00
 châtelain|30|1.69
+châtelaine|30|1.01|chatelain
+châtelaines|30|0.07|chatelain
+châtelains|30|1.49|chatelain
 châtreur|2|0.00
 chaudronnier|8|0.34
 chaudronnière|8|0.00
+chaudronniers|8|0.14|chaudronnier
 chauffeur|32|44.19
 chauffeur de corbillard|1|0.00
+chauffeur de maître|21|0.00
+chauffeur-livreur|6|0.14
+chauffeurs|32|5.00|chauffeur
+chauffeuse|32|0.68|chauffeur
 chauffeuse de poids lourd|32|0.00
 chauffeuse de taxi|19|0.00
 chaufournier|1|0.00
@@ -794,7 +1149,9 @@ chef de chant|1|0.00
 chef de chantier|3|0.00
 chef de chantier de forage|1|0.00
 chef de clinique|0|0.00
+chef de conférence|0|0.00
 chef de cuisine|10|0.00
+chef de département|5|0.00
 chef de division|2|0.00
 chef de gare|21|0.00
 chef de l'histoire|0|0.00
@@ -817,14 +1174,20 @@ chef de train|18|0.00
 chef de travaux|1|0.00
 chef décorateur|23|0.00
 Chef des fifres|0|0.00
+chef du département|4|0.00
+chef du mouvement Amal|0|0.00
 chef du service de presse|0|0.00
 chef militaire|20|0.00
+chef opérateur|0|0.00
 chef personnel|4|0.00
 chef porion|0|0.00
 cheffe d'entreprise|8|0.00
 cheffe d'orchestre|71|0.00
 cheffe décoratrice|23|0.00
+chefs|71|33.38|chef
+Cheikh|6|0.00
 cheminot|14|1.01
+cheminots|14|1.49|cheminot
 chercheur|9|1.76
 chercheur de gemme gravées|0|0.00
 chercheur en management|0|0.00
@@ -834,6 +1197,7 @@ chercheur en urbanisme|0|0.00
 chercheur indépendant|7|0.00
 chercheur médical|4|0.00
 chercheur postdoctoral|29|0.00
+chercheurs|9|1.96|chercheur
 chercheuse|0|0.14
 chercheuse en communication|4|0.00
 chercheuse en informatique|2|0.00
@@ -841,13 +1205,25 @@ chercheuse en ligne|0|0.00
 chercheuse en santé|2|0.00
 chercheuse en santé publique|0|0.00
 chercheuse postdoctorale|29|0.00
+chercheuses|9|0.00|chercheur
 chevalier|101|21.89
+chevalier commandeur|2|0.00
 chevalière|101|2.43
+chevalière commandeure|2|0.00
+chevalières|101|0.54|chevaliere
+chevaliers|101|14.26|chevalier
 chevillard|1|0.07
+chevillards|1|0.07|chevillard
 chevrier|4|0.14
+chevrière|4|0.07|chevrier
+chevriers|4|0.07|chevrier
 chien de détection|14|0.00
 chiffonnier|26|1.62
+chiffonnière|26|0.54|chiffonnier
+chiffonnières|26|0.07|chiffonnier
+chiffonniers|26|1.35|chiffonnier
 chiffreur|1|0.00
+chiffreuse|1|0.00|chiffreur
 chimiste|69|1.15
 chimiste analytique|0|0.00
 chimiste de l'atmosphère|0|0.00
@@ -860,6 +1236,7 @@ chimiste numéricien|0|0.00
 chimiste numéricienne|0|0.00
 chimiste quantique|0|0.00
 chimiste théoricien|3|0.00
+chimistes|69|0.41|chimiste
 chiroptérologue|1|0.00
 chirurgien bariatrique|0|0.00
 chirurgien cardio-vasculaire|6|0.00
@@ -872,29 +1249,41 @@ chirurgien vasculaire|2|0.00
 chocolatier|19|0.14
 chocolatière|19|0.14
 choéphore|1|0.00
+choisisseuse|0|0.00
 chorégraphe|18|0.41
+chorégraphes|18|0.07|choregraphe
 choriste|2|0.27
+choristes|2|1.08|choriste
 chromolithographe|1|0.00
 chroniqueur|34|1.35
 chroniqueur de guerre|0|0.00
 chroniqueur de voyage|6|0.00
 chroniqueur judiciaire|1|0.00
 chroniqueur sportif|0|0.00
+chroniqueurs|34|1.35|chroniqueur
 chroniqueuse|18|0.07
 chroniqueuse de presse|34|0.00
 chroniqueuse de radio|0|0.00
 chroniqueuse de télévision|0|0.00
 chroniqueuse judiciaire|1|0.00
+chroniqueuses|34|0.14|chroniqueur
 chronobiologiste|1|0.00
 chuchoteur|1|0.14
+chuchoteuse|1|0.07|chuchoteur
+Ciao Girl|1|0.00
+Ciào Smiles|1|0.00
 cidrier|0|0.00
 cimentier enduiseur|1|0.00
 cintrier|2|0.00
 cintrière|2|0.00
+Cirnituri|1|0.00
 ciseleur|1|0.00
 cithariste|1|0.00
 civiliste|1|0.00
 clairon|0|4.32
+clairons|0|1.28|clairon
+Claque|28|11.49
+claques|28|5.61|claque
 clarinettiste de jazz|0|0.00
 claveciniste|17|0.20
 claviériste|28|0.00
@@ -905,10 +1294,26 @@ clerc d'huissier de justice|1|0.00
 clerc de commissaire-priseur|1|0.00
 clerc de notaire|3|0.00
 clerc municipal|9|0.00
+clergé|78|3.78
+clergé bouddhiste|1|0.00
+clergé catholique|0|0.00
+clergé catholique romain|0|0.00
+clergé chrétien|1|0.00
+clergé de l'Égypte antique|6|0.00
+clergé musulman|0|0.00
+clergé régulier|6|0.00
+clergé séculier|18|0.00
+clergés|78|0.20|clerge
 clétier|0|0.00
 climatologue|10|0.00
 clinicien|8|0.20
 clinicienne|8|0.00
+cliniciens|8|0.00|clinicien
+cloisonné|32|0.41
+cloisonnée|32|0.07|cloisonne
+cloisonnées|32|0.07|cloisonne
+cloisonnés|32|0.20|cloisonne
+clôturier|0|0.00
 cloutier|7|0.00
 clown de cirque|1|0.00
 clown hospitalier|11|0.00
@@ -918,21 +1323,29 @@ coach|1|0.00
 coach d'expression|0|0.00
 coach de vie|5|0.00
 coach vocal|0|0.00
+coachs|1|0.00|coach
 Coarb|4|0.00
 cochercheur-euse|0|0.00
+cochetier|0|0.00
 codeur|1|0.00
 codeuse LPC|1|0.00
 codicologue|1|0.00
 cogniticien|1|0.00
 cogniticienne|1|0.00
 coiffeur|55|13.38
+coiffeurs|55|2.70|coiffeur
 coiffeuse|55|5.34
+coiffeuses|55|0.41|coiffeur
 col blanc|42|0.00
+colacrète|7|0.00
 coléoptériste|7|0.00
 collaborateur|1|3.78
 collaborateur parlementaire|6|0.00
 Collaborateur redactionelle|0|0.00
+collaborateurs|1|6.96|collaborateur
+collaboratrice|1|0.47|collaborateur
 collaboratrice parlementaire|1|0.00
+collaboratrices|1|0.27|collaborateur
 collagiste|2|0.00
 collectage|2|0.00
 collectionneur d'insectes|0|0.00
@@ -940,27 +1353,50 @@ collembologiste|3|0.00
 colleur d'affiche|0|0.00
 colleur d'affiches|1|0.00
 colonisateur|0|0.14
+colonisateurs|0|0.07|colonisateur
+colonisatrice|0|0.14|colonisateur
+Colonus|21|0.00
 coloriste|14|0.27
 coloriste de bande dessinée|1|0.00
 coloriste en architecture|0|0.00
 coloriste permanentiste|2|0.00
 colporteur|31|0.54
+colporteurs|31|0.74|colporteur
+colporteuse|31|0.14|colporteur
 combinatoricien|0|0.00
 combinatoricienne|0|0.00
 comique troupier|0|0.00
 commandant|5|47.64
 commandant de bord|21|0.00
+commandante|5|0.07|commandant
+commandants|5|2.16|commandant
 commander|6|11.55
-commandeur|1|0.61
+commandeur|25|0.61
+commandeur de l'ordre d'Aviz|0|0.00
+commandeur de l'ordre de Mai|0|0.00
+commandeur de l'ordre du Nil|1|0.00
+commandeur du Mérite civil|0|0.00
+commandeur du Mérite wallon|1|0.00
+commandeur hospitalier|2|0.00
+commandeure|25|0.00
+commandeurs|25|0.14|commandeur
+Commendatore|3|0.00
 commentateur|1|0.68
 commentateur d'esport|1|0.00
 commentateur politique|9|0.00
 commentateur sportif|30|0.00
+commentateurs|1|1.22|commentateur
+commentatrice|1|0.00|commentateur
 commerçant|14|4.19
 commerçant de textiles|1|0.00
 commerçante|14|1.28
+commerçantes|14|0.20|commercant
+commerçants|14|10.81|commercant
 commerciaire|5|0.00
 commercial|2|4.12
+commerciale|2|2.77|commercial
+commerciales|2|1.55|commercial
+commerciaux|2|1.28|commercial
 commis|30|15.81
 commis de commerce|1|0.00
 commissaire aux comptes|23|0.00
@@ -972,16 +1408,23 @@ commissaire en arts vivants|0|0.00
 commissaire enquêteur|1|0.00
 commissaire politique|40|0.00
 commissaire-priseur|8|0.61
+commissaires-priseurs|8|0.20|commissaire priseur
 commissionnaire|1|0.95
 commissionnaire de transport|2|0.00
+commissionnaires|1|0.27|commissionnaire
 communicateur éducatif|1|0.00
+compagne|33|9.32|compagnon
+compagnes|33|7.50|compagnon
 compagnon|33|34.26
+compagnonnes|33|0.07|compagnon
+compagnons|33|28.85|compagnon
 compilateur|1|0.14
 compilatrice|1|0.00
 compositeur d'opérette|0|0.00
 compositeur de chanson|0|0.00
 composition chorégraphique|5|0.00
 comptable|59|3.31
+comptables|59|0.95|comptable
 comte de Diez|0|0.00
 comte de Laurenbourg|0|0.00
 comte de Nassau-Beilstein|0|0.00
@@ -1005,7 +1448,9 @@ concepteur éditorial|1|0.00
 concepteur lumière|1|0.00
 concepteur-rédacteur|17|0.00
 concepteur visuel|0|0.00
+concepteurs|25|0.00|concepteur
 conception environnementale|0|0.00
+conceptrice|25|0.00|concepteur
 conceptrice de jeu|25|0.00
 conceptrice de jeux de rôle|3|0.00
 conceptrice de meubles|4|0.00
@@ -1013,8 +1458,10 @@ concessionnaire automobile|1|0.00
 conchyliculteur|1|0.00
 conchyliologiste|5|0.00
 concierge|29|25.41
+concierges|29|3.65|concierge
 condottiere|48|0.54
-conducteur|23|11.08
+condottieres|48|0.07|condottiere
+conducteur|39|11.08
 conducteur d'essai|7|0.00
 conducteur d'Uber|0|0.00
 conducteur de chien de garde|1|0.00
@@ -1022,25 +1469,42 @@ conducteur de diligence|0|0.00
 conducteur de grues|0|0.00
 conducteur de train|30|0.00
 conducteur de train de fret|1|0.00
+conducteur de véhicule|7|0.00
+Conducteur désigné|10|0.00
+conducteur en état d'ébriété|0|0.00
 conducteur génie civil|0|0.00
+conducteur professionnel|4|0.00
 conducteur-receveur|0|0.00
+conducteurs|39|3.24|conducteur
 Conductrice|0|0.61
 conductrice de bus|23|0.00
 conductrice de métro|0|0.00
 conductrice de travaux|10|0.00
+conductrices|39|0.20|conducteur
 confectionneur|0|0.14
+confectionneurs|0|0.20|confectionneur
+confectionneuse|0|0.07|confectionneur
+confectionneuses|0|0.07|confectionneur
 conférencier|18|0.61
 conférencier commercial|0|0.00
 conférencier d'honneur|1|0.00
 conférencier évangélique|1|0.00
 conférencière|18|0.00
+conférenciers|18|0.34|conferencier
 confiseur|6|0.54
+confiseurs|6|0.61|confiseur
 confiseuse|6|0.00
 confucianiste|8|0.00
 connaisseur|18|3.04
 connaisseur de bière|10|0.00
+connaisseurs|18|1.76|connaisseur
+connaisseuse|18|0.68|connaisseur
+connaisseuses|18|0.14|connaisseur
 conquistador|3|0.74
+conquistadores|3|0.54|conquistador
+conquistadors|3|0.41|conquistador
 conscrit|6|0.88
+conscrits|6|1.01|conscrit
 conseil environnemental|1|0.00
 conseiller|21|11.62
 conseiller commercial|0|0.00
@@ -1067,6 +1531,8 @@ conseillère de rédaction|1|0.00
 conseillère en communication|3|0.00
 conseillère en orientation|13|0.00
 conseillère fiscale|21|0.00
+conseillères|21|0.07|conseiller
+conseillers|21|6.89|conseiller
 conservateur|42|3.38
 conservateur adjoint|0|0.00
 conservateur d'herbier|0|0.00
@@ -1074,18 +1540,24 @@ conservateur de bibliothèque|2|0.00
 conservateur des hypothèques|2|0.00
 conservateur en chef|0|0.00
 conservateur-restaurateur|15|0.00
+conservateurs|42|1.82|conservateur
 conservationniste|2|0.00
 conservationniste des sols|0|0.00
+conservatrice|42|0.47|conservateur
 conservatrice de musée|42|0.00
 conservatrice-restauratrice|15|0.00
+conservatrices|42|0.14|conservateur
 conserveur|0|0.00
 consolideur|1|0.00
 consolideuse|1|0.00
+consort royal de Navarre|0|0.00
+consort royal de Pampelune|0|0.00
 constitutionnaliste|3|0.00
 constructeur|0|0.81
 constructeur de moulins|3|0.00
 constructeur en chef|0|0.00
 constructeur naval|1|0.00
+constructeurs|0|1.01|constructeur
 consultant|33|1.82
 consultant en art|1|0.00
 consultant en communication|0|0.00
@@ -1098,10 +1570,13 @@ consultant informatique|2|0.00
 consultant SaaS|0|0.00
 consultant sportif|5|0.00
 consultante|33|0.07
+consultante en stratégie|0|0.00
+consultants|33|0.07|consultant
 consulteur|0|0.00
 contactologie|2|0.00
 contemporanéiste|1|0.00
 conteur|12|2.84
+conteurs|12|1.01|conteur
 conteuse|12|0.61
 contract lawyer|1|0.00
 contracteur|6|0.00
@@ -1113,7 +1588,10 @@ contrôleur de soudures|1|0.00
 contrôleur de vol|12|0.00
 contrôleur des contributions|0|0.00
 controleur des hypothèques|0|0.00
+contrôleur du trafic aérien|0|0.00
 contrôleur technique|0|0.00
+contrôleurs|11|0.88|controleur
+contrôleuse|11|0.00|controleur
 contrôleuse aérienne|31|0.00
 contrôleuse de gestion|11|0.00
 convoyeur de fonds|0|0.00
@@ -1122,40 +1600,67 @@ coordinateur|5|0.07
 coordinateur d'intimité|16|0.00
 coordinateur des cascades|9|0.00
 Coordinateur SPS|1|0.00
+coordinateurs|5|0.00|coordinateur
+coordinatrice|5|0.00|coordinateur
 copépodologiste|0|0.00
 copilote|25|0.00
 copilote de rallye|20|0.00
-copiste|4|0.74
+copiste|19|0.74
+copistes|19|0.07|copiste
 coptologue|4|0.00
 corailleur|2|0.00
 cordier|9|0.00
 cordiste|3|0.00
+cordonnier|59|2.91
 cordonnier réparateur|0|0.00
+cordonnière|59|0.07
+cordonniers|59|0.95|cordonnier
 coréanologue|2|0.00
 cornac|27|0.41
 cornemuseux|2|0.00
+coroner|32|0.00
+coroners|32|0.00|coroner
 coroplathe|1|0.00
 correcteur|6|0.34
+correcteurs|6|0.41|correcteur
+correctrice|6|0.00|correcteur
+correctrices|6|0.07|correcteur
 correspondant|32|3.24
 correspondant à l'étranger|5|0.00
 correspondant local|37|0.00
 correspondant politique|2|0.00
+correspondante|32|0.47|correspondant
 correspondante de guerre|32|0.00
+correspondante parlementaire|0|0.00
+correspondantes|32|0.27|correspondant
+correspondants|32|2.16|correspondant
 corroyeur|0|0.00
 corsaire|53|1.96
+corsaires|53|1.62|corsaire
 corsetier|9|0.00
+cosmatesque|15|0.00
+cosmète|2|0.00
 cosmétologue|6|0.00
 cosmochimiste|0|0.00
 cosmographe|3|0.00
 cosmologiste|7|0.00
 cosmonaute|3|0.54
+cosmonaute instructeur|1|0.00
+cosmonautes|3|0.34|cosmonaute
+cosmonautes fantômes|16|0.00
 cosmonymiste|0|0.00
+cosplayeur|1|0.00
 costumier|33|0.27
 costumière|33|0.07
+costumiers|33|0.14|costumier
+couchure|4|0.00
 coulissier|1|0.14
 coupeur|2|0.27
+coupeur de fourrures|0|0.00
 coupeur de mode|1|0.00
 coupeur de pièces|0|0.00
+coupeurs|2|0.14|coupeur
+coupeuse|2|0.00|coupeur
 coupeuse de canne à sucre|2|0.00
 couplétiste|2|0.00
 coureur|14|4.80
@@ -1169,8 +1674,12 @@ coureur de keirin|3|0.00
 coureur de steeple|1|0.00
 coureur des bois|14|0.00
 coureur en fauteuil roulant|0|0.00
+coureurs|14|2.36|coureur
+coureuse|14|1.08|coureur
 coureuse cycliste|14|0.00
+coureuses|14|0.07|coureur
 courrier motocycliste|8|0.00
+coursier à vélo|20|0.00
 courtepointier|0|0.00
 courtier|55|0.74
 courtier en agriculture|1|0.00
@@ -1179,35 +1688,52 @@ courtier maritime|13|0.00
 courtier négociant|21|0.00
 courtière|55|0.34
 courtière en assurances|1|0.00
+courtières|55|0.07|courtier
+courtiers|55|0.61|courtier
 couteau de retouche|1|0.00
 couturier|15|2.43
 couturier en fourrure|0|0.00
 couturière|15|5.81
+couturières|15|0.74|couturier
+couturiers|15|1.28|couturier
 couvreur-zingueur|1|0.00
 couvreuse-zingueuse|1|0.00
+cover girl|8|0.20
+cover-girls|8|0.27|cover girl
 cow-boy|68|3.11
+cow-boys|68|2.16|cow boy
+cowboy gay|5|0.00
 créateur|17|4.59
 créateur d'ours en peluche|0|0.00
 créateur de chapeaux|0|0.00
 créateur de jeux vidéo|5|0.00
 créateur de lentilles|0|0.00
 créateur de patron|5|0.00
+créateurs|17|1.15|createur
 création bertsolaristique|0|0.00
 création de costume|6|0.00
+créatrice|17|1.89|createur
 créatrice de bijoux|6|0.00
 créatrice de contenu|9|0.00
 créatrice de marionnettes|4|0.00
 créatrice numérique|5|0.00
+créatrices|17|0.14|createur
 Credit Manager|1|0.00
 crémier|1|0.54
+crémière|1|1.01|cremier
+crémières|1|0.07|cremier
+crémiers|1|0.20|cremier
 créoliste|0|0.00
+creusiste|0|0.00
 crevettier|1|0.00
 crevettier à cheval|1|0.00
 crevettière|1|0.00
+crevettiers|1|0.00|crevettier
 crieur de journaux|5|0.00
 crieur public|19|0.00
 criminaliste|6|0.00
 criminologue|11|0.00
+criminologues|11|0.00|criminologue
 Cris de Paris|2|0.00
 cristallographe|6|0.00
 critique|55|11.15
@@ -1215,6 +1741,9 @@ critique culturel|9|0.00
 critique d'architecture|0|0.00
 critique d'art|24|0.00
 critique de bande dessinée|3|0.00
+critique de cinéma|14|0.00
+critique de jeu vidéo|0|0.00
+critique de la religion|0|0.00
 critique de la tauromachie|1|0.00
 critique de musique|15|0.00
 critique de télévision|1|0.00
@@ -1222,40 +1751,72 @@ critique de vin|5|0.00
 critique des médias|2|0.00
 critique des sources|1|0.00
 critique dramatique|8|0.00
+critique du genre|7|0.00
 critique gastronomique|13|0.00
 critique littéraire|18|0.00
 critique photographique|2|0.00
+critique social|1|0.00
+critiques|55|9.39|critique
 croatiste|0|0.00
 crocheteur|1|0.00
+crocheteurs|1|0.07|crocheteur
+croisiériste|0|0.00
 croque-mort|5|1.28
+croque-morts|5|2.03|croque mort
 crosstriathlète|1|0.00
 croupier|25|0.54
 croupière|25|0.20
+croupières|25|0.07|croupiere
+croupiers|25|0.07|croupier
 cryobiologiste|0|0.00
 cryptanalyste|6|0.00
 cryptographe|7|0.00
 cryptologue|4|0.00
 cryptozoologue|2|0.00
 csikos|8|0.00
+cuir|0|76.08|cuirs
+cuirs|0|3.11
 cuisinier|95|6.35
 cuisinière|95|16.08
 cuisinière à domicile|6|0.00
+cuisinières|95|1.15|cuisinier
+cuisiniers|95|2.84|cuisinier
 culottier|0|0.07
+culottière|0|0.20|culottier
+culottières|0|0.07|culottier
+culottiers|0|0.07|culottier
 cultivateur|1|0.88
+cultivateurs|1|1.76|cultivateur
+cultivatrice|1|0.07|cultivateur
+cultivatrices|1|0.14|cultivateur
 culturiste|4|0.07
+culturistes|4|0.20|culturiste
 culturologue|8|0.00
 curateur d'exposition|1|0.00
 Curàtulu|1|0.00
+cureur|0|0.00
+cureuse|0|0.00
 curleur|2|0.00
 cybernétiste|2|0.00
+cycliste|13|3.65
 cycliste à main|0|0.00
 cycliste BMX|0|0.00
 cycliste paralympique|0|0.00
 cycliste sur route|3|0.00
+cyclistes|13|2.84|cycliste
+cyclotouriste|0|0.00
 cynologue|4|0.00
 cytogénéticien|0|0.00
+Czumacy|1|0.00
+d'adolescents|0|0.00
+d'émissions|0|0.00
+d'établissement public|0|0.00
+d'hébergement touristique|0|0.00
+d'occasion|0|0.00
 Dabbawallah|28|0.00
 dactylographe|4|0.34
+dactylographes|4|0.00|dactylographe
+DAF|0|0.00
 daguerréotypiste|2|0.00
 dame de compagnie|42|0.00
 danseur|35|5.00
@@ -1266,41 +1827,65 @@ danseur de hula|0|0.00
 danseur de tango|0|0.00
 danseur en fauteuil roulant|0|0.00
 danseur noble|4|0.00
+danseurs|35|5.95|danseur
 danseuse|31|8.58
 danseuse classique|35|0.00
 danseuse sur glace|1|0.00
+danseuses|35|6.15|danseur
 dantiste|0|0.00
 data engineer|1|0.00
 data manager|0|0.00
 dayan|5|0.00
+de carton|0|0.00
+de compagnie|0|0.00
 de défense|1|0.00
 de football canadien|1|0.00
 de la voirie routière|1|0.00
+de matériel de loisirs|0|0.00
+de service comptable|0|0.00
+de structures de loisirs|0|0.00
 de télévision|2|0.00
+de travail des métaux|0|0.00
 dealer|5|1.08
+dealers|5|0.54|dealer
 débatteur de télévision|4|0.00
+débourbeur|0|0.00
+débourbeuse|0|0.00
+débourreur|0|0.00
+décatisseur|0|0.00
+décatisseuse|0|0.00
 déchargeur|1|0.07
 décolleteur|0|0.00
 décolleteuse|0|0.00
 déconstructiviste|0|0.00
 décorateur|8|2.03
 décorateur de théâtre|9|0.00
+décorateurs|8|0.88|decorateur
+décoratrice|8|0.14|decorateur
 décoratrice d'intérieur|8|0.00
+décoratrices|8|0.07|decorateur
+décrotteur|0|0.00
+décrotteuse|0|0.00
 décurion|0|0.00
 défectologue|0|0.00
 défenseur|0|3.38
 défenseur des enfants|7|0.00
+défenseurs|0|2.97|defenseur
 délégué|15|7.09
 délégué adjoint|2|0.00
 délégué médical|8|0.00
 délégué mineur|1|0.00
 délégué syndical|11|0.00
+déléguée|15|0.27|delegue
 déléguée médicale|8|0.00
 déléguée mineuse|1|0.00
+délégués|15|4.80|delegue
 delphinologue|0|0.00
 déménageur|0|1.28
+déménageurs|0|1.82|demenageur
 déménageuse|0|0.07
 démineur|1|0.07
+démineurs|1|0.00|demineur
 démineuse|1|0.00
 démographe|3|0.00
 demoiselle du téléphone|19|0.00
@@ -1308,6 +1893,7 @@ démonologue|1|0.00
 démonstrateur d'université|1|0.00
 démotisant|0|0.00
 démystificateur|15|0.00
+démystificatrice|15|0.14|demystificateur
 dendrochronologue|1|0.00
 dendrologue|3|0.00
 dentellier|3|0.00
@@ -1325,6 +1911,7 @@ designer industriel|7|0.00
 designer sonore|7|0.00
 designer textile|0|0.00
 designer urbain|0|0.00
+designers|46|0.00|designer
 designeuse|46|0.00
 dessinateur|24|5.27
 dessinateur au trait|0|0.00
@@ -1336,6 +1923,7 @@ dessinateur en électricité|1|0.00
 dessinateur humoristique|1|0.00
 dessinateur industriel|16|0.00
 Dessinateur opérationnel|1|0.00
+dessinateurs|24|1.76|dessinateur
 dessinatrice|24|0.27
 dessinatrice de carte|1|0.00
 dessinatrice de couverture|0|0.00
@@ -1344,7 +1932,11 @@ dessinatrice de timbres|4|0.00
 dessinatrice humoristique|23|0.00
 dessinatrice industrielle|16|0.00
 détaillant|2|1.28
+détaillante|2|0.07|detaillant
+détaillants|2|0.07|detaillant
 détective|63|2.36
+détective d'hôtel|3|0.00
+détectives|63|1.55|detective
 deuxième cor|0|0.00
 devadasi|40|0.00
 développeur|43|0.07
@@ -1355,26 +1947,36 @@ développeur full stack|1|0.00
 développeur logiciel|1|0.00
 développeur web|31|0.00
 développeuse informatique|43|0.00
+DG|0|0.00
 diabétologue|3|0.00
 diaconat féminin|2|0.00
 diaconesse|20|0.14
+diaconesses|20|0.07|diaconesse
 dialoguiste|7|0.07
+dialoguistes|7|0.07|dialoguiste
 diamantaire|6|1.28
+diamantaires|6|1.15|diamantaire
 didacticien|0|0.00
 didacticienne des sciences|0|0.00
 diffuseur|3|0.07
 diffuseur de la culture|0|0.00
+diffuseurs|3|0.07|diffuseur
 Digital Champions|5|0.00
 dinandier|27|0.00
 Diplom-Kaufmann|2|0.00
 diplomate|82|4.66
+diplomates|82|3.99|diplomate
 diplôme d'ingénieur|6|0.00
 diptérologue|3|0.00
+dircom|0|0.00
 directeur|34|30.00
 directeur adjoint|0|0.00
 directeur artistique|3|0.00
+directeur commercial|0|0.00
 directeur comptable|1|0.00
 directeur d'achats|2|0.00
+directeur d'agence bancaire|0|0.00
+directeur d'école honoraire|0|0.00
 directeur d'école primaire|1|0.00
 directeur d'écurie|0|0.00
 directeur d'enquête|4|0.00
@@ -1390,11 +1992,14 @@ directeur de création|1|0.00
 directeur de croisière|1|0.00
 directeur de doublage|4|0.00
 directeur de fabrication|0|0.00
+directeur de journal|0|0.00
 directeur de l'éducation|8|0.00
 directeur de l'information|2|0.00
+directeur de la photographie|0|0.00
 directeur de la publicité|2|0.00
 directeur de manufacture|0|0.00
 directeur de marché|1|0.00
+directeur de Poudlard|1|0.00
 directeur de prison|7|0.00
 directeur de production|9|0.00
 directeur de projet|1|0.00
@@ -1404,6 +2009,7 @@ directeur des engagements|1|0.00
 directeur des études|3|0.00
 directeur des opérations|0|0.00
 directeur des sports|0|0.00
+directeur du CELSA|0|0.00
 directeur du son|7|0.00
 directeur du timbre|0|0.00
 directeur éditorial|0|0.00
@@ -1417,11 +2023,13 @@ directeur médical|6|0.00
 directeur pastoral|0|0.00
 directeur sportif|19|0.00
 directeur technique|8|0.00
+directeurs|34|3.11|directeur
 direction spirituelle|14|0.00
 directoire|1|2.09
 directrice|32|5.07
 directrice adjointe|0|0.00
 directrice artistique|34|0.00
+directrice d'école|32|0.00
 directrice d'exploitation|33|0.00
 directrice d'hôpital|1|0.00
 directrice d'hôtel|17|0.00
@@ -1439,6 +2047,7 @@ directrice générale|79|0.00
 directrice générale déléguée|1|0.00
 directrice scientifique|5|0.00
 directrice technique|32|0.00
+directrices|34|0.27|directeur
 dirigeant|1|5.47
 dirigeant de badminton|0|0.00
 dirigeant de football|1|0.00
@@ -1450,47 +2059,75 @@ dirigeant de société|0|0.00
 dirigeant du jeu d'échecs|0|0.00
 dirigeant sportif|3|0.00
 dirigeante|1|0.61
+dirigeantes|1|0.41|dirigeant
+dirigeants|1|7.77|dirigeant
 dirigente|1|0.00
 disc jockey radio|1|0.00
+Discentes|1|0.00
 discothécaire|1|0.00
 disque-golfeur|0|0.00
 distillateur|1|0.07
+distillateurs|1|0.07|distillateur
 distributeur de cinéma|0|0.00
+distributeur de journaux|0|0.00
 distributeur de prospectus|0|0.00
 divertisseur public|3|0.00
 Djesseré|2|0.00
+Djiguite|12|0.00
 docker|26|0.68
+dockers|26|2.50|docker
+doctorant|0|0.00
 doctorant contractuel|1|0.00
 doctorante contractuelle|1|0.00
 documentaliste|13|0.20
 documentaliste audiovisuel|1|0.00
+documentalistes|13|0.07|documentaliste
 documentariste|5|0.00
+documentaristes|5|0.00|documentariste
+Doda|1|0.00
 domestique|64|7.23
+domestiques|64|11.28|domestique
+domestiques de cuisine|3|0.00
+dominateur|30|0.95|dominatrice
+dominateurs|30|0.14|dominatrice
 dominatrice|30|0.34
+dominatrices|30|0.07|dominatrice
 domoticien|0|0.00
 domoticienne|0|0.00
+DOP|0|0.00
 doreur|6|0.00
 doreuse|6|0.00
 Doshu|9|0.00
 doublure pour cascades|5|0.00
 doula|32|0.00
 doxographe|1|0.00
+doyen|51|5.88
 doyen du chapitre|7|0.00
+doyenne|51|0.81|doyen
 doyenne des étudiantes|5|0.00
+doyens|51|0.07|doyen
+draconaire|13|0.00
 dramaturge|23|0.74
 dramaturge de cinéma|0|0.00
+dramaturges|23|0.14|dramaturge
 drapier|7|0.27
+drapiers|7|0.34|drapier
 dresseur|4|0.34
 dresseur de chevaux|0|0.00
+dresseurs|4|0.27|dresseur
 dresseuse|4|0.07
 driver de trot attelé|3|0.00
 drogman|27|0.20
+drogmans|27|0.07|drogman
 droguiste|3|0.41
+droguistes|3|0.20|droguiste
 drouineur|17|0.00
+DTN|0|0.00
 duathlète|2|0.00
 dynamicien|0|0.00
 dynamicienne des fluides|0|0.00
 ébéniste|15|1.35
+ébénistes|15|0.20|ebeniste
 écailliste|0|0.00
 écarteur|3|0.00
 ecclésiologue|0|0.00
@@ -1498,14 +2135,21 @@ ecclésiologue|0|0.00
 échafaudeuse|3|0.00
 échasseur|0|0.00
 échassier|0|2.57
+échassière|0|0.20|echassier
+échassières|0|0.41|echassier
+échassiers|0|0.95|echassier
 échographiste|3|0.00
 éclusier|5|0.14
 éclusière|5|0.00
+éclusiers|5|0.07|eclusier
 écohydrologue|1|0.00
 écolier|0|10.54
 écolière|0|3.85
+écolières|0|1.01|ecolier
+écoliers|0|5.81|ecolier
 écologiste|25|0.07
 écologiste comportemental|0|0.00
+écologistes|25|0.20|ecologiste
 écologue|13|0.00
 écologue aquatique|0|0.00
 écologue d'eau douce|0|0.00
@@ -1515,6 +2159,7 @@ ecclésiologue|0|0.00
 écologue marin|0|0.00
 écologue politique|1|0.00
 économe|2|1.76
+économes|2|0.54|econome
 économètre|4|0.00
 économiste|79|0.34
 économiste d'entreprise|2|0.00
@@ -1525,19 +2170,27 @@ ecclésiologue|0|0.00
 économiste financier|1|0.00
 économiste mathématicien|0|0.00
 économiste politique|1|0.00
+économistes|79|0.14|economiste
 écophysiologiste|0|0.00
 écotoxicologue|0|0.00
 écrivain|176|32.43
 écrivain d'art|3|0.00
 écrivain militaire|0|0.00
+écrivain public|20|0.00
 écrivain régionaliste|0|0.00
+écrivain religieux|1|0.00
 écrivain sportif|7|0.00
 écrivain sur l'aviation|0|0.00
 écrivaine|176|0.20
 écrivaine de science-fiction|6|0.00
 écrivaine politique|2|0.00
 écrivaine scientifique|4|0.00
-écuyer|13|3.04
+écrivaines|176|0.14|ecrivain
+écrivains|176|16.22|ecrivain
+écuyer|32|3.04
+écuyère|32|0.54|ecuyer
+écuyères|32|0.20|ecuyer
+écuyers|32|1.49|ecuyer
 éditeur|21|8.78
 éditeur associé|27|0.00
 éditeur d'estampes|1|0.00
@@ -1548,13 +2201,17 @@ ecclésiologue|0|0.00
 éditeur intellectuel|1|0.00
 éditeur musical|4|0.00
 éditeur scientifique|2|0.00
+éditeurs|21|3.45|editeur
+éditeurs de Wikinews|0|0.00
 éditorialiste|3|0.34
+éditorialistes|3|0.34|editorialiste
 éditrice|21|0.07
 éditrice de comics|0|0.00
 éditrice de livres|0|0.00
 éditrice de musique|2|0.00
 éditrice musical|6|0.00
 éditrice musicale|4|0.00
+éditrices|21|0.00|editeur
 éducateur|22|0.81
 éducateur à la vie|1|0.00
 éducateur canin|4|0.00
@@ -1564,23 +2221,32 @@ ecclésiologue|0|0.00
 éducateur social|4|0.00
 éducateur spécialisé|1|0.00
 éducateur sportif|1|0.00
+éducateurs|22|0.74|educateur
 éducatrice|22|0.88
 éducatrice aux médias|1|0.00
+éducatrice sportive|0|0.00
+éducatrices|22|0.41|educateur
 egermeister|4|0.00
+égologue|0|0.00
 égoutier|0|1.62
 égoutière|0|0.00
+égoutiers|0|0.14|egoutier
 égyptologue|31|0.00
+égyptologues|31|0.14|egyptologue
 élaborateur d'autel|0|0.00
 électricien|48|1.82
 électricien de théâtre|2|0.00
 électricien industriel|1|0.00
 électricienne|48|0.07
 électricienne automobile|0|0.00
+électriciennes|48|0.07|electricien
+électriciens|48|0.68|electricien
 électro-opticien|1|0.00
 électrochimiste|2|0.00
 électromécanicien|1|0.00
 électronicien|4|0.00
 électronicienne|4|0.00
+électroniciens|4|0.07|electronicien
 électrophysicien|0|0.00
 électrophysiologiste|0|0.00
 électrotechnicien|3|0.00
@@ -1589,17 +2255,26 @@ egermeister|4|0.00
 éleveur|11|1.01
 éleveur de chats|0|0.00
 éleveur de chevaux|5|0.00
+éleveur de chèvres|0|0.00
+éleveur de chiens|3|0.00
 éleveur de cochons|1|0.00
 éleveur de rennes|0|0.00
 éleveur porcin|0|0.00
+éleveurs|11|0.74|eleveur
+éleveuse|11|0.00|eleveur
 éleveuse de volaille|0|0.00
 Elew|1|0.00
+élite progressiste|10|0.00
 élu du peuple|1|0.00
 émailleur|3|0.00
 émailleuse|3|0.00
+emballage|0|4.39
+emballages|0|1.69|emballage
 embryologiste|6|0.00
 empereur|124|35.88
 empereur-soldat|27|0.00
+empereurs|124|2.57|empereur
+emplois de bureau|0|0.00
 employé|42|9.86
 employé d'écurie|0|0.00
 employé d'imprimerie|0|0.00
@@ -1613,14 +2288,21 @@ employé de rayon|0|0.00
 employé des contributions|0|0.00
 employé du gaz|0|0.00
 employé municipal|0|0.00
+employée|42|2.43|employe
 employée d'organisme public|1|0.00
 employée de bar|42|0.00
+employées|42|1.01|employe
+employés|42|12.77|employe
 Employés de bibliothèque|0|0.00
 employeur|39|1.69
+employeurs|39|1.01|employeur
 Empu|2|0.00
+en petite série|0|0.00
 Encaisseurs et assimilés|0|0.00
+encasteur|0|0.00
 encaveur|0|0.00
 encreur|7|0.07
+encreurs|7|0.07|encreur
 encreuse|7|0.00
 encyclopédiste|36|0.00
 endocrinologue|13|0.07
@@ -1628,10 +2310,17 @@ endocrinopédiatre|0|0.00
 endodontiste|2|0.00
 enfant acteur|30|0.00
 enlumineur|8|0.20
+enlumineurs|8|0.00|enlumineur
 enquêteur|15|1.28
 enquêteur de droit privé|1|0.00
+enquêteurs|15|1.82|enqueteur
+enquêteuse|15|0.00|enqueteur
 enquêtrice d'assurances|15|0.00
+enquêtrices|15|0.07|enqueteur
 enregistreur|0|0.20
+enregistreurs|0|0.00|enregistreur
+enregistreuse|0|0.74|enregistreur
+enregistreuses|0|0.07|enregistreur
 enseignant|179|0.54
 enseignant-chercheur|23|0.00
 enseignant-chercheur associé|1|0.00
@@ -1641,15 +2330,20 @@ enseignant de religion|2|0.00
 enseignant missionnaire|0|0.00
 enseignant reiki|1|0.00
 enseignant spécialisé|7|0.00
+enseignant suppléant|7|0.00
 enseignante|179|0.47
 enseignante au collégial|1|0.00
 enseignante-chercheuse|23|0.00
 enseignante de maternelle|2|0.00
 enseignante du secondaire|5|0.00
 enseignante technique|1|0.00
+enseignantes|179|0.07|enseignant
+enseignants|179|0.81|enseignant
+enseigne provisoire|3|0.00
 ensemblier|4|0.00
 ensemblière|4|0.00
 entomologiste|15|1.15
+entomologistes|15|0.14|entomologiste
 entraîneur|36|2.77
 entraîneur d'athlétisme|0|0.00
 entraîneur d'aviron|1|0.00
@@ -1680,33 +2374,53 @@ entraîneur de water-polo|0|0.00
 entraîneur personnel|24|0.00
 entraîneur physique|4|0.00
 entraîneur sportif|73|0.00
+entraîneurs|36|0.41|entraineur
+entraîneuse|36|0.47|entraineur
 entraîneuse de football|36|0.00
 entraîneuse de rugby à sept|0|0.00
 entraîneuse de rugby à XIII|0|0.00
 entraîneuse de rugby à XV|0|0.00
 entraîneuse de volley-ball|0|0.00
 entraîneuse sportive|73|0.00
+entraîneuses|36|0.81|entraineur
 entrepreneur|87|1.35
 entrepreneur de l'Internet|2|0.00
 entrepreneur de mode|2|0.00
 entrepreneur en bâtiment|0|0.00
 entrepreneur social|6|0.00
+entrepreneurs|87|0.74|entrepreneur
 entrepreneuse|87|0.00
 entrepreneuse sociale|6|0.00
+entrepreneuses|87|0.07|entrepreneur
 envoyé|33|35.20
+envoyée|33|5.27|envoye
+envoyées|33|2.57|envoye
+envoyés|33|5.41|envoye
 enzyomologue|0|0.00
 épaviste|1|0.00
 épéiste|0|0.00
+épéistes|0|0.00|epeiste
 épicier|9|7.70
 épicière|9|1.89
+épicières|9|0.07|epicier
+épiciers|9|0.61|epicier
 épidémiologiste|8|0.07
 épidémiologiste vétérinaire|0|0.00
 épigrammatiste|1|0.00
 épigraphiste|5|0.00
 épileptologue|5|0.00
+épistate|12|0.00
 épistémologue|2|0.00
 équarrisseur|0|0.41
+équarrisseurs|0|0.07|equarrisseur
+équin|0|0.07
+équine|0|0.00|equin
 équipage|8|11.28
+équipages|8|5.88|equipage
+Equipier|16|0.81
+équipière|16|0.00|equipier
+équipiers|16|0.27|equipier
+ere-praeses|0|0.00
 Erenagh|4|0.00
 ergolier|1|0.00
 ergonome|3|0.00
@@ -1718,13 +2432,20 @@ espérantologue|3|0.00
 espion|29|4.59
 espion industriel|0|0.00
 espionne|29|2.57
+espionnes|29|0.41|espion
+espions|29|3.72|espion
 espions atomiques|13|0.00
 espontáneo|1|0.00
 essayeur|4|0.14
+essayeuses|4|0.07|essayeur
 essayiste|22|0.07
+essayistes|22|0.07|essayiste
 étalagiste|8|0.20
 étalonneur|0|0.00
 Étameur|1|0.00
+étameurs|1|0.07|etameur
+état-major|51|18.31
+états-majors|51|4.12|etat major
 éthicien|7|0.00
 éthicienne|7|0.00
 éthiopisant|0|0.00
@@ -1734,6 +2455,7 @@ ethnohistorien|1|0.00
 ethnohistorienne|1|0.00
 ethnolinguiste|0|0.00
 ethnologue|10|0.34
+ethnologues|10|0.14|ethnologue
 ethnomathématicien|0|0.00
 ethnomathématicienne|0|0.00
 ethnosociologue|0|0.00
@@ -1745,16 +2467,26 @@ eulogiste|2|0.00
 évaluateur de logiciels|0|0.00
 évangéliste|11|0.61
 évangéliste technologique|13|0.00
+évangélistes|11|0.27|evangeliste
 éventailliste|0|0.00
+évêque aux armées françaises|0|0.00
 évêque auxiliaire émérite|0|0.00
+évêque de Lund|0|0.00
+évêque militaire catholique|1|0.00
+évêque militaire de Bolivie|0|0.00
+évêque militaire du Chili|0|0.00
 examinateur de brevet|4|0.00
 exécuteur littéraire|7|0.00
 exécuteur testamentaire|20|0.00
 exégète|2|0.20
+exégètes|2|0.34|exegete
 existentialiste|2|0.07
+existentialistes|2|0.27|existentialiste
 exobiologiste|3|0.00
 exoplanétologue|1|0.00
 expéditeur|8|0.81
+expéditeurs|8|0.20|expediteur
+expéditrice|8|0.00|expediteur
 expert|27|2.16
 expert chimique|1|0.00
 expert commercial|0|0.00
@@ -1774,11 +2506,18 @@ expert maritime|7|0.00
 expert médiatique|3|0.00
 expert militaire|0|0.00
 expert SEO|3|0.00
+experte|27|2.16|expert
 experte judiciaire|27|0.00
+expertes|27|1.15|expert
+experts|27|3.04|expert
 exploitant|10|0.41
+exploitant agricole|0|0.00
+exploitante|10|0.00|exploitant
 exploitante agricole|1|0.00
+exploitants|10|0.34|exploitant
 explorateur polaire|3|0.00
 exportateur|0|0.07
+exportateurs|0|0.07|exportateur
 fabricant|5|2.23
 fabricant d'instruments|5|0.00
 fabricant de boussole|1|0.00
@@ -1795,7 +2534,10 @@ fabricant de signalétique|2|0.00
 fabricant de tapisserie|1|0.00
 fabricant de télescopes|0|0.00
 fabricant de vinaigre|0|0.00
+fabricante|5|0.07|fabricant
 fabricante de casquette|0|0.00
+fabricantes|5|0.07|fabricant
+fabricants|5|1.08|fabricant
 fabuliste|4|0.07
 façadier|0|0.00
 facteur|51|12.36
@@ -1807,50 +2549,82 @@ facteur de géants|0|0.00
 facteur de harpes|0|0.00
 facteur de marionnettes|0|0.00
 facteur de violons|3|0.00
+facteurs|51|1.96|facteur
 factrice|51|0.00
 factrice d'orgues|21|0.00
 factrice de clavecins|1|0.00
 factrice de pianos|5|0.00
 facture instrumentale|2|0.00
 faïencier|0|0.07
+faïenciers|0|0.07|faiencier
 Fangshi|8|0.00
+fantaisiste|0|0.68
+fantaisistes|0|1.08|fantaisiste
 faqîh|32|0.00
 Farmän|1|0.00
 faucheur|0|0.14
+faucheurs|0|0.07|faucheur
+faucheuse|0|0.54|faucheur
+faucheuses|0|0.07|faucheur
+fauconnier|5|0.34
+fauconniers|5|0.07|fauconnier
 faussaire|5|0.95
 faussaire de timbres-poste|1|0.00
+faussaires|5|0.41|faussaire
+Faux client|10|0.00
 fdaoui|1|0.00
 fedayin|28|0.00
+Fellah|29|0.20
+fellahs|29|0.07|fellah
 féminisme|207|0.41
 femme de chambre|8|0.00
 femme de lettres|17|0.00
 femme de ménage|38|0.00
+femme Fellah|0|0.00
 femme forte|4|0.00
 femme peintre|2|0.00
 femme photographe|10|0.00
+femmes de la noblesse|8|0.00
 fendeur de bois|2|0.00
 fermier|16|5.61
+fermière|16|2.23|fermier
+fermières|16|0.47|fermier
+fermiers|16|4.05|fermier
 ferronnier|4|0.34
+ferronnière|4|0.00|ferronnier
+ferronniers|4|0.34|ferronnier
 Feuerwerker|10|0.00
 feuillardier|2|0.00
 feuilletoniste|1|0.34
 fiduciaire|9|0.68
+fiduciaires|9|0.00|fiduciaire
 figurant|48|3.72
 figurante|48|0.54
+figurantes|48|0.14|figurant
+figurants|48|2.77|figurant
 figuriniste|2|0.00
 fileur|3|0.07
 fileuse|3|0.07
 filid|13|0.00
 Film- und Bühnencosmetologe|2|0.00
 financier|19|2.30
+financière|19|2.43|financier
+financières|19|2.23|financier
+financiers|19|2.36|financier
 fixeur|12|0.00
+Flaggen|1|0.00
+flandrien|2|0.00
 fleurettiste|0|0.00
 fleuriste|10|7.23
 fleuriste artificiel|1|0.00
+fleuristes|10|1.28|fleuriste
 flibustier|23|0.68
+flibustiers|23|0.07|flibustier
 floriculteur|0|0.00
 floriculteurs|2|0.00
+folklore et broderie matyó|8|0.00
 folkloriste|16|0.14
+folkloristes|16|0.07|folkloriste
 fonction publique française|4|0.00
 fonctionnaire|56|11.28
 fonctionnaire à Hong Kong|4|0.00
@@ -1863,6 +2637,7 @@ fonctionnaire érudit|15|0.00
 fonctionnaire européen|8|0.00
 fonctionnaire international|2|0.00
 fonctionnaire municipal|1|0.00
+fonctionnaires|56|15.61|fonctionnaire
 fondateur d'école|0|0.00
 fondateur de l'école sourde|0|0.00
 fondé de pouvoir|1|0.00
@@ -1874,17 +2649,23 @@ fondeuse de caractères|1|0.00
 fontainier|3|0.00
 fontainière|3|0.00
 footballeur|61|0.54
+footballeurs|61|0.47|footballeur
 footballeuse|61|0.00
 forain|13|1.42
 foraine|13|3.24
+foraines|13|1.08|forain
+forains|13|1.01|forain
 forcado|5|0.00
 forestier|26|2.97
 forestière|26|2.91
+forestières|26|0.81|forestiere
+forestiers|26|1.22|forestiere
 foreur de roche|2|0.00
 forge|11|7.64
 forgeron de cuivre|0|0.00
 forgeron de lames|15|0.00
 forgeron de sabres japonais|1|0.00
+forges|11|0.95|forge
 formateur|3|0.07
 formateur d'enseignants|0|0.00
 formateur en entreprise|2|0.00
@@ -1893,30 +2674,42 @@ Formateur immobilier|0|0.00
 formateur indépendant|0|0.00
 formatrice|3|0.14
 formatrice pour adultes|1|0.00
+formatrices|3|0.00|formateur
 Formier|1|0.00
 Forts des Halles|3|0.00
 fossoyeur|25|1.42
+fossoyeurs|25|1.28|fossoyeur
 fossoyeuse|25|0.00
 fraiseur|3|0.07
+fraiseurs|3|0.20|fraiseur
+fraiseuse|3|0.00|fraiseur
 Freundschaftspionierleiter|2|0.00
 frigoriste|1|0.00
 frituriste|0|0.00
 fromager|8|0.34
+fromagère|8|0.14|fromager
+fromagers|8|0.14|fromager
 fruiticulteur|0|0.00
 fulleur|0|0.00
+Furmani|3|0.00
 fusilier-marin|8|0.00
 fusilière-marin|8|0.00
+fustier|1|0.00
 futurologue|16|0.00
 Gabbaï|14|0.00
 Gabelou|4|0.07
 Gagman|1|0.00
+Gaikokujin tarento|2|0.00
 gainier|0|0.00
 galeriste|7|0.00
 gambiste|3|0.00
 ganadhara|8|0.00
 gantier|4|0.00
+gantières|4|0.07|gantier
 garagiste|2|5.00
+garagistes|2|0.27|garagiste
 garçon d'étable|0|0.00
+garçon de ferme|17|0.00
 garde|13|89.86
 garde-barrière|16|0.95
 garde champêtre|8|0.47
@@ -1928,35 +2721,57 @@ garde forestier|22|0.14
 garde malade|1|1.15
 garde-manger|10|2.77
 garde urbain|1|0.00
+garde-verges|0|0.00
+garde-voie|0|0.07
+gardée|13|4.93|garde
+gardées|13|1.08|garde
+gardes|13|22.23|garde
+gardes-champêtres|8|0.07|garde champetre
+gardes-voies|0|0.07|garde voie
 gardian|7|0.14
+gardians|7|0.07|gardian
 gardien|12|18.45
 gardien de l'arbre|1|0.00
 gardien de la paix|2|0.00
 gardien de musée|3|0.00
 gardien de phare|19|0.00
 gardien de prison|29|0.00
+gardien de troupeau|74|0.00
 gardien de vache|0|0.00
 gardien de vestiaires|0|0.00
 gardien de zoo|10|0.00
 gardienne|0|3.31
 gardienne d'enfants|12|0.00
 gardienne de refuge|2|0.00
+gardiennes|12|0.61|gardien
+gardiens|12|9.59|gardien
 garimpeiro|6|0.00
 gastronome|5|0.68
+gastronomes|5|0.14|gastronome
+gaucho|53|0.27
+gauchos|53|1.01|gaucho
+Gauchos juifs|6|0.00
+Gazda|1|0.00
 geisha|85|0.34
+geishas|85|0.14|geisha
 gelatiere|1|0.00
 gemmologue|3|0.00
 gendarme|4|16.15
+gendarmes|4|27.57|gendarme
 généalogiste|14|0.14
+généalogistes|14|0.00|genealogiste
 généticien|21|0.07
 généticien comportemental|0|0.00
 généticien des populations|2|0.00
 généticienne|21|0.00
 généticienne moléculaire|0|0.00
+généticiens|21|0.00|geneticien
 génomicien|0|0.00
 génomicienne|0|0.00
 gentilhomme de la Chambre|14|0.00
 gentilhomme verrier|1|0.00
+gentleman farmer|3|0.20
+gentlemen-farmers|3|0.07|gentleman farmer
 géoarchéologue|0|0.00
 géobiologiste|1|0.00
 géobotaniste|1|0.00
@@ -1972,17 +2787,21 @@ géographe culturel|0|0.00
 géographe économique|0|0.00
 géographe physicien|1|0.00
 géographe politique|0|0.00
+géographes|53|0.41|geographe
 géohistorien|0|0.00
 géoinformaticien|1|0.00
 géologue|51|0.27
 géologue d'ingénierie|5|0.00
 géologue marin|0|0.00
 géologue pétrolier|3|0.00
+géologues|51|0.34|geologue
 géomaticien|3|0.00
 géomaticienne|1|0.00
 géomètre|24|0.27
 géomètre-expert|2|0.00
 géomètre-experte|2|0.00
+géomètre-topographe|0|0.00
+géomètres|24|0.27|geometre
 géomicrobiologiste|0|0.00
 géomorphologue|4|0.00
 géomythologue|0|0.00
@@ -2010,10 +2829,14 @@ gestionnaire de crise|1|0.00
 gestionnaire de portefeuille|3|0.00
 gestionnaire de risque|0|0.00
 gestionnaire financier|1|0.00
+gestionnaires|6|0.07|gestionnaire
 gigueur|0|0.00
 gigueuse|0|0.00
+Gilkorlik|1|0.00
+Gimin|3|0.00
 Giser|1|0.00
 glacier|2|2.16
+glaciers|2|1.55|glacier
 glaciologue|4|0.00
 glaneur de poubelles|1|0.00
 glirologiste|0|0.00
@@ -2023,19 +2846,46 @@ glypticien|1|0.00
 gnomoniste|2|0.00
 goguettier|0|0.00
 golfeur|9|0.07
+golfeurs|9|0.07|golfeur
+golfeuse|9|0.07|golfeur
+golfeuses|9|0.14|golfeur
+goliard|24|0.00
 gondolier|2|0.74
+gondolière|2|0.00|gondolier
+gondoliers|2|0.41|gondolier
+gonfalonier de l'Église|8|0.00
+gonfalonnier|24|0.00
+Gota|8|0.00
+goudronneur|0|0.00
+gourou|80|1.28
+gourous|80|0.14|gourou
 goûteur|12|0.00
 goûteur de glaces|0|0.00
+goûteuse|12|0.07|gouteur
 gouvernante|26|3.85
+gouvernantes|26|0.88|gouvernante
 gouverneur|110|16.35
 gouverneur de Lyon|1|0.00
+gouverneurs|110|2.03|gouverneur
 grainier|0|0.00
+grammaticus|10|0.00
+Grand Chancelier|6|0.00
+grand chancelier hospitalier|1|0.00
+grand commandeur|3|0.00
 grand couturier|1|0.00
+grand drapier|1|0.00
+grand inquisiteur d'Espagne|21|0.00
+grand Inquisiteur de France|2|0.00
+grand prêtre d'Amon|27|0.00
+grande épouse royale|29|0.00
 Granthi|6|0.00
 graphiste|39|0.00
 graphiste publicitaire|2|0.00
 graphologue|3|0.14
+graphologues|3|0.07|graphologue
 graphothérapeute|1|0.00
+Gratis passenger|1|0.00
+gratuité partielle|1|0.00
 graveur|9|0.81
 graveur de médailles|0|0.00
 graveur de poinçons|0|0.00
@@ -2049,31 +2899,48 @@ graveur sur bois|4|0.00
 graveur sur cuivre|4|0.00
 graveur sur pierre|1|0.00
 graveur sur verre|2|0.00
+graveurs|9|0.27|graveur
 graveuse|12|0.00
 graveuse d'estampes|9|0.00
 graveuse de sceau|1|0.00
 graveuse musicale|0|0.00
+gravure de sceau|17|0.00
 gravure idol|15|0.00
 greffier|5|3.18
+greffière|5|0.00|greffier
+greffiers|5|0.47|greffier
 grey hat|20|0.00
-grimpeur|2|0.34
+grimpeur|14|0.34
 grimpeur de vitesse|1|0.00
 grimpeur sur rochers|6|0.00
+grimpeurs|14|0.07|grimpeur
+grimpeuse|14|0.00|grimpeur
 griot|34|1.08
+griots|34|0.47|griot
 gripman|0|0.00
 grossiste|7|0.54
+grossistes|7|0.27|grossiste
 groupiste|1|0.00
+Gruntar|1|0.00
 Gruppenkommandeur|11|0.00
 grutier|3|0.34
+grutière|3|0.07|grutier
+grutiers|3|1.89|grutier
 gruyer|2|0.00
 guardia civil|0|0.00
 guérisseur|18|1.42
 guérisseur religieux|1|0.00
+guérisseurs|18|0.27|guerisseur
 guérisseuse|18|0.47
+guérisseuses|18|0.07|guerisseur
 guerrier|53|3.85
 guerrière|53|2.30
+guerrières|53|1.62|guerrier
+guerriers|53|6.15|guerrier
 gueuzologue|0|0.00
-guichetier|0|0.07
+guichetier|1|0.07
+guichetière|1|0.34|guichetier
+guichetiers|1|0.07|guichetier
 guide|11|16.69
 guide-conférencier|47|0.00
 guide de haute montagne|25|0.00
@@ -2086,6 +2953,7 @@ guillocheur|0|0.00
 Guitto|3|0.00
 Gulbur|2|0.00
 Gunnie|1|0.00
+Guru du sikhisme|26|0.00
 Guslar|2|0.00
 gymnaste|5|0.61
 gymnaste acrobatique|0|0.00
@@ -2093,9 +2961,11 @@ gymnaste aérobic|0|0.00
 gymnaste artistique|6|0.00
 gymnaste de roue allemande|0|0.00
 gymnaste rythmique|1|0.00
+gymnastes|5|0.74|gymnaste
 gynécologue|16|3.65
 gynécologue-obstétricien|3|0.00
 gynécologue-obstétricienne|3|0.00
+gynécologues|16|0.20|gynecologue
 Hackstockmeister|1|0.00
 hagiographe|3|0.47
 Hakam|2|0.00
@@ -2106,12 +2976,15 @@ Handicapeur|1|0.00
 haptonome|0|0.00
 haptothérapeute|1|0.00
 harri-jasotzailea|0|0.00
+haseki|39|0.07
+hasekis|39|0.14|haseki
 haut fonctionnaire|1|0.00
 hautboïste|3|0.00
 hébraïsant|9|0.07
 heilpraktiker|9|0.00
 héliosismologue|0|0.00
 helléniste|4|0.14
+hellénistes|4|0.14|helleniste
 Hello Girls|5|0.00
 helminthologiste|4|0.00
 hématologue|5|0.07
@@ -2119,9 +2992,12 @@ hépatologue|2|0.00
 heptathlète|1|0.00
 héraldiste|6|0.00
 herboriste|9|0.68
+herboristes|9|0.20|herboriste
 hérésiarque|13|0.07
+hérésiarques|13|0.14|heresiarque
 hermétiste|1|0.00
 herpétologue|8|0.00
+hiéromnémon|2|0.00
 hikeshi|9|0.00
 himalayiste|3|0.00
 hippologue|2|0.00
@@ -2167,6 +3043,7 @@ historien du théâtre|2|0.00
 historien local|10|0.00
 historien marxiste|0|0.00
 historien moderniste|1|0.00
+historien par sujet d'étude|0|0.00
 historien ruraliste|0|0.00
 historien social|1|0.00
 historienne|109|0.34
@@ -2184,8 +3061,10 @@ historienne du droit|7|0.00
 historienne du Moyen-Orient|0|0.00
 historienne du sport|0|0.00
 historienne militaire|6|0.00
+historiens|109|2.84|historien
 historiographe|6|0.00
 hittitologue|5|0.00
+hodopoioi|3|0.00
 Hofmeister|14|0.00
 homéopathe|6|0.07
 homme|17|852.23
@@ -2194,23 +3073,36 @@ homme d'armes|17|0.00
 homme de lettres|2|0.00
 homme fort|18|0.00
 homme mannequin|0|0.00
+hommes|17|546.62|homme
+honorary fellow|2|0.00
+hoofddocent|1|0.00
 horairiste ferroviaire|0|0.00
 horloger|42|2.23
 horlogère|8|2.64
+horlogers|42|0.54|horloger
 horologiste|0|0.00
 horticulteur|8|0.34
+horticulteurs|8|0.20|horticulteur
 horticultrice|8|0.00
 hospitalero|2|0.00
 Hospitalier|0|1.22
+hospitalière|0|0.61|hospitalier
+hospitalières|0|0.34|hospitalier
+hospitaliers|0|0.74|hospitalier
 Hospodar|25|0.27
+hospodars|25|0.27|hospodar
+hôte d'accueil|1|0.00
 houblonnier|1|0.00
 Housemaster|3|0.00
+Huaso|16|0.00
 huissier|0|3.72
 huissier d'armes|0|0.00
 huissier de justice|5|0.00
+huissiers|0|2.23|huissier
 humaniste numérique|0|0.00
 humoriste|77|0.34
 humoriste de scène|11|0.00
+humoristes|77|0.41|humoriste
 hungarologue|1|0.00
 Husfru|1|0.00
 Hutman|1|0.00
@@ -2226,22 +3118,28 @@ hydrographe de la Navy|1|0.00
 hydrologue|7|0.00
 hydrométéorologue|0|0.00
 hygiéniste|5|0.00
+hygiénistes|5|0.14|hygieniste
 hyménopteriste|2|0.00
 hymnologue|1|0.00
 hyperpolyglotte|3|0.00
 hypertensiologue|1|0.00
 hypnothérapiste|1|0.00
 hypnotiseur|5|0.07
+hypnotiseurs|5|0.20|hypnotiseur
+hypnotiseuse|5|0.00|hypnotiseur
 Iamchik|5|0.00
 ibérianiste|0|0.00
 ichtyologiste|10|0.00
+ICNA|0|0.00
 iconographe|7|0.07
 identificateur|0|0.00
 idéolinguiste|8|0.00
 idéologue|2|0.34
+idéologues|2|0.20|ideologue
 idole coréenne|20|0.00
 idole japonaise|45|0.00
 illusionniste|9|0.54
+illusionnistes|9|0.07|illusionniste
 illustrateur|41|0.20
 illustrateur médical|0|0.00
 illustratrice|41|0.00
@@ -2250,8 +3148,21 @@ illustratrice de mode|0|0.00
 illustratrice de presse|1|0.00
 illustratrice médicale|0|0.00
 illustratrice scientifique|2|0.00
+Imaginifer|15|0.00
 imitateur|21|0.34
+imitateurs|21|0.14|imitateur
+imitatrice|21|0.00|imitateur
+impératrice|11|6.08
+impératrice byzantine|2|0.00
+impératrice consort|13|0.00
+impératrice de Nicée|0|0.00
+impératrice douairière|20|0.00
+impératrice du Japon|17|0.00
+impératrice régnante|7|0.00
+impératrice romaine|4|0.00
+impératrices|11|0.27|imperatrice
 importateur|6|0.27
+importateurs|6|0.07|importateur
 impresario de music-hall|0|0.00
 imprimeur|9|2.09
 Imprimeur d'académie|1|0.00
@@ -2259,12 +3170,18 @@ imprimeur d'art|1|0.00
 imprimeur de lithographies|0|0.00
 imprimeur-libraire|7|0.00
 imprimeur sérigraphe|1|0.00
+imprimeurs|9|0.88|imprimeur
 imprimeuse|9|0.00
 imprimeuse-libraire|7|0.00
 improvisateur|4|0.20
+improvisateurs|4|0.07|improvisateur
 improvisatrice|4|0.00
 Inas|1|0.00
 incunabuliste|0|0.00
+indépendant|0|3.04
+indépendante|0|3.78|independant
+indépendantes|0|0.88|independant
+indépendants|0|1.76|independant
 indianiste|6|0.00
 indienneur|0|0.00
 indigéniste|1|0.00
@@ -2272,12 +3189,17 @@ indoeuropéaniste|3|0.00
 indonésianiste|2|0.00
 industriel|17|3.04
 industrielle|17|3.04
+industrielles|17|0.61|industriel
+industriels|17|2.23|industriel
 infectiologue|6|0.00
 infirmier|9|3.58
 infirmier auxiliaire|11|0.00
 infirmier en puériculture|4|0.00
 infirmier militaire|8|0.00
+infirmière|9|22.97|infirmier
 infirmière en chef|8|0.00
+infirmières|9|4.93|infirmier
+infirmiers|9|4.80|infirmier
 influenceur|44|0.00
 influenceuse numérique|44|0.00
 infographiste|1|0.00
@@ -2286,8 +3208,10 @@ informaticien industriel|0|0.00
 informaticienne|41|0.14
 informaticienne de gestion|1|0.00
 informaticienne industrielle|0|0.00
+informaticiens|41|0.20|informaticien
 ingénieur|109|9.12
 ingénieur acousticien|1|0.00
+ingénieur aéronautique|4|0.00
 ingénieur agronome|12|0.00
 ingénieur architecte|3|0.00
 ingénieur arpenteur|6|0.00
@@ -2330,6 +3254,7 @@ Ingénieur en pétrochimie|0|0.00
 ingénieur en raffinage|1|0.00
 ingénieur en travaux publics|1|0.00
 ingénieur énergéticien|0|0.00
+Ingénieur Européen|10|0.00
 ingénieur ferroviaire|2|0.00
 ingénieur fiabilité de site|1|0.00
 ingénieur financier|1|0.00
@@ -2371,9 +3296,13 @@ ingénieure énergéticienne|0|0.00
 ingénieure financière|1|0.00
 ingénieure hydraulicienne|5|0.00
 ingénieure logiciel|25|0.00
+ingénieurs|109|3.24|ingenieur
 inhalothérapeute|7|0.00
 Inkasent|1|0.00
 innovateur|10|0.00
+innovatrice|10|0.00|innovateur
+inquisiteur général|1|0.00
+Inquisiteur général d'Aragon|1|0.00
 inspecteur|23|15.74
 inspecteur d'académie|0|0.00
 inspecteur d'assurances|0|0.00
@@ -2386,34 +3315,57 @@ Inspecteur des Mines|0|0.00
 inspecteur des PTT|0|0.00
 inspecteur du travail|0|0.00
 inspecteur en bâtiment|1|0.00
+inspecteurs|23|3.92|inspecteur
 inspectrice|1|0.00
 instagrameur|2|0.00
 installateur|1|0.00
 instapoète|0|0.00
 instituteur|14|13.18
-institutrice|0|6.08
+instituteur de maternelle|1|0.00
+instituteurs|14|2.91|instituteur
+institutrice|1|6.08
+institutrices|14|1.15|instituteur
 instructeur|7|1.22
 Instructeur de tambours|0|0.00
+instructeurs|7|0.88|instructeur
 instrumentier|1|0.00
 instrumentiste|27|0.14
 instrumentiste à cordes|3|0.00
+instrumentistes|27|0.14|instrumentiste
+intaille|22|0.14
+intailles|22|0.07|intaille
 intégrateur web|1|0.00
 intellectuel|74|4.93
 intellectuelle|74|6.08
+intellectuelles|74|2.77|intellectuel
+intellectuels|74|8.58|intellectuel
 intendant|9|3.24
 intendant de données|6|0.00
+intendant de galère|4|0.00
+intendant de l'hôpital|0|0.00
 intendant de terrain de golf|5|0.00
 intendante|3|1.35
+intendants|9|0.14|intendant
 interlinguiste|1|0.00
 intermédiaire|23|6.01
+intermédiaires|23|1.28|intermediaire
+international|0|9.12
+internationale|0|10.00|international
+internationales|0|3.99|international
+internationaux|0|1.76|international
 interne|1|5.47
+internée|1|0.07|interne
+internées|1|0.07|interne
+internes|1|1.82|interne
 interprète|0|7.16
 interprète militaire|4|0.00
 interprète simultané|0|0.00
+interprètes|0|1.42|interprete
 intervalliste|2|0.00
 intervenant en loisir|1|0.00
 inuitologue|1|0.00
 inventeur|66|1.76
+inventeurs|66|0.27|inventeur
 investigateur principal|6|0.00
 investisseur immobilier|2|0.00
 investisseur privé|3|0.00
@@ -2423,17 +3375,31 @@ iridologue|0|0.00
 islamologue|6|0.00
 italianiste|1|0.00
 Iudex|2|0.00
+ivoire|16|7.84
+ivoires|16|0.54|ivoire
 ivoirier|1|0.00
+Iyo Kasuri|2|0.00
+Iyoba|0|0.00
 japonologue|5|0.00
 jardinier|51|6.22
+jardinier amateur|0|0.00
+jardinier en chef|0|0.00
 jardinier paysagiste|2|0.00
 jardinier semencier|0|0.00
 jardinière|51|1.55
+jardinières|51|0.27|jardiniere
+jardiniers|51|4.05|jardinier
 jetskieur|0|0.00
 Ji-samouraï|10|0.00
+Jíbaro|6|0.00
+Jikido|1|0.00
+Joailliers et orfèvres|0|0.00
 jockey de trot monté|0|0.00
 joker médical|1|0.00
 jongleur|8|0.74
+jongleurs|8|1.22|jongleur
+jongleuse|8|0.14|jongleur
+jongleuses|8|0.14|jongleur
 joueur|16|9.05
 joueur d'unihockey|3|0.00
 joueur de backgammon|0|0.00
@@ -2483,6 +3449,7 @@ joueur de ringuette|0|0.00
 joueur de rink hockey|2|0.00
 joueur de saxhorn alto|0|0.00
 joueur de softball|3|0.00
+joueur de sport en salle|0|0.00
 joueur de synthétiseur|2|0.00
 joueur de tchoukball|1|0.00
 joueur de tennis-ballon|0|0.00
@@ -2493,6 +3460,7 @@ joueur de water-polo|3|0.00
 joueur de xiangqi|0|0.00
 joueur international|3|0.00
 joueur minkey|0|0.00
+joueurs|16|9.53|joueur
 joueuse|5|0.74
 joueuse d'échecs|13|0.00
 joueuse de baseball|12|0.00
@@ -2508,9 +3476,15 @@ joueuse de rugby à XV|5|0.00
 joueuse de snooker|2|0.00
 joueuse de tennis|16|0.00
 joueuse de tennis de table|11|0.00
+joueuses|16|0.54|joueur
 journalier|24|0.88
+journalière|24|0.68|journalier
+journalières|24|0.41|journalier
+journaliers|24|0.74|journalier
 Journaliste|145|15.95
+journaliste citoyen|3|0.00
 journaliste culturel|2|0.00
+journaliste d'astronomie|0|0.00
 journaliste d'entreprise|0|0.00
 journaliste d'investigation|4|0.00
 journaliste de cinéma|0|0.00
@@ -2520,12 +3494,15 @@ journaliste de l'audiovisuel|3|0.00
 journaliste de presse écrite|1|0.00
 journaliste de radio|2|0.00
 journaliste de télévision|5|0.00
+journaliste de voyage|0|0.00
 journaliste économique|0|0.00
+journaliste émérite|0|0.00
 journaliste indépendant|3|0.00
 journaliste judiciaire|0|0.00
 journaliste médical|0|0.00
 journaliste moto|0|0.00
 journaliste musical|6|0.00
+journaliste numérique|0|0.00
 journaliste parlementaire|0|0.00
 journaliste professionnel|1|0.00
 journaliste régionale|0|0.00
@@ -2534,6 +3511,7 @@ journaliste social|0|0.00
 journaliste sur les échecs|0|0.00
 journaliste technologique|0|0.00
 journaliste web|1|0.00
+journalistes|145|14.39|journaliste
 judoka|12|0.20
 judoka handisport|0|0.00
 Juge-commissaire|1|0.00
@@ -2542,9 +3520,27 @@ juge d'instance|2|0.00
 juge de paix|29|0.00
 juge de patinage artistique|0|0.00
 juge du circuit|3|0.00
-juge en chef|1|0.00
+juge en chef|20|0.00
+juge en chef de l'Inde|19|0.00
+juge en chef de Singapour|4|0.00
+juge en chef de Tasmanie|1|0.00
+juge en chef de Victoria|1|0.00
+juge en chef des États-Unis|41|0.00
+juge en chef du Alberta|1|0.00
+juge en chef du Bangladesh|7|0.00
+Juge en chef du Belize|1|0.00
+juge en chef du Canada|11|0.00
+juge en chef du Ghana|4|0.00
+juge en chef du Japon|7|0.00
+juge en chef du Nigeria|5|0.00
+juge en chef du Pakistan|8|0.00
+juge en chef du Québec|2|0.00
+juge-président|0|0.00
 juge suppléant|0|0.00
+juge suprême|0|0.00
+juges des dèmes|4|0.00
 junior idol|9|0.00
+juré de téléréalité|1|0.00
 jurisconsulte|18|0.00
 Juriste|6|0.34
 juriste arabo-musulman|0|0.00
@@ -2555,35 +3551,59 @@ juriste de l'environnement|0|0.00
 juriste en droit social|0|0.00
 juriste internationaliste|0|0.00
 juriste-poète|4|0.00
+juristes|6|0.54|juriste
 justicier|16|1.96
+justicière|16|0.47|justicier
+justiciers|16|1.35|justicier
 Kämmerer|3|0.00
+Kankara sanshin|5|0.00
 kanteliste|0|0.00
+Kantha|13|0.00
 Kaptein|2|0.00
 karatéka|10|0.07
+karatékas|10|0.07|karateka
 kartvélologue|1|0.00
+Kasuri|5|0.00
+Kasuti|4|0.00
+Katagami|9|0.00
 khananda|8|0.00
+Khatam kari|16|0.00
 khatun|39|0.00
 kick-boxeur|5|0.00
+Kigumi|1|0.00
 Kijacy|1|0.00
 kinanthropologue|0|0.00
 kinésiologue|4|0.00
 kinésithérapeute|0|0.20
 Kira|5|0.00
 Kirchenrat|1|0.00
+Kisha clubs|7|0.00
 kitesurfeur|1|0.00
+Klapok|1|0.00
 klezmorim|3|0.00
 Knocker-up|13|0.00
 kolkhoznik|1|0.00
 Komminister|4|0.00
 Koshinpaz|1|0.00
+Koulak|51|0.27
+koulaks|51|0.20|koulak
 Kreuzkantor|3|0.00
 Kroumen|2|0.00
 Kunoichi|21|0.00
 kurdologue|0|0.00
+Kurume Kasuri|4|0.00
+La broderie de Zmijanje|17|0.00
+laboureur|6|1.42
+laboureurs|6|1.01|laboureur
 laïc|11|0.74
+laïcs|11|0.68|laic
+laitier|23|1.49|laitiere
 laitière|23|0.74
+laitières|23|0.14|laitiere
+laitiers|23|0.20|laitiere
 Lajdare|1|0.00
 lampiste|0|0.00
+lampistes|0|0.20|lampiste
 lanceur de disque|4|0.00
 lanceur de marteau|6|0.00
 lanceur de massue|0|0.00
@@ -2592,22 +3612,38 @@ land defender|12|0.00
 Landscape manager|3|0.00
 langagier|0|0.00
 langagière|0|0.00
+lantmarskalk|7|0.00
 lapidaire|8|0.34
+lapidaires|8|0.54|lapidaire
 laquais|20|2.36
 laquiste|0|0.00
 laryngologue|2|0.00
 latiniste|5|0.20
+latinistes|5|0.07|latiniste
 lavage du défunt|2|0.00
+lavandier|0|0.00
 lavandière|13|0.47
+lavandières|13|1.01|lavandiere
+laveur|0|0.88
+laveur de carreaux|0|0.00
+laveur de vaisselle|0|0.00
 laveur de véhicules|1|0.00
 laveur de vitres|1|0.00
+laveurs|0|0.14|laveur
+laveuse|0|0.74
+laveuse de vaisselle|0|0.00
+laveuses|0|0.14|laveur
 Lavvoh|1|0.00
 lecteur|16|12.03
+lecteurs|16|11.28|lecteur
 lectrice|16|1.49
+lectrices|16|1.01|lecteur
 légiste|7|1.35
+légistes|7|0.07|legiste
 lépidoptériste|14|0.00
 léprologue|0|0.00
 Les corsaires français|6|0.00
+Les Loups de la nuit|23|0.00
 lettonisant|0|0.00
 lettreur|9|0.07
 level designer|2|0.00
@@ -2615,10 +3651,14 @@ leveur de liège|1|0.00
 lexicographe|16|0.00
 lexicologue|5|0.00
 libraire|11|4.26
+libraires|11|1.08|libraire
 librettiste|16|0.07
+librettistes|16|0.07|librettiste
 Licence en travail social|5|0.00
 lichénologue|3|0.00
 liftier|13|0.41
+liftière|13|0.00|liftier
+liftiers|13|0.14|liftier
 light artist|0|0.00
 Lightjockey|2|0.00
 limner|1|0.00
@@ -2627,8 +3667,11 @@ lingier|0|0.00
 linguiste|34|0.41
 linguiste historique|1|0.00
 linguiste informatique|0|0.00
+linguistes|34|0.27|linguiste
 linotypiste|0|0.00
 lipidologue|1|0.00
+lisseur|0|0.07
+lisseurs|0|0.07|lisseur
 lissier|1|0.00
 lithographe|8|0.14
 lithopréparation|1|0.00
@@ -2640,20 +3683,30 @@ livreur de Deliveroo|0|0.00
 Livreur de glace|9|0.00
 livreur de journaux|19|0.00
 livreur de pizza|1|0.00
+livreurs|25|1.08|livreur
+livreuse|25|0.00|livreur
 livreuse de lait|25|0.00
 LJ|1|0.00
 lobbyiste|11|0.00
+Locum tenens|0|0.00
 Logger|1|0.00
 logicien|6|0.20
 logicienne|6|0.07
+logiciens|6|0.14|logicien
+logiste d'Athènes|4|0.00
 logisticien|2|0.00
 logisticien AFP|1|0.00
 logothérapeute|0|0.00
 logothète|24|0.00
+lord juge en chef|13|0.00
+Lord Speaker|20|0.00
 Lucanneri|1|0.00
 ludicaire|1|0.00
+ludique|0|0.54|ludiques
+ludiques|0|0.07
 ludothécaire|2|0.00
 lugeur|4|0.00
+Luppinaru|1|0.00
 lusitaniste|1|0.00
 luthier|26|0.20
 luthière|26|0.00
@@ -2661,16 +3714,23 @@ machiniste itinérant|16|0.00
 maçon|50|3.31
 maçon pierre|1|0.00
 maçonne|50|0.54
+maçons|50|3.31|macon
+maddah|3|0.00
 madonnaro|8|0.00
 magasinier|6|0.68
 magasinier des bibliothèques|1|0.00
 magasinière|6|0.00
+magasiniers|6|0.47|magasinier
+mage|39|0.95
+mages|39|1.62|mage
 magistrat|5|2.64
 magistrate|5|0.00
+magistrats|5|3.38|magistrat
 magnat des affaires|36|0.00
 magnétothérapeute|0|0.00
 maître|9|125.74
 maître à danser|5|0.07
+maître-assistant|5|0.07
 maître brasseur|9|0.00
 maître-cartier|0|0.00
 maître charpentier|0|0.00
@@ -2698,17 +3758,23 @@ maître-nageur|1|0.27
 maître queux|0|0.14
 maître serrurier|0|0.00
 maître socioprofessionnel|1|0.00
+maître spirituel|7|0.00
 maître teinturier|0|0.00
 maître verrier|0|0.00
+maîtres|9|25.74|maitre
+maîtresse|9|47.43|maitre
 maîtresse de conférences|9|0.00
 maîtresse de la garde-robe|12|0.00
 maîtresse-nageuse|1|0.00
+maîtresses|9|6.49|maitre
 majordome|14|1.28
+majordomes|14|0.14|majordome
 Makastar|1|0.00
 malacologiste|8|0.00
 malariologue|2|0.00
 Malawa|1|0.00
 malletier|2|0.00
+maman téton|0|0.00
 mammalogiste|4|0.00
 mammalogiste marin|0|0.00
 mammographiste|1|0.00
@@ -2721,9 +3787,11 @@ manager de boxe|0|0.00
 manager de proximité|1|0.00
 manager général|22|0.00
 manager supérieur|0|0.00
+managers|41|0.68|manager
 manageuse|41|0.00
 manageuse supérieure|0|0.00
 mandarin|33|1.22
+mandarins|33|0.61|mandarin
 mandataire judiciaire|0|0.00
 mandchouriste|0|0.00
 mangaka|64|0.00
@@ -2731,22 +3799,38 @@ mangeur de feu|7|0.00
 manhuajia|2|0.00
 manhwaga|1|0.00
 manipulateur|0|0.41
+manipulateurs|0|0.14|manipulateur
+manipulatrice|0|0.00|manipulateur
 manipulatrice en radiologie|0|0.00
+manipulatrices|0|0.00|manipulateur
 mannequin|95|6.01
 mannequin de cabine|5|0.00
 mannequin de charme|13|0.00
+mannequin de lingerie|0|0.00
 mannequin de piste|3|0.00
 mannequin enfant|6|0.00
 mannequin grande taille|10|0.00
 mannequin promotionnel|18|0.00
+mannequin trop maigre|0|0.00
+mannequins|95|4.66|mannequin
 manucure|9|1.15
+manucures|9|0.41|manucure
 manufacturier du textile|0|0.00
+manuscritologue|1|0.00
 manutentionnaire|1|0.27
+manutentionnaires|1|0.14|manutentionnaire
 maquettiste|4|0.41
+maquettistes|4|0.14|maquettiste
 maquilleur|36|0.14
+maquilleurs|36|0.07|maquilleur
 maquilleuse|36|0.20
+maquilleuses|36|0.07|maquilleur
 maraîcher|1|0.47
+maraîchère|1|0.20|maraicher
+maraîchères|1|0.54|maraicher
+maraîchers|1|0.95|maraicher
 marathonien|9|0.07
+marathonienne|9|0.07|marathonien
 marbrier|1|0.00
 marchand|71|24.12
 marchand d'armes|2|0.00
@@ -2763,18 +3847,28 @@ marchand de tapis|1|0.00
 marchand de vélos|0|0.00
 marchande|71|6.01
 marchande d'art|16|0.00
+marchandes|71|1.22|marchand
 marchandiseur|4|0.00
 marchandiseuse|4|0.00
+marchands|71|14.46|marchand
 marcheur|2|0.81
 marcheur nordique|0|0.00
+marcheurs|2|0.81|marcheur
 marcheuse|2|0.27
+marcheuses|2|0.07|marcheur
 mareyeur|0|0.20
+mareyeurs|0|0.07|mareyeur
 mareyeuse|0|0.07
+mareyeuses|0|0.07|mareyeur
 marguillier|10|0.34
+marguilliers|10|0.07|marguillier
 marin|74|15.34
 marin de la marine marchande|3|0.00
 marine|1|17.97
+marinées|1|0.07|marine
 Marineoffizier|0|0.00
+marines|1|2.36|marine
+marins|74|18.04|marin
 mariologue|3|0.00
 marionnettiste|27|0.07
 marketeur|7|0.00
@@ -2783,19 +3877,27 @@ marketologue|0|0.00
 Markscheider|9|0.00
 Maroquinerie du Niger|1|0.00
 maroquinier|2|0.47
+maroquiniers|2|0.14|maroquinier
+marquage du linge|0|0.00
 marqueteur|0|0.00
 Marshaller|12|0.00
 Martiste|0|0.00
 marxologue|4|0.00
+massorète|31|0.00
 massothérapeute|5|0.00
 matador|20|1.76
+matadors|20|0.27|matador
 Matagi|14|0.00
 matelassier|2|0.20
+matelassière|2|0.07|matelassier
+matelassières|2|0.07|matelassier
+matelassiers|2|0.07|matelassier
 mathématicien|123|0.54
 mathématicien appliqué|1|0.00
 mathématicien statisticien|0|0.00
 mathématicienne|123|0.07
 mathématicienne appliquée|1|0.00
+mathématiciens|123|0.07|mathematicien
 Maxdum|4|0.00
 mayaniste|10|0.00
 mécanicien|46|5.34
@@ -2807,8 +3909,11 @@ mécanicien de locomotive|1|0.00
 mécanicien de précision|0|0.00
 mécanicien en cycles|1|0.00
 mécanicien industriel|2|0.00
+mécanicien navigant|30|0.00
 mécanicienne|46|0.00
 mécanicienne automobile|24|0.00
+mécaniciennes|46|0.00|mecanicien
+mécaniciens|46|2.16|mecanicien
 mécatronicien|0|0.00
 médailleur|16|0.00
 médailleuse|16|0.00
@@ -2818,6 +3923,7 @@ médecin assistant|9|0.00
 médecin-biologiste|1|0.00
 médecin chercheur|2|0.00
 médecin-conseiller|0|0.00
+médecin coordonnateur|0|0.00
 médecin de bord|11|0.00
 médecin de la Marine|0|0.00
 médecin du sport|2|0.00
@@ -2838,65 +3944,206 @@ medecine man|18|0.00
 média-planneur|1|0.00
 médiamaticien|3|0.00
 médiateur|10|0.20
+médiateurs|10|0.07|mediateur
+médiatrice|10|0.07|mediateur
+médiatrices|10|0.07|mediateur
+médico-social|0|0.07
 médiéviste|7|0.07
+médiévistes|7|0.14|medieviste
 mégissier|6|0.00
 méhariste|5|0.07
+méharistes|5|0.20|mehariste
 Meier|4|0.00
 Meister|12|0.00
 melamed|13|0.00
 membre d'équipage|7|0.00
+membre d'équipage d'avion|1|0.00
 mémorialiste|7|0.34
+mémorialistes|7|0.20|memorialiste
+mentor|6|0.61
+mentors|6|0.14|mentor
 menuisier|34|4.05
 menuisier en sièges|5|0.00
 menuisière|34|0.00
+menuisiers|34|0.41|menuisier
 mercenaire|79|0.54
+mercenaires|79|1.76|mercenaire
 mercier|6|0.34
+mercière|6|3.72|mercier
+mercières|6|0.07|mercier
+merciers|6|0.14|mercier
 Meshimori onna|9|0.00
 mésoaméricaniste|2|0.00
 messager|2|3.38
+messagère|2|0.61|messager
+messagères|2|0.20|messager
+messagers|2|2.09|messager
 métalexicographe|0|0.00
 métallurgiste|9|0.07
+métallurgistes|9|0.27|metallurgiste
 métaphysicien|1|0.14
+métaphysicienne|1|0.07|metaphysicien
+métaphysiciens|1|0.27|metaphysicien
 métayer|1|0.81
 métayère|1|0.00
+métayers|1|0.68|metayer
 météoritologue|0|0.00
 météorologue|29|0.00
+météorologues|29|0.20|meteorologue
 méthodologue|1|0.00
+métier de bouche|1|0.00
+métier de cirque|0|0.00
+métier de la santé|4|0.00
+métier des médias|0|0.00
+métier du bois|0|0.00
+métier du cinéma|3|0.00
+métier du commerce|0|0.00
+métier du théâtre|1|0.00
+métier militaire|3|0.00
+métiers de l'achats|0|0.00
+métiers de l'action sociale|0|0.00
+métiers de l'alimentaire|0|0.00
+métiers de l'aquaculture|0|0.00
+métiers de l'art dramatique|0|0.00
+métiers de l'assurance|0|0.00
+métiers de l'audioprothèses|0|0.00
+métiers de l'élevage bovin|0|0.00
+métiers de l'élevage ovin|0|0.00
+métiers de l'élevage porcin|0|0.00
+métiers de l'encadrement|0|0.00
+métiers de l'énergie|0|0.00
+métiers de l'ergothérapie|0|0.00
+métiers de l'extraction|0|0.00
+métiers de l'hydrothérapie|0|0.00
+métiers de l'immobilier|0|0.00
+métiers de l'industrie|0|0.00
+métiers de l'orthophonie|0|0.00
+métiers de l'orthoptique|0|0.00
+métiers de la banque|0|0.00
+métiers de la boucherie|0|0.00
+métiers de la céramique|0|0.00
+métiers de la coiffure|0|0.00
+métiers de la comptabilité|0|0.00
+métiers de la danse|0|0.00
+métiers de la décoration|0|0.00
+métiers de la diététique|0|0.00
+métiers de la finance|0|0.00
+métiers de la force de vente|0|0.00
+métiers de la kinésithérapie|0|0.00
+métiers de la maçonnerie|0|0.00
+métiers de la magistrature|0|0.00
+métiers de la musicologie|1|0.00
+métiers de la pharmacie|0|0.00
+métiers de la photographie|0|0.00
+métiers de la poissonnerie|0|0.00
+métiers de la prépresse|0|0.00
+métiers de la production|0|0.00
+métiers de la psychologie|0|0.00
+métiers de la publicité|0|0.00
+métiers de la recherche|0|0.00
+métiers de la régie générale|0|0.00
+métiers de la reprographie|0|0.00
+métiers de la saliculture|0|0.00
+métiers de la santé|0|0.00
+métiers de la santé animale|0|0.00
+métiers de la sommellerie|0|0.00
+métiers de la sylviculture|0|0.00
+métiers de la taxidermie|0|0.00
+métiers de la thanatopraxie|0|0.00
+métiers des achats|0|0.00
+métiers des arts plastiques|0|0.00
+métiers des fibres et papier|0|0.00
+métiers des images et sons|0|0.00
+métiers du bois|0|0.00
+métiers du contrôle public|0|0.00
+métiers du cuir et textile|0|0.00
+métiers du déménagement|0|0.00
+métiers du design industriel|0|0.00
+métiers du droit|0|0.00
+métiers du lavage de vitres|0|0.00
+métiers du marchandisage|0|0.00
+métiers du marketing|0|0.00
+métiers du moulage sable|0|0.00
+métiers du papier et carton|0|0.00
+métiers du personnel d'étage|0|0.00
+métiers du personnel du hall|1|0.00
+métiers du second oeuvre|0|0.00
+métiers du secrétariat|0|0.00
+métiers du service|0|0.00
+métiers du soudage manuel|0|0.00
+métiers du spectacle|0|0.00
+métiers du stylisme|0|0.00
+métiers du tissu et cuirs|0|0.00
 métreur|15|0.00
 métrologue|5|0.00
+métronome|4|1.28
+métronomes|4|0.07|metronome
 meunier|33|0.74
+meunière|33|0.14|meunier
+meuniers|33|0.14|meunier
 microbiologiste|21|0.00
 microchirurgien|1|0.00
 micropaléontologue|1|0.00
 Middle-office|4|0.00
+milieu offensif|6|0.00
 militaire|47|69.19
 militaire musulman|0|0.00
+militaires|47|27.03|militaire
 militant associatif|0|0.00
 militante associative|0|0.00
 mime|39|0.88
+mimes|39|1.42|mime
 mimographe|0|0.00
 minéralogiste|6|0.00
 mineur|41|4.05
 mineur d'or|6|0.00
 mineur de charbon|1|0.00
+mineure|41|1.62|mineur
+mineures|41|0.74|mineur
+mineurs|41|6.01|mineur
 miniaturiste|1|0.47
 ministre plénipotentiaire|11|0.00
 Mirab|5|0.00
 miroitier|0|0.14
+miroitiers|0|0.07|miroitier
 miseur|1|0.00
 missiologue|1|0.00
 missionnaire|80|0.95
+missionnaires|80|1.22|missionnaire
+mitrailleur de queue|10|0.00
 mixologue|1|0.00
+Mizrah|9|0.00
 modèle|24|27.50
 modèle fétichiste|10|0.00
 modèle nu|10|0.00
 modèle photo|11|0.00
+modelés|24|8.45|modele
 modeleur|1|0.00
 modéliste|21|0.27
 modiste|15|1.15
+modistes|15|0.41|modiste
 Mohel|28|0.00
 moine guerrier|6|0.00
 moissonneur|6|0.07
+moissonneurs|6|0.81|moissonneur
+moissonneuse|6|0.14|moissonneur
+moissonneuses|6|0.20|moissonneur
+Monarchie gambienne|8|0.00
+Monarchie ghanéenne|8|0.00
+Monarchie guyanienne|7|0.00
+Monarchie kényane|8|0.00
+Monarchie malawienne|8|0.00
+Monarchie maltaise|9|0.00
+Monarchie mauricienne|8|0.00
+Monarchie nigériane|8|0.00
+Monarchie ougandaise|7|0.00
+Monarchie sierraléonaise|9|0.00
+Monarchie tanganyikaise|7|0.00
+Monarchie trinidadienne|6|0.00
+monarque de Basse-Navarre|1|0.00
+monarque de Navarre|2|0.00
+monarque du Portugal|1|0.00
+monarque du Royaume de León|0|0.00
 mongoliste|0|0.00
 moniteur|5|1.89
 moniteur d'auto-école|11|0.00
@@ -2904,9 +4151,12 @@ moniteur d'équitation|1|0.00
 moniteur de ski|6|0.00
 moniteur-éducateur|1|0.00
 Moniteur-Guide vélo|0|0.00
+moniteurs|5|2.03|moniteur
+monitrice|5|0.68|moniteur
 monitrice de plongée|5|0.00
 monitrice-éducatrice|1|0.00
 Monitrice-Guide vélo|0|0.00
+monitrices|5|1.01|moniteur
 monogrammiste|6|0.00
 monologuiste|1|0.00
 Monsieur Loyal|12|0.00
@@ -2916,25 +4166,41 @@ monteur de lignes|10|0.00
 monteur son|8|0.00
 monteur TV|0|0.00
 monteur vidéo|3|0.00
+monteurs|21|0.27|monteur
 monteuse|21|0.14
 moraliste|17|0.74
+moralistes|17|0.74|moraliste
 morphologiste|1|0.00
+mosaïque|0|2.77
+mosaïquée|0|0.07|mosaique
+mosaïques|0|1.76|mosaique
 mosaïste|5|0.14
 Mosso d'Esquadra|0|0.00
+motard|9|3.45
+motarde|9|0.14|motard
+motardes|9|0.07|motard
+motards|9|3.24|motard
 motivateur|20|0.00
 mouazine|69|0.00
+moujik|14|0.54
+moujiks|14|0.61|moujik
 moukhtar|16|0.00
 mouleur|0|0.07
 mouleur en plâtre|0|0.00
 mouliste|3|0.00
 mountain man|20|0.00
+moyenne entreprise|0|0.00
 mozo de espadas|4|0.00
 Msakhurtukhutsesi|4|0.00
+Muckraker|19|0.00
 müderris|10|0.00
 muhaddith|24|0.00
 Muhtasib|18|0.00
 muletier|0|0.27
+muletière|0|0.14|muletier
+muletiers|0|0.27|muletier
 muletiers du Velay|1|0.00
+Mullecaro|1|0.00
 münedjim bachi|7|0.00
 munitionnaire|1|0.00
 Murshid|21|0.00
@@ -2945,22 +4211,31 @@ musicien|6|5.88
 musicien de rue|10|0.00
 musicien expérimental|0|0.00
 musicien vicaire|0|0.00
+musicienne|6|1.01|musicien
 musicienne d'église|6|0.00
+musiciennes|6|0.20|musicien
+musiciens|6|9.86|musicien
 musicographe|2|0.00
 musicothérapeute|5|0.00
 mutakallim|4|0.00
 Muwaqqit|9|0.00
 mycologue|8|0.20
+mycologues|8|0.07|mycologue
 myologue|0|0.00
 myriapodologiste|2|0.00
 myrmécologue|3|0.00
 mythologue|1|0.07
 mythologue comparatiste|0|0.00
+mythologues|1|0.07|mythologue
 Nabiy|1|0.00
 Naddof|1|0.00
 nageur|2|3.24
 nageur handisportif|0|0.00
 nageur sauveteur|33|0.00
+nageurs|2|0.95|nageur
+nageuse|2|0.41|nageur
+nageuses|2|0.00|nageur
+Nairan|6|0.00
 nak muay|7|0.00
 nanoscientifique|1|0.00
 Nanotechnologue|1|0.00
@@ -2968,26 +4243,42 @@ narrateur|14|2.23
 narrateur de livre audio|2|0.00
 narrative designer|5|0.00
 narratologue|0|0.00
+narratrice|14|0.14|narrateur
+narratrices|14|0.00|narrateur
 naturaliste|21|0.41
 naturaliste préparateur|1|0.00
+naturalistes|21|0.27|naturaliste
 naturopathe|5|0.00
+nautodikai|3|0.00
 navigateur|35|1.89
 navigateur aérien|7|0.00
+navigateurs|35|1.82|navigateur
 navigatrice|35|0.07
 nawashi|3|0.00
 nécrologue|0|0.07
-négociant|1|0.88
+negafa|3|0.00
+Negest|2|0.00
+négociant|3|0.88
 négociant en timbres|6|0.00
+négociante|3|0.00|negociant
+négociante en vin|3|0.00
+négociants|3|1.55|negociant
 nématologiste|2|0.00
 néohelléniste|0|0.00
 néonatologue|4|0.00
 néphrologue|4|0.00
 Net Idol|7|0.00
 nettoyeur|0|0.34
+nettoyeurs|0|0.20|nettoyeur
+nettoyeuse|0|0.07|nettoyeur
+nettoyeuses|0|0.07|nettoyeur
+Neulehrer|5|0.00
+neuro-histologiste|0|0.00
 neuro-oncologue|0|0.00
 neurobiologiste|14|0.00
 neurochimiste|0|0.00
 neuroendocrinologue|0|0.00
+neurohistologiste|0|0.00
 neurolinguiste|2|0.00
 neuromarketeur|0|0.00
 neuromarketeuse|0|0.00
@@ -3002,16 +4293,23 @@ nickeleur|0|0.00
 ninja|82|0.00
 nivologue|0|0.00
 nocher|7|0.14
+noisiculteur|0|0.00
 Notaire|3|14.86
+Notaire en droit français|2|0.00
 notaire public|16|0.00
+notaires|3|2.36|notaire
 nounou|42|4.86
+nounous|42|0.14|nounou
 nourrice|55|7.36
+nourrices|55|1.01|nourrice
 nourrisseur|1|0.14
 nouvelliste|10|0.00
 novice|28|1.35
+novices|28|1.55|novice
 numéricien|0|0.00
 numérologiste|6|0.00
 numismate|12|0.34
+numismates|12|0.14|numismate
 nutritionniste sportif|0|0.00
 Oberfeuerwerker|0|0.00
 Oberlehrer|1|0.00
@@ -3023,10 +4321,13 @@ observateur météorologique|5|0.00
 observateur sportif|17|0.00
 obstétricien|11|0.07
 obstétricienne|11|0.00
+obstétriciens|11|0.00|obstetricien
 obtenteur|6|0.00
 occitanologue|0|0.00
 océanographe|10|0.00
 oculariste|6|0.00
+odalisque|39|0.54
+odalisques|39|0.74|odalisque
 odontologue|2|0.00
 odonymiste|0|0.00
 Office lady|19|0.00
@@ -3035,6 +4336,9 @@ officiel|9|11.89
 officiel de l'association|0|0.00
 officiel du sport|2|0.00
 officiel gouvernemental|2|0.00
+officielle|9|12.09|officiel
+officielles|9|4.05|officiel
+officiels|9|4.80|officiel
 officier|12|35.68
 officier d'armes|9|0.00
 Officier d'artillerie|1|0.00
@@ -3051,14 +4355,21 @@ officier de renseignement|15|0.00
 officier des douanes|14|0.00
 officier des haras|1|0.00
 officier instructeur|0|0.00
+officier ministériel|1|0.00
 officier traitant|5|0.00
+officière|12|0.00|officier
+officiers|12|43.38|officier
+officiers des forces armées|0|0.00
 oidor|7|0.00
 oiseleur|2|0.47
+oiseleurs|2|0.07|oiseleur
 oléiculteur|0|0.00
+oléologue|0|0.00
 oligochètologiste|0|0.00
 onco-hématologue|0|0.00
 oncogénéticien|0|0.00
 oncologue|7|0.00
+oncologues|7|0.00|oncologue
 Onna-bugeisha|29|0.00
 onomasticien|2|0.00
 Onsen geisha|6|0.00
@@ -3073,25 +4384,42 @@ opérateur radio|12|0.00
 opérateur radio-navigant|1|0.00
 opérateur-régleur|0|0.00
 opérateur steadicam|1|0.00
+opérateurs|30|0.74|operateur
+opératrice|30|0.07|operateur
 opératrice de tuftage|1|0.00
+opératrices|30|0.00|operateur
 oplologue|0|0.00
 Opritchnik|14|0.00
 opticien|1|0.34
 opticien-lunetier|24|0.00
 opticien quantique|0|0.00
+opticienne|1|0.00|opticien
 opticienne-lunetière|24|0.00
+opticiens|1|0.14|opticien
 optronicien|0|0.00
+opus alexandrinum|1|0.00
+opus sectile|22|0.00
+opus tessellatum|11|0.00
+opus vermiculatum|11|0.00
+or nué|1|0.00
 orateur|44|3.58
+orateurs|44|1.76|orateur
 oratrice|44|0.00
 orchidologue|3|0.00
 ordinaire émérite|0|0.00
 ordinaire local|0|0.00
+ordinaire militaire|1|0.00
+ordre de cardinaux|4|0.00
 orfèvre|52|1.35
 orfèvre graveur|12|0.00
 orfèvre graveur sur métal|0|0.00
+orfévrée|52|0.07|orfevre
+orfèvres|52|1.89|orfevre
 organisateur|14|1.55
 organisateur de parti|2|0.00
 organisateur professionnel|4|0.00
+organisateurs|14|1.69|organisateur
+organisatrice|14|0.00|organisateur
 organisatrice de mariages|14|0.00
 organiste d'église|2|0.00
 organiste de jazz|0|0.00
@@ -3099,21 +4427,28 @@ organiste en résidence|0|0.00
 organiste titulaire|3|0.00
 organologue|1|0.00
 orientaliste|14|0.07
+orientalistes|14|0.14|orientaliste
 orienteur|3|0.07
+orienteurs|3|0.07|orienteur
 orienteuse|3|0.07
 origamiste|3|0.00
 ornemaniste|4|0.00
 ornithologue|13|0.07
+ornithologues|13|0.07|ornithologue
 orthésiste|11|0.00
 orthodontiste|9|0.00
+orthodontistes|9|0.00|orthodontiste
 orthographiste|2|0.00
 orthopédagogue|1|0.00
 orthophoniste|12|0.07
+orthophonistes|12|0.07|orthophoniste
 orthoptiste|8|0.00
 ostéologue|3|0.00
 ostéopathe|3|0.00
+ostéopathes|3|0.00|osteopathe
 ostracologiste|1|0.00
 ostréiculteur|0|0.07
+ostréiculteurs|0|0.07|ostreiculteur
 oto-rhino-laryngologiste|6|0.00
 ottomaniste|0|0.00
 outilleur|0|0.00
@@ -3128,15 +4463,26 @@ ouvrier de conserverie|0|0.00
 ouvrier génie civil|1|0.00
 ouvrier laitier|2|0.00
 ouvrier machiniste|0|0.00
+ouvrier-paysan|0|0.00
 ouvrier typographe|0|0.00
+ouvrière|34|6.69|ouvrier
 ouvrière agricole|34|0.00
 ouvrière machiniste|0|0.00
 ouvrière viticole|0|0.00
+ouvrières|34|2.50|ouvrier
+ouvriers|34|34.46|ouvrier
+Ouzziël|0|0.00
 owarai tarento|3|0.00
+packager|0|0.00
+packageur|0|0.00
+packageuse|0|0.00
 padurar|1|0.00
 page|3|55.88
+pages|3|59.66|page
 pailleur|0|0.00
 pair-aidant|4|0.00
+paladin|35|0.54
+paladins|35|0.27|paladin
 paléoanthropologue|3|0.00
 paléobiologiste|1|0.00
 paléobotaniste|3|0.00
@@ -3155,6 +4501,7 @@ paléomammalogiste|0|0.00
 paléoneurologue|0|0.00
 paléontologue|21|0.00
 paléontologue des vertébrés|0|0.00
+paléontologues|21|0.07|paleontologue
 paléoocéanographe|0|0.00
 paléopalynologue|0|0.00
 paléopathologiste|0|0.00
@@ -3166,34 +4513,66 @@ paloumayre|0|0.00
 paludier|0|0.00
 palynologue|2|0.00
 pamphlétaire|5|0.34
+pamphlétaires|5|0.07|pamphletaire
+panégyriste|2|0.00
+panneautier|0|0.00
+panneautière|0|0.00
 panoramiste|2|0.00
 paparazzi|59|0.34
+paparazzis|59|0.00|paparazzi
 papetier|3|0.14
+papetiers|3|0.20|papetier
 papyrologue|9|0.00
+paqueteur|0|0.00
+paqueteuse|0|0.00
 para pongiste|0|0.00
 parachutiste|5|1.49
+parachutistes|5|3.31|parachutiste
 paracycliste|0|0.00
+paramédical|0|0.14|paramedicaux
+paramédicale|0|0.00|paramedicaux
+paramédicaux|0|0.00
 parapentiste|2|0.00
 parapsychologue|3|0.00
+parapsychologues|3|0.00|parapsychologue
 parasitologue|7|0.00
 parasitologue vétérinaire|0|0.00
 parastronaute|2|0.00
 paratriathlète|0|0.00
 parcheminier|0|0.00
+Pardoz|1|0.00
 parémiographe|1|0.00
 parémiologue|1|0.00
 pareur|0|0.00
 parfumeur|24|0.47
+parfumeurs|24|0.41|parfumeur
 parfumeuse|24|0.27
+participant|2|1.22|participante
+participante|2|0.00
+participantes|2|0.00|participante
+participants|2|1.96|participante
+particulier|1|23.65|particuliere
 particulière|1|20.00
+particulières|1|4.26|particuliere
+particuliers|1|6.08|particuliere
+passager|62|3.24
+passager aérien|3|0.00
+passager clandestin|26|0.00
+passagère|62|3.31|passager
+passagères|62|0.74|passager
+passagers|62|8.31|passager
 passementier|1|0.07
+passementière|1|0.07|passementier
 passeur|4|1.96
+passeurs|4|0.74|passeur
+passeuse|4|0.07|passeur
 passionné de géants|0|0.00
 pastelliste|2|0.00
 pasteur|65|10.07
 pasteur luthérien|3|0.00
 pasteur réformé|0|0.00
 pasteur unitarien|0|0.00
+pasteurs|65|1.28|pasteur
 pastoraliste|1|0.00
 pathobiochimiste|0|0.00
 pathologiste|13|0.07
@@ -3202,31 +4581,54 @@ pathophysiologiste|1|0.00
 patinage de descente extrême|0|0.00
 patineur|8|0.34
 patineur en ligne|0|0.00
+patineurs|8|0.74|patineur
+patineuse|8|0.14|patineur
 patineuse à roulettes|0|0.00
 patineuse artistique|8|0.00
 patineuse de vitesse|0|0.00
+patineuses|8|0.07|patineur
 pâtissier|26|6.49
 pâtissière|26|0.88
+pâtissiers|26|1.15|patissier
 patron|30|93.85
 patron de bar|0|0.00
 patron de barque|1|0.00
 patron de médias|1|0.00
+patronne|0|27.23
+patronnes|30|0.47|patron
+patrons|30|10.88|patron
 patrouilleur militaire|0|0.00
 paveur|4|0.14
+paveurs|4|0.07|paveur
 paysagiste|24|0.61
+paysagistes|24|0.07|paysagiste
+paysan|76|17.77
+paysan de montagne|3|0.00
+paysanne|76|6.82
+paysannes|76|2.91|paysan
+paysans|76|29.80|paysan
+paysans économiques|3|0.00
+PDG|0|0.00
+pearly queen|0|0.00
+pêche à la perle|15|0.00
+pécheresse|3|0.54|pecheuses
+pécheresses|3|0.14|pecheuses
 pêcheur|86|13.11
 pêcheur à cheval|0|0.00
+pécheurs|3|14.19|pecheuses
 pêcheuse|86|0.14
 pêcheuse de coquillages|0|0.00
 Pêcheuses|3|0.00
 pédagogue|36|1.08
 pédagogue de l'enfance|1|0.00
+pédagogues|36|0.41|pedagogue
 pédobiologiste|0|0.00
 pédologue|3|0.00
 pédopsychologue|2|0.00
 pédopsychothérapeute|1|0.00
 peintre à l'huile|1|0.00
 peintre animalier|6|0.00
+peintre bouddhiste|1|0.00
 peintre d'architecture|1|0.00
 peintre d'histoire|2|0.00
 peintre de batailles|1|0.00
@@ -3257,12 +4659,22 @@ peintre sur vases étrusque|1|0.00
 peintre sur verre|0|0.00
 peintre verrier|2|0.00
 peinture au sucre|8|0.00
+Peinture sur écorce|8|0.00
 pèlerin|0|1.89
+pèlerine|0|4.80|pelerin
 pèlerine par procuration|0|0.00
+pèlerines|0|0.95|pelerin
+pèlerins|0|5.07|pelerin
 pelletier|16|0.00
+pendeloque|4|0.14
+pendeloques|4|0.95|pendeloque
+pénitentiaire|0|2.23
+pénitentiaires|0|0.54|penitentiaire
 pentathlonien|3|0.00
 péon|1|0.00
+péons|1|0.14|peon
 pépiniériste|5|0.27
+pépiniéristes|5|0.14|pepinieriste
 perchiste|5|0.07
 père capucin|0|0.00
 Père de saint|4|0.00
@@ -3272,6 +4684,8 @@ perito industriale|2|0.00
 permanent du parti|1|0.00
 permanent politique|0|0.00
 perruquier|2|0.14
+perruquière|2|0.07|perruquier
+perruquiers|2|0.07|perruquier
 persemier|2|0.00
 personal shopper|10|0.00
 personnalité de la radio|0|0.00
@@ -3279,18 +4693,28 @@ personnalité du théâtre|0|0.00
 personnalité politique|153|0.00
 Personnalité qualifiée|0|0.00
 personnalité religieuse|2|0.00
+personne de la presse écrite|0|0.00
+personnel académique|13|0.00
 personnel de chambre|1|0.00
 personnel de direction|1|0.00
+personnel de sol|8|0.00
 personnel enseignant|1|0.00
+personnel hôtelier|1|0.00
 personnel informatique|1|0.00
 personnel navigant technique|1|0.00
 perspecteur|1|0.00
 Peseurs jurés de Marseille|2|0.00
+petit point|1|0.00
 pétomane|14|0.34
+pétomanes|14|0.14|petomane
 pétrographe|1|0.00
 pétrologue|4|0.00
+peyrolier|0|0.00
+peyrolière|0|0.00
 Pfister|1|0.00
 Phandi|1|0.00
+pharmaceutique|0|0.54
+pharmaceutiques|0|0.88|pharmaceutique
 pharmacie d'officine|1|0.00
 pharmacie industrielle|0|0.00
 pharmacien assistant|3|0.00
@@ -3303,6 +4727,7 @@ pharmacochimiste|0|0.00
 pharmacognosiste|0|0.00
 pharmacologue|10|0.00
 phénoménologue|1|0.00
+philhellénisme|0|0.00
 philippinologue|0|0.00
 philologue classique|7|0.00
 philologue moderniste|1|0.00
@@ -3339,6 +4764,7 @@ photographe de voile|1|0.00
 photographe documentaire|0|0.00
 photographe illustrateur|0|0.00
 photographe industriel|0|0.00
+photographe militaire|2|0.00
 photographe naturaliste|3|0.00
 photographe paysagiste|0|0.00
 photographe plasticien|5|0.00
@@ -3373,6 +4799,8 @@ physicienne des particules|0|0.00
 physicienne mathématique|1|0.00
 physicienne nucléaire|8|0.00
 physicienne théoricienne|25|0.00
+physiciennes|92|0.00|physicien
+physiciens|92|0.54|physicien
 physico-chimiste|12|0.00
 physiognomiste|1|0.00
 physiologiste|14|0.14
@@ -3381,6 +4809,7 @@ physiologiste cellulaire|1|0.00
 physiologiste de l'exercice|0|0.00
 physiologiste des plantes|3|0.00
 physionomiste|1|0.14
+physionomistes|1|0.00|physionomiste
 phytoécologiste|0|0.00
 phytogénéticien|2|0.00
 phytogéographe|1|0.00
@@ -3389,55 +4818,91 @@ phytosociologue|1|0.00
 pianiste de bar|2|0.00
 pianiste de jazz|4|0.00
 picador|13|0.27
+picadors|13|0.07|picador
+Piechota wybraniecka|7|0.00
+Pietra dura|22|0.00
+pigiste|10|0.27
+pigistes|10|0.27|pigiste
 Pilhaouer|2|0.00
 pilote|49|5.61
 pilote acrobatique|0|0.00
 pilote commercial|2|0.00
 Pilote d'avion|0|0.00
+pilote d'endurance moto|0|0.00
+pilote d'enduro|1|0.00
 pilote d'essai|34|0.00
 pilote d'hélicoptère|4|0.00
+pilote de bombardier|0|0.00
 pilote de camion|0|0.00
 pilote de char à voile|1|0.00
+pilote de chasse|14|0.00
 pilote de course automobile|14|0.00
 pilote de développement moto|0|0.00
 pilote de dirigeable|0|0.00
 pilote de drone|0|0.00
 pilote de karting|0|0.00
 pilote de ligne|0|0.00
+pilote de moto-cross|3|0.00
+pilote de quad|0|0.00
 pilote de rallycross|0|0.00
 pilote de rallye|6|0.00
 pilote de speedway|0|0.00
+pilote de supermotard|1|0.00
+pilote de trial|0|0.00
 pilote de vol à voile|1|0.00
 pilote de voltige|2|0.00
 pilote instructeur|7|0.00
 pilote moto de rallye-raid|1|0.00
+pilote-payant|8|0.00
+pilote privé|4|0.00
+pilotes|49|3.11|pilote
 pilotin|0|0.00
 pin-up|43|0.54
+pinsonneur|0|0.00
+pinsonneuse|0|0.00
 pionnier|13|2.50
+pionnière|3|0.14
+pionnières|13|0.14|pionnier
+pionniers|13|7.03|pionnier
 pisciculteur|1|0.07
 pissankar|2|0.00
 pisteur|0|0.81
 pisteur-secouriste|6|0.00
+pisteurs|0|0.14|pisteur
+Piteado|5|0.00
+pizza|0|2.09|pizzas
 pizzaïola|7|0.00
 pizzaïolo|7|0.00
+pizzas|0|1.15
 planctonologiste|0|0.00
 planétologue|4|0.00
 planificateur financier|15|0.00
 planteur|9|1.15
+planteur d'arbres|0|0.00
 planteur de coton|2|0.00
+planteurs|9|1.08|planteur
 plaquiste|3|0.00
 plâtrier|16|0.88
+plâtriers|16|0.14|platrier
+playmate|34|0.27
+playmates|34|0.07|playmate
 plejer|1|0.00
 pleureur|26|0.47
+pleureurs|26|0.34|pleureur
 pleureuse|26|0.27
+pleureuses|26|0.88|pleureur
+pleureux|26|0.00|pleureur
 plombier|51|3.31
 plombière|51|0.00
+plombiers|51|0.68|plombier
 plongeur|7|1.69
 plongeur scientifique|1|0.00
 plongeur secouriste|1|0.00
 plongeur vaisselle|9|0.00
+plongeurs|7|0.68|plongeur
 plongeuse|7|0.68
 plongeuse en restauration|7|0.00
+plongeuses|7|0.07|plongeur
 plumassier|2|0.00
 Pniese|1|0.00
 podcasteur|12|0.00
@@ -3448,16 +4913,31 @@ poète de guerre|7|0.00
 poète de tanka|4|0.00
 poète dithyrambique|0|0.00
 poète visuel|1|0.00
+poètes|172|11.55|poete
 poétesse|172|0.95
+poétesses|172|0.00|poete
 poinçon|10|1.55
+poinçons|10|0.34|poincon
+point coupé|8|0.00
+Point de Bayeux|4|0.00
+point de croix|32|0.00
+Point de Richelieu|5|0.00
+Point de Saxe|2|0.00
+pointe sèche|38|0.00
 poissonnier|10|0.41
+poissonnières|10|0.20|poissonnier
+poissonniers|10|0.27|poissonnier
 polémiste|24|0.41
+polémistes|24|0.07|polemiste
 polémologue|0|0.00
+polète|4|0.00
 policier|54|10.00
 policier à vélo|0|0.00
 policier aux frontières|1|0.00
 policier municipal|1|0.00
 policière|54|1.76
+policières|54|1.01|policier
+policiers|54|11.62|policier
 polisseur de lentilles|1|0.00
 politologue|25|0.00
 Polizeihauptmeister|1|0.00
@@ -3465,7 +4945,9 @@ polonisant|2|0.00
 polonisante|2|0.00
 polychètologiste|0|0.00
 polygraphe|9|0.07
+polygraphes|9|0.07|polygraphe
 pom-pom girl|8|0.00
+pom-pom girls|8|0.00|pom pom girl
 pomologue|3|0.00
 pompes funèbres|26|0.00
 pompier|87|1.01
@@ -3473,32 +4955,62 @@ pompier forestier|0|0.00
 pompier parachutiste|10|0.00
 pompier professionnel|2|0.00
 pompière|87|0.00
+pompiers|87|9.05|pompier
 pompiste|7|3.51
+pompistes|7|0.54|pompiste
+populiculteur|0|0.00
 porcelainier|0|0.00
+porcher|3|0.00
+porchère|3|0.00|porcher
+porchères|3|0.00|porcher
 porion|7|0.00
 Pork-knocker|3|0.00
 pornographe|1|0.47
+pornographes|1|0.00|pornographe
+porte-drapeau|24|0.68
+porte-drapeau du roi|4|0.00
 porte-parole|41|0.00
 porte-sandale|5|0.00
 portefaix|0|1.15
 porteur|25|5.54
 porteur de presse|1|0.00
+porteurs|25|6.49|porteur
+porteuse|25|1.82|porteur
+porteuses|25|0.88|porteur
 portier|32|6.89
+portière|32|29.19|portier
+portières|32|8.24|portier
+portiers|32|0.68|portier
 portraitiste|3|0.27
+portraitistes|3|0.20|portraitiste
 poseur de mosaïque|0|0.00
 poseur de rails|11|0.00
 poseur de voies ferrées|0|0.00
 posseq|21|0.00
+postdoctorant|0|0.00
+postdoctorante|0|0.00
+poste occupé|0|0.00
 Postelnic|6|0.00
 postier|2|0.54
+postière|2|0.41|postier
+postiers|2|1.08|postier
+postillon|18|0.68
+postillons|18|0.74|postillon
 potager|1|3.04
+potagère|1|0.07|potager
+potagères|1|0.14|potager
+potagers|1|0.34|potager
 potier|21|0.61
 potier attique|0|0.00
 potier d'étain|1|0.00
 potier grec de l'Antiquité|0|0.00
 potière|21|0.00
+potiers|21|0.07|potier
 pourvoyeur|0|0.74
+pourvoyeurs|0|0.41|pourvoyeur
+pourvoyeuse|0|0.20|pourvoyeur
 pradier|1|0.00
+praeses|0|0.00
 praticien du théâtre|3|0.00
 praticien en avortement|1|0.00
 praticien en shiatsu|1|0.00
@@ -3507,14 +5019,18 @@ praticienne hospitalière|1|0.00
 pratiquant|4|1.01
 pratiquant de sambo|0|0.00
 pratiquant de wushu|0|0.00
+pratiquante|4|0.34|pratiquant
 pratiquante de wakeboard|0|0.00
+pratiquants|4|0.07|pratiquant
 prédicateur|34|1.01
 prédicateur à la télévision|0|0.00
+prédicateurs|34|0.68|predicateur
 préfacier|1|0.07
 préfet|33|7.09
 Préfet de cérémonie|0|0.00
 préfet-délégué|0|0.00
 préfet des études|1|0.00
+préfets|33|1.35|prefet
 préhistorien|4|0.07
 préhistorienne|4|0.00
 Prélat émérite|0|0.00
@@ -3527,15 +5043,72 @@ préparateur|1|0.88
 préparateur automobile|6|0.00
 préparateur de commandes|0|0.00
 préparateur motocyclette|1|0.00
+préparateurs|1|0.14|preparateur
+préparatrice|1|0.07|preparateur
+préparatrices|1|0.07|preparateur
 préposé à l'équipement|5|0.00
 présentateur|32|1.08
 présentateur de talk show|1|0.00
+présentateurs|32|0.14|presentateur
+présentatrice|32|0.20|presentateur
 présentatrice de journal|32|0.00
 présentatrice météo|15|0.00
+présentatrices|32|0.07|presentateur
 préservationniste|4|0.00
-président|1|76.22
+président|47|76.22
+président d'honneur|3|0.00
+président d'Òmnium Cultural|0|0.00
+président d'université|1|0.00
+président de chambre|0|0.00
+président de conférence|0|0.00
+président de la BBC|2|0.00
+président de la Douma d'État|14|0.00
+président de la Knesset|16|0.00
+président de la Lok Sabha|20|0.00
+président de la Rada|10|0.00
+président de la Saeima|9|0.00
+président de la SNCF|0|0.00
+président de Landtag|1|0.00
+président de parti politique|8|0.00
+président de Radom|0|0.00
+président de tribunal|0|0.00
+président de Varsovie|4|0.00
+président de ville|9|0.00
+président des Cortes|1|0.00
+président-directeur général|0|0.00
+président du Bundesrat|11|0.00
+président du clergé|0|0.00
+président du Conseil d'État|1|0.00
+président du Folketing|4|0.00
+président du Grand Conseil|0|0.00
+président du Lagting|3|0.00
+président du Landsting|2|0.00
+président du Parlement|3|0.00
+Président du PEN catalan|1|0.00
+président du PEN club|0|0.00
+président du RCD Espanyol|1|0.00
+président du Real Madrid|0|0.00
+président du Real Saragosse|0|0.00
+président du Seimas|0|0.00
+président du Sénat|8|0.00
+président du Sénat chilien|3|0.00
+Président du Sénat du Belize|2|0.00
+président du Sénat du Canada|10|0.00
+Président du Sénat du Kansas|0|0.00
+président du Sénat du Pérou|1|0.00
+président du Sénat du Rwanda|0|0.00
+président du Sénat espagnol|9|0.00
+président du Sénat nigérian|4|0.00
+président du Senedd|5|0.00
+président du Viêt Nam|39|0.00
+président du Yuan législatif|8|0.00
+présidente|47|1.08
 présidente d'université|1|0.00
+présidente du parlement|4|0.00
+présidentes|47|0.07|president
+présidents|47|2.30|president
 prestidigitateur|20|1.55
+prestidigitateurs|20|0.27|prestidigitateur
 prestidigitatrice|20|0.07
 préteur royal|1|0.00
 prêteur sur gage|51|0.00
@@ -3549,40 +5122,58 @@ prímás|5|0.00
 primatologue|6|0.00
 primicerius|15|0.00
 prince de Nassau-Siegen|0|0.00
+prince des Aragonais|0|0.00
 prince impérial|1|0.00
+principal|4|15.81
 principal de collège|1|0.00
+principale|4|12.30
+principales|4|3.65|principal
+principaux|4|7.16|principal
+privat-docent|30|0.00
+pro-chancelier|4|0.00
 procureur d'État|10|0.00
 procureur de la Couronne|2|0.00
 procureur de la République|3|0.00
 procureur policier|0|0.00
 producteur|35|3.45
 producteur d'animation|0|0.00
+producteur de café|0|0.00
 Producteur de cartes|0|0.00
 producteur de houblon|0|0.00
 producteur de jeux vidéo|20|0.00
 producteur de lait|0|0.00
 producteur de musique|10|0.00
 producteur exécutif|8|0.00
+producteur laitier|2|0.00
 producteur multimédia|0|0.00
 producteur musical|1|0.00
+producteurs|35|2.03|producteur
 productrice|10|0.41
 productrice agricole|2|0.00
 productrice artistique|19|0.00
 productrice de radio|8|0.00
 productrice de télévision|35|0.00
 productrice de théâtre|14|0.00
-professeur|4|49.53
+productrices|35|0.07|producteur
+professeur|107|49.53
+professeur adjoint|25|0.00
 professeur agrégé|2|0.00
+professeur assistant|2|0.00
+professeur assistant invité|0|0.00
+professeur associé|23|0.00
 professeur certifié|5|0.00
 professeur-chercheur|2|0.00
+Professeur d'académie|1|0.00
 professeur d'agriculture|0|0.00
 professeur d'allemand|1|0.00
 professeur d'anglais|2|0.00
 professeur d'anthropologie|0|0.00
 professeur d'arabe|1|0.00
+professeur d'architecture|0|0.00
 professeur d'art|4|0.00
 professeur d'art dramatique|5|0.00
 professeur d'échecs|0|0.00
+professeur d'économie|0|0.00
 professeur d'équitation|0|0.00
 professeur d'espagnol|1|0.00
 professeur d'espéranto|1|0.00
@@ -3592,6 +5183,7 @@ professeur d'histoire|2|0.00
 professeur d'ingénierie|0|0.00
 professeur d'italien|0|0.00
 professeur d'occitan|0|0.00
+professeur d'université|20|0.00
 professeur de ballet|1|0.00
 professeur de biochimie|0|0.00
 professeur de biologie|0|0.00
@@ -3600,6 +5192,8 @@ professeur de catalan|0|0.00
 professeur de chimie|0|0.00
 professeur de chinois|0|0.00
 professeur de collège|0|0.00
+professeur de composition|0|0.00
+professeur de cuisine|0|0.00
 professeur de danois|0|0.00
 professeur de dessin|3|0.00
 professeur de français|1|0.00
@@ -3609,6 +5203,7 @@ professeur de grec|0|0.00
 professeur de grec ancien|0|0.00
 professeur de gymnasium|2|0.00
 professeur de journalisme|0|0.00
+professeur de langues|1|0.00
 professeur de latin|0|0.00
 professeur de letton|0|0.00
 professeur de lettres|0|0.00
@@ -3617,6 +5212,8 @@ professeur de lituanien|0|0.00
 professeur de lycée|2|0.00
 professeur de management|2|0.00
 professeur de mathématiques|2|0.00
+professeur de médecine|0|0.00
+professeur de musique|0|0.00
 professeur de néerlandais|0|0.00
 professeur de philosophie|0|0.00
 professeur de physique|0|0.00
@@ -3624,8 +5221,10 @@ professeur de polonais|0|0.00
 professeur de portugais|1|0.00
 professeur de psychologie|0|0.00
 professeur de rhétorique|0|0.00
+professeur de roumain|0|0.00
 professeur de russe|1|0.00
 professeur de science|1|0.00
+professeur de sociologie|0|0.00
 professeur de suédois|0|0.00
 professeur de technologie|0|0.00
 professeur de théâtre|1|0.00
@@ -3633,61 +5232,113 @@ professeur de théologie|0|0.00
 professeur de turc|0|0.00
 professeur de yoga|3|0.00
 professeur des écoles|1|0.00
+professeur des universités|2|0.00
+professeur distingué|9|0.00
+professeur documentaliste|7|0.00
+professeur émérite|21|0.00
+professeur en chef|1|0.00
 professeur extraordinaire|0|0.00
+professeur honoraire|2|0.00
+professeur invité|20|0.00
 professeur principal|7|0.00
+professeur Reid de musique|3|0.00
+professeur titulaire|11|0.00
 professeur vacataire|26|0.00
+professeure|107|0.00|professeur
 professeure agrégée|2|0.00
+professeure assistante|2|0.00
 professeure de clinique|4|0.00
 professeure de diction|2|0.00
+professeure de droit|1|0.00
+professeure des universités|2|0.00
+professeure-documentaliste|0|0.00
+professeurs|107|14.39|professeur
+profession|116|13.99
+profession agricole|0|0.00
+profession artistique|0|0.00
+profession historique|0|0.00
+profession juridique|8|0.00
+profession libérale|14|0.00
+profession maritime|0|0.00
+profession médicale|0|0.00
+profession musicale|0|0.00
+profession paramédicale|16|0.00
+profession réglementée|2|0.00
+profession universitaire|0|0.00
 professionnel|30|7.23
 professionnel de la bière|0|0.00
 professionnel de la donnée|0|0.00
 professionnel des médias|2|0.00
 professionnel des musées|3|0.00
 professionnel du vin|0|0.00
+professionnelle|30|6.96|professionnel
 professionnelle de la santé|30|0.00
+professionnelles|30|3.51|professionnel
+professionnels|30|3.24|professionnel
+professions|116|1.82|profession
+professions élémentaires|0|0.00
+professions militaires|0|0.00
+professor extraordinarius|5|0.00
+professor ordinarius|5|0.00
 profileur criminel|2|0.00
 program manager|1|0.00
 programmateur|7|0.07
+programmateurs|7|0.07|programmateur
 programmatrice|7|0.00
 programmeur|78|0.00
 programmeur de jeux vidéo|16|0.00
+programmeurs|78|0.00|programmeur
+programmeuse|78|0.00|programmeur
 programmeuse d'applications|1|0.00
 programmiste|2|0.00
 promoteur|11|0.81
 promoteur de boxe|1|0.00
 promoteur de musique|2|0.00
 promoteur immobilier|12|0.00
+promoteurs|11|1.01|promoteur
+promotrice|11|0.00|promoteur
 propagandiste|7|0.20
+propagandistes|7|0.34|propagandiste
 prophète|126|6.42
+prophètes|126|4.05|prophete
 prophétesse|126|0.14
 propriétaire d'entreprise|1|0.00
 propriétaire de mine|0|0.00
 propriétaire de presse|1|0.00
 prosateur|14|0.14
+prosateurs|14|0.07|prosateur
 prosatrice|14|0.00
 prosecteur|15|0.00
 prospectiviste|0|0.00
 prostitué|22|0.07
 prostituée|22|5.68
+prostituées|22|3.58|prostitue
+prostitués|22|0.14|prostitue
 prothésiste dentaire|25|0.00
 protistologiste|5|0.00
 protohistorien|0|0.00
 protozoologiste|3|0.00
 provençaliste|0|0.00
+provincial piariste|1|0.00
 proviseur|1|3.45
 proviseur adjoint|7|0.00
 proviseure|1|0.00
+proviseurs|1|0.14|proviseur
 provost|10|0.00
+Provost du Trinity College|0|0.00
+psalmiste|5|0.14
 pséphologue|1|0.00
 pseudo-scientifique|2|0.00
 psychanalyste|16|2.77
+psychanalystes|16|0.61|psychanalyste
 psychiatre|58|6.82
 psychiatre judiciaire|1|0.00
+psychiatres|58|1.28|psychiatre
 psychoacousticien|0|0.00
 psychoacousticienne|0|0.00
 psychoéducateur|0|0.00
 psychoéducatrice|0|0.00
+psychohistorienne|0|0.00
 psycholinguiste|4|0.00
 psychologue|73|2.64
 psychologue clinicien|10|0.00
@@ -3703,6 +5354,7 @@ psychologue industriel|0|0.00
 psychologue juridique|0|0.00
 psychologue scolaire|7|0.00
 psychologue social|6|0.00
+psychologues|73|1.08|psychologue
 psychomotricien|0|0.00
 psychomotricienne|0|0.00
 psychopathologiste|1|0.00
@@ -3717,14 +5369,22 @@ psychothérapeute existentiel|0|0.00
 ptéridologue|3|0.00
 Public Information Officer|6|0.00
 publiciste|23|0.47
+publicistes|23|0.27|publiciste
 publicitaire|10|3.72
+publicitaires|10|2.77|publicitaire
 puériculteur|0|0.00
 puéricultrice|0|0.07
+puéricultrices|0|0.14|puericultrice
 pugiliste|0|0.20
+pugilistes|0|0.20|pugiliste
 puisatier|3|0.07
 puisatière|3|0.00
+puncheur|11|0.00
+Pundenik|1|0.00
 pundit|9|0.00
 pupitreur régie lumière|3|0.00
+purgateur|0|0.00
+purgatrice|0|0.00
 pyrotechnicien|10|0.00
 qari|27|0.00
 Qassam|1|0.00
@@ -3732,18 +5392,30 @@ qualiticien|2|0.00
 quatrième officiel|8|0.00
 Quipucamayoc|2|0.00
 rabbin|94|6.35
+rabbins|94|1.22|rabbin
 race queen|19|0.00
+raden|7|0.00
 radioastronome|0|0.00
 radiobiologiste|1|0.00
 radiologue|9|0.20
+radiologues|9|0.07|radiologue
 radiophysicien|0|0.00
 raffineur|0|0.00
 Ragi|5|0.00
 ragpicker|1|0.00
+Raja Permaisuri Agong|14|0.00
 rakugoka|3|0.00
+ramonet|1|0.00
 ramoneur|39|0.74
+ramoneurs|39|0.14|ramoneur
 rapporteur|8|0.41
+rapporteurs|8|0.14|rapporteur
+rapporteuse|8|0.07|rapporteur
+rapporteuses|8|0.07|rapporteur
 raseteur|2|0.00
+ravitailleur|0|0.14
+ravitailleurs|0|0.07|ravitailleur
+ravitailleuse|0|0.00
 Râwî|7|0.00
 réalisateur|63|0.74
 réalisateur d'anime|1|0.00
@@ -3751,12 +5423,15 @@ réalisateur de cinéma|2|0.00
 réalisateur de clips|14|0.00
 réalisateur de jeux vidéo|3|0.00
 réalisateur de seconde unité|0|0.00
+réalisateurs|63|0.27|realisateur
 réalisatrice|63|0.00
 réalisatrice de documentaire|6|0.00
 réalisatrice de télévision|29|0.00
+réalisatrices|63|0.07|realisateur
 Realschullehrer|1|0.00
 réceptionniste|26|1.76
 réceptionniste médical|0|0.00
+réceptionnistes|26|0.20|receptionniste
 receveur de l'enregistrement|0|0.00
 receveur des finances|23|0.00
 receveur des postes|0|0.00
@@ -3764,9 +5439,18 @@ receveur municipal|0|0.00
 récitateur|1|0.00
 recruteur|7|0.14
 recruteur de football|7|0.00
+recruteurs|7|0.07|recruteur
 recruteuse|7|0.00
+recteur|58|1.42
+recteur de l'UCLouvain|0|0.00
+recteur honoraire|0|0.00
+recteurs|58|0.07|recteur
+rector magnificus|0|0.00
+rectrice|58|0.00
+rectrice emeritus|2|0.00
+rectrices|58|0.07|recteur
 recycleur|0|0.00
-rédacteur|19|3.85
+rédacteur|45|3.85
 rédacteur de documentation|1|0.00
 rédacteur de magazine|1|0.00
 rédacteur de mode|1|0.00
@@ -3777,41 +5461,107 @@ rédacteur professionnel|1|0.00
 rédacteur scientifique|0|0.00
 rédacteur territorial|0|0.00
 rédacteur web|1|0.00
+rédacteurs|45|1.35|redacteur
 rédactrice|3|0.27
 rédactrice de discours|15|0.00
+rédactrice en chef|45|0.00
 rédactrice en chef adjointe|1|0.00
 rédactrice technique|19|0.00
+rédactrices|45|0.20|redacteur
 référent|1|0.07
 réflexologue|2|0.00
 réformateur|1|0.61
 réformateur protestant|15|0.00
+réformateurs|1|0.88|reformateur
 régent|60|1.08
+régente|60|1.15|regent
+régentes|60|0.07|regent
 régisseur|7|3.65
+régisseurs|7|0.61|regisseur
+régisseuse|7|0.00|regisseur
 registraire|1|0.00
 régleur|1|1.82
 Reichsgräflicher Sekretär|0|0.00
+reine|47|30.00
+reine consort|39|0.00
+reine consort d'Afghanistan|0|0.00
+reine consort d'Angleterre|2|0.00
+reine consort d'Aragon|1|0.00
+Reine Consort d'Écosse|0|0.00
+reine consort d'Espagne|2|0.00
+Reine Consort de Bavière|2|0.00
+Reine Consort de Bohême|0|0.00
+Reine Consort de Bulgarie|1|0.00
+reine consort de Castille|0|0.00
+reine consort de Croatie|2|0.00
+Reine Consort de Hongrie|0|0.00
+reine consort de Jordanie|0|0.00
+reine consort de Joseon|0|0.00
+reine consort de Norvège|0|0.00
+reine consort de Pahang|0|0.00
+reine consort de Portugal|0|0.00
+Reine Consort de Russie|0|0.00
+Reine Consort de Saxe|0|0.00
+reine consort de Suède|0|0.00
+reine consort des Asturies|0|0.00
+Reine Consort des Pays-Bas|0|0.00
+Reine Consort des Tonga|0|0.00
+reine consort du Danemark|2|0.00
+reine d'Angleterre|0|0.00
+reine d'Écosse|0|0.00
+Reine d'Italie|1|0.00
+reine de beauté|2|0.00
+reine de Castille|0|0.00
+reine de France|1|0.00
+Reine de Norvège|0|0.00
+reine de Pologne|1|0.00
+reine de Tolède|0|0.00
+reine des Amazones|0|0.00
+reine des Belges|1|0.00
+reine des Francs|1|0.00
+reine des Wisigoths|0|0.00
+Reine des Xiongnu|2|0.00
+reine douairière|20|0.00
+reine douairière de France|1|0.00
+Reine du Bhoutan|10|0.00
+Reine du Royaume-Uni|0|0.00
+reine mère|29|0.34
+reine régente|1|0.00
+reine régnante|35|0.00
+reines|47|3.78|reine
 relecteur-correcteur|13|0.00
 releveur de compteurs|1|0.00
 relieur|15|0.27
+relieurs|15|0.14|relieur
 relieuse|15|0.00
 remixeur|1|0.00
 rémouleur|25|0.68
+rémouleurs|25|0.27|remouleur
 rempailleur de chaises|2|0.00
 réparateur|1|1.35
+réparateurs|1|0.20|reparateur
+réparatrice|1|0.20|reparateur
+réparatrices|1|0.00|reparateur
 répartiteur de trains|17|0.00
 repasseur|0|0.41
+repasseuse|0|0.20|repasseur
+repasseuses|0|0.07|repasseur
 répétiteur|18|0.88
+répétiteurs|18|0.14|repetiteur
 répétitrice|3|0.14
 reporter|44|1.69
+reporters|44|1.55|reporter
 représentation légale|18|0.00
 responsable d'entrepôt|1|0.00
 responsable d'exploitation|1|0.00
 responsable d'hébergement|1|0.00
+responsable de collection|0|0.00
 responsable de communication|0|0.00
 responsable de formation|0|0.00
 responsable de la formation|0|0.00
 responsable de la sécurité|1|0.00
 responsable de matériel|1|0.00
+responsable de travaux BTP|0|0.00
 responsable de vestiaire|2|0.00
 responsable des ventes|2|0.00
 responsable du bonheur|7|0.00
@@ -3823,44 +5573,71 @@ responsable événementiel|4|0.00
 Responsable logistique|1|0.00
 responsable marketing|0|0.00
 responsable paie|0|0.00
+responsable pédagogique|1|0.00
 responsable technique|0|0.00
 restaurateur|17|1.62
 restaurateur de livres|0|0.00
 restaurateur de tableaux|0|0.00
+restaurateurs|17|0.61|restaurateur
 restauratrice|17|0.34
 restauratrice d'art|8|0.00
 retablier|0|0.00
 retoucheur|0|0.00
 retoucheur de vêtements|0|0.00
 réviseur|1|0.00
+réviseur d'entreprise|3|0.00
 réviseure|1|0.00
+rhabilleur|0|0.07
 rhéologue|1|0.00
 rhéteur|7|0.20
+rhéteurs|7|0.27|rheteur
 rhétrice|7|0.00
 rhinologiste|1|0.00
 rhodologue|0|0.00
 rhumatologue|9|0.00
+ribaud|2|0.07|ribauds
+ribaude|2|0.14|ribauds
+ribaudes|2|0.14|ribauds
 Ribauds|2|0.41
 Richter|1|0.00
 Riksråd|11|0.00
+ring girl|18|0.00
 riveteur|1|0.00
 road manager|5|0.00
+robot jockey|9|0.00
 robot pédagogique|12|0.00
 roboticien|4|0.00
 roboticienne|4|0.00
 rocailleur|2|0.00
 rodontologue|0|0.00
 roi|143|85.95
+roi de Castille|0|0.00
+roi de France et de Navarre|2|0.00
+roi de Galice|1|0.00
+roi de León|0|0.00
+roi de Navarre|3|0.00
+roi des Asturies|0|0.00
 roi des Romains|46|0.00
+roi Iure uxoris de Castille|0|0.00
 roi-prêtre|1|0.00
+rois|143|12.97|roi
 romancier|37|8.18
 romancière|37|0.61
+romancière satirique|0|0.00
+romancières|37|0.14|romancier
+romanciers|37|2.97|romancier
 romaniste|6|0.00
 rondier intervenant|1|0.00
 rosh mesivta|3|0.00
 rosh yeshiva|11|0.00
 rosiériste|4|0.00
+rouleur|7|0.20
 rouleur de fromage|0|0.00
+rouleurs|7|0.27|rouleur
+rouleuse|7|0.14|rouleur
+rouleuses|7|0.07|rouleur
+roulier|1|0.61
+rouliers|1|0.41|roulier
 roumanisant|0|0.00
 rudologue|1|0.00
 runologue|4|0.00
@@ -3868,8 +5645,13 @@ russisant|1|0.00
 russisante|1|0.00
 rythmologue|0|0.00
 saboteur|2|0.14
+saboteurs|2|0.41|saboteur
+saboteuse|2|0.00|saboteur
 sabotier|9|0.41
+sabotiers|9|0.20|sabotier
 sabreur|0|0.27
+sabreurs|0|0.20|sabreur
+Sadoq|0|0.00
 safranier|0|0.00
 safranière|0|0.00
 sagibaron|1|0.00
@@ -3879,20 +5661,31 @@ salonnier|6|0.00
 salonnière|6|0.00
 salpêtrier|2|0.00
 samouraï|114|1.69
+samouraïs|114|1.08|samourai
 sandhog|2|0.00
+sanshin|18|0.00
 sanskritiste|1|0.00
 sapeur|0|1.69
+sapeurs|0|3.11|sapeur
 sardaniste|0|0.00
 sardinier|0|0.00
+Sashiko|12|0.00
+satiriste|7|0.07
 saunier|3|0.34
+sauniers|3|0.34|saunier
 sauteur|4|0.61
 sauteur de haies|5|0.00
 sauteur en hauteur|5|0.00
+sauteurs|4|0.20|sauteur
+sauteuse|4|0.95|sauteur
 sauteuse en longueur|4|0.00
+sauteuses|4|0.14|sauteur
 sauveteur|8|0.27
 sauveteur de montagne|1|0.00
+sauveteurs|8|1.08|sauveteur
 savateur|1|0.00
 savetier|2|0.20
+savetiers|2|0.14|savetier
 savonnier|12|0.07
 saxophoniste alto|0|0.00
 saxophoniste de jazz|1|0.00
@@ -3901,6 +5694,7 @@ scalco|1|0.00
 scalde|35|0.00
 scandinaviste|2|0.00
 scaphandrier|2|0.27
+scaphandriers|2|0.07|scaphandrier
 scénario de film|2|0.00
 scénariste de bande dessinée|4|0.00
 scénariste de jeu vidéo|5|0.00
@@ -3909,6 +5703,7 @@ scénariste de télévision|3|0.00
 scénographe|24|0.00
 Schammes|7|0.00
 schlitteur|1|0.00
+scholarque|21|0.00
 schout-bij-nacht|15|0.00
 Schutzen|8|0.00
 science de fusée en économie|2|0.00
@@ -3925,33 +5720,67 @@ scientifique médico-légal|1|0.00
 scientifique militaire|2|0.00
 scientifique numéricien|3|0.00
 scientifique physique|0|0.00
+scientifiques|135|2.09|scientifique
 scoring assistant|0|0.00
 scorpiologiste|0|0.00
 scribe|54|1.55
+scribe dans l'Égypte antique|9|0.00
 scribe judiciaire|4|0.00
+scribes|54|1.62|scribe
 script doctor|10|0.00
 scripte|21|0.00
 scrutateur|9|0.20
+scrutateurs|9|0.14|scrutateur
+scrutatrices|9|0.07|scrutateur
+sculpteur|0|4.93
 sculpteur sur bois|4|0.00
 sculpteur sur pierre|2|0.00
+sculpteurs|0|2.57|sculpteur
+sculptrice|0|0.00|sculpteur
+sculpture|33|3.78
+sculpture à la scie à chaîne|6|0.00
+sculpture sur bois|50|0.00
+sculpture sur pierre|23|0.00
+sculptures|33|4.12|sculpture
+Second Bailli|2|0.00
 second mécanicien|6|0.00
 seconde équipe|11|0.00
 secrétaire|53|38.58
 secrétaire aux Finances|7|0.00
 secrétaire-bibliothécaire|0|0.00
 secrétaire-comptable|0|0.00
+secrétaire d'entreprise|12|0.00
 secrétaire de direction|0|0.00
 secrétaire de la Fatwah|1|0.00
 secrétaire de mairie|0|0.00
 secrétaire de rédaction|2|0.00
+secrétaire général|44|0.00
+secrétaire général adjoint|0|0.00
+secrétaire général de Batna|0|0.00
+secrétaire général de Bône|0|0.00
+secrétaire général de l'OPEP|0|0.00
+secrétaire général de l'OTAN|47|0.00
+secrétaire général de l'UEFA|0|0.00
+secrétaire général de la mer|0|0.00
+secrétaire général de Médéa|0|0.00
+secrétaire général de Sétif|0|0.00
+secrétaire général de Tiaret|0|0.00
+secrétaire général du CDU|0|0.00
+secrétaire général du CGIL|0|0.00
+secrétaire général du PSOE|0|0.00
+secrétaire général du SPD|0|0.00
+secrétaire générale|44|0.00
+secrétaire générale adjointe|0|0.00
 secrétaire-greffier|0|0.00
 secrétaire paroissial|1|0.00
 secrétaire princier|0|0.00
+secrétaires|53|5.20|secretaire
 sédimentologue|1|0.00
 segalari|0|0.00
 ségatier|0|0.00
 seigneur|12|51.82
 seigneur souverain|7|0.00
+seigneurs|12|8.31|seigneur
 sélectionneur de rugby à XV|0|0.00
 sélénographe|0|0.00
 sélénologue|0|0.00
@@ -3961,50 +5790,78 @@ sellier maroquinier|1|0.00
 sellière garnisseuse|1|0.00
 sémaphoriste|1|0.00
 Sementi|1|0.00
+semeur|2|0.34
+semeurs|2|0.27|semeur
+semeuses|2|0.14|semeur
 sémioticien|7|0.00
 sémioticienne|7|0.00
 sémitisant|5|0.00
+sénat académique|15|0.00
 sénéchal|34|5.20
+sénéchaux|34|0.61|senechal
+Senior|1|0.14
+seniors|1|0.07|senior
 sénologue|1|0.00
+sensei|40|0.00
+sensitivity reader|5|0.00
 sergent d'arme|9|0.00
 sergent recruteur|2|0.00
 sériciculteur|1|0.00
 sérigraphe|2|0.00
 seringueiro|2|0.00
+Serjeant-at-law|2|0.00
 serrurier|24|1.96
+serrurière|24|0.00|serrurier
+serruriers|24|0.27|serrurier
 sertisseur|2|0.07
 serveur|61|5.27
+serveurs|61|2.84|serveur
+serveuse|61|6.62|serveur
+serveuses|61|1.69|serveur
 sexologue|15|0.00
+sexologues|15|0.20|sexologue
 sexothérapeute|4|0.00
 sgraffiteur|2|0.00
 Sharpshooter|6|0.00
 shérif|50|1.08
+shérifs|50|0.20|sherif
 sherpa|1|0.00
+sherpas|1|0.07|sherpa
+Shibori|17|0.00
 shipchandler|11|0.07
 shochet|9|0.00
 show runner|31|0.00
 showgirl|14|0.00
+shramaneri|6|0.00
 Shroff|1|0.00
 sidérurgiste|0|0.00
 siffleur|3|0.20
 signaleur|1|0.07
+signaleurs|1|0.14|signaleur
+signifer|20|0.00
+silachin|5|0.00
 silhouettiste|1|0.00
 silovik|29|0.00
 simracer|0|0.00
+singes dans l'espace|8|0.00
 sinologue|8|0.00
 sismologue|8|0.00
+sismologues|8|0.07|sismologue
 Sitophylake|3|0.00
 skateur|5|0.00
 skeletoneur|2|0.00
 skieur|2|0.61
 skieur alpin|7|0.00
 skieur alpin handisport|0|0.00
+skieurs|2|0.20|skieur
+skieuse|2|0.41|skieur
 skieuse acrobatique|1|0.00
 skieuse alpine|7|0.00
 skieuse de télémark|0|0.00
 skieuse de vitesse|0|0.00
 skieuse nautique|2|0.00
 skieuse sur herbe|0|0.00
+skieuses|2|0.07|skieur
 Skiman|1|0.00
 skipper|9|0.07
 Skotnik|1|0.00
@@ -4033,34 +5890,58 @@ sociologue des organisations|0|0.00
 sociologue des religions|3|0.00
 sociologue des sciences|0|0.00
 sociologue du droit|0|0.00
+sociologues|26|1.01|sociologue
 sociophonéticien|0|0.00
 sociophonéticienne|0|0.00
+socioprofessionnel|0|0.00
 Socjusz|1|0.00
+socquetier|0|0.00
 soldat de carrière|5|0.00
 solier|1|0.00
 soliste|22|0.61
+solistes|22|0.47|soliste
 sômatophylaques|21|0.00
 sommelier|44|1.15
 sondeur|0|0.07
+sondeurs|0|0.14|sondeur
+sondeuse|0|0.00|sondeur
 sondeuse d'opinion|0|0.00
 sonero|1|0.00
+sophiste|61|0.27
+sophistes|61|0.20|sophiste
 soubrette|4|2.36
+soubrettes|4|0.74|soubrette
 soudeur|28|0.20
+soudeurs|28|0.07|soudeur
 soudeuse|28|0.00
 souffleur de verre|7|0.00
 sourceur|0|0.00
 sourcier|5|0.74
+sourciers|5|0.07|sourcier
 sous-chef|12|0.74
 sous-chef de gare|1|0.00
+sous-chefs|12|0.14|sous chef
+sous-gouverneur|0|0.00
+sous-ingénieur|0|0.00
 sous-marinier|3|0.00
+sous-mariniers|3|0.00|sous marinier
 sous-préfet|35|0.95
+sous-préfets|35|0.07|sous prefet
+sous-traitant|0|0.00
+sous-traitante|0|0.00
+sous-traitants|0|0.00|sous traitant
 speaker|27|2.70
 speakerine|27|0.34
+speakerines|27|0.27|speakerine
+speakers|27|0.68|speakerine
 spécialiste|1|10.07
+spécialiste classique|2|0.00
 spécialiste culinaire|3|0.00
 spécialiste de bondage|1|0.00
+spécialiste de charge utile|9|0.00
 spécialiste de l'atmosphère|2|0.00
 spécialiste de la presse|0|0.00
+spécialiste de mission|10|0.00
 spécialiste de Taïwan|0|0.00
 spécialiste des nécropoles|0|0.00
 spécialiste des transports|0|0.00
@@ -4071,17 +5952,29 @@ spécialiste en cybersécurité|0|0.00
 Spécialiste en entrepôt|1|0.00
 spécialiste en télédétection|0|0.00
 spécialiste technique|1|0.00
+spécialistes|1|6.89|specialiste
 spectroscopiste|0|0.00
 spéculateur sur séance|7|0.00
+speedcuber|1|0.00
+speedcubeuse|1|0.00
 spéléologue|4|0.07
+spéléologues|4|0.20|speleologue
 spin doctor|12|0.00
 spongiologue|1|0.00
 sportif|81|3.45
 sportif olympique|2|0.00
+sportifs|81|2.16|sportif
 sportive|81|2.91
-sprinteur|6|0.00
+sportives|0|0.88
+sprinteur|14|0.00
+sprinteurs|14|0.00|sprinteur
+Squatter|6|0.14
+squatters|6|0.14|squatter
 SS-Helferin|1|0.00
+Stab|2|0.00
 stacker|0|0.00
+stagiaire|3|1.22
+stagiaires|3|0.34|stagiaire
 statisticien|27|0.00
 statisticien appliqué|0|0.00
 statisticien social|0|0.00
@@ -4095,6 +5988,7 @@ stéganalyste|0|0.00
 sténo-dactylo|2|0.00
 sténographe|7|0.00
 sténotypiste|2|0.00
+sténotypistes|2|0.07|stenotypiste
 steward|2|1.35
 steward urbain|1|0.00
 stock investor|0|0.00
@@ -4102,66 +5996,91 @@ stomatologue|1|0.00
 storyboardeur|7|0.00
 storyboardeuse|7|0.00
 storyteller|0|0.00
-stratège|13|1.01
+stratège|45|1.01
+stratège athénien|0|0.00
 stratège de marque|0|0.00
+stratèges|45|0.61|stratege
 stratégiste de contenu|0|0.00
 stratégiste digital|0|0.00
 stratigraphe|1|0.00
 Stratores|3|0.00
 Stringer|1|0.00
 strip-teaseur|28|0.00
+strip-teaseurs|28|0.00|strip teaseur
 strip-teaseuse|28|0.27
+strip-teaseuses|28|0.20|strip teaseur
 structureur|2|0.00
 styliste|15|0.34
 styliste culinaire|0|0.00
 styliste de célébrités|8|0.00
+stylistes|15|0.20|styliste
 succentor|6|0.00
+sultane validé|46|0.00
 sumérologue|0|0.00
 sumotori|18|0.00
 supermodel|35|0.00
 superstar|10|0.34
+superstars|10|0.07|superstar
 superviseur de la production|0|0.00
 superviseur technique|0|0.00
 Supervision|12|0.20
+supervisions|12|0.07|supervision
 surinamiste|1|0.00
 surintendant|17|0.07
+surintendante|17|0.20|surintendant
 surintendante d'usine|1|0.00
 surveillant|3|5.41
 surveillant pénitentiaire|1|0.00
 surveillant-sauveteur|1|0.00
+surveillante|3|0.74|surveillant
 surveillante d'externat|3|0.00
+surveillantes|3|0.68|surveillant
+surveillants|3|1.55|surveillant
 sylviculteur|3|0.00
 sylvicultrice|3|0.00
+Syméon|0|0.00
 syndic|15|0.95
+syndics|15|0.14|syndic
 systémicien|1|0.00
 systémier|11|0.00
 tabellarii|1|0.00
 tableautiste|0|0.00
 tabletier|1|0.00
 tacticien|0|0.41
+tacticienne|0|0.00|tacticien
+tacticiens|0|0.00|tacticien
 taekwondoïste|4|0.00
 Taguerrabt|4|0.00
 Taikomochi|10|0.00
 taïkonaute|7|0.00
+Taille de diamant|12|0.00
 tailleresse de monnaie|1|0.00
 tailleur|83|22.64
 tailleur sur mesure|0|0.00
+tailleurs|83|2.57|tailleur
 tailleuse|83|0.07
 tailleuse de pierre|25|0.00
 talabarder|1|0.00
 talmudiste|8|0.27
+talmudistes|8|0.07|talmudiste
 tangoutologue|2|0.00
 tanneur|9|0.27
+tanneurs|9|0.88|tanneur
+tapisserie au point|1|0.00
 tapissier|8|1.22
 tapissière|8|0.14
+tapissiers|8|0.34|tapissier
 tardigradologiste|1|0.00
 tarento|17|0.00
 tatoueur|11|1.01
+tatoueurs|11|0.00|tatoueur
 tatoueuse|11|0.00
-Tawananna|14|0.00
+Tawananna|15|0.00
 taxidermiste|5|0.14
+taxidermistes|5|0.00|taxidermiste
 taxinomiste|3|0.00
 tchékiste|0|0.14
+team leader|0|0.00
 teamster|16|0.00
 technical account manager|1|0.00
 technicien|31|1.01
@@ -4170,6 +6089,7 @@ technicien avionique|1|0.00
 technicien chimiste|3|0.00
 technicien de reproduction|0|0.00
 technicien de surface|23|0.00
+technicien de théâtre|5|0.00
 technicien de tournage|0|0.00
 technicien électricien|0|0.00
 technicien électronicien|0|0.00
@@ -4184,6 +6104,7 @@ technicien médical|3|0.00
 technicien procédé|0|0.00
 technicien radio|0|0.00
 technicien sportif|0|0.00
+technicien supérieur|0|0.00
 technicien vétérinaire|2|0.00
 technicien vidéo|3|0.00
 technicienne|31|0.07
@@ -4191,6 +6112,7 @@ technicienne audio|13|0.00
 technicienne chauffagiste|0|0.00
 technicienne de laboratoire|19|0.00
 technicienne en informatique|8|0.00
+techniciens|31|3.24|technicien
 technologie de la télévision|0|0.00
 technologue|3|0.00
 technologue en électricité|7|0.00
@@ -4199,22 +6121,36 @@ tectonicien|0|0.00
 tectonicienne|0|0.00
 teinture végétale|6|0.00
 teinturier|6|1.08
+teinturière|6|0.27|teinturier
+teinturiers|6|0.20|teinturier
+télémanager|0|0.00
 télévangéliste|3|0.00
+télévangélistes|3|0.00|televangeliste
 templier|0|3.65
+templière|0|0.14|templier
+templiers|0|2.09|templier
 tenancier|0|0.95
+tenancière|0|1.08|tenancier
 tenancière de bordel|0|0.00
+tenancières|0|0.07|tenancier
+tenanciers|0|0.34|tenancier
 Tenkjar|1|0.00
 ténor|68|2.03
+ténors|68|0.68|tenor
 terminologue|4|0.00
 terrassier|0|1.15
+terrassiers|0|1.82|terrassier
 testeur|1|0.00
 testeur d'intrusion|0|0.00
 testeur de jeux vidéos|1|0.00
 testeur logiciel|1|0.00
+testeuse|1|0.00|testeur
 testeuse informatique|1|0.00
 tétrarque|9|0.00
+tétrarques|9|0.47|tetrarque
 teuthologiste|0|0.00
 Teutonique|0|0.34
+teutoniques|0|0.54|teutonique
 thanatologue|2|0.00
 thanatopracteur|1|0.00
 théâtrologue|5|0.00
@@ -4230,6 +6166,8 @@ théologien orthodoxe|1|0.00
 théologien protestant|1|0.00
 théologienne|30|0.00
 théologienne catholique|3|0.00
+théologiennes|30|0.07|theologien
+théologiens|30|1.22|theologien
 théorbiste|0|0.00
 théoricien|11|0.47
 théoricien de la couleur|0|0.00
@@ -4249,85 +6187,131 @@ théoricienne militaire|3|0.00
 théoricienne politique|3|0.00
 théoricienne quantique|0|0.00
 théoricienne relativiste|0|0.00
+théoriciens|11|0.68|theoricien
 théosophiste|2|0.00
 thérapeute de couple|1|0.00
 thérapiste comportemental|0|0.00
 thérapiste familial|2|0.00
 thérapiste systémique|0|0.00
 thermodynamiste|3|0.00
+thesmothète|12|0.00
+thonier|0|0.14
+thoniers|0|0.20|thonier
 tibétologue|5|0.00
+Timariote|15|0.00
 timonier|26|0.68
+timoniers|26|0.00|timonier
 tirailleur|11|0.88
+tirailleurs|11|5.61|tirailleur
 tireur d'élite|19|0.00
+tireur d'or|0|0.00
 tireur embusqué|79|0.00
 tireur sportif|7|0.00
 tireuse sportive|7|0.00
 tisserand|17|0.34
 tisserand de velours|0|0.00
 tisserande|17|0.07
+tisserands|17|0.68|tisserand
 tisseur de tapis|0|0.00
+titre d'entreprise|11|0.00
+titre de professeur|1|0.00
 Togishi|1|0.00
 toiletteur|5|0.00
 toiletteuse d'animaux|5|0.00
 tôlier|1|0.14
 tôlier-zingueur|0|0.00
+tôlière|1|0.07|tolier
+tôliers|1|0.07|tolier
 tondeur|9|0.61
 tondeur de draps|2|0.00
+tondeuse|9|1.49|tondeur
 tondeuse de moutons|9|0.00
+tondeuses|9|0.20|tondeur
 topographe|10|0.00
 topologue|7|0.00
 toponymiste|2|0.00
+torcher|0|1.89
 torero|30|1.35
+toreros|30|1.08|torero
 tour manager|5|0.00
 tourismologue|1|0.00
+touriste spatial|2|0.00
 tourneur|6|0.61
 tourneur de pages|10|0.00
 tourneur sur métal|0|0.00
+tourneurs|6|0.41|tourneur
+tourneuses|6|0.07|tourneur
 toxicologue|6|0.00
+toxicologues|6|0.00|toxicologue
 traceur|2|0.00
+traceurs|2|0.00|traceur
+traceuse|2|0.00|traceur
+traceuses|2|0.20|traceur
 tractoriste|5|0.07
+tractoristes|5|0.14|tractoriste
 tradipraticien|2|0.00
 traducteur|5|2.09
 traducteur assermentée|6|0.00
 traducteur-interprète|3|0.00
 traducteur technique|0|0.00
+traducteurs|5|0.88|traducteur
 traductologue|0|0.00
+traductrice|5|0.41|traducteur
 traductrice littéraire|5|0.00
+traductrices|5|0.14|traducteur
 trafiquant de fourrures|2|0.00
 traiteur|7|1.35
+traiteurs|7|0.27|traiteur
 trampoliniste|2|0.00
 transformateur laitier|0|0.00
 transformiste|12|0.00
+transport VIP|0|0.00
 transporteur|14|0.41
+transporteurs|14|0.34|transporteur
+transporteuse|14|0.00|transporteur
 trapéziste|5|0.81
+trapézistes|5|0.20|trapeziste
 traumatologue|6|0.00
 travailleur|2|2.64
 Travailleur de plateformes|18|0.00
 travailleur de proximité|0|0.00
 travailleur de rue|4|0.00
+travailleur des plantations|0|0.00
 travailleur forestier|7|0.00
 travailleur manuel|6|0.00
 travailleur qualifié|11|0.00
 travailleur social|21|0.00
+travailleurs|4|9.46|travailleuse
 travailleuse|4|0.81
 travailleuse culturel|2|0.00
+travailleuses|4|0.20|travailleuse
 travel manager|5|0.00
 trésorier|34|1.62
 trésorier-payeur général|1|0.00
+trésorière|34|0.20|tresorier
+trésoriers|34|0.00|tresorier
+trésoriers d'Athènes|6|0.00
 triathlète|4|0.00
+tricoteur|9|0.07|tricoteuses
+tricoteuse|9|0.41|tricoteuses
 Tricoteuses|9|0.20
 tricotier|2|0.00
+triérarque|7|0.00
 Trimmer|1|0.00
 triple sauteur|2|0.00
 trobairitz|15|0.00
 tromboniste de jazz|1|0.00
 tropeiro|6|0.00
 trustee|0|0.07
+trustees|0|0.20|trustee
 tsiganologue|1|0.00
+tsutsugaki|4|0.00
 tueur à gages|28|0.00
 tuilier|0|0.00
 turcologue|4|0.00
+Tuskegee Airmen|20|0.00
 tuteur|30|2.03
+tuteurs|30|0.27|tuteur
 tutrice|30|0.07
 tuyauteur industriel|2|0.00
 tuyauteuse industrielle|2|0.00
@@ -4335,43 +6319,71 @@ twirleur|0|0.00
 twitteur|1|0.00
 typographe|12|0.47
 typographe de musique|0|0.00
+typographes|12|0.61|typographe
 Ufelee|1|0.00
 ufologue|5|0.00
 ukrainologue|1|0.00
 universitaire|10|2.50
+universitaires|10|1.42|universitaire
+universiteitshoogleraar|1|0.00
 urbaniste|26|0.14
+urbanistes|26|0.27|urbaniste
 usineur|18|0.00
+Ustad|23|0.00
 usurier|22|0.61
+usurière|22|0.07|usurier
+usuriers|22|0.61|usurier
 usurpateur romain|11|0.00
 UX Designer|0|0.00
+UX - UI Designer|0|0.00
 V-Mann|5|0.00
 vaccinologue|0|0.00
 vacher|8|0.61
+vachers|8|0.20|vacher
 vaguemestre|2|0.68
 valet|12|13.65
+valets|12|6.15|valet
+valletta|2|0.00
 vampirologue|1|0.00
+vanneur|0|0.14
+vanneurs|0|0.07|vanneur
 vannier|13|0.20
 vannière|13|0.00
 vannière de ruches|1|0.00
+vanniers|13|0.07|vannier
+Vaqueiros de alzada|7|0.00
 vaquero|9|0.07
+vaqueros|9|0.00|vaquero
 vaticaniste|6|0.00
+végétal|0|2.97|vegetale
+végétale|0|3.85
+végétales|0|0.95|vegetale
+végétaux|0|1.08|vegetale
 veilleur de nuit|2|0.00
+velina|1|0.00
 véliplanchiste|4|0.00
 vendeur|29|4.93
 vendeur à la sauvette|34|0.00
 vendeur d'uranium|0|0.00
 vendeur de glace|2|0.00
 vendeur de meubles|0|0.00
+vendeurs|29|4.59|vendeur
 vendeuse|29|7.09
+vendeuses|29|2.03|vendeur
 vénérologue|6|0.00
 ventriloque|11|0.47
+ventriloques|11|0.00|ventriloque
 verbicruciste|4|0.00
 verderer|2|0.00
+vérédaire|0|0.00
+veredarius|0|0.00
 vérificateur de faits|0|0.00
 vérificateur des Postes|0|0.00
 vernien|2|0.00
 verrier|5|0.07
 verrière|5|4.53
+verrières|5|1.42|verriere
+verriers|5|0.07|verrier
 vétérinaire français|1|0.00
 vétérinaire nutritionniste|3|0.00
 vétérinaire officiel|1|0.00
@@ -4379,26 +6391,50 @@ vétérinaire spécialiste|1|0.00
 vététiste|2|0.00
 vexillologiste|4|0.00
 vicaire|47|2.23
+vicaire général des armées|1|0.00
+vicaire militaire|2|0.00
+vicaires|47|0.34|vicaire
 vice-chancelier|4|0.00
+vice-directeur|0|0.00
+vice-doyen|0|0.00
+vice-gouverneur|0|0.00
+vice-président|0|0.54
+vice-président du Sénat|0|0.00
+vice-présidente|0|0.00|vice president
+vice-présidents|0|0.07|vice president
 vice-recteur|24|0.00
 vice-recteur principal|0|0.00
+vice-secrétaire|0|0.00
 victimaire|1|0.07
 victorianiste|0|0.00
 vidéaste|9|0.00
+vidéastes|9|0.00|videaste
 vidéo-jockey|28|0.00
 vietnamiste|0|0.00
 vigneron|3|0.61
 vigneron-tractoriste|1|0.00
+vigneronne|3|0.00|vigneron
+vigneronnes|3|0.07|vigneron
+vignerons|3|1.28|vigneron
 vignettiste|0|0.00
+vil métier|1|0.00
 viniculteur|3|0.00
+violoneux|2|0.41
 virologue|23|0.00
+virologues|23|0.00|virologue
 visagiste|8|0.14
 visiteur|2|15.07
+visiteurs|2|16.76|visiteur
+visiteuse|2|2.97|visiteur
+visiteuses|2|0.74|visiteur
+viticole|0|0.00
 viticulteur|20|0.34
+viticulteurs|20|0.34|viticulteur
 viticultrice|20|0.00
 vitrailliste|6|0.00
 vitrier|17|0.68
 vitrière|17|0.00
+vitriers|17|0.07|vitrier
 vlogueur|14|0.00
 vlogueuse|14|0.00
 vocaliste|15|0.07
@@ -4408,26 +6444,34 @@ voix-off|1|0.00
 volapükologue|4|0.00
 volcanologue|11|0.00
 volleyeur|7|0.07
+volleyeurs|7|0.07|volleyeur
 volleyeuse|7|0.00
 voyageur|12|20.88
 voyageur de commerce|9|0.00
+voyageurs|12|20.74|voyageur
 voyageuse|12|1.08
+voyageuses|12|0.68|voyageur
 Vrach|1|0.00
 vulgarisateur|8|0.00
 vulgarisatrice scientifique|8|0.00
 walloniste|0|0.00
+Wangdaebi|5|0.00
 wattman|7|0.20
 webécrivain public|1|0.00
 webmestre|48|0.00
+Wehrbauer|10|0.00
 white hat|38|0.00
 wrangler|4|0.00
 xylographe|5|0.00
 yogi|33|0.41
 yogini|19|0.00
+yogis|33|0.07|yogi
 Yoriki|8|0.00
 youtubeur|3|0.00
 youtubeuse beauté|3|0.00
+Zammataru|1|0.00
 Zeitmilitär|1|0.00
+Zenji|11|0.00
 Zimmerpolier|1|0.00
 zingueur|0|0.00
 Zollrevisor|1|0.00

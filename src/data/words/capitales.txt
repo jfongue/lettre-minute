@@ -108,9 +108,11 @@ Luxembourg|175|0.00
 Madrid|305|0.00
 Majuro|123|0.00
 Malé|155|10.00
+mâles|155|5.95|male
 Managua|157|0.00
 Manama|169|0.00
 Manille|206|0.81
+manilles|206|0.14|manille
 Maputo|164|0.00
 Maragha|57|0.00
 Mascate|159|0.00
@@ -141,9 +143,12 @@ Ouagadougou|169|0.00
 Oulan-Bator|190|0.00
 Palikir|120|0.00
 Panama|159|1.22
+panamas|159|0.14|panama
 Paramaribo|161|0.00
+pari|366|4.59|paris
 Paris|366|7.97
 Pékin|305|0.47
+pékins|305|0.81|pekin
 Philipsburg|67|0.00
 Phnom Penh|180|0.00
 Podgorica|192|0.00
@@ -160,6 +165,7 @@ Pristina|158|0.00
 Pyongyang|200|0.00
 Quito|180|0.00
 Rabat|189|2.97
+rabats|189|0.61|rabat
 Ramallah|129|0.00
 Ras el Khaïmah|52|0.00
 Rawalpindi|99|0.00
@@ -168,6 +174,7 @@ Riga|225|0.00
 Riyad|195|0.00
 Rome|343|0.00
 Roseau|125|2.97
+roseaux|125|13.58|roseau
 Saint-Domingue|152|0.00
 Saint-Georges|130|0.00
 Saint John's|136|0.00
@@ -186,6 +193,9 @@ Sri Jayawardenapura|122|0.00
 Srinagar|97|0.00
 Stockholm|279|0.00
 Sucre|152|30.54
+sucrée|152|2.77|sucre
+sucrées|152|0.88|sucre
+sucres|152|2.23|sucre
 Suva|139|0.00
 Tachkent|194|0.00
 Tallinn|230|0.00
@@ -202,6 +212,7 @@ Vaduz|188|0.00
 Varsovie|288|0.00
 Vatican|342|0.00
 Victoria|146|0.34
+victorias|146|0.14|victoria
 Vienne|294|25.00
 Vientiane|175|0.00
 Vilnius|229|0.00

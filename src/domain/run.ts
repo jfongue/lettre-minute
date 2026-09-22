@@ -17,7 +17,7 @@ export interface Prompt {
 
 export interface FoundWord {
   prompt: Prompt
-  /** Normalized form, which is what uniqueness and usage are counted on. */
+  /** Canonical form, which is what uniqueness and usage are counted on. */
   word: string
   display: string
   points: number
@@ -98,19 +98,20 @@ export function createRun({ seed, categoryIds }: CreateRunInput, judge: Judge): 
 export function inspect(run: Run, raw: string, judge: Judge): Verdict {
   const word = normalizeWord(raw)
   if (word === '') return { kind: 'empty', found: null }
-  if (run.used.includes(word)) return { kind: 'already', found: null }
   if (initialOf(word) !== run.prompt.letter) return { kind: 'wrong-letter', found: null }
 
   const entry = judge.find(run.prompt.categoryId, word)
   if (!entry) return { kind: 'unknown', found: null }
+  // Judged on the canonical form: "chats" after "chat" is the same answer.
+  if (run.used.includes(entry.key)) return { kind: 'already', found: null }
 
-  const usage = judge.usage(word) ?? NO_USAGE
+  const usage = judge.usage(entry.key) ?? NO_USAGE
   const rarity = rarityScore(entry, usage)
   return {
     kind: 'accepted',
     found: {
       prompt: run.prompt,
-      word,
+      word: entry.key,
       display: entry.display,
       points: pointsFor(entry, usage, run.combo),
       rarity,

@@ -141,6 +141,22 @@ describe('submit', () => {
   })
 })
 
+describe('formes fléchies', () => {
+  it('refuses the plural of a word already answered', () => {
+    const pack = parseWordPack('animaux', ['Canard|50|1.00', 'Canards|50|0.50|canard'].join('\n'))
+    const only: Judge = {
+      find: (_, word) => lookup(pack, word),
+      usage: () => NO_USAGE,
+      letters: () => ['C'],
+    }
+    let run = createRun({ seed: 1, categoryIds: ['animaux'] }, only)
+    run = submit(run, 'canard', only).run
+
+    expect(run.found[0]!.word).toBe('canard')
+    expect(inspect({ ...run, prompt: { categoryId: 'animaux', letter: 'C' } }, 'canards', only).kind).toBe('already')
+  })
+})
+
 describe('skip', () => {
   it('costs clock, breaks the chain and moves on', () => {
     const run = { ...createRun({ seed: 9, categoryIds: ['animaux', 'pays'] }, judge), combo: 4 }
