@@ -1,0 +1,1455 @@
+acrobatie|60|0.81
+Aéro-kick|1|0.00
+aérobic|50|0.07
+Age of Empires Online|22|0.00
+Age of Mythology|43|0.00
+Agility féline|6|0.00
+aïkido|93|0.07
+Air Hockey|30|0.00
+airsoft|42|0.00
+aizkolaritza|7|0.00
+Akatsuki Blitzkampf|4|0.00
+Akimbo|11|0.00
+Akontion|1|0.00
+Albin Delta|2|0.00
+Albin Vega|8|0.00
+alindesis|1|0.00
+Alley|1|0.00
+Alliance of Valiant Arms|11|0.00
+alpinisme|114|0.61
+Apex Legends|44|0.00
+Apex Legends Mobile|3|0.00
+Apnée en poids constant|2|0.00
+Apnée No Limit|3|0.00
+Apnée statique|3|0.00
+aquabike|4|0.00
+aquaplane|5|0.07
+aquathlon|24|0.00
+arc nu|1|0.00
+Archery tag|5|0.00
+arena football|15|0.00
+Arena of Valor|18|0.00
+armageddon|12|0.00
+Arms|20|0.00
+Arnis|35|0.00
+Arrijasotzaileak|6|0.00
+art|299|81.49
+art martial|133|0.00
+Artifact|14|0.00
+arts martiaux japonais|20|0.00
+arts martiaux mixtes|78|0.00
+Ashi-guruma|5|0.00
+Assetto Corsa|16|0.00
+Assetto Corsa Competizione|12|0.00
+athlétisme|160|0.47
+athlétisme en salle|2|0.00
+athlétisme handisport|22|0.00
+attelage de compétition|16|0.00
+Audax|8|0.00
+Autocross|9|0.00
+aviron|87|0.95
+aviron handisport|9|0.00
+aviron indoor|4|0.00
+Ba Gua Zhang|31|0.00
+baby-foot|53|0.74
+backyard wrestling|9|0.00
+badminton|144|0.20
+badminton par équipes|0|0.00
+Ball throwing|1|0.00
+ball-trap|14|0.14
+balle au tambourin|18|0.00
+balle pelote|7|0.00
+ballet sur glace|1|0.00
+ballon au poing|8|0.00
+bandy|67|0.00
+Bandy dans le monde|2|0.00
+barrel racing|9|0.00
+BASE jump|39|0.00
+basket-ball|217|0.34
+basket-ball à trois|41|0.00
+basket-ball pour sourds|9|0.00
+Bassai|11|0.00
+Bataireacht|4|0.00
+bateau-dragon|8|0.00
+bâton de combat|2|0.00
+Battlefield Hardline|32|0.00
+Battlefield V|34|0.00
+Battlerite|7|0.00
+Beach basket-ball|10|0.00
+beach handball|35|0.00
+beach tennis|16|0.00
+beach-volley|78|0.00
+Bénéteau Figaro|3|0.00
+Bénéteau Figaro III|2|0.00
+Biathle|6|0.00
+biathlon|87|0.00
+biathlon d'été|14|0.00
+biathlon de chars de combat|13|0.00
+biathlon handisport|15|0.00
+Bierball|30|0.00
+big air|24|0.00
+big wall|13|0.00
+Bigsiege chess|1|0.00
+billard américain|33|0.00
+billard anglais|13|0.00
+billard danois|5|0.00
+Billard de pub|3|0.00
+billard français|27|0.00
+billard hollandais|13|0.00
+Billard italien|7|0.00
+biribol|5|0.00
+Bjergløbet|0|0.00
+Blade and Soul|14|0.00
+Blauwe Stad TTT|1|0.00
+blitz|28|0.00
+blitz à quatre|25|0.00
+Bload Bowl|1|0.00
+Bloodline Champions|9|0.00
+BMX|45|0.00
+BMX Freestyle|11|0.00
+BMX race|10|0.00
+Board track racing|6|0.00
+boardercross|24|0.00
+bob à deux personnes|0|0.00
+bobsleigh|77|0.20
+boccia|40|0.00
+bolo|6|0.00
+bolo palma|3|0.00
+borroka|2|0.00
+bossaball|21|0.00
+bosses parallèles|0|0.00
+boule basque|3|0.00
+boulingrin|34|0.00
+Bound for Glory|7|0.00
+bowling|56|1.08
+boxe|167|7.64
+boxe à mains nues|17|0.00
+boxe amateur|12|0.00
+boxe anglaise|1|0.00
+Boxe érotique|2|0.00
+boxe professionnelle|18|0.00
+bras de fer|54|0.00
+bras de fer sportif|1|0.00
+brasse|43|0.81
+brasse indienne|10|0.00
+Brawlhalla|20|0.00
+break dance|72|0.00
+bridge|69|3.99
+bridge de compétition|8|0.00
+Bunkai|14|0.00
+Buno|4|0.00
+Caber|18|0.00
+Cadet|10|4.32
+calcio florentin|27|0.00
+Calinda|7|0.00
+cammag|7|0.00
+camogie|25|0.00
+candlepin bowling|3|0.00
+canne de combat|15|0.00
+canoë|35|1.22
+canyonisme|30|0.00
+capoeira|71|0.00
+Cappadocia Ultra Trail|2|0.00
+Caravelle|4|0.20
+Carveboard|2|0.00
+cascade à vélo|2|0.00
+Casket match|4|0.00
+casting|14|0.20
+catch|71|0.88
+catch hardcore|10|0.00
+catch wrestling|15|0.00
+Catherine|26|0.00
+Cavale|2|4.26
+cécifoot|22|0.00
+Celtic Chrono|2|0.00
+chabel|2|0.00
+Chad|1|0.00
+Char à cerf-volant|10|0.00
+char à voile|20|0.00
+chasse sportive|1|0.00
+château Mino gauche|2|0.00
+château Yagura ancien|1|0.00
+chatrang|39|0.00
+Chaturaji|11|0.00
+chaturanga|54|0.00
+chessboxing|41|0.00
+Chex Quest|4|0.00
+Chow Gar|3|0.00
+Choy gar|5|0.00
+Chrono Gatineau|8|0.00
+Chu Shogi|10|0.00
+Chuiwan|12|0.00
+Chun Kuk Do|9|0.00
+Cirit|15|0.00
+City Trophy Elsy Jacobs TTT|1|0.00
+Clash of Clans|68|0.00
+close combat|36|0.07
+coaching sportif|0|0.00
+colf|1|0.00
+combat de robots|10|0.00
+combiné|1|4.80
+combiné alpin|24|0.00
+Combiné d'escalade|5|0.00
+combiné nordique|59|0.00
+Commodore's Cup|2|0.00
+compétition de danse|4|0.00
+compétition de programmation|28|0.00
+Concours de pinsons|12|0.00
+Contender|10|0.00
+contre-la-montre|27|0.00
+contre-la-montre en côte|0|0.00
+contre-la-montre individuel|24|0.00
+contre-la-montre par équipes|15|0.00
+Contre-la-montre sur piste|8|0.00
+Counter-Strike Online|26|0.00
+coup critique|2|0.00
+Coupe d'Europe d'escalade|1|0.00
+Coupe du monde d'escalade|11|0.00
+course à l'américaine|23|0.00
+course à l'élimination|12|0.00
+course à la voile|9|0.00
+course à pied|106|0.00
+course automobile|71|0.00
+course aux points|15|0.00
+course d'animaux|0|0.00
+course d'obstacles|0|0.00
+course d'orientation|61|0.00
+course d'orientation à ski|17|0.00
+course de camions|14|0.00
+course de chameaux|30|0.00
+course de chiens|0|0.00
+course de côte|24|0.00
+course de drones|19|0.00
+course de fond|36|0.00
+course de haies|44|0.00
+Course de l'heure|15|0.00
+course de lévriers|26|0.00
+course de motos|9|0.00
+course de phare|0|0.00
+course de plat|10|0.00
+course de pleine nature|28|0.00
+course de relais|49|0.00
+Course de tandem|4|0.00
+course de trot attelé|23|0.00
+course de trot monté|8|0.00
+course de voitures de sport|17|0.00
+Course des rois|2|0.00
+Course du soleil|1|0.00
+course en fauteuil roulant|22|0.00
+course en ligne|26|0.00
+course en montagne|21|0.00
+course en sac|23|0.00
+Course Marseille-Cassis|4|0.00
+course militaire|4|0.00
+Course scratch|14|0.00
+course sur circuit|13|0.00
+course sur route|20|0.00
+Course tempo|3|0.00
+courte paume|12|0.00
+Crab Game|9|0.00
+crawl|37|0.74
+crazyhouse|18|0.00
+Crazyracing Kartrider|18|0.00
+Creative Destruction|1|0.00
+Cresta Run|8|0.00
+cricket|162|0.41
+Cricko|1|0.00
+critérium|19|0.27
+croquet|47|1.49
+cross-country|41|0.34
+Cross-country eliminator|6|0.00
+Cross-country olympique|2|0.00
+Cross-country short track|1|0.00
+Cross Juan Muguerza|5|0.00
+crosse|65|10.14
+crosse au champ|7|0.00
+crosse en enclos|11|0.00
+crosse féminine|9|0.00
+CrossFire|23|0.00
+crossminton|24|0.00
+Crysis|42|0.00
+Cuju|30|0.00
+culturisme|84|0.07
+curling|93|0.14
+curling handisport|26|0.00
+Cursa de Muntanya del Farell|1|0.00
+cycle-ball|27|0.00
+cyclisme artistique|12|0.00
+cyclisme en salle|6|0.00
+cyclisme esport|1|0.00
+cyclisme handisport|18|0.00
+cyclisme sur piste|42|0.00
+cyclisme sur route|45|0.00
+cyclo-cross|40|0.07
+dames frisonnes|5|0.00
+dames internationales|11|0.00
+danse en fauteuil roulant|16|0.00
+danse sportive|34|0.00
+danse sur glace|36|0.00
+danser|2|35.41
+datchball|0|0.00
+De-ashi-barai|9|0.00
+Dead by Daylight|37|0.00
+Dead or Alive Ultimate|7|0.00
+décathlon|57|0.07
+demi-fond|30|0.14
+demi-fond court|0|0.00
+demi-fond long|0|0.00
+Descente|34|20.81
+Dhanurveda|3|0.00
+diaulos|16|0.00
+Digimon Rumble Arena|11|0.00
+Dirt track racing|8|0.00
+disque-golf|34|0.00
+Distance medley relay|2|0.00
+Divekick|2|0.00
+divertissement sportif|13|0.00
+djegichagi|9|0.00
+DNF Duel|5|0.00
+Dodder|1|0.00
+Dodds|1|0.00
+dodgeball|41|0.00
+Dofus|20|0.00
+dolichos|16|0.00
+Doom II|36|0.00
+dos|39|213.99
+Dota Underlords|12|0.00
+double dames|0|0.00
+double de badminton|0|0.00
+double messieurs|0|0.00
+double mixte|5|0.00
+Dragon|20|7.97
+Dragon Ball FighterZ|16|0.00
+Dream League Soccer|13|0.00
+dressage|46|1.76
+dressage individuel|0|0.00
+drift|37|0.07
+Dual slalom|6|0.00
+duathlon|25|0.00
+Duck Game|9|0.00
+Échasseurs namurois|15|0.00
+échecodames|9|0.00
+échecs|269|11.96
+échecs à pièces cubiques|1|0.00
+Échecs à trois échecs|4|0.00
+échecs aléatoires Capablanca|6|0.00
+échecs aléatoires Fischer|44|0.00
+échecs atomiques|16|0.00
+échecs avalanche|4|0.00
+échecs Berolina|3|0.00
+échecs Capablanca|16|0.00
+échecs Circé|11|0.00
+échecs circulaires|12|0.00
+échecs coursier|12|0.00
+échecs cylindriques|11|0.00
+échecs d'Alice|9|0.00
+échecs d'Andernach|8|0.00
+échecs d'Einstein|1|0.00
+Échecs de Berkeley|1|0.00
+échecs de Francfort|1|0.00
+échecs de Grolman|2|0.00
+échecs de Tamerlan|17|0.00
+échecs de Tchigorine|0|0.00
+échecs forteresse|8|0.00
+échecs indiens|8|0.00
+échecs interdits|3|0.00
+échecs janus|5|0.00
+échecs Madrasi|6|0.00
+échecs mongols|10|0.00
+échecs mousquetaire|1|0.00
+échecs par correspondance|40|0.00
+échecs par équipe|1|0.00
+échecs patrouille|5|0.00
+échecs progressifs|10|0.00
+échecs psychologiques|1|0.00
+échecs sans roque|1|0.00
+Échecs sombres|7|0.00
+échecs transcendentaux|4|0.00
+échecs Yalta|2|0.00
+Eiger Ultra Trail|4|0.00
+Eindhoven Team Time Trial|15|0.00
+eisstock|20|0.00
+Elimination Chamber match|20|0.00
+emacs-chess|0|0.00
+endurance|23|2.43
+endurance automobile|1|0.00
+enduro|31|0.00
+épaulé-jeté|16|0.00
+épée|2|19.12
+épreuve de badminton|0|0.00
+épreuves combinées|18|0.00
+équitation|19|1.42
+équitation classique|7|0.00
+Équitation Western|13|0.00
+Er Enish|3|0.00
+Eri-seoi-nage|1|0.00
+escala i corda|7|0.00
+escalade|54|3.58
+escalade alpine|7|0.00
+escalade artificielle|12|0.00
+escalade de bloc|33|0.00
+escalade de difficulté|4|0.00
+escalade de vitesse|15|0.00
+escalade en salle|12|0.00
+escalade en solo intégral|17|0.00
+escalade en tête|17|0.00
+escalade glaciaire|33|0.00
+escalade libre|17|0.00
+escalade mixte|7|0.00
+escalade sportive|33|0.00
+escalade sur rochers|47|0.00
+Escape from Tarkov|25|0.00
+Escrima|1|0.00
+escrime|109|2.03
+escrime handisport|24|0.00
+Escrime ludique|2|0.00
+étape de pavés|0|0.00
+Eternal Fighter Zero|6|0.00
+étude analytique|1|0.00
+étude d'échecs|27|0.00
+étude de Réti|8|0.00
+étude de Troïtski|3|0.00
+étude des frères Platov|1|0.00
+Europe|18|0.00
+European Athletics Classic|2|0.00
+Evolve|17|0.00
+Excelsior|7|0.00
+Facebuster|8|0.00
+Fastnet Race|10|0.00
+FEAR|28|0.00
+Fiddy|1|0.00
+Field Target|8|0.00
+Fight of Animals|1|0.00
+Fighting EX Layer|5|0.00
+figures spéciales|8|0.00
+Finale de la Coupe du monde|1|0.00
+Finn|23|0.00
+first-class cricket|20|0.00
+fistball|32|0.00
+fitness boxing|1|0.00
+fivth avenu mile|3|0.00
+Flag football|27|0.00
+Flat Track|4|0.00
+fleuret|42|1.28
+floorball|46|0.00
+Flygility|1|0.00
+Flying Dutchman|19|0.00
+Folkrace|8|0.00
+foot de boue|15|0.00
+football|296|6.28
+football américain en salle|4|0.00
+football australien|68|0.00
+football bulle|12|0.00
+football canadien|42|0.00
+football en marchant|13|0.00
+football freestyle|21|0.00
+football paralympique|8|0.00
+Football suédois|5|0.00
+footgolf|25|0.00
+footvolley|22|0.00
+force athlétique|50|0.00
+Formula Kite|7|0.00
+Formule|24|22.84
+Formule Ford|16|0.00
+Formule Renault|22|0.00
+Forza|1|0.00
+fosse olympique|9|0.00
+Four-cross|10|0.00
+Frare|3|0.00
+freefly|8|0.00
+freeride|15|0.00
+freeskiing|9|0.00
+freestyle|1|0.00
+freestyle motocross|21|0.00
+Frontenis|8|0.00
+fronton international|9|0.00
+fronton valencien|3|0.00
+full-contact|16|0.00
+Fut Gar|7|0.00
+futsal|78|0.00
+galotxa|6|0.00
+galotxetes|6|0.00
+Gateball|15|0.00
+Gatka|20|0.00
+Gears of War|36|0.00
+Generali Solo|1|0.00
+GeoGuessr|38|0.00
+Gigathlon|1|0.00
+girevoy|9|0.00
+Gjelleråsen IF|3|0.00
+glíma|24|0.00
+GNOME Chess|5|0.00
+GNU Chess|20|0.00
+go|145|2.70
+goalball|42|0.00
+Golden Globe Challenge|10|0.00
+golf|157|7.16
+gomoku|28|0.00
+goriziana|5|0.00
+Göteborgsvarvet|10|0.00
+Gothaer Schloss-Meeting|1|0.00
+Gothic Chess|6|0.00
+gouren|8|0.00
+Gouret de salon|2|0.00
+GP d'Hasselt|5|0.00
+Gran Fondo|1|0.00
+Gran Turismo Sport|26|0.00
+Granblue Fantasy Versus|7|0.00
+grand chistera|1|0.00
+Grand Prix de France Féminin|1|0.00
+Grand Prix de Lunel|1|0.00
+Grand Prix de Suisse|4|0.00
+Grand Raid|8|0.00
+Grand to Grand Ultra|1|0.00
+Grand Trail du Valdigne|2|0.00
+grand tremplin|1|0.00
+Grant Acedrex|6|0.00
+graphe de la tour|5|0.00
+graphe du cavalier|5|0.00
+graphe du roi|5|0.00
+grappling|31|0.00
+gravel|10|0.00
+Great Birmingham Run|5|0.00
+Great North Run|9|0.00
+Great Scottish Run|5|0.00
+Greifenseelauf|4|0.00
+Grid|12|0.00
+Grimpe d'arbres|18|0.00
+Grimpe urbaine|14|0.00
+Gulech|6|0.00
+Gun-Kata|6|0.00
+gundersen individuel|0|0.00
+Gwangsanghui|5|0.00
+Gymkhana|8|0.27
+gymnastique|108|9.39
+gymnastique acrobatique|37|0.00
+gymnastique aérobic|25|0.00
+gymnastique artistique|67|0.00
+gymnastique rythmique|67|0.00
+H-boat|10|0.00
+Haidong gumdo|11|0.00
+haies basses|0|0.00
+haies hautes|0|0.00
+Hakutsuru|2|0.00
+half-pipe|3|0.00
+haltérophilie|96|0.14
+haltérophilie handisport|12|0.00
+handball|130|0.00
+handball à onze|23|0.00
+handball à sept|0|0.00
+handball frison|17|0.00
+handball gaélique|14|0.00
+handball gallois|4|0.00
+Hane-goshi|8|0.00
+Hane-goshi-gaeshi|4|0.00
+Hang time|1|0.00
+Harai-goshi|9|0.00
+Harai-goshi-gaeshi|4|0.00
+Harai-tsuri-komi-ashi|6|0.00
+Hardcourt Bike Polo|3|0.00
+Hazena|10|0.00
+Hearthstone|41|0.00
+Heian|1|0.00
+Heian Godan|4|0.00
+Heian Nidan|5|0.00
+Heian Sandan|4|0.00
+Heian Shodan|6|0.00
+Heian Yondan|4|0.00
+heptathlon|51|0.00
+heptathlon féminin|1|0.00
+heptathlon masculin|2|0.00
+Heroes of Newerth|26|0.00
+hexapawn|6|0.00
+Hikikomi-gaeshi|4|0.00
+Hikuta|1|0.00
+histoire du jeu d'échecs|43|0.00
+Hiza-guruma|9|0.00
+Hnefatafl|13|0.00
+hockey|91|0.14
+hockey en salle|23|0.00
+hockey subaquatique|32|0.00
+hockey sur gazon|102|0.00
+hockey sur glace|113|0.00
+hockey sur table|20|0.00
+Hoi jeon moo sool|4|0.00
+Honor of Kings|21|0.00
+Hors piste|10|0.00
+horse-ball|22|0.00
+Hoshin moosool|1|0.00
+Huaquan|4|0.00
+Hugg|1|0.00
+hundstoaranggeln|2|0.00
+Hung-gar|25|0.00
+hurling|53|0.00
+Hyper Scape|13|0.00
+Hyrox|14|0.00
+Identity V|14|0.00
+individuel|0|2.23
+inline skater hockey|8|0.00
+Inuoumono|5|0.00
+Ippon-seoi-nage|7|0.00
+Iron Harvest|8|0.00
+Iron Man|12|0.00
+Ironman|36|0.00
+Istrav|1|0.00
+jai alai|26|0.00
+janggi|25|0.00
+Javelina Jundred|2|0.00
+javelot tir sur cible|2|0.00
+Jetan|7|0.00
+jetsprint|4|0.00
+Jeu d'échecs|0|0.00
+Jeu d'échiquier et trictrac|0|0.00
+jeu d'essai|2|0.00
+jeu de balle|42|0.00
+jeu de boules|33|0.00
+jeu de Dunsany|9|0.00
+jeu de galets|13|0.00
+jeu de mail|13|0.00
+jeu de paume|33|0.00
+jeu de quilles|43|0.00
+jeu international|6|0.00
+Jeu laser|21|0.00
+jeu provençal|8|0.00
+joko garbi|2|0.00
+jonglerie|59|0.14
+JoongAng Seoul Marathon|4|0.00
+joueur|18|9.05
+joueuse|18|0.74
+Journée Terry Fox|6|0.00
+joute nautique|7|0.00
+joute nautique provençale|2|0.00
+Jow Gar|4|0.00
+ju-jitsu|79|0.00
+judo|149|1.22
+judo handisport|16|0.00
+jugger|15|0.00
+Kabaddi|60|0.00
+karaté|137|0.95
+Karnov's Revenge|6|0.00
+karting|53|0.00
+Kata artistique|1|0.00
+Kata-guruma|12|0.00
+kata individuel masculin|1|0.00
+kata par équipe|0|0.00
+kayak|17|0.14
+Kayak-cross|4|0.00
+kayak de rivière|7|0.00
+kayak-polo|34|0.00
+kayak surf|6|0.00
+Kayti|1|0.00
+keirin|28|0.00
+kendo|63|0.00
+Kholi|1|0.00
+Kibisu-gaeshi|7|0.00
+kick-boxing|73|0.00
+kickball|18|0.00
+Kiiking|16|0.00
+Kin-Ball|15|0.00
+King of the Mountain match|8|0.00
+Kipura|1|0.00
+Kirib|1|0.00
+Kirikiti|9|0.00
+kitesurf|53|0.00
+Knockout City|8|0.00
+Ko-soto-gake|6|0.00
+Ko-soto-gari|6|0.00
+Ko-uchi-gaeshi|5|0.00
+Ko-uchi-gari|6|0.00
+Kok-borou|10|0.00
+KoKowa|1|0.00
+korfbal|46|0.00
+kortebaandraverij|1|0.00
+Koshi-guruma|7|0.00
+Kourach|32|0.00
+Koures|10|0.00
+Kriegspiel|11|0.14
+Kubi-nage|1|0.00
+Kuchiki-taoshi|6|0.00
+kumite|30|0.00
+kung-fu|62|0.00
+Kururunfa|6|0.00
+Kushanku|12|0.00
+Kvindetri|1|0.00
+Kyokushinkai|42|0.00
+Kyoto shogi|6|0.00
+L'eSport League of Legends|3|0.00
+L'Heure d'Or féminine|3|0.00
+La Sgambeda|6|0.00
+La-Trel|4|0.00
+Ladder match|10|0.00
+lancer de barre|1|0.00
+lancer de barre basque|2|0.00
+lancer de hache|7|0.00
+lancer de massue|9|0.00
+lancer de poids|10|0.00
+lancer du disque|65|0.00
+lancer du javelot|67|0.00
+lancer du marteau|54|0.00
+lancer du poids|69|0.00
+Laser|30|0.81
+Laser Radial|10|0.00
+Laser Run|7|0.00
+Lau Gar|2|0.00
+Laxoa|5|0.00
+Le Cadre|4|0.00
+Lemnis Gate|4|0.00
+Lidingöloppet|10|0.00
+limited overs cricket|14|0.00
+Linao|1|0.00
+List A cricket|15|0.00
+Live for Speed|21|0.00
+llargues|8|0.00
+Lone Echo|7|0.00
+Lone Wolves|13|0.00
+longue paume|9|0.00
+Low Impact Aerobic|1|0.00
+Lucerne Marathon|3|0.00
+Lucha Canaria|15|0.00
+lucha libre|22|0.00
+Ludo|32|0.00
+LudoSport|3|0.00
+luge de course|61|0.00
+Luta Galhofa|2|0.00
+Luta Livre|11|0.00
+lutte|119|37.36
+lutte amateure|12|0.00
+lutte contre l'incendie|10|0.00
+lutte de plage|9|0.00
+lutte fédérée|1|0.00
+lutte gréco-romaine|51|0.00
+lutte libre|50|0.00
+lutte mongole|20|0.00
+lutte populaire|12|0.00
+lutte sénégalaise|18|0.00
+lutte suisse|18|0.00
+lutte turque|36|0.00
+Magical Drop III|4|0.00
+mah-jong|64|0.20
+Maharadjah et cipayes|10|0.00
+makruk|26|0.00
+Malla-yuddha|6|0.00
+Mallakhamb|15|0.00
+marathon|127|1.28
+Marathon Alexandre le Grand|6|0.00
+Marathon d'Athènes|10|0.00
+Marathon d'Édimbourg|5|0.00
+Marathon d'Hanovre|5|0.00
+Marathon d'Hokkaido|10|0.00
+Marathon d'Istanbul|9|0.00
+Marathon d'Oslo|5|0.00
+Marathon d'Ottawa|6|0.00
+marathon de Berlin|38|0.00
+Marathon de Beyrouth|8|0.00
+Marathon de Bombay|7|0.00
+Marathon de Boston|49|0.00
+Marathon de Bournemouth|3|0.00
+Marathon de Brighton|4|0.00
+Marathon de Chicago|32|0.00
+Marathon de Cracovie|6|0.00
+Marathon de Daegu|7|0.00
+Marathon de Dubaï|13|0.00
+Marathon de Dublin|9|0.00
+Marathon de Düsseldorf|8|0.00
+Marathon de Florence|4|0.00
+Marathon de Fukuoka|11|0.00
+Marathon de Genève|4|0.00
+Marathon de Hambourg|8|0.00
+marathon de Hangzhou|3|0.00
+Marathon de Jersey|3|0.00
+Marathon de La Rochelle|3|0.00
+Marathon de Lausanne|6|0.00
+Marathon de Lisbonne|7|0.00
+Marathon de Londres|43|0.00
+Marathon de Luxembourg|6|0.00
+Marathon de Macao|4|0.00
+Marathon de Mar del Plata|4|0.00
+Marathon de Marrakech|6|0.00
+Marathon de Milan|7|0.00
+Marathon de Mombasa|2|0.00
+Marathon de Montréal|4|0.00
+Marathon de Moscou|6|0.00
+Marathon de Munich|6|0.00
+Marathon de Nagoya|8|0.00
+marathon de Nairobi|5|0.00
+Marathon de New York|39|0.00
+Marathon de Paris|19|0.00
+Marathon de Pékin|14|0.00
+Marathon de Porto|7|0.00
+Marathon de Prague|10|0.00
+marathon de Pyongyang|13|0.00
+Marathon de Riga|11|0.00
+Marathon de Rome|12|0.00
+marathon de Sabarmati|4|0.00
+Marathon de Santiago|4|0.00
+Marathon de Séoul|8|0.00
+marathon de Séville|5|0.00
+Marathon de Shanghai|8|0.00
+Marathon de Singapour|6|0.00
+Marathon de Skopje|11|0.00
+Marathon de Sydney|11|0.00
+Marathon de Tokyo|25|0.00
+Marathon de Toronto|5|0.00
+Marathon de Turin|4|0.00
+marathon de Valence|10|0.00
+Marathon de Vancouver|7|0.00
+Marathon de Varsovie|7|0.00
+Marathon de Venise|7|0.00
+Marathon de Vienne|10|0.00
+Marathon de Xiamen|7|0.00
+Marathon des Alpes-Maritimes|5|0.00
+Marathon des Deux Rives|3|0.00
+Marathon du beaujolais|2|0.00
+Marathon du Cap|4|0.00
+Marathon du lac Biwa|8|0.00
+Marathon du Nouveau Taipei|4|0.00
+marathon en eau libre|7|0.00
+marathon marche mixte|3|0.00
+Marathon P'tit Train du Nord|0|0.00
+Marathon Vert d'Agadir|1|0.00
+Marathon Wally Hayward|1|0.00
+marche athlétique|57|0.00
+marche sur échasses|4|0.00
+Mario Tennis Aces|18|0.00
+mat aidé|18|0.00
+mat aidé de série|2|0.00
+mat aidé inverse|1|0.00
+mat inverse|19|0.00
+mat réflexe|5|0.00
+match|3|9.39
+Maxi Fenix|1|0.00
+Maxi Racer|1|0.00
+MechWarrior Online|6|0.00
+Memory|4|0.00
+Metal Gear Online|11|0.00
+Mile|23|0.07
+Mini-shogi|5|0.00
+miniature|3|7.09
+minifootball|9|0.00
+minkey|2|0.00
+Modern Arnis|5|0.00
+Monaco-New-York|1|0.00
+Mondial de l'escalade|2|0.00
+monobob|1|0.00
+Monotype de Chatou|1|0.00
+Montée impossible|4|0.00
+Mordhau|10|0.00
+moringue|11|0.00
+Morote-gari|8|0.00
+Morote-seoi-nage|1|0.00
+Mortal Kombat|25|0.00
+Mortal Kombat X|35|0.00
+Moth|8|0.00
+moto-cross|46|0.07
+MotoE|13|0.00
+MotoGP|34|0.00
+motonautisme|20|0.00
+motorodéo|7|0.00
+muay-thaï|83|0.00
+multicoup|4|0.00
+mushing|10|0.00
+musical form|1|0.00
+naban|6|0.00
+nage avec palmes|24|0.00
+nage en eau libre|33|0.00
+nage en eau vive|12|0.00
+nage libre|31|0.00
+nage longue distance|6|0.00
+nage sous l'eau|2|0.00
+Nanbudo|10|0.00
+natation artistique|65|0.00
+natation handisport|13|0.00
+natation sportive|69|0.00
+nautisme à la voile|70|0.00
+navigation en solitaire|4|0.00
+Ne waza|8|0.00
+netball|59|0.00
+Njinga|1|0.00
+North Sea Beach Marathon|3|0.00
+Novuss|23|0.00
+O-goshi|10|0.00
+O-guruma|5|0.00
+O-soto-gaeshi|4|0.00
+O-soto-gari|10|0.00
+O-soto-guruma|6|0.00
+O-soto-otoshi|6|0.00
+O-uchi-gaeshi|4|0.00
+O-uchi-gari|8|0.00
+Obi-otoshi|8|0.00
+Obi-tori-gaeshi|3|0.00
+Octathlon|5|0.00
+OK Dinghy|12|0.00
+Okuri-ashi-barai|7|0.00
+Omnium|19|0.20
+One-day International|33|0.00
+Onmyoji Arena|3|0.00
+Open de Suède ITTF|6|0.00
+Optimist|30|0.00
+Othello|34|0.00
+Oulak|2|0.00
+ovale|9|8.18
+pacoa jara|2|0.00
+pacu jawi|15|0.00
+padel|40|0.00
+Painkiller|19|0.00
+paintball|55|0.00
+Paladins|26|0.27
+paletta|1|0.00
+palla|5|0.00
+palla elastica|1|0.00
+pallapugno|3|0.00
+pallapugno leggera|1|0.00
+pallina|1|0.00
+Pallone|9|0.00
+pallonetto ligure|2|0.00
+pancrace|50|0.34
+Pandathlon|0|0.00
+pantalera|2|0.00
+papillon|44|10.68
+para équitation|13|0.00
+para-hockey sur glace|33|0.00
+para ski de fond|11|0.00
+para-taekwondo|12|0.00
+parabadminton|15|0.00
+paracanoë|12|0.00
+Parachute ascensionnel|15|0.00
+parachutisme|66|0.07
+parachutisme libre|3|0.00
+paradressage|1|0.00
+parapente|52|0.00
+parasnowboard|11|0.00
+paratriathlon|18|0.00
+Paris-Colmar|6|0.00
+parkour|75|0.00
+partie à l'aveugle|31|0.00
+Partie classique|2|0.00
+Partie justificative|7|0.00
+partie libre|3|0.00
+Partie Roozenburg|2|0.00
+PASAB|1|0.00
+patinage artistique|87|0.00
+patinage de descente extrême|5|0.00
+Patinage de marathon|4|0.00
+patinage de vitesse|60|0.00
+patinage en couple|17|0.00
+patinage en ligne|11|0.00
+patinage freestyle|1|0.00
+patinage individuel|10|0.00
+patinage individuel dames|5|0.00
+patinage nordique|4|0.00
+patinage sur glace|59|0.00
+patinage synchronisé|20|0.00
+patrouille militaire|20|0.00
+pelote à main nue|6|0.00
+pelote basque|45|0.00
+Pencak-Silat|34|0.00
+pentathlon|19|0.07
+pentathlon aéronautique|7|0.00
+pentathlon antique|18|0.00
+pentathlon d'hiver|2|0.00
+pentathlon des neiges|1|0.00
+pentathlon militaire|14|0.00
+pentathlon moderne|71|0.00
+pentathlon naval|7|0.00
+Penyagolosa Trails|2|0.00
+pesäpallo|30|0.00
+pétanque|53|1.49
+pétéca|7|0.00
+pickleball|36|0.00
+Piguaquan|9|0.00
+pilota blanca|2|0.00
+pilotage tout-terrain|31|0.00
+Pinan|13|0.00
+Ping-pong|1|2.36
+planche à aile gonflable|10|0.00
+planche à neige aérotractée|17|0.00
+planche à rame|32|0.00
+planche à voile|58|0.00
+planche à voile à foil|5|0.00
+planche à voile freestyle|1|0.00
+planche sur sillage|35|0.00
+plongée récréative|15|0.00
+plongeon|80|3.18
+plongeon de haut vol|16|0.00
+plongeon de la mort|5|0.00
+plongeon du tremplin|1|0.00
+plongeon synchronisé|9|0.00
+plumfoot|23|0.00
+poids mi-mouches|16|0.00
+poids super mouches|14|0.00
+Pokémon Unite|19|0.00
+Pokkén Tournament|24|0.00
+pole dance|37|0.00
+Pole sports|6|0.00
+polo|81|1.96
+polo à bicyclette|14|0.00
+Polytechnic Marathon|3|0.00
+Pony games|6|0.00
+porter de femme|32|0.00
+Position de Saavedra|16|0.00
+Potsdamer Schlössermarathon|1|0.00
+poursuite|17|12.36
+poursuite par équipes|16|0.00
+Power Snooker|11|0.00
+Pretty Soldier Sailor Moon S|3|0.00
+problème d'échecs|40|0.00
+problème de Plaskett|4|0.00
+Problème des huit dames|34|0.00
+problème du cavalier|35|0.00
+problème immortel|7|0.00
+Problème indien|5|0.00
+problème jumeau|2|0.00
+Project CARS|21|0.00
+Project M|5|0.00
+Psicobloc|10|0.00
+PUBG Mobile|23|0.00
+Pumptrack|1|0.00
+Puroresu|13|0.00
+Puyo Puyo Champions|7|0.00
+Puyo Puyo Tetris|12|0.00
+quadball|24|0.00
+Quake II|32|0.00
+Quake III Arena|32|0.00
+Quake Live|18|0.00
+QuakeWorld|7|0.00
+Quanfa|1|0.00
+quartettes|2|0.07
+Qui perd gagne|16|0.00
+quiz|46|0.00
+RaceRoom|6|0.00
+Racketlon|17|0.00
+racquetball|27|0.00
+raffa|4|0.00
+rafting|52|0.00
+Rage|26|44.12
+Rakuminton|1|0.00
+rallycross|20|0.00
+rallye automobile|56|0.00
+rallye-raid|21|0.00
+Rallye routier moto|1|0.00
+rallye tout-terrain|8|0.00
+random attacks|2|0.00
+randonnée à VTT|4|0.00
+randonnée aquatique|2|0.00
+randonnée en roller|10|0.00
+randonnée longue distance|2|0.00
+raquette|1|1.69
+raspall|7|0.00
+Red Earth|6|0.00
+Red Stone|3|0.00
+Rédeas|1|0.00
+Reims à toutes jambes|4|0.00
+Relais de haies navette|2|0.00
+relais Ekiden|16|0.00
+relais en athlétisme|7|0.00
+relais en natation sportive|2|0.00
+Relais suédois|14|0.00
+remonte|3|26.89
+Renju|18|0.00
+Rhinos de EDA|5|0.00
+Ricochet|6|0.74
+Ring of Elysium|10|0.00
+ringuette|18|0.00
+rink hockey|31|0.00
+rinkball|4|0.00
+Road bowling|7|0.00
+rock acrobatique|19|0.00
+Rock Master d'Arco|8|0.00
+Rocket Arena|5|0.00
+Rocket League|38|0.00
+Rocket League Sideswipe|6|0.00
+rodéo|49|0.74
+rodéo chilien|19|0.00
+Rogaine|21|0.00
+Rogue Company|10|0.00
+roller agressif|16|0.00
+roller de vitesse|22|0.00
+roller derby|30|0.00
+roque|17|0.34
+roue allemande|15|0.00
+rounders|21|0.00
+Route des Terre-Neuvas|0|0.00
+Route du Rhum|11|0.00
+Royal Parks Half Marathon|3|0.00
+rucking|1|0.00
+Rugball|2|0.00
+rugby à sept|58|0.00
+rugby à XIII|56|0.00
+rugby à XV|73|0.00
+rugby-fauteuil|26|0.00
+rugby subaquatique|24|0.00
+Rules of Survival|12|0.00
+sabre|29|13.85
+Sacrifício|1|0.00
+sambo|61|0.00
+Sampyong|1|0.00
+Samurai Shodown|11|0.00
+Samurai Shodown III|14|0.00
+Samurai Shodown V Special|9|0.00
+Sasae-tsuri-komi-ashi|8|0.00
+saut à l'élastique|57|0.00
+saut à la perche|71|0.00
+saut à la perche en salle|0|0.00
+saut à ski|77|0.00
+saut acrobatique|9|0.00
+saut d'obstacles|44|0.00
+saut de cheval|39|0.00
+saut en hauteur|78|0.00
+saut en hauteur en salle|0|0.00
+saut en hauteur sans élan|16|0.00
+saut en longueur|78|0.00
+Saut en longueur en salle|0|0.00
+saut en longueur sans élan|20|0.00
+saut stratosphérique|6|0.00
+Saut sur corde|6|0.00
+sauvetage sportif|13|0.00
+savate|43|1.76
+sawanobori|5|0.00
+Sayokan|5|0.00
+Scorpions' Pass TT|1|0.00
+Scrabble|69|0.20
+Sea of Thieves|28|0.00
+Sega-joko|1|0.00
+Seiryu|1|0.00
+Seishan|6|0.00
+Seiunchin|5|0.00
+semi-marathon|44|0.00
+Semi-marathon de Barcelone|5|0.00
+Semi-marathon de Bogota|6|0.00
+Semi-marathon de Cobán|2|0.00
+Semi-marathon de Copenhague|6|0.00
+semi-marathon de Dunkerque|1|0.00
+Semi-marathon de Lille|4|0.00
+Semi-marathon de Lisbonne|7|0.00
+Semi-marathon de Marugame|5|0.00
+Semi-marathon de Minsk|5|0.00
+semi-marathon de New York|5|0.00
+Semi-marathon de Nice|3|0.00
+Semi-marathon de Paris|7|0.00
+Semi-marathon de Prague|7|0.00
+Semi-marathon de Turin|2|0.00
+Semi-marathon de Valence|6|0.00
+Semi-marathon de Varsovie|4|0.00
+Semi-marathon de Yangzhou|5|0.00
+Semi-marathon du Lion|3|0.00
+Semi-marathon du Portugal|5|0.00
+semi-marathon marche|2|0.00
+Semi-marathon Rome-Ostie|5|0.00
+senterej|11|0.00
+Seoi-otoshi|6|0.00
+sepak takraw|51|0.00
+Shadowrun|11|0.00
+Shadowverse|9|0.00
+Shoot wrestling|8|0.00
+ShootMania|8|0.00
+Shovel Knight Showdown|4|0.00
+Shrek SuperSlam|10|0.00
+Shuai jiao|14|0.00
+Shuri-te|10|0.00
+Silambam|16|0.00
+sim racing|19|0.00
+simple dames|1|0.00
+simple messieurs|1|0.00
+sit-tu-yin|17|0.00
+Six jours d'Adélaïde|4|0.00
+Six jours de Copenhague|9|0.00
+Six jours de Melbourne|5|0.00
+Six jours de Moscou|5|0.00
+Six jours de Nouméa|8|0.00
+Six jours de Sydney|6|0.00
+Sjælland Rundt|3|0.00
+skateboard|55|0.00
+skeet olympique|6|0.00
+skeleton|65|0.00
+ski|106|5.00
+ski acrobatique|51|0.00
+ski alpin|77|0.00
+ski alpin handisport|15|0.00
+Ski-arc|5|0.00
+ski ballet|11|0.00
+ski de bosses|19|0.00
+ski de fond|69|0.00
+ski de pentes raides|6|0.00
+ski de randonnée|36|0.00
+ski de vitesse|20|0.00
+ski joëring|17|0.00
+ski nautique|49|0.00
+ski nordique|44|0.00
+ski sportif|1|0.00
+ski sur herbe|14|0.00
+Ski sur sable|7|0.00
+skiathlon|8|0.00
+skicross|22|0.00
+skiff|19|0.20
+skyrunning|15|0.00
+slalom|43|0.81
+slalom en planche à voile|0|0.00
+slalom géant|37|0.00
+Slamball|20|0.00
+slopestyle|24|0.00
+Smite|30|0.00
+Snadi|1|0.00
+Snipe|14|0.00
+Snookball|2|0.00
+snooker|88|0.00
+snow bike|1|0.00
+snow volleyball|18|0.00
+snowboard|74|0.00
+soccer intérieur|21|0.00
+Sode-tsurikomi-goshi|6|0.00
+soft tennis|20|0.00
+softball|69|0.00
+Solitaire du Figaro|9|0.00
+Solo Guy Cotten|2|0.00
+SoulCalibur II|20|0.00
+SoulCalibur IV|20|0.00
+SoulCalibur V|14|0.00
+SoulCalibur VI|18|0.00
+spaola|1|0.00
+Special Force|13|0.00
+Speckbrett|1|0.00
+speed-ball|8|0.00
+speed sail|6|0.00
+speedball|4|0.00
+speedcubing|25|0.00
+spéléologie|28|0.07
+Spellbreak|9|0.00
+Splatoon|33|0.00
+Splitgate|11|0.00
+sport aérien|34|0.00
+sport aux Jeux asiatiques|5|0.00
+sport aux Universiades|7|0.00
+sport-boules|11|0.00
+Sport chanbara|8|0.00
+sport cycliste|62|0.00
+sport de combat|49|0.00
+sport de lancer|5|0.00
+sport de mémoire|12|0.00
+sport de montagne|7|0.00
+sport de plein air|3|0.00
+sport de raquette|11|0.00
+sport électronique|59|0.00
+sport en salle|8|0.00
+sport équestre|40|0.00
+sport extrême|47|0.00
+sport gaélique|18|0.00
+sport individuel|20|0.00
+sport masculin|2|0.00
+sport mécanique|55|0.00
+sport militaire|7|0.00
+sport motocycliste|53|0.00
+sport nautique|47|0.00
+Sport paralympique|25|0.00
+sport traditionnel|0|0.00
+sport urbain|6|0.00
+sports arctiques|1|0.00
+Sports aux Jeux mondiaux|9|0.00
+Sports d'eaux vives|4|0.00
+sports de ballon|40|0.00
+sports de disque-volant|5|0.00
+sprint|52|1.82
+sprint court|0|0.00
+sprint long|0|0.00
+sprinteur|6|0.00
+squash|74|0.07
+Squash tennis|3|0.00
+Ssireum|28|0.00
+stadion|20|0.00
+Stångenäs AIS|3|0.00
+StarCraft|21|0.00
+Steel Challenge|5|0.00
+Steeltownman|1|0.00
+steeple|22|0.07
+steeple-chase|19|0.07
+stock-car|19|0.14
+Stramilano|4|0.00
+Street Fighter V|25|0.00
+Street Fighter X Tekken|23|0.00
+Street mtb|1|0.00
+street skateboard|5|0.00
+street soccer|24|0.00
+Street Workout|26|0.00
+streetball|36|0.00
+style de nage|19|0.00
+submission wrestling|16|0.00
+Sudden Attack|12|0.00
+sudoku|95|0.00
+Sukui-nage|7|0.00
+Sumi-gaeshi|6|0.00
+Sumi-otoshi|8|0.00
+Summoners War|5|0.00
+sumo|103|0.07
+Super Cross|0|0.00
+Super G|32|0.00
+Super Mario Party|28|0.00
+Super Street Fighter IV|14|0.00
+Superbike|19|0.00
+Supercross|10|0.00
+Supermotard|19|0.00
+Supersport|3|0.00
+Superstock|1|0.00
+surf|103|0.34
+surf à pagaie|2|0.00
+surf de rivière|8|0.00
+surf féminin|4|0.00
+surf masculin|0|0.00
+surf sur glace|1|0.00
+swimrun|7|0.00
+Swin golf|5|0.00
+Synth Riders|1|0.00
+Tae Bo|11|0.00
+taekwondo|122|0.00
+Tai-otoshi|10|0.00
+Taikyoku shogi|7|0.00
+Tarawera Ultramarathon|3|0.00
+Tawara-gaeshi|5|0.00
+Te-guruma|3|0.00
+Teamfight Tactics|20|0.00
+Teeworlds|18|0.00
+Tekken Tag Tournament|21|0.00
+Télégraphie à grande vitesse|8|0.00
+télémark|30|0.07
+Tempest|10|0.00
+Tempête sur l'échiquier|4|0.00
+tennis|211|13.24
+tennis-ballon|25|0.07
+tennis de table|118|0.00
+tennis double|3|0.00
+tennis en fauteuil roulant|26|0.00
+tennis simple|1|0.00
+teqball|30|0.00
+Teqvoly|4|0.00
+Tescao|1|0.00
+Test cricket|36|0.00
+Tetris|92|0.00
+Tetris Effect|11|0.00
+Tetris Ultimate|5|0.00
+The Big Half|3|0.00
+The Binding of Isaac|28|0.00
+The King of Fighters XI|12|0.00
+The King of Fighters XIII|14|0.00
+The King of Fighters XIV|10|0.00
+The King of Fighters XV|11|0.00
+Them's Fightin' Herds|7|0.00
+Thessaly Time Trial Women|0|0.00
+tir à l'arc|105|0.00
+tir à l'arc handisport|5|0.00
+tir à la corde|71|0.00
+tir aux pigeons vivants|7|0.00
+tir sportif|72|0.00
+tir sportif handisport|11|0.00
+tir sur cible|8|0.00
+Tissu aérien|5|0.00
+TNA Feast or Fired|7|0.00
+Tomoe-nage|8|0.00
+tonsimin ball|1|0.00
+Tor des Géants|7|0.00
+Toribash|13|0.00
+Tornado|21|0.00
+touch rugby|18|0.00
+Tour Te Waipounamu|1|0.00
+tournoi de badminton|0|0.00
+TowerFall|9|0.00
+town ball|5|0.00
+Track racing|7|0.00
+Trackmania|7|0.00
+TrackMania Nations Forever|7|0.00
+TrackMania Turbo|11|0.00
+TrackMania United|7|0.00
+traction de pierre|5|0.00
+trad|10|0.00
+Trail du Colorado|1|0.00
+trampoline|47|0.14
+Transat anglaise|7|0.00
+Transat en double|4|0.00
+Transe Gaule|2|0.00
+Transvulcania|7|0.00
+Treg Ennedi Trail|0|0.00
+tremplin normal|1|0.00
+trial|22|0.47
+Trial camion|5|0.00
+triathlon|77|0.00
+triathlon d'hiver|10|0.00
+Triathlon de Mooloolaba|2|0.00
+triathlon féminin|2|0.00
+triathlon tout-terrain|4|0.00
+Tricking|20|0.00
+triple saut|59|0.00
+triple saut sans élan|14|0.00
+Trissjolle|2|0.00
+Trofeo Ses Salines|1|0.00
+trois bandes|10|0.00
+Trontzariak|9|0.00
+trottinette freestyle|8|0.00
+Tsubame-gaeshi|5|0.00
+Tsuri-goshi|6|0.00
+Tsuri-komi-goshi|8|0.00
+tubing sur neige|1|0.00
+tumbling|17|0.00
+Twinkle Star Sprites|10|0.00
+Two Oceans Marathon|6|0.00
+Uchi-mata|10|0.00
+Uchi-mata-gaeshi|4|0.00
+Uchi-mata-sukashi|6|0.00
+Uki-goshi|10|0.00
+Uki-otoshi|8|0.00
+ultimate|47|0.00
+ultimate ping|3|0.00
+Ultra-Trail du Mont-Blanc|16|0.00
+ultrafond|43|0.00
+ultramarathon en sentier|4|0.00
+Une bande|0|0.00
+Unreal Tournament|32|0.00
+Ura-nage|7|0.00
+Ushiro-goshi|5|0.00
+Utsuri-goshi|5|0.00
+Vague|1|41.08
+Vainglory|18|0.00
+Valorant|50|0.00
+vélo trial|21|0.00
+Viborg City Marathon|2|0.00
+Vipeq-La Vaca Purpura|0|0.00
+vitesse|14|54.59
+vitesse moto|10|0.00
+vitesse par équipes|12|0.00
+vitilla|3|0.00
+Voie en plusieurs longueurs|6|0.00
+voile|46|30.27
+Voile handisport|2|0.00
+voile sur glace|13|0.00
+vol à voile|43|0.00
+vol en montgolfière|12|0.00
+volley-ball|164|0.68
+volley-ball assis|27|0.00
+volley-ball debout|4|0.00
+volley-ball handisport|3|0.00
+Volleyclub|1|0.00
+voltige aérienne|32|0.00
+voltige en cercle|27|0.00
+voltige en parapente|3|0.00
+VR Women ITT|1|0.00
+VTT|41|0.00
+VTT cross-country|22|0.00
+VTT cross-country marathon|8|0.00
+VTT de descente|24|0.00
+VTT enduro|1|0.00
+Wankan|6|0.00
+Warsow|19|0.00
+Water basket-ball|15|0.00
+water-polo|99|0.00
+Western States Endurance Run|10|0.00
+Windjammers|7|0.00
+World in Conflict|24|0.00
+World Marathon Challenge|5|0.00
+World of Tanks|47|0.00
+World of Tanks Blitz|13|0.00
+Wu Dao|1|0.00
+wushu|59|0.00
+Wutao|0|0.00
+X-kan|1|0.00
+xiangqi|63|0.00
+Yama-arashi|5|0.00
+Yngling|16|0.00
+Yoseikan Budo|7|0.00
+Zweier-Canadier|1|0.00
+Zwift|10|0.00

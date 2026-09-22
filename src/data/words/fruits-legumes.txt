@@ -1,0 +1,1003 @@
+Abbé Fétel|10|0.00
+Abelmoschus esculentus|2|0.00
+Abou Chawkeh|0|0.00
+abricot|82|1.15
+Abricot sec|16|0.00
+Aceituna de Tacna|1|0.00
+Aceituna prieta|1|0.00
+Acephala group|7|0.00
+Adams Pearmain|8|0.00
+Aglandau|3|0.00
+Aglio Bianco Polesano AOP|3|0.00
+Aglio di Caraglio PAT|2|0.00
+Aglio di Voghiera AOP|2|0.00
+agrume|13|0.07
+Agrumes chinois|1|0.00
+agrumes coréens de Jeju|2|0.00
+Agrumes de Valence|2|0.00
+agrumes rustiques|5|0.00
+agrumes vietnamiens|1|0.00
+ail|187|7.97
+Ail blanc de Lomagne|3|0.00
+Ail de la Drôme|1|0.00
+Ail fumé d'Arleux|1|0.00
+Ail noir|29|0.00
+ail violet de Cadours|1|0.00
+Ajima imo|1|0.00
+Akane|7|0.00
+Aki|1|0.00
+Albacarro|1|0.00
+Alfafara|2|0.00
+aliments en saumure|13|0.00
+Alise|1|0.00
+Alkmène|10|0.00
+Altländer Pfannkuchenapfel|3|0.00
+Altonobles|1|0.00
+amande|37|3.99
+Amarilla Julio|1|0.00
+Ambrosia|5|0.00
+Amellau|1|0.00
+Ananas|61|3.51
+ananas en boîte|0|0.00
+ananas Victoria|3|0.00
+Angélys|3|0.00
+Anisa|0|0.00
+Annie Elizabeth|1|0.00
+Annurca|6|0.00
+anpoki|1|0.00
+Antarès|3|0.00
+Antonovka|18|0.00
+Apollo|1|0.00
+Aport|10|0.00
+Arancia del Gargano IGP|2|0.00
+Arancia di Ribera AOP|2|0.00
+Arancia Rossa di Sicilia IGP|4|0.00
+Arbequina|9|0.00
+Arbosana|1|0.00
+argudell|1|0.00
+Ariane|4|0.00
+Arlet|5|0.00
+Arracada d'Aldover|1|0.00
+Arróniz|1|0.00
+artichaut|84|0.95
+Artichaut du Roussillon|2|0.00
+Asazuke|10|0.00
+Ascolano|2|0.00
+Asparago verde di Altedo IGP|2|0.00
+asperge verte|1|0.00
+Ataulfo|3|0.00
+aubergine|8|0.61
+Auralia|2|0.00
+avocat|18|24.32
+Ayrouni|0|0.00
+Azucre Sagarra|1|0.00
+Baechu gimchi|7|0.00
+baie de goji|35|0.00
+banane|228|4.05
+Banane farine|2|0.00
+banane latundan|12|0.00
+banane plantain|55|0.00
+Barnea|1|0.00
+Batata de Trás-os-Montes|2|0.00
+Batata doce de Aljezur|2|0.00
+Béa du Roussillon|1|0.00
+Beauty of Bath|6|0.00
+Bec d'oie|3|0.00
+Becaruda|1|0.00
+Belarda Blanca|1|0.00
+Belarda Roja|1|0.00
+Belgentiéroise|1|0.00
+Bella Colorada|1|0.00
+Bella di Cerignola|3|0.00
+Belle de Boskoop|17|0.00
+Belle de Nordhausen|2|0.00
+Belle de Pontoise|2|0.00
+Belle-Fille Normande|2|0.00
+Belle fleur jaune|9|0.00
+Ben Davis|6|0.00
+Benoni|2|0.00
+Bergamote Esperen|3|0.00
+Bettarazuke|5|0.00
+betterave|67|1.35
+Beurré|3|27.50
+Beurré d'Anjou|8|0.00
+Beurré d'Hardenpont|2|0.00
+Beurré de Mérode|6|0.00
+Beurré de Rance|2|0.00
+Beurré de Roma|2|0.00
+Beurré Dubuisson|2|0.00
+Beurré Durondeau|4|0.00
+Beurré Hardy|8|0.00
+Bianchera|1|0.00
+Biancolilla|1|0.00
+Bicane|1|0.00
+Bidni|4|0.00
+Bigarreau jaune de Dönissen|1|0.00
+Bittenfelder Sämling|4|0.00
+Blanca de Vedra|1|0.00
+Blandas Rayas|1|0.00
+Blanqueta|2|0.00
+Blenheim Orange|8|0.00
+bleuet|48|0.14
+Bok choy|49|0.00
+Bon-Chrétien Williams|21|0.00
+Bondon|2|0.00
+Borowitsky|11|0.00
+Bosana|4|0.00
+Bost Kantoi|1|0.00
+Bostongurka|6|0.00
+Bouteillan|2|0.00
+Braeburn|15|0.00
+Bramley|7|0.00
+broco fleur|9|0.00
+brocoli|111|0.00
+Burdinche|1|0.00
+cabosse de cacao|1|0.00
+cacahuète|22|0.74
+Cacao|0|1.42
+Caguleira o Presente|1|0.00
+cailletier|4|0.00
+Calçot|14|0.00
+callosina|2|0.00
+Calville Rouge du Mont d'Or|1|0.00
+Cameo|6|0.00
+Camoesa Dulce|1|0.00
+Camuesa Castellana|1|0.00
+camuesa cordouane|1|0.00
+Camuesa de Llobregat|1|0.00
+Canetera|3|0.00
+Canino|1|0.00
+canneberge|81|0.00
+cantaloup|1|0.00
+carambole|31|0.20
+Carapanón|1|0.00
+Carciofo Brindisino IGP|0|0.00
+Carciofo di Paestum IGP|1|0.00
+cardon|1|0.07
+carignan N|25|0.00
+Carola|4|0.00
+Carolea|1|0.00
+carotte|151|2.97
+Carotte de Créances|1|0.00
+Carotte de Saint-Valery|2|0.00
+carotte Manpukuji|1|0.00
+Carrasquenya|3|0.00
+Carrelladora|1|0.00
+Casaliva|1|0.00
+cassis|4|3.18
+Castagna Cuneo IGP|0|0.00
+Castagna di Montella IGP|1|0.00
+Catillac|2|0.00
+Cayetana|5|0.00
+cébette|43|0.00
+cédrat|2|0.14
+céleri|42|0.81
+cépage de table|9|0.00
+cépage vinifère|1|0.00
+Cerasuola|1|0.00
+cerise de Montmorency|6|0.00
+Charas|3|0.00
+Charles Ross|4|0.00
+Chata Blanca|1|0.00
+châtaigne|22|0.88
+châtaigne d'Ardèche AOC|1|0.00
+Châtaignier|2|1.76
+Chemlali|0|0.00
+Chenpi|13|0.00
+chérimole|7|0.00
+Chetoui|0|0.00
+Chevriers de Stuttgardt|2|0.00
+Chicorée pain de sucre|3|0.00
+chou|9|13.99
+chou blanc|14|0.00
+chou chinois|47|0.00
+chou-fleur|0|1.01
+chou frisé|52|0.00
+chou palmier|12|0.00
+Chou pointu|11|0.00
+Chou romanesco|35|0.00
+chou rouge|43|0.00
+Chrain|2|0.00
+Cibeba|1|0.00
+ciboule|64|0.07
+ciboulette|0|0.27
+Cima di Bitonto|1|0.00
+Cinq Côtes|1|0.00
+Cipressino|1|0.00
+Ciri Rojo|1|0.00
+Citrinos do Algarve|2|0.00
+citron|35|9.05
+Citron confit au sel|20|0.00
+citron d'Assam|3|0.00
+citron de Menton|1|0.00
+citrouille|128|2.43
+Citrus|112|0.00
+Citrus maxima|108|0.00
+Citrus sulcata|4|0.00
+Citrus voangiala|1|0.00
+Clarinette|1|3.11
+clémentine|48|0.00
+clémentine de Corse|1|0.00
+Clementine di Calabria IGP|2|0.00
+Clemenvilla|1|0.00
+Clivia|5|0.00
+Cloche|7|18.24
+Close|2|9.19
+Cobrançosa|0|0.00
+coing|12|0.41
+Collaos|1|0.00
+Collina|3|0.00
+Colocasia esculenta|111|0.00
+Combava|57|0.00
+concombre|18|1.15
+Concorde|9|1.22
+Conférence|14|16.28
+Coquette|2|2.84
+Coratina|2|0.00
+Corbella|1|0.00
+corberana|1|0.00
+Cordovil de Castelo Branco|0|0.00
+Cordovil de Serpa|0|0.00
+corivell|1|0.00
+Cornezuelo de Jaén|2|0.00
+Cornicabra|2|0.00
+cornichon|52|0.68
+cornichons du Spreewald|11|0.00
+Coroncina|2|0.00
+Cortland|8|0.00
+Cosmic Crisp|6|0.00
+Costoya|1|0.00
+Couille du pape|4|0.00
+courge|32|0.61
+courge butternut|17|0.00
+Courge spaghetti|21|0.00
+Courgeron|7|0.00
+courgette|60|0.00
+Court-Pendu|5|0.00
+Cox's Orange Pippin|18|0.00
+Cregueira|1|0.00
+Cucumis melo|2|0.00
+Cucumis melo 'Mirza'|2|0.00
+Cuir de fruit|3|0.00
+Curuba|9|0.00
+Cûtès Peûres|3|0.00
+Dahbedi|1|0.00
+damas noir|1|0.00
+Damassinier|3|0.00
+Dan|1|0.07
+datte|53|0.14
+Davlatboy|1|0.00
+De Canle|1|0.00
+De Cedo|1|0.00
+De Invierno|1|0.00
+De Invierno de Tor|1|0.00
+De la Riega|1|0.00
+De Noya|1|0.00
+De Rioboi|1|0.00
+De San Juan|1|0.00
+De San Roque|1|0.00
+Deglet Nour|12|0.00
+Dekopon|16|0.00
+Delcorf|7|0.00
+Delicia de Asturias|1|0.00
+Dioscorea trifida|15|0.00
+Diospyros kaki 'Tonewase'|1|0.00
+Discovery|8|0.00
+Diva|2|1.22
+Do Cú Negro|1|0.00
+Do País o Perdices|1|0.00
+Do Prado da Cima|1|0.00
+Dos Enfermos|1|0.00
+doyenné d'Alençon|3|0.00
+doyenné du Comice|10|0.00
+Duably|1|0.00
+Dulce de Veiga|1|0.00
+durian|73|0.00
+Durona de Tresali|1|0.00
+échalion|2|0.00
+Egremont Russet|7|0.00
+El hmira|2|0.00
+Ellison's Orange|5|0.00
+Elstar|11|0.00
+Empeltre|4|0.00
+Emperor|2|0.00
+Empire|5|60.74
+Encûr|1|0.00
+endive|9|0.14
+Enterprise|2|0.00
+épinard|137|0.41
+Era|7|0.00
+Erremedio Sagarra|1|0.00
+Esopus Spitzenburg|4|0.00
+Esperiega Ademuz|1|0.00
+Espiño Mol|1|0.00
+Espleje|1|0.00
+Ezti-Beltza|1|0.00
+faîne|17|0.07
+Fameuse|2|16.28
+farga|3|0.00
+Faros|2|0.00
+Favarol|1|0.00
+Favolosa|1|0.00
+Ferroi|1|0.00
+Feuille de chêne|1|0.00
+feuilles d'épinard|1|0.00
+feuilles de vigne|22|0.00
+Ficodindia dell'Etna AOP|2|0.00
+figue|30|1.28
+figue de Barbarie|10|0.00
+figue sèche|5|0.00
+Fjellmandel fra Oppdal|1|0.00
+flageolet|3|0.34
+Flavr Savr|14|0.00
+Florina|7|0.00
+Fondante des Bois|2|0.00
+Forastera de Valentins|1|0.00
+fraise|17|3.92
+fraise blanche|28|0.00
+Fraise de Cachoubie|2|0.00
+Fraise de Carros|0|0.00
+Fraise de Nîmes|1|0.00
+fraise de Samer|1|0.00
+Fraise de Washington|1|0.00
+fraise des bois|1|0.00
+fraise du Périgord|1|0.00
+framboise|81|3.92
+Frantoio|8|0.00
+Freixerana|1|0.00
+Friggitello|10|0.00
+fruit à noyau|9|0.00
+fruit à pain|11|0.00
+fruit à pépins|5|0.00
+fruit comestible|114|0.00
+fruit de la passion|27|0.00
+fruit de table|0|0.00
+fruit exotique|1|0.00
+fruit non comestible|0|0.00
+fruit sec|21|0.00
+fruit séché|57|0.00
+fruit tropical|18|0.00
+fruits en conserve|2|0.00
+fruits rouges|56|0.00
+fruits tombés|3|0.00
+ftimi|3|0.00
+Fuji|26|0.00
+Fukujinzuke|11|0.00
+Fulla de salze|1|0.00
+Gabiroba|1|0.00
+Gagatai|1|0.00
+Gala|22|2.97
+galanga|25|0.00
+Galega|0|0.00
+Galeuse|2|1.22
+Galeuse d'Eysines|1|0.00
+gari|25|0.14
+Garmiyon|1|0.00
+Gaufre aux fruits|1|0.00
+Geheimrat Doktor Oldenburg|8|0.00
+Gemlik olive|3|0.00
+Gerboui|0|0.00
+Germaine|2|0.47
+germe de légume sec|6|0.00
+Gezamin|1|0.00
+gingembre|18|0.88
+Giromon|3|0.00
+Gladstone|2|0.00
+Glenn|3|0.00
+Gloster|9|0.00
+Golden Delicious|30|0.00
+Golden Gallega|1|0.00
+Golden Noble|6|0.00
+Goldrush|2|0.00
+Gordal Sevillana|4|0.00
+goyave|69|0.20
+graine germée|32|0.00
+Grand Alexandre|5|0.00
+Granny Smith|32|0.00
+Gravell|1|0.00
+Gravenstein|13|0.00
+graviola|10|0.00
+Grelos|1|0.00
+grenade|45|6.49
+Grenadier|5|1.42
+Grifer|1|0.00
+Gros locard|2|0.00
+Gros Michel|15|0.00
+groseille|4|0.54
+groseille à maquereau|4|0.00
+groseille blanche|19|0.00
+groseiller|87|0.00
+Grossane|2|0.00
+Gulløye fra Nord-Norge|2|0.00
+Gulnoz|1|0.00
+Gulqand|18|0.00
+Gurvak|1|0.00
+Haden|2|0.00
+Haralson|4|0.00
+haricot vert|46|0.00
+Hojanca|1|0.00
+Hojiblanca|5|0.00
+Honeycrisp|10|0.00
+HoneyCrunch|2|0.00
+Huckleberry|12|0.00
+Hull Thornless|1|0.00
+Idared|17|0.00
+igname|73|0.07
+Ingrid Marie|8|0.00
+Irwin|4|0.00
+Isfarak|1|0.00
+Italia|6|0.00
+Itrana|3|0.00
+Jacques Lebel|3|0.00
+Jaën noir|2|0.00
+Jakob Fischer|3|0.00
+Jamba|5|0.00
+James Grieve|10|0.00
+Jauregizarra|1|0.00
+Jazz|13|8.11
+Jlut|1|0.00
+Jolana|1|0.00
+Jonafree|2|0.00
+Jonagold|20|0.00
+Jonagored|3|0.00
+Jonathan|19|0.00
+Joseph Musch|2|0.00
+Joséphine de Malines|5|0.00
+Juan García|3|0.00
+Judaine|2|0.00
+Judeline|2|0.00
+Juliet|2|0.00
+Jupiter|1|0.00
+Kaissy|1|0.00
+kaki|49|5.34
+Kalamata|18|0.00
+Kamo-nasu|1|0.00
+Kandil Sinap|6|0.00
+Kanpei|7|0.00
+Kanzi|8|0.00
+Karmijn de Sonnaville|7|0.00
+Kasuzuke|6|0.00
+Katja|7|0.00
+Kawachi bankan|3|0.00
+Keitt|2|0.00
+Kensington Pride|3|0.00
+Kent|3|0.00
+kenta|2|0.00
+Kidd's Orange Red|6|0.00
+kimchi|86|0.00
+kiwi|98|0.07
+Kiwi de l'Adour|2|0.00
+Kiwi doré|5|0.00
+Kiwi Latina IGP|1|0.00
+kombu|32|0.00
+komikan|5|0.00
+Korbiniansapfel|3|0.00
+Koronéïki|7|0.00
+Kronprinz Rodolphe|2|0.00
+Kumato|5|0.00
+kumquat|67|0.00
+kumquat de Rongan|1|0.00
+Kunenbo|3|0.00
+La Bella della Daunia AOP|1|0.00
+Lacrima|5|0.00
+Lady Williams|6|0.00
+laitue|127|1.62
+Langley Pippin|1|0.00
+Leccino|5|0.00
+Leccio del Corno|1|0.00
+Lechín|1|0.00
+légume|210|2.09
+légume-bulbe|1|0.00
+légume-feuille|39|0.00
+légume-fleur|4|0.00
+légume-fruit|6|0.00
+Légume-phénomène|5|0.00
+légume-racine|51|0.00
+légume-tubercule|1|0.00
+légume vivace|3|0.00
+légumes congelés|5|0.00
+Leucocarpa margherita|1|0.00
+Leuros|1|0.00
+Liberty|5|0.00
+Libra Sagarra|1|0.00
+lime|74|2.91
+lime de Tahiti|0|0.00
+limequat|16|0.00
+Limette|3|0.00
+Limo|1|0.00
+Limón de Pica|4|0.00
+Limone Costa d'Amalfi IGP|4|0.00
+Limone di Siracusa IGP|4|0.00
+Limone di Sorrento IGP|3|0.00
+Litchi|6|0.00
+Llumeta|2|0.00
+Lo pitó|1|0.00
+Lobo|7|0.00
+Lodi|3|0.00
+longane|0|0.00
+Lord Lambourne|7|0.00
+Lucques|4|0.00
+Lundbytorp|3|0.00
+Lüneburger Heidekartoffeln|1|0.00
+Maçanilha Algarvia|0|0.00
+Macoun|6|0.00
+Mairac|3|0.00
+Malossol|4|0.00
+Malus domestica 'Belgica'|2|0.00
+Malus domestica 'Maikki'|1|0.00
+Malus domestica 'Mutsu'|10|0.00
+Malus domestica 'Tábor'|1|0.00
+Mandaka|1|0.00
+mandarine|34|2.09
+mangue|146|0.74
+manioc amer|0|0.00
+Manttoni|1|0.00
+Manubenca|1|0.00
+Manzana de Invierno|1|0.00
+Manzana de Julio|1|0.00
+Manzana-Pera de Azpíroz|1|0.00
+Manzana Roja de Lozoya|1|0.00
+Manzanilla|4|0.61
+Manzanillo de Jaén|1|0.00
+Mara des bois|1|0.00
+Marfil|1|0.00
+Maron|1|0.00
+marron|6|13.72
+Marrone del Mugello IGP|1|0.00
+Marrone di Combai IGP|0|0.00
+Marrone di Roccadaspide IGP|2|0.00
+Marrone di San Zeno AOP|2|0.00
+Massanell|1|0.00
+Matsumaezuke|9|0.00
+Maurino|1|0.00
+Mazá de Todo o Ano|1|0.00
+Mazafati|7|0.00
+McIntosh|24|0.00
+Mediana Agosto|1|0.00
+Medjool|13|0.00
+Mela di Valtellina IGP|0|0.00
+Mela Rossa Cuneo IGP|0|0.00
+Mela Val di Non AOP|2|0.00
+Melba|10|0.20
+Mellunaro|1|0.00
+melon|42|5.20
+melon d'hiver|10|0.00
+melon de Cavaillon|6|0.00
+melon de Guadeloupe|2|0.00
+melon du Haut-Poitou|2|0.00
+melon du Quercy|1|0.00
+melon Galia|11|0.00
+Melon hami|13|0.00
+melon miel|23|0.00
+Melone Mantovano IGP|1|0.00
+Melrose|7|0.00
+Menya|1|0.00
+Meski|0|0.00
+Meslalla|3|0.00
+micropousse|21|0.00
+Minerva|1|0.00
+mirabelle de Lorraine|2|0.00
+Mission|3|42.36
+Mokatia|1|0.00
+Moonlight|1|0.00
+Moraiolo|1|0.00
+Morcaire|1|0.00
+morrut|1|0.00
+Mozuku|8|0.00
+Mukharam Abu Satl|1|0.00
+Muleiriña|1|0.00
+mûre|61|4.80
+Musaby|1|0.00
+muscat blanc à petits grains|12|0.00
+Muy Grande Aplanada|1|0.00
+myrtille|15|0.34
+Nabali olive|3|0.00
+Nam Dok Mai|1|0.00
+Narazuke|4|0.00
+Narekatsi|1|0.00
+Naruto kintoki|1|0.00
+Nashi|1|0.00
+Natsumikan|3|0.00
+Navel|10|0.00
+navet|97|0.88
+nectarine|36|0.00
+Nectavigne|2|0.00
+nèfle|4|0.00
+Negret|1|0.00
+Négrette|1|0.00
+Nera di Gonnos|1|0.00
+Nera di Oliena|1|0.00
+New Season Comber Potatoes|1|0.00
+Nez de chat|1|0.00
+Nicogreen|2|0.00
+Nocciola di Giffoni IGP|1|0.00
+Nocciola Romana AOP|2|0.00
+Nocellara del Belice|1|0.00
+Nocellara del Belice AOP|4|0.00
+Nocellara etnea|1|0.00
+noisette|63|1.82
+noix|73|12.23
+Noix d'arec|40|0.00
+noix de cajou|15|0.00
+noix de coco|35|0.00
+noix de coco mûre|1|0.00
+noix de coco verte|1|0.00
+noix de Grenoble|4|0.00
+noix de kola|34|0.00
+noix de macadamia|12|0.00
+noix de pécan|5|0.00
+Noix du Brésil|3|0.00
+Noix du Périgord|2|0.00
+Norfolk Royal|1|0.00
+Northern Spy|9|0.00
+Nostrale di Rigali|1|0.00
+noyau d'abricot|17|0.00
+Nukazuke|8|0.00
+nyora|7|0.00
+Ogliara|1|0.00
+oignon|16|5.34
+oignon de Cavasso Nuovo|2|0.00
+Oignon de Makó|2|0.00
+Oignon de Roscoff|5|0.00
+Oignon doux des Cévennes|3|0.00
+Oignon grelot|13|0.00
+Oignon pomme de terre|6|0.00
+oignon rouge|18|0.00
+Okinawa-Mozuku|12|0.00
+olesana|1|0.00
+Oliana olive|1|0.00
+Oliva grossa|1|0.00
+Oliva lavagnina|1|0.00
+Oliva Majatica di Ferrandina|2|0.00
+Oliva nera di Colletorto|1|0.00
+Olivastra seggianese|1|0.00
+olive|47|4.12
+Olive de Nice|3|0.00
+Olive de Nîmes|1|0.00
+olive de table|7|0.00
+Olive intosso PAT|1|0.00
+olive noire|1|0.00
+Olive noire de Nyons|1|0.00
+olive verte|0|0.00
+Olivera de l'Amado|1|0.00
+Olivière|2|0.00
+Ollo Blanco|1|0.00
+Ontario|5|0.00
+Opal|6|0.00
+orange|164|12.03
+orange maltaise|2|0.00
+orange sanguine|36|0.00
+orange sans acidité|2|0.00
+Oroblanco|22|0.00
+Ortell|1|0.00
+Ottobratica|1|0.00
+Oueslati|0|0.00
+pain de singe|3|0.00
+pamplemousse|10|0.95
+pamplemousse rose|0|0.00
+Panisello|1|0.00
+Panquerina|1|0.00
+papaye|14|0.14
+Parecida a Carapanón|1|0.00
+Parecida a Cox|1|0.00
+Parecida a De Cera|1|0.00
+Parecida a Golden|1|0.00
+Parecida a Golden de Baltar|1|0.00
+Parecida a Reineta|1|0.00
+Parecida a Repinaldo|1|0.00
+Parecida a Starking|1|0.00
+Parecida a Tabardilla|1|0.00
+Passe-Crassane|5|0.14
+Pàssula|1|0.00
+pastèque|22|1.62
+pastèque carrée|16|0.00
+Pataca de Galicia|3|0.00
+Patata della Sila IGP|2|0.00
+Patata Kato Nevrokopiou|2|0.00
+Patata Naxou|2|0.00
+Patata novella di Messina|2|0.00
+Patata rossa di Colfiorito|2|0.00
+Patatas de Prades|3|0.00
+patate douce|151|0.00
+Patate douce en Chine|1|0.00
+pâtisson|27|0.00
+Patrinia|1|0.00
+Patte de loup|2|0.00
+Patzolua|1|0.00
+Pavie|1|0.00
+Paxeta|1|0.00
+Peangon-Nonsur|1|0.00
+Pearmain de Mabbott|1|0.00
+pêche|31|26.76
+Pedra Dura|1|0.00
+Pedro Giménez|2|0.00
+Peiro|1|0.00
+Pembrokeshire Earlies|1|0.00
+Pendolino|1|0.00
+Peperone di Pontecorvo AOP|1|0.00
+Pera dell'Emilia Romagna IGP|1|0.00
+Pera mantovana IGP|1|0.00
+Peranzana|1|0.00
+Pero de Álava|1|0.00
+Pero de Aragón|1|0.00
+Pero de Invierno|1|0.00
+Pero de Portas|1|0.00
+Pero de Ronda|1|0.00
+Pero de Sangüesa|1|0.00
+Pero de Senra|1|0.00
+Pero Dourado|1|0.00
+Pero Dulce|1|0.00
+Pero Mingán|1|0.00
+Pero Pardo|1|0.00
+Pero Real|1|0.00
+Pero Repinaldo|1|0.00
+Peros de Quinte|1|0.00
+Peruco de Caparroso|1|0.00
+Pesca bianca di Venezia PAT|1|0.00
+Pesca di Leonforte IGP|0|0.00
+Pesca di Verona IGP|0|0.00
+Pescabivona IGP|2|0.00
+Petit carré de Nice|0|0.00
+Petit ribier|1|0.00
+Picholine|5|0.00
+Pickle|15|0.00
+Pickles|33|0.20
+Picual|6|0.00
+Pignola|1|0.00
+pignon de pin|53|0.00
+Pilot|4|0.00
+Piment de Padrón|16|0.00
+Pink Lady|13|0.00
+Pinova|7|0.00
+Piros|4|0.00
+Pisciottana|2|0.00
+pissenlit|3|1.28
+pistache|8|0.74
+pistache de Raffadali|3|0.00
+pitaya|82|0.00
+Pizz'e carroga|1|0.00
+plant de pomme de terre|0|0.00
+plantain vrai|6|0.00
+Plate de Florenville|1|0.00
+Pohorka|4|0.00
+poire|47|10.81
+Poire à la beaujolaise|8|0.00
+poire de Savoie|1|0.00
+Poire Rochas|8|0.00
+poire tapée|1|0.00
+poireau|97|0.88
+Poireau de Créances|1|0.00
+pois gourmand|0|0.00
+poivron|68|0.27
+pomate|19|0.00
+Pomelo de Corse|1|0.00
+pomme|240|46.08
+pomme à cidre|9|0.00
+pomme à cuire|6|0.00
+pomme Baldwin|5|0.00
+pomme d'api|7|0.00
+pomme de Savoie|1|0.00
+pomme de table|5|0.00
+pomme de terre|67|0.00
+Pomme de terre de Merville|1|0.00
+Pomme de terre de primeur|3|0.00
+Pomme de terre transgénique|8|0.00
+Pomme de Transylvanie|1|0.00
+Pomme du Limousin|2|0.00
+Pomme Safranée|3|0.00
+Pommes de terre de Chiloé|5|0.00
+Pommes et poires de Savoie|2|0.00
+Ponzino|1|0.00
+Porta da Loja|1|0.00
+Potato Patch Plan|2|0.00
+PotatoEurope|2|0.00
+Potimarron|10|0.00
+pousse de soja|12|0.00
+pousse de soja vert|29|0.00
+Prince Albert de Prusse|5|0.00
+prune|87|1.55
+Prune de Wangenheim hâtive|1|0.00
+pruneau|36|1.35
+prunelle|6|3.11
+prunier|96|1.28
+puntarelle|11|0.00
+Pyrus communis 'IJsbout'|1|0.00
+Qiwî|1|0.00
+Quelite|5|0.00
+Quercetano|1|0.00
+Quinte|2|3.85
+Rabala|1|0.00
+racine de manioc|0|0.00
+racine de persil|0|0.00
+Radicchio|23|0.00
+Radicchio di Chioggia|4|0.00
+Raggia|1|0.00
+raisin|195|4.86
+raisin de Corinthe|21|0.00
+raisin sec|103|0.00
+Rambo|8|0.00
+Rambour d'été|4|0.00
+ramboutan|89|0.00
+Ravece|1|0.00
+Reanda|3|0.00
+Rebella|1|0.07
+Red Jonaprince|2|0.00
+Redfree|2|0.00
+Redondal|0|0.00
+Regine|1|0.00
+Reglindis|3|0.00
+Regona|1|0.00
+Reine des reinettes|9|0.00
+Reineta de Caux|2|0.00
+Reineta de Portas|1|0.00
+Reineta Encarnada de Ávila|1|0.00
+Reineta Gris|1|0.00
+Reineta Panera|1|0.00
+Reineta Pinta|1|0.00
+Reinette|14|0.34
+Reinette Ananas|10|0.00
+Reinette Baumann|8|0.00
+Reinette Bergamotte|2|0.00
+Reinette Clochard|2|0.00
+Reinette d'Armorique|2|0.00
+Reinette de Caux|2|0.00
+Reinette de France|1|0.00
+Reinette de Landsberg|8|0.00
+Reinette de Mascon|0|0.00
+Reinette dorée de Berlepsch|5|0.00
+Reinette dorée de Dietz|0|0.00
+Reinette du Canada|7|0.00
+Reinette étoilée|5|0.00
+Reinette grise du Canada|1|0.00
+Reinette Musquée|4|0.00
+Reinette Newtown|5|0.00
+Remo|3|0.00
+René Martin|0|0.00
+Repinaldo de Insua|1|0.00
+Rewena|3|0.00
+Rhode Island Greening|4|0.00
+rhubarbe|0|6.49
+Ribston|8|0.00
+Riesling|46|0.20
+Ringerikspotet fra Ringerike|3|0.00
+Riscadas|1|0.00
+Roja de Narbarte|1|0.00
+Roja Muy Fuerte|1|0.00
+Roja Plana|1|0.00
+Rojal|1|0.00
+Romarin blanche|2|0.00
+Rome Beauty|6|0.00
+Ros Alargada|1|0.00
+Ros Redonda|1|0.00
+Rosciola|1|0.00
+Rose de Berne|4|0.00
+Rose de Bouchetière|1|0.00
+Rose de Virginie|2|0.00
+Rosée-du-Mont-d'Or|1|0.00
+Roter Brasil|2|0.00
+Roter Eiserapfel|3|0.00
+Rotondella|1|0.00
+Rougette|1|0.00
+Rougette de Pignan|1|0.00
+Roxbury Russet|4|0.00
+Royal|3|16.49
+Rubin|6|0.00
+Rubinette|4|0.00
+Rubus caesius|5|0.00
+Ruché|7|2.03
+Sabine|2|0.00
+Sagar Gorria|1|0.00
+Saint Martin's|3|0.00
+salade de concombre|0|0.00
+Salade de jambon|9|0.00
+Salonenque|2|0.00
+salt potatoes|11|0.00
+Salvador|1|0.00
+Sampion|10|0.00
+Sangre de Toro de Magazos|1|0.00
+Sangre de Toro de Vieiro|1|0.00
+Sans Pareil de Peasgood|7|0.00
+Santana|4|0.00
+Sapote|12|0.00
+Sarrut|1|0.00
+Sbresa|1|0.00
+Scalogno di Romagna IGP|1|0.00
+sevillenca|3|0.00
+Sigoise|1|0.00
+Sikitita|1|0.00
+Sir Prize|2|0.00
+Slavyanka|2|0.00
+Solafuente|1|0.00
+Soldat laboureur|3|0.00
+Sorany|1|0.00
+Soury|0|0.00
+Spartan|10|0.00
+Sperone di gallo|1|0.00
+Starking Delicious|4|0.00
+Stromberger Pflaume|1|0.00
+sultanine|27|0.00
+Suntan|5|0.00
+Svyriai|1|0.00
+Tabardilla|1|0.00
+Tabardilla Antigua|1|0.00
+Tabardilla de Magazos|1|0.00
+Tabardilla de Veiga|1|0.00
+Takuan|21|0.00
+Tamarinier|4|0.00
+Tanche|2|0.41
+Tardía de Masma|1|0.00
+Tardía de Octubre|1|0.00
+Teint frais|2|0.00
+Temprana Blanca|1|0.00
+Temprana de Cereixido|1|0.00
+Temprana de Herbón|1|0.00
+Tentation|3|16.01
+tête d'ail|12|0.00
+Tête de violon|20|0.00
+Thé de Gisovu|2|0.00
+théier|94|0.00
+Titania|1|0.00
+Titiri|1|0.00
+Toca Pandeiro|1|0.00
+tomate|18|5.74
+Tomate ancienne|4|0.00
+tomate cerise|31|0.00
+tomate ciliegino di Vittoria|1|0.00
+Tomate Datterino|13|0.00
+tomate roma|4|0.00
+tomate Santorini|4|0.00
+tomates en boîte|14|0.00
+tomates séchées au soleil|17|0.00
+Topaz|12|0.00
+torchi|34|0.00
+Transparente blanche|14|0.00
+Transparente de Croncels|6|0.00
+Trélage|1|0.00
+Tres en Rama|1|0.00
+Triomphe de Vienne|3|0.00
+Trnjak|1|0.00
+tsukemono|29|0.00
+tutti frutti|4|0.41
+Txalaka|1|0.00
+Ubi Cilembu|6|0.00
+Uelzener Rambour|2|0.00
+Ugli|24|0.00
+Ukrainian Purple|2|0.00
+Umeboshi|34|0.00
+Urdin Sagarra|1|0.00
+Uttwiler Spätlauber|4|0.00
+Uva di Puglia IGP|2|0.00
+Valiant|1|0.00
+Vanda|3|0.00
+Vengerka|1|0.00
+vera del Montserratí|1|0.00
+Vera del Vallès|1|0.00
+verdal|1|0.00
+Verdale|1|0.00
+Verdale-de-l'Hérault|2|0.00
+Verdedoncella|1|0.00
+Verdellas|1|0.00
+Verdial|2|0.00
+Verdialona|1|0.00
+verdiell|2|0.00
+Verdosa Septiembre|1|0.00
+Verdosa Temprana|1|0.00
+verger|0|5.88
+Victoria|1|0.34
+Vilallonga|3|0.00
+Violette de Montpellier|1|0.00
+Vizcaiña|1|0.00
+Wachauer Marille|2|0.00
+Wagener|6|0.00
+Westlandse druif|1|0.00
+Winston|5|0.00
+Winter Banana|7|0.00
+Worcester Pearmain|8|0.00
+Xaneira|1|0.00
+Xanglot reial|2|0.00
+Yorkshire Forced Rhubarb|4|0.00
+Zagadka|1|0.00
+Zari|0|0.00
+Zauty|1|0.00
+Zelen|1|0.00
+Zeus|1|0.00

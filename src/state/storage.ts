@@ -1,0 +1,51 @@
+import { NEW_PROFILE, type Profile } from '../domain/progression'
+
+const PROFILE_KEY = 'lettrine.profile.v1'
+const SUBMISSIONS_KEY = 'lettrine.submissions.v1'
+
+/** A word the player proposed while the dictionary did not know it. */
+export interface PendingSubmission {
+  word: string
+  categoryId: string
+  at: number
+}
+
+function read<T>(key: string, fallback: T): T {
+  try {
+    const raw = localStorage.getItem(key)
+    return raw ? ({ ...fallback, ...JSON.parse(raw) } as T) : fallback
+  } catch {
+    // A quota error, private mode or a half-written value must not cost a run.
+    return fallback
+  }
+}
+
+function write(key: string, value: unknown): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    /* nothing to do: the session simply stays in memory */
+  }
+}
+
+export function loadProfile(): Profile {
+  return read<Profile>(PROFILE_KEY, NEW_PROFILE)
+}
+
+export function saveProfile(profile: Profile): void {
+  write(PROFILE_KEY, profile)
+}
+
+export function loadSubmissions(): PendingSubmission[] {
+  try {
+    const raw = localStorage.getItem(SUBMISSIONS_KEY)
+    const parsed = raw ? (JSON.parse(raw) as PendingSubmission[]) : []
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+export function saveSubmissions(submissions: readonly PendingSubmission[]): void {
+  write(SUBMISSIONS_KEY, submissions)
+}

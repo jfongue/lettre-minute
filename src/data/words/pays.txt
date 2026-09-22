@@ -1,0 +1,568 @@
+Afghanistan|362|0.00
+Afrique du Sud|368|0.00
+Albanie|386|0.00
+Algérie|373|0.00
+Allemagne|405|0.27
+Amérique|427|1.08
+Amérique lusophone|387|0.00
+Andorre|333|0.00
+Angola|322|0.00
+Antigua-et-Barbuda|266|0.00
+Antigue-et-Barbude|266|0.00
+Arabie saoudite|350|0.00
+Arabie séoudite|350|0.00
+Archipel Cook|187|0.00
+Argentine|372|1.62
+Arménie|352|0.00
+Aruba|200|0.00
+ARYM|326|0.00
+Auriverde|387|0.00
+Australie|399|0.00
+Autorité palestinienne|225|0.00
+Autriche|372|0.00
+Azerbaïdjan|361|0.00
+ba|342|0.00
+Bahamas|279|0.00
+Bahreïn|306|0.00
+Bangladesh|348|0.00
+Barbade|276|0.00
+bb|276|0.00
+Bélarus|359|0.00
+Belau|257|0.00
+Belgique|383|0.27
+Belize|281|0.00
+Bénin|307|0.74
+bf|308|0.00
+Bharatvarsh|403|0.00
+Bhoutan|304|0.00
+Biélorussie|359|0.00
+Birmanie|317|0.00
+Bolivie|313|0.00
+Bosnie|66|0.00
+Bosnie-et-Herzégovine|342|0.00
+Bosnie-Herzégovine|342|0.00
+Botswana|313|0.00
+Brazil|387|0.00
+brb|276|0.00
+Brésil|387|0.07
+Brésilien|387|1.69
+Brésilienne|387|1.55
+Brézil|387|0.00
+Brunei|298|0.00
+Brunéi Darussalam|298|0.00
+BT|304|0.00
+Bulgarie|361|0.00
+Burkina|308|0.00
+Burkina Faso|308|0.00
+Burundi|302|0.00
+Cambodge|330|0.00
+Cameroun|314|0.00
+Canada|398|0.54
+Cap-Vert|290|0.00
+Carniole|331|0.00
+Centrafrique|301|0.00
+Ceylan|308|0.00
+CG|300|0.00
+Chili|380|0.07
+Chine|399|0.54
+Chine communiste|399|0.00
+Chine continentale|399|0.00
+Chine populaire|399|0.00
+Chypre|325|0.14
+Chypre du Nord|183|0.00
+Chypre Nord|183|0.00
+Chypre-Sud|325|0.00
+Chypriotes|325|0.00
+Cité du Vatican|342|0.00
+Colombie|367|0.00
+Commonwealth d'Australie|399|0.00
+Commonwealth de Dominique|264|0.00
+Commonwealth des Bahamas|279|0.00
+Comores|284|0.00
+Comté de Waldeck|41|0.00
+Confédération helvétique|387|0.00
+Confédération suisse|387|0.00
+Congo|300|0.00
+Congo Brazza|300|0.00
+Congo-Brazzaville|300|0.00
+Cook|187|0.00
+Cook Islands|187|0.00
+Corée du Nord|311|0.00
+Corée du Sud|355|0.00
+Costa Rica|302|0.00
+Côte d'Ivoire|311|0.00
+Croatie|356|0.00
+Cuba|312|0.00
+Curaçao|166|0.47
+cy|325|0.00
+Danemark|369|0.00
+Danemark métropolitain|369|0.00
+Danemark propre|369|0.00
+Djibouti|300|0.00
+dm|264|0.00
+Dominica|264|0.00
+Dominicaine|280|0.47
+Dominique|264|0.00
+Dzayer|373|0.00
+É-U|427|0.00
+EFM|222|0.00
+Égypte|390|0.00
+El Salvador|287|0.00
+Émirats|319|0.20
+Émirats arabes unis|319|0.00
+Équateur|315|1.55
+Érythrée|308|0.00
+Espagne|396|0.00
+Esthonie|354|0.00
+Estonie|354|0.00
+Eswatini|286|0.00
+État chypriote turc|183|0.00
+État d'Érythrée|308|0.00
+État d'Israël|379|0.00
+État de la Cité du Vatican|342|0.00
+État de Palestine|225|0.00
+État de Saint Martin|126|0.00
+État de Sint Maarten|126|0.00
+État des Tuvalu|253|0.00
+État du Japon|419|0.00
+État du Koweït|305|0.00
+État hébreu|379|0.00
+État indépendant des Samoa|261|0.00
+État palestinien|225|0.00
+État turc de Chypre|183|0.00
+États|427|26.15
+États fédérés de Micronésie|222|0.00
+États-Unis|427|0.00
+États-Unis d'Amérique|427|0.00
+États-Unis du Mexique|400|0.00
+États-Unis mexicains|400|0.00
+Éthiopie|347|0.00
+ÉU|427|436.76
+Fédération de Malaisie|339|0.00
+Fédération de Russie|421|0.00
+Fédération malaise|339|0.00
+Fédération russe|421|0.00
+Fidji|280|0.00
+Fiji|280|0.00
+Finlande|403|0.00
+FM|222|0.00
+Fort-Hercule|321|0.00
+France|428|0.00
+GA|295|0.00
+Gabon|295|0.00
+Gambie|300|0.00
+gd|251|0.00
+Géorgie|348|0.00
+Ghana|324|0.00
+Gouvernement impérial d'Iran|41|0.00
+GR|378|0.00
+Grand-Duché de Luxembourg|335|0.00
+Grande-Bretagne|396|0.00
+grd|251|0.00
+Grèce|378|0.00
+Grenade|251|6.49
+Groenland|255|0.00
+GT|281|0.00
+Guatemala|281|0.00
+Guinée|301|0.07
+Guinée-bissao|298|0.00
+Guinée-Bissau|298|0.00
+Guinée-Conakry|301|0.00
+Guinée équatoriale|284|0.00
+Guyana|286|0.00
+Haïti|291|0.00
+Hanguk|355|0.00
+Hellas|378|0.00
+Helvétie|387|0.00
+Hexagone|428|0.47
+Hindustan|403|0.00
+Hollande|374|0.07
+Honduras|297|0.00
+Hongrie|357|0.00
+HR|356|0.00
+île d'Aruba|200|0.00
+île de Ceylan|308|0.00
+île de Curaçao|166|0.00
+Ile Maurice|283|0.00
+Îles Cook|187|0.00
+îles du Cap-Vert|290|0.00
+îles Fidji|280|0.00
+îles Fiji|280|0.00
+Îles Gilbert|249|0.00
+îles Maldives|289|0.00
+Îles Marshall|236|0.00
+Îles Philippines|334|0.00
+Îles Salomon|244|0.00
+Inde|403|0.14
+Indonésie|365|0.00
+Indostan|403|0.00
+Irak|350|0.00
+Iran|376|0.00
+Iran pahlavi|41|0.00
+Iraq|350|0.00
+Irlande|342|0.00
+Islande|355|0.00
+Isle de la Dominique|264|0.00
+ISR|379|0.00
+Israël|379|0.00
+Italie|409|0.00
+Jamaïque|281|0.00
+Japon|419|0.20
+Jordanie|314|0.00
+Katar|290|0.00
+Kazakhstan|350|0.00
+Kazakstan|350|0.00
+Kenya|337|0.00
+ki|249|0.00
+Kirghizie|319|0.00
+Kirghizistan|319|0.00
+Kirghizstan|319|0.00
+Kiribati|249|0.00
+KN|239|0.00
+Kosovo|283|0.00
+Kossovo|283|0.00
+Koweït|305|0.00
+kp|311|0.00
+Kuwait|305|0.00
+Laos|315|0.07
+LC|235|0.00
+Lesotho|280|0.00
+Lettonie|336|0.00
+Liban|329|0.00
+Liberia|292|0.00
+Libye|333|0.00
+Liechtenstein|316|0.00
+Lithuanie|352|0.00
+Lituanie|352|0.00
+LS|280|0.00
+Luxembourg|335|0.00
+Macedoine|326|0.41
+Macédoine du Nord|326|0.00
+Madagascar|320|0.00
+Malaisie|339|0.00
+Malawi|298|0.00
+Maldives|289|0.00
+Mali|312|0.07
+Malte|327|0.00
+Maroc|334|0.00
+Marshall|236|0.00
+Mascate et Oman|28|0.00
+Maurice|283|0.00
+Mauritanie|304|0.00
+mc|321|0.00
+ME|323|4264.32
+Mexique|400|0.00
+MGL|321|0.00
+Micronésie|222|0.00
+Moldavie|330|0.00
+Monaco|321|0.00
+Mongalie|321|0.00
+Mongolie|321|0.07
+Mongolie-extérieure|321|0.00
+Monténégro|323|0.00
+Mozambique|301|0.00
+MU|283|1.96
+MV|289|0.00
+MW|298|0.00
+Namibie|315|0.00
+Naoero|265|0.00
+Nauru|265|0.00
+NCA|282|0.00
+nd Sint Maarten|126|0.00
+ne|302|7752.09
+Népal|323|0.00
+ng|349|0.00
+Ngwané|286|0.00
+ni|282|662.36
+NIC|282|0.00
+Nicaragua|282|0.00
+NIG|302|0.00
+Niger|302|0.00
+Nigeria|349|0.00
+Nioué|178|0.00
+Nipal|323|0.00
+Niue|178|0.00
+NL|374|0.00
+NL-SX|126|0.00
+NLD|374|0.00
+Norvège|393|0.00
+Nouvelle-Hollande|399|0.00
+Nouvelle-Zélande|349|0.00
+np|323|0.00
+om|297|0.00
+OMA|297|0.00
+Oman|297|0.00
+Oncle Sam|427|0.00
+Ouganda|312|0.00
+Ouzbékistan|308|0.00
+Ouzbekisthan|308|0.00
+P-B|374|0.00
+pa|302|2.43
+Paï-pou|323|0.00
+Pakistan|355|0.00
+Palaos|257|0.00
+Palau|257|0.00
+Palestine|225|0.00
+Panama|302|1.22
+Papouasie-Nouvelle-Guinée|285|0.00
+Paraguay|311|0.00
+Pays-Bas|374|0.00
+Pays de l'Oncle Sam|427|0.00
+pays des Cavaliers|362|0.00
+Pays des Hommes intègres|308|0.00
+pays du soleil levant|419|0.00
+pe|333|0.00
+Pérou|333|0.00
+Perse|376|0.47
+PG|285|0.00
+Philippines|334|0.54
+pk|355|0.00
+PM|302|0.00
+Pologne|390|0.00
+Portugal|371|0.00
+Principauté d'Andorre|333|0.00
+principauté de Liechtenstein|316|0.00
+Principauté de Monaco|321|0.00
+Principaute de Waldeck|41|0.00
+Principauté du Liechtenstein|316|0.00
+PW|257|0.00
+Qatar|290|0.00
+Qazaqstan|350|0.00
+RADP|373|0.00
+RC|300|0.00
+RD Congo|334|0.00
+RD du Congo|334|0.00
+RDC|334|0.00
+Repiblik Sesel|278|0.00
+République|301|20.41
+République arabe d'Égypte|390|0.00
+République arabe syrienne|336|0.00
+République argentine|372|0.00
+République centrafricaine|301|0.00
+république d'Albanie|386|0.00
+république d'Angola|322|0.00
+République d'Arménie|352|0.00
+République d'Autriche|372|0.00
+République d'Azerbaïdjan|361|0.00
+République d'Équateur|315|0.00
+République d'Estonie|354|0.00
+République d'Haïti|291|0.00
+République d'Inde|403|0.00
+République d'Indonésie|365|0.00
+République d'Irlande|342|0.00
+République d'Islande|355|0.00
+République d'Ouganda|312|0.00
+république de Biélorussie|359|0.00
+République de Bulgarie|361|0.00
+république de Chypre|325|0.00
+République de Colombie|367|0.00
+République de Corée|355|0.00
+République de Croatie|356|0.00
+République de Cuba|312|0.00
+République de Djibouti|300|0.00
+République de Finlande|403|0.00
+République de Gambie|300|0.00
+République de Géorgie|348|0.00
+République de Guinée|301|0.00
+République de Guinée-Bissao|298|0.00
+République de Guinée-Bissau|298|0.00
+République de l'Équateur|315|0.00
+République de l'Inde|403|0.00
+République de l'Ouganda|312|0.00
+République de Lettonie|336|0.00
+République de Lituanie|352|0.00
+République de Macédoine|326|0.00
+république de Madagascar|320|0.00
+République de Malte|327|0.00
+République de Maurice|283|0.00
+République de Moldavie|330|0.00
+République de Moldova|330|0.00
+République de Namibie|315|0.00
+République de Nauru|265|0.00
+République de Pologne|390|0.00
+République de Saint-Marin|314|0.00
+République de Serbie|352|0.00
+République de Sierra Leone|294|0.00
+République de Singapour|333|0.00
+République de Slovénie|331|0.00
+République de Turquie|425|0.00
+République de Vanuatu|264|0.00
+République de Zambie|309|0.00
+République des Fidji|280|0.00
+République des îles Fidji|280|0.00
+République des Îles Marshall|236|0.00
+république des Kiribati|249|0.00
+République des Maldives|289|0.00
+République des Palaos|257|0.00
+République des Philippines|334|0.00
+République des Seychelles|278|0.00
+République dominicaine|280|0.00
+République du Bénin|307|0.00
+République du Botswana|313|0.00
+République du Burundi|302|0.00
+République du Cameroun|314|0.00
+République du Cap-Vert|290|0.00
+République du Chili|380|0.00
+République du Congo|300|0.00
+République du Costa Rica|302|0.00
+République du Gabon|295|0.00
+République du Ghana|324|0.00
+République du Guatémala|281|0.00
+République du Honduras|297|0.00
+République du Kazakhstan|350|0.00
+République du Kenya|337|0.00
+République du Kosovo|283|0.00
+République du Libéria|292|0.00
+République du Malawi|298|0.00
+République du Mali|312|0.00
+République du Mozambique|301|0.00
+République du Nicaragua|282|0.00
+République du Niger|302|0.00
+République du Panama|302|0.00
+République du Paraguay|311|0.00
+République du Pérou|333|0.00
+République du Rwanda|303|0.00
+République du Salvador|287|0.00
+République du Sénégal|308|0.00
+république du Somaliland|167|0.00
+République du Soudan|334|0.00
+République du Soudan du Sud|281|0.00
+République du Surinam|288|0.00
+République du Suriname|288|0.00
+République du Tadjikistan|307|0.00
+République du Tchad|316|0.00
+République du Vanuatu|264|0.00
+République du Yémen|315|0.00
+République du Zimbabwe|320|0.00
+République française|428|0.00
+République gabonaise|295|0.00
+République hellénique|378|0.00
+République irlandaise|342|0.00
+République islamique d'Iran|376|0.00
+République italienne|409|0.00
+République kirghize|319|0.00
+République libanaise|329|0.00
+République nicaraguayenne|282|0.00
+République polonaise|390|0.00
+République portugaise|371|0.00
+République Rwandaise|303|0.00
+République slovaque|341|0.00
+république sud-africaine|368|0.00
+République tchèque|355|0.00
+République togolaise|302|0.00
+République tunisienne|328|0.00
+République turque|425|0.00
+république unie de Tanzanie|320|0.00
+RF|428|0.00
+RFA|405|0.00
+Roumanie|348|0.00
+Royaume d'Espagne|396|0.00
+Royaume d'Eswatini|286|0.00
+Royaume de Bahreïn|306|0.00
+Royaume de Belgique|383|0.00
+Royaume de Danemark|54|0.00
+Royaume de Norvège|393|0.00
+Royaume de Suède|370|0.00
+Royaume de Thailande|355|0.00
+Royaume des Pays-Bas|107|0.00
+Royaume des Tonga|260|0.00
+Royaume du Bhoutan|304|0.00
+Royaume du Cambodge|330|0.00
+royaume du Danemark|54|0.00
+Royaume du Lesotho|280|0.00
+Royaume du Maroc|334|0.00
+Royaume du Swaziland|286|0.00
+Royaume-Uni|396|0.00
+RP|334|0.00
+RPDC|311|0.00
+RU|421|0.61
+RUS|421|0.27
+Russie|421|0.00
+Rwanda|303|0.00
+Saint-Christophe-et-Nevis|239|0.00
+Saint-Christophe-et-Niévès|239|0.00
+Saint-Christopher-et-Nevis|239|0.00
+Saint-Kitts-et-Nevis|239|0.00
+Saint-Marin|314|0.00
+Saint-Martin|126|0.00
+Saint-Thomas-et-Prince|273|0.00
+Saint-Vincent-et-Grenadines|238|0.00
+Sainte-Lucie|235|0.00
+Salomon|244|0.00
+Salvador|287|0.00
+Samoa|261|0.00
+Samoa occidentales|261|0.00
+São Tomé e Príncipe|273|0.00
+Sao Tomé-et-Principe|273|0.00
+Savage|178|0.00
+SB|244|0.00
+sc|278|0.00
+SD|334|0.00
+Sénégal|308|0.00
+Serbie|352|0.00
+Serendib|308|0.00
+Seychelles|278|0.00
+Sierra Leone|294|0.00
+Singapour|333|0.00
+Sint-Maarten|126|0.00
+SK|341|0.00
+SL|294|0.00
+Slovaquie|341|0.00
+Slovénie|331|0.00
+Somalie|326|0.00
+Somaliland|167|0.00
+Soudan|334|0.00
+Soudan du Sud|281|0.00
+Sri Lanka|308|0.00
+St Maarten|126|0.00
+States|427|0.00
+Sud Soudan|281|0.00
+Suède|370|0.07
+Suisse|387|6.62
+Surinam|288|0.00
+Suriname|288|0.00
+SVG|238|0.00
+Swaziland|286|0.00
+SX|126|0.00
+Syrie|336|0.00
+sz|286|0.00
+Tadjikistan|307|0.00
+Tanzanie|320|0.00
+Taprobane|308|0.00
+Tchad|316|0.00
+Tchéquie|355|0.00
+th|355|0.00
+Thaïl|355|0.00
+Thaïlande|355|0.00
+Timor oriental|291|0.00
+TL|291|0.00
+TO|260|3.78
+Togo|302|0.00
+Tonga|260|0.00
+Trinidad-et-Tobago|251|0.00
+Trinité-et-Tobago|251|0.00
+Tunisie|328|0.00
+Turkménie|299|0.00
+Turkménistan|299|0.00
+Turq|425|0.00
+Turquie|425|0.00
+Tuvalu|253|0.00
+TV|253|0.00
+Ukraine|389|0.00
+Union des Comores|284|0.00
+Uruguay|324|0.00
+UZ|308|0.00
+Vanuatu|264|0.00
+Vatican|342|0.00
+VC|238|0.00
+Venezuela|344|0.00
+Viêt Nam|369|0.00
+Vietnam|369|0.00
+VN|369|0.00
+Waldeck-Pyrmont|41|0.00
+WS|261|0.00
+XK|283|0.00
+Yémen|315|0.00
+Zaïre|334|0.00
+Zambie|309|0.00
+Zimbabwe|320|0.00

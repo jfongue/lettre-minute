@@ -1,0 +1,216 @@
+Abou Dabi|184|0.00
+Abuja|199|0.00
+Accra|198|0.00
+Achgabat|187|0.00
+Addis-Abeba|200|0.00
+Aden|110|0.00
+Alger|213|0.00
+Alofi|96|0.00
+Amman|194|0.00
+Amsterdam|282|0.00
+Andorre-la-Vieille|193|0.00
+Ankara|240|0.00
+Antananarivo|165|0.00
+Apia|141|0.00
+Asmara|164|0.00
+Astana|214|0.00
+Asuncion|177|0.00
+Athènes|288|0.00
+Avarua|81|0.00
+Bad Arolsen|53|0.00
+Bagdad|251|0.00
+Bakou|248|0.00
+Bamako|177|0.00
+Bandar Lengueh|38|0.00
+Bandar Seri Begawan|162|0.00
+Bangkok|261|0.00
+Bangui|158|0.00
+Banjul|162|0.00
+Baramulla|41|0.00
+Basseterre|123|0.00
+Belgrade|230|0.00
+Belmopan|147|0.00
+Berlin|334|0.07
+Berne|207|1.49
+Beyrouth|213|0.00
+Bichkek|186|0.00
+Bissau|169|0.00
+Bloemfontein|143|0.00
+Bogota|279|0.00
+Brasilia|226|0.00
+Bratislava|225|0.00
+Brazzaville|173|0.00
+Bridgetown|145|0.00
+Bruxelles|240|0.00
+Bucarest|237|0.00
+Budapest|259|0.00
+Buenos Aires|276|0.00
+Canberra|213|0.00
+Caracas|216|0.00
+Castries|131|0.00
+Ciudad de la Paz|67|0.00
+Colombo|152|0.07
+Conakry|163|0.00
+Copenhague|246|0.00
+Dacca|222|0.00
+Dakar|177|0.00
+Damas|242|0.61
+Dili|159|0.00
+Djibouti|148|0.00
+Djouba|148|0.00
+Dodoma|159|0.00
+Doha|187|0.00
+Douchanbé|179|0.00
+Dublin|238|0.00
+Erevan|211|0.00
+Freetown|156|0.00
+Funafuti|122|0.00
+Gaborone|163|0.00
+Georgetown|144|0.00
+Gitega|97|0.00
+Guatemala|155|0.00
+Hanoï|201|0.00
+Harare|174|0.00
+Hargeisa|95|0.00
+Helsinki|293|0.00
+Honiara|127|0.00
+Islamabad|194|0.00
+Jakarta|251|0.00
+Jérusalem|298|0.00
+Jérusalem-Est|82|0.00
+Kaboul|220|0.00
+Kampala|183|0.00
+Katmandou|196|0.00
+Khartoum|183|0.00
+Kiev|277|0.00
+Kigali|164|0.00
+Kingston|159|0.00
+Kingstown|118|0.00
+Kinshasa|207|0.00
+Koweït|169|0.00
+Kuala Lumpur|213|0.00
+La Havane|198|0.00
+La Paz|158|0.00
+La Valette|181|0.00
+Le Caire|261|0.00
+Le Cap|217|0.00
+Libreville|160|0.00
+Lilongwe|156|0.00
+Lima|219|0.07
+Lisbonne|267|0.00
+Ljubljana|206|0.00
+Lobamba|96|0.00
+Lomé|162|0.00
+Londres|356|0.07
+Luanda|185|0.00
+Lusaka|164|0.00
+Luxembourg|175|0.00
+Madrid|305|0.00
+Majuro|123|0.00
+Malé|155|10.00
+Managua|157|0.00
+Manama|169|0.00
+Manille|206|0.81
+Maputo|164|0.00
+Maragha|57|0.00
+Mascate|159|0.00
+Maseru|152|0.00
+Mbabane|142|0.00
+Mexico|259|0.07
+Minsk|232|0.00
+Mogadiscio|170|0.00
+Monaco|321|0.00
+Monrovia|162|0.00
+Montevideo|205|0.00
+Moroni|143|0.00
+Moscou|337|0.00
+N'Djaména|163|0.00
+Nairobi|238|0.00
+Nassau|143|0.00
+Naypyidaw|157|0.00
+New Delhi|221|0.00
+Ngerulmud|88|0.00
+Niamey|162|0.00
+Nicosie|204|0.00
+Nicosie-Nord|62|0.00
+Nouakchott|155|0.00
+Nuuk|148|0.00
+Oranjestad|96|0.00
+Ottawa|231|0.00
+Ouagadougou|169|0.00
+Oulan-Bator|190|0.00
+Palikir|120|0.00
+Panama|159|1.22
+Paramaribo|161|0.00
+Paris|366|7.97
+Pékin|305|0.47
+Philipsburg|67|0.00
+Phnom Penh|180|0.00
+Podgorica|192|0.00
+Port-au-Prince|157|0.00
+Port-d'Espagne|140|0.00
+Port-Louis|154|0.00
+Port Moresby|153|0.00
+Port-Vila|134|0.00
+Porto-Novo|160|0.00
+Prague|268|0.00
+Praia|158|0.00
+Pretoria|192|0.00
+Pristina|158|0.00
+Pyongyang|200|0.00
+Quito|180|0.00
+Rabat|189|2.97
+Ramallah|129|0.00
+Ras el Khaïmah|52|0.00
+Rawalpindi|99|0.00
+Reykjavik|217|0.00
+Riga|225|0.00
+Riyad|195|0.00
+Rome|343|0.00
+Roseau|125|2.97
+Saint-Domingue|152|0.00
+Saint-Georges|130|0.00
+Saint John's|136|0.00
+Saint-Marin|143|0.00
+San José|150|0.00
+San Salvador|149|0.00
+Sanaa|173|0.00
+Santiago|274|0.00
+São Tomé|140|0.00
+Sarajevo|218|0.00
+Séoul|258|0.00
+Singapour|333|0.00
+Skopje|196|0.00
+Sofia|228|0.00
+Sri Jayawardenapura|122|0.00
+Srinagar|97|0.00
+Stockholm|279|0.00
+Sucre|152|30.54
+Suva|139|0.00
+Tachkent|194|0.00
+Tallinn|230|0.00
+Tarawa-Sud|97|0.00
+Tbilissi|227|0.00
+Tegucigalpa|158|0.00
+Téhéran|240|0.00
+Thimphou|170|0.00
+Tirana|280|0.00
+Tokyo|302|0.00
+Tripoli|187|0.07
+Tunis|182|0.00
+Vaduz|188|0.00
+Varsovie|288|0.00
+Vatican|342|0.00
+Victoria|146|0.34
+Vienne|294|25.00
+Vientiane|175|0.00
+Vilnius|229|0.00
+Waldeck|42|0.00
+Washington|299|0.00
+Wellington|186|0.00
+Willemstad|93|0.00
+Windhoek|174|0.00
+Yamoussoukro|156|0.00
+Yaoundé|166|0.00
+Yaren|114|0.00
+Zagreb|218|0.00

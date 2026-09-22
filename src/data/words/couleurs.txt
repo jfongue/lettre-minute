@@ -1,0 +1,361 @@
+abricot|17|1.15
+acajou|12|5.81
+aigue-marine|33|0.47
+alezan|22|1.01
+alezan brûlé|1|0.00
+alezan crins lavés|5|0.00
+Alezan dun|1|0.00
+Alvon|1|0.00
+amarante|22|0.54
+ambre|30|4.39
+amélanisme|5|0.00
+améthyste|15|0.27
+anthracite|6|1.76
+aposématisme|41|0.00
+argent|57|194.32
+Asperge|4|5.88
+aubère|5|0.14
+aubergine|12|0.61
+azur|45|9.39
+bai|24|1.22
+bai-brun|10|0.00
+bai dun|2|0.00
+bai foncé|2|0.00
+bai rouan|1|0.00
+bai silver|1|0.00
+baie blanche|0|0.00
+baie grise|0|0.00
+baie noire|0|0.00
+baie rosée|0|0.00
+baillet|1|0.00
+beige|47|6.82
+Berliner Blau|1|0.00
+bioluminescence|68|0.00
+bis|1|1.82
+bisque|4|0.54
+blanc|184|152.03
+blanc cassé|2|0.00
+blanc de zinc|8|0.00
+blanc dominant|9|0.00
+blanc sale|2|0.00
+bleu|188|100.41
+bleu acier|9|0.00
+bleu ardoise|0|0.00
+bleu bébé|12|0.00
+bleu bleuet|22|0.00
+Bleu bondi|4|0.00
+Bleu Chalosse|0|0.00
+bleu charrette|1|0.00
+bleu ciel|43|0.07
+bleu de cobalt|33|0.00
+Bleu de France|11|0.00
+bleu de schtroumpf|0|0.00
+bleu égyptien|27|0.00
+bleu électrique|14|0.00
+bleu foncé|11|0.00
+bleu gascogne|0|0.00
+bleu givré|1|0.00
+bleu glacier|2|0.00
+bleu-gris|0|0.00
+bleu horizon|4|0.00
+bleu indigo|76|0.00
+bleu magenta|0|0.00
+Bleu Majorelle|6|0.00
+bleu marine|31|0.00
+bleu maya|14|0.00
+bleu minéral|1|0.00
+bleu nuit|15|0.00
+bleu pâle|1|0.00
+bleu paon|4|0.00
+bleu persan|14|0.00
+bleu pétrole|2|0.00
+bleu roi|22|0.00
+bleu saphir|13|0.00
+bleu Tiffany|11|0.00
+bleu turquoise|2|0.00
+bleu-vert|12|0.47
+bleu-violet|2|0.00
+bleu YInMn|11|0.00
+blond|1|21.28
+blond moyen|0|0.00
+blond vénitien|4|0.00
+bordeaux|24|3.78
+bourgogne|25|1.01
+bringé|13|0.00
+brique|2|11.69
+British Racing Green|14|0.00
+bronze|17|18.58
+bronze autrichien|19|0.00
+brun|134|21.35
+brun foncé|2|0.00
+brun gris|1|0.00
+brun rosé|0|0.00
+cacao|1|1.42
+cachou|1|0.41
+Caesius|1|0.00
+café|8|154.93
+café au lait|0|0.00
+cannelle|6|2.97
+caramel|1|2.30
+carmin|22|0.68
+carnation|15|1.08
+carotte|3|2.97
+céleste|11|5.81
+cendré|7|11.08
+Cerise|18|3.31
+chamois|21|2.57
+champagne|7|29.86
+Champagne or|1|0.00
+chartreuse|32|0.34
+châtain|19|1.55
+cheveux ambre|0|0.00
+cheveux argentés|1|0.00
+cheveux auburn|10|0.00
+cheveux blancs|25|0.00
+cheveux bleus|6|0.00
+cheveux blond platine|0|0.00
+cheveux blonds|59|0.00
+cheveux blonds cendrés|0|0.00
+cheveux blonds clairs|0|0.00
+cheveux blonds foncés|0|0.00
+cheveux brun foncé|2|0.00
+cheveux bruns|30|0.00
+cheveux châtains|3|0.00
+cheveux châtains clairs|1|0.00
+cheveux gris|10|0.00
+cheveux jaunes|1|0.00
+cheveux noirs|28|0.00
+cheveux noisette|0|0.00
+cheveux orange|2|0.00
+cheveux roses|2|0.00
+cheveux roux|48|0.00
+cheveux verts|3|0.00
+chocolat|16|30.61
+contre-hermine|2|0.00
+contre-vair|2|0.00
+corail|30|2.97
+corinthe|0|0.07
+couleur|0|118.65
+couleur de la peau humaine|46|0.00
+couleur des cheveux|32|0.00
+couleur des fruits|0|0.00
+Couleur Lion|8|0.00
+couleur Pantone|0|0.00
+cramoisi|41|2.70
+crème|32|20.95
+cuisse de Nymphe|3|0.00
+cuivre|22|30.68
+cyan|80|0.00
+denim|3|0.00
+Dunalino|0|0.00
+dunskin|0|0.00
+écarlate|45|5.95
+écru|17|0.34
+Eigengrau|19|0.00
+Fallow|8|0.00
+fauve|9|7.77
+feldgrau|15|0.47
+Flax|8|0.00
+fraise|3|3.92
+framboise|15|3.92
+fuchsia|27|0.34
+fumée|4|55.88
+garance|8|0.34
+Gène rouan du cheval|21|0.00
+Gène sooty|6|0.00
+glauque|15|6.82
+gomme-gutte|21|0.00
+grenadine|2|3.72
+grenat|9|3.85
+gris|135|88.31
+gris acier|2|0.00
+gris ardoise|12|0.00
+gris clair|4|0.00
+gris de lin|4|0.00
+gris de Payne|6|0.00
+gris sombre|5|0.00
+groseille|1|0.54
+gueules|23|9.80
+héliotrope|10|0.27
+herminais|1|0.00
+hétérochromie sectorielle|1|0.00
+incarnat|4|0.41
+indigo et blanc|1|0.00
+International Klein Blue|13|0.00
+iridescence|45|0.00
+Isabelle|16|0.47
+Israël blue|0|0.00
+ivoire|25|7.84
+jade|3|3.38
+jaune|190|75.81
+jaune-blanc|0|0.00
+jaune-brun|0|0.00
+jaune cédrat|6|0.00
+jaune citron|15|0.00
+Jaune de cadmium|13|0.00
+jaune de Naples|15|0.00
+Jaune indien|15|0.00
+jaune-orange|2|0.00
+jaune-vert|0|0.20
+kaki|51|5.34
+Latte cosmique|24|0.00
+lavande|23|6.82
+le vert saoudien|1|0.00
+lie de vin|24|1.08
+lilas|40|5.47
+lime|35|2.91
+Lubryka|1|0.00
+magenta|75|0.00
+Marmoré|3|0.00
+marron|38|13.72
+marron clair|1|0.00
+marron foncé|1|0.00
+mauve|27|10.68
+menthe|2|9.39
+menu-vair|2|0.00
+mimétisme|58|1.55
+monochrome|27|0.20
+moutarde|12|4.93
+mûre|7|4.80
+Natural Color System|20|0.00
+naturel|5|38.65
+Nigrysisme|1|0.00
+noir|196|184.86
+noir de jais|4|0.00
+noir réglisse|7|0.00
+noir rouan|2|0.00
+noir silver|1|0.00
+noir violacé|0|0.00
+noisette|5|1.82
+Nuancier de Munsell|24|0.00
+ocre|19|4.73
+olive|48|4.12
+olive brun|1|0.00
+or|61|127.23
+orange|151|12.03
+Orange cosmique|0|0.00
+orange-jaune|0|0.00
+orchidée|11|1.42
+outremer véritable|1|0.00
+overo|5|0.00
+palomino|29|0.00
+Pantone Matching System|8|0.00
+Papaya|4|0.00
+parme|2|0.81
+péan|1|0.07
+peau blanche|12|0.00
+peau noire|10|0.00
+perlino|1|0.00
+pers|1|0.27
+pervenche|16|1.08
+phosphorescence|52|0.68
+pie|22|3.18
+pigmentation|1|0.14
+Pink PP|2|0.00
+pistache|5|0.74
+plasticité phénotypique|29|0.00
+platine|9|3.18
+ponceau|10|0.34
+pourpre|103|4.73
+Protéine fluorescente verte|41|0.00
+prune|11|1.55
+puce|12|3.58
+Rabicano|8|0.00
+robe blanche du cheval|14|0.00
+robe de cheval|27|0.00
+robe du bovin|1|0.00
+Robe tachetée du cheval|14|0.00
+rose|129|66.62
+Rose Baker-Miller|7|0.00
+Rose bonbon|6|0.00
+rose clair|1|0.00
+rose Mountbatten|10|0.00
+rose shocking|9|0.00
+rose vif|25|0.00
+Rosso Corsa|8|0.00
+rouge|210|195.27
+rouge cardinal|20|0.00
+rouge d'Andrinople|8|0.00
+rouge de cadmium|4|0.00
+rouge de Falun|26|0.00
+rouge feu|7|0.07
+rouge foncé|5|0.00
+rouge indien|9|0.00
+rouge-orangé|0|0.00
+rouge persan|7|0.00
+rouge pompéien|7|0.00
+rouge pourpre|2|0.00
+rouge signalisation|3|0.00
+rouge tomate|3|0.00
+rouge Venise|0|0.00
+rouge-violet|10|0.00
+rouille|21|8.72
+roux|13|20.68
+rubis|10|3.11
+sabino|8|0.00
+sable|23|87.91
+safran|28|1.89
+sang|10|205.20
+Sanguine|10|0.95
+saphir|0|1.22
+sarcelle|30|0.27
+saumon|25|3.65
+sépia|36|1.08
+sept couleurs prismatiques|0|0.00
+sinopia|15|0.00
+sinople|22|0.14
+Skotasme|1|0.00
+smoky cream|1|0.00
+solidago|4|0.00
+souris|7|22.57
+tan|18|0.20
+tangerine|8|0.14
+tanné|11|1.35
+Taupe|16|2.84
+teint olive|13|0.00
+terracotta|8|0.00
+terre d'ombre|25|0.00
+terre de Sienne|23|0.00
+terre verte|9|0.00
+tigre noir|9|0.00
+Tobiano|7|0.00
+tourterelle|3|1.01
+Tovero|3|0.00
+turquoise|49|2.77
+vair|18|0.27
+vair antique|2|0.00
+vair en pal|2|0.00
+vair en pointe|1|0.00
+vair potencé|1|0.00
+vairé|3|0.00
+vanille|1|3.38
+Venetus|1|0.00
+vermillon|43|1.15
+vert|194|59.12
+vert bouteille|3|0.00
+vert céladon|9|0.00
+vert clair|2|0.00
+vert de cadmium|2|0.00
+vert de vessie|3|0.00
+Vert de Zaan|1|0.00
+vert égyptien|0|0.00
+vert émeraude|18|0.00
+vert foncé|5|0.00
+vert-jaune|3|0.07
+vert lichen|1|0.00
+vert myrte|4|0.00
+vert perse|7|0.00
+vert pomme|3|0.00
+vert prairie|2|0.00
+vert printemps|17|0.00
+vert sapin|5|0.00
+vert sauge|5|0.00
+vert tilleul|2|0.00
+violet|115|7.91
+violet-brun|0|0.00
+violet d'Edo|2|0.00
+violet-noir|0|0.00
+Viride|5|0.00
+vision des couleurs|43|0.00
+yeux clairs|1|0.00
+yeux sombres|1|0.00

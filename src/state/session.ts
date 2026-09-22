@@ -1,93 +1,137 @@
+import { unlockedCategories } from '../domain/catalogue'
+import { applyRun, levelFor, type Profile } from '../domain/progression'
+import { normalizeWord } from '../domain/text'
 import {
-  createMatch,
-  isOver,
-  recordRound,
-  type Match,
-  type MatchSettings,
-  type Player,
-  type RoundAnswers,
-} from '../domain'
+  createRun,
+  inspect,
+  skip as skipPrompt,
+  submit,
+  type Judge,
+  type Run,
+  type Verdict,
+} from '../domain/run'
 
-export type Phase = 'setup' | 'reveal' | 'writing' | 'tally' | 'round' | 'final'
+export type Phase = 'home' | 'loading' | 'playing' | 'over'
 
 export interface Session {
   phase: Phase
-  match: Match | null
-  /** What the table dictates during the read-out: sheet[player][category]. */
-  sheet: readonly (readonly string[])[]
-  /** The category being read out — the tally goes through them one at a time. */
-  tallyIndex: number
+  profile: Profile
+  judge: Judge | null
+  run: Run | null
+  /** What is in the field right now, judged on every keystroke. */
+  draft: string
+  live: Verdict | null
+  /** The word that just scored, kept a beat so the interface can celebrate it. */
+  cheer: { display: string; points: number; tier: string } | null
+  /** Words proposed during this run, normalized — the field acknowledges them inline. */
+  proposed: readonly string[]
+  /** The level held when the run started, so the end screen can announce what it opened. */
+  levelBefore: number
+  error: string | null
 }
 
 export type SessionAction =
-  | { type: 'start'; seed: number; players: readonly Player[]; settings: MatchSettings }
-  | { type: 'go-writing' }
+  | { type: 'profile-loaded'; profile: Profile }
+  | { type: 'play' }
+  | { type: 'ready'; judge: Judge; seed: number }
+  | { type: 'load-failed'; message: string }
+  | { type: 'type'; draft: string }
+  | { type: 'submit' }
+  | { type: 'skip' }
   | { type: 'time-up' }
-  | { type: 'write'; player: number; category: number; word: string }
-  | { type: 'tally-back' }
-  | { type: 'tally-forward' }
-  | { type: 'next-round' }
-  | { type: 'rematch'; seed: number }
-  | { type: 'quit' }
+  | { type: 'propose'; word: string }
+  | { type: 'home' }
 
-export const initialSession: Session = { phase: 'setup', match: null, sheet: [], tallyIndex: 0 }
-
-function blankSheet(match: Match): string[][] {
-  return match.players.map(() => match.card.categories.map(() => ''))
-}
-
-function answersOf(match: Match, sheet: Session['sheet']): RoundAnswers[] {
-  return match.players.map((player, index) => ({ playerId: player.id, words: sheet[index] ?? [] }))
+export function initialSession(profile: Profile): Session {
+  return {
+    phase: 'home',
+    profile,
+    judge: null,
+    run: null,
+    draft: '',
+    live: null,
+    cheer: null,
+    proposed: [],
+    levelBefore: levelFor(profile.xp),
+    error: null,
+  }
 }
 
 export function sessionReducer(session: Session, action: SessionAction): Session {
   switch (action.type) {
-    case 'start': {
-      const match = createMatch({ seed: action.seed, players: action.players, settings: action.settings })
-      return { phase: 'reveal', match, sheet: blankSheet(match), tallyIndex: 0 }
+    case 'profile-loaded':
+      return { ...session, profile: action.profile }
+
+    case 'play':
+      return { ...session, phase: 'loading', error: null }
+
+    case 'ready': {
+      const categoryIds = unlockedCategories(levelFor(session.profile.xp)).map((category) => category.id)
+      return {
+        ...session,
+        phase: 'playing',
+        judge: action.judge,
+        run: createRun({ seed: action.seed, categoryIds }, action.judge),
+        levelBefore: levelFor(session.profile.xp),
+        draft: '',
+        live: null,
+        cheer: null,
+        proposed: [],
+      }
     }
 
-    case 'go-writing':
-      return { ...session, phase: 'writing' }
+    case 'load-failed':
+      return { ...session, phase: 'home', error: action.message }
 
-    case 'time-up':
-      return { ...session, phase: 'tally', tallyIndex: 0 }
-
-    case 'write': {
-      const sheet = session.sheet.map((words, index) =>
-        index === action.player ? words.map((word, at) => (at === action.category ? action.word : word)) : words,
-      )
-      return { ...session, sheet }
+    case 'type': {
+      if (!session.run || !session.judge) return session
+      return {
+        ...session,
+        draft: action.draft,
+        live: inspect(session.run, action.draft, session.judge),
+      }
     }
 
-    case 'tally-back':
-      if (session.tallyIndex === 0) return { ...session, phase: 'writing' }
-      return { ...session, tallyIndex: session.tallyIndex - 1 }
+    case 'submit': {
+      if (!session.run || !session.judge) return session
+      const played = submit(session.run, session.draft, session.judge)
+      if (played.verdict.kind !== 'accepted' || !played.verdict.found) return session
 
-    case 'tally-forward': {
-      if (!session.match) return session
-      const last = session.match.card.categories.length - 1
-      if (session.tallyIndex < last) return { ...session, tallyIndex: session.tallyIndex + 1 }
-      return { ...session, phase: 'round', match: recordRound(session.match, answersOf(session.match, session.sheet)) }
+      const found = played.verdict.found
+      return {
+        ...session,
+        run: played.run,
+        draft: '',
+        live: null,
+        cheer: { display: found.display, points: found.points, tier: found.tier },
+      }
     }
 
-    case 'next-round': {
-      if (!session.match) return session
-      if (isOver(session.match)) return { ...session, phase: 'final' }
-      return { ...session, phase: 'reveal', sheet: blankSheet(session.match), tallyIndex: 0 }
+    case 'skip': {
+      if (!session.run || !session.judge) return session
+      return { ...session, run: skipPrompt(session.run, session.judge), draft: '', live: null, cheer: null }
     }
 
-    case 'rematch': {
-      if (!session.match) return session
-      const match = createMatch({
-        seed: action.seed,
-        players: session.match.players,
-        settings: session.match.settings,
-      })
-      return { phase: 'reveal', match, sheet: blankSheet(match), tallyIndex: 0 }
+    case 'time-up': {
+      if (!session.run) return session
+      return {
+        ...session,
+        phase: 'over',
+        profile: applyRun(session.profile, {
+          score: session.run.score,
+          words: session.run.found.map((found) => found.word),
+          bestCombo: session.run.bestCombo,
+        }),
+      }
     }
 
-    case 'quit':
-      return initialSession
+    case 'propose': {
+      const word = normalizeWord(action.word)
+      if (word === '' || session.proposed.includes(word)) return session
+      return { ...session, proposed: [...session.proposed, word] }
+    }
+
+    case 'home':
+      return { ...session, phase: 'home', run: null, draft: '', live: null, cheer: null, proposed: [] }
   }
 }

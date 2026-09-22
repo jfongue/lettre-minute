@@ -8,6 +8,7 @@
   --accent: #b2412a;
   --accent-soft: #e8d4cb;
   --gold: #8a7233;
+  --valid: #3c7a52;
   --rule: rgba(23, 22, 15, 0.12);
   --shadow: 0 1px 2px rgba(23, 22, 15, 0.04), 0 12px 32px -18px rgba(23, 22, 15, 0.35);
 
@@ -30,6 +31,7 @@
     --accent: #e2765a;
     --accent-soft: #46291f;
     --gold: #c3a765;
+  --valid: #7fc793;
     --rule: rgba(243, 236, 224, 0.14);
     --shadow: 0 12px 32px -20px rgba(0, 0, 0, 0.8);
   }
@@ -469,4 +471,205 @@ input {
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
   }
+}
+
+/* ------------------------------------------------------------------ run - */
+.run {
+  gap: 1rem;
+}
+
+.clock {
+  font-family: var(--display);
+  font-weight: 300;
+  font-size: clamp(2.5rem, 12vw, 3.5rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: color 400ms ease;
+}
+
+.clock--urgent {
+  color: var(--accent);
+  animation: breathe 1s ease-in-out infinite;
+}
+
+.score {
+  font-family: var(--display);
+  font-size: clamp(1.5rem, 7vw, 2rem);
+  font-variant-numeric: tabular-nums;
+}
+
+.combo {
+  color: var(--accent);
+  font-size: 0.8em;
+}
+
+.prompt {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  animation: rise 360ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.prompt-label {
+  font-size: clamp(1.5rem, 7vw, 2.1rem);
+  line-height: 1.1;
+}
+
+.letter-chip--lg {
+  width: 3.4rem;
+  height: 3.4rem;
+  font-size: 1.9rem;
+}
+
+.letter-chip--sm {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.75rem;
+}
+
+.answer input {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--rule);
+  padding: 0.6rem 0.1rem;
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 8vw, 2.2rem);
+  transition: border-color 200ms ease;
+}
+
+.answer input:focus {
+  outline: none;
+  border-bottom-color: var(--ink-soft);
+}
+
+.answer--valid input,
+.answer--valid input:focus {
+  border-bottom-color: var(--valid);
+}
+
+.verdict {
+  min-height: 1.6rem;
+  margin-top: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--ink-faint);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verdict--valid {
+  color: var(--valid);
+  font-weight: 550;
+}
+
+.cheer {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  color: var(--valid);
+  animation: rise 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.found-count {
+  text-align: right;
+}
+
+/* -------------------------------------------------------------- figures - */
+.figures {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.figure {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.figure-value {
+  font-family: var(--display);
+  font-size: clamp(1.1rem, 5vw, 1.5rem);
+  font-variant-numeric: tabular-nums;
+}
+
+.figure-label {
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.score-final {
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(3.5rem, 18vw, 5rem);
+}
+
+/* ----------------------------------------------------------- catalogue - */
+.categories--compact li {
+  font-family: var(--ui);
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.6rem 0;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.categories--compact li.locked {
+  color: var(--ink-faint);
+}
+
+.found {
+  list-style: none;
+  padding: 0;
+  display: grid;
+}
+
+.found li {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr auto auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.found .points {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+}
+
+.tier-rare,
+.tier-très-rare {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.unlock {
+  border-color: var(--accent);
+}
+
+.note--warn {
+  color: var(--accent);
+}
+
+/* --------------------------------------------------------------- modal - */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: color-mix(in srgb, var(--paper) 78%, transparent);
+  backdrop-filter: blur(6px);
+}
+
+.overlay > .card {
+  width: min(28rem, 100%);
+}
+
+.propose-word {
+  font-size: 1.8rem;
+}
+
+.verdict--sent {
+  color: var(--valid);
 }
