@@ -1,8 +1,11 @@
 import { useState, type CSSProperties } from 'react'
 import { CATALOGUE } from '../domain/catalogue'
+import type { AvatarChoice } from '../domain/avatar'
 import { levelProgress, type Profile } from '../domain/progression'
 import { RUN_SECONDS } from '../domain/run'
-import type { LeaderboardRow } from '../lib/cloud'
+import type { Account, LeaderboardRow } from '../lib/cloud'
+import { AccountPanel, type AccountActions } from './AccountPanel'
+import { Avatar } from './Avatar'
 import { Figure, Shape } from './bauhaus'
 import { categoryMotif, type ShapeKind, type Tint } from './motifs'
 
@@ -12,6 +15,12 @@ interface HomeScreenProps {
   loading: boolean
   /** Empty when the game runs without a server, which hides the section entirely. */
   leaderboard: readonly LeaderboardRow[]
+  avatar: AvatarChoice
+  /** Null while the game runs without a server: the player has no account, only an avatar. */
+  account: Account | null
+  accountActions: AccountActions
+  onAvatar(): void
+  onLogOut(): void
   onPlay(): void
   /** Answers false when the server could not erase the account. */
   onErase(): Promise<boolean>
@@ -21,8 +30,21 @@ interface HomeScreenProps {
 // relative link would navigate the game's own view away, hence a full URL.
 const PRIVACY_URL = import.meta.env.VITE_PRIVACY_URL || '/confidentialite.html'
 
-export function HomeScreen({ profile, error, loading, leaderboard, onPlay, onErase }: HomeScreenProps) {
+export function HomeScreen({
+  profile,
+  error,
+  loading,
+  leaderboard,
+  avatar,
+  account,
+  accountActions,
+  onAvatar,
+  onLogOut,
+  onPlay,
+  onErase,
+}: HomeScreenProps) {
   const progress = levelProgress(profile.xp)
+  const [signingIn, setSigningIn] = useState(false)
 
   return (
     <div className="sheet cascade">
@@ -46,6 +68,45 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay, onEra
         </button>
         {error && <p className="note note--warn">{error}</p>}
       </div>
+
+      <section className="player">
+        <button type="button" className="player-avatar" onClick={onAvatar} aria-label="Modifier mon avatar">
+          <Avatar choice={avatar} size="md" />
+        </button>
+        <div className="player-id">
+          <strong>{account && !account.anonymous ? account.name : 'Joueur anonyme'}</strong>
+          <button type="button" className="btn btn--quiet" onClick={onAvatar}>
+            Modifier l’avatar
+          </button>
+        </div>
+        {account &&
+          (account.anonymous ? (
+            <button type="button" className="btn btn--quiet" onClick={() => setSigningIn(!signingIn)}>
+              {signingIn ? 'Fermer' : 'Se connecter'}
+            </button>
+          ) : (
+            <button type="button" className="btn btn--quiet btn--muted" onClick={onLogOut}>
+              Se déconnecter
+            </button>
+          ))}
+      </section>
+
+      {account?.anonymous && signingIn && (
+        <AccountPanel
+          title="Ton compte"
+          lead="Tes parties te suivent d’un appareil à l’autre."
+          onRegister={async (...args) => {
+            const answer = await accountActions.onRegister(...args)
+            if (!answer) setSigningIn(false)
+            return answer
+          }}
+          onLogIn={async (...args) => {
+            const answer = await accountActions.onLogIn(...args)
+            if (!answer) setSigningIn(false)
+            return answer
+          }}
+        />
+      )}
 
       <section className="stack">
         <div className="spread">
@@ -72,6 +133,7 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay, onEra
             {leaderboard.slice(0, 10).map((row, index) => (
               <div className={`standing${index === 0 ? ' standing--leader' : ''}`} key={`${row.name}-${index}`}>
                 <span className="rank">{index + 1}</span>
+                <Avatar choice={row.avatar} size="sm" />
                 <span className="name">{row.name}</span>
                 <span className="points">{row.bestScore.toLocaleString('fr-FR')}</span>
               </div>

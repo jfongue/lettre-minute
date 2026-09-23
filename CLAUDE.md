@@ -89,6 +89,13 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Pas de lien relatif vers une autre page dans l'app mobile** : il ferait
   quitter le jeu à la WebView sans retour possible. D'où `VITE_PRIVACY_URL`,
   une adresse complète ouverte hors de l'app.
+- **Les avatars et couleurs gagnés ne sont stockés nulle part** : ils se
+  déduisent du profil (`src/domain/avatar.ts`). Changer un seuil redistribue
+  donc les déblocages de tout le monde, y compris vers le bas ; l'avatar porté
+  reste valide même s'il redevient verrouillé.
+- **Se connecter doit attendre l'envoi de la partie** (`pushing` dans
+  `src/App.tsx`) : la fusion déplace les parties du compte anonyme puis
+  l'efface, et une partie encore en vol partirait avec lui.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client.
 

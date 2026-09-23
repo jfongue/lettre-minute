@@ -1,20 +1,22 @@
 # Supabase
 
-Deux migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Trois migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
-d'un compte depuis l'application.
+d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
+pour les comptes nommés et l'avatar.
 
 ## Ce que le serveur détient
 
 | Table | Rôle |
 | --- | --- |
-| `profiles` | XP, niveau, records. Créé automatiquement à la naissance du compte. |
+| `profiles` | XP, niveau, records, avatar, nom de compte (unique, sauf « Anonyme »). Créé automatiquement à la naissance du compte. |
 | `runs` | Une partie terminée : graine, score, série, passes. |
 | `run_words` | Les mots d'une partie, forme normalisée — la matière du bonus de rareté. |
 | `daily_challenges` | La graine du jour, la même pour tous : base du classement quotidien. |
 | `dictionary_words` | Le dictionnaire vivant, en complément des fichiers embarqués. |
 | `word_submissions` | Les mots proposés par les joueurs, avec leur statut. |
 | `moderators` | Qui peut valider ou rejeter à la main. |
+| `account_merges` | Jetons à usage unique : versent un compte anonyme dans le compte auquel il se connecte. |
 
 Vues : `leaderboard` (classement), `word_popularity` (part des parties où un mot
 apparaît), `submission_tally` (combien de joueurs réclament un mot).
@@ -37,6 +39,20 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   l'utilisateur d'auth emporte le reste en cascade. Toute nouvelle table liée à
   un joueur doit donc référencer `profiles` avec `on delete cascade`, sans quoi
   l'effacement échoue ou laisse des données derrière lui.
+
+## Comptes
+
+- **S'enregistrer ne déplace rien** : le client pose un nom puis appelle
+  `auth.updateUser({ email, password })` sur le compte anonyme, qui devient
+  permanent avec les parties qu'il a déjà.
+- **Se connecter change d'utilisateur** : le client prend un jeton
+  (`prepare_merge`) tant que la session anonyme existe, se connecte, puis le
+  rend (`complete_merge`) — parties, propositions et totaux passent sur le
+  compte, et l'anonyme est effacé. Un identifiant seul ne suffirait pas : le
+  classement les expose.
+- **Désactiver « Confirm email »** (Authentication → Providers → Email) pour
+  qu'un compte serve dès sa création. Activée, l'adresse reste en attente et
+  le joueur anonyme jusqu'au clic sur le lien.
 
 ## Appliquer
 

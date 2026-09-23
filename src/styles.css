@@ -468,8 +468,8 @@ button {
 
 .standing {
   display: grid;
-  grid-template-columns: 1.6rem 1fr auto;
-  align-items: baseline;
+  grid-template-columns: 1.6rem auto 1fr auto;
+  align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 0.5rem;
   border-bottom: 1px solid var(--rule);
@@ -1286,6 +1286,272 @@ button {
   to {
     opacity: 0;
     transform: rotate(var(--angle)) translateX(var(--reach)) scale(1) rotate(160deg);
+  }
+}
+
+/* ---------------------------------------------------------------- avatar - */
+.avatar {
+  display: block;
+  flex: none;
+  overflow: hidden;
+  aspect-ratio: 1;
+}
+
+.avatar--sm { width: 2rem; }
+.avatar--md { width: 3.5rem; }
+.avatar--lg { width: 7rem; }
+.avatar--fill { width: 100%; }
+
+.avatar-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 50% 50%;
+}
+
+.motion-sway {
+  animation: sway 6s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.6s);
+}
+
+.motion-bob {
+  animation: bob 4s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+}
+
+/* Cent tuiles qui bougent en même temps saturent l'œil : une case verrouillée
+   se tait, seules celles qu'on possède s'animent. */
+.avatar--locked .avatar-art {
+  animation: none;
+}
+
+.avatar-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 3px;
+}
+
+.avatar-cell {
+  appearance: none;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  position: relative;
+}
+
+.avatar-cell--on {
+  z-index: 1;
+  outline: 3px solid var(--ink);
+  outline-offset: -3px;
+}
+
+.avatar-cell:focus-visible {
+  z-index: 1;
+  outline: 3px solid var(--yellow);
+  outline-offset: -3px;
+}
+
+.avatar-hint {
+  min-height: 1.45em;
+}
+
+.avatar-hint--idle {
+  color: var(--ink-faint);
+}
+
+.layer-tabs {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  border: var(--line) solid var(--ink);
+}
+
+.layer-tab {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.6rem;
+  border: 0;
+  background: transparent;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.layer-tab + .layer-tab {
+  border-left: var(--line) solid var(--ink);
+}
+
+.layer-tab--on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.layer-tab--on .swatch-dot {
+  border-color: var(--paper);
+}
+
+.layer-tab:disabled {
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}
+
+.swatch-dot {
+  display: inline-block;
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 1px solid var(--rule);
+  flex: none;
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 0.3rem;
+}
+
+.swatch {
+  appearance: none;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid var(--rule);
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out);
+}
+
+.swatch--on {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+  transform: scale(0.86);
+}
+
+.swatch--locked {
+  background: repeating-linear-gradient(135deg, var(--paper-2) 0 4px, transparent 4px 8px);
+  border-color: var(--ink-faint);
+}
+
+.swatch:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.player-avatar {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.player-id {
+  display: grid;
+  justify-items: start;
+  flex: 1;
+  min-width: 0;
+}
+
+.player-id strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.player-id .btn--quiet {
+  padding-left: 0;
+}
+
+.earned-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+}
+
+.earned-colour {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+.earned .btn--quiet {
+  justify-self: start;
+  padding-left: 0;
+}
+
+.account-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.field input {
+  min-height: 3rem;
+  padding: 0.5rem 0.75rem;
+  border: var(--line) solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.field input:focus {
+  outline: 3px solid var(--yellow);
+  outline-offset: 0;
+}
+
+.account-saved {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@keyframes sway {
+  from {
+    transform: rotate(-10deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes bob {
+  from {
+    transform: translateY(-6%);
+  }
+  to {
+    transform: translateY(6%);
   }
 }
 

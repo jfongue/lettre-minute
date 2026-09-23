@@ -2,23 +2,40 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { availableCategoryIds, loadPacks } from './data/packs'
 import {
   deleteAccount,
+  fetchAccount,
   fetchCommunityWords,
   fetchCrowdUsage,
   fetchLeaderboard,
+  logIn,
+  logOut,
+  pushAvatar,
   pushRun,
   pushSubmissions,
+  register,
+  type Account,
   type CommunityWord,
   type LeaderboardRow,
 } from './lib/cloud'
 import { onBackButton, tapFeedback } from './lib/native'
 import { unlockedCategories } from './domain/catalogue'
-import { levelFor, NEW_PROFILE } from './domain/progression'
+import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
+import { levelFor, NEW_PROFILE, type Profile } from './domain/progression'
 import { dealCategories, remainingSeconds } from './domain/run'
 import { withExtraWords } from './domain/words'
 import { createJudge } from './state/judge'
 import { initialSession, sessionReducer } from './state/session'
-import { clearLocalData, loadProfile, loadSubmissions, saveProfile, saveSubmissions } from './state/storage'
+import {
+  clearLocalData,
+  loadAvatar,
+  loadProfile,
+  loadSubmissions,
+  saveAvatar,
+  saveProfile,
+  saveSubmissions,
+} from './state/storage'
 import { useElapsed } from './state/useElapsed'
+import type { AccountActions } from './ui/AccountPanel'
+import { AvatarScreen } from './ui/AvatarScreen'
 import { CountdownScreen } from './ui/CountdownScreen'
 import { HomeScreen } from './ui/HomeScreen'
 import { OverScreen } from './ui/OverScreen'
@@ -39,12 +56,40 @@ export function App() {
   const [crowd, setCrowd] = useState<Readonly<Record<string, number>>>({})
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([])
   const community = useRef<Record<string, CommunityWord[]>>({})
+  const [avatar, setAvatar] = useState<AvatarChoice>(DEFAULT_AVATAR)
+  const [account, setAccount] = useState<Account | null>(null)
+  const [editingAvatar, setEditingAvatar] = useState(false)
+  // Signing in must wait for the run to reach the server: the merge moves the
+  // anonymous player's runs, and a run still in flight would be left behind.
+  const pushing = useRef<Promise<unknown>>(Promise.resolve())
+  const profile = useRef(session.profile)
+  profile.current = session.profile
 
   // The stored profile is read after the first paint: touching localStorage
   // during render is a side effect, and the home screen is right either way.
   useEffect(() => {
     dispatch({ type: 'profile-loaded', profile: loadProfile() })
+    setAvatar(loadAvatar())
   }, [])
+
+  const wear = useCallback((next: AvatarChoice) => {
+    setAvatar(next)
+    saveAvatar(next)
+  }, [])
+
+  /** A permanent account is the reference: another device may have played on it since. */
+  const adopt = useCallback(
+    (next: Account) => {
+      setAccount(next)
+      if (next.anonymous) return
+      const local: Profile = profile.current
+      if (next.stats.runs >= local.runs) {
+        dispatch({ type: 'profile-loaded', profile: { ...next.stats, usage: local.usage } })
+      }
+      if (next.avatar) wear(next.avatar)
+    },
+    [wear],
+  )
 
   useEffect(() => {
     if (session.profile !== NEW_PROFILE) saveProfile(session.profile)
@@ -58,8 +103,33 @@ export function App() {
       community.current = words
     })
     fetchLeaderboard().then(setLeaderboard)
+    fetchAccount().then((found) => found && adopt(found))
     flushSubmissions()
-  }, [])
+  }, [adopt])
+
+  const accountActions: AccountActions = {
+    async onRegister(name, email, password) {
+      await pushing.current
+      const outcome = await register(name, email, password)
+      if (!outcome.ok) return outcome.message
+      setAccount(outcome.account)
+      pushAvatar(avatar)
+      fetchLeaderboard().then(setLeaderboard)
+      // With email confirmation on, the account stays anonymous until the link is followed.
+      return outcome.account.anonymous ? `Un lien de confirmation est parti à ${email.trim()}.` : null
+    },
+    async onLogIn(email, password) {
+      await pushing.current
+      const outcome = await logIn(email, password)
+      if (!outcome.ok) return outcome.message
+      adopt(outcome.account)
+      // The merge summed both players on the server: its totals are the truth now.
+      dispatch({ type: 'profile-loaded', profile: { ...outcome.account.stats, usage: profile.current.usage } })
+      if (!outcome.account.avatar) pushAvatar(avatar)
+      fetchLeaderboard().then(setLeaderboard)
+      return null
+    },
+  }
 
   // Android's back gesture leaves a run for the home screen, and closes the app
   // from there. A ref keeps one listener for the whole session.
@@ -134,7 +204,7 @@ export function App() {
 
   useEffect(() => {
     if (session.phase !== 'over' || !session.run) return
-    pushRun(session.run, session.profile)
+    pushing.current = pushRun(session.run, session.profile)
     flushSubmissions()
     fetchLeaderboard().then(setLeaderboard)
     // The run is pushed once, when the clock stops: the profile that follows it
@@ -144,12 +214,38 @@ export function App() {
 
   return (
     <main className={`stage stage--${session.phase}`}>
-      {(session.phase === 'home' || session.phase === 'loading') && (
+      {editingAvatar && (
+        <AvatarScreen
+          profile={session.profile}
+          avatar={avatar}
+          onSave={(next) => {
+            wear(next)
+            pushAvatar(next)
+            setEditingAvatar(false)
+          }}
+          onBack={() => setEditingAvatar(false)}
+        />
+      )}
+
+      {!editingAvatar && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
           loading={session.phase === 'loading'}
           leaderboard={leaderboard}
+          avatar={avatar}
+          account={account}
+          accountActions={accountActions}
+          onAvatar={() => setEditingAvatar(true)}
+          onLogOut={async () => {
+            await logOut()
+            clearLocalData()
+            dispatch({ type: 'profile-loaded', profile: NEW_PROFILE })
+            setAvatar(DEFAULT_AVATAR)
+            setAccount(null)
+            fetchAccount().then((found) => found && setAccount(found))
+            fetchLeaderboard().then(setLeaderboard)
+          }}
           onPlay={play}
           onErase={async () => {
             // The device keeps its copy until the server has let go of its
@@ -157,6 +253,9 @@ export function App() {
             if (!(await deleteAccount())) return false
             clearLocalData()
             dispatch({ type: 'profile-loaded', profile: NEW_PROFILE })
+            setAvatar(DEFAULT_AVATAR)
+            setAccount(null)
+            fetchAccount().then((found) => found && setAccount(found))
             fetchLeaderboard().then(setLeaderboard)
             return true
           }}
@@ -189,11 +288,16 @@ export function App() {
         />
       )}
 
-      {session.phase === 'over' && session.run && (
+      {!editingAvatar && session.phase === 'over' && session.run && (
         <OverScreen
           run={session.run}
           profile={session.profile}
           levelBefore={session.levelBefore}
+          profileBefore={session.profileBefore}
+          avatar={avatar}
+          account={account}
+          accountActions={accountActions}
+          onAvatar={() => setEditingAvatar(true)}
           onReplay={play}
           onHome={() => dispatch({ type: 'home' })}
         />

@@ -24,6 +24,10 @@ n'écrit rapportent le plus.
   corrigée est payée au tarif de base, si rare que soit le mot : le bonus
   récompense de connaître un mot, pas de l'écrire presque.
 - **Niveaux et déblocages** : l'XP gagnée ouvre de nouvelles catégories.
+- **Compte et avatar** : après une partie, le joueur anonyme peut créer un
+  compte (nom, adresse, mot de passe) ou se connecter, et la partie y entre
+  aussitôt. L'avatar est une tuile de l'affiche — cent formes animées, trente
+  couleurs, trois au départ — que les niveaux et les exploits débloquent.
 - **Mot manquant** : le joueur le propose en un clic ; réclamé par trois joueurs
   (ou validé par un modérateur), il entre au dictionnaire et lui rapporte 150 XP.
 

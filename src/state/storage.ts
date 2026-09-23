@@ -1,7 +1,9 @@
+import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import { NEW_PROFILE, type Profile } from '../domain/progression'
 
 const PROFILE_KEY = 'lettre-minute.profile.v1'
 const SUBMISSIONS_KEY = 'lettre-minute.submissions.v1'
+const AVATAR_KEY = 'lettre-minute.avatar.v1'
 
 /** A word the player proposed while the dictionary did not know it. */
 export interface PendingSubmission {
@@ -50,10 +52,24 @@ export function saveSubmissions(submissions: readonly PendingSubmission[]): void
   write(SUBMISSIONS_KEY, submissions)
 }
 
+export function loadAvatar(): AvatarChoice {
+  try {
+    const raw = localStorage.getItem(AVATAR_KEY)
+    return parseAvatar(raw ? JSON.parse(raw) : null)
+  } catch {
+    return parseAvatar(null)
+  }
+}
+
+export function saveAvatar(avatar: AvatarChoice): void {
+  write(AVATAR_KEY, avatar)
+}
+
 export function clearLocalData(): void {
   try {
     localStorage.removeItem(PROFILE_KEY)
     localStorage.removeItem(SUBMISSIONS_KEY)
+    localStorage.removeItem(AVATAR_KEY)
   } catch {
     /* nothing stored, nothing to clear */
   }

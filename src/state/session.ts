@@ -31,6 +31,8 @@ export interface Session {
   proposed: readonly string[]
   /** The level held when the run started, so the end screen can announce what it opened. */
   levelBefore: number
+  /** The profile as it stood before the run — what the end screen compares to announce new avatars and colours. */
+  profileBefore: Profile
   error: string | null
 }
 
@@ -65,6 +67,7 @@ export function initialSession(profile: Profile): Session {
     cheer: null,
     proposed: [],
     levelBefore: levelFor(profile.xp),
+    profileBefore: profile,
     error: null,
   }
 }
@@ -84,6 +87,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         judge: action.judge,
         run: createRun({ seed: action.seed, categoryIds: action.categoryIds }, action.judge),
         levelBefore: levelFor(session.profile.xp),
+        profileBefore: session.profile,
         draft: '',
         live: null,
         cheer: null,

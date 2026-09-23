@@ -1,8 +1,12 @@
 import type { CSSProperties } from 'react'
+import { newlyEarned, type AvatarChoice } from '../domain/avatar'
 import { categoryMeta } from '../domain/catalogue'
 import { capitalized } from '../domain/text'
 import { levelProgress, newlyUnlocked, XP_PER_POINT, type Profile } from '../domain/progression'
 import type { Run } from '../domain/run'
+import type { Account } from '../lib/cloud'
+import { AccountPanel, type AccountActions } from './AccountPanel'
+import { Avatar } from './Avatar'
 import { Figure, LetterMark, Shape, TierTag } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { useCountUp } from './useCountUp'
@@ -11,13 +15,31 @@ interface OverScreenProps {
   run: Run
   profile: Profile
   levelBefore: number
+  profileBefore: Profile
+  avatar: AvatarChoice
+  /** Null while the game runs without a server: there is no account to offer. */
+  account: Account | null
+  accountActions: AccountActions
+  onAvatar(): void
   onReplay(): void
   onHome(): void
 }
 
-export function OverScreen({ run, profile, levelBefore, onReplay, onHome }: OverScreenProps) {
+export function OverScreen({
+  run,
+  profile,
+  levelBefore,
+  profileBefore,
+  avatar,
+  account,
+  accountActions,
+  onAvatar,
+  onReplay,
+  onHome,
+}: OverScreenProps) {
   const progress = levelProgress(profile.xp)
   const opened = newlyUnlocked(levelBefore, progress.level)
+  const earned = newlyEarned(profileBefore, profile)
   const best = [...run.found].sort((a, b) => b.points - a.points)[0]
   const shownScore = useCountUp(run.score)
 
@@ -63,6 +85,42 @@ export function OverScreen({ run, profile, levelBefore, onReplay, onHome }: Over
             <p className="unlock-text unlock-text--quiet">Rien de neuf à débloquer, mais le score monte.</p>
           )}
         </section>
+      )}
+
+      {(earned.designs.length > 0 || earned.colours.length > 0) && (
+        <section className="panel earned">
+          <p className="section-title">Gagné pendant la partie</p>
+          <div className="earned-row">
+            {earned.designs.map((design) => (
+              <Avatar key={design.id} choice={{ ...avatar, design: design.id }} size="sm" />
+            ))}
+            {earned.colours.map((colour) => (
+              <span key={colour.id} className="earned-colour">
+                <span className="swatch-dot" style={{ background: colour.hex }} />
+                {colour.label}
+              </span>
+            ))}
+          </div>
+          <button type="button" className="btn btn--quiet" onClick={onAvatar}>
+            Composer mon avatar
+          </button>
+        </section>
+      )}
+
+      {account?.anonymous && (
+        <AccountPanel
+          title="Garde cette partie"
+          lead="Crée un compte ou connecte-toi : cette partie et toute ta progression y entrent tout de suite."
+          {...accountActions}
+        />
+      )}
+      {account && !account.anonymous && (
+        <p className="account-saved">
+          <Avatar choice={avatar} size="sm" />
+          <span>
+            Partie enregistrée sur le compte <strong>{account.name}</strong>
+          </span>
+        </p>
       )}
 
       {best && (

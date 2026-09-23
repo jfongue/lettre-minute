@@ -1,17 +1,7 @@
+import type { ShapeKind } from '../domain/avatar'
 import { CATALOGUE } from '../domain/catalogue'
 
-export type ShapeKind =
-  | 'circle'
-  | 'square'
-  | 'quarter'
-  | 'arch'
-  | 'half'
-  | 'triangle'
-  | 'corner'
-  | 'ring'
-  | 'diamond'
-  | 'bars'
-  | 'sun'
+export type { ShapeKind } from '../domain/avatar'
 
 // `ink` and `paper` swap in dark mode; `black` and `cream` never do, which is
 // what text printed on a block of colour needs.
