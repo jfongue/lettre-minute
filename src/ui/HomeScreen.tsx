@@ -33,7 +33,7 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay, onEra
           <span>Lettre</span>
           <span>Minute</span>
         </h1>
-        <p className="eyebrow">Un mot · une lettre · {RUN_SECONDS} secondes</p>
+        <p className="eyebrow">Une lettre · un thème · {RUN_SECONDS} secondes</p>
       </header>
 
       <div className="stack">
@@ -118,15 +118,10 @@ const POSTER: readonly Cell[] = [
   ['arch', 'green', 'yellow', 'turn'],
   ['triangle', 'blue', 'paper', 'turn'],
   ['half', 'paper', 'red', 'turn'],
-  ['diamond', 'yellow', 'ink', 'turn'],
-  ['ring', 'blue', 'yellow', 'pulse'],
-  ['corner', 'red', 'paper', 'turn'],
-  ['circle', 'pink', 'green', 'pulse'],
   ['sun', 'red', 'yellow', 'spin'],
+  ['diamond', 'yellow', 'ink', 'turn'],
+  ['circle', 'pink', 'green', 'pulse'],
   ['quarter', 'blue', 'pink', 'turn'],
-  ['half', 'ink', 'paper', 'turn'],
-  ['triangle', 'yellow', 'red', 'turn'],
-  ['arch', 'red', 'blue', 'turn'],
 ]
 
 function Poster() {

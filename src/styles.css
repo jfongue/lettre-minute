@@ -327,7 +327,7 @@ button {
 .poster {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  aspect-ratio: 5 / 3;
+  aspect-ratio: 5 / 2;
   overflow: hidden;
 }
 
