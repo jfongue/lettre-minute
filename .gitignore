@@ -8,3 +8,6 @@ dist
 *.jks
 *.keystore
 keystore.properties
+
+# État local de la CLI Supabase (projet lié)
+supabase/.temp
