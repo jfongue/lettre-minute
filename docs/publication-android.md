@@ -10,17 +10,49 @@ La fiche du store (textes, réponses aux formulaires, visuels) est dans
 
 ## Une fois par poste : la chaîne d'outils
 
+Pas besoin d'Android Studio : un JDK et les outils en ligne de commande
+suffisent.
+
 ```bash
-brew install --cask android-studio
+brew install openjdk@21
+brew install --cask android-commandlinetools
 ```
 
-Au premier lancement, Android Studio installe le SDK et un JDK. Puis, dans
-`~/.zshrc` :
+```bash
+sdkmanager --sdk_root="$HOME/Library/Android/sdk" --licenses
+```
 
 ```bash
+sdkmanager --sdk_root="$HOME/Library/Android/sdk" platform-tools "platforms;android-36" "build-tools;36.0.0" "cmdline-tools;latest"
+```
+
+Puis, dans `~/.zshrc` :
+
+```bash
+export JAVA_HOME="/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home"
 export ANDROID_HOME="$HOME/Library/Android/sdk"
-export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$PATH"
 ```
+
+et `android/local.properties` (ignoré par git) : `sdk.dir=/Users/<vous>/Library/Android/sdk`.
+
+Pour un émulateur (le `avdmanager` de Homebrew ne voit pas ce SDK, d'où celui
+de `cmdline-tools;latest`) :
+
+```bash
+sdkmanager --sdk_root="$ANDROID_HOME" emulator "system-images;android-36;google_apis;arm64-v8a"
+```
+
+```bash
+"$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager" create avd -n lettre -k "system-images;android-36;google_apis;arm64-v8a" -d pixel_7
+```
+
+```bash
+"$ANDROID_HOME/emulator/emulator" -avd lettre
+```
+
+Et pour y installer une version de test :
+`cd android && ./gradlew installDebug`.
 
 ## Une fois pour toutes : la clé d'upload
 
@@ -56,8 +88,8 @@ jours.
    Il sort dans `android/app/build/outputs/bundle/release/app-release.aab`.
 4. L'envoyer dans la Play Console, sur la piste de test interne d'abord.
 
-Pour essayer sur un téléphone branché en USB (débogage USB activé) :
-`npm run android:sync`, puis `npm run android:open` et ▶ dans Android Studio.
+Pour essayer sur un téléphone branché en USB (débogage USB activé) ou sur
+l'émulateur : `npm run android:sync`, puis `cd android && ./gradlew installDebug`.
 
 ## La première publication
 
