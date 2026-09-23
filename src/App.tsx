@@ -119,7 +119,7 @@ export function App() {
   }, [session.phase])
 
   return (
-    <main className="stage">
+    <main className={`stage stage--${session.phase}`}>
       {(session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}

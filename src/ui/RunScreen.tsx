@@ -1,9 +1,13 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { categoryMeta } from '../domain/catalogue'
 import { RUN_SECONDS, SKIP_PENALTY_SECONDS, type Run, type Verdict } from '../domain/run'
 import { normalizeWord } from '../domain/text'
 
 const URGENT_FROM = 10
+
+// Tapping a button would blur the field and fold the phone keyboard away, only
+// for the next prompt to open it again: the page would jump on every tap.
+const keepFocus = (event: PointerEvent) => event.preventDefault()
 
 interface RunScreenProps {
   run: Run
@@ -32,7 +36,9 @@ export function RunScreen({
   onPropose,
 }: RunScreenProps) {
   const field = useRef<HTMLInputElement>(null)
+  const [shaking, setShaking] = useState(false)
   const category = categoryMeta(run.prompt.categoryId)
+  const seconds = Math.ceil(remaining)
   const urgent = remaining <= URGENT_FROM
   const accepted = live?.kind === 'accepted'
 
@@ -42,18 +48,35 @@ export function RunScreen({
     field.current?.focus()
   }, [run.prompt])
 
+  const submit = () => {
+    if (!accepted && draft.trim() !== '') setShaking(true)
+    onSubmit()
+  }
+
   return (
     <div className="sheet run">
       <div className="spread">
-        <p className={`clock${urgent ? ' clock--urgent' : ''}`}>{Math.ceil(remaining)}</p>
+        {/* Re-keyed every second once urgent, so each second ticks visibly. */}
+        <p className={`clock${urgent ? ' clock--urgent' : ''}`} key={urgent ? seconds : 'calm'}>
+          {seconds}
+        </p>
         <p className="score">
-          {run.score.toLocaleString('fr-FR')}
-          {run.combo > 1 && <span className="combo"> ×{(1 + Math.min(run.combo, 9) * 0.1).toFixed(1)}</span>}
+          <span className="score-value" key={run.score}>
+            {run.score.toLocaleString('fr-FR')}
+          </span>
+          {run.combo > 1 && (
+            <span className="combo" key={run.combo}>
+              ×{(1 + Math.min(run.combo, 9) * 0.1).toFixed(1)}
+            </span>
+          )}
         </p>
       </div>
-      <div className={`progress${urgent ? ' progress--urgent' : ''}`}>
-        <span style={{ transform: `scaleX(${Math.min(1, remaining / RUN_SECONDS)})` }} />
+      <div className={`progress progress--clock${urgent ? ' progress--urgent' : ''}`}>
+        <span style={{ '--ratio': Math.min(1, remaining / RUN_SECONDS) } as CSSProperties} />
       </div>
+      <p className="note run-meta">
+        {run.found.length} mot{run.found.length > 1 ? 's' : ''} · {run.skips} passé{run.skips > 1 ? 's' : ''}
+      </p>
 
       <section className="prompt" key={`${run.drawn}`}>
         <span className="letter-chip letter-chip--lg">{run.prompt.letter}</span>
@@ -67,73 +90,79 @@ export function RunScreen({
         className={`answer${accepted ? ' answer--valid' : ''}`}
         onSubmit={(event) => {
           event.preventDefault()
-          onSubmit()
+          submit()
         }}
       >
-        <input
-          ref={field}
-          value={draft}
-          onChange={(event) => onType(event.target.value)}
-          placeholder={`un mot en ${run.prompt.letter}…`}
-          aria-label={`Mot en ${run.prompt.letter}, catégorie ${category?.label ?? ''}`}
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="none"
-          spellCheck={false}
-          enterKeyHint="done"
-          onKeyDown={(event) => {
-            // Implicit form submission is not guaranteed on mobile keyboards,
-            // and Entrée is how the whole game is played.
-            if (event.key !== 'Enter') return
-            event.preventDefault()
-            onSubmit()
-          }}
-        />
+        <div
+          className={`answer-field${shaking ? ' answer-field--shake' : ''}`}
+          onAnimationEnd={() => setShaking(false)}
+        >
+          <input
+            ref={field}
+            value={draft}
+            onChange={(event) => onType(event.target.value)}
+            placeholder={`un mot en ${run.prompt.letter}…`}
+            aria-label={`Mot en ${run.prompt.letter}, catégorie ${category?.label ?? ''}`}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            enterKeyHint="done"
+            onKeyDown={(event) => {
+              // Implicit form submission is not guaranteed on mobile keyboards,
+              // and Entrée is how the whole game is played.
+              if (event.key !== 'Enter') return
+              event.preventDefault()
+              submit()
+            }}
+          />
+          <span className="answer-line" aria-hidden="true" />
+        </div>
         <Feedback
           live={live}
+          cheer={cheer}
           letter={run.prompt.letter}
           draft={draft}
           proposed={proposed.includes(normalizeWord(draft))}
           onPropose={onPropose}
         />
 
-        <div className="row" style={{ justifyContent: 'space-between' }}>
-          <button type="button" className="btn btn--ghost" onClick={onSkip}>
+        <div className="answer-actions">
+          <button type="button" className="btn btn--ghost" onPointerDown={keepFocus} onClick={onSkip}>
             Passer · −{SKIP_PENALTY_SECONDS} s
           </button>
-          <button type="submit" className="btn" disabled={!accepted}>
+          <button type="submit" className="btn" onPointerDown={keepFocus} disabled={!accepted}>
             Valider
           </button>
         </div>
       </form>
-
-
-      {cheer && (
-        <p className="cheer" key={cheer.display}>
-          {cheer.display} · +{cheer.points} <span className="note">{cheer.tier}</span>
-        </p>
-      )}
-
-      <p className="note found-count">
-        {run.found.length} mot{run.found.length > 1 ? 's' : ''} · {run.skips} passé{run.skips > 1 ? 's' : ''}
-      </p>
     </div>
   )
 }
 
 function Feedback({
   live,
+  cheer,
   letter,
   draft,
   proposed,
   onPropose,
 }: {
   live: Verdict | null
+  cheer: RunScreenProps['cheer']
   letter: string
   draft: string
   proposed: boolean
   onPropose(word: string): void
 }) {
+  // The last find takes the verdict's line until the player types again: lower
+  // down, the phone keyboard would hide it.
+  if (!live && cheer)
+    return (
+      <p className="cheer verdict" key={cheer.display}>
+        {cheer.display} · +{cheer.points} <span className="note">{cheer.tier}</span>
+      </p>
+    )
   if (!live || live.kind === 'empty') return <p className="verdict">&nbsp;</p>
 
   switch (live.kind) {
@@ -156,7 +185,7 @@ function Feedback({
           {proposed ? (
             <span className="verdict--sent">proposé, merci</span>
           ) : (
-            <button type="button" className="btn btn--quiet" onClick={() => onPropose(draft)}>
+            <button type="button" className="btn btn--quiet" onPointerDown={keepFocus} onClick={() => onPropose(draft)}>
               le proposer
             </button>
           )}

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { CATALOGUE } from '../domain/catalogue'
 import { levelProgress, type Profile } from '../domain/progression'
 import { RUN_SECONDS } from '../domain/run'
@@ -16,21 +17,23 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay }: Hom
   const progress = levelProgress(profile.xp)
 
   return (
-    <div className="sheet enter">
+    <div className="sheet cascade">
       <header className="stack">
         <p className="eyebrow">Un mot, une lettre, {RUN_SECONDS} secondes</p>
-        <h1 className="title">Lettre Minute</h1>
+        <h1 className="title">
+          Lettre <span className="title-mark">Minute</span>
+        </h1>
       </header>
 
       <section className="card stack">
         <div className="spread">
-          <p className="eyebrow">Niveau {progress.level}</p>
+          <p className="eyebrow eyebrow--accent">Niveau {progress.level}</p>
           <p className="note">
             {progress.into} / {progress.span} XP
           </p>
         </div>
-        <div className="progress">
-          <span style={{ transform: `scaleX(${progress.ratio})` }} />
+        <div className="progress progress--grow">
+          <span style={{ '--ratio': progress.ratio } as CSSProperties} />
         </div>
         <div className="figures">
           <Figure value={profile.bestScore.toLocaleString('fr-FR')} label="meilleur score" />
@@ -40,10 +43,12 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay }: Hom
         </div>
       </section>
 
-      <button type="button" className="btn btn--block" onClick={onPlay} disabled={loading}>
-        {loading ? 'Chargement du dictionnaire…' : 'Jouer'}
-      </button>
-      {error && <p className="note note--warn">{error}</p>}
+      <div className="stack">
+        <button type="button" className="btn btn--block" onClick={onPlay} disabled={loading}>
+          {loading ? 'Chargement du dictionnaire…' : 'Jouer'}
+        </button>
+        {error && <p className="note note--warn">{error}</p>}
+      </div>
 
       {leaderboard.length > 0 && (
         <section className="card">
@@ -62,7 +67,7 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay }: Hom
 
       <section className="card stack">
         <p className="eyebrow">Catégories</p>
-        <ul className="categories categories--compact">
+        <ul className="categories">
           {CATALOGUE.map((category) => {
             const locked = category.unlockLevel > progress.level
             return (
