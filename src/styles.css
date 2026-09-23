@@ -742,6 +742,32 @@ button {
   }
 }
 
+/* -------------------------------------------------------------- colophon - */
+.colophon {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem 1rem;
+}
+
+.colophon a {
+  text-decoration: none;
+}
+
+.btn--muted {
+  color: var(--ink-faint);
+}
+
+.erase-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  text-align: center;
+}
+
 /* ---------------------------------------------------------------- modal - */
 .overlay {
   position: fixed;

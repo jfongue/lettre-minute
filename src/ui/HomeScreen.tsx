@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { CATALOGUE } from '../domain/catalogue'
 import { levelProgress, type Profile } from '../domain/progression'
 import { RUN_SECONDS } from '../domain/run'
@@ -11,9 +11,15 @@ interface HomeScreenProps {
   /** Empty when the game runs without a server, which hides the section entirely. */
   leaderboard: readonly LeaderboardRow[]
   onPlay(): void
+  /** Answers false when the server could not erase the account. */
+  onErase(): Promise<boolean>
 }
 
-export function HomeScreen({ profile, error, loading, leaderboard, onPlay }: HomeScreenProps) {
+// A published app must link its privacy policy. Inside the phone shell a
+// relative link would navigate the game's own view away, hence a full URL.
+const PRIVACY_URL = import.meta.env.VITE_PRIVACY_URL || '/confidentialite.html'
+
+export function HomeScreen({ profile, error, loading, leaderboard, onPlay, onErase }: HomeScreenProps) {
   const progress = levelProgress(profile.xp)
 
   return (
@@ -79,8 +85,58 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay }: Hom
           })}
         </ul>
       </section>
+
+      <footer className="colophon">
+        <a className="btn btn--quiet" href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
+          Confidentialité
+        </a>
+        <EraseData onErase={onErase} />
+      </footer>
     </div>
   )
+}
+
+/** Erasing is irreversible, so it takes a second, explicit tap. */
+function EraseData({ onErase }: { onErase(): Promise<boolean> }) {
+  const [step, setStep] = useState<'idle' | 'confirm' | 'erasing' | 'failed' | 'done'>('idle')
+
+  const erase = async () => {
+    setStep('erasing')
+    setStep((await onErase()) ? 'done' : 'failed')
+  }
+
+  switch (step) {
+    case 'idle':
+      return (
+        <button type="button" className="btn btn--quiet btn--muted" onClick={() => setStep('confirm')}>
+          Effacer mes données
+        </button>
+      )
+    case 'confirm':
+    case 'erasing':
+      return (
+        <p className="erase-confirm">
+          <span className="note">Niveau, records et mots proposés seront perdus.</span>
+          <button type="button" className="btn btn--quiet" onClick={erase} disabled={step === 'erasing'}>
+            {step === 'erasing' ? 'Effacement…' : 'Tout effacer'}
+          </button>
+          <button type="button" className="btn btn--quiet btn--muted" onClick={() => setStep('idle')}>
+            Annuler
+          </button>
+        </p>
+      )
+    case 'failed':
+      return (
+        <p className="erase-confirm">
+          <span className="note note--warn">Le serveur n’a pas répondu, rien n’a été effacé.</span>
+          <button type="button" className="btn btn--quiet" onClick={erase}>
+            Réessayer
+          </button>
+        </p>
+      )
+    case 'done':
+      return <p className="note">Données effacées.</p>
+  }
 }
 
 function Figure({ value, label }: { value: string | number; label: string }) {

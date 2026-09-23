@@ -1,6 +1,8 @@
 # Supabase
 
-Une seule migration pour l'instant : [`migrations/0001_init.sql`](migrations/0001_init.sql).
+Deux migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+[`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
+d'un compte depuis l'application.
 
 ## Ce que le serveur détient
 
@@ -31,6 +33,10 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
 - **Un profil est lisible par tous les comptes connectés** : c'est ce
   qu'affiche le classement, et rien de sensible n'y est stocké.
 - **Les parties sont insérées, jamais modifiées.** Un score ne se corrige pas.
+- **Un joueur peut tout effacer** (`delete_my_account`) : la suppression de
+  l'utilisateur d'auth emporte le reste en cascade. Toute nouvelle table liée à
+  un joueur doit donc référencer `profiles` avec `on delete cascade`, sans quoi
+  l'effacement échoue ou laisse des données derrière lui.
 
 ## Appliquer
 

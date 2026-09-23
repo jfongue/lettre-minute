@@ -32,3 +32,9 @@ export function connect(): Promise<{ userId: string } | null> {
 
   return probing
 }
+
+/** Drops the cached identity, so the next call signs in as a new player. */
+export function forgetSession(): void {
+  session = null
+  probing = null
+}

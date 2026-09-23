@@ -49,3 +49,12 @@ export function loadSubmissions(): PendingSubmission[] {
 export function saveSubmissions(submissions: readonly PendingSubmission[]): void {
   write(SUBMISSIONS_KEY, submissions)
 }
+
+export function clearLocalData(): void {
+  try {
+    localStorage.removeItem(PROFILE_KEY)
+    localStorage.removeItem(SUBMISSIONS_KEY)
+  } catch {
+    /* nothing stored, nothing to clear */
+  }
+}

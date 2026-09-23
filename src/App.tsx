@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
 import { availableCategoryIds, loadPacks } from './data/packs'
 import {
+  deleteAccount,
   fetchCommunityWords,
   fetchCrowdUsage,
   fetchLeaderboard,
@@ -16,7 +17,7 @@ import { dealCategories, remainingSeconds } from './domain/run'
 import { withExtraWords } from './domain/words'
 import { createJudge } from './state/judge'
 import { initialSession, sessionReducer } from './state/session'
-import { loadProfile, loadSubmissions, saveProfile, saveSubmissions } from './state/storage'
+import { clearLocalData, loadProfile, loadSubmissions, saveProfile, saveSubmissions } from './state/storage'
 import { useElapsed } from './state/useElapsed'
 import { CountdownScreen } from './ui/CountdownScreen'
 import { HomeScreen } from './ui/HomeScreen'
@@ -150,6 +151,15 @@ export function App() {
           loading={session.phase === 'loading'}
           leaderboard={leaderboard}
           onPlay={play}
+          onErase={async () => {
+            // The device keeps its copy until the server has let go of its
+            // own: a failed erase must not leave the player half-deleted.
+            if (!(await deleteAccount())) return false
+            clearLocalData()
+            dispatch({ type: 'profile-loaded', profile: NEW_PROFILE })
+            fetchLeaderboard().then(setLeaderboard)
+            return true
+          }}
         />
       )}
 

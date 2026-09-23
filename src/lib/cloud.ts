@@ -1,7 +1,7 @@
 import type { Profile } from '../domain/progression'
 import type { Run } from '../domain/run'
 import type { PendingSubmission } from '../state/storage'
-import { connect, supabase } from './supabase'
+import { connect, forgetSession, supabase } from './supabase'
 
 export interface CrowdUsage {
   /** Normalized word → share of recent runs that contained it. */
@@ -139,4 +139,26 @@ export function fetchLeaderboard(): Promise<LeaderboardRow[]> {
       runs: Number(row.runs) || 0,
     }))
   }, [])
+}
+
+/**
+ * Erases the player's account and everything tied to it on the server. Answers
+ * false only when an existing account could not be erased: without a server
+ * or an account, there is nothing to erase.
+ */
+export async function deleteAccount(): Promise<boolean> {
+  if (!supabase) return true
+  try {
+    // No session means nothing to erase: connecting here would create an
+    // account only to delete it.
+    const { data } = await supabase.auth.getSession()
+    if (!data.session) return true
+    const { error } = await supabase.rpc('delete_my_account')
+    if (error) return false
+    await supabase.auth.signOut({ scope: 'local' })
+    forgetSession()
+    return true
+  } catch {
+    return false
+  }
 }
