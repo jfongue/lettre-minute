@@ -160,7 +160,11 @@ function Summary({
 }: SummaryProps) {
   const earned = newlyEarned(profileBefore, profile)
   // The reveal may have scrolled down its list: the summary reads from the top.
-  useEffect(() => window.scrollTo(0, 0), [])
+  // Braced: recent Chrome returns a promise from scrollTo, which React would
+  // take for a clean-up function and crash on.
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
   const record = run.score > profileBefore.bestScore && run.score > 0
 
   return (
