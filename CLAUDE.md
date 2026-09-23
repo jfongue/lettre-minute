@@ -38,6 +38,15 @@ qu'un nouvel arrivant casserait sans le savoir.
   entités : Wikidata connaît cinquante races de chat mais pas « abeille ». Une
   catégorie de noms communs bâtie sur Wikidata seul laisse dehors les réponses
   évidentes.
+- **Les mots courants du Wiktionnaire sont dans les sous-catégories** :
+  « aigle » est sous Aigles › Rapaces › Oiseaux, « médecin » sous Métiers de
+  la santé. L'import parcourt tout l'arbre, mais seulement par les
+  sous-catégories « … en français » (les autres mènent à la morphologie), et
+  en écarte certaines (`WIKTIONARY_EXCLUDED`) : une nouvelle catégorie racine
+  demande de relire son arbre avant d'importer. Côté Wikidata, les métiers
+  nus (médecin, peintre) ne sont pas des « profession » et les instances
+  d'« occupation » sont surtout du bruit (troll, réfugié) : ne pas y chercher
+  le remède.
 - **L'import Wikidata est fragile par nature** : les requêtes lourdes (taxons)
   dépassent la limite serveur, et les réponses JSON reviennent parfois tronquées
   à un mégaoctet. D'où le cache par source sous `.cache/pulls`, le repli CSV à la

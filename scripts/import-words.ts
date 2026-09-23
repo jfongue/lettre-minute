@@ -17,7 +17,7 @@ import { CATEGORY_SOURCES, PULLS, queryFor, type Pull } from './sources.ts'
 const ENDPOINT = 'https://query.wikidata.org/sparql'
 const AGENT = 'LettreMinuteWordImport/0.1 (https://github.com/jfongue; jeremy@enaos.com)'
 const CACHE = '.cache/pulls'
-const WIKT_CACHE = '.cache/wiktionary'
+const WIKT_CACHE = '.cache/wiktionary-tree'
 const WIKT_PAGES_CACHE = '.cache/wiktionary-pages.json'
 const WIKTIONARY_API = 'https://fr.wiktionary.org/w/api.php'
 const OUT = 'src/data/words'
@@ -59,6 +59,30 @@ const WIKTIONARY: Record<string, readonly string[]> = {
   instruments: ['Instruments de musique en français'],
   'elements-chimiques': ['Éléments chimiques en français'],
 }
+
+/**
+ * Subcategories whose words are no answer to the category above them: pet
+ * names and slang ("greffier", "le meilleur ami de l’homme"), imaginary beasts,
+ * meats, criminals, military ranks, athletes by position ("attaquant",
+ * "Bayern"), coat colours only horses have ("bai", "alezan"), religious orders
+ * and the non-binary job neologisms nobody types in a hurry. The Légumineuses
+ * are the botanical family — gorse, mimosa, wisteria — not pulses; the
+ * chromatic fields file every word with a colour sense in a compound, so "eau",
+ * "avocat" and "bouteille" would be colours.
+ */
+const WIKTIONARY_EXCLUDED = new Set([
+  'Légumineuses en français',
+  'Champs chromatiques en français',
+  'Noms alternatifs des animaux en français',
+  'Animaux imaginaires en français',
+  'Viandes en français',
+  'Criminels et délinquants en français',
+  'Soldats en français',
+  'Sportifs en français',
+  'Ordres religieux en français',
+  'Noms de métiers non-binaires en français',
+  'Couleurs de robes de chevaux en français',
+])
 
 /** Taxon, monotypic taxon, organisms known by a particular common name. */
 const LIVING_THINGS = new Set(['Q16521', 'Q310890', 'Q55983715'])
@@ -199,13 +223,16 @@ async function sparql(query: string, attempt = 1): Promise<Row[]> {
   }
 }
 
-async function wiktionaryWords(title: string, force: boolean): Promise<string[]> {
-  const path = `${WIKT_CACHE}/${title.replace(/[^a-zA-Z0-9]+/g, '-')}.json`
-  if (!force && existsSync(path)) {
-    return JSON.parse(readFileSync(path, 'utf8')) as string[]
-  }
+interface WiktionaryCategory {
+  words: string[]
+  subcategories: string[]
+}
 
-  const words: string[] = []
+async function wiktionaryCategory(title: string): Promise<WiktionaryCategory> {
+  const path = `${WIKT_CACHE}/${encodeURIComponent(title)}.json`
+  if (existsSync(path)) return JSON.parse(readFileSync(path, 'utf8')) as WiktionaryCategory
+
+  const category: WiktionaryCategory = { words: [], subcategories: [] }
   let cursor: string | null = null
   // The API caps a listing at 500 entries; a category of several thousand words
   // is walked page by page.
@@ -215,27 +242,50 @@ async function wiktionaryWords(title: string, force: boolean): Promise<string[]>
     url.searchParams.set('list', 'categorymembers')
     url.searchParams.set('cmtitle', `Catégorie:${title}`)
     url.searchParams.set('cmlimit', '500')
-    url.searchParams.set('cmnamespace', '0')
+    url.searchParams.set('cmnamespace', '0|14')
     url.searchParams.set('format', 'json')
     if (cursor) url.searchParams.set('cmcontinue', cursor)
 
-    const response = await fetch(url, {
-      headers: { 'User-Agent': AGENT },
-      signal: AbortSignal.timeout(60_000),
-    })
+    const response = await wikimedia(url)
     if (!response.ok) throw new Error(`wiktionnaire ${title}: HTTP ${response.status}`)
 
     const payload = (await response.json()) as {
-      query?: { categorymembers?: { title: string }[] }
+      query?: { categorymembers?: { ns: number; title: string }[] }
       continue?: { cmcontinue?: string }
     }
-    for (const member of payload.query?.categorymembers ?? []) words.push(member.title)
+    for (const member of payload.query?.categorymembers ?? []) {
+      if (member.ns === 0) category.words.push(member.title)
+      else category.subcategories.push(member.title.replace(/^Catégorie:/, ''))
+    }
     cursor = payload.continue?.cmcontinue ?? null
-  } while (cursor && words.length < 20_000)
+  } while (cursor && category.words.length < 20_000)
 
-  writeFileSync(path, JSON.stringify(words))
-  console.log(`· wiktionnaire ${title}: ${words.length} mots`)
-  return words
+  writeFileSync(path, JSON.stringify(category))
+  console.log(`· wiktionnaire ${title}: ${category.words.length} mots, ${category.subcategories.length} sous-catégories`)
+  return category
+}
+
+/**
+ * The Wiktionary files the everyday words deep in subcategories: "aigle" under
+ * Aigles, under Rapaces, under Oiseaux — the top category holds only the words
+ * no subcategory claims. The whole tree is walked, but only through topic
+ * subcategories (named "… en français"): "Noms de métiers féminisés" leads on
+ * to "Mots en français suffixés avec -ère", which is morphology, not jobs.
+ *
+ * Each category comes with its topic and those of its ancestors: a word filed
+ * under Buses carries the {{oiseaux}} template, not a {{buses}} one.
+ */
+async function wiktionaryTree(roots: readonly string[]): Promise<Map<string, { words: string[]; topics: string[] }>> {
+  const tree = new Map<string, { words: string[]; topics: string[] }>()
+  const walk = async (title: string, parentTopics: readonly string[]) => {
+    if (tree.has(title) || WIKTIONARY_EXCLUDED.has(title)) return
+    const topics = [...parentTopics, title.replace(/ en français$/, '').toLowerCase()]
+    const { words, subcategories } = await wiktionaryCategory(title)
+    tree.set(title, { words, topics })
+    for (const sub of subcategories) if (sub.endsWith(' en français')) await walk(sub, topics)
+  }
+  for (const root of roots) await walk(root, [])
+  return tree
 }
 
 async function pullRows(pull: Pull, force: boolean): Promise<Row[]> {
@@ -668,19 +718,17 @@ async function articleClasses(words: readonly string[]): Promise<Map<string, str
  * ("galinette cendrée", the hunters' joke bird).
  */
 async function strayWords(
-  titles: readonly string[],
-  members: Map<string, string[]>,
+  members: Map<string, { words: string[]; topics: string[] }>,
   classes: ReadonlySet<string>,
 ): Promise<Set<string>> {
-  const pages = await wiktionaryPages([...members.values()].flat())
+  const pages = await wiktionaryPages([...members.values()].flatMap(({ words }) => words))
   const stray = new Set<string>()
   const doubtful = new Map<string, string[]>()
-  for (const title of titles) {
-    const topic = title.replace(/ en français$/, '').toLowerCase()
-    for (const word of members.get(title) ?? []) {
+  for (const [title, { words, topics }] of members) {
+    for (const word of words) {
       const page = pages.get(word)
       if (!page) continue
-      const at = page.senses.findIndex((templates) => templates.includes(topic))
+      const at = page.senses.findIndex((templates) => templates.some((template) => topics.includes(template)))
       const imaginary = page.categories.some((category) => category.endsWith('imaginaires en français'))
       if (imaginary && at < 0) stray.add(`${title}\n${word}`)
       else if (at > 0) doubtful.set(word, [...(doubtful.get(word) ?? []), title])
@@ -767,22 +815,23 @@ function main(argv: readonly string[]) {
 
       // The words the Wiktionary files under this very category: for them, and
       // only them, the corpus frequency measures the right sense.
-      const titles = WIKTIONARY[source.id] ?? []
-      const members = new Map<string, string[]>()
-      for (const title of titles) {
-        try {
-          const words = (await wiktionaryWords(title, false)).map((word) => word.trim().replace(/\s+/g, ' '))
-          members.set(title, words.filter((display) => acceptable(display) && normalizeWord(display) !== ''))
-        } catch (error) {
-          console.warn(`! wiktionnaire ${title}: ${(error as Error).message}`)
-        }
+      const roots = WIKTIONARY[source.id] ?? []
+      const members = await wiktionaryTree(roots)
+      for (const [title, category] of members) {
+        // The subcategories file jargon abbreviations next to the words ("AQPS",
+        // "OPJ"), where the top category keeps those everyone says ("PDG").
+        const deep = !roots.includes(title)
+        category.words = category.words
+          .map((word) => word.trim().replace(/\s+/g, ' '))
+          .filter((display) => acceptable(display) && normalizeWord(display) !== '')
+          .filter((display) => !deep || display !== display.toUpperCase())
       }
       const classes = SENSE_CHECKED[source.id]
-      const stray = classes ? await strayWords(titles, members, classes) : new Set<string>()
+      const stray = classes ? await strayWords(members, classes) : new Set<string>()
 
       const attested = new Set<string>()
       const strayKeys = new Set<string>()
-      for (const [title, words] of members) {
+      for (const [title, { words }] of members) {
         for (const display of words) {
           const key = normalizeWord(display)
           if (stray.has(`${title}\n${display}`)) {
