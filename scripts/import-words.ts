@@ -48,13 +48,10 @@ const WIKTIONARY: Record<string, readonly string[]> = {
     'Crustacés en français',
     'Arachnides en français',
   ],
-  oiseaux: ['Oiseaux en français'],
-  poissons: ['Poissons en français'],
   insectes: ['Insectes en français'],
   metiers: ['Métiers en français'],
   sports: ['Sports en français'],
-  instruments: ['Instruments de musique en français'],
-  'elements-chimiques': ['Éléments chimiques en français'],
+  matieres: ['Métaux en français', 'Alliages en français', 'Roches en français', 'Textiles en français'],
 }
 
 /** Fewer Wikipedias than this describe a thing only specialists look up. */

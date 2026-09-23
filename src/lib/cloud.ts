@@ -171,7 +171,7 @@ export interface Account {
   email: string | null
   /** An anonymous player has played without registering: the end screen offers to keep their runs. */
   anonymous: boolean
-  stats: Omit<Profile, 'usage'>
+  stats: Pick<Profile, 'xp' | 'runs' | 'bestScore' | 'wordsFound' | 'bestCombo'>
   avatar: AvatarChoice | null
 }
 

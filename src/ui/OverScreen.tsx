@@ -1,111 +1,211 @@
-import type { CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { newlyEarned, type AvatarChoice } from '../domain/avatar'
 import { categoryMeta } from '../domain/catalogue'
 import { capitalized } from '../domain/text'
-import { levelProgress, newlyUnlocked, XP_PER_POINT, type Profile } from '../domain/progression'
-import type { Run } from '../domain/run'
+import { levelFor, levelProgress, type Profile } from '../domain/progression'
+import type { FoundWord, Run } from '../domain/run'
 import type { Account } from '../lib/cloud'
+import { tapFeedback } from '../lib/native'
 import { AccountPanel, type AccountActions } from './AccountPanel'
 import { Avatar } from './Avatar'
-import { Figure, LetterMark, Shape, TierTag } from './bauhaus'
+import { Burst, Figure, LetterMark, Shape, TierTag } from './bauhaus'
+import { CategoryOffer } from './CategoryOffer'
 import { categoryMotif } from './motifs'
-import { useCountUp } from './useCountUp'
+import { reducedMotion, useCountUp } from './useCountUp'
 
 interface OverScreenProps {
   run: Run
   profile: Profile
-  levelBefore: number
   profileBefore: Profile
+  /** The reveal has played once: coming back from the avatar editor lands on the summary. */
+  revealed: boolean
+  onRevealed(): void
   avatar: AvatarChoice
   /** Null while the game runs without a server: there is no account to offer. */
   account: Account | null
   accountActions: AccountActions
   onAvatar(): void
+  onChoose(categoryId: string): void
   onReplay(): void
   onHome(): void
 }
 
-export function OverScreen({
+export function OverScreen({ run, revealed, onRevealed, ...summary }: OverScreenProps) {
+  return revealed ? <Summary run={run} {...summary} /> : <Reveal run={run} onNext={onRevealed} />
+}
+
+/** The beat of silence before the score: the clock has stopped, let it register. */
+const BLANK_MS = 650
+const SCORE_MS = 900
+/** The whole list takes about this long, whatever its length… */
+const WORDS_SPAN_MS = 3600
+/** …but no word flashes by faster than this, nor lingers longer than that. */
+const WORD_MIN_MS = 170
+const WORD_MAX_MS = 480
+
+const TIER_WEIGHT: Record<string, number> = { 'peu commun': 1.25, rare: 1.7, 'très rare': 2.4 }
+const isRare = (found: FoundWord) => !found.approximate && (found.tier === 'rare' || found.tier === 'très rare')
+
+/**
+ * First screen: nothing, then the score, then every word the run found, one at
+ * a time. Fast, but each find gets its own beat — and a rare one a longer one.
+ * A tap skips to the end; the next tap moves on.
+ */
+function Reveal({ run, onNext }: { run: Run; onNext(): void }) {
+  const total = run.found.length
+  // -2: blank, -1: the score alone, n: the score and the first n words.
+  const [shown, setShown] = useState(() => (reducedMotion() ? total : -2))
+  const done = shown >= total
+  const step = Math.min(WORD_MAX_MS, Math.max(WORD_MIN_MS, WORDS_SPAN_MS / Math.max(1, total)))
+  const bestPoints = Math.max(0, ...run.found.map((found) => found.points))
+  const latest = useRef<HTMLLIElement>(null)
+
+  useEffect(() => {
+    if (done) return
+    const previous = run.found[shown - 1]
+    const delay =
+      shown === -2 ? BLANK_MS : shown === -1 ? SCORE_MS + 250 : step * (previous ? (TIER_WEIGHT[previous.tier] ?? 1) : 1)
+    const timer = setTimeout(() => setShown(shown + 1), delay)
+    return () => clearTimeout(timer)
+  }, [shown, done, step, run.found])
+
+  useEffect(() => {
+    const found = run.found[shown - 1]
+    if (!found) return
+    tapFeedback(isRare(found) ? 'medium' : 'light')
+    latest.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [shown, run.found])
+
+  return (
+    <div
+      className="sheet reveal"
+      onClick={() => (done ? onNext() : setShown(total))}
+      role="presentation"
+    >
+      {shown >= -1 && <RevealScore score={run.score} />}
+
+      {shown >= 0 && (
+        <ol className="reveal-words">
+          {run.found.slice(0, Math.max(0, shown)).map((found, index) => {
+            const best = done && found.points === bestPoints && bestPoints > 0
+            return (
+              <li
+                key={found.word}
+                ref={index === shown - 1 ? latest : undefined}
+                className={`reveal-word${isRare(found) ? ' reveal-word--rare' : ''}${best ? ' reveal-word--best' : ''}`}
+              >
+                <LetterMark letter={found.prompt.letter} motif={categoryMotif(found.prompt.categoryId)} size="sm" />
+                <span className="reveal-word-text">
+                  {found.approximate && <span className="note">≈ </span>}
+                  {capitalized(found.display)}
+                  <span className="reveal-word-category">{categoryMeta(found.prompt.categoryId)?.label}</span>
+                </span>
+                {!found.approximate && found.tier !== 'courant' && <TierTag tier={found.tier} />}
+                <span className="reveal-word-points">
+                  +{found.points}
+                  {isRare(found) && <Burst />}
+                </span>
+              </li>
+            )
+          })}
+          {total === 0 && <li className="note reveal-empty">Pas un seul mot. Ça arrive.</li>}
+        </ol>
+      )}
+
+      {done && (
+        <button
+          type="button"
+          className="btn btn--play btn--block reveal-next"
+          onClick={(event) => {
+            event.stopPropagation()
+            onNext()
+          }}
+        >
+          <span>Continuer</span>
+          <span className="play-glyph" aria-hidden="true">
+            <Shape kind="circle" tint="yellow" />
+            <Shape kind="triangle" tint="red" className="play-triangle" />
+          </span>
+        </button>
+      )}
+    </div>
+  )
+}
+
+function RevealScore({ score }: { score: number }) {
+  const shown = useCountUp(score, SCORE_MS)
+  return (
+    <header className="reveal-score">
+      <p className="eyebrow">Temps écoulé</p>
+      <h1 className="score-final">{shown.toLocaleString('fr-FR')}</h1>
+      <p className="score-poster-unit">points</p>
+    </header>
+  )
+}
+
+type SummaryProps = Omit<OverScreenProps, 'revealed' | 'onRevealed'>
+
+/** Second screen: what the run was worth beyond its score. */
+function Summary({
   run,
   profile,
-  levelBefore,
   profileBefore,
   avatar,
   account,
   accountActions,
   onAvatar,
+  onChoose,
   onReplay,
   onHome,
-}: OverScreenProps) {
-  const progress = levelProgress(profile.xp)
-  const opened = newlyUnlocked(levelBefore, progress.level)
+}: SummaryProps) {
   const earned = newlyEarned(profileBefore, profile)
-  const best = [...run.found].sort((a, b) => b.points - a.points)[0]
-  const shownScore = useCountUp(run.score)
+  // The reveal may have scrolled down its list: the summary reads from the top.
+  useEffect(() => window.scrollTo(0, 0), [])
+  const record = run.score > profileBefore.bestScore && run.score > 0
 
   return (
     <div className="sheet cascade">
-      <header className="score-poster">
-        <Shape kind="circle" tint="yellow" className="score-poster-sun" />
-        <Shape kind="quarter" tint="red" className="score-poster-quarter" />
-        <Shape kind="bars" tint="cream" className="score-poster-bars" />
-        <p className="eyebrow">Temps écoulé</p>
-        <h1 className="score-final">{shownScore.toLocaleString('fr-FR')}</h1>
-        <p className="score-poster-unit">points</p>
-      </header>
+      <XpGain from={profileBefore.xp} to={profile.xp} />
 
-      <div className="figures">
-        <Figure tint="yellow" value={run.found.length} label="mots" />
-        <Figure tint="red" value={run.bestCombo} label="série" />
-        <Figure tint="pink" value={run.skips} label="passés" />
-        <Figure tint="green" value={`+${Math.round(run.score * XP_PER_POINT)}`} label="XP" />
-      </div>
-
-      <section className="stack">
-        <div className="spread">
-          <p className="section-title">Niveau {progress.level}</p>
-          <p className="note">
-            {progress.into} / {progress.span} XP
-          </p>
-        </div>
-        <div className="progress progress--grow">
-          <span style={{ '--ratio': progress.ratio } as CSSProperties} />
-        </div>
-      </section>
-
-      {progress.level > levelBefore && (
-        <section className="unlock">
-          <Shape kind="sun" tint="yellow" className="unlock-sun" />
-          <p className="eyebrow">Niveau {progress.level} atteint</p>
-          {opened.length > 0 ? (
-            <p className="unlock-text">
-              {opened.map((category) => category.label).join(', ')} — {opened.length > 1 ? 'ouvertes' : 'ouverte'}
-            </p>
-          ) : (
-            <p className="unlock-text unlock-text--quiet">Rien de neuf à débloquer, mais le score monte.</p>
-          )}
-        </section>
-      )}
+      <CategoryOffer profile={profile} onChoose={onChoose} />
 
       {(earned.designs.length > 0 || earned.colours.length > 0) && (
         <section className="panel earned">
-          <p className="section-title">Gagné pendant la partie</p>
+          <p className="section-title">
+            {earned.designs.length + earned.colours.length > 1 ? 'Nouveautés pour ton avatar' : 'Nouveauté pour ton avatar'}
+          </p>
           <div className="earned-row">
-            {earned.designs.map((design) => (
-              <Avatar key={design.id} choice={{ ...avatar, design: design.id }} size="sm" />
+            {earned.designs.map((design, index) => (
+              <span key={design.id} className="earned-item" style={{ '--i': index } as CSSProperties}>
+                <Avatar choice={{ ...avatar, design: design.id }} size="md" />
+              </span>
             ))}
-            {earned.colours.map((colour) => (
-              <span key={colour.id} className="earned-colour">
+            {earned.colours.map((colour, index) => (
+              <span
+                key={colour.id}
+                className="earned-item earned-colour"
+                style={{ '--i': earned.designs.length + index } as CSSProperties}
+              >
                 <span className="swatch-dot" style={{ background: colour.hex }} />
                 {colour.label}
               </span>
             ))}
           </div>
-          <button type="button" className="btn btn--quiet" onClick={onAvatar}>
-            Composer mon avatar
+          <button type="button" className="btn btn--ghost" onClick={onAvatar}>
+            Personnaliser mon avatar
           </button>
         </section>
       )}
+
+      <div className="figures figures--three">
+        <Figure tint="yellow" value={run.found.length} label={run.found.length > 1 ? 'mots' : 'mot'} />
+        <Figure tint="red" value={run.bestCombo} label="meilleure série" />
+        <Figure
+          tint="blue"
+          value={profile.bestScore.toLocaleString('fr-FR')}
+          label={record ? 'nouveau record' : 'record'}
+        />
+      </div>
 
       {account?.anonymous && (
         <AccountPanel
@@ -123,33 +223,6 @@ export function OverScreen({
         </p>
       )}
 
-      {best && (
-        <p className="best">
-          <span className="note">Meilleure trouvaille</span>
-          <strong>{capitalized(best.display)}</strong>
-          {best.approximate ? <span className="note">orthographe approchée</span> : <TierTag tier={best.tier} />}
-          <span className="best-points">+{best.points}</span>
-        </p>
-      )}
-
-      <section className="panel">
-        <p className="section-title">Les mots de la partie</p>
-        <ul className="found">
-          {run.found.map((found, index) => (
-            <li key={found.word} style={{ '--i': index } as CSSProperties}>
-              <LetterMark letter={found.prompt.letter} motif={categoryMotif(found.prompt.categoryId)} size="sm" />
-              <span className="found-word">
-                {found.approximate && <span className="note">≈ </span>}
-                {capitalized(found.display)}
-              </span>
-              <span className="note">{categoryMeta(found.prompt.categoryId)?.label}</span>
-              <span className={`points tier-${found.tier.replace(/\s/g, '-')}`}>+{found.points}</span>
-            </li>
-          ))}
-          {run.found.length === 0 && <li className="note">Pas un seul mot. Ça arrive.</li>}
-        </ul>
-      </section>
-
       <div className="stack">
         <button type="button" className="btn btn--play btn--block" onClick={onReplay}>
           <span>Rejouer</span>
@@ -163,5 +236,34 @@ export function OverScreen({
         </button>
       </div>
     </div>
+  )
+}
+
+/** The bar fills from where the run started, rolling over each level it crosses. */
+function XpGain({ from, to }: { from: number; to: number }) {
+  const xp = useCountUp(to, 1600, from, 450)
+  const progress = levelProgress(xp)
+  const levelledUp = progress.level > levelFor(from)
+
+  return (
+    <section className="stack xp-gain">
+      <div className="spread">
+        <p className="section-title">Niveau {progress.level}</p>
+        <p className="xp-gain-amount">+{(to - from).toLocaleString('fr-FR')} XP</p>
+      </div>
+      <div className="progress">
+        <span style={{ '--ratio': progress.ratio } as CSSProperties} />
+      </div>
+      <p className="note">
+        {progress.into} / {progress.span} XP vers le niveau {progress.level + 1}
+      </p>
+      {levelledUp && (
+        <div className="unlock" key={progress.level}>
+          <Shape kind="sun" tint="yellow" className="unlock-sun" />
+          <p className="eyebrow">Niveau supérieur</p>
+          <p className="unlock-text">Niveau {progress.level} atteint</p>
+        </div>
+      )}
+    </section>
   )
 }

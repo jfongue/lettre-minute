@@ -1,12 +1,14 @@
 import { useState, type CSSProperties } from 'react'
-import { CATALOGUE } from '../domain/catalogue'
+import { categoryMeta, CATALOGUE } from '../domain/catalogue'
 import type { AvatarChoice } from '../domain/avatar'
 import { levelProgress, type Profile } from '../domain/progression'
 import { RUN_SECONDS } from '../domain/run'
+import { MAX_CATEGORIES_PER_RUN, ownedCategoryIds } from '../domain/unlocks'
 import type { Account, LeaderboardRow } from '../lib/cloud'
 import { AccountPanel, type AccountActions } from './AccountPanel'
 import { Avatar } from './Avatar'
 import { Figure, Shape } from './bauhaus'
+import { CategoryOffer } from './CategoryOffer'
 import { categoryMotif, type ShapeKind, type Tint } from './motifs'
 
 interface HomeScreenProps {
@@ -22,6 +24,7 @@ interface HomeScreenProps {
   onAvatar(): void
   onLogOut(): void
   onPlay(): void
+  onChoose(categoryId: string): void
   /** Answers false when the server could not erase the account. */
   onErase(): Promise<boolean>
 }
@@ -41,9 +44,11 @@ export function HomeScreen({
   onAvatar,
   onLogOut,
   onPlay,
+  onChoose,
   onErase,
 }: HomeScreenProps) {
   const progress = levelProgress(profile.xp)
+  const owned = ownedCategoryIds(profile)
   const [signingIn, setSigningIn] = useState(false)
 
   return (
@@ -142,21 +147,32 @@ export function HomeScreen({
         </section>
       )}
 
+      <CategoryOffer profile={profile} onChoose={onChoose} />
+
       <section className="panel">
-        <p className="section-title">Catégories</p>
+        <div className="spread">
+          <p className="section-title">Mes catégories</p>
+          <p className="note">
+            {owned.length} / {CATALOGUE.length}
+          </p>
+        </div>
         <ul className="categories">
-          {CATALOGUE.map((category) => {
-            const locked = category.unlockLevel > progress.level
-            const motif = categoryMotif(category.id)
+          {owned.map((id) => {
+            const motif = categoryMotif(id)
             return (
-              <li key={category.id} className={locked ? 'locked' : ''}>
-                <Shape kind={locked ? 'ring' : motif.kind} tint={locked ? 'ink' : motif.tint} className="category-shape" />
-                <span className="category-label">{category.label}</span>
-                <span className="note">{locked ? `niveau ${category.unlockLevel}` : category.hint}</span>
+              <li key={id}>
+                <Shape kind={motif.kind} tint={motif.tint} className="category-shape" />
+                <span className="category-label">{categoryMeta(id)?.label ?? id}</span>
+                <span className="note">{categoryMeta(id)?.hint}</span>
               </li>
             )
           })}
         </ul>
+        <p className="note">
+          {owned.length > MAX_CATEGORIES_PER_RUN
+            ? `Chaque partie en tire ${MAX_CATEGORIES_PER_RUN} ; les autres restent en réserve pour un échange au lancement.`
+            : 'Une nouvelle catégorie à choisir à chaque niveau.'}
+        </p>
       </section>
 
       <footer className="colophon">

@@ -37,7 +37,11 @@ export const PULLS: readonly Pull[] = [
   FILTER(lang(?label) = "fr")
 }`,
   },
-  { id: 'elements', of: 'Q11344', aliases: true },
+  { id: 'materials', of: 'Q214609', subclass: true },
+  // "Anatomical structure" rather than a "part of the human body" query: most
+  // everyday words — tête, main, œil — hang off the generic taxon-wide class,
+  // not off a link to the specific human-body item.
+  { id: 'anatomy', of: 'Q4936952', subclass: true },
   { id: 'colors', of: 'Q1075', deep: true },
   { id: 'colors-sub', of: 'Q1075', subclass: true },
   // Instances of "profession": the subclass tree of "occupation" holds trade
@@ -45,12 +49,10 @@ export const PULLS: readonly Pull[] = [
   // the double-gendered form, which the import splits in two.
   { id: 'professions', of: 'Q28640' },
   { id: 'professions-sub', of: 'Q28640', subclass: true },
-  { id: 'instruments', of: 'Q34379', subclass: true },
   { id: 'sports', of: 'Q31629', deep: true },
   { id: 'sports-sub', of: 'Q349', subclass: true },
   { id: 'fruits', of: 'Q3314483', subclass: true },
   { id: 'vegetables', of: 'Q11004', subclass: true },
-  { id: 'communes-fr', of: 'Q484170', minPopulation: 2000 },
   // The everyday names — chat, chien, cheval — hang off "organism known by a
   // particular common name", not off the taxon tree, and no vernacular pull
   // brings them back.
@@ -82,6 +84,57 @@ export const PULLS: readonly Pull[] = [
   { id: 'mayflies', of: 'Q174273', vernacular: true },
   { id: 'caddisflies', of: 'Q184616', vernacular: true },
   { id: 'fleas', of: 'Q388162', vernacular: true },
+  // Wikidata's corporate modelling is too inconsistent for one clean class:
+  // Nike and Chanel are instances of "brand", Renault of "car manufacturer",
+  // Danone and Michelin only carry a legal form, and some — Coca-Cola,
+  // Facebook — have no French Wikidata label at all, only a French Wikipedia
+  // article. Four narrow pulls, unioned by the category, catch more of them
+  // than any single query does; the French article title stands in for the
+  // label whenever Wikidata itself never got one.
+  {
+    id: 'brand-class',
+    of: 'Q431289',
+    raw: `SELECT ?label ?n WHERE {
+  VALUES ?class { wd:Q431289 wd:Q786820 wd:Q4830453 wd:Q891723 wd:Q6881511 wd:Q783794 wd:Q167037 wd:Q1137109 wd:Q1058914 wd:Q18388277 }
+  ?article schema:about ?item ; schema:isPartOf <https://fr.wikipedia.org/> ; schema:name ?title .
+  ?item wdt:P31 ?class ; wikibase:sitelinks ?n . FILTER(?n >= 15)
+  OPTIONAL { ?item rdfs:label ?frlabel . FILTER(lang(?frlabel) = "fr") }
+  BIND(COALESCE(?frlabel, ?title) AS ?label)
+}`,
+  },
+  {
+    id: 'brand-legalform',
+    of: 'Q431289',
+    raw: `SELECT ?label ?n WHERE {
+  ?article schema:about ?item ; schema:isPartOf <https://fr.wikipedia.org/> ; schema:name ?title .
+  ?item wdt:P1454 [] ; wikibase:sitelinks ?n . FILTER(?n >= 15)
+  OPTIONAL { ?item rdfs:label ?frlabel . FILTER(lang(?frlabel) = "fr") }
+  BIND(COALESCE(?frlabel, ?title) AS ?label)
+}`,
+  },
+  {
+    id: 'brand-industry',
+    of: 'Q431289',
+    raw: `SELECT ?label ?n WHERE {
+  ?article schema:about ?item ; schema:isPartOf <https://fr.wikipedia.org/> ; schema:name ?title .
+  ?item wdt:P452 [] ; wikibase:sitelinks ?n . FILTER(?n >= 15)
+  OPTIONAL { ?item rdfs:label ?frlabel . FILTER(lang(?frlabel) = "fr") }
+  BIND(COALESCE(?frlabel, ?title) AS ?label)
+}`,
+  },
+  {
+    id: 'brand-product',
+    of: 'Q431289',
+    // Reverse of "has brand" on a product — catches a brand entity that
+    // carries none of the classes or properties above, as long as one product
+    // of it names it.
+    raw: `SELECT ?label ?n WHERE {
+  ?article schema:about ?item ; schema:isPartOf <https://fr.wikipedia.org/> ; schema:name ?title .
+  ?product wdt:P1716 ?item . ?item wikibase:sitelinks ?n . FILTER(?n >= 15)
+  OPTIONAL { ?item rdfs:label ?frlabel . FILTER(lang(?frlabel) = "fr") }
+  BIND(COALESCE(?frlabel, ?title) AS ?label)
+}`,
+  },
 ]
 
 export interface CategorySource {
@@ -124,18 +177,16 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
       'fleas',
     ],
   },
-  { id: 'oiseaux', pulls: ['birds'] },
-  { id: 'poissons', pulls: ['fish-ray', 'fish-cartilaginous'] },
   {
     id: 'insectes',
     pulls: ['beetles', 'butterflies', 'flies', 'hymenoptera', 'hemiptera', 'dragonflies', 'grasshoppers', 'cockroaches', 'mantises', 'lacewings', 'earwigs', 'mayflies', 'caddisflies', 'fleas'],
   },
   { id: 'metiers', pulls: ['professions', 'professions-sub'] },
   { id: 'sports', pulls: ['sports', 'sports-sub'] },
-  { id: 'instruments', pulls: ['instruments'] },
   { id: 'capitales', pulls: ['capitals'] },
-  { id: 'villes-de-france', pulls: ['communes-fr'] },
-  { id: 'elements-chimiques', pulls: ['elements'] },
+  { id: 'matieres', pulls: ['materials'] },
+  { id: 'corps-humain', pulls: ['anatomy'] },
+  { id: 'marques', pulls: ['brand-class', 'brand-legalform', 'brand-industry', 'brand-product'] },
 ]
 
 export function queryFor(pull: Pull): string {

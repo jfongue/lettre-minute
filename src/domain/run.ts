@@ -8,7 +8,7 @@ import {
   type RarityTier,
   type WordUsage,
 } from './rarity'
-import { createRng, pickWeighted, shuffled, streamFor } from './rng'
+import { pickWeighted, streamFor } from './rng'
 import { initialOf, normalizeWord } from './text'
 import type { WordMatch } from './words'
 
@@ -17,17 +17,6 @@ export const RUN_SECONDS = 60
 export const SKIP_PENALTY_SECONDS = 5
 /** Below this, a letter is not offered for a category — the prompt must be answerable. */
 export const MIN_WORDS_PER_PROMPT = 12
-
-/**
- * A run deals a few of the unlocked categories, announced before the clock
- * starts: the player warms up on four subjects rather than guessing among all
- * thirteen.
- */
-export const CATEGORIES_PER_RUN = 4
-
-export function dealCategories(seed: number, unlockedIds: readonly string[]): string[] {
-  return shuffled(createRng(seed), unlockedIds).slice(0, CATEGORIES_PER_RUN)
-}
 
 export interface Prompt {
   categoryId: string

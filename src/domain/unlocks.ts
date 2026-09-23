@@ -1,0 +1,90 @@
+import { CATALOGUE, categoryMeta } from './catalogue'
+import { levelFor, type Profile } from './progression'
+import { createRng, shuffled } from './rng'
+
+/** Each level up puts this many categories on the table; the player keeps one. */
+export const OFFER_SIZE = 3
+
+/** Categories dealt into a run. Past this, the prompts come round too rarely to warm up on any of them. */
+export const MAX_CATEGORIES_PER_RUN = 5
+
+/** The categories every player owns from the first run. */
+export function starterCategoryIds(): string[] {
+  return CATALOGUE.filter((category) => category.unlockLevel <= 1).map((category) => category.id)
+}
+
+/** Starters first, then the picks in the order they were made. */
+export function ownedCategoryIds(profile: Profile): string[] {
+  const starters = starterCategoryIds()
+  return [...starters, ...picked(profile).filter((id) => !starters.includes(id))]
+}
+
+// A category withdrawn from the catalogue no longer counts as a pick made:
+// the player is owed a replacement.
+function picked(profile: Profile): string[] {
+  return profile.unlocked.filter((id) => categoryMeta(id) !== null)
+}
+
+/**
+ * One pick per level above the first, minus those already made. Derived rather
+ * than stored so that a player who levelled up on another device, whose picks
+ * the server does not keep, is simply offered them again here.
+ */
+export function picksOwed(profile: Profile): number {
+  return Math.max(0, levelFor(profile.xp) - 1 - picked(profile).length)
+}
+
+/**
+ * Deals the next offer if a pick is owed and none is on the table. The previous
+ * offer is set aside while enough other categories remain: seeing the same
+ * three twice in a row reads as the game having nothing else.
+ *
+ * `availableIds` is what the build ships a dictionary for — a category without
+ * words can be neither offered nor played.
+ */
+export function dealOffer(profile: Profile, availableIds: readonly string[], seed: number): Profile {
+  if (profile.offer.length > 0 || picksOwed(profile) === 0) return profile
+
+  const owned = new Set(ownedCategoryIds(profile))
+  const candidates = CATALOGUE.map((category) => category.id).filter(
+    (id) => availableIds.includes(id) && !owned.has(id),
+  )
+  if (candidates.length === 0) return profile
+
+  const rng = createRng(seed)
+  const fresh = shuffled(rng, candidates.filter((id) => !profile.lastOffer.includes(id)))
+  const seen = shuffled(rng, candidates.filter((id) => profile.lastOffer.includes(id)))
+  return { ...profile, offer: [...fresh, ...seen].slice(0, OFFER_SIZE) }
+}
+
+export function chooseCategory(profile: Profile, categoryId: string): Profile {
+  if (!profile.offer.includes(categoryId)) return profile
+  return { ...profile, unlocked: [...profile.unlocked, categoryId], offer: [], lastOffer: profile.offer }
+}
+
+export interface Lineup {
+  /** What the run plays with, in the order announced. */
+  dealt: readonly string[]
+  /** Owned categories left out, next in line for a swap. */
+  reserve: readonly string[]
+}
+
+export function dealLineup(seed: number, ownedIds: readonly string[]): Lineup {
+  const deck = shuffled(createRng(seed), ownedIds)
+  return { dealt: deck.slice(0, MAX_CATEGORIES_PER_RUN), reserve: deck.slice(MAX_CATEGORIES_PER_RUN) }
+}
+
+/**
+ * Trades a dealt category for the first one in reserve. The one set aside goes
+ * to the back of the queue, so tapping the same slot again walks through the
+ * whole reserve before it comes back.
+ */
+export function swapCategory(lineup: Lineup, index: number): Lineup {
+  const [incoming, ...rest] = lineup.reserve
+  const outgoing = lineup.dealt[index]
+  if (incoming === undefined || outgoing === undefined) return lineup
+  return {
+    dealt: lineup.dealt.map((id, at) => (at === index ? incoming : id)),
+    reserve: [...rest, outgoing],
+  }
+}

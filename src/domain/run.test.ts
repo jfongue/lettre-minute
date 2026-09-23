@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { NO_USAGE, type WordUsage } from './rarity'
 import {
-  CATEGORIES_PER_RUN,
   createRun,
-  dealCategories,
   inspect,
   MIN_WORDS_PER_PROMPT,
   remainingSeconds,
@@ -54,23 +52,6 @@ const judge = judgeOf()
 function answerOf(run: Run): string {
   return `${run.prompt.letter}${run.prompt.categoryId === 'pays' ? 'ays' : 'nimal'}0`
 }
-
-describe('dealCategories', () => {
-  const unlocked = ['pays', 'animaux', 'couleurs', 'metiers', 'sports', 'oiseaux']
-
-  it('deals a few distinct unlocked categories', () => {
-    const dealt = dealCategories(5, unlocked)
-
-    expect(dealt).toHaveLength(CATEGORIES_PER_RUN)
-    expect(new Set(dealt).size).toBe(dealt.length)
-    for (const id of dealt) expect(unlocked).toContain(id)
-  })
-
-  it('deals everything when fewer are unlocked, and the same hand from the same seed', () => {
-    expect([...dealCategories(5, ['pays', 'animaux'])].sort()).toEqual(['animaux', 'pays'])
-    expect(dealCategories(9, unlocked)).toEqual(dealCategories(9, unlocked))
-  })
-})
 
 describe('createRun', () => {
   it('opens on a prompt the dictionary can answer', () => {

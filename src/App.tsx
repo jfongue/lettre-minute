@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
-import { availableCategoryIds, loadPacks } from './data/packs'
+import { availableCategoryIds, loadPack, loadPacks } from './data/packs'
 import {
   deleteAccount,
   fetchAccount,
@@ -17,10 +17,10 @@ import {
   type LeaderboardRow,
 } from './lib/cloud'
 import { onBackButton, tapFeedback } from './lib/native'
-import { unlockedCategories } from './domain/catalogue'
 import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
-import { levelFor, NEW_PROFILE, type Profile } from './domain/progression'
-import { dealCategories, remainingSeconds } from './domain/run'
+import { NEW_PROFILE, type Profile } from './domain/progression'
+import { remainingSeconds } from './domain/run'
+import { dealLineup, ownedCategoryIds, swapCategory } from './domain/unlocks'
 import { withExtraWords } from './domain/words'
 import { createJudge } from './state/judge'
 import { initialSession, sessionReducer } from './state/session'
@@ -59,6 +59,9 @@ export function App() {
   const [avatar, setAvatar] = useState<AvatarChoice>(DEFAULT_AVATAR)
   const [account, setAccount] = useState<Account | null>(null)
   const [editingAvatar, setEditingAvatar] = useState(false)
+  // The seed of the run whose reveal has played: leaving for the avatar editor
+  // and coming back must not replay it.
+  const [revealed, setRevealed] = useState<number | null>(null)
   // Signing in must wait for the run to reach the server: the merge moves the
   // anonymous player's runs, and a run still in flight would be left behind.
   const pushing = useRef<Promise<unknown>>(Promise.resolve())
@@ -84,7 +87,8 @@ export function App() {
       if (next.anonymous) return
       const local: Profile = profile.current
       if (next.stats.runs >= local.runs) {
-        dispatch({ type: 'profile-loaded', profile: { ...next.stats, usage: local.usage } })
+        // The server keeps totals, not category picks: those stay on the device.
+        dispatch({ type: 'profile-loaded', profile: { ...local, ...next.stats } })
       }
       if (next.avatar) wear(next.avatar)
     },
@@ -124,7 +128,7 @@ export function App() {
       if (!outcome.ok) return outcome.message
       adopt(outcome.account)
       // The merge summed both players on the server: its totals are the truth now.
-      dispatch({ type: 'profile-loaded', profile: { ...outcome.account.stats, usage: profile.current.usage } })
+      dispatch({ type: 'profile-loaded', profile: { ...profile.current, ...outcome.account.stats } })
       if (!outcome.account.avatar) pushAvatar(avatar)
       fetchLeaderboard().then(setLeaderboard)
       return null
@@ -156,19 +160,14 @@ export function App() {
     if (session.phase === 'playing' && remaining <= 0) dispatch({ type: 'time-up' })
   }, [session.phase, remaining])
 
-  const play = useCallback(async () => {
-    dispatch({ type: 'play' })
-    try {
-      // A category of the catalogue whose dictionary has not been imported yet
-      // is simply not dealt, rather than failing the whole run.
-      const shipped = new Set(availableCategoryIds())
-      const seed = Date.now() >>> 0
-      const categoryIds = dealCategories(
-        seed,
-        unlockedCategories(levelFor(session.profile.xp))
-          .map((category) => category.id)
-          .filter((id) => shipped.has(id)),
-      )
+  // A pick owed and no offer on the table — after a level up, or on a device
+  // that has never seen this player's picks — deals three categories to choose from.
+  useEffect(() => {
+    dispatch({ type: 'offer', availableIds: availableCategoryIds(), seed: Date.now() >>> 0 })
+  }, [session.profile])
+
+  const judgeFor = useCallback(
+    async (categoryIds: readonly string[]) => {
       const packs = (await loadPacks(categoryIds)).map((pack) =>
         withExtraWords(
           pack,
@@ -181,12 +180,52 @@ export function App() {
           })),
         ),
       )
-      const judge = createJudge(packs, { own: session.profile.usage, crowd })
-      dispatch({ type: 'ready', judge, seed, categoryIds })
+      return createJudge(packs, { own: session.profile.usage, crowd })
+    },
+    [session.profile.usage, crowd],
+  )
+
+  const play = useCallback(async () => {
+    dispatch({ type: 'play' })
+    try {
+      // A category of the catalogue whose dictionary has not been imported yet
+      // is simply not dealt, rather than failing the whole run.
+      const shipped = new Set(availableCategoryIds())
+      const seed = Date.now() >>> 0
+      const lineup = dealLineup(
+        seed,
+        ownedCategoryIds(session.profile).filter((id) => shipped.has(id)),
+      )
+      const judge = await judgeFor(lineup.dealt)
+      dispatch({ type: 'ready', judge, seed, categoryIds: lineup.dealt, reserve: lineup.reserve })
+      // Warmed while the categories are announced, so the first swap is instant.
+      if (lineup.reserve[0]) loadPack(lineup.reserve[0]).catch(() => undefined)
     } catch (error) {
       dispatch({ type: 'load-failed', message: (error as Error).message })
     }
-  }, [session.profile, crowd])
+  }, [session.profile, judgeFor])
+
+  const [swapping, setSwapping] = useState(false)
+  const swap = useCallback(
+    async (index: number) => {
+      if (!session.run || swapping) return
+      const lineup = swapCategory({ dealt: session.run.categoryIds, reserve: session.reserve }, index)
+      if (lineup.dealt === session.run.categoryIds) return
+      setSwapping(true)
+      try {
+        const judge = await judgeFor(lineup.dealt)
+        dispatch({ type: 'swapped', judge, categoryIds: lineup.dealt, reserve: lineup.reserve })
+        if (lineup.reserve[0]) loadPack(lineup.reserve[0]).catch(() => undefined)
+      } catch {
+        /* the dictionary did not come: the run keeps the category it had */
+      } finally {
+        setSwapping(false)
+      }
+    },
+    [session.run, session.reserve, swapping, judgeFor],
+  )
+
+  const choose = useCallback((categoryId: string) => dispatch({ type: 'choose', categoryId }), [])
 
   // Proposing costs no clock: in a timed run, a confirmation dialog would take
   // the seconds the player is spending on the word they just failed to place.
@@ -247,6 +286,7 @@ export function App() {
             fetchLeaderboard().then(setLeaderboard)
           }}
           onPlay={play}
+          onChoose={choose}
           onErase={async () => {
             // The device keeps its copy until the server has let go of its
             // own: a failed erase must not leave the player half-deleted.
@@ -266,6 +306,9 @@ export function App() {
         <CountdownScreen
           key={session.run.seed}
           categoryIds={session.run.categoryIds}
+          reserve={session.reserve.length}
+          swapping={swapping}
+          onSwap={swap}
           onDone={() => {
             setStartedAt(Date.now())
             dispatch({ type: 'start' })
@@ -292,12 +335,14 @@ export function App() {
         <OverScreen
           run={session.run}
           profile={session.profile}
-          levelBefore={session.levelBefore}
           profileBefore={session.profileBefore}
+          revealed={revealed === session.run.seed}
+          onRevealed={() => setRevealed(session.run?.seed ?? null)}
           avatar={avatar}
           account={account}
           accountActions={accountActions}
           onAvatar={() => setEditingAvatar(true)}
+          onChoose={choose}
           onReplay={play}
           onHome={() => dispatch({ type: 'home' })}
         />

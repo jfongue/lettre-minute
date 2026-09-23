@@ -19,13 +19,11 @@ export const CATALOGUE: readonly CategoryMeta[] = [
   { id: 'fruits-legumes', label: 'Fruits et légumes', hint: 'Ce qui se mange, cru ou cuit', unlockLevel: 2 },
   { id: 'metiers', label: 'Métiers', hint: 'Professions, d’hier et d’aujourd’hui', unlockLevel: 3 },
   { id: 'sports', label: 'Sports', hint: 'Disciplines et pratiques', unlockLevel: 4 },
-  { id: 'oiseaux', label: 'Oiseaux', hint: 'Noms d’oiseaux', unlockLevel: 5 },
-  { id: 'instruments', label: 'Instruments', hint: 'Instruments de musique', unlockLevel: 6 },
+  { id: 'corps-humain', label: 'Partie du corps humain', hint: 'De la tête aux pieds', unlockLevel: 5 },
+  { id: 'matieres', label: 'Matières', hint: 'Bois, fer, acier, sable…', unlockLevel: 6 },
   { id: 'capitales', label: 'Capitales', hint: 'Capitales du monde', unlockLevel: 7 },
-  { id: 'poissons', label: 'Poissons', hint: 'Poissons et créatures à nageoires', unlockLevel: 8 },
-  { id: 'villes-de-france', label: 'Villes de France', hint: 'Communes de plus de 4 000 habitants', unlockLevel: 9 },
+  { id: 'marques', label: 'Marque', hint: 'Marques connues', unlockLevel: 8 },
   { id: 'insectes', label: 'Insectes', hint: 'Insectes et petites bêtes', unlockLevel: 10 },
-  { id: 'elements-chimiques', label: 'Éléments', hint: 'Éléments du tableau périodique', unlockLevel: 12 },
 ]
 
 export function categoryMeta(id: string): CategoryMeta | null {

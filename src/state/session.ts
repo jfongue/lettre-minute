@@ -1,5 +1,6 @@
 import { applyRun, levelFor, type Profile } from '../domain/progression'
 import { normalizeWord } from '../domain/text'
+import { chooseCategory, dealOffer } from '../domain/unlocks'
 import {
   createRun,
   inspect,
@@ -18,6 +19,8 @@ export interface Session {
   profile: Profile
   judge: Judge | null
   run: Run | null
+  /** Owned categories the run left out: tapping a dealt one during the countdown swaps it for the first of these. */
+  reserve: readonly string[]
   /** What is in the field right now, judged on every keystroke. */
   draft: string
   live: Verdict | null
@@ -46,7 +49,11 @@ export interface Cheer {
 export type SessionAction =
   | { type: 'profile-loaded'; profile: Profile }
   | { type: 'play' }
-  | { type: 'ready'; judge: Judge; seed: number; categoryIds: readonly string[] }
+  | { type: 'ready'; judge: Judge; seed: number; categoryIds: readonly string[]; reserve: readonly string[] }
+  /** The countdown traded a category: same seed, new lineup, a judge that knows the incoming dictionary. */
+  | { type: 'swapped'; judge: Judge; categoryIds: readonly string[]; reserve: readonly string[] }
+  | { type: 'offer'; availableIds: readonly string[]; seed: number }
+  | { type: 'choose'; categoryId: string }
   | { type: 'start' }
   | { type: 'load-failed'; message: string }
   | { type: 'type'; draft: string }
@@ -62,6 +69,7 @@ export function initialSession(profile: Profile): Session {
     profile,
     judge: null,
     run: null,
+    reserve: [],
     draft: '',
     live: null,
     cheer: null,
@@ -86,6 +94,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         phase: 'countdown',
         judge: action.judge,
         run: createRun({ seed: action.seed, categoryIds: action.categoryIds }, action.judge),
+        reserve: action.reserve,
         levelBefore: levelFor(session.profile.xp),
         profileBefore: session.profile,
         draft: '',
@@ -93,6 +102,26 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         cheer: null,
         proposed: [],
       }
+    }
+
+    case 'swapped': {
+      if (session.phase !== 'countdown' || !session.run) return session
+      return {
+        ...session,
+        judge: action.judge,
+        run: createRun({ seed: session.run.seed, categoryIds: action.categoryIds }, action.judge),
+        reserve: action.reserve,
+      }
+    }
+
+    case 'offer': {
+      const profile = dealOffer(session.profile, action.availableIds, action.seed)
+      return profile === session.profile ? session : { ...session, profile }
+    }
+
+    case 'choose': {
+      const profile = chooseCategory(session.profile, action.categoryId)
+      return profile === session.profile ? session : { ...session, profile }
     }
 
     case 'start':

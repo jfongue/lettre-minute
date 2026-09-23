@@ -1,10 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { CATALOGUE, unlockedCategories } from './catalogue'
 import {
   applyRun,
   levelFor,
   levelProgress,
-  newlyUnlocked,
   NEW_PROFILE,
   rewardSubmission,
   SUBMISSION_REWARD_XP,
@@ -60,27 +58,6 @@ describe('applyRun', () => {
 
     expect(profile.bestScore).toBe(300)
     expect(profile.bestCombo).toBe(7)
-  })
-})
-
-describe('unlocks', () => {
-  it('opens the game on a handful of categories', () => {
-    const opening = unlockedCategories(1)
-
-    expect(opening.length).toBeGreaterThanOrEqual(3)
-    expect(opening.length).toBeLessThan(CATALOGUE.length)
-  })
-
-  it('announces what a new level opened', () => {
-    const opened = newlyUnlocked(1, 3).map((category) => category.id)
-
-    expect(opened).toEqual(CATALOGUE.filter((c) => c.unlockLevel === 2 || c.unlockLevel === 3).map((c) => c.id))
-  })
-
-  it('ends up offering everything', () => {
-    const top = Math.max(...CATALOGUE.map((category) => category.unlockLevel))
-
-    expect(unlockedCategories(top)).toHaveLength(CATALOGUE.length)
   })
 })
 

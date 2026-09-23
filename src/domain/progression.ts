@@ -1,5 +1,3 @@
-import { unlockedAt, type CategoryMeta } from './catalogue'
-
 /** A run of 300 points is worth 300 XP — the first levels go by in a few runs. */
 export const XP_PER_POINT = 1
 /** Paid once a word the player proposed enters the dictionary. */
@@ -41,9 +39,25 @@ export interface Profile {
   bestCombo: number
   /** Normalized word → times answered, all runs. Feeds the rarity decay. */
   usage: Readonly<Record<string, number>>
+  /** Categories picked at level ups, on top of the starters. */
+  unlocked: readonly string[]
+  /** The categories on the table while a pick is owed; empty otherwise. */
+  offer: readonly string[]
+  /** The previous offer, which the next one avoids repeating. */
+  lastOffer: readonly string[]
 }
 
-export const NEW_PROFILE: Profile = { xp: 0, runs: 0, bestScore: 0, wordsFound: 0, bestCombo: 0, usage: {} }
+export const NEW_PROFILE: Profile = {
+  xp: 0,
+  runs: 0,
+  bestScore: 0,
+  wordsFound: 0,
+  bestCombo: 0,
+  usage: {},
+  unlocked: [],
+  offer: [],
+  lastOffer: [],
+}
 
 export interface RunOutcome {
   score: number
@@ -56,6 +70,7 @@ export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
   for (const word of outcome.words) usage[word] = (usage[word] ?? 0) + 1
 
   return {
+    ...profile,
     xp: profile.xp + Math.round(outcome.score * XP_PER_POINT),
     runs: profile.runs + 1,
     bestScore: Math.max(profile.bestScore, outcome.score),
@@ -67,11 +82,4 @@ export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
 
 export function rewardSubmission(profile: Profile): Profile {
   return { ...profile, xp: profile.xp + SUBMISSION_REWARD_XP }
-}
-
-/** Categories that opened between two levels — what the end screen announces. */
-export function newlyUnlocked(before: number, after: number): CategoryMeta[] {
-  const opened: CategoryMeta[] = []
-  for (let level = before + 1; level <= after; level++) opened.push(...unlockedAt(level))
-  return opened
 }
