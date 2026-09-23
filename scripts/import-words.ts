@@ -18,6 +18,7 @@ const ENDPOINT = 'https://query.wikidata.org/sparql'
 const AGENT = 'LettreMinuteWordImport/0.1 (https://github.com/jfongue; jeremy@enaos.com)'
 const CACHE = '.cache/pulls'
 const WIKT_CACHE = '.cache/wiktionary'
+const WIKT_PAGES_CACHE = '.cache/wiktionary-pages.json'
 const WIKTIONARY_API = 'https://fr.wiktionary.org/w/api.php'
 const OUT = 'src/data/words'
 const LEXIQUE_URL = 'http://www.lexique.org/databases/Lexique383/Lexique383.tsv'
@@ -26,6 +27,8 @@ const WORDFREQ_URL = 'https://raw.githubusercontent.com/rspeer/wordfreq/master/w
 const WORDFREQ_CACHE = '.cache/wordfreq-large-fr.msgpack.gz'
 const WIKIPEDIA_API = 'https://fr.wikipedia.org/w/api.php'
 const ARTICLES_CACHE = '.cache/frwiki-articles-v2.json'
+const CLASSES_CACHE = '.cache/frwiki-classes.json'
+const WIKIDATA_API = 'https://www.wikidata.org/w/api.php'
 const CLICKSTREAM_URL = 'https://dumps.wikimedia.org/other/clickstream'
 
 /**
@@ -55,6 +58,22 @@ const WIKTIONARY: Record<string, readonly string[]> = {
   sports: ['Sports en français'],
   instruments: ['Instruments de musique en français'],
   'elements-chimiques': ['Éléments chimiques en français'],
+}
+
+/** Taxon, monotypic taxon, organisms known by a particular common name. */
+const LIVING_THINGS = new Set(['Q16521', 'Q310890', 'Q55983715'])
+
+/**
+ * The categories where a Wiktionary word filed for a later sense must have an
+ * article about a thing of the category (`strayWords`). Colours are left out:
+ * nearly all of them are a later sense of a fruit or a mineral, and rightly so.
+ */
+const SENSE_CHECKED: Record<string, ReadonlySet<string>> = {
+  animaux: LIVING_THINGS,
+  oiseaux: LIVING_THINGS,
+  poissons: LIVING_THINGS,
+  insectes: LIVING_THINGS,
+  'fruits-legumes': LIVING_THINGS,
 }
 
 /** Fewer Wikipedias than this describe a thing only specialists look up. */
@@ -352,6 +371,9 @@ interface Lexique {
   lemmaOf: Map<string, string>
   /** Normalized lemma → every noun and adjective form, in their own spelling. */
   formsOf: Map<string, string[]>
+  /** Lower-cased spellings, to tell a name from a description in an alias. */
+  nouns: Set<string>
+  adjectives: Set<string>
 }
 
 /**
@@ -379,6 +401,8 @@ async function loadLexique(): Promise<Lexique> {
 
   const lemmaOf = new Map<string, string>()
   const formsOf = new Map<string, string[]>()
+  const nouns = new Set<string>()
+  const adjectives = new Set<string>()
 
   for (const line of lines.slice(1)) {
     const columns = line.split('\t')
@@ -390,6 +414,7 @@ async function loadLexique(): Promise<Lexique> {
     // accept as an answer; a noun or an adjective is what a category holds.
     const gram = columns[gramAt] ?? ''
     if (gram !== 'NOM' && gram !== 'ADJ') continue
+    ;(gram === 'NOM' ? nouns : adjectives).add(spelling.toLowerCase())
 
     const lemma = normalizeWord(columns[lemmaAt] ?? '')
     if (lemma === '') continue
@@ -400,7 +425,7 @@ async function loadLexique(): Promise<Lexique> {
   }
 
   console.log(`· lexique: ${formsOf.size} lemmes`)
-  return { lemmaOf, formsOf }
+  return { lemmaOf, formsOf, nouns, adjectives }
 }
 
 /**
@@ -484,6 +509,193 @@ function acceptable(display: string): boolean {
   return /^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ' -]*$/.test(display)
 }
 
+/**
+ * Wikidata's aliases mix other names of a thing ("Hollande", "Birmanie") with
+ * ways of describing it: official styles ("République de Pologne", which would
+ * let any country be answered on R), nicknames ("pays du Soleil-Levant",
+ * "Oncle Sam", "l'Hexagone"), demonyms ("Brésilien"), codes and symbols ("UZ",
+ * "Fe"). A description starts with a common noun, or is one once its article
+ * is gone; a name does not.
+ */
+function describes(alias: string, lostArticle: boolean, lexique: Lexique): boolean {
+  if (alias.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ]/g, '').length < 4 || alias === alias.toUpperCase()) return true
+  const [head = '', ...rest] = alias.toLowerCase().split(' ')
+  if (rest.length > 0) return lexique.nouns.has(head)
+  if (lostArticle && lexique.nouns.has(head)) return true
+  return lexique.adjectives.has(head) && !lexique.nouns.has(head)
+}
+
+/** The French section of a Wiktionary page, reduced to what sorts its senses. */
+interface WiktionaryPage {
+  /** The templates on each definition, in the page's order: `oiseaux`, `figuré`… */
+  senses: string[][]
+  categories: string[]
+}
+
+async function wiktionaryPages(words: readonly string[]): Promise<Map<string, WiktionaryPage>> {
+  const cache = new Map<string, WiktionaryPage>(
+    existsSync(WIKT_PAGES_CACHE) ? Object.entries(JSON.parse(readFileSync(WIKT_PAGES_CACHE, 'utf8'))) : [],
+  )
+  const missing = [...new Set(words)].filter((word) => !cache.has(word))
+  if (missing.length > 0) console.log(`· wiktionnaire: ${missing.length} pages à lire`)
+
+  for (let start = 0; start < missing.length; start += 50) {
+    const batch = missing.slice(start, start + 50)
+    const url = new URL(WIKTIONARY_API)
+    url.searchParams.set('action', 'query')
+    url.searchParams.set('prop', 'revisions')
+    url.searchParams.set('rvprop', 'content')
+    url.searchParams.set('rvslots', 'main')
+    url.searchParams.set('titles', batch.join('|'))
+    url.searchParams.set('format', 'json')
+    url.searchParams.set('formatversion', '2')
+    const { query = {} } = (await (await wikimedia(url)).json()) as {
+      query?: {
+        normalized?: { from: string; to: string }[]
+        pages?: { title: string; revisions?: { slots: { main: { content: string } } }[] }[]
+      }
+    }
+    const asked = new Map((query.normalized ?? []).map(({ from, to }) => [to, from]))
+    for (const page of query.pages ?? []) {
+      const text = page.revisions?.[0]?.slots.main.content ?? ''
+      const at = text.indexOf('== {{langue|fr}} ==')
+      const french = at < 0 ? '' : text.slice(at).split(/\n== \{\{langue\|/)[0]!
+      const senses = french
+        .split('\n')
+        .filter((line) => /^#(?![*:])/.test(line))
+        .map((line) => [...line.matchAll(/\{\{([^|}]+)/g)].map((match) => match[1]!.trim().toLowerCase()))
+      const categories = [...french.matchAll(/\[\[Catégorie:([^\]|]+)/g)].map((match) => match[1]!.trim())
+      cache.set(asked.get(page.title) ?? page.title, { senses, categories })
+    }
+    for (const word of batch) if (!cache.has(word)) cache.set(word, { senses: [], categories: [] })
+    await new Promise((resolve) => setTimeout(resolve, 200))
+  }
+  if (missing.length > 0) writeFileSync(WIKT_PAGES_CACHE, JSON.stringify(Object.fromEntries(cache)))
+  return cache
+}
+
+const DISAMBIGUATION_ITEM = 'Q4167410'
+
+async function wikidataClaims(items: readonly string[], property: 'P31' | 'P279'): Promise<Map<string, string[]>> {
+  const values = new Map<string, string[]>()
+  for (let start = 0; start < items.length; start += 50) {
+    const url = new URL(WIKIDATA_API)
+    url.searchParams.set('action', 'wbgetentities')
+    url.searchParams.set('ids', items.slice(start, start + 50).join('|'))
+    url.searchParams.set('props', 'claims')
+    url.searchParams.set('format', 'json')
+    const { entities = {} } = (await (await wikimedia(url)).json()) as {
+      entities?: Record<string, { claims?: Record<string, { mainsnak: { datavalue?: { value: { id: string } } } }[]> }>
+    }
+    for (const [item, entity] of Object.entries(entities)) {
+      values.set(item, (entity.claims?.[property] ?? []).flatMap((claim) => claim.mainsnak.datavalue?.value.id ?? []))
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200))
+  }
+  return values
+}
+
+/**
+ * What the French Wikipedia article each word lands on is about, as the
+ * Wikidata classes of its item (P31) and their parents — null when there is no
+ * article, a homonymy page reading as a Wikimedia disambiguation page.
+ */
+async function articleClasses(words: readonly string[]): Promise<Map<string, string[] | null>> {
+  const cache = new Map<string, string[] | null>(
+    existsSync(CLASSES_CACHE) ? Object.entries(JSON.parse(readFileSync(CLASSES_CACHE, 'utf8'))) : [],
+  )
+  const missing = [...new Set(words)].filter((word) => !cache.has(word))
+  if (missing.length === 0) return cache
+  console.log(`· wikipédia: ${missing.length} articles à situer`)
+
+  const itemOf = new Map<string, string | null>()
+  for (let start = 0; start < missing.length; start += 50) {
+    const batch = missing.slice(start, start + 50)
+    const url = new URL(WIKIPEDIA_API)
+    url.searchParams.set('action', 'query')
+    url.searchParams.set('redirects', '1')
+    url.searchParams.set('prop', 'pageprops')
+    url.searchParams.set('ppprop', 'disambiguation|wikibase_item')
+    url.searchParams.set('titles', batch.join('|'))
+    url.searchParams.set('format', 'json')
+    url.searchParams.set('formatversion', '2')
+    const { query = {} } = (await (await wikimedia(url)).json()) as {
+      query?: {
+        normalized?: { from: string; to: string }[]
+        redirects?: { from: string; to: string }[]
+        pages?: { title: string; missing?: boolean; invalid?: boolean; pageprops?: { disambiguation?: string; wikibase_item?: string } }[]
+      }
+    }
+    const titleOf = new Map(batch.map((word) => [word, word]))
+    for (const step of [query.normalized ?? [], query.redirects ?? []]) {
+      const to = new Map(step.map(({ from, to }) => [from, to]))
+      for (const [word, title] of titleOf) titleOf.set(word, to.get(title) ?? title)
+    }
+    const pages = new Map((query.pages ?? []).filter((page) => !page.missing && !page.invalid).map((page) => [page.title, page]))
+    for (const [word, title] of titleOf) {
+      const page = pages.get(title)
+      if (!page) cache.set(word, null)
+      else if (page.pageprops?.disambiguation !== undefined) cache.set(word, [DISAMBIGUATION_ITEM])
+      else itemOf.set(word, page.pageprops?.wikibase_item ?? null)
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200))
+  }
+
+  const items = [...new Set([...itemOf.values()].filter((item) => item !== null))]
+  const classesOf = await wikidataClaims(items, 'P31')
+  // One step up the class tree: "poule" is an instance of "animal of a given
+  // sex", which is a kind of organism, not an organism class itself.
+  const parentsOf = await wikidataClaims([...new Set([...classesOf.values()].flat())], 'P279')
+  for (const [word, item] of itemOf) {
+    const classes = item ? (classesOf.get(item) ?? []) : []
+    cache.set(word, [...new Set([...classes, ...classes.flatMap((id) => parentsOf.get(id) ?? [])])])
+  }
+
+  writeFileSync(CLASSES_CACHE, JSON.stringify(Object.fromEntries(cache)))
+  return cache
+}
+
+/**
+ * The Wiktionary files a word under a category for any one of its senses, so
+ * "pape" is a bird there — its third sense, after the pontiff — and so are
+ * "dragon", "jardinier" and "cardinal". Accepting them turns the category into
+ * a lottery on everyday words, each scored on the fame of its first sense.
+ *
+ * A word filed for a later sense is kept only when its Wikipedia article is
+ * about a thing of the category (a taxon), a list of homonyms, or missing:
+ * "bourdon", "manchot" and "cafard" are filed for a later sense too, and their
+ * article is the animal's. A sense the page marks imaginary is dropped outright
+ * ("galinette cendrée", the hunters' joke bird).
+ */
+async function strayWords(
+  titles: readonly string[],
+  members: Map<string, string[]>,
+  classes: ReadonlySet<string>,
+): Promise<Set<string>> {
+  const pages = await wiktionaryPages([...members.values()].flat())
+  const stray = new Set<string>()
+  const doubtful = new Map<string, string[]>()
+  for (const title of titles) {
+    const topic = title.replace(/ en français$/, '').toLowerCase()
+    for (const word of members.get(title) ?? []) {
+      const page = pages.get(word)
+      if (!page) continue
+      const at = page.senses.findIndex((templates) => templates.includes(topic))
+      const imaginary = page.categories.some((category) => category.endsWith('imaginaires en français'))
+      if (imaginary && at < 0) stray.add(`${title}\n${word}`)
+      else if (at > 0) doubtful.set(word, [...(doubtful.get(word) ?? []), title])
+    }
+  }
+
+  const about = await articleClasses([...doubtful.keys()])
+  for (const [word, inTitles] of doubtful) {
+    const found = about.get(word) ?? null
+    if (found === null || found.includes(DISAMBIGUATION_ITEM) || found.some((id) => classes.has(id))) continue
+    for (const title of inTitles) stray.add(`${title}\n${word}`)
+  }
+  return stray
+}
+
 function main(argv: readonly string[]) {
   mkdirSync(CACHE, { recursive: true })
   mkdirSync(WIKT_CACHE, { recursive: true })
@@ -532,9 +744,9 @@ function main(argv: readonly string[]) {
           // "le Canada" is a real French alias, but keeping it would let the
           // player answer a country on the letter L. Only aliases are stripped:
           // in a label the article belongs to the name ("Le Havre").
-          const cleaned = (row.alias ? row.display.replace(/^(?:[Ll]es?|[Ll]a|[Ll]') ?/, '') : row.display)
-            .trim()
-            .replace(/\s+/g, ' ')
+          const spelled = row.display.trim().replace(/\s+/g, ' ')
+          const cleaned = row.alias ? spelled.replace(/^(?:(?:[Ll]es?|[Ll]a) |[Ll]['’])/, '') : spelled
+          if (row.alias && describes(cleaned, cleaned !== spelled, lexique)) continue
 
           // Wikidata writes an occupation as "boulanger ou boulangère". Both
           // forms are words a player may type, so both are kept.
@@ -555,22 +767,41 @@ function main(argv: readonly string[]) {
 
       // The words the Wiktionary files under this very category: for them, and
       // only them, the corpus frequency measures the right sense.
-      const attested = new Set<string>()
-      for (const title of WIKTIONARY[source.id] ?? []) {
+      const titles = WIKTIONARY[source.id] ?? []
+      const members = new Map<string, string[]>()
+      for (const title of titles) {
         try {
-          for (const word of await wiktionaryWords(title, false)) {
-            const display = word.trim().replace(/\s+/g, ' ')
-            if (!acceptable(display)) continue
-            const key = normalizeWord(display)
-            if (key !== '') attested.add(key)
-            if (key === '' || best.has(key)) continue
-            // No sitelinks: a Wiktionary word is rated on its corpus frequency
-            // alone, which is exactly what a common noun has.
-            best.set(key, { display, sitelinks: 0, alias: false })
-          }
+          const words = (await wiktionaryWords(title, false)).map((word) => word.trim().replace(/\s+/g, ' '))
+          members.set(title, words.filter((display) => acceptable(display) && normalizeWord(display) !== ''))
         } catch (error) {
           console.warn(`! wiktionnaire ${title}: ${(error as Error).message}`)
         }
+      }
+      const classes = SENSE_CHECKED[source.id]
+      const stray = classes ? await strayWords(titles, members, classes) : new Set<string>()
+
+      const attested = new Set<string>()
+      const strayKeys = new Set<string>()
+      for (const [title, words] of members) {
+        for (const display of words) {
+          const key = normalizeWord(display)
+          if (stray.has(`${title}\n${display}`)) {
+            strayKeys.add(key)
+            continue
+          }
+          attested.add(key)
+          if (best.has(key)) continue
+          // No sitelinks: a Wiktionary word is rated on its corpus frequency
+          // alone, which is exactly what a common noun has.
+          best.set(key, { display, sitelinks: 0, alias: false })
+        }
+      }
+      // Wikidata backs some of them with an item almost no Wikipedia describes —
+      // "Pape", a bird group with one sitelink — which is no answer a player
+      // would give either, and would be scored on the pontiff's fame.
+      for (const key of strayKeys) {
+        const entry = best.get(key)
+        if (entry && !attested.has(key) && entry.sitelinks < NICHE_SITELINKS) best.delete(key)
       }
 
       // Inflected forms borrow the notoriety of the word they bend, so only the

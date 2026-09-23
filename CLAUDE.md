@@ -45,6 +45,17 @@ qu'un nouvel arrivant casserait sans le savoir.
   ont répondu. Un identifiant de taxon se vérifie auprès de l'API Wikidata avant
   d'être écrit dans `scripts/sources.ts` — une classe inexistante renvoie zéro
   ligne sans erreur.
+- **Le Wiktionnaire range un mot dans une catégorie pour n’importe lequel de
+  ses sens** : « pape » y est un oiseau (3ᵉ sens), « langue » un poisson.
+  Pour les animaux et les fruits-légumes, un mot rangé pour un sens second
+  n’est gardé que si son article Wikipédia parle d’un taxon (`strayWords`) —
+  sans quoi le jeu devient une loterie sur les mots courants. Un sens second
+  ne dit rien de l’ordre des sens : « bourdon » et « cafard » le sont aussi, et
+  c’est l’article qui les sauve.
+- **Les alias Wikidata ne sont pas des noms** : formes officielles
+  (« République de Pologne », jouable sur R), périphrases (« Oncle Sam »),
+  codes et symboles. `describes` les écarte ; « République tchèque » et
+  « RDC » partent avec, faute d’un signal qui les distingue.
 - **Les sitelinks ne mesurent pas la notoriété** : des robots ont écrit un
   article en quarante langues pour chaque espèce et chaque commune. Ils ne
   servent que de repli ; la notoriété vient de wordfreq et des visites de
