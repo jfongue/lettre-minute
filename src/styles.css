@@ -1844,3 +1844,67 @@ button {
 .earned .btn--ghost {
   justify-self: start;
 }
+
+/* ------------------------------------------------------------ rank move - */
+.rank-move-headline {
+  font-weight: 800;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The climber passes over the rows it overtakes, and never outside its window. */
+.rank-move-board {
+  overflow: hidden;
+}
+
+.rank-move-board .standing {
+  position: relative;
+  background: var(--paper);
+  animation: rank-slide var(--climb-ms) var(--ease-snap) var(--climb-delay) backwards;
+}
+
+/* Blue, the boards' colour for the player; yellow stays the leader's. */
+.rank-move-board .standing--me {
+  z-index: 1;
+  background: var(--blue);
+  color: var(--cream);
+  border-bottom-color: transparent;
+  animation:
+    rank-slide var(--climb-ms) var(--ease-snap) var(--climb-delay) backwards,
+    rank-land 420ms var(--ease-spring) calc(var(--climb-delay) + var(--climb-ms));
+}
+
+.rank-move-board .standing--me .avatar {
+  box-shadow: 0 0 0 2px var(--cream);
+}
+
+.rank-move-board .standing--me.standing--leader {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.rank-move-board .standing--entering {
+  animation:
+    rank-enter var(--climb-ms) var(--ease-snap) var(--climb-delay) backwards,
+    rank-land 420ms var(--ease-spring) calc(var(--climb-delay) + var(--climb-ms));
+}
+
+/* Percentages of the row's own height: every row is one place tall. */
+@keyframes rank-slide {
+  from {
+    transform: translateY(calc(var(--shift, 0) * 100%));
+  }
+}
+
+@keyframes rank-enter {
+  from {
+    opacity: 0;
+    transform: translateY(calc(var(--shift, 1) * 100%));
+  }
+}
+
+@keyframes rank-land {
+  40% {
+    transform: scale(1.04);
+  }
+}

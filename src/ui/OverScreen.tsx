@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { newlyEarned, type AvatarChoice } from '../domain/avatar'
+import type { Boards } from '../domain/boards'
 import { categoryMeta } from '../domain/catalogue'
 import { capitalized } from '../domain/text'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
@@ -11,6 +12,7 @@ import { Avatar } from './Avatar'
 import { Burst, Figure, LetterMark, Shape, TierTag } from './bauhaus'
 import { CategoryOffer } from './CategoryOffer'
 import { categoryMotif } from './motifs'
+import { RankMove } from './RankMove'
 import { reducedMotion, useCountUp } from './useCountUp'
 
 interface OverScreenProps {
@@ -24,6 +26,11 @@ interface OverScreenProps {
   /** Null while the game runs without a server: there is no account to offer. */
   account: Account | null
   accountActions: AccountActions
+  /** The boards as the run started, and as they stand once it reached the server: null until then, or without one. */
+  boardsBefore?: Boards | null
+  boardsAfter?: Boards | null
+  /** The named account's display name; an anonymous player is not on the boards. */
+  me?: string | null
   onAvatar(): void
   onChoose(categoryId: string): void
   onReplay(): void
@@ -155,6 +162,9 @@ function Summary({
   avatar,
   account,
   accountActions,
+  boardsBefore,
+  boardsAfter,
+  me,
   onAvatar,
   onChoose,
   onReplay,
@@ -212,6 +222,10 @@ function Summary({
           label={record ? 'nouveau record' : 'record'}
         />
       </div>
+
+      {me && boardsBefore && boardsAfter && (
+        <RankMove title="Classement du jour" before={boardsBefore.day} after={boardsAfter.day} me={me} />
+      )}
 
       {account?.anonymous && (
         <AccountPanel
