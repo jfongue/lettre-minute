@@ -24,3 +24,8 @@ export function initialOf(raw: string): string {
   const first = normalized.match(/[a-z]/)
   return first ? first[0].toUpperCase() : ''
 }
+
+/** Answers are shown and typed as names — « Dauphin », « Pérou » — whatever case the dictionary keeps. */
+export function capitalized(text: string): string {
+  return text.charAt(0).toLocaleUpperCase('fr-FR') + text.slice(1)
+}

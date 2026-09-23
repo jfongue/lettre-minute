@@ -11,12 +11,13 @@ import {
 } from './lib/cloud'
 import { unlockedCategories } from './domain/catalogue'
 import { levelFor, NEW_PROFILE } from './domain/progression'
-import { remainingSeconds } from './domain/run'
+import { dealCategories, remainingSeconds } from './domain/run'
 import { withExtraWords } from './domain/words'
 import { createJudge } from './state/judge'
 import { initialSession, sessionReducer } from './state/session'
 import { loadProfile, loadSubmissions, saveProfile, saveSubmissions } from './state/storage'
 import { useElapsed } from './state/useElapsed'
+import { CountdownScreen } from './ui/CountdownScreen'
 import { HomeScreen } from './ui/HomeScreen'
 import { OverScreen } from './ui/OverScreen'
 import { RunScreen } from './ui/RunScreen'
@@ -71,9 +72,13 @@ export function App() {
       // A category of the catalogue whose dictionary has not been imported yet
       // is simply not dealt, rather than failing the whole run.
       const shipped = new Set(availableCategoryIds())
-      const categoryIds = unlockedCategories(levelFor(session.profile.xp))
-        .map((category) => category.id)
-        .filter((id) => shipped.has(id))
+      const seed = Date.now() >>> 0
+      const categoryIds = dealCategories(
+        seed,
+        unlockedCategories(levelFor(session.profile.xp))
+          .map((category) => category.id)
+          .filter((id) => shipped.has(id)),
+      )
       const packs = (await loadPacks(categoryIds)).map((pack) =>
         withExtraWords(
           pack,
@@ -87,8 +92,7 @@ export function App() {
         ),
       )
       const judge = createJudge(packs, { own: session.profile.usage, crowd })
-      setStartedAt(Date.now())
-      dispatch({ type: 'ready', judge, seed: Date.now() >>> 0 })
+      dispatch({ type: 'ready', judge, seed, categoryIds })
     } catch (error) {
       dispatch({ type: 'load-failed', message: (error as Error).message })
     }
@@ -127,6 +131,17 @@ export function App() {
           loading={session.phase === 'loading'}
           leaderboard={leaderboard}
           onPlay={play}
+        />
+      )}
+
+      {session.phase === 'countdown' && session.run && (
+        <CountdownScreen
+          key={session.run.seed}
+          categoryIds={session.run.categoryIds}
+          onDone={() => {
+            setStartedAt(Date.now())
+            dispatch({ type: 'start' })
+          }}
         />
       )}
 

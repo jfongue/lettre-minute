@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { categoryMeta } from '../domain/catalogue'
+import { capitalized } from '../domain/text'
 import { levelProgress, newlyUnlocked, XP_PER_POINT, type Profile } from '../domain/progression'
 import type { Run } from '../domain/run'
 import { useCountUp } from './useCountUp'
@@ -58,7 +59,7 @@ export function OverScreen({ run, profile, levelBefore, onReplay, onHome }: Over
 
       {best && (
         <p className="note">
-          Meilleure trouvaille : <strong className="serif">{best.display}</strong> ·{' '}
+          Meilleure trouvaille : <strong className="serif">{capitalized(best.display)}</strong> ·{' '}
           {best.approximate ? 'orthographe approchée' : best.tier} · +{best.points}
         </p>
       )}
@@ -71,7 +72,7 @@ export function OverScreen({ run, profile, levelBefore, onReplay, onHome }: Over
               <span className="letter-chip letter-chip--sm">{found.prompt.letter}</span>
               <span className="serif">
                 {found.approximate && <span className="note">≈ </span>}
-                {found.display}
+                {capitalized(found.display)}
               </span>
               <span className="note">{categoryMeta(found.prompt.categoryId)?.label}</span>
               <span className={`points tier-${found.tier.replace(/\s/g, '-')}`}>+{found.points}</span>

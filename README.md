@@ -4,12 +4,17 @@ Un jeu de mots en solo. Une lettre, une catégorie, soixante
 secondes : on écrit, le jeu valide à la frappe, et les mots que personne
 n'écrit rapportent le plus.
 
+- **Quatre catégories par partie**, tirées parmi celles débloquées et annoncées
+  avant un compte à rebours de trois secondes.
 - **Validation immédiate** contre un dictionnaire embarqué de ~64 000 mots
   français : Wikidata pour les entités, le Wiktionnaire pour les noms communs,
   et les formes fléchies de Lexique — « chats » et « bleue » sont acceptés, et
   comptent comme « chat » et « bleu ».
 - **Catégories fermées et stables** (pays, animaux, couleurs, métiers…) : pas de
   films ni de célébrités, qu'un dictionnaire ne peut pas arbitrer.
+- **Rien n'est révélé pendant la frappe** : le champ nomme le mot seulement
+  quand il est écrit juste, dit « à une lettre près » sans nommer la
+  correction, et les points comme la rareté n'apparaissent qu'à la validation.
 - **Bonus de rareté** : un mot rare dans le français d'aujourd'hui rapporte plus
   qu'un mot courant, et ce bonus s'érode si le joueur le ressort à chaque partie
   ou si tout le monde l'écrit.

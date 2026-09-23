@@ -6,14 +6,16 @@ import { useEffect, useState } from 'react'
  * the clock, so a run cannot be paused by switching away from it.
  */
 export function useElapsed(startedAt: number | null): number {
-  const [elapsed, setElapsed] = useState(0)
+  // Tagged with the start it was measured from: on a replay, the previous run's
+  // last reading must not leak into the first render of the next one.
+  const [reading, setReading] = useState({ from: startedAt, elapsed: 0 })
 
   useEffect(() => {
     if (startedAt === null) return
 
     let frame = 0
     const tick = () => {
-      setElapsed((Date.now() - startedAt) / 1000)
+      setReading({ from: startedAt, elapsed: (Date.now() - startedAt) / 1000 })
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
@@ -22,5 +24,5 @@ export function useElapsed(startedAt: number | null): number {
 
   // Derived rather than reset in the effect: between two runs the hook answers
   // zero without a render pass of its own.
-  return startedAt === null ? 0 : elapsed
+  return startedAt === null || reading.from !== startedAt ? 0 : reading.elapsed
 }

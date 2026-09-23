@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { initialOf, normalizeWord } from './text'
+import { capitalized, initialOf, normalizeWord } from './text'
 
 describe('normalizeWord', () => {
   it('reads accents, case and stray spacing as the same word', () => {
@@ -27,5 +27,12 @@ describe('initialOf', () => {
   it('returns nothing for an answer with no letter in it', () => {
     expect(initialOf('   ')).toBe('')
     expect(initialOf('42')).toBe('')
+  })
+})
+
+describe('capitalized', () => {
+  it('raises the first letter only, accents included', () => {
+    expect(capitalized('éléphant de mer')).toBe('Éléphant de mer')
+    expect(capitalized('')).toBe('')
   })
 })

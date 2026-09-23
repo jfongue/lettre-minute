@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { categoryMeta } from '../domain/catalogue'
 import { RUN_SECONDS, SKIP_PENALTY_SECONDS, type Run, type Verdict } from '../domain/run'
-import { normalizeWord } from '../domain/text'
+import { capitalized, normalizeWord } from '../domain/text'
+import type { Cheer } from '../state/session'
 
 const URGENT_FROM = 10
 
@@ -13,7 +14,7 @@ interface RunScreenProps {
   run: Run
   draft: string
   live: Verdict | null
-  cheer: { display: string; points: number; tier: string } | null
+  cheer: Cheer | null
   remaining: number
   /** Normalized words already proposed in this run. */
   proposed: readonly string[]
@@ -41,6 +42,9 @@ export function RunScreen({
   const seconds = Math.ceil(remaining)
   const urgent = remaining <= URGENT_FROM
   const accepted = live?.kind === 'accepted'
+  // A corrected answer is accepted, but the field must not light up and give
+  // away that the player is one letter off a word it will not name.
+  const exact = accepted && !live?.found?.approximate
 
   // The field must never lose focus mid-run: a tap on "Passer" would otherwise
   // close the keyboard on a phone and cost the player the next prompt.
@@ -87,7 +91,7 @@ export function RunScreen({
       </section>
 
       <form
-        className={`answer${accepted ? ' answer--valid' : ''}`}
+        className={`answer${exact ? ' answer--valid' : ''}`}
         onSubmit={(event) => {
           event.preventDefault()
           submit()
@@ -100,12 +104,12 @@ export function RunScreen({
           <input
             ref={field}
             value={draft}
-            onChange={(event) => onType(event.target.value)}
+            onChange={(event) => onType(capitalized(event.target.value))}
             placeholder={`un mot en ${run.prompt.letter}…`}
             aria-label={`Mot en ${run.prompt.letter}, catégorie ${category?.label ?? ''}`}
             autoComplete="off"
             autoCorrect="off"
-            autoCapitalize="none"
+            autoCapitalize="sentences"
             spellCheck={false}
             enterKeyHint="done"
             onKeyDown={(event) => {
@@ -149,7 +153,7 @@ function Feedback({
   onPropose,
 }: {
   live: Verdict | null
-  cheer: RunScreenProps['cheer']
+  cheer: Cheer | null
   letter: string
   draft: string
   proposed: boolean
@@ -157,23 +161,23 @@ function Feedback({
 }) {
   // The last find takes the verdict's line until the player types again: lower
   // down, the phone keyboard would hide it.
+  // Points and rarity are only revealed here, once the word is validated.
   if (!live && cheer)
     return (
       <p className="cheer verdict" key={cheer.display}>
-        {cheer.display} · +{cheer.points} <span className="note">{cheer.tier}</span>
+        {cheer.approximate && <span aria-hidden="true">≈ </span>}
+        {capitalized(cheer.display)} · +{cheer.points}{' '}
+        <span className="note">{cheer.approximate ? 'orthographe approchée' : cheer.tier}</span>
       </p>
     )
   if (!live || live.kind === 'empty') return <p className="verdict">&nbsp;</p>
 
   switch (live.kind) {
     case 'accepted':
-      return (
-        <p className={`verdict verdict--valid${live.found?.approximate ? ' verdict--approx' : ''}`}>
-          {live.found?.approximate && <span aria-hidden="true">≈ </span>}
-          {live.found?.display} · +{live.found?.points}{' '}
-          <span className="note">{live.found?.approximate ? 'orthographe approchée' : live.found?.tier}</span>
-        </p>
-      )
+      // The word is named only once typed exactly: naming the correction would
+      // hand the player the spelling they were missing.
+      if (live.found?.approximate) return <p className="verdict verdict--approx">à une lettre près…</p>
+      return <p className="verdict verdict--valid">✓ {capitalized(live.found?.display ?? '')}</p>
     case 'wrong-letter':
       return <p className="verdict">commence par {letter}</p>
     case 'already':

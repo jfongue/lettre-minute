@@ -1,4 +1,3 @@
-import { unlockedCategories } from '../domain/catalogue'
 import { applyRun, levelFor, type Profile } from '../domain/progression'
 import { normalizeWord } from '../domain/text'
 import {
@@ -11,7 +10,8 @@ import {
   type Verdict,
 } from '../domain/run'
 
-export type Phase = 'home' | 'loading' | 'playing' | 'over'
+/** `countdown` holds a dealt run whose clock has not started: categories announced, then 3, 2, 1. */
+export type Phase = 'home' | 'loading' | 'countdown' | 'playing' | 'over'
 
 export interface Session {
   phase: Phase
@@ -21,8 +21,12 @@ export interface Session {
   /** What is in the field right now, judged on every keystroke. */
   draft: string
   live: Verdict | null
-  /** The word that just scored, kept a beat so the interface can celebrate it. */
-  cheer: { display: string; points: number; tier: string } | null
+  /**
+   * The word that just scored, kept a beat so the interface can celebrate it.
+   * Its points and rarity are only ever shown here, once validated: while the
+   * player types, the field says whether the word counts, never what it pays.
+   */
+  cheer: Cheer | null
   /** Words proposed during this run, normalized — the field acknowledges them inline. */
   proposed: readonly string[]
   /** The level held when the run started, so the end screen can announce what it opened. */
@@ -30,10 +34,18 @@ export interface Session {
   error: string | null
 }
 
+export interface Cheer {
+  display: string
+  points: number
+  tier: string
+  approximate: boolean
+}
+
 export type SessionAction =
   | { type: 'profile-loaded'; profile: Profile }
   | { type: 'play' }
-  | { type: 'ready'; judge: Judge; seed: number }
+  | { type: 'ready'; judge: Judge; seed: number; categoryIds: readonly string[] }
+  | { type: 'start' }
   | { type: 'load-failed'; message: string }
   | { type: 'type'; draft: string }
   | { type: 'submit' }
@@ -66,12 +78,11 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       return { ...session, phase: 'loading', error: null }
 
     case 'ready': {
-      const categoryIds = unlockedCategories(levelFor(session.profile.xp)).map((category) => category.id)
       return {
         ...session,
-        phase: 'playing',
+        phase: 'countdown',
         judge: action.judge,
-        run: createRun({ seed: action.seed, categoryIds }, action.judge),
+        run: createRun({ seed: action.seed, categoryIds: action.categoryIds }, action.judge),
         levelBefore: levelFor(session.profile.xp),
         draft: '',
         live: null,
@@ -79,6 +90,9 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         proposed: [],
       }
     }
+
+    case 'start':
+      return session.phase === 'countdown' ? { ...session, phase: 'playing' } : session
 
     case 'load-failed':
       return { ...session, phase: 'home', error: action.message }
@@ -103,7 +117,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         run: played.run,
         draft: '',
         live: null,
-        cheer: { display: found.display, points: found.points, tier: found.tier },
+        cheer: { display: found.display, points: found.points, tier: found.tier, approximate: found.approximate },
       }
     }
 

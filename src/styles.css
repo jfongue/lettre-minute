@@ -498,6 +498,41 @@ button {
   animation: rise 460ms var(--ease-spring) both;
 }
 
+/* ------------------------------------------------------------ countdown - */
+.countdown {
+  min-height: 60vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+  gap: 1rem;
+}
+
+.dealt {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.dealt li {
+  font-size: clamp(1.6rem, 8vw, 2.4rem);
+  line-height: 1.15;
+  animation: rise 520ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 180ms + 120ms);
+}
+
+.countdown-number {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(6rem, 34vw, 10rem);
+  line-height: 1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  animation: pop 420ms var(--ease-spring) both;
+}
+
 /* -------------------------------------------------------------- figures - */
 .figures {
   display: grid;
