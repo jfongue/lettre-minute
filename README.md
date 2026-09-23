@@ -4,8 +4,9 @@ Un jeu de mots en solo. Une lettre, une catégorie, soixante
 secondes : on écrit, le jeu valide à la frappe, et les mots que personne
 n'écrit rapportent le plus.
 
-- **Quatre catégories par partie**, tirées parmi celles débloquées et annoncées
-  avant un compte à rebours de trois secondes.
+- **Cinq catégories au plus par partie**, tirées parmi celles que le joueur
+  possède et annoncées avant un compte à rebours de trois secondes. Pendant
+  l'annonce, toucher une catégorie l'échange contre une de la réserve.
 - **Validation immédiate** contre un dictionnaire embarqué de ~64 000 mots
   français : Wikidata pour les entités, le Wiktionnaire pour les noms communs,
   et les formes fléchies de Lexique — « chats » et « bleue » sont acceptés, et
@@ -23,7 +24,12 @@ n'écrit rapportent le plus.
   en trop, lettre fausse : `thailnade` vaut `Thaïlande`. Mais une réponse
   corrigée est payée au tarif de base, si rare que soit le mot : le bonus
   récompense de connaître un mot, pas de l'écrire presque.
-- **Niveaux et déblocages** : l'XP gagnée ouvre de nouvelles catégories.
+- **Niveaux et déblocages** : on commence avec trois catégories ; chaque niveau
+  en propose trois nouvelles, le joueur en garde une. L'offre suivante évite
+  de reproposer les mêmes tant qu'il en reste d'autres.
+- **Fin de partie en deux temps** : le score, puis chaque mot trouvé, un par
+  un ; ensuite l'XP qui monte, la catégorie à choisir, les nouveautés d'avatar
+  et le résumé.
 - **Compte et avatar** : après une partie, le joueur anonyme peut créer un
   compte (nom, adresse, mot de passe) ou se connecter, et la partie y entre
   aussitôt. L'avatar est une tuile de l'affiche — cent formes animées, trente
