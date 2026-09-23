@@ -44,7 +44,26 @@ export const PULLS: readonly Pull[] = [
   // families ("métier du bois"), not the jobs themselves. Their French label is
   // the double-gendered form, which the import splits in two.
   { id: 'professions', of: 'Q28640' },
-  { id: 'professions-sub', of: 'Q28640', subclass: true },
+  {
+    id: 'professions-sub',
+    of: 'Q28640',
+    // The subclass tree of "profession" also files offices ("président du
+    // Sénat"), titles ("reine"), crafts ("broderie"), bodies of people ("clergé
+    // séculier") and the French job-board headings ("métiers de la coiffure").
+    // A job is the subclass that is itself an occupation; ranks, the clergy's
+    // subtree and those headings are left out.
+    raw: `SELECT ?label ?n WHERE {
+  ?item wdt:P279* wd:Q28640 ; rdfs:label ?label ; wikibase:sitelinks ?n .
+  FILTER(lang(?label) = "fr")
+  FILTER EXISTS { ?item wdt:P31/wdt:P279* wd:Q12737077 }
+  FILTER NOT EXISTS { ?item wdt:P31/wdt:P279* wd:Q4189293 }
+  FILTER NOT EXISTS { ?item wdt:P279* wd:Q177826 }
+  FILTER NOT EXISTS {
+    ?item wdt:P31 ?heading .
+    VALUES ?heading { wd:Q125362504 wd:Q125361619 wd:Q125361490 wd:Q19478619 }
+  }
+}`,
+  },
   { id: 'instruments', of: 'Q34379', subclass: true },
   { id: 'sports', of: 'Q31629', deep: true },
   { id: 'sports-sub', of: 'Q349', subclass: true },
