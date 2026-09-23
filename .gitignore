@@ -3,3 +3,8 @@ dist
 .DS_Store
 *.local
 .cache
+
+# Clés de signature des apps
+*.jks
+*.keystore
+keystore.properties

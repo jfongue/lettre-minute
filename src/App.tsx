@@ -9,6 +9,7 @@ import {
   type CommunityWord,
   type LeaderboardRow,
 } from './lib/cloud'
+import { onBackButton, tapFeedback } from './lib/native'
 import { unlockedCategories } from './domain/catalogue'
 import { levelFor, NEW_PROFILE } from './domain/progression'
 import { dealCategories, remainingSeconds } from './domain/run'
@@ -58,6 +59,24 @@ export function App() {
     fetchLeaderboard().then(setLeaderboard)
     flushSubmissions()
   }, [])
+
+  // Android's back gesture leaves a run for the home screen, and closes the app
+  // from there. A ref keeps one listener for the whole session.
+  const phase = useRef(session.phase)
+  phase.current = session.phase
+  useEffect(
+    () =>
+      onBackButton(() => {
+        if (phase.current === 'home' || phase.current === 'loading') return false
+        dispatch({ type: 'home' })
+        return true
+      }),
+    [],
+  )
+
+  useEffect(() => {
+    if (session.cheer) tapFeedback()
+  }, [session.cheer])
 
   const elapsed = useElapsed(session.phase === 'playing' ? startedAt : null)
   const remaining = session.run ? remainingSeconds(session.run, elapsed) : 0

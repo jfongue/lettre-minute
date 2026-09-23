@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Lettre Minute</string>
+    <string name="title_activity_main">Lettre Minute</string>
+    <string name="package_name">fr.lettreminute.app</string>
+    <string name="custom_url_scheme">fr.lettreminute.app</string>
+</resources>
