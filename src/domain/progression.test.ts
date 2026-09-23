@@ -34,11 +34,11 @@ describe('levels', () => {
 
 describe('applyRun', () => {
   it('banks XP, records the best and counts the words', () => {
-    const profile = applyRun(NEW_PROFILE, { score: 3000, words: ['chat', 'zebu'], bestCombo: 4 })
+    const profile = applyRun(NEW_PROFILE, { score: 300, words: ['chat', 'zebu'], bestCombo: 4 })
 
     expect(profile.xp).toBe(300)
     expect(profile.runs).toBe(1)
-    expect(profile.bestScore).toBe(3000)
+    expect(profile.bestScore).toBe(300)
     expect(profile.wordsFound).toBe(2)
     expect(profile.bestCombo).toBe(4)
   })
@@ -52,13 +52,13 @@ describe('applyRun', () => {
   })
 
   it('keeps a worse run from lowering the record', () => {
-    const profile = applyRun(applyRun(NEW_PROFILE, { score: 3000, words: [], bestCombo: 7 }), {
-      score: 500,
+    const profile = applyRun(applyRun(NEW_PROFILE, { score: 300, words: [], bestCombo: 7 }), {
+      score: 50,
       words: [],
       bestCombo: 2,
     })
 
-    expect(profile.bestScore).toBe(3000)
+    expect(profile.bestScore).toBe(300)
     expect(profile.bestCombo).toBe(7)
   })
 })

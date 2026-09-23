@@ -1,7 +1,7 @@
 import { unlockedAt, type CategoryMeta } from './catalogue'
 
-/** A run of 3 000 points is worth 300 XP — the first levels go by in a few runs. */
-export const XP_PER_POINT = 0.1
+/** A run of 300 points is worth 300 XP — the first levels go by in a few runs. */
+export const XP_PER_POINT = 1
 /** Paid once a word the player proposed enters the dictionary. */
 export const SUBMISSION_REWARD_XP = 150
 

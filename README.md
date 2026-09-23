@@ -40,11 +40,15 @@ considérer un changement terminé.
 
 | | |
 | --- | --- |
-| Mot valide | 100 points |
-| Bonus de rareté | jusqu'à +300, selon la notoriété du mot |
-| Mot juste à une lettre près | 100 points, sans bonus de rareté |
+| Mot valide | 10 points |
+| Bonus de rareté | jusqu'à +20, selon la notoriété du mot |
+| Mot juste à une lettre près | 10 points, sans bonus de rareté |
 | Série de mots validés | ×1,1 par mot enchaîné, plafonné à ×2 |
 | Passer | −5 secondes, série remise à zéro |
+
+Une petite partie tourne autour de 100 points, une partie énorme — une
+trentaine de mots, souvent rares, en longue série — approche 1 000. Chaque point
+rapporte un point d'XP.
 
 La notoriété d'un mot vaut moitié son rang dans sa propre catégorie, moitié la
 mesure absolue de deux signaux du français contemporain, le plus fort des deux :
@@ -69,7 +73,7 @@ mais un libellé peut tomber sur celui d'un homonyme : la pomme de terre
 Wiktionnaire n'atteste pas n'hérite donc d'aucune visite. Enfin, une page
 d'homonymie ne compte pas comme lecture.
 
-Une réponse rattrapée par la tolérance n'y a pas droit : elle vaut 100 points,
+Une réponse rattrapée par la tolérance n'y a pas droit : elle vaut 10 points,
 et le jeu affiche l'orthographe exacte pour que le joueur la retienne. Le jeu
 refuse de deviner quand deux mots de la catégorie sont à une lettre de ce qui a
 été tapé, et ne corrige rien en dessous de quatre lettres — un mot de trois

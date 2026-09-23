@@ -36,7 +36,7 @@ describe('rarityScore', () => {
 
 describe('pointsFor', () => {
   it('always pays for a valid word, however common', () => {
-    expect(pointsFor(common, NO_USAGE, 0)).toBeGreaterThanOrEqual(100)
+    expect(pointsFor(common, NO_USAGE, 0)).toBeGreaterThanOrEqual(10)
   })
 
   it('pays a rare word more', () => {

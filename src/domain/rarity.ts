@@ -11,8 +11,10 @@ export const NO_USAGE: WordUsage = { own: 0, globalShare: 0 }
 
 export type RarityTier = 'courant' | 'peu commun' | 'rare' | 'très rare'
 
-const BASE_POINTS = 100
-const RARITY_POINTS = 300
+// Sized so that a modest run lands near 100 and a huge one near 1 000: about
+// thirty words, most of them rare, on a long chain.
+const BASE_POINTS = 10
+const RARITY_POINTS = 20
 const MAX_COMBO_STEPS = 9
 
 function clamp(value: number, min: number, max: number): number {
