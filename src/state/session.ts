@@ -161,13 +161,19 @@ export function sessionReducer(session: Session, action: SessionAction): Session
 
     case 'time-up': {
       if (!session.run) return session
+      // A correct word still in the field when the clock runs out counts: the
+      // player wrote it in time, only the tap on "valider" came too late.
+      const run = session.judge ? submit(session.run, session.draft, session.judge).run : session.run
       return {
         ...session,
         phase: 'over',
+        run,
+        draft: '',
+        live: null,
         profile: applyRun(session.profile, {
-          score: session.run.score,
-          words: session.run.found.map((found) => found.word),
-          bestCombo: session.run.bestCombo,
+          score: run.score,
+          words: run.found.map((found) => found.word),
+          bestCombo: run.bestCombo,
         }),
       }
     }
