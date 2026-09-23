@@ -520,6 +520,17 @@ function main(argv: readonly string[]) {
         console.warn(`~ ${source.id}: partiel (${sources.length}/${source.pulls.length} sources)`)
       }
 
+      // A word also reachable from an `exclude` pull is dropped rather than
+      // added: "fruit" and "fleur" are anatomical structures too, just of a
+      // plant rather than a body, and the class doesn't tell the two apart.
+      const excluded = new Set<string>()
+      for (const id of source.exclude ?? []) {
+        for (const row of byPull.get(id) ?? []) {
+          const key = normalizeWord(row.display)
+          if (key !== '') excluded.add(key)
+        }
+      }
+
       // One entry per normalized word: the shortest spelling wins, and a word
       // found in several pulls keeps its best notoriety.
       // `alias` stays true only while every row naming the word was an alias.
@@ -538,7 +549,7 @@ function main(argv: readonly string[]) {
           for (const display of cleaned.split(/ ou /)) {
             if (!acceptable(display)) continue
             const key = normalizeWord(display)
-            if (key === '') continue
+            if (key === '' || excluded.has(key)) continue
             const current = best.get(key)
             if (!current) best.set(key, { display, sitelinks: row.sitelinks, alias: row.alias === true })
             else {

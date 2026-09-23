@@ -37,11 +37,17 @@ export const PULLS: readonly Pull[] = [
   FILTER(lang(?label) = "fr")
 }`,
   },
-  { id: 'materials', of: 'Q214609', subclass: true },
+  // "Building material" rather than "material" (Q214609): the broader class
+  // has "food" as a direct subclass, which drags in milk, snow and bread — a
+  // narrower, purpose-built class stays clean.
+  { id: 'materials', of: 'Q206615', subclass: true },
   // "Anatomical structure" rather than a "part of the human body" query: most
   // everyday words — tête, main, œil — hang off the generic taxon-wide class,
-  // not off a link to the specific human-body item.
+  // not off a link to the specific human-body item. But that class also
+  // covers plant anatomy — "fruit" and "fleur" are anatomical structures too —
+  // so `exclude` below drops whatever also falls under "plant organ".
   { id: 'anatomy', of: 'Q4936952', subclass: true },
+  { id: 'plant-organ', of: 'Q24060707', subclass: true },
   { id: 'colors', of: 'Q1075', deep: true },
   { id: 'colors-sub', of: 'Q1075', subclass: true },
   // Instances of "profession": the subclass tree of "occupation" holds trade
@@ -84,13 +90,13 @@ export const PULLS: readonly Pull[] = [
   { id: 'mayflies', of: 'Q174273', vernacular: true },
   { id: 'caddisflies', of: 'Q184616', vernacular: true },
   { id: 'fleas', of: 'Q388162', vernacular: true },
-  // Wikidata's corporate modelling is too inconsistent for one clean class:
-  // Nike and Chanel are instances of "brand", Renault of "car manufacturer",
-  // Danone and Michelin only carry a legal form, and some — Coca-Cola,
-  // Facebook — have no French Wikidata label at all, only a French Wikipedia
-  // article. Four narrow pulls, unioned by the category, catch more of them
-  // than any single query does; the French article title stands in for the
-  // label whenever Wikidata itself never got one.
+  // Wikidata's corporate modelling has no single clean class: Nike and Chanel
+  // are instances of "brand", Renault of "car manufacturer". A legal form or an
+  // industry statement was tried too, but both sit on communes, the UN, or
+  // "football" as often as on a company — a filter too loose to trust. Two
+  // narrow pulls, unioned by the category, catch what a single query misses;
+  // the French article title stands in for the label whenever Wikidata never
+  // gave the item one of its own — true for Coca-Cola and Facebook.
   {
     id: 'brand-class',
     of: 'Q431289',
@@ -103,31 +109,10 @@ export const PULLS: readonly Pull[] = [
 }`,
   },
   {
-    id: 'brand-legalform',
-    of: 'Q431289',
-    raw: `SELECT ?label ?n WHERE {
-  ?article schema:about ?item ; schema:isPartOf <https://fr.wikipedia.org/> ; schema:name ?title .
-  ?item wdt:P1454 [] ; wikibase:sitelinks ?n . FILTER(?n >= 15)
-  OPTIONAL { ?item rdfs:label ?frlabel . FILTER(lang(?frlabel) = "fr") }
-  BIND(COALESCE(?frlabel, ?title) AS ?label)
-}`,
-  },
-  {
-    id: 'brand-industry',
-    of: 'Q431289',
-    raw: `SELECT ?label ?n WHERE {
-  ?article schema:about ?item ; schema:isPartOf <https://fr.wikipedia.org/> ; schema:name ?title .
-  ?item wdt:P452 [] ; wikibase:sitelinks ?n . FILTER(?n >= 15)
-  OPTIONAL { ?item rdfs:label ?frlabel . FILTER(lang(?frlabel) = "fr") }
-  BIND(COALESCE(?frlabel, ?title) AS ?label)
-}`,
-  },
-  {
     id: 'brand-product',
     of: 'Q431289',
     // Reverse of "has brand" on a product — catches a brand entity that
-    // carries none of the classes or properties above, as long as one product
-    // of it names it.
+    // carries none of the classes above, as long as one product of it names it.
     raw: `SELECT ?label ?n WHERE {
   ?article schema:about ?item ; schema:isPartOf <https://fr.wikipedia.org/> ; schema:name ?title .
   ?product wdt:P1716 ?item . ?item wikibase:sitelinks ?n . FILTER(?n >= 15)
@@ -140,6 +125,8 @@ export const PULLS: readonly Pull[] = [
 export interface CategorySource {
   id: string
   pulls: readonly string[]
+  /** Pulls whose words are dropped from this category rather than added to it. */
+  exclude?: readonly string[]
 }
 
 export const CATEGORY_SOURCES: readonly CategorySource[] = [
@@ -185,8 +172,8 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
   { id: 'sports', pulls: ['sports', 'sports-sub'] },
   { id: 'capitales', pulls: ['capitals'] },
   { id: 'matieres', pulls: ['materials'] },
-  { id: 'corps-humain', pulls: ['anatomy'] },
-  { id: 'marques', pulls: ['brand-class', 'brand-legalform', 'brand-industry', 'brand-product'] },
+  { id: 'corps-humain', pulls: ['anatomy'], exclude: ['plant-organ'] },
+  { id: 'marques', pulls: ['brand-class', 'brand-product'] },
 ]
 
 export function queryFor(pull: Pull): string {
