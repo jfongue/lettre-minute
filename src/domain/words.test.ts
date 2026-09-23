@@ -42,6 +42,16 @@ describe('notoriété', () => {
     expect(pack2.entries.get('chien')!.notoriety).toBeLessThanOrEqual(1)
   })
 
+  it('trusts what French readers look up over how many Wikipedias describe it', () => {
+    // A bird with an article in eighty languages, all written by bots, against
+    // one with fewer articles that French readers actually open.
+    const pack = parseWordPack('oiseaux', ['Aigle martial|80|0.00||12', 'Aigle royal|60|0.00||900', 'Zébu|5|0.10'].join('\n'))
+
+    expect(pack.entries.get('aigle royal')!.views).toBe(900)
+    expect(pack.entries.get('zebu')!.views).toBeUndefined()
+    expect(pack.entries.get('aigle royal')!.notoriety).toBeGreaterThan(pack.entries.get('aigle martial')!.notoriety)
+  })
+
   it('gives an inflected form the standing of the word it bends', () => {
     const pack = parseWordPack('animaux', ['Chat|120|45.30', 'Chats|120|8.00|chat', 'Zébu|1|0.10'].join('\n'))
 

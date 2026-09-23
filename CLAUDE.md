@@ -44,6 +44,22 @@ qu'un nouvel arrivant casserait sans le savoir.
   ont répondu. Un identifiant de taxon se vérifie auprès de l'API Wikidata avant
   d'être écrit dans `scripts/sources.ts` — une classe inexistante renvoie zéro
   ligne sans erreur.
+- **Les sitelinks ne mesurent pas la notoriété** : des robots ont écrit un
+  article en quarante langues pour chaque espèce et chaque commune. Ils ne
+  servent que de repli ; la notoriété vient de wordfreq et des visites de
+  Wikipédia FR (clickstream mensuel). Un mot sans article doit être écrit avec
+  zéro visite, pas sans champ : un champ absent fait retomber le domaine sur
+  les sitelinks.
+- **Les pages vues ne se demandent pas article par article** : 45 000 appels à
+  l'API font bannir l'adresse (429) bien avant la fin. Le clickstream se
+  télécharge d'un bloc ; seule la résolution libellé → article passe par l'API,
+  cinquante titres par appel, en séquentiel et en cache
+  (`.cache/frwiki-articles-v2.json`).
+- **La fréquence wordfreq se cherche à l'orthographe exacte**, accents compris :
+  repliée comme `normalizeWord`, « aï » (le paresseux) lit « ai ». Et elle ne
+  vaut que pour un mot attesté dans la catégorie par le Wiktionnaire, ou
+  décrit par au moins cinquante Wikipédias — sinon « Mars » poisson prend la
+  fréquence du mois.
 - **Une forme fléchie porte la clé du mot qu'elle fléchit** (`WordEntry.key`).
   C'est ce qui empêche « chat » puis « chats » de marquer deux fois dans la même
   partie — et ce qui fera la même chose pour « USA » et « États-Unis ». Toute

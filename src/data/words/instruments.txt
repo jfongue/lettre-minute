@@ -1,2210 +1,2210 @@
-Aburukuwa|6|0.00
-Access Virus|7|0.00
-accordéon|113|4.80
-accordéon à boutons|13|0.00
-accordéon à touches de piano|15|0.00
-accordéon chromatique|8|0.00
-accordéon de Styrie|6|0.00
-accordéon diatonique|22|0.00
-accordéon électrique|0|0.00
-accordéons|113|0.68|accordeon
-accordina|4|0.00
-Acoustic drums|0|0.00
-acoustique|2|0.74
-acoustiques|2|0.07|acoustique
-Adjalin|3|0.00
-Adufe|12|0.00
-Adungu|10|0.00
-Adyrna|9|0.00
-Aelodicon|1|0.00
-aérophone|43|0.00
-aérophones libres|0|0.00
-afoxé|6|0.00
-agogô|25|0.00
-agung|6|0.00
-Ahoco|1|0.00
-ahoko|3|0.00
-AirPods|35|0.00
-AirPods Max|18|0.00
-AirPods Pro|24|0.00
-Ajaeng|15|0.00
-Akadinda|1|0.00
-Akai MPC|14|0.00
-akkordolia|3|0.00
-ala bohemica|0|0.00
-alapini vînâ|4|0.00
-alarme de défense civile|24|0.00
-Alarme de Raid|1|0.00
-Alboka|22|0.00
-Alfaia|6|0.00
-alghoza|17|0.00
-altmezzo|1|0.00
-alto|92|0.95
-alto bouffe|1|0.00
-alto garçon|0|0.00
-altos|92|0.14|alto
-Alzapúa|3|0.00
-anacara|0|0.00
+Aburukuwa|6|0.00||0
+Access Virus|7|0.00||0
+accordéon|113|1.78||79
+accordéon à boutons|13|0.00||0
+accordéon à touches de piano|15|0.00||0
+accordéon chromatique|8|0.00||0
+accordéon de Styrie|6|0.00||0
+accordéon diatonique|22|0.00||34
+accordéon électrique|0|0.00||0
+accordéons|113|0.00|accordeon
+accordina|4|0.00||0
+Acoustic drums|0|0.00||0
+acoustique|2|0.00||13
+acoustiques|2|0.00|acoustique
+Adjalin|3|0.00||0
+Adufe|12|0.00||1
+Adungu|10|0.00||0
+Adyrna|9|0.00||0
+Aelodicon|1|0.00||0
+aérophone|43|0.00||54
+aérophones libres|0|0.00||0
+afoxé|6|0.00||0
+agogô|25|0.00||3
+agung|6|0.00||0
+Ahoco|1|0.00||0
+ahoko|3|0.00||0
+AirPods|35|0.00||33
+AirPods Max|18|0.00||8
+AirPods Pro|24|0.00||17
+Ajaeng|15|0.00||1
+Akadinda|1|0.00||0
+Akai MPC|14|0.00||9
+akkordolia|3|0.00||0
+ala bohemica|0|0.00||0
+alapini vînâ|4|0.00||0
+alarme de défense civile|24|0.00||0
+Alarme de Raid|1|0.00||0
+Alboka|22|0.00||2
+Alfaia|6|0.00||0
+alghoza|17|0.00||1
+altmezzo|1|0.00||0
+alto|92|2.14
+alto bouffe|1|0.00||0
+alto garçon|0|0.00||0
+altos|92|0.00|alto
+Alzapúa|3|0.00||0
+anacara|0|0.00||0
 anagyre|13|0.00
-ancive|0|0.00
-Ang Kuy|1|0.00
-Angélique|10|3.85
-angéliques|10|1.01|angelique
-angklung|35|0.00
-antiphonel|0|0.00
-Apertintaille|1|0.00
-Apollonicon|3|0.00
-appareil phonatoire|16|0.00
-appareil vocal|3|0.00
-appeau|6|0.27
-appeau à canard|3|0.00
-appeaux|6|0.14|appeau
-arbajo|3|0.00
-arc-en-terre|3|0.00
-arc musical|18|0.00
-Archéophone|6|0.00
-Archicembalo|7|0.00
-archiluth|16|0.00
-archiquier|3|0.00
-Ardîn|10|0.07
-arghoul|11|0.00
-Aria Pro II|3|0.00
-ariston|0|0.00
-Armónico|7|0.00
-ARP Avatar|2|0.00
-ARP Odyssey|7|0.00
-ARP Quadra|2|0.00
-ARP String Ensemble|9|0.00
-arpa jarocha|6|0.00
-arpanetta|3|0.00
-arpe chromatique|3|0.00
-Arpeggione|20|0.00
-Arpicordo|3|0.00
-art multuimédia|1|0.00
-Arturia MicroFreak|7|0.00
-Asatayak|5|0.00
+ancive|0|0.00||0
+Ang Kuy|1|0.00||0
+Angélique|10|0.00
+angéliques|10|0.00|angelique
+angklung|35|0.00||2
+antiphonel|0|0.00||0
+Apertintaille|1|0.00||0
+Apollonicon|3|0.00||0
+appareil phonatoire|16|0.00||3
+appareil vocal|3|0.00||0
+appeau|6|0.00||0
+appeau à canard|3|0.00||0
+appeaux|6|0.00|appeau
+arbajo|3|0.00||0
+arc-en-terre|3|0.00||0
+arc musical|18|0.00||3
+Archéophone|6|0.00||0
+Archicembalo|7|0.00||0
+archiluth|16|0.00||12
+archiquier|3|0.00||0
+Ardîn|10|0.00||0
+arghoul|11|0.00||1
+Aria Pro II|3|0.00||0
+ariston|0|0.16
+Armónico|7|0.00||0
+ARP Avatar|2|0.00||0
+ARP Odyssey|7|0.00||0
+ARP Quadra|2|0.00||0
+ARP String Ensemble|9|0.00||0
+arpa jarocha|6|0.00||0
+arpanetta|3|0.00||0
+arpe chromatique|3|0.00||0
+Arpeggione|20|0.00||6
+Arpicordo|3|0.00||0
+art multuimédia|1|0.00||0
+Arturia MicroFreak|7|0.00||0
+Asatayak|5|0.00||0
 ASW|1|0.00
-atabal|2|0.00
-Atabaque|16|0.00
-Atenteben|4|0.00
-atumpan|1|0.00
-aulos|39|0.07
-autoharpe|24|0.00
-automatophone|0|0.00
-Auxetophone|2|0.00
-avertisseur à air|9|0.00
-Axatse|4|0.00
-aykhori|0|0.00
-Ayotl|2|0.00
-ayoyotes|3|0.00
-ayumaa|3|0.00
-Babendil|4|0.00
-Bacurinha|0|0.00
+atabal|2|0.00||0
+Atabaque|16|0.00||1
+Atenteben|4|0.00||0
+atumpan|1|0.00||0
+aulos|39|0.00
+autoharpe|24|0.00||31
+automatophone|0|0.00||0
+Auxetophone|2|0.00||0
+avertisseur à air|9|0.00||0
+Axatse|4|0.00||0
+aykhori|0|0.00||0
+Ayotl|2|0.00||0
+ayoyotes|3|0.00||0
+ayumaa|3|0.00||0
+Babendil|4|0.00||0
+Bacurinha|0|0.00||0
 Baglama|12|0.00
-baguette de tambour|27|0.00
-Bajo quinto|4|0.00
-bajo sexto|11|0.00
+baguette de tambour|27|0.00||0
+Bajo quinto|4|0.00||0
+bajo sexto|11|0.00||1
 balaban|30|0.00
-balafon|35|0.07
-balafons|35|0.07|balafon
-balalaïka|58|0.14
-Balalaïka contrebasse|4|0.00
-balalaïkas|58|0.27|balalaika
-Balsie|1|0.00
-Bamboula|5|0.27
-Bandola|11|0.00
-Bandolim|5|0.00
-bandolón|2|0.00
-bandonéon|42|0.20
-bandonion|0|0.00
-bandore|9|0.00
-bandoura|44|0.00
-bandurria|26|0.00
-Bangdi|2|0.00
+balafon|35|0.00||24
+balafons|35|0.00|balafon
+balalaïka|58|0.07||26
+Balalaïka contrebasse|4|0.00||0
+balalaïkas|58|0.00|balalaika
+Balsie|1|0.00||0
+Bamboula|5|0.00||0
+Bandola|11|0.00||0
+Bandolim|5|0.00||0
+bandolón|2|0.00||0
+bandonéon|42|0.00||44
+bandonion|0|0.00||0
+bandore|9|0.00||0
+bandoura|44|0.00||8
+bandurria|26|0.00||3
+Bangdi|2|0.00||0
 bangu|4|0.00
-banhu|19|0.00
-banjo|72|0.81
-banjo basse|3|0.00
-banjo-ukulélé|8|0.00
-banjoline|8|0.00
-banjos|72|0.27|banjo
-bansurî|35|0.00
+banhu|19|0.00||1
+banjo|72|0.78||55
+banjo basse|3|0.00||0
+banjo-ukulélé|8|0.00||0
+banjoline|8|0.00||0
+banjos|72|0.00|banjo
+bansurî|35|0.00||8
 Bara|0|0.00
 barbat|13|0.00
-barbitos|17|0.00
-barillet|5|1.96
-barillets|5|0.07|barillet
-baritenor|9|0.00
-barítona|1|0.00
-Baritone ukulele|1|0.00
-baroxiton|0|0.00
-barre de son|18|0.00
-baryton|64|2.50
-baryton à cordes|25|0.00
-baryton-basse|23|0.00
-baryton de caractère|2|0.00
-baryton dramatique|2|0.00
-baryton lyrique|3|0.00
-baryton Martin|1|0.00
-Baryton-noble|0|0.00
-baryton Verdi|0|0.00
-barytons|64|0.20|baryton
-bas-dessus|1|0.00
-basolia|10|0.00
-bassanello|5|0.00
-basse|66|71.28
-basse à tessiture étendue|5|0.00
-basse aux pieds|1|0.00
-basse bouffe|5|0.00
-basse chantante|2|0.00
-Basse de bourdon|0|0.00
-basse de cornet|2|0.00
-basse de violon|4|0.00
-basse électrique|19|0.00
-basse fretless|13|0.00
-Basse Piccolo|3|0.00
-basse profonde|10|0.00
-basses|66|16.01|basse
-basson|76|0.07
-basson à fusée|0|0.00
-basson russe|2|0.00
-Basstar|0|0.00
-Bâton de pluie|22|0.00
-Bâton laid|2|0.00
-battant|3|9.26
-battante|3|2.16|battant
-battantes|3|1.28|battant
-battants|3|3.99|battant
-Battement|6|10.81
-battements|6|8.45|battement
-batterie|82|9.73
-batterie électronique|27|0.00
-batteries|82|5.81|batterie
+barbitos|17|0.00||1
+barillet|5|0.00
+barillets|5|0.00|barillet
+baritenor|9|0.00||0
+barítona|1|0.00||0
+Baritone ukulele|1|0.00||0
+baroxiton|0|0.00||0
+barre de son|18|0.00||1
+baryton|64|0.76
+baryton à cordes|25|0.00||13
+baryton-basse|23|0.00||50
+baryton de caractère|2|0.00||0
+baryton dramatique|2|0.00||0
+baryton lyrique|3|0.00||0
+baryton Martin|1|0.00||0
+Baryton-noble|0|0.00||0
+baryton Verdi|0|0.00||0
+barytons|64|0.00|baryton
+bas-dessus|1|0.00||0
+basolia|10|0.00||0
+bassanello|5|0.00||0
+basse|66|38.02
+basse à tessiture étendue|5|0.00||0
+basse aux pieds|1|0.00||0
+basse bouffe|5|0.00||0
+basse chantante|2|0.00||0
+Basse de bourdon|0|0.00||0
+basse de cornet|2|0.00||0
+basse de violon|4|0.00||0
+basse électrique|19|0.00||59
+basse fretless|13|0.00||4
+Basse Piccolo|3|0.00||0
+basse profonde|10|0.00||16
+basses|66|0.00|basse
+basson|76|0.31||46
+basson à fusée|0|0.00||0
+basson russe|2|0.00||0
+Basstar|0|0.00||0
+Bâton de pluie|22|0.00||10
+Bâton laid|2|0.00||0
+battant|3|0.00
+battante|3|0.00|battant
+battantes|3|0.00|battant
+battants|3|0.00|battant
+Battement|6|0.00
+battements|6|0.00|battement
+batterie|82|31.62
+batterie électronique|27|0.00||3
+batteries|82|0.00|batterie
 Battery|1|0.00
 Batuque|0|0.00
-batyphon|0|0.00
-bawu|13|0.00
-bayan|28|0.00
-Bazooka|12|0.81
-bazookas|12|0.07|bazooka
-beatboxing|54|0.00
-Bedon|2|0.20
-bedons|2|0.07|bedon
-bedug|14|0.00
-Begena|15|0.00
-Beigoma|8|0.00
-bellonéon|0|0.00
-bendir|20|0.00
-berimbau|31|0.00
-Bhankora|3|0.00
-bhapang|0|0.00
-biambo|0|0.00
-Bianqing|8|0.00
-Bianzhong|16|0.00
-Big conga|0|0.00
-big drum|0|0.00
-Bigophone|3|0.68
-biniou kozh|12|0.00
-binzasara|7|0.00
-bipa|6|0.00
-bisernica|3|0.00
-Bishgüür|2|0.00
+batyphon|0|0.00||0
+bawu|13|0.00||1
+bayan|28|0.00||3
+Bazooka|12|0.00||41
+bazookas|12|0.00|bazooka
+beatboxing|54|0.01||13
+Bedon|2|0.00||0
+bedons|2|0.00|bedon
+bedug|14|0.00||0
+Begena|15|0.00||0
+Beigoma|8|0.00||0
+bellonéon|0|0.00||0
+bendir|20|0.00||11
+berimbau|31|0.00||12
+Bhankora|3|0.00||0
+bhapang|0|0.00||0
+biambo|0|0.00||0
+Bianqing|8|0.00||0
+Bianzhong|16|0.00||0
+Big conga|0|0.00||0
+big drum|0|0.00||0
+Bigophone|3|0.03||17
+biniou kozh|12|0.00||100
+binzasara|7|0.00||0
+bipa|6|0.00||0
+bisernica|3|0.00||0
+Bishgüür|2|0.00||0
 biwa|33|0.00
-bloc chinois|17|0.00
-Blul|4|0.00
+bloc chinois|17|0.00||0
+Blul|4|0.00||0
 bo|4|0.00
-bobre|2|0.00
-Bodega|5|0.14
+bobre|2|0.00||0
+Bodega|5|0.00||0
 bodegas|5|0.00|bodega
-bodhrán|39|0.00
-boha|9|0.00
-bois|61|299.46
-boîte à musique|42|0.00
-boîte à rythmes|36|0.00
-bol chantant|26|0.00
-Bolon|6|0.00
-bombalon|0|0.00
-bombarde|18|1.42
-bombarde basse|0|0.00
-bombardée|18|0.47|bombarde
-bombardées|18|0.47|bombarde
-bombardes|18|0.68|bombarde
-Bombardon|7|0.00
-bombardons|7|0.07|bombardon
+bodhrán|39|0.00||24
+boha|9|0.00||0
+bois|61|141.25||57
+boîte à musique|42|0.00||18
+boîte à rythmes|36|0.00||13
+bol chantant|26|0.00||12
+Bolon|6|0.00||0
+bombalon|0|0.00||0
+bombarde|18|0.00
+bombarde basse|0|0.00||0
+bombardée|18|0.00|bombarde
+bombardées|18|0.00|bombarde
+bombardes|18|0.00|bombarde
+Bombardon|7|0.00||0
+bombardons|7|0.00|bombardon
 bombo|18|0.00
-Bonang|10|0.00
-Bond Electraglide|2|0.00
-bongo|44|0.07
-bongos|44|0.07|bongo
-Boobam|3|0.00
-Boomer|16|0.07
-Boomwhacker|7|0.00
-bordée|16|8.11
-bordées|16|3.72|bordee
-Bordonua|4|0.00
-borrindo|1|0.00
-Bose SoundDock|1|0.00
-Bose SoundLink|2|0.00
-Bougarabou|3|0.00
-boula|1|0.07
-bourdonnement|12|9.19
-bourdonnements|12|1.35|bourdonnement
-bouteillophone|1|0.00
-bouzouki|44|0.47
-bouzouki irlandais|10|0.00
-bramatopin|1|0.00
+Bonang|10|0.00||0
+Bond Electraglide|2|0.00||0
+bongo|44|0.00||14
+bongos|44|0.00|bongo
+Boobam|3|0.00||0
+Boomer|16|0.00
+Boomwhacker|7|0.00||0
+bordée|16|0.00||4
+bordées|16|0.00|bordee
+Bordonua|4|0.00||0
+borrindo|1|0.00||0
+Bose SoundDock|1|0.00||0
+Bose SoundLink|2|0.00||0
+Bougarabou|3|0.00||0
+boula|1|0.00
+bourdonnement|12|0.00||1
+bourdonnements|12|0.00|bourdonnement
+bouteillophone|1|0.00||0
+bouzouki|44|0.00||44
+bouzouki irlandais|10|0.00||6
+bramatopin|1|0.00||0
 Bratsch|1|0.00
-Brian Boru bagpipe|1|0.00
-buccin|22|0.14
+Brian Boru bagpipe|1|0.00||0
+buccin|22|0.00
 Buchel|4|0.00
-bucium|10|0.00
-Buddha Machine|2|0.00
-bugarija|3|0.00
-bugle|46|0.34
+bucium|10|0.00||0
+Buddha Machine|2|0.00||0
+bugarija|3|0.00||0
+bugle|46|0.00||37
 bugles|46|0.00|bugle
-buisine|8|0.00
+buisine|8|0.07
 Buk|9|0.00
-Bukkehorn|7|0.00
-Bulbul tarang|12|0.00
-bulgari|3|0.00
-Buluh cehtong|1|0.00
-bundengan|5|0.00
-buzuq|9|0.00
-Byhorn|1|0.00
-Byzaanchy|12|0.00
-cabasa|22|0.00
-cabrette|7|0.20
-caisse claire|49|0.00
+Bukkehorn|7|0.00||0
+Bulbul tarang|12|0.00||1
+bulgari|3|0.00||0
+Buluh cehtong|1|0.00||0
+bundengan|5|0.00||0
+buzuq|9|0.00||0
+Byhorn|1|0.00||0
+Byzaanchy|12|0.00||0
+cabasa|22|0.00||1
+cabrette|7|0.00||0
+caisse claire|49|0.00||13
 caixa|3|0.00
-Caixinha|0|0.00
-caja|3|0.00
-cajón|37|0.00
-calliope|15|0.00
-calung|5|0.00
-caña de millo|5|0.00
-cantaro|4|0.00
-caramera|1|0.00
-Carémère|1|0.00
-carillon|47|5.54
-carillon à vent|32|0.00
-carillon de gong|3|0.00
-carillon tubulaire|32|0.00
-carillons|47|0.34|carillon
-carnyx|22|0.00
-cascabel|0|0.00
-Casiotone|5|0.00
-casque audio|68|0.00
-castagnette|54|0.07|castagnettes
-castagnettes|54|2.50
-castrat mezzo-soprano|0|0.00
-castrat soprano|0|0.00
-cavaquinho|24|0.00
-caxambu|2|0.00
-Caxirola|11|0.00
-Caxixi|15|0.00
-Cécilium|2|0.00
-célesta|44|0.00
-Celinder|1|0.00
-cellone|3|0.00
-cellule magnétique|36|0.00
-cencerro|28|0.00
-çeng|11|0.00
-cervelas|11|0.27
-Cetera|5|0.00
-Cetra|2|0.00
-chabrette|2|0.00
-chacha|0|0.00
-Chaise sonore|3|0.00
-chajchas|7|0.00
-Chakhe|8|0.00
-chalemie|35|0.00
-chalimou basson|0|0.00
-chalumeau|23|2.36
-chalumeau tenor|0|0.00
-chalumeaux|23|0.34|chalumeau
+Caixinha|0|0.00||0
+caja|3|0.00||0
+cajón|37|0.00||36
+calliope|15|0.00||85
+calung|5|0.00||0
+caña de millo|5|0.00||0
+cantaro|4|0.00||0
+caramera|1|0.00||0
+Carémère|1|0.00||0
+carillon|47|0.00||27
+carillon à vent|32|0.00||7
+carillon de gong|3|0.00||0
+carillon tubulaire|32|0.00||7
+carillons|47|0.00|carillon
+carnyx|22|0.00||47
+cascabel|0|0.00||0
+Casiotone|5|0.00||0
+casque audio|68|0.00||6
+castagnette|54|0.00|castagnettes
+castagnettes|54|0.17||15
+castrat mezzo-soprano|0|0.00||0
+castrat soprano|0|0.00||0
+cavaquinho|24|0.00||19
+caxambu|2|0.00||0
+Caxirola|11|0.00||0
+Caxixi|15|0.00||1
+Cécilium|2|0.00||0
+célesta|44|0.00||27
+Celinder|1|0.00||0
+cellone|3|0.00||0
+cellule magnétique|36|0.00||0
+cencerro|28|0.00||8
+çeng|11|0.00||0
+cervelas|11|0.00
+Cetera|5|0.00||0
+Cetra|2|0.00||0
+chabrette|2|0.00||0
+chacha|0|0.22
+Chaise sonore|3|0.00||0
+chajchas|7|0.00||0
+Chakhe|8|0.00||0
+chalemie|35|0.00||12
+chalimou basson|0|0.00||0
+chalumeau|23|0.00
+chalumeau tenor|0|0.00||0
+chalumeaux|23|0.00|chalumeau
 Chande|5|0.00
 changi|6|0.00
-Chanza|8|0.00
-Chapeau chinois|15|0.00
-chapey|8|0.00
-Chapman Stick|27|0.00
-charango|30|0.00
-charango électrique|1|0.00
-charka|0|0.00
-charleston|28|0.41
-chekeré|24|0.00
-Chenda|13|0.00
-chi|5|0.54
-Chiboni|2|0.00
-chichikoué|0|0.00
-chifonie|3|0.00
+Chanza|8|0.00||0
+Chapeau chinois|15|0.00||14
+chapey|8|0.00||0
+Chapman Stick|27|0.00||13
+charango|30|0.00||19
+charango électrique|1|0.00||0
+charka|0|0.00||0
+charleston|28|0.00
+chekeré|24|0.00||3
+Chenda|13|0.00||0
+chi|5|0.00||13
+Chiboni|2|0.00||0
+chichikoué|0|0.00||0
+chifonie|3|0.00||0
 chikara|4|0.00
-chikuzenbiwa|0|0.00
-Chililihtli|3|0.00
-chillador|3|0.00
-chimes|12|0.00
-chimta|12|0.00
+chikuzenbiwa|0|0.00||0
+Chililihtli|3|0.00||0
+chillador|3|0.00||0
+chimes|12|0.00||3
+chimta|12|0.00||0
 Ching|7|0.00
-Chitarrone|9|0.00
-chiwang|5|0.00
-Chlefelen|3|0.00
-Chlefeli|1|0.00
-Chocalho|8|0.00
-Chonguri|11|0.00
-chophar|44|0.00
-Chuniri|10|0.00
-Cialamella|3|0.00
-Cicaara|0|0.00
-cimbasso|17|0.00
-Cimboa|5|0.00
-Circuit bending|16|0.00
-cisteron|1|0.00
-cistre|28|0.00
-cithare|52|0.54
-Cithare électrique|1|0.00
-cithare en radeau|3|0.00
-cithare en terre|2|0.00
-cithare sur caisse|1|0.00
-cithares|1|0.41
-cithares barre|1|0.00
-cithares demi-tube|1|0.00
-cithares planche|0|0.00
-cithares tube|1|0.00
-cithrinchen|3|0.00
-citole|12|0.00
-clairon|35|4.32
-clairons|35|1.28|clairon
+Chitarrone|9|0.00||0
+chiwang|5|0.00||0
+Chlefelen|3|0.00||0
+Chlefeli|1|0.00||0
+Chocalho|8|0.00||0
+Chonguri|11|0.00||0
+chophar|44|0.00||16
+Chuniri|10|0.00||0
+Cialamella|3|0.00||0
+Cicaara|0|0.00||0
+cimbasso|17|0.00||4
+Cimboa|5|0.00||0
+Circuit bending|16|0.00||0
+cisteron|1|0.00||0
+cistre|28|0.00||14
+cithare|52|0.22||82
+Cithare électrique|1|0.00||0
+cithare en radeau|3|0.00||0
+cithare en terre|2|0.00||0
+cithare sur caisse|1|0.00||0
+cithares|1|0.00||0
+cithares barre|1|0.00||0
+cithares demi-tube|1|0.00||0
+cithares planche|0|0.00||0
+cithares tube|1|0.00||0
+cithrinchen|3|0.00||0
+citole|12|0.00||4
+clairon|35|0.00||16
+clairons|35|0.00|clairon
 Claps|0|0.00
-clapstick|4|0.00
+clapstick|4|0.00||0
 clarin|0|0.00
-clarinette|108|3.11
-clarinette à treize clés|2|0.00
-clarinette alto|19|0.00
-clarinette ancienne|2|0.00
-clarinette basse|30|0.00
-clarinette contralto|6|0.00
-clarinette contrebasse|9|0.00
-clarinette d'amour|9|0.00
-clarinette de basset|11|0.00
-Clarinette double|4|0.00
-clarinette en la|2|0.00
-clarinette en métal|2|0.00
-clarinette octo-contralto|4|0.00
-clarinette octo-contrebasse|4|0.00
-clarinette piccolo|7|0.00
-clarinette soprano|3|0.00
-clarinettes|108|0.47|clarinette
-Clarinettes des Balkans|1|0.00
+clarinette|108|1.00||56
+clarinette à treize clés|2|0.00||0
+clarinette alto|19|0.00||2
+clarinette ancienne|2|0.00||0
+clarinette basse|30|0.00||12
+clarinette contralto|6|0.00||0
+clarinette contrebasse|9|0.00||0
+clarinette d'amour|9|0.00||0
+clarinette de basset|11|0.00||3
+Clarinette double|4|0.00||0
+clarinette en la|2|0.00||0
+clarinette en métal|2|0.00||0
+clarinette octo-contralto|4|0.00||0
+clarinette octo-contrebasse|4|0.00||0
+clarinette piccolo|7|0.00||0
+clarinette soprano|3|0.00||0
+clarinettes|108|0.00|clarinette
+Clarinettes des Balkans|1|0.00||0
 clarino|10|0.00
-clavecin|92|2.30
-Clavecin brisé|4|0.00
-clavecin électrique|6|0.00
-clavecins|92|0.14|clavecin
-claves|30|0.00
-Clavi-harpe|6|0.00
-Clavia Nord Electro|6|0.00
-clavicor|0|0.00
-clavicorde|53|0.00
-Clavicymbalum|4|0.00
-clavicythérium|12|0.00
-clavier|38|3.24
-clavier à lumières|4|0.00
-clavier d'orgue|11|0.00
-clavier électronique|37|0.00
-claviers|38|0.34|clavier
-clavinet|22|0.00
-clavioline|10|0.00
-claviorganum|14|0.00
-Clean boost|1|0.00
-cliquette|10|0.47
-cliquettes|13|0.07
-cloche|112|18.24
-Cloche à battant chinoise|2|0.00
-cloche d'église|20|0.00
-Cloche de brume|5|0.00
-cloche de l'horloge|1|0.00
-cloche de navire|39|0.00
-cloche de signalisation|0|0.00
-Cloche de station|5|0.00
-cloche observatoire|4|0.00
-cloche plaque|3|0.00
-cloches|112|16.35|cloche
-clochette|23|2.50
-clochette d'autel|0|0.00
-clochettes|23|3.24|clochette
-cobza|14|0.00
-Colachon|8|0.00
-concertina|36|0.00
-Conga|39|0.07
+clavecin|92|0.98||56
+Clavecin brisé|4|0.00||0
+clavecin électrique|6|0.00||0
+clavecins|92|0.00|clavecin
+claves|30|0.00||4
+Clavi-harpe|6|0.00||0
+Clavia Nord Electro|6|0.00||0
+clavicor|0|0.00||0
+clavicorde|53|0.02||19
+Clavicymbalum|4|0.00||0
+clavicythérium|12|0.00||2
+clavier|38|0.00
+clavier à lumières|4|0.00||0
+clavier d'orgue|11|0.00||0
+clavier électronique|37|0.00||2
+claviers|38|0.00|clavier
+clavinet|22|0.00||6
+clavioline|10|0.00||3
+claviorganum|14|0.00||1
+Clean boost|1|0.00||0
+cliquette|10|0.00||5
+cliquettes|13|0.00||0
+cloche|112|10.00||52
+Cloche à battant chinoise|2|0.00||0
+cloche d'église|20|0.00||52
+Cloche de brume|5|0.00||0
+cloche de l'horloge|1|0.00||0
+cloche de navire|39|0.00||2
+cloche de signalisation|0|0.00||0
+Cloche de station|5|0.00||0
+cloche observatoire|4|0.00||0
+cloche plaque|3|0.00||0
+cloches|112|0.00|cloche
+clochette|23|0.00
+clochette d'autel|0|0.00||0
+clochettes|23|0.00|clochette
+cobza|14|0.00||1
+Colachon|8|0.00||0
+concertina|36|0.00||26
+Conga|39|0.00||17
 congas|39|0.00|conga
-conque|16|1.89
-conques|16|0.34|conque
-Console numérique|4|0.00
-console steel guitar|4|0.00
-continuum|13|0.27
-contraforte|5|0.00
-contralto|57|0.20
-contralto colorature|0|0.00
-contralto dramatique|1|0.00
-contralto lyrique|0|0.00
-contraltos|57|0.07|contralto
-contrebasse|86|0.27
-contrebasse à anche|3|0.00
-contrebasse à vent|3|0.00
-contrebasse électrique|9|0.00
-contrebasses|86|0.07|contrebasse
-contrebassine|9|0.00
-contrebasson|41|0.00
-contreguitare|5|0.00
-contreténor|40|0.00
-contrôleur DJ|7|0.00
-contrôleur MIDI|11|0.00
-cor|10|2.36
-cor à clefs|7|0.00
-cor anglais|52|0.00
-cor d'harmonie|76|0.00
-cor de basset|20|0.00
-cor de chasse|15|0.00
-Cor de nuit|4|0.00
-cor des Alpes|38|0.00
-cor naturel|13|0.00
-cor postal|25|0.00
-cor russe|3|0.00
-corde|54|31.76
-corde à piano|10|0.00
-corde de guitare|3|0.00
-corde sympathique|9|0.00
-cordes|1|16.62
-cordon de sonnette|3|0.00
-cordophone|37|0.00
-Cornamuse|9|0.00
-corne|17|9.80
-corne de brume|25|0.00
-cornée|17|1.08|corne
-cornées|17|0.41|corne
-cornemuse|80|0.34
-Cornemuse en Dordogne|0|0.00
-cornemuses|80|0.27|cornemuse
-cornes|17|9.66|corne
-cornet|2|6.15
-cornet à bouquin|32|0.00
-cornet à bouquin alto|0|0.00
-cornet à bouquin sopranino|2|0.00
-cornet à pistons|51|0.00
-cornet soprano|3|0.00
-cornets|2|1.89|cornet
-corno da caccia|4|0.00
-cornophone|3|0.00
-cornu|15|0.61
-cornue|15|0.47|cornu
-cornues|15|0.61|cornu
-cornus|15|0.54|cornu
-cors|10|1.55|cor
-Couesnophone|5|0.00
+conque|16|0.00||30
+conques|16|0.00|conque
+Console numérique|4|0.00||0
+console steel guitar|4|0.00||0
+continuum|13|0.00
+contraforte|5|0.00||0
+contralto|57|0.13||20
+contralto colorature|0|0.00||0
+contralto dramatique|1|0.00||0
+contralto lyrique|0|0.00||0
+contraltos|57|0.00|contralto
+contrebasse|86|0.81||44
+contrebasse à anche|3|0.00||0
+contrebasse à vent|3|0.00||0
+contrebasse électrique|9|0.00||0
+contrebasses|86|0.00|contrebasse
+contrebassine|9|0.00||0
+contrebasson|41|0.00||8
+contreguitare|5|0.00||0
+contreténor|40|0.00||25
+contrôleur DJ|7|0.00||0
+contrôleur MIDI|11|0.00||0
+cor|10|0.00
+cor à clefs|7|0.00||0
+cor anglais|52|0.00||23
+cor d'harmonie|76|0.00||43
+cor de basset|20|0.00||7
+cor de chasse|15|0.00||13
+Cor de nuit|4|0.00||0
+cor des Alpes|38|0.00||59
+cor naturel|13|0.00||5
+cor postal|25|0.00||2
+cor russe|3|0.00||0
+corde|54|12.88
+corde à piano|10|0.00||5
+corde de guitare|3|0.00||0
+corde sympathique|9|0.00||0
+cordes|1|0.00
+cordon de sonnette|3|0.00||0
+cordophone|37|0.00||24
+Cornamuse|9|0.00||0
+corne|17|0.00
+corne de brume|25|0.00||25
+cornée|17|0.00|corne
+cornées|17|0.00|corne
+cornemuse|80|0.58||124
+Cornemuse en Dordogne|0|0.00||0
+cornemuses|80|0.00|cornemuse
+cornes|17|0.00|corne
+cornet|2|0.00
+cornet à bouquin|32|0.00||37
+cornet à bouquin alto|0|0.00||0
+cornet à bouquin sopranino|2|0.00||0
+cornet à pistons|51|0.00||19
+cornet soprano|3|0.00||0
+cornets|2|0.00|cornet
+corno da caccia|4|0.00||0
+cornophone|3|0.00||0
+cornu|15|0.00
+cornue|15|0.00|cornu
+cornues|15|0.00|cornu
+cornus|15|0.00|cornu
+cors|10|0.00|cor
+Couesnophone|5|0.00||0
 coup de feu|11|0.00
-coup de semonce|13|0.00
-couteau à gratter les anches|1|0.00
-couvre-bec|1|0.00
-crécelle|33|1.35
-crécelle liturgique|2|0.00
-crécelles|33|0.47|crecelle
-cricket|11|0.41
+coup de semonce|13|0.00||5
+couteau à gratter les anches|1|0.00||0
+couvre-bec|1|0.00||0
+crécelle|33|0.00||27
+crécelle liturgique|2|0.00||0
+crécelles|33|0.00|crecelle
+cricket|11|0.00||123
 crickets|11|0.00|cricket
-Cristal Baschet|6|0.00
-Croix Sonore|4|0.00
-cromorne|4|0.54
-crosspicking|2|0.00
-crotale|22|0.88|crotales
-crotales|22|0.07
-crotalum|13|0.00
-cruche|7|3.92
-cruches|7|0.54|cruche
-crwth|19|0.00
-csakan|6|0.00
+Cristal Baschet|6|0.00||0
+Croix Sonore|4|0.00||0
+cromorne|4|0.00||0
+crosspicking|2|0.00||0
+crotale|22|0.00|crotales
+crotales|22|0.00
+crotalum|13|0.00||0
+cruche|7|0.00||2
+cruches|7|0.00|cruche
+crwth|19|0.00||5
+csakan|6|0.00||0
 Cuatro|16|0.00
 cuenca|1|0.00
-Cuica|18|0.00
-cuiller|17|8.38|cuillers
-Cuillers|17|1.82
-cuivre|65|30.68
-cuivre chromatique|0|0.00
-cuivrée|65|1.15|cuivre
-cuivrées|65|0.41|cuivre
-cuivres|65|5.41|cuivre
-Cula|1|0.00
-Culoepuya|2|0.00
-curimbó|2|0.00
-Curved soprano saxophone|0|0.00
-Cyberart|2|0.00
-Cyli|1|0.00
-cymbale|66|0.14
-cymbale à main|10|0.00
-Cymbale china|8|0.00
-Cymbale crash|15|0.00
-Cymbale crash-ride|2|0.00
-cymbale ride|13|0.00
-cymbale splash|9|0.00
-cymbale swish|3|0.00
-cymbales|66|1.76|cymbale
-cymbaliste|1|0.07
-cymbalistes|1|0.20|cymbaliste
-cymbalum|42|0.14
-Dabakan|7|0.00
-dactylion|0|0.00
+Cuica|18|0.00||9
+cuiller|17|0.00|cuillers
+Cuillers|17|0.00||5
+cuivre|65|11.75||130
+cuivre chromatique|0|0.00||0
+cuivrée|65|0.00|cuivre
+cuivrées|65|0.00|cuivre
+cuivres|65|0.00|cuivre
+Cula|1|0.00||0
+Culoepuya|2|0.00||0
+curimbó|2|0.00||0
+Curved soprano saxophone|0|0.00||0
+Cyberart|2|0.00||0
+Cyli|1|0.00||0
+cymbale|66|0.14||16
+cymbale à main|10|0.00||0
+Cymbale china|8|0.00||0
+Cymbale crash|15|0.00||3
+Cymbale crash-ride|2|0.00||0
+cymbale ride|13|0.00||4
+cymbale splash|9|0.00||0
+cymbale swish|3|0.00||0
+cymbales|66|0.00|cymbale
+cymbaliste|1|0.00||0
+cymbalistes|1|0.00|cymbaliste
+cymbalum|42|0.00||27
+Dabakan|7|0.00||0
+dactylion|0|0.00||0
 daf|37|0.00
-daguangxian|3|0.00
-Damaru|30|0.00
-Damphu|3|0.00
-dàn môi|11|0.00
-Dangjeok|5|0.00
-Dangyra|4|0.00
-danso|11|0.00
-darbouka|37|0.00
-darkhuang|3|0.00
-darvira|1|0.00
-Datong|3|0.00
-Davul|25|0.00
-daxophone|12|0.00
-Dean Cadillac|3|0.00
-décharge involontaire|9|0.00
-Decks|0|0.00
-Delbek|1|0.00
-den-den daiko|6|0.00
-Dengakubue|1|0.00
-dessus|1|57.57
-Dha|2|0.00
-dhimay|7|0.00
-Dholak|27|0.00
-Diable|10|51.01
-diables|10|3.78|diable
-diapason|65|1.42
-diapason à souffler|7|0.00
-diapasons|65|0.07|diapason
-diaphone|5|0.00
-Diaula|1|0.00
-diddley bow|11|0.00
-didjeridoo|56|0.00
-Dilruba|10|0.00
-diple|6|0.00
-Diplipito|4|0.00
-disque d'Euler|14|0.00
-Dixianqin|5|0.00
-dizi|23|0.00
-djéguélé|1|0.00
-djembé|43|0.00
-djomolo|1|0.00
-djoza|3|0.00
-Do|1|3.78
-doblophone|1|0.00
-Dobro|25|0.00
-doedelzak|2|0.00
-Dohol|30|0.00
-Dokra|1|0.00
-dolceola|2|0.00
+daguangxian|3|0.00||0
+Damaru|30|0.00||1
+Damphu|3|0.00||0
+dàn môi|11|0.00||0
+Dangjeok|5|0.00||0
+Dangyra|4|0.00||0
+danso|11|0.00||1
+darbouka|37|0.00||27
+darkhuang|3|0.00||0
+darvira|1|0.00||0
+Datong|3|0.00||0
+Davul|25|0.00||3
+daxophone|12|0.00||1
+Dean Cadillac|3|0.00||0
+décharge involontaire|9|0.00||0
+Decks|0|0.00||0
+Delbek|1|0.00||0
+den-den daiko|6|0.00||0
+Dengakubue|1|0.00||0
+dessus|1|0.00
+Dha|2|0.00||0
+dhimay|7|0.00||0
+Dholak|27|0.00||0
+Diable|10|0.00||98
+diables|10|0.00|diable
+diapason|65|1.26||42
+diapason à souffler|7|0.00||0
+diapasons|65|0.00|diapason
+diaphone|5|0.00||0
+Diaula|1|0.00||0
+diddley bow|11|0.00||0
+didjeridoo|56|0.00||68
+Dilruba|10|0.00||1
+diple|6|0.00||0
+Diplipito|4|0.00||0
+disque d'Euler|14|0.00||20
+Dixianqin|5|0.00||0
+dizi|23|0.00||5
+djéguélé|1|0.00||0
+djembé|43|0.20||25
+djomolo|1|0.00||0
+djoza|3|0.00||0
+Do|1|0.00
+doblophone|1|0.00||0
+Dobro|25|0.00||16
+doedelzak|2|0.00||0
+Dohol|30|0.00||3
+Dokra|1|0.00||0
+dolceola|2|0.00||0
 doli|5|0.00
-Dolio|4|0.00
-dollu|1|0.00
-dombra|49|0.00
-domra|25|0.00
-Doppio Borgato|5|0.00
-dord|4|0.00
-doshpuluur|8|0.00
-dotâr|40|0.00
-dotara|11|0.00
-Double aulos|3|0.00
-Double Seconds|0|0.00
-Double Tenor|0|0.00
-Double violin|1|0.00
-douçaine|19|0.00
-Downpicking|6|0.00
-doyre|22|0.00
-dozaleh|8|0.00
-Draco|7|0.00
-Dranyen|14|0.00
-Drumitar|4|0.00
+Dolio|4|0.00||0
+dollu|1|0.00||0
+dombra|49|0.00||2
+domra|25|0.00||2
+Doppio Borgato|5|0.00||0
+dord|4|0.00||0
+doshpuluur|8|0.00||0
+dotâr|40|0.00||3
+dotara|11|0.00||3
+Double aulos|3|0.00||0
+Double Seconds|0|0.00||0
+Double Tenor|0|0.00||0
+Double violin|1|0.00||0
+douçaine|19|0.00||4
+Downpicking|6|0.00||0
+doyre|22|0.00||0
+dozaleh|8|0.00||0
+Draco|7|0.00||1
+Dranyen|14|0.00||0
+Drumitar|4|0.00||0
 dudka|2|0.00
-duduk|46|0.00
-Duhul|1|0.00
-dulce melos|3|0.00
-dulcimer|19|0.00
-dulcimer des Appalaches|16|0.00
-dulcimer martelé|15|0.00
-Dulcitone|4|0.00
-dulzaina|14|0.00
-Dum dum|11|0.27
-Dungchen|14|0.00
-dungo|0|0.00
-Dvojnice|4|0.00
-EBow|10|0.00
-échantillonneur|38|0.00
-Écho|1|32.50
-échos|1|13.45|echo
-economy picking|3|0.00
-écouteurs Apple|15|0.00
-Écouteurs intra-auriculaire|3|0.00
-écouvillon|1|0.20
+duduk|46|0.00||63
+Duhul|1|0.00||0
+dulce melos|3|0.00||0
+dulcimer|19|0.00||57
+dulcimer des Appalaches|16|0.00||57
+dulcimer martelé|15|0.00||0
+Dulcitone|4|0.00||0
+dulzaina|14|0.00||2
+Dum dum|11|0.00||4
+Dungchen|14|0.00||2
+dungo|0|0.00||0
+Dvojnice|4|0.00||0
+EBow|10|0.00||3
+échantillonneur|38|0.00||12
+Écho|1|0.00
+échos|1|0.00|echo
+economy picking|3|0.00||0
+écouteurs Apple|15|0.00||5
+Écouteurs intra-auriculaire|3|0.00||0
+écouvillon|1|0.00
 écouvillons|1|0.00|ecouvillon
-éditeur MIDI|1|0.00
-Egek|1|0.00
-Eigenharp|4|0.00
-ekatantri vînâ|3|0.00
-ekonting|5|0.00
-ektara|18|0.00
-Electone|8|0.00
-Electric flute|0|0.00
-Electronic tablas|0|0.00
-Electronic Wind Instrument|9|0.00
-électrophone|29|2.97
-électrophones|29|0.07|electrophone
-Elgéphone|1|0.00
-Elka synthex|4|0.00
-Eltron|1|0.00
-EMS Synthi A|5|0.00
-EMS Synthi AKS|2|0.00
-Enclume|2|5.14
-enclumes|2|0.07|enclume
-Endongo|4|0.00
-Engalabi|5|0.00
-ennanga|5|0.00
-éoli-harpe|0|0.00
-éoliphone|19|0.00
-epigonion|7|0.00
-épinette|36|0.14
-épinette des Vosges|10|0.00
-épinettes|36|0.07|epinette
-Epiphone Casino|9|0.00
-Epiphone Sheraton|6|0.00
-erhu|45|0.00
+éditeur MIDI|1|0.00||0
+Egek|1|0.00||0
+Eigenharp|4|0.00||0
+ekatantri vînâ|3|0.00||0
+ekonting|5|0.00||0
+ektara|18|0.00||1
+Electone|8|0.00||0
+Electric flute|0|0.00||0
+Electronic tablas|0|0.00||0
+Electronic Wind Instrument|9|0.00||0
+électrophone|29|0.00||5
+électrophones|29|0.00|electrophone
+Elgéphone|1|0.00||0
+Elka synthex|4|0.00||0
+Eltron|1|0.00||0
+EMS Synthi A|5|0.00||0
+EMS Synthi AKS|2|0.00||0
+Enclume|2|0.00
+enclumes|2|0.00|enclume
+Endongo|4|0.00||0
+Engalabi|5|0.00||0
+ennanga|5|0.00||0
+éoli-harpe|0|0.00||0
+éoliphone|19|0.00||2
+epigonion|7|0.00||0
+épinette|36|0.00
+épinette des Vosges|10|0.00||12
+épinettes|36|0.00|epinette
+Epiphone Casino|9|0.00||0
+Epiphone Sheraton|6|0.00||0
+erhu|45|0.00||18
 Erke|9|0.00
-Erkencho|7|0.00
-Erxian|8|0.00
-Escopetarra|29|0.00
-ESP Tom Araya|3|0.00
+Erkencho|7|0.00||0
+Erxian|8|0.00||0
+Escopetarra|29|0.00||0
+ESP Tom Araya|3|0.00||0
 espina|1|0.00
-esraj|22|0.00
-estive|0|0.00
-étui porte-anches|0|0.00
+esraj|22|0.00||1
+estive|0|0.13||20
+étui porte-anches|0|0.00||0
 Euphone|3|0.00
-euphonium|46|0.00
-Euphonium à pavillon double|4|0.00
-Ever büree|3|0.00
-expandeur|0|0.00
-fadno|6|0.00
-fagottino|2|0.00
-Fairlight CMI|16|0.00
-falsettiste sopraniste|0|0.00
-Famille des clarinettes|3|0.00
-famille des violes|9|0.00
-famille du violon|15|0.00
-Faray instrument de musique|1|0.00
-Fender Bronco|10|0.00
-Fender Cyclone|11|0.00
-Fender Duo-Sonic|11|0.00
-Fender Jag-Stang|19|0.00
-Fender Jaguar Bass|8|0.00
-Fender Jazz Bass|26|0.00
-Fender Jazzmaster|21|0.00
-Fender Mustang|20|0.00
-Fender Mustang Bass|13|0.00
-Fender Nocaster|4|0.00
-Fender Precision Bass|28|0.00
-Fender Starcaster|11|0.00
-Fender Stratocaster|42|0.00
-Fender Swinger|11|0.00
-Fender Telecaster|36|0.00
-Fender Telecaster Thinline|6|0.00
-Fender VI|10|0.00
-Ferrinho|5|0.00
-fiddle|23|0.00
-Fidget spinner|55|0.00
-fifre|17|1.22
-fifres|17|0.88|fifre
+euphonium|46|0.00||29
+Euphonium à pavillon double|4|0.00||0
+Ever büree|3|0.00||0
+expandeur|0|0.01||2
+fadno|6|0.00||0
+fagottino|2|0.00||0
+Fairlight CMI|16|0.00||12
+falsettiste sopraniste|0|0.00||0
+Famille des clarinettes|3|0.00||0
+famille des violes|9|0.00||0
+famille du violon|15|0.00||0
+Faray instrument de musique|1|0.00||0
+Fender Bronco|10|0.00||1
+Fender Cyclone|11|0.00||1
+Fender Duo-Sonic|11|0.00||2
+Fender Jag-Stang|19|0.00||4
+Fender Jaguar Bass|8|0.00||0
+Fender Jazz Bass|26|0.00||6
+Fender Jazzmaster|21|0.00||9
+Fender Mustang|20|0.00||6
+Fender Mustang Bass|13|0.00||1
+Fender Nocaster|4|0.00||0
+Fender Precision Bass|28|0.00||12
+Fender Starcaster|11|0.00||2
+Fender Stratocaster|42|0.00||35
+Fender Swinger|11|0.00||0
+Fender Telecaster|36|0.00||18
+Fender Telecaster Thinline|6|0.00||0
+Fender VI|10|0.00||18
+Ferrinho|5|0.00||0
+fiddle|23|0.00||26
+Fidget spinner|55|0.00||33
+fifre|17|0.00||18
+fifres|17|0.00|fifre
 Firebird|4|0.00
-fiscorn|5|0.00
-flabiol|10|0.00
-flageolet|28|0.34
-flageolets|28|1.15|flageolet
-flatpicking|5|0.00
-Flavta|1|0.00
-flexatone|19|0.00
-Floppotron|7|0.00
-fluier|9|0.00
-flûte|144|8.92
-flûte à bec|58|0.00
-flûte à bec sopranino|4|0.00
-flûte à coulisse|11|0.00
-flûte à embouchure terminale|6|0.00
-flûte à tierce|3|0.00
-flûte à trois trous|1|0.00
-flûte andine|1|0.00
-flûte au Paléolithique|6|0.00
-flûte basse|16|0.00
-flûte contrebasse|7|0.00
-flûte d'amour|8|0.00
-flûte de Pan|48|0.00
-flûte de voix|3|0.00
-flute en os de Jiahu|7|0.00
-flûte en sol|27|0.00
-Flûte harmonique|7|0.00
-flûte hyperbasse|8|0.00
-flûte irlandaise|1|0.00
-Flûte multiple|6|0.00
-flûte nasale|12|0.00
-flute ressikane|0|0.00
-Flûte subcontrebasse|4|0.00
-flûte traversière|26|0.00
-flûte traversière baroque|10|0.00
-flûte traversière moderne|25|0.00
-flûtée|144|0.41|flute
-flutéole|0|0.00
-flûtes|144|1.69|flute
-flûtes à conduit|4|0.00
-folle|8|46.01|fou
-folles|8|11.62|fou
-Fontomfrom|6|0.00
-forté-piano organisé|0|0.00
-fotuto|2|0.00
-Fou|8|82.03
-fouet|17|16.69
-fouets|17|1.62|fouet
-Four cello|0|0.00
-fous|8|34.46|fou
-Frestel|2|0.00
-Front fill|2|0.00
-frottoir|2|0.34
-frottoirs|2|0.07|frottoir
-fue|7|0.00
-Fujara|30|0.00
-Funkbox|0|0.00
+fiscorn|5|0.00||0
+flabiol|10|0.00||4
+flageolet|28|0.00
+flageolets|28|0.00|flageolet
+flatpicking|5|0.00||0
+Flavta|1|0.00||0
+flexatone|19|0.00||2
+Floppotron|7|0.00||0
+fluier|9|0.00||0
+flûte|144|4.47||36
+flûte à bec|58|0.00||39
+flûte à bec sopranino|4|0.00||0
+flûte à coulisse|11|0.00||4
+flûte à embouchure terminale|6|0.00||0
+flûte à tierce|3|0.00||0
+flûte à trois trous|1|0.00||0
+flûte andine|1|0.00||0
+flûte au Paléolithique|6|0.00||0
+flûte basse|16|0.00||3
+flûte contrebasse|7|0.00||0
+flûte d'amour|8|0.00||0
+flûte de Pan|48|0.00||46
+flûte de voix|3|0.00||0
+flute en os de Jiahu|7|0.00||0
+flûte en sol|27|0.00||7
+Flûte harmonique|7|0.00||0
+flûte hyperbasse|8|0.00||0
+flûte irlandaise|1|0.00||0
+Flûte multiple|6|0.00||0
+flûte nasale|12|0.00||0
+flute ressikane|0|0.00||0
+Flûte subcontrebasse|4|0.00||0
+flûte traversière|26|0.00||43
+flûte traversière baroque|10|0.00||11
+flûte traversière moderne|25|0.00||0
+flûtée|144|0.00|flute
+flutéole|0|0.00||0
+flûtes|144|0.00|flute
+flûtes à conduit|4|0.00||0
+folle|8|0.00|fou
+folles|8|0.00|fou
+Fontomfrom|6|0.00||0
+forté-piano organisé|0|0.00||0
+fotuto|2|0.00||0
+Fou|8|0.00
+fouet|17|0.00
+fouets|17|0.00|fouet
+Four cello|0|0.00||0
+fous|8|0.00|fou
+Frestel|2|0.00||0
+Front fill|2|0.00||0
+frottoir|2|0.00||0
+frottoirs|2|0.00|frottoir
+fue|7|0.00||0
+Fujara|30|0.00||3
+Funkbox|0|0.00||0
 Fuzz|13|0.00
-Gabbang|4|0.00
-gaboussi|1|0.00
-gadoulka|25|0.00
-gaffophone|0|0.00
-gaita|15|0.00
-Gaita asturiana|8|0.00
-Gaita de boto|7|0.00
-gaita galicienne|9|0.00
-galoubet|20|0.00
-gambang|11|0.00
-gambus|1|0.00
-Gandingan|3|0.00
-Gangsa|11|0.00
-ganzá|8|0.00
-gaohu|14|0.00
-garamut|5|0.00
-gardon|9|0.41
-gardons|9|2.03|gardon
-garmon|25|0.00
-Gasba|3|0.00
-Gasing uri|1|0.00
-gazou|0|0.00
-Gbedu|3|0.00
-gbofe|3|0.00
-Gedombak|1|0.00
-Geduk anak|1|0.00
-Geigenwerk|8|0.00
-gemshorn|8|0.00
-Gendang Beleq|4|0.00
-geomungo|12|0.00
-géophone|32|0.00
-ghatam|21|0.00
-ghaychak|14|0.00
-Ghidjak|14|0.00
-Ghumot|9|0.00
-ghunghuru|15|0.00
-Gibson Country Western|2|0.00
-Gibson Explorer|22|0.00
-Gibson Firebird|18|0.00
-Gibson Flying V|26|0.00
-Gibson Hummingbird|7|0.00
-Gibson Les Paul|37|0.00
-Gibson Les Paul Faded DC|0|0.00
-Gibson Les Paul Studio|7|0.00
-Gibson Marauder|9|0.00
-Gibson Moderne|11|0.00
-Gibson SG|26|0.00
-Gibson SG Standard|2|0.00
-Gibson Tal Farlow|2|0.00
-Gibson Thunderbird|13|0.00
-giga|2|0.14
+Gabbang|4|0.00||0
+gaboussi|1|0.00||0
+gadoulka|25|0.00||2
+gaffophone|0|0.00||10
+gaita|15|0.00||27
+Gaita asturiana|8|0.00||0
+Gaita de boto|7|0.00||0
+gaita galicienne|9|0.00||0
+galoubet|20|0.00||13
+gambang|11|0.00||0
+gambus|1|0.00||0
+Gandingan|3|0.00||0
+Gangsa|11|0.00||0
+ganzá|8|0.00||0
+gaohu|14|0.00||0
+garamut|5|0.00||0
+gardon|9|0.00
+gardons|9|0.00|gardon
+garmon|25|0.00||2
+Gasba|3|0.00||0
+Gasing uri|1|0.00||0
+gazou|0|0.06||41
+Gbedu|3|0.00||0
+gbofe|3|0.00||0
+Gedombak|1|0.00||0
+Geduk anak|1|0.00||0
+Geigenwerk|8|0.00||0
+gemshorn|8|0.00||0
+Gendang Beleq|4|0.00||0
+geomungo|12|0.00||1
+géophone|32|0.00||3
+ghatam|21|0.00||1
+ghaychak|14|0.00||0
+Ghidjak|14|0.00||0
+Ghumot|9|0.00||0
+ghunghuru|15|0.00||0
+Gibson Country Western|2|0.00||0
+Gibson Explorer|22|0.00||5
+Gibson Firebird|18|0.00||3
+Gibson Flying V|26|0.00||5
+Gibson Hummingbird|7|0.00||0
+Gibson Les Paul|37|0.00||24
+Gibson Les Paul Faded DC|0|0.00||0
+Gibson Les Paul Studio|7|0.00||0
+Gibson Marauder|9|0.00||0
+Gibson Moderne|11|0.00||1
+Gibson SG|26|0.00||17
+Gibson SG Standard|2|0.00||0
+Gibson Tal Farlow|2|0.00||0
+Gibson Thunderbird|13|0.00||3
+giga|2|0.00||2
 gigas|2|0.00|giga
-ginglare|0|0.00
-glas|4|4.05
-glaw ng yao|6|0.00
-glockenspiel|41|0.07
-glockenspiel lyre|6|0.00
-GNU Cursynth|0|0.00
-godié|0|0.00
-gogona|7|0.00
-Gologo|0|0.00
-gong|65|3.51
-Gong bass drum|5|0.00
-gong bumbung|1|0.00
-gongs|65|0.14|gong
-gottan|13|0.00
-Gousli|30|0.00
-Graïle|5|0.00
-Gralla|8|0.00
-gramophone|52|1.01
-gramophones|52|0.07|gramophone
-grand orgue|6|0.00
-grattouille|0|0.07
-Gravi-kora|4|0.00
-great Highland bagpipe|19|0.00
-grelot|34|1.82
-grelots|34|2.84|grelot
-Gristleism|1|0.00
-Groove machine|9|0.00
-grosse caisse|49|0.00
+ginglare|0|0.00||0
+glas|4|0.00||2
+glaw ng yao|6|0.00||0
+glockenspiel|41|0.00||23
+glockenspiel lyre|6|0.00||0
+GNU Cursynth|0|0.00||0
+godié|0|0.00||4
+gogona|7|0.00||0
+Gologo|0|0.00||0
+gong|65|1.45
+Gong bass drum|5|0.00||0
+gong bumbung|1|0.00||0
+gongs|65|0.00|gong
+gottan|13|0.00||1
+Gousli|30|0.00||3
+Graïle|5|0.00||0
+Gralla|8|0.00||0
+gramophone|52|0.18||49
+gramophones|52|0.00|gramophone
+grand orgue|6|0.00||0
+grattouille|0|0.02||0
+Gravi-kora|4|0.00||0
+great Highland bagpipe|19|0.00||20
+grelot|34|0.00
+grelots|34|0.00|grelot
+Gristleism|1|0.00||0
+Groove machine|9|0.00||0
+grosse caisse|49|0.00||9
 Gu|1|0.00
-guacharaca|10|0.00
+guacharaca|10|0.00||1
 guan|16|0.00
-Gudastviri|4|0.00
-gudok|15|0.00
-gudugudu|4|0.00
-Gue du Shetland|3|0.00
-guembri|10|0.00
-guimbarde|77|1.01
-guimbardes|77|0.68|guimbarde
-güira|8|0.00
-Güiro|27|0.00
-guitalin|2|0.00
-guitare|212|11.55
-guitare à dix cordes|10|0.00
-guitare à double manche|11|0.00
-guitare à sept cordes|14|0.00
-guitare à touche lâche|5|0.00
-guitare acoustique|49|0.00
-Guitare bahianaise|5|0.00
-guitare baroque|17|0.00
-guitare baryton|18|0.00
-guitare basse|87|0.00
-guitare basse acoustique|22|0.00
-guitare battente|10|0.00
-guitare Brahms|2|0.00
-guitare-cithare|4|0.00
-guitare classique|48|0.00
-guitare électrique|88|0.00
-guitare électro-acoustique|17|0.00
-guitare fingerstyle|24|0.00
-guitare flamenca|21|0.00
-guitare folk|21|0.00
-guitare fretless|8|0.00
-guitare Gittler|5|0.00
-Guitare-harpe|11|0.00
-guitare hawaïenne|10|0.00
-guitare jazz|13|0.00
-guitare Pikasso|4|0.00
-guitare portugaise|26|0.00
-guitare romantique|6|0.00
-guitare russe à sept cordes|11|0.00
-guitare sans tête|2|0.00
-Guitare semi-acoustique|18|0.00
-guitare synthétiseur|9|0.00
-guitare ténor|8|0.00
-guitares|212|3.24|guitare
-Guitares maccaferri|7|0.00
-guitares par type|2|0.00
-Guitarra de golpe|5|0.00
-Guitarra huapanguera|7|0.00
-Guitarra panzona|3|0.00
-guitarrón|12|0.00
-guiterne|15|0.00
-Gumbé|2|0.00
-guqin|35|0.00
-gusle|39|0.00
-guzheng|31|0.00
-Gyil|2|0.00
-Hackbrett|7|0.00
-Haegeum|13|0.00
+Gudastviri|4|0.00||0
+gudok|15|0.00||0
+gudugudu|4|0.00||0
+Gue du Shetland|3|0.00||0
+guembri|10|0.00||13
+guimbarde|77|0.15
+guimbardes|77|0.00|guimbarde
+güira|8|0.00||0
+Güiro|27|0.00||10
+guitalin|2|0.00||0
+guitare|212|15.85||74
+guitare à dix cordes|10|0.00||0
+guitare à double manche|11|0.00||6
+guitare à sept cordes|14|0.00||4
+guitare à touche lâche|5|0.00||0
+guitare acoustique|49|0.00||13
+Guitare bahianaise|5|0.00||0
+guitare baroque|17|0.00||4
+guitare baryton|18|0.00||12
+guitare basse|87|0.00||59
+guitare basse acoustique|22|0.00||0
+guitare battente|10|0.00||0
+guitare Brahms|2|0.00||0
+guitare-cithare|4|0.00||0
+guitare classique|48|0.00||14
+guitare électrique|88|0.00||39
+guitare électro-acoustique|17|0.00||1
+guitare fingerstyle|24|0.00||3
+guitare flamenca|21|0.00||4
+guitare folk|21|0.00||6
+guitare fretless|8|0.00||0
+guitare Gittler|5|0.00||0
+Guitare-harpe|11|0.00||2
+guitare hawaïenne|10|0.00||7
+guitare jazz|13|0.00||1
+guitare Pikasso|4|0.00||0
+guitare portugaise|26|0.00||18
+guitare romantique|6|0.00||0
+guitare russe à sept cordes|11|0.00||0
+guitare sans tête|2|0.00||0
+Guitare semi-acoustique|18|0.00||1
+guitare synthétiseur|9|0.00||0
+guitare ténor|8|0.00||0
+guitares|212|0.00|guitare
+Guitares maccaferri|7|0.00||0
+guitares par type|2|0.00||0
+Guitarra de golpe|5|0.00||0
+Guitarra huapanguera|7|0.00||0
+Guitarra panzona|3|0.00||0
+guitarrón|12|0.00||4
+guiterne|15|0.00||6
+Gumbé|2|0.00||0
+guqin|35|0.00||7
+gusle|39|0.00||6
+guzheng|31|0.00||12
+Gyil|2|0.00||0
+Hackbrett|7|0.00||0
+Haegeum|13|0.00||1
 Halam|1|0.00
-handchime|7|0.00
-handpan|10|0.00
-Hang|35|0.00
-Harmonéon|2|0.00
-harmonette|0|0.00
-harmonica|94|1.69
-harmonica chromatique|5|0.00
-harmonica de verre|35|0.00
-harmonica diatonique simple|6|0.00
-harmonicas|94|0.07|harmonica
-harmonichord|4|0.00
-harmonicon|0|0.00
-harmonicorde|0|0.00
-Harmoniflûte|3|0.00
-harmonium|60|3.45
-harmonium indien|8|0.00
-harmonium-transpositeur|0|0.00
-harmoniums|60|0.07|harmonium
-harpe|103|4.86
-harpe à cadre|0|0.00
-harpe à pédales|10|0.00
-harpe africaine|4|0.00
-harpe celtique|28|0.00
-harpe chromatique|0|0.00
-harpe ditale|3|0.00
-harpe électrique|5|0.00
-harpe éolienne|25|0.00
-harpe khmère|3|0.00
-harpe laser|21|0.00
-harpe luth|0|0.00
-harpe paraguayenne|12|0.00
-Harpe triple|12|0.00
-harpejji|9|0.00
-harpes|103|0.47|harpe
-Harpes d'Ur|18|0.00
-hasapi|6|0.00
+handchime|7|0.00||0
+handpan|10|0.00||44
+Hang|35|0.00||44
+Harmonéon|2|0.00||0
+harmonette|0|0.00||0
+harmonica|94|0.85||49
+harmonica chromatique|5|0.00||0
+harmonica de verre|35|0.00||14
+harmonica diatonique simple|6|0.00||0
+harmonicas|94|0.05|harmonica
+harmonichord|4|0.00||0
+harmonicon|0|0.00||0
+harmonicorde|0|0.00||0
+Harmoniflûte|3|0.00||1
+harmonium|60|0.42||28
+harmonium indien|8|0.00||0
+harmonium-transpositeur|0|0.00||0
+harmoniums|60|0.00|harmonium
+harpe|103|2.19||48
+harpe à cadre|0|0.00||0
+harpe à pédales|10|0.00||48
+harpe africaine|4|0.00||0
+harpe celtique|28|0.00||26
+harpe chromatique|0|0.00||0
+harpe ditale|3|0.00||0
+harpe électrique|5|0.00||0
+harpe éolienne|25|0.00||8
+harpe khmère|3|0.00||0
+harpe laser|21|0.00||6
+harpe luth|0|0.00||0
+harpe paraguayenne|12|0.00||1
+Harpe triple|12|0.00||1
+harpejji|9|0.00||0
+harpes|103|0.00|harpe
+Harpes d'Ur|18|0.00||2
+hasapi|6|0.00||0
 Hass|1|0.00
-haut-parleur|92|3.99
-haut-parleur à pavillon|13|0.00
-haut-parleur électrostatique|11|0.00
-Haut-parleur large bande|9|0.00
-haut-parleur piézoélectrique|9|0.00
-haut-parleurs|92|3.38|haut parleur
-hautbois|88|1.62
-hautbois baroque|4|0.00
-hautbois baryton|9|0.00
-hautbois d'amour|28|0.00
-hautbois de chasse|19|0.00
-Hautbois en Gascogne|0|0.00
-hautbois viennois|6|0.00
-haute-contre|16|0.00
-Heckelphone|20|0.00
-Heckelphone-clarinet|1|0.00
-heckelphone piccolo|2|0.00
-Hegelung|2|0.00
-hegit|1|0.00
-Heldentenor|8|0.00
+haut-parleur|92|0.00||14
+haut-parleur à pavillon|13|0.00||4
+haut-parleur électrostatique|11|0.00||0
+Haut-parleur large bande|9|0.00||0
+haut-parleur piézoélectrique|9|0.00||0
+haut-parleurs|92|0.00|haut parleur
+hautbois|88|0.72||60
+hautbois baroque|4|0.00||0
+hautbois baryton|9|0.00||0
+hautbois d'amour|28|0.00||8
+hautbois de chasse|19|0.00||1
+Hautbois en Gascogne|0|0.00||0
+hautbois viennois|6|0.00||0
+haute-contre|16|0.00||10
+Heckelphone|20|0.00||2
+Heckelphone-clarinet|1|0.00||0
+heckelphone piccolo|2|0.00||0
+Hegelung|2|0.00||0
+hegit|1|0.00||0
+Heldentenor|8|0.00||0
 hélicon|30|0.00
-hélicophone|1|0.00
-hennissement|4|1.76
-hennissements|4|1.15|hennissement
-heurtoir|31|0.47
-heurtoirs|31|0.14|heurtoir
-Hichiriki|17|0.00
-hitoyogiri|3|0.00
+hélicophone|1|0.00||0
+hennissement|4|0.00||0
+hennissements|4|0.00|hennissement
+heurtoir|31|0.00||5
+heurtoirs|31|0.00|heurtoir
+Hichiriki|17|0.00||1
+hitoyogiri|3|0.00||0
 Hne|9|0.00
-hochet|22|1.01
-hochets|22|1.22|hochet
-hoddu|0|0.00
-Höfner Shorty|2|0.00
-Home Swinger|3|0.00
-horagai|6|0.00
-horloge musicale|10|0.00
+hochet|22|0.00||3
+hochets|22|0.00|hochet
+hoddu|0|0.00||14
+Höfner Shorty|2|0.00||0
+Home Swinger|3|0.00||0
+horagai|6|0.00||0
+horloge musicale|10|0.00||0
 Horn|0|0.00
-hornpipe|8|0.00
-Hosho|4|0.00
-Hotchiku|3|0.00
-huantou|0|0.00
-hudukkâ|2|0.00
-Huehuetl|7|0.00
-hulusi|18|0.00
-Humbucker|21|0.00
+hornpipe|8|0.00||0
+Hosho|4|0.00||0
+Hotchiku|3|0.00||0
+huantou|0|0.00||0
+hudukkâ|2|0.00||0
+Huehuetl|7|0.00||0
+hulusi|18|0.00||3
+Humbucker|21|0.00||6
 hummel|10|0.00
-Hümmelchen|4|0.00
-Huqin|15|0.00
-Hydraulophone|5|0.00
-hydrophone|41|0.00
-hypermédia|28|0.00
-hyraule|0|0.00
-Idakka|10|0.00
-idiophone|51|0.00
-idiophone à concussion|0|0.00
-idiophones à friction|1|0.00
-idiophones à percussion|0|0.00
-idiophones frappés|1|0.00
-idiophones soufflés|2|0.00
-Igba|6|0.00
-Igil|12|0.00
+Hümmelchen|4|0.00||0
+Huqin|15|0.00||1
+Hydraulophone|5|0.00||1
+hydrophone|41|0.00||7
+hypermédia|28|0.00||1
+hyraule|0|0.00||0
+Idakka|10|0.00||0
+idiophone|51|0.00||21
+idiophone à concussion|0|0.00||0
+idiophones à friction|1|0.00||0
+idiophones à percussion|0|0.00||0
+idiophones frappés|1|0.00||0
+idiophones soufflés|2|0.00||0
+Igba|6|0.00||0
+Igil|12|0.00||0
 Ignitor|1|0.00
-ikembe|3|0.00
-Ikh khuur|3|0.00
-imzad|13|0.00
-In-ear monitors|15|0.00
-Inanga|10|0.00
-indingidi|0|0.00
-Ingoma|10|0.00
-instrument à anche|4|0.00
-instrument à anche double|4|0.00
-instrument à anche libre|8|0.00
-instrument à anche simple|5|0.00
-instrument à clavier|66|0.00
-instrument à cordes|83|0.00
-instrument à cordes frappées|3|0.00
-instrument à cordes frottées|52|0.00
-instrument à cordes pincées|35|0.00
-instrument à résonateur|21|0.00
-instrument à soufflet|8|0.00
-instrument à vent|71|0.00
-Instrument à vent mécanique|1|0.00
-Instrument d'ordonnance|1|0.00
-instrument de exercer|1|0.00
-instrument de musique|149|0.00
-instrument de musique slave|1|0.00
-instrument de percussion|76|0.00
-instrument électromécanique|3|0.00
-instrument fretless|7|0.00
-Instrument mécanique|2|0.00
-Instrument multidiapason|3|0.00
-instrument rythmique|1|0.00
-instrument transpositeur|28|0.00
-instrument virtuel|2|0.00
-Instruments de musique Kongo|1|0.00
-instruments de Stradivarius|28|0.00
-instruments électriques|7|0.00
-Ion|4|0.07
-Ionophone|13|0.00
-ions|4|0.07|ion
-IPod Hi-Fi|14|0.00
-Irish flute|17|0.00
-Irish whistle|0|0.00
-itótele|0|0.00
-iyá|0|0.00
-Jackson Kelly|9|0.00
-Jackson King V|7|0.00
-Jackson Rhoads|9|0.00
-Jackson Soloist|8|0.00
-Jal tarang|18|0.00
-jaleïka|16|0.00
-janggu|16|0.00
-jantar|1|0.00
-jarana|10|0.00
-jarana huasteca|5|0.00
-jazzophone|3|0.00
-jeu de timbre|5|0.00
-jhyali|2|0.00
-jirbah|4|0.00
-jouhikko|17|0.00
-jula-jula|0|0.00
-Junggeum|4|0.00
-Junjung|4|0.00
-ka|1|0.07
-kaba gaida|1|0.00
-Kabaosy|0|0.00
-Kabosy|11|0.00
-kacapi|12|0.00
-Kagura suzu|4|0.00
-Kagurabue|5|0.00
-kakaki|14|0.00
+ikembe|3|0.00||0
+Ikh khuur|3|0.00||0
+imzad|13|0.00||3
+In-ear monitors|15|0.00||0
+Inanga|10|0.00||1
+indingidi|0|0.00||0
+Ingoma|10|0.00||1
+instrument à anche|4|0.00||0
+instrument à anche double|4|0.00||0
+instrument à anche libre|8|0.00||0
+instrument à anche simple|5|0.00||0
+instrument à clavier|66|0.00||5
+instrument à cordes|83|0.00||24
+instrument à cordes frappées|3|0.00||0
+instrument à cordes frottées|52|0.00||14
+instrument à cordes pincées|35|0.00||28
+instrument à résonateur|21|0.00||6
+instrument à soufflet|8|0.00||0
+instrument à vent|71|0.00||54
+Instrument à vent mécanique|1|0.00||0
+Instrument d'ordonnance|1|0.00||0
+instrument de exercer|1|0.00||0
+instrument de musique|149|0.00||36
+instrument de musique slave|1|0.00||0
+instrument de percussion|76|0.00||32
+instrument électromécanique|3|0.00||0
+instrument fretless|7|0.00||0
+Instrument mécanique|2|0.00||0
+Instrument multidiapason|3|0.00||0
+instrument rythmique|1|0.00||0
+instrument transpositeur|28|0.00||14
+instrument virtuel|2|0.00||0
+Instruments de musique Kongo|1|0.00||0
+instruments de Stradivarius|28|0.00||97
+instruments électriques|7|0.00||0
+Ion|4|0.00||9
+Ionophone|13|0.00||0
+ions|4|0.00|ion
+IPod Hi-Fi|14|0.00||0
+Irish flute|17|0.00||5
+Irish whistle|0|0.00||0
+itótele|0|0.00||0
+iyá|0|0.00||0
+Jackson Kelly|9|0.00||0
+Jackson King V|7|0.00||0
+Jackson Rhoads|9|0.00||0
+Jackson Soloist|8|0.00||0
+Jal tarang|18|0.00||0
+jaleïka|16|0.00||0
+janggu|16|0.00||1
+jantar|1|0.00||0
+jarana|10|0.00||2
+jarana huasteca|5|0.00||0
+jazzophone|3|0.00||0
+jeu de timbre|5|0.00||0
+jhyali|2|0.00||0
+jirbah|4|0.00||0
+jouhikko|17|0.00||1
+jula-jula|0|0.00||0
+Junggeum|4|0.00||0
+Junjung|4|0.00||0
+ka|1|0.00||9
+kaba gaida|1|0.00||0
+Kabaosy|0|0.00||0
+Kabosy|11|0.00||2
+kacapi|12|0.00||0
+Kagura suzu|4|0.00||0
+Kagurabue|5|0.00||0
+kakaki|14|0.00||0
 kakko|5|0.00
-kalyuka|3|0.00
-Kamânche|32|0.00
-kamele ngoni|2|0.00
-Kampana|1|0.00
+kalyuka|3|0.00||0
+Kamânche|32|0.00||8
+kamele ngoni|2|0.00||0
+Kampana|1|0.00||0
 kane|5|0.00
-kangling|19|0.00
-Kanjira|23|0.00
-Kankangui|2|0.00
-Kankara sanshin|5|0.00
-kannel|13|0.00
-kantele|40|0.00
-karanga|0|0.00
+kangling|19|0.00||2
+Kanjira|23|0.00||0
+Kankangui|2|0.00||0
+Kankara sanshin|5|0.00||0
+kannel|13|0.00||1
+kantele|40|0.00||3
+karanga|0|0.00||0
 Kartal|15|0.00
-karyenda|6|0.00
-Kashaka|9|0.00
-kaval|30|0.00
-kayagum|28|0.00
-Kayamb|7|0.00
-kazoo|40|0.00
-kazou|0|0.00
+karyenda|6|0.00||0
+Kashaka|9|0.00||0
+kaval|30|0.00||8
+kayagum|28|0.00||5
+Kayamb|7|0.00||0
+kazoo|40|0.09||41
+kazou|0|0.00||41
 Kebero|8|0.00
-Kecrek|1|0.00
-kelutviaq|3|0.00
-kemençe|19|0.00
-kemençe classique|5|0.00
-kemençe de la mer Noire|9|0.00
-kempul|4|0.00
+Kecrek|1|0.00||0
+kelutviaq|3|0.00||0
+kemençe|19|0.00||7
+kemençe classique|5|0.00||0
+kemençe de la mer Noire|9|0.00||0
+kempul|4|0.00||0
 Kena|0|0.00
-kendang|13|0.00
-Kesi|1|0.00
-ketipung|1|0.00
-keytar|24|0.00
-Khamak|5|0.00
-Khên|20|0.00
-khim|5|0.00
-Khloy|3|0.00
-Khlui|5|0.00
-khol|12|0.81
-Khurdak|5|0.00
-kiboe|0|0.00
-Kilaut|5|0.00
-kinnari vînâ|2|0.00
-Kinnor|17|0.07
-Kissar|7|0.00
-Kkwaenggwari|10|0.00
-Klaxon|3|3.24
-klaxons|3|2.50|klaxon
-Klaxophone|2|0.00
-klin|0|0.00
-Klockor|1|0.00
-Klon Centaur|6|0.00
-Klopotec|8|0.00
-kôauau|0|0.00
-kobyz|15|0.00
-Kobza|20|0.00
-Kokiriko|5|0.00
-kokles|19|0.00
-Komabue|7|0.00
-kompang|4|0.00
+kendang|13|0.00||0
+Kesi|1|0.00||0
+ketipung|1|0.00||0
+keytar|24|0.00||6
+Khamak|5|0.00||0
+Khên|20|0.00||14
+khim|5|0.00||0
+Khloy|3|0.00||0
+Khlui|5|0.00||0
+khol|12|0.00||1
+Khurdak|5|0.00||0
+kiboe|0|0.00||0
+Kilaut|5|0.00||0
+kinnari vînâ|2|0.00||0
+Kinnor|17|0.00||1
+Kissar|7|0.00||0
+Kkwaenggwari|10|0.00||0
+Klaxon|3|0.00||2
+klaxons|3|0.00|klaxon
+Klaxophone|2|0.00||0
+klin|0|0.04
+Klockor|1|0.00||0
+Klon Centaur|6|0.00||0
+Klopotec|8|0.00||0
+kôauau|0|0.00||0
+kobyz|15|0.00||2
+Kobza|20|0.00||1
+Kokiriko|5|0.00||0
+kokles|19|0.00||0
+Komabue|7|0.00||0
+kompang|4|0.00||0
 komuz|28|0.00
-koncovka|7|0.00
-Kong toch|4|0.00
-Konghou|13|0.00
-Kontigi|5|0.00
-kora|35|0.00
-Korg Polysix|5|0.00
-kôrohû|0|0.00
-kotamo|1|0.00
-koto|49|0.07
-Koudi|5|0.00
-kountigui|1|0.00
-Kouxian|4|0.00
-kpaniglo|1|0.00
-Krachappi|5|0.00
-krap|4|0.00
-krap koo|0|0.00
-krap puang|0|0.00
-krap saepa|0|0.00
-krar|15|0.00
-krez|5|0.00
-Krin|1|0.00
-kubing|3|0.00
-Kudüm|4|0.00
-kugikly|7|0.00
-kuisi|4|0.00
-Kuitra|7|0.00
-Kulintang|5|0.00
-Kultrún|6|0.00
-kundi|4|0.00
-kundu|6|0.00
-Kutiyapi|5|0.00
-Kuzhal|6|0.00
+koncovka|7|0.00||0
+Kong toch|4|0.00||0
+Konghou|13|0.00||2
+Kontigi|5|0.00||0
+kora|35|0.00||146
+Korg Polysix|5|0.00||0
+kôrohû|0|0.00||0
+kotamo|1|0.00||0
+koto|49|0.00||20
+Koudi|5|0.00||0
+kountigui|1|0.00||0
+Kouxian|4|0.00||0
+kpaniglo|1|0.00||0
+Krachappi|5|0.00||0
+krap|4|0.00||0
+krap koo|0|0.00||0
+krap puang|0|0.00||0
+krap saepa|0|0.00||0
+krar|15|0.00||0
+krez|5|0.00||0
+Krin|1|0.00||0
+kubing|3|0.00||0
+Kudüm|4|0.00||0
+kugikly|7|0.00||0
+kuisi|4|0.00||0
+Kuitra|7|0.00||0
+Kulintang|5|0.00||0
+Kultrún|6|0.00||0
+kundi|4|0.00||0
+kundu|6|0.00||0
+Kutiyapi|5|0.00||0
+Kuzhal|6|0.00||0
 Lali|7|0.00
-Lambeg|5|0.00
-lame sonore|0|0.00
-lamellophone|14|0.00
-langeleik|15|0.00
-langspil|10|0.00
-langue sifflée|24|0.00
-laouto|9|0.00
-lap steel guitar|14|0.00
-lapo kabwit|0|0.00
-laryngophone|21|0.00
-laúd|11|0.00
-Launeddas|12|0.00
-lavta|5|0.00
+Lambeg|5|0.00||0
+lame sonore|0|0.00||0
+lamellophone|14|0.00||2
+langeleik|15|0.00||0
+langspil|10|0.00||0
+langue sifflée|24|0.00||8
+laouto|9|0.00||0
+lap steel guitar|14|0.00||10
+lapo kabwit|0|0.00||0
+laryngophone|21|0.00||7
+laúd|11|0.00||3
+Launeddas|12|0.00||3
+lavta|5|0.00||0
 leona|3|0.00
-Lesiba|5|0.00
-Lichtton-Orgel|4|0.00
-ligature|8|0.14
-ligatures|8|0.14|ligature
-lijerica|15|0.00
-Liliu ukulele|0|0.00
-limonaire|6|0.54
-Lingm|5|0.00
-Lingo|1|0.00
-LinnDrum|9|0.00
-LinnDrum Midistudio|2|0.00
-lira calabraise|7|0.00
-lira da braccio|13|0.00
-lirone|9|0.00
-liru|1|0.00
-lithophone|24|0.00
-Little Phatty|4|0.00
-lituus|14|0.00
-Liuqin|10|0.00
-Liuto forte|1|0.00
-livenka|2|0.00
+Lesiba|5|0.00||0
+Lichtton-Orgel|4|0.00||0
+ligature|8|0.00
+ligatures|8|0.00|ligature
+lijerica|15|0.00||0
+Liliu ukulele|0|0.00||0
+limonaire|6|0.00||0
+Lingm|5|0.00||0
+Lingo|1|0.00||0
+LinnDrum|9|0.00||0
+LinnDrum Midistudio|2|0.00||0
+lira calabraise|7|0.00||0
+lira da braccio|13|0.00||2
+lirone|9|0.00||0
+liru|1|0.00||0
+lithophone|24|0.00||6
+Little Phatty|4|0.00||0
+lituus|14|0.00||1
+Liuqin|10|0.00||0
+Liuto forte|1|0.00||0
+livenka|2|0.00||0
 lokole|3|0.00
-Looper|1|0.00
+Looper|1|0.00||0
 Loure|4|0.00
-Loutar|6|0.00
-Low whistle|9|0.00
-lujon|3|0.00
-Lukeme|0|0.00
+Loutar|6|0.00||0
+Low whistle|9|0.00||0
+lujon|3|0.00||0
+Lukeme|0|0.00||0
 luo|3|0.00
-lur|22|0.07
-lur en bronze|1|0.00
-luth|75|1.28
-Luth-clavecin|15|0.00
-luth-guitare|8|0.00
-luth suédois|4|0.00
-luthéal|9|0.00
-luths|5|0.34
-luths à jougs|3|0.00
-luths à manche|0|0.00
+lur|22|0.00
+lur en bronze|1|0.00||0
+luth|75|0.78||58
+Luth-clavecin|15|0.00||1
+luth-guitare|8|0.00||0
+luth suédois|4|0.00||0
+luthéal|9|0.00||0
+luths|5|0.00||0
+luths à jougs|3|0.00||0
+luths à manche|0|0.00||0
 Lyra|15|0.00
-lyra byzantine|13|0.00
-lyra-viol|3|0.00
-lyre|69|1.15
-lyre guitare|5|0.00
-lyres|69|0.27|lyre
-Lyricon|7|0.00
-Ma'met|1|0.00
-Ma'wo|1|0.00
-madal|6|0.00
-Maddalam|8|0.00
-maestro|0|0.47
-magadis|4|0.00
-mallet-instrument|5|0.00
-Malunga|5|0.00
-Mandobasse|7|0.00
-mandola|27|0.00
-mandole algérienne|7|0.00
-mandoline|83|0.88
-Mandoline country|2|0.00
-mandoline électrique|2|0.00
-mandolines|83|0.27|mandoline
-mandoloncelle|15|0.00
-Mandoluth|4|0.00
-mandore|11|1.55
-mandriola|4|0.00
-manjira|9|0.00
-maraca|49|0.00
-Marcodi|0|0.00
-Maretangham|0|0.00
-marimba|49|0.00
-Marimbula|10|0.00
-Marovany|4|0.00
-Maruas|1|0.00
-Marxophone|5|0.00
-masenqo|18|0.00
-mashak|2|0.00
-matou|2|3.18
-matous|2|0.95|matou
-mattauphone|0|0.00
-Mbira|41|0.00
-mbira Array|2|0.00
-mbira dzavdzimu|1|0.00
-Médium|15|1.08
-médiums|15|0.74|medium
-mégaphone|42|0.54
-mégaphones|42|0.07|megaphone
-mejorana|5|0.00
-mellophone|23|0.00
-mellotron|36|0.00
-méloca|0|0.00
-Mélodéon|5|0.00
-mélodica|35|0.00
-mélodion|0|0.00
-mélophone|4|0.00
-membranophone|46|0.00
-membranophones chantantes|5|0.00
-membranophones frappés|0|0.00
-Memorymoog|3|0.00
-Memotron|2|0.00
-mendzan|1|0.00
-Mengmung|2|0.00
-Meråkerklarinett|2|0.00
-Merlin|0|0.20
-Méta-Instrument|1|0.00
-métallophone|28|0.00
-mezoued|10|0.00
-mezzo-soprano|59|0.00
-mezzo-soprano colorature|0|0.00
-mezzo-soprano de caractère|0|0.00
-mezzo-soprano dramatique|2|0.00
-mezzo-soprano léger|1|0.00
-mezzo-soprano lyrique|3|0.00
-Micro Charlie Christian|3|0.00
-micro cravate|10|0.00
-Micro-HF|16|0.00
-microphone|111|0.34
-microphone à charbon|23|0.00
-microphone à électret|14|0.00
-microphone à ruban|11|0.00
-microphone antibruit|1|0.00
-Microphone de contact|7|0.00
-microphone directionnel|2|0.00
-microphone électrostatique|16|0.00
-microphone labial|3|0.00
-microphone omnidirectionnel|2|0.00
-microphone piézoélectrique|4|0.00
-microphones|111|0.34|microphone
-MIDI guitar|0|0.00
-MIDI maestro|0|0.00
-midwinterhoorn|7|0.00
-mijwiz|9|0.00
-mini-guitare|14|0.00
-Minimoog|19|0.00
-Minimoog Voyager|5|0.00
-mirliton|7|0.34
-mirlitons|7|0.81|mirliton
-Mizhâvu|11|0.00
-Mizmar|9|0.00
-module de sons|8|0.00
-mohan vînâ|8|0.00
-mohoceño|2|0.00
-moko|7|0.14
-mokugyo|24|0.00
-moniteur de studio|15|0.00
-monkey stick|5|0.00
-monocorde|25|2.09
-monocorde à clavier|2|0.00
-monocordes|25|0.47|monocorde
-Monome|4|0.00
-monowave synth|2|0.00
-Moodswinger|26|0.00
-Moog|23|0.00
-Moorchang|7|0.00
-Moraharpa|6|0.00
-Morin khuur|35|0.00
-Mrhube|0|0.00
-Mridang|34|0.00
-muchosa|5|0.00
-Mukkuri|4|0.00
-Multi-effets|3|0.00
-multimédia|84|0.00
-Multimoog|4|0.00
-musette|13|13.78
-musette de cour|13|0.00
-Musette du Poitou|1|0.00
-musettes|13|4.66|musette
-Music Man StingRay Bass|10|0.00
-Musique cambodgienne|2|0.00
-Musser vibraphone|0|0.00
-mutation|4|3.18
-mutations|4|1.15|mutation
-Mvet|7|0.00
-n'goni|13|0.00
+lyra byzantine|13|0.00||7
+lyra-viol|3|0.00||0
+lyre|69|1.07||46
+lyre guitare|5|0.00||0
+lyres|69|0.00|lyre
+Lyricon|7|0.00||0
+Ma'met|1|0.00||0
+Ma'wo|1|0.00||0
+madal|6|0.00||0
+Maddalam|8|0.00||0
+maestro|0|2.04||5
+magadis|4|0.00||0
+mallet-instrument|5|0.00||0
+Malunga|5|0.00||0
+Mandobasse|7|0.00||0
+mandola|27|0.00||0
+mandole algérienne|7|0.00||0
+mandoline|83|0.81||60
+Mandoline country|2|0.00||0
+mandoline électrique|2|0.00||0
+mandolines|83|0.00|mandoline
+mandoloncelle|15|0.00||2
+Mandoluth|4|0.00||0
+mandore|11|0.00
+mandriola|4|0.00||0
+manjira|9|0.00||0
+maraca|49|0.00||23
+Marcodi|0|0.00||0
+Maretangham|0|0.00||0
+marimba|49|0.00||28
+Marimbula|10|0.00||2
+Marovany|4|0.00||0
+Maruas|1|0.00||0
+Marxophone|5|0.00||0
+masenqo|18|0.00||1
+mashak|2|0.00||0
+matou|2|0.00||1
+matous|2|0.00|matou
+mattauphone|0|0.00||0
+Mbira|41|0.00||25
+mbira Array|2|0.00||0
+mbira dzavdzimu|1|0.00||0
+Médium|15|0.00
+médiums|15|0.00|medium
+mégaphone|42|0.00||5
+mégaphones|42|0.00|megaphone
+mejorana|5|0.00||0
+mellophone|23|0.00||2
+mellotron|36|0.00||27
+méloca|0|0.00||0
+Mélodéon|5|0.00||0
+mélodica|35|0.03||35
+mélodion|0|0.00||0
+mélophone|4|0.00||0
+membranophone|46|0.00||3
+membranophones chantantes|5|0.00||0
+membranophones frappés|0|0.00||0
+Memorymoog|3|0.00||0
+Memotron|2|0.00||0
+mendzan|1|0.00||0
+Mengmung|2|0.00||0
+Meråkerklarinett|2|0.00||0
+Merlin|0|0.00||151
+Méta-Instrument|1|0.00||0
+métallophone|28|0.00||7
+mezoued|10|0.00||14
+mezzo-soprano|59|0.00||37
+mezzo-soprano colorature|0|0.00||0
+mezzo-soprano de caractère|0|0.00||0
+mezzo-soprano dramatique|2|0.00||0
+mezzo-soprano léger|1|0.00||0
+mezzo-soprano lyrique|3|0.00||0
+Micro Charlie Christian|3|0.00||0
+micro cravate|10|0.00||3
+Micro-HF|16|0.00||2
+microphone|111|0.93||20
+microphone à charbon|23|0.00||2
+microphone à électret|14|0.00||0
+microphone à ruban|11|0.00||3
+microphone antibruit|1|0.00||0
+Microphone de contact|7|0.00||0
+microphone directionnel|2|0.00||0
+microphone électrostatique|16|0.00||0
+microphone labial|3|0.00||0
+microphone omnidirectionnel|2|0.00||0
+microphone piézoélectrique|4|0.00||0
+microphones|111|0.00|microphone
+MIDI guitar|0|0.00||0
+MIDI maestro|0|0.00||0
+midwinterhoorn|7|0.00||0
+mijwiz|9|0.00||0
+mini-guitare|14|0.00||4
+Minimoog|19|0.00||7
+Minimoog Voyager|5|0.00||0
+mirliton|7|0.00
+mirlitons|7|0.00|mirliton
+Mizhâvu|11|0.00||0
+Mizmar|9|0.00||0
+module de sons|8|0.00||0
+mohan vînâ|8|0.00||0
+mohoceño|2|0.00||0
+moko|7|0.00||0
+mokugyo|24|0.00||2
+moniteur de studio|15|0.00||0
+monkey stick|5|0.00||0
+monocorde|25|0.00||3
+monocorde à clavier|2|0.00||0
+monocordes|25|0.00|monocorde
+Monome|4|0.00||0
+monowave synth|2|0.00||0
+Moodswinger|26|0.00||0
+Moog|23|0.00||16
+Moorchang|7|0.00||0
+Moraharpa|6|0.00||0
+Morin khuur|35|0.00||12
+Mrhube|0|0.00||0
+Mridang|34|0.00||3
+muchosa|5|0.00||0
+Mukkuri|4|0.00||0
+Multi-effets|3|0.00||0
+multimédia|84|3.09||15
+Multimoog|4|0.00||0
+musette|13|0.00
+musette de cour|13|0.00||3
+Musette du Poitou|1|0.00||0
+musettes|13|0.00|musette
+Music Man StingRay Bass|10|0.00||4
+Musique cambodgienne|2|0.00||0
+Musser vibraphone|0|0.00||0
+mutation|4|0.00
+mutations|4|0.00|mutation
+Mvet|7|0.00||0
+n'goni|13|0.00||14
 Nagara|29|0.00
-Nâgasvaram|17|0.00
+Nâgasvaram|17|0.00||1
 Naï|7|0.00
-Nang|0|0.00
-Native Instruments Maschine|2|0.00
-Neo-Bechstein|6|0.00
-ney|36|0.14
-neyanban|4|0.00
-ngombi|7|0.00
-nguru|0|0.00
+Nang|0|0.00||0
+Native Instruments Maschine|2|0.00||0
+Neo-Bechstein|6|0.00||0
+ney|36|0.00
+neyanban|4|0.00||0
+ngombi|7|0.00||0
+nguru|0|0.00||0
 nicolo|1|0.00
-nimfali|0|0.00
+nimfali|0|0.00||0
 nira|1|0.00
-Njarka|3|0.00
-North Drums|2|0.00
-Northumbrian smallpipes|10|0.00
-Nothing Ear Stick|1|0.00
+Njarka|3|0.00||0
+North Drums|2|0.00||0
+Northumbrian smallpipes|10|0.00||1
+Nothing Ear Stick|1|0.00||0
 Nyabinghi|3|0.00
-Nyatiti|6|0.00
-nyckelharpa|28|0.00
-ocarina|54|0.20
-ocarinas|54|0.07|ocarina
-Occitan sifflé d'Aas|6|0.00
-Octaver|9|0.00
-octavin|2|0.00
-octaviste|2|0.00
-octoban|9|0.00
-octobasse|28|0.00
-ogene|1|0.00
-okraulo|4|0.00
-olifant|22|0.41
-oloi-olio|0|0.00
-omni|3|0.27
-Omnichord|14|0.00
-Ondes Martenot|25|0.00
-Ondioline|6|0.00
-Ongu|1|0.00
-ophicléide|27|0.00
-Oporo|1|0.00
-Orchestrion|21|0.00
-organetto|3|0.00
-orgue|97|5.41
-orgue à bouche|6|0.00
-orgue à chats|20|0.00
-orgue-clavicorde|0|0.00
-orgue d'église|4|0.00
-orgue de Barbarie|41|0.00
-orgue de chats|0|0.00
-orgue de concert|3|0.00
-orgue de danse|3|0.00
-Orgue de salon|6|0.00
-orgue de théâtre|11|0.00
-orgue électronique|20|0.00
-orgue en nid d'hirondelle|6|0.00
-orgue éolien|4|0.00
-orgue Hammond|38|0.00
-orgue hydraulique|26|0.00
-Orgue marin|24|0.00
-Orgue numérique|4|0.00
-orgue portatif|19|0.00
-orgue sans tuyaux|1|0.00
-orgues|97|2.91|orgue
+Nyatiti|6|0.00||0
+nyckelharpa|28|0.00||28
+ocarina|54|0.30||58
+ocarinas|54|0.00|ocarina
+Occitan sifflé d'Aas|6|0.00||0
+Octaver|9|0.00||0
+octavin|2|0.00||0
+octaviste|2|0.00||0
+octoban|9|0.00||0
+octobasse|28|0.00||27
+ogene|1|0.00||0
+okraulo|4|0.00||0
+olifant|22|0.00||27
+oloi-olio|0|0.00||0
+omni|3|0.00
+Omnichord|14|0.00||18
+Ondes Martenot|25|0.00||39
+Ondioline|6|0.00||0
+Ongu|1|0.00||0
+ophicléide|27|0.00||13
+Oporo|1|0.00||0
+Orchestrion|21|0.00||1
+organetto|3|0.00||0
+orgue|97|4.90||85
+orgue à bouche|6|0.00||0
+orgue à chats|20|0.00||2
+orgue-clavicorde|0|0.00||0
+orgue d'église|4|0.00||0
+orgue de Barbarie|41|0.00||44
+orgue de chats|0|0.00||0
+orgue de concert|3|0.00||0
+orgue de danse|3|0.00||0
+Orgue de salon|6|0.00||0
+orgue de théâtre|11|0.00||3
+orgue électronique|20|0.00||6
+orgue en nid d'hirondelle|6|0.00||0
+orgue éolien|4|0.00||0
+orgue Hammond|38|0.00||32
+orgue hydraulique|26|0.00||6
+Orgue marin|24|0.00||0
+Orgue numérique|4|0.00||0
+orgue portatif|19|0.00||3
+orgue sans tuyaux|1|0.00||0
+orgues|97|0.00|orgue
 Orlo|1|0.00
-orpharion|9|0.00
-Orphica|6|0.00
-Orutu|4|0.00
-os|0|49.73
-Osha|0|0.00
-otamatone|0|0.00
-oud|64|0.00
-pad d'entraînement|4|0.00
-pahu|4|0.00
-paigu|4|0.00
-paixiao|8|0.00
-pakhavaj|14|0.00
-Palendag|2|0.00
-Palmas|0|0.07
-pambai|6|0.00
-pan-mélodicon|0|0.00
-Pandeiro|20|0.00
-pandero|7|0.00
-pandola|0|0.00
-Pandoura|11|0.00
-Panduri|17|0.00
-pandurina|1|0.00
-Pantaléon|6|0.00
-papier de verre|0|0.00
-Parkapzuk|5|0.00
-partie instrumentale d'orgue|0|0.00
-pBone|1|0.00
-PC speaker|15|0.00
-pedal steel guitar|21|0.00
-pédale d'effet|11|0.00
-pédale wah-wah|9|0.00
-pédalier|16|0.81
-pédaliers|16|0.20|pedalier
+orpharion|9|0.00||0
+Orphica|6|0.00||0
+Orutu|4|0.00||0
+os|0|30.90||40
+Osha|0|0.00||636
+otamatone|0|0.00||10
+oud|64|0.63||90
+pad d'entraînement|4|0.00||0
+pahu|4|0.00||0
+paigu|4|0.00||0
+paixiao|8|0.00||0
+pakhavaj|14|0.00||0
+Palendag|2|0.00||0
+Palmas|0|0.00
+pambai|6|0.00||0
+pan-mélodicon|0|0.00||0
+Pandeiro|20|0.00||2
+pandero|7|0.00||0
+pandola|0|0.00||0
+Pandoura|11|0.00||1
+Panduri|17|0.00||3
+pandurina|1|0.00||0
+Pantaléon|6|0.00||0
+papier de verre|0|0.00||22
+Parkapzuk|5|0.00||0
+partie instrumentale d'orgue|0|0.00||0
+pBone|1|0.00||0
+PC speaker|15|0.00||0
+pedal steel guitar|21|0.00||8
+pédale d'effet|11|0.00||19
+pédale wah-wah|9|0.00||0
+pédalier|16|0.00
+pédaliers|16|0.00|pedalier
 pena|4|0.00
-pet d'aisselle|4|0.00
-pétadou|1|0.00
-petite clarinette|15|0.00
-Petite harpe de Durango|1|0.00
-Phin|8|0.00
-Phonocapteur|9|0.00
-phonographe|77|5.41
-phonographes|77|0.61|phonographe
-phorminx|16|0.00
-Photoplayer|7|0.00
-physharmonica|4|0.00
-Pi|7|1.28
-pi yen|1|0.00
-Pianet|7|0.00
-piano|172|28.51
-piano à queue|24|0.00
-piano à queue numérique|4|0.00
-piano à tangentes|7|0.00
-piano bastringue|4|0.00
-Piano carré|14|0.00
-piano de chats|0|0.00
-Piano de rue|5|0.00
-piano droit|23|0.00
-Piano électrique|30|0.00
-Piano électrique Wurlitzer|12|0.00
-piano électrique Yamaha|6|0.00
-Piano électronique|17|0.00
-piano-forte|29|0.00
-piano girafe|5|0.00
-piano jouet|11|0.00
-piano mécanique|34|0.00
-piano numérique|19|0.00
-piano-pédalier|13|0.00
-piano préparé|29|0.00
-piano silencieux|9|0.00
-pianocktail|0|0.00
-pianos|172|2.77|piano
-pibgorn|7|0.00
-piccolo|57|0.07
+pet d'aisselle|4|0.00||0
+pétadou|1|0.00||0
+petite clarinette|15|0.00||1
+Petite harpe de Durango|1|0.00||0
+Phin|8|0.00||0
+Phonocapteur|9|0.00||0
+phonographe|77|0.26||34
+phonographes|77|0.00|phonographe
+phorminx|16|0.00||14
+Photoplayer|7|0.00||0
+physharmonica|4|0.00||0
+Pi|7|0.00||31
+pi yen|1|0.00||0
+Pianet|7|0.00||0
+piano|172|18.20||96
+piano à queue|24|0.00||17
+piano à queue numérique|4|0.00||0
+piano à tangentes|7|0.00||0
+piano bastringue|4|0.00||0
+Piano carré|14|0.00||2
+piano de chats|0|0.00||2
+Piano de rue|5|0.00||0
+piano droit|23|0.00||5
+Piano électrique|30|0.00||4
+Piano électrique Wurlitzer|12|0.00||8
+piano électrique Yamaha|6|0.00||0
+Piano électronique|17|0.00||1
+piano-forte|29|0.00||37
+piano girafe|5|0.00||0
+piano jouet|11|0.00||1
+piano mécanique|34|0.00||9
+piano numérique|19|0.00||4
+piano-pédalier|13|0.00||1
+piano préparé|29|0.00||3
+piano silencieux|9|0.00||0
+pianocktail|0|0.00||164
+pianos|172|0.00|piano
+pibgorn|7|0.00||0
+piccolo|57|0.52
 piccolos|57|0.00|piccolo
 picking|4|0.00
-pifano|2|0.00
-piffero|8|0.00
-Pifilca|5|0.00
-Pikèr|0|0.00
-pinquillo|10|0.00
-Pint Pots|0|0.00
-pion|0|3.58|pionne
-pionne|0|0.14
-pions|0|2.77|pionne
-pipa|45|0.07
-pipasso|3|0.00
-Pipe|0|25.74
-pipes|0|7.09|pipe
+pifano|2|0.00||0
+piffero|8|0.00||0
+Pifilca|5|0.00||0
+Pikèr|0|0.00||0
+pinquillo|10|0.00||1
+Pint Pots|0|0.00||0
+pion|0|2.95|pionne
+pionne|0|0.04||0
+pions|0|2.34|pionne
+pipa|45|0.00
+pipasso|3|0.00||0
+Pipe|0|7.94||46
+pipes|0|1.45|pipe
 piri|12|0.00
-piston|2|2.50
-pistons|2|0.68|piston
-pitch shift|13|0.00
+piston|2|0.00
+pistons|2|0.00|piston
+pitch shift|13|0.00||2
 piva|2|0.00
-Pixel Buds|13|0.00
-pixiphone|2|0.00
-Pku|7|0.00
-Plagiaulos|3|0.00
+Pixel Buds|13|0.00||0
+pixiphone|2|0.00||0
+Pku|7|0.00||0
+Plagiaulos|3|0.00||0
 planche à laver|13|0.00
-plaque-tonnerre|9|0.00
-platine tourne-disques|17|0.00
-Pluriarc|4|0.00
-pneumacorde|0|0.00
-Pochette|18|6.69
-pochettes|18|2.16|pochette
-podorythmie|2|0.00
-poïkilorgue|1|0.00
-Polymoog|8|0.00
-Polyphon|12|0.00
+plaque-tonnerre|9|0.00||0
+platine tourne-disques|17|0.00||16
+Pluriarc|4|0.00||0
+pneumacorde|0|0.00||0
+Pochette|18|0.00
+pochettes|18|0.00|pochette
+podorythmie|2|0.00||0
+poïkilorgue|1|0.00||0
+Polymoog|8|0.00||0
+Polyphon|12|0.00||0
 pommer|13|0.00
-Pong lang|4|0.00
-porotiti|0|0.00
-positif|17|3.99
-positif dorsal|5|0.00
-positifs|17|0.54|positif
-positive|17|2.57|positif
-positives|17|0.61|positif
-poste d'édition musicale|8|0.00
-PowerBeats Pro|1|0.00
-pratique du tambour|0|0.00
-premier chalimou|0|0.00
-Preret|1|0.00
-présentation multimédia|0|0.00
-processeur d'effet|20|0.00
+Pong lang|4|0.00||0
+porotiti|0|0.00||0
+positif|17|0.00
+positif dorsal|5|0.00||0
+positifs|17|0.00|positif
+positive|17|0.00|positif
+positives|17|0.00|positif
+poste d'édition musicale|8|0.00||0
+PowerBeats Pro|1|0.00||0
+pratique du tambour|0|0.00||0
+premier chalimou|0|0.00||0
+Preret|1|0.00||0
+présentation multimédia|0|0.00||0
+processeur d'effet|20|0.00||0
 Prodigy|3|0.00
 protos|6|0.00
-psalmodicon|12|0.00
-psaltérion|28|0.00
-psaltérion à archet|5|0.00
-psaltérion balte|4|0.00
-Pungi|29|0.00
-purerehua|0|0.00
-pûtatara|0|0.00
-putipù|6|0.00
-Pûtôrino|4|0.00
-pututu|7|0.00
-pyrophone|11|0.00
-Qanbüs|12|0.00
+psalmodicon|12|0.00||0
+psaltérion|28|0.00||21
+psaltérion à archet|5|0.00||0
+psaltérion balte|4|0.00||0
+Pungi|29|0.00||2
+purerehua|0|0.00||0
+pûtatara|0|0.00||0
+putipù|6|0.00||0
+Pûtôrino|4|0.00||0
+pututu|7|0.00||0
+pyrophone|11|0.00||0
+Qanbüs|12|0.00||1
 qanûn|37|0.00
-qeej|4|0.00
-qifteli|16|0.00
-Qinqin|6|0.00
-qraqeb|13|0.00
-Qudi|3|0.00
-Quena|29|0.00
-Quijada|9|0.00
-Quijongo|3|0.00
-quinte de violon|1|0.00
+qeej|4|0.00||0
+qifteli|16|0.00||4
+Qinqin|6|0.00||0
+qraqeb|13|0.00||12
+Qudi|3|0.00||0
+Quena|29|0.00||23
+Quijada|9|0.04||2
+Quijongo|3|0.00||0
+quinte de violon|1|0.00||0
 quinto|1|0.00
 quinton|6|0.00
-quray|21|0.00
-rabâb|37|0.00
+quray|21|0.00||0
+rabâb|37|0.00||10
 Rabel|3|0.00
-Ralé-poussé|2|0.00
-ramsinga|7|0.00
-ran-nan|0|0.00
-ranat|4|0.00
-ranat ek|3|0.00
-rasgueado|9|0.00
-Rauschpfeife|8|0.00
-Ravanhatta|22|0.00
-Reactable|10|0.00
-rebab indonésien|4|0.00
-rebana|11|0.00
+Ralé-poussé|2|0.00||0
+ramsinga|7|0.00||0
+ran-nan|0|0.00||0
+ranat|4|0.00||0
+ranat ek|3|0.00||0
+rasgueado|9|0.00||0
+Rauschpfeife|8|0.00||0
+Ravanhatta|22|0.00||1
+Reactable|10|0.00||0
+rebab indonésien|4|0.00||0
+rebana|11|0.00||0
 rebec|28|0.00
-reclam de xeremies|4|0.00
-Reco-reco|14|0.00
-régale|15|1.89
-registration|2|0.00
-repinique|10|0.00
-repique de mão|3|0.00
-repose-pouce|3|0.00
-Requinto|1|0.00
-requinto jarocho|7|0.00
-retableur|1|0.00
-Reverse flugelhorn|0|0.00
-reyong|7|0.00
-Rgya gling|9|0.00
-Rhodes|29|0.00
-rhombe|27|0.07
-Rhythmicon|7|0.00
-Ribab|2|0.00
-rih|5|0.00
-Ring Modulator|2|0.00
-Riqq|13|0.00
-Riti|0|0.00
-riwana|1|0.00
-Rock-Si-Chord|1|0.00
-Roland Juno|3|0.00
-Roland V-Synth|2|0.00
-rommelpot|7|0.00
-Rompler|6|0.00
-rondador|5|0.00
-ronflon|0|0.00
-ronroco|5|0.00
-roof knocking|13|0.00
-rothophone|4|0.00
-rototom|16|0.00
-roue à carillons|4|0.00
-Roulèr|1|33.78
+reclam de xeremies|4|0.00||0
+Reco-reco|14|0.00||1
+régale|15|0.00||2
+registration|2|0.00||0
+repinique|10|0.00||1
+repique de mão|3|0.00||0
+repose-pouce|3|0.00||0
+Requinto|1|0.00||0
+requinto jarocho|7|0.00||0
+retableur|1|0.00||0
+Reverse flugelhorn|0|0.00||0
+reyong|7|0.00||0
+Rgya gling|9|0.00||0
+Rhodes|29|0.00||258
+rhombe|27|0.00
+Rhythmicon|7|0.00||0
+Ribab|2|0.00||0
+rih|5|0.00||0
+Ring Modulator|2|0.00||0
+Riqq|13|0.00||2
+Riti|0|0.00||0
+riwana|1|0.00||0
+Rock-Si-Chord|1|0.00||0
+Roland Juno|3|0.00||0
+Roland V-Synth|2|0.00||0
+rommelpot|7|0.00||0
+Rompler|6|0.00||0
+rondador|5|0.00||0
+ronflon|0|0.00||0
+ronroco|5|0.00||0
+roof knocking|13|0.00||0
+rothophone|4|0.00||0
+rototom|16|0.00||3
+roue à carillons|4|0.00||0
+Roulèr|1|0.00||0
 ruan|17|0.00
-rubab|27|0.00
-Rubboard|0|0.00
-Sabar|13|0.00
-Sabar drum|0|0.00
-Sac de gemecs|7|0.00
-Säckpipa|12|0.00
-sacqueboute|16|0.00
-Saenghwang|7|0.00
-sagattes|19|0.00
-salamuri|8|0.00
-salo|4|0.00
+rubab|27|0.00||10
+Rubboard|0|0.00||0
+Sabar|13|0.00||9
+Sabar drum|0|0.00||0
+Sac de gemecs|7|0.00||0
+Säckpipa|12|0.00||0
+sacqueboute|16|0.00||29
+Saenghwang|7|0.00||0
+sagattes|19|0.00||0
+salamuri|8|0.00||0
+salo|4|0.00||1
 Salpinx|11|0.00
-salut au canon|20|0.00
-Sambuca|9|0.00
-sambuco|1|0.00
-Samphor|5|0.00
-samponha|2|0.00
-Samsung Galaxy Buds|2|0.00
+salut au canon|20|0.00||7
+Sambuca|9|0.00||0
+sambuco|1|0.00||0
+Samphor|5|0.00||0
+samponha|2|0.00||0
+Samsung Galaxy Buds|2|0.00||0
 Sanba|4|0.00
-sanshin|18|0.00
-santour|40|0.00
-Santouri|1|0.00
-santouri grec|1|0.00
-Sanxian|19|0.00
-sarangi|39|0.00
-sarangi népalais|5|0.00
-saréwa|0|0.00
-sarod|34|0.00
+sanshin|18|0.00||3
+santour|40|0.00||16
+Santouri|1|0.00||0
+santouri grec|1|0.00||0
+Sanxian|19|0.00||3
+sarangi|39|0.00||4
+sarangi népalais|5|0.00||0
+saréwa|0|0.00||0
+sarod|34|0.00||4
 saron|12|0.00
-Sarrussophone|19|0.07
-Satong|1|0.00
-saung|15|0.00
-Saw duang|5|0.00
-Saw sam sai|4|0.00
-saw u|7|0.00
-Saxello|2|0.00
-saxhorn|22|0.00
-saxhorn alto|21|0.00
-Saxonette|1|0.00
-saxophone|110|1.22
-saxophone alto|33|0.00
-saxophone baryton|22|0.00
-saxophone basse|15|0.00
-saxophone C-melody|10|0.00
-Saxophone contrebasse|10|0.00
-saxophone mezzo-soprano|5|0.00
-saxophone piccolo|13|0.00
-saxophone sopranino|12|0.00
-saxophone soprano|23|0.00
-saxophone sous-contrebasse|7|0.00
-saxophone ténor|25|0.00
-saxophones|110|0.07|saxophone
-saxotromba|6|0.00
-Saxtuba|4|0.00
-saz|49|0.00
-Scabellum|4|0.00
-Schalmei|4|0.00
-Scheitholt|6|0.00
-Schwyzerörgeli|5|0.00
-scie musicale|27|0.00
-Scottish smallpipes|5|0.00
-scraper|3|0.00
-se|13|6587.77
-secont chalimou|0|0.00
-Seljefløyte|15|0.00
-Selmer Balanced Action|1|0.00
-Selmer Centered Tone|0|0.00
-Selmer Mark VI|4|0.00
-Selmer Mark VII|1|0.00
-Selmer Radio Improved|0|0.00
-Selmer Récital|0|0.00
-Selmer Signature|0|0.00
-Seprewa|5|0.00
-Sept trompettes|19|0.00
-séquenceur musical|42|0.00
-Serinette|12|0.00
-serpent|35|13.24
-serpents|35|7.84|serpent
-setâr|27|0.00
-Seto|1|0.00
-Setor|4|0.00
-Sevivon|30|0.00
-Shahi Baaja|4|0.00
-shaker|15|0.81
-Shakubyoshi|4|0.00
-shakuhachi|34|0.00
-shamisen|48|0.07
-Shankh|26|0.00
-shehnai|39|0.00
+Sarrussophone|19|0.00||2
+Satong|1|0.00||0
+saung|15|0.00||0
+Saw duang|5|0.00||0
+Saw sam sai|4|0.00||0
+saw u|7|0.00||0
+Saxello|2|0.00||0
+saxhorn|22|0.00||32
+saxhorn alto|21|0.00||0
+Saxonette|1|0.00||0
+saxophone|110|1.05||96
+saxophone alto|33|0.00||13
+saxophone baryton|22|0.00||8
+saxophone basse|15|0.00||4
+saxophone C-melody|10|0.00||1
+Saxophone contrebasse|10|0.00||4
+saxophone mezzo-soprano|5|0.00||0
+saxophone piccolo|13|0.00||3
+saxophone sopranino|12|0.00||3
+saxophone soprano|23|0.00||12
+saxophone sous-contrebasse|7|0.00||0
+saxophone ténor|25|0.00||11
+saxophones|110|0.00|saxophone
+saxotromba|6|0.00||0
+Saxtuba|4|0.00||0
+saz|49|0.00||26
+Scabellum|4|0.00||0
+Schalmei|4|0.00||0
+Scheitholt|6|0.00||0
+Schwyzerörgeli|5|0.00||0
+scie musicale|27|0.00||11
+Scottish smallpipes|5|0.00||0
+scraper|3|0.00||0
+se|13|0.00
+secont chalimou|0|0.00||0
+Seljefløyte|15|0.00||0
+Selmer Balanced Action|1|0.00||0
+Selmer Centered Tone|0|0.00||0
+Selmer Mark VI|4|0.00||0
+Selmer Mark VII|1|0.00||0
+Selmer Radio Improved|0|0.00||0
+Selmer Récital|0|0.00||0
+Selmer Signature|0|0.00||0
+Seprewa|5|0.00||0
+Sept trompettes|19|0.00||35
+séquenceur musical|42|0.00||7
+Serinette|12|0.02||7
+serpent|35|0.00||155
+serpents|35|0.00|serpent
+setâr|27|0.00||6
+Seto|1|0.00||0
+Setor|4|0.00||0
+Sevivon|30|0.00||16
+Shahi Baaja|4|0.00||0
+shaker|15|0.00||6
+Shakubyoshi|4|0.00||0
+shakuhachi|34|0.00||11
+shamisen|48|0.00||28
+Shankh|26|0.00||3
+shehnai|39|0.00||2
 shells|0|0.00
-Shenbo|1|0.00
-sheng|36|0.00
-shevi|10|0.00
-Shi mian luo|5|0.00
-Shime-daiko|7|0.00
-Shinobue|10|0.00
-Shishi-odoshi|22|0.00
-Shruti box|8|0.00
-Shuangqin|1|0.00
-sibizgi|0|0.00
-Side Man|1|0.00
-sifflement|42|10.47
-sifflements|42|3.31|sifflement
-sifflet|56|13.31
-Sifflet à chien|17|0.00
-sifflet à nez|6|0.00
-Sifflet de la mort aztèque|8|0.00
-sifflet de police|2|0.00
-Sifflet de train|4|0.00
-sifflet sans-gêne|18|0.00
-sifflets|56|4.59|sifflet
-Sihu|7|0.00
-Siku|21|0.00
+Shenbo|1|0.00||0
+sheng|36|0.00||9
+shevi|10|0.00||0
+Shi mian luo|5|0.00||0
+Shime-daiko|7|0.00||0
+Shinobue|10|0.00||1
+Shishi-odoshi|22|0.00||7
+Shruti box|8|0.00||0
+Shuangqin|1|0.00||0
+sibizgi|0|0.00||0
+Side Man|1|0.00||0
+sifflement|42|0.00||5
+sifflements|42|0.00|sifflement
+sifflet|56|2.45||5
+Sifflet à chien|17|0.00||3
+sifflet à nez|6|0.00||0
+Sifflet de la mort aztèque|8|0.00||0
+sifflet de police|2|0.00||0
+Sifflet de train|4|0.00||0
+sifflet sans-gêne|18|0.00||0
+sifflets|56|0.00|sifflet
+Sihu|7|0.00||0
+Siku|21|0.00||4
 simandre|22|0.00
-simikon|1|0.00
-simsimiyya|12|0.00
-Simulateur d'orgue|3|0.00
-Single coil|16|0.00
-Sipsi|4|0.00
-sirène|44|10.34
-sirènes|44|7.16|sirene
-Sirenette|0|0.00
-sistre|38|0.00
-sitar|64|0.00
-sitar électrique|6|0.00
-sitarla|2|0.00
-Six bass|0|0.00
-siyotanka|12|0.00
-skrabalai|5|0.00
-slentem|6|0.00
-small drum|0|0.00
-Small percussion|0|0.00
-Sodina|4|0.00
-sonnaille|23|0.20
-sonnailles|23|0.95|sonnaille
-sonnette|29|14.12
-Sonnette connectée|8|0.00
-Sonnette de table|5|0.00
-sonnettes|29|2.03|sonnette
-sons des insectes|1|0.00
-Sopilka|9|0.00
-sopraniste|19|0.00
-soprano|72|1.76
-soprano colorature|22|0.00
-soprano d'enfant|0|0.00
-soprano d'opéra|0|0.00
-soprano dramatique|17|0.00
-soprano léger|4|0.00
-soprano légere colorature|0|0.00
-soprano lyrique|15|0.00
-soprano lyrique colorature|1|0.00
-soprano lyrique-dramatique|2|0.00
-soprano lyrique léger|2|0.00
-soprano sfogato|4|0.00
-soprano spinto|5|0.00
-soprano wagnérien|3|0.00
-sopranos|72|0.27|soprano
-sorud|18|0.00
-Sosso Bala|9|0.00
-soubassophone|43|0.00
-Soubrette|24|2.36
-soubrette colorature|0|0.00
-soubrettes|24|0.74|soubrette
-SPD|0|0.00
-Sperrhake|3|0.00
-Spinja|1|0.00
-spinto|8|0.00
-Sprechgesang|18|0.07
+simikon|1|0.00||0
+simsimiyya|12|0.00||2
+Simulateur d'orgue|3|0.00||0
+Single coil|16|0.00||1
+Sipsi|4|0.00||0
+sirène|44|0.00||187
+sirènes|44|0.00|sirene
+Sirenette|0|0.00||0
+sistre|38|0.00||20
+sitar|64|0.15||62
+sitar électrique|6|0.00||0
+sitarla|2|0.00||0
+Six bass|0|0.00||0
+siyotanka|12|0.00||2
+skrabalai|5|0.00||0
+slentem|6|0.00||0
+small drum|0|0.00||0
+Small percussion|0|0.00||0
+Sodina|4|0.00||0
+sonnaille|23|0.00
+sonnailles|23|0.00|sonnaille
+sonnette|29|0.00
+Sonnette connectée|8|0.00||0
+Sonnette de table|5|0.00||0
+sonnettes|29|0.00|sonnette
+sons des insectes|1|0.00||0
+Sopilka|9|0.00||0
+sopraniste|19|0.00||4
+soprano|72|3.31||55
+soprano colorature|22|0.00||55
+soprano d'enfant|0|0.00||0
+soprano d'opéra|0|0.00||0
+soprano dramatique|17|0.00||55
+soprano léger|4|0.00||0
+soprano légere colorature|0|0.00||0
+soprano lyrique|15|0.00||55
+soprano lyrique colorature|1|0.00||0
+soprano lyrique-dramatique|2|0.00||0
+soprano lyrique léger|2|0.00||0
+soprano sfogato|4|0.00||0
+soprano spinto|5|0.00||0
+soprano wagnérien|3|0.00||0
+sopranos|72|0.34|soprano
+sorud|18|0.00||0
+Sosso Bala|9|0.00||0
+soubassophone|43|0.00||75
+Soubrette|24|0.00||19
+soubrette colorature|0|0.00||0
+soubrettes|24|0.00|soubrette
+SPD|0|0.00||87
+Sperrhake|3|0.00||0
+Spinja|1|0.00||0
+spinto|8|0.00||0
+Sprechgesang|18|0.00||9
 Springtime|5|0.00
-sring|6|0.00
-Sringa|6|0.00
-stabule|0|0.00
-Starway|1|0.00
-station audio-numérique|33|0.00
-steel-drum|29|0.00
-steel drummer|0|0.00
-steel guitar|21|0.00
-steel tongue drum|12|0.00
-Steinway modèle D|7|0.00
-Stenomasque|5|0.00
-Stritch|2|0.00
-Stylophone|21|0.00
-Subwoofer|35|0.00
-sudrophone|5|0.00
-Sueng|6|0.00
-Suikinkutsu|24|0.00
-Suka|12|0.00
-Suling|14|0.00
-Sundatang|2|0.00
-suona|27|0.00
-Super Strat|16|0.00
-Super tweeter|3|0.00
-superbone|3|0.00
-sur|0|5320.47
-surbahar|16|0.00
-surdo|15|0.00
-sure|0|56.55|sur
-sures|0|2.91|sur
-surs|0|10.00|sur
-Sursingar|10|0.00
-Svirel|11|0.00
-Swarmandal|14|0.00
-sweeping|17|0.00
-Swish|1|0.00
-Sybyzgy|10|0.00
-Synare|2|0.00
-Synclavier|15|0.00
-Synket|1|0.00
-Synth bass|4|0.00
-Synthesized horns|0|0.00
-synthétiseur|77|0.34
-synthétiseur analogique|13|0.00
-synthétiseur ANS|9|0.00
-synthétiseur logiciel|15|0.00
-synthétiseur modulaire|10|0.00
-synthétiseur polyphonique|0|0.00
-synthétiseurs|77|0.07|synthetiseur
-syrinx|25|0.07
-système d'alarme|29|0.00
-Taârija|3|0.00
-tabl|7|0.00
-tablâ|60|0.00
-table de mixage|36|0.00
-Tableau à surprises|4|0.00
-Taegum|13|0.00
-Taepyeongso|9|0.00
-taiko|37|0.00
-taille|3|72.84
-taille des cornets|2|0.00
-taillée|3|4.32|taille
-taillées|3|2.30|taille
-tailles|3|3.85|taille
-Talerschwingen|2|0.00
-Talharpa|11|0.00
-Talkbox|20|0.00
-tam-tam|23|2.77
-tam-tams|23|0.68|tam tam
+sring|6|0.00||0
+Sringa|6|0.00||0
+stabule|0|0.00||0
+Starway|1|0.00||0
+station audio-numérique|33|0.00||9
+steel-drum|29|0.00||32
+steel drummer|0|0.00||0
+steel guitar|21|0.00||5
+steel tongue drum|12|0.00||7
+Steinway modèle D|7|0.00||0
+Stenomasque|5|0.00||0
+Stritch|2|0.00||0
+Stylophone|21|0.00||6
+Subwoofer|35|0.00||7
+sudrophone|5|0.00||0
+Sueng|6|0.00||0
+Suikinkutsu|24|0.00||0
+Suka|12|0.00||0
+Suling|14|0.00||1
+Sundatang|2|0.00||0
+suona|27|0.00||1
+Super Strat|16|0.00||3
+Super tweeter|3|0.00||0
+superbone|3|0.00||0
+sur|0|0.00
+surbahar|16|0.00||0
+surdo|15|0.00||2
+sure|0|0.00|sur
+sures|0|0.00|sur
+surs|0|0.00|sur
+Sursingar|10|0.00||0
+Svirel|11|0.00||0
+Swarmandal|14|0.00||2
+sweeping|17|0.00||2
+Swish|1|0.00||0
+Sybyzgy|10|0.00||0
+Synare|2|0.00||0
+Synclavier|15|0.00||4
+Synket|1|0.00||0
+Synth bass|4|0.00||0
+Synthesized horns|0|0.00||0
+synthétiseur|77|0.40||35
+synthétiseur analogique|13|0.00||4
+synthétiseur ANS|9|0.00||0
+synthétiseur logiciel|15|0.00||0
+synthétiseur modulaire|10|0.00||11
+synthétiseur polyphonique|0|0.00||0
+synthétiseurs|77|0.00|synthetiseur
+syrinx|25|0.00
+système d'alarme|29|0.00||5
+Taârija|3|0.00||0
+tabl|7|0.00||0
+tablâ|60|0.00||12
+table de mixage|36|0.00||5
+Tableau à surprises|4|0.00||0
+Taegum|13|0.00||0
+Taepyeongso|9|0.00||0
+taiko|37|0.00||10
+taille|3|0.00
+taille des cornets|2|0.00||0
+taillée|3|0.00|taille
+taillées|3|0.00|taille
+tailles|3|0.00|taille
+Talerschwingen|2|0.00||0
+Talharpa|11|0.00||8
+Talkbox|20|0.00||13
+tam-tam|23|0.00||16
+tam-tams|23|0.00|tam tam
 Tama|26|0.00
-Tamak'|6|0.00
-Tambin|3|0.00
-tambora|7|0.00
-Tambora panaméen|1|0.00
-tamborí catalan|6|0.00
-tamborim|8|0.00
-Tamborita calentana|3|0.00
-tamboula|0|0.00
-tambour|150|10.54
-Tambour à boules fouettantes|7|0.00
-Tambour à corde|5|0.00
-tambour à fente|27|0.00
-tambour à fente africain|2|0.00
-tambour à friction|7|0.00
-tambour batá|14|0.00
-Tambour bèlè|1|0.00
-tambour conique|2|0.00
-Tambour d'eau|7|0.00
-Tambour d'océan|5|0.00
-tambour de cérémonie|4|0.00
-tambour de Dong Son|11|0.00
-tambour en forme de tonneau|0|0.00
-tambour en gobelet|8|0.00
-tambour en sablier|6|0.00
-tambour en tonneau|2|0.00
-tambour sami|15|0.00
-tambour sur cadre|16|0.00
-tambourin|71|0.47
-tambourin à cordes|10|0.00
-tambourin provençal|6|0.00
-tambourins|71|0.61|tambourin
-tambours|150|8.78|tambour
-Tambours de bronze|10|0.00
-tambur|32|0.00
+Tamak'|6|0.00||0
+Tambin|3|0.00||0
+tambora|7|0.00||0
+Tambora panaméen|1|0.00||0
+tamborí catalan|6|0.00||0
+tamborim|8|0.00||0
+Tamborita calentana|3|0.00||0
+tamboula|0|0.00||0
+tambour|150|4.47
+Tambour à boules fouettantes|7|0.00||0
+Tambour à corde|5|0.00||0
+tambour à fente|27|0.00||2
+tambour à fente africain|2|0.00||0
+tambour à friction|7|0.00||0
+tambour batá|14|0.00||1
+Tambour bèlè|1|0.00||0
+tambour conique|2|0.00||0
+Tambour d'eau|7|0.00||0
+Tambour d'océan|5|0.00||0
+tambour de cérémonie|4|0.00||0
+tambour de Dong Son|11|0.00||0
+tambour en forme de tonneau|0|0.00||0
+tambour en gobelet|8|0.00||0
+tambour en sablier|6|0.00||0
+tambour en tonneau|2|0.00||0
+tambour sami|15|0.00||3
+tambour sur cadre|16|0.00||2
+tambourin|71|0.41
+tambourin à cordes|10|0.00||7
+tambourin provençal|6|0.00||0
+tambourins|71|0.00|tambourin
+tambours|150|0.00|tambour
+Tambours de bronze|10|0.00||1
+tambur|32|0.00||16
 tambura|33|0.00
-tamburica|18|0.00
-Tamburo|1|0.00
-tammorra|2|0.00
-tanbur|3|0.00
-tanggu|7|0.00
-tantã|8|0.00
-taphon|5|0.00
+tamburica|18|0.00||0
+Tamburo|1|0.00||0
+tammorra|2|0.00||0
+tanbur|3|0.00||0
+tanggu|7|0.00||0
+tantã|8|0.00||0
+taphon|5|0.00||0
 tar|33|0.00
-Tarabooka|0|0.00
+Tarabooka|0|0.00||0
 Tarka|11|0.00
-tárogató|19|0.00
-tarol|4|0.00
-tarota|5|0.00
+tárogató|19|0.00||5
+tarol|4|0.00||0
+tarota|5|0.00||0
 Taurus|5|0.00
-Tautirut|6|0.00
-Tawak|0|0.00
-Tbil|0|0.00
-Téléphone grave danger|1|0.00
-telharmonium|17|0.00
-Tembong|0|0.00
-temir komuz|1|0.00
-ténor|68|2.03
-ténor altino|0|0.00
-ténor colorature|0|0.00
-ténor contraltino|5|0.00
-ténor de caractère|2|0.00
-ténor dramatique|3|0.00
-ténor léger|2|0.00
-ténor lirico spinto|3|0.00
-ténor lyrique|7|0.00
-ténor lyrique léger|5|0.00
-Tenor pan|0|0.00
-tenora|7|0.00
-tenorhorn|12|0.00
-Tenori-on|10|0.00
-ténors|68|0.68|tenor
-teponaztli|11|0.00
-terpodion|5|0.00
-Test des sirènes en Suisse|2|0.00
-Tetawak|1|0.00
-tetzilacatl|2|0.00
-Thappu|7|0.00
-thavil|14|0.00
-The Handle|1|0.00
-théorbe|36|0.20
-théorbes|36|0.14|theorbe
-thérémine|51|0.00
-Therevox|2|0.00
-Third bridge|6|0.00
-Thomo|1|0.00
+Tautirut|6|0.00||0
+Tawak|0|0.00||0
+Tbil|0|0.00||0
+Téléphone grave danger|1|0.00||0
+telharmonium|17|0.00||3
+Tembong|0|0.00||0
+temir komuz|1|0.00||0
+ténor|68|1.86||51
+ténor altino|0|0.00||0
+ténor colorature|0|0.00||0
+ténor contraltino|5|0.00||0
+ténor de caractère|2|0.00||0
+ténor dramatique|3|0.00||0
+ténor léger|2|0.00||0
+ténor lirico spinto|3|0.00||0
+ténor lyrique|7|0.00||0
+ténor lyrique léger|5|0.00||0
+Tenor pan|0|0.00||0
+tenora|7|0.00||0
+tenorhorn|12|0.00||0
+Tenori-on|10|0.00||1
+ténors|68|0.93|tenor
+teponaztli|11|0.00||1
+terpodion|5|0.00||0
+Test des sirènes en Suisse|2|0.00||0
+Tetawak|1|0.00||0
+tetzilacatl|2|0.00||0
+Thappu|7|0.00||0
+thavil|14|0.00||0
+The Handle|1|0.00||0
+théorbe|36|0.00||63
+théorbes|36|0.00|theorbe
+thérémine|51|0.04||92
+Therevox|2|0.00||0
+Third bridge|6|0.00||0
+Thomo|1|0.00||0
 Thunderbolt|1|0.00
-Tianqin|1|0.00
-tibia|4|1.01
-tibias|4|2.03|tibia
-Tible|6|0.00
-Tiêu|1|0.00
-tifa dasar|0|0.00
-Tilinca|7|0.00
+Tianqin|1|0.00||0
+tibia|4|0.00||3
+tibias|4|0.00|tibia
+Tible|6|0.00||0
+Tiêu|1|0.00||0
+tifa dasar|0|0.00||0
+Tilinca|7|0.00||0
 timbal|13|0.00
-timbale|67|1.76|timbales
-timbales|67|0.68
-timbila|8|0.00
-Timila|8|0.00
-Timple|14|0.00
-tin whistle|40|0.00
-Tindé|0|0.00
-tingsha|8|0.00
-tintinnabulaire|0|0.00
-tintinnabule|18|0.14
+timbale|67|0.00|timbales
+timbales|67|0.28
+timbila|8|0.00||0
+Timila|8|0.00||0
+Timple|14|0.00||1
+tin whistle|40|0.00||42
+Tindé|0|0.00||0
+tingsha|8|0.00||0
+tintinnabulaire|0|0.00||0
+tintinnabule|18|0.00||10
 tintinnabulum|15|0.00
-tinya|5|0.00
-Tiorbino|2|0.00
-tiple|10|0.00
-tiple colombien|3|0.00
-Tir de joie|7|0.00
-Tlapitzalli|6|0.00
-To'ere|4|0.00
-tololoche|6|0.00
-tom|27|0.14
-tom basse|13|0.00
-Tonette|4|0.00
-tongue drum|0|0.00
-tonkori|13|0.00
-torban|9|0.00
-toton|11|0.27
-totons|11|0.14|toton
-Touch guitar|4|0.00
-toupie|84|3.04
-toupie tippe-top|15|0.00
-toupies|84|0.88|toupie
-tournebout|19|0.00
-Tovshuur|9|0.00
+tinya|5|0.00||0
+Tiorbino|2|0.00||0
+tiple|10|0.00||1
+tiple colombien|3|0.00||0
+Tir de joie|7|0.00||0
+Tlapitzalli|6|0.00||0
+To'ere|4|0.00||0
+tololoche|6|0.00||0
+tom|27|0.00
+tom basse|13|0.00||1
+Tonette|4|0.00||0
+tongue drum|0|0.00||0
+tonkori|13|0.00||1
+torban|9|0.00||0
+toton|11|0.00||5
+totons|11|0.00|toton
+Touch guitar|4|0.00||0
+toupie|84|0.71
+toupie tippe-top|15|0.00||3
+toupies|84|0.00|toupie
+tournebout|19|0.00||3
+Tovshuur|9|0.00||0
 tracker|18|0.00
-transducteur acoustique|2|0.00
-träskofiol|3|0.00
-trautonium|17|0.00
-treble booster|5|0.00
+transducteur acoustique|2|0.00||0
+träskofiol|3|0.00||0
+trautonium|17|0.00||2
+treble booster|5|0.00||0
 Trembita|18|0.00
-tremolo picking|3|0.00
-trémoloa|3|0.00
-tres|20|1120.81
-Treujenn-gaol|4|0.00
-triangle|55|10.68
-triangles|55|2.57|triangle
-triccheballacche|4|0.00
-trigonon|3|0.00
-trikiti|11|0.00
-Triola|3|0.00
-Tritare|4|0.00
-tritonicon|2|0.00
-Tro|4|0.00
-trombone|89|0.54
-trombone alto|7|0.00
-trombone basse|10|0.00
-trombone contrebasse|3|0.00
-trombone piccolo|3|0.00
-trombone soprano|3|0.00
-trombone ténor|2|0.00
-trombones|89|0.88|trombone
-tromboon|3|0.00
-trompe|0|17.70
-trompe de chasse|5|0.00
-trompée|0|8.11|trompe
-trompées|0|0.41|trompe
-trompes|0|3.45|trompe
-Trompetica china|6|0.00
-trompette|141|5.61
-trompette à clés|8|0.00
-trompette à coulisse|10|0.00
-trompette basse|14|0.00
-Trompette de cavalerie|7|0.00
-trompette de poche|12|0.00
-trompette en bouleau|7|0.00
-trompette marine|16|0.00
-trompette naturelle|12|0.00
-trompette piccolo|19|0.00
-trompettes|141|5.88|trompette
-Trompo|14|0.00
-trutruca|10|0.00
-tsambouna|9|0.00
-tsibomba|0|0.00
-Tsuri-daiko|4|0.00
-tsuur|12|0.00
-Tsuzumi|20|0.00
-tsymbaly|4|0.00
-tuba|82|0.47
-Tuba curva|2|0.00
-tuba romaine|16|0.00
-tuba sous-contrebasse|3|0.00
-Tuba wagnérien|24|0.00
-tubas|82|0.07|tuba
-tubax|11|0.00
-tulum|18|0.00
-Tumbadora|1|0.00
-tumdak'|5|0.00
-tumpong|1|0.00
-Tumyr|1|0.00
-Tungehorn|3|0.00
-Tungso|5|0.00
-tuntina|1|0.00
-turlusiphon|0|0.00
-tweeter|21|0.00
-txalaparta|20|0.00
-txirula|2|0.00
-txistu|8|0.00
-tympanon|1|0.20
-tympanum|10|0.00
-tzouras|6|0.00
-ud|0|0.00
-Udu|24|0.00
-udukai|5|0.00
-uilleann pipes|36|0.00
-ukeline|4|0.00
-ukulélé|73|0.07
-Umpan|6|0.00
-UPIC|8|0.00
-Urumee|5|0.00
-vaccine|0|0.47
-vaccinée|0|0.20|vaccine
-vaccinés|0|0.20|vaccine
-vali|0|0.00
-Valiha|21|0.00
-Valiha instrument de musique|0|0.00
-valve trombone|6|0.00
-varelina|1|0.00
-varinette|2|0.00
-Venna|1|0.00
-verrillon|17|0.00
-Veuze|3|0.00
-veze|5|0.00
-vibraphone|46|0.07
-vibraphones|46|0.07|vibraphone
-Vibraslap|15|0.00
-vichitra vînâ|11|0.00
-Vidéo cliquable|5|0.00
-vièle|26|0.00
-vièle à pique|1|0.00
-vielle à roue|51|0.00
-Vielle organisée|6|0.00
-vihuela|30|0.00
-vihuela mexicaine|10|0.00
-Villu|7|0.00
-vînâ|40|0.00
-viola amarantina|2|0.00
-viola da braccio|13|0.00
-viola da terra|4|0.00
-viola de arame|1|0.00
-viola organista|13|0.00
-viola pomposa|12|0.00
-viola profonda|8|0.00
-Violao|5|0.00
-Viole caipira|5|0.00
-viole d'amour|32|0.00
-viole de gambe|49|0.00
-viole de gambe alto|1|0.00
-viole ténor|1|0.00
-Violette|3|9.12
-violettes|3|4.86|violette
-Violin lap steel|0|0.00
-Violino piccolo|9|0.00
-violon|170|9.73
-Violon à pavillon|20|0.00
-violon baroque|16|0.00
-violon canne|3|0.00
-Violon d'amour|2|0.00
-Violon de fer|9|0.00
-violon électrique|22|0.00
-Violon en Gascogne|0|0.00
-Violon Hardanger|24|0.00
-violon ténor|4|0.00
-violoncelle|106|3.31
-violoncelle électrique|8|0.00
-violoncelles|106|0.07|violoncelle
-violoncello da spalla|8|0.00
-violoncello piccolo|8|0.00
-violone|18|0.07
-violons|170|3.58|violon
-violotta|3|0.00
-virginal|32|0.95
-virginal muselar|4|0.00
-virginale|32|0.81|virginal
-virginales|32|0.20|virginal
-virginaux|32|0.34|virginal
+tremolo picking|3|0.00||0
+trémoloa|3|0.00||0
+tres|20|0.00||7
+Treujenn-gaol|4|0.00||0
+triangle|55|7.94||42
+triangles|55|0.00|triangle
+triccheballacche|4|0.00||0
+trigonon|3|0.00||0
+trikiti|11|0.00||3
+Triola|3|0.00||0
+Tritare|4|0.00||0
+tritonicon|2|0.00||0
+Tro|4|0.00||0
+trombone|89|0.81
+trombone alto|7|0.00||0
+trombone basse|10|0.00||46
+trombone contrebasse|3|0.00||0
+trombone piccolo|3|0.00||0
+trombone soprano|3|0.00||0
+trombone ténor|2|0.00||0
+trombones|89|0.00|trombone
+tromboon|3|0.00||0
+trompe|0|21.38
+trompe de chasse|5|0.00||0
+trompée|0|2.88|trompe
+trompées|0|0.25|trompe
+trompes|0|3.63|trompe
+Trompetica china|6|0.00||0
+trompette|141|2.95||39
+trompette à clés|8|0.00||0
+trompette à coulisse|10|0.00||1
+trompette basse|14|0.00||0
+Trompette de cavalerie|7|0.00||0
+trompette de poche|12|0.00||2
+trompette en bouleau|7|0.00||0
+trompette marine|16|0.00||5
+trompette naturelle|12|0.00||3
+trompette piccolo|19|0.00||3
+trompettes|141|0.00|trompette
+Trompo|14|0.00||1
+trutruca|10|0.00||0
+tsambouna|9|0.00||0
+tsibomba|0|0.00||0
+Tsuri-daiko|4|0.00||0
+tsuur|12|0.00||1
+Tsuzumi|20|0.00||0
+tsymbaly|4|0.00||0
+tuba|82|0.89
+Tuba curva|2|0.00||0
+tuba romaine|16|0.00||2
+tuba sous-contrebasse|3|0.00||0
+Tuba wagnérien|24|0.00||8
+tubas|82|0.00|tuba
+tubax|11|0.00||2
+tulum|18|0.00||60
+Tumbadora|1|0.00||0
+tumdak'|5|0.00||0
+tumpong|1|0.00||0
+Tumyr|1|0.00||0
+Tungehorn|3|0.00||0
+Tungso|5|0.00||0
+tuntina|1|0.00||0
+turlusiphon|0|0.00||4
+tweeter|21|0.00||4
+txalaparta|20|0.00||4
+txirula|2|0.00||0
+txistu|8|0.00||0
+tympanon|1|0.00||0
+tympanum|10|0.00||7
+tzouras|6|0.00||0
+ud|0|0.65
+Udu|24|0.00||2
+udukai|5|0.00||0
+uilleann pipes|36|0.00||66
+ukeline|4|0.00||0
+ukulélé|73|0.38||75
+Umpan|6|0.00||0
+UPIC|8|0.00||0
+Urumee|5|0.00||0
+vaccine|0|0.42||12
+vaccinée|0|0.31|vaccine
+vaccinés|0|1.02|vaccine
+vali|0|0.18
+Valiha|21|0.00||3
+Valiha instrument de musique|0|0.00||0
+valve trombone|6|0.00||0
+varelina|1|0.00||0
+varinette|2|0.00||0
+Venna|1|0.00||0
+verrillon|17|0.00||3
+Veuze|3|0.00||0
+veze|5|0.00||0
+vibraphone|46|0.00||17
+vibraphones|46|0.00|vibraphone
+Vibraslap|15|0.00||1
+vichitra vînâ|11|0.00||7
+Vidéo cliquable|5|0.00||0
+vièle|26|0.00||23
+vièle à pique|1|0.00||0
+vielle à roue|51|0.00||89
+Vielle organisée|6|0.00||0
+vihuela|30|0.00||6
+vihuela mexicaine|10|0.00||0
+Villu|7|0.00||0
+vînâ|40|0.00||7
+viola amarantina|2|0.00||0
+viola da braccio|13|0.00||2
+viola da terra|4|0.00||0
+viola de arame|1|0.00||0
+viola organista|13|0.00||1
+viola pomposa|12|0.00||2
+viola profonda|8|0.00||0
+Violao|5|0.00||0
+Viole caipira|5|0.00||0
+viole d'amour|32|0.00||11
+viole de gambe|49|0.00||88
+viole de gambe alto|1|0.00||0
+viole ténor|1|0.00||0
+Violette|3|4.47||46
+violettes|3|1.20|violette
+Violin lap steel|0|0.00||0
+Violino piccolo|9|0.00||0
+violon|170|6.17||86
+Violon à pavillon|20|0.00||4
+violon baroque|16|0.00||4
+violon canne|3|0.00||0
+Violon d'amour|2|0.00||0
+Violon de fer|9|0.00||0
+violon électrique|22|0.00||0
+Violon en Gascogne|0|0.00||0
+Violon Hardanger|24|0.00||7
+violon ténor|4|0.00||0
+violoncelle|106|2.04||46
+violoncelle électrique|8|0.00||0
+violoncelles|106|0.00|violoncelle
+violoncello da spalla|8|0.00||0
+violoncello piccolo|8|0.00||0
+violone|18|0.00||4
+violons|170|0.00|violon
+violotta|3|0.00||0
+virginal|32|0.00||12
+virginal muselar|4|0.00||0
+virginale|32|0.00|virginal
+virginales|32|0.00|virginal
+virginaux|32|0.00|virginal
 Vivo|2|0.00
-Vocaloid|35|0.00
-vocodeur|29|0.00
-voix|13|612.70
-voix aigue|0|0.00
-voix féminine|0|0.00
-voix masculine|0|0.00
-Vox Continental|6|0.00
-vuvuzela|64|0.00
-Wakrapuku|5|0.00
-waldzither|4|0.00
-wankara|1|0.00
-Warr Guitar|13|0.00
-Washint|7|0.00
-waterphone|15|0.00
-Wave Organ|5|0.00
-Weissenborn|6|0.00
-Westone Guitars|6|0.00
-Wide Range|4|0.00
-Wii Speak|12|0.00
-wilwil'telhuku'p|0|0.00
-Wood-block|20|0.00
-Wood organ|0|0.00
-Wot|4|0.00
-xalam|10|0.00
-Xaphoon|14|0.00
-xeremia|6|0.00
+Vocaloid|35|0.00||31
+vocodeur|29|0.00||16
+voix|13|0.00
+voix aigue|0|0.00||0
+voix féminine|0|0.00||0
+voix masculine|0|0.00||0
+Vox Continental|6|0.00||0
+vuvuzela|64|0.05||27
+Wakrapuku|5|0.00||0
+waldzither|4|0.00||0
+wankara|1|0.00||0
+Warr Guitar|13|0.00||1
+Washint|7|0.00||0
+waterphone|15|0.00||3
+Wave Organ|5|0.00||0
+Weissenborn|6|0.00||0
+Westone Guitars|6|0.00||0
+Wide Range|4|0.00||0
+Wii Speak|12|0.00||161
+wilwil'telhuku'p|0|0.00||0
+Wood-block|20|0.00||1
+Wood organ|0|0.00||0
+Wot|4|0.00||0
+xalam|10|0.00||14
+Xaphoon|14|0.00||3
+xeremia|6|0.00||0
 Xiao|21|0.00
-xun|16|0.00
-Xutuli|4|0.00
-xylophone|83|0.27
-xylophones|83|0.07|xylophone
-xylorimba|7|0.00
-Yamaha Pacifica|6|0.00
-Yamatogoto|9|0.00
-yanggeum|4|0.00
-yangqin|26|0.00
-yargul|1|0.00
-Yatga|12|0.00
-yazheng|3|0.00
-yehu|6|0.00
-Yerbomatófono|4|0.00
-yokobue|6|0.00
+xun|16|0.00||3
+Xutuli|4|0.00||0
+xylophone|83|0.24||30
+xylophones|83|0.00|xylophone
+xylorimba|7|0.00||0
+Yamaha Pacifica|6|0.00||0
+Yamatogoto|9|0.00||0
+yanggeum|4|0.00||0
+yangqin|26|0.00||5
+yargul|1|0.00||0
+Yatga|12|0.00||0
+yazheng|3|0.00||0
+yehu|6|0.00||0
+Yerbomatófono|4|0.00||0
+yokobue|6|0.00||0
 yu|6|0.00
-Yueqin|18|0.00
-yuka makuta|1|0.00
-Zabumba|8|0.00
-Zamar|6|0.00
-zampogna|6|0.00
-zampoña|1|0.00
-Zarb|13|0.00
+Yueqin|18|0.00||1
+yuka makuta|1|0.00||0
+Zabumba|8|0.00||0
+Zamar|6|0.00||0
+zampogna|6|0.00||0
+zampoña|1|0.00||0
+Zarb|13|0.00||5
 Zeze|5|0.00
-zheng|3|0.00
-zhetygen|8|0.00
-zhongdihu|8|0.00
-zhongruan|3|0.00
-zhuihu|5|0.00
-zil|0|0.00
-Zupfen|1|0.00
-zurna|47|0.00
-Zygia|1|0.00
+zheng|3|0.00||0
+zhetygen|8|0.00||0
+zhongdihu|8|0.00||0
+zhongruan|3|0.00||0
+zhuihu|5|0.00||0
+zil|0|0.06
+Zupfen|1|0.00||0
+zurna|47|0.00||17
+Zygia|1|0.00||0

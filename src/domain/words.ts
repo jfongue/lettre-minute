@@ -10,21 +10,33 @@ export interface WordEntry {
   display: string
   /** Wikipedia editions describing the thing — a decent proxy for "everyone knows it". */
   sitelinks: number
-  /** Occurrences per million in the Lexique book corpus; 0 for proper nouns it ignores. */
+  /** Occurrences per million in Lexique's books or film subtitles; 0 for proper nouns it ignores. */
   frequency: number
   /**
+   * Daily views of the French Wikipedia article, when there is one. It
+   * supersedes the sitelinks: bots wrote an article in forty languages for
+   * every bird species and every commune, and only the French readers' clicks
+   * tell "Aigle martial" from "Aigle royal".
+   */
+  views?: number
+  /**
    * How well known this word is, on 0..1: half its rank inside its own
-   * category, half the absolute reading of the two raw signals. Rank alone
-   * makes a category of obscure shades crown "vermillon" as common; the
-   * absolute scale alone calls every everyday word the book corpus rarely
-   * prints — "libellule", "abeille" — a rare find.
+   * category, half the absolute reading of the raw signals. Rank alone makes
+   * a category of obscure shades crown "vermillon" as common; the absolute
+   * scale alone flattens a whole category whose words are little looked up.
    */
   notoriety: number
 }
 
-/** The raw, absolute reading of the two signals — only ever used to rank. */
-function rawFame(sitelinks: number, frequency: number): number {
-  return Math.max(Math.log10(1 + frequency) / 2.2, Math.log10(1 + sitelinks) / 2.5)
+/** Daily views at which an article counts as known by everyone (~2 000). */
+const VIEWS_SCALE = 3.3
+
+/** The raw, absolute reading of the signals — only ever used to rank. */
+function rawFame(entry: Pick<WordEntry, 'sitelinks' | 'frequency' | 'views'>): number {
+  const spoken = Math.log10(1 + entry.frequency) / 2.2
+  const read =
+    entry.views === undefined ? Math.log10(1 + entry.sitelinks) / 2.5 : Math.log10(1 + entry.views) / VIEWS_SCALE
+  return Math.max(spoken, read)
 }
 
 export interface WordPack {
@@ -51,7 +63,7 @@ export interface WordMatch {
 export const MIN_LENGTH_FOR_APPROXIMATE = 4
 
 /**
- * Parses the `display|sitelinks|frequency` lines produced by
+ * Parses the `display|sitelinks|frequency|canonical|views` lines produced by
  * scripts/import-words.ts. The format stays a flat text file because a JSON
  * object per word triples the payload for sixty thousand words.
  */
@@ -62,7 +74,7 @@ export function parseWordPack(categoryId: string, raw: string): WordPack {
 
   for (const line of raw.split('\n')) {
     if (line === '') continue
-    const [display = '', sitelinks = '0', frequency = '0', canonical = ''] = line.split('|')
+    const [display = '', sitelinks = '0', frequency = '0', canonical = '', views = ''] = line.split('|')
     const word = normalizeWord(display)
     if (word === '' || entries.has(word)) continue
 
@@ -72,6 +84,7 @@ export function parseWordPack(categoryId: string, raw: string): WordPack {
       display,
       sitelinks: Number(sitelinks) || 0,
       frequency: Number(frequency) || 0,
+      ...(views === '' ? {} : { views: Number(views) || 0 }),
       notoriety: 0,
     })
 
@@ -98,11 +111,11 @@ export function parseWordPack(categoryId: string, raw: string): WordPack {
  */
 function rankNotoriety(entries: Map<string, WordEntry>): void {
   const ranked = [...entries.values()].sort(
-    (a, b) => rawFame(a.sitelinks, a.frequency) - rawFame(b.sitelinks, b.frequency),
+    (a, b) => rawFame(a) - rawFame(b),
   )
   const last = Math.max(1, ranked.length - 1)
   for (const [index, entry] of ranked.entries()) {
-    const absolute = Math.min(1, Math.max(0, rawFame(entry.sitelinks, entry.frequency)))
+    const absolute = Math.min(1, Math.max(0, rawFame(entry)))
     entry.notoriety = (index / last + absolute) / 2
   }
 
@@ -217,7 +230,7 @@ export function withExtraWords(pack: WordPack, extra: readonly WordEntry[]): Wor
       key: entry.key === '' ? word : entry.key,
       // A community word joins after the ranking: it is read on the absolute
       // scale, which keeps it out of the "everybody knows it" band.
-      notoriety: entry.notoriety || rawFame(entry.sitelinks, entry.frequency),
+      notoriety: entry.notoriety || rawFame(entry),
     })
     const letter = initialOf(entry.display)
     if (letter === '') continue
