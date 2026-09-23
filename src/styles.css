@@ -100,6 +100,17 @@ button {
   overflow: visible;
 }
 
+/* Une animation posée sur un <svg> ne passe pas au compositeur : Chromium
+   redessine la forme sur le thread principal à chaque image, et l'affiche de
+   l'accueil tombait à 15 images/s sur Android. Une forme qui bouge en
+   continu s'anime donc par ce span qui l'enveloppe. */
+.motion {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+}
+
 /* ---------------------------------------------------------------- layout - */
 .stage {
   min-height: 100dvh;
@@ -190,13 +201,13 @@ button {
 }
 
 .title span:first-child {
-  animation: slide-from-left 700ms var(--ease-out) 200ms both;
+  animation: slide-from-left 700ms var(--ease-out) 200ms backwards;
 }
 
 .title span:last-child {
   color: var(--red);
   justify-self: end;
-  animation: slide-from-right 700ms var(--ease-out) 300ms both;
+  animation: slide-from-right 700ms var(--ease-out) 300ms backwards;
 }
 
 .masthead .eyebrow {
@@ -309,7 +320,7 @@ button {
   transition: transform 500ms var(--ease-spring);
 }
 
-.play-glyph .shape {
+.play-glyph > * {
   position: absolute;
   inset: 0;
 }
@@ -334,12 +345,8 @@ button {
 .poster-cell {
   display: block;
   overflow: hidden;
-  animation: pop-in 520ms var(--ease-spring) both;
+  animation: pop-in 520ms var(--ease-spring) backwards;
   animation-delay: calc(var(--i, 0) * 35ms);
-}
-
-.poster-cell .shape {
-  transform-origin: 50% 50%;
 }
 
 /* Chaque tuile tourne d'un quart de tour, marque une pause, puis repart :
@@ -383,7 +390,7 @@ button {
   gap: 0.6rem;
   min-height: 5.5rem;
   padding: 0.8rem 0.9rem;
-  animation: pop-in 480ms var(--ease-spring) both;
+  animation: pop-in 480ms var(--ease-spring) backwards;
 }
 
 .figure:nth-child(2) { animation-delay: 70ms; }
@@ -422,7 +429,7 @@ button {
 }
 
 .progress--grow span {
-  animation: grow 1200ms var(--ease-out) 350ms both;
+  animation: grow 1200ms var(--ease-out) 350ms backwards;
 }
 
 .categories {
@@ -1354,12 +1361,11 @@ button {
 .avatar--lg { width: 7rem; }
 .avatar--fill { width: 100%; }
 
-.avatar-art {
+.avatar-art svg {
   display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
-  transform-origin: 50% 50%;
 }
 
 .motion-sway {
@@ -1608,9 +1614,12 @@ button {
 }
 
 /* Les blocs d'un écran entrent l'un après l'autre : le regard suit l'ordre
-   de lecture au lieu de recevoir la page d'un bloc. */
+   de lecture au lieu de recevoir la page d'un bloc.
+   Une entrée se remplit « backwards » et non « both » : une animation finie
+   mais maintenue garde son calque de compositeur pour toujours, et l'accueil
+   en traînait une quarantaine, recomposées à chaque image de l'affiche. */
 .cascade > * {
-  animation: rise 560ms var(--ease-out) both;
+  animation: rise 560ms var(--ease-out) backwards;
 }
 
 .cascade > :nth-child(2) { animation-delay: 70ms; }
@@ -1649,7 +1658,7 @@ button {
 
 .offer-cards li {
   display: grid;
-  animation: pop-in 480ms var(--ease-spring) both;
+  animation: pop-in 480ms var(--ease-spring) backwards;
   animation-delay: calc(var(--i, 0) * 110ms + 150ms);
 }
 

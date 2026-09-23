@@ -22,18 +22,20 @@ export function Avatar({ choice, size = 'md', locked = false }: AvatarProps) {
       style={{ background: ground, '--i': design.id } as CSSProperties}
       aria-hidden="true"
     >
-      <svg viewBox="0 0 100 100" className={`avatar-art motion-${design.motion}`}>
-        <g transform={`rotate(${design.turn * 90} 50 50)`}>
-          <g fill="currentColor" style={{ color: shape }}>
-            {PATHS[design.shape]}
-          </g>
-          {design.accent && (
-            <g fill="currentColor" style={{ color: accent }} transform="translate(66 4) scale(0.3)">
-              {PATHS[design.accent]}
+      <span className={`motion avatar-art motion-${design.motion}`}>
+        <svg viewBox="0 0 100 100">
+          <g transform={`rotate(${design.turn * 90} 50 50)`}>
+            <g fill="currentColor" style={{ color: shape }}>
+              {PATHS[design.shape]}
             </g>
-          )}
-        </g>
-      </svg>
+            {design.accent && (
+              <g fill="currentColor" style={{ color: accent }} transform="translate(66 4) scale(0.3)">
+                {PATHS[design.accent]}
+              </g>
+            )}
+          </g>
+        </svg>
+      </span>
     </span>
   )
 }

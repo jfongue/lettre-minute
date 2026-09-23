@@ -68,7 +68,9 @@ export function HomeScreen({
           <span>{loading ? 'Chargement…' : 'Jouer'}</span>
           <span className="play-glyph" aria-hidden="true">
             <Shape kind="circle" tint="yellow" />
-            <Shape kind="triangle" tint="red" className="play-triangle" />
+            <span className="motion play-triangle">
+              <Shape kind="triangle" tint="red" />
+            </span>
           </span>
         </button>
         {error && <p className="note note--warn">{error}</p>}
@@ -211,7 +213,9 @@ function Poster() {
           className="poster-cell"
           style={{ background: `var(--${ground})`, '--i': index } as CSSProperties}
         >
-          <Shape kind={kind} tint={tint} className={motion ? `motion-${motion}` : undefined} />
+          <span className={`motion${motion ? ` motion-${motion}` : ''}`}>
+            <Shape kind={kind} tint={tint} />
+          </span>
         </span>
       ))}
     </div>

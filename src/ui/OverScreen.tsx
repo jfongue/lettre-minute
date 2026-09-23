@@ -124,7 +124,9 @@ function Reveal({ run, onNext }: { run: Run; onNext(): void }) {
           <span>Continuer</span>
           <span className="play-glyph" aria-hidden="true">
             <Shape kind="circle" tint="yellow" />
-            <Shape kind="triangle" tint="red" className="play-triangle" />
+            <span className="motion play-triangle">
+              <Shape kind="triangle" tint="red" />
+            </span>
           </span>
         </button>
       )}
@@ -232,7 +234,9 @@ function Summary({
           <span>Rejouer</span>
           <span className="play-glyph" aria-hidden="true">
             <Shape kind="circle" tint="yellow" />
-            <Shape kind="triangle" tint="red" className="play-triangle" />
+            <span className="motion play-triangle">
+              <Shape kind="triangle" tint="red" />
+            </span>
           </span>
         </button>
         <button type="button" className="btn btn--ghost btn--block" onClick={onHome}>
