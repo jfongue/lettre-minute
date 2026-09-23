@@ -34,6 +34,17 @@ n'écrit rapportent le plus.
   compte (nom, adresse, mot de passe) ou se connecter, et la partie y entre
   aussitôt. L'avatar est une tuile de l'affiche — cent formes animées, trente
   couleurs, trois au départ — que les niveaux et les exploits débloquent.
+- **Classements** : meilleure partie du jour, de la semaine, et mots découverts
+  cette semaine — un mot que personne n'avait écrit dans la catégorie depuis
+  sept jours. On passe de l'un à l'autre d'un glissement du doigt. Seuls les
+  comptes nommés y figurent ; Demontoon y tient 94 points chaque jour tant
+  qu'il n'a pas joué.
+- **Menu** : la tuile en haut à gauche de l'affiche ouvre le profil (compte,
+  avatar, effacement), le social (amis par nom de compte, demandes reçues et
+  envoyées, score de la semaine de chacun) et les options (thème auto, clair
+  ou sombre).
+- **Fin du chrono** : un mot juste encore dans le champ quand le temps tombe
+  est encaissé comme s'il avait été validé.
 - **Mot manquant** : le joueur le propose en un clic ; réclamé par trois joueurs
   (ou validé par un modérateur), il entre au dictionnaire et lui rapporte 150 XP.
 

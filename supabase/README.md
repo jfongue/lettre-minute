@@ -1,9 +1,10 @@
 # Supabase
 
-Trois migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Quatre migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
-pour les comptes nommés et l'avatar.
+pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
+pour les classements par période et les amis.
 
 ## Ce que le serveur détient
 
@@ -16,9 +17,14 @@ pour les comptes nommés et l'avatar.
 | `dictionary_words` | Le dictionnaire vivant, en complément des fichiers embarqués. |
 | `word_submissions` | Les mots proposés par les joueurs, avec leur statut. |
 | `moderators` | Qui peut valider ou rejeter à la main. |
+| `friendships` | Une ligne par demande d'ami (`pending` puis `accepted`), lue dans les deux sens. |
 | `account_merges` | Jetons à usage unique : versent un compte anonyme dans le compte auquel il se connecte. |
 
-Vues : `leaderboard` (classement), `word_popularity` (part des parties où un mot
+Fonctions de lecture : `leaderboard_board('day' | 'week' | 'discoveries')` — le
+classement du jour, de la semaine (heure de Paris, semaine du lundi) et des
+découvertes de la semaine ; `my_friends()` — amis et demandes en cours.
+
+Vues : `leaderboard` (record de chaque compte nommé), `word_popularity` (part des parties où un mot
 apparaît), `submission_tally` (combien de joueurs réclament un mot).
 
 ## Conventions
@@ -35,6 +41,11 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
 - **Un profil est lisible par tous les comptes connectés** : c'est ce
   qu'affiche le classement, et rien de sensible n'y est stocké.
 - **Les parties sont insérées, jamais modifiées.** Un score ne se corrige pas.
+- **Les classements ne montrent que des comptes nommés** : les fonctions
+  joignent `auth.users` et écartent `is_anonymous`.
+- **Les amitiés s'écrivent par fonction** (`request_friend`, `respond_friend`,
+  `remove_friend`) : la table n'a qu'une politique de lecture. Un compte
+  anonyme ne peut ni demander ni être trouvé.
 - **Un joueur peut tout effacer** (`delete_my_account`) : la suppression de
   l'utilisateur d'auth emporte le reste en cascade. Toute nouvelle table liée à
   un joueur doit donc référencer `profiles` avec `on delete cascade`, sans quoi

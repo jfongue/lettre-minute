@@ -1,12 +1,10 @@
-import { useState, type CSSProperties } from 'react'
+import type { CSSProperties } from 'react'
 import { categoryMeta, CATALOGUE } from '../domain/catalogue'
-import type { AvatarChoice } from '../domain/avatar'
+import type { Boards as BoardsData } from '../domain/boards'
 import { levelProgress, type Profile } from '../domain/progression'
 import { RUN_SECONDS } from '../domain/run'
 import { MAX_CATEGORIES_PER_RUN, ownedCategoryIds } from '../domain/unlocks'
-import type { Account, LeaderboardRow } from '../lib/cloud'
-import { AccountPanel, type AccountActions } from './AccountPanel'
-import { Avatar } from './Avatar'
+import { Boards } from './Boards'
 import { Figure, Shape } from './bauhaus'
 import { CategoryOffer } from './CategoryOffer'
 import { categoryMotif, type ShapeKind, type Tint } from './motifs'
@@ -15,45 +13,22 @@ interface HomeScreenProps {
   profile: Profile
   error: string | null
   loading: boolean
-  /** Empty when the game runs without a server, which hides the section entirely. */
-  leaderboard: readonly LeaderboardRow[]
-  avatar: AvatarChoice
-  /** Null while the game runs without a server: the player has no account, only an avatar. */
-  account: Account | null
-  accountActions: AccountActions
-  onAvatar(): void
-  onLogOut(): void
+  /** Null when the game runs without a server, which hides the section entirely. */
+  boards: BoardsData | null
+  /** The player's account name, highlighted on the boards; null for an anonymous player. */
+  me: string | null
+  onMenu(): void
   onPlay(): void
   onChoose(categoryId: string): void
-  /** Answers false when the server could not erase the account. */
-  onErase(): Promise<boolean>
 }
 
-// A published app must link its privacy policy. Inside the phone shell a
-// relative link would navigate the game's own view away, hence a full URL.
-const PRIVACY_URL = import.meta.env.VITE_PRIVACY_URL || '/confidentialite.html'
-
-export function HomeScreen({
-  profile,
-  error,
-  loading,
-  leaderboard,
-  avatar,
-  account,
-  accountActions,
-  onAvatar,
-  onLogOut,
-  onPlay,
-  onChoose,
-  onErase,
-}: HomeScreenProps) {
+export function HomeScreen({ profile, error, loading, boards, me, onMenu, onPlay, onChoose }: HomeScreenProps) {
   const progress = levelProgress(profile.xp)
   const owned = ownedCategoryIds(profile)
-  const [signingIn, setSigningIn] = useState(false)
 
   return (
     <div className="sheet cascade">
-      <Poster />
+      <Poster onMenu={onMenu} />
 
       <header className="masthead">
         <h1 className="title">
@@ -76,45 +51,6 @@ export function HomeScreen({
         {error && <p className="note note--warn">{error}</p>}
       </div>
 
-      <section className="player">
-        <button type="button" className="player-avatar" onClick={onAvatar} aria-label="Modifier mon avatar">
-          <Avatar choice={avatar} size="md" />
-        </button>
-        <div className="player-id">
-          <strong>{account && !account.anonymous ? account.name : 'Joueur anonyme'}</strong>
-          <button type="button" className="btn btn--quiet" onClick={onAvatar}>
-            Modifier l’avatar
-          </button>
-        </div>
-        {account &&
-          (account.anonymous ? (
-            <button type="button" className="btn btn--quiet" onClick={() => setSigningIn(!signingIn)}>
-              {signingIn ? 'Fermer' : 'Se connecter'}
-            </button>
-          ) : (
-            <button type="button" className="btn btn--quiet btn--muted" onClick={onLogOut}>
-              Se déconnecter
-            </button>
-          ))}
-      </section>
-
-      {account?.anonymous && signingIn && (
-        <AccountPanel
-          title="Ton compte"
-          lead="Tes parties te suivent d’un appareil à l’autre."
-          onRegister={async (...args) => {
-            const answer = await accountActions.onRegister(...args)
-            if (!answer) setSigningIn(false)
-            return answer
-          }}
-          onLogIn={async (...args) => {
-            const answer = await accountActions.onLogIn(...args)
-            if (!answer) setSigningIn(false)
-            return answer
-          }}
-        />
-      )}
-
       <section className="stack">
         <div className="spread">
           <p className="section-title">Niveau {progress.level}</p>
@@ -133,21 +69,7 @@ export function HomeScreen({
         </div>
       </section>
 
-      {leaderboard.length > 0 && (
-        <section className="panel">
-          <p className="section-title">Classement</p>
-          <div className="standings">
-            {leaderboard.slice(0, 10).map((row, index) => (
-              <div className={`standing${index === 0 ? ' standing--leader' : ''}`} key={`${row.name}-${index}`}>
-                <span className="rank">{index + 1}</span>
-                <Avatar choice={row.avatar} size="sm" />
-                <span className="name">{row.name}</span>
-                <span className="points">{row.bestScore.toLocaleString('fr-FR')}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      {boards && <Boards boards={boards} me={me} />}
 
       <CategoryOffer profile={profile} onChoose={onChoose} />
 
@@ -177,12 +99,6 @@ export function HomeScreen({
         </p>
       </section>
 
-      <footer className="colophon">
-        <a className="btn btn--quiet" href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
-          Confidentialité
-        </a>
-        <EraseData onErase={onErase} />
-      </footer>
     </div>
   )
 }
@@ -204,63 +120,39 @@ const POSTER: readonly Cell[] = [
   ['quarter', 'blue', 'pink', 'turn'],
 ]
 
-function Poster() {
+/** The top-left tile doubles as the menu button: three bars where the quarter used to turn. */
+function Poster({ onMenu }: { onMenu(): void }) {
   return (
-    <div className="poster" aria-hidden="true">
-      {POSTER.map(([kind, tint, ground, motion], index) => (
-        <span
-          key={index}
-          className="poster-cell"
-          style={{ background: `var(--${ground})`, '--i': index } as CSSProperties}
-        >
-          <span className={`motion${motion ? ` motion-${motion}` : ''}`}>
-            <Shape kind={kind} tint={tint} />
+    <div className="poster">
+      {POSTER.map(([kind, tint, ground, motion], index) =>
+        index === 0 ? (
+          <button
+            key={index}
+            type="button"
+            className="poster-cell poster-menu"
+            style={{ background: `var(--${ground})`, '--i': index } as CSSProperties}
+            onClick={onMenu}
+            aria-label="Menu : profil, amis, options"
+          >
+            <span className="poster-menu-bars" style={{ color: `var(--${tint})` }} aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
+          </button>
+        ) : (
+          <span
+            key={index}
+            className="poster-cell"
+            style={{ background: `var(--${ground})`, '--i': index } as CSSProperties}
+            aria-hidden="true"
+          >
+            <span className={`motion${motion ? ` motion-${motion}` : ''}`}>
+              <Shape kind={kind} tint={tint} />
+            </span>
           </span>
-        </span>
-      ))}
+        ),
+      )}
     </div>
   )
-}
-
-/** Erasing is irreversible, so it takes a second, explicit tap. */
-function EraseData({ onErase }: { onErase(): Promise<boolean> }) {
-  const [step, setStep] = useState<'idle' | 'confirm' | 'erasing' | 'failed' | 'done'>('idle')
-
-  const erase = async () => {
-    setStep('erasing')
-    setStep((await onErase()) ? 'done' : 'failed')
-  }
-
-  switch (step) {
-    case 'idle':
-      return (
-        <button type="button" className="btn btn--quiet btn--muted" onClick={() => setStep('confirm')}>
-          Effacer mes données
-        </button>
-      )
-    case 'confirm':
-    case 'erasing':
-      return (
-        <p className="erase-confirm">
-          <span className="note">Niveau, records et mots proposés seront perdus.</span>
-          <button type="button" className="btn btn--quiet" onClick={erase} disabled={step === 'erasing'}>
-            {step === 'erasing' ? 'Effacement…' : 'Tout effacer'}
-          </button>
-          <button type="button" className="btn btn--quiet btn--muted" onClick={() => setStep('idle')}>
-            Annuler
-          </button>
-        </p>
-      )
-    case 'failed':
-      return (
-        <p className="erase-confirm">
-          <span className="note note--warn">Le serveur n’a pas répondu, rien n’a été effacé.</span>
-          <button type="button" className="btn btn--quiet" onClick={erase}>
-            Réessayer
-          </button>
-        </p>
-      )
-    case 'done':
-      return <p className="note">Données effacées.</p>
-  }
 }

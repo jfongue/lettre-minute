@@ -16,15 +16,15 @@ function quietly(work: () => Promise<unknown>): void {
   work().catch(() => {})
 }
 
-/** Hides the launch screen once React has painted, and keeps the status bar legible. */
+/** Hides the launch screen once React has painted. */
 export function startNativeShell(): void {
   if (!native) return
-  const dark = window.matchMedia('(prefers-color-scheme: dark)')
-  // Style.Dark means light icons, for a dark background.
-  const syncStatusBar = () => quietly(() => StatusBar.setStyle({ style: dark.matches ? Style.Dark : Style.Light }))
-  syncStatusBar()
-  dark.addEventListener('change', syncStatusBar)
   requestAnimationFrame(() => quietly(() => SplashScreen.hide({ fadeOutDuration: 200 })))
+}
+
+/** Keeps the status bar legible over the page: light icons on a dark theme. */
+export function setStatusBarDark(dark: boolean): void {
+  quietly(() => StatusBar.setStyle({ style: dark ? Style.Dark : Style.Light }))
 }
 
 /**

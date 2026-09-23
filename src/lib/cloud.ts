@@ -1,4 +1,5 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
+import type { BoardId, BoardRow, Boards } from '../domain/boards'
 import type { Profile } from '../domain/progression'
 import type { Run } from '../domain/run'
 import type { PendingSubmission } from '../state/storage'
@@ -125,23 +126,73 @@ export function pushSubmissions(pending: readonly PendingSubmission[]): Promise<
   }, [])
 }
 
-export interface LeaderboardRow {
-  name: string
-  bestScore: number
-  runs: number
-  avatar: AvatarChoice
+/** Null without a server, which hides the boards rather than showing them empty. */
+export function fetchBoards(): Promise<Boards | null> {
+  return guard(async () => {
+    const board = async (id: BoardId): Promise<BoardRow[]> => {
+      const { data, error } = await supabase!.rpc('leaderboard_board', { p_board: id })
+      if (error) throw error
+      return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+        name: row.display_name as string,
+        avatar: parseAvatar(row.avatar),
+        value: Number(row.value) || 0,
+      }))
+    }
+    const [day, week, discoveries] = await Promise.all([board('day'), board('week'), board('discoveries')])
+    return { day, week, discoveries }
+  }, null)
 }
 
-export function fetchLeaderboard(): Promise<LeaderboardRow[]> {
+export interface Friend {
+  id: string
+  name: string
+  avatar: AvatarChoice
+  xp: number
+  bestScore: number
+  weekBest: number
+  /** `incoming` waits for this player's answer, `outgoing` for the other's. */
+  relation: 'friend' | 'incoming' | 'outgoing'
+}
+
+/** Null without a server or for an anonymous player, who has no name to be found by. */
+export function fetchFriends(): Promise<Friend[] | null> {
   return guard(async () => {
-    const { data } = await supabase!.from('leaderboard').select('display_name, best_score, runs, avatar').limit(20)
-    return (data ?? []).map((row) => ({
-      name: (row.display_name as string) ?? 'Anonyme',
-      bestScore: Number(row.best_score) || 0,
-      runs: Number(row.runs) || 0,
+    const { data, error } = await supabase!.rpc('my_friends')
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      id: row.id as string,
+      name: row.display_name as string,
       avatar: parseAvatar(row.avatar),
+      xp: Number(row.xp) || 0,
+      bestScore: Number(row.best_score) || 0,
+      weekBest: Number(row.week_best) || 0,
+      relation: row.relation as Friend['relation'],
     }))
-  }, [])
+  }, null)
+}
+
+export type FriendRequestOutcome = 'sent' | 'accepted' | 'already' | 'self' | 'unknown' | 'anonymous' | 'unreachable'
+
+export function requestFriend(name: string): Promise<FriendRequestOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('request_friend', { p_name: name.trim() })
+    return error ? 'unreachable' : (data as FriendRequestOutcome)
+  }, 'unreachable')
+}
+
+export function respondFriend(from: string, accept: boolean): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('respond_friend', { p_from: from, p_accept: accept })
+    return !error
+  }, false)
+}
+
+/** Removes a friend, or withdraws a request sent to them. */
+export function removeFriend(other: string): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('remove_friend', { p_other: other })
+    return !error
+  }, false)
 }
 
 /**

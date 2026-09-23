@@ -96,6 +96,15 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Se connecter doit attendre l'envoi de la partie** (`pushing` dans
   `src/App.tsx`) : la fusion déplace les parties du compte anonyme puis
   l'efface, et une partie encore en vol partirait avec lui.
+- **Demontoon est ajouté côté client** (`completeBoards`, `src/domain/boards.ts`),
+  pas en base : il ne figure qu'aux classements de score, et disparaît dès que
+  le compte de ce nom a une vraie partie sur la période.
+- **Une découverte se juge contre les sept jours qui précèdent la partie**, pas
+  contre la semaine calendaire : un mot écrit dimanche soir n'est plus une
+  découverte lundi matin.
+- **Le thème forcé passe par `data-theme` sur `<html>`**, posé avant le premier
+  rendu (`src/main.tsx`) : chaque jeton sombre de `styles.css` existe donc en
+  deux blocs (média et attribut), à tenir identiques.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client.
 

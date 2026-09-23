@@ -5,7 +5,7 @@ import {
   fetchAccount,
   fetchCommunityWords,
   fetchCrowdUsage,
-  fetchLeaderboard,
+  fetchBoards,
   logIn,
   logOut,
   pushAvatar,
@@ -14,10 +14,10 @@ import {
   register,
   type Account,
   type CommunityWord,
-  type LeaderboardRow,
 } from './lib/cloud'
 import { onBackButton, tapFeedback } from './lib/native'
 import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
+import { completeBoards, type Boards } from './domain/boards'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { remainingSeconds } from './domain/run'
 import { dealLineup, ownedCategoryIds, swapCategory } from './domain/unlocks'
@@ -33,13 +33,21 @@ import {
   saveProfile,
   saveSubmissions,
 } from './state/storage'
+import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
 import { useElapsed } from './state/useElapsed'
 import type { AccountActions } from './ui/AccountPanel'
 import { AvatarScreen } from './ui/AvatarScreen'
 import { CountdownScreen } from './ui/CountdownScreen'
 import { HomeScreen } from './ui/HomeScreen'
+import { Menu } from './ui/Menu'
 import { OverScreen } from './ui/OverScreen'
 import { RunScreen } from './ui/RunScreen'
+
+/** The boards as the home screen shows them: without a server, none at all. */
+async function loadBoards(): Promise<Boards | null> {
+  const boards = await fetchBoards()
+  return boards && completeBoards(boards)
+}
 
 /** Sends the words proposed while the game was offline, then clears the queue. */
 function flushSubmissions(): void {
@@ -54,7 +62,16 @@ export function App() {
   const [session, dispatch] = useReducer(sessionReducer, initialSession(NEW_PROFILE))
   const [startedAt, setStartedAt] = useState<number | null>(null)
   const [crowd, setCrowd] = useState<Readonly<Record<string, number>>>({})
-  const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([])
+  const [boards, setBoards] = useState<Boards | null>(null)
+  // The boards as they stood when the run started, and once it reached the
+  // server: the end screen animates the player's move from one to the other.
+  const [boardsBefore, setBoardsBefore] = useState<Boards | null>(null)
+  const [boardsAfter, setBoardsAfter] = useState<Boards | null>(null)
+  const boardsNow = useRef(boards)
+  boardsNow.current = boards
+  const [menuOpen, setMenuOpen] = useState(false)
+  const closeMenu = useCallback(() => setMenuOpen(false), [])
+  const [theme, setTheme] = useState<Theme>(loadTheme)
   const community = useRef<Record<string, CommunityWord[]>>({})
   const [avatar, setAvatar] = useState<AvatarChoice>(DEFAULT_AVATAR)
   const [account, setAccount] = useState<Account | null>(null)
@@ -106,7 +123,7 @@ export function App() {
     fetchCommunityWords().then((words) => {
       community.current = words
     })
-    fetchLeaderboard().then(setLeaderboard)
+    loadBoards().then(setBoards)
     fetchAccount().then((found) => found && adopt(found))
     flushSubmissions()
   }, [adopt])
@@ -118,7 +135,7 @@ export function App() {
       if (!outcome.ok) return outcome.message
       setAccount(outcome.account)
       pushAvatar(avatar)
-      fetchLeaderboard().then(setLeaderboard)
+      loadBoards().then(setBoards)
       // With email confirmation on, the account stays anonymous until the link is followed.
       return outcome.account.anonymous ? `Un lien de confirmation est parti à ${email.trim()}.` : null
     },
@@ -130,18 +147,34 @@ export function App() {
       // The merge summed both players on the server: its totals are the truth now.
       dispatch({ type: 'profile-loaded', profile: { ...profile.current, ...outcome.account.stats } })
       if (!outcome.account.avatar) pushAvatar(avatar)
-      fetchLeaderboard().then(setLeaderboard)
+      loadBoards().then(setBoards)
       return null
     },
+  }
+
+  /** Starts the device over as a new anonymous player, after a sign-out or an erase. */
+  const forget = () => {
+    clearLocalData()
+    dispatch({ type: 'profile-loaded', profile: NEW_PROFILE })
+    setAvatar(DEFAULT_AVATAR)
+    setAccount(null)
+    fetchAccount().then((found) => found && setAccount(found))
+    loadBoards().then(setBoards)
   }
 
   // Android's back gesture leaves a run for the home screen, and closes the app
   // from there. A ref keeps one listener for the whole session.
   const phase = useRef(session.phase)
   phase.current = session.phase
+  const menuShown = useRef(menuOpen)
+  menuShown.current = menuOpen
   useEffect(
     () =>
       onBackButton(() => {
+        if (menuShown.current) {
+          setMenuOpen(false)
+          return true
+        }
         if (phase.current === 'home' || phase.current === 'loading') return false
         dispatch({ type: 'home' })
         return true
@@ -187,6 +220,8 @@ export function App() {
 
   const play = useCallback(async () => {
     dispatch({ type: 'play' })
+    setBoardsBefore(boardsNow.current)
+    setBoardsAfter(null)
     try {
       // A category of the catalogue whose dictionary has not been imported yet
       // is simply not dealt, rather than failing the whole run.
@@ -243,9 +278,16 @@ export function App() {
 
   useEffect(() => {
     if (session.phase !== 'over' || !session.run) return
-    pushing.current = pushRun(session.run, session.profile)
+    const pushed = pushRun(session.run, session.profile)
+    pushing.current = pushed
     flushSubmissions()
-    fetchLeaderboard().then(setLeaderboard)
+    // Read after the run is in, or the boards would not count it yet.
+    pushed
+      .then(loadBoards)
+      .then((next) => {
+        setBoards(next)
+        setBoardsAfter(next)
+      })
     // The run is pushed once, when the clock stops: the profile that follows it
     // in the same render is the one the score was just added to.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -271,34 +313,42 @@ export function App() {
           profile={session.profile}
           error={session.error}
           loading={session.phase === 'loading'}
-          leaderboard={leaderboard}
+          boards={boards}
+          me={account && !account.anonymous ? account.name : null}
+          onMenu={() => setMenuOpen(true)}
+          onPlay={play}
+          onChoose={choose}
+        />
+      )}
+
+      {menuOpen && !editingAvatar && (session.phase === 'home' || session.phase === 'loading') && (
+        <Menu
+          profile={session.profile}
           avatar={avatar}
           account={account}
           accountActions={accountActions}
-          onAvatar={() => setEditingAvatar(true)}
+          theme={theme}
+          onTheme={(next) => {
+            setTheme(next)
+            saveTheme(next)
+            applyTheme(next)
+          }}
+          onAvatar={() => {
+            setMenuOpen(false)
+            setEditingAvatar(true)
+          }}
           onLogOut={async () => {
             await logOut()
-            clearLocalData()
-            dispatch({ type: 'profile-loaded', profile: NEW_PROFILE })
-            setAvatar(DEFAULT_AVATAR)
-            setAccount(null)
-            fetchAccount().then((found) => found && setAccount(found))
-            fetchLeaderboard().then(setLeaderboard)
+            forget()
           }}
-          onPlay={play}
-          onChoose={choose}
           onErase={async () => {
             // The device keeps its copy until the server has let go of its
             // own: a failed erase must not leave the player half-deleted.
             if (!(await deleteAccount())) return false
-            clearLocalData()
-            dispatch({ type: 'profile-loaded', profile: NEW_PROFILE })
-            setAvatar(DEFAULT_AVATAR)
-            setAccount(null)
-            fetchAccount().then((found) => found && setAccount(found))
-            fetchLeaderboard().then(setLeaderboard)
+            forget()
             return true
           }}
+          onClose={closeMenu}
         />
       )}
 
@@ -343,6 +393,9 @@ export function App() {
           accountActions={accountActions}
           onAvatar={() => setEditingAvatar(true)}
           onChoose={choose}
+          boardsBefore={boardsBefore}
+          boardsAfter={boardsAfter}
+          me={account && !account.anonymous ? account.name : null}
           onReplay={play}
           onHome={() => dispatch({ type: 'home' })}
         />
