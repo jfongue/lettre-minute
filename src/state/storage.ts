@@ -1,7 +1,7 @@
 import { NEW_PROFILE, type Profile } from '../domain/progression'
 
-const PROFILE_KEY = 'lettrine.profile.v1'
-const SUBMISSIONS_KEY = 'lettrine.submissions.v1'
+const PROFILE_KEY = 'lettre-minute.profile.v1'
+const SUBMISSIONS_KEY = 'lettre-minute.submissions.v1'
 
 /** A word the player proposed while the dictionary did not know it. */
 export interface PendingSubmission {
