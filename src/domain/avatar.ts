@@ -45,68 +45,77 @@ export interface AvatarChoice {
   accent: string
 }
 
-const SHAPES: readonly ShapeKind[] = [
-  'circle',
-  'square',
-  'quarter',
-  'arch',
-  'half',
-  'triangle',
-  'corner',
-  'ring',
-  'diamond',
-  'bars',
-  'sun',
+type Look = [shape: ShapeKind, turn: AvatarDesign['turn'], accent: ShapeKind | null, motion: Motion]
+
+// Written out rather than crossed from lists: a circle, a ring or a sun looks
+// the same at any turn, and a small accent is too faint to tell two tiles apart
+// on its own, so a generated grid showed the same tile over and over. Here a
+// shape comes back only at a turn that changes its silhouette, or once with an
+// accent that makes a picture of it. Shapes whose look rests on their turn
+// never get the turning motions, which would cycle them through their siblings.
+// The first eleven keep the ids they had in the generated grid.
+const LOOKS: readonly Look[] = [
+  ['circle', 0, null, 'pulse'],
+  ['square', 0, null, 'turn'],
+  ['quarter', 0, null, 'still'],
+  ['arch', 0, null, 'bob'],
+  ['half', 0, null, 'sway'],
+  ['triangle', 0, null, 'pulse'],
+  ['corner', 0, null, 'still'],
+  ['ring', 0, null, 'pulse'],
+  ['diamond', 0, null, 'turn'],
+  ['bars', 0, null, 'sway'],
+  ['sun', 0, null, 'spin'],
+  ['quarter', 1, null, 'pulse'],
+  ['arch', 1, null, 'sway'],
+  ['half', 1, null, 'still'],
+  ['triangle', 1, null, 'bob'],
+  ['corner', 1, null, 'pulse'],
+  ['bars', 1, null, 'bob'],
+  ['quarter', 2, null, 'sway'],
+  ['arch', 2, null, 'pulse'],
+  ['half', 2, null, 'bob'],
+  ['triangle', 2, null, 'still'],
+  ['corner', 2, null, 'sway'],
+  ['quarter', 3, null, 'bob'],
+  ['arch', 3, null, 'still'],
+  ['half', 3, null, 'pulse'],
+  ['triangle', 3, null, 'sway'],
+  ['corner', 3, null, 'bob'],
+  ['square', 0, 'circle', 'still'],
+  ['diamond', 0, 'circle', 'pulse'],
+  ['ring', 0, 'square', 'spin'],
+  ['half', 0, 'circle', 'bob'],
+  ['bars', 0, 'triangle', 'still'],
+  ['quarter', 0, 'circle', 'sway'],
+  ['sun', 0, 'square', 'pulse'],
+  ['arch', 0, 'square', 'still'],
+  ['triangle', 0, 'circle', 'bob'],
+  ['corner', 0, 'square', 'pulse'],
+  ['half', 2, 'sun', 'sway'],
+  ['triangle', 0, 'sun', 'still'],
+  ['circle', 0, 'sun', 'spin'],
 ]
 
-// Row r turns by r % 4 and carries ACCENTS[r]: each (turn, accent) pair comes
-// up once, so even a circle, which no turn changes, reads differently per row.
-const ACCENTS: readonly (ShapeKind | null)[] = [
-  null,
-  'circle',
-  'square',
-  'triangle',
-  'circle',
-  'square',
-  'triangle',
-  'circle',
-  'square',
-]
-
-const MOTIONS: readonly Motion[] = ['turn', 'pulse', 'still', 'spin', 'sway', 'bob']
-
-export const AVATARS: readonly AvatarDesign[] = [
-  ...ACCENTS.flatMap((accent, row) =>
-    SHAPES.map((shape, column) => ({
-      id: row * SHAPES.length + column,
-      shape,
-      turn: (row % 4) as AvatarDesign['turn'],
-      accent,
-      motion: MOTIONS[(row + column) % MOTIONS.length],
-    })),
-  ),
-  { id: ACCENTS.length * SHAPES.length, shape: 'circle', turn: 0, accent: 'sun', motion: 'spin' },
-]
+export const AVATARS: readonly AvatarDesign[] = LOOKS.map(([shape, turn, accent, motion], id) => ({
+  id,
+  shape,
+  turn,
+  accent,
+  motion,
+}))
 
 /** Designs every player owns from the first run. */
 const FREE_DESIGNS = 6
 
-const range = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => from + i)
-
 // One goal per track in turn, so the grid mixes levels with feats instead of
 // hiding every feat behind the last level.
 const TRACKS: readonly Milestone[][] = [
-  range(2, 25).flatMap((at) => [
-    { stat: 'level' as const, at },
-    { stat: 'level' as const, at },
-  ]),
-  [3, 5, 10, 15, 20, 30, 40, 50, 75, 100, 150, 200].map((at) => ({ stat: 'runs' as const, at })),
-  [10, 25, 50, 100, 150, 200, 300, 400, 500, 750, 1000, 1500, 2000, 3000].map((at) => ({
-    stat: 'wordsFound' as const,
-    at,
-  })),
-  [100, 150, 200, 250, 300, 400, 500, 600, 700, 800, 1000].map((at) => ({ stat: 'bestScore' as const, at })),
-  [3, 5, 8, 10, 12, 15, 20, 25, 30].map((at) => ({ stat: 'bestCombo' as const, at })),
+  [2, 3, 4, 5, 6, 8, 10, 12, 15, 20].map((at) => ({ stat: 'level' as const, at })),
+  [3, 5, 10, 25, 50, 100].map((at) => ({ stat: 'runs' as const, at })),
+  [10, 50, 100, 250, 500, 1000, 2000].map((at) => ({ stat: 'wordsFound' as const, at })),
+  [100, 200, 300, 500, 700, 1000].map((at) => ({ stat: 'bestScore' as const, at })),
+  [3, 5, 10, 15, 20].map((at) => ({ stat: 'bestCombo' as const, at })),
 ]
 
 function interleave<T>(tracks: readonly T[][]): T[] {

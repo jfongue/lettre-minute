@@ -9,20 +9,32 @@ import {
   PALETTE,
   parseAvatar,
   reached,
+  type AvatarDesign,
 } from './avatar'
 import { applyRun, NEW_PROFILE, xpForLevel } from './progression'
 
 describe('avatars', () => {
-  it('offers a hundred distinct tiles', () => {
-    const looks = new Set(AVATARS.map((design) => `${design.shape}/${design.turn}/${design.accent}`))
+  // How many turns a shape takes before it looks the same again.
+  const ORIENTATIONS: Record<string, number> = { circle: 1, square: 1, ring: 1, diamond: 1, sun: 1, bars: 2 }
+  const orientations = (design: AvatarDesign) => ORIENTATIONS[design.shape] ?? 4
 
-    expect(AVATARS).toHaveLength(100)
-    expect(looks.size).toBe(100)
+  it('never draws the same tile twice', () => {
+    const looks = new Set(
+      AVATARS.map((design) => `${design.shape}/${design.turn % orientations(design)}/${design.accent}`),
+    )
+
+    expect(looks.size).toBe(AVATARS.length)
     expect(AVATARS.map((design) => design.id)).toEqual(AVATARS.map((_, index) => index))
   })
 
+  it('keeps the turning motions off shapes whose turn is their look', () => {
+    const turned = AVATARS.filter((design) => design.motion === 'turn' || design.motion === 'spin')
+
+    expect(turned.every((design) => orientations(design) === 1)).toBe(true)
+  })
+
   it('gives every tile a goal past the free ones', () => {
-    expect(AVATARS.every((design) => design.id < 6 || designUnlock(design.id) !== null)).toBe(true)
+    expect(AVATARS.every((design) => design.id < 6 || designUnlock(design.id))).toBe(true)
   })
 
   it('starts a player with a few tiles and the three primaries', () => {
