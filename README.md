@@ -96,11 +96,11 @@ malachite très rare.
 - `src/domain/` — les règles, sans React, DOM ni réseau : tirage des couples
   lettre/catégorie, jugement d'une réponse, rareté, points, XP, déblocages.
   Tout y est testé.
-- `src/data/words/*.txt` — les dictionnaires, une ligne
-  `mot|sitelinks|fréquence|forme canonique|visites`. La forme canonique n'est
-  renseignée que sur les formes fléchies, et pointe vers le mot dont elles
-  dérivent ; elles empruntent sa notoriété et n'ont pas de visites. Un mot sans
-  champ de visites (page d'homonymie) est jugé sur ses sitelinks.
+- `src/data/words/*.json` — les dictionnaires, un tableau par mot
+  `[mot, sitelinks, fréquence, forme canonique, visites]`. La forme canonique
+  n'est renseignée que sur les formes fléchies (vide sinon), et pointe vers le
+  mot dont elles dérivent ; elles empruntent sa notoriété et n'ont pas de
+  visites. Un mot sans visites (page d'homonymie) est jugé sur ses sitelinks.
 - `src/state/` — session de jeu, chrono, persistance locale.
 - `src/lib/` — Supabase : profil, parties, usage global des mots, propositions.
 - `src/ui/` — un composant par écran.

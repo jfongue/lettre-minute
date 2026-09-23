@@ -14,11 +14,11 @@ import {
   type Judge,
   type Run,
 } from './run'
-import { findWord, lettersWithEnough, parseWordPack, type WordPack } from './words'
+import { buildWordPack, findWord, lettersWithEnough, type WordPack } from './words'
 
 /** A pack with enough words per letter that every letter can be prompted. */
 function packOf(categoryId: string, words: readonly string[]): WordPack {
-  return parseWordPack(categoryId, words.map((word) => `${word}|50|1.00`).join('\n'))
+  return buildWordPack(categoryId, words.map((word) => [word, 50, 1] as const))
 }
 
 const LETTERS = 'ABCDEFGHIJLMNOPRSTV'.split('')
@@ -162,7 +162,7 @@ describe('submit', () => {
 
 describe('formes fléchies', () => {
   it('refuses the plural of a word already answered', () => {
-    const pack = parseWordPack('animaux', ['Canard|50|1.00', 'Canards|50|0.50|canard'].join('\n'))
+    const pack = buildWordPack('animaux', [['Canard', 50, 1], ['Canards', 50, 0.5, 'canard']])
     const only: Judge = {
       find: (_, word) => findWord(pack, word),
       usage: () => NO_USAGE,
@@ -177,7 +177,7 @@ describe('formes fléchies', () => {
 })
 
 describe('orthographe approchée', () => {
-  const pack = parseWordPack('animaux', ['Libellule|0|2.16', 'Lynx|60|1.00'].join('\n'))
+  const pack = buildWordPack('animaux', [['Libellule', 0, 2.16], ['Lynx', 60, 1]])
   const soft: Judge = {
     find: (_, word) => findWord(pack, word),
     usage: () => NO_USAGE,

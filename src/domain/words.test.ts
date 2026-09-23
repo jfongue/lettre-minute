@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { findWord, lettersWithEnough, lookup, parseWordPack, withinOneEdit } from './words'
+import { buildWordPack, findWord, lettersWithEnough, lookup, withinOneEdit, type WordRow } from './words'
 
-const raw = ['Chat|120|45.30', 'Chien|150|60.00', 'Écureuil|60|3.20', 'Zèbre|90|1.40', ''].join('\n')
+const rows: WordRow[] = [['Chat', 120, 45.3], ['Chien', 150, 60], ['Écureuil', 60, 3.2], ['Zèbre', 90, 1.4]]
 
-describe('parseWordPack', () => {
+describe('buildWordPack', () => {
   it('reads a word, its fame and its corpus frequency', () => {
-    const pack = parseWordPack('animaux', raw)
+    const pack = buildWordPack('animaux', rows)
 
     expect(pack.entries.size).toBe(4)
     expect(pack.entries.get('chat')).toMatchObject({
@@ -17,7 +17,7 @@ describe('parseWordPack', () => {
   })
 
   it('counts the words available per letter, accents folded', () => {
-    const pack = parseWordPack('animaux', raw)
+    const pack = buildWordPack('animaux', rows)
 
     expect(pack.counts.get('C')).toBe(2)
     expect(pack.counts.get('E')).toBe(1)
@@ -25,7 +25,7 @@ describe('parseWordPack', () => {
   })
 
   it('keeps the first spelling when a word appears twice', () => {
-    const pack = parseWordPack('animaux', 'Chat|120|45.30\nCHAT|1|0.00')
+    const pack = buildWordPack('animaux', [['Chat', 120, 45.3], ['CHAT', 1, 0]])
 
     expect(pack.entries.size).toBe(1)
     expect(pack.entries.get('chat')?.display).toBe('Chat')
@@ -34,7 +34,7 @@ describe('parseWordPack', () => {
 
 describe('notoriété', () => {
   it('ranks the words of a category against each other', () => {
-    const pack = parseWordPack('animaux', raw)
+    const pack = buildWordPack('animaux', rows)
 
     const pack2 = pack
     expect(pack2.entries.get('chien')!.notoriety).toBeGreaterThan(pack2.entries.get('zebre')!.notoriety)
@@ -45,7 +45,7 @@ describe('notoriété', () => {
   it('trusts what French readers look up over how many Wikipedias describe it', () => {
     // A bird with an article in eighty languages, all written by bots, against
     // one with fewer articles that French readers actually open.
-    const pack = parseWordPack('oiseaux', ['Aigle martial|80|0.00||12', 'Aigle royal|60|0.00||900', 'Zébu|5|0.10'].join('\n'))
+    const pack = buildWordPack('oiseaux', [['Aigle martial', 80, 0, '', 12], ['Aigle royal', 60, 0, '', 900], ['Zébu', 5, 0.1]])
 
     expect(pack.entries.get('aigle royal')!.views).toBe(900)
     expect(pack.entries.get('zebu')!.views).toBeUndefined()
@@ -53,7 +53,7 @@ describe('notoriété', () => {
   })
 
   it('gives an inflected form the standing of the word it bends', () => {
-    const pack = parseWordPack('animaux', ['Chat|120|45.30', 'Chats|120|8.00|chat', 'Zébu|1|0.10'].join('\n'))
+    const pack = buildWordPack('animaux', [['Chat', 120, 45.3], ['Chats', 120, 8, 'chat'], ['Zébu', 1, 0.1]])
 
     expect(pack.entries.get('chats')!.notoriety).toBe(pack.entries.get('chat')!.notoriety)
   })
@@ -61,7 +61,7 @@ describe('notoriété', () => {
 
 describe('lookup', () => {
   it('finds a word however the player spelled it', () => {
-    const pack = parseWordPack('animaux', raw)
+    const pack = buildWordPack('animaux', rows)
 
     expect(lookup(pack, '  ÉCUREUIL ')?.display).toBe('Écureuil')
     expect(lookup(pack, 'ecureuil')?.display).toBe('Écureuil')
@@ -70,7 +70,7 @@ describe('lookup', () => {
 })
 
 describe('formes fléchies', () => {
-  const inflected = parseWordPack('animaux', ['Chat|120|45.30', 'Chats|120|8.00|chat'].join('\n'))
+  const inflected = buildWordPack('animaux', [['Chat', 120, 45.3], ['Chats', 120, 8, 'chat']])
 
   it('accepts an inflected form and counts it as its base word', () => {
     expect(lookup(inflected, 'chats')?.key).toBe('chat')
@@ -84,7 +84,7 @@ describe('formes fléchies', () => {
 
 describe('lettersWithEnough', () => {
   it('only keeps letters the category can answer', () => {
-    const pack = parseWordPack('animaux', raw)
+    const pack = buildWordPack('animaux', rows)
 
     expect(lettersWithEnough(pack, 2)).toEqual(['C'])
     expect(lettersWithEnough(pack, 1)).toEqual(['C', 'E', 'Z'])
@@ -117,9 +117,9 @@ describe('withinOneEdit', () => {
 })
 
 describe('findWord', () => {
-  const pack = parseWordPack(
+  const pack = buildWordPack(
     'animaux',
-    ['Chat|120|45.30', 'Libellule|0|2.16', 'Lézard|30|1.10', 'Loutre|20|0.80', 'Loutres|20|0.10|loutre'].join('\n'),
+    [['Chat', 120, 45.3], ['Libellule', 0, 2.16], ['Lézard', 30, 1.1], ['Loutre', 20, 0.8], ['Loutres', 20, 0.1, 'loutre']],
   )
 
   it('answers exactly when the word is spelled right', () => {
@@ -138,13 +138,13 @@ describe('findWord', () => {
   })
 
   it('refuses to guess between two words a letter away', () => {
-    const ambiguous = parseWordPack('animaux', ['Loutre|20|0.80', 'Coutre|5|0.10', 'Louire|5|0.10'].join('\n'))
+    const ambiguous = buildWordPack('animaux', [['Loutre', 20, 0.8], ['Coutre', 5, 0.1], ['Louire', 5, 0.1]])
 
     expect(findWord(ambiguous, 'louvre')).toBeNull()
   })
 
   it('does not stretch a short word into another one', () => {
-    const short = parseWordPack('animaux', ['Rat|50|10.00', 'Rut|5|1.00'].join('\n'))
+    const short = buildWordPack('animaux', [['Rat', 50, 10], ['Rut', 5, 1]])
 
     expect(findWord(short, 'ras')).toBeNull()
   })

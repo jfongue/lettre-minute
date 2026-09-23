@@ -26,13 +26,14 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Une lettre n'est proposée que si la catégorie a au moins
   `MIN_WORDS_PER_PROMPT` mots dessus** : sans ce filtre, le tirage sort des
   couples que personne ne peut résoudre.
-- **Les dictionnaires sont du texte brut chargé à la demande**
-  (`src/data/packs.ts`). Passer les 48 000 mots en JSON triple la charge utile,
-  et tout charger au démarrage fait payer au joueur les catégories qu'il n'a pas
-  débloquées.
+- **Les dictionnaires sont des tableaux JSON positionnels chargés à la
+  demande** (`src/data/packs.ts`, type `WordRow`). Un objet par mot, avec ses
+  clés répétées 64 000 fois, doublerait la charge utile ; les tableaux ne
+  coûtent que 4 % de plus que du texte une fois compressés. Et tout charger au
+  démarrage fait payer au joueur les catégories qu'il n'a pas débloquées.
 - **Une catégorie du catalogue sans fichier de mots est écartée du tirage**
   (`src/App.tsx`) : ajouter une entrée à `CATALOGUE` ne suffit pas, il faut
-  lancer `npm run import:words` et commiter le `.txt`.
+  lancer `npm run import:words` et commiter le `.json`.
 - **Le Wiktionnaire est la source des noms communs**, Wikidata celle des
   entités : Wikidata connaît cinquante races de chat mais pas « abeille ». Une
   catégorie de noms communs bâtie sur Wikidata seul laisse dehors les réponses

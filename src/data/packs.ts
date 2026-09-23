@@ -1,20 +1,20 @@
-import { parseWordPack, type WordPack } from '../domain/words'
+import { buildWordPack, type WordPack, type WordRow } from '../domain/words'
 
 /**
- * The dictionaries are shipped as raw text and pulled in on demand: loading the
- * thirteen categories up front would cost megabytes for a player who only ever
- * plays the four they have unlocked.
+ * The dictionaries are shipped as JSON arrays of rows and pulled in on demand:
+ * loading the thirteen categories up front would cost megabytes for a player
+ * who only ever plays the four they have unlocked.
  */
-const FILES = import.meta.glob('./words/*.txt', { query: '?raw', import: 'default' }) as Record<
+const FILES = import.meta.glob('./words/*.json', { import: 'default' }) as Record<
   string,
-  () => Promise<string>
+  () => Promise<readonly WordRow[]>
 >
 
 const loaded = new Map<string, WordPack>()
 const loading = new Map<string, Promise<WordPack>>()
 
 export function availableCategoryIds(): string[] {
-  return Object.keys(FILES).map((path) => path.replace('./words/', '').replace('.txt', ''))
+  return Object.keys(FILES).map((path) => path.replace('./words/', '').replace('.json', ''))
 }
 
 export function loadedPack(categoryId: string): WordPack | null {
@@ -28,11 +28,11 @@ export function loadPack(categoryId: string): Promise<WordPack> {
   const pending = loading.get(categoryId)
   if (pending) return pending
 
-  const file = FILES[`./words/${categoryId}.txt`]
+  const file = FILES[`./words/${categoryId}.json`]
   if (!file) return Promise.reject(new Error(`dictionnaire absent : ${categoryId}`))
 
-  const promise = file().then((raw) => {
-    const pack = parseWordPack(categoryId, raw)
+  const promise = file().then((rows) => {
+    const pack = buildWordPack(categoryId, rows)
     loaded.set(categoryId, pack)
     loading.delete(categoryId)
     return pack

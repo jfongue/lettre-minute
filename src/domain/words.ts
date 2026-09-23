@@ -63,18 +63,21 @@ export interface WordMatch {
 export const MIN_LENGTH_FOR_APPROXIMATE = 4
 
 /**
- * Parses the `display|sitelinks|frequency|canonical|views` lines produced by
- * scripts/import-words.ts. The format stays a flat text file because a JSON
- * object per word triples the payload for sixty thousand words.
+ * One dictionary row as scripts/import-words.ts writes it:
+ * `[display, sitelinks, frequency, canonical?, views?]`. The canonical form is
+ * set on inflected forms only (empty otherwise); views are left out on a
+ * homonymy page, which then falls back on the sitelinks. Positional rather than
+ * one object per word: keys repeated sixty thousand times would double the
+ * payload.
  */
-export function parseWordPack(categoryId: string, raw: string): WordPack {
+export type WordRow = readonly [display: string, sitelinks: number, frequency: number, canonical?: string, views?: number]
+
+export function buildWordPack(categoryId: string, rows: readonly WordRow[]): WordPack {
   const entries = new Map<string, WordEntry>()
   const counts = new Map<string, number>()
   const byLetter = new Map<string, string[]>()
 
-  for (const line of raw.split('\n')) {
-    if (line === '') continue
-    const [display = '', sitelinks = '0', frequency = '0', canonical = '', views = ''] = line.split('|')
+  for (const [display, sitelinks, frequency, canonical = '', views] of rows) {
     const word = normalizeWord(display)
     if (word === '' || entries.has(word)) continue
 
@@ -82,9 +85,9 @@ export function parseWordPack(categoryId: string, raw: string): WordPack {
     entries.set(word, {
       key,
       display,
-      sitelinks: Number(sitelinks) || 0,
-      frequency: Number(frequency) || 0,
-      ...(views === '' ? {} : { views: Number(views) || 0 }),
+      sitelinks,
+      frequency,
+      ...(views === undefined ? {} : { views }),
       notoriety: 0,
     })
 

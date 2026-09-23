@@ -11,6 +11,7 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { gunzipSync } from 'node:zlib'
 import { normalizeWord } from '../src/domain/text.ts'
+import type { WordRow } from '../src/domain/words.ts'
 import { CATEGORY_SOURCES, PULLS, queryFor, type Pull } from './sources.ts'
 
 const ENDPOINT = 'https://query.wikidata.org/sparql'
@@ -73,6 +74,11 @@ const MAJOR_SITELINKS = 50
  */
 function visitsWorth(frequency: number): number {
   return (1 + frequency) ** 1.5 - 1
+}
+
+/** Two decimals are all the frequency scale can tell apart. */
+function rounded(frequency: number): number {
+  return Math.round(frequency * 100) / 100
 }
 
 interface Row {
@@ -570,7 +576,7 @@ function main(argv: readonly string[]) {
       // Inflected forms borrow the notoriety of the word they bend, so only the
       // words themselves are looked up.
       const articles = await frenchArticles([...best.values()].map((entry) => entry.display))
-      const rows = new Map<string, string>()
+      const rows = new Map<string, WordRow>()
       for (const [key, entry] of best) {
         // A name shared with something far better known inherits its fame by
         // mistake, and each reading has its own way of lying.
@@ -593,16 +599,17 @@ function main(argv: readonly string[]) {
         const frequency = senseKnown ? everyday : 0
 
         const article = articles.get(entry.display) ?? null
-        let daily = ''
+        let daily: number | undefined
         if (article !== DISAMBIGUATION || entry.alias) {
           let visited = article && article !== DISAMBIGUATION ? (visits.get(article) ?? 0) : 0
           const niche = entry.sitelinks > 0 && entry.sitelinks < NICHE_SITELINKS
           if (niche && !attested.has(key)) visited = Math.min(visited, visitsWorth(commonNouns ? everyday : 0))
           // A word with no article of its own reads zero rather than nothing,
           // or the domain would fall back on the bot-inflated sitelinks.
-          daily = `||${Math.round(visited)}`
+          daily = Math.round(visited)
         }
-        rows.set(key, `${entry.display}|${entry.sitelinks}|${frequency.toFixed(2)}${daily}`)
+        const fields = [entry.display, entry.sitelinks, rounded(frequency)] as const
+        rows.set(key, daily === undefined ? fields : [...fields, '', daily])
       }
 
       // Every inflected form of an accepted word is accepted too, pointing back
@@ -617,16 +624,17 @@ function main(argv: readonly string[]) {
           const formKey = normalizeWord(form)
           if (formKey === '' || rows.has(formKey) || !acceptable(form)) continue
           const frequency = attested.has(key) ? (frequencies.get(form.normalize('NFC').toLowerCase()) ?? 0) : 0
-          rows.set(formKey, `${form}|${entry.sitelinks}|${frequency.toFixed(2)}|${key}`)
+          rows.set(formKey, [form, entry.sitelinks, rounded(frequency), key])
           variants++
         }
       }
 
       const lines = [...rows.entries()]
         .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-        .map(([, line]) => line)
+        .map(([, row]) => JSON.stringify(row))
 
-      writeFileSync(`${OUT}/${source.id}.txt`, `${lines.join('\n')}\n`)
+      // One row per line, so a regenerated dictionary diffs word by word.
+      writeFileSync(`${OUT}/${source.id}.json`, `[\n${lines.join(',\n')}\n]\n`)
       console.log(`→ ${source.id}: ${lines.length} mots (dont ${variants} formes fléchies)`)
     }
     if (failed.length > 0) console.warn(`! sources en échec : ${failed.join(', ')}`)
