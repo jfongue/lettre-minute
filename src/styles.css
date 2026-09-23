@@ -673,3 +673,8 @@ input {
 .verdict--sent {
   color: var(--valid);
 }
+
+/* Une réponse corrigée reste juste, mais ne se pavane pas comme une trouvaille. */
+.verdict--approx {
+  color: var(--ink-soft);
+}

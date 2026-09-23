@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { lettersWithEnough, lookup, parseWordPack } from './words'
+import { findWord, lettersWithEnough, lookup, parseWordPack, withinOneEdit } from './words'
 
 const raw = ['Chat|120|45.30', 'Chien|150|60.00', 'Écureuil|60|3.20', 'Zèbre|90|1.40', ''].join('\n')
 
@@ -78,5 +78,68 @@ describe('lettersWithEnough', () => {
 
     expect(lettersWithEnough(pack, 2)).toEqual(['C'])
     expect(lettersWithEnough(pack, 1)).toEqual(['C', 'E', 'Z'])
+  })
+})
+
+describe('withinOneEdit', () => {
+  it('forgives two letters swapped', () => {
+    expect(withinOneEdit('libellule', 'libelllue')).toBe(true)
+    expect(withinOneEdit('renrad', 'renard')).toBe(true)
+  })
+
+  it('forgives a missing letter and a letter too many', () => {
+    expect(withinOneEdit('libelule', 'libellule')).toBe(true)
+    expect(withinOneEdit('libelllule', 'libellule')).toBe(true)
+  })
+
+  it('forgives one mistyped letter', () => {
+    expect(withinOneEdit('libeflule', 'libellule')).toBe(true)
+  })
+
+  it('refuses two errors', () => {
+    expect(withinOneEdit('libeflul', 'libellule')).toBe(false)
+    expect(withinOneEdit('chien', 'chat')).toBe(false)
+  })
+
+  it('is not a way of spelling the word right', () => {
+    expect(withinOneEdit('chat', 'chat')).toBe(false)
+  })
+})
+
+describe('findWord', () => {
+  const pack = parseWordPack(
+    'animaux',
+    ['Chat|120|45.30', 'Libellule|0|2.16', 'Lézard|30|1.10', 'Loutre|20|0.80', 'Loutres|20|0.10|loutre'].join('\n'),
+  )
+
+  it('answers exactly when the word is spelled right', () => {
+    expect(findWord(pack, 'libellule')).toEqual({ entry: pack.entries.get('libellule'), approximate: false })
+  })
+
+  it('corrects a one-letter slip, and says that it did', () => {
+    const match = findWord(pack, 'libelule')
+
+    expect(match?.entry.display).toBe('Libellule')
+    expect(match?.approximate).toBe(true)
+  })
+
+  it('corrects towards an inflected form as readily as a base word', () => {
+    expect(findWord(pack, 'loutrs')?.entry.key).toBe('loutre')
+  })
+
+  it('refuses to guess between two words a letter away', () => {
+    const ambiguous = parseWordPack('animaux', ['Loutre|20|0.80', 'Coutre|5|0.10', 'Louire|5|0.10'].join('\n'))
+
+    expect(findWord(ambiguous, 'louvre')).toBeNull()
+  })
+
+  it('does not stretch a short word into another one', () => {
+    const short = parseWordPack('animaux', ['Rat|50|10.00', 'Rut|5|1.00'].join('\n'))
+
+    expect(findWord(short, 'ras')).toBeNull()
+  })
+
+  it('still answers nothing for a word that is nowhere near', () => {
+    expect(findWord(pack, 'abracadabrantesque')).toBeNull()
   })
 })

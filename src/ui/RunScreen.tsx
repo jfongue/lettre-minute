@@ -139,8 +139,10 @@ function Feedback({
   switch (live.kind) {
     case 'accepted':
       return (
-        <p className="verdict verdict--valid">
-          {live.found?.display} · +{live.found?.points} <span className="note">{live.found?.tier}</span>
+        <p className={`verdict verdict--valid${live.found?.approximate ? ' verdict--approx' : ''}`}>
+          {live.found?.approximate && <span aria-hidden="true">≈ </span>}
+          {live.found?.display} · +{live.found?.points}{' '}
+          <span className="note">{live.found?.approximate ? 'orthographe approchée' : live.found?.tier}</span>
         </p>
       )
     case 'wrong-letter':

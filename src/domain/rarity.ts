@@ -54,3 +54,12 @@ export function comboMultiplier(combo: number): number {
 export function pointsFor(entry: WordEntry, usage: WordUsage, combo: number): number {
   return Math.round((BASE_POINTS + RARITY_POINTS * rarityScore(entry, usage)) * comboMultiplier(combo))
 }
+
+/**
+ * An answer the dictionary had to correct is paid the flat rate, however rare
+ * the word it corrected to: the bonus rewards knowing a word, not almost
+ * spelling it. The chain is not broken — the answer counts.
+ */
+export function pointsForApproximate(combo: number): number {
+  return Math.round(BASE_POINTS * comboMultiplier(combo))
+}

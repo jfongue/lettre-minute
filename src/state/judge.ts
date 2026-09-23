@@ -1,6 +1,6 @@
 import { MIN_WORDS_PER_PROMPT, type Judge } from '../domain/run'
 import { NO_USAGE, type WordUsage } from '../domain/rarity'
-import { lettersWithEnough, lookup, type WordPack } from '../domain/words'
+import { findWord, lettersWithEnough, type WordPack } from '../domain/words'
 
 export interface UsageSource {
   /** Times the player answered this word before, from the local profile. */
@@ -21,7 +21,7 @@ export function createJudge(packs: readonly WordPack[], usage: UsageSource): Jud
   return {
     find(categoryId, word) {
       const pack = byId.get(categoryId)
-      return pack ? lookup(pack, word) : null
+      return pack ? findWord(pack, word) : null
     },
     usage(word): WordUsage {
       const own = usage.own[word] ?? 0

@@ -48,6 +48,14 @@ qu'un nouvel arrivant casserait sans le savoir.
   C'est ce qui empêche « chat » puis « chats » de marquer deux fois dans la même
   partie — et ce qui fera la même chose pour « USA » et « États-Unis ». Toute
   comparaison de mots joués passe par cette clé, jamais par la forme tapée.
+- **`findWord` refuse de deviner** : si deux mots de la catégorie sont à une
+  lettre de ce qui a été tapé, la réponse est rejetée plutôt qu'arbitrée. La
+  tolérance ne s'applique pas non plus sous quatre lettres. Sans ces deux
+  garde-fous, elle transforme le jeu en distributeur de points.
+- **La recherche approchée tourne à chaque frappe** : elle ne scanne que les
+  mots de la bonne initiale, filtrés par longueur (0,005 ms sur les 23 000
+  animaux). Toute évolution qui la ferait parcourir le dictionnaire entier est à
+  refuser — c'est le chemin chaud de l'interface.
 - **La notoriété est calculée au chargement du dictionnaire**
   (`rankNotoriety`), pas à la volée : c'est un rang dans la catégorie, donc elle
   dépend de l'ensemble du fichier et ne peut pas se déduire d'une entrée seule.

@@ -53,7 +53,8 @@ export function OverScreen({ run, profile, levelBefore, onReplay, onHome }: Over
 
       {best && (
         <p className="note">
-          Meilleure trouvaille : <strong className="serif">{best.display}</strong> · {best.tier} · +{best.points}
+          Meilleure trouvaille : <strong className="serif">{best.display}</strong> ·{' '}
+          {best.approximate ? 'orthographe approchée' : best.tier} · +{best.points}
         </p>
       )}
 
@@ -63,7 +64,10 @@ export function OverScreen({ run, profile, levelBefore, onReplay, onHome }: Over
           {run.found.map((found) => (
             <li key={found.word}>
               <span className="letter-chip letter-chip--sm">{found.prompt.letter}</span>
-              <span className="serif">{found.display}</span>
+              <span className="serif">
+                {found.approximate && <span className="note">≈ </span>}
+                {found.display}
+              </span>
               <span className="note">{categoryMeta(found.prompt.categoryId)?.label}</span>
               <span className={`points tier-${found.tier.replace(/\s/g, '-')}`}>+{found.points}</span>
             </li>

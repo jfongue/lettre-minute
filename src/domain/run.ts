@@ -1,8 +1,16 @@
 import { PLAYABLE_LETTERS } from './letters'
-import { NO_USAGE, pointsFor, rarityScore, tierOf, type RarityTier, type WordUsage } from './rarity'
+import {
+  NO_USAGE,
+  pointsFor,
+  pointsForApproximate,
+  rarityScore,
+  tierOf,
+  type RarityTier,
+  type WordUsage,
+} from './rarity'
 import { pickWeighted, streamFor } from './rng'
 import { initialOf, normalizeWord } from './text'
-import type { WordEntry } from './words'
+import type { WordMatch } from './words'
 
 export const RUN_SECONDS = 94
 /** A skip costs clock, not points: the player always leaves with what they found. */
@@ -23,6 +31,8 @@ export interface FoundWord {
   points: number
   rarity: number
   tier: RarityTier
+  /** The dictionary corrected a one-letter slip to accept this answer. */
+  approximate: boolean
 }
 
 export type VerdictKind = 'empty' | 'unknown' | 'wrong-letter' | 'already' | 'accepted'
@@ -35,7 +45,7 @@ export interface Verdict {
 
 /** Everything the rules need from the outside: the dictionary and what players do with it. */
 export interface Judge {
-  find(categoryId: string, word: string): WordEntry | null
+  find(categoryId: string, word: string): WordMatch | null
   usage(word: string): WordUsage
   /** Letters that category can honestly be prompted on. */
   letters(categoryId: string): readonly string[]
@@ -100,22 +110,23 @@ export function inspect(run: Run, raw: string, judge: Judge): Verdict {
   if (word === '') return { kind: 'empty', found: null }
   if (initialOf(word) !== run.prompt.letter) return { kind: 'wrong-letter', found: null }
 
-  const entry = judge.find(run.prompt.categoryId, word)
-  if (!entry) return { kind: 'unknown', found: null }
+  const match = judge.find(run.prompt.categoryId, word)
+  if (!match) return { kind: 'unknown', found: null }
   // Judged on the canonical form: "chats" after "chat" is the same answer.
-  if (run.used.includes(entry.key)) return { kind: 'already', found: null }
+  if (run.used.includes(match.entry.key)) return { kind: 'already', found: null }
 
-  const usage = judge.usage(entry.key) ?? NO_USAGE
-  const rarity = rarityScore(entry, usage)
+  const usage = judge.usage(match.entry.key) ?? NO_USAGE
+  const rarity = match.approximate ? 0 : rarityScore(match.entry, usage)
   return {
     kind: 'accepted',
     found: {
       prompt: run.prompt,
-      word: entry.key,
-      display: entry.display,
-      points: pointsFor(entry, usage, run.combo),
+      word: match.entry.key,
+      display: match.entry.display,
+      points: match.approximate ? pointsForApproximate(run.combo) : pointsFor(match.entry, usage, run.combo),
       rarity,
       tier: tierOf(rarity),
+      approximate: match.approximate,
     },
   }
 }

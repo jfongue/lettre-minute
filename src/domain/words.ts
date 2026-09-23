@@ -33,7 +33,22 @@ export interface WordPack {
   entries: ReadonlyMap<string, WordEntry>
   /** Letter → how many words start with it, to never prompt a dead end. */
   counts: ReadonlyMap<string, number>
+  /**
+   * Normalized words grouped by their initial. The near-miss search runs on
+   * every keystroke, and a prompt already fixes the initial: narrowing to one
+   * letter turns a scan of twenty thousand words into a few hundred.
+   */
+  byLetter: ReadonlyMap<string, readonly string[]>
 }
+
+export interface WordMatch {
+  entry: WordEntry
+  /** True when the dictionary had to correct a one-letter slip to find it. */
+  approximate: boolean
+}
+
+/** Shorter than this, a single edit turns one word into too many others. */
+export const MIN_LENGTH_FOR_APPROXIMATE = 4
 
 /**
  * Parses the `display|sitelinks|frequency` lines produced by
@@ -43,6 +58,7 @@ export interface WordPack {
 export function parseWordPack(categoryId: string, raw: string): WordPack {
   const entries = new Map<string, WordEntry>()
   const counts = new Map<string, number>()
+  const byLetter = new Map<string, string[]>()
 
   for (const line of raw.split('\n')) {
     if (line === '') continue
@@ -59,15 +75,21 @@ export function parseWordPack(categoryId: string, raw: string): WordPack {
       notoriety: 0,
     })
 
+    const letter = initialOf(display)
+    if (letter !== '') {
+      const bucket = byLetter.get(letter) ?? []
+      bucket.push(word)
+      byLetter.set(letter, bucket)
+    }
+
     // Inflected forms are not counted: they start with the same letter as the
     // word they bend, and would make a thin letter look well stocked.
     if (canonical !== '') continue
-    const letter = initialOf(display)
     if (letter !== '') counts.set(letter, (counts.get(letter) ?? 0) + 1)
   }
 
   rankNotoriety(entries)
-  return { categoryId, entries, counts }
+  return { categoryId, entries, counts, byLetter }
 }
 
 /**
@@ -95,6 +117,79 @@ export function lookup(pack: WordPack, raw: string): WordEntry | null {
   return pack.entries.get(normalizeWord(raw)) ?? null
 }
 
+/**
+ * True when `typed` is `known` with exactly one letter wrong: one swapped pair,
+ * one missing letter, one letter too many, or one letter mistyped. Written as a
+ * single pass rather than an edit-distance matrix because it runs against every
+ * candidate of a letter, on every keystroke.
+ */
+export function withinOneEdit(typed: string, known: string): boolean {
+  if (typed === known) return false
+  if (Math.abs(typed.length - known.length) > 1) return false
+
+  if (typed.length === known.length) {
+    let first = -1
+    for (let i = 0; i < typed.length; i++) {
+      if (typed[i] === known[i]) continue
+      if (first < 0) {
+        first = i
+        continue
+      }
+      // A second difference is only forgivable as two letters swapped.
+      return (
+        first === i - 1 &&
+        typed[first] === known[i] &&
+        typed[i] === known[first] &&
+        typed.slice(i + 1) === known.slice(i + 1)
+      )
+    }
+    return first >= 0
+  }
+
+  const [shorter, longer] = typed.length < known.length ? [typed, known] : [known, typed]
+  let atShort = 0
+  let atLong = 0
+  let skipped = false
+  while (atShort < shorter.length && atLong < longer.length) {
+    if (shorter[atShort] === longer[atLong]) {
+      atShort++
+      atLong++
+      continue
+    }
+    if (skipped) return false
+    skipped = true
+    atLong++
+  }
+  return true
+}
+
+/**
+ * The dictionary's answer to what the player typed: the word itself, or the one
+ * word it is a letter away from. An ambiguous slip — two candidates a letter
+ * away — is refused rather than guessed.
+ */
+export function findWord(pack: WordPack, raw: string): WordMatch | null {
+  const typed = normalizeWord(raw)
+  if (typed === '') return null
+
+  const exact = pack.entries.get(typed)
+  if (exact) return { entry: exact, approximate: false }
+  if (typed.length < MIN_LENGTH_FOR_APPROXIMATE) return null
+
+  const letter = initialOf(typed)
+  let found: WordEntry | null = null
+  for (const candidate of pack.byLetter.get(letter) ?? []) {
+    if (Math.abs(candidate.length - typed.length) > 1) continue
+    if (!withinOneEdit(typed, candidate)) continue
+
+    const entry = pack.entries.get(candidate)!
+    if (found && found.key !== entry.key) return null
+    if (!found) found = entry
+  }
+
+  return found ? { entry: found, approximate: true } : null
+}
+
 export function lettersWithEnough(pack: WordPack, minimum: number): string[] {
   return [...pack.counts.entries()]
     .filter(([, count]) => count >= minimum)
@@ -112,6 +207,8 @@ export function withExtraWords(pack: WordPack, extra: readonly WordEntry[]): Wor
 
   const entries = new Map(pack.entries)
   const counts = new Map(pack.counts)
+  const byLetter = new Map<string, string[]>([...pack.byLetter].map(([letter, words]) => [letter, [...words]]))
+
   for (const entry of extra) {
     const word = normalizeWord(entry.display)
     if (word === '' || entries.has(word)) continue
@@ -123,8 +220,10 @@ export function withExtraWords(pack: WordPack, extra: readonly WordEntry[]): Wor
       notoriety: entry.notoriety || rawFame(entry.sitelinks, entry.frequency),
     })
     const letter = initialOf(entry.display)
-    if (letter !== '') counts.set(letter, (counts.get(letter) ?? 0) + 1)
+    if (letter === '') continue
+    counts.set(letter, (counts.get(letter) ?? 0) + 1)
+    byLetter.set(letter, [...(byLetter.get(letter) ?? []), word])
   }
 
-  return { categoryId: pack.categoryId, entries, counts }
+  return { categoryId: pack.categoryId, entries, counts, byLetter }
 }

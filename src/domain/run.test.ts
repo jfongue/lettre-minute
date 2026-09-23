@@ -12,7 +12,7 @@ import {
   type Judge,
   type Run,
 } from './run'
-import { lettersWithEnough, lookup, parseWordPack, type WordPack } from './words'
+import { findWord, lettersWithEnough, parseWordPack, type WordPack } from './words'
 
 /** A pack with enough words per letter that every letter can be prompted. */
 function packOf(categoryId: string, words: readonly string[]): WordPack {
@@ -37,7 +37,7 @@ function judgeOf(usage: Record<string, WordUsage> = {}): Judge {
   return {
     find: (categoryId, word) => {
       const pack = packs.get(categoryId)
-      return pack ? lookup(pack, word) : null
+      return pack ? findWord(pack, word) : null
     },
     usage: (word) => usage[word] ?? NO_USAGE,
     letters: (categoryId) => {
@@ -145,7 +145,7 @@ describe('formes fléchies', () => {
   it('refuses the plural of a word already answered', () => {
     const pack = parseWordPack('animaux', ['Canard|50|1.00', 'Canards|50|0.50|canard'].join('\n'))
     const only: Judge = {
-      find: (_, word) => lookup(pack, word),
+      find: (_, word) => findWord(pack, word),
       usage: () => NO_USAGE,
       letters: () => ['C'],
     }
@@ -154,6 +154,35 @@ describe('formes fléchies', () => {
 
     expect(run.found[0]!.word).toBe('canard')
     expect(inspect({ ...run, prompt: { categoryId: 'animaux', letter: 'C' } }, 'canards', only).kind).toBe('already')
+  })
+})
+
+describe('orthographe approchée', () => {
+  const pack = parseWordPack('animaux', ['Libellule|0|2.16', 'Lynx|60|1.00'].join('\n'))
+  const soft: Judge = {
+    find: (_, word) => findWord(pack, word),
+    usage: () => NO_USAGE,
+    letters: () => ['L'],
+  }
+
+  it('accepts a one-letter slip and pays it the flat rate', () => {
+    const run = { ...createRun({ seed: 1, categoryIds: ['animaux'] }, soft), prompt: { categoryId: 'animaux', letter: 'L' } }
+    const exact = inspect(run, 'libellule', soft)
+    const slipped = inspect(run, 'libelule', soft)
+
+    expect(slipped.kind).toBe('accepted')
+    expect(slipped.found?.display).toBe('Libellule')
+    expect(slipped.found?.approximate).toBe(true)
+    expect(slipped.found?.tier).toBe('courant')
+    expect(slipped.found!.points).toBeLessThan(exact.found!.points)
+  })
+
+  it('counts a corrected answer as the word itself', () => {
+    const run = { ...createRun({ seed: 2, categoryIds: ['animaux'] }, soft), prompt: { categoryId: 'animaux', letter: 'L' } }
+    const played = submit(run, 'libelule', soft)
+
+    expect(played.run.used).toEqual(['libellule'])
+    expect(inspect(played.run, 'libellule', soft).kind).toBe('already')
   })
 })
 

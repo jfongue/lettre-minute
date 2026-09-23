@@ -14,6 +14,10 @@ n'écrit rapportent le plus.
   courant, et ce bonus s'érode si le joueur le ressort à chaque partie ou si
   tout le monde l'écrit.
 - **Passer** coûte cinq secondes de chrono, jamais de points.
+- **Une faute d'une lettre passe** — lettres interverties, lettre oubliée, lettre
+  en trop, lettre fausse : `thailnade` vaut `Thaïlande`. Mais une réponse
+  corrigée est payée au tarif de base, si rare que soit le mot : le bonus
+  récompense de connaître un mot, pas de l'écrire presque.
 - **Niveaux et déblocages** : l'XP gagnée ouvre de nouvelles catégories.
 - **Mot manquant** : le joueur le propose en un clic ; réclamé par trois joueurs
   (ou validé par un modérateur), il entre au dictionnaire et lui rapporte 150 XP.
@@ -38,6 +42,7 @@ considérer un changement terminé.
 | --- | --- |
 | Mot valide | 100 points |
 | Bonus de rareté | jusqu'à +300, selon la notoriété du mot |
+| Mot juste à une lettre près | 100 points, sans bonus de rareté |
 | Série de mots validés | ×1,1 par mot enchaîné, plafonné à ×2 |
 | Passer | −5 secondes, série remise à zéro |
 
@@ -45,6 +50,12 @@ La notoriété d'un mot vaut moitié son rang dans sa propre catégorie, moitié
 mesure absolue de deux signaux : la fréquence dans le corpus Lexique (muette sur
 les noms propres) et le nombre d'éditions de Wikipédia qui décrivent la chose
 (muet sur les noms communs).
+
+Une réponse rattrapée par la tolérance n'y a pas droit : elle vaut 100 points,
+et le jeu affiche l'orthographe exacte pour que le joueur la retienne. Le jeu
+refuse de deviner quand deux mots de la catégorie sont à une lettre de ce qui a
+été tapé, et ne corrige rien en dessous de quatre lettres — un mot de trois
+lettres est à une faute de trop d'autres.
 
 Les deux moitiés sont nécessaires. Le rang seul sacre « vermillon » mot courant,
 parce que la catégorie des couleurs est pleine de nuances plus obscures encore.
