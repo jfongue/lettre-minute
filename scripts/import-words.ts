@@ -12,7 +12,7 @@ import { normalizeWord } from '../src/domain/text.ts'
 import { CATEGORY_SOURCES, PULLS, queryFor, type Pull } from './sources.ts'
 
 const ENDPOINT = 'https://query.wikidata.org/sparql'
-const AGENT = 'LettrineWordImport/0.1 (https://github.com/jfongue; jeremy@enaos.com)'
+const AGENT = 'LettreMinuteWordImport/0.1 (https://github.com/jfongue; jeremy@enaos.com)'
 const CACHE = '.cache/pulls'
 const WIKT_CACHE = '.cache/wiktionary'
 const WIKTIONARY_API = 'https://fr.wiktionary.org/w/api.php'

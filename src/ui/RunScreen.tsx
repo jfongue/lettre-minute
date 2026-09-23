@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { categoryMeta } from '../domain/catalogue'
-import { SKIP_PENALTY_SECONDS, type Run, type Verdict } from '../domain/run'
+import { RUN_SECONDS, SKIP_PENALTY_SECONDS, type Run, type Verdict } from '../domain/run'
 import { normalizeWord } from '../domain/text'
 
 const URGENT_FROM = 10
@@ -52,7 +52,7 @@ export function RunScreen({
         </p>
       </div>
       <div className={`progress${urgent ? ' progress--urgent' : ''}`}>
-        <span style={{ transform: `scaleX(${Math.min(1, remaining / 94)})` }} />
+        <span style={{ transform: `scaleX(${Math.min(1, remaining / RUN_SECONDS)})` }} />
       </div>
 
       <section className="prompt" key={`${run.drawn}`}>

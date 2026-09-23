@@ -1,6 +1,6 @@
-# Lettrine
+# Lettre Minute
 
-Un jeu de mots en solo. Une lettre, une catégorie, quatre-vingt-quatorze
+Un jeu de mots en solo. Une lettre, une catégorie, soixante
 secondes : on écrit, le jeu valide à la frappe, et les mots que personne
 n'écrit rapportent le plus.
 

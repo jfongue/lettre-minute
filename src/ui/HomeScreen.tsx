@@ -1,5 +1,6 @@
 import { CATALOGUE } from '../domain/catalogue'
 import { levelProgress, type Profile } from '../domain/progression'
+import { RUN_SECONDS } from '../domain/run'
 import type { LeaderboardRow } from '../lib/cloud'
 
 interface HomeScreenProps {
@@ -17,8 +18,8 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay }: Hom
   return (
     <div className="sheet enter">
       <header className="stack">
-        <p className="eyebrow">Un mot, une lettre, 94 secondes</p>
-        <h1 className="title">Lettrine</h1>
+        <p className="eyebrow">Un mot, une lettre, {RUN_SECONDS} secondes</p>
+        <h1 className="title">Lettre Minute</h1>
       </header>
 
       <section className="card stack">

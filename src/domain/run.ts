@@ -12,7 +12,7 @@ import { pickWeighted, streamFor } from './rng'
 import { initialOf, normalizeWord } from './text'
 import type { WordMatch } from './words'
 
-export const RUN_SECONDS = 94
+export const RUN_SECONDS = 60
 /** A skip costs clock, not points: the player always leaves with what they found. */
 export const SKIP_PENALTY_SECONDS = 5
 /** Below this, a letter is not offered for a category — the prompt must be answerable. */
