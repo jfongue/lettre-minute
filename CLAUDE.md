@@ -82,6 +82,13 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Tout appel à `src/lib/cloud.ts` répond par une valeur de repli** plutôt que
   de lever : le jeu doit rester jouable sans projet Supabase, et une panne de
   synchronisation ne coûte qu'un classement périmé.
+- **L'app mobile embarque `dist/` tel quel** : un changement web n'y arrive
+  qu'après `npm run android:sync`. Tout ce qui touche au téléphone passe par
+  `src/lib/native.ts`, qui ne fait rien dans un navigateur — un plugin
+  Capacitor appelé ailleurs lève sur le web.
+- **Pas de lien relatif vers une autre page dans l'app mobile** : il ferait
+  quitter le jeu à la WebView sans retour possible. D'où `VITE_PRIVACY_URL`,
+  une adresse complète ouverte hors de l'app.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client.
 

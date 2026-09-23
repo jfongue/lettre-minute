@@ -36,7 +36,12 @@ npm test             # domaine — Vitest, doit rester vert
 npm run lint         # oxlint
 npm run build        # tsc -b puis vite build
 npm run import:words # régénère src/data/words/ (Wikidata, Wiktionnaire, Lexique, wordfreq, Wikipédia)
+npm run android:sync # build web puis copie dans le projet Android
+npm run android:bundle # .aab signé pour le Play Store
 ```
+
+L'application Android (et iOS plus tard) est le même jeu emballé par Capacitor :
+voir [`docs/publication-android.md`](docs/publication-android.md).
 
 Pas de CI : lancer `npm test`, `npm run lint` et `npm run build` avant de
 considérer un changement terminé.
@@ -102,11 +107,14 @@ malachite très rare.
   mot dont elles dérivent ; elles empruntent sa notoriété et n'ont pas de
   visites. Un mot sans visites (page d'homonymie) est jugé sur ses sitelinks.
 - `src/state/` — session de jeu, chrono, persistance locale.
-- `src/lib/` — Supabase : profil, parties, usage global des mots, propositions.
+- `src/lib/` — Supabase : profil, parties, usage global des mots, propositions,
+  effacement du compte ; `native.ts` pour ce qui parle au téléphone.
 - `src/ui/` — un composant par écran.
 - `scripts/` — l'import : Wikidata et le Wiktionnaire pour les mots, Lexique
   pour les formes fléchies, wordfreq et Wikipédia pour la notoriété.
 - `supabase/` — migrations et conventions RLS ([détail](supabase/README.md)).
+- `android/` — le projet natif généré par Capacitor ; `assets/` la source de
+  l'icône et de l'écran de lancement ; `store/` la fiche du Play Store.
 
 ## Le serveur est optionnel
 
