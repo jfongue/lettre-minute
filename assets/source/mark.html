@@ -1,0 +1,39 @@
+<!doctype html>
+<!--
+  Source de l'icône et de l'écran de lancement, rendue par
+  scripts/render-assets.sh. Paramètres d'URL : size (px), layer
+  (full | foreground | background), theme (light | dark), scale (taille du
+  dessin dans le carré, 1 = plein cadre).
+-->
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  @font-face { font-family: Mark; src: url(fraunces-italic.woff2); font-style: italic; font-weight: 100 900; }
+  :root { --paper: #f6f1e7; --accent: #c2472c; --ring: rgba(27, 25, 20, 0.14); }
+  :root.dark { --paper: #121110; --accent: #ec7e5f; --ring: rgba(242, 236, 225, 0.16); }
+  html, body { margin: 0; width: 100vw; height: 100vh; overflow: hidden; }
+  body { display: grid; place-items: center; background: var(--paper); }
+  body.foreground { background: transparent; }
+  svg { width: calc(100vmin * var(--scale)); height: calc(100vmin * var(--scale)); }
+  text { font-family: Mark; font-style: italic; font-weight: 600; font-variation-settings: 'opsz' 144; fill: var(--accent); }
+</style>
+</head>
+<body>
+<svg viewBox="0 0 100 100" aria-hidden="true">
+  <circle cx="50" cy="50" r="40" fill="none" stroke="var(--ring)" stroke-width="4.5" />
+  <!-- Les trois quarts du cadran : la minute qui s'écoule. -->
+  <circle cx="50" cy="50" r="40" fill="none" stroke="var(--accent)" stroke-width="4.5" stroke-linecap="round"
+          stroke-dasharray="188.5 251.3" transform="rotate(-90 50 50)" />
+  <text x="48.5" y="69.5" text-anchor="middle" font-size="62">L</text>
+</svg>
+<script>
+  const params = new URLSearchParams(location.search)
+  const layer = params.get('layer') ?? 'full'
+  document.documentElement.classList.toggle('dark', params.get('theme') === 'dark')
+  document.body.className = layer
+  document.documentElement.style.setProperty('--scale', params.get('scale') ?? '1')
+  if (layer === 'background') document.querySelector('svg').remove()
+</script>
+</body>
+</html>
