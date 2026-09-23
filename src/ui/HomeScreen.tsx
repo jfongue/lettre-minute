@@ -3,6 +3,8 @@ import { CATALOGUE } from '../domain/catalogue'
 import { levelProgress, type Profile } from '../domain/progression'
 import { RUN_SECONDS } from '../domain/run'
 import type { LeaderboardRow } from '../lib/cloud'
+import { Figure, Shape } from './bauhaus'
+import { categoryMotif, type ShapeKind, type Tint } from './motifs'
 
 interface HomeScreenProps {
   profile: Profile
@@ -24,16 +26,30 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay, onEra
 
   return (
     <div className="sheet cascade">
-      <header className="stack">
-        <p className="eyebrow">Un mot, une lettre, {RUN_SECONDS} secondes</p>
+      <Poster />
+
+      <header className="masthead">
         <h1 className="title">
-          Lettre <span className="title-mark">Minute</span>
+          <span>Lettre</span>
+          <span>Minute</span>
         </h1>
+        <p className="eyebrow">Un mot · une lettre · {RUN_SECONDS} secondes</p>
       </header>
 
-      <section className="card stack">
+      <div className="stack">
+        <button type="button" className="btn btn--play btn--block" onClick={onPlay} disabled={loading}>
+          <span>{loading ? 'Chargement…' : 'Jouer'}</span>
+          <span className="play-glyph" aria-hidden="true">
+            <Shape kind="circle" tint="yellow" />
+            <Shape kind="triangle" tint="red" className="play-triangle" />
+          </span>
+        </button>
+        {error && <p className="note note--warn">{error}</p>}
+      </div>
+
+      <section className="stack">
         <div className="spread">
-          <p className="eyebrow eyebrow--accent">Niveau {progress.level}</p>
+          <p className="section-title">Niveau {progress.level}</p>
           <p className="note">
             {progress.into} / {progress.span} XP
           </p>
@@ -42,23 +58,16 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay, onEra
           <span style={{ '--ratio': progress.ratio } as CSSProperties} />
         </div>
         <div className="figures">
-          <Figure value={profile.bestScore.toLocaleString('fr-FR')} label="meilleur score" />
-          <Figure value={profile.runs} label={profile.runs > 1 ? 'parties' : 'partie'} />
-          <Figure value={profile.wordsFound} label="mots trouvés" />
-          <Figure value={profile.bestCombo} label="meilleure série" />
+          <Figure tint="yellow" value={profile.bestScore.toLocaleString('fr-FR')} label="meilleur score" />
+          <Figure tint="blue" value={profile.runs} label={profile.runs > 1 ? 'parties' : 'partie'} />
+          <Figure tint="red" value={profile.wordsFound} label="mots trouvés" />
+          <Figure tint="pink" value={profile.bestCombo} label="meilleure série" />
         </div>
       </section>
 
-      <div className="stack">
-        <button type="button" className="btn btn--block" onClick={onPlay} disabled={loading}>
-          {loading ? 'Chargement du dictionnaire…' : 'Jouer'}
-        </button>
-        {error && <p className="note note--warn">{error}</p>}
-      </div>
-
       {leaderboard.length > 0 && (
-        <section className="card">
-          <p className="eyebrow">Classement</p>
+        <section className="panel">
+          <p className="section-title">Classement</p>
           <div className="standings">
             {leaderboard.slice(0, 10).map((row, index) => (
               <div className={`standing${index === 0 ? ' standing--leader' : ''}`} key={`${row.name}-${index}`}>
@@ -71,14 +80,16 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay, onEra
         </section>
       )}
 
-      <section className="card stack">
-        <p className="eyebrow">Catégories</p>
+      <section className="panel">
+        <p className="section-title">Catégories</p>
         <ul className="categories">
           {CATALOGUE.map((category) => {
             const locked = category.unlockLevel > progress.level
+            const motif = categoryMotif(category.id)
             return (
               <li key={category.id} className={locked ? 'locked' : ''}>
-                <span>{category.label}</span>
+                <Shape kind={locked ? 'ring' : motif.kind} tint={locked ? 'ink' : motif.tint} className="category-shape" />
+                <span className="category-label">{category.label}</span>
                 <span className="note">{locked ? `niveau ${category.unlockLevel}` : category.hint}</span>
               </li>
             )
@@ -92,6 +103,44 @@ export function HomeScreen({ profile, error, loading, leaderboard, onPlay, onEra
         </a>
         <EraseData onErase={onErase} />
       </footer>
+    </div>
+  )
+}
+
+type Cell = [kind: ShapeKind, tint: Tint, ground: Tint, motion?: 'turn' | 'pulse' | 'spin']
+
+// Composed by hand rather than drawn at random: a poster needs its colours
+// balanced across the grid, which a shuffle does not guarantee.
+const POSTER: readonly Cell[] = [
+  ['quarter', 'yellow', 'blue', 'turn'],
+  ['circle', 'red', 'paper', 'pulse'],
+  ['bars', 'ink', 'pink'],
+  ['arch', 'green', 'yellow', 'turn'],
+  ['triangle', 'blue', 'paper', 'turn'],
+  ['half', 'paper', 'red', 'turn'],
+  ['diamond', 'yellow', 'ink', 'turn'],
+  ['ring', 'blue', 'yellow', 'pulse'],
+  ['corner', 'red', 'paper', 'turn'],
+  ['circle', 'pink', 'green', 'pulse'],
+  ['sun', 'red', 'yellow', 'spin'],
+  ['quarter', 'blue', 'pink', 'turn'],
+  ['half', 'ink', 'paper', 'turn'],
+  ['triangle', 'yellow', 'red', 'turn'],
+  ['arch', 'red', 'blue', 'turn'],
+]
+
+function Poster() {
+  return (
+    <div className="poster" aria-hidden="true">
+      {POSTER.map(([kind, tint, ground, motion], index) => (
+        <span
+          key={index}
+          className="poster-cell"
+          style={{ background: `var(--${ground})`, '--i': index } as CSSProperties}
+        >
+          <Shape kind={kind} tint={tint} className={motion ? `motion-${motion}` : undefined} />
+        </span>
+      ))}
     </div>
   )
 }
@@ -137,13 +186,4 @@ function EraseData({ onErase }: { onErase(): Promise<boolean> }) {
     case 'done':
       return <p className="note">Données effacées.</p>
   }
-}
-
-function Figure({ value, label }: { value: string | number; label: string }) {
-  return (
-    <div className="figure">
-      <span className="figure-value">{value}</span>
-      <span className="figure-label">{label}</span>
-    </div>
-  )
 }

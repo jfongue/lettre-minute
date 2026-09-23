@@ -3,6 +3,8 @@ import { categoryMeta } from '../domain/catalogue'
 import { RUN_SECONDS, SKIP_PENALTY_SECONDS, type Run, type Verdict } from '../domain/run'
 import { capitalized, normalizeWord } from '../domain/text'
 import type { Cheer } from '../state/session'
+import { Burst, LetterMark, TierTag } from './bauhaus'
+import { motifAt } from './motifs'
 
 const URGENT_FROM = 10
 
@@ -58,13 +60,21 @@ export function RunScreen({
   }
 
   return (
-    <div className="sheet run">
-      <div className="spread">
-        {/* Re-keyed every second once urgent, so each second ticks visibly. */}
-        <p className={`clock${urgent ? ' clock--urgent' : ''}`} key={urgent ? seconds : 'calm'}>
-          {seconds}
-        </p>
-        <p className="score">
+    <div className={`sheet run${urgent ? ' run--urgent' : ''}`}>
+      <div className="run-head">
+        <div className="timer">
+          <span
+            className="timer-disc"
+            style={{ '--ratio': Math.min(1, remaining / RUN_SECONDS) } as CSSProperties}
+            aria-hidden="true"
+          />
+          {/* Re-keyed every second once urgent, so each second ticks visibly. */}
+          <p className="clock" key={urgent ? seconds : 'calm'}>
+            {seconds}
+          </p>
+        </div>
+        <div className="score">
+          {run.score > 0 && <Burst key={`burst-${run.score}`} />}
           <span className="score-value" key={run.score}>
             {run.score.toLocaleString('fr-FR')}
           </span>
@@ -73,19 +83,16 @@ export function RunScreen({
               ×{(1 + Math.min(run.combo, 9) * 0.1).toFixed(1)}
             </span>
           )}
-        </p>
-      </div>
-      <div className={`progress progress--clock${urgent ? ' progress--urgent' : ''}`}>
-        <span style={{ '--ratio': Math.min(1, remaining / RUN_SECONDS) } as CSSProperties} />
+        </div>
       </div>
       <p className="note run-meta">
         {run.found.length} mot{run.found.length > 1 ? 's' : ''} · {run.skips} passé{run.skips > 1 ? 's' : ''}
       </p>
 
       <section className="prompt" key={`${run.drawn}`}>
-        <span className="letter-chip letter-chip--lg">{run.prompt.letter}</span>
-        <div>
-          <h2 className="serif prompt-label">{category?.label ?? run.prompt.categoryId}</h2>
+        <LetterMark letter={run.prompt.letter} motif={motifAt(run.drawn)} size="lg" />
+        <div className="prompt-text">
+          <h2 className="prompt-label">{category?.label ?? run.prompt.categoryId}</h2>
           <p className="note">{category?.hint}</p>
         </div>
       </section>
@@ -133,9 +140,9 @@ export function RunScreen({
 
         <div className="answer-actions">
           <button type="button" className="btn btn--ghost" onPointerDown={keepFocus} onClick={onSkip}>
-            Passer · −{SKIP_PENALTY_SECONDS} s
+            Passer −{SKIP_PENALTY_SECONDS} s
           </button>
-          <button type="submit" className="btn" onPointerDown={keepFocus} disabled={!accepted}>
+          <button type="submit" className="btn btn--blue" onPointerDown={keepFocus} disabled={!accepted}>
             Valider
           </button>
         </div>
@@ -166,8 +173,9 @@ function Feedback({
     return (
       <p className="cheer verdict" key={cheer.display}>
         {cheer.approximate && <span aria-hidden="true">≈ </span>}
-        {capitalized(cheer.display)} · +{cheer.points}{' '}
-        <span className="note">{cheer.approximate ? 'orthographe approchée' : cheer.tier}</span>
+        <span className="cheer-word">{capitalized(cheer.display)}</span>
+        <span className="cheer-points">+{cheer.points}</span>
+        {cheer.approximate ? <span className="note">orthographe approchée</span> : <TierTag tier={cheer.tier} />}
       </p>
     )
   if (!live || live.kind === 'empty') return <p className="verdict">&nbsp;</p>

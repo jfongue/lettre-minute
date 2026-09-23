@@ -3,6 +3,8 @@ import { categoryMeta } from '../domain/catalogue'
 import { capitalized } from '../domain/text'
 import { levelProgress, newlyUnlocked, XP_PER_POINT, type Profile } from '../domain/progression'
 import type { Run } from '../domain/run'
+import { Figure, LetterMark, Shape, TierTag } from './bauhaus'
+import { categoryMotif } from './motifs'
 import { useCountUp } from './useCountUp'
 
 interface OverScreenProps {
@@ -21,20 +23,25 @@ export function OverScreen({ run, profile, levelBefore, onReplay, onHome }: Over
 
   return (
     <div className="sheet cascade">
-      <header className="stack">
+      <header className="score-poster">
+        <Shape kind="circle" tint="yellow" className="score-poster-sun" />
+        <Shape kind="quarter" tint="red" className="score-poster-quarter" />
+        <Shape kind="bars" tint="cream" className="score-poster-bars" />
         <p className="eyebrow">Temps écoulé</p>
-        <h1 className="title score-final">{shownScore.toLocaleString('fr-FR')}</h1>
+        <h1 className="score-final">{shownScore.toLocaleString('fr-FR')}</h1>
+        <p className="score-poster-unit">points</p>
       </header>
 
-      <section className="card stack">
-        <div className="figures">
-          <Figure value={run.found.length} label="mots" />
-          <Figure value={run.bestCombo} label="série" />
-          <Figure value={run.skips} label="passés" />
-          <Figure value={`+${Math.round(run.score * XP_PER_POINT)}`} label="XP" />
-        </div>
+      <div className="figures">
+        <Figure tint="yellow" value={run.found.length} label="mots" />
+        <Figure tint="red" value={run.bestCombo} label="série" />
+        <Figure tint="pink" value={run.skips} label="passés" />
+        <Figure tint="green" value={`+${Math.round(run.score * XP_PER_POINT)}`} label="XP" />
+      </div>
+
+      <section className="stack">
         <div className="spread">
-          <p className="eyebrow eyebrow--accent">Niveau {progress.level}</p>
+          <p className="section-title">Niveau {progress.level}</p>
           <p className="note">
             {progress.into} / {progress.span} XP
           </p>
@@ -45,32 +52,35 @@ export function OverScreen({ run, profile, levelBefore, onReplay, onHome }: Over
       </section>
 
       {progress.level > levelBefore && (
-        <section className="card stack unlock">
-          <p className="eyebrow eyebrow--accent">Niveau {progress.level} atteint</p>
+        <section className="unlock">
+          <Shape kind="sun" tint="yellow" className="unlock-sun" />
+          <p className="eyebrow">Niveau {progress.level} atteint</p>
           {opened.length > 0 ? (
-            <p className="serif">
+            <p className="unlock-text">
               {opened.map((category) => category.label).join(', ')} — {opened.length > 1 ? 'ouvertes' : 'ouverte'}
             </p>
           ) : (
-            <p className="note">Rien de neuf à débloquer à ce niveau, mais le score monte.</p>
+            <p className="unlock-text unlock-text--quiet">Rien de neuf à débloquer, mais le score monte.</p>
           )}
         </section>
       )}
 
       {best && (
-        <p className="note">
-          Meilleure trouvaille : <strong className="serif">{capitalized(best.display)}</strong> ·{' '}
-          {best.approximate ? 'orthographe approchée' : best.tier} · +{best.points}
+        <p className="best">
+          <span className="note">Meilleure trouvaille</span>
+          <strong>{capitalized(best.display)}</strong>
+          {best.approximate ? <span className="note">orthographe approchée</span> : <TierTag tier={best.tier} />}
+          <span className="best-points">+{best.points}</span>
         </p>
       )}
 
-      <section className="card">
-        <p className="eyebrow">Les mots de la partie</p>
+      <section className="panel">
+        <p className="section-title">Les mots de la partie</p>
         <ul className="found">
           {run.found.map((found, index) => (
             <li key={found.word} style={{ '--i': index } as CSSProperties}>
-              <span className="letter-chip letter-chip--sm">{found.prompt.letter}</span>
-              <span className="serif">
+              <LetterMark letter={found.prompt.letter} motif={categoryMotif(found.prompt.categoryId)} size="sm" />
+              <span className="found-word">
                 {found.approximate && <span className="note">≈ </span>}
                 {capitalized(found.display)}
               </span>
@@ -83,22 +93,17 @@ export function OverScreen({ run, profile, levelBefore, onReplay, onHome }: Over
       </section>
 
       <div className="stack">
-        <button type="button" className="btn btn--block" onClick={onReplay}>
-          Rejouer
+        <button type="button" className="btn btn--play btn--block" onClick={onReplay}>
+          <span>Rejouer</span>
+          <span className="play-glyph" aria-hidden="true">
+            <Shape kind="circle" tint="yellow" />
+            <Shape kind="triangle" tint="red" className="play-triangle" />
+          </span>
         </button>
         <button type="button" className="btn btn--ghost btn--block" onClick={onHome}>
           Accueil
         </button>
       </div>
-    </div>
-  )
-}
-
-function Figure({ value, label }: { value: string | number; label: string }) {
-  return (
-    <div className="figure">
-      <span className="figure-value">{value}</span>
-      <span className="figure-label">{label}</span>
     </div>
   )
 }

@@ -1,51 +1,49 @@
 /* ---------------------------------------------------------------- tokens - */
 :root {
-  --paper: #f6f1e7;
-  --paper-raised: #fffcf6;
-  --ink: #1b1914;
-  --ink-soft: #69645a;
-  --ink-faint: #a39d90;
-  --accent: #c2472c;
-  --accent-soft: #f5e0d6;
-  --on-accent: #fffaf4;
-  --gold: #99782a;
-  --gold-soft: #f3e8cb;
-  --valid: #2f7a50;
-  --valid-soft: #dcefe2;
-  --rule: rgba(27, 25, 20, 0.1);
-  --glow: rgba(194, 71, 44, 0.09);
-  --shadow: 0 1px 2px rgba(27, 25, 20, 0.04), 0 14px 36px -22px rgba(27, 25, 20, 0.35);
+  --paper: #f2ecdf;
+  --paper-2: #e6ddca;
+  --ink: #151515;
+  --ink-soft: #4d4943;
+  --ink-faint: #8a8478;
+  --grid: rgba(21, 21, 21, 0.055);
+  --rule: rgba(21, 21, 21, 0.14);
 
-  --display: 'Fraunces Variable', 'Fraunces', 'Iowan Old Style', Georgia, serif;
-  --ui: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+  --red: #e0402a;
+  --blue: #1f48c7;
+  --yellow: #f4b41a;
+  --green: #17614c;
+  --pink: #f1a3b3;
+  --black: #151515;
+  --cream: #f2ecdf;
+
+  --font: 'Jost Variable', 'Futura', 'Century Gothic', system-ui, sans-serif;
 
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-snap: cubic-bezier(0.7, 0, 0.2, 1);
 
-  --step: clamp(1rem, 3.5vw, 1.5rem);
-  --radius: 16px;
+  --step: clamp(1.1rem, 4vw, 1.6rem);
   --gutter: clamp(1rem, 5vw, 2rem);
+  --line: 2px;
 
   color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #121110;
-    --paper-raised: #1c1a17;
-    --ink: #f2ece1;
-    --ink-soft: #a39b8c;
-    --ink-faint: #6f685c;
-    --accent: #ec7e5f;
-    --accent-soft: #3d2219;
-    --on-accent: #1d110c;
-    --gold: #d6b66c;
-    --gold-soft: #37301f;
-    --valid: #7cc896;
-    --valid-soft: #1b3224;
-    --rule: rgba(242, 236, 225, 0.11);
-    --glow: rgba(236, 126, 95, 0.08);
-    --shadow: 0 14px 36px -22px rgba(0, 0, 0, 0.9);
+    --paper: #151515;
+    --paper-2: #262522;
+    --ink: #f2ecdf;
+    --ink-soft: #bdb6a8;
+    --ink-faint: #7d776c;
+    --grid: rgba(242, 236, 223, 0.045);
+    --rule: rgba(242, 236, 223, 0.16);
+
+    --red: #f0553c;
+    --blue: #4468ec;
+    --yellow: #f7c230;
+    --green: #2c9a78;
+    --pink: #f3a9b8;
   }
 }
 
@@ -59,13 +57,21 @@ html {
   text-size-adjust: 100%;
 }
 
+/* Le quadrillage fin de la planche : il donne à chaque forme une règle à
+   laquelle s'aligner sans rien dessiner de plus. */
 body {
   min-height: 100dvh;
-  background: radial-gradient(120% 55% at 50% -12%, var(--glow), transparent 70%) no-repeat, var(--paper);
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: center top;
   color: var(--ink);
-  font-family: var(--ui);
+  font-family: var(--font);
   font-size: 16px;
-  line-height: 1.5;
+  font-weight: 450;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   -webkit-tap-highlight-color: transparent;
@@ -83,7 +89,15 @@ button {
 }
 
 ::selection {
-  background: var(--accent-soft);
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.shape {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
 /* ---------------------------------------------------------------- layout - */
@@ -96,6 +110,7 @@ button {
     max(var(--gutter), env(safe-area-inset-right))
     max(clamp(1.25rem, 5vw, 3rem), env(safe-area-inset-bottom))
     max(var(--gutter), env(safe-area-inset-left));
+  overflow-x: clip;
 }
 
 /* Pendant la partie, le clavier du téléphone mange la moitié basse de l'écran :
@@ -116,12 +131,6 @@ button {
   gap: 0.75rem;
 }
 
-.row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
 .spread {
   display: flex;
   align-items: baseline;
@@ -131,29 +140,29 @@ button {
 
 /* ------------------------------------------------------------ typography - */
 .eyebrow {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--ink-faint);
 }
 
-.eyebrow--accent {
-  color: var(--accent);
-}
-
-.title {
-  font-family: var(--display);
-  font-weight: 500;
-  font-size: clamp(2.6rem, 11vw, 3.6rem);
-  letter-spacing: -0.025em;
-  line-height: 1;
-}
-
-.title-mark {
-  color: var(--accent);
-  font-style: italic;
-  font-weight: 400;
+.section-title::before {
+  content: '';
+  width: 0.7em;
+  height: 0.7em;
+  background: var(--red);
+  flex: none;
 }
 
 .note {
@@ -161,113 +170,259 @@ button {
   color: var(--ink-faint);
 }
 
-.serif {
-  font-family: var(--display);
-  font-weight: 500;
+.note--warn {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.masthead {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.title {
+  display: grid;
+  font-weight: 800;
+  font-size: clamp(3.4rem, 19vw, 5.6rem);
+  line-height: 0.84;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+}
+
+.title span:first-child {
+  animation: slide-from-left 700ms var(--ease-out) 200ms both;
+}
+
+.title span:last-child {
+  color: var(--red);
+  justify-self: end;
+  animation: slide-from-right 700ms var(--ease-out) 300ms both;
+}
+
+.masthead .eyebrow {
+  justify-self: end;
 }
 
 /* --------------------------------------------------------------- buttons - */
 .btn {
   appearance: none;
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: var(--on-accent);
-  border-radius: 999px;
-  min-height: 3rem;
-  padding: 0.8rem 1.6rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border: var(--line) solid var(--ink);
+  border-radius: 0;
+  background: var(--ink);
+  color: var(--paper);
+  min-height: 3.25rem;
+  padding: 0.75rem 1.4rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   cursor: pointer;
   user-select: none;
   transition:
-    transform 180ms var(--ease-out),
-    opacity 200ms ease,
+    transform 160ms var(--ease-out),
     background-color 200ms ease,
-    box-shadow 200ms ease;
+    border-color 200ms ease,
+    color 200ms ease;
 }
 
-.btn:active {
-  transform: scale(0.97);
+.btn:active:not(:disabled) {
+  transform: translateY(2px);
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 3px solid var(--yellow);
   outline-offset: 3px;
 }
 
 .btn:disabled {
-  opacity: 0.3;
+  background: var(--paper-2);
+  border-color: var(--paper-2);
+  color: var(--ink-faint);
   cursor: not-allowed;
-  transform: none;
-}
-
-@media (hover: hover) {
-  .btn:not(:disabled):hover {
-    transform: translateY(-1px);
-    box-shadow: 0 10px 24px -14px var(--accent);
-  }
-
-  .btn--ghost:not(:disabled):hover {
-    box-shadow: none;
-    border-color: var(--ink-faint);
-    color: var(--ink);
-  }
-}
-
-.btn--ghost {
-  background: transparent;
-  color: var(--ink-soft);
-  border-color: var(--rule);
-}
-
-.btn--quiet {
-  background: transparent;
-  border-color: transparent;
-  color: var(--accent);
-  min-height: 2.25rem;
-  padding: 0.35rem 0.6rem;
-  font-weight: 500;
 }
 
 .btn--block {
   width: 100%;
 }
 
-/* ----------------------------------------------------------------- card - */
-.card {
-  background: var(--paper-raised);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: clamp(1.25rem, 5vw, 2rem);
+.btn--blue {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--cream);
 }
 
-.letter-chip {
-  font-family: var(--display);
-  font-size: 1.1rem;
-  font-weight: 700;
-  width: 2.1rem;
-  height: 2.1rem;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--on-accent);
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn--quiet {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink);
+  min-height: 2.25rem;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
+  text-decoration-color: var(--red);
+}
+
+.btn--muted {
+  color: var(--ink-faint);
+  text-decoration-color: var(--rule);
+}
+
+@media (hover: hover) {
+  .btn--ghost:not(:disabled):hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .btn--play:not(:disabled):hover .play-glyph {
+    transform: rotate(90deg);
+  }
+}
+
+.btn--play {
+  justify-content: space-between;
+  min-height: 4.25rem;
+  padding: 0.6rem 0.6rem 0.6rem 1.5rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.play-glyph {
+  position: relative;
+  width: 3rem;
+  height: 3rem;
   flex: none;
+  transition: transform 500ms var(--ease-spring);
 }
 
-.letter-chip--lg {
-  width: 3.6rem;
-  height: 3.6rem;
-  font-size: 2rem;
-  box-shadow: 0 10px 24px -12px var(--accent);
-  animation: pop 520ms var(--ease-spring) both;
+.play-glyph .shape {
+  position: absolute;
+  inset: 0;
 }
 
-.letter-chip--sm {
-  width: 1.5rem;
-  height: 1.5rem;
-  font-size: 0.75rem;
+.play-triangle {
+  transform: rotate(90deg) scale(0.46) translateY(-4%);
+  animation: nudge 2.4s var(--ease-out) infinite;
+}
+
+.btn--play:disabled .play-glyph {
+  animation: spin 1.2s linear infinite;
+}
+
+/* ---------------------------------------------------------------- poster - */
+.poster {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  aspect-ratio: 5 / 3;
+  overflow: hidden;
+}
+
+.poster-cell {
+  display: block;
+  overflow: hidden;
+  animation: pop-in 520ms var(--ease-spring) both;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+
+.poster-cell .shape {
+  transform-origin: 50% 50%;
+}
+
+/* Chaque tuile tourne d'un quart de tour, marque une pause, puis repart :
+   l'affiche se recompose sans jamais s'agiter. */
+.motion-turn {
+  animation: quarter-turns 12s var(--ease-snap) infinite;
+  animation-delay: calc(var(--i, 0) * -1.7s);
+}
+
+.motion-pulse {
+  animation: breathe 5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.8s);
+}
+
+.motion-spin {
+  animation: spin 24s linear infinite;
+}
+
+/* ---------------------------------------------------------------- blocks - */
+.panel {
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 0.9rem;
+  border-top: 3px solid var(--ink);
+}
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 30rem) {
+  .figures {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.figure {
+  display: grid;
+  align-content: space-between;
+  gap: 0.6rem;
+  min-height: 5.5rem;
+  padding: 0.8rem 0.9rem;
+  animation: pop-in 480ms var(--ease-spring) both;
+}
+
+.figure:nth-child(2) { animation-delay: 70ms; }
+.figure:nth-child(3) { animation-delay: 140ms; }
+.figure:nth-child(4) { animation-delay: 210ms; }
+
+.figure-value {
+  font-size: clamp(1.7rem, 8vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.figure-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.progress {
+  height: 0.8rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.progress span {
+  display: block;
+  height: 100%;
+  background: var(--blue);
+  transform-origin: left;
+  transform: scaleX(var(--ratio, 0));
+}
+
+.progress--grow span {
+  animation: grow 1200ms var(--ease-out) 350ms both;
 }
 
 .categories {
@@ -277,126 +432,277 @@ button {
 }
 
 .categories li {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-  padding: 0.65rem 0;
-  border-top: 1px solid var(--rule);
-  font-size: 0.95rem;
-  font-weight: 500;
+  display: grid;
+  grid-template-columns: 1.1rem auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
 }
 
-.categories li:first-child {
-  border-top: 0;
+.category-shape {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.category-label {
+  font-weight: 600;
 }
 
 .categories li .note {
   text-align: right;
-  font-weight: 400;
+  font-size: 0.8rem;
 }
 
 .categories li.locked {
   color: var(--ink-faint);
 }
 
-/* -------------------------------------------------------------- progress - */
-.progress {
-  height: 4px;
-  border-radius: 999px;
-  background: var(--rule);
-  overflow: hidden;
+.categories li.locked .category-shape {
+  opacity: 0.35;
 }
 
-.progress span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--accent);
-  transform-origin: left;
-  transform: scaleX(var(--ratio, 0));
+.standings {
+  display: grid;
 }
 
-/* Le chrono est redessiné à chaque frame : une transition le ferait traîner
-   derrière l'horloge. Seules les jauges fixes (XP) se remplissent en douceur. */
-.progress--grow span {
-  animation: grow 1100ms var(--ease-out) 250ms both;
+.standing {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--rule);
 }
 
-.progress--clock span {
-  background: var(--ink);
-  transition: background-color 400ms ease;
+.standing .rank {
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.progress--urgent span {
-  background: var(--accent);
+.standing .name {
+  font-weight: 600;
+}
+
+.standing .points {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.standing--leader {
+  background: var(--yellow);
+  color: var(--black);
+  border-bottom-color: transparent;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.12rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  white-space: nowrap;
+  animation: pop-in 420ms var(--ease-spring) 120ms both;
+}
+
+.tag--plain {
+  box-shadow: inset 0 0 0 1.5px var(--ink-faint);
+  color: var(--ink-soft);
+}
+
+.tag-sun {
+  width: 0.9rem;
+  height: 0.9rem;
+  animation: spin 6s linear infinite;
+}
+
+/* ---------------------------------------------------------- letter mark - */
+.mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.mark > .shape {
+  position: absolute;
+  inset: 0;
+}
+
+.mark-letter {
+  position: relative;
+}
+
+/* La lettre se cale sur le centre optique de la forme, pas sur sa boîte. */
+.mark--quarter .mark-letter {
+  transform: translate(-17%, -17%);
+}
+
+.mark--arch .mark-letter {
+  transform: translateY(12%);
+}
+
+.mark--sm {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.85rem;
+}
+
+.mark--md {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.8rem;
+}
+
+.mark--lg {
+  width: clamp(5.5rem, 27vw, 7rem);
+  height: clamp(5.5rem, 27vw, 7rem);
+  font-size: clamp(3.2rem, 16vw, 4.2rem);
+}
+
+.mark--lg > .shape {
+  animation: spin-in 640ms var(--ease-spring) both;
+}
+
+.mark--lg .mark-letter {
+  animation: drop-in 520ms var(--ease-spring) 160ms both;
 }
 
 /* ------------------------------------------------------------------ run - */
 .run {
-  gap: 1.1rem;
-  animation: rise 420ms var(--ease-out) both;
+  gap: 1rem;
+  animation: fade 300ms ease both;
+}
+
+.run-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+/* Un camembert qui se vide : le temps se lit d'un coup d'œil, comme une forme
+   et non comme un chiffre. */
+.timer-disc {
+  width: 2.9rem;
+  height: 2.9rem;
+  border-radius: 50%;
+  border: var(--line) solid var(--ink);
+  background: conic-gradient(var(--timer-fill, var(--blue)) calc(var(--ratio, 1) * 360deg), var(--paper) 0);
 }
 
 .clock {
-  font-family: var(--display);
-  font-weight: 300;
-  font-size: clamp(2.6rem, 13vw, 3.6rem);
+  font-size: clamp(2.6rem, 13vw, 3.3rem);
+  font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  transition: color 400ms ease;
+  letter-spacing: -0.03em;
+  min-width: 2ch;
 }
 
-.clock--urgent {
-  color: var(--accent);
+.run--urgent {
+  --timer-fill: var(--red);
+}
+
+.run--urgent .timer-disc {
+  animation: throb 1s var(--ease-out) infinite;
+}
+
+.run--urgent .clock {
+  color: var(--red);
   animation: tick 1s var(--ease-out);
 }
 
 .score {
-  font-family: var(--display);
-  font-size: clamp(1.6rem, 7.5vw, 2.1rem);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
 }
 
 .score-value {
   display: inline-block;
-  animation: bump 420ms var(--ease-spring);
+  font-size: clamp(2rem, 10vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  animation: bump 460ms var(--ease-spring);
 }
 
 .combo {
-  display: inline-block;
-  margin-left: 0.3rem;
-  padding: 0.1rem 0.45rem;
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-family: var(--ui);
-  font-size: 0.8rem;
-  font-weight: 600;
-  vertical-align: middle;
-  animation: pop 360ms var(--ease-spring) both;
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.6rem;
+  height: 2.6rem;
+  padding: 0 0.3rem;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 0.85rem;
+  font-weight: 800;
+  animation: spin-in 520ms var(--ease-spring) both;
+}
+
+.burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.burst-piece {
+  position: absolute;
+  width: 0.65rem;
+  height: 0.65rem;
+  margin: -0.325rem;
+  animation: fly 760ms var(--ease-out) forwards;
 }
 
 .run-meta {
-  margin-top: -0.4rem;
-  text-align: right;
+  margin-top: -0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .prompt {
-  display: flex;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
-  padding-top: 0.5rem;
+  gap: 1.1rem;
+  padding: 0.4rem 0 0.2rem;
 }
 
-.prompt > div {
-  animation: slide-in 420ms var(--ease-out) 60ms both;
+.prompt-text {
+  display: grid;
+  gap: 0.35rem;
+  animation: slide-from-right 460ms var(--ease-out) 90ms both;
 }
 
 .prompt-label {
-  font-size: clamp(1.6rem, 7.5vw, 2.2rem);
-  line-height: 1.1;
+  font-size: clamp(1.5rem, 7.5vw, 2.1rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
 }
 
 .answer {
@@ -416,12 +722,13 @@ button {
   width: 100%;
   background: transparent;
   border: 0;
-  border-bottom: 2px solid var(--rule);
+  border-bottom: 3px solid var(--rule);
   border-radius: 0;
-  padding: 0.6rem 0.1rem;
-  font-family: var(--display);
-  font-size: clamp(1.7rem, 8vw, 2.3rem);
-  caret-color: var(--accent);
+  padding: 0.5rem 0.1rem;
+  font-size: clamp(1.8rem, 8.5vw, 2.4rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  caret-color: var(--red);
 }
 
 .answer input:focus {
@@ -430,7 +737,8 @@ button {
 
 .answer input::placeholder {
   color: var(--ink-faint);
-  opacity: 0.7;
+  font-weight: 400;
+  opacity: 0.6;
 }
 
 .answer-line {
@@ -438,11 +746,12 @@ button {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 2px;
-  background: var(--ink-soft);
+  height: 3px;
+  background: var(--ink);
   transform: scaleX(0);
+  transform-origin: left;
   transition:
-    transform 360ms var(--ease-out),
+    transform 420ms var(--ease-out),
     background-color 200ms ease;
 }
 
@@ -452,151 +761,268 @@ button {
 
 .answer--valid .answer-line {
   transform: scaleX(1);
-  background: var(--valid);
+  background: var(--green);
 }
 
 .answer-actions {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
 }
 
 .answer-actions .btn {
-  flex: 1;
+  padding-inline: 0.75rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
 .verdict {
-  min-height: 2.25rem;
+  min-height: 2.4rem;
   font-size: 0.9rem;
   color: var(--ink-faint);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  column-gap: 0.4rem;
-  animation: fade 220ms ease both;
+  gap: 0.2rem 0.5rem;
+  animation: fade 200ms ease both;
 }
 
 .verdict--valid {
-  color: var(--valid);
-  font-weight: 600;
+  color: var(--green);
+  font-weight: 700;
 }
 
 /* Une réponse corrigée reste juste, mais ne se pavane pas comme une trouvaille. */
 .verdict--approx {
   color: var(--ink-soft);
+  font-style: italic;
 }
 
 .verdict--sent {
-  color: var(--valid);
+  color: var(--green);
+  font-weight: 600;
 }
 
 .cheer {
-  font-family: var(--display);
-  font-size: 1.1rem;
-  color: var(--valid);
-  animation: rise 460ms var(--ease-spring) both;
+  color: var(--ink);
+  animation: slide-from-left 420ms var(--ease-spring) both;
+}
+
+.cheer-word {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.cheer-points {
+  font-weight: 800;
+  color: var(--green);
 }
 
 /* ------------------------------------------------------------ countdown - */
 .countdown {
-  min-height: 60vh;
+  min-height: 70dvh;
   display: grid;
   place-content: center;
-  justify-items: center;
-  text-align: center;
+  justify-items: stretch;
   gap: 1rem;
+}
+
+.countdown-eyebrow {
+  animation: fade 400ms ease both;
 }
 
 .dealt {
   list-style: none;
-  margin: 0;
   padding: 0;
   display: grid;
-  gap: 0.5rem;
+  gap: 0;
+  width: min(34rem, calc(100vw - 2 * var(--gutter)));
 }
 
 .dealt li {
-  font-size: clamp(1.6rem, 8vw, 2.4rem);
-  line-height: 1.15;
-  animation: rise 520ms var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * 180ms + 120ms);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.75rem 1rem;
+  font-size: clamp(1.4rem, 7.5vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  animation: band-from-left 620ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 200ms + 150ms);
+}
+
+.dealt li:nth-child(even) {
+  animation-name: band-from-right;
+}
+
+.dealt-shape {
+  width: 1.3rem;
+  height: 1.3rem;
+  flex: none;
+}
+
+.countdown-beat {
+  position: relative;
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: min(62vw, 15rem);
+  aspect-ratio: 1;
+}
+
+.countdown-beat > .shape {
+  position: absolute;
+  inset: 0;
+  animation: spin-in 620ms var(--ease-spring) both;
 }
 
 .countdown-number {
-  margin: 0;
-  font-family: var(--display);
-  font-size: clamp(6rem, 34vw, 10rem);
+  position: relative;
+  font-size: clamp(6rem, 36vw, 10rem);
+  font-weight: 800;
   line-height: 1;
-  color: var(--accent);
   font-variant-numeric: tabular-nums;
-  animation: pop 420ms var(--ease-spring) both;
+  animation: drop-in 480ms var(--ease-spring) 80ms both;
 }
 
-/* -------------------------------------------------------------- figures - */
-.figures {
+.countdown-beat.mark--arch .countdown-number {
+  transform: translateY(10%);
+}
+
+/* ------------------------------------------------------------------ over - */
+.score-poster {
+  position: relative;
+  overflow: hidden;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.75rem;
+  gap: 0.2rem;
+  padding: 1.4rem 1.4rem 1.6rem;
+  min-height: 14rem;
+  align-content: end;
+  background: var(--blue);
+  color: var(--cream);
 }
 
-.figure {
-  display: grid;
-  gap: 0.15rem;
-  align-content: start;
+.score-poster > :not(.shape) {
+  position: relative;
 }
 
-.figure-value {
-  font-family: var(--display);
-  font-size: clamp(1.2rem, 5.5vw, 1.6rem);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+.score-poster .eyebrow {
+  color: inherit;
+  opacity: 0.8;
 }
 
-.figure-label {
-  font-size: 0.68rem;
-  line-height: 1.3;
-  color: var(--ink-faint);
-  letter-spacing: 0.02em;
+.score-poster > .shape {
+  position: absolute;
+}
+
+.score-poster-sun {
+  width: 9.5rem;
+  height: 9.5rem;
+  right: -2.6rem;
+  top: -2.6rem;
+  animation:
+    rise-in 900ms var(--ease-spring) 250ms both,
+    breathe 6s ease-in-out 1.2s infinite alternate;
+}
+
+.score-poster-quarter {
+  width: 6.5rem;
+  height: 6.5rem;
+  right: 0;
+  bottom: 0;
+  transform: rotate(180deg);
+  animation: corner-in 800ms var(--ease-spring) 450ms both;
+}
+
+.score-poster-bars {
+  width: 2.4rem;
+  height: 2.4rem;
+  right: 7.8rem;
+  top: 1.5rem;
+  opacity: 0.9;
+  animation: fade 600ms ease 700ms both;
 }
 
 .score-final {
+  font-size: clamp(4.5rem, 25vw, 7rem);
+  font-weight: 800;
+  line-height: 0.88;
+  letter-spacing: -0.045em;
   font-variant-numeric: tabular-nums;
-  font-size: clamp(4rem, 22vw, 5.5rem);
-  color: var(--accent);
 }
 
-/* ------------------------------------------------------------ over & home - */
-.standings {
-  display: grid;
-}
-
-.standing {
-  display: grid;
-  grid-template-columns: 1.6rem 1fr auto;
-  align-items: baseline;
-  gap: 0.9rem;
-  padding: 0.75rem 0;
-  border-top: 1px solid var(--rule);
-}
-
-.standing .rank {
+.score-poster-unit {
   font-size: 0.8rem;
-  color: var(--ink-faint);
-  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
 }
 
-.standing .name,
-.standing .points {
-  font-family: var(--display);
-  font-size: 1.2rem;
-  font-variant-numeric: tabular-nums;
+.unlock {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  gap: 0.35rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--red);
+  color: var(--cream);
 }
 
-.standing--leader .name,
-.standing--leader .points,
-.standing--leader .rank {
-  color: var(--accent);
+.unlock .eyebrow {
+  color: inherit;
+  opacity: 0.85;
+}
+
+.unlock-sun {
+  position: absolute;
+  width: 6rem;
+  height: 6rem;
+  right: -1.6rem;
+  top: -1.6rem;
+  animation: spin 18s linear infinite;
+}
+
+.unlock-text {
+  position: relative;
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-transform: uppercase;
+  max-width: 80%;
+}
+
+.unlock-text--quiet {
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: none;
+}
+
+.best {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+}
+
+.best .note {
+  flex-basis: 100%;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.best strong {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.best-points {
+  font-weight: 800;
+  color: var(--green);
 }
 
 .found {
@@ -607,50 +1033,74 @@ button {
 
 .found li {
   display: grid;
-  grid-template-columns: 1.5rem 1fr auto auto;
+  grid-template-columns: 1.75rem 1fr auto auto;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
   padding: 0.55rem 0;
-  border-top: 1px solid var(--rule);
-  animation: rise 400ms var(--ease-out) both;
-  animation-delay: calc(400ms + min(var(--i, 0), 12) * 45ms);
+  border-bottom: 1px solid var(--rule);
+  animation: slide-from-left 420ms var(--ease-out) both;
+  animation-delay: calc(450ms + min(var(--i, 0), 12) * 50ms);
 }
 
-.found li:first-child {
-  border-top: 0;
+.found-word {
+  font-weight: 600;
+  font-size: 1.05rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.found .note {
+  font-size: 0.75rem;
 }
 
 .found .points {
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   font-size: 0.9rem;
-  color: var(--ink-soft);
+  padding: 0 0.3rem;
+}
+
+.tier-peu-commun {
+  color: var(--blue);
 }
 
 .tier-rare {
-  color: var(--accent) !important;
-  font-weight: 600;
+  color: var(--red);
 }
 
 .tier-très-rare {
-  color: var(--gold) !important;
-  font-weight: 700;
+  background: var(--yellow);
+  color: var(--black);
 }
 
-.unlock {
-  background: var(--accent-soft);
-  border-color: transparent;
-  box-shadow: none;
+/* -------------------------------------------------------------- colophon - */
+.colophon {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem 1rem;
+  padding-top: 0.5rem;
 }
 
-.note--warn {
-  color: var(--accent);
+.colophon a {
+  text-decoration-line: underline;
+}
+
+.erase-confirm {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+  text-align: center;
 }
 
 /* ------------------------------------------------------------ animation - */
 @keyframes rise {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -664,10 +1114,10 @@ button {
   }
 }
 
-@keyframes slide-in {
+@keyframes slide-from-left {
   from {
     opacity: 0;
-    transform: translateX(14px);
+    transform: translateX(-24px);
   }
   to {
     opacity: 1;
@@ -675,28 +1125,135 @@ button {
   }
 }
 
-@keyframes pop {
+@keyframes slide-from-right {
   from {
     opacity: 0;
-    transform: scale(0.6);
+    transform: translateX(24px);
   }
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes band-from-left {
+  from {
+    transform: translateX(-110vw);
+  }
+}
+
+@keyframes band-from-right {
+  from {
+    transform: translateX(110vw);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes spin-in {
+  from {
+    opacity: 0;
+    transform: rotate(-120deg) scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-40%) scale(1.3);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    transform: translateY(60%) scale(0.5);
+  }
+}
+
+@keyframes corner-in {
+  from {
+    transform: rotate(180deg) translate(-100%, -100%);
+  }
+}
+
+@keyframes quarter-turns {
+  0%,
+  18% {
+    transform: rotate(0deg);
+  }
+  25%,
+  43% {
+    transform: rotate(90deg);
+  }
+  50%,
+  68% {
+    transform: rotate(180deg);
+  }
+  75%,
+  93% {
+    transform: rotate(270deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes breathe {
+  to {
+    transform: scale(0.8);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes nudge {
+  0%,
+  70%,
+  100% {
+    translate: 0 0;
+  }
+  80% {
+    translate: 12% 0;
   }
 }
 
 @keyframes bump {
   40% {
-    transform: scale(1.14);
+    transform: scale(1.2) rotate(-3deg);
   }
 }
 
 @keyframes tick {
   from {
-    transform: scale(1.12);
+    transform: scale(1.18);
   }
   to {
+    transform: none;
+  }
+}
+
+@keyframes throb {
+  0% {
+    transform: scale(1.1);
+  }
+  100% {
     transform: none;
   }
 }
@@ -704,11 +1261,11 @@ button {
 @keyframes shake {
   20%,
   60% {
-    transform: translateX(-6px);
+    transform: translateX(-7px);
   }
   40%,
   80% {
-    transform: translateX(6px);
+    transform: translateX(7px);
   }
 }
 
@@ -718,18 +1275,32 @@ button {
   }
 }
 
-/* Les enfants d'un écran entrent l'un après l'autre : le regard suit l'ordre
-   de lecture au lieu de recevoir la page d'un bloc. */
-.cascade > * {
-  animation: rise 520ms var(--ease-out) both;
+@keyframes fly {
+  from {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateX(0) scale(0.2);
+  }
+  70% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateX(var(--reach)) scale(1) rotate(160deg);
+  }
 }
 
-.cascade > :nth-child(2) { animation-delay: 60ms; }
-.cascade > :nth-child(3) { animation-delay: 120ms; }
-.cascade > :nth-child(4) { animation-delay: 180ms; }
-.cascade > :nth-child(5) { animation-delay: 240ms; }
-.cascade > :nth-child(6) { animation-delay: 300ms; }
-.cascade > :nth-child(n + 7) { animation-delay: 360ms; }
+/* Les blocs d'un écran entrent l'un après l'autre : le regard suit l'ordre
+   de lecture au lieu de recevoir la page d'un bloc. */
+.cascade > * {
+  animation: rise 560ms var(--ease-out) both;
+}
+
+.cascade > :nth-child(2) { animation-delay: 70ms; }
+.cascade > :nth-child(3) { animation-delay: 140ms; }
+.cascade > :nth-child(4) { animation-delay: 210ms; }
+.cascade > :nth-child(5) { animation-delay: 280ms; }
+.cascade > :nth-child(6) { animation-delay: 350ms; }
+.cascade > :nth-child(n + 7) { animation-delay: 420ms; }
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -740,49 +1311,4 @@ button {
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
   }
-}
-
-/* -------------------------------------------------------------- colophon - */
-.colophon {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 0.25rem 1rem;
-}
-
-.colophon a {
-  text-decoration: none;
-}
-
-.btn--muted {
-  color: var(--ink-faint);
-}
-
-.erase-confirm {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 0.25rem 0.5rem;
-  text-align: center;
-}
-
-/* ---------------------------------------------------------------- modal - */
-.overlay {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 1.25rem;
-  background: color-mix(in srgb, var(--paper) 78%, transparent);
-  backdrop-filter: blur(6px);
-}
-
-.overlay > .card {
-  width: min(28rem, 100%);
-}
-
-.propose-word {
-  font-size: 1.8rem;
 }

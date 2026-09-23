@@ -1,9 +1,17 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import { categoryMeta } from '../domain/catalogue'
+import { Shape } from './bauhaus'
+import { categoryMotif, onTint, type Motif } from './motifs'
 
 const ANNOUNCE_MS = 2600
 const COUNT_FROM = 3
 const BEAT_MS = 800
+
+const BEATS: Record<number, Motif> = {
+  3: { kind: 'circle', tint: 'red' },
+  2: { kind: 'square', tint: 'blue' },
+  1: { kind: 'arch', tint: 'yellow' },
+}
 
 interface CountdownScreenProps {
   categoryIds: readonly string[]
@@ -26,24 +34,39 @@ export function CountdownScreen({ categoryIds, onDone }: CountdownScreenProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  if (count !== null)
+  if (count !== null) {
+    const beat = BEATS[count] ?? BEATS[1]
     return (
       <div className="sheet countdown">
-        <p className="countdown-number" key={count} aria-live="assertive">
-          {count}
+        <p
+          className={`countdown-beat mark--${beat.kind}`}
+          key={count}
+          aria-live="assertive"
+          style={{ color: `var(--${onTint(beat.tint)})` }}
+        >
+          <Shape kind={beat.kind} tint={beat.tint} />
+          <span className="countdown-number">{count}</span>
         </p>
       </div>
     )
+  }
 
   return (
-    <div className="sheet countdown cascade">
-      <p className="eyebrow">Au programme</p>
+    <div className="sheet countdown">
+      <p className="eyebrow countdown-eyebrow">Au programme</p>
       <ul className="dealt">
-        {categoryIds.map((id, index) => (
-          <li key={id} className="serif" style={{ '--i': index } as CSSProperties}>
-            {categoryMeta(id)?.label ?? id}
-          </li>
-        ))}
+        {categoryIds.map((id, index) => {
+          const motif = categoryMotif(id)
+          return (
+            <li
+              key={id}
+              style={{ '--i': index, background: `var(--${motif.tint})`, color: `var(--${onTint(motif.tint)})` } as CSSProperties}
+            >
+              <Shape kind={motif.kind} tint={onTint(motif.tint)} className="dealt-shape" />
+              {categoryMeta(id)?.label ?? id}
+            </li>
+          )
+        })}
       </ul>
     </div>
   )
