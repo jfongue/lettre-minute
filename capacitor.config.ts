@@ -11,7 +11,7 @@ const config: CapacitorConfig = {
     // fixe montrerait soit un écran blanc, soit un logo qui s'attarde.
     SplashScreen: {
       launchAutoHide: false,
-      backgroundColor: '#f6f1e7',
+      backgroundColor: '#f2ecdf',
       androidScaleType: 'CENTER_CROP',
       showSpinner: false,
     },

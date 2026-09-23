@@ -4,28 +4,28 @@
 <head>
 <meta charset="utf-8" />
 <style>
-  @font-face { font-family: Mark; src: url(fraunces-italic.woff2); font-style: italic; font-weight: 100 900; }
-  @font-face { font-family: Mark; src: url(fraunces.woff2); font-style: normal; font-weight: 100 900; }
-  @font-face { font-family: Ui; src: url(inter.woff2); font-weight: 100 900; }
+  @font-face { font-family: Jost; src: url(jost.woff2); font-weight: 100 900; }
   html, body { margin: 0; width: 1024px; height: 500px; overflow: hidden; }
   body {
-    display: grid; grid-template-columns: 330px 1fr; align-items: center; gap: 40px; padding: 0 70px;
-    box-sizing: border-box;
-    background: radial-gradient(90% 120% at 18% 50%, rgba(194, 71, 44, 0.1), transparent 70%), #f6f1e7;
+    position: relative; display: grid; grid-template-columns: 340px 1fr; align-items: center; gap: 36px;
+    padding: 0 64px 0 48px; box-sizing: border-box; background: #f2ecdf; color: #151515; font-family: Jost;
   }
-  iframe { width: 330px; height: 330px; border: 0; }
-  .eyebrow { font: 600 17px/1 Ui; letter-spacing: 0.18em; text-transform: uppercase; color: #69645a; margin: 0 0 18px; }
-  h1 { font: 500 96px/0.95 Mark; font-variation-settings: 'opsz' 144; letter-spacing: -0.025em; color: #1b1914; margin: 0; }
-  h1 em { color: #c2472c; font-weight: 400; font-style: italic; }
-  p.tag { font: 400 26px/1.35 Ui; color: #69645a; margin: 22px 0 0; }
+  iframe { width: 340px; height: 340px; border: 0; }
+  h1 { display: grid; margin: 0; font-weight: 800; font-size: 118px; line-height: 0.84; letter-spacing: -0.04em; text-transform: uppercase; }
+  h1 span:last-child { color: #e0402a; justify-self: end; }
+  p { margin: 26px 0 0; font-weight: 600; font-size: 19px; letter-spacing: 0.2em; text-transform: uppercase; }
+  /* Les formes que prend la lettre en jeu, en bordure. */
+  .arch { position: absolute; right: -40px; bottom: -80px; width: 160px; height: 160px; border-radius: 50%; background: #1f48c7; }
+  .quarter { position: absolute; right: 150px; top: 0; width: 70px; height: 70px; border-bottom-left-radius: 100%; background: #17614c; }
 </style>
 </head>
 <body>
-  <iframe src="mark.html?layer=foreground&scale=1"></iframe>
+  <iframe src="mark.html?layer=foreground&scale=1.1"></iframe>
   <div>
-    <p class="eyebrow">Un mot, une lettre, 60 secondes</p>
-    <h1>Lettre <em>Minute</em></h1>
-    <p class="tag">Plus le mot est rare,<br />plus il rapporte.</p>
+    <h1><span>Lettre</span><span>Minute</span></h1>
+    <p>Un mot · une lettre · 60 secondes</p>
   </div>
+  <span class="arch"></span>
+  <span class="quarter"></span>
 </body>
 </html>
