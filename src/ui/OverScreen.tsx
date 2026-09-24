@@ -7,7 +7,8 @@ import { pickShowsAd, picksOwed } from '../domain/unlocks'
 import type { FoundWord, Run } from '../domain/run'
 import { categoryText, formatNumber, useT } from '../i18n'
 import type { Account, ChallengeDetail } from '../lib/cloud'
-import { adsSupported, tapFeedback } from '../lib/native'
+import { adsSupported, DONATION_URL, storeUrl, tapFeedback } from '../lib/native'
+import { supportDue } from '../domain/support'
 import { sound, tierSound } from '../lib/sound'
 import { AccountPanel, type AccountActions } from './AccountPanel'
 import { CHALLENGE_XP_BONUS } from '../domain/challenge'
@@ -43,6 +44,8 @@ interface OverScreenProps {
   onAvatar(): void
   onChoose(categoryId: string): void
   onChoosePower(powerId: string): void
+  /** The summary asked for support: the next ask waits ten runs from here. */
+  onSupportAsked(): void
   onReplay(): void
   onHome(): void
   /**
@@ -257,6 +260,7 @@ function Summary({
   boardsAfter,
   me,
   onAvatar,
+  onSupportAsked,
   onReplay,
   onHome,
 }: SummaryProps) {
@@ -268,6 +272,11 @@ function Summary({
     window.scrollTo(0, 0)
   }, [])
   const record = run.score > profileBefore.bestScore && run.score > 0
+  // Decided once: marking the ask makes `supportDue` false, and the panel must stay.
+  const [asking] = useState(() => supportDue(profileBefore, profile, run.score, false))
+  useEffect(() => {
+    if (asking) onSupportAsked()
+  }, [asking, onSupportAsked])
 
   return (
     <div className="sheet cascade">
@@ -284,6 +293,8 @@ function Summary({
           label={record ? t.over.newRecord : t.over.record}
         />
       </div>
+
+      {asking && <SupportPanel />}
 
       {run.missed.length > 0 && (
         <section className="panel lesson">
@@ -343,6 +354,28 @@ function Summary({
         </button>
       </div>
     </div>
+  )
+}
+
+/** A donation or a rating, asked at a happy moment: both open out of the app. */
+function SupportPanel() {
+  const t = useT()
+  const store = storeUrl()
+  return (
+    <section className="panel support">
+      <p className="section-title">{t.support.title}</p>
+      <p>{t.support.lead}</p>
+      <div className="support-actions">
+        <a className="btn btn--ghost" href={DONATION_URL} target="_blank" rel="noopener noreferrer">
+          {t.support.donate}
+        </a>
+        {store && (
+          <a className="btn btn--ghost" href={store} target="_blank" rel="noopener noreferrer">
+            {t.support.rate}
+          </a>
+        )}
+      </div>
+    </section>
   )
 }
 

@@ -2325,6 +2325,18 @@ button {
   outline-offset: 0;
 }
 
+.support-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.support-actions .btn {
+  flex: 1 1 12rem;
+  text-align: center;
+  text-decoration: none;
+}
+
 .account-saved {
   display: flex;
   align-items: center;

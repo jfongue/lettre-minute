@@ -96,6 +96,13 @@ export const fr = {
     levelReached: (level: number) => `Niveau ${level} atteint`,
   },
 
+  support: {
+    title: 'Un petit coup de pouce ?',
+    lead: 'Je suis un petit développeur français qui propose des expériences faites avec le cœur. Tu peux me soutenir avec un (tout petit) don ou un 5 étoiles sur le store.',
+    donate: 'Faire un petit don',
+    rate: 'Mettre 5 étoiles',
+  },
+
   account: {
     register: 'Créer un compte',
     logIn: 'Se connecter',

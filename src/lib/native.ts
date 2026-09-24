@@ -292,3 +292,15 @@ export async function googleIdToken(nonce: string): Promise<string | null> {
     return null
   }
 }
+
+export const DONATION_URL = 'https://buymeacoffee.com/demontoon'
+
+/**
+ * Where to rate the game, opened out of the app like any full address. The
+ * Play page also serves the web version; the iPhone app has no store page
+ * yet, so no link rather than one to the wrong store.
+ */
+export function storeUrl(): string | null {
+  if (Capacitor.getPlatform() === 'ios') return null
+  return 'https://play.google.com/store/apps/details?id=fr.lettreminute.app'
+}

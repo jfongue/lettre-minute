@@ -80,6 +80,13 @@ export const es: Messages = {
     levelReached: (level) => `Nivel ${level} alcanzado`,
   },
 
+  support: {
+    title: '¿Un empujoncito?',
+    lead: 'Soy un pequeño desarrollador francés que crea experiencias hechas con el corazón. Puedes apoyarme con una (pequeñita) donación o con 5 estrellas en la tienda.',
+    donate: 'Hacer una pequeña donación',
+    rate: 'Dar 5 estrellas',
+  },
+
   account: {
     register: 'Crear una cuenta',
     logIn: 'Iniciar sesión',

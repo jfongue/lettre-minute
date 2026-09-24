@@ -606,6 +606,7 @@ export function App() {
 
   const choose = useCallback((categoryId: string) => dispatch({ type: 'choose', categoryId }), [])
   const choosePower = useCallback((powerId: string) => dispatch({ type: 'choose-power', powerId }), [])
+  const supportAsked = useCallback(() => dispatch({ type: 'support-asked' }), [])
 
   // Proposing costs no clock: in a timed run, a confirmation dialog would take
   // the seconds the player is spending on the word they just failed to place.
@@ -901,6 +902,7 @@ export function App() {
           onAvatar={() => setEditingAvatar(true)}
           onChoose={choose}
           onChoosePower={choosePower}
+          onSupportAsked={supportAsked}
           boardsBefore={boardsBefore}
           boardsAfter={boardsAfter}
           me={account && !account.anonymous ? account.name : null}

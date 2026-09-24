@@ -3,6 +3,7 @@ import { applyRun, levelFor, type Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
 import { capitalized, normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer } from '../domain/unlocks'
+import { markSupportAsked } from '../domain/support'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, POWER_CHARGES, type PowerId } from '../domain/powers'
 import {
   createRun,
@@ -87,6 +88,7 @@ export type SessionAction =
   | { type: 'skip'; at: number }
   | { type: 'time-up'; at: number }
   | { type: 'propose'; word: string }
+  | { type: 'support-asked' }
   | { type: 'home' }
 
 export function initialSession(profile: Profile): Session {
@@ -162,6 +164,11 @@ export function sessionReducer(session: Session, action: SessionAction): Session
 
     case 'choose-power': {
       const profile = choosePower(session.profile, action.powerId)
+      return profile === session.profile ? session : { ...session, profile }
+    }
+
+    case 'support-asked': {
+      const profile = markSupportAsked(session.profile)
       return profile === session.profile ? session : { ...session, profile }
     }
 

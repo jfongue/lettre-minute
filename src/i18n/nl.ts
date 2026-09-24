@@ -79,6 +79,13 @@ export const nl: Messages = {
     levelReached: (level) => `Niveau ${level} bereikt`,
   },
 
+  support: {
+    title: 'Een klein duwtje?',
+    lead: 'Ik ben een kleine Franse ontwikkelaar die spellen met hart maakt. Je kunt me steunen met een (piepkleine) donatie of 5 sterren in de store.',
+    donate: 'Doe een kleine donatie',
+    rate: 'Geef 5 sterren',
+  },
+
   account: {
     register: 'Account maken',
     logIn: 'Inloggen',

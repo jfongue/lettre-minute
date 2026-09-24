@@ -59,6 +59,8 @@ export interface Profile {
   lastPowerOffer: readonly string[]
   /** The powers the player takes into a run, at most two. */
   equipped: readonly string[]
+  /** `runs` when the game last asked for support (`supportDue`); 0 before it ever did. */
+  supportAskedAt: number
 }
 
 export const NEW_PROFILE: Profile = {
@@ -76,6 +78,7 @@ export const NEW_PROFILE: Profile = {
   powerOffer: [],
   lastPowerOffer: [],
   equipped: [],
+  supportAskedAt: 0,
 }
 
 export interface RunOutcome {
