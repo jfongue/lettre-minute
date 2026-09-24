@@ -1,4 +1,3 @@
-import type { PlayableLetter } from './letters'
 import {
   COMPLICATION_BOOST,
   DODGE_PENALTY_SECONDS,
@@ -23,8 +22,11 @@ import type { WordMatch } from './words'
 export const RUN_SECONDS = 60
 /** A skip costs clock, not points: the player always leaves with what they found. */
 export const SKIP_PENALTY_SECONDS = 5
-/** Below this, a letter is not offered for a category — the prompt must be answerable. */
-export const MIN_WORDS_PER_PROMPT = 12
+/**
+ * A pair with fewer known words than this is dealt once per run: the second
+ * time, the one or two answers everyone knows may already be spent.
+ */
+export const THIN_PROMPT_WORDS = 10
 
 export interface Prompt {
   categoryId: string
@@ -74,10 +76,10 @@ export interface Judge {
   /** `tolerance`: how many letters a slip may be off, 1 unless a power says otherwise. */
   find(categoryId: string, word: string, tolerance?: number): WordMatch | null
   usage(word: string): WordUsage
-  /** Letters that category can honestly be prompted on. */
+  /** Letters that category can honestly be prompted on: at least one of its words there is known. */
   letters(categoryId: string): readonly string[]
-  /** The letters of the dictionary's language and how often each is drawn. */
-  deck: readonly PlayableLetter[]
+  /** How many known words the category has on that letter (`KNOWN_FAME`), which sets how often it is drawn. */
+  known(categoryId: string, letter: string): number
   /** What casts each spell in the dictionary's language, compact (`compactWord`). */
   spells?: Readonly<Record<Spell, readonly string[]>>
   /** The best-known base word on that letter not yet played (by key): what the Joker writes. */
@@ -125,31 +127,46 @@ export interface MissedWord {
   display: string
 }
 
-/** A letter the category can be prompted on, preferring those the lock leaves open and not `except`. */
+/**
+ * A letter the category can be prompted on, preferring those the lock leaves open and not `except`.
+ * Its odds grow with the logarithm of its known words: Z still comes up on the
+ * countries, only rarer than C, and the dozens of « République de… » do not
+ * turn R into the countries' only letter.
+ */
 function drawLetter(rng: Rng, categoryId: string, judge: Judge, locked: ReadonlySet<string>, except?: string): string {
   const honest = judge.letters(categoryId)
   const open = honest.filter((letter) => !locked.has(promptKey({ categoryId, letter })))
   const tiers = [open.filter((letter) => letter !== except), honest.filter((letter) => letter !== except), open, honest]
-  const available = new Set(tiers.find((tier) => tier.length > 0) ?? [])
-  const deck = judge.deck.filter((entry) => available.has(entry.letter))
-  return pickWeighted(rng, deck, (entry) => entry.weight)?.letter ?? deck[0]?.letter ?? 'A'
+  const available = tiers.find((tier) => tier.length > 0) ?? []
+  return pickWeighted(rng, available, (letter) => Math.log2(1 + judge.known(categoryId, letter))) ?? available[0] ?? 'A'
+}
+
+/** What a run may not deal: the previous run's prompts, and the thin pairs it already dealt. */
+function lockOf(avoid: readonly string[], dealt: readonly string[], judge: Judge): Set<string> {
+  const locked = new Set(avoid)
+  for (const key of dealt) {
+    const cut = key.lastIndexOf(':')
+    if (judge.known(key.slice(0, cut), key.slice(cut + 1)) < THIN_PROMPT_WORDS) locked.add(key)
+  }
+  return locked
 }
 
 /**
  * A prompt the previous run dealt is off the table for this one, so two runs
- * in a row never open on the same pair. Within a run a pair may come back:
- * it is the next run that locks it. When a category has nothing else left,
- * the lock gives way rather than leaving it undrawable.
+ * in a row never open on the same pair. Within a run, only a pair with plenty
+ * of known words may come back. When a category has nothing else left, the
+ * lock gives way rather than leaving it undrawable.
  */
-function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[], judge: Judge, avoid: readonly string[], skipCategory?: string): Prompt {
+function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[], judge: Judge, locked: ReadonlySet<string>, skipCategory?: string): Prompt {
   const rng = streamFor(seed, drawn)
-  const locked = new Set(avoid)
   const open = (id: string) => judge.letters(id).filter((letter) => !locked.has(promptKey({ categoryId: id, letter })))
   const playable = categoryIds.filter((id) => judge.letters(id).length > 0)
   const fresh = playable.filter((id) => open(id).length > 0)
   const preferred = fresh.filter((id) => id !== skipCategory)
   const others = playable.filter((id) => id !== skipCategory)
-  const candidates = preferred.length > 0 ? preferred : others.length > 0 ? others : playable
+  // The lock outranks the change of category: dealing the same category twice
+  // costs nothing, dealing a thin pair twice may leave it without an answer.
+  const candidates = [preferred, fresh, others].find((tier) => tier.length > 0) ?? playable
   const categoryId = candidates[Math.floor(rng.next() * candidates.length)] ?? categoryIds[0] ?? ''
 
   return { categoryId, letter: drawLetter(rng, categoryId, judge, locked) }
@@ -160,7 +177,7 @@ function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[],
  * so Divination can show it and `advance` is bound to deal that very one.
  */
 export function nextPrompt(run: Run, judge: Judge): Prompt {
-  return drawPrompt(run.seed, run.drawn, run.categoryIds, judge, run.avoid, run.prompt.categoryId)
+  return drawPrompt(run.seed, run.drawn, run.categoryIds, judge, lockOf(run.avoid, run.dealt, judge), run.prompt.categoryId)
 }
 
 /** The run moved on to a new prompt: it is drawn, counted, and remembered for the next run. */
@@ -202,7 +219,7 @@ export interface CreateRunInput {
 }
 
 export function createRun({ seed, categoryIds, avoid = [], powers = [] }: CreateRunInput, judge: Judge): Run {
-  const prompt = drawPrompt(seed, 0, categoryIds, judge, avoid)
+  const prompt = drawPrompt(seed, 0, categoryIds, judge, new Set(avoid))
   return {
     seed,
     categoryIds,
@@ -364,7 +381,7 @@ export function skip(run: Run, judge: Judge, at = run.promptAt): Run {
 export function reroll(run: Run, judge: Judge, at = run.promptAt): Run {
   if (chargesLeft(run, 'magic') <= 0) return run
   const rng = streamFor((run.seed ^ 0x6d616769) >>> 0, run.drawn * 8 + run.rerolls)
-  const letter = drawLetter(rng, run.prompt.categoryId, judge, new Set(run.avoid), run.prompt.letter)
+  const letter = drawLetter(rng, run.prompt.categoryId, judge, lockOf(run.avoid, run.dealt, judge), run.prompt.letter)
   if (letter === run.prompt.letter) return run
   const prompt = { categoryId: run.prompt.categoryId, letter }
   const key = promptKey(prompt)

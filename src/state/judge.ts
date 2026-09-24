@@ -1,10 +1,9 @@
-import type { PlayableLetter } from '../domain/letters'
-import { MIN_WORDS_PER_PROMPT, type Judge } from '../domain/run'
+import type { Judge } from '../domain/run'
 import { NO_USAGE, type WordUsage } from '../domain/rarity'
 import type { Spell } from '../domain/powers'
 import { countOf } from '../domain/progression'
 import { compactWord } from '../domain/text'
-import { commonWord, findWord, lettersWithEnough, type WordPack } from '../domain/words'
+import { commonWord, findWord, knownByLetter, type WordPack } from '../domain/words'
 
 export interface UsageSource {
   /** Times the player answered this word before, from the local profile. */
@@ -21,14 +20,13 @@ export interface UsageSource {
 export function createJudge(
   packs: readonly WordPack[],
   usage: UsageSource,
-  deck: readonly PlayableLetter[],
   spells?: Readonly<Record<Spell, readonly string[]>>,
 ): Judge {
   const byId = new Map(packs.map((pack) => [pack.categoryId, pack]))
-  const letters = new Map(packs.map((pack) => [pack.categoryId, lettersWithEnough(pack, MIN_WORDS_PER_PROMPT)]))
+  const known = new Map(packs.map((pack) => [pack.categoryId, knownByLetter(pack)]))
+  const letters = new Map([...known].map(([id, counts]) => [id, [...counts.keys()].sort()]))
 
   return {
-    deck,
     ...(spells && {
       spells: {
         joker: spells.joker.map(compactWord),
@@ -51,6 +49,9 @@ export function createJudge(
     },
     letters(categoryId) {
       return letters.get(categoryId) ?? []
+    },
+    known(categoryId, letter) {
+      return known.get(categoryId)?.get(letter) ?? 0
     },
   }
 }

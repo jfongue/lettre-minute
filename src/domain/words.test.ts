@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildWordPack, commonWord, findWord, lettersWithEnough, lookup, showcaseWords, withinOneEdit, type WordRow } from './words'
+import { buildWordPack, commonWord, findWord, knownByLetter, lettersWithEnough, lookup, showcaseWords, withinOneEdit, type WordRow } from './words'
 
 const rows: WordRow[] = [['Chat', 120, 45.3], ['Chien', 150, 60], ['Écureuil', 60, 3.2], ['Zèbre', 90, 1.4]]
 
@@ -88,6 +88,14 @@ describe('lettersWithEnough', () => {
 
     expect(lettersWithEnough(pack, 2)).toEqual(['C'])
     expect(lettersWithEnough(pack, 1)).toEqual(['C', 'E', 'Z'])
+  })
+})
+
+describe('knownByLetter', () => {
+  it('counts the known base words on each letter, not the obscure ones nor the plurals', () => {
+    const pack = buildWordPack('animaux', [...rows, ['Chats', 120, 20, 'chat'], ['Zorille', 0, 0], ['Quiscale noir', 1, 0]])
+
+    expect(Object.fromEntries(knownByLetter(pack))).toEqual({ C: 2, E: 1, Z: 1 })
   })
 })
 

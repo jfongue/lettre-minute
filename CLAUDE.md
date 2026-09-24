@@ -23,9 +23,15 @@ qu'un nouvel arrivant casserait sans le savoir.
   à chaque frappe. `submit()` rejoue le même verdict avant de l'encaisser — les
   deux ne doivent jamais diverger, sous peine d'un mot affiché valide et refusé
   à la validation.
-- **Une lettre n'est proposée que si la catégorie a au moins
-  `MIN_WORDS_PER_PROMPT` mots dessus** : sans ce filtre, le tirage sort des
-  couples que personne ne peut résoudre.
+- **Un couple lettre + catégorie se tire selon ses mots *connus***
+  (`knownByLetter`, célébrité absolue ≥ `KNOWN_FAME`) : un seul suffit pour
+  qu'il sorte, et ses chances croissent comme le logarithme de leur nombre —
+  Z + Pays sort, rarement ; les « République de… » ne font pas de R la seule
+  lettre des pays. Pas le rang de `notoriety` : parmi 23 000 animaux, il
+  sacre les quiscales. Un couple de moins de `THIN_PROMPT_WORDS` mots connus
+  ne revient pas dans la même partie, et ce verrou passe avant le changement
+  de catégorie. Il n'y a plus de jeu de lettres par langue : c'est le
+  dictionnaire qui dit quelles lettres existent.
 - **Les dictionnaires sont des tableaux JSON positionnels chargés à la
   demande** (`src/data/packs.ts`, type `WordRow`). Un objet par mot, avec ses
   clés répétées des dizaines de milliers de fois, doublerait la charge utile ; les tableaux ne
@@ -46,8 +52,6 @@ qu'un nouvel arrivant casserait sans le savoir.
   pas les langues : `cloud.ts` préfixe mots et catégories (`de:animaux`) pour
   que rareté, découvertes et mots proposés restent dans leur langue. Le
   français garde les noms nus sous lesquels ses lignes existent déjà.
-- **Chaque langue a son jeu de lettres** (`LETTER_DECKS`), passé au domaine
-  par le `Judge` : l'allemand veut K, W et Z, que le français écarte.
 - **L'import Wikidata est fragile par nature** : les requêtes lourdes (taxons)
   dépassent la limite serveur, et les réponses JSON reviennent parfois tronquées
   à un mégaoctet. D'où le cache par source sous `.cache/pulls`, le repli CSV à la
@@ -156,7 +160,7 @@ qu'un nouvel arrivant casserait sans le savoir.
   sorts que `inspect()` juge comme n'importe quelle réponse (verdict `spell`),
   et seulement quand la catégorie ne connaît pas le mot — même déjà joué, un
   mot connu reste `already`. Leurs mots par langue viennent de l'i18n et
-  passent par le `Judge`, comme le jeu de lettres.
+  passent par le `Judge`, comme les mots connus par lettre.
 - **Divination montre ce qu'`advance` distribuera** : `nextPrompt()` ne dépend
   que de la graine et de `drawn`. Magie tire donc sa lettre sur un autre flux
   et ne touche pas à `drawn` — sinon l'aperçu mentirait.

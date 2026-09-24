@@ -1,23 +1,23 @@
 import { describe, expect, it } from 'vitest'
-import { PLAYABLE_LETTERS } from '../domain/letters'
 import { NEW_PROFILE } from '../domain/progression'
 import { NO_USAGE } from '../domain/rarity'
-import { MIN_WORDS_PER_PROMPT, type Judge } from '../domain/run'
+import type { Judge } from '../domain/run'
 import { buildWordPack, findWord, lettersWithEnough } from '../domain/words'
 import { initialSession, sessionReducer, type Session } from './session'
 
 const LETTERS = 'ABCDEFGHIJLMNOPRSTV'.split('')
+const PER_LETTER = 12
 const animals = buildWordPack(
   'animaux',
   LETTERS.flatMap((letter) =>
-    Array.from({ length: MIN_WORDS_PER_PROMPT }, (_, i) => [`${letter}nimal${i}`, 50, 1] as const),
+    Array.from({ length: PER_LETTER }, (_, i) => [`${letter}nimal${i}`, 50, 1] as const),
   ),
 )
 const judge: Judge = {
   find: (_, word) => findWord(animals, word),
   usage: () => NO_USAGE,
-  letters: () => lettersWithEnough(animals, MIN_WORDS_PER_PROMPT),
-  deck: PLAYABLE_LETTERS,
+  letters: () => lettersWithEnough(animals, PER_LETTER),
+  known: () => PER_LETTER,
 }
 
 function playing(): Session {

@@ -25,7 +25,6 @@ import { completeBoards, HOUSE_PLAYER, type Boards } from './domain/boards'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
-import { LETTER_DECKS, PLAYABLE_LETTERS } from './domain/letters'
 import { commonWord, withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
 import { createJudge } from './state/judge'
@@ -321,7 +320,7 @@ export function App() {
           })),
         ),
       )
-      return createJudge(packs, { own: session.profile.usage, crowd }, LETTER_DECKS[lang] ?? PLAYABLE_LETTERS, t.powers.spells)
+      return createJudge(packs, { own: session.profile.usage, crowd }, t.powers.spells)
     },
     [session.profile.usage, crowd, lang, t],
   )

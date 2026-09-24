@@ -1,12 +1,11 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { LETTER_DECKS } from '../domain/letters'
 import { createRng, type Rng } from '../domain/rng'
 import { POWER_IDS } from '../domain/powers'
-import { createRun, inspect, MIN_WORDS_PER_PROMPT, remainingSeconds, reroll, skip, submit, type Judge, type Run } from '../domain/run'
+import { createRun, inspect, promptKey, remainingSeconds, reroll, skip, submit, THIN_PROMPT_WORDS, type Judge, type Run } from '../domain/run'
 import { compactWord, initialOf } from '../domain/text'
-import { buildWordPack, findWord, type WordPack, type WordRow } from '../domain/words'
+import { buildWordPack, findWord, knownByLetter, type WordPack, type WordRow } from '../domain/words'
 import { createJudge } from './judge'
 
 /**
@@ -32,6 +31,8 @@ const packsByLang = new Map<string, WordPack[]>(
       }),
   ]),
 )
+
+const knownOf = new Map([...packsByLang.values()].flat().map((pack) => [pack, knownByLetter(pack)]))
 
 /** Every display of a pack, listed once: spreading 23 000 animals on every move was most of the fuzz's time. */
 const displaysOf = new Map<WordPack, readonly string[]>()
@@ -83,20 +84,29 @@ function answerFor(rng: Rng, run: Run, pack: WordPack, other: WordPack): string 
 function playOne(seed: number, lang: string): void {
   const rng = createRng(seed)
   const packs = packsByLang.get(lang)!
-  const judge: Judge = createJudge(packs, { own: {}, crowd: {} }, LETTER_DECKS[lang]!, { joker: ['joker'], hush: ['chut'] })
+  const judge: Judge = createJudge(packs, { own: {}, crowd: {} }, { joker: ['joker'], hush: ['chut'] })
   const powers = POWER_IDS.filter(() => rng.next() < 0.25).slice(0, 2)
   const categoryIds = packs.map((pack) => pack.categoryId).filter(() => rng.next() < 0.6)
   if (categoryIds.length === 0) categoryIds.push(packs[0]!.categoryId)
   const byId = new Map(packs.map((pack) => [pack.categoryId, pack]))
 
   let run = createRun({ seed, categoryIds, powers }, judge)
+  const seen = new Set<string>()
+  let shown: Run['prompt'] | null = null
   const context = () => `lang=${lang} seed=${seed} powers=${powers.join()} prompt=${run.prompt.categoryId}:${run.prompt.letter}`
 
   for (let step = 0; step < 30; step++) {
     const { categoryId, letter } = run.prompt
     expect(categoryIds, context()).toContain(categoryId)
     expect(judge.letters(categoryId), `${context()} — letter not honourable`).toContain(letter)
-    expect(byId.get(categoryId)!.counts.get(letter) ?? 0, context()).toBeGreaterThanOrEqual(MIN_WORDS_PER_PROMPT)
+    const known = knownOf.get(byId.get(categoryId)!)!.get(letter) ?? 0
+    expect(known, `${context()} — no known word`).toBeGreaterThanOrEqual(1)
+    if (run.prompt !== shown) {
+      const unseen = categoryIds.some((id) => judge.letters(id).some((other) => !seen.has(`${id}:${other}`)))
+      if (known < THIN_PROMPT_WORDS && seen.has(promptKey(run.prompt)) && unseen) expect.fail(`${context()} — thin pair dealt twice`)
+      seen.add(promptKey(run.prompt))
+      shown = run.prompt
+    }
 
     expect(remainingSeconds(run, step), context()).toBeLessThanOrEqual(60 + 10)
 
@@ -159,7 +169,7 @@ describe('fuzz: random games on the real dictionaries', () => {
 
   it.each(LANGS)('%s: the same seed replays the same game', (lang) => {
     const packs = packsByLang.get(lang)!
-    const judge = createJudge(packs, { own: {}, crowd: {} }, LETTER_DECKS[lang]!)
+    const judge = createJudge(packs, { own: {}, crowd: {} })
     const ids = packs.map((pack) => pack.categoryId)
     const play = () => {
       let run = createRun({ seed: SEED, categoryIds: ids }, judge)

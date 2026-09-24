@@ -285,6 +285,25 @@ export function findWord(pack: WordPack, raw: string, tolerance = 1): WordMatch 
   return two && two !== AMBIGUOUS ? { entry: two, approximate: true, edits: 2 } : null
 }
 
+/**
+ * The absolute fame from which a word counts as known — read on the raw
+ * signals, not on `notoriety`: its rank half would crown a few quiscales the
+ * best-known Q among twenty thousand animals, where the countries' Z, with
+ * Zimbabwe and Zambie, rank on a few dozen.
+ */
+export const KNOWN_FAME = 0.4
+
+/** Letter → how many base words on it are known (`KNOWN_FAME`): what a prompt's odds are drawn from. */
+export function knownByLetter(pack: WordPack): Map<string, number> {
+  const known = new Map<string, number>()
+  for (const entry of pack.entries.values()) {
+    if (entry.key !== normalizeWord(entry.display) || rawFame(entry) < KNOWN_FAME) continue
+    const letter = initialOf(entry.display)
+    if (letter !== '') known.set(letter, (known.get(letter) ?? 0) + 1)
+  }
+  return known
+}
+
 export function lettersWithEnough(pack: WordPack, minimum: number): string[] {
   return [...pack.counts.entries()]
     .filter(([, count]) => count >= minimum)

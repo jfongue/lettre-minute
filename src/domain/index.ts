@@ -1,5 +1,4 @@
 export * from './catalogue'
-export * from './letters'
 export * from './progression'
 export * from './rarity'
 export * from './rng'

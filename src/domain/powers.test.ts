@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { PLAYABLE_LETTERS } from './letters'
 import {
   choosePower,
   dealPowerOffer,
@@ -20,7 +19,6 @@ import {
   createRun,
   inspect,
   isHushed,
-  MIN_WORDS_PER_PROMPT,
   nextPrompt,
   remainingSeconds,
   reroll,
@@ -33,16 +31,17 @@ import {
 import { buildWordPack, commonWord, editDistance, findWord, lettersWithEnough, type WordRow } from './words'
 
 const LETTERS = 'ABCDEFGHIJLMNOPRSTV'.split('')
+const PER_LETTER = 12
 const rows: WordRow[] = LETTERS.flatMap((letter) =>
-  Array.from({ length: MIN_WORDS_PER_PROMPT }, (_, i): WordRow => [`${letter}nimal${i}`, 10 + i * 20, i]),
+  Array.from({ length: PER_LETTER }, (_, i): WordRow => [`${letter}nimal${i}`, 10 + i * 20, i]),
 )
 const animals = buildWordPack('animaux', [...rows, ['Hippopotame', 5, 0], ['Rhinocéros', 5, 0]])
 
 const judge: Judge = {
   find: (_, word, tolerance) => findWord(animals, word, tolerance),
   usage: () => NO_USAGE,
-  letters: () => lettersWithEnough(animals, MIN_WORDS_PER_PROMPT),
-  deck: PLAYABLE_LETTERS,
+  letters: () => lettersWithEnough(animals, PER_LETTER),
+  known: () => PER_LETTER,
   spells: { joker: ['joker'], hush: ['chut'] },
   common: (_, letter, played) => commonWord(animals, letter, played),
 }

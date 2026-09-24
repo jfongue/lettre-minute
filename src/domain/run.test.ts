@@ -1,15 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { PLAYABLE_LETTERS } from './letters'
 import { NO_USAGE, type WordUsage } from './rarity'
 import {
   createRun,
   inspect,
-  MIN_WORDS_PER_PROMPT,
   remainingSeconds,
   RUN_SECONDS,
   SKIP_PENALTY_SECONDS,
   skip,
   submit,
+  THIN_PROMPT_WORDS,
   type Judge,
   type Run,
 } from './run'
@@ -21,13 +20,14 @@ function packOf(categoryId: string, words: readonly string[]): WordPack {
 }
 
 const LETTERS = 'ABCDEFGHIJLMNOPRSTV'.split('')
+const PER_LETTER = 12
 const animals = packOf(
   'animaux',
-  LETTERS.flatMap((letter) => Array.from({ length: MIN_WORDS_PER_PROMPT }, (_, i) => `${letter}nimal${i}`)),
+  LETTERS.flatMap((letter) => Array.from({ length: PER_LETTER }, (_, i) => `${letter}nimal${i}`)),
 )
 const countries = packOf(
   'pays',
-  LETTERS.flatMap((letter) => Array.from({ length: MIN_WORDS_PER_PROMPT }, (_, i) => `${letter}ays${i}`)),
+  LETTERS.flatMap((letter) => Array.from({ length: PER_LETTER }, (_, i) => `${letter}ays${i}`)),
 )
 
 function judgeOf(usage: Record<string, WordUsage> = {}): Judge {
@@ -41,10 +41,10 @@ function judgeOf(usage: Record<string, WordUsage> = {}): Judge {
       return pack ? findWord(pack, word) : null
     },
     usage: (word) => usage[word] ?? NO_USAGE,
-    deck: PLAYABLE_LETTERS,
+    known: () => PER_LETTER,
     letters: (categoryId) => {
       const pack = packs.get(categoryId)
-      return pack ? lettersWithEnough(pack, MIN_WORDS_PER_PROMPT) : []
+      return pack ? lettersWithEnough(pack, PER_LETTER) : []
     },
   }
 }
@@ -150,7 +150,7 @@ describe('formes fléchies', () => {
       find: (_, word) => findWord(pack, word),
       usage: () => NO_USAGE,
       letters: () => ['C'],
-      deck: PLAYABLE_LETTERS,
+      known: () => PER_LETTER,
     }
     let run = createRun({ seed: 1, categoryIds: ['animaux'] }, only)
     run = submit(run, 'canard', only).run
@@ -166,7 +166,7 @@ describe('orthographe approchée', () => {
     find: (_, word) => findWord(pack, word),
     usage: () => NO_USAGE,
     letters: () => ['L'],
-    deck: PLAYABLE_LETTERS,
+    known: () => PER_LETTER,
   }
 
   it('accepts a one-letter slip and pays it the flat rate', () => {
@@ -258,5 +258,45 @@ describe('prompts locked from the previous run', () => {
     const everything = LETTERS.map((letter) => `animaux:${letter}`)
     const run = createRun({ seed: 5, categoryIds: ['animaux'], avoid: everything }, judge)
     expect(LETTERS).toContain(run.prompt.letter)
+  })
+})
+
+describe('odds of a pair', () => {
+  /** Animals only: C has plenty of known words, Z and Q a handful. */
+  function judgeKnowing(known: Record<string, number>): Judge {
+    return {
+      find: (_, word) => findWord(animals, word),
+      usage: () => NO_USAGE,
+      letters: () => Object.keys(known),
+      known: (_, letter) => known[letter] ?? 0,
+    }
+  }
+
+  it('deals a rare letter less often, but deals it', () => {
+    const odds = judgeKnowing({ C: 300, Z: 3 })
+    const counts = { C: 0, Z: 0 }
+    for (let seed = 1; seed <= 2000; seed++) {
+      counts[createRun({ seed, categoryIds: ['animaux'] }, odds).prompt.letter as 'C' | 'Z']++
+    }
+
+    expect(counts.Z).toBeGreaterThan(100)
+    expect(counts.C).toBeGreaterThan(counts.Z * 2)
+  })
+
+  it('never deals a thin pair twice in a run while another is left', () => {
+    const thin = judgeKnowing({ A: 1, B: 2, C: 3, D: THIN_PROMPT_WORDS - 1 })
+    let run = createRun({ seed: 9, categoryIds: ['animaux'] }, thin)
+    for (let i = 0; i < 3; i++) run = skip(run, thin)
+
+    expect(new Set(run.dealt).size).toBe(4)
+  })
+
+  it('lets a well-stocked pair come back', () => {
+    const stocked = judgeKnowing({ A: THIN_PROMPT_WORDS, B: THIN_PROMPT_WORDS })
+    let run = createRun({ seed: 9, categoryIds: ['animaux'] }, stocked)
+    const letters = [run.prompt.letter]
+    for (let i = 0; i < 20; i++) letters.push((run = skip(run, stocked)).prompt.letter)
+
+    expect(letters.filter((letter) => letter === 'A').length).toBeGreaterThan(1)
   })
 })
