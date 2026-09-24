@@ -369,6 +369,14 @@ export const sound = {
       duck(t)
     })
   },
+  /** The reveal counter passes the old record: a quick rising run, then a bell. */
+  record(): void {
+    cue((c, t) => {
+      ;[0, 2, 4, 7].forEach((step, i) => glock(c, deg(step, 1), t + i * 0.06, 0.5, sfx))
+      bell(c, deg(7, 2), t + 0.26, 0.55, sfx, 1.6)
+      glass(c, deg(9, 1), t + 0.26, 0.4, sfx)
+    })
+  },
   click(): void {
     cue((c, t) => {
       hiss(c, t, 0.012, sfx, 0.12, 'highpass', 4000, 0.7)

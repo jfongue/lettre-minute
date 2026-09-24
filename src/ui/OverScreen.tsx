@@ -49,7 +49,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
   // Each offer gets a fresh screen: a second pick owed deals the next one.
   const [round, setRound] = useState(0)
 
-  if (!revealed) return <Reveal run={run} onNext={onRevealed} />
+  if (!revealed) return <Reveal run={run} previousBest={profileBefore.runs > 0 ? profileBefore.bestScore : null} onNext={onRevealed} />
   if (profile.offer.length > 0 || celebrating) {
     const levelled = levelFor(profile.xp) > levelFor(profileBefore.xp)
     return (
@@ -91,7 +91,7 @@ const isRare = (found: FoundWord) => !found.approximate && (found.tier === 'rare
  * a time. Fast, but each find gets its own beat — and a rare one a longer one.
  * A tap skips to the end; the next tap moves on.
  */
-function Reveal({ run, onNext }: { run: Run; onNext(): void }) {
+function Reveal({ run, previousBest, onNext }: { run: Run; previousBest: number | null; onNext(): void }) {
   const t = useT()
   const total = run.found.length
   // -2: blank, -1: the score alone, n: the score and the first n words.
@@ -124,7 +124,7 @@ function Reveal({ run, onNext }: { run: Run; onNext(): void }) {
       onClick={() => (done ? onNext() : setShown(total))}
       role="presentation"
     >
-      {shown >= -1 && <RevealScore score={run.score} />}
+      {shown >= -1 && <RevealScore score={run.score} previousBest={previousBest} />}
 
       {shown >= 0 && (
         <ol className="reveal-words">
@@ -176,14 +176,35 @@ function Reveal({ run, onNext }: { run: Run; onNext(): void }) {
   )
 }
 
-function RevealScore({ score }: { score: number }) {
+/**
+ * The old record waits under the counter, so the moment the count passes it
+ * lands on screen — not on the summary, a tap later. A first run has no record
+ * to beat (null).
+ */
+function RevealScore({ score, previousBest }: { score: number; previousBest: number | null }) {
   const t = useT()
   const shown = useCountUp(score, SCORE_MS)
+  const beaten = previousBest !== null && shown > previousBest
+
+  useEffect(() => {
+    if (!beaten) return
+    tapFeedback('heavy')
+    sound.record()
+  }, [beaten])
+
   return (
-    <header className="reveal-score">
+    <header className={`reveal-score${beaten ? ' reveal-score--record' : ''}`}>
       <p className="eyebrow">{t.over.timeUp}</p>
-      <h1 className="score-final">{formatNumber(t, shown)}</h1>
+      <h1 className="score-final">
+        {formatNumber(t, shown)}
+        {beaten && <Burst />}
+      </h1>
       <p className="score-poster-unit">{t.over.points}</p>
+      {previousBest !== null && score > previousBest && (
+        <p className="reveal-record" key={beaten ? 'new' : 'old'}>
+          {beaten ? t.over.newRecord : `${t.over.record} ${formatNumber(t, previousBest)}`}
+        </p>
+      )}
     </header>
   )
 }

@@ -1045,10 +1045,11 @@ button {
 }
 
 .unlock {
-  position: relative;
-  overflow: hidden;
   display: grid;
-  gap: 0.35rem;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: 1rem;
+  row-gap: 0.35rem;
   padding: 1.1rem 1.25rem;
   background: var(--red);
   color: var(--cream);
@@ -1059,12 +1060,12 @@ button {
   opacity: 0.85;
 }
 
+/* Beside the text, never under it. */
 .unlock-sun {
-  position: absolute;
-  width: 6rem;
-  height: 6rem;
-  right: -1.6rem;
-  top: -1.6rem;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: 3.4rem;
+  height: 3.4rem;
   animation: spin 18s linear infinite;
 }
 
@@ -2431,15 +2432,11 @@ button {
   animation: fade 400ms ease both;
 }
 
+/* Above the title, never behind it: text over a shape does not read. */
 .unlock-head-sun {
-  position: absolute;
-  z-index: -1;
-  width: 9rem;
-  height: 9rem;
-  top: 50%;
-  left: 50%;
-  margin: -4.5rem 0 0 -4.5rem;
-  opacity: 0.9;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: 0.3rem;
   animation:
     spin-in 700ms var(--ease-spring) both,
     spin 24s linear 700ms infinite;
@@ -2458,18 +2455,10 @@ button {
   --tint: var(--ink-faint);
   position: relative;
   display: grid;
-  grid-template-columns: 2.6rem 1fr;
   align-items: center;
-  gap: 0.8rem;
   min-height: 4.2rem;
   padding: 0.4rem 0.1rem;
   animation: rise 420ms var(--ease-out) 260ms both;
-}
-
-.unlock-typer-mark {
-  display: grid;
-  place-items: center;
-  animation: pop-in 320ms var(--ease-spring) both;
 }
 
 .unlock-typer-text {
@@ -2603,6 +2592,7 @@ button {
 .unlock-seal {
   position: relative;
   overflow: hidden;
+  isolation: isolate;
   display: grid;
   place-content: center;
   gap: 0.4rem;
@@ -2613,20 +2603,19 @@ button {
   animation: seal-in 640ms var(--ease-spring) both;
 }
 
+/* In the column, over the label: a shape behind the text would not read. */
 .unlock-seal-shape {
-  position: absolute;
-  width: 18rem;
-  height: 18rem;
-  left: 50%;
-  top: 50%;
-  margin: -9rem 0 0 -9rem;
-  opacity: 0.22;
-  animation: spin 16s linear infinite;
+  justify-self: center;
+  width: 7rem;
+  height: 7rem;
+  margin-bottom: 0.4rem;
+  animation: pop-in 520ms var(--ease-spring) both;
 }
 
 .unlock-seal-burst {
   position: absolute;
   inset: 0;
+  z-index: -1;
   transform: scale(2.8);
 }
 
@@ -2735,7 +2724,55 @@ button {
 }
 
 .reveal-score .score-final {
+  position: relative;
+  isolation: isolate;
   font-size: clamp(5rem, 30vw, 8.5rem);
+  transition: color 200ms ease;
+}
+
+.reveal-score--record .score-final {
+  color: var(--red);
+  animation: record-thump 520ms var(--ease-spring);
+}
+
+/* The word bursts are sized for a list row; the score is three times taller. */
+.reveal-score--record .burst {
+  z-index: -1;
+  transform: scale(2.6);
+}
+
+.reveal-record {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.reveal-score--record .reveal-record {
+  margin-top: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  background: var(--red);
+  color: var(--cream);
+  opacity: 1;
+  animation: record-stamp 480ms var(--ease-spring) both;
+}
+
+@keyframes record-thump {
+  35% {
+    transform: scale(1.14) rotate(-2deg);
+  }
+}
+
+@keyframes record-stamp {
+  from {
+    opacity: 0;
+    transform: scale(2.2) rotate(-8deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-3deg);
+  }
 }
 
 .reveal-words {

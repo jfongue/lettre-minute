@@ -51,8 +51,10 @@ export function onBackButton(onBack: () => boolean): () => void {
   }
 }
 
-export function tapFeedback(strength: 'light' | 'medium' = 'light'): void {
-  quietly(() => Haptics.impact({ style: strength === 'light' ? ImpactStyle.Light : ImpactStyle.Medium }))
+const IMPACT = { light: ImpactStyle.Light, medium: ImpactStyle.Medium, heavy: ImpactStyle.Heavy }
+
+export function tapFeedback(strength: keyof typeof IMPACT = 'light'): void {
+  quietly(() => Haptics.impact({ style: IMPACT[strength] }))
 }
 
 // Google's sample unit: it serves test ads only, so a build without a real

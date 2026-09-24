@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { capitalized, initialOf } from '../domain/text'
+import { capitalized } from '../domain/text'
 import { showcaseWords } from '../domain/words'
 import { loadPack } from '../data/packs'
 import { categoryText, useT } from '../i18n'
 import { showInterstitial, tapFeedback } from '../lib/native'
 import { sound } from '../lib/sound'
-import { Burst, LetterMark, Shape } from './bauhaus'
+import { Burst, Shape } from './bauhaus'
 import { categoryMotif, onTint } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
 import { reducedMotion } from './useCountUp'
@@ -135,11 +135,6 @@ export function UnlockScreen({ lang, onChoose, onDone, ...dealt }: UnlockScreenP
         style={typedMotif ? ({ '--tint': `var(--${typedMotif.tint})` } as CSSProperties) : undefined}
         aria-hidden="true"
       >
-        <span className="unlock-typer-mark" key={typed.target}>
-          {typedMotif && typed.target && (
-            <LetterMark letter={initialOf(typed.target)} motif={typedMotif} size="md" />
-          )}
-        </span>
         <span className="unlock-typer-text">
           {typed.text}
           <span className="unlock-caret" />
