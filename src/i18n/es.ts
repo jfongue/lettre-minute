@@ -51,6 +51,9 @@ export const es: Messages = {
     more: (count) => `quedan ${count} por elegir`,
     lead: 'Elige la que se une a tus partidas.',
     adNotice: 'Tras tu elección verás un anuncio breve: así apoyas al creador del juego. ¡Gracias!',
+    confirm: 'Confirmar',
+    pickFirst: 'Toca una carta',
+    joined: 'se suma a tus partidas',
   },
 
   over: {

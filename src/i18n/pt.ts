@@ -51,6 +51,9 @@ export const pt: Messages = {
     more: (count) => `mais ${count} para escolher`,
     lead: 'Escolha a que entra nas suas partidas.',
     adNotice: 'Depois da escolha vem um anúncio curto: é ele que apoia o criador do jogo. Obrigado!',
+    confirm: 'Confirmar',
+    pickFirst: 'Toque em uma carta',
+    joined: 'entra nas suas partidas',
   },
 
   over: {

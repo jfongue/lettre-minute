@@ -2410,6 +2410,313 @@ button {
   opacity: 0.85;
 }
 
+/* ---------------------------------------------------------------- unlock - */
+.unlock-screen {
+  min-height: 86dvh;
+  align-content: center;
+  gap: calc(var(--step) * 1.2);
+  padding-block: 4dvh;
+}
+
+.unlock-head {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  isolation: isolate;
+}
+
+.unlock-head .eyebrow {
+  animation: fade 400ms ease both;
+}
+
+.unlock-head-sun {
+  position: absolute;
+  z-index: -1;
+  width: 9rem;
+  height: 9rem;
+  top: 50%;
+  left: 50%;
+  margin: -4.5rem 0 0 -4.5rem;
+  opacity: 0.9;
+  animation:
+    spin-in 700ms var(--ease-spring) both,
+    spin 24s linear 700ms infinite;
+}
+
+.unlock-title {
+  font-size: clamp(2.3rem, 11vw, 3.6rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  animation: drop-in 560ms var(--ease-spring) 120ms both;
+}
+
+.unlock-typer {
+  --tint: var(--ink-faint);
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.6rem 1fr;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 4.2rem;
+  padding: 0.4rem 0.1rem;
+  animation: rise 420ms var(--ease-out) 260ms both;
+}
+
+.unlock-typer-mark {
+  display: grid;
+  place-items: center;
+  animation: pop-in 320ms var(--ease-spring) both;
+}
+
+.unlock-typer-text {
+  min-width: 0;
+  font-size: clamp(1.7rem, 8vw, 2.3rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+}
+
+.unlock-caret {
+  display: inline-block;
+  width: 3px;
+  height: 0.95em;
+  margin-left: 2px;
+  vertical-align: -0.1em;
+  background: var(--tint);
+  animation: caret 1s steps(1) infinite;
+}
+
+.unlock-typer-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--tint);
+  transition: background-color 260ms ease;
+}
+
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.unlock-cards {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+
+.unlock-cards li {
+  display: grid;
+  animation: card-deal 560ms var(--ease-spring) backwards;
+  animation-delay: calc(var(--i, 0) * 120ms + 380ms);
+}
+
+.unlock-card {
+  position: relative;
+  min-height: 11rem;
+  padding: 0.9rem 0.75rem;
+  transition:
+    transform 240ms var(--ease-spring),
+    opacity 240ms ease,
+    box-shadow 200ms ease;
+}
+
+.unlock-card-shape {
+  width: 2.3rem;
+  height: 2.3rem;
+  transition: transform 500ms var(--ease-spring);
+}
+
+.unlock-card strong {
+  font-size: clamp(0.95rem, 4vw, 1.15rem);
+}
+
+.unlock-card--lit {
+  transform: translateY(-4px);
+}
+
+.unlock-card--dim {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.unlock-card--selected,
+.unlock-card--selected:hover {
+  transform: translateY(-8px) scale(1.04);
+  box-shadow:
+    0 0 0 3px var(--paper),
+    0 0 0 6px var(--ink);
+}
+
+.unlock-card--selected .unlock-card-shape {
+  transform: rotate(90deg) scale(1.15);
+}
+
+.unlock-card-check {
+  position: absolute;
+  top: -0.7rem;
+  right: -0.7rem;
+  display: grid;
+  place-items: center;
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.95rem;
+  font-weight: 800;
+  opacity: 1;
+  animation: pop-in 320ms var(--ease-spring) both;
+}
+
+.unlock-actions {
+  animation: rise 420ms var(--ease-out) 700ms both;
+}
+
+.unlock-actions .btn--play:disabled .play-glyph {
+  animation: none;
+}
+
+.unlock-card-drop {
+  animation: card-drop 420ms var(--ease-snap) forwards;
+}
+
+.unlock-card-drop:nth-child(odd) {
+  --tilt: -14deg;
+}
+
+.unlock-card-keep {
+  animation: card-keep 420ms var(--ease-spring) forwards;
+}
+
+.unlock-seal {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-content: center;
+  gap: 0.4rem;
+  min-height: 17rem;
+  padding: 2rem 1.25rem;
+  text-align: center;
+  cursor: pointer;
+  animation: seal-in 640ms var(--ease-spring) both;
+}
+
+.unlock-seal-shape {
+  position: absolute;
+  width: 18rem;
+  height: 18rem;
+  left: 50%;
+  top: 50%;
+  margin: -9rem 0 0 -9rem;
+  opacity: 0.22;
+  animation: spin 16s linear infinite;
+}
+
+.unlock-seal-burst {
+  position: absolute;
+  inset: 0;
+  transform: scale(2.8);
+}
+
+.unlock-seal-label {
+  position: relative;
+  font-size: clamp(2.4rem, 12vw, 4rem);
+  font-weight: 800;
+  line-height: 0.95;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  animation: rise 460ms var(--ease-out) 200ms both;
+}
+
+.unlock-seal-joined {
+  position: relative;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  animation: fade 400ms ease 420ms both;
+}
+
+.unlock-seal-stamp {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  color: var(--paper);
+  font-size: 1.6rem;
+  font-weight: 800;
+  animation: stamp 520ms var(--ease-spring) 380ms both;
+}
+
+.unlock-seal-stamp > * {
+  grid-area: 1 / 1;
+}
+
+.unlock-seal-stamp .shape {
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes card-deal {
+  from {
+    opacity: 0;
+    transform: translateY(-40px) rotate(-8deg) scale(0.8);
+  }
+}
+
+@keyframes card-drop {
+  to {
+    opacity: 0;
+    transform: translateY(70%) rotate(var(--tilt, 14deg)) scale(0.8);
+  }
+}
+
+@keyframes card-keep {
+  40% {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1.06);
+  }
+}
+
+@keyframes seal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.35) rotate(-6deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes stamp {
+  from {
+    opacity: 0;
+    transform: scale(2.6) rotate(-30deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-8deg);
+  }
+}
+
 /* ---------------------------------------------------------------- reveal - */
 .reveal {
   min-height: 80dvh;

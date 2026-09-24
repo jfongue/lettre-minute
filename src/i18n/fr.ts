@@ -61,6 +61,9 @@ export const fr = {
     more: (count: number) => `encore ${count} à choisir`,
     lead: 'Choisis celle qui rejoint tes parties.',
     adNotice: 'Une courte pub suivra ton choix : c’est elle qui soutient le créateur du jeu. Merci !',
+    confirm: 'Valider',
+    pickFirst: 'Touche une carte',
+    joined: 'rejoint tes parties',
   },
 
   over: {

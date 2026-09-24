@@ -50,6 +50,9 @@ export const nl: Messages = {
     more: (count) => `nog ${count} te kiezen`,
     lead: 'Kies de categorie die aan je spellen wordt toegevoegd.',
     adNotice: 'Na je keuze volgt een korte advertentie: zo steun je de maker van het spel. Bedankt!',
+    confirm: 'Bevestigen',
+    pickFirst: 'Tik op een kaart',
+    joined: 'doet nu mee in je potjes',
   },
 
   over: {

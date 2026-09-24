@@ -480,6 +480,7 @@ export function App() {
           profileBefore={session.profileBefore}
           revealed={revealed === session.run.seed}
           onRevealed={() => setRevealed(session.run?.seed ?? null)}
+          lang={lang}
           avatar={avatar}
           account={account}
           accountActions={accountActions}

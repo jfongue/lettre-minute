@@ -113,6 +113,19 @@ export function buildWordPack(categoryId: string, rows: readonly WordRow[]): Wor
 }
 
 /**
+ * The best-known words of a category, in their base form: what the unlock
+ * screen types out to show what picking it would bring. Inflected forms are
+ * left out — "chats" after "chat" says nothing new.
+ */
+export function showcaseWords(pack: WordPack, count: number): string[] {
+  return [...pack.entries.values()]
+    .filter((entry) => entry.key === normalizeWord(entry.display))
+    .sort((a, b) => b.notoriety - a.notoriety)
+    .slice(0, count)
+    .map((entry) => entry.display)
+}
+
+/**
  * Turns the raw signals into a rank inside the category. Inflected forms borrow
  * the rank of the word they bend: "chats" is exactly as well known as "chat".
  */

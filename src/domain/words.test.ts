@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildWordPack, findWord, lettersWithEnough, lookup, withinOneEdit, type WordRow } from './words'
+import { buildWordPack, findWord, lettersWithEnough, lookup, showcaseWords, withinOneEdit, type WordRow } from './words'
 
 const rows: WordRow[] = [['Chat', 120, 45.3], ['Chien', 150, 60], ['Écureuil', 60, 3.2], ['Zèbre', 90, 1.4]]
 
@@ -161,5 +161,19 @@ describe('findWord', () => {
 
   it('still answers nothing for a word that is nowhere near', () => {
     expect(findWord(pack, 'abracadabrantesque')).toBeNull()
+  })
+})
+
+describe('showcaseWords', () => {
+  it('lists the best-known base words first, inflected forms left out', () => {
+    const pack = buildWordPack('animaux', [
+      ['Chat', 120, 45.3],
+      ['Chats', 120, 45.3, 'chat'],
+      ['Zèbre', 90, 1.4],
+      ['Chien', 150, 60],
+    ])
+
+    expect(showcaseWords(pack, 2)).toEqual(['Chien', 'Chat'])
+    expect(showcaseWords(pack, 10)).not.toContain('Chats')
   })
 })

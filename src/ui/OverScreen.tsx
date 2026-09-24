@@ -3,17 +3,18 @@ import { newlyEarned, type AvatarChoice } from '../domain/avatar'
 import type { Boards } from '../domain/boards'
 import { capitalized } from '../domain/text'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
+import { pickShowsAd, picksOwed } from '../domain/unlocks'
 import type { FoundWord, Run } from '../domain/run'
 import { categoryText, formatNumber, useT } from '../i18n'
 import type { Account } from '../lib/cloud'
-import { tapFeedback } from '../lib/native'
+import { adsSupported, tapFeedback } from '../lib/native'
 import { sound, tierSound } from '../lib/sound'
 import { AccountPanel, type AccountActions } from './AccountPanel'
 import { Avatar } from './Avatar'
 import { Burst, Figure, LetterMark, Shape, TierTag } from './bauhaus'
-import { CategoryOffer } from './CategoryOffer'
 import { categoryMotif } from './motifs'
 import { RankMove } from './RankMove'
+import { UnlockScreen } from './UnlockScreen'
 import { reducedMotion, useCountUp } from './useCountUp'
 
 interface OverScreenProps {
@@ -23,6 +24,8 @@ interface OverScreenProps {
   /** The reveal has played once: coming back from the avatar editor lands on the summary. */
   revealed: boolean
   onRevealed(): void
+  /** The dictionary language, for the words the unlock screen types out. */
+  lang: string
   avatar: AvatarChoice
   /** Null while the game runs without a server: there is no account to offer. */
   account: Account | null
@@ -38,8 +41,37 @@ interface OverScreenProps {
   onHome(): void
 }
 
-export function OverScreen({ run, revealed, onRevealed, ...summary }: OverScreenProps) {
-  return revealed ? <Summary run={run} {...summary} /> : <Reveal run={run} onNext={onRevealed} />
+export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: OverScreenProps) {
+  const { profile, profileBefore, onChoose } = summary
+  // Held from the pick to the end of its celebration: the offer is off the
+  // table as soon as the pick is kept, and the screen must outlive it.
+  const [celebrating, setCelebrating] = useState(false)
+  // Each offer gets a fresh screen: a second pick owed deals the next one.
+  const [round, setRound] = useState(0)
+
+  if (!revealed) return <Reveal run={run} onNext={onRevealed} />
+  if (profile.offer.length > 0 || celebrating) {
+    const levelled = levelFor(profile.xp) > levelFor(profileBefore.xp)
+    return (
+      <UnlockScreen
+        key={round}
+        offer={profile.offer}
+        lang={lang}
+        owed={picksOwed(profile)}
+        level={levelled ? levelFor(profile.xp) : null}
+        withAd={adsSupported() && pickShowsAd(profile)}
+        onChoose={(id) => {
+          setCelebrating(true)
+          onChoose(id)
+        }}
+        onDone={() => {
+          setCelebrating(false)
+          setRound(round + 1)
+        }}
+      />
+    )
+  }
+  return <Summary run={run} {...summary} />
 }
 
 /** The beat of silence before the score: the clock has stopped, let it register. */
@@ -156,7 +188,7 @@ function RevealScore({ score }: { score: number }) {
   )
 }
 
-type SummaryProps = Omit<OverScreenProps, 'revealed' | 'onRevealed'>
+type SummaryProps = Omit<OverScreenProps, 'revealed' | 'onRevealed' | 'lang'>
 
 /** Second screen: what the run was worth beyond its score. */
 function Summary({
@@ -170,7 +202,6 @@ function Summary({
   boardsAfter,
   me,
   onAvatar,
-  onChoose,
   onReplay,
   onHome,
 }: SummaryProps) {
@@ -187,8 +218,6 @@ function Summary({
   return (
     <div className="sheet cascade">
       <XpGain from={profileBefore.xp} to={profile.xp} />
-
-      <CategoryOffer profile={profile} onChoose={onChoose} />
 
       {(earned.designs.length > 0 || earned.colours.length > 0) && (
         <section className="panel earned">
