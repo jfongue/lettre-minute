@@ -11,7 +11,6 @@ export const nl: Messages = {
 
   home: {
     tagline: (seconds) => `Eén letter · één thema · ${seconds} seconden`,
-    wordsLanguage: 'De antwoorden zijn Franse woorden.',
     play: 'Spelen',
     menu: 'Menu: profiel, vrienden, opties',
     level: (level) => `Niveau ${level}`,
@@ -32,7 +31,7 @@ export const nl: Messages = {
 
   run: {
     meta: (words, skips) => `${words} ${plural(words, 'woord', 'woorden')} · ${skips} overgeslagen`,
-    placeholder: (letter) => `een Frans woord met ${letter}…`,
+    placeholder: (letter) => `een woord met ${letter}…`,
     fieldLabel: (letter, category) => `Woord met ${letter}, categorie ${category}`,
     skip: (seconds) => `Overslaan −${seconds} s`,
     submit: 'Bevestigen',

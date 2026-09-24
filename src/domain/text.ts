@@ -4,9 +4,9 @@
  */
 const COMBINING_MARKS = /[̀-ͯ]/g
 
-/** Ligatures survive NFD decomposition, so they are spelled out before stripping. */
+/** Ligatures — and the German ß — survive NFD decomposition, so they are spelled out before stripping. */
 function expandLigatures(raw: string): string {
-  return raw.replace(/œ/gi, 'oe').replace(/æ/gi, 'ae')
+  return raw.replace(/œ/gi, 'oe').replace(/æ/gi, 'ae').replace(/ß/g, 'ss').replace(/ĳ/gi, 'ij')
 }
 
 export function normalizeWord(raw: string): string {

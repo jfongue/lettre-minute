@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { PLAYABLE_LETTERS } from './letters'
 import { NO_USAGE, type WordUsage } from './rarity'
 import {
   createRun,
@@ -40,6 +41,7 @@ function judgeOf(usage: Record<string, WordUsage> = {}): Judge {
       return pack ? findWord(pack, word) : null
     },
     usage: (word) => usage[word] ?? NO_USAGE,
+    deck: PLAYABLE_LETTERS,
     letters: (categoryId) => {
       const pack = packs.get(categoryId)
       return pack ? lettersWithEnough(pack, MIN_WORDS_PER_PROMPT) : []
@@ -148,6 +150,7 @@ describe('formes fléchies', () => {
       find: (_, word) => findWord(pack, word),
       usage: () => NO_USAGE,
       letters: () => ['C'],
+      deck: PLAYABLE_LETTERS,
     }
     let run = createRun({ seed: 1, categoryIds: ['animaux'] }, only)
     run = submit(run, 'canard', only).run
@@ -163,6 +166,7 @@ describe('orthographe approchée', () => {
     find: (_, word) => findWord(pack, word),
     usage: () => NO_USAGE,
     letters: () => ['L'],
+    deck: PLAYABLE_LETTERS,
   }
 
   it('accepts a one-letter slip and pays it the flat rate', () => {

@@ -38,7 +38,6 @@ export function HomeScreen({ profile, error, loading, boards, me, onMenu, onPlay
           <span>Minute</span>
         </h1>
         <p className="eyebrow">{t.home.tagline(RUN_SECONDS)}</p>
-        {t.home.wordsLanguage && <p className="note">{t.home.wordsLanguage}</p>}
       </header>
 
       <div className="stack">

@@ -37,7 +37,17 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Le Wiktionnaire est la source des noms communs**, Wikidata celle des
   entités : Wikidata connaît cinquante races de chat mais pas « abeille ». Une
   catégorie de noms communs bâtie sur Wikidata seul laisse dehors les réponses
-  évidentes.
+  évidentes. Hors français, ce sont les catégories thématiques du Wiktionary
+  anglais, lues dans le dump Wiktextract (kaikki.org) avec les formes
+  fléchies. Leur liste est choisie à la main (`TOPICS`, `scripts/languages.ts`) :
+  l'arbre des thèmes dérive — « Occupations » contient les Beatles —, seuls
+  les taxons animaux prennent leurs sous-catégories.
+- **Le dictionnaire suit la langue de l'interface**, et le serveur ne connaît
+  pas les langues : `cloud.ts` préfixe mots et catégories (`de:animaux`) pour
+  que rareté, découvertes et mots proposés restent dans leur langue. Le
+  français garde les noms nus sous lesquels ses lignes existent déjà.
+- **Chaque langue a son jeu de lettres** (`LETTER_DECKS`), passé au domaine
+  par le `Judge` : l'allemand veut K, W et Z, que le français écarte.
 - **L'import Wikidata est fragile par nature** : les requêtes lourdes (taxons)
   dépassent la limite serveur, et les réponses JSON reviennent parfois tronquées
   à un mégaoctet. D'où le cache par source sous `.cache/pulls`, le repli CSV à la
@@ -48,14 +58,16 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Les sitelinks ne mesurent pas la notoriété** : des robots ont écrit un
   article en quarante langues pour chaque espèce et chaque commune. Ils ne
   servent que de repli ; la notoriété vient de wordfreq et des visites de
-  Wikipédia FR (clickstream mensuel). Un mot sans article doit être écrit avec
+  la Wikipédia de la langue (clickstream mensuel). Un mot sans article doit être écrit avec
   zéro visite, pas sans champ : un champ absent fait retomber le domaine sur
   les sitelinks.
 - **Les pages vues ne se demandent pas article par article** : 45 000 appels à
   l'API font bannir l'adresse (429) bien avant la fin. Le clickstream se
   télécharge d'un bloc ; seule la résolution libellé → article passe par l'API,
   cinquante titres par appel, en séquentiel et en cache
-  (`.cache/frwiki-articles-v2.json`).
+  (`.cache/frwiki-articles-v2.json`, `.cache/<langue>wiki-articles.json`). Le
+  clickstream anglais pèse un demi-gigaoctet compressé : il se lit en flux, en
+  ne gardant que les titres cherchés.
 - **La fréquence wordfreq se cherche à l'orthographe exacte**, accents compris :
   repliée comme `normalizeWord`, « aï » (le paresseux) lit « ai ». Et elle ne
   vaut que pour un mot attesté dans la catégorie par le Wiktionnaire, ou

@@ -44,8 +44,4 @@ describe('messages', () => {
     ])
     expect(messagesFor('de').boards.ordinal(3)).toBe('3.')
   })
-
-  it('leaves the words-language warning out in French only', () => {
-    for (const { id, messages } of LOCALES) expect(messages.home.wordsLanguage === '', id).toBe(id === 'fr')
-  })
 })

@@ -11,7 +11,6 @@ export const es: Messages = {
 
   home: {
     tagline: (seconds) => `Una letra · un tema · ${seconds} segundos`,
-    wordsLanguage: 'Las respuestas son palabras en francés.',
     play: 'Jugar',
     menu: 'Menú: perfil, amigos, opciones',
     level: (level) => `Nivel ${level}`,
@@ -33,7 +32,7 @@ export const es: Messages = {
   run: {
     meta: (words, skips) =>
       `${words} ${plural(words, 'palabra', 'palabras')} · ${skips} ${plural(skips, 'saltada', 'saltadas')}`,
-    placeholder: (letter) => `una palabra francesa con ${letter}…`,
+    placeholder: (letter) => `una palabra con ${letter}…`,
     fieldLabel: (letter, category) => `Palabra con ${letter}, categoría ${category}`,
     skip: (seconds) => `Saltar −${seconds} s`,
     submit: 'Validar',

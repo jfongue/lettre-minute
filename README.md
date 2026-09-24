@@ -7,10 +7,11 @@ n'écrit rapportent le plus.
 - **Cinq catégories au plus par partie**, tirées parmi celles que le joueur
   possède et annoncées avant un compte à rebours de trois secondes. Pendant
   l'annonce, toucher une catégorie l'échange contre une de la réserve.
-- **Validation immédiate** contre un dictionnaire embarqué de ~64 000 mots
-  français : Wikidata pour les entités, le Wiktionnaire pour les noms communs,
-  et les formes fléchies de Lexique — « chats » et « bleue » sont acceptés, et
-  comptent comme « chat » et « bleu ».
+- **Validation immédiate** contre un dictionnaire embarqué par langue (~64 000
+  mots en français) : Wikidata pour les entités, le Wiktionnaire pour les noms
+  communs, et les formes fléchies — « chats » et « bleue » sont acceptés, et
+  comptent comme « chat » et « bleu ». Le français lit Lexique et son propre
+  Wiktionnaire ; les autres langues, le Wiktionary anglais par Wiktextract.
 - **Catégories fermées et stables** (pays, animaux, couleurs, métiers…) : pas de
   films ni de célébrités, qu'un dictionnaire ne peut pas arbitrer.
 - **Rien n'est révélé pendant la frappe** : le champ nomme le mot seulement
@@ -50,7 +51,8 @@ n'écrit rapportent le plus.
 - **Sept langues d'interface** : français, anglais, espagnol, allemand,
   italien, néerlandais et portugais, prises dans les réglages de l'appareil ;
   sinon, un écran de choix précède le premier lancement, et les options
-  permettent d'en changer. Les réponses, elles, restent des mots français.
+  permettent d'en changer. On répond dans la langue choisie : un joueur
+  allemand écrit « Katze », pas « chat », et tire aussi des K, des W et des Z.
 - **Mot manquant** : le joueur le propose en un clic ; réclamé par trois joueurs
   (ou validé par un modérateur), il entre au dictionnaire et lui rapporte 150 XP.
 
@@ -62,7 +64,8 @@ npm run dev          # serveur de dev (honore $PORT)
 npm test             # domaine — Vitest, doit rester vert
 npm run lint         # oxlint
 npm run build        # tsc -b puis vite build
-npm run import:words # régénère src/data/words/ (Wikidata, Wiktionnaire, Lexique, wordfreq, Wikipédia)
+npm run import:words # régénère src/data/words/fr/ (Wikidata, Wiktionnaire, Lexique, wordfreq, Wikipédia)
+npm run import:words -- --lang=de # idem pour une autre langue (en, es, de, it, nl, pt)
 npm run android:sync # build web puis copie dans le projet Android
 npm run android:bundle # .aab signé pour le Play Store
 ```
@@ -128,7 +131,7 @@ malachite très rare.
 - `src/domain/` — les règles, sans React, DOM ni réseau : tirage des couples
   lettre/catégorie, jugement d'une réponse, rareté, points, XP, déblocages.
   Tout y est testé.
-- `src/data/words/*.json` — les dictionnaires, un tableau par mot
+- `src/data/words/<langue>/*.json` — les dictionnaires, un tableau par mot
   `[mot, sitelinks, fréquence, forme canonique, visites]`. La forme canonique
   n'est renseignée que sur les formes fléchies (vide sinon), et pointe vers le
   mot dont elles dérivent ; elles empruntent sa notoriété et n'ont pas de
@@ -138,7 +141,10 @@ malachite très rare.
   effacement du compte ; `native.ts` pour ce qui parle au téléphone.
 - `src/ui/` — un composant par écran.
 - `scripts/` — l'import : Wikidata et le Wiktionnaire pour les mots, Lexique
-  pour les formes fléchies, wordfreq et Wikipédia pour la notoriété.
+  (français) ou Wiktextract (autres langues) pour les formes fléchies, wordfreq
+  et la Wikipédia de la langue pour la notoriété. `languages.ts` dit ce qui
+  change d'une langue à l'autre.
+- `store/` — fiches Play Store et pages de confidentialité, par langue.
 - `supabase/` — migrations et conventions RLS ([détail](supabase/README.md)).
 - `android/` — le projet natif généré par Capacitor ; `assets/` la source de
   l'icône et de l'écran de lancement ; `store/` la fiche du Play Store.

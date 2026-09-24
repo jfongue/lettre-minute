@@ -10,6 +10,8 @@ export interface PendingSubmission {
   word: string
   categoryId: string
   at: number
+  /** The dictionary it is missing from; absent on proposals queued before there were several. */
+  lang?: string
 }
 
 function read<T>(key: string, fallback: T): T {

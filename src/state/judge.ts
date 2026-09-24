@@ -1,3 +1,4 @@
+import type { PlayableLetter } from '../domain/letters'
 import { MIN_WORDS_PER_PROMPT, type Judge } from '../domain/run'
 import { NO_USAGE, type WordUsage } from '../domain/rarity'
 import { findWord, lettersWithEnough, type WordPack } from '../domain/words'
@@ -14,11 +15,12 @@ export interface UsageSource {
  * the rules ask questions of. Letters are precomputed once per pack: the field
  * judges every keystroke, and nothing here may walk the word list.
  */
-export function createJudge(packs: readonly WordPack[], usage: UsageSource): Judge {
+export function createJudge(packs: readonly WordPack[], usage: UsageSource, deck: readonly PlayableLetter[]): Judge {
   const byId = new Map(packs.map((pack) => [pack.categoryId, pack]))
   const letters = new Map(packs.map((pack) => [pack.categoryId, lettersWithEnough(pack, MIN_WORDS_PER_PROMPT)]))
 
   return {
+    deck,
     find(categoryId, word) {
       const pack = byId.get(categoryId)
       return pack ? findWord(pack, word) : null

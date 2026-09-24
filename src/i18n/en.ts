@@ -17,7 +17,6 @@ export const en: Messages = {
 
   home: {
     tagline: (seconds) => `One letter · one theme · ${seconds} seconds`,
-    wordsLanguage: 'Answers are French words.',
     play: 'Play',
     menu: 'Menu: profile, friends, options',
     level: (level) => `Level ${level}`,
@@ -38,7 +37,7 @@ export const en: Messages = {
 
   run: {
     meta: (words, skips) => `${words} ${plural(words, 'word', 'words')} · ${skips} skipped`,
-    placeholder: (letter) => `a French word in ${letter}…`,
+    placeholder: (letter) => `a word starting with ${letter}…`,
     fieldLabel: (letter, category) => `Word starting with ${letter}, category ${category}`,
     skip: (seconds) => `Skip −${seconds} s`,
     submit: 'Enter',

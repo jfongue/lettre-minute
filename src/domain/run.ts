@@ -1,4 +1,4 @@
-import { PLAYABLE_LETTERS } from './letters'
+import type { PlayableLetter } from './letters'
 import {
   NO_USAGE,
   pointsFor,
@@ -49,6 +49,8 @@ export interface Judge {
   usage(word: string): WordUsage
   /** Letters that category can honestly be prompted on. */
   letters(categoryId: string): readonly string[]
+  /** The letters of the dictionary's language and how often each is drawn. */
+  deck: readonly PlayableLetter[]
 }
 
 export interface Run {
@@ -74,7 +76,7 @@ function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[],
   const categoryId = candidates[Math.floor(rng.next() * candidates.length)] ?? categoryIds[0] ?? ''
 
   const available = new Set(judge.letters(categoryId))
-  const deck = PLAYABLE_LETTERS.filter((entry) => available.has(entry.letter))
+  const deck = judge.deck.filter((entry) => available.has(entry.letter))
   const letter = pickWeighted(rng, deck, (entry) => entry.weight)?.letter ?? deck[0]?.letter ?? 'A'
 
   return { categoryId, letter }

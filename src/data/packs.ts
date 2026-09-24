@@ -1,11 +1,12 @@
 import { buildWordPack, type WordPack, type WordRow } from '../domain/words'
 
 /**
- * The dictionaries are shipped as JSON arrays of rows and pulled in on demand:
- * loading the thirteen categories up front would cost megabytes for a player
- * who only ever plays the four they have unlocked.
+ * The dictionaries are shipped as JSON arrays of rows, one folder per
+ * language, and pulled in on demand: loading the categories up front would
+ * cost megabytes for a player who only ever plays the four they have
+ * unlocked, in the one language they play in.
  */
-const FILES = import.meta.glob('./words/*.json', { import: 'default' }) as Record<
+const FILES = import.meta.glob('./words/*/*.json', { import: 'default' }) as Record<
   string,
   () => Promise<readonly WordRow[]>
 >
@@ -13,34 +14,36 @@ const FILES = import.meta.glob('./words/*.json', { import: 'default' }) as Recor
 const loaded = new Map<string, WordPack>()
 const loading = new Map<string, Promise<WordPack>>()
 
-export function availableCategoryIds(): string[] {
-  return Object.keys(FILES).map((path) => path.replace('./words/', '').replace('.json', ''))
+const pathOf = (lang: string, categoryId: string) => `./words/${lang}/${categoryId}.json`
+
+export function availableCategoryIds(lang: string): string[] {
+  const prefix = `./words/${lang}/`
+  return Object.keys(FILES)
+    .filter((path) => path.startsWith(prefix))
+    .map((path) => path.slice(prefix.length).replace('.json', ''))
 }
 
-export function loadedPack(categoryId: string): WordPack | null {
-  return loaded.get(categoryId) ?? null
-}
-
-export function loadPack(categoryId: string): Promise<WordPack> {
-  const ready = loaded.get(categoryId)
+export function loadPack(lang: string, categoryId: string): Promise<WordPack> {
+  const path = pathOf(lang, categoryId)
+  const ready = loaded.get(path)
   if (ready) return Promise.resolve(ready)
 
-  const pending = loading.get(categoryId)
+  const pending = loading.get(path)
   if (pending) return pending
 
-  const file = FILES[`./words/${categoryId}.json`]
-  if (!file) return Promise.reject(new Error(`dictionnaire absent : ${categoryId}`))
+  const file = FILES[path]
+  if (!file) return Promise.reject(new Error(`dictionnaire absent : ${lang}/${categoryId}`))
 
   const promise = file().then((rows) => {
     const pack = buildWordPack(categoryId, rows)
-    loaded.set(categoryId, pack)
-    loading.delete(categoryId)
+    loaded.set(path, pack)
+    loading.delete(path)
     return pack
   })
-  loading.set(categoryId, promise)
+  loading.set(path, promise)
   return promise
 }
 
-export function loadPacks(categoryIds: readonly string[]): Promise<WordPack[]> {
-  return Promise.all(categoryIds.map(loadPack))
+export function loadPacks(lang: string, categoryIds: readonly string[]): Promise<WordPack[]> {
+  return Promise.all(categoryIds.map((id) => loadPack(lang, id)))
 }

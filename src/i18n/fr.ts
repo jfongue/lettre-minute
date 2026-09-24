@@ -19,8 +19,6 @@ export const fr = {
 
   home: {
     tagline: (seconds: number) => `Une lettre · un thème · ${seconds} secondes`,
-    /** Empty in French; elsewhere, it warns that the answers are not in the player's language. */
-    wordsLanguage: '',
     play: 'Jouer',
     menu: 'Menu : profil, amis, options',
     level: (level: number) => `Niveau ${level}`,

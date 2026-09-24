@@ -10,6 +10,7 @@ describe('normalizeWord', () => {
   it('spells out ligatures, which NFD leaves alone', () => {
     expect(normalizeWord('Œuf')).toBe('oeuf')
     expect(normalizeWord('nævus')).toBe('naevus')
+    expect(normalizeWord('Weißstorch')).toBe('weissstorch')
   })
 
   it('collapses punctuation so a hyphen is not a different answer', () => {

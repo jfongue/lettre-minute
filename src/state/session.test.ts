@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { PLAYABLE_LETTERS } from '../domain/letters'
 import { NEW_PROFILE } from '../domain/progression'
 import { NO_USAGE } from '../domain/rarity'
 import { MIN_WORDS_PER_PROMPT, type Judge } from '../domain/run'
@@ -16,6 +17,7 @@ const judge: Judge = {
   find: (_, word) => findWord(animals, word),
   usage: () => NO_USAGE,
   letters: () => lettersWithEnough(animals, MIN_WORDS_PER_PROMPT),
+  deck: PLAYABLE_LETTERS,
 }
 
 function playing(): Session {

@@ -1,39 +1,55 @@
 /**
- * Rebuilds the word lists under src/data/words from Wikidata and the
- * Wiktionary, with how much each word is used in French today: its frequency
- * in wordfreq's corpora and the daily views of its French Wikipedia article.
+ * Rebuilds the word lists under src/data/words/<lang> from Wikidata and the
+ * Wiktionary, with how much each word is used in that language today: its
+ * frequency in wordfreq's corpora and the daily views of its Wikipedia article.
  *
- *   node --experimental-strip-types scripts/import-words.ts [pullId…]
+ *   node --experimental-strip-types scripts/import-words.ts [--lang=de] [pullId…]
  *
  * The pull results are cached under .cache/pulls so a failed run — the taxon
  * queries are slow and time out often — resumes instead of starting over.
  */
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
-import { gunzipSync } from 'node:zlib'
+import { createReadStream, mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { createInterface } from 'node:readline'
+import { Readable } from 'node:stream'
+import { createGunzip, gunzipSync } from 'node:zlib'
 import { normalizeWord } from '../src/domain/text.ts'
 import type { WordRow } from '../src/domain/words.ts'
-import { CATEGORY_SOURCES, PULLS, queryFor, type Pull } from './sources.ts'
+import { LANGUAGES, TOPICS, type Lang, type LanguageSource } from './languages.ts'
+import { CATEGORY_SOURCES, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
 
 const ENDPOINT = 'https://query.wikidata.org/sparql'
 const AGENT = 'LettreMinuteWordImport/0.1 (https://github.com/jfongue; jeremy@enaos.com)'
-const CACHE = '.cache/pulls'
 const WIKT_CACHE = '.cache/wiktionary'
 const WIKTIONARY_API = 'https://fr.wiktionary.org/w/api.php'
-const OUT = 'src/data/words'
+const EN_WIKTIONARY_API = 'https://en.wiktionary.org/w/api.php'
+const TOPIC_TREE_CACHE = '.cache/wiktionary-topics.json'
 const LEXIQUE_URL = 'http://www.lexique.org/databases/Lexique383/Lexique383.tsv'
 const LEXIQUE_CACHE = '.cache/lexique383.tsv'
-const WORDFREQ_URL = 'https://raw.githubusercontent.com/rspeer/wordfreq/master/wordfreq/data/large_fr.msgpack.gz'
-const WORDFREQ_CACHE = '.cache/wordfreq-large-fr.msgpack.gz'
-const WIKIPEDIA_API = 'https://fr.wikipedia.org/w/api.php'
-const ARTICLES_CACHE = '.cache/frwiki-articles-v2.json'
+const KAIKKI_URL = 'https://kaikki.org/dictionary'
+const WORDFREQ_URL = 'https://raw.githubusercontent.com/rspeer/wordfreq/master/wordfreq/data'
 const CLICKSTREAM_URL = 'https://dumps.wikimedia.org/other/clickstream'
+
+/**
+ * Per-language paths. French keeps the ones it was first imported under, so
+ * its caches — hours of Wikidata and Wikipedia calls — stay valid.
+ */
+function pathsFor(lang: Lang) {
+  const french = lang === 'fr'
+  return {
+    pulls: french ? '.cache/pulls' : `.cache/pulls/${lang}`,
+    articles: french ? '.cache/frwiki-articles-v2.json' : `.cache/${lang}wiki-articles.json`,
+    wordfreq: `.cache/wordfreq-large-${lang}.msgpack.gz`,
+    kaikki: `.cache/kaikki-${lang}.json`,
+    out: `src/data/words/${lang}`,
+  }
+}
 
 /**
  * Wiktionary is where the everyday French words live: Wikidata knows fifty
  * breeds of cat but not "abeille", and a category of common nouns built on it
  * alone leaves the obvious answers out.
  */
-const WIKTIONARY: Record<string, readonly string[]> = {
+const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
   couleurs: ['Couleurs en français'],
   'fruits-legumes': ['Fruits en français', 'Légumes en français'],
   animaux: [
@@ -216,8 +232,8 @@ async function wiktionaryWords(title: string, force: boolean): Promise<string[]>
   return words
 }
 
-async function pullRows(pull: Pull, force: boolean): Promise<Row[]> {
-  const path = `${CACHE}/${pull.id}.json`
+async function pullRows(pull: Pull, scope: Scope, dir: string, force: boolean): Promise<Row[]> {
+  const path = `${dir}/${pull.id}.json`
   if (!force && existsSync(path)) {
     const cached = JSON.parse(readFileSync(path, 'utf8')) as Row[]
     console.log(`· ${pull.id}: ${cached.length} lignes (cache)`)
@@ -225,7 +241,7 @@ async function pullRows(pull: Pull, force: boolean): Promise<Row[]> {
   }
 
   const started = Date.now()
-  const rows = await sparql(queryFor(pull))
+  const rows = await sparql(queryFor(pull, scope))
   writeFileSync(path, JSON.stringify(rows))
   console.log(`· ${pull.id}: ${rows.length} lignes en ${Math.round((Date.now() - started) / 1000)} s`)
   return rows
@@ -247,23 +263,23 @@ async function wikimedia(url: URL | string, attempt = 1): Promise<Response> {
 }
 
 /**
- * The French Wikipedia article each word lands on, redirects followed — null
+ * The Wikipedia article each word lands on, redirects followed — null
  * when there is none, DISAMBIGUATION when it is a list of homonyms, which
  * says nothing of how known this one is. Asked fifty titles at a time, one
  * call after the other: the API throttles an anonymous client that hurries.
  */
 const DISAMBIGUATION = '#homonymie'
 
-async function frenchArticles(words: readonly string[]): Promise<Map<string, string | null>> {
+async function wikipediaArticles(lang: Lang, path: string, words: readonly string[]): Promise<Map<string, string | null>> {
   const cache = new Map<string, string | null>(
-    existsSync(ARTICLES_CACHE) ? Object.entries(JSON.parse(readFileSync(ARTICLES_CACHE, 'utf8'))) : [],
+    existsSync(path) ? Object.entries(JSON.parse(readFileSync(path, 'utf8'))) : [],
   )
   const missing = [...new Set(words)].filter((word) => !cache.has(word))
   if (missing.length > 0) console.log(`· wikipédia: ${missing.length} titres à résoudre`)
 
   for (let start = 0; start < missing.length; start += 50) {
     const batch = missing.slice(start, start + 50)
-    const url = new URL(WIKIPEDIA_API)
+    const url = new URL(`https://${lang}.wikipedia.org/w/api.php`)
     url.searchParams.set('action', 'query')
     url.searchParams.set('redirects', '1')
     url.searchParams.set('prop', 'pageprops')
@@ -291,7 +307,7 @@ async function frenchArticles(words: readonly string[]): Promise<Map<string, str
     }
 
     if ((start / 50) % 40 === 39 || start + 50 >= missing.length) {
-      writeFileSync(ARTICLES_CACHE, JSON.stringify(Object.fromEntries(cache)))
+      writeFileSync(path, JSON.stringify(Object.fromEntries(cache)))
       console.log(`  ${Math.min(start + 50, missing.length)}/${missing.length}`)
     }
     await new Promise((resolve) => setTimeout(resolve, 200))
@@ -300,47 +316,50 @@ async function frenchArticles(words: readonly string[]): Promise<Map<string, str
 }
 
 /**
- * Daily visits of every French Wikipedia article over the last published month,
- * read from the clickstream dump: one sixty-megabyte file where the pageviews
- * API would take one call per article, and throttle long before the end.
- * Sitelinks cannot say how well known a thing is — bots wrote an article in
- * forty languages for every bird species and every French commune, so "Aigle
- * martial" and "Abrest" counted as widely known. What French readers open
- * today tells them apart.
+ * Daily visits of Wikipedia articles over the last published month, read from
+ * the clickstream dump: one file where the pageviews API would take one call
+ * per article, and throttle long before the end. Sitelinks cannot say how well
+ * known a thing is — bots wrote an article in forty languages for every bird
+ * species and every French commune, so "Aigle martial" and "Abrest" counted
+ * as widely known. What the language's readers open today tells them apart.
  *
  * The dump drops the links followed ten times or fewer in the month, so an
- * article almost nobody opens reads as zero, which is what it is.
+ * article almost nobody opens reads as zero, which is what it is. It is
+ * streamed and only the wanted titles are kept: the English one weighs half a
+ * gigabyte compressed, far more than a string can hold once inflated.
  */
-async function frenchVisits(): Promise<Map<string, number>> {
+async function wikipediaVisits(lang: Lang, titles: ReadonlySet<string>): Promise<Map<string, number>> {
   const now = new Date()
-  let body: Buffer | null = null
+  let path: string | null = null
   let days = 30
   // A month's dump comes out in the first days of the next: when the last one
   // is not there yet, the one before it is.
   for (const back of [1, 2]) {
     const month = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - back, 1))
     const tag = month.toISOString().slice(0, 7)
-    const path = `.cache/clickstream-frwiki-${tag}.tsv.gz`
-    if (!existsSync(path)) {
-      const response = await wikimedia(`${CLICKSTREAM_URL}/${tag}/clickstream-frwiki-${tag}.tsv.gz`)
+    const candidate = `.cache/clickstream-${lang}wiki-${tag}.tsv.gz`
+    if (!existsSync(candidate)) {
+      const response = await wikimedia(`${CLICKSTREAM_URL}/${tag}/clickstream-${lang}wiki-${tag}.tsv.gz`)
       if (response.status === 404) continue
-      console.log(`· clickstream ${tag}: téléchargement`)
-      writeFileSync(path, Buffer.from(await response.arrayBuffer()))
+      console.log(`· clickstream ${lang} ${tag}: téléchargement`)
+      writeFileSync(candidate, Buffer.from(await response.arrayBuffer()))
     }
-    body = gunzipSync(readFileSync(path))
+    path = candidate
     days = new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + 1, 0)).getUTCDate()
     break
   }
-  if (!body) throw new Error('clickstream: aucun mois publié')
+  if (!path) throw new Error('clickstream: aucun mois publié')
 
   const visits = new Map<string, number>()
-  for (const line of body.toString('utf8').split('\n')) {
+  const lines = createInterface({ input: createReadStream(path).pipe(createGunzip()), crlfDelay: Infinity })
+  for await (const line of lines) {
     const [, target = '', , count = '0'] = line.split('\t')
     if (target === '') continue
     const title = target.replace(/_/g, ' ')
+    if (!titles.has(title)) continue
     visits.set(title, (visits.get(title) ?? 0) + Number(count) / days)
   }
-  console.log(`· clickstream: ${visits.size} articles`)
+  console.log(`· clickstream ${lang}: ${visits.size} articles lus`)
   return visits
 }
 
@@ -401,6 +420,158 @@ async function loadLexique(): Promise<Lexique> {
 }
 
 /**
+ * The English Wiktionary's topic categories below each root, as Wiktextract
+ * names them. Asked once per root, slowly — the API throttles an anonymous
+ * client that hurries — and cached for good: the tree barely moves.
+ */
+async function topicTree(roots: readonly string[]): Promise<Set<string>> {
+  const cache: Record<string, string[]> = existsSync(TOPIC_TREE_CACHE)
+    ? JSON.parse(readFileSync(TOPIC_TREE_CACHE, 'utf8'))
+    : {}
+  const all = new Set<string>()
+
+  for (const root of roots) {
+    if (!cache[root]) {
+      const seen = new Set([root])
+      let frontier = [root]
+      for (let depth = 0; depth < 6 && frontier.length > 0; depth++) {
+        const next: string[] = []
+        for (const topic of frontier) {
+          let cursor: string | null = null
+          do {
+            const url = new URL(EN_WIKTIONARY_API)
+            url.searchParams.set('action', 'query')
+            url.searchParams.set('list', 'categorymembers')
+            url.searchParams.set('cmtitle', `Category:en:${topic}`)
+            url.searchParams.set('cmtype', 'subcat')
+            url.searchParams.set('cmlimit', '500')
+            url.searchParams.set('format', 'json')
+            if (cursor) url.searchParams.set('cmcontinue', cursor)
+            const payload = (await (await wikimedia(url)).json()) as {
+              query?: { categorymembers?: { title: string }[] }
+              continue?: { cmcontinue?: string }
+            }
+            for (const member of payload.query?.categorymembers ?? []) {
+              // Only the topic subcategories: "Category:English terms…" and
+              // the thesaurus pages are bookkeeping, not animals.
+              if (!member.title.startsWith('Category:en:')) continue
+              const name = member.title.slice('Category:en:'.length)
+              if (!seen.has(name)) {
+                seen.add(name)
+                next.push(name)
+              }
+            }
+            cursor = payload.continue?.cmcontinue ?? null
+            await new Promise((resolve) => setTimeout(resolve, 1_500))
+          } while (cursor)
+        }
+        frontier = next
+      }
+      cache[root] = [...seen]
+      writeFileSync(TOPIC_TREE_CACHE, JSON.stringify(cache, null, 1))
+      console.log(`· wiktionary ${root}: ${seen.size} thèmes`)
+    }
+    for (const topic of cache[root]!) all.add(topic)
+  }
+  return all
+}
+
+interface Kaikki extends Lexique {
+  /** Topic category → the words the Wiktionary files under it, in their own spelling. */
+  topics: Map<string, string[]>
+}
+
+/** Tags that make a form something a player would not type as an answer. */
+const FORM_NOISE = /^(?:diminutive|augmentative|obsolete|archaic|dated|dialectal|rare|nonstandard|alternative|misspelling|romanization|table-tags|inflection-template|class|genitive|dative|accusative|ablative|vocative|instrumental|comparative|superlative|strong|weak|mixed|possessive|abbreviation|colloquial|informal|pejorative)$/
+
+/**
+ * Nouns and adjectives of one language, read from Wiktextract's dump of the
+ * English Wiktionary: how each word bends — "Katzen" for "Katze", "roja" for
+ * "rojo" — and which topic categories file it. The dumps are large (English
+ * nouns alone weigh 1.7 GB), so they are streamed once and only what the
+ * import reads is kept.
+ */
+async function loadKaikki(source: LanguageSource, path: string, wanted: ReadonlySet<string>): Promise<Kaikki> {
+  if (existsSync(path)) {
+    const cached = JSON.parse(readFileSync(path, 'utf8')) as {
+      wanted: string[]
+      forms: [string, string[]][]
+      topics: [string, string[]][]
+    }
+    // A topic added since the cache was written is not in it: stream again.
+    if ([...wanted].every((topic) => cached.wanted.includes(topic))) {
+      const formsOf = new Map(cached.forms)
+      const lemmaOf = new Map<string, string>()
+      for (const [lemma, forms] of formsOf) for (const form of forms) lemmaOf.set(normalizeWord(form), lemma)
+      for (const lemma of formsOf.keys()) lemmaOf.set(lemma, lemma)
+      console.log(`· kaikki ${source.code}: ${formsOf.size} lemmes (cache)`)
+      return { lemmaOf, formsOf, topics: new Map(cached.topics) }
+    }
+  }
+
+  const formsOf = new Map<string, string[]>()
+  const topics = new Map<string, string[]>()
+  for (const pos of ['noun', 'adj']) {
+    const url = `${KAIKKI_URL}/${source.kaikki}/pos-${pos}/kaikki.org-dictionary-${source.kaikki}-by-pos-${pos}.jsonl`
+    console.log(`· kaikki ${source.code} ${pos}: lecture`)
+    const response = await fetch(url, { headers: { 'User-Agent': AGENT } })
+    if (!response.ok || !response.body) throw new Error(`kaikki ${pos}: HTTP ${response.status}`)
+    const lines = createInterface({ input: Readable.fromWeb(response.body as never), crlfDelay: Infinity })
+    let read = 0
+    for await (const line of lines) {
+      if (++read % 200_000 === 0) console.log(`  ${read} entrées`)
+      let entry: {
+        word?: string
+        lang_code?: string
+        forms?: { form?: string; tags?: string[] }[]
+        senses?: { categories?: (string | { name?: string })[]; tags?: string[] }[]
+      }
+      try {
+        entry = JSON.parse(line)
+      } catch {
+        continue
+      }
+      const word = entry.word?.trim()
+      if (!word || entry.lang_code !== source.code) continue
+      const lemma = normalizeWord(word)
+      if (lemma === '') continue
+
+      for (const form of entry.forms ?? []) {
+        const spelling = form.form?.trim()
+        const tags = form.tags ?? []
+        if (!spelling || spelling === word) continue
+        // A plural or a feminine is an answer; a genitive or a diminutive is not.
+        if (!tags.includes('plural') && !tags.includes('feminine')) continue
+        if (tags.some((tag) => FORM_NOISE.test(tag))) continue
+        const forms = formsOf.get(lemma) ?? []
+        if (!forms.includes(spelling)) forms.push(spelling)
+        formsOf.set(lemma, forms)
+      }
+
+      const filed = new Set<string>()
+      for (const sense of entry.senses ?? []) {
+        for (const category of sense.categories ?? []) {
+          const name = typeof category === 'string' ? category : category.name
+          if (name && wanted.has(name)) filed.add(name)
+        }
+      }
+      for (const name of filed) {
+        const list = topics.get(name) ?? []
+        if (!list.includes(word)) list.push(word)
+        topics.set(name, list)
+      }
+    }
+  }
+
+  writeFileSync(path, JSON.stringify({ wanted: [...wanted], forms: [...formsOf], topics: [...topics] }))
+  const lemmaOf = new Map<string, string>()
+  for (const [lemma, forms] of formsOf) for (const form of forms) lemmaOf.set(normalizeWord(form), lemma)
+  for (const lemma of formsOf.keys()) lemmaOf.set(lemma, lemma)
+  console.log(`· kaikki ${source.code}: ${formsOf.size} lemmes, ${topics.size} thèmes`)
+  return { lemmaOf, formsOf, topics }
+}
+
+/**
  * Just enough MessagePack to read wordfreq's file: arrays, maps, strings and
  * small integers. Pulling a package in for one import script is not worth it.
  */
@@ -434,7 +605,7 @@ function unpack(bytes: Buffer): unknown {
 }
 
 /**
- * How often each word is used in French today, per million words, from
+ * How often each word is used today, per million words, from
  * wordfreq: Wikipedia, OpenSubtitles 2018, news up to 2021, the web, Twitter
  * and Reddit, blended. Books alone print "abeille" or "coccinelle" far less
  * than people say them; the blend is the closer reading of the living language.
@@ -442,15 +613,15 @@ function unpack(bytes: Buffer): unknown {
  * The file lists words by bucket: bucket i holds every word used 10^(-i/100)
  * of the time.
  */
-async function loadFrequencies(): Promise<Map<string, number>> {
-  if (!existsSync(WORDFREQ_CACHE)) {
+async function loadFrequencies(lang: Lang, path: string): Promise<Map<string, number>> {
+  if (!existsSync(path)) {
     console.log('· wordfreq: téléchargement')
-    const response = await fetch(WORDFREQ_URL, { signal: AbortSignal.timeout(180_000) })
+    const response = await fetch(`${WORDFREQ_URL}/large_${lang}.msgpack.gz`, { signal: AbortSignal.timeout(180_000) })
     if (!response.ok) throw new Error(`wordfreq: HTTP ${response.status}`)
-    writeFileSync(WORDFREQ_CACHE, Buffer.from(await response.arrayBuffer()))
+    writeFileSync(path, Buffer.from(await response.arrayBuffer()))
   }
 
-  const [header, ...buckets] = unpack(gunzipSync(readFileSync(WORDFREQ_CACHE))) as [
+  const [header, ...buckets] = unpack(gunzipSync(readFileSync(path))) as [
     { format?: string },
     ...string[][],
   ]
@@ -481,24 +652,53 @@ function acceptable(display: string): boolean {
   return /^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ' -]*$/.test(display)
 }
 
-function main(argv: readonly string[]) {
-  mkdirSync(CACHE, { recursive: true })
-  mkdirSync(WIKT_CACHE, { recursive: true })
-  mkdirSync(OUT, { recursive: true })
+interface Entry {
+  display: string
+  sitelinks: number
+  alias: boolean
+}
 
-  const only = new Set(argv)
+function main(argv: readonly string[]) {
+  const langArg = argv.find((arg) => arg.startsWith('--lang='))?.slice('--lang='.length) ?? 'fr'
+  if (!(langArg in LANGUAGES)) throw new Error(`langue inconnue : ${langArg}`)
+  const lang = langArg as Lang
+  const source = LANGUAGES[lang]
+  const paths = pathsFor(lang)
+  const scope = scopeFor(source.labels, lang)
+
+  mkdirSync(paths.pulls, { recursive: true })
+  mkdirSync(WIKT_CACHE, { recursive: true })
+  mkdirSync(paths.out, { recursive: true })
+
+  const only = new Set(argv.filter((arg) => !arg.startsWith('--lang=')))
   const force = only.has('--force')
   const wanted = PULLS.filter((pull) => only.size === 0 || force || only.has(pull.id))
 
   return (async () => {
-    const lexique = await loadLexique()
-    const frequencies = await loadFrequencies()
-    const visits = await frenchVisits()
+    // French bends its words by Lexique and files them by its own Wiktionary;
+    // every other language reads both from the English Wiktionary.
+    let lexicon: Lexique
+    let kaikki: Kaikki | null = null
+    const topicsOf = new Map<string, Set<string>>()
+    if (lang === 'fr') {
+      lexicon = await loadLexique()
+    } else {
+      const everyTopic = new Set<string>()
+      for (const [categoryId, spec] of Object.entries(TOPICS)) {
+        const topics = new Set([...spec.topics, ...(await topicTree(spec.expand ?? []))])
+        topicsOf.set(categoryId, topics)
+        for (const topic of topics) everyTopic.add(topic)
+      }
+      kaikki = await loadKaikki(source, paths.kaikki, everyTopic)
+      lexicon = kaikki
+    }
+    const frequencies = await loadFrequencies(lang, paths.wordfreq)
+
     const byPull = new Map<string, Row[]>()
     const failed: string[] = []
     for (const pull of wanted) {
       try {
-        byPull.set(pull.id, await pullRows(pull, force && only.has(pull.id)))
+        byPull.set(pull.id, await pullRows(pull, scope, paths.pulls, force && only.has(pull.id)))
       } catch (error) {
         // One dead query must not cost the whole import: the categories built
         // from it keep the file they already have on disk.
@@ -508,23 +708,46 @@ function main(argv: readonly string[]) {
       await new Promise((resolve) => setTimeout(resolve, 3_000))
     }
 
-    for (const source of CATEGORY_SOURCES) {
+    /** The words a Wiktionary files under this very category. */
+    const attestedWords = async (categoryId: string): Promise<string[] | null> => {
+      if (kaikki) {
+        const topics = topicsOf.get(categoryId)
+        if (!topics) return null
+        return [...topics].flatMap((topic) => kaikki!.topics.get(topic) ?? [])
+      }
+      const titles = FRENCH_WIKTIONARY[categoryId]
+      if (!titles) return null
+      const words: string[] = []
+      for (const title of titles) {
+        try {
+          words.push(...(await wiktionaryWords(title, false)))
+        } catch (error) {
+          console.warn(`! wiktionnaire ${title}: ${(error as Error).message}`)
+        }
+      }
+      return words
+    }
+
+    // Every category is gathered before any Wikipedia is read: the visits
+    // come from one dump, streamed once for all of them.
+    const gathered: { id: string; best: Map<string, Entry>; attested: Set<string>; commonNouns: boolean }[] = []
+    for (const category of CATEGORY_SOURCES) {
       // A category is a union: it is worth rebuilding from the pulls that
       // answered, as long as one did. Rebuilding from none would empty it.
-      const sources = source.pulls.filter((id) => byPull.has(id))
+      const sources = category.pulls.filter((id) => byPull.has(id))
       if (sources.length === 0) {
-        console.warn(`~ ${source.id}: inchangé (aucune source)`)
+        console.warn(`~ ${category.id}: inchangé (aucune source)`)
         continue
       }
-      if (sources.length < source.pulls.length) {
-        console.warn(`~ ${source.id}: partiel (${sources.length}/${source.pulls.length} sources)`)
+      if (sources.length < category.pulls.length) {
+        console.warn(`~ ${category.id}: partiel (${sources.length}/${category.pulls.length} sources)`)
       }
 
       // A word also reachable from an `exclude` pull is dropped rather than
       // added: "fruit" and "fleur" are anatomical structures too, just of a
       // plant rather than a body, and the class doesn't tell the two apart.
       const excluded = new Set<string>()
-      for (const id of source.exclude ?? []) {
+      for (const id of category.exclude ?? []) {
         for (const row of byPull.get(id) ?? []) {
           const key = normalizeWord(row.display)
           if (key !== '') excluded.add(key)
@@ -534,19 +757,19 @@ function main(argv: readonly string[]) {
       // One entry per normalized word: the shortest spelling wins, and a word
       // found in several pulls keeps its best notoriety.
       // `alias` stays true only while every row naming the word was an alias.
-      const best = new Map<string, { display: string; sitelinks: number; alias: boolean }>()
+      const best = new Map<string, Entry>()
       for (const id of sources) {
         for (const row of byPull.get(id)!) {
           // "le Canada" is a real French alias, but keeping it would let the
           // player answer a country on the letter L. Only aliases are stripped:
           // in a label the article belongs to the name ("Le Havre").
-          const cleaned = (row.alias ? row.display.replace(/^(?:[Ll]es?|[Ll]a|[Ll]') ?/, '') : row.display)
+          const cleaned = (row.alias ? row.display.replace(source.articles, '') : row.display)
             .trim()
             .replace(/\s+/g, ' ')
 
-          // Wikidata writes an occupation as "boulanger ou boulangère". Both
-          // forms are words a player may type, so both are kept.
-          for (const display of cleaned.split(/ ou /)) {
+          // Wikidata writes a French occupation as "boulanger ou boulangère".
+          // Both forms are words a player may type, so both are kept.
+          for (const display of source.alternatives ? cleaned.split(source.alternatives) : [cleaned]) {
             if (!acceptable(display)) continue
             const key = normalizeWord(display)
             if (key === '' || excluded.has(key)) continue
@@ -563,27 +786,33 @@ function main(argv: readonly string[]) {
 
       // The words the Wiktionary files under this very category: for them, and
       // only them, the corpus frequency measures the right sense.
+      const words = await attestedWords(category.id)
       const attested = new Set<string>()
-      for (const title of WIKTIONARY[source.id] ?? []) {
-        try {
-          for (const word of await wiktionaryWords(title, false)) {
-            const display = word.trim().replace(/\s+/g, ' ')
-            if (!acceptable(display)) continue
-            const key = normalizeWord(display)
-            if (key !== '') attested.add(key)
-            if (key === '' || best.has(key)) continue
-            // No sitelinks: a Wiktionary word is rated on its corpus frequency
-            // alone, which is exactly what a common noun has.
-            best.set(key, { display, sitelinks: 0, alias: false })
-          }
-        } catch (error) {
-          console.warn(`! wiktionnaire ${title}: ${(error as Error).message}`)
-        }
+      for (const word of words ?? []) {
+        const display = word.trim().replace(/\s+/g, ' ')
+        if (!acceptable(display)) continue
+        const key = normalizeWord(display)
+        if (key !== '') attested.add(key)
+        if (key === '' || best.has(key)) continue
+        // No sitelinks: a Wiktionary word is rated on its corpus frequency
+        // alone, which is exactly what a common noun has.
+        best.set(key, { display, sitelinks: 0, alias: false })
       }
+      gathered.push({ id: category.id, best, attested, commonNouns: words !== null })
+    }
 
-      // Inflected forms borrow the notoriety of the word they bend, so only the
-      // words themselves are looked up.
-      const articles = await frenchArticles([...best.values()].map((entry) => entry.display))
+    // Inflected forms borrow the notoriety of the word they bend, so only the
+    // words themselves are looked up.
+    const articles = await wikipediaArticles(
+      lang,
+      paths.articles,
+      gathered.flatMap(({ best }) => [...best.values()].map((entry) => entry.display)),
+    )
+    const titles = new Set<string>()
+    for (const title of articles.values()) if (title && title !== DISAMBIGUATION) titles.add(title)
+    const visits = await wikipediaVisits(lang, titles)
+
+    for (const { id, best, attested, commonNouns } of gathered) {
       const rows = new Map<string, WordRow>()
       for (const [key, entry] of best) {
         // A name shared with something far better known inherits its fame by
@@ -600,7 +829,6 @@ function main(argv: readonly string[]) {
         // name's everyday use would earn — "cheval", filed under a two-sitelink
         // item, keeps the horse's. A homonymy page is no reading: a label then
         // falls back on its sitelinks, an alias on nothing.
-        const commonNouns = WIKTIONARY[source.id] !== undefined
         const everyday = frequencies.get(entry.display.normalize('NFC').toLowerCase()) ?? 0
         const senseKnown =
           commonNouns && (attested.has(key) || (!entry.alias && entry.sitelinks >= MAJOR_SITELINKS))
@@ -623,12 +851,11 @@ function main(argv: readonly string[]) {
       // Every inflected form of an accepted word is accepted too, pointing back
       // at it: "chats" scores like "chat", and cannot be played twice in the
       // same run under two spellings.
-
       let variants = 0
       for (const [key, entry] of best) {
-        const lemma = lexique.lemmaOf.get(key)
+        const lemma = lexicon.lemmaOf.get(key)
         if (!lemma) continue
-        for (const form of lexique.formsOf.get(lemma) ?? []) {
+        for (const form of lexicon.formsOf.get(lemma) ?? []) {
           const formKey = normalizeWord(form)
           if (formKey === '' || rows.has(formKey) || !acceptable(form)) continue
           const frequency = attested.has(key) ? (frequencies.get(form.normalize('NFC').toLowerCase()) ?? 0) : 0
@@ -642,8 +869,8 @@ function main(argv: readonly string[]) {
         .map(([, row]) => JSON.stringify(row))
 
       // One row per line, so a regenerated dictionary diffs word by word.
-      writeFileSync(`${OUT}/${source.id}.json`, `[\n${lines.join(',\n')}\n]\n`)
-      console.log(`→ ${source.id}: ${lines.length} mots (dont ${variants} formes fléchies)`)
+      writeFileSync(`${paths.out}/${id}.json`, `[\n${lines.join(',\n')}\n]\n`)
+      console.log(`→ ${lang}/${id}: ${lines.length} mots (dont ${variants} formes fléchies)`)
     }
     if (failed.length > 0) console.warn(`! sources en échec : ${failed.join(', ')}`)
   })()

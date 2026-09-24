@@ -7,7 +7,7 @@ export interface Pull {
   id: string
   /** Wikidata class. Instances of it — and of its subclasses when `deep`. */
   of: string
-  /** Taxon pulls read the French vernacular name (P1843) instead of the label. */
+  /** Taxon pulls read the vernacular name (P1843) instead of the label. */
   vernacular?: boolean
   deep?: boolean
   /**
@@ -16,12 +16,34 @@ export interface Pull {
    * pulls miss almost all of them.
    */
   subclass?: boolean
-  /** Escape hatch for a shape the flags cannot express. */
-  raw?: string
-  /** Fetch French aliases too — worth it for entities the player may name in several ways. */
+  /** Escape hatch for a shape the flags cannot express, written for one language scope. */
+  raw?: (scope: Scope) => string
+  /** Fetch aliases too — worth it for entities the player may name in several ways. */
   aliases?: boolean
   /** Only for communes: keeps the map to places a player has heard of. */
   minPopulation?: number
+  /**
+   * Fetch the female form of the label (P2521) as an alias: most languages
+   * name a job in the masculine, and "Bäckerin" is as good an answer.
+   */
+  female?: boolean
+}
+
+/** The language a query reads its labels in, and the Wikipedia it trusts for titles. */
+export interface Scope {
+  /** A SPARQL filter keeping a literal in the language, e.g. `inLanguage('?label')`. */
+  inLanguage(variable: string): string
+  /** `https://fr.wikipedia.org/` */
+  wikipedia: string
+}
+
+export function scopeFor(labels: readonly string[], wiki: string): Scope {
+  const tags = labels.map((tag) => `"${tag}"`).join(', ')
+  return {
+    inLanguage: (variable) =>
+      labels.length === 1 ? `FILTER(lang(${variable}) = ${tags})` : `FILTER(lang(${variable}) IN (${tags}))`,
+    wikipedia: `https://${wiki}.wikipedia.org/`,
+  }
 }
 
 export const PULLS: readonly Pull[] = [
@@ -31,10 +53,10 @@ export const PULLS: readonly Pull[] = [
     of: 'Q5119',
     // "Instance of capital" holds barely sixty items; what a player means by a
     // capital is the city some country declares as its own.
-    raw: `SELECT ?label ?n WHERE {
+    raw: (scope) => `SELECT ?label ?n WHERE {
   ?country wdt:P31 wd:Q6256 ; wdt:P36 ?item .
   ?item rdfs:label ?label ; wikibase:sitelinks ?n .
-  FILTER(lang(?label) = "fr")
+  ${scope.inLanguage('?label')}
 }`,
   },
   // "Building material" rather than "material" (Q214609): the broader class
@@ -53,7 +75,7 @@ export const PULLS: readonly Pull[] = [
   // Instances of "profession": the subclass tree of "occupation" holds trade
   // families ("métier du bois"), not the jobs themselves. Their French label is
   // the double-gendered form, which the import splits in two.
-  { id: 'professions', of: 'Q28640' },
+  { id: 'professions', of: 'Q28640', female: true },
   { id: 'professions-sub', of: 'Q28640', subclass: true },
   { id: 'sports', of: 'Q31629', deep: true },
   { id: 'sports-sub', of: 'Q349', subclass: true },
@@ -95,17 +117,17 @@ export const PULLS: readonly Pull[] = [
   // industry statement was tried too, but both sit on communes, the UN, or
   // "football" as often as on a company — a filter too loose to trust. Two
   // narrow pulls, unioned by the category, catch what a single query misses;
-  // the French article title stands in for the label whenever Wikidata never
+  // the Wikipedia article title stands in for the label whenever Wikidata never
   // gave the item one of its own — true for Coca-Cola and Facebook.
   {
     id: 'brand-class',
     of: 'Q431289',
-    raw: `SELECT ?label ?n WHERE {
+    raw: (scope) => `SELECT ?label ?n WHERE {
   VALUES ?class { wd:Q431289 wd:Q786820 wd:Q4830453 wd:Q891723 wd:Q6881511 wd:Q783794 wd:Q167037 wd:Q1137109 wd:Q1058914 wd:Q18388277 }
-  ?article schema:about ?item ; schema:isPartOf <https://fr.wikipedia.org/> ; schema:name ?title .
+  ?article schema:about ?item ; schema:isPartOf <${scope.wikipedia}> ; schema:name ?title .
   ?item wdt:P31 ?class ; wikibase:sitelinks ?n . FILTER(?n >= 15)
-  OPTIONAL { ?item rdfs:label ?frlabel . FILTER(lang(?frlabel) = "fr") }
-  BIND(COALESCE(?frlabel, ?title) AS ?label)
+  OPTIONAL { ?item rdfs:label ?ownlabel . ${scope.inLanguage('?ownlabel')} }
+  BIND(COALESCE(?ownlabel, ?title) AS ?label)
 }`,
   },
   {
@@ -113,11 +135,11 @@ export const PULLS: readonly Pull[] = [
     of: 'Q431289',
     // Reverse of "has brand" on a product — catches a brand entity that
     // carries none of the classes above, as long as one product of it names it.
-    raw: `SELECT ?label ?n WHERE {
-  ?article schema:about ?item ; schema:isPartOf <https://fr.wikipedia.org/> ; schema:name ?title .
+    raw: (scope) => `SELECT ?label ?n WHERE {
+  ?article schema:about ?item ; schema:isPartOf <${scope.wikipedia}> ; schema:name ?title .
   ?product wdt:P1716 ?item . ?item wikibase:sitelinks ?n . FILTER(?n >= 15)
-  OPTIONAL { ?item rdfs:label ?frlabel . FILTER(lang(?frlabel) = "fr") }
-  BIND(COALESCE(?frlabel, ?title) AS ?label)
+  OPTIONAL { ?item rdfs:label ?ownlabel . ${scope.inLanguage('?ownlabel')} }
+  BIND(COALESCE(?ownlabel, ?title) AS ?label)
 }`,
   },
 ]
@@ -176,22 +198,22 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
   { id: 'marques', pulls: ['brand-class', 'brand-product'] },
 ]
 
-export function queryFor(pull: Pull): string {
-  if (pull.raw) return pull.raw
+export function queryFor(pull: Pull, scope: Scope): string {
+  if (pull.raw) return pull.raw(scope)
 
   if (pull.subclass) {
     return `SELECT ?label ?n WHERE {
   ?item wdt:P279* wd:${pull.of} ; rdfs:label ?label ; wikibase:sitelinks ?n .
-  FILTER(lang(?label) = "fr")
+  ${scope.inLanguage('?label')}
 }`
   }
 
   if (pull.vernacular) {
-    // The French vernacular names are a far smaller set than the taxon tree, so
-    // they are matched first and the ancestry is only checked on the survivors.
+    // The vernacular names are a far smaller set than the taxon tree, so they
+    // are matched first and the ancestry is only checked on the survivors.
     // Walking the tree first times the endpoint out on the larger classes.
     return `SELECT ?label ?n WHERE {
-  ?item wdt:P1843 ?label . FILTER(lang(?label) = "fr")
+  ?item wdt:P1843 ?label . ${scope.inLanguage('?label')}
   ?item wikibase:sitelinks ?n .
   ?item wdt:P171* wd:${pull.of} .
 }`
@@ -202,13 +224,16 @@ export function queryFor(pull: Pull): string {
     ? `\n  ?item wdt:P1082 ?pop . FILTER(?pop >= ${pull.minPopulation})`
     : ''
   const alias = pull.aliases
-    ? `\n  OPTIONAL { ?item skos:altLabel ?alias . FILTER(lang(?alias) = "fr") }`
-    : ''
+    ? `\n  OPTIONAL { ?item skos:altLabel ?alias . ${scope.inLanguage('?alias')} }`
+    : pull.female
+      ? `\n  OPTIONAL { ?item wdt:P2521 ?alias . ${scope.inLanguage('?alias')} }`
+      : ''
+  const withAlias = pull.aliases || pull.female
 
   // An unbound projected variable is refused by the endpoint, so the SELECT
   // clause only mentions ?alias when the query actually binds one.
-  return `SELECT ?label ${pull.aliases ? '?alias ' : ''}?n WHERE {
+  return `SELECT ?label ${withAlias ? '?alias ' : ''}?n WHERE {
   ?item ${step} wd:${pull.of} ; rdfs:label ?label ; wikibase:sitelinks ?n .
-  FILTER(lang(?label) = "fr")${population}${alias}
+  ${scope.inLanguage('?label')}${population}${alias}
 }`
 }

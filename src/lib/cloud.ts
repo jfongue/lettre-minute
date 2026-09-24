@@ -18,6 +18,23 @@ export interface CommunityWord {
 }
 
 /**
+ * The server knows nothing of languages: a word and a category are written
+ * with their language in front — `de:animaux`, `de:katze` — so rarity,
+ * discoveries and community words stay within one dictionary. French, the
+ * first, keeps the bare names its rows were stored under.
+ */
+function scoped(lang: string, value: string): string {
+  return lang === 'fr' ? value : `${lang}:${value}`
+}
+
+/** The value as the given language wrote it, or null when another language did. */
+function unscoped(lang: string, value: string): string | null {
+  const at = value.indexOf(':')
+  if (lang === 'fr') return at === -1 ? value : null
+  return value.startsWith(`${lang}:`) ? value.slice(at + 1) : null
+}
+
+/**
  * Every call here answers with a fallback instead of throwing: a failed sync
  * must cost the player nothing more than a stale leaderboard.
  */
@@ -32,17 +49,20 @@ async function guard<T>(work: () => Promise<T>, fallback: T): Promise<T> {
   }
 }
 
-export function fetchCrowdUsage(): Promise<CrowdUsage> {
+export function fetchCrowdUsage(lang: string): Promise<CrowdUsage> {
   return guard(async () => {
     const { data } = await supabase!.from('word_popularity').select('word, share').limit(5000)
     const shares: Record<string, number> = {}
-    for (const row of data ?? []) shares[row.word as string] = Number(row.share) || 0
+    for (const row of data ?? []) {
+      const word = unscoped(lang, row.word as string)
+      if (word !== null) shares[word] = Number(row.share) || 0
+    }
     return { shares }
   }, { shares: {} })
 }
 
 /** Words the community added since the bundled dictionaries were built. */
-export function fetchCommunityWords(): Promise<Record<string, CommunityWord[]>> {
+export function fetchCommunityWords(lang: string): Promise<Record<string, CommunityWord[]>> {
   return guard(async () => {
     const { data } = await supabase!
       .from('dictionary_words')
@@ -51,9 +71,11 @@ export function fetchCommunityWords(): Promise<Record<string, CommunityWord[]>> 
 
     const byCategory: Record<string, CommunityWord[]> = {}
     for (const row of data ?? []) {
-      const list = (byCategory[row.category_id as string] ??= [])
+      const categoryId = unscoped(lang, row.category_id as string)
+      if (categoryId === null) continue
+      const list = (byCategory[categoryId] ??= [])
       list.push({
-        categoryId: row.category_id as string,
+        categoryId,
         display: row.display as string,
         sitelinks: Number(row.sitelinks) || 0,
         frequency: Number(row.frequency) || 0,
@@ -63,7 +85,7 @@ export function fetchCommunityWords(): Promise<Record<string, CommunityWord[]>> 
   }, {})
 }
 
-export function pushRun(run: Run, profile: Profile): Promise<boolean> {
+export function pushRun(run: Run, profile: Profile, lang: string): Promise<boolean> {
   return guard(async () => {
     const identity = await connect()
     const { data, error } = await supabase!
@@ -84,8 +106,8 @@ export function pushRun(run: Run, profile: Profile): Promise<boolean> {
       await supabase!.from('run_words').insert(
         run.found.map((found) => ({
           run_id: data.id,
-          word: found.word,
-          category_id: found.prompt.categoryId,
+          word: scoped(lang, found.word),
+          category_id: scoped(lang, found.prompt.categoryId),
           points: found.points,
         })),
       )
@@ -116,8 +138,8 @@ export function pushSubmissions(pending: readonly PendingSubmission[]): Promise<
     const { error } = await supabase!.from('word_submissions').upsert(
       pending.map((submission) => ({
         player_id: identity!.userId,
-        category_id: submission.categoryId,
-        word: submission.word.trim().toLowerCase(),
+        category_id: scoped(submission.lang ?? 'fr', submission.categoryId),
+        word: scoped(submission.lang ?? 'fr', submission.word.trim().toLowerCase()),
         display: submission.word.trim(),
       })),
       { onConflict: 'player_id, category_id, word', ignoreDuplicates: true },

@@ -234,8 +234,7 @@ button {
   animation: slide-from-right 700ms var(--ease-out) 300ms backwards;
 }
 
-.masthead .eyebrow,
-.masthead .note {
+.masthead .eyebrow {
   justify-self: end;
 }
 

@@ -11,7 +11,6 @@ export const de: Messages = {
 
   home: {
     tagline: (seconds) => `Ein Buchstabe · ein Thema · ${seconds} Sekunden`,
-    wordsLanguage: 'Die Antworten sind französische Wörter.',
     play: 'Spielen',
     menu: 'Menü: Profil, Freunde, Optionen',
     level: (level) => `Level ${level}`,
@@ -32,7 +31,7 @@ export const de: Messages = {
 
   run: {
     meta: (words, skips) => `${words} ${plural(words, 'Wort', 'Wörter')} · ${skips} übersprungen`,
-    placeholder: (letter) => `ein französisches Wort mit ${letter}…`,
+    placeholder: (letter) => `ein Wort mit ${letter}…`,
     fieldLabel: (letter, category) => `Wort mit ${letter}, Kategorie ${category}`,
     skip: (seconds) => `Überspringen −${seconds} s`,
     submit: 'Bestätigen',

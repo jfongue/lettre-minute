@@ -21,6 +21,7 @@ import { completeBoards, type Boards } from './domain/boards'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { remainingSeconds } from './domain/run'
 import { dealLineup, ownedCategoryIds, swapCategory } from './domain/unlocks'
+import { LETTER_DECKS, PLAYABLE_LETTERS } from './domain/letters'
 import { withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
 import { createJudge } from './state/judge'
@@ -79,6 +80,8 @@ export function App() {
   // player has not picked one yet: the picker then comes before anything else.
   const [locale, setLocale] = useState<Locale | null>(loadLocale)
   const t = messagesFor(locale ?? 'fr')
+  // The dictionary follows the interface: a German player answers in German.
+  const lang = locale ?? 'fr'
   const speak = useCallback((next: Locale) => {
     setLocale(next)
     saveLocale(next)
@@ -133,10 +136,13 @@ export function App() {
   // Everything below is best-effort: the cloud calls answer with a fallback
   // rather than throwing, so a missing project simply leaves the game local.
   useEffect(() => {
-    fetchCrowdUsage().then((usage) => setCrowd(usage.shares))
-    fetchCommunityWords().then((words) => {
+    fetchCrowdUsage(lang).then((usage) => setCrowd(usage.shares))
+    fetchCommunityWords(lang).then((words) => {
       community.current = words
     })
+  }, [lang])
+
+  useEffect(() => {
     loadBoards().then(setBoards)
     fetchAccount().then((found) => found && adopt(found))
     flushSubmissions()
@@ -210,12 +216,12 @@ export function App() {
   // A pick owed and no offer on the table — after a level up, or on a device
   // that has never seen this player's picks — deals three categories to choose from.
   useEffect(() => {
-    dispatch({ type: 'offer', availableIds: availableCategoryIds(), seed: Date.now() >>> 0 })
-  }, [session.profile])
+    dispatch({ type: 'offer', availableIds: availableCategoryIds(lang), seed: Date.now() >>> 0 })
+  }, [session.profile, lang])
 
   const judgeFor = useCallback(
     async (categoryIds: readonly string[]) => {
-      const packs = (await loadPacks(categoryIds)).map((pack) =>
+      const packs = (await loadPacks(lang, categoryIds)).map((pack) =>
         withExtraWords(
           pack,
           (community.current[pack.categoryId] ?? []).map((word) => ({
@@ -227,9 +233,9 @@ export function App() {
           })),
         ),
       )
-      return createJudge(packs, { own: session.profile.usage, crowd })
+      return createJudge(packs, { own: session.profile.usage, crowd }, LETTER_DECKS[lang] ?? PLAYABLE_LETTERS)
     },
-    [session.profile.usage, crowd],
+    [session.profile.usage, crowd, lang],
   )
 
   const play = useCallback(async () => {
@@ -239,7 +245,7 @@ export function App() {
     try {
       // A category of the catalogue whose dictionary has not been imported yet
       // is simply not dealt, rather than failing the whole run.
-      const shipped = new Set(availableCategoryIds())
+      const shipped = new Set(availableCategoryIds(lang))
       const seed = Date.now() >>> 0
       const lineup = dealLineup(
         seed,
@@ -248,11 +254,11 @@ export function App() {
       const judge = await judgeFor(lineup.dealt)
       dispatch({ type: 'ready', judge, seed, categoryIds: lineup.dealt, reserve: lineup.reserve })
       // Warmed while the categories are announced, so the first swap is instant.
-      if (lineup.reserve[0]) loadPack(lineup.reserve[0]).catch(() => undefined)
+      if (lineup.reserve[0]) loadPack(lang, lineup.reserve[0]).catch(() => undefined)
     } catch {
       dispatch({ type: 'load-failed', message: t.loadFailed })
     }
-  }, [session.profile, judgeFor, t])
+  }, [session.profile, judgeFor, t, lang])
 
   const [swapping, setSwapping] = useState(false)
   const swap = useCallback(
@@ -264,14 +270,14 @@ export function App() {
       try {
         const judge = await judgeFor(lineup.dealt)
         dispatch({ type: 'swapped', judge, categoryIds: lineup.dealt, reserve: lineup.reserve })
-        if (lineup.reserve[0]) loadPack(lineup.reserve[0]).catch(() => undefined)
+        if (lineup.reserve[0]) loadPack(lang, lineup.reserve[0]).catch(() => undefined)
       } catch {
         /* the dictionary did not come: the run keeps the category it had */
       } finally {
         setSwapping(false)
       }
     },
-    [session.run, session.reserve, swapping, judgeFor],
+    [session.run, session.reserve, swapping, judgeFor, lang],
   )
 
   const choose = useCallback((categoryId: string) => dispatch({ type: 'choose', categoryId }), [])
@@ -283,16 +289,16 @@ export function App() {
       if (!session.run) return
       saveSubmissions([
         ...loadSubmissions(),
-        { word: word.trim(), categoryId: session.run.prompt.categoryId, at: Date.now() },
+        { word: word.trim(), categoryId: session.run.prompt.categoryId, at: Date.now(), lang },
       ])
       dispatch({ type: 'propose', word })
     },
-    [session.run],
+    [session.run, lang],
   )
 
   useEffect(() => {
     if (session.phase !== 'over' || !session.run) return
-    const pushed = pushRun(session.run, session.profile)
+    const pushed = pushRun(session.run, session.profile, lang)
     pushing.current = pushed
     flushSubmissions()
     // Read after the run is in, or the boards would not count it yet.
