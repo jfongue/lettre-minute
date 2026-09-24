@@ -252,37 +252,48 @@ export function fetchAccount(): Promise<Account | null> {
   }, null)
 }
 
-export type AuthOutcome = { ok: true; account: Account } | { ok: false; message: string }
+/** Why an account could not be made or reached; the interface words it in the player's language. */
+export type AuthError =
+  | 'unreachable'
+  | 'email-taken'
+  | 'weak-password'
+  | 'short-password'
+  | 'wrong-credentials'
+  | 'invalid-email'
+  | 'rate-limited'
+  | 'name-length'
+  | 'name-reserved'
+  | 'name-taken'
 
-const UNREACHABLE = 'Le serveur ne répond pas. Réessaie dans un instant.'
+export type AuthOutcome = { ok: true; account: Account } | { ok: false; error: AuthError }
 
-function refuse(message: string): AuthOutcome {
-  return { ok: false, message }
+function refuse(error: AuthError): AuthOutcome {
+  return { ok: false, error }
 }
 
-/** Supabase answers in English with a code; the player reads French. */
-function authMessage(error: { code?: string; message: string }): string {
+/** Supabase answers in English with a code; the player reads their own language. */
+function authError(error: { code?: string; message: string }): AuthError {
   switch (error.code) {
     case 'email_exists':
     case 'user_already_exists':
-      return 'Cette adresse a déjà un compte : connecte-toi plutôt.'
+      return 'email-taken'
     case 'weak_password':
-      return 'Mot de passe trop faible : six caractères au moins.'
+      return 'weak-password'
     case 'invalid_credentials':
-      return 'Adresse ou mot de passe incorrect.'
+      return 'wrong-credentials'
     case 'email_address_invalid':
-      return 'Cette adresse n’est pas valide.'
+      return 'invalid-email'
     case 'over_request_rate_limit':
     case 'over_email_send_rate_limit':
-      return 'Trop d’essais d’un coup. Patiente une minute.'
+      return 'rate-limited'
     default:
-      return UNREACHABLE
+      return 'unreachable'
   }
 }
 
-function checkCredentials(email: string, password: string): string | null {
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Cette adresse n’est pas valide.'
-  if (password.length < 6) return 'Mot de passe trop court : six caractères au moins.'
+function checkCredentials(email: string, password: string): AuthError | null {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'invalid-email'
+  if (password.length < 6) return 'short-password'
   return null
 }
 
@@ -292,33 +303,33 @@ function checkCredentials(email: string, password: string): string | null {
  */
 export async function register(name: string, email: string, password: string): Promise<AuthOutcome> {
   const trimmed = name.trim()
-  if (trimmed.length < 2 || trimmed.length > 24) return refuse('Le nom fait entre 2 et 24 caractères.')
-  if (trimmed.toLowerCase() === 'anonyme') return refuse('Ce nom est réservé.')
+  if (trimmed.length < 2 || trimmed.length > 24) return refuse('name-length')
+  if (trimmed.toLowerCase() === 'anonyme') return refuse('name-reserved')
   const invalid = checkCredentials(email.trim(), password)
   if (invalid) return refuse(invalid)
-  if (!supabase) return refuse(UNREACHABLE)
+  if (!supabase) return refuse('unreachable')
 
   try {
     const identity = await connect()
-    if (!identity) return refuse(UNREACHABLE)
+    if (!identity) return refuse('unreachable')
 
     // The name goes first: the unique index is the cheapest availability check.
     const { error: nameError } = await supabase
       .from('profiles')
       .update({ display_name: trimmed })
       .eq('id', identity.userId)
-    if (nameError) return refuse(nameError.code === '23505' ? 'Ce nom est déjà pris.' : UNREACHABLE)
+    if (nameError) return refuse(nameError.code === '23505' ? 'name-taken' : 'unreachable')
 
     const { error } = await supabase.auth.updateUser({ email: email.trim(), password })
     if (error) {
       await supabase.from('profiles').update({ display_name: 'Anonyme' }).eq('id', identity.userId)
-      return refuse(authMessage(error))
+      return refuse(authError(error))
     }
 
     const account = await fetchAccount()
-    return account ? { ok: true, account } : refuse(UNREACHABLE)
+    return account ? { ok: true, account } : refuse('unreachable')
   } catch {
-    return refuse(UNREACHABLE)
+    return refuse('unreachable')
   }
 }
 
@@ -330,21 +341,21 @@ export async function register(name: string, email: string, password: string): P
 export async function logIn(email: string, password: string): Promise<AuthOutcome> {
   const invalid = checkCredentials(email.trim(), password)
   if (invalid) return refuse(invalid)
-  if (!supabase) return refuse(UNREACHABLE)
+  if (!supabase) return refuse('unreachable')
 
   try {
     const { data: current } = await supabase.auth.getSession()
     const token = current.session?.user.is_anonymous ? (await supabase.rpc('prepare_merge')).data : null
 
     const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
-    if (error) return refuse(authMessage(error))
+    if (error) return refuse(authError(error))
     forgetSession()
 
     if (token) await supabase.rpc('complete_merge', { p_token: token })
     const account = await fetchAccount()
-    return account ? { ok: true, account } : refuse(UNREACHABLE)
+    return account ? { ok: true, account } : refuse('unreachable')
   } catch {
-    return refuse(UNREACHABLE)
+    return refuse('unreachable')
   }
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, type CSSProperties } from 'react'
 import type { BoardRow } from '../domain/boards'
-import { ordinal, standingMove } from '../domain/standing'
+import { standingMove } from '../domain/standing'
+import { formatNumber, useT, type Messages } from '../i18n'
 import { tapFeedback } from '../lib/native'
 import { Avatar } from './Avatar'
 import { reducedMotion, useCountUp } from './useCountUp'
@@ -25,6 +26,7 @@ const CLIMB_MS = 1100
  * from where they stood before it, so the end state needs no animation at all.
  */
 export function RankMove({ title, before, after, me }: RankMoveProps) {
+  const t = useT()
   const move = standingMove(before, after, me)
   const start = move ? Math.max(0, move.to - 1 - ROWS_ABOVE) : 0
   const rows = move ? after.slice(start, move.to + ROWS_BELOW) : []
@@ -49,7 +51,7 @@ export function RankMove({ title, before, after, me }: RankMoveProps) {
     <section className="panel rank-move">
       <div className="spread">
         <p className="section-title">{title}</p>
-        <p className="rank-move-headline">{headline(move.from, move.to)}</p>
+        <p className="rank-move-headline">{headline(t, move.from, move.to)}</p>
       </div>
       <div className="standings rank-move-board" style={{ '--climb-delay': `${CLIMB_DELAY_MS}ms`, '--climb-ms': `${CLIMB_MS}ms` } as CSSProperties}>
         {rows.map((row, index) => {
@@ -64,7 +66,7 @@ export function RankMove({ title, before, after, me }: RankMoveProps) {
               <span className="rank">{mine ? rank : start + index + 1}</span>
               <Avatar choice={row.avatar} size="sm" />
               <span className="name">{row.name}</span>
-              <span className="points">{row.value.toLocaleString('fr-FR')}</span>
+              <span className="points">{formatNumber(t, row.value)}</span>
             </div>
           )
         })}
@@ -73,9 +75,10 @@ export function RankMove({ title, before, after, me }: RankMoveProps) {
   )
 }
 
-function headline(from: number | null, to: number): string {
-  if (from === null) return `Entrée · ${ordinal(to)}`
-  if (to < from) return `+${from - to} place${from - to > 1 ? 's' : ''} · ${ordinal(to)}`
-  if (to === from) return `Toujours ${ordinal(to)}`
-  return ordinal(to)
+function headline(t: Messages, from: number | null, to: number): string {
+  const place = t.boards.ordinal(to)
+  if (from === null) return t.boards.entered(place)
+  if (to < from) return t.boards.climbed(from - to, place)
+  if (to === from) return t.boards.held(place)
+  return place
 }

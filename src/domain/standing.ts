@@ -26,8 +26,3 @@ export function standingMove(before: readonly BoardRow[], after: readonly BoardR
     passed: after.slice(to + 1).filter((row) => above.has(row.name.toLocaleLowerCase('fr-FR'))),
   }
 }
-
-/** « 1er », « 2e », « 17e » : a place on the board, as a French poster prints it. */
-export function ordinal(rank: number): string {
-  return rank === 1 ? '1er' : `${rank}e`
-}

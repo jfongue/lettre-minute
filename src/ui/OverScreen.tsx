@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { newlyEarned, type AvatarChoice } from '../domain/avatar'
 import type { Boards } from '../domain/boards'
-import { categoryMeta } from '../domain/catalogue'
 import { capitalized } from '../domain/text'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
 import type { FoundWord, Run } from '../domain/run'
+import { categoryText, formatNumber, useT } from '../i18n'
 import type { Account } from '../lib/cloud'
 import { tapFeedback } from '../lib/native'
 import { AccountPanel, type AccountActions } from './AccountPanel'
@@ -59,6 +59,7 @@ const isRare = (found: FoundWord) => !found.approximate && (found.tier === 'rare
  * A tap skips to the end; the next tap moves on.
  */
 function Reveal({ run, onNext }: { run: Run; onNext(): void }) {
+  const t = useT()
   const total = run.found.length
   // -2: blank, -1: the score alone, n: the score and the first n words.
   const [shown, setShown] = useState(() => (reducedMotion() ? total : -2))
@@ -105,7 +106,7 @@ function Reveal({ run, onNext }: { run: Run; onNext(): void }) {
                 <span className="reveal-word-text">
                   {found.approximate && <span className="note">≈ </span>}
                   {capitalized(found.display)}
-                  <span className="reveal-word-category">{categoryMeta(found.prompt.categoryId)?.label}</span>
+                  <span className="reveal-word-category">{categoryText(t, found.prompt.categoryId).label}</span>
                 </span>
                 {!found.approximate && found.tier !== 'courant' && <TierTag tier={found.tier} />}
                 <span className="reveal-word-points">
@@ -115,7 +116,7 @@ function Reveal({ run, onNext }: { run: Run; onNext(): void }) {
               </li>
             )
           })}
-          {total === 0 && <li className="note reveal-empty">Pas un seul mot. Ça arrive.</li>}
+          {total === 0 && <li className="note reveal-empty">{t.over.empty}</li>}
         </ol>
       )}
 
@@ -128,7 +129,7 @@ function Reveal({ run, onNext }: { run: Run; onNext(): void }) {
             onNext()
           }}
         >
-          <span>Continuer</span>
+          <span>{t.over.next}</span>
           <span className="play-glyph" aria-hidden="true">
             <Shape kind="circle" tint="yellow" />
             <span className="motion play-triangle">
@@ -142,12 +143,13 @@ function Reveal({ run, onNext }: { run: Run; onNext(): void }) {
 }
 
 function RevealScore({ score }: { score: number }) {
+  const t = useT()
   const shown = useCountUp(score, SCORE_MS)
   return (
     <header className="reveal-score">
-      <p className="eyebrow">Temps écoulé</p>
-      <h1 className="score-final">{shown.toLocaleString('fr-FR')}</h1>
-      <p className="score-poster-unit">points</p>
+      <p className="eyebrow">{t.over.timeUp}</p>
+      <h1 className="score-final">{formatNumber(t, shown)}</h1>
+      <p className="score-poster-unit">{t.over.points}</p>
     </header>
   )
 }
@@ -170,6 +172,7 @@ function Summary({
   onReplay,
   onHome,
 }: SummaryProps) {
+  const t = useT()
   const earned = newlyEarned(profileBefore, profile)
   // The reveal may have scrolled down its list: the summary reads from the top.
   // Braced: recent Chrome returns a promise from scrollTo, which React would
@@ -188,7 +191,7 @@ function Summary({
       {(earned.designs.length > 0 || earned.colours.length > 0) && (
         <section className="panel earned">
           <p className="section-title">
-            {earned.designs.length + earned.colours.length > 1 ? 'Nouveautés pour ton avatar' : 'Nouveauté pour ton avatar'}
+            {t.over.earned(earned.designs.length + earned.colours.length)}
           </p>
           <div className="earned-row">
             {earned.designs.map((design, index) => (
@@ -203,34 +206,34 @@ function Summary({
                 style={{ '--i': earned.designs.length + index } as CSSProperties}
               >
                 <span className="swatch-dot" style={{ background: colour.hex }} />
-                {colour.label}
+                {t.colours[colour.id] ?? colour.label}
               </span>
             ))}
           </div>
           <button type="button" className="btn btn--ghost" onClick={onAvatar}>
-            Personnaliser mon avatar
+            {t.over.customize}
           </button>
         </section>
       )}
 
       <div className="figures figures--three">
-        <Figure tint="yellow" value={run.found.length} label={run.found.length > 1 ? 'mots' : 'mot'} />
-        <Figure tint="red" value={run.bestCombo} label="meilleure série" />
+        <Figure tint="yellow" value={run.found.length} label={t.over.words(run.found.length)} />
+        <Figure tint="red" value={run.bestCombo} label={t.over.bestCombo} />
         <Figure
           tint="blue"
-          value={profile.bestScore.toLocaleString('fr-FR')}
-          label={record ? 'nouveau record' : 'record'}
+          value={formatNumber(t, profile.bestScore)}
+          label={record ? t.over.newRecord : t.over.record}
         />
       </div>
 
       {me && boardsBefore && boardsAfter && (
-        <RankMove title="Classement du jour" before={boardsBefore.day} after={boardsAfter.day} me={me} />
+        <RankMove title={t.over.dayBoard} before={boardsBefore.day} after={boardsAfter.day} me={me} />
       )}
 
       {account?.anonymous && (
         <AccountPanel
-          title="Garde cette partie"
-          lead="Crée un compte ou connecte-toi : cette partie et toute ta progression y entrent tout de suite."
+          title={t.over.keepTitle}
+          lead={t.over.keepLead}
           {...accountActions}
         />
       )}
@@ -238,14 +241,16 @@ function Summary({
         <p className="account-saved">
           <Avatar choice={avatar} size="sm" />
           <span>
-            Partie enregistrée sur le compte <strong>{account.name}</strong>
+            {t.over.savedTo[0]}
+            <strong>{account.name}</strong>
+            {t.over.savedTo[1]}
           </span>
         </p>
       )}
 
       <div className="stack">
         <button type="button" className="btn btn--play btn--block" onClick={onReplay}>
-          <span>Rejouer</span>
+          <span>{t.over.replay}</span>
           <span className="play-glyph" aria-hidden="true">
             <Shape kind="circle" tint="yellow" />
             <span className="motion play-triangle">
@@ -254,7 +259,7 @@ function Summary({
           </span>
         </button>
         <button type="button" className="btn btn--ghost btn--block" onClick={onHome}>
-          Accueil
+          {t.over.home}
         </button>
       </div>
     </div>
@@ -263,6 +268,7 @@ function Summary({
 
 /** The bar fills from where the run started, rolling over each level it crosses. */
 function XpGain({ from, to }: { from: number; to: number }) {
+  const t = useT()
   const xp = useCountUp(to, 1600, from, 450)
   const progress = levelProgress(xp)
   const levelledUp = progress.level > levelFor(from)
@@ -270,20 +276,20 @@ function XpGain({ from, to }: { from: number; to: number }) {
   return (
     <section className="stack xp-gain">
       <div className="spread">
-        <p className="section-title">Niveau {progress.level}</p>
-        <p className="xp-gain-amount">+{(to - from).toLocaleString('fr-FR')} XP</p>
+        <p className="section-title">{t.over.level(progress.level)}</p>
+        <p className="xp-gain-amount">+{formatNumber(t, to - from)} XP</p>
       </div>
       <div className="progress">
         <span style={{ '--ratio': progress.ratio } as CSSProperties} />
       </div>
       <p className="note">
-        {progress.into} / {progress.span} XP vers le niveau {progress.level + 1}
+        {t.over.towards(progress.into, progress.span, progress.level + 1)}
       </p>
       {levelledUp && (
         <div className="unlock" key={progress.level}>
           <Shape kind="sun" tint="yellow" className="unlock-sun" />
-          <p className="eyebrow">Niveau supérieur</p>
-          <p className="unlock-text">Niveau {progress.level} atteint</p>
+          <p className="eyebrow">{t.over.levelUp}</p>
+          <p className="unlock-text">{t.over.levelReached(progress.level)}</p>
         </div>
       )}
     </section>

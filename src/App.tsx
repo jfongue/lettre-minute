@@ -22,7 +22,9 @@ import { NEW_PROFILE, type Profile } from './domain/progression'
 import { remainingSeconds } from './domain/run'
 import { dealLineup, ownedCategoryIds, swapCategory } from './domain/unlocks'
 import { withExtraWords } from './domain/words'
+import { MessagesContext, messagesFor, type Locale } from './i18n'
 import { createJudge } from './state/judge'
+import { applyLocale, loadLocale, saveLocale } from './state/locale'
 import { initialSession, sessionReducer } from './state/session'
 import {
   clearLocalData,
@@ -39,6 +41,7 @@ import type { AccountActions } from './ui/AccountPanel'
 import { AvatarScreen } from './ui/AvatarScreen'
 import { CountdownScreen } from './ui/CountdownScreen'
 import { HomeScreen } from './ui/HomeScreen'
+import { LanguagePicker } from './ui/LanguagePicker'
 import { Menu } from './ui/Menu'
 import { OverScreen } from './ui/OverScreen'
 import { RunScreen } from './ui/RunScreen'
@@ -72,6 +75,17 @@ export function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = useCallback(() => setMenuOpen(false), [])
   const [theme, setTheme] = useState<Theme>(loadTheme)
+  // Null only when the device speaks none of the game's languages and the
+  // player has not picked one yet: the picker then comes before anything else.
+  const [locale, setLocale] = useState<Locale | null>(loadLocale)
+  const t = messagesFor(locale ?? 'fr')
+  const speak = useCallback((next: Locale) => {
+    setLocale(next)
+    saveLocale(next)
+  }, [])
+  useEffect(() => {
+    if (locale) applyLocale(locale)
+  }, [locale])
   const community = useRef<Record<string, CommunityWord[]>>({})
   const [avatar, setAvatar] = useState<AvatarChoice>(DEFAULT_AVATAR)
   const [account, setAccount] = useState<Account | null>(null)
@@ -132,17 +146,17 @@ export function App() {
     async onRegister(name, email, password) {
       await pushing.current
       const outcome = await register(name, email, password)
-      if (!outcome.ok) return outcome.message
+      if (!outcome.ok) return t.account.errors[outcome.error]
       setAccount(outcome.account)
       pushAvatar(avatar)
       loadBoards().then(setBoards)
       // With email confirmation on, the account stays anonymous until the link is followed.
-      return outcome.account.anonymous ? `Un lien de confirmation est parti à ${email.trim()}.` : null
+      return outcome.account.anonymous ? t.account.confirmationSent(email.trim()) : null
     },
     async onLogIn(email, password) {
       await pushing.current
       const outcome = await logIn(email, password)
-      if (!outcome.ok) return outcome.message
+      if (!outcome.ok) return t.account.errors[outcome.error]
       adopt(outcome.account)
       // The merge summed both players on the server: its totals are the truth now.
       dispatch({ type: 'profile-loaded', profile: { ...profile.current, ...outcome.account.stats } })
@@ -235,10 +249,10 @@ export function App() {
       dispatch({ type: 'ready', judge, seed, categoryIds: lineup.dealt, reserve: lineup.reserve })
       // Warmed while the categories are announced, so the first swap is instant.
       if (lineup.reserve[0]) loadPack(lineup.reserve[0]).catch(() => undefined)
-    } catch (error) {
-      dispatch({ type: 'load-failed', message: (error as Error).message })
+    } catch {
+      dispatch({ type: 'load-failed', message: t.loadFailed })
     }
-  }, [session.profile, judgeFor])
+  }, [session.profile, judgeFor, t])
 
   const [swapping, setSwapping] = useState(false)
   const swap = useCallback(
@@ -293,7 +307,16 @@ export function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.phase])
 
+  if (locale === null) {
+    return (
+      <main className="stage stage--home">
+        <LanguagePicker onPick={speak} />
+      </main>
+    )
+  }
+
   return (
+    <MessagesContext value={t}>
     <main className={`stage stage--${session.phase}`}>
       {editingAvatar && (
         <AvatarScreen
@@ -328,6 +351,8 @@ export function App() {
           account={account}
           accountActions={accountActions}
           theme={theme}
+          locale={locale}
+          onLocale={speak}
           onTheme={(next) => {
             setTheme(next)
             saveTheme(next)
@@ -402,5 +427,6 @@ export function App() {
       )}
 
     </main>
+    </MessagesContext>
   )
 }

@@ -1,4 +1,5 @@
 import { applyRun, levelFor, type Profile } from '../domain/progression'
+import type { RarityTier } from '../domain/rarity'
 import { normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer } from '../domain/unlocks'
 import {
@@ -42,7 +43,7 @@ export interface Session {
 export interface Cheer {
   display: string
   points: number
-  tier: string
+  tier: RarityTier
   approximate: boolean
 }
 

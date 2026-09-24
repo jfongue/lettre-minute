@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_AVATAR } from './avatar'
 import type { BoardRow } from './boards'
-import { ordinal, standingMove } from './standing'
+import { standingMove } from './standing'
 
 function board(...entries: [name: string, value: number][]): BoardRow[] {
   return entries.map(([name, value]) => ({ name, avatar: DEFAULT_AVATAR, value }))
@@ -49,11 +49,5 @@ describe('standingMove', () => {
 
   it('has nothing to show when the player is off the board', () => {
     expect(standingMove(board(['Ada', 10]), board(['Ada', 10]), 'Moi')).toBeNull()
-  })
-})
-
-describe('ordinal', () => {
-  it('prints places the French way', () => {
-    expect([1, 2, 17].map(ordinal)).toEqual(['1er', '2e', '17e'])
   })
 })

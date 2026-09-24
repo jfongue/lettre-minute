@@ -1,27 +1,9 @@
 import { useRef, useState } from 'react'
 import type { BoardId, Boards as BoardsData } from '../domain/boards'
+import { formatNumber, useT } from '../i18n'
 import { Avatar } from './Avatar'
 
-const BOARDS: readonly { id: BoardId; label: string; caption: string; empty: string }[] = [
-  {
-    id: 'day',
-    label: 'Jour',
-    caption: 'Meilleure partie d’aujourd’hui',
-    empty: 'Personne n’a encore joué aujourd’hui.',
-  },
-  {
-    id: 'week',
-    label: 'Semaine',
-    caption: 'Meilleure partie de la semaine',
-    empty: 'Personne n’a encore joué cette semaine.',
-  },
-  {
-    id: 'discoveries',
-    label: 'Découvertes',
-    caption: 'Mots que personne n’avait écrits depuis une semaine',
-    empty: 'Aucune découverte cette semaine : à toi d’ouvrir le bal.',
-  },
-]
+const BOARDS: readonly BoardId[] = ['day', 'week', 'discoveries']
 
 interface BoardsProps {
   boards: BoardsData
@@ -35,6 +17,7 @@ interface BoardsProps {
  * scroll it for those who tap rather than swipe.
  */
 export function Boards({ boards, me }: BoardsProps) {
+  const t = useT()
   const track = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
 
@@ -47,21 +30,21 @@ export function Boards({ boards, me }: BoardsProps) {
   return (
     <section className="panel boards">
       <div className="spread">
-        <p className="section-title">Classement</p>
-        <p className="note">{BOARDS[active].caption}</p>
+        <p className="section-title">{t.boards.title}</p>
+        <p className="note">{t.boards[BOARDS[active]].caption}</p>
       </div>
 
       <div className="layer-tabs" role="tablist">
         {BOARDS.map((board, index) => (
           <button
-            key={board.id}
+            key={board}
             type="button"
             role="tab"
             aria-selected={active === index}
             className={`layer-tab${active === index ? ' layer-tab--on' : ''}`}
             onClick={() => show(index)}
           >
-            {board.label}
+            {t.boards[board].label}
           </button>
         ))}
       </div>
@@ -75,11 +58,11 @@ export function Boards({ boards, me }: BoardsProps) {
         }}
       >
         {BOARDS.map((board) => {
-          const rows = boards[board.id].slice(0, 10)
+          const rows = boards[board].slice(0, 10)
           return (
-            <div className="board" key={board.id} role="tabpanel" aria-label={board.label}>
+            <div className="board" key={board} role="tabpanel" aria-label={t.boards[board].label}>
               {rows.length === 0 ? (
-                <p className="note board-empty">{board.empty}</p>
+                <p className="note board-empty">{t.boards[board].empty}</p>
               ) : (
                 <div className="standings">
                   {rows.map((row, index) => (
@@ -93,8 +76,8 @@ export function Boards({ boards, me }: BoardsProps) {
                       <Avatar choice={row.avatar} size="sm" />
                       <span className="name">{row.name}</span>
                       <span className="points">
-                        {row.value.toLocaleString('fr-FR')}
-                        {board.id === 'discoveries' && <small> {row.value > 1 ? 'mots' : 'mot'}</small>}
+                        {formatNumber(t, row.value)}
+                        {board === 'discoveries' && <small> {t.boards.words(row.value)}</small>}
                       </span>
                     </div>
                   ))}
@@ -107,7 +90,7 @@ export function Boards({ boards, me }: BoardsProps) {
 
       <div className="board-dots" aria-hidden="true">
         {BOARDS.map((board, index) => (
-          <span key={board.id} className={`board-dot${active === index ? ' board-dot--on' : ''}`} />
+          <span key={board} className={`board-dot${active === index ? ' board-dot--on' : ''}`} />
         ))}
       </div>
     </section>

@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react'
 import {
   AVATARS,
   colourUnlock,
-  describeMilestone,
   designUnlock,
   PALETTE,
   reached,
   type AvatarChoice,
 } from '../domain/avatar'
 import type { Profile } from '../domain/progression'
+import { useT } from '../i18n'
 import { Avatar } from './Avatar'
 
 interface AvatarScreenProps {
@@ -20,13 +20,10 @@ interface AvatarScreenProps {
 
 type Layer = 'ground' | 'shape' | 'accent'
 
-const LAYERS: readonly [Layer, string][] = [
-  ['ground', 'Fond'],
-  ['shape', 'Forme'],
-  ['accent', 'Accent'],
-]
+const LAYERS: readonly Layer[] = ['ground', 'shape', 'accent']
 
 export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenProps) {
+  const t = useT()
   const [draft, setDraft] = useState(avatar)
   const [layer, setLayer] = useState<Layer>('shape')
   const [hint, setHint] = useState<string | null>(null)
@@ -47,17 +44,17 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
       <header className="avatar-head">
         <Avatar choice={draft} size="lg" />
         <div className="stack">
-          <h1 className="section-title">Ton avatar</h1>
+          <h1 className="section-title">{t.avatar.title}</h1>
           <p className="note">
-            {ownedDesigns} / {AVATARS.length} formes · {ownedColours} / {PALETTE.length} couleurs
+            {t.avatar.owned(ownedDesigns, AVATARS.length, ownedColours, PALETTE.length)}
           </p>
-          <p className="note">Les parties, les séries et les niveaux en débloquent d’autres.</p>
+          <p className="note">{t.avatar.lead}</p>
         </div>
       </header>
 
       <section className="stack">
         <div className="layer-tabs" role="tablist">
-          {LAYERS.map(([id, label]) => (
+          {LAYERS.map((id) => (
             <button
               key={id}
               type="button"
@@ -68,7 +65,7 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
               onClick={() => setLayer(id)}
             >
               <span className="swatch-dot" style={{ background: PALETTE.find((c) => c.id === draft[id])?.hex }} />
-              {label}
+              {t.avatar.layers[id]}
             </button>
           ))}
         </div>
@@ -77,19 +74,20 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
           {PALETTE.map((colour) => {
             const goal = colourUnlock(colour.id)
             const owned = reached(profile, goal)
+            const label = t.colours[colour.id] ?? colour.label
             return (
               <button
                 key={colour.id}
                 type="button"
                 className={`swatch${owned ? '' : ' swatch--locked'}${draft[activeLayer] === colour.id ? ' swatch--on' : ''}`}
                 style={owned ? { background: colour.hex } : undefined}
-                aria-label={owned ? colour.label : `${colour.label}, verrouillée`}
+                aria-label={owned ? label : t.avatar.lockedColour(label)}
                 onClick={() => {
                   if (owned) {
                     setDraft({ ...draft, [activeLayer]: colour.id })
                     setHint(null)
                   } else if (goal) {
-                    setHint(`${colour.label} : ${describeMilestone(goal)}`)
+                    setHint(t.avatar.unlockHint(label, t.avatar.milestone(goal)))
                   }
                 }}
               />
@@ -99,7 +97,7 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
       </section>
 
       <p className={`note avatar-hint${hint ? '' : ' avatar-hint--idle'}`} aria-live="polite">
-        {hint ?? 'Touche une case verrouillée pour savoir comment la gagner.'}
+        {hint ?? t.avatar.idle}
       </p>
 
       <div className="avatar-grid">
@@ -111,13 +109,13 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
               key={entry.id}
               type="button"
               className={`avatar-cell${draft.design === entry.id ? ' avatar-cell--on' : ''}`}
-              aria-label={owned ? `Avatar ${entry.id + 1}` : `Avatar ${entry.id + 1}, verrouillé`}
+              aria-label={owned ? t.avatar.design(entry.id + 1) : t.avatar.lockedDesign(entry.id + 1)}
               onClick={() => {
                 if (owned) {
                   setDraft({ ...draft, design: entry.id })
                   setHint(null)
                 } else if (goal) {
-                  setHint(`Avatar ${entry.id + 1} : ${describeMilestone(goal)}`)
+                  setHint(t.avatar.unlockHint(t.avatar.design(entry.id + 1), t.avatar.milestone(goal)))
                 }
               }}
             >
@@ -129,10 +127,10 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
 
       <div className="stack">
         <button type="button" className="btn btn--blue btn--block" onClick={() => onSave(draft)}>
-          Garder cet avatar
+          {t.avatar.save}
         </button>
         <button type="button" className="btn btn--ghost btn--block" onClick={onBack}>
-          Retour
+          {t.avatar.back}
         </button>
       </div>
     </div>

@@ -1,0 +1,266 @@
+import type { Messages } from './fr'
+
+const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
+
+function ordinal(rank: number): string {
+  const tens = rank % 100
+  if (tens >= 11 && tens <= 13) return `${rank}th`
+  return `${rank}${['th', 'st', 'nd', 'rd'][rank % 10] ?? 'th'}`
+}
+
+export const en: Messages = {
+  tag: 'en-GB',
+  loading: 'Loading…',
+  wait: 'One moment…',
+  cancel: 'Cancel',
+  loadFailed: 'The dictionary could not be loaded. Try again.',
+
+  home: {
+    tagline: (seconds) => `One letter · one theme · ${seconds} seconds`,
+    wordsLanguage: 'Answers are French words.',
+    play: 'Play',
+    menu: 'Menu: profile, friends, options',
+    level: (level) => `Level ${level}`,
+    bestScore: 'best score',
+    runs: (count) => plural(count, 'game', 'games'),
+    wordsFound: 'words found',
+    bestCombo: 'best streak',
+    myCategories: 'My categories',
+    reserve: (perRun) => `Each game draws ${perRun}; the others wait in reserve, to swap in at the start.`,
+    newEachLevel: 'A new category to pick at every level.',
+  },
+
+  countdown: {
+    lineup: 'Coming up',
+    swapping: 'Swapping…',
+    swapHint: (reserve) => `Tap a theme to swap it · ${reserve} in reserve`,
+  },
+
+  run: {
+    meta: (words, skips) => `${words} ${plural(words, 'word', 'words')} · ${skips} skipped`,
+    placeholder: (letter) => `a French word in ${letter}…`,
+    fieldLabel: (letter, category) => `Word starting with ${letter}, category ${category}`,
+    skip: (seconds) => `Skip −${seconds} s`,
+    submit: 'Enter',
+    approximate: 'close spelling',
+    oneLetterOff: 'one letter off…',
+    startsWith: (letter) => `starts with ${letter}`,
+    already: 'already given',
+    unknown: 'not in the dictionary',
+    proposed: 'suggested, thanks',
+    propose: 'suggest it',
+  },
+
+  offer: {
+    title: 'New category',
+    more: (count) => `${count} more to pick`,
+    lead: 'Pick the one that joins your games.',
+  },
+
+  over: {
+    timeUp: 'Time’s up',
+    points: 'points',
+    empty: 'Not a single word. It happens.',
+    next: 'Continue',
+    earned: () => 'New for your avatar',
+    customize: 'Customise my avatar',
+    words: (count) => plural(count, 'word', 'words'),
+    bestCombo: 'best streak',
+    newRecord: 'new record',
+    record: 'record',
+    dayBoard: 'Today’s leaderboard',
+    keepTitle: 'Keep this game',
+    keepLead: 'Create an account or sign in: this game and all your progress go into it right away.',
+    savedTo: ['Game saved to the account ', ''],
+    replay: 'Play again',
+    home: 'Home',
+    level: (level) => `Level ${level}`,
+    towards: (into, span, next) => `${into} / ${span} XP to level ${next}`,
+    levelUp: 'Level up',
+    levelReached: (level) => `Level ${level} reached`,
+  },
+
+  account: {
+    register: 'Create an account',
+    logIn: 'Sign in',
+    name: 'Account name',
+    email: 'Email address',
+    password: 'Password',
+    submitRegister: 'Create my account',
+    submitLogIn: 'Sign me in',
+    confirmationSent: (email) => `A confirmation link is on its way to ${email}.`,
+    errors: {
+      unreachable: 'The server is not answering. Try again in a moment.',
+      'email-taken': 'This address already has an account: sign in instead.',
+      'weak-password': 'Password too weak: six characters at least.',
+      'short-password': 'Password too short: six characters at least.',
+      'wrong-credentials': 'Wrong address or password.',
+      'invalid-email': 'This address is not valid.',
+      'rate-limited': 'Too many attempts at once. Wait a minute.',
+      'name-length': 'The name takes 2 to 24 characters.',
+      'name-reserved': 'This name is reserved.',
+      'name-taken': 'This name is already taken.',
+    },
+  },
+
+  boards: {
+    title: 'Leaderboard',
+    day: {
+      label: 'Day',
+      caption: 'Best game today',
+      empty: 'Nobody has played yet today.',
+    },
+    week: {
+      label: 'Week',
+      caption: 'Best game this week',
+      empty: 'Nobody has played yet this week.',
+    },
+    discoveries: {
+      label: 'Discoveries',
+      caption: 'Words nobody had written for a week',
+      empty: 'No discovery this week: yours could be the first.',
+    },
+    words: (count) => plural(count, 'word', 'words'),
+    ordinal,
+    entered: (place) => `New entry · ${place}`,
+    climbed: (places, place) => `+${places} ${plural(places, 'place', 'places')} · ${place}`,
+    held: (place) => `Still ${place}`,
+  },
+
+  menu: {
+    title: 'Menu',
+    close: 'Close',
+    panes: { profile: 'Profile', social: 'Friends', options: 'Options' },
+    editAvatarLabel: 'Edit my avatar',
+    anonymous: 'Anonymous player',
+    standing: (level, record) => `Level ${level} · record ${record}`,
+    editAvatar: 'Edit avatar',
+    signedInAs: (email) => `Signed in as ${email}`,
+    logOut: 'Sign out',
+    accountTitle: 'Your account',
+    accountLead: 'Your games follow you from one device to another, your name enters the leaderboard and your friends can find you.',
+    offline: 'Offline: your progress stays on this device.',
+  },
+
+  social: {
+    requests: {
+      sent: (name) => `Request sent to ${name}.`,
+      accepted: (name) => `${name} had already asked you: you are friends.`,
+      already: () => 'You are already friends, or your request is awaiting an answer.',
+      self: () => 'That is your own name.',
+      unknown: () => 'No account by that name.',
+      anonymous: () => 'Create an account to add friends.',
+      unreachable: () => 'The server is not answering. Try again in a moment.',
+    },
+    noServer: 'Friends need a connection to the game server, which is missing for now.',
+    needAccount: 'A friend finds you by your account name: create it first, the games you have played come along.',
+    createAccount: 'Create my account',
+    add: 'Add a friend',
+    addPlaceholder: 'Their account name',
+    send: 'Send the request',
+    yourName: ['Your name to share: ', ''],
+    loadFailed: 'Your friends cannot be loaded right now.',
+    incoming: 'Requests received',
+    accept: 'Accept',
+    decline: 'Decline',
+    friends: 'My friends',
+    none: 'No friends yet. Send a request with their account name.',
+    outgoing: 'Awaiting an answer',
+    stats: (level, week, record) => `Lvl ${level} · week ${week} · record ${record}`,
+    remove: 'Remove',
+    keep: 'Keep',
+  },
+
+  options: {
+    theme: 'Theme',
+    themes: { system: 'Auto', light: 'Light', dark: 'Dark' },
+    themeNote: '“Auto” follows the phone’s setting.',
+    language: 'Language',
+    privacy: 'Privacy',
+    erase: 'Erase my data',
+    eraseWarning: 'Level, records, friends and suggested words will be lost.',
+    erasing: 'Erasing…',
+    eraseAll: 'Erase everything',
+    eraseFailed: 'The server did not answer; nothing was erased.',
+    retry: 'Try again',
+    erased: 'Data erased.',
+  },
+
+  avatar: {
+    title: 'Your avatar',
+    owned: (designs, allDesigns, colours, allColours) =>
+      `${designs} / ${allDesigns} shapes · ${colours} / ${allColours} colours`,
+    lead: 'Games, streaks and levels unlock more.',
+    layers: { ground: 'Background', shape: 'Shape', accent: 'Accent' },
+    lockedColour: (colour) => `${colour}, locked`,
+    design: (number) => `Avatar ${number}`,
+    lockedDesign: (number) => `Avatar ${number}, locked`,
+    unlockHint: (item, how) => `${item}: ${how}`,
+    idle: 'Tap a locked tile to see how to earn it.',
+    save: 'Keep this avatar',
+    back: 'Back',
+    milestone: (milestone) => {
+      switch (milestone.stat) {
+        case 'level':
+          return `level ${milestone.at}`
+        case 'runs':
+          return `${milestone.at} ${plural(milestone.at, 'game', 'games')}`
+        case 'bestScore':
+          return `a score of ${milestone.at}`
+        case 'wordsFound':
+          return `${milestone.at} words found`
+        case 'bestCombo':
+          return `a streak of ${milestone.at}`
+      }
+    },
+  },
+
+  tiers: { courant: 'common', 'peu commun': 'uncommon', rare: 'rare', 'très rare': 'very rare' },
+
+  categories: {
+    pays: ['Countries', 'States of the world, present or past'],
+    animaux: ['Animals', 'Common names, from sparrow to walrus'],
+    couleurs: ['Colours', 'Hues and shades'],
+    'fruits-legumes': ['Fruit and vegetables', 'What gets eaten, raw or cooked'],
+    metiers: ['Jobs', 'Trades, old and new'],
+    sports: ['Sports', 'Disciplines and pastimes'],
+    'corps-humain': ['Parts of the body', 'From head to toe'],
+    matieres: ['Materials', 'Wood, iron, steel, sand…'],
+    capitales: ['Capitals', 'Capital cities of the world'],
+    marques: ['Brands', 'Well-known brands'],
+    insectes: ['Insects', 'Insects and creepy-crawlies'],
+  },
+
+  colours: {
+    rouge: 'Red',
+    bleu: 'Blue',
+    jaune: 'Yellow',
+    noir: 'Black',
+    creme: 'Cream',
+    vert: 'Green',
+    rose: 'Pink',
+    orange: 'Orange',
+    ciel: 'Sky',
+    brique: 'Brick',
+    citron: 'Lemon',
+    marine: 'Navy',
+    corail: 'Coral',
+    sauge: 'Sage',
+    moutarde: 'Mustard',
+    violet: 'Purple',
+    turquoise: 'Turquoise',
+    ocre: 'Ochre',
+    lavande: 'Lavender',
+    olive: 'Olive',
+    saumon: 'Salmon',
+    canard: 'Teal',
+    menthe: 'Mint',
+    bordeaux: 'Burgundy',
+    sable: 'Sand',
+    outremer: 'Ultramarine',
+    emeraude: 'Emerald',
+    prune: 'Plum',
+    gris: 'Grey',
+    anthracite: 'Charcoal',
+  },
+}

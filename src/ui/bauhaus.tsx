@@ -1,4 +1,6 @@
 import type { CSSProperties } from 'react'
+import type { RarityTier } from '../domain/rarity'
+import { useT } from '../i18n'
 import { onTint, type Motif, type ShapeKind, type Tint } from './motifs'
 import { PATHS } from './paths'
 
@@ -35,7 +37,8 @@ export function LetterMark({ letter, motif, size }: { letter: string; motif: Mot
 
 const TIER_TINTS: Record<string, Tint> = { 'peu commun': 'blue', rare: 'red', 'très rare': 'yellow' }
 
-export function TierTag({ tier }: { tier: string }) {
+export function TierTag({ tier }: { tier: RarityTier }) {
+  const t = useT()
   const tint = TIER_TINTS[tier]
   return (
     <span
@@ -43,7 +46,7 @@ export function TierTag({ tier }: { tier: string }) {
       style={tint ? { background: `var(--${tint})`, color: `var(--${onTint(tint)})` } : undefined}
     >
       {tier === 'très rare' && <Shape kind="sun" tint="ink" className="tag-sun" />}
-      {tier}
+      {t.tiers[tier]}
     </span>
   )
 }

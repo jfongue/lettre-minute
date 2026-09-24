@@ -183,21 +183,6 @@ export function reached(profile: Profile, milestone: Milestone | null): boolean 
   return milestone === null || statOf(profile, milestone.stat) >= milestone.at
 }
 
-export function describeMilestone(milestone: Milestone): string {
-  switch (milestone.stat) {
-    case 'level':
-      return `niveau ${milestone.at}`
-    case 'runs':
-      return milestone.at > 1 ? `${milestone.at} parties` : '1 partie'
-    case 'bestScore':
-      return `score de ${milestone.at}`
-    case 'wordsFound':
-      return `${milestone.at} mots trouvés`
-    case 'bestCombo':
-      return `série de ${milestone.at}`
-  }
-}
-
 export function ownedDesigns(profile: Profile): AvatarDesign[] {
   return AVATARS.filter((design) => reached(profile, designUnlock(design.id)))
 }

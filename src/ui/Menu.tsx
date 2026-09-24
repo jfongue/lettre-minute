@@ -8,19 +8,15 @@ import {
   respondFriend,
   type Account,
   type Friend,
-  type FriendRequestOutcome,
 } from '../lib/cloud'
+import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions } from './AccountPanel'
 import { Avatar } from './Avatar'
 
 export type MenuPane = 'profile' | 'social' | 'options'
 
-const PANES: readonly [MenuPane, string][] = [
-  ['profile', 'Profil'],
-  ['social', 'Social'],
-  ['options', 'Options'],
-]
+const PANES: readonly MenuPane[] = ['profile', 'social', 'options']
 
 // A published app must link its privacy policy. Inside the phone shell a
 // relative link would navigate the game's own view away, hence a full URL.
@@ -34,6 +30,8 @@ interface MenuProps {
   accountActions: AccountActions
   theme: Theme
   onTheme(theme: Theme): void
+  locale: Locale
+  onLocale(locale: Locale): void
   onAvatar(): void
   onLogOut(): void
   /** Answers false when the server could not erase the account. */
@@ -42,6 +40,7 @@ interface MenuProps {
 }
 
 export function Menu({ onClose, ...props }: MenuProps) {
+  const t = useT()
   const [pane, setPane] = useState<MenuPane>('profile')
   const drawer = useRef<HTMLElement>(null)
 
@@ -61,16 +60,16 @@ export function Menu({ onClose, ...props }: MenuProps) {
   return (
     <div className="menu-layer">
       <div className="menu-scrim" onClick={onClose} />
-      <aside className="menu" role="dialog" aria-modal="true" aria-label="Menu" tabIndex={-1} ref={drawer}>
+      <aside className="menu" role="dialog" aria-modal="true" aria-label={t.menu.title} tabIndex={-1} ref={drawer}>
         <div className="spread">
-          <p className="section-title">Menu</p>
+          <p className="section-title">{t.menu.title}</p>
           <button type="button" className="btn btn--quiet" onClick={onClose}>
-            Fermer
+            {t.menu.close}
           </button>
         </div>
 
         <div className="layer-tabs" role="tablist">
-          {PANES.map(([id, label]) => (
+          {PANES.map((id) => (
             <button
               key={id}
               type="button"
@@ -79,7 +78,7 @@ export function Menu({ onClose, ...props }: MenuProps) {
               className={`layer-tab${pane === id ? ' layer-tab--on' : ''}`}
               onClick={() => setPane(id)}
             >
-              {label}
+              {t.menu.panes[id]}
             </button>
           ))}
         </div>
@@ -87,7 +86,9 @@ export function Menu({ onClose, ...props }: MenuProps) {
         <div className="menu-body">
           {pane === 'profile' && <ProfilePane {...props} />}
           {pane === 'social' && <SocialPane account={props.account} onProfile={() => setPane('profile')} />}
-          {pane === 'options' && <OptionsPane theme={props.theme} onTheme={props.onTheme} />}
+          {pane === 'options' && (
+            <OptionsPane theme={props.theme} onTheme={props.onTheme} locale={props.locale} onLocale={props.onLocale} />
+          )}
         </div>
       </aside>
     </div>
@@ -102,44 +103,45 @@ function ProfilePane({
   onAvatar,
   onLogOut,
   onErase,
-}: Omit<MenuProps, 'onClose' | 'theme' | 'onTheme'>) {
+}: Omit<MenuProps, 'onClose' | 'theme' | 'onTheme' | 'locale' | 'onLocale'>) {
+  const t = useT()
   const named = account && !account.anonymous
 
   return (
     <>
       <section className="player">
-        <button type="button" className="player-avatar" onClick={onAvatar} aria-label="Modifier mon avatar">
+        <button type="button" className="player-avatar" onClick={onAvatar} aria-label={t.menu.editAvatarLabel}>
           <Avatar choice={avatar} size="md" />
         </button>
         <div className="player-id">
-          <strong>{named ? account.name : 'Joueur anonyme'}</strong>
+          <strong>{named ? account.name : t.menu.anonymous}</strong>
           <span className="note">
-            Niveau {levelProgress(profile.xp).level} · record {profile.bestScore.toLocaleString('fr-FR')}
+            {t.menu.standing(levelProgress(profile.xp).level, formatNumber(t, profile.bestScore))}
           </span>
           <button type="button" className="btn btn--quiet" onClick={onAvatar}>
-            Modifier l’avatar
+            {t.menu.editAvatar}
           </button>
         </div>
       </section>
 
       {named && (
         <div className="stack">
-          {account.email && <p className="note">Connecté avec {account.email}</p>}
+          {account.email && <p className="note">{t.menu.signedInAs(account.email)}</p>}
           <button type="button" className="btn btn--quiet btn--muted menu-start" onClick={onLogOut}>
-            Se déconnecter
+            {t.menu.logOut}
           </button>
         </div>
       )}
 
       {account?.anonymous && (
         <AccountPanel
-          title="Ton compte"
-          lead="Tes parties te suivent d’un appareil à l’autre, ton nom entre au classement et tes amis peuvent te trouver."
+          title={t.menu.accountTitle}
+          lead={t.menu.accountLead}
           {...accountActions}
         />
       )}
 
-      {!account && <p className="note">Hors ligne : ta progression reste sur cet appareil.</p>}
+      {!account && <p className="note">{t.menu.offline}</p>}
 
       <div className="menu-foot">
         <EraseData onErase={onErase} />
@@ -148,17 +150,8 @@ function ProfilePane({
   )
 }
 
-const REQUEST_MESSAGES: Record<FriendRequestOutcome, (name: string) => string> = {
-  sent: (name) => `Demande envoyée à ${name}.`,
-  accepted: (name) => `${name} t’avait déjà demandé : vous êtes amis.`,
-  already: () => 'Vous êtes déjà amis, ou ta demande attend sa réponse.',
-  self: () => 'C’est ton propre nom.',
-  unknown: () => 'Aucun compte à ce nom.',
-  anonymous: () => 'Crée un compte pour ajouter des amis.',
-  unreachable: () => 'Le serveur ne répond pas. Réessaie dans un instant.',
-}
-
 function SocialPane({ account, onProfile }: { account: Account | null; onProfile(): void }) {
+  const t = useT()
   const [friends, setFriends] = useState<Friend[] | null | 'loading'>('loading')
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
@@ -172,17 +165,15 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
   }, [named, account?.name])
 
   if (!account) {
-    return <p className="note">Les amis demandent une connexion au serveur du jeu, absente pour l’instant.</p>
+    return <p className="note">{t.social.noServer}</p>
   }
 
   if (!named) {
     return (
       <div className="stack">
-        <p className="note">
-          Un ami te trouve par ton nom de compte : crée-le d’abord, tes parties déjà jouées te suivent.
-        </p>
+        <p className="note">{t.social.needAccount}</p>
         <button type="button" className="btn btn--block" onClick={onProfile}>
-          Créer mon compte
+          {t.social.createAccount}
         </button>
       </div>
     )
@@ -195,7 +186,7 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
     setBusy(true)
     const outcome = await requestFriend(wanted)
     setBusy(false)
-    setMessage(REQUEST_MESSAGES[outcome](wanted))
+    setMessage(t.social.requests[outcome](wanted))
     if (outcome === 'sent' || outcome === 'accepted') {
       setName('')
       refresh()
@@ -203,7 +194,7 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
   }
 
   const act = async (work: Promise<boolean>) => {
-    if (!(await work)) setMessage(REQUEST_MESSAGES.unreachable(''))
+    if (!(await work)) setMessage(t.social.requests.unreachable(''))
     refresh()
   }
 
@@ -218,11 +209,11 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
     <>
       <form className="account-form" onSubmit={send}>
         <label className="field">
-          <span>Ajouter un ami</span>
+          <span>{t.social.add}</span>
           <input
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Son nom de compte"
+            placeholder={t.social.addPlaceholder}
             autoComplete="off"
             autoCapitalize="off"
             maxLength={24}
@@ -230,19 +221,21 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
         </label>
         {message && <p className="note">{message}</p>}
         <button type="submit" className="btn btn--block" disabled={busy || name.trim() === ''}>
-          {busy ? 'Un instant…' : 'Envoyer la demande'}
+          {busy ? t.wait : t.social.send}
         </button>
         <p className="note">
-          Ton nom à donner : <strong>{account.name}</strong>
+          {t.social.yourName[0]}
+          <strong>{account.name}</strong>
+          {t.social.yourName[1]}
         </p>
       </form>
 
-      {friends === 'loading' && <p className="note">Chargement…</p>}
-      {friends === null && <p className="note note--warn">Impossible de charger tes amis pour l’instant.</p>}
+      {friends === 'loading' && <p className="note">{t.loading}</p>}
+      {friends === null && <p className="note note--warn">{t.social.loadFailed}</p>}
 
       {incoming.length > 0 && (
         <section className="stack">
-          <p className="section-title">Demandes reçues</p>
+          <p className="section-title">{t.social.incoming}</p>
           <ul className="friends">
             {incoming.map((friend) => (
               <li key={friend.id} className="friend">
@@ -250,14 +243,14 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
                 <span className="friend-name">{friend.name}</span>
                 <span className="friend-actions">
                   <button type="button" className="btn btn--quiet" onClick={() => act(respondFriend(friend.id, true))}>
-                    Accepter
+                    {t.social.accept}
                   </button>
                   <button
                     type="button"
                     className="btn btn--quiet btn--muted"
                     onClick={() => act(respondFriend(friend.id, false))}
                   >
-                    Refuser
+                    {t.social.decline}
                   </button>
                 </span>
               </li>
@@ -269,11 +262,11 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
       {friends !== 'loading' && friends !== null && (
         <section className="stack">
           <div className="spread">
-            <p className="section-title">Mes amis</p>
+            <p className="section-title">{t.social.friends}</p>
             <p className="note">{accepted.length}</p>
           </div>
           {accepted.length === 0 ? (
-            <p className="note">Pas encore d’amis. Envoie une demande avec leur nom de compte.</p>
+            <p className="note">{t.social.none}</p>
           ) : (
             <ul className="friends">
               {accepted.map((friend) => (
@@ -286,7 +279,7 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
 
       {outgoing.length > 0 && (
         <section className="stack">
-          <p className="section-title">En attente de réponse</p>
+          <p className="section-title">{t.social.outgoing}</p>
           <ul className="friends">
             {outgoing.map((friend) => (
               <li key={friend.id} className="friend">
@@ -294,7 +287,7 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
                 <span className="friend-name">{friend.name}</span>
                 <span className="friend-actions">
                   <button type="button" className="btn btn--quiet btn--muted" onClick={() => act(removeFriend(friend.id))}>
-                    Annuler
+                    {t.cancel}
                   </button>
                 </span>
               </li>
@@ -308,6 +301,7 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
 
 /** Removing a friend takes a second tap: a stray one would cost a request and a wait. */
 function FriendRow({ friend, onRemove }: { friend: Friend; onRemove(): void }) {
+  const t = useT()
   const [confirming, setConfirming] = useState(false)
 
   return (
@@ -316,23 +310,22 @@ function FriendRow({ friend, onRemove }: { friend: Friend; onRemove(): void }) {
       <span className="friend-name">
         {friend.name}
         <span className="note">
-          Niv. {levelFor(friend.xp)} · semaine {friend.weekBest.toLocaleString('fr-FR')} · record{' '}
-          {friend.bestScore.toLocaleString('fr-FR')}
+          {t.social.stats(levelFor(friend.xp), formatNumber(t, friend.weekBest), formatNumber(t, friend.bestScore))}
         </span>
       </span>
       <span className="friend-actions">
         {confirming ? (
           <>
             <button type="button" className="btn btn--quiet" onClick={onRemove}>
-              Retirer
+              {t.social.remove}
             </button>
             <button type="button" className="btn btn--quiet btn--muted" onClick={() => setConfirming(false)}>
-              Garder
+              {t.social.keep}
             </button>
           </>
         ) : (
           <button type="button" className="btn btn--quiet btn--muted" onClick={() => setConfirming(true)}>
-            Retirer
+            {t.social.remove}
           </button>
         )}
       </span>
@@ -340,19 +333,23 @@ function FriendRow({ friend, onRemove }: { friend: Friend; onRemove(): void }) {
   )
 }
 
-const THEMES: readonly [Theme, string][] = [
-  ['system', 'Auto'],
-  ['light', 'Clair'],
-  ['dark', 'Sombre'],
-]
+const THEMES: readonly Theme[] = ['system', 'light', 'dark']
 
-function OptionsPane({ theme, onTheme }: { theme: Theme; onTheme(theme: Theme): void }) {
+interface OptionsPaneProps {
+  theme: Theme
+  onTheme(theme: Theme): void
+  locale: Locale
+  onLocale(locale: Locale): void
+}
+
+function OptionsPane({ theme, onTheme, locale, onLocale }: OptionsPaneProps) {
+  const t = useT()
   return (
     <>
       <section className="stack">
-        <p className="section-title">Thème</p>
-        <div className="layer-tabs" role="radiogroup" aria-label="Thème">
-          {THEMES.map(([id, label]) => (
+        <p className="section-title">{t.options.theme}</p>
+        <div className="layer-tabs" role="radiogroup" aria-label={t.options.theme}>
+          {THEMES.map((id) => (
             <button
               key={id}
               type="button"
@@ -361,16 +358,35 @@ function OptionsPane({ theme, onTheme }: { theme: Theme; onTheme(theme: Theme): 
               className={`layer-tab${theme === id ? ' layer-tab--on' : ''}`}
               onClick={() => onTheme(id)}
             >
-              {label}
+              {t.options.themes[id]}
             </button>
           ))}
         </div>
-        <p className="note">« Auto » suit le réglage du téléphone.</p>
+        <p className="note">{t.options.themeNote}</p>
+      </section>
+
+      <section className="stack">
+        <p className="section-title">{t.options.language}</p>
+        <div className="language-list" role="radiogroup" aria-label={t.options.language}>
+          {LOCALES.map((entry) => (
+            <button
+              key={entry.id}
+              type="button"
+              role="radio"
+              aria-checked={locale === entry.id}
+              lang={entry.id}
+              className={`layer-tab${locale === entry.id ? ' layer-tab--on' : ''}`}
+              onClick={() => onLocale(entry.id)}
+            >
+              {entry.name}
+            </button>
+          ))}
+        </div>
       </section>
 
       <div className="menu-foot">
         <a className="btn btn--quiet menu-start" href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
-          Confidentialité
+          {t.options.privacy}
         </a>
       </div>
     </>
@@ -379,6 +395,7 @@ function OptionsPane({ theme, onTheme }: { theme: Theme; onTheme(theme: Theme): 
 
 /** Erasing is irreversible, so it takes a second, explicit tap. */
 function EraseData({ onErase }: { onErase(): Promise<boolean> }) {
+  const t = useT()
   const [step, setStep] = useState<'idle' | 'confirm' | 'erasing' | 'failed' | 'done'>('idle')
 
   const erase = async () => {
@@ -390,32 +407,32 @@ function EraseData({ onErase }: { onErase(): Promise<boolean> }) {
     case 'idle':
       return (
         <button type="button" className="btn btn--quiet btn--muted menu-start" onClick={() => setStep('confirm')}>
-          Effacer mes données
+          {t.options.erase}
         </button>
       )
     case 'confirm':
     case 'erasing':
       return (
         <p className="erase-confirm">
-          <span className="note">Niveau, records, amis et mots proposés seront perdus.</span>
+          <span className="note">{t.options.eraseWarning}</span>
           <button type="button" className="btn btn--quiet" onClick={erase} disabled={step === 'erasing'}>
-            {step === 'erasing' ? 'Effacement…' : 'Tout effacer'}
+            {step === 'erasing' ? t.options.erasing : t.options.eraseAll}
           </button>
           <button type="button" className="btn btn--quiet btn--muted" onClick={() => setStep('idle')}>
-            Annuler
+            {t.cancel}
           </button>
         </p>
       )
     case 'failed':
       return (
         <p className="erase-confirm">
-          <span className="note note--warn">Le serveur n’a pas répondu, rien n’a été effacé.</span>
+          <span className="note note--warn">{t.options.eraseFailed}</span>
           <button type="button" className="btn btn--quiet" onClick={erase}>
-            Réessayer
+            {t.options.retry}
           </button>
         </p>
       )
     case 'done':
-      return <p className="note">Données effacées.</p>
+      return <p className="note">{t.options.erased}</p>
   }
 }

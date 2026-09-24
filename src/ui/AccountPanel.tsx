@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useT } from '../i18n'
 
 export interface AccountActions {
   /** Each answers null once done, or the sentence to show the player. */
@@ -13,6 +14,7 @@ interface AccountPanelProps extends AccountActions {
 
 /** Three fields to register, two to sign in: nothing else stands between a run and the account. */
 export function AccountPanel({ title, lead, onRegister, onLogIn }: AccountPanelProps) {
+  const t = useT()
   const [mode, setMode] = useState<'register' | 'login'>('register')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -37,8 +39,8 @@ export function AccountPanel({ title, lead, onRegister, onLogIn }: AccountPanelP
       <div className="layer-tabs" role="tablist">
         {(
           [
-            ['register', 'Créer un compte'],
-            ['login', 'Se connecter'],
+            ['register', t.account.register],
+            ['login', t.account.logIn],
           ] as const
         ).map(([id, label]) => (
           <button
@@ -60,7 +62,7 @@ export function AccountPanel({ title, lead, onRegister, onLogIn }: AccountPanelP
       <form className="account-form" onSubmit={send}>
         {mode === 'register' && (
           <label className="field">
-            <span>Nom de compte</span>
+            <span>{t.account.name}</span>
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
@@ -71,7 +73,7 @@ export function AccountPanel({ title, lead, onRegister, onLogIn }: AccountPanelP
           </label>
         )}
         <label className="field">
-          <span>Adresse mail</span>
+          <span>{t.account.email}</span>
           <input
             type="email"
             value={email}
@@ -82,7 +84,7 @@ export function AccountPanel({ title, lead, onRegister, onLogIn }: AccountPanelP
           />
         </label>
         <label className="field">
-          <span>Mot de passe</span>
+          <span>{t.account.password}</span>
           <input
             type="password"
             value={password}
@@ -94,7 +96,7 @@ export function AccountPanel({ title, lead, onRegister, onLogIn }: AccountPanelP
         </label>
         {message && <p className="note note--warn">{message}</p>}
         <button type="submit" className="btn btn--block" disabled={busy}>
-          {busy ? 'Un instant…' : mode === 'register' ? 'Créer mon compte' : 'Me connecter'}
+          {busy ? t.wait : mode === 'register' ? t.account.submitRegister : t.account.submitLogIn}
         </button>
       </form>
     </section>

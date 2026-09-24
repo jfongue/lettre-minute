@@ -1681,7 +1681,47 @@ button {
   color: var(--paper);
 }
 
-.layer-tab--on .swatch-dot {
+.layer-tab--on .language-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border-top: var(--line) solid var(--ink);
+  border-left: var(--line) solid var(--ink);
+}
+
+/* A grid of seven wraps: each cell draws its own right and bottom edge, which
+   the adjacent-sibling rule of .layer-tabs cannot do across rows. */
+.language-list .layer-tab {
+  border-right: var(--line) solid var(--ink);
+  border-bottom: var(--line) solid var(--ink);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-size: 0.9rem;
+}
+
+.language-list .layer-tab + .layer-tab {
+  border-left: 0;
+}
+
+.language-picker {
+  align-content: center;
+  min-height: 80vh;
+}
+
+.language-choices {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.language-sun {
+  justify-self: end;
+  width: 3rem;
+  height: 3rem;
+}
+
+.swatch-dot {
   border-color: var(--paper);
 }
 

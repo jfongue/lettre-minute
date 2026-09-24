@@ -1,0 +1,261 @@
+import type { Messages } from './fr'
+
+const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
+
+export const pt: Messages = {
+  tag: 'pt-BR',
+  loading: 'Carregando…',
+  wait: 'Um instante…',
+  cancel: 'Cancelar',
+  loadFailed: 'Não foi possível carregar o dicionário. Tente de novo.',
+
+  home: {
+    tagline: (seconds) => `Uma letra · um tema · ${seconds} segundos`,
+    wordsLanguage: 'As respostas são palavras em francês.',
+    play: 'Jogar',
+    menu: 'Menu: perfil, amigos, opções',
+    level: (level) => `Nível ${level}`,
+    bestScore: 'melhor pontuação',
+    runs: (count) => plural(count, 'partida', 'partidas'),
+    wordsFound: 'palavras achadas',
+    bestCombo: 'melhor sequência',
+    myCategories: 'Minhas categorias',
+    reserve: (perRun) => `Cada partida sorteia ${perRun}; as outras ficam na reserva para trocar no início.`,
+    newEachLevel: 'Uma nova categoria para escolher a cada nível.',
+  },
+
+  countdown: {
+    lineup: 'Na rodada',
+    swapping: 'Trocando…',
+    swapHint: (reserve) => `Toque num tema para trocá-lo · ${reserve} na reserva`,
+  },
+
+  run: {
+    meta: (words, skips) =>
+      `${words} ${plural(words, 'palavra', 'palavras')} · ${skips} ${plural(skips, 'pulada', 'puladas')}`,
+    placeholder: (letter) => `uma palavra francesa com ${letter}…`,
+    fieldLabel: (letter, category) => `Palavra com ${letter}, categoria ${category}`,
+    skip: (seconds) => `Pular −${seconds} s`,
+    submit: 'Validar',
+    approximate: 'grafia aproximada',
+    oneLetterOff: 'por uma letra…',
+    startsWith: (letter) => `começa com ${letter}`,
+    already: 'já dada',
+    unknown: 'não está no dicionário',
+    proposed: 'sugerida, obrigado',
+    propose: 'sugerir',
+  },
+
+  offer: {
+    title: 'Nova categoria',
+    more: (count) => `mais ${count} para escolher`,
+    lead: 'Escolha a que entra nas suas partidas.',
+  },
+
+  over: {
+    timeUp: 'Tempo esgotado',
+    points: 'pontos',
+    empty: 'Nenhuma palavra. Acontece.',
+    next: 'Continuar',
+    earned: (count) => plural(count, 'Novidade para o seu avatar', 'Novidades para o seu avatar'),
+    customize: 'Personalizar meu avatar',
+    words: (count) => plural(count, 'palavra', 'palavras'),
+    bestCombo: 'melhor sequência',
+    newRecord: 'novo recorde',
+    record: 'recorde',
+    dayBoard: 'Ranking do dia',
+    keepTitle: 'Guarde esta partida',
+    keepLead: 'Crie uma conta ou entre: esta partida e todo o seu progresso vão para ela na hora.',
+    savedTo: ['Partida salva na conta ', ''],
+    replay: 'Jogar de novo',
+    home: 'Início',
+    level: (level) => `Nível ${level}`,
+    towards: (into, span, next) => `${into} / ${span} XP para o nível ${next}`,
+    levelUp: 'Subiu de nível',
+    levelReached: (level) => `Nível ${level} alcançado`,
+  },
+
+  account: {
+    register: 'Criar uma conta',
+    logIn: 'Entrar',
+    name: 'Nome da conta',
+    email: 'E-mail',
+    password: 'Senha',
+    submitRegister: 'Criar minha conta',
+    submitLogIn: 'Entrar',
+    confirmationSent: (email) => `Um link de confirmação foi enviado para ${email}.`,
+    errors: {
+      unreachable: 'O servidor não responde. Tente de novo daqui a pouco.',
+      'email-taken': 'Este endereço já tem uma conta: entre com ela.',
+      'weak-password': 'Senha fraca demais: pelo menos seis caracteres.',
+      'short-password': 'Senha curta demais: pelo menos seis caracteres.',
+      'wrong-credentials': 'Endereço ou senha incorretos.',
+      'invalid-email': 'Este endereço não é válido.',
+      'rate-limited': 'Tentativas demais de uma vez. Espere um minuto.',
+      'name-length': 'O nome tem de 2 a 24 caracteres.',
+      'name-reserved': 'Este nome é reservado.',
+      'name-taken': 'Este nome já está em uso.',
+    },
+  },
+
+  boards: {
+    title: 'Ranking',
+    day: {
+      label: 'Dia',
+      caption: 'Melhor partida de hoje',
+      empty: 'Ninguém jogou ainda hoje.',
+    },
+    week: {
+      label: 'Semana',
+      caption: 'Melhor partida da semana',
+      empty: 'Ninguém jogou ainda esta semana.',
+    },
+    discoveries: {
+      label: 'Descobertas',
+      caption: 'Palavras que ninguém escrevia havia uma semana',
+      empty: 'Nenhuma descoberta esta semana: a primeira pode ser sua.',
+    },
+    words: (count) => plural(count, 'palavra', 'palavras'),
+    ordinal: (rank) => `${rank}º`,
+    entered: (place) => `Entrada · ${place}`,
+    climbed: (places, place) => `+${places} ${plural(places, 'posição', 'posições')} · ${place}`,
+    held: (place) => `Ainda ${place}`,
+  },
+
+  menu: {
+    title: 'Menu',
+    close: 'Fechar',
+    panes: { profile: 'Perfil', social: 'Amigos', options: 'Opções' },
+    editAvatarLabel: 'Editar meu avatar',
+    anonymous: 'Jogador anônimo',
+    standing: (level, record) => `Nível ${level} · recorde ${record}`,
+    editAvatar: 'Editar o avatar',
+    signedInAs: (email) => `Conectado com ${email}`,
+    logOut: 'Sair',
+    accountTitle: 'Sua conta',
+    accountLead: 'Suas partidas acompanham você de um aparelho a outro, seu nome entra no ranking e seus amigos podem encontrar você.',
+    offline: 'Offline: seu progresso fica neste aparelho.',
+  },
+
+  social: {
+    requests: {
+      sent: (name) => `Pedido enviado para ${name}.`,
+      accepted: (name) => `${name} já tinha pedido: vocês são amigos.`,
+      already: () => 'Vocês já são amigos, ou seu pedido aguarda resposta.',
+      self: () => 'É o seu próprio nome.',
+      unknown: () => 'Nenhuma conta com esse nome.',
+      anonymous: () => 'Crie uma conta para adicionar amigos.',
+      unreachable: () => 'O servidor não responde. Tente de novo daqui a pouco.',
+    },
+    noServer: 'Os amigos precisam de uma conexão com o servidor do jogo, ausente por enquanto.',
+    needAccount: 'Um amigo encontra você pelo nome da conta: crie-a primeiro, as partidas já jogadas vão junto.',
+    createAccount: 'Criar minha conta',
+    add: 'Adicionar um amigo',
+    addPlaceholder: 'O nome da conta dele ou dela',
+    send: 'Enviar o pedido',
+    yourName: ['Seu nome para compartilhar: ', ''],
+    loadFailed: 'Não foi possível carregar seus amigos agora.',
+    incoming: 'Pedidos recebidos',
+    accept: 'Aceitar',
+    decline: 'Recusar',
+    friends: 'Meus amigos',
+    none: 'Ainda sem amigos. Envie um pedido com o nome da conta deles.',
+    outgoing: 'Aguardando resposta',
+    stats: (level, week, record) => `Nív. ${level} · semana ${week} · recorde ${record}`,
+    remove: 'Remover',
+    keep: 'Manter',
+  },
+
+  options: {
+    theme: 'Tema',
+    themes: { system: 'Auto', light: 'Claro', dark: 'Escuro' },
+    themeNote: '“Auto” segue a configuração do telefone.',
+    language: 'Idioma',
+    privacy: 'Privacidade',
+    erase: 'Apagar meus dados',
+    eraseWarning: 'Nível, recordes, amigos e palavras sugeridas serão perdidos.',
+    erasing: 'Apagando…',
+    eraseAll: 'Apagar tudo',
+    eraseFailed: 'O servidor não respondeu, nada foi apagado.',
+    retry: 'Tentar de novo',
+    erased: 'Dados apagados.',
+  },
+
+  avatar: {
+    title: 'Seu avatar',
+    owned: (designs, allDesigns, colours, allColours) =>
+      `${designs} / ${allDesigns} formas · ${colours} / ${allColours} cores`,
+    lead: 'Partidas, sequências e níveis desbloqueiam outras.',
+    layers: { ground: 'Fundo', shape: 'Forma', accent: 'Destaque' },
+    lockedColour: (colour) => `${colour}, bloqueada`,
+    design: (number) => `Avatar ${number}`,
+    lockedDesign: (number) => `Avatar ${number}, bloqueado`,
+    unlockHint: (item, how) => `${item}: ${how}`,
+    idle: 'Toque numa casa bloqueada para saber como ganhá-la.',
+    save: 'Ficar com este avatar',
+    back: 'Voltar',
+    milestone: (milestone) => {
+      switch (milestone.stat) {
+        case 'level':
+          return `nível ${milestone.at}`
+        case 'runs':
+          return `${milestone.at} ${plural(milestone.at, 'partida', 'partidas')}`
+        case 'bestScore':
+          return `uma pontuação de ${milestone.at}`
+        case 'wordsFound':
+          return `${milestone.at} palavras achadas`
+        case 'bestCombo':
+          return `uma sequência de ${milestone.at}`
+      }
+    },
+  },
+
+  tiers: { courant: 'comum', 'peu commun': 'incomum', rare: 'rara', 'très rare': 'muito rara' },
+
+  categories: {
+    pays: ['Países', 'Estados do mundo, atuais ou passados'],
+    animaux: ['Animais', 'Nomes comuns, do pardal à morsa'],
+    couleurs: ['Cores', 'Tons e matizes'],
+    'fruits-legumes': ['Frutas e legumes', 'O que se come, cru ou cozido'],
+    metiers: ['Profissões', 'Ofícios de ontem e de hoje'],
+    sports: ['Esportes', 'Modalidades e práticas'],
+    'corps-humain': ['Partes do corpo', 'Da cabeça aos pés'],
+    matieres: ['Materiais', 'Madeira, ferro, aço, areia…'],
+    capitales: ['Capitais', 'Capitais do mundo'],
+    marques: ['Marcas', 'Marcas conhecidas'],
+    insectes: ['Insetos', 'Insetos e bichinhos'],
+  },
+
+  colours: {
+    rouge: 'Vermelho',
+    bleu: 'Azul',
+    jaune: 'Amarelo',
+    noir: 'Preto',
+    creme: 'Creme',
+    vert: 'Verde',
+    rose: 'Rosa',
+    orange: 'Laranja',
+    ciel: 'Celeste',
+    brique: 'Tijolo',
+    citron: 'Limão',
+    marine: 'Marinho',
+    corail: 'Coral',
+    sauge: 'Sálvia',
+    moutarde: 'Mostarda',
+    violet: 'Roxo',
+    turquoise: 'Turquesa',
+    ocre: 'Ocre',
+    lavande: 'Lavanda',
+    olive: 'Oliva',
+    saumon: 'Salmão',
+    canard: 'Petróleo',
+    menthe: 'Menta',
+    bordeaux: 'Bordô',
+    sable: 'Areia',
+    outremer: 'Ultramar',
+    emeraude: 'Esmeralda',
+    prune: 'Ameixa',
+    gris: 'Cinza',
+    anthracite: 'Antracito',
+  },
+}

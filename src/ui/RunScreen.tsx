@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { categoryMeta } from '../domain/catalogue'
 import { RUN_SECONDS, SKIP_PENALTY_SECONDS, type Run, type Verdict } from '../domain/run'
 import { capitalized, normalizeWord } from '../domain/text'
+import { categoryText, formatNumber, useT } from '../i18n'
 import type { Cheer } from '../state/session'
 import { Burst, LetterMark, TierTag } from './bauhaus'
 import { motifAt } from './motifs'
@@ -40,7 +40,8 @@ export function RunScreen({
 }: RunScreenProps) {
   const field = useRef<HTMLInputElement>(null)
   const [shaking, setShaking] = useState(false)
-  const category = categoryMeta(run.prompt.categoryId)
+  const t = useT()
+  const category = categoryText(t, run.prompt.categoryId)
   const seconds = Math.ceil(remaining)
   const urgent = remaining <= URGENT_FROM
   const accepted = live?.kind === 'accepted'
@@ -76,7 +77,7 @@ export function RunScreen({
         <div className="score">
           {run.score > 0 && <Burst key={`burst-${run.score}`} />}
           <span className="score-value" key={run.score}>
-            {run.score.toLocaleString('fr-FR')}
+            {formatNumber(t, run.score)}
           </span>
           {run.combo > 1 && (
             <span className="combo" key={run.combo}>
@@ -86,14 +87,14 @@ export function RunScreen({
         </div>
       </div>
       <p className="note run-meta">
-        {run.found.length} mot{run.found.length > 1 ? 's' : ''} · {run.skips} passé{run.skips > 1 ? 's' : ''}
+        {t.run.meta(run.found.length, run.skips)}
       </p>
 
       <section className="prompt" key={`${run.drawn}`}>
         <LetterMark letter={run.prompt.letter} motif={motifAt(run.drawn)} size="lg" />
         <div className="prompt-text">
-          <h2 className="prompt-label">{category?.label ?? run.prompt.categoryId}</h2>
-          <p className="note">{category?.hint}</p>
+          <h2 className="prompt-label">{category.label}</h2>
+          <p className="note">{category.hint}</p>
         </div>
       </section>
 
@@ -112,8 +113,8 @@ export function RunScreen({
             ref={field}
             value={draft}
             onChange={(event) => onType(capitalized(event.target.value))}
-            placeholder={`un mot en ${run.prompt.letter}…`}
-            aria-label={`Mot en ${run.prompt.letter}, catégorie ${category?.label ?? ''}`}
+            placeholder={t.run.placeholder(run.prompt.letter)}
+            aria-label={t.run.fieldLabel(run.prompt.letter, category.label)}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="sentences"
@@ -140,10 +141,10 @@ export function RunScreen({
 
         <div className="answer-actions">
           <button type="button" className="btn btn--ghost" onPointerDown={keepFocus} onClick={onSkip}>
-            Passer −{SKIP_PENALTY_SECONDS} s
+            {t.run.skip(SKIP_PENALTY_SECONDS)}
           </button>
           <button type="submit" className="btn btn--blue" onPointerDown={keepFocus} disabled={!accepted}>
-            Valider
+            {t.run.submit}
           </button>
         </div>
       </form>
@@ -166,6 +167,7 @@ function Feedback({
   proposed: boolean
   onPropose(word: string): void
 }) {
+  const t = useT()
   // The last find takes the verdict's line until the player types again: lower
   // down, the phone keyboard would hide it.
   // Points and rarity are only revealed here, once the word is validated.
@@ -175,7 +177,7 @@ function Feedback({
         {cheer.approximate && <span aria-hidden="true">≈ </span>}
         <span className="cheer-word">{capitalized(cheer.display)}</span>
         <span className="cheer-points">+{cheer.points}</span>
-        {cheer.approximate ? <span className="note">orthographe approchée</span> : <TierTag tier={cheer.tier} />}
+        {cheer.approximate ? <span className="note">{t.run.approximate}</span> : <TierTag tier={cheer.tier} />}
       </p>
     )
   if (!live || live.kind === 'empty') return <p className="verdict">&nbsp;</p>
@@ -184,21 +186,21 @@ function Feedback({
     case 'accepted':
       // The word is named only once typed exactly: naming the correction would
       // hand the player the spelling they were missing.
-      if (live.found?.approximate) return <p className="verdict verdict--approx">à une lettre près…</p>
+      if (live.found?.approximate) return <p className="verdict verdict--approx">{t.run.oneLetterOff}</p>
       return <p className="verdict verdict--valid">✓ {capitalized(live.found?.display ?? '')}</p>
     case 'wrong-letter':
-      return <p className="verdict">commence par {letter}</p>
+      return <p className="verdict">{t.run.startsWith(letter)}</p>
     case 'already':
-      return <p className="verdict">déjà donné</p>
+      return <p className="verdict">{t.run.already}</p>
     case 'unknown':
       return (
         <p className="verdict">
-          inconnu du dictionnaire
+          {t.run.unknown}
           {proposed ? (
-            <span className="verdict--sent">proposé, merci</span>
+            <span className="verdict--sent">{t.run.proposed}</span>
           ) : (
             <button type="button" className="btn btn--quiet" onPointerDown={keepFocus} onClick={() => onPropose(draft)}>
-              le proposer
+              {t.run.propose}
             </button>
           )}
         </p>
