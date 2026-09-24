@@ -1,4 +1,4 @@
--- Lettrine — schéma initial.
+-- Lettre Minute — schéma initial.
 --
 -- Trois choses vivent ici et nulle part ailleurs : l'identité d'un joueur et sa
 -- progression, ce que les joueurs écrivent (qui sert à mesurer la rareté d'un
