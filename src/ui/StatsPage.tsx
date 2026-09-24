@@ -3,8 +3,9 @@ import { summarize, type RunRecord } from '../domain/history'
 import { capitalized } from '../domain/text'
 import type { Profile } from '../domain/progression'
 import { categoryText, formatNumber, useT, type Messages } from '../i18n'
-import { Figure, Shape } from './bauhaus'
+import { Figure } from './bauhaus'
 import { categoryMotif } from './motifs'
+import { CategoryIcon } from './CategoryIcon'
 
 /** Rows added each time the full history is asked for more. */
 const PAGE = 50
@@ -81,7 +82,7 @@ export function StatsPage({ history, profile }: { history: readonly RunRecord[];
               const perWord = stats.words > 0 ? stats.points / stats.words : 0
               return (
                 <li key={stats.categoryId}>
-                  <Shape kind={motif.kind} tint={motif.tint} className="category-shape" />
+                  <CategoryIcon categoryId={stats.categoryId} tint={motif.tint} className="category-shape" />
                   <span className="category-stats-body">
                     <span className="category-label">{categoryText(t, stats.categoryId).label}</span>
                     <span className="note">{t.stats.categoryLine(stats.runs, stats.words)}</span>

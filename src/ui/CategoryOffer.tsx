@@ -3,8 +3,8 @@ import { pickShowsAd, picksOwed } from '../domain/unlocks'
 import { adsSupported, showInterstitial } from '../lib/native'
 import type { Profile } from '../domain/progression'
 import { categoryText, useT } from '../i18n'
-import { Shape } from './bauhaus'
 import { categoryMotif, onTint } from './motifs'
+import { CategoryIcon } from './CategoryIcon'
 
 interface CategoryOfferProps {
   profile: Profile
@@ -45,7 +45,7 @@ export function CategoryOffer({ profile, onChoose }: CategoryOfferProps) {
                 style={{ background: `var(--${motif.tint})`, color: `var(--${onTint(motif.tint)})` }}
                 onClick={() => choose(id)}
               >
-                <Shape kind={motif.kind} tint={onTint(motif.tint)} className="offer-shape" />
+                <CategoryIcon categoryId={id} tint={onTint(motif.tint)} className="offer-shape" />
                 <strong>{text.label}</strong>
                 <span>{text.hint}</span>
               </button>

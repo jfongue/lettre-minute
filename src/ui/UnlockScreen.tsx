@@ -7,6 +7,7 @@ import { showInterstitial, tapFeedback } from '../lib/native'
 import { sound } from '../lib/sound'
 import { Burst, LetterMark, Shape } from './bauhaus'
 import { categoryMotif, onTint } from './motifs'
+import { CategoryIcon } from './CategoryIcon'
 import { reducedMotion } from './useCountUp'
 
 interface UnlockScreenProps {
@@ -151,7 +152,7 @@ export function UnlockScreen({ lang, onChoose, onDone, ...dealt }: UnlockScreenP
           className="unlock-seal"
           style={{ background: `var(--${keptMotif.tint})`, color: `var(--${onTint(keptMotif.tint)})` }}
         >
-          <Shape kind={keptMotif.kind} tint={onTint(keptMotif.tint)} className="unlock-seal-shape" />
+          <CategoryIcon categoryId={selected} tint={onTint(keptMotif.tint)} className="unlock-seal-shape" />
           <span className="unlock-seal-burst">
             <Burst />
           </span>
@@ -187,7 +188,7 @@ export function UnlockScreen({ lang, onChoose, onDone, ...dealt }: UnlockScreenP
                   onBlur={() => setHovered(null)}
                   onClick={() => pick(id)}
                 >
-                  <Shape kind={motif.kind} tint={onTint(motif.tint)} className="offer-shape unlock-card-shape" />
+                  <CategoryIcon categoryId={id} tint={onTint(motif.tint)} className="offer-shape unlock-card-shape" />
                   <strong>{text.label}</strong>
                   <span>{text.hint}</span>
                   {id === selected && (

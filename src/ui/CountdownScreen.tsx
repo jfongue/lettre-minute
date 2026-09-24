@@ -4,6 +4,7 @@ import { sound, type Timbre } from '../lib/sound'
 import type { ShapeKind } from '../domain/avatar'
 import { Shape } from './bauhaus'
 import { categoryMotif, onTint, type Motif } from './motifs'
+import { CategoryIcon } from './CategoryIcon'
 
 const ANNOUNCE_MS = 2600
 /** With a reserve, the player needs the time to read the list and decide what to trade. */
@@ -106,7 +107,7 @@ export function CountdownScreen({ categoryIds, reserve, swapping, onSwap, onDone
               style={{ '--i': index, background: `var(--${motif.tint})`, color: `var(--${onTint(motif.tint)})` } as CSSProperties}
             >
               <button type="button" className="dealt-tile" disabled={!canSwap} onClick={() => onSwap(index)}>
-                <Shape kind={motif.kind} tint={onTint(motif.tint)} className="dealt-shape" />
+                <CategoryIcon categoryId={id} tint={onTint(motif.tint)} className="dealt-shape" />
                 <span>{categoryText(t, id).label}</span>
                 {reserve > 0 && <span className="dealt-swap" aria-hidden="true">⇄</span>}
               </button>

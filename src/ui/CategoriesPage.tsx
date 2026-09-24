@@ -2,8 +2,8 @@ import { CATALOGUE } from '../domain/catalogue'
 import type { Profile } from '../domain/progression'
 import { MAX_CATEGORIES_PER_RUN, ownedCategoryIds } from '../domain/unlocks'
 import { categoryText, useT } from '../i18n'
-import { Shape } from './bauhaus'
 import { categoryMotif } from './motifs'
+import { CategoryIcon } from './CategoryIcon'
 
 export function CategoriesPage({ profile }: { profile: Profile }) {
   const t = useT()
@@ -23,7 +23,7 @@ export function CategoriesPage({ profile }: { profile: Profile }) {
           const text = categoryText(t, id)
           return (
             <li key={id}>
-              <Shape kind={motif.kind} tint={motif.tint} className="category-shape" />
+              <CategoryIcon categoryId={id} tint={motif.tint} className="category-shape" />
               <span className="category-label">{text.label}</span>
               <span className="note">{text.hint}</span>
             </li>

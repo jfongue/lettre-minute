@@ -3,8 +3,8 @@ import { SUBMISSION_REWARD_XP } from '../domain/progression'
 import { cancelSubmission, correctSubmission, fetchMySubmissions, type Submission } from '../lib/cloud'
 import { categoryText, useT } from '../i18n'
 import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
-import { Shape } from './bauhaus'
 import { categoryMotif } from './motifs'
+import { CategoryIcon } from './CategoryIcon'
 
 /**
  * A request as the page lists it: still on the device, waiting for the next
@@ -165,7 +165,7 @@ function RequestRow({ entry, onWithdraw, onCorrect }: RequestRowProps) {
 
   return (
     <li className="request">
-      <Shape kind={motif.kind} tint={motif.tint} className="category-shape" />
+      <CategoryIcon categoryId={entry.categoryId} tint={motif.tint} className="category-shape" />
       {editing ? (
         <form className="request-edit" onSubmit={save}>
           <input
