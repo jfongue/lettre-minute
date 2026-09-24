@@ -45,6 +45,8 @@ export interface Profile {
   offer: readonly string[]
   /** The previous offer, which the next one avoids repeating. */
   lastOffer: readonly string[]
+  /** The prompts the last run dealt, locked for the next one (`promptKey`). */
+  lastPrompts: readonly string[]
 }
 
 export const NEW_PROFILE: Profile = {
@@ -57,12 +59,15 @@ export const NEW_PROFILE: Profile = {
   unlocked: [],
   offer: [],
   lastOffer: [],
+  lastPrompts: [],
 }
 
 export interface RunOutcome {
   score: number
   words: readonly string[]
   bestCombo: number
+  /** Every prompt the run dealt, which the next run will not deal again. */
+  prompts?: readonly string[]
 }
 
 export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
@@ -77,6 +82,7 @@ export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
     wordsFound: profile.wordsFound + outcome.words.length,
     bestCombo: Math.max(profile.bestCombo, outcome.bestCombo),
     usage,
+    lastPrompts: outcome.prompts ?? profile.lastPrompts,
   }
 }
 

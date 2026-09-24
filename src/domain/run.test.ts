@@ -217,3 +217,37 @@ describe('remainingSeconds', () => {
     expect(remainingSeconds(run, 500)).toBe(0)
   })
 })
+
+describe('prompts locked from the previous run', () => {
+  function playThrough(run: Run, steps: number): Run {
+    let current = run
+    for (let i = 0; i < steps; i++) current = skip(current, judge)
+    return current
+  }
+
+  it('never deals a pair the previous run dealt', () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      const previous = playThrough(createRun({ seed, categoryIds: ['animaux', 'pays'] }, judge), 12)
+      const next = playThrough(
+        createRun({ seed: seed + 1000, categoryIds: ['animaux', 'pays'], avoid: previous.dealt }, judge),
+        12,
+      )
+      for (const key of next.dealt) expect(previous.dealt).not.toContain(key)
+    }
+  })
+
+  it('remembers every prompt it dealt, skipped ones included', () => {
+    const run = createRun({ seed: 3, categoryIds: ['animaux', 'pays'] }, judge)
+    const skipped = skip(run, judge)
+    expect(skipped.dealt).toEqual([
+      `${run.prompt.categoryId}:${run.prompt.letter}`,
+      `${skipped.prompt.categoryId}:${skipped.prompt.letter}`,
+    ])
+  })
+
+  it('gives way when a category has no other letter left', () => {
+    const everything = LETTERS.map((letter) => `animaux:${letter}`)
+    const run = createRun({ seed: 5, categoryIds: ['animaux'], avoid: everything }, judge)
+    expect(LETTERS).toContain(run.prompt.letter)
+  })
+})

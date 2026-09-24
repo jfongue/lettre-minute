@@ -23,6 +23,11 @@ export interface Prompt {
   letter: string
 }
 
+/** A prompt as a single string, which is how a run remembers what it drew. */
+export function promptKey(prompt: Prompt): string {
+  return `${prompt.categoryId}:${prompt.letter}`
+}
+
 export interface FoundWord {
   prompt: Prompt
   /** Canonical form, which is what uniqueness and usage are counted on. */
@@ -59,6 +64,10 @@ export interface Run {
   prompt: Prompt
   /** How many prompts have been drawn, which also seeds the next draw. */
   drawn: number
+  /** The previous run's prompts: this one does not deal them again. */
+  avoid: readonly string[]
+  /** Every prompt this run dealt, skipped ones included — the next run's `avoid`. */
+  dealt: readonly string[]
   found: readonly FoundWord[]
   used: readonly string[]
   skips: number
@@ -68,31 +77,58 @@ export interface Run {
   score: number
 }
 
-function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[], judge: Judge, avoid?: string): Prompt {
+/**
+ * A prompt the previous run dealt is off the table for this one, so two runs
+ * in a row never open on the same pair. Within a run a pair may come back:
+ * it is the next run that locks it. When a category has nothing else left,
+ * the lock gives way rather than leaving it undrawable.
+ */
+function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[], judge: Judge, avoid: readonly string[], skipCategory?: string): Prompt {
   const rng = streamFor(seed, drawn)
-  const pool = categoryIds.filter((id) => id !== avoid && judge.letters(id).length > 0)
-  const fallback = categoryIds.filter((id) => judge.letters(id).length > 0)
-  const candidates = pool.length > 0 ? pool : fallback
+  const locked = new Set(avoid)
+  const open = (id: string) => judge.letters(id).filter((letter) => !locked.has(promptKey({ categoryId: id, letter })))
+  const playable = categoryIds.filter((id) => judge.letters(id).length > 0)
+  const fresh = playable.filter((id) => open(id).length > 0)
+  const preferred = fresh.filter((id) => id !== skipCategory)
+  const others = playable.filter((id) => id !== skipCategory)
+  const candidates = preferred.length > 0 ? preferred : others.length > 0 ? others : playable
   const categoryId = candidates[Math.floor(rng.next() * candidates.length)] ?? categoryIds[0] ?? ''
 
-  const available = new Set(judge.letters(categoryId))
+  const unlocked = open(categoryId)
+  const available = new Set(unlocked.length > 0 ? unlocked : judge.letters(categoryId))
   const deck = judge.deck.filter((entry) => available.has(entry.letter))
   const letter = pickWeighted(rng, deck, (entry) => entry.weight)?.letter ?? deck[0]?.letter ?? 'A'
 
   return { categoryId, letter }
 }
 
+/** The run moved on to a new prompt: it is drawn, counted, and remembered for the next run. */
+function advance(run: Run, judge: Judge): Pick<Run, 'prompt' | 'drawn' | 'dealt'> {
+  const prompt = drawPrompt(run.seed, run.drawn, run.categoryIds, judge, run.avoid, run.prompt.categoryId)
+  const key = promptKey(prompt)
+  return {
+    prompt,
+    drawn: run.drawn + 1,
+    dealt: run.dealt.includes(key) ? run.dealt : [...run.dealt, key],
+  }
+}
+
 export interface CreateRunInput {
   seed: number
   categoryIds: readonly string[]
+  /** The prompts the previous run dealt. */
+  avoid?: readonly string[]
 }
 
-export function createRun({ seed, categoryIds }: CreateRunInput, judge: Judge): Run {
+export function createRun({ seed, categoryIds, avoid = [] }: CreateRunInput, judge: Judge): Run {
+  const prompt = drawPrompt(seed, 0, categoryIds, judge, avoid)
   return {
     seed,
     categoryIds,
-    prompt: drawPrompt(seed, 0, categoryIds, judge),
+    prompt,
     drawn: 1,
+    avoid,
+    dealt: [promptKey(prompt)],
     found: [],
     used: [],
     skips: 0,
@@ -147,8 +183,7 @@ export function submit(run: Run, raw: string, judge: Judge): Played {
     verdict,
     run: {
       ...run,
-      prompt: drawPrompt(run.seed, run.drawn, run.categoryIds, judge, run.prompt.categoryId),
-      drawn: run.drawn + 1,
+      ...advance(run, judge),
       found: [...run.found, verdict.found],
       used: [...run.used, verdict.found.word],
       combo,
@@ -161,8 +196,7 @@ export function submit(run: Run, raw: string, judge: Judge): Played {
 export function skip(run: Run, judge: Judge): Run {
   return {
     ...run,
-    prompt: drawPrompt(run.seed, run.drawn, run.categoryIds, judge, run.prompt.categoryId),
-    drawn: run.drawn + 1,
+    ...advance(run, judge),
     skips: run.skips + 1,
     penaltySeconds: run.penaltySeconds + SKIP_PENALTY_SECONDS,
     combo: 0,

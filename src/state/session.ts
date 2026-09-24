@@ -94,7 +94,10 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         ...session,
         phase: 'countdown',
         judge: action.judge,
-        run: createRun({ seed: action.seed, categoryIds: action.categoryIds }, action.judge),
+        run: createRun(
+          { seed: action.seed, categoryIds: action.categoryIds, avoid: session.profile.lastPrompts },
+          action.judge,
+        ),
         reserve: action.reserve,
         levelBefore: levelFor(session.profile.xp),
         profileBefore: session.profile,
@@ -110,7 +113,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       return {
         ...session,
         judge: action.judge,
-        run: createRun({ seed: session.run.seed, categoryIds: action.categoryIds }, action.judge),
+        run: createRun({ seed: session.run.seed, categoryIds: action.categoryIds, avoid: session.run.avoid }, action.judge),
         reserve: action.reserve,
       }
     }
@@ -175,6 +178,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
           score: run.score,
           words: run.found.map((found) => found.word),
           bestCombo: run.bestCombo,
+          prompts: run.dealt,
         }),
       }
     }
