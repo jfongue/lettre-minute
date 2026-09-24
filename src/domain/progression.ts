@@ -3,10 +3,14 @@ export const XP_PER_POINT = 1
 /** Paid once a word the player proposed enters the dictionary. */
 export const SUBMISSION_REWARD_XP = 150
 
+/** What the first level up costs: half a decent run, so a newcomer levels up on their first try. */
+export const FIRST_LEVEL_XP = 150
+
 /** Cumulative XP needed to reach a level. Quadratic: each level costs a little more than the last. */
 export function xpForLevel(level: number): number {
   const steps = Math.max(0, level - 1)
-  return 300 * steps + 50 * steps * steps
+  if (steps === 0) return 0
+  return 300 * steps + 50 * steps * steps - (350 - FIRST_LEVEL_XP)
 }
 
 export function levelFor(xp: number): number {

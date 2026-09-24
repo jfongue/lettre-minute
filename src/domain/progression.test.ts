@@ -15,6 +15,12 @@ describe('levels', () => {
     expect(xpForLevel(1)).toBe(0)
   })
 
+  it('opens level 2 at 150 XP', () => {
+    expect(xpForLevel(2)).toBe(150)
+    expect(levelFor(149)).toBe(1)
+    expect(levelFor(150)).toBe(2)
+  })
+
   it('costs a little more at each level', () => {
     const steps = [2, 3, 4, 5].map((level) => xpForLevel(level) - xpForLevel(level - 1))
 
