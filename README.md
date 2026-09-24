@@ -42,7 +42,7 @@ n'écrit rapportent le plus.
   sept jours. On passe de l'un à l'autre d'un glissement du doigt. Seuls les
   comptes nommés y figurent ; Demontoon y tient 94 points chaque jour tant
   qu'il n'a pas joué.
-- **Menu** : la tuile en haut à gauche de l'affiche ouvre le profil (compte,
+- **Menu** : la tuile en haut à gauche de l'affiche (ou un glissement du doigt vers la droite) ouvre le profil (compte,
   avatar, effacement), le social (amis par nom de compte, demandes reçues et
   envoyées, score de la semaine de chacun) et les options (thème auto, clair
   ou sombre, langue).
@@ -57,8 +57,8 @@ n'écrit rapportent le plus.
   licence, et accordé sur une gamme pentatonique de do : la note d’un mot
   validé monte avec la série, et s’enrichit avec la rareté. Une boucle de
   marimba accompagne l’accueil et le bilan, jamais la partie (sauf la
-  pulsation, en option). Effets, clavier, musique et pulsation se règlent dans
-  les options ; sur le web, une sourdine attend en bas à droite.
+  pulsation, en option). Effets, clavier, musique et pulsation ont chacun leur
+  volume dans les options ; sur le web, une sourdine attend en bas à droite.
 - **Mot manquant** : le joueur le propose en un clic ; réclamé par trois joueurs
   (ou validé par un modérateur), il entre au dictionnaire et lui rapporte 150 XP.
 

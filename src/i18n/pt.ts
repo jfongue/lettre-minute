@@ -173,6 +173,7 @@ export const pt: Messages = {
     sound: 'Som',
     sounds: { effects: 'Efeitos', keys: 'Teclado', music: 'Música', pulse: 'Pulso na partida' },
     soundNote: '“Pulso” acrescenta um ritmo sob a partida que se adensa a cada vinte segundos.',
+    soundOff: 'Desligado',
     mute: 'Silenciar',
     unmute: 'Ativar o som',
     language: 'Idioma',

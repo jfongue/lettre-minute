@@ -172,6 +172,7 @@ export const nl: Messages = {
     sound: 'Geluid',
     sounds: { effects: 'Effecten', keys: 'Toetsenbord', music: 'Muziek', pulse: 'Puls tijdens het spel' },
     soundNote: '‘Puls’ legt een ritme onder het spel dat elke twintig seconden voller wordt.',
+    soundOff: 'Uit',
     mute: 'Geluid uit',
     unmute: 'Geluid aan',
     language: 'Taal',

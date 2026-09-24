@@ -189,6 +189,7 @@ export const fr = {
     sound: 'Son',
     sounds: { effects: 'Effets', keys: 'Clavier', music: 'Musique', pulse: 'Pulsation en partie' },
     soundNote: '« Pulsation » ajoute un rythme sous la partie, qui se densifie toutes les vingt secondes.',
+    soundOff: 'Coupé',
     mute: 'Couper le son',
     unmute: 'Rétablir le son',
     language: 'Langue',

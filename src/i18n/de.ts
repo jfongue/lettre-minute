@@ -172,6 +172,7 @@ export const de: Messages = {
     sound: 'Ton',
     sounds: { effects: 'Effekte', keys: 'Tastatur', music: 'Musik', pulse: 'Puls im Spiel' },
     soundNote: '„Puls“ legt einen Rhythmus unter die Runde, der alle zwanzig Sekunden dichter wird.',
+    soundOff: 'Aus',
     mute: 'Ton aus',
     unmute: 'Ton an',
     language: 'Sprache',

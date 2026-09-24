@@ -178,6 +178,7 @@ export const en: Messages = {
     sound: 'Sound',
     sounds: { effects: 'Effects', keys: 'Keyboard', music: 'Music', pulse: 'Pulse during runs' },
     soundNote: '“Pulse” adds a beat under the run that thickens every twenty seconds.',
+    soundOff: 'Off',
     mute: 'Mute sound',
     unmute: 'Unmute sound',
     language: 'Language',

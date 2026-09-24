@@ -9,6 +9,7 @@ import { Boards } from './Boards'
 import { Figure, Shape } from './bauhaus'
 import { CategoryOffer } from './CategoryOffer'
 import { categoryMotif, type ShapeKind, type Tint } from './motifs'
+import { useSwipe } from './useSwipe'
 
 interface HomeScreenProps {
   profile: Profile
@@ -27,9 +28,11 @@ export function HomeScreen({ profile, error, loading, boards, me, onMenu, onPlay
   const t = useT()
   const progress = levelProgress(profile.xp)
   const owned = ownedCategoryIds(profile)
+  // The drawer lives off the left edge: a flick to the right pulls it in.
+  const swipe = useSwipe('right', onMenu)
 
   return (
-    <div className="sheet cascade">
+    <div className="sheet cascade" {...swipe}>
       <Poster onMenu={onMenu} />
 
       <header className="masthead">

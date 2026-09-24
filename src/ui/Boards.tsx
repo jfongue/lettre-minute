@@ -28,7 +28,7 @@ export function Boards({ boards, me }: BoardsProps) {
   }
 
   return (
-    <section className="panel boards">
+    <section className="panel boards" data-no-swipe>
       <div className="spread">
         <p className="section-title">{t.boards.title}</p>
         <p className="note">{t.boards[BOARDS[active]].caption}</p>

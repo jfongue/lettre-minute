@@ -11,14 +11,15 @@
 
 import type { RarityTier } from '../domain/rarity'
 
+/** Each channel's volume, from 0 (off) to 1. */
 export interface SoundPrefs {
-  effects: boolean
-  /** The keyboard clicks, which some players want gone while keeping the rest. */
-  keys: boolean
+  effects: number
+  /** The keyboard clicks, which some players want quieter than the rest. */
+  keys: number
   /** The loop under the home, menu and end screens. */
-  music: boolean
+  music: number
   /** A pulse under the run itself, thickening every twenty seconds. */
-  pulse: boolean
+  pulse: number
   /** The web's quick mute: silences everything, and leaves the choices above as they were. */
   muted: boolean
 }
@@ -34,9 +35,10 @@ const THIRD = 4
 const TOP_STEP = 10
 const ROOM = 0.28
 
-let prefs: SoundPrefs = { effects: true, keys: true, music: false, pulse: false, muted: false }
+let prefs: SoundPrefs = { effects: 0.8, keys: 0.6, music: 0, pulse: 0, muted: false }
 let ctx: AudioContext | null = null
 let sfx: GainNode
+let keysNode: GainNode
 let music: GainNode
 let duckNode: GainNode
 let noise: AudioBuffer
@@ -89,17 +91,31 @@ function context(): AudioContext | null {
   for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1
 
   sfx = c.createGain()
-  sfx.gain.value = 0.8
   sfx.connect(master)
   sfx.connect(send)
+  keysNode = c.createGain()
+  keysNode.connect(master)
   music = c.createGain()
-  music.gain.value = 0.44
   duckNode = c.createGain()
   music.connect(duckNode)
   duckNode.connect(master)
   duckNode.connect(send)
   ctx = c
+  applyLevels()
   return c
+}
+
+/** The loudest a channel gets: the effects sit above the music, the keys well under both. */
+const CEILING = { effects: 0.9, keys: 0.9, music: 0.6 }
+
+function applyLevels(): void {
+  if (!ctx) return
+  const on = prefs.muted ? 0 : 1
+  const t = ctx.currentTime
+  sfx.gain.setTargetAtTime(on * prefs.effects * CEILING.effects, t, 0.03)
+  keysNode.gain.setTargetAtTime(on * prefs.keys * CEILING.keys, t, 0.03)
+  const musicLevel = playing === 'pulse' ? prefs.pulse : prefs.music
+  music.gain.setTargetAtTime(on * musicLevel * CEILING.music, t, 0.03)
 }
 
 /** The context, awake, or null: a cue asked for before the first touch is simply dropped. */
@@ -242,8 +258,8 @@ function tick(c: AudioContext, t: number, alt: boolean, urgent: boolean, v = 1):
 }
 
 /** Runs a cue now, if effects are on and the context is awake. */
-function cue(work: (c: AudioContext, t: number) => void, gate = prefs.effects): void {
-  if (!gate || prefs.muted) return
+function cue(work: (c: AudioContext, t: number) => void, level = prefs.effects): void {
+  if (level <= 0 || prefs.muted) return
   safely(() => {
     const c = live()
     if (c) work(c, c.currentTime + 0.01)
@@ -256,9 +272,9 @@ export const sound = {
   key(deleting = false): void {
     cue((c, t) => {
       const v = deleting ? 0.6 : 1
-      hiss(c, t, 0.016 + Math.random() * 0.012, sfx, 0.14 * v, 'bandpass', 2400 + Math.random() * 2000, 1.3)
-      tone(c, 'sine', 1500 + Math.random() * 500, t, 0.012, sfx, 0.025 * v)
-    }, prefs.effects && prefs.keys)
+      hiss(c, t, 0.016 + Math.random() * 0.012, keysNode, 0.14 * v, 'bandpass', 2400 + Math.random() * 2000, 1.3)
+      tone(c, 'sine', 1500 + Math.random() * 500, t, 0.012, keysNode, 0.025 * v)
+    }, prefs.keys)
   },
   /** The field names the word: it says nothing the screen does not already say. */
   recognized(): void {
@@ -440,16 +456,17 @@ function syncMusic(): void {
   safely(() => {
     const target = prefs.muted
       ? null
-      : wanted === 'menu' && prefs.music
+      : wanted === 'menu' && prefs.music > 0
         ? 'menu'
-        : wanted === 'pulse' && prefs.pulse
+        : wanted === 'pulse' && prefs.pulse > 0
           ? 'pulse'
           : null
-    if (target === playing) return
+    if (target === playing) return applyLevels()
     stopPlaying()
     const c = live()
     if (!target || !c) return
     playing = target
+    applyLevels()
     step = 0
     next = c.currentTime + 0.1
     bus = c.createGain()
@@ -470,6 +487,7 @@ export function setPulseStage(stage: number): void {
 
 export function configureSound(next: SoundPrefs): void {
   prefs = next
+  applyLevels()
   syncMusic()
 }
 

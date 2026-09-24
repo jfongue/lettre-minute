@@ -11,9 +11,10 @@ import {
 } from '../lib/cloud'
 import { adPrivacyOptionsRequired, showAdPrivacyOptions } from '../lib/native'
 import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
-import type { SoundPrefs } from '../lib/sound'
+import { sound as preview, type SoundPrefs } from '../lib/sound'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions } from './AccountPanel'
+import { useSwipe } from './useSwipe'
 import { Avatar } from './Avatar'
 
 export type MenuPane = 'profile' | 'social' | 'options'
@@ -47,6 +48,8 @@ export function Menu({ onClose, ...props }: MenuProps) {
   const t = useT()
   const [pane, setPane] = useState<MenuPane>('profile')
   const drawer = useRef<HTMLElement>(null)
+  // The drawer came in from the left: a flick back that way sends it home.
+  const swipe = useSwipe('left', onClose)
 
   useEffect(() => {
     drawer.current?.focus()
@@ -64,27 +67,35 @@ export function Menu({ onClose, ...props }: MenuProps) {
   return (
     <div className="menu-layer">
       <div className="menu-scrim" onClick={onClose} />
-      <aside className="menu" role="dialog" aria-modal="true" aria-label={t.menu.title} tabIndex={-1} ref={drawer}>
-        <div className="spread">
-          <p className="section-title">{t.menu.title}</p>
-          <button type="button" className="btn btn--quiet" onClick={onClose}>
-            {t.menu.close}
+      <aside
+        className="menu"
+        role="dialog"
+        aria-modal="true"
+        aria-label={t.menu.title}
+        tabIndex={-1}
+        ref={drawer}
+        {...swipe}
+      >
+        <div className="menu-head">
+          <div className="layer-tabs menu-tabs" role="tablist">
+            {PANES.map((id) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={pane === id}
+                className={`layer-tab${pane === id ? ' layer-tab--on' : ''}`}
+                onClick={() => setPane(id)}
+              >
+                {t.menu.panes[id]}
+              </button>
+            ))}
+          </div>
+          <button type="button" className="menu-close" aria-label={t.menu.close} title={t.menu.close} onClick={onClose}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
           </button>
-        </div>
-
-        <div className="layer-tabs" role="tablist">
-          {PANES.map((id) => (
-            <button
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={pane === id}
-              className={`layer-tab${pane === id ? ' layer-tab--on' : ''}`}
-              onClick={() => setPane(id)}
-            >
-              {t.menu.panes[id]}
-            </button>
-          ))}
         </div>
 
         <div className="menu-body">
@@ -345,7 +356,13 @@ function FriendRow({ friend, onRemove }: { friend: Friend; onRemove(): void }) {
 }
 
 const THEMES: readonly Theme[] = ['system', 'light', 'dark']
-const SOUND_SWITCHES = ['effects', 'keys', 'music', 'pulse'] as const
+const SOUND_CHANNELS = ['effects', 'keys', 'music', 'pulse'] as const
+
+/** The music is heard as it plays; the effects and keys need a sample. */
+function previewChannel(id: (typeof SOUND_CHANNELS)[number]): void {
+  if (id === 'effects') preview.found(1, 2)
+  else if (id === 'keys') preview.key()
+}
 
 interface OptionsPaneProps {
   theme: Theme
@@ -390,20 +407,23 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound }: Optio
 
       <section className="stack">
         <p className="section-title">{t.options.sound}</p>
-        <div className="language-list">
-          {SOUND_SWITCHES.map((id) => (
-            <button
-              key={id}
-              type="button"
-              role="switch"
-              aria-checked={sound[id]}
-              // Keys only click when effects play at all.
-              disabled={id === 'keys' && !sound.effects}
-              className={`layer-tab${sound[id] ? ' layer-tab--on' : ''}`}
-              onClick={() => onSound({ ...sound, [id]: !sound[id], muted: false })}
-            >
-              {t.options.sounds[id]}
-            </button>
+        <div className="volumes" data-no-swipe>
+          {SOUND_CHANNELS.map((id) => (
+            <label key={id} className="volume">
+              <span className="volume-name">{t.options.sounds[id]}</span>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={Math.round(sound[id] * 100)}
+                onChange={(event) => onSound({ ...sound, [id]: Number(event.target.value) / 100, muted: false })}
+                // Heard once the thumb is let go, not at every notch it crosses.
+                onPointerUp={() => previewChannel(id)}
+                onKeyUp={() => previewChannel(id)}
+              />
+              <span className="volume-value">{sound[id] === 0 ? t.options.soundOff : `${Math.round(sound[id] * 100)}`}</span>
+            </label>
           ))}
         </div>
         <p className="note">{t.options.soundNote}</p>

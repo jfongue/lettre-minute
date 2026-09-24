@@ -2,30 +2,31 @@ import { isNativeApp } from '../lib/native'
 import type { SoundPrefs } from '../lib/sound'
 
 const SOUND_KEY = 'lettre-minute.sound.v1'
+const CHANNELS = ['effects', 'keys', 'music', 'pulse'] as const
+const ON_VOLUME = 0.6
 
 /** On a phone the music starts off: the game is often played where others can hear. */
 function defaults(): SoundPrefs {
-  return { effects: true, keys: true, music: !isNativeApp(), pulse: false, muted: false }
+  return { effects: 0.8, keys: ON_VOLUME, music: isNativeApp() ? 0 : ON_VOLUME, pulse: 0, muted: false }
 }
 
 export function loadSoundPrefs(): SoundPrefs {
-  const base = defaults()
+  const prefs = defaults()
   try {
     const stored: unknown = JSON.parse(localStorage.getItem(SOUND_KEY) ?? 'null')
-    if (!stored || typeof stored !== 'object') return base
-    const read = (key: keyof SoundPrefs) => {
-      const value = (stored as Record<string, unknown>)[key]
-      return typeof value === 'boolean' ? value : base[key]
+    if (!stored || typeof stored !== 'object') return prefs
+    const saved = stored as Record<string, unknown>
+    for (const channel of CHANNELS) {
+      const value = saved[channel]
+      if (typeof value === 'number' && value >= 0 && value <= 1) prefs[channel] = value
+      // The first release stored switches: off stays off, on keeps the default volume.
+      else if (value === false) prefs[channel] = 0
+      else if (value === true && prefs[channel] === 0) prefs[channel] = ON_VOLUME
     }
-    return {
-      effects: read('effects'),
-      keys: read('keys'),
-      music: read('music'),
-      pulse: read('pulse'),
-      muted: read('muted'),
-    }
+    if (typeof saved.muted === 'boolean') prefs.muted = saved.muted
+    return prefs
   } catch {
-    return base
+    return prefs
   }
 }
 
