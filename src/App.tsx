@@ -393,7 +393,8 @@ export function App() {
           avatar={avatar}
           onSave={(next) => {
             wear(next)
-            pushAvatar(next)
+            // The boards read the avatar from the profile: only a fetch after the write shows it.
+            pushAvatar(next).then((saved) => saved && loadBoards().then(setBoards))
             setEditingAvatar(false)
           }}
           onBack={() => setEditingAvatar(false)}
