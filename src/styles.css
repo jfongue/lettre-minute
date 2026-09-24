@@ -1933,6 +1933,25 @@ button {
   }
 }
 
+.hush-note {
+  min-height: 2.1rem;
+  display: grid;
+  place-items: center;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 0.95rem;
+}
+
+.hush-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: var(--paper);
+  animation: caret 1s steps(1) infinite;
+}
+
 @keyframes breathe {
   to {
     transform: scale(0.8);
@@ -3743,4 +3762,637 @@ button {
 .offer-pop-actions .btn {
   padding-inline: 0.6rem;
   font-size: 0.82rem;
+}
+
+/* --------------------------------------------------------------- powers - */
+/* Chaque pouvoir a sa couleur (motifs.ts), son icône (PowerIcon.tsx), son
+   son (sound.ts) et son geste, ici : la même grammaire sur sa carte, son
+   emplacement, sa pastille en partie et l'effet qu'il produit. Les formes
+   bougent par le span qui les enveloppe, jamais par le <svg> (voir .motion). */
+
+.power-slots {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.3rem;
+}
+
+.power-slots-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.power-slot {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3.4rem;
+  padding: 0.55rem 0.8rem;
+  border: 0;
+  font: inherit;
+  font-weight: 800;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-spring);
+}
+
+.power-slot:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.power-slot:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.power-slot--empty {
+  background: transparent;
+  color: var(--ink-faint);
+  border: 2px dashed var(--rule);
+}
+
+.power-slot-icon {
+  flex: none;
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.power-slot-plus {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.power-slot-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.power-picker {
+  justify-items: stretch;
+  text-align: left;
+  max-height: min(40rem, 86dvh);
+  overflow-y: auto;
+}
+
+.power-picker .offer-pop-title {
+  text-align: center;
+}
+
+.power-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.power-list li {
+  animation: rise 360ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+.power-row {
+  appearance: none;
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.75rem;
+  padding: 0.6rem;
+  border: 2px solid var(--rule);
+  background: var(--paper);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.power-row--here {
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.power-row-icon {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  padding: 0.45rem;
+}
+
+.power-row-text {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.82rem;
+  line-height: 1.3;
+}
+
+.power-row-text strong {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* La pastille : l'icône sur sa couleur, les usages restants en points dessous. */
+.power-badge {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0.3rem;
+  vertical-align: middle;
+  flex: none;
+}
+
+.power-badge-icon {
+  width: 100%;
+  height: 100%;
+}
+
+.power-badge-dots {
+  position: absolute;
+  left: 50%;
+  bottom: -0.45rem;
+  display: flex;
+  gap: 2px;
+  transform: translateX(-50%);
+}
+
+.power-badge-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 0 1.5px var(--paper);
+}
+
+.power-badge--spent {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+
+.run-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.run-powers {
+  display: flex;
+  gap: 0.4rem;
+}
+
+/* Magie : la lettre devient un bouton qui scintille ; changée, elle tourne sur elle-même. */
+.prompt-magic {
+  appearance: none;
+  position: relative;
+  display: grid;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  animation: magic-turn 620ms var(--ease-spring) both;
+}
+
+.prompt-magic:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.prompt-magic:not(.prompt-magic--spent):active {
+  transform: scale(0.94);
+}
+
+.prompt-magic-spark {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  background: var(--yellow);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: twinkle 1.6s ease-in-out infinite;
+}
+
+@keyframes magic-turn {
+  from {
+    transform: rotateY(180deg) scale(0.6);
+    filter: brightness(1.6);
+  }
+}
+
+@keyframes twinkle {
+  50% {
+    transform: scale(0.55) rotate(45deg);
+    opacity: 0.6;
+  }
+}
+
+/* Divination : la suite, en petit, qui clignote comme un œil. */
+.prompt-next {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: -0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  animation: foresee 700ms var(--ease-out) 200ms both;
+}
+
+.prompt-next .note {
+  font-weight: 600;
+}
+
+.prompt-next-eye {
+  width: 1.2rem;
+  height: 0.7rem;
+  border-radius: 50% / 50%;
+  background: radial-gradient(circle, var(--blue) 0 32%, transparent 34%), var(--paper-2);
+  border: 2px solid var(--blue);
+  animation: blink 4s ease-in-out infinite;
+}
+
+@keyframes foresee {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateX(0.8rem);
+  }
+}
+
+@keyframes blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+
+/* Silence : le chrono se fige, la page s'assourdit comme le son. */
+.run--hushed {
+  --timer-fill: var(--ink-faint);
+}
+
+.run--hushed .timer,
+.run--hushed .prompt,
+.run--hushed .score {
+  filter: saturate(0.25);
+  transition: filter 600ms ease;
+}
+
+.run--hushed .clock {
+  color: var(--ink-faint);
+  animation: breathe 3.2s ease-in-out infinite;
+}
+
+.timer-hold {
+  display: flex;
+  gap: 4px;
+  margin-left: -0.3rem;
+}
+
+.timer-hold span {
+  width: 5px;
+  height: 1.3rem;
+  background: var(--ink);
+}
+
+.hush-note {
+  margin-top: -0.5rem;
+  padding: 0.35rem 0.6rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  animation: fade 500ms ease both;
+}
+
+.hush-note {
+  min-height: 2.1rem;
+  display: grid;
+  place-items: center;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 0.95rem;
+}
+
+.hush-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  background: var(--paper);
+  animation: caret 1s steps(1) infinite;
+}
+
+@keyframes breathe {
+  50% {
+    transform: scale(0.92);
+    opacity: 0.6;
+  }
+}
+
+/* Un sort écrit dans le champ : la ligne prend la couleur du pouvoir. */
+.answer--spell .answer-line {
+  transform: scaleX(1);
+}
+
+.answer--joker .answer-line {
+  background: var(--red);
+}
+
+.answer--hush .answer-line {
+  background: var(--ink);
+}
+
+.verdict--spell {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.verdict--spell .power-badge,
+.verdict--joker .power-badge {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.22rem;
+}
+
+/* Tricherie : une carte se retourne au-dessus du champ, et y dépose le mot. */
+.joker-card {
+  position: absolute;
+  top: 0.2rem;
+  right: 0;
+  width: 2.2rem;
+  height: 3rem;
+  background: var(--red);
+  border: 3px solid var(--paper);
+  box-shadow: 0 0 0 2px var(--red);
+  pointer-events: none;
+  animation: joker-flip 900ms var(--ease-out) forwards;
+}
+
+@keyframes joker-flip {
+  0% {
+    transform: translate(-40vw, 1rem) rotate(-30deg) rotateY(180deg);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  70% {
+    transform: translate(0, 0) rotate(8deg) rotateY(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, -0.6rem) rotate(14deg) scale(0.7);
+    opacity: 0;
+  }
+}
+
+/* Esquive : un trait vert traverse le bouton, et la lettre suivante arrive plus vite. */
+.btn--dodge {
+  position: relative;
+  overflow: hidden;
+  color: var(--green);
+  border-color: var(--green);
+}
+
+.dodge-streak {
+  position: absolute;
+  inset: 45% -20% auto;
+  height: 3px;
+  background: var(--green);
+  transform: translateX(-120%);
+  animation: dash 420ms var(--ease-out);
+}
+
+@keyframes dash {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+.run--dodge .prompt-text {
+  animation-duration: 300ms;
+}
+
+/* Dyslexie : le verdict tangue, comme des lettres qui ne tiennent pas en place. */
+.verdict--dyslexia {
+  color: var(--ink);
+  animation: wobble 900ms ease-in-out infinite;
+}
+
+@keyframes wobble {
+  25% {
+    transform: skewX(-8deg);
+    letter-spacing: 0.04em;
+  }
+  75% {
+    transform: skewX(6deg);
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Complication : le multiplicateur tombe comme un tampon. */
+.cheer-boost {
+  display: inline-grid;
+  place-items: center;
+  padding: 0.1rem 0.45rem;
+  background: var(--red);
+  color: var(--cream);
+  font-weight: 800;
+  font-size: 0.85rem;
+  transform: rotate(-6deg);
+  animation: stamp 480ms var(--ease-spring) 180ms both;
+}
+
+.cheer--boost .cheer-points {
+  color: var(--red);
+}
+
+@keyframes stamp {
+  from {
+    transform: rotate(-6deg) scale(2.6);
+    opacity: 0;
+  }
+}
+
+.cheer-power {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.22rem;
+}
+
+/* Célérité : le mot part comme un éclair. */
+.cheer--auto {
+  animation: zap 360ms var(--ease-snap) both;
+}
+
+.cheer--auto .cheer-word {
+  background: linear-gradient(90deg, transparent, var(--yellow) 50%, transparent) no-repeat;
+  background-size: 40% 100%;
+  animation: zap-sweep 520ms var(--ease-out) both;
+}
+
+@keyframes zap {
+  from {
+    transform: translateX(-2.5rem) skewX(-20deg);
+    opacity: 0;
+  }
+}
+
+@keyframes zap-sweep {
+  from {
+    background-position: -60% 0;
+  }
+  to {
+    background-position: 160% 0;
+  }
+}
+
+.run--celerity .answer--valid .answer-line {
+  background: var(--yellow);
+}
+
+/* Permutation au lancement. */
+.countdown-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.countdown--permutation .dealt-swap {
+  animation: swap-nudge 1.6s ease-in-out infinite;
+}
+
+@keyframes swap-nudge {
+  50% {
+    transform: translateX(-0.3rem);
+  }
+}
+
+/* L'offre : deux cartes, et le geste propre du pouvoir sous le doigt. */
+.power-cards {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.power-card {
+  min-height: 13rem;
+}
+
+.power-card span {
+  font-size: 0.8rem;
+}
+
+.power-card-uses {
+  margin-top: auto;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.power-card-art {
+  display: block;
+  width: 2.6rem;
+  height: 2.6rem;
+}
+
+.power-card .unlock-card-shape {
+  width: 100%;
+  height: 100%;
+}
+
+.unlock-card--selected .power-card-art {
+  animation: var(--power-gesture, pop-in) 900ms var(--ease-out) both;
+}
+
+.power-card.unlock-card--selected .unlock-card-shape {
+  transform: none;
+}
+
+.power--permutation { --power-gesture: gesture-swap; }
+.power--joker { --power-gesture: gesture-flip; }
+.power--dodge { --power-gesture: gesture-dash; }
+.power--magic { --power-gesture: gesture-twinkle; }
+.power--hush { --power-gesture: gesture-breathe; }
+.power--dyslexia { --power-gesture: gesture-wobble; }
+.power--divination { --power-gesture: gesture-foresee; }
+.power--complication { --power-gesture: gesture-stamp; }
+.power--celerity { --power-gesture: gesture-zap; }
+
+@keyframes gesture-swap {
+  30% { transform: translateX(-30%); }
+  60% { transform: translateX(30%) scaleX(-1); }
+}
+
+@keyframes gesture-flip {
+  50% { transform: rotateY(180deg) rotate(-12deg); }
+}
+
+@keyframes gesture-dash {
+  25% { transform: translateX(-30%); opacity: 1; }
+  45% { transform: translateX(60%); opacity: 0.2; }
+  46% { transform: translateX(-60%); opacity: 0.2; }
+  70% { transform: none; opacity: 1; }
+}
+
+@keyframes gesture-twinkle {
+  40% { transform: rotate(180deg) scale(1.35); filter: brightness(1.5); }
+}
+
+@keyframes gesture-breathe {
+  50% { transform: scale(0.8); opacity: 0.5; }
+}
+
+@keyframes gesture-wobble {
+  20% { transform: rotate(-14deg); }
+  40% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(5deg); }
+}
+
+@keyframes gesture-foresee {
+  0% { filter: blur(0); }
+  40% { filter: blur(4px); transform: scale(1.2); opacity: 0.4; }
+}
+
+@keyframes gesture-stamp {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.6) rotate(-10deg); }
+  45% { transform: scale(0.85); }
+}
+
+@keyframes gesture-zap {
+  10% { transform: translate(-6%, 4%); }
+  20% { transform: translate(6%, -4%); }
+  30% { transform: translate(-4%, 2%); }
+  40% { transform: none; filter: brightness(1.8); }
+}
+
+.power-seal-icon {
+  animation: var(--power-gesture, pop-in) 1100ms var(--ease-out) 200ms both;
 }

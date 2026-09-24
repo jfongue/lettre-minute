@@ -1,6 +1,6 @@
 import { applyRun, levelFor, type Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
-import { normalizeWord } from '../domain/text'
+import { capitalized, normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer } from '../domain/unlocks'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, POWER_CHARGES, type PowerId } from '../domain/powers'
 import {
@@ -178,7 +178,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       if (played.verdict.kind === 'spell') {
         if (played.run === session.run) return session
         // The Joker's word lands in the field, judged like any other draft.
-        const draft = played.verdict.spell === 'joker' ? (played.run.joker?.display ?? '') : ''
+        const draft = played.verdict.spell === 'joker' ? capitalized(played.run.joker?.display ?? '') : ''
         return { ...session, run: played.run, draft, live: draft ? inspect(played.run, draft, session.judge) : null, cheer: null }
       }
       if (played.verdict.kind !== 'accepted' || !played.verdict.found) return session

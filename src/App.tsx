@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { availableCategoryIds, loadPack, loadPacks } from './data/packs'
 import {
   deleteAccount,
@@ -18,12 +18,12 @@ import {
   type ModerationStatus,
 } from './lib/cloud'
 import { isNativeApp, onBackButton, prepareAds, tapFeedback } from './lib/native'
-import { configureSound, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
+import { configureSound, setHush, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
 import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
 import { appendRecord, recordOf, type RunRecord } from './domain/history'
 import { completeBoards, HOUSE_PLAYER, type Boards } from './domain/boards'
 import { NEW_PROFILE, type Profile } from './domain/progression'
-import { RUN_SECONDS, remainingSeconds } from './domain/run'
+import { hasPower, isHushed, nextPrompt, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { LETTER_DECKS, PLAYABLE_LETTERS } from './domain/letters'
 import { commonWord, withExtraWords } from './domain/words'
@@ -238,6 +238,8 @@ export function App() {
     tapFeedback()
     // The combo counts this prompt's finds, this one included: the note climbs with it.
     sound.found(tierSound(session.cheer.tier, session.cheer.approximate), Math.max(0, (session.run?.combo ?? 1) - 1))
+    if (session.cheer.boost > 1) sound.power('complication', 0.7)
+    if (session.cheer.auto) sound.power('celerity', 0.8)
     // Only a new cheer sings; the run it came with is read, not watched.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.cheer])
@@ -264,6 +266,21 @@ export function App() {
   const remaining = session.run ? remainingSeconds(session.run, elapsed) : 0
   const pulseStage = Math.min(2, Math.floor(((RUN_SECONDS - remaining) / RUN_SECONDS) * 3))
   useEffect(() => setPulseStage(pulseStage), [pulseStage])
+
+  // Silence muffles the whole game, music included, and the room opens back up when it lets go.
+  const hushed = session.phase === 'playing' && session.run !== null && isHushed(session.run, elapsed)
+  const wasHushed = useRef(false)
+  useEffect(() => {
+    setHush(hushed)
+    if (wasHushed.current && !hushed && session.phase === 'playing') sound.unhush()
+    wasHushed.current = hushed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hushed])
+
+  const coming = useMemo(
+    () => (session.run && session.judge && hasPower(session.run, 'divination') ? nextPrompt(session.run, session.judge) : null),
+    [session.run, session.judge],
+  )
 
   useEffect(() => {
     if (session.phase === 'playing' && remaining <= 0) dispatch({ type: 'time-up', at: elapsed })
@@ -304,9 +321,9 @@ export function App() {
           })),
         ),
       )
-      return createJudge(packs, { own: session.profile.usage, crowd }, LETTER_DECKS[lang] ?? PLAYABLE_LETTERS)
+      return createJudge(packs, { own: session.profile.usage, crowd }, LETTER_DECKS[lang] ?? PLAYABLE_LETTERS, t.powers.spells)
     },
-    [session.profile.usage, crowd, lang],
+    [session.profile.usage, crowd, lang, t],
   )
 
   const play = useCallback(async () => {
@@ -334,7 +351,7 @@ export function App() {
   const [swapping, setSwapping] = useState(false)
   const swap = useCallback(
     async (index: number) => {
-      if (!session.run || swapping) return
+      if (!session.run || swapping || session.swapsLeft <= 0) return
       const lineup = swapCategory({ dealt: session.run.categoryIds, reserve: session.reserve }, index)
       if (lineup.dealt === session.run.categoryIds) return
       setSwapping(true)
@@ -348,10 +365,11 @@ export function App() {
         setSwapping(false)
       }
     },
-    [session.run, session.reserve, swapping, judgeFor, lang],
+    [session.run, session.reserve, session.swapsLeft, swapping, judgeFor, lang],
   )
 
   const choose = useCallback((categoryId: string) => dispatch({ type: 'choose', categoryId }), [])
+  const choosePower = useCallback((powerId: string) => dispatch({ type: 'choose-power', powerId }), [])
 
   // Proposing costs no clock: in a timed run, a confirmation dialog would take
   // the seconds the player is spending on the word they just failed to place.
@@ -441,6 +459,7 @@ export function App() {
           requestsNews={moderation?.news ?? 0}
           onMenu={(page = 'profile') => setMenuPage(page)}
           onPlay={play}
+          onEquip={(slot, powerId) => dispatch({ type: 'equip', slot, powerId })}
         />
       )}
 
@@ -512,6 +531,7 @@ export function App() {
           key={session.run.seed}
           categoryIds={session.run.categoryIds}
           reserve={session.reserve.length}
+          swaps={session.swapsLeft}
           swapping={swapping}
           onSwap={swap}
           onDone={() => {
@@ -528,6 +548,8 @@ export function App() {
           live={session.live}
           cheer={session.cheer}
           remaining={remaining}
+          hushed={hushed}
+          next={coming}
           onType={(draft) => {
             // Dev only: "@" answers for the tester, who is left to validate.
             if (import.meta.env.DEV && draft.includes('@') && session.run) {
@@ -540,8 +562,9 @@ export function App() {
             }
             dispatch({ type: 'type', draft })
           }}
-          onSubmit={() => dispatch({ type: 'submit', at: elapsed })}
+          onSubmit={(auto) => dispatch({ type: 'submit', at: elapsed, auto })}
           onSkip={() => dispatch({ type: 'skip', at: elapsed })}
+          onReroll={() => dispatch({ type: 'reroll', at: elapsed })}
           proposed={session.proposed}
           onPropose={propose}
         />
@@ -560,6 +583,7 @@ export function App() {
           accountActions={accountActions}
           onAvatar={() => setEditingAvatar(true)}
           onChoose={choose}
+          onChoosePower={choosePower}
           boardsBefore={boardsBefore}
           boardsAfter={boardsAfter}
           me={account && !account.anonymous ? account.name : null}

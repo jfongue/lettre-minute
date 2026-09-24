@@ -241,7 +241,8 @@ export function inspect(run: Run, raw: string, judge: Judge): Verdict {
   const word = normalizeWord(raw)
   if (word === '') return { kind: 'empty', found: null }
   const verdict = judgeWord(run, word, judge)
-  if (verdict.kind === 'accepted') return verdict
+  // Only what the category does not know can be a spell: « chut » already played stays « déjà donné ».
+  if (verdict.kind !== 'unknown' && verdict.kind !== 'wrong-letter') return verdict
   const spell = spellOf(run, raw, judge)
   return spell ? { kind: 'spell', found: null, spell } : verdict
 }

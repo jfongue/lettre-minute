@@ -150,6 +150,26 @@ qu'un nouvel arrivant casserait sans le savoir.
   langue de l'interface : un modérateur ne voit que les mots préfixés de la
   sienne.
 
+- **Les pouvoirs sont des règles du domaine** (`src/domain/powers.ts`,
+  `run.ts`), pas des effets d'interface : la partie porte ses pouvoirs et
+  leurs charges (`Run.powers`, `Run.charges`). « Joker » et « chut » sont des
+  sorts que `inspect()` juge comme n'importe quelle réponse (verdict `spell`),
+  et seulement quand la catégorie ne connaît pas le mot — même déjà joué, un
+  mot connu reste `already`. Leurs mots par langue viennent de l'i18n et
+  passent par le `Judge`, comme le jeu de lettres.
+- **Divination montre ce qu'`advance` distribuera** : `nextPrompt()` ne dépend
+  que de la graine et de `drawn`. Magie tire donc sa lettre sur un autre flux
+  et ne touche pas à `drawn` — sinon l'aperçu mentirait.
+- **Silence ne suspend pas `useElapsed`** : l'horloge murale continue, c'est
+  `remainingSeconds()` qui rend le temps tenu (`heldSeconds`, au plus
+  `HUSH_SECONDS`). Le son s'étouffe par un filtre sur le bus maître
+  (`setHush`), musique comprise.
+- **Permutation vit dans la session** (`swapsLeft`), pas dans la partie : un
+  échange recrée la partie avec `createRun`, qui remettrait ses charges à zéro.
+- **Pouvoirs possédés et portés restent sur l'appareil**, comme les
+  catégories : le serveur ne garde que les totaux. Ils se déduisent du niveau
+  (`powerPicksOwed`), donc un autre appareil se les voit simplement reproposer.
+
 ## Conventions
 
 - Contenu du jeu (catégories, textes d'interface) en français, avec apostrophe

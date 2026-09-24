@@ -5,6 +5,7 @@ import type { ShapeKind } from '../domain/avatar'
 import { Shape } from './bauhaus'
 import { categoryMotif, onTint, type Motif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
+import { PowerBadge } from './PowerIcon'
 
 const ANNOUNCE_MS = 2600
 /** With a reserve, the player needs the time to read the list and decide what to trade. */
@@ -28,6 +29,8 @@ interface CountdownScreenProps {
   categoryIds: readonly string[]
   /** How many owned categories sit out this run and can be swapped in. */
   reserve: number
+  /** Swaps the Permutation power still allows; 0 without it, and nothing can be traded. */
+  swaps: number
   /** A swap is waiting on its dictionary: the count holds until it arrives. */
   swapping: boolean
   onSwap(index: number): void
@@ -35,7 +38,7 @@ interface CountdownScreenProps {
 }
 
 /** Announces the dealt categories, then counts 3, 2, 1 before the clock starts. */
-export function CountdownScreen({ categoryIds, reserve, swapping, onSwap, onDone }: CountdownScreenProps) {
+export function CountdownScreen({ categoryIds, reserve, swaps, swapping, onSwap, onDone }: CountdownScreenProps) {
   // null while the categories are on screen, then the number being shown.
   const t = useT()
   const [count, setCount] = useState<number | null>(null)
@@ -44,11 +47,14 @@ export function CountdownScreen({ categoryIds, reserve, swapping, onSwap, onDone
     done.current = onDone
   })
   const [initial] = useState(categoryIds)
-  const announceMs = reserve > 0 ? ANNOUNCE_WITH_RESERVE_MS : ANNOUNCE_MS
+  // Read once: spending the last swap must not cut the announcement short under the player's finger.
+  const [tradable] = useState(reserve > 0 && swaps > 0)
+  const announceMs = tradable ? ANNOUNCE_WITH_RESERVE_MS : ANNOUNCE_MS
 
   // The whole lineup sings once; after a swap, only the category that came in.
   const heard = useRef<readonly string[]>([])
   useEffect(() => {
+    if (heard.current.length > 0) sound.power('permutation')
     categoryIds.forEach((id, index) => {
       if (heard.current.includes(id)) return
       const delay = heard.current.length === 0 ? TILE_DELAY_S + index * TILE_STAGGER_S : 0
@@ -92,9 +98,9 @@ export function CountdownScreen({ categoryIds, reserve, swapping, onSwap, onDone
     )
   }
 
-  const canSwap = reserve > 0 && !swapping
+  const canSwap = reserve > 0 && swaps > 0 && !swapping
   return (
-    <div className="sheet countdown">
+    <div className={`sheet countdown${tradable ? ' countdown--permutation' : ''}`}>
       <p className="eyebrow countdown-eyebrow">{t.countdown.lineup}</p>
       <ul className="dealt">
         {categoryIds.map((id, index) => {
@@ -109,16 +115,17 @@ export function CountdownScreen({ categoryIds, reserve, swapping, onSwap, onDone
               <button type="button" className="dealt-tile" disabled={!canSwap} onClick={() => onSwap(index)}>
                 <CategoryIcon categoryId={id} tint={onTint(motif.tint)} className="dealt-shape" />
                 <span>{categoryText(t, id).label}</span>
-                {reserve > 0 && <span className="dealt-swap" aria-hidden="true">⇄</span>}
+                {canSwap && <span className="dealt-swap" aria-hidden="true">⇄</span>}
               </button>
             </li>
           )
         })}
       </ul>
-      {reserve > 0 && (
+      {tradable && (
         <>
           <p className="note countdown-hint">
-            {swapping ? t.countdown.swapping : t.countdown.swapHint(reserve)}
+            <PowerBadge id="permutation" left={swaps} />
+            {swapping ? t.countdown.swapping : t.countdown.swapHint(swaps, reserve)}
           </p>
           <span
             className="countdown-fuse"

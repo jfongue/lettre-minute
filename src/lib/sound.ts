@@ -9,6 +9,7 @@
  * never a run.
  */
 
+import type { PowerId } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
 
 /** Each channel's volume, from 0 (off) to 1. */
@@ -34,6 +35,9 @@ const THIRD = 4
 /** The note climbs with each word of a prompt, up to this step, then holds. */
 const TOP_STEP = 10
 const ROOM = 0.28
+/** The Silence filter, open and closed. */
+const OPEN_HZ = 20000
+const HUSHED_HZ = 480
 
 let prefs: SoundPrefs = { master: 1, effects: 0.8, keys: 0.6, music: 0, muted: false }
 let ctx: AudioContext | null = null
@@ -42,6 +46,7 @@ let sfx: GainNode
 let keysNode: GainNode
 let music: GainNode
 let duckNode: GainNode
+let hushNode: BiquadFilterNode
 let noise: AudioBuffer
 
 function deg(step: number, octave = 0): number {
@@ -71,7 +76,13 @@ function context(): AudioContext | null {
   comp.ratio.value = 3
   const master = c.createGain()
   masterNode = master
-  master.connect(comp)
+  // Wide open, until Silence closes it: everything the game plays goes through.
+  hushNode = c.createBiquadFilter()
+  hushNode.type = 'lowpass'
+  hushNode.frequency.value = OPEN_HZ
+  hushNode.Q.value = 0.9
+  master.connect(hushNode)
+  hushNode.connect(comp)
   comp.connect(c.destination)
 
   const length = c.sampleRate * 2.4
@@ -269,6 +280,62 @@ function cue(work: (c: AudioContext, t: number) => void, level = prefs.effects):
 
 export type Timbre = 'marimba' | 'wood' | 'glass'
 
+/**
+ * Each power's signature: one gesture per power, heard when its card is shown
+ * and again whenever it acts in a run, so the ear learns which one just fired.
+ */
+const SIGNATURES: Record<PowerId, (c: AudioContext, t: number, v: number) => void> = {
+  // Two notes trading places.
+  permutation(c, t, v) {
+    tone(c, 'sine', deg(2), t, 0.3, sfx, 0.22 * v, 0.01, deg(7))
+    tone(c, 'sine', deg(7), t, 0.3, sfx, 0.18 * v, 0.01, deg(2))
+    wood(c, deg(7), t + 0.3, 0.45 * v, sfx)
+    wood(c, deg(2), t + 0.42, 0.4 * v, sfx)
+  },
+  // A sly chromatic slide, off the scale on purpose, then a wink.
+  joker(c, t, v) {
+    ;[7, 6, 5].forEach((n, i) => pizz(c, semi(TONIC, n - 12), t + i * 0.11, 0.6 * v, sfx))
+    glock(c, deg(7, 1), t + 0.4, 0.55 * v, sfx)
+  },
+  // A dash of air, rising.
+  dodge(c, t, v) {
+    hiss(c, t, 0.2, sfx, 0.3 * v, 'bandpass', 900, 2.5, 7000, 0.02)
+    tone(c, 'sine', deg(0), t, 0.16, sfx, 0.1 * v, 0.01, deg(9, 1))
+  },
+  // Sparkles climbing.
+  magic(c, t, v) {
+    ;[0, 2, 4, 5, 7, 9].forEach((step, i) => glock(c, deg(step, 1), t + i * 0.045, (0.45 - i * 0.03) * v, sfx))
+    glass(c, deg(12, 1), t + 0.3, 0.35 * v, sfx)
+  },
+  // A long breath out, and the floor of the room.
+  hush(c, t, v) {
+    hiss(c, t, 1.1, sfx, 0.2 * v, 'lowpass', 1400, 0.7, 300, 0.3)
+    piano(c, TONIC / 2, t + 0.05, 0.6 * v, sfx, 2.4)
+  },
+  // One note that cannot settle on its pitch.
+  dyslexia(c, t, v) {
+    tone(c, 'triangle', deg(5), t, 0.18, sfx, 0.16 * v, 0.004, semi(deg(5), -1.2))
+    tone(c, 'triangle', semi(deg(4), 0.6), t + 0.16, 0.22, sfx, 0.14 * v, 0.004, deg(4))
+    wood(c, deg(4), t + 0.16, 0.3 * v, sfx)
+  },
+  // A bell tuned between the notes, far away.
+  divination(c, t, v) {
+    bell(c, deg(9, 1), t, 0.45 * v, sfx, 2.2, 1.41)
+    glass(c, deg(4, 1), t + 0.12, 0.25 * v, sfx)
+  },
+  // Weight under the note: a low fifth.
+  complication(c, t, v) {
+    piano(c, TONIC / 2, t, 0.7 * v, sfx, 1.2)
+    piano(c, semi(TONIC / 2, 7), t + 0.06, 0.55 * v, sfx, 1.2)
+    bell(c, TONIC * 2, t + 0.06, 0.3 * v, sfx, 1, 2)
+  },
+  // A zip, straight up.
+  celerity(c, t, v) {
+    tone(c, 'sine', 420, t, 0.12, sfx, 0.16 * v, 0.003, 2600)
+    glock(c, deg(9, 1), t + 0.1, 0.45 * v, sfx)
+  },
+}
+
 export const sound = {
   key(deleting = false): void {
     cue((c, t) => {
@@ -375,6 +442,20 @@ export const sound = {
       ;[0, 2, 4, 7].forEach((step, i) => glock(c, deg(step, 1), t + i * 0.06, 0.5, sfx))
       bell(c, deg(7, 2), t + 0.26, 0.55, sfx, 1.6)
       glass(c, deg(9, 1), t + 0.26, 0.4, sfx)
+    })
+  },
+  /** A power's signature; `v` below 1 for the quiet reminders of a power always on. */
+  power(id: PowerId, v = 1): void {
+    cue((c, t) => {
+      SIGNATURES[id](c, t, v)
+      duck(t)
+    })
+  },
+  /** Silence lets go: the room opens back up on a rising glass. */
+  unhush(): void {
+    cue((c, t) => {
+      glass(c, deg(4), t + 0.2, 0.3, sfx)
+      glass(c, deg(9), t + 0.35, 0.25, sfx)
     })
   },
   click(): void {
@@ -487,6 +568,14 @@ function syncMusic(): void {
 export function setMusic(mode: MusicMode): void {
   wanted = mode
   syncMusic()
+}
+
+/** Silence muffles everything the game plays, music included, until it lets go. */
+export function setHush(on: boolean): void {
+  safely(() => {
+    if (!ctx) return
+    hushNode.frequency.setTargetAtTime(on ? HUSHED_HZ : OPEN_HZ, ctx.currentTime, on ? 0.25 : 0.5)
+  })
 }
 
 /** 0, 1 or 2: the pulse thickens as the run's clock runs down. */

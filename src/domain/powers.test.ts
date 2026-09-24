@@ -145,6 +145,12 @@ describe('Silence', () => {
     expect(remainingSeconds(hushed, 40)).toBe(RUN_SECONDS - 40 + HUSH_SECONDS)
   })
 
+  it('never takes over a word the category knows, even one already played', () => {
+    const run = onLetter(runWith('hush'), 'A')
+    const played = submit(run, 'Animal0', judge, 1).run
+    expect(inspect({ ...played, prompt: run.prompt }, 'Animal0', judge).kind).toBe('already')
+  })
+
   it('does nothing without the power, or a second time', () => {
     expect(inspect(runWith(), 'chut', judge).kind).not.toBe('spell')
     const spent = submit(runWith('hush'), 'chut', judge, 5).run

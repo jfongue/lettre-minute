@@ -5,8 +5,9 @@ secondes : on écrit, le jeu valide à la frappe, et les mots que personne
 n'écrit rapportent le plus.
 
 - **Cinq catégories au plus par partie**, tirées parmi celles que le joueur
-  possède et annoncées avant un compte à rebours de trois secondes. Pendant
-  l'annonce, toucher une catégorie l'échange contre une de la réserve.
+  possède et annoncées avant un compte à rebours de trois secondes. Avec le
+  pouvoir Permutation, toucher une catégorie pendant l'annonce l'échange
+  contre une de la réserve, deux fois au plus.
 - **Validation immédiate** contre un dictionnaire embarqué par langue (~40 000
   mots en français, 115 000 en anglais) : Wikidata pour les entités, le Wiktionnaire pour les noms
   communs, et les formes fléchies — « chats » et « bleue » sont acceptés, et
@@ -20,7 +21,7 @@ n'écrit rapportent le plus.
 - **Bonus de rareté** : un mot rare dans le français d'aujourd'hui rapporte plus
   qu'un mot courant, et ce bonus s'érode si le joueur le ressort à chaque partie
   ou si tout le monde l'écrit.
-- **Passer** coûte cinq secondes de chrono, jamais de points.
+- **Passer** coûte cinq secondes de chrono (trois sous Esquive), jamais de points.
 - **Une faute d'une lettre passe** — lettres interverties, lettre oubliée, lettre
   en trop, lettre fausse : `thailnade` vaut `Thaïlande`. Mais une réponse
   corrigée est payée au tarif de base, si rare que soit le mot : le bonus
@@ -30,9 +31,21 @@ n'écrit rapportent le plus.
 - **Niveaux et déblocages** : on commence avec trois catégories ; chaque niveau
   en propose trois nouvelles, le joueur en garde une. L'offre suivante évite
   de reproposer les mêmes tant qu'il en reste d'autres.
+- **Pouvoirs** : le premier vient avec la sixième catégorie (niveau 4), puis
+  un tous les deux niveaux, choisi entre deux cartes — l'offre suivante évite
+  celle qu'on vient de voir. On en porte deux, choisis sous « Jouer ».
+  Permutation (deux échanges au lancement), Tricherie (écrire « Joker » :
+  le jeu écrit un mot juste, payé au tarif de base, une fois), Esquive
+  (passer coûte 3 s), Magie (toucher la lettre pour en tirer une autre, deux
+  fois), Silence (écrire « chut » : le chrono s'arrête jusqu'au prochain mot,
+  dix secondes au plus, et tout le son est étouffé, une fois), Dyslexie (deux
+  fautes passent dès six lettres), Divination (la catégorie et la lettre
+  suivantes sont affichées), Complication (peu commun ×1,15, rare et très rare
+  ×1,3) et Célérité (un mot exact se valide seul). Chacun a sa couleur, son
+  icône, son geste et son son, qu'on entend en touchant sa carte.
 - **Fin de partie en deux temps** : le score, puis chaque mot trouvé, un par
-  un ; ensuite l'XP qui monte, la catégorie à choisir, les nouveautés d'avatar
-  et le résumé.
+  un ; ensuite l'XP qui monte, la catégorie puis le pouvoir à choisir, les
+  nouveautés d'avatar et le résumé.
 - **Compte et avatar** : après une partie, le joueur anonyme peut créer un
   compte (nom, adresse, mot de passe) ou se connecter, et la partie y entre
   aussitôt. L'avatar est une tuile de l'affiche — cent formes animées, trente
@@ -102,7 +115,9 @@ considérer un changement terminé.
 | Bonus de rareté | jusqu'à +20, selon la notoriété du mot |
 | Mot juste à une lettre près | 10 points, sans bonus de rareté |
 | Série de mots validés | ×1,1 par mot enchaîné, plafonné à ×2 |
-| Passer | −5 secondes, série remise à zéro |
+| Passer | −5 secondes (−3 sous Esquive), série remise à zéro |
+| Mot du Joker, ou corrigé de deux lettres (Dyslexie) | 10 points, sans bonus de rareté |
+| Complication | ×1,15 sur un mot peu commun, ×1,3 sur un rare ou très rare |
 
 Une petite partie tourne autour de 100 points, une partie énorme — une
 trentaine de mots, souvent rares, en longue série — approche 1 000. Chaque point

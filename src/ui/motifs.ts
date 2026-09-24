@@ -1,4 +1,6 @@
+import type { CSSProperties } from 'react'
 import type { ShapeKind } from '../domain/avatar'
+import type { PowerId } from '../domain/powers'
 import { CATALOGUE } from '../domain/catalogue'
 
 export type { ShapeKind } from '../domain/avatar'
@@ -32,3 +34,23 @@ export function onTint(tint: Tint): Tint {
   if (tint === 'ink') return 'paper'
   return tint === 'yellow' || tint === 'pink' || tint === 'cream' ? 'black' : 'cream'
 }
+
+/** Each power keeps one colour everywhere: its card, its slot, its badge in a run, its effect. */
+export const POWER_TINTS: Record<PowerId, Tint> = {
+  permutation: 'blue',
+  joker: 'red',
+  dodge: 'green',
+  magic: 'yellow',
+  hush: 'ink',
+  dyslexia: 'pink',
+  divination: 'blue',
+  complication: 'red',
+  celerity: 'yellow',
+}
+
+/** The block of colour a power sits on, and the ink that reads on it. */
+export function powerGround(id: PowerId): CSSProperties {
+  const tint = POWER_TINTS[id]
+  return { background: `var(--${tint})`, color: `var(--${onTint(tint)})` }
+}
+

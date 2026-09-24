@@ -1,5 +1,6 @@
 import { PALETTE, type Milestone } from '../domain/avatar'
 import { CATALOGUE } from '../domain/catalogue'
+import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
 import type { AuthError, FriendRequestOutcome, InviteOutcome, VoteOutcome } from '../lib/cloud'
 
@@ -30,7 +31,7 @@ export const fr = {
     bestCombo: 'meilleure série',
     myCategories: 'Mes catégories',
     reserve: (perRun: number) =>
-      `Chaque partie en tire ${perRun} ; les autres restent en réserve pour un échange au lancement.`,
+      `Chaque partie en tire ${perRun} ; les autres restent en réserve, et le pouvoir Permutation en échange deux au lancement.`,
     links: { profile: 'Profil', stats: 'Statistiques', requests: 'Mes demandes', categories: 'Catégories' },
     news: (count: number) => `${count} ${plural(count, 'nouveauté', 'nouveautés')}`,
   },
@@ -38,7 +39,7 @@ export const fr = {
   countdown: {
     lineup: 'Au programme',
     swapping: 'Échange en cours…',
-    swapHint: (reserve: number) => `Touche un thème pour l’échanger · ${reserve} en réserve`,
+    swapHint: (swaps: number, reserve: number) => `Permutation : touche un thème pour l’échanger · ${swaps} ${plural(swaps, 'échange', 'échanges')} · ${reserve} en réserve`,
   },
 
   run: {
@@ -348,6 +349,54 @@ export const fr = {
           return `série de ${milestone.at}`
       }
     },
+  },
+
+  powers: {
+    /** Name and what the power does, by `PowerId`. */
+    names: {
+      permutation: ['Permutation', 'Au lancement, touche un thème pour l’échanger contre un de ta réserve. Deux fois.'],
+      joker: ['Tricherie', 'Une fois par partie, écris « Joker » et valide : le jeu écrit un mot juste à ta place, payé au tarif de base.'],
+      dodge: ['Esquive', 'Passer ne coûte que 3 secondes au lieu de 5.'],
+      magic: ['Magie', 'Deux fois par partie, touche la lettre proposée pour en tirer une autre.'],
+      hush: ['Silence', 'Une fois par partie, écris « chut » et valide : le chrono s’arrête jusqu’à ton prochain mot, dix secondes au plus.'],
+      dyslexia: ['Dyslexie', 'Deux fautes passent sur les mots de six lettres et plus, payés au tarif de base.'],
+      divination: ['Divination', 'Tu vois la catégorie et la lettre qui viennent ensuite.'],
+      complication: ['Complication', 'Les mots peu communs valent ×1,15, les rares ×1,3.'],
+      celerity: ['Célérité', 'Un mot juste se valide tout seul, sans appuyer sur Entrée.'],
+    } satisfies Record<PowerId, readonly [string, string]> as Record<PowerId, readonly [name: string, description: string]>,
+    /** What the player types to cast a spell; the first is the one the descriptions name. */
+    spells: { joker: ['joker'], hush: ['chut'] } satisfies Record<Spell, readonly string[]> as Record<Spell, readonly string[]>,
+    title: 'Pouvoirs',
+    empty: 'Libre',
+    slot: (index: number, name: string | null) => `Pouvoir ${index} : ${name ?? 'libre'}`,
+    pickTitle: 'Choisis un pouvoir',
+    remove: 'Retirer',
+    close: 'Fermer',
+    worn: 'équipé',
+    uses: (count: number) => `${count} ${plural(count, 'fois', 'fois')} par partie`,
+    always: 'toute la partie',
+    offerTitle: 'Nouveau pouvoir',
+    joined: 'rejoint tes pouvoirs',
+    castJoker: 'Joker ! Valide pour tirer un mot',
+    castHush: 'Chut… valide pour arrêter le chrono',
+    joker: 'mot du joker',
+    hushed: 'Chrono suspendu · respire',
+    /** What the game says, typed live, while Silence holds the clock. */
+    hushLines: [
+      'Okay, ça va ?',
+      'Respire, tu gères.',
+      'Tout va bien se passer.',
+      'T’es pas loin de trouver !',
+      'Cool, ce pouvoir, non ?',
+      'Prends ton temps, je t’attends.',
+      'Le chrono dort. Pas toi.',
+      'Un mot, et on repart.',
+    ],
+    twoLettersOff: 'à deux lettres près…',
+    next: 'Ensuite',
+    reroll: (letter: string, left: number) => `Changer la lettre ${letter} · encore ${left}`,
+    boost: (factor: number) => `×${factor.toLocaleString('fr-FR')}`,
+    auto: 'validé tout seul',
   },
 
   tiers: {

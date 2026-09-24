@@ -9,6 +9,8 @@ import { Figure, Shape } from './bauhaus'
 import type { MenuPage } from './Menu'
 import type { ShapeKind, Tint } from './motifs'
 import { PageLinks, type LinkedPage } from './PageLinks'
+import { PowerSlots } from './PowerSlots'
+import type { PowerId } from '../domain/powers'
 import { useSwipe } from './useSwipe'
 
 const HOME_LINKS: readonly LinkedPage[] = ['profile', 'stats', 'requests', 'categories']
@@ -26,6 +28,7 @@ interface HomeScreenProps {
   requestsNews: number
   onMenu(page?: MenuPage): void
   onPlay(): void
+  onEquip(slot: number, powerId: PowerId | null): void
 }
 
 export function HomeScreen({
@@ -38,6 +41,7 @@ export function HomeScreen({
   requestsNews,
   onMenu,
   onPlay,
+  onEquip,
 }: HomeScreenProps) {
   const t = useT()
   const progress = levelProgress(profile.xp)
@@ -67,6 +71,7 @@ export function HomeScreen({
           </span>
         </button>
         {error && <p className="note note--warn">{error}</p>}
+        <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} />
       </div>
 
       <section className="stack">

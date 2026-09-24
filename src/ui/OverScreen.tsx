@@ -15,6 +15,8 @@ import { Burst, Figure, LetterMark, Shape, TierTag } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { RankMove } from './RankMove'
 import { UnlockScreen } from './UnlockScreen'
+import { PowerOfferScreen } from './PowerOfferScreen'
+import { powerPicksOwed } from '../domain/powers'
 import { reducedMotion, useCountUp } from './useCountUp'
 
 interface OverScreenProps {
@@ -37,21 +39,23 @@ interface OverScreenProps {
   me?: string | null
   onAvatar(): void
   onChoose(categoryId: string): void
+  onChoosePower(powerId: string): void
   onReplay(): void
   onHome(): void
 }
 
 export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: OverScreenProps) {
-  const { profile, profileBefore, onChoose } = summary
+  const { profile, profileBefore, onChoose, onChoosePower } = summary
   // Held from the pick to the end of its celebration: the offer is off the
   // table as soon as the pick is kept, and the screen must outlive it.
-  const [celebrating, setCelebrating] = useState(false)
+  const [celebrating, setCelebrating] = useState<'category' | 'power' | null>(null)
   // Each offer gets a fresh screen: a second pick owed deals the next one.
   const [round, setRound] = useState(0)
 
   if (!revealed) return <Reveal run={run} previousBest={profileBefore.runs > 0 ? profileBefore.bestScore : null} onNext={onRevealed} />
-  if (profile.offer.length > 0 || celebrating) {
-    const levelled = levelFor(profile.xp) > levelFor(profileBefore.xp)
+  const levelled = levelFor(profile.xp) > levelFor(profileBefore.xp)
+  // Categories first, then powers: the sixth category and the first power come on the same level.
+  if ((profile.offer.length > 0 && celebrating !== 'power') || celebrating === 'category') {
     return (
       <UnlockScreen
         key={round}
@@ -61,11 +65,29 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
         level={levelled ? levelFor(profile.xp) : null}
         withAd={adsSupported() && pickShowsAd(profile)}
         onChoose={(id) => {
-          setCelebrating(true)
+          setCelebrating('category')
           onChoose(id)
         }}
         onDone={() => {
-          setCelebrating(false)
+          setCelebrating(null)
+          setRound(round + 1)
+        }}
+      />
+    )
+  }
+  if (profile.powerOffer.length > 0 || celebrating === 'power') {
+    return (
+      <PowerOfferScreen
+        key={`power-${round}`}
+        offer={profile.powerOffer}
+        owed={powerPicksOwed(profile)}
+        level={levelled ? levelFor(profile.xp) : null}
+        onChoose={(id) => {
+          setCelebrating('power')
+          onChoosePower(id)
+        }}
+        onDone={() => {
+          setCelebrating(null)
           setRound(round + 1)
         }}
       />
