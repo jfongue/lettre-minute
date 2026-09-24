@@ -108,6 +108,13 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Se connecter doit attendre l'envoi de la partie** (`pushing` dans
   `src/App.tsx`) : la fusion déplace les parties du compte anonyme puis
   l'efface, et une partie encore en vol partirait avec lui.
+- **La pub se prépare avant l’offre qui la porte** (`adsDue`,
+  `src/domain/unlocks.ts`) : consentement et chargement prennent des secondes,
+  et une pub pas encore chargée au moment du choix est sautée plutôt que
+  montrée en retard. Le choix est encaissé avant la pub : fermer l’app pendant
+  qu’elle joue ne coûte pas la catégorie. Sans `VITE_ADMOB_INTERSTITIAL_ID` ni
+  `admobAppId` (`android/gradle.properties`), le build sert les pubs de test de
+  Google — ne jamais cliquer sur les vraies depuis son propre téléphone.
 - **Demontoon est ajouté côté client** (`completeBoards`, `src/domain/boards.ts`),
   pas en base : il ne figure qu'aux classements de score, et disparaît dès que
   le compte de ce nom a une vraie partie sur la période.
