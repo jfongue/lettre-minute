@@ -103,6 +103,9 @@ async function openTab(): Promise<Tab> {
 
 const frequencies = new Map<Locale, Map<string, number>>()
 
+/** Words the dictionary accepts but a store page should not put forward: a ninja is no Dutch trade. */
+const AVOID = new Set(['ninja', 'kunst', 'feminisme', 'féminisme'])
+
 /**
  * The words of the prompt's category on its letter that any player would
  * give: both said often in the language and described by many Wikipedias.
@@ -120,6 +123,7 @@ function answersFor(lang: Locale, label: string, letter: string, used: Set<strin
   return [...pack.entries.values()]
     .filter((entry) => entry.display.length >= 4 && entry.display.length <= 14 && !entry.display.includes(' '))
     .filter((entry) => /[a-zà-ÿ]/.test(entry.display))
+    .filter((entry) => !AVOID.has(entry.display.toLowerCase()))
     .filter((entry) => compactWord(entry.display).toUpperCase().startsWith(letter) && !used.has(entry.key))
     .filter((entry) => pack.entries.get(compactWord(entry.key))?.display === entry.display)
     .map((entry) => ({ entry, score: Math.log1p(entry.sitelinks) * Math.log1p(said(entry.display) * 1e6) }))
