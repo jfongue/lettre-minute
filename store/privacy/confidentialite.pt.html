@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacidade — Lettre Minute</title>
+<meta name="description" content="O que o Lettre Minute guarda sobre seus jogadores, e como apagar tudo." />
+<style>
+  :root {
+    --paper: #f6f1e7; --raised: #fffcf6; --ink: #1b1914; --soft: #69645a; --accent: #c2472c; --rule: rgba(27, 25, 20, 0.1);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #121110; --raised: #1c1a17; --ink: #f2ece1; --soft: #a39b8c; --accent: #ec7e5f; --rule: rgba(242, 236, 225, 0.11); }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { width: min(40rem, 100%); margin: 0 auto; padding: 2.5rem 1rem 4rem; }
+  h1 { font-family: 'Iowan Old Style', Georgia, serif; font-weight: 500; font-size: 2.2rem; line-height: 1.1; margin: 0 0 0.25rem; }
+  h1 em { color: var(--accent); }
+  h2 { font-size: 1.05rem; margin: 2rem 0 0.5rem; }
+  p, li { color: var(--soft); }
+  strong { color: var(--ink); font-weight: 600; }
+  ul { padding-left: 1.2rem; }
+  li + li { margin-top: 0.35rem; }
+  .meta { font-size: 0.85rem; margin: 0 0 2rem; }
+  .card { background: var(--raised); border: 1px solid var(--rule); border-radius: 16px; padding: 1rem 1.25rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Lettre <em>Minute</em></h1>
+  <p class="meta">Política de privacidade · em vigor a partir de 23 de setembro de 2026</p>
+
+  <div class="card">
+    <p><strong>Resumindo:</strong> nenhuma conta para criar, sem anúncios, sem
+    rastreadores, nada é vendido. O jogo guarda suas pontuações e suas
+    palavras para fazer funcionar o ranking e o bônus de raridade, e você pode
+    apagar tudo na tela inicial.</p>
+  </div>
+
+  <h2>O que fica no seu aparelho</h2>
+  <p>Seu nível, seu XP, seus recordes e as palavras que você sugeriu ficam
+  salvos no armazenamento local do aplicativo. Eles só saem do aparelho para
+  a sincronização descrita abaixo.</p>
+
+  <h2>O que o servidor guarda</h2>
+  <p>Na primeira vez que você abre o jogo, ele atribui a você um
+  <strong>identificador anônimo</strong>: nenhum nome, nenhum endereço de
+  e-mail e nenhum número de telefone é solicitado. Com esse identificador são
+  guardados:</p>
+  <ul>
+    <li><strong>suas partidas</strong>: pontuação, número de palavras, melhor
+    sequência, número de pulos, data;</li>
+    <li><strong>as palavras encontradas</strong> em cada partida, que servem
+    para medir quais palavras todo mundo escreve;</li>
+    <li><strong>seu progresso</strong>: XP, número de partidas, recordes;</li>
+    <li><strong>as palavras que você sugere</strong> para completar o
+    dicionário.</li>
+  </ul>
+  <p>O ranking mostra a melhor pontuação de cada jogador com o nome
+  “Anônimo”. As palavras jogadas nunca são mostradas junto com a identidade
+  de quem as escreveu.</p>
+
+  <h2>Por quê</h2>
+  <p>Para fazer o jogo funcionar, e nada mais: o ranking, o bônus de raridade
+  (uma palavra que todo mundo escreve vale menos) e a inclusão no dicionário
+  das palavras pedidas por vários jogadores. A base legal é a execução do
+  serviço que você utiliza.</p>
+
+  <h2>Quem tem acesso</h2>
+  <p>Os dados são hospedados pelo <strong>Supabase</strong>, que atua como
+  operador e não os utiliza para fins próprios. Nenhum dado é vendido,
+  alugado ou compartilhado com anunciantes. O aplicativo não contém anúncios,
+  nem ferramentas de medição de audiência, nem SDKs de rastreamento de
+  terceiros.</p>
+
+  <h2 id="effacer">Apagar seus dados</h2>
+  <p>Na tela inicial, lá embaixo: <strong>Apagar meus dados</strong>, depois
+  <strong>Apagar tudo</strong>. Seu identificador, suas partidas, suas
+  palavras jogadas e suas sugestões são excluídos do servidor imediatamente,
+  e o progresso é zerado no aparelho. Só uma palavra que já entrou no
+  dicionário continua lá, sem nenhum vínculo com você.</p>
+  <p>Desinstalar o aplicativo apaga os dados do aparelho, mas não os do
+  servidor: apague-os antes pelo jogo, ou escreva para nós.</p>
+
+  <h2>Retenção</h2>
+  <p>Até você apagá-los, pelo jogo ou mediante simples solicitação.</p>
+
+  <h2>Crianças</h2>
+  <p>O jogo é adequado para todas as idades e não pede nenhuma informação
+  pessoal; ele não é voltado especificamente para crianças.</p>
+
+  <h2>Seus direitos e contato</h2>
+  <p>Você tem direito de acesso, retificação, exclusão e oposição (RGPD).
+  Para exercê-los, ou para qualquer dúvida:
+  <a href="mailto:fongue.jeremy@gmail.com">fongue.jeremy@gmail.com</a>. Você também pode apresentar uma reclamação à
+  <a href="https://www.cnil.fr/fr/plaintes">CNIL</a>.</p>
+</main>
+</body>
+</html>

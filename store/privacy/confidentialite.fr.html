@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Confidentialité — Lettre Minute</title>
+<meta name="description" content="Ce que Lettre Minute conserve sur ses joueurs, et comment tout effacer." />
+<style>
+  :root {
+    --paper: #f6f1e7; --raised: #fffcf6; --ink: #1b1914; --soft: #69645a; --accent: #c2472c; --rule: rgba(27, 25, 20, 0.1);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #121110; --raised: #1c1a17; --ink: #f2ece1; --soft: #a39b8c; --accent: #ec7e5f; --rule: rgba(242, 236, 225, 0.11); }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { width: min(40rem, 100%); margin: 0 auto; padding: 2.5rem 1rem 4rem; }
+  h1 { font-family: 'Iowan Old Style', Georgia, serif; font-weight: 500; font-size: 2.2rem; line-height: 1.1; margin: 0 0 0.25rem; }
+  h1 em { color: var(--accent); }
+  h2 { font-size: 1.05rem; margin: 2rem 0 0.5rem; }
+  p, li { color: var(--soft); }
+  strong { color: var(--ink); font-weight: 600; }
+  ul { padding-left: 1.2rem; }
+  li + li { margin-top: 0.35rem; }
+  .meta { font-size: 0.85rem; margin: 0 0 2rem; }
+  .card { background: var(--raised); border: 1px solid var(--rule); border-radius: 16px; padding: 1rem 1.25rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Lettre <em>Minute</em></h1>
+  <p class="meta">Politique de confidentialité · en vigueur au 23 septembre 2026</p>
+
+  <div class="card">
+    <p><strong>En bref :</strong> pas de compte à créer, pas de publicité, pas de
+    traceur, rien de revendu. Le jeu garde vos scores et vos mots pour faire
+    marcher le classement et le bonus de rareté, et vous pouvez tout effacer
+    depuis l’écran d’accueil.</p>
+  </div>
+
+  <h2>Ce qui reste sur votre appareil</h2>
+  <p>Votre niveau, votre XP, vos records et les mots que vous avez proposés
+  sont enregistrés dans le stockage local de l’application. Ils ne quittent
+  l’appareil que pour la synchronisation décrite ci-dessous.</p>
+
+  <h2>Ce que le serveur conserve</h2>
+  <p>À la première ouverture, le jeu vous attribue un <strong>identifiant
+  anonyme</strong> : aucun nom, aucune adresse e-mail, aucun numéro de
+  téléphone n’est demandé. Sous cet identifiant sont conservés :</p>
+  <ul>
+    <li><strong>vos parties</strong> : score, nombre de mots, meilleure série,
+    nombre de passes, date ;</li>
+    <li><strong>les mots trouvés</strong> dans chaque partie, qui servent à
+    mesurer quels mots tout le monde écrit ;</li>
+    <li><strong>votre progression</strong> : XP, nombre de parties, records ;</li>
+    <li><strong>les mots que vous proposez</strong> pour compléter le
+    dictionnaire.</li>
+  </ul>
+  <p>Le classement affiche le meilleur score de chaque joueur sous le nom
+  « Anonyme ». Les mots joués ne sont jamais montrés avec l’identité de celui
+  qui les a écrits.</p>
+
+  <h2>Pourquoi</h2>
+  <p>Pour faire fonctionner le jeu, et rien d’autre : le classement, le bonus de
+  rareté (un mot que tout le monde écrit rapporte moins) et l’ajout au
+  dictionnaire des mots réclamés par plusieurs joueurs. La base légale est
+  l’exécution du service que vous utilisez.</p>
+
+  <h2>Qui y a accès</h2>
+  <p>Les données sont hébergées par <strong>Supabase</strong>, qui agit comme
+  sous-traitant et ne les exploite pas pour son compte. Aucune donnée n’est
+  vendue, louée ou partagée avec des annonceurs. L’application ne contient ni
+  publicité, ni outil de mesure d’audience, ni SDK tiers de suivi.</p>
+
+  <h2 id="effacer">Effacer vos données</h2>
+  <p>Sur l’écran d’accueil, en bas : <strong>Effacer mes données</strong>, puis
+  <strong>Tout effacer</strong>. Votre identifiant, vos parties, vos mots
+  joués et vos propositions sont supprimés du serveur immédiatement, et la
+  progression est remise à zéro sur l’appareil. Seul un mot déjà entré au
+  dictionnaire y reste, sans lien avec vous.</p>
+  <p>Désinstaller l’application efface les données de l’appareil, mais pas
+  celles du serveur : effacez-les d’abord depuis le jeu, ou écrivez-nous.</p>
+
+  <h2>Conservation</h2>
+  <p>Jusqu’à ce que vous les effaciez, depuis le jeu ou sur simple demande.</p>
+
+  <h2>Enfants</h2>
+  <p>Le jeu convient à tous les âges et ne demande aucune information
+  personnelle ; il ne vise pas spécifiquement les enfants.</p>
+
+  <h2>Vos droits et contact</h2>
+  <p>Vous disposez d’un droit d’accès, de rectification, d’effacement et
+  d’opposition (RGPD). Pour l’exercer, ou pour toute question :
+  <a href="mailto:fongue.jeremy@gmail.com">fongue.jeremy@gmail.com</a>. Vous pouvez aussi saisir la
+  <a href="https://www.cnil.fr/fr/plaintes">CNIL</a>.</p>
+</main>
+</body>
+</html>

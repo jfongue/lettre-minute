@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacy — Lettre Minute</title>
+<meta name="description" content="What Lettre Minute keeps about its players, and how to erase it all." />
+<style>
+  :root {
+    --paper: #f6f1e7; --raised: #fffcf6; --ink: #1b1914; --soft: #69645a; --accent: #c2472c; --rule: rgba(27, 25, 20, 0.1);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #121110; --raised: #1c1a17; --ink: #f2ece1; --soft: #a39b8c; --accent: #ec7e5f; --rule: rgba(242, 236, 225, 0.11); }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { width: min(40rem, 100%); margin: 0 auto; padding: 2.5rem 1rem 4rem; }
+  h1 { font-family: 'Iowan Old Style', Georgia, serif; font-weight: 500; font-size: 2.2rem; line-height: 1.1; margin: 0 0 0.25rem; }
+  h1 em { color: var(--accent); }
+  h2 { font-size: 1.05rem; margin: 2rem 0 0.5rem; }
+  p, li { color: var(--soft); }
+  strong { color: var(--ink); font-weight: 600; }
+  ul { padding-left: 1.2rem; }
+  li + li { margin-top: 0.35rem; }
+  .meta { font-size: 0.85rem; margin: 0 0 2rem; }
+  .card { background: var(--raised); border: 1px solid var(--rule); border-radius: 16px; padding: 1rem 1.25rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Lettre <em>Minute</em></h1>
+  <p class="meta">Privacy policy · effective 23 September 2026</p>
+
+  <div class="card">
+    <p><strong>In short:</strong> no account to create, no ads, no trackers,
+    nothing sold. The game keeps your scores and your words to run the
+    leaderboard and the rarity bonus, and you can erase everything from the
+    home screen.</p>
+  </div>
+
+  <h2>What stays on your device</h2>
+  <p>Your level, your XP, your records and the words you have suggested are
+  saved in the app’s local storage. They only leave the device for the
+  sync described below.</p>
+
+  <h2>What the server keeps</h2>
+  <p>The first time you open it, the game gives you an <strong>anonymous
+  identifier</strong>: no name, no email address and no phone number is
+  asked for. Kept under this identifier are:</p>
+  <ul>
+    <li><strong>your games</strong>: score, number of words, best streak,
+    number of skips, date;</li>
+    <li><strong>the words found</strong> in each game, used to measure
+    which words everyone writes;</li>
+    <li><strong>your progress</strong>: XP, number of games, records;</li>
+    <li><strong>the words you suggest</strong> to complete the
+    dictionary.</li>
+  </ul>
+  <p>The leaderboard shows each player’s best score under the name
+  “Anonymous”. Words played are never shown alongside the identity of the
+  person who wrote them.</p>
+
+  <h2>Why</h2>
+  <p>To make the game work, and nothing else: the leaderboard, the rarity
+  bonus (a word everyone writes earns less) and adding to the dictionary the
+  words requested by several players. The legal basis is the performance of
+  the service you are using.</p>
+
+  <h2>Who has access</h2>
+  <p>The data is hosted by <strong>Supabase</strong>, which acts as a
+  processor and does not use it for its own purposes. No data is sold,
+  rented or shared with advertisers. The app contains no advertising, no
+  audience measurement tool and no third-party tracking SDK.</p>
+
+  <h2 id="effacer">Erasing your data</h2>
+  <p>On the home screen, at the bottom: <strong>Erase my data</strong>, then
+  <strong>Erase everything</strong>. Your identifier, your games, your words
+  played and your suggestions are deleted from the server immediately, and
+  your progress is reset on the device. Only a word that has already joined
+  the dictionary stays there, with no link to you.</p>
+  <p>Uninstalling the app erases the data on the device, but not the data on
+  the server: erase it from the game first, or write to us.</p>
+
+  <h2>Retention</h2>
+  <p>Until you erase it, from the game or on simple request.</p>
+
+  <h2>Children</h2>
+  <p>The game is suitable for all ages and asks for no personal
+  information; it is not specifically aimed at children.</p>
+
+  <h2>Your rights and contact</h2>
+  <p>You have the right of access, rectification, erasure and objection
+  (GDPR). To exercise these rights, or for any question:
+  <a href="mailto:fongue.jeremy@gmail.com">fongue.jeremy@gmail.com</a>. You can also lodge a complaint with the
+  <a href="https://www.cnil.fr/fr/plaintes">CNIL</a>.</p>
+</main>
+</body>
+</html>
