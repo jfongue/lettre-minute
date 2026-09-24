@@ -22,6 +22,7 @@ n'écrit rapportent le plus.
   qu'un mot courant, et ce bonus s'érode si le joueur le ressort à chaque partie
   ou si tout le monde l'écrit.
 - **Passer** coûte cinq secondes de chrono (trois sous Esquive), jamais de points.
+  Sur un clavier, Entrée valide et Échap passe.
 - **Une faute d'une lettre passe** — lettres interverties, lettre oubliée, lettre
   en trop, lettre fausse : `thailnade` vaut `Thaïlande`. Mais une réponse
   corrigée est payée au tarif de base, si rare que soit le mot : le bonus

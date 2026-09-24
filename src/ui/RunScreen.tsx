@@ -236,6 +236,12 @@ export function RunScreen({
             onKeyDown={(event) => {
               // Implicit form submission is not guaranteed on mobile keyboards,
               // and Entrée is how the whole game is played.
+              // On a keyboard, Échap skips: the hands never leave the keys.
+              if (event.key === 'Escape' && !event.repeat) {
+                event.preventDefault()
+                skip()
+                return
+              }
               if (event.key !== 'Enter') return
               event.preventDefault()
               submit()
