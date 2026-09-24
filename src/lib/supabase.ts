@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { authStorage } from './native'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -8,7 +9,8 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
  * migrations, simply means scores and proposals stay on the device. Nothing
  * below may throw into the run loop.
  */
-export const supabase: SupabaseClient | null = url && anonKey ? createClient(url, anonKey) : null
+export const supabase: SupabaseClient | null =
+  url && anonKey ? createClient(url, anonKey, { auth: { storage: authStorage() } }) : null
 
 let session: { userId: string } | null = null
 let probing: Promise<{ userId: string } | null> | null = null

@@ -143,6 +143,25 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
 - **Désactiver « Confirm email »** (Authentication → Providers → Email) pour
   qu'un compte serve dès sa création. Activée, l'adresse reste en attente et
   le joueur anonyme jusqu'au clic sur le lien.
+- **Mot de passe oublié passe par un code, pas un lien** : un lien ouvrirait
+  le navigateur, sans retour possible vers l'app. Le modèle « Reset Password »
+  (Authentication → Emails) doit donc afficher `{{ .Token }}` — le modèle par
+  défaut n'a que le lien, et le joueur recevrait un mail inutilisable. Le code
+  connecte le joueur (`verifyOtp`, type `recovery`, avec la même fusion que
+  la connexion), puis le mot de passe est changé depuis le compte.
+- **Google se connecte par jeton d'identité** (`signInWithIdToken`) : le
+  sélecteur de comptes du téléphone rend un jeton que Supabase vérifie, sans
+  page web — Google refuse sa page de connexion dans une WebView. C'est une
+  connexion comme une autre (fusion comprise) ; un compte Google neuf naît
+  sans nom, et l'interface le lui demande (`needsName`). Pour l'activer :
+  1. Google Cloud → Identifiants : un client OAuth **Web** (son identifiant
+     va dans `VITE_GOOGLE_WEB_CLIENT_ID` et dans Supabase) et un client
+     **Android** pour `fr.lettreminute.app`, avec l'empreinte SHA-1 de la clé
+     de signature de Play (Play Console → Intégrité de l'app) *et* celle de la
+     clé de debug. Sans client Android à la bonne empreinte, le sélecteur
+     échoue sans message.
+  2. Supabase → Authentication → Providers → Google : activer, coller
+     l'identifiant et le secret du client Web.
 
 ## Appliquer
 

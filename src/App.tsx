@@ -12,6 +12,7 @@ import {
   fetchBoards,
   fetchModerationStatus,
   logIn,
+  logInWithGoogle,
   logOut,
   markChallengeSeen,
   pushAvatar,
@@ -19,13 +20,17 @@ import {
   pushRun,
   pushSubmissions,
   register,
+  requestPasswordReset,
+  resetPassword,
   rematchChallenge,
   savePushToken,
   type Account,
+  type AuthOutcome,
   type ChallengeDetail,
   type ChallengeSummary,
   type CommunityWord,
   type ModerationStatus,
+  chooseName,
 } from './lib/cloud'
 import { enablePush, isNativeApp, onBackButton, onPush, prepareAds, tapFeedback, type PushData } from './lib/native'
 import { configureSound, setHush, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
@@ -51,10 +56,12 @@ import { applyLocale, loadLocale, saveLocale } from './state/locale'
 import { initialSession, sessionReducer } from './state/session'
 import {
   clearLocalData,
+  loadAccount,
   loadAvatar,
   loadHistory,
   loadProfile,
   loadSubmissions,
+  saveAccount,
   saveAvatar,
   saveHistory,
   saveProfile,
@@ -160,12 +167,21 @@ export function App() {
   const profile = useRef(session.profile)
   profile.current = session.profile
 
+  // Written only once the cached account has been read, or the first render's
+  // null would erase it.
+  const accountRead = useRef(false)
+  useEffect(() => {
+    if (accountRead.current) saveAccount(account)
+  }, [account])
+
   // The stored profile is read after the first paint: touching localStorage
   // during render is a side effect, and the home screen is right either way.
   useEffect(() => {
     dispatch({ type: 'profile-loaded', profile: loadProfile() })
     setAvatar(loadAvatar())
     setHistory(loadHistory())
+    setAccount(loadAccount())
+    accountRead.current = true
   }, [])
 
   const wear = useCallback((next: AvatarChoice) => {
@@ -203,7 +219,12 @@ export function App() {
 
   useEffect(() => {
     loadBoards().then(setBoards)
-    fetchAccount().then((found) => found && adopt(found))
+    // Unreachable keeps the cached account: the session is still on the device.
+    fetchAccount().then((found) => {
+      if (found === 'unreachable') return
+      if (found) adopt(found)
+      else setAccount(null)
+    })
     flushSubmissions()
   }, [adopt])
 
@@ -212,6 +233,17 @@ export function App() {
   }, [lang])
   // The account decides the role, the language which words wait for it.
   useEffect(refreshModeration, [refreshModeration, account?.name, account?.anonymous])
+
+  /** After any sign-in that changes user: the anonymous player's runs have been merged into it. */
+  const enter = (outcome: AuthOutcome): string | null => {
+    if (!outcome.ok) return t.account.errors[outcome.error]
+    adopt(outcome.account)
+    // The merge summed both players on the server: its totals are the truth now.
+    dispatch({ type: 'profile-loaded', profile: { ...profile.current, ...outcome.account.stats } })
+    if (!outcome.account.avatar) pushAvatar(avatar)
+    loadBoards().then(setBoards)
+    return outcome.warning ? t.account.errors[outcome.warning] : null
+  }
 
   const accountActions: AccountActions = {
     async onRegister(name, email, password) {
@@ -226,12 +258,25 @@ export function App() {
     },
     async onLogIn(email, password) {
       await pushing.current
-      const outcome = await logIn(email, password)
+      return enter(await logIn(email, password))
+    },
+    async onGoogle() {
+      await pushing.current
+      const outcome = await logInWithGoogle()
+      return outcome ? enter(outcome) : null
+    },
+    async onRequestReset(email) {
+      const error = await requestPasswordReset(email)
+      return error ? t.account.errors[error] : null
+    },
+    async onResetPassword(email, code, password) {
+      await pushing.current
+      return enter(await resetPassword(email, code, password))
+    },
+    async onChooseName(name) {
+      const outcome = await chooseName(name)
       if (!outcome.ok) return t.account.errors[outcome.error]
-      adopt(outcome.account)
-      // The merge summed both players on the server: its totals are the truth now.
-      dispatch({ type: 'profile-loaded', profile: { ...profile.current, ...outcome.account.stats } })
-      if (!outcome.account.avatar) pushAvatar(avatar)
+      setAccount(outcome.account)
       loadBoards().then(setBoards)
       return null
     },
@@ -244,7 +289,7 @@ export function App() {
     setAvatar(DEFAULT_AVATAR)
     setHistory([])
     setAccount(null)
-    fetchAccount().then((found) => found && setAccount(found))
+    fetchAccount().then((found) => found && found !== 'unreachable' && setAccount(found))
     loadBoards().then(setBoards)
   }
 

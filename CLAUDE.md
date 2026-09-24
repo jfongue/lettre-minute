@@ -123,6 +123,12 @@ qu'un nouvel arrivant casserait sans le savoir.
   déduisent du profil (`src/domain/avatar.ts`). Changer un seuil redistribue
   donc les déblocages de tout le monde, y compris vers le bas ; l'avatar porté
   reste valide même s'il redevient verrouillé.
+- **Le compte connecté survit hors ligne** : `fetchAccount` rend
+  `'unreachable'` quand le serveur ne répond pas, distinct de `null` (aucune
+  session sur l'appareil), et l'interface garde alors le compte mis en cache
+  (`loadAccount`). Sur téléphone, la session Supabase vit dans les
+  préférences natives (`authStorage`, `src/lib/native.ts`), pas dans le
+  localStorage de la WebView que le système peut reprendre.
 - **Se connecter doit attendre l'envoi de la partie** (`pushing` dans
   `src/App.tsx`) : la fusion déplace les parties du compte anonyme puis
   l'efface, et une partie encore en vol partirait avec lui.

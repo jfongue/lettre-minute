@@ -2285,6 +2285,20 @@ button {
   gap: 0.75rem;
 }
 
+.account-or {
+  margin: 0.5rem 0;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.account-form .btn--quiet {
+  justify-self: center;
+}
+
 .field {
   display: grid;
   gap: 0.3rem;

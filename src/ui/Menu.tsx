@@ -204,7 +204,7 @@ function ProfilePane({
           <Avatar choice={avatar} size="md" />
         </button>
         <div className="player-id">
-          <strong>{named ? account.name : t.menu.anonymous}</strong>
+          <strong>{named && !account.needsName ? account.name : t.menu.anonymous}</strong>
           <span className="note">
             {t.menu.standing(levelProgress(profile.xp).level, formatNumber(t, profile.bestScore))}
           </span>
@@ -223,10 +223,11 @@ function ProfilePane({
         </div>
       )}
 
-      {account?.anonymous && (
+      {(account?.anonymous || account?.needsName) && (
         <AccountPanel
           title={t.menu.accountTitle}
           lead={t.menu.accountLead}
+          needsName={account.needsName}
           {...accountActions}
         />
       )}

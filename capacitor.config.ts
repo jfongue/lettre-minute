@@ -21,6 +21,11 @@ const config: CapacitorConfig = {
       resize: 'native',
       resizeOnFullScreen: true,
     },
+    // Google seul : les SDK Facebook, Apple et Twitter alourdiraient l'APK
+    // pour des boutons que le jeu n'affiche pas.
+    SocialLogin: {
+      providers: { google: true, facebook: false, apple: false, twitter: false },
+    },
   },
 }
 

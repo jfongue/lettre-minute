@@ -6,6 +6,7 @@ import type { Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
 import type { Run } from '../domain/run'
 import type { PendingSubmission } from '../state/storage'
+import { googleIdToken } from './native'
 import { connect, forgetSession, supabase } from './supabase'
 
 export interface CrowdUsage {
@@ -433,34 +434,46 @@ export interface Account {
   email: string | null
   /** An anonymous player has played without registering: the end screen offers to keep their runs. */
   anonymous: boolean
+  /** Signed in with Google, not yet named: friends and boards need a name to show. */
+  needsName: boolean
   stats: Pick<Profile, 'xp' | 'runs' | 'bestScore' | 'wordsFound' | 'bestCombo'>
   avatar: AvatarChoice | null
 }
 
-export function fetchAccount(): Promise<Account | null> {
-  return guard(async () => {
-    const { data } = await supabase!.auth.getSession()
+/**
+ * Null only when the device holds no session. A server that cannot be reached
+ * is not the same answer: the player is still signed in, and the interface
+ * keeps showing the account it knew.
+ */
+export function fetchAccount(): Promise<Account | null | 'unreachable'> {
+  return guard(async (): Promise<Account | null | 'unreachable'> => {
+    const { data, error } = await supabase!.auth.getSession()
+    if (error) return 'unreachable'
     const user = data.session?.user
     if (!user) return null
-    const { data: row } = await supabase!
+    const { data: row, error: rowError } = await supabase!
       .from('profiles')
       .select('display_name, xp, runs, best_score, words_found, best_combo, avatar')
       .eq('id', user.id)
       .single()
+    if (rowError || !row) return 'unreachable'
+    const name = typeof row.display_name === 'string' ? row.display_name : 'Anonyme'
+    const anonymous = user.is_anonymous === true
     return {
-      name: (row?.display_name as string) ?? 'Anonyme',
+      name,
       email: user.email || null,
-      anonymous: user.is_anonymous ?? false,
+      anonymous,
+      needsName: !anonymous && name === 'Anonyme',
       stats: {
-        xp: Number(row?.xp) || 0,
-        runs: Number(row?.runs) || 0,
-        bestScore: Number(row?.best_score) || 0,
-        wordsFound: Number(row?.words_found) || 0,
-        bestCombo: Number(row?.best_combo) || 0,
+        xp: Number(row.xp) || 0,
+        runs: Number(row.runs) || 0,
+        bestScore: Number(row.best_score) || 0,
+        wordsFound: Number(row.words_found) || 0,
+        bestCombo: Number(row.best_combo) || 0,
       },
-      avatar: row?.avatar ? parseAvatar(row.avatar) : null,
+      avatar: row.avatar ? parseAvatar(row.avatar) : null,
     }
-  }, null)
+  }, 'unreachable')
 }
 
 /** Why an account could not be made or reached; the interface words it in the player's language. */
@@ -471,12 +484,14 @@ export type AuthError =
   | 'short-password'
   | 'wrong-credentials'
   | 'invalid-email'
+  | 'wrong-code'
   | 'rate-limited'
   | 'name-length'
   | 'name-reserved'
   | 'name-taken'
 
-export type AuthOutcome = { ok: true; account: Account } | { ok: false; error: AuthError }
+/** `warning`: signed in all the same, but part of the request did not go through. */
+export type AuthOutcome = { ok: true; account: Account; warning?: AuthError } | { ok: false; error: AuthError }
 
 function refuse(error: AuthError): AuthOutcome {
   return { ok: false, error }
@@ -494,6 +509,9 @@ function authError(error: { code?: string; message: string }): AuthError {
       return 'wrong-credentials'
     case 'email_address_invalid':
       return 'invalid-email'
+    case 'otp_expired':
+    case 'otp_disabled':
+      return 'wrong-code'
     case 'over_request_rate_limit':
     case 'over_email_send_rate_limit':
       return 'rate-limited'
@@ -502,10 +520,23 @@ function authError(error: { code?: string; message: string }): AuthError {
   }
 }
 
+const isEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
 function checkCredentials(email: string, password: string): AuthError | null {
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'invalid-email'
+  if (!isEmail(email)) return 'invalid-email'
   if (password.length < 6) return 'short-password'
   return null
+}
+
+function checkName(name: string): AuthError | null {
+  if (name.length < 2 || name.length > 24) return 'name-length'
+  if (name.toLowerCase() === 'anonyme') return 'name-reserved'
+  return null
+}
+
+async function signedInAccount(): Promise<AuthOutcome> {
+  const account = await fetchAccount()
+  return account && account !== 'unreachable' ? { ok: true, account } : refuse('unreachable')
 }
 
 /**
@@ -514,9 +545,7 @@ function checkCredentials(email: string, password: string): AuthError | null {
  */
 export async function register(name: string, email: string, password: string): Promise<AuthOutcome> {
   const trimmed = name.trim()
-  if (trimmed.length < 2 || trimmed.length > 24) return refuse('name-length')
-  if (trimmed.toLowerCase() === 'anonyme') return refuse('name-reserved')
-  const invalid = checkCredentials(email.trim(), password)
+  const invalid = checkName(trimmed) ?? checkCredentials(email.trim(), password)
   if (invalid) return refuse(invalid)
   if (!supabase) return refuse('unreachable')
 
@@ -537,34 +566,114 @@ export async function register(name: string, email: string, password: string): P
       return refuse(authError(error))
     }
 
-    const account = await fetchAccount()
-    return account ? { ok: true, account } : refuse('unreachable')
+    return await signedInAccount()
   } catch {
     return refuse('unreachable')
   }
 }
 
 /**
- * Signs into an existing account and pours the anonymous player's runs into
- * it. The merge token is taken while the anonymous session still exists: once
- * signed in, nothing else proves the two players are the same person.
+ * Signs into another user and pours the anonymous player's runs into it. The
+ * merge token is taken while the anonymous session still exists: once signed
+ * in, nothing else proves the two players are the same person.
  */
+async function switchAccount(signIn: () => Promise<{ error: { code?: string; message: string } | null }>): Promise<AuthOutcome> {
+  const { data: current } = await supabase!.auth.getSession()
+  const token = current.session?.user.is_anonymous ? (await supabase!.rpc('prepare_merge')).data : null
+
+  const { error } = await signIn()
+  if (error) return refuse(authError(error))
+  forgetSession()
+
+  if (token) await supabase!.rpc('complete_merge', { p_token: token })
+  return signedInAccount()
+}
+
 export async function logIn(email: string, password: string): Promise<AuthOutcome> {
   const invalid = checkCredentials(email.trim(), password)
   if (invalid) return refuse(invalid)
   if (!supabase) return refuse('unreachable')
 
   try {
-    const { data: current } = await supabase.auth.getSession()
-    const token = current.session?.user.is_anonymous ? (await supabase.rpc('prepare_merge')).data : null
+    return await switchAccount(() => supabase!.auth.signInWithPassword({ email: email.trim(), password }))
+  } catch {
+    return refuse('unreachable')
+  }
+}
 
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
-    if (error) return refuse(authError(error))
-    forgetSession()
+/**
+ * Mails a recovery code rather than a link: a link would open the browser,
+ * and the app could not be brought back to the form it came from. The mail
+ * template must print `{{ .Token }}` (see supabase/README.md).
+ */
+export async function requestPasswordReset(email: string): Promise<AuthError | null> {
+  if (!isEmail(email.trim())) return 'invalid-email'
+  if (!supabase) return 'unreachable'
+  try {
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim())
+    return error ? authError(error) : null
+  } catch {
+    return 'unreachable'
+  }
+}
 
-    if (token) await supabase.rpc('complete_merge', { p_token: token })
-    const account = await fetchAccount()
-    return account ? { ok: true, account } : refuse('unreachable')
+/**
+ * The code signs the player in; the new password is set afterwards, from
+ * inside the account. Were that second step to fail, they stay signed in and
+ * can simply ask for another code.
+ */
+export async function resetPassword(email: string, code: string, password: string): Promise<AuthOutcome> {
+  const invalid = checkCredentials(email.trim(), password)
+  if (invalid) return refuse(invalid)
+  const token = code.replace(/\s/g, '')
+  if (!/^\d{6,10}$/.test(token)) return refuse('wrong-code')
+  if (!supabase) return refuse('unreachable')
+
+  try {
+    const outcome = await switchAccount(() => supabase!.auth.verifyOtp({ email: email.trim(), token, type: 'recovery' }))
+    if (!outcome.ok) return outcome
+    const { error } = await supabase.auth.updateUser({ password })
+    return error ? { ...outcome, warning: authError(error) } : outcome
+  } catch {
+    return refuse('unreachable')
+  }
+}
+
+async function sha256(text: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')
+}
+
+/**
+ * Null when the player closed the Google picker: nothing to tell them. Google
+ * signs the hashed nonce into the token, Supabase checks it against the raw
+ * one, so a token lifted from another app cannot be replayed here.
+ */
+export async function logInWithGoogle(): Promise<AuthOutcome | null> {
+  if (!supabase) return refuse('unreachable')
+  try {
+    const nonce = crypto.randomUUID()
+    const idToken = await googleIdToken(await sha256(nonce))
+    if (!idToken) return null
+    return await switchAccount(() => supabase!.auth.signInWithIdToken({ provider: 'google', token: idToken, nonce }))
+  } catch {
+    return refuse('unreachable')
+  }
+}
+
+/** Names an account that came from Google without one. */
+export async function chooseName(name: string): Promise<AuthOutcome> {
+  const trimmed = name.trim()
+  const invalid = checkName(trimmed)
+  if (invalid) return refuse(invalid)
+  if (!supabase) return refuse('unreachable')
+
+  try {
+    const identity = await connect()
+    if (!identity) return refuse('unreachable')
+    const { error } = await supabase.from('profiles').update({ display_name: trimmed }).eq('id', identity.userId)
+    if (error) return refuse(error.code === '23505' ? 'name-taken' : 'unreachable')
+    return await signedInAccount()
   } catch {
     return refuse('unreachable')
   }

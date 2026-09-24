@@ -69,6 +69,9 @@ const ARGS: Record<string, unknown[]> = {
   removeFriend: ['ami'],
   register: ['Joueur', 'joueur@example.com', 'secret-password'],
   logIn: ['joueur@example.com', 'secret-password'],
+  requestPasswordReset: ['joueur@example.com'],
+  resetPassword: ['joueur@example.com', '123456', 'secret-password'],
+  chooseName: ['Joueur'],
   pushAvatar: [{ design: 0, ground: 'a', shape: 'b', accent: 'c' }],
   fetchChallenge: ['c-1'],
   createChallenge: ['fr', 1, ['pays'], ['ami']],
@@ -114,12 +117,24 @@ describe('cloud without a working server', () => {
     expect(await cloud.register('Anonyme', 'joueur@example.com', 'secret-password')).toEqual({ ok: false, error: 'name-reserved' })
     expect(await cloud.register('Joueur', 'pas-un-mail', 'secret-password')).toEqual({ ok: false, error: 'invalid-email' })
     expect(await cloud.logIn('joueur@example.com', '12345')).toEqual({ ok: false, error: 'short-password' })
+    expect(await cloud.requestPasswordReset('pas-un-mail')).toBe('invalid-email')
+    expect(await cloud.resetPassword('joueur@example.com', '12ab', 'secret-password')).toEqual({ ok: false, error: 'wrong-code' })
+    expect(await cloud.chooseName('Anonyme')).toEqual({ ok: false, error: 'name-reserved' })
+  })
+
+  it('tells a server out of reach from a device without a session', async () => {
+    for (const current of ['reject', 'error'] as const) {
+      mode.current = current
+      expect(await cloud.fetchAccount(), current).toBe('unreachable')
+    }
   })
 
   it('reports an unreachable server as such when signing up or in', async () => {
     mode.current = 'reject'
     expect(await cloud.register('Joueur', 'joueur@example.com', 'secret-password')).toEqual({ ok: false, error: 'unreachable' })
     expect(await cloud.logIn('joueur@example.com', 'secret-password')).toEqual({ ok: false, error: 'unreachable' })
+    expect(await cloud.requestPasswordReset('joueur@example.com')).toBe('unreachable')
+    expect(await cloud.resetPassword('joueur@example.com', '123 456', 'secret-password')).toEqual({ ok: false, error: 'unreachable' })
   })
 
   it('keeps an unsent proposal queued rather than claiming it went through', async () => {

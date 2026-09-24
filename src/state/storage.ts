@@ -1,11 +1,13 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { RunRecord } from '../domain/history'
 import { NEW_PROFILE, type Profile } from '../domain/progression'
+import type { Account } from '../lib/cloud'
 
 const PROFILE_KEY = 'lettre-minute.profile.v1'
 const SUBMISSIONS_KEY = 'lettre-minute.submissions.v1'
 const AVATAR_KEY = 'lettre-minute.avatar.v1'
 const HISTORY_KEY = 'lettre-minute.history.v1'
+const ACCOUNT_KEY = 'lettre-minute.account.v1'
 
 /** A word the player proposed while the dictionary did not know it. */
 export interface PendingSubmission {
@@ -94,6 +96,43 @@ export function saveAvatar(avatar: AvatarChoice): void {
   write(AVATAR_KEY, avatar)
 }
 
+/**
+ * The account last seen on the server, shown from the first paint and offline:
+ * the session is still there, only the server is not, and the player must not
+ * read « anonyme » for it.
+ */
+export function loadAccount(): Account | null {
+  const stored = parsed(ACCOUNT_KEY)
+  if (!isRecord(stored) || !isText(stored.name) || typeof stored.anonymous !== 'boolean') return null
+  const stats = isRecord(stored.stats) ? stored.stats : {}
+  const count = (field: string) => (isCount(stats[field]) ? stats[field] : 0)
+  return {
+    name: stored.name,
+    email: isText(stored.email) ? stored.email : null,
+    anonymous: stored.anonymous,
+    needsName: stored.needsName === true,
+    stats: {
+      xp: count('xp'),
+      runs: count('runs'),
+      bestScore: count('bestScore'),
+      wordsFound: count('wordsFound'),
+      bestCombo: count('bestCombo'),
+    },
+    avatar: stored.avatar ? parseAvatar(stored.avatar) : null,
+  }
+}
+
+export function saveAccount(account: Account | null): void {
+  if (account) write(ACCOUNT_KEY, account)
+  else {
+    try {
+      localStorage.removeItem(ACCOUNT_KEY)
+    } catch {
+      /* nothing stored, nothing to clear */
+    }
+  }
+}
+
 // Two thousand runs of fifteen words each: written as objects, the repeated
 // keys alone would take a good part of the browser's five megabytes.
 type StoredWord = [categoryId: string, word: string, display: string, points: number]
@@ -152,6 +191,7 @@ export function clearLocalData(): void {
     localStorage.removeItem(HISTORY_KEY)
     localStorage.removeItem(SUBMISSIONS_KEY)
     localStorage.removeItem(AVATAR_KEY)
+    localStorage.removeItem(ACCOUNT_KEY)
   } catch {
     /* nothing stored, nothing to clear */
   }

@@ -309,14 +309,15 @@ function Summary({
         <RankMove title={t.over.dayBoard} before={boardsBefore.day} after={boardsAfter.day} me={me} />
       )}
 
-      {account?.anonymous && (
+      {(account?.anonymous || account?.needsName) && (
         <AccountPanel
           title={t.over.keepTitle}
           lead={t.over.keepLead}
+          needsName={account.needsName}
           {...accountActions}
         />
       )}
-      {account && !account.anonymous && (
+      {account && !account.anonymous && !account.needsName && (
         <p className="account-saved">
           <Avatar choice={avatar} size="sm" />
           <span>

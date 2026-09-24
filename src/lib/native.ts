@@ -6,9 +6,11 @@ import {
 import { App as NativeApp } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 import { Haptics, ImpactStyle } from '@capacitor/haptics'
+import { Preferences } from '@capacitor/preferences'
 import { PushNotifications } from '@capacitor/push-notifications'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { StatusBar, Style } from '@capacitor/status-bar'
+import { SocialLogin } from '@capgo/capacitor-social-login'
 
 /**
  * The bridge to the phone when the game runs inside the Android or iOS shell.
@@ -195,5 +197,98 @@ export function onPush(onOpen: (data: PushData) => void, onReceived: (data: Push
   })
   return () => {
     for (const handle of [opened, received]) handle.then((listener) => listener.remove()).catch(() => {})
+  }
+}
+
+/**
+ * Where the sign-in session lives on the phone. A WebView's localStorage is a
+ * cache the system may reclaim, and losing it silently turns a player back
+ * into a fresh anonymous one; the app's own preferences are kept until
+ * uninstall. In a browser, undefined leaves Supabase on localStorage.
+ */
+export function authStorage(): {
+  getItem(key: string): Promise<string | null>
+  setItem(key: string, value: string): Promise<void>
+  removeItem(key: string): Promise<void>
+} | undefined {
+  if (!native) return undefined
+  const legacy = {
+    get: (key: string) => {
+      try {
+        return localStorage.getItem(key)
+      } catch {
+        return null
+      }
+    },
+    drop: (key: string) => {
+      try {
+        localStorage.removeItem(key)
+      } catch {
+        /* nothing to drop */
+      }
+    },
+  }
+  return {
+    async getItem(key) {
+      try {
+        const { value } = await Preferences.get({ key })
+        if (value !== null) return value
+        // Builds before 1.3 kept the session in localStorage: carried over once.
+        const old = legacy.get(key)
+        if (old !== null) await Preferences.set({ key, value: old })
+        return old
+      } catch {
+        return legacy.get(key)
+      }
+    },
+    async setItem(key, value) {
+      try {
+        await Preferences.set({ key, value })
+      } catch {
+        /* the session stays in memory until the next launch */
+      }
+    },
+    // The legacy copy goes too: otherwise it would bring a signed-out session back.
+    async removeItem(key) {
+      legacy.drop(key)
+      try {
+        await Preferences.remove({ key })
+      } catch {
+        /* nothing stored, nothing to remove */
+      }
+    },
+  }
+}
+
+const googleClientId = import.meta.env.VITE_GOOGLE_WEB_CLIENT_ID
+let googleStarted: Promise<void> | null = null
+
+/**
+ * Google refuses its sign-in page inside a WebView: the phone asks the system
+ * account picker instead. In a browser there is none, so no button.
+ */
+export function googleSignInSupported(): boolean {
+  return native && Boolean(googleClientId)
+}
+
+/**
+ * The ID token of the Google account the player picks, bound to `nonce` (the
+ * hash Supabase will check against the raw nonce). Null when they close the
+ * picker, have no account on the phone, or the plugin fails.
+ */
+export async function googleIdToken(nonce: string): Promise<string | null> {
+  if (!googleSignInSupported()) return null
+  try {
+    googleStarted ??= SocialLogin.initialize({ google: { webClientId: googleClientId, mode: 'online' } }).catch(
+      (error: unknown) => {
+        googleStarted = null
+        throw error
+      },
+    )
+    await googleStarted
+    const { result } = await SocialLogin.login({ provider: 'google', options: { nonce, scopes: ['email', 'profile'] } })
+    return 'idToken' in result ? result.idToken : null
+  } catch {
+    return null
   }
 }
