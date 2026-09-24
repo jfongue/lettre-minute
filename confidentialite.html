@@ -35,11 +35,12 @@
 <body>
 <main>
   <h1>Lettre <em>Minute</em></h1>
-  <p class="meta">Politique de confidentialité · en vigueur au 23 septembre 2026</p>
+  <p class="meta">Politique de confidentialité · en vigueur au 24 septembre 2026</p>
 
   <div class="card">
-    <p><strong>En bref :</strong> pas de compte à créer, pas de publicité, pas de
-    traceur, rien de revendu. Le jeu garde vos scores et vos mots pour faire
+    <p><strong>En bref :</strong> pas de compte à créer, rien de revendu. Une
+    courte publicité suit chaque choix de catégorie à partir du deuxième ; c’est
+    le seul moment où un tiers, Google, reçoit des données. Le jeu garde vos scores et vos mots pour faire
     marcher le classement et le bonus de rareté, et vous pouvez tout effacer
     depuis l’écran d’accueil.</p>
   </div>
@@ -60,7 +61,12 @@
     mesurer quels mots tout le monde écrit ;</li>
     <li><strong>votre progression</strong> : XP, nombre de parties, records ;</li>
     <li><strong>les mots que vous proposez</strong> pour compléter le
-    dictionnaire.</li>
+    dictionnaire ;</li>
+    <li><strong>les défis entre amis</strong> : qui y est invité, et la partie
+    de chacun (score et mots), visible des autres joueurs du défi ;</li>
+    <li><strong>le jeton de notification</strong> de votre téléphone, si vous
+    acceptez les notifications : il sert uniquement à vous prévenir d’un défi
+    reçu ou terminé, et il est effacé à la déconnexion.</li>
   </ul>
   <p>Le classement affiche le meilleur score de chaque joueur sous le nom
   « Anonyme ». Les mots joués ne sont jamais montrés avec l’identité de celui
@@ -75,8 +81,27 @@
   <h2>Qui y a accès</h2>
   <p>Les données sont hébergées par <strong>Supabase</strong>, qui agit comme
   sous-traitant et ne les exploite pas pour son compte. Aucune donnée n’est
-  vendue, louée ou partagée avec des annonceurs. L’application ne contient ni
-  publicité, ni outil de mesure d’audience, ni SDK tiers de suivi.</p>
+  vendue, louée ou partagée avec des annonceurs : vos parties, vos mots et
+  votre identifiant de jeu ne sont jamais transmis à la régie publicitaire.
+  Les notifications passent par <strong>Firebase Cloud Messaging</strong>
+  (Google), qui ne reçoit que le jeton du téléphone et le texte du message.</p>
+
+  <h2 id="publicite">Publicité</h2>
+  <p>À partir du deuxième choix de catégorie, une courte publicité s’affiche
+  après ce choix. Elle est fournie par <strong>Google AdMob</strong>
+  (Google Ireland Limited), qui agit comme responsable de traitement distinct.
+  Pour choisir la publicité, en mesurer l’affichage et prévenir la fraude,
+  AdMob peut collecter l’identifiant publicitaire de l’appareil, l’adresse IP
+  (dont se déduit une position approximative), des informations sur
+  l’appareil et sur votre interaction avec la publicité.</p>
+  <p>Dans l’Union européenne, au Royaume-Uni et en Suisse, un formulaire vous
+  demande votre consentement avant la première publicité ; sans lui, les
+  publicités ne sont pas personnalisées. Vous pouvez changer d’avis à tout
+  moment : <strong>Menu › Options › Choix publicitaires</strong>. Vous pouvez
+  aussi réinitialiser ou supprimer l’identifiant publicitaire dans les
+  réglages Google du téléphone. La manière dont Google traite ces données :
+  <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.</p>
+  <p>La version web du jeu n’affiche aucune publicité.</p>
 
   <h2 id="effacer">Effacer vos données</h2>
   <p>Sur l’écran d’accueil, en bas : <strong>Effacer mes données</strong>, puis
