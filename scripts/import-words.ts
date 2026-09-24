@@ -26,6 +26,7 @@ const TOPIC_TREE_CACHE = '.cache/wiktionary-topics.json'
 const LEXIQUE_URL = 'http://www.lexique.org/databases/Lexique383/Lexique383.tsv'
 const LEXIQUE_CACHE = '.cache/lexique383.tsv'
 const KAIKKI_URL = 'https://kaikki.org/dictionary'
+const TRANSLATIONS_CACHE = '.cache/kaikki-translations.json'
 const WORDFREQ_URL = 'https://raw.githubusercontent.com/rspeer/wordfreq/master/wordfreq/data'
 const CLICKSTREAM_URL = 'https://dumps.wikimedia.org/other/clickstream'
 
@@ -69,6 +70,9 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
   sports: ['Sports en français'],
   matieres: ['Métaux en français', 'Alliages en français', 'Roches en français', 'Textiles en français'],
 }
+
+/** A legal form closing a company's name, which nobody says when naming the brand. */
+const LEGAL_FORM = /,?\s+(?:Inc\.?|Incorporated|Ltd\.?|Limited|Corp\.?|Corporation|Company|Co\.|plc|PLC|LLC|AG|SE|GmbH|S\.?A\.?|S\.p\.A\.?|N\.V\.?|B\.V\.?|Holdings?)$/
 
 /** Fewer Wikipedias than this describe a thing only specialists look up. */
 const NICHE_SITELINKS = 10
@@ -138,7 +142,7 @@ function parseCsv(body: string): string[][] {
   return rows
 }
 
-async function sparql(query: string, attempt = 1): Promise<Row[]> {
+async function sparql(query: string, attempts = 4, attempt = 1): Promise<Row[]> {
   // The JSON answer to the largest taxon queries comes back truncated at a
   // megabyte, every time. CSV says the same thing in half the bytes, so the
   // last attempt asks for that instead of failing the pull.
@@ -186,10 +190,10 @@ async function sparql(query: string, attempt = 1): Promise<Row[]> {
     }
     return rows
   } catch (error) {
-    if (attempt >= 4) throw error
+    if (attempt >= attempts) throw error
     console.warn(`  retry ${attempt} — ${(error as Error).message}`)
     await new Promise((resolve) => setTimeout(resolve, 10_000 * attempt))
-    return sparql(query, attempt + 1)
+    return sparql(query, attempts, attempt + 1)
   }
 }
 
@@ -232,7 +236,7 @@ async function wiktionaryWords(title: string, force: boolean): Promise<string[]>
   return words
 }
 
-async function pullRows(pull: Pull, scope: Scope, dir: string, force: boolean): Promise<Row[]> {
+async function pullRows(pull: Pull, scope: Scope, dir: string, force: boolean, attempts: number): Promise<Row[]> {
   const path = `${dir}/${pull.id}.json`
   if (!force && existsSync(path)) {
     const cached = JSON.parse(readFileSync(path, 'utf8')) as Row[]
@@ -241,7 +245,7 @@ async function pullRows(pull: Pull, scope: Scope, dir: string, force: boolean): 
   }
 
   const started = Date.now()
-  const rows = await sparql(queryFor(pull, scope))
+  const rows = await sparql(queryFor(pull, scope), attempts)
   writeFileSync(path, JSON.stringify(rows))
   console.log(`· ${pull.id}: ${rows.length} lignes en ${Math.round((Date.now() - started) / 1000)} s`)
   return rows
@@ -571,6 +575,113 @@ async function loadKaikki(source: LanguageSource, path: string, wanted: Readonly
   return { lemmaOf, formsOf, topics }
 }
 
+/** Words too common in a gloss to say which sense a translation belongs to. */
+const GLOSS_NOISE = new Set(['the', 'and', 'any', 'for', 'from', 'with', 'that', 'this', 'which', 'one', 'who', 'its', 'are', 'used', 'kind', 'type', 'sort', 'other', 'such', 'also'])
+
+/** Five letters are enough to hear "domestic" in "domesticated". */
+function glossStems(text: string): string[] {
+  return (text.toLowerCase().match(/[a-z]{3,}/g) ?? []).filter((word) => !GLOSS_NOISE.has(word)).map((word) => word.slice(0, 5))
+}
+
+/**
+ * What the English Wiktionary files under a topic, translated into the other
+ * languages. It knows far more about "cat" (Cats, Felids) than about "kat" or
+ * "Katze", whose entries are rarely filed at all, and every translation table
+ * says what the cat is called elsewhere.
+ *
+ * Only the translations of the sense the topic is on are taken: "orange" is a
+ * fruit in one sense and a tree in another, and "sinaasappelboom" is no
+ * fruit. A table hangs either on its sense, or on the entry with a short label
+ * ("fruit", "domestic species") that has to be found in the sense's gloss.
+ */
+async function loadTranslations(
+  langs: readonly Lang[],
+  wanted: ReadonlySet<string>,
+): Promise<Map<Lang, Map<string, string[]>>> {
+  if (existsSync(TRANSLATIONS_CACHE)) {
+    const cached = JSON.parse(readFileSync(TRANSLATIONS_CACHE, 'utf8')) as {
+      wanted: string[]
+      byLang: Record<string, [string, string[]][]>
+    }
+    if ([...wanted].every((topic) => cached.wanted.includes(topic)) && langs.every((lang) => cached.byLang[lang])) {
+      console.log('· traductions: cache')
+      return new Map(langs.map((lang) => [lang, new Map(cached.byLang[lang])]))
+    }
+  }
+
+  const byLang = new Map<Lang, Map<string, string[]>>(langs.map((lang) => [lang, new Map()]))
+  const file = (lang: Lang, topic: string, word: string) => {
+    const topics = byLang.get(lang)
+    if (!topics) return
+    const list = topics.get(topic) ?? []
+    if (!list.includes(word)) list.push(word)
+    topics.set(topic, list)
+  }
+
+  type Translation = { lang_code?: string; word?: string; sense?: string }
+  for (const pos of ['noun', 'adj']) {
+    const url = `${KAIKKI_URL}/English/pos-${pos}/kaikki.org-dictionary-English-by-pos-${pos}.jsonl`
+    console.log(`· traductions ${pos}: lecture`)
+    const response = await fetch(url, { headers: { 'User-Agent': AGENT } })
+    if (!response.ok || !response.body) throw new Error(`kaikki traductions ${pos}: HTTP ${response.status}`)
+    const lines = createInterface({ input: Readable.fromWeb(response.body as never), crlfDelay: Infinity })
+    let read = 0
+    for await (const line of lines) {
+      if (++read % 200_000 === 0) console.log(`  ${read} entrées`)
+      let entry: {
+        lang_code?: string
+        translations?: Translation[]
+        senses?: { categories?: (string | { name?: string })[]; glosses?: string[]; raw_glosses?: string[]; translations?: Translation[] }[]
+      }
+      try {
+        entry = JSON.parse(line)
+      } catch {
+        continue
+      }
+      if (entry.lang_code !== 'en') continue
+
+      const filed: { topics: string[]; stems: Set<string> }[] = []
+      for (const sense of entry.senses ?? []) {
+        const topics: string[] = []
+        for (const category of sense.categories ?? []) {
+          const name = typeof category === 'string' ? category : category.name
+          if (name && wanted.has(name)) topics.push(name)
+        }
+        if (topics.length === 0) continue
+        filed.push({ topics, stems: new Set(glossStems([...(sense.glosses ?? []), ...(sense.raw_glosses ?? [])].join(' '))) })
+        for (const translation of sense.translations ?? []) {
+          const word = translation.word?.trim()
+          if (word) for (const topic of topics) file(translation.lang_code as Lang, topic, word)
+        }
+      }
+      if (filed.length === 0) continue
+
+      for (const translation of entry.translations ?? []) {
+        const word = translation.word?.trim()
+        if (!word || !byLang.has(translation.lang_code as Lang)) continue
+        const label = glossStems(translation.sense ?? '')
+        for (const { topics, stems } of filed) {
+          // An unlabelled table can only be trusted when every sense is in the topic.
+          const matches =
+            label.length === 0
+              ? filed.length === (entry.senses ?? []).length
+              : label.filter((stem) => stems.has(stem)).length * 2 >= label.length
+          if (matches) for (const topic of topics) file(translation.lang_code as Lang, topic, word)
+        }
+      }
+    }
+  }
+
+  writeFileSync(
+    TRANSLATIONS_CACHE,
+    JSON.stringify({ wanted: [...wanted], byLang: Object.fromEntries([...byLang].map(([lang, topics]) => [lang, [...topics]])) }),
+  )
+  for (const [lang, topics] of byLang) {
+    console.log(`· traductions ${lang}: ${[...topics.values()].reduce((sum, words) => sum + words.length, 0)} mots`)
+  }
+  return byLang
+}
+
 /**
  * Just enough MessagePack to read wordfreq's file: arrays, maps, strings and
  * small integers. Pulling a package in for one import script is not worth it.
@@ -656,6 +767,11 @@ interface Entry {
   display: string
   sitelinks: number
   alias: boolean
+  /**
+   * The label as Wikidata wrote it, which is what Wikipedia titles its article
+   * after: "Nike, Inc." is found, "Nike" is the goddess.
+   */
+  title: string
 }
 
 function main(argv: readonly string[]) {
@@ -691,6 +807,14 @@ function main(argv: readonly string[]) {
       }
       kaikki = await loadKaikki(source, paths.kaikki, everyTopic)
       lexicon = kaikki
+      // English files its own words; the others also read its translations.
+      if (lang !== 'en') {
+        const others = (Object.keys(LANGUAGES) as Lang[]).filter((code) => code !== 'fr' && code !== 'en')
+        const translated = (await loadTranslations(others, everyTopic)).get(lang)!
+        for (const [topic, words] of translated) {
+          kaikki.topics.set(topic, [...new Set([...(kaikki.topics.get(topic) ?? []), ...words])])
+        }
+      }
     }
     const frequencies = await loadFrequencies(lang, paths.wordfreq)
 
@@ -698,7 +822,12 @@ function main(argv: readonly string[]) {
     const failed: string[] = []
     for (const pull of wanted) {
       try {
-        byPull.set(pull.id, await pullRows(pull, scope, paths.pulls, force && only.has(pull.id)))
+        // Outside French, the vernacular names of a taxon are a handful of rows
+        // for a query that times out more often than not — five butterflies in
+        // Italian — and the Wiktionary's topics already hold those animals. One
+        // try, then the category is built without it.
+        const attempts = pull.vernacular && lang !== 'fr' ? 1 : 4
+        byPull.set(pull.id, await pullRows(pull, scope, paths.pulls, force && only.has(pull.id), attempts))
       } catch (error) {
         // One dead query must not cost the whole import: the categories built
         // from it keep the file they already have on disk.
@@ -759,13 +888,16 @@ function main(argv: readonly string[]) {
       // `alias` stays true only while every row naming the word was an alias.
       const best = new Map<string, Entry>()
       for (const id of sources) {
+        const corporate = PULLS.find((pull) => pull.id === id)?.corporate === true
         for (const row of byPull.get(id)!) {
           // "le Canada" is a real French alias, but keeping it would let the
           // player answer a country on the letter L. Only aliases are stripped:
           // in a label the article belongs to the name ("Le Havre").
-          const cleaned = (row.alias ? row.display.replace(source.articles, '') : row.display)
+          let cleaned = (row.alias ? row.display.replace(source.articles, '') : row.display)
             .trim()
             .replace(/\s+/g, ' ')
+          const title = cleaned
+          if (corporate) cleaned = cleaned.replace(LEGAL_FORM, '')
 
           // Wikidata writes a French occupation as "boulanger ou boulangère".
           // Both forms are words a player may type, so both are kept.
@@ -774,11 +906,14 @@ function main(argv: readonly string[]) {
             const key = normalizeWord(display)
             if (key === '' || excluded.has(key)) continue
             const current = best.get(key)
-            if (!current) best.set(key, { display, sitelinks: row.sitelinks, alias: row.alias === true })
+            if (!current) best.set(key, { display, sitelinks: row.sitelinks, alias: row.alias === true, title: display === cleaned ? title : display })
             else {
               current.sitelinks = Math.max(current.sitelinks, row.sitelinks)
               current.alias &&= row.alias === true
-              if (display.length < current.display.length) current.display = display
+              if (display.length < current.display.length) {
+                current.display = display
+                current.title = display === cleaned ? title : display
+              }
             }
           }
         }
@@ -796,7 +931,7 @@ function main(argv: readonly string[]) {
         if (key === '' || best.has(key)) continue
         // No sitelinks: a Wiktionary word is rated on its corpus frequency
         // alone, which is exactly what a common noun has.
-        best.set(key, { display, sitelinks: 0, alias: false })
+        best.set(key, { display, sitelinks: 0, alias: false, title: display })
       }
       gathered.push({ id: category.id, best, attested, commonNouns: words !== null })
     }
@@ -806,7 +941,7 @@ function main(argv: readonly string[]) {
     const articles = await wikipediaArticles(
       lang,
       paths.articles,
-      gathered.flatMap(({ best }) => [...best.values()].map((entry) => entry.display)),
+      gathered.flatMap(({ best }) => [...best.values()].map((entry) => entry.title)),
     )
     const titles = new Set<string>()
     for (const title of articles.values()) if (title && title !== DISAMBIGUATION) titles.add(title)
@@ -834,7 +969,7 @@ function main(argv: readonly string[]) {
           commonNouns && (attested.has(key) || (!entry.alias && entry.sitelinks >= MAJOR_SITELINKS))
         const frequency = senseKnown ? everyday : 0
 
-        const article = articles.get(entry.display) ?? null
+        const article = articles.get(entry.title) ?? null
         let daily: number | undefined
         if (article !== DISAMBIGUATION || entry.alias) {
           let visited = article && article !== DISAMBIGUATION ? (visits.get(article) ?? 0) : 0

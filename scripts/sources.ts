@@ -27,6 +27,8 @@ export interface Pull {
    * name a job in the masculine, and "Bäckerin" is as good an answer.
    */
   female?: boolean
+  /** Company names: "Nike, Inc." and "Apple Inc." are answered as Nike and Apple. */
+  corporate?: boolean
 }
 
 /** The language a query reads its labels in, and the Wikipedia it trusts for titles. */
@@ -63,6 +65,21 @@ export const PULLS: readonly Pull[] = [
   // has "food" as a direct subclass, which drags in milk, snow and bread — a
   // narrower, purpose-built class stays clean.
   { id: 'materials', of: 'Q206615', subclass: true },
+  // Iron, copper, bronze: no building material holds the metals themselves.
+  { id: 'metals', of: 'Q11426', subclass: true },
+  // The words everyone gives first — bois, verre, cuir — sit under no class
+  // that would not also drag in thousands of specialist products: in Spanish,
+  // the "building material" item for wood is "madera para la construcción".
+  // Named one by one instead.
+  {
+    id: 'staple-materials',
+    of: 'Q287',
+    raw: (scope) => `SELECT ?label ?n WHERE {
+  VALUES ?item { wd:Q287 wd:Q22731 wd:Q11469 wd:Q11472 wd:Q11474 wd:Q286 wd:Q11457 wd:Q42329 wd:Q42302 wd:Q22657 wd:Q40089 wd:Q34679 wd:Q677 wd:Q897 wd:Q1090 wd:Q753 wd:Q11427 wd:Q34095 wd:Q663 wd:Q743 wd:Q37756 wd:Q40861 wd:Q23757 }
+  ?item rdfs:label ?label ; wikibase:sitelinks ?n .
+  ${scope.inLanguage('?label')}
+}`,
+  },
   // "Anatomical structure" rather than a "part of the human body" query: most
   // everyday words — tête, main, œil — hang off the generic taxon-wide class,
   // not off a link to the specific human-body item. But that class also
@@ -122,6 +139,7 @@ export const PULLS: readonly Pull[] = [
   {
     id: 'brand-class',
     of: 'Q431289',
+    corporate: true,
     raw: (scope) => `SELECT ?label ?n WHERE {
   VALUES ?class { wd:Q431289 wd:Q786820 wd:Q4830453 wd:Q891723 wd:Q6881511 wd:Q783794 wd:Q167037 wd:Q1137109 wd:Q1058914 wd:Q18388277 }
   ?article schema:about ?item ; schema:isPartOf <${scope.wikipedia}> ; schema:name ?title .
@@ -133,6 +151,7 @@ export const PULLS: readonly Pull[] = [
   {
     id: 'brand-product',
     of: 'Q431289',
+    corporate: true,
     // Reverse of "has brand" on a product — catches a brand entity that
     // carries none of the classes above, as long as one product of it names it.
     raw: (scope) => `SELECT ?label ?n WHERE {
@@ -193,7 +212,7 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
   { id: 'metiers', pulls: ['professions', 'professions-sub'] },
   { id: 'sports', pulls: ['sports', 'sports-sub'] },
   { id: 'capitales', pulls: ['capitals'] },
-  { id: 'matieres', pulls: ['materials'] },
+  { id: 'matieres', pulls: ['materials', 'metals', 'staple-materials'] },
   { id: 'corps-humain', pulls: ['anatomy'], exclude: ['plant-organ'] },
   { id: 'marques', pulls: ['brand-class', 'brand-product'] },
 ]
