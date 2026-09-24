@@ -1,4 +1,4 @@
-import { detectLocale, isLocale, type Locale } from '../i18n'
+import { detectLocale, isLocale, messagesFor, type Locale } from '../i18n'
 
 const LOCALE_KEY = 'lettre-minute.locale.v1'
 
@@ -27,4 +27,5 @@ export function saveLocale(locale: Locale): void {
 
 export function applyLocale(locale: Locale): void {
   document.documentElement.lang = locale
+  document.title = messagesFor(locale).appName.join(' ')
 }

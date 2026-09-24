@@ -1,14 +1,14 @@
-# Ficha de Play Store — Lettre Minute (español)
+# Ficha de Play Store — Letra Minuto (español)
 
 Textos y respuestas para copiar en Play Console. Los recursos gráficos están
-un nivel más arriba: `../icon-512.png`, `../feature-graphic.png` (1024 × 500),
+un nivel más arriba: `../icon-512.png`, `feature-graphic.png` (1024 × 500, en esta carpeta),
 `../screenshots/` (1080 × 1920, claro y oscuro). Para regenerarlos:
 `scripts/render-store.sh`.
 
 ## Ficha principal (español)
 
 **Nombre** (30 caracteres máx.)
-> Lettre Minute
+> Letra Minuto
 
 **Descripción breve** (80 caracteres máx.)
 > Una letra, una categoría, 60 segundos. Cuanto más rara la palabra, más puntos.

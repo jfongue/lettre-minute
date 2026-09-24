@@ -1,14 +1,14 @@
-# Play-Store-Eintrag — Lettre Minute (Deutsch)
+# Play-Store-Eintrag — Letter Minute (Deutsch)
 
 Texte und Antworten zum Übertragen in die Play Console. Die Grafiken liegen
-eine Ebene höher: `../icon-512.png`, `../feature-graphic.png` (1024 × 500),
+eine Ebene höher: `../icon-512.png`, `feature-graphic.png` (1024 × 500, in diesem Ordner),
 `../screenshots/` (1080 × 1920, hell und dunkel). Zum Neuerzeugen:
 `scripts/render-store.sh`.
 
 ## Haupteintrag (Deutsch)
 
 **Name** (max. 30 Zeichen)
-> Lettre Minute
+> Letter Minute
 
 **Kurzbeschreibung** (max. 80 Zeichen)
 > Ein Buchstabe, eine Kategorie, 60 Sekunden. Seltene Wörter bringen mehr.

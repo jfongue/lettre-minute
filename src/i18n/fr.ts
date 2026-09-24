@@ -12,6 +12,8 @@ const plural = (count: number, one: string, many: string) => (count > 1 ? many :
 export const fr = {
   /** BCP 47 tag, for numbers and for `<html lang>`. */
   tag: 'fr-FR',
+  /** Stacked in two lines on the home screen, hence two words. */
+  appName: ['Lettre', 'Minute'] as [string, string],
   loading: 'Chargement…',
   wait: 'Un instant…',
   cancel: 'Annuler',

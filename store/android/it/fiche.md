@@ -1,14 +1,14 @@
-# Scheda Play Store — Lettre Minute (italiano)
+# Scheda Play Store — Lettera Minuto (italiano)
 
 Testi e risposte da copiare in Play Console. Le immagini sono un livello più
-su: `../icon-512.png`, `../feature-graphic.png` (1024 × 500),
+su: `../icon-512.png`, `feature-graphic.png` (1024 × 500, in questa cartella),
 `../screenshots/` (1080 × 1920, chiaro e scuro). Per rigenerarle:
 `scripts/render-store.sh`.
 
 ## Scheda principale (italiano)
 
 **Nome** (max 30 caratteri)
-> Lettre Minute
+> Lettera Minuto
 
 **Descrizione breve** (max 80 caratteri)
 > Una lettera, una categoria, 60 secondi. Più la parola è rara, più punti vale.

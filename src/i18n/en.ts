@@ -10,6 +10,7 @@ function ordinal(rank: number): string {
 
 export const en: Messages = {
   tag: 'en-GB',
+  appName: ['Letter', 'Minute'],
   loading: 'Loading…',
   wait: 'One moment…',
   cancel: 'Cancel',

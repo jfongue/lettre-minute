@@ -1,14 +1,14 @@
-# Página da Play Store — Lettre Minute (português do Brasil)
+# Página da Play Store — Letra Minuto (português do Brasil)
 
 Textos e respostas para copiar no Play Console. As imagens ficam um nível
-acima: `../icon-512.png`, `../feature-graphic.png` (1024 × 500),
+acima: `../icon-512.png`, `feature-graphic.png` (1024 × 500, nesta pasta),
 `../screenshots/` (1080 × 1920, claro e escuro). Para gerá-las de novo:
 `scripts/render-store.sh`.
 
 ## Página principal (português do Brasil)
 
 **Nome** (máx. 30 caracteres)
-> Lettre Minute
+> Letra Minuto
 
 **Descrição curta** (máx. 80 caracteres)
 > Uma letra, uma categoria, 60 segundos. Quanto mais rara a palavra, mais pontos.

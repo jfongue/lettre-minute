@@ -1,14 +1,14 @@
-# Play Store-vermelding — Lettre Minute (Nederlands)
+# Play Store-vermelding — Letter Minuut (Nederlands)
 
 Teksten en antwoorden om over te nemen in de Play Console. De afbeeldingen
-staan een niveau hoger: `../icon-512.png`, `../feature-graphic.png`
-(1024 × 500), `../screenshots/` (1080 × 1920, licht en donker). Opnieuw
+staan een niveau hoger: `../icon-512.png`, `feature-graphic.png`
+(1024 × 500, in deze map), `../screenshots/` (1080 × 1920, licht en donker). Opnieuw
 genereren: `scripts/render-store.sh`.
 
 ## Hoofdvermelding (Nederlands)
 
 **Naam** (max. 30 tekens)
-> Lettre Minute
+> Letter Minuut
 
 **Korte beschrijving** (max. 80 tekens)
 > Eén letter, één categorie, 60 seconden. Zeldzame woorden leveren meer op.

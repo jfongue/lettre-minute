@@ -4,6 +4,7 @@ const plural = (count: number, one: string, many: string) => (count === 1 ? one 
 
 export const pt: Messages = {
   tag: 'pt-BR',
+  appName: ['Letra', 'Minuto'],
   loading: 'Carregando…',
   wait: 'Um instante…',
   cancel: 'Cancelar',

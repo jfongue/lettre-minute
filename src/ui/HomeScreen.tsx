@@ -37,8 +37,8 @@ export function HomeScreen({ profile, error, loading, boards, me, onMenu, onPlay
 
       <header className="masthead">
         <h1 className="title">
-          <span>Lettre</span>
-          <span>Minute</span>
+          <span>{t.appName[0]}</span>
+          <span>{t.appName[1]}</span>
         </h1>
         <p className="eyebrow">{t.home.tagline(RUN_SECONDS)}</p>
       </header>

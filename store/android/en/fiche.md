@@ -1,13 +1,13 @@
-# Play Store listing — Lettre Minute (English)
+# Play Store listing — Letter Minute (English)
 
 Texts and answers to copy into the Play Console. The visuals are one level up:
-`../icon-512.png`, `../feature-graphic.png` (1024 × 500), `../screenshots/`
+`../icon-512.png`, `feature-graphic.png` (1024 × 500, in this folder), `../screenshots/`
 (1080 × 1920, light and dark). To regenerate them: `scripts/render-store.sh`.
 
 ## Main listing (English)
 
 **App name** (30 characters max)
-> Lettre Minute
+> Letter Minute
 
 **Short description** (80 characters max)
 > One letter, one category, 60 seconds. The rarer the word, the more it scores.

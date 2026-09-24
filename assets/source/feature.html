@@ -27,5 +27,21 @@
   </div>
   <span class="arch"></span>
   <span class="quarter"></span>
+<script>
+  // ?lang=en : une bannière par fiche, avec le nom et l’accroche de sa langue.
+  const texts = {
+    en: ['Letter', 'Minute', 'One letter · one theme · 60 seconds'],
+    de: ['Letter', 'Minute', 'Ein Buchstabe · ein Thema · 60 Sekunden'],
+    es: ['Letra', 'Minuto', 'Una letra · un tema · 60 segundos'],
+    it: ['Lettera', 'Minuto', 'Una lettera · un tema · 60 secondi'],
+    nl: ['Letter', 'Minuut', 'Eén letter · één thema · 60 seconden'],
+    pt: ['Letra', 'Minuto', 'Uma letra · um tema · 60 segundos'],
+  }[new URLSearchParams(location.search).get('lang')]
+  if (texts) {
+    const [first, last, tagline] = texts
+    document.querySelector('h1').replaceChildren(...[first, last].map((word) => Object.assign(document.createElement('span'), { textContent: word })))
+    document.querySelector('p').textContent = tagline
+  }
+</script>
 </body>
 </html>
