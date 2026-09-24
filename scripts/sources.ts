@@ -48,6 +48,27 @@ export function scopeFor(labels: readonly string[], wiki: string): Scope {
   }
 }
 
+const STAPLE_MATERIALS = [
+  // Wood, stone, glass, paper, plastic, leather, cotton, wool, clay, concrete,
+  // brick, sand, gold, silver, copper, aluminium, steel, iron, tin, bronze,
+  // lead, marble, zinc.
+  'Q287', 'Q22731', 'Q11469', 'Q11472', 'Q11474', 'Q286', 'Q11457', 'Q42329', 'Q42302', 'Q22657', 'Q40089',
+  'Q34679', 'Q677', 'Q897', 'Q1090', 'Q753', 'Q11427', 'Q34095', 'Q663', 'Q743', 'Q37756', 'Q40861', 'Q23757',
+  // Cement, plaster, roof tile, slate, bitumen, tar, asphalt, plywood, mortar,
+  // rammed earth, wattle and daub, lime, adobe, terracotta, gravel, granite.
+  'Q45190', 'Q274988', 'Q268547', 'Q207079', 'Q167510', 'Q186209', 'Q202251', 'Q219803', 'Q189566', 'Q1363009',
+  'Q1368940', 'Q250423', 'Q359957', 'Q60424', 'Q133833', 'Q41177',
+  // Cardboard, rubber, porcelain, ceramic, faience, cork, Kevlar, glass fibre,
+  // polystyrene, paraffin, wax, silicone, resin, textile, linen, enamel,
+  // crystal.
+  'Q389782', 'Q18113858', 'Q130693', 'Q45621', 'Q209671', 'Q49444', 'Q207344', 'Q5861', 'Q146243', 'Q177540',
+  'Q124695', 'Q146439', 'Q145205', 'Q28823', 'Q1426327', 'Q213371', 'Q392551',
+  // Ivory, nacre, amber, horn, bone, graphite, diamond, quartz, mica, coal, petroleum.
+  'Q82001', 'Q215865', 'Q25381', 'Q65284752', 'Q265868', 'Q5309', 'Q5283', 'Q43010', 'Q114675', 'Q24489', 'Q22656',
+  // Fire, water, air, ice, aether, gas, and the Earth.
+  'Q3196', 'Q283', 'Q7391292', 'Q23392', 'Q381913', 'Q11432', 'Q2',
+]
+
 export const PULLS: readonly Pull[] = [
   { id: 'countries', of: 'Q6256', aliases: true },
   {
@@ -61,21 +82,26 @@ export const PULLS: readonly Pull[] = [
   ${scope.inLanguage('?label')}
 }`,
   },
-  // "Building material" rather than "material" (Q214609): the broader class
-  // has "food" as a direct subclass, which drags in milk, snow and bread — a
-  // narrower, purpose-built class stays clean.
-  { id: 'materials', of: 'Q206615', subclass: true },
-  // Iron, copper, bronze: no building material holds the metals themselves.
+  // Iron, copper, bronze, and every alloy. No class of "material" will do:
+  // "material" has food as a subclass, "building material" windows and menhirs.
   { id: 'metals', of: 'Q11426', subclass: true },
+  // Every element, oxygen and neon included, which "metal" leaves out. The
+  // ones not yet made come too, under names the import drops
+  // (PLACEHOLDER_ELEMENT).
+  { id: 'chemical-elements', of: 'Q11344' },
   // The words everyone gives first — bois, verre, cuir — sit under no class
   // that would not also drag in thousands of specialist products: in Spanish,
   // the "building material" item for wood is "madera para la construcción".
-  // Named one by one instead.
+  // Named one by one instead, which is also how the category keeps its
+  // building materials without the windows, soils and menhirs their class
+  // holds. So are the four elements, which Wikidata ties to nothing but their
+  // star signs — and the planet stands for earth, whose label is the word in
+  // every language when the classical element's reads "signe terre".
   {
     id: 'staple-materials',
     of: 'Q287',
     raw: (scope) => `SELECT ?label ?n WHERE {
-  VALUES ?item { wd:Q287 wd:Q22731 wd:Q11469 wd:Q11472 wd:Q11474 wd:Q286 wd:Q11457 wd:Q42329 wd:Q42302 wd:Q22657 wd:Q40089 wd:Q34679 wd:Q677 wd:Q897 wd:Q1090 wd:Q753 wd:Q11427 wd:Q34095 wd:Q663 wd:Q743 wd:Q37756 wd:Q40861 wd:Q23757 }
+  VALUES ?item { ${STAPLE_MATERIALS.map((id) => `wd:${id}`).join(' ')} }
   ?item rdfs:label ?label ; wikibase:sitelinks ?n .
   ${scope.inLanguage('?label')}
 }`,
@@ -220,7 +246,7 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
   { id: 'metiers', pulls: ['professions', 'professions-sub'] },
   { id: 'sports', pulls: ['sports', 'sports-sub'] },
   { id: 'capitales', pulls: ['capitals'] },
-  { id: 'matieres', pulls: ['materials', 'metals', 'staple-materials'] },
+  { id: 'matieres', pulls: ['metals', 'staple-materials', 'chemical-elements'] },
   { id: 'corps-humain', pulls: ['anatomy'], exclude: ['plant-organ'] },
   { id: 'marques', pulls: ['brand-class', 'brand-product'] },
 ]

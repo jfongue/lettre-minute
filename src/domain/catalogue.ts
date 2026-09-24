@@ -20,7 +20,7 @@ export const CATALOGUE: readonly CategoryMeta[] = [
   { id: 'metiers', label: 'Métiers', hint: 'Professions, d’hier et d’aujourd’hui', unlockLevel: 3 },
   { id: 'sports', label: 'Sports', hint: 'Disciplines et pratiques', unlockLevel: 4 },
   { id: 'corps-humain', label: 'Partie du corps humain', hint: 'De la tête aux pieds', unlockLevel: 5 },
-  { id: 'matieres', label: 'Matières', hint: 'Bois, fer, acier, sable…', unlockLevel: 6 },
+  { id: 'matieres', label: 'Matières et éléments', hint: 'Bois, fer, oxygène, feu…', unlockLevel: 6 },
   { id: 'capitales', label: 'Capitales', hint: 'Capitales du monde', unlockLevel: 7 },
   { id: 'marques', label: 'Marque', hint: 'Marques connues', unlockLevel: 8 },
 ]

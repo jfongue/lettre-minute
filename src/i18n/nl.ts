@@ -271,7 +271,7 @@ export const nl: Messages = {
     metiers: ['Beroepen', 'Vakken van vroeger en nu'],
     sports: ['Sporten', 'Disciplines en bezigheden'],
     'corps-humain': ['Lichaamsdelen', 'Van top tot teen'],
-    matieres: ['Materialen', 'Hout, ijzer, staal, zand…'],
+    matieres: ['Materialen en elementen', 'Hout, ijzer, zuurstof, vuur…'],
     capitales: ['Hoofdsteden', 'Hoofdsteden van de wereld'],
     marques: ['Merken', 'Bekende merken'],
   },

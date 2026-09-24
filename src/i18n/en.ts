@@ -276,7 +276,7 @@ export const en: Messages = {
     metiers: ['Jobs', 'Trades, old and new'],
     sports: ['Sports', 'Disciplines and pastimes'],
     'corps-humain': ['Parts of the body', 'From head to toe'],
-    matieres: ['Materials', 'Wood, iron, steel, sand…'],
+    matieres: ['Materials and elements', 'Wood, iron, oxygen, fire…'],
     capitales: ['Capitals', 'Capital cities of the world'],
     marques: ['Brands', 'Well-known brands'],
   },

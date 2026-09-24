@@ -272,7 +272,7 @@ export const it: Messages = {
     metiers: ['Mestieri', 'Professioni di ieri e di oggi'],
     sports: ['Sport', 'Discipline e pratiche'],
     'corps-humain': ['Parti del corpo', 'Dalla testa ai piedi'],
-    matieres: ['Materiali', 'Legno, ferro, acciaio, sabbia…'],
+    matieres: ['Materiali ed elementi', 'Legno, ferro, ossigeno, fuoco…'],
     capitales: ['Capitali', 'Capitali del mondo'],
     marques: ['Marchi', 'Marchi noti'],
   },

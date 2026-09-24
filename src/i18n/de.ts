@@ -270,7 +270,7 @@ export const de: Messages = {
     metiers: ['Berufe', 'Berufe von gestern und heute'],
     sports: ['Sportarten', 'Disziplinen und Aktivitäten'],
     'corps-humain': ['Körperteile', 'Von Kopf bis Fuß'],
-    matieres: ['Materialien', 'Holz, Eisen, Stahl, Sand…'],
+    matieres: ['Stoffe und Elemente', 'Holz, Eisen, Sauerstoff, Feuer…'],
     capitales: ['Hauptstädte', 'Hauptstädte der Welt'],
     marques: ['Marken', 'Bekannte Marken'],
   },

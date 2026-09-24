@@ -16,6 +16,7 @@ import { normalizeWord } from '../src/domain/text.ts'
 import type { WordRow } from '../src/domain/words.ts'
 import { LANGUAGES, TOPICS, type Lang, type LanguageSource } from './languages.ts'
 import { loadFrequencies } from './wordfreq.ts'
+import { ADDED_WORDS, DROPPED_WORDS, PLACEHOLDER_ELEMENT } from './dropped-words.ts'
 import { CATEGORY_SOURCES, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
 
 const ENDPOINT = 'https://query.wikidata.org/sparql'
@@ -822,6 +823,8 @@ function main(argv: readonly string[]) {
         }
       }
       // Dropped by hand: kept out of the Wiktionary's words too, unlike the pulls.
+      const dropped = new Set((DROPPED_WORDS[category.id]?.[lang] ?? []).map(normalizeWord))
+      for (const key of dropped) excluded.add(key)
 
       // One entry per normalized word: the shortest spelling wins, and a word
       // found in several pulls keeps its best notoriety.
@@ -844,7 +847,7 @@ function main(argv: readonly string[]) {
           for (const display of source.alternatives ? cleaned.split(source.alternatives) : [cleaned]) {
             if (!acceptable(display)) continue
             const key = normalizeWord(display)
-            if (key === '' || excluded.has(key)) continue
+            if (key === '' || excluded.has(key) || PLACEHOLDER_ELEMENT.test(key)) continue
             const current = best.get(key)
             if (!current) best.set(key, { display, sitelinks: row.sitelinks, alias: row.alias === true, title: display === cleaned ? title : display })
             else {
@@ -862,11 +865,13 @@ function main(argv: readonly string[]) {
       // The words the Wiktionary files under this very category: for them, and
       // only them, the corpus frequency measures the right sense.
       const words = await attestedWords(category.id)
+      const added = ADDED_WORDS[category.id]?.[lang] ?? []
       const attested = new Set<string>()
-      for (const word of words ?? []) {
+      for (const word of [...(words ?? []), ...added]) {
         const display = word.trim().replace(/\s+/g, ' ')
         if (!acceptable(display)) continue
         const key = normalizeWord(display)
+        if (dropped.has(key) || PLACEHOLDER_ELEMENT.test(key)) continue
         if (key !== '') attested.add(key)
         if (key === '' || best.has(key)) continue
         // No sitelinks: a Wiktionary word is rated on its corpus frequency
