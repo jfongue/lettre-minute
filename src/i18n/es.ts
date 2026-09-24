@@ -189,6 +189,7 @@ export const es: Messages = {
     categoryLine: (runs, words) =>
       `${runs} ${plural(runs, 'partida', 'partidas')} · ${words} ${plural(words, 'palabra', 'palabras')}`,
     perWord: (points) => `${points} pts/palabra`,
+    timePerWord: (seconds) => `${seconds} s de media para encontrar una palabra`,
     bestWord: (word, points) => `Mejor palabra: ${word} · ${points} pts`,
     points: 'pts',
   },

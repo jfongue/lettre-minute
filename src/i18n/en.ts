@@ -193,6 +193,7 @@ export const en: Messages = {
     byCategory: 'By category',
     categoryLine: (runs, words) => `${runs} ${plural(runs, 'game', 'games')} · ${words} ${plural(words, 'word', 'words')}`,
     perWord: (points) => `${points} pts/word`,
+    timePerWord: (seconds) => `${seconds} s on average to find a word`,
     bestWord: (word, points) => `Best word: ${word} · ${points} pts`,
     points: 'pts',
   },

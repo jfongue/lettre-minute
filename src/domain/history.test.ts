@@ -41,6 +41,15 @@ describe('summarize', () => {
     expect(categories[0]!.bestWord?.word).toBe('chili')
   })
 
+  it('averages the time a category takes to answer, ignoring untimed words', () => {
+    const timed = (seconds: number | undefined) => ({ categoryId: 'pays', word: 'chili', display: 'chili', points: 10, seconds })
+    const run = { ...record(30), categoryIds: ['pays'], words: [timed(4), timed(8), timed(undefined)] }
+    const { categories } = summarize([run, record(10, [['animaux', 'chat', 10]])])
+
+    expect(categories.find((stats) => stats.categoryId === 'pays')?.averageSeconds).toBe(6)
+    expect(categories.find((stats) => stats.categoryId === 'animaux')?.averageSeconds).toBeNull()
+  })
+
   it('compares the recent runs with those just before', () => {
     const history = [...Array.from({ length: 10 }, () => record(60)), ...Array.from({ length: 10 }, () => record(40))]
     const summary = summarize(history)

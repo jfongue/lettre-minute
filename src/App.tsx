@@ -252,8 +252,8 @@ export function App() {
   useEffect(() => setPulseStage(pulseStage), [pulseStage])
 
   useEffect(() => {
-    if (session.phase === 'playing' && remaining <= 0) dispatch({ type: 'time-up' })
-  }, [session.phase, remaining])
+    if (session.phase === 'playing' && remaining <= 0) dispatch({ type: 'time-up', at: elapsed })
+  }, [session.phase, remaining, elapsed])
 
   // A pick owed and no offer on the table — after a level up, or on a device
   // that has never seen this player's picks — deals three categories to choose from.
@@ -466,8 +466,8 @@ export function App() {
           cheer={session.cheer}
           remaining={remaining}
           onType={(draft) => dispatch({ type: 'type', draft })}
-          onSubmit={() => dispatch({ type: 'submit' })}
-          onSkip={() => dispatch({ type: 'skip' })}
+          onSubmit={() => dispatch({ type: 'submit', at: elapsed })}
+          onSkip={() => dispatch({ type: 'skip', at: elapsed })}
           proposed={session.proposed}
           onPropose={propose}
         />

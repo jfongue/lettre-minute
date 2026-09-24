@@ -58,9 +58,10 @@ export type SessionAction =
   | { type: 'start' }
   | { type: 'load-failed'; message: string }
   | { type: 'type'; draft: string }
-  | { type: 'submit' }
-  | { type: 'skip' }
-  | { type: 'time-up' }
+  /** `at`: the run clock in seconds, which the rules do not keep themselves. */
+  | { type: 'submit'; at: number }
+  | { type: 'skip'; at: number }
+  | { type: 'time-up'; at: number }
   | { type: 'propose'; word: string }
   | { type: 'home' }
 
@@ -145,7 +146,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
 
     case 'submit': {
       if (!session.run || !session.judge) return session
-      const played = submit(session.run, session.draft, session.judge)
+      const played = submit(session.run, session.draft, session.judge, action.at)
       if (played.verdict.kind !== 'accepted' || !played.verdict.found) return session
 
       const found = played.verdict.found
@@ -160,14 +161,14 @@ export function sessionReducer(session: Session, action: SessionAction): Session
 
     case 'skip': {
       if (!session.run || !session.judge) return session
-      return { ...session, run: skipPrompt(session.run, session.judge), draft: '', live: null, cheer: null }
+      return { ...session, run: skipPrompt(session.run, session.judge, action.at), draft: '', live: null, cheer: null }
     }
 
     case 'time-up': {
       if (!session.run) return session
       // A correct word still in the field when the clock runs out counts: the
       // player wrote it in time, only the tap on "valider" came too late.
-      const run = session.judge ? submit(session.run, session.draft, session.judge).run : session.run
+      const run = session.judge ? submit(session.run, session.draft, session.judge, action.at).run : session.run
       return {
         ...session,
         phase: 'over',

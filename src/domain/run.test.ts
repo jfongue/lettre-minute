@@ -188,6 +188,15 @@ describe('orthographe approchée', () => {
     expect(played.run.used).toEqual(['libellule'])
     expect(inspect(played.run, 'libellule', soft).kind).toBe('already')
   })
+
+  it('times a word from the moment its prompt appeared, a skip included', () => {
+    const run = createRun({ seed: 3, categoryIds: ['animaux'] }, soft)
+    const skipped = { ...skip(run, soft, 7), prompt: { categoryId: 'animaux', letter: 'L' } }
+    const played = submit(skipped, 'libellule', soft, 19)
+
+    expect(played.run.found[0]?.seconds).toBe(12)
+    expect(played.run.promptAt).toBe(19)
+  })
 })
 
 describe('skip', () => {

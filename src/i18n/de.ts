@@ -187,6 +187,7 @@ export const de: Messages = {
     byCategory: 'Nach Kategorie',
     categoryLine: (runs, words) => `${runs} ${plural(runs, 'Runde', 'Runden')} · ${words} ${plural(words, 'Wort', 'Wörter')}`,
     perWord: (points) => `${points} Pkt./Wort`,
+    timePerWord: (seconds) => `${seconds} s im Schnitt pro gefundenem Wort`,
     bestWord: (word, points) => `Bestes Wort: ${word} · ${points} Pkt.`,
     points: 'Pkt.',
   },

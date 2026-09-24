@@ -6,6 +6,8 @@ export interface PlayedWord {
   word: string
   display: string
   points: number
+  /** How long its prompt stayed up before it came; absent from runs recorded before it was kept. */
+  seconds?: number
 }
 
 /** A finished run, as the statistics remember it. */
@@ -32,6 +34,7 @@ export function recordOf(run: Run, at: number, lang: string): RunRecord {
       word: found.word,
       display: found.display,
       points: found.points,
+      seconds: found.seconds,
     })),
   }
 }
@@ -56,6 +59,8 @@ export interface CategoryStats {
   words: number
   points: number
   bestWord: PlayedWord | null
+  /** Mean seconds from a prompt to the word that answered it; null until a timed word is recorded. */
+  averageSeconds: number | null
 }
 
 export interface Summary {
@@ -82,9 +87,12 @@ export function summarize(history: readonly RunRecord[]): Summary {
   // Counted per language: « chat » in French and « chat » in English are two words.
   const counts = new Map<string, WordCount>()
   const categories = new Map<string, CategoryStats>()
+  const timing = new Map<string, { words: number; seconds: number }>()
   const category = (id: string) => {
     let stats = categories.get(id)
-    if (!stats) categories.set(id, (stats = { categoryId: id, runs: 0, words: 0, points: 0, bestWord: null }))
+    if (!stats) {
+      categories.set(id, (stats = { categoryId: id, runs: 0, words: 0, points: 0, bestWord: null, averageSeconds: null }))
+    }
     return stats
   }
 
@@ -101,8 +109,15 @@ export function summarize(history: readonly RunRecord[]): Summary {
       stats.words++
       stats.points += played.points
       if (!stats.bestWord || played.points > stats.bestWord.points) stats.bestWord = played
+      if (played.seconds !== undefined) {
+        const timed = timing.get(played.categoryId) ?? { words: 0, seconds: 0 }
+        timed.words++
+        timed.seconds += played.seconds
+        timing.set(played.categoryId, timed)
+      }
     }
   }
+  for (const [id, timed] of timing) category(id).averageSeconds = timed.seconds / timed.words
 
   return {
     recent,

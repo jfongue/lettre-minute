@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { summarize, type RunRecord } from '../domain/history'
+import { capitalized } from '../domain/text'
 import type { Profile } from '../domain/progression'
 import { categoryText, formatNumber, useT, type Messages } from '../i18n'
 import { Figure, Shape } from './bauhaus'
@@ -63,7 +64,7 @@ export function StatsPage({ history, profile }: { history: readonly RunRecord[];
             {summary.topWords.map((word, index) => (
               <li key={`${word.word}-${index}`} className={`podium-step podium-step--${index + 1}`}>
                 <span className="podium-rank">{index + 1}</span>
-                <span className="podium-word">{word.display}</span>
+                <span className="podium-word">{capitalized(word.display)}</span>
                 <span className="note">{t.stats.times(word.count)}</span>
               </li>
             ))}
@@ -85,7 +86,12 @@ export function StatsPage({ history, profile }: { history: readonly RunRecord[];
                     <span className="category-label">{categoryText(t, stats.categoryId).label}</span>
                     <span className="note">{t.stats.categoryLine(stats.runs, stats.words)}</span>
                     {stats.bestWord && (
-                      <span className="note">{t.stats.bestWord(stats.bestWord.display, stats.bestWord.points)}</span>
+                      <span className="note">{t.stats.bestWord(capitalized(stats.bestWord.display), stats.bestWord.points)}</span>
+                    )}
+                    {stats.averageSeconds !== null && (
+                      <span className="note">
+                        {t.stats.timePerWord(stats.averageSeconds.toLocaleString(t.tag, { maximumFractionDigits: 1 }))}
+                      </span>
                     )}
                   </span>
                   <span className="category-stats-figure">

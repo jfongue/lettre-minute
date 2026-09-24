@@ -206,6 +206,7 @@ export const fr = {
     categoryLine: (runs: number, words: number) =>
       `${runs} ${plural(runs, 'partie', 'parties')} · ${words} ${plural(words, 'mot', 'mots')}`,
     perWord: (points: string) => `${points} pts/mot`,
+    timePerWord: (seconds: string) => `${seconds} s en moyenne pour trouver un mot`,
     bestWord: (word: string, points: number) => `Meilleur mot : ${word} · ${points} pts`,
     points: 'pts',
   },

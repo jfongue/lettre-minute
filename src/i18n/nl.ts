@@ -188,6 +188,7 @@ export const nl: Messages = {
     categoryLine: (runs, words) =>
       `${runs} ${plural(runs, 'potje', 'potjes')} · ${words} ${plural(words, 'woord', 'woorden')}`,
     perWord: (points) => `${points} ptn/woord`,
+    timePerWord: (seconds) => `gemiddeld ${seconds} s om een woord te vinden`,
     bestWord: (word, points) => `Beste woord: ${word} · ${points} ptn`,
     points: 'ptn',
   },

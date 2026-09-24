@@ -40,6 +40,11 @@ export interface FoundWord {
   approximate: boolean
 }
 
+/** A word the run kept, with the seconds its prompt stayed on screen before it came. */
+export interface KeptWord extends FoundWord {
+  seconds: number
+}
+
 export type VerdictKind = 'empty' | 'unknown' | 'wrong-letter' | 'already' | 'accepted'
 
 export interface Verdict {
@@ -68,8 +73,10 @@ export interface Run {
   avoid: readonly string[]
   /** Every prompt this run dealt, skipped ones included — the next run's `avoid`. */
   dealt: readonly string[]
-  found: readonly FoundWord[]
+  found: readonly KeptWord[]
   used: readonly string[]
+  /** The run clock, in seconds, when the current prompt appeared. */
+  promptAt: number
   skips: number
   penaltySeconds: number
   combo: number
@@ -131,6 +138,7 @@ export function createRun({ seed, categoryIds, avoid = [] }: CreateRunInput, jud
     dealt: [promptKey(prompt)],
     found: [],
     used: [],
+    promptAt: 0,
     skips: 0,
     penaltySeconds: 0,
     combo: 0,
@@ -174,7 +182,8 @@ export interface Played {
   verdict: Verdict
 }
 
-export function submit(run: Run, raw: string, judge: Judge): Played {
+/** `at` is the run clock in seconds, read by the interface: the rules keep no time of their own. */
+export function submit(run: Run, raw: string, judge: Judge, at = run.promptAt): Played {
   const verdict = inspect(run, raw, judge)
   if (verdict.kind !== 'accepted' || !verdict.found) return { run, verdict }
 
@@ -184,7 +193,8 @@ export function submit(run: Run, raw: string, judge: Judge): Played {
     run: {
       ...run,
       ...advance(run, judge),
-      found: [...run.found, verdict.found],
+      found: [...run.found, { ...verdict.found, seconds: Math.max(0, at - run.promptAt) }],
+      promptAt: at,
       used: [...run.used, verdict.found.word],
       combo,
       bestCombo: Math.max(run.bestCombo, combo),
@@ -193,10 +203,11 @@ export function submit(run: Run, raw: string, judge: Judge): Played {
   }
 }
 
-export function skip(run: Run, judge: Judge): Run {
+export function skip(run: Run, judge: Judge, at = run.promptAt): Run {
   return {
     ...run,
     ...advance(run, judge),
+    promptAt: at,
     skips: run.skips + 1,
     penaltySeconds: run.penaltySeconds + SKIP_PENALTY_SECONDS,
     combo: 0,

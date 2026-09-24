@@ -36,7 +36,7 @@ describe('time-up', () => {
     const session = playing()
     const typed = sessionReducer(session, { type: 'type', draft: `${session.run!.prompt.letter}nimal0` })
 
-    const over = sessionReducer(typed, { type: 'time-up' })
+    const over = sessionReducer(typed, { type: 'time-up', at: 60 })
 
     expect(over.phase).toBe('over')
     expect(over.run!.found).toHaveLength(1)
@@ -47,7 +47,7 @@ describe('time-up', () => {
   it('drops a wrong word left in the field', () => {
     const typed = sessionReducer(playing(), { type: 'type', draft: 'zzz' })
 
-    const over = sessionReducer(typed, { type: 'time-up' })
+    const over = sessionReducer(typed, { type: 'time-up', at: 60 })
 
     expect(over.run!.found).toHaveLength(0)
     expect(over.profile.wordsFound).toBe(0)
