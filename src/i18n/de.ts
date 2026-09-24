@@ -342,6 +342,7 @@ export const de: Messages = {
       divination: ['Weissagung', 'Du siehst das nächste Thema und den nächsten Buchstaben.'],
       complication: ['Komplikation', 'Ungewöhnliche Wörter zählen ×1,15, seltene ×1,3.'],
       celerity: ['Schnelligkeit', 'Ein richtiges Wort bestätigt sich selbst, ohne Enter.'],
+      professor: ['Professor', 'Wenn du überspringst, wird dir eingeflüstert, was du hättest sagen können, und am Ende gibt es die Lektion.'],
     },
     spells: { joker: ['joker'], hush: ['pst', 'psst', 'pscht'] },
     title: 'Kräfte',
@@ -374,6 +375,8 @@ export const de: Messages = {
     reroll: (letter, left) => `Buchstaben ${letter} tauschen · noch ${left}`,
     boost: (factor) => `×${factor.toLocaleString('de-DE')}`,
     auto: 'von selbst bestätigt',
+    whisper: 'Du hättest sagen können',
+    missed: 'Was du hättest sagen können',
   },
 
   tiers: { courant: 'gängig', 'peu commun': 'ungewöhnlich', rare: 'selten', 'très rare': 'sehr selten' },

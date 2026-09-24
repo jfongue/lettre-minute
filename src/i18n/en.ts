@@ -348,6 +348,7 @@ export const en: Messages = {
       divination: ['Divination', 'You see the theme and letter coming next.'],
       complication: ['Complication', 'Uncommon words are worth ×1.15, rare ones ×1.3.'],
       celerity: ['Celerity', 'A right word validates itself, no need to press Enter.'],
+      professor: ['Professor', 'When you skip, you are told what you could have answered, and the end of the game goes over the lesson.'],
     },
     spells: { joker: ['joker'], hush: ['shh', 'hush', 'shhh'] },
     title: 'Powers',
@@ -380,6 +381,8 @@ export const en: Messages = {
     reroll: (letter, left) => `Change the letter ${letter} · ${left} left`,
     boost: (factor) => `×${factor.toLocaleString('en-GB')}`,
     auto: 'validated by itself',
+    whisper: 'You could have said',
+    missed: 'What you could have said',
   },
 
   tiers: { courant: 'common', 'peu commun': 'uncommon', rare: 'rare', 'très rare': 'very rare' },

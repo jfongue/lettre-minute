@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { POWER_CHARGES } from '../domain/powers'
-import { chargesLeft, hasPower, RUN_SECONDS, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
+import { chargesLeft, hasPower, RUN_SECONDS, skipPenalty, type MissedWord, type Prompt, type Run, type Verdict } from '../domain/run'
 import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
 import { sound } from '../lib/sound'
@@ -100,6 +100,14 @@ export function RunScreen({
     if (hushed) sound.power('hush')
   }, [hushed])
 
+  // Professeur whispers the answer a skip left behind, until the player types again.
+  const [heardMissed, setHeardMissed] = useState(run.missed.length)
+  const whispered = run.missed.length > heardMissed ? (run.missed[run.missed.length - 1] ?? null) : null
+  const missedCount = run.missed.length
+  useEffect(() => {
+    if (missedCount > 0) sound.power('professor', 0.8)
+  }, [missedCount])
+
   // Divination rings softly each time the future moves on.
   const seen = useRef(run.drawn)
   useEffect(() => {
@@ -129,6 +137,7 @@ export function RunScreen({
   const reroll = () => {
     if (magic <= 0) return
     sound.power('magic')
+    setHeardMissed(run.missed.length)
     onReroll()
   }
 
@@ -223,6 +232,7 @@ export function RunScreen({
             ref={field}
             value={draft}
             onChange={(event) => {
+              setHeardMissed(run.missed.length)
               sound.key(event.target.value.length < draft.length)
               onType(capitalized(event.target.value))
             }}
@@ -258,6 +268,7 @@ export function RunScreen({
           draft={draft}
           proposed={proposed.includes(normalizeWord(draft))}
           onPropose={onPropose}
+          whispered={whispered}
         />
 
         <div className="answer-actions">
@@ -285,6 +296,7 @@ function Feedback({
   draft,
   proposed,
   onPropose,
+  whispered,
 }: {
   live: Verdict | null
   cheer: Cheer | null
@@ -292,6 +304,8 @@ function Feedback({
   draft: string
   proposed: boolean
   onPropose(word: string): void
+  /** Professeur's answer to the prompt just skipped. */
+  whispered: MissedWord | null
 }) {
   const t = useT()
   // The last find takes the verdict's line until the player types again: lower
@@ -313,6 +327,14 @@ function Feedback({
           <TierTag tier={cheer.tier} />
         )}
         {cheer.boost > 1 && <span className="cheer-boost">{t.powers.boost(cheer.boost)}</span>}
+      </p>
+    )
+  if (!live && whispered)
+    return (
+      <p className="verdict verdict--whisper" key={`${whispered.prompt.categoryId}:${whispered.prompt.letter}:${whispered.display}`}>
+        <PowerBadge id="professor" className="cheer-power" />
+        <span className="note">{t.powers.whisper}</span>
+        <span className="whisper-word">{capitalized(whispered.display)}</span>
       </p>
     )
   if (!live || live.kind === 'empty') return <p className="verdict">&nbsp;</p>

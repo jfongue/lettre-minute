@@ -343,6 +343,7 @@ export const nl: Messages = {
       divination: ['Waarzeggerij', 'Je ziet het volgende thema en de volgende letter.'],
       complication: ['Complicatie', 'Ongewone woorden tellen ×1,15, zeldzame ×1,3.'],
       celerity: ['Snelheid', 'Een goed woord bevestigt zichzelf, zonder Enter.'],
+      professor: ['Professor', 'Sla je over, dan wordt je ingefluisterd wat je had kunnen zeggen, en aan het eind volgt de les.'],
     },
     spells: { joker: ['joker'], hush: ['sst', 'ssst', 'stil'] },
     title: 'Krachten',
@@ -375,6 +376,8 @@ export const nl: Messages = {
     reroll: (letter, left) => `Letter ${letter} ruilen · nog ${left}`,
     boost: (factor) => `×${factor.toLocaleString('nl-NL')}`,
     auto: 'vanzelf bevestigd',
+    whisper: 'Je had kunnen zeggen',
+    missed: 'Wat je had kunnen zeggen',
   },
 
   tiers: { courant: 'gewoon', 'peu commun': 'ongewoon', rare: 'zeldzaam', 'très rare': 'zeer zeldzaam' },

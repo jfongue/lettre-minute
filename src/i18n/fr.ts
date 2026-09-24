@@ -363,6 +363,7 @@ export const fr = {
       divination: ['Divination', 'Tu vois la catégorie et la lettre qui viennent ensuite.'],
       complication: ['Complication', 'Les mots peu communs valent ×1,15, les rares ×1,3.'],
       celerity: ['Célérité', 'Un mot juste se valide tout seul, sans appuyer sur Entrée.'],
+      professor: ['Professeur', 'Quand tu passes, on te souffle ce que tu aurais pu répondre, et la fin de partie te fait la leçon.'],
     } satisfies Record<PowerId, readonly [string, string]> as Record<PowerId, readonly [name: string, description: string]>,
     /** What the player types to cast a spell; the first is the one the descriptions name. */
     spells: { joker: ['joker'], hush: ['chut'] } satisfies Record<Spell, readonly string[]> as Record<Spell, readonly string[]>,
@@ -397,6 +398,9 @@ export const fr = {
     reroll: (letter: string, left: number) => `Changer la lettre ${letter} · encore ${left}`,
     boost: (factor: number) => `×${factor.toLocaleString('fr-FR')}`,
     auto: 'validé tout seul',
+    /** Professeur, under the field after a skip, then on the summary. */
+    whisper: 'On aurait pu dire',
+    missed: 'Ce que tu aurais pu dire',
   },
 
   tiers: {

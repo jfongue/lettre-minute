@@ -344,6 +344,7 @@ export const pt: Messages = {
       divination: ['Adivinhação', 'Você vê o tema e a letra que vêm a seguir.'],
       complication: ['Complicação', 'Palavras incomuns valem ×1,15; as raras, ×1,3.'],
       celerity: ['Celeridade', 'Uma palavra certa se valida sozinha, sem apertar Enter.'],
+      professor: ['Professor', 'Quando você passa, sopram o que você poderia ter respondido, e o fim da partida revisa a lição.'],
     },
     spells: { joker: ['joker', 'coringa', 'curinga'], hush: ['psiu', 'shh', 'chiu'] },
     title: 'Poderes',
@@ -376,6 +377,8 @@ export const pt: Messages = {
     reroll: (letter, left) => `Trocar a letra ${letter} · faltam ${left}`,
     boost: (factor) => `×${factor.toLocaleString('pt-PT')}`,
     auto: 'validada sozinha',
+    whisper: 'Você poderia ter dito',
+    missed: 'O que você poderia ter dito',
   },
 
   tiers: { courant: 'comum', 'peu commun': 'incomum', rare: 'rara', 'très rare': 'muito rara' },

@@ -115,6 +115,14 @@ export interface Run {
   heldSeconds: number
   /** Letters changed by Magie: each one reads from its own stream. */
   rerolls: number
+  /** Under Professeur, what each skipped prompt could have been answered with. */
+  missed: readonly MissedWord[]
+}
+
+/** A skipped prompt and the best-known word it still had. */
+export interface MissedWord {
+  prompt: Prompt
+  display: string
 }
 
 /** A letter the category can be prompted on, preferring those the lock leaves open and not `except`. */
@@ -216,6 +224,7 @@ export function createRun({ seed, categoryIds, avoid = [], powers = [] }: Create
     hush: null,
     heldSeconds: 0,
     rerolls: 0,
+    missed: [],
   }
 }
 
@@ -324,9 +333,21 @@ export function skipPenalty(run: Run): number {
   return hasPower(run, 'dodge') ? DODGE_PENALTY_SECONDS : SKIP_PENALTY_SECONDS
 }
 
+/**
+ * Professeur: the word the player could have given on a prompt they skip —
+ * the best-known one left, read before the run moves on.
+ */
+export function whisper(run: Run, judge: Judge): MissedWord | null {
+  if (!hasPower(run, 'professor')) return null
+  const display = judge.common?.(run.prompt.categoryId, run.prompt.letter, run.used)
+  return display ? { prompt: run.prompt, display } : null
+}
+
 export function skip(run: Run, judge: Judge, at = run.promptAt): Run {
+  const missed = whisper(run, judge)
   return {
     ...run,
+    ...(missed && { missed: [...run.missed, missed] }),
     ...advance(run, judge),
     ...release(run, at),
     promptAt: at,

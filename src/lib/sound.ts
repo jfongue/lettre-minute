@@ -334,6 +334,13 @@ const SIGNATURES: Record<PowerId, (c: AudioContext, t: number, v: number) => voi
     tone(c, 'sine', 420, t, 0.12, sfx, 0.16 * v, 0.003, 2600)
     glock(c, deg(9, 1), t + 0.1, 0.45 * v, sfx)
   },
+  // A throat cleared on the piano, then the answer whispered.
+  professor(c, t, v) {
+    piano(c, deg(4), t, 0.55 * v, sfx, 0.5)
+    piano(c, deg(2), t + 0.16, 0.5 * v, sfx, 0.7)
+    hiss(c, t + 0.34, 0.5, sfx, 0.12 * v, 'bandpass', 3200, 1.2, 1800, 0.12)
+    glass(c, deg(7, 1), t + 0.4, 0.25 * v, sfx)
+  },
 }
 
 export const sound = {

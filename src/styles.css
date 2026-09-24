@@ -4376,6 +4376,49 @@ button {
   40% { transform: none; filter: brightness(1.8); }
 }
 
+/* Professeur : le mot soufflé après un passage, puis la leçon du récap. */
+.verdict--whisper {
+  color: var(--ink-soft);
+  animation: whisper-in 700ms var(--ease-out) both;
+}
+
+.whisper-word {
+  font-weight: 700;
+  font-style: italic;
+  color: var(--green);
+}
+
+@keyframes whisper-in {
+  from {
+    opacity: 0;
+    letter-spacing: 0.25em;
+    filter: blur(3px);
+  }
+}
+
+.lesson .section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lesson-words {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.lesson-words li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.7rem;
+  font-weight: 700;
+  animation: rise 360ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 70ms + 200ms);
+}
+
 .power-seal-icon {
   animation: var(--power-gesture, pop-in) 1100ms var(--ease-out) 200ms both;
 }

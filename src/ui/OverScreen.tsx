@@ -16,6 +16,7 @@ import { categoryMotif } from './motifs'
 import { RankMove } from './RankMove'
 import { UnlockScreen } from './UnlockScreen'
 import { PowerOfferScreen } from './PowerOfferScreen'
+import { PowerBadge } from './PowerIcon'
 import { powerPicksOwed } from '../domain/powers'
 import { reducedMotion, useCountUp } from './useCountUp'
 
@@ -299,6 +300,26 @@ function Summary({
           label={record ? t.over.newRecord : t.over.record}
         />
       </div>
+
+      {run.missed.length > 0 && (
+        <section className="panel lesson">
+          <p className="section-title">
+            <PowerBadge id="professor" className="cheer-power" />
+            {t.powers.missed}
+          </p>
+          <ol className="lesson-words">
+            {run.missed.map((missed, index) => (
+              <li key={`${missed.prompt.categoryId}:${missed.prompt.letter}:${index}`} style={{ '--i': index } as CSSProperties}>
+                <LetterMark letter={missed.prompt.letter} motif={categoryMotif(missed.prompt.categoryId)} size="sm" />
+                <span className="reveal-word-text">
+                  {capitalized(missed.display)}
+                  <span className="reveal-word-category">{categoryText(t, missed.prompt.categoryId).label}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
 
       {me && boardsBefore && boardsAfter && (
         <RankMove title={t.over.dayBoard} before={boardsBefore.day} after={boardsAfter.day} me={me} />

@@ -46,6 +46,7 @@ export const POWER_TINTS: Record<PowerId, Tint> = {
   divination: 'blue',
   complication: 'red',
   celerity: 'yellow',
+  professor: 'green',
 }
 
 /** The block of colour a power sits on, and the ink that reads on it. */

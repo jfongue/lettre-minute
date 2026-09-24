@@ -231,3 +231,22 @@ describe('Complication', () => {
     expect(inspect(hard, 'Anmial0', judge).found!.boost).toBe(1)
   })
 })
+
+describe('Professeur', () => {
+  it('keeps, for each skip, the best-known word the prompt still had', () => {
+    const run = onLetter(runWith('professor'), 'M')
+    const skipped = skip(run, judge, 2)
+    expect(skipped.missed).toEqual([{ prompt: run.prompt, display: 'Mnimal11' }])
+    expect(inspect({ ...skipped, prompt: run.prompt }, 'Mnimal11', judge).kind).toBe('accepted')
+  })
+
+  it('never whispers a word already played', () => {
+    const played = submit(onLetter(runWith('professor'), 'M'), 'Mnimal11', judge, 1).run
+    const again = skip({ ...played, prompt: { ...played.prompt, letter: 'M' } }, judge, 2)
+    expect(again.missed[0]?.display).toBe('Mnimal10')
+  })
+
+  it('says nothing without the power', () => {
+    expect(skip(runWith(), judge, 1).missed).toEqual([])
+  })
+})

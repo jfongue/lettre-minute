@@ -344,6 +344,7 @@ export const it: Messages = {
       divination: ['Divinazione', 'Vedi il tema e la lettera che vengono dopo.'],
       complication: ['Complicazione', 'Le parole poco comuni valgono ×1,15, le rare ×1,3.'],
       celerity: ['Celerità', 'Una parola giusta si conferma da sola, senza premere Invio.'],
+      professor: ['Professore', 'Quando passi, ti suggeriscono cosa avresti potuto rispondere, e la fine della partita ripassa la lezione.'],
     },
     spells: { joker: ['joker', 'jolly'], hush: ['zitto', 'shh', 'ssst'] },
     title: 'Poteri',
@@ -376,6 +377,8 @@ export const it: Messages = {
     reroll: (letter, left) => `Cambia la lettera ${letter} · ancora ${left}`,
     boost: (factor) => `×${factor.toLocaleString('it-IT')}`,
     auto: 'confermata da sola',
+    whisper: 'Potevi dire',
+    missed: 'Cosa avresti potuto dire',
   },
 
   tiers: { courant: 'comune', 'peu commun': 'poco comune', rare: 'rara', 'très rare': 'rarissima' },

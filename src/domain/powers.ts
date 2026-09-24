@@ -16,6 +16,7 @@ export type PowerId =
   | 'divination'
   | 'complication'
   | 'celerity'
+  | 'professor'
 
 /** In the order the game introduces them when the draw has a choice. */
 export const POWER_IDS: readonly PowerId[] = [
@@ -28,6 +29,7 @@ export const POWER_IDS: readonly PowerId[] = [
   'divination',
   'complication',
   'celerity',
+  'professor',
 ]
 
 /** Uses per run. A power absent from this table works all run long. */
