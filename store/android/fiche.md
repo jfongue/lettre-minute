@@ -41,7 +41,8 @@ clair et sombre). Pour les régénérer : `scripts/render-store.sh`.
 > Un mot manque ? Proposez-le en un clic. Réclamé par trois joueurs, il entre
 > au dictionnaire, et vous gagnez 150 XP.
 >
-> • Sans inscription, sans publicité
+> • Sans inscription
+> • Une seule pub, courte, au choix d’une nouvelle catégorie
 > • Jouable hors ligne
 > • Thème clair et sombre
 > • Vos données s’effacent en un geste depuis l’accueil
@@ -57,20 +58,23 @@ clair et sombre). Pour les régénérer : `scripts/render-store.sh`.
 | Rubrique | Réponse |
 | --- | --- |
 | Accès à l’application | Aucune restriction : tout est accessible sans connexion |
-| Annonces | Non, l’application ne contient pas d’annonces |
+| Annonces | **Oui** : une interstitielle AdMob après chaque choix de catégorie à partir du deuxième |
 | Classification du contenu (IARC) | Catégorie « Jeu » ; non à toutes les questions (violence, peur, sexualité, jeux d’argent, langage, drogues, achats numériques) ; les joueurs n’échangent aucun message et ne partagent rien entre eux. Résultat attendu : PEGI 3 / Tout public |
 | Public cible | 13 ans et plus. Choisir une tranche de moins de 13 ans fait entrer l’app dans le programme Familles et ses exigences supplémentaires |
 | Application d’actualités | Non |
 | Applis gouvernementales / santé / finance | Non |
-| ID publicitaire | Non, l’application n’utilise pas l’identifiant publicitaire |
+| ID publicitaire | **Oui**, par le SDK AdMob ; finalités : publicité, analyse, prévention de la fraude. La permission `AD_ID` est ajoutée au manifeste par le SDK |
 
 ## Sécurité des données
 
-À remplir **seulement si le build embarque les clés Supabase** ; sans elles,
-rien ne quitte le téléphone et la réponse est « aucune donnée collectée ».
+Les lignes Supabase ne valent que si le build embarque ses clés ; les lignes
+AdMob valent pour tout build Android, puisque le SDK publicitaire y est
+toujours. Les déclarations AdMob reprennent le guide « Sécurité des données »
+de l’aide AdMob, à relire à chaque mise à jour du SDK.
 
-- Collecte ou partage de données : **oui, collecte** ; **aucun partage**
-- Données chiffrées en transit : **oui** (HTTPS vers Supabase)
+- Collecte ou partage de données : **oui, collecte** et **oui, partage**
+  (avec Google, pour la publicité)
+- Données chiffrées en transit : **oui** (HTTPS vers Supabase et Google)
 - Moyen de demander la suppression : **oui**, dans l’app (accueil › Effacer mes
   données) et à l’adresse `VITE_PRIVACY_URL#effacer`
 
@@ -79,9 +83,13 @@ rien ne quitte le téléphone et la réponse est « aucune donnée collectée »
 | Infos personnelles › ID utilisateur | L’identifiant anonyme Supabase | Oui | Non | Non | Oui | Fonctionnement de l’app |
 | Activité dans l’app › Autres actions | Parties, scores, mots joués, XP | Oui | Non | Non | Oui | Fonctionnement de l’app |
 | Activité dans l’app › Autre contenu généré par l’utilisateur | Mots proposés au dictionnaire | Oui | Non | Non | Non (le joueur choisit de proposer) | Fonctionnement de l’app |
+| Position › Position approximative | Déduite de l’adresse IP par AdMob | Oui | Oui | Non | Oui | Publicité, analyse, prévention de la fraude |
+| Appareil ou autres ID | Identifiant publicitaire (AdMob) | Oui | Oui | Non | Oui | Publicité, analyse, prévention de la fraude |
+| Activité dans l’app › Interactions avec l’app | Affichages et clics sur la pub (AdMob) | Oui | Oui | Non | Oui | Publicité, analyse, prévention de la fraude |
+| Infos et performances de l’app › Diagnostics, journaux de plantage | Remontés par le SDK AdMob | Oui | Oui | Non | Oui | Analyse, prévention de la fraude |
 
-Tout le reste (position, contacts, photos, e-mail, nom, appareil, diagnostics,
-plantages) : **non collecté**.
+Tout le reste (position précise, contacts, photos, e-mail, nom) : **non
+collecté**.
 
 ## Suppression de compte (Play Console › Règles › Suppression des données)
 

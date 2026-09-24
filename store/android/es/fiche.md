@@ -42,7 +42,8 @@ un nivel más arriba: `../icon-512.png`, `../feature-graphic.png` (1024 × 500),
 > ¿Falta una palabra? Proponla con un toque. Cuando la piden tres jugadores,
 > entra en el diccionario y tú ganas 150 XP.
 >
-> • Sin registro, sin publicidad
+> • Sin registro
+> • Un solo anuncio, breve, al elegir una nueva categoría
 > • Se puede jugar sin conexión
 > • Tema claro y oscuro
 > • Tus datos se borran con un gesto desde el inicio
@@ -59,20 +60,24 @@ francesa es `VITE_PRIVACY_URL`)
 | Apartado | Respuesta |
 | --- | --- |
 | Acceso a la aplicación | Sin restricciones: todo es accesible sin iniciar sesión |
-| Anuncios | No, la aplicación no contiene anuncios |
+| Anuncios | **Sí**: un intersticial de AdMob tras cada elección de categoría a partir de la segunda |
 | Clasificación de contenido (IARC) | Categoría «Juego»; no a todas las preguntas (violencia, miedo, sexualidad, apuestas, lenguaje, drogas, compras digitales); los jugadores no intercambian mensajes ni comparten nada entre sí. Resultado esperado: PEGI 3 / Todos |
 | Público objetivo | 13 años o más. Elegir una franja de menos de 13 años hace entrar la app en el programa Familias y sus requisitos adicionales |
 | Aplicación de noticias | No |
 | Apps gubernamentales / de salud / financieras | No |
-| ID de publicidad | No, la aplicación no usa el ID de publicidad |
+| ID de publicidad | **Sí**, a través del SDK de AdMob; finalidades: publicidad, analíticas, prevención de fraudes. El SDK añade el permiso `AD_ID` al manifiesto |
 
 ## Seguridad de los datos
 
-Rellenar **solo si la compilación incluye las claves de Supabase**; sin
-ellas, nada sale del teléfono y la respuesta es «no se recogen datos».
+Las filas de Supabase solo valen si la compilación incluye sus claves; las
+filas de AdMob valen para toda compilación Android, ya que el SDK publicitario
+siempre está incluido. Las declaraciones de AdMob siguen la guía «Seguridad de
+los datos» de la ayuda de AdMob, que hay que releer en cada actualización del
+SDK.
 
-- Recogida o compartición de datos: **sí, se recogen**; **no se comparten**
-- Datos cifrados en tránsito: **sí** (HTTPS hacia Supabase)
+- Recogida o compartición de datos: **sí, se recogen** y **sí, se comparten**
+  (con Google, para la publicidad)
+- Datos cifrados en tránsito: **sí** (HTTPS hacia Supabase y Google)
 - Forma de solicitar la eliminación: **sí**, en la app (inicio › Borrar mis
   datos) y en `VITE_PRIVACY_URL#effacer`
 
@@ -81,9 +86,13 @@ ellas, nada sale del teléfono y la respuesta es «no se recogen datos».
 | Información personal › ID de usuario | El identificador anónimo de Supabase | Sí | No | No | Sí | Funcionalidad de la aplicación |
 | Actividad en la aplicación › Otras acciones | Partidas, puntuaciones, palabras jugadas, XP | Sí | No | No | Sí | Funcionalidad de la aplicación |
 | Actividad en la aplicación › Otro contenido generado por el usuario | Palabras propuestas al diccionario | Sí | No | No | No (el jugador elige proponer) | Funcionalidad de la aplicación |
+| Ubicación › Ubicación aproximada | Deducida de la dirección IP por AdMob | Sí | Sí | No | Sí | Publicidad, analíticas, prevención de fraudes |
+| Dispositivo u otros IDs | ID de publicidad (AdMob) | Sí | Sí | No | Sí | Publicidad, analíticas, prevención de fraudes |
+| Actividad en la aplicación › Interacciones en la aplicación | Visualizaciones y toques en el anuncio (AdMob) | Sí | Sí | No | Sí | Publicidad, analíticas, prevención de fraudes |
+| Información y rendimiento de la aplicación › Diagnósticos, Registros de fallos | Enviados por el SDK de AdMob | Sí | Sí | No | Sí | Analíticas, prevención de fraudes |
 
-Todo lo demás (ubicación, contactos, fotos, correo, nombre, dispositivo,
-diagnósticos, fallos): **no se recoge**.
+Todo lo demás (ubicación precisa, contactos, fotos, correo, nombre): **no se
+recoge**.
 
 ## Eliminación de la cuenta (Play Console › Política › Eliminación de datos)
 

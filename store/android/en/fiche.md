@@ -40,7 +40,8 @@ Texts and answers to copy into the Play Console. The visuals are one level up:
 > A word missing? Suggest it in one tap. Once three players have asked for
 > it, it joins the dictionary, and you earn 150 XP.
 >
-> • No sign-up, no ads
+> • No sign-up
+> • A single short ad, when you pick a new category
 > • Playable offline
 > • Light and dark theme
 > • Erase your data in one tap from the home screen
@@ -56,20 +57,23 @@ once published (the French page today is `VITE_PRIVACY_URL`)
 | Section | Answer |
 | --- | --- |
 | App access | No restrictions: everything is available without signing in |
-| Ads | No, the app does not contain ads |
+| Ads | **Yes**: an AdMob interstitial after each category pick from the second one on |
 | Content rating (IARC) | “Game” category; no to every question (violence, fear, sexuality, gambling, language, drugs, digital purchases); players exchange no messages and share nothing with each other. Expected result: PEGI 3 / Everyone |
 | Target audience | 13 and over. Choosing an age group under 13 puts the app in the Families programme and its additional requirements |
 | News app | No |
 | Government / health / finance apps | No |
-| Advertising ID | No, the app does not use the advertising ID |
+| Advertising ID | **Yes**, through the AdMob SDK; purposes: advertising, analytics, fraud prevention. The `AD_ID` permission is added to the manifest by the SDK |
 
 ## Data safety
 
-To fill in **only if the build ships with the Supabase keys**; without them,
-nothing leaves the phone and the answer is “no data collected”.
+The Supabase rows apply only if the build ships with its keys; the AdMob rows
+apply to every Android build, since the ad SDK is always in it. The AdMob
+declarations follow the “Data safety” guide in the AdMob help, to be reread at
+every SDK update.
 
-- Data collection or sharing: **yes, collected**; **not shared**
-- Data encrypted in transit: **yes** (HTTPS to Supabase)
+- Data collection or sharing: **yes, collected** and **yes, shared**
+  (with Google, for advertising)
+- Data encrypted in transit: **yes** (HTTPS to Supabase and Google)
 - Way to request deletion: **yes**, in the app (home › Erase my data) and at
   `VITE_PRIVACY_URL#effacer`
 
@@ -78,9 +82,13 @@ nothing leaves the phone and the answer is “no data collected”.
 | Personal info › User IDs | The anonymous Supabase identifier | Yes | No | No | Yes | App functionality |
 | App activity › Other actions | Games, scores, words played, XP | Yes | No | No | Yes | App functionality |
 | App activity › Other user-generated content | Words suggested for the dictionary | Yes | No | No | No (the player chooses to suggest) | App functionality |
+| Location › Approximate location | Inferred from the IP address by AdMob | Yes | Yes | No | Yes | Advertising, analytics, fraud prevention |
+| Device or other IDs | Advertising ID (AdMob) | Yes | Yes | No | Yes | Advertising, analytics, fraud prevention |
+| App activity › App interactions | Ad views and taps (AdMob) | Yes | Yes | No | Yes | Advertising, analytics, fraud prevention |
+| App info and performance › Diagnostics, Crash logs | Reported by the AdMob SDK | Yes | Yes | No | Yes | Analytics, fraud prevention |
 
-Everything else (location, contacts, photos, email, name, device,
-diagnostics, crashes): **not collected**.
+Everything else (precise location, contacts, photos, email, name): **not
+collected**.
 
 ## Account deletion (Play Console › Policy › Data deletion)
 

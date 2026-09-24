@@ -42,7 +42,8 @@ genereren: `scripts/render-store.sh`.
 > Mis je een woord? Stel het met één tik voor. Als drie spelers erom vragen,
 > komt het in het woordenboek en krijg jij 150 XP.
 >
-> • Zonder registratie, zonder advertenties
+> • Zonder registratie
+> • Eén korte advertentie, bij het kiezen van een nieuwe categorie
 > • Offline speelbaar
 > • Licht en donker thema
 > • Wis je gegevens met één tik vanaf het startscherm
@@ -59,21 +60,24 @@ genereren: `scripts/render-store.sh`.
 | Onderdeel | Antwoord |
 | --- | --- |
 | App-toegang | Geen beperkingen: alles is toegankelijk zonder in te loggen |
-| Advertenties | Nee, de app bevat geen advertenties |
+| Advertenties | **Ja**: een AdMob-interstitial na elke categoriekeuze vanaf de tweede |
 | Contentclassificatie (IARC) | Categorie ‘Game’; nee op alle vragen (geweld, angst, seksualiteit, gokken, taalgebruik, drugs, digitale aankopen); spelers wisselen geen berichten uit en delen niets met elkaar. Verwacht resultaat: PEGI 3 / Alle leeftijden |
 | Doelgroep | 13 jaar en ouder. Een leeftijdsgroep onder 13 jaar kiezen brengt de app in het Gezinnenprogramma met de extra vereisten daarvan |
 | Nieuwsapp | Nee |
 | Overheids- / gezondheids- / financiële apps | Nee |
-| Advertentie-ID | Nee, de app gebruikt de advertentie-ID niet |
+| Advertentie-ID | **Ja**, via de AdMob-SDK; doelen: advertenties, analyse, fraudepreventie. De toestemming `AD_ID` wordt door de SDK aan het manifest toegevoegd |
 
 ## Gegevensveiligheid
 
-**Alleen invullen als de build de Supabase-sleutels bevat**; zonder die
-sleutels verlaat niets de telefoon en is het antwoord ‘geen gegevens
-verzameld’.
+De Supabase-rijen gelden alleen als de build de sleutels ervan bevat; de
+AdMob-rijen gelden voor elke Android-build, want de advertentie-SDK zit er
+altijd in. De AdMob-verklaringen volgen de handleiding ‘Gegevensveiligheid’ in
+de AdMob Help en moeten bij elke SDK-update opnieuw worden nagelezen.
 
-- Verzamelen of delen van gegevens: **ja, verzameld**; **niet gedeeld**
-- Gegevens versleuteld tijdens overdracht: **ja** (HTTPS naar Supabase)
+- Verzamelen of delen van gegevens: **ja, verzameld** en **ja, gedeeld**
+  (met Google, voor advertenties)
+- Gegevens versleuteld tijdens overdracht: **ja** (HTTPS naar Supabase en
+  Google)
 - Manier om verwijdering aan te vragen: **ja**, in de app (start › Mijn
   gegevens wissen) en op `VITE_PRIVACY_URL#effacer`
 
@@ -82,9 +86,13 @@ verzameld’.
 | Persoonsgegevens › Gebruikers-ID’s | De anonieme Supabase-ID | Ja | Nee | Nee | Ja | App-functionaliteit |
 | App-activiteit › Andere acties | Spellen, scores, gespeelde woorden, XP | Ja | Nee | Nee | Ja | App-functionaliteit |
 | App-activiteit › Andere door gebruikers gegenereerde content | Woorden voorgesteld voor het woordenboek | Ja | Nee | Nee | Nee (de speler kiest zelf of hij iets voorstelt) | App-functionaliteit |
+| Locatie › Geschatte locatie | Door AdMob afgeleid uit het IP-adres | Ja | Ja | Nee | Ja | Advertenties, analyse, fraudepreventie |
+| Apparaat- of andere ID’s | Advertentie-ID (AdMob) | Ja | Ja | Nee | Ja | Advertenties, analyse, fraudepreventie |
+| App-activiteit › App-interacties | Weergaven van en tikken op de advertentie (AdMob) | Ja | Ja | Nee | Ja | Advertenties, analyse, fraudepreventie |
+| App-informatie en -prestaties › Diagnostiek, Crashlogboeken | Doorgegeven door de AdMob-SDK | Ja | Ja | Nee | Ja | Analyse, fraudepreventie |
 
-Al het andere (locatie, contacten, foto’s, e-mail, naam, apparaat,
-diagnostiek, crashes): **niet verzameld**.
+Al het andere (precieze locatie, contacten, foto’s, e-mail, naam): **niet
+verzameld**.
 
 ## Accountverwijdering (Play Console › Beleid › Gegevensverwijdering)
 

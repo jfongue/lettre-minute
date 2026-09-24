@@ -42,7 +42,8 @@ eine Ebene höher: `../icon-512.png`, `../feature-graphic.png` (1024 × 500),
 > Ein Wort fehlt? Schlag es mit einem Tipp vor. Sobald drei Spieler es
 > wünschen, kommt es ins Wörterbuch, und du bekommst 150 XP.
 >
-> • Ohne Anmeldung, ohne Werbung
+> • Ohne Anmeldung
+> • Nur eine kurze Werbung, bei der Wahl einer neuen Kategorie
 > • Offline spielbar
 > • Helles und dunkles Design
 > • Deine Daten lassen sich auf dem Startbildschirm mit einem Tipp löschen
@@ -59,20 +60,23 @@ ist `VITE_PRIVACY_URL` die französische Seite)
 | Abschnitt | Antwort |
 | --- | --- |
 | App-Zugriff | Keine Einschränkung: alles ist ohne Anmeldung zugänglich |
-| Anzeigen | Nein, die App enthält keine Anzeigen |
+| Anzeigen | **Ja**: eine AdMob-Interstitial-Anzeige nach jeder Kategoriewahl ab der zweiten |
 | Einstufung des Inhalts (IARC) | Kategorie „Spiel“; Nein bei allen Fragen (Gewalt, Angst, Sexualität, Glücksspiel, Sprache, Drogen, digitale Käufe); die Spieler tauschen keine Nachrichten aus und teilen nichts miteinander. Erwartetes Ergebnis: PEGI 3 / USK ab 0 |
 | Zielgruppe | Ab 13 Jahren. Wer eine Altersgruppe unter 13 wählt, bringt die App ins Familienprogramm mit seinen zusätzlichen Anforderungen |
 | Nachrichten-App | Nein |
 | Behörden- / Gesundheits- / Finanz-Apps | Nein |
-| Werbe-ID | Nein, die App verwendet die Werbe-ID nicht |
+| Werbe-ID | **Ja**, durch das AdMob-SDK; Zwecke: Werbung, Analysen, Betrugsprävention. Die Berechtigung `AD_ID` fügt das SDK dem Manifest hinzu |
 
 ## Datensicherheit
 
-**Nur auszufüllen, wenn der Build die Supabase-Schlüssel enthält**; ohne sie
-verlässt nichts das Telefon, und die Antwort lautet „keine Daten erhoben“.
+Die Supabase-Zeilen gelten nur, wenn der Build ihre Schlüssel enthält; die
+AdMob-Zeilen gelten für jeden Android-Build, da das Werbe-SDK immer enthalten
+ist. Die AdMob-Angaben folgen dem Leitfaden „Datensicherheit“ in der
+AdMob-Hilfe und sind bei jedem SDK-Update erneut zu prüfen.
 
-- Erhebung oder Weitergabe von Daten: **ja, Erhebung**; **keine Weitergabe**
-- Daten bei der Übertragung verschlüsselt: **ja** (HTTPS zu Supabase)
+- Erhebung oder Weitergabe von Daten: **ja, Erhebung** und **ja, Weitergabe**
+  (an Google, für Werbung)
+- Daten bei der Übertragung verschlüsselt: **ja** (HTTPS zu Supabase und Google)
 - Möglichkeit, die Löschung zu beantragen: **ja**, in der App (Start ›
   Meine Daten löschen) und unter `VITE_PRIVACY_URL#effacer`
 
@@ -81,9 +85,13 @@ verlässt nichts das Telefon, und die Antwort lautet „keine Daten erhoben“.
 | Personenbezogene Daten › Nutzer-IDs | Die anonyme Supabase-Kennung | Ja | Nein | Nein | Ja | App-Funktionalität |
 | App-Aktivitäten › Sonstige Aktionen | Runden, Punktzahlen, gespielte Wörter, XP | Ja | Nein | Nein | Ja | App-Funktionalität |
 | App-Aktivitäten › Sonstige von Nutzern erstellte Inhalte | Für das Wörterbuch vorgeschlagene Wörter | Ja | Nein | Nein | Nein (der Spieler entscheidet sich für einen Vorschlag) | App-Funktionalität |
+| Standort › Ungefährer Standort | Von AdMob aus der IP-Adresse abgeleitet | Ja | Ja | Nein | Ja | Werbung, Analysen, Betrugsprävention |
+| Geräte- oder andere IDs | Werbe-ID (AdMob) | Ja | Ja | Nein | Ja | Werbung, Analysen, Betrugsprävention |
+| App-Aktivitäten › App-Interaktionen | Einblendungen der Werbung und Tipps darauf (AdMob) | Ja | Ja | Nein | Ja | Werbung, Analysen, Betrugsprävention |
+| App-Informationen und -Leistung › Diagnose, Absturzprotokolle | Vom AdMob-SDK übermittelt | Ja | Ja | Nein | Ja | Analysen, Betrugsprävention |
 
-Alles andere (Standort, Kontakte, Fotos, E-Mail, Name, Gerät, Diagnose,
-Abstürze): **nicht erhoben**.
+Alles andere (genauer Standort, Kontakte, Fotos, E-Mail, Name): **nicht
+erhoben**.
 
 ## Kontolöschung (Play Console › Richtlinien › Datenlöschung)
 
