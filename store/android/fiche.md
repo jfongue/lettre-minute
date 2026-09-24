@@ -35,7 +35,7 @@ clair et sombre). Pour les régénérer : `scripts/render-store.sh`.
 > PROGRESSEZ
 > Chaque point rapporte de l’expérience, et chaque niveau débloque une nouvelle
 > catégorie : fruits et légumes, métiers, sports, parties du corps,
-> matières, capitales, marques, insectes…
+> matières, capitales, marques…
 >
 > FAITES GRANDIR LE DICTIONNAIRE
 > Un mot manque ? Proposez-le en un clic. Réclamé par trois joueurs, il entre

@@ -274,7 +274,6 @@ export const nl: Messages = {
     matieres: ['Materialen', 'Hout, ijzer, staal, zand…'],
     capitales: ['Hoofdsteden', 'Hoofdsteden van de wereld'],
     marques: ['Merken', 'Bekende merken'],
-    insectes: ['Insecten', 'Insecten en kriebelbeestjes'],
   },
 
   colours: {

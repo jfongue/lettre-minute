@@ -23,7 +23,6 @@ export const CATALOGUE: readonly CategoryMeta[] = [
   { id: 'matieres', label: 'Matières', hint: 'Bois, fer, acier, sable…', unlockLevel: 6 },
   { id: 'capitales', label: 'Capitales', hint: 'Capitales du monde', unlockLevel: 7 },
   { id: 'marques', label: 'Marque', hint: 'Marques connues', unlockLevel: 8 },
-  { id: 'insectes', label: 'Insectes', hint: 'Insectes et petites bêtes', unlockLevel: 10 },
 ]
 
 export function categoryMeta(id: string): CategoryMeta | null {

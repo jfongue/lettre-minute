@@ -36,7 +36,7 @@ su: `../icon-512.png`, `feature-graphic.png` (1024 × 500, in questa cartella),
 > SALI DI LIVELLO
 > Ogni punto ti dà esperienza, e ogni livello sblocca una nuova categoria:
 > frutta e verdura, mestieri, sport, parti del corpo, materiali, capitali,
-> marchi, insetti…
+> marchi…
 >
 > FAI CRESCERE IL DIZIONARIO
 > Manca una parola? Proponila con un tocco. Quando la chiedono tre giocatori,

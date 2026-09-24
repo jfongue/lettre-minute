@@ -36,7 +36,7 @@ eine Ebene höher: `../icon-512.png`, `feature-graphic.png` (1024 × 500, in die
 > STEIG AUF
 > Jeder Punkt bringt Erfahrung, und jedes Level schaltet eine neue Kategorie
 > frei: Obst und Gemüse, Berufe, Sportarten, Körperteile,
-> Materialien, Hauptstädte, Marken, Insekten …
+> Materialien, Hauptstädte, Marken …
 >
 > LASS DAS WÖRTERBUCH WACHSEN
 > Ein Wort fehlt? Schlag es mit einem Tipp vor. Sobald drei Spieler es

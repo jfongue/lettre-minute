@@ -273,7 +273,6 @@ export const de: Messages = {
     matieres: ['Materialien', 'Holz, Eisen, Stahl, Sand…'],
     capitales: ['Hauptstädte', 'Hauptstädte der Welt'],
     marques: ['Marken', 'Bekannte Marken'],
-    insectes: ['Insekten', 'Insekten und Krabbeltiere'],
   },
 
   colours: {

@@ -93,7 +93,7 @@ describe('chooseCategory', () => {
 })
 
 describe('lineup', () => {
-  const owned = ['pays', 'animaux', 'couleurs', 'metiers', 'sports', 'insectes', 'capitales']
+  const owned = ['pays', 'animaux', 'couleurs', 'metiers', 'sports', 'marques', 'capitales']
 
   it('plays with five categories at most and keeps the rest in reserve', () => {
     const lineup = dealLineup(5, owned)

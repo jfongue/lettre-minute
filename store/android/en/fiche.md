@@ -34,7 +34,7 @@ Texts and answers to copy into the Play Console. The visuals are one level up:
 > LEVEL UP
 > Every point earns experience, and every level unlocks a new category: fruit
 > and vegetables, jobs, sports, parts of the body, materials, capitals,
-> brands, insects…
+> brands…
 >
 > HELP THE DICTIONARY GROW
 > A word missing? Suggest it in one tap. Once three players have asked for

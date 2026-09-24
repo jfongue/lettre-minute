@@ -65,7 +65,6 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
     'Crustacés en français',
     'Arachnides en français',
   ],
-  insectes: ['Insectes en français'],
   metiers: ['Métiers en français'],
   sports: ['Sports en français'],
   matieres: ['Métaux en français', 'Alliages en français', 'Roches en français', 'Textiles en français'],

@@ -205,10 +205,6 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
       'fleas',
     ],
   },
-  {
-    id: 'insectes',
-    pulls: ['beetles', 'butterflies', 'flies', 'hymenoptera', 'hemiptera', 'dragonflies', 'grasshoppers', 'cockroaches', 'mantises', 'lacewings', 'earwigs', 'mayflies', 'caddisflies', 'fleas'],
-  },
   { id: 'metiers', pulls: ['professions', 'professions-sub'] },
   { id: 'sports', pulls: ['sports', 'sports-sub'] },
   { id: 'capitales', pulls: ['capitals'] },

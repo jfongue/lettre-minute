@@ -36,7 +36,7 @@ genereren: `scripts/render-store.sh`.
 > STIJG IN LEVEL
 > Elk punt levert ervaring op, en elk level ontgrendelt een nieuwe
 > categorie: groente en fruit, beroepen, sporten, lichaamsdelen, materialen,
-> hoofdsteden, merken, insecten…
+> hoofdsteden, merken…
 >
 > LAAT HET WOORDENBOEK GROEIEN
 > Mis je een woord? Stel het met één tik voor. Als drie spelers erom vragen,

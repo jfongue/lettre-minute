@@ -36,7 +36,7 @@ un nivel más arriba: `../icon-512.png`, `feature-graphic.png` (1024 × 500, en 
 > SUBE DE NIVEL
 > Cada punto te da experiencia, y cada nivel desbloquea una categoría nueva:
 > frutas y verduras, profesiones, deportes, partes del cuerpo, materiales,
-> capitales, marcas, insectos…
+> capitales, marcas…
 >
 > HAZ CRECER EL DICCIONARIO
 > ¿Falta una palabra? Proponla con un toque. Cuando la piden tres jugadores,

@@ -52,7 +52,6 @@ export const TOPICS: Record<string, Topics> = {
     topics: ['Animals'],
     expand: ['Mammals', 'Birds', 'Fish', 'Reptiles', 'Amphibians', 'Insects', 'Mollusks', 'Crustaceans', 'Arachnids'],
   },
-  insectes: { topics: [], expand: ['Insects'] },
   metiers: {
     topics: ['Occupations', 'Healthcare occupations', 'Legal occupations', 'Nautical occupations', 'Occupations in hospitality', 'Religious occupations', 'Craftsmen', 'Salespeople', 'Servants', 'Scientists', 'Musicians', 'Artists'],
   },

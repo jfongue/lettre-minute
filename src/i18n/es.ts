@@ -275,7 +275,6 @@ export const es: Messages = {
     matieres: ['Materiales', 'Madera, hierro, acero, arena…'],
     capitales: ['Capitales', 'Capitales del mundo'],
     marques: ['Marcas', 'Marcas conocidas'],
-    insectes: ['Insectos', 'Insectos y bichitos'],
   },
 
   colours: {
