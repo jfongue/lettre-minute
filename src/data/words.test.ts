@@ -243,6 +243,20 @@ const hurried = (word: string) =>
     .toLowerCase()
     .replace(/[-’']/g, ' ')
 
+/** What the moderators accepted, as the last import read it (scripts/community-words.ts). */
+const COMMUNITY = JSON.parse(
+  readFileSync(join(import.meta.dirname, '../../scripts/community-words.json'), 'utf8'),
+) as Record<string, Record<string, string[]>>
+
+// No suite until a word is accepted: vitest fails an empty one.
+for (const [lang, categories] of Object.entries(COMMUNITY)) {
+  for (const [id, words] of Object.entries(categories)) {
+    it(`${lang}/${id} ships the ${words.length} words its moderators accepted`, () => {
+      expect(words.filter((word) => findWord(pack(lang, id), word, 0) === null)).toEqual([])
+    })
+  }
+}
+
 describe('obvious answers', () => {
   for (const [lang, categories] of Object.entries(OBVIOUS)) {
     for (const [id, words] of Object.entries(categories)) {

@@ -17,6 +17,7 @@ import type { WordRow } from '../src/domain/words.ts'
 import { LANGUAGES, TOPICS, type Lang, type LanguageSource } from './languages.ts'
 import { loadFrequencies } from './wordfreq.ts'
 import { ADDED_WORDS, DROPPED_WORDS, PLACEHOLDER_ELEMENT } from './dropped-words.ts'
+import { loadCommunityWords } from './community-words.ts'
 import { CATEGORY_SOURCES, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
 
 const ENDPOINT = 'https://query.wikidata.org/sparql'
@@ -840,6 +841,7 @@ function main(argv: readonly string[]) {
       }
     }
     const frequencies = await loadFrequencies(lang, paths.wordfreq)
+    const community = (await loadCommunityWords())[lang] ?? {}
 
     const byPull = new Map<string, Row[]>()
     const failed: string[] = []
@@ -963,8 +965,11 @@ function main(argv: readonly string[]) {
       // only them, the corpus frequency measures the right sense.
       const listed = await attestedWords(category.id)
       const added = ADDED_WORDS[category.id]?.[lang] ?? []
+      // Three moderators vouched for these: they are filed here as surely as a
+      // Wiktionary word, and no homograph guess overrules them.
+      const moderated = new Set((community[category.id] ?? []).map(normalizeWord))
       const attested = new Set<string>()
-      for (const word of [...(listed?.words ?? []), ...added]) {
+      for (const word of [...(listed?.words ?? []), ...added, ...(community[category.id] ?? [])]) {
         const display = word.trim().replace(/\s+/g, ' ')
         if (!acceptable(display)) continue
         const key = normalizeWord(display)
@@ -975,7 +980,7 @@ function main(argv: readonly string[]) {
         // would all lie.
         const everyday = frequencies.get(display.normalize('NFC').toLowerCase()) ?? 0
         const homograph = HOMOGRAPH_PRONE.has(category.id) && listed?.deep.has(key) && !best.has(key) && everyday >= HOMOGRAPH_FREQUENCY
-        if (homograph) continue
+        if (homograph && !moderated.has(key)) continue
         if (key !== '') attested.add(key)
         if (key === '' || best.has(key)) continue
         // No sitelinks: a Wiktionary word is rated on its corpus frequency

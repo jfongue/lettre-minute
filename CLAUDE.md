@@ -77,6 +77,11 @@ qu'un nouvel arrivant casserait sans le savoir.
   rajoute dans `ADDED_WORDS`, pas en retouchant le `.json`, que le prochain
   import écraserait. `acceptable` doit accepter tout l'alphabet latin : le
   Latin-1 seul jetait « cœur », « œil » et chaque « maître d’hôtel ».
+- **Un mot accepté par les modérateurs n'est embarqué qu'au prochain import**
+  (`scripts/community-words.ts`, via `supabase db query --linked`) : jusque-là
+  il n'existe que chargé du serveur, donc ni hors ligne ni en défi. Commiter
+  `scripts/community-words.json` avec les `.json` : c'est lui que relit un
+  import sans accès au projet.
 - **Un alias Wikidata de pays court est un code** (`shortestAlias`), et une
   catégorie de noms (`names`) ne fléchit pas : leurs « formes » sont celles
   d'un homographe. Deux lignes qui se compactent pareil n'en font qu'une

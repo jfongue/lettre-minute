@@ -184,6 +184,14 @@ qu'une table donnerait en premier. Un mot évident que les sources oublient
 s'ajoute à `ADDED_WORDS` (`scripts/dropped-words.ts`), un intrus à
 `DROPPED_WORDS`.
 
+Les mots que les modérateurs ont acceptés (`dictionary_words`, source
+`community`) entrent aussi dans les fichiers à chaque import : la CLI Supabase
+liée les lit et les fige dans `scripts/community-words.json`, à commiter avec
+les dictionnaires. Sans CLI ou hors ligne, l'import relit cet instantané. Un
+mot accepté compte comme attesté par le Wiktionnaire, et le test vérifie
+qu'aucun ne se perd. Entre deux imports, le jeu les recharge du serveur au
+démarrage, hors défis.
+
 Une réponse rattrapée par la tolérance n'y a pas droit : elle vaut 10 points,
 et le jeu affiche l'orthographe exacte pour que le joueur la retienne. Le jeu
 refuse de deviner quand deux mots de la catégorie sont à une lettre de ce qui a
