@@ -308,12 +308,12 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
 
       {mode === 'judge' && card && (
         <>
-          <div className="verdicts">
+          <div className="votes">
             {(['incorrect', 'unsure', 'correct'] as const).map((verdict) => (
               <button
                 key={verdict}
                 type="button"
-                className={`verdict verdict--${verdict}`}
+                className={`vote vote--${verdict}`}
                 style={{ '--lean': lean[verdict] } as CSSProperties}
                 onClick={() => vote(verdict)}
                 aria-label={t.moderation.screen.verdicts[verdict]}

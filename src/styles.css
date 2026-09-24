@@ -3532,7 +3532,7 @@ button {
   }
 }
 
-.verdicts {
+.votes {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -3541,7 +3541,7 @@ button {
 
 /* Trois pastilles rondes : le geste suffit, le texte est dans l'infobulle et
    pour les lecteurs d'écran. */
-.verdict {
+.vote {
   --tint: var(--ink);
   appearance: none;
   display: grid;
@@ -3564,11 +3564,11 @@ button {
   animation: pop-in 480ms var(--ease-spring) backwards;
 }
 
-.verdict--incorrect {
+.vote--incorrect {
   --tint: var(--red);
 }
 
-.verdict--unsure {
+.vote--unsure {
   --tint: var(--yellow);
   width: 3.6rem;
   height: 3.6rem;
@@ -3576,23 +3576,23 @@ button {
   animation-delay: 60ms;
 }
 
-.verdict--correct {
+.vote--correct {
   --tint: var(--green);
   animation-delay: 120ms;
 }
 
-.verdict:active {
+.vote:active {
   transform: translateY(4px);
   box-shadow: 0 0 0 var(--tint);
 }
 
-.verdict:focus-visible {
+.vote:focus-visible {
   outline: 3px solid var(--blue);
   outline-offset: 4px;
 }
 
 @media (hover: hover) {
-  .verdict:hover {
+  .vote:hover {
     background: var(--tint);
     color: var(--paper);
   }
