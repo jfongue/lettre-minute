@@ -4172,27 +4172,10 @@ button {
   }
 }
 
-/* Esquive : un trait vert traverse le bouton, et la lettre suivante arrive plus vite. */
+/* Esquive : le bouton passe au vert, et la lettre suivante arrive plus vite. */
 .btn--dodge {
-  position: relative;
-  overflow: hidden;
   color: var(--green);
   border-color: var(--green);
-}
-
-.dodge-streak {
-  position: absolute;
-  inset: 45% -20% auto;
-  height: 3px;
-  background: var(--green);
-  transform: translateX(-120%);
-  animation: dash 420ms var(--ease-out);
-}
-
-@keyframes dash {
-  to {
-    transform: translateX(120%);
-  }
 }
 
 .run--dodge .prompt-text {

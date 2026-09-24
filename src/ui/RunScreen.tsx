@@ -267,7 +267,6 @@ export function RunScreen({
             onPointerDown={keepFocus}
             onClick={skip}
           >
-            {dodge && <span className="dodge-streak" key={run.skips} aria-hidden="true" />}
             {t.run.skip(skipPenalty(run))}
           </button>
           <button type="submit" className="btn btn--blue" onPointerDown={keepFocus} disabled={!accepted && !spell}>
