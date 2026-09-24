@@ -1,11 +1,12 @@
 # Supabase
 
-Cinq migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Six migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
 pour les classements par période et les amis, [`0005_my_submissions.sql`](migrations/0005_my_submissions.sql)
-pour retirer ou corriger un mot proposé tant qu'il attend.
+pour retirer ou corriger un mot proposé tant qu'il attend, [`0006_house_bots.sql`](migrations/0006_house_bots.sql)
+pour les deux joueurs maison.
 
 ## Ce que le serveur détient
 
@@ -19,6 +20,7 @@ pour retirer ou corriger un mot proposé tant qu'il attend.
 | `word_submissions` | Les mots proposés par les joueurs, avec leur statut. |
 | `moderators` | Qui peut valider ou rejeter à la main. |
 | `friendships` | Une ligne par demande d'ami (`pending` puis `accepted`), lue dans les deux sens. |
+| `bots` | Les joueurs maison (Maxitoon, Terretciel) et les bornes de leurs scores. |
 | `account_merges` | Jetons à usage unique : versent un compte anonyme dans le compte auquel il se connecte. |
 
 Fonctions de lecture : `leaderboard_board('day' | 'week' | 'discoveries')` — le
@@ -54,6 +56,19 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   l'utilisateur d'auth emporte le reste en cascade. Toute nouvelle table liée à
   un joueur doit donc référencer `profiles` avec `on delete cascade`, sans quoi
   l'effacement échoue ou laisse des données derrière lui.
+
+## Joueurs maison
+
+- **Maxitoon et Terretciel jouent par `pg_cron`** (`house-bots`, à la minute 17
+  de chaque heure, pas la nuit) : une partie modeste, pas à chaque passage.
+  Leurs bornes de score se règlent dans `bots`, sans redéploiement.
+- **Leurs parties n'ont pas de mots** : un mot de robot fausserait la rareté
+  et volerait des découvertes. Ils ne figurent qu'aux classements de score.
+- **Une demande d'ami vers eux est acceptée à l'insertion**
+  (`friendships_bots_accept`). `request_friend` répond quand même `sent`.
+- **Personne ne se connecte à leurs comptes** : pas de mot de passe, adresse en
+  `.invalid`. Pour les retirer : `select cron.unschedule('house-bots')`, puis
+  effacer leurs utilisateurs d'auth — le reste part en cascade.
 
 ## Comptes
 
