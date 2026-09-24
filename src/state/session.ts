@@ -1,3 +1,4 @@
+import { applyChallengeRun } from '../domain/challenge'
 import { applyRun, levelFor, type Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
 import { capitalized, normalizeWord } from '../domain/text'
@@ -26,6 +27,8 @@ export interface Session {
   reserve: readonly string[]
   /** Swaps Permutation still allows during the countdown; 0 without the power. */
   swapsLeft: number
+  /** The challenge this run is played for, or null for a solo run. */
+  challengeId: string | null
   /** What is in the field right now, judged on every keystroke. */
   draft: string
   live: Verdict | null
@@ -59,7 +62,15 @@ export interface Cheer {
 export type SessionAction =
   | { type: 'profile-loaded'; profile: Profile }
   | { type: 'play' }
-  | { type: 'ready'; judge: Judge; seed: number; categoryIds: readonly string[]; reserve: readonly string[] }
+  | {
+      type: 'ready'
+      judge: Judge
+      seed: number
+      categoryIds: readonly string[]
+      reserve: readonly string[]
+      /** A challenge brings its own lineup and the powers picked for it. */
+      challenge?: { id: string; powers: readonly PowerId[] }
+    }
   /** The countdown traded a category: same seed, new lineup, a judge that knows the incoming dictionary. */
   | { type: 'swapped'; judge: Judge; categoryIds: readonly string[]; reserve: readonly string[] }
   | { type: 'offer'; availableIds: readonly string[]; seed: number }
@@ -86,6 +97,7 @@ export function initialSession(profile: Profile): Session {
     run: null,
     reserve: [],
     swapsLeft: 0,
+    challengeId: null,
     draft: '',
     live: null,
     cheer: null,
@@ -105,17 +117,18 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       return { ...session, phase: 'loading', error: null }
 
     case 'ready': {
-      const powers = equippedPowers(session.profile)
+      const { challenge } = action
+      const powers = challenge ? challenge.powers : equippedPowers(session.profile)
+      // A challenge avoids nothing: every player's draw must follow the seed alone.
+      const avoid = challenge ? [] : session.profile.lastPrompts
       return {
         ...session,
         phase: 'countdown',
         judge: action.judge,
-        run: createRun(
-          { seed: action.seed, categoryIds: action.categoryIds, avoid: session.profile.lastPrompts, powers },
-          action.judge,
-        ),
-        reserve: action.reserve,
-        swapsLeft: powers.includes('permutation') ? (POWER_CHARGES.permutation ?? 0) : 0,
+        run: createRun({ seed: action.seed, categoryIds: action.categoryIds, avoid, powers, shared: Boolean(challenge) }, action.judge),
+        reserve: challenge ? [] : action.reserve,
+        swapsLeft: !challenge && powers.includes('permutation') ? (POWER_CHARGES.permutation ?? 0) : 0,
+        challengeId: challenge?.id ?? null,
         levelBefore: levelFor(session.profile.xp),
         profileBefore: session.profile,
         draft: '',
@@ -224,7 +237,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         run,
         draft: '',
         live: null,
-        profile: applyRun(session.profile, {
+        profile: (session.challengeId ? applyChallengeRun : applyRun)(session.profile, {
           score: run.score,
           words: run.found.map((found) => found.word),
           bestCombo: run.bestCombo,

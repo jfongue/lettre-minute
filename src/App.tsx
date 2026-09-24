@@ -1,19 +1,27 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { availableCategoryIds, loadPack, loadPacks } from './data/packs'
 import {
+  createChallenge,
   deleteAccount,
   fetchAccount,
+  fetchChallenge,
+  fetchChallenges,
   fetchCommunityWords,
   fetchCrowdUsage,
   fetchBoards,
   fetchModerationStatus,
   logIn,
   logOut,
+  markChallengeSeen,
   pushAvatar,
+  pushChallengeRun,
   pushRun,
   pushSubmissions,
   register,
+  rematchChallenge,
   type Account,
+  type ChallengeDetail,
+  type ChallengeSummary,
   type CommunityWord,
   type ModerationStatus,
 } from './lib/cloud'
@@ -22,11 +30,20 @@ import { configureSound, setHush, setMusic, setPulseStage, sound, tierSound, typ
 import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
 import { appendRecord, recordOf, type RunRecord } from './domain/history'
 import { completeBoards, HOUSE_PLAYER, type Boards } from './domain/boards'
+import {
+  challengePowers,
+  CHALLENGE_MAX_PLAYERS,
+  defaultChallengePowers,
+  needsPowerPick,
+  scoreAt,
+} from './domain/challenge'
+import type { PowerId } from './domain/powers'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { commonWord, withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
+import { challengeNotice } from './state/challenges'
 import { createJudge } from './state/judge'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
 import { initialSession, sessionReducer } from './state/session'
@@ -46,6 +63,10 @@ import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
 import { useElapsed } from './state/useElapsed'
 import type { AccountActions } from './ui/AccountPanel'
 import { AvatarScreen } from './ui/AvatarScreen'
+import { ChallengeNotice } from './ui/ChallengeHome'
+import { ChallengePowers } from './ui/ChallengePowers'
+import { ChallengeScreen } from './ui/ChallengeScreen'
+import { FriendPicker } from './ui/FriendPicker'
 import { CountdownScreen } from './ui/CountdownScreen'
 import { HomeScreen } from './ui/HomeScreen'
 import { LanguagePicker } from './ui/LanguagePicker'
@@ -54,7 +75,7 @@ import { ModerationScreen } from './ui/ModerationScreen'
 import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
 import { OverScreen } from './ui/OverScreen'
-import { RunScreen } from './ui/RunScreen'
+import { RunScreen, type Racer } from './ui/RunScreen'
 
 /** The boards as the home screen shows them: without a server, none at all. */
 async function loadBoards(): Promise<Boards | null> {
@@ -118,6 +139,19 @@ export function App() {
   // The seed of the run whose reveal has played: leaving for the avatar editor
   // and coming back must not replay it.
   const [revealed, setRevealed] = useState<number | null>(null)
+  // Challenges between friends: the list under « Jouer », the one opened,
+  // the friend picker that starts one, and the power pick before a run.
+  const [challenges, setChallenges] = useState<ChallengeSummary[] | null>(null)
+  const [challengeOpen, setChallengeOpen] = useState<string | null>(null)
+  const [creating, setCreating] = useState<{ busy: boolean; message: string | null } | null>(null)
+  const [picking, setPicking] = useState<ChallengeDetail | null>(null)
+  // The challenge being played, for the race; then what became of the run sent to it.
+  const [played, setPlayed] = useState<ChallengeDetail | null>(null)
+  const [afterRun, setAfterRun] = useState<ChallengeDetail | 'sending' | 'failed'>('sending')
+  // Notices put off with « Plus tard » this session, by challenge id.
+  const [heldNotices, setHeldNotices] = useState<readonly string[]>([])
+  // The dictionary the run plays: the interface's, or the challenge's own.
+  const [runLang, setRunLang] = useState<string | null>(null)
   // Signing in must wait for the run to reach the server: the merge moves the
   // anonymous player's runs, and a run still in flight would be left behind.
   const pushing = useRef<Promise<unknown>>(Promise.resolve())
@@ -218,6 +252,8 @@ export function App() {
   phase.current = session.phase
   const menuShown = useRef(menuOpen)
   menuShown.current = menuOpen
+  // The challenge screens close one at a time, the way they opened.
+  const closeChallengeLayer = useRef<() => boolean>(() => false)
   useEffect(
     () =>
       onBackButton(() => {
@@ -225,6 +261,7 @@ export function App() {
           setMenuPage(null)
           return true
         }
+        if (closeChallengeLayer.current()) return true
         if (phase.current === 'home' || phase.current === 'loading') return false
         dispatch({ type: 'home' })
         return true
@@ -281,6 +318,13 @@ export function App() {
     [session.run, session.judge],
   )
 
+  const rivals = useMemo<Racer[] | undefined>(() => {
+    if (!played || session.phase !== 'playing') return undefined
+    return played.players
+      .filter((player) => !player.me && player.playedAt !== null)
+      .map((player) => ({ id: player.playerId, name: player.name, avatar: player.avatar, score: scoreAt(player.words, elapsed) }))
+  }, [played, session.phase, elapsed])
+
   useEffect(() => {
     if (session.phase === 'playing' && remaining <= 0) dispatch({ type: 'time-up', at: elapsed })
   }, [session.phase, remaining, elapsed])
@@ -307,26 +351,36 @@ export function App() {
   }, [adsWanted])
 
   const judgeFor = useCallback(
-    async (categoryIds: readonly string[]) => {
-      const packs = (await loadPacks(lang, categoryIds)).map((pack) =>
-        withExtraWords(
-          pack,
-          (community.current[pack.categoryId] ?? []).map((word) => ({
-            key: '',
-            display: word.display,
-            sitelinks: word.sitelinks,
-            frequency: word.frequency,
-            notoriety: 0,
-          })),
-        ),
-      )
-      return createJudge(packs, { own: session.profile.usage, crowd }, t.powers.spells)
+    async (categoryIds: readonly string[], packLang: string = lang, challenge = false) => {
+      const loaded = await loadPacks(packLang, categoryIds)
+      // A challenge leaves the community words out: they change which letters
+      // a category can be prompted on, and two players who loaded a different
+      // list would not draw the same prompts.
+      const packs = challenge
+        ? loaded
+        : loaded.map((pack) =>
+            withExtraWords(
+              pack,
+              (community.current[pack.categoryId] ?? []).map((word) => ({
+                key: '',
+                display: word.display,
+                sitelinks: word.sitelinks,
+                frequency: word.frequency,
+                notoriety: 0,
+              })),
+            ),
+          )
+      // The crowd counts are the interface language's: another dictionary has none.
+      const usage = { own: session.profile.usage, crowd: packLang === lang ? crowd : {} }
+      return createJudge(packs, usage, t.powers.spells)
     },
     [session.profile.usage, crowd, lang, t],
   )
 
   const play = useCallback(async () => {
     dispatch({ type: 'play' })
+    setRunLang(lang)
+    setPlayed(null)
     setBoardsBefore(boardsNow.current)
     setBoardsAfter(null)
     try {
@@ -346,6 +400,117 @@ export function App() {
       dispatch({ type: 'load-failed', message: t.loadFailed })
     }
   }, [session.profile, judgeFor, t, lang])
+
+  const named = account !== null && !account.anonymous
+  const refreshChallenges = useCallback(() => {
+    if (!named) return setChallenges(null)
+    fetchChallenges().then(setChallenges)
+  }, [named])
+  useEffect(refreshChallenges, [refreshChallenges])
+  // No push service: the home screen asks again when it comes back into view,
+  // and every minute while it stays there.
+  const atHome = session.phase === 'home'
+  useEffect(() => {
+    if (!atHome || !named) return
+    refreshChallenges()
+    const visible = () => document.visibilityState === 'visible' && refreshChallenges()
+    document.addEventListener('visibilitychange', visible)
+    const timer = setInterval(visible, 60_000)
+    return () => {
+      document.removeEventListener('visibilitychange', visible)
+      clearInterval(timer)
+    }
+  }, [atHome, named, refreshChallenges])
+
+  const launchChallenge = useCallback(
+    async (detail: ChallengeDetail, powers: readonly PowerId[]) => {
+      setPicking(null)
+      setChallengeOpen(null)
+      setMenuPage(null)
+      setPlayed(detail)
+      setRunLang(detail.lang)
+      dispatch({ type: 'play' })
+      setBoardsBefore(null)
+      setBoardsAfter(null)
+      try {
+        const judge = await judgeFor(detail.categoryIds, detail.lang, true)
+        dispatch({
+          type: 'ready',
+          judge,
+          seed: detail.seed,
+          categoryIds: detail.categoryIds,
+          reserve: [],
+          challenge: { id: detail.id, powers },
+        })
+      } catch {
+        dispatch({ type: 'load-failed', message: t.loadFailed })
+      }
+    },
+    [judgeFor, t],
+  )
+
+  /** Straight into the run, unless the player has more allowed powers than slots to fill. */
+  const startChallenge = useCallback(
+    (detail: ChallengeDetail) => {
+      const me = detail.players.find((player) => player.me)
+      if (detail.finished || !me || me.playedAt !== null) return setChallengeOpen(detail.id)
+      markChallengeSeen(detail.id, 'invite')
+      if (needsPowerPick(session.profile)) {
+        setChallengeOpen(null)
+        setPicking(detail)
+      } else {
+        launchChallenge(detail, defaultChallengePowers(session.profile))
+      }
+    },
+    [session.profile, launchChallenge],
+  )
+
+  const startChallengeById = useCallback(
+    async (id: string) => {
+      const detail = await fetchChallenge(id)
+      if (detail) startChallenge(detail)
+      else setChallengeOpen(id)
+    },
+    [startChallenge],
+  )
+
+  /** A lineup dealt from the player's own categories, in the challenge's language. */
+  const challengeLineup = useCallback(
+    (seed: number, challengeLang: string) => {
+      const shipped = new Set(availableCategoryIds(challengeLang))
+      return dealLineup(seed, ownedCategoryIds(session.profile).filter((id) => shipped.has(id))).dealt
+    },
+    [session.profile],
+  )
+
+  const create = useCallback(
+    async (friends: readonly string[]) => {
+      setCreating({ busy: true, message: null })
+      const seed = Date.now() >>> 0
+      const id = await createChallenge(lang, seed, challengeLineup(seed, lang), friends)
+      const detail = id ? await fetchChallenge(id) : null
+      if (!detail) return setCreating({ busy: false, message: t.challenge.createFailed })
+      setCreating(null)
+      refreshChallenges()
+      startChallenge(detail)
+    },
+    [lang, challengeLineup, refreshChallenges, startChallenge, t],
+  )
+
+  // Only one rematch per challenge: whoever comes second is sent to the first one.
+  const rematch = useCallback(
+    async (detail: ChallengeDetail) => {
+      const seed = Date.now() >>> 0
+      const lineup = challengeLineup(seed, detail.lang)
+      const id = detail.nextId ?? (await rematchChallenge(detail.id, seed, lineup.length > 0 ? lineup : detail.categoryIds))
+      const next = id ? await fetchChallenge(id) : null
+      if (!next) return false
+      refreshChallenges()
+      startChallenge(next)
+      return true
+    },
+    [challengeLineup, refreshChallenges, startChallenge],
+  )
 
   const [swapping, setSwapping] = useState(false)
   const swap = useCallback(
@@ -377,22 +542,34 @@ export function App() {
       if (!session.run) return
       saveSubmissions([
         ...loadSubmissions(),
-        { word: word.trim(), categoryId: session.run.prompt.categoryId, at: Date.now(), lang },
+        { word: word.trim(), categoryId: session.run.prompt.categoryId, at: Date.now(), lang: runLang ?? lang },
       ])
       dispatch({ type: 'propose', word })
     },
-    [session.run, lang],
+    [session.run, lang, runLang],
   )
 
   useEffect(() => {
     if (session.phase !== 'over' || !session.run) return
-    const record = recordOf(session.run, Date.now(), lang)
+    const playedLang = runLang ?? lang
+    const record = recordOf(session.run, Date.now(), playedLang)
     setHistory((previous) => {
       const next = appendRecord(previous, record)
       saveHistory(next)
       return next
     })
-    const pushed = pushRun(session.run, session.profile, lang)
+    const challengeId = session.challengeId
+    if (challengeId) {
+      setAfterRun('sending')
+      const sent = pushChallengeRun(challengeId, session.run, session.profile)
+      pushing.current = sent
+      flushSubmissions()
+      sent
+        .then((ok) => (ok ? fetchChallenge(challengeId) : null))
+        .then((detail) => setAfterRun(detail ?? 'failed'))
+      return
+    }
+    const pushed = pushRun(session.run, session.profile, playedLang)
     pushing.current = pushed
     flushSubmissions()
     // Read after the run is in, or the boards would not count it yet.
@@ -408,6 +585,21 @@ export function App() {
     // in the same render is the one the score was just added to.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.phase])
+
+  closeChallengeLayer.current = () => {
+    if (picking) setPicking(null)
+    else if (creating) setCreating(null)
+    else if (challengeOpen) setChallengeOpen(null)
+    else return false
+    return true
+  }
+
+  const leaveChallenge = () => {
+    setChallengeOpen(null)
+    refreshChallenges()
+  }
+  const quietHome = session.phase === 'home' && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
+  const notice = quietHome ? challengeNotice(challenges, heldNotices) : null
 
   if (locale === null) {
     return (
@@ -447,7 +639,17 @@ export function App() {
         />
       )}
 
-      {!editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
+      {challengeOpen && !editingAvatar && !moderating && session.phase === 'home' && (
+        <ChallengeScreen
+          key={challengeOpen}
+          id={challengeOpen}
+          onPlay={startChallenge}
+          onRematch={rematch}
+          onBack={leaveChallenge}
+        />
+      )}
+
+      {!editingAvatar && !moderating && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
@@ -456,17 +658,58 @@ export function App() {
           me={account && !account.anonymous ? account.name : null}
           avatar={avatar}
           requestsNews={moderation?.news ?? 0}
+          challenges={named ? challenges : null}
+          onChallenge={setChallengeOpen}
+          onCreateChallenge={() => setCreating({ busy: false, message: null })}
           onMenu={(page = 'profile') => setMenuPage(page)}
           onPlay={play}
           onEquip={(slot, powerId) => dispatch({ type: 'equip', slot, powerId })}
         />
       )}
 
-      {!menuOpen &&
-        !editingAvatar &&
-        !moderating &&
+      {creating && session.phase === 'home' && (
+        <FriendPicker
+          title={t.challenge.create}
+          lead={t.challenge.createLead(CHALLENGE_MAX_PLAYERS - 1)}
+          exclude={[]}
+          max={CHALLENGE_MAX_PLAYERS - 1}
+          busy={creating.busy}
+          message={creating.message}
+          confirmLabel={t.challenge.launch}
+          onConfirm={create}
+          onClose={() => setCreating(null)}
+        />
+      )}
+
+      {picking && session.phase === 'home' && (
+        <ChallengePowers
+          allowed={challengePowers(session.profile)}
+          initial={defaultChallengePowers(session.profile)}
+          onStart={(powers) => launchChallenge(picking, powers)}
+          onClose={() => setPicking(null)}
+        />
+      )}
+
+      {notice && (
+        <ChallengeNotice
+          challenge={notice.challenge}
+          kind={notice.kind}
+          onLater={() => {
+            setHeldNotices((held) => [...held, notice.challenge.id])
+            // An invitation seen is off the notices for good: it waits in the list.
+            if (notice.kind === 'invite') markChallengeSeen(notice.challenge.id, 'invite')
+          }}
+          onGo={() => {
+            setHeldNotices((held) => [...held, notice.challenge.id])
+            if (notice.kind === 'invite') startChallengeById(notice.challenge.id)
+            else setChallengeOpen(notice.challenge.id)
+          }}
+        />
+      )}
+
+      {!notice &&
+        quietHome &&
         !offerHeld &&
-        session.phase === 'home' &&
         moderation?.offer && (
           <ModeratorOffer
             reason={moderation.offer}
@@ -566,6 +809,8 @@ export function App() {
           onReroll={() => dispatch({ type: 'reroll', at: elapsed })}
           proposed={session.proposed}
           onPropose={propose}
+          rivals={rivals}
+          avatar={avatar}
         />
       )}
 
@@ -587,7 +832,17 @@ export function App() {
           boardsAfter={boardsAfter}
           me={account && !account.anonymous ? account.name : null}
           onReplay={play}
-          onHome={() => dispatch({ type: 'home' })}
+          onHome={() => {
+            dispatch({ type: 'home' })
+            if (session.challengeId) {
+              setPlayed(null)
+              refreshChallenges()
+            }
+          }}
+          challenge={session.challengeId ? afterRun : undefined}
+          onChallengeChanged={() => {
+            if (session.challengeId) fetchChallenge(session.challengeId).then((detail) => detail && setAfterRun(detail))
+          }}
         />
       )}
 

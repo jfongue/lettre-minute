@@ -59,6 +59,8 @@ export interface FoundWord {
 /** A word the run kept, with the seconds its prompt stayed on screen before it came. */
 export interface KeptWord extends FoundWord {
   seconds: number
+  /** The run clock when it was validated: what a challenge replays its rivals by. */
+  at: number
 }
 
 export type VerdictKind = 'empty' | 'unknown' | 'wrong-letter' | 'already' | 'accepted' | 'spell'
@@ -96,6 +98,14 @@ export interface Run {
   avoid: readonly string[]
   /** Every prompt this run dealt, skipped ones included — the next run's `avoid`. */
   dealt: readonly string[]
+  /**
+   * Played by several on one seed, in a challenge: the draw must not depend
+   * on what this player did, so only `seeded` locks a thin pair, never a
+   * letter Magie brought.
+   */
+  shared: boolean
+  /** The prompts the seed itself dealt, Magie's letters left out. */
+  seeded: readonly string[]
   found: readonly KeptWord[]
   used: readonly string[]
   /** The run clock, in seconds, when the current prompt appeared. */
@@ -177,17 +187,19 @@ function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[],
  * so Divination can show it and `advance` is bound to deal that very one.
  */
 export function nextPrompt(run: Run, judge: Judge): Prompt {
-  return drawPrompt(run.seed, run.drawn, run.categoryIds, judge, lockOf(run.avoid, run.dealt, judge), run.prompt.categoryId)
+  const dealt = run.shared ? run.seeded : run.dealt
+  return drawPrompt(run.seed, run.drawn, run.categoryIds, judge, lockOf(run.avoid, dealt, judge), run.prompt.categoryId)
 }
 
 /** The run moved on to a new prompt: it is drawn, counted, and remembered for the next run. */
-function advance(run: Run, judge: Judge): Pick<Run, 'prompt' | 'drawn' | 'dealt' | 'joker'> {
+function advance(run: Run, judge: Judge): Pick<Run, 'prompt' | 'drawn' | 'dealt' | 'seeded' | 'joker'> {
   const prompt = nextPrompt(run, judge)
   const key = promptKey(prompt)
   return {
     prompt,
     drawn: run.drawn + 1,
     dealt: run.dealt.includes(key) ? run.dealt : [...run.dealt, key],
+    seeded: run.seeded.includes(key) ? run.seeded : [...run.seeded, key],
     joker: null,
   }
 }
@@ -216,9 +228,11 @@ export interface CreateRunInput {
   /** The prompts the previous run dealt. */
   avoid?: readonly string[]
   powers?: readonly PowerId[]
+  /** A challenge run: see `Run.shared`. */
+  shared?: boolean
 }
 
-export function createRun({ seed, categoryIds, avoid = [], powers = [] }: CreateRunInput, judge: Judge): Run {
+export function createRun({ seed, categoryIds, avoid = [], powers = [], shared = false }: CreateRunInput, judge: Judge): Run {
   const prompt = drawPrompt(seed, 0, categoryIds, judge, new Set(avoid))
   return {
     seed,
@@ -227,6 +241,8 @@ export function createRun({ seed, categoryIds, avoid = [], powers = [] }: Create
     drawn: 1,
     avoid,
     dealt: [promptKey(prompt)],
+    shared,
+    seeded: [promptKey(prompt)],
     found: [],
     used: [],
     promptAt: 0,
@@ -323,7 +339,7 @@ export function submit(run: Run, raw: string, judge: Judge, at = run.promptAt): 
       ...run,
       ...advance(run, judge),
       ...release(run, at),
-      found: [...run.found, { ...verdict.found, seconds: Math.max(0, at - run.promptAt) }],
+      found: [...run.found, { ...verdict.found, seconds: Math.max(0, at - run.promptAt), at }],
       promptAt: at,
       used: [...run.used, verdict.found.word],
       combo,

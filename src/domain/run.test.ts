@@ -6,6 +6,7 @@ import {
   remainingSeconds,
   RUN_SECONDS,
   SKIP_PENALTY_SECONDS,
+  reroll,
   skip,
   submit,
   THIN_PROMPT_WORDS,
@@ -195,6 +196,7 @@ describe('orthographe approchée', () => {
     const played = submit(skipped, 'libellule', soft, 19)
 
     expect(played.run.found[0]?.seconds).toBe(12)
+    expect(played.run.found[0]?.at).toBe(19)
     expect(played.run.promptAt).toBe(19)
   })
 })
@@ -289,6 +291,23 @@ describe('odds of a pair', () => {
     for (let i = 0; i < 3; i++) run = skip(run, thin)
 
     expect(new Set(run.dealt).size).toBe(4)
+  })
+
+  it('keeps a challenge in step whatever letter Magie brought', () => {
+    const thin = judgeKnowing({ A: 1, B: 2, C: 3, D: 4, E: 5 })
+    const seed = 21
+    const plain = createRun({ seed, categoryIds: ['animaux'], powers: ['magic'], shared: true }, thin)
+    const magic = reroll(plain, thin, 1)
+    let [left, right] = [plain, magic]
+    const prompts: [string, string][] = []
+    for (let i = 0; i < 3; i++) {
+      left = skip(left, thin)
+      right = skip(right, thin)
+      prompts.push([left.prompt.letter, right.prompt.letter])
+    }
+
+    expect(magic.prompt.letter).not.toBe(plain.prompt.letter)
+    expect(prompts.every(([a, b]) => a === b)).toBe(true)
   })
 
   it('lets a well-stocked pair come back', () => {

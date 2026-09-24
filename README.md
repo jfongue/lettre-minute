@@ -78,6 +78,21 @@ n'écrit rapportent le plus.
 - **Mot manquant** : le joueur le propose en un clic ; validé par trois
   modérateurs, il entre au dictionnaire et rapporte 150 XP à chacun de ceux
   qui l'ont proposé. Une pastille sur « Mes demandes » l'annonce à l'accueil.
+- **Défis entre amis** : de deux à huit joueurs, chacun joue la même partie
+  (même graine, mêmes catégories) quand il veut, dans les 24 heures qui
+  suivent la dernière partie jouée. Pendant la partie, les scores de ceux qui
+  ont déjà joué avancent seconde par seconde, comme en direct, sans jamais
+  montrer un mot. À la fin, règle du Petit Bac : un mot qu'un autre a aussi
+  trouvé ne vaut que la moitié. Le classement provisoire bouge à chaque
+  nouveau joueur, et le chef peut inviter tant que tout le monde n'a pas joué.
+  Une fois le défi clos, le bilan montre le classement, les mots les plus
+  répétés et les plus uniques, et des trophées (la tortue, le zappeur…), puis
+  propose une revanche, une seule par défi, ouverte à tous ceux qui ont joué.
+  Permutation n'y est pas admis ; au-delà de deux pouvoirs, on choisit avant
+  de jouer. Un défi rapporte 25 % d'XP de plus mais ne compte ni aux
+  classements ni aux records. Les notifications vivent dans l'application :
+  l'accueil relève les défis à son ouverture, à son retour au premier plan et
+  chaque minute.
 - **Modération** : des joueurs volontaires jugent les mots proposés, cinq par
   session, d'un glissement de carte — correct, je ne sais pas, incorrect.
   Deux « incorrect » bloquent un mot ; deux « je ne sais pas » le rendent

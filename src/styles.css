@@ -4422,3 +4422,308 @@ button {
 .power-seal-icon {
   animation: var(--power-gesture, pop-in) 1100ms var(--ease-out) 200ms both;
 }
+
+/* ---------------------------------------------------------- challenges - */
+/* Les défis entre amis : la liste sous « Jouer », la course en partie, le
+   classement provisoire puis le bilan. Mêmes planches que le reste : des
+   règles noires, des aplats, rien derrière un texte. */
+
+.challenge-rows {
+  list-style: none;
+  padding: 0;
+  display: grid;
+}
+
+.challenge-rows li {
+  animation: rise 360ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+.challenge-row {
+  appearance: none;
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.challenge-row-mark {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0.4rem;
+}
+
+.challenge-row-text {
+  display: grid;
+  min-width: 0;
+}
+
+.challenge-row-text strong {
+  overflow-wrap: anywhere;
+}
+
+.challenge-row-action {
+  position: relative;
+  padding: 0.35rem 0.7rem;
+  border: 2px solid var(--ink);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.challenge-row-action--play {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--cream);
+}
+
+.challenge-row--missed {
+  color: var(--ink-faint);
+}
+
+.badge-dot {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.4rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border: 2px solid var(--paper);
+  border-radius: 999px;
+  background: var(--red);
+  animation: badge-in 520ms var(--ease-spring) 300ms both;
+}
+
+.challenge-row-action--play .badge-dot {
+  background: var(--yellow);
+}
+
+@media (hover: hover) {
+  .challenge-row:hover .challenge-row-action {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+}
+
+.challenge-lineup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.challenge-standing-name {
+  display: grid;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.challenge-standing-name .note {
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.standing--leader .challenge-standing-name .note {
+  color: inherit;
+  opacity: 0.7;
+}
+
+.challenge-waiting {
+  grid-template-columns: auto 1fr auto;
+}
+
+.challenge-word {
+  animation: none;
+}
+
+.challenge-alone {
+  background: var(--green);
+  color: var(--cream);
+}
+
+.challenge-halved {
+  margin-right: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-faint);
+}
+
+.challenge-xp-note {
+  margin-top: calc(var(--step) * -0.6);
+}
+
+/* Les amis à cocher : la liste défile dans la carte, les boutons restent. */
+.friend-picker {
+  max-height: min(40rem, calc(100dvh - 2 * var(--gutter)));
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+}
+
+.friend-picks {
+  justify-self: stretch;
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.friend-picks li {
+  animation: rise 320ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+.friend-pick {
+  appearance: none;
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.5rem 0.6rem;
+  border: 2px solid var(--rule);
+  background: var(--paper);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.friend-pick:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.friend-pick--on {
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 var(--blue);
+}
+
+.friend-pick-box {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--ink);
+  font-weight: 800;
+}
+
+.friend-pick--on .friend-pick-box {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: var(--cream);
+}
+
+.power-picker .power-list {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* La course : les scores des autres, seconde par seconde, jamais leurs mots. */
+.race {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: calc(var(--step) * -0.5);
+}
+
+.race-entry {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.5rem 0.15rem 0.15rem;
+  border: 2px solid var(--rule);
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: order 300ms ease;
+}
+
+.race-entry .avatar--sm {
+  width: 1.4rem;
+}
+
+.race-name {
+  max-width: 6rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.race-score {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  animation: bump 360ms var(--ease-spring);
+}
+
+.race-entry--me {
+  border-color: var(--blue);
+}
+
+.race-entry--lead {
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: var(--black);
+}
+
+.trophies {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+  gap: 0.6rem;
+}
+
+.trophy {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.7rem;
+  padding: 0.7rem;
+  border: 2px solid var(--ink);
+  animation: pop-in 480ms var(--ease-spring) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+.trophy-mark {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+
+.trophy-mark .shape {
+  width: 100%;
+  height: 100%;
+}
+
+.trophy-text {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.trophy-text strong {
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.trophy-text > span:not(.note) {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+}
+
+.trophy-who {
+  overflow-wrap: anywhere;
+}

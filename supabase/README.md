@@ -1,13 +1,14 @@
 # Supabase
 
-Sept migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Huit migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
 pour les classements par période et les amis, [`0005_my_submissions.sql`](migrations/0005_my_submissions.sql)
 pour retirer ou corriger un mot proposé tant qu'il attend, [`0006_house_bots.sql`](migrations/0006_house_bots.sql)
 pour les deux joueurs maison, [`0007_moderation.sql`](migrations/0007_moderation.sql)
-pour la modération des mots proposés.
+pour la modération des mots proposés, [`0008_challenges.sql`](migrations/0008_challenges.sql)
+pour les défis entre amis.
 
 ## Ce que le serveur détient
 
@@ -25,6 +26,8 @@ pour la modération des mots proposés.
 | `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |
 | `friendships` | Une ligne par demande d'ami (`pending` puis `accepted`), lue dans les deux sens. |
 | `bots` | Les joueurs maison (Maxitoon, Terretciel) et les bornes de leurs scores. |
+| `challenges` | Un défi entre amis : langue, graine, catégories, chef, et la revanche qui lui fait suite. |
+| `challenge_players` | Un invité par ligne, puis sa partie : score, passes, série, mots en JSON ; ce qu'il a vu (invitation, bilan). |
 | `account_merges` | Jetons à usage unique : versent un compte anonyme dans le compte auquel il se connecte. |
 
 Fonctions de lecture : `leaderboard_board('day' | 'week' | 'discoveries')` — le
@@ -69,6 +72,27 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   l'utilisateur d'auth emporte le reste en cascade. Toute nouvelle table liée à
   un joueur doit donc référencer `profiles` avec `on delete cascade`, sans quoi
   l'effacement échoue ou laisse des données derrière lui.
+
+## Défis
+
+- **Hors de `runs` et `run_words`** : la graine d'un défi est connue d'avance,
+  un joueur peut s'entraîner dessus avant d'envoyer son score. Ces parties
+  n'entrent ni aux classements, ni dans la rareté, ni dans les découvertes ;
+  seuls les totaux du profil (XP, parties, mots) bougent.
+- **Tout passe par fonction** : `create_challenge`, `invite_to_challenge` (le
+  chef seul, huit joueurs au plus), `submit_challenge_run` (une fois par
+  invité), `mark_challenge_seen`, `rematch_challenge`, `my_challenges`,
+  `challenge_detail`. Les deux tables n'ont aucune politique.
+- **Un défi se clôt de lui-même** : chaque invité a joué, ou vingt-quatre
+  heures ont passé depuis la dernière partie (`challenge_finished`). Rien ne
+  tourne pour le clore, chaque lecture le recalcule.
+- **Les mots des autres restent cachés tant qu'on n'a pas joué** :
+  `challenge_detail` n'envoie alors que leur instant et leurs points, de quoi
+  rejouer la course sans rien à recopier.
+- **Une seule revanche par défi** : `rematch_challenge` verrouille la ligne ;
+  le second à la demander reçoit celle du premier.
+- **Les joueurs maison ne se défient pas** (`challengeable`) : ils ne joueraient
+  jamais, et le défi attendrait un jour entier.
 
 ## Joueurs maison
 

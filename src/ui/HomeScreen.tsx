@@ -5,6 +5,8 @@ import { levelProgress, type Profile } from '../domain/progression'
 import { RUN_SECONDS } from '../domain/run'
 import { formatNumber, useT } from '../i18n'
 import { Boards } from './Boards'
+import type { ChallengeSummary } from '../lib/cloud'
+import { ChallengeList } from './ChallengeHome'
 import { Figure, Shape } from './bauhaus'
 import type { MenuPage } from './Menu'
 import type { ShapeKind, Tint } from './motifs'
@@ -26,6 +28,10 @@ interface HomeScreenProps {
   avatar: AvatarChoice
   /** The player's words accepted since they last opened « Mes demandes ». */
   requestsNews: number
+  /** Null without a named account: challenges are played between friends. */
+  challenges: readonly ChallengeSummary[] | null
+  onChallenge(id: string): void
+  onCreateChallenge(): void
   onMenu(page?: MenuPage): void
   onPlay(): void
   onEquip(slot: number, powerId: PowerId | null): void
@@ -39,6 +45,9 @@ export function HomeScreen({
   me,
   avatar,
   requestsNews,
+  challenges,
+  onChallenge,
+  onCreateChallenge,
   onMenu,
   onPlay,
   onEquip,
@@ -73,6 +82,8 @@ export function HomeScreen({
         {error && <p className="note note--warn">{error}</p>}
         <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} />
       </div>
+
+      {challenges && <ChallengeList challenges={challenges} onOpen={onChallenge} onCreate={onCreateChallenge} />}
 
       <section className="stack">
         <div className="spread">

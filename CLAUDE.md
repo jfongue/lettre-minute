@@ -174,6 +174,16 @@ qu'un nouvel arrivant casserait sans le savoir.
   catégories : le serveur ne garde que les totaux. Ils se déduisent du niveau
   (`powerPicksOwed`), donc un autre appareil se les voit simplement reproposer.
 
+- **Un défi n'est équitable que si tout le monde tire les mêmes couples** :
+  même graine, mêmes catégories, `avoid` vide, et pas de mots de la
+  communauté dans le `Judge` (ils déplacent les lettres jouables et leurs
+  poids). Permutation est écarté (`BARRED_POWERS`) : il changerait la liste.
+  Toute règle de tirage nouvelle doit rester fonction de la graine et des
+  dictionnaires embarqués seuls.
+- **Une partie de défi ne passe jamais par `pushRun`** : `pushChallengeRun`
+  l'envoie à son défi, hors classements et hors rareté, et
+  `applyChallengeRun` ne touche ni au record ni à `lastPrompts`.
+
 ## Conventions
 
 - Contenu du jeu (catégories, textes d'interface) en français, avec apostrophe

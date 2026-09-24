@@ -53,3 +53,38 @@ describe('time-up', () => {
     expect(over.profile.wordsFound).toBe(0)
   })
 })
+
+describe('challenge runs', () => {
+  const veteran = { ...NEW_PROFILE, bestScore: 999, lastPrompts: ['animaux:A'], powers: ['permutation'], equipped: ['permutation'] }
+  const ready = (profile = veteran) =>
+    sessionReducer(initialSession(profile), {
+      type: 'ready',
+      judge,
+      seed: 7,
+      categoryIds: ['animaux'],
+      reserve: ['pays'],
+      challenge: { id: 'c1', powers: [] },
+    })
+
+  it('draws from the seed alone, with the powers picked for it and nothing to swap', () => {
+    const session = ready()
+    const solo = sessionReducer(initialSession(NEW_PROFILE), { type: 'ready', judge, seed: 7, categoryIds: ['animaux'], reserve: [] })
+
+    expect(session.run!.avoid).toEqual([])
+    expect(session.run!.prompt).toEqual(solo.run!.prompt)
+    expect(session.run!.powers).toEqual([])
+    expect(session.swapsLeft).toBe(0)
+    expect(session.reserve).toEqual([])
+    expect(session.challengeId).toBe('c1')
+  })
+
+  it('pays the challenge bonus and leaves the record alone', () => {
+    const started = sessionReducer(ready(), { type: 'start' })
+    const typed = sessionReducer(started, { type: 'type', draft: `${started.run!.prompt.letter}nimal0` })
+    const over = sessionReducer(typed, { type: 'time-up', at: 60 })
+
+    expect(over.profile.bestScore).toBe(999)
+    expect(over.profile.xp).toBeGreaterThan(over.run!.score)
+    expect(over.profile.lastPrompts).toEqual(['animaux:A'])
+  })
+})

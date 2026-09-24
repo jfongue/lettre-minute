@@ -1,10 +1,15 @@
 import { PALETTE, type Milestone } from '../domain/avatar'
 import { CATALOGUE } from '../domain/catalogue'
+import type { TrophyId } from '../domain/challenge'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
-import type { AuthError, FriendRequestOutcome, InviteOutcome, VoteOutcome } from '../lib/cloud'
+import type { AuthError, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, VoteOutcome } from '../lib/cloud'
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one)
+/** A trophy's name, and its line from the value that won it and the word, when one did. */
+type Trophy = readonly [name: string, line: (value: number, word: string) => string]
+
+const seconds = (value: number) => value.toLocaleString('fr-FR', { maximumFractionDigits: 1 })
 
 /**
  * The reference wording: every other language is typed against it, so a key
@@ -401,6 +406,87 @@ export const fr = {
     /** Professeur, under the field after a skip, then on the summary. */
     whisper: 'On aurait pu dire',
     missed: 'Ce que tu aurais pu dire',
+  },
+
+  challenge: {
+    title: 'Défis entre amis',
+    create: 'Défier des amis',
+    createLead: (max: number) =>
+      `Jusqu’à ${max} amis. Tout le monde joue les mêmes lettres, chacun quand il veut, dans les 24 heures.`,
+    noFriends: 'Pas encore d’amis à défier : ajoute-les depuis l’onglet Social.',
+    launch: (count: number) => `Lancer le défi · ${count} ${plural(count, 'ami', 'amis')}`,
+    pickFirst: 'Choisis au moins un ami',
+    full: (max: number) => `${max} au plus`,
+    createFailed: 'Le défi n’a pas pu s’ouvrir. Réessaie.',
+    by: (name: string) => `Défi de ${name}`,
+    mine: 'Ton défi',
+    playedCount: (played: number, players: number) => `${played} / ${players} ont joué`,
+    hoursLeft: (hours: number) => `encore ${hours} h`,
+    status: { 'to-play': 'À jouer', waiting: 'En cours', finished: 'Terminé', missed: 'Manqué' },
+    play: 'Jouer',
+    view: 'Voir',
+    recap: 'Bilan',
+    invitePop: {
+      title: (name: string) => `${name} te défie !`,
+      lead: (players: number, hours: number) =>
+        `${players} joueurs, les mêmes lettres pour tous. Encore ${hours} h pour jouer.`,
+      later: 'Plus tard',
+      play: 'Jouer',
+    },
+    overPop: {
+      title: 'Défi terminé !',
+      lead: (name: string) => `Tout le monde a joué au défi de ${name} : le bilan t’attend.`,
+      later: 'Plus tard',
+      open: 'Voir le bilan',
+    },
+    powersTitle: 'Tes pouvoirs pour ce défi',
+    powersLead: (max: number) =>
+      `Choisis-en ${max}. Permutation reste au vestiaire : tout le monde joue les mêmes thèmes.`,
+    powersStart: 'Lancer la partie',
+    race: 'La course',
+    you: 'Toi',
+    sending: 'Envoi de ta partie…',
+    pushFailed: 'Ta partie n’a pas pu rejoindre le défi.',
+    provisional: 'Classement provisoire',
+    final: 'Classement final',
+    rules: 'Petit Bac : un mot qu’un autre joueur a aussi trouvé ne vaut que la moitié.',
+    waitingFor: (count: number, hours: number) =>
+      `${count} ${plural(count, 'joueur n’a', 'joueurs n’ont')} pas encore joué · clôture dans ${hours} h au plus`,
+    notYet: 'pas encore joué',
+    raw: (points: string) => `${points} avant partage`,
+    yourWords: 'Tes mots',
+    shared: (count: number) => `aussi chez ${count}`,
+    alone: 'toi seul',
+    inviteMore: 'Inviter d’autres amis',
+    inviteTitle: 'Inviter au défi',
+    inviteSend: (count: number) => `Inviter ${count} ${plural(count, 'ami', 'amis')}`,
+    invites: {
+      sent: 'Invitation envoyée.',
+      full: 'Le défi est complet : huit joueurs au plus.',
+      finished: 'Le défi est terminé, trop tard pour inviter.',
+      forbidden: 'Seul le chef du défi invite.',
+      unreachable: 'Le serveur ne répond pas. Réessaie dans un instant.',
+    } satisfies Record<ChallengeInviteOutcome, string> as Record<ChallengeInviteOutcome, string>,
+    mostShared: 'Les plus répétés',
+    mostUnique: 'Les plus uniques',
+    trophiesTitle: 'Trophées',
+    trophies: {
+      original: ['L’original', (value: number) => `${value} ${plural(value, 'mot que personne d’autre n’a trouvé', 'mots que personne d’autre n’a trouvés')}`],
+      rarest: ['Le dénicheur', (_: number, word: string) => `« ${word} », le mot le plus rare`],
+      fastest: ['L’éclair', (value: number, word: string) => `« ${word} » en ${seconds(value)} s`],
+      slowest: ['La tortue', (value: number, word: string) => `« ${word} » après ${seconds(value)} s de réflexion`],
+      streak: ['L’enchaîneur', (value: number) => `une série de ${value}`],
+      sheep: ['Le mouton', (value: number) => `${value} ${plural(value, 'mot', 'mots')} en commun avec les autres`],
+      skipper: ['Le zappeur', (value: number) => `${value} ${plural(value, 'passe', 'passes')}`],
+      typos: ['Les gros doigts', (value: number) => `${value} ${plural(value, 'mot rattrapé', 'mots rattrapés')} à une lettre près`],
+    } satisfies Record<TrophyId, Trophy> as Record<TrophyId, Trophy>,
+    rematch: 'Revanche',
+    joinRematch: 'Rejoindre la revanche',
+    rematchFailed: 'La revanche n’a pas pu s’ouvrir. Réessaie.',
+    loadFailed: 'Impossible de charger ce défi pour l’instant.',
+    xpBonus: (percent: number) => `dont +${percent} % de bonus défi`,
+    home: 'Accueil',
+    back: 'Retour',
   },
 
   tiers: {

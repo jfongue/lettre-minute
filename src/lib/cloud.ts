@@ -1,7 +1,9 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
+import { challengeWordsOf, type ChallengeEntry, type ChallengeWord } from '../domain/challenge'
 import { MODERATION_SESSION_SIZE, type ModeratorOfferReason, type Verdict } from '../domain/moderation'
 import type { Profile } from '../domain/progression'
+import type { RarityTier } from '../domain/rarity'
 import type { Run } from '../domain/run'
 import type { PendingSubmission } from '../state/storage'
 import { connect, forgetSession, supabase } from './supabase'
@@ -114,20 +116,23 @@ export function pushRun(run: Run, profile: Profile, lang: string): Promise<boole
       )
     }
 
-    await supabase!
-      .from('profiles')
-      .update({
-        xp: profile.xp,
-        runs: profile.runs,
-        best_score: profile.bestScore,
-        words_found: profile.wordsFound,
-        best_combo: profile.bestCombo,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', identity!.userId)
-
+    await pushProfile(identity!.userId, profile)
     return true
   }, false)
+}
+
+async function pushProfile(userId: string, profile: Profile): Promise<void> {
+  await supabase!
+    .from('profiles')
+    .update({
+      xp: profile.xp,
+      runs: profile.runs,
+      best_score: profile.bestScore,
+      words_found: profile.wordsFound,
+      best_combo: profile.bestCombo,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', userId)
 }
 
 /** Sends the words proposed while offline; returns those that went through. */
@@ -581,4 +586,192 @@ export function pushAvatar(avatar: AvatarChoice): Promise<boolean> {
     const { error } = await supabase!.from('profiles').update({ avatar }).eq('id', identity!.userId)
     return !error
   }, false)
+}
+
+// --------------------------------------------------------------- défis --
+
+/**
+ * A challenge carries its language in a column of its own: its category ids
+ * and word keys are written bare, unlike the rest of the server.
+ */
+export interface ChallengeSummary {
+  id: string
+  ownerName: string
+  owned: boolean
+  lang: string
+  categoryIds: readonly string[]
+  createdAt: number
+  players: number
+  played: number
+  mePlayed: boolean
+  myScore: number | null
+  finished: boolean
+  expiresAt: number
+  seenInvite: boolean
+  seenRecap: boolean
+  nextId: string | null
+}
+
+export interface ChallengePlayer extends ChallengeEntry {
+  name: string
+  avatar: AvatarChoice
+  me: boolean
+}
+
+export interface ChallengeDetail {
+  id: string
+  ownerName: string
+  owned: boolean
+  lang: string
+  seed: number
+  categoryIds: readonly string[]
+  createdAt: number
+  expiresAt: number
+  finished: boolean
+  nextId: string | null
+  players: readonly ChallengePlayer[]
+}
+
+const time = (value: unknown) => (typeof value === 'string' ? Date.parse(value) || 0 : 0)
+const text = (value: unknown) => (typeof value === 'string' ? value : '')
+const TIERS: readonly RarityTier[] = ['courant', 'peu commun', 'rare', 'très rare']
+
+/**
+ * Rivals' words arrive as their time and points only until the player has
+ * played: the rest is filled with blanks the race never reads.
+ */
+function challengeWord(raw: unknown): ChallengeWord {
+  const row = (raw ?? {}) as Record<string, unknown>
+  return {
+    categoryId: text(row.categoryId),
+    letter: text(row.letter),
+    key: text(row.key),
+    display: text(row.display),
+    points: Number(row.points) || 0,
+    tier: TIERS.includes(row.tier as RarityTier) ? (row.tier as RarityTier) : 'courant',
+    approximate: row.approximate === true,
+    seconds: Number(row.seconds) || 0,
+    at: Number(row.at) || 0,
+  }
+}
+
+/** Null without a server or an account; the home screen then shows no challenge at all. */
+export function fetchChallenges(): Promise<ChallengeSummary[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('my_challenges')
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      id: row.id as string,
+      ownerName: text(row.owner_name),
+      owned: row.owned === true,
+      lang: text(row.lang) || 'fr',
+      categoryIds: (row.category_ids as string[] | null) ?? [],
+      createdAt: time(row.created_at),
+      players: Number(row.players) || 0,
+      played: Number(row.played) || 0,
+      mePlayed: row.me_played === true,
+      myScore: row.my_score === null || row.my_score === undefined ? null : Number(row.my_score),
+      finished: row.finished === true,
+      expiresAt: time(row.expires_at),
+      seenInvite: row.seen_invite === true,
+      seenRecap: row.seen_recap === true,
+      nextId: (row.next_id as string | null) ?? null,
+    }))
+  }, null)
+}
+
+export function fetchChallenge(id: string): Promise<ChallengeDetail | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('challenge_detail', { p_challenge: id })
+    if (error || !data) return null
+    const row = data as Record<string, unknown>
+    return {
+      id: row.id as string,
+      ownerName: text(row.owner_name),
+      owned: row.owned === true,
+      lang: text(row.lang) || 'fr',
+      seed: Number(row.seed) >>> 0,
+      categoryIds: (row.category_ids as string[] | null) ?? [],
+      createdAt: time(row.created_at),
+      expiresAt: time(row.expires_at),
+      finished: row.finished === true,
+      nextId: (row.next_id as string | null) ?? null,
+      players: ((row.players ?? []) as Record<string, unknown>[]).map((player) => ({
+        playerId: player.id as string,
+        name: text(player.name),
+        avatar: parseAvatar(player.avatar),
+        me: player.me === true,
+        playedAt: player.played_at ? time(player.played_at) : null,
+        score: Number(player.score) || 0,
+        skips: Number(player.skips) || 0,
+        bestCombo: Number(player.best_combo) || 0,
+        words: ((player.words ?? []) as unknown[]).map(challengeWord),
+      })),
+    }
+  }, null)
+}
+
+/** The new challenge's id, or null when it could not open: no friend left to invite, or offline. */
+export function createChallenge(
+  lang: string,
+  seed: number,
+  categoryIds: readonly string[],
+  friends: readonly string[],
+): Promise<string | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('create_challenge', {
+      p_lang: lang,
+      p_seed: seed,
+      p_categories: categoryIds,
+      p_friends: friends,
+    })
+    return error ? null : ((data as string | null) ?? null)
+  }, null)
+}
+
+export type ChallengeInviteOutcome = 'sent' | 'full' | 'finished' | 'forbidden' | 'unreachable'
+
+export function inviteToChallenge(id: string, friends: readonly string[]): Promise<ChallengeInviteOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('invite_to_challenge', { p_challenge: id, p_friends: friends })
+    return error ? 'unreachable' : (data as ChallengeInviteOutcome)
+  }, 'unreachable')
+}
+
+/**
+ * Sends the run to its challenge, never to `runs`: it stays off the boards and
+ * out of the rarity counts. The profile's totals go up all the same.
+ */
+export function pushChallengeRun(id: string, run: Run, profile: Profile): Promise<boolean> {
+  return guard(async () => {
+    const identity = await connect()
+    const { data, error } = await supabase!.rpc('submit_challenge_run', {
+      p_challenge: id,
+      p_score: run.score,
+      p_skips: run.skips,
+      p_best_combo: run.bestCombo,
+      p_words: challengeWordsOf(run),
+    })
+    await pushProfile(identity!.userId, profile)
+    return !error && data === true
+  }, false)
+}
+
+export function markChallengeSeen(id: string, what: 'invite' | 'recap'): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('mark_challenge_seen', { p_challenge: id, p_what: what })
+    return !error
+  }, false)
+}
+
+/** The rematch's id: this player's own, or the one somebody launched first. */
+export function rematchChallenge(id: string, seed: number, categoryIds: readonly string[]): Promise<string | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('rematch_challenge', {
+      p_challenge: id,
+      p_seed: seed,
+      p_categories: categoryIds,
+    })
+    return error ? null : ((data as string | null) ?? null)
+  }, null)
 }

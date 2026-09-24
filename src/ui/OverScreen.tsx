@@ -6,10 +6,12 @@ import { levelFor, levelProgress, type Profile } from '../domain/progression'
 import { pickShowsAd, picksOwed } from '../domain/unlocks'
 import type { FoundWord, Run } from '../domain/run'
 import { categoryText, formatNumber, useT } from '../i18n'
-import type { Account } from '../lib/cloud'
+import type { Account, ChallengeDetail } from '../lib/cloud'
 import { adsSupported, tapFeedback } from '../lib/native'
 import { sound, tierSound } from '../lib/sound'
 import { AccountPanel, type AccountActions } from './AccountPanel'
+import { CHALLENGE_XP_BONUS } from '../domain/challenge'
+import { ChallengeBoard } from './ChallengeScreen'
 import { Avatar } from './Avatar'
 import { Burst, Figure, LetterMark, Shape, TierTag } from './bauhaus'
 import { categoryMotif } from './motifs'
@@ -43,6 +45,12 @@ interface OverScreenProps {
   onChoosePower(powerId: string): void
   onReplay(): void
   onHome(): void
+  /**
+   * Set for a challenge run: its board takes the summary's place. `sending`
+   * until the run has reached the challenge, `failed` if it never did.
+   */
+  challenge?: ChallengeDetail | 'sending' | 'failed'
+  onChallengeChanged?(): void
 }
 
 export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: OverScreenProps) {
@@ -53,7 +61,9 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
   // Each offer gets a fresh screen: a second pick owed deals the next one.
   const [round, setRound] = useState(0)
 
-  if (!revealed) return <Reveal run={run} previousBest={profileBefore.runs > 0 ? profileBefore.bestScore : null} onNext={onRevealed} />
+  // A challenge run beats no record: it does not count for one.
+  const previousBest = profileBefore.runs > 0 && !summary.challenge ? profileBefore.bestScore : null
+  if (!revealed) return <Reveal run={run} previousBest={previousBest} onNext={onRevealed} />
   const levelled = levelFor(profile.xp) > levelFor(profileBefore.xp)
   // Categories first, then powers: the sixth category and the first power come on the same level.
   if ((profile.offer.length > 0 && celebrating !== 'power') || celebrating === 'category') {
@@ -94,6 +104,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
       />
     )
   }
+  if (summary.challenge) return <ChallengeSummary {...summary} challenge={summary.challenge} />
   return <Summary run={run} {...summary} />
 }
 
@@ -250,7 +261,6 @@ function Summary({
   onHome,
 }: SummaryProps) {
   const t = useT()
-  const earned = newlyEarned(profileBefore, profile)
   // The reveal may have scrolled down its list: the summary reads from the top.
   // Braced: recent Chrome returns a promise from scrollTo, which React would
   // take for a clean-up function and crash on.
@@ -263,33 +273,7 @@ function Summary({
     <div className="sheet cascade">
       <XpGain from={profileBefore.xp} to={profile.xp} />
 
-      {(earned.designs.length > 0 || earned.colours.length > 0) && (
-        <section className="panel earned">
-          <p className="section-title">
-            {t.over.earned(earned.designs.length + earned.colours.length)}
-          </p>
-          <div className="earned-row">
-            {earned.designs.map((design, index) => (
-              <span key={design.id} className="earned-item" style={{ '--i': index } as CSSProperties}>
-                <Avatar choice={{ ...avatar, design: design.id }} size="md" />
-              </span>
-            ))}
-            {earned.colours.map((colour, index) => (
-              <span
-                key={colour.id}
-                className="earned-item earned-colour"
-                style={{ '--i': earned.designs.length + index } as CSSProperties}
-              >
-                <span className="swatch-dot" style={{ background: colour.hex }} />
-                {t.colours[colour.id] ?? colour.label}
-              </span>
-            ))}
-          </div>
-          <button type="button" className="btn btn--ghost" onClick={onAvatar}>
-            {t.over.customize}
-          </button>
-        </section>
-      )}
+      <Earned profileBefore={profileBefore} profile={profile} avatar={avatar} onAvatar={onAvatar} />
 
       <div className="figures figures--three">
         <Figure tint="yellow" value={run.found.length} label={t.over.words(run.found.length)} />
@@ -357,6 +341,84 @@ function Summary({
           {t.over.home}
         </button>
       </div>
+    </div>
+  )
+}
+
+/** The avatar tiles and colours the run just earned, if any. */
+function Earned({
+  profileBefore,
+  profile,
+  avatar,
+  onAvatar,
+}: Pick<OverScreenProps, 'profileBefore' | 'profile' | 'avatar' | 'onAvatar'>) {
+  const t = useT()
+  const earned = newlyEarned(profileBefore, profile)
+  if (earned.designs.length === 0 && earned.colours.length === 0) return null
+  return (
+    <section className="panel earned">
+      <p className="section-title">{t.over.earned(earned.designs.length + earned.colours.length)}</p>
+      <div className="earned-row">
+        {earned.designs.map((design, index) => (
+          <span key={design.id} className="earned-item" style={{ '--i': index } as CSSProperties}>
+            <Avatar choice={{ ...avatar, design: design.id }} size="md" />
+          </span>
+        ))}
+        {earned.colours.map((colour, index) => (
+          <span
+            key={colour.id}
+            className="earned-item earned-colour"
+            style={{ '--i': earned.designs.length + index } as CSSProperties}
+          >
+            <span className="swatch-dot" style={{ background: colour.hex }} />
+            {t.colours[colour.id] ?? colour.label}
+          </span>
+        ))}
+      </div>
+      <button type="button" className="btn btn--ghost" onClick={onAvatar}>
+        {t.over.customize}
+      </button>
+    </section>
+  )
+}
+
+/**
+ * After a challenge run: the XP, then the standings as they stand — settled
+ * like a Petit Bac, and settled again as the others play.
+ */
+function ChallengeSummary({
+  profile,
+  profileBefore,
+  avatar,
+  onAvatar,
+  onHome,
+  challenge,
+  onChallengeChanged,
+}: Omit<SummaryProps, 'run' | 'challenge'> & { challenge: ChallengeDetail | 'sending' | 'failed' }) {
+  const t = useT()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
+
+  return (
+    <div className="sheet cascade">
+      <XpGain from={profileBefore.xp} to={profile.xp} />
+      <p className="note challenge-xp-note">{t.challenge.xpBonus(Math.round(CHALLENGE_XP_BONUS * 100))}</p>
+      <Earned profileBefore={profileBefore} profile={profile} avatar={avatar} onAvatar={onAvatar} />
+
+      {challenge === 'sending' && <p className="note">{t.challenge.sending}</p>}
+      {challenge === 'failed' && <p className="note note--warn">{t.challenge.pushFailed}</p>}
+      {typeof challenge === 'object' && <ChallengeBoard detail={challenge} onChanged={() => onChallengeChanged?.()} />}
+
+      <button type="button" className="btn btn--play btn--block" onClick={onHome}>
+        <span>{t.challenge.home}</span>
+        <span className="play-glyph" aria-hidden="true">
+          <Shape kind="circle" tint="yellow" />
+          <span className="motion play-triangle">
+            <Shape kind="triangle" tint="red" />
+          </span>
+        </span>
+      </button>
     </div>
   )
 }

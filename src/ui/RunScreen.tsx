@@ -5,6 +5,8 @@ import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
 import { sound } from '../lib/sound'
 import type { Cheer } from '../state/session'
+import type { AvatarChoice } from '../domain/avatar'
+import { Avatar } from './Avatar'
 import { Burst, LetterMark, TierTag } from './bauhaus'
 import { motifAt } from './motifs'
 import { PowerBadge } from './PowerIcon'
@@ -16,6 +18,14 @@ const CELERITY_SETTLE_MS = 280
 // Tapping a button would blur the field and fold the phone keyboard away, only
 // for the next prompt to open it again: the page would jump on every tap.
 const keepFocus = (event: PointerEvent) => event.preventDefault()
+
+/** A challenge rival, replayed at this second of their own run. */
+export interface Racer {
+  id: string
+  name: string
+  avatar: AvatarChoice
+  score: number
+}
 
 interface RunScreenProps {
   run: Run
@@ -29,6 +39,10 @@ interface RunScreenProps {
   next: Prompt | null
   /** Normalized words already proposed in this run. */
   proposed: readonly string[]
+  /** In a challenge, those who played before, as if they were playing now; absent in a solo run. */
+  rivals?: readonly Racer[]
+  /** The player's own avatar, set among the rivals. */
+  avatar?: AvatarChoice
   onType(draft: string): void
   /** `auto`: Célérité validated it, not the player. */
   onSubmit(auto?: boolean): void
@@ -46,6 +60,8 @@ export function RunScreen({
   hushed,
   next,
   proposed,
+  rivals,
+  avatar,
   onType,
   onSubmit,
   onSkip,
@@ -183,6 +199,7 @@ export function RunScreen({
           </span>
         )}
       </div>
+      {rivals && rivals.length > 0 && avatar && <Race rivals={rivals} avatar={avatar} score={run.score} />}
       {hushed && <HushVoice lines={t.powers.hushLines} label={t.powers.hushed} />}
 
       <section className="prompt" key={`${run.drawn}`}>
@@ -378,6 +395,28 @@ function Feedback({
         </p>
       )
   }
+}
+
+/**
+ * The rivals' scores, second by second, around the player's own: points only,
+ * never a word — the Petit Bac is settled at the end.
+ */
+function Race({ rivals, avatar, score }: { rivals: readonly Racer[]; avatar: AvatarChoice; score: number }) {
+  const t = useT()
+  const racers = [...rivals, { id: '', name: t.challenge.you, avatar, score }].sort((a, b) => b.score - a.score)
+  return (
+    <ol className="race" aria-label={t.challenge.race}>
+      {racers.map((racer, index) => (
+        <li key={racer.id} className={`race-entry${racer.id === '' ? ' race-entry--me' : ''}${index === 0 ? ' race-entry--lead' : ''}`}>
+          <Avatar choice={racer.avatar} size="sm" />
+          <span className="race-name">{racer.name}</span>
+          <span className="race-score" key={racer.score}>
+            {formatNumber(t, racer.score)}
+          </span>
+        </li>
+      ))}
+    </ol>
+  )
 }
 
 /** Each line stays this long, typed out then erased, before the next one. */
