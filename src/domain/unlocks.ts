@@ -1,5 +1,6 @@
 import { CATALOGUE, categoryMeta } from './catalogue'
 import { levelFor, type Profile } from './progression'
+import { unlockEveryPower } from './powers'
 import { createRng, shuffled } from './rng'
 
 /** Each level up puts this many categories on the table; the player keeps one. */
@@ -80,8 +81,10 @@ export function pickShowsAd(profile: Profile): boolean {
 export function unlockEverything(profile: Profile): Profile {
   const owned = new Set(ownedCategoryIds(profile))
   const missing = CATALOGUE.map((category) => category.id).filter((id) => !owned.has(id))
-  if (missing.length === 0 && profile.offer.length === 0) return profile
-  return { ...profile, unlocked: [...profile.unlocked, ...missing], offer: [] }
+  const categories = missing.length === 0 && profile.offer.length === 0
+    ? profile
+    : { ...profile, unlocked: [...profile.unlocked, ...missing], offer: [] }
+  return unlockEveryPower(categories)
 }
 
 export function chooseCategory(profile: Profile, categoryId: string): Profile {
@@ -102,7 +105,7 @@ export function dealLineup(seed: number, ownedIds: readonly string[]): Lineup {
 }
 
 /**
- * Trades a dealt category for the first one in reserve. The one set aside goes
+ * Trades a dealt category for the first one in reserve — the Permutation power. The one set aside goes
  * to the back of the queue, so tapping the same slot again walks through the
  * whole reserve before it comes back.
  */

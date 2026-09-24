@@ -52,9 +52,9 @@ export function comboMultiplier(combo: number): number {
   return 1 + Math.min(Math.max(0, combo), MAX_COMBO_STEPS) * 0.1
 }
 
-/** `combo` is the number of valid answers already chained before this one. */
-export function pointsFor(entry: WordEntry, usage: WordUsage, combo: number): number {
-  return Math.round((BASE_POINTS + RARITY_POINTS * rarityScore(entry, usage)) * comboMultiplier(combo))
+/** `combo` is the number of valid answers already chained before this one; `boost`, a power's multiplier. */
+export function pointsFor(entry: WordEntry, usage: WordUsage, combo: number, boost = 1): number {
+  return Math.round((BASE_POINTS + RARITY_POINTS * rarityScore(entry, usage)) * comboMultiplier(combo) * boost)
 }
 
 /**

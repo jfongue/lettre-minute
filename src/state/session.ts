@@ -2,9 +2,11 @@ import { applyRun, levelFor, type Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
 import { normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer } from '../domain/unlocks'
+import { choosePower, dealPowerOffer, equippedPowers, equipPower, POWER_CHARGES, type PowerId } from '../domain/powers'
 import {
   createRun,
   inspect,
+  reroll,
   skip as skipPrompt,
   submit,
   type Judge,
@@ -22,6 +24,8 @@ export interface Session {
   run: Run | null
   /** Owned categories the run left out: tapping a dealt one during the countdown swaps it for the first of these. */
   reserve: readonly string[]
+  /** Swaps Permutation still allows during the countdown; 0 without the power. */
+  swapsLeft: number
   /** What is in the field right now, judged on every keystroke. */
   draft: string
   live: Verdict | null
@@ -45,6 +49,11 @@ export interface Cheer {
   points: number
   tier: RarityTier
   approximate: boolean
+  edits: number
+  joker: boolean
+  boost: number
+  /** Validated by Célérité, without a tap. */
+  auto: boolean
 }
 
 export type SessionAction =
@@ -55,11 +64,15 @@ export type SessionAction =
   | { type: 'swapped'; judge: Judge; categoryIds: readonly string[]; reserve: readonly string[] }
   | { type: 'offer'; availableIds: readonly string[]; seed: number }
   | { type: 'choose'; categoryId: string }
+  | { type: 'choose-power'; powerId: string }
+  | { type: 'equip'; slot: number; powerId: PowerId | null }
   | { type: 'start' }
   | { type: 'load-failed'; message: string }
   | { type: 'type'; draft: string }
   /** `at`: the run clock in seconds, which the rules do not keep themselves. */
-  | { type: 'submit'; at: number }
+  | { type: 'submit'; at: number; auto?: boolean }
+  /** Magie: the letter on screen is traded for another. */
+  | { type: 'reroll'; at: number }
   | { type: 'skip'; at: number }
   | { type: 'time-up'; at: number }
   | { type: 'propose'; word: string }
@@ -72,6 +85,7 @@ export function initialSession(profile: Profile): Session {
     judge: null,
     run: null,
     reserve: [],
+    swapsLeft: 0,
     draft: '',
     live: null,
     cheer: null,
@@ -91,15 +105,17 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       return { ...session, phase: 'loading', error: null }
 
     case 'ready': {
+      const powers = equippedPowers(session.profile)
       return {
         ...session,
         phase: 'countdown',
         judge: action.judge,
         run: createRun(
-          { seed: action.seed, categoryIds: action.categoryIds, avoid: session.profile.lastPrompts },
+          { seed: action.seed, categoryIds: action.categoryIds, avoid: session.profile.lastPrompts, powers },
           action.judge,
         ),
         reserve: action.reserve,
+        swapsLeft: powers.includes('permutation') ? (POWER_CHARGES.permutation ?? 0) : 0,
         levelBefore: levelFor(session.profile.xp),
         profileBefore: session.profile,
         draft: '',
@@ -110,22 +126,34 @@ export function sessionReducer(session: Session, action: SessionAction): Session
     }
 
     case 'swapped': {
-      if (session.phase !== 'countdown' || !session.run) return session
+      if (session.phase !== 'countdown' || !session.run || session.swapsLeft <= 0) return session
+      const { seed, avoid, powers } = session.run
       return {
         ...session,
         judge: action.judge,
-        run: createRun({ seed: session.run.seed, categoryIds: action.categoryIds, avoid: session.run.avoid }, action.judge),
+        run: createRun({ seed, categoryIds: action.categoryIds, avoid, powers }, action.judge),
         reserve: action.reserve,
+        swapsLeft: session.swapsLeft - 1,
       }
     }
 
     case 'offer': {
-      const profile = dealOffer(session.profile, action.availableIds, action.seed)
+      const profile = dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed), action.seed)
       return profile === session.profile ? session : { ...session, profile }
     }
 
     case 'choose': {
       const profile = chooseCategory(session.profile, action.categoryId)
+      return profile === session.profile ? session : { ...session, profile }
+    }
+
+    case 'choose-power': {
+      const profile = choosePower(session.profile, action.powerId)
+      return profile === session.profile ? session : { ...session, profile }
+    }
+
+    case 'equip': {
+      const profile = equipPower(session.profile, action.slot, action.powerId)
       return profile === session.profile ? session : { ...session, profile }
     }
 
@@ -147,6 +175,12 @@ export function sessionReducer(session: Session, action: SessionAction): Session
     case 'submit': {
       if (!session.run || !session.judge) return session
       const played = submit(session.run, session.draft, session.judge, action.at)
+      if (played.verdict.kind === 'spell') {
+        if (played.run === session.run) return session
+        // The Joker's word lands in the field, judged like any other draft.
+        const draft = played.verdict.spell === 'joker' ? (played.run.joker?.display ?? '') : ''
+        return { ...session, run: played.run, draft, live: draft ? inspect(played.run, draft, session.judge) : null, cheer: null }
+      }
       if (played.verdict.kind !== 'accepted' || !played.verdict.found) return session
 
       const found = played.verdict.found
@@ -155,8 +189,23 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         run: played.run,
         draft: '',
         live: null,
-        cheer: { display: found.display, points: found.points, tier: found.tier, approximate: found.approximate },
+        cheer: {
+          display: found.display,
+          points: found.points,
+          tier: found.tier,
+          approximate: found.approximate,
+          edits: found.edits,
+          joker: found.joker,
+          boost: found.boost,
+          auto: action.auto === true,
+        },
       }
+    }
+
+    case 'reroll': {
+      if (session.phase !== 'playing' || !session.run || !session.judge) return session
+      const run = reroll(session.run, session.judge, action.at)
+      return run === session.run ? session : { ...session, run, draft: '', live: null, cheer: null }
     }
 
     case 'skip': {

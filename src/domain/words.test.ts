@@ -123,7 +123,7 @@ describe('findWord', () => {
   )
 
   it('answers exactly when the word is spelled right', () => {
-    expect(findWord(pack, 'libellule')).toEqual({ entry: pack.entries.get('libellule'), approximate: false })
+    expect(findWord(pack, 'libellule')).toEqual({ entry: pack.entries.get('libellule'), approximate: false, edits: 0 })
   })
 
   it('corrects a one-letter slip, and says that it did', () => {

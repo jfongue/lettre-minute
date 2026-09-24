@@ -51,6 +51,14 @@ export interface Profile {
   lastOffer: readonly string[]
   /** The prompts the last run dealt, locked for the next one (`promptKey`). */
   lastPrompts: readonly string[]
+  /** Powers picked at level ups (`PowerId`), in the order they were made. */
+  powers: readonly string[]
+  /** The two powers on the table while a power pick is owed; empty otherwise. */
+  powerOffer: readonly string[]
+  /** The previous power offer, which the next one avoids repeating. */
+  lastPowerOffer: readonly string[]
+  /** The powers the player takes into a run, at most two. */
+  equipped: readonly string[]
 }
 
 export const NEW_PROFILE: Profile = {
@@ -64,6 +72,10 @@ export const NEW_PROFILE: Profile = {
   offer: [],
   lastOffer: [],
   lastPrompts: [],
+  powers: [],
+  powerOffer: [],
+  lastPowerOffer: [],
+  equipped: [],
 }
 
 export interface RunOutcome {

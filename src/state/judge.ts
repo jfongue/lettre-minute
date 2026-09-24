@@ -1,7 +1,9 @@
 import type { PlayableLetter } from '../domain/letters'
 import { MIN_WORDS_PER_PROMPT, type Judge } from '../domain/run'
 import { NO_USAGE, type WordUsage } from '../domain/rarity'
-import { findWord, lettersWithEnough, type WordPack } from '../domain/words'
+import type { Spell } from '../domain/powers'
+import { compactWord } from '../domain/text'
+import { commonWord, findWord, lettersWithEnough, type WordPack } from '../domain/words'
 
 export interface UsageSource {
   /** Times the player answered this word before, from the local profile. */
@@ -15,15 +17,30 @@ export interface UsageSource {
  * the rules ask questions of. Letters are precomputed once per pack: the field
  * judges every keystroke, and nothing here may walk the word list.
  */
-export function createJudge(packs: readonly WordPack[], usage: UsageSource, deck: readonly PlayableLetter[]): Judge {
+export function createJudge(
+  packs: readonly WordPack[],
+  usage: UsageSource,
+  deck: readonly PlayableLetter[],
+  spells?: Readonly<Record<Spell, readonly string[]>>,
+): Judge {
   const byId = new Map(packs.map((pack) => [pack.categoryId, pack]))
   const letters = new Map(packs.map((pack) => [pack.categoryId, lettersWithEnough(pack, MIN_WORDS_PER_PROMPT)]))
 
   return {
     deck,
-    find(categoryId, word) {
+    ...(spells && {
+      spells: {
+        joker: spells.joker.map(compactWord),
+        hush: spells.hush.map(compactWord),
+      },
+    }),
+    find(categoryId, word, tolerance) {
       const pack = byId.get(categoryId)
-      return pack ? findWord(pack, word) : null
+      return pack ? findWord(pack, word, tolerance) : null
+    },
+    common(categoryId, letter, played) {
+      const pack = byId.get(categoryId)
+      return pack ? commonWord(pack, letter, played) : null
     },
     usage(word): WordUsage {
       const own = usage.own[word] ?? 0

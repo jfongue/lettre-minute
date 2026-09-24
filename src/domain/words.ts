@@ -59,12 +59,16 @@ export interface WordPack {
 
 export interface WordMatch {
   entry: WordEntry
-  /** True when the dictionary had to correct a one-letter slip to find it. */
+  /** True when the dictionary had to correct a slip to find it. */
   approximate: boolean
+  /** How many letters it corrected: 0, 1, or 2 under the Dyslexie power. */
+  edits: number
 }
 
 /** Shorter than this, a single edit turns one word into too many others. */
 export const MIN_LENGTH_FOR_APPROXIMATE = 4
+/** Two edits reach much further: under six letters, they turn a word into half its category. */
+export const MIN_LENGTH_FOR_TWO_EDITS = 6
 
 /**
  * One dictionary row as scripts/import-words.ts writes it:
@@ -208,30 +212,69 @@ export function withinOneEdit(typed: string, known: string): boolean {
 }
 
 /**
- * The dictionary's answer to what the player typed: the word itself, or the one
- * word it is a letter away from. An ambiguous slip — two candidates a letter
- * away — is refused rather than guessed.
+ * Optimal string alignment distance — a swap of two neighbours is one edit —
+ * or `limit + 1` as soon as it is certain to exceed `limit`. Only the Dyslexie
+ * power reaches for it: the one-edit check above stays the hot path.
  */
-export function findWord(pack: WordPack, raw: string): WordMatch | null {
+export function editDistance(a: string, b: string, limit: number): number {
+  if (Math.abs(a.length - b.length) > limit) return limit + 1
+  let before = new Array<number>(b.length + 1).fill(0)
+  let previous = Array.from({ length: b.length + 1 }, (_, j) => j)
+  for (let i = 1; i <= a.length; i++) {
+    const current = new Array<number>(b.length + 1).fill(0)
+    current[0] = i
+    let best = i
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      let value = Math.min(previous[j]! + 1, current[j - 1]! + 1, previous[j - 1]! + cost)
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) value = Math.min(value, before[j - 2]! + 1)
+      current[j] = value
+      best = Math.min(best, value)
+    }
+    if (best > limit) return limit + 1
+    before = previous
+    previous = current
+  }
+  return Math.min(previous[b.length]!, limit + 1)
+}
+
+const AMBIGUOUS = 'ambiguous'
+
+/** The one word `typed` is at `edits` letters from, among those of its initial; ambiguous when two keys are. */
+function nearest(pack: WordPack, typed: string, edits: 1 | 2): WordEntry | null | typeof AMBIGUOUS {
+  let found: WordEntry | null = null
+  for (const candidate of pack.byLetter.get(initialOf(typed)) ?? []) {
+    if (Math.abs(candidate.length - typed.length) > edits) continue
+    if (edits === 1 ? !withinOneEdit(typed, candidate) : editDistance(typed, candidate, 2) !== 2) continue
+
+    const entry = pack.entries.get(candidate)!
+    if (found && found.key !== entry.key) return AMBIGUOUS
+    if (!found) found = entry
+  }
+  return found
+}
+
+/**
+ * The dictionary's answer to what the player typed: the word itself, or the one
+ * word it is a letter away from — two letters under `tolerance` 2. An ambiguous
+ * slip — two candidates as close — is refused rather than guessed, and a
+ * closer word always wins over a further one.
+ */
+export function findWord(pack: WordPack, raw: string, tolerance = 1): WordMatch | null {
   const typed = compactWord(raw)
   if (typed === '') return null
 
   const exact = pack.entries.get(typed)
-  if (exact) return { entry: exact, approximate: false }
-  if (typed.length < MIN_LENGTH_FOR_APPROXIMATE) return null
+  if (exact) return { entry: exact, approximate: false, edits: 0 }
+  if (tolerance < 1 || typed.length < MIN_LENGTH_FOR_APPROXIMATE) return null
 
-  const letter = initialOf(typed)
-  let found: WordEntry | null = null
-  for (const candidate of pack.byLetter.get(letter) ?? []) {
-    if (Math.abs(candidate.length - typed.length) > 1) continue
-    if (!withinOneEdit(typed, candidate)) continue
+  const one = nearest(pack, typed, 1)
+  if (one === AMBIGUOUS) return null
+  if (one) return { entry: one, approximate: true, edits: 1 }
+  if (tolerance < 2 || typed.length < MIN_LENGTH_FOR_TWO_EDITS) return null
 
-    const entry = pack.entries.get(candidate)!
-    if (found && found.key !== entry.key) return null
-    if (!found) found = entry
-  }
-
-  return found ? { entry: found, approximate: true } : null
+  const two = nearest(pack, typed, 2)
+  return two && two !== AMBIGUOUS ? { entry: two, approximate: true, edits: 2 } : null
 }
 
 export function lettersWithEnough(pack: WordPack, minimum: number): string[] {
@@ -258,7 +301,7 @@ export function withExtraWords(pack: WordPack, extra: readonly WordEntry[]): Wor
     if (word === '' || entries.has(word)) continue
     entries.set(word, {
       ...entry,
-      key: entry.key === '' ? normalizeWord(entry.display) : entry.key,
+      key: entries.get(compactWord(entry.key))?.key ?? (entry.key === '' ? normalizeWord(entry.display) : entry.key),
       // A community word joins after the ranking: it is read on the absolute
       // scale, which keeps it out of the "everybody knows it" band.
       notoriety: entry.notoriety || rawFame(entry),

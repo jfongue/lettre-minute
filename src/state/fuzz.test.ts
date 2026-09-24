@@ -3,7 +3,8 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { LETTER_DECKS } from '../domain/letters'
 import { createRng, type Rng } from '../domain/rng'
-import { createRun, inspect, MIN_WORDS_PER_PROMPT, skip, submit, type Judge, type Run } from '../domain/run'
+import { POWER_IDS } from '../domain/powers'
+import { createRun, inspect, MIN_WORDS_PER_PROMPT, remainingSeconds, reroll, skip, submit, type Judge, type Run } from '../domain/run'
 import { compactWord, initialOf } from '../domain/text'
 import { buildWordPack, findWord, type WordPack, type WordRow } from '../domain/words'
 import { createJudge } from './judge'
@@ -66,6 +67,7 @@ function answerFor(rng: Rng, run: Run, pack: WordPack, other: WordPack): string 
   if (roll < 0.5 && words.length > 0) return pack.entries.get(pick(rng, words))!.display
   if (roll < 0.7 && words.length > 0) return mangle(rng, pack.entries.get(pick(rng, words))!.display)
   if (roll < 0.8 && run.found.length > 0) return pick(rng, run.found).display
+  if (roll < 0.85) return pick(rng, ['Joker', 'chut', 'JOKER ', 'chuut'])
   if (roll < 0.9) return pick(rng, [...other.entries.values()]).display
   return pick(rng, GARBAGE)
 }
@@ -73,19 +75,27 @@ function answerFor(rng: Rng, run: Run, pack: WordPack, other: WordPack): string 
 function playOne(seed: number, lang: string): void {
   const rng = createRng(seed)
   const packs = packsByLang.get(lang)!
-  const judge: Judge = createJudge(packs, { own: {}, crowd: {} }, LETTER_DECKS[lang]!)
+  const judge: Judge = createJudge(packs, { own: {}, crowd: {} }, LETTER_DECKS[lang]!, { joker: ['joker'], hush: ['chut'] })
+  const powers = POWER_IDS.filter(() => rng.next() < 0.25).slice(0, 2)
   const categoryIds = packs.map((pack) => pack.categoryId).filter(() => rng.next() < 0.6)
   if (categoryIds.length === 0) categoryIds.push(packs[0]!.categoryId)
   const byId = new Map(packs.map((pack) => [pack.categoryId, pack]))
 
-  let run = createRun({ seed, categoryIds }, judge)
-  const context = () => `lang=${lang} seed=${seed} prompt=${run.prompt.categoryId}:${run.prompt.letter}`
+  let run = createRun({ seed, categoryIds, powers }, judge)
+  const context = () => `lang=${lang} seed=${seed} powers=${powers.join()} prompt=${run.prompt.categoryId}:${run.prompt.letter}`
 
   for (let step = 0; step < 30; step++) {
     const { categoryId, letter } = run.prompt
     expect(categoryIds, context()).toContain(categoryId)
     expect(judge.letters(categoryId), `${context()} — letter not honourable`).toContain(letter)
     expect(byId.get(categoryId)!.counts.get(letter) ?? 0, context()).toBeGreaterThanOrEqual(MIN_WORDS_PER_PROMPT)
+
+    expect(remainingSeconds(run, step), context()).toBeLessThanOrEqual(60 + 10)
+
+    if (rng.next() < 0.05) {
+      run = reroll(run, judge, step)
+      continue
+    }
 
     if (rng.next() < 0.1) {
       const before = run
@@ -101,6 +111,12 @@ function playOne(seed: number, lang: string): void {
     const tag = `${context()} raw=${JSON.stringify(raw)}`
 
     expect(played.verdict, `${tag} — inspect and submit diverge`).toEqual(verdict)
+
+    if (verdict.kind === 'spell') {
+      run = played.run
+      if (run.joker) expect(inspect(run, run.joker.display, judge).found?.joker, `${tag} — joker word refused`).toBe(true)
+      continue
+    }
 
     if (verdict.kind !== 'accepted') {
       expect(played.run, tag).toBe(run)
