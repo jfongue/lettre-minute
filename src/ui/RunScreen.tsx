@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } fr
 import { RUN_SECONDS, SKIP_PENALTY_SECONDS, type Run, type Verdict } from '../domain/run'
 import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
+import { sound } from '../lib/sound'
 import type { Cheer } from '../state/session'
 import { Burst, LetterMark, TierTag } from './bauhaus'
 import { motifAt } from './motifs'
@@ -55,9 +56,28 @@ export function RunScreen({
     field.current?.focus()
   }, [run.prompt])
 
+  // What the field says, heard: named, or one letter off — never how rare.
+  const heard = !accepted ? null : exact ? 'named' : 'close'
+  useEffect(() => {
+    if (heard === 'named') sound.recognized()
+    else if (heard === 'close') sound.oneLetterOff()
+  }, [heard])
+
+  useEffect(() => {
+    if (urgent && seconds > 0) sound.tick(seconds)
+  }, [urgent, seconds])
+
   const submit = () => {
-    if (!accepted && draft.trim() !== '') setShaking(true)
+    if (!accepted && draft.trim() !== '') {
+      setShaking(true)
+      sound.refused()
+    }
     onSubmit()
+  }
+
+  const skip = () => {
+    sound.skipped()
+    onSkip()
   }
 
   return (
@@ -112,7 +132,10 @@ export function RunScreen({
           <input
             ref={field}
             value={draft}
-            onChange={(event) => onType(capitalized(event.target.value))}
+            onChange={(event) => {
+              sound.key(event.target.value.length < draft.length)
+              onType(capitalized(event.target.value))
+            }}
             placeholder={t.run.placeholder(run.prompt.letter)}
             aria-label={t.run.fieldLabel(run.prompt.letter, category.label)}
             autoComplete="off"
@@ -140,7 +163,7 @@ export function RunScreen({
         />
 
         <div className="answer-actions">
-          <button type="button" className="btn btn--ghost" onPointerDown={keepFocus} onClick={onSkip}>
+          <button type="button" className="btn btn--ghost" onPointerDown={keepFocus} onClick={skip}>
             {t.run.skip(SKIP_PENALTY_SECONDS)}
           </button>
           <button type="submit" className="btn btn--blue" onPointerDown={keepFocus} disabled={!accepted}>

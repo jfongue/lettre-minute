@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client'
 import '@fontsource-variable/jost/index.css'
 import { App } from './App'
 import { startNativeShell } from './lib/native'
+import { armSound } from './lib/sound'
 import { applyTheme, loadTheme } from './state/theme'
 import './styles.css'
 
@@ -18,3 +19,4 @@ createRoot(document.getElementById('root')!).render(
 )
 
 startNativeShell()
+armSound()

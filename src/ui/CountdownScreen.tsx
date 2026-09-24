@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { categoryText, useT } from '../i18n'
+import { sound, type Timbre } from '../lib/sound'
+import type { ShapeKind } from '../domain/avatar'
 import { Shape } from './bauhaus'
 import { categoryMotif, onTint, type Motif } from './motifs'
 
@@ -8,6 +10,12 @@ const ANNOUNCE_MS = 2600
 const ANNOUNCE_WITH_RESERVE_MS = 4200
 const COUNT_FROM = 3
 const BEAT_MS = 800
+
+/** Matches the dealt tiles' entrance in styles.css: each one sounds as it lands. */
+const TILE_DELAY_S = 0.15
+const TILE_STAGGER_S = 0.2
+
+const timbreOf = (kind: ShapeKind): Timbre => (kind === 'square' ? 'wood' : kind === 'triangle' ? 'glass' : 'marimba')
 
 const BEATS: Record<number, Motif> = {
   3: { kind: 'circle', tint: 'red' },
@@ -37,6 +45,17 @@ export function CountdownScreen({ categoryIds, reserve, swapping, onSwap, onDone
   const [initial] = useState(categoryIds)
   const announceMs = reserve > 0 ? ANNOUNCE_WITH_RESERVE_MS : ANNOUNCE_MS
 
+  // The whole lineup sings once; after a swap, only the category that came in.
+  const heard = useRef<readonly string[]>([])
+  useEffect(() => {
+    categoryIds.forEach((id, index) => {
+      if (heard.current.includes(id)) return
+      const delay = heard.current.length === 0 ? TILE_DELAY_S + index * TILE_STAGGER_S : 0
+      sound.tile(timbreOf(categoryMotif(id).kind), index, delay)
+    })
+    heard.current = categoryIds
+  }, [categoryIds])
+
   // Every swap restarts the announcement: the player gets to see what came in.
   useEffect(() => {
     if (count !== null || swapping) return
@@ -46,7 +65,12 @@ export function CountdownScreen({ categoryIds, reserve, swapping, onSwap, onDone
 
   useEffect(() => {
     if (count === null) return
-    const timer = setTimeout(() => (count > 1 ? setCount(count - 1) : done.current()), BEAT_MS)
+    sound.beat()
+    const timer = setTimeout(() => {
+      if (count > 1) return setCount(count - 1)
+      sound.go()
+      done.current()
+    }, BEAT_MS)
     return () => clearTimeout(timer)
   }, [count])
 

@@ -21,6 +21,11 @@ function quietly(work: () => Promise<unknown>): void {
   work().catch(() => {})
 }
 
+/** Whether the game runs inside the phone shell rather than a browser. */
+export function isNativeApp(): boolean {
+  return native
+}
+
 /** Hides the launch screen once React has painted. */
 export function startNativeShell(): void {
   if (!native) return

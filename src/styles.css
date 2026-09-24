@@ -2170,3 +2170,56 @@ button {
     transform: scale(1.04);
   }
 }
+
+/* The web's quick mute: small enough to stay out of the run's way, above the menu. */
+.mute {
+  appearance: none;
+  position: fixed;
+  right: calc(1rem + env(safe-area-inset-right, 0px));
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: var(--line) solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 160ms var(--ease-spring);
+}
+
+.mute:hover {
+  transform: scale(1.06);
+}
+
+.mute:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.mute--on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.mute svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: currentColor;
+}
+
+.mute .mute-stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mute {
+    transition: none;
+  }
+}

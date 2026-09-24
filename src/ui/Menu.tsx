@@ -11,6 +11,7 @@ import {
 } from '../lib/cloud'
 import { adPrivacyOptionsRequired, showAdPrivacyOptions } from '../lib/native'
 import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
+import type { SoundPrefs } from '../lib/sound'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions } from './AccountPanel'
 import { Avatar } from './Avatar'
@@ -33,6 +34,8 @@ interface MenuProps {
   onTheme(theme: Theme): void
   locale: Locale
   onLocale(locale: Locale): void
+  sound: SoundPrefs
+  onSound(sound: SoundPrefs): void
   onAvatar(): void
   onLogOut(): void
   /** Answers false when the server could not erase the account. */
@@ -88,7 +91,14 @@ export function Menu({ onClose, ...props }: MenuProps) {
           {pane === 'profile' && <ProfilePane {...props} />}
           {pane === 'social' && <SocialPane account={props.account} onProfile={() => setPane('profile')} />}
           {pane === 'options' && (
-            <OptionsPane theme={props.theme} onTheme={props.onTheme} locale={props.locale} onLocale={props.onLocale} />
+            <OptionsPane
+              theme={props.theme}
+              onTheme={props.onTheme}
+              locale={props.locale}
+              onLocale={props.onLocale}
+              sound={props.sound}
+              onSound={props.onSound}
+            />
           )}
         </div>
       </aside>
@@ -104,7 +114,7 @@ function ProfilePane({
   onAvatar,
   onLogOut,
   onErase,
-}: Omit<MenuProps, 'onClose' | 'theme' | 'onTheme' | 'locale' | 'onLocale'>) {
+}: Omit<MenuProps, 'onClose' | 'theme' | 'onTheme' | 'locale' | 'onLocale' | 'sound' | 'onSound'>) {
   const t = useT()
   const named = account && !account.anonymous
 
@@ -335,15 +345,18 @@ function FriendRow({ friend, onRemove }: { friend: Friend; onRemove(): void }) {
 }
 
 const THEMES: readonly Theme[] = ['system', 'light', 'dark']
+const SOUND_SWITCHES = ['effects', 'keys', 'music', 'pulse'] as const
 
 interface OptionsPaneProps {
   theme: Theme
   onTheme(theme: Theme): void
   locale: Locale
   onLocale(locale: Locale): void
+  sound: SoundPrefs
+  onSound(sound: SoundPrefs): void
 }
 
-function OptionsPane({ theme, onTheme, locale, onLocale }: OptionsPaneProps) {
+function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound }: OptionsPaneProps) {
   const t = useT()
   // Once an ad has asked for consent, EU law requires a way back to that form.
   const [adChoices, setAdChoices] = useState(false)
@@ -373,6 +386,27 @@ function OptionsPane({ theme, onTheme, locale, onLocale }: OptionsPaneProps) {
           ))}
         </div>
         <p className="note">{t.options.themeNote}</p>
+      </section>
+
+      <section className="stack">
+        <p className="section-title">{t.options.sound}</p>
+        <div className="language-list">
+          {SOUND_SWITCHES.map((id) => (
+            <button
+              key={id}
+              type="button"
+              role="switch"
+              aria-checked={sound[id]}
+              // Keys only click when effects play at all.
+              disabled={id === 'keys' && !sound.effects}
+              className={`layer-tab${sound[id] ? ' layer-tab--on' : ''}`}
+              onClick={() => onSound({ ...sound, [id]: !sound[id], muted: false })}
+            >
+              {t.options.sounds[id]}
+            </button>
+          ))}
+        </div>
+        <p className="note">{t.options.soundNote}</p>
       </section>
 
       <section className="stack">

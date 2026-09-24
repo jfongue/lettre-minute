@@ -53,6 +53,12 @@ n'écrit rapportent le plus.
   sinon, un écran de choix précède le premier lancement, et les options
   permettent d'en changer. On répond dans la langue choisie : un joueur
   allemand écrit « Katze », pas « chat », et tire aussi des K, des W et des Z.
+- **Son** : tout est synthétisé en direct (Web Audio), sans fichier ni
+  licence, et accordé sur une gamme pentatonique de do : la note d’un mot
+  validé monte avec la série, et s’enrichit avec la rareté. Une boucle de
+  marimba accompagne l’accueil et le bilan, jamais la partie (sauf la
+  pulsation, en option). Effets, clavier, musique et pulsation se règlent dans
+  les options ; sur le web, une sourdine attend en bas à droite.
 - **Mot manquant** : le joueur le propose en un clic ; réclamé par trois joueurs
   (ou validé par un modérateur), il entre au dictionnaire et lui rapporte 150 XP.
 

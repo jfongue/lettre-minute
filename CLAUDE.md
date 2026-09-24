@@ -134,6 +134,12 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Une réponse se compare sous sa forme compacte** (`compactWord`) : ni
   accents, ni espaces, ni ponctuation. `WordEntry.key` garde en revanche ses
   espaces, car c'est le nom sous lequel le serveur range les compteurs d'usage.
+- **Le son ne révèle rien que l’écran ne montre** (`src/lib/sound.ts`) :
+  pendant la frappe, il dit seulement « mot nommé » ou « à une lettre près » ;
+  le palier de rareté ne s’entend qu’à la validation. Comme `cloud.ts`, le
+  module ne lève jamais, et un navigateur n’ouvre le son qu’après un geste :
+  `armSound()` réveille le contexte au premier toucher, un son demandé avant
+  est perdu, la musique attend.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client.
 

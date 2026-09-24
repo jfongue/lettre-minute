@@ -7,6 +7,7 @@ import type { FoundWord, Run } from '../domain/run'
 import { categoryText, formatNumber, useT } from '../i18n'
 import type { Account } from '../lib/cloud'
 import { tapFeedback } from '../lib/native'
+import { sound, tierSound } from '../lib/sound'
 import { AccountPanel, type AccountActions } from './AccountPanel'
 import { Avatar } from './Avatar'
 import { Burst, Figure, LetterMark, Shape, TierTag } from './bauhaus'
@@ -81,6 +82,7 @@ function Reveal({ run, onNext }: { run: Run; onNext(): void }) {
     const found = run.found[shown - 1]
     if (!found) return
     tapFeedback(isRare(found) ? 'medium' : 'light')
+    sound.recap(tierSound(found.tier, found.approximate), shown - 1)
     latest.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
   }, [shown, run.found])
 
@@ -267,11 +269,21 @@ function Summary({
 }
 
 /** The bar fills from where the run started, rolling over each level it crosses. */
+const XP_MS = 1600
+const XP_DELAY_MS = 450
+
 function XpGain({ from, to }: { from: number; to: number }) {
   const t = useT()
-  const xp = useCountUp(to, 1600, from, 450)
+  const xp = useCountUp(to, XP_MS, from, XP_DELAY_MS)
   const progress = levelProgress(xp)
   const levelledUp = progress.level > levelFor(from)
+
+  useEffect(() => {
+    if (to > from && !reducedMotion()) sound.xp(XP_MS / 1000, XP_DELAY_MS / 1000)
+  }, [from, to])
+  useEffect(() => {
+    if (levelledUp) sound.levelUp()
+  }, [levelledUp, progress.level])
 
   return (
     <section className="stack xp-gain">

@@ -15,11 +15,12 @@ import {
   type Account,
   type CommunityWord,
 } from './lib/cloud'
-import { onBackButton, prepareAds, tapFeedback } from './lib/native'
+import { isNativeApp, onBackButton, prepareAds, tapFeedback } from './lib/native'
+import { configureSound, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
 import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
 import { completeBoards, type Boards } from './domain/boards'
 import { NEW_PROFILE, type Profile } from './domain/progression'
-import { remainingSeconds } from './domain/run'
+import { RUN_SECONDS, remainingSeconds } from './domain/run'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory } from './domain/unlocks'
 import { LETTER_DECKS, PLAYABLE_LETTERS } from './domain/letters'
 import { withExtraWords } from './domain/words'
@@ -36,6 +37,7 @@ import {
   saveProfile,
   saveSubmissions,
 } from './state/storage'
+import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
 import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
 import { useElapsed } from './state/useElapsed'
 import type { AccountActions } from './ui/AccountPanel'
@@ -44,6 +46,7 @@ import { CountdownScreen } from './ui/CountdownScreen'
 import { HomeScreen } from './ui/HomeScreen'
 import { LanguagePicker } from './ui/LanguagePicker'
 import { Menu } from './ui/Menu'
+import { MuteButton } from './ui/MuteButton'
 import { OverScreen } from './ui/OverScreen'
 import { RunScreen } from './ui/RunScreen'
 
@@ -76,6 +79,12 @@ export function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const closeMenu = useCallback(() => setMenuOpen(false), [])
   const [theme, setTheme] = useState<Theme>(loadTheme)
+  const [soundPrefs, setSoundPrefs] = useState<SoundPrefs>(loadSoundPrefs)
+  const tune = useCallback((next: SoundPrefs) => {
+    setSoundPrefs(next)
+    saveSoundPrefs(next)
+  }, [])
+  useEffect(() => configureSound(soundPrefs), [soundPrefs])
   // Null only when the device speaks none of the game's languages and the
   // player has not picked one yet: the picker then comes before anything else.
   const [locale, setLocale] = useState<Locale | null>(loadLocale)
@@ -203,11 +212,36 @@ export function App() {
   )
 
   useEffect(() => {
-    if (session.cheer) tapFeedback()
+    if (!session.cheer) return
+    tapFeedback()
+    // The combo counts this prompt's finds, this one included: the note climbs with it.
+    sound.found(tierSound(session.cheer.tier, session.cheer.approximate), Math.max(0, (session.run?.combo ?? 1) - 1))
+    // Only a new cheer sings; the run it came with is read, not watched.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.cheer])
+
+  // The music keeps to the screens around the run; the run itself has its pulse, if wanted.
+  useEffect(() => {
+    const around = session.phase === 'home' || session.phase === 'loading' || session.phase === 'over'
+    setMusic(around ? 'menu' : session.phase === 'playing' ? 'pulse' : null)
+    if (session.phase === 'over') sound.timeUp()
+  }, [session.phase])
+
+  // Every tap on the screens around the run clicks, like the phone's own keys.
+  const quietTaps = session.phase === 'countdown' || session.phase === 'playing'
+  useEffect(() => {
+    if (quietTaps) return
+    const click = (event: MouseEvent) => {
+      if (event.target instanceof Element && event.target.closest('button, a')) sound.click()
+    }
+    document.addEventListener('click', click, true)
+    return () => document.removeEventListener('click', click, true)
+  }, [quietTaps])
 
   const elapsed = useElapsed(session.phase === 'playing' ? startedAt : null)
   const remaining = session.run ? remainingSeconds(session.run, elapsed) : 0
+  const pulseStage = Math.min(2, Math.floor(((RUN_SECONDS - remaining) / RUN_SECONDS) * 3))
+  useEffect(() => setPulseStage(pulseStage), [pulseStage])
 
   useEffect(() => {
     if (session.phase === 'playing' && remaining <= 0) dispatch({ type: 'time-up' })
@@ -367,6 +401,8 @@ export function App() {
           theme={theme}
           locale={locale}
           onLocale={speak}
+          sound={soundPrefs}
+          onSound={tune}
           onTheme={(next) => {
             setTheme(next)
             saveTheme(next)
@@ -440,6 +476,7 @@ export function App() {
         />
       )}
 
+      {!isNativeApp() && <MuteButton muted={soundPrefs.muted} onToggle={() => tune({ ...soundPrefs, muted: !soundPrefs.muted })} />}
     </main>
     </MessagesContext>
   )
