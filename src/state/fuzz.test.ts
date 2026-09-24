@@ -33,6 +33,14 @@ const packsByLang = new Map<string, WordPack[]>(
   ]),
 )
 
+/** Every display of a pack, listed once: spreading 23 000 animals on every move was most of the fuzz's time. */
+const displaysOf = new Map<WordPack, readonly string[]>()
+function displays(pack: WordPack): readonly string[] {
+  let list = displaysOf.get(pack)
+  if (!list) displaysOf.set(pack, (list = [...pack.entries.values()].map((entry) => entry.display)))
+  return list
+}
+
 const pick = <T,>(rng: Rng, items: readonly T[]): T => items[Math.floor(rng.next() * items.length)]!
 
 const GARBAGE = ['', ' ', '-', '’', '😀', 'ß', 'Œ', 'ǅ', '\u0301', 'a\u0000b', 'x'.repeat(200), '12', 'İ', 'ﬁ']
@@ -63,12 +71,12 @@ function mangle(rng: Rng, word: string): string {
 
 function answerFor(rng: Rng, run: Run, pack: WordPack, other: WordPack): string {
   const roll = rng.next()
-  const words = [...(pack.byLetter.get(run.prompt.letter) ?? [])]
+  const words = pack.byLetter.get(run.prompt.letter) ?? []
   if (roll < 0.5 && words.length > 0) return pack.entries.get(pick(rng, words))!.display
   if (roll < 0.7 && words.length > 0) return mangle(rng, pack.entries.get(pick(rng, words))!.display)
   if (roll < 0.8 && run.found.length > 0) return pick(rng, run.found).display
   if (roll < 0.85) return pick(rng, ['Joker', 'chut', 'JOKER ', 'chuut'])
-  if (roll < 0.9) return pick(rng, [...other.entries.values()]).display
+  if (roll < 0.9) return pick(rng, displays(other))
   return pick(rng, GARBAGE)
 }
 
@@ -142,7 +150,7 @@ describe('fuzz: random games on the real dictionaries', () => {
   it.each(LANGS)('%s: every invariant holds', (lang) => {
     const master = createRng(SEED ^ compactWord(lang).charCodeAt(0))
     for (let i = 0; i < RUNS; i++) playOne(Math.floor(master.next() * 2 ** 32), lang)
-  })
+  }, 5_000 + RUNS * 10)
 
   it.each(LANGS)('%s: the same seed replays the same game', (lang) => {
     const packs = packsByLang.get(lang)!
