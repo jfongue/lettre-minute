@@ -116,6 +116,7 @@ npm run lint         # oxlint
 npm run build        # tsc -b puis vite build
 npm run import:words # régénère src/data/words/fr/ (Wikidata, Wiktionnaire, Lexique, wordfreq, Wikipédia)
 npm run import:words -- --lang=de # idem pour une autre langue (en, es, de, it, nl, pt)
+npm run web:publish  # build web et mise en ligne sur https://jfongue.github.io/lettre-minute/
 npm run android:sync # build web puis copie dans le projet Android
 npm run android:bundle # .aab signé pour le Play Store
 ```

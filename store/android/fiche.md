@@ -38,14 +38,14 @@ clair et sombre). Pour les régénérer : `scripts/render-store.sh`.
 > matières, capitales, marques…
 >
 > FAITES GRANDIR LE DICTIONNAIRE
-> Un mot manque ? Proposez-le en un clic. Réclamé par trois joueurs, il entre
-> au dictionnaire, et vous gagnez 150 XP.
+> Un mot manque ? Proposez-le en un clic. Validé par trois modérateurs, il
+> entre au dictionnaire, et vous gagnez 150 XP.
 >
-> • Sans inscription
+> • Sans inscription (un compte est facultatif)
 > • Une seule pub, courte, au choix d’une nouvelle catégorie
 > • Jouable hors ligne
 > • Thème clair et sombre
-> • Vos données s’effacent en un geste depuis l’accueil
+> • Vos données s’effacent en un geste depuis le menu
 
 **Catégorie de l’application** : Jeu › Mots
 **Tags** : Mots, Quiz, Solo, Culture générale
@@ -59,7 +59,7 @@ clair et sombre). Pour les régénérer : `scripts/render-store.sh`.
 | --- | --- |
 | Accès à l’application | Aucune restriction : tout est accessible sans connexion |
 | Annonces | **Oui** : une interstitielle AdMob après chaque choix de catégorie à partir du deuxième |
-| Classification du contenu (IARC) | Catégorie « Jeu » ; non à toutes les questions (violence, peur, sexualité, jeux d’argent, langage, drogues, achats numériques) ; les joueurs n’échangent aucun message et ne partagent rien entre eux. Résultat attendu : PEGI 3 / Tout public |
+| Classification du contenu (IARC) | Catégorie « Jeu » ; non à toutes les questions (violence, peur, sexualité, jeux d’argent, langage, drogues, achats numériques) ; **interactions entre utilisateurs : oui** (nom de joueur, avatar et scores visibles aux classements, entre amis et dans les défis ; aucune messagerie, aucun texte libre échangé hormis le nom). Résultat attendu : PEGI 3 / Tout public, avec la mention « Interactions entre utilisateurs » |
 | Public cible | 13 ans et plus. Choisir une tranche de moins de 13 ans fait entrer l’app dans le programme Familles et ses exigences supplémentaires |
 | Application d’actualités | Non |
 | Applis gouvernementales / santé / finance | Non |
@@ -75,12 +75,16 @@ de l’aide AdMob, à relire à chaque mise à jour du SDK.
 - Collecte ou partage de données : **oui, collecte** et **oui, partage**
   (avec Google, pour la publicité)
 - Données chiffrées en transit : **oui** (HTTPS vers Supabase et Google)
-- Moyen de demander la suppression : **oui**, dans l’app (accueil › Effacer mes
-  données) et à l’adresse `VITE_PRIVACY_URL#effacer`
+- Moyen de demander la suppression : **oui**, dans l’app (Menu › Profil ›
+  Effacer mes données) et à l’adresse `VITE_PRIVACY_URL#effacer`
 
 | Type de données (Play) | Ce que c’est ici | Collectée | Partagée | Traitement éphémère | Obligatoire | Finalité |
 | --- | --- | --- | --- | --- | --- | --- |
 | Infos personnelles › ID utilisateur | L’identifiant anonyme Supabase | Oui | Non | Non | Oui | Fonctionnement de l’app |
+| Infos personnelles › Nom | Nom de joueur, choisi à la création du compte, visible des autres joueurs | Oui | Non | Non | Non (compte facultatif) | Fonctionnement de l’app, gestion du compte |
+| Infos personnelles › Adresse e-mail | Connexion et code de réinitialisation du mot de passe (saisie ou transmise par Google) | Oui | Non | Non | Non (compte facultatif) | Fonctionnement de l’app, gestion du compte |
+| Infos personnelles › Autres infos | Liste d’amis, défis | Oui | Non | Non | Non | Fonctionnement de l’app |
+| Appareil ou autres ID | Jeton de notification Firebase (défis) | Oui | Non | Non | Non (le joueur accepte les notifications) | Fonctionnement de l’app |
 | Activité dans l’app › Autres actions | Parties, scores, mots joués, XP | Oui | Non | Non | Oui | Fonctionnement de l’app |
 | Activité dans l’app › Autre contenu généré par l’utilisateur | Mots proposés au dictionnaire | Oui | Non | Non | Non (le joueur choisit de proposer) | Fonctionnement de l’app |
 | Position › Position approximative | Déduite de l’adresse IP par AdMob | Oui | Oui | Non | Oui | Publicité, analyse, prévention de la fraude |
@@ -88,12 +92,13 @@ de l’aide AdMob, à relire à chaque mise à jour du SDK.
 | Activité dans l’app › Interactions avec l’app | Affichages et clics sur la pub (AdMob) | Oui | Oui | Non | Oui | Publicité, analyse, prévention de la fraude |
 | Infos et performances de l’app › Diagnostics, journaux de plantage | Remontés par le SDK AdMob | Oui | Oui | Non | Oui | Analyse, prévention de la fraude |
 
-Tout le reste (position précise, contacts, photos, e-mail, nom) : **non
-collecté**.
+Tout le reste (position précise, contacts, photos, numéro de téléphone) :
+**non collecté**. Le mot de passe n’est gardé que haché, par Supabase Auth.
 
 ## Suppression de compte (Play Console › Règles › Suppression des données)
 
-- L’app permet-elle de créer un compte ? **Oui**, un compte anonyme est créé
-  automatiquement
+- L’app permet-elle de créer un compte ? **Oui** : un compte anonyme est créé
+  automatiquement, et le joueur peut le nommer (nom, e-mail, mot de passe, ou
+  Google). L’effacement supprime l’un comme l’autre
 - Lien de suppression hors de l’app : `VITE_PRIVACY_URL#effacer`
 - Suppression partielle des données sans supprimer le compte : non proposée

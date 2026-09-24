@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "test:db": "scripts/test-db.sh",
     "import:words": "node --experimental-strip-types scripts/import-words.ts",
+    "web:publish": "scripts/publish-web.sh",
     "android:sync": "npm run build && cap sync android",
     "android:open": "cap open android",
     "android:bundle": "npm run android:sync && cd android && ./gradlew bundleRelease",
