@@ -50,7 +50,6 @@ export const es: Messages = {
   offer: {
     title: 'Nueva categoría',
     more: (count) => `quedan ${count} por elegir`,
-    lead: 'Elige la que se une a tus partidas.',
     adNotice: 'Tras tu elección verás un anuncio breve: así apoyas al creador del juego. ¡Gracias!',
     confirm: 'Confirmar',
     pickFirst: 'Toca una carta',

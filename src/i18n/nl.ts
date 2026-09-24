@@ -49,7 +49,6 @@ export const nl: Messages = {
   offer: {
     title: 'Nieuwe categorie',
     more: (count) => `nog ${count} te kiezen`,
-    lead: 'Kies de categorie die aan je spellen wordt toegevoegd.',
     adNotice: 'Na je keuze volgt een korte advertentie: zo steun je de maker van het spel. Bedankt!',
     confirm: 'Bevestigen',
     pickFirst: 'Tik op een kaart',

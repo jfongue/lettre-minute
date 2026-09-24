@@ -50,7 +50,6 @@ export const it: Messages = {
   offer: {
     title: 'Nuova categoria',
     more: (count) => `ancora ${count} da scegliere`,
-    lead: 'Scegli quella che si aggiunge alle tue partite.',
     adNotice: 'Dopo la scelta parte una breve pubblicità: è ciò che sostiene chi ha creato il gioco. Grazie!',
     confirm: 'Conferma',
     pickFirst: 'Tocca una carta',

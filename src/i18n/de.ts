@@ -49,7 +49,6 @@ export const de: Messages = {
   offer: {
     title: 'Neue Kategorie',
     more: (count) => `noch ${count} zu wählen`,
-    lead: 'Wähle die, die zu deinen Partien dazukommt.',
     adNotice: 'Nach deiner Wahl kommt eine kurze Werbung – so unterstützt du den Macher des Spiels. Danke!',
     confirm: 'Bestätigen',
     pickFirst: 'Tippe auf eine Karte',

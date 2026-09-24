@@ -441,7 +441,6 @@ export function App() {
           requestsNews={moderation?.news ?? 0}
           onMenu={(page = 'profile') => setMenuPage(page)}
           onPlay={play}
-          onChoose={choose}
         />
       )}
 

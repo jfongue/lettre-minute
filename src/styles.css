@@ -2344,27 +2344,6 @@ button {
 }
 
 /* ----------------------------------------------------------------- offer - */
-.offer {
-  display: grid;
-  gap: 0.6rem;
-  padding-top: 0.9rem;
-  border-top: 3px solid var(--ink);
-}
-
-.offer-cards {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.5rem;
-}
-
-.offer-cards li {
-  display: grid;
-  animation: pop-in 480ms var(--ease-spring) backwards;
-  animation-delay: calc(var(--i, 0) * 110ms + 150ms);
-}
-
 .offer-card {
   appearance: none;
   display: grid;

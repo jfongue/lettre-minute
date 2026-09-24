@@ -6,7 +6,6 @@ import { RUN_SECONDS } from '../domain/run'
 import { formatNumber, useT } from '../i18n'
 import { Boards } from './Boards'
 import { Figure, Shape } from './bauhaus'
-import { CategoryOffer } from './CategoryOffer'
 import type { MenuPage } from './Menu'
 import type { ShapeKind, Tint } from './motifs'
 import { PageLinks, type LinkedPage } from './PageLinks'
@@ -27,7 +26,6 @@ interface HomeScreenProps {
   requestsNews: number
   onMenu(page?: MenuPage): void
   onPlay(): void
-  onChoose(categoryId: string): void
 }
 
 export function HomeScreen({
@@ -40,7 +38,6 @@ export function HomeScreen({
   requestsNews,
   onMenu,
   onPlay,
-  onChoose,
 }: HomeScreenProps) {
   const t = useT()
   const progress = levelProgress(profile.xp)
@@ -91,8 +88,6 @@ export function HomeScreen({
       </section>
 
       {boards && <Boards boards={boards} me={me} />}
-
-      <CategoryOffer profile={profile} onChoose={onChoose} />
 
       <PageLinks pages={HOME_LINKS} avatar={avatar} badges={{ requests: requestsNews }} onOpen={onMenu} />
 

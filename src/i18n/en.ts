@@ -55,7 +55,6 @@ export const en: Messages = {
   offer: {
     title: 'New category',
     more: (count) => `${count} more to pick`,
-    lead: 'Pick the one that joins your games.',
     adNotice: 'A short ad follows your pick: it’s what supports the game’s maker. Thank you!',
     confirm: 'Confirm',
     pickFirst: 'Tap a card',
