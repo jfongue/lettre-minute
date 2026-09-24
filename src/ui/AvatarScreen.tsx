@@ -37,7 +37,8 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
   const ownedDesigns = AVATARS.filter((entry) => reached(profile, designUnlock(entry.id))).length
   const ownedColours = PALETTE.filter((colour) => reached(profile, colourUnlock(colour.id))).length
   // Without an accent the third layer paints nothing: offering it would look broken.
-  const activeLayer = layer === 'accent' && !design.accent ? 'shape' : layer
+  const layers = design.accent ? LAYERS : LAYERS.filter((id) => id !== 'accent')
+  const activeLayer = layers.includes(layer) ? layer : 'shape'
 
   return (
     <div className="sheet cascade">
@@ -54,14 +55,13 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
 
       <section className="stack">
         <div className="layer-tabs" role="tablist">
-          {LAYERS.map((id) => (
+          {layers.map((id) => (
             <button
               key={id}
               type="button"
               role="tab"
               aria-selected={activeLayer === id}
               className={`layer-tab${activeLayer === id ? ' layer-tab--on' : ''}`}
-              disabled={id === 'accent' && !design.accent}
               onClick={() => setLayer(id)}
             >
               <span className="swatch-dot" style={{ background: PALETTE.find((c) => c.id === draft[id])?.hex }} />
