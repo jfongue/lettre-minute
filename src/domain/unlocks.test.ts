@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { CATALOGUE } from './catalogue'
 import { NEW_PROFILE, xpForLevel, type Profile } from './progression'
 import {
+  adsDue,
   chooseCategory,
   dealLineup,
   dealOffer,
   MAX_CATEGORIES_PER_RUN,
   OFFER_SIZE,
   ownedCategoryIds,
+  pickShowsAd,
   picksOwed,
   starterCategoryIds,
   swapCategory,
@@ -140,5 +142,27 @@ describe('withdrawn categories', () => {
 
     expect(picksOwed(profile)).toBe(1)
     expect(ownedCategoryIds(profile)).toEqual(starterCategoryIds())
+  })
+})
+
+describe('pickShowsAd', () => {
+  it('leaves the first pick free and asks for an ad from the second on', () => {
+    const first = dealOffer(atLevel(3), ALL, 1)
+    expect(adsDue(first)).toBe(false)
+    expect(pickShowsAd(first)).toBe(false)
+
+    const second = dealOffer(chooseCategory(first, first.offer[0]!), ALL, 2)
+    expect(second.offer.length).toBeGreaterThan(0)
+    expect(pickShowsAd(second)).toBe(true)
+  })
+
+  it('knows an ad is due before the offer that carries it is dealt', () => {
+    const between = { ...atLevel(2), unlocked: ['sports'] }
+    expect(between.offer).toEqual([])
+    expect(adsDue(between)).toBe(true)
+  })
+
+  it('shows nothing while no offer is on the table', () => {
+    expect(pickShowsAd({ ...atLevel(4), unlocked: ['sports'] })).toBe(false)
   })
 })

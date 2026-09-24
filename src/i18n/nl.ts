@@ -48,6 +48,7 @@ export const nl: Messages = {
     title: 'Nieuwe categorie',
     more: (count) => `nog ${count} te kiezen`,
     lead: 'Kies de categorie die aan je spellen wordt toegevoegd.',
+    adNotice: 'Na je keuze volgt een korte advertentie: zo steun je de maker van het spel. Bedankt!',
   },
 
   over: {
@@ -170,6 +171,7 @@ export const nl: Messages = {
     themeNote: '‘Auto’ volgt de instelling van de telefoon.',
     language: 'Taal',
     privacy: 'Privacy',
+    adPrivacy: 'Advertentiekeuzes',
     erase: 'Mijn gegevens wissen',
     eraseWarning: 'Niveau, records, vrienden en voorgestelde woorden gaan verloren.',
     erasing: 'Bezig met wissen…',

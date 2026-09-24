@@ -57,6 +57,22 @@ export function dealOffer(profile: Profile, availableIds: readonly string[], see
   return { ...profile, offer: [...fresh, ...seen].slice(0, OFFER_SIZE) }
 }
 
+/** Picks made before the game asks for an ad: the first reward stays a pure reward. */
+export const PICKS_BEFORE_ADS = 1
+
+/**
+ * Whether the player's next pick will come with an ad — true long before that
+ * offer is dealt, which leaves the ad the time of a whole run to load.
+ */
+export function adsDue(profile: Profile): boolean {
+  return picked(profile).length >= PICKS_BEFORE_ADS
+}
+
+/** Whether keeping a category from the offer on the table comes with an ad. */
+export function pickShowsAd(profile: Profile): boolean {
+  return profile.offer.length > 0 && adsDue(profile)
+}
+
 export function chooseCategory(profile: Profile, categoryId: string): Profile {
   if (!profile.offer.includes(categoryId)) return profile
   return { ...profile, unlocked: [...profile.unlocked, categoryId], offer: [], lastOffer: profile.offer }

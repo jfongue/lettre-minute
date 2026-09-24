@@ -15,12 +15,12 @@ import {
   type Account,
   type CommunityWord,
 } from './lib/cloud'
-import { onBackButton, tapFeedback } from './lib/native'
+import { onBackButton, prepareAds, tapFeedback } from './lib/native'
 import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
 import { completeBoards, type Boards } from './domain/boards'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { remainingSeconds } from './domain/run'
-import { dealLineup, ownedCategoryIds, swapCategory } from './domain/unlocks'
+import { adsDue, dealLineup, ownedCategoryIds, swapCategory } from './domain/unlocks'
 import { LETTER_DECKS, PLAYABLE_LETTERS } from './domain/letters'
 import { withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
@@ -218,6 +218,14 @@ export function App() {
   useEffect(() => {
     dispatch({ type: 'offer', availableIds: availableCategoryIds(lang), seed: Date.now() >>> 0 })
   }, [session.profile, lang])
+
+  // Loading an ad takes seconds, consent included: started once the free pick
+  // is spent, it is ready by the next offer. Never mid-run, where the consent
+  // form would cover the clock.
+  const adsWanted = adsDue(session.profile) && (session.phase === 'home' || session.phase === 'over')
+  useEffect(() => {
+    if (adsWanted) prepareAds()
+  }, [adsWanted])
 
   const judgeFor = useCallback(
     async (categoryIds: readonly string[]) => {

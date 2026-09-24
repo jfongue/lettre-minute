@@ -9,6 +9,7 @@ import {
   type Account,
   type Friend,
 } from '../lib/cloud'
+import { adPrivacyOptionsRequired, showAdPrivacyOptions } from '../lib/native'
 import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions } from './AccountPanel'
@@ -344,6 +345,15 @@ interface OptionsPaneProps {
 
 function OptionsPane({ theme, onTheme, locale, onLocale }: OptionsPaneProps) {
   const t = useT()
+  // Once an ad has asked for consent, EU law requires a way back to that form.
+  const [adChoices, setAdChoices] = useState(false)
+  useEffect(() => {
+    let live = true
+    adPrivacyOptionsRequired().then((required) => live && setAdChoices(required))
+    return () => {
+      live = false
+    }
+  }, [])
   return (
     <>
       <section className="stack">
@@ -388,6 +398,11 @@ function OptionsPane({ theme, onTheme, locale, onLocale }: OptionsPaneProps) {
         <a className="btn btn--quiet menu-start" href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
           {t.options.privacy}
         </a>
+        {adChoices && (
+          <button type="button" className="btn btn--quiet menu-start" onClick={showAdPrivacyOptions}>
+            {t.options.adPrivacy}
+          </button>
+        )}
       </div>
     </>
   )

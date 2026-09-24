@@ -54,6 +54,7 @@ export const en: Messages = {
     title: 'New category',
     more: (count) => `${count} more to pick`,
     lead: 'Pick the one that joins your games.',
+    adNotice: 'A short ad follows your pick: it’s what supports the game’s maker. Thank you!',
   },
 
   over: {
@@ -176,6 +177,7 @@ export const en: Messages = {
     themeNote: '“Auto” follows the phone’s setting.',
     language: 'Language',
     privacy: 'Privacy',
+    adPrivacy: 'Ad choices',
     erase: 'Erase my data',
     eraseWarning: 'Level, records, friends and suggested words will be lost.',
     erasing: 'Erasing…',

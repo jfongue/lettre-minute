@@ -48,6 +48,7 @@ export const de: Messages = {
     title: 'Neue Kategorie',
     more: (count) => `noch ${count} zu wählen`,
     lead: 'Wähle die, die zu deinen Partien dazukommt.',
+    adNotice: 'Nach deiner Wahl kommt eine kurze Werbung – so unterstützt du den Macher des Spiels. Danke!',
   },
 
   over: {
@@ -170,6 +171,7 @@ export const de: Messages = {
     themeNote: '„Auto“ folgt der Einstellung des Telefons.',
     language: 'Sprache',
     privacy: 'Datenschutz',
+    adPrivacy: 'Werbeeinstellungen',
     erase: 'Meine Daten löschen',
     eraseWarning: 'Level, Rekorde, Freunde und vorgeschlagene Wörter gehen verloren.',
     erasing: 'Wird gelöscht…',

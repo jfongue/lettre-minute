@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
-import { picksOwed } from '../domain/unlocks'
+import { pickShowsAd, picksOwed } from '../domain/unlocks'
+import { adsSupported, showInterstitial } from '../lib/native'
 import type { Profile } from '../domain/progression'
 import { categoryText, useT } from '../i18n'
 import { Shape } from './bauhaus'
@@ -14,7 +15,15 @@ interface CategoryOfferProps {
 export function CategoryOffer({ profile, onChoose }: CategoryOfferProps) {
   const t = useT()
   if (profile.offer.length === 0) return null
+  const withAd = adsSupported() && pickShowsAd(profile)
   const owed = picksOwed(profile)
+
+  // The pick is kept before the ad plays: closing the app during the ad must
+  // not cost the player the category.
+  const choose = (id: string) => {
+    onChoose(id)
+    if (withAd) showInterstitial()
+  }
 
   return (
     <section className="offer">
@@ -23,6 +32,7 @@ export function CategoryOffer({ profile, onChoose }: CategoryOfferProps) {
         {owed > 1 && <p className="note">{t.offer.more(owed - 1)}</p>}
       </div>
       <p className="note">{t.offer.lead}</p>
+      {withAd && <p className="note">{t.offer.adNotice}</p>}
       <ul className="offer-cards" key={profile.offer.join()}>
         {profile.offer.map((id, index) => {
           const text = categoryText(t, id)
@@ -33,7 +43,7 @@ export function CategoryOffer({ profile, onChoose }: CategoryOfferProps) {
                 type="button"
                 className="offer-card"
                 style={{ background: `var(--${motif.tint})`, color: `var(--${onTint(motif.tint)})` }}
-                onClick={() => onChoose(id)}
+                onClick={() => choose(id)}
               >
                 <Shape kind={motif.kind} tint={onTint(motif.tint)} className="offer-shape" />
                 <strong>{text.label}</strong>

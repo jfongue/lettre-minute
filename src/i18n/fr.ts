@@ -58,6 +58,7 @@ export const fr = {
     title: 'Nouvelle catégorie',
     more: (count: number) => `encore ${count} à choisir`,
     lead: 'Choisis celle qui rejoint tes parties.',
+    adNotice: 'Une courte pub suivra ton choix : c’est elle qui soutient le créateur du jeu. Merci !',
   },
 
   over: {
@@ -187,6 +188,7 @@ export const fr = {
     themeNote: '« Auto » suit le réglage du téléphone.',
     language: 'Langue',
     privacy: 'Confidentialité',
+    adPrivacy: 'Choix publicitaires',
     erase: 'Effacer mes données',
     eraseWarning: 'Niveau, records, amis et mots proposés seront perdus.',
     erasing: 'Effacement…',

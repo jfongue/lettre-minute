@@ -49,6 +49,7 @@ export const es: Messages = {
     title: 'Nueva categoría',
     more: (count) => `quedan ${count} por elegir`,
     lead: 'Elige la que se une a tus partidas.',
+    adNotice: 'Tras tu elección verás un anuncio breve: así apoyas al creador del juego. ¡Gracias!',
   },
 
   over: {
@@ -171,6 +172,7 @@ export const es: Messages = {
     themeNote: '«Auto» sigue el ajuste del teléfono.',
     language: 'Idioma',
     privacy: 'Privacidad',
+    adPrivacy: 'Opciones de anuncios',
     erase: 'Borrar mis datos',
     eraseWarning: 'Se perderán el nivel, los récords, los amigos y las palabras propuestas.',
     erasing: 'Borrando…',
