@@ -17,17 +17,20 @@ interface PageLinksProps {
   pages: readonly LinkedPage[]
   /** Worn on the profile tile. */
   avatar?: AvatarChoice
+  /** News waiting behind a tile, counted on a sticker in its corner. */
+  badges?: Partial<Record<LinkedPage, number>>
   onOpen(page: LinkedPage): void
 }
 
 /** Poster tiles that open a page of the drawer: the shape jumps when the tile is reached. */
-export function PageLinks({ pages, avatar, onOpen }: PageLinksProps) {
+export function PageLinks({ pages, avatar, badges, onOpen }: PageLinksProps) {
   const t = useT()
   return (
     <nav className="page-links" style={{ '--count': pages.length } as CSSProperties}>
       {pages.map((page, index) => {
         const look = page === 'profile' ? null : LOOKS[page]
         const ground: Tint = look?.ground ?? 'paper'
+        const badge = badges?.[page] ?? 0
         return (
           <button
             key={page}
@@ -35,6 +38,7 @@ export function PageLinks({ pages, avatar, onOpen }: PageLinksProps) {
             className={`page-link page-link--${page}`}
             style={{ background: `var(--${ground})`, color: `var(--${onTint(ground)})`, '--i': index } as CSSProperties}
             onClick={() => onOpen(page)}
+            aria-label={badge > 0 ? `${t.home.links[page]} · ${t.home.news(badge)}` : undefined}
           >
             <span className="page-link-art">
               {page === 'profile' && avatar ? (
@@ -44,6 +48,11 @@ export function PageLinks({ pages, avatar, onOpen }: PageLinksProps) {
               )}
             </span>
             <span className="page-link-label">{t.home.links[page]}</span>
+            {badge > 0 && (
+              <span className="page-link-badge" aria-hidden="true">
+                {badge}
+              </span>
+            )}
           </button>
         )
       })}

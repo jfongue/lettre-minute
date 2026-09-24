@@ -1,5 +1,6 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
+import { MODERATION_SESSION_SIZE, type ModeratorOfferReason, type Verdict } from '../domain/moderation'
 import type { Profile } from '../domain/progression'
 import type { Run } from '../domain/run'
 import type { PendingSubmission } from '../state/storage'
@@ -158,6 +159,10 @@ export interface Submission {
   display: string
   status: SubmissionStatus
   at: number
+  /** A moderator has voted on it: its spelling no longer changes. */
+  locked: boolean
+  /** Accepted since the player last opened « Mes demandes ». */
+  fresh: boolean
 }
 
 /** The language a scoped value was written in, and the value itself. */
@@ -169,13 +174,7 @@ function split(value: string): { lang: string; value: string } {
 /** Newest first; null without a server, which the page tells apart from an empty list. */
 export function fetchMySubmissions(): Promise<Submission[] | null> {
   return guard(async () => {
-    const identity = await connect()
-    // A moderator reads everyone's: the filter keeps the page to their own.
-    const { data, error } = await supabase!
-      .from('word_submissions')
-      .select('id, category_id, display, status, created_at')
-      .eq('player_id', identity!.userId)
-      .order('created_at', { ascending: false })
+    const { data, error } = await supabase!.rpc('my_submissions')
     if (error) return null
     return ((data ?? []) as Record<string, unknown>[]).map((row) => {
       const { lang, value } = split(row.category_id as string)
@@ -186,9 +185,124 @@ export function fetchMySubmissions(): Promise<Submission[] | null> {
         display: row.display as string,
         status: row.status as SubmissionStatus,
         at: Date.parse(row.created_at as string) || 0,
+        locked: row.locked === true,
+        fresh: row.fresh === true,
       }
     })
   }, null)
+}
+
+/** Clears the badge: the accepted words have been seen. */
+export function markRequestsSeen(): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('mark_requests_seen')
+    return !error
+  }, false)
+}
+
+export interface ModerationStatus {
+  moderator: boolean
+  /** Their « correct » is enough on its own, and they alone settle special cases. */
+  super: boolean
+  /** Words they validated that entered without a single « incorrect ». */
+  validated: number
+  /** Words waiting for them in the interface's language. */
+  queue: number
+  /** What to offer this player, if anything: the reason picks the wording. */
+  offer: ModeratorOfferReason | null
+  /** The friend who asked, for an offer made by a friend. */
+  invitedBy: string | null
+  /** Their words accepted since they last looked. */
+  news: number
+}
+
+/** Null without a server, which hides everything moderation shows. */
+export function fetchModerationStatus(lang: string): Promise<ModerationStatus | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('moderation_status', { p_lang: lang })
+    if (error || !data) return null
+    const row = data as Record<string, unknown>
+    return {
+      moderator: row.moderator === true,
+      super: row.super === true,
+      validated: Number(row.validated) || 0,
+      queue: Number(row.queue) || 0,
+      offer: (row.offer as ModeratorOfferReason | null) ?? null,
+      invitedBy: (row.invited_by as string | null) ?? null,
+      news: Number(row.news) || 0,
+    }
+  }, null)
+}
+
+/** A word waiting for a moderator's verdict. */
+export interface ReviewCard {
+  id: string
+  categoryId: string
+  display: string
+  /** How many players asked for it. */
+  proposals: number
+  special: boolean
+  /** Why a moderator sent it to the super moderators. */
+  note: string | null
+  /** Nobody has voted yet: the spelling can still be fixed. */
+  canRespell: boolean
+}
+
+/** Null when the server could not be reached, which the screen tells apart from nothing to judge. */
+export function fetchModerationQueue(lang: string): Promise<ReviewCard[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('moderation_queue', { p_lang: lang, p_limit: MODERATION_SESSION_SIZE })
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      id: row.id as string,
+      categoryId: split(row.category_id as string).value,
+      display: row.display as string,
+      proposals: Number(row.proposals) || 1,
+      special: row.special === true,
+      note: (row.note as string | null) ?? null,
+      canRespell: row.can_respell === true,
+    }))
+  }, null)
+}
+
+/** What became of the word: `gone` when the vote could not be taken, `unreachable` when it never arrived. */
+export type VoteOutcome = 'pending' | 'special' | 'accepted' | 'rejected' | 'gone' | 'unreachable'
+
+export function castVote(
+  card: ReviewCard,
+  lang: string,
+  verdict: Verdict,
+  extra: { note?: string; respell?: string } = {},
+): Promise<VoteOutcome> {
+  const respell = extra.respell?.trim()
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('cast_vote', {
+      p_review: card.id,
+      p_verdict: verdict,
+      p_note: extra.note?.trim() || null,
+      p_word: respell ? scoped(lang, respell.toLowerCase()) : null,
+      p_display: respell || null,
+    })
+    return error ? 'unreachable' : (data as VoteOutcome)
+  }, 'unreachable')
+}
+
+/** False when the offer had expired, or when an anonymous player tried to accept it. */
+export function answerModeratorOffer(reason: ModeratorOfferReason, accept: boolean): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('answer_moderator_offer', { p_reason: reason, p_accept: accept })
+    return !error && data === true
+  }, false)
+}
+
+export type InviteOutcome = 'sent' | 'already' | 'not-friend' | 'forbidden' | 'unreachable'
+
+/** A moderator puts a friend forward; the friend is asked, not appointed. */
+export function inviteModerator(friend: string): Promise<InviteOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('invite_moderator', { p_friend: friend })
+    return error ? 'unreachable' : (data as InviteOutcome)
+  }, 'unreachable')
 }
 
 /** Withdraws a word still waiting; false once it was accepted or refused, or offline. */
@@ -240,6 +354,7 @@ export interface Friend {
   xp: number
   bestScore: number
   weekBest: number
+  moderator: boolean
   /** `incoming` waits for this player's answer, `outgoing` for the other's. */
   relation: 'friend' | 'incoming' | 'outgoing'
 }
@@ -256,6 +371,7 @@ export function fetchFriends(): Promise<Friend[] | null> {
       xp: Number(row.xp) || 0,
       bestScore: Number(row.best_score) || 0,
       weekBest: Number(row.week_best) || 0,
+      moderator: row.moderator === true,
       relation: row.relation as Friend['relation'],
     }))
   }, null)

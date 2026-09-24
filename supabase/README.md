@@ -1,12 +1,13 @@
 # Supabase
 
-Six migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Sept migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
 pour les classements par période et les amis, [`0005_my_submissions.sql`](migrations/0005_my_submissions.sql)
 pour retirer ou corriger un mot proposé tant qu'il attend, [`0006_house_bots.sql`](migrations/0006_house_bots.sql)
-pour les deux joueurs maison.
+pour les deux joueurs maison, [`0007_moderation.sql`](migrations/0007_moderation.sql)
+pour la modération des mots proposés.
 
 ## Ce que le serveur détient
 
@@ -17,8 +18,11 @@ pour les deux joueurs maison.
 | `run_words` | Les mots d'une partie, forme normalisée — la matière du bonus de rareté. |
 | `daily_challenges` | La graine du jour, la même pour tous : base du classement quotidien. |
 | `dictionary_words` | Le dictionnaire vivant, en complément des fichiers embarqués. |
-| `word_submissions` | Les mots proposés par les joueurs, avec leur statut. |
-| `moderators` | Qui peut valider ou rejeter à la main. |
+| `word_submissions` | Les mots proposés par les joueurs, avec leur statut ; `seen_at` éteint la pastille de « Mes demandes ». |
+| `word_reviews` | Un mot proposé en cours de jugement (catégorie + mot), que rejoignent tous ceux qui l'ont réclamé. |
+| `moderation_votes` | Un vote par modérateur et par mot : `correct`, `unsure`, `incorrect` ou `special`. |
+| `moderators` | Les modérateurs, et l'ami qui les a élus. |
+| `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |
 | `friendships` | Une ligne par demande d'ami (`pending` puis `accepted`), lue dans les deux sens. |
 | `bots` | Les joueurs maison (Maxitoon, Terretciel) et les bornes de leurs scores. |
 | `account_merges` | Jetons à usage unique : versent un compte anonyme dans le compte auquel il se connecte. |
@@ -38,16 +42,25 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
 - **Les récompenses passent par une fonction `security definer`**
   (`accept_word`), pas par le client : donner 150 XP est une décision du
   serveur, prise une seule fois, au passage du statut à `accepted`.
-- **Trois propositions distinctes suffisent** pour qu'un mot entre au
-  dictionnaire (`auto_accept_word`). Le seuil est dans la fonction, pas dans le
-  client : le changer ne demande pas de redéploiement de l'application.
+- **Ce sont les modérateurs qui font entrer un mot** (`settle_review`) : trois
+  « correct », ou un seul d'un super modérateur. Depuis 0007, trois joueurs
+  qui réclament le même mot ne suffisent plus. Les seuils sont dans la
+  fonction, pas dans le client : les changer ne demande pas de redéploiement.
+- **Tout vote passe par `cast_vote`** : les tables de modération n'ont aucune
+  politique. La fonction refuse un modérateur qui a proposé le mot lui-même,
+  un second vote, un cas spécial jugé par un modérateur ordinaire, et une
+  correction d'orthographe après le premier vote (`gone`).
+- **Le niveau 6 est écrit en XP dans `moderator_offer_due`** (2550) : SQL ne
+  connaît pas `xpForLevel`. `MODERATOR_LEVEL_XP` et son test
+  (`src/domain/moderation.ts`) cassent si la courbe change sans lui.
 - **Un profil est lisible par tous les comptes connectés** : c'est ce
   qu'affiche le classement, et rien de sensible n'y est stocké.
 - **Les parties sont insérées, jamais modifiées.** Un score ne se corrige pas.
 - **Les classements ne montrent que des comptes nommés** : les fonctions
   joignent `auth.users` et écartent `is_anonymous`.
 - **Une proposition ne se retire ou ne se corrige qu'en attente** : la politique
-  `submissions_withdraw_own` et `amend_submission` exigent `status = 'pending'`.
+  `submissions_withdraw_own` et `amend_submission` exigent `status = 'pending'`,
+  et `amend_submission` refuse aussi dès qu'un modérateur a voté.
   Un mot accepté a déjà payé son XP ; un mot refusé reste en archive.
 - **Les amitiés s'écrivent par fonction** (`request_friend`, `respond_friend`,
   `remove_friend`) : la table n'a qu'une politique de lecture. Un compte

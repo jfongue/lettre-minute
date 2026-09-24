@@ -6,6 +6,7 @@ import {
   fetchCommunityWords,
   fetchCrowdUsage,
   fetchBoards,
+  fetchModerationStatus,
   logIn,
   logOut,
   pushAvatar,
@@ -14,6 +15,7 @@ import {
   register,
   type Account,
   type CommunityWord,
+  type ModerationStatus,
 } from './lib/cloud'
 import { isNativeApp, onBackButton, prepareAds, tapFeedback } from './lib/native'
 import { configureSound, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
@@ -49,6 +51,8 @@ import { CountdownScreen } from './ui/CountdownScreen'
 import { HomeScreen } from './ui/HomeScreen'
 import { LanguagePicker } from './ui/LanguagePicker'
 import { Menu, type MenuPage } from './ui/Menu'
+import { ModerationScreen } from './ui/ModerationScreen'
+import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
 import { OverScreen } from './ui/OverScreen'
 import { RunScreen } from './ui/RunScreen'
@@ -108,6 +112,10 @@ export function App() {
   const [avatar, setAvatar] = useState<AvatarChoice>(DEFAULT_AVATAR)
   const [account, setAccount] = useState<Account | null>(null)
   const [editingAvatar, setEditingAvatar] = useState(false)
+  const [moderation, setModeration] = useState<ModerationStatus | null>(null)
+  const [moderating, setModerating] = useState(false)
+  // « Plus tard » holds the offer back until the next launch, without answering it.
+  const [offerHeld, setOfferHeld] = useState(false)
   // The seed of the run whose reveal has played: leaving for the avatar editor
   // and coming back must not replay it.
   const [revealed, setRevealed] = useState<number | null>(null)
@@ -163,6 +171,12 @@ export function App() {
     fetchAccount().then((found) => found && adopt(found))
     flushSubmissions()
   }, [adopt])
+
+  const refreshModeration = useCallback(() => {
+    fetchModerationStatus(lang).then(setModeration)
+  }, [lang])
+  // The account decides the role, the language which words wait for it.
+  useEffect(refreshModeration, [refreshModeration, account?.name, account?.anonymous])
 
   const accountActions: AccountActions = {
     async onRegister(name, email, password) {
@@ -365,6 +379,8 @@ export function App() {
     pushing.current = pushed
     flushSubmissions()
     // Read after the run is in, or the boards would not count it yet.
+    // A word proposed during the run may be waiting for a verdict already.
+    pushed.then(refreshModeration)
     pushed
       .then(loadBoards)
       .then((next) => {
@@ -394,14 +410,27 @@ export function App() {
           onSave={(next) => {
             wear(next)
             // The boards read the avatar from the profile: only a fetch after the write shows it.
-            pushAvatar(next).then((saved) => saved && loadBoards().then(setBoards))
+            pushAvatar(next).then((saved) => {
+              if (saved) loadBoards().then(setBoards)
+            })
             setEditingAvatar(false)
           }}
           onBack={() => setEditingAvatar(false)}
         />
       )}
 
-      {!editingAvatar && (session.phase === 'home' || session.phase === 'loading') && (
+      {moderating && (
+        <ModerationScreen
+          lang={lang}
+          onDone={() => {
+            setModerating(false)
+            refreshModeration()
+            setMenuPage('requests')
+          }}
+        />
+      )}
+
+      {!editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
@@ -409,13 +438,34 @@ export function App() {
           boards={boards}
           me={account && !account.anonymous ? account.name : null}
           avatar={avatar}
+          requestsNews={moderation?.news ?? 0}
           onMenu={(page = 'profile') => setMenuPage(page)}
           onPlay={play}
           onChoose={choose}
         />
       )}
 
-      {menuOpen && !editingAvatar && (session.phase === 'home' || session.phase === 'loading') && (
+      {!menuOpen &&
+        !editingAvatar &&
+        !moderating &&
+        !offerHeld &&
+        session.phase === 'home' &&
+        moderation?.offer && (
+          <ModeratorOffer
+            reason={moderation.offer}
+            invitedBy={moderation.invitedBy}
+            anonymous={account?.anonymous !== false}
+            onAccount={() => {
+              setOfferHeld(true)
+              setMenuPage('profile')
+            }}
+            onAnswered={refreshModeration}
+            onLater={() => setOfferHeld(true)}
+            onModerate={() => setModerating(true)}
+          />
+        )}
+
+      {menuOpen && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
         <Menu
           page={menuPage}
           profile={session.profile}
@@ -441,6 +491,12 @@ export function App() {
             await logOut()
             forget()
           }}
+          moderation={moderation}
+          onModerate={() => {
+            setMenuPage(null)
+            setModerating(true)
+          }}
+          onRequestsSeen={refreshModeration}
           onErase={async () => {
             // The device keeps its copy until the server has let go of its
             // own: a failed erase must not leave the player half-deleted.

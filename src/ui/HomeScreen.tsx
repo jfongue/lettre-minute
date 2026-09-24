@@ -23,12 +23,25 @@ interface HomeScreenProps {
   /** The player's account name, highlighted on the boards; null for an anonymous player. */
   me: string | null
   avatar: AvatarChoice
+  /** The player's words accepted since they last opened « Mes demandes ». */
+  requestsNews: number
   onMenu(page?: MenuPage): void
   onPlay(): void
   onChoose(categoryId: string): void
 }
 
-export function HomeScreen({ profile, error, loading, boards, me, avatar, onMenu, onPlay, onChoose }: HomeScreenProps) {
+export function HomeScreen({
+  profile,
+  error,
+  loading,
+  boards,
+  me,
+  avatar,
+  requestsNews,
+  onMenu,
+  onPlay,
+  onChoose,
+}: HomeScreenProps) {
   const t = useT()
   const progress = levelProgress(profile.xp)
   // The drawer lives off the left edge: a flick to the right pulls it in.
@@ -81,7 +94,7 @@ export function HomeScreen({ profile, error, loading, boards, me, avatar, onMenu
 
       <CategoryOffer profile={profile} onChoose={onChoose} />
 
-      <PageLinks pages={HOME_LINKS} avatar={avatar} onOpen={onMenu} />
+      <PageLinks pages={HOME_LINKS} avatar={avatar} badges={{ requests: requestsNews }} onOpen={onMenu} />
 
     </div>
   )

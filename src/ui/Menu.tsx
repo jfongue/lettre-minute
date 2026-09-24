@@ -4,11 +4,13 @@ import type { RunRecord } from '../domain/history'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
 import {
   fetchFriends,
+  inviteModerator,
   removeFriend,
   requestFriend,
   respondFriend,
   type Account,
   type Friend,
+  type ModerationStatus,
 } from '../lib/cloud'
 import { adPrivacyOptionsRequired, showAdPrivacyOptions } from '../lib/native'
 import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
@@ -58,6 +60,10 @@ interface MenuProps {
   onLogOut(): void
   /** Answers false when the server could not erase the account. */
   onErase(): Promise<boolean>
+  /** Null without a server: nothing about moderation shows. */
+  moderation: ModerationStatus | null
+  onModerate(): void
+  onRequestsSeen(): void
   onClose(): void
 }
 
@@ -134,10 +140,18 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
             </div>
           )}
           {sub === 'stats' && <StatsPage history={props.history} profile={props.profile} />}
-          {sub === 'requests' && <RequestsPage />}
+          {sub === 'requests' && (
+            <RequestsPage moderation={props.moderation} onModerate={props.onModerate} onSeen={props.onRequestsSeen} />
+          )}
           {sub === 'categories' && <CategoriesPage profile={props.profile} />}
           {!sub && pane === 'profile' && <ProfilePane {...props} onPage={open} />}
-          {pane === 'social' && <SocialPane account={props.account} onProfile={() => open('profile')} />}
+          {pane === 'social' && (
+            <SocialPane
+              account={props.account}
+              moderator={props.moderation?.moderator ?? false}
+              onProfile={() => open('profile')}
+            />
+          )}
           {pane === 'options' && (
             <OptionsPane
               theme={props.theme}
@@ -162,8 +176,22 @@ function ProfilePane({
   onAvatar,
   onLogOut,
   onErase,
+  moderation,
   onPage,
-}: Omit<MenuProps, 'onClose' | 'page' | 'history' | 'theme' | 'onTheme' | 'locale' | 'onLocale' | 'sound' | 'onSound'> & {
+}: Omit<
+  MenuProps,
+  | 'onClose'
+  | 'page'
+  | 'history'
+  | 'theme'
+  | 'onTheme'
+  | 'locale'
+  | 'onLocale'
+  | 'sound'
+  | 'onSound'
+  | 'onModerate'
+  | 'onRequestsSeen'
+> & {
   onPage(page: ProfilePage): void
 }) {
   const t = useT()
@@ -205,7 +233,11 @@ function ProfilePane({
 
       {!account && <p className="note">{t.menu.offline}</p>}
 
-      <PageLinks pages={PROFILE_PAGES} onOpen={(next) => next !== 'profile' && onPage(next)} />
+      <PageLinks
+        pages={PROFILE_PAGES}
+        badges={{ requests: moderation?.news ?? 0 }}
+        onOpen={(next) => next !== 'profile' && onPage(next)}
+      />
 
       <div className="menu-foot">
         <EraseData onErase={onErase} />
@@ -214,7 +246,16 @@ function ProfilePane({
   )
 }
 
-function SocialPane({ account, onProfile }: { account: Account | null; onProfile(): void }) {
+function SocialPane({
+  account,
+  moderator,
+  onProfile,
+}: {
+  account: Account | null
+  /** A moderator can put a friend forward to become one. */
+  moderator: boolean
+  onProfile(): void
+}) {
   const t = useT()
   const [friends, setFriends] = useState<Friend[] | null | 'loading'>('loading')
   const [name, setName] = useState('')
@@ -334,7 +375,16 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
           ) : (
             <ul className="friends">
               {accepted.map((friend) => (
-                <FriendRow key={friend.id} friend={friend} onRemove={() => act(removeFriend(friend.id))} />
+                <FriendRow
+                  key={friend.id}
+                  friend={friend}
+                  onRemove={() => act(removeFriend(friend.id))}
+                  onElect={
+                    moderator && !friend.moderator
+                      ? async () => setMessage(t.social.invites[await inviteModerator(friend.id)](friend.name))
+                      : undefined
+                  }
+                />
               ))}
             </ul>
           )}
@@ -364,20 +414,39 @@ function SocialPane({ account, onProfile }: { account: Account | null; onProfile
 }
 
 /** Removing a friend takes a second tap: a stray one would cost a request and a wait. */
-function FriendRow({ friend, onRemove }: { friend: Friend; onRemove(): void }) {
+function FriendRow({ friend, onRemove, onElect }: { friend: Friend; onRemove(): void; onElect?(): Promise<void> }) {
   const t = useT()
   const [confirming, setConfirming] = useState(false)
+  const [electing, setElecting] = useState(false)
 
   return (
     <li className="friend">
       <Avatar choice={friend.avatar} size="sm" />
       <span className="friend-name">
-        {friend.name}
+        <span>
+          {friend.name}
+          {friend.moderator && <span className="friend-moderator">{t.social.moderator}</span>}
+        </span>
         <span className="note">
           {t.social.stats(levelFor(friend.xp), formatNumber(t, friend.weekBest), formatNumber(t, friend.bestScore))}
         </span>
       </span>
       <span className="friend-actions">
+        {onElect && !confirming && (
+          <button
+            type="button"
+            className="btn btn--quiet"
+            aria-label={t.social.electLabel(friend.name)}
+            disabled={electing}
+            onClick={async () => {
+              setElecting(true)
+              await onElect()
+              setElecting(false)
+            }}
+          >
+            {t.social.elect}
+          </button>
+        )}
         {confirming ? (
           <>
             <button type="button" className="btn btn--quiet" onClick={onRemove}>

@@ -1,7 +1,7 @@
 import { PALETTE, type Milestone } from '../domain/avatar'
 import { CATALOGUE } from '../domain/catalogue'
 import type { RarityTier } from '../domain/rarity'
-import type { AuthError, FriendRequestOutcome } from '../lib/cloud'
+import type { AuthError, FriendRequestOutcome, InviteOutcome, VoteOutcome } from '../lib/cloud'
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one)
 
@@ -32,6 +32,7 @@ export const fr = {
     reserve: (perRun: number) =>
       `Chaque partie en tire ${perRun} ; les autres restent en réserve pour un échange au lancement.`,
     links: { profile: 'Profil', stats: 'Statistiques', requests: 'Mes demandes', categories: 'Catégories' },
+    news: (count: number) => `${count} ${plural(count, 'nouveauté', 'nouveautés')}`,
   },
 
   countdown: {
@@ -187,6 +188,16 @@ export const fr = {
     stats: (level: number, week: string, record: string) => `Niv. ${level} · semaine ${week} · record ${record}`,
     remove: 'Retirer',
     keep: 'Garder',
+    moderator: 'modérateur',
+    elect: 'Élire modérateur',
+    electLabel: (name: string) => `Proposer à ${name} de devenir modérateur`,
+    invites: {
+      sent: (name: string) => `${name} reçoit ta proposition de devenir modérateur.`,
+      already: (name: string) => `${name} est déjà modérateur, ou a déjà reçu la proposition.`,
+      'not-friend': (name: string) => `${name} doit être ton ami, avec un compte nommé.`,
+      forbidden: () => 'Seul un modérateur peut en élire un autre.',
+      unreachable: () => 'Le serveur ne répond pas. Réessaie dans un instant.',
+    } satisfies Record<InviteOutcome, (name: string) => string> as Record<InviteOutcome, (name: string) => string>,
   },
 
   stats: {
@@ -217,7 +228,9 @@ export const fr = {
     empty: 'Aucune demande pour l’instant. En partie, un mot inconnu du dictionnaire se propose d’une touche.',
     added: 'Ajoutés grâce à toi',
     addedNote: (xp: number) => `${xp} XP gagnés pour chacun.`,
-    noneAdded: 'Aucun encore : un mot entre quand trois joueurs l’ont proposé.',
+    noneAdded: 'Aucun encore : un mot entre quand trois modérateurs l’ont validé.',
+    fresh: 'nouveau',
+    locked: 'en cours de modération',
     pending: 'En attente',
     queued: 'pas encore envoyé',
     rejected: (count: number) => `Refusées (${count})`,
@@ -226,6 +239,65 @@ export const fr = {
     withdraw: 'Retirer',
     save: 'Enregistrer',
     failed: 'Le serveur n’a pas répondu. Réessaie.',
+  },
+
+  moderation: {
+    title: 'Modération',
+    superTitle: 'Super modérateur',
+    lead: 'Tu juges les mots proposés par les joueurs : trois « correct » font entrer un mot, deux « incorrect » le bloquent.',
+    superLead: 'Ta parole suffit : un mot que tu dis correct entre aussitôt, et les cas spéciaux n’attendent que les super modérateurs.',
+    progress: (done: number, needed: number) =>
+      `${Math.min(done, needed)} / ${needed} mots validés sans contestation pour devenir super modérateur`,
+    waiting: (count: number) =>
+      count === 0 ? 'Aucun mot n’attend pour l’instant.' : `${count} ${plural(count, 'mot attend', 'mots attendent')} ton avis`,
+    start: (size: number) => `Lancer une session · ${size} mots`,
+    offer: {
+      title: 'Deviens modérateur !',
+      level: (level: number) => `Niveau ${level} : tu connais le jeu par cœur. Tu nous aides à trier les mots proposés par les joueurs ?`,
+      words: 'Trois de tes mots sont entrés au dictionnaire : tu as l’œil. Tu nous aides à juger ceux des autres ?',
+      friend: (name: string) => `${name} te propose de rejoindre les modérateurs.`,
+      how: 'Une session, c’est cinq mots à juger d’un geste : correct, je ne sais pas, incorrect.',
+      accept: 'J’en suis !',
+      decline: 'Non merci',
+      needAccount: 'Il te faut d’abord un compte nommé : tes parties te suivent.',
+      createAccount: 'Créer mon compte',
+      later: 'Plus tard',
+      welcome: 'Bienvenue chez les modérateurs !',
+      welcomeLead: 'Tes sessions se lancent depuis « Mes demandes ».',
+      open: 'Juger mes premiers mots',
+      close: 'Fermer',
+      failed: 'Le serveur n’a pas répondu. Réessaie.',
+    },
+    screen: {
+      quit: 'Quitter la session',
+      counter: (index: number, total: number) => `Mot ${index} sur ${total}`,
+      proposedBy: (count: number) => `proposé par ${count} ${plural(count, 'joueur', 'joueurs')}`,
+      question: 'A-t-il sa place dans cette catégorie ?',
+      hint: 'Glisse la carte : à droite correct, à gauche incorrect, vers le haut je ne sais pas.',
+      verdicts: { correct: 'Correct', unsure: 'Je ne sais pas', incorrect: 'Incorrect', special: 'Cas spécial' },
+      respell: 'Corriger l’orthographe',
+      respellLead: 'Ta validation comptera, mais il faudra un modérateur de plus.',
+      respellLabel: 'Orthographe corrigée',
+      respellConfirm: 'Valider cette orthographe',
+      specialLead: 'Synonyme, deux orthographes, doute… Seuls les super modérateurs trancheront.',
+      specialPlaceholder: 'Pourquoi ? (facultatif)',
+      specialConfirm: 'Envoyer aux super modérateurs',
+      back: 'Retour',
+      outcomes: {
+        pending: 'Vote compté',
+        special: 'Transmis aux super modérateurs',
+        accepted: 'Entré au dictionnaire !',
+        rejected: 'Bloqué',
+        gone: 'Réglé entre-temps',
+        unreachable: 'Le serveur n’a pas répondu. Réessaie.',
+      } satisfies Record<VoteOutcome, string> as Record<VoteOutcome, string>,
+      empty: 'Rien à juger pour l’instant. Reviens plus tard !',
+      offline: 'Le serveur ne répond pas. Réessaie dans un instant.',
+      done: 'Session terminée',
+      judged: (count: number) => `${count} ${plural(count, 'mot jugé', 'mots jugés')}, merci !`,
+      entered: (count: number) => `${count} ${plural(count, 'mot entré', 'mots entrés')} au dictionnaire grâce à toi`,
+      finish: 'Retour à mes demandes',
+    },
   },
 
   options: {

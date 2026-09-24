@@ -141,7 +141,14 @@ qu'un nouvel arrivant casserait sans le savoir.
   `armSound()` réveille le contexte au premier toucher, un son demandé avant
   est perdu, la musique attend.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
-  (`accept_word`), jamais par le client.
+  (`accept_word`), jamais par le client — et depuis 0007, seules les fonctions
+  du serveur peuvent l'appeler.
+- **Les règles de modération vivent en SQL** (`settle_review`, 0007), pas dans
+  le domaine : trois « correct », deux « incorrect », louche à deux « je ne
+  sais pas ». `src/domain/moderation.ts` ne garde que ce que l'interface doit
+  savoir (taille de session, lecture d'un glissement). La modération suit la
+  langue de l'interface : un modérateur ne voit que les mots préfixés de la
+  sienne.
 
 ## Conventions
 

@@ -59,8 +59,20 @@ n'écrit rapportent le plus.
   marimba accompagne l’accueil et le bilan, jamais la partie (sauf la
   pulsation, en option). Effets, clavier, musique et pulsation ont chacun leur
   volume dans les options ; sur le web, une sourdine attend en bas à droite.
-- **Mot manquant** : le joueur le propose en un clic ; réclamé par trois joueurs
-  (ou validé par un modérateur), il entre au dictionnaire et lui rapporte 150 XP.
+- **Mot manquant** : le joueur le propose en un clic ; validé par trois
+  modérateurs, il entre au dictionnaire et rapporte 150 XP à chacun de ceux
+  qui l'ont proposé. Une pastille sur « Mes demandes » l'annonce à l'accueil.
+- **Modération** : des joueurs volontaires jugent les mots proposés, cinq par
+  session, d'un glissement de carte — correct, je ne sais pas, incorrect.
+  Deux « incorrect » bloquent un mot ; deux « je ne sais pas » le rendent
+  louche, et il lui faut trois « correct » de plus. Avant le premier vote, un
+  modérateur peut corriger l'orthographe (il faudra alors un validateur de
+  plus) ; après, elle est figée, pour le joueur aussi. Un « cas spécial »
+  (synonyme, double orthographe, doute) ne se tranche que par un super
+  modérateur, celui dont cinq validations sont entrées sans un seul
+  « incorrect » et dont le « correct » suffit seul. Le jeu propose de modérer
+  au niveau 6, après trois mots acceptés, ou quand un ami modérateur vous
+  élit.
 
 ## Commandes
 
