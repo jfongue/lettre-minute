@@ -16,14 +16,41 @@ export interface PendingSubmission {
   lang?: string
 }
 
-function read<T>(key: string, fallback: T): T {
+function parsed(key: string): unknown {
   try {
     const raw = localStorage.getItem(key)
-    return raw ? ({ ...fallback, ...JSON.parse(raw) } as T) : fallback
+    return raw ? JSON.parse(raw) : null
   } catch {
     // A quota error, private mode or a half-written value must not cost a run.
-    return fallback
+    return null
   }
+}
+
+const isCount = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0
+const isText = (value: unknown): value is string => typeof value === 'string'
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+/**
+ * The stored profile, field by field: what an older build, another tab or a
+ * hand in the devtools left there is kept only where it has the right shape.
+ * One NaN in `xp` would otherwise poison every level computed after it, and be
+ * pushed to the server with the next run.
+ */
+function profileOf(stored: unknown): Profile {
+  if (!isRecord(stored)) return NEW_PROFILE
+  const profile: Record<string, unknown> = { ...NEW_PROFILE }
+  for (const [field, fallback] of Object.entries(NEW_PROFILE)) {
+    const value = stored[field]
+    if (typeof fallback === 'number') {
+      if (isCount(value)) profile[field] = value
+    } else if (Array.isArray(fallback)) {
+      if (Array.isArray(value)) profile[field] = value.filter(isText)
+    } else if (isRecord(value)) {
+      profile[field] = Object.fromEntries(Object.entries(value).filter(([, count]) => isCount(count)))
+    }
+  }
+  return profile as unknown as Profile
 }
 
 function write(key: string, value: unknown): void {
@@ -35,7 +62,7 @@ function write(key: string, value: unknown): void {
 }
 
 export function loadProfile(): Profile {
-  return read<Profile>(PROFILE_KEY, NEW_PROFILE)
+  return profileOf(parsed(PROFILE_KEY))
 }
 
 export function saveProfile(profile: Profile): void {
@@ -43,13 +70,16 @@ export function saveProfile(profile: Profile): void {
 }
 
 export function loadSubmissions(): PendingSubmission[] {
-  try {
-    const raw = localStorage.getItem(SUBMISSIONS_KEY)
-    const parsed = raw ? (JSON.parse(raw) as PendingSubmission[]) : []
-    return Array.isArray(parsed) ? parsed : []
-  } catch {
-    return []
-  }
+  const stored = parsed(SUBMISSIONS_KEY)
+  if (!Array.isArray(stored)) return []
+  return stored.filter(
+    (entry): entry is PendingSubmission =>
+      isRecord(entry) &&
+      isText(entry.word) &&
+      isText(entry.categoryId) &&
+      isCount(entry.at) &&
+      (entry.lang === undefined || isText(entry.lang)),
+  )
 }
 
 export function saveSubmissions(submissions: readonly PendingSubmission[]): void {
@@ -57,12 +87,7 @@ export function saveSubmissions(submissions: readonly PendingSubmission[]): void
 }
 
 export function loadAvatar(): AvatarChoice {
-  try {
-    const raw = localStorage.getItem(AVATAR_KEY)
-    return parseAvatar(raw ? JSON.parse(raw) : null)
-  } catch {
-    return parseAvatar(null)
-  }
+  return parseAvatar(parsed(AVATAR_KEY))
 }
 
 export function saveAvatar(avatar: AvatarChoice): void {
@@ -74,22 +99,36 @@ export function saveAvatar(avatar: AvatarChoice): void {
 type StoredWord = [categoryId: string, word: string, display: string, points: number]
 type StoredRun = [at: number, lang: string, score: number, bestCombo: number, skips: number, categoryIds: string[], words: StoredWord[]]
 
-export function loadHistory(): RunRecord[] {
-  try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(HISTORY_KEY) ?? '[]')
-    if (!Array.isArray(parsed)) return []
-    return (parsed as StoredRun[]).map(([at, lang, score, bestCombo, skips, categoryIds, words]) => ({
-      at,
-      lang,
-      score,
-      bestCombo,
-      skips,
-      categoryIds,
-      words: words.map(([categoryId, word, display, points]) => ({ categoryId, word, display, points })),
-    }))
-  } catch {
-    return []
+/**
+ * One malformed run is dropped, not the history: the next save writes back
+ * whatever was read, so failing on the whole list would erase it for good.
+ */
+function runOf(stored: unknown): RunRecord | null {
+  if (!Array.isArray(stored)) return null
+  const [at, lang, score, bestCombo, skips, categoryIds, words] = stored as unknown[]
+  if (!isCount(at) || !isText(lang) || !isCount(score) || !isCount(bestCombo) || !isCount(skips)) return null
+  if (!Array.isArray(categoryIds) || !Array.isArray(words)) return null
+  return {
+    at,
+    lang,
+    score,
+    bestCombo,
+    skips,
+    categoryIds: categoryIds.filter(isText),
+    words: words.flatMap((word: unknown) => {
+      if (!Array.isArray(word)) return []
+      const [categoryId, played, display, points] = word as unknown[]
+      return isText(categoryId) && isText(played) && isText(display) && typeof points === 'number' && Number.isFinite(points)
+        ? [{ categoryId, word: played, display, points }]
+        : []
+    }),
   }
+}
+
+export function loadHistory(): RunRecord[] {
+  const stored = parsed(HISTORY_KEY)
+  if (!Array.isArray(stored)) return []
+  return stored.flatMap((run) => runOf(run) ?? [])
 }
 
 export function saveHistory(history: readonly RunRecord[]): void {
