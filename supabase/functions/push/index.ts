@@ -1,7 +1,7 @@
 // Drains `push_outbox` (migration 0009): woken by the database through pg_net
 // on every new row, and every minute by pg_cron. Deployed with
 // `--no-verify-jwt`: the caller is the database, which proves itself with the
-// shared `x-push-secret` rather than a user's token.
+// `x-push-secret` it drew itself rather than a user's token.
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { accessToken, send, type Outcome, type ServiceAccount } from './fcm.ts'
 import { pushText, type PushKind } from './messages.ts'
@@ -17,13 +17,17 @@ interface Row {
 }
 
 Deno.serve(async (request) => {
-  const secret = Deno.env.get('PUSH_SECRET')
-  if (!secret || request.headers.get('x-push-secret') !== secret) return new Response('forbidden', { status: 403 })
+  const url = Deno.env.get('SUPABASE_URL')!
+  const supabase = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+  // The database draws the shared secret (migration 0010); the function tells
+  // it where to call, and learns what its caller must present.
+  const { data: secret } = await supabase.rpc('push_config', { p_url: `${url}/functions/v1/push` })
+  if (typeof secret !== 'string' || request.headers.get('x-push-secret') !== secret) {
+    return new Response('forbidden', { status: 403 })
+  }
 
   const account = JSON.parse(Deno.env.get('FCM_SERVICE_ACCOUNT') ?? 'null') as ServiceAccount | null
   if (!account) return new Response('FCM_SERVICE_ACCOUNT missing', { status: 500 })
-
-  const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
   const { data, error } = await supabase.rpc('claim_push_batch', { p_limit: 200 })
   if (error) return new Response(error.message, { status: 500 })
   const rows = (data ?? []) as Row[]

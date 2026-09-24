@@ -10,7 +10,8 @@ bilan prêt. Android seulement pour l'instant.
    ajouté à un défi, la dernière partie jouée, ou un défi échu (pg_cron,
    chaque minute).
 2. Elle réveille la fonction Edge [`push`](../supabase/functions/push/index.ts)
-   par pg_net, avec le secret partagé `x-push-secret`.
+   par pg_net, avec le secret `x-push-secret` qu'elle a tiré elle-même
+   (`push_config`, migration 0010).
 3. La fonction lit la file (`claim_push_batch`), écrit chaque message dans la
    langue du téléphone, l'envoie par FCM, efface les jetons morts et marque
    ce qui est parti (`finish_push_batch`).
@@ -28,38 +29,36 @@ casse : la file attend, et les défis se découvrent à l'accueil comme avant.
    créer un projet (Analytics inutile).
 2. Ajouter une app **Android**, nom de package `fr.lettreminute.app`.
 3. Télécharger `google-services.json` et le poser dans `android/app/`. Le
-   Gradle ne l'applique que s'il existe.
+   Gradle ne l'applique que s'il existe ; il est ignoré par git.
 4. Paramètres du projet → **Comptes de service** → *Générer une nouvelle clé
    privée* : un fichier JSON. Il ne va **jamais** dans le dépôt.
 
 ### 2. Supabase
 
 La fonction Edge, déployée sans vérification de jeton utilisateur (c'est la
-base qui l'appelle) :
+base qui l'appelle), et la clé du compte de service en secret :
 
 ```bash
-supabase functions deploy push --no-verify-jwt
+supabase functions deploy push --no-verify-jwt --use-api
 ```
-
-Ses deux secrets : la clé du compte de service, et un secret partagé tiré au
-hasard.
 
 ```bash
-supabase secrets set FCM_SERVICE_ACCOUNT="$(cat chemin/vers/cle-service.json)" PUSH_SECRET="$(openssl rand -hex 32)"
+supabase secrets set FCM_SERVICE_ACCOUNT="$(cat chemin/vers/cle-service.json)"
 ```
 
-La migration :
+Les migrations (0009 et 0010) :
 
 ```bash
 supabase db push
 ```
 
-Puis, dans l'éditeur SQL du projet, l'adresse de la fonction et **le même**
-secret, rangés dans le Vault (remplacer `<ref>` et `<secret>`) :
+Rien à écrire dans le Vault : la base tire elle-même le secret partagé
+(`push_secret`, migration 0010), et la fonction y inscrit sa propre adresse
+(`push_url`) à chaque appel. Un premier appel suffit à l'amorcer ; il répond
+403, c'est normal :
 
-```sql
-select vault.create_secret('https://<ref>.supabase.co/functions/v1/push', 'push_url');
-select vault.create_secret('<secret>', 'push_secret');
+```bash
+curl -X POST https://<ref>.supabase.co/functions/v1/push
 ```
 
 ### 3. Le build

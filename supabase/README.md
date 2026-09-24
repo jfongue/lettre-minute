@@ -1,6 +1,6 @@
 # Supabase
 
-Neuf migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Dix migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -8,8 +8,8 @@ pour les classements par période et les amis, [`0005_my_submissions.sql`](migra
 pour retirer ou corriger un mot proposé tant qu'il attend, [`0006_house_bots.sql`](migrations/0006_house_bots.sql)
 pour les deux joueurs maison, [`0007_moderation.sql`](migrations/0007_moderation.sql)
 pour la modération des mots proposés, [`0008_challenges.sql`](migrations/0008_challenges.sql)
-pour les défis entre amis, [`0009_push.sql`](migrations/0009_push.sql) pour
-leurs notifications push.
+pour les défis entre amis, [`0009_push.sql`](migrations/0009_push.sql) et
+[`0010_push_config.sql`](migrations/0010_push_config.sql) pour leurs notifications push.
 
 ## Ce que le serveur détient
 
@@ -103,8 +103,10 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   ajouté, dernière partie jouée, défi échu) et réveille la fonction Edge
   `push` par pg_net ; pg_cron (`push-challenges`) repasse chaque minute.
 - **Rien de tout ça ne peut faire échouer une partie** : `kick_push` et les
-  déclencheurs avalent leurs erreurs. Sans secrets `push_url` et
-  `push_secret` dans le Vault, la file attend.
+  déclencheurs avalent leurs erreurs. La base tire elle-même
+  `push_secret` dans le Vault, et la fonction y inscrit `push_url` à chaque
+  appel (`push_config`) : aucun secret ne se recopie à la main. Tant que la
+  fonction n'a jamais été appelée, la file attend.
 - **Un bilan ne s'annonce qu'une fois** (`challenges.recap_queued_at`), et
   seulement à ceux qui ont joué.
 - **`claim_push_batch` et `finish_push_batch` ne sont ouverts qu'à

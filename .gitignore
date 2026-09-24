@@ -11,3 +11,6 @@ keystore.properties
 
 # État local de la CLI Supabase (projet lié)
 supabase/.temp
+
+# Configuration Firebase de l’app Android (docs/notifications-push.md)
+android/app/google-services.json
