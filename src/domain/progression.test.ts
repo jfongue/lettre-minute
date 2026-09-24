@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   applyRun,
+  countOf,
   levelFor,
   levelProgress,
   NEW_PROFILE,
@@ -37,6 +38,20 @@ describe('levels', () => {
 })
 
 describe('applyRun', () => {
+  it('counts a word named like an Object property as any other', () => {
+    const once = applyRun(NEW_PROFILE, { score: 10, words: ['constructor', 'tostring'], bestCombo: 1 })
+    const twice = applyRun(once, { score: 10, words: ['constructor'], bestCombo: 1 })
+
+    expect(twice.usage['constructor']).toBe(2)
+    expect(twice.usage['tostring']).toBe(1)
+  })
+
+  it('reads a count a saved profile corrupted as zero', () => {
+    expect(countOf({ constructor: 'function Object() {}1' as unknown as number }, 'constructor')).toBe(0)
+    expect(countOf({}, 'constructor')).toBe(0)
+    expect(countOf({ chat: 3 }, 'chat')).toBe(3)
+  })
+
   it('banks XP, records the best and counts the words', () => {
     const profile = applyRun(NEW_PROFILE, { score: 300, words: ['chat', 'zebu'], bestCombo: 4 })
 

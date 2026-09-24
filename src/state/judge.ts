@@ -2,6 +2,7 @@ import type { PlayableLetter } from '../domain/letters'
 import { MIN_WORDS_PER_PROMPT, type Judge } from '../domain/run'
 import { NO_USAGE, type WordUsage } from '../domain/rarity'
 import type { Spell } from '../domain/powers'
+import { countOf } from '../domain/progression'
 import { compactWord } from '../domain/text'
 import { commonWord, findWord, lettersWithEnough, type WordPack } from '../domain/words'
 
@@ -43,8 +44,8 @@ export function createJudge(
       return pack ? commonWord(pack, letter, played) : null
     },
     usage(word): WordUsage {
-      const own = usage.own[word] ?? 0
-      const crowd = usage.crowd[word] ?? 0
+      const own = countOf(usage.own, word)
+      const crowd = countOf(usage.crowd, word)
       if (own === 0 && crowd === 0) return NO_USAGE
       return { own, globalShare: crowd }
     },

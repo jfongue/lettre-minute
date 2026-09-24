@@ -86,9 +86,19 @@ export interface RunOutcome {
   prompts?: readonly string[]
 }
 
+/**
+ * How many times a word was counted, read as an own property only: « constructor »
+ * is a Spanish job, and `{}['constructor']` is Object itself — the score turned NaN.
+ * A count already corrupted in a saved profile reads as zero.
+ */
+export function countOf(counts: Readonly<Record<string, number>>, word: string): number {
+  const value = Object.hasOwn(counts, word) ? counts[word] : 0
+  return typeof value === 'number' && Number.isFinite(value) ? value : 0
+}
+
 export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
   const usage = { ...profile.usage }
-  for (const word of outcome.words) usage[word] = (usage[word] ?? 0) + 1
+  for (const word of outcome.words) usage[word] = countOf(usage, word) + 1
 
   return {
     ...profile,
