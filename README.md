@@ -8,8 +8,8 @@ n'écrit rapportent le plus.
   possède et annoncées avant un compte à rebours de trois secondes. Avec le
   pouvoir Permutation, toucher une catégorie pendant l'annonce l'échange
   contre une de la réserve, deux fois au plus.
-- **Validation immédiate** contre un dictionnaire embarqué par langue (~40 000
-  mots en français, 115 000 en anglais) : Wikidata pour les entités, le Wiktionnaire pour les noms
+- **Validation immédiate** contre un dictionnaire embarqué par langue (~48 000
+  mots en français, 113 000 en anglais) : Wikidata pour les entités, le Wiktionnaire pour les noms
   communs, et les formes fléchies — « chats » et « bleue » sont acceptés, et
   comptent comme « chat » et « bleu ». Le français lit Lexique et son propre
   Wiktionnaire ; les autres langues, le Wiktionary anglais par Wiktextract.
@@ -111,7 +111,7 @@ n'écrit rapportent le plus.
 ```bash
 npm install
 npm run dev          # serveur de dev (honore $PORT)
-npm test             # domaine — Vitest, doit rester vert
+npm test             # domaine, état et dictionnaires — Vitest, doit rester vert
 npm run lint         # oxlint
 npm run build        # tsc -b puis vite build
 npm run import:words # régénère src/data/words/fr/ (Wikidata, Wiktionnaire, Lexique, wordfreq, Wikipédia)
@@ -164,6 +164,25 @@ mais un libellé peut tomber sur celui d'un homonyme : la pomme de terre
 « Salvador » sur le pays. Un élément Wikidata de moins de dix éditions que le
 Wiktionnaire n'atteste pas n'hérite donc d'aucune visite. Enfin, une page
 d'homonymie ne compte pas comme lecture.
+
+Les homonymes trompent aussi sur ce qui entre. Les pays, capitales et marques
+ne reçoivent aucune forme fléchie — Lexique donnait « bénigne » pour Bénin et
+« née » pour NE, le code du Niger —, et un alias de pays de moins de quatre
+lettres est un code (« bb », « GAB ») qu'on écarte. Le Wiktionnaire range
+l'essentiel des mots un ou deux niveaux sous ses catégories racines (« requin »
+sous Requins, « avocat » sous Métiers du droit) : l'import descend donc dans
+les sous-catégories des animaux, fruits et légumes, métiers et sports, sauf
+celles qui parlent du sujet sans en être (viandes, animaux imaginaires,
+suffixes). Un mot que seule une sous-catégorie d'animaux ou de fruits atteste,
+que Wikidata ignore et qui dépasse dix occurrences par million est pris pour
+un homographe — « forme », « enfant », « suisse » — et laissé dehors.
+
+`src/data/words.test.ts` relit chaque dictionnaire après import : forme des
+lignes, formes fléchies rattachées à un mot du fichier, aucune collision entre
+deux mots qui se tapent pareil, aucun code pays, et, par langue, les réponses
+qu'une table donnerait en premier. Un mot évident que les sources oublient
+s'ajoute à `ADDED_WORDS` (`scripts/dropped-words.ts`), un intrus à
+`DROPPED_WORDS`.
 
 Une réponse rattrapée par la tolérance n'y a pas droit : elle vaut 10 points,
 et le jeu affiche l'orthographe exacte pour que le joueur la retienne. Le jeu

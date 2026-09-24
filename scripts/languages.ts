@@ -43,6 +43,11 @@ export const LANGUAGES: Record<Lang, LanguageSource> = {
 export interface Topics {
   topics: readonly string[]
   expand?: readonly string[]
+  /**
+   * Subcategories of an expanded topic that are about the animal, not animals:
+   * its tack, its races, its diseases — and a cartoon or two.
+   */
+  skip?: readonly string[]
 }
 
 export const TOPICS: Record<string, Topics> = {
@@ -55,6 +60,10 @@ export const TOPICS: Record<string, Topics> = {
   animaux: {
     topics: ['Animals'],
     expand: ['Mammals', 'Birds', 'Fish', 'Reptiles', 'Amphibians', 'Insects', 'Mollusks', 'Crustaceans', 'Arachnids'],
+    skip: [
+      'Animal riding', 'Dressage', 'Eggs', 'Equestrianism', 'Farriery', 'Feathers', 'Horse colors', 'Horse racing',
+      'Horse tack', 'Moby-Dick', 'Mosquito-borne diseases', 'My Little Pony', 'Whaling',
+    ],
   },
   metiers: {
     topics: ['Occupations', 'Healthcare occupations', 'Legal occupations', 'Nautical occupations', 'Occupations in hospitality', 'Religious occupations', 'Craftsmen', 'Salespeople', 'Servants', 'Scientists', 'Musicians', 'Artists'],

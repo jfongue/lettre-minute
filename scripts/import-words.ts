@@ -12,7 +12,7 @@ import { createReadStream, mkdirSync, readFileSync, writeFileSync, existsSync } 
 import { createInterface } from 'node:readline'
 import { Readable } from 'node:stream'
 import { createGunzip } from 'node:zlib'
-import { normalizeWord } from '../src/domain/text.ts'
+import { compactWord, normalizeWord } from '../src/domain/text.ts'
 import type { WordRow } from '../src/domain/words.ts'
 import { LANGUAGES, TOPICS, type Lang, type LanguageSource } from './languages.ts'
 import { loadFrequencies } from './wordfreq.ts'
@@ -70,6 +70,45 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
   sports: ['Sports en français'],
   matieres: ['Métaux en français', 'Alliages en français', 'Roches en français', 'Textiles en français'],
 }
+
+/**
+ * The French Wiktionary files most words one or more levels below these roots
+ * — « requin » under Requins, « avocat » under Métiers du droit, « natation »
+ * under Sports nautiques —, so their subcategories are walked too. Only where
+ * the tree stays on its subject: Matières would wander into jewellery and
+ * shipwrecks.
+ */
+const FRENCH_WALKED = new Set(['animaux', 'metiers', 'sports', 'fruits-legumes'])
+
+/** Subcategories that are about the subject rather than of it. */
+const FRENCH_SKIPPED = new Set([
+  'Viandes en français',
+  'Animaux imaginaires en français',
+  'Criminels et délinquants en français',
+  'Diminutifs de métiers en français',
+  // Every feminine noun that could be a trade — « miséreuse », « Gaditane »:
+  // Lexique already bends the trades that are.
+  'Noms de métiers féminisés en français',
+  'Religieux en français',
+  'Soldats en français',
+  'Sportifs en français',
+])
+
+/**
+ * Occurrences per million from which a word filed only in a subcategory is
+ * taken for a homograph: « cochon » and « requin » stay under it, « forme »,
+ * « enfant » and « suisse » do not.
+ */
+const HOMOGRAPH_FREQUENCY = 10
+
+/**
+ * Where subcategories name things after everyday words — breeds, butterflies,
+ * apple varieties. A trade filed under Santé is « infirmière » for good.
+ */
+const HOMOGRAPH_PRONE = new Set(['animaux', 'fruits-legumes'])
+
+const FRENCH_TREE_CACHE = '.cache/wiktionnaire-subcategories.json'
+const FRENCH_TREE_DEPTH = 3
 
 /** A legal form closing a company's name, which nobody says when naming the brand. */
 const LEGAL_FORM = /,?\s+(?:Inc\.?|Incorporated|Ltd\.?|Limited|Corp\.?|Corporation|Company|Co\.|plc|PLC|LLC|AG|SE|GmbH|S\.?A\.?|S\.p\.A\.?|N\.V\.?|B\.V\.?|Holdings?)$/
@@ -228,10 +267,9 @@ async function wiktionaryWords(title: string, force: boolean): Promise<string[]>
     url.searchParams.set('format', 'json')
     if (cursor) url.searchParams.set('cmcontinue', cursor)
 
-    const response = await fetch(url, {
-      headers: { 'User-Agent': AGENT },
-      signal: AbortSignal.timeout(60_000),
-    })
+    // Walking the subcategories asks for dozens of lists in a row: the API
+    // answers a burst with 429, which `wikimedia` waits out.
+    const response = await wikimedia(url)
     if (!response.ok) throw new Error(`wiktionnaire ${title}: HTTP ${response.status}`)
 
     const payload = (await response.json()) as {
@@ -245,6 +283,42 @@ async function wiktionaryWords(title: string, force: boolean): Promise<string[]>
   writeFileSync(path, JSON.stringify(words))
   console.log(`· wiktionnaire ${title}: ${words.length} mots`)
   return words
+}
+
+/** Every subcategory under `root`, down to FRENCH_TREE_DEPTH, the skipped ones and theirs left out. */
+async function frenchSubcategories(root: string): Promise<string[]> {
+  const cache: Record<string, string[]> = existsSync(FRENCH_TREE_CACHE) ? JSON.parse(readFileSync(FRENCH_TREE_CACHE, 'utf8')) : {}
+  if (cache[root]) return cache[root]
+
+  const seen = new Set([root])
+  let frontier = [root]
+  for (let depth = 0; depth < FRENCH_TREE_DEPTH && frontier.length > 0; depth++) {
+    const next: string[] = []
+    for (const title of frontier) {
+      const url = new URL(WIKTIONARY_API)
+      url.searchParams.set('action', 'query')
+      url.searchParams.set('list', 'categorymembers')
+      url.searchParams.set('cmtitle', `Catégorie:${title}`)
+      url.searchParams.set('cmtype', 'subcat')
+      url.searchParams.set('cmlimit', '500')
+      url.searchParams.set('format', 'json')
+      const payload = (await (await wikimedia(url)).json()) as { query?: { categorymembers?: { title: string }[] } }
+      for (const member of payload.query?.categorymembers ?? []) {
+        const name = member.title.replace(/^Catégorie:/, '')
+        // A category filed by suffix — « Mots en français suffixés avec -ère » —
+        // holds every word ending so, trade or not.
+        if (seen.has(name) || FRENCH_SKIPPED.has(name) || name.includes('suffixés avec')) continue
+        seen.add(name)
+        next.push(name)
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1_000))
+    }
+    frontier = next
+  }
+  cache[root] = [...seen]
+  writeFileSync(FRENCH_TREE_CACHE, JSON.stringify(cache, null, 1))
+  console.log(`· wiktionnaire ${root}: ${seen.size} catégories`)
+  return cache[root]
 }
 
 async function pullRows(pull: Pull, scope: Scope, dir: string, force: boolean, attempts: number): Promise<Row[]> {
@@ -703,7 +777,12 @@ function acceptable(display: string): boolean {
   if (display.length < 2 || display.length > 28) return false
   if (/[0-9(),:;"«»/\\[\]]/.test(display)) return false
   if (/\b(?:sp|ssp|var|cf)\./.test(display)) return false
-  return /^[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ' -]*$/.test(display)
+  // Any Latin letter: Latin-1 alone turned away « cœur », « œil » and « bœuf »,
+  // and the Wiktionary's typographic apostrophe every « maître d’hôtel ».
+  if (!/^\p{Script=Latin}[\p{Script=Latin}'’ -]*$/u.test(display.normalize('NFC'))) return false
+  // A letter the matching cannot spell in ASCII — « ə », « ŋ » — would vanish
+  // from the answer, and a word judged without one of its letters is another word.
+  return [...display.normalize('NFC')].every((char) => !/\p{L}/u.test(char) || normalizeWord(char) !== '')
 }
 
 interface Entry {
@@ -744,7 +823,8 @@ function main(argv: readonly string[]) {
     } else {
       const everyTopic = new Set<string>()
       for (const [categoryId, spec] of Object.entries(TOPICS)) {
-        const topics = new Set([...spec.topics, ...(await topicTree(spec.expand ?? []))])
+        const skipped = new Set(spec.skip ?? [])
+        const topics = new Set([...spec.topics, ...(await topicTree(spec.expand ?? []))].filter((topic) => !skipped.has(topic)))
         topicsOf.set(categoryId, topics)
         for (const topic of topics) everyTopic.add(topic)
       }
@@ -781,28 +861,39 @@ function main(argv: readonly string[]) {
     }
 
     /** The words a Wiktionary files under this very category. */
-    const attestedWords = async (categoryId: string): Promise<string[] | null> => {
+    /**
+     * The words a Wiktionary files under this very category, and among them
+     * those only a subcategory files: a breed, a butterfly or a young animal
+     * named like an everyday word — « Picard », « Diane », « enfant ».
+     */
+    const attestedWords = async (categoryId: string): Promise<{ words: string[]; deep: Set<string> } | null> => {
       if (kaikki) {
         const topics = topicsOf.get(categoryId)
         if (!topics) return null
-        return [...topics].flatMap((topic) => kaikki!.topics.get(topic) ?? [])
+        return { words: [...topics].flatMap((topic) => kaikki!.topics.get(topic) ?? []), deep: new Set() }
       }
-      const titles = FRENCH_WIKTIONARY[categoryId]
-      if (!titles) return null
+      const roots = FRENCH_WIKTIONARY[categoryId]
+      if (!roots) return null
+      const fromRoots = new Set<string>()
+      const fromBelow = new Set<string>()
       const words: string[] = []
-      for (const title of titles) {
-        try {
-          words.push(...(await wiktionaryWords(title, false)))
-        } catch (error) {
-          console.warn(`! wiktionnaire ${title}: ${(error as Error).message}`)
+      for (const root of roots) {
+        for (const title of FRENCH_WALKED.has(categoryId) ? await frenchSubcategories(root) : [root]) {
+          try {
+            const listed = await wiktionaryWords(title, false)
+            words.push(...listed)
+            for (const word of listed) (title === root ? fromRoots : fromBelow).add(normalizeWord(word))
+          } catch (error) {
+            console.warn(`! wiktionnaire ${title}: ${(error as Error).message}`)
+          }
         }
       }
-      return words
+      return { words, deep: new Set([...fromBelow].filter((key) => !fromRoots.has(key))) }
     }
 
     // Every category is gathered before any Wikipedia is read: the visits
     // come from one dump, streamed once for all of them.
-    const gathered: { id: string; best: Map<string, Entry>; attested: Set<string>; commonNouns: boolean }[] = []
+    const gathered: { id: string; best: Map<string, Entry>; attested: Set<string>; commonNouns: boolean; names: boolean }[] = []
     for (const category of CATEGORY_SOURCES) {
       // A category is a union: it is worth rebuilding from the pulls that
       // answered, as long as one did. Rebuilding from none would empty it.
@@ -853,6 +944,7 @@ function main(argv: readonly string[]) {
             if (!acceptable(display)) continue
             const key = normalizeWord(display)
             if (key === '' || excluded.has(key) || PLACEHOLDER_ELEMENT.test(key)) continue
+            if (row.alias && key.replace(/ /g, '').length < (category.shortestAlias ?? 0)) continue
             const current = best.get(key)
             if (!current) best.set(key, { display, sitelinks: row.sitelinks, alias: row.alias === true, title: display === cleaned ? title : display })
             else {
@@ -869,21 +961,28 @@ function main(argv: readonly string[]) {
 
       // The words the Wiktionary files under this very category: for them, and
       // only them, the corpus frequency measures the right sense.
-      const words = await attestedWords(category.id)
+      const listed = await attestedWords(category.id)
       const added = ADDED_WORDS[category.id]?.[lang] ?? []
       const attested = new Set<string>()
-      for (const word of [...(words ?? []), ...added]) {
+      for (const word of [...(listed?.words ?? []), ...added]) {
         const display = word.trim().replace(/\s+/g, ' ')
         if (!acceptable(display)) continue
         const key = normalizeWord(display)
         if (dropped.has(key) || PLACEHOLDER_ELEMENT.test(key)) continue
+        // Filed only deep down, unknown to Wikidata, and far more common than
+        // any animal name: the word's everyday sense is another one, and its
+        // frequency, its article's visits and the typo tolerance around it
+        // would all lie.
+        const everyday = frequencies.get(display.normalize('NFC').toLowerCase()) ?? 0
+        const homograph = HOMOGRAPH_PRONE.has(category.id) && listed?.deep.has(key) && !best.has(key) && everyday >= HOMOGRAPH_FREQUENCY
+        if (homograph) continue
         if (key !== '') attested.add(key)
         if (key === '' || best.has(key)) continue
         // No sitelinks: a Wiktionary word is rated on its corpus frequency
         // alone, which is exactly what a common noun has.
         best.set(key, { display, sitelinks: 0, alias: false, title: display })
       }
-      gathered.push({ id: category.id, best, attested, commonNouns: words !== null })
+      gathered.push({ id: category.id, best, attested, commonNouns: listed !== null, names: category.names === true })
     }
 
     // Inflected forms borrow the notoriety of the word they bend, so only the
@@ -897,7 +996,7 @@ function main(argv: readonly string[]) {
     for (const title of articles.values()) if (title && title !== DISAMBIGUATION) titles.add(title)
     const visits = await wikipediaVisits(lang, titles)
 
-    for (const { id, best, attested, commonNouns } of gathered) {
+    for (const { id, best, attested, commonNouns, names } of gathered) {
       const rows = new Map<string, WordRow>()
       const dropped = new Set<string>()
       for (const [key, entry] of best) {
@@ -942,7 +1041,7 @@ function main(argv: readonly string[]) {
       // at it: "chats" scores like "chat", and cannot be played twice in the
       // same run under two spellings.
       let variants = 0
-      for (const [key, entry] of best) {
+      for (const [key, entry] of names ? [] : best) {
         if (dropped.has(key)) continue
         const lemma = lexicon.lemmaOf.get(key)
         if (!lemma) continue
@@ -956,6 +1055,29 @@ function main(argv: readonly string[]) {
           rows.set(formKey, [form, entry.sitelinks, rounded(frequency), key])
           variants++
         }
+      }
+
+      // Spellings the game compacts alike — « Alpen-Steinbock » and
+      // « Alpensteinbock », « Formule E » and « formulée » — answer as one: the
+      // domain keeps the first it reads, which the sort order picks at random.
+      // A word beats a form, then the better known; forms of a dropped word
+      // follow the one kept.
+      const kept = new Map<string, string>()
+      const renamed = new Map<string, string>()
+      const fame = (row: WordRow) => (row[4] ?? 0) * 1_000 + row[1]
+      const byPreference = [...rows.entries()].sort(([, a], [, b]) => Number(Boolean(a[3])) - Number(Boolean(b[3])) || fame(b) - fame(a))
+      for (const [key, row] of byPreference) {
+        const compact = compactWord(row[0])
+        const winner = kept.get(compact)
+        if (winner === undefined) kept.set(compact, key)
+        else {
+          rows.delete(key)
+          if (!row[3]) renamed.set(key, winner)
+        }
+      }
+      for (const [key, row] of rows) {
+        const lemma = row[3] ? renamed.get(row[3]) : undefined
+        if (lemma !== undefined) rows.set(key, [row[0], row[1], row[2], lemma])
       }
 
       const lines = [...rows.entries()]

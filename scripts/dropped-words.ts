@@ -66,6 +66,35 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
   matieres: {
     fr: ['béton'],
   },
+  // The English Wiktionary files "shark" under Sports — a card shark — and
+  // never under Sharks; its translations inherit the gaps. Every word here was
+  // a first answer the words test found missing.
+  animaux: {
+    en: ['shark', 'octopus'],
+    pt: ['polvo'],
+  },
+  metiers: {
+    en: ['doctor'],
+    es: ['soldado'],
+    nl: ['schilder', 'soldaat'],
+    pt: ['soldado'],
+  },
+  sports: {
+    en: ['soccer', 'swimming'],
+    de: ['Schwimmen', 'Surfen'],
+    nl: ['zwemmen'],
+  },
+  'fruits-legumes': {
+    en: ['kiwi'],
+    de: ['Kartoffel', 'Kirsche', 'Radieschen'],
+  },
+  // Brands no class of Wikidata's reaches in that language.
+  marques: {
+    es: ['Zara'],
+    it: ['Google'],
+    nl: ['Philips'],
+    pt: ['Natura'],
+  },
 }
 
 /**

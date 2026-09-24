@@ -72,6 +72,15 @@ qu'un nouvel arrivant casserait sans le savoir.
   (`.cache/frwiki-articles-v2.json`, `.cache/<langue>wiki-articles.json`). Le
   clickstream anglais pèse un demi-gigaoctet compressé : il se lit en flux, en
   ne gardant que les titres cherchés.
+- **Toute régénération des dictionnaires passe par `src/data/words.test.ts`** :
+  un mot évident perdu (« shark » que le Wiktionary range sous Sports) se
+  rajoute dans `ADDED_WORDS`, pas en retouchant le `.json`, que le prochain
+  import écraserait. `acceptable` doit accepter tout l'alphabet latin : le
+  Latin-1 seul jetait « cœur », « œil » et chaque « maître d’hôtel ».
+- **Un alias Wikidata de pays court est un code** (`shortestAlias`), et une
+  catégorie de noms (`names`) ne fléchit pas : leurs « formes » sont celles
+  d'un homographe. Deux lignes qui se compactent pareil n'en font qu'une
+  (le domaine ne garde que la première) : l'import choisit laquelle.
 - **La fréquence wordfreq se cherche à l'orthographe exacte**, accents compris :
   repliée comme `normalizeWord`, « aï » (le paresseux) lit « ai ». Et elle ne
   vaut que pour un mot attesté dans la catégorie par le Wiktionnaire, ou

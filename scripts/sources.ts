@@ -205,10 +205,21 @@ export interface CategorySource {
   pulls: readonly string[]
   /** Pulls whose words are dropped from this category rather than added to it. */
   exclude?: readonly string[]
+  /**
+   * A category of names does not bend: the forms Lexique and the Wiktionary
+   * give belong to a homograph — « bénigne » for Bénin, « née » for NE, the
+   * code of Niger — or are plurals no player types, « Berlins », « Adobes ».
+   */
+  names?: boolean
+  /**
+   * Aliases this short are codes — ISO, IOC, top-level domains: « bb », « fi »,
+   * « GAB » — which would score a country on two keystrokes.
+   */
+  shortestAlias?: number
 }
 
 export const CATEGORY_SOURCES: readonly CategorySource[] = [
-  { id: 'pays', pulls: ['countries'] },
+  { id: 'pays', pulls: ['countries'], names: true, shortestAlias: 4 },
   { id: 'couleurs', pulls: ['colors', 'colors-sub'] },
   { id: 'fruits-legumes', pulls: ['fruits', 'vegetables'] },
   {
@@ -245,10 +256,10 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
   },
   { id: 'metiers', pulls: ['professions', 'professions-sub'] },
   { id: 'sports', pulls: ['sports', 'sports-sub'] },
-  { id: 'capitales', pulls: ['capitals'] },
+  { id: 'capitales', pulls: ['capitals'], names: true },
   { id: 'matieres', pulls: ['metals', 'staple-materials', 'chemical-elements'] },
   { id: 'corps-humain', pulls: ['anatomy'], exclude: ['plant-organ'] },
-  { id: 'marques', pulls: ['brand-class', 'brand-product'] },
+  { id: 'marques', pulls: ['brand-class', 'brand-product'], names: true },
 ]
 
 export function queryFor(pull: Pull, scope: Scope): string {
