@@ -6,6 +6,7 @@ import {
 import { App as NativeApp } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 import { Haptics, ImpactStyle } from '@capacitor/haptics'
+import { PushNotifications } from '@capacitor/push-notifications'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { StatusBar, Style } from '@capacitor/status-bar'
 
@@ -129,4 +130,70 @@ export async function adPrivacyOptionsRequired(): Promise<boolean> {
 
 export function showAdPrivacyOptions(): void {
   quietly(() => AdMob.showPrivacyOptionsForm())
+}
+
+/**
+ * Push needs Firebase in the build (`android/app/google-services.json`): without
+ * it, `register()` crashes the app natively instead of failing. The build says
+ * it has one with `VITE_PUSH_ENABLED=true`.
+ */
+const pushReady = native && import.meta.env.VITE_PUSH_ENABLED === 'true'
+
+export function pushSupported(): boolean {
+  return pushReady
+}
+
+/**
+ * Asks once for the right to notify (Android 13 and later), then registers:
+ * `onToken` gets the device's token now and whenever it changes. A refusal is
+ * final — the system does not ask twice, and neither does the game.
+ */
+export function enablePush(channelName: string, onToken: (token: string) => void): () => void {
+  if (!pushReady) return () => {}
+  const listener = PushNotifications.addListener('registration', (token) => onToken(token.value))
+  quietly(async () => {
+    let status = await PushNotifications.checkPermissions()
+    if (status.receive === 'prompt' || status.receive === 'prompt-with-rationale') {
+      status = await PushNotifications.requestPermissions()
+    }
+    if (status.receive !== 'granted') return
+    // The channel the server's messages name: its label is what Android's settings show.
+    await PushNotifications.createChannel({ id: 'challenges', name: channelName, importance: 4, visibility: 1 })
+    await PushNotifications.register()
+  })
+  return () => {
+    listener.then((handle) => handle.remove()).catch(() => {})
+  }
+}
+
+/** What a push carries: the challenge, and whether it invites or announces a recap. */
+export interface PushData {
+  kind: 'invite' | 'recap'
+  challenge: string
+}
+
+function pushData(data: unknown): PushData | null {
+  const row = (data ?? {}) as Record<string, unknown>
+  if ((row.kind !== 'invite' && row.kind !== 'recap') || typeof row.challenge !== 'string') return null
+  return { kind: row.kind, challenge: row.challenge }
+}
+
+/**
+ * `onOpen`: a notification was tapped, the app opening or coming back for it.
+ * Capacitor keeps the tap that launched the app until this listener is added.
+ * `onReceived`: one arrived while the game was open, where Android shows nothing.
+ */
+export function onPush(onOpen: (data: PushData) => void, onReceived: (data: PushData) => void): () => void {
+  if (!pushReady) return () => {}
+  const opened = PushNotifications.addListener('pushNotificationActionPerformed', (action) => {
+    const data = pushData(action.notification.data)
+    if (data) onOpen(data)
+  })
+  const received = PushNotifications.addListener('pushNotificationReceived', (notification) => {
+    const data = pushData(notification.data)
+    if (data) onReceived(data)
+  })
+  return () => {
+    for (const handle of [opened, received]) handle.then((listener) => listener.remove()).catch(() => {})
+  }
 }

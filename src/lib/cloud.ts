@@ -775,3 +775,19 @@ export function rematchChallenge(id: string, seed: number, categoryIds: readonly
     return error ? null : ((data as string | null) ?? null)
   }, null)
 }
+
+/** Where the server sends this phone's pushes, and in which language. */
+export function savePushToken(token: string, lang: string): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('save_push_token', { p_token: token, p_platform: 'android', p_lang: lang })
+    return !error && data === true
+  }, false)
+}
+
+/** Before signing out: the phone stops receiving this account's pushes. */
+export function forgetPushToken(token: string): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('forget_push_token', { p_token: token })
+    return !error
+  }, false)
+}

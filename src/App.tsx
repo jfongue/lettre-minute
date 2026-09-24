@@ -6,6 +6,7 @@ import {
   fetchAccount,
   fetchChallenge,
   fetchChallenges,
+  forgetPushToken,
   fetchCommunityWords,
   fetchCrowdUsage,
   fetchBoards,
@@ -19,13 +20,14 @@ import {
   pushSubmissions,
   register,
   rematchChallenge,
+  savePushToken,
   type Account,
   type ChallengeDetail,
   type ChallengeSummary,
   type CommunityWord,
   type ModerationStatus,
 } from './lib/cloud'
-import { isNativeApp, onBackButton, prepareAds, tapFeedback } from './lib/native'
+import { enablePush, isNativeApp, onBackButton, onPush, prepareAds, tapFeedback, type PushData } from './lib/native'
 import { configureSound, setHush, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
 import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
 import { appendRecord, recordOf, type RunRecord } from './domain/history'
@@ -512,6 +514,31 @@ export function App() {
     [challengeLineup, refreshChallenges, startChallenge],
   )
 
+  // Push: the phone's token, saved under the account in the interface's
+  // language, and a tapped notification waiting for the home screen.
+  const pushToken = useRef<string | null>(null)
+  const [tapped, setTapped] = useState<PushData | null>(null)
+  useEffect(() => {
+    if (!named) return
+    return enablePush(t.challenge.title, (token) => {
+      pushToken.current = token
+      savePushToken(token, lang)
+    })
+  }, [named, lang, t])
+  const refreshNow = useRef(refreshChallenges)
+  refreshNow.current = refreshChallenges
+  useEffect(() => onPush(setTapped, () => refreshNow.current()), [])
+  // A tap lands wherever the game stands: it waits for the home screen, and
+  // for the account that tells whose challenge it is.
+  useEffect(() => {
+    if (!tapped || !named || session.phase !== 'home') return
+    setTapped(null)
+    setMenuPage(null)
+    setHeldNotices((held) => [...held, tapped.challenge])
+    if (tapped.kind === 'invite') startChallengeById(tapped.challenge)
+    else setChallengeOpen(tapped.challenge)
+  }, [tapped, named, session.phase, startChallengeById])
+
   const [swapping, setSwapping] = useState(false)
   const swap = useCallback(
     async (index: number) => {
@@ -748,6 +775,7 @@ export function App() {
             setEditingAvatar(true)
           }}
           onLogOut={async () => {
+            if (pushToken.current) await forgetPushToken(pushToken.current)
             await logOut()
             forget()
           }}

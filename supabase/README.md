@@ -1,6 +1,6 @@
 # Supabase
 
-Huit migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Neuf migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -8,7 +8,8 @@ pour les classements par période et les amis, [`0005_my_submissions.sql`](migra
 pour retirer ou corriger un mot proposé tant qu'il attend, [`0006_house_bots.sql`](migrations/0006_house_bots.sql)
 pour les deux joueurs maison, [`0007_moderation.sql`](migrations/0007_moderation.sql)
 pour la modération des mots proposés, [`0008_challenges.sql`](migrations/0008_challenges.sql)
-pour les défis entre amis.
+pour les défis entre amis, [`0009_push.sql`](migrations/0009_push.sql) pour
+leurs notifications push.
 
 ## Ce que le serveur détient
 
@@ -28,6 +29,8 @@ pour les défis entre amis.
 | `bots` | Les joueurs maison (Maxitoon, Terretciel) et les bornes de leurs scores. |
 | `challenges` | Un défi entre amis : langue, graine, catégories, chef, et la revanche qui lui fait suite. |
 | `challenge_players` | Un invité par ligne, puis sa partie : score, passes, série, mots en JSON ; ce qu'il a vu (invitation, bilan). |
+| `push_tokens` | Le jeton FCM de chaque téléphone, le compte qui s'y est connecté en dernier, et la langue de ses messages. |
+| `push_outbox` | Les pushs à envoyer (invitation, bilan), vidés par la fonction Edge `push`. |
 | `account_merges` | Jetons à usage unique : versent un compte anonyme dans le compte auquel il se connecte. |
 
 Fonctions de lecture : `leaderboard_board('day' | 'week' | 'discoveries')` — le
@@ -93,6 +96,20 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   le second à la demander reçoit celle du premier.
 - **Les joueurs maison ne se défient pas** (`challengeable`) : ils ne joueraient
   jamais, et le défi attendrait un jour entier.
+
+## Notifications push
+
+- **La base n'appelle pas Firebase** : elle remplit `push_outbox` (invité
+  ajouté, dernière partie jouée, défi échu) et réveille la fonction Edge
+  `push` par pg_net ; pg_cron (`push-challenges`) repasse chaque minute.
+- **Rien de tout ça ne peut faire échouer une partie** : `kick_push` et les
+  déclencheurs avalent leurs erreurs. Sans secrets `push_url` et
+  `push_secret` dans le Vault, la file attend.
+- **Un bilan ne s'annonce qu'une fois** (`challenges.recap_queued_at`), et
+  seulement à ceux qui ont joué.
+- **`claim_push_batch` et `finish_push_batch` ne sont ouverts qu'à
+  `service_role`** : la fonction Edge seule lit la file. Mise en place :
+  [`docs/notifications-push.md`](../docs/notifications-push.md).
 
 ## Joueurs maison
 

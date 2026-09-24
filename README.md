@@ -90,9 +90,10 @@ n'écrit rapportent le plus.
   propose une revanche, une seule par défi, ouverte à tous ceux qui ont joué.
   Permutation n'y est pas admis ; au-delà de deux pouvoirs, on choisit avant
   de jouer. Un défi rapporte 25 % d'XP de plus mais ne compte ni aux
-  classements ni aux records. Les notifications vivent dans l'application :
-  l'accueil relève les défis à son ouverture, à son retour au premier plan et
-  chaque minute.
+  classements ni aux records. Sur Android, une notification push annonce
+  l'invitation et le bilan, app fermée ([mise en place](docs/notifications-push.md)) ;
+  l'accueil relève aussi les défis à son ouverture, à son retour au premier
+  plan et chaque minute.
 - **Modération** : des joueurs volontaires jugent les mots proposés, cinq par
   session, d'un glissement de carte — correct, je ne sais pas, incorrect.
   Deux « incorrect » bloquent un mot ; deux « je ne sais pas » le rendent

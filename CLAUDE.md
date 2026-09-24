@@ -184,6 +184,12 @@ qu'un nouvel arrivant casserait sans le savoir.
   l'envoie à son défi, hors classements et hors rareté, et
   `applyChallengeRun` ne touche ni au record ni à `lastPrompts`.
 
+- **`VITE_PUSH_ENABLED=true` exige `android/app/google-services.json`** :
+  sans Firebase dans le build, `PushNotifications.register()` fait planter
+  l'app nativement au lieu d'échouer. Le texte des pushs vit dans la fonction
+  Edge (`supabase/functions/push/messages.ts`), pas dans `src/i18n/` : il
+  suit `challenge.invitePop` et `challenge.overPop`, à tenir alignés.
+
 ## Conventions
 
 - Contenu du jeu (catégories, textes d'interface) en français, avec apostrophe
