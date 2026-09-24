@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { capitalized, initialOf, normalizeWord } from './text'
+import { capitalized, compactWord, initialOf, normalizeWord } from './text'
 
 describe('normalizeWord', () => {
   it('reads accents, case and stray spacing as the same word', () => {
@@ -15,6 +15,14 @@ describe('normalizeWord', () => {
   it('collapses punctuation so a hyphen is not a different answer', () => {
     expect(normalizeWord("Porte-clés")).toBe('porte cles')
     expect(normalizeWord('porte clés')).toBe('porte cles')
+  })
+})
+
+describe('compactWord', () => {
+  it('drops spaces, hyphens and apostrophes as well as accents', () => {
+    expect(compactWord('Côte d’Ivoire')).toBe('cotedivoire')
+    expect(compactWord("Côte-d'Ivoire")).toBe('cotedivoire')
+    expect(compactWord('cote divoire')).toBe('cotedivoire')
   })
 })
 

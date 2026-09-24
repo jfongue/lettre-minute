@@ -47,9 +47,9 @@ describe('notoriété', () => {
     // one with fewer articles that French readers actually open.
     const pack = buildWordPack('oiseaux', [['Aigle martial', 80, 0, '', 12], ['Aigle royal', 60, 0, '', 900], ['Zébu', 5, 0.1]])
 
-    expect(pack.entries.get('aigle royal')!.views).toBe(900)
+    expect(pack.entries.get('aigleroyal')!.views).toBe(900)
     expect(pack.entries.get('zebu')!.views).toBeUndefined()
-    expect(pack.entries.get('aigle royal')!.notoriety).toBeGreaterThan(pack.entries.get('aigle martial')!.notoriety)
+    expect(pack.entries.get('aigleroyal')!.notoriety).toBeGreaterThan(pack.entries.get('aiglemartial')!.notoriety)
   })
 
   it('gives an inflected form the standing of the word it bends', () => {
@@ -131,6 +131,16 @@ describe('findWord', () => {
 
     expect(match?.entry.display).toBe('Libellule')
     expect(match?.approximate).toBe(true)
+  })
+
+  it('reads a missing space, hyphen or apostrophe as the word spelled right', () => {
+    const spaced = buildWordPack('pays', [['Côte d’Ivoire', 150, 3], ['Porte-clés', 0, 1], ['Aigle royal', 60, 0]])
+
+    expect(findWord(spaced, 'cotedivoire')).toMatchObject({ approximate: false, entry: { display: 'Côte d’Ivoire' } })
+    expect(findWord(spaced, 'porte cles')).toMatchObject({ approximate: false, entry: { display: 'Porte-clés' } })
+    expect(findWord(spaced, 'aigleroyal')).toMatchObject({ approximate: false, entry: { key: 'aigle royal' } })
+    // The one edit is still there for a real slip.
+    expect(findWord(spaced, 'aiglerooyal')).toMatchObject({ approximate: true, entry: { display: 'Aigle royal' } })
   })
 
   it('corrects towards an inflected form as readily as a base word', () => {

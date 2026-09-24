@@ -23,7 +23,9 @@ n'écrit rapportent le plus.
 - **Une faute d'une lettre passe** — lettres interverties, lettre oubliée, lettre
   en trop, lettre fausse : `thailnade` vaut `Thaïlande`. Mais une réponse
   corrigée est payée au tarif de base, si rare que soit le mot : le bonus
-  récompense de connaître un mot, pas de l'écrire presque.
+  récompense de connaître un mot, pas de l'écrire presque. Les accents, les
+  espaces, les traits d'union et les apostrophes ne sont pas des fautes :
+  `cotedivoire` est `Côte d’Ivoire` écrit juste, au tarif plein.
 - **Niveaux et déblocages** : on commence avec trois catégories ; chaque niveau
   en propose trois nouvelles, le joueur en garde une. L'offre suivante évite
   de reproposer les mêmes tant qu'il en reste d'autres.

@@ -18,6 +18,16 @@ export function normalizeWord(raw: string): string {
     .trim()
 }
 
+/**
+ * The form an answer is matched on. Spaces, hyphens and apostrophes are not
+ * letters the player got wrong: « cotedivoire » is « Côte d’Ivoire » spelled
+ * right, not a word the tolerance had to rescue — and a missing space would
+ * otherwise spend the one edit it is allowed.
+ */
+export function compactWord(raw: string): string {
+  return normalizeWord(raw).replace(/ /g, '')
+}
+
 /** The letter an answer is judged on: its first alphabetic character, accents removed. */
 export function initialOf(raw: string): string {
   const normalized = normalizeWord(raw)

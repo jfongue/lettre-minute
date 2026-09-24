@@ -1,4 +1,4 @@
-import { initialOf, normalizeWord } from './text'
+import { compactWord, initialOf, normalizeWord } from './text'
 
 export interface WordEntry {
   /**
@@ -41,12 +41,16 @@ function rawFame(entry: Pick<WordEntry, 'sitelinks' | 'frequency' | 'views'>): n
 
 export interface WordPack {
   categoryId: string
-  /** Normalized word → entry. The normalized form is what the player is judged on. */
+  /**
+   * Compact word (`compactWord`) → entry. It is what the player is judged on,
+   * while `WordEntry.key` keeps its spaces: it is the name usage counters are
+   * stored under, server side.
+   */
   entries: ReadonlyMap<string, WordEntry>
   /** Letter → how many words start with it, to never prompt a dead end. */
   counts: ReadonlyMap<string, number>
   /**
-   * Normalized words grouped by their initial. The near-miss search runs on
+   * Compact words grouped by their initial. The near-miss search runs on
    * every keystroke, and a prompt already fixes the initial: narrowing to one
    * letter turns a scan of twenty thousand words into a few hundred.
    */
@@ -78,10 +82,10 @@ export function buildWordPack(categoryId: string, rows: readonly WordRow[]): Wor
   const byLetter = new Map<string, string[]>()
 
   for (const [display, sitelinks, frequency, canonical = '', views] of rows) {
-    const word = normalizeWord(display)
+    const word = compactWord(display)
     if (word === '' || entries.has(word)) continue
 
-    const key = canonical === '' ? word : canonical
+    const key = canonical === '' ? normalizeWord(display) : canonical
     entries.set(word, {
       key,
       display,
@@ -124,13 +128,13 @@ function rankNotoriety(entries: Map<string, WordEntry>): void {
 
   for (const entry of entries.values()) {
     if (entry.key === '') continue
-    const base = entries.get(entry.key)
+    const base = entries.get(compactWord(entry.key))
     if (base && base !== entry) entry.notoriety = base.notoriety
   }
 }
 
 export function lookup(pack: WordPack, raw: string): WordEntry | null {
-  return pack.entries.get(normalizeWord(raw)) ?? null
+  return pack.entries.get(compactWord(raw)) ?? null
 }
 
 /**
@@ -185,7 +189,7 @@ export function withinOneEdit(typed: string, known: string): boolean {
  * away — is refused rather than guessed.
  */
 export function findWord(pack: WordPack, raw: string): WordMatch | null {
-  const typed = normalizeWord(raw)
+  const typed = compactWord(raw)
   if (typed === '') return null
 
   const exact = pack.entries.get(typed)
@@ -226,11 +230,11 @@ export function withExtraWords(pack: WordPack, extra: readonly WordEntry[]): Wor
   const byLetter = new Map<string, string[]>([...pack.byLetter].map(([letter, words]) => [letter, [...words]]))
 
   for (const entry of extra) {
-    const word = normalizeWord(entry.display)
+    const word = compactWord(entry.display)
     if (word === '' || entries.has(word)) continue
     entries.set(word, {
       ...entry,
-      key: entry.key === '' ? word : entry.key,
+      key: entry.key === '' ? normalizeWord(entry.display) : entry.key,
       // A community word joins after the ranking: it is read on the absolute
       // scale, which keeps it out of the "everybody knows it" band.
       notoriety: entry.notoriety || rawFame(entry),
