@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildWordPack, findWord, lettersWithEnough, lookup, showcaseWords, withinOneEdit, type WordRow } from './words'
+import { buildWordPack, commonWord, findWord, lettersWithEnough, lookup, showcaseWords, withinOneEdit, type WordRow } from './words'
 
 const rows: WordRow[] = [['Chat', 120, 45.3], ['Chien', 150, 60], ['Écureuil', 60, 3.2], ['Zèbre', 90, 1.4]]
 
@@ -175,5 +175,23 @@ describe('showcaseWords', () => {
 
     expect(showcaseWords(pack, 2)).toEqual(['Chien', 'Chat'])
     expect(showcaseWords(pack, 10)).not.toContain('Chats')
+  })
+})
+
+describe('commonWord', () => {
+  const pack = buildWordPack('animaux', [
+    ['Chat', 120, 45.3],
+    ['Chats', 120, 45.3, 'chat'],
+    ['Chien', 150, 60],
+    ['Zèbre', 90, 1.4],
+  ])
+
+  it('gives the best-known base word on the letter', () => {
+    expect(commonWord(pack, 'C', [])).toBe('Chien')
+  })
+
+  it('skips what the run already played, inflected forms included', () => {
+    expect(commonWord(pack, 'C', ['chien'])).toBe('Chat')
+    expect(commonWord(pack, 'C', ['chien', 'chat'])).toBeNull()
   })
 })

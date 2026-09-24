@@ -24,7 +24,7 @@ import { NEW_PROFILE, type Profile } from './domain/progression'
 import { RUN_SECONDS, remainingSeconds } from './domain/run'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { LETTER_DECKS, PLAYABLE_LETTERS } from './domain/letters'
-import { withExtraWords } from './domain/words'
+import { commonWord, withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
 import { createJudge } from './state/judge'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
@@ -472,7 +472,18 @@ export function App() {
           live={session.live}
           cheer={session.cheer}
           remaining={remaining}
-          onType={(draft) => dispatch({ type: 'type', draft })}
+          onType={(draft) => {
+            // Dev only: "@" answers for the tester, who is left to validate.
+            if (import.meta.env.DEV && draft.includes('@') && session.run) {
+              const { prompt, found } = session.run
+              const played = found.map((word) => word.word)
+              void loadPack(lang, prompt.categoryId).then((pack) =>
+                dispatch({ type: 'type', draft: commonWord(pack, prompt.letter, played) ?? draft.replace('@', '') }),
+              )
+              return
+            }
+            dispatch({ type: 'type', draft })
+          }}
           onSubmit={() => dispatch({ type: 'submit', at: elapsed })}
           onSkip={() => dispatch({ type: 'skip', at: elapsed })}
           proposed={session.proposed}

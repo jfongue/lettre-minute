@@ -125,6 +125,17 @@ export function showcaseWords(pack: WordPack, count: number): string[] {
     .map((entry) => entry.display)
 }
 
+/** The best-known base word on that letter the run has not played yet (by `key`): a debug shortcut's answer. */
+export function commonWord(pack: WordPack, letter: string, played: readonly string[]): string | null {
+  let best: WordEntry | null = null
+  for (const word of pack.byLetter.get(letter) ?? []) {
+    const entry = pack.entries.get(word)!
+    if (entry.key !== normalizeWord(entry.display) || played.includes(entry.key)) continue
+    if (!best || entry.notoriety > best.notoriety) best = entry
+  }
+  return best?.display ?? null
+}
+
 /**
  * Turns the raw signals into a rank inside the category. Inflected forms borrow
  * the rank of the word they bend: "chats" is exactly as well known as "chat".
