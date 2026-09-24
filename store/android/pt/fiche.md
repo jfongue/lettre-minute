@@ -20,7 +20,7 @@ acima: `../icon-512.png`, `../feature-graphic.png` (1024 × 500),
 > máximo de palavras que conseguir.
 >
 > O jogo confere cada palavra enquanto você digita, com um dicionário de mais
-> de {WORD_COUNT} palavras construído a partir do Wikidata e do Wikcionário.
+> de 45 mil palavras construído a partir do Wikidata e do Wikcionário.
 > “Gatos” vale como “gato”, e um erro de digitação passa: “Alemnaha” vale
 > como “Alemanha”.
 >

@@ -19,7 +19,7 @@ clair et sombre). Pour les régénérer : `scripts/render-store.sh`.
 > de mots possible.
 >
 > Le jeu vérifie chaque mot pendant que vous tapez, grâce à un dictionnaire de
-> plus de 60 000 mots français bâti sur Wikidata et le Wiktionnaire. « Chats »
+> plus de 50 000 mots français bâti sur Wikidata et le Wiktionnaire. « Chats »
 > vaut « chat », et une faute de frappe passe : « thailnade » vaut
 > « Thaïlande ».
 >

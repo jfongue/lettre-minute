@@ -20,7 +20,7 @@ un nivel más arriba: `../icon-512.png`, `../feature-graphic.png` (1024 × 500),
 > las palabras que puedas.
 >
 > El juego comprueba cada palabra mientras escribes, gracias a un diccionario
-> de más de {WORD_COUNT} palabras creado a partir de Wikidata y Wikcionario.
+> de más de 55.000 palabras creado a partir de Wikidata y Wikcionario.
 > «Gatos» vale como «gato», y una errata no te penaliza: «Mexcio» vale como
 > «México».
 >

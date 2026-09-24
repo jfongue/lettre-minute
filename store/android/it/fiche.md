@@ -20,7 +20,7 @@ su: `../icon-512.png`, `../feature-graphic.png` (1024 × 500),
 > parole che puoi.
 >
 > Il gioco controlla ogni parola mentre scrivi, grazie a un dizionario di
-> oltre {WORD_COUNT} parole costruito su Wikidata e Wikizionario. «Gatti»
+> oltre 35.000 parole costruito su Wikidata e Wikizionario. «Gatti»
 > vale come «gatto», e un errore di battitura passa: «Germnaia» vale come
 > «Germania».
 >

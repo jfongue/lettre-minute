@@ -19,7 +19,7 @@ Texts and answers to copy into the Play Console. The visuals are one level up:
 > many words as you can.
 >
 > The game checks every word as you type, using a dictionary of over
-> {WORD_COUNT} words built on Wikidata and Wiktionary. “Cats” counts as
+> 175,000 words built on Wikidata and Wiktionary. “Cats” counts as
 > “cat”, and a typo gets through: “Portgual” counts as “Portugal”.
 >
 > RARE WORDS ARE WORTH MORE

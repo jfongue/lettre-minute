@@ -7,8 +7,8 @@ n'écrit rapportent le plus.
 - **Cinq catégories au plus par partie**, tirées parmi celles que le joueur
   possède et annoncées avant un compte à rebours de trois secondes. Pendant
   l'annonce, toucher une catégorie l'échange contre une de la réserve.
-- **Validation immédiate** contre un dictionnaire embarqué par langue (~64 000
-  mots en français) : Wikidata pour les entités, le Wiktionnaire pour les noms
+- **Validation immédiate** contre un dictionnaire embarqué par langue (~50 000
+  mots en français, 175 000 en anglais) : Wikidata pour les entités, le Wiktionnaire pour les noms
   communs, et les formes fléchies — « chats » et « bleue » sont acceptés, et
   comptent comme « chat » et « bleu ». Le français lit Lexique et son propre
   Wiktionnaire ; les autres langues, le Wiktionary anglais par Wiktextract.

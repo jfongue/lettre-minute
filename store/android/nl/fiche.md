@@ -20,7 +20,7 @@ genereren: `scripts/render-store.sh`.
 > zoveel mogelijk woorden te schrijven.
 >
 > Het spel controleert elk woord terwijl je typt, met een woordenboek van
-> meer dan {WORD_COUNT} woorden op basis van Wikidata en WikiWoordenboek.
+> meer dan 40.000 woorden op basis van Wikidata en WikiWoordenboek.
 > ‘Katten’ telt als ‘kat’, en een tikfout mag: ‘Duitsladn’ telt als
 > ‘Duitsland’.
 >

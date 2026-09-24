@@ -27,8 +27,10 @@ Ce qu’il faut pour publier Lettre Minute, hors du code et hors de `public/`
 
 ## Avant de publier une traduction
 
-- Remplacer `{WORD_COUNT}` dans la description longue par la taille réelle
-  du dictionnaire de cette langue, arrondie vers le bas.
+- Le nombre de mots de chaque description longue est celui des formes
+  acceptées par le dictionnaire de la langue, arrondi vers le bas, au
+  24 septembre 2026 : 50 000 (fr), 55 000 (de, es), 175 000 (en),
+  35 000 (it), 40 000 (nl), 45 000 (pt). À revoir après un import.
 - Publier la page de confidentialité traduite et mettre son adresse dans la
   fiche ; les ancres `#effacer` sont conservées dans toutes les langues.
 - Seuls le nom, la description courte et la description longue se

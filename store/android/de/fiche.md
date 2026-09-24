@@ -20,7 +20,7 @@ eine Ebene höher: `../icon-512.png`, `../feature-graphic.png` (1024 × 500),
 > wie möglich zu schreiben.
 >
 > Das Spiel prüft jedes Wort, während du tippst – mit einem Wörterbuch aus
-> über {WORD_COUNT} Wörtern auf Basis von Wikidata und Wiktionary. „Katzen“
+> über 55.000 Wörtern auf Basis von Wikidata und Wiktionary. „Katzen“
 > zählt als „Katze“, und ein Tippfehler geht durch: „Österriech“ zählt als
 > „Österreich“.
 >
