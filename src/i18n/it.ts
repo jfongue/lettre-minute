@@ -21,7 +21,7 @@ export const it: Messages = {
     bestCombo: 'serie migliore',
     myCategories: 'Le mie categorie',
     reserve: (perRun) => `Ogni partita ne pesca ${perRun}; le altre restano in riserva per uno scambio alla partenza.`,
-    newEachLevel: 'Una nuova categoria da scegliere a ogni livello.',
+    links: { profile: 'Profilo', stats: 'Statistiche', requests: 'Le mie proposte', categories: 'Categorie' },
   },
 
   countdown: {
@@ -136,6 +136,8 @@ export const it: Messages = {
     accountTitle: 'Il tuo account',
     accountLead: 'Le tue partite ti seguono da un dispositivo all’altro, il tuo nome entra in classifica e i tuoi amici possono trovarti.',
     offline: 'Offline: i tuoi progressi restano su questo dispositivo.',
+    back: 'Indietro',
+    pages: { stats: 'Statistiche', requests: 'Le mie proposte', categories: 'Le mie categorie' },
   },
 
   social: {
@@ -167,13 +169,51 @@ export const it: Messages = {
     keep: 'Tieni',
   },
 
+  stats: {
+    empty: 'Gioca una partita: le tue statistiche cominciano qui.',
+    partial: 'Il dettaglio conta le partite giocate su questo dispositivo da questo aggiornamento.',
+    average: 'media recente',
+    best: 'record',
+    trend: 'vs le 10 prima',
+    recent: 'Partite recenti',
+    history: (count) => `Tutta la cronologia (${count})`,
+    hideHistory: 'Chiudi la cronologia',
+    more: 'Mostra altro',
+    runLine: (words, combo) => `${words} ${plural(words, 'parola', 'parole')} · serie di ${combo}`,
+    topWords: 'Le parole che dici di più',
+    times: (count) => `${count} ${plural(count, 'volta', 'volte')}`,
+    byCategory: 'Per categoria',
+    categoryLine: (runs, words) =>
+      `${runs} ${plural(runs, 'partita', 'partite')} · ${words} ${plural(words, 'parola', 'parole')}`,
+    perWord: (points) => `${points} pt/parola`,
+    bestWord: (word, points) => `Parola migliore: ${word} · ${points} pt`,
+    points: 'pt',
+  },
+
+  requests: {
+    offline: 'Senza server, le tue proposte aspettano su questo dispositivo.',
+    loadFailed: 'Impossibile caricare le tue proposte per ora.',
+    empty: 'Ancora nessuna proposta. In partita, una parola sconosciuta al dizionario si propone con un tocco.',
+    added: 'Aggiunte grazie a te',
+    addedNote: (xp) => `${xp} XP guadagnati per ognuna.`,
+    noneAdded: 'Ancora nessuna: una parola entra quando tre giocatori l’hanno proposta.',
+    pending: 'In attesa',
+    queued: 'non ancora inviata',
+    rejected: (count) => `Rifiutate (${count})`,
+    correct: 'Correggi',
+    correctLabel: (word) => `Correggi «${word}»`,
+    withdraw: 'Ritira',
+    save: 'Salva',
+    failed: 'Il server non ha risposto. Riprova.',
+  },
+
   options: {
     theme: 'Tema',
     themes: { system: 'Auto', light: 'Chiaro', dark: 'Scuro' },
     themeNote: '«Auto» segue l’impostazione del telefono.',
     sound: 'Suono',
-    sounds: { effects: 'Effetti', keys: 'Tastiera', music: 'Musica', pulse: 'Pulsazione in partita' },
-    soundNote: '«Pulsazione» aggiunge un ritmo sotto la partita che si infittisce ogni venti secondi.',
+    sounds: { master: 'Generale', effects: 'Effetti', keys: 'Tastiera', music: 'Musica' },
+    soundNote: '«Generale» regola tutto in una volta. Gli effetti comprendono la pulsazione sotto la partita, che si infittisce ogni venti secondi.',
     soundOff: 'Spento',
     mute: 'Disattiva l’audio',
     unmute: 'Riattiva l’audio',

@@ -2,12 +2,13 @@ import { isNativeApp } from '../lib/native'
 import type { SoundPrefs } from '../lib/sound'
 
 const SOUND_KEY = 'lettre-minute.sound.v1'
-const CHANNELS = ['effects', 'keys', 'music', 'pulse'] as const
+// The pulse had its own slider until it joined the effects: a stored `pulse` is ignored.
+const CHANNELS = ['master', 'effects', 'keys', 'music'] as const
 const ON_VOLUME = 0.6
 
 /** On a phone the music starts off: the game is often played where others can hear. */
 function defaults(): SoundPrefs {
-  return { effects: 0.8, keys: ON_VOLUME, music: isNativeApp() ? 0 : ON_VOLUME, pulse: 0, muted: false }
+  return { master: 1, effects: 0.8, keys: ON_VOLUME, music: isNativeApp() ? 0 : ON_VOLUME, muted: false }
 }
 
 export function loadSoundPrefs(): SoundPrefs {

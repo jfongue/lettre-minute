@@ -1,10 +1,11 @@
 # Supabase
 
-Quatre migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Cinq migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
-pour les classements par période et les amis.
+pour les classements par période et les amis, [`0005_my_submissions.sql`](migrations/0005_my_submissions.sql)
+pour retirer ou corriger un mot proposé tant qu'il attend.
 
 ## Ce que le serveur détient
 
@@ -43,6 +44,9 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
 - **Les parties sont insérées, jamais modifiées.** Un score ne se corrige pas.
 - **Les classements ne montrent que des comptes nommés** : les fonctions
   joignent `auth.users` et écartent `is_anonymous`.
+- **Une proposition ne se retire ou ne se corrige qu'en attente** : la politique
+  `submissions_withdraw_own` et `amend_submission` exigent `status = 'pending'`.
+  Un mot accepté a déjà payé son XP ; un mot refusé reste en archive.
 - **Les amitiés s'écrivent par fonction** (`request_friend`, `respond_friend`,
   `remove_friend`) : la table n'a qu'une politique de lecture. Un compte
   anonyme ne peut ni demander ni être trouvé.

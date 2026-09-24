@@ -1,0 +1,122 @@
+import { useMemo, useState } from 'react'
+import { summarize, type RunRecord } from '../domain/history'
+import type { Profile } from '../domain/progression'
+import { categoryText, formatNumber, useT, type Messages } from '../i18n'
+import { Figure, Shape } from './bauhaus'
+import { categoryMotif } from './motifs'
+
+/** Rows added each time the full history is asked for more. */
+const PAGE = 50
+
+function formatDate(t: Messages, at: number): string {
+  return new Date(at).toLocaleString(t.tag, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+}
+
+export function StatsPage({ history, profile }: { history: readonly RunRecord[]; profile: Profile }) {
+  const t = useT()
+  const summary = useMemo(() => summarize(history), [history])
+  const [shown, setShown] = useState(0)
+
+  if (history.length === 0) return <p className="note">{t.stats.empty}</p>
+
+  const trend = summary.trend === null ? null : Math.round(summary.trend)
+  const older = history.slice(summary.recent.length)
+  // The profile's record may predate the history, and a merged account's may come from elsewhere.
+  const best = Math.max(profile.bestScore, ...history.map((run) => run.score))
+
+  return (
+    <>
+      <div className="figures stats-figures">
+        <Figure tint="yellow" value={formatNumber(t, Math.round(summary.recentAverage))} label={t.stats.average} />
+        <Figure tint="blue" value={formatNumber(t, best)} label={t.stats.best} />
+        {trend !== null && (
+          <Figure tint={trend >= 0 ? 'green' : 'red'} value={`${trend >= 0 ? '+' : '−'}${formatNumber(t, Math.abs(trend))}`} label={t.stats.trend} />
+        )}
+      </div>
+
+      <section className="stack">
+        <p className="section-title">{t.stats.recent}</p>
+        <RunList runs={summary.recent} />
+        {older.length > 0 && (
+          <>
+            {shown > 0 && <RunList runs={older.slice(0, shown)} />}
+            <div className="stats-more">
+              {shown < older.length && (
+                <button type="button" className="btn btn--quiet menu-start" onClick={() => setShown(shown + PAGE)}>
+                  {shown === 0 ? t.stats.history(history.length) : t.stats.more}
+                </button>
+              )}
+              {shown > 0 && (
+                <button type="button" className="btn btn--quiet btn--muted menu-start" onClick={() => setShown(0)}>
+                  {t.stats.hideHistory}
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </section>
+
+      {summary.topWords.length > 0 && (
+        <section className="stack">
+          <p className="section-title">{t.stats.topWords}</p>
+          <ol className="podium">
+            {summary.topWords.map((word, index) => (
+              <li key={`${word.word}-${index}`} className={`podium-step podium-step--${index + 1}`}>
+                <span className="podium-rank">{index + 1}</span>
+                <span className="podium-word">{word.display}</span>
+                <span className="note">{t.stats.times(word.count)}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {summary.categories.length > 0 && (
+        <section className="stack">
+          <p className="section-title">{t.stats.byCategory}</p>
+          <ul className="categories category-stats">
+            {summary.categories.map((stats) => {
+              const motif = categoryMotif(stats.categoryId)
+              const perWord = stats.words > 0 ? stats.points / stats.words : 0
+              return (
+                <li key={stats.categoryId}>
+                  <Shape kind={motif.kind} tint={motif.tint} className="category-shape" />
+                  <span className="category-stats-body">
+                    <span className="category-label">{categoryText(t, stats.categoryId).label}</span>
+                    <span className="note">{t.stats.categoryLine(stats.runs, stats.words)}</span>
+                    {stats.bestWord && (
+                      <span className="note">{t.stats.bestWord(stats.bestWord.display, stats.bestWord.points)}</span>
+                    )}
+                  </span>
+                  <span className="category-stats-figure">
+                    <strong>{formatNumber(t, stats.points)}</strong>
+                    <span className="note">{t.stats.perWord(perWord.toLocaleString(t.tag, { maximumFractionDigits: 1 }))}</span>
+                  </span>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      )}
+
+      {profile.runs > history.length && <p className="note">{t.stats.partial}</p>}
+    </>
+  )
+}
+
+function RunList({ runs }: { runs: readonly RunRecord[] }) {
+  const t = useT()
+  return (
+    <ul className="run-list">
+      {runs.map((run) => (
+        <li key={`${run.at}-${run.score}`}>
+          <span className="run-list-when note">{formatDate(t, run.at)}</span>
+          <span className="note">{t.stats.runLine(run.words.length, run.bestCombo)}</span>
+          <strong className="run-list-score">
+            {formatNumber(t, run.score)} <small>{t.stats.points}</small>
+          </strong>
+        </li>
+      ))}
+    </ul>
+  )
+}

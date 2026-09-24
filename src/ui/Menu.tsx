@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { AvatarChoice } from '../domain/avatar'
+import type { RunRecord } from '../domain/history'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
 import {
   fetchFriends,
@@ -14,19 +15,35 @@ import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
 import { sound as preview, type SoundPrefs } from '../lib/sound'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions } from './AccountPanel'
+import { CategoriesPage } from './CategoriesPage'
+import { PageLinks } from './PageLinks'
+import { RequestsPage } from './RequestsPage'
+import { StatsPage } from './StatsPage'
 import { useSwipe } from './useSwipe'
 import { Avatar } from './Avatar'
 
 export type MenuPane = 'profile' | 'social' | 'options'
+/** A page opened from the profile, which leads back to it. */
+export type ProfilePage = 'stats' | 'requests' | 'categories'
+export type MenuPage = MenuPane | ProfilePage
 
 const PANES: readonly MenuPane[] = ['profile', 'social', 'options']
+const PROFILE_PAGES: readonly ProfilePage[] = ['stats', 'requests', 'categories']
+
+function isPane(page: MenuPage): page is MenuPane {
+  return (PANES as readonly string[]).includes(page)
+}
 
 // A published app must link its privacy policy. Inside the phone shell a
 // relative link would navigate the game's own view away, hence a full URL.
 const PRIVACY_URL = import.meta.env.VITE_PRIVACY_URL || '/confidentialite.html'
 
 interface MenuProps {
+  /** Where the drawer opens: a tab, or one of the profile's pages. */
+  page: MenuPage
   profile: Profile
+  /** Newest first, for the statistics. */
+  history: readonly RunRecord[]
   avatar: AvatarChoice
   /** Null while the game runs without a server: the player has no account, only an avatar. */
   account: Account | null
@@ -44,9 +61,16 @@ interface MenuProps {
   onClose(): void
 }
 
-export function Menu({ onClose, ...props }: MenuProps) {
+export function Menu({ onClose, page, ...props }: MenuProps) {
   const t = useT()
-  const [pane, setPane] = useState<MenuPane>('profile')
+  const [pane, setPane] = useState<MenuPane>(isPane(page) ? page : 'profile')
+  const [sub, setSub] = useState<ProfilePage | null>(isPane(page) ? null : page)
+  const body = useRef<HTMLDivElement>(null)
+  const open = (next: MenuPage) => {
+    setPane(isPane(next) ? next : 'profile')
+    setSub(isPane(next) ? null : next)
+    body.current?.scrollTo({ top: 0 })
+  }
   const drawer = useRef<HTMLElement>(null)
   // The drawer came in from the left: a flick back that way sends it home.
   const swipe = useSwipe('left', onClose)
@@ -85,7 +109,7 @@ export function Menu({ onClose, ...props }: MenuProps) {
                 role="tab"
                 aria-selected={pane === id}
                 className={`layer-tab${pane === id ? ' layer-tab--on' : ''}`}
-                onClick={() => setPane(id)}
+                onClick={() => open(id)}
               >
                 {t.menu.panes[id]}
               </button>
@@ -98,9 +122,22 @@ export function Menu({ onClose, ...props }: MenuProps) {
           </button>
         </div>
 
-        <div className="menu-body">
-          {pane === 'profile' && <ProfilePane {...props} />}
-          {pane === 'social' && <SocialPane account={props.account} onProfile={() => setPane('profile')} />}
+        <div className="menu-body" ref={body}>
+          {sub && (
+            <div className="subpage-head">
+              <button type="button" className="subpage-back" onClick={() => open('profile')} aria-label={t.menu.back}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M15 5l-7 7 7 7" />
+                </svg>
+              </button>
+              <h2 className="subpage-title">{t.menu.pages[sub]}</h2>
+            </div>
+          )}
+          {sub === 'stats' && <StatsPage history={props.history} profile={props.profile} />}
+          {sub === 'requests' && <RequestsPage />}
+          {sub === 'categories' && <CategoriesPage profile={props.profile} />}
+          {!sub && pane === 'profile' && <ProfilePane {...props} onPage={open} />}
+          {pane === 'social' && <SocialPane account={props.account} onProfile={() => open('profile')} />}
           {pane === 'options' && (
             <OptionsPane
               theme={props.theme}
@@ -125,7 +162,10 @@ function ProfilePane({
   onAvatar,
   onLogOut,
   onErase,
-}: Omit<MenuProps, 'onClose' | 'theme' | 'onTheme' | 'locale' | 'onLocale' | 'sound' | 'onSound'>) {
+  onPage,
+}: Omit<MenuProps, 'onClose' | 'page' | 'history' | 'theme' | 'onTheme' | 'locale' | 'onLocale' | 'sound' | 'onSound'> & {
+  onPage(page: ProfilePage): void
+}) {
   const t = useT()
   const named = account && !account.anonymous
 
@@ -164,6 +204,8 @@ function ProfilePane({
       )}
 
       {!account && <p className="note">{t.menu.offline}</p>}
+
+      <PageLinks pages={PROFILE_PAGES} onOpen={(next) => next !== 'profile' && onPage(next)} />
 
       <div className="menu-foot">
         <EraseData onErase={onErase} />
@@ -356,11 +398,11 @@ function FriendRow({ friend, onRemove }: { friend: Friend; onRemove(): void }) {
 }
 
 const THEMES: readonly Theme[] = ['system', 'light', 'dark']
-const SOUND_CHANNELS = ['effects', 'keys', 'music', 'pulse'] as const
+const SOUND_CHANNELS = ['master', 'effects', 'keys', 'music'] as const
 
 /** The music is heard as it plays; the effects and keys need a sample. */
 function previewChannel(id: (typeof SOUND_CHANNELS)[number]): void {
-  if (id === 'effects') preview.found(1, 2)
+  if (id === 'effects' || id === 'master') preview.found(1, 2)
   else if (id === 'keys') preview.key()
 }
 

@@ -148,6 +148,74 @@ export function pushSubmissions(pending: readonly PendingSubmission[]): Promise<
   }, [])
 }
 
+export type SubmissionStatus = 'pending' | 'accepted' | 'rejected'
+
+/** A word this player proposed, as the server holds it. */
+export interface Submission {
+  id: string
+  lang: string
+  categoryId: string
+  display: string
+  status: SubmissionStatus
+  at: number
+}
+
+/** The language a scoped value was written in, and the value itself. */
+function split(value: string): { lang: string; value: string } {
+  const match = /^([a-z]{2}):(.*)$/.exec(value)
+  return match ? { lang: match[1]!, value: match[2]! } : { lang: 'fr', value }
+}
+
+/** Newest first; null without a server, which the page tells apart from an empty list. */
+export function fetchMySubmissions(): Promise<Submission[] | null> {
+  return guard(async () => {
+    const identity = await connect()
+    // A moderator reads everyone's: the filter keeps the page to their own.
+    const { data, error } = await supabase!
+      .from('word_submissions')
+      .select('id, category_id, display, status, created_at')
+      .eq('player_id', identity!.userId)
+      .order('created_at', { ascending: false })
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => {
+      const { lang, value } = split(row.category_id as string)
+      return {
+        id: row.id as string,
+        lang,
+        categoryId: value,
+        display: row.display as string,
+        status: row.status as SubmissionStatus,
+        at: Date.parse(row.created_at as string) || 0,
+      }
+    })
+  }, null)
+}
+
+/** Withdraws a word still waiting; false once it was accepted or refused, or offline. */
+export function cancelSubmission(id: string): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!
+      .from('word_submissions')
+      .delete()
+      .eq('id', id)
+      .eq('status', 'pending')
+      .select('id')
+    return !error && (data ?? []).length > 0
+  }, false)
+}
+
+/** Replaces a waiting word by its corrected spelling. */
+export function correctSubmission(submission: Submission, display: string): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('amend_submission', {
+      p_id: submission.id,
+      p_word: scoped(submission.lang, display.trim().toLowerCase()),
+      p_display: display.trim(),
+    })
+    return !error && data === true
+  }, false)
+}
+
 /** Null without a server, which hides the boards rather than showing them empty. */
 export function fetchBoards(): Promise<Boards | null> {
   return guard(async () => {

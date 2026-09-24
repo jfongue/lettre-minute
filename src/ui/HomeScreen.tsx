@@ -1,15 +1,18 @@
 import type { CSSProperties } from 'react'
-import { CATALOGUE } from '../domain/catalogue'
+import type { AvatarChoice } from '../domain/avatar'
 import type { Boards as BoardsData } from '../domain/boards'
 import { levelProgress, type Profile } from '../domain/progression'
 import { RUN_SECONDS } from '../domain/run'
-import { MAX_CATEGORIES_PER_RUN, ownedCategoryIds } from '../domain/unlocks'
-import { categoryText, formatNumber, useT } from '../i18n'
+import { formatNumber, useT } from '../i18n'
 import { Boards } from './Boards'
 import { Figure, Shape } from './bauhaus'
 import { CategoryOffer } from './CategoryOffer'
-import { categoryMotif, type ShapeKind, type Tint } from './motifs'
+import type { MenuPage } from './Menu'
+import type { ShapeKind, Tint } from './motifs'
+import { PageLinks, type LinkedPage } from './PageLinks'
 import { useSwipe } from './useSwipe'
+
+const HOME_LINKS: readonly LinkedPage[] = ['profile', 'stats', 'requests', 'categories']
 
 interface HomeScreenProps {
   profile: Profile
@@ -19,21 +22,21 @@ interface HomeScreenProps {
   boards: BoardsData | null
   /** The player's account name, highlighted on the boards; null for an anonymous player. */
   me: string | null
-  onMenu(): void
+  avatar: AvatarChoice
+  onMenu(page?: MenuPage): void
   onPlay(): void
   onChoose(categoryId: string): void
 }
 
-export function HomeScreen({ profile, error, loading, boards, me, onMenu, onPlay, onChoose }: HomeScreenProps) {
+export function HomeScreen({ profile, error, loading, boards, me, avatar, onMenu, onPlay, onChoose }: HomeScreenProps) {
   const t = useT()
   const progress = levelProgress(profile.xp)
-  const owned = ownedCategoryIds(profile)
   // The drawer lives off the left edge: a flick to the right pulls it in.
-  const swipe = useSwipe('right', onMenu)
+  const swipe = useSwipe('right', () => onMenu())
 
   return (
     <div className="sheet cascade" {...swipe}>
-      <Poster onMenu={onMenu} />
+      <Poster onMenu={() => onMenu()} />
 
       <header className="masthead">
         <h1 className="title">
@@ -78,32 +81,7 @@ export function HomeScreen({ profile, error, loading, boards, me, onMenu, onPlay
 
       <CategoryOffer profile={profile} onChoose={onChoose} />
 
-      <section className="panel">
-        <div className="spread">
-          <p className="section-title">{t.home.myCategories}</p>
-          <p className="note">
-            {owned.length} / {CATALOGUE.length}
-          </p>
-        </div>
-        <ul className="categories">
-          {owned.map((id) => {
-            const motif = categoryMotif(id)
-            const text = categoryText(t, id)
-            return (
-              <li key={id}>
-                <Shape kind={motif.kind} tint={motif.tint} className="category-shape" />
-                <span className="category-label">{text.label}</span>
-                <span className="note">{text.hint}</span>
-              </li>
-            )
-          })}
-        </ul>
-        <p className="note">
-          {owned.length > MAX_CATEGORIES_PER_RUN
-            ? t.home.reserve(MAX_CATEGORIES_PER_RUN)
-            : t.home.newEachLevel}
-        </p>
-      </section>
+      <PageLinks pages={HOME_LINKS} avatar={avatar} onOpen={onMenu} />
 
     </div>
   )

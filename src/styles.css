@@ -1270,9 +1270,55 @@ button {
   transition: transform 220ms var(--ease-out);
 }
 
+/* Reached, the tile does not whisper: it swells, flips its colours and
+   shakes its three bars out of line, each on its own beat. */
+.poster-menu {
+  position: relative;
+  z-index: 1;
+  transition:
+    transform 260ms var(--ease-spring),
+    box-shadow 260ms var(--ease-out),
+    background 200ms var(--ease-out);
+}
+
+.poster-menu:hover,
+.poster-menu:focus-visible {
+  z-index: 2;
+  transform: scale(1.14) rotate(-4deg);
+  box-shadow: 6px 6px 0 var(--ink);
+  background: var(--red) !important;
+}
+
+.poster-menu:hover .poster-menu-bars,
+.poster-menu:focus-visible .poster-menu-bars {
+  color: var(--cream) !important;
+}
+
+.poster-menu:active {
+  transform: scale(0.96);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+.poster-menu:hover .poster-menu-bars span,
+.poster-menu:focus-visible .poster-menu-bars span {
+  animation: bars-shake 900ms var(--ease-spring) infinite;
+}
+
 .poster-menu:hover .poster-menu-bars span:nth-child(2),
 .poster-menu:focus-visible .poster-menu-bars span:nth-child(2) {
-  transform: translateX(18%);
+  animation-delay: 120ms;
+  animation-direction: reverse;
+}
+
+.poster-menu:hover .poster-menu-bars span:nth-child(3),
+.poster-menu:focus-visible .poster-menu-bars span:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+@keyframes bars-shake {
+  0%, 100% { transform: none; }
+  30% { transform: translateX(-26%) scaleX(0.7); }
+  60% { transform: translateX(30%) scaleX(1.15); }
 }
 
 .menu-layer {
@@ -1422,6 +1468,347 @@ button {
 
 .friend-actions .btn--quiet {
   padding-inline: 0.4rem;
+}
+
+/* ------------------------------------------------------------ page links - */
+.page-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  padding-top: 0.9rem;
+  border-top: 3px solid var(--ink);
+}
+
+.page-link {
+  appearance: none;
+  display: grid;
+  grid-template-columns: clamp(2.5rem, 11vw, 3.5rem) minmax(0, 1fr);
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 4.75rem;
+  padding: 0.5rem 0.55rem 0.5rem 0.5rem;
+  border: 3px solid var(--ink);
+  box-shadow: 0 0 0 var(--ink);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  animation: pop-in 520ms var(--ease-spring) backwards;
+  animation-delay: calc(120ms + var(--i, 0) * 70ms);
+  transition:
+    transform 220ms var(--ease-spring),
+    box-shadow 220ms var(--ease-out);
+}
+
+.page-link-art {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.page-link-art > * {
+  width: 72%;
+  animation: tile-bob 3.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.85s);
+}
+
+.page-link-art > .avatar {
+  width: 100%;
+  animation: none;
+}
+
+.page-link-label {
+  font-size: clamp(0.66rem, 3vw, 0.85rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+/* An odd tile out takes the whole row rather than leaving a hole. */
+.page-link:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+.page-link:hover,
+.page-link:focus-visible {
+  transform: translate(-4px, -4px) rotate(-1.5deg);
+  box-shadow: 6px 6px 0 var(--ink);
+  outline: none;
+}
+
+.page-link:nth-child(even):hover,
+.page-link:nth-child(even):focus-visible {
+  transform: translate(-4px, -4px) rotate(1.5deg);
+}
+
+.page-link:hover .page-link-art > *,
+.page-link:focus-visible .page-link-art > * {
+  animation: tile-hop 620ms var(--ease-spring) both;
+}
+
+.page-link:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--ink);
+}
+
+@keyframes tile-bob {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-6%) rotate(8deg); }
+}
+
+@keyframes tile-hop {
+  0% { transform: none; }
+  35% { transform: translateY(-18%) rotate(-20deg) scale(1.12); }
+  65% { transform: translateY(4%) rotate(12deg) scale(0.94); }
+  100% { transform: rotate(90deg); }
+}
+
+/* ------------------------------------------------------------- subpages - */
+.subpage-head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.subpage-back {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 200ms var(--ease-spring), background 160ms var(--ease-out);
+}
+
+.subpage-back:hover,
+.subpage-back:focus-visible {
+  background: var(--yellow);
+  color: var(--black);
+  transform: translateX(-3px);
+}
+
+.subpage-back svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.8;
+  stroke-linecap: square;
+}
+
+.subpage-title {
+  margin: 0;
+  font-size: clamp(1.2rem, 5vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.run-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+}
+
+.run-list li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.run-list .note {
+  font-size: 0.78rem;
+}
+
+.run-list-when {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.run-list-score {
+  font-variant-numeric: tabular-nums;
+  font-size: 1.05rem;
+}
+
+.run-list-score small {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.stats-figures {
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+}
+
+.stats-figures .figure-value {
+  font-size: clamp(1.4rem, 6.5vw, 2rem);
+}
+
+.stats-more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.podium {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  align-items: end;
+  gap: 0.4rem;
+}
+
+.podium-step {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  padding: 0.7rem 0.4rem;
+  border: 3px solid var(--ink);
+  text-align: center;
+  animation: rise-in 620ms var(--ease-spring) backwards;
+}
+
+.podium-step--1 {
+  order: 2;
+  min-height: 7.5rem;
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.podium-step--2 {
+  order: 1;
+  min-height: 6rem;
+  background: var(--blue);
+  color: var(--cream);
+  animation-delay: 120ms;
+}
+
+.podium-step--3 {
+  order: 3;
+  min-height: 5rem;
+  background: var(--pink);
+  color: var(--black);
+  animation-delay: 220ms;
+}
+
+.podium-step .note {
+  color: inherit;
+  opacity: 0.8;
+  font-size: 0.72rem;
+}
+
+.podium-rank {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.podium-word {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.category-stats li {
+  grid-template-columns: 1.1rem 1fr auto;
+  align-items: start;
+}
+
+.category-stats .category-shape {
+  margin-top: 0.2rem;
+}
+
+.category-stats-body {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.category-stats .category-stats-body .note {
+  text-align: left;
+  font-size: 0.75rem;
+}
+
+.category-stats-figure {
+  display: grid;
+  justify-items: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.requests {
+  list-style: none;
+  padding: 0;
+  display: grid;
+}
+
+.request {
+  display: grid;
+  grid-template-columns: 1.1rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.request-word {
+  display: grid;
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.request-word .note {
+  font-size: 0.75rem;
+  font-weight: 450;
+}
+
+.request-edit {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.request-edit input {
+  flex: 1 1 8rem;
+  min-width: 0;
+  min-height: 2.5rem;
+  padding: 0.3rem 0.6rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+}
+
+.requests--added .request-word {
+  color: var(--green);
+}
+
+.requests--rejected .request-word {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+
+.requests-archive summary {
+  cursor: pointer;
+  padding-block: 0.4rem;
+}
+
+/* The web's mute button sits in the corner: the last row of a page must clear it. */
+.stage--muteable .sheet,
+.stage--muteable .menu-body {
+  padding-bottom: 3.5rem;
 }
 
 @keyframes menu-in {

@@ -31,7 +31,7 @@ export const fr = {
     myCategories: 'Mes catégories',
     reserve: (perRun: number) =>
       `Chaque partie en tire ${perRun} ; les autres restent en réserve pour un échange au lancement.`,
-    newEachLevel: 'Une nouvelle catégorie à choisir à chaque niveau.',
+    links: { profile: 'Profil', stats: 'Statistiques', requests: 'Mes demandes', categories: 'Catégories' },
   },
 
   countdown: {
@@ -149,6 +149,8 @@ export const fr = {
     accountLead:
       'Tes parties te suivent d’un appareil à l’autre, ton nom entre au classement et tes amis peuvent te trouver.',
     offline: 'Hors ligne : ta progression reste sur cet appareil.',
+    back: 'Retour',
+    pages: { stats: 'Statistiques', requests: 'Mes demandes', categories: 'Mes catégories' },
   },
 
   social: {
@@ -184,13 +186,51 @@ export const fr = {
     keep: 'Garder',
   },
 
+  stats: {
+    empty: 'Joue une partie : tes statistiques commencent ici.',
+    partial: 'Le détail compte les parties jouées sur cet appareil depuis cette mise à jour.',
+    average: 'moyenne récente',
+    best: 'record',
+    trend: 'vs les 10 d’avant',
+    recent: 'Parties récentes',
+    history: (count: number) => `Tout l’historique (${count})`,
+    hideHistory: 'Replier l’historique',
+    more: 'Afficher plus',
+    runLine: (words: number, combo: number) => `${words} ${plural(words, 'mot', 'mots')} · série de ${combo}`,
+    topWords: 'Mots les plus dits',
+    times: (count: number) => `${count} fois`,
+    byCategory: 'Par catégorie',
+    categoryLine: (runs: number, words: number) =>
+      `${runs} ${plural(runs, 'partie', 'parties')} · ${words} ${plural(words, 'mot', 'mots')}`,
+    perWord: (points: string) => `${points} pts/mot`,
+    bestWord: (word: string, points: number) => `Meilleur mot : ${word} · ${points} pts`,
+    points: 'pts',
+  },
+
+  requests: {
+    offline: 'Sans serveur, tes propositions attendent sur cet appareil.',
+    loadFailed: 'Impossible de charger tes demandes pour l’instant.',
+    empty: 'Aucune demande pour l’instant. En partie, un mot inconnu du dictionnaire se propose d’une touche.',
+    added: 'Ajoutés grâce à toi',
+    addedNote: (xp: number) => `${xp} XP gagnés pour chacun.`,
+    noneAdded: 'Aucun encore : un mot entre quand trois joueurs l’ont proposé.',
+    pending: 'En attente',
+    queued: 'pas encore envoyé',
+    rejected: (count: number) => `Refusées (${count})`,
+    correct: 'Corriger',
+    correctLabel: (word: string) => `Corriger « ${word} »`,
+    withdraw: 'Retirer',
+    save: 'Enregistrer',
+    failed: 'Le serveur n’a pas répondu. Réessaie.',
+  },
+
   options: {
     theme: 'Thème',
     themes: { system: 'Auto', light: 'Clair', dark: 'Sombre' },
     themeNote: '« Auto » suit le réglage du téléphone.',
     sound: 'Son',
-    sounds: { effects: 'Effets', keys: 'Clavier', music: 'Musique', pulse: 'Pulsation en partie' },
-    soundNote: '« Pulsation » ajoute un rythme sous la partie, qui se densifie toutes les vingt secondes.',
+    sounds: { master: 'Général', effects: 'Effets', keys: 'Clavier', music: 'Musique' },
+    soundNote: '« Général » règle tout d’un coup. Les effets comprennent la pulsation sous la partie, qui se densifie toutes les vingt secondes.',
     soundOff: 'Coupé',
     mute: 'Couper le son',
     unmute: 'Rétablir le son',

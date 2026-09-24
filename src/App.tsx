@@ -18,6 +18,7 @@ import {
 import { isNativeApp, onBackButton, prepareAds, tapFeedback } from './lib/native'
 import { configureSound, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
 import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
+import { appendRecord, recordOf, type RunRecord } from './domain/history'
 import { completeBoards, type Boards } from './domain/boards'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { RUN_SECONDS, remainingSeconds } from './domain/run'
@@ -31,9 +32,11 @@ import { initialSession, sessionReducer } from './state/session'
 import {
   clearLocalData,
   loadAvatar,
+  loadHistory,
   loadProfile,
   loadSubmissions,
   saveAvatar,
+  saveHistory,
   saveProfile,
   saveSubmissions,
 } from './state/storage'
@@ -45,7 +48,7 @@ import { AvatarScreen } from './ui/AvatarScreen'
 import { CountdownScreen } from './ui/CountdownScreen'
 import { HomeScreen } from './ui/HomeScreen'
 import { LanguagePicker } from './ui/LanguagePicker'
-import { Menu } from './ui/Menu'
+import { Menu, type MenuPage } from './ui/Menu'
 import { MuteButton } from './ui/MuteButton'
 import { OverScreen } from './ui/OverScreen'
 import { RunScreen } from './ui/RunScreen'
@@ -76,8 +79,11 @@ export function App() {
   const [boardsAfter, setBoardsAfter] = useState<Boards | null>(null)
   const boardsNow = useRef(boards)
   boardsNow.current = boards
-  const [menuOpen, setMenuOpen] = useState(false)
-  const closeMenu = useCallback(() => setMenuOpen(false), [])
+  // Where the drawer opened, or null while it is closed.
+  const [menuPage, setMenuPage] = useState<MenuPage | null>(null)
+  const menuOpen = menuPage !== null
+  const closeMenu = useCallback(() => setMenuPage(null), [])
+  const [history, setHistory] = useState<RunRecord[]>([])
   const [theme, setTheme] = useState<Theme>(loadTheme)
   const [soundPrefs, setSoundPrefs] = useState<SoundPrefs>(loadSoundPrefs)
   const tune = useCallback((next: SoundPrefs) => {
@@ -116,6 +122,7 @@ export function App() {
   useEffect(() => {
     dispatch({ type: 'profile-loaded', profile: loadProfile() })
     setAvatar(loadAvatar())
+    setHistory(loadHistory())
   }, [])
 
   const wear = useCallback((next: AvatarChoice) => {
@@ -186,6 +193,7 @@ export function App() {
     clearLocalData()
     dispatch({ type: 'profile-loaded', profile: NEW_PROFILE })
     setAvatar(DEFAULT_AVATAR)
+    setHistory([])
     setAccount(null)
     fetchAccount().then((found) => found && setAccount(found))
     loadBoards().then(setBoards)
@@ -201,7 +209,7 @@ export function App() {
     () =>
       onBackButton(() => {
         if (menuShown.current) {
-          setMenuOpen(false)
+          setMenuPage(null)
           return true
         }
         if (phase.current === 'home' || phase.current === 'loading') return false
@@ -340,6 +348,12 @@ export function App() {
 
   useEffect(() => {
     if (session.phase !== 'over' || !session.run) return
+    const record = recordOf(session.run, Date.now(), lang)
+    setHistory((previous) => {
+      const next = appendRecord(previous, record)
+      saveHistory(next)
+      return next
+    })
     const pushed = pushRun(session.run, session.profile, lang)
     pushing.current = pushed
     flushSubmissions()
@@ -365,7 +379,7 @@ export function App() {
 
   return (
     <MessagesContext value={t}>
-    <main className={`stage stage--${session.phase}`}>
+    <main className={`stage stage--${session.phase}${isNativeApp() ? '' : ' stage--muteable'}`}>
       {editingAvatar && (
         <AvatarScreen
           profile={session.profile}
@@ -386,7 +400,8 @@ export function App() {
           loading={session.phase === 'loading'}
           boards={boards}
           me={account && !account.anonymous ? account.name : null}
-          onMenu={() => setMenuOpen(true)}
+          avatar={avatar}
+          onMenu={(page = 'profile') => setMenuPage(page)}
           onPlay={play}
           onChoose={choose}
         />
@@ -394,7 +409,9 @@ export function App() {
 
       {menuOpen && !editingAvatar && (session.phase === 'home' || session.phase === 'loading') && (
         <Menu
+          page={menuPage}
           profile={session.profile}
+          history={history}
           avatar={avatar}
           account={account}
           accountActions={accountActions}
@@ -409,7 +426,7 @@ export function App() {
             applyTheme(next)
           }}
           onAvatar={() => {
-            setMenuOpen(false)
+            setMenuPage(null)
             setEditingAvatar(true)
           }}
           onLogOut={async () => {

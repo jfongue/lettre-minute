@@ -21,7 +21,7 @@ export const nl: Messages = {
     bestCombo: 'beste reeks',
     myCategories: 'Mijn categorieën',
     reserve: (perRun) => `Elk spel trekt er ${perRun}; de rest blijft in reserve om bij de start te ruilen.`,
-    newEachLevel: 'Op elk niveau een nieuwe categorie om te kiezen.',
+    links: { profile: 'Profiel', stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Categorieën' },
   },
 
   countdown: {
@@ -135,6 +135,8 @@ export const nl: Messages = {
     accountTitle: 'Je account',
     accountLead: 'Je spellen volgen je van het ene apparaat naar het andere, je naam komt in het klassement en je vrienden kunnen je vinden.',
     offline: 'Offline: je voortgang blijft op dit apparaat.',
+    back: 'Terug',
+    pages: { stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Mijn categorieën' },
   },
 
   social: {
@@ -166,13 +168,51 @@ export const nl: Messages = {
     keep: 'Houden',
   },
 
+  stats: {
+    empty: 'Speel een potje: hier beginnen je statistieken.',
+    partial: 'De details tellen de potjes op dit apparaat sinds deze update.',
+    average: 'recent gemiddelde',
+    best: 'record',
+    trend: 'vs de 10 ervoor',
+    recent: 'Recente potjes',
+    history: (count) => `Hele geschiedenis (${count})`,
+    hideHistory: 'Geschiedenis inklappen',
+    more: 'Meer tonen',
+    runLine: (words, combo) => `${words} ${plural(words, 'woord', 'woorden')} · reeks van ${combo}`,
+    topWords: 'Je vaakst gezegde woorden',
+    times: (count) => `${count} keer`,
+    byCategory: 'Per categorie',
+    categoryLine: (runs, words) =>
+      `${runs} ${plural(runs, 'potje', 'potjes')} · ${words} ${plural(words, 'woord', 'woorden')}`,
+    perWord: (points) => `${points} ptn/woord`,
+    bestWord: (word, points) => `Beste woord: ${word} · ${points} ptn`,
+    points: 'ptn',
+  },
+
+  requests: {
+    offline: 'Zonder server wachten je voorstellen op dit apparaat.',
+    loadFailed: 'Je voorstellen kunnen nu niet geladen worden.',
+    empty: 'Nog geen voorstellen. Tijdens het spel stel je een onbekend woord met één tik voor.',
+    added: 'Toegevoegd dankzij jou',
+    addedNote: (xp) => `${xp} XP verdiend per woord.`,
+    noneAdded: 'Nog geen: een woord komt erin zodra drie spelers het hebben voorgesteld.',
+    pending: 'In afwachting',
+    queued: 'nog niet verstuurd',
+    rejected: (count) => `Afgewezen (${count})`,
+    correct: 'Verbeteren',
+    correctLabel: (word) => `‘${word}’ verbeteren`,
+    withdraw: 'Intrekken',
+    save: 'Opslaan',
+    failed: 'De server antwoordde niet. Probeer het opnieuw.',
+  },
+
   options: {
     theme: 'Thema',
     themes: { system: 'Auto', light: 'Licht', dark: 'Donker' },
     themeNote: '‘Auto’ volgt de instelling van de telefoon.',
     sound: 'Geluid',
-    sounds: { effects: 'Effecten', keys: 'Toetsenbord', music: 'Muziek', pulse: 'Puls tijdens het spel' },
-    soundNote: '‘Puls’ legt een ritme onder het spel dat elke twintig seconden voller wordt.',
+    sounds: { master: 'Algemeen', effects: 'Effecten', keys: 'Toetsenbord', music: 'Muziek' },
+    soundNote: '‘Algemeen’ regelt alles tegelijk. Bij de effecten hoort de puls onder het spel, die elke twintig seconden voller wordt.',
     soundOff: 'Uit',
     mute: 'Geluid uit',
     unmute: 'Geluid aan',

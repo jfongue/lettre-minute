@@ -13,13 +13,14 @@ import type { RarityTier } from '../domain/rarity'
 
 /** Each channel's volume, from 0 (off) to 1. */
 export interface SoundPrefs {
+  /** Scales every channel below: one slider to turn the whole game down. */
+  master: number
+  /** The cues, and the pulse under the run, which is one of them. */
   effects: number
   /** The keyboard clicks, which some players want quieter than the rest. */
   keys: number
   /** The loop under the home, menu and end screens. */
   music: number
-  /** A pulse under the run itself, thickening every twenty seconds. */
-  pulse: number
   /** The web's quick mute: silences everything, and leaves the choices above as they were. */
   muted: boolean
 }
@@ -35,8 +36,9 @@ const THIRD = 4
 const TOP_STEP = 10
 const ROOM = 0.28
 
-let prefs: SoundPrefs = { effects: 0.8, keys: 0.6, music: 0, pulse: 0, muted: false }
+let prefs: SoundPrefs = { master: 1, effects: 0.8, keys: 0.6, music: 0, muted: false }
 let ctx: AudioContext | null = null
+let masterNode: GainNode
 let sfx: GainNode
 let keysNode: GainNode
 let music: GainNode
@@ -69,7 +71,7 @@ function context(): AudioContext | null {
   comp.threshold.value = -12
   comp.ratio.value = 3
   const master = c.createGain()
-  master.gain.value = 0.9
+  masterNode = master
   master.connect(comp)
   comp.connect(c.destination)
 
@@ -112,9 +114,10 @@ function applyLevels(): void {
   if (!ctx) return
   const on = prefs.muted ? 0 : 1
   const t = ctx.currentTime
+  masterNode.gain.setTargetAtTime(on * prefs.master * 0.9, t, 0.03)
   sfx.gain.setTargetAtTime(on * prefs.effects * CEILING.effects, t, 0.03)
   keysNode.gain.setTargetAtTime(on * prefs.keys * CEILING.keys, t, 0.03)
-  const musicLevel = playing === 'pulse' ? prefs.pulse : prefs.music
+  const musicLevel = playing === 'pulse' ? prefs.effects : prefs.music
   music.gain.setTargetAtTime(on * musicLevel * CEILING.music, t, 0.03)
 }
 
@@ -259,7 +262,7 @@ function tick(c: AudioContext, t: number, alt: boolean, urgent: boolean, v = 1):
 
 /** Runs a cue now, if effects are on and the context is awake. */
 function cue(work: (c: AudioContext, t: number) => void, level = prefs.effects): void {
-  if (level <= 0 || prefs.muted) return
+  if (level <= 0 || prefs.master <= 0 || prefs.muted) return
   safely(() => {
     const c = live()
     if (c) work(c, c.currentTime + 0.01)
@@ -454,11 +457,11 @@ function stopPlaying(): void {
 /** Plays what is wanted, if the preferences allow it and the context is awake. */
 function syncMusic(): void {
   safely(() => {
-    const target = prefs.muted
+    const target = prefs.muted || prefs.master <= 0
       ? null
       : wanted === 'menu' && prefs.music > 0
         ? 'menu'
-        : wanted === 'pulse' && prefs.pulse > 0
+        : wanted === 'pulse' && prefs.effects > 0
           ? 'pulse'
           : null
     if (target === playing) return applyLevels()
