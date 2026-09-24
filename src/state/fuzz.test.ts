@@ -81,10 +81,18 @@ function answerFor(rng: Rng, run: Run, pack: WordPack, other: WordPack): string 
   return pick(rng, GARBAGE)
 }
 
+/** One judge per language: building one reads every word of every pack, twenty milliseconds a game. */
+const judges = new Map<string, Judge>()
+function judgeFor(lang: string): Judge {
+  let judge = judges.get(lang)
+  if (!judge) judges.set(lang, (judge = createJudge(packsByLang.get(lang)!, { own: {}, crowd: {} }, { joker: ['joker'], hush: ['chut'] })))
+  return judge
+}
+
 function playOne(seed: number, lang: string): void {
   const rng = createRng(seed)
   const packs = packsByLang.get(lang)!
-  const judge: Judge = createJudge(packs, { own: {}, crowd: {} }, { joker: ['joker'], hush: ['chut'] })
+  const judge = judgeFor(lang)
   const powers = POWER_IDS.filter(() => rng.next() < 0.25).slice(0, 2)
   const categoryIds = packs.map((pack) => pack.categoryId).filter(() => rng.next() < 0.6)
   if (categoryIds.length === 0) categoryIds.push(packs[0]!.categoryId)
