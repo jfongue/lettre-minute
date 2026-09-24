@@ -3873,9 +3873,13 @@ button {
   cursor: pointer;
 }
 
-.power-row--here {
+.power-row--selected {
   border-color: var(--ink);
   box-shadow: 4px 4px 0 var(--ink);
+}
+
+.power-row--selected .power-row-icon {
+  animation: var(--power-gesture, pop-in) 900ms var(--ease-out) both;
 }
 
 .power-row-icon {

@@ -81,6 +81,8 @@ function PowerPicker({
   onClose(): void
 }) {
   const t = useT()
+  // Two steps, as on the offer screen: a tap picks and sounds the power, « Valider » wears it.
+  const [selected, setSelected] = useState<PowerId | null>(worn[slot] ?? null)
   useEffect(() => {
     const escape = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
     window.addEventListener('keydown', escape)
@@ -103,16 +105,14 @@ function PowerPicker({
               <li key={id} style={{ '--i': index } as CSSProperties}>
                 <button
                   type="button"
-                  className={`power-row power--${id}${at === slot ? ' power-row--here' : ''}`}
-                  aria-pressed={at === slot}
-                  // Hearing a power before wearing it is how its sound is learnt.
-                  onPointerEnter={(event) => event.pointerType === 'mouse' && sound.power(id, 0.6)}
+                  className={`power-row power--${id}${id === selected ? ' power-row--selected' : ''}`}
+                  aria-pressed={id === selected}
                   onClick={() => {
+                    setSelected(id)
                     sound.power(id)
-                    onPick(id)
                   }}
                 >
-                  <span className="power-row-icon" style={powerGround(id)}>
+                  <span className="power-row-icon" style={powerGround(id)} key={id === selected ? 'on' : 'off'}>
                     <PowerIcon id={id} tint={onTint(POWER_TINTS[id])} />
                   </span>
                   <span className="power-row-text">
@@ -129,13 +129,22 @@ function PowerPicker({
           })}
         </ul>
         <div className="offer-pop-actions">
-          {worn[slot] && (
+          {worn[slot] ? (
             <button type="button" className="btn btn--ghost" onClick={() => onPick(null)}>
               {t.powers.remove}
             </button>
+          ) : (
+            <button type="button" className="btn btn--ghost" onClick={onClose}>
+              {t.powers.close}
+            </button>
           )}
-          <button type="button" className="btn btn--blue" onClick={onClose}>
-            {t.powers.close}
+          <button
+            type="button"
+            className="btn btn--blue"
+            disabled={!selected || selected === worn[slot]}
+            onClick={() => selected && onPick(selected)}
+          >
+            {t.offer.confirm}
           </button>
         </div>
       </div>
