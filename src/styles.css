@@ -234,7 +234,8 @@ button {
   animation: slide-from-right 700ms var(--ease-out) 300ms backwards;
 }
 
-.masthead .eyebrow {
+.masthead .eyebrow,
+.masthead .note {
   justify-self: end;
 }
 
@@ -1681,7 +1682,16 @@ button {
   color: var(--paper);
 }
 
-.layer-tab--on .language-list {
+.layer-tab--on .swatch-dot {
+  border-color: var(--paper);
+}
+
+.layer-tab:disabled {
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}
+
+.language-list {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   border-top: var(--line) solid var(--ink);
@@ -1719,15 +1729,6 @@ button {
   justify-self: end;
   width: 3rem;
   height: 3rem;
-}
-
-.swatch-dot {
-  border-color: var(--paper);
-}
-
-.layer-tab:disabled {
-  color: var(--ink-faint);
-  cursor: not-allowed;
 }
 
 .swatch-dot {

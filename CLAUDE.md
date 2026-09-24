@@ -105,6 +105,16 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Le thème forcé passe par `data-theme` sur `<html>`**, posé avant le premier
   rendu (`src/main.tsx`) : chaque jeton sombre de `styles.css` existe donc en
   deux blocs (média et attribut), à tenir identiques.
+- **Aucun texte d'interface en dur dans `src/ui/`** : tout passe par `useT()`
+  (`src/i18n/`). `fr.ts` est la référence typée — une clé ajoutée là et
+  oubliée dans une autre langue casse le build. Les noms français des
+  catégories et des couleurs restent dans le domaine (`CATALOGUE`, `PALETTE`),
+  que `fr.ts` relit ; les autres langues les traduisent par identifiant, et un
+  test vérifie qu'aucune n'en oublie. Le domaine et `cloud.ts` rendent des
+  identifiants (palier de rareté, `AuthError`), jamais des phrases.
+- **Une réponse se compare sous sa forme compacte** (`compactWord`) : ni
+  accents, ni espaces, ni ponctuation. `WordEntry.key` garde en revanche ses
+  espaces, car c'est le nom sous lequel le serveur range les compteurs d'usage.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client.
 

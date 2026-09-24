@@ -44,9 +44,13 @@ n'écrit rapportent le plus.
 - **Menu** : la tuile en haut à gauche de l'affiche ouvre le profil (compte,
   avatar, effacement), le social (amis par nom de compte, demandes reçues et
   envoyées, score de la semaine de chacun) et les options (thème auto, clair
-  ou sombre).
+  ou sombre, langue).
 - **Fin du chrono** : un mot juste encore dans le champ quand le temps tombe
   est encaissé comme s'il avait été validé.
+- **Sept langues d'interface** : français, anglais, espagnol, allemand,
+  italien, néerlandais et portugais, prises dans les réglages de l'appareil ;
+  sinon, un écran de choix précède le premier lancement, et les options
+  permettent d'en changer. Les réponses, elles, restent des mots français.
 - **Mot manquant** : le joueur le propose en un clic ; réclamé par trois joueurs
   (ou validé par un modérateur), il entre au dictionnaire et lui rapporte 150 XP.
 
