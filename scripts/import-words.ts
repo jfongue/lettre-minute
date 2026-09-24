@@ -11,10 +11,11 @@
 import { createReadStream, mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import { Readable } from 'node:stream'
-import { createGunzip, gunzipSync } from 'node:zlib'
+import { createGunzip } from 'node:zlib'
 import { normalizeWord } from '../src/domain/text.ts'
 import type { WordRow } from '../src/domain/words.ts'
 import { LANGUAGES, TOPICS, type Lang, type LanguageSource } from './languages.ts'
+import { loadFrequencies } from './wordfreq.ts'
 import { CATEGORY_SOURCES, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
 
 const ENDPOINT = 'https://query.wikidata.org/sparql'
@@ -27,7 +28,6 @@ const LEXIQUE_URL = 'http://www.lexique.org/databases/Lexique383/Lexique383.tsv'
 const LEXIQUE_CACHE = '.cache/lexique383.tsv'
 const KAIKKI_URL = 'https://kaikki.org/dictionary'
 const TRANSLATIONS_CACHE = '.cache/kaikki-translations.json'
-const WORDFREQ_URL = 'https://raw.githubusercontent.com/rspeer/wordfreq/master/wordfreq/data'
 const CLICKSTREAM_URL = 'https://dumps.wikimedia.org/other/clickstream'
 
 /**
@@ -75,6 +75,14 @@ const LEGAL_FORM = /,?\s+(?:Inc\.?|Incorporated|Ltd\.?|Limited|Corp\.?|Corporati
 
 /** Fewer Wikipedias than this describe a thing only specialists look up. */
 const NICHE_SITELINKS = 10
+
+/**
+ * A Wikidata word that fewer Wikipedias than NICHE_SITELINKS describe, that
+ * nobody says and that barely one reader a day opens is not kept: "Shaata
+ * Gardens Toad" is a word no player will type, and such words were a third
+ * of the English dictionary's weight.
+ */
+const SHIPPED_MIN_DAILY_VISITS = 1
 
 /**
  * As many Wikipedias as this describe a thing whose name is its main sense:
@@ -681,74 +689,6 @@ async function loadTranslations(
   return byLang
 }
 
-/**
- * Just enough MessagePack to read wordfreq's file: arrays, maps, strings and
- * small integers. Pulling a package in for one import script is not worth it.
- */
-function unpack(bytes: Buffer): unknown {
-  let at = 0
-  const text = (length: number) => bytes.toString('utf8', (at += length) - length, at)
-  const list = (length: number) => Array.from({ length }, read)
-  const map = (length: number) => Object.fromEntries(Array.from({ length }, () => [read(), read()]))
-  function read(): unknown {
-    const tag = bytes[at++]!
-    if (tag <= 0x7f) return tag
-    if (tag >= 0xe0) return tag - 0x100
-    if ((tag & 0xe0) === 0xa0) return text(tag & 0x1f)
-    if ((tag & 0xf0) === 0x90) return list(tag & 0x0f)
-    if ((tag & 0xf0) === 0x80) return map(tag & 0x0f)
-    switch (tag) {
-      case 0xc0: return null
-      case 0xc2: return false
-      case 0xc3: return true
-      case 0xcc: return bytes[at++]
-      case 0xcd: return bytes.readUInt16BE((at += 2) - 2)
-      case 0xd9: return text(bytes[at++]!)
-      case 0xda: return text(bytes.readUInt16BE((at += 2) - 2))
-      case 0xdc: return list(bytes.readUInt16BE((at += 2) - 2))
-      case 0xdd: return list(bytes.readUInt32BE((at += 4) - 4))
-      case 0xde: return map(bytes.readUInt16BE((at += 2) - 2))
-      default: throw new Error(`wordfreq: type msgpack 0x${tag.toString(16)} non géré`)
-    }
-  }
-  return read()
-}
-
-/**
- * How often each word is used today, per million words, from
- * wordfreq: Wikipedia, OpenSubtitles 2018, news up to 2021, the web, Twitter
- * and Reddit, blended. Books alone print "abeille" or "coccinelle" far less
- * than people say them; the blend is the closer reading of the living language.
- *
- * The file lists words by bucket: bucket i holds every word used 10^(-i/100)
- * of the time.
- */
-async function loadFrequencies(lang: Lang, path: string): Promise<Map<string, number>> {
-  if (!existsSync(path)) {
-    console.log('· wordfreq: téléchargement')
-    const response = await fetch(`${WORDFREQ_URL}/large_${lang}.msgpack.gz`, { signal: AbortSignal.timeout(180_000) })
-    if (!response.ok) throw new Error(`wordfreq: HTTP ${response.status}`)
-    writeFileSync(path, Buffer.from(await response.arrayBuffer()))
-  }
-
-  const [header, ...buckets] = unpack(gunzipSync(readFileSync(path))) as [
-    { format?: string },
-    ...string[][],
-  ]
-  if (header.format !== 'cB') throw new Error('wordfreq: format inattendu')
-
-  const frequency = new Map<string, number>()
-  for (const [index, bucket] of buckets.entries()) {
-    const perMillion = 10 ** (-index / 100) * 1_000_000
-    for (const spelling of bucket) {
-      // Keyed on the exact spelling, accents kept: folded, the sloth "aï"
-      // would read as "ai" and the cerium "Ce" as "ce".
-      if (!frequency.has(spelling)) frequency.set(spelling, perMillion)
-    }
-  }
-  console.log(`· wordfreq: ${frequency.size} formes`)
-  return frequency
-}
 
 /**
  * Wikidata labels carry disambiguations, catalogue numbers and stray plurals.
@@ -881,6 +821,7 @@ function main(argv: readonly string[]) {
           if (key !== '') excluded.add(key)
         }
       }
+      // Dropped by hand: kept out of the Wiktionary's words too, unlike the pulls.
 
       // One entry per normalized word: the shortest spelling wins, and a word
       // found in several pulls keeps its best notoriety.
@@ -948,6 +889,7 @@ function main(argv: readonly string[]) {
 
     for (const { id, best, attested, commonNouns } of gathered) {
       const rows = new Map<string, WordRow>()
+      const dropped = new Set<string>()
       for (const [key, entry] of best) {
         // A name shared with something far better known inherits its fame by
         // mistake, and each reading has its own way of lying.
@@ -978,6 +920,10 @@ function main(argv: readonly string[]) {
           // or the domain would fall back on the bot-inflated sitelinks.
           daily = Math.round(visited)
         }
+        if (!attested.has(key) && frequency === 0 && daily !== undefined && daily <= SHIPPED_MIN_DAILY_VISITS && entry.sitelinks < NICHE_SITELINKS) {
+          dropped.add(key)
+          continue
+        }
         const fields = [entry.display, entry.sitelinks, rounded(frequency)] as const
         rows.set(key, daily === undefined ? fields : [...fields, '', daily])
       }
@@ -987,6 +933,7 @@ function main(argv: readonly string[]) {
       // same run under two spellings.
       let variants = 0
       for (const [key, entry] of best) {
+        if (dropped.has(key)) continue
         const lemma = lexicon.lemmaOf.get(key)
         if (!lemma) continue
         for (const form of lexicon.formsOf.get(lemma) ?? []) {

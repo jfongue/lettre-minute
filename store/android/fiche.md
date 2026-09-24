@@ -1,7 +1,7 @@
 # Fiche Play Store — Lettre Minute
 
 Textes et réponses à recopier dans la Play Console. Les visuels sont à côté :
-`icon-512.png`, `feature-graphic.png` (1024 × 500), `screenshots/` (1080 × 1920,
+`icon-512.png`, `feature-graphic.png` (1024 × 500), `screenshots/fr/` (1080 × 1920,
 clair et sombre). Pour les régénérer : `scripts/render-store.sh`.
 
 ## Fiche principale (français)
@@ -19,7 +19,7 @@ clair et sombre). Pour les régénérer : `scripts/render-store.sh`.
 > de mots possible.
 >
 > Le jeu vérifie chaque mot pendant que vous tapez, grâce à un dictionnaire de
-> plus de 50 000 mots français bâti sur Wikidata et le Wiktionnaire. « Chats »
+> plus de 40 000 mots français bâti sur Wikidata et le Wiktionnaire. « Chats »
 > vaut « chat », et une faute de frappe passe : « thailnade » vaut
 > « Thaïlande ».
 >

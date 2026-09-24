@@ -102,6 +102,17 @@ export const PULLS: readonly Pull[] = [
   // particular common name", not off the taxon tree, and no vernacular pull
   // brings them back.
   { id: 'common-names', of: 'Q55983715' },
+  // The same class holds the plants known by a common name — tree, grass,
+  // cabbage — which the animals category drops.
+  {
+    id: 'common-plants',
+    of: 'Q55983715',
+    raw: (scope) => `SELECT ?label ?n WHERE {
+  ?item wdt:P31 wd:Q55983715 ; rdfs:label ?label ; wikibase:sitelinks ?n .
+  ${scope.inLanguage('?label')}
+  FILTER EXISTS { ?item wdt:P279* wd:Q756 }
+}`,
+  },
   { id: 'mammals', of: 'Q7377', vernacular: true },
   { id: 'birds', of: 'Q5113', vernacular: true },
   { id: 'reptiles', of: 'Q10811', vernacular: true },
@@ -204,6 +215,7 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
       'caddisflies',
       'fleas',
     ],
+    exclude: ['common-plants'],
   },
   { id: 'metiers', pulls: ['professions', 'professions-sub'] },
   { id: 'sports', pulls: ['sports', 'sports-sub'] },

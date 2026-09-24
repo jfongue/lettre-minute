@@ -2,7 +2,7 @@
 
 Textos y respuestas para copiar en Play Console. Los recursos gráficos están
 un nivel más arriba: `../icon-512.png`, `feature-graphic.png` (1024 × 500, en esta carpeta),
-`../screenshots/` (1080 × 1920, claro y oscuro). Para regenerarlos:
+`../screenshots/es/` (1080 × 1920, claro y oscuro). Para regenerarlos:
 `scripts/render-store.sh`.
 
 ## Ficha principal (español)
@@ -20,7 +20,7 @@ un nivel más arriba: `../icon-512.png`, `feature-graphic.png` (1024 × 500, en 
 > las palabras que puedas.
 >
 > El juego comprueba cada palabra mientras escribes, gracias a un diccionario
-> de más de 55.000 palabras creado a partir de Wikidata y Wikcionario.
+> de más de 45.000 palabras creado a partir de Wikidata y Wikcionario.
 > «Gatos» vale como «gato», y una errata no te penaliza: «Mexcio» vale como
 > «México».
 >

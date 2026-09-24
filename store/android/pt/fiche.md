@@ -2,7 +2,7 @@
 
 Textos e respostas para copiar no Play Console. As imagens ficam um nível
 acima: `../icon-512.png`, `feature-graphic.png` (1024 × 500, nesta pasta),
-`../screenshots/` (1080 × 1920, claro e escuro). Para gerá-las de novo:
+`../screenshots/pt/` (1080 × 1920, claro e escuro). Para gerá-las de novo:
 `scripts/render-store.sh`.
 
 ## Página principal (português do Brasil)
@@ -20,7 +20,7 @@ acima: `../icon-512.png`, `feature-graphic.png` (1024 × 500, nesta pasta),
 > máximo de palavras que conseguir.
 >
 > O jogo confere cada palavra enquanto você digita, com um dicionário de mais
-> de 45 mil palavras construído a partir do Wikidata e do Wikcionário.
+> de 35 mil palavras construído a partir do Wikidata e do Wikcionário.
 > “Gatos” vale como “gato”, e um erro de digitação passa: “Alemnaha” vale
 > como “Alemanha”.
 >

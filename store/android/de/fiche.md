@@ -2,7 +2,7 @@
 
 Texte und Antworten zum Übertragen in die Play Console. Die Grafiken liegen
 eine Ebene höher: `../icon-512.png`, `feature-graphic.png` (1024 × 500, in diesem Ordner),
-`../screenshots/` (1080 × 1920, hell und dunkel). Zum Neuerzeugen:
+`../screenshots/de/` (1080 × 1920, hell und dunkel). Zum Neuerzeugen:
 `scripts/render-store.sh`.
 
 ## Haupteintrag (Deutsch)
@@ -20,7 +20,7 @@ eine Ebene höher: `../icon-512.png`, `feature-graphic.png` (1024 × 500, in die
 > wie möglich zu schreiben.
 >
 > Das Spiel prüft jedes Wort, während du tippst – mit einem Wörterbuch aus
-> über 55.000 Wörtern auf Basis von Wikidata und Wiktionary. „Katzen“
+> über 40.000 Wörtern auf Basis von Wikidata und Wiktionary. „Katzen“
 > zählt als „Katze“, und ein Tippfehler geht durch: „Österriech“ zählt als
 > „Österreich“.
 >

@@ -2,7 +2,7 @@
 
 Testi e risposte da copiare in Play Console. Le immagini sono un livello più
 su: `../icon-512.png`, `feature-graphic.png` (1024 × 500, in questa cartella),
-`../screenshots/` (1080 × 1920, chiaro e scuro). Per rigenerarle:
+`../screenshots/it/` (1080 × 1920, chiaro e scuro). Per rigenerarle:
 `scripts/render-store.sh`.
 
 ## Scheda principale (italiano)
@@ -20,7 +20,7 @@ su: `../icon-512.png`, `feature-graphic.png` (1024 × 500, in questa cartella),
 > parole che puoi.
 >
 > Il gioco controlla ogni parola mentre scrivi, grazie a un dizionario di
-> oltre 35.000 parole costruito su Wikidata e Wikizionario. «Gatti»
+> oltre 30.000 parole costruito su Wikidata e Wikizionario. «Gatti»
 > vale come «gatto», e un errore di battitura passa: «Germnaia» vale come
 > «Germania».
 >

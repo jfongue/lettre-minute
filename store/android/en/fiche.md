@@ -1,7 +1,7 @@
 # Play Store listing — Letter Minute (English)
 
 Texts and answers to copy into the Play Console. The visuals are one level up:
-`../icon-512.png`, `feature-graphic.png` (1024 × 500, in this folder), `../screenshots/`
+`../icon-512.png`, `feature-graphic.png` (1024 × 500, in this folder), `../screenshots/en/`
 (1080 × 1920, light and dark). To regenerate them: `scripts/render-store.sh`.
 
 ## Main listing (English)
@@ -19,7 +19,7 @@ Texts and answers to copy into the Play Console. The visuals are one level up:
 > many words as you can.
 >
 > The game checks every word as you type, using a dictionary of over
-> 175,000 words built on Wikidata and Wiktionary. “Cats” counts as
+> 110,000 words built on Wikidata and Wiktionary. “Cats” counts as
 > “cat”, and a typo gets through: “Portgual” counts as “Portugal”.
 >
 > RARE WORDS ARE WORTH MORE

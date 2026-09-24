@@ -4,9 +4,29 @@
     {
       "name": "lettre-minute-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--", "--host"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--",
+        "--host"
+      ],
       "port": 5199,
       "autoPort": true
+    },
+    {
+      "name": "lettre-minute-shots",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "VITE_SUPABASE_URL=",
+        "VITE_SUPABASE_ANON_KEY=",
+        "VITE_ADMOB_INTERSTITIAL_ID=",
+        "npx",
+        "vite",
+        "--port",
+        "5299",
+        "--strictPort"
+      ],
+      "port": 5299
     }
   ]
 }

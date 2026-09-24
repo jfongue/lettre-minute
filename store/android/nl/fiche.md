@@ -2,7 +2,7 @@
 
 Teksten en antwoorden om over te nemen in de Play Console. De afbeeldingen
 staan een niveau hoger: `../icon-512.png`, `feature-graphic.png`
-(1024 × 500, in deze map), `../screenshots/` (1080 × 1920, licht en donker). Opnieuw
+(1024 × 500, in deze map), `../screenshots/nl/` (1080 × 1920, licht en donker). Opnieuw
 genereren: `scripts/render-store.sh`.
 
 ## Hoofdvermelding (Nederlands)
@@ -20,7 +20,7 @@ genereren: `scripts/render-store.sh`.
 > zoveel mogelijk woorden te schrijven.
 >
 > Het spel controleert elk woord terwijl je typt, met een woordenboek van
-> meer dan 40.000 woorden op basis van Wikidata en WikiWoordenboek.
+> meer dan 30.000 woorden op basis van Wikidata en WikiWoordenboek.
 > ‘Katten’ telt als ‘kat’, en een tikfout mag: ‘Duitsladn’ telt als
 > ‘Duitsland’.
 >
