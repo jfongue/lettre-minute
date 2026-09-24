@@ -1,0 +1,4 @@
+comment = 'Test stub of pg_net: queues requests in a table, sends nothing'
+default_version = '1.0'
+relocatable = false
+superuser = true

@@ -1,6 +1,6 @@
 # Supabase
 
-Dix migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Onze migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -9,7 +9,10 @@ pour retirer ou corriger un mot proposé tant qu'il attend, [`0006_house_bots.sq
 pour les deux joueurs maison, [`0007_moderation.sql`](migrations/0007_moderation.sql)
 pour la modération des mots proposés, [`0008_challenges.sql`](migrations/0008_challenges.sql)
 pour les défis entre amis, [`0009_push.sql`](migrations/0009_push.sql) et
-[`0010_push_config.sql`](migrations/0010_push_config.sql) pour leurs notifications push.
+[`0010_push_config.sql`](migrations/0010_push_config.sql) pour leurs notifications push,
+[`0011_hardening.sql`](migrations/0011_hardening.sql) pour fermer ce que la batterie de
+tests a trouvé ouvert : propositions et dates de parties falsifiables, votes
+contournables, demandes d’ami croisées, bilan perdu, arguments invalides qui levaient.
 
 ## Ce que le serveur détient
 
@@ -43,8 +46,9 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
 ## Conventions
 
 - **Le client n'écrit que ce qui lui appartient.** Les politiques d'insertion
-  vérifient `auth.uid()` ; rien ne permet d'écrire dans `dictionary_words` sans
-  être modérateur.
+  vérifient `auth.uid()`, et depuis 0011 une proposition naît `pending` et une
+  partie à l'heure du serveur ; rien ne permet d'écrire dans `dictionary_words`
+  hors de `settle_review`, pas même un modérateur.
 - **Les récompenses passent par une fonction `security definer`**
   (`accept_word`), pas par le client : donner 150 XP est une décision du
   serveur, prise une seule fois, au passage du statut à `accepted`.
@@ -148,3 +152,30 @@ supabase db push          # ou coller le SQL dans l'éditeur du projet
 
 Sans migration appliquée, l'application bascule sur le stockage local : c'est un
 mode de fonctionnement normal en développement, pas un bug.
+
+## Tests
+
+```bash
+npm run test:db           # ou scripts/test-db.sh moder : seulement les fichiers qui contiennent « moder »
+```
+
+- **Un Postgres jetable, pas `supabase start`** : le script lance
+  `postgres:17-alpine` dans Docker, applique le prélude puis les migrations dans
+  l’ordre, et joue chaque fichier de [`tests/`](tests/) sur sa propre copie de
+  la base. Il rend un code d’erreur au moindre échec ; `TEST_DB_KEEP=1` garde le
+  conteneur pour l’inspecter.
+- **Le prélude simule Supabase** ([`tests/prelude.sql`](tests/prelude.sql)) : rôles
+  `anon`, `authenticated` et `service_role`, `auth.users`, `auth.uid()` et
+  `auth.jwt()` lus dans `request.jwt.claims`, un Vault en clair, et les droits
+  par défaut de Supabase sur `public` — sans eux, un test passerait faute de
+  droit là où, en production, seule la RLS protège. pg_cron et pg_net sont des
+  extensions factices ([`tests/extensions/`](tests/extensions/)) : la première
+  note les tâches, la seconde range ses requêtes dans `net.http_request_queue`
+  sans rien envoyer.
+- **Un test joue un joueur** par `tests.login('label')` : rôle `authenticated` et
+  claims du compte, comme une requête de l’application. Les courses entre deux
+  appels passent par dblink, deux sessions qui ne voient que le validé.
+- **Docker Desktop peut rester bloqué au `docker pull`** : son gestionnaire
+  d’identifiants attend le trousseau quand personne n’est là pour répondre. Si
+  l’image manque, le script la tire avec une configuration Docker vide ; l’image
+  est publique, aucun identifiant n’est nécessaire.
