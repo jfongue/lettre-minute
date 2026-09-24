@@ -73,6 +73,17 @@ export function pickShowsAd(profile: Profile): boolean {
   return profile.offer.length > 0 && adsDue(profile)
 }
 
+/**
+ * Every category of the catalogue, owned without a pick — for the house
+ * account, which plays to test them all.
+ */
+export function unlockEverything(profile: Profile): Profile {
+  const owned = new Set(ownedCategoryIds(profile))
+  const missing = CATALOGUE.map((category) => category.id).filter((id) => !owned.has(id))
+  if (missing.length === 0 && profile.offer.length === 0) return profile
+  return { ...profile, unlocked: [...profile.unlocked, ...missing], offer: [] }
+}
+
 export function chooseCategory(profile: Profile, categoryId: string): Profile {
   if (!profile.offer.includes(categoryId)) return profile
   return { ...profile, unlocked: [...profile.unlocked, categoryId], offer: [], lastOffer: profile.offer }

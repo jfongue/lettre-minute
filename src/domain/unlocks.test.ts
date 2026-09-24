@@ -13,6 +13,7 @@ import {
   picksOwed,
   starterCategoryIds,
   swapCategory,
+  unlockEverything,
 } from './unlocks'
 
 const ALL = CATALOGUE.map((category) => category.id)
@@ -164,5 +165,17 @@ describe('pickShowsAd', () => {
 
   it('shows nothing while no offer is on the table', () => {
     expect(pickShowsAd({ ...atLevel(4), unlocked: ['sports'] })).toBe(false)
+  })
+})
+
+describe('unlockEverything', () => {
+  it('owns the whole catalogue and clears the offer, once', () => {
+    const profile: Profile = { ...NEW_PROFILE, xp: xpForLevel(3), offer: ['sports'] }
+    const all = unlockEverything(profile)
+
+    expect(ownedCategoryIds(all).sort()).toEqual(CATALOGUE.map((category) => category.id).sort())
+    expect(all.offer).toEqual([])
+    expect(picksOwed(all)).toBe(0)
+    expect(unlockEverything(all)).toBe(all)
   })
 })

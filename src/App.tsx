@@ -19,10 +19,10 @@ import { isNativeApp, onBackButton, prepareAds, tapFeedback } from './lib/native
 import { configureSound, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
 import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
 import { appendRecord, recordOf, type RunRecord } from './domain/history'
-import { completeBoards, type Boards } from './domain/boards'
+import { completeBoards, HOUSE_PLAYER, type Boards } from './domain/boards'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { RUN_SECONDS, remainingSeconds } from './domain/run'
-import { adsDue, dealLineup, ownedCategoryIds, swapCategory } from './domain/unlocks'
+import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { LETTER_DECKS, PLAYABLE_LETTERS } from './domain/letters'
 import { withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
@@ -254,6 +254,13 @@ export function App() {
   useEffect(() => {
     if (session.phase === 'playing' && remaining <= 0) dispatch({ type: 'time-up', at: elapsed })
   }, [session.phase, remaining, elapsed])
+
+  // The house account owns every category, on whichever device it signs in.
+  useEffect(() => {
+    if (account?.anonymous !== false || account.name !== HOUSE_PLAYER.name) return
+    const everything = unlockEverything(session.profile)
+    if (everything !== session.profile) dispatch({ type: 'profile-loaded', profile: everything })
+  }, [account, session.profile])
 
   // A pick owed and no offer on the table — after a level up, or on a device
   // that has never seen this player's picks — deals three categories to choose from.
