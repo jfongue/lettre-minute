@@ -13,14 +13,18 @@ export interface LanguageSource {
   labels: readonly string[]
   /** The language's name on kaikki.org; absent for French. */
   kaikki?: string
-  /** Leading articles stripped from an alias: "the Netherlands" must not answer on T. */
+  /**
+   * Leading articles stripped from an alias or an inflected form: "the
+   * Netherlands" must not answer on T. The space is required — optional, it
+   * turned "Land Sint Maarten" into "nd Sint Maarten" and "lapins" into "pins".
+   */
   articles: RegExp
   /** How a label writes two words in one — "boulanger ou boulangère". */
   alternatives?: RegExp
 }
 
 export const LANGUAGES: Record<Lang, LanguageSource> = {
-  fr: { code: 'fr', labels: ['fr'], articles: /^(?:[Ll]es?|[Ll]a|[Ll]') ?/, alternatives: / ou / },
+  fr: { code: 'fr', labels: ['fr'], articles: /^(?:(?:[Ll]es?|[Ll]a) |[Ll]['’])/, alternatives: / ou / },
   en: { code: 'en', labels: ['en'], kaikki: 'English', articles: /^the /i },
   es: { code: 'es', labels: ['es'], kaikki: 'Spanish', articles: /^(?:el|la|los|las) /i },
   de: { code: 'de', labels: ['de'], kaikki: 'German', articles: /^(?:der|die|das) /i },

@@ -112,6 +112,14 @@ export function buildWordPack(categoryId: string, rows: readonly WordRow[]): Wor
     if (letter !== '') counts.set(letter, (counts.get(letter) ?? 0) + 1)
   }
 
+  // The importer's canonical may space the base word differently — "bigeyes"
+  // points at "bigeye", the base is "big eye" — and a run compares keys, so a
+  // form takes its base's own key or it scores as a second answer.
+  for (const entry of entries.values()) {
+    const base = entries.get(compactWord(entry.key))
+    if (base && base !== entry) entry.key = base.key
+  }
+
   rankNotoriety(entries)
   return { categoryId, entries, counts, byLetter }
 }

@@ -195,3 +195,13 @@ describe('commonWord', () => {
     expect(commonWord(pack, 'C', ['chien', 'chat'])).toBeNull()
   })
 })
+
+describe('inflected forms', () => {
+  it('share their base word’s key even when the canonical is spaced differently', () => {
+    const pack = buildWordPack('animaux', [
+      ['Big-eye', 10, 1],
+      ['bigeyes', 10, 1, 'bigeye'],
+    ])
+    expect(lookup(pack, 'bigeyes')?.key).toBe(lookup(pack, 'Big-eye')?.key)
+  })
+})

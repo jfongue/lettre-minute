@@ -13,6 +13,14 @@ describe('normalizeWord', () => {
     expect(normalizeWord('Weißstorch')).toBe('weissstorch')
   })
 
+  it('reads barred letters as their base letter rather than dropping them', () => {
+    expect(normalizeWord('Ørsted')).toBe('orsted')
+    expect(initialOf('Ørsted')).toBe('O')
+    expect(normalizeWord('Łódź')).toBe('lodz')
+    expect(normalizeWord('Đoković')).toBe('dokovic')
+    expect(normalizeWord('Þingvellir')).toBe('thingvellir')
+  })
+
   it('collapses punctuation so a hyphen is not a different answer', () => {
     expect(normalizeWord("Porte-clés")).toBe('porte cles')
     expect(normalizeWord('porte clés')).toBe('porte cles')

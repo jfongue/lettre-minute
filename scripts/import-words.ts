@@ -74,6 +74,9 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
 /** A legal form closing a company's name, which nobody says when naming the brand. */
 const LEGAL_FORM = /,?\s+(?:Inc\.?|Incorporated|Ltd\.?|Limited|Corp\.?|Corporation|Company|Co\.|plc|PLC|LLC|AG|SE|GmbH|S\.?A\.?|S\.p\.A\.?|N\.V\.?|B\.V\.?|Holdings?)$/
 
+/** English is the language of company names whatever the dictionary's: "The Coca-Cola Company" in French too. */
+const CORPORATE_ARTICLE = /^the /i
+
 /** Fewer Wikipedias than this describe a thing only specialists look up. */
 const NICHE_SITELINKS = 10
 
@@ -840,7 +843,9 @@ function main(argv: readonly string[]) {
             .trim()
             .replace(/\s+/g, ' ')
           const title = cleaned
-          if (corporate) cleaned = cleaned.replace(LEGAL_FORM, '')
+          // "The Walt Disney Company" is said "Disney" or "Walt Disney": once the
+          // legal form is gone, a leading article is only a way to answer on T.
+          if (corporate && LEGAL_FORM.test(cleaned)) cleaned = cleaned.replace(LEGAL_FORM, '').replace(CORPORATE_ARTICLE, '')
 
           // Wikidata writes a French occupation as "boulanger ou boulangère".
           // Both forms are words a player may type, so both are kept.
@@ -941,7 +946,10 @@ function main(argv: readonly string[]) {
         if (dropped.has(key)) continue
         const lemma = lexicon.lemmaOf.get(key)
         if (!lemma) continue
-        for (const form of lexicon.formsOf.get(lemma) ?? []) {
+        for (const inflected of lexicon.formsOf.get(lemma) ?? []) {
+          // The English Wiktionary writes German plurals with their article —
+          // "die Katzenjungen" — which would answer an animal on D.
+          const form = inflected.replace(source.articles, '').trim()
           const formKey = normalizeWord(form)
           if (formKey === '' || rows.has(formKey) || !acceptable(form)) continue
           const frequency = attested.has(key) ? (frequencies.get(form.normalize('NFC').toLowerCase()) ?? 0) : 0

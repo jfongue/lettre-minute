@@ -4,9 +4,22 @@
  */
 const COMBINING_MARKS = /[̀-ͯ]/g
 
-/** Ligatures — and the German ß — survive NFD decomposition, so they are spelled out before stripping. */
+/**
+ * Ligatures, the German ß and the barred Nordic and Slavic letters survive NFD
+ * decomposition, so they are spelled out before stripping: dropped instead,
+ * « Ørsted » would answer on R.
+ */
 function expandLigatures(raw: string): string {
-  return raw.replace(/œ/gi, 'oe').replace(/æ/gi, 'ae').replace(/ß/g, 'ss').replace(/ĳ/gi, 'ij')
+  return raw
+    .replace(/œ/gi, 'oe')
+    .replace(/æ/gi, 'ae')
+    .replace(/ß/g, 'ss')
+    .replace(/ĳ/gi, 'ij')
+    .replace(/[øØ]/g, 'o')
+    .replace(/[łŁ]/g, 'l')
+    .replace(/[đĐðÐ]/g, 'd')
+    .replace(/[þÞ]/g, 'th')
+    .replace(/ı/g, 'i')
 }
 
 export function normalizeWord(raw: string): string {
