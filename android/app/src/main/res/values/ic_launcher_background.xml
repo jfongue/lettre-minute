@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- La palette de src/styles.css. -->
 <resources>
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <color name="ic_launcher_background">#F2ECDF</color>
+    <color name="ic_launcher_red">#E0402A</color>
+    <color name="ic_launcher_yellow">#F4B41A</color>
+    <color name="ic_launcher_blue">#1F48C7</color>
 </resources>
