@@ -211,7 +211,7 @@ export const de: Messages = {
     themeNote: '„Auto“ folgt der Einstellung des Telefons.',
     sound: 'Ton',
     sounds: { master: 'Gesamt', effects: 'Effekte', keys: 'Tastatur', music: 'Musik' },
-    soundNote: '„Gesamt“ regelt alles auf einmal. Zu den Effekten gehört der Puls unter der Runde, der alle zwanzig Sekunden dichter wird.',
+    soundNote: '„Gesamt“ regelt alles auf einmal. Zur Musik gehört der Puls unter der Runde, der alle zwanzig Sekunden dichter wird.',
     soundOff: 'Aus',
     mute: 'Ton aus',
     unmute: 'Ton an',

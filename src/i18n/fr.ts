@@ -230,7 +230,7 @@ export const fr = {
     themeNote: '« Auto » suit le réglage du téléphone.',
     sound: 'Son',
     sounds: { master: 'Général', effects: 'Effets', keys: 'Clavier', music: 'Musique' },
-    soundNote: '« Général » règle tout d’un coup. Les effets comprennent la pulsation sous la partie, qui se densifie toutes les vingt secondes.',
+    soundNote: '« Général » règle tout d’un coup. La musique comprend la pulsation sous la partie, qui se densifie toutes les vingt secondes.',
     soundOff: 'Coupé',
     mute: 'Couper le son',
     unmute: 'Rétablir le son',

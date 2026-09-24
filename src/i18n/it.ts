@@ -213,7 +213,7 @@ export const it: Messages = {
     themeNote: '«Auto» segue l’impostazione del telefono.',
     sound: 'Suono',
     sounds: { master: 'Generale', effects: 'Effetti', keys: 'Tastiera', music: 'Musica' },
-    soundNote: '«Generale» regola tutto in una volta. Gli effetti comprendono la pulsazione sotto la partita, che si infittisce ogni venti secondi.',
+    soundNote: '«Generale» regola tutto in una volta. La musica comprende la pulsazione sotto la partita, che si infittisce ogni venti secondi.',
     soundOff: 'Spento',
     mute: 'Disattiva l’audio',
     unmute: 'Riattiva l’audio',

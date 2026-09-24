@@ -213,7 +213,7 @@ export const pt: Messages = {
     themeNote: '“Auto” segue a configuração do telefone.',
     sound: 'Som',
     sounds: { master: 'Geral', effects: 'Efeitos', keys: 'Teclado', music: 'Música' },
-    soundNote: '“Geral” ajusta tudo de uma vez. Os efeitos incluem o pulso sob a partida, que se adensa a cada vinte segundos.',
+    soundNote: '“Geral” ajusta tudo de uma vez. A música inclui o pulso sob a partida, que se adensa a cada vinte segundos.',
     soundOff: 'Desligado',
     mute: 'Silenciar',
     unmute: 'Ativar o som',

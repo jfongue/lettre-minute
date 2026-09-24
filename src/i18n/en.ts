@@ -217,7 +217,7 @@ export const en: Messages = {
     themeNote: '“Auto” follows the phone’s setting.',
     sound: 'Sound',
     sounds: { master: 'Overall', effects: 'Effects', keys: 'Keyboard', music: 'Music' },
-    soundNote: '“Overall” sets everything at once. The effects include the pulse under the run, which thickens every twenty seconds.',
+    soundNote: '“Overall” sets everything at once. The music includes the pulse under the run, which thickens every twenty seconds.',
     soundOff: 'Off',
     mute: 'Mute sound',
     unmute: 'Unmute sound',

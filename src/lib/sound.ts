@@ -15,11 +15,10 @@ import type { RarityTier } from '../domain/rarity'
 export interface SoundPrefs {
   /** Scales every channel below: one slider to turn the whole game down. */
   master: number
-  /** The cues, and the pulse under the run, which is one of them. */
   effects: number
   /** The keyboard clicks, which some players want quieter than the rest. */
   keys: number
-  /** The loop under the home, menu and end screens. */
+  /** The loop under the home, menu and end screens, and the pulse under the run. */
   music: number
   /** The web's quick mute: silences everything, and leaves the choices above as they were. */
   muted: boolean
@@ -117,8 +116,7 @@ function applyLevels(): void {
   masterNode.gain.setTargetAtTime(on * prefs.master * 0.9, t, 0.03)
   sfx.gain.setTargetAtTime(on * prefs.effects * CEILING.effects, t, 0.03)
   keysNode.gain.setTargetAtTime(on * prefs.keys * CEILING.keys, t, 0.03)
-  const musicLevel = playing === 'pulse' ? prefs.effects : prefs.music
-  music.gain.setTargetAtTime(on * musicLevel * CEILING.music, t, 0.03)
+  music.gain.setTargetAtTime(on * prefs.music * CEILING.music, t, 0.03)
 }
 
 /** The context, awake, or null: a cue asked for before the first touch is simply dropped. */
@@ -461,7 +459,7 @@ function syncMusic(): void {
       ? null
       : wanted === 'menu' && prefs.music > 0
         ? 'menu'
-        : wanted === 'pulse' && prefs.effects > 0
+        : wanted === 'pulse' && prefs.music > 0
           ? 'pulse'
           : null
     if (target === playing) return applyLevels()

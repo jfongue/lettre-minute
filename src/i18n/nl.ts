@@ -212,7 +212,7 @@ export const nl: Messages = {
     themeNote: '‘Auto’ volgt de instelling van de telefoon.',
     sound: 'Geluid',
     sounds: { master: 'Algemeen', effects: 'Effecten', keys: 'Toetsenbord', music: 'Muziek' },
-    soundNote: '‘Algemeen’ regelt alles tegelijk. Bij de effecten hoort de puls onder het spel, die elke twintig seconden voller wordt.',
+    soundNote: '‘Algemeen’ regelt alles tegelijk. Bij de muziek hoort de puls onder het spel, die elke twintig seconden voller wordt.',
     soundOff: 'Uit',
     mute: 'Geluid uit',
     unmute: 'Geluid aan',

@@ -2,7 +2,7 @@ import { isNativeApp } from '../lib/native'
 import type { SoundPrefs } from '../lib/sound'
 
 const SOUND_KEY = 'lettre-minute.sound.v1'
-// The pulse had its own slider until it joined the effects: a stored `pulse` is ignored.
+// The pulse had its own slider until it joined the music: a stored `pulse` is ignored.
 const CHANNELS = ['master', 'effects', 'keys', 'music'] as const
 const ON_VOLUME = 0.6
 
