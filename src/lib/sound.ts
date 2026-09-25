@@ -71,7 +71,10 @@ function context(): AudioContext | null {
   const Ctor =
     window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
   if (!Ctor) return null
-  const c = new Ctor()
+  // The smallest buffers ('interactive') starve on a phone as soon as the page
+  // is busy — a dictionary parsed, a screen drawn — and every gap crackles.
+  // 'balanced' trades a few milliseconds of latency for a buffer that holds.
+  const c = new Ctor({ latencyHint: 'balanced' })
   const comp = c.createDynamicsCompressor()
   comp.threshold.value = -12
   comp.ratio.value = 3
@@ -86,7 +89,9 @@ function context(): AudioContext | null {
   hushNode.connect(comp)
   comp.connect(c.destination)
 
-  const length = c.sampleRate * 2.4
+  // The reverb's cost grows with its tail: 1.4 s is as roomy to the ear, at
+  // little more than half the work of the audio thread.
+  const length = Math.round(c.sampleRate * 1.4)
   const impulse = c.createBuffer(2, length, c.sampleRate)
   for (let channel = 0; channel < 2; channel++) {
     const data = impulse.getChannelData(channel)
@@ -487,7 +492,8 @@ const PROGRESSION: readonly (readonly [number, number])[] = [[0, 4], [-3, 3], [-
 const OSTINATO = [0, 2, 4, 2, 5, 4, 2, 4, 0, 2, 4, 2, 6, 4, 3, 4]
 const MENU_STEP_S = 60 / 92 / 2
 const PULSE_STEP_S = 60 / 120 / 4
-const LOOKAHEAD_S = 0.15
+// Scheduled this far ahead, the music rides out the stall of a dictionary being parsed.
+const LOOKAHEAD_S = 0.35
 
 let wanted: MusicMode = null
 let playing: MusicMode = null
