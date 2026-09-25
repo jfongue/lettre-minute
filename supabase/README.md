@@ -1,6 +1,6 @@
 # Supabase
 
-Douze migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Quinze migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -13,8 +13,12 @@ pour les défis entre amis, [`0009_push.sql`](migrations/0009_push.sql) et
 [`0011_hardening.sql`](migrations/0011_hardening.sql) pour fermer ce que la batterie de
 tests a trouvé ouvert : propositions et dates de parties falsifiables, votes
 contournables, demandes d’ami croisées, bilan perdu, arguments invalides qui levaient,
-et [`0012_bots_in_challenges.sql`](migrations/0012_bots_in_challenges.sql) pour inviter
-les joueurs maison aux défis.
+[`0012_bots_in_challenges.sql`](migrations/0012_bots_in_challenges.sql) pour inviter
+les joueurs maison aux défis, [`0013_moderation_friends.sql`](migrations/0013_moderation_friends.sql)
+pour faire remonter les mots proposés par des amis dans la file de modération,
+[`0014_blocks_reactions.sql`](migrations/0014_blocks_reactions.sql) pour bloquer un
+joueur et réagir au bilan d'un défi, et [`0015_ideas.sql`](migrations/0015_ideas.sql)
+pour la boîte à idées.
 
 ## Ce que le serveur détient
 
@@ -37,6 +41,9 @@ les joueurs maison aux défis.
 | `push_tokens` | Le jeton FCM de chaque téléphone, le compte qui s'y est connecté en dernier, et la langue de ses messages. |
 | `push_outbox` | Les pushs à envoyer (invitation, bilan), vidés par la fonction Edge `push`. |
 | `account_merges` | Jetons à usage unique : versent un compte anonyme dans le compte auquel il se connecte. |
+| `blocks` | Qui a bloqué qui. Bloquer efface l'amitié ; les demandes du bloqué ne sont plus écrites. |
+| `challenge_reactions` | Une réaction (emoji) par joueur et par trophée ou mot du bilan d'un défi. |
+| `ideas` | Une idée envoyée en texte libre par un joueur, vidée une fois par jour par la fonction Edge `ideas`. |
 
 Fonctions de lecture : `leaderboard_board('day' | 'week' | 'discoveries')` — le
 classement du jour, de la semaine (heure de Paris, semaine du lundi) et des
@@ -77,6 +84,9 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
 - **Les amitiés s'écrivent par fonction** (`request_friend`, `respond_friend`,
   `remove_friend`) : la table n'a qu'une politique de lecture. Un compte
   anonyme ne peut ni demander ni être trouvé.
+- **Un blocage ne se dit pas au bloqué** (`block_player`, par le nom) : sa
+  demande suivante lui répond `sent` sans rien écrire. Demander soi-même un
+  joueur qu'on a bloqué le débloque.
 - **Un joueur peut tout effacer** (`delete_my_account`) : la suppression de
   l'utilisateur d'auth emporte le reste en cascade. Toute nouvelle table liée à
   un joueur doit donc référencer `profiles` avec `on delete cascade`, sans quoi
@@ -118,6 +128,26 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
 - **`claim_push_batch` et `finish_push_batch` ne sont ouverts qu'à
   `service_role`** : la fonction Edge seule lit la file. Mise en place :
   [`docs/notifications-push.md`](../docs/notifications-push.md).
+
+## Boîte à idées
+
+- **Même geste que le push** (0009/0010) : la base ne parle pas au monde
+  extérieur, elle remplit `ideas` puis, une fois par jour à 7 h UTC
+  (`ideas-digest`, pg_cron), réveille la fonction Edge `ideas` par pg_net
+  avec un secret qu'elle a tiré elle-même dans le Vault (`ideas_config`,
+  qui inscrit `ideas_url` à chaque appel).
+- **`submit_idea` accepte un joueur anonyme** : la boîte à idées n'exige pas
+  de compte nommé, seulement une session — dix idées par joueur et par jour.
+- **`claim_ideas` et `finish_ideas` ne sont ouverts qu'à `service_role`** :
+  la fonction Edge seule lit la file, envoie un mail groupé par l'API Resend
+  et marque ce qui est parti.
+- Mise en place, une fois :
+  ```bash
+  supabase secrets set RESEND_API_KEY=...
+  supabase functions deploy ideas --no-verify-jwt --use-api
+  ```
+  `IDEAS_FROM` et `IDEAS_TO` ont des valeurs par défaut (expéditeur de test
+  Resend, `fongue.jeremy@gmail.com`) ; les changer est optionnel.
 
 ## Joueurs maison
 
