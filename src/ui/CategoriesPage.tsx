@@ -1,6 +1,6 @@
 import { CATALOGUE } from '../domain/catalogue'
 import type { Profile } from '../domain/progression'
-import { MAX_CATEGORIES_PER_RUN, ownedCategoryIds } from '../domain/unlocks'
+import { ownedCategoryIds } from '../domain/unlocks'
 import { categoryText, useT } from '../i18n'
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
@@ -30,7 +30,6 @@ export function CategoriesPage({ profile }: { profile: Profile }) {
           )
         })}
       </ul>
-      {owned.length > MAX_CATEGORIES_PER_RUN && <p className="note">{t.home.reserve(MAX_CATEGORIES_PER_RUN)}</p>}
     </section>
   )
 }

@@ -21,7 +21,6 @@ export const pt: Messages = {
     wordsFound: 'palavras achadas',
     bestCombo: 'melhor sequência',
     myCategories: 'Minhas categorias',
-    reserve: (perRun) => `Cada partida sorteia ${perRun}; as outras ficam na reserva, e o poder Permutação troca duas no início.`,
     links: { profile: 'Perfil', stats: 'Estatísticas', requests: 'Minhas sugestões', categories: 'Categorias' },
     accountLead: 'Guarda as tuas pontuações e desafia os teus amigos.',
     news: (count) => `${count} ${count > 1 ? 'novidades' : 'novidade'}`,

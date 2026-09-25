@@ -21,7 +21,6 @@ export const nl: Messages = {
     wordsFound: 'woorden gevonden',
     bestCombo: 'beste reeks',
     myCategories: 'Mijn categorieën',
-    reserve: (perRun) => `Elk spel trekt er ${perRun}; de rest blijft in reserve, en de kracht Permutatie ruilt er bij de start twee in.`,
     links: { profile: 'Profiel', stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Categorieën' },
     accountLead: 'Bewaar je scores en daag je vrienden uit.',
     news: (count) => `${count} nieuw`,

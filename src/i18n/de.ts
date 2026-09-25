@@ -21,7 +21,6 @@ export const de: Messages = {
     wordsFound: 'Wörter gefunden',
     bestCombo: 'beste Serie',
     myCategories: 'Meine Kategorien',
-    reserve: (perRun) => `Jede Partie zieht ${perRun}; die übrigen bleiben in Reserve, und die Kraft Permutation tauscht beim Start zwei davon ein.`,
     links: { profile: 'Profil', stats: 'Statistik', requests: 'Meine Vorschläge', categories: 'Kategorien' },
     accountLead: 'Behalte deine Punkte und fordere deine Freunde heraus.',
     news: (count) => `${count} neu`,

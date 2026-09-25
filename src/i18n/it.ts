@@ -21,7 +21,6 @@ export const it: Messages = {
     wordsFound: 'parole trovate',
     bestCombo: 'serie migliore',
     myCategories: 'Le mie categorie',
-    reserve: (perRun) => `Ogni partita ne pesca ${perRun}; le altre restano in riserva, e il potere Permutazione ne scambia due alla partenza.`,
     links: { profile: 'Profilo', stats: 'Statistiche', requests: 'Le mie proposte', categories: 'Categorie' },
     accountLead: 'Salva i tuoi punteggi e sfida i tuoi amici.',
     news: (count) => `${count} novità`,

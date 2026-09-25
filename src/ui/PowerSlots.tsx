@@ -1,10 +1,14 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { equippedPowers, MAX_EQUIPPED, ownedPowers, POWER_CHARGES, type PowerId } from '../domain/powers'
 import type { Profile } from '../domain/progression'
 import { useT } from '../i18n'
 import { sound } from '../lib/sound'
 import { onTint, POWER_TINTS, powerGround } from './motifs'
 import { PowerIcon } from './PowerIcon'
+import { reducedMotion } from './useCountUp'
+
+/** Long enough to see and hear the power land in its slot, short enough not to wait for it. */
+const WEAR_MS = 650
 
 interface PowerSlotsProps {
   profile: Profile
@@ -81,13 +85,25 @@ function PowerPicker({
   onClose(): void
 }) {
   const t = useT()
-  // Two steps, as on the offer screen: a tap picks and sounds the power, « Valider » wears it.
-  const [selected, setSelected] = useState<PowerId | null>(worn[slot] ?? null)
+  // One tap wears the power: its sound and gesture play, then the picker closes on its own.
+  const [chosen, setChosen] = useState<PowerId | null>(null)
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   useEffect(() => {
     const escape = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
     window.addEventListener('keydown', escape)
-    return () => window.removeEventListener('keydown', escape)
+    return () => {
+      window.removeEventListener('keydown', escape)
+      clearTimeout(timer.current)
+    }
   }, [onClose])
+
+  const wear = (id: PowerId) => {
+    if (chosen) return
+    if (id === worn[slot]) return onClose()
+    setChosen(id)
+    sound.power(id)
+    timer.current = setTimeout(() => onPick(id), reducedMotion() ? 0 : WEAR_MS)
+  }
 
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="power-picker-title">
@@ -105,14 +121,13 @@ function PowerPicker({
               <li key={id} style={{ '--i': index } as CSSProperties}>
                 <button
                   type="button"
-                  className={`power-row power--${id}${id === selected ? ' power-row--selected' : ''}`}
-                  aria-pressed={id === selected}
-                  onClick={() => {
-                    setSelected(id)
-                    sound.power(id)
-                  }}
+                  className={`power-row power--${id}${
+                    id === chosen ? ' power-row--selected power-row--chosen' : chosen ? ' power-row--dim' : ''
+                  }`}
+                  aria-pressed={id === (chosen ?? worn[slot])}
+                  onClick={() => wear(id)}
                 >
-                  <span className="power-row-icon" style={powerGround(id)} key={id === selected ? 'on' : 'off'}>
+                  <span className="power-row-icon" style={powerGround(id)} key={id === chosen ? 'on' : 'off'}>
                     <PowerIcon id={id} tint={onTint(POWER_TINTS[id])} />
                   </span>
                   <span className="power-row-text">
@@ -123,6 +138,11 @@ function PowerPicker({
                     <span>{description}</span>
                     <span className="note">{uses ? t.powers.uses(uses) : t.powers.always}</span>
                   </span>
+                  {id === chosen && (
+                    <span className="power-row-check" aria-hidden="true">
+                      ✓
+                    </span>
+                  )}
                 </button>
               </li>
             )
@@ -138,14 +158,6 @@ function PowerPicker({
               {t.powers.close}
             </button>
           )}
-          <button
-            type="button"
-            className="btn btn--blue"
-            disabled={!selected || selected === worn[slot]}
-            onClick={() => selected && onPick(selected)}
-          >
-            {t.offer.confirm}
-          </button>
         </div>
       </div>
     </div>

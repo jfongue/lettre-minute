@@ -35,8 +35,6 @@ export const fr = {
     wordsFound: 'mots trouvés',
     bestCombo: 'meilleure série',
     myCategories: 'Mes catégories',
-    reserve: (perRun: number) =>
-      `Chaque partie en tire ${perRun} ; les autres restent en réserve, et le pouvoir Permutation en échange deux au lancement.`,
     links: { profile: 'Profil', stats: 'Statistiques', requests: 'Mes demandes', categories: 'Catégories' },
     accountLead: 'Garde tes scores et défie tes amis.',
     news: (count: number) => `${count} ${plural(count, 'nouveauté', 'nouveautés')}`,

@@ -1,4 +1,3 @@
-import { isNativeApp } from '../lib/native'
 import type { SoundPrefs } from '../lib/sound'
 
 const SOUND_KEY = 'lettre-minute.sound.v1'
@@ -6,9 +5,14 @@ const SOUND_KEY = 'lettre-minute.sound.v1'
 const CHANNELS = ['master', 'effects', 'keys', 'music'] as const
 const ON_VOLUME = 0.6
 
-/** On a phone the music starts off: the game is often played where others can hear. */
+/**
+ * Prefs saved before this version may hold the music at zero only because
+ * phones used to start with it off: it comes back on once.
+ */
+const PREFS_VERSION = 2
+
 function defaults(): SoundPrefs {
-  return { master: 1, effects: 0.8, keys: ON_VOLUME, music: isNativeApp() ? 0 : ON_VOLUME, muted: false }
+  return { master: 1, effects: 0.8, keys: ON_VOLUME, music: ON_VOLUME, muted: false }
 }
 
 export function loadSoundPrefs(): SoundPrefs {
@@ -25,6 +29,7 @@ export function loadSoundPrefs(): SoundPrefs {
       else if (value === true && prefs[channel] === 0) prefs[channel] = ON_VOLUME
     }
     if (typeof saved.muted === 'boolean') prefs.muted = saved.muted
+    if (saved.version !== PREFS_VERSION && prefs.music === 0) prefs.music = ON_VOLUME
     return prefs
   } catch {
     return prefs
@@ -33,7 +38,7 @@ export function loadSoundPrefs(): SoundPrefs {
 
 export function saveSoundPrefs(prefs: SoundPrefs): void {
   try {
-    localStorage.setItem(SOUND_KEY, JSON.stringify(prefs))
+    localStorage.setItem(SOUND_KEY, JSON.stringify({ ...prefs, version: PREFS_VERSION }))
   } catch {
     /* the choice lasts until the app closes */
   }

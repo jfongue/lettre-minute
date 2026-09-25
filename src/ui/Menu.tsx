@@ -387,6 +387,7 @@ function SocialPane({
                 <FriendRow
                   key={friend.id}
                   friend={friend}
+                  showModerator={moderator}
                   onRemove={() => act(removeFriend(friend.id))}
                   onElect={
                     moderator && !friend.moderator
@@ -423,7 +424,18 @@ function SocialPane({
 }
 
 /** Removing a friend takes a second tap: a stray one would cost a request and a wait. */
-function FriendRow({ friend, onRemove, onElect }: { friend: Friend; onRemove(): void; onElect?(): Promise<void> }) {
+function FriendRow({
+  friend,
+  showModerator,
+  onRemove,
+  onElect,
+}: {
+  friend: Friend
+  /** Who moderates is known to moderators alone: a player would know whom to lobby. */
+  showModerator: boolean
+  onRemove(): void
+  onElect?(): Promise<void>
+}) {
   const t = useT()
   const [confirming, setConfirming] = useState(false)
   const [electing, setElecting] = useState(false)
@@ -434,7 +446,7 @@ function FriendRow({ friend, onRemove, onElect }: { friend: Friend; onRemove(): 
       <span className="friend-name">
         <span>
           {friend.name}
-          {friend.moderator && <span className="friend-moderator">{t.social.moderator}</span>}
+          {showModerator && friend.moderator && <span className="friend-moderator">{t.social.moderator}</span>}
         </span>
         <span className="note">
           {t.social.stats(levelFor(friend.xp), formatNumber(t, friend.weekBest), formatNumber(t, friend.bestScore))}

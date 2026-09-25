@@ -3967,6 +3967,38 @@ button {
   box-shadow: 4px 4px 0 var(--ink);
 }
 
+.power-row { position: relative; }
+
+.power-row--chosen {
+  animation: power-worn 650ms var(--ease-out) both;
+}
+
+.power-row--dim {
+  opacity: 0.45;
+  transition: opacity 200ms;
+}
+
+.power-row-check {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.5rem;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  animation: stamp 420ms var(--ease-out) both;
+}
+
+@keyframes power-worn {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
 .power-row--selected .power-row-icon {
   animation: var(--power-gesture, pop-in) 900ms var(--ease-out) both;
 }
