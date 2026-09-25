@@ -246,6 +246,15 @@ qu'un nouvel arrivant casserait sans le savoir.
   gagnant sur l'appareil (`rememberWinner`) : le serveur ne connaît pas le
   score des robots, que seul un client rejoue. Les anciens défis des
   statistiques relisent le détail de ceux qui n'en ont pas.
+- **Une adresse e-mail tapée dans le champ d'ami invite au test fermé**
+  (`invite_tester`, 0020) : le serveur ne fait que la garder. Play n'a pas
+  d'API pour les listes d'adresses, alors `npm run testers:invite`
+  (`scripts/tester-invites.ts`) pilote la Play Console dans un Chrome sans
+  tête, connecté une fois par `--login`, inscrit l'adresse à la liste
+  « Amis » puis envoie le mail (`scripts/tester-mail.ts`) par Resend. Le mail
+  ne part qu'une fois l'adresse inscrite : sans elle, le lien du test
+  répond « application indisponible ». Un nom de compte en forme d'adresse
+  est refusé (`checkName`), sinon ce joueur-là serait introuvable.
 - **La boîte à idées part par Resend** (fonction Edge `ideas`, 0015) : sans
   `RESEND_API_KEY` dans les secrets, les idées s'accumulent en base sans
   mail.

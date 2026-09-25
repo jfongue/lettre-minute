@@ -3,7 +3,7 @@ import { CATALOGUE } from '../domain/catalogue'
 import type { TrophyId } from '../domain/challenge'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
-import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, VoteOutcome } from '../lib/cloud'
+import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one)
@@ -227,7 +227,16 @@ export const fr = {
     needAccount: 'Un ami te trouve par ton nom de compte : crée-le d’abord, tes parties déjà jouées te suivent.',
     createAccount: 'Créer mon compte',
     add: 'Ajouter un ami',
-    addPlaceholder: 'Son nom de compte',
+    addPlaceholder: 'Son nom de compte, ou son e-mail',
+    sendInvite: 'Envoyer l’invitation',
+    testerInvites: {
+      sent: (email: string) => `${email} va recevoir une invitation à installer le jeu.`,
+      already: (email: string) => `${email} a déjà été invité.`,
+      invalid: () => 'Cette adresse e-mail ne semble pas valide.',
+      limit: () => 'Cinq invitations par jour au plus : réessaie demain.',
+      anonymous: () => 'Crée un compte pour inviter tes amis.',
+      unreachable: () => 'Le serveur ne répond pas. Réessaie dans un instant.',
+    } satisfies Record<TesterInviteOutcome, (email: string) => string> as Record<TesterInviteOutcome, (email: string) => string>,
     send: 'Envoyer la demande',
     /** Around the player's own account name, which is set in bold. */
     yourName: ['Ton nom à donner : ', ''] as readonly [string, string],

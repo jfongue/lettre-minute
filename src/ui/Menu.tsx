@@ -11,6 +11,8 @@ import {
   inviteModerator,
   removeFriend,
   requestFriend,
+  inviteTester,
+  isEmail,
   respondFriend,
   unblockPlayer,
   type Account,
@@ -343,11 +345,20 @@ function SocialPane({
     )
   }
 
+  const inviting = isEmail(name.trim())
+
   const send = async (event: FormEvent) => {
     event.preventDefault()
     const wanted = name.trim()
     if (wanted === '') return
     setBusy(true)
+    if (inviting) {
+      const outcome = await inviteTester(wanted, t.tag.split('-')[0]!)
+      setBusy(false)
+      setMessage(t.social.testerInvites[outcome](wanted))
+      if (outcome === 'sent') setName('')
+      return
+    }
     const outcome = await requestFriend(wanted)
     setBusy(false)
     setMessage(t.social.requests[outcome](wanted))
@@ -380,12 +391,12 @@ function SocialPane({
             placeholder={t.social.addPlaceholder}
             autoComplete="off"
             autoCapitalize="off"
-            maxLength={24}
+            maxLength={254}
           />
         </label>
         {message && <p className="note">{message}</p>}
         <button type="submit" className="btn btn--block" disabled={busy || name.trim() === ''}>
-          {busy ? t.wait : t.social.send}
+          {busy ? t.wait : inviting ? t.social.sendInvite : t.social.send}
         </button>
         <p className="note">
           {t.social.yourName[0]}
