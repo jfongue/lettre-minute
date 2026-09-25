@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  answersTo,
   applyChallengeRun,
   awardTrophies,
   challengeXp,
@@ -92,6 +93,23 @@ describe('recap words', () => {
 
   it('names the words only one player found, rarest first', () => {
     expect(uniqueWords(entries).map((found) => found.key)).toEqual(['lynx'])
+  })
+})
+
+describe('answersTo', () => {
+  it('gives each player who played their words on that letter and category, in play order', () => {
+    const entries = [
+      entry('b', 20, [word('chat', 10), word('canada', 12, { categoryId: 'pays' })]),
+      entry('a', 10, [word('chameau', 20), word('cheval', 15), word('lynx', 30)]),
+      entry('c', 30, [word('lynx', 30)]),
+      entry('d', null, []),
+    ]
+    const answers = answersTo(entries, { categoryId: 'animaux', letter: 'C' })
+    expect(answers.map((answer) => [answer.playerId, answer.words.map((found) => found.key)])).toEqual([
+      ['a', ['chameau', 'cheval']],
+      ['b', ['chat']],
+      ['c', []],
+    ])
   })
 })
 

@@ -452,6 +452,8 @@ export const en: Messages = {
     notYet: 'not played yet',
     raw: (points) => `${points} before sharing`,
     yourWords: 'Your words',
+    yourWordsHint: 'Tap a word to see what the others put.',
+    nothing: 'nothing',
     shared: (count) => `also found by ${count}`,
     alone: 'only you',
     inviteMore: 'Invite more friends',

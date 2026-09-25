@@ -448,6 +448,8 @@ export const es: Messages = {
     notYet: 'aún no ha jugado',
     raw: (points) => `${points} antes de repartir`,
     yourWords: 'Tus palabras',
+    yourWordsHint: 'Toca una palabra para ver qué pusieron los demás.',
+    nothing: 'nada',
     shared: (count) => `también de ${count}`,
     alone: 'solo tú',
     inviteMore: 'Invitar a más amigos',

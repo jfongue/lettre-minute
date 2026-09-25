@@ -176,6 +176,24 @@ function tally(entries: readonly ChallengeEntry[]): TalliedWord[] {
   return [...words.values()]
 }
 
+export interface Answer {
+  playerId: string
+  /** What they found on that letter and category; empty when they skipped it or never got there. */
+  words: readonly ChallengeWord[]
+}
+
+/**
+ * What every player who has played answered on one letter and category, in
+ * the order they played. Everyone draws the same prompts, but not at the same
+ * pace: a fast player reaches prompts a slow one never sees.
+ */
+export function answersTo(entries: readonly ChallengeEntry[], prompt: Pick<ChallengeWord, 'categoryId' | 'letter'>): Answer[] {
+  return played(entries).map((entry) => ({
+    playerId: entry.playerId,
+    words: entry.words.filter((word) => word.categoryId === prompt.categoryId && word.letter === prompt.letter),
+  }))
+}
+
 /** The words the most players found, two at least. */
 export function mostSharedWords(entries: readonly ChallengeEntry[], limit = 5): TalliedWord[] {
   return tally(entries)

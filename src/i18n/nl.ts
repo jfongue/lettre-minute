@@ -447,6 +447,8 @@ export const nl: Messages = {
     notYet: 'nog niet gespeeld',
     raw: (points) => `${points} vóór het delen`,
     yourWords: 'Jouw woorden',
+    yourWordsHint: 'Tik op een woord om te zien wat de anderen hadden.',
+    nothing: 'niets gevonden',
     shared: (count) => `ook bij ${count}`,
     alone: 'alleen jij',
     inviteMore: 'Meer vrienden uitnodigen',

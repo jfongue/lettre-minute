@@ -1,10 +1,12 @@
 import { useEffect, useState, type CSSProperties } from 'react'
 import {
+  answersTo,
   awardTrophies,
   CHALLENGE_MAX_PLAYERS,
   mostSharedWords,
   settleChallenge,
   uniqueWords,
+  type SettledWord,
   type Standing,
   type TalliedWord,
 } from '../domain/challenge'
@@ -56,32 +58,85 @@ function Standings({ detail, standings }: { detail: ChallengeDetail; standings: 
   )
 }
 
-function MyWords({ standing }: { standing: Standing }) {
+/** What the others put on the same letter and category, unfolded under one of the player's words. */
+function Answers({ detail, word }: { detail: ChallengeDetail; word: SettledWord }) {
   const t = useT()
+  const player = playerOf(detail)
+  const others = answersTo(detail.players, word).filter((answer) => !player(answer.playerId)?.me)
+  return (
+    <ul className="challenge-answers">
+      {others.map((answer) => {
+        const who = player(answer.playerId)
+        return (
+          <li key={answer.playerId} className="challenge-answer">
+            {who && <Avatar choice={who.avatar} size="sm" />}
+            <span className="challenge-answer-name">{who?.name}</span>
+            <span className="challenge-answer-words">
+              {answer.words.length === 0 ? (
+                <span className="note">{t.challenge.nothing}</span>
+              ) : (
+                answer.words.map((found) => (
+                  <span
+                    key={found.key}
+                    className={`challenge-answer-word${found.key === word.key ? ' challenge-answer-word--same' : ''}`}
+                  >
+                    {found.approximate && <span className="note">≈ </span>}
+                    {capitalized(found.display)}
+                  </span>
+                ))
+              )}
+            </span>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+function MyWords({ detail, standing }: { detail: ChallengeDetail; standing: Standing }) {
+  const t = useT()
+  const [open, setOpen] = useState<string | null>(null)
+  const rivals = detail.players.some((player) => !player.me && player.playedAt !== null)
   return (
     <section className="stack">
       <p className="section-title">{t.challenge.yourWords}</p>
       {standing.words.length === 0 ? (
         <p className="note">{t.over.empty}</p>
       ) : (
-        <ol className="reveal-words">
-          {standing.words.map((word) => (
-            <li key={`${word.categoryId}:${word.key}`} className="reveal-word challenge-word">
-              <LetterMark letter={word.letter} motif={categoryMotif(word.categoryId)} size="sm" />
-              <span className="reveal-word-text">
-                {word.approximate && <span className="note">≈ </span>}
-                {capitalized(word.display)}
-                <span className="reveal-word-category">{categoryText(t, word.categoryId).label}</span>
-              </span>
-              <span className={`tag ${word.sharedWith > 0 ? 'tag--plain' : 'challenge-alone'}`}>
-                {word.sharedWith > 0 ? t.challenge.shared(word.sharedWith) : t.challenge.alone}
-              </span>
-              <span className="reveal-word-points">
-                {word.settled !== word.points && <s className="challenge-halved">{word.points}</s>}+{word.settled}
-              </span>
-            </li>
-          ))}
-        </ol>
+        <>
+          {rivals && <p className="note">{t.challenge.yourWordsHint}</p>}
+          <ol className="reveal-words">
+            {standing.words.map((word) => {
+              const id = `${word.categoryId}:${word.key}`
+              const unfolded = open === id
+              return (
+                <li key={id} className="challenge-word-item">
+                  <button
+                    type="button"
+                    className="reveal-word challenge-word"
+                    disabled={!rivals}
+                    aria-expanded={rivals ? unfolded : undefined}
+                    onClick={() => setOpen(unfolded ? null : id)}
+                  >
+                    <LetterMark letter={word.letter} motif={categoryMotif(word.categoryId)} size="sm" />
+                    <span className="reveal-word-text">
+                      {word.approximate && <span className="note">≈ </span>}
+                      {capitalized(word.display)}
+                      <span className="reveal-word-category">{categoryText(t, word.categoryId).label}</span>
+                    </span>
+                    <span className={`tag ${word.sharedWith > 0 ? 'tag--plain' : 'challenge-alone'}`}>
+                      {word.sharedWith > 0 ? t.challenge.shared(word.sharedWith) : t.challenge.alone}
+                    </span>
+                    <span className="reveal-word-points">
+                      {word.settled !== word.points && <s className="challenge-halved">{word.points}</s>}+{word.settled}
+                    </span>
+                  </button>
+                  {unfolded && <Answers detail={detail} word={word} />}
+                </li>
+              )
+            })}
+          </ol>
+        </>
       )}
     </section>
   )
@@ -172,7 +227,7 @@ export function ChallengeBoard({ detail, onChanged }: ChallengeBoardProps) {
       </section>
       <Pending detail={detail} />
       <InviteMore detail={detail} onChanged={onChanged} />
-      {mine && <MyWords standing={mine} />}
+      {mine && <MyWords detail={detail} standing={mine} />}
     </>
   )
 }
@@ -266,7 +321,7 @@ export function ChallengeRecap({ detail, onRematch }: ChallengeRecapProps) {
       <Trophies detail={detail} />
       <WordList words={mostSharedWords(detail.players)} detail={detail} title={t.challenge.mostShared} />
       <WordList words={uniqueWords(detail.players)} detail={detail} title={t.challenge.mostUnique} />
-      {mine && <MyWords standing={mine} />}
+      {mine && <MyWords detail={detail} standing={mine} />}
       {me?.playedAt !== null && me !== undefined && (
         <div className="stack">
           {failed && <p className="note note--warn">{t.challenge.rematchFailed}</p>}

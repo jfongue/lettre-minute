@@ -478,6 +478,8 @@ export const fr = {
     notYet: 'pas encore joué',
     raw: (points: string) => `${points} avant partage`,
     yourWords: 'Tes mots',
+    yourWordsHint: 'Touche un mot pour voir ce que les autres ont mis.',
+    nothing: 'rien trouvé',
     shared: (count: number) => `aussi chez ${count}`,
     alone: 'toi seul',
     inviteMore: 'Inviter d’autres amis',
