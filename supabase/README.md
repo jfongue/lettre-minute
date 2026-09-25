@@ -1,6 +1,6 @@
 # Supabase
 
-Dix-neuf migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Vingt migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -21,8 +21,10 @@ joueur et réagir au bilan d'un défi, [`0015_ideas.sql`](migrations/0015_ideas.
 pour la boîte à idées, [`0016_challenge_setup.sql`](migrations/0016_challenge_setup.sql)
 pour qu'un défi autorise ou non les pouvoirs, [`0017_challenge_name.sql`](migrations/0017_challenge_name.sql)
 pour nommer un défi, [`0018_gentler_levels.sql`](migrations/0018_gentler_levels.sql)
-pour la courbe d'XP adoucie, et [`0019_moderation_reserve.sql`](migrations/0019_moderation_reserve.sql)
-pour la réserve de mots versée aux modérateurs qui ont vidé leur file.
+pour la courbe d'XP adoucie, [`0019_moderation_reserve.sql`](migrations/0019_moderation_reserve.sql)
+pour la réserve de mots versée aux modérateurs qui ont vidé leur file, et
+[`0020_tester_invites.sql`](migrations/0020_tester_invites.sql) pour inviter un ami
+par e-mail au test fermé de Play.
 
 ## Ce que le serveur détient
 
@@ -50,6 +52,7 @@ pour la réserve de mots versée aux modérateurs qui ont vidé leur file.
 | `blocks` | Qui a bloqué qui. Bloquer efface l'amitié ; les demandes du bloqué ne sont plus écrites. |
 | `challenge_reactions` | Une réaction (emoji) par joueur et par trophée ou mot du bilan d'un défi. |
 | `ideas` | Une idée envoyée en texte libre par un joueur, vidée une fois par jour par la fonction Edge `ideas`. |
+| `tester_invites` | Une adresse e-mail saisie dans le champ d'ami, en attente d'être inscrite testeur Play puis invitée par `npm run testers:invite`. Aucune politique : jamais relue par un joueur. |
 
 Fonctions de lecture : `leaderboard_board('day' | 'week' | 'discoveries')` — le
 classement du jour, de la semaine (heure de Paris, semaine du lundi) et des

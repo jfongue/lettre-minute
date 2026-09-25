@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { CHATTER_WORDS, POWER_CHARGES } from '../domain/powers'
-import { chargesLeft, hasPower, RUN_SECONDS, skipPenalty, type MissedWord, type Prompt, type Run, type Verdict } from '../domain/run'
+import { celerityDue, chargesLeft, hasPower, RUN_SECONDS, skipPenalty, type MissedWord, type Prompt, type Run, type Verdict } from '../domain/run'
 import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
 import { sound } from '../lib/sound'
@@ -96,7 +96,7 @@ export function RunScreen({
     else if (heard === 'far') sound.power('dyslexia')
   }, [heard])
 
-  // Célérité: an exact word validates itself once the fingers pause.
+  // Célérité: an accepted word validates itself once the fingers pause.
   const submitNow = useRef(onSubmit)
   useEffect(() => {
     submitNow.current = onSubmit
@@ -106,11 +106,12 @@ export function RunScreen({
   const settle = chargesLeft(run, 'chatter') > 0 ? CELERITY_SETTLE_MS * 3 : CELERITY_SETTLE_MS
   // « Chut » casts itself the same way, Célérité or not: a player in need of a pause has no time for Enter.
   const hushing = spell === 'hush'
+  const due = celerity && celerityDue(live, draft)
   useEffect(() => {
-    if (!(celerity && exact) && !hushing) return
+    if (!due && !hushing) return
     const timer = setTimeout(() => submitNow.current(!hushing), settle)
     return () => clearTimeout(timer)
-  }, [celerity, exact, hushing, draft, settle])
+  }, [due, hushing, draft, settle])
 
   const chattering = run.chatter === CHATTER_WORDS
   useEffect(() => {

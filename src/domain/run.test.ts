@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { NO_USAGE, type WordUsage } from './rarity'
 import {
+  celerityDue,
   createRun,
   inspect,
   remainingSeconds,
@@ -317,5 +318,40 @@ describe('odds of a pair', () => {
     for (let i = 0; i < 20; i++) letters.push((run = skip(run, stocked)).prompt.letter)
 
     expect(letters.filter((letter) => letter === 'A').length).toBeGreaterThan(1)
+  })
+})
+
+describe('celerityDue', () => {
+  const accepted = (display: string, edits: number): Parameters<typeof celerityDue>[0] => ({
+    kind: 'accepted',
+    found: {
+      prompt: { categoryId: 'animaux', letter: 'E' },
+      word: display,
+      display,
+      points: 1,
+      rarity: 0,
+      tier: 'courant',
+      approximate: edits > 0,
+      edits,
+      joker: false,
+      boost: 1,
+    },
+  })
+
+  it('validates an exact word and a slip', () => {
+    expect(celerityDue(accepted('éléphant', 0), 'Éléphant')).toBe(true)
+    expect(celerityDue(accepted('éléphant', 1), 'elephamt')).toBe(true)
+    expect(celerityDue(accepted('éléphant', 1), 'elephantt')).toBe(true)
+    expect(celerityDue(accepted('éléphant', 2), 'elepant')).toBe(true)
+  })
+
+  it('waits for the last letter of a word spelled right so far', () => {
+    expect(celerityDue(accepted('éléphant', 1), 'elephan')).toBe(false)
+    expect(celerityDue(accepted('éléphant', 1), 'elepant')).toBe(false)
+  })
+
+  it('never validates what the dictionary did not accept', () => {
+    expect(celerityDue({ kind: 'unknown', found: null }, 'xyz')).toBe(false)
+    expect(celerityDue(null, '')).toBe(false)
   })
 })

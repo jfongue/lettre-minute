@@ -44,7 +44,8 @@ n'écrit rapportent le plus.
   dix secondes au plus, et tout le son est étouffé, une fois), Dyslexie (deux
   fautes passent dès six lettres), Divination (la catégorie et la lettre
   suivantes sont affichées), Challenge (peu commun ×1,15, rare et très rare
-  ×1,3), Célérité (un mot exact se valide seul), Professeur (passer
+  ×1,3), Célérité (un mot accepté se valide seul, faute comprise, sauf
+  s'il ne lui manque qu'une lettre), Professeur (passer
   souffle le mot le plus connu qu'on aurait pu donner, et le bilan de fin
   de partie en fait la liste) et Bavardage (« ... » après un mot garde la
   lettre et le thème pour trois mots de plus, qu'on quitte sans pénalité,
@@ -139,6 +140,7 @@ npm run import:names # régénère prenoms, identique dans les sept langues (Wik
 npm run web:publish  # build web et mise en ligne sur https://jfongue.github.io/lettre-minute/
 npm run android:sync # build web puis copie dans le projet Android
 npm run android:bundle # .aab signé pour le Play Store
+npm run testers:invite # inscrit testeurs Play les adresses invitées depuis le jeu, puis leur envoie le mail (--login une fois, --watch, --preview)
 ```
 
 L'application Android (et iOS plus tard) est le même jeu emballé par Capacitor :

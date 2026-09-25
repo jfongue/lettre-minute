@@ -86,6 +86,30 @@ const ICONS: Record<string, ReactNode> = {
     </>
   ),
   marques: <path fillRule="evenodd" d={`M6 6H54L94 46L46 94L6 54Z${hole(28, 28, 9)}`} />,
+  prenoms: (
+    <>
+      <path fillRule="evenodd" d="M4 22H96V90H4ZM40 30V38H60V30Z" />
+      <rect x="44" y="6" width="12" height="20" />
+      <g opacity="0.55">
+        <rect x="16" y="52" width="68" height="10" />
+        <rect x="16" y="70" width="44" height="10" />
+      </g>
+    </>
+  ),
+  objets: (
+    <>
+      <path d="M10 22H70V82A12 12 0 0 1 58 94H22A12 12 0 0 1 10 82Z" />
+      <path d="M70 36H80A12 12 0 0 1 80 72H70" {...ring} strokeWidth="9" />
+      <path d="M24 4V14M40 4V14M56 4V14" {...ring} strokeWidth="6" opacity="0.55" />
+    </>
+  ),
+  plantes: (
+    <>
+      <path fillRule="evenodd" d="M50 4C84 24 84 58 50 78C16 58 16 24 50 4ZM47 20V66H53V20Z" />
+      <rect x="47" y="76" width="6" height="18" opacity="0.55" />
+      <rect x="26" y="90" width="48" height="6" opacity="0.55" />
+    </>
+  ),
 }
 
 interface CategoryIconProps {

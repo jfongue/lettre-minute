@@ -109,6 +109,61 @@ const FRENCH_SKIPPED = new Set([
   // them ("buis", "aloès") are added by hand instead.
   'Familles de plantes en français',
   'Genres de plantes en français',
+  // Walking "Plantes en français" descends into every botanical family and
+  // clade the Wiktionnaire files below it — over a hundred and fifty
+  // categories such as « Rosacées » or « Astéridées », each one a list of
+  // species by their Latin binomial, not a plant name a player would give.
+  // Only the categories that name a kind of plant by an everyday word —
+  // « Arbres », « Fougères », « Chênes » — stay walked.
+  'Cabombacées en français', 'Embryophytes en français', 'Noms de fleurs identiques à des noms d’arbres en français',
+  'Trachéophytes en français', 'Cibotiacées en français', 'Cycadacées en français', 'Dennstaedtiacées en français',
+  'Dryoptéridacées en français', 'Eucommiacées en français', 'Pipéracées en français', 'Angiospermes en français',
+  'Daphniphyllacées en français', 'Dicotylédones en français', 'Monocotylédones en français',
+  'Monocotylédones en koyukon', 'Athyriacées en français', 'Blechnacées en français', 'Cyathéacées en français',
+  'Davalliacées en français', 'Dicksoniacées en français', 'Polypodiacées en français', 'Ptéridacées en français',
+  'Salviniacées en français', 'Spermatophytes en français', 'Acanthacées en français', 'Aizoacées en français',
+  'Amaranthacées en français', 'Amaryllidacées en français', 'Annonacées en français', 'Apiacées en français',
+  'Apocynacées en français', 'Aracées en français', 'Araliacées en français', 'Arécacées en français',
+  'Argophyllacées en français', 'Asphodélacées en français', 'Astéracées en français', 'Balsaminacées en français',
+  'Berbéridacées en français', 'Bétulacées en français', 'Bignoniacées en français', 'Bixacées en français',
+  'Boraginacées en français', 'Brassicacées', 'Brassicacées en français', 'Broméliacées en français',
+  'Burséracées en français', 'Butomacées en français', 'Buxacées en français', 'Cactacées en français',
+  'Calceolariacées en français', 'Calcéolariacées en français', 'Calycanthacées en français',
+  'Campanulacées en français', 'Cannabacées en français', 'Cannacées en français', 'Caprifoliacées en français',
+  'Caryophyllacées en français', 'Casuarinacées en français', 'Célastracées en français',
+  'Cératophyllacées en français', 'Cercidiphyllacées en français', 'Cistacées en français',
+  'Cléomacées en français', 'Clusiacées en français', 'Colchicacées en français', 'Combrétacées en français',
+  'Commélinacées en français', 'Convolvulacées en français', 'Coriariacées en français', 'Cornacées en français',
+  'Corynocarpacées en français', 'Costacées en français', 'Cunoniacées en français', 'Cyclanthacées en français',
+  'Cypéracées en français', 'Cyrillacées en français', 'Didieréacées en français', 'Dilléniacées en français',
+  'Doryanthacées en français', 'Droseracées en français', 'Droséracées en français', 'Éléagnacées en français',
+  'Éléocarpacées en français', 'Éricacées en français', 'Eupteléacées en français', 'Fagacées en français',
+  'Gentianacées en français', 'Géraniacées en français', 'Gesnériacées en français', 'Hamamélidacées en français',
+  'Hydrangéacées en français', 'Hydrocharitacées en français', 'Juglandacées en français', 'Juncacées en français',
+  'Lamiacées en français', 'Lardizabalacées en français', 'Lauracées en français', 'Liliacées en français',
+  'Lythracées en français', 'Malvacées en français', 'Mélastomatacées en français', 'Méliacées en français',
+  'Ménispermacées en français', 'Montiacées en français', 'Moracées en français', 'Moringacées en français',
+  'Musacées en français', 'Myrtacées en français', 'Nymphéacées en français', 'Onagracées en français',
+  'Orchidacées en français', 'Papavéracées en français', 'Pentaphylacaceées en français',
+  'Plantaginacées en français', 'Plumbaginacées en français', 'Poacées en français', 'Polémoniacées en français',
+  'Polygonacées en français', 'Pontédériacées en français', 'Portulacacées en français',
+  'Primulacées en français', 'Protéacées en français', 'Ranunculacées en français', 'Renonculacées en français',
+  'Rhamnacées en français', 'Rubiacées en français', 'Rutacées en français', 'Sapindacées en français',
+  'Sapotacées en français', 'Schisandracées en français', 'Scrophulariacées en français',
+  'Solanacées en français', 'Strelitziacées en français', 'Urticacées en français', 'Verbenacées en français',
+  'Vitacées en français', 'Winteracées en français', 'Xanthorrhoéacées en français', 'Zingibéracées en français',
+  'Aquifoliacées en français', 'Astéridées en français', 'Cléthracées en français', 'Columelliacées en français',
+  'Composées en français', 'Crassulacées en français', 'Crucifères en français', 'Cucurbitacées en français',
+  'Diptérocarpacées en français', 'Érythroxylacées en français', 'Escalloniacées en français',
+  'Euphorbiacées en français', 'Famille des œillets en français', 'Fouquiériacées en français',
+  'Gelsémiacées en français', 'Gesneriacées en français', 'Goodéniacées en français', 'Itéacées en français',
+  'Labiées en français', 'Linacées en français', 'Nyssacées en français', 'Ombellifères en français',
+  'Famille des pavots en français', 'Pentaphylacacées en français', 'Phytolaccacées en français',
+  'Rosacées en français', 'Salicacées en français', 'Saxifragacées en français', 'Théacées en français',
+  'Thyméléacées en français', 'Tropaéolacées en français', 'Alismatacées en français', 'Asparagacées en français',
+  'Asphodèlacées en français', 'Dioscoréacées en français', 'Graminées en français', 'Hypoxidacées en français',
+  'Iridacées en français', 'Ixioliriacées en français', 'Marantacées en français', 'Cypéracées en koyukon',
+  'Fabacées en français',
 ])
 
 /**
@@ -123,6 +178,17 @@ const HOMOGRAPH_FREQUENCY = 10
  * apple varieties. A trade filed under Santé is « infirmière » for good.
  */
 const HOMOGRAPH_PRONE = new Set(['animaux', 'fruits-legumes', 'plantes'])
+
+/**
+ * Where the Wiktionary's own category listing is a flora or a toolshed
+ * rather than a list of everyday words: every species a contributor ever
+ * filed under "Plantes", every specialist tool English catalogues under
+ * "Tools". Elsewhere a Wiktionary word is trusted outright — a rare beetle
+ * is still a beetle — but here it is kept only when it also has some
+ * measured use in the language, came from Wikidata, or was vouched for by
+ * hand (`ADDED_WORDS`, a moderator).
+ */
+const STRICT_ATTESTED = new Set(['plantes', 'objets'])
 
 const FRENCH_TREE_CACHE = '.cache/wiktionnaire-subcategories.json'
 const FRENCH_TREE_DEPTH = 3
@@ -1055,6 +1121,18 @@ function spellings(row: Row, source: LanguageSource, corporate: boolean): { disp
   }))
 }
 
+/**
+ * A taxon with no real vernacular name still answers Wikidata's P1843 query,
+ * filled by a contributor with the scientific binomial itself ("Arenga
+ * pinnata") or a coinage that apes one ("Alisma Fausse Renoncule") — every
+ * word capitalised, unlike a real common name, which stays in sentence case
+ * even when it runs to several words ("belle de nuit").
+ */
+function looksScientific(display: string): boolean {
+  const words = display.split(' ')
+  return words.length > 1 && words.every((word) => /^\p{Lu}/u.test(word))
+}
+
 interface Entry {
   display: string
   sitelinks: number
@@ -1149,7 +1227,13 @@ function main(argv: readonly string[]) {
       const fromBelow = new Set<string>()
       const words: string[] = []
       for (const root of roots) {
-        for (const title of FRENCH_WALKED.has(categoryId) ? await frenchSubcategories(root) : [root]) {
+        // `frenchSubcategories` caches the whole walked tree under the root:
+        // a title added to FRENCH_SKIPPED after that cache was written would
+        // otherwise stay in it forever, so the skip is re-applied here too.
+        const titles = FRENCH_WALKED.has(categoryId)
+          ? (await frenchSubcategories(root)).filter((title) => !FRENCH_SKIPPED.has(title))
+          : [root]
+        for (const title of titles) {
           try {
             const listed = await wiktionaryWords(title, false)
             words.push(...listed)
@@ -1235,6 +1319,7 @@ function main(argv: readonly string[]) {
             : undefined
           for (const { display, title } of spellings(row, source, corporate)) {
             if (!acceptable(display)) continue
+            if (category.id === 'plantes' && looksScientific(display)) continue
             const key = normalizeWord(display)
             if (key === '') continue
             if (excluded.has(key) || PLACEHOLDER_ELEMENT.test(key)) {
@@ -1303,6 +1388,11 @@ function main(argv: readonly string[]) {
       // Three moderators vouched for these: they are filed here as surely as a
       // Wiktionary word, and no homograph guess overrules them.
       const moderated = new Set((community[category.id] ?? []).map(normalizeWord))
+      // Vetted by hand already: exempt from the STRICT_ATTESTED frequency
+      // gate below, or a plant only ever added because no source names it
+      // would need a corpus frequency to pass a filter meant to catch what
+      // no one added on purpose.
+      const handPicked = new Set([...added, ...(community[category.id] ?? [])].map((word) => normalizeWord(word.trim().replace(/\s+/g, ' '))))
       const attested = new Set<string>()
       for (const word of [...(listed?.words ?? []), ...added, ...(community[category.id] ?? [])]) {
         const display = word.trim().replace(/\s+/g, ' ')
@@ -1316,6 +1406,11 @@ function main(argv: readonly string[]) {
         const everyday = frequencies.get(display.normalize('NFC').toLowerCase()) ?? 0
         const homograph = HOMOGRAPH_PRONE.has(category.id) && listed?.deep.has(key) && !best.has(key) && everyday >= HOMOGRAPH_FREQUENCY
         if (homograph && !moderated.has(key)) continue
+        // A flora or a toolshed word with no measured use at all and no
+        // Wikidata entry either is filed by a Wiktionary contributor, not
+        // said by anyone: dropped, unless it was vouched for by hand.
+        const obscure = STRICT_ATTESTED.has(category.id) && everyday === 0 && !best.has(key) && !handPicked.has(key)
+        if (obscure) continue
         if (key !== '') attested.add(key)
         if (key === '' || best.has(key)) continue
         // No sitelinks: a Wiktionary word is rated on its corpus frequency

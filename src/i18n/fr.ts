@@ -3,7 +3,7 @@ import { CATALOGUE } from '../domain/catalogue'
 import type { TrophyId } from '../domain/challenge'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
-import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, VoteOutcome } from '../lib/cloud'
+import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one)
@@ -30,6 +30,7 @@ export const fr = {
     tagline: (seconds: number) => `Une lettre · un thème · ${seconds} secondes`,
     play: 'Jouer',
     menu: 'Menu : profil, amis, options',
+    friendRequests: (count: number) => (count === 1 ? 'une demande d’ami' : `${count} demandes d’ami`),
     level: (level: number) => `Niveau ${level}`,
     bestScore: 'meilleur score',
     runs: (count: number) => plural(count, 'partie', 'parties'),
@@ -81,6 +82,12 @@ export const fr = {
     confirm: 'Valider',
     pickFirst: 'Touche une carte',
     joined: 'rejoint tes parties',
+  },
+
+  /** The gift offered at launch to a player who had already unlocked everything before a new wave of categories. */
+  categoryGift: {
+    title: 'Nouvelles catégories !',
+    lead: 'Tu avais tout débloqué : choisis-en une en cadeau.',
   },
 
   over: {
@@ -220,7 +227,16 @@ export const fr = {
     needAccount: 'Un ami te trouve par ton nom de compte : crée-le d’abord, tes parties déjà jouées te suivent.',
     createAccount: 'Créer mon compte',
     add: 'Ajouter un ami',
-    addPlaceholder: 'Son nom de compte',
+    addPlaceholder: 'Son nom de compte, ou son e-mail',
+    sendInvite: 'Envoyer l’invitation',
+    testerInvites: {
+      sent: (email: string) => `${email} va recevoir une invitation à installer le jeu.`,
+      already: (email: string) => `${email} a déjà été invité.`,
+      invalid: () => 'Cette adresse e-mail ne semble pas valide.',
+      limit: () => 'Cinq invitations par jour au plus : réessaie demain.',
+      anonymous: () => 'Crée un compte pour inviter tes amis.',
+      unreachable: () => 'Le serveur ne répond pas. Réessaie dans un instant.',
+    } satisfies Record<TesterInviteOutcome, (email: string) => string> as Record<TesterInviteOutcome, (email: string) => string>,
     send: 'Envoyer la demande',
     /** Around the player's own account name, which is set in bold. */
     yourName: ['Ton nom à donner : ', ''] as readonly [string, string],
@@ -258,8 +274,10 @@ export const fr = {
     history: (count: number) => `Tout l’historique (${count})`,
     hideHistory: 'Replier l’historique',
     more: 'Afficher plus',
-    hiddenChallenges: (count: number) => `Défis masqués (${count})`,
-    unhide: 'Réafficher',
+    oldChallenges: (count: number) => `Anciens défis (${count})`,
+    wonBy: (name: string) => `${name} a gagné`,
+    youWon: 'Tu as gagné',
+    noWinner: 'Personne n’a joué',
     runLine: (words: number, combo: number) => `${words} ${plural(words, 'mot', 'mots')} · série de ${combo}`,
     topWords: 'Mots les plus dits',
     times: (count: number) => `${count} fois`,
@@ -291,6 +309,7 @@ export const fr = {
     rejected: (count: number) => `Refusées (${count})`,
     correct: 'Corriger',
     correctLabel: (word: string) => `Corriger « ${word} »`,
+    sameLetter: (letter: string) => `Le mot doit toujours commencer par ${letter}.`,
     withdraw: 'Retirer',
     save: 'Enregistrer',
     failed: 'Le serveur n’a pas répondu. Réessaie.',
@@ -433,7 +452,7 @@ export const fr = {
       dyslexia: ['Dyslexie', 'Deux fautes passent sur les mots de six lettres et plus.'],
       divination: ['Divination', 'Tu vois la catégorie et la lettre qui viennent ensuite.'],
       complication: ['Challenge', 'Les mots peu communs valent ×1,15, les rares ×1,3.'],
-      celerity: ['Célérité', 'Un mot juste se valide tout seul, sans appuyer sur Entrée.'],
+      celerity: ['Célérité', 'Un mot se valide tout seul, sans appuyer sur Entrée, même avec une faute de frappe.'],
       professor: ['Professeur', 'Quand tu passes, on te souffle ce que tu aurais pu répondre, et la fin de partie te fait la leçon.'],
       chatter: ['Bavardage', 'Une fois par partie, ajoute « ... » à un mot : la lettre et le thème restent pour trois mots de plus.'],
     } satisfies Record<PowerId, readonly [string, string]> as Record<PowerId, readonly [name: string, description: string]>,
@@ -603,6 +622,13 @@ export const fr = {
     sent: 'Merci ! Ton idée est partie.',
     failed: 'L’idée n’est pas partie. Vérifie ta connexion et réessaie.',
     close: 'Fermer',
+  },
+
+  pushOffer: {
+    title: 'Veux-tu activer les notifications ?',
+    lead: 'On ne t’enverra pas de notification, promis : c’est seulement pour les propositions de défi de tes amis !',
+    no: 'Non merci',
+    yes: 'Oui, activer',
   },
 
   update: {

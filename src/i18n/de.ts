@@ -15,6 +15,7 @@ export const de: Messages = {
     tagline: (seconds) => `Ein Buchstabe · ein Thema · ${seconds} Sekunden`,
     play: 'Spielen',
     menu: 'Menü: Profil, Freunde, Optionen',
+    friendRequests: (count) => (count === 1 ? 'eine Freundschaftsanfrage' : `${count} Freundschaftsanfragen`),
     level: (level) => `Level ${level}`,
     bestScore: 'Bestwert',
     runs: (count) => plural(count, 'Partie', 'Partien'),
@@ -65,6 +66,11 @@ export const de: Messages = {
     confirm: 'Bestätigen',
     pickFirst: 'Tippe auf eine Karte',
     joined: 'ist jetzt in deinen Spielen',
+  },
+
+  categoryGift: {
+    title: 'Neue Kategorien!',
+    lead: 'Du hattest schon alles freigeschaltet: Wähl dir eine davon als Geschenk aus.',
   },
 
   over: {
@@ -197,7 +203,16 @@ export const de: Messages = {
     needAccount: 'Ein Freund findet dich über deinen Kontonamen: Erstelle ihn zuerst, deine gespielten Partien kommen mit.',
     createAccount: 'Mein Konto erstellen',
     add: 'Freund hinzufügen',
-    addPlaceholder: 'Sein oder ihr Kontoname',
+    addPlaceholder: 'Kontoname oder E-Mail',
+    sendInvite: 'Einladung senden',
+    testerInvites: {
+      sent: (email: string) => `${email} bekommt eine Einladung, das Spiel zu installieren.`,
+      already: (email: string) => `${email} wurde schon eingeladen.`,
+      invalid: () => 'Diese E-Mail-Adresse scheint nicht gültig zu sein.',
+      limit: () => 'Höchstens fünf Einladungen am Tag: Versuch es morgen wieder.',
+      anonymous: () => 'Erstelle ein Konto, um Freunde einzuladen.',
+      unreachable: () => 'Der Server antwortet nicht. Versuch es gleich noch einmal.',
+    },
     send: 'Anfrage senden',
     yourName: ['Dein Name zum Weitergeben: ', ''],
     loadFailed: 'Deine Freunde können gerade nicht geladen werden.',
@@ -234,8 +249,10 @@ export const de: Messages = {
     history: (count) => `Ganzer Verlauf (${count})`,
     hideHistory: 'Verlauf einklappen',
     more: 'Mehr zeigen',
-    hiddenChallenges: (count) => `Ausgeblendete Duelle (${count})`,
-    unhide: 'Wieder zeigen',
+    oldChallenges: (count) => `Frühere Duelle (${count})`,
+    wonBy: (name) => `${name} hat gewonnen`,
+    youWon: 'Du hast gewonnen',
+    noWinner: 'Niemand hat gespielt',
     runLine: (words, combo) => `${words} ${plural(words, 'Wort', 'Wörter')} · Serie von ${combo}`,
     topWords: 'Deine häufigsten Wörter',
     times: (count) => `${count}-mal`,
@@ -266,6 +283,7 @@ export const de: Messages = {
     rejected: (count) => `Abgelehnt (${count})`,
     correct: 'Korrigieren',
     correctLabel: (word) => `„${word}“ korrigieren`,
+    sameLetter: (letter) => `Das Wort muss weiter mit ${letter} beginnen.`,
     withdraw: 'Zurückziehen',
     save: 'Speichern',
     failed: 'Der Server hat nicht geantwortet. Versuch es noch einmal.',
@@ -407,7 +425,7 @@ export const de: Messages = {
       dyslexia: ['Legasthenie', 'Zwei Fehler gehen durch bei Wörtern ab sechs Buchstaben.'],
       divination: ['Weissagung', 'Du siehst das nächste Thema und den nächsten Buchstaben.'],
       complication: ['Risiko', 'Ungewöhnliche Wörter zählen ×1,15, seltene ×1,3.'],
-      celerity: ['Schnelligkeit', 'Ein richtiges Wort bestätigt sich selbst, ohne Enter.'],
+      celerity: ['Schnelligkeit', 'Ein Wort bestätigt sich selbst, ohne Enter – auch mit einem Tippfehler.'],
       professor: ['Professor', 'Wenn du überspringst, wird dir eingeflüstert, was du hättest sagen können, und am Ende gibt es die Lektion.'],
       chatter: ['Geplapper', 'Einmal pro Partie „...“ an ein Wort hängen: Buchstabe und Thema bleiben für drei weitere Wörter.'],
     },
@@ -571,6 +589,13 @@ export const de: Messages = {
     sent: 'Danke! Deine Idee ist unterwegs.',
     failed: 'Deine Idee ist nicht angekommen. Prüfe deine Verbindung und versuch es noch einmal.',
     close: 'Schließen',
+  },
+
+  pushOffer: {
+    title: 'Benachrichtigungen einschalten?',
+    lead: 'Wir schicken dir keine Benachrichtigungen, versprochen: nur die Duell-Einladungen deiner Freunde!',
+    no: 'Nein danke',
+    yes: 'Ja, einschalten',
   },
 
   update: {

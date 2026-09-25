@@ -152,8 +152,8 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     capitales: ['Paris', 'Londres', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Nairobi', 'Lyon', 'Marseille', 'Munich', 'Anvers', 'Genève', 'Esch-sur-Alzette', 'Francfort'],
     marques: ['Nike', 'Apple', 'Renault', 'Peugeot', 'Coca-Cola', 'Google', 'Adidas', 'Samsung', 'Mercedes', 'Instagram', 'Ford', 'Amazon'],
     prenoms: ['Léa', 'Marie', 'Pierre', 'Jean', 'Emma', 'Lucas', 'Mohammed', 'Fatima', 'Karim', 'Yasmine'],
-    plantes: ['rose', 'chêne', 'tulipe', 'ortie', 'fougère', 'sapin', 'lavande'],
-    objets: ['chaise', 'fourchette', 'clé', 'téléphone', 'parapluie', 'lampe'],
+    plantes: ['rose', 'chêne', 'tulipe', 'ortie', 'fougère', 'sapin', 'lavande', 'marguerite', 'pissenlit', 'cactus', 'lierre', 'bambou', 'palmier', 'orchidée', 'tournesol'],
+    objets: ['chaise', 'fourchette', 'clé', 'téléphone', 'parapluie', 'lampe', 'oreiller', 'verre', 'assiette', 'ciseaux', 'stylo', 'miroir', 'brosse à dents', 'montre'],
   },
   en: {
     pays: ['France', 'Germany', 'Japan', 'Brazil', 'Canada', 'United States', 'Mexico', 'USA', 'UK', 'England'],
@@ -167,8 +167,8 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     capitales: ['Paris', 'London', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Lyon', 'Munich', 'Chicago', 'Manchester', 'Oslo', 'Kiev', 'Frankfurt', 'Tel Aviv'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Toyota', 'Samsung', 'Ford', 'Mercedes', 'Amazon', 'Facebook', 'Instagram'],
     prenoms: ['Emma', 'John', 'Mary', 'James', 'Sarah', 'Mohammed', 'Fatima', 'Kevin'],
-    plantes: ['rose', 'oak', 'tulip', 'nettle', 'fern', 'fir', 'lavender'],
-    objets: ['chair', 'fork', 'key', 'phone', 'umbrella', 'lamp'],
+    plantes: ['rose', 'oak', 'tulip', 'nettle', 'fern', 'fir', 'lavender', 'daisy', 'dandelion', 'cactus', 'ivy', 'bamboo', 'palm', 'orchid', 'sunflower'],
+    objets: ['chair', 'fork', 'key', 'phone', 'umbrella', 'lamp', 'pillow', 'glass', 'plate', 'scissors', 'pen', 'mirror', 'toothbrush', 'watch'],
   },
   de: {
     pays: ['Frankreich', 'Deutschland', 'Japan', 'Brasilien', 'Kanada', 'Österreich', 'USA'],
@@ -182,8 +182,8 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     capitales: ['Paris', 'London', 'Tokio', 'Berlin', 'Rom', 'Madrid', 'Oslo', 'Frankfurt', 'Tel Aviv'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Volkswagen', 'Mercedes', 'Amazon', 'Samsung'],
     prenoms: ['Hans', 'Emma', 'Maria', 'Kevin', 'Mohammed'],
-    plantes: ['Rose', 'Eiche', 'Tulpe', 'Brennnessel', 'Farn', 'Tanne', 'Lavendel'],
-    objets: ['Stuhl', 'Gabel', 'Schlüssel', 'Telefon', 'Regenschirm', 'Lampe'],
+    plantes: ['Rose', 'Eiche', 'Tulpe', 'Brennnessel', 'Farn', 'Tanne', 'Lavendel', 'Gänseblümchen', 'Löwenzahn', 'Kaktus', 'Efeu', 'Bambus', 'Palme', 'Orchidee', 'Sonnenblume'],
+    objets: ['Stuhl', 'Gabel', 'Schlüssel', 'Telefon', 'Regenschirm', 'Lampe', 'Kissen', 'Glas', 'Teller', 'Schere', 'Stift', 'Spiegel', 'Zahnbürste', 'Uhr'],
   },
   es: {
     pays: ['Francia', 'Alemania', 'Japón', 'Brasil', 'Canadá', 'México'],
@@ -197,8 +197,8 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     capitales: ['París', 'Londres', 'Tokio', 'Berlín', 'Roma', 'Madrid'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Zara'],
     prenoms: ['José', 'María', 'Juan', 'Sofía', 'Mohammed', 'Fatima'],
-    plantes: ['rosa', 'roble', 'tulipán', 'ortiga', 'helecho', 'abeto', 'lavanda'],
-    objets: ['silla', 'tenedor', 'llave', 'teléfono', 'paraguas', 'lámpara'],
+    plantes: ['rosa', 'roble', 'tulipán', 'ortiga', 'helecho', 'abeto', 'lavanda', 'margarita', 'diente de león', 'cactus', 'hiedra', 'bambú', 'palmera', 'orquídea', 'girasol'],
+    objets: ['silla', 'tenedor', 'llave', 'teléfono', 'paraguas', 'lámpara', 'almohada', 'vaso', 'plato', 'tijeras', 'bolígrafo', 'espejo', 'cepillo de dientes', 'reloj'],
   },
   it: {
     pays: ['Francia', 'Germania', 'Giappone', 'Brasile', 'Canada', 'Messico'],
@@ -212,8 +212,8 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     capitales: ['Parigi', 'Londra', 'Tokyo', 'Berlino', 'Roma', 'Madrid'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Fiat', 'Ducati'],
     prenoms: ['Giulia', 'Marco', 'Maria', 'Giuseppe', 'Mohammed'],
-    plantes: ['rosa', 'quercia', 'tulipano', 'ortica', 'felce', 'abete', 'lavanda'],
-    objets: ['sedia', 'forchetta', 'chiave', 'telefono', 'ombrello', 'lampada'],
+    plantes: ['rosa', 'quercia', 'tulipano', 'ortica', 'felce', 'abete', 'lavanda', 'margherita', 'tarassaco', 'cactus', 'edera', 'bambù', 'palma', 'orchidea', 'girasole'],
+    objets: ['sedia', 'forchetta', 'chiave', 'telefono', 'ombrello', 'lampada', 'cuscino', 'bicchiere', 'piatto', 'forbici', 'penna', 'specchio', 'spazzolino', 'orologio'],
   },
   nl: {
     pays: ['Frankrijk', 'Duitsland', 'Japan', 'Brazilië', 'Canada', 'België'],
@@ -227,8 +227,8 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     capitales: ['Parijs', 'Londen', 'Tokio', 'Berlijn', 'Rome', 'Madrid'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Philips'],
     prenoms: ['Emma', 'Jan', 'Sanne', 'Mohammed', 'Fatima'],
-    plantes: ['roos', 'eik', 'tulp', 'brandnetel', 'varen', 'spar', 'lavendel'],
-    objets: ['stoel', 'vork', 'sleutel', 'telefoon', 'paraplu', 'lamp'],
+    plantes: ['roos', 'eik', 'tulp', 'brandnetel', 'varen', 'spar', 'lavendel', 'madeliefje', 'paardenbloem', 'cactus', 'klimop', 'bamboe', 'palm', 'orchidee', 'zonnebloem'],
+    objets: ['stoel', 'vork', 'sleutel', 'telefoon', 'paraplu', 'lamp', 'kussen', 'glas', 'bord', 'schaar', 'pen', 'spiegel', 'tandenborstel', 'horloge'],
   },
   pt: {
     pays: ['França', 'Alemanha', 'Japão', 'Brasil', 'Canadá', 'México'],
@@ -242,8 +242,8 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     capitales: ['Paris', 'Londres', 'Tóquio', 'Berlim', 'Roma', 'Madrid'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Natura', 'Toyota', 'Ford'],
     prenoms: ['Maria', 'José', 'João', 'Ana', 'Mohammed'],
-    plantes: ['rosa', 'carvalho', 'tulipa', 'urtiga', 'samambaia', 'abeto', 'lavanda'],
-    objets: ['cadeira', 'garfo', 'chave', 'telefone', 'guarda-chuva', 'lâmpada'],
+    plantes: ['rosa', 'carvalho', 'tulipa', 'urtiga', 'samambaia', 'abeto', 'lavanda', 'margarida', 'dente-de-leão', 'cato', 'hera', 'bambu', 'palmeira', 'orquídea', 'girassol'],
+    objets: ['cadeira', 'garfo', 'chave', 'telefone', 'guarda-chuva', 'lâmpada', 'travesseiro', 'copo', 'prato', 'tesoura', 'caneta', 'espelho', 'escova de dentes', 'relógio'],
   },
 }
 

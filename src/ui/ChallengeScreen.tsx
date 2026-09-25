@@ -22,7 +22,15 @@ import {
   type ChallengePlayer,
   type ReactionEmoji,
 } from '../lib/cloud'
-import { challengeTitle, hideChallengeDetail, hoursLeft, markRecapRevealed, recapRevealed } from '../state/challenges'
+import {
+  challengeTitle,
+  hideChallengeDetail,
+  hoursLeft,
+  markRecapRevealed,
+  recapRevealed,
+  rememberWinner,
+  winnerOf,
+} from '../state/challenges'
 import { Avatar } from './Avatar'
 import { Burst, LetterMark, Shape, TierTag } from './bauhaus'
 import { ChallengeNotice } from './ChallengeHome'
@@ -553,10 +561,15 @@ export function ChallengeScreen({ id, onPlay, onRematch, onBack }: ChallengeScre
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [waiting, id])
 
-  const recapShown = typeof detail === 'object' && detail !== null && detail.finished && held === 'no'
+  // A recap read is set aside on its own: it waits among the statistics' old
+  // challenges, and comes back home only if something new happens to it.
+  const recap = typeof detail === 'object' && detail !== null && detail.finished && held === 'no' ? detail : null
   useEffect(() => {
-    if (recapShown) markChallengeSeen(id, 'recap')
-  }, [recapShown, id])
+    if (!recap) return
+    markChallengeSeen(id, 'recap')
+    rememberWinner(id, winnerOf(recap))
+    hideChallengeDetail(recap)
+  }, [recap, id])
 
   return (
     <ChallengeView
@@ -668,27 +681,9 @@ export function ChallengeView({
         </>
       )}
 
-      {finished && typeof detail === 'object' && detail ? (
-        <div className="challenge-leave">
-          <button type="button" className="btn btn--ghost" onClick={onBack}>
-            {t.challenge.home}
-          </button>
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={() => {
-              hideChallengeDetail(detail)
-              onBack()
-            }}
-          >
-            {t.challenge.ignore}
-          </button>
-        </div>
-      ) : (
-        <button type="button" className="btn btn--ghost btn--block" onClick={onBack}>
-          {t.challenge.home}
-        </button>
-      )}
+      <button type="button" className="btn btn--ghost btn--block" onClick={onBack}>
+        {t.challenge.home}
+      </button>
     </div>
   )
 }

@@ -21,6 +21,7 @@ export const en: Messages = {
     tagline: (seconds) => `One letter · one theme · ${seconds} seconds`,
     play: 'Play',
     menu: 'Menu: profile, friends, options',
+    friendRequests: (count) => (count === 1 ? 'one friend request' : `${count} friend requests`),
     level: (level) => `Level ${level}`,
     bestScore: 'best score',
     runs: (count) => plural(count, 'game', 'games'),
@@ -71,6 +72,11 @@ export const en: Messages = {
     confirm: 'Confirm',
     pickFirst: 'Tap a card',
     joined: 'joins your games',
+  },
+
+  categoryGift: {
+    title: 'New categories!',
+    lead: 'You’d already unlocked everything — pick one as a gift.',
   },
 
   over: {
@@ -203,7 +209,16 @@ export const en: Messages = {
     needAccount: 'A friend finds you by your account name: create it first, the games you have played come along.',
     createAccount: 'Create my account',
     add: 'Add a friend',
-    addPlaceholder: 'Their account name',
+    addPlaceholder: 'Their account name, or e-mail',
+    sendInvite: 'Send the invitation',
+    testerInvites: {
+      sent: (email: string) => `${email} will get an invitation to install the game.`,
+      already: (email: string) => `${email} has already been invited.`,
+      invalid: () => 'That e-mail address does not look valid.',
+      limit: () => 'Five invitations a day at most: try again tomorrow.',
+      anonymous: () => 'Create an account to invite your friends.',
+      unreachable: () => 'The server is not answering. Try again in a moment.',
+    },
     send: 'Send the request',
     yourName: ['Your name to share: ', ''],
     loadFailed: 'Your friends cannot be loaded right now.',
@@ -240,8 +255,10 @@ export const en: Messages = {
     history: (count) => `Full history (${count})`,
     hideHistory: 'Fold the history',
     more: 'Show more',
-    hiddenChallenges: (count) => `Hidden challenges (${count})`,
-    unhide: 'Show again',
+    oldChallenges: (count) => `Past challenges (${count})`,
+    wonBy: (name) => `${name} won`,
+    youWon: 'You won',
+    noWinner: 'Nobody played',
     runLine: (words, combo) => `${words} ${plural(words, 'word', 'words')} · streak of ${combo}`,
     topWords: 'Words you say most',
     times: (count) => `${count} ${plural(count, 'time', 'times')}`,
@@ -272,6 +289,7 @@ export const en: Messages = {
     rejected: (count) => `Declined (${count})`,
     correct: 'Correct',
     correctLabel: (word) => `Correct “${word}”`,
+    sameLetter: (letter) => `The word must still start with ${letter}.`,
     withdraw: 'Withdraw',
     save: 'Save',
     failed: 'The server did not answer. Try again.',
@@ -413,7 +431,7 @@ export const en: Messages = {
       dyslexia: ['Dyslexia', 'Two mistakes pass on words of six letters or more.'],
       divination: ['Divination', 'You see the theme and letter coming next.'],
       complication: ['High stakes', 'Uncommon words are worth ×1.15, rare ones ×1.3.'],
-      celerity: ['Celerity', 'A right word validates itself, no need to press Enter.'],
+      celerity: ['Celerity', 'A word validates itself, no need to press Enter — even with a typo.'],
       professor: ['Professor', 'When you skip, you are told what you could have answered, and the end of the game goes over the lesson.'],
       chatter: ['Chatter', 'Once a game, add “...” to a word: the letter and topic stay for three more words.'],
     },
@@ -577,6 +595,13 @@ export const en: Messages = {
     sent: 'Thank you! Your idea is on its way.',
     failed: 'Your idea could not be sent. Check your connection and try again.',
     close: 'Close',
+  },
+
+  pushOffer: {
+    title: 'Turn on notifications?',
+    lead: 'We won’t send you notifications, promise: only your friends’ challenge invitations!',
+    no: 'No thanks',
+    yes: 'Yes, turn on',
   },
 
   update: {

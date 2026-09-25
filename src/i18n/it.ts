@@ -15,6 +15,7 @@ export const it: Messages = {
     tagline: (seconds) => `Una lettera · un tema · ${seconds} secondi`,
     play: 'Gioca',
     menu: 'Menu: profilo, amici, opzioni',
+    friendRequests: (count) => (count === 1 ? 'una richiesta di amicizia' : `${count} richieste di amicizia`),
     level: (level) => `Livello ${level}`,
     bestScore: 'miglior punteggio',
     runs: (count) => plural(count, 'partita', 'partite'),
@@ -66,6 +67,11 @@ export const it: Messages = {
     confirm: 'Conferma',
     pickFirst: 'Tocca una carta',
     joined: 'entra nelle tue partite',
+  },
+
+  categoryGift: {
+    title: 'Nuove categorie!',
+    lead: 'Avevi già sbloccato tutto: scegline una in regalo.',
   },
 
   over: {
@@ -198,7 +204,16 @@ export const it: Messages = {
     needAccount: 'Un amico ti trova dal nome dell’account: crealo prima, le partite già giocate ti seguono.',
     createAccount: 'Crea il mio account',
     add: 'Aggiungi un amico',
-    addPlaceholder: 'Il suo nome dell’account',
+    addPlaceholder: 'Il nome dell’account, o l’e-mail',
+    sendInvite: 'Invia l’invito',
+    testerInvites: {
+      sent: (email: string) => `${email} riceverà un invito a installare il gioco.`,
+      already: (email: string) => `${email} è già stato invitato.`,
+      invalid: () => 'Questo indirizzo e-mail non sembra valido.',
+      limit: () => 'Al massimo cinque inviti al giorno: riprova domani.',
+      anonymous: () => 'Crea un account per invitare i tuoi amici.',
+      unreachable: () => 'Il server non risponde. Riprova tra un attimo.',
+    },
     send: 'Invia la richiesta',
     yourName: ['Il tuo nome da condividere: ', ''],
     loadFailed: 'Impossibile caricare i tuoi amici per ora.',
@@ -235,8 +250,10 @@ export const it: Messages = {
     history: (count) => `Tutta la cronologia (${count})`,
     hideHistory: 'Chiudi la cronologia',
     more: 'Mostra altro',
-    hiddenChallenges: (count) => `Sfide nascoste (${count})`,
-    unhide: 'Mostra di nuovo',
+    oldChallenges: (count) => `Sfide passate (${count})`,
+    wonBy: (name) => `Ha vinto ${name}`,
+    youWon: 'Hai vinto',
+    noWinner: 'Nessuno ha giocato',
     runLine: (words, combo) => `${words} ${plural(words, 'parola', 'parole')} · serie di ${combo}`,
     topWords: 'Le parole che dici di più',
     times: (count) => `${count} ${plural(count, 'volta', 'volte')}`,
@@ -268,6 +285,7 @@ export const it: Messages = {
     rejected: (count) => `Rifiutate (${count})`,
     correct: 'Correggi',
     correctLabel: (word) => `Correggi «${word}»`,
+    sameLetter: (letter) => `La parola deve sempre iniziare con ${letter}.`,
     withdraw: 'Ritira',
     save: 'Salva',
     failed: 'Il server non ha risposto. Riprova.',
@@ -409,7 +427,7 @@ export const it: Messages = {
       dyslexia: ['Dislessia', 'Due errori passano sulle parole di sei lettere o più.'],
       divination: ['Divinazione', 'Vedi il tema e la lettera che vengono dopo.'],
       complication: ['Rischio', 'Le parole poco comuni valgono ×1,15, le rare ×1,3.'],
-      celerity: ['Celerità', 'Una parola giusta si conferma da sola, senza premere Invio.'],
+      celerity: ['Celerità', 'Una parola si conferma da sola, senza premere Invio, anche con un refuso.'],
       professor: ['Professore', 'Quando passi, ti suggeriscono cosa avresti potuto rispondere, e la fine della partita ripassa la lezione.'],
       chatter: ['Chiacchiera', 'Una volta per partita, aggiungi «...» a una parola: lettera e tema restano per altre tre parole.'],
     },
@@ -573,6 +591,13 @@ export const it: Messages = {
     sent: 'Grazie! La tua idea è partita.',
     failed: 'La tua idea non è partita. Controlla la connessione e riprova.',
     close: 'Chiudi',
+  },
+
+  pushOffer: {
+    title: 'Attivare le notifiche?',
+    lead: 'Non ti manderemo notifiche, promesso: solo gli inviti alle sfide dei tuoi amici!',
+    no: 'No, grazie',
+    yes: 'Sì, attiva',
   },
 
   update: {

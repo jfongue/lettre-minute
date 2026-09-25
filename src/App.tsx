@@ -6,6 +6,7 @@ import {
   fetchAccount,
   fetchChallenge,
   fetchChallenges,
+  fetchFriends,
   forgetPushToken,
   fetchCommunityWords,
   fetchCrowdUsage,
@@ -33,16 +34,19 @@ import {
   type ChallengeDetail,
   type ChallengeSummary,
   type CommunityWord,
+  type Friend,
   type ModerationStatus,
   chooseName,
 } from './lib/cloud'
 import {
+  askPush,
   enablePush,
   isNativeApp,
   onBackButton,
   onPush,
   openStoreUpdate,
   prepareAds,
+  pushState,
   storeUpdateAvailable,
   tapFeedback,
   type PushData,
@@ -61,11 +65,12 @@ import {
 import { complicationDue, type PowerId } from './domain/powers'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
-import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
+import { adsDue, categoryGiftOffer, dealLineup, giftCategory, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { commonWord, withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
 import { standingMove } from './domain/standing'
 import { challengeNotice } from './state/challenges'
+import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { createJudge } from './state/judge'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
 import { initialSession, sessionReducer } from './state/session'
@@ -93,6 +98,7 @@ import { AvatarScreen } from './ui/AvatarScreen'
 import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
 import { PowerGiftPop, WordsNewsPop } from './ui/WordsNews'
+import { CategoryGiftPop } from './ui/CategoryGiftPop'
 import { ChallengePowers } from './ui/ChallengePowers'
 import { ChallengeSetup, type ChallengeRules } from './ui/ChallengeSetup'
 import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
@@ -106,6 +112,7 @@ import { ModerationScreen } from './ui/ModerationScreen'
 import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
 import { OverScreen } from './ui/OverScreen'
+import { PushOffer } from './ui/PushOffer'
 import { RunScreen, type Racer } from './ui/RunScreen'
 import { TutorialScreen, tutorialPrompt } from './ui/TutorialScreen'
 
@@ -123,6 +130,9 @@ function flushSubmissions(): void {
     if (sent.length > 0) saveSubmissions([])
   })
 }
+
+/** How often a home screen left open reads the boards again. */
+const BOARDS_REFRESH_MS = 120_000
 
 /** When the home screen starts warming the player's dictionaries, and the pause between two. */
 const PACK_WARM_DELAY_MS = 2500
@@ -143,6 +153,7 @@ export function App() {
   const [climbSeen, setClimbSeen] = useState<Boards | null>(null)
   // Where the drawer opened, or null while it is closed.
   const [menuPage, setMenuPage] = useState<MenuPage | null>(null)
+  const [menuFocus, setMenuFocus] = useState(false)
   const menuOpen = menuPage !== null
   const [accountMode, setAccountMode] = useState<AccountMode>('register')
   // The very first « Jouer » teaches one word before the clock starts; the
@@ -605,20 +616,54 @@ export function App() {
     const timer = setTimeout(() => setHomeSettled(true), 2500)
     return () => clearTimeout(timer)
   }, [])
+  // Friends: the menu's dot for the requests waiting, and the notifications
+  // offer once a new friendship lets challenges come in — never before.
+  const [friendRequests, setFriendRequests] = useState(0)
+  const [pushOffer, setPushOffer] = useState<number | null>(null)
+  const takeFriends = useCallback((list: readonly Friend[]) => {
+    setFriendRequests(list.filter((friend) => friend.relation === 'incoming').length)
+    const friends = list.filter((friend) => friend.relation === 'friend').length
+    if (!pushOfferDue(friends)) return
+    pushState().then((state) => {
+      // Already allowed, refused, or no push in this build: nothing to offer.
+      if (state === 'ask') setPushOffer(friends)
+      else markPushOffered(friends)
+    })
+  }, [])
+  const refreshFriends = useCallback(() => {
+    if (!named) return setFriendRequests(0)
+    fetchFriends().then((list) => list && takeFriends(list))
+  }, [named, takeFriends])
+
   // No push service: the home screen asks again when it comes back into view,
-  // and every minute while it stays there.
+  // and every minute while it stays there. The boards follow, less often.
   const atHome = session.phase === 'home'
   useEffect(() => {
-    if (!atHome || !named) return
-    refreshChallenges()
-    const visible = () => document.visibilityState === 'visible' && refreshChallenges()
-    document.addEventListener('visibilitychange', visible)
-    const timer = setInterval(visible, 60_000)
-    return () => {
-      document.removeEventListener('visibilitychange', visible)
-      clearInterval(timer)
+    if (!atHome) return
+    if (named) {
+      refreshChallenges()
+      refreshFriends()
     }
-  }, [atHome, named, refreshChallenges])
+    const visible = () => document.visibilityState === 'visible'
+    const tick = () => {
+      if (!visible() || !named) return
+      refreshChallenges()
+      refreshFriends()
+    }
+    const boardsTick = () => visible() && loadBoards().then((next) => next && setBoards(next))
+    const back = () => {
+      tick()
+      boardsTick()
+    }
+    document.addEventListener('visibilitychange', back)
+    const timer = setInterval(tick, 60_000)
+    const boardsTimer = setInterval(boardsTick, BOARDS_REFRESH_MS)
+    return () => {
+      document.removeEventListener('visibilitychange', back)
+      clearInterval(timer)
+      clearInterval(boardsTimer)
+    }
+  }, [atHome, named, refreshChallenges, refreshFriends])
 
   const launchChallenge = useCallback(
     async (detail: ChallengeDetail, powers: readonly PowerId[]) => {
@@ -941,11 +986,17 @@ export function App() {
           climbed={climbed}
           avatar={avatar}
           requestsNews={moderation?.news ?? 0}
+          friendRequests={named ? friendRequests : 0}
           challenges={named ? challenges : null}
           onChallenge={setChallengeOpen}
           onCreateChallenge={() => openCreate()}
+          onPastChallenges={() => {
+            setMenuFocus(true)
+            setMenuPage('stats')
+          }}
           onMenu={(page = 'profile') => {
             setAccountMode('register')
+            setMenuFocus(false)
             setMenuPage(page)
           }}
           onPlay={startFirstRun}
@@ -990,6 +1041,21 @@ export function App() {
           initial={defaultChallengePowers(session.profile)}
           onStart={(powers) => launchChallenge(picking, powers)}
           onClose={() => setPicking(null)}
+        />
+      )}
+
+      {pushOffer !== null && session.phase === 'home' && !notice && (
+        // Over the menu too: the friendship is often made there, and the offer follows it at once.
+        <PushOffer
+          onNo={() => {
+            markPushOffered(pushOffer)
+            setPushOffer(null)
+          }}
+          onYes={() => {
+            markPushOffered(pushOffer)
+            setPushOffer(null)
+            askPush()
+          }}
         />
       )}
 
@@ -1063,11 +1129,27 @@ export function App() {
           <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
         )}
 
+      {!notice &&
+        quietHome &&
+        update !== 'due' &&
+        !(moderation?.offer && !offerHeld) &&
+        wordsNews.length === 0 &&
+        !complicationDue(session.profile, acceptedWords) &&
+        categoryGiftOffer(session.profile, availableCategoryIds(lang)).length > 0 && (
+          <CategoryGiftPop
+            offer={categoryGiftOffer(session.profile, availableCategoryIds(lang))}
+            onChoose={(categoryId) => dispatch({ type: 'profile-loaded', profile: giftCategory(session.profile, categoryId) })}
+          />
+        )}
+
       {menuOpen && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
         <Menu
           page={menuPage}
           profile={session.profile}
           history={history}
+          focusChallenges={menuFocus}
+          friendRequests={named ? friendRequests : 0}
+          onFriends={takeFriends}
           challenges={named ? challenges : null}
           onChallenge={(id) => {
             setMenuPage(null)

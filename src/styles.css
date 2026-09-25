@@ -192,6 +192,23 @@ button {
   text-transform: uppercase;
 }
 
+/* The home screen's challenge title leads to the old ones: a title still, with a way on. */
+button.challenge-past {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button.challenge-past::after {
+  content: '›';
+  font-size: 1.1rem;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
 .section-title::before {
   content: '';
   width: 0.7em;
@@ -1337,6 +1354,19 @@ button {
   cursor: pointer;
 }
 
+.poster-menu {
+  position: relative;
+}
+
+/* Inside the tile's corner: the poster cells clip what overflows. */
+.poster-menu .poster-menu-dot {
+  top: 9%;
+  left: 9%;
+  right: auto;
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
 .poster-menu:focus-visible {
   outline: 3px solid var(--ink);
   outline-offset: -3px;
@@ -1456,6 +1486,15 @@ button {
   /* Three words and a close button across a phone: the type gives way first. */
   font-size: clamp(0.72rem, 3.4vw, 0.95rem);
   letter-spacing: clamp(0.04em, 0.8vw, 0.1em);
+}
+
+.menu-tabs .layer-tab {
+  position: relative;
+}
+
+.menu-tabs .layer-tab .badge-dot {
+  top: 0.35rem;
+  right: 0.35rem;
 }
 
 .menu-tabs .layer-tab + .layer-tab {
@@ -1730,6 +1769,28 @@ button {
 .run-list-score small {
   font-size: 0.7rem;
   font-weight: 600;
+}
+
+.old-challenges li {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.old-challenge-id {
+  display: grid;
+  justify-items: start;
+  min-width: 0;
+}
+
+.old-challenge-winner {
+  max-width: 11rem;
+  text-align: right;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.old-challenge-winner--me {
+  color: var(--green);
 }
 
 .stats-figures {
@@ -2683,6 +2744,7 @@ button {
 
 .unlock-card strong {
   font-size: clamp(0.95rem, 4vw, 1.15rem);
+  hyphens: auto;
 }
 
 .unlock-card--lit {
@@ -4792,12 +4854,6 @@ button {
   margin-bottom: 0.75rem;
 }
 
-.challenge-leave {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
-}
-
 .challenge-lineup {
   display: flex;
   flex-wrap: wrap;
@@ -5978,30 +6034,20 @@ button.challenge-word[aria-expanded='true'] {
   cursor: default;
 }
 
-/* A respelling keeps its first letter: shown fixed, ahead of the field. */
-.initial-locked {
+/* A respelling may change the whole word; a moved letter says so under the field. */
+.respell-field {
   display: flex;
-  align-items: stretch;
+  flex-direction: column;
+  gap: 0.25rem;
   min-width: 0;
 }
 
-.request-edit .initial-locked {
+.request-edit .respell-field {
   flex: 1 1 8rem;
 }
 
-.initial-locked-letter {
-  display: grid;
-  place-items: center;
-  min-width: 2.2rem;
-  padding: 0 0.4rem;
-  background: var(--ink);
-  color: var(--paper);
-  font-weight: 800;
-}
-
-.initial-locked input {
-  flex: 1;
-  width: 0;
+.respell-field input[aria-invalid='true'] {
+  border-color: var(--red);
 }
 
 /* A proposal the dictionary already spells: it says so, then folds away. */

@@ -15,6 +15,7 @@ export const es: Messages = {
     tagline: (seconds) => `Una letra · un tema · ${seconds} segundos`,
     play: 'Jugar',
     menu: 'Menú: perfil, amigos, opciones',
+    friendRequests: (count) => (count === 1 ? 'una solicitud de amistad' : `${count} solicitudes de amistad`),
     level: (level) => `Nivel ${level}`,
     bestScore: 'mejor puntuación',
     runs: (count) => plural(count, 'partida', 'partidas'),
@@ -66,6 +67,11 @@ export const es: Messages = {
     confirm: 'Confirmar',
     pickFirst: 'Toca una carta',
     joined: 'se suma a tus partidas',
+  },
+
+  categoryGift: {
+    title: '¡Nuevas categorías!',
+    lead: 'Ya lo habías desbloqueado todo: elige una de regalo.',
   },
 
   over: {
@@ -198,7 +204,16 @@ export const es: Messages = {
     needAccount: 'Un amigo te encuentra por tu nombre de cuenta: créala primero, tus partidas jugadas te siguen.',
     createAccount: 'Crear mi cuenta',
     add: 'Añadir un amigo',
-    addPlaceholder: 'Su nombre de cuenta',
+    addPlaceholder: 'Su nombre de cuenta, o su e-mail',
+    sendInvite: 'Enviar la invitación',
+    testerInvites: {
+      sent: (email: string) => `${email} recibirá una invitación para instalar el juego.`,
+      already: (email: string) => `${email} ya ha sido invitado.`,
+      invalid: () => 'Esa dirección de e-mail no parece válida.',
+      limit: () => 'Cinco invitaciones al día como máximo: vuelve a intentarlo mañana.',
+      anonymous: () => 'Crea una cuenta para invitar a tus amigos.',
+      unreachable: () => 'El servidor no responde. Inténtalo de nuevo en un momento.',
+    },
     send: 'Enviar la solicitud',
     yourName: ['Tu nombre para compartir: ', ''],
     loadFailed: 'No se pueden cargar tus amigos ahora mismo.',
@@ -235,8 +250,10 @@ export const es: Messages = {
     history: (count) => `Todo el historial (${count})`,
     hideHistory: 'Plegar el historial',
     more: 'Ver más',
-    hiddenChallenges: (count) => `Retos ocultos (${count})`,
-    unhide: 'Volver a mostrar',
+    oldChallenges: (count) => `Retos anteriores (${count})`,
+    wonBy: (name) => `Ganó ${name}`,
+    youWon: 'Ganaste',
+    noWinner: 'Nadie jugó',
     runLine: (words, combo) => `${words} ${plural(words, 'palabra', 'palabras')} · racha de ${combo}`,
     topWords: 'Tus palabras más dichas',
     times: (count) => `${count} ${plural(count, 'vez', 'veces')}`,
@@ -268,6 +285,7 @@ export const es: Messages = {
     rejected: (count) => `Rechazadas (${count})`,
     correct: 'Corregir',
     correctLabel: (word) => `Corregir «${word}»`,
+    sameLetter: (letter) => `La palabra debe seguir empezando por ${letter}.`,
     withdraw: 'Retirar',
     save: 'Guardar',
     failed: 'El servidor no respondió. Inténtalo de nuevo.',
@@ -409,7 +427,7 @@ export const es: Messages = {
       dyslexia: ['Dislexia', 'Dos faltas pasan en palabras de seis letras o más.'],
       divination: ['Adivinación', 'Ves el tema y la letra que vienen después.'],
       complication: ['Riesgo', 'Las palabras poco comunes valen ×1,15; las raras, ×1,3.'],
-      celerity: ['Celeridad', 'Una palabra correcta se valida sola, sin pulsar Intro.'],
+      celerity: ['Celeridad', 'Una palabra se valida sola, sin pulsar Intro, incluso con una errata.'],
       professor: ['Profesor', 'Cuando pasas, te soplan lo que podrías haber respondido, y el final de la partida repasa la lección.'],
       chatter: ['Cháchara', 'Una vez por partida, añade «...» a una palabra: la letra y el tema se quedan tres palabras más.'],
     },
@@ -573,6 +591,13 @@ export const es: Messages = {
     sent: '¡Gracias! Tu idea está en camino.',
     failed: 'Tu idea no se pudo enviar. Comprueba tu conexión e inténtalo de nuevo.',
     close: 'Cerrar',
+  },
+
+  pushOffer: {
+    title: '¿Activar las notificaciones?',
+    lead: 'No te enviaremos notificaciones, prometido: ¡solo las invitaciones a retos de tus amigos!',
+    no: 'No, gracias',
+    yes: 'Sí, activar',
   },
 
   update: {

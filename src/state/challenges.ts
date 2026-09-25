@@ -1,5 +1,6 @@
+import { settleChallenge } from '../domain/challenge'
 import type { Messages } from '../i18n'
-import type { ChallengeSummary } from '../lib/cloud'
+import type { ChallengeDetail, ChallengeSummary } from '../lib/cloud'
 
 /** Whole hours before the challenge closes, one at least while it runs. */
 export function hoursLeft(expiresAt: number): number {
@@ -76,7 +77,7 @@ export function unhideChallenge(hidden: Record<string, string>, id: string): Rec
   return saveHidden(next)
 }
 
-/** The recap's own « Masquer »: the detail stamped as the list will read it. */
+/** A recap once read: the detail stamped as the list will read it. */
 export function hideChallengeDetail(detail: {
   id: string
   finished: boolean
@@ -122,5 +123,52 @@ export function markRecapRevealed(id: string): void {
     localStorage.setItem(REVEALED_KEY, JSON.stringify([...revealed, id].slice(-REVEALED_KEPT)))
   } catch {
     /* the reveal plays again next time */
+  }
+}
+
+/** Who took a closed challenge, or null when nobody played it. */
+export interface ChallengeWinner {
+  name: string
+  me: boolean
+  score: number
+}
+
+export function winnerOf(detail: Pick<ChallengeDetail, 'players'>): ChallengeWinner | null {
+  const top = settleChallenge(detail.players)[0]
+  const player = top && detail.players.find((candidate) => candidate.playerId === top.playerId)
+  return top && player ? { name: player.name, me: player.me, score: top.score } : null
+}
+
+const WINNERS_KEY = 'lettre-minute.challenge-winners.v1'
+const WINNERS_KEPT = 200
+
+/**
+ * Challenge id → its winner, kept once the recap was read. Only a device can
+ * tell: a bot's run exists nowhere but replayed from the seed, so the server's
+ * list knows no final standings.
+ */
+export function loadWinners(): Record<string, ChallengeWinner | null> {
+  try {
+    const stored: unknown = JSON.parse(localStorage.getItem(WINNERS_KEY) ?? 'null')
+    if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return {}
+    return Object.fromEntries(
+      Object.entries(stored).filter(
+        ([, winner]) =>
+          winner === null ||
+          (typeof winner === 'object' && typeof winner.name === 'string' && typeof winner.me === 'boolean' && typeof winner.score === 'number'),
+      ),
+    )
+  } catch {
+    return {}
+  }
+}
+
+export function rememberWinner(id: string, winner: ChallengeWinner | null): void {
+  const winners = { ...loadWinners(), [id]: winner }
+  const kept = Object.entries(winners).slice(-WINNERS_KEPT)
+  try {
+    localStorage.setItem(WINNERS_KEY, JSON.stringify(Object.fromEntries(kept)))
+  } catch {
+    /* read again from the server next time */
   }
 }

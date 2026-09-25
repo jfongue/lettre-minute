@@ -15,6 +15,7 @@ export const nl: Messages = {
     tagline: (seconds) => `Eén letter · één thema · ${seconds} seconden`,
     play: 'Spelen',
     menu: 'Menu: profiel, vrienden, opties',
+    friendRequests: (count) => (count === 1 ? 'één vriendschapsverzoek' : `${count} vriendschapsverzoeken`),
     level: (level) => `Niveau ${level}`,
     bestScore: 'beste score',
     runs: (count) => plural(count, 'spel', 'spellen'),
@@ -65,6 +66,11 @@ export const nl: Messages = {
     confirm: 'Bevestigen',
     pickFirst: 'Tik op een kaart',
     joined: 'doet nu mee in je potjes',
+  },
+
+  categoryGift: {
+    title: 'Nieuwe categorieën!',
+    lead: 'Je had al alles ontgrendeld: kies er een als cadeau.',
   },
 
   over: {
@@ -197,7 +203,16 @@ export const nl: Messages = {
     needAccount: 'Een vriend vindt je via je accountnaam: maak die eerst, je gespeelde spellen gaan mee.',
     createAccount: 'Mijn account maken',
     add: 'Vriend toevoegen',
-    addPlaceholder: 'Zijn of haar accountnaam',
+    addPlaceholder: 'Accountnaam of e-mail',
+    sendInvite: 'Uitnodiging sturen',
+    testerInvites: {
+      sent: (email: string) => `${email} krijgt een uitnodiging om het spel te installeren.`,
+      already: (email: string) => `${email} is al uitgenodigd.`,
+      invalid: () => 'Dat e-mailadres lijkt niet geldig.',
+      limit: () => 'Hoogstens vijf uitnodigingen per dag: probeer het morgen opnieuw.',
+      anonymous: () => 'Maak een account om je vrienden uit te nodigen.',
+      unreachable: () => 'De server antwoordt niet. Probeer het zo meteen opnieuw.',
+    },
     send: 'Verzoek versturen',
     yourName: ['Jouw naam om te delen: ', ''],
     loadFailed: 'Je vrienden kunnen nu niet worden geladen.',
@@ -234,8 +249,10 @@ export const nl: Messages = {
     history: (count) => `Hele geschiedenis (${count})`,
     hideHistory: 'Geschiedenis inklappen',
     more: 'Meer tonen',
-    hiddenChallenges: (count) => `Verborgen uitdagingen (${count})`,
-    unhide: 'Weer tonen',
+    oldChallenges: (count) => `Eerdere uitdagingen (${count})`,
+    wonBy: (name) => `${name} won`,
+    youWon: 'Jij won',
+    noWinner: 'Niemand speelde',
     runLine: (words, combo) => `${words} ${plural(words, 'woord', 'woorden')} · reeks van ${combo}`,
     topWords: 'Je vaakst gezegde woorden',
     times: (count) => `${count} keer`,
@@ -267,6 +284,7 @@ export const nl: Messages = {
     rejected: (count) => `Afgewezen (${count})`,
     correct: 'Verbeteren',
     correctLabel: (word) => `‘${word}’ verbeteren`,
+    sameLetter: (letter) => `Het woord moet nog steeds met ${letter} beginnen.`,
     withdraw: 'Intrekken',
     save: 'Opslaan',
     failed: 'De server antwoordde niet. Probeer het opnieuw.',
@@ -408,7 +426,7 @@ export const nl: Messages = {
       dyslexia: ['Dyslexie', 'Twee fouten mogen bij woorden van zes letters of meer.'],
       divination: ['Waarzeggerij', 'Je ziet het volgende thema en de volgende letter.'],
       complication: ['Risico', 'Ongewone woorden tellen ×1,15, zeldzame ×1,3.'],
-      celerity: ['Snelheid', 'Een goed woord bevestigt zichzelf, zonder Enter.'],
+      celerity: ['Snelheid', 'Een woord bevestigt zichzelf, zonder Enter, ook met een tikfout.'],
       professor: ['Professor', 'Sla je over, dan wordt je ingefluisterd wat je had kunnen zeggen, en aan het eind volgt de les.'],
       chatter: ['Gekwebbel', 'Eén keer per spel: zet „...” achter een woord, en letter en thema blijven voor nog drie woorden.'],
     },
@@ -572,6 +590,13 @@ export const nl: Messages = {
     sent: 'Bedankt! Je idee is verstuurd.',
     failed: 'Je idee kon niet worden verstuurd. Controleer je verbinding en probeer het opnieuw.',
     close: 'Sluiten',
+  },
+
+  pushOffer: {
+    title: 'Meldingen aanzetten?',
+    lead: 'We sturen je geen meldingen, beloofd: alleen de uitdagingen van je vrienden!',
+    no: 'Nee, bedankt',
+    yes: 'Ja, aanzetten',
   },
 
   update: {

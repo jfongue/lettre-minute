@@ -193,23 +193,18 @@ async function registerIfAllowed(): Promise<void> {
 }
 
 /**
- * Asks once for the right to notify (Android 13 and later), then registers:
- * `onToken` gets the device's token now and whenever it changes. A refusal is
- * final — the system does not ask twice, and neither does the game. Only the
- * phone's settings bring it back, so each return to the game checks again.
+ * Registers when the phone already lets the game notify: `onToken` gets the
+ * device's token now and whenever it changes. It never asks — the question
+ * comes after a new friendship (`askPush`), with the game's own word first.
+ * A refusal is final for the system, and only the phone's settings bring it
+ * back, so each return to the game checks again.
  */
 export function enablePush(channelName: string, onToken: (token: string) => void): () => void {
   if (!pushReady) return () => {}
   pushChannel = channelName
   const listener = PushNotifications.addListener('registration', (token) => onToken(token.value))
   const stopResume = onAppResume(() => quietly(registerIfAllowed))
-  quietly(async () => {
-    const status = await PushNotifications.checkPermissions()
-    if (status.receive === 'prompt' || status.receive === 'prompt-with-rationale') {
-      await PushNotifications.requestPermissions()
-    }
-    await registerIfAllowed()
-  })
+  quietly(registerIfAllowed)
   return () => {
     pushChannel = null
     stopResume()
