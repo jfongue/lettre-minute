@@ -21,6 +21,15 @@
             </intent-filter>
         </activity>
 
+        <!-- Sans elles, une notification reçue app fermée prend l'icône du lanceur,
+             qu'Android réduit à une silhouette pleine. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_notify" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/ic_launcher_red" />
+
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="${admobAppId}" />

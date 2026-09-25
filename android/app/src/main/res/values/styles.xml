@@ -16,7 +16,13 @@
     </style>
 
 
+    <!-- Depuis Android 12, le système peint son propre écran de lancement avant
+         celui de Capacitor : l'icône adaptative sur fond sombre. Il reste à l'écran
+         jusqu'au premier rendu du jeu ; vide et couleur papier, il ne se voit plus. -->
     <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
         <item name="android:background">@drawable/splash</item>
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@android:color/transparent</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 </resources>

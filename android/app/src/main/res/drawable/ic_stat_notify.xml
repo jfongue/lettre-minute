@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- L'icône de la barre d'état : le logo de ic_launcher_monochrome, recadré sur
+     sa forme. Android n'en garde que l'alpha, d'où le blanc uni. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="80" android:viewportHeight="80">
+    <group android:translateX="-13" android:translateY="-10">
+        <path android:fillColor="#FFFFFFFF" android:pathData="M59.35,22A14,14 0,1 1,78 40.65V22Z" />
+        <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd"
+            android:pathData="M20,24h56v56H20z M36.2,31.9V72.5H63.9V63H47.4V31.9z" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M20,82h56v4H20z" />
+    </group>
+</vector>
