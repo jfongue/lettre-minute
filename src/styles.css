@@ -5388,6 +5388,16 @@ button.challenge-word {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Rows and sections that animate in each paint in their own layer, the later
+   over the earlier: the open one and its ancestors rise above their siblings. */
+.reactable--open,
+li:has(> .reactable--open),
+.stack:has(.reactable--open),
+.cascade > :has(.reactable--open) {
+  position: relative;
+  z-index: 10;
+}
+
 .reactable--open .reactable-body {
   background: var(--paper-2);
 }
