@@ -348,6 +348,15 @@ export const en: Messages = {
     eraseFailed: 'The server did not answer; nothing was erased.',
     retry: 'Try again',
     erased: 'Data erased.',
+    notifications: 'Notifications',
+    push: {
+      on: 'On: you hear when a friend challenges you and when a challenge’s recap is ready.',
+      off: 'Off: you will only know a friend challenged you by opening the game.',
+      ask: 'Not allowed yet: turn them on to hear when a friend challenges you.',
+    },
+    pushAllow: 'Turn on notifications',
+    pushSettings: 'Open phone settings',
+    pushAccount: 'Create an account to hear when a friend challenges you.',
   },
 
   avatar: {

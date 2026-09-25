@@ -343,6 +343,15 @@ export const nl: Messages = {
     eraseFailed: 'De server reageerde niet, er is niets gewist.',
     retry: 'Opnieuw proberen',
     erased: 'Gegevens gewist.',
+    notifications: 'Meldingen',
+    push: {
+      on: 'Aan: je hoort het wanneer een vriend je uitdaagt en wanneer de uitslag van een uitdaging klaar is.',
+      off: 'Uit: je ziet pas dat een vriend je uitdaagt als je het spel opent.',
+      ask: 'Nog niet toegestaan: zet ze aan om te horen wanneer een vriend je uitdaagt.',
+    },
+    pushAllow: 'Meldingen aanzetten',
+    pushSettings: 'Telefooninstellingen openen',
+    pushAccount: 'Maak een account om te horen wanneer een vriend je uitdaagt.',
   },
 
   avatar: {

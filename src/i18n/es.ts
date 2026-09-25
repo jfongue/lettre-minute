@@ -344,6 +344,15 @@ export const es: Messages = {
     eraseFailed: 'El servidor no respondió, no se ha borrado nada.',
     retry: 'Reintentar',
     erased: 'Datos borrados.',
+    notifications: 'Notificaciones',
+    push: {
+      on: 'Activadas: te avisamos cuando un amigo te reta y cuando el resumen de un reto está listo.',
+      off: 'Desactivadas: solo sabrás que un amigo te reta al abrir el juego.',
+      ask: 'Aún no permitidas: actívalas para saber cuando un amigo te reta.',
+    },
+    pushAllow: 'Activar las notificaciones',
+    pushSettings: 'Abrir los ajustes del teléfono',
+    pushAccount: 'Crea una cuenta para saber cuando un amigo te reta.',
   },
 
   avatar: {

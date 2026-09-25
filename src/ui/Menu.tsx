@@ -17,7 +17,16 @@ import {
   type Friend,
   type ModerationStatus,
 } from '../lib/cloud'
-import { adPrivacyOptionsRequired, showAdPrivacyOptions } from '../lib/native'
+import {
+  adPrivacyOptionsRequired,
+  askPush,
+  onAppResume,
+  openPushSettings,
+  pushState,
+  pushSupported,
+  showAdPrivacyOptions,
+  type PushState,
+} from '../lib/native'
 import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
 import { sound as preview, type SoundPrefs } from '../lib/sound'
 import type { Theme } from '../state/theme'
@@ -172,6 +181,7 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               onSound={props.onSound}
               onDebug={props.onDebug}
               onErase={props.onErase}
+              named={Boolean(props.account && !props.account.anonymous)}
             />
           )}
         </div>
@@ -572,12 +582,14 @@ interface OptionsPaneProps {
   onSound(sound: SoundPrefs): void
   onDebug(): void
   onErase(): Promise<boolean>
+  /** Pushes announce challenges, which only an account receives. */
+  named: boolean
 }
 
 const DEBUG_TAPS = 7
 const DEBUG_TAP_GAP_MS = 600
 
-function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onDebug, onErase }: OptionsPaneProps) {
+function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onDebug, onErase, named }: OptionsPaneProps) {
   const t = useT()
   const taps = useRef({ count: 0, at: 0 })
   const tapTitle = () => {
@@ -662,6 +674,8 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onDebug
         </div>
       </section>
 
+      {pushSupported() && <NotificationOptions named={named} />}
+
       <div className="menu-foot">
         <a className="btn btn--quiet menu-start" href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
           {t.options.privacy}
@@ -674,6 +688,41 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onDebug
         <EraseData onErase={onErase} />
       </div>
     </>
+  )
+}
+
+/**
+ * Once refused, only the phone's settings can let the game notify again: the
+ * state is read anew each time the player comes back from them.
+ */
+function NotificationOptions({ named }: { named: boolean }) {
+  const t = useT()
+  const [state, setState] = useState<PushState | null>(null)
+  useEffect(() => {
+    let live = true
+    const read = () => pushState().then((next) => live && setState(next))
+    read()
+    const stop = onAppResume(read)
+    return () => {
+      live = false
+      stop()
+    }
+  }, [])
+  if (state === null) return null
+  return (
+    <section className="stack">
+      <p className="section-title">{t.options.notifications}</p>
+      <p className="note">{named ? t.options.push[state] : t.options.pushAccount}</p>
+      {state === 'ask' ? (
+        <button type="button" className="btn btn--ghost btn--block" onClick={() => askPush().then(setState)}>
+          {t.options.pushAllow}
+        </button>
+      ) : (
+        <button type="button" className="btn btn--ghost btn--block" onClick={openPushSettings}>
+          {t.options.pushSettings}
+        </button>
+      )}
+    </section>
   )
 }
 

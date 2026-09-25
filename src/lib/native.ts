@@ -5,7 +5,7 @@ import {
 } from '@capacitor-community/admob'
 import { AppUpdate, AppUpdateAvailability } from '@capawesome/capacitor-app-update'
 import { App as NativeApp } from '@capacitor/app'
-import { Capacitor } from '@capacitor/core'
+import { Capacitor, registerPlugin } from '@capacitor/core'
 import { Haptics, ImpactStyle } from '@capacitor/haptics'
 import { Preferences } from '@capacitor/preferences'
 import { PushNotifications } from '@capacitor/push-notifications'
@@ -49,6 +49,15 @@ export function onAppActive(onChange: (active: boolean) => void): void {
   quietly(() =>
     AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, () => onChange(true))
   )
+}
+
+/** Each return of the app to the foreground, until the returned cleanup runs. */
+export function onAppResume(onResume: () => void): () => void {
+  if (!native) return () => {}
+  const handle = NativeApp.addListener('appStateChange', ({ isActive }) => isActive && onResume())
+  return () => {
+    handle.then((listener) => listener.remove()).catch(() => {})
+  }
 }
 
 /** Hides the launch screen once React has painted. */
@@ -167,27 +176,79 @@ export function pushSupported(): boolean {
   return pushReady
 }
 
+/** Our own plugin (`NotificationSettingsPlugin.java`), Android only. */
+const NotificationSettings = registerPlugin<{
+  enabled(): Promise<{ enabled: boolean }>
+  open(): Promise<void>
+}>('NotificationSettings')
+
+let pushChannel: string | null = null
+
+/** Registers if the phone lets the game notify; never asks. */
+async function registerIfAllowed(): Promise<void> {
+  if (pushChannel === null || (await PushNotifications.checkPermissions()).receive !== 'granted') return
+  // The channel the server's messages name: its label is what Android's settings show.
+  await PushNotifications.createChannel({ id: 'challenges', name: pushChannel, importance: 4, visibility: 1 })
+  await PushNotifications.register()
+}
+
 /**
  * Asks once for the right to notify (Android 13 and later), then registers:
  * `onToken` gets the device's token now and whenever it changes. A refusal is
- * final — the system does not ask twice, and neither does the game.
+ * final — the system does not ask twice, and neither does the game. Only the
+ * phone's settings bring it back, so each return to the game checks again.
  */
 export function enablePush(channelName: string, onToken: (token: string) => void): () => void {
   if (!pushReady) return () => {}
+  pushChannel = channelName
   const listener = PushNotifications.addListener('registration', (token) => onToken(token.value))
+  const stopResume = onAppResume(() => quietly(registerIfAllowed))
   quietly(async () => {
-    let status = await PushNotifications.checkPermissions()
+    const status = await PushNotifications.checkPermissions()
     if (status.receive === 'prompt' || status.receive === 'prompt-with-rationale') {
-      status = await PushNotifications.requestPermissions()
+      await PushNotifications.requestPermissions()
     }
-    if (status.receive !== 'granted') return
-    // The channel the server's messages name: its label is what Android's settings show.
-    await PushNotifications.createChannel({ id: 'challenges', name: channelName, importance: 4, visibility: 1 })
-    await PushNotifications.register()
+    await registerIfAllowed()
   })
   return () => {
+    pushChannel = null
+    stopResume()
     listener.then((handle) => handle.remove()).catch(() => {})
   }
+}
+
+/**
+ * `ask`: the system has not asked yet. `off`: refused, or silenced in the
+ * phone's settings — which the push plugin misses before Android 13.
+ */
+export type PushState = 'on' | 'off' | 'ask'
+
+export async function pushState(): Promise<PushState> {
+  if (!pushReady) return 'off'
+  try {
+    const status = await PushNotifications.checkPermissions()
+    if (status.receive === 'prompt' || status.receive === 'prompt-with-rationale') return 'ask'
+    if (status.receive !== 'granted') return 'off'
+    return (await NotificationSettings.enabled().catch(() => ({ enabled: true }))).enabled ? 'on' : 'off'
+  } catch {
+    return 'off'
+  }
+}
+
+export async function askPush(): Promise<PushState> {
+  if (!pushReady) return 'off'
+  try {
+    await PushNotifications.requestPermissions()
+    await registerIfAllowed()
+  } catch {
+    // The state read below says what came of it.
+  }
+  return pushState()
+}
+
+/** The game's page in the phone's notification settings. */
+export function openPushSettings(): void {
+  quietly(() => NotificationSettings.open())
 }
 
 /** What a push carries: the challenge, and whether it invites or announces a recap. */

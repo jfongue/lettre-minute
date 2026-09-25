@@ -4,6 +4,7 @@ import type { TrophyId } from '../domain/challenge'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
 import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, VoteOutcome } from '../lib/cloud'
+import type { PushState } from '../lib/native'
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one)
 /** A trophy's name, and its line from the value that won it and the word, when one did. */
@@ -366,6 +367,15 @@ export const fr = {
     eraseFailed: 'Le serveur n’a pas répondu, rien n’a été effacé.',
     retry: 'Réessayer',
     erased: 'Données effacées.',
+    notifications: 'Notifications',
+    push: {
+      on: 'Activées : tu es prévenu quand un ami te défie et quand le bilan d’un défi est prêt.',
+      off: 'Désactivées : tu ne sauras qu’un ami te défie qu’en ouvrant le jeu.',
+      ask: 'Pas encore autorisées : active-les pour être prévenu quand un ami te défie.',
+    } satisfies Record<PushState, string> as Record<PushState, string>,
+    pushAllow: 'Activer les notifications',
+    pushSettings: 'Ouvrir les réglages du téléphone',
+    pushAccount: 'Crée un compte pour être prévenu quand un ami te défie.',
   },
 
   avatar: {

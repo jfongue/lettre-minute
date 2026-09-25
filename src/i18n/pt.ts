@@ -344,6 +344,15 @@ export const pt: Messages = {
     eraseFailed: 'O servidor não respondeu, nada foi apagado.',
     retry: 'Tentar de novo',
     erased: 'Dados apagados.',
+    notifications: 'Notificações',
+    push: {
+      on: 'Ativadas: avisamos quando um amigo te desafia e quando o resumo de um desafio está pronto.',
+      off: 'Desativadas: só vais saber que um amigo te desafiou ao abrir o jogo.',
+      ask: 'Ainda não permitidas: ativa-as para saber quando um amigo te desafia.',
+    },
+    pushAllow: 'Ativar as notificações',
+    pushSettings: 'Abrir as definições do telemóvel',
+    pushAccount: 'Cria uma conta para saber quando um amigo te desafia.',
   },
 
   avatar: {

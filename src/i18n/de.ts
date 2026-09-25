@@ -342,6 +342,15 @@ export const de: Messages = {
     eraseFailed: 'Der Server hat nicht geantwortet, nichts wurde gelöscht.',
     retry: 'Erneut versuchen',
     erased: 'Daten gelöscht.',
+    notifications: 'Benachrichtigungen',
+    push: {
+      on: 'An: Du erfährst, wenn dich ein Freund herausfordert und wenn die Bilanz einer Herausforderung bereitsteht.',
+      off: 'Aus: Dass dich ein Freund herausfordert, siehst du erst, wenn du das Spiel öffnest.',
+      ask: 'Noch nicht erlaubt: Schalte sie ein, um zu erfahren, wenn dich ein Freund herausfordert.',
+    },
+    pushAllow: 'Benachrichtigungen einschalten',
+    pushSettings: 'Telefoneinstellungen öffnen',
+    pushAccount: 'Erstelle ein Konto, um zu erfahren, wenn dich ein Freund herausfordert.',
   },
 
   avatar: {

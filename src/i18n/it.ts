@@ -344,6 +344,15 @@ export const it: Messages = {
     eraseFailed: 'Il server non ha risposto, non è stato cancellato nulla.',
     retry: 'Riprova',
     erased: 'Dati cancellati.',
+    notifications: 'Notifiche',
+    push: {
+      on: 'Attive: ti avvisiamo quando un amico ti sfida e quando il resoconto di una sfida è pronto.',
+      off: 'Disattivate: saprai che un amico ti ha sfidato solo aprendo il gioco.',
+      ask: 'Non ancora consentite: attivale per sapere quando un amico ti sfida.',
+    },
+    pushAllow: 'Attiva le notifiche',
+    pushSettings: 'Apri le impostazioni del telefono',
+    pushAccount: 'Crea un account per sapere quando un amico ti sfida.',
   },
 
   avatar: {
