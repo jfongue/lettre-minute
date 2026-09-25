@@ -6,6 +6,17 @@
  * takes the rest.
  */
 export const DROPPED_WORDS: Readonly<Record<string, Readonly<Record<string, readonly string[]>>>> = {
+  // Aliases that read as their country's plural, or misspell it.
+  pays: {
+    en: ['Greenlandia', 'Nepall', 'Ugandah'],
+    de: ['Kap Verden'],
+    nl: ['Nederlanden'],
+  },
+  // The Wiktionary's aromatic plants hold a few names of the everyday word
+  // before the herb — « pote », « tin » — and the woods and dishes named after one.
+  'fruits-legumes': {
+    fr: ['pote', 'tin', 'pied de lit', 'aspic', 'spic', 'santal', 'camphrier', 'cannelier', 'cannelier de Chine', 'acajou-amer'],
+  },
   matieres: {
     fr: [
       // Things made of cloth, and fabrics named after a place or a fruit.
@@ -105,8 +116,48 @@ export const DROPPED_WORDS: Readonly<Record<string, Readonly<Record<string, read
  * chemical formulas and oil crises. Read as if the Wiktionary filed them.
  */
 export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readonly string[]>>>> = {
+  // Wikidata labels salt « sel alimentaire » and stainless steel « acier
+  // inoxydable », and files a wood under its tree: no pull reaches « sel »,
+  // « inox » or « chêne ».
   matieres: {
-    fr: ['béton'],
+    fr: [
+      'béton', 'plastique', 'vapeur', 'PVC', 'daim', 'bambou', 'chêne', 'pin', 'hêtre', 'bouleau', 'noyer', 'acajou',
+      'ébène', 'teck', 'érable', 'sel', 'inox', 'plexiglas', 'tissu',
+    ],
+    en: ['salt', 'petrol', 'diesel', 'bamboo', 'asphalt', 'carbon fibre'],
+    de: ['Gummi', 'Ziegel', 'Lehm', 'Kies', 'Öl', 'Benzin', 'Diesel', 'Bambus', 'Styropor', 'Gips', 'Salz'],
+    es: ['cristal', 'goma', 'mimbre', 'bambú'],
+    it: ['plastica', 'poliestere', 'camoscio', 'creta', 'cristallo', 'bambù', 'polistirolo'],
+    nl: ['plastic', 'kunststof', 'diesel', 'titanium', 'gips', 'piepschuim', 'bamboe'],
+    pt: ['cristal', 'vapor', 'fumaça', 'bambu', 'isopor', 'esmeralda'],
+  },
+  // Wikidata's anatomy is the anatomist's: « abdomen », « fosse nasale ». The
+  // words a player says first sit among its aliases, with every technical
+  // synonym, and the French Wiktionary files them under no body-part category.
+  'corps-humain': {
+    fr: [
+      'narine', 'poitrine', 'ventre', 'rotule', 'plante du pied', 'moelle épinière', 'squelette', 'omoplate', 'cubitus',
+      'péroné', 'ovaire', 'thorax', 'tronc', 'biceps', 'triceps', 'quadriceps', 'pupille', 'grain de beauté', 'ménisque',
+      'tendon d’Achille', 'pommette', 'poing', 'gros orteil', 'fessier',
+    ],
+    en: [
+      'pupil', 'iris', 'nostril', 'fingernail', 'toenail', 'belly button', 'belly', 'collarbone', 'shoulder blade',
+      'biceps', 'kneecap', 'windpipe', 'freckle', 'fingertip',
+    ],
+    de: [
+      'Bauch', 'Po', 'Zeh', 'Nasenloch', 'Fingernagel', 'Fingerspitze', 'Ellenbogen', 'Brustkorb', 'Pupille', 'Backenzahn',
+      'Milchzahn', 'Skelett', 'Rachen',
+    ],
+    es: [
+      'oreja', 'muela', 'rostro', 'pómulo', 'meñique', 'barriga', 'glúteo', 'omóplato', 'bíceps', 'tríceps', 'pupila',
+      'retina', 'esqueleto', 'puño',
+    ],
+    it: ['narice', 'zigomo', 'torace', 'ventre', 'mascella', 'costola', 'spina dorsale', 'bicipite', 'pupilla', 'menisco'],
+    nl: ['gezicht', 'darm', 'blaas', 'brein', 'scheen', 'bovenbeen', 'stuitje', 'pupil', 'iris', 'biceps', 'vingertop'],
+    pt: [
+      'narina', 'rosto', 'ouvido', 'pulso', 'mindinho', 'tórax', 'coluna', 'esqueleto', 'rótula', 'omoplata', 'maxilar',
+      'amígdala', 'pupila', 'tímpano', 'bíceps',
+    ],
   },
   // The English Wiktionary files "shark" under Sports — a card shark — and
   // never under Sharks; its translations inherit the gaps. Every word here was
@@ -126,16 +177,33 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
     de: ['Schwimmen', 'Surfen'],
     nl: ['zwemmen'],
   },
+  // The mushrooms a cook buys — the French Wiktionary's own category holds
+  // every amanita — and the herbs it files under neither fruits nor
+  // vegetables nor aromatic plants.
   'fruits-legumes': {
-    en: ['kiwi'],
-    de: ['Kartoffel', 'Kirsche', 'Radieschen'],
+    fr: [
+      'champignon', 'champignon de Paris', 'cèpe', 'girolle', 'chanterelle', 'morille', 'truffe', 'pleurote', 'bolet',
+      'persil', 'basilic', 'échalote', 'salade', 'noix de pécan', 'noix du Brésil', 'physalis', 'nèfle', 'citronnelle',
+    ],
+    en: ['kiwi', 'mushroom', 'mint', 'rosemary', 'coriander', 'squash', 'arugula', 'sweetcorn'],
+    de: ['Kartoffel', 'Kirsche', 'Radieschen', 'Pilz', 'Champignon', 'Pfifferling', 'Steinpilz', 'Minze', 'Wirsing', 'Rucola', 'Kresse'],
+    es: ['champiñón', 'seta', 'hongo', 'trufa', 'menta', 'rúcula'],
+    it: [
+      'fungo', 'porcino', 'champignon', 'tartufo', 'bergamotto', 'verza', 'insalata', 'rosmarino', 'salvia', 'origano',
+      'menta', 'cappero',
+    ],
+    nl: ['champignon', 'paddenstoel', 'rozemarijn', 'munt', 'koriander', 'blauwe bes', 'bruine boon', 'truffel'],
+    pt: ['rúcula', 'aipim', 'rabanete', 'coentro', 'orégano', 'alecrim', 'cogumelo', 'aspargo', 'chuchu', 'palmito'],
   },
-  // Brands no class of Wikidata's reaches in that language.
+  // Brands no class of Wikidata's reaches in that language: French chains
+  // fewer than fifteen Wikipedias describe, Oreo that is an instance of nothing.
   marques: {
-    es: ['Zara'],
-    it: ['Google'],
-    nl: ['Philips'],
-    pt: ['Natura'],
+    en: ['Cadbury'],
+    fr: ['Decathlon', 'Castorama', 'Darty', 'Leclerc', 'Monoprix', 'Kinder', 'Oreo', 'Carambar', 'Sephora', 'SNCF', 'Michelin', 'Tefal'],
+    es: ['Zara', 'Oreo', 'Danone', 'Kinder', 'Doritos', 'Decathlon'],
+    it: ['Google', 'Kinder', 'Peroni', 'San Pellegrino', 'Mulino Bianco', 'Esselunga', 'Decathlon'],
+    nl: ['Philips', 'Hema', 'Kruidvat', 'Etos', 'Action', 'Blokker', 'Coolblue', 'Gamma', 'Rabobank', 'Efteling'],
+    pt: ['Natura', 'Sadia', 'Nubank', 'Levi’s'],
   },
   // Everyday genus names the Wiktionary only files under "Genres de plantes"
   // — dropped wholesale above for its Latin scientific names — and one filed
@@ -166,10 +234,19 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
  */
 export const ADDED_ALIASES: Readonly<Record<string, Readonly<Record<string, Readonly<Record<string, string>>>>>> = {
   marques: {
-    en: { Mercedes: 'Mercedes-Benz' },
+    fr: { Disney: 'Walt Disney', KFC: 'Kentucky Fried Chicken', Pepsi: 'Pepsi-Cola', Dior: 'Christian Dior' },
+    en: { Mercedes: 'Mercedes-Benz', Disney: 'Walt Disney' },
+    de: { VW: 'Volkswagen', Bosch: 'Robert Bosch', dm: 'dm-drogerie markt' },
+    es: { Disney: 'Walt Disney', Bosch: 'Robert Bosch' },
+    it: { Versace: 'Gianni Versace', Vespa: 'Piaggio Vespa' },
+    pt: { Toyota: 'Toyota Motor', Santander: 'Banco Santander', Dior: 'Christian Dior' },
+  },
+  pays: {
+    de: { USA: 'Vereinigte Staaten' },
   },
   capitales: {
     en: { Kiev: 'Kyiv' },
+    de: { Frankfurt: 'Frankfurt am Main' },
   },
 }
 

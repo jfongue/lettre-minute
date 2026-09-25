@@ -1003,6 +1003,23 @@ function acceptable(display: string): boolean {
 
 const ACRONYM = /^[A-Z]{2,5}$/
 
+/**
+ * Whether a city's or a brand's alias names it as its label does, rather than
+ * by a nickname, a subsidiary or a code — see `strictAliases`.
+ */
+function namesLike(alias: string, label: string): boolean {
+  if (initialOf(alias) !== initialOf(label)) return false
+  if (compactWord(alias).startsWith(compactWord(label))) return false
+  // Capitals are initials when they spell the label's — KFC, KLM — and a code
+  // when they do not: the airlines' AAL, AHY, AJM.
+  if (ACRONYM.test(alias)) return alias === initials(label)
+  // Two letters that are not initials are a symbol: « As » for arsenic.
+  return compactWord(alias).length >= 3
+}
+
+/** ISO 3166-2, which Wikidata keeps among a city's aliases: « AE-AJ », « AU-ACT ». */
+const SUBDIVISION_CODE = /^[A-Z]{2}-[A-Z0-9]{1,3}$/
+
 /** « Kentucky Fried Chicken » → KFC. */
 function initials(label: string): string {
   return label
@@ -1202,7 +1219,11 @@ function main(argv: readonly string[]) {
       // country, « Samsung » after « Samsung Electronics » not a second brand.
       // They are placed once every label is in: a label wins over an alias
       // spelt like it.
-      const pending: { key: string; display: string; title: string; sitelinks: number; lemma?: string; byHand?: boolean }[] = []
+      type Alias = { key: string; display: string; title: string; sitelinks: number; lemma?: string; byHand?: boolean }
+      const pending: Alias[] = []
+      // Labels turned down for what they are, not for how they are spelt: their
+      // aliases go with them.
+      const refused = new Set<string>()
       for (const id of sources) {
         const corporate = PULLS.find((pull) => pull.id === id)?.corporate === true
         for (const row of byPull.get(id)!) {
@@ -1215,12 +1236,17 @@ function main(argv: readonly string[]) {
           for (const { display, title } of spellings(row, source, corporate)) {
             if (!acceptable(display)) continue
             const key = normalizeWord(display)
-            if (key === '' || excluded.has(key) || PLACEHOLDER_ELEMENT.test(key)) continue
+            if (key === '') continue
+            if (excluded.has(key) || PLACEHOLDER_ELEMENT.test(key)) {
+              if (!row.alias) refused.add(key)
+              continue
+            }
             if (!row.alias) {
               keep(key, display, row.sitelinks, false, title)
               continue
             }
             if (key.replace(/ /g, '').length < (category.shortestAlias ?? 0) && !SHORT_NAMES.includes(key)) continue
+            if (SUBDIVISION_CODE.test(display)) continue
             pending.push({ key, display, title, sitelinks: row.sitelinks, ...(lemma === undefined ? {} : { lemma }) })
           }
         }
@@ -1229,26 +1255,45 @@ function main(argv: readonly string[]) {
         pending.push({ key: normalizeWord(alias), display: alias, title: alias, sitelinks: 0, lemma: normalizeWord(label), byHand: true })
       }
       const aliasOf = new Map<string, { display: string; lemma: string }>()
+      const orphans = new Map<string, Alias[]>()
       for (const alias of pending) {
         if (best.get(alias.key)?.alias === false) continue
         const base = alias.lemma === undefined ? undefined : best.get(alias.lemma)
         if (alias.byHand && !base) console.warn(`! ${lang}/${category.id}: « ${alias.display} » renvoie à un mot absent`)
         if (alias.lemma === alias.key) continue
-        // An alias of a label the category refused — too long to type, a
-        // plant's organ — is refused with it. Only an old cache, which never
-        // said whose alias it was, leaves it standing for itself.
-        if (!base) {
-          if (alias.lemma === undefined) keep(alias.key, alias.display, alias.sitelinks, true, alias.title)
+        // An old cache never said whose alias it was: it stands for itself.
+        if (alias.lemma === undefined) {
+          keep(alias.key, alias.display, alias.sitelinks, true, alias.title)
           continue
         }
         const strict = category.strictAliases && !alias.byHand
-        if (strict && initialOf(alias.display) !== initialOf(base.display)) continue
-        if (strict && compactWord(alias.display).startsWith(compactWord(base.display))) continue
-        // Capitals are initials when they spell the label's — KFC — and a code
-        // when they do not: the airlines' AAL, AHY, AJM.
-        if (strict && ACRONYM.test(alias.display) && alias.display !== initials(base.display)) continue
+        if (strict && !namesLike(alias.display, base?.display ?? alias.lemma)) continue
+        // A label too long to type — « république populaire de Chine », «
+        // Koninklijke Luchtvaart Maatschappij » — leaves its aliases to name
+        // the thing among themselves. One refused for what it is takes them along.
+        if (!base) {
+          if (!refused.has(alias.lemma)) orphans.set(alias.lemma, [...(orphans.get(alias.lemma) ?? []), alias])
+          continue
+        }
         const current = aliasOf.get(alias.key)
         if (!current || best.get(current.lemma)!.sitelinks < base.sitelinks) aliasOf.set(alias.key, { display: alias.display, lemma: alias.lemma! })
+      }
+      // The one that opens like the label stands for it — « RD Congo » rather
+      // than « Zaïre » — and the shortest among those; the others point at it.
+      for (const [lemma, group] of orphans) {
+        const fresh = [...new Map(group.map((alias) => [alias.key, alias])).values()].filter(
+          (alias) => !best.has(alias.key) && !aliasOf.has(alias.key),
+        )
+        const opensLike = (alias: Alias) => (alias.key[0] === lemma[0] ? 0 : 1)
+        fresh.sort((a, b) => opensLike(a) - opensLike(b) || compactWord(a.key).length - compactWord(b.key).length)
+        const [word, ...others] = fresh
+        if (!word) continue
+        keep(word.key, word.display, word.sitelinks, true, word.title)
+        for (const alias of others) {
+          // A brand's « ISDB-T » only says more than « ISDB »: another thing.
+          if (category.strictAliases && compactWord(alias.key).startsWith(compactWord(word.key))) continue
+          aliasOf.set(alias.key, { display: alias.display, lemma: word.key })
+        }
       }
 
       // The words the Wiktionary files under this very category: for them, and

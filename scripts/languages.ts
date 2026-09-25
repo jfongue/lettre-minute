@@ -57,8 +57,10 @@ export const TOPICS: Record<string, Topics> = {
   'fruits-legumes': {
     topics: [
       'Fruits', 'Berries', 'Stone fruits', 'Citrus fruits', 'Vegetables', 'Root vegetables', 'Leaf vegetables', 'Peppers',
-      'Alliums', 'Legumes', 'Squashes', 'Cabbages', 'Nuts', 'Herbs', 'Mushrooms',
+      'Alliums', 'Legumes', 'Squashes', 'Cabbages', 'Nuts', 'Herbs',
     ],
+    // Not "Mushrooms": it files a hedgehog, a sweet tooth and hot lips under
+    // the fungi named like them. The mushrooms a cook buys are added by hand.
   },
   animaux: {
     topics: ['Animals'],

@@ -114,7 +114,7 @@ describe('shipped dictionaries', () => {
             if (!canonical) return false
             const form = compactWord(display)
             const base = canonical.replace(/ /g, '')
-            return form !== base && form.startsWith(base) && form.length - base.length <= 2
+            return form.startsWith(base) && ['s', 'es', 'n', 'en', 'x'].includes(form.slice(base.length))
           })
         expect(plurals.map(([display]) => display), `${lang}/${id}`).toEqual([])
       }
@@ -141,46 +141,46 @@ describe('shipped dictionaries', () => {
  */
 const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
   fr: {
-    pays: ['France', 'Allemagne', 'Japon', 'Brésil', 'Canada', 'États-Unis', 'Côte d’Ivoire', 'Maroc', 'Zimbabwe'],
+    pays: ['France', 'Allemagne', 'Japon', 'Brésil', 'Canada', 'États-Unis', 'Côte d’Ivoire', 'Maroc', 'Zimbabwe', 'Angleterre', 'Écosse'],
     animaux: ['chat', 'chien', 'cheval', 'éléphant', 'abeille', 'requin', 'vache', 'lion', 'zèbre'],
     couleurs: ['rouge', 'bleu', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'violet'],
-    'fruits-legumes': ['pomme', 'banane', 'carotte', 'tomate', 'fraise', 'poireau', 'kiwi'],
+    'fruits-legumes': ['pomme', 'banane', 'carotte', 'tomate', 'fraise', 'poireau', 'kiwi', 'champignon', 'basilic', 'persil', 'thym'],
     metiers: ['boulanger', 'médecin', 'avocat', 'plombier', 'infirmière', 'professeur', 'pompier', 'laboureur'],
     sports: ['football', 'tennis', 'judo', 'natation', 'rugby', 'ski', 'boxe', 'escrime'],
-    'corps-humain': ['bras', 'jambe', 'cœur', 'œil', 'nez', 'genou', 'foie', 'orteil'],
-    matieres: ['fer', 'bois', 'or', 'oxygène', 'cuivre', 'verre', 'béton', 'coton'],
-    capitales: ['Paris', 'Londres', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Nairobi', 'Lyon', 'Marseille', 'Munich', 'Anvers', 'Genève', 'Esch-sur-Alzette'],
-    marques: ['Nike', 'Apple', 'Renault', 'Peugeot', 'Coca-Cola', 'Google', 'Adidas'],
+    'corps-humain': ['bras', 'jambe', 'cœur', 'œil', 'nez', 'genou', 'foie', 'orteil', 'ventre', 'narine'],
+    matieres: ['fer', 'bois', 'or', 'oxygène', 'cuivre', 'verre', 'béton', 'coton', 'plastique', 'sel'],
+    capitales: ['Paris', 'Londres', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Nairobi', 'Lyon', 'Marseille', 'Munich', 'Anvers', 'Genève', 'Esch-sur-Alzette', 'Francfort'],
+    marques: ['Nike', 'Apple', 'Renault', 'Peugeot', 'Coca-Cola', 'Google', 'Adidas', 'Samsung', 'Mercedes', 'Instagram', 'Ford', 'Amazon'],
     prenoms: ['Léa', 'Marie', 'Pierre', 'Jean', 'Emma', 'Lucas', 'Mohammed', 'Fatima', 'Karim', 'Yasmine'],
     plantes: ['rose', 'chêne', 'tulipe', 'ortie', 'fougère', 'sapin', 'lavande'],
     objets: ['chaise', 'fourchette', 'clé', 'téléphone', 'parapluie', 'lampe'],
   },
   en: {
-    pays: ['France', 'Germany', 'Japan', 'Brazil', 'Canada', 'United States', 'Mexico'],
+    pays: ['France', 'Germany', 'Japan', 'Brazil', 'Canada', 'United States', 'Mexico', 'USA', 'UK', 'England'],
     animaux: ['cat', 'dog', 'horse', 'elephant', 'bee', 'shark', 'cow', 'lion', 'zebra'],
     couleurs: ['red', 'blue', 'green', 'yellow', 'black', 'white', 'purple'],
-    'fruits-legumes': ['apple', 'banana', 'carrot', 'tomato', 'strawberry', 'potato'],
+    'fruits-legumes': ['apple', 'banana', 'carrot', 'tomato', 'strawberry', 'potato', 'mushroom', 'basil', 'parsley', 'thyme'],
     metiers: ['baker', 'doctor', 'lawyer', 'plumber', 'nurse', 'teacher', 'firefighter'],
     sports: ['football', 'tennis', 'judo', 'swimming', 'rugby', 'golf', 'boxing'],
-    'corps-humain': ['arm', 'leg', 'heart', 'eye', 'nose', 'knee', 'liver'],
-    matieres: ['iron', 'wood', 'gold', 'oxygen', 'copper', 'glass', 'cotton'],
-    capitales: ['Paris', 'London', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Lyon', 'Munich', 'Chicago', 'Manchester'],
-    marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Toyota'],
+    'corps-humain': ['arm', 'leg', 'heart', 'eye', 'nose', 'knee', 'liver', 'belly', 'nostril'],
+    matieres: ['iron', 'wood', 'gold', 'oxygen', 'copper', 'glass', 'cotton', 'salt', 'oil'],
+    capitales: ['Paris', 'London', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Lyon', 'Munich', 'Chicago', 'Manchester', 'Oslo', 'Kiev', 'Frankfurt', 'Tel Aviv'],
+    marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Toyota', 'Samsung', 'Ford', 'Mercedes', 'Amazon', 'Facebook', 'Instagram'],
     prenoms: ['Emma', 'John', 'Mary', 'James', 'Sarah', 'Mohammed', 'Fatima', 'Kevin'],
     plantes: ['rose', 'oak', 'tulip', 'nettle', 'fern', 'fir', 'lavender'],
     objets: ['chair', 'fork', 'key', 'phone', 'umbrella', 'lamp'],
   },
   de: {
-    pays: ['Frankreich', 'Deutschland', 'Japan', 'Brasilien', 'Kanada', 'Österreich'],
+    pays: ['Frankreich', 'Deutschland', 'Japan', 'Brasilien', 'Kanada', 'Österreich', 'USA'],
     animaux: ['Katze', 'Hund', 'Pferd', 'Elefant', 'Biene', 'Hai', 'Kuh', 'Löwe'],
     couleurs: ['Rot', 'Blau', 'Grün', 'Gelb', 'Schwarz', 'Weiß'],
-    'fruits-legumes': ['Apfel', 'Banane', 'Karotte', 'Tomate', 'Erdbeere', 'Kartoffel'],
+    'fruits-legumes': ['Apfel', 'Banane', 'Karotte', 'Tomate', 'Erdbeere', 'Kartoffel', 'Pilz', 'Petersilie', 'Basilikum'],
     metiers: ['Bäcker', 'Arzt', 'Anwalt', 'Klempner', 'Lehrer', 'Feuerwehrmann'],
     sports: ['Fußball', 'Tennis', 'Judo', 'Schwimmen', 'Rugby', 'Golf'],
-    'corps-humain': ['Arm', 'Bein', 'Herz', 'Auge', 'Nase', 'Knie'],
-    matieres: ['Eisen', 'Holz', 'Gold', 'Sauerstoff', 'Kupfer', 'Glas'],
-    capitales: ['Paris', 'London', 'Tokio', 'Berlin', 'Rom', 'Madrid'],
-    marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Volkswagen'],
+    'corps-humain': ['Arm', 'Bein', 'Herz', 'Auge', 'Nase', 'Knie', 'Bauch'],
+    matieres: ['Eisen', 'Holz', 'Gold', 'Sauerstoff', 'Kupfer', 'Glas', 'Öl', 'Salz'],
+    capitales: ['Paris', 'London', 'Tokio', 'Berlin', 'Rom', 'Madrid', 'Oslo', 'Frankfurt', 'Tel Aviv'],
+    marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Volkswagen', 'Mercedes', 'Amazon', 'Samsung'],
     prenoms: ['Hans', 'Emma', 'Maria', 'Kevin', 'Mohammed'],
     plantes: ['Rose', 'Eiche', 'Tulpe', 'Brennnessel', 'Farn', 'Tanne', 'Lavendel'],
     objets: ['Stuhl', 'Gabel', 'Schlüssel', 'Telefon', 'Regenschirm', 'Lampe'],
@@ -189,11 +189,11 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     pays: ['Francia', 'Alemania', 'Japón', 'Brasil', 'Canadá', 'México'],
     animaux: ['gato', 'perro', 'caballo', 'elefante', 'abeja', 'tiburón', 'vaca', 'león'],
     couleurs: ['rojo', 'azul', 'verde', 'amarillo', 'negro', 'blanco'],
-    'fruits-legumes': ['manzana', 'plátano', 'zanahoria', 'tomate', 'fresa', 'patata'],
+    'fruits-legumes': ['manzana', 'plátano', 'zanahoria', 'tomate', 'fresa', 'patata', 'champiñón', 'perejil'],
     metiers: ['panadero', 'médico', 'abogado', 'fontanero', 'enfermera', 'profesor', 'bombero'],
     sports: ['fútbol', 'tenis', 'judo', 'natación', 'rugby', 'golf', 'boxeo'],
-    'corps-humain': ['brazo', 'pierna', 'corazón', 'ojo', 'nariz', 'rodilla'],
-    matieres: ['hierro', 'madera', 'oro', 'oxígeno', 'cobre', 'vidrio'],
+    'corps-humain': ['brazo', 'pierna', 'corazón', 'ojo', 'nariz', 'rodilla', 'oreja'],
+    matieres: ['hierro', 'madera', 'oro', 'oxígeno', 'cobre', 'vidrio', 'seda'],
     capitales: ['París', 'Londres', 'Tokio', 'Berlín', 'Roma', 'Madrid'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Zara'],
     prenoms: ['José', 'María', 'Juan', 'Sofía', 'Mohammed', 'Fatima'],
@@ -204,13 +204,13 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     pays: ['Francia', 'Germania', 'Giappone', 'Brasile', 'Canada', 'Messico'],
     animaux: ['gatto', 'cane', 'cavallo', 'elefante', 'ape', 'squalo', 'mucca', 'leone'],
     couleurs: ['rosso', 'blu', 'verde', 'giallo', 'nero', 'bianco'],
-    'fruits-legumes': ['mela', 'banana', 'carota', 'pomodoro', 'fragola', 'patata'],
+    'fruits-legumes': ['mela', 'banana', 'carota', 'pomodoro', 'fragola', 'patata', 'fungo', 'basilico'],
     metiers: ['panettiere', 'medico', 'avvocato', 'idraulico', 'infermiere', 'insegnante', 'pompiere'],
     sports: ['calcio', 'tennis', 'judo', 'nuoto', 'rugby', 'golf', 'pugilato'],
     'corps-humain': ['braccio', 'gamba', 'cuore', 'occhio', 'naso', 'ginocchio'],
     matieres: ['ferro', 'legno', 'oro', 'ossigeno', 'rame', 'vetro'],
     capitales: ['Parigi', 'Londra', 'Tokyo', 'Berlino', 'Roma', 'Madrid'],
-    marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Fiat'],
+    marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Fiat', 'Ducati'],
     prenoms: ['Giulia', 'Marco', 'Maria', 'Giuseppe', 'Mohammed'],
     plantes: ['rosa', 'quercia', 'tulipano', 'ortica', 'felce', 'abete', 'lavanda'],
     objets: ['sedia', 'forchetta', 'chiave', 'telefono', 'ombrello', 'lampada'],
@@ -219,11 +219,11 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     pays: ['Frankrijk', 'Duitsland', 'Japan', 'Brazilië', 'Canada', 'België'],
     animaux: ['kat', 'hond', 'paard', 'olifant', 'bij', 'haai', 'koe', 'leeuw'],
     couleurs: ['rood', 'blauw', 'groen', 'geel', 'zwart', 'wit'],
-    'fruits-legumes': ['appel', 'banaan', 'wortel', 'tomaat', 'aardbei', 'aardappel'],
+    'fruits-legumes': ['appel', 'banaan', 'wortel', 'tomaat', 'aardbei', 'aardappel', 'champignon', 'peterselie'],
     metiers: ['bakker', 'arts', 'advocaat', 'loodgieter', 'verpleegster', 'leraar', 'brandweerman'],
     sports: ['voetbal', 'tennis', 'judo', 'zwemmen', 'rugby', 'golf', 'boksen'],
-    'corps-humain': ['arm', 'been', 'hart', 'oog', 'neus', 'knie'],
-    matieres: ['ijzer', 'hout', 'goud', 'zuurstof', 'koper', 'glas'],
+    'corps-humain': ['arm', 'been', 'hart', 'oog', 'neus', 'knie', 'gezicht'],
+    matieres: ['ijzer', 'hout', 'goud', 'zuurstof', 'koper', 'glas', 'olie', 'plastic'],
     capitales: ['Parijs', 'Londen', 'Tokio', 'Berlijn', 'Rome', 'Madrid'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Philips'],
     prenoms: ['Emma', 'Jan', 'Sanne', 'Mohammed', 'Fatima'],
@@ -234,13 +234,13 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     pays: ['França', 'Alemanha', 'Japão', 'Brasil', 'Canadá', 'México'],
     animaux: ['gato', 'cão', 'cavalo', 'elefante', 'abelha', 'tubarão', 'vaca', 'leão'],
     couleurs: ['vermelho', 'azul', 'verde', 'amarelo', 'preto', 'branco'],
-    'fruits-legumes': ['maçã', 'banana', 'cenoura', 'tomate', 'morango', 'batata'],
+    'fruits-legumes': ['maçã', 'banana', 'cenoura', 'tomate', 'morango', 'batata', 'cogumelo'],
     metiers: ['padeiro', 'médico', 'advogado', 'encanador', 'enfermeira', 'professor', 'bombeiro'],
     sports: ['futebol', 'tênis', 'judô', 'natação', 'rugby', 'golfe', 'boxe'],
     'corps-humain': ['braço', 'perna', 'coração', 'olho', 'nariz', 'joelho'],
     matieres: ['ferro', 'madeira', 'ouro', 'oxigênio', 'cobre', 'vidro'],
     capitales: ['Paris', 'Londres', 'Tóquio', 'Berlim', 'Roma', 'Madrid'],
-    marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Natura'],
+    marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Natura', 'Toyota', 'Ford'],
     prenoms: ['Maria', 'José', 'João', 'Ana', 'Mohammed'],
     plantes: ['rosa', 'carvalho', 'tulipa', 'urtiga', 'samambaia', 'abeto', 'lavanda'],
     objets: ['cadeira', 'garfo', 'chave', 'telefone', 'guarda-chuva', 'lâmpada'],
@@ -324,6 +324,12 @@ describe('obvious answers', () => {
       ['it', 'animaux', 'gatti', 'gatto'],
       ['nl', 'animaux', 'honden', 'hond'],
       ['pt', 'animaux', 'gatos', 'gato'],
+      // An alias scores as the word it names.
+      ['en', 'pays', 'USA', 'united states'],
+      ['de', 'pays', 'USA', 'vereinigte staaten'],
+      ['fr', 'pays', 'Chine populaire', 'chine'],
+      ['en', 'marques', 'Mercedes', 'mercedes benz'],
+      ['de', 'capitales', 'Frankfurt', 'frankfurt am main'],
     ]
     for (const [lang, id, form, lemma] of cases) {
       expect(findWord(pack(lang, id), form, 0)?.entry.key, `${lang}/${id} ${form}`).toBe(lemma)
@@ -331,11 +337,13 @@ describe('obvious answers', () => {
   })
 
   it('draws the letters a table expects on its best-known categories', () => {
+    // Not F: France, Fidji and Finlande are all there is, and the « Fédération
+    // de Russie » that once stocked it is Russia's alias.
     for (const [lang, id, letters] of [
-      ['fr', 'pays', 'ABCFIMP'],
+      ['fr', 'pays', 'ABCIMP'],
       ['fr', 'animaux', 'ABCHLMPR'],
       ['en', 'pays', 'ABCGIMS'],
-      ['de', 'pays', 'BDFIKS'],
+      ['de', 'pays', 'BDIKS'],
     ] as const) {
       const known = knownByLetter(pack(lang, id))
       const thin = [...letters].filter((letter) => (known.get(letter) ?? 0) < THIN_PROMPT_WORDS / 2)

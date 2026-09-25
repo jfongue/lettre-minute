@@ -86,6 +86,17 @@ qu'un nouvel arrivant casserait sans le savoir.
   catégorie de noms (`names`) ne fléchit pas : leurs « formes » sont celles
   d'un homographe. Deux lignes qui se compactent pareil n'en font qu'une
   (le domaine ne garde que la première) : l'import choisit laquelle.
+- **Un alias Wikidata est une forme de son libellé** (`Row.of`), pas un mot :
+  « USA » marque comme « États-Unis », « Samsung » comme « Samsung
+  Electronics », et ne compte pas parmi les mots connus de sa lettre. Un
+  alias dont le libellé est refusé l'est aussi. Villes et marques
+  (`strictAliases`) n'en gardent qu'un qui commence comme le libellé : leurs
+  alias sont des surnoms, des filiales et des codes OACI. Ce qui manque à
+  Wikidata s'ajoute dans `ADDED_ALIASES`.
+- **Wikidata range sous `mul` seul** le nom qui s'écrit pareil partout (Oslo,
+  WhatsApp, PlayStation) : les requêtes de noms lisent le libellé de la langue,
+  sinon celui-là (`scope.label`). Jamais pour un taxon, dont le `mul` est le
+  binôme latin.
 - **La fréquence wordfreq se cherche à l'orthographe exacte**, accents compris :
   repliée comme `normalizeWord`, « aï » (le paresseux) lit « ai ». Et elle ne
   vaut que pour un mot attesté dans la catégorie par le Wiktionnaire, ou
