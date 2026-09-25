@@ -1,6 +1,3 @@
-• 3 nouvelles catégories : prénoms, objets du quotidien et plantes
-• Tu avais déjà tout débloqué ? L’une d’elles t’est offerte
-• Une demande d’ami se signale sur le menu
-• Les défis lus se rangent tout seuls avec leur gagnant
-• Célérité accepte les mots à une lettre près
-• L’icône du jeu est de retour sur l’écran d’accueil
+• Nouvelle page des classements : parties, points, mots trouvés, découvertes, série, mots ajoutés…
+• Chaque classement du jour, de la semaine ou depuis toujours, avec ta place
+• Ouvre-la depuis le titre « Classement », en glissant après le 3e tableau, ou depuis tes statistiques
