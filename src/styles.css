@@ -4800,3 +4800,17 @@ button {
   border: var(--line) solid var(--ink);
   background: var(--paper);
 }
+
+/* Le formulaire de Buy Me a Coffee se cadre à 420 px de large, comme son widget. */
+.donation-pop {
+  width: min(28rem, 100%);
+  padding: 0.6rem;
+  box-shadow: 8px 8px 0 var(--red);
+}
+
+.donation-frame {
+  width: 100%;
+  height: min(32rem, calc(100dvh - 10rem));
+  border: 0;
+  background: #fff;
+}

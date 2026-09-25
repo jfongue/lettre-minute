@@ -101,6 +101,9 @@ export const fr = {
     lead: 'Je suis un petit développeur français qui propose des expériences faites avec le cœur. Tu peux me soutenir avec un (tout petit) don ou un 5 étoiles sur le store.',
     donate: 'Faire un petit don',
     rate: 'Mettre 5 étoiles',
+    /** Shown atop the Buy Me a Coffee form framed in a browser. */
+    frameDescription: 'Merci de soutenir Lettre Minute !',
+    close: 'Fermer',
   },
 
   account: {

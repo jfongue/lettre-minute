@@ -296,6 +296,18 @@ export async function googleIdToken(nonce: string): Promise<string | null> {
 export const DONATION_URL = 'https://buymeacoffee.com/demontoon'
 
 /**
+ * The form Buy Me a Coffee's own widget frames, framed here without its script:
+ * the widget pins a bubble over the mute button and the running game. Only a
+ * browser frames it: the phone shell keeps opening the full page in the
+ * system browser, where the player's wallet and saved cards are.
+ */
+export function donationFrameUrl(description: string): string | null {
+  if (native) return null
+  const query = new URLSearchParams({ description, color: '#e0402a' })
+  return `https://buymeacoffee.com/widget/page/demontoon?${query}`
+}
+
+/**
  * Where to rate the game, opened out of the app like any full address. The
  * Play page also serves the web version; the iPhone app has no store page
  * yet, so no link rather than one to the wrong store.

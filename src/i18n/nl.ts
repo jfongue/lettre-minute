@@ -84,6 +84,8 @@ export const nl: Messages = {
     lead: 'Ik ben een kleine Franse ontwikkelaar die spellen met hart maakt. Je kunt me steunen met een (piepkleine) donatie of 5 sterren in de store.',
     donate: 'Doe een kleine donatie',
     rate: 'Geef 5 sterren',
+    frameDescription: 'Bedankt dat je Letter Minuut steunt!',
+    close: 'Sluiten',
   },
 
   account: {

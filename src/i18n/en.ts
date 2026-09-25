@@ -90,6 +90,8 @@ export const en: Messages = {
     lead: 'I’m a small French developer making games with heart. You can support me with a (tiny) donation or a 5-star rating on the store.',
     donate: 'Make a small donation',
     rate: 'Rate 5 stars',
+    frameDescription: 'Thanks for supporting Letter Minute!',
+    close: 'Close',
   },
 
   account: {

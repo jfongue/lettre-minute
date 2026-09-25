@@ -85,6 +85,8 @@ export const es: Messages = {
     lead: 'Soy un pequeño desarrollador francés que crea experiencias hechas con el corazón. Puedes apoyarme con una (pequeñita) donación o con 5 estrellas en la tienda.',
     donate: 'Hacer una pequeña donación',
     rate: 'Dar 5 estrellas',
+    frameDescription: '¡Gracias por apoyar Letra Minuto!',
+    close: 'Cerrar',
   },
 
   account: {

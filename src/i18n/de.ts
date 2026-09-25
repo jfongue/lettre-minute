@@ -84,6 +84,8 @@ export const de: Messages = {
     lead: 'Ich bin ein kleiner Entwickler aus Frankreich und mache Spiele mit Herz. Du kannst mich mit einer (ganz kleinen) Spende oder fünf Sternen im Store unterstützen.',
     donate: 'Kleine Spende',
     rate: 'Fünf Sterne geben',
+    frameDescription: 'Danke, dass du Letter Minute unterstützt!',
+    close: 'Schließen',
   },
 
   account: {
