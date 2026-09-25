@@ -3,6 +3,7 @@ import {
   answersTo,
   awardTrophies,
   CHALLENGE_MAX_PLAYERS,
+  UNIQUE_WORD_BONUS,
   mostSharedWords,
   settleChallenge,
   uniqueWords,
@@ -21,13 +22,13 @@ import {
   type ChallengePlayer,
   type ReactionEmoji,
 } from '../lib/cloud'
-import { challengeTitle, hoursLeft } from '../state/challenges'
+import { challengeTitle, hideChallengeDetail, hoursLeft } from '../state/challenges'
 import { Avatar } from './Avatar'
 import { LetterMark, Shape, TierTag } from './bauhaus'
 import { FriendPicker } from './FriendPicker'
 import { categoryMotif, onTint } from './motifs'
 import { PlayerName } from './PlayerSheet'
-import { ReactionCounts, ReactionPanel, useRecapReactions, type RecapReactions } from './Reactions'
+import { Reactable, useRecapReactions, type RecapReactions } from './Reactions'
 import { ScoreRace } from './ScoreRace'
 import { TROPHY_TINTS, TrophyIcon } from './TrophyIcon'
 
@@ -140,7 +141,10 @@ function MyWords({ detail, standing }: { detail: ChallengeDetail; standing: Stan
                       {word.sharedWith > 0 ? t.challenge.shared(word.sharedWith) : t.challenge.alone}
                     </span>
                     <span className="reveal-word-points">
-                      {word.settled !== word.points && <s className="challenge-halved">{word.points}</s>}+{word.settled}
+                      +{word.settled}
+                      {word.settled > word.points && (
+                        <small className="challenge-bonus">{t.challenge.bonus(Math.round((UNIQUE_WORD_BONUS - 1) * 100))}</small>
+                      )}
                     </span>
                     {rivals && <Chevron open={unfolded} />}
                   </button>
@@ -269,7 +273,6 @@ function WordList({
 }) {
   const t = useT()
   const player = playerOf(detail)
-  const [open, setOpen] = useState<string | null>(null)
   if (words.length === 0) return null
   const names = (ids: readonly string[]) =>
     ids.map((id) => (player(id)?.me ? t.challenge.you : (player(id)?.name ?? ''))).join(', ')
@@ -279,28 +282,21 @@ function WordList({
       <ol className="reveal-words">
         {words.map((word) => {
           const target = wordTarget(word)
-          const unfolded = open === target
           return (
             <li key={target} className="challenge-word-item">
-              <button
-                type="button"
-                className="reveal-word challenge-word"
-                aria-expanded={unfolded}
-                onClick={() => setOpen(unfolded ? null : target)}
-              >
-                <LetterMark letter={word.letter} motif={categoryMotif(word.categoryId)} size="sm" />
-                <span className="reveal-word-text">
-                  {capitalized(word.display)}
-                  <span className="reveal-word-category">
-                    {categoryText(t, word.categoryId).label} · {names(word.players)}
+              <Reactable target={target} reactions={reactions}>
+                <span className="reveal-word challenge-word">
+                  <LetterMark letter={word.letter} motif={categoryMotif(word.categoryId)} size="sm" />
+                  <span className="reveal-word-text">
+                    {capitalized(word.display)}
+                    <span className="reveal-word-category">
+                      {categoryText(t, word.categoryId).label} · {names(word.players)}
+                    </span>
                   </span>
-                  <ReactionCounts target={target} reactions={reactions} />
+                  {word.tier !== 'courant' ? <TierTag tier={word.tier} /> : <span />}
+                  <span className="reveal-word-points">×{word.players.length}</span>
                 </span>
-                {word.tier !== 'courant' ? <TierTag tier={word.tier} /> : <span />}
-                <span className="reveal-word-points">×{word.players.length}</span>
-                <Chevron open={unfolded} />
-              </button>
-              {unfolded && <ReactionPanel target={target} reactions={reactions} />}
+              </Reactable>
             </li>
           )
         })}
@@ -313,7 +309,6 @@ function Trophies({ detail, reactions }: { detail: ChallengeDetail; reactions: R
   const t = useT()
   const trophies = awardTrophies(detail.players)
   const player = playerOf(detail)
-  const [open, setOpen] = useState<string | null>(null)
   if (trophies.length === 0) return null
   return (
     <section className="stack">
@@ -322,37 +317,29 @@ function Trophies({ detail, reactions }: { detail: ChallengeDetail; reactions: R
         {trophies.map((trophy, index) => {
           const [name, line] = t.challenge.trophies[trophy.id]
           const who = player(trophy.playerId)
-          const target = `trophy:${trophy.id}`
-          const unfolded = open === target
           const tint = TROPHY_TINTS[trophy.id]
           return (
             <li key={trophy.id} className="trophy-item" style={{ '--i': index } as CSSProperties}>
-              <button
-                type="button"
-                className="trophy"
-                aria-expanded={unfolded}
-                onClick={() => setOpen(unfolded ? null : target)}
-              >
-                <span className="trophy-mark" style={{ background: `var(--${tint})` }} aria-hidden="true">
-                  <TrophyIcon id={trophy.id} tint={onTint(tint)} />
-                </span>
-                <span className="trophy-text">
-                  <strong>{name}</strong>
-                  <span>
-                    {who && <Avatar choice={who.avatar} size="sm" />}
-                    <span className="trophy-who">{who?.me ? t.challenge.you : who?.name}</span>
+              <Reactable target={`trophy:${trophy.id}`} reactions={reactions}>
+                <span className="trophy">
+                  <span className="trophy-mark" style={{ background: `var(--${tint})` }} aria-hidden="true">
+                    <TrophyIcon id={trophy.id} tint={onTint(tint)} />
                   </span>
-                  <span className="note">{line(trophy.value, capitalized(trophy.word ?? ''))}</span>
-                  <ReactionCounts target={target} reactions={reactions} />
+                  <span className="trophy-text">
+                    <strong>{name}</strong>
+                    <span>
+                      {who && <Avatar choice={who.avatar} size="sm" />}
+                      <span className="trophy-who">{who?.me ? t.challenge.you : who?.name}</span>
+                    </span>
+                    <span className="note">{line(trophy.value, capitalized(trophy.word ?? ''))}</span>
+                  </span>
                 </span>
-                <Chevron open={unfolded} />
-              </button>
-              {unfolded && <ReactionPanel target={target} reactions={reactions} />}
+              </Reactable>
             </li>
           )
         })}
       </ul>
-      <p className="note">{t.challenge.reactHint}</p>
+      {reactions.canReact && <p className="note">{t.challenge.reactHint}</p>}
     </section>
   )
 }
@@ -555,9 +542,27 @@ export function ChallengeView({ detail, onPlay, onRematch, onReact, onBack, onCh
         </>
       )}
 
-      <button type="button" className="btn btn--ghost btn--block" onClick={onBack}>
-        {t.challenge.home}
-      </button>
+      {typeof detail === 'object' && detail?.finished ? (
+        <div className="challenge-leave">
+          <button type="button" className="btn btn--ghost" onClick={onBack}>
+            {t.challenge.home}
+          </button>
+          <button
+            type="button"
+            className="btn btn--ghost"
+            onClick={() => {
+              hideChallengeDetail(detail)
+              onBack()
+            }}
+          >
+            {t.challenge.ignore}
+          </button>
+        </div>
+      ) : (
+        <button type="button" className="btn btn--ghost btn--block" onClick={onBack}>
+          {t.challenge.home}
+        </button>
+      )}
     </div>
   )
 }

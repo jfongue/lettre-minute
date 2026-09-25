@@ -171,6 +171,7 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               sound={props.sound}
               onSound={props.onSound}
               onDebug={props.onDebug}
+              onErase={props.onErase}
             />
           )}
         </div>
@@ -187,7 +188,6 @@ function ProfilePane({
   accountMode,
   onAvatar,
   onLogOut,
-  onErase,
   moderation,
   onPage,
 }: Omit<
@@ -203,6 +203,7 @@ function ProfilePane({
   | 'onSound'
   | 'onModerate'
   | 'onRequestsSeen'
+  | 'onErase'
 > & {
   onPage(page: ProfilePage): void
 }) {
@@ -210,7 +211,7 @@ function ProfilePane({
   const named = account && !account.anonymous
 
   return (
-    <>
+    <div className="profile-pane">
       <section className="player">
         <button type="button" className="player-avatar" onClick={onAvatar} aria-label={t.menu.editAvatarLabel}>
           <Avatar choice={avatar} size="md" />
@@ -254,11 +255,7 @@ function ProfilePane({
       />
 
       <DonateButton className="btn btn--ghost btn--block menu-support" label={t.menu.support} />
-
-      <div className="menu-foot">
-        <EraseData onErase={onErase} />
-      </div>
-    </>
+    </div>
   )
 }
 
@@ -574,12 +571,13 @@ interface OptionsPaneProps {
   sound: SoundPrefs
   onSound(sound: SoundPrefs): void
   onDebug(): void
+  onErase(): Promise<boolean>
 }
 
 const DEBUG_TAPS = 7
 const DEBUG_TAP_GAP_MS = 600
 
-function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onDebug }: OptionsPaneProps) {
+function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onDebug, onErase }: OptionsPaneProps) {
   const t = useT()
   const taps = useRef({ count: 0, at: 0 })
   const tapTitle = () => {
@@ -620,7 +618,6 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onDebug
             </button>
           ))}
         </div>
-        <p className="note">{t.options.themeNote}</p>
       </section>
 
       <section className="stack">
@@ -644,7 +641,6 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onDebug
             </label>
           ))}
         </div>
-        <p className="note">{t.options.soundNote}</p>
       </section>
 
       <section className="stack">
@@ -675,6 +671,7 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onDebug
             {t.options.adPrivacy}
           </button>
         )}
+        <EraseData onErase={onErase} />
       </div>
     </>
   )

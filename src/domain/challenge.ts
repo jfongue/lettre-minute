@@ -7,8 +7,8 @@ import type { Run } from './run'
  * A challenge between friends: one seed, one lineup, played by each in turn
  * within a day. Everyone draws the same prompts in the same order, since a
  * run's n-th prompt depends only on the seed, the lineup and what it avoids.
- * The scores are then settled like a Petit Bac: a word someone else also found
- * pays half.
+ * The scores are then settled like a Petit Bac, the other way round: nothing
+ * is taken from a shared word, and a word nobody else found pays a quarter more.
  */
 
 export const CHALLENGE_MAX_PLAYERS = 8
@@ -16,8 +16,8 @@ export const CHALLENGE_MAX_PLAYERS = 8
 export const CHALLENGE_EXPIRY_HOURS = 24
 /** The XP a challenge run pays on top of its points: playing with friends is worth a little more. */
 export const CHALLENGE_XP_BONUS = 0.25
-/** What a word found by more than one player keeps of its points. */
-export const SHARED_WORD_SHARE = 0.5
+/** What a word no other player found is worth, against its points. */
+export const UNIQUE_WORD_BONUS = 1.25
 /**
  * Permutation trades a category for one of the player's own: the lineup
  * would no longer be the one everyone else plays.
@@ -117,17 +117,20 @@ export interface Standing {
 
 /**
  * The Petit Bac rule, over the runs played so far: settled again each time a
- * player joins, so a word unique this morning may be shared tonight. Ties go
+ * player joins, so a word unique this morning — and paid its bonus — may be
+ * shared tonight. Ties go
  * to the higher raw score, then to whoever played first.
  */
 export function settleChallenge(entries: readonly ChallengeEntry[]): Standing[] {
   const runs = played(entries)
   const counts = finders(runs)
+  // Alone so far, a player has nobody to be original against.
+  const bonus = runs.length > 1 ? UNIQUE_WORD_BONUS : 1
   return runs
     .map((entry, order) => {
       const words = entry.words.map((word) => {
         const sharedWith = (counts.get(wordId(word)) ?? 1) - 1
-        return { ...word, sharedWith, settled: sharedWith > 0 ? Math.round(word.points * SHARED_WORD_SHARE) : word.points }
+        return { ...word, sharedWith, settled: sharedWith > 0 ? word.points : Math.round(word.points * bonus) }
       })
       return {
         order,

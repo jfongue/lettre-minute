@@ -44,17 +44,17 @@ function entry(playerId: string, playedAt: number | null, words: ChallengeWord[]
 }
 
 describe('settleChallenge', () => {
-  it('halves a word someone else also found, and keeps a unique one whole', () => {
+  it('keeps a word someone else also found whole, and pays a unique one a quarter more', () => {
     const standings = settleChallenge([
       entry('ana', 1, [word('chat', 10), word('lynx', 25)]),
       entry('bob', 2, [word('chat', 14), word('zebre', 12)]),
     ])
 
     const ana = standings.find((standing) => standing.playerId === 'ana')!
-    expect(ana.score).toBe(5 + 25)
+    expect(ana.score).toBe(10 + 31)
     expect(ana.unique).toBe(1)
     expect(ana.shared).toBe(1)
-    expect(standings.find((standing) => standing.playerId === 'bob')!.score).toBe(7 + 12)
+    expect(standings.find((standing) => standing.playerId === 'bob')!.score).toBe(14 + 15)
     expect(standings[0]!.playerId).toBe('ana')
   })
 
@@ -152,12 +152,13 @@ describe('scoreAt', () => {
 })
 
 describe('settledScoreAt', () => {
-  it('draws the race on settled points: a shared word counts half', () => {
+  it('draws the race on settled points: a unique word counts a quarter more', () => {
     const [mine] = settleChallenge([
       entry('a', 1, [word('chat', 10, { at: 4 }), word('lynx', 30, { at: 20 })]),
       entry('b', 2, [word('chat', 10, { at: 9 })]),
     ]).filter((standing) => standing.playerId === 'a')
-    expect(settledScoreAt(mine!.words, 5)).toBe(5)
+    expect(settledScoreAt(mine!.words, 5)).toBe(10)
+    expect(settledScoreAt(mine!.words, 20)).toBe(10 + 38)
     expect(settledScoreAt(mine!.words, 60)).toBe(mine!.score)
   })
 })

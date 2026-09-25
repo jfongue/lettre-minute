@@ -6,7 +6,7 @@ n'écrit rapportent le plus.
 
 - **Cinq catégories au plus par partie**, tirées parmi celles que le joueur
   possède et annoncées avant un compte à rebours de trois secondes. Avec le
-  pouvoir Permutation, toucher une catégorie pendant l'annonce l'échange
+  pouvoir Échange, toucher une catégorie pendant l'annonce l'échange
   contre une de la réserve, deux fois au plus.
 - **Validation immédiate** contre un dictionnaire embarqué par langue (~48 000
   mots en français, 113 000 en anglais) : Wikidata pour les entités, le Wiktionnaire pour les noms
@@ -36,13 +36,13 @@ n'écrit rapportent le plus.
   pouvoir, puis les deux alternent — un pouvoir tous les deux niveaux, choisi
   entre deux cartes — l'offre suivante évite
   celle qu'on vient de voir. On en porte deux, choisis sous « Jouer ».
-  Permutation (deux échanges au lancement), Tricherie (écrire « Joker » :
+  Échange (deux échanges au lancement), Tricherie (écrire « Joker » :
   le jeu écrit un mot juste, payé au tarif de base, une fois), Esquive
   (passer coûte 3 s), Magie (toucher la lettre pour en tirer une autre, deux
   fois), Silence (écrire « chut » : le chrono s'arrête jusqu'au prochain mot,
   dix secondes au plus, et tout le son est étouffé, une fois), Dyslexie (deux
   fautes passent dès six lettres), Divination (la catégorie et la lettre
-  suivantes sont affichées), Complication (peu commun ×1,15, rare et très rare
+  suivantes sont affichées), Challenge (peu commun ×1,15, rare et très rare
   ×1,3), Célérité (un mot exact se valide seul) et Professeur (passer
   souffle le mot le plus connu qu'on aurait pu donner, et le bilan de fin
   de partie en fait la liste). Chacun a sa couleur, son
@@ -83,15 +83,16 @@ n'écrit rapportent le plus.
   (même graine, mêmes catégories) quand il veut, dans les 24 heures qui
   suivent la dernière partie jouée. Pendant la partie, les scores de ceux qui
   ont déjà joué avancent seconde par seconde, comme en direct, sans jamais
-  montrer un mot. À la fin, règle du Petit Bac : un mot qu'un autre a aussi
-  trouvé ne vaut que la moitié. Le classement provisoire bouge à chaque
+  montrer un mot. À la fin, règle du Petit Bac à l'envers : rien n'est retiré
+  à un mot partagé, et un mot que personne d'autre n'a trouvé rapporte 25 % de
+  plus. Le classement provisoire bouge à chaque
   nouveau joueur, et le chef peut inviter tant que tout le monde n'a pas joué.
   Une fois le défi clos, le bilan montre le classement, les mots les plus
   répétés et les plus uniques (sous « Plus de stats »), la course de chacun
   seconde par seconde, et des trophées (la tortue, le zappeur…) auxquels on
   réagit d'un emoji, comme aux mots ; puis il
   propose une revanche, une seule par défi, ouverte à tous ceux qui ont joué.
-  Permutation n'y est pas admis ; au-delà de deux pouvoirs, on choisit avant
+  Échange n’y est pas admis ; au-delà de deux pouvoirs, on choisit avant
   de jouer. Un défi rapporte 25 % d'XP de plus mais ne compte ni aux
   classements ni aux records. Sur Android, une notification push annonce
   l'invitation et le bilan, app fermée ([mise en place](docs/notifications-push.md)) ;
@@ -151,7 +152,7 @@ considérer un changement terminé.
 | Série de mots validés | ×1,1 par mot enchaîné, plafonné à ×2 |
 | Passer | −5 secondes (−3 sous Esquive), série remise à zéro |
 | Mot du Joker, ou corrigé de deux lettres (Dyslexie) | 10 points, sans bonus de rareté |
-| Complication | ×1,15 sur un mot peu commun, ×1,3 sur un rare ou très rare |
+| Challenge | ×1,15 sur un mot peu commun, ×1,3 sur un rare ou très rare |
 
 Une petite partie tourne autour de 100 points, une partie énorme — une
 trentaine de mots, souvent rares, en longue série — approche 1 000. Chaque point

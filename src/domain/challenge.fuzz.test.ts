@@ -6,7 +6,7 @@ import { createRng, type Rng } from './rng'
 /**
  * Random challenges between up to eight players drawing from a small common
  * pool, so that words overlap as they do on one seed. Whatever the runs, the
- * Petit Bac settlement must stay a fair split of what was actually scored.
+ * Petit Bac settlement must only ever add the unique-word bonus to what was actually scored.
  */
 const TIERS: readonly RarityTier[] = ['courant', 'peu commun', 'rare', 'très rare']
 const pick = <T,>(rng: Rng, items: readonly T[]): T => items[Math.floor(rng.next() * items.length)]!
@@ -55,9 +55,12 @@ function check(seed: number): void {
   expect(standings.map((row) => row.playerId).sort(), tag).toEqual(played.map((entry) => entry.playerId).sort())
   for (let i = 1; i < standings.length; i++) expect(standings[i - 1]!.score, `${tag} unsorted`).toBeGreaterThanOrEqual(standings[i]!.score)
   for (const row of standings) {
-    expect(row.score, `${tag} settled above raw`).toBeLessThanOrEqual(row.raw)
+    expect(row.score, `${tag} settled below raw`).toBeGreaterThanOrEqual(row.raw)
     expect(row.unique + row.shared, tag).toBe(row.words.length)
-    for (const word of row.words) expect(word.settled, tag).toBe(word.sharedWith === 0 ? word.points : Math.round(word.points / 2))
+    for (const word of row.words) {
+      const bonus = word.sharedWith === 0 && played.length > 1
+      expect(word.settled, tag).toBe(bonus ? Math.round(word.points * 1.25) : word.points)
+    }
   }
   if (played.length === 1) expect(standings[0]!.score, `${tag} alone yet shared`).toBe(standings[0]!.raw)
 

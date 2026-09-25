@@ -9,16 +9,16 @@ const systemDark = typeof window !== 'undefined' ? window.matchMedia('(prefers-c
 export function loadTheme(): Theme {
   try {
     const stored = localStorage.getItem(THEME_KEY)
-    return stored === 'light' || stored === 'dark' ? stored : 'system'
+    // Nothing stored is the light theme: the poster reads best on paper.
+    return stored === 'system' || stored === 'dark' ? stored : 'light'
   } catch {
-    return 'system'
+    return 'light'
   }
 }
 
 export function saveTheme(theme: Theme): void {
   try {
-    if (theme === 'system') localStorage.removeItem(THEME_KEY)
-    else localStorage.setItem(THEME_KEY, theme)
+    localStorage.setItem(THEME_KEY, theme)
   } catch {
     /* the choice lasts until the app closes */
   }

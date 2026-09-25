@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useT } from '../i18n'
 import { REACTIONS, type Reaction, type ReactionEmoji } from '../lib/cloud'
 
@@ -39,51 +39,85 @@ export function useRecapReactions(
   }
 }
 
-/** The counts under a trophy or a word, always shown once someone reacted. */
-export function ReactionCounts({ target, reactions }: { target: string; reactions: RecapReactions }) {
-  const here = reactions.list.filter((reaction) => reaction.target === target)
-  if (here.length === 0) return null
-  return (
-    <span className="reaction-counts">
-      {REACTIONS.map((emoji) => {
-        const count = here.filter((reaction) => reaction.emoji === emoji).length
-        const mine = here.some((reaction) => reaction.emoji === emoji && reaction.playerId === reactions.myId)
-        return count > 0 ? (
-          <span key={emoji} className={`reaction-count${mine ? ' reaction-count--mine' : ''}`}>
-            {emoji}
-            <small>{count}</small>
-          </span>
-        ) : null
-      })}
-    </span>
-  )
-}
+type Open = 'menu' | 'people' | null
 
-/** Unfolded under a trophy or a word: the palette, and who reacted with what. */
-export function ReactionPanel({ target, reactions }: { target: string; reactions: RecapReactions }) {
+/**
+ * A trophy or a word one reacts to as in a chat app: a tap raises a small bar
+ * of emojis above it, the reactions sit in a bubble on its corner, and a tap
+ * on the bubble tells who reacted with what.
+ */
+export function Reactable({
+  target,
+  reactions,
+  className,
+  children,
+}: {
+  target: string
+  reactions: RecapReactions
+  className?: string
+  children: ReactNode
+}) {
   const t = useT()
+  const [open, setOpen] = useState<Open>(null)
+  const box = useRef<HTMLDivElement>(null)
   const here = reactions.list.filter((reaction) => reaction.target === target)
   const mine = here.find((reaction) => reaction.playerId === reactions.myId)?.emoji ?? null
+
+  useEffect(() => {
+    if (!open) return
+    const away = (event: PointerEvent) => {
+      if (!box.current?.contains(event.target as Node)) setOpen(null)
+    }
+    const escape = (event: KeyboardEvent) => event.key === 'Escape' && setOpen(null)
+    document.addEventListener('pointerdown', away)
+    window.addEventListener('keydown', escape)
+    return () => {
+      document.removeEventListener('pointerdown', away)
+      window.removeEventListener('keydown', escape)
+    }
+  }, [open])
+
+  const tap = () => setOpen(open ? null : reactions.canReact ? 'menu' : here.length > 0 ? 'people' : null)
+
   return (
-    <div className="reaction-panel">
-      {reactions.canReact && (
-        <div className="reaction-palette" role="group" aria-label={t.challenge.reactLabel}>
-          {REACTIONS.map((emoji) => (
+    <div ref={box} className={`reactable${open ? ' reactable--open' : ''}${className ? ` ${className}` : ''}`}>
+      <button type="button" className="reactable-body" aria-haspopup="true" aria-expanded={open === 'menu'} onClick={tap}>
+        {children}
+      </button>
+      {here.length > 0 && (
+        <button
+          type="button"
+          className="reaction-bubble"
+          aria-label={t.challenge.reactLabel}
+          onClick={() => setOpen(open === 'people' ? null : 'people')}
+        >
+          {REACTIONS.filter((emoji) => here.some((reaction) => reaction.emoji === emoji)).map((emoji) => (
+            <span key={emoji}>{emoji}</span>
+          ))}
+          {here.length > 1 && <small>{here.length}</small>}
+        </button>
+      )}
+      {open === 'menu' && (
+        <div className="reaction-menu" role="menu" aria-label={t.challenge.reactLabel}>
+          {REACTIONS.map((emoji, index) => (
             <button
               key={emoji}
               type="button"
+              role="menuitemradio"
+              aria-checked={mine === emoji}
               className={`reaction-pick${mine === emoji ? ' reaction-pick--on' : ''}`}
-              aria-pressed={mine === emoji}
-              onClick={() => reactions.react(target, mine === emoji ? null : emoji)}
+              style={{ '--i': index } as CSSProperties}
+              onClick={() => {
+                reactions.react(target, mine === emoji ? null : emoji)
+                setOpen(null)
+              }}
             >
               {emoji}
             </button>
           ))}
         </div>
       )}
-      {here.length === 0 ? (
-        <p className="note">{t.challenge.noReaction}</p>
-      ) : (
+      {open === 'people' && (
         <ul className="reaction-people">
           {here.map((reaction) => (
             <li key={reaction.playerId}>

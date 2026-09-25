@@ -40,7 +40,7 @@ export const pt: Messages = {
   countdown: {
     lineup: 'Na rodada',
     swapping: 'Trocando…',
-    swapHint: (swaps, reserve) => `Permutação: toque num tema para trocá-lo · ${swaps} ${plural(swaps, 'troca', 'trocas')} · ${reserve} na reserva`,
+    swapHint: (swaps, reserve) => `Troca: toque num tema para trocá-lo · ${swaps} ${plural(swaps, 'troca', 'trocas')} · ${reserve} na reserva`,
   },
 
   run: {
@@ -98,6 +98,9 @@ export const pt: Messages = {
     rate: 'Dar 5 estrelas',
     frameDescription: 'Obrigado por apoiares Letra Minuto!',
     close: 'Fechar',
+    hello:
+      'Olá, sou o Jérémy! Sou um pequeno desenvolvedor francês e faço este jogo nos meus tempos livres. Se gostaste, o teu apoio ajudaria muito, mesmo que fosse 1 euro! Obrigado desde já.',
+    photo: 'Jérémy, o criador do jogo',
   },
 
   account: {
@@ -326,10 +329,8 @@ export const pt: Messages = {
   options: {
     theme: 'Tema',
     themes: { system: 'Auto', light: 'Claro', dark: 'Escuro' },
-    themeNote: '“Auto” segue a configuração do telefone.',
     sound: 'Som',
     sounds: { master: 'Geral', effects: 'Efeitos', keys: 'Teclado', music: 'Música' },
-    soundNote: '“Geral” ajusta tudo de uma vez. A música inclui o pulso sob a partida, que se adensa a cada vinte segundos.',
     soundOff: 'Desligado',
     mute: 'Silenciar',
     unmute: 'Ativar o som',
@@ -376,14 +377,14 @@ export const pt: Messages = {
 
   powers: {
     names: {
-      permutation: ['Permutação', 'No início, toque num tema para trocá-lo por um da sua reserva. Duas vezes.'],
-      joker: ['Trapaça', 'Uma vez por partida, escreva «Joker» e valide: o jogo escreve por você uma palavra certa, paga na tarifa básica.'],
+      permutation: ['Troca', 'No início, toque num tema para trocá-lo por um da sua reserva. Duas vezes.'],
+      joker: ['Trapaça', 'Uma vez por partida, escreva «Joker» e valide: o jogo escreve por você uma palavra certa.'],
       dodge: ['Esquiva', 'Passar custa só 3 segundos em vez de 5.'],
       magic: ['Magia', 'Duas vezes por partida, toque na letra para tirar outra.'],
       hush: ['Silêncio', 'Uma vez por partida, escreva «psiu» e valide: o relógio para até a sua próxima palavra, dez segundos no máximo.'],
-      dyslexia: ['Dislexia', 'Dois erros passam em palavras de seis letras ou mais, pagas na tarifa básica.'],
+      dyslexia: ['Dislexia', 'Dois erros passam em palavras de seis letras ou mais.'],
       divination: ['Adivinhação', 'Você vê o tema e a letra que vêm a seguir.'],
-      complication: ['Complicação', 'Palavras incomuns valem ×1,15; as raras, ×1,3.'],
+      complication: ['Risco', 'Palavras incomuns valem ×1,15; as raras, ×1,3.'],
       celerity: ['Celeridade', 'Uma palavra certa se valida sozinha, sem apertar Enter.'],
       professor: ['Professor', 'Quando você passa, sopram o que você poderia ter respondido, e o fim da partida revisa a lição.'],
     },
@@ -452,7 +453,7 @@ export const pt: Messages = {
       open: 'Ver os resultados',
     },
     powersTitle: 'Os teus poderes para este desafio',
-    powersLead: (max) => `Escolhe ${max}. Permutação fica de fora: todos jogam os mesmos temas.`,
+    powersLead: (max) => `Escolhe ${max}. Troca fica de fora: todos jogam os mesmos temas.`,
     powersStart: 'Começar a partida',
     race: 'A corrida',
     you: 'Tu',
@@ -460,11 +461,12 @@ export const pt: Messages = {
     pushFailed: 'A tua partida não chegou ao desafio.',
     provisional: 'Classificação provisória',
     final: 'Classificação final',
-    rules: 'Regra do Stop: uma palavra que outro jogador também encontrou vale metade.',
+    rules: 'Regra do Stop: uma palavra que mais ninguém encontrou vale 25 % a mais.',
     waitingFor: (count, hours) =>
       `${count} ${plural(count, 'jogador ainda não jogou', 'jogadores ainda não jogaram')} · fecha dentro de ${hours} h no máximo`,
     notYet: 'ainda não jogou',
-    raw: (points) => `${points} antes da partilha`,
+    raw: (points) => `${points} antes do bónus`,
+    bonus: (percent) => `+${percent} %`,
     yourWords: 'As tuas palavras',
     yourWordsHint: 'Toca numa palavra para ver o que os outros puseram.',
     nothing: 'nada',
@@ -505,7 +507,6 @@ export const pt: Messages = {
     raceHint: 'Desliza o dedo pelo gráfico',
     raceAt: (second) => `aos ${second} s`,
     reactLabel: 'Reagir',
-    noReaction: 'Ainda ninguém reagiu.',
     reactHint: 'Toca num troféu ou numa palavra para reagir.',
     moreStats: 'Mais estatísticas',
     lessStats: 'Menos estatísticas',

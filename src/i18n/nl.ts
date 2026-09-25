@@ -40,7 +40,7 @@ export const nl: Messages = {
   countdown: {
     lineup: 'Op het programma',
     swapping: 'Bezig met ruilen…',
-    swapHint: (swaps, reserve) => `Permutatie: tik op een thema om het te ruilen · ${swaps}× ruilen · ${reserve} in reserve`,
+    swapHint: (swaps, reserve) => `Ruil: tik op een thema om het te ruilen · ${swaps}× ruilen · ${reserve} in reserve`,
   },
 
   run: {
@@ -97,6 +97,9 @@ export const nl: Messages = {
     rate: 'Geef 5 sterren',
     frameDescription: 'Bedankt dat je Letter Minuut steunt!',
     close: 'Sluiten',
+    hello:
+      'Hoi, ik ben Jérémy! Ik ben een kleine Franse ontwikkelaar en maak dit spel in mijn vrije tijd. Als je het leuk vond, zou je steun heel fijn zijn, zelfs 1 euro! Alvast bedankt.',
+    photo: 'Jérémy, de maker van het spel',
   },
 
   account: {
@@ -325,10 +328,8 @@ export const nl: Messages = {
   options: {
     theme: 'Thema',
     themes: { system: 'Auto', light: 'Licht', dark: 'Donker' },
-    themeNote: '‘Auto’ volgt de instelling van de telefoon.',
     sound: 'Geluid',
     sounds: { master: 'Algemeen', effects: 'Effecten', keys: 'Toetsenbord', music: 'Muziek' },
-    soundNote: '‘Algemeen’ regelt alles tegelijk. Bij de muziek hoort de puls onder het spel, die elke twintig seconden voller wordt.',
     soundOff: 'Uit',
     mute: 'Geluid uit',
     unmute: 'Geluid aan',
@@ -375,14 +376,14 @@ export const nl: Messages = {
 
   powers: {
     names: {
-      permutation: ['Permutatie', 'Tik bij de start op een thema om het te ruilen voor een uit je reserve. Twee keer.'],
-      joker: ['Valsspelen', 'Eén keer per spel: typ „Joker” en bevestig, en het spel schrijft een goed woord voor je, tegen het basistarief.'],
+      permutation: ['Ruil', 'Tik bij de start op een thema om het te ruilen voor een uit je reserve. Twee keer.'],
+      joker: ['Valsspelen', 'Eén keer per spel: typ „Joker” en bevestig, en het spel schrijft een goed woord voor je.'],
       dodge: ['Ontwijken', 'Overslaan kost maar 3 seconden in plaats van 5.'],
       magic: ['Magie', 'Twee keer per spel: tik op de letter om een andere te trekken.'],
       hush: ['Stilte', 'Eén keer per spel: typ „sst” en bevestig, en de klok staat stil tot je volgende woord, hooguit tien seconden.'],
-      dyslexia: ['Dyslexie', 'Twee fouten mogen bij woorden van zes letters of meer, tegen het basistarief.'],
+      dyslexia: ['Dyslexie', 'Twee fouten mogen bij woorden van zes letters of meer.'],
       divination: ['Waarzeggerij', 'Je ziet het volgende thema en de volgende letter.'],
-      complication: ['Complicatie', 'Ongewone woorden tellen ×1,15, zeldzame ×1,3.'],
+      complication: ['Risico', 'Ongewone woorden tellen ×1,15, zeldzame ×1,3.'],
       celerity: ['Snelheid', 'Een goed woord bevestigt zichzelf, zonder Enter.'],
       professor: ['Professor', 'Sla je over, dan wordt je ingefluisterd wat je had kunnen zeggen, en aan het eind volgt de les.'],
     },
@@ -451,7 +452,7 @@ export const nl: Messages = {
       open: 'Uitslag bekijken',
     },
     powersTitle: 'Je krachten voor deze uitdaging',
-    powersLead: (max) => `Kies er ${max}. Permutatie doet niet mee: iedereen speelt dezelfde thema’s.`,
+    powersLead: (max) => `Kies er ${max}. Ruil doet niet mee: iedereen speelt dezelfde thema’s.`,
     powersStart: 'Spel starten',
     race: 'De race',
     you: 'Jij',
@@ -459,11 +460,12 @@ export const nl: Messages = {
     pushFailed: 'Je spel kon de uitdaging niet bereiken.',
     provisional: 'Voorlopige stand',
     final: 'Eindstand',
-    rules: 'Petit-Bac-regel: een woord dat een ander ook vond, telt maar half.',
+    rules: 'Petit-Bac-regel: een woord dat verder niemand vond, telt 25 % meer.',
     waitingFor: (count, hours) =>
       `${count} ${plural(count, 'speler heeft', 'spelers hebben')} nog niet gespeeld · sluit uiterlijk over ${hours} u`,
     notYet: 'nog niet gespeeld',
-    raw: (points) => `${points} vóór het delen`,
+    raw: (points) => `${points} vóór de bonus`,
+    bonus: (percent) => `+${percent} %`,
     yourWords: 'Jouw woorden',
     yourWordsHint: 'Tik op een woord om te zien wat de anderen hadden.',
     nothing: 'niets gevonden',
@@ -504,7 +506,6 @@ export const nl: Messages = {
     raceHint: 'Sleep je vinger over de grafiek',
     raceAt: (second) => `bij ${second} s`,
     reactLabel: 'Reageren',
-    noReaction: 'Nog niemand heeft gereageerd.',
     reactHint: 'Tik op een trofee of een woord om te reageren.',
     moreStats: 'Meer statistieken',
     lessStats: 'Minder statistieken',

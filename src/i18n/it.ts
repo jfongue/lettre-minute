@@ -40,7 +40,7 @@ export const it: Messages = {
   countdown: {
     lineup: 'In programma',
     swapping: 'Scambio in corso…',
-    swapHint: (swaps, reserve) => `Permutazione: tocca un tema per scambiarlo · ${swaps} ${plural(swaps, 'scambio', 'scambi')} · ${reserve} in riserva`,
+    swapHint: (swaps, reserve) => `Scambio: tocca un tema per scambiarlo · ${swaps} ${plural(swaps, 'scambio', 'scambi')} · ${reserve} in riserva`,
   },
 
   run: {
@@ -98,6 +98,9 @@ export const it: Messages = {
     rate: 'Dai 5 stelle',
     frameDescription: 'Grazie per sostenere Lettera Minuto!',
     close: 'Chiudi',
+    hello:
+      'Ciao, sono Jérémy! Sono un piccolo sviluppatore francese e creo questo gioco nel mio tempo libero. Se ti è piaciuto, il tuo sostegno significherebbe molto, anche solo 1 euro! Grazie in anticipo.',
+    photo: 'Jérémy, il creatore del gioco',
   },
 
   account: {
@@ -326,10 +329,8 @@ export const it: Messages = {
   options: {
     theme: 'Tema',
     themes: { system: 'Auto', light: 'Chiaro', dark: 'Scuro' },
-    themeNote: '«Auto» segue l’impostazione del telefono.',
     sound: 'Suono',
     sounds: { master: 'Generale', effects: 'Effetti', keys: 'Tastiera', music: 'Musica' },
-    soundNote: '«Generale» regola tutto in una volta. La musica comprende la pulsazione sotto la partita, che si infittisce ogni venti secondi.',
     soundOff: 'Spento',
     mute: 'Disattiva l’audio',
     unmute: 'Riattiva l’audio',
@@ -376,14 +377,14 @@ export const it: Messages = {
 
   powers: {
     names: {
-      permutation: ['Permutazione', 'Alla partenza, tocca un tema per scambiarlo con uno della tua riserva. Due volte.'],
-      joker: ['Imbroglio', 'Una volta per partita, scrivi «Joker» e conferma: il gioco scrive per te una parola giusta, pagata alla tariffa base.'],
+      permutation: ['Scambio', 'Alla partenza, tocca un tema per scambiarlo con uno della tua riserva. Due volte.'],
+      joker: ['Imbroglio', 'Una volta per partita, scrivi «Joker» e conferma: il gioco scrive per te una parola giusta.'],
       dodge: ['Schivata', 'Passare costa solo 3 secondi invece di 5.'],
       magic: ['Magia', 'Due volte per partita, tocca la lettera per pescarne un’altra.'],
       hush: ['Silenzio', 'Una volta per partita, scrivi «zitto» e conferma: il cronometro si ferma fino alla tua prossima parola, dieci secondi al massimo.'],
-      dyslexia: ['Dislessia', 'Due errori passano sulle parole di sei lettere o più, pagate alla tariffa base.'],
+      dyslexia: ['Dislessia', 'Due errori passano sulle parole di sei lettere o più.'],
       divination: ['Divinazione', 'Vedi il tema e la lettera che vengono dopo.'],
-      complication: ['Complicazione', 'Le parole poco comuni valgono ×1,15, le rare ×1,3.'],
+      complication: ['Rischio', 'Le parole poco comuni valgono ×1,15, le rare ×1,3.'],
       celerity: ['Celerità', 'Una parola giusta si conferma da sola, senza premere Invio.'],
       professor: ['Professore', 'Quando passi, ti suggeriscono cosa avresti potuto rispondere, e la fine della partita ripassa la lezione.'],
     },
@@ -452,7 +453,7 @@ export const it: Messages = {
       open: 'Vedi i risultati',
     },
     powersTitle: 'I tuoi poteri per questa sfida',
-    powersLead: (max) => `Scegline ${max}. Permutazione resta fuori: tutti giocano gli stessi temi.`,
+    powersLead: (max) => `Scegline ${max}. Scambio resta fuori: tutti giocano gli stessi temi.`,
     powersStart: 'Inizia la partita',
     race: 'La corsa',
     you: 'Tu',
@@ -460,11 +461,12 @@ export const it: Messages = {
     pushFailed: 'La tua partita non è arrivata alla sfida.',
     provisional: 'Classifica provvisoria',
     final: 'Classifica finale',
-    rules: 'Regola di Nomi, cose, città: una parola trovata anche da un altro vale la metà.',
+    rules: 'Regola di Nomi, cose, città: una parola che nessun altro ha trovato vale il 25 % in più.',
     waitingFor: (count, hours) =>
       `${count} ${plural(count, 'giocatore non ha', 'giocatori non hanno')} ancora giocato · chiusura entro ${hours} h`,
     notYet: 'non ha ancora giocato',
-    raw: (points) => `${points} prima della divisione`,
+    raw: (points) => `${points} prima del bonus`,
+    bonus: (percent) => `+${percent} %`,
     yourWords: 'Le tue parole',
     yourWordsHint: 'Tocca una parola per vedere cosa hanno messo gli altri.',
     nothing: 'niente',
@@ -505,7 +507,6 @@ export const it: Messages = {
     raceHint: 'Scorri il dito sulla curva',
     raceAt: (second) => `a ${second} s`,
     reactLabel: 'Reagisci',
-    noReaction: 'Nessuno ha ancora reagito.',
     reactHint: 'Tocca un trofeo o una parola per reagire.',
     moreStats: 'Altre statistiche',
     lessStats: 'Meno statistiche',

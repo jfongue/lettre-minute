@@ -137,6 +137,12 @@ function Dismissable({
       <button type="button" className="dismissable-action" tabIndex={revealed ? 0 : -1} onClick={onDismiss}>
         {label}
       </button>
+      {/* With a mouse there is no swipe: the row shows its own cross on hover. */}
+      <button type="button" className="dismissable-cross" aria-label={label} title={label} onClick={onDismiss}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
     </div>
   )
 }

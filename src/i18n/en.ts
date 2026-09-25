@@ -46,7 +46,7 @@ export const en: Messages = {
   countdown: {
     lineup: 'Coming up',
     swapping: 'Swapping…',
-    swapHint: (swaps, reserve) => `Permutation: tap a theme to swap it · ${swaps} ${plural(swaps, 'swap', 'swaps')} · ${reserve} in reserve`,
+    swapHint: (swaps, reserve) => `Swap: tap a theme to swap it · ${swaps} ${plural(swaps, 'swap', 'swaps')} · ${reserve} in reserve`,
   },
 
   run: {
@@ -103,6 +103,9 @@ export const en: Messages = {
     rate: 'Rate 5 stars',
     frameDescription: 'Thanks for supporting Letter Minute!',
     close: 'Close',
+    hello:
+      'Hi, I’m Jérémy! I’m a small French developer and I make this game in my spare time. If you enjoyed it, your support would mean a lot, even 1 euro! Thank you in advance.',
+    photo: 'Jérémy, the game’s creator',
   },
 
   account: {
@@ -330,10 +333,8 @@ export const en: Messages = {
   options: {
     theme: 'Theme',
     themes: { system: 'Auto', light: 'Light', dark: 'Dark' },
-    themeNote: '“Auto” follows the phone’s setting.',
     sound: 'Sound',
     sounds: { master: 'Overall', effects: 'Effects', keys: 'Keyboard', music: 'Music' },
-    soundNote: '“Overall” sets everything at once. The music includes the pulse under the run, which thickens every twenty seconds.',
     soundOff: 'Off',
     mute: 'Mute sound',
     unmute: 'Unmute sound',
@@ -380,14 +381,14 @@ export const en: Messages = {
 
   powers: {
     names: {
-      permutation: ['Permutation', 'At the start, tap a theme to swap it for one from your reserve. Twice.'],
-      joker: ['Cheat', 'Once a game, type “Joker” and validate: the game writes a right word for you, paid the base rate.'],
+      permutation: ['Swap', 'At the start, tap a theme to swap it for one from your reserve. Twice.'],
+      joker: ['Cheat', 'Once a game, type “Joker” and validate: the game writes a right word for you.'],
       dodge: ['Dodge', 'Skipping costs only 3 seconds instead of 5.'],
       magic: ['Magic', 'Twice a game, tap the letter to draw another one.'],
       hush: ['Silence', 'Once a game, type “shh” and validate: the clock stops until your next word, ten seconds at most.'],
-      dyslexia: ['Dyslexia', 'Two mistakes pass on words of six letters or more, paid the base rate.'],
+      dyslexia: ['Dyslexia', 'Two mistakes pass on words of six letters or more.'],
       divination: ['Divination', 'You see the theme and letter coming next.'],
-      complication: ['Complication', 'Uncommon words are worth ×1.15, rare ones ×1.3.'],
+      complication: ['High stakes', 'Uncommon words are worth ×1.15, rare ones ×1.3.'],
       celerity: ['Celerity', 'A right word validates itself, no need to press Enter.'],
       professor: ['Professor', 'When you skip, you are told what you could have answered, and the end of the game goes over the lesson.'],
     },
@@ -456,7 +457,7 @@ export const en: Messages = {
       open: 'See the results',
     },
     powersTitle: 'Your powers for this challenge',
-    powersLead: (max) => `Pick ${max}. Permutation sits this one out: everyone plays the same themes.`,
+    powersLead: (max) => `Pick ${max}. Swap sits this one out: everyone plays the same themes.`,
     powersStart: 'Start the game',
     race: 'The race',
     you: 'You',
@@ -464,11 +465,12 @@ export const en: Messages = {
     pushFailed: 'Your game could not reach the challenge.',
     provisional: 'Standings so far',
     final: 'Final standings',
-    rules: 'Scattergories rule: a word another player also found is worth half.',
+    rules: 'Scattergories rule: a word nobody else found scores 25% more.',
     waitingFor: (count, hours) =>
       `${count} ${plural(count, 'player has', 'players have')} not played yet · closes in ${hours} h at most`,
     notYet: 'not played yet',
-    raw: (points) => `${points} before sharing`,
+    raw: (points) => `${points} before bonus`,
+    bonus: (percent) => `+${percent}%`,
     yourWords: 'Your words',
     yourWordsHint: 'Tap a word to see what the others put.',
     nothing: 'nothing',
@@ -509,7 +511,6 @@ export const en: Messages = {
     raceHint: 'Slide your finger along the chart',
     raceAt: (second) => `at ${second} s`,
     reactLabel: 'React',
-    noReaction: 'No one has reacted yet.',
     reactHint: 'Tap a trophy or a word to react.',
     moreStats: 'More stats',
     lessStats: 'Fewer stats',

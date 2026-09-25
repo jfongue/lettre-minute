@@ -40,7 +40,7 @@ export const de: Messages = {
   countdown: {
     lineup: 'Auf dem Programm',
     swapping: 'Wird getauscht…',
-    swapHint: (swaps, reserve) => `Permutation: Tippe auf ein Thema, um es zu tauschen · ${swaps}× tauschen · ${reserve} in Reserve`,
+    swapHint: (swaps, reserve) => `Tausch: Tippe auf ein Thema, um es zu tauschen · ${swaps}× tauschen · ${reserve} in Reserve`,
   },
 
   run: {
@@ -97,6 +97,9 @@ export const de: Messages = {
     rate: 'Fünf Sterne geben',
     frameDescription: 'Danke, dass du Letter Minute unterstützt!',
     close: 'Schließen',
+    hello:
+      'Hallo, ich bin Jérémy! Ich bin ein kleiner Entwickler aus Frankreich und mache dieses Spiel in meiner Freizeit. Wenn es dir gefallen hat, würde mir deine Unterstützung sehr helfen, auch nur 1 Euro! Danke im Voraus.',
+    photo: 'Jérémy, der Macher des Spiels',
   },
 
   account: {
@@ -324,10 +327,8 @@ export const de: Messages = {
   options: {
     theme: 'Design',
     themes: { system: 'Auto', light: 'Hell', dark: 'Dunkel' },
-    themeNote: '„Auto“ folgt der Einstellung des Telefons.',
     sound: 'Ton',
     sounds: { master: 'Gesamt', effects: 'Effekte', keys: 'Tastatur', music: 'Musik' },
-    soundNote: '„Gesamt“ regelt alles auf einmal. Zur Musik gehört der Puls unter der Runde, der alle zwanzig Sekunden dichter wird.',
     soundOff: 'Aus',
     mute: 'Ton aus',
     unmute: 'Ton an',
@@ -374,14 +375,14 @@ export const de: Messages = {
 
   powers: {
     names: {
-      permutation: ['Permutation', 'Beim Start tippst du auf ein Thema, um es gegen eines aus deiner Reserve zu tauschen. Zweimal.'],
-      joker: ['Schummeln', 'Einmal pro Partie „Joker“ tippen und bestätigen: Das Spiel schreibt ein richtiges Wort für dich, zum Grundtarif.'],
+      permutation: ['Tausch', 'Beim Start tippst du auf ein Thema, um es gegen eines aus deiner Reserve zu tauschen. Zweimal.'],
+      joker: ['Schummeln', 'Einmal pro Partie „Joker“ tippen und bestätigen: Das Spiel schreibt ein richtiges Wort für dich.'],
       dodge: ['Ausweichen', 'Überspringen kostet nur 3 statt 5 Sekunden.'],
       magic: ['Magie', 'Zweimal pro Partie auf den Buchstaben tippen, um einen anderen zu ziehen.'],
       hush: ['Stille', 'Einmal pro Partie „pst“ tippen und bestätigen: Die Uhr steht bis zu deinem nächsten Wort, höchstens zehn Sekunden.'],
-      dyslexia: ['Legasthenie', 'Zwei Fehler gehen durch bei Wörtern ab sechs Buchstaben, zum Grundtarif.'],
+      dyslexia: ['Legasthenie', 'Zwei Fehler gehen durch bei Wörtern ab sechs Buchstaben.'],
       divination: ['Weissagung', 'Du siehst das nächste Thema und den nächsten Buchstaben.'],
-      complication: ['Komplikation', 'Ungewöhnliche Wörter zählen ×1,15, seltene ×1,3.'],
+      complication: ['Risiko', 'Ungewöhnliche Wörter zählen ×1,15, seltene ×1,3.'],
       celerity: ['Schnelligkeit', 'Ein richtiges Wort bestätigt sich selbst, ohne Enter.'],
       professor: ['Professor', 'Wenn du überspringst, wird dir eingeflüstert, was du hättest sagen können, und am Ende gibt es die Lektion.'],
     },
@@ -450,7 +451,7 @@ export const de: Messages = {
       open: 'Ergebnis ansehen',
     },
     powersTitle: 'Deine Kräfte für dieses Duell',
-    powersLead: (max) => `Wähle ${max}. Permutation bleibt draußen: alle spielen dieselben Themen.`,
+    powersLead: (max) => `Wähle ${max}. Tausch bleibt draußen: alle spielen dieselben Themen.`,
     powersStart: 'Spiel starten',
     race: 'Das Rennen',
     you: 'Du',
@@ -458,11 +459,12 @@ export const de: Messages = {
     pushFailed: 'Dein Spiel konnte das Duell nicht erreichen.',
     provisional: 'Vorläufiger Stand',
     final: 'Endstand',
-    rules: 'Stadt-Land-Fluss-Regel: ein Wort, das ein anderer auch fand, zählt nur die Hälfte.',
+    rules: 'Stadt-Land-Fluss-Regel: Ein Wort, das sonst niemand fand, zählt 25 % mehr.',
     waitingFor: (count, hours) =>
       `${count} ${plural(count, 'Spieler hat', 'Spieler haben')} noch nicht gespielt · Schluss in spätestens ${hours} Std.`,
     notYet: 'noch nicht gespielt',
-    raw: (points) => `${points} vor dem Teilen`,
+    raw: (points) => `${points} vor dem Bonus`,
+    bonus: (percent) => `+${percent} %`,
     yourWords: 'Deine Wörter',
     yourWordsHint: 'Tippe auf ein Wort, um zu sehen, was die anderen hatten.',
     nothing: 'nichts gefunden',
@@ -503,7 +505,6 @@ export const de: Messages = {
     raceHint: 'Wisch mit dem Finger über die Kurve',
     raceAt: (second) => `bei ${second} s`,
     reactLabel: 'Reagieren',
-    noReaction: 'Noch niemand hat reagiert.',
     reactHint: 'Tippe auf eine Trophäe oder ein Wort, um zu reagieren.',
     moreStats: 'Mehr Statistiken',
     lessStats: 'Weniger Statistiken',

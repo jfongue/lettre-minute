@@ -54,7 +54,7 @@ export const fr = {
   countdown: {
     lineup: 'Au programme',
     swapping: 'Échange en cours…',
-    swapHint: (swaps: number, reserve: number) => `Permutation : touche un thème pour l’échanger · ${swaps} ${plural(swaps, 'échange', 'échanges')} · ${reserve} en réserve`,
+    swapHint: (swaps: number, reserve: number) => `Échange : touche un thème pour l’échanger · ${swaps} ${plural(swaps, 'échange', 'échanges')} · ${reserve} en réserve`,
   },
 
   run: {
@@ -114,6 +114,9 @@ export const fr = {
     /** Shown atop the Buy Me a Coffee form framed in a browser. */
     frameDescription: 'Merci de soutenir Lettre Minute !',
     close: 'Fermer',
+    hello:
+      'Coucou, je suis Jérémy ! Je suis un petit développeur français et je fais ce jeu sur mon temps libre. Si tu l’as aimé, ton soutien m’aiderait beaucoup, même 1 euro ! Merci d’avance.',
+    photo: 'Jérémy, le créateur du jeu',
   },
 
   account: {
@@ -348,10 +351,8 @@ export const fr = {
   options: {
     theme: 'Thème',
     themes: { system: 'Auto', light: 'Clair', dark: 'Sombre' },
-    themeNote: '« Auto » suit le réglage du téléphone.',
     sound: 'Son',
     sounds: { master: 'Général', effects: 'Effets', keys: 'Clavier', music: 'Musique' },
-    soundNote: '« Général » règle tout d’un coup. La musique comprend la pulsation sous la partie, qui se densifie toutes les vingt secondes.',
     soundOff: 'Coupé',
     mute: 'Couper le son',
     unmute: 'Rétablir le son',
@@ -399,14 +400,14 @@ export const fr = {
   powers: {
     /** Name and what the power does, by `PowerId`. */
     names: {
-      permutation: ['Permutation', 'Au lancement, touche un thème pour l’échanger contre un de ta réserve. Deux fois.'],
-      joker: ['Tricherie', 'Une fois par partie, écris « Joker » et valide : le jeu écrit un mot juste à ta place, payé au tarif de base.'],
+      permutation: ['Échange', 'Au lancement, touche un thème pour l’échanger contre un de ta réserve. Deux fois.'],
+      joker: ['Tricherie', 'Une fois par partie, écris « Joker » et valide : le jeu écrit un mot juste à ta place.'],
       dodge: ['Esquive', 'Passer ne coûte que 3 secondes au lieu de 5.'],
       magic: ['Magie', 'Deux fois par partie, touche la lettre proposée pour en tirer une autre.'],
       hush: ['Silence', 'Une fois par partie, écris « chut » et valide : le chrono s’arrête jusqu’à ton prochain mot, dix secondes au plus.'],
-      dyslexia: ['Dyslexie', 'Deux fautes passent sur les mots de six lettres et plus, payés au tarif de base.'],
+      dyslexia: ['Dyslexie', 'Deux fautes passent sur les mots de six lettres et plus.'],
       divination: ['Divination', 'Tu vois la catégorie et la lettre qui viennent ensuite.'],
-      complication: ['Complication', 'Les mots peu communs valent ×1,15, les rares ×1,3.'],
+      complication: ['Challenge', 'Les mots peu communs valent ×1,15, les rares ×1,3.'],
       celerity: ['Célérité', 'Un mot juste se valide tout seul, sans appuyer sur Entrée.'],
       professor: ['Professeur', 'Quand tu passes, on te souffle ce que tu aurais pu répondre, et la fin de partie te fait la leçon.'],
     } satisfies Record<PowerId, readonly [string, string]> as Record<PowerId, readonly [name: string, description: string]>,
@@ -481,7 +482,7 @@ export const fr = {
     },
     powersTitle: 'Tes pouvoirs pour ce défi',
     powersLead: (max: number) =>
-      `Choisis-en ${max}. Permutation reste au vestiaire : tout le monde joue les mêmes thèmes.`,
+      `Choisis-en ${max}. Échange reste au vestiaire : tout le monde joue les mêmes thèmes.`,
     powersStart: 'Lancer la partie',
     race: 'La course',
     you: 'Toi',
@@ -489,11 +490,12 @@ export const fr = {
     pushFailed: 'Ta partie n’a pas pu rejoindre le défi.',
     provisional: 'Classement provisoire',
     final: 'Classement final',
-    rules: 'Petit Bac : un mot qu’un autre joueur a aussi trouvé ne vaut que la moitié.',
+    rules: 'Petit Bac : un mot que personne d’autre n’a trouvé rapporte 25 % de plus.',
     waitingFor: (count: number, hours: number) =>
       `${count} ${plural(count, 'joueur n’a', 'joueurs n’ont')} pas encore joué · clôture dans ${hours} h au plus`,
     notYet: 'pas encore joué',
-    raw: (points: string) => `${points} avant partage`,
+    raw: (points: string) => `${points} avant bonus`,
+    bonus: (percent: number) => `+${percent} %`,
     yourWords: 'Tes mots',
     yourWordsHint: 'Touche un mot pour voir ce que les autres ont mis.',
     nothing: 'rien trouvé',
@@ -534,7 +536,6 @@ export const fr = {
     raceHint: 'Glisse le doigt sur la courbe',
     raceAt: (second: number) => `à ${second} s`,
     reactLabel: 'Réagir',
-    noReaction: 'Personne n’a encore réagi.',
     reactHint: 'Touche un trophée ou un mot pour réagir.',
     moreStats: 'Plus de stats',
     lessStats: 'Moins de stats',

@@ -35,7 +35,9 @@ const HIDDEN_KEY = 'lettre-minute.hidden-challenges.v1'
  * What a hidden challenge was when it was set aside. Anything new since — a
  * late player, a rematch — changes it, and the challenge shows again.
  */
-function stampOf(challenge: ChallengeSummary): string {
+type Stamped = Pick<ChallengeSummary, 'id' | 'played' | 'players' | 'finished' | 'nextId'>
+
+function stampOf(challenge: Stamped): string {
   return `${challenge.played}/${challenge.players}/${challenge.finished}/${challenge.nextId ?? ''}`
 }
 
@@ -50,7 +52,7 @@ export function loadHiddenChallenges(): Record<string, string> {
   }
 }
 
-export function hideChallenge(hidden: Record<string, string>, challenge: ChallengeSummary): Record<string, string> {
+export function hideChallenge(hidden: Record<string, string>, challenge: Stamped): Record<string, string> {
   const next = { ...hidden, [challenge.id]: stampOf(challenge) }
   try {
     localStorage.setItem(HIDDEN_KEY, JSON.stringify(next))
@@ -58,6 +60,22 @@ export function hideChallenge(hidden: Record<string, string>, challenge: Challen
     /* hidden until the app closes */
   }
   return next
+}
+
+/** The recap's own « Masquer »: the detail stamped as the list will read it. */
+export function hideChallengeDetail(detail: {
+  id: string
+  finished: boolean
+  nextId: string | null
+  players: readonly { playedAt: number | null }[]
+}): void {
+  hideChallenge(loadHiddenChallenges(), {
+    id: detail.id,
+    finished: detail.finished,
+    nextId: detail.nextId,
+    players: detail.players.length,
+    played: detail.players.filter((player) => player.playedAt !== null).length,
+  })
 }
 
 export function isHidden(hidden: Record<string, string>, challenge: ChallengeSummary): boolean {
