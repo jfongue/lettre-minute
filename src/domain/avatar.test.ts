@@ -34,23 +34,31 @@ describe('avatars', () => {
   })
 
   it('gives every tile a goal past the free ones', () => {
-    expect(AVATARS.every((design) => design.id < 6 || designUnlock(design.id))).toBe(true)
+    expect(AVATARS.every((design) => design.id < 5 || designUnlock(design.id))).toBe(true)
   })
 
   it('starts a player with a few tiles and the three primaries', () => {
-    expect(ownedDesigns(NEW_PROFILE)).toHaveLength(6)
+    expect(ownedDesigns(NEW_PROFILE)).toHaveLength(5)
     expect(ownedColours(NEW_PROFILE).map((colour) => colour.id)).toEqual(['rouge', 'bleu', 'jaune'])
     expect(reached(NEW_PROFILE, designUnlock(DEFAULT_AVATAR.design))).toBe(true)
   })
 
-  it('pays out a colour for the very first run', () => {
-    const after = applyRun(NEW_PROFILE, { score: 40, words: ['chat'], bestCombo: 1 })
+  it('earns nothing on a first run, even a very good one', () => {
+    const words = Array.from({ length: 25 }, (_, index) => `mot${index}`)
+    const after = applyRun(NEW_PROFILE, { score: 380, words, bestCombo: 9 })
 
-    expect(newlyEarned(NEW_PROFILE, after).colours.map((colour) => colour.id)).toEqual(['noir'])
+    expect(newlyEarned(NEW_PROFILE, after)).toEqual({ designs: [], colours: [] })
+  })
+
+  it('pays out a first colour after a few runs', () => {
+    let profile = NEW_PROFILE
+    for (let run = 0; run < 3; run++) profile = applyRun(profile, { score: 120, words: ['chat'], bestCombo: 2 })
+
+    expect(ownedColours(profile).map((colour) => colour.id)).toContain('noir')
   })
 
   it('opens the whole palette and every tile to a long career', () => {
-    const veteran = { ...NEW_PROFILE, xp: xpForLevel(30), runs: 500, bestScore: 2000, wordsFound: 5000, bestCombo: 40 }
+    const veteran = { ...NEW_PROFILE, xp: xpForLevel(35), runs: 500, bestScore: 1000, wordsFound: 5000, bestCombo: 30 }
 
     expect(ownedColours(veteran)).toHaveLength(PALETTE.length)
     expect(ownedDesigns(veteran)).toHaveLength(AVATARS.length)

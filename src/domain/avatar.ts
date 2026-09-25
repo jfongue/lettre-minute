@@ -106,16 +106,18 @@ export const AVATARS: readonly AvatarDesign[] = LOOKS.map(([shape, turn, accent,
 }))
 
 /** Designs every player owns from the first run. */
-const FREE_DESIGNS = 6
+const FREE_DESIGNS = 5
 
 // One goal per track in turn, so the grid mixes levels with feats instead of
-// hiding every feat behind the last level.
+// hiding every feat behind the last level. Every first goal lies past what a
+// first run can reach — a run nears 1 000 points only when it is enormous —
+// so a tile is earned, not handed out with the tutorial.
 const TRACKS: readonly Milestone[][] = [
-  [2, 3, 4, 5, 6, 8, 10, 12, 15, 20].map((at) => ({ stat: 'level' as const, at })),
-  [3, 5, 10, 25, 50, 100].map((at) => ({ stat: 'runs' as const, at })),
-  [10, 50, 100, 250, 500, 1000, 2000].map((at) => ({ stat: 'wordsFound' as const, at })),
-  [100, 200, 300, 500, 700, 1000].map((at) => ({ stat: 'bestScore' as const, at })),
-  [3, 5, 10, 15, 20].map((at) => ({ stat: 'bestCombo' as const, at })),
+  [4, 6, 8, 10, 13, 16, 20, 25, 30, 35].map((at) => ({ stat: 'level' as const, at })),
+  [10, 25, 50, 100, 200, 400].map((at) => ({ stat: 'runs' as const, at })),
+  [100, 250, 500, 1000, 2000, 3500, 5000].map((at) => ({ stat: 'wordsFound' as const, at })),
+  [400, 500, 600, 700, 800, 900].map((at) => ({ stat: 'bestScore' as const, at })),
+  [10, 13, 16, 20, 24, 28].map((at) => ({ stat: 'bestCombo' as const, at })),
 ]
 
 function interleave<T>(tracks: readonly T[][]): T[] {
@@ -138,33 +140,33 @@ const COLOURS: readonly [id: string, label: string, hex: string, unlock: Milesto
   ['rouge', 'Rouge', '#e0402a', null],
   ['bleu', 'Bleu', '#1f48c7', null],
   ['jaune', 'Jaune', '#f4b41a', null],
-  ['noir', 'Noir', '#151515', { stat: 'runs', at: 1 }],
-  ['creme', 'Crème', '#f2ecdf', { stat: 'level', at: 2 }],
-  ['vert', 'Vert', '#17614c', { stat: 'level', at: 3 }],
-  ['rose', 'Rose', '#f1a3b3', { stat: 'runs', at: 5 }],
-  ['orange', 'Orange', '#ee7a22', { stat: 'level', at: 4 }],
-  ['ciel', 'Ciel', '#8fc1e3', { stat: 'wordsFound', at: 25 }],
-  ['brique', 'Brique', '#a83a2a', { stat: 'level', at: 5 }],
-  ['citron', 'Citron', '#efd64a', { stat: 'bestCombo', at: 5 }],
-  ['marine', 'Marine', '#172a4f', { stat: 'level', at: 6 }],
-  ['corail', 'Corail', '#f07a63', { stat: 'runs', at: 10 }],
-  ['sauge', 'Sauge', '#9bb08f', { stat: 'level', at: 7 }],
-  ['moutarde', 'Moutarde', '#c99a17', { stat: 'bestScore', at: 200 }],
-  ['violet', 'Violet', '#5b3a8c', { stat: 'level', at: 8 }],
-  ['turquoise', 'Turquoise', '#3aa6b0', { stat: 'wordsFound', at: 100 }],
-  ['ocre', 'Ocre', '#b8782b', { stat: 'level', at: 9 }],
-  ['lavande', 'Lavande', '#b3a6d9', { stat: 'runs', at: 25 }],
-  ['olive', 'Olive', '#6f7a2e', { stat: 'level', at: 10 }],
-  ['saumon', 'Saumon', '#f4b49a', { stat: 'bestCombo', at: 10 }],
-  ['canard', 'Canard', '#16606e', { stat: 'level', at: 11 }],
-  ['menthe', 'Menthe', '#7fc8a9', { stat: 'bestScore', at: 400 }],
-  ['bordeaux', 'Bordeaux', '#6e1f2a', { stat: 'level', at: 12 }],
-  ['sable', 'Sable', '#e3cf9f', { stat: 'wordsFound', at: 250 }],
-  ['outremer', 'Outremer', '#2d2f9a', { stat: 'level', at: 13 }],
-  ['emeraude', 'Émeraude', '#1f8a5b', { stat: 'runs', at: 50 }],
-  ['prune', 'Prune', '#7a2f5a', { stat: 'level', at: 14 }],
-  ['gris', 'Gris', '#8a8478', { stat: 'bestScore', at: 600 }],
-  ['anthracite', 'Anthracite', '#3a3834', { stat: 'level', at: 15 }],
+  ['noir', 'Noir', '#151515', { stat: 'runs', at: 3 }],
+  ['creme', 'Crème', '#f2ecdf', { stat: 'level', at: 4 }],
+  ['vert', 'Vert', '#17614c', { stat: 'wordsFound', at: 50 }],
+  ['rose', 'Rose', '#f1a3b3', { stat: 'runs', at: 10 }],
+  ['orange', 'Orange', '#ee7a22', { stat: 'level', at: 6 }],
+  ['ciel', 'Ciel', '#8fc1e3', { stat: 'bestCombo', at: 10 }],
+  ['brique', 'Brique', '#a83a2a', { stat: 'level', at: 8 }],
+  ['citron', 'Citron', '#efd64a', { stat: 'bestScore', at: 450 }],
+  ['marine', 'Marine', '#172a4f', { stat: 'runs', at: 25 }],
+  ['corail', 'Corail', '#f07a63', { stat: 'wordsFound', at: 250 }],
+  ['sauge', 'Sauge', '#9bb08f', { stat: 'level', at: 10 }],
+  ['moutarde', 'Moutarde', '#c99a17', { stat: 'bestCombo', at: 14 }],
+  ['violet', 'Violet', '#5b3a8c', { stat: 'level', at: 12 }],
+  ['turquoise', 'Turquoise', '#3aa6b0', { stat: 'wordsFound', at: 600 }],
+  ['ocre', 'Ocre', '#b8782b', { stat: 'runs', at: 60 }],
+  ['lavande', 'Lavande', '#b3a6d9', { stat: 'bestScore', at: 650 }],
+  ['olive', 'Olive', '#6f7a2e', { stat: 'level', at: 15 }],
+  ['saumon', 'Saumon', '#f4b49a', { stat: 'bestCombo', at: 18 }],
+  ['canard', 'Canard', '#16606e', { stat: 'wordsFound', at: 1200 }],
+  ['menthe', 'Menthe', '#7fc8a9', { stat: 'level', at: 18 }],
+  ['bordeaux', 'Bordeaux', '#6e1f2a', { stat: 'runs', at: 150 }],
+  ['sable', 'Sable', '#e3cf9f', { stat: 'bestScore', at: 800 }],
+  ['outremer', 'Outremer', '#2d2f9a', { stat: 'level', at: 22 }],
+  ['emeraude', 'Émeraude', '#1f8a5b', { stat: 'wordsFound', at: 3000 }],
+  ['prune', 'Prune', '#7a2f5a', { stat: 'bestCombo', at: 24 }],
+  ['gris', 'Gris', '#8a8478', { stat: 'runs', at: 300 }],
+  ['anthracite', 'Anthracite', '#3a3834', { stat: 'level', at: 30 }],
 ]
 
 export const PALETTE: readonly Colour[] = COLOURS.map(([id, label, hex]) => ({ id, label, hex }))
