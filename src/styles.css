@@ -5134,6 +5134,13 @@ button {
   box-shadow: 8px 8px 0 var(--red);
 }
 
+@media (max-height: 640px) {
+  .donation-pop .creator-photo {
+    width: 3.2rem;
+    height: 3.2rem;
+  }
+}
+
 /* Le créateur parle : sa photo dans un rond qui bouge, sa phrase tapée dans une bulle. */
 .creator {
   display: grid;
@@ -5245,9 +5252,11 @@ button {
   }
 }
 
+/* The photo and the note above take some 14rem: on a short window the form
+   keeps a usable height, and the sheet scrolls from the note instead. */
 .donation-frame {
   width: 100%;
-  height: min(32rem, calc(100dvh - 16rem));
+  height: min(32rem, max(22rem, calc(100dvh - 22rem)));
   border: 0;
   background: #fff;
 }
