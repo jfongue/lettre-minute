@@ -249,6 +249,10 @@ export const it: Messages = {
   },
 
   requests: {
+    newsTitle: (count) => (count === 1 ? 'La tua parola è entrata nel dizionario!' : `${count} tue parole sono entrate nel dizionario!`),
+    newsLead: 'Grazie! Ora tutti possono giocarle.',
+    newsOk: 'Fantastico!',
+    newsOpen: 'Le mie proposte',
     offline: 'Senza server, le tue proposte aspettano su questo dispositivo.',
     loadFailed: 'Impossibile caricare le tue proposte per ora.',
     empty: 'Ancora nessuna proposta. In partita, una parola sconosciuta al dizionario si propone con un tocco.',
@@ -387,6 +391,9 @@ export const it: Messages = {
   },
 
   powers: {
+    giftTitle: 'Nuovo potere!',
+    giftLead: 'Tre tue parole sono entrate nel dizionario: questo potere è tuo.',
+    giftOk: 'Grazie!',
     names: {
       permutation: ['Scambio', 'Alla partenza, tocca un tema per scambiarlo con uno della tua riserva. Due volte.'],
       joker: ['Imbroglio', 'Una volta per partita, scrivi «Joker» e conferma: il gioco scrive per te una parola giusta.'],

@@ -5951,3 +5951,29 @@ button.challenge-word[aria-expanded='true'] {
     transform: translateY(-30%);
   }
 }
+
+/* The words that entered the dictionary, on opening the game. */
+.words-news-list {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.words-news-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.power-gift-card {
+  width: min(15rem, 100%);
+  min-height: 0;
+  aspect-ratio: auto;
+  cursor: default;
+}

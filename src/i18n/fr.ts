@@ -272,6 +272,10 @@ export const fr = {
   },
 
   requests: {
+    newsTitle: (count: number) => (count === 1 ? 'Ton mot est entré au dictionnaire !' : `${count} de tes mots sont entrés au dictionnaire !`),
+    newsLead: 'Merci ! Tout le monde peut désormais les jouer.',
+    newsOk: 'Super !',
+    newsOpen: 'Mes demandes',
     offline: 'Sans serveur, tes propositions attendent sur cet appareil.',
     loadFailed: 'Impossible de charger tes demandes pour l’instant.',
     empty: 'Aucune demande pour l’instant. En partie, un mot inconnu du dictionnaire se propose d’une touche.',
@@ -410,6 +414,9 @@ export const fr = {
   },
 
   powers: {
+    giftTitle: 'Nouveau pouvoir !',
+    giftLead: 'Trois de tes mots sont entrés au dictionnaire : ce pouvoir est pour toi.',
+    giftOk: 'Merci !',
     /** Name and what the power does, by `PowerId`. */
     names: {
       permutation: ['Échange', 'Au lancement, touche un thème pour l’échanger contre un de ta réserve. Deux fois.'],

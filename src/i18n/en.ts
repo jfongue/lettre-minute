@@ -253,6 +253,10 @@ export const en: Messages = {
   },
 
   requests: {
+    newsTitle: (count) => (count === 1 ? 'Your word made it into the dictionary!' : `${count} of your words made it into the dictionary!`),
+    newsLead: 'Thank you! Everyone can now play them.',
+    newsOk: 'Great!',
+    newsOpen: 'My requests',
     offline: 'Without a server, your proposals wait on this device.',
     loadFailed: 'Your requests could not be loaded right now.',
     empty: 'No requests yet. During a game, a word the dictionary does not know can be proposed with one tap.',
@@ -391,6 +395,9 @@ export const en: Messages = {
   },
 
   powers: {
+    giftTitle: 'New power!',
+    giftLead: 'Three of your words made it into the dictionary: this power is yours.',
+    giftOk: 'Thanks!',
     names: {
       permutation: ['Swap', 'At the start, tap a theme to swap it for one from your reserve. Twice.'],
       joker: ['Cheat', 'Once a game, type “Joker” and validate: the game writes a right word for you.'],

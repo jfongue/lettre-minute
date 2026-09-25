@@ -11,6 +11,9 @@ import {
   fetchCrowdUsage,
   fetchBoards,
   fetchModerationStatus,
+  fetchMySubmissions,
+  markRequestsSeen,
+  type Submission,
   logIn,
   logInWithGoogle,
   logOut,
@@ -54,7 +57,7 @@ import {
   needsPowerPick,
   scoreAt,
 } from './domain/challenge'
-import type { PowerId } from './domain/powers'
+import { complicationDue, type PowerId } from './domain/powers'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
@@ -87,6 +90,7 @@ import type { AccountActions, AccountMode } from './ui/AccountPanel'
 import { AvatarScreen } from './ui/AvatarScreen'
 import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
+import { PowerGiftPop, WordsNewsPop } from './ui/WordsNews'
 import { ChallengePowers } from './ui/ChallengePowers'
 import { ChallengeSetup, type ChallengeRules } from './ui/ChallengeSetup'
 import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
@@ -276,6 +280,20 @@ export function App() {
   }, [lang])
   // The account decides the role, the language which words wait for it.
   useEffect(refreshModeration, [refreshModeration, account?.name, account?.anonymous])
+
+  // On opening, and on each sign-in: the player's words let in since they last
+  // looked, and how many ever were — the third brings Challenge.
+  const [wordsNews, setWordsNews] = useState<readonly Submission[]>([])
+  const [acceptedWords, setAcceptedWords] = useState(0)
+  const signedIn = account !== null
+  useEffect(() => {
+    if (!signedIn) return
+    fetchMySubmissions().then((found) => {
+      if (!found) return
+      setAcceptedWords(found.filter((submission) => submission.status === 'accepted').length)
+      setWordsNews(found.filter((submission) => submission.fresh))
+    })
+  }, [signedIn, account?.name, account?.anonymous])
 
   /** After any sign-in that changes user: the anonymous player's runs have been merged into it. */
   const enter = (outcome: AuthOutcome): string | null => {
@@ -961,6 +979,30 @@ export function App() {
             onLater={() => setOfferHeld(true)}
             onModerate={() => setModerating(true)}
           />
+        )}
+
+      {!notice && quietHome && update !== 'due' && !(moderation?.offer && !offerHeld) && wordsNews.length > 0 && (
+        <WordsNewsPop
+          words={wordsNews}
+          onClose={() => {
+            setWordsNews([])
+            markRequestsSeen().then((seen) => seen && refreshModeration())
+          }}
+          // « Mes demandes » marks them seen itself, and shows them highlighted.
+          onOpen={() => {
+            setWordsNews([])
+            setMenuPage('requests')
+          }}
+        />
+      )}
+
+      {!notice &&
+        quietHome &&
+        update !== 'due' &&
+        !(moderation?.offer && !offerHeld) &&
+        wordsNews.length === 0 &&
+        complicationDue(session.profile, acceptedWords) && (
+          <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
         )}
 
       {menuOpen && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (

@@ -11,6 +11,7 @@ import type { AccountActions } from '../ui/AccountPanel'
 import { ChallengeNotice } from '../ui/ChallengeHome'
 import { ChallengePowers } from '../ui/ChallengePowers'
 import { ChallengeView } from '../ui/ChallengeScreen'
+import { PowerGiftPop, WordsNewsPop } from '../ui/WordsNews'
 import { HomeScreen } from '../ui/HomeScreen'
 import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
@@ -496,6 +497,31 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Tout le monde a joué',
     phase: 'home',
     render: (back) => <ChallengeNotice challenge={summaryOf(challenge('finished'))} kind="recap" onLater={back} onGo={back} />,
+  },
+  {
+    id: 'words-news',
+    group: 'Mots proposés',
+    title: 'Mots entrés au dictionnaire',
+    how: 'À l’ouverture, deux mots proposés acceptés depuis la dernière visite',
+    phase: 'home',
+    render: (back) => (
+      <WordsNewsPop
+        words={[
+          { id: 'a', lang: 'fr', categoryId: 'animaux', display: 'axolotl', status: 'accepted', at: 0, locked: true, fresh: true },
+          { id: 'b', lang: 'fr', categoryId: 'pays', display: 'tuvalu', status: 'accepted', at: 0, locked: true, fresh: true },
+        ]}
+        onClose={back}
+        onOpen={back}
+      />
+    ),
+  },
+  {
+    id: 'power-gift',
+    group: 'Mots proposés',
+    title: 'Pouvoir offert au troisième mot',
+    how: 'Challenge, donné quand un troisième mot proposé est accepté',
+    phase: 'home',
+    render: (back) => <PowerGiftPop powerId="complication" onClose={back} />,
   },
   {
     id: 'challenge-powers',

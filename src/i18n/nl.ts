@@ -248,6 +248,10 @@ export const nl: Messages = {
   },
 
   requests: {
+    newsTitle: (count) => (count === 1 ? 'Jouw woord staat in het woordenboek!' : `${count} van je woorden staan in het woordenboek!`),
+    newsLead: 'Bedankt! Iedereen kan ze nu spelen.',
+    newsOk: 'Top!',
+    newsOpen: 'Mijn voorstellen',
     offline: 'Zonder server wachten je voorstellen op dit apparaat.',
     loadFailed: 'Je voorstellen kunnen nu niet geladen worden.',
     empty: 'Nog geen voorstellen. Tijdens het spel stel je een onbekend woord met één tik voor.',
@@ -386,6 +390,9 @@ export const nl: Messages = {
   },
 
   powers: {
+    giftTitle: 'Nieuwe kracht!',
+    giftLead: 'Drie van je woorden staan in het woordenboek: deze kracht is voor jou.',
+    giftOk: 'Bedankt!',
     names: {
       permutation: ['Ruil', 'Tik bij de start op een thema om het te ruilen voor een uit je reserve. Twee keer.'],
       joker: ['Valsspelen', 'Eén keer per spel: typ „Joker” en bevestig, en het spel schrijft een goed woord voor je.'],

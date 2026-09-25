@@ -247,6 +247,10 @@ export const de: Messages = {
   },
 
   requests: {
+    newsTitle: (count) => (count === 1 ? 'Dein Wort ist im Wörterbuch!' : `${count} deiner Wörter sind im Wörterbuch!`),
+    newsLead: 'Danke! Jetzt können alle sie spielen.',
+    newsOk: 'Super!',
+    newsOpen: 'Meine Vorschläge',
     offline: 'Ohne Server warten deine Vorschläge auf diesem Gerät.',
     loadFailed: 'Deine Vorschläge lassen sich gerade nicht laden.',
     empty: 'Noch keine Vorschläge. Im Spiel schlägst du ein unbekanntes Wort mit einem Tippen vor.',
@@ -385,6 +389,9 @@ export const de: Messages = {
   },
 
   powers: {
+    giftTitle: 'Neue Kraft!',
+    giftLead: 'Drei deiner Wörter sind im Wörterbuch: Diese Kraft gehört dir.',
+    giftOk: 'Danke!',
     names: {
       permutation: ['Tausch', 'Beim Start tippst du auf ein Thema, um es gegen eines aus deiner Reserve zu tauschen. Zweimal.'],
       joker: ['Schummeln', 'Einmal pro Partie „Joker“ tippen und bestätigen: Das Spiel schreibt ein richtiges Wort für dich.'],

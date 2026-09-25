@@ -4,7 +4,7 @@ import type { RarityTier } from '../domain/rarity'
 import { capitalized, normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer } from '../domain/unlocks'
 import { markSupportAsked } from '../domain/support'
-import { choosePower, dealPowerOffer, equippedPowers, equipPower, POWER_CHARGES, type PowerId } from '../domain/powers'
+import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, type PowerId } from '../domain/powers'
 import {
   createRun,
   inspect,
@@ -77,6 +77,7 @@ export type SessionAction =
   | { type: 'offer'; availableIds: readonly string[]; seed: number }
   | { type: 'choose'; categoryId: string }
   | { type: 'choose-power'; powerId: string }
+  | { type: 'grant-power'; powerId: PowerId }
   | { type: 'equip'; slot: number; powerId: PowerId | null }
   | { type: 'start' }
   | { type: 'load-failed'; message: string }
@@ -164,6 +165,11 @@ export function sessionReducer(session: Session, action: SessionAction): Session
 
     case 'choose-power': {
       const profile = choosePower(session.profile, action.powerId)
+      return profile === session.profile ? session : { ...session, profile }
+    }
+
+    case 'grant-power': {
+      const profile = grantPower(session.profile, action.powerId)
       return profile === session.profile ? session : { ...session, profile }
     }
 

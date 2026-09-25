@@ -249,6 +249,10 @@ export const es: Messages = {
   },
 
   requests: {
+    newsTitle: (count) => (count === 1 ? '¡Tu palabra ya está en el diccionario!' : `¡${count} de tus palabras ya están en el diccionario!`),
+    newsLead: '¡Gracias! Ahora todo el mundo puede jugarlas.',
+    newsOk: '¡Genial!',
+    newsOpen: 'Mis propuestas',
     offline: 'Sin servidor, tus propuestas esperan en este dispositivo.',
     loadFailed: 'No se pudieron cargar tus propuestas por ahora.',
     empty: 'Aún no hay propuestas. En partida, una palabra que el diccionario no conoce se propone con un toque.',
@@ -387,6 +391,9 @@ export const es: Messages = {
   },
 
   powers: {
+    giftTitle: '¡Nuevo poder!',
+    giftLead: 'Tres de tus palabras ya están en el diccionario: este poder es para ti.',
+    giftOk: '¡Gracias!',
     names: {
       permutation: ['Cambio', 'Al empezar, toca un tema para cambiarlo por uno de tu reserva. Dos veces.'],
       joker: ['Trampa', 'Una vez por partida, escribe «Joker» y valida: el juego escribe por ti una palabra correcta.'],
