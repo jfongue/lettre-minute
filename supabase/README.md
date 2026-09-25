@@ -1,6 +1,6 @@
 # Supabase
 
-Onze migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Douze migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -12,7 +12,9 @@ pour les défis entre amis, [`0009_push.sql`](migrations/0009_push.sql) et
 [`0010_push_config.sql`](migrations/0010_push_config.sql) pour leurs notifications push,
 [`0011_hardening.sql`](migrations/0011_hardening.sql) pour fermer ce que la batterie de
 tests a trouvé ouvert : propositions et dates de parties falsifiables, votes
-contournables, demandes d’ami croisées, bilan perdu, arguments invalides qui levaient.
+contournables, demandes d’ami croisées, bilan perdu, arguments invalides qui levaient,
+et [`0012_bots_in_challenges.sql`](migrations/0012_bots_in_challenges.sql) pour inviter
+les joueurs maison aux défis.
 
 ## Ce que le serveur détient
 
@@ -126,8 +128,13 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   et volerait des découvertes. Ils ne figurent qu'aux classements de score.
 - **Une demande d'ami vers eux est acceptée à l'insertion**
   (`friendships_bots_accept`). `request_friend` répond quand même `sent`.
+- **Invités à un défi, ils acceptent et jouent seuls** : `challenge_players_bots_accept`
+  marque l'invitation vue et tire `bot_play_at` entre une et cinq minutes, et
+  `house-bots-challenges` (chaque minute, nuit comprise) les marque joués. Sans
+  score ni mots : chaque client rejoue leur partie depuis la graine
+  (`playBot`, `src/domain/bot.ts`).
 - **Personne ne se connecte à leurs comptes** : pas de mot de passe, adresse en
-  `.invalid`. Pour les retirer : `select cron.unschedule('house-bots')`, puis
+  `.invalid`. Pour les retirer : `select cron.unschedule('house-bots')` et `'house-bots-challenges'`, puis
   effacer leurs utilisateurs d'auth — le reste part en cascade.
 
 ## Comptes

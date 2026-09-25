@@ -162,6 +162,7 @@ function player(
     name,
     avatar,
     me: false,
+    bot: false,
     playedAt: words ? Date.now() - HOUR : null,
     score: list.reduce((sum, word) => sum + word.points, 0),
     skips: 1,

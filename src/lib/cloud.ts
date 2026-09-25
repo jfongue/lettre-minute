@@ -5,6 +5,7 @@ import { MODERATION_SESSION_SIZE, type ModeratorOfferReason, type Verdict } from
 import type { Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
 import type { Run } from '../domain/run'
+import { withBotRuns } from '../state/botRuns'
 import type { PendingSubmission } from '../state/storage'
 import { googleIdToken } from './native'
 import { connect, forgetSession, supabase } from './supabase'
@@ -725,6 +726,8 @@ export interface ChallengePlayer extends ChallengeEntry {
   name: string
   avatar: AvatarChoice
   me: boolean
+  /** A house bot: its run is played on this device (`withBotRuns`). */
+  bot: boolean
 }
 
 export interface ChallengeDetail {
@@ -794,7 +797,7 @@ export function fetchChallenge(id: string): Promise<ChallengeDetail | null> {
     const { data, error } = await supabase!.rpc('challenge_detail', { p_challenge: id })
     if (error || !data) return null
     const row = data as Record<string, unknown>
-    return {
+    return withBotRuns({
       id: row.id as string,
       ownerName: text(row.owner_name),
       owned: row.owned === true,
@@ -810,13 +813,14 @@ export function fetchChallenge(id: string): Promise<ChallengeDetail | null> {
         name: text(player.name),
         avatar: parseAvatar(player.avatar),
         me: player.me === true,
+        bot: player.bot === true,
         playedAt: player.played_at ? time(player.played_at) : null,
         score: Number(player.score) || 0,
         skips: Number(player.skips) || 0,
         bestCombo: Number(player.best_combo) || 0,
         words: ((player.words ?? []) as unknown[]).map(challengeWord),
       })),
-    }
+    })
   }, null)
 }
 

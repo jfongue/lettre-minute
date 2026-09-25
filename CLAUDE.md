@@ -200,6 +200,12 @@ qu'un nouvel arrivant casserait sans le savoir.
   poids). Permutation est écarté (`BARRED_POWERS`) : il changerait la liste.
   Toute règle de tirage nouvelle doit rester fonction de la graine et des
   dictionnaires embarqués seuls.
+- **La partie d'un robot en défi n'existe que rejouée** (`withBotRuns`,
+  `src/state/botRuns.ts`) : le serveur la marque jouée sans score ni mots, et
+  chaque client la rejoue depuis la graine avec un `Judge` sans compteurs
+  d'usage. Tout ce que `playBot` lit doit donc être identique sur chaque
+  appareil — un changement de dictionnaire change aussi les parties de robot
+  déjà jouées.
 - **Une partie de défi ne passe jamais par `pushRun`** : `pushChallengeRun`
   l'envoie à son défi, hors classements et hors rareté, et
   `applyChallengeRun` ne touche ni au record ni à `lastPrompts`.

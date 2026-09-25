@@ -23,8 +23,6 @@ select tests.is(public.create_challenge('fr', 1, '{animaux}', '{}'), null, 'a ch
 select tests.is(public.create_challenge('fr', 1, '{animaux}', null), null, 'a null list invites nobody');
 select tests.is(public.create_challenge('fr', 1, '{animaux}', array[tests.uid('cx')]), null, 'only friends are invited');
 select tests.is(public.create_challenge('fr', 1, '{animaux}', array[tests.uid('canon')]), null, 'never an anonymous friend');
-select tests.is(public.create_challenge('fr', 1, '{animaux}', array[(select id from public.profiles where display_name = 'Maxitoon')]),
-                null, 'never a house bot');
 select tests.is(public.create_challenge('fr', 1, '{animaux}', array[tests.uid('co')]), null, 'nor oneself');
 select tests.is(public.create_challenge('fr', 1, '{animaux}', array[null::uuid]), null, 'nor nobody');
 select tests.is(public.create_challenge('fr', 1, '{animaux}', (select array_agg(tests.uid('c' || i)) from generate_series(1, 8) i)),
@@ -141,6 +139,32 @@ select public.create_challenge('fr', 12, '{animaux}', array[tests.uid('c1')]) as
 select tests.logout();
 update public.challenges set created_at = now() - interval '25 hours' where id = :'idle';
 select tests.ok(public.challenge_finished(:'idle'), 'a challenge nobody played closes a day after it opened');
+
+-- ---------------------------------------------------------- house bots --
+
+select tests.login('co');
+select public.create_challenge('fr', 13, '{animaux}', array[(select id from public.profiles where display_name = 'Maxitoon')]) as robot \gset
+select tests.logout();
+select tests.ok(:'robot' is not null, 'a house bot can be challenged');
+select tests.ok((select seen_invite_at is not null
+                    and bot_play_at between now() + interval '1 minute' and now() + interval '5 minutes'
+                   from public.challenge_players cp join public.bots b on b.id = cp.player_id
+                  where challenge_id = :'robot'), 'it accepts at once, and will play within one to five minutes');
+select tests.ok(not exists (select 1 from public.push_outbox o join public.bots b on b.id = o.player_id
+                             where challenge_id = :'robot'), 'it is sent no invitation');
+select public.bots_play_challenges();
+select tests.ok((select played_at is null from public.challenge_players cp join public.bots b on b.id = cp.player_id
+                  where challenge_id = :'robot'), 'not before its time');
+update public.challenge_players set bot_play_at = now() - interval '1 second' where challenge_id = :'robot' and bot_play_at is not null;
+select public.bots_play_challenges();
+select tests.ok((select played_at is not null and words is null from public.challenge_players cp join public.bots b on b.id = cp.player_id
+                  where challenge_id = :'robot'), 'then it plays, its words left to the clients');
+select tests.login('co');
+select tests.is((select count(*)::int from jsonb_array_elements(public.challenge_detail(:'robot') -> 'players') p
+                  where (p ->> 'bot')::boolean), 1, 'the detail says who is a bot');
+select public.submit_challenge_run(:'robot', 40, 0, 1, :words);
+select tests.is((select finished from public.my_challenges() where id = :'robot'), true, 'and it counts towards closing');
+select tests.logout();
 
 -- ------------------------------------------------------------- rematch --
 
