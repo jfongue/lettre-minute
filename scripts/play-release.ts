@@ -78,8 +78,10 @@ function releaseNotes(): { language: string; text: string }[] {
     .filter((note) => note.text.length > 0)
 }
 
+const gradle = readFileSync('android/app/build.gradle', 'utf8')
+const versionName = /versionName\s+"([^"]+)"/.exec(gradle)?.[1]
+
 function localVersionCode(): number {
-  const gradle = readFileSync('android/app/build.gradle', 'utf8')
   return Number(/versionCode\s+(\d+)/.exec(gradle)?.[1])
 }
 
@@ -123,7 +125,9 @@ try {
   const release = (status: string) =>
     call(token, 'PUT', `${API}/edits/${edit.id}/tracks/${track}`, {
       track,
-      releases: [{ versionCodes: [String(bundle.versionCode)], status, releaseNotes: releaseNotes() }],
+      releases: [
+        { name: `${bundle.versionCode} (${versionName})`, versionCodes: [String(bundle.versionCode)], status, releaseNotes: releaseNotes() },
+      ],
     })
   await release('completed')
   try {
