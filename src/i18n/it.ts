@@ -31,7 +31,6 @@ export const it: Messages = {
     hello: 'Lascia che ti spieghi come funziona…',
     letter: 'Una lettera',
     theme: 'Un tema',
-    clock: (seconds) => `Più parole possibili in ${seconds} s`,
     ask: 'Scrivi un colore con la',
     hint: (word) => `Suggerimento: «${word}»`,
     solved: 'Bravo!',

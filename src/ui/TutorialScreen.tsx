@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { loadPack } from '../data/packs'
-import { RUN_SECONDS, type Prompt } from '../domain/run'
+import type { Prompt } from '../domain/run'
 import { capitalized, compactWord, initialOf } from '../domain/text'
 import { lookup, type WordPack } from '../domain/words'
 import { categoryText, useT, type Messages } from '../i18n'
@@ -143,10 +143,7 @@ export function TutorialScreen({ lang, onDone }: TutorialScreenProps) {
         ) : missed ? (
           <p className="verdict tutorial-hint">{t.tutorial.hint(answer)}</p>
         ) : (
-          <p className="tutorial-clock">
-            <span className="timer-disc tutorial-clock-disc" aria-hidden="true" />
-            {t.tutorial.clock(RUN_SECONDS)}
-          </p>
+          <p className="verdict">&nbsp;</p>
         )}
 
         <button type="submit" className={`btn btn--blue btn--block${found ? ' tutorial-go' : ''}`}>

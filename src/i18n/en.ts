@@ -37,7 +37,6 @@ export const en: Messages = {
     hello: 'Let me show you how it works…',
     letter: 'A letter',
     theme: 'A theme',
-    clock: (seconds) => `As many words as you can in ${seconds} s`,
     ask: 'Type a colour starting with',
     hint: (word) => `Hint: “${word}”`,
     solved: 'Well done!',

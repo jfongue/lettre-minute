@@ -31,7 +31,6 @@ export const nl: Messages = {
     hello: 'Ik leg je even uit hoe het werkt…',
     letter: 'Een letter',
     theme: 'Een thema',
-    clock: (seconds) => `Zoveel mogelijk woorden in ${seconds} s`,
     ask: 'Typ een kleur met een',
     hint: (word) => `Hint: ‘${word}’`,
     solved: 'Goed zo!',

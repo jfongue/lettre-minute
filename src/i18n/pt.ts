@@ -31,7 +31,6 @@ export const pt: Messages = {
     hello: 'Deixa-me explicar-te como funciona…',
     letter: 'Uma letra',
     theme: 'Um tema',
-    clock: (seconds) => `O máximo de palavras em ${seconds} s`,
     ask: 'Escreve uma cor com',
     hint: (word) => `Dica: «${word}»`,
     solved: 'Muito bem!',

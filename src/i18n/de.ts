@@ -31,7 +31,6 @@ export const de: Messages = {
     hello: 'Lass mich dir das Prinzip zeigen…',
     letter: 'Ein Buchstabe',
     theme: 'Ein Thema',
-    clock: (seconds) => `So viele Wörter wie möglich in ${seconds} s`,
     ask: 'Tippe eine Farbe mit',
     hint: (word) => `Tipp: „${word}“`,
     solved: 'Super!',

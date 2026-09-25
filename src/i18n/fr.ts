@@ -46,7 +46,6 @@ export const fr = {
     hello: 'Laisse-moi t’expliquer le principe…',
     letter: 'Une lettre',
     theme: 'Un thème',
-    clock: (seconds: number) => `Un max de mots en ${seconds} s`,
     ask: 'Tape une couleur en',
     hint: (word: string) => `Indice : « ${word} »`,
     solved: 'Bravo !',
