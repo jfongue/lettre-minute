@@ -62,7 +62,7 @@ function saveHidden(next: Record<string, string>): Record<string, string> {
   } catch {
     /* hidden until the app closes */
   }
-  window.dispatchEvent(new Event(HIDDEN_CHANGED))
+  globalThis.dispatchEvent?.(new Event(HIDDEN_CHANGED))
   return next
 }
 
