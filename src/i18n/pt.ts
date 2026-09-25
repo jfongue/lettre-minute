@@ -394,6 +394,9 @@ export const pt: Messages = {
   },
 
   powers: {
+    castChatter: 'Tagarela! A letra fica',
+    chatterLeft: (left) => `Tagarela · mais ${left} ${plural(left, 'palavra', 'palavras')}`,
+    chatterLeave: 'Mudar',
     giftTitle: 'Novo poder!',
     giftLead: 'Três das tuas palavras entraram no dicionário: este poder é teu.',
     giftOk: 'Obrigado!',
@@ -408,6 +411,7 @@ export const pt: Messages = {
       complication: ['Risco', 'Palavras incomuns valem ×1,15; as raras, ×1,3.'],
       celerity: ['Celeridade', 'Uma palavra certa se valida sozinha, sem apertar Enter.'],
       professor: ['Professor', 'Quando você passa, sopram o que você poderia ter respondido, e o fim da partida revisa a lição.'],
+      chatter: ['Tagarela', 'Uma vez por partida, junta «...» a uma palavra: a letra e o tema ficam por mais três palavras.'],
     },
     spells: { joker: ['joker', 'coringa', 'curinga'], hush: ['psiu', 'shh', 'chiu'] },
     title: 'Poderes',

@@ -13,6 +13,7 @@
     "test:db": "scripts/test-db.sh",
     "import:words": "node --experimental-strip-types scripts/import-words.ts",
     "seed:moderation": "node --experimental-strip-types scripts/moderation-reserve.ts",
+    "import:names": "node --experimental-strip-types scripts/first-names.ts",
     "web:publish": "scripts/publish-web.sh",
     "android:sync": "npm run build && cap sync android",
     "android:open": "cap open android",

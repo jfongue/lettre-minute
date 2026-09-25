@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { POWER_CHARGES } from '../domain/powers'
+import { CHATTER_WORDS, POWER_CHARGES } from '../domain/powers'
 import { chargesLeft, hasPower, RUN_SECONDS, skipPenalty, type MissedWord, type Prompt, type Run, type Verdict } from '../domain/run'
 import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
@@ -102,13 +102,20 @@ export function RunScreen({
     submitNow.current = onSubmit
   })
   const celerity = hasPower(run, 'celerity')
+  // With Bavardage in hand, the fingers get time to add its three dots.
+  const settle = chargesLeft(run, 'chatter') > 0 ? CELERITY_SETTLE_MS * 3 : CELERITY_SETTLE_MS
   // « Chut » casts itself the same way, Célérité or not: a player in need of a pause has no time for Enter.
   const hushing = spell === 'hush'
   useEffect(() => {
     if (!(celerity && exact) && !hushing) return
-    const timer = setTimeout(() => submitNow.current(!hushing), CELERITY_SETTLE_MS)
+    const timer = setTimeout(() => submitNow.current(!hushing), settle)
     return () => clearTimeout(timer)
-  }, [celerity, exact, hushing, draft])
+  }, [celerity, exact, hushing, draft, settle])
+
+  const chattering = run.chatter === CHATTER_WORDS
+  useEffect(() => {
+    if (chattering) sound.power('chatter')
+  }, [chattering])
 
   useEffect(() => {
     if (run.joker) sound.power('joker')
@@ -227,6 +234,12 @@ export function RunScreen({
           <p className="note">{category.hint}</p>
         </div>
       </section>
+      {run.chatter > 0 && (
+        <p className="prompt-chatter" key={`chatter-${run.chatter}`}>
+          <PowerBadge id="chatter" />
+          {t.powers.chatterLeft(run.chatter)}
+        </p>
+      )}
       {next && (
         <p className="prompt-next" key={`next-${run.drawn}`}>
           <span className="prompt-next-eye" aria-hidden="true" />
@@ -297,7 +310,7 @@ export function RunScreen({
             onPointerDown={keepFocus}
             onClick={skip}
           >
-            {t.run.skip(skipPenalty(run))}
+            {run.chatter > 0 ? t.powers.chatterLeave : t.run.skip(skipPenalty(run))}
           </button>
           <button type="submit" className="btn btn--blue" onPointerDown={keepFocus} disabled={!accepted && !spell}>
             {t.run.submit}
@@ -396,6 +409,12 @@ function Feedback({
         return (
           <p className="verdict verdict--valid verdict--joker">
             <PowerBadge id="joker" /> {capitalized(live.found.display)}
+          </p>
+        )
+      if (live.chatter)
+        return (
+          <p className="verdict verdict--valid verdict--chatter">
+            <PowerBadge id="chatter" /> {capitalized(live.found?.display ?? '')} · {t.powers.castChatter}
           </p>
         )
       return <p className="verdict verdict--valid">✓ {capitalized(live.found?.display ?? '')}</p>

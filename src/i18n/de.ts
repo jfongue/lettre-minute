@@ -392,6 +392,9 @@ export const de: Messages = {
   },
 
   powers: {
+    castChatter: 'Geplapper! Der Buchstabe bleibt',
+    chatterLeft: (left) => `Geplapper · noch ${left} ${plural(left, 'Wort', 'Wörter')}`,
+    chatterLeave: 'Weiter',
     giftTitle: 'Neue Kraft!',
     giftLead: 'Drei deiner Wörter sind im Wörterbuch: Diese Kraft gehört dir.',
     giftOk: 'Danke!',
@@ -406,6 +409,7 @@ export const de: Messages = {
       complication: ['Risiko', 'Ungewöhnliche Wörter zählen ×1,15, seltene ×1,3.'],
       celerity: ['Schnelligkeit', 'Ein richtiges Wort bestätigt sich selbst, ohne Enter.'],
       professor: ['Professor', 'Wenn du überspringst, wird dir eingeflüstert, was du hättest sagen können, und am Ende gibt es die Lektion.'],
+      chatter: ['Geplapper', 'Einmal pro Partie „...“ an ein Wort hängen: Buchstabe und Thema bleiben für drei weitere Wörter.'],
     },
     spells: { joker: ['joker'], hush: ['pst', 'psst', 'pscht'] },
     title: 'Kräfte',

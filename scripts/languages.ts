@@ -76,4 +76,11 @@ export const TOPICS: Record<string, Topics> = {
   },
   matieres: { topics: ['Materials', 'Metals', 'Alloys', 'Rocks', 'Textiles', 'Fabrics', 'Woods'] },
   'corps-humain': { topics: ['Body parts'] },
+  plantes: {
+    topics: ['Plants', 'Herbs', 'Ferns'],
+    expand: ['Trees', 'Flowers', 'Shrubs', 'Grasses'],
+  },
+  // Not expanded: "Tools" also holds weapons, sports and medical equipment,
+  // which are not the everyday objects the category means.
+  objets: { topics: ['Furniture', 'Tools', 'Cutlery', 'Tableware', 'Containers', 'Kitchenware'] },
 }

@@ -11,6 +11,7 @@ import {
   powersEarnedAt,
   LEVEL_POWER_IDS,
   complicationDue,
+  CHATTER_WORDS,
   grantPower,
   WORDS_FOR_COMPLICATION,
   unlockEveryPower,
@@ -265,5 +266,44 @@ describe('Professeur', () => {
 
   it('says nothing without the power', () => {
     expect(skip(runWith(), judge, 1).missed).toEqual([])
+  })
+})
+
+describe('Bavardage', () => {
+  const word = (run: Run, i: number) => `${run.prompt.letter}nimal${i}`
+
+  it('keeps the prompt for three more words after one ending in « ... », once a game', () => {
+    const run = runWith('chatter')
+    expect(inspect(run, `${word(run, 0)}...`, judge)).toMatchObject({ kind: 'accepted', chatter: true })
+    const cast = submit(run, `${word(run, 0)}...`, judge, 1).run
+    expect(cast.prompt).toEqual(run.prompt)
+    expect(cast.chatter).toBe(CHATTER_WORDS)
+    expect(chargesLeft(cast, 'chatter')).toBe(0)
+
+    let held = cast
+    for (let i = 1; i < CHATTER_WORDS; i++) held = submit(held, word(held, i), judge, 1 + i).run
+    expect(held.prompt).toEqual(run.prompt)
+    const done = submit(held, word(held, CHATTER_WORDS), judge, 5).run
+    expect(done.prompt).toEqual(nextPrompt(held, judge))
+    expect(done.chatter).toBe(0)
+    expect(done.found).toHaveLength(CHATTER_WORDS + 1)
+    expect(inspect(done, `${word(done, 0)}…`, judge).chatter).toBeUndefined()
+  })
+
+  it('lets the player leave it for free, series kept', () => {
+    const run = runWith('chatter')
+    const cast = submit(run, `${word(run, 0)}…`, judge, 1).run
+    const left = skip(cast, judge, 2)
+    expect(left.penaltySeconds).toBe(0)
+    expect(left.skips).toBe(0)
+    expect(left.combo).toBe(1)
+    expect(left.chatter).toBe(0)
+  })
+
+  it('does nothing without the power', () => {
+    const run = runWith()
+    const played = submit(run, `${word(run, 0)}...`, judge, 1)
+    expect(played.verdict.chatter).toBeUndefined()
+    expect(played.run.prompt).not.toBe(run.prompt)
   })
 })

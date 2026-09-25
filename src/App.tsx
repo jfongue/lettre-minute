@@ -124,6 +124,10 @@ function flushSubmissions(): void {
   })
 }
 
+/** When the home screen starts warming the player's dictionaries, and the pause between two. */
+const PACK_WARM_DELAY_MS = 2500
+const PACK_WARM_GAP_MS = 400
+
 export function App() {
   const [session, dispatch] = useReducer(sessionReducer, initialSession(NEW_PROFILE))
   const [startedAt, setStartedAt] = useState<number | null>(null)
@@ -519,6 +523,35 @@ export function App() {
       dispatch({ type: 'load-failed', message: t.loadFailed })
     }
   }, [session.profile, judgeFor, t, lang])
+
+  // The player's dictionaries, parsed one by one while the home screen idles:
+  // parsed at the countdown instead, they stalled the page as the sound played,
+  // and the phone crackled.
+  const ownedShipped = useMemo(() => {
+    const shipped = new Set(availableCategoryIds(lang))
+    return ownedCategoryIds(session.profile).filter((id) => shipped.has(id)).join(',')
+  }, [lang, session.profile])
+  const idleHome = session.phase === 'home'
+  useEffect(() => {
+    if (!idleHome) return
+    const ids = ownedShipped.split(',').filter(Boolean)
+    let timer: ReturnType<typeof setTimeout>
+    let live = true
+    const warm = (index: number) => {
+      const id = ids[index]
+      if (!id || !live) return
+      loadPack(lang, id)
+        .catch(() => undefined)
+        .then(() => {
+          if (live) timer = setTimeout(() => warm(index + 1), PACK_WARM_GAP_MS)
+        })
+    }
+    timer = setTimeout(() => warm(0), PACK_WARM_DELAY_MS)
+    return () => {
+      live = false
+      clearTimeout(timer)
+    }
+  }, [idleHome, ownedShipped, lang])
 
   const startFirstRun = useCallback(() => {
     if (session.profile.runs > 0 || loadTutorialDone()) return play()

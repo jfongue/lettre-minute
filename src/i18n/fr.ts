@@ -417,6 +417,9 @@ export const fr = {
   },
 
   powers: {
+    castChatter: 'Bavardage ! La lettre reste',
+    chatterLeft: (left: number) => `Bavardage · encore ${left} ${plural(left, 'mot', 'mots')}`,
+    chatterLeave: 'Changer',
     giftTitle: 'Nouveau pouvoir !',
     giftLead: 'Trois de tes mots sont entrés au dictionnaire : ce pouvoir est pour toi.',
     giftOk: 'Merci !',
@@ -432,6 +435,7 @@ export const fr = {
       complication: ['Challenge', 'Les mots peu communs valent ×1,15, les rares ×1,3.'],
       celerity: ['Célérité', 'Un mot juste se valide tout seul, sans appuyer sur Entrée.'],
       professor: ['Professeur', 'Quand tu passes, on te souffle ce que tu aurais pu répondre, et la fin de partie te fait la leçon.'],
+      chatter: ['Bavardage', 'Une fois par partie, ajoute « ... » à un mot : la lettre et le thème restent pour trois mots de plus.'],
     } satisfies Record<PowerId, readonly [string, string]> as Record<PowerId, readonly [name: string, description: string]>,
     /** What the player types to cast a spell; the first is the one the descriptions name. */
     spells: { joker: ['joker'], hush: ['chut'] } satisfies Record<Spell, readonly string[]> as Record<Spell, readonly string[]>,

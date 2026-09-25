@@ -394,6 +394,9 @@ export const es: Messages = {
   },
 
   powers: {
+    castChatter: '¡Cháchara! La letra se queda',
+    chatterLeft: (left) => `Cháchara · ${left} ${plural(left, 'palabra', 'palabras')} más`,
+    chatterLeave: 'Cambiar',
     giftTitle: '¡Nuevo poder!',
     giftLead: 'Tres de tus palabras ya están en el diccionario: este poder es para ti.',
     giftOk: '¡Gracias!',
@@ -408,6 +411,7 @@ export const es: Messages = {
       complication: ['Riesgo', 'Las palabras poco comunes valen ×1,15; las raras, ×1,3.'],
       celerity: ['Celeridad', 'Una palabra correcta se valida sola, sin pulsar Intro.'],
       professor: ['Profesor', 'Cuando pasas, te soplan lo que podrías haber respondido, y el final de la partida repasa la lección.'],
+      chatter: ['Cháchara', 'Una vez por partida, añade «...» a una palabra: la letra y el tema se quedan tres palabras más.'],
     },
     spells: { joker: ['joker', 'comodín'], hush: ['chis', 'shh', 'silencio'] },
     title: 'Poderes',

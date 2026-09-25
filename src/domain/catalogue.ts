@@ -23,6 +23,9 @@ export const CATALOGUE: readonly CategoryMeta[] = [
   { id: 'matieres', label: 'Matières et éléments', hint: 'Bois, fer, oxygène, feu…', unlockLevel: 6 },
   { id: 'capitales', label: 'Villes', hint: 'Parmi les 5 plus grandes de leur pays', unlockLevel: 7 },
   { id: 'marques', label: 'Marque', hint: 'Marques connues', unlockLevel: 8 },
+  { id: 'prenoms', label: 'Prénoms', hint: 'D’ici et d’ailleurs, de Léa à Mohammed', unlockLevel: 9 },
+  { id: 'objets', label: 'Objets du quotidien', hint: 'Ce qu’on trouve à la maison ou dans son sac', unlockLevel: 10 },
+  { id: 'plantes', label: 'Plantes', hint: 'Fleurs, arbres, herbes et buissons', unlockLevel: 11 },
 ]
 
 export function categoryMeta(id: string): CategoryMeta | null {

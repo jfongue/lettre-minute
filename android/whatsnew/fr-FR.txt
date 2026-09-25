@@ -1,8 +1,6 @@
-• Défis : choisis les catégories et autorise ou non les pouvoirs
-• Petit Bac inversé : un mot que toi seul as trouvé vaut +25 %
-• Réagis aux trophées et aux mots comme dans une messagerie
-• Bilan de défi : la course seconde par seconde, bouton « Ignorer »
-• Ajoute en ami ou bloque un joueur depuis le classement
-• Notifications réglables dans les options
-• Thème clair par défaut, pouvoirs Échange et Challenge renommés
-• Boîte à idées et bouton de soutien dans le profil
+• Nouveau pouvoir Bavardage : « ... » après un mot garde la lettre pour 3 mots de plus
+• Son plus propre, sans grésillement
+• Défis : classement en direct, gagnant dévoilé avec suspense, défis nommés
+• 19 nouvelles formes d’avatar, des récompenses dès la 3e partie
+• Niveaux plus rapides et bonus d’XP quand tu bats ton record
+• Tes mots acceptés s’annoncent, le 3e t’offre le pouvoir Challenge

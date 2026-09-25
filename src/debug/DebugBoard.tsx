@@ -128,6 +128,7 @@ function makeRun(score: number, words: readonly Word[] = WORDS, missed: readonly
     heldSeconds: 0,
     rerolls: 0,
     missed,
+    chatter: 0,
   }
 }
 
