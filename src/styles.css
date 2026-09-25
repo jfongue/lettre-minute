@@ -4653,8 +4653,9 @@ button {
   transition: transform 220ms var(--ease-out);
 }
 
+/* The row slides a little past the action: « Bilan » and « Ignorer » stay apart. */
 .dismissable--revealed .dismissable-row {
-  transform: translateX(-6.5rem);
+  transform: translateX(-7.3rem);
 }
 
 .dismissable-action {
@@ -5175,6 +5176,7 @@ button {
   background: var(--paper-2);
   font-size: 0.92rem;
   line-height: 1.4;
+  text-align: center;
   white-space: pre-line;
   transform-origin: 50% 0;
   animation: bubble-in 420ms var(--ease-spring) 240ms both;
