@@ -392,7 +392,7 @@ export const pt: Messages = {
       joker: ['Trapaça', 'Uma vez por partida, escreva «Joker» e valide: o jogo escreve por você uma palavra certa.'],
       dodge: ['Esquiva', 'Passar custa só 3 segundos em vez de 5.'],
       magic: ['Magia', 'Duas vezes por partida, toque na letra para tirar outra.'],
-      hush: ['Silêncio', 'Uma vez por partida, escreva «psiu» e valide: o relógio para até a sua próxima palavra, dez segundos no máximo.'],
+      hush: ['Silêncio', 'Uma vez por partida, escreva «psiu»: o relógio para até a sua próxima palavra, dez segundos no máximo.'],
       dyslexia: ['Dislexia', 'Dois erros passam em palavras de seis letras ou mais.'],
       divination: ['Adivinhação', 'Você vê o tema e a letra que vêm a seguir.'],
       complication: ['Risco', 'Palavras incomuns valem ×1,15; as raras, ×1,3.'],

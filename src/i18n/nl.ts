@@ -391,7 +391,7 @@ export const nl: Messages = {
       joker: ['Valsspelen', 'Eén keer per spel: typ „Joker” en bevestig, en het spel schrijft een goed woord voor je.'],
       dodge: ['Ontwijken', 'Overslaan kost maar 3 seconden in plaats van 5.'],
       magic: ['Magie', 'Twee keer per spel: tik op de letter om een andere te trekken.'],
-      hush: ['Stilte', 'Eén keer per spel: typ „sst” en bevestig, en de klok staat stil tot je volgende woord, hooguit tien seconden.'],
+      hush: ['Stilte', 'Eén keer per spel: typ „sst” en de klok staat stil tot je volgende woord, hooguit tien seconden.'],
       dyslexia: ['Dyslexie', 'Twee fouten mogen bij woorden van zes letters of meer.'],
       divination: ['Waarzeggerij', 'Je ziet het volgende thema en de volgende letter.'],
       complication: ['Risico', 'Ongewone woorden tellen ×1,15, zeldzame ×1,3.'],

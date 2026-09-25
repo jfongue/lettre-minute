@@ -396,7 +396,7 @@ export const en: Messages = {
       joker: ['Cheat', 'Once a game, type “Joker” and validate: the game writes a right word for you.'],
       dodge: ['Dodge', 'Skipping costs only 3 seconds instead of 5.'],
       magic: ['Magic', 'Twice a game, tap the letter to draw another one.'],
-      hush: ['Silence', 'Once a game, type “shh” and validate: the clock stops until your next word, ten seconds at most.'],
+      hush: ['Silence', 'Once a game, type “shh”: the clock stops until your next word, ten seconds at most.'],
       dyslexia: ['Dyslexia', 'Two mistakes pass on words of six letters or more.'],
       divination: ['Divination', 'You see the theme and letter coming next.'],
       complication: ['High stakes', 'Uncommon words are worth ×1.15, rare ones ×1.3.'],

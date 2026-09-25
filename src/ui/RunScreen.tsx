@@ -13,7 +13,7 @@ import { PowerBadge } from './PowerIcon'
 
 const URGENT_FROM = 10
 /** Célérité waits this long after the last key, so « Chat » does not cut « Chatte » short. */
-const CELERITY_SETTLE_MS = 280
+const CELERITY_SETTLE_MS = 140
 
 // Tapping a button would blur the field and fold the phone keyboard away, only
 // for the next prompt to open it again: the page would jump on every tap.
@@ -102,11 +102,13 @@ export function RunScreen({
     submitNow.current = onSubmit
   })
   const celerity = hasPower(run, 'celerity')
+  // « Chut » casts itself the same way, Célérité or not: a player in need of a pause has no time for Enter.
+  const hushing = spell === 'hush'
   useEffect(() => {
-    if (!celerity || !exact) return
-    const timer = setTimeout(() => submitNow.current(true), CELERITY_SETTLE_MS)
+    if (!(celerity && exact) && !hushing) return
+    const timer = setTimeout(() => submitNow.current(!hushing), CELERITY_SETTLE_MS)
     return () => clearTimeout(timer)
-  }, [celerity, exact, draft])
+  }, [celerity, exact, hushing, draft])
 
   useEffect(() => {
     if (run.joker) sound.power('joker')

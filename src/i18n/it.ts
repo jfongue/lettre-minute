@@ -392,7 +392,7 @@ export const it: Messages = {
       joker: ['Imbroglio', 'Una volta per partita, scrivi «Joker» e conferma: il gioco scrive per te una parola giusta.'],
       dodge: ['Schivata', 'Passare costa solo 3 secondi invece di 5.'],
       magic: ['Magia', 'Due volte per partita, tocca la lettera per pescarne un’altra.'],
-      hush: ['Silenzio', 'Una volta per partita, scrivi «zitto» e conferma: il cronometro si ferma fino alla tua prossima parola, dieci secondi al massimo.'],
+      hush: ['Silenzio', 'Una volta per partita, scrivi «zitto»: il cronometro si ferma fino alla tua prossima parola, dieci secondi al massimo.'],
       dyslexia: ['Dislessia', 'Due errori passano sulle parole di sei lettere o più.'],
       divination: ['Divinazione', 'Vedi il tema e la lettera che vengono dopo.'],
       complication: ['Rischio', 'Le parole poco comuni valgono ×1,15, le rare ×1,3.'],

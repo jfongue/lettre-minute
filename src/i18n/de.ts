@@ -390,7 +390,7 @@ export const de: Messages = {
       joker: ['Schummeln', 'Einmal pro Partie „Joker“ tippen und bestätigen: Das Spiel schreibt ein richtiges Wort für dich.'],
       dodge: ['Ausweichen', 'Überspringen kostet nur 3 statt 5 Sekunden.'],
       magic: ['Magie', 'Zweimal pro Partie auf den Buchstaben tippen, um einen anderen zu ziehen.'],
-      hush: ['Stille', 'Einmal pro Partie „pst“ tippen und bestätigen: Die Uhr steht bis zu deinem nächsten Wort, höchstens zehn Sekunden.'],
+      hush: ['Stille', 'Einmal pro Partie „pst“ tippen: Die Uhr steht bis zu deinem nächsten Wort, höchstens zehn Sekunden.'],
       dyslexia: ['Legasthenie', 'Zwei Fehler gehen durch bei Wörtern ab sechs Buchstaben.'],
       divination: ['Weissagung', 'Du siehst das nächste Thema und den nächsten Buchstaben.'],
       complication: ['Risiko', 'Ungewöhnliche Wörter zählen ×1,15, seltene ×1,3.'],

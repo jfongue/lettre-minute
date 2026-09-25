@@ -416,7 +416,7 @@ export const fr = {
       joker: ['Tricherie', 'Une fois par partie, écris « Joker » et valide : le jeu écrit un mot juste à ta place.'],
       dodge: ['Esquive', 'Passer ne coûte que 3 secondes au lieu de 5.'],
       magic: ['Magie', 'Deux fois par partie, touche la lettre proposée pour en tirer une autre.'],
-      hush: ['Silence', 'Une fois par partie, écris « chut » et valide : le chrono s’arrête jusqu’à ton prochain mot, dix secondes au plus.'],
+      hush: ['Silence', 'Une fois par partie, écris « chut » : le chrono s’arrête jusqu’à ton prochain mot, dix secondes au plus.'],
       dyslexia: ['Dyslexie', 'Deux fautes passent sur les mots de six lettres et plus.'],
       divination: ['Divination', 'Tu vois la catégorie et la lettre qui viennent ensuite.'],
       complication: ['Challenge', 'Les mots peu communs valent ×1,15, les rares ×1,3.'],
