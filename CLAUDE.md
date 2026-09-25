@@ -132,6 +132,9 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Se connecter doit attendre l'envoi de la partie** (`pushing` dans
   `src/App.tsx`) : la fusion déplace les parties du compte anonyme puis
   l'efface, et une partie encore en vol partirait avec lui.
+- **La pub est éteinte pour l’instant** (`ADS_ENABLED`, `src/domain/unlocks.ts`) :
+  seule la demande de soutien du récapitulatif reste. Le reste de ce point vaut
+  quand on la rallume.
 - **La pub se prépare avant l’offre qui la porte** (`adsDue`,
   `src/domain/unlocks.ts`) : consentement et chargement prennent des secondes,
   et une pub pas encore chargée au moment du choix est sautée plutôt que

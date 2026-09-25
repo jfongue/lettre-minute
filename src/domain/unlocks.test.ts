@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { CATALOGUE } from './catalogue'
 import { NEW_PROFILE, xpForLevel, type Profile } from './progression'
 import {
+  ADS_ENABLED,
   adsDue,
   chooseCategory,
   dealLineup,
@@ -147,7 +148,14 @@ describe('withdrawn categories', () => {
 })
 
 describe('pickShowsAd', () => {
-  it('leaves the first pick free and asks for an ad from the second on', () => {
+  it.skipIf(ADS_ENABLED)('never asks for an ad while ads are off', () => {
+    const first = dealOffer(atLevel(3), ALL, 1)
+    const second = dealOffer(chooseCategory(first, first.offer[0]!), ALL, 2)
+    expect(adsDue(second)).toBe(false)
+    expect(pickShowsAd(second)).toBe(false)
+  })
+
+  it.runIf(ADS_ENABLED)('leaves the first pick free and asks for an ad from the second on', () => {
     const first = dealOffer(atLevel(3), ALL, 1)
     expect(adsDue(first)).toBe(false)
     expect(pickShowsAd(first)).toBe(false)
@@ -157,7 +165,7 @@ describe('pickShowsAd', () => {
     expect(pickShowsAd(second)).toBe(true)
   })
 
-  it('knows an ad is due before the offer that carries it is dealt', () => {
+  it.runIf(ADS_ENABLED)('knows an ad is due before the offer that carries it is dealt', () => {
     const between = { ...atLevel(2), unlocked: ['sports'] }
     expect(between.offer).toEqual([])
     expect(adsDue(between)).toBe(true)

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { AvatarChoice } from '../domain/avatar'
 import type { RunRecord } from '../domain/history'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
+import { ADS_ENABLED } from '../domain/unlocks'
 import {
   fetchFriends,
   inviteModerator,
@@ -511,6 +512,7 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onDebug
   const [adChoices, setAdChoices] = useState(false)
   useEffect(() => {
     let live = true
+    if (!ADS_ENABLED) return
     adPrivacyOptionsRequired().then((required) => live && setAdChoices(required))
     return () => {
       live = false

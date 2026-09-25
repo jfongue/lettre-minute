@@ -58,6 +58,12 @@ export function dealOffer(profile: Profile, availableIds: readonly string[], see
   return { ...profile, offer: [...fresh, ...seen].slice(0, OFFER_SIZE) }
 }
 
+/**
+ * Ads are off for now: the summary's ask for support is the only one. Turned
+ * back on, the SDK, consent and the offer's notice all follow from `adsDue`.
+ */
+export const ADS_ENABLED = false
+
 /** Picks made before the game asks for an ad: the first reward stays a pure reward. */
 export const PICKS_BEFORE_ADS = 1
 
@@ -66,7 +72,7 @@ export const PICKS_BEFORE_ADS = 1
  * offer is dealt, which leaves the ad the time of a whole run to load.
  */
 export function adsDue(profile: Profile): boolean {
-  return picked(profile).length >= PICKS_BEFORE_ADS
+  return ADS_ENABLED && picked(profile).length >= PICKS_BEFORE_ADS
 }
 
 /** Whether keeping a category from the offer on the table comes with an ad. */
