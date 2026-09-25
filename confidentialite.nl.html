@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacy — Letter Minuut</title>
+<meta name="description" content="Wat Letter Minuut over zijn spelers bewaart, en hoe je alles wist." />
+<style>
+  :root {
+    --paper: #f6f1e7; --raised: #fffcf6; --ink: #1b1914; --soft: #69645a; --accent: #c2472c; --rule: rgba(27, 25, 20, 0.1);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #121110; --raised: #1c1a17; --ink: #f2ece1; --soft: #a39b8c; --accent: #ec7e5f; --rule: rgba(242, 236, 225, 0.11); }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { width: min(40rem, 100%); margin: 0 auto; padding: 2.5rem 1rem 4rem; }
+  h1 { font-family: 'Iowan Old Style', Georgia, serif; font-weight: 500; font-size: 2.2rem; line-height: 1.1; margin: 0 0 0.25rem; }
+  h1 em { color: var(--accent); }
+  h2 { font-size: 1.05rem; margin: 2rem 0 0.5rem; }
+  p, li { color: var(--soft); }
+  strong { color: var(--ink); font-weight: 600; }
+  ul { padding-left: 1.2rem; }
+  li + li { margin-top: 0.35rem; }
+  .meta { font-size: 0.85rem; margin: 0 0 2rem; }
+  .card { background: var(--raised); border: 1px solid var(--rule); border-radius: 16px; padding: 1rem 1.25rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Letter <em>Minuut</em></h1>
+  <p class="meta">Privacybeleid · van kracht per 25 september 2026</p>
+
+  <div class="card">
+    <p><strong>In het kort:</strong> je speelt zonder account; er een maken is
+    optioneel. Niets wordt doorverkocht. In de app volgt na elke
+    categoriekeuze vanaf de tweede een korte advertentie; alleen dan ontvangt
+    een advertentienetwerk, Google, gegevens. Het spel bewaart je scores en je
+    woorden om het klassement en de zeldzaamheidsbonus te laten werken, en je
+    kunt alles wissen vanuit het menu.</p>
+  </div>
+
+  <h2>Wat op je toestel blijft</h2>
+  <p>Je level, je XP, je records en de woorden die je hebt voorgesteld,
+  worden opgeslagen in de lokale opslag van de app. Ze verlaten het toestel
+  alleen voor de synchronisatie die hieronder wordt beschreven.</p>
+
+  <h2>Wat de server bewaart</h2>
+  <p>De eerste keer dat je het opent, geeft het spel je een <strong>anonieme
+  ID</strong>: om te spelen wordt geen naam, geen e-mailadres en geen
+  telefoonnummer gevraagd.</p>
+  <p>Als je <strong>een account maakt</strong>, om je voortgang op een ander
+  toestel terug te vinden, in het klassement te staan of met vrienden te
+  spelen, komen daar de <strong>spelersnaam</strong> bij die je kiest, je
+  <strong>e-mailadres</strong> en je wachtwoord, dat alleen versleuteld wordt
+  bewaard. Log je in met Google, dan geeft Google ons je e-mailadres door; we
+  ontvangen noch je Google-wachtwoord, noch je contacten. Het adres dient
+  alleen om in te loggen en om je een code te sturen als je je wachtwoord
+  vergeten bent: nooit een nieuwsbrief, nooit reclame.</p>
+  <p>Onder je ID worden bewaard:</p>
+  <ul>
+    <li><strong>je spellen</strong>: score, aantal woorden, beste reeks,
+    aantal keer overgeslagen, datum;</li>
+    <li><strong>de gevonden woorden</strong> in elk spel, waarmee wordt
+    gemeten welke woorden iedereen schrijft;</li>
+    <li><strong>je voortgang</strong>: XP, aantal spellen, records;</li>
+    <li><strong>de woorden die je voorstelt</strong> om het woordenboek aan te
+    vullen;</li>
+    <li><strong>je avatar</strong> en, als je modereert, je stemmen over de
+    voorgestelde woorden;</li>
+    <li><strong>je vrienden</strong>: de verzonden, ontvangen en geaccepteerde
+    verzoeken;</li>
+    <li><strong>de uitdagingen tussen vrienden</strong>: wie er is uitgenodigd,
+    en ieders spel (score en woorden), zichtbaar voor de andere spelers van de
+    uitdaging;</li>
+    <li><strong>het meldingstoken</strong> van je telefoon, als je meldingen
+    toestaat: het dient alleen om je te laten weten dat je een uitdaging hebt
+    ontvangen of dat die is afgelopen, en het wordt gewist als je uitlogt.</li>
+  </ul>
+  <p><strong>Wat andere spelers zien:</strong> alleen accounts met een naam
+  staan in het klassement, onder hun spelersnaam en hun avatar, met hun score;
+  een speler zonder account komt er niet in voor. Je vrienden zien je naam, je
+  avatar en je score van de week, en de spelers van eenzelfde uitdaging zien
+  ieders woorden in die uitdaging. Je e-mailadres wordt nooit aan iemand
+  getoond. Buiten uitdagingen worden gespeelde woorden nooit getoond samen met
+  de identiteit van degene die ze heeft geschreven.</p>
+
+  <h2>Waarom</h2>
+  <p>Om het spel te laten werken, en voor niets anders: het klassement, de
+  zeldzaamheidsbonus (een woord dat iedereen schrijft, levert minder op), de
+  vrienden en de uitdagingen, en het toevoegen aan het woordenboek van woorden
+  die spelers voorstellen. De rechtsgrond is de uitvoering van de dienst die
+  je gebruikt.</p>
+
+  <h2>Wie er toegang toe heeft</h2>
+  <p>De gegevens worden gehost door <strong>Supabase</strong>, dat optreedt
+  als verwerker en ze niet voor eigen doeleinden gebruikt. Er worden geen
+  gegevens verkocht, verhuurd of gedeeld met adverteerders: je spellen, je
+  woorden en je spel-ID worden nooit doorgegeven aan het
+  advertentienetwerk. Meldingen lopen via <strong>Firebase Cloud
+  Messaging</strong> (Google), dat alleen het token van de telefoon en de
+  tekst van het bericht ontvangt.</p>
+
+  <h2 id="publicite">Advertenties</h2>
+  <p>Vanaf de tweede categoriekeuze verschijnt na die keuze een korte
+  advertentie. Die wordt geleverd door <strong>Google AdMob</strong> (Google
+  Ireland Limited), dat optreedt als zelfstandige
+  verwerkingsverantwoordelijke. Om de advertentie te kiezen, de weergave ervan
+  te meten en fraude te voorkomen, kan AdMob de advertentie-ID van het toestel
+  verzamelen, het IP-adres (waaruit een geschatte locatie wordt afgeleid),
+  informatie over het toestel en over je interactie met de advertentie.</p>
+  <p>In de Europese Unie, het Verenigd Koninkrijk en Zwitserland vraagt een
+  formulier om je toestemming vóór de eerste advertentie; zonder die
+  toestemming zijn de advertenties niet gepersonaliseerd. Je kunt je keuze op
+  elk moment wijzigen: <strong>Menu › Opties › Advertentiekeuzes</strong>. Je
+  kunt de advertentie-ID ook resetten of verwijderen in de Google-instellingen
+  van de telefoon. Hoe Google deze gegevens verwerkt:
+  <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.</p>
+  <p>De webversie van het spel toont geen advertenties.</p>
+
+  <h2 id="effacer">Je gegevens wissen</h2>
+  <p>In het spel: <strong>Menu › Profiel › Mijn gegevens wissen</strong>, dan
+  <strong>Alles wissen</strong>. Je account (naam, e-mailadres, wachtwoord),
+  je spellen, je gespeelde woorden, je vrienden en je voorstellen worden
+  direct van de server verwijderd, en je voortgang op het toestel wordt op nul
+  gezet. Alleen een woord dat al in het woordenboek is opgenomen, blijft daar
+  staan, zonder band met jou.</p>
+  <p>Als je de app verwijdert, worden de gegevens op het toestel gewist, maar
+  niet die op de server: wis ze eerst vanuit het spel, of stuur ons een
+  bericht.</p>
+
+  <h2>Bewaartermijn</h2>
+  <p>Totdat je ze wist, vanuit het spel of op eenvoudig verzoek.</p>
+
+  <h2>Kinderen</h2>
+  <p>Het spel is geschikt voor alle leeftijden en is te spelen zonder enig
+  persoonsgegeven; het is niet specifiek op kinderen gericht. Voor een account
+  is een e-mailadres nodig: in Frankrijk is daarvoor onder de 15 jaar
+  toestemming van een ouder vereist.</p>
+
+  <h2>Je rechten en contact</h2>
+  <p>Je hebt recht op inzage, rectificatie, wissing en bezwaar (AVG). Om deze
+  rechten uit te oefenen, of voor vragen:
+  <a href="mailto:fongue.jeremy@gmail.com">fongue.jeremy@gmail.com</a>. Je kunt ook een klacht indienen bij de
+  <a href="https://www.cnil.fr/fr/plaintes">CNIL</a>.</p>
+  <p class="meta" style="margin-top:3rem"><a href="confidentialite.html">Français</a></p>
+</main>
+</body>
+</html>

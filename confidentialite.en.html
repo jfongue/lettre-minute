@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacy — Letter Minute</title>
+<meta name="description" content="What Letter Minute keeps about its players, and how to erase it all." />
+<style>
+  :root {
+    --paper: #f6f1e7; --raised: #fffcf6; --ink: #1b1914; --soft: #69645a; --accent: #c2472c; --rule: rgba(27, 25, 20, 0.1);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #121110; --raised: #1c1a17; --ink: #f2ece1; --soft: #a39b8c; --accent: #ec7e5f; --rule: rgba(242, 236, 225, 0.11); }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { width: min(40rem, 100%); margin: 0 auto; padding: 2.5rem 1rem 4rem; }
+  h1 { font-family: 'Iowan Old Style', Georgia, serif; font-weight: 500; font-size: 2.2rem; line-height: 1.1; margin: 0 0 0.25rem; }
+  h1 em { color: var(--accent); }
+  h2 { font-size: 1.05rem; margin: 2rem 0 0.5rem; }
+  p, li { color: var(--soft); }
+  strong { color: var(--ink); font-weight: 600; }
+  ul { padding-left: 1.2rem; }
+  li + li { margin-top: 0.35rem; }
+  .meta { font-size: 0.85rem; margin: 0 0 2rem; }
+  .card { background: var(--raised); border: 1px solid var(--rule); border-radius: 16px; padding: 1rem 1.25rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Letter <em>Minute</em></h1>
+  <p class="meta">Privacy policy · effective 25 September 2026</p>
+
+  <div class="card">
+    <p><strong>In short:</strong> you play without an account; creating one is
+    optional. Nothing is sold. In the app, a short ad follows each category
+    pick from the second one on; that is the only moment an ad network,
+    Google, receives any data. The game keeps your scores and your words to
+    run the leaderboard and the rarity bonus, and you can erase everything
+    from the menu.</p>
+  </div>
+
+  <h2>What stays on your device</h2>
+  <p>Your level, your XP, your records and the words you have suggested are
+  saved in the app’s local storage. They leave the device only for the
+  syncing described below.</p>
+
+  <h2>What the server keeps</h2>
+  <p>The first time you open it, the game gives you an <strong>anonymous
+  identifier</strong>: no name, no email address and no phone number is asked
+  for to play.</p>
+  <p>If you <strong>create an account</strong>, to pick up your progress on
+  another device, appear on the leaderboards or play with friends, it adds
+  the <strong>player name</strong> you choose, your <strong>email
+  address</strong> and your password, kept only in encrypted form. With Google
+  sign-in, Google passes your email address on to us; we receive neither your
+  Google password nor your contacts. The address is used only to sign you in
+  and to send you a code if you forget your password: never a newsletter,
+  never advertising.</p>
+  <p>Kept under your identifier:</p>
+  <ul>
+    <li><strong>your games</strong>: score, number of words, best streak,
+    number of skips, date;</li>
+    <li><strong>the words found</strong> in each game, used to measure which
+    words everyone writes;</li>
+    <li><strong>your progress</strong>: XP, number of games, records;</li>
+    <li><strong>the words you suggest</strong> to complete the
+    dictionary;</li>
+    <li><strong>your avatar</strong> and, if you moderate, your votes on the
+    suggested words;</li>
+    <li><strong>your friends</strong>: requests sent, received and
+    accepted;</li>
+    <li><strong>challenges between friends</strong>: who is invited, and each
+    player’s game (score and words), visible to the challenge’s other
+    players;</li>
+    <li><strong>your phone’s notification token</strong>, if you accept
+    notifications: it is used only to tell you about a challenge received or
+    finished, and it is erased when you sign out.</li>
+  </ul>
+  <p><strong>What other players see:</strong> only named accounts appear on
+  the leaderboards, under their player name and avatar, with their score; a
+  player without an account does not appear there. Your friends see your
+  name, your avatar and your score for the week, and the players in a
+  challenge see each other’s words in that challenge. Your email address is
+  never shown to anyone. Outside challenges, words played are never shown
+  with the identity of whoever wrote them.</p>
+
+  <h2>Why</h2>
+  <p>To make the game work, and nothing else: the leaderboard, the rarity
+  bonus (a word everyone writes earns less), friends and challenges, and
+  adding the words players suggest to the dictionary. The legal basis is the
+  performance of the service you use.</p>
+
+  <h2>Who has access</h2>
+  <p>The data is hosted by <strong>Supabase</strong>, which acts as a
+  processor and does not use it for its own purposes. No data is sold, rented
+  or shared with advertisers: your games, your words and your game
+  identifier are never passed on to the ad network. Notifications go through
+  <strong>Firebase Cloud Messaging</strong> (Google), which receives only the
+  phone’s token and the text of the message.</p>
+
+  <h2 id="publicite">Advertising</h2>
+  <p>From the second category pick on, a short ad is shown after that pick.
+  It is served by <strong>Google AdMob</strong> (Google Ireland Limited),
+  which acts as a separate controller. To choose the ad, measure its display
+  and prevent fraud, AdMob may collect the device’s advertising ID, the IP
+  address (from which an approximate location is inferred), information about
+  the device and about your interaction with the ad.</p>
+  <p>In the European Union, the United Kingdom and Switzerland, a form asks
+  for your consent before the first ad; without it, ads are not
+  personalised. You can change your mind at any time: <strong>Menu › Options
+  › Ad choices</strong>. You can also reset or delete the advertising ID in
+  the phone’s Google settings. How Google processes this data:
+  <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.</p>
+  <p>The web version of the game shows no ads.</p>
+
+  <h2 id="effacer">Erase your data</h2>
+  <p>In the game: <strong>Menu › Profile › Erase my data</strong>, then
+  <strong>Erase everything</strong>. Your account (name, email address,
+  password), your games, your words played, your friends and your
+  suggestions are deleted from the server immediately, and your progress is
+  reset on the device. Only a word that has already entered the dictionary
+  stays there, with no link to you.</p>
+  <p>Uninstalling the app erases the data on the device, but not the data on
+  the server: erase it from the game first, or write to us.</p>
+
+  <h2>Retention</h2>
+  <p>Until you erase it, from the game or simply by asking.</p>
+
+  <h2>Children</h2>
+  <p>The game suits all ages and is played without any personal information;
+  it is not aimed specifically at children. Creating an account requires an
+  email address: in France, under 15, a parent’s consent is needed.</p>
+
+  <h2>Your rights and contact</h2>
+  <p>You have the right of access, rectification, erasure and objection
+  (GDPR). To exercise them, or for any question:
+  <a href="mailto:fongue.jeremy@gmail.com">fongue.jeremy@gmail.com</a>. You can also lodge a complaint with the
+  <a href="https://www.cnil.fr/fr/plaintes">CNIL</a> (the French data protection authority).</p>
+  <p class="meta" style="margin-top:3rem"><a href="confidentialite.html">Français</a></p>
+</main>
+</body>
+</html>

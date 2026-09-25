@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacy — Lettera Minuto</title>
+<meta name="description" content="Cosa conserva Lettera Minuto sui suoi giocatori, e come cancellare tutto." />
+<style>
+  :root {
+    --paper: #f6f1e7; --raised: #fffcf6; --ink: #1b1914; --soft: #69645a; --accent: #c2472c; --rule: rgba(27, 25, 20, 0.1);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #121110; --raised: #1c1a17; --ink: #f2ece1; --soft: #a39b8c; --accent: #ec7e5f; --rule: rgba(242, 236, 225, 0.11); }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { width: min(40rem, 100%); margin: 0 auto; padding: 2.5rem 1rem 4rem; }
+  h1 { font-family: 'Iowan Old Style', Georgia, serif; font-weight: 500; font-size: 2.2rem; line-height: 1.1; margin: 0 0 0.25rem; }
+  h1 em { color: var(--accent); }
+  h2 { font-size: 1.05rem; margin: 2rem 0 0.5rem; }
+  p, li { color: var(--soft); }
+  strong { color: var(--ink); font-weight: 600; }
+  ul { padding-left: 1.2rem; }
+  li + li { margin-top: 0.35rem; }
+  .meta { font-size: 0.85rem; margin: 0 0 2rem; }
+  .card { background: var(--raised); border: 1px solid var(--rule); border-radius: 16px; padding: 1rem 1.25rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Lettera <em>Minuto</em></h1>
+  <p class="meta">Informativa sulla privacy · in vigore dal 25 settembre 2026</p>
+
+  <div class="card">
+    <p><strong>In breve:</strong> si gioca senza account; crearne uno è
+    facoltativo. Niente viene venduto. Nell’app, una breve pubblicità segue
+    ogni scelta di categoria a partire dalla seconda; è l’unico momento in cui
+    una concessionaria pubblicitaria, Google, riceve dati. Il gioco conserva i
+    tuoi punteggi e le tue parole per far funzionare la classifica e il bonus
+    rarità, e puoi cancellare tutto dal menu.</p>
+  </div>
+
+  <h2>Cosa resta sul tuo dispositivo</h2>
+  <p>Il tuo livello, i tuoi XP, i tuoi record e le parole che hai proposto
+  sono salvati nella memoria locale dell’app. Lasciano il dispositivo solo
+  per la sincronizzazione descritta qui sotto.</p>
+
+  <h2>Cosa conserva il server</h2>
+  <p>Alla prima apertura, il gioco ti assegna un <strong>identificativo
+  anonimo</strong>: per giocare non viene richiesto alcun nome, indirizzo
+  e-mail o numero di telefono.</p>
+  <p>Se <strong>crei un account</strong>, per ritrovare i tuoi progressi su un
+  altro dispositivo, comparire nelle classifiche o giocare con gli amici, si
+  aggiungono il <strong>nome giocatore</strong> che scegli, il tuo
+  <strong>indirizzo e-mail</strong> e la tua password, conservata solo in
+  forma cifrata. Con l’accesso tramite Google, è Google a trasmetterci il tuo
+  indirizzo e-mail; non riceviamo né la tua password Google né i tuoi
+  contatti. L’indirizzo serve solo per farti accedere e per inviarti un
+  codice se dimentichi la password: mai newsletter, mai pubblicità.</p>
+  <p>Con il tuo identificativo vengono conservati:</p>
+  <ul>
+    <li><strong>le tue partite</strong>: punteggio, numero di parole, serie
+    migliore, numero di salti, data;</li>
+    <li><strong>le parole trovate</strong> in ogni partita, che servono a
+    misurare quali parole scrivono tutti;</li>
+    <li><strong>i tuoi progressi</strong>: XP, numero di partite, record;</li>
+    <li><strong>le parole che proponi</strong> per completare il
+    dizionario;</li>
+    <li><strong>il tuo avatar</strong> e, se sei moderatore, i tuoi voti sulle
+    parole proposte;</li>
+    <li><strong>i tuoi amici</strong>: le richieste inviate, ricevute e
+    accettate;</li>
+    <li><strong>le sfide tra amici</strong>: chi è invitato e la partita di
+    ciascuno (punteggio e parole), visibile agli altri giocatori della
+    sfida;</li>
+    <li><strong>il token di notifica</strong> del tuo telefono, se accetti le
+    notifiche: serve solo ad avvisarti di una sfida ricevuta o conclusa, e
+    viene cancellato quando esci dall’account.</li>
+  </ul>
+  <p><strong>Cosa vedono gli altri giocatori:</strong> nelle classifiche
+  compaiono solo gli account con un nome, con il loro nome giocatore, il loro
+  avatar e il loro punteggio; chi gioca senza account non vi compare. I tuoi
+  amici vedono il tuo nome, il tuo avatar e il tuo punteggio della settimana,
+  e i giocatori di una stessa sfida vedono le parole di ciascuno in quella
+  sfida. Il tuo indirizzo e-mail non viene mai mostrato a nessuno. Fuori
+  dalle sfide, le parole giocate non vengono mai mostrate insieme
+  all’identità di chi le ha scritte.</p>
+
+  <h2>Perché</h2>
+  <p>Per far funzionare il gioco, e per nient’altro: la classifica, il bonus
+  rarità (una parola che scrivono tutti vale meno), gli amici e le sfide, e
+  l’aggiunta al dizionario delle parole proposte dai giocatori. La base
+  giuridica è l’esecuzione del servizio che utilizzi.</p>
+
+  <h2>Chi vi ha accesso</h2>
+  <p>I dati sono ospitati da <strong>Supabase</strong>, che agisce come
+  responsabile del trattamento e non li utilizza per fini propri. Nessun dato
+  viene venduto, affittato o condiviso con inserzionisti: le tue partite, le
+  tue parole e il tuo identificativo di gioco non vengono mai trasmessi alla
+  concessionaria pubblicitaria. Le notifiche passano per <strong>Firebase
+  Cloud Messaging</strong> (Google), che riceve solo il token del telefono e
+  il testo del messaggio.</p>
+
+  <h2 id="publicite">Pubblicità</h2>
+  <p>A partire dalla seconda scelta di categoria, dopo quella scelta viene
+  mostrata una breve pubblicità. È fornita da <strong>Google AdMob</strong>
+  (Google Ireland Limited), che agisce come titolare autonomo del trattamento.
+  Per scegliere la pubblicità, misurarne la visualizzazione e prevenire le
+  frodi, AdMob può raccogliere l’ID pubblicità del dispositivo, l’indirizzo IP
+  (da cui si deduce una posizione approssimativa), informazioni sul
+  dispositivo e sulla tua interazione con la pubblicità.</p>
+  <p>Nell’Unione europea, nel Regno Unito e in Svizzera, un modulo ti chiede
+  il consenso prima della prima pubblicità; senza di esso, le pubblicità non
+  sono personalizzate. Puoi cambiare idea in qualsiasi momento: <strong>Menu ›
+  Opzioni › Scelte pubblicitarie</strong>. Puoi anche reimpostare o eliminare
+  l’ID pubblicità nelle impostazioni Google del telefono. Come Google tratta
+  questi dati:
+  <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.</p>
+  <p>La versione web del gioco non mostra alcuna pubblicità.</p>
+
+  <h2 id="effacer">Cancellare i tuoi dati</h2>
+  <p>Nel gioco: <strong>Menu › Profilo › Cancella i miei dati</strong>, poi
+  <strong>Cancella tutto</strong>. Il tuo account (nome, indirizzo e-mail,
+  password), le tue partite, le parole giocate, i tuoi amici e le tue
+  proposte vengono eliminati subito dal server, e i progressi vengono azzerati
+  sul dispositivo. Solo una parola già entrata nel dizionario vi rimane,
+  senza alcun legame con te.</p>
+  <p>Disinstallare l’app cancella i dati sul dispositivo, ma non quelli sul
+  server: cancellali prima dal gioco, oppure scrivici.</p>
+
+  <h2>Conservazione</h2>
+  <p>Finché non li cancelli, dal gioco o su semplice richiesta.</p>
+
+  <h2>Minori</h2>
+  <p>Il gioco è adatto a tutte le età e si gioca senza alcuna informazione
+  personale; non è rivolto specificamente ai minori. Per creare un account
+  serve un indirizzo e-mail: in Francia, sotto i 15 anni, è necessario il
+  consenso di un genitore.</p>
+
+  <h2>I tuoi diritti e contatti</h2>
+  <p>Hai diritto di accesso, rettifica, cancellazione e opposizione (GDPR).
+  Per esercitarli, o per qualsiasi domanda:
+  <a href="mailto:fongue.jeremy@gmail.com">fongue.jeremy@gmail.com</a>. Puoi anche presentare un reclamo alla
+  <a href="https://www.cnil.fr/fr/plaintes">CNIL</a> (l’autorità francese per la protezione dei dati).</p>
+  <p class="meta" style="margin-top:3rem"><a href="confidentialite.html">Français</a></p>
+</main>
+</body>
+</html>

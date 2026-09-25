@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Privacidade — Letra Minuto</title>
+<meta name="description" content="O que o Letra Minuto guarda sobre seus jogadores, e como apagar tudo." />
+<style>
+  :root {
+    --paper: #f6f1e7; --raised: #fffcf6; --ink: #1b1914; --soft: #69645a; --accent: #c2472c; --rule: rgba(27, 25, 20, 0.1);
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #121110; --raised: #1c1a17; --ink: #f2ece1; --soft: #a39b8c; --accent: #ec7e5f; --rule: rgba(242, 236, 225, 0.11); }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { width: min(40rem, 100%); margin: 0 auto; padding: 2.5rem 1rem 4rem; }
+  h1 { font-family: 'Iowan Old Style', Georgia, serif; font-weight: 500; font-size: 2.2rem; line-height: 1.1; margin: 0 0 0.25rem; }
+  h1 em { color: var(--accent); }
+  h2 { font-size: 1.05rem; margin: 2rem 0 0.5rem; }
+  p, li { color: var(--soft); }
+  strong { color: var(--ink); font-weight: 600; }
+  ul { padding-left: 1.2rem; }
+  li + li { margin-top: 0.35rem; }
+  .meta { font-size: 0.85rem; margin: 0 0 2rem; }
+  .card { background: var(--raised); border: 1px solid var(--rule); border-radius: 16px; padding: 1rem 1.25rem; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Letra <em>Minuto</em></h1>
+  <p class="meta">Política de privacidade · em vigor a partir de 25 de setembro de 2026</p>
+
+  <div class="card">
+    <p><strong>Resumindo:</strong> dá para jogar sem conta; criar uma é
+    opcional. Nada é vendido. No aplicativo, um anúncio curto aparece depois
+    de cada escolha de categoria a partir da segunda; é o único momento em que
+    uma rede de publicidade, o Google, recebe dados. O jogo guarda suas
+    pontuações e suas palavras para fazer funcionar o ranking e o bônus de
+    raridade, e você pode apagar tudo pelo menu.</p>
+  </div>
+
+  <h2>O que fica no seu aparelho</h2>
+  <p>Seu nível, seu XP, seus recordes e as palavras que você sugeriu ficam
+  salvos no armazenamento local do aplicativo. Eles só saem do aparelho para
+  a sincronização descrita abaixo.</p>
+
+  <h2>O que o servidor guarda</h2>
+  <p>Na primeira vez que você abre o jogo, ele atribui a você um
+  <strong>identificador anônimo</strong>: nenhum nome, nenhum endereço de
+  e-mail e nenhum número de telefone é pedido para jogar.</p>
+  <p>Se você <strong>criar uma conta</strong>, para recuperar seu progresso em
+  outro aparelho, aparecer no ranking ou jogar com amigos, são acrescentados o
+  <strong>nome de jogador</strong> que você escolher, seu <strong>endereço de
+  e-mail</strong> e sua senha, guardada apenas de forma criptografada. Com o
+  login do Google, é o Google que nos envia seu endereço de e-mail; não
+  recebemos nem sua senha do Google nem seus contatos. O endereço só serve
+  para você entrar na conta e para lhe enviar um código se você esquecer a
+  senha: nunca newsletter, nunca publicidade.</p>
+  <p>Com o seu identificador são guardados:</p>
+  <ul>
+    <li><strong>suas partidas</strong>: pontuação, número de palavras, melhor
+    sequência, número de pulos, data;</li>
+    <li><strong>as palavras encontradas</strong> em cada partida, que servem
+    para medir quais palavras todo mundo escreve;</li>
+    <li><strong>seu progresso</strong>: XP, número de partidas, recordes;</li>
+    <li><strong>as palavras que você sugere</strong> para completar o
+    dicionário;</li>
+    <li><strong>seu avatar</strong> e, se você for moderador, seus votos sobre
+    as palavras sugeridas;</li>
+    <li><strong>seus amigos</strong>: os pedidos enviados, recebidos e
+    aceitos;</li>
+    <li><strong>os desafios entre amigos</strong>: quem foi convidado, e a
+    partida de cada um (pontuação e palavras), visível para os outros
+    jogadores do desafio;</li>
+    <li><strong>o token de notificação</strong> do seu celular, se você aceitar
+    as notificações: ele serve apenas para avisar você de um desafio recebido
+    ou encerrado, e é apagado quando você sai da conta.</li>
+  </ul>
+  <p><strong>O que os outros jogadores veem:</strong> só as contas com nome
+  aparecem no ranking, com seu nome de jogador e seu avatar, junto da
+  pontuação; um jogador sem conta não aparece. Seus amigos veem seu nome, seu
+  avatar e sua pontuação da semana, e os jogadores de um mesmo desafio veem as
+  palavras de cada um nesse desafio. Seu endereço de e-mail nunca é mostrado a
+  ninguém. Fora dos desafios, as palavras jogadas nunca são mostradas junto
+  com a identidade de quem as escreveu.</p>
+
+  <h2>Por quê</h2>
+  <p>Para fazer o jogo funcionar, e nada mais: o ranking, o bônus de raridade
+  (uma palavra que todo mundo escreve vale menos), os amigos e os desafios, e
+  a inclusão no dicionário das palavras sugeridas pelos jogadores. A base
+  legal é a execução do serviço que você utiliza.</p>
+
+  <h2>Quem tem acesso</h2>
+  <p>Os dados são hospedados pelo <strong>Supabase</strong>, que atua como
+  operador e não os utiliza para fins próprios. Nenhum dado é vendido, alugado
+  ou compartilhado com anunciantes: suas partidas, suas palavras e seu
+  identificador de jogo nunca são transmitidos à rede de publicidade.
+  As notificações passam pelo <strong>Firebase Cloud Messaging</strong>
+  (Google), que recebe apenas o token do celular e o texto da mensagem.</p>
+
+  <h2 id="publicite">Publicidade</h2>
+  <p>A partir da segunda escolha de categoria, um anúncio curto é exibido
+  depois dessa escolha. Ele é fornecido pelo <strong>Google AdMob</strong>
+  (Google Ireland Limited), que atua como controlador independente. Para
+  escolher o anúncio, medir sua exibição e prevenir fraudes, o AdMob pode
+  coletar o ID de publicidade do aparelho, o endereço IP (do qual se deduz uma
+  localização aproximada), informações sobre o aparelho e sobre a sua
+  interação com o anúncio.</p>
+  <p>Na União Europeia, no Reino Unido e na Suíça, um formulário pede o seu
+  consentimento antes do primeiro anúncio; sem ele, os anúncios não são
+  personalizados. Você pode mudar de ideia a qualquer momento: <strong>Menu ›
+  Opções › Opções de anúncios</strong>. Você também pode redefinir ou excluir
+  o ID de publicidade nas configurações do Google do celular. Como o Google
+  trata esses dados:
+  <a href="https://policies.google.com/technologies/partner-sites">policies.google.com/technologies/partner-sites</a>.</p>
+  <p>A versão web do jogo não exibe anúncios.</p>
+
+  <h2 id="effacer">Apagar seus dados</h2>
+  <p>No jogo: <strong>Menu › Perfil › Apagar meus dados</strong>, depois
+  <strong>Apagar tudo</strong>. Sua conta (nome, endereço de e-mail, senha),
+  suas partidas, suas palavras jogadas, seus amigos e suas sugestões são
+  excluídos do servidor imediatamente, e o progresso é zerado no aparelho. Só
+  uma palavra que já entrou no dicionário continua lá, sem nenhum vínculo com
+  você.</p>
+  <p>Desinstalar o aplicativo apaga os dados do aparelho, mas não os do
+  servidor: apague-os antes pelo jogo, ou escreva para nós.</p>
+
+  <h2>Retenção</h2>
+  <p>Até você apagá-los, pelo jogo ou mediante simples solicitação.</p>
+
+  <h2>Crianças</h2>
+  <p>O jogo é adequado para todas as idades e pode ser jogado sem nenhuma
+  informação pessoal; ele não é voltado especificamente para crianças. Criar
+  uma conta exige um endereço de e-mail: na França, abaixo dos 15 anos, é
+  preciso a autorização de um dos pais.</p>
+
+  <h2>Seus direitos e contato</h2>
+  <p>Você tem direito de acesso, retificação, exclusão e oposição (RGPD).
+  Para exercê-los, ou para qualquer dúvida:
+  <a href="mailto:fongue.jeremy@gmail.com">fongue.jeremy@gmail.com</a>. Você também pode apresentar uma reclamação à
+  <a href="https://www.cnil.fr/fr/plaintes">CNIL</a>.</p>
+
+  <p class="meta" style="margin-top:3rem"><a href="confidentialite.html">Français</a></p>
+</main>
+</body>
+</html>
