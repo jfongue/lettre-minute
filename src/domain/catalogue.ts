@@ -21,7 +21,7 @@ export const CATALOGUE: readonly CategoryMeta[] = [
   { id: 'sports', label: 'Sports', hint: 'Disciplines et pratiques', unlockLevel: 4 },
   { id: 'corps-humain', label: 'Partie du corps humain', hint: 'De la tête aux pieds', unlockLevel: 5 },
   { id: 'matieres', label: 'Matières et éléments', hint: 'Bois, fer, oxygène, feu…', unlockLevel: 6 },
-  { id: 'capitales', label: 'Capitales', hint: 'Capitales du monde', unlockLevel: 7 },
+  { id: 'capitales', label: 'Villes', hint: 'Parmi les 5 plus grandes de leur pays', unlockLevel: 7 },
   { id: 'marques', label: 'Marque', hint: 'Marques connues', unlockLevel: 8 },
 ]
 

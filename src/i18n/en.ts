@@ -513,7 +513,7 @@ export const en: Messages = {
     sports: ['Sports', 'Disciplines and pastimes'],
     'corps-humain': ['Parts of the body', 'From head to toe'],
     matieres: ['Materials and elements', 'Wood, iron, oxygen, fire…'],
-    capitales: ['Capitals', 'Capital cities of the world'],
+    capitales: ['Cities', 'Among the 5 largest in their country'],
     marques: ['Brands', 'Well-known brands'],
   },
 

@@ -507,7 +507,7 @@ export const de: Messages = {
     sports: ['Sportarten', 'Disziplinen und Aktivitäten'],
     'corps-humain': ['Körperteile', 'Von Kopf bis Fuß'],
     matieres: ['Stoffe und Elemente', 'Holz, Eisen, Sauerstoff, Feuer…'],
-    capitales: ['Hauptstädte', 'Hauptstädte der Welt'],
+    capitales: ['Städte', 'Unter den 5 größten ihres Landes'],
     marques: ['Marken', 'Bekannte Marken'],
   },
 

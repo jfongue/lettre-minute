@@ -8,6 +8,7 @@
  * The pull results are cached under .cache/pulls so a failed run — the taxon
  * queries are slow and time out often — resumes instead of starting over.
  */
+import { execFileSync } from 'node:child_process'
 import { createReadStream, mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import { Readable } from 'node:stream'
@@ -18,7 +19,7 @@ import { LANGUAGES, TOPICS, type Lang, type LanguageSource } from './languages.t
 import { loadFrequencies } from './wordfreq.ts'
 import { ADDED_WORDS, DROPPED_WORDS, PLACEHOLDER_ELEMENT } from './dropped-words.ts'
 import { loadCommunityWords } from './community-words.ts'
-import { CATEGORY_SOURCES, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
+import { CATEGORY_SOURCES, CITIES_PER_COUNTRY, LARGE_COUNTRY_POPULATION, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
 
 const ENDPOINT = 'https://query.wikidata.org/sparql'
 const AGENT = 'LettreMinuteWordImport/0.1 (https://github.com/jfongue; jeremy@enaos.com)'
@@ -331,9 +332,174 @@ async function pullRows(pull: Pull, scope: Scope, dir: string, force: boolean, a
   }
 
   const started = Date.now()
-  const rows = await sparql(queryFor(pull, scope), attempts)
+  const rows = pull.largestCities ? await largestCities(scope, attempts) : await sparql(queryFor(pull, scope), attempts)
   writeFileSync(path, JSON.stringify(rows))
   console.log(`· ${pull.id}: ${rows.length} lignes en ${Math.round((Date.now() - started) / 1000)} s`)
+  return rows
+}
+
+const GEONAMES_CACHE = '.cache/geonames'
+// Sections of a city (PPLX: Paris 15e, Manhattan's neighbourhoods), historical,
+// abandoned and destroyed places are not cities a player would name.
+const NOT_A_CITY = new Set(['PPLX', 'PPLH', 'PPLW', 'PPLQ', 'PPLCH'])
+
+async function geonamesFile(name: string): Promise<string> {
+  mkdirSync(GEONAMES_CACHE, { recursive: true })
+  const path = `${GEONAMES_CACHE}/${name}.txt`
+  if (existsSync(path)) return readFileSync(path, 'utf8')
+  const zipped = name !== 'countryInfo'
+  const response = await fetch(`https://download.geonames.org/export/dump/${name}.${zipped ? 'zip' : 'txt'}`, {
+    headers: { 'User-Agent': AGENT },
+  })
+  if (!response.ok) throw new Error(`geonames ${name}: HTTP ${response.status}`)
+  if (zipped) {
+    writeFileSync(`${GEONAMES_CACHE}/${name}.zip`, Buffer.from(await response.arrayBuffer()))
+    execFileSync('unzip', ['-o', '-q', `${GEONAMES_CACHE}/${name}.zip`, '-d', GEONAMES_CACHE])
+  } else {
+    writeFileSync(path, await response.text())
+  }
+  return readFileSync(path, 'utf8')
+}
+
+interface City {
+  geonames: string
+  population: number
+  /** GeoNames' name, and its ASCII spelling, which is often the English one. */
+  names: string[]
+  country: string
+  /** The country's languages, as GeoNames lists them: `de-CH`, `fr-CH`… */
+  languages: string[]
+}
+
+/** Each country's largest cities, as many as its size allows. */
+async function largestCityList(): Promise<City[]> {
+  const countries = new Map<string, { population: number; languages: string[] }>()
+  for (const line of (await geonamesFile('countryInfo')).split('\n')) {
+    if (line.startsWith('#') || !line.trim()) continue
+    const fields = line.split('\t')
+    countries.set(fields[0]!, {
+      population: Number(fields[7]) || 0,
+      languages: (fields[15] ?? '').split(',').map((tag) => tag.split('-')[0]!).filter(Boolean),
+    })
+  }
+  const byCountry = new Map<string, City[]>()
+  for (const line of (await geonamesFile('cities15000')).split('\n')) {
+    const fields = line.split('\t')
+    if (fields.length < 15 || NOT_A_CITY.has(fields[7]!)) continue
+    const country = fields[8]!
+    const cities = byCountry.get(country) ?? []
+    cities.push({
+      geonames: fields[0]!,
+      population: Number(fields[14]) || 0,
+      names: [...new Set([fields[1]!, fields[2]!])],
+      country,
+      languages: countries.get(country)?.languages ?? [],
+    })
+    byCountry.set(country, cities)
+  }
+  return [...byCountry].flatMap(([country, cities]) => {
+    const keep =
+      (countries.get(country)?.population ?? 0) >= LARGE_COUNTRY_POPULATION
+        ? CITIES_PER_COUNTRY.large
+        : CITIES_PER_COUNTRY.small
+    return cities.sort((a, b) => b.population - a.population).slice(0, keep)
+  })
+}
+
+/** A raw answer, for the queries whose columns are not a label and a count. */
+async function sparqlTable(query: string, attempt = 1): Promise<Record<string, string>[]> {
+  try {
+    // Posted: a few hundred names overflow the longest URL the endpoint takes.
+    const response = await fetch(ENDPOINT, {
+      method: 'POST',
+      headers: { Accept: 'application/sparql-results+json', 'User-Agent': AGENT },
+      body: new URLSearchParams({ query }),
+      signal: AbortSignal.timeout(180_000),
+    })
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const payload = (await response.json()) as { results: { bindings: Record<string, { value: string }>[] } }
+    return payload.results.bindings.map((binding) =>
+      Object.fromEntries(Object.entries(binding).map(([key, cell]) => [key, cell.value])),
+    )
+  } catch (error) {
+    if (attempt >= 4) throw error
+    await new Promise((resolve) => setTimeout(resolve, 10_000 * attempt))
+    return sparqlTable(query, attempt + 1)
+  }
+}
+
+const sparqlString = (text: string) => JSON.stringify(text)
+
+async function largestCities(scope: Scope, attempts: number): Promise<Row[]> {
+  const cities = await largestCityList()
+  const items = new Set<string>()
+  // Wikidata often files a GeoNames id on a stub — Munich's has no French
+  // label and three sitelinks — located in (P131) the city's real item. The
+  // parent counts when its population is the city's, not a region's. Asked
+  // in one query with the labels, this times the endpoint out.
+  for (let start = 0; start < cities.length; start += 200) {
+    const chunk = cities.slice(start, start + 200)
+    const size = new Map(chunk.map((city) => [city.geonames, city.population]))
+    const found = await sparqlTable(`SELECT ?geonames ?child ?parent ?pop WHERE {
+  VALUES ?geonames { ${chunk.map((city) => sparqlString(city.geonames)).join(' ')} }
+  ?child wdt:P1566 ?geonames .
+  OPTIONAL { ?child wdt:P131 ?parent . ?parent wdt:P1082 ?pop }
+}`)
+    for (const row of found) {
+      items.add(row.child!.split('/').pop()!)
+      const population = Number(row.pop)
+      const own = size.get(row.geonames!) ?? 0
+      if (row.parent && population >= own * 0.3 && population <= own * 3) items.add(row.parent.split('/').pop()!)
+    }
+  }
+  // Cologne, Geneva and Zürich carry the GeoNames id of their municipality,
+  // not of the city: they are found by name instead, in the country's
+  // languages, and the best-known namesake in that country wins.
+  for (let start = 0; start < cities.length; start += 60) {
+    const chunk = cities.slice(start, start + 60)
+    const values = chunk.flatMap((city) =>
+      city.names.flatMap((name) =>
+        [...new Set([...city.languages, 'en', 'mul'])].map(
+          (tag) => `(${sparqlString(city.geonames)} ${sparqlString(name)}@${tag} "${city.country}")`,
+        ),
+      ),
+    )
+    // Left to itself, the optimizer starts from every country's items.
+    const found = await sparqlTable(`SELECT DISTINCT ?geonames ?item ?n WHERE {
+  hint:Query hint:optimizer "None" .
+  VALUES (?geonames ?name ?iso) { ${values.join(' ')} }
+  ?item rdfs:label ?name .
+  ?item wdt:P17 ?country .
+  ?country wdt:P297 ?iso .
+  ?item wikibase:sitelinks ?n .
+  FILTER EXISTS { ?item wdt:P1082 [] }
+}`)
+    const best = new Map<string, { item: string; sitelinks: number }>()
+    for (const row of found) {
+      const sitelinks = Number(row.n) || 0
+      if ((best.get(row.geonames!)?.sitelinks ?? -1) < sitelinks)
+        best.set(row.geonames!, { item: row.item!.split('/').pop()!, sitelinks })
+    }
+    for (const { item } of best.values()) items.add(item)
+  }
+
+  const ids = [...items]
+  const rows: Row[] = []
+  for (let start = 0; start < ids.length; start += 300) {
+    rows.push(
+      ...(await sparql(
+        `SELECT ?label ?n WHERE {
+  VALUES ?item { ${ids
+    .slice(start, start + 300)
+    .map((id) => `wd:${id}`)
+    .join(' ')} }
+  ?item rdfs:label ?label ; wikibase:sitelinks ?n .
+  ${scope.inLanguage('?label')}
+}`,
+        attempts,
+      )),
+    )
+  }
   return rows
 }
 

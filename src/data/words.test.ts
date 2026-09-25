@@ -137,7 +137,7 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     sports: ['football', 'tennis', 'judo', 'natation', 'rugby', 'ski', 'boxe', 'escrime'],
     'corps-humain': ['bras', 'jambe', 'cœur', 'œil', 'nez', 'genou', 'foie', 'orteil'],
     matieres: ['fer', 'bois', 'or', 'oxygène', 'cuivre', 'verre', 'béton', 'coton'],
-    capitales: ['Paris', 'Londres', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Nairobi'],
+    capitales: ['Paris', 'Londres', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Nairobi', 'Lyon', 'Marseille', 'Munich', 'Anvers', 'Genève', 'Esch-sur-Alzette'],
     marques: ['Nike', 'Apple', 'Renault', 'Peugeot', 'Coca-Cola', 'Google', 'Adidas'],
   },
   en: {
@@ -149,7 +149,7 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     sports: ['football', 'tennis', 'judo', 'swimming', 'rugby', 'golf', 'boxing'],
     'corps-humain': ['arm', 'leg', 'heart', 'eye', 'nose', 'knee', 'liver'],
     matieres: ['iron', 'wood', 'gold', 'oxygen', 'copper', 'glass', 'cotton'],
-    capitales: ['Paris', 'London', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa'],
+    capitales: ['Paris', 'London', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Lyon', 'Munich', 'Chicago', 'Manchester'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Toyota'],
   },
   de: {

@@ -508,7 +508,7 @@ export const nl: Messages = {
     sports: ['Sporten', 'Disciplines en bezigheden'],
     'corps-humain': ['Lichaamsdelen', 'Van top tot teen'],
     matieres: ['Materialen en elementen', 'Hout, ijzer, zuurstof, vuur…'],
-    capitales: ['Hoofdsteden', 'Hoofdsteden van de wereld'],
+    capitales: ['Steden', 'Bij de 5 grootste van hun land'],
     marques: ['Merken', 'Bekende merken'],
   },
 

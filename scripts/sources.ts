@@ -29,7 +29,21 @@ export interface Pull {
   female?: boolean
   /** Company names: "Nike, Inc." and "Apple Inc." are answered as Nike and Apple. */
   corporate?: boolean
+  /**
+   * The largest cities of each country, ranked by GeoNames and named by
+   * Wikidata through their GeoNames id (P1566): ranking them in SPARQL times
+   * the endpoint out, and its own city classes leave out Paris and Berlin.
+   */
+  largestCities?: boolean
 }
+
+/**
+ * The category says « among the five largest of its country », but a country
+ * of this many people keeps its ten largest: a player who names Charleroi or
+ * Porto Alegre has not cheated. Luxembourg and Singapore stay at five.
+ */
+export const LARGE_COUNTRY_POPULATION = 8_000_000
+export const CITIES_PER_COUNTRY = { large: 10, small: 5 }
 
 /** The language a query reads its labels in, and the Wikipedia it trusts for titles. */
 export interface Scope {
@@ -82,6 +96,7 @@ export const PULLS: readonly Pull[] = [
   ${scope.inLanguage('?label')}
 }`,
   },
+  { id: 'largest-cities', of: 'Q515', largestCities: true },
   // Iron, copper, bronze, and every alloy. No class of "material" will do:
   // "material" has food as a subclass, "building material" windows and menhirs.
   { id: 'metals', of: 'Q11426', subclass: true },
@@ -256,7 +271,7 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
   },
   { id: 'metiers', pulls: ['professions', 'professions-sub'] },
   { id: 'sports', pulls: ['sports', 'sports-sub'] },
-  { id: 'capitales', pulls: ['capitals'], names: true },
+  { id: 'capitales', pulls: ['capitals', 'largest-cities'], names: true },
   { id: 'matieres', pulls: ['metals', 'staple-materials', 'chemical-elements'] },
   { id: 'corps-humain', pulls: ['anatomy'], exclude: ['plant-organ'] },
   { id: 'marques', pulls: ['brand-class', 'brand-product'], names: true },
