@@ -7,6 +7,7 @@ import { Burst, Figure } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
 import { Pencil, VerdictMark } from './VerdictMark'
 import { categoryMotif, onTint } from './motifs'
+import { InitialLocked } from './InitialLocked'
 
 type Judged = Exclude<Verdict, 'special'>
 type Mode = 'judge' | 'respell' | 'special'
@@ -250,14 +251,7 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
                 <label className="note" htmlFor="respell">
                   {t.moderation.screen.respellLabel}
                 </label>
-                <input
-                  id="respell"
-                  value={draft}
-                  onChange={(event) => setDraft(event.target.value)}
-                  autoComplete="off"
-                  autoFocus
-                  maxLength={60}
-                />
+                <InitialLocked id="respell" value={draft} onChange={setDraft} autoComplete="off" autoFocus maxLength={59} />
                 <p className="note">{t.moderation.screen.respellLead}</p>
                 <div className="moderation-form-actions">
                   <button type="button" className="btn btn--quiet btn--muted" onClick={() => setMode('judge')}>

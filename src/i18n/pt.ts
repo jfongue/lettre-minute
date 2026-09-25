@@ -249,6 +249,7 @@ export const pt: Messages = {
   },
 
   requests: {
+    exists: 'Já existe!',
     newsTitle: (count) => (count === 1 ? 'A tua palavra entrou no dicionário!' : `${count} das tuas palavras entraram no dicionário!`),
     newsLead: 'Obrigado! Agora toda a gente as pode jogar.',
     newsOk: 'Fixe!',

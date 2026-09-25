@@ -248,6 +248,7 @@ export const nl: Messages = {
   },
 
   requests: {
+    exists: 'Bestaat al!',
     newsTitle: (count) => (count === 1 ? 'Jouw woord staat in het woordenboek!' : `${count} van je woorden staan in het woordenboek!`),
     newsLead: 'Bedankt! Iedereen kan ze nu spelen.',
     newsOk: 'Top!',

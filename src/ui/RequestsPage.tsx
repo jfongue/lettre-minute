@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type CSSProperties, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
 import { MODERATION_MIN_QUEUE, MODERATION_SESSION_SIZE, SUPER_MODERATOR_VALIDATIONS } from '../domain/moderation'
 import { SUBMISSION_REWARD_XP } from '../domain/progression'
 import {
@@ -15,6 +15,9 @@ import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../sta
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
 import { VerdictMark } from './VerdictMark'
+import { InitialLocked } from './InitialLocked'
+import { availableCategoryIds, loadPack } from '../data/packs'
+import { spelledExactly } from '../domain/words'
 
 /**
  * A request as the page lists it: still on the device, waiting for the next
@@ -23,6 +26,11 @@ import { VerdictMark } from './VerdictMark'
 type Entry =
   | { source: 'queued'; key: string; categoryId: string; display: string; queued: PendingSubmission }
   | { source: 'server'; key: string; categoryId: string; display: string; submission: Submission }
+
+// Long enough to read « Déjà existant ! » before the row goes.
+const EXISTS_MS = 1600
+
+const langOf = (entry: Entry) => (entry.source === 'queued' ? (entry.queued.lang ?? 'fr') : entry.submission.lang)
 
 interface RequestsPageProps {
   /** Null without a server, or before it answered. */
@@ -105,6 +113,41 @@ export function RequestsPage({ moderation, onModerate, onSeen }: RequestsPagePro
   const rejected = submissions.filter((submission) => submission.status === 'rejected').map(fromServer)
   const nothing = server !== 'loading' && pending.length === 0 && accepted.length === 0 && rejected.length === 0
 
+  // A proposal the dictionary now spells letter for letter asks for nothing:
+  // it says so, then leaves the list on its own.
+  const [existing, setExisting] = useState<ReadonlySet<string>>(new Set())
+  const probe = pending.map((entry) => `${entry.key}\u0000${langOf(entry)}\u0000${entry.categoryId}\u0000${entry.display}`).join('\u0001')
+  const pendingNow = useRef(pending)
+  useEffect(() => {
+    pendingNow.current = pending
+  })
+  useEffect(() => {
+    let live = true
+    const entries = pendingNow.current
+    Promise.all(
+      entries.map(async (entry) => {
+        const lang = langOf(entry)
+        if (!availableCategoryIds(lang).includes(entry.categoryId)) return false
+        return spelledExactly(await loadPack(lang, entry.categoryId), entry.display)
+      }),
+    ).then((known) => {
+      const hits = entries.filter((_, index) => known[index])
+      if (!live || hits.length === 0) return
+      setExisting(new Set(hits.map((entry) => entry.key)))
+      setTimeout(async () => {
+        const queuedHits = new Set(hits.flatMap((entry) => (entry.source === 'queued' ? [entry.queued] : [])))
+        const next = loadSubmissions().filter((item) => ![...queuedHits].some((hit) => hit.at === item.at && hit.word === item.word))
+        saveSubmissions(next)
+        await Promise.all(hits.flatMap((entry) => (entry.source === 'server' ? [cancelSubmission(entry.submission.id)] : [])))
+        await refresh()
+        setExisting(new Set())
+      }, EXISTS_MS)
+    })
+    return () => {
+      live = false
+    }
+  }, [probe, refresh])
+
   return (
     <>
       {moderation?.moderator && moderation.queue >= MODERATION_MIN_QUEUE && <ModerationPanel status={moderation} onModerate={onModerate} />}
@@ -145,6 +188,7 @@ export function RequestsPage({ moderation, onModerate, onSeen }: RequestsPagePro
               <RequestRow
                 key={entry.key}
                 entry={entry}
+                exists={existing.has(entry.key)}
                 onWithdraw={() => withdraw(entry)}
                 onCorrect={(display) => correct(entry, display)}
               />
@@ -173,12 +217,14 @@ interface RequestRowProps {
   entry: Entry
   /** Accepted since the last visit. */
   fresh?: boolean
+  /** Spelled this way in the dictionary already: on its way out. */
+  exists?: boolean
   /** Only a request still waiting can be taken back or respelled. */
   onWithdraw?(): void
   onCorrect?(display: string): Promise<boolean>
 }
 
-function RequestRow({ entry, fresh, onWithdraw, onCorrect }: RequestRowProps) {
+function RequestRow({ entry, fresh, exists, onWithdraw, onCorrect }: RequestRowProps) {
   const t = useT()
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(entry.display)
@@ -198,17 +244,17 @@ function RequestRow({ entry, fresh, onWithdraw, onCorrect }: RequestRowProps) {
   }
 
   return (
-    <li className={`request${fresh ? ' request--fresh' : ''}`}>
+    <li className={`request${fresh ? ' request--fresh' : ''}${exists ? ' request--exists' : ''}`}>
       <CategoryIcon categoryId={entry.categoryId} tint={motif.tint} className="category-shape" />
       {editing ? (
         <form className="request-edit" onSubmit={save}>
-          <input
+          <InitialLocked
             value={draft}
-            onChange={(event) => setDraft(event.target.value)}
+            onChange={setDraft}
             aria-label={t.requests.correctLabel(entry.display)}
             autoComplete="off"
             autoFocus
-            maxLength={60}
+            maxLength={59}
           />
           <button type="submit" className="btn btn--quiet" disabled={busy || draft.trim() === ''}>
             {busy ? t.wait : t.requests.save}
@@ -228,7 +274,8 @@ function RequestRow({ entry, fresh, onWithdraw, onCorrect }: RequestRowProps) {
             </span>
           </span>
           {fresh && <span className="request-fresh">{t.requests.fresh}</span>}
-          {onWithdraw && onCorrect && (
+          {exists && <span className="request-exists">{t.requests.exists}</span>}
+          {onWithdraw && onCorrect && !exists && (
             <span className="friend-actions">
               {!locked && (
                 <button type="button" className="btn btn--quiet" onClick={() => setEditing(true)}>

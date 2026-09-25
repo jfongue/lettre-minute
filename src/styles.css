@@ -5977,3 +5977,72 @@ button.challenge-word[aria-expanded='true'] {
   aspect-ratio: auto;
   cursor: default;
 }
+
+/* A respelling keeps its first letter: shown fixed, ahead of the field. */
+.initial-locked {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.request-edit .initial-locked {
+  flex: 1 1 8rem;
+}
+
+.initial-locked-letter {
+  display: grid;
+  place-items: center;
+  min-width: 2.2rem;
+  padding: 0 0.4rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 800;
+}
+
+.initial-locked input {
+  flex: 1;
+  width: 0;
+}
+
+/* A proposal the dictionary already spells: it says so, then folds away. */
+.request--exists {
+  animation: request-exists 1600ms var(--ease-out) forwards;
+}
+
+.request-exists {
+  padding: 0.12rem 0.5rem;
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  animation: pop-in 420ms var(--ease-spring) both;
+}
+
+@keyframes request-exists {
+  0%,
+  8%,
+  16% {
+    transform: translateX(0);
+  }
+  4%,
+  12% {
+    transform: translateX(-4px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(40%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .request--exists {
+    animation: none;
+  }
+}

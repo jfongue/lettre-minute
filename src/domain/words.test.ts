@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildWordPack, commonWord, findWord, knownByLetter, lettersWithEnough, lookup, showcaseWords, withExtraWords, withinOneEdit, type WordRow } from './words'
+import { buildWordPack, commonWord, findWord, knownByLetter, lettersWithEnough, lookup, showcaseWords, spelledExactly, withExtraWords, withinOneEdit, type WordRow } from './words'
 import { rarityScore, tierOf } from './rarity'
 
 const rows: WordRow[] = [['Chat', 120, 45.3], ['Chien', 150, 60], ['Écureuil', 60, 3.2], ['Zèbre', 90, 1.4]]
@@ -223,5 +223,14 @@ describe('withExtraWords', () => {
     const entry = pack.entries.get('axolotl')!
     expect(tierOf(rarityScore(entry))).toBe('peu commun')
     expect(pack.counts.get('A')).toBe(1)
+  })
+})
+
+describe('spelledExactly', () => {
+  it('knows a spelling only when the dictionary has it letter for letter', () => {
+    const pack = buildWordPack('animaux', rows)
+    expect(spelledExactly(pack, ' écureuil ')).toBe(true)
+    expect(spelledExactly(pack, 'Ecureuil')).toBe(false)
+    expect(spelledExactly(pack, 'Loutre')).toBe(false)
   })
 })

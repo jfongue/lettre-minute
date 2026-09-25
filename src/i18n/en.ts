@@ -253,6 +253,7 @@ export const en: Messages = {
   },
 
   requests: {
+    exists: 'Already there!',
     newsTitle: (count) => (count === 1 ? 'Your word made it into the dictionary!' : `${count} of your words made it into the dictionary!`),
     newsLead: 'Thank you! Everyone can now play them.',
     newsOk: 'Great!',

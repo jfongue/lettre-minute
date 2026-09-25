@@ -272,6 +272,7 @@ export const fr = {
   },
 
   requests: {
+    exists: 'Déjà existant !',
     newsTitle: (count: number) => (count === 1 ? 'Ton mot est entré au dictionnaire !' : `${count} de tes mots sont entrés au dictionnaire !`),
     newsLead: 'Merci ! Tout le monde peut désormais les jouer.',
     newsOk: 'Super !',

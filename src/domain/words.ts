@@ -174,6 +174,13 @@ export function lookup(pack: WordPack, raw: string): WordEntry | null {
   return pack.entries.get(compactWord(raw)) ?? null
 }
 
+/** The dictionary holds this very spelling, accents included: a proposal of it asks for nothing. */
+export function spelledExactly(pack: WordPack, raw: string): boolean {
+  const entry = lookup(pack, raw)
+  const tidy = (word: string) => word.trim().replace(/\s+/g, ' ').toLocaleLowerCase()
+  return entry !== null && tidy(entry.display) === tidy(raw)
+}
+
 /**
  * True when `typed` is `known` with exactly one letter wrong: one swapped pair,
  * one missing letter, one letter too many, or one letter mistyped. Written as a
