@@ -527,6 +527,8 @@ export const en: Messages = {
     reactHint: 'Tap a trophy or a word to react.',
     moreStats: 'More stats',
     lessStats: 'Fewer stats',
+    setupName: 'Challenge name',
+    setupNamePlaceholder: 'Optional',
     setupCategories: 'Categories',
     setupPowers: 'Powers allowed',
     setupPowersNote: 'Swap stays out: everyone plays the same themes.',

@@ -553,6 +553,8 @@ export const fr = {
     reactHint: 'Touche un trophée ou un mot pour réagir.',
     moreStats: 'Plus de stats',
     lessStats: 'Moins de stats',
+    setupName: 'Nom du défi',
+    setupNamePlaceholder: 'Facultatif',
     setupCategories: 'Catégories',
     setupPowers: 'Pouvoirs autorisés',
     setupPowersNote: 'Échange reste exclu : tout le monde joue les mêmes thèmes.',

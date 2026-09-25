@@ -25,7 +25,8 @@ export function challengeNotice(
   return recap ? { challenge: recap, kind: 'recap' } : null
 }
 
-export function challengeTitle(t: Messages, challenge: { owned: boolean; ownerName: string }): string {
+export function challengeTitle(t: Messages, challenge: { owned: boolean; ownerName: string; name: string | null }): string {
+  if (challenge.name) return challenge.name
   return challenge.owned ? t.challenge.mine : t.challenge.by(challenge.ownerName)
 }
 

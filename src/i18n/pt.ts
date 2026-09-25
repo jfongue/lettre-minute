@@ -523,6 +523,8 @@ export const pt: Messages = {
     reactHint: 'Toca num troféu ou numa palavra para reagir.',
     moreStats: 'Mais estatísticas',
     lessStats: 'Menos estatísticas',
+    setupName: 'Nome do desafio',
+    setupNamePlaceholder: 'Opcional',
     setupCategories: 'Categorias',
     setupPowers: 'Poderes permitidos',
     setupPowersNote: 'Troca fica de fora: todos jogam os mesmos temas.',

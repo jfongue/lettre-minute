@@ -4870,6 +4870,25 @@ button {
   text-align: left;
 }
 
+.setup-name {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.setup-name input {
+  min-height: 2.6rem;
+  padding: 0.4rem 0.7rem;
+  border: var(--line) solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  font-size: 1rem;
+}
+
+.setup-name input:focus {
+  outline: 3px solid var(--yellow);
+  outline-offset: 0;
+}
+
 .setup-categories {
   display: flex;
   flex-wrap: wrap;

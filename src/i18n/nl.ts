@@ -522,6 +522,8 @@ export const nl: Messages = {
     reactHint: 'Tik op een trofee of een woord om te reageren.',
     moreStats: 'Meer statistieken',
     lessStats: 'Minder statistieken',
+    setupName: 'Naam van de uitdaging',
+    setupNamePlaceholder: 'Optioneel',
     setupCategories: 'Categorieën',
     setupPowers: 'Krachten toegestaan',
     setupPowersNote: 'Ruil blijft buiten: iedereen speelt dezelfde thema’s.',

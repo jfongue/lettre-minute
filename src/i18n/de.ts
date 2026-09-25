@@ -521,6 +521,8 @@ export const de: Messages = {
     reactHint: 'Tippe auf eine Trophäe oder ein Wort, um zu reagieren.',
     moreStats: 'Mehr Statistiken',
     lessStats: 'Weniger Statistiken',
+    setupName: 'Name des Duells',
+    setupNamePlaceholder: 'Optional',
     setupCategories: 'Kategorien',
     setupPowers: 'Kräfte erlaubt',
     setupPowersNote: 'Tausch bleibt draußen: Alle spielen dieselben Themen.',

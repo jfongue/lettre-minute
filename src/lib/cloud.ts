@@ -769,6 +769,8 @@ export interface ChallengeSummary {
   seenInvite: boolean
   seenRecap: boolean
   nextId: string | null
+  /** Chosen by the owner, or null: the challenge is then named after them. */
+  name: string | null
 }
 
 export interface ChallengePlayer extends ChallengeEntry {
@@ -802,6 +804,7 @@ export interface ChallengeDetail {
   nextId: string | null
   /** The owner may bar powers: everyone then plays bare-handed. */
   powersAllowed: boolean
+  name: string | null
   players: readonly ChallengePlayer[]
   reactions: readonly Reaction[]
 }
@@ -850,6 +853,7 @@ export function fetchChallenges(): Promise<ChallengeSummary[] | null> {
       seenInvite: row.seen_invite === true,
       seenRecap: row.seen_recap === true,
       nextId: (row.next_id as string | null) ?? null,
+      name: text(row.name) || null,
     }))
   }, null)
 }
@@ -880,6 +884,7 @@ export function fetchChallenge(id: string): Promise<ChallengeDetail | null> {
       finished: row.finished === true,
       nextId: (row.next_id as string | null) ?? null,
       powersAllowed: row.powers_allowed !== false,
+      name: text(row.name) || null,
       players: ((row.players ?? []) as Record<string, unknown>[]).map((player) => ({
         playerId: player.id as string,
         name: text(player.name),
@@ -904,15 +909,14 @@ export function createChallenge(
   categoryIds: readonly string[],
   friends: readonly string[],
   powersAllowed: boolean,
+  name: string,
 ): Promise<string | null> {
   return guard(async () => {
-    const { data, error } = await supabase!.rpc('create_challenge', {
-      p_lang: lang,
-      p_seed: seed,
-      p_categories: categoryIds,
-      p_friends: friends,
-      p_powers: powersAllowed,
-    })
+    const args = { p_lang: lang, p_seed: seed, p_categories: categoryIds, p_friends: friends, p_powers: powersAllowed }
+    const named = name.trim()
+    let { data, error } = await supabase!.rpc('create_challenge', named ? { ...args, p_name: named } : args)
+    // Before 0017 the server knows no name: the challenge opens without one rather than not at all.
+    if (error && named) ({ data, error } = await supabase!.rpc('create_challenge', args))
     return error ? null : ((data as string | null) ?? null)
   }, null)
 }

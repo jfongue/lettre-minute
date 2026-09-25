@@ -227,6 +227,7 @@ function challenge(state: 'to-play' | 'waiting' | 'finished'): ChallengeDetail {
     finished: state === 'finished',
     nextId: null,
     powersAllowed: true,
+    name: null,
     players,
     reactions:
       state === 'finished'
@@ -255,6 +256,7 @@ function summaryOf(detail: ChallengeDetail): ChallengeSummary {
     expiresAt: detail.expiresAt,
     seenInvite: false,
     seenRecap: false,
+    name: detail.name,
     nextId: null,
   }
 }
@@ -632,7 +634,7 @@ function HeldScenario({ back }: { back(): void }) {
 }
 
 function CreateScenario({ back, powers }: { back(): void; powers: boolean }) {
-  const [rules, setRules] = useState<ChallengeRules>({ categoryIds: ['animaux', 'pays', 'couleurs'], powers })
+  const [rules, setRules] = useState<ChallengeRules>({ categoryIds: ['animaux', 'pays', 'couleurs'], powers, name: '' })
   return (
     <FriendPicker
       title="Défier des amis"

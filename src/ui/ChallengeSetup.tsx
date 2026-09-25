@@ -3,9 +3,14 @@ import { categoryText, useT } from '../i18n'
 import { CategoryIcon } from './CategoryIcon'
 import { categoryMotif, onTint } from './motifs'
 
+// As the server caps it (0017).
+const CHALLENGE_NAME_MAX = 40
+
 export interface ChallengeRules {
   categoryIds: readonly string[]
   powers: boolean
+  /** Optional: an empty one leaves the challenge named after its owner. */
+  name: string
 }
 
 interface ChallengeSetupProps {
@@ -28,6 +33,17 @@ export function ChallengeSetup({ owned, hasPowers, rules, onRules }: ChallengeSe
   }
   return (
     <div className="challenge-setup">
+      <label className="setup-name">
+        <span className="section-title">{t.challenge.setupName}</span>
+        <input
+          type="text"
+          value={rules.name}
+          maxLength={CHALLENGE_NAME_MAX}
+          placeholder={t.challenge.setupNamePlaceholder}
+          enterKeyHint="done"
+          onChange={(event) => onRules({ ...rules, name: event.target.value })}
+        />
+      </label>
       <div className="spread">
         <p className="section-title">{t.challenge.setupCategories}</p>
         <p className="note">

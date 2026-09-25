@@ -18,6 +18,7 @@ function summary(id: string, extra: Partial<ChallengeSummary> = {}): ChallengeSu
     expiresAt: 0,
     seenInvite: false,
     seenRecap: false,
+    name: null,
     nextId: null,
     ...extra,
   }

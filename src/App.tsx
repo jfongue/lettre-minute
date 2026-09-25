@@ -634,7 +634,7 @@ export function App() {
       setCreating({
         busy: false,
         message: null,
-        rules: { categoryIds: challengeLineup(seed, lang), powers: challengePowers(session.profile).length > 0 },
+        rules: { categoryIds: challengeLineup(seed, lang), powers: challengePowers(session.profile).length > 0, name: '' },
         friends,
       })
     },
@@ -649,7 +649,7 @@ export function App() {
     async (friends: readonly string[], rules: ChallengeRules) => {
       setCreating({ busy: true, message: null, rules, friends })
       const seed = Date.now() >>> 0
-      const id = await createChallenge(lang, seed, rules.categoryIds, friends, rules.powers)
+      const id = await createChallenge(lang, seed, rules.categoryIds, friends, rules.powers, rules.name)
       const detail = id ? await fetchChallenge(id) : null
       if (!detail) return setCreating({ busy: false, message: t.challenge.createFailed, rules, friends })
       setCreating(null)
