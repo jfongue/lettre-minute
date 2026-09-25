@@ -166,8 +166,14 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
      **Android** pour `fr.lettreminute.app`, avec l'empreinte SHA-1 de la clé
      de signature de Play (Play Console → Intégrité de l'app) *et* celle de la
      clé de debug. Sans client Android à la bonne empreinte, le sélecteur
-     échoue sans message.
-  2. Supabase → Authentication → Providers → Google : activer, coller
+     échoue sans message. La clé de signature Play n'est pas la clé d'upload :
+     l'empreinte de `lettre-minute-upload.jks` ne signe aucune installation.
+  2. Google Auth Platform → Audience : publier l'app (« En production »).
+     En mode Test, seuls les utilisateurs tests se connectent — et là encore
+     le sélecteur échoue sans message. Publier demande une page d'accueil et
+     des règles de confidentialité dans Branding, mais pas de validation tant
+     qu'il n'y a pas de logo : l'e-mail et le profil ne sont pas sensibles.
+  3. Supabase → Authentication → Providers → Google : activer, coller
      l'identifiant et le secret du client Web.
 
   Dans un navigateur, la page de Google s'ouvre dans une fenêtre surgissante
@@ -175,9 +181,9 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   téléphone. Revenir par Supabase (`signInWithOAuth`) ferait afficher par
   Google « Accéder à l'application <projet>.supabase.co ». Cela demande en
   plus, dans le client Web de Google Cloud :
-  3. Origines JavaScript autorisées : `https://jfongue.github.io` et
+  4. Origines JavaScript autorisées : `https://jfongue.github.io` et
      `http://localhost:5199`.
-  4. URI de redirection autorisés : `https://jfongue.github.io/lettre-minute/google.html`
+  5. URI de redirection autorisés : `https://jfongue.github.io/lettre-minute/google.html`
      et `http://localhost:5199/google.html`.
 
 ## Appliquer
