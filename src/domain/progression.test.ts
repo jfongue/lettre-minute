@@ -5,6 +5,8 @@ import {
   levelFor,
   levelProgress,
   NEW_PROFILE,
+  RECORD_BONUS_BELOW,
+  RECORD_BONUS_XP,
   rewardSubmission,
   SUBMISSION_REWARD_XP,
   xpForLevel,
@@ -26,6 +28,10 @@ describe('levels', () => {
     const steps = [2, 3, 4, 5].map((level) => xpForLevel(level) - xpForLevel(level - 1))
 
     expect(steps).toEqual([...steps].sort((a, b) => a - b))
+  })
+
+  it('reaches level 10 under 4 000 XP', () => {
+    expect(xpForLevel(10)).toBe(3950)
   })
 
   it('reports where the player stands inside a level', () => {
@@ -85,5 +91,19 @@ describe('applyRun', () => {
 describe('rewardSubmission', () => {
   it('pays the player whose word entered the dictionary', () => {
     expect(rewardSubmission(NEW_PROFILE).xp).toBe(SUBMISSION_REWARD_XP)
+  })
+})
+
+describe('record bonus', () => {
+  const scored = { ...NEW_PROFILE, runs: 3, bestScore: 120 }
+
+  it('pays a low scorer for beating their record', () => {
+    expect(applyRun(scored, { score: 150, words: [], bestCombo: 0 }).xp).toBe(150 + RECORD_BONUS_XP)
+  })
+
+  it('pays nothing extra for the first run, a run under the record, or a record past the threshold', () => {
+    expect(applyRun(NEW_PROFILE, { score: 150, words: [], bestCombo: 0 }).xp).toBe(150)
+    expect(applyRun(scored, { score: 100, words: [], bestCombo: 0 }).xp).toBe(100)
+    expect(applyRun(scored, { score: RECORD_BONUS_BELOW, words: [], bestCombo: 0 }).xp).toBe(RECORD_BONUS_BELOW)
   })
 })

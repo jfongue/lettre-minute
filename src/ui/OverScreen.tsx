@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { newlyEarned, type AvatarChoice } from '../domain/avatar'
 import type { Boards } from '../domain/boards'
 import { capitalized } from '../domain/text'
-import { levelFor, levelProgress, type Profile } from '../domain/progression'
+import { levelFor, levelProgress, recordBonus, type Profile } from '../domain/progression'
 import { pickShowsAd, picksOwed } from '../domain/unlocks'
 import type { FoundWord, Run } from '../domain/run'
 import { categoryText, formatNumber, useT } from '../i18n'
@@ -274,6 +274,7 @@ function Summary({
     window.scrollTo(0, 0)
   }, [])
   const record = run.score > profileBefore.bestScore && run.score > 0
+  const bonus = recordBonus(profileBefore, run.score)
   // Decided once: marking the ask makes `supportDue` false, and the panel must stay.
   const [asking] = useState(() => supportDue(profileBefore, profile, run.score, false))
   useEffect(() => {
@@ -283,6 +284,7 @@ function Summary({
   return (
     <div className="sheet cascade">
       <XpGain from={profileBefore.xp} to={profile.xp} />
+      {bonus > 0 && <p className="note challenge-xp-note">{t.over.recordBonus(bonus)}</p>}
 
       <Earned profileBefore={profileBefore} profile={profile} avatar={avatar} onAvatar={onAvatar} />
 

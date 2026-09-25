@@ -34,7 +34,8 @@ n'écrit rapportent le plus.
   de reproposer les mêmes tant qu'il en reste d'autres.
 - **Pouvoirs** : le niveau 2 donne une catégorie, le niveau 3 le premier
   pouvoir, puis les deux alternent — un pouvoir tous les deux niveaux, choisi
-  entre deux cartes — l'offre suivante évite
+  entre deux cartes (Challenge excepté : il vient avec le troisième mot proposé
+  accepté) — l'offre suivante évite
   celle qu'on vient de voir. On en porte deux, choisis sous « Jouer ».
   Échange (deux échanges au lancement), Tricherie (écrire « Joker » :
   le jeu écrit un mot juste, payé au tarif de base, une fois), Esquive
@@ -157,7 +158,9 @@ considérer un changement terminé.
 
 Une petite partie tourne autour de 100 points, une partie énorme — une
 trentaine de mots, souvent rares, en longue série — approche 1 000. Chaque point
-rapporte un point d'XP.
+rapporte un point d'XP ; battre son record sous 250 points en rapporte 100 de
+plus. Le niveau 2 coûte 150 XP, chaque niveau suivant 50 de plus que le
+précédent à partir de 300 : le niveau 10 tombe à 3 950 XP.
 
 La notoriété d'un mot vaut moitié son rang dans sa propre catégorie, moitié la
 mesure absolue de deux signaux du français contemporain, le plus fort des deux :

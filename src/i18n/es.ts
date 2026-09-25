@@ -87,6 +87,7 @@ export const es: Messages = {
     home: 'Inicio',
     level: (level) => `Nivel ${level}`,
     towards: (into, span, next) => `${into} / ${span} XP hacia el nivel ${next}`,
+    recordBonus: (xp) => `con +${xp} XP por tu récord`,
     levelUp: 'Subes de nivel',
     levelReached: (level) => `Nivel ${level} alcanzado`,
   },

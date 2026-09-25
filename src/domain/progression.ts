@@ -6,11 +6,24 @@ export const SUBMISSION_REWARD_XP = 150
 /** What the first level up costs: half a decent run, so a newcomer levels up on their first try. */
 export const FIRST_LEVEL_XP = 150
 
-/** Cumulative XP needed to reach a level. Quadratic: each level costs a little more than the last. */
+/**
+ * Cumulative XP needed to reach a level. The first costs `FIRST_LEVEL_XP`,
+ * then each one 50 more than the last, from 300: level 10 comes within a
+ * couple of dozen modest runs.
+ */
 export function xpForLevel(level: number): number {
   const steps = Math.max(0, level - 1)
   if (steps === 0) return 0
-  return 300 * steps + 50 * steps * steps - (350 - FIRST_LEVEL_XP)
+  return 25 * steps * steps + 225 * steps - (250 - FIRST_LEVEL_XP)
+}
+
+/** Beating one's record under this score pays `RECORD_BONUS_XP` on top: past it, the runs pay enough. */
+export const RECORD_BONUS_BELOW = 250
+export const RECORD_BONUS_XP = 100
+
+/** The bonus a run's score earns by beating the player's record, for a player still scoring low. */
+export function recordBonus(profile: Profile, score: number): number {
+  return profile.bestScore > 0 && score > profile.bestScore && score < RECORD_BONUS_BELOW ? RECORD_BONUS_XP : 0
 }
 
 export function levelFor(xp: number): number {
@@ -105,7 +118,7 @@ export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
 
   return {
     ...profile,
-    xp: profile.xp + Math.round(outcome.score * XP_PER_POINT),
+    xp: profile.xp + Math.round(outcome.score * XP_PER_POINT) + recordBonus(profile, outcome.score),
     runs: profile.runs + 1,
     bestScore: Math.max(profile.bestScore, outcome.score),
     wordsFound: profile.wordsFound + outcome.words.length,

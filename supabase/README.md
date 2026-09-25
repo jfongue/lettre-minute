@@ -70,7 +70,7 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   politique. La fonction refuse un modérateur qui a proposé le mot lui-même,
   un second vote, un cas spécial jugé par un modérateur ordinaire, et une
   correction d'orthographe après le premier vote (`gone`).
-- **Le niveau 6 est écrit en XP dans `moderator_offer_due`** (2550) : SQL ne
+- **Le niveau 6 est écrit en XP dans `moderator_offer_due`** (1650, depuis 0018) : SQL ne
   connaît pas `xpForLevel`. `MODERATOR_LEVEL_XP` et son test
   (`src/domain/moderation.ts`) cassent si la courbe change sans lui.
 - **Un profil est lisible par tous les comptes connectés** : c'est ce

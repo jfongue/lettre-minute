@@ -92,6 +92,7 @@ export const en: Messages = {
     home: 'Home',
     level: (level) => `Level ${level}`,
     towards: (into, span, next) => `${into} / ${span} XP to level ${next}`,
+    recordBonus: (xp) => `including +${xp} XP for your record`,
     levelUp: 'Level up',
     levelReached: (level) => `Level ${level} reached`,
   },

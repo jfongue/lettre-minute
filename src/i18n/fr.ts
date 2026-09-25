@@ -103,6 +103,7 @@ export const fr = {
     home: 'Accueil',
     level: (level: number) => `Niveau ${level}`,
     towards: (into: number, span: number, next: number) => `${into} / ${span} XP vers le niveau ${next}`,
+    recordBonus: (xp: number) => `dont +${xp} XP pour ton record`,
     levelUp: 'Niveau supérieur',
     levelReached: (level: number) => `Niveau ${level} atteint`,
   },

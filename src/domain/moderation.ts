@@ -23,7 +23,7 @@ export const MODERATOR_LEVEL = 6
  * The same level in XP, as `moderator_offer_due` checks it: SQL cannot call
  * `xpForLevel`, so a test holds the two together.
  */
-export const MODERATOR_LEVEL_XP = 2550
+export const MODERATOR_LEVEL_XP = 1650
 
 /** Clean validations that make a moderator's word enough on its own. */
 export const SUPER_MODERATOR_VALIDATIONS = 5
