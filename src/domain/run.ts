@@ -1,4 +1,5 @@
 import {
+  CHATTER_WORDS,
   COMPLICATION_BOOST,
   DODGE_PENALTY_SECONDS,
   HUSH_SECONDS,
@@ -71,6 +72,8 @@ export interface Verdict {
   found: FoundWord | null
   /** Set when the field holds a power's word (« Joker », « chut ») that validating would cast. */
   spell?: Spell
+  /** The accepted word ends with « … » and Bavardage has a use: validating keeps the prompt. */
+  chatter?: boolean
 }
 
 /** Everything the rules need from the outside: the dictionary and what players do with it. */
@@ -129,6 +132,8 @@ export interface Run {
   rerolls: number
   /** Under Professeur, what each skipped prompt could have been answered with. */
   missed: readonly MissedWord[]
+  /** Bavardage holds the prompt for this many more words; a skip meanwhile is free. */
+  chatter: number
 }
 
 /** A skipped prompt and the best-known word it still had. */
@@ -258,8 +263,12 @@ export function createRun({ seed, categoryIds, avoid = [], powers = [], shared =
     heldSeconds: 0,
     rerolls: 0,
     missed: [],
+    chatter: 0,
   }
 }
+
+/** Three dots after a word, typed or as one character: Bavardage's sign. */
+const CHATTER_SIGN = /(\.\.\.|…)\s*$/
 
 /** The spell the field holds, if the run carries that power and still has a use of it. */
 function spellOf(run: Run, raw: string, judge: Judge): Spell | undefined {
@@ -284,7 +293,12 @@ export function inspect(run: Run, raw: string, judge: Judge): Verdict {
   if (word === '') return { kind: 'empty', found: null }
   const verdict = judgeWord(run, word, judge)
   // Only what the category does not know can be a spell: « chut » already played stays « déjà donné ».
-  if (verdict.kind !== 'unknown' && verdict.kind !== 'wrong-letter') return verdict
+  if (verdict.kind !== 'unknown' && verdict.kind !== 'wrong-letter' && verdict.kind !== 'accepted') return verdict
+  if (verdict.kind === 'accepted') {
+    // A Bavardage already under way takes no second one.
+    const chatter = run.chatter === 0 && chargesLeft(run, 'chatter') > 0 && CHATTER_SIGN.test(raw)
+    return chatter ? { ...verdict, chatter } : verdict
+  }
   const spell = spellOf(run, raw, judge)
   return spell ? { kind: 'spell', found: null, spell } : verdict
 }
@@ -333,12 +347,17 @@ export function submit(run: Run, raw: string, judge: Judge, at = run.promptAt): 
   if (verdict.kind !== 'accepted' || !verdict.found) return { run, verdict }
 
   const combo = run.combo + 1
+  // Bavardage keeps the prompt: cast, it holds for `CHATTER_WORDS` more; under way, it counts one down.
+  const chatter = verdict.chatter ? CHATTER_WORDS : Math.max(0, run.chatter - 1)
+  const stays = verdict.chatter === true || run.chatter > 0 ? chatter > 0 : false
   return {
     verdict,
     run: {
       ...run,
-      ...advance(run, judge),
+      ...(stays ? { joker: null } : advance(run, judge)),
       ...release(run, at),
+      chatter,
+      ...(verdict.chatter && { charges: spend(run, 'chatter') }),
       found: [...run.found, { ...verdict.found, seconds: Math.max(0, at - run.promptAt), at }],
       promptAt: at,
       used: [...run.used, verdict.found.word],
@@ -363,6 +382,7 @@ function cast(run: Run, spell: Spell, judge: Judge, at: number): Run {
 }
 
 export function skipPenalty(run: Run): number {
+  if (run.chatter > 0) return 0
   return hasPower(run, 'dodge') ? DODGE_PENALTY_SECONDS : SKIP_PENALTY_SECONDS
 }
 
@@ -384,9 +404,11 @@ export function skip(run: Run, judge: Judge, at = run.promptAt): Run {
     ...advance(run, judge),
     ...release(run, at),
     promptAt: at,
-    skips: run.skips + 1,
+    // Leaving a Bavardage is free: no skip counted, no seconds, the series kept.
+    skips: run.chatter > 0 ? run.skips : run.skips + 1,
     penaltySeconds: run.penaltySeconds + skipPenalty(run),
-    combo: 0,
+    combo: run.chatter > 0 ? run.combo : 0,
+    chatter: 0,
   }
 }
 

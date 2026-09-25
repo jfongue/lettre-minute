@@ -393,6 +393,9 @@ export const nl: Messages = {
   },
 
   powers: {
+    castChatter: 'Gekwebbel! De letter blijft',
+    chatterLeft: (left) => `Gekwebbel · nog ${left} ${plural(left, 'woord', 'woorden')}`,
+    chatterLeave: 'Verder',
     giftTitle: 'Nieuwe kracht!',
     giftLead: 'Drie van je woorden staan in het woordenboek: deze kracht is voor jou.',
     giftOk: 'Bedankt!',
@@ -407,6 +410,7 @@ export const nl: Messages = {
       complication: ['Risico', 'Ongewone woorden tellen ×1,15, zeldzame ×1,3.'],
       celerity: ['Snelheid', 'Een goed woord bevestigt zichzelf, zonder Enter.'],
       professor: ['Professor', 'Sla je over, dan wordt je ingefluisterd wat je had kunnen zeggen, en aan het eind volgt de les.'],
+      chatter: ['Gekwebbel', 'Eén keer per spel: zet „...” achter een woord, en letter en thema blijven voor nog drie woorden.'],
     },
     spells: { joker: ['joker'], hush: ['sst', 'ssst', 'stil'] },
     title: 'Krachten',

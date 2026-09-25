@@ -68,6 +68,11 @@ const ICONS: Record<PowerId, ReactNode> = {
       <circle cx="86" cy="80" r="7" />
     </>
   ),
+  chatter: (
+    <>
+      <path fillRule="evenodd" d={`M8 12H92V70H44L22 90V70H8Z${hole(30, 41, 7)}${hole(50, 41, 7)}${hole(70, 41, 7)}`} />
+    </>
+  ),
 }
 
 interface PowerIconProps {

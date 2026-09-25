@@ -342,6 +342,12 @@ const SIGNATURES: Record<PowerId, (c: AudioContext, t: number, v: number) => voi
     hiss(c, t + 0.34, 0.5, sfx, 0.12 * v, 'bandpass', 3200, 1.2, 1800, 0.12)
     glass(c, deg(7, 1), t + 0.4, 0.25 * v, sfx)
   },
+  // Three quick notes, like the three dots that cast it.
+  chatter(c, t, v) {
+    piano(c, deg(4), t, 0.45 * v, sfx, 0.25)
+    piano(c, deg(5), t + 0.09, 0.45 * v, sfx, 0.25)
+    piano(c, deg(7), t + 0.18, 0.5 * v, sfx, 0.4)
+  },
 }
 
 export const sound = {

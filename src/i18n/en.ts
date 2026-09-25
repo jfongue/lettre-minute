@@ -398,6 +398,9 @@ export const en: Messages = {
   },
 
   powers: {
+    castChatter: 'Chatter! The letter stays',
+    chatterLeft: (left) => `Chatter · ${left} more ${plural(left, 'word', 'words')}`,
+    chatterLeave: 'Move on',
     giftTitle: 'New power!',
     giftLead: 'Three of your words made it into the dictionary: this power is yours.',
     giftOk: 'Thanks!',
@@ -412,6 +415,7 @@ export const en: Messages = {
       complication: ['High stakes', 'Uncommon words are worth ×1.15, rare ones ×1.3.'],
       celerity: ['Celerity', 'A right word validates itself, no need to press Enter.'],
       professor: ['Professor', 'When you skip, you are told what you could have answered, and the end of the game goes over the lesson.'],
+      chatter: ['Chatter', 'Once a game, add “...” to a word: the letter and topic stay for three more words.'],
     },
     spells: { joker: ['joker'], hush: ['shh', 'hush', 'shhh'] },
     title: 'Powers',

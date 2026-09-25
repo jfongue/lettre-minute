@@ -6078,3 +6078,16 @@ button.challenge-word[aria-expanded='true'] {
     animation: none;
   }
 }
+
+/* Bavardage holds the prompt: how many words it still keeps it for. */
+.prompt-chatter {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: -0.4rem 0 0;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  animation: pop-in 420ms var(--ease-spring) both;
+}

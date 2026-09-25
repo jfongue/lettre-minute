@@ -394,6 +394,9 @@ export const it: Messages = {
   },
 
   powers: {
+    castChatter: 'Chiacchiera! La lettera resta',
+    chatterLeft: (left) => `Chiacchiera · ancora ${left} ${plural(left, 'parola', 'parole')}`,
+    chatterLeave: 'Cambia',
     giftTitle: 'Nuovo potere!',
     giftLead: 'Tre tue parole sono entrate nel dizionario: questo potere è tuo.',
     giftOk: 'Grazie!',
@@ -408,6 +411,7 @@ export const it: Messages = {
       complication: ['Rischio', 'Le parole poco comuni valgono ×1,15, le rare ×1,3.'],
       celerity: ['Celerità', 'Una parola giusta si conferma da sola, senza premere Invio.'],
       professor: ['Professore', 'Quando passi, ti suggeriscono cosa avresti potuto rispondere, e la fine della partita ripassa la lezione.'],
+      chatter: ['Chiacchiera', 'Una volta per partita, aggiungi «...» a una parola: lettera e tema restano per altre tre parole.'],
     },
     spells: { joker: ['joker', 'jolly'], hush: ['zitto', 'shh', 'ssst'] },
     title: 'Poteri',
