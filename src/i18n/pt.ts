@@ -373,7 +373,8 @@ export const pt: Messages = {
     design: (number) => `Avatar ${number}`,
     lockedDesign: (number) => `Avatar ${number}, bloqueado`,
     unlockHint: (item, how) => `${item}: ${how}`,
-    idle: 'Toque numa casa bloqueada para saber como ganhá-la.',
+    earnedHint: (item, how) => `${item} · ganho com: ${how}`,
+    idle: 'Toca numa casa para ver como se ganha.',
     save: 'Ficar com este avatar',
     back: 'Voltar',
     milestone: (milestone) => {

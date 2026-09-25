@@ -12,6 +12,25 @@ export type ShapeKind =
   | 'diamond'
   | 'bars'
   | 'sun'
+  | 'cross'
+  | 'lens'
+  | 'moon'
+  | 'pill'
+  | 'hexagon'
+  | 'steps'
+  | 'wave'
+  | 'zigzag'
+  | 'chevron'
+  | 'hourglass'
+  | 'flower'
+  | 'dots'
+  | 'checker'
+  | 'star'
+  | 'drop'
+  | 'frame'
+  | 'target'
+  | 'heart'
+  | 'domes'
 
 export type Motion = 'still' | 'turn' | 'pulse' | 'spin' | 'sway' | 'bob'
 
@@ -49,11 +68,11 @@ type Look = [shape: ShapeKind, turn: AvatarDesign['turn'], accent: ShapeKind | n
 
 // Written out rather than crossed from lists: a circle, a ring or a sun looks
 // the same at any turn, and a small accent is too faint to tell two tiles apart
-// on its own, so a generated grid showed the same tile over and over. Here a
-// shape comes back only at a turn that changes its silhouette, or once with an
-// accent that makes a picture of it. Shapes whose look rests on their turn
-// never get the turning motions, which would cycle them through their siblings.
-// The first eleven keep the ids they had in the generated grid.
+// on its own, so a generated grid showed the same tile over and over. Here no
+// shape comes back merely turned — the turned quarters and arches read as one
+// tile shown four times — only once with an accent that makes a picture of it.
+// Shapes whose look rests on their turn never get the turning motions, which
+// would cycle them through their siblings. Ids stay put: a player wears one.
 const LOOKS: readonly Look[] = [
   ['circle', 0, null, 'pulse'],
   ['square', 0, null, 'turn'],
@@ -66,22 +85,22 @@ const LOOKS: readonly Look[] = [
   ['diamond', 0, null, 'turn'],
   ['bars', 0, null, 'sway'],
   ['sun', 0, null, 'spin'],
-  ['quarter', 1, null, 'pulse'],
-  ['arch', 1, null, 'sway'],
-  ['half', 1, null, 'still'],
-  ['triangle', 1, null, 'bob'],
-  ['corner', 1, null, 'pulse'],
-  ['bars', 1, null, 'bob'],
-  ['quarter', 2, null, 'sway'],
-  ['arch', 2, null, 'pulse'],
-  ['half', 2, null, 'bob'],
-  ['triangle', 2, null, 'still'],
-  ['corner', 2, null, 'sway'],
-  ['quarter', 3, null, 'bob'],
-  ['arch', 3, null, 'still'],
-  ['half', 3, null, 'pulse'],
-  ['triangle', 3, null, 'sway'],
-  ['corner', 3, null, 'bob'],
+  ['cross', 0, null, 'spin'],
+  ['lens', 0, null, 'sway'],
+  ['moon', 0, null, 'bob'],
+  ['pill', 0, null, 'pulse'],
+  ['hexagon', 0, null, 'sway'],
+  ['steps', 0, null, 'still'],
+  ['wave', 0, null, 'sway'],
+  ['zigzag', 0, null, 'bob'],
+  ['chevron', 0, null, 'bob'],
+  ['hourglass', 0, null, 'still'],
+  ['flower', 0, null, 'spin'],
+  ['dots', 0, null, 'pulse'],
+  ['checker', 0, null, 'still'],
+  ['star', 0, null, 'pulse'],
+  ['drop', 0, null, 'sway'],
+  ['frame', 0, null, 'turn'],
   ['square', 0, 'circle', 'still'],
   ['diamond', 0, 'circle', 'pulse'],
   ['ring', 0, 'square', 'spin'],
@@ -95,6 +114,9 @@ const LOOKS: readonly Look[] = [
   ['half', 2, 'sun', 'sway'],
   ['triangle', 0, 'sun', 'still'],
   ['circle', 0, 'sun', 'spin'],
+  ['target', 0, null, 'pulse'],
+  ['heart', 0, null, 'pulse'],
+  ['domes', 0, null, 'bob'],
 ]
 
 export const AVATARS: readonly AvatarDesign[] = LOOKS.map(([shape, turn, accent, motion], id) => ({
@@ -114,7 +136,8 @@ const FREE_DESIGNS = 5
 // so a tile is earned, not handed out with the tutorial.
 const TRACKS: readonly Milestone[][] = [
   [4, 6, 8, 10, 13, 16, 20, 25, 30, 35].map((at) => ({ stat: 'level' as const, at })),
-  [10, 25, 50, 100, 200, 400].map((at) => ({ stat: 'runs' as const, at })),
+  // Runs 3 to 10 are where a new player drifts off: a tile at each of the first few keeps them coming.
+  [3, 5, 7, 10, 25, 50, 100, 200, 400].map((at) => ({ stat: 'runs' as const, at })),
   [100, 250, 500, 1000, 2000, 3500, 5000].map((at) => ({ stat: 'wordsFound' as const, at })),
   [400, 500, 600, 700, 800, 900].map((at) => ({ stat: 'bestScore' as const, at })),
   [10, 13, 16, 20, 24, 28].map((at) => ({ stat: 'bestCombo' as const, at })),

@@ -396,7 +396,8 @@ export const fr = {
     design: (number: number) => `Avatar ${number}`,
     lockedDesign: (number: number) => `Avatar ${number}, verrouillé`,
     unlockHint: (item: string, how: string) => `${item} : ${how}`,
-    idle: 'Touche une case verrouillée pour savoir comment la gagner.',
+    earnedHint: (item: string, how: string) => `${item} · gagné avec : ${how}`,
+    idle: 'Touche une case pour savoir comment elle se gagne.',
     save: 'Garder cet avatar',
     back: 'Retour',
     milestone: (milestone: Milestone): string => {

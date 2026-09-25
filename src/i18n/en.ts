@@ -377,7 +377,8 @@ export const en: Messages = {
     design: (number) => `Avatar ${number}`,
     lockedDesign: (number) => `Avatar ${number}, locked`,
     unlockHint: (item, how) => `${item}: ${how}`,
-    idle: 'Tap a locked tile to see how to earn it.',
+    earnedHint: (item, how) => `${item} · earned with: ${how}`,
+    idle: 'Tap a tile to see how it is earned.',
     save: 'Keep this avatar',
     back: 'Back',
     milestone: (milestone) => {

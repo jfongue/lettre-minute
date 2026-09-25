@@ -372,7 +372,8 @@ export const nl: Messages = {
     design: (number) => `Avatar ${number}`,
     lockedDesign: (number) => `Avatar ${number}, vergrendeld`,
     unlockHint: (item, how) => `${item}: ${how}`,
-    idle: 'Tik op een vergrendeld vakje om te zien hoe je het verdient.',
+    earnedHint: (item, how) => `${item} · verdiend met: ${how}`,
+    idle: 'Tik op een vakje om te zien hoe je het verdient.',
     save: 'Deze avatar houden',
     back: 'Terug',
     milestone: (milestone) => {

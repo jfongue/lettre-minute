@@ -85,7 +85,7 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
                 onClick={() => {
                   if (owned) {
                     setDraft({ ...draft, [activeLayer]: colour.id })
-                    setHint(null)
+                    setHint(goal ? t.avatar.earnedHint(label, t.avatar.milestone(goal)) : null)
                   } else if (goal) {
                     setHint(t.avatar.unlockHint(label, t.avatar.milestone(goal)))
                   }
@@ -113,7 +113,7 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
               onClick={() => {
                 if (owned) {
                   setDraft({ ...draft, design: entry.id })
-                  setHint(null)
+                  setHint(goal ? t.avatar.earnedHint(t.avatar.design(entry.id + 1), t.avatar.milestone(goal)) : null)
                 } else if (goal) {
                   setHint(t.avatar.unlockHint(t.avatar.design(entry.id + 1), t.avatar.milestone(goal)))
                 }

@@ -373,7 +373,8 @@ export const es: Messages = {
     design: (number) => `Avatar ${number}`,
     lockedDesign: (number) => `Avatar ${number}, bloqueado`,
     unlockHint: (item, how) => `${item}: ${how}`,
-    idle: 'Toca una casilla bloqueada para saber cómo conseguirla.',
+    earnedHint: (item, how) => `${item} · conseguido con: ${how}`,
+    idle: 'Toca una casilla para ver cómo se gana.',
     save: 'Quedarme este avatar',
     back: 'Volver',
     milestone: (milestone) => {

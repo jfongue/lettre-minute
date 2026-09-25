@@ -15,7 +15,10 @@ import { applyRun, NEW_PROFILE, xpForLevel } from './progression'
 
 describe('avatars', () => {
   // How many turns a shape takes before it looks the same again.
-  const ORIENTATIONS: Record<string, number> = { circle: 1, square: 1, ring: 1, diamond: 1, sun: 1, bars: 2 }
+  const ORIENTATIONS: Record<string, number> = {
+    circle: 1, square: 1, ring: 1, diamond: 1, sun: 1, cross: 1, flower: 1, dots: 1, frame: 1, target: 1,
+    bars: 2, checker: 2, hexagon: 2, lens: 2, pill: 2, hourglass: 2,
+  }
   const orientations = (design: AvatarDesign) => ORIENTATIONS[design.shape] ?? 4
 
   it('never draws the same tile twice', () => {

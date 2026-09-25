@@ -371,7 +371,8 @@ export const de: Messages = {
     design: (number) => `Avatar ${number}`,
     lockedDesign: (number) => `Avatar ${number}, gesperrt`,
     unlockHint: (item, how) => `${item}: ${how}`,
-    idle: 'Tippe auf ein gesperrtes Feld, um zu sehen, wie du es freischaltest.',
+    earnedHint: (item, how) => `${item} · verdient mit: ${how}`,
+    idle: 'Tippe auf ein Feld, um zu sehen, wie man es gewinnt.',
     save: 'Diesen Avatar behalten',
     back: 'Zurück',
     milestone: (milestone) => {
