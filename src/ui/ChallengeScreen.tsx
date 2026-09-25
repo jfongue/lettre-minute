@@ -317,7 +317,6 @@ interface ChallengeScreenProps {
 
 /** One challenge, opened from the home screen: to play, under way, or over. */
 export function ChallengeScreen({ id, onPlay, onRematch, onBack }: ChallengeScreenProps) {
-  const t = useT()
   const [detail, setDetail] = useState<ChallengeDetail | null | 'loading'>('loading')
   const load = () => fetchChallenge(id).then(setDetail)
 
@@ -333,6 +332,18 @@ export function ChallengeScreen({ id, onPlay, onRematch, onBack }: ChallengeScre
     if (finished) markChallengeSeen(id, 'recap')
   }, [finished, id])
 
+  return <ChallengeView detail={detail} onPlay={onPlay} onRematch={onRematch} onBack={onBack} onChanged={load} />
+}
+
+interface ChallengeViewProps extends Omit<ChallengeScreenProps, 'id'> {
+  detail: ChallengeDetail | null | 'loading'
+  onChanged(): void
+}
+
+/** The challenge screen once read: the debug board shows it without a server. */
+export function ChallengeView({ detail, onPlay, onRematch, onBack, onChanged }: ChallengeViewProps) {
+  const t = useT()
+  const finished = detail !== 'loading' && detail !== null && detail.finished
   const me: ChallengePlayer | undefined = detail !== 'loading' && detail ? detail.players.find((player) => player.me) : undefined
 
   return (
@@ -381,7 +392,7 @@ export function ChallengeScreen({ id, onPlay, onRematch, onBack }: ChallengeScre
               </button>
             </>
           ) : (
-            <ChallengeBoard detail={detail} onChanged={load} />
+            <ChallengeBoard detail={detail} onChanged={onChanged} />
           )}
         </>
       )}

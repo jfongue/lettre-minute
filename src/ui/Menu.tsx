@@ -64,6 +64,8 @@ interface MenuProps {
   moderation: ModerationStatus | null
   onModerate(): void
   onRequestsSeen(): void
+  /** Seven quick taps on « Thème »: the debug board, hidden from players. */
+  onDebug(): void
   onClose(): void
 }
 
@@ -160,6 +162,7 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               onLocale={props.onLocale}
               sound={props.sound}
               onSound={props.onSound}
+              onDebug={props.onDebug}
             />
           )}
         </div>
@@ -483,10 +486,23 @@ interface OptionsPaneProps {
   onLocale(locale: Locale): void
   sound: SoundPrefs
   onSound(sound: SoundPrefs): void
+  onDebug(): void
 }
 
-function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound }: OptionsPaneProps) {
+const DEBUG_TAPS = 7
+const DEBUG_TAP_GAP_MS = 600
+
+function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onDebug }: OptionsPaneProps) {
   const t = useT()
+  const taps = useRef({ count: 0, at: 0 })
+  const tapTitle = () => {
+    const now = Date.now()
+    taps.current = { count: now - taps.current.at < DEBUG_TAP_GAP_MS ? taps.current.count + 1 : 1, at: now }
+    if (taps.current.count >= DEBUG_TAPS) {
+      taps.current = { count: 0, at: 0 }
+      onDebug()
+    }
+  }
   // Once an ad has asked for consent, EU law requires a way back to that form.
   const [adChoices, setAdChoices] = useState(false)
   useEffect(() => {
@@ -499,7 +515,9 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound }: Optio
   return (
     <>
       <section className="stack">
-        <p className="section-title">{t.options.theme}</p>
+        <p className="section-title" onClick={tapTitle}>
+          {t.options.theme}
+        </p>
         <div className="layer-tabs" role="radiogroup" aria-label={t.options.theme}>
           {THEMES.map((id) => (
             <button

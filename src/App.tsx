@@ -70,6 +70,7 @@ import {
 import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
 import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
 import { useElapsed } from './state/useElapsed'
+import { DebugBoard } from './debug/DebugBoard'
 import type { AccountActions } from './ui/AccountPanel'
 import { AvatarScreen } from './ui/AvatarScreen'
 import { ChallengeNotice } from './ui/ChallengeHome'
@@ -166,6 +167,8 @@ export function App() {
   const pushing = useRef<Promise<unknown>>(Promise.resolve())
   const profile = useRef(session.profile)
   profile.current = session.profile
+  // Hidden: seven taps on « Thème » in the options, or #debug on the web.
+  const [debugPhase, setDebugPhase] = useState<string | null>(() => (window.location.hash === '#debug' ? 'home' : null))
 
   // Written only once the cached account has been read, or the first render's
   // null would erase it.
@@ -674,6 +677,22 @@ export function App() {
   const quietHome = session.phase === 'home' && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
   const notice = quietHome ? challengeNotice(challenges, heldNotices) : null
 
+  if (debugPhase !== null && locale !== null) {
+    return (
+      <MessagesContext value={t}>
+        <main className={`stage stage--${debugPhase}${isNativeApp() ? '' : ' stage--muteable'}`}>
+          <DebugBoard
+            onPhase={setDebugPhase}
+            onClose={() => {
+              if (window.location.hash === '#debug') window.history.replaceState(null, '', window.location.pathname + window.location.search)
+              setDebugPhase(null)
+            }}
+          />
+        </main>
+      </MessagesContext>
+    )
+  }
+
   if (locale === null) {
     return (
       <main className="stage stage--home">
@@ -831,6 +850,10 @@ export function App() {
             setModerating(true)
           }}
           onRequestsSeen={refreshModeration}
+          onDebug={() => {
+            setMenuPage(null)
+            setDebugPhase('home')
+          }}
           onErase={async () => {
             // The device keeps its copy until the server has let go of its
             // own: a failed erase must not leave the player half-deleted.

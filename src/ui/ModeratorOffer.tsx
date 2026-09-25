@@ -16,10 +16,12 @@ interface ModeratorOfferProps {
   /** Closed without answering: offered again next time. */
   onLater(): void
   onModerate(): void
+  /** The server call, replaced on the debug board so an answer there changes nothing. */
+  answerOffer?: typeof answerModeratorOffer
 }
 
 /** A small card that asks, never insists: « Non merci » is as large as « J’en suis ». */
-export function ModeratorOffer({ reason, invitedBy, anonymous, onAccount, onAnswered, onLater, onModerate }: ModeratorOfferProps) {
+export function ModeratorOffer({ reason, invitedBy, anonymous, onAccount, onAnswered, onLater, onModerate, answerOffer = answerModeratorOffer }: ModeratorOfferProps) {
   const t = useT()
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -27,7 +29,7 @@ export function ModeratorOffer({ reason, invitedBy, anonymous, onAccount, onAnsw
 
   const answer = async (accept: boolean) => {
     setBusy(true)
-    const ok = await answerModeratorOffer(reason, accept)
+    const ok = await answerOffer(reason, accept)
     setBusy(false)
     setFailed(!ok)
     if (!ok) return

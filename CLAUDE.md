@@ -219,3 +219,16 @@ qu'un nouvel arrivant casserait sans le savoir.
 - Pas de gestion d'erreur pour des cas qui ne peuvent pas se produire côté
   domaine : la saisie du joueur, Wikidata et Supabase sont les seules frontières
   à valider.
+
+## Planche debug
+
+- **Tout écran difficile d'accès a son scénario dans `src/debug/DebugBoard.tsx`**
+  (fin de partie avec offre, défi, offre de modérateur, notification…) : dès
+  qu'on en crée un, on l'y ajoute. On l'ouvre par sept tapes rapides sur
+  « Thème » dans les options, ou `#debug` sur le web, dans n'importe quel
+  build. Elle montre les vrais composants avec des données inventées et
+  n'écrit jamais sur le serveur : un écran qui appelle `cloud.ts` pour
+  écrire reçoit une doublure en prop (`answerOffer` de `ModeratorOffer`),
+  un écran qui charge lui-même ses données se découpe en chargeur + vue
+  (`ChallengeScreen` / `ChallengeView`). Outil de développeur : ses
+  libellés restent en français, hors de l'i18n.

@@ -4757,3 +4757,46 @@ button {
 .trophy-who {
   overflow-wrap: anywhere;
 }
+
+/* --------------------------------------------------------- planche debug - */
+.debug-list {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.debug-item {
+  appearance: none;
+  display: grid;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.debug-item:hover {
+  background: var(--paper-2);
+}
+
+.debug-scene {
+  display: contents;
+}
+
+/* À gauche : la sourdine du web tient le coin droit. */
+.debug-bar {
+  position: fixed;
+  left: calc(1rem + env(safe-area-inset-left, 0px));
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  z-index: 70;
+  display: flex;
+  gap: 0.25rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+}
