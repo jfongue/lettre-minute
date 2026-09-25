@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process'
 import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { compactWord } from '../src/domain/text.ts'
+import { capitalized, compactWord } from '../src/domain/text.ts'
 import type { WordRow } from '../src/domain/words.ts'
 
 /**
@@ -37,7 +37,10 @@ for (const [lang, categories] of Object.entries(reserve)) {
     let kept = 0
     for (const display of words) {
       if (known.has(compactWord(display))) continue
-      const word = display.trim()
+      // A house bot proposes them, and a proposal reads as a name — « Omoplate »
+      // —, unless the spelling already carries its own capitals (eBay, YouTube).
+      const trimmed = display.trim()
+      const word = trimmed === trimmed.toLowerCase() ? capitalized(trimmed) : trimmed
       rows.push(`(${quote(scoped(lang, categoryId))}, ${quote(scoped(lang, word.toLowerCase()))}, ${quote(word)})`)
       kept++
     }
