@@ -120,8 +120,9 @@ export function App() {
   const [menuPage, setMenuPage] = useState<MenuPage | null>(null)
   const menuOpen = menuPage !== null
   const [accountMode, setAccountMode] = useState<AccountMode>('register')
-  // The very first « Jouer » teaches one word before the clock starts.
-  const [tutorial, setTutorial] = useState(false)
+  // The very first « Jouer » teaches one word before the clock starts; the
+  // lesson then stays up while the run loads.
+  const [tutorial, setTutorial] = useState<'teaching' | 'launching' | null>(null)
   const closeMenu = useCallback(() => setMenuPage(null), [])
   const [history, setHistory] = useState<RunRecord[]>([])
   const [theme, setTheme] = useState<Theme>(loadTheme)
@@ -460,14 +461,14 @@ export function App() {
   const startFirstRun = useCallback(() => {
     if (session.profile.runs > 0 || loadTutorialDone()) return play()
     setMenuPage(null)
-    setTutorial(true)
+    setTutorial('teaching')
   }, [session.profile.runs, play])
   // The answer was just handed over: the run that follows must not deal the
   // same pair. `lastPrompts` already keeps it out, and the run's own prompts
   // replace it once it ends.
   const endTutorial = useCallback(() => {
     saveTutorialDone()
-    setTutorial(false)
+    setTutorial('launching')
     const banned = promptKey(tutorialPrompt(t))
     const { lastPrompts } = profile.current
     if (!lastPrompts.includes(banned)) {
@@ -475,6 +476,12 @@ export function App() {
     }
     play()
   }, [play, t])
+  // Dropped only once the run is loaded, or the home screen would flash
+  // between the lesson and the countdown. A failed load lands home with its
+  // error, where it belongs.
+  useEffect(() => {
+    if (tutorial === 'launching' && session.phase !== 'loading') setTutorial(null)
+  }, [tutorial, session.phase])
 
   const named = account !== null && !account.anonymous
   const refreshChallenges = useCallback(() => {
@@ -729,7 +736,7 @@ export function App() {
   return (
     <MessagesContext value={t}>
     <main className={`stage stage--${tutorial ? 'playing' : session.phase}${isNativeApp() ? '' : ' stage--muteable'}`}>
-      {tutorial && session.phase === 'home' && <TutorialScreen lang={lang} onDone={endTutorial} />}
+      {tutorial && (session.phase === 'home' || session.phase === 'loading') && <TutorialScreen lang={lang} onDone={endTutorial} />}
 
       {editingAvatar && (
         <AvatarScreen
