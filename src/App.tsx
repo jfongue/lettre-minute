@@ -61,7 +61,7 @@ import {
 import { complicationDue, type PowerId } from './domain/powers'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
-import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
+import { adsDue, categoryGiftOffer, dealLineup, giftCategory, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { commonWord, withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
 import { standingMove } from './domain/standing'
@@ -93,6 +93,7 @@ import { AvatarScreen } from './ui/AvatarScreen'
 import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
 import { PowerGiftPop, WordsNewsPop } from './ui/WordsNews'
+import { CategoryGiftPop } from './ui/CategoryGiftPop'
 import { ChallengePowers } from './ui/ChallengePowers'
 import { ChallengeSetup, type ChallengeRules } from './ui/ChallengeSetup'
 import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
@@ -1061,6 +1062,19 @@ export function App() {
         wordsNews.length === 0 &&
         complicationDue(session.profile, acceptedWords) && (
           <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
+        )}
+
+      {!notice &&
+        quietHome &&
+        update !== 'due' &&
+        !(moderation?.offer && !offerHeld) &&
+        wordsNews.length === 0 &&
+        !complicationDue(session.profile, acceptedWords) &&
+        categoryGiftOffer(session.profile, availableCategoryIds(lang)).length > 0 && (
+          <CategoryGiftPop
+            offer={categoryGiftOffer(session.profile, availableCategoryIds(lang))}
+            onChoose={(categoryId) => dispatch({ type: 'profile-loaded', profile: giftCategory(session.profile, categoryId) })}
+          />
         )}
 
       {menuOpen && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (

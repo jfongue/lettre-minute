@@ -67,6 +67,11 @@ export const nl: Messages = {
     joined: 'doet nu mee in je potjes',
   },
 
+  categoryGift: {
+    title: 'Nieuwe categorieën!',
+    lead: 'Je had al alles ontgrendeld: kies er een als cadeau.',
+  },
+
   over: {
     timeUp: 'Tijd is om',
     points: 'punten',

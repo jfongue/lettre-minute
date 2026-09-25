@@ -73,6 +73,11 @@ export const en: Messages = {
     joined: 'joins your games',
   },
 
+  categoryGift: {
+    title: 'New categories!',
+    lead: 'You’d already unlocked everything — pick one as a gift.',
+  },
+
   over: {
     timeUp: 'Time’s up',
     points: 'points',

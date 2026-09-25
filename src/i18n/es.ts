@@ -68,6 +68,11 @@ export const es: Messages = {
     joined: 'se suma a tus partidas',
   },
 
+  categoryGift: {
+    title: '¡Nuevas categorías!',
+    lead: 'Ya lo habías desbloqueado todo: elige una de regalo.',
+  },
+
   over: {
     timeUp: 'Se acabó el tiempo',
     points: 'puntos',

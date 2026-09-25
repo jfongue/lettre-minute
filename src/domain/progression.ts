@@ -58,6 +58,12 @@ export interface Profile {
   usage: Readonly<Record<string, number>>
   /** Categories picked at level ups, on top of the starters. */
   unlocked: readonly string[]
+  /**
+   * Categories owned without a pick, such as a new wave's gift to a player
+   * who had already unlocked everything else — kept apart from `unlocked` so
+   * `picksOwed` doesn't count one as a level-up pick spent.
+   */
+  gifted: readonly string[]
   /** The categories on the table while a pick is owed; empty otherwise. */
   offer: readonly string[]
   /** The previous offer, which the next one avoids repeating. */
@@ -84,6 +90,7 @@ export const NEW_PROFILE: Profile = {
   bestCombo: 0,
   usage: {},
   unlocked: [],
+  gifted: [],
   offer: [],
   lastOffer: [],
   lastPrompts: [],

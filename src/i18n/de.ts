@@ -67,6 +67,11 @@ export const de: Messages = {
     joined: 'ist jetzt in deinen Spielen',
   },
 
+  categoryGift: {
+    title: 'Neue Kategorien!',
+    lead: 'Du hattest schon alles freigeschaltet: Wähl dir eine davon als Geschenk aus.',
+  },
+
   over: {
     timeUp: 'Zeit ist um',
     points: 'Punkte',

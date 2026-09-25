@@ -19,6 +19,7 @@ import { OverScreen } from '../ui/OverScreen'
 import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
 import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
+import { CategoryGiftPop } from '../ui/CategoryGiftPop'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
 import type { Boards } from '../domain/boards'
@@ -639,6 +640,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le Play Store a une version plus récente',
     phase: 'home',
     render: (back) => <UpdateNotice onLater={back} onUpdate={back} />,
+  },
+  {
+    id: 'category-gift',
+    group: 'Accueil',
+    title: 'Cadeau des nouvelles catégories',
+    how: 'Joueur qui avait déjà tout débloqué avant la vague : choix d’une des trois offerte',
+    phase: 'home',
+    render: (back) => <CategoryGiftPop offer={['prenoms', 'objets', 'plantes']} onChoose={back} />,
   },
   {
     id: 'tutorial',
