@@ -239,6 +239,8 @@ export const en: Messages = {
     history: (count) => `Full history (${count})`,
     hideHistory: 'Fold the history',
     more: 'Show more',
+    hiddenChallenges: (count) => `Hidden challenges (${count})`,
+    unhide: 'Show again',
     runLine: (words, combo) => `${words} ${plural(words, 'word', 'words')} · streak of ${combo}`,
     topWords: 'Words you say most',
     times: (count) => `${count} ${plural(count, 'time', 'times')}`,

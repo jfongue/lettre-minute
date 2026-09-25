@@ -53,14 +53,27 @@ export function loadHiddenChallenges(): Record<string, string> {
   }
 }
 
-export function hideChallenge(hidden: Record<string, string>, challenge: Stamped): Record<string, string> {
-  const next = { ...hidden, [challenge.id]: stampOf(challenge) }
+/** Sent on the window each time the hidden set changes: the home list and the statistics both read it. */
+export const HIDDEN_CHANGED = 'lettre-minute:hidden-challenges'
+
+function saveHidden(next: Record<string, string>): Record<string, string> {
   try {
     localStorage.setItem(HIDDEN_KEY, JSON.stringify(next))
   } catch {
     /* hidden until the app closes */
   }
+  window.dispatchEvent(new Event(HIDDEN_CHANGED))
   return next
+}
+
+export function hideChallenge(hidden: Record<string, string>, challenge: Stamped): Record<string, string> {
+  return saveHidden({ ...hidden, [challenge.id]: stampOf(challenge) })
+}
+
+export function unhideChallenge(hidden: Record<string, string>, id: string): Record<string, string> {
+  const next = { ...hidden }
+  delete next[id]
+  return saveHidden(next)
 }
 
 /** The recap's own « Masquer »: the detail stamped as the list will read it. */

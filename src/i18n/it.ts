@@ -234,6 +234,8 @@ export const it: Messages = {
     history: (count) => `Tutta la cronologia (${count})`,
     hideHistory: 'Chiudi la cronologia',
     more: 'Mostra altro',
+    hiddenChallenges: (count) => `Sfide nascoste (${count})`,
+    unhide: 'Mostra di nuovo',
     runLine: (words, combo) => `${words} ${plural(words, 'parola', 'parole')} · serie di ${combo}`,
     topWords: 'Le parole che dici di più',
     times: (count) => `${count} ${plural(count, 'volta', 'volte')}`,

@@ -233,6 +233,8 @@ export const nl: Messages = {
     history: (count) => `Hele geschiedenis (${count})`,
     hideHistory: 'Geschiedenis inklappen',
     more: 'Meer tonen',
+    hiddenChallenges: (count) => `Verborgen uitdagingen (${count})`,
+    unhide: 'Weer tonen',
     runLine: (words, combo) => `${words} ${plural(words, 'woord', 'woorden')} · reeks van ${combo}`,
     topWords: 'Je vaakst gezegde woorden',
     times: (count) => `${count} keer`,

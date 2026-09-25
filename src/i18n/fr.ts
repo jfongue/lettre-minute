@@ -257,6 +257,8 @@ export const fr = {
     history: (count: number) => `Tout l’historique (${count})`,
     hideHistory: 'Replier l’historique',
     more: 'Afficher plus',
+    hiddenChallenges: (count: number) => `Défis masqués (${count})`,
+    unhide: 'Réafficher',
     runLine: (words: number, combo: number) => `${words} ${plural(words, 'mot', 'mots')} · série de ${combo}`,
     topWords: 'Mots les plus dits',
     times: (count: number) => `${count} fois`,

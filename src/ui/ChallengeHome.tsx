@@ -3,8 +3,15 @@ import { useT } from '../i18n'
 import type { ChallengeSummary } from '../lib/cloud'
 import { Burst, Shape } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
-import { challengeStatus, challengeTitle, hideChallenge, hoursLeft, isHidden, loadHiddenChallenges } from '../state/challenges'
+import {
+  challengeStatus,
+  challengeTitle,
+  hideChallenge,
+  hoursLeft,
+  isHidden,
+} from '../state/challenges'
 import { categoryMotif, onTint } from './motifs'
+import { useHiddenChallenges } from '../state/useHiddenChallenges'
 
 interface ChallengeListProps {
   challenges: readonly ChallengeSummary[]
@@ -15,7 +22,7 @@ interface ChallengeListProps {
 /** Under « Jouer »: the challenges under way and those just over, and the way to start one. */
 export function ChallengeList({ challenges, onOpen, onCreate }: ChallengeListProps) {
   const t = useT()
-  const [hidden, setHidden] = useState(loadHiddenChallenges)
+  const hidden = useHiddenChallenges()
   const shown = challenges.filter((challenge) => !isHidden(hidden, challenge))
   return (
     <section className="panel challenges">
@@ -53,7 +60,7 @@ export function ChallengeList({ challenges, onOpen, onCreate }: ChallengeListPro
             return (
               <li key={challenge.id} style={{ '--i': index } as CSSProperties}>
                 {challenge.finished ? (
-                  <Dismissable label={t.challenge.ignore} onDismiss={() => setHidden((current) => hideChallenge(current, challenge))}>
+                  <Dismissable label={t.challenge.ignore} onDismiss={() => hideChallenge(hidden, challenge)}>
                     {(open) => row(open(() => onOpen(challenge.id)))}
                   </Dismissable>
                 ) : (

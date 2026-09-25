@@ -968,6 +968,11 @@ export function App() {
           page={menuPage}
           profile={session.profile}
           history={history}
+          challenges={named ? challenges : null}
+          onChallenge={(id) => {
+            setMenuPage(null)
+            setChallengeOpen(id)
+          }}
           avatar={avatar}
           account={account}
           accountActions={accountActions}

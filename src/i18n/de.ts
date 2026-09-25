@@ -233,6 +233,8 @@ export const de: Messages = {
     history: (count) => `Ganzer Verlauf (${count})`,
     hideHistory: 'Verlauf einklappen',
     more: 'Mehr zeigen',
+    hiddenChallenges: (count) => `Ausgeblendete Duelle (${count})`,
+    unhide: 'Wieder zeigen',
     runLine: (words, combo) => `${words} ${plural(words, 'Wort', 'Wörter')} · Serie von ${combo}`,
     topWords: 'Deine häufigsten Wörter',
     times: (count) => `${count}-mal`,

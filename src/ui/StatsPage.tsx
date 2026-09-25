@@ -6,6 +6,9 @@ import { categoryText, formatNumber, useT, type Messages } from '../i18n'
 import { Figure } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
+import type { ChallengeSummary } from '../lib/cloud'
+import { challengeStatus, challengeTitle, isHidden, unhideChallenge } from '../state/challenges'
+import { useHiddenChallenges } from '../state/useHiddenChallenges'
 
 /** Rows added each time the full history is asked for more. */
 const PAGE = 50
@@ -14,12 +17,61 @@ function formatDate(t: Messages, at: number): string {
   return new Date(at).toLocaleString(t.tag, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
-export function StatsPage({ history, profile }: { history: readonly RunRecord[]; profile: Profile }) {
+interface StatsPageProps {
+  history: readonly RunRecord[]
+  profile: Profile
+  /** Null without an account: no challenge was ever hidden. */
+  challenges: readonly ChallengeSummary[] | null
+  onChallenge(id: string): void
+}
+
+export function StatsPage({ history, profile, challenges, onChallenge }: StatsPageProps) {
+  const t = useT()
+  return (
+    <>
+      {history.length === 0 ? <p className="note">{t.stats.empty}</p> : <RunStats history={history} profile={profile} />}
+      {challenges && <HiddenChallenges challenges={challenges} onOpen={onChallenge} />}
+    </>
+  )
+}
+
+/** The challenges swiped away from the home screen, behind a toggle: one tap brings one back. */
+function HiddenChallenges({ challenges, onOpen }: { challenges: readonly ChallengeSummary[]; onOpen(id: string): void }) {
+  const t = useT()
+  const hidden = useHiddenChallenges()
+  const [open, setOpen] = useState(false)
+  const list = challenges.filter((challenge) => isHidden(hidden, challenge))
+  if (list.length === 0) return null
+  return (
+    <section className="stack">
+      <button type="button" className="btn btn--ghost btn--block" aria-expanded={open} onClick={() => setOpen(!open)}>
+        {t.stats.hiddenChallenges(list.length)}
+      </button>
+      {open && (
+        <ul className="run-list">
+          {list.map((challenge) => (
+            <li key={challenge.id}>
+              <button type="button" className="btn btn--quiet menu-start" onClick={() => onOpen(challenge.id)}>
+                {challengeTitle(t, challenge)}
+              </button>
+              <span className="note">
+                {t.challenge.status[challengeStatus(challenge)]} · {formatDate(t, challenge.createdAt)}
+              </span>
+              <button type="button" className="btn btn--quiet btn--muted" onClick={() => unhideChallenge(hidden, challenge.id)}>
+                {t.stats.unhide}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
+
+function RunStats({ history, profile }: { history: readonly RunRecord[]; profile: Profile }) {
   const t = useT()
   const summary = useMemo(() => summarize(history), [history])
   const [shown, setShown] = useState(0)
-
-  if (history.length === 0) return <p className="note">{t.stats.empty}</p>
 
   const trend = summary.trend === null ? null : Math.round(summary.trend)
   const older = history.slice(summary.recent.length)

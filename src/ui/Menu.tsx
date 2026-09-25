@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import type { ChallengeSummary } from '../lib/cloud'
 import type { AvatarChoice } from '../domain/avatar'
 import type { RunRecord } from '../domain/history'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
@@ -80,6 +81,9 @@ interface MenuProps {
   /** Null without a server: nothing about moderation shows. */
   moderation: ModerationStatus | null
   onModerate(): void
+  /** Null without an account; the statistics list the hidden ones. */
+  challenges: readonly ChallengeSummary[] | null
+  onChallenge(id: string): void
   onRequestsSeen(): void
   onClose(): void
 }
@@ -156,7 +160,7 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               <h2 className="subpage-title">{t.menu.pages[sub]}</h2>
             </div>
           )}
-          {sub === 'stats' && <StatsPage history={props.history} profile={props.profile} />}
+          {sub === 'stats' && <StatsPage history={props.history} profile={props.profile} challenges={props.challenges} onChallenge={props.onChallenge} />}
           {sub === 'requests' && (
             <RequestsPage moderation={props.moderation} onModerate={props.onModerate} onSeen={props.onRequestsSeen} />
           )}
