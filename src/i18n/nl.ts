@@ -98,7 +98,7 @@ export const nl: Messages = {
     frameDescription: 'Bedankt dat je Letter Minuut steunt!',
     close: 'Sluiten',
     hello:
-      'Hoi, ik ben Jérémy! Ik ben een kleine Franse ontwikkelaar en maak dit spel in mijn vrije tijd. Als je het leuk vond, zou je steun heel fijn zijn, zelfs 1 euro! Alvast bedankt.',
+      'Hoi, ik ben Jérémy! Ik ben een onafhankelijke Franse ontwikkelaar en maak Lettre Minute in mijn vrije tijd. Vond je het spel leuk, dan helpt jouw steun me enorm, zelfs 1 € telt. Heel erg bedankt!',
     photo: 'Jérémy, de maker van het spel',
   },
 
@@ -559,6 +559,9 @@ export const nl: Messages = {
     matieres: ['Materialen en elementen', 'Hout, ijzer, zuurstof, vuur…'],
     capitales: ['Steden', 'Bij de 5 grootste van hun land'],
     marques: ['Merken', 'Bekende merken'],
+    prenoms: ['Voornamen', 'Van hier en elders, van Emma tot Mohammed'],
+    objets: ['Alledaagse voorwerpen', 'Wat je thuis of in je tas vindt'],
+    plantes: ['Planten', 'Bloemen, bomen, kruiden en struiken'],
   },
 
   colours: {

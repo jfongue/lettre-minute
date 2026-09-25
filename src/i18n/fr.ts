@@ -115,7 +115,7 @@ export const fr = {
     frameDescription: 'Merci de soutenir Lettre Minute !',
     close: 'Fermer',
     hello:
-      'Coucou, je suis Jérémy ! Je suis un petit développeur français et je fais ce jeu sur mon temps libre. Si tu l’as aimé, ton soutien m’aiderait beaucoup, même 1 euro ! Merci d’avance.',
+      'Coucou, moi c’est Jérémy ! Je suis un développeur français indépendant et je crée Lettre Minute sur mon temps libre. Si le jeu t’a plu, ton soutien m’aiderait énormément, même 1 € compte. Merci du fond du cœur !',
     photo: 'Jérémy, le créateur du jeu',
   },
 

@@ -5051,6 +5051,8 @@ button {
   background: var(--paper-2);
   font-size: 0.92rem;
   line-height: 1.4;
+  text-align: justify;
+  hyphens: auto;
   transform-origin: 0 100%;
   animation: bubble-in 420ms var(--ease-spring) 240ms both;
 }

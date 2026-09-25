@@ -99,7 +99,7 @@ export const pt: Messages = {
     frameDescription: 'Obrigado por apoiares Letra Minuto!',
     close: 'Fechar',
     hello:
-      'Olá, sou o Jérémy! Sou um pequeno desenvolvedor francês e faço este jogo nos meus tempos livres. Se gostaste, o teu apoio ajudaria muito, mesmo que fosse 1 euro! Obrigado desde já.',
+      'Olá, sou o Jérémy! Sou um programador francês independente e crio o Lettre Minute nos meus tempos livres. Se gostaste do jogo, o teu apoio ajudava-me imenso, até 1 € conta. Obrigado de coração!',
     photo: 'Jérémy, o criador do jogo',
   },
 
@@ -560,6 +560,9 @@ export const pt: Messages = {
     matieres: ['Materiais e elementos', 'Madeira, ferro, oxigênio, fogo…'],
     capitales: ['Cidades', 'Entre as 5 maiores do seu país'],
     marques: ['Marcas', 'Marcas conhecidas'],
+    prenoms: ['Nomes próprios', 'Daqui e de fora, de Maria a Mohammed'],
+    objets: ['Objetos do dia a dia', 'O que se encontra em casa ou na mala'],
+    plantes: ['Plantas', 'Flores, árvores, ervas e arbustos'],
   },
 
   colours: {
