@@ -158,6 +158,8 @@ export const pt: Messages = {
     entered: (place) => `Entrada · ${place}`,
     climbed: (places, place) => `+${places} ${plural(places, 'posição', 'posições')} · ${place}`,
     held: (place) => `Ainda ${place}`,
+    more: (count) => `Ver o ranking completo (${count})`,
+    less: 'Ver menos',
   },
 
   menu: {
@@ -175,6 +177,7 @@ export const pt: Messages = {
     offline: 'Offline: seu progresso fica neste aparelho.',
     back: 'Voltar',
     pages: { stats: 'Estatísticas', requests: 'Minhas sugestões', categories: 'Minhas categorias' },
+    support: 'Apoiar o criador',
   },
 
   social: {
@@ -214,6 +217,8 @@ export const pt: Messages = {
       forbidden: () => 'Só um moderador pode nomear outro.',
       unreachable: () => 'O servidor não responde. Tente de novo daqui a pouco.',
     },
+    blocked: 'Bloqueados',
+    unblock: 'Desbloquear',
   },
 
   stats: {
@@ -495,6 +500,50 @@ export const pt: Messages = {
     xpBonus: (percent) => `incluindo ${percent} % de bónus de desafio`,
     home: 'Início',
     back: 'Voltar',
+    ignore: 'Ocultar',
+    raceTitle: 'A corrida',
+    raceHint: 'Desliza o dedo pelo gráfico',
+    raceAt: (second) => `aos ${second} s`,
+    reactLabel: 'Reagir',
+    noReaction: 'Ainda ninguém reagiu.',
+    reactHint: 'Toca num troféu ou numa palavra para reagir.',
+    moreStats: 'Mais estatísticas',
+    lessStats: 'Menos estatísticas',
+  },
+
+  player: {
+    open: (name) => `O que fazer com ${name}?`,
+    befriend: 'Adicionar como amigo',
+    block: 'Bloquear',
+    blockConfirm: 'Bloquear',
+    blockWarning: (name) =>
+      `Bloquear ${name}? Você não vai mais receber os pedidos de amizade nem os desafios dele(a), e a amizade entre vocês termina.`,
+    blocked: {
+      blocked: (name) => `${name} está bloqueado.`,
+      self: () => 'Esse é você!',
+      unknown: (name) => `Nenhuma conta se chama ${name}.`,
+      anonymous: () => 'Crie uma conta para bloquear um jogador.',
+      unreachable: () => 'Servidor inacessível. Tente de novo.',
+    },
+    close: 'Fechar',
+  },
+
+  ideas: {
+    open: 'Caixa de ideias',
+    title: 'Caixa de ideias',
+    lead: 'Uma ideia para o jogo, uma categoria que falta, um problema? O criador lê tudo.',
+    placeholder: 'Sua ideia…',
+    send: 'Enviar',
+    sent: 'Obrigado! Sua ideia foi enviada.',
+    failed: 'Sua ideia não foi enviada. Verifique sua conexão e tente de novo.',
+    close: 'Fechar',
+  },
+
+  update: {
+    title: 'Nova versão',
+    lead: 'Uma versão mais recente do Lettre Minute está à sua espera na Play Store.',
+    later: 'Mais tarde',
+    go: 'Atualizar',
   },
 
   tiers: { courant: 'comum', 'peu commun': 'incomum', rare: 'rara', 'très rare': 'muito rara' },

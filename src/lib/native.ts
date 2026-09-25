@@ -3,6 +3,7 @@ import {
   AdmobConsentStatus,
   InterstitialAdPluginEvents,
 } from '@capacitor-community/admob'
+import { AppUpdate, AppUpdateAvailability } from '@capawesome/capacitor-app-update'
 import { App as NativeApp } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 import { Haptics, ImpactStyle } from '@capacitor/haptics'
@@ -348,4 +349,27 @@ export function donationFrameUrl(description: string): string | null {
 export function storeUrl(): string | null {
   if (Capacitor.getPlatform() === 'ios') return null
   return 'https://play.google.com/store/apps/details?id=fr.lettreminute.app'
+}
+
+/**
+ * Whether the Play Store has a newer build than the one running. Both checks
+ * matter: `updateAvailability` can lag `availableVersionCode` right after a
+ * release, before the store has finished flagging installs as outdated.
+ */
+export async function storeUpdateAvailable(): Promise<boolean> {
+  if (!native) return false
+  try {
+    const info = await AppUpdate.getAppUpdateInfo()
+    if (info.updateAvailability === AppUpdateAvailability.UPDATE_AVAILABLE) return true
+    if (!info.availableVersionCode) return false
+    return Number(info.availableVersionCode) > Number(info.currentVersionCode)
+  } catch {
+    return false
+  }
+}
+
+/** Sends the player to the Play Store listing to install the pending update. */
+export function openStoreUpdate(): Promise<void> {
+  if (!native) return Promise.resolve()
+  return AppUpdate.openAppStore().catch(() => {})
 }

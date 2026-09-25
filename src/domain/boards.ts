@@ -33,3 +33,24 @@ export function completeBoards(boards: Boards): Boards {
     discoveries: boards.discoveries,
   }
 }
+
+/** Past this many rows, a board opens on the podium and the player's own circle. */
+export const BOARD_FOCUS_LIMIT = 10
+const PODIUM = 3
+
+export interface RankedRow {
+  row: BoardRow
+  rank: number
+}
+
+/**
+ * The rows a long board shows first: the podium, the player and their friends,
+ * each at their real rank. `names` is matched without case, as account names are.
+ */
+export function focusedRows(rows: readonly BoardRow[], names: readonly string[]): { rows: RankedRow[]; more: boolean } {
+  const ranked = rows.map((row, index) => ({ row, rank: index + 1 }))
+  if (rows.length <= BOARD_FOCUS_LIMIT) return { rows: ranked, more: false }
+  const circle = new Set(names.map((name) => name.toLowerCase()))
+  const kept = ranked.filter(({ row, rank }) => rank <= PODIUM || circle.has(row.name.toLowerCase()))
+  return { rows: kept, more: kept.length < ranked.length }
+}

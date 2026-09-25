@@ -1,7 +1,9 @@
-import { useRef, useState } from 'react'
-import type { BoardId, Boards as BoardsData } from '../domain/boards'
+import { useEffect, useRef, useState } from 'react'
+import { focusedRows, type BoardId, type Boards as BoardsData } from '../domain/boards'
 import { formatNumber, useT } from '../i18n'
+import { fetchFriends } from '../lib/cloud'
 import { Avatar } from './Avatar'
+import { PlayerName } from './PlayerSheet'
 
 const BOARDS: readonly BoardId[] = ['day', 'week', 'discoveries']
 
@@ -20,6 +22,15 @@ export function Boards({ boards, me }: BoardsProps) {
   const t = useT()
   const track = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
+  const [whole, setWhole] = useState(false)
+  const [friends, setFriends] = useState<readonly string[]>([])
+  useEffect(() => {
+    let live = true
+    if (me) fetchFriends().then((list) => live && setFriends((list ?? []).filter((friend) => friend.relation === 'friend').map((friend) => friend.name)))
+    return () => {
+      live = false
+    }
+  }, [me])
 
   const show = (index: number) => {
     const element = track.current
@@ -58,30 +69,47 @@ export function Boards({ boards, me }: BoardsProps) {
         }}
       >
         {BOARDS.map((board) => {
-          const rows = boards[board].slice(0, 10)
+          const focused = focusedRows(boards[board], me ? [me, ...friends] : friends)
+          const rows = whole ? boards[board].map((row, index) => ({ row, rank: index + 1 })) : focused.rows
           return (
             <div className="board" key={board} role="tabpanel" aria-label={t.boards[board].label}>
               {rows.length === 0 ? (
                 <p className="note board-empty">{t.boards[board].empty}</p>
               ) : (
                 <div className="standings">
-                  {rows.map((row, index) => (
-                    <div
-                      className={`standing${index === 0 ? ' standing--leader' : ''}${
-                        me && row.name.toLowerCase() === me.toLowerCase() ? ' standing--me' : ''
-                      }`}
-                      key={`${row.name}-${index}`}
-                    >
-                      <span className="rank">{index + 1}</span>
-                      <Avatar choice={row.avatar} size="sm" />
-                      <span className="name">{row.name}</span>
-                      <span className="points">
-                        {formatNumber(t, row.value)}
-                        {board === 'discoveries' && <small> {t.boards.words(row.value)}</small>}
-                      </span>
-                    </div>
-                  ))}
+                  {rows.map(({ row, rank }, index) => {
+                    const mine = me !== null && row.name.toLowerCase() === me.toLowerCase()
+                    // A gap in the ranks says rows were left out between them.
+                    const gap = index > 0 && rank - rows[index - 1]!.rank > 1
+                    return (
+                      <div
+                        className={`standing${rank === 1 ? ' standing--leader' : ''}${mine ? ' standing--me' : ''}${gap ? ' standing--gap' : ''}`}
+                        key={`${row.name}-${rank}`}
+                      >
+                        <span className="rank">{rank}</span>
+                        <Avatar choice={row.avatar} size="sm" />
+                        <span className="name">
+                          {mine ? (
+                            row.name
+                          ) : (
+                            <PlayerName name={row.name} avatar={row.avatar}>
+                              {row.name}
+                            </PlayerName>
+                          )}
+                        </span>
+                        <span className="points">
+                          {formatNumber(t, row.value)}
+                          {board === 'discoveries' && <small> {t.boards.words(row.value)}</small>}
+                        </span>
+                      </div>
+                    )
+                  })}
                 </div>
+              )}
+              {(focused.more || whole) && (
+                <button type="button" className="btn btn--quiet board-more" onClick={() => setWhole(!whole)}>
+                  {whole ? t.boards.less : t.boards.more(boards[board].length)}
+                </button>
               )}
             </div>
           )

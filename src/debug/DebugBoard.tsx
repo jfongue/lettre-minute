@@ -15,7 +15,10 @@ import { HomeScreen } from '../ui/HomeScreen'
 import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
 import { OverScreen } from '../ui/OverScreen'
+import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
 import { TutorialScreen } from '../ui/TutorialScreen'
+import { UpdateNotice } from '../ui/UpdateNotice'
+import type { Boards } from '../domain/boards'
 
 /*
  * The debug board: every screen a player only meets by luck or by level,
@@ -29,6 +32,10 @@ import { TutorialScreen } from '../ui/TutorialScreen'
 
 const noop = () => {}
 const later = <T,>(value: T, ms = 400) => new Promise<T>((resolve) => setTimeout(() => resolve(value), ms))
+
+/** A tap on a name asks nothing of the server here. */
+const PLAYER_ACTIONS: PlayerActions = { befriend: () => later('sent'), block: () => later('blocked') }
+
 
 const quietAccount: AccountActions = {
   onRegister: () => later(null),
@@ -50,6 +57,13 @@ const NAMED: Account = {
 const ANONYMOUS: Account = { ...NAMED, name: 'Anonyme', email: null, anonymous: true }
 
 const avatarOf = (design: number, ground: string, shape: string, accent: string): AvatarChoice => ({ design, ground, shape, accent })
+
+const LONG_BOARD = Array.from({ length: 24 }, (_, index) => ({
+  name: index === 14 ? 'Testeur' : `Joueur ${index + 1}`,
+  avatar: avatarOf((index * 7) % 100, 'bleu', 'jaune', 'rouge'),
+  value: 400 - index * 12,
+}))
+const LONG_BOARDS: Boards = { day: LONG_BOARD, week: LONG_BOARD, discoveries: LONG_BOARD.slice(0, 6) }
 
 // ------------------------------------------------------------ fixtures --
 
@@ -205,6 +219,14 @@ function challenge(state: 'to-play' | 'waiting' | 'finished'): ChallengeDetail {
     finished: state === 'finished',
     nextId: null,
     players,
+    reactions:
+      state === 'finished'
+        ? [
+            { target: 'trophy:original', emoji: '👏', playerId: 'lea' },
+            { target: 'trophy:original', emoji: '🔥', playerId: 'tom' },
+            { target: 'word:animaux:chat', emoji: '😂', playerId: 'ines' },
+          ]
+        : [],
   }
 }
 
@@ -298,10 +320,10 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'over-category',
     group: 'Fin de partie',
     title: 'Proposition de catégorie',
-    how: 'Passage au niveau 3 : trois catégories, une à garder',
+    how: 'Passage au niveau 4 : trois catégories, une à garder',
     phase: 'over',
     render: (back) => {
-      const [before, after] = levelUp(2, 3)
+      const [before, after] = levelUp(3, 4)
       return <OverScenario before={before} after={{ ...after, offer: ['sports', 'capitales', 'marques'] }} onBack={back} />
     },
   },
@@ -309,10 +331,10 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'over-power',
     group: 'Fin de partie',
     title: 'Proposition de pouvoir',
-    how: 'Passage au niveau 6 : deux cartes de pouvoir',
+    how: 'Passage au niveau 5 : deux cartes de pouvoir',
     phase: 'over',
     render: (back) => {
-      const [before, after] = levelUp(5, 6)
+      const [before, after] = levelUp(4, 5)
       return <OverScenario before={{ ...before, powers: ['joker'] }} after={{ ...after, powers: ['joker'], powerOffer: ['hush', 'divination'] }} onBack={back} />
     },
   },
@@ -320,10 +342,10 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'over-both',
     group: 'Fin de partie',
     title: 'Catégorie puis pouvoir',
-    how: 'Niveau 4 : la sixième catégorie et le premier pouvoir',
+    how: 'Du niveau 2 au 4 d’un coup : le premier pouvoir (3) et une catégorie (4)',
     phase: 'over',
     render: (back) => {
-      const [before, after] = levelUp(3, 4)
+      const [before, after] = levelUp(2, 4)
       return (
         <OverScenario
           before={before}
@@ -396,7 +418,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Défi clos : bilan',
     how: 'Classement final, trophées, mots partagés et uniques, revanche',
     phase: 'home',
-    render: (back) => <ChallengeView detail={challenge('finished')} onPlay={noop} onRematch={() => later(false)} onBack={back} onChanged={noop} />,
+    render: (back) => <ChallengeView detail={challenge('finished')} onPlay={noop} onRematch={() => later(false)} onReact={() => later(true)} onBack={back} onChanged={noop} />,
   },
   {
     id: 'challenge-to-play',
@@ -404,7 +426,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Défi à jouer',
     how: 'Invité, pas encore joué',
     phase: 'home',
-    render: (back) => <ChallengeView detail={challenge('to-play')} onPlay={back} onRematch={() => later(false)} onBack={back} onChanged={noop} />,
+    render: (back) => <ChallengeView detail={challenge('to-play')} onPlay={back} onRematch={() => later(false)} onReact={() => later(true)} onBack={back} onChanged={noop} />,
   },
   {
     id: 'challenge-waiting',
@@ -412,7 +434,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Défi en attente des autres',
     how: 'Joué, classement provisoire, inviter d’autres amis',
     phase: 'home',
-    render: (back) => <ChallengeView detail={challenge('waiting')} onPlay={noop} onRematch={() => later(false)} onBack={back} onChanged={noop} />,
+    render: (back) => <ChallengeView detail={challenge('waiting')} onPlay={noop} onRematch={() => later(false)} onReact={() => later(true)} onBack={back} onChanged={noop} />,
   },
   {
     id: 'challenge-invite',
@@ -523,6 +545,22 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <DebugHome back={back} newcomer />,
   },
   {
+    id: 'long-boards',
+    group: 'Accueil',
+    title: 'Classement de plus de dix joueurs',
+    how: 'Podium, le joueur et ses amis d’abord, puis « Voir plus » ; un nom ouvre ami / bloquer',
+    phase: 'home',
+    render: (back) => <DebugHome back={back} boards={LONG_BOARDS} />,
+  },
+  {
+    id: 'update',
+    group: 'Accueil',
+    title: 'Notification : nouvelle version',
+    how: 'Le Play Store a une version plus récente',
+    phase: 'home',
+    render: (back) => <UpdateNotice onLater={back} onUpdate={back} />,
+  },
+  {
     id: 'tutorial',
     group: 'Accueil',
     title: 'Tutoriel du premier « Jouer »',
@@ -532,14 +570,24 @@ const SCENARIOS: readonly Scenario[] = [
   },
 ]
 
-function DebugHome({ back, error = false, newcomer = false }: { back(): void; error?: boolean; newcomer?: boolean }) {
+function DebugHome({
+  back,
+  error = false,
+  newcomer = false,
+  boards = null,
+}: {
+  back(): void
+  error?: boolean
+  newcomer?: boolean
+  boards?: Boards | null
+}) {
   return (
     <HomeScreen
       profile={newcomer ? NEW_PROFILE : { ...PROFILE, powers: ['joker', 'hush'], equipped: ['joker'] }}
       error={error ? 'Le dictionnaire n’a pas pu être chargé.' : null}
       loading={false}
       settled
-      boards={null}
+      boards={boards}
       me={newcomer ? null : 'Testeur'}
       avatar={DEFAULT_AVATAR}
       requestsNews={error || newcomer ? 0 : 3}
@@ -575,9 +623,11 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
   if (open) {
     return (
       <>
-        <div key={`${open.id}:${take}`} className="debug-scene">
-          {open.render(() => setOpen(null))}
-        </div>
+        <PlayerActionsContext.Provider value={PLAYER_ACTIONS}>
+          <div key={`${open.id}:${take}`} className="debug-scene">
+            {open.render(() => setOpen(null))}
+          </div>
+        </PlayerActionsContext.Provider>
         <div className="debug-bar">
           <button type="button" className="btn btn--quiet" onClick={() => setOpen(null)}>
             ← Planche

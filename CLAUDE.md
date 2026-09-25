@@ -219,6 +219,22 @@ qu'un nouvel arrivant casserait sans le savoir.
   Edge (`supabase/functions/push/messages.ts`), pas dans `src/i18n/` : il
   suit `challenge.invitePop` et `challenge.overPop`, à tenir alignés.
 
+- **Un blocage ne se dit jamais au bloqué** (`block_player`, 0014) : sa
+  demande suivante répond `sent` sans rien écrire. Toute nouvelle façon
+  d'atteindre un joueur (invitation, message) doit consulter `blocks`. Les
+  actions « ami / bloquer » d'un nom passent par `PlayerActionsContext`
+  (`src/ui/PlayerSheet.tsx`), que la planche debug remplace par des doublures.
+- **Une réaction vise une chaîne que le client compose** (`trophy:<id>`,
+  `word:<catégorie>:<clé>`) : le serveur ne calcule pas les trophées. Changer
+  un identifiant de trophée ou une clé de mot orpheline les réactions déjà
+  données.
+- **Un défi ignoré ne l'est que sur l'appareil** (`hideChallenge`,
+  `src/state/challenges.ts`), sous une empreinte (joués, clos, revanche) : il
+  revient dès qu'elle change.
+- **La boîte à idées part par Resend** (fonction Edge `ideas`, 0015) : sans
+  `RESEND_API_KEY` dans les secrets, les idées s'accumulent en base sans
+  mail.
+
 ## Conventions
 
 - Contenu du jeu (catégories, textes d'interface) en français, avec apostrophe

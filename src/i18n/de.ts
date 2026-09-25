@@ -157,6 +157,8 @@ export const de: Messages = {
     entered: (place) => `Neu dabei · ${place}`,
     climbed: (places, place) => `+${places} ${plural(places, 'Platz', 'Plätze')} · ${place}`,
     held: (place) => `Weiter ${place}`,
+    more: (count) => `Ganze Rangliste ansehen (${count})`,
+    less: 'Weniger anzeigen',
   },
 
   menu: {
@@ -174,6 +176,7 @@ export const de: Messages = {
     offline: 'Offline: Dein Fortschritt bleibt auf diesem Gerät.',
     back: 'Zurück',
     pages: { stats: 'Statistik', requests: 'Meine Vorschläge', categories: 'Meine Kategorien' },
+    support: 'Den Entwickler unterstützen',
   },
 
   social: {
@@ -213,6 +216,8 @@ export const de: Messages = {
       forbidden: () => 'Nur ein Moderator kann einen anderen ernennen.',
       unreachable: () => 'Der Server antwortet nicht. Versuch es gleich noch einmal.',
     },
+    blocked: 'Blockiert',
+    unblock: 'Entsperren',
   },
 
   stats: {
@@ -493,6 +498,50 @@ export const de: Messages = {
     xpBonus: (percent) => `davon ${percent} % Duell-Bonus`,
     home: 'Start',
     back: 'Zurück',
+    ignore: 'Ausblenden',
+    raceTitle: 'Das Rennen',
+    raceHint: 'Wisch mit dem Finger über die Kurve',
+    raceAt: (second) => `bei ${second} s`,
+    reactLabel: 'Reagieren',
+    noReaction: 'Noch niemand hat reagiert.',
+    reactHint: 'Tippe auf eine Trophäe oder ein Wort, um zu reagieren.',
+    moreStats: 'Mehr Statistiken',
+    lessStats: 'Weniger Statistiken',
+  },
+
+  player: {
+    open: (name) => `Was tun mit ${name}?`,
+    befriend: 'Als Freund hinzufügen',
+    block: 'Blockieren',
+    blockConfirm: 'Blockieren',
+    blockWarning: (name) =>
+      `${name} blockieren? Du bekommst keine Freundschaftsanfragen oder Duelle mehr von dieser Person, und eure Freundschaft endet.`,
+    blocked: {
+      blocked: (name) => `${name} ist blockiert.`,
+      self: () => 'Das bist du!',
+      unknown: (name) => `Kein Konto heißt ${name}.`,
+      anonymous: () => 'Erstelle ein Konto, um einen Spieler zu blockieren.',
+      unreachable: () => 'Server nicht erreichbar. Versuch es noch einmal.',
+    },
+    close: 'Schließen',
+  },
+
+  ideas: {
+    open: 'Ideenbox',
+    title: 'Ideenbox',
+    lead: 'Eine Idee für das Spiel, eine fehlende Kategorie, ein Problem? Der Macher liest alles.',
+    placeholder: 'Deine Idee…',
+    send: 'Senden',
+    sent: 'Danke! Deine Idee ist unterwegs.',
+    failed: 'Deine Idee ist nicht angekommen. Prüfe deine Verbindung und versuch es noch einmal.',
+    close: 'Schließen',
+  },
+
+  update: {
+    title: 'Neue Version',
+    lead: 'Eine neuere Version von Lettre Minute wartet auf dich im Play Store.',
+    later: 'Später',
+    go: 'Aktualisieren',
   },
 
   tiers: { courant: 'gängig', 'peu commun': 'ungewöhnlich', rare: 'selten', 'très rare': 'sehr selten' },

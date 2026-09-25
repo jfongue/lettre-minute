@@ -4,12 +4,16 @@ import type { RunRecord } from '../domain/history'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
 import { ADS_ENABLED } from '../domain/unlocks'
 import {
+  blockPlayer,
+  fetchBlocks,
   fetchFriends,
   inviteModerator,
   removeFriend,
   requestFriend,
   respondFriend,
+  unblockPlayer,
   type Account,
+  type BlockedPlayer,
   type Friend,
   type ModerationStatus,
 } from '../lib/cloud'
@@ -22,6 +26,7 @@ import { CategoriesPage } from './CategoriesPage'
 import { PageLinks } from './PageLinks'
 import { RequestsPage } from './RequestsPage'
 import { StatsPage } from './StatsPage'
+import { DonateButton } from './Donate'
 import { useSwipe } from './useSwipe'
 import { Avatar } from './Avatar'
 
@@ -248,6 +253,8 @@ function ProfilePane({
         onOpen={(next) => next !== 'profile' && onPage(next)}
       />
 
+      <DonateButton className="btn btn--ghost btn--block menu-support" label={t.menu.support} />
+
       <div className="menu-foot">
         <EraseData onErase={onErase} />
       </div>
@@ -267,12 +274,16 @@ function SocialPane({
 }) {
   const t = useT()
   const [friends, setFriends] = useState<Friend[] | null | 'loading'>('loading')
+  const [blocks, setBlocks] = useState<BlockedPlayer[]>([])
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const named = account && !account.anonymous
 
-  const refresh = () => fetchFriends().then(setFriends)
+  const refresh = () => {
+    fetchBlocks().then((list) => setBlocks(list ?? []))
+    return fetchFriends().then(setFriends)
+  }
 
   useEffect(() => {
     if (named) refresh()
@@ -352,22 +363,13 @@ function SocialPane({
           <p className="section-title">{t.social.incoming}</p>
           <ul className="friends">
             {incoming.map((friend) => (
-              <li key={friend.id} className="friend">
-                <Avatar choice={friend.avatar} size="sm" />
-                <span className="friend-name">{friend.name}</span>
-                <span className="friend-actions">
-                  <button type="button" className="btn btn--quiet" onClick={() => act(respondFriend(friend.id, true))}>
-                    {t.social.accept}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn--quiet btn--muted"
-                    onClick={() => act(respondFriend(friend.id, false))}
-                  >
-                    {t.social.decline}
-                  </button>
-                </span>
-              </li>
+              <IncomingRow
+                key={friend.id}
+                friend={friend}
+                onAccept={() => act(respondFriend(friend.id, true))}
+                onDecline={() => act(respondFriend(friend.id, false))}
+                onBlock={() => act(blockPlayer(friend.name).then((outcome) => outcome === 'blocked'))}
+              />
             ))}
           </ul>
         </section>
@@ -419,7 +421,75 @@ function SocialPane({
           </ul>
         </section>
       )}
+
+      {blocks.length > 0 && (
+        <section className="stack">
+          <p className="section-title">{t.social.blocked}</p>
+          <ul className="friends">
+            {blocks.map((blocked) => (
+              <li key={blocked.id} className="friend">
+                <Avatar choice={blocked.avatar} size="sm" />
+                <span className="friend-name">{blocked.name}</span>
+                <span className="friend-actions">
+                  <button type="button" className="btn btn--quiet btn--muted" onClick={() => act(unblockPlayer(blocked.id))}>
+                    {t.social.unblock}
+                  </button>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </>
+  )
+}
+
+/** A request can be declined, or its sender blocked — which takes a second, explicit tap. */
+function IncomingRow({
+  friend,
+  onAccept,
+  onDecline,
+  onBlock,
+}: {
+  friend: Friend
+  onAccept(): void
+  onDecline(): void
+  onBlock(): void
+}) {
+  const t = useT()
+  const [confirming, setConfirming] = useState(false)
+  return (
+    <li className="friend">
+      <Avatar choice={friend.avatar} size="sm" />
+      <span className="friend-name">
+        <span>{friend.name}</span>
+        {confirming && <span className="note">{t.player.blockWarning(friend.name)}</span>}
+      </span>
+      <span className="friend-actions">
+        {confirming ? (
+          <>
+            <button type="button" className="btn btn--quiet" onClick={onBlock}>
+              {t.player.blockConfirm}
+            </button>
+            <button type="button" className="btn btn--quiet btn--muted" onClick={() => setConfirming(false)}>
+              {t.cancel}
+            </button>
+          </>
+        ) : (
+          <>
+            <button type="button" className="btn btn--quiet" onClick={onAccept}>
+              {t.social.accept}
+            </button>
+            <button type="button" className="btn btn--quiet btn--muted" onClick={onDecline}>
+              {t.social.decline}
+            </button>
+            <button type="button" className="btn btn--quiet btn--muted" onClick={() => setConfirming(true)}>
+              {t.player.block}
+            </button>
+          </>
+        )}
+      </span>
+    </li>
   )
 }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ChallengeSummary } from '../lib/cloud'
-import { challengeNotice, challengeStatus } from './challenges'
+import { challengeNotice, challengeStatus, hideChallenge, isHidden, loadHiddenChallenges } from './challenges'
 
 function summary(id: string, extra: Partial<ChallengeSummary> = {}): ChallengeSummary {
   return {
@@ -44,5 +44,21 @@ describe('challengeNotice', () => {
       ),
     ).toBeNull()
     expect(challengeStatus(summary('missed', { finished: true }))).toBe('missed')
+  })
+})
+
+describe('hidden challenges', () => {
+  it('stay hidden until something changes, then show again', () => {
+    const store = new Map<string, string>()
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: { getItem: (key: string) => store.get(key) ?? null, setItem: (key: string, value: string) => void store.set(key, value) },
+      configurable: true,
+    })
+    const over = summary('over', { finished: true, mePlayed: true, played: 3 })
+    const hidden = hideChallenge(loadHiddenChallenges(), over)
+    expect(isHidden(loadHiddenChallenges(), over)).toBe(true)
+    expect(isHidden(hidden, summary('other'))).toBe(false)
+    expect(isHidden(hidden, { ...over, nextId: 'rematch' })).toBe(false)
+    Reflect.deleteProperty(globalThis, 'localStorage')
   })
 })

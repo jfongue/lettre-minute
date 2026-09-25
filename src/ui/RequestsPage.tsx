@@ -6,6 +6,7 @@ import {
   correctSubmission,
   fetchMySubmissions,
   markRequestsSeen,
+  submitIdea,
   type ModerationStatus,
   type Submission,
 } from '../lib/cloud'
@@ -162,6 +163,8 @@ export function RequestsPage({ moderation, onModerate, onSeen }: RequestsPagePro
           </ul>
         </details>
       )}
+
+      <IdeaBox />
     </>
   )
 }
@@ -240,6 +243,60 @@ function RequestRow({ entry, fresh, onWithdraw, onCorrect }: RequestRowProps) {
         </>
       )}
     </li>
+  )
+}
+
+const IDEA_MAX = 2000
+
+/** A folded corner at the foot of the page: what the player would like the game to do. */
+function IdeaBox() {
+  const t = useT()
+  const [open, setOpen] = useState(false)
+  const [draft, setDraft] = useState('')
+  const [state, setState] = useState<'idle' | 'busy' | 'sent' | 'failed'>('idle')
+
+  const send = async (event: FormEvent) => {
+    event.preventDefault()
+    if (draft.trim().length < 3) return
+    setState('busy')
+    const ok = await submitIdea(draft, t.tag.slice(0, 2))
+    setState(ok ? 'sent' : 'failed')
+    if (ok) setDraft('')
+  }
+
+  if (!open) {
+    return (
+      <button type="button" className="btn btn--quiet idea-open" onClick={() => setOpen(true)}>
+        {t.ideas.open}
+      </button>
+    )
+  }
+  return (
+    <form className="idea-box stack" onSubmit={send}>
+      <p className="section-title">{t.ideas.title}</p>
+      <p className="note">{t.ideas.lead}</p>
+      <textarea
+        value={draft}
+        onChange={(event) => {
+          setDraft(event.target.value)
+          if (state !== 'busy') setState('idle')
+        }}
+        placeholder={t.ideas.placeholder}
+        aria-label={t.ideas.title}
+        maxLength={IDEA_MAX}
+        rows={4}
+      />
+      {state === 'sent' && <p className="note">{t.ideas.sent}</p>}
+      {state === 'failed' && <p className="note note--warn">{t.ideas.failed}</p>}
+      <div className="spread">
+        <button type="button" className="btn btn--quiet btn--muted" onClick={() => setOpen(false)}>
+          {t.ideas.close}
+        </button>
+        <button type="submit" className="btn btn--blue" disabled={state === 'busy' || draft.trim().length < 3}>
+          {state === 'busy' ? t.wait : t.ideas.send}
+        </button>
+      </div>
+    </form>
   )
 }
 

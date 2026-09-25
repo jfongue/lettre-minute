@@ -280,6 +280,13 @@ export function scoreAt(words: readonly ChallengeWord[], seconds: number): numbe
   return score
 }
 
+/** A settled score at this second of the run: what the recap's race draws. */
+export function settledScoreAt(words: readonly SettledWord[], seconds: number): number {
+  let score = 0
+  for (const word of words) if (word.at <= seconds) score += word.settled
+  return score
+}
+
 export function challengeXp(score: number): number {
   return Math.round(score * XP_PER_POINT * (1 + CHALLENGE_XP_BONUS))
 }

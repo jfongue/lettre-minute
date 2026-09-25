@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { createPortal } from 'react-dom'
 import { newlyEarned, type AvatarChoice } from '../domain/avatar'
 import type { Boards } from '../domain/boards'
 import { capitalized } from '../domain/text'
@@ -8,7 +7,8 @@ import { pickShowsAd, picksOwed } from '../domain/unlocks'
 import type { FoundWord, Run } from '../domain/run'
 import { categoryText, formatNumber, useT } from '../i18n'
 import type { Account, ChallengeDetail } from '../lib/cloud'
-import { adsSupported, DONATION_URL, donationFrameUrl, storeUrl, tapFeedback } from '../lib/native'
+import { adsSupported, storeUrl, tapFeedback } from '../lib/native'
+import { DonateButton } from './Donate'
 import { supportDue } from '../domain/support'
 import { sound, tierSound } from '../lib/sound'
 import { AccountPanel, type AccountActions } from './AccountPanel'
@@ -362,56 +362,19 @@ function Summary({
 function SupportPanel() {
   const t = useT()
   const store = storeUrl()
-  const frame = donationFrameUrl(t.support.frameDescription)
-  const [donating, setDonating] = useState(false)
   return (
     <section className="panel support">
       <p className="section-title">{t.support.title}</p>
       <p>{t.support.lead}</p>
       <div className="support-actions">
-        <a
-          className="btn btn--ghost"
-          href={DONATION_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(event) => {
-            if (!frame) return
-            event.preventDefault()
-            setDonating(true)
-          }}
-        >
-          {t.support.donate}
-        </a>
+        <DonateButton className="btn btn--ghost" label={t.support.donate} />
         {store && (
           <a className="btn btn--ghost" href={store} target="_blank" rel="noopener noreferrer">
             {t.support.rate}
           </a>
         )}
       </div>
-      {donating && frame && <DonationPop src={frame} onClose={() => setDonating(false)} />}
     </section>
-  )
-}
-
-function DonationPop({ src, onClose }: { src: string; onClose(): void }) {
-  const t = useT()
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
-  // Out of the summary: an animated ancestor would pin the layer to itself instead of the window.
-  return createPortal(
-    <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-label={t.support.donate}>
-      <div className="offer-pop-scrim" onClick={onClose} />
-      <div className="offer-pop donation-pop">
-        <iframe className="donation-frame" src={src} title={t.support.donate} allow="payment; publickey-credentials-get *" />
-        <button type="button" className="btn btn--ghost btn--block" onClick={onClose}>
-          {t.support.close}
-        </button>
-      </div>
-    </div>,
-    document.body,
   )
 }
 

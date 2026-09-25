@@ -411,6 +411,49 @@ export function removeFriend(other: string): Promise<boolean> {
   }, false)
 }
 
+export type BlockOutcome = 'blocked' | 'self' | 'unknown' | 'anonymous' | 'unreachable'
+
+/** By name, as a board shows a player: ends the friendship, and their next requests vanish. */
+export function blockPlayer(name: string): Promise<BlockOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('block_player', { p_name: name.trim() })
+    return error ? 'unreachable' : (data as BlockOutcome)
+  }, 'unreachable')
+}
+
+export function unblockPlayer(id: string): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('unblock_player', { p_other: id })
+    return !error
+  }, false)
+}
+
+export interface BlockedPlayer {
+  id: string
+  name: string
+  avatar: AvatarChoice
+}
+
+export function fetchBlocks(): Promise<BlockedPlayer[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('my_blocks')
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      id: row.id as string,
+      name: row.display_name as string,
+      avatar: parseAvatar(row.avatar),
+    }))
+  }, null)
+}
+
+/** Sent as typed; the server trims it and turns away a flood. */
+export function submitIdea(body: string, lang: string): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('submit_idea', { p_body: body, p_lang: lang })
+    return !error && data === true
+  }, false)
+}
+
 /**
  * Erases the player's account and everything tied to it on the server. Answers
  * false only when an existing account could not be erased: without a server
@@ -736,6 +779,16 @@ export interface ChallengePlayer extends ChallengeEntry {
   bot: boolean
 }
 
+export const REACTIONS = ['👏', '😂', '😮', '🔥', '❤️', '🏆'] as const
+export type ReactionEmoji = (typeof REACTIONS)[number]
+
+/** A reaction on the recap: `target` is `trophy:<id>` or `word:<category>:<key>`. */
+export interface Reaction {
+  target: string
+  emoji: ReactionEmoji
+  playerId: string
+}
+
 export interface ChallengeDetail {
   id: string
   ownerName: string
@@ -748,6 +801,7 @@ export interface ChallengeDetail {
   finished: boolean
   nextId: string | null
   players: readonly ChallengePlayer[]
+  reactions: readonly Reaction[]
 }
 
 const time = (value: unknown) => (typeof value === 'string' ? Date.parse(value) || 0 : 0)
@@ -800,9 +854,18 @@ export function fetchChallenges(): Promise<ChallengeSummary[] | null> {
 
 export function fetchChallenge(id: string): Promise<ChallengeDetail | null> {
   return guard(async () => {
-    const { data, error } = await supabase!.rpc('challenge_detail', { p_challenge: id })
+    const [{ data, error }, reacted] = await Promise.all([
+      supabase!.rpc('challenge_detail', { p_challenge: id }),
+      // Before 0014 the call fails: the recap simply shows no reactions.
+      supabase!.rpc('reactions_of_challenge', { p_challenge: id }),
+    ])
     if (error || !data) return null
     const row = data as Record<string, unknown>
+    const reactions = ((reacted.data ?? []) as Record<string, unknown>[]).flatMap((reaction): Reaction[] =>
+      REACTIONS.includes(reaction.emoji as ReactionEmoji)
+        ? [{ target: text(reaction.target), emoji: reaction.emoji as ReactionEmoji, playerId: text(reaction.player_id) }]
+        : [],
+    )
     return withBotRuns({
       id: row.id as string,
       ownerName: text(row.owner_name),
@@ -826,6 +889,7 @@ export function fetchChallenge(id: string): Promise<ChallengeDetail | null> {
         bestCombo: Number(player.best_combo) || 0,
         words: ((player.words ?? []) as unknown[]).map(challengeWord),
       })),
+      reactions,
     })
   }, null)
 }
@@ -872,6 +936,14 @@ export function pushChallengeRun(id: string, run: Run, profile: Profile): Promis
       p_words: challengeWordsOf(run),
     })
     await pushProfile(identity!.userId, profile)
+    return !error && data === true
+  }, false)
+}
+
+/** A null emoji takes the player's reaction back. */
+export function reactInChallenge(id: string, target: string, emoji: ReactionEmoji | null): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('react_in_challenge', { p_challenge: id, p_target: target, p_emoji: emoji })
     return !error && data === true
   }, false)
 }

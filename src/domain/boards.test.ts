@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_AVATAR } from './avatar'
-import { completeBoards, HOUSE_PLAYER, withHousePlayer, type BoardRow } from './boards'
+import { completeBoards, focusedRows, HOUSE_PLAYER, withHousePlayer, type BoardRow } from './boards'
 
 function row(name: string, value: number): BoardRow {
   return { name, avatar: DEFAULT_AVATAR, value }
@@ -32,5 +32,20 @@ describe('completeBoards', () => {
     expect(boards.day).toEqual([HOUSE_PLAYER])
     expect(boards.week).toEqual([HOUSE_PLAYER])
     expect(boards.discoveries).toEqual([])
+  })
+})
+
+describe('focusedRows', () => {
+  const rows = (count: number) => Array.from({ length: count }, (_, index) => ({ name: `p${index + 1}`, avatar: DEFAULT_AVATAR, value: 100 - index }))
+
+  it('shows a short board whole', () => {
+    expect(focusedRows(rows(10), []).rows).toHaveLength(10)
+    expect(focusedRows(rows(10), []).more).toBe(false)
+  })
+
+  it('opens a long one on the podium, the player and friends, at their real rank', () => {
+    const focused = focusedRows(rows(30), ['P12', 'p25'])
+    expect(focused.rows.map((entry) => entry.rank)).toEqual([1, 2, 3, 12, 25])
+    expect(focused.more).toBe(true)
   })
 })

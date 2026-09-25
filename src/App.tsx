@@ -32,7 +32,17 @@ import {
   type ModerationStatus,
   chooseName,
 } from './lib/cloud'
-import { enablePush, isNativeApp, onBackButton, onPush, prepareAds, tapFeedback, type PushData } from './lib/native'
+import {
+  enablePush,
+  isNativeApp,
+  onBackButton,
+  onPush,
+  openStoreUpdate,
+  prepareAds,
+  storeUpdateAvailable,
+  tapFeedback,
+  type PushData,
+} from './lib/native'
 import { configureSound, setHush, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
 import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
 import { appendRecord, recordOf, type RunRecord } from './domain/history'
@@ -76,6 +86,7 @@ import { DebugBoard } from './debug/DebugBoard'
 import type { AccountActions, AccountMode } from './ui/AccountPanel'
 import { AvatarScreen } from './ui/AvatarScreen'
 import { ChallengeNotice } from './ui/ChallengeHome'
+import { UpdateNotice } from './ui/UpdateNotice'
 import { ChallengePowers } from './ui/ChallengePowers'
 import { ChallengeScreen } from './ui/ChallengeScreen'
 import { FriendPicker } from './ui/FriendPicker'
@@ -167,6 +178,8 @@ export function App() {
   const [afterRun, setAfterRun] = useState<ChallengeDetail | 'sending' | 'failed'>('sending')
   // Notices put off with « Plus tard » this session, by challenge id.
   const [heldNotices, setHeldNotices] = useState<readonly string[]>([])
+  // 'later' holds until the app is launched again: one nudge per launch is enough.
+  const [update, setUpdate] = useState<'none' | 'due' | 'later'>('none')
   // The dictionary the run plays: the interface's, or the challenge's own.
   const [runLang, setRunLang] = useState<string | null>(null)
   // Signing in must wait for the run to reach the server: the merge moves the
@@ -503,6 +516,14 @@ export function App() {
     })
   }, [named, answer])
   useEffect(refreshChallenges, [refreshChallenges])
+  useEffect(() => {
+    const check = () =>
+      document.visibilityState === 'visible' &&
+      storeUpdateAvailable().then((due) => due && setUpdate((current) => (current === 'none' ? 'due' : current)))
+    check()
+    document.addEventListener('visibilitychange', check)
+    return () => document.removeEventListener('visibilitychange', check)
+  }, [])
   // Once shown, the home screen stays shown: later answers update it in place.
   // A slow server gets two seconds and a half, not the player's whole wait.
   const homeReady = answered.profile && answered.account && answered.boards && (!named || answered.challenges)
@@ -869,8 +890,19 @@ export function App() {
         />
       )}
 
+      {!notice && quietHome && update === 'due' && (
+        <UpdateNotice
+          onLater={() => setUpdate('later')}
+          onUpdate={() => {
+            setUpdate('later')
+            openStoreUpdate()
+          }}
+        />
+      )}
+
       {!notice &&
         quietHome &&
+        update !== 'due' &&
         !offerHeld &&
         moderation?.offer && (
           <ModeratorOffer

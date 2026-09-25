@@ -1,9 +1,9 @@
-import type { CSSProperties } from 'react'
+import { useRef, useState, type CSSProperties, type ReactNode, type TouchEvent } from 'react'
 import { useT } from '../i18n'
 import type { ChallengeSummary } from '../lib/cloud'
 import { Burst, Shape } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
-import { challengeStatus, challengeTitle, hoursLeft } from '../state/challenges'
+import { challengeStatus, challengeTitle, hideChallenge, hoursLeft, isHidden, loadHiddenChallenges } from '../state/challenges'
 import { categoryMotif, onTint } from './motifs'
 
 interface ChallengeListProps {
@@ -15,6 +15,8 @@ interface ChallengeListProps {
 /** Under « Jouer »: the challenges under way and those just over, and the way to start one. */
 export function ChallengeList({ challenges, onOpen, onCreate }: ChallengeListProps) {
   const t = useT()
+  const [hidden, setHidden] = useState(loadHiddenChallenges)
+  const shown = challenges.filter((challenge) => !isHidden(hidden, challenge))
   return (
     <section className="panel challenges">
       <div className="spread">
@@ -23,16 +25,15 @@ export function ChallengeList({ challenges, onOpen, onCreate }: ChallengeListPro
           {t.challenge.create}
         </button>
       </div>
-      {challenges.length > 0 && (
+      {shown.length > 0 && (
         <ul className="challenge-rows">
-          {challenges.map((challenge, index) => {
+          {shown.map((challenge, index) => {
             const status = challengeStatus(challenge)
             const fresh = (status === 'to-play' && !challenge.seenInvite) || (status === 'finished' && !challenge.seenRecap)
             const lead = challenge.categoryIds[0] ?? ''
             const motif = categoryMotif(lead)
-            return (
-              <li key={challenge.id} style={{ '--i': index } as CSSProperties}>
-                <button type="button" className={`challenge-row challenge-row--${status}`} onClick={() => onOpen(challenge.id)}>
+            const row = (open: () => void) => (
+                <button type="button" className={`challenge-row challenge-row--${status}`} onClick={open}>
                   <span className="challenge-row-mark" style={{ background: `var(--${motif.tint})` }} aria-hidden="true">
                     <CategoryIcon categoryId={lead} tint={onTint(motif.tint)} />
                   </span>
@@ -48,12 +49,95 @@ export function ChallengeList({ challenges, onOpen, onCreate }: ChallengeListPro
                     {fresh && <span className="badge-dot" aria-hidden="true" />}
                   </span>
                 </button>
+            )
+            return (
+              <li key={challenge.id} style={{ '--i': index } as CSSProperties}>
+                {challenge.finished ? (
+                  <Dismissable label={t.challenge.ignore} onDismiss={() => setHidden((current) => hideChallenge(current, challenge))}>
+                    {(open) => row(open(() => onOpen(challenge.id)))}
+                  </Dismissable>
+                ) : (
+                  row(() => onOpen(challenge.id))
+                )}
               </li>
             )
           })}
         </ul>
       )}
     </section>
+  )
+}
+
+const REVEAL_DISTANCE = 50
+const LONG_PRESS_MS = 550
+
+/**
+ * A finished challenge slides left, or answers a long press, to show
+ * « Ignorer ». While it shows, a tap on the row puts it back rather than
+ * opening the challenge.
+ */
+function Dismissable({
+  label,
+  onDismiss,
+  children,
+}: {
+  label: string
+  onDismiss(): void
+  children(open: (go: () => void) => () => void): ReactNode
+}) {
+  const [revealed, setRevealed] = useState(false)
+  const start = useRef<{ x: number; y: number } | null>(null)
+  const press = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const pressed = useRef(false)
+
+  const onTouchStart = (event: TouchEvent) => {
+    const touch = event.touches[0]
+    start.current = touch ? { x: touch.clientX, y: touch.clientY } : null
+    pressed.current = false
+    press.current = setTimeout(() => {
+      pressed.current = true
+      setRevealed(true)
+    }, LONG_PRESS_MS)
+  }
+  const onTouchMove = (event: TouchEvent) => {
+    const touch = event.touches[0]
+    const from = start.current
+    if (!touch || !from) return
+    const dx = touch.clientX - from.x
+    if (Math.abs(dx) > 8 || Math.abs(touch.clientY - from.y) > 8) clearTimeout(press.current)
+    if (dx < -REVEAL_DISTANCE && Math.abs(touch.clientY - from.y) < Math.abs(dx) / 2) setRevealed(true)
+    else if (dx > REVEAL_DISTANCE) setRevealed(false)
+  }
+  const onTouchEnd = () => clearTimeout(press.current)
+
+  return (
+    <div
+      className={`dismissable${revealed ? ' dismissable--revealed' : ''}`}
+      data-no-swipe
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+      onContextMenu={(event) => {
+        // The long press already answered: no browser menu on top of it.
+        event.preventDefault()
+        setRevealed(true)
+      }}
+    >
+      <div className="dismissable-row">
+        {children((go) => () => {
+          // The click that ends a long press is not a tap on the row.
+          if (pressed.current) {
+            pressed.current = false
+            return
+          }
+          if (revealed) setRevealed(false)
+          else go()
+        })}
+      </div>
+      <button type="button" className="dismissable-action" tabIndex={revealed ? 0 : -1} onClick={onDismiss}>
+        {label}
+      </button>
+    </div>
   )
 }
 

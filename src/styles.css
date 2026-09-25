@@ -4641,6 +4641,37 @@ button {
   }
 }
 
+.dismissable {
+  position: relative;
+  overflow: hidden;
+}
+
+.dismissable-row {
+  position: relative;
+  z-index: 1;
+  background: var(--paper);
+  transition: transform 220ms var(--ease-out);
+}
+
+.dismissable--revealed .dismissable-row {
+  transform: translateX(-6.5rem);
+}
+
+.dismissable-action {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 6.5rem;
+  border: 0;
+  background: var(--ink);
+  color: var(--paper);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
 .challenge-lineup {
   display: flex;
   flex-wrap: wrap;
@@ -4809,25 +4840,46 @@ button {
   gap: 0.6rem;
 }
 
-.trophy {
+.trophy-item {
   display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: start;
-  gap: 0.7rem;
-  padding: 0.7rem;
+  align-content: start;
   border: 2px solid var(--ink);
   animation: pop-in 480ms var(--ease-spring) both;
   animation-delay: calc(var(--i, 0) * 90ms);
 }
 
-.trophy-mark {
-  width: 2.2rem;
-  height: 2.2rem;
+.trophy {
+  appearance: none;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: start;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.7rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
-.trophy-mark .shape {
+.trophy-mark {
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  padding: 0.45rem;
+  border-radius: 50%;
+}
+
+.trophy-mark svg {
   width: 100%;
   height: 100%;
+}
+
+.trophy-item .reaction-panel {
+  padding: 0 0.7rem 0.7rem;
 }
 
 .trophy-text {
@@ -4913,6 +4965,245 @@ button {
 /* Un mot de « Tes mots » se déplie sur ce que les autres ont mis au même couple. */
 .challenge-word-item {
   display: grid;
+}
+
+button.challenge-word {
+  grid-template-columns: 1.75rem 1fr auto auto auto;
+}
+
+@media (hover: hover) {
+  button.challenge-word:not(:disabled):hover {
+    background: var(--paper-2);
+  }
+}
+
+/* Ce qui se déplie le dit : un chevron qui se retourne. */
+.row-chevron {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: square;
+  color: var(--ink-soft);
+  transition: transform 200ms var(--ease-out);
+}
+
+.row-chevron--open {
+  transform: rotate(180deg);
+}
+
+.btn .row-chevron {
+  margin-left: 0.4rem;
+  vertical-align: -0.15em;
+  color: currentColor;
+}
+
+/* ------------------------------------------------------------ réactions - */
+.reaction-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.2rem;
+}
+
+.reaction-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.reaction-count small {
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.reaction-count--mine {
+  border-color: var(--ink);
+}
+
+.reaction-panel {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.5rem 0 0.7rem;
+  animation: rise 240ms var(--ease-out) both;
+}
+
+.reaction-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.reaction-pick {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 2px solid var(--rule);
+  border-radius: 50%;
+  background: var(--paper);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-spring);
+}
+
+.reaction-pick:active {
+  transform: scale(0.9);
+}
+
+.reaction-pick--on {
+  border-color: var(--ink);
+  background: var(--yellow);
+  animation: bump 320ms var(--ease-spring);
+}
+
+.reaction-people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.reaction-people li {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+/* --------------------------------------------------------------- course - */
+.score-race-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+
+.score-race-grid {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.score-race-axis {
+  fill: var(--ink-faint);
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+}
+
+.score-race-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.score-race-line--me {
+  stroke-width: 3.5;
+}
+
+.score-race-cross {
+  stroke: var(--ink);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.score-race-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.score-race-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.score-race-swatch {
+  width: 0.9rem;
+  height: 0.25rem;
+  border-radius: 2px;
+}
+
+.score-race-name {
+  font-weight: 600;
+}
+
+.score-race-value {
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------- fiche joueur - */
+.player-link {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-color: var(--rule);
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.player-sheet {
+  justify-items: center;
+  text-align: center;
+}
+
+.player-sheet .stack {
+  width: 100%;
+}
+
+.standing--gap {
+  border-top: 2px dashed var(--rule);
+}
+
+.board-more {
+  margin-top: 0.4rem;
+}
+
+/* --------------------------------------------------------- boîte à idées - */
+.idea-open {
+  justify-self: center;
+  margin-top: 1rem;
+}
+
+.idea-box {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.idea-box textarea {
+  width: 100%;
+  min-height: 6rem;
+  padding: 0.5rem 0.6rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  resize: vertical;
+}
+
+.menu-support {
+  margin-top: 0.5rem;
 }
 
 button.challenge-word {

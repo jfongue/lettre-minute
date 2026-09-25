@@ -16,14 +16,20 @@ import {
   fetchChallenge,
   inviteToChallenge,
   markChallengeSeen,
+  reactInChallenge,
   type ChallengeDetail,
   type ChallengePlayer,
+  type ReactionEmoji,
 } from '../lib/cloud'
 import { challengeTitle, hoursLeft } from '../state/challenges'
 import { Avatar } from './Avatar'
 import { LetterMark, Shape, TierTag } from './bauhaus'
 import { FriendPicker } from './FriendPicker'
-import { categoryMotif } from './motifs'
+import { categoryMotif, onTint } from './motifs'
+import { PlayerName } from './PlayerSheet'
+import { ReactionCounts, ReactionPanel, useRecapReactions, type RecapReactions } from './Reactions'
+import { ScoreRace } from './ScoreRace'
+import { TROPHY_TINTS, TrophyIcon } from './TrophyIcon'
 
 const playerOf = (detail: ChallengeDetail) => {
   const byId = new Map(detail.players.map((player) => [player.playerId, player]))
@@ -45,7 +51,13 @@ function Standings({ detail, standings }: { detail: ChallengeDetail; standings: 
             <span className="rank">{index + 1}</span>
             {who && <Avatar choice={who.avatar} size="sm" />}
             <span className="name challenge-standing-name">
-              {who?.me ? t.challenge.you : who?.name}
+              {who && !who.me ? (
+                <PlayerName name={who.name} avatar={who.avatar}>
+                  {who.name}
+                </PlayerName>
+              ) : (
+                t.challenge.you
+              )}
               {standing.raw !== standing.score && (
                 <span className="note">{t.challenge.raw(formatNumber(t, standing.raw))}</span>
               )}
@@ -130,6 +142,7 @@ function MyWords({ detail, standing }: { detail: ChallengeDetail; standing: Stan
                     <span className="reveal-word-points">
                       {word.settled !== word.points && <s className="challenge-halved">{word.points}</s>}+{word.settled}
                     </span>
+                    {rivals && <Chevron open={unfolded} />}
                   </button>
                   {unfolded && <Answers detail={detail} word={word} />}
                 </li>
@@ -139,6 +152,15 @@ function MyWords({ detail, standing }: { detail: ChallengeDetail; standing: Stan
         </>
       )}
     </section>
+  )
+}
+
+/** What tells a row it unfolds. */
+function Chevron({ open }: { open: boolean }) {
+  return (
+    <svg className={`row-chevron${open ? ' row-chevron--open' : ''}`} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 9l6 6 6-6" />
+    </svg>
   )
 }
 
@@ -232,9 +254,22 @@ export function ChallengeBoard({ detail, onChanged }: ChallengeBoardProps) {
   )
 }
 
-function WordList({ words, detail, title }: { words: readonly TalliedWord[]; detail: ChallengeDetail; title: string }) {
+const wordTarget = (word: { categoryId: string; key: string }) => `word:${word.categoryId}:${word.key}`
+
+function WordList({
+  words,
+  detail,
+  title,
+  reactions,
+}: {
+  words: readonly TalliedWord[]
+  detail: ChallengeDetail
+  title: string
+  reactions: RecapReactions
+}) {
   const t = useT()
   const player = playerOf(detail)
+  const [open, setOpen] = useState<string | null>(null)
   if (words.length === 0) return null
   const names = (ids: readonly string[]) =>
     ids.map((id) => (player(id)?.me ? t.challenge.you : (player(id)?.name ?? ''))).join(', ')
@@ -242,30 +277,43 @@ function WordList({ words, detail, title }: { words: readonly TalliedWord[]; det
     <section className="stack">
       <p className="section-title">{title}</p>
       <ol className="reveal-words">
-        {words.map((word) => (
-          <li key={`${word.categoryId}:${word.key}`} className="reveal-word challenge-word">
-            <LetterMark letter={word.letter} motif={categoryMotif(word.categoryId)} size="sm" />
-            <span className="reveal-word-text">
-              {capitalized(word.display)}
-              <span className="reveal-word-category">
-                {categoryText(t, word.categoryId).label} · {names(word.players)}
-              </span>
-            </span>
-            {word.tier !== 'courant' ? <TierTag tier={word.tier} /> : <span />}
-            <span className="reveal-word-points">×{word.players.length}</span>
-          </li>
-        ))}
+        {words.map((word) => {
+          const target = wordTarget(word)
+          const unfolded = open === target
+          return (
+            <li key={target} className="challenge-word-item">
+              <button
+                type="button"
+                className="reveal-word challenge-word"
+                aria-expanded={unfolded}
+                onClick={() => setOpen(unfolded ? null : target)}
+              >
+                <LetterMark letter={word.letter} motif={categoryMotif(word.categoryId)} size="sm" />
+                <span className="reveal-word-text">
+                  {capitalized(word.display)}
+                  <span className="reveal-word-category">
+                    {categoryText(t, word.categoryId).label} · {names(word.players)}
+                  </span>
+                  <ReactionCounts target={target} reactions={reactions} />
+                </span>
+                {word.tier !== 'courant' ? <TierTag tier={word.tier} /> : <span />}
+                <span className="reveal-word-points">×{word.players.length}</span>
+                <Chevron open={unfolded} />
+              </button>
+              {unfolded && <ReactionPanel target={target} reactions={reactions} />}
+            </li>
+          )
+        })}
       </ol>
     </section>
   )
 }
 
-const TROPHY_TINTS = ['yellow', 'red', 'blue', 'pink', 'green'] as const
-
-function Trophies({ detail }: { detail: ChallengeDetail }) {
+function Trophies({ detail, reactions }: { detail: ChallengeDetail; reactions: RecapReactions }) {
   const t = useT()
   const trophies = awardTrophies(detail.players)
   const player = playerOf(detail)
+  const [open, setOpen] = useState<string | null>(null)
   if (trophies.length === 0) return null
   return (
     <section className="stack">
@@ -274,25 +322,61 @@ function Trophies({ detail }: { detail: ChallengeDetail }) {
         {trophies.map((trophy, index) => {
           const [name, line] = t.challenge.trophies[trophy.id]
           const who = player(trophy.playerId)
-          const tint = TROPHY_TINTS[index % TROPHY_TINTS.length]!
+          const target = `trophy:${trophy.id}`
+          const unfolded = open === target
+          const tint = TROPHY_TINTS[trophy.id]
           return (
-            <li key={trophy.id} className="trophy" style={{ '--i': index } as CSSProperties}>
-              <span className="trophy-mark" aria-hidden="true">
-                <Shape kind={index % 2 === 0 ? 'sun' : 'circle'} tint={tint} />
-              </span>
-              <span className="trophy-text">
-                <strong>{name}</strong>
-                <span>
-                  {who && <Avatar choice={who.avatar} size="sm" />}
-                  <span className="trophy-who">{who?.me ? t.challenge.you : who?.name}</span>
+            <li key={trophy.id} className="trophy-item" style={{ '--i': index } as CSSProperties}>
+              <button
+                type="button"
+                className="trophy"
+                aria-expanded={unfolded}
+                onClick={() => setOpen(unfolded ? null : target)}
+              >
+                <span className="trophy-mark" style={{ background: `var(--${tint})` }} aria-hidden="true">
+                  <TrophyIcon id={trophy.id} tint={onTint(tint)} />
                 </span>
-                <span className="note">{line(trophy.value, capitalized(trophy.word ?? ''))}</span>
-              </span>
+                <span className="trophy-text">
+                  <strong>{name}</strong>
+                  <span>
+                    {who && <Avatar choice={who.avatar} size="sm" />}
+                    <span className="trophy-who">{who?.me ? t.challenge.you : who?.name}</span>
+                  </span>
+                  <span className="note">{line(trophy.value, capitalized(trophy.word ?? ''))}</span>
+                  <ReactionCounts target={target} reactions={reactions} />
+                </span>
+                <Chevron open={unfolded} />
+              </button>
+              {unfolded && <ReactionPanel target={target} reactions={reactions} />}
             </li>
           )
         })}
       </ul>
+      <p className="note">{t.challenge.reactHint}</p>
     </section>
+  )
+}
+
+/** The words everyone had and nobody had: behind a toggle, the recap is long enough. */
+function MoreStats({ detail, reactions }: { detail: ChallengeDetail; reactions: RecapReactions }) {
+  const t = useT()
+  const [open, setOpen] = useState(false)
+  const shared = mostSharedWords(detail.players)
+  const unique = uniqueWords(detail.players)
+  if (shared.length === 0 && unique.length === 0) return null
+  return (
+    <>
+      <button type="button" className="btn btn--ghost btn--block" aria-expanded={open} onClick={() => setOpen(!open)}>
+        {open ? t.challenge.lessStats : t.challenge.moreStats}
+        <Chevron open={open} />
+      </button>
+      {open && (
+        <>
+          <WordList words={shared} detail={detail} title={t.challenge.mostShared} reactions={reactions} />
+          <WordList words={unique} detail={detail} title={t.challenge.mostUnique} reactions={reactions} />
+        </>
+      )}
+    </>
   )
 }
 
@@ -300,16 +384,25 @@ interface ChallengeRecapProps {
   detail: ChallengeDetail
   /** Resolves false when neither a rematch of one's own nor the existing one could be reached. */
   onRematch(detail: ChallengeDetail): Promise<boolean>
+  onReact(target: string, emoji: ReactionEmoji | null): Promise<boolean>
 }
 
 /** The closing débrief: final standings, the words everyone had and nobody had, and the trophies. */
-export function ChallengeRecap({ detail, onRematch }: ChallengeRecapProps) {
+export function ChallengeRecap({ detail, onRematch, onReact }: ChallengeRecapProps) {
   const t = useT()
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
   const standings = settleChallenge(detail.players)
   const me = detail.players.find((player) => player.me)
   const mine = standings.find((standing) => standing.playerId === me?.playerId)
+  const player = playerOf(detail)
+  const reactions = useRecapReactions(
+    detail.reactions,
+    me?.playerId,
+    me?.playedAt !== null && me !== undefined,
+    (id) => player(id)?.name ?? '',
+    onReact,
+  )
 
   return (
     <>
@@ -318,10 +411,10 @@ export function ChallengeRecap({ detail, onRematch }: ChallengeRecapProps) {
         <Standings detail={detail} standings={standings} />
         <p className="note">{t.challenge.rules}</p>
       </section>
-      <Trophies detail={detail} />
-      <WordList words={mostSharedWords(detail.players)} detail={detail} title={t.challenge.mostShared} />
-      <WordList words={uniqueWords(detail.players)} detail={detail} title={t.challenge.mostUnique} />
+      <ScoreRace standings={standings} player={player} />
+      <Trophies detail={detail} reactions={reactions} />
       {mine && <MyWords detail={detail} standing={mine} />}
+      <MoreStats detail={detail} reactions={reactions} />
       {me?.playedAt !== null && me !== undefined && (
         <div className="stack">
           {failed && <p className="note note--warn">{t.challenge.rematchFailed}</p>}
@@ -387,16 +480,26 @@ export function ChallengeScreen({ id, onPlay, onRematch, onBack }: ChallengeScre
     if (finished) markChallengeSeen(id, 'recap')
   }, [finished, id])
 
-  return <ChallengeView detail={detail} onPlay={onPlay} onRematch={onRematch} onBack={onBack} onChanged={load} />
+  return (
+    <ChallengeView
+      detail={detail}
+      onPlay={onPlay}
+      onRematch={onRematch}
+      onReact={(target, emoji) => reactInChallenge(id, target, emoji)}
+      onBack={onBack}
+      onChanged={load}
+    />
+  )
 }
 
 interface ChallengeViewProps extends Omit<ChallengeScreenProps, 'id'> {
   detail: ChallengeDetail | null | 'loading'
   onChanged(): void
+  onReact(target: string, emoji: ReactionEmoji | null): Promise<boolean>
 }
 
 /** The challenge screen once read: the debug board shows it without a server. */
-export function ChallengeView({ detail, onPlay, onRematch, onBack, onChanged }: ChallengeViewProps) {
+export function ChallengeView({ detail, onPlay, onRematch, onReact, onBack, onChanged }: ChallengeViewProps) {
   const t = useT()
   const finished = detail !== 'loading' && detail !== null && detail.finished
   const me: ChallengePlayer | undefined = detail !== 'loading' && detail ? detail.players.find((player) => player.me) : undefined
@@ -419,7 +522,7 @@ export function ChallengeView({ detail, onPlay, onRematch, onBack, onChanged }: 
         <>
           <Lineup categoryIds={detail.categoryIds} />
           {finished ? (
-            <ChallengeRecap detail={detail} onRematch={onRematch} />
+            <ChallengeRecap detail={detail} onRematch={onRematch} onReact={onReact} />
           ) : me?.playedAt === null ? (
             <>
               <section className="panel">

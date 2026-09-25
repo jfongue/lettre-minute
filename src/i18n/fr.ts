@@ -3,7 +3,7 @@ import { CATALOGUE } from '../domain/catalogue'
 import type { TrophyId } from '../domain/challenge'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
-import type { AuthError, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, VoteOutcome } from '../lib/cloud'
+import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, VoteOutcome } from '../lib/cloud'
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one)
 /** A trophy's name, and its line from the value that won it and the word, when one did. */
@@ -175,6 +175,8 @@ export const fr = {
     entered: (place: string) => `Entrée · ${place}`,
     climbed: (places: number, place: string) => `+${places} ${plural(places, 'place', 'places')} · ${place}`,
     held: (place: string) => `Toujours ${place}`,
+    more: (count: number) => `Voir le classement complet (${count})`,
+    less: 'Voir moins',
   },
 
   menu: {
@@ -193,6 +195,7 @@ export const fr = {
     offline: 'Hors ligne : ta progression reste sur cet appareil.',
     back: 'Retour',
     pages: { stats: 'Statistiques', requests: 'Mes demandes', categories: 'Mes catégories' },
+    support: 'Soutenir le créateur',
   },
 
   social: {
@@ -236,6 +239,8 @@ export const fr = {
       forbidden: () => 'Seul un modérateur peut en élire un autre.',
       unreachable: () => 'Le serveur ne répond pas. Réessaie dans un instant.',
     } satisfies Record<InviteOutcome, (name: string) => string> as Record<InviteOutcome, (name: string) => string>,
+    blocked: 'Bloqués',
+    unblock: 'Débloquer',
   },
 
   stats: {
@@ -524,6 +529,50 @@ export const fr = {
     xpBonus: (percent: number) => `dont +${percent} % de bonus défi`,
     home: 'Accueil',
     back: 'Retour',
+    ignore: 'Ignorer',
+    raceTitle: 'La course',
+    raceHint: 'Glisse le doigt sur la courbe',
+    raceAt: (second: number) => `à ${second} s`,
+    reactLabel: 'Réagir',
+    noReaction: 'Personne n’a encore réagi.',
+    reactHint: 'Touche un trophée ou un mot pour réagir.',
+    moreStats: 'Plus de stats',
+    lessStats: 'Moins de stats',
+  },
+
+  player: {
+    open: (name: string) => `Que faire avec ${name} ?`,
+    befriend: 'Ajouter en ami',
+    block: 'Bloquer',
+    blockConfirm: 'Bloquer',
+    blockWarning: (name: string) =>
+      `Bloquer ${name} ? Tu ne recevras plus ses demandes d’ami ni ses défis, et votre amitié prend fin.`,
+    blocked: {
+      blocked: (name: string) => `${name} est bloqué.`,
+      self: () => 'C’est toi !',
+      unknown: (name: string) => `Aucun compte ne s’appelle ${name}.`,
+      anonymous: () => 'Crée un compte pour bloquer un joueur.',
+      unreachable: () => 'Serveur injoignable. Réessaie.',
+    } satisfies Record<BlockOutcome, (name: string) => string>,
+    close: 'Fermer',
+  },
+
+  ideas: {
+    open: 'Boîte à idées',
+    title: 'Boîte à idées',
+    lead: 'Une idée pour le jeu, une catégorie qui manque, un souci ? Le créateur lit tout.',
+    placeholder: 'Ton idée…',
+    send: 'Envoyer',
+    sent: 'Merci ! Ton idée est partie.',
+    failed: 'L’idée n’est pas partie. Vérifie ta connexion et réessaie.',
+    close: 'Fermer',
+  },
+
+  update: {
+    title: 'Nouvelle version',
+    lead: 'Une version plus récente de Lettre Minute t’attend sur le Play Store.',
+    later: 'Plus tard',
+    go: 'Mettre à jour',
   },
 
   tiers: {

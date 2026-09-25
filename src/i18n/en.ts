@@ -163,6 +163,8 @@ export const en: Messages = {
     entered: (place) => `New entry · ${place}`,
     climbed: (places, place) => `+${places} ${plural(places, 'place', 'places')} · ${place}`,
     held: (place) => `Still ${place}`,
+    more: (count) => `See the full board (${count})`,
+    less: 'See less',
   },
 
   menu: {
@@ -180,6 +182,7 @@ export const en: Messages = {
     offline: 'Offline: your progress stays on this device.',
     back: 'Back',
     pages: { stats: 'Statistics', requests: 'My requests', categories: 'My categories' },
+    support: 'Support the creator',
   },
 
   social: {
@@ -219,6 +222,8 @@ export const en: Messages = {
       forbidden: () => 'Only a moderator can make another one.',
       unreachable: () => 'The server is not answering. Try again in a moment.',
     },
+    blocked: 'Blocked',
+    unblock: 'Unblock',
   },
 
   stats: {
@@ -499,6 +504,50 @@ export const en: Messages = {
     xpBonus: (percent) => `including a ${percent} % challenge bonus`,
     home: 'Home',
     back: 'Back',
+    ignore: 'Hide',
+    raceTitle: 'The race',
+    raceHint: 'Slide your finger along the chart',
+    raceAt: (second) => `at ${second} s`,
+    reactLabel: 'React',
+    noReaction: 'No one has reacted yet.',
+    reactHint: 'Tap a trophy or a word to react.',
+    moreStats: 'More stats',
+    lessStats: 'Fewer stats',
+  },
+
+  player: {
+    open: (name) => `What to do about ${name}?`,
+    befriend: 'Add as friend',
+    block: 'Block',
+    blockConfirm: 'Block',
+    blockWarning: (name) =>
+      `Block ${name}? You will no longer receive their friend requests or challenges, and your friendship ends.`,
+    blocked: {
+      blocked: (name) => `${name} is blocked.`,
+      self: () => 'That’s you!',
+      unknown: (name) => `No account is called ${name}.`,
+      anonymous: () => 'Create an account to block a player.',
+      unreachable: () => 'Server unreachable. Try again.',
+    },
+    close: 'Close',
+  },
+
+  ideas: {
+    open: 'Idea box',
+    title: 'Idea box',
+    lead: 'An idea for the game, a missing category, a problem? The creator reads everything.',
+    placeholder: 'Your idea…',
+    send: 'Send',
+    sent: 'Thank you! Your idea is on its way.',
+    failed: 'Your idea could not be sent. Check your connection and try again.',
+    close: 'Close',
+  },
+
+  update: {
+    title: 'New version',
+    lead: 'A newer version of Lettre Minute is waiting for you on the Play Store.',
+    later: 'Later',
+    go: 'Update',
   },
 
   tiers: { courant: 'common', 'peu commun': 'uncommon', rare: 'rare', 'très rare': 'very rare' },

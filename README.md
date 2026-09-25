@@ -87,7 +87,9 @@ n'écrit rapportent le plus.
   trouvé ne vaut que la moitié. Le classement provisoire bouge à chaque
   nouveau joueur, et le chef peut inviter tant que tout le monde n'a pas joué.
   Une fois le défi clos, le bilan montre le classement, les mots les plus
-  répétés et les plus uniques, et des trophées (la tortue, le zappeur…), puis
+  répétés et les plus uniques (sous « Plus de stats »), la course de chacun
+  seconde par seconde, et des trophées (la tortue, le zappeur…) auxquels on
+  réagit d'un emoji, comme aux mots ; puis il
   propose une revanche, une seule par défi, ouverte à tous ceux qui ont joué.
   Permutation n'y est pas admis ; au-delà de deux pouvoirs, on choisit avant
   de jouer. Un défi rapporte 25 % d'XP de plus mais ne compte ni aux
@@ -95,6 +97,17 @@ n'écrit rapportent le plus.
   l'invitation et le bilan, app fermée ([mise en place](docs/notifications-push.md)) ;
   l'accueil relève aussi les défis à son ouverture, à son retour au premier
   plan et chaque minute.
+- **Ami ou bloqué** : toucher un nom dans un classement ouvre « Ajouter en
+  ami » et « Bloquer » (avec confirmation). Un joueur bloqué ne le sait pas :
+  ses demandes n'arrivent plus, et sans amitié il ne peut plus défier. Une
+  demande reçue s'accepte, se refuse ou se bloque. Au-delà de dix joueurs, un
+  classement s'ouvre sur le podium, le joueur et ses amis, puis « Voir plus ».
+  Un défi terminé s'ignore d'un glissement vers la gauche ou d'un appui long ;
+  il revient s'il bouge encore (revanche, retardataire).
+- **Boîte à idées** : en bas de « Mes demandes » ; les idées partent par
+  e-mail une fois par jour. Le profil a son bouton « Soutenir le créateur ».
+- **Mise à jour** : sur Android, une fenêtre annonce qu'une version plus
+  récente attend sur le Play Store, une fois par lancement.
 - **Modération** : des joueurs volontaires jugent les mots proposés, cinq par
   session, d'un glissement de carte — correct, je ne sais pas, incorrect.
   Deux « incorrect » bloquent un mot ; deux « je ne sais pas » le rendent

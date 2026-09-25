@@ -157,6 +157,8 @@ export const nl: Messages = {
     entered: (place) => `Binnengekomen · ${place}`,
     climbed: (places, place) => `+${places} ${plural(places, 'plek', 'plekken')} · ${place}`,
     held: (place) => `Nog steeds ${place}`,
+    more: (count) => `Hele klassement bekijken (${count})`,
+    less: 'Minder tonen',
   },
 
   menu: {
@@ -174,6 +176,7 @@ export const nl: Messages = {
     offline: 'Offline: je voortgang blijft op dit apparaat.',
     back: 'Terug',
     pages: { stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Mijn categorieën' },
+    support: 'Steun de maker',
   },
 
   social: {
@@ -213,6 +216,8 @@ export const nl: Messages = {
       forbidden: () => 'Alleen een moderator kan een ander aanwijzen.',
       unreachable: () => 'De server reageert niet. Probeer het zo opnieuw.',
     },
+    blocked: 'Geblokkeerd',
+    unblock: 'Deblokkeren',
   },
 
   stats: {
@@ -494,6 +499,50 @@ export const nl: Messages = {
     xpBonus: (percent) => `waarvan ${percent} % uitdagingsbonus`,
     home: 'Start',
     back: 'Terug',
+    ignore: 'Verbergen',
+    raceTitle: 'De race',
+    raceHint: 'Sleep je vinger over de grafiek',
+    raceAt: (second) => `bij ${second} s`,
+    reactLabel: 'Reageren',
+    noReaction: 'Nog niemand heeft gereageerd.',
+    reactHint: 'Tik op een trofee of een woord om te reageren.',
+    moreStats: 'Meer statistieken',
+    lessStats: 'Minder statistieken',
+  },
+
+  player: {
+    open: (name) => `Wat wil je doen met ${name}?`,
+    befriend: 'Als vriend toevoegen',
+    block: 'Blokkeren',
+    blockConfirm: 'Blokkeren',
+    blockWarning: (name) =>
+      `${name} blokkeren? Je ontvangt geen vriendschapsverzoeken of uitdagingen meer van deze persoon, en jullie vriendschap eindigt.`,
+    blocked: {
+      blocked: (name) => `${name} is geblokkeerd.`,
+      self: () => 'Dat ben jij!',
+      unknown: (name) => `Geen account heet ${name}.`,
+      anonymous: () => 'Maak een account om een speler te blokkeren.',
+      unreachable: () => 'Server onbereikbaar. Probeer opnieuw.',
+    },
+    close: 'Sluiten',
+  },
+
+  ideas: {
+    open: 'Ideeënbus',
+    title: 'Ideeënbus',
+    lead: 'Een idee voor het spel, een categorie die ontbreekt, een probleem? De maker leest alles.',
+    placeholder: 'Jouw idee…',
+    send: 'Versturen',
+    sent: 'Bedankt! Je idee is verstuurd.',
+    failed: 'Je idee kon niet worden verstuurd. Controleer je verbinding en probeer het opnieuw.',
+    close: 'Sluiten',
+  },
+
+  update: {
+    title: 'Nieuwe versie',
+    lead: 'Een nieuwere versie van Lettre Minute wacht op je in de Play Store.',
+    later: 'Later',
+    go: 'Bijwerken',
   },
 
   tiers: { courant: 'gewoon', 'peu commun': 'ongewoon', rare: 'zeldzaam', 'très rare': 'zeer zeldzaam' },

@@ -28,3 +28,38 @@ export function challengeNotice(
 export function challengeTitle(t: Messages, challenge: { owned: boolean; ownerName: string }): string {
   return challenge.owned ? t.challenge.mine : t.challenge.by(challenge.ownerName)
 }
+
+const HIDDEN_KEY = 'lettre-minute.hidden-challenges.v1'
+
+/**
+ * What a hidden challenge was when it was set aside. Anything new since — a
+ * late player, a rematch — changes it, and the challenge shows again.
+ */
+function stampOf(challenge: ChallengeSummary): string {
+  return `${challenge.played}/${challenge.players}/${challenge.finished}/${challenge.nextId ?? ''}`
+}
+
+/** Challenge id → its stamp when hidden. On this device only: hiding is a matter of tidiness, not of record. */
+export function loadHiddenChallenges(): Record<string, string> {
+  try {
+    const stored: unknown = JSON.parse(localStorage.getItem(HIDDEN_KEY) ?? 'null')
+    if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return {}
+    return Object.fromEntries(Object.entries(stored).filter(([, stamp]) => typeof stamp === 'string'))
+  } catch {
+    return {}
+  }
+}
+
+export function hideChallenge(hidden: Record<string, string>, challenge: ChallengeSummary): Record<string, string> {
+  const next = { ...hidden, [challenge.id]: stampOf(challenge) }
+  try {
+    localStorage.setItem(HIDDEN_KEY, JSON.stringify(next))
+  } catch {
+    /* hidden until the app closes */
+  }
+  return next
+}
+
+export function isHidden(hidden: Record<string, string>, challenge: ChallengeSummary): boolean {
+  return hidden[challenge.id] === stampOf(challenge)
+}

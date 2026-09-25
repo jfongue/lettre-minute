@@ -8,6 +8,7 @@ import {
   mostSharedWords,
   needsPowerPick,
   scoreAt,
+  settledScoreAt,
   settleChallenge,
   uniqueWords,
   type ChallengeEntry,
@@ -147,6 +148,17 @@ describe('scoreAt', () => {
     expect(scoreAt(words, 3)).toBe(0)
     expect(scoreAt(words, 4)).toBe(10)
     expect(scoreAt(words, 60)).toBe(35)
+  })
+})
+
+describe('settledScoreAt', () => {
+  it('draws the race on settled points: a shared word counts half', () => {
+    const [mine] = settleChallenge([
+      entry('a', 1, [word('chat', 10, { at: 4 }), word('lynx', 30, { at: 20 })]),
+      entry('b', 2, [word('chat', 10, { at: 9 })]),
+    ]).filter((standing) => standing.playerId === 'a')
+    expect(settledScoreAt(mine!.words, 5)).toBe(5)
+    expect(settledScoreAt(mine!.words, 60)).toBe(mine!.score)
   })
 })
 
