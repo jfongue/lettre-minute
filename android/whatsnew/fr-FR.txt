@@ -3,3 +3,4 @@
 • Une demande d’ami se signale sur le menu
 • Les défis lus se rangent tout seuls avec leur gagnant
 • Célérité accepte les mots à une lettre près
+• L’icône du jeu est de retour sur l’écran d’accueil
