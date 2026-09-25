@@ -120,12 +120,23 @@ try {
   const bundle = (await uploaded.json()) as { versionCode?: number; error?: { message: string } }
   if (!bundle.versionCode) throw new Error(`Upload refused: ${bundle.error?.message ?? uploaded.status}`)
 
-  await call(token, 'PUT', `${API}/edits/${edit.id}/tracks/${track}`, {
-    track,
-    releases: [{ versionCodes: [String(bundle.versionCode)], status: 'completed', releaseNotes: releaseNotes() }],
-  })
-  await call(token, 'POST', `${API}/edits/${edit.id}:commit`)
-  console.log(`versionCode ${bundle.versionCode} is out on ${track}.`)
+  const release = (status: string) =>
+    call(token, 'PUT', `${API}/edits/${edit.id}/tracks/${track}`, {
+      track,
+      releases: [{ versionCodes: [String(bundle.versionCode)], status, releaseNotes: releaseNotes() }],
+    })
+  await release('completed')
+  try {
+    await call(token, 'POST', `${API}/edits/${edit.id}:commit`)
+    console.log(`versionCode ${bundle.versionCode} is out on ${track}, in review.`)
+  } catch (error) {
+    // Until its first release is sent for review from the console, Play calls
+    // the app a draft and takes nothing but draft releases.
+    if (!String(error).includes('draft app')) throw error
+    await release('draft')
+    await call(token, 'POST', `${API}/edits/${edit.id}:commit`)
+    console.log(`versionCode ${bundle.versionCode} is a draft on ${track}: send it for review from the Play Console.`)
+  }
 } catch (error) {
   await call(token, 'DELETE', `${API}/edits/${edit.id}`).catch(() => {})
   throw error

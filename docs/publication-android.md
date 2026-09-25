@@ -98,7 +98,9 @@ jours.
    compte de service `play-publisher@lettreminute-509707.iam.gserviceaccount.com`
    rangée dans `~/cles/lettre-minute-play.json` (ou `PLAY_KEY`), hors du dépôt.
    La release remplace ce que la piste avait (un brouillon compris) et part en
-   examen chez Google. `--track=internal` vise le test interne.
+   examen chez Google — sauf tant que l'app n'a jamais été envoyée en examen :
+   Play la tient alors pour un brouillon, n'accepte que des releases
+   brouillon, et il faut cliquer « Envoyer pour examen » dans la console. `--track=internal` vise le test interne.
 
 ## Une fois pour toutes : l'accès à l'API Play
 
