@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="12 10 76 80">
+  <!-- Le dessin d'assets/source/mark.html, recadré au plus près pour un onglet. -->
+  <style>
+    .paper { fill: #f2ecdf } .red { fill: #e0402a } .yellow { fill: #f4b41a } .blue { fill: #1f48c7 }
+    @media (prefers-color-scheme: dark) {
+      .paper { fill: #151515 } .red { fill: #f0553c } .yellow { fill: #f7c230 } .blue { fill: #4468ec }
+    }
+  </style>
+  <rect class="paper" x="12" y="10" width="76" height="80" rx="16" />
+  <g transform="translate(-3 0.5)">
+    <circle class="yellow" cx="72" cy="28" r="14" />
+    <path class="red" d="M20 24h56v56H20z M36.2 31.9V72.5H63.9V63H47.4V31.9z" fill-rule="evenodd" />
+    <rect class="blue" x="20" y="80" width="56" height="5" />
+  </g>
+</svg>
