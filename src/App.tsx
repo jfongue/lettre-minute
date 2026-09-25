@@ -873,6 +873,7 @@ export function App() {
             setMenuPage(page)
           }}
           onPlay={startFirstRun}
+          onDebug={() => setDebugPhase('home')}
           onEquip={(slot, powerId) => dispatch({ type: 'equip', slot, powerId })}
           onAccount={
             account?.anonymous
@@ -996,10 +997,6 @@ export function App() {
             setModerating(true)
           }}
           onRequestsSeen={refreshModeration}
-          onDebug={() => {
-            setMenuPage(null)
-            setDebugPhase('home')
-          }}
           onErase={async () => {
             // The device keeps its copy until the server has let go of its
             // own: a failed erase must not leave the player half-deleted.

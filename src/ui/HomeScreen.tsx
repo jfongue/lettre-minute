@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import type { AvatarChoice } from '../domain/avatar'
 import type { AccountMode } from './AccountPanel'
 import type { Boards as BoardsData } from '../domain/boards'
@@ -47,6 +47,8 @@ interface HomeScreenProps {
   onEquip(slot: number, powerId: PowerId | null): void
   /** Absent without a server, where there is no account to make. */
   onAccount?(mode: AccountMode): void
+  /** Five quick taps on the poster's top-right tile: the debug board, hidden from players. */
+  onDebug?(): void
 }
 
 export function HomeScreen({
@@ -65,6 +67,7 @@ export function HomeScreen({
   onPlay,
   onEquip,
   onAccount,
+  onDebug,
 }: HomeScreenProps) {
   const t = useT()
   const progress = levelProgress(profile.xp)
@@ -82,7 +85,7 @@ export function HomeScreen({
 
   return (
     <div className="sheet sheet--home" {...swipe}>
-      <Poster onMenu={() => onMenu()} />
+      <Poster onMenu={() => onMenu()} onDebug={onDebug} />
 
       <header className="masthead">
         <h1 className="title">
@@ -172,9 +175,22 @@ const POSTER: readonly Cell[] = [
   ['quarter', 'blue', 'pink', 'turn'],
 ]
 
+const DEBUG_TILE = 4
+const DEBUG_TAPS = 5
+const DEBUG_TAP_GAP_MS = 600
+
 /** The top-left tile doubles as the menu button: three bars where the quarter used to turn. */
-function Poster({ onMenu }: { onMenu(): void }) {
+function Poster({ onMenu, onDebug }: { onMenu(): void; onDebug?(): void }) {
   const t = useT()
+  const taps = useRef({ count: 0, at: 0 })
+  const tapTile = () => {
+    const now = Date.now()
+    taps.current = { count: now - taps.current.at < DEBUG_TAP_GAP_MS ? taps.current.count + 1 : 1, at: now }
+    if (taps.current.count >= DEBUG_TAPS) {
+      taps.current = { count: 0, at: 0 }
+      onDebug?.()
+    }
+  }
   return (
     <div className="poster">
       {POSTER.map(([kind, tint, ground, motion], index) =>
@@ -199,6 +215,7 @@ function Poster({ onMenu }: { onMenu(): void }) {
             className="poster-cell"
             style={{ background: `var(--${ground})`, '--i': index } as CSSProperties}
             aria-hidden="true"
+            onClick={index === DEBUG_TILE ? tapTile : undefined}
           >
             <span className={`motion${motion ? ` motion-${motion}` : ''}`}>
               <Shape kind={kind} tint={tint} />

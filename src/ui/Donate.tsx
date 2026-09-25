@@ -31,6 +31,22 @@ function useTyped(text: string): string {
   return text.slice(0, shown)
 }
 
+const GAME_NAME = 'Lettre Minute'
+
+/** The typed part of the note, with the game's name in bold as soon as its first letter shows. */
+function Typed({ full, shown }: { full: string; shown: number }) {
+  const start = full.indexOf(GAME_NAME)
+  if (start < 0 || shown <= start) return <>{full.slice(0, shown)}</>
+  const end = start + GAME_NAME.length
+  return (
+    <>
+      {full.slice(0, start)}
+      <strong>{full.slice(start, Math.min(shown, end))}</strong>
+      {full.slice(end, Math.max(shown, end))}
+    </>
+  )
+}
+
 function DonationPop({ onClose }: { onClose(): void }) {
   const t = useT()
   // A phone opens the full page in the system browser, where the wallet and saved cards are.
@@ -53,7 +69,7 @@ function DonationPop({ onClose }: { onClose(): void }) {
           </span>
           <p className="creator-bubble" aria-label={t.support.hello}>
             <span aria-hidden="true">
-              {typed}
+              <Typed full={t.support.hello} shown={typed.length} />
               {talking && <span className="creator-caret" />}
             </span>
           </p>
