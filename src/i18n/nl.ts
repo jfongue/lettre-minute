@@ -288,6 +288,8 @@ export const nl: Messages = {
       quit: 'Sessie verlaten',
       counter: (index, total) => `Woord ${index} van ${total}`,
       proposedBy: (count) => `voorgesteld door ${count} ${count > 1 ? 'spelers' : 'speler'}`,
+      proposedByFriends: (names, others) =>
+        `voorgesteld door ${names.join(', ')}${others > 0 ? ` en ${others} ${others > 1 ? 'anderen' : 'andere'}` : ''}`,
       question: 'Hoort het in deze categorie?',
       hint: 'Veeg de kaart: naar rechts goed, naar links fout, omhoog weet ik niet.',
       verdicts: { correct: 'Goed', unsure: 'Weet ik niet', incorrect: 'Fout', special: 'Speciaal geval' },

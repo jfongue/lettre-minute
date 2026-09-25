@@ -289,6 +289,8 @@ export const it: Messages = {
       quit: 'Esci dalla sessione',
       counter: (index, total) => `Parola ${index} di ${total}`,
       proposedBy: (count) => `proposta da ${count} ${count > 1 ? 'giocatori' : 'giocatore'}`,
+      proposedByFriends: (names, others) =>
+        `proposta da ${names.join(', ')}${others > 0 ? ` e ${others} ${others > 1 ? 'altri' : 'altro'}` : ''}`,
       question: 'Ha il suo posto in questa categoria?',
       hint: 'Scorri la carta: a destra corretta, a sinistra sbagliata, in alto non lo so.',
       verdicts: { correct: 'Corretta', unsure: 'Non lo so', incorrect: 'Sbagliata', special: 'Caso speciale' },

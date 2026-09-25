@@ -293,6 +293,8 @@ export const en: Messages = {
       quit: 'Leave the session',
       counter: (index, total) => `Word ${index} of ${total}`,
       proposedBy: (count) => `proposed by ${count} ${count > 1 ? 'players' : 'player'}`,
+      proposedByFriends: (names, others) =>
+        `proposed by ${names.join(', ')}${others > 0 ? ` and ${others} ${others > 1 ? 'others' : 'other'}` : ''}`,
       question: 'Does it belong in this category?',
       hint: 'Swipe the card: right for correct, left for incorrect, up for not sure.',
       verdicts: { correct: 'Correct', unsure: 'Not sure', incorrect: 'Incorrect', special: 'Special case' },

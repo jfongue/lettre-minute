@@ -312,6 +312,8 @@ export const fr = {
       quit: 'Quitter la session',
       counter: (index: number, total: number) => `Mot ${index} sur ${total}`,
       proposedBy: (count: number) => `proposé par ${count} ${plural(count, 'joueur', 'joueurs')}`,
+      proposedByFriends: (names: readonly string[], others: number) =>
+        `proposé par ${names.join(', ')}${others > 0 ? ` et ${others} ${others > 1 ? 'autres' : 'autre'}` : ''}`,
       question: 'A-t-il sa place dans cette catégorie ?',
       hint: 'Glisse la carte : à droite correct, à gauche incorrect, vers le haut je ne sais pas.',
       verdicts: { correct: 'Correct', unsure: 'Je ne sais pas', incorrect: 'Incorrect', special: 'Cas spécial' },

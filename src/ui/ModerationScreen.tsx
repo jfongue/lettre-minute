@@ -420,7 +420,11 @@ function WordCard({ card, behind, drag, leaving, lean, children, ...pointer }: W
 
       <p className="word-card-question note">{t.moderation.screen.question}</p>
       <p className="word-card-word">{card.display}</p>
-      <p className="note">{t.moderation.screen.proposedBy(card.proposals)}</p>
+      <p className="note">
+        {card.friends.length > 0
+          ? t.moderation.screen.proposedByFriends(card.friends, card.proposals - card.friends.length)
+          : t.moderation.screen.proposedBy(card.proposals)}
+      </p>
 
       {children}
 

@@ -287,6 +287,8 @@ export const de: Messages = {
       quit: 'Sitzung verlassen',
       counter: (index, total) => `Wort ${index} von ${total}`,
       proposedBy: (count) => `vorgeschlagen von ${count} ${count > 1 ? 'Spielern' : 'Spieler'}`,
+      proposedByFriends: (names, others) =>
+        `vorgeschlagen von ${names.join(', ')}${others > 0 ? ` und ${others} ${others > 1 ? 'weiteren' : 'weiterer'}` : ''}`,
       question: 'Gehört es in diese Kategorie?',
       hint: 'Wisch die Karte: nach rechts richtig, nach links falsch, nach oben weiß nicht.',
       verdicts: { correct: 'Richtig', unsure: 'Weiß nicht', incorrect: 'Falsch', special: 'Sonderfall' },

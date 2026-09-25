@@ -10,6 +10,12 @@ import { xpForLevel } from './progression'
 /** A session hands out this many words; the next one is started from « Mes demandes ». */
 export const MODERATION_SESSION_SIZE = 5
 
+/**
+ * Fewer words than this waiting, and moderation is not offered: neither the
+ * panel nor the invitation to become a moderator (`moderation_status`, 0013).
+ */
+export const MODERATION_MIN_QUEUE = 5
+
 /** The level at which a player is offered to moderate. */
 export const MODERATOR_LEVEL = 6
 

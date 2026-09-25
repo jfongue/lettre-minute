@@ -253,6 +253,8 @@ export interface ReviewCard {
   note: string | null
   /** Nobody has voted yet: the spelling can still be fixed. */
   canRespell: boolean
+  /** The moderator's friends among those who asked: their words come first. */
+  friends: string[]
 }
 
 /** Null when the server could not be reached, which the screen tells apart from nothing to judge. */
@@ -268,6 +270,7 @@ export function fetchModerationQueue(lang: string): Promise<ReviewCard[] | null>
       special: row.special === true,
       note: (row.note as string | null) ?? null,
       canRespell: row.can_respell === true,
+      friends: (row.friends as string[] | null) ?? [],
     }))
   }, null)
 }

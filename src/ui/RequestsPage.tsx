@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type CSSProperties, type FormEvent } from 'react'
-import { MODERATION_SESSION_SIZE, SUPER_MODERATOR_VALIDATIONS } from '../domain/moderation'
+import { MODERATION_MIN_QUEUE, MODERATION_SESSION_SIZE, SUPER_MODERATOR_VALIDATIONS } from '../domain/moderation'
 import { SUBMISSION_REWARD_XP } from '../domain/progression'
 import {
   cancelSubmission,
@@ -106,7 +106,7 @@ export function RequestsPage({ moderation, onModerate, onSeen }: RequestsPagePro
 
   return (
     <>
-      {moderation?.moderator && <ModerationPanel status={moderation} onModerate={onModerate} />}
+      {moderation?.moderator && moderation.queue >= MODERATION_MIN_QUEUE && <ModerationPanel status={moderation} onModerate={onModerate} />}
       {server === 'loading' && <p className="note">{t.loading}</p>}
       {server === null && <p className="note">{t.requests.offline}</p>}
       {failed && <p className="note note--warn">{t.requests.failed}</p>}
@@ -266,8 +266,8 @@ function ModerationPanel({ status, onModerate }: { status: ModerationStatus; onM
         </div>
       )}
       <p className="moderation-panel-waiting">{t.moderation.waiting(status.queue)}</p>
-      <button type="button" className="btn btn--blue btn--block" onClick={onModerate} disabled={status.queue === 0}>
-        {t.moderation.start(Math.min(MODERATION_SESSION_SIZE, Math.max(status.queue, 1)))}
+      <button type="button" className="btn btn--blue btn--block" onClick={onModerate}>
+        {t.moderation.start(Math.min(MODERATION_SESSION_SIZE, status.queue))}
       </button>
     </section>
   )
