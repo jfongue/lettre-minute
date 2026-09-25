@@ -98,6 +98,26 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
 }
 
 /**
+ * Aliases no source gives, per category and language: the short name a player
+ * types → the label of the word it scores as. Wikidata's English Mercedes-Benz
+ * has no « Mercedes », its Kyiv no « Kiev ».
+ */
+export const ADDED_ALIASES: Readonly<Record<string, Readonly<Record<string, Readonly<Record<string, string>>>>>> = {
+  marques: {
+    en: { Mercedes: 'Mercedes-Benz' },
+  },
+  capitales: {
+    en: { Kiev: 'Kyiv' },
+  },
+}
+
+/**
+ * Codes that are also the name everyone uses, let through the shortest-alias
+ * guard (`shortestAlias`, sources.ts), as normalized keys.
+ */
+export const SHORT_NAMES: readonly string[] = ['usa', 'uk']
+
+/**
  * The placeholder an element bears until it is named — "unbinilium", element
  * 120 — spelt out from its number, in every language. Wikidata files the ones
  * not yet made as elements all the same.

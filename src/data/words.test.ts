@@ -103,20 +103,32 @@ describe('shipped dictionaries', () => {
     })
   }
 
-  it('bend no name: a form in a category of names is a homograph’s', () => {
+  it('bend no name: a form in a category of names is an alias, never a plural', () => {
+    // « USA » for the United States is an alias; « Berlins », « Adobes » are
+    // plurals of a homograph's, which is all a name's inflections ever were.
     for (const lang of LANGS) {
       for (const id of NAMES) {
-        const forms = rowsOf.get(`${lang}/${id}`)!.filter(([, , , canonical]) => canonical)
-        expect(forms.map(([display]) => display), `${lang}/${id}`).toEqual([])
+        const plurals = rowsOf
+          .get(`${lang}/${id}`)!
+          .filter(([display, , , canonical]) => {
+            if (!canonical) return false
+            const form = compactWord(display)
+            const base = canonical.replace(/ /g, '')
+            return form !== base && form.startsWith(base) && form.length - base.length <= 2
+          })
+        expect(plurals.map(([display]) => display), `${lang}/${id}`).toEqual([])
       }
     }
   })
 
   it('score no country on a code: two letters are an ISO code, three capitals an IOC one', () => {
+    // Save the two codes that are the name everyone says (SHORT_NAMES).
+    const names = new Set(['usa', 'uk'])
     for (const lang of LANGS) {
       const codes = rowsOf
         .get(`${lang}/pays`)!
         .map(([display]) => display)
+        .filter((display) => !names.has(compactWord(display)))
         .filter((display) => compactWord(display).length <= 2 || /^[A-Z]{3}$/.test(display))
       expect(codes, lang).toEqual([])
     }

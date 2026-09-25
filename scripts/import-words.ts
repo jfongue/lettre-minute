@@ -13,11 +13,11 @@ import { createReadStream, mkdirSync, readFileSync, writeFileSync, existsSync } 
 import { createInterface } from 'node:readline'
 import { Readable } from 'node:stream'
 import { createGunzip } from 'node:zlib'
-import { compactWord, normalizeWord } from '../src/domain/text.ts'
+import { compactWord, initialOf, normalizeWord } from '../src/domain/text.ts'
 import type { WordRow } from '../src/domain/words.ts'
 import { LANGUAGES, TOPICS, type Lang, type LanguageSource } from './languages.ts'
 import { loadFrequencies } from './wordfreq.ts'
-import { ADDED_WORDS, DROPPED_WORDS, PLACEHOLDER_ELEMENT } from './dropped-words.ts'
+import { ADDED_ALIASES, ADDED_WORDS, DROPPED_WORDS, PLACEHOLDER_ELEMENT, SHORT_NAMES } from './dropped-words.ts'
 import { loadCommunityWords } from './community-words.ts'
 import { CATEGORY_SOURCES, CITIES_PER_COUNTRY, LARGE_COUNTRY_POPULATION, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
 
@@ -55,7 +55,11 @@ function pathsFor(lang: Lang) {
  */
 const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
   couleurs: ['Couleurs en français'],
-  'fruits-legumes': ['Fruits en français', 'Légumes en français'],
+  // A herb is what a cook calls a vegetable; Wikidata's class of vegetables
+  // holds none.
+  // (« Champignons en français » files every amanita and a mushroom called
+  // « canari »: the edible ones are added by hand.)
+  'fruits-legumes': ['Fruits en français', 'Légumes en français', 'Plantes aromatiques en français'],
   animaux: [
     'Animaux en français',
     'Mammifères en français',
@@ -113,7 +117,14 @@ const FRENCH_TREE_CACHE = '.cache/wiktionnaire-subcategories.json'
 const FRENCH_TREE_DEPTH = 3
 
 /** A legal form closing a company's name, which nobody says when naming the brand. */
-const LEGAL_FORM = /,?\s+(?:Inc\.?|Incorporated|Ltd\.?|Limited|Corp\.?|Corporation|Company|Co\.|plc|PLC|LLC|AG|SE|GmbH|S\.?A\.?|S\.p\.A\.?|N\.V\.?|B\.V\.?|Holdings?)$/
+const LEGAL_FORM = /,?\s+(?:Motor\s+)?(?:Inc\.?|Incorporated|Ltd\.?|Limited|Corp\.?|Corporation|Company|Co\.|plc|PLC|LLC|AG|SE|GmbH|S\.?A\.?|S\.p\.A\.?|N\.V\.?|B\.V\.?|Holdings?|Group)$|-Gruppe$|\.com$/
+
+/**
+ * « Groupe Samsung », « Groupe BMW »: the French group is the brand. "Motor"
+ * above only goes with a legal form — "Ford Motor Company", "Ducati Motor
+ * Holding" — or "General Motors" would be answered as General.
+ */
+const GROUP_PREFIX = /^Groupe /
 
 /** English is the language of company names whatever the dictionary's: "The Coca-Cola Company" in French too. */
 const CORPORATE_ARTICLE = /^the /i
@@ -155,6 +166,8 @@ interface Row {
   sitelinks: number
   /** Aliases get an extra cleanup pass: only they carry articles. */
   alias?: boolean
+  /** The label of the item an alias names: the word it scores as. */
+  of?: string
 }
 
 /**
@@ -219,7 +232,7 @@ async function sparql(query: string, attempts = 4, attempt = 1): Promise<Row[]> 
       for (const line of table.slice(1)) {
         const sitelinks = Number(line[countAt] ?? 0) || 0
         if (labelAt >= 0 && line[labelAt]) rows.push({ display: line[labelAt]!, sitelinks })
-        if (aliasAt >= 0 && line[aliasAt]) rows.push({ display: line[aliasAt]!, sitelinks, alias: true })
+        if (aliasAt >= 0 && line[aliasAt]) rows.push({ display: line[aliasAt]!, sitelinks, alias: true, of: line[labelAt] })
       }
       return rows
     }
@@ -235,10 +248,10 @@ async function sparql(query: string, attempts = 4, attempt = 1): Promise<Row[]> 
     const rows: Row[] = []
     for (const binding of payload.results.bindings) {
       const sitelinks = Number(binding.n?.value ?? 0)
-      for (const key of ['label', 'alias'] as const) {
-        const value = binding[key]?.value
-        if (value) rows.push({ display: value, sitelinks, alias: key === 'alias' })
-      }
+      const label = binding.label?.value
+      if (label) rows.push({ display: label, sitelinks, alias: false })
+      const alias = binding.alias?.value
+      if (alias) rows.push({ display: alias, sitelinks, alias: true, ...(label ? { of: label } : {}) })
     }
     return rows
   } catch (error) {
@@ -324,7 +337,7 @@ async function frenchSubcategories(root: string): Promise<string[]> {
 }
 
 async function pullRows(pull: Pull, scope: Scope, dir: string, force: boolean, attempts: number): Promise<Row[]> {
-  const path = `${dir}/${pull.id}.json`
+  const path = `${dir}/${pull.id}${pull.version ? `-v${pull.version}` : ''}.json`
   if (!force && existsSync(path)) {
     const cached = JSON.parse(readFileSync(path, 'utf8')) as Row[]
     console.log(`· ${pull.id}: ${cached.length} lignes (cache)`)
@@ -488,13 +501,14 @@ async function largestCities(scope: Scope, attempts: number): Promise<Row[]> {
   for (let start = 0; start < ids.length; start += 300) {
     rows.push(
       ...(await sparql(
-        `SELECT ?label ?n WHERE {
+        `SELECT ?label ?alias ?n WHERE {
   VALUES ?item { ${ids
     .slice(start, start + 300)
     .map((id) => `wd:${id}`)
     .join(' ')} }
-  ?item rdfs:label ?label ; wikibase:sitelinks ?n .
-  ${scope.inLanguage('?label')}
+  ?item wikibase:sitelinks ?n .
+  ${scope.label('?item')}
+  ${scope.aliases('?item')}
 }`,
         attempts,
       )),
@@ -819,12 +833,24 @@ async function loadKaikki(source: LanguageSource, path: string, wanted: Readonly
     }
   }
 
-  writeFileSync(path, JSON.stringify({ wanted: [...wanted], forms: [...formsOf], topics: [...topics] }))
+  // Several checkouts share the cache, each wanting its own topics: the ones
+  // another asked for are kept, or each run would stream the dump again.
+  const kept = previousTopics(path, wanted)
+  const written = new Map([...kept.topics, ...topics])
+  writeFileSync(path, JSON.stringify({ wanted: [...new Set([...kept.wanted, ...wanted])], forms: [...formsOf], topics: [...written] }))
   const lemmaOf = new Map<string, string>()
   for (const [lemma, forms] of formsOf) for (const form of forms) lemmaOf.set(normalizeWord(form), lemma)
   for (const lemma of formsOf.keys()) lemmaOf.set(lemma, lemma)
   console.log(`· kaikki ${source.code}: ${formsOf.size} lemmes, ${topics.size} thèmes`)
   return { lemmaOf, formsOf, topics }
+}
+
+/** The topics a cache already holds that this run did not ask for. */
+function previousTopics(path: string, wanted: ReadonlySet<string>): { wanted: string[]; topics: [string, string[]][] } {
+  if (!existsSync(path)) return { wanted: [], topics: [] }
+  const cached = JSON.parse(readFileSync(path, 'utf8')) as { wanted: string[]; topics: [string, string[]][] }
+  const others = cached.wanted.filter((topic) => !wanted.has(topic))
+  return { wanted: others, topics: cached.topics.filter(([topic]) => others.includes(topic)) }
 }
 
 /** Words too common in a gloss to say which sense a translation belongs to. */
@@ -924,9 +950,21 @@ async function loadTranslations(
     }
   }
 
+  const kept = existsSync(TRANSLATIONS_CACHE)
+    ? (JSON.parse(readFileSync(TRANSLATIONS_CACHE, 'utf8')) as { wanted: string[]; byLang: Record<string, [string, string[]][]> })
+    : { wanted: [], byLang: {} }
+  const others = kept.wanted.filter((topic) => !wanted.has(topic))
   writeFileSync(
     TRANSLATIONS_CACHE,
-    JSON.stringify({ wanted: [...wanted], byLang: Object.fromEntries([...byLang].map(([lang, topics]) => [lang, [...topics]])) }),
+    JSON.stringify({
+      wanted: [...wanted, ...others],
+      byLang: Object.fromEntries(
+        [...byLang].map(([lang, topics]) => [
+          lang,
+          [...new Map(kept.byLang[lang] ?? []).entries()].filter(([topic]) => others.includes(topic)).concat([...topics]),
+        ]),
+      ),
+    }),
   )
   for (const [lang, topics] of byLang) {
     console.log(`· traductions ${lang}: ${[...topics.values()].reduce((sum, words) => sum + words.length, 0)} mots`)
@@ -950,6 +988,43 @@ function acceptable(display: string): boolean {
   // A letter the matching cannot spell in ASCII — « ə », « ŋ » — would vanish
   // from the answer, and a word judged without one of its letters is another word.
   return [...display.normalize('NFC')].every((char) => !/\p{L}/u.test(char) || normalizeWord(char) !== '')
+}
+
+const ACRONYM = /^[A-Z]{2,5}$/
+
+/** « Kentucky Fried Chicken » → KFC. */
+function initials(label: string): string {
+  return label
+    .split(/[\s-]+/)
+    .map((word) => word.charAt(0).toUpperCase())
+    .join('')
+}
+
+/**
+ * The spellings a Wikidata row gives a player to type, with the title its
+ * Wikipedia article goes by.
+ */
+function spellings(row: Row, source: LanguageSource, corporate: boolean): { display: string; title: string }[] {
+  // "le Canada" is a real French alias, but keeping it would let the
+  // player answer a country on the letter L. Only aliases are stripped:
+  // in a label the article belongs to the name ("Le Havre").
+  let cleaned = (row.alias ? row.display.replace(source.articles, '') : row.display).trim().replace(/\s+/g, ' ')
+  const title = cleaned
+  if (corporate) {
+    // "The Walt Disney Company" is said "Disney" or "Walt Disney": once the
+    // legal form is gone, a leading article is only a way to answer on T.
+    // Twice: "Amazon.com, Inc." closes on two.
+    for (let pass = 0; pass < 2 && LEGAL_FORM.test(cleaned); pass++) {
+      cleaned = cleaned.replace(LEGAL_FORM, '').replace(CORPORATE_ARTICLE, '')
+    }
+    cleaned = cleaned.replace(GROUP_PREFIX, '')
+  }
+  // Wikidata writes a French occupation as "boulanger ou boulangère".
+  // Both forms are words a player may type, so both are kept.
+  return (source.alternatives ? cleaned.split(source.alternatives) : [cleaned]).map((display) => ({
+    display,
+    title: display === cleaned ? title : display,
+  }))
 }
 
 interface Entry {
@@ -1061,7 +1136,14 @@ function main(argv: readonly string[]) {
 
     // Every category is gathered before any Wikipedia is read: the visits
     // come from one dump, streamed once for all of them.
-    const gathered: { id: string; best: Map<string, Entry>; attested: Set<string>; commonNouns: boolean; names: boolean }[] = []
+    const gathered: {
+      id: string
+      best: Map<string, Entry>
+      aliasOf: Map<string, { display: string; lemma: string }>
+      attested: Set<string>
+      commonNouns: boolean
+      names: boolean
+    }[] = []
     for (const category of CATEGORY_SOURCES) {
       // A category is a union: it is worth rebuilding from the pulls that
       // answered, as long as one did. Rebuilding from none would empty it.
@@ -1092,39 +1174,70 @@ function main(argv: readonly string[]) {
       // found in several pulls keeps its best notoriety.
       // `alias` stays true only while every row naming the word was an alias.
       const best = new Map<string, Entry>()
+      const keep = (key: string, display: string, sitelinks: number, alias: boolean, title: string) => {
+        const current = best.get(key)
+        if (!current) best.set(key, { display, sitelinks, alias, title })
+        else {
+          current.sitelinks = Math.max(current.sitelinks, sitelinks)
+          current.alias &&= alias
+          if (display.length < current.display.length) {
+            current.display = display
+            current.title = title
+          }
+        }
+      }
+      // An alias names the thing its label names, so it scores as that word,
+      // like an inflected form: « USA » after « États-Unis » is not a second
+      // country, « Samsung » after « Samsung Electronics » not a second brand.
+      // They are placed once every label is in: a label wins over an alias
+      // spelt like it.
+      const pending: { key: string; display: string; title: string; sitelinks: number; lemma?: string; byHand?: boolean }[] = []
       for (const id of sources) {
         const corporate = PULLS.find((pull) => pull.id === id)?.corporate === true
         for (const row of byPull.get(id)!) {
-          // "le Canada" is a real French alias, but keeping it would let the
-          // player answer a country on the letter L. Only aliases are stripped:
-          // in a label the article belongs to the name ("Le Havre").
-          let cleaned = (row.alias ? row.display.replace(source.articles, '') : row.display)
-            .trim()
-            .replace(/\s+/g, ' ')
-          const title = cleaned
-          // "The Walt Disney Company" is said "Disney" or "Walt Disney": once the
-          // legal form is gone, a leading article is only a way to answer on T.
-          if (corporate && LEGAL_FORM.test(cleaned)) cleaned = cleaned.replace(LEGAL_FORM, '').replace(CORPORATE_ARTICLE, '')
-
-          // Wikidata writes a French occupation as "boulanger ou boulangère".
-          // Both forms are words a player may type, so both are kept.
-          for (const display of source.alternatives ? cleaned.split(source.alternatives) : [cleaned]) {
+          // The label's first spelling is the word its aliases score as.
+          const lemma = row.alias && row.of !== undefined
+            ? spellings({ display: row.of, sitelinks: row.sitelinks }, source, corporate)
+                .map(({ display }) => normalizeWord(display))
+                .find((key) => key !== '')
+            : undefined
+          for (const { display, title } of spellings(row, source, corporate)) {
             if (!acceptable(display)) continue
             const key = normalizeWord(display)
             if (key === '' || excluded.has(key) || PLACEHOLDER_ELEMENT.test(key)) continue
-            if (row.alias && key.replace(/ /g, '').length < (category.shortestAlias ?? 0)) continue
-            const current = best.get(key)
-            if (!current) best.set(key, { display, sitelinks: row.sitelinks, alias: row.alias === true, title: display === cleaned ? title : display })
-            else {
-              current.sitelinks = Math.max(current.sitelinks, row.sitelinks)
-              current.alias &&= row.alias === true
-              if (display.length < current.display.length) {
-                current.display = display
-                current.title = display === cleaned ? title : display
-              }
+            if (!row.alias) {
+              keep(key, display, row.sitelinks, false, title)
+              continue
             }
+            if (key.replace(/ /g, '').length < (category.shortestAlias ?? 0) && !SHORT_NAMES.includes(key)) continue
+            pending.push({ key, display, title, sitelinks: row.sitelinks, ...(lemma === undefined ? {} : { lemma }) })
           }
         }
+      }
+      for (const [alias, label] of Object.entries(ADDED_ALIASES[category.id]?.[lang] ?? {})) {
+        pending.push({ key: normalizeWord(alias), display: alias, title: alias, sitelinks: 0, lemma: normalizeWord(label), byHand: true })
+      }
+      const aliasOf = new Map<string, { display: string; lemma: string }>()
+      for (const alias of pending) {
+        if (best.get(alias.key)?.alias === false) continue
+        const base = alias.lemma === undefined ? undefined : best.get(alias.lemma)
+        if (alias.byHand && !base) console.warn(`! ${lang}/${category.id}: « ${alias.display} » renvoie à un mot absent`)
+        if (alias.lemma === alias.key) continue
+        // An alias of a label the category refused — too long to type, a
+        // plant's organ — is refused with it. Only an old cache, which never
+        // said whose alias it was, leaves it standing for itself.
+        if (!base) {
+          if (alias.lemma === undefined) keep(alias.key, alias.display, alias.sitelinks, true, alias.title)
+          continue
+        }
+        const strict = category.strictAliases && !alias.byHand
+        if (strict && initialOf(alias.display) !== initialOf(base.display)) continue
+        if (strict && compactWord(alias.display).startsWith(compactWord(base.display))) continue
+        // Capitals are initials when they spell the label's — KFC — and a code
+        // when they do not: the airlines' AAL, AHY, AJM.
+        if (strict && ACRONYM.test(alias.display) && alias.display !== initials(base.display)) continue
+        const current = aliasOf.get(alias.key)
+        if (!current || best.get(current.lemma)!.sitelinks < base.sitelinks) aliasOf.set(alias.key, { display: alias.display, lemma: alias.lemma! })
       }
 
       // The words the Wiktionary files under this very category: for them, and
@@ -1153,7 +1266,7 @@ function main(argv: readonly string[]) {
         // alone, which is exactly what a common noun has.
         best.set(key, { display, sitelinks: 0, alias: false, title: display })
       }
-      gathered.push({ id: category.id, best, attested, commonNouns: listed !== null, names: category.names === true })
+      gathered.push({ id: category.id, best, aliasOf, attested, commonNouns: listed !== null, names: category.names === true })
     }
 
     // Inflected forms borrow the notoriety of the word they bend, so only the
@@ -1167,7 +1280,7 @@ function main(argv: readonly string[]) {
     for (const title of articles.values()) if (title && title !== DISAMBIGUATION) titles.add(title)
     const visits = await wikipediaVisits(lang, titles)
 
-    for (const { id, best, attested, commonNouns, names } of gathered) {
+    for (const { id, best, aliasOf, attested, commonNouns, names } of gathered) {
       const rows = new Map<string, WordRow>()
       const dropped = new Set<string>()
       for (const [key, entry] of best) {
@@ -1208,12 +1321,27 @@ function main(argv: readonly string[]) {
         rows.set(key, daily === undefined ? fields : [...fields, '', daily])
       }
 
+      // An alias is kept with the word it names, and dropped with it.
+      let aliases = 0
+      for (const [key, { display, lemma }] of aliasOf) {
+        const base = rows.get(lemma)
+        if (!base || base[3] || rows.has(key)) continue
+        rows.set(key, [display, base[1], 0, lemma])
+        aliases++
+      }
+
       // Every inflected form of an accepted word is accepted too, pointing back
       // at it: "chats" scores like "chat", and cannot be played twice in the
-      // same run under two spellings.
+      // same run under two spellings. An alias bends too: « ventres » is the
+      // abdomen's.
       let variants = 0
-      for (const [key, entry] of names ? [] : best) {
-        if (dropped.has(key)) continue
+      const bending: [string, string][] = names
+        ? []
+        : [
+            ...[...best.keys()].filter((key) => rows.has(key)).map((key): [string, string] => [key, key]),
+            ...[...aliasOf].filter(([key, { lemma }]) => rows.get(key)?.[3] === lemma).map(([key, { lemma }]): [string, string] => [key, lemma]),
+          ]
+      for (const [key, target] of bending) {
         const lemma = lexicon.lemmaOf.get(key)
         if (!lemma) continue
         for (const inflected of lexicon.formsOf.get(lemma) ?? []) {
@@ -1223,7 +1351,7 @@ function main(argv: readonly string[]) {
           const formKey = normalizeWord(form)
           if (formKey === '' || rows.has(formKey) || !acceptable(form)) continue
           const frequency = attested.has(key) ? (frequencies.get(form.normalize('NFC').toLowerCase()) ?? 0) : 0
-          rows.set(formKey, [form, entry.sitelinks, rounded(frequency), key])
+          rows.set(formKey, [form, rows.get(target)![1], rounded(frequency), target])
           variants++
         }
       }
@@ -1257,7 +1385,7 @@ function main(argv: readonly string[]) {
 
       // One row per line, so a regenerated dictionary diffs word by word.
       writeFileSync(`${paths.out}/${id}.json`, `[\n${lines.join(',\n')}\n]\n`)
-      console.log(`→ ${lang}/${id}: ${lines.length} mots (dont ${variants} formes fléchies)`)
+      console.log(`→ ${lang}/${id}: ${lines.length} mots (dont ${variants} formes fléchies, ${aliases} alias)`)
     }
     if (failed.length > 0) console.warn(`! sources en échec : ${failed.join(', ')}`)
   })()

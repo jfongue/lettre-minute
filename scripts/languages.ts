@@ -55,7 +55,10 @@ export const TOPICS: Record<string, Topics> = {
     topics: ['Colors', 'Blacks', 'Blues', 'Browns', 'Colors of the rainbow', 'Greens', 'Greys', 'Oranges', 'Pinks', 'Purples', 'Reds', 'Violets', 'Whites', 'Yellows'],
   },
   'fruits-legumes': {
-    topics: ['Fruits', 'Berries', 'Stone fruits', 'Citrus fruits', 'Vegetables', 'Root vegetables', 'Leaf vegetables', 'Peppers', 'Alliums', 'Legumes', 'Squashes', 'Cabbages'],
+    topics: [
+      'Fruits', 'Berries', 'Stone fruits', 'Citrus fruits', 'Vegetables', 'Root vegetables', 'Leaf vegetables', 'Peppers',
+      'Alliums', 'Legumes', 'Squashes', 'Cabbages', 'Nuts', 'Herbs', 'Mushrooms',
+    ],
   },
   animaux: {
     topics: ['Animals'],

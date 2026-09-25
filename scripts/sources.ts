@@ -35,6 +35,12 @@ export interface Pull {
    * the endpoint out, and its own city classes leave out Paris and Berlin.
    */
   largestCities?: boolean
+  /**
+   * Bumped whenever the query changes what its rows carry: the cache under
+   * `.cache/pulls` is keyed on it, and shared by every checkout of the repo —
+   * another one may still be reading the old file.
+   */
+  version?: number
 }
 
 /**
@@ -51,14 +57,28 @@ export interface Scope {
   inLanguage(variable: string): string
   /** `https://fr.wikipedia.org/` */
   wikipedia: string
+  /**
+   * Binds `?label` to the item's label in the language, or else to its
+   * multilingual one: Wikidata now files a name spelt alike everywhere —
+   * Oslo, WhatsApp, PlayStation — under "mul" alone, with no "en" or "fr".
+   * Only for names: a taxon's "mul" label is its Latin binomial.
+   */
+  label(item: string): string
+  /** Binds `?alias` to each of the item's aliases in the language, when it has any. */
+  aliases(item: string): string
 }
 
 export function scopeFor(labels: readonly string[], wiki: string): Scope {
   const tags = labels.map((tag) => `"${tag}"`).join(', ')
+  const inLanguage = (variable: string) =>
+    labels.length === 1 ? `FILTER(lang(${variable}) = ${tags})` : `FILTER(lang(${variable}) IN (${tags}))`
   return {
-    inLanguage: (variable) =>
-      labels.length === 1 ? `FILTER(lang(${variable}) = ${tags})` : `FILTER(lang(${variable}) IN (${tags}))`,
+    inLanguage,
     wikipedia: `https://${wiki}.wikipedia.org/`,
+    label: (item) => `OPTIONAL { ${item} rdfs:label ?own . ${inLanguage('?own')} }
+  OPTIONAL { ${item} rdfs:label ?mul . FILTER(lang(?mul) = "mul") }
+  BIND(COALESCE(?own, ?mul) AS ?label) FILTER(BOUND(?label))`,
+    aliases: (item) => `OPTIONAL { ${item} skos:altLabel ?alias . ${inLanguage('?alias')} }`,
   }
 }
 
@@ -79,24 +99,72 @@ const STAPLE_MATERIALS = [
   'Q124695', 'Q146439', 'Q145205', 'Q28823', 'Q1426327', 'Q213371', 'Q392551',
   // Ivory, nacre, amber, horn, bone, graphite, diamond, quartz, mica, coal, petroleum.
   'Q82001', 'Q215865', 'Q25381', 'Q65284752', 'Q265868', 'Q5309', 'Q5283', 'Q43010', 'Q114675', 'Q24489', 'Q22656',
+  // Salt, oil, silk, straw, fur, feather, soil, mud, dust, ash, charcoal,
+  // petrol, diesel, natural gas, steam, snow, rock, chalk.
+  'Q11254', 'Q42962', 'Q37681', 'Q160066', 'Q197204', 'Q81025', 'Q36133', 'Q170449', 'Q165632', 'Q152079', 'Q177463',
+  'Q39558', 'Q38423', 'Q40858', 'Q3251738', 'Q7561', 'Q8063', 'Q183670',
+  // Polyester, nylon, latex, neoprene, acrylic glass, carbon fibre, velvet,
+  // lace, suede, denim, wicker, rattan, stainless steel, sheet metal.
+  'Q188245', 'Q177941', 'Q244680', 'Q143937', 'Q146123', 'Q5860', 'Q243519', 'Q231250', 'Q1071417', 'Q652698',
+  'Q1081013', 'Q323021', 'Q172587', 'Q211367',
   // Fire, water, air, ice, aether, gas, and the Earth.
   'Q3196', 'Q283', 'Q7391292', 'Q23392', 'Q381913', 'Q11432', 'Q2',
 ]
 
+const BRAND_CLASSES = [
+  // Brand, car manufacturer, business, public company, enterprise, company,
+  // corporation, video game publisher, software company, technology company.
+  'Q431289', 'Q786820', 'Q4830453', 'Q891723', 'Q6881511', 'Q783794', 'Q167037', 'Q1137109', 'Q1058914', 'Q18388277',
+  // Trademark, food brand, drink brand, bottled water, car brand, perfume
+  // brand, fashion label, fashion house, food manufacturer, motorcycle
+  // manufacturer, chaebol, airline.
+  'Q167270', 'Q16323605', 'Q114392939', 'Q1049049', 'Q10429667', 'Q137183855', 'Q1618899', 'Q1941779', 'Q1252971',
+  'Q15081030', 'Q482517', 'Q46970',
+  // Retail, supermarket, clothing store, hardware store and fast food chains.
+  'Q507619', 'Q18043413', 'Q76213285', 'Q27970162', 'Q18509232',
+  // Social networking service, online service, mobile app, instant messaging
+  // client, online video platform, video and music streaming services.
+  'Q3220391', 'Q19967801', 'Q620615', 'Q2462003', 'Q559856', 'Q59152282', 'Q15590336',
+]
+
+function brandLabel(scope: Scope): string {
+  return `OPTIONAL { ?item rdfs:label ?own . ${scope.inLanguage('?own')} }
+  OPTIONAL { ?item rdfs:label ?mul . FILTER(lang(?mul) = "mul") }
+  OPTIONAL { ?article schema:about ?item ; schema:isPartOf <${scope.wikipedia}> ; schema:name ?title . }
+  FILTER(BOUND(?title) || BOUND(?mul))
+  BIND(COALESCE(?own, ?mul, ?title) AS ?label)
+  ${scope.aliases('?item')}`
+}
+
 export const PULLS: readonly Pull[] = [
-  { id: 'countries', of: 'Q6256', aliases: true },
+  { id: 'countries', of: 'Q6256', aliases: true, version: 2 },
+  // England, Scotland, Wales and Northern Ireland are the country a player
+  // names, and no instance of "country": Wikidata files them as its parts.
+  {
+    id: 'home-nations',
+    of: 'Q3336843',
+    version: 2,
+    raw: (scope) => `SELECT ?label ?alias ?n WHERE {
+  VALUES ?item { wd:Q21 wd:Q22 wd:Q25 wd:Q26 }
+  ?item wikibase:sitelinks ?n .
+  ${scope.label('?item')}
+  ${scope.aliases('?item')}
+}`,
+  },
   {
     id: 'capitals',
     of: 'Q5119',
+    version: 2,
     // "Instance of capital" holds barely sixty items; what a player means by a
     // capital is the city some country declares as its own.
-    raw: (scope) => `SELECT ?label ?n WHERE {
+    raw: (scope) => `SELECT ?label ?alias ?n WHERE {
   ?country wdt:P31 wd:Q6256 ; wdt:P36 ?item .
-  ?item rdfs:label ?label ; wikibase:sitelinks ?n .
-  ${scope.inLanguage('?label')}
+  ?item wikibase:sitelinks ?n .
+  ${scope.label('?item')}
+  ${scope.aliases('?item')}
 }`,
   },
-  { id: 'largest-cities', of: 'Q515', largestCities: true },
+  { id: 'largest-cities', of: 'Q515', largestCities: true, version: 2 },
   // Iron, copper, bronze, and every alloy. No class of "material" will do:
   // "material" has food as a subclass, "building material" windows and menhirs.
   { id: 'metals', of: 'Q11426', subclass: true },
@@ -115,6 +183,7 @@ export const PULLS: readonly Pull[] = [
   {
     id: 'staple-materials',
     of: 'Q287',
+    version: 3,
     raw: (scope) => `SELECT ?label ?n WHERE {
   VALUES ?item { ${STAPLE_MATERIALS.map((id) => `wd:${id}`).join(' ')} }
   ?item rdfs:label ?label ; wikibase:sitelinks ?n .
@@ -182,35 +251,42 @@ export const PULLS: readonly Pull[] = [
   { id: 'caddisflies', of: 'Q184616', vernacular: true },
   { id: 'fleas', of: 'Q388162', vernacular: true },
   // Wikidata's corporate modelling has no single clean class: Nike and Chanel
-  // are instances of "brand", Renault of "car manufacturer". A legal form or an
-  // industry statement was tried too, but both sit on communes, the UN, or
-  // "football" as often as on a company — a filter too loose to trust. Two
-  // narrow pulls, unioned by the category, catch what a single query misses;
-  // the Wikipedia article title stands in for the label whenever Wikidata never
-  // gave the item one of its own — true for Coca-Cola and Facebook.
+  // are instances of "brand", Renault of "car manufacturer", Nutella of "food
+  // brand", Instagram of "social networking service", Zara of "clothing store
+  // chain". A legal form or an industry statement was tried too, but both sit
+  // on communes, the UN, or "football" as often as on a company — a filter too
+  // loose to trust. Two narrow pulls, unioned by the category, catch what a
+  // single query misses. Wherever Wikidata gives the item no label of the
+  // language, its multilingual one stands in — PlayStation, WhatsApp — and
+  // else the Wikipedia article's title — Coca-Cola, Facebook. An item known
+  // only by a label, with no article in the language, is someone else's brand.
+  // The aliases bring the name a player says: « Mercedes », « Ford », « KFC ».
   {
     id: 'brand-class',
     of: 'Q431289',
     corporate: true,
-    raw: (scope) => `SELECT ?label ?n WHERE {
-  VALUES ?class { wd:Q431289 wd:Q786820 wd:Q4830453 wd:Q891723 wd:Q6881511 wd:Q783794 wd:Q167037 wd:Q1137109 wd:Q1058914 wd:Q18388277 }
-  ?article schema:about ?item ; schema:isPartOf <${scope.wikipedia}> ; schema:name ?title .
+    version: 2,
+    raw: (scope) => `SELECT ?label ?alias ?n WHERE {
+  VALUES ?class { ${BRAND_CLASSES.map((id) => `wd:${id}`).join(' ')} }
   ?item wdt:P31 ?class ; wikibase:sitelinks ?n . FILTER(?n >= 15)
-  OPTIONAL { ?item rdfs:label ?ownlabel . ${scope.inLanguage('?ownlabel')} }
-  BIND(COALESCE(?ownlabel, ?title) AS ?label)
+  ${brandLabel(scope)}
 }`,
   },
   {
     id: 'brand-product',
     of: 'Q431289',
     corporate: true,
+    version: 2,
     // Reverse of "has brand" on a product — catches a brand entity that
     // carries none of the classes above, as long as one product of it names it.
-    raw: (scope) => `SELECT ?label ?n WHERE {
+    // Started from the language's articles: from the products, it times out.
+    raw: (scope) => `SELECT DISTINCT ?label ?alias ?n WHERE {
   ?article schema:about ?item ; schema:isPartOf <${scope.wikipedia}> ; schema:name ?title .
   ?product wdt:P1716 ?item . ?item wikibase:sitelinks ?n . FILTER(?n >= 15)
-  OPTIONAL { ?item rdfs:label ?ownlabel . ${scope.inLanguage('?ownlabel')} }
-  BIND(COALESCE(?ownlabel, ?title) AS ?label)
+  OPTIONAL { ?item rdfs:label ?own . ${scope.inLanguage('?own')} }
+  OPTIONAL { ?item rdfs:label ?mul . FILTER(lang(?mul) = "mul") }
+  BIND(COALESCE(?own, ?mul, ?title) AS ?label)
+  ${scope.aliases('?item')}
 }`,
   },
 ]
@@ -231,10 +307,18 @@ export interface CategorySource {
    * « GAB » — which would score a country on two keystrokes.
    */
   shortestAlias?: number
+  /**
+   * An alias only counts when it opens like its label and is not the label
+   * with more words: a city's aliases hold its nicknames — « Internationale
+   * Messestadt », « Ahuzat Bayit » — and a brand's its subsidiaries —
+   * « Ford Australia ». Either would answer on a letter the thing is not
+   * named on, or name another.
+   */
+  strictAliases?: boolean
 }
 
 export const CATEGORY_SOURCES: readonly CategorySource[] = [
-  { id: 'pays', pulls: ['countries'], names: true, shortestAlias: 4 },
+  { id: 'pays', pulls: ['countries', 'home-nations'], names: true, shortestAlias: 4 },
   { id: 'couleurs', pulls: ['colors', 'colors-sub'] },
   { id: 'fruits-legumes', pulls: ['fruits', 'vegetables'] },
   {
@@ -271,10 +355,11 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
   },
   { id: 'metiers', pulls: ['professions', 'professions-sub'] },
   { id: 'sports', pulls: ['sports', 'sports-sub'] },
-  { id: 'capitales', pulls: ['capitals', 'largest-cities'], names: true },
+  // The aliases of a city are IATA and UN/LOCODE codes as often as names.
+  { id: 'capitales', pulls: ['capitals', 'largest-cities'], names: true, shortestAlias: 4, strictAliases: true },
   { id: 'matieres', pulls: ['metals', 'staple-materials', 'chemical-elements'] },
   { id: 'corps-humain', pulls: ['anatomy'], exclude: ['plant-organ'] },
-  { id: 'marques', pulls: ['brand-class', 'brand-product'], names: true },
+  { id: 'marques', pulls: ['brand-class', 'brand-product'], names: true, strictAliases: true },
 ]
 
 export function queryFor(pull: Pull, scope: Scope): string {
