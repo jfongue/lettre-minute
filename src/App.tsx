@@ -14,7 +14,6 @@ import {
   fetchMySubmissions,
   markRequestsSeen,
   topUpModeration,
-  topUpModeration,
   type Submission,
   logIn,
   logInWithGoogle,
@@ -285,14 +284,6 @@ export function App() {
   }, [lang])
   // The account decides the role, the language which words wait for it.
   useEffect(refreshModeration, [refreshModeration, account?.name, account?.anonymous])
-
-  const moderator = moderation?.moderator === true
-  const topUpRequests = useCallback(() => {
-    if (!moderator) return
-    topUpModeration(lang).then((released) => {
-      if (released > 0) refreshModeration()
-    })
-  }, [moderator, lang, refreshModeration])
 
   const moderator = moderation?.moderator === true
   const topUpRequests = useCallback(() => {
@@ -1078,7 +1069,6 @@ export function App() {
             setModerating(true)
           }}
           onRequestsSeen={refreshModeration}
-          onRequestsOpen={topUpRequests}
           onRequestsOpen={topUpRequests}
           onErase={async () => {
             // The device keeps its copy until the server has let go of its
