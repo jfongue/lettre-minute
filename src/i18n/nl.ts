@@ -28,14 +28,10 @@ export const nl: Messages = {
   },
 
   tutorial: {
-    eyebrow: 'Voor je eerste spel',
-    title: 'Zo speel je',
-    stepPrompt: 'Er verschijnen een letter en een thema.',
-    stepType: 'Typ een woord uit het thema dat met die letter begint en bevestig.',
-    stepClock: (seconds) => `In een spel heb je ${seconds} seconden om er zoveel mogelijk te vinden.`,
-    ask: (letter) => `Een kleur met een ${letter}: die van een tomaat`,
-    hint: (word) => `Hint: typ ‘${word}’`,
-    solved: 'Goed zo! Het spel begint…',
+    ask: 'Typ een kleur met een',
+    hint: (word) => `Hint: ‘${word}’`,
+    solved: 'Goed zo!',
+    next: (seconds) => `Nu: ${seconds} s voor zoveel mogelijk woorden`,
     skip: 'Overslaan',
   },
 

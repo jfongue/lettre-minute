@@ -4894,22 +4894,107 @@ button.challenge-word[aria-expanded='true'] {
   letter-spacing: 0.06em;
 }
 
-.tutorial-title {
-  margin: 0;
-  font-size: clamp(2rem, 9vw, 2.75rem);
+.tutorial {
+  gap: 1.25rem;
+  animation: fade 300ms ease both;
+}
+
+.tutorial-skip {
+  justify-self: end;
+  margin-bottom: -0.75rem;
+}
+
+.tutorial-clue {
+  justify-self: start;
+  font-size: 2.4rem;
   line-height: 1;
-  font-weight: 800;
+  animation:
+    pop-in 480ms var(--ease-spring) 520ms both,
+    tutorial-bob 1.6s ease-in-out 1s infinite;
 }
 
-.tutorial-steps {
+.tutorial-ask {
   margin: 0;
-  padding-left: 1.4rem;
-  display: grid;
-  gap: 0.4rem;
-  line-height: 1.4;
+  font-size: clamp(1.25rem, 5.5vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  animation: rise 420ms var(--ease-out) 700ms both;
 }
 
-.tutorial-steps li::marker {
-  font-weight: 800;
+.tutorial-ask strong {
   color: var(--red);
+  font-weight: 800;
+}
+
+/* Tant que rien n’est tapé, le trait clignote pour montrer où écrire. */
+.tutorial-field--idle .answer-line {
+  transform: none;
+  background: var(--red);
+  animation: tutorial-blink 1.1s ease-in-out 1s infinite;
+}
+
+.tutorial-hint {
+  color: var(--red);
+  font-weight: 700;
+  animation: slide-from-left 320ms var(--ease-spring) both;
+}
+
+.tutorial-go {
+  animation: tutorial-beat 900ms ease-in-out infinite;
+}
+
+.tutorial--solved {
+  min-height: 60dvh;
+  place-content: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.tutorial-bravo {
+  margin: 0;
+  font-size: clamp(3rem, 16vw, 4.5rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--green);
+  animation: pop-in 520ms var(--ease-spring) both;
+}
+
+.tutorial-shapes {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.tutorial-shapes > * {
+  width: 1.6rem;
+  height: 1.6rem;
+  animation: spin-in 560ms var(--ease-spring) both;
+}
+
+.tutorial-shapes > :nth-child(1) { animation-delay: 180ms; }
+.tutorial-shapes > :nth-child(2) { animation-delay: 280ms; }
+.tutorial-shapes > :nth-child(3) { animation-delay: 380ms; }
+
+.tutorial-next {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  animation: rise 420ms var(--ease-out) 600ms both;
+}
+
+@keyframes tutorial-bob {
+  50% {
+    transform: translateY(-18%) rotate(-8deg);
+  }
+}
+
+@keyframes tutorial-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+@keyframes tutorial-beat {
+  50% {
+    transform: scale(1.04);
+  }
 }

@@ -34,14 +34,10 @@ export const en: Messages = {
   },
 
   tutorial: {
-    eyebrow: 'Before your first game',
-    title: 'How to play',
-    stepPrompt: 'A letter and a theme appear.',
-    stepType: 'Type a word from the theme that starts with that letter, then submit.',
-    stepClock: (seconds) => `In a game, you have ${seconds} seconds to find as many as you can.`,
-    ask: (letter) => `A colour starting with ${letter}: the colour of a tomato`,
-    hint: (word) => `Hint: type “${word}”`,
-    solved: 'Well done! The game is starting…',
+    ask: 'Type a colour starting with',
+    hint: (word) => `Hint: “${word}”`,
+    solved: 'Well done!',
+    next: (seconds) => `Now: ${seconds} s to find as many as you can`,
     skip: 'Skip',
   },
 

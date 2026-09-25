@@ -28,14 +28,10 @@ export const pt: Messages = {
   },
 
   tutorial: {
-    eyebrow: 'Antes da tua primeira partida',
-    title: 'Como jogar',
-    stepPrompt: 'Aparecem uma letra e um tema.',
-    stepType: 'Escreve uma palavra do tema que comece por essa letra e valida.',
-    stepClock: (seconds) => `Na partida tens ${seconds} segundos para encontrar o máximo possível.`,
-    ask: (letter) => `Uma cor com ${letter}: a de um tomate`,
-    hint: (word) => `Dica: escreve «${word}»`,
-    solved: 'Muito bem! A partida vai começar…',
+    ask: 'Escreve uma cor com',
+    hint: (word) => `Dica: «${word}»`,
+    solved: 'Muito bem!',
+    next: (seconds) => `Agora: ${seconds} s para o máximo de palavras`,
     skip: 'Saltar',
   },
 

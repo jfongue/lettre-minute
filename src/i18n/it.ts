@@ -28,14 +28,10 @@ export const it: Messages = {
   },
 
   tutorial: {
-    eyebrow: 'Prima della tua prima partita',
-    title: 'Come si gioca',
-    stepPrompt: 'Compaiono una lettera e un tema.',
-    stepType: 'Scrivi una parola del tema che inizia con quella lettera, poi conferma.',
-    stepClock: (seconds) => `In partita hai ${seconds} secondi per trovarne il più possibile.`,
-    ask: (letter) => `Un colore con la ${letter}: quello di un pomodoro`,
-    hint: (word) => `Suggerimento: scrivi «${word}»`,
-    solved: 'Bravo! La partita comincia…',
+    ask: 'Scrivi un colore con la',
+    hint: (word) => `Suggerimento: «${word}»`,
+    solved: 'Bravo!',
+    next: (seconds) => `Ora: ${seconds} s per più parole possibili`,
     skip: 'Salta',
   },
 

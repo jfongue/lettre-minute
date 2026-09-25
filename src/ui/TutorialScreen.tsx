@@ -1,13 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
-import { RUN_SECONDS } from '../domain/run'
+import { RUN_SECONDS, type Prompt } from '../domain/run'
 import { capitalized, compactWord, initialOf } from '../domain/text'
-import { categoryText, useT } from '../i18n'
+import { categoryText, useT, type Messages } from '../i18n'
 import { sound } from '../lib/sound'
-import { LetterMark } from './bauhaus'
-import { motifAt } from './motifs'
+import { LetterMark, Shape } from './bauhaus'
+import { categoryMotif } from './motifs'
 
-/** Long enough to read the cheer, short enough not to feel like a wait. */
-const CHEER_MS = 1100
+/** Long enough to read what comes next, short enough to keep the pace. */
+const CHEER_MS = 1900
+
+/** Red in the interface's language, on its own initial: « Vermelho » asks for a V. */
+export function tutorialPrompt(t: Messages): Prompt & { answer: string } {
+  const answer = t.colours.rouge
+  return { categoryId: 'couleurs', letter: initialOf(answer), answer }
+}
 
 interface TutorialScreenProps {
   /** Validated or skipped: the real run starts either way. */
@@ -15,15 +21,14 @@ interface TutorialScreenProps {
 }
 
 /**
- * One prompt, one answer everybody knows: red, in the interface's language.
+ * One prompt, one answer everybody knows, and a tomato to point at it.
  * Compared here rather than through a `Judge`, so the lesson needs no
  * dictionary loaded and cannot be refused by one.
  */
 export function TutorialScreen({ onDone }: TutorialScreenProps) {
   const t = useT()
-  const answer = t.colours.rouge
-  const letter = initialOf(answer)
-  const category = categoryText(t, 'couleurs')
+  const { categoryId, letter, answer } = tutorialPrompt(t)
+  const category = categoryText(t, categoryId)
   const [draft, setDraft] = useState('')
   const [missed, setMissed] = useState(false)
   const [shaking, setShaking] = useState(false)
@@ -42,7 +47,7 @@ export function TutorialScreen({ onDone }: TutorialScreenProps) {
   const submit = () => {
     if (solved) return
     if (right) {
-      sound.found(0, 0)
+      sound.found(3, 0)
       setSolved(true)
       return
     }
@@ -52,26 +57,38 @@ export function TutorialScreen({ onDone }: TutorialScreenProps) {
     setMissed(true)
   }
 
+  if (solved)
+    return (
+      <div className="sheet tutorial tutorial--solved" role="status">
+        <p className="tutorial-bravo">{t.tutorial.solved}</p>
+        <span className="tutorial-shapes" aria-hidden="true">
+          <Shape kind="circle" tint="red" />
+          <Shape kind="triangle" tint="yellow" />
+          <Shape kind="quarter" tint="blue" />
+        </span>
+        <p className="tutorial-next">{t.tutorial.next(RUN_SECONDS)}</p>
+      </div>
+    )
+
   return (
     <div className="sheet tutorial">
-      <header className="stack">
-        <p className="eyebrow">{t.tutorial.eyebrow}</p>
-        <h1 className="tutorial-title">{t.tutorial.title}</h1>
-      </header>
-
-      <ol className="tutorial-steps">
-        <li>{t.tutorial.stepPrompt}</li>
-        <li>{t.tutorial.stepType}</li>
-        <li>{t.tutorial.stepClock(RUN_SECONDS)}</li>
-      </ol>
+      <button type="button" className="btn btn--quiet btn--muted tutorial-skip" onClick={onDone}>
+        {t.tutorial.skip}
+      </button>
 
       <section className="prompt">
-        <LetterMark letter={letter} motif={motifAt(0)} size="lg" />
+        <LetterMark letter={letter} motif={categoryMotif(categoryId)} size="lg" />
         <div className="prompt-text">
           <h2 className="prompt-label">{category.label}</h2>
-          <p className="note">{t.tutorial.ask(letter)}</p>
+          <span className="tutorial-clue" aria-hidden="true">
+            🍅
+          </span>
         </div>
       </section>
+
+      <p className="tutorial-ask">
+        {t.tutorial.ask} <strong>{letter}</strong>
+      </p>
 
       <form
         className={`answer${right ? ' answer--valid' : ''}`}
@@ -80,7 +97,10 @@ export function TutorialScreen({ onDone }: TutorialScreenProps) {
           submit()
         }}
       >
-        <div className={`answer-field${shaking ? ' answer-field--shake' : ''}`} onAnimationEnd={() => setShaking(false)}>
+        <div
+          className={`answer-field${draft === '' ? ' tutorial-field--idle' : ''}${shaking ? ' answer-field--shake' : ''}`}
+          onAnimationEnd={() => setShaking(false)}
+        >
           <input
             ref={field}
             value={draft}
@@ -95,32 +115,21 @@ export function TutorialScreen({ onDone }: TutorialScreenProps) {
             autoCapitalize="sentences"
             spellCheck={false}
             enterKeyHint="done"
-            readOnly={solved}
           />
           <span className="answer-line" aria-hidden="true" />
         </div>
 
-        {solved ? (
-          <p className="cheer verdict">
-            <span className="cheer-word">{answer}</span>
-            <span className="note">{t.tutorial.solved}</span>
-          </p>
-        ) : right ? (
+        {right ? (
           <p className="verdict verdict--valid">✓ {answer}</p>
         ) : missed ? (
-          <p className="verdict">{t.tutorial.hint(answer)}</p>
+          <p className="verdict tutorial-hint">{t.tutorial.hint(answer)}</p>
         ) : (
           <p className="verdict">&nbsp;</p>
         )}
 
-        <div className="answer-actions">
-          <button type="button" className="btn btn--ghost" onClick={onDone} disabled={solved}>
-            {t.tutorial.skip}
-          </button>
-          <button type="submit" className="btn btn--blue" disabled={solved}>
-            {t.run.submit}
-          </button>
-        </div>
+        <button type="submit" className={`btn btn--blue btn--block${right ? ' tutorial-go' : ''}`}>
+          {t.run.submit}
+        </button>
       </form>
     </div>
   )

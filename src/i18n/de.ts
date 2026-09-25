@@ -28,14 +28,10 @@ export const de: Messages = {
   },
 
   tutorial: {
-    eyebrow: 'Vor deinem ersten Spiel',
-    title: 'So wird gespielt',
-    stepPrompt: 'Ein Buchstabe und ein Thema erscheinen.',
-    stepType: 'Tippe ein Wort aus dem Thema, das mit diesem Buchstaben beginnt, und bestätige.',
-    stepClock: (seconds) => `Im Spiel hast du ${seconds} Sekunden, um so viele wie möglich zu finden.`,
-    ask: (letter) => `Eine Farbe mit ${letter}: die Farbe einer Tomate`,
-    hint: (word) => `Tipp: schreib „${word}“`,
-    solved: 'Super! Das Spiel beginnt…',
+    ask: 'Tippe eine Farbe mit',
+    hint: (word) => `Tipp: „${word}“`,
+    solved: 'Super!',
+    next: (seconds) => `Jetzt: ${seconds} s für so viele Wörter wie möglich`,
     skip: 'Überspringen',
   },
 

@@ -28,14 +28,10 @@ export const es: Messages = {
   },
 
   tutorial: {
-    eyebrow: 'Antes de tu primera partida',
-    title: 'Cómo se juega',
-    stepPrompt: 'Aparecen una letra y un tema.',
-    stepType: 'Escribe una palabra del tema que empiece por esa letra y valida.',
-    stepClock: (seconds) => `En la partida tienes ${seconds} segundos para encontrar todas las que puedas.`,
-    ask: (letter) => `Un color con ${letter}: el de un tomate`,
-    hint: (word) => `Pista: escribe «${word}»`,
-    solved: '¡Bien hecho! Empieza la partida…',
+    ask: 'Escribe un color con',
+    hint: (word) => `Pista: «${word}»`,
+    solved: '¡Bien hecho!',
+    next: (seconds) => `Ahora: ${seconds} s para todas las palabras que puedas`,
     skip: 'Saltar',
   },
 

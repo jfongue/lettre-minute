@@ -46,7 +46,7 @@ import {
 } from './domain/challenge'
 import type { PowerId } from './domain/powers'
 import { NEW_PROFILE, type Profile } from './domain/progression'
-import { hasPower, isHushed, nextPrompt, RUN_SECONDS, remainingSeconds } from './domain/run'
+import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { commonWord, withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
@@ -88,7 +88,7 @@ import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
 import { OverScreen } from './ui/OverScreen'
 import { RunScreen, type Racer } from './ui/RunScreen'
-import { TutorialScreen } from './ui/TutorialScreen'
+import { TutorialScreen, tutorialPrompt } from './ui/TutorialScreen'
 
 /** The boards as the home screen shows them: without a server, none at all. */
 async function loadBoards(): Promise<Boards | null> {
@@ -462,11 +462,19 @@ export function App() {
     setMenuPage(null)
     setTutorial(true)
   }, [session.profile.runs, play])
+  // The answer was just handed over: the run that follows must not deal the
+  // same pair. `lastPrompts` already keeps it out, and the run's own prompts
+  // replace it once it ends.
   const endTutorial = useCallback(() => {
     saveTutorialDone()
     setTutorial(false)
+    const banned = promptKey(tutorialPrompt(t))
+    const { lastPrompts } = profile.current
+    if (!lastPrompts.includes(banned)) {
+      dispatch({ type: 'profile-loaded', profile: { ...profile.current, lastPrompts: [...lastPrompts, banned] } })
+    }
     play()
-  }, [play])
+  }, [play, t])
 
   const named = account !== null && !account.anonymous
   const refreshChallenges = useCallback(() => {

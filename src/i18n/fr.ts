@@ -43,14 +43,10 @@ export const fr = {
   },
 
   tutorial: {
-    eyebrow: 'Avant ta première partie',
-    title: 'Comment jouer',
-    stepPrompt: 'Une lettre et un thème s’affichent.',
-    stepType: 'Tape un mot du thème qui commence par cette lettre, puis valide.',
-    stepClock: (seconds: number) => `En partie, tu as ${seconds} secondes pour en trouver le plus possible.`,
-    ask: (letter: string) => `Une couleur en ${letter} : celle d’une tomate`,
-    hint: (word: string) => `Indice : tape « ${word} »`,
-    solved: 'Bravo ! La partie commence…',
+    ask: 'Tape une couleur en',
+    hint: (word: string) => `Indice : « ${word} »`,
+    solved: 'Bravo !',
+    next: (seconds: number) => `Maintenant : ${seconds} s pour un max de mots`,
     skip: 'Passer',
   },
 
