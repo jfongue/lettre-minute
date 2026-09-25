@@ -2303,6 +2303,51 @@ button {
   gap: 0.75rem;
 }
 
+/* Couleurs imposées par la charte « Sign in with Google », claire et sombre ;
+   seule la forme reste celle du jeu. */
+.btn--google {
+  --google-fill: #ffffff;
+  --google-stroke: #747775;
+  --google-text: #1f1f1f;
+  background: var(--google-fill);
+  border: 1px solid var(--google-stroke);
+  color: var(--google-text);
+  font-family: 'Roboto', var(--font);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .btn--google {
+    --google-fill: #131314;
+    --google-stroke: #8e918f;
+    --google-text: #e3e3e3;
+  }
+}
+
+:root[data-theme='dark'] .btn--google {
+  --google-fill: #131314;
+  --google-stroke: #8e918f;
+  --google-text: #e3e3e3;
+}
+
+@media (hover: hover) {
+  .btn--google:not(:disabled):hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.btn--google:disabled {
+  opacity: 0.6;
+}
+
+.google-mark {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+
 .account-or {
   margin: 0.5rem 0;
   text-align: center;
