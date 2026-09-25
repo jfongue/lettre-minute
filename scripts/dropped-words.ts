@@ -90,12 +90,46 @@ export const DROPPED_WORDS: Readonly<Record<string, Readonly<Record<string, read
       'solanacée', 'spiréacées', 'tanacée', 'taxacée', 'taxacées', 'tiliacées', 'trigoniacées', 'turnéracées',
       'typhacées', 'urticacée', 'valérianacée', 'verbénacée', 'vitacée', 'xanthorrhoéacée', 'zingibéracée',
       'zostéracées', 'Ébénacées', 'équisétacées', 'papilionacé',
+      // Homographs the Wiktionnaire's "Plantes en français" root itself
+      // files under an unrelated sense — a wind, a shove, a bacterium, a
+      // mineral, a star — and a two-letter Antillean tree name no player
+      // outside the Antilles would give.
+      'alizé', 'bourrade', 'at', 'bacille', 'bacilles', 'azurite', 'antarès', 'ambon',
+      // A genus name misspelled ("Acinitum" for "Aconitum"), duplicating the
+      // real names "Aconit napel" and "Aconit anthore" already in the list.
+      'Acinitum napellus',
+      // A real dialectal name for wild oats, but its corpus frequency (and
+      // any player's first thought) is its crude modern sense.
+      'branlette',
     ],
     // A sense-matched translation table sometimes lands on the wrong sense of
     // an ambiguous gloss — a drink, not the fruit or plant it is made from.
     it: ['legale', 'aranciata'],
     es: ['chocolateado'],
     nl: ['jenever'],
+    // The English Wiktionary's "Trees", "Flowers" and "Plants" topics also
+    // hold a scattering of unrelated senses — a place, a person, a disease,
+    // fiction — that share a headword with a plant elsewhere in the table.
+    en: [
+      'arboretum', 'arboretums', 'arboreta', 'monolith', 'monoliths', 'greave', 'greaves', 'measles', 'triffid',
+      'triffids', 'treant', 'treants', 'storer', 'storers', 'strangler', 'stranglers', 'thug', 'thugs', 'upstart',
+      'upstarts', 'waver', 'wavers', 'sweets', 'purples', 'big', 'bigs', 'dent', 'dents', 'flint', 'flints',
+      'china', 'chinas', 'indian', 'indians', 'kaiserin', 'kaiserins', 'cornhuskers', 'cornhusker', 'lawyer',
+      'lawyers', 'snapper', 'snappers', 'moth', 'moths', 'rosie', 'rosies', 'lems', 'lem', 'epiphora', 'epiphoras',
+      'olay', 'olays', 'queen', 'queens', 'ait', 'aits', 'asham', 'ashams', 'abus', 'abu',
+    ],
+  },
+  // Everyday objects filed under "Tools" or "Containers" alongside a
+  // homograph — a garment, a bullfighter, an ethnic slur, a leadership
+  // title — and a mistranslation where an ambiguous English word ("tank")
+  // lent its unrelated sense to another language's table.
+  objets: {
+    fr: ['nègre', 'négresse', 'nègres', 'négresses', 'goy', 'primat', 'matador', 'matadors', 'polka', 'polkas', 'longuet', 'longuette', 'longuettes'],
+    en: ['boneless', 'starbase', 'starbases', 'cesca', 'cescas'],
+    it: ['carro armato'],
+    // A Wiktionary sense mismatch: not a container or a tool by any stretch,
+    // and a crude one besides.
+    pt: ['merda'],
   },
 }
 
@@ -140,22 +174,35 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
   // Everyday genus names the Wiktionary only files under "Genres de plantes"
   // — dropped wholesale above for its Latin scientific names — and one filed
   // only under the condiment category also skipped whole.
+  //
+  // "Cactus" has no topic of its own in the Wiktionary's tree — cacti are
+  // filed as succulents, a family the category never walks — so the word
+  // every player gives first is missing in every language that reads it.
+  // The English Wiktionary also names a fruit tree or a herb by a compound
+  // no one leads with — "fig tree", "stinging nettle" — where the bare word
+  // is the everyday one.
   plantes: {
-    fr: ['buis', 'aloès', 'curcuma'],
+    fr: ['buis', 'aloès', 'curcuma', 'palmier'],
     // The Wiktionary only files its plural "tulipas".
-    pt: ['tulipa'],
+    pt: ['tulipa', 'urtiga', 'lavanda', 'dente-de-leão', 'cato'],
+    en: ['cactus', 'nettle', 'ivy'],
+    es: ['cactus', 'diente de león'],
+    de: ['Brennnessel', 'Lavendel', 'Kaktus', 'Efeu', 'Bambus'],
+    it: ['ortica', 'lavanda', 'tarassaco', 'cactus', 'edera'],
+    nl: ['brandnetel', 'lavendel', 'cactus', 'klimop', 'bamboe'],
   },
   // Wikidata's own label for a staple object is sometimes a formal or
   // compound one — "téléphone mobile", "Leuchte" — never the bare word a
-  // player types first.
+  // player types first; a ballpoint pen, a wristwatch or a drinking glass
+  // the same way leaves the plain "pen", "watch" or "glass" unanswered.
   objets: {
-    en: ['phone'],
-    fr: ['téléphone', 'sac', 'vis'],
-    de: ['Telefon', 'Regenschirm', 'Lampe'],
+    en: ['phone', 'telephone', 'pen', 'glass', 'watch'],
+    fr: ['téléphone', 'sac', 'vis', 'montre'],
+    de: ['Telefon', 'Regenschirm', 'Lampe', 'Stift', 'Glas'],
     es: ['teléfono', 'lámpara'],
-    it: ['telefono', 'lampada'],
-    nl: ['telefoon', 'lamp'],
-    pt: ['telefone', 'lâmpada'],
+    it: ['telefono', 'lampada', 'penna', 'spazzolino'],
+    nl: ['telefoon', 'lamp', 'pen', 'glas', 'horloge'],
+    pt: ['telefone', 'lâmpada', 'caneta', 'copo'],
   },
 }
 

@@ -73,9 +73,19 @@ export const TOPICS: Record<string, Topics> = {
   },
   matieres: { topics: ['Materials', 'Metals', 'Alloys', 'Rocks', 'Textiles', 'Fabrics', 'Woods'] },
   'corps-humain': { topics: ['Body parts'] },
+  // Not expanded: walking "Trees", "Flowers", "Shrubs" and "Grasses" descends
+  // into every family, order, subfamily and tribe the tree holds — "Rue
+  // family plants", "Dalbergieae tribe plants" — which list a genus's Latin
+  // binomials, not a name a player would give. What is left below is what
+  // remained once those, cultivar names and "Woods" (lumber, not a plant)
+  // were pulled back out by hand.
   plantes: {
-    topics: ['Plants', 'Herbs', 'Ferns'],
-    expand: ['Trees', 'Flowers', 'Shrubs', 'Grasses'],
+    topics: [
+      'Plants', 'Herbs', 'Ferns', 'Trees', 'Conifers', 'Eucalypts', 'Fig trees', 'Hollies', 'Legumes', 'Maples',
+      'Oaks', 'Palm trees', 'Pome fruits', 'Stone fruits', 'Willows and poplars', 'Araucarians', 'Pines',
+      'Chickpeas', 'Mints', 'Sages', 'Acacias', 'Phaseolus beans', 'Vigna beans', 'Cotton', 'Flowers', 'Orchids',
+      'Roses', 'Alliums', 'Shrubs', 'Grasses', 'Bamboos', 'Grains', 'Maize (plant)', 'Maize (crop)', 'Maize (food)',
+    ],
   },
   // Not expanded: "Tools" also holds weapons, sports and medical equipment,
   // which are not the everyday objects the category means.
