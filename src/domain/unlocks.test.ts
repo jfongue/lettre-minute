@@ -69,7 +69,7 @@ describe('dealOffer', () => {
 
   it('falls back on the previous offer when nothing else is left', () => {
     const owned = ALL.slice(0, -3)
-    const profile: Profile = { ...atLevel(20), unlocked: owned, lastOffer: ALL.slice(-2) }
+    const profile: Profile = { ...atLevel(ALL.length * 3), unlocked: owned, lastOffer: ALL.slice(-2) }
 
     expect([...dealOffer(profile, ALL, 1).offer].sort()).toEqual([...ALL.slice(-3)].sort())
   })

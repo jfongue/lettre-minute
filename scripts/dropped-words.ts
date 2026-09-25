@@ -55,6 +55,48 @@ export const DROPPED_WORDS: Readonly<Record<string, Readonly<Record<string, read
       'pintado', 'atora', 'material', 'matéria', 'damasco', 'celular', 'cortina', 'castanho',
     ],
   },
+  // Botanical family names — the taxon's own vernacular name (P1843) is
+  // sometimes just its family, and the Wiktionary's "Genres de plantes" and
+  // "Familles de plantes" hold little else. Real French words, but no player
+  // types "Rosacées" or "cactacée" for a rose bush or a cactus; "jacée" and
+  // "échinacée" are kept, they are the everyday name of a plant, not a family.
+  plantes: {
+    fr: [
+      'Adoxacées', 'Aizoacées', 'Alismatacées', 'Amaryllidacées', 'Apiacées', 'Arécacées', 'Asparagacées',
+      'Berbéridacées', 'Brassicacées', 'Broméliacées', 'Brunoniacées', 'Butomacées', 'Campanulacées', 'Canellacées',
+      'Caprifoliacées', 'Cardioptéridacées', 'Caricacées', 'Caryophyllacées', 'Chloranthacées', 'Cistacées',
+      'Cléomacées', 'Convolvulacées', 'Cératophyllacées', 'Diapensiacées', 'Didieréacées', 'Dioncophyllacées',
+      'Dipsacacées', 'Dipsacées', 'Droséracées', 'Fagacées', 'Gentianacées', 'Griseliniacées', 'Gyrostémonacées',
+      'Haloragacées', 'Haloragidacées', 'Hydrocharitacées', 'Iridacées', 'Juglandacées', 'Limnanthacées',
+      'Lobéliacées', 'Lythracées', 'Marantacées', 'Molluginacées', 'Morinacées', 'Myodocarpacées', 'Mélanthiacées',
+      'Ményanthacées', 'Nyctaginacées', 'Nymphéacées', 'Oenothéracées', 'Onagracées', 'Orobanchacées', 'Osmondacée',
+      'Papavéracée', 'Papilionacées', 'Pennantiacées', 'Physénacées', 'Phytolaccacées', 'Pinacées',
+      'Plombaginacées', 'Plumbaginacées', 'Poacées', 'Polygonacées', 'Potamogétonacées', 'Renonculacées',
+      'Rhabdodendracées', 'Rosacées', 'Rubiacées', 'Rutacées', 'Résédacées', 'Salicacées', 'Salvadoracées',
+      'Sarcobatacées', 'Simmondsiacées', 'Solanacées', 'Staphyléacées', 'Stégnospermatacées', 'Ternstroemiacées',
+      'Théacées', 'Triméniacées', 'Valérianacées', 'Verbénacées', 'Wintéracées', 'acéracées', 'adoxacée',
+      'agavacées', 'amaryllidacée', 'ampélidacée', 'annonacée', 'annonacées', 'apiacée', 'aracée', 'aracées',
+      'araucariacée', 'araucariacées', 'asparagacée', 'astéracée', 'boraginacée', 'brassicacée', 'broméliacée',
+      'bétulacée', 'cactacée', 'calycanthacée', 'campanulacée', 'caryophyllacée', 'characée', 'chicoracée',
+      'chénopodiacée', 'cistacée', 'combrétacée', 'combrétacées', 'convolvulacée', 'crassulacée', 'cucurbitacée',
+      'cupressacée', 'cupressacées', 'cypéracées', 'datiscacée', 'dioscoréacée', 'diptérocarpacée',
+      'diptérocarpacées', 'euphorbiacée', 'fabacée', 'fabacées', 'fagacée', 'fucacée', 'gnétacée', 'géraniacée',
+      'géraniacées', 'hamamélidacée', 'hyacinthacée', 'hyacinthacées', 'hydrocharidacée', 'hydrophyllacée',
+      'iridacée', 'joncacée', 'joncacées', 'juglandacée', 'labiacée', 'lamiacée', 'lardizabalacée', 'lauracée',
+      'lauracées', 'liliacées', 'linacées', 'loliacées', 'magnoliacée', 'malvacée', 'malvacées', 'marsiléacée',
+      'musacée', 'ménispermacée', 'nymphéacée', 'oléacée', 'onagracée', 'orchidacée', 'palmacées', 'pandanacée',
+      'papilionacée', 'pinacée', 'podocarpacée', 'podocarpacées', 'podostémacées', 'protéacée', 'protéacées',
+      'rosacée', 'rubiacée', 'rutacée', 'salicacée', 'sapindacées', 'sapotacée', 'saxifragacée', 'scrofulariacée',
+      'solanacée', 'spiréacées', 'tanacée', 'taxacée', 'taxacées', 'tiliacées', 'trigoniacées', 'turnéracées',
+      'typhacées', 'urticacée', 'valérianacée', 'verbénacée', 'vitacée', 'xanthorrhoéacée', 'zingibéracée',
+      'zostéracées', 'Ébénacées', 'équisétacées', 'papilionacé',
+    ],
+    // A sense-matched translation table sometimes lands on the wrong sense of
+    // an ambiguous gloss — a drink, not the fruit or plant it is made from.
+    it: ['legale', 'aranciata'],
+    es: ['chocolateado'],
+    nl: ['jenever'],
+  },
 }
 
 /**
@@ -94,6 +136,26 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
     it: ['Google'],
     nl: ['Philips'],
     pt: ['Natura'],
+  },
+  // Everyday genus names the Wiktionary only files under "Genres de plantes"
+  // — dropped wholesale above for its Latin scientific names — and one filed
+  // only under the condiment category also skipped whole.
+  plantes: {
+    fr: ['buis', 'aloès', 'curcuma'],
+    // The Wiktionary only files its plural "tulipas".
+    pt: ['tulipa'],
+  },
+  // Wikidata's own label for a staple object is sometimes a formal or
+  // compound one — "téléphone mobile", "Leuchte" — never the bare word a
+  // player types first.
+  objets: {
+    en: ['phone'],
+    fr: ['téléphone', 'sac', 'vis'],
+    de: ['Telefon', 'Regenschirm', 'Lampe'],
+    es: ['teléfono', 'lámpara'],
+    it: ['telefono', 'lampada'],
+    nl: ['telefoon', 'lamp'],
+    pt: ['telefone', 'lâmpada'],
   },
 }
 

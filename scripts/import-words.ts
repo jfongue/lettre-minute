@@ -71,6 +71,8 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
   metiers: ['Métiers en français'],
   sports: ['Sports en français'],
   matieres: ['Métaux en français', 'Alliages en français', 'Roches en français', 'Textiles en français'],
+  plantes: ['Plantes en français'],
+  objets: ['Meubles en français', 'Ustensiles de cuisine en français', 'Outils en français', 'Récipients en français'],
 }
 
 /**
@@ -80,7 +82,7 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
  * the tree stays on its subject: Matières would wander into jewellery and
  * shipwrecks.
  */
-const FRENCH_WALKED = new Set(['animaux', 'metiers', 'sports', 'fruits-legumes'])
+const FRENCH_WALKED = new Set(['animaux', 'metiers', 'sports', 'fruits-legumes', 'plantes'])
 
 /** Subcategories that are about the subject rather than of it. */
 const FRENCH_SKIPPED = new Set([
@@ -94,6 +96,15 @@ const FRENCH_SKIPPED = new Set([
   'Religieux en français',
   'Soldats en français',
   'Sportifs en français',
+  // Condiments and sauces, not the plants they are made of — a subcategory
+  // of « Plantes » on the Wiktionary all the same.
+  'Épices, aromates et condiments en français',
+  'Plantes imaginaires en français',
+  // Botanical family and genus names, mostly Latin — « Rosacées », «
+  // Aubrieta » — that no player would type; the everyday genus names among
+  // them ("buis", "aloès") are added by hand instead.
+  'Familles de plantes en français',
+  'Genres de plantes en français',
 ])
 
 /**
@@ -107,7 +118,7 @@ const HOMOGRAPH_FREQUENCY = 10
  * Where subcategories name things after everyday words — breeds, butterflies,
  * apple varieties. A trade filed under Santé is « infirmière » for good.
  */
-const HOMOGRAPH_PRONE = new Set(['animaux', 'fruits-legumes'])
+const HOMOGRAPH_PRONE = new Set(['animaux', 'fruits-legumes', 'plantes'])
 
 const FRENCH_TREE_CACHE = '.cache/wiktionnaire-subcategories.json'
 const FRENCH_TREE_DEPTH = 3

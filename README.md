@@ -135,6 +135,7 @@ npm run lint         # oxlint
 npm run build        # tsc -b puis vite build
 npm run import:words # régénère src/data/words/fr/ (Wikidata, Wiktionnaire, Lexique, wordfreq, Wikipédia)
 npm run import:words -- --lang=de # idem pour une autre langue (en, es, de, it, nl, pt)
+npm run import:names # régénère prenoms, identique dans les sept langues (Wikidata, wordfreq)
 npm run web:publish  # build web et mise en ligne sur https://jfongue.github.io/lettre-minute/
 npm run android:sync # build web puis copie dans le projet Android
 npm run android:bundle # .aab signé pour le Play Store
@@ -198,6 +199,26 @@ celles qui parlent du sujet sans en être (viandes, animaux imaginaires,
 suffixes). Un mot que seule une sous-catégorie d'animaux ou de fruits atteste,
 que Wikidata ignore et qui dépasse dix occurrences par million est pris pour
 un homographe — « forme », « enfant », « suisse » — et laissé dehors.
+
+Les prénoms sont un cas à part : `scripts/first-names.ts` (`npm run import:names`)
+construit un seul fichier, copié tel quel dans les sept langues — un prénom ne
+change pas avec la langue de l'interface, et l'immigration porte les mêmes
+prénoms (Mohammed, Karim, Yasmine) dans chacun de ces pays sous la même
+orthographe. Il lit les classes Wikidata des prénoms masculins, féminins et
+mixtes, ancrées sur le graphe des pages de chaque Wikipédia du jeu plutôt que
+balayées en entier : une requête sans cette ancre répond en dessous du délai
+de l'entrepôt mais silencieusement tronquée, sans erreur ni indice — « Marie »,
+« John » et « Mohammed » manquaient à l'essai qui s'y est fié. Un prénom orthographié
+pareil dans toutes les langues n'est souvent étiqueté que sous le tag Wikidata
+« mul » (multilingue), pas sous « fr »/« en »/etc. — l'oublier en a longtemps
+écarté « Marie ». La notoriété vient de wordfreq (une fréquence propre à
+chaque prénom fait déborder son seuil de « connu » avant même de regarder les
+sitelinks) filtrée contre les articles, pronoms et prépositions des sept
+langues qui s'écrivent comme un prénom rare (« il », « per », « della ») : sans
+ce filtre, ces mots hériteraient de leur propre fréquence et passeraient pour
+les prénoms les plus connus du fichier. Un petit repli à la main
+(`ADDED_NAMES`) couvre les prénoms d'usage courant que Wikidata ne décrit sur
+aucune des sept Wikipédias (« Aïcha », « Mamadou »).
 
 `src/data/words.test.ts` relit chaque dictionnaire après import : forme des
 lignes, formes fléchies rattachées à un mot du fichier, aucune collision entre

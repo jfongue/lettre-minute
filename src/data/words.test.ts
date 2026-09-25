@@ -30,7 +30,7 @@ for (const lang of LANGS) {
 const pack = (lang: string, id: string) => packOf.get(`${lang}/${id}`)!
 
 /** The categories whose words are names: they do not bend, and a form there is a homograph's. */
-const NAMES = ['pays', 'capitales', 'marques']
+const NAMES = ['pays', 'capitales', 'marques', 'prenoms']
 
 describe('shipped dictionaries', () => {
   it('ship every catalogue category in every language', () => {
@@ -139,6 +139,9 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     matieres: ['fer', 'bois', 'or', 'oxygène', 'cuivre', 'verre', 'béton', 'coton'],
     capitales: ['Paris', 'Londres', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Nairobi', 'Lyon', 'Marseille', 'Munich', 'Anvers', 'Genève', 'Esch-sur-Alzette'],
     marques: ['Nike', 'Apple', 'Renault', 'Peugeot', 'Coca-Cola', 'Google', 'Adidas'],
+    prenoms: ['Léa', 'Marie', 'Pierre', 'Jean', 'Emma', 'Lucas', 'Mohammed', 'Fatima', 'Karim', 'Yasmine'],
+    plantes: ['rose', 'chêne', 'tulipe', 'ortie', 'fougère', 'sapin', 'lavande'],
+    objets: ['chaise', 'fourchette', 'clé', 'téléphone', 'parapluie', 'lampe'],
   },
   en: {
     pays: ['France', 'Germany', 'Japan', 'Brazil', 'Canada', 'United States', 'Mexico'],
@@ -151,6 +154,9 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     matieres: ['iron', 'wood', 'gold', 'oxygen', 'copper', 'glass', 'cotton'],
     capitales: ['Paris', 'London', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Lyon', 'Munich', 'Chicago', 'Manchester'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Toyota'],
+    prenoms: ['Emma', 'John', 'Mary', 'James', 'Sarah', 'Mohammed', 'Fatima', 'Kevin'],
+    plantes: ['rose', 'oak', 'tulip', 'nettle', 'fern', 'fir', 'lavender'],
+    objets: ['chair', 'fork', 'key', 'phone', 'umbrella', 'lamp'],
   },
   de: {
     pays: ['Frankreich', 'Deutschland', 'Japan', 'Brasilien', 'Kanada', 'Österreich'],
@@ -163,6 +169,9 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     matieres: ['Eisen', 'Holz', 'Gold', 'Sauerstoff', 'Kupfer', 'Glas'],
     capitales: ['Paris', 'London', 'Tokio', 'Berlin', 'Rom', 'Madrid'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Volkswagen'],
+    prenoms: ['Hans', 'Emma', 'Maria', 'Kevin', 'Mohammed'],
+    plantes: ['Rose', 'Eiche', 'Tulpe', 'Brennnessel', 'Farn', 'Tanne', 'Lavendel'],
+    objets: ['Stuhl', 'Gabel', 'Schlüssel', 'Telefon', 'Regenschirm', 'Lampe'],
   },
   es: {
     pays: ['Francia', 'Alemania', 'Japón', 'Brasil', 'Canadá', 'México'],
@@ -175,6 +184,9 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     matieres: ['hierro', 'madera', 'oro', 'oxígeno', 'cobre', 'vidrio'],
     capitales: ['París', 'Londres', 'Tokio', 'Berlín', 'Roma', 'Madrid'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Zara'],
+    prenoms: ['José', 'María', 'Juan', 'Sofía', 'Mohammed', 'Fatima'],
+    plantes: ['rosa', 'roble', 'tulipán', 'ortiga', 'helecho', 'abeto', 'lavanda'],
+    objets: ['silla', 'tenedor', 'llave', 'teléfono', 'paraguas', 'lámpara'],
   },
   it: {
     pays: ['Francia', 'Germania', 'Giappone', 'Brasile', 'Canada', 'Messico'],
@@ -187,6 +199,9 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     matieres: ['ferro', 'legno', 'oro', 'ossigeno', 'rame', 'vetro'],
     capitales: ['Parigi', 'Londra', 'Tokyo', 'Berlino', 'Roma', 'Madrid'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Fiat'],
+    prenoms: ['Giulia', 'Marco', 'Maria', 'Giuseppe', 'Mohammed'],
+    plantes: ['rosa', 'quercia', 'tulipano', 'ortica', 'felce', 'abete', 'lavanda'],
+    objets: ['sedia', 'forchetta', 'chiave', 'telefono', 'ombrello', 'lampada'],
   },
   nl: {
     pays: ['Frankrijk', 'Duitsland', 'Japan', 'Brazilië', 'Canada', 'België'],
@@ -199,6 +214,9 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     matieres: ['ijzer', 'hout', 'goud', 'zuurstof', 'koper', 'glas'],
     capitales: ['Parijs', 'Londen', 'Tokio', 'Berlijn', 'Rome', 'Madrid'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Philips'],
+    prenoms: ['Emma', 'Jan', 'Sanne', 'Mohammed', 'Fatima'],
+    plantes: ['roos', 'eik', 'tulp', 'brandnetel', 'varen', 'spar', 'lavendel'],
+    objets: ['stoel', 'vork', 'sleutel', 'telefoon', 'paraplu', 'lamp'],
   },
   pt: {
     pays: ['França', 'Alemanha', 'Japão', 'Brasil', 'Canadá', 'México'],
@@ -211,6 +229,9 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     matieres: ['ferro', 'madeira', 'ouro', 'oxigênio', 'cobre', 'vidro'],
     capitales: ['Paris', 'Londres', 'Tóquio', 'Berlim', 'Roma', 'Madrid'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Natura'],
+    prenoms: ['Maria', 'José', 'João', 'Ana', 'Mohammed'],
+    plantes: ['rosa', 'carvalho', 'tulipa', 'urtiga', 'samambaia', 'abeto', 'lavanda'],
+    objets: ['cadeira', 'garfo', 'chave', 'telefone', 'guarda-chuva', 'lâmpada'],
   },
 }
 

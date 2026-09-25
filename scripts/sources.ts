@@ -83,6 +83,23 @@ const STAPLE_MATERIALS = [
   'Q3196', 'Q283', 'Q7391292', 'Q23392', 'Q381913', 'Q11432', 'Q2',
 ]
 
+const STAPLE_OBJECTS = [
+  // Furniture, and what sits on it.
+  'Q15026', 'Q42177', 'Q131514', 'Q35197', 'Q376',
+  // Carried on a person or in a bag.
+  'Q26965868', 'Q132041', 'Q17517', 'Q41607', 'Q134205', 'Q467505', 'Q5843', 'Q131740', 'Q200814', 'Q1642980',
+  'Q23834',
+  // Tableware and kitchen.
+  'Q81881', 'Q32489', 'Q81895', 'Q57216', 'Q21167379', 'Q81727', 'Q5567094', 'Q153988', 'Q2366864', 'Q127666',
+  // Tools.
+  'Q40847', 'Q160137', 'Q14674', 'Q142690', 'Q25294', 'Q161071', 'Q154411', 'Q37077', 'Q11022', 'Q172833',
+  'Q47107', 'Q168639',
+  // Soft furnishings and light.
+  'Q131696', 'Q99895', 'Q5852', 'Q191851', 'Q12888135', 'Q1395006',
+  // Appliances and electronics.
+  'Q37828', 'Q124441', 'Q289', 'Q101674', 'Q3962', 'Q250', 'Q7987', 'Q185091', 'Q267298',
+]
+
 export const PULLS: readonly Pull[] = [
   { id: 'countries', of: 'Q6256', aliases: true },
   {
@@ -121,6 +138,19 @@ export const PULLS: readonly Pull[] = [
   ${scope.inLanguage('?label')}
 }`,
   },
+  // Same idea as staple-materials: a class of "furniture" or "tool" drags in
+  // every catalogued model, so the everyday objects are named one by one.
+  // The Wiktionary tops this up with what a class could never enumerate —
+  // "clé", "parapluie" are objects, not kinds of one.
+  {
+    id: 'staple-objects',
+    of: 'Q15026',
+    raw: (scope) => `SELECT ?label ?n WHERE {
+  VALUES ?item { ${STAPLE_OBJECTS.map((id) => `wd:${id}`).join(' ')} }
+  ?item rdfs:label ?label ; wikibase:sitelinks ?n .
+  ${scope.inLanguage('?label')}
+}`,
+  },
   // "Anatomical structure" rather than a "part of the human body" query: most
   // everyday words — tête, main, œil — hang off the generic taxon-wide class,
   // not off a link to the specific human-body item. But that class also
@@ -154,6 +184,10 @@ export const PULLS: readonly Pull[] = [
   FILTER EXISTS { ?item wdt:P279* wd:Q756 }
 }`,
   },
+  // Most everyday plant names — chêne, sapin, tulipe — are the taxon's own
+  // label rather than a "common name" entity, but the taxon's vernacular name
+  // (P1843) still catches the rest: it is how the animal pulls above work.
+  { id: 'plants-vernacular', of: 'Q756', vernacular: true },
   { id: 'mammals', of: 'Q7377', vernacular: true },
   { id: 'birds', of: 'Q5113', vernacular: true },
   { id: 'reptiles', of: 'Q10811', vernacular: true },
@@ -267,8 +301,10 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
       'caddisflies',
       'fleas',
     ],
-    exclude: ['common-plants'],
+    exclude: ['common-plants', 'plants-vernacular'],
   },
+  { id: 'plantes', pulls: ['common-plants', 'plants-vernacular'] },
+  { id: 'objets', pulls: ['staple-objects'] },
   { id: 'metiers', pulls: ['professions', 'professions-sub'] },
   { id: 'sports', pulls: ['sports', 'sports-sub'] },
   { id: 'capitales', pulls: ['capitals', 'largest-cities'], names: true },
