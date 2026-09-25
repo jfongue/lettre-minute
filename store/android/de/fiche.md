@@ -2,7 +2,7 @@
 
 Texte und Antworten zum Übertragen in die Play Console. Die Grafiken:
 `../icon-512.png`, `feature-graphic.png` (1024 × 500, in diesem Ordner),
-`../listing/de/` (die acht beschrifteten Screenshots zum Hochladen,
+`../listing/de/` (die fünf beschrifteten Screenshots zum Hochladen,
 1080 × 1920) und `../screenshots/de/` (die Rohaufnahmen, aus denen sie
 entstehen). Zum Neuerzeugen: `scripts/render-store.sh`.
 
@@ -12,65 +12,36 @@ entstehen). Zum Neuerzeugen: `scripts/render-store.sh`.
 > Letter Minute
 
 **Kurzbeschreibung** (max. 80 Zeichen)
-> Ein Buchstabe, eine Kategorie, 60 Sekunden. Je seltener das Wort, desto mehr.
+> Stadt-Land-Fluss im Turbogang: ein Buchstabe, 60 Sekunden. Fordere Freunde!
 
 **Vollständige Beschreibung** (max. 4.000 Zeichen)
 
-> Ein Buchstabe fällt, eine Kategorie erscheint, die Uhr läuft. Länder mit B,
-> Tiere mit M, Farben mit V … Du hast sechzig Sekunden, um so viele Wörter
-> wie möglich zu schreiben – und die, auf die sonst keiner kommt, bringen am
-> meisten.
->
-> Das Spiel prüft jedes Wort, während du tippst – mit einem Wörterbuch aus
-> über 40.000 deutschen Wörtern auf Basis von Wikidata und Wiktionary.
-> „Katzen“ zählt als „Katze“, und ein Tippfehler geht durch: „Österriech“
-> zählt als „Österreich“.
->
-> SELTENE WÖRTER ZÄHLEN MEHR
-> Ein Wort, das alle schreiben, bringt 10 Punkte. Ein Wort, auf das niemand
-> kommt, bringt bis zu dreimal so viel. Und der Bonus nutzt sich ab, wenn du
-> in jeder Partie dasselbe Wort bringst: Abwechslung zahlt sich aus.
->
-> BLEIB DRAN
-> Jedes Wort in Folge erhöht den Multiplikator, bis zu ×2. Überspringen
-> kostet fünf Sekunden und setzt die Serie zurück.
+> Stadt-Land-Fluss im Turbogang. Ein Buchstabe fällt, ein Thema erscheint, die
+> Uhr läuft: Länder mit B, Tiere mit M, Berufe mit P … Du hast sechzig
+> Sekunden, um so viele wie möglich zu finden.
 >
 > FORDERE DEINE FREUNDE HERAUS
-> Bis zu acht Spieler in derselben Partie: dieselben Buchstaben, dieselben
-> Kategorien, jeder wann er will, innerhalb von 24 Stunden. Während du
-> spielst, laufen die Punkte derer, die schon dran waren, mit wie live. Am
-> Ende gilt die Stadt-Land-Fluss-Regel: Ein Wort, das ein anderer auch
-> gefunden hat, zählt nur die Hälfte. Rangliste, Trophäen und eine Revanche,
-> wenn du Lust hast.
+> Lade bis zu sieben Freunde in dieselbe Partie ein: dieselben Buchstaben,
+> dieselben Themen, jeder spielt, wann er will. Rangliste, Trophäen und
+> Revanche.
 >
-> ZEHN KRÄFTE
-> Tipp „pst“, und die Uhr steht still. Tipp „Joker“, und das Spiel findet ein
-> Wort für dich. Zieh einen neuen Buchstaben, sieh die nächste Kategorie
-> kommen, lass zwei Tippfehler durchgehen … Alle zwei Level gibt es eine neue
-> Kraft, zwei nimmst du in jede Partie mit.
+> KRÄFTE ZUM SCHUMMELN
+> Tausch deinen Buchstaben, sieh das nächste Thema kommen, lass zwei
+> Tippfehler durchgehen … Zehn Kräfte zu gewinnen: Finde deine
+> Lieblingskombination.
 >
-> STEIG AUF
-> Jeder Punkt bringt Erfahrung, und jedes Level bietet dir drei neue
-> Kategorien an, von denen du eine behältst: Obst und Gemüse, Berufe,
-> Sportarten, Körperteile, Materialien, Hauptstädte, Marken … Unterwegs
-> warten vierzig animierte Avatare und dreißig Farben darauf, freigeschaltet
-> zu werden.
+> NEUE THEMEN MIT JEDEM LEVEL
+> Schalte neue Themen frei für noch mehr Herausforderung: Obst und Gemüse,
+> Berufe, Sportarten, Körperteile, Städte, Marken …
 >
-> KLETTERE IN DER RANGLISTE
-> Beste Partie des Tages, der Woche und die Jagd nach Entdeckungen: Wörter,
-> die seit sieben Tagen niemand mehr geschrieben hat.
+> FÜR DIE HARTNÄCKIGEN
+> Die seltensten Wörter bringen bis zu dreimal so viele Punkte: Entdecke sie –
+> oder schlag selbst welche vor.
 >
-> LASS DAS WÖRTERBUCH WACHSEN
-> Ein Wort fehlt? Schlag es mit einem Tipp vor. Sobald drei Moderatoren es
-> bestätigt haben, kommt es ins Wörterbuch, und du bekommst 150 XP.
->
-> • Ohne Anmeldung: Ein Konto ist freiwillig (E-Mail oder Google)
-> • Nur eine kurze Werbung, bei der Wahl einer neuen Kategorie
+> • Ohne Anmeldung, Konto freiwillig
+> • Nur eine kurze Werbung, bei der Wahl eines neuen Themas
 > • Allein auch offline spielbar
-> • In sieben Sprachen, jede mit eigenem Wörterbuch: Deutsch, Englisch,
->   Französisch, Spanisch, Italienisch, Niederländisch, Portugiesisch
-> • Live gespielte Musik und Klänge, helles und dunkles Design
-> • Deine Daten lassen sich im Menü mit einem Tipp löschen
+> • In sieben Sprachen
 
 **App-Kategorie**: Spiel › Wörter
 **Tags** (höchstens 5, aus der Liste der Play Console): Wörter, Quiz,

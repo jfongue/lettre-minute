@@ -8,12 +8,13 @@ Ce qu’il faut pour publier Lettre Minute, hors du code et hors de `public/`
 - `android/<lang>/fiche.md` — la même fiche traduite.
 - `android/icon-512.png`, `android/feature-graphic.png` — visuels communs,
   régénérés par `scripts/render-store.sh`.
-- `android/screenshots/<lang>/` — les huit captures brutes de chaque langue,
+- `android/screenshots/<lang>/` — les douze captures brutes de chaque langue,
   clair et sombre, dans l’interface et avec les mots de cette langue.
   Régénérées par `scripts/render-screenshots.ts` (mode d’emploi en tête du
   script).
-- `android/listing/<lang>/1.png` à `8.png` — les mêmes, légendées dans leur
-  langue et dans l’ordre de la fiche : ce sont elles qu’on téléverse.
+- `android/listing/<lang>/1.png` à `5.png` — une capture par section de la
+  description, légendée du titre de la section dans sa langue : ce sont elles
+  qu’on téléverse.
   Régénérées par `scripts/render-store.sh`, légendes dans
   `assets/source/shot.html`.
 

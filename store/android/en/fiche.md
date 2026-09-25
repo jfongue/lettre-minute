@@ -1,7 +1,7 @@
 # Play Store listing — Letter Minute (English)
 
 Texts and answers to copy into the Play Console. The visuals: `../icon-512.png`,
-`feature-graphic.png` (1024 × 500, in this folder), `../listing/en/` (the eight
+`feature-graphic.png` (1024 × 500, in this folder), `../listing/en/` (the five
 captioned screenshots to upload, 1080 × 1920) and `../screenshots/en/` (the raw
 captures they are built from). To regenerate them: `scripts/render-store.sh`.
 
@@ -11,60 +11,34 @@ captures they are built from). To regenerate them: `scripts/render-store.sh`.
 > Letter Minute
 
 **Short description** (80 characters max)
-> One letter, one category, 60 seconds. The rarer the word, the more it scores.
+> The classic categories game, fast: one letter, 60 seconds. Challenge friends!
 
 **Full description** (4,000 characters max)
 
-> A letter drops, a category appears, the clock starts. Countries starting
-> with B, animals with M, colours with V… You have sixty seconds to write as
-> many words as you can, and the ones nobody else finds score the most.
->
-> The game checks every word as you type, using a dictionary of over
-> 110,000 English words built on Wikidata and Wiktionary. “Cats” counts as
-> “cat”, and a typo gets through: “Portgual” counts as “Portugal”.
->
-> RARE WORDS ARE WORTH MORE
-> A word everyone writes earns 10 points. A word nobody finds earns up to
-> three times as much. And the bonus wears off if you bring out the same word
-> every game: mix it up.
->
-> KEEP IT GOING
-> Every word validated in a row raises the multiplier, up to ×2. Skipping
-> costs five seconds and resets the streak.
+> The classic categories game, at lightning speed. A letter drops, a category
+> appears, the clock starts: countries starting with B, animals with M, jobs
+> with P… You have sixty seconds to find as many as you can.
 >
 > CHALLENGE YOUR FRIENDS
-> Up to eight players on the same game: same letters, same categories, each
-> playing whenever they like within 24 hours. As you play, the scores of
-> those who went before you tick along as if live. At the end, the
-> Scattergories rule applies: a word someone else also found is worth only
-> half. Rankings, trophies, and a rematch if you’re up for it.
+> Invite up to seven friends to the same game: same letters, same categories,
+> everyone plays whenever they like. Rankings, trophies and rematches.
 >
-> TEN POWERS
-> Type “shh” and the clock stops. Type “Joker” and the game finds a word for
-> you. Swap your letter, see the next category coming, let two mistakes
-> slide… A new power every two levels, and two to take into each game.
+> POWERS TO CHEAT A LITTLE
+> Swap your letter, see the next category coming, let two mistakes slide… Ten
+> powers to earn: find your favourite combo.
 >
-> LEVEL UP
-> Every point earns experience, and every level offers you three new
-> categories to choose one from: fruit and vegetables, jobs, sports, parts of
-> the body, materials, capitals, brands… Along the way, forty animated
-> avatars and thirty colours to unlock.
+> NEW CATEGORIES AT EVERY LEVEL
+> Earn new categories for an even bigger challenge: fruit and vegetables,
+> jobs, sports, parts of the body, cities, brands…
 >
-> CLIMB THE LEADERBOARD
-> Best game of the day, best of the week, and the hunt for discoveries: words
-> nobody had written in the last seven days.
+> FOR THE DIE-HARDS
+> The rarest words score up to three times as much: come and discover them, or
+> suggest your own.
 >
-> HELP THE DICTIONARY GROW
-> A word missing? Suggest it in one tap. Once three moderators approve it, it
-> joins the dictionary, and you earn 150 XP.
->
-> • No sign-up needed: an account is optional (email or Google)
+> • No sign-up, account optional
 > • A single short ad, when you pick a new category
 > • Solo play works offline
-> • In seven languages, each with its own dictionary: French, English,
->   Spanish, German, Italian, Dutch, Portuguese
-> • Music and sounds played live, light and dark theme
-> • Erase your data in one tap from the menu
+> • In seven languages
 
 **App category**: Game › Word
 **Tags** (5 at most, from the Play Console list): Word, Trivia, General

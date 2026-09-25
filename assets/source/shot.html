@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- Capture légendée de la fiche Play Store (1080 × 1920), rendue par
-     scripts/render-store.sh : ?lang=fr&n=1 à 8. La capture brute vient de
+     scripts/render-store.sh : ?lang=fr&n=1 à 5. La capture brute vient de
      store/android/screenshots/<lang>/ ; la légende, du tableau ci-dessous. -->
 <html>
 <head>
@@ -31,23 +31,16 @@
   <h1></h1>
   <img alt="" />
 <script>
-  // Dans l’ordre de la fiche : le jeu d’abord, l’accueil ensuite, le clair puis le sombre.
-  const shots = ['3-partie', '4-bilan', '2-annonce', '1-accueil', '3-partie-sombre', '4-bilan-sombre', '2-annonce-sombre', '1-accueil-sombre']
+  // Dans l’ordre de la fiche, une capture par section de la description, légendée de son titre.
+  const shots = ['3-partie', '6-defi', '5-pouvoirs', '2-annonce', '4-bilan']
   const captions = {
-    fr: ['Chaque mot vérifié pendant la frappe', 'Plus le mot est rare, plus il rapporte', 'Cinq catégories, soixante secondes', 'Des niveaux et des catégories à débloquer',
-      'Une faute de frappe ? Elle passe.', 'Enchaînez les mots, jusqu’à ×2', 'Thème clair ou sombre', 'Sans inscription, jouable hors ligne'],
-    en: ['Every word checked as you type', 'The rarer the word, the more it scores', 'Five categories, sixty seconds', 'Level up and unlock new categories',
-      'A typo? It still counts.', 'Chain your words, up to ×2', 'Light or dark theme', 'No sign-up, plays offline'],
-    de: ['Jedes Wort wird beim Tippen geprüft', 'Je seltener das Wort, desto mehr Punkte', 'Fünf Kategorien, sechzig Sekunden', 'Steig auf und schalte Kategorien frei',
-      'Ein Tippfehler? Zählt trotzdem.', 'Wörter am Stück: bis zu ×2', 'Helles oder dunkles Design', 'Ohne Anmeldung, auch offline'],
-    es: ['Cada palabra, comprobada al escribir', 'Cuanto más rara la palabra, más puntos', 'Cinco categorías, sesenta segundos', 'Sube de nivel y desbloquea categorías',
-      '¿Una errata? Vale igual.', 'Encadena palabras, hasta ×2', 'Tema claro u oscuro', 'Sin registro, también sin conexión'],
-    it: ['Ogni parola verificata mentre scrivi', 'Più la parola è rara, più punti vale', 'Cinque categorie, sessanta secondi', 'Sali di livello e sblocca categorie',
-      'Un errore di battitura? Vale lo stesso.', 'Parole a catena, fino a ×2', 'Tema chiaro o scuro', 'Senza registrazione, anche offline'],
-    nl: ['Elk woord gecontroleerd terwijl je typt', 'Hoe zeldzamer het woord, hoe meer punten', 'Vijf categorieën, zestig seconden', 'Stijg in level en ontgrendel categorieën',
-      'Een tikfout? Telt gewoon mee.', 'Woorden op rij: tot ×2', 'Licht of donker thema', 'Zonder account, ook offline'],
-    pt: ['Cada palavra conferida enquanto você digita', 'Quanto mais rara a palavra, mais pontos', 'Cinco categorias, sessenta segundos', 'Suba de nível e desbloqueie categorias',
-      'Errou uma letra? Vale mesmo assim.', 'Encadeie palavras, até ×2', 'Tema claro ou escuro', 'Sem cadastro, dá para jogar offline'],
+    fr: ['Une lettre tombe, un thème s’affiche, le chrono démarre', 'Défie tes amis', 'Des pouvoirs pour tricher un peu', 'De nouveaux thèmes à chaque niveau', 'Et pour les acharnés'],
+    en: ['A letter drops, a category appears, the clock starts', 'Challenge your friends', 'Powers to cheat a little', 'New categories at every level', 'For the die-hards'],
+    de: ['Ein Buchstabe fällt, ein Thema erscheint, die Uhr läuft', 'Fordere deine Freunde heraus', 'Kräfte zum Schummeln', 'Neue Themen mit jedem Level', 'Für die Hartnäckigen'],
+    es: ['Cae una letra, aparece un tema, arranca el crono', 'Reta a tus amigos', 'Poderes para hacer un poco de trampa', 'Nuevos temas en cada nivel', 'Para los más competitivos'],
+    it: ['Esce una lettera, compare un tema, parte il cronometro', 'Sfida i tuoi amici', 'Poteri per barare un po’', 'Nuovi temi a ogni livello', 'Per i più accaniti'],
+    nl: ['Er valt een letter, er verschijnt een thema, de klok loopt', 'Daag je vrienden uit', 'Krachten om een beetje vals te spelen', 'Nieuwe thema’s bij elk level', 'Voor de fanatiekelingen'],
+    pt: ['Cai uma letra, aparece um tema, o cronômetro dispara', 'Desafie seus amigos', 'Poderes para trapacear um pouco', 'Novos temas a cada nível', 'Para os mais viciados'],
   }
   const params = new URLSearchParams(location.search)
   const lang = params.get('lang') ?? 'fr'
@@ -55,7 +48,12 @@
   const shot = shots[index]
   document.documentElement.lang = lang
   document.body.classList.toggle('dark', shot.endsWith('-sombre'))
-  document.querySelector('h1').textContent = captions[lang][index]
+  const title = document.querySelector('h1')
+  title.textContent = captions[lang][index]
+  // Une légende longue rapetisse plutôt que de mordre sur la capture.
+  document.fonts.ready.then(() => {
+    for (let size = 86; title.offsetHeight > 280 && size > 56; size -= 4) title.style.fontSize = `${size - 4}px`
+  })
   document.querySelector('img').src = `../../store/android/screenshots/${lang}/${shot}.png`
 </script>
 </body>

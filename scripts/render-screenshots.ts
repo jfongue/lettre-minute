@@ -1,6 +1,7 @@
 /**
  * Renders the Play Store screenshots, 1080 × 1920, light and dark, in every
- * language: the home screen, the announcement, a run and its reveal.
+ * language: the home screen, the announcement, a run and its reveal, the
+ * power picker, and a finished challenge from the debug board.
  *
  *   npx vite --port 5299 --strictPort   (with VITE_SUPABASE_URL= so no account or board shows)
  *   npx tsx scripts/render-screenshots.ts [http://localhost:5299] [fr en …]
@@ -29,7 +30,7 @@ const langs = (args.filter((arg) => !arg.startsWith('http')) as Locale[]).length
   ? (args.filter((arg) => !arg.startsWith('http')) as Locale[])
   : LOCALES.map((entry) => entry.id)
 
-/** A player a few evenings in: level 5, seven categories, records worth showing. */
+/** A player a few evenings in: level 5, seven categories, three powers, records worth showing. */
 const PROFILE = {
   xp: 2350,
   runs: 14,
@@ -40,6 +41,8 @@ const PROFILE = {
   unlocked: ['fruits-legumes', 'metiers', 'sports', 'capitales'],
   offer: [],
   lastOffer: [],
+  powers: ['joker', 'hush', 'divination'],
+  equipped: ['hush', 'divination'],
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -174,6 +177,12 @@ async function render(lang: Locale, dark: boolean) {
   await sleep(2500)
   await tab.shot(`${dir}/1-accueil${suffix}.png`)
 
+  await tab.click('.power-slot')
+  await sleep(1200)
+  await tab.shot(`${dir}/5-pouvoirs${suffix}.png`)
+  await tab.click('.offer-pop-scrim')
+  await sleep(800)
+
   await tab.click('.btn--play')
   await sleep(2400)
   await tab.shot(`${dir}/2-annonce${suffix}.png`)
@@ -209,6 +218,17 @@ async function render(lang: Locale, dark: boolean) {
   }
   await sleep(6500)
   await tab.shot(`${dir}/4-bilan${suffix}.png`)
+
+  // A challenge needs friends and a server: the debug board shows the real screen with made-up players.
+  await tab.send('Page.navigate', { url: 'about:blank' })
+  await sleep(300)
+  await tab.send('Page.navigate', { url: `${origin}/#debug` })
+  await sleep(3000)
+  await tab.eval(`[...document.querySelectorAll('.debug-item')].find((item) => item.querySelector('strong')?.textContent === 'Défi clos : bilan')?.click()`)
+  await sleep(2500)
+  await tab.eval(`document.head.append(Object.assign(document.createElement('style'), { textContent: '.debug-bar { display: none !important }' }))`)
+  await sleep(300)
+  await tab.shot(`${dir}/6-defi${suffix}.png`)
   await tab.send('Page.close').catch(() => undefined)
 }
 

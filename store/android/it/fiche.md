@@ -1,8 +1,8 @@
 # Scheda Play Store — Lettera Minuto (italiano)
 
 Testi e risposte da copiare in Play Console. Le immagini: `../icon-512.png`,
-`feature-graphic.png` (1024 × 500, in questa cartella), `../listing/it/` (gli
-otto screenshot con didascalia da caricare, 1080 × 1920) e `../screenshots/it/`
+`feature-graphic.png` (1024 × 500, in questa cartella), `../listing/it/` (i
+cinque screenshot con didascalia da caricare, 1080 × 1920) e `../screenshots/it/`
 (le catture grezze da cui sono ricavati). Per rigenerarle:
 `scripts/render-store.sh`.
 
@@ -12,62 +12,34 @@ otto screenshot con didascalia da caricare, 1080 × 1920) e `../screenshots/it/`
 > Lettera Minuto
 
 **Descrizione breve** (max 80 caratteri)
-> Una lettera, una categoria, 60 secondi. Più la parola è rara, più punti vale.
+> Nomi, cose, città in versione lampo: una lettera, 60 secondi. Sfida gli amici!
 
 **Descrizione completa** (max 4000 caratteri)
 
-> Esce una lettera, compare una categoria, parte il cronometro. Paesi con la
-> B, animali con la M, colori con la V… Hai sessanta secondi per scrivere più
-> parole che puoi, e quelle che non trova nessuno valgono di più.
->
-> Il gioco controlla ogni parola mentre scrivi, grazie a un dizionario di
-> oltre 30.000 parole italiane costruito su Wikidata e Wikizionario. «Gatti»
-> vale come «gatto», e un errore di battitura passa: «Germnaia» vale come
-> «Germania».
->
-> LE PAROLE RARE VALGONO DI PIÙ
-> Una parola che scrivono tutti vale 10 punti. Una parola che non trova
-> nessuno vale fino al triplo. E il bonus si consuma se tiri fuori la stessa
-> parola a ogni partita: bisogna variare.
->
-> NON FERMARTI
-> Ogni parola convalidata di fila aumenta il moltiplicatore, fino a ×2.
-> Saltare costa cinque secondi e azzera la serie.
+> Nomi, cose, città in versione lampo. Esce una lettera, compare un tema,
+> parte il cronometro: paesi con la B, animali con la M, mestieri con la P…
+> Hai sessanta secondi per trovarne il più possibile.
 >
 > SFIDA I TUOI AMICI
-> Fino a otto giocatori sulla stessa partita: stesse lettere, stesse
-> categorie, ognuno quando vuole entro 24 ore. Mentre giochi, i punteggi di
-> chi è passato prima di te avanzano come in diretta. Alla fine vale la regola
-> di Nomi, cose, città: una parola trovata anche da un altro vale la metà.
-> Classifica, trofei e, se ti va, la rivincita.
+> Invita fino a sette amici nella stessa partita: stesse lettere, stessi temi,
+> ognuno gioca quando vuole. Classifica, trofei e rivincita.
 >
-> DIECI POTERI
-> Scrivi «zitto» e il cronometro si ferma. Scrivi «Joker» e il gioco trova una
-> parola al posto tuo. Cambia lettera, scopri in anticipo la categoria
-> successiva, fatti perdonare due errori… Un nuovo potere ogni due livelli, e
-> due da portare in ogni partita.
+> POTERI PER BARARE UN PO’
+> Cambia lettera, scopri in anticipo il tema successivo, fatti perdonare due
+> errori… Dieci poteri da conquistare: trova la tua combinazione preferita.
 >
-> SALI DI LIVELLO
-> Ogni punto ti dà esperienza, e a ogni livello ti vengono proposte tre nuove
-> categorie, di cui ne tieni una: frutta e verdura, mestieri, sport, parti del
-> corpo, materiali, capitali, marchi… Lungo la strada, quaranta avatar animati e
-> trenta colori da sbloccare.
+> NUOVI TEMI A OGNI LIVELLO
+> Conquista nuovi temi per una sfida ancora più grande: frutta e verdura,
+> mestieri, sport, parti del corpo, città, marchi…
 >
-> SCALA LA CLASSIFICA
-> Miglior partita del giorno, della settimana, e caccia alle scoperte: le
-> parole che nessuno aveva scritto da sette giorni.
+> PER I PIÙ ACCANITI
+> Le parole più rare valgono fino al triplo: vieni a scoprirle, o proponi le
+> tue.
 >
-> FAI CRESCERE IL DIZIONARIO
-> Manca una parola? Proponila con un tocco. Se tre moderatori la approvano,
-> entra nel dizionario e tu guadagni 150 XP.
->
-> • Nessuna registrazione: l’account è facoltativo (e-mail o Google)
-> • Una sola pubblicità, breve, alla scelta di una nuova categoria
+> • Nessuna registrazione, account facoltativo
+> • Una sola pubblicità breve, alla scelta di un nuovo tema
 > • Si gioca offline in singolo
-> • In sette lingue, ognuna con il suo dizionario: francese, inglese,
->   spagnolo, tedesco, italiano, olandese, portoghese
-> • Musica e suoni generati dal vivo, tema chiaro e scuro
-> • I tuoi dati si cancellano con un gesto dal menu
+> • In sette lingue
 
 **Categoria dell’app**: Gioco › Parole
 **Tag** (max 5, scelti dall’elenco di Play Console): Parole, Quiz, Cultura

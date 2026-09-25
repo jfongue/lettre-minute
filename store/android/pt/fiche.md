@@ -1,7 +1,7 @@
 # Página da Play Store — Letra Minuto (português do Brasil)
 
 Textos e respostas para copiar no Play Console. As imagens: `../icon-512.png`,
-`feature-graphic.png` (1024 × 500, nesta pasta), `../listing/pt/` (as oito
+`feature-graphic.png` (1024 × 500, nesta pasta), `../listing/pt/` (as cinco
 capturas com legenda a enviar, 1080 × 1920) e `../screenshots/pt/` (as
 capturas brutas a partir das quais elas são montadas). Para gerá-las de novo:
 `scripts/render-store.sh`.
@@ -12,62 +12,34 @@ capturas brutas a partir das quais elas são montadas). Para gerá-las de novo:
 > Letra Minuto
 
 **Descrição curta** (máx. 80 caracteres)
-> Uma letra, uma categoria, 60 segundos. Quanto mais rara a palavra, mais pontos.
+> O bom e velho Stop, turbinado: uma letra, 60 segundos. Desafie seus amigos!
 
 **Descrição completa** (máx. 4.000 caracteres)
 
-> Cai uma letra, aparece uma categoria, o cronômetro dispara. Países com B,
-> animais com M, cores com V… Você tem sessenta segundos para escrever o
-> máximo de palavras que conseguir, e as que ninguém lembra valem mais.
->
-> O jogo confere cada palavra enquanto você digita, com um dicionário de mais
-> de 35 mil palavras em português construído a partir do Wikidata e do
-> Wikcionário. “Gatos” vale como “gato”, e um erro de digitação passa:
-> “Alemnaha” vale como “Alemanha”.
->
-> PALAVRAS RARAS VALEM MAIS
-> Uma palavra que todo mundo escreve vale 10 pontos. Uma palavra que ninguém
-> encontra vale até três vezes mais. E o bônus se desgasta se você repetir a
-> mesma palavra em toda partida: é preciso variar.
->
-> NÃO PARE
-> Cada palavra certa em sequência aumenta o multiplicador, até ×2. Pular
-> custa cinco segundos e zera a sequência.
+> O bom e velho Stop, ou Adedonha, em versão relâmpago. Cai uma letra, aparece
+> um tema, o cronômetro dispara: países com B, animais com M, profissões com
+> P… Você tem sessenta segundos para achar o máximo que conseguir.
 >
 > DESAFIE SEUS AMIGOS
-> Até oito jogadores na mesma partida: mesmas letras, mesmas categorias, cada
-> um quando quiser dentro de 24 horas. Enquanto você joga, as pontuações de
-> quem jogou antes avançam como se fosse ao vivo. No final vale a regra do
-> Stop: uma palavra que outro jogador também achou vale só metade. Ranking,
-> troféus e revanche, se der vontade.
+> Convide até sete amigos para a mesma partida: mesmas letras, mesmos temas,
+> cada um joga quando quiser. Ranking, troféus e revanche.
 >
-> DEZ PODERES
-> Escreva “psiu” e o cronômetro para. Escreva “Joker” e o jogo acha uma
-> palavra por você. Troque de letra, veja a próxima categoria chegando,
-> deixe passar dois erros… Um poder novo a cada dois níveis, e dois para
-> levar em cada partida.
+> PODERES PARA TRAPACEAR UM POUCO
+> Troque de letra, veja o próximo tema chegando, deixe passar dois erros… Dez
+> poderes para conquistar: descubra sua combinação favorita.
 >
-> SUBA DE NÍVEL
-> Cada ponto dá experiência, e cada nível oferece três categorias novas, das
-> quais você fica com uma: frutas e legumes, profissões, esportes, partes do
-> corpo, materiais, capitais, marcas… No caminho, quarenta avatares animados e
-> trinta cores para desbloquear.
+> NOVOS TEMAS A CADA NÍVEL
+> Ganhe novos temas para um desafio ainda maior: frutas e legumes, profissões,
+> esportes, partes do corpo, cidades, marcas…
 >
-> SUBA NO RANKING
-> Melhor partida do dia, da semana, e a caça às descobertas: as palavras que
-> ninguém tinha escrito nos últimos sete dias.
+> PARA OS MAIS VICIADOS
+> As palavras mais raras valem até três vezes mais: venha descobri-las, ou
+> sugira as suas.
 >
-> FAÇA O DICIONÁRIO CRESCER
-> Falta uma palavra? Sugira com um toque. Aprovada por três moderadores, ela
-> entra no dicionário, e você ganha 150 XP.
->
-> • Sem cadastro: a conta é opcional (e-mail ou Google)
-> • Um único anúncio, curto, ao escolher uma nova categoria
+> • Sem cadastro, conta opcional
+> • Um único anúncio curto, ao escolher um novo tema
 > • Dá para jogar off-line no modo solo
-> • Em sete idiomas, cada um com seu próprio dicionário: francês, inglês,
->   espanhol, alemão, italiano, holandês, português
-> • Música e sons tocados ao vivo, tema claro e escuro
-> • Seus dados são apagados com um toque, pelo menu
+> • Em sete idiomas
 
 **Categoria do app**: Jogo › Palavras
 **Tags** (no máximo 5, da lista do Play Console): Palavras, Quiz,

@@ -2,7 +2,7 @@
 
 Teksten en antwoorden om over te nemen in de Play Console. De afbeeldingen:
 `../icon-512.png`, `feature-graphic.png` (1024 × 500, in deze map),
-`../listing/nl/` (de acht screenshots met bijschrift om te uploaden,
+`../listing/nl/` (de vijf screenshots met bijschrift om te uploaden,
 1080 × 1920) en `../screenshots/nl/` (de ruwe opnamen waaruit ze worden
 opgebouwd). Opnieuw genereren: `scripts/render-store.sh`.
 
@@ -12,63 +12,34 @@ opgebouwd). Opnieuw genereren: `scripts/render-store.sh`.
 > Letter Minuut
 
 **Korte beschrijving** (max. 80 tekens)
-> Eén letter, één categorie, 60 seconden. Zeldzame woorden leveren meer punten op.
+> Stad-land-rivier in sneltreinvaart: één letter, 60 seconden. Daag vrienden uit!
 
 **Volledige beschrijving** (max. 4000 tekens)
 
-> Er valt een letter, er verschijnt een categorie, de klok loopt. Landen met
-> een B, dieren met een M, kleuren met een R… Je hebt zestig seconden om
-> zoveel mogelijk woorden te schrijven, en de woorden die niemand vindt,
-> leveren het meest op.
->
-> Het spel controleert elk woord terwijl je typt, met een woordenboek van
-> meer dan 30.000 Nederlandse woorden op basis van Wikidata en Wiktionary.
-> „Katten” telt als „kat”, en een tikfout mag: „Duitsladn” telt als
-> „Duitsland”.
->
-> ZELDZAME WOORDEN LEVEREN MEER OP
-> Een woord dat iedereen schrijft, levert 10 punten op. Een woord dat
-> niemand vindt, tot drie keer zoveel. En de bonus slijt als je elk spel
-> hetzelfde woord gebruikt: varieer dus.
->
-> HOU DE REEKS VAST
-> Elk woord dat je achter elkaar goed hebt, verhoogt de vermenigvuldiger,
-> tot ×2. Overslaan kost vijf seconden en zet de reeks op nul.
+> Stad-land-rivier in sneltreinvaart. Er valt een letter, er verschijnt een
+> thema, de klok loopt: landen met een B, dieren met een M, beroepen met een
+> P… Je hebt zestig seconden om er zoveel mogelijk te vinden.
 >
 > DAAG JE VRIENDEN UIT
-> Tot acht spelers in hetzelfde spel: dezelfde letters, dezelfde categorieën,
-> ieder wanneer hij wil, binnen 24 uur. Terwijl jij speelt, lopen de scores
-> van wie al gespeeld heeft live met je mee. Aan het eind geldt de
-> Petit-Bac-regel: een woord dat een ander ook vond, telt maar half.
-> Eindstand, trofeeën, en een revanche als je daar zin in hebt.
+> Nodig tot zeven vrienden uit voor hetzelfde spel: dezelfde letters, dezelfde
+> thema’s, iedereen speelt wanneer hij wil. Klassement, trofeeën en revanche.
 >
-> TIEN KRACHTEN
-> Typ „sst” en de klok staat stil. Typ „Joker” en het spel vindt een woord
-> voor je. Ruil je letter, zie de volgende categorie al aankomen, maak
-> ongestraft twee tikfouten… Om de twee levels een nieuwe kracht, en twee
-> mee in elk spel.
+> KRACHTEN OM EEN BEETJE VALS TE SPELEN
+> Ruil je letter, zie het volgende thema al aankomen, maak ongestraft twee
+> tikfouten… Tien krachten te verdienen: vind je favoriete combinatie.
 >
-> STIJG IN LEVEL
-> Elk punt levert ervaring op, en bij elk level krijg je drie nieuwe
-> categorieën aangeboden, waarvan je er één houdt: groente en fruit,
-> beroepen, sporten, lichaamsdelen, materialen, hoofdsteden, merken…
-> Onderweg ontgrendel je veertig geanimeerde avatars en dertig kleuren.
+> NIEUWE THEMA’S BIJ ELK LEVEL
+> Verdien nieuwe thema’s voor nog meer uitdaging: groente en fruit, beroepen,
+> sporten, lichaamsdelen, steden, merken…
 >
-> KLIM IN HET KLASSEMENT
-> Beste spel van de dag, van de week, en de jacht op ontdekkingen: woorden
-> die al zeven dagen niemand meer had geschreven.
+> VOOR DE FANATIEKELINGEN
+> De zeldzaamste woorden leveren tot drie keer zoveel op: kom ze ontdekken, of
+> stel zelf woorden voor.
 >
-> LAAT HET WOORDENBOEK GROEIEN
-> Mis je een woord? Stel het met één tik voor. Keuren drie moderators het
-> goed, dan komt het in het woordenboek en krijg jij 150 XP.
->
-> • Zonder registratie: een account is optioneel (e-mail of Google)
-> • Eén korte advertentie, bij het kiezen van een nieuwe categorie
+> • Zonder registratie, account optioneel
+> • Eén korte advertentie, bij het kiezen van een nieuw thema
 > • Solo offline speelbaar
-> • In zeven talen, elk met een eigen woordenboek: Nederlands, Engels,
->   Frans, Duits, Spaans, Italiaans, Portugees
-> • Live gespeelde muziek en geluiden, licht en donker thema
-> • Wis je gegevens met één tik vanuit het menu
+> • In zeven talen
 
 **App-categorie**: Game › Woorden
 **Tags** (max. 5, uit de lijst van de Play Console): Woorden, Quiz,

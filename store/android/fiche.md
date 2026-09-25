@@ -1,7 +1,7 @@
 # Fiche Play Store — Lettre Minute
 
 Textes et réponses à recopier dans la Play Console. Les visuels sont à côté :
-`icon-512.png`, `feature-graphic.png` (1024 × 500), `listing/fr/` (les huit
+`icon-512.png`, `feature-graphic.png` (1024 × 500), `listing/fr/` (les cinq
 captures légendées à téléverser, 1080 × 1920) et `screenshots/fr/` (les
 captures brutes dont elles partent). Pour les régénérer :
 `scripts/render-store.sh`.
@@ -12,62 +12,34 @@ captures brutes dont elles partent). Pour les régénérer :
 > Lettre Minute
 
 **Description courte** (80 caractères max)
-> Une lettre, une catégorie, 60 secondes. Plus le mot est rare, plus il rapporte.
+> Le Petit Bac express : une lettre, un thème, 60 secondes. Défie tes amis !
 
 **Description complète** (4 000 caractères max)
 
-> Une lettre tombe, une catégorie s’affiche, le chrono démarre. Pays en B,
-> animaux en M, couleurs en V… Vous avez soixante secondes pour écrire le plus
-> de mots possible, et ceux que personne ne trouve rapportent le plus.
+> Petit Bac, version éclair. Une lettre tombe, un thème s’affiche, le chrono
+> démarre : pays en B, animaux en M, métiers en P… Tu as soixante secondes
+> pour en trouver le plus possible.
 >
-> Le jeu vérifie chaque mot pendant que vous tapez, grâce à un dictionnaire de
-> plus de 40 000 mots français bâti sur Wikidata et le Wiktionnaire. « Chats »
-> vaut « chat », et une faute de frappe passe : « thailnade » vaut
-> « Thaïlande ».
+> DÉFIE TES AMIS
+> Invite jusqu’à sept amis sur la même partie : mêmes lettres, mêmes thèmes,
+> chacun joue quand il veut. Classement, trophées, et revanche.
 >
-> LES MOTS RARES VALENT PLUS
-> Un mot que tout le monde écrit rapporte 10 points. Un mot que personne ne
-> trouve rapporte jusqu’à trois fois plus. Et le bonus s’use si vous ressortez
-> le même mot à chaque partie : il faut varier.
+> DES POUVOIRS POUR TRICHER UN PEU
+> Change de lettre, vois venir le thème suivant, laisse passer deux fautes…
+> Dix pouvoirs à gagner : trouve ta combinaison préférée.
 >
-> ENCHAÎNEZ
-> Chaque mot validé à la suite augmente le multiplicateur, jusqu’à ×2. Passer
-> coûte cinq secondes et remet la série à zéro.
+> DE NOUVEAUX THÈMES À CHAQUE NIVEAU
+> Gagne de nouveaux thèmes pour encore plus de défi : fruits et légumes,
+> métiers, sports, corps humain, villes, marques…
 >
-> DÉFIEZ VOS AMIS
-> Jusqu’à huit joueurs sur la même partie : mêmes lettres, mêmes catégories,
-> chacun quand il veut dans les 24 heures. Pendant que vous jouez, les scores
-> de ceux qui sont passés avant vous avancent comme en direct. À la fin, règle
-> du Petit Bac : un mot qu’un autre a aussi trouvé ne vaut que la moitié.
-> Classement, trophées, et une revanche si le cœur vous en dit.
+> ET POUR LES ACHARNÉS
+> Les mots les plus rares rapportent jusqu’à trois fois plus : à toi de venir
+> les découvrir, ou de les proposer.
 >
-> DIX POUVOIRS
-> Écrivez « chut » et le chrono s’arrête. Écrivez « Joker » et le jeu trouve un
-> mot à votre place. Changez de lettre, voyez venir la catégorie suivante,
-> laissez passer deux fautes… Un nouveau pouvoir tous les deux niveaux, deux
-> à emporter dans chaque partie.
->
-> PROGRESSEZ
-> Chaque point rapporte de l’expérience, et chaque niveau vous propose trois
-> nouvelles catégories, dont vous gardez une : fruits et légumes, métiers,
-> sports, parties du corps, matières, capitales, marques… En chemin, quarante
-> avatars animés et trente couleurs à débloquer.
->
-> GRIMPEZ AU CLASSEMENT
-> Meilleure partie du jour, de la semaine, et chasse aux découvertes : les mots
-> que personne n’avait écrits depuis sept jours.
->
-> FAITES GRANDIR LE DICTIONNAIRE
-> Un mot manque ? Proposez-le en un geste. Validé par trois modérateurs, il
-> entre au dictionnaire, et vous gagnez 150 XP.
->
-> • Sans inscription : le compte est facultatif (e-mail ou Google)
-> • Une seule pub, courte, au choix d’une nouvelle catégorie
+> • Sans inscription, compte facultatif
+> • Une seule pub courte, au choix d’un nouveau thème
 > • Jouable hors ligne en solo
-> • En sept langues, chacune avec son propre dictionnaire : français,
->   anglais, espagnol, allemand, italien, néerlandais, portugais
-> • Musique et sons joués en direct, thème clair et sombre
-> • Vos données s’effacent en un geste depuis le menu
+> • En sept langues
 
 **Catégorie de l’application** : Jeu › Mots
 **Tags** (5 au plus, pris dans la liste de la Play Console) : Mots, Quiz,

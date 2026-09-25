@@ -2,7 +2,7 @@
 
 Textos y respuestas para copiar en Play Console (es-ES y es-419). Los recursos
 gráficos: `../icon-512.png`, `feature-graphic.png` (1024 × 500, en esta
-carpeta), `../listing/es/` (las ocho capturas con leyenda que hay que subir,
+carpeta), `../listing/es/` (las cinco capturas con leyenda que hay que subir,
 1080 × 1920) y `../screenshots/es/` (las capturas en bruto a partir de las que
 se generan). Para regenerarlos: `scripts/render-store.sh`.
 
@@ -12,63 +12,34 @@ se generan). Para regenerarlos: `scripts/render-store.sh`.
 > Letra Minuto
 
 **Descripción breve** (80 caracteres máx.)
-> Una letra, una categoría, 60 segundos. Cuanto más rara la palabra, más puntos.
+> El Stop exprés: una letra, un tema, 60 segundos. ¡Reta a tus amigos!
 
 **Descripción completa** (4000 caracteres máx.)
 
-> Cae una letra, aparece una categoría y arranca el crono. Países con B,
-> animales con M, colores con V… Tienes sesenta segundos para escribir todas
-> las palabras que puedas, y las que nadie encuentra son las que más puntos
-> dan.
->
-> El juego comprueba cada palabra mientras escribes, gracias a un diccionario
-> de más de 45.000 palabras en español creado a partir de Wikidata y
-> Wikcionario. «Gatos» vale como «gato», y una errata no te penaliza:
-> «Mexcio» vale como «México».
->
-> LAS PALABRAS RARAS VALEN MÁS
-> Una palabra que escribe todo el mundo da 10 puntos. Una que nadie encuentra
-> da hasta el triple. Y el bonus se desgasta si repites la misma palabra en
-> cada partida: toca variar.
->
-> ENCADENA
-> Cada palabra validada seguida sube el multiplicador, hasta ×2. Saltar
-> cuesta cinco segundos y reinicia la racha.
+> El Stop de toda la vida, a toda velocidad. Cae una letra, aparece un tema y
+> arranca el crono: países con B, animales con M, oficios con P… Tienes
+> sesenta segundos para encontrar todos los que puedas.
 >
 > RETA A TUS AMIGOS
-> Hasta ocho jugadores en la misma partida: las mismas letras, las mismas
-> categorías, y cada uno juega cuando quiere en 24 horas. Mientras juegas, las
-> puntuaciones de quienes ya han pasado avanzan como en directo. Al final,
-> regla del Stop: una palabra que otro jugador también encontró vale la
-> mitad. Clasificación, trofeos y revancha si te quedas con ganas.
+> Invita hasta a siete amigos a la misma partida: mismas letras, mismos temas,
+> y cada uno juega cuando quiere. Clasificación, trofeos y revancha.
 >
-> DIEZ PODERES
-> Escribe «chis» y el reloj se para. Escribe «Joker» y el juego encuentra una
-> palabra por ti. Cambia de letra, adivina la categoría que viene, deja pasar
-> dos faltas… Un poder nuevo cada dos niveles, y dos para llevarte a cada
-> partida.
+> PODERES PARA HACER UN POCO DE TRAMPA
+> Cambia de letra, adelántate al siguiente tema, deja pasar dos faltas… Diez
+> poderes por ganar: encuentra tu combinación favorita.
 >
-> SUBE DE NIVEL
-> Cada punto te da experiencia, y cada nivel te propone tres categorías
-> nuevas, de las que te quedas una: frutas y verduras, oficios, deportes,
-> partes del cuerpo, materiales, capitales, marcas… Por el camino, cuarenta
-> avatares animados y treinta colores por desbloquear.
+> NUEVOS TEMAS EN CADA NIVEL
+> Gana nuevos temas para un reto aún mayor: frutas y verduras, oficios,
+> deportes, partes del cuerpo, ciudades, marcas…
 >
-> ESCALA EN LA CLASIFICACIÓN
-> Mejor partida del día, de la semana, y caza de hallazgos: las palabras que
-> nadie había escrito en siete días.
+> PARA LOS MÁS COMPETITIVOS
+> Las palabras más raras dan hasta el triple de puntos: descúbrelas o propón
+> las tuyas.
 >
-> HAZ CRECER EL DICCIONARIO
-> ¿Falta una palabra? Proponla con un toque. Si la aprueban tres moderadores,
-> entra en el diccionario y tú ganas 150 XP.
->
-> • Sin registro: la cuenta es opcional (correo o Google)
-> • Un solo anuncio, breve, al elegir una nueva categoría
-> • Se puede jugar sin conexión en solitario
-> • En siete idiomas, cada uno con su propio diccionario: francés, inglés,
->   español, alemán, italiano, neerlandés y portugués
-> • Música y sonidos generados en directo, tema claro y oscuro
-> • Tus datos se borran con un gesto desde el menú
+> • Sin registro, cuenta opcional
+> • Un solo anuncio breve, al elegir un nuevo tema
+> • Se juega sin conexión en solitario
+> • En siete idiomas
 
 **Categoría de la aplicación**: Juegos › Palabras
 **Etiquetas** (5 como máximo, de la lista de Play Console): Palabras,
