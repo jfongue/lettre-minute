@@ -29,7 +29,20 @@ export const en: Messages = {
     myCategories: 'My categories',
     reserve: (perRun) => `Each game draws ${perRun}; the others wait in reserve, and the Permutation power swaps two in at the start.`,
     links: { profile: 'Profile', stats: 'Statistics', requests: 'My requests', categories: 'Categories' },
+    accountLead: 'Keep your scores and challenge your friends.',
     news: (count) => `${count} new`,
+  },
+
+  tutorial: {
+    eyebrow: 'Before your first game',
+    title: 'How to play',
+    stepPrompt: 'A letter and a theme appear.',
+    stepType: 'Type a word from the theme that starts with that letter, then submit.',
+    stepClock: (seconds) => `In a game, you have ${seconds} seconds to find as many as you can.`,
+    ask: (letter) => `A colour starting with ${letter}: the colour of a tomato`,
+    hint: (word) => `Hint: type “${word}”`,
+    solved: 'Well done! The game is starting…',
+    skip: 'Skip',
   },
 
   countdown: {

@@ -38,7 +38,20 @@ export const fr = {
     reserve: (perRun: number) =>
       `Chaque partie en tire ${perRun} ; les autres restent en réserve, et le pouvoir Permutation en échange deux au lancement.`,
     links: { profile: 'Profil', stats: 'Statistiques', requests: 'Mes demandes', categories: 'Catégories' },
+    accountLead: 'Garde tes scores et défie tes amis.',
     news: (count: number) => `${count} ${plural(count, 'nouveauté', 'nouveautés')}`,
+  },
+
+  tutorial: {
+    eyebrow: 'Avant ta première partie',
+    title: 'Comment jouer',
+    stepPrompt: 'Une lettre et un thème s’affichent.',
+    stepType: 'Tape un mot du thème qui commence par cette lettre, puis valide.',
+    stepClock: (seconds: number) => `En partie, tu as ${seconds} secondes pour en trouver le plus possible.`,
+    ask: (letter: string) => `Une couleur en ${letter} : celle d’une tomate`,
+    hint: (word: string) => `Indice : tape « ${word} »`,
+    solved: 'Bravo ! La partie commence…',
+    skip: 'Passer',
   },
 
   countdown: {

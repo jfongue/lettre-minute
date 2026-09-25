@@ -15,6 +15,7 @@ import { HomeScreen } from '../ui/HomeScreen'
 import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
 import { OverScreen } from '../ui/OverScreen'
+import { TutorialScreen } from '../ui/TutorialScreen'
 
 /*
  * The debug board: every screen a player only meets by luck or by level,
@@ -513,24 +514,41 @@ const SCENARIOS: readonly Scenario[] = [
     phase: 'home',
     render: (back) => <DebugHome back={back} />,
   },
+  {
+    id: 'home-newcomer',
+    group: 'Accueil',
+    title: 'Nouveau joueur sans compte',
+    how: 'Tout à zéro : boutons de compte à la place des chiffres, du niveau et du classement',
+    phase: 'home',
+    render: (back) => <DebugHome back={back} newcomer />,
+  },
+  {
+    id: 'tutorial',
+    group: 'Accueil',
+    title: 'Tutoriel du premier « Jouer »',
+    how: 'Une couleur en R (dans la langue de l’interface), puis la partie',
+    phase: 'playing',
+    render: (back) => <TutorialScreen onDone={back} />,
+  },
 ]
 
-function DebugHome({ back, error = false }: { back(): void; error?: boolean }) {
+function DebugHome({ back, error = false, newcomer = false }: { back(): void; error?: boolean; newcomer?: boolean }) {
   return (
     <HomeScreen
-      profile={{ ...PROFILE, powers: ['joker', 'hush'], equipped: ['joker'] }}
+      profile={newcomer ? NEW_PROFILE : { ...PROFILE, powers: ['joker', 'hush'], equipped: ['joker'] }}
       error={error ? 'Le dictionnaire n’a pas pu être chargé.' : null}
       loading={false}
       boards={null}
-      me="Testeur"
+      me={newcomer ? null : 'Testeur'}
       avatar={DEFAULT_AVATAR}
-      requestsNews={error ? 0 : 3}
+      requestsNews={error || newcomer ? 0 : 3}
       challenges={null}
       onChallenge={noop}
       onCreateChallenge={noop}
       onMenu={back}
       onPlay={back}
       onEquip={noop}
+      onAccount={back}
     />
   )
 }

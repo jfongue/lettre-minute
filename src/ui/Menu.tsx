@@ -16,7 +16,7 @@ import { adPrivacyOptionsRequired, showAdPrivacyOptions } from '../lib/native'
 import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
 import { sound as preview, type SoundPrefs } from '../lib/sound'
 import type { Theme } from '../state/theme'
-import { AccountPanel, type AccountActions } from './AccountPanel'
+import { AccountPanel, type AccountActions, type AccountMode } from './AccountPanel'
 import { CategoriesPage } from './CategoriesPage'
 import { PageLinks } from './PageLinks'
 import { RequestsPage } from './RequestsPage'
@@ -50,6 +50,8 @@ interface MenuProps {
   /** Null while the game runs without a server: the player has no account, only an avatar. */
   account: Account | null
   accountActions: AccountActions
+  /** The account form's opening tab. */
+  accountMode?: AccountMode
   theme: Theme
   onTheme(theme: Theme): void
   locale: Locale
@@ -176,6 +178,7 @@ function ProfilePane({
   avatar,
   account,
   accountActions,
+  accountMode,
   onAvatar,
   onLogOut,
   onErase,
@@ -231,6 +234,7 @@ function ProfilePane({
           title={t.menu.accountTitle}
           lead={t.menu.accountLead}
           needsName={account.needsName}
+          initialMode={accountMode}
           {...accountActions}
         />
       )}

@@ -23,7 +23,20 @@ export const de: Messages = {
     myCategories: 'Meine Kategorien',
     reserve: (perRun) => `Jede Partie zieht ${perRun}; die übrigen bleiben in Reserve, und die Kraft Permutation tauscht beim Start zwei davon ein.`,
     links: { profile: 'Profil', stats: 'Statistik', requests: 'Meine Vorschläge', categories: 'Kategorien' },
+    accountLead: 'Behalte deine Punkte und fordere deine Freunde heraus.',
     news: (count) => `${count} neu`,
+  },
+
+  tutorial: {
+    eyebrow: 'Vor deinem ersten Spiel',
+    title: 'So wird gespielt',
+    stepPrompt: 'Ein Buchstabe und ein Thema erscheinen.',
+    stepType: 'Tippe ein Wort aus dem Thema, das mit diesem Buchstaben beginnt, und bestätige.',
+    stepClock: (seconds) => `Im Spiel hast du ${seconds} Sekunden, um so viele wie möglich zu finden.`,
+    ask: (letter) => `Eine Farbe mit ${letter}: die Farbe einer Tomate`,
+    hint: (word) => `Tipp: schreib „${word}“`,
+    solved: 'Super! Das Spiel beginnt…',
+    skip: 'Überspringen',
   },
 
   countdown: {

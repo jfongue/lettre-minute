@@ -290,6 +290,12 @@ button {
   color: var(--cream);
 }
 
+.btn--red {
+  background: var(--red);
+  border-color: var(--red);
+  color: var(--cream);
+}
+
 .btn--ghost {
   background: transparent;
   color: var(--ink);
@@ -4874,4 +4880,36 @@ button.challenge-word[aria-expanded='true'] {
 
 .challenge-answer-word--same {
   color: var(--green);
+}
+
+/* ------------------------------------------------------------- newcomer - */
+.home-account {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.home-account .btn {
+  padding-inline: 0.75rem;
+  letter-spacing: 0.06em;
+}
+
+.tutorial-title {
+  margin: 0;
+  font-size: clamp(2rem, 9vw, 2.75rem);
+  line-height: 1;
+  font-weight: 800;
+}
+
+.tutorial-steps {
+  margin: 0;
+  padding-left: 1.4rem;
+  display: grid;
+  gap: 0.4rem;
+  line-height: 1.4;
+}
+
+.tutorial-steps li::marker {
+  font-weight: 800;
+  color: var(--red);
 }

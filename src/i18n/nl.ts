@@ -23,7 +23,20 @@ export const nl: Messages = {
     myCategories: 'Mijn categorieën',
     reserve: (perRun) => `Elk spel trekt er ${perRun}; de rest blijft in reserve, en de kracht Permutatie ruilt er bij de start twee in.`,
     links: { profile: 'Profiel', stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Categorieën' },
+    accountLead: 'Bewaar je scores en daag je vrienden uit.',
     news: (count) => `${count} nieuw`,
+  },
+
+  tutorial: {
+    eyebrow: 'Voor je eerste spel',
+    title: 'Zo speel je',
+    stepPrompt: 'Er verschijnen een letter en een thema.',
+    stepType: 'Typ een woord uit het thema dat met die letter begint en bevestig.',
+    stepClock: (seconds) => `In een spel heb je ${seconds} seconden om er zoveel mogelijk te vinden.`,
+    ask: (letter) => `Een kleur met een ${letter}: die van een tomaat`,
+    hint: (word) => `Hint: typ ‘${word}’`,
+    solved: 'Goed zo! Het spel begint…',
+    skip: 'Overslaan',
   },
 
   countdown: {

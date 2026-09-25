@@ -8,6 +8,8 @@ const SUBMISSIONS_KEY = 'lettre-minute.submissions.v1'
 const AVATAR_KEY = 'lettre-minute.avatar.v1'
 const HISTORY_KEY = 'lettre-minute.history.v1'
 const ACCOUNT_KEY = 'lettre-minute.account.v1'
+// Kept by clearLocalData: whoever signs out has already learnt to play.
+const TUTORIAL_KEY = 'lettre-minute.tutorial.v1'
 
 /** A word the player proposed while the dictionary did not know it. */
 export interface PendingSubmission {
@@ -61,6 +63,14 @@ function write(key: string, value: unknown): void {
   } catch {
     /* nothing to do: the session simply stays in memory */
   }
+}
+
+export function loadTutorialDone(): boolean {
+  return parsed(TUTORIAL_KEY) === true
+}
+
+export function saveTutorialDone(): void {
+  write(TUTORIAL_KEY, true)
 }
 
 export function loadProfile(): Profile {

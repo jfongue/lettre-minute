@@ -61,17 +61,19 @@ import {
   loadHistory,
   loadProfile,
   loadSubmissions,
+  loadTutorialDone,
   saveAccount,
   saveAvatar,
   saveHistory,
   saveProfile,
   saveSubmissions,
+  saveTutorialDone,
 } from './state/storage'
 import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
 import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
 import { useElapsed } from './state/useElapsed'
 import { DebugBoard } from './debug/DebugBoard'
-import type { AccountActions } from './ui/AccountPanel'
+import type { AccountActions, AccountMode } from './ui/AccountPanel'
 import { AvatarScreen } from './ui/AvatarScreen'
 import { ChallengeNotice } from './ui/ChallengeHome'
 import { ChallengePowers } from './ui/ChallengePowers'
@@ -86,6 +88,7 @@ import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
 import { OverScreen } from './ui/OverScreen'
 import { RunScreen, type Racer } from './ui/RunScreen'
+import { TutorialScreen } from './ui/TutorialScreen'
 
 /** The boards as the home screen shows them: without a server, none at all. */
 async function loadBoards(): Promise<Boards | null> {
@@ -116,6 +119,9 @@ export function App() {
   // Where the drawer opened, or null while it is closed.
   const [menuPage, setMenuPage] = useState<MenuPage | null>(null)
   const menuOpen = menuPage !== null
+  const [accountMode, setAccountMode] = useState<AccountMode>('register')
+  // The very first « Jouer » teaches one word before the clock starts.
+  const [tutorial, setTutorial] = useState(false)
   const closeMenu = useCallback(() => setMenuPage(null), [])
   const [history, setHistory] = useState<RunRecord[]>([])
   const [theme, setTheme] = useState<Theme>(loadTheme)
@@ -451,6 +457,17 @@ export function App() {
     }
   }, [session.profile, judgeFor, t, lang])
 
+  const startFirstRun = useCallback(() => {
+    if (session.profile.runs > 0 || loadTutorialDone()) return play()
+    setMenuPage(null)
+    setTutorial(true)
+  }, [session.profile.runs, play])
+  const endTutorial = useCallback(() => {
+    saveTutorialDone()
+    setTutorial(false)
+    play()
+  }, [play])
+
   const named = account !== null && !account.anonymous
   const refreshChallenges = useCallback(() => {
     if (!named) return setChallenges(null)
@@ -674,7 +691,7 @@ export function App() {
     setChallengeOpen(null)
     refreshChallenges()
   }
-  const quietHome = session.phase === 'home' && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
+  const quietHome = session.phase === 'home' && !tutorial && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
   const notice = quietHome ? challengeNotice(challenges, heldNotices) : null
 
   if (debugPhase !== null && locale !== null) {
@@ -703,7 +720,9 @@ export function App() {
 
   return (
     <MessagesContext value={t}>
-    <main className={`stage stage--${session.phase}${isNativeApp() ? '' : ' stage--muteable'}`}>
+    <main className={`stage stage--${tutorial ? 'playing' : session.phase}${isNativeApp() ? '' : ' stage--muteable'}`}>
+      {tutorial && session.phase === 'home' && <TutorialScreen onDone={endTutorial} />}
+
       {editingAvatar && (
         <AvatarScreen
           profile={session.profile}
@@ -741,7 +760,7 @@ export function App() {
         />
       )}
 
-      {!editingAvatar && !moderating && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
+      {!tutorial && !editingAvatar && !moderating && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
@@ -753,9 +772,20 @@ export function App() {
           challenges={named ? challenges : null}
           onChallenge={setChallengeOpen}
           onCreateChallenge={() => setCreating({ busy: false, message: null })}
-          onMenu={(page = 'profile') => setMenuPage(page)}
-          onPlay={play}
+          onMenu={(page = 'profile') => {
+            setAccountMode('register')
+            setMenuPage(page)
+          }}
+          onPlay={startFirstRun}
           onEquip={(slot, powerId) => dispatch({ type: 'equip', slot, powerId })}
+          onAccount={
+            account?.anonymous
+              ? (mode) => {
+                  setAccountMode(mode)
+                  setMenuPage('profile')
+                }
+              : undefined
+          }
         />
       )}
 
@@ -825,6 +855,7 @@ export function App() {
           avatar={avatar}
           account={account}
           accountActions={accountActions}
+          accountMode={accountMode}
           theme={theme}
           locale={locale}
           onLocale={speak}

@@ -23,7 +23,20 @@ export const es: Messages = {
     myCategories: 'Mis categorías',
     reserve: (perRun) => `Cada partida saca ${perRun}; las demás quedan en reserva, y el poder Permutación cambia dos al empezar.`,
     links: { profile: 'Perfil', stats: 'Estadísticas', requests: 'Mis propuestas', categories: 'Categorías' },
+    accountLead: 'Guarda tus puntuaciones y reta a tus amigos.',
     news: (count) => `${count} ${count > 1 ? 'novedades' : 'novedad'}`,
+  },
+
+  tutorial: {
+    eyebrow: 'Antes de tu primera partida',
+    title: 'Cómo se juega',
+    stepPrompt: 'Aparecen una letra y un tema.',
+    stepType: 'Escribe una palabra del tema que empiece por esa letra y valida.',
+    stepClock: (seconds) => `En la partida tienes ${seconds} segundos para encontrar todas las que puedas.`,
+    ask: (letter) => `Un color con ${letter}: el de un tomate`,
+    hint: (word) => `Pista: escribe «${word}»`,
+    solved: '¡Bien hecho! Empieza la partida…',
+    skip: 'Saltar',
   },
 
   countdown: {

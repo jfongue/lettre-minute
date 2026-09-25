@@ -18,14 +18,17 @@ interface AccountPanelProps extends AccountActions {
   lead: string
   /** Signed in with Google but still unnamed: only the name is left to ask. */
   needsName?: boolean
+  /** The tab it opens on: « Se connecter » when that is the button that brought the player here. */
+  initialMode?: AccountMode
 }
 
-type Mode = 'register' | 'login' | 'reset'
+export type AccountMode = 'register' | 'login'
+type Mode = AccountMode | 'reset'
 
 /** Three fields to register, two to sign in: nothing else stands between a run and the account. */
-export function AccountPanel({ title, lead, needsName = false, ...actions }: AccountPanelProps) {
+export function AccountPanel({ title, lead, needsName = false, initialMode = 'register', ...actions }: AccountPanelProps) {
   const t = useT()
-  const [mode, setMode] = useState<Mode>('register')
+  const [mode, setMode] = useState<Mode>(initialMode)
   // The recovery code is asked for once the mail has gone.
   const [codeSent, setCodeSent] = useState(false)
   const [name, setName] = useState('')
