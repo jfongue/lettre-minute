@@ -18,6 +18,8 @@ import { OverScreen } from '../ui/OverScreen'
 import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
 import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
+import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
+import { FriendPicker } from '../ui/FriendPicker'
 import type { Boards } from '../domain/boards'
 
 /*
@@ -422,6 +424,22 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <ChallengeView detail={challenge('finished')} onPlay={noop} onRematch={() => later(false)} onReact={() => later(true)} onBack={back} onChanged={noop} />,
   },
   {
+    id: 'challenge-create',
+    group: 'Défi entre amis',
+    title: 'Créer un défi',
+    how: 'Catégories à choisir parmi les siennes, pouvoirs autorisés ou non',
+    phase: 'home',
+    render: (back) => <CreateScenario back={back} powers />,
+  },
+  {
+    id: 'challenge-create-bare',
+    group: 'Défi entre amis',
+    title: 'Créer un défi sans pouvoir possédé',
+    how: 'L’interrupteur des pouvoirs est grisé',
+    phase: 'home',
+    render: (back) => <CreateScenario back={back} powers={false} />,
+  },
+  {
     id: 'challenge-to-play',
     group: 'Défi entre amis',
     title: 'Défi à jouer',
@@ -570,6 +588,30 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <TutorialScreen lang="fr" onDone={back} />,
   },
 ]
+
+/** The real creation form; « Lancer » only comes back to the board. */
+function CreateScenario({ back, powers }: { back(): void; powers: boolean }) {
+  const [rules, setRules] = useState<ChallengeRules>({ categoryIds: ['animaux', 'pays', 'couleurs'], powers })
+  return (
+    <FriendPicker
+      title="Défier des amis"
+      exclude={[]}
+      max={7}
+      busy={false}
+      message={null}
+      confirmLabel={(count) => `Lancer (${count})`}
+      onConfirm={back}
+      onClose={back}
+    >
+      <ChallengeSetup
+        owned={['animaux', 'pays', 'couleurs', 'metiers', 'fruits-legumes', 'sports', 'marques']}
+        hasPowers={powers}
+        rules={rules}
+        onRules={setRules}
+      />
+    </FriendPicker>
+  )
+}
 
 function DebugHome({
   back,

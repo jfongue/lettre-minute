@@ -1,8 +1,8 @@
-• Bilan de défi : la course seconde par seconde, et des réactions sur les trophées et les mots
-• Touche un nom au classement pour l’ajouter en ami ou le bloquer
-• Classements longs : ton podium et tes amis d’abord
-• Ignore un défi terminé d’un glissement
-• Un pouvoir se choisit d’un seul toucher
-• Récompenses alternées : une catégorie, puis un pouvoir
+• Défis : choisis les catégories et autorise ou non les pouvoirs
+• Petit Bac inversé : un mot que toi seul as trouvé vaut +25 %
+• Réagis aux trophées et aux mots comme dans une messagerie
+• Bilan de défi : la course seconde par seconde, bouton « Ignorer »
+• Ajoute en ami ou bloque un joueur depuis le classement
+• Notifications réglables dans les options
+• Thème clair par défaut, pouvoirs Échange et Challenge renommés
 • Boîte à idées et bouton de soutien dans le profil
-• Alerte quand une nouvelle version est disponible

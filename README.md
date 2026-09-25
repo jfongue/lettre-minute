@@ -80,7 +80,8 @@ n'écrit rapportent le plus.
   modérateurs, il entre au dictionnaire et rapporte 150 XP à chacun de ceux
   qui l'ont proposé. Une pastille sur « Mes demandes » l'annonce à l'accueil.
 - **Défis entre amis** : de deux à huit joueurs, chacun joue la même partie
-  (même graine, mêmes catégories) quand il veut, dans les 24 heures qui
+  (même graine, mêmes catégories — le chef les choisit parmi les siennes, et
+  décide si les pouvoirs sont permis) quand il veut, dans les 24 heures qui
   suivent la dernière partie jouée. Pendant la partie, les scores de ceux qui
   ont déjà joué avancent seconde par seconde, comme en direct, sans jamais
   montrer un mot. À la fin, règle du Petit Bac à l'envers : rien n'est retiré
