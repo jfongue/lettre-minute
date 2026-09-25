@@ -11,6 +11,7 @@
 
 import type { PowerId } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
+import { onAppActive } from './native'
 
 /** Each channel's volume, from 0 (off) to 1. */
 export interface SoundPrefs {
@@ -551,7 +552,7 @@ function stopPlaying(): void {
 /** Plays what is wanted, if the preferences allow it and the context is awake. */
 function syncMusic(): void {
   safely(() => {
-    const target = prefs.muted || prefs.master <= 0
+    const target = prefs.muted || prefs.master <= 0 || !inForeground()
       ? null
       : wanted === 'menu' && prefs.music > 0
         ? 'menu'
@@ -597,35 +598,56 @@ export function configureSound(next: SoundPrefs): void {
 }
 
 let armed = false
+// Each reason the game is out of sight; the music plays only when none holds.
+const away = { hidden: false, blurred: false, native: false }
+
+function inForeground(): boolean {
+  return !away.hidden && !away.blurred && !away.native
+}
+
+function setAway(reason: keyof typeof away, on: boolean): void {
+  if (away[reason] === on) return
+  away[reason] = on
+  safely(() => {
+    if (!ctx) return
+    if (!inForeground()) {
+      stopPlaying()
+      ctx.suspend().catch(() => {})
+    } else {
+      ctx.resume().then(syncMusic, () => {})
+    }
+  })
+}
 
 /**
  * Browsers only let sound start from a gesture: the context is created, or
- * woken, on the first touch or key. The music waits for it, and stops while
- * the app is in the background.
+ * woken, on the first touch or key. The music waits for it, and stops
+ * whenever the game is not in front: hidden tab, another window, the app in
+ * the background or an ad over it.
  */
 export function armSound(): void {
   if (armed || typeof window === 'undefined') return
   armed = true
-  const wake = () =>
+  away.hidden = document.hidden
+  const wake = () => {
+    // A touch or a key means the game is in front, whatever blur said.
+    away.blurred = false
     safely(() => {
+      if (!inForeground()) return
       const c = context()
       if (!c) return
       if (c.state === 'running') syncMusic()
       else c.resume().then(syncMusic, () => {})
     })
+  }
   window.addEventListener('pointerdown', wake, true)
   window.addEventListener('keydown', wake, true)
-  document.addEventListener('visibilitychange', () =>
-    safely(() => {
-      if (!ctx) return
-      if (document.hidden) {
-        stopPlaying()
-        ctx.suspend().catch(() => {})
-      } else {
-        ctx.resume().then(syncMusic, () => {})
-      }
-    }),
-  )
+  document.addEventListener('visibilitychange', () => setAway('hidden', document.hidden))
+  window.addEventListener('pagehide', () => setAway('hidden', true))
+  window.addEventListener('pageshow', () => setAway('hidden', document.hidden))
+  window.addEventListener('blur', () => setAway('blurred', true))
+  window.addEventListener('focus', () => setAway('blurred', false))
+  onAppActive((active) => setAway('native', !active))
 }
 
 export function tierSound(tier: RarityTier, approximate: boolean): SoundTier {

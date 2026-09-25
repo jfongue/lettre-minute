@@ -29,6 +29,27 @@ export function isNativeApp(): boolean {
   return native
 }
 
+/**
+ * Whether the game has the screen: Android and iOS say when the app leaves
+ * the foreground, which the WebView does not always pass on as a hidden page,
+ * and an interstitial covers it without hiding it at all.
+ */
+export function onAppActive(onChange: (active: boolean) => void): void {
+  if (!native) return
+  quietly(() =>
+    NativeApp.addListener("appStateChange", ({ isActive }) => onChange(isActive))
+  )
+  quietly(() =>
+    AdMob.addListener(InterstitialAdPluginEvents.Showed, () => onChange(false))
+  )
+  quietly(() =>
+    AdMob.addListener(InterstitialAdPluginEvents.Dismissed, () => onChange(true))
+  )
+  quietly(() =>
+    AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, () => onChange(true))
+  )
+}
+
 /** Hides the launch screen once React has painted. */
 export function startNativeShell(): void {
   if (!native) return
