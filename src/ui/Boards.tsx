@@ -1,16 +1,24 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { focusedRows, type BoardId, type Boards as BoardsData } from '../domain/boards'
 import { formatNumber, useT } from '../i18n'
 import { fetchFriends } from '../lib/cloud'
 import { Avatar } from './Avatar'
 import { PlayerName } from './PlayerSheet'
+import { useCountUp } from './useCountUp'
 
 const BOARDS: readonly BoardId[] = ['day', 'week', 'discoveries']
+
+/** The rank the line held before the run, counted down to the one it won, as the line rises. */
+function ClimbingRank({ rank, climbed }: { rank: number; climbed: number }) {
+  return <>{useCountUp(rank, 900, rank + climbed, 700)}</>
+}
 
 interface BoardsProps {
   boards: BoardsData
   /** The player's account name, highlighted where it ranks. */
   me: string | null
+  /** Places the last run won on the day's board: the player's line climbs them, once. */
+  climbed?: number
 }
 
 /**
@@ -18,7 +26,7 @@ interface BoardsProps {
  * browser's own, with its momentum and its accessibility, and the tabs above
  * scroll it for those who tap rather than swipe.
  */
-export function Boards({ boards, me }: BoardsProps) {
+export function Boards({ boards, me, climbed = 0 }: BoardsProps) {
   const t = useT()
   const track = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
@@ -81,12 +89,14 @@ export function Boards({ boards, me }: BoardsProps) {
                     const mine = me !== null && row.name.toLowerCase() === me.toLowerCase()
                     // A gap in the ranks says rows were left out between them.
                     const gap = index > 0 && rank - rows[index - 1]!.rank > 1
+                    const climbing = mine && board === 'day' && climbed > 0
                     return (
                       <div
-                        className={`standing${rank === 1 ? ' standing--leader' : ''}${mine ? ' standing--me' : ''}${gap ? ' standing--gap' : ''}`}
+                        className={`standing${rank === 1 ? ' standing--leader' : ''}${mine ? ' standing--me' : ''}${gap ? ' standing--gap' : ''}${climbing ? ' standing--climbing' : ''}`}
+                        style={climbing ? ({ '--climb': Math.max(1, Math.min(climbed, rows.length - index - 1)) } as CSSProperties) : undefined}
                         key={`${row.name}-${rank}`}
                       >
-                        <span className="rank">{rank}</span>
+                        <span className="rank">{climbing ? <ClimbingRank rank={rank} climbed={climbed} /> : rank}</span>
                         <Avatar choice={row.avatar} size="sm" />
                         <span className="name">
                           {mine ? (
@@ -98,6 +108,7 @@ export function Boards({ boards, me }: BoardsProps) {
                           )}
                         </span>
                         <span className="points">
+                          {climbing && <span className="standing-climb">+{climbed}</span>}
                           {formatNumber(t, row.value)}
                           {board === 'discoveries' && <small> {t.boards.words(row.value)}</small>}
                         </span>

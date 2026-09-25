@@ -624,6 +624,14 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <DebugHome back={back} boards={LONG_BOARDS} />,
   },
   {
+    id: 'home-climb',
+    group: 'Accueil',
+    title: 'Retour à l’accueil après avoir gagné des places',
+    how: 'Le nom du joueur remonte le classement du jour, avec « +3 » en vert',
+    phase: 'home',
+    render: (back) => <DebugHome back={back} boards={LONG_BOARDS} climbed={3} />,
+  },
+  {
     id: 'update',
     group: 'Accueil',
     title: 'Notification : nouvelle version',
@@ -687,11 +695,13 @@ function DebugHome({
   error = false,
   newcomer = false,
   boards = null,
+  climbed = 0,
 }: {
   back(): void
   error?: boolean
   newcomer?: boolean
   boards?: Boards | null
+  climbed?: number
 }) {
   return (
     <HomeScreen
@@ -701,6 +711,7 @@ function DebugHome({
       settled
       boards={boards}
       me={newcomer ? null : 'Testeur'}
+      climbed={climbed}
       avatar={DEFAULT_AVATAR}
       requestsNews={error || newcomer ? 0 : 3}
       challenges={null}

@@ -13,6 +13,7 @@ import {
   fetchModerationStatus,
   fetchMySubmissions,
   markRequestsSeen,
+  topUpModeration,
   type Submission,
   logIn,
   logInWithGoogle,
@@ -63,6 +64,7 @@ import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSecond
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { commonWord, withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
+import { standingMove } from './domain/standing'
 import { challengeNotice } from './state/challenges'
 import { createJudge } from './state/judge'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
@@ -133,6 +135,8 @@ export function App() {
   const [boardsAfter, setBoardsAfter] = useState<Boards | null>(null)
   const boardsNow = useRef(boards)
   boardsNow.current = boards
+  // The climb plays on the first home screen after the run, not on every one after.
+  const [climbSeen, setClimbSeen] = useState<Boards | null>(null)
   // Where the drawer opened, or null while it is closed.
   const [menuPage, setMenuPage] = useState<MenuPage | null>(null)
   const menuOpen = menuPage !== null
@@ -280,6 +284,14 @@ export function App() {
   }, [lang])
   // The account decides the role, the language which words wait for it.
   useEffect(refreshModeration, [refreshModeration, account?.name, account?.anonymous])
+
+  const moderator = moderation?.moderator === true
+  const topUpRequests = useCallback(() => {
+    if (!moderator) return
+    topUpModeration(lang).then((released) => {
+      if (released > 0) refreshModeration()
+    })
+  }, [moderator, lang, refreshModeration])
 
   // On opening, and on each sign-in: the player's words let in since they last
   // looked, and how many ever were — the third brings Challenge.
@@ -803,6 +815,18 @@ export function App() {
     setChallengeOpen(null)
     refreshChallenges()
   }
+  const myName = account && !account.anonymous ? account.name : null
+  const move =
+    myName && boardsBefore && boardsAfter && boardsAfter !== climbSeen ? standingMove(boardsBefore.day, boardsAfter.day, myName) : null
+  const climbed = move && move.from !== null && move.to < move.from ? move.from - move.to : 0
+  const climbing = session.phase === 'home' && climbed > 0
+  useEffect(() => {
+    if (!climbing) return
+    // Past the animation: coming back home later shows the board at rest.
+    const timer = setTimeout(() => setClimbSeen(boardsAfter), 3000)
+    return () => clearTimeout(timer)
+  }, [climbing, boardsAfter])
+
   const quietHome = session.phase === 'home' && !tutorial && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
   const notice = quietHome ? challengeNotice(challenges, heldNotices) : null
 
@@ -881,6 +905,7 @@ export function App() {
           settled={homeSettled}
           boards={boards}
           me={account && !account.anonymous ? account.name : null}
+          climbed={climbed}
           avatar={avatar}
           requestsNews={moderation?.news ?? 0}
           challenges={named ? challenges : null}
@@ -1044,6 +1069,7 @@ export function App() {
             setModerating(true)
           }}
           onRequestsSeen={refreshModeration}
+          onRequestsOpen={topUpRequests}
           onErase={async () => {
             // The device keeps its copy until the server has let go of its
             // own: a failed erase must not leave the player half-deleted.

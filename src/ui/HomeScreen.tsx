@@ -35,6 +35,8 @@ interface HomeScreenProps {
   boards: BoardsData | null
   /** The player's account name, highlighted on the boards; null for an anonymous player. */
   me: string | null
+  /** Places the last run won on the day's board, shown climbing once. */
+  climbed?: number
   avatar: AvatarChoice
   /** The player's words accepted since they last opened « Mes demandes ». */
   requestsNews: number
@@ -58,6 +60,7 @@ export function HomeScreen({
   settled,
   boards,
   me,
+  climbed,
   avatar,
   requestsNews,
   challenges,
@@ -147,7 +150,7 @@ export function HomeScreen({
                 </div>
               </section>
 
-              {boards && <Boards boards={boards} me={me} />}
+              {boards && <Boards boards={boards} me={me} climbed={climbed} />}
             </>
           )}
 

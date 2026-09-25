@@ -6046,3 +6046,35 @@ button.challenge-word[aria-expanded='true'] {
     animation: none;
   }
 }
+
+/* Back home after a run that won places: the player's line rises past the rows it overtook. */
+.standing--climbing {
+  position: relative;
+  z-index: 1;
+  animation: standing-climb 900ms var(--ease-spring) 700ms both;
+}
+
+.standing-climb {
+  margin-right: 0.45rem;
+  color: var(--green);
+  font-size: 0.8rem;
+  font-weight: 800;
+  animation: pop-in 420ms var(--ease-spring) 1500ms both;
+}
+
+@keyframes standing-climb {
+  from {
+    transform: translateY(calc(var(--climb, 1) * 100%));
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  }
+  80% {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .standing--climbing,
+  .standing-climb {
+    animation: none;
+  }
+}
