@@ -99,7 +99,7 @@ export const pt: Messages = {
     frameDescription: 'Obrigado por apoiares Letra Minuto!',
     close: 'Fechar',
     hello:
-      'Olá, sou o Jérémy!\nSou um programador francês independente e crio o Lettre Minute nos meus tempos livres. Se gostaste do jogo, o teu apoio ajudava-me imenso, até 1 € conta.\n\nObrigado de coração!',
+      'Olá, sou o Jérémy!\nSou um programador francês independente e crio o Lettre Minute nos meus tempos livres. Se gostaste do jogo, o teu apoio ajudava-me imenso, até 1 € conta.\nObrigado de coração!',
     photo: 'Jérémy, o criador do jogo',
   },
 

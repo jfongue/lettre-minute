@@ -98,7 +98,7 @@ export const de: Messages = {
     frameDescription: 'Danke, dass du Letter Minute unterstützt!',
     close: 'Schließen',
     hello:
-      'Hallo, ich bin Jérémy!\nIch bin ein unabhängiger Entwickler aus Frankreich und baue Lettre Minute in meiner Freizeit. Wenn dir das Spiel gefällt, hilft mir deine Unterstützung enorm, schon 1 € zählt.\n\nVon Herzen danke!',
+      'Hallo, ich bin Jérémy!\nIch bin ein unabhängiger Entwickler aus Frankreich und baue Lettre Minute in meiner Freizeit. Wenn dir das Spiel gefällt, hilft mir deine Unterstützung enorm, schon 1 € zählt.\nVon Herzen danke!',
     photo: 'Jérémy, der Macher des Spiels',
   },
 
