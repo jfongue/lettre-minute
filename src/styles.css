@@ -4895,22 +4895,82 @@ button.challenge-word[aria-expanded='true'] {
 }
 
 .tutorial {
-  gap: 1.25rem;
-  animation: fade 300ms ease both;
+  gap: 1.1rem;
 }
 
-.tutorial-skip {
-  justify-self: end;
-  margin-bottom: -0.75rem;
+/* Chaque pièce de la vraie consigne arrive à son tour, avec son étiquette :
+   le principe s’explique sur l’écran même où l’on joue. */
+.tutorial-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-.tutorial-clue {
-  justify-self: start;
-  font-size: 2.4rem;
-  line-height: 1;
-  animation:
-    pop-in 480ms var(--ease-spring) 520ms both,
-    tutorial-bob 1.6s ease-in-out 1s infinite;
+.tutorial-hello {
+  margin: 0;
+  font-size: clamp(1.1rem, 4.8vw, 1.35rem);
+  font-weight: 700;
+  animation: tutorial-hello 2.6s var(--ease-out) both;
+}
+
+.tutorial-prompt {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 1.1rem;
+  padding-top: 0.4rem;
+}
+
+.tutorial-piece {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+}
+
+.tutorial-piece--letter {
+  justify-items: center;
+}
+
+.tutorial-piece--letter .mark > .shape {
+  animation-delay: 700ms;
+}
+
+.tutorial-piece--letter .mark-letter {
+  animation-delay: 860ms;
+}
+
+.tutorial-piece--theme {
+  align-self: center;
+  animation: slide-from-right 520ms var(--ease-spring) 1500ms both;
+}
+
+.tutorial-tag {
+  padding: 0.2rem 0.55rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    opacity 260ms ease,
+    transform 260ms ease;
+}
+
+.tutorial-piece--letter .tutorial-tag {
+  animation: tutorial-tag 520ms var(--ease-spring) 1150ms both;
+}
+
+.tutorial-piece--theme .tutorial-tag {
+  animation: tutorial-tag 520ms var(--ease-spring) 1950ms both;
+}
+
+/* Dès la première lettre tapée, les étiquettes ont fait leur travail. */
+.tutorial--typing .tutorial-tag {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.9);
 }
 
 .tutorial-ask {
@@ -4918,19 +4978,42 @@ button.challenge-word[aria-expanded='true'] {
   font-size: clamp(1.25rem, 5.5vw, 1.5rem);
   font-weight: 700;
   line-height: 1.2;
-  animation: rise 420ms var(--ease-out) 700ms both;
+  animation: rise 460ms var(--ease-out) 2500ms both;
 }
 
 .tutorial-ask strong {
+  display: inline-block;
   color: var(--red);
   font-weight: 800;
+  animation: tutorial-beat 1s ease-in-out 3s 3;
 }
 
-/* Tant que rien n’est tapé, le trait clignote pour montrer où écrire. */
+.tutorial-answer {
+  animation: rise 460ms var(--ease-out) 2850ms both;
+}
+
 .tutorial-field--idle .answer-line {
   transform: none;
   background: var(--red);
-  animation: tutorial-blink 1.1s ease-in-out 1s infinite;
+  animation: tutorial-blink 1.1s ease-in-out 3.3s infinite;
+}
+
+.tutorial-clock {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  min-height: 1.6rem;
+  font-weight: 700;
+  animation: rise 420ms var(--ease-out) 3300ms both;
+}
+
+.tutorial-clock-disc {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 2px;
+  background: conic-gradient(var(--blue) calc(var(--tutorial-ratio) * 360deg), var(--paper) 0);
+  animation: tutorial-drain 6s linear 3.3s infinite;
 }
 
 .tutorial-hint {
@@ -4940,7 +5023,7 @@ button.challenge-word[aria-expanded='true'] {
 }
 
 .tutorial-go {
-  animation: tutorial-beat 900ms ease-in-out infinite;
+  animation: tutorial-pulse 900ms ease-in-out infinite;
 }
 
 .tutorial--solved {
@@ -4959,6 +5042,13 @@ button.challenge-word[aria-expanded='true'] {
   animation: pop-in 520ms var(--ease-spring) both;
 }
 
+.tutorial-found {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  animation: slide-from-left 460ms var(--ease-spring) 200ms both;
+}
+
 .tutorial-shapes {
   display: flex;
   gap: 0.75rem;
@@ -4967,23 +5057,58 @@ button.challenge-word[aria-expanded='true'] {
 .tutorial-shapes > * {
   width: 1.6rem;
   height: 1.6rem;
-  animation: spin-in 560ms var(--ease-spring) both;
+  animation:
+    spin-in 560ms var(--ease-spring) both,
+    tutorial-hop 900ms ease-in-out infinite;
 }
 
-.tutorial-shapes > :nth-child(1) { animation-delay: 180ms; }
-.tutorial-shapes > :nth-child(2) { animation-delay: 280ms; }
-.tutorial-shapes > :nth-child(3) { animation-delay: 380ms; }
+.tutorial-shapes > :nth-child(1) { animation-delay: 300ms, 900ms; }
+.tutorial-shapes > :nth-child(2) { animation-delay: 380ms, 1000ms; }
+.tutorial-shapes > :nth-child(3) { animation-delay: 460ms, 1100ms; }
+.tutorial-shapes > :nth-child(4) { animation-delay: 540ms, 1200ms; }
 
 .tutorial-next {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  animation: rise 420ms var(--ease-out) 600ms both;
+  animation: tutorial-hello 1.8s var(--ease-out) 700ms both;
 }
 
-@keyframes tutorial-bob {
-  50% {
-    transform: translateY(-18%) rotate(-8deg);
+@property --tutorial-ratio {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+@keyframes tutorial-drain {
+  from {
+    --tutorial-ratio: 1;
+  }
+  to {
+    --tutorial-ratio: 0;
+  }
+}
+
+/* Entre, se pose, puis s’efface à moitié : la phrase a lancé l’écran. */
+@keyframes tutorial-hello {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  20%,
+  70% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes tutorial-tag {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.6);
   }
 }
 
@@ -4995,6 +5120,18 @@ button.challenge-word[aria-expanded='true'] {
 
 @keyframes tutorial-beat {
   50% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes tutorial-pulse {
+  50% {
     transform: scale(1.04);
+  }
+}
+
+@keyframes tutorial-hop {
+  50% {
+    transform: translateY(-30%);
   }
 }

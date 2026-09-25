@@ -28,10 +28,14 @@ export const pt: Messages = {
   },
 
   tutorial: {
+    hello: 'Deixa-me explicar-te como funciona…',
+    letter: 'Uma letra',
+    theme: 'Um tema',
+    clock: (seconds) => `O máximo de palavras em ${seconds} s`,
     ask: 'Escreve uma cor com',
     hint: (word) => `Dica: «${word}»`,
     solved: 'Muito bem!',
-    next: (seconds) => `Agora: ${seconds} s para o máximo de palavras`,
+    next: 'Agora, a partida a sério…',
     skip: 'Saltar',
   },
 

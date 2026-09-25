@@ -28,10 +28,14 @@ export const es: Messages = {
   },
 
   tutorial: {
+    hello: 'Déjame explicarte cómo funciona…',
+    letter: 'Una letra',
+    theme: 'Un tema',
+    clock: (seconds) => `Todas las palabras que puedas en ${seconds} s`,
     ask: 'Escribe un color con',
     hint: (word) => `Pista: «${word}»`,
     solved: '¡Bien hecho!',
-    next: (seconds) => `Ahora: ${seconds} s para todas las palabras que puedas`,
+    next: 'Ahora, la partida de verdad…',
     skip: 'Saltar',
   },
 

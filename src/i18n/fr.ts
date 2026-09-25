@@ -43,10 +43,14 @@ export const fr = {
   },
 
   tutorial: {
+    hello: 'Laisse-moi t’expliquer le principe…',
+    letter: 'Une lettre',
+    theme: 'Un thème',
+    clock: (seconds: number) => `Un max de mots en ${seconds} s`,
     ask: 'Tape une couleur en',
     hint: (word: string) => `Indice : « ${word} »`,
     solved: 'Bravo !',
-    next: (seconds: number) => `Maintenant : ${seconds} s pour un max de mots`,
+    next: 'Place à la vraie partie…',
     skip: 'Passer',
   },
 

@@ -528,7 +528,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Tutoriel du premier « Jouer »',
     how: 'Une couleur en R (dans la langue de l’interface), puis la partie',
     phase: 'playing',
-    render: (back) => <TutorialScreen onDone={back} />,
+    render: (back) => <TutorialScreen lang="fr" onDone={back} />,
   },
 ]
 

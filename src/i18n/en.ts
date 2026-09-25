@@ -34,10 +34,14 @@ export const en: Messages = {
   },
 
   tutorial: {
+    hello: 'Let me show you how it works…',
+    letter: 'A letter',
+    theme: 'A theme',
+    clock: (seconds) => `As many words as you can in ${seconds} s`,
     ask: 'Type a colour starting with',
     hint: (word) => `Hint: “${word}”`,
     solved: 'Well done!',
-    next: (seconds) => `Now: ${seconds} s to find as many as you can`,
+    next: 'On to the real game…',
     skip: 'Skip',
   },
 

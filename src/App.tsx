@@ -729,7 +729,7 @@ export function App() {
   return (
     <MessagesContext value={t}>
     <main className={`stage stage--${tutorial ? 'playing' : session.phase}${isNativeApp() ? '' : ' stage--muteable'}`}>
-      {tutorial && session.phase === 'home' && <TutorialScreen onDone={endTutorial} />}
+      {tutorial && session.phase === 'home' && <TutorialScreen lang={lang} onDone={endTutorial} />}
 
       {editingAvatar && (
         <AvatarScreen
