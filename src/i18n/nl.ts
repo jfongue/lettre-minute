@@ -453,6 +453,7 @@ export const nl: Messages = {
       lead: (players, hours) => `${players} spelers, dezelfde letters voor iedereen. Nog ${hours} u om te spelen.`,
       later: 'Later',
       play: 'Spelen',
+      laterHint: 'Je kunt hem ook later starten bij ‘Uitdagingen’, met ‘Spelen’.',
     },
     overPop: {
       title: 'Uitdaging afgelopen!',
@@ -469,7 +470,10 @@ export const nl: Messages = {
     pushFailed: 'Je spel kon de uitdaging niet bereiken.',
     provisional: 'Voorlopige stand',
     final: 'Eindstand',
-    rules: 'Petit-Bac-regel: een woord dat verder niemand vond, telt 25 % meer.',
+    rules: 'Een woord dat verder niemand vond, telt 25 % meer.',
+    share: 'Delen',
+    soon: 'binnenkort',
+    drumroll: 'En de winnaar is…',
     waitingFor: (count, hours) =>
       `${count} ${plural(count, 'speler heeft', 'spelers hebben')} nog niet gespeeld · sluit uiterlijk over ${hours} u`,
     notYet: 'nog niet gespeeld',

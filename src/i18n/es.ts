@@ -454,6 +454,7 @@ export const es: Messages = {
       lead: (players, hours) => `${players} jugadores, las mismas letras para todos. Quedan ${hours} h para jugar.`,
       later: 'Más tarde',
       play: 'Jugar',
+      laterHint: 'También puedes empezarlo más tarde desde «Retos», en «Jugar».',
     },
     overPop: {
       title: '¡Reto terminado!',
@@ -470,7 +471,10 @@ export const es: Messages = {
     pushFailed: 'Tu partida no pudo llegar al reto.',
     provisional: 'Clasificación provisional',
     final: 'Clasificación final',
-    rules: 'Regla del Stop: una palabra que nadie más encontró vale un 25 % más.',
+    rules: 'Una palabra que nadie más encontró vale un 25 % más.',
+    share: 'Compartir',
+    soon: 'pronto',
+    drumroll: 'Y la victoria es para…',
     waitingFor: (count, hours) =>
       `${count} ${plural(count, 'jugador no ha', 'jugadores no han')} jugado aún · cierra en ${hours} h como mucho`,
     notYet: 'aún no ha jugado',

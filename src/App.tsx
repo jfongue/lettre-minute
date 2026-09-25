@@ -694,9 +694,9 @@ export function App() {
     setTapped(null)
     setMenuPage(null)
     setHeldNotices((held) => [...held, tapped.challenge])
-    if (tapped.kind === 'invite') startChallengeById(tapped.challenge)
-    else setChallengeOpen(tapped.challenge)
-  }, [tapped, named, session.phase, startChallengeById])
+    // Even an invitation opens on its screen: the player may not want to play right now.
+    setChallengeOpen(tapped.challenge)
+  }, [tapped, named, session.phase])
 
   const [swapping, setSwapping] = useState(false)
   const swap = useCallback(

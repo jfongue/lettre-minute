@@ -454,6 +454,7 @@ export const it: Messages = {
       lead: (players, hours) => `${players} giocatori, le stesse lettere per tutti. Ancora ${hours} h per giocare.`,
       later: 'Più tardi',
       play: 'Gioca',
+      laterHint: 'Puoi anche avviarla più tardi da «Sfide», con «Gioca».',
     },
     overPop: {
       title: 'Sfida finita!',
@@ -470,7 +471,10 @@ export const it: Messages = {
     pushFailed: 'La tua partita non è arrivata alla sfida.',
     provisional: 'Classifica provvisoria',
     final: 'Classifica finale',
-    rules: 'Regola di Nomi, cose, città: una parola che nessun altro ha trovato vale il 25 % in più.',
+    rules: 'Una parola che nessun altro ha trovato vale il 25 % in più.',
+    share: 'Condividi',
+    soon: 'presto',
+    drumroll: 'E la vittoria va a…',
     waitingFor: (count, hours) =>
       `${count} ${plural(count, 'giocatore non ha', 'giocatori non hanno')} ancora giocato · chiusura entro ${hours} h`,
     notYet: 'non ha ancora giocato',

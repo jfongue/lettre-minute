@@ -81,3 +81,32 @@ export function hideChallengeDetail(detail: {
 export function isHidden(hidden: Record<string, string>, challenge: ChallengeSummary): boolean {
   return hidden[challenge.id] === stampOf(challenge)
 }
+
+const REVEALED_KEY = 'lettre-minute.revealed-recaps.v1'
+
+function loadRevealed(): string[] {
+  try {
+    const stored: unknown = JSON.parse(localStorage.getItem(REVEALED_KEY) ?? '[]')
+    return Array.isArray(stored) ? stored.filter((id): id is string => typeof id === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+/** Whether this device has already played the recap's reveal: the suspense is for the first opening only. */
+export function recapRevealed(id: string): boolean {
+  return loadRevealed().includes(id)
+}
+
+// The newest hundred are plenty: a challenge closes within a day, and its recap is opened soon after.
+const REVEALED_KEPT = 100
+
+export function markRecapRevealed(id: string): void {
+  const revealed = loadRevealed()
+  if (revealed.includes(id)) return
+  try {
+    localStorage.setItem(REVEALED_KEY, JSON.stringify([...revealed, id].slice(-REVEALED_KEPT)))
+  } catch {
+    /* the reveal plays again next time */
+  }
+}

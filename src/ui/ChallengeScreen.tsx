@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import {
   answersTo,
   awardTrophies,
@@ -22,33 +22,79 @@ import {
   type ChallengePlayer,
   type ReactionEmoji,
 } from '../lib/cloud'
-import { challengeTitle, hideChallengeDetail, hoursLeft } from '../state/challenges'
+import { challengeTitle, hideChallengeDetail, hoursLeft, markRecapRevealed, recapRevealed } from '../state/challenges'
 import { Avatar } from './Avatar'
-import { LetterMark, Shape, TierTag } from './bauhaus'
+import { Burst, LetterMark, Shape, TierTag } from './bauhaus'
+import { ChallengeNotice } from './ChallengeHome'
 import { FriendPicker } from './FriendPicker'
 import { categoryMotif, onTint } from './motifs'
 import { PlayerName } from './PlayerSheet'
 import { Reactable, useRecapReactions, type RecapReactions } from './Reactions'
 import { ScoreRace } from './ScoreRace'
+import { ShareSoon } from './ShareSoon'
 import { TROPHY_TINTS, TrophyIcon } from './TrophyIcon'
+import { reducedMotion } from './useCountUp'
 
 const playerOf = (detail: ChallengeDetail) => {
   const byId = new Map(detail.players.map((player) => [player.playerId, player]))
   return (id: string) => byId.get(id)
 }
 
-function Standings({ detail, standings }: { detail: ChallengeDetail; standings: readonly Standing[] }) {
+const MY_WORDS_ID = 'challenge-my-words'
+
+const REVEAL_STEP_MS = 900
+const REVEAL_DRUMROLL_MS = 1900
+
+/**
+ * How many standings show, counted from the last: one more at each step, and
+ * a longer pause before the winner. Whole at once when there is no suspense.
+ */
+function useReveal(count: number, suspense: boolean, onDone?: () => void): number {
+  const [shown, setShown] = useState(() => (suspense && !reducedMotion() ? 0 : count))
+  const done = useRef(onDone)
+  useEffect(() => {
+    done.current = onDone
+  })
+  useEffect(() => {
+    if (shown >= count) {
+      done.current?.()
+      return
+    }
+    const timer = setTimeout(() => setShown((current) => current + 1), shown === count - 1 ? REVEAL_DRUMROLL_MS : REVEAL_STEP_MS)
+    return () => clearTimeout(timer)
+  }, [shown, count])
+  return Math.min(shown, count)
+}
+
+interface StandingsProps {
+  detail: ChallengeDetail
+  standings: readonly Standing[]
+  /** Standings revealed so far, from the last; all of them when absent. */
+  revealed?: number
+  /** Confetti on the winner once the last veil lifts. */
+  crown?: boolean
+  /** Each standing rises into place as its veil lifts. */
+  lift?: boolean
+}
+
+function Standings({ detail, standings, revealed = standings.length, crown = false, lift = false }: StandingsProps) {
   const t = useT()
   const player = playerOf(detail)
+  const veiled = standings.length - revealed
+  const toMyWords = () => document.getElementById(MY_WORDS_ID)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   return (
     <div className="standings">
+      {veiled === 1 && standings.length > 1 && <p className="standings-drumroll">{t.challenge.drumroll}</p>}
       {standings.map((standing, index) => {
         const who = player(standing.playerId)
+        const hidden = index < veiled
         return (
           <div
             key={standing.playerId}
-            className={`standing${index === 0 ? ' standing--leader' : ''}${who?.me ? ' standing--me' : ''}`}
+            className={`standing${index === 0 ? ' standing--leader' : ''}${who?.me ? ' standing--me' : ''}${hidden ? ' standing--veiled' : lift ? ' standing--lifted' : ''}`}
+            aria-hidden={hidden || undefined}
           >
+            {index === 0 && crown && veiled === 0 && <Burst />}
             <span className="rank">{index + 1}</span>
             {who && <Avatar choice={who.avatar} size="sm" />}
             <span className="name challenge-standing-name">
@@ -56,6 +102,10 @@ function Standings({ detail, standings }: { detail: ChallengeDetail; standings: 
                 <PlayerName name={who.name} avatar={who.avatar}>
                   {who.name}
                 </PlayerName>
+              ) : standing.words.length > 0 ? (
+                <button type="button" className="standing-me-link" onClick={toMyWords}>
+                  {t.challenge.you}
+                </button>
               ) : (
                 t.challenge.you
               )}
@@ -111,7 +161,7 @@ function MyWords({ detail, standing }: { detail: ChallengeDetail; standing: Stan
   const [open, setOpen] = useState<string | null>(null)
   const rivals = detail.players.some((player) => !player.me && player.playedAt !== null)
   return (
-    <section className="stack">
+    <section className="stack" id={MY_WORDS_ID}>
       <p className="section-title">{t.challenge.yourWords}</p>
       {standing.words.length === 0 ? (
         <p className="note">{t.over.empty}</p>
@@ -233,10 +283,12 @@ interface ChallengeBoardProps {
   detail: ChallengeDetail
   /** Something changed on the server: the caller reads the challenge again. */
   onChanged(): void
+  /** The challenge closed while the board was open: the way to its recap. */
+  onOpenFinal?(): void
 }
 
 /** The standings as they stand: settled again each time a player joins. */
-export function ChallengeBoard({ detail, onChanged }: ChallengeBoardProps) {
+export function ChallengeBoard({ detail, onChanged, onOpenFinal }: ChallengeBoardProps) {
   const t = useT()
   const standings = settleChallenge(detail.players)
   const mine = standings.find((standing) => playerOf(detail)(standing.playerId)?.me)
@@ -251,6 +303,11 @@ export function ChallengeBoard({ detail, onChanged }: ChallengeBoardProps) {
         <Standings detail={detail} standings={standings} />
         <p className="note">{t.challenge.rules}</p>
       </section>
+      {onOpenFinal && (
+        <button type="button" className="btn btn--blue btn--block" onClick={onOpenFinal}>
+          {t.challenge.overPop.open}
+        </button>
+      )}
       <Pending detail={detail} />
       <InviteMore detail={detail} onChanged={onChanged} />
       {mine && <MyWords detail={detail} standing={mine} />}
@@ -369,13 +426,16 @@ function MoreStats({ detail, reactions }: { detail: ChallengeDetail; reactions: 
 
 interface ChallengeRecapProps {
   detail: ChallengeDetail
+  /** The first opening of the recap: the standings come out one by one, the winner last. */
+  suspense?: boolean
+  onRevealed?(): void
   /** Resolves false when neither a rematch of one's own nor the existing one could be reached. */
   onRematch(detail: ChallengeDetail): Promise<boolean>
   onReact(target: string, emoji: ReactionEmoji | null): Promise<boolean>
 }
 
 /** The closing débrief: final standings, the words everyone had and nobody had, and the trophies. */
-export function ChallengeRecap({ detail, onRematch, onReact }: ChallengeRecapProps) {
+export function ChallengeRecap({ detail, suspense = false, onRevealed, onRematch, onReact }: ChallengeRecapProps) {
   const t = useT()
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
@@ -390,18 +450,26 @@ export function ChallengeRecap({ detail, onRematch, onReact }: ChallengeRecapPro
     (id) => player(id)?.name ?? '',
     onReact,
   )
+  const revealed = useReveal(standings.length, suspense, onRevealed)
+  const standingsPanel = (
+    <section className="panel">
+      <p className="section-title">{t.challenge.final}</p>
+      <Standings detail={detail} standings={standings} revealed={revealed} crown={suspense} lift={suspense} />
+      {revealed === standings.length && <p className="note">{t.challenge.rules}</p>}
+    </section>
+  )
+  // The rest of the recap would give the winner away: it waits for the reveal.
+  // A fragment either way: the panel stays the same element as the rest comes in.
+  if (revealed < standings.length) return <>{standingsPanel}</>
 
   return (
     <>
-      <section className="panel">
-        <p className="section-title">{t.challenge.final}</p>
-        <Standings detail={detail} standings={standings} />
-        <p className="note">{t.challenge.rules}</p>
-      </section>
+      {standingsPanel}
       <ScoreRace standings={standings} player={player} />
       <Trophies detail={detail} reactions={reactions} />
       {mine && <MyWords detail={detail} standing={mine} />}
       <MoreStats detail={detail} reactions={reactions} />
+      <ShareSoon />
       {me?.playedAt !== null && me !== undefined && (
         <div className="stack">
           {failed && <p className="note note--warn">{t.challenge.rematchFailed}</p>}
@@ -450,10 +518,24 @@ interface ChallengeScreenProps {
   onBack(): void
 }
 
+// No push reaches an open screen: the board asks again while others play.
+const WATCH_MS = 8_000
+
 /** One challenge, opened from the home screen: to play, under way, or over. */
 export function ChallengeScreen({ id, onPlay, onRematch, onBack }: ChallengeScreenProps) {
   const [detail, setDetail] = useState<ChallengeDetail | null | 'loading'>('loading')
-  const load = () => fetchChallenge(id).then(setDetail)
+  const [held, setHeld] = useState<Held>('no')
+  const [suspense] = useState(() => !recapRevealed(id))
+  const load = () =>
+    fetchChallenge(id).then((next) =>
+      setDetail((current) => {
+        // Closed under the player's eyes: the board they were reading stays, and a pop offers the recap.
+        const watched = typeof current === 'object' && current !== null && !current.finished
+        if (watched && next?.finished && current.players.some((player) => player.me && player.playedAt !== null)) setHeld('pop')
+        // A failed poll keeps what was shown rather than blanking the screen.
+        return next ?? (typeof current === 'object' ? current : null)
+      }),
+    )
 
   useEffect(() => {
     setDetail('loading')
@@ -462,14 +544,27 @@ export function ChallengeScreen({ id, onPlay, onRematch, onBack }: ChallengeScre
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
-  const finished = detail !== 'loading' && detail !== null && detail.finished
+  const waiting =
+    typeof detail === 'object' && detail !== null && !detail.finished && detail.players.some((player) => player.me && player.playedAt !== null)
   useEffect(() => {
-    if (finished) markChallengeSeen(id, 'recap')
-  }, [finished, id])
+    if (!waiting) return
+    const timer = setInterval(() => document.visibilityState === 'visible' && load(), WATCH_MS)
+    return () => clearInterval(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waiting, id])
+
+  const recapShown = typeof detail === 'object' && detail !== null && detail.finished && held === 'no'
+  useEffect(() => {
+    if (recapShown) markChallengeSeen(id, 'recap')
+  }, [recapShown, id])
 
   return (
     <ChallengeView
       detail={detail}
+      held={held}
+      suspense={suspense}
+      onRevealed={() => markRecapRevealed(id)}
+      onHold={setHeld}
       onPlay={onPlay}
       onRematch={onRematch}
       onReact={(target, emoji) => reactInChallenge(id, target, emoji)}
@@ -479,16 +574,39 @@ export function ChallengeScreen({ id, onPlay, onRematch, onBack }: ChallengeScre
   )
 }
 
+/** A challenge that closed while its board was open: the pop, then the board kept until asked. */
+type Held = 'no' | 'pop' | 'board'
+
+
 interface ChallengeViewProps extends Omit<ChallengeScreenProps, 'id'> {
   detail: ChallengeDetail | null | 'loading'
+  held?: Held
+  onHold?(held: Held): void
+  suspense?: boolean
+  onRevealed?(): void
   onChanged(): void
   onReact(target: string, emoji: ReactionEmoji | null): Promise<boolean>
 }
 
 /** The challenge screen once read: the debug board shows it without a server. */
-export function ChallengeView({ detail, onPlay, onRematch, onReact, onBack, onChanged }: ChallengeViewProps) {
+export function ChallengeView({
+  detail,
+  held = 'no',
+  onHold,
+  suspense = false,
+  onRevealed,
+  onPlay,
+  onRematch,
+  onReact,
+  onBack,
+  onChanged,
+}: ChallengeViewProps) {
   const t = useT()
-  const finished = detail !== 'loading' && detail !== null && detail.finished
+  const finished = detail !== 'loading' && detail !== null && detail.finished && held === 'no'
+  const openFinal = () => {
+    onHold?.('no')
+    window.scrollTo(0, 0)
+  }
   const me: ChallengePlayer | undefined = detail !== 'loading' && detail ? detail.players.find((player) => player.me) : undefined
 
   return (
@@ -509,7 +627,7 @@ export function ChallengeView({ detail, onPlay, onRematch, onReact, onBack, onCh
         <>
           <Lineup categoryIds={detail.categoryIds} />
           {finished ? (
-            <ChallengeRecap detail={detail} onRematch={onRematch} onReact={onReact} />
+            <ChallengeRecap detail={detail} suspense={suspense} onRevealed={onRevealed} onRematch={onRematch} onReact={onReact} />
           ) : me?.playedAt === null ? (
             <>
               <section className="panel">
@@ -537,12 +655,20 @@ export function ChallengeView({ detail, onPlay, onRematch, onReact, onBack, onCh
               </button>
             </>
           ) : (
-            <ChallengeBoard detail={detail} onChanged={onChanged} />
+            <ChallengeBoard detail={detail} onChanged={onChanged} onOpenFinal={detail.finished ? openFinal : undefined} />
+          )}
+          {held === 'pop' && (
+            <ChallengeNotice
+              challenge={{ ownerName: detail.ownerName, players: detail.players.length, expiresAt: detail.expiresAt }}
+              kind="recap"
+              onLater={() => onHold?.('board')}
+              onGo={openFinal}
+            />
           )}
         </>
       )}
 
-      {typeof detail === 'object' && detail?.finished ? (
+      {finished && typeof detail === 'object' && detail ? (
         <div className="challenge-leave">
           <button type="button" className="btn btn--ghost" onClick={onBack}>
             {t.challenge.home}

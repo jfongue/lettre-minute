@@ -452,6 +452,7 @@ export const de: Messages = {
       lead: (players, hours) => `${players} Spieler, dieselben Buchstaben für alle. Noch ${hours} Std. zum Spielen.`,
       later: 'Später',
       play: 'Spielen',
+      laterHint: 'Du kannst es auch später unter „Duelle“ starten, bei „Spielen“.',
     },
     overPop: {
       title: 'Duell beendet!',
@@ -468,7 +469,10 @@ export const de: Messages = {
     pushFailed: 'Dein Spiel konnte das Duell nicht erreichen.',
     provisional: 'Vorläufiger Stand',
     final: 'Endstand',
-    rules: 'Stadt-Land-Fluss-Regel: Ein Wort, das sonst niemand fand, zählt 25 % mehr.',
+    rules: 'Ein Wort, das sonst niemand fand, zählt 25 % mehr.',
+    share: 'Teilen',
+    soon: 'bald',
+    drumroll: 'Und gewonnen hat…',
     waitingFor: (count, hours) =>
       `${count} ${plural(count, 'Spieler hat', 'Spieler haben')} noch nicht gespielt · Schluss in spätestens ${hours} Std.`,
     notYet: 'noch nicht gespielt',

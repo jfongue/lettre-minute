@@ -458,6 +458,7 @@ export const en: Messages = {
       lead: (players, hours) => `${players} players, the same letters for all. ${hours} h left to play.`,
       later: 'Later',
       play: 'Play',
+      laterHint: 'You can also start it later from “Challenges”, under “Play”.',
     },
     overPop: {
       title: 'Challenge over!',
@@ -474,7 +475,10 @@ export const en: Messages = {
     pushFailed: 'Your game could not reach the challenge.',
     provisional: 'Standings so far',
     final: 'Final standings',
-    rules: 'Scattergories rule: a word nobody else found scores 25% more.',
+    rules: 'A word nobody else found scores 25% more.',
+    share: 'Share',
+    soon: 'soon',
+    drumroll: 'And the winner is…',
     waitingFor: (count, hours) =>
       `${count} ${plural(count, 'player has', 'players have')} not played yet · closes in ${hours} h at most`,
     notYet: 'not played yet',

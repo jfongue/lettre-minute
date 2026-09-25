@@ -430,6 +430,24 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <ChallengeView detail={challenge('finished')} onPlay={noop} onRematch={() => later(false)} onReact={() => later(true)} onBack={back} onChanged={noop} />,
   },
   {
+    id: 'challenge-recap-reveal',
+    group: 'Défi entre amis',
+    title: 'Défi clos : première ouverture du bilan',
+    how: 'Le classement se dévoile du dernier au premier, le gagnant en dernier',
+    phase: 'home',
+    render: (back) => (
+      <ChallengeView detail={challenge('finished')} suspense onPlay={noop} onRematch={() => later(false)} onReact={() => later(true)} onBack={back} onChanged={noop} />
+    ),
+  },
+  {
+    id: 'challenge-closed-live',
+    group: 'Défi entre amis',
+    title: 'Défi clos pendant qu’on regarde',
+    how: 'Le dernier joueur vient de finir : le classement reste, une pop propose le bilan',
+    phase: 'home',
+    render: (back) => <HeldScenario back={back} />,
+  },
+  {
     id: 'challenge-create',
     group: 'Défi entre amis',
     title: 'Créer un défi',
@@ -596,6 +614,23 @@ const SCENARIOS: readonly Scenario[] = [
 ]
 
 /** The real creation form; « Lancer » only comes back to the board. */
+function HeldScenario({ back }: { back(): void }) {
+  const [held, setHeld] = useState<'no' | 'pop' | 'board'>('pop')
+  return (
+    <ChallengeView
+      detail={challenge('finished')}
+      held={held}
+      onHold={setHeld}
+      suspense
+      onPlay={noop}
+      onRematch={() => later(false)}
+      onReact={() => later(true)}
+      onBack={back}
+      onChanged={noop}
+    />
+  )
+}
+
 function CreateScenario({ back, powers }: { back(): void; powers: boolean }) {
   const [rules, setRules] = useState<ChallengeRules>({ categoryIds: ['animaux', 'pays', 'couleurs'], powers })
   return (

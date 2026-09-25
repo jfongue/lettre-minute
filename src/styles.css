@@ -540,9 +540,79 @@ button {
 }
 
 .standing--leader {
+  position: relative;
   background: var(--yellow);
   color: var(--black);
   border-bottom-color: transparent;
+}
+
+/* The recap's first opening: each standing lifts its veil from the last up. */
+/* The winner's confetti flies behind the name, not over it. */
+.standing--leader > :not(.burst) {
+  position: relative;
+  z-index: 1;
+}
+
+.standing--lifted {
+  animation: standing-in 460ms var(--ease-spring) both;
+}
+
+.standing--veiled {
+  background: var(--paper-2);
+  color: transparent;
+}
+
+.standing--veiled > * {
+  visibility: hidden;
+}
+
+@keyframes standing-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.6rem) scale(0.96);
+  }
+}
+
+.standings-drumroll {
+  margin: 0 0 0.4rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  animation: drumroll 900ms ease-in-out infinite;
+}
+
+@keyframes drumroll {
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+.standing-me-link {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.share-soon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .standing--lifted,
+  .standings-drumroll {
+    animation: none;
+  }
 }
 
 .tag {

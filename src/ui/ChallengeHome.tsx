@@ -148,7 +148,7 @@ function Dismissable({
 }
 
 interface ChallengeNoticeProps {
-  challenge: ChallengeSummary
+  challenge: Pick<ChallengeSummary, 'ownerName' | 'players' | 'expiresAt'>
   kind: 'invite' | 'recap'
   onLater(): void
   onGo(): void
@@ -176,6 +176,7 @@ export function ChallengeNotice({ challenge, kind, onLater, onGo }: ChallengeNot
             ? t.challenge.invitePop.lead(challenge.players, hoursLeft(challenge.expiresAt))
             : t.challenge.overPop.lead(challenge.ownerName)}
         </p>
+        {invite && <p className="note">{t.challenge.invitePop.laterHint}</p>}
         <div className="offer-pop-actions">
           <button type="button" className="btn btn--ghost" onClick={onLater}>
             {invite ? t.challenge.invitePop.later : t.challenge.overPop.later}

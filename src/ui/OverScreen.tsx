@@ -23,6 +23,7 @@ import { PowerOfferScreen } from './PowerOfferScreen'
 import { PowerBadge } from './PowerIcon'
 import { powerPicksOwed } from '../domain/powers'
 import { reducedMotion, useCountUp } from './useCountUp'
+import { ShareSoon } from './ShareSoon'
 
 interface OverScreenProps {
   run: Run
@@ -339,6 +340,8 @@ function Summary({
           </span>
         </p>
       )}
+
+      <ShareSoon />
 
       <div className="stack">
         <button type="button" className="btn btn--play btn--block" onClick={onReplay}>

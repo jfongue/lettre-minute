@@ -483,6 +483,7 @@ export const fr = {
         `${players} joueurs, les mêmes lettres pour tous. Encore ${hours} h pour jouer.`,
       later: 'Plus tard',
       play: 'Jouer',
+      laterHint: 'Tu pourras aussi le lancer plus tard depuis « Défis entre amis », sous « Jouer ».',
     },
     overPop: {
       title: 'Défi terminé !',
@@ -500,7 +501,10 @@ export const fr = {
     pushFailed: 'Ta partie n’a pas pu rejoindre le défi.',
     provisional: 'Classement provisoire',
     final: 'Classement final',
-    rules: 'Petit Bac : un mot que personne d’autre n’a trouvé rapporte 25 % de plus.',
+    rules: 'Un mot que personne d’autre n’a trouvé rapporte 25 % de plus.',
+    share: 'Partager',
+    soon: 'bientôt',
+    drumroll: 'Et la victoire revient à…',
     waitingFor: (count: number, hours: number) =>
       `${count} ${plural(count, 'joueur n’a', 'joueurs n’ont')} pas encore joué · clôture dans ${hours} h au plus`,
     notYet: 'pas encore joué',
