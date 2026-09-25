@@ -557,7 +557,6 @@ export const fr = {
     setupNamePlaceholder: 'Facultatif',
     setupCategories: 'Catégories',
     setupPowers: 'Pouvoirs autorisés',
-    setupPowersNote: 'Échange reste exclu : tout le monde joue les mêmes thèmes.',
     setupNoPowers: 'Tu n’as pas encore de pouvoir.',
   },
 

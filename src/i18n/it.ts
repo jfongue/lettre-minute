@@ -527,7 +527,6 @@ export const it: Messages = {
     setupNamePlaceholder: 'Facoltativo',
     setupCategories: 'Categorie',
     setupPowers: 'Poteri ammessi',
-    setupPowersNote: 'Scambio resta fuori: tutti giocano gli stessi temi.',
     setupNoPowers: 'Non hai ancora nessun potere.',
   },
 

@@ -525,7 +525,6 @@ export const de: Messages = {
     setupNamePlaceholder: 'Optional',
     setupCategories: 'Kategorien',
     setupPowers: 'Kräfte erlaubt',
-    setupPowersNote: 'Tausch bleibt draußen: Alle spielen dieselben Themen.',
     setupNoPowers: 'Du hast noch keine Kraft.',
   },
 

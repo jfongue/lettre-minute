@@ -83,7 +83,7 @@ export function ChallengeSetup({ owned, hasPowers, rules, onRules }: ChallengeSe
         <span className="setup-switch-track" aria-hidden="true" />
         <span className="setup-switch-text">
           <strong>{t.challenge.setupPowers}</strong>
-          <span className="note">{hasPowers ? t.challenge.setupPowersNote : t.challenge.setupNoPowers}</span>
+          {!hasPowers && <span className="note">{t.challenge.setupNoPowers}</span>}
         </span>
       </label>
     </div>

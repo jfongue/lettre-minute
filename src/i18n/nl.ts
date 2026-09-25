@@ -526,7 +526,6 @@ export const nl: Messages = {
     setupNamePlaceholder: 'Optioneel',
     setupCategories: 'Categorieën',
     setupPowers: 'Krachten toegestaan',
-    setupPowersNote: 'Ruil blijft buiten: iedereen speelt dezelfde thema’s.',
     setupNoPowers: 'Je hebt nog geen kracht.',
   },
 

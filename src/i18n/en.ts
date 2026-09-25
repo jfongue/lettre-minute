@@ -531,7 +531,6 @@ export const en: Messages = {
     setupNamePlaceholder: 'Optional',
     setupCategories: 'Categories',
     setupPowers: 'Powers allowed',
-    setupPowersNote: 'Swap stays out: everyone plays the same themes.',
     setupNoPowers: 'You have no power yet.',
   },
 
