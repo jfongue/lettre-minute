@@ -88,6 +88,7 @@ import { AvatarScreen } from './ui/AvatarScreen'
 import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
 import { ChallengePowers } from './ui/ChallengePowers'
+import { ChallengeSetup, type ChallengeRules } from './ui/ChallengeSetup'
 import { ChallengeScreen } from './ui/ChallengeScreen'
 import { FriendPicker } from './ui/FriendPicker'
 import { CountdownScreen } from './ui/CountdownScreen'
@@ -171,7 +172,7 @@ export function App() {
   // the friend picker that starts one, and the power pick before a run.
   const [challenges, setChallenges] = useState<ChallengeSummary[] | null>(null)
   const [challengeOpen, setChallengeOpen] = useState<string | null>(null)
-  const [creating, setCreating] = useState<{ busy: boolean; message: string | null } | null>(null)
+  const [creating, setCreating] = useState<{ busy: boolean; message: string | null; rules: ChallengeRules } | null>(null)
   const [picking, setPicking] = useState<ChallengeDetail | null>(null)
   // The challenge being played, for the race; then what became of the run sent to it.
   const [played, setPlayed] = useState<ChallengeDetail | null>(null)
@@ -582,7 +583,9 @@ export function App() {
       const me = detail.players.find((player) => player.me)
       if (detail.finished || !me || me.playedAt !== null) return setChallengeOpen(detail.id)
       markChallengeSeen(detail.id, 'invite')
-      if (needsPowerPick(session.profile)) {
+      if (!detail.powersAllowed) {
+        launchChallenge(detail, [])
+      } else if (needsPowerPick(session.profile)) {
         setChallengeOpen(null)
         setPicking(detail)
       } else {
@@ -610,33 +613,48 @@ export function App() {
     [session.profile],
   )
 
+  /** The owner's categories a challenge in this language can play. */
+  const challengeCategories = useMemo(() => {
+    const shipped = new Set(availableCategoryIds(lang))
+    return ownedCategoryIds(session.profile).filter((id) => shipped.has(id))
+  }, [lang, session.profile])
+
+  /** The form opens on a dealt lineup and powers allowed, when the owner has any. */
+  const openCreate = useCallback(() => {
+    const seed = Date.now() >>> 0
+    setCreating({
+      busy: false,
+      message: null,
+      rules: { categoryIds: challengeLineup(seed, lang), powers: challengePowers(session.profile).length > 0 },
+    })
+  }, [challengeLineup, lang, session.profile])
+
   const create = useCallback(
-    async (friends: readonly string[]) => {
-      setCreating({ busy: true, message: null })
+    async (friends: readonly string[], rules: ChallengeRules) => {
+      setCreating({ busy: true, message: null, rules })
       const seed = Date.now() >>> 0
-      const id = await createChallenge(lang, seed, challengeLineup(seed, lang), friends)
+      const id = await createChallenge(lang, seed, rules.categoryIds, friends, rules.powers)
       const detail = id ? await fetchChallenge(id) : null
-      if (!detail) return setCreating({ busy: false, message: t.challenge.createFailed })
+      if (!detail) return setCreating({ busy: false, message: t.challenge.createFailed, rules })
       setCreating(null)
       refreshChallenges()
       startChallenge(detail)
     },
-    [lang, challengeLineup, refreshChallenges, startChallenge, t],
+    [lang, refreshChallenges, startChallenge, t],
   )
 
   // Only one rematch per challenge: whoever comes second is sent to the first one.
   const rematch = useCallback(
     async (detail: ChallengeDetail) => {
-      const seed = Date.now() >>> 0
-      const lineup = challengeLineup(seed, detail.lang)
-      const id = detail.nextId ?? (await rematchChallenge(detail.id, seed, lineup.length > 0 ? lineup : detail.categoryIds))
+      // The categories its owner chose stand for the rematch: a new seed is new enough.
+      const id = detail.nextId ?? (await rematchChallenge(detail.id, Date.now() >>> 0, detail.categoryIds))
       const next = id ? await fetchChallenge(id) : null
       if (!next) return false
       refreshChallenges()
       startChallenge(next)
       return true
     },
-    [challengeLineup, refreshChallenges, startChallenge],
+    [refreshChallenges, startChallenge],
   )
 
   // Push: the phone's token, saved under the account in the interface's
@@ -832,7 +850,7 @@ export function App() {
           requestsNews={moderation?.news ?? 0}
           challenges={named ? challenges : null}
           onChallenge={setChallengeOpen}
-          onCreateChallenge={() => setCreating({ busy: false, message: null })}
+          onCreateChallenge={openCreate}
           onMenu={(page = 'profile') => {
             setAccountMode('register')
             setMenuPage(page)
@@ -859,9 +877,16 @@ export function App() {
           busy={creating.busy}
           message={creating.message}
           confirmLabel={t.challenge.launch}
-          onConfirm={create}
+          onConfirm={(friends) => create(friends, creating.rules)}
           onClose={() => setCreating(null)}
-        />
+        >
+          <ChallengeSetup
+            owned={challengeCategories}
+            hasPowers={challengePowers(session.profile).length > 0}
+            rules={creating.rules}
+            onRules={(rules) => setCreating({ ...creating, rules })}
+          />
+        </FriendPicker>
       )}
 
       {picking && session.phase === 'home' && (

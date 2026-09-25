@@ -4783,6 +4783,130 @@ button {
   grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
 }
 
+/* Avec les réglages du défi, la fenêtre entière défile plutôt que la seule liste. */
+.friend-picker:has(.challenge-setup) {
+  grid-template-rows: none;
+  overflow-y: auto;
+}
+
+.friend-picker:has(.challenge-setup) .friend-picks {
+  overflow: visible;
+}
+
+.challenge-setup {
+  justify-self: stretch;
+  display: grid;
+  gap: 0.6rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--rule);
+  text-align: left;
+}
+
+.setup-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.setup-category {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem 0.25rem 0.25rem;
+  border: 2px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 150ms, border-color 150ms;
+}
+
+.setup-category--on {
+  border-color: var(--ink);
+  opacity: 1;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.setup-category:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.setup-category-mark {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.2rem;
+}
+
+.setup-switch {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.7rem;
+  cursor: pointer;
+}
+
+.setup-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.setup-switch-track {
+  position: relative;
+  width: 2.6rem;
+  height: 1.5rem;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: var(--paper-2);
+  transition: background 150ms;
+}
+
+.setup-switch-track::after {
+  content: '';
+  position: absolute;
+  top: 0.15rem;
+  left: 0.15rem;
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 50%;
+  background: var(--ink);
+  transition: transform 180ms var(--ease-spring);
+}
+
+.setup-switch input:checked + .setup-switch-track {
+  background: var(--green);
+}
+
+.setup-switch input:checked + .setup-switch-track::after {
+  background: var(--cream);
+  transform: translateX(1.1rem);
+}
+
+.setup-switch input:focus-visible + .setup-switch-track {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.setup-switch-text {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.setup-switch--off {
+  cursor: default;
+  opacity: 0.55;
+}
+
 .friend-picks {
   justify-self: stretch;
   list-style: none;

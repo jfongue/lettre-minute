@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { fetchFriends, type Friend } from '../lib/cloud'
 import { useT } from '../i18n'
 import { Avatar } from './Avatar'
@@ -14,10 +14,12 @@ interface FriendPickerProps {
   confirmLabel(count: number): string
   onConfirm(ids: readonly string[]): void
   onClose(): void
+  /** Shown above the friends: the new challenge's own rules. */
+  children?: ReactNode
 }
 
 /** Friends to tick, up to `max`: who a challenge goes to. */
-export function FriendPicker({ title, lead, exclude, max, busy, message, confirmLabel, onConfirm, onClose }: FriendPickerProps) {
+export function FriendPicker({ title, lead, exclude, max, busy, message, confirmLabel, onConfirm, onClose, children }: FriendPickerProps) {
   const t = useT()
   const [friends, setFriends] = useState<Friend[] | null | 'loading'>('loading')
   const [picked, setPicked] = useState<readonly string[]>([])
@@ -49,6 +51,7 @@ export function FriendPicker({ title, lead, exclude, max, busy, message, confirm
           {title}
         </h2>
         {lead && <p className="note">{lead}</p>}
+        {children}
         {friends === 'loading' && <p className="note">{t.loading}</p>}
         {friends === null && <p className="note note--warn">{t.social.loadFailed}</p>}
         {friends !== 'loading' && friends !== null && list.length === 0 && <p className="note">{t.challenge.noFriends}</p>}

@@ -218,6 +218,7 @@ function challenge(state: 'to-play' | 'waiting' | 'finished'): ChallengeDetail {
     expiresAt: Date.now() + 19 * HOUR,
     finished: state === 'finished',
     nextId: null,
+    powersAllowed: true,
     players,
     reactions:
       state === 'finished'

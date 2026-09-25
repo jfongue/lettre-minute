@@ -523,6 +523,10 @@ export const en: Messages = {
     reactHint: 'Tap a trophy or a word to react.',
     moreStats: 'More stats',
     lessStats: 'Fewer stats',
+    setupCategories: 'Categories',
+    setupPowers: 'Powers allowed',
+    setupPowersNote: 'Swap stays out: everyone plays the same themes.',
+    setupNoPowers: 'You have no power yet.',
   },
 
   player: {

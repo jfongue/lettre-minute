@@ -1,6 +1,6 @@
 # Supabase
 
-Quinze migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Seize migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -17,8 +17,9 @@ contournables, demandes d’ami croisées, bilan perdu, arguments invalides qui 
 les joueurs maison aux défis, [`0013_moderation_friends.sql`](migrations/0013_moderation_friends.sql)
 pour faire remonter les mots proposés par des amis dans la file de modération,
 [`0014_blocks_reactions.sql`](migrations/0014_blocks_reactions.sql) pour bloquer un
-joueur et réagir au bilan d'un défi, et [`0015_ideas.sql`](migrations/0015_ideas.sql)
-pour la boîte à idées.
+joueur et réagir au bilan d'un défi, [`0015_ideas.sql`](migrations/0015_ideas.sql)
+pour la boîte à idées, et [`0016_challenge_setup.sql`](migrations/0016_challenge_setup.sql)
+pour qu'un défi autorise ou non les pouvoirs.
 
 ## Ce que le serveur détient
 

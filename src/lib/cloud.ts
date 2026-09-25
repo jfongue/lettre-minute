@@ -800,6 +800,8 @@ export interface ChallengeDetail {
   expiresAt: number
   finished: boolean
   nextId: string | null
+  /** The owner may bar powers: everyone then plays bare-handed. */
+  powersAllowed: boolean
   players: readonly ChallengePlayer[]
   reactions: readonly Reaction[]
 }
@@ -877,6 +879,7 @@ export function fetchChallenge(id: string): Promise<ChallengeDetail | null> {
       expiresAt: time(row.expires_at),
       finished: row.finished === true,
       nextId: (row.next_id as string | null) ?? null,
+      powersAllowed: row.powers_allowed !== false,
       players: ((row.players ?? []) as Record<string, unknown>[]).map((player) => ({
         playerId: player.id as string,
         name: text(player.name),
@@ -900,6 +903,7 @@ export function createChallenge(
   seed: number,
   categoryIds: readonly string[],
   friends: readonly string[],
+  powersAllowed: boolean,
 ): Promise<string | null> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('create_challenge', {
@@ -907,6 +911,7 @@ export function createChallenge(
       p_seed: seed,
       p_categories: categoryIds,
       p_friends: friends,
+      p_powers: powersAllowed,
     })
     return error ? null : ((data as string | null) ?? null)
   }, null)

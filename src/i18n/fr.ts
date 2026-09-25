@@ -549,6 +549,10 @@ export const fr = {
     reactHint: 'Touche un trophée ou un mot pour réagir.',
     moreStats: 'Plus de stats',
     lessStats: 'Moins de stats',
+    setupCategories: 'Catégories',
+    setupPowers: 'Pouvoirs autorisés',
+    setupPowersNote: 'Échange reste exclu : tout le monde joue les mêmes thèmes.',
+    setupNoPowers: 'Tu n’as pas encore de pouvoir.',
   },
 
   player: {
