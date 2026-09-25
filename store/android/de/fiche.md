@@ -39,7 +39,6 @@ entstehen). Zum Neuerzeugen: `scripts/render-store.sh`.
 > oder schlag selbst welche vor.
 >
 > • Ohne Anmeldung, Konto freiwillig
-> • Nur eine kurze Werbung, bei der Wahl eines neuen Themas
 > • Allein auch offline spielbar
 > • In sieben Sprachen
 
@@ -58,7 +57,7 @@ Seiten verlinken aufeinander
 | Abschnitt | Antwort |
 | --- | --- |
 | App-Zugriff | Keine Einschränkung: alles ist ohne Anmeldung zugänglich |
-| Anzeigen | **Ja**: eine AdMob-Interstitial-Anzeige nach jeder Kategoriewahl ab der zweiten |
+| Anzeigen | **Nein**: Werbung ist abgeschaltet (`ADS_ENABLED`). Das AdMob-SDK bleibt im Build, startet aber nie; wieder **Ja**, sobald Werbung zurückkommt |
 | Einstufung des Inhalts (IARC) | Kategorie „Spiel“; Nein bei allen Fragen (Gewalt, Angst, Sexualität, Glücksspiel, Sprache, Drogen, digitale Käufe); **Nutzer interagieren: Ja** (Spielername, Avatar und Punktzahlen sind in den Ranglisten, unter Freunden und in Duellen sichtbar; kein Chat, außer dem Namen wird kein freier Text ausgetauscht). Erwartetes Ergebnis: PEGI 3 / USK ab 0, mit dem Hinweis „Nutzer interagieren“ |
 | Zielgruppe | Ab 13 Jahren. Wer eine Altersgruppe unter 13 wählt, bringt die App ins Familienprogramm mit seinen zusätzlichen Anforderungen |
 | Nachrichten-App | Nein |

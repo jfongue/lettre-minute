@@ -37,7 +37,6 @@ se generan). Para regenerarlos: `scripts/render-store.sh`.
 > las tuyas.
 >
 > • Sin registro, cuenta opcional
-> • Un solo anuncio breve, al elegir un nuevo tema
 > • Se juega sin conexión en solitario
 > • En siete idiomas
 
@@ -57,7 +56,7 @@ páginas se enlazan entre sí
 | Apartado | Respuesta |
 | --- | --- |
 | Acceso a la aplicación | Sin restricciones: todo es accesible sin iniciar sesión |
-| Anuncios | **Sí**: un intersticial de AdMob tras cada elección de categoría a partir de la segunda |
+| Anuncios | **No**: los anuncios están desactivados (`ADS_ENABLED`). El SDK de AdMob sigue en el build pero nunca arranca; volver a **Sí** cuando vuelvan |
 | Clasificación de contenido (IARC) | Categoría «Juego»; no a todas las preguntas (violencia, miedo, sexualidad, apuestas, lenguaje, drogas, compras digitales); **interacción entre usuarios: sí** (nombre de jugador, avatar y puntuaciones visibles en las clasificaciones, entre amigos y en los retos; sin mensajería ni texto libre intercambiado, salvo el nombre). Resultado esperado: PEGI 3 / Todos los públicos, con el elemento interactivo «Los usuarios interactúan» |
 | Público objetivo | 13 años o más. Elegir una franja de menos de 13 años hace entrar la app en el programa Familias y sus requisitos adicionales |
 | Aplicación de noticias | No |

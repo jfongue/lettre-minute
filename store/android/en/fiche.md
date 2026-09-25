@@ -36,7 +36,6 @@ captures they are built from). To regenerate them: `scripts/render-store.sh`.
 > suggest your own.
 >
 > • No sign-up, account optional
-> • A single short ad, when you pick a new category
 > • Solo play works offline
 > • In seven languages
 
@@ -55,7 +54,7 @@ pages link to each other
 | Section | Answer |
 | --- | --- |
 | App access | No restrictions: everything is available without signing in |
-| Ads | **Yes**: an AdMob interstitial after each category pick from the second one on |
+| Ads | **No**: ads are switched off (`ADS_ENABLED`). The AdMob SDK stays in the build but never starts; switch back to **Yes** when ads return |
 | Content rating (IARC) | “Game” category; no to every question (violence, fear, sexuality, gambling, language, drugs, digital purchases); **users can interact: yes** (player name, avatar and scores visible on the leaderboards, between friends and in challenges; no messaging, no free text exchanged apart from the name). Expected result: PEGI 3 / Everyone, with the “Users Interact” notice |
 | Target audience | 13 and over. Choosing an age group under 13 puts the app in the Families programme and its additional requirements |
 | News app | No |

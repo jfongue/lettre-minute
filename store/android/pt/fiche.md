@@ -37,7 +37,6 @@ capturas brutas a partir das quais elas são montadas). Para gerá-las de novo:
 > sugira as suas.
 >
 > • Sem cadastro, conta opcional
-> • Um único anúncio curto, ao escolher um novo tema
 > • Dá para jogar off-line no modo solo
 > • Em sete idiomas
 
@@ -56,7 +55,7 @@ páginas apontam uma para a outra
 | Seção | Resposta |
 | --- | --- |
 | Acesso ao app | Nenhuma restrição: tudo é acessível sem fazer login |
-| Anúncios | **Sim**: um intersticial do AdMob depois de cada escolha de categoria a partir da segunda |
+| Anúncios | **Não**: os anúncios estão desligados (`ADS_ENABLED`). O SDK do AdMob continua no build, mas nunca inicia; voltar para **Sim** quando voltarem |
 | Classificação do conteúdo (IARC) | Categoria “Jogo”; não para todas as perguntas (violência, medo, sexualidade, jogos de azar, linguagem, drogas, compras digitais); **interações entre usuários: sim** (nome de jogador, avatar e pontuações visíveis no ranking, entre amigos e nos desafios; nenhuma troca de mensagens, nenhum texto livre compartilhado além do nome). Resultado esperado: PEGI 3 / Livre, com o aviso “Interação do usuário” |
 | Público-alvo | 13 anos ou mais. Escolher uma faixa abaixo de 13 anos faz o app entrar no programa Famílias e em seus requisitos adicionais |
 | App de notícias | Não |

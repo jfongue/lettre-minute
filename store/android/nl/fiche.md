@@ -37,7 +37,6 @@ opgebouwd). Opnieuw genereren: `scripts/render-store.sh`.
 > stel zelf woorden voor.
 >
 > • Zonder registratie, account optioneel
-> • Eén korte advertentie, bij het kiezen van een nieuw thema
 > • Solo offline speelbaar
 > • In zeven talen
 
@@ -56,7 +55,7 @@ pagina’s verwijzen naar elkaar
 | Onderdeel | Antwoord |
 | --- | --- |
 | App-toegang | Geen beperkingen: alles is toegankelijk zonder in te loggen |
-| Advertenties | **Ja**: een AdMob-interstitial na elke categoriekeuze vanaf de tweede |
+| Advertenties | **Nee**: advertenties staan uit (`ADS_ENABLED`). De AdMob-SDK blijft in de build maar start nooit; terug naar **Ja** zodra ze terugkomen |
 | Contentclassificatie (IARC) | Categorie ‘Game’; nee op alle vragen (geweld, angst, seksualiteit, gokken, taalgebruik, drugs, digitale aankopen); **interactie tussen gebruikers: ja** (spelersnaam, avatar en scores zichtbaar in het klassement, bij vrienden en in uitdagingen; geen berichten, geen vrije tekst uitgewisseld behalve de naam). Verwacht resultaat: PEGI 3 / Alle leeftijden, met de vermelding ‘Gebruikers hebben interactie’ |
 | Doelgroep | 13 jaar en ouder. Een leeftijdsgroep onder 13 jaar kiezen brengt de app in het Gezinnenprogramma met de extra vereisten daarvan |
 | Nieuwsapp | Nee |

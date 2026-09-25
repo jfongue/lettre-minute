@@ -37,7 +37,6 @@ cinque screenshot con didascalia da caricare, 1080 × 1920) e `../screenshots/it
 > tue.
 >
 > • Nessuna registrazione, account facoltativo
-> • Una sola pubblicità breve, alla scelta di un nuovo tema
 > • Si gioca offline in singolo
 > • In sette lingue
 
@@ -56,7 +55,7 @@ pagine si rimandano a vicenda
 | Sezione | Risposta |
 | --- | --- |
 | Accesso all’app | Nessuna restrizione: tutto è accessibile senza accedere |
-| Annunci | **Sì**: un interstitial AdMob dopo ogni scelta di categoria a partire dalla seconda |
+| Annunci | **No**: la pubblicità è spenta (`ADS_ENABLED`). L’SDK AdMob resta nel build ma non parte mai; tornare a **Sì** quando la si riaccende |
 | Classificazione dei contenuti (IARC) | Categoria «Gioco»; no a tutte le domande (violenza, paura, sessualità, gioco d’azzardo, linguaggio, droghe, acquisti digitali); **interazione tra utenti: sì** (nome del giocatore, avatar e punteggi visibili in classifica, tra amici e nelle sfide; nessuna messaggistica, nessun testo libero scambiato a parte il nome). Risultato atteso: PEGI 3 / Per tutti, con la dicitura «Interazione tra utenti» |
 | Pubblico di destinazione | 13 anni e oltre. Scegliere una fascia sotto i 13 anni fa entrare l’app nel programma Famiglie e nei suoi requisiti aggiuntivi |
 | App di notizie | No |

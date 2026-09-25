@@ -37,7 +37,6 @@ captures brutes dont elles partent). Pour les régénérer :
 > les découvrir, ou de les proposer.
 >
 > • Sans inscription, compte facultatif
-> • Une seule pub courte, au choix d’un nouveau thème
 > • Jouable hors ligne en solo
 > • En sept langues
 
@@ -54,7 +53,7 @@ https://jfongue.github.io/lettre-minute/confidentialite.html, soit
 | Rubrique | Réponse |
 | --- | --- |
 | Accès à l’application | Aucune restriction : tout est accessible sans connexion |
-| Annonces | **Oui** : une interstitielle AdMob après chaque choix de catégorie à partir du deuxième |
+| Annonces | **Non** : la pub est éteinte (`ADS_ENABLED`, `src/domain/unlocks.ts`). Le SDK AdMob reste dans le build sans jamais démarrer ; repasser à **Oui** le jour où on la rallume |
 | Classification du contenu (IARC) | Catégorie « Jeu » ; non à toutes les questions (violence, peur, sexualité, jeux d’argent, langage, drogues, achats numériques) ; **interactions entre utilisateurs : oui** (nom de joueur, avatar et scores visibles aux classements, entre amis et dans les défis ; aucune messagerie, aucun texte libre échangé hormis le nom). Résultat attendu : PEGI 3 / Tout public, avec la mention « Interactions entre utilisateurs » |
 | Public cible | 13 ans et plus. Choisir une tranche de moins de 13 ans fait entrer l’app dans le programme Familles et ses exigences supplémentaires |
 | Application d’actualités | Non |
