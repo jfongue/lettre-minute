@@ -2,16 +2,28 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { createPortal } from 'react-dom'
 import type { AvatarChoice } from '../domain/avatar'
 import { useT } from '../i18n'
-import { blockPlayer, requestFriend, type BlockOutcome, type FriendRequestOutcome } from '../lib/cloud'
+import { blockPlayer, fetchFriends, requestFriend, type BlockOutcome, type FriendRequestOutcome } from '../lib/cloud'
 import { Avatar } from './Avatar'
 
 export interface PlayerActions {
   befriend(name: string): Promise<FriendRequestOutcome>
   block(name: string): Promise<BlockOutcome>
+  /** The friend's id when that name is already a friend, null otherwise. */
+  friendId(name: string): Promise<string | null>
+  /** Opens a new challenge with that friend ticked; absent where none can start. */
+  challenge?(friendId: string): void
 }
 
-/** The debug board swaps in stand-ins: it never writes to the server. */
-export const PlayerActionsContext = createContext<PlayerActions>({ befriend: requestFriend, block: blockPlayer })
+async function friendIdOf(name: string): Promise<string | null> {
+  const friends = await fetchFriends()
+  const lower = name.toLowerCase()
+  return friends?.find((friend) => friend.relation === 'friend' && friend.name.toLowerCase() === lower)?.id ?? null
+}
+
+export const DEFAULT_PLAYER_ACTIONS: PlayerActions = { befriend: requestFriend, block: blockPlayer, friendId: friendIdOf }
+
+/** The app adds the way to a challenge; the debug board swaps in stand-ins, never writing to the server. */
+export const PlayerActionsContext = createContext<PlayerActions>(DEFAULT_PLAYER_ACTIONS)
 
 interface PlayerNameProps {
   name: string
@@ -46,6 +58,15 @@ function PlayerSheet({ name, avatar, onClose }: { name: string; avatar: AvatarCh
   const t = useT()
   const actions = useContext(PlayerActionsContext)
   const [step, setStep] = useState<Step>('idle')
+  // Asked on opening: a friend is offered a challenge, not a request.
+  const [friend, setFriend] = useState<string | null | 'loading'>('loading')
+  useEffect(() => {
+    let live = true
+    actions.friendId(name).then((id) => live && setFriend(id))
+    return () => {
+      live = false
+    }
+  }, [actions, name])
 
   useEffect(() => {
     const escape = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
@@ -93,9 +114,29 @@ function PlayerSheet({ name, avatar, onClose }: { name: string; avatar: AvatarCh
           </>
         ) : (
           <div className="stack">
-            <button type="button" className="btn btn--blue btn--block" disabled={step === 'busy'} onClick={befriend}>
-              {step === 'busy' ? t.wait : t.player.befriend}
-            </button>
+            {typeof friend === 'string' ? (
+              actions.challenge && (
+                <button
+                  type="button"
+                  className="btn btn--blue btn--block"
+                  onClick={() => {
+                    onClose()
+                    actions.challenge!(friend)
+                  }}
+                >
+                  {t.player.challenge}
+                </button>
+              )
+            ) : (
+              <button
+                type="button"
+                className="btn btn--blue btn--block"
+                disabled={step === 'busy' || friend === 'loading'}
+                onClick={befriend}
+              >
+                {step === 'busy' || friend === 'loading' ? t.wait : t.player.befriend}
+              </button>
+            )}
             <button
               type="button"
               className="btn btn--quiet btn--muted"

@@ -36,7 +36,13 @@ const noop = () => {}
 const later = <T,>(value: T, ms = 400) => new Promise<T>((resolve) => setTimeout(() => resolve(value), ms))
 
 /** A tap on a name asks nothing of the server here. */
-const PLAYER_ACTIONS: PlayerActions = { befriend: () => later('sent'), block: () => later('blocked') }
+const PLAYER_ACTIONS: PlayerActions = {
+  befriend: () => later('sent'),
+  block: () => later('blocked'),
+  // Léa and Tom are friends here: their sheet offers a challenge.
+  friendId: (name) => later(name === 'Léa' || name === 'Tom' ? name.toLowerCase() : null, 200),
+  challenge: () => undefined,
+}
 
 
 const quietAccount: AccountActions = {

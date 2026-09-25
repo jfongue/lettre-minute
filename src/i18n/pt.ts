@@ -528,6 +528,7 @@ export const pt: Messages = {
   player: {
     open: (name) => `O que fazer com ${name}?`,
     befriend: 'Adicionar como amigo',
+    challenge: 'Lançar um desafio',
     block: 'Bloquear',
     blockConfirm: 'Bloquear',
     blockWarning: (name) =>

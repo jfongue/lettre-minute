@@ -89,6 +89,7 @@ import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
 import { ChallengePowers } from './ui/ChallengePowers'
 import { ChallengeSetup, type ChallengeRules } from './ui/ChallengeSetup'
+import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
 import { ChallengeScreen } from './ui/ChallengeScreen'
 import { FriendPicker } from './ui/FriendPicker'
 import { CountdownScreen } from './ui/CountdownScreen'
@@ -172,7 +173,13 @@ export function App() {
   // the friend picker that starts one, and the power pick before a run.
   const [challenges, setChallenges] = useState<ChallengeSummary[] | null>(null)
   const [challengeOpen, setChallengeOpen] = useState<string | null>(null)
-  const [creating, setCreating] = useState<{ busy: boolean; message: string | null; rules: ChallengeRules } | null>(null)
+  const [creating, setCreating] = useState<{
+    busy: boolean
+    message: string | null
+    rules: ChallengeRules
+    /** Ticked on opening: the friend whose name was tapped. */
+    friends: readonly string[]
+  } | null>(null)
   const [picking, setPicking] = useState<ChallengeDetail | null>(null)
   // The challenge being played, for the race; then what became of the run sent to it.
   const [played, setPlayed] = useState<ChallengeDetail | null>(null)
@@ -620,22 +627,31 @@ export function App() {
   }, [lang, session.profile])
 
   /** The form opens on a dealt lineup and powers allowed, when the owner has any. */
-  const openCreate = useCallback(() => {
-    const seed = Date.now() >>> 0
-    setCreating({
-      busy: false,
-      message: null,
-      rules: { categoryIds: challengeLineup(seed, lang), powers: challengePowers(session.profile).length > 0 },
-    })
-  }, [challengeLineup, lang, session.profile])
+  const openCreate = useCallback(
+    (friends: readonly string[] = []) => {
+      const seed = Date.now() >>> 0
+      setChallengeOpen(null)
+      setCreating({
+        busy: false,
+        message: null,
+        rules: { categoryIds: challengeLineup(seed, lang), powers: challengePowers(session.profile).length > 0 },
+        friends,
+      })
+    },
+    [challengeLineup, lang, session.profile],
+  )
+  const playerActions = useMemo<PlayerActions>(
+    () => ({ ...DEFAULT_PLAYER_ACTIONS, challenge: (friendId) => openCreate([friendId]) }),
+    [openCreate],
+  )
 
   const create = useCallback(
     async (friends: readonly string[], rules: ChallengeRules) => {
-      setCreating({ busy: true, message: null, rules })
+      setCreating({ busy: true, message: null, rules, friends })
       const seed = Date.now() >>> 0
       const id = await createChallenge(lang, seed, rules.categoryIds, friends, rules.powers)
       const detail = id ? await fetchChallenge(id) : null
-      if (!detail) return setCreating({ busy: false, message: t.challenge.createFailed, rules })
+      if (!detail) return setCreating({ busy: false, message: t.challenge.createFailed, rules, friends })
       setCreating(null)
       refreshChallenges()
       startChallenge(detail)
@@ -798,6 +814,7 @@ export function App() {
 
   return (
     <MessagesContext value={t}>
+    <PlayerActionsContext value={playerActions}>
     <main className={`stage stage--${tutorial ? 'playing' : session.phase}${isNativeApp() ? '' : ' stage--muteable'}`}>
       {tutorial && (session.phase === 'home' || session.phase === 'loading') && <TutorialScreen lang={lang} onDone={endTutorial} />}
 
@@ -850,7 +867,7 @@ export function App() {
           requestsNews={moderation?.news ?? 0}
           challenges={named ? challenges : null}
           onChallenge={setChallengeOpen}
-          onCreateChallenge={openCreate}
+          onCreateChallenge={() => openCreate()}
           onMenu={(page = 'profile') => {
             setAccountMode('register')
             setMenuPage(page)
@@ -877,6 +894,7 @@ export function App() {
           busy={creating.busy}
           message={creating.message}
           confirmLabel={t.challenge.launch}
+          initial={creating.friends}
           onConfirm={(friends) => create(friends, creating.rules)}
           onClose={() => setCreating(null)}
         >
@@ -1074,6 +1092,7 @@ export function App() {
 
       {!isNativeApp() && <MuteButton muted={soundPrefs.muted} onToggle={() => tune({ ...soundPrefs, muted: !soundPrefs.muted })} />}
     </main>
+    </PlayerActionsContext>
     </MessagesContext>
   )
 }

@@ -526,6 +526,7 @@ export const de: Messages = {
   player: {
     open: (name) => `Was tun mit ${name}?`,
     befriend: 'Als Freund hinzufügen',
+    challenge: 'Duell starten',
     block: 'Blockieren',
     blockConfirm: 'Blockieren',
     blockWarning: (name) =>

@@ -558,6 +558,7 @@ export const fr = {
   player: {
     open: (name: string) => `Que faire avec ${name} ?`,
     befriend: 'Ajouter en ami',
+    challenge: 'Lancer un défi',
     block: 'Bloquer',
     blockConfirm: 'Bloquer',
     blockWarning: (name: string) =>

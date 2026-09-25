@@ -16,13 +16,15 @@ interface FriendPickerProps {
   onClose(): void
   /** Shown above the friends: the new challenge's own rules. */
   children?: ReactNode
+  /** Ticked on opening: the friend a challenge was started from. */
+  initial?: readonly string[]
 }
 
 /** Friends to tick, up to `max`: who a challenge goes to. */
-export function FriendPicker({ title, lead, exclude, max, busy, message, confirmLabel, onConfirm, onClose, children }: FriendPickerProps) {
+export function FriendPicker({ title, lead, exclude, max, busy, message, confirmLabel, onConfirm, onClose, children, initial = [] }: FriendPickerProps) {
   const t = useT()
   const [friends, setFriends] = useState<Friend[] | null | 'loading'>('loading')
-  const [picked, setPicked] = useState<readonly string[]>([])
+  const [picked, setPicked] = useState<readonly string[]>(initial)
 
   useEffect(() => {
     fetchFriends().then(setFriends)
