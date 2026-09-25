@@ -316,7 +316,10 @@ export async function googleIdToken(nonce: string): Promise<string | null> {
       },
     )
     await googleStarted
-    const { result } = await SocialLogin.login({ provider: 'google', options: { nonce, scopes: ['email', 'profile'] } })
+    // No `scopes`: email and profile are already the defaults, and on Android
+    // any scope at all is refused before the picker opens unless MainActivity
+    // is rewritten for the plugin.
+    const { result } = await SocialLogin.login({ provider: 'google', options: { nonce } })
     return 'idToken' in result ? result.idToken : null
   } catch {
     return null
