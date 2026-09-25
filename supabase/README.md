@@ -170,6 +170,17 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   2. Supabase → Authentication → Providers → Google : activer, coller
      l'identifiant et le secret du client Web.
 
+  Dans un navigateur, il n'y a pas de sélecteur : le jeu part sur la page de
+  Google et revient (`signInWithOAuth`). Le jeton de fusion est pris avant de
+  partir et gardé dans le localStorage le temps de l'aller-retour
+  (`returnFromGoogle`). Cela demande en plus :
+  3. Le client Web, dans Google Cloud → URI de redirection autorisés :
+     `https://<projet>.supabase.co/auth/v1/callback`.
+  4. Supabase → Authentication → URL Configuration → Redirect URLs :
+     l'adresse du jeu web (`https://jfongue.github.io/lettre-minute/`) et
+     celle du serveur de dev. Une adresse absente de la liste renvoie sur la
+     Site URL.
+
 ## Appliquer
 
 ```bash

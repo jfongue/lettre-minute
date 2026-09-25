@@ -13,6 +13,7 @@ import {
   fetchModerationStatus,
   logIn,
   logInWithGoogle,
+  returnFromGoogle,
   logOut,
   markChallengeSeen,
   pushAvatar,
@@ -240,14 +241,22 @@ export function App() {
       setBoards(next)
       answer('boards')
     })
-    // Unreachable keeps the cached account: the session is still on the device.
-    fetchAccount().then((found) => {
+    returnFromGoogle().then(async (returned) => {
+      if (returned) {
+        answer('account')
+        enter(returned)
+        return
+      }
+      // Unreachable keeps the cached account: the session is still on the device.
+      const found = await fetchAccount()
       answer('account')
       if (found === 'unreachable') return
       if (found) adopt(found)
       else setAccount(null)
     })
     flushSubmissions()
+    // Once, at launch: `enter` changes every render, and a Google return is read only once.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [adopt, answer])
 
   const refreshModeration = useCallback(() => {

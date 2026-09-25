@@ -265,10 +265,11 @@ let googleStarted: Promise<void> | null = null
 
 /**
  * Google refuses its sign-in page inside a WebView: the phone asks the system
- * account picker instead. In a browser there is none, so no button.
+ * account picker, which needs the web client id. A browser simply goes to
+ * Google's page and back (`logInWithGoogle`).
  */
 export function googleSignInSupported(): boolean {
-  return native && Boolean(googleClientId)
+  return !native || Boolean(googleClientId)
 }
 
 /**
