@@ -1,8 +1,7 @@
-• Défis : choisis les catégories et autorise ou non les pouvoirs
-• Petit Bac inversé : un mot que toi seul as trouvé vaut +25 %
-• Réagis aux trophées et aux mots comme dans une messagerie
-• Bilan de défi : la course seconde par seconde, bouton « Ignorer »
-• Ajoute en ami ou bloque un joueur depuis le classement
-• Notifications réglables dans les options
-• Thème clair par défaut, pouvoirs Échange et Challenge renommés
-• Boîte à idées et bouton de soutien dans le profil
+• Défis : suis le classement en direct, gagnant dévoilé avec suspense
+• Nomme tes défis, retrouve les défis masqués dans les stats
+• 19 nouvelles formes d’avatar, des récompenses dès la 3e partie
+• Niveaux plus rapides et bonus d’XP quand tu bats ton record
+• Tes mots acceptés s’annoncent, le 3e t’offre le pouvoir Challenge
+• Célérité plus vive, « chut » agit tout seul
+• Icône de notification et écran de lancement soignés
