@@ -34,15 +34,16 @@
 </head>
 <body>
 <main>
-  <h1>Lettre <em>Minute</em></h1>
-  <p class="meta">Privacybeleid · van kracht per 24 september 2026</p>
+  <h1>Letter <em>Minuut</em></h1>
+  <p class="meta">Privacybeleid · van kracht per 25 september 2026</p>
 
   <div class="card">
-    <p><strong>In het kort:</strong> geen account nodig, niets wordt verkocht.
-    Na elke categoriekeuze vanaf de tweede volgt een korte advertentie; alleen
-    dan ontvangt een derde partij, Google, gegevens. Het spel bewaart je
-    scores en je woorden om de ranglijst en de zeldzaamheidsbonus te laten
-    werken, en je kunt alles wissen vanaf het startscherm.</p>
+    <p><strong>In het kort:</strong> je speelt zonder account; er een maken is
+    optioneel. Niets wordt doorverkocht. In de app volgt na elke
+    categoriekeuze vanaf de tweede een korte advertentie; alleen dan ontvangt
+    een advertentienetwerk, Google, gegevens. Het spel bewaart je scores en je
+    woorden om het klassement en de zeldzaamheidsbonus te laten werken, en je
+    kunt alles wissen vanuit het menu.</p>
   </div>
 
   <h2>Wat op je toestel blijft</h2>
@@ -52,8 +53,17 @@
 
   <h2>Wat de server bewaart</h2>
   <p>De eerste keer dat je het opent, geeft het spel je een <strong>anonieme
-  ID</strong>: er wordt geen naam, geen e-mailadres en geen telefoonnummer
-  gevraagd. Onder deze ID worden bewaard:</p>
+  ID</strong>: om te spelen wordt geen naam, geen e-mailadres en geen
+  telefoonnummer gevraagd.</p>
+  <p>Als je <strong>een account maakt</strong>, om je voortgang op een ander
+  toestel terug te vinden, in het klassement te staan of met vrienden te
+  spelen, komen daar de <strong>spelersnaam</strong> bij die je kiest, je
+  <strong>e-mailadres</strong> en je wachtwoord, dat alleen versleuteld wordt
+  bewaard. Log je in met Google, dan geeft Google ons je e-mailadres door; we
+  ontvangen noch je Google-wachtwoord, noch je contacten. Het adres dient
+  alleen om in te loggen en om je een code te sturen als je je wachtwoord
+  vergeten bent: nooit een nieuwsbrief, nooit reclame.</p>
+  <p>Onder je ID worden bewaard:</p>
   <ul>
     <li><strong>je spellen</strong>: score, aantal woorden, beste reeks,
     aantal keer overgeslagen, datum;</li>
@@ -61,24 +71,41 @@
     gemeten welke woorden iedereen schrijft;</li>
     <li><strong>je voortgang</strong>: XP, aantal spellen, records;</li>
     <li><strong>de woorden die je voorstelt</strong> om het woordenboek aan te
-    vullen.</li>
+    vullen;</li>
+    <li><strong>je avatar</strong> en, als je modereert, je stemmen over de
+    voorgestelde woorden;</li>
+    <li><strong>je vrienden</strong>: de verzonden, ontvangen en geaccepteerde
+    verzoeken;</li>
+    <li><strong>de uitdagingen tussen vrienden</strong>: wie er is uitgenodigd,
+    en ieders spel (score en woorden), zichtbaar voor de andere spelers van de
+    uitdaging;</li>
+    <li><strong>het meldingstoken</strong> van je telefoon, als je meldingen
+    toestaat: het dient alleen om je te laten weten dat je een uitdaging hebt
+    ontvangen of dat die is afgelopen, en het wordt gewist als je uitlogt.</li>
   </ul>
-  <p>De ranglijst toont de beste score van elke speler onder de naam
-  ‘Anoniem’. Gespeelde woorden worden nooit getoond samen met de identiteit
-  van degene die ze heeft geschreven.</p>
+  <p><strong>Wat andere spelers zien:</strong> alleen accounts met een naam
+  staan in het klassement, onder hun spelersnaam en hun avatar, met hun score;
+  een speler zonder account komt er niet in voor. Je vrienden zien je naam, je
+  avatar en je score van de week, en de spelers van eenzelfde uitdaging zien
+  ieders woorden in die uitdaging. Je e-mailadres wordt nooit aan iemand
+  getoond. Buiten uitdagingen worden gespeelde woorden nooit getoond samen met
+  de identiteit van degene die ze heeft geschreven.</p>
 
   <h2>Waarom</h2>
-  <p>Om het spel te laten werken, en voor niets anders: de ranglijst, de
-  zeldzaamheidsbonus (een woord dat iedereen schrijft, levert minder op) en
-  het toevoegen aan het woordenboek van woorden waar meerdere spelers om
-  vragen. De rechtsgrond is de uitvoering van de dienst die je gebruikt.</p>
+  <p>Om het spel te laten werken, en voor niets anders: het klassement, de
+  zeldzaamheidsbonus (een woord dat iedereen schrijft, levert minder op), de
+  vrienden en de uitdagingen, en het toevoegen aan het woordenboek van woorden
+  die spelers voorstellen. De rechtsgrond is de uitvoering van de dienst die
+  je gebruikt.</p>
 
   <h2>Wie er toegang toe heeft</h2>
   <p>De gegevens worden gehost door <strong>Supabase</strong>, dat optreedt
   als verwerker en ze niet voor eigen doeleinden gebruikt. Er worden geen
   gegevens verkocht, verhuurd of gedeeld met adverteerders: je spellen, je
   woorden en je spel-ID worden nooit doorgegeven aan het
-  advertentienetwerk.</p>
+  advertentienetwerk. Meldingen lopen via <strong>Firebase Cloud
+  Messaging</strong> (Google), dat alleen het token van de telefoon en de
+  tekst van het bericht ontvangt.</p>
 
   <h2 id="publicite">Advertenties</h2>
   <p>Vanaf de tweede categoriekeuze verschijnt na die keuze een korte
@@ -98,11 +125,12 @@
   <p>De webversie van het spel toont geen advertenties.</p>
 
   <h2 id="effacer">Je gegevens wissen</h2>
-  <p>Op het startscherm, onderaan: <strong>Mijn gegevens wissen</strong>, dan
-  <strong>Alles wissen</strong>. Je ID, je spellen, je gespeelde woorden en
-  je voorstellen worden direct van de server verwijderd, en je voortgang op
-  het toestel wordt op nul gezet. Alleen een woord dat al in het woordenboek
-  is opgenomen, blijft daar staan, zonder band met jou.</p>
+  <p>In het spel: <strong>Menu › Profiel › Mijn gegevens wissen</strong>, dan
+  <strong>Alles wissen</strong>. Je account (naam, e-mailadres, wachtwoord),
+  je spellen, je gespeelde woorden, je vrienden en je voorstellen worden
+  direct van de server verwijderd, en je voortgang op het toestel wordt op nul
+  gezet. Alleen een woord dat al in het woordenboek is opgenomen, blijft daar
+  staan, zonder band met jou.</p>
   <p>Als je de app verwijdert, worden de gegevens op het toestel gewist, maar
   niet die op de server: wis ze eerst vanuit het spel, of stuur ons een
   bericht.</p>
@@ -111,14 +139,17 @@
   <p>Totdat je ze wist, vanuit het spel of op eenvoudig verzoek.</p>
 
   <h2>Kinderen</h2>
-  <p>Het spel is geschikt voor alle leeftijden en vraagt geen
-  persoonsgegevens; het is niet specifiek op kinderen gericht.</p>
+  <p>Het spel is geschikt voor alle leeftijden en is te spelen zonder enig
+  persoonsgegeven; het is niet specifiek op kinderen gericht. Voor een account
+  is een e-mailadres nodig: in Frankrijk is daarvoor onder de 15 jaar
+  toestemming van een ouder vereist.</p>
 
   <h2>Je rechten en contact</h2>
   <p>Je hebt recht op inzage, rectificatie, wissing en bezwaar (AVG). Om deze
   rechten uit te oefenen, of voor vragen:
   <a href="mailto:fongue.jeremy@gmail.com">fongue.jeremy@gmail.com</a>. Je kunt ook een klacht indienen bij de
   <a href="https://www.cnil.fr/fr/plaintes">CNIL</a>.</p>
+  <p class="meta" style="margin-top:3rem"><a href="confidentialite.html">Français</a></p>
 </main>
 </body>
 </html>

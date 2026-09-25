@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Privacidad — Letra Minuto</title>
-<meta name="description" content="Lo que Letra Minuto guarda de sus jugadores, y cómo borrarlo todo." />
+<meta name="description" content="Lo que Letra Minuto guarda sobre sus jugadores, y cómo borrarlo todo." />
 <style>
   :root {
     --paper: #f6f1e7; --raised: #fffcf6; --ink: #1b1914; --soft: #69645a; --accent: #c2472c; --rule: rgba(27, 25, 20, 0.1);
@@ -34,16 +34,16 @@
 </head>
 <body>
 <main>
-  <h1>Lettre <em>Minute</em></h1>
-  <p class="meta">Política de privacidad · en vigor desde el 24 de septiembre de 2026</p>
+  <h1>Letra <em>Minuto</em></h1>
+  <p class="meta">Política de privacidad · en vigor desde el 25 de septiembre de 2026</p>
 
   <div class="card">
-    <p><strong>En resumen:</strong> sin cuenta que crear, nada se vende. Un
-    breve anuncio sigue a cada elección de categoría a partir de la segunda;
-    es el único momento en que un tercero, Google, recibe datos. El juego
-    guarda tus puntuaciones y tus palabras para que funcionen la clasificación
-    y el bonus de rareza, y puedes borrarlo todo desde la pantalla de
-    inicio.</p>
+    <p><strong>En resumen:</strong> se juega sin cuenta; crear una es
+    opcional. Nada se vende. En la aplicación, un breve anuncio sigue a cada
+    elección de categoría a partir de la segunda; es el único momento en que
+    una red publicitaria, Google, recibe datos. El juego guarda tus
+    puntuaciones y tus palabras para que funcionen la clasificación y el bonus
+    de rareza, y puedes borrarlo todo desde el menú.</p>
   </div>
 
   <h2>Lo que se queda en tu dispositivo</h2>
@@ -53,9 +53,17 @@
 
   <h2>Lo que conserva el servidor</h2>
   <p>La primera vez que lo abres, el juego te asigna un <strong>identificador
-  anónimo</strong>: no se pide ningún nombre, ninguna dirección de correo
-  electrónico ni ningún número de teléfono. Con este identificador se
-  conservan:</p>
+  anónimo</strong>: para jugar no se pide ningún nombre, ninguna dirección de
+  correo electrónico ni ningún número de teléfono.</p>
+  <p>Si <strong>creas una cuenta</strong>, para recuperar tu progreso en otro
+  dispositivo, aparecer en las clasificaciones o jugar con amigos, se añaden
+  el <strong>nombre de jugador</strong> que elijas, tu <strong>dirección de
+  correo electrónico</strong> y tu contraseña, que solo se guarda cifrada. Con
+  el inicio de sesión de Google, es Google quien nos transmite tu dirección de
+  correo; no recibimos ni tu contraseña de Google ni tus contactos. La
+  dirección solo sirve para iniciar sesión y para enviarte un código si
+  olvidas tu contraseña: nunca boletines, nunca publicidad.</p>
+  <p>Con tu identificador se conservan:</p>
   <ul>
     <li><strong>tus partidas</strong>: puntuación, número de palabras, mejor
     racha, número de saltos, fecha;</li>
@@ -63,23 +71,40 @@
     para medir qué palabras escribe todo el mundo;</li>
     <li><strong>tu progreso</strong>: XP, número de partidas, récords;</li>
     <li><strong>las palabras que propones</strong> para completar el
-    diccionario.</li>
+    diccionario;</li>
+    <li><strong>tu avatar</strong> y, si eres moderador, tus votos sobre las
+    palabras propuestas;</li>
+    <li><strong>tus amigos</strong>: las solicitudes enviadas, recibidas y
+    aceptadas;</li>
+    <li><strong>los retos entre amigos</strong>: a quién se invita y la partida
+    de cada uno (puntuación y palabras), visible para los demás jugadores del
+    reto;</li>
+    <li><strong>el token de notificaciones</strong> de tu teléfono, si aceptas
+    las notificaciones: solo sirve para avisarte de un reto recibido o
+    terminado, y se borra al cerrar sesión.</li>
   </ul>
-  <p>La clasificación muestra la mejor puntuación de cada jugador con el
-  nombre «Anónimo». Las palabras jugadas nunca se muestran junto a la
-  identidad de quien las escribió.</p>
+  <p><strong>Lo que ven los demás jugadores:</strong> solo las cuentas con
+  nombre aparecen en las clasificaciones, con su nombre de jugador, su avatar y
+  su puntuación; un jugador sin cuenta no aparece. Tus amigos ven tu nombre,
+  tu avatar y tu puntuación de la semana, y los jugadores de un mismo reto ven
+  las palabras de cada uno en ese reto. Tu dirección de correo no se muestra
+  nunca a nadie. Fuera de los retos, las palabras jugadas nunca se muestran
+  junto a la identidad de quien las escribió.</p>
 
   <h2>Por qué</h2>
   <p>Para que el juego funcione, y nada más: la clasificación, el bonus de
-  rareza (una palabra que todo el mundo escribe da menos puntos) y la
-  incorporación al diccionario de las palabras que piden varios jugadores. La
-  base jurídica es la ejecución del servicio que utilizas.</p>
+  rareza (una palabra que todo el mundo escribe da menos puntos), los amigos y
+  los retos, y la incorporación al diccionario de las palabras que proponen
+  los jugadores. La base jurídica es la ejecución del servicio que
+  utilizas.</p>
 
   <h2>Quién tiene acceso</h2>
   <p>Los datos están alojados en <strong>Supabase</strong>, que actúa como
   encargado del tratamiento y no los explota por cuenta propia. Ningún dato se
   vende, alquila ni comparte con anunciantes: tus partidas, tus palabras y tu
-  identificador de juego nunca se transmiten a la red publicitaria.</p>
+  identificador de juego nunca se transmiten a la red publicitaria. Las
+  notificaciones pasan por <strong>Firebase Cloud Messaging</strong>
+  (Google), que solo recibe el token del teléfono y el texto del mensaje.</p>
 
   <h2 id="publicite">Publicidad</h2>
   <p>A partir de la segunda elección de categoría, se muestra un breve anuncio
@@ -99,11 +124,12 @@
   <p>La versión web del juego no muestra publicidad.</p>
 
   <h2 id="effacer">Borrar tus datos</h2>
-  <p>En la pantalla de inicio, abajo: <strong>Borrar mis datos</strong> y
-  luego <strong>Borrarlo todo</strong>. Tu identificador, tus partidas, tus
-  palabras jugadas y tus propuestas se eliminan del servidor de inmediato, y
-  el progreso se pone a cero en el dispositivo. Solo una palabra que ya haya
-  entrado en el diccionario se queda en él, sin vínculo contigo.</p>
+  <p>En el juego: <strong>Menú › Perfil › Borrar mis datos</strong> y luego
+  <strong>Borrarlo todo</strong>. Tu cuenta (nombre, dirección de correo,
+  contraseña), tus partidas, tus palabras jugadas, tus amigos y tus propuestas
+  se eliminan del servidor de inmediato, y el progreso se pone a cero en el
+  dispositivo. Solo una palabra que ya haya entrado en el diccionario se queda
+  en él, sin vínculo contigo.</p>
   <p>Desinstalar la aplicación borra los datos del dispositivo, pero no los
   del servidor: bórralos antes desde el juego, o escríbenos.</p>
 
@@ -111,14 +137,17 @@
   <p>Hasta que los borres, desde el juego o con una simple solicitud.</p>
 
   <h2>Menores</h2>
-  <p>El juego es apto para todas las edades y no pide ninguna información
-  personal; no está dirigido específicamente a menores.</p>
+  <p>El juego es apto para todas las edades y se juega sin ninguna
+  información personal; no está dirigido específicamente a menores. Crear una
+  cuenta requiere una dirección de correo electrónico: en Francia, antes de
+  los 15 años, hace falta el consentimiento de un progenitor.</p>
 
   <h2>Tus derechos y contacto</h2>
   <p>Tienes derecho de acceso, rectificación, supresión y oposición (RGPD).
   Para ejercerlo, o para cualquier pregunta:
   <a href="mailto:fongue.jeremy@gmail.com">fongue.jeremy@gmail.com</a>. También puedes presentar una reclamación ante la
   <a href="https://www.cnil.fr/fr/plaintes">CNIL</a>.</p>
+  <p class="meta" style="margin-top:3rem"><a href="confidentialite.html">Français</a></p>
 </main>
 </body>
 </html>

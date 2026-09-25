@@ -1,8 +1,10 @@
 # Fiche Play Store — Lettre Minute
 
 Textes et réponses à recopier dans la Play Console. Les visuels sont à côté :
-`icon-512.png`, `feature-graphic.png` (1024 × 500), `screenshots/fr/` (1080 × 1920,
-clair et sombre). Pour les régénérer : `scripts/render-store.sh`.
+`icon-512.png`, `feature-graphic.png` (1024 × 500), `listing/fr/` (les huit
+captures légendées à téléverser, 1080 × 1920) et `screenshots/fr/` (les
+captures brutes dont elles partent). Pour les régénérer :
+`scripts/render-store.sh`.
 
 ## Fiche principale (français)
 
@@ -16,7 +18,7 @@ clair et sombre). Pour les régénérer : `scripts/render-store.sh`.
 
 > Une lettre tombe, une catégorie s’affiche, le chrono démarre. Pays en B,
 > animaux en M, couleurs en V… Vous avez soixante secondes pour écrire le plus
-> de mots possible.
+> de mots possible, et ceux que personne ne trouve rapportent le plus.
 >
 > Le jeu vérifie chaque mot pendant que vous tapez, grâce à un dictionnaire de
 > plus de 40 000 mots français bâti sur Wikidata et le Wiktionnaire. « Chats »
@@ -32,26 +34,48 @@ clair et sombre). Pour les régénérer : `scripts/render-store.sh`.
 > Chaque mot validé à la suite augmente le multiplicateur, jusqu’à ×2. Passer
 > coûte cinq secondes et remet la série à zéro.
 >
+> DÉFIEZ VOS AMIS
+> Jusqu’à huit joueurs sur la même partie : mêmes lettres, mêmes catégories,
+> chacun quand il veut dans les 24 heures. Pendant que vous jouez, les scores
+> de ceux qui sont passés avant vous avancent comme en direct. À la fin, règle
+> du Petit Bac : un mot qu’un autre a aussi trouvé ne vaut que la moitié.
+> Classement, trophées, et une revanche si le cœur vous en dit.
+>
+> DIX POUVOIRS
+> Écrivez « chut » et le chrono s’arrête. Écrivez « Joker » et le jeu trouve un
+> mot à votre place. Changez de lettre, voyez venir la catégorie suivante,
+> laissez passer deux fautes… Un nouveau pouvoir tous les deux niveaux, deux
+> à emporter dans chaque partie.
+>
 > PROGRESSEZ
-> Chaque point rapporte de l’expérience, et chaque niveau débloque une nouvelle
-> catégorie : fruits et légumes, métiers, sports, parties du corps,
-> matières, capitales, marques…
+> Chaque point rapporte de l’expérience, et chaque niveau vous propose trois
+> nouvelles catégories, dont vous gardez une : fruits et légumes, métiers,
+> sports, parties du corps, matières, capitales, marques… En chemin, quarante
+> avatars animés et trente couleurs à débloquer.
+>
+> GRIMPEZ AU CLASSEMENT
+> Meilleure partie du jour, de la semaine, et chasse aux découvertes : les mots
+> que personne n’avait écrits depuis sept jours.
 >
 > FAITES GRANDIR LE DICTIONNAIRE
-> Un mot manque ? Proposez-le en un clic. Validé par trois modérateurs, il
+> Un mot manque ? Proposez-le en un geste. Validé par trois modérateurs, il
 > entre au dictionnaire, et vous gagnez 150 XP.
 >
-> • Sans inscription (un compte est facultatif)
+> • Sans inscription : le compte est facultatif (e-mail ou Google)
 > • Une seule pub, courte, au choix d’une nouvelle catégorie
-> • Jouable hors ligne
-> • Thème clair et sombre
+> • Jouable hors ligne en solo
+> • En sept langues, chacune avec son propre dictionnaire : français,
+>   anglais, espagnol, allemand, italien, néerlandais, portugais
+> • Musique et sons joués en direct, thème clair et sombre
 > • Vos données s’effacent en un geste depuis le menu
 
 **Catégorie de l’application** : Jeu › Mots
-**Tags** : Mots, Quiz, Solo, Culture générale
-**Adresse e-mail de contact** : à renseigner (publique sur la fiche)
-**Règles de confidentialité** : `VITE_PRIVACY_URL`, soit l’adresse publique de
-`public/confidentialite.html`
+**Tags** (5 au plus, pris dans la liste de la Play Console) : Mots, Quiz,
+Culture générale, Solo, Multijoueur
+**Adresse e-mail de contact** : fongue.jeremy@gmail.com (publique sur la fiche)
+**Règles de confidentialité** (une seule adresse pour toute l’app) :
+https://jfongue.github.io/lettre-minute/confidentialite.html, soit
+`VITE_PRIVACY_URL` ; la page renvoie vers ses traductions
 
 ## Contenu de l’application (Play Console › Règles › Contenu de l’application)
 

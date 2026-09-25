@@ -1,8 +1,9 @@
 # Play Store listing — Letter Minute (English)
 
-Texts and answers to copy into the Play Console. The visuals are one level up:
-`../icon-512.png`, `feature-graphic.png` (1024 × 500, in this folder), `../screenshots/en/`
-(1080 × 1920, light and dark). To regenerate them: `scripts/render-store.sh`.
+Texts and answers to copy into the Play Console. The visuals: `../icon-512.png`,
+`feature-graphic.png` (1024 × 500, in this folder), `../listing/en/` (the eight
+captioned screenshots to upload, 1080 × 1920) and `../screenshots/en/` (the raw
+captures they are built from). To regenerate them: `scripts/render-store.sh`.
 
 ## Main listing (English)
 
@@ -16,10 +17,10 @@ Texts and answers to copy into the Play Console. The visuals are one level up:
 
 > A letter drops, a category appears, the clock starts. Countries starting
 > with B, animals with M, colours with V… You have sixty seconds to write as
-> many words as you can.
+> many words as you can, and the ones nobody else finds score the most.
 >
 > The game checks every word as you type, using a dictionary of over
-> 110,000 words built on Wikidata and Wiktionary. “Cats” counts as
+> 110,000 English words built on Wikidata and Wiktionary. “Cats” counts as
 > “cat”, and a typo gets through: “Portgual” counts as “Portugal”.
 >
 > RARE WORDS ARE WORTH MORE
@@ -31,26 +32,49 @@ Texts and answers to copy into the Play Console. The visuals are one level up:
 > Every word validated in a row raises the multiplier, up to ×2. Skipping
 > costs five seconds and resets the streak.
 >
+> CHALLENGE YOUR FRIENDS
+> Up to eight players on the same game: same letters, same categories, each
+> playing whenever they like within 24 hours. As you play, the scores of
+> those who went before you tick along as if live. At the end, the
+> Scattergories rule applies: a word someone else also found is worth only
+> half. Rankings, trophies, and a rematch if you’re up for it.
+>
+> TEN POWERS
+> Type “shh” and the clock stops. Type “Joker” and the game finds a word for
+> you. Swap your letter, see the next category coming, let two mistakes
+> slide… A new power every two levels, and two to take into each game.
+>
 > LEVEL UP
-> Every point earns experience, and every level unlocks a new category: fruit
-> and vegetables, jobs, sports, parts of the body, materials, capitals,
-> brands…
+> Every point earns experience, and every level offers you three new
+> categories to choose one from: fruit and vegetables, jobs, sports, parts of
+> the body, materials, capitals, brands… Along the way, forty animated
+> avatars and thirty colours to unlock.
+>
+> CLIMB THE LEADERBOARD
+> Best game of the day, best of the week, and the hunt for discoveries: words
+> nobody had written in the last seven days.
 >
 > HELP THE DICTIONARY GROW
-> A word missing? Suggest it in one tap. Once three players have asked for
-> it, it joins the dictionary, and you earn 150 XP.
+> A word missing? Suggest it in one tap. Once three moderators approve it, it
+> joins the dictionary, and you earn 150 XP.
 >
-> • No sign-up
+> • No sign-up needed: an account is optional (email or Google)
 > • A single short ad, when you pick a new category
-> • Playable offline
-> • Light and dark theme
-> • Erase your data in one tap from the home screen
+> • Solo play works offline
+> • In seven languages, each with its own dictionary: French, English,
+>   Spanish, German, Italian, Dutch, Portuguese
+> • Music and sounds played live, light and dark theme
+> • Erase your data in one tap from the menu
 
 **App category**: Game › Word
-**Tags**: Word, Trivia, Single player, General knowledge
-**Contact email address**: to be filled in (public on the listing)
-**Privacy policy**: the public address of `store/privacy/confidentialite.en.html`
-once published (the French page today is `VITE_PRIVACY_URL`)
+**Tags** (5 at most, from the Play Console list): Word, Trivia, General
+knowledge, Single player, Multiplayer
+**Contact email address**: fongue.jeremy@gmail.com (public on the listing)
+**Privacy policy** (a single address for the whole app):
+https://jfongue.github.io/lettre-minute/confidentialite.html (French), i.e.
+`VITE_PRIVACY_URL`; the English translation is at
+https://jfongue.github.io/lettre-minute/confidentialite.en.html, and the two
+pages link to each other
 
 ## App content (Play Console › Policy › App content)
 
@@ -58,7 +82,7 @@ once published (the French page today is `VITE_PRIVACY_URL`)
 | --- | --- |
 | App access | No restrictions: everything is available without signing in |
 | Ads | **Yes**: an AdMob interstitial after each category pick from the second one on |
-| Content rating (IARC) | “Game” category; no to every question (violence, fear, sexuality, gambling, language, drugs, digital purchases); players exchange no messages and share nothing with each other. Expected result: PEGI 3 / Everyone |
+| Content rating (IARC) | “Game” category; no to every question (violence, fear, sexuality, gambling, language, drugs, digital purchases); **users can interact: yes** (player name, avatar and scores visible on the leaderboards, between friends and in challenges; no messaging, no free text exchanged apart from the name). Expected result: PEGI 3 / Everyone, with the “Users Interact” notice |
 | Target audience | 13 and over. Choosing an age group under 13 puts the app in the Families programme and its additional requirements |
 | News app | No |
 | Government / health / finance apps | No |
@@ -74,25 +98,31 @@ every SDK update.
 - Data collection or sharing: **yes, collected** and **yes, shared**
   (with Google, for advertising)
 - Data encrypted in transit: **yes** (HTTPS to Supabase and Google)
-- Way to request deletion: **yes**, in the app (home › Erase my data) and at
-  `VITE_PRIVACY_URL#effacer`
+- Way to request deletion: **yes**, in the app (Menu › Profile › Erase my
+  data) and at https://jfongue.github.io/lettre-minute/confidentialite.en.html#effacer
 
 | Data type (Play) | What it is here | Collected | Shared | Processed ephemerally | Required | Purpose |
 | --- | --- | --- | --- | --- | --- | --- |
 | Personal info › User IDs | The anonymous Supabase identifier | Yes | No | No | Yes | App functionality |
+| Personal info › Name | Player name, chosen when creating the account, visible to other players | Yes | No | No | No (account optional) | App functionality, Account management |
+| Personal info › Email address | Sign-in and password reset code (typed in or passed on by Google) | Yes | No | No | No (account optional) | App functionality, Account management |
+| Personal info › Other info | Friends list, challenges | Yes | No | No | No | App functionality |
+| Device or other IDs | Firebase notification token (challenges) | Yes | No | No | No (the player accepts notifications) | App functionality |
 | App activity › Other actions | Games, scores, words played, XP | Yes | No | No | Yes | App functionality |
 | App activity › Other user-generated content | Words suggested for the dictionary | Yes | No | No | No (the player chooses to suggest) | App functionality |
-| Location › Approximate location | Inferred from the IP address by AdMob | Yes | Yes | No | Yes | Advertising, analytics, fraud prevention |
-| Device or other IDs | Advertising ID (AdMob) | Yes | Yes | No | Yes | Advertising, analytics, fraud prevention |
-| App activity › App interactions | Ad views and taps (AdMob) | Yes | Yes | No | Yes | Advertising, analytics, fraud prevention |
-| App info and performance › Diagnostics, Crash logs | Reported by the AdMob SDK | Yes | Yes | No | Yes | Analytics, fraud prevention |
+| Location › Approximate location | Inferred from the IP address by AdMob | Yes | Yes | No | Yes | Advertising or marketing, Analytics, Fraud prevention, security, and compliance |
+| Device or other IDs | Advertising ID (AdMob) | Yes | Yes | No | Yes | Advertising or marketing, Analytics, Fraud prevention, security, and compliance |
+| App activity › App interactions | Ad views and taps (AdMob) | Yes | Yes | No | Yes | Advertising or marketing, Analytics, Fraud prevention, security, and compliance |
+| App info and performance › Diagnostics, Crash logs | Reported by the AdMob SDK | Yes | Yes | No | Yes | Analytics, Fraud prevention, security, and compliance |
 
-Everything else (precise location, contacts, photos, email, name): **not
-collected**.
+Everything else (precise location, contacts, photos, phone number): **not
+collected**. The password is kept only as a hash, by Supabase Auth.
 
 ## Account deletion (Play Console › Policy › Data deletion)
 
-- Does the app let users create an account? **Yes**, an anonymous account is
-  created automatically
-- Deletion link outside the app: `VITE_PRIVACY_URL#effacer`
+- Does the app let users create an account? **Yes**: an anonymous account is
+  created automatically, and the player can name it (name, email, password,
+  or Google). Erasing deletes either kind
+- Deletion link outside the app:
+  https://jfongue.github.io/lettre-minute/confidentialite.en.html#effacer
 - Partial data deletion without deleting the account: not offered
