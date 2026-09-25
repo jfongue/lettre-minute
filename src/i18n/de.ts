@@ -169,6 +169,26 @@ export const de: Messages = {
     held: (place) => `Weiter ${place}`,
     more: (count) => `Ganze Rangliste ansehen (${count})`,
     less: 'Weniger anzeigen',
+    all: 'Alle Ranglisten',
+  },
+
+  leaderboards: {
+    periods: { day: 'Tag', week: 'Woche', all: 'Gesamt' },
+    stats: {
+      best: { label: 'Beste Partie', caption: 'Die höchste Punktzahl in einer Partie', unit: () => 'Pkt.' },
+      points: { label: 'Punkte', caption: 'Alle Punkte, Partie für Partie', unit: () => 'Pkt.' },
+      runs: { label: 'Partien', caption: 'Wie viele Partien gespielt wurden', unit: (count) => plural(count, 'Partie', 'Partien') },
+      words: { label: 'Gefundene Wörter', caption: 'Alle richtigen Wörter, Partie für Partie', unit: (count) => plural(count, 'Wort', 'Wörter') },
+      discoveries: { label: 'Entdeckungen', caption: 'Wörter, die seit einer Woche niemand geschrieben hatte', unit: (count) => plural(count, 'Wort', 'Wörter') },
+      combo: { label: 'Serie', caption: 'Die längste Serie von Wörtern am Stück', unit: (count) => plural(count, 'Wort', 'Wörter') },
+      added: { label: 'Neue Wörter', caption: 'Vorgeschlagen und von den Moderatoren bestätigt', unit: (count) => plural(count, 'Wort', 'Wörter') },
+    },
+    empty: { day: 'Heute steht noch niemand darauf.', week: 'Diese Woche steht noch niemand darauf.', all: 'Noch steht niemand darauf.' },
+    offline: 'Die Rangliste antwortet gerade nicht.',
+    retry: 'Erneut versuchen',
+    you: 'Dein Platz',
+    absent: 'Du stehst noch nicht darauf: Jetzt bist du dran.',
+    anonymous: 'Erstelle ein Konto, um in den Ranglisten zu erscheinen.',
   },
 
   menu: {
@@ -185,7 +205,7 @@ export const de: Messages = {
     accountLead: 'Deine Partien begleiten dich von Gerät zu Gerät, dein Name kommt in die Rangliste und deine Freunde können dich finden.',
     offline: 'Offline: Dein Fortschritt bleibt auf diesem Gerät.',
     back: 'Zurück',
-    pages: { stats: 'Statistik', requests: 'Meine Vorschläge', categories: 'Meine Kategorien' },
+    pages: { stats: 'Statistik', requests: 'Meine Vorschläge', categories: 'Meine Kategorien', boards: 'Ranglisten' },
     support: 'Den Entwickler unterstützen',
   },
 

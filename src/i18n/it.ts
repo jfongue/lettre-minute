@@ -170,6 +170,26 @@ export const it: Messages = {
     held: (place) => `Sempre ${place}`,
     more: (count) => `Vedi la classifica completa (${count})`,
     less: 'Vedi meno',
+    all: 'Tutte le classifiche',
+  },
+
+  leaderboards: {
+    periods: { day: 'Giorno', week: 'Settimana', all: 'Totale' },
+    stats: {
+      best: { label: 'Miglior partita', caption: 'Il punteggio più alto in una partita', unit: () => 'pt' },
+      points: { label: 'Punti', caption: 'Tutti i punti, partita dopo partita', unit: () => 'pt' },
+      runs: { label: 'Partite', caption: 'Quante partite sono state giocate', unit: (count) => plural(count, 'partita', 'partite') },
+      words: { label: 'Parole trovate', caption: 'Tutte le parole giuste, partita dopo partita', unit: (count) => plural(count, 'parola', 'parole') },
+      discoveries: { label: 'Scoperte', caption: 'Parole che nessuno aveva scritto da una settimana', unit: (count) => plural(count, 'parola', 'parole') },
+      combo: { label: 'Serie', caption: 'La serie più lunga di parole di fila', unit: (count) => plural(count, 'parola', 'parole') },
+      added: { label: 'Parole aggiunte', caption: 'Proposte, poi convalidate dai moderatori', unit: (count) => plural(count, 'parola', 'parole') },
+    },
+    empty: { day: 'Oggi non c’è ancora nessuno.', week: 'Questa settimana non c’è ancora nessuno.', all: 'Non c’è ancora nessuno.' },
+    offline: 'La classifica non risponde per ora.',
+    retry: 'Riprova',
+    you: 'Il tuo posto',
+    absent: 'Non ci sei ancora: tocca a te giocare.',
+    anonymous: 'Crea un account per comparire nelle classifiche.',
   },
 
   menu: {
@@ -186,7 +206,7 @@ export const it: Messages = {
     accountLead: 'Le tue partite ti seguono da un dispositivo all’altro, il tuo nome entra in classifica e i tuoi amici possono trovarti.',
     offline: 'Offline: i tuoi progressi restano su questo dispositivo.',
     back: 'Indietro',
-    pages: { stats: 'Statistiche', requests: 'Le mie proposte', categories: 'Le mie categorie' },
+    pages: { stats: 'Statistiche', requests: 'Le mie proposte', categories: 'Le mie categorie', boards: 'Classifiche' },
     support: 'Sostieni il creatore',
   },
 

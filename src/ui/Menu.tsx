@@ -35,6 +35,7 @@ import { sound as preview, type SoundPrefs } from '../lib/sound'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions, type AccountMode } from './AccountPanel'
 import { CategoriesPage } from './CategoriesPage'
+import { LeaderboardsPage } from './LeaderboardsPage'
 import { PageLinks } from './PageLinks'
 import { RequestsPage } from './RequestsPage'
 import { StatsPage } from './StatsPage'
@@ -44,11 +45,11 @@ import { Avatar } from './Avatar'
 
 export type MenuPane = 'profile' | 'social' | 'options'
 /** A page opened from the profile, which leads back to it. */
-export type ProfilePage = 'stats' | 'requests' | 'categories'
+export type ProfilePage = 'stats' | 'requests' | 'categories' | 'boards'
 export type MenuPage = MenuPane | ProfilePage
 
 const PANES: readonly MenuPane[] = ['profile', 'social', 'options']
-const PROFILE_PAGES: readonly ProfilePage[] = ['stats', 'requests', 'categories']
+const PROFILE_PAGES: readonly Exclude<ProfilePage, 'boards'>[] = ['stats', 'requests', 'categories']
 
 function isPane(page: MenuPage): page is MenuPane {
   return (PANES as readonly string[]).includes(page)
@@ -102,9 +103,12 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
   const [pane, setPane] = useState<MenuPane>(isPane(page) ? page : 'profile')
   const [sub, setSub] = useState<ProfilePage | null>(isPane(page) ? null : page)
   const body = useRef<HTMLDivElement>(null)
-  const open = (next: MenuPage) => {
+  // The leaderboards opened from the statistics lead back to them, not to the profile.
+  const [parent, setParent] = useState<ProfilePage | null>(null)
+  const open = (next: MenuPage, from: ProfilePage | null = null) => {
     setPane(isPane(next) ? next : 'profile')
     setSub(isPane(next) ? null : next)
+    setParent(from)
     body.current?.scrollTo({ top: 0 })
   }
   const drawer = useRef<HTMLElement>(null)
@@ -162,7 +166,7 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
         <div className="menu-body" ref={body}>
           {sub && (
             <div className="subpage-head">
-              <button type="button" className="subpage-back" onClick={() => open('profile')} aria-label={t.menu.back}>
+              <button type="button" className="subpage-back" onClick={() => open(parent ?? 'profile')} aria-label={t.menu.back}>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M15 5l-7 7 7 7" />
                 </svg>
@@ -177,8 +181,10 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               challenges={props.challenges}
               focusChallenges={props.focusChallenges}
               onChallenge={props.onChallenge}
+              onBoards={props.account ? () => open('boards', 'stats') : undefined}
             />
           )}
+          {sub === 'boards' && <LeaderboardsPage named={Boolean(props.account && !props.account.anonymous)} />}
           {sub === 'requests' && (
             <RequestsPage
               moderation={props.moderation}

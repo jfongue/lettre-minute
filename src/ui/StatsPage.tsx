@@ -25,12 +25,19 @@ interface StatsPageProps {
   /** Opened from the home screen's challenges: the old ones show, unfolded. */
   focusChallenges?: boolean
   onChallenge(id: string): void
+  /** Absent without a server, which keeps no leaderboard. */
+  onBoards?(): void
 }
 
-export function StatsPage({ history, profile, challenges, focusChallenges = false, onChallenge }: StatsPageProps) {
+export function StatsPage({ history, profile, challenges, focusChallenges = false, onChallenge, onBoards }: StatsPageProps) {
   const t = useT()
   return (
     <>
+      {onBoards && (
+        <button type="button" className="btn btn--blue btn--block" onClick={onBoards}>
+          {t.boards.all}
+        </button>
+      )}
       {history.length === 0 ? <p className="note">{t.stats.empty}</p> : <RunStats history={history} profile={profile} />}
       {challenges && <OldChallenges challenges={challenges} focus={focusChallenges} onOpen={onChallenge} />}
     </>

@@ -62,7 +62,11 @@ n'écrit rapportent le plus.
   cette semaine — un mot que personne n'avait écrit dans la catégorie depuis
   sept jours. On passe de l'un à l'autre d'un glissement du doigt. Seuls les
   comptes nommés y figurent ; Demontoon y tient 94 points chaque jour tant
-  qu'il n'a pas joué.
+  qu'il n'a pas joué. Le titre, un glissement après le troisième tableau ou
+  le lien des statistiques ouvrent la page des classements : meilleure
+  partie, points, parties, mots trouvés, découvertes, série et mots ajoutés,
+  chacun du jour, de la semaine ou au total, avec podium, ex æquo au même
+  rang et la place du joueur même au-delà des cinquante premiers.
 - **Menu** : la tuile en haut à gauche de l'affiche (ou un glissement du doigt vers la droite) ouvre le profil (compte,
   avatar, effacement), le social (amis par nom de compte, demandes reçues et
   envoyées, score de la semaine de chacun) et les options (thème auto, clair

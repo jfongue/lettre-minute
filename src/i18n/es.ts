@@ -170,6 +170,26 @@ export const es: Messages = {
     held: (place) => `Sigues ${place}`,
     more: (count) => `Ver la clasificación completa (${count})`,
     less: 'Ver menos',
+    all: 'Todas las clasificaciones',
+  },
+
+  leaderboards: {
+    periods: { day: 'Día', week: 'Semana', all: 'Total' },
+    stats: {
+      best: { label: 'Mejor partida', caption: 'La puntuación más alta en una partida', unit: () => 'pts' },
+      points: { label: 'Puntos', caption: 'Todos los puntos, partida tras partida', unit: () => 'pts' },
+      runs: { label: 'Partidas', caption: 'Cuántas partidas se jugaron', unit: (count) => plural(count, 'partida', 'partidas') },
+      words: { label: 'Palabras halladas', caption: 'Todas las palabras correctas, partida tras partida', unit: (count) => plural(count, 'palabra', 'palabras') },
+      discoveries: { label: 'Hallazgos', caption: 'Palabras que nadie había escrito en una semana', unit: (count) => plural(count, 'palabra', 'palabras') },
+      combo: { label: 'Racha', caption: 'La racha más larga de palabras seguidas', unit: (count) => plural(count, 'palabra', 'palabras') },
+      added: { label: 'Palabras añadidas', caption: 'Propuestas y validadas por los moderadores', unit: (count) => plural(count, 'palabra', 'palabras') },
+    },
+    empty: { day: 'Aún no figura nadie hoy.', week: 'Aún no figura nadie esta semana.', all: 'Aún no figura nadie.' },
+    offline: 'La clasificación no responde por ahora.',
+    retry: 'Reintentar',
+    you: 'Tu puesto',
+    absent: 'Aún no figuras: te toca jugar.',
+    anonymous: 'Crea una cuenta para aparecer en las clasificaciones.',
   },
 
   menu: {
@@ -186,7 +206,7 @@ export const es: Messages = {
     accountLead: 'Tus partidas te siguen de un dispositivo a otro, tu nombre entra en la clasificación y tus amigos pueden encontrarte.',
     offline: 'Sin conexión: tu progreso se queda en este dispositivo.',
     back: 'Volver',
-    pages: { stats: 'Estadísticas', requests: 'Mis propuestas', categories: 'Mis categorías' },
+    pages: { stats: 'Estadísticas', requests: 'Mis propuestas', categories: 'Mis categorías', boards: 'Clasificaciones' },
     support: 'Apoyar al creador',
   },
 

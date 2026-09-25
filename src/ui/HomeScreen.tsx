@@ -157,7 +157,7 @@ export function HomeScreen({
                 </div>
               </section>
 
-              {boards && <Boards boards={boards} me={me} climbed={climbed} />}
+              {boards && <Boards boards={boards} me={me} climbed={climbed} onAll={() => onMenu('boards')} />}
             </>
           )}
 

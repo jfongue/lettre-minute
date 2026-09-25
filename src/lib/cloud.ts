@@ -1,5 +1,6 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
+import type { Leaderboard, PeriodId, PlacedRow, StatId } from '../domain/leaderboards'
 import { challengeWordsOf, type ChallengeEntry, type ChallengeWord } from '../domain/challenge'
 import { MODERATION_SESSION_SIZE, type ModeratorOfferReason, type Verdict } from '../domain/moderation'
 import type { Profile } from '../domain/progression'
@@ -365,6 +366,28 @@ export function fetchBoards(): Promise<Boards | null> {
     }
     const [day, week, discoveries] = await Promise.all([board('day'), board('week'), board('discoveries')])
     return { day, week, discoveries }
+  }, null)
+}
+
+/** Null without a server or when it does not answer: the page says so rather than showing it empty. */
+export function fetchLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('leaderboard_stat', { p_stat: stat, p_period: period })
+    if (error) return null
+    const rows = ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      extra: row.extra === true,
+      row: {
+        name: row.display_name as string,
+        avatar: parseAvatar(row.avatar),
+        value: Number(row.value) || 0,
+        place: Number(row.place) || 0,
+        mine: row.mine === true,
+      } satisfies PlacedRow,
+    }))
+    return {
+      rows: rows.filter((entry) => !entry.extra).map((entry) => entry.row),
+      me: rows.find((entry) => entry.extra)?.row ?? null,
+    }
   }, null)
 }
 

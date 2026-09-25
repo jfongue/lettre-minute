@@ -1,6 +1,6 @@
 # Supabase
 
-Vingt migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Vingt et une migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -22,9 +22,10 @@ pour la boîte à idées, [`0016_challenge_setup.sql`](migrations/0016_challenge
 pour qu'un défi autorise ou non les pouvoirs, [`0017_challenge_name.sql`](migrations/0017_challenge_name.sql)
 pour nommer un défi, [`0018_gentler_levels.sql`](migrations/0018_gentler_levels.sql)
 pour la courbe d'XP adoucie, [`0019_moderation_reserve.sql`](migrations/0019_moderation_reserve.sql)
-pour la réserve de mots versée aux modérateurs qui ont vidé leur file, et
+pour la réserve de mots versée aux modérateurs qui ont vidé leur file,
 [`0020_tester_invites.sql`](migrations/0020_tester_invites.sql) pour inviter un ami
-par e-mail au test fermé de Play.
+par e-mail au test fermé de Play, et [`0021_leaderboards.sql`](migrations/0021_leaderboards.sql)
+pour la page des classements.
 
 ## Ce que le serveur détient
 
@@ -56,7 +57,10 @@ par e-mail au test fermé de Play.
 
 Fonctions de lecture : `leaderboard_board('day' | 'week' | 'discoveries')` — le
 classement du jour, de la semaine (heure de Paris, semaine du lundi) et des
-découvertes de la semaine ; `my_friends()` — amis et demandes en cours.
+découvertes de la semaine ; `leaderboard_stat(mesure, 'day' | 'week' | 'all')` —
+la page des classements (`best`, `points`, `runs`, `words`, `discoveries`,
+`combo`, `added`), cinquante lignes avec `rank()` et celle du joueur au-delà
+(`extra`) ; `my_friends()` — amis et demandes en cours.
 
 Vues : `leaderboard` (record de chaque compte nommé), `word_popularity` (part des parties où un mot
 apparaît), `submission_tally` (combien de joueurs réclament un mot).

@@ -170,6 +170,26 @@ export const pt: Messages = {
     held: (place) => `Ainda ${place}`,
     more: (count) => `Ver o ranking completo (${count})`,
     less: 'Ver menos',
+    all: 'Todos os rankings',
+  },
+
+  leaderboards: {
+    periods: { day: 'Dia', week: 'Semana', all: 'Total' },
+    stats: {
+      best: { label: 'Melhor partida', caption: 'A maior pontuação numa partida', unit: () => 'pts' },
+      points: { label: 'Pontos', caption: 'Todos os pontos, partida após partida', unit: () => 'pts' },
+      runs: { label: 'Partidas', caption: 'Quantas partidas foram jogadas', unit: (count) => plural(count, 'partida', 'partidas') },
+      words: { label: 'Palavras achadas', caption: 'Todas as palavras certas, partida após partida', unit: (count) => plural(count, 'palavra', 'palavras') },
+      discoveries: { label: 'Descobertas', caption: 'Palavras que ninguém escrevia havia uma semana', unit: (count) => plural(count, 'palavra', 'palavras') },
+      combo: { label: 'Sequência', caption: 'A maior sequência de palavras seguidas', unit: (count) => plural(count, 'palavra', 'palavras') },
+      added: { label: 'Palavras adicionadas', caption: 'Sugeridas e aprovadas pelos moderadores', unit: (count) => plural(count, 'palavra', 'palavras') },
+    },
+    empty: { day: 'Ninguém aparece ainda hoje.', week: 'Ninguém aparece ainda esta semana.', all: 'Ninguém aparece ainda.' },
+    offline: 'O ranking não está respondendo agora.',
+    retry: 'Tentar de novo',
+    you: 'Sua posição',
+    absent: 'Você ainda não aparece: é sua vez de jogar.',
+    anonymous: 'Crie uma conta para aparecer nos rankings.',
   },
 
   menu: {
@@ -186,7 +206,7 @@ export const pt: Messages = {
     accountLead: 'Suas partidas acompanham você de um aparelho a outro, seu nome entra no ranking e seus amigos podem encontrar você.',
     offline: 'Offline: seu progresso fica neste aparelho.',
     back: 'Voltar',
-    pages: { stats: 'Estatísticas', requests: 'Minhas sugestões', categories: 'Minhas categorias' },
+    pages: { stats: 'Estatísticas', requests: 'Minhas sugestões', categories: 'Minhas categorias', boards: 'Rankings' },
     support: 'Apoiar o criador',
   },
 

@@ -25,6 +25,8 @@ import { CategoryGiftPop } from '../ui/CategoryGiftPop'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
 import type { Boards } from '../domain/boards'
+import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
+import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 
 /*
  * The debug board: every screen a player only meets by luck or by level,
@@ -267,6 +269,34 @@ function summaryOf(detail: ChallengeDetail): ChallengeSummary {
 }
 
 // ------------------------------------------------------------ scenarios --
+
+/** Rows per measure: long, past fifty with the player far down, short, empty, and one that does not answer. */
+const LEADERBOARD_SIZES: Record<StatId, number> = { best: 24, points: 60, runs: 5, words: 24, discoveries: 2, combo: 12, added: 0 }
+
+function fakeLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | null> {
+  if (stat === 'combo' && period === 'week') return later(null, 700)
+  const scale = period === 'day' ? 1 : period === 'week' ? 4 : 20
+  const top = stat === 'best' ? 400 : stat === 'runs' ? 9 : stat === 'discoveries' ? 6 : 120
+  const count = Math.min(LEADERBOARD_SIZES[stat], 50)
+  const far = LEADERBOARD_SIZES[stat] > 50
+  const rows = Array.from({ length: count }, (_, index) => ({
+    name: index === 14 && !far ? 'Testeur' : `Joueur ${index + 1}`,
+    avatar: avatarOf((index * 7 + top) % 100, index % 2 ? 'jaune' : 'bleu', 'noir', 'rouge'),
+    value: Math.max(1, Math.round((top - index * (top / 60)) * scale)),
+    place: index + 1,
+    mine: index === 14 && !far,
+  }))
+  const me = far ? { name: 'Testeur', avatar: DEFAULT_AVATAR, value: 3 * scale, place: 73, mine: true } : null
+  return later(completeLeaderboard(stat, period, { rows, me }), 500)
+}
+
+function LeaderboardsScenario({ named }: { named: boolean }) {
+  return (
+    <div className="sheet">
+      <LeaderboardsPage named={named} load={fakeLeaderboard} />
+    </div>
+  )
+}
 
 function PastScenario({ back }: { back(): void }) {
   const [open, setOpen] = useState(true)
@@ -658,6 +688,22 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le nom du joueur remonte le classement du jour, avec « +3 » en vert',
     phase: 'home',
     render: (back) => <DebugHome back={back} boards={LONG_BOARDS} climbed={3} />,
+  },
+  {
+    id: 'leaderboards',
+    group: 'Accueil',
+    title: 'Page des classements',
+    how: 'Sept mesures, jour / semaine / total : « Points » dépasse cinquante (ta place en bas), « Mots ajoutés » vide, « Série » semaine hors ligne',
+    phase: 'home',
+    render: () => <LeaderboardsScenario named />,
+  },
+  {
+    id: 'leaderboards-anonymous',
+    group: 'Accueil',
+    title: 'Page des classements, joueur anonyme',
+    how: 'Les classements se lisent, avec l’invitation à créer un compte',
+    phase: 'home',
+    render: () => <LeaderboardsScenario named={false} />,
   },
   {
     id: 'update',

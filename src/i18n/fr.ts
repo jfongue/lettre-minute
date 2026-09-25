@@ -1,10 +1,17 @@
 import { PALETTE, type Milestone } from '../domain/avatar'
 import { CATALOGUE } from '../domain/catalogue'
 import type { TrophyId } from '../domain/challenge'
+import type { StatId } from '../domain/leaderboards'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
 import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
+
+interface LeaderboardText {
+  label: string
+  caption: string
+  unit: (count: number) => string
+}
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one)
 /** A trophy's name, and its line from the value that won it and the word, when one did. */
@@ -189,6 +196,26 @@ export const fr = {
     held: (place: string) => `Toujours ${place}`,
     more: (count: number) => `Voir le classement complet (${count})`,
     less: 'Voir moins',
+    all: 'Tous les classements',
+  },
+
+  leaderboards: {
+    periods: { day: 'Jour', week: 'Semaine', all: 'Total' },
+    stats: {
+      best: { label: 'Meilleure partie', caption: 'Le plus gros score en une partie', unit: () => 'pts' },
+      points: { label: 'Points', caption: 'Tous les points marqués, partie après partie', unit: () => 'pts' },
+      runs: { label: 'Parties', caption: 'Le nombre de parties jouées', unit: (count: number) => plural(count, 'partie', 'parties') },
+      words: { label: 'Mots trouvés', caption: 'Tous les mots justes, partie après partie', unit: (count: number) => plural(count, 'mot', 'mots') },
+      discoveries: { label: 'Découvertes', caption: 'Mots que personne n’avait écrits depuis une semaine', unit: (count: number) => plural(count, 'mot', 'mots') },
+      combo: { label: 'Série', caption: 'La plus longue série de mots d’affilée', unit: (count: number) => plural(count, 'mot', 'mots') },
+      added: { label: 'Mots ajoutés', caption: 'Mots proposés, puis validés par les modérateurs', unit: (count: number) => plural(count, 'mot', 'mots') },
+    } satisfies Record<StatId, LeaderboardText> as Record<StatId, LeaderboardText>,
+    empty: { day: 'Personne n’y figure encore aujourd’hui.', week: 'Personne n’y figure encore cette semaine.', all: 'Personne n’y figure encore.' },
+    offline: 'Le classement ne répond pas pour l’instant.',
+    retry: 'Réessayer',
+    you: 'Ta place',
+    absent: 'Tu n’y figures pas encore : à toi de jouer.',
+    anonymous: 'Crée un compte pour figurer aux classements.',
   },
 
   menu: {
@@ -206,7 +233,7 @@ export const fr = {
       'Tes parties te suivent d’un appareil à l’autre, ton nom entre au classement et tes amis peuvent te trouver.',
     offline: 'Hors ligne : ta progression reste sur cet appareil.',
     back: 'Retour',
-    pages: { stats: 'Statistiques', requests: 'Mes demandes', categories: 'Mes catégories' },
+    pages: { stats: 'Statistiques', requests: 'Mes demandes', categories: 'Mes catégories', boards: 'Classements' },
     support: 'Soutenir le créateur',
   },
 

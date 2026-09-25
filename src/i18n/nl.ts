@@ -169,6 +169,26 @@ export const nl: Messages = {
     held: (place) => `Nog steeds ${place}`,
     more: (count) => `Hele klassement bekijken (${count})`,
     less: 'Minder tonen',
+    all: 'Alle klassementen',
+  },
+
+  leaderboards: {
+    periods: { day: 'Dag', week: 'Week', all: 'Totaal' },
+    stats: {
+      best: { label: 'Beste spel', caption: 'De hoogste score in één spel', unit: () => 'ptn' },
+      points: { label: 'Punten', caption: 'Alle punten, spel na spel', unit: () => 'ptn' },
+      runs: { label: 'Spellen', caption: 'Hoeveel spellen er gespeeld zijn', unit: (count) => plural(count, 'spel', 'spellen') },
+      words: { label: 'Gevonden woorden', caption: 'Alle goede woorden, spel na spel', unit: (count) => plural(count, 'woord', 'woorden') },
+      discoveries: { label: 'Ontdekkingen', caption: 'Woorden die een week lang niemand had geschreven', unit: (count) => plural(count, 'woord', 'woorden') },
+      combo: { label: 'Reeks', caption: 'De langste reeks woorden achter elkaar', unit: (count) => plural(count, 'woord', 'woorden') },
+      added: { label: 'Toegevoegde woorden', caption: 'Voorgesteld en goedgekeurd door de moderatoren', unit: (count) => plural(count, 'woord', 'woorden') },
+    },
+    empty: { day: 'Vandaag staat er nog niemand op.', week: 'Deze week staat er nog niemand op.', all: 'Er staat nog niemand op.' },
+    offline: 'Het klassement antwoordt nu niet.',
+    retry: 'Opnieuw proberen',
+    you: 'Jouw plaats',
+    absent: 'Je staat er nog niet op: jij bent aan de beurt.',
+    anonymous: 'Maak een account om in de klassementen te komen.',
   },
 
   menu: {
@@ -185,7 +205,7 @@ export const nl: Messages = {
     accountLead: 'Je spellen volgen je van het ene apparaat naar het andere, je naam komt in het klassement en je vrienden kunnen je vinden.',
     offline: 'Offline: je voortgang blijft op dit apparaat.',
     back: 'Terug',
-    pages: { stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Mijn categorieën' },
+    pages: { stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Mijn categorieën', boards: 'Klassementen' },
     support: 'Steun de maker',
   },
 

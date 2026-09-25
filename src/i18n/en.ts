@@ -175,6 +175,26 @@ export const en: Messages = {
     held: (place) => `Still ${place}`,
     more: (count) => `See the full board (${count})`,
     less: 'See less',
+    all: 'All leaderboards',
+  },
+
+  leaderboards: {
+    periods: { day: 'Day', week: 'Week', all: 'All time' },
+    stats: {
+      best: { label: 'Best run', caption: 'The biggest score in a single run', unit: () => 'pts' },
+      points: { label: 'Points', caption: 'Every point scored, run after run', unit: () => 'pts' },
+      runs: { label: 'Runs', caption: 'How many runs were played', unit: (count) => plural(count, 'run', 'runs') },
+      words: { label: 'Words found', caption: 'Every right word, run after run', unit: (count) => plural(count, 'word', 'words') },
+      discoveries: { label: 'Discoveries', caption: 'Words nobody had written for a week', unit: (count) => plural(count, 'word', 'words') },
+      combo: { label: 'Streak', caption: 'The longest string of words in a row', unit: (count) => plural(count, 'word', 'words') },
+      added: { label: 'Words added', caption: 'Words proposed, then approved by the moderators', unit: (count) => plural(count, 'word', 'words') },
+    },
+    empty: { day: 'Nobody on it yet today.', week: 'Nobody on it yet this week.', all: 'Nobody on it yet.' },
+    offline: 'The leaderboard isn’t answering right now.',
+    retry: 'Try again',
+    you: 'Your place',
+    absent: 'You’re not on it yet: your turn to play.',
+    anonymous: 'Create an account to appear on the leaderboards.',
   },
 
   menu: {
@@ -191,7 +211,7 @@ export const en: Messages = {
     accountLead: 'Your games follow you from one device to another, your name enters the leaderboard and your friends can find you.',
     offline: 'Offline: your progress stays on this device.',
     back: 'Back',
-    pages: { stats: 'Statistics', requests: 'My requests', categories: 'My categories' },
+    pages: { stats: 'Statistics', requests: 'My requests', categories: 'My categories', boards: 'Leaderboards' },
     support: 'Support the creator',
   },
 

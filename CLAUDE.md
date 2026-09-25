@@ -142,9 +142,11 @@ qu'un nouvel arrivant casserait sans le savoir.
   qu’elle joue ne coûte pas la catégorie. Sans `VITE_ADMOB_INTERSTITIAL_ID` ni
   `admobAppId` (`android/gradle.properties`), le build sert les pubs de test de
   Google — ne jamais cliquer sur les vraies depuis son propre téléphone.
-- **Demontoon est ajouté côté client** (`completeBoards`, `src/domain/boards.ts`),
-  pas en base : il ne figure qu'aux classements de score, et disparaît dès que
-  le compte de ce nom a une vraie partie sur la période.
+- **Demontoon est ajouté côté client** (`completeBoards`, `src/domain/boards.ts`,
+  et `completeLeaderboard` pour la page des classements, qui recompte les
+  rangs), pas en base : il ne figure qu'aux classements de meilleure partie du
+  jour et de la semaine, et disparaît dès que le compte de ce nom a une vraie
+  partie sur la période.
 - **Une découverte se juge contre les sept jours qui précèdent la partie**, pas
   contre la semaine calendaire : un mot écrit dimanche soir n'est plus une
   découverte lundi matin.

@@ -1344,6 +1344,123 @@ button.challenge-past::after {
   box-shadow: inset 3px 0 0 var(--blue);
 }
 
+/* Tapping past the last board, or swiping onto it, opens the leaderboards page. */
+.board-onward {
+  display: grid;
+  place-items: center;
+  min-height: 9rem;
+}
+
+.board-dot--onward {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ink-faint);
+}
+
+/* ---------------------------------------------------------- leaderboards - */
+.leaderboards {
+  display: grid;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.leaderboards-periods .layer-tab {
+  min-height: 2.5rem;
+}
+
+/* The measures scroll sideways under the thumb, the chosen one kept centred. */
+.leaderboards-chips {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding: 0.1rem 0 0.2rem;
+}
+
+.leaderboards-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.leaderboards-chip {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.8rem 0.35rem 0.6rem;
+  border: var(--line) solid var(--ink);
+  background: transparent;
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    transform 160ms var(--ease-out);
+}
+
+.leaderboards-chip:active {
+  transform: translateY(2px);
+}
+
+.leaderboards-chip-art {
+  display: inline-flex;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.leaderboards-chip-art .shape {
+  width: 100%;
+  height: 100%;
+}
+
+.leaderboards-chip--on .leaderboards-chip-art {
+  animation: rise-in 420ms var(--ease-spring);
+}
+
+.leaderboards-track {
+  overflow-y: hidden;
+  transition: height 240ms var(--ease-out);
+}
+
+.leaderboard {
+  display: grid;
+  gap: 0.9rem;
+  align-content: start;
+}
+
+.leaderboard-caption {
+  text-align: center;
+}
+
+.leaderboard-podium .podium-step {
+  min-width: 0;
+}
+
+.leaderboard-podium .podium-word {
+  font-size: 0.85rem;
+}
+
+.leaderboard-step--me {
+  outline: 3px solid var(--red);
+  outline-offset: 2px;
+}
+
+.leaderboard-me {
+  padding-top: 0.6rem;
+  border-top: var(--line) solid var(--ink);
+  text-align: center;
+}
+
+.leaderboard-me .standing {
+  border-bottom: 0;
+  text-align: start;
+}
+
 /* ------------------------------------------------------------------ menu - */
 .poster-menu {
   appearance: none;
