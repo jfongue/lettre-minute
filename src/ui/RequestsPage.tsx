@@ -15,7 +15,7 @@ import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../sta
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
 import { VerdictMark } from './VerdictMark'
-import { InitialLocked } from './InitialLocked'
+import { RespellField, respellValid } from './RespellField'
 import { availableCategoryIds, loadPack } from '../data/packs'
 import { spelledExactly } from '../domain/words'
 
@@ -241,6 +241,7 @@ function RequestRow({ entry, fresh, exists, onWithdraw, onCorrect }: RequestRowP
     event.preventDefault()
     const next = draft.trim()
     if (!onCorrect || next === '' || next === entry.display) return setEditing(false)
+    if (!respellValid(next, entry.display)) return
     setBusy(true)
     const ok = await onCorrect(next)
     setBusy(false)
@@ -252,15 +253,16 @@ function RequestRow({ entry, fresh, exists, onWithdraw, onCorrect }: RequestRowP
       <CategoryIcon categoryId={entry.categoryId} tint={motif.tint} className="category-shape" />
       {editing ? (
         <form className="request-edit" onSubmit={save}>
-          <InitialLocked
+          <RespellField
             value={draft}
             onChange={setDraft}
+            original={entry.display}
             aria-label={t.requests.correctLabel(entry.display)}
             autoComplete="off"
             autoFocus
-            maxLength={59}
+            maxLength={60}
           />
-          <button type="submit" className="btn btn--quiet" disabled={busy || draft.trim() === ''}>
+          <button type="submit" className="btn btn--quiet" disabled={busy || !respellValid(draft, entry.display)}>
             {busy ? t.wait : t.requests.save}
           </button>
           <button type="button" className="btn btn--quiet btn--muted" onClick={() => setEditing(false)}>

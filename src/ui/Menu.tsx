@@ -68,6 +68,12 @@ interface MenuProps {
   accountActions: AccountActions
   /** The account form's opening tab. */
   accountMode?: AccountMode
+  /** On the statistics: open straight onto the old challenges. */
+  focusChallenges?: boolean
+  /** Friend requests waiting: a dot on the social tab. */
+  friendRequests: number
+  /** Each fresh friend list, for the home screen's dot and the notifications offer. */
+  onFriends(friends: readonly Friend[]): void
   theme: Theme
   onTheme(theme: Theme): void
   locale: Locale
@@ -140,6 +146,7 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
                 onClick={() => open(id)}
               >
                 {t.menu.panes[id]}
+                {id === 'social' && props.friendRequests > 0 && <span className="badge-dot" aria-hidden="true" />}
               </button>
             ))}
           </div>
@@ -161,7 +168,15 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               <h2 className="subpage-title">{t.menu.pages[sub]}</h2>
             </div>
           )}
-          {sub === 'stats' && <StatsPage history={props.history} profile={props.profile} challenges={props.challenges} onChallenge={props.onChallenge} />}
+          {sub === 'stats' && (
+            <StatsPage
+              history={props.history}
+              profile={props.profile}
+              challenges={props.challenges}
+              focusChallenges={props.focusChallenges}
+              onChallenge={props.onChallenge}
+            />
+          )}
           {sub === 'requests' && (
             <RequestsPage
               moderation={props.moderation}
@@ -177,6 +192,7 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               account={props.account}
               moderator={props.moderation?.moderator ?? false}
               onProfile={() => open('profile')}
+              onFriends={props.onFriends}
             />
           )}
           {pane === 'options' && (
@@ -222,6 +238,9 @@ function ProfilePane({
   | 'onRequestsSeen'
   | 'onRequestsOpen'
   | 'onErase'
+  | 'focusChallenges'
+  | 'friendRequests'
+  | 'onFriends'
 > & {
   onPage(page: ProfilePage): void
 }) {
@@ -281,11 +300,13 @@ function SocialPane({
   account,
   moderator,
   onProfile,
+  onFriends,
 }: {
   account: Account | null
   /** A moderator can put a friend forward to become one. */
   moderator: boolean
   onProfile(): void
+  onFriends(friends: readonly Friend[]): void
 }) {
   const t = useT()
   const [friends, setFriends] = useState<Friend[] | null | 'loading'>('loading')
@@ -297,7 +318,10 @@ function SocialPane({
 
   const refresh = () => {
     fetchBlocks().then((list) => setBlocks(list ?? []))
-    return fetchFriends().then(setFriends)
+    return fetchFriends().then((list) => {
+      setFriends(list)
+      if (list) onFriends(list)
+    })
   }
 
   useEffect(() => {

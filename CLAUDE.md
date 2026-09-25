@@ -220,6 +220,11 @@ qu'un nouvel arrivant casserait sans le savoir.
   l'envoie à son défi, hors classements et hors rareté, et
   `applyChallengeRun` ne touche ni au record ni à `lastPrompts`.
 
+- **Le téléphone ne demande le droit de notifier qu'après une nouvelle
+  amitié** (`pushOfferDue`, `src/state/pushOffer.ts`), et après la question
+  du jeu (`PushOffer`) : `enablePush` enregistre sans jamais demander. Un
+  « non » attend l'ami suivant.
+
 - **`VITE_PUSH_ENABLED=true` exige `android/app/google-services.json`** :
   sans Firebase dans le build, `PushNotifications.register()` fait planter
   l'app nativement au lieu d'échouer. Le texte des pushs vit dans la fonction
@@ -237,7 +242,10 @@ qu'un nouvel arrivant casserait sans le savoir.
   données.
 - **Un défi ignoré ne l'est que sur l'appareil** (`hideChallenge`,
   `src/state/challenges.ts`), sous une empreinte (joués, clos, revanche) : il
-  revient dès qu'elle change.
+  revient dès qu'elle change. Un bilan lu se masque tout seul et range son
+  gagnant sur l'appareil (`rememberWinner`) : le serveur ne connaît pas le
+  score des robots, que seul un client rejoue. Les anciens défis des
+  statistiques relisent le détail de ceux qui n'en ont pas.
 - **La boîte à idées part par Resend** (fonction Edge `ideas`, 0015) : sans
   `RESEND_API_KEY` dans les secrets, les idées s'accumulent en base sans
   mail.

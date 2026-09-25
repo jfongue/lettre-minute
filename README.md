@@ -44,7 +44,8 @@ n'écrit rapportent le plus.
   dix secondes au plus, et tout le son est étouffé, une fois), Dyslexie (deux
   fautes passent dès six lettres), Divination (la catégorie et la lettre
   suivantes sont affichées), Challenge (peu commun ×1,15, rare et très rare
-  ×1,3), Célérité (un mot exact se valide seul), Professeur (passer
+  ×1,3), Célérité (un mot accepté se valide seul, faute comprise, sauf
+  s'il ne lui manque qu'une lettre), Professeur (passer
   souffle le mot le plus connu qu'on aurait pu donner, et le bilan de fin
   de partie en fait la liste) et Bavardage (« ... » après un mot garde la
   lettre et le thème pour trois mots de plus, qu'on quitte sans pénalité,

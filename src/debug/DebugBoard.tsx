@@ -19,6 +19,8 @@ import { OverScreen } from '../ui/OverScreen'
 import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
 import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
+import { PushOffer } from '../ui/PushOffer'
+import { OldChallengeList } from '../ui/StatsPage'
 import { CategoryGiftPop } from '../ui/CategoryGiftPop'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
@@ -265,6 +267,22 @@ function summaryOf(detail: ChallengeDetail): ChallengeSummary {
 }
 
 // ------------------------------------------------------------ scenarios --
+
+function PastScenario({ back }: { back(): void }) {
+  const [open, setOpen] = useState(true)
+  const base = summaryOf(challenge('finished'))
+  const rows = [
+    { challenge: { ...base, id: 'past-won', name: 'Revanche du jeudi' }, winner: { name: 'Testeur', me: true, score: 1840 } },
+    { challenge: { ...base, id: 'past-lost', createdAt: base.createdAt - 30 * HOUR }, winner: { name: 'Léa', me: false, score: 2315 } },
+    { challenge: { ...base, id: 'past-asking', owned: true, createdAt: base.createdAt - 60 * HOUR }, winner: undefined },
+    { challenge: { ...base, id: 'past-empty', createdAt: base.createdAt - 90 * HOUR }, winner: null },
+  ]
+  return (
+    <div className="sheet">
+      <OldChallengeList rows={rows} open={open} onToggle={() => setOpen(!open)} onOpen={back} />
+    </div>
+  )
+}
 
 /** The real end screen, its picks applied to a copy of the profile the way the session would. */
 function OverScenario({
@@ -526,6 +544,14 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <PowerGiftPop powerId="complication" onClose={back} />,
   },
   {
+    id: 'challenge-past',
+    group: 'Défi entre amis',
+    title: 'Anciens défis dans les statistiques',
+    how: 'Ouverts depuis le titre « Défis entre amis » de l’accueil : qui a gagné chacun',
+    phase: 'home',
+    render: (back) => <PastScenario back={back} />,
+  },
+  {
     id: 'challenge-powers',
     group: 'Défi entre amis',
     title: 'Choix des pouvoirs avant un défi',
@@ -604,8 +630,8 @@ const SCENARIOS: readonly Scenario[] = [
   {
     id: 'home-news',
     group: 'Accueil',
-    title: 'Mots acceptés à annoncer',
-    how: 'Pastille sur « Mes demandes »',
+    title: 'Mots acceptés à annoncer, demandes d’ami',
+    how: 'Pastille sur « Mes demandes », point rouge sur le menu',
     phase: 'home',
     render: (back) => <DebugHome back={back} />,
   },
@@ -640,6 +666,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le Play Store a une version plus récente',
     phase: 'home',
     render: (back) => <UpdateNotice onLater={back} onUpdate={back} />,
+  },
+  {
+    id: 'push-offer',
+    group: 'Accueil',
+    title: 'Proposition des notifications',
+    how: 'Juste après une nouvelle amitié, avant la question du téléphone (sans effet ici)',
+    phase: 'home',
+    render: (back) => <PushOffer onNo={back} onYes={back} />,
   },
   {
     id: 'category-gift',
@@ -724,9 +758,11 @@ function DebugHome({
       climbed={climbed}
       avatar={DEFAULT_AVATAR}
       requestsNews={error || newcomer ? 0 : 3}
+      friendRequests={error || newcomer ? 0 : 2}
       challenges={null}
       onChallenge={noop}
       onCreateChallenge={noop}
+      onPastChallenges={noop}
       onMenu={back}
       onPlay={back}
       onEquip={noop}

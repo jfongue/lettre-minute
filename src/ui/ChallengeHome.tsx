@@ -17,17 +17,25 @@ interface ChallengeListProps {
   challenges: readonly ChallengeSummary[]
   onOpen(id: string): void
   onCreate(): void
+  /** To the old challenges, at the bottom of the statistics. */
+  onPast(): void
 }
 
 /** Under « Jouer »: the challenges under way and those just over, and the way to start one. */
-export function ChallengeList({ challenges, onOpen, onCreate }: ChallengeListProps) {
+export function ChallengeList({ challenges, onOpen, onCreate, onPast }: ChallengeListProps) {
   const t = useT()
   const hidden = useHiddenChallenges()
   const shown = challenges.filter((challenge) => !isHidden(hidden, challenge))
   return (
     <section className="panel challenges">
       <div className="spread">
-        <p className="section-title">{t.challenge.title}</p>
+        {challenges.length > shown.length ? (
+          <button type="button" className="section-title challenge-past" onClick={onPast}>
+            {t.challenge.title}
+          </button>
+        ) : (
+          <p className="section-title">{t.challenge.title}</p>
+        )}
         <button type="button" className="btn btn--quiet" onClick={onCreate}>
           {t.challenge.create}
         </button>

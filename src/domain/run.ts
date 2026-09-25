@@ -335,6 +335,18 @@ function judgeWord(run: Run, word: string, judge: Judge): Verdict {
   }
 }
 
+/**
+ * Célérité validates an accepted word on its own, slips included — except the
+ * word spelled right with one letter still missing: that is a player midway
+ * through typing it, whom validating would rob of the exact word's bonus.
+ */
+export function celerityDue(verdict: Verdict | null, raw: string): boolean {
+  const found = verdict?.kind === 'accepted' ? verdict.found : null
+  if (!found) return false
+  if (!found.approximate) return true
+  return !(found.edits === 1 && compactWord(raw).length === compactWord(found.display).length - 1)
+}
+
 export interface Played {
   run: Run
   verdict: Verdict

@@ -7,7 +7,7 @@ import { Burst, Figure } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
 import { Pencil, VerdictMark } from './VerdictMark'
 import { categoryMotif, onTint } from './motifs'
-import { InitialLocked } from './InitialLocked'
+import { RespellField, respellValid } from './RespellField'
 
 type Judged = Exclude<Verdict, 'special'>
 type Mode = 'judge' | 'respell' | 'special'
@@ -158,7 +158,7 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
   const confirmRespell = (event: FormEvent) => {
     event.preventDefault()
     const next = draft.trim()
-    if (!card || next === '') return
+    if (!card || !respellValid(next, card.display)) return
     void vote('correct', next === card.display ? {} : { respell: next })
   }
 
@@ -251,13 +251,21 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
                 <label className="note" htmlFor="respell">
                   {t.moderation.screen.respellLabel}
                 </label>
-                <InitialLocked id="respell" value={draft} onChange={setDraft} autoComplete="off" autoFocus maxLength={59} />
+                <RespellField
+                  id="respell"
+                  value={draft}
+                  onChange={setDraft}
+                  original={card.display}
+                  autoComplete="off"
+                  autoFocus
+                  maxLength={60}
+                />
                 <p className="note">{t.moderation.screen.respellLead}</p>
                 <div className="moderation-form-actions">
                   <button type="button" className="btn btn--quiet btn--muted" onClick={() => setMode('judge')}>
                     {t.moderation.screen.back}
                   </button>
-                  <button type="submit" className="btn btn--green" disabled={draft.trim() === ''}>
+                  <button type="submit" className="btn btn--green" disabled={!respellValid(draft, card.display)}>
                     <VerdictMark verdict="correct" />
                     {t.moderation.screen.respellConfirm}
                   </button>

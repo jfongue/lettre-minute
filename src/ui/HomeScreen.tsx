@@ -40,10 +40,13 @@ interface HomeScreenProps {
   avatar: AvatarChoice
   /** The player's words accepted since they last opened « Mes demandes ». */
   requestsNews: number
+  /** Friend requests waiting for an answer: a dot on the menu tile. */
+  friendRequests: number
   /** Null without a named account: challenges are played between friends. */
   challenges: readonly ChallengeSummary[] | null
   onChallenge(id: string): void
   onCreateChallenge(): void
+  onPastChallenges(): void
   onMenu(page?: MenuPage): void
   onPlay(): void
   onEquip(slot: number, powerId: PowerId | null): void
@@ -63,9 +66,11 @@ export function HomeScreen({
   climbed,
   avatar,
   requestsNews,
+  friendRequests,
   challenges,
   onChallenge,
   onCreateChallenge,
+  onPastChallenges,
   onMenu,
   onPlay,
   onEquip,
@@ -88,7 +93,7 @@ export function HomeScreen({
 
   return (
     <div className="sheet sheet--home" {...swipe}>
-      <Poster onMenu={() => onMenu()} onDebug={onDebug} />
+      <Poster requests={friendRequests} onMenu={() => onMenu(friendRequests > 0 ? 'social' : undefined)} onDebug={onDebug} />
 
       <header className="masthead">
         <h1 className="title">
@@ -114,7 +119,9 @@ export function HomeScreen({
             <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} />
           </div>
 
-          {challenges && <ChallengeList challenges={challenges} onOpen={onChallenge} onCreate={onCreateChallenge} />}
+          {challenges && (
+            <ChallengeList challenges={challenges} onOpen={onChallenge} onCreate={onCreateChallenge} onPast={onPastChallenges} />
+          )}
 
           {newcomer ? (
             onAccount && (
@@ -183,7 +190,7 @@ const DEBUG_TAPS = 5
 const DEBUG_TAP_GAP_MS = 600
 
 /** The top-left tile doubles as the menu button: three bars where the quarter used to turn. */
-function Poster({ onMenu, onDebug }: { onMenu(): void; onDebug?(): void }) {
+function Poster({ requests, onMenu, onDebug }: { requests: number; onMenu(): void; onDebug?(): void }) {
   const t = useT()
   const taps = useRef({ count: 0, at: 0 })
   const tapTile = () => {
@@ -204,8 +211,9 @@ function Poster({ onMenu, onDebug }: { onMenu(): void; onDebug?(): void }) {
             className="poster-cell poster-menu"
             style={{ background: `var(--${ground})`, '--i': index } as CSSProperties}
             onClick={onMenu}
-            aria-label={t.home.menu}
+            aria-label={requests > 0 ? `${t.home.menu} · ${t.home.friendRequests(requests)}` : t.home.menu}
           >
+            {requests > 0 && <span className="badge-dot poster-menu-dot" aria-hidden="true" />}
             <span className="poster-menu-bars" style={{ color: `var(--${tint})` }} aria-hidden="true">
               <span />
               <span />

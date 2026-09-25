@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type Ref } from 'react'
 import { summarize, type RunRecord } from '../domain/history'
 import { capitalized } from '../domain/text'
 import type { Profile } from '../domain/progression'
@@ -6,8 +6,8 @@ import { categoryText, formatNumber, useT, type Messages } from '../i18n'
 import { Figure } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
-import type { ChallengeSummary } from '../lib/cloud'
-import { challengeStatus, challengeTitle, isHidden, unhideChallenge } from '../state/challenges'
+import { fetchChallenge, type ChallengeSummary } from '../lib/cloud'
+import { challengeTitle, isHidden, loadWinners, rememberWinner, winnerOf, type ChallengeWinner } from '../state/challenges'
 import { useHiddenChallenges } from '../state/useHiddenChallenges'
 
 /** Rows added each time the full history is asked for more. */
@@ -20,46 +20,122 @@ function formatDate(t: Messages, at: number): string {
 interface StatsPageProps {
   history: readonly RunRecord[]
   profile: Profile
-  /** Null without an account: no challenge was ever hidden. */
+  /** Null without an account: no challenge was ever set aside. */
   challenges: readonly ChallengeSummary[] | null
+  /** Opened from the home screen's challenges: the old ones show, unfolded. */
+  focusChallenges?: boolean
   onChallenge(id: string): void
 }
 
-export function StatsPage({ history, profile, challenges, onChallenge }: StatsPageProps) {
+export function StatsPage({ history, profile, challenges, focusChallenges = false, onChallenge }: StatsPageProps) {
   const t = useT()
   return (
     <>
       {history.length === 0 ? <p className="note">{t.stats.empty}</p> : <RunStats history={history} profile={profile} />}
-      {challenges && <HiddenChallenges challenges={challenges} onOpen={onChallenge} />}
+      {challenges && <OldChallenges challenges={challenges} focus={focusChallenges} onOpen={onChallenge} />}
     </>
   )
 }
 
-/** The challenges swiped away from the home screen, behind a toggle: one tap brings one back. */
-function HiddenChallenges({ challenges, onOpen }: { challenges: readonly ChallengeSummary[]; onOpen(id: string): void }) {
-  const t = useT()
+/**
+ * The challenges set aside — read, or swiped off the home screen — and who
+ * took each. `focus` opens the list and brings it into view: the home
+ * screen's challenge title leads here.
+ */
+function OldChallenges({
+  challenges,
+  focus,
+  onOpen,
+}: {
+  challenges: readonly ChallengeSummary[]
+  focus: boolean
+  onOpen(id: string): void
+}) {
   const hidden = useHiddenChallenges()
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(focus)
+  const [winners, setWinners] = useState(loadWinners)
+  const section = useRef<HTMLElement>(null)
   const list = challenges.filter((challenge) => isHidden(hidden, challenge))
+
+  useEffect(() => {
+    if (focus) section.current?.scrollIntoView({ block: 'start' })
+  }, [focus])
+
+  // Swiped away unread, or read before the device kept winners: asked one at a time.
+  const missing = open ? list.filter((challenge) => challenge.finished && !(challenge.id in winners)).map((challenge) => challenge.id) : []
+  const wanted = missing.join(',')
+  useEffect(() => {
+    if (!wanted) return
+    let live = true
+    ;(async () => {
+      for (const id of wanted.split(',')) {
+        const detail = await fetchChallenge(id)
+        if (!live) return
+        if (!detail) continue
+        rememberWinner(id, winnerOf(detail))
+        setWinners(loadWinners())
+      }
+    })()
+    return () => {
+      live = false
+    }
+  }, [wanted])
+
   if (list.length === 0) return null
   return (
-    <section className="stack">
-      <button type="button" className="btn btn--ghost btn--block" aria-expanded={open} onClick={() => setOpen(!open)}>
-        {t.stats.hiddenChallenges(list.length)}
+    <OldChallengeList
+      ref={section}
+      rows={list.map((challenge) => ({ challenge, winner: winners[challenge.id] }))}
+      open={open}
+      onToggle={() => setOpen(!open)}
+      onOpen={onOpen}
+    />
+  )
+}
+
+export interface OldChallengeRow {
+  challenge: ChallengeSummary
+  /** Undefined while it is being asked for, null when nobody played. */
+  winner: ChallengeWinner | null | undefined
+}
+
+/** The list once read: the debug board shows it without a server. */
+export function OldChallengeList({
+  ref,
+  rows,
+  open,
+  onToggle,
+  onOpen,
+}: {
+  ref?: Ref<HTMLElement>
+  rows: readonly OldChallengeRow[]
+  open: boolean
+  onToggle(): void
+  onOpen(id: string): void
+}) {
+  const t = useT()
+  return (
+    <section className="stack" ref={ref}>
+      <button type="button" className="btn btn--ghost btn--block" aria-expanded={open} onClick={onToggle}>
+        {t.stats.oldChallenges(rows.length)}
       </button>
       {open && (
-        <ul className="run-list">
-          {list.map((challenge) => (
+        <ul className="run-list old-challenges">
+          {rows.map(({ challenge, winner }) => (
             <li key={challenge.id}>
-              <button type="button" className="btn btn--quiet menu-start" onClick={() => onOpen(challenge.id)}>
-                {challengeTitle(t, challenge)}
-              </button>
-              <span className="note">
-                {t.challenge.status[challengeStatus(challenge)]} · {formatDate(t, challenge.createdAt)}
+              <span className="old-challenge-id">
+                <button type="button" className="btn btn--quiet menu-start" onClick={() => onOpen(challenge.id)}>
+                  {challengeTitle(t, challenge)}
+                </button>
+                <span className="note">{formatDate(t, challenge.createdAt)}</span>
               </span>
-              <button type="button" className="btn btn--quiet btn--muted" onClick={() => unhideChallenge(hidden, challenge.id)}>
-                {t.stats.unhide}
-              </button>
+              <strong className={`old-challenge-winner${winner?.me ? ' old-challenge-winner--me' : ''}`}>
+                {winner === undefined
+                  ? '…'
+                  : winner === null
+                    ? t.stats.noWinner
+                    : `${winner.me ? t.stats.youWon : t.stats.wonBy(winner.name)} · ${formatNumber(t, winner.score)} ${t.stats.points}`}
+              </strong>
             </li>
           ))}
         </ul>
