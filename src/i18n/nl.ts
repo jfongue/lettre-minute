@@ -98,7 +98,7 @@ export const nl: Messages = {
     frameDescription: 'Bedankt dat je Letter Minuut steunt!',
     close: 'Sluiten',
     hello:
-      'Hoi, ik ben Jérémy!\nIk ben een onafhankelijke Franse ontwikkelaar en maak Lettre Minute in mijn vrije tijd. Vond je het spel leuk, dan helpt jouw steun me enorm, zelfs 1 € telt.\nHeel erg bedankt!',
+      'Hoi, ik ben Jérémy!\nIk ben een onafhankelijke Franse ontwikkelaar en maak Lettre Minute in mijn vrije tijd. Vond je het spel leuk, dan helpt jouw steun me enorm, zelfs 1 € telt.\nHeel erg bedankt!',
     photo: 'Jérémy, de maker van het spel',
   },
 
