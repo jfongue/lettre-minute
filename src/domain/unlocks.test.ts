@@ -27,10 +27,10 @@ describe('owned categories', () => {
     expect(starterCategoryIds().length).toBeLessThan(CATALOGUE.length)
   })
 
-  it('owes one pick per level above the first', () => {
+  it('owes one pick per level above the first that brings no power', () => {
     expect(picksOwed(NEW_PROFILE)).toBe(0)
-    expect(picksOwed(atLevel(4))).toBe(3)
-    expect(picksOwed({ ...atLevel(4), unlocked: ['sports'] })).toBe(2)
+    expect([2, 3, 4, 5, 6].map((level) => picksOwed(atLevel(level)))).toEqual([1, 1, 2, 2, 3])
+    expect(picksOwed({ ...atLevel(4), unlocked: ['sports'] })).toBe(1)
   })
 })
 

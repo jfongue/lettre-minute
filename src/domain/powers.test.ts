@@ -52,14 +52,14 @@ const atLevel = (level: number, patch: Partial<Profile> = {}): Profile => ({ ...
 
 describe('earning powers', () => {
   it('opens with the sixth category, then every other level', () => {
-    expect([1, 3, 4, 5, 6, 7, 8].map(powersEarnedAt)).toEqual([0, 0, 1, 1, 2, 2, 3])
+    expect([1, 2, 3, 4, 5, 6, 7].map(powersEarnedAt)).toEqual([0, 0, 1, 1, 2, 2, 3])
     expect(powersEarnedAt(100)).toBe(POWER_IDS.length)
-    expect([1, 4, 5, 6].map(nextPowerLevel)).toEqual([4, 6, 6, 8])
+    expect([1, 3, 4, 5].map(nextPowerLevel)).toEqual([3, 5, 5, 7])
   })
 
   it('deals two powers when a pick is owed, and none otherwise', () => {
-    expect(dealPowerOffer(atLevel(3), 1).powerOffer).toEqual([])
-    const dealt = dealPowerOffer(atLevel(4), 1)
+    expect(dealPowerOffer(atLevel(2), 1).powerOffer).toEqual([])
+    const dealt = dealPowerOffer(atLevel(3), 1)
     expect(dealt.powerOffer).toHaveLength(2)
     expect(new Set(dealt.powerOffer).size).toBe(2)
   })

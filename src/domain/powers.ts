@@ -45,9 +45,11 @@ export type Spell = 'joker' | 'hush'
 
 export const MAX_EQUIPPED = 2
 export const POWER_OFFER_SIZE = 2
-/** The level of the sixth category: the first power comes with it. */
-export const FIRST_POWER_LEVEL = 4
-/** Then one power every other level. */
+/**
+ * Level 2 brings a category, level 3 the first power, and the rewards
+ * alternate from there: a power every other level, a category in between.
+ */
+export const FIRST_POWER_LEVEL = 3
 export const POWER_LEVEL_STEP = 2
 
 /** What a skip costs under Esquive, against `SKIP_PENALTY_SECONDS`. */

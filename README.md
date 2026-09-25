@@ -30,10 +30,11 @@ n'écrit rapportent le plus.
   espaces, les traits d'union et les apostrophes ne sont pas des fautes :
   `cotedivoire` est `Côte d’Ivoire` écrit juste, au tarif plein.
 - **Niveaux et déblocages** : on commence avec trois catégories ; chaque niveau
-  en propose trois nouvelles, le joueur en garde une. L'offre suivante évite
+  sans pouvoir en propose trois nouvelles, le joueur en garde une. L'offre suivante évite
   de reproposer les mêmes tant qu'il en reste d'autres.
-- **Pouvoirs** : le premier vient avec la sixième catégorie (niveau 4), puis
-  un tous les deux niveaux, choisi entre deux cartes — l'offre suivante évite
+- **Pouvoirs** : le niveau 2 donne une catégorie, le niveau 3 le premier
+  pouvoir, puis les deux alternent — un pouvoir tous les deux niveaux, choisi
+  entre deux cartes — l'offre suivante évite
   celle qu'on vient de voir. On en porte deux, choisis sous « Jouer ».
   Permutation (deux échanges au lancement), Tricherie (écrire « Joker » :
   le jeu écrit un mot juste, payé au tarif de base, une fois), Esquive

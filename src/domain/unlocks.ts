@@ -1,6 +1,6 @@
 import { CATALOGUE, categoryMeta } from './catalogue'
 import { levelFor, type Profile } from './progression'
-import { unlockEveryPower } from './powers'
+import { powersEarnedAt, unlockEveryPower } from './powers'
 import { createRng, shuffled } from './rng'
 
 /** Each level up puts this many categories on the table; the player keeps one. */
@@ -27,12 +27,14 @@ function picked(profile: Profile): string[] {
 }
 
 /**
- * One pick per level above the first, minus those already made. Derived rather
+ * One pick per level above the first that does not bring a power — every
+ * level, once the powers run out — minus those already made. Derived rather
  * than stored so that a player who levelled up on another device, whose picks
  * the server does not keep, is simply offered them again here.
  */
 export function picksOwed(profile: Profile): number {
-  return Math.max(0, levelFor(profile.xp) - 1 - picked(profile).length)
+  const level = levelFor(profile.xp)
+  return Math.max(0, level - 1 - powersEarnedAt(level) - picked(profile).length)
 }
 
 /**
