@@ -286,11 +286,13 @@ let googleStarted: Promise<void> | null = null
 
 /**
  * Google refuses its sign-in page inside a WebView: the phone asks the system
- * account picker, which needs the web client id. A browser simply goes to
- * Google's page and back (`logInWithGoogle`).
+ * account picker. A browser opens Google's page in a popup that comes back to
+ * `google.html` rather than to Supabase, whose project domain Google would
+ * otherwise name on its consent screen. Both need the web client id, and its
+ * redirect URIs must list that page for every origin the game is served from.
  */
 export function googleSignInSupported(): boolean {
-  return !native || Boolean(googleClientId)
+  return Boolean(googleClientId)
 }
 
 /**
@@ -301,7 +303,13 @@ export function googleSignInSupported(): boolean {
 export async function googleIdToken(nonce: string): Promise<string | null> {
   if (!googleSignInSupported()) return null
   try {
-    googleStarted ??= SocialLogin.initialize({ google: { webClientId: googleClientId, mode: 'online' } }).catch(
+    googleStarted ??= SocialLogin.initialize({
+      google: {
+        webClientId: googleClientId,
+        mode: 'online',
+        ...(native ? {} : { redirectUrl: new URL('google.html', location.origin + import.meta.env.BASE_URL).href }),
+      },
+    }).catch(
       (error: unknown) => {
         googleStarted = null
         throw error

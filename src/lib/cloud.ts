@@ -7,7 +7,7 @@ import type { RarityTier } from '../domain/rarity'
 import type { Run } from '../domain/run'
 import { withBotRuns } from '../state/botRuns'
 import type { PendingSubmission } from '../state/storage'
-import { googleIdToken, isNativeApp } from './native'
+import { googleIdToken } from './native'
 import { connect, forgetSession, supabase } from './supabase'
 
 export interface CrowdUsage {
@@ -648,59 +648,20 @@ async function sha256(text: string): Promise<string> {
 /**
  * Null when the player closed the Google picker: nothing to tell them. Google
  * signs the hashed nonce into the token, Supabase checks it against the raw
- * one, so a token lifted from another app cannot be replayed here.
+ * one, so a token lifted from another app cannot be replayed here. `ready` is
+ * awaited only once the picker has answered: in a browser the picker is a
+ * popup, which must open while the tap still counts as the player's.
  */
-export async function logInWithGoogle(): Promise<AuthOutcome | null> {
+export async function logInWithGoogle(ready: Promise<unknown>): Promise<AuthOutcome | null> {
   if (!supabase) return refuse('unreachable')
-  if (!isNativeApp()) return leaveForGoogle()
   try {
     const nonce = crypto.randomUUID()
     const idToken = await googleIdToken(await sha256(nonce))
     if (!idToken) return null
+    await ready
     return await switchAccount(() => supabase!.auth.signInWithIdToken({ provider: 'google', token: idToken, nonce }))
   } catch {
     return refuse('unreachable')
-  }
-}
-
-const GOOGLE_MERGE_KEY = 'lettre-minute.google-merge.v1'
-
-/**
- * In a browser Google signs in on its own page, and the anonymous session is
- * gone by the time the player comes back: the merge token is taken now and
- * kept across the round trip. Null once the page is leaving.
- */
-async function leaveForGoogle(): Promise<AuthOutcome | null> {
-  try {
-    const { data: current } = await supabase!.auth.getSession()
-    const token = current.session?.user.is_anonymous ? (await supabase!.rpc('prepare_merge')).data : null
-    localStorage.setItem(GOOGLE_MERGE_KEY, token ? String(token) : '')
-    const { error } = await supabase!.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: location.origin + location.pathname },
-    })
-    return error ? refuse(authError(error)) : null
-  } catch {
-    return refuse('unreachable')
-  }
-}
-
-/**
- * The account a browser comes back from Google with, its anonymous runs
- * merged in. Null when no Google round trip was pending, or it was cancelled.
- */
-export async function returnFromGoogle(): Promise<AuthOutcome | null> {
-  if (!supabase || isNativeApp()) return null
-  try {
-    const token = localStorage.getItem(GOOGLE_MERGE_KEY)
-    if (token === null) return null
-    localStorage.removeItem(GOOGLE_MERGE_KEY)
-    const { data } = await supabase.auth.getSession()
-    if (!data.session || data.session.user.is_anonymous) return null
-    if (token) await supabase.rpc('complete_merge', { p_token: token })
-    return await signedInAccount()
-  } catch {
-    return null
   }
 }
 
