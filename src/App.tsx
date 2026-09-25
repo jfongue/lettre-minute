@@ -175,6 +175,13 @@ export function App() {
   const profile = useRef(session.profile)
   profile.current = session.profile
   // Hidden: seven taps on « Thème » in the options, or #debug on the web.
+  // What the home screen waits for before showing anything under its title.
+  const [answered, setAnswered] = useState({ profile: false, account: false, boards: false, challenges: false })
+  const answer = useCallback(
+    (key: keyof typeof answered) => setAnswered((was) => (was[key] ? was : { ...was, [key]: true })),
+    [],
+  )
+  const [homeSettled, setHomeSettled] = useState(false)
   const [debugPhase, setDebugPhase] = useState<string | null>(() => (window.location.hash === '#debug' ? 'home' : null))
 
   // Written only once the cached account has been read, or the first render's
@@ -192,7 +199,8 @@ export function App() {
     setHistory(loadHistory())
     setAccount(loadAccount())
     accountRead.current = true
-  }, [])
+    answer('profile')
+  }, [answer])
 
   const wear = useCallback((next: AvatarChoice) => {
     setAvatar(next)
@@ -228,15 +236,19 @@ export function App() {
   }, [lang])
 
   useEffect(() => {
-    loadBoards().then(setBoards)
+    loadBoards().then((next) => {
+      setBoards(next)
+      answer('boards')
+    })
     // Unreachable keeps the cached account: the session is still on the device.
     fetchAccount().then((found) => {
+      answer('account')
       if (found === 'unreachable') return
       if (found) adopt(found)
       else setAccount(null)
     })
     flushSubmissions()
-  }, [adopt])
+  }, [adopt, answer])
 
   const refreshModeration = useCallback(() => {
     fetchModerationStatus(lang).then(setModeration)
@@ -486,9 +498,22 @@ export function App() {
   const named = account !== null && !account.anonymous
   const refreshChallenges = useCallback(() => {
     if (!named) return setChallenges(null)
-    fetchChallenges().then(setChallenges)
-  }, [named])
+    fetchChallenges().then((next) => {
+      setChallenges(next)
+      answer('challenges')
+    })
+  }, [named, answer])
   useEffect(refreshChallenges, [refreshChallenges])
+  // Once shown, the home screen stays shown: later answers update it in place.
+  // A slow server gets two seconds and a half, not the player's whole wait.
+  const homeReady = answered.profile && answered.account && answered.boards && (!named || answered.challenges)
+  useEffect(() => {
+    if (homeReady) setHomeSettled(true)
+  }, [homeReady])
+  useEffect(() => {
+    const timer = setTimeout(() => setHomeSettled(true), 2500)
+    return () => clearTimeout(timer)
+  }, [])
   // No push service: the home screen asks again when it comes back into view,
   // and every minute while it stays there.
   const atHome = session.phase === 'home'
@@ -780,6 +805,7 @@ export function App() {
           profile={session.profile}
           error={session.error}
           loading={session.phase === 'loading'}
+          settled={homeSettled}
           boards={boards}
           me={account && !account.anonymous ? account.name : null}
           avatar={avatar}

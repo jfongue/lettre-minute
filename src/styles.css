@@ -236,6 +236,18 @@ button {
 
 .masthead .eyebrow {
   justify-self: end;
+  animation: fade 600ms var(--ease-out) 450ms backwards;
+}
+
+/* Anchored to the top, not centred: the page under the title arrives after
+   it, and a centred sheet would jump up by half its height as it did. */
+.sheet--home {
+  align-self: start;
+}
+
+.home-body {
+  display: grid;
+  gap: var(--step);
 }
 
 /* --------------------------------------------------------------- buttons - */

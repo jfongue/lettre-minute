@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import type { AvatarChoice } from '../domain/avatar'
 import type { AccountMode } from './AccountPanel'
 import type { Boards as BoardsData } from '../domain/boards'
@@ -18,10 +18,19 @@ import { useSwipe } from './useSwipe'
 
 const HOME_LINKS: readonly LinkedPage[] = ['profile', 'stats', 'requests', 'categories']
 
+// Long enough for the poster's tiles and the title to have landed.
+const INTRO_MS = 650
+
 interface HomeScreenProps {
   profile: Profile
   error: string | null
   loading: boolean
+  /**
+   * Whether what fills the page has answered (profile, account, boards, challenges).
+   * Until then only the poster and the title show: blocks swapped or pushed
+   * down as each answer lands would shuffle the page under the player's eyes.
+   */
+  settled: boolean
   /** Null when the game runs without a server, which hides the section entirely. */
   boards: BoardsData | null
   /** The player's account name, highlighted on the boards; null for an anonymous player. */
@@ -44,6 +53,7 @@ export function HomeScreen({
   profile,
   error,
   loading,
+  settled,
   boards,
   me,
   avatar,
@@ -64,9 +74,14 @@ export function HomeScreen({
     me === null && profile.runs === 0 && profile.bestScore === 0 && profile.wordsFound === 0 && profile.bestCombo === 0
   // The drawer lives off the left edge: a flick to the right pulls it in.
   const swipe = useSwipe('right', () => onMenu())
+  const [introDone, setIntroDone] = useState(false)
+  useEffect(() => {
+    const timer = setTimeout(() => setIntroDone(true), INTRO_MS)
+    return () => clearTimeout(timer)
+  }, [])
 
   return (
-    <div className="sheet cascade" {...swipe}>
+    <div className="sheet sheet--home" {...swipe}>
       <Poster onMenu={() => onMenu()} />
 
       <header className="masthead">
@@ -77,62 +92,65 @@ export function HomeScreen({
         <p className="eyebrow">{t.home.tagline(RUN_SECONDS)}</p>
       </header>
 
-      <div className="stack">
-        <button type="button" className="btn btn--play btn--block" onClick={onPlay} disabled={loading}>
-          <span>{loading ? t.loading : t.home.play}</span>
-          <span className="play-glyph" aria-hidden="true">
-            <Shape kind="circle" tint="yellow" />
-            <span className="motion play-triangle">
-              <Shape kind="triangle" tint="red" />
-            </span>
-          </span>
-        </button>
-        {error && <p className="note note--warn">{error}</p>}
-        <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} />
-      </div>
+      {introDone && settled && (
+        <div className="home-body cascade">
+          <div className="stack">
+            <button type="button" className="btn btn--play btn--block" onClick={onPlay} disabled={loading}>
+              <span>{loading ? t.loading : t.home.play}</span>
+              <span className="play-glyph" aria-hidden="true">
+                <Shape kind="circle" tint="yellow" />
+                <span className="motion play-triangle">
+                  <Shape kind="triangle" tint="red" />
+                </span>
+              </span>
+            </button>
+            {error && <p className="note note--warn">{error}</p>}
+            <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} />
+          </div>
 
-      {challenges && <ChallengeList challenges={challenges} onOpen={onChallenge} onCreate={onCreateChallenge} />}
+          {challenges && <ChallengeList challenges={challenges} onOpen={onChallenge} onCreate={onCreateChallenge} />}
 
-      {newcomer ? (
-        onAccount && (
-          <section className="stack">
-            <p className="note">{t.home.accountLead}</p>
-            <div className="home-account">
-              <button type="button" className="btn btn--blue" onClick={() => onAccount('register')}>
-                {t.account.register}
-              </button>
-              <button type="button" className="btn btn--red" onClick={() => onAccount('login')}>
-                {t.account.logIn}
-              </button>
-            </div>
-          </section>
-        )
-      ) : (
-        <>
-          <section className="stack">
-            <div className="spread">
-              <p className="section-title">{t.home.level(progress.level)}</p>
-              <p className="note">
-                {progress.into} / {progress.span} XP
-              </p>
-            </div>
-            <div className="progress progress--grow">
-              <span style={{ '--ratio': progress.ratio } as CSSProperties} />
-            </div>
-            <div className="figures">
-              <Figure tint="yellow" value={formatNumber(t, profile.bestScore)} label={t.home.bestScore} />
-              <Figure tint="blue" value={profile.runs} label={t.home.runs(profile.runs)} />
-              <Figure tint="red" value={profile.wordsFound} label={t.home.wordsFound} />
-              <Figure tint="pink" value={profile.bestCombo} label={t.home.bestCombo} />
-            </div>
-          </section>
+          {newcomer ? (
+            onAccount && (
+              <section className="stack">
+                <p className="note">{t.home.accountLead}</p>
+                <div className="home-account">
+                  <button type="button" className="btn btn--blue" onClick={() => onAccount('register')}>
+                    {t.account.register}
+                  </button>
+                  <button type="button" className="btn btn--red" onClick={() => onAccount('login')}>
+                    {t.account.logIn}
+                  </button>
+                </div>
+              </section>
+            )
+          ) : (
+            <>
+              <section className="stack">
+                <div className="spread">
+                  <p className="section-title">{t.home.level(progress.level)}</p>
+                  <p className="note">
+                    {progress.into} / {progress.span} XP
+                  </p>
+                </div>
+                <div className="progress progress--grow">
+                  <span style={{ '--ratio': progress.ratio } as CSSProperties} />
+                </div>
+                <div className="figures">
+                  <Figure tint="yellow" value={formatNumber(t, profile.bestScore)} label={t.home.bestScore} />
+                  <Figure tint="blue" value={profile.runs} label={t.home.runs(profile.runs)} />
+                  <Figure tint="red" value={profile.wordsFound} label={t.home.wordsFound} />
+                  <Figure tint="pink" value={profile.bestCombo} label={t.home.bestCombo} />
+                </div>
+              </section>
 
-          {boards && <Boards boards={boards} me={me} />}
-        </>
+              {boards && <Boards boards={boards} me={me} />}
+            </>
+          )}
+
+          <PageLinks pages={HOME_LINKS} avatar={avatar} badges={{ requests: requestsNews }} onOpen={onMenu} />
+        </div>
       )}
-
-      <PageLinks pages={HOME_LINKS} avatar={avatar} badges={{ requests: requestsNews }} onOpen={onMenu} />
-
     </div>
   )
 }

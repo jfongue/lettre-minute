@@ -538,6 +538,7 @@ function DebugHome({ back, error = false, newcomer = false }: { back(): void; er
       profile={newcomer ? NEW_PROFILE : { ...PROFILE, powers: ['joker', 'hush'], equipped: ['joker'] }}
       error={error ? 'Le dictionnaire n’a pas pu être chargé.' : null}
       loading={false}
+      settled
       boards={null}
       me={newcomer ? null : 'Testeur'}
       avatar={DEFAULT_AVATAR}
