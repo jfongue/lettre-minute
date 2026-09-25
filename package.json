@@ -16,6 +16,7 @@
     "android:sync": "npm run build && cap sync android",
     "android:open": "cap open android",
     "android:bundle": "npm run android:sync && cd android && ./gradlew bundleRelease",
+    "android:release": "npm run android:bundle && node --experimental-strip-types scripts/play-release.ts",
     "check": "oxlint && tsc -b && vitest run",
     "fuzz": "FUZZ_SEED=${FUZZ_SEED:-$(node -p \"Math.floor(Math.random()*2**32)\")} FUZZ_RUNS=${FUZZ_RUNS:-400} sh -c 'echo FUZZ_SEED=$FUZZ_SEED; vitest run src/state/fuzz.test.ts src/domain/profile.fuzz.test.ts src/domain/challenge.fuzz.test.ts'"
   },

@@ -86,7 +86,28 @@ jours.
    ```
 
    Il sort dans `android/app/build/outputs/bundle/release/app-release.aab`.
-4. L'envoyer dans la Play Console, sur la piste de test interne d'abord.
+4. Écrire les notes de version dans `android/whatsnew/<langue>.txt`
+   (`fr-FR.txt`…, 500 caractères au plus), puis l'envoyer :
+
+   ```bash
+   npm run android:release              # bundle + envoi sur Test fermé
+   npm run android:release -- --check   # vérifie la clé, liste les pistes
+   ```
+
+   `scripts/play-release.ts` passe par l'API Play Developer, avec la clé du
+   compte de service `play-publisher@lettreminute-509707.iam.gserviceaccount.com`
+   rangée dans `~/cles/lettre-minute-play.json` (ou `PLAY_KEY`), hors du dépôt.
+   La release remplace ce que la piste avait (un brouillon compris) et part en
+   examen chez Google. `--track=internal` vise le test interne.
+
+## Une fois pour toutes : l'accès à l'API Play
+
+1. Google Cloud, projet LettreMinute : activer *Google Play Android Developer API*.
+2. Créer le compte de service `play-publisher` (sans rôle), puis une clé JSON,
+   rangée dans `~/cles/lettre-minute-play.json`.
+3. Play Console → Utilisateurs et autorisations : inviter son adresse, sur
+   Lettre Minute, avec « Publier sur les canaux de test » et « Gérer les
+   canaux de test ». Une clé perdue se révoque dans Google Cloud et se recrée.
 
 Pour essayer sur un téléphone branché en USB (débogage USB activé) ou sur
 l'émulateur : `npm run android:sync`, puis `cd android && ./gradlew installDebug`.
