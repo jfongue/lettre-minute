@@ -1,4 +1,5 @@
 import { compactWord, initialOf, normalizeWord } from './text'
+import { COMMUNITY_NOTORIETY } from './rarity'
 
 export interface WordEntry {
   /**
@@ -329,9 +330,9 @@ export function withExtraWords(pack: WordPack, extra: readonly WordEntry[]): Wor
     entries.set(word, {
       ...entry,
       key: entries.get(compactWord(entry.key))?.key ?? (entry.key === '' ? normalizeWord(entry.display) : entry.key),
-      // A community word joins after the ranking: it is read on the absolute
-      // scale, which keeps it out of the "everybody knows it" band.
-      notoriety: entry.notoriety || rawFame(entry),
+      // A community word joins after the ranking: it starts uncommon, and the
+      // crowd's counts wear it down from there.
+      notoriety: entry.notoriety || COMMUNITY_NOTORIETY,
     })
     const letter = initialOf(entry.display)
     if (letter === '') continue

@@ -26,6 +26,13 @@ function clamp(value: number, min: number, max: number): number {
  * when the dictionary is read. Going through this function rather than the
  * field keeps the clamp in one place.
  */
+/**
+ * Where a word the players brought in starts: uncommon, whatever Wikipedia
+ * thinks of it. Obscure by construction, it would otherwise pay as very rare
+ * the word its proposer just asked for.
+ */
+export const COMMUNITY_NOTORIETY = 0.6
+
 export function notoriety(entry: WordEntry): number {
   return clamp(entry.notoriety, 0, 1)
 }

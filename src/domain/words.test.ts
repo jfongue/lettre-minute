@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { buildWordPack, commonWord, findWord, knownByLetter, lettersWithEnough, lookup, showcaseWords, withinOneEdit, type WordRow } from './words'
+import { buildWordPack, commonWord, findWord, knownByLetter, lettersWithEnough, lookup, showcaseWords, withExtraWords, withinOneEdit, type WordRow } from './words'
+import { rarityScore, tierOf } from './rarity'
 
 const rows: WordRow[] = [['Chat', 120, 45.3], ['Chien', 150, 60], ['Écureuil', 60, 3.2], ['Zèbre', 90, 1.4]]
 
@@ -211,5 +212,16 @@ describe('inflected forms', () => {
       ['bigeyes', 10, 1, 'bigeye'],
     ])
     expect(lookup(pack, 'bigeyes')?.key).toBe(lookup(pack, 'Big-eye')?.key)
+  })
+})
+
+describe('withExtraWords', () => {
+  it('lets a word the players brought in start uncommon, however obscure', () => {
+    const pack = withExtraWords(buildWordPack('animaux', rows), [
+      { key: '', display: 'Axolotl', sitelinks: 0, frequency: 0, notoriety: 0 },
+    ])
+    const entry = pack.entries.get('axolotl')!
+    expect(tierOf(rarityScore(entry))).toBe('peu commun')
+    expect(pack.counts.get('A')).toBe(1)
   })
 })
