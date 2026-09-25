@@ -325,6 +325,13 @@ function Feedback({
   whispered: MissedWord | null
 }) {
   const t = useT()
+  const proposal = proposed ? (
+    <span className="verdict--sent">{t.run.proposed}</span>
+  ) : (
+    <button type="button" className="btn btn--quiet" onPointerDown={keepFocus} onClick={() => onPropose(draft)}>
+      {t.run.propose}
+    </button>
+  )
   // The last find takes the verdict's line until the player types again: lower
   // down, the phone keyboard would hide it.
   // Points and rarity are only revealed here, once the word is validated.
@@ -367,9 +374,22 @@ function Feedback({
     case 'accepted':
       // The word is named only once typed exactly: naming the correction would
       // hand the player the spelling they were missing.
+      // A near miss may be another word altogether (« moule » for « poule »):
+      // it can still be put forward.
       if (live.found?.approximate && live.found.edits > 1)
-        return <p className="verdict verdict--approx verdict--dyslexia">{t.powers.twoLettersOff}</p>
-      if (live.found?.approximate) return <p className="verdict verdict--approx">{t.run.oneLetterOff}</p>
+        return (
+          <p className="verdict verdict--approx verdict--dyslexia">
+            {t.powers.twoLettersOff}
+            {proposal}
+          </p>
+        )
+      if (live.found?.approximate)
+        return (
+          <p className="verdict verdict--approx">
+            {t.run.oneLetterOff}
+            {proposal}
+          </p>
+        )
       if (live.found?.joker)
         return (
           <p className="verdict verdict--valid verdict--joker">
@@ -385,13 +405,7 @@ function Feedback({
       return (
         <p className="verdict">
           {t.run.unknown}
-          {proposed ? (
-            <span className="verdict--sent">{t.run.proposed}</span>
-          ) : (
-            <button type="button" className="btn btn--quiet" onPointerDown={keepFocus} onClick={() => onPropose(draft)}>
-              {t.run.propose}
-            </button>
-          )}
+          {proposal}
         </p>
       )
   }
