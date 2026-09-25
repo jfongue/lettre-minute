@@ -9,6 +9,10 @@ import {
   POWER_IDS,
   powerPicksOwed,
   powersEarnedAt,
+  LEVEL_POWER_IDS,
+  complicationDue,
+  grantPower,
+  WORDS_FOR_COMPLICATION,
   unlockEveryPower,
   type PowerId,
 } from './powers'
@@ -51,9 +55,23 @@ const onLetter = (run: Run, letter: string): Run => ({ ...run, prompt: { ...run.
 const atLevel = (level: number, patch: Partial<Profile> = {}): Profile => ({ ...NEW_PROFILE, xp: xpForLevel(level), ...patch })
 
 describe('earning powers', () => {
+  it('never deals Challenge: it comes with accepted words', () => {
+    for (let seed = 0; seed < 40; seed++) expect(dealPowerOffer(atLevel(100), seed).powerOffer).not.toContain('complication')
+    expect(complicationDue(NEW_PROFILE, WORDS_FOR_COMPLICATION - 1)).toBe(false)
+    expect(complicationDue(NEW_PROFILE, WORDS_FOR_COMPLICATION)).toBe(true)
+    const given = grantPower(NEW_PROFILE, 'complication')
+    expect(given.powers).toEqual(['complication'])
+    expect(given.equipped).toEqual(['complication'])
+    expect(complicationDue(given, 10)).toBe(false)
+  })
+
+  it('leaves a given power out of the picks owed by level', () => {
+    expect(powerPicksOwed(grantPower(atLevel(3), 'complication'))).toBe(1)
+  })
+
   it('opens with the sixth category, then every other level', () => {
     expect([1, 2, 3, 4, 5, 6, 7].map(powersEarnedAt)).toEqual([0, 0, 1, 1, 2, 2, 3])
-    expect(powersEarnedAt(100)).toBe(POWER_IDS.length)
+    expect(powersEarnedAt(100)).toBe(LEVEL_POWER_IDS.length)
     expect([1, 3, 4, 5].map(nextPowerLevel)).toEqual([3, 5, 5, 7])
   })
 

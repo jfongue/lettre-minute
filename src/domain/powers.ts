@@ -32,6 +32,15 @@ export const POWER_IDS: readonly PowerId[] = [
   'professor',
 ]
 
+/**
+ * Challenge is not earned by levels: it comes with the player's third word
+ * accepted into the dictionary (`WORDS_FOR_COMPLICATION`).
+ */
+export const LEVEL_POWER_IDS: readonly PowerId[] = POWER_IDS.filter((id) => id !== 'complication')
+
+/** Accepted words it takes to be given Challenge. */
+export const WORDS_FOR_COMPLICATION = 3
+
 /** Uses per run. A power absent from this table works all run long. */
 export const POWER_CHARGES: Readonly<Partial<Record<PowerId, number>>> = {
   permutation: 2,
@@ -70,12 +79,12 @@ export function isPowerId(value: unknown): value is PowerId {
 /** Powers the player has earned by `level`: one at the first power level, then one every other level. */
 export function powersEarnedAt(level: number): number {
   if (level < FIRST_POWER_LEVEL) return 0
-  return Math.min(POWER_IDS.length, Math.floor((level - FIRST_POWER_LEVEL) / POWER_LEVEL_STEP) + 1)
+  return Math.min(LEVEL_POWER_IDS.length, Math.floor((level - FIRST_POWER_LEVEL) / POWER_LEVEL_STEP) + 1)
 }
 
 /** The next level that brings a power, or null once they are all earned. */
 export function nextPowerLevel(level: number): number | null {
-  if (powersEarnedAt(level) >= POWER_IDS.length) return null
+  if (powersEarnedAt(level) >= LEVEL_POWER_IDS.length) return null
   if (level < FIRST_POWER_LEVEL) return FIRST_POWER_LEVEL
   return level + POWER_LEVEL_STEP - ((level - FIRST_POWER_LEVEL) % POWER_LEVEL_STEP)
 }
@@ -87,7 +96,25 @@ export function ownedPowers(profile: Profile): PowerId[] {
 
 /** Derived from the level, like the category picks: another device's picks are simply offered again. */
 export function powerPicksOwed(profile: Profile): number {
-  return Math.max(0, powersEarnedAt(levelFor(profile.xp)) - ownedPowers(profile).length)
+  const earned = ownedPowers(profile).filter((id) => LEVEL_POWER_IDS.includes(id)).length
+  return Math.max(0, powersEarnedAt(levelFor(profile.xp)) - earned)
+}
+
+/** Whether the player's accepted words have earned them Challenge, not yet given. */
+export function complicationDue(profile: Profile, acceptedWords: number): boolean {
+  return acceptedWords >= WORDS_FOR_COMPLICATION && !ownedPowers(profile).includes('complication')
+}
+
+/** A power given rather than picked: owned at once, and worn if a slot is free. */
+export function grantPower(profile: Profile, powerId: PowerId): Profile {
+  if (ownedPowers(profile).includes(powerId)) return profile
+  const equipped = equippedPowers(profile)
+  return {
+    ...profile,
+    powers: [...profile.powers, powerId],
+    powerOffer: profile.powerOffer.filter((id) => id !== powerId),
+    equipped: equipped.length < MAX_EQUIPPED ? [...equipped, powerId] : equipped,
+  }
 }
 
 /**
@@ -99,7 +126,7 @@ export function dealPowerOffer(profile: Profile, seed: number): Profile {
   if (profile.powerOffer.length > 0 || powerPicksOwed(profile) === 0) return profile
 
   const owned = new Set(ownedPowers(profile))
-  const candidates = POWER_IDS.filter((id) => !owned.has(id))
+  const candidates = LEVEL_POWER_IDS.filter((id) => !owned.has(id))
   if (candidates.length === 0) return profile
 
   const rng = createRng(seed)
