@@ -38,9 +38,11 @@ interface RequestsPageProps {
   onModerate(): void
   /** The accepted words have been seen: the home screen's badge can go. */
   onSeen(): void
+  /** Once per visit: the moderation queue may be topped up. */
+  onOpen(): void
 }
 
-export function RequestsPage({ moderation, onModerate, onSeen }: RequestsPageProps) {
+export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: RequestsPageProps) {
   const t = useT()
   const [server, setServer] = useState<Submission[] | null | 'loading'>('loading')
   const [queue, setQueue] = useState<PendingSubmission[]>(loadSubmissions)
@@ -53,6 +55,8 @@ export function RequestsPage({ moderation, onModerate, onSeen }: RequestsPagePro
     setQueue(loadSubmissions())
     return fetchMySubmissions().then(setServer)
   }, [])
+
+  useEffect(onOpen, [onOpen])
 
   useEffect(() => {
     fetchMySubmissions().then((found) => {

@@ -1,6 +1,6 @@
 # Supabase
 
-Seize migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Dix-neuf migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -18,8 +18,11 @@ les joueurs maison aux défis, [`0013_moderation_friends.sql`](migrations/0013_m
 pour faire remonter les mots proposés par des amis dans la file de modération,
 [`0014_blocks_reactions.sql`](migrations/0014_blocks_reactions.sql) pour bloquer un
 joueur et réagir au bilan d'un défi, [`0015_ideas.sql`](migrations/0015_ideas.sql)
-pour la boîte à idées, et [`0016_challenge_setup.sql`](migrations/0016_challenge_setup.sql)
-pour qu'un défi autorise ou non les pouvoirs.
+pour la boîte à idées, [`0016_challenge_setup.sql`](migrations/0016_challenge_setup.sql)
+pour qu'un défi autorise ou non les pouvoirs, [`0017_challenge_name.sql`](migrations/0017_challenge_name.sql)
+pour nommer un défi, [`0018_gentler_levels.sql`](migrations/0018_gentler_levels.sql)
+pour la courbe d'XP adoucie, et [`0019_moderation_reserve.sql`](migrations/0019_moderation_reserve.sql)
+pour la réserve de mots versée aux modérateurs qui ont vidé leur file.
 
 ## Ce que le serveur détient
 
@@ -34,6 +37,8 @@ pour qu'un défi autorise ou non les pouvoirs.
 | `word_reviews` | Un mot proposé en cours de jugement (catégorie + mot), que rejoignent tous ceux qui l'ont réclamé. |
 | `moderation_votes` | Un vote par modérateur et par mot : `correct`, `unsure`, `incorrect` ou `special`. |
 | `moderators` | Les modérateurs, et l'ami qui les a élus. |
+| `moderation_reserve` | Mots évidents que les dictionnaires ignorent, versés au compte-goutte dans la file (`released_at`). |
+| `moderation_drained` | Un modérateur qui a fini sa file dans une langue : sa prochaine visite de « Mes demandes » la complète. |
 | `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |
 | `friendships` | Une ligne par demande d'ami (`pending` puis `accepted`), lue dans les deux sens. |
 | `bots` | Les joueurs maison (Maxitoon, Terretciel) et les bornes de leurs scores. |
@@ -70,6 +75,14 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   politique. La fonction refuse un modérateur qui a proposé le mot lui-même,
   un second vote, un cas spécial jugé par un modérateur ordinaire, et une
   correction d'orthographe après le premier vote (`gone`).
+- **La file ne se vide jamais pour de bon** (`top_up_moderation`, 0019) : un
+  modérateur qui a fini sa file (un vote la laisse sous cinq mots, ou une
+  visite l'y trouve) la voit complétée à cinq à sa visite suivante de « Mes
+  demandes », depuis `moderation_reserve`. Un joueur maison propose ces mots,
+  sans en toucher d'XP : le reste — votes, dictionnaire, import — ne les
+  distingue pas d'un mot de joueur. La réserve se charge par
+  `npm run seed:moderation` (`scripts/moderation-reserve.json`), qui écarte ce
+  que les dictionnaires embarqués connaissent déjà.
 - **Le niveau 6 est écrit en XP dans `moderator_offer_due`** (1650, depuis 0018) : SQL ne
   connaît pas `xpForLevel`. `MODERATOR_LEVEL_XP` et son test
   (`src/domain/moderation.ts`) cassent si la courbe change sans lui.

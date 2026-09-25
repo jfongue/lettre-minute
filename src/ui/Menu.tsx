@@ -85,6 +85,7 @@ interface MenuProps {
   challenges: readonly ChallengeSummary[] | null
   onChallenge(id: string): void
   onRequestsSeen(): void
+  onRequestsOpen(): void
   onClose(): void
 }
 
@@ -162,7 +163,12 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
           )}
           {sub === 'stats' && <StatsPage history={props.history} profile={props.profile} challenges={props.challenges} onChallenge={props.onChallenge} />}
           {sub === 'requests' && (
-            <RequestsPage moderation={props.moderation} onModerate={props.onModerate} onSeen={props.onRequestsSeen} />
+            <RequestsPage
+              moderation={props.moderation}
+              onModerate={props.onModerate}
+              onSeen={props.onRequestsSeen}
+              onOpen={props.onRequestsOpen}
+            />
           )}
           {sub === 'categories' && <CategoriesPage profile={props.profile} />}
           {!sub && pane === 'profile' && <ProfilePane {...props} onPage={open} />}
@@ -214,6 +220,7 @@ function ProfilePane({
   | 'onSound'
   | 'onModerate'
   | 'onRequestsSeen'
+  | 'onRequestsOpen'
   | 'onErase'
 > & {
   onPage(page: ProfilePage): void

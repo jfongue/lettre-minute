@@ -241,6 +241,17 @@ export function fetchModerationStatus(lang: string): Promise<ModerationStatus | 
   }, null)
 }
 
+/**
+ * On opening « Mes demandes »: a moderator who finished his queue last time
+ * gets it topped up from the server's reserve (0019). How many words came in.
+ */
+export function topUpModeration(lang: string): Promise<number> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('top_up_moderation', { p_lang: lang })
+    return error ? 0 : Number(data) || 0
+  }, 0)
+}
+
 /** A word waiting for a moderator's verdict. */
 export interface ReviewCard {
   id: string

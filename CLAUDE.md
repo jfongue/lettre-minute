@@ -177,6 +177,13 @@ qu'un nouvel arrivant casserait sans le savoir.
   langue de l'interface : un modérateur ne voit que les mots préfixés de la
   sienne.
 
+- **Une file de modération vide se remplit toute seule** (`top_up_moderation`,
+  0019) : ouvrir « Mes demandes » après avoir fini sa file y verse cinq mots
+  de la réserve, proposés par un joueur maison. Seulement une visite sur deux
+  quand la file est courte — c'est ce qui fait durer la réserve. Ses mots
+  (`scripts/moderation-reserve.json`) doivent manquer aux dictionnaires : un
+  mot déjà connu ferait voter les modérateurs pour rien, le script le jette.
+
 - **Les pouvoirs sont des règles du domaine** (`src/domain/powers.ts`,
   `run.ts`), pas des effets d'interface : la partie porte ses pouvoirs et
   leurs charges (`Run.powers`, `Run.charges`). « Joker » et « chut » sont des
