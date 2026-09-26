@@ -613,7 +613,9 @@ function FriendRow({
   )
 }
 
-const THEMES: readonly Theme[] = ['system', 'light', 'dark']
+// « Sombre » ne se choisit plus : les jetons sombres et `data-theme` restent en
+// place, mais le menu n'offre que l'auto et le clair.
+const THEMES: readonly Theme[] = ['system', 'light']
 const SOUND_CHANNELS = ['master', 'effects', 'keys', 'music'] as const
 
 /** The music is heard as it plays; the effects and keys need a sample. */

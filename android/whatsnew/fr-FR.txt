@@ -1,3 +1,4 @@
-• Nouvelle page des classements : parties, points, mots trouvés, découvertes, série, mots ajoutés…
-• Chaque classement du jour, de la semaine ou depuis toujours, avec ta place
-• Ouvre-la depuis le titre « Classement », en glissant après le 3e tableau, ou depuis tes statistiques
+• Le geste retour referme les fenêtres au lieu de quitter la partie, et une catégorie offerte mise de côté est remise à la fin de la partie
+• Les longs pseudos s’affichent en entier sur le podium des classements
+• Le thème sombre ne se choisit plus : l’auto et le clair restent
+• Plus d’animaux en néerlandais

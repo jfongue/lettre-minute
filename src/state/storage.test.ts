@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { NEW_PROFILE } from '../domain/progression'
 import type { RunRecord } from '../domain/history'
-import { loadAvatar, loadHistory, loadProfile, loadSubmissions, saveHistory, saveProfile } from './storage'
+import { loadAvatar, loadGiftHeld, loadHistory, loadProfile, loadSubmissions, saveGiftHeld, saveHistory, saveProfile } from './storage'
 
 const store = new Map<string, string>()
 const memory = {
@@ -118,5 +118,16 @@ describe('local storage', () => {
     expect(loadAvatar()).toEqual(fallback)
     put('avatar', JSON.stringify({ design: 'big', ground: 'plaid' }))
     expect(loadAvatar()).toEqual(fallback)
+  })
+
+  it('keeps the gift put off with the back gesture until the next run hands it over', () => {
+    expect(loadGiftHeld()).toBe(false)
+    saveGiftHeld(true)
+    expect(loadGiftHeld()).toBe(true)
+    saveGiftHeld(false)
+    expect(loadGiftHeld()).toBe(false)
+    // Anything but a true reads as « the pop is due at launch ».
+    put('gift-held', '"yes"')
+    expect(loadGiftHeld()).toBe(false)
   })
 })

@@ -185,7 +185,7 @@ function BoardBody({
           <li key={`${row.name}-${index}`} className={`podium-step podium-step--${index + 1}${row.mine ? ' leaderboard-step--me' : ''}`}>
             <Avatar choice={row.avatar} size="sm" />
             <span className="podium-rank">{row.place}</span>
-            <span className="podium-word">
+            <span className={`podium-word${podiumNameClass(row.name)}`} title={row.name}>
               <Name row={row} />
             </span>
             <span className="note">
@@ -220,6 +220,15 @@ function BoardBody({
       )}
     </>
   )
+}
+
+/**
+ * The podium's three columns are narrow: the longest names step down one size or
+ * two so they still read whole, and `.podium-word` ellipsises whatever is left.
+ */
+function podiumNameClass(name: string): string {
+  if (name.length > 16) return ' podium-word--smaller'
+  return name.length > 10 ? ' podium-word--small' : ''
 }
 
 function Name({ row }: { row: PlacedRow }) {

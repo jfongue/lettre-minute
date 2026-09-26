@@ -296,6 +296,9 @@ function summaryOf(detail: ChallengeDetail): ChallengeSummary {
 /** Rows per measure: long, past fifty with the player far down, short, empty, and one that does not answer. */
 const LEADERBOARD_SIZES: Record<StatId, number> = { best: 24, points: 60, runs: 5, words: 24, discoveries: 2, combo: 12, added: 0 }
 
+/** A name past the podium's width: the top 3 must trim it rather than grow a step. */
+const LONG_PLAYER = 'MaximilienDeRobespierre'
+
 function fakeLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | null> {
   if (stat === 'combo' && period === 'week') return later(null, 700)
   const scale = period === 'day' ? 1 : period === 'week' ? 4 : 20
@@ -303,7 +306,7 @@ function fakeLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | 
   const count = Math.min(LEADERBOARD_SIZES[stat], 50)
   const far = LEADERBOARD_SIZES[stat] > 50
   const rows = Array.from({ length: count }, (_, index) => ({
-    name: index === 14 && !far ? 'Testeur' : `Joueur ${index + 1}`,
+    name: index === 0 ? LONG_PLAYER : index === 14 && !far ? 'Testeur' : `Joueur ${index + 1}`,
     avatar: avatarOf((index * 7 + top) % 100, index % 2 ? 'jaune' : 'bleu', 'noir', 'rouge'),
     value: Math.max(1, Math.round((top - index * (top / 60)) * scale)),
     place: index + 1,

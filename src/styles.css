@@ -1451,6 +1451,9 @@ button.challenge-past::after {
    montrer davantage. La fiche du joueur porte le nom entier. */
 .leaderboard-podium .podium-word {
   font-size: 0.85rem;
+  /* Le corps du nom change, sa ligne non : sinon un petit corps en première
+     place ferait une carte plus basse que la troisième. */
+  line-height: 1.25rem;
   min-width: 0;
   max-width: 100%;
   white-space: nowrap;
