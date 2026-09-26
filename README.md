@@ -147,6 +147,10 @@ npm run android:bundle # .aab signé pour le Play Store
 npm run testers:invite # inscrit testeurs Play les adresses invitées depuis le jeu, puis leur envoie le mail (--login une fois, --watch, --preview)
 ```
 
+Le dépôt public `jfongue/lettre-minute` porte le code sur `main` et le site sur
+`gh-pages` : c'est cette branche-là que GitHub Pages sert, et `scripts/publish-web.sh`
+n'écrit jamais ailleurs — un `git push` depuis `main` ne peut donc pas casser le site.
+
 L'application Android (et iOS plus tard) est le même jeu emballé par Capacitor :
 voir [`docs/publication-android.md`](docs/publication-android.md).
 
