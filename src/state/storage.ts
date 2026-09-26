@@ -10,6 +10,7 @@ const HISTORY_KEY = 'lettre-minute.history.v1'
 const ACCOUNT_KEY = 'lettre-minute.account.v1'
 // Kept by clearLocalData: whoever signs out has already learnt to play.
 const TUTORIAL_KEY = 'lettre-minute.tutorial.v1'
+const GIFT_HELD_KEY = 'lettre-minute.gift-held.v1'
 
 /** A word the player proposed while the dictionary did not know it. */
 export interface PendingSubmission {
@@ -71,6 +72,19 @@ export function loadTutorialDone(): boolean {
 
 export function saveTutorialDone(): void {
   write(TUTORIAL_KEY, true)
+}
+
+/**
+ * The wave's gift put off with the back gesture: it is not the launch screen's
+ * business any more, the next run's end carries it instead. Kept across
+ * launches, or the pop would be back before that run.
+ */
+export function loadGiftHeld(): boolean {
+  return parsed(GIFT_HELD_KEY) === true
+}
+
+export function saveGiftHeld(held: boolean): void {
+  write(GIFT_HELD_KEY, held)
 }
 
 export function loadProfile(): Profile {
@@ -202,6 +216,7 @@ export function clearLocalData(): void {
     localStorage.removeItem(SUBMISSIONS_KEY)
     localStorage.removeItem(AVATAR_KEY)
     localStorage.removeItem(ACCOUNT_KEY)
+    localStorage.removeItem(GIFT_HELD_KEY)
   } catch {
     /* nothing stored, nothing to clear */
   }

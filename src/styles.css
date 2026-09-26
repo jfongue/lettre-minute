@@ -549,6 +549,10 @@ button.challenge-past::after {
 
 .standing .name {
   font-weight: 600;
+  /* Un nom d'un seul tenant se replie dans sa colonne plutôt que de pousser les
+     points hors de la ligne. */
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .standing .points {
@@ -1441,8 +1445,39 @@ button.challenge-past::after {
   min-width: 0;
 }
 
+/* Un nom du top 3 ne plie pas : plié, il fait plus haut que le premier et
+   l'escalier perd sa forme. Il tient donc sur une ligne, s'achève en points de
+   suspension, et les plus longs descendent d'un cran ou deux de corps pour en
+   montrer davantage. La fiche du joueur porte le nom entier. */
 .leaderboard-podium .podium-word {
   font-size: 0.85rem;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.leaderboard-podium .podium-word--small {
+  font-size: 0.73rem;
+}
+
+.leaderboard-podium .podium-word--smaller {
+  font-size: 0.63rem;
+}
+
+/* Le nom est un bouton : c'est lui qui porte la coupure, une boîte atomique
+   n'affichant pas les points de suspension de son parent. */
+.leaderboard-podium .podium-word .player-link {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Le liseré de focus serait coupé par cette coupure. */
+.leaderboard-podium .podium-word .player-link:focus-visible {
+  outline-offset: -0.15rem;
 }
 
 .leaderboard-step--me {
@@ -4007,13 +4042,16 @@ button.challenge-past::after {
 
 /* La proposition de devenir modérateur : une petite carte qui monte. */
 .offer-pop-layer {
+  /* La carte se borne à ce que la couche laisse : ses deux marges verticales
+     sont nommées pour que .offer-pop puisse s'y mesurer. */
+  --pop-top: var(--gutter);
+  --pop-bottom: max(var(--gutter), env(safe-area-inset-bottom));
   position: fixed;
   inset: 0;
   z-index: 30;
   display: grid;
   place-items: end center;
-  padding: var(--gutter);
-  padding-bottom: max(var(--gutter), env(safe-area-inset-bottom));
+  padding: var(--pop-top) var(--gutter) var(--pop-bottom);
 }
 
 @media (min-width: 40rem) {
@@ -4024,7 +4062,7 @@ button.challenge-past::after {
 
 /* La sourdine du web reste au-dessus de tout : la carte se tient au-dessus d'elle. */
 .stage--muteable .offer-pop-layer {
-  padding-bottom: 4.5rem;
+  --pop-bottom: 4.5rem;
 }
 
 .offer-pop-scrim {
@@ -4037,6 +4075,11 @@ button.challenge-past::after {
 .offer-pop {
   position: relative;
   width: min(26rem, 100%);
+  /* Une carte plus haute que l'écran (une longue annonce de mots, une liste de
+     catégories) défile en elle-même : les boutons du bas restent atteignables. */
+  max-height: calc(100dvh - var(--pop-top) - var(--pop-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: grid;
   justify-items: center;
   gap: 0.7rem;
@@ -5368,6 +5411,32 @@ button.challenge-past::after {
   background: var(--paper-2);
 }
 
+/* Les planches touchées depuis les deux dernières versions livrées : un liseré
+   et une pastille, pour savoir quoi revérifier en ouvrant la planche. */
+.debug-item--recent {
+  border-color: var(--red);
+  box-shadow: inset 0.3rem 0 0 var(--red);
+}
+
+.debug-flag {
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: var(--red);
+  color: var(--cream);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.debug-note {
+  border-left: 0.3rem solid var(--red);
+  padding-left: 0.6rem;
+}
+
 .debug-scene {
   display: contents;
 }
@@ -6126,7 +6195,16 @@ button.challenge-word[aria-expanded='true'] {
 }
 
 /* The words that entered the dictionary, on opening the game. */
+.words-news {
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+}
+
+/* La liste peut être longue : elle défile dans la carte, les deux boutons
+   restent au bas de la pop. */
 .words-news-list {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: grid;
   gap: 0.35rem;
   width: 100%;

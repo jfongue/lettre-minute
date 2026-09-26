@@ -1,9 +1,11 @@
 import { useT } from '../i18n'
 import { Shape } from './bauhaus'
+import { useBackDismiss } from './useBackDismiss'
 
 /** The Play Store has a newer build: the way there, or later — once per launch. */
 export function UpdateNotice({ onLater, onUpdate }: { onLater(): void; onUpdate(): void }) {
   const t = useT()
+  useBackDismiss(onLater)
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="update-notice-title">
       <div className="offer-pop-scrim" onClick={onLater} />

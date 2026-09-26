@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useT } from '../i18n'
 import { REACTIONS, type Reaction, type ReactionEmoji } from '../lib/cloud'
+import { useBackDismiss } from './useBackDismiss'
 
 /** What the recap's trophies and words share: the reactions so far, and the way to add one. */
 export interface RecapReactions {
@@ -62,6 +63,8 @@ export function Reactable({
   const box = useRef<HTMLDivElement>(null)
   const here = reactions.list.filter((reaction) => reaction.target === target)
   const mine = here.find((reaction) => reaction.playerId === reactions.myId)?.emoji ?? null
+  // Folded away, the bar leaves the gesture to the screen behind it.
+  useBackDismiss(open ? () => setOpen(null) : null)
 
   useEffect(() => {
     if (!open) return

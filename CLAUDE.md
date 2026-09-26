@@ -283,3 +283,15 @@ qu'un nouvel arrivant casserait sans le savoir.
   un écran qui charge lui-même ses données se découpe en chargeur + vue
   (`ChallengeScreen` / `ChallengeView`). Outil de développeur : ses
   libellés restent en français, hors de l'i18n.
+- **Le bouton quitter reste à gauche** : le coin haut droit de l'affiche est
+  celui des cinq tapes qui ouvrent la planche, un bouton au même endroit la
+  refermait aussitôt.
+- **Les planches touchées depuis les deux dernières versions livrées sont
+  surlignées** (`npm run debug:recent`) : le script relit les commits
+  « Version X.Y.Z » de git et écrit `src/debug/recent.ts`, à commiter — la
+  planche et le build n'ont donc pas besoin de git. Tout se lit dans `HEAD` :
+  ce qui n'est pas commité n'est pas livré. Un identifiant de planche reste
+  littéral dans `DebugBoard.tsx` (`id: 'moderator-level'`, pas
+  `` `moderator-${reason}` ``), sinon le script ne sait pas le nommer. Une
+  planche est retenue quand un écran de `src/ui/` qu'elle montre a changé, ou
+  quand son propre bloc a changé.

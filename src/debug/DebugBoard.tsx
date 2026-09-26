@@ -6,7 +6,7 @@ import { NEW_PROFILE, xpForLevel, type Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
 import type { KeptWord, MissedWord, Run } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
-import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary } from '../lib/cloud'
+import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, Submission } from '../lib/cloud'
 import type { AccountActions } from '../ui/AccountPanel'
 import { ChallengeNotice } from '../ui/ChallengeHome'
 import { ChallengePowers } from '../ui/ChallengePowers'
@@ -27,6 +27,7 @@ import { FriendPicker } from '../ui/FriendPicker'
 import type { Boards } from '../domain/boards'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
+import { RECENT_SCENARIOS, RECENT_VERSIONS } from './recent'
 
 /*
  * The debug board: every screen a player only meets by luck or by level,
@@ -78,6 +79,28 @@ const LONG_BOARD = Array.from({ length: 24 }, (_, index) => ({
   value: 400 - index * 12,
 }))
 const LONG_BOARDS: Boards = { day: LONG_BOARD, week: LONG_BOARD, discoveries: LONG_BOARD.slice(0, 6) }
+
+/** De quoi faire déborder l'annonce des mots ajoutés : la pop doit défiler. */
+const LONG_NEWS: Submission[] = (
+  [
+    ['animaux', ['axolotl', 'quiscale', 'ornithorynque', 'pangolin', 'narval', 'tatou', 'okapi', 'kinkajou']],
+    ['pays', ['tuvalu', 'bhoutan', 'kiribati', 'vanuatu', 'suriname', 'moldavie']],
+    ['couleurs', ['vermillon', 'indigo', 'pourpre', 'ocre', 'turquoise']],
+    ['metiers', ['ébéniste', 'vitrailliste', 'luthier', 'relieur', 'orfèvre']],
+    ['sports', ['curling', 'skeleton', 'pelote', 'escrime', 'judo', 'hockey']],
+  ] as const
+).flatMap(([categoryId, displays]) =>
+  displays.map((display, index) => ({
+    id: `${categoryId}-${index}`,
+    lang: 'fr',
+    categoryId,
+    display,
+    status: 'accepted' as const,
+    at: 0,
+    locked: true,
+    fresh: true,
+  })),
+)
 
 // ------------------------------------------------------------ fixtures --
 
@@ -321,6 +344,7 @@ function OverScenario({
   after,
   account = NAMED,
   challengeState,
+  gift = [],
   onBack,
 }: {
   run?: Run
@@ -328,6 +352,8 @@ function OverScenario({
   after: Profile
   account?: Account
   challengeState?: ChallengeDetail | 'sending' | 'failed'
+  /** La catégorie offerte par la vague, remise par-dessus le bilan. */
+  gift?: readonly string[]
   onBack(): void
 }) {
   const [profile, setProfile] = useState(after)
@@ -346,6 +372,8 @@ function OverScenario({
       onAvatar={noop}
       onChoose={(id) => setProfile((current) => chooseCategory(current, id))}
       onChoosePower={(id) => setProfile((current) => choosePower(current, id))}
+      gift={gift}
+      onChooseGift={noop}
       onSupportAsked={noop}
       onReplay={onBack}
       onHome={onBack}
@@ -369,6 +397,22 @@ const levelUp = (from: number, to: number): [Profile, Profile] => {
   return [before, afterRun(before, RUN, { xp: at(to, 40) })]
 }
 
+/** L'offre de modérateur : un seul rendu pour les trois raisons qui l'amènent. */
+const offerModerator =
+  (reason: 'level' | 'words' | 'friend') =>
+  (back: () => void): ReactNode => (
+    <ModeratorOffer
+      reason={reason}
+      invitedBy={reason === 'friend' ? 'Léa' : null}
+      anonymous={false}
+      onAccount={back}
+      onAnswered={(accepted) => !accepted && back()}
+      onLater={back}
+      onModerate={back}
+      answerOffer={() => later(true)}
+    />
+  )
+
 const SCENARIOS: readonly Scenario[] = [
   {
     id: 'over-classic',
@@ -388,6 +432,14 @@ const SCENARIOS: readonly Scenario[] = [
       const [before, after] = levelUp(3, 4)
       return <OverScenario before={before} after={{ ...after, offer: ['sports', 'capitales', 'marques'] }} onBack={back} />
     },
+  },
+  {
+    id: 'over-gift',
+    group: 'Fin de partie',
+    title: 'Cadeau des nouvelles catégories sur le bilan',
+    how: 'Le cadeau de la vague, remis par-dessus le récapitulatif au lieu d’être perdu',
+    phase: 'over',
+    render: (back) => <OverScenario after={afterRun(PROFILE, RUN)} gift={['prenoms', 'objets', 'plantes']} onBack={back} />,
   },
   {
     id: 'over-power',
@@ -566,6 +618,14 @@ const SCENARIOS: readonly Scenario[] = [
     ),
   },
   {
+    id: 'words-news-long',
+    group: 'Mots proposés',
+    title: 'Mots entrés au dictionnaire : la liste déborde',
+    how: 'Trente mots d’un coup : la liste défile dans la pop et les boutons restent au bas',
+    phase: 'home',
+    render: (back) => <WordsNewsPop words={LONG_NEWS} onClose={back} onOpen={back} />,
+  },
+  {
     id: 'power-gift',
     group: 'Mots proposés',
     title: 'Pouvoir offert au troisième mot',
@@ -591,27 +651,32 @@ const SCENARIOS: readonly Scenario[] = [
       <ChallengePowers allowed={['joker', 'dodge', 'hush', 'divination', 'professor']} initial={['joker', 'dodge']} onStart={back} onClose={back} />
     ),
   },
-  ...(['level', 'words', 'friend'] as const).map(
-    (reason): Scenario => ({
-      id: `moderator-${reason}`,
-      group: 'Modération',
-      title: `Offre de modérateur : ${{ level: 'niveau 6', words: 'trois mots acceptés', friend: 'élu par un ami' }[reason]}`,
-      how: 'Accepter montre l’accueil, sans rien écrire sur le serveur',
-      phase: 'home',
-      render: (back) => (
-        <ModeratorOffer
-          reason={reason}
-          invitedBy={reason === 'friend' ? 'Léa' : null}
-          anonymous={false}
-          onAccount={back}
-          onAnswered={(accepted) => !accepted && back()}
-          onLater={back}
-          onModerate={back}
-          answerOffer={() => later(true)}
-        />
-      ),
-    }),
-  ),
+  // Les identifiants restent littéraux : `npm run debug:recent` les relit dans
+  // le fichier pour nommer les planches touchées depuis les deux dernières versions.
+  {
+    id: 'moderator-level',
+    group: 'Modération',
+    title: 'Offre de modérateur : niveau 6',
+    how: 'Accepter montre l’accueil, sans rien écrire sur le serveur',
+    phase: 'home',
+    render: offerModerator('level'),
+  },
+  {
+    id: 'moderator-words',
+    group: 'Modération',
+    title: 'Offre de modérateur : trois mots acceptés',
+    how: 'Accepter montre l’accueil, sans rien écrire sur le serveur',
+    phase: 'home',
+    render: offerModerator('words'),
+  },
+  {
+    id: 'moderator-friend',
+    group: 'Modération',
+    title: 'Offre de modérateur : élu par un ami',
+    how: 'Accepter montre l’accueil, sans rien écrire sur le serveur',
+    phase: 'home',
+    render: offerModerator('friend'),
+  },
   {
     id: 'moderator-anonymous',
     group: 'Modération',
@@ -825,6 +890,9 @@ interface DebugBoardProps {
   onPhase(phase: string): void
 }
 
+/** Les planches touchées depuis les deux dernières versions livrées. */
+const RECENT = new Set(RECENT_SCENARIOS)
+
 export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
   const [open, setOpen] = useState<Scenario | null>(null)
   // Replaying remounts the screen, its animations and picks with it.
@@ -856,37 +924,54 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
   }
 
   const groups = [...new Set(SCENARIOS.map((scenario) => scenario.group))]
+  // RECENT peut nommer une planche supprimée depuis : le compte suit la liste.
+  const recentCount = SCENARIOS.filter((scenario) => RECENT.has(scenario.id)).length
   return (
     <div className="sheet cascade debug-board">
-      <div className="spread">
-        <h1 className="subpage-title">Planche debug</h1>
+      {/* À gauche : cinq tapes dans le coin haut droit ouvrent la planche,
+          un bouton quitter au même endroit la refermait aussitôt. */}
+      <div className="subpage-head">
         <button type="button" className="btn btn--quiet" onClick={onClose}>
           Fermer
         </button>
+        <h1 className="subpage-title">Planche debug</h1>
       </div>
       <p className="note">
         Chaque écran difficile d’accès, avec des données inventées. Rien n’est envoyé au serveur ; les choix ne
         touchent pas au vrai profil.
       </p>
+      {recentCount > 0 && (
+        <p className="note debug-note">
+          En surligné : {recentCount} des {SCENARIOS.length} planches montrent un écran ou un code qui a changé depuis
+          les deux dernières versions livrées ({RECENT_VERSIONS.join(' et ')}). « npm run debug:recent » refait la liste
+          au moment de livrer.
+        </p>
+      )}
       {groups.map((group) => (
         <section key={group} className="stack">
           <p className="section-title">{group}</p>
           <ul className="debug-list">
-            {SCENARIOS.filter((scenario) => scenario.group === group).map((scenario) => (
-              <li key={scenario.id}>
-                <button
-                  type="button"
-                  className="debug-item"
-                  onClick={() => {
-                    setTake(0)
-                    setOpen(scenario)
-                  }}
-                >
-                  <strong>{scenario.title}</strong>
-                  <span className="note">{scenario.how}</span>
-                </button>
-              </li>
-            ))}
+            {SCENARIOS.filter((scenario) => scenario.group === group).map((scenario) => {
+              const recent = RECENT.has(scenario.id)
+              return (
+                <li key={scenario.id}>
+                  <button
+                    type="button"
+                    className={recent ? 'debug-item debug-item--recent' : 'debug-item'}
+                    onClick={() => {
+                      setTake(0)
+                      setOpen(scenario)
+                    }}
+                  >
+                    <strong>
+                      {scenario.title}
+                      {recent && <span className="debug-flag">récent</span>}
+                    </strong>
+                    <span className="note">{scenario.how}</span>
+                  </button>
+                </li>
+              )
+            })}
           </ul>
         </section>
       ))}

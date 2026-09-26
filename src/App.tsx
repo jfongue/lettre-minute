@@ -78,12 +78,14 @@ import {
   clearLocalData,
   loadAccount,
   loadAvatar,
+  loadGiftHeld,
   loadHistory,
   loadProfile,
   loadSubmissions,
   loadTutorialDone,
   saveAccount,
   saveAvatar,
+  saveGiftHeld,
   saveHistory,
   saveProfile,
   saveSubmissions,
@@ -115,6 +117,7 @@ import { OverScreen } from './ui/OverScreen'
 import { PushOffer } from './ui/PushOffer'
 import { RunScreen, type Racer } from './ui/RunScreen'
 import { TutorialScreen, tutorialPrompt } from './ui/TutorialScreen'
+import { dismissTopOverlay } from './ui/useBackDismiss'
 
 /** The boards as the home screen shows them: without a server, none at all. */
 async function loadBoards(): Promise<Boards | null> {
@@ -189,6 +192,8 @@ export function App() {
   const [moderating, setModerating] = useState(false)
   // « Plus tard » holds the offer back until the next launch, without answering it.
   const [offerHeld, setOfferHeld] = useState(false)
+  // The gift put off with the back gesture: the next run's end hands it over.
+  const [giftHeld, setGiftHeld] = useState(loadGiftHeld)
   // The seed of the run whose reveal has played: leaving for the avatar editor
   // and coming back must not replay it.
   const [revealed, setRevealed] = useState<number | null>(null)
@@ -388,14 +393,24 @@ export function App() {
   menuShown.current = menuOpen
   // The challenge screens close one at a time, the way they opened.
   const closeChallengeLayer = useRef<() => boolean>(() => false)
+  // The gift pop is the one overlay with no refusal: the gesture puts it off,
+  // and the next run's end hands the category over instead.
+  const giftShown = useRef(false)
   useEffect(
     () =>
       onBackButton(() => {
+        // A pop-up is above whatever screen it covers: it goes first.
+        if (dismissTopOverlay()) return true
         if (menuShown.current) {
           setMenuPage(null)
           return true
         }
         if (closeChallengeLayer.current()) return true
+        if (giftShown.current) {
+          setGiftHeld(true)
+          saveGiftHeld(true)
+          return true
+        }
         if (phase.current === 'home' || phase.current === 'loading') return false
         dispatch({ type: 'home' })
         return true
@@ -830,6 +845,14 @@ export function App() {
   const choosePower = useCallback((powerId: string) => dispatch({ type: 'choose-power', powerId }), [])
   const supportAsked = useCallback(() => dispatch({ type: 'support-asked' }), [])
 
+  // The gift is not a level-up pick: it is handed over, never counted against
+  // the picks a level owes.
+  const takeGift = useCallback((categoryId: string) => {
+    setGiftHeld(false)
+    saveGiftHeld(false)
+    dispatch({ type: 'profile-loaded', profile: giftCategory(session.profile, categoryId) })
+  }, [session.profile])
+
   // Proposing costs no clock: in a timed run, a confirmation dialog would take
   // the seconds the player is spending on the word they just failed to place.
   const propose = useCallback(
@@ -907,6 +930,19 @@ export function App() {
 
   const quietHome = session.phase === 'home' && !tutorial && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
   const notice = quietHome ? challengeNotice(challenges, heldNotices) : null
+  // The wave's categories still to be handed over, and the launch pop that
+  // offers them — unless the back gesture put it off for the next run's end.
+  const gift = categoryGiftOffer(session.profile, availableCategoryIds(lang))
+  const giftPop =
+    !notice &&
+    quietHome &&
+    update !== 'due' &&
+    !(moderation?.offer && !offerHeld) &&
+    wordsNews.length === 0 &&
+    !complicationDue(session.profile, acceptedWords) &&
+    !giftHeld &&
+    gift.length > 0
+  giftShown.current = giftPop
 
   if (debugPhase !== null && locale !== null) {
     return (
@@ -1129,18 +1165,7 @@ export function App() {
           <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
         )}
 
-      {!notice &&
-        quietHome &&
-        update !== 'due' &&
-        !(moderation?.offer && !offerHeld) &&
-        wordsNews.length === 0 &&
-        !complicationDue(session.profile, acceptedWords) &&
-        categoryGiftOffer(session.profile, availableCategoryIds(lang)).length > 0 && (
-          <CategoryGiftPop
-            offer={categoryGiftOffer(session.profile, availableCategoryIds(lang))}
-            onChoose={(categoryId) => dispatch({ type: 'profile-loaded', profile: giftCategory(session.profile, categoryId) })}
-          />
-        )}
+      {giftPop && <CategoryGiftPop offer={gift} onChoose={takeGift} />}
 
       {menuOpen && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
         <Menu
@@ -1256,6 +1281,8 @@ export function App() {
           onAvatar={() => setEditingAvatar(true)}
           onChoose={choose}
           onChoosePower={choosePower}
+          gift={giftHeld ? gift : []}
+          onChooseGift={takeGift}
           onSupportAsked={supportAsked}
           boardsBefore={boardsBefore}
           boardsAfter={boardsAfter}

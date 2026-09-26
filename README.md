@@ -138,6 +138,7 @@ npm run dev          # serveur de dev (honore $PORT)
 npm test             # domaine, état et dictionnaires — Vitest, doit rester vert
 npm run lint         # oxlint
 npm run build        # tsc -b puis vite build
+npm run debug:recent # surligne les planches debug touchées depuis les deux dernières versions livrées
 npm run import:words # régénère src/data/words/fr/ (Wikidata, Wiktionnaire, Lexique, wordfreq, Wikipédia)
 npm run import:words -- --lang=de # idem pour une autre langue (en, es, de, it, nl, pt)
 npm run import:names # régénère prenoms, identique dans les sept langues (Wikidata, wordfreq)
