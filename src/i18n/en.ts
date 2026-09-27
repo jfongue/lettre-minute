@@ -436,6 +436,8 @@ export const en: Messages = {
           return `${milestone.at} words found`
         case 'bestCombo':
           return `a streak of ${milestone.at}`
+        case 'wordsAdded':
+          return `${milestone.at} ${plural(milestone.at, 'word added', 'words added')}`
       }
     },
   },
@@ -647,7 +649,7 @@ export const en: Messages = {
     sports: ['Sports', 'Disciplines and pastimes'],
     'corps-humain': ['Parts of the body', 'From head to toe'],
     matieres: ['Materials and elements', 'Wood, iron, oxygen, fire…'],
-    capitales: ['Cities', 'Among the 5 largest in their country'],
+    capitales: ['Large cities', 'Capitals, and cities of over 100,000 people'],
     marques: ['Brands', 'Well-known brands'],
     prenoms: ['First names', 'From here and elsewhere, from Emma to Mohammed'],
     objets: ['Everyday objects', 'Things found at home or in a bag'],

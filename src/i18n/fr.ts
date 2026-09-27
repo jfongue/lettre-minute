@@ -465,6 +465,8 @@ export const fr = {
           return `${milestone.at} mots trouvés`
         case 'bestCombo':
           return `série de ${milestone.at}`
+        case 'wordsAdded':
+          return `${milestone.at} ${plural(milestone.at, 'mot ajouté', 'mots ajoutés')}`
       }
     },
   },

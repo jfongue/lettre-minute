@@ -362,6 +362,14 @@ export function App() {
     })
   }, [signedIn, account?.name, account?.anonymous])
 
+  // Les mots ajoutés se déduisent des demandes acceptées, et le serveur seul en
+  // décide : le profil les reçoit pour que les sept tuiles qu'ils débloquent
+  // tiennent hors ligne. Un compte anonyme n'en a aucun, faute de pouvoir proposer.
+  useEffect(() => {
+    if (session.profile.wordsAdded === acceptedWords) return
+    dispatch({ type: 'profile-loaded', profile: { ...session.profile, wordsAdded: acceptedWords } })
+  }, [acceptedWords, session.profile])
+
   /** After any sign-in that changes user: the anonymous player's runs have been merged into it. */
   const enter = (outcome: AuthOutcome): string | null => {
     if (!outcome.ok) return t.account.errors[outcome.error]

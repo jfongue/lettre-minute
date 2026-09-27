@@ -18,6 +18,10 @@ describe('avatars', () => {
   const ORIENTATIONS: Record<string, number> = {
     circle: 1, square: 1, ring: 1, diamond: 1, sun: 1, cross: 1, flower: 1, dots: 1, frame: 1, target: 1,
     bars: 2, checker: 2, hexagon: 2, lens: 2, pill: 2, hourglass: 2,
+    // Deux quarts de tour rendent l'anneau brisé, l'éclipse et le point
+    // d'exclamation à l'identique ; la fleur, elle, en demande cinq, et l'arche
+    // est d'aplomb dans les quatre sens.
+    ringbroken: 2, eclipse: 2, bang: 2, bloom: 5, archway: 1,
   }
   const orientations = (design: AvatarDesign) => ORIENTATIONS[design.shape] ?? 4
 
@@ -61,10 +65,38 @@ describe('avatars', () => {
   })
 
   it('opens the whole palette and every tile to a long career', () => {
-    const veteran = { ...NEW_PROFILE, xp: xpForLevel(35), runs: 500, bestScore: 1000, wordsFound: 5000, bestCombo: 30 }
+    const veteran = { ...NEW_PROFILE, xp: xpForLevel(35), runs: 500, bestScore: 1000, wordsFound: 5000, bestCombo: 30, wordsAdded: 1000 }
 
     expect(ownedColours(veteran)).toHaveLength(PALETTE.length)
     expect(ownedDesigns(veteran)).toHaveLength(AVATARS.length)
+  })
+
+  it('never hands a tile to a player who has not played or added a word', () => {
+    expect(ownedDesigns(NEW_PROFILE)).toHaveLength(5)
+  })
+
+  // Les sept tuiles des mots ajoutés : la première dès le premier mot accepté
+  // — nul n'en a un avant que les modérateurs aient voté —, la dernière à mille.
+  it('pays a tile at each word the player got into the dictionary', () => {
+    const withWords = (wordsAdded: number) => ownedDesigns({ ...NEW_PROFILE, wordsAdded })
+
+    expect(withWords(0)).toHaveLength(5)
+    expect(withWords(1)).toHaveLength(6)
+    expect(withWords(14)).toHaveLength(6)
+    expect(withWords(15)).toHaveLength(7)
+    expect(withWords(999)).toHaveLength(11)
+    expect(withWords(1000)).toHaveLength(12)
+    expect(withWords(100000)).toHaveLength(12)
+  })
+
+  it('keeps every tile past the free ones on a goal of its own', () => {
+    const goals = AVATARS.slice(5).map((design) => {
+      const goal = designUnlock(design.id)
+      expect(goal).not.toBeNull()
+      return `${goal!.stat}:${goal!.at}`
+    })
+
+    expect(new Set(goals).size).toBe(goals.length)
   })
 })
 

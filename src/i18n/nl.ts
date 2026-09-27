@@ -431,6 +431,8 @@ export const nl: Messages = {
           return `${milestone.at} woorden gevonden`
         case 'bestCombo':
           return `een reeks van ${milestone.at}`
+        case 'wordsAdded':
+          return `${milestone.at} ${plural(milestone.at, 'toegevoegd woord', 'toegevoegde woorden')}`
       }
     },
   },
@@ -642,7 +644,7 @@ export const nl: Messages = {
     sports: ['Sporten', 'Disciplines en bezigheden'],
     'corps-humain': ['Lichaamsdelen', 'Van top tot teen'],
     matieres: ['Materialen en elementen', 'Hout, ijzer, zuurstof, vuur…'],
-    capitales: ['Steden', 'Bij de 5 grootste van hun land'],
+    capitales: ['Grote steden', 'Hoofdsteden en steden vanaf 100.000 inwoners'],
     marques: ['Merken', 'Bekende merken'],
     prenoms: ['Voornamen', 'Van hier en elders, van Emma tot Mohammed'],
     objets: ['Alledaagse voorwerpen', 'Wat je thuis of in je tas vindt'],

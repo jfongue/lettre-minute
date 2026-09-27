@@ -31,8 +31,28 @@ export type ShapeKind =
   | 'target'
   | 'heart'
   | 'domes'
+  | 'ringbroken'
+  | 'comma'
+  | 'bang'
+  | 'eclipse'
+  | 'bloom'
+  | 'archway'
+  | 'dial'
 
-export type Motion = 'still' | 'turn' | 'pulse' | 'spin' | 'sway' | 'bob'
+export type Motion =
+  | 'still'
+  | 'turn'
+  | 'pulse'
+  | 'spin'
+  | 'sway'
+  | 'bob'
+  | 'scatter'
+  | 'wiggle'
+  | 'stamp'
+  | 'hover'
+  | 'swing'
+  | 'breathe'
+  | 'nod'
 
 /** One tile of the poster: a shape, turned by quarters, with an optional small accent in a corner. */
 export interface AvatarDesign {
@@ -49,7 +69,7 @@ export interface Colour {
   hex: string
 }
 
-export type Stat = 'level' | 'runs' | 'bestScore' | 'wordsFound' | 'bestCombo'
+export type Stat = 'level' | 'runs' | 'bestScore' | 'wordsFound' | 'bestCombo' | 'wordsAdded'
 
 export interface Milestone {
   stat: Stat
@@ -117,7 +137,29 @@ const LOOKS: readonly Look[] = [
   ['target', 0, null, 'pulse'],
   ['heart', 0, null, 'pulse'],
   ['domes', 0, null, 'bob'],
+  // Les sept tuiles des mots ajoutés, dans l'ordre de leurs jalons : chacune a
+  // son mouvement propre, et aucune n'est un simple quart de tour d'une autre.
+  ['ringbroken', 0, null, 'scatter'],
+  ['comma', 0, null, 'wiggle'],
+  ['bang', 0, null, 'stamp'],
+  ['eclipse', 0, null, 'hover'],
+  ['bloom', 0, null, 'breathe'],
+  ['archway', 0, null, 'spin'],
+  ['dial', 0, null, 'nod'],
 ]
+
+/**
+ * A detail drawn from the accent layer rather than the shape's own colour: the
+ * dot of the exclamation mark, the hand of the dial. Not a `ShapeKind` — it is
+ * never a tile of its own — and never turned with the shape, or the hand would
+ * lie about the hour.
+ */
+export type DetailKind = 'bangDot' | 'dialHand'
+
+export const TINTED: Partial<Record<ShapeKind, DetailKind>> = {
+  bang: 'bangDot',
+  dial: 'dialHand',
+}
 
 export const AVATARS: readonly AvatarDesign[] = LOOKS.map(([shape, turn, accent, motion], id) => ({
   id,
@@ -151,7 +193,22 @@ function interleave<T>(tracks: readonly T[][]): T[] {
   return out
 }
 
-const DESIGN_GOALS = interleave(TRACKS)
+/**
+ * The seven tiles the dictionary pays for: one per word the player got into it,
+ * from the very first, since nobody has one before the moderators have voted.
+ *
+ * Appended after the interleaved tracks rather than given a sixth track: a new
+ * track takes its turn among the others and pushes every later goal down one
+ * tile, which would have moved the goal of all forty-three tiles already in the
+ * grid — the wiki warns that changing a threshold redistributes everyone's
+ * unlocks, and the first version of this very list did exactly that.
+ */
+const ADDED_GOALS: readonly Milestone[] = [1, 15, 50, 100, 300, 500, 1000].map((at) => ({
+  stat: 'wordsAdded' as const,
+  at,
+}))
+
+const DESIGN_GOALS: readonly Milestone[] = [...interleave(TRACKS), ...ADDED_GOALS]
 
 export function designUnlock(id: number): Milestone | null {
   return id < FREE_DESIGNS ? null : DESIGN_GOALS[id - FREE_DESIGNS]

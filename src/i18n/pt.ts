@@ -432,6 +432,8 @@ export const pt: Messages = {
           return `${milestone.at} palavras achadas`
         case 'bestCombo':
           return `uma sequência de ${milestone.at}`
+        case 'wordsAdded':
+          return `${milestone.at} ${plural(milestone.at, 'palavra adicionada', 'palavras adicionadas')}`
       }
     },
   },
@@ -643,7 +645,7 @@ export const pt: Messages = {
     sports: ['Esportes', 'Modalidades e práticas'],
     'corps-humain': ['Partes do corpo', 'Da cabeça aos pés'],
     matieres: ['Materiais e elementos', 'Madeira, ferro, oxigênio, fogo…'],
-    capitales: ['Cidades', 'Entre as 5 maiores do seu país'],
+    capitales: ['Grandes cidades', 'Capitais e cidades com mais de 100.000 habitantes'],
     marques: ['Marcas', 'Marcas conhecidas'],
     prenoms: ['Nomes próprios', 'Daqui e de fora, de Maria a Mohammed'],
     objets: ['Objetos do dia a dia', 'O que se encontra em casa ou na mala'],

@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react'
-import { AVATARS, colourHex, type AvatarChoice } from '../domain/avatar'
+import { AVATARS, colourHex, TINTED, type AvatarChoice } from '../domain/avatar'
 import { PATHS } from './paths'
 
 interface AvatarProps {
@@ -15,6 +15,7 @@ export function Avatar({ choice, size = 'md', locked = false }: AvatarProps) {
   const ground = locked ? 'var(--paper-2)' : colourHex(choice.ground)
   const shape = locked ? 'var(--ink-faint)' : colourHex(choice.shape)
   const accent = locked ? 'var(--ink-soft)' : colourHex(choice.accent)
+  const detail = TINTED[design.shape]
 
   return (
     <span
@@ -34,6 +35,13 @@ export function Avatar({ choice, size = 'md', locked = false }: AvatarProps) {
               </g>
             )}
           </g>
+          {/* Le détail teinté reste droit : tourné avec la forme, l'aiguille du
+              cadran annoncerait une autre heure à chaque quart de tour. */}
+          {detail && (
+            <g fill="currentColor" style={{ color: accent }}>
+              {PATHS[detail]}
+            </g>
+          )}
         </svg>
       </span>
     </span>

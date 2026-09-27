@@ -424,6 +424,47 @@ button.challenge-past::after {
   animation: spin 24s linear infinite;
 }
 
+/* Les sept tuiles des mots ajoutés : un mouvement chacune, aucun ne rejouant
+   ceux des tuiles déjà en place. Le délai négatif les désynchronise, comme les
+   autres, sans jamais les faire partir ensemble. Deux d'entre eux tournent —
+   `wiggle` et `nod` — mais d'un angle trop court pour faire le tour des
+   orientations d'une forme : c'est `turn` et `spin`, qui les traversent toutes,
+   que la règle écarte des formes dont le tour fait le dessin. */
+.motion-scatter {
+  animation: scatter 6s var(--ease-snap) infinite;
+  animation-delay: calc(var(--i, 0) * -0.7s);
+}
+
+.motion-wiggle {
+  animation: wiggle 3.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+}
+
+.motion-stamp {
+  animation: stamp 2.8s var(--ease-spring) infinite;
+  animation-delay: calc(var(--i, 0) * -0.4s);
+}
+
+.motion-hover {
+  animation: hover 4.5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.6s);
+}
+
+.motion-breathe {
+  animation: breathe-tall 5.5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.3s);
+}
+
+.motion-swing {
+  animation: swing 5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.9s);
+}
+
+.motion-nod {
+  animation: nod 4s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.55s);
+}
+
 /* ---------------------------------------------------------------- blocks - */
 .panel {
   display: grid;
@@ -2262,6 +2303,73 @@ button.challenge-past::after {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Une image clé par mouvement des sept tuiles des mots ajoutés : chacune se
+   distingue des cinq mouvements d'origine et des six autres. */
+@keyframes scatter {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+/* Le point d'exclamation tape : bref, fort, puis long silence. */
+@keyframes stamp {
+  0%,
+  10%,
+  100% {
+    transform: scale(1);
+  }
+  4% {
+    transform: scale(1.22);
+  }
+}
+
+@keyframes hover {
+  0% {
+    transform: translateY(-4%);
+  }
+  100% {
+    transform: translateY(4%);
+  }
+}
+
+@keyframes breathe-tall {
+  to {
+    transform: scaleY(0.86);
+  }
+}
+
+@keyframes swing {
+  0% {
+    transform: rotate(-5deg);
+  }
+  100% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes nod {
+  0% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(3deg);
   }
 }
 

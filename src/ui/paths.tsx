@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
-import type { ShapeKind } from './motifs'
+import type { DetailKind, ShapeKind } from './motifs'
 
-export const PATHS: Record<ShapeKind, ReactNode> = {
+export const PATHS: Record<ShapeKind | DetailKind, ReactNode> = {
   circle: <circle cx="50" cy="50" r="50" />,
   square: <rect width="100" height="100" />,
   quarter: <path d="M0 0H100A100 100 0 0 1 0 100Z" />,
@@ -63,4 +63,24 @@ export const PATHS: Record<ShapeKind, ReactNode> = {
       </g>
     </>
   ),
+  ringbroken: (
+    <>
+      <path d="M92.7 26.7A46 46 0 0 1 26.7 92.7" fill="none" stroke="currentColor" strokeWidth="26" />
+      <path d="M7.3 73.3A46 46 0 0 1 73.3 7.3" fill="none" stroke="currentColor" strokeWidth="26" />
+    </>
+  ),
+  comma: <path d="M50 0A42 42 0 0 1 92 42C92 68 72 88 46 100C46 84 38 70 26 56C16 44 8 34 8 24A24 24 0 0 1 50 0Z" />,
+  bang: <path d="M39 0H61L55 58H45Z" />,
+  eclipse: <path fillRule="evenodd" d="M50 0A50 50 0 1 1 50 100A50 50 0 1 1 50 0Z M50 0A50 50 0 0 0 50 100Z" />,
+  bloom: (
+    <>
+      {[0, 72, 144, 216, 288].map((angle) => (
+        <circle key={angle} cx="50" cy="23" r="19" transform={`rotate(${angle} 50 50)`} />
+      ))}
+    </>
+  ),
+  archway: <path d="M0 52A52 52 0 0 1 100 52V100H66V80A16 16 0 0 0 34 80V100H0Z" />,
+  dial: <circle cx="50" cy="50" r="40" />,
+  bangDot: <circle cx="50" cy="86" r="12" />,
+  dialHand: <rect x="47" y="6" width="6" height="44" rx="3" transform="rotate(45 50 50)" />,
 }

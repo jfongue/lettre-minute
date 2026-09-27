@@ -54,6 +54,13 @@ export interface Profile {
   bestScore: number
   wordsFound: number
   bestCombo: number
+  /**
+   * Words this player got into the dictionary, counted from their accepted
+   * proposals. The server alone decides an acceptance, so the count is mirrored
+   * from `my_submissions` whenever it is read; the profile keeps it so the
+   * avatar unlocks it feeds still hold offline.
+   */
+  wordsAdded: number
   /** Normalized word → times answered, all runs. Feeds the rarity decay. */
   usage: Readonly<Record<string, number>>
   /** Categories picked at level ups, on top of the starters. */
@@ -88,6 +95,7 @@ export const NEW_PROFILE: Profile = {
   bestScore: 0,
   wordsFound: 0,
   bestCombo: 0,
+  wordsAdded: 0,
   usage: {},
   unlocked: [],
   gifted: [],

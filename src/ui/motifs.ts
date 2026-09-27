@@ -3,7 +3,7 @@ import type { ShapeKind } from '../domain/avatar'
 import type { PowerId } from '../domain/powers'
 import { CATALOGUE } from '../domain/catalogue'
 
-export type { ShapeKind } from '../domain/avatar'
+export type { ShapeKind, DetailKind } from '../domain/avatar'
 
 // `ink` and `paper` swap in dark mode; `black` and `cream` never do, which is
 // what text printed on a block of colour needs.
