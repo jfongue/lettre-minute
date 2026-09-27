@@ -409,7 +409,7 @@ async function pullRows(pull: Pull, scope: Scope, dir: string, force: boolean, a
   }
 
   const started = Date.now()
-  const rows = pull.largestCities ? await largestCities(scope, attempts) : await sparql(queryFor(pull, scope), attempts)
+  const rows = pull.largestCities ? await largestCities(pull, scope, attempts) : await sparql(queryFor(pull, scope), attempts)
   writeFileSync(path, JSON.stringify(rows))
   console.log(`· ${pull.id}: ${rows.length} lignes en ${Math.round((Date.now() - started) / 1000)} s`)
   return rows
@@ -449,7 +449,7 @@ interface City {
 }
 
 /** Each country's largest cities, as many as its size allows. */
-async function largestCityList(): Promise<City[]> {
+async function largestCityList(pull: Pull): Promise<City[]> {
   const countries = new Map<string, { population: number; languages: string[] }>()
   for (const line of (await geonamesFile('countryInfo')).split('\n')) {
     if (line.startsWith('#') || !line.trim()) continue
@@ -474,12 +474,18 @@ async function largestCityList(): Promise<City[]> {
     })
     byCountry.set(country, cities)
   }
+  const extended = new Set(pull.cityCountries ?? [])
+  const floor = pull.minCityPopulation ?? 0
   return [...byCountry].flatMap(([country, cities]) => {
+    const ranked = cities.sort((a, b) => b.population - a.population)
     const keep =
       (countries.get(country)?.population ?? 0) >= LARGE_COUNTRY_POPULATION
         ? CITIES_PER_COUNTRY.large
         : CITIES_PER_COUNTRY.small
-    return cities.sort((a, b) => b.population - a.population).slice(0, keep)
+    // A country the game is played in keeps its largest and every city of the
+    // floor and more; elsewhere only the largest, or the category would hold
+    // every town of the world.
+    return extended.has(country) ? ranked.filter((city, rank) => rank < keep || city.population >= floor) : ranked.slice(0, keep)
   })
 }
 
@@ -507,8 +513,8 @@ async function sparqlTable(query: string, attempt = 1): Promise<Record<string, s
 
 const sparqlString = (text: string) => JSON.stringify(text)
 
-async function largestCities(scope: Scope, attempts: number): Promise<Row[]> {
-  const cities = await largestCityList()
+async function largestCities(pull: Pull, scope: Scope, attempts: number): Promise<Row[]> {
+  const cities = await largestCityList(pull)
   const items = new Set<string>()
   // Wikidata often files a GeoNames id on a stub — Munich's has no French
   // label and three sitelinks — located in (P131) the city's real item. The

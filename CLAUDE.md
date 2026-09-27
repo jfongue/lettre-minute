@@ -70,6 +70,17 @@ qu'un nouvel arrivant casserait sans le savoir.
   ont répondu. Un identifiant de taxon se vérifie auprès de l'API Wikidata avant
   d'être écrit dans `scripts/sources.ts` — une classe inexistante renvoie zéro
   ligne sans erreur.
+- **Les villes ne viennent pas de Wikidata mais de GeoNames** (`largestCities`,
+  `scripts/import-words.ts`) : le fichier `cities15000` porte déjà population et
+  pays, là où les classes de ville de Wikidata laissent Paris et Berlin dehors.
+  Chaque pays garde ses cinq plus grandes — dix au-dessus de
+  `LARGE_COUNTRY_POPULATION` —, et les dix pays où le jeu se joue
+  (`BIG_CITY_COUNTRIES`) gardent en plus toutes celles de `BIG_CITY_POPULATION`
+  et plus : c'est ce qui fait sortir Villeurbanne, Coventry ou Sabadell. Cette
+  extension est son propre *pull* (`big-cities`), pour que le jour où la liste
+  des pays ou le seuil bouge, seule cette requête se repaie. La catégorie garde
+  l'identifiant `capitales` sous lequel les profils et `prompt_stats` la
+  connaissent, même si elle s'appelle « Grandes villes ».
 - **Les sitelinks ne mesurent pas la notoriété** : des robots ont écrit un
   article en quarante langues pour chaque espèce et chaque commune. Ils ne
   servent que de repli ; la notoriété vient de wordfreq et des visites de

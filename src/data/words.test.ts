@@ -35,7 +35,11 @@ const NAMES = ['pays', 'capitales', 'marques', 'prenoms']
 describe('shipped dictionaries', () => {
   it('ship every catalogue category in every language', () => {
     for (const lang of LANGS) {
-      const ids = readdirSync(join(WORDS_DIR, lang)).map((file) => file.replace('.json', '')).sort()
+      // Only the dictionaries: a session's claim file sits in the same folder.
+      const ids = readdirSync(join(WORDS_DIR, lang))
+        .filter((file) => file.endsWith('.json'))
+        .map((file) => file.replace('.json', ''))
+        .sort()
       expect(ids, lang).toEqual(CATALOGUE.map((category) => category.id).sort())
     }
   })
@@ -137,7 +141,7 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     sports: ['football', 'tennis', 'judo', 'natation', 'rugby', 'ski', 'boxe', 'escrime'],
     'corps-humain': ['bras', 'jambe', 'cœur', 'œil', 'nez', 'genou', 'foie', 'orteil'],
     matieres: ['fer', 'bois', 'or', 'oxygène', 'cuivre', 'verre', 'béton', 'coton'],
-    capitales: ['Paris', 'Londres', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Nairobi', 'Lyon', 'Marseille', 'Munich', 'Anvers', 'Genève', 'Esch-sur-Alzette'],
+    capitales: ['Paris', 'Londres', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Nairobi', 'Lyon', 'Marseille', 'Munich', 'Anvers', 'Genève', 'Esch-sur-Alzette', 'Lille', 'Rennes', 'Dijon', 'Grenoble', 'Villeurbanne', 'Venise', 'Bilbao'],
     marques: ['Nike', 'Apple', 'Renault', 'Peugeot', 'Coca-Cola', 'Google', 'Adidas'],
     prenoms: ['Léa', 'Marie', 'Pierre', 'Jean', 'Emma', 'Lucas', 'Mohammed', 'Fatima', 'Karim', 'Yasmine'],
     plantes: ['rose', 'chêne', 'tulipe', 'ortie', 'fougère', 'sapin', 'lavande', 'marguerite', 'pissenlit', 'cactus', 'lierre', 'bambou', 'palmier', 'orchidée', 'tournesol'],
@@ -152,7 +156,7 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     sports: ['football', 'tennis', 'judo', 'swimming', 'rugby', 'golf', 'boxing'],
     'corps-humain': ['arm', 'leg', 'heart', 'eye', 'nose', 'knee', 'liver'],
     matieres: ['iron', 'wood', 'gold', 'oxygen', 'copper', 'glass', 'cotton'],
-    capitales: ['Paris', 'London', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Lyon', 'Munich', 'Chicago', 'Manchester'],
+    capitales: ['Paris', 'London', 'Tokyo', 'Berlin', 'Rome', 'Madrid', 'Ottawa', 'Lyon', 'Munich', 'Chicago', 'Manchester', 'Coventry', 'Oxford', 'Cambridge', 'Brighton', 'Nuremberg', 'Leipzig'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Toyota'],
     prenoms: ['Emma', 'John', 'Mary', 'James', 'Sarah', 'Mohammed', 'Fatima', 'Kevin'],
     plantes: ['rose', 'oak', 'tulip', 'nettle', 'fern', 'fir', 'lavender', 'daisy', 'dandelion', 'cactus', 'ivy', 'bamboo', 'palm', 'orchid', 'sunflower'],
@@ -167,7 +171,7 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     sports: ['Fußball', 'Tennis', 'Judo', 'Schwimmen', 'Rugby', 'Golf'],
     'corps-humain': ['Arm', 'Bein', 'Herz', 'Auge', 'Nase', 'Knie'],
     matieres: ['Eisen', 'Holz', 'Gold', 'Sauerstoff', 'Kupfer', 'Glas'],
-    capitales: ['Paris', 'London', 'Tokio', 'Berlin', 'Rom', 'Madrid'],
+    capitales: ['Paris', 'London', 'Tokio', 'Berlin', 'Rom', 'Madrid', 'Leipzig', 'Hannover', 'Nürnberg', 'Aachen', 'Bremen', 'Venedig'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Volkswagen'],
     prenoms: ['Hans', 'Emma', 'Maria', 'Kevin', 'Mohammed'],
     plantes: ['Rose', 'Eiche', 'Tulpe', 'Brennnessel', 'Farn', 'Tanne', 'Lavendel', 'Gänseblümchen', 'Löwenzahn', 'Kaktus', 'Efeu', 'Bambus', 'Palme', 'Orchidee', 'Sonnenblume'],
@@ -182,7 +186,7 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     sports: ['fútbol', 'tenis', 'judo', 'natación', 'rugby', 'golf', 'boxeo'],
     'corps-humain': ['brazo', 'pierna', 'corazón', 'ojo', 'nariz', 'rodilla'],
     matieres: ['hierro', 'madera', 'oro', 'oxígeno', 'cobre', 'vidrio'],
-    capitales: ['París', 'Londres', 'Tokio', 'Berlín', 'Roma', 'Madrid'],
+    capitales: ['París', 'Londres', 'Tokio', 'Berlín', 'Roma', 'Madrid', 'Bilbao', 'Granada', 'Valladolid', 'Vigo', 'Oviedo', 'Venecia'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Zara'],
     prenoms: ['José', 'María', 'Juan', 'Sofía', 'Mohammed', 'Fatima'],
     plantes: ['rosa', 'roble', 'tulipán', 'ortiga', 'helecho', 'abeto', 'lavanda', 'margarita', 'diente de león', 'cactus', 'hiedra', 'bambú', 'palmera', 'orquídea', 'girasol'],
@@ -197,7 +201,7 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     sports: ['calcio', 'tennis', 'judo', 'nuoto', 'rugby', 'golf', 'pugilato'],
     'corps-humain': ['braccio', 'gamba', 'cuore', 'occhio', 'naso', 'ginocchio'],
     matieres: ['ferro', 'legno', 'oro', 'ossigeno', 'rame', 'vetro'],
-    capitales: ['Parigi', 'Londra', 'Tokyo', 'Berlino', 'Roma', 'Madrid'],
+    capitales: ['Parigi', 'Londra', 'Tokyo', 'Berlino', 'Roma', 'Madrid', 'Taranto', 'Trieste', 'Venezia', 'Bolzano', 'Cagliari', 'Padova', 'Messina'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Fiat'],
     prenoms: ['Giulia', 'Marco', 'Maria', 'Giuseppe', 'Mohammed'],
     plantes: ['rosa', 'quercia', 'tulipano', 'ortica', 'felce', 'abete', 'lavanda', 'margherita', 'tarassaco', 'cactus', 'edera', 'bambù', 'palma', 'orchidea', 'girasole'],
@@ -212,7 +216,7 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     sports: ['voetbal', 'tennis', 'judo', 'zwemmen', 'rugby', 'golf', 'boksen'],
     'corps-humain': ['arm', 'been', 'hart', 'oog', 'neus', 'knie'],
     matieres: ['ijzer', 'hout', 'goud', 'zuurstof', 'koper', 'glas'],
-    capitales: ['Parijs', 'Londen', 'Tokio', 'Berlijn', 'Rome', 'Madrid'],
+    capitales: ['Parijs', 'Londen', 'Tokio', 'Berlijn', 'Rome', 'Madrid', 'Haarlem', 'Maastricht', 'Leiden', 'Arnhem', 'Enschede', 'Dordrecht', 'Rijsel', 'Brugge'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Philips'],
     prenoms: ['Emma', 'Jan', 'Sanne', 'Mohammed', 'Fatima'],
     plantes: ['roos', 'eik', 'tulp', 'brandnetel', 'varen', 'spar', 'lavendel', 'madeliefje', 'paardenbloem', 'cactus', 'klimop', 'bamboe', 'palm', 'orchidee', 'zonnebloem'],
@@ -227,7 +231,7 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     sports: ['futebol', 'tênis', 'judô', 'natação', 'rugby', 'golfe', 'boxe'],
     'corps-humain': ['braço', 'perna', 'coração', 'olho', 'nariz', 'joelho'],
     matieres: ['ferro', 'madeira', 'ouro', 'oxigênio', 'cobre', 'vidro'],
-    capitales: ['Paris', 'Londres', 'Tóquio', 'Berlim', 'Roma', 'Madrid'],
+    capitales: ['Paris', 'Londres', 'Tóquio', 'Berlim', 'Roma', 'Madrid', 'João Pessoa', 'Porto Alegre', 'Campinas', 'Florianópolis', 'Santos', 'Niterói', 'Veneza'],
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Natura'],
     prenoms: ['Maria', 'José', 'João', 'Ana', 'Mohammed'],
     plantes: ['rosa', 'carvalho', 'tulipa', 'urtiga', 'samambaia', 'abeto', 'lavanda', 'margarida', 'dente-de-leão', 'cato', 'hera', 'bambu', 'palmeira', 'orquídea', 'girassol'],

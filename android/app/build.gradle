@@ -17,8 +17,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         // versionCode doit croître à chaque envoi au Play Store, versionName
         // est ce que voit le joueur.
-        versionCode 16
-        versionName "1.6.4"
+        versionCode 17
+        versionName "1.6.5"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         // Sans identifiant AdMob le SDK plante au lancement : à défaut du vrai
         // (admobAppId dans gradle.properties), l'app de test de Google.
