@@ -496,6 +496,7 @@ export function fetchInsights(lang: string): Promise<Insights | null> {
           passed: Number(row.passed) || 0,
           words: Number(row.words) || 0,
           points: Number(row.points) || 0,
+          reported: row.reported === true,
         }),
       ),
     }

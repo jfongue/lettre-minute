@@ -329,18 +329,21 @@ const POWERS: readonly PowerTally[] = [
 ]
 
 const PAIRS: readonly PairTally[] = [
-  { categoryId: 'pays', letter: 'Z', dealt: 42, passed: 34, words: 9, points: 620 },
-  { categoryId: 'animaux', letter: 'Q', dealt: 31, passed: 24, words: 8, points: 540 },
-  { categoryId: 'couleurs', letter: 'V', dealt: 58, passed: 12, words: 51, points: 1_780 },
-  { categoryId: 'pays', letter: 'B', dealt: 74, passed: 9, words: 69, points: 2_240 },
-  { categoryId: 'metiers', letter: 'E', dealt: 26, passed: 11, words: 18, points: 430 },
-  { categoryId: 'fruits-legumes', letter: 'K', dealt: 19, passed: 14, words: 6, points: 260 },
-  { categoryId: 'animaux', letter: 'O', dealt: 61, passed: 8, words: 55, points: 1_690 },
-  { categoryId: 'sports', letter: 'C', dealt: 47, passed: 19, words: 33, points: 780 },
-  { categoryId: 'capitales', letter: 'A', dealt: 12, passed: 5, words: 8, points: 320 },
-  { categoryId: 'marques', letter: 'F', dealt: 23, passed: 15, words: 10, points: 240 },
-  { categoryId: 'plantes', letter: 'M', dealt: 9, passed: 6, words: 4, points: 150 },
-  { categoryId: 'objets', letter: 'T', dealt: 17, passed: 4, words: 14, points: 260 },
+  // Rapportés par une partie : les tirages quittés s'y comptent.
+  { categoryId: 'pays', letter: 'Z', dealt: 42, passed: 34, words: 9, points: 620, reported: true },
+  { categoryId: 'animaux', letter: 'Q', dealt: 31, passed: 24, words: 8, points: 540, reported: true },
+  { categoryId: 'couleurs', letter: 'V', dealt: 58, passed: 12, words: 51, points: 1_780, reported: true },
+  { categoryId: 'pays', letter: 'B', dealt: 74, passed: 9, words: 69, points: 2_240, reported: true },
+  { categoryId: 'metiers', letter: 'E', dealt: 26, passed: 11, words: 18, points: 430, reported: true },
+  { categoryId: 'fruits-legumes', letter: 'K', dealt: 19, passed: 14, words: 6, points: 260, reported: true },
+  { categoryId: 'sports', letter: 'C', dealt: 47, passed: 19, words: 33, points: 780, reported: true },
+  { categoryId: 'marques', letter: 'F', dealt: 23, passed: 15, words: 10, points: 240, reported: true },
+  // Lus dans les mots joués d'une partie qui n'a rien rapporté : « au moins »
+  // N tirages, et leur part de tirages quittés reste inconnue.
+  { categoryId: 'animaux', letter: 'O', dealt: 61, passed: 0, words: 55, points: 1_690, reported: false },
+  { categoryId: 'capitales', letter: 'A', dealt: 12, passed: 0, words: 8, points: 320, reported: false },
+  { categoryId: 'plantes', letter: 'M', dealt: 9, passed: 0, words: 4, points: 150, reported: false },
+  { categoryId: 'objets', letter: 'T', dealt: 17, passed: 0, words: 14, points: 260, reported: false },
 ]
 
 const RUN_HOURS = [3, 2, 1, 0, 0, 1, 4, 9, 14, 18, 21, 17, 12, 15, 19, 24, 31, 28, 22, 16, 11, 7, 5, 4]

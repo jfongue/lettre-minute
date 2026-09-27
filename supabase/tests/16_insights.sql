@@ -1,12 +1,17 @@
 -- The advanced leaderboards: the powers a run was played with, what a pair
 -- letter + category yields, and the rhythm of runs and new accounts. Fed by
--- `report_prompts` (0025) and read by three functions no stranger may call.
+-- `report_prompts` (0025), read by three functions no stranger may call, and
+-- blind to the house bots (0026) — which also read the words of the runs that
+-- were never reported.
 
--- La base porte déjà les joueurs maison de 0006 et leurs parties, tous datés
--- de sa construction : le test compte à partir de ce qu'elle avait.
+-- La base porte déjà les joueurs maison de 0006 et leurs parties : le test
+-- compte à partir de ce qu'elle avait, robots exclus.
 create temp table baseline as
-  select (select count(*)::int from public.runs) as runs,
-         (select count(*)::int from auth.users where not is_anonymous) as accounts;
+  select (select count(*)::int from public.runs r
+           where not exists (select 1 from public.bots b where b.id = r.player_id)) as runs,
+         (select count(*)::int from auth.users u
+           where not u.is_anonymous
+             and not exists (select 1 from public.bots b where b.id = u.id)) as accounts;
 -- Lu plus loin sous le rôle d'un joueur : la table temporaire est à la session.
 grant select on baseline to authenticated;
 
@@ -69,16 +74,24 @@ select tests.is(
   'the buckets read from the oldest to the newest'
 );
 
--- The house bots play too: their runs are the crowd's rhythm, unlike the
--- leaderboards (0024), and they carry no power.
+-- The house bots play every hour, but they are not the crowd: their runs and
+-- their accounts stay out of the rhythm (0026), as they stay off the
+-- leaderboards (0024).
+-- Le robot joue à coup sûr : la base, elle, ne le fait jouer qu'au hasard de
+-- sa construction (0006), donc rien n'y est supposé.
 select tests.logout();
 insert into public.runs (player_id, seed, score, words, created_at, powers)
-select b.id, 9, 40, 1, now(), '{}' from public.bots b limit 1;
+select b.id, 9, 40, 1, now(), array['joker'] from public.bots b limit 1;
+insert into public.run_words (run_id, word, category_id, points)
+select r.id, 'chat', 'animaux', 90 from public.runs r
+  join public.bots b on b.id = r.player_id where r.seed = 9;
 select tests.login('ia');
-select tests.is((select sum(runs)::int from public.debug_activity('hour')), (select runs + 4 from baseline),
-                'a house bot run counts in the rhythm');
-select tests.is((select coalesce(sum(runs), 0)::int from public.debug_powers() where power = ''), 0,
-                'and adds no power of its own');
+select tests.is((select sum(runs)::int from public.debug_activity('hour')), (select runs + 3 from baseline),
+                'a house bot run stays out of the rhythm');
+select tests.ok(not exists (select 1 from public.debug_powers() where power = 'joker' and runs > 2),
+                'nor does it weigh on a power');
+select tests.ok(not exists (select 1 from public.debug_pairs('fr') where points = 90),
+                'nor does its word enter a pair');
 
 -- ------------------------------------------------- what a pair yields --
 
@@ -132,3 +145,70 @@ select tests.is((select words from public.debug_pairs('fr') where letter = 'F'),
 select tests.throws($$insert into public.runs (player_id, seed, score, powers)
                       values (tests.uid('ia'), 20, 10, array_fill('joker'::text, array[21]))$$,
                 'a run cannot carry more powers than a challenge admits', '23514');
+
+-- ------------------------------------------- l'histoire des couples --
+
+-- Ce que les parties d'avant le rapport ont écrit : la lettre est celle que le
+-- jeu juge, et un mot trouvé vaut un tirage au moins. Les couples choisis sont
+-- ceux qu'aucun rapport de ce fichier n'a déjà comptés.
+select tests.logout();
+insert into public.runs (player_id, seed, score, words, created_at)
+values (tests.uid('ia'), 30, 120, 3, now() - interval '2 days');
+insert into public.run_words (run_id, word, category_id, points)
+select r.id, w.word, w.category, w.points
+  from public.runs r,
+       (values ('Écarlate', 'couleurs', 40), ('Œil', 'corps-humain', 30), ('côte d''Ivoire', 'pays', 50)) as w(word, category, points)
+ where r.player_id = tests.uid('ia') and r.seed = 30;
+
+select tests.login('ia');
+select tests.is((select letter from public.debug_pairs('fr') where category_id = 'couleurs'), 'E',
+                'an accented word plays on its plain letter');
+select tests.is((select letter from public.debug_pairs('fr') where category_id = 'corps-humain'), 'O',
+                'a ligature plays on the letter the game draws');
+select tests.is((select letter from public.debug_pairs('fr') where category_id = 'pays' and letter = 'C'), 'C',
+                'so does a name read from its first letter');
+select tests.is((select reported from public.debug_pairs('fr') where category_id = 'couleurs'), false,
+                'a pair read from the runs says where it comes from');
+select tests.is((select dealt from public.debug_pairs('fr') where category_id = 'couleurs'), 1,
+                'and counts the runs that answered it');
+select tests.is((select points from public.debug_pairs('fr') where category_id = 'couleurs'), 40,
+                'with the points those words brought');
+
+-- Deux mots du même couple dans la même partie : les points s'additionnent,
+-- le tirage répondus ne se compte qu'une fois.
+select tests.logout();
+insert into public.run_words (run_id, word, category_id, points)
+select r.id, 'Écru', 'couleurs', 20 from public.runs r where r.player_id = tests.uid('ia') and r.seed = 30;
+select tests.login('ia');
+select tests.is((select dealt from public.debug_pairs('fr') where category_id = 'couleurs'), 1,
+                'two words of one run make one answered draw');
+select tests.is((select words from public.debug_pairs('fr') where category_id = 'couleurs'), 2,
+                'both words are counted');
+select tests.is((select points from public.debug_pairs('fr') where category_id = 'couleurs'), 60,
+                'and their points add up');
+
+-- La partie rapporte enfin ses couples : l'histoire ne la compte plus.
+select tests.is(
+  public.report_prompts(30, 'fr', '[{"category":"couleurs","letter":"E","passed":false,"points":60,"words":2}]'::jsonb),
+  true,
+  'the run finally reports its pairs'
+);
+select tests.is((select count(*)::int from public.debug_pairs('fr') where category_id = 'couleurs'), 1,
+                'the pair is not counted twice');
+select tests.is((select reported from public.debug_pairs('fr') where category_id = 'couleurs'), true,
+                'the report takes over from the history');
+select tests.is((select points from public.debug_pairs('fr') where category_id = 'couleurs'), 60,
+                'keeping the points it carried');
+
+-- Une partie allemande ne parle qu'à l'allemand, préfixe compris.
+select tests.logout();
+insert into public.runs (player_id, seed, score, words, created_at)
+values (tests.uid('ib'), 31, 60, 1, now() - interval '2 days');
+insert into public.run_words (run_id, word, category_id, points)
+select r.id, 'de:katze', 'de:animaux', 25 from public.runs r where r.player_id = tests.uid('ib') and r.seed = 31;
+
+select tests.login('ib');
+select tests.is((select count(*)::int from public.debug_pairs('fr') where points = 25), 0, 'a German word says nothing of the French pairs');
+select tests.is((select category_id from public.debug_pairs('de') where points = 25), 'animaux', 'and reads bare in German');
+select tests.is((select letter from public.debug_pairs('de') where points = 25), 'K', 'with the letter the German game draws');
+select tests.is((select reported from public.debug_pairs('de') where points = 25), false, 'as a pair read from the runs');

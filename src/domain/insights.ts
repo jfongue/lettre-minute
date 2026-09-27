@@ -29,6 +29,13 @@ export interface PairTally {
   passed: number
   words: number
   points: number
+  /**
+   * Vrai quand une partie a rapporté les tirages de ce couple (0022), faux
+   * quand il se lit seulement dans les mots joués d'une partie d'avant le
+   * rapport : les tirages quittés y sont invisibles, `dealt` en est un
+   * plancher et `passed` reste à zéro faute de mieux.
+   */
+  reported: boolean
 }
 
 export interface Insights {
@@ -85,10 +92,14 @@ export function mostProfitablePairs(pairs: readonly PairTally[]): PairTally[] {
     .sort((a, b) => pairYield(b) - pairYield(a) || b.dealt - a.dealt || pairKey(a).localeCompare(pairKey(b)))
 }
 
-/** Les couples que les joueurs quittent le plus, en part de leurs tirages. */
+/**
+ * Les couples que les joueurs quittent le plus, en part de leurs tirages. Seuls
+ * ceux dont les tirages ont été rapportés : un couple lu dans les mots joués
+ * n'a jamais dit qu'on l'avait quitté.
+ */
 export function mostPassedPairs(pairs: readonly PairTally[]): PairTally[] {
   return pairs
-    .filter((pair) => pair.dealt >= MIN_PAIR_DEALT)
+    .filter((pair) => pair.reported && pair.dealt >= MIN_PAIR_DEALT)
     .sort((a, b) => passRate(b) - passRate(a) || b.dealt - a.dealt || pairKey(a).localeCompare(pairKey(b)))
 }
 

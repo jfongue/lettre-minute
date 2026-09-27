@@ -322,6 +322,15 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Le bouton quitter reste à gauche** : le coin haut droit de l'affiche est
   celui des cinq tapes qui ouvrent la planche, un bouton au même endroit la
   refermait aussitôt.
+- **Les classements avancés ne lisent ni les robots ni les seuls rapports**
+  (0026) : les joueurs maison jouent toutes les heures par `pg_cron`, et
+  `debug_activity`, `debug_powers` et `debug_pairs` les écartent par leur
+  compte (`bots`). Les deux derniers jours de parties n'ont rien rapporté :
+  `debug_pairs` réunit donc les rapports (`prompt_stats`) et les mots joués
+  des parties absentes de `prompt_reports`, sous `reported = false` — leurs
+  tirages quittés sont inconnus, d'où le « au moins » de l'interface et une
+  part de tirages quittés qui ne se lit que sur les lignes rapportées. Rien
+  n'est écrit dans `prompt_stats`, que le tirage lit.
 - **Les classements avancés vivent sous le même toit** (`src/debug/Insights.tsx`) :
   cinq tapes rapprochées sur le mot « Classement » — le titre de l'accueil ou
   celui de la page des classements — les ouvrent sous les sept mesures. Outil

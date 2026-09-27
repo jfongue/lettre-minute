@@ -139,14 +139,14 @@ export function InsightsView({ data, period, onClose }: InsightsViewProps) {
 
       <Ranking
         title="Couples catégorie + lettre les plus rentables"
-        note={`Points qu’un tirage rapporte en moyenne, parmi les couples tirés au moins ${MIN_PAIR_DEALT} fois.`}
+        note={`Points qu’un tirage rapporte en moyenne, parmi les couples tirés au moins ${MIN_PAIR_DEALT} fois. Les tirages des parties qui n'ont rien rapporté se lisent dans leurs mots joués : « au moins » dit qu'on n'y voit pas ceux qu'elles ont quittés.`}
         rows={rich}
         empty="Aucun couple n’a encore assez tourné."
         render={(row) => (
           <>
             <strong>{pairName(t, row)}</strong>
             <span className="note">
-              {Math.round(pairYield(row))} pts par tirage · {formatNumber(t, row.words)} mots · {formatNumber(t, row.dealt)} tirages
+              {Math.round(pairYield(row))} pts par tirage · {formatNumber(t, row.words)} mots · {draws(t, row)}
             </span>
           </>
         )}
@@ -154,9 +154,9 @@ export function InsightsView({ data, period, onClose }: InsightsViewProps) {
 
       <Ranking
         title="Couples les plus passés"
-        note={`Part des tirages quittés sans rien écrire, parmi les couples tirés au moins ${MIN_PAIR_DEALT} fois.`}
+        note={`Part des tirages quittés sans rien écrire, parmi les couples tirés au moins ${MIN_PAIR_DEALT} fois. Seuls ceux dont une partie a rapporté les tirages : un couple lu dans les mots joués n'a jamais dit qu'on l'avait quitté.`}
         rows={passed}
-        empty="Aucun couple n’a encore assez tourné."
+        empty="Aucune partie n’a encore rapporté assez de tirages."
         render={(row) => (
           <>
             <strong>{pairName(t, row)}</strong>
@@ -178,6 +178,12 @@ function powerName(t: Translator, power: string): string {
 
 function pairName(t: Translator, pair: PairTally): string {
   return `${categoryText(t, pair.categoryId).label} · ${pair.letter}`
+}
+
+/** Un couple lu dans les mots joués ne montre que les tirages qui ont donné un mot. */
+function draws(t: Translator, pair: PairTally): string {
+  const count = `${formatNumber(t, pair.dealt)} tirages`
+  return pair.reported ? count : `au moins ${count}`
 }
 
 /**
@@ -224,7 +230,11 @@ function Ranking<T>({
   )
 }
 
-/** Le rythme du jeu, une barre par heure, par jour ou par semaine. */
+/**
+ * Le rythme du jeu, une barre par heure, par jour ou par semaine. La case
+ * survolée se lit au-dessus de la frise, à hauteur fixe : rien ne bouge sous le
+ * doigt, et le doigt lui-même peut la choisir là où le survol n'existe pas.
+ */
 function Chart({
   title,
   note,
@@ -241,8 +251,11 @@ function Chart({
   unit(count: number): string
 }) {
   const t = useT()
+  const [held, setHeld] = useState<number | null>(null)
   const top = peak(buckets, field)
   const total = buckets.reduce((sum, bucket) => sum + bucket[field], 0)
+  const point = held === null ? undefined : buckets[held]
+  const box = step === 'hour' ? 'l’heure' : step === 'day' ? 'le jour' : 'la semaine'
   return (
     <section className="insight stack">
       <div className="spread">
@@ -252,13 +265,24 @@ function Chart({
         </p>
       </div>
       <p className="note">{note}</p>
+      <p className={`note insight-readout${point ? ' insight-readout--on' : ''}`} aria-live="polite">
+        {point
+          ? `${when(t, point.at, step)} · ${formatNumber(t, point[field])} ${unit(point[field])}`
+          : `Survole une barre pour ${box} et son compte.`}
+      </p>
       <div
-        className={`insight-chart insight-chart--${field}`}
+        className={`insight-chart insight-chart--${field}${held === null ? '' : ' insight-chart--held'}`}
         role="img"
         aria-label={`${title} : ${formatNumber(t, total)} ${unit(total)}`}
       >
-        {buckets.map((bucket) => (
-          <span className="insight-bar" key={bucket.at} title={`${when(t, bucket.at, step)} · ${bucket[field]}`}>
+        {buckets.map((bucket, index) => (
+          <span
+            className={`insight-bar${held === index ? ' insight-bar--on' : ''}`}
+            key={bucket.at}
+            onPointerEnter={(event) => event.pointerType !== 'touch' && setHeld(index)}
+            onPointerLeave={(event) => event.pointerType !== 'touch' && setHeld(null)}
+            onPointerDown={() => setHeld(index)}
+          >
             <span className="insight-bar-fill" style={{ '--ratio': bucket[field] / top } as CSSProperties} />
           </span>
         ))}

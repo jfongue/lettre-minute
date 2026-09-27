@@ -18,14 +18,15 @@ import {
 
 const power = (id: string, runs: number, points: number, best = points): PowerTally => ({ power: id, runs, points, best })
 
-const pair = (categoryId: string, letter: string, dealt: number, passed: number, words: number, points: number): PairTally => ({
-  categoryId,
-  letter,
-  dealt,
-  passed,
-  words,
-  points,
-})
+const pair = (
+  categoryId: string,
+  letter: string,
+  dealt: number,
+  passed: number,
+  words: number,
+  points: number,
+  reported = true,
+): PairTally => ({ categoryId, letter, dealt, passed, words, points, reported })
 
 describe('averagePoints', () => {
   it('divides the points by the runs that carried the power', () => {
@@ -110,6 +111,11 @@ describe('mostPassedPairs', () => {
       pair('couleurs', 'V', MIN_PAIR_DEALT - 1, 100, 0, 0),
     ])
     expect(rows.map(pairKey)).toEqual(['pays:Z', 'animaux:Z'])
+  })
+
+  it('leaves out a pair read from the words played, whose passes are unknown', () => {
+    const rows = mostPassedPairs([pair('pays', 'Z', 40, 0, 30, 900, false), pair('animaux', 'Z', 8, 4, 4, 80)])
+    expect(rows.map(pairKey)).toEqual(['animaux:Z'])
   })
 })
 

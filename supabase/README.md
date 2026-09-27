@@ -1,6 +1,6 @@
 # Supabase
 
-Vingt-cinq migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Vingt-six migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -33,7 +33,10 @@ pour le renflouage de la file limité à un versement par heure,
 pour sortir les joueurs maison des classements, et
 [`0025_insights.sql`](migrations/0025_insights.sql) pour les classements
 avancés du mode débug (pouvoirs joués, rythme des parties et des comptes,
-couples les plus rentables ou les plus quittés).
+couples les plus rentables ou les plus quittés), et
+[`0026_insights_history.sql`](migrations/0026_insights_history.sql) pour en
+sortir les joueurs maison et y lire les mots joués des parties qui n'ont rien
+rapporté.
 
 ## Ce que le serveur détient
 
@@ -97,6 +100,22 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   (0022) ne disaient que « tiré » et « quitté » ; `report_prompts` y ajoute
   les points et les mots de ses réponses. Un couple tiré deux fois dans la
   même partie ne les compte qu'une fois, sur son premier passage.
+- **Les joueurs maison ne sont pas la foule** (0026) : leurs parties tournent
+  toutes les heures par `pg_cron` — elles gonflaient le rythme du jeu comme si
+  les joueurs veillaient la nuit. Les trois fonctions les écartent par leur
+  compte (`bots`), jamais par leur nom.
+- **L'histoire complète les rapports** : les compteurs de `prompt_stats` ne
+  datent que des clients qui rapportent leurs couples, et des points depuis
+  0025 seulement. `debug_pairs` y réunit donc les mots joués des parties dont
+  aucun rapport n'est arrivé (`prompt_reports` dit lesquelles), avec la lettre
+  que le jeu juge (`prompt_letter`, comme `initialOf` côté client). Ces lignes
+  portent `reported = false` : leurs tirages quittés sont invisibles, `dealt`
+  en est un plancher — « au moins N tirages » — et la part de tirages quittés
+  ne se lit que sur les lignes rapportées.
+- **Rien de tout cela n'écrit dans `prompt_stats`** : le tirage lit cette
+  table (`Judge.pull`), et un `dealt` qui ne compterait que les tirages
+  répondus fausserait la cote des couples concernés. L'histoire ne vit que
+  dans ce que lisent les classements avancés.
 - **Le rythme se lit à l'heure de Paris**, comme les périodes des classements
   (`period_start`) : les vingt-quatre dernières heures, les sept derniers
   jours ou les douze dernières semaines, les cases vides sortant à zéro pour

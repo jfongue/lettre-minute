@@ -6511,7 +6511,19 @@ button.challenge-word[aria-expanded='true'] {
   overflow-wrap: anywhere;
 }
 
-/* Une barre par case : la hauteur dit le nombre, le titre du survol le chiffre. */
+/* La case survolée : sa ligne de lecture au-dessus, et les autres barres qui
+   s'effacent pour la laisser seule en vue. */
+.insight-readout {
+  min-height: 1.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.insight-readout--on {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Une barre par case : la hauteur dit le nombre, le survol ou le doigt le chiffre. */
 .insight-chart {
   display: flex;
   align-items: flex-end;
@@ -6527,6 +6539,16 @@ button.challenge-word[aria-expanded='true'] {
   align-items: flex-end;
   height: 100%;
   min-width: 0;
+  cursor: crosshair;
+  transition: opacity 160ms var(--ease-out);
+}
+
+.insight-chart--held .insight-bar {
+  opacity: 0.45;
+}
+
+.insight-chart--held .insight-bar--on {
+  opacity: 1;
 }
 
 .insight-bar-fill {
@@ -6534,6 +6556,10 @@ button.challenge-word[aria-expanded='true'] {
   height: calc(var(--ratio, 0) * 100%);
   min-height: 2px;
   transition: height 300ms var(--ease-out);
+}
+
+.insight-bar--on .insight-bar-fill {
+  box-shadow: 0 0 0 1px var(--paper), 0 0 0 2.5px var(--ink);
 }
 
 .insight-chart--runs .insight-bar-fill {
