@@ -6,7 +6,7 @@ import { NEW_PROFILE, xpForLevel, type Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
 import type { KeptWord, MissedWord, Run } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
-import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, Submission } from '../lib/cloud'
+import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, Submission, SubmissionStatus } from '../lib/cloud'
 import type { AccountActions } from '../ui/AccountPanel'
 import { ChallengeNotice } from '../ui/ChallengeHome'
 import { ChallengePowers } from '../ui/ChallengePowers'
@@ -15,7 +15,7 @@ import { PowerGiftPop, WordsNewsPop } from '../ui/WordsNews'
 import { HomeScreen } from '../ui/HomeScreen'
 import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
-import { OverScreen } from '../ui/OverScreen'
+import { OverScreen, type RunProposal } from '../ui/OverScreen'
 import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
 import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
@@ -139,6 +139,7 @@ function makeRun(score: number, words: readonly Word[] = WORDS, missed: readonly
     drawn: words.length + 1,
     avoid: [],
     dealt: [],
+    settled: [],
     shared: false,
     seeded: [],
     found,
@@ -340,6 +341,11 @@ function PastScenario({ back }: { back(): void }) {
   )
 }
 
+/** A request as the server would hand it back, for the scenarios that show one. */
+function submission(id: string, categoryId: string, display: string, status: SubmissionStatus, locked = false): Submission {
+  return { id, lang: 'fr', categoryId, display, status, at: 0, locked, fresh: false }
+}
+
 /** The real end screen, its picks applied to a copy of the profile the way the session would. */
 function OverScenario({
   run = RUN,
@@ -348,6 +354,9 @@ function OverScenario({
   account = NAMED,
   challengeState,
   gift = [],
+  mine,
+  requests = [],
+  failing = false,
   onBack,
 }: {
   run?: Run
@@ -357,10 +366,17 @@ function OverScenario({
   challengeState?: ChallengeDetail | 'sending' | 'failed'
   /** La catégorie offerte par la vague, remise par-dessus le bilan. */
   gift?: readonly string[]
+  /** Les mots que le joueur a lui-même fait entrer, pour la marque discrète. */
+  mine?: ReadonlySet<string>
+  /** Les mots proposés pendant la partie, corrigés et retirés comme en vrai. */
+  requests?: readonly RunProposal[]
+  /** Le serveur ne répond pas : les deux gestes échouent, le bilan le dit. */
+  failing?: boolean
   onBack(): void
 }) {
   const [profile, setProfile] = useState(after)
   const [revealed, setRevealed] = useState(false)
+  const [proposals, setProposals] = useState(requests)
   return (
     <OverScreen
       run={run}
@@ -378,6 +394,27 @@ function OverScenario({
       gift={gift}
       onChooseGift={noop}
       onSupportAsked={noop}
+      mine={mine}
+      proposals={proposals}
+      onCorrectProposal={async (proposal, display) => {
+        if (failing) return false
+        setProposals((current) =>
+          current.map((entry) =>
+            entry.proposal.at === proposal.at
+              ? {
+                  proposal: { ...entry.proposal, word: display },
+                  submission: entry.submission && { ...entry.submission, display },
+                }
+              : entry,
+          ),
+        )
+        return true
+      }}
+      onWithdrawProposal={async (proposal) => {
+        if (failing) return false
+        setProposals((current) => current.filter((entry) => entry.proposal.at !== proposal.at))
+        return true
+      }}
       onReplay={onBack}
       onHome={onBack}
       challenge={challengeState}
@@ -423,7 +460,63 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Classique, record battu',
     how: 'Record, mots rares, faute d’une lettre, demande de soutien',
     phase: 'over',
-    render: (back) => <OverScenario after={afterRun(PROFILE, RUN, { runs: PROFILE.runs + 10 })} onBack={back} />,
+    render: (back) => (
+      <OverScenario
+        after={afterRun(PROFILE, RUN, { runs: PROFILE.runs + 10 })}
+        mine={new Set(['bhoutan', 'ornithorynque'])}
+        onBack={back}
+      />
+    ),
+  },
+  {
+    id: 'over-proposals',
+    group: 'Fin de partie',
+    title: 'Mots proposés au bilan',
+    how: 'Un mot encore sur l’appareil, un en attente, un entré : corriger et retirer marchent',
+    phase: 'over',
+    render: (back) => (
+      <OverScenario
+        after={afterRun(PROFILE, RUN)}
+        mine={new Set(['bhoutan'])}
+        requests={[
+          { proposal: { word: 'axolotl', categoryId: 'animaux', at: 1, lang: 'fr' }, submission: null },
+          {
+            proposal: { word: 'narval', categoryId: 'animaux', at: 2, lang: 'fr' },
+            submission: submission('s-narval', 'animaux', 'narval', 'pending', true),
+          },
+          {
+            proposal: { word: 'okapi', categoryId: 'animaux', at: 3, lang: 'fr' },
+            submission: submission('s-okapi', 'animaux', 'okapi', 'accepted', true),
+          },
+          {
+            proposal: { word: 'quiscale', categoryId: 'animaux', at: 4, lang: 'fr' },
+            submission: submission('s-quiscale', 'animaux', 'quiscale', 'pending'),
+          },
+        ]}
+        onBack={back}
+      />
+    ),
+  },
+  {
+    id: 'over-proposals-failed',
+    group: 'Fin de partie',
+    title: 'Mots proposés : le serveur ne répond pas',
+    how: 'Corriger et retirer échouent : la ligne reste, et le bilan le dit',
+    phase: 'over',
+    render: (back) => (
+      <OverScenario
+        after={afterRun(PROFILE, RUN)}
+        requests={[
+          { proposal: { word: 'axolotl', categoryId: 'animaux', at: 1, lang: 'fr' }, submission: null },
+          {
+            proposal: { word: 'quiscale', categoryId: 'animaux', at: 2, lang: 'fr' },
+            submission: submission('s-quiscale', 'animaux', 'quiscale', 'pending'),
+          },
+        ]}
+        failing
+        onBack={back}
+      />
+    ),
   },
   {
     id: 'over-category',

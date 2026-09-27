@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { availableCategoryIds, loadPack, loadPacks } from './data/packs'
 import {
+  cancelSubmission,
+  correctSubmission,
   createChallenge,
   deleteAccount,
   fetchAccount,
@@ -10,6 +12,7 @@ import {
   forgetPushToken,
   fetchCommunityWords,
   fetchCrowdUsage,
+  fetchPromptStats,
   fetchBoards,
   fetchModerationStatus,
   fetchMySubmissions,
@@ -65,7 +68,9 @@ import {
 import { complicationDue, type PowerId } from './domain/powers'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
+import type { PromptRecord } from './domain/prompts'
 import { adsDue, categoryGiftOffer, dealLineup, giftCategory, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
+import { compactWord, normalizeWord } from './domain/text'
 import { commonWord, withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
 import { standingMove } from './domain/standing'
@@ -73,7 +78,7 @@ import { challengeNotice } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { createJudge } from './state/judge'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
-import { initialSession, sessionReducer } from './state/session'
+import { initialSession, sessionReducer, type Proposal } from './state/session'
 import {
   clearLocalData,
   loadAccount,
@@ -126,12 +131,28 @@ async function loadBoards(): Promise<Boards | null> {
 }
 
 /** Sends the words proposed while the game was offline, then clears the queue. */
-function flushSubmissions(): void {
+function flushSubmissions(): Promise<unknown> {
   const pending = loadSubmissions()
-  if (pending.length === 0) return
-  pushSubmissions(pending).then((sent) => {
+  if (pending.length === 0) return Promise.resolve()
+  return pushSubmissions(pending).then((sent) => {
     if (sent.length > 0) saveSubmissions([])
   })
+}
+
+/** Corrige un mot que le serveur n'a pas encore vu : la file de l'appareil se réécrit. */
+function amendQueued(proposal: Proposal, display: string): boolean {
+  const pending = loadSubmissions()
+  if (!pending.some((item) => item.at === proposal.at)) return false
+  saveSubmissions(pending.map((item) => (item.at === proposal.at ? { ...item, word: display.trim() } : item)))
+  return true
+}
+
+/** Retire de la file un mot que le serveur n'a pas encore vu. */
+function dropQueued(proposal: Proposal): boolean {
+  const pending = loadSubmissions()
+  if (!pending.some((item) => item.at === proposal.at)) return false
+  saveSubmissions(pending.filter((item) => item.at !== proposal.at))
+  return true
 }
 
 /** How often a home screen left open reads the boards again. */
@@ -145,6 +166,9 @@ export function App() {
   const [session, dispatch] = useReducer(sessionReducer, initialSession(NEW_PROFILE))
   const [startedAt, setStartedAt] = useState<number | null>(null)
   const [crowd, setCrowd] = useState<Readonly<Record<string, number>>>({})
+  // What the players' runs said of each pair, and the language they said it in:
+  // a borrowed dictionary has no such record, and a challenge never reads it.
+  const [promptStats, setPromptStats] = useState<{ lang: string; records: Readonly<Record<string, PromptRecord>> } | null>(null)
   const [boards, setBoards] = useState<Boards | null>(null)
   // The boards as they stood when the run started, and once it reached the
   // server: the end screen animates the player's move from one to the other.
@@ -279,6 +303,7 @@ export function App() {
   // rather than throwing, so a missing project simply leaves the game local.
   useEffect(() => {
     fetchCrowdUsage(lang).then((usage) => setCrowd(usage.shares))
+    fetchPromptStats(lang).then((records) => setPromptStats({ lang, records }))
     fetchCommunityWords(lang).then((words) => {
       community.current = words
     })
@@ -316,12 +341,19 @@ export function App() {
   // On opening, and on each sign-in: the player's words let in since they last
   // looked, and how many ever were — the third brings Challenge.
   const [wordsNews, setWordsNews] = useState<readonly Submission[]>([])
+  // Toutes ses demandes, et pas seulement les nouvelles : c'est là que le jeu
+  // lit les mots que ce joueur a lui-même fait entrer au dictionnaire.
+  const [mine, setMine] = useState<readonly Submission[]>([])
   const [acceptedWords, setAcceptedWords] = useState(0)
   const signedIn = account !== null
+  const refreshMine = useCallback(() => {
+    fetchMySubmissions().then((found) => found && setMine(found))
+  }, [])
   useEffect(() => {
     if (!signedIn) return
     fetchMySubmissions().then((found) => {
       if (!found) return
+      setMine(found)
       setAcceptedWords(found.filter((submission) => submission.status === 'accepted').length)
       setWordsNews(found.filter((submission) => submission.fresh))
     })
@@ -521,9 +553,12 @@ export function App() {
           )
       // The crowd counts are the interface language's: another dictionary has none.
       const usage = { own: session.profile.usage, crowd: packLang === lang ? crowd : {} }
-      return createJudge(packs, usage, t.powers.spells)
+      // A challenge draws from the seed and the embedded dictionaries alone:
+      // the crowd's record of a pair would differ from one player to the next.
+      const served = packLang === promptStats?.lang ? promptStats.records : undefined
+      return createJudge(packs, usage, t.powers.spells, challenge ? undefined : served)
     },
-    [session.profile.usage, crowd, lang, t],
+    [session.profile.usage, crowd, promptStats, lang, t],
   )
 
   const play = useCallback(async () => {
@@ -858,13 +893,70 @@ export function App() {
   const propose = useCallback(
     (word: string) => {
       if (!session.run) return
-      saveSubmissions([
-        ...loadSubmissions(),
-        { word: word.trim(), categoryId: session.run.prompt.categoryId, at: Date.now(), lang: runLang ?? lang },
-      ])
-      dispatch({ type: 'propose', word })
+      const proposal: Proposal = {
+        word: word.trim(),
+        categoryId: session.run.prompt.categoryId,
+        at: Date.now(),
+        lang: runLang ?? lang,
+      }
+      saveSubmissions([...loadSubmissions(), proposal])
+      dispatch({ type: 'propose', proposal })
     },
     [session.run, lang, runLang],
+  )
+
+  /** Ce que le serveur tient d'un mot proposé : rien tant qu'il attend sur l'appareil. */
+  const submissionOf = useCallback(
+    (proposal: Proposal) =>
+      mine.find(
+        (submission) =>
+          submission.lang === proposal.lang &&
+          submission.categoryId === proposal.categoryId &&
+          compactWord(submission.display) === compactWord(proposal.word),
+      ) ?? null,
+    [mine],
+  )
+
+  const runProposals = useMemo(
+    () => session.proposals.map((proposal) => ({ proposal, submission: submissionOf(proposal) })),
+    [session.proposals, submissionOf],
+  )
+
+  const correctProposal = useCallback(
+    async (proposal: Proposal, display: string) => {
+      const submission = submissionOf(proposal)
+      // Un mot déjà chez le serveur passe par `amend_submission`, qui refuse
+      // dès qu'un modérateur a voté ; l'autre se corrige dans la file.
+      const ok = submission ? await correctSubmission(submission, display) : amendQueued(proposal, display)
+      // Un refus peut vouloir dire qu'un modérateur a voté entre-temps : relire
+      // ses demandes remet alors la ligne au statut qu'elle a maintenant.
+      if (!ok) {
+        refreshMine()
+        return false
+      }
+      dispatch({ type: 'proposal-amended', at: proposal.at, display: display.trim() })
+      refreshMine()
+      return true
+    },
+    [submissionOf, refreshMine],
+  )
+
+  const withdrawProposal = useCallback(
+    async (proposal: Proposal) => {
+      const submission = submissionOf(proposal)
+      // `cancelSubmission` ne retire qu'un mot encore en attente : un mot
+      // accepté a payé son XP, un mot refusé reste en archive.
+      const ok = submission ? await cancelSubmission(submission.id) : dropQueued(proposal)
+      // Même relecture qu'à la correction : le mot a pu être tranché depuis.
+      if (!ok) {
+        refreshMine()
+        return false
+      }
+      dispatch({ type: 'proposal-withdrawn', at: proposal.at })
+      refreshMine()
+      return true
+    },
+    [submissionOf, refreshMine],
   )
 
   useEffect(() => {
@@ -876,20 +968,22 @@ export function App() {
       saveHistory(next)
       return next
     })
+    // Les mots proposés partent avec la partie : le bilan les relit aussitôt
+    // après, avec l'identifiant que le serveur leur a donné.
+    const flushed = flushSubmissions()
+    flushed.then(refreshMine)
     const challengeId = session.challengeId
     if (challengeId) {
       setAfterRun('sending')
       const sent = pushChallengeRun(challengeId, session.run, session.profile)
-      pushing.current = sent
-      flushSubmissions()
+      pushing.current = Promise.all([sent, flushed])
       sent
         .then((ok) => (ok ? fetchChallenge(challengeId) : null))
         .then((detail) => setAfterRun(detail ?? 'failed'))
       return
     }
     const pushed = pushRun(session.run, session.profile, playedLang)
-    pushing.current = pushed
-    flushSubmissions()
+    pushing.current = Promise.all([pushed, flushed])
     // Read after the run is in, or the boards would not count it yet.
     // A word proposed during the run may be waiting for a verdict already.
     pushed.then(refreshModeration)
@@ -927,6 +1021,18 @@ export function App() {
     const timer = setTimeout(() => setClimbSeen(boardsAfter), 3000)
     return () => clearTimeout(timer)
   }, [climbing, boardsAfter])
+
+  // La langue de la partie qui vient de finir : un mot entré dans un autre
+  // dictionnaire ne se reconnaîtrait pas dans celui-ci.
+  const mineWords = useMemo(
+    () =>
+      new Set(
+        mine
+          .filter((submission) => submission.status === 'accepted' && submission.lang === (runLang ?? lang))
+          .map((submission) => compactWord(submission.display)),
+      ),
+    [mine, runLang, lang],
+  )
 
   const quietHome = session.phase === 'home' && !tutorial && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
   const notice = quietHome ? challengeNotice(challenges, heldNotices) : null
@@ -1260,7 +1366,8 @@ export function App() {
           onSubmit={(auto) => dispatch({ type: 'submit', at: elapsed, auto })}
           onSkip={() => dispatch({ type: 'skip', at: elapsed })}
           onReroll={() => dispatch({ type: 'reroll', at: elapsed })}
-          proposed={session.proposed}
+          proposed={session.proposals.map((proposal) => normalizeWord(proposal.word))}
+          mine={mineWords}
           onPropose={propose}
           rivals={rivals}
           avatar={avatar}
@@ -1287,6 +1394,10 @@ export function App() {
           boardsBefore={boardsBefore}
           boardsAfter={boardsAfter}
           me={account && !account.anonymous ? account.name : null}
+          mine={mineWords}
+          proposals={runProposals}
+          onCorrectProposal={correctProposal}
+          onWithdrawProposal={withdrawProposal}
           onReplay={play}
           onHome={() => {
             dispatch({ type: 'home' })

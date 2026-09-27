@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { newlyEarned, type AvatarChoice } from '../domain/avatar'
 import type { Boards } from '../domain/boards'
-import { capitalized } from '../domain/text'
+import { capitalized, compactWord } from '../domain/text'
 import { levelFor, levelProgress, recordBonus, type Profile } from '../domain/progression'
 import { pickShowsAd, picksOwed } from '../domain/unlocks'
 import type { FoundWord, Run } from '../domain/run'
 import { categoryText, formatNumber, useT } from '../i18n'
-import type { Account, ChallengeDetail } from '../lib/cloud'
+import type { Account, ChallengeDetail, Submission } from '../lib/cloud'
+import type { Proposal } from '../state/session'
 import { adsSupported, storeUrl, tapFeedback } from '../lib/native'
 import { DonateButton } from './Donate'
 import { supportDue } from '../domain/support'
@@ -15,7 +16,7 @@ import { AccountPanel, type AccountActions } from './AccountPanel'
 import { CHALLENGE_XP_BONUS } from '../domain/challenge'
 import { ChallengeBoard } from './ChallengeScreen'
 import { Avatar } from './Avatar'
-import { Burst, Figure, LetterMark, Shape, TierTag } from './bauhaus'
+import { Burst, Figure, LetterMark, MineMark, Shape, TierTag } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { RankMove } from './RankMove'
 import { UnlockScreen } from './UnlockScreen'
@@ -25,6 +26,13 @@ import { PowerBadge } from './PowerIcon'
 import { powerPicksOwed } from '../domain/powers'
 import { reducedMotion, useCountUp } from './useCountUp'
 import { ShareSoon } from './ShareSoon'
+import { RequestRow, type RequestEntry } from './RequestsPage'
+
+/** A word proposed during the run, and what the server holds of it — nothing while it still waits on the device. */
+export interface RunProposal {
+  proposal: Proposal
+  submission: Submission | null
+}
 
 interface OverScreenProps {
   run: Run
@@ -44,6 +52,15 @@ interface OverScreenProps {
   boardsAfter?: Boards | null
   /** The named account's display name; an anonymous player is not on the boards. */
   me?: string | null
+  /**
+   * The words the player himself got into the dictionary (`compactWord`), in
+   * the run's language: the game says so, quietly, wherever they come back.
+   */
+  mine?: ReadonlySet<string>
+  /** What this run proposed: the last screen hands each request back. */
+  proposals?: readonly RunProposal[]
+  onCorrectProposal?(proposal: Proposal, display: string): Promise<boolean>
+  onWithdrawProposal?(proposal: Proposal): Promise<boolean>
   onAvatar(): void
   onChoose(categoryId: string): void
   onChoosePower(powerId: string): void
@@ -76,7 +93,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
 
   // A challenge run beats no record: it does not count for one.
   const previousBest = profileBefore.runs > 0 && !summary.challenge ? profileBefore.bestScore : null
-  if (!revealed) return <Reveal run={run} previousBest={previousBest} onNext={onRevealed} />
+  if (!revealed) return <Reveal run={run} previousBest={previousBest} mine={summary.mine} onNext={onRevealed} />
   const levelled = levelFor(profile.xp) > levelFor(profileBefore.xp)
   // Categories first, then powers: the sixth category and the first power come on the same level.
   if ((profile.offer.length > 0 && celebrating !== 'power') || celebrating === 'category') {
@@ -146,7 +163,17 @@ const isRare = (found: FoundWord) => !found.approximate && (found.tier === 'rare
  * a time. Fast, but each find gets its own beat — and a rare one a longer one.
  * A tap skips to the end; the next tap moves on.
  */
-function Reveal({ run, previousBest, onNext }: { run: Run; previousBest: number | null; onNext(): void }) {
+function Reveal({
+  run,
+  previousBest,
+  mine,
+  onNext,
+}: {
+  run: Run
+  previousBest: number | null
+  mine?: ReadonlySet<string>
+  onNext(): void
+}) {
   const t = useT()
   const total = run.found.length
   // -2: blank, -1: the score alone, n: the score and the first n words.
@@ -185,6 +212,7 @@ function Reveal({ run, previousBest, onNext }: { run: Run; previousBest: number 
         <ol className="reveal-words">
           {run.found.slice(0, Math.max(0, shown)).map((found, index) => {
             const best = done && found.points === bestPoints && bestPoints > 0
+            const ours = mine?.has(compactWord(found.display)) === true
             return (
               <li
                 key={found.word}
@@ -195,7 +223,15 @@ function Reveal({ run, previousBest, onNext }: { run: Run; previousBest: number 
                 <span className="reveal-word-text">
                   {found.approximate && <span className="note">≈ </span>}
                   {capitalized(found.display)}
-                  <span className="reveal-word-category">{categoryText(t, found.prompt.categoryId).label}</span>
+                  <span className="reveal-word-category">
+                    {categoryText(t, found.prompt.categoryId).label}
+                    {ours && (
+                      <>
+                        {' · '}
+                        <MineMark label={t.requests.mine} />
+                      </>
+                    )}
+                  </span>
                 </span>
                 {!found.approximate && found.tier !== 'courant' && <TierTag tier={found.tier} />}
                 <span className="reveal-word-points">
@@ -277,6 +313,10 @@ function Summary({
   boardsBefore,
   boardsAfter,
   me,
+  mine,
+  proposals,
+  onCorrectProposal,
+  onWithdrawProposal,
   onAvatar,
   onSupportAsked,
   onReplay,
@@ -291,6 +331,7 @@ function Summary({
   }, [])
   const record = run.score > profileBefore.bestScore && run.score > 0
   const bonus = recordBonus(profileBefore, run.score)
+  const ours = mine ? run.found.filter((found) => mine.has(compactWord(found.display))).length : 0
   // Decided once: marking the ask makes `supportDue` false, and the panel must stay.
   const [asking] = useState(() => supportDue(profileBefore, profile, run.score, false))
   useEffect(() => {
@@ -314,6 +355,8 @@ function Summary({
         />
       </div>
 
+      {ours > 0 && <p className="note mine-note">{t.over.mineNote(ours)}</p>}
+
       {asking && <SupportPanel />}
 
       {run.missed.length > 0 && (
@@ -335,6 +378,12 @@ function Summary({
           </ol>
         </section>
       )}
+
+      <RunRequests
+        proposals={proposals ?? []}
+        onCorrect={onCorrectProposal}
+        onWithdraw={onWithdrawProposal}
+      />
 
       {me && boardsBefore && boardsAfter && (
         <RankMove title={t.over.dayBoard} before={boardsBefore.day} after={boardsAfter.day} me={me} />
@@ -399,6 +448,73 @@ function SupportPanel() {
   )
 }
 
+/**
+ * Les mots proposés pendant la partie, sur le dernier écran : tant qu'ils
+ * attendent, l'orthographe se corrige et la demande se retire, comme dans
+ * « Mes demandes ». Le serveur a le dernier mot sur l'orthographe — un
+ * modérateur a pu la corriger avant de valider.
+ */
+function RunRequests({
+  proposals,
+  onCorrect,
+  onWithdraw,
+}: {
+  proposals: readonly RunProposal[]
+  onCorrect?(proposal: Proposal, display: string): Promise<boolean>
+  onWithdraw?(proposal: Proposal): Promise<boolean>
+}) {
+  const t = useT()
+  // Un geste perdu — serveur muet, ou modérateur qui a voté entre-temps — se
+  // dit ici, comme dans « Mes demandes » : sans quoi « Retirer » ne ferait
+  // rien, sans rien dire.
+  const [failed, setFailed] = useState(false)
+  if (proposals.length === 0) return null
+
+  const act = async (work: Promise<boolean>): Promise<boolean> => {
+    const ok = await work
+    setFailed(!ok)
+    return ok
+  }
+
+  return (
+    <section className="panel">
+      <p className="section-title">{t.over.proposals}</p>
+      <p className="note">{t.over.proposalsLead}</p>
+      <ul className="requests">
+        {proposals.map(({ proposal, submission }) => {
+          const entry: RequestEntry = submission
+            ? {
+                source: 'server',
+                key: submission.id,
+                categoryId: submission.categoryId,
+                display: submission.display,
+                submission,
+              }
+            : {
+                source: 'queued',
+                key: `queued-${proposal.at}`,
+                categoryId: proposal.categoryId,
+                display: proposal.word,
+                queued: proposal,
+              }
+          // Un mot refusé n'est plus une demande : il reste au bilan, sans geste.
+          const waiting = submission === null || submission.status === 'pending'
+          return (
+            <RequestRow
+              key={entry.key}
+              entry={entry}
+              note={submission?.status === 'accepted' ? t.requests.entered : undefined}
+              onWithdraw={waiting && onWithdraw ? () => void act(onWithdraw(proposal)) : undefined}
+              onCorrect={waiting && onCorrect ? (display) => act(onCorrect(proposal, display)) : undefined}
+            />
+          )
+        })}
+      </ul>
+      {failed && <p className="note note--warn">{t.requests.failed}</p>}
+    </section>
+  )
+}
+
 /** The avatar tiles and colours the run just earned, if any. */
 function Earned({
   profileBefore,
@@ -446,6 +562,9 @@ function ChallengeSummary({
   avatar,
   onAvatar,
   onHome,
+  proposals,
+  onCorrectProposal,
+  onWithdrawProposal,
   challenge,
   onChallengeChanged,
 }: Omit<SummaryProps, 'run' | 'challenge'> & { challenge: ChallengeDetail | 'sending' | 'failed' }) {
@@ -463,6 +582,8 @@ function ChallengeSummary({
       {challenge === 'sending' && <p className="note">{t.challenge.sending}</p>}
       {challenge === 'failed' && <p className="note note--warn">{t.challenge.pushFailed}</p>}
       {typeof challenge === 'object' && <ChallengeBoard detail={challenge} onChanged={() => onChallengeChanged?.()} />}
+
+      <RunRequests proposals={proposals ?? []} onCorrect={onCorrectProposal} onWithdraw={onWithdrawProposal} />
 
       <button type="button" className="btn btn--play btn--block" onClick={onHome}>
         <span>{t.challenge.home}</span>

@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { CHATTER_WORDS, POWER_CHARGES } from '../domain/powers'
 import { celerityDue, chargesLeft, hasPower, RUN_SECONDS, skipPenalty, type MissedWord, type Prompt, type Run, type Verdict } from '../domain/run'
-import { capitalized, normalizeWord } from '../domain/text'
+import { capitalized, compactWord, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
 import { sound } from '../lib/sound'
 import type { Cheer } from '../state/session'
 import type { AvatarChoice } from '../domain/avatar'
 import { Avatar } from './Avatar'
-import { Burst, LetterMark, TierTag } from './bauhaus'
+import { Burst, LetterMark, MineMark, TierTag } from './bauhaus'
 import { motifAt } from './motifs'
 import { PowerBadge } from './PowerIcon'
 
@@ -39,6 +39,8 @@ interface RunScreenProps {
   next: Prompt | null
   /** Normalized words already proposed in this run. */
   proposed: readonly string[]
+  /** The words the player himself got into the dictionary (`compactWord`): the field says so quietly. */
+  mine?: ReadonlySet<string>
   /** In a challenge, those who played before, as if they were playing now; absent in a solo run. */
   rivals?: readonly Racer[]
   /** The player's own avatar, set among the rivals. */
@@ -60,6 +62,7 @@ export function RunScreen({
   hushed,
   next,
   proposed,
+  mine,
   rivals,
   avatar,
   onType,
@@ -300,6 +303,7 @@ export function RunScreen({
           letter={run.prompt.letter}
           draft={draft}
           proposed={proposed.includes(normalizeWord(draft))}
+          mine={mine}
           onPropose={onPropose}
           whispered={whispered}
         />
@@ -328,6 +332,7 @@ function Feedback({
   letter,
   draft,
   proposed,
+  mine,
   onPropose,
   whispered,
 }: {
@@ -336,11 +341,14 @@ function Feedback({
   letter: string
   draft: string
   proposed: boolean
+  /** The words the player himself got into the dictionary. */
+  mine?: ReadonlySet<string>
   onPropose(word: string): void
   /** Professeur's answer to the prompt just skipped. */
   whispered: MissedWord | null
 }) {
   const t = useT()
+  const ours = (word: string | undefined) => word !== undefined && mine?.has(compactWord(word)) === true
   const proposal = proposed ? (
     <span className="verdict--sent">{t.run.proposed}</span>
   ) : (
@@ -358,6 +366,7 @@ function Feedback({
         {cheer.joker && <PowerBadge id="joker" className="cheer-power" />}
         {cheer.approximate && <span aria-hidden="true">≈ </span>}
         <span className="cheer-word">{capitalized(cheer.display)}</span>
+        {ours(cheer.display) && <MineMark label={t.requests.mine} />}
         <span className="cheer-points">+{cheer.points}</span>
         {cheer.joker ? (
           <span className="note">{t.powers.joker}</span>
@@ -410,15 +419,22 @@ function Feedback({
         return (
           <p className="verdict verdict--valid verdict--joker">
             <PowerBadge id="joker" /> {capitalized(live.found.display)}
+            {ours(live.found.display) && <MineMark label={t.requests.mine} />}
           </p>
         )
       if (live.chatter)
         return (
           <p className="verdict verdict--valid verdict--chatter">
             <PowerBadge id="chatter" /> {capitalized(live.found?.display ?? '')} · {t.powers.castChatter}
+            {ours(live.found?.display) && <MineMark label={t.requests.mine} />}
           </p>
         )
-      return <p className="verdict verdict--valid">✓ {capitalized(live.found?.display ?? '')}</p>
+      return (
+        <p className="verdict verdict--valid">
+          ✓ {capitalized(live.found?.display ?? '')}
+          {ours(live.found?.display) && <MineMark label={t.requests.mine} />}
+        </p>
+      )
     case 'wrong-letter':
       return <p className="verdict">{t.run.startsWith(letter)}</p>
     case 'already':

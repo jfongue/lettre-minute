@@ -4,8 +4,9 @@ import type { Leaderboard, PeriodId, PlacedRow, StatId } from '../domain/leaderb
 import { challengeWordsOf, type ChallengeEntry, type ChallengeWord } from '../domain/challenge'
 import { MODERATION_SESSION_SIZE, type ModeratorOfferReason, type Verdict } from '../domain/moderation'
 import type { Profile } from '../domain/progression'
+import type { PromptRecord } from '../domain/prompts'
 import type { RarityTier } from '../domain/rarity'
-import type { Run } from '../domain/run'
+import { promptKey, promptOutcomes, type Run } from '../domain/run'
 import { withBotRuns } from '../state/botRuns'
 import type { PendingSubmission } from '../state/storage'
 import { googleIdToken } from './native'
@@ -67,6 +68,25 @@ export function fetchCrowdUsage(lang: string): Promise<CrowdUsage> {
   }, { shares: {} })
 }
 
+/**
+ * What the players' runs said of each pair (`promptKey`), which bends the
+ * draw. Empty without a server, or before anyone has played: the draw then
+ * follows the dictionaries alone.
+ */
+export function fetchPromptStats(lang: string): Promise<Record<string, PromptRecord>> {
+  return guard(async () => {
+    const { data } = await supabase!.from('prompt_stats').select('category_id, letter, dealt, passed').eq('lang', lang)
+    const records: Record<string, PromptRecord> = {}
+    for (const row of data ?? []) {
+      records[promptKey({ categoryId: row.category_id as string, letter: row.letter as string })] = {
+        dealt: Number(row.dealt) || 0,
+        passed: Number(row.passed) || 0,
+      }
+    }
+    return records
+  }, {})
+}
+
 /** Words the community added since the bundled dictionaries were built. */
 export function fetchCommunityWords(lang: string): Promise<Record<string, CommunityWord[]>> {
   return guard(async () => {
@@ -117,6 +137,23 @@ export function pushRun(run: Run, profile: Profile, lang: string): Promise<boole
           points: found.points,
         })),
       )
+    }
+
+    // What the run says of the pairs it left: the seed never replays server
+    // side, so the client is the only one who knows what it was dealt. A
+    // challenge reports nothing — its draw follows the seed and the embedded
+    // dictionaries alone, whatever the crowd does.
+    const outcomes = promptOutcomes(run)
+    if (outcomes.length > 0) {
+      await supabase!.rpc('report_prompts', {
+        p_seed: run.seed,
+        p_lang: lang,
+        p_prompts: outcomes.map((outcome) => ({
+          category: outcome.prompt.categoryId,
+          letter: outcome.prompt.letter,
+          passed: outcome.passed,
+        })),
+      })
     }
 
     await pushProfile(identity!.userId, profile)

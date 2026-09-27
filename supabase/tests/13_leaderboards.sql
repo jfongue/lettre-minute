@@ -27,6 +27,27 @@ select tests.is((select count(*)::int from public.leaderboard_stat('nonsense', '
 select tests.is((select count(*)::int from public.leaderboard_stat('best', null)), 0, 'so is a null period');
 select tests.ok(not exists (select 1 from public.leaderboard_stat('added', 'all') where value <= 0), 'no zero line');
 
+-- The house bots play every hour (0006): their runs are really there, and no
+-- measure of any period shows them (0024).
+select tests.logout();
+insert into public.runs (player_id, seed, score, words, created_at)
+select b.id, 1, 9999, 4, now() from public.bots b;
+
+select tests.ok(exists (select 1 from public.runs r join public.bots b on b.id = r.player_id where r.score = 9999),
+                'house bots do play');
+select tests.ok(not exists (select 1 from public.leaderboard_values('best', now() - interval '1 day') v
+                              join public.bots b on b.id = v.player_id),
+                'no house bot among the raw values');
+
+select tests.login('ka');
+select tests.ok(not exists (select 1
+                              from unnest(array['best', 'points', 'runs', 'words', 'discoveries', 'combo', 'added']) as st(stat)
+                              cross join unnest(array['day', 'week', 'all']) as pe(period)
+                              cross join lateral public.leaderboard_stat(st.stat, pe.period) l
+                              join public.profiles p on p.display_name = l.display_name
+                              join public.bots b on b.id = p.id),
+                'nor on any measure of any period');
+
 -- Sixty players ahead: the player's line comes last, flagged beyond the page.
 select tests.new_user('crowd' || n) from generate_series(1, 60) n;
 select tests.run_at('crowd' || n, now(), 1000 + n) from generate_series(1, 60) n;

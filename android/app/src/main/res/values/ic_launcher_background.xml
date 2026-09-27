@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- La palette de src/styles.css. -->
+<!-- La palette de src/styles.css. Volontairement sans variante « values-night » :
+     l'icône du lanceur garde son fond papier même sur un téléphone réglé en
+     mode sombre. -->
 <resources>
     <color name="ic_launcher_background">#F2ECDF</color>
     <color name="ic_launcher_red">#E0402A</color>

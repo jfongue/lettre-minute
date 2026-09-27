@@ -32,6 +32,15 @@ qu'un nouvel arrivant casserait sans le savoir.
   ne revient pas dans la même partie, et ce verrou passe avant le changement
   de catégorie. Il n'y a plus de jeu de lettres par langue : c'est le
   dictionnaire qui dit quelles lettres existent.
+- **Le tirage écoute aussi la foule** (`Judge.pull`, `src/domain/prompts.ts`) :
+  un couple que les joueurs quittent sans rien écrire s'efface peu à peu, un
+  couple qu'ils réussissent revient — jamais jusqu'à zéro, et jamais sur trois
+  parties. Ce sont les compteurs de `prompt_stats`, que `pushRun` rapporte par
+  partie (`promptOutcomes`, une fois par graine) : **jamais un défi ni une
+  partie de robot**, qui se rejouent sur chaque appareil et dont le tirage doit
+  rester fonction de la graine et des dictionnaires embarqués seuls. Un couple
+  quitté se lit dans `Run.settled`, pas dans `dealt` — qui est un ensemble, et
+  dont le dernier mot est encore à l'écran.
 - **Les dictionnaires sont des tableaux JSON positionnels chargés à la
   demande** (`src/data/packs.ts`, type `WordRow`). Un objet par mot, avec ses
   clés répétées des dizaines de milliers de fois, doublerait la charge utile ; les tableaux ne
@@ -82,6 +91,14 @@ qu'un nouvel arrivant casserait sans le savoir.
   il n'existe que chargé du serveur, donc ni hors ligne ni en défi. Commiter
   `scripts/community-words.json` avec les `.json` : c'est lui que relit un
   import sans accès au projet.
+- **Une proposition vit à deux endroits** : la file de l'appareil
+  (`loadSubmissions`) tant que le serveur ne l'a pas vue, puis
+  `word_submissions`. Le bilan de fin de partie corrige et retire dans celui
+  qui la détient — `amend_submission` refuse dès qu'un modérateur a voté — et
+  `session.proposals` ne fait que l'afficher. Les mots que le joueur a
+  lui-même fait entrer se lisent dans ses demandes acceptées
+  (`fetchMySubmissions`), comparées en forme compacte : une marque discrète les
+  signale en partie comme au bilan.
 - **Un alias Wikidata de pays court est un code** (`shortestAlias`), et une
   catégorie de noms (`names`) ne fléchit pas : leurs « formes » sont celles
   d'un homographe. Deux lignes qui se compactent pareil n'en font qu'une
@@ -147,6 +164,11 @@ qu'un nouvel arrivant casserait sans le savoir.
   rangs), pas en base : il ne figure qu'aux classements de meilleure partie du
   jour et de la semaine, et disparaît dès que le compte de ce nom a une vraie
   partie sur la période.
+- **Les joueurs maison sont hors classements** (0024, `bots`) : Maxitoon et
+  Terretciel jouent toujours — la liste d'amis et les défis les lisent —, mais
+  `leaderboard_board`, `leaderboard_stat` et la vue `leaderboard` les écartent
+  par leur compte, jamais par leur nom, qu'un vrai joueur peut porter. Le seul
+  score maison d'un tableau reste Demontoon, ajouté côté client.
 - **Une découverte se juge contre les sept jours qui précèdent la partie**, pas
   contre la semaine calendaire : un mot écrit dimanche soir n'est plus une
   découverte lundi matin.
@@ -185,6 +207,13 @@ qu'un nouvel arrivant casserait sans le savoir.
   quand la file est courte — c'est ce qui fait durer la réserve. Ses mots
   (`scripts/moderation-reserve.json`) doivent manquer aux dictionnaires : un
   mot déjà connu ferait voter les modérateurs pour rien, le script le jette.
+  **Un seul versement par heure, toutes langues confondues** (0023,
+  `moderation_topup`) : l'heure ne ferme que le versement, jamais la
+  modération — les mots versés restent à juger pour tout le monde, et le
+  modérateur bloqué garde son marqueur `moderation_drained` pour renflouer à
+  sa première visite une fois l'heure passée. `src/App.tsx` ne rafraîchit
+  qu'à un versement non nul : les autres découvrent ces mots à leur propre
+  ouverture de l'écran.
 
 - **Les pouvoirs sont des règles du domaine** (`src/domain/powers.ts`,
   `run.ts`), pas des effets d'interface : la partie porte ses pouvoirs et

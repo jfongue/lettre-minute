@@ -1,4 +1,4 @@
-• Le geste retour referme les fenêtres au lieu de quitter la partie, et une catégorie offerte mise de côté est remise à la fin de la partie
-• Les longs pseudos s’affichent en entier sur le podium des classements
-• Le thème sombre ne se choisit plus : l’auto et le clair restent
-• Plus d’animaux en néerlandais
+• Le bilan de fin de partie relit les mots que tu as proposés : corrige leur orthographe ou retire la demande tant qu’elle attend
+• Les mots que tu as fait entrer au dictionnaire portent une marque « ton mot », en partie comme au bilan
+• Le tirage des lettres écoute la foule : un couple que les joueurs quittent s’efface peu à peu, un couple réussi revient
+• L’icône garde son fond papier même sur un téléphone réglé en thème sombre

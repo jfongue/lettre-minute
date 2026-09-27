@@ -4646,6 +4646,33 @@ button.challenge-past::after {
   padding: 0.22rem;
 }
 
+/* Le mot que le joueur a lui-même fait entrer au dictionnaire : une forme, deux
+   mots, et rien de plus — il se glisse à côté du mot, en partie comme au bilan. */
+.mine {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  vertical-align: middle;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green);
+  white-space: nowrap;
+  animation: pop-in 420ms var(--ease-spring) both;
+}
+
+.mine-shape {
+  width: 0.6rem;
+  height: 0.6rem;
+  flex: none;
+}
+
+.mine-note {
+  color: var(--green);
+  font-weight: 600;
+}
+
 /* Célérité : le mot part comme un éclair. */
 .cheer--auto {
   animation: zap 360ms var(--ease-snap) both;

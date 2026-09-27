@@ -109,6 +109,10 @@ export const fr = {
     newRecord: 'nouveau record',
     record: 'record',
     dayBoard: 'Classement du jour',
+    mineNote: (count: number) =>
+      `dont ${count} ${plural(count, 'mot que tu as fait entrer au dictionnaire', 'mots que tu as fait entrer au dictionnaire')}`,
+    proposals: 'Mots proposés',
+    proposalsLead: 'Tu les as proposés pendant cette partie : tant qu’ils attendent, tu peux corriger leur orthographe ou retirer la demande.',
     keepTitle: 'Garde cette partie',
     keepLead: 'Crée un compte ou connecte-toi : cette partie et toute ta progression y entrent tout de suite.',
     /** Around the account name, which is set in bold. */
@@ -332,6 +336,8 @@ export const fr = {
     fresh: 'nouveau',
     locked: 'en cours de modération',
     pending: 'En attente',
+    mine: 'ton mot',
+    entered: 'entré au dictionnaire',
     queued: 'pas encore envoyé',
     rejected: (count: number) => `Refusées (${count})`,
     correct: 'Corriger',

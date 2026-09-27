@@ -88,3 +88,37 @@ describe('challenge runs', () => {
     expect(over.profile.lastPrompts).toEqual(['animaux:A'])
   })
 })
+
+describe('proposals', () => {
+  const proposal = (word: string, at: number) => ({ word, categoryId: 'animaux', at, lang: 'fr' })
+  const proposed = (word: string, at: number) => sessionReducer(playing(), { type: 'propose', proposal: proposal(word, at) })
+
+  it('keeps one proposal per word, however it was spelled', () => {
+    const twice = sessionReducer(proposed('Axolotl', 1), { type: 'propose', proposal: proposal(' axolotl ', 2) })
+
+    expect(twice.proposals).toEqual([proposal('Axolotl', 1)])
+  })
+
+  it('respells the word the summary hands back, and leaves the others alone', () => {
+    const both = sessionReducer(proposed('axolotl', 1), { type: 'propose', proposal: proposal('narval', 2) })
+
+    const amended = sessionReducer(both, { type: 'proposal-amended', at: 2, display: 'Narval' })
+
+    expect(amended.proposals).toEqual([proposal('axolotl', 1), proposal('Narval', 2)])
+  })
+
+  it('drops the request taken back, and the next run starts with none', () => {
+    const both = sessionReducer(proposed('axolotl', 1), { type: 'propose', proposal: proposal('narval', 2) })
+    const withdrawn = sessionReducer(both, { type: 'proposal-withdrawn', at: 1 })
+
+    expect(withdrawn.proposals).toEqual([proposal('narval', 2)])
+    expect(sessionReducer(withdrawn, { type: 'ready', judge, seed: 7, categoryIds: ['animaux'], reserve: [] }).proposals).toEqual([])
+  })
+
+  it('ignores an empty word, and a respelling of no proposal at all', () => {
+    expect(proposed('   ', 1).proposals).toEqual([])
+    expect(sessionReducer(proposed('axolotl', 1), { type: 'proposal-amended', at: 9, display: 'x' }).proposals).toEqual([
+      proposal('axolotl', 1),
+    ])
+  })
+})

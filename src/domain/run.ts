@@ -39,6 +39,12 @@ export function promptKey(prompt: Prompt): string {
   return `${prompt.categoryId}:${prompt.letter}`
 }
 
+/** The prompt a key stands for, as `promptKey` wrote it. */
+export function promptOf(key: string): Prompt {
+  const cut = key.lastIndexOf(':')
+  return { categoryId: key.slice(0, cut), letter: key.slice(cut + 1) }
+}
+
 export interface FoundWord {
   prompt: Prompt
   /** Canonical form, which is what uniqueness and usage are counted on. */
@@ -85,6 +91,12 @@ export interface Judge {
   letters(categoryId: string): readonly string[]
   /** How many known words the category has on that letter (`KNOWN_FAME`), which sets how often it is drawn. */
   known(categoryId: string, letter: string): number
+  /**
+   * What the players' runs said of that pair (`promptPull`): above 1 it comes
+   * back more often, below it fades. Left out of a challenge, whose draw must
+   * follow the seed and the embedded dictionaries alone.
+   */
+  pull?(categoryId: string, letter: string): number
   /** What casts each spell in the dictionary's language, compact (`compactWord`). */
   spells?: Readonly<Record<Spell, readonly string[]>>
   /** The best-known base word on that letter not yet played (by key): what the Joker writes. */
@@ -101,6 +113,12 @@ export interface Run {
   avoid: readonly string[]
   /** Every prompt this run dealt, skipped ones included — the next run's `avoid`. */
   dealt: readonly string[]
+  /**
+   * Every prompt the run moved on from, in order, repeats included: what the
+   * crowd's record learns about a pair (`promptOutcomes`). A pair dealt twice
+   * would leave no trace in `dealt`, which never names one twice.
+   */
+  settled: readonly SettledPrompt[]
   /**
    * Played by several on one seed, in a challenge: the draw must not depend
    * on what this player did, so only `seeded` locks a thin pair, never a
@@ -142,18 +160,27 @@ export interface MissedWord {
   display: string
 }
 
+/** A prompt the run moved on from, and whether it was left empty. */
+export interface SettledPrompt {
+  prompt: Prompt
+  /** The player moved on without writing anything the dictionary knew. */
+  passed: boolean
+}
+
 /**
  * A letter the category can be prompted on, preferring those the lock leaves open and not `except`.
  * Its odds grow with the logarithm of its known words: Z still comes up on the
  * countries, only rarer than C, and the dozens of « République de… » do not
- * turn R into the countries' only letter.
+ * turn R into the countries' only letter. What players did with the pair bends
+ * those odds without ever cancelling them.
  */
 function drawLetter(rng: Rng, categoryId: string, judge: Judge, locked: ReadonlySet<string>, except?: string): string {
   const honest = judge.letters(categoryId)
   const open = honest.filter((letter) => !locked.has(promptKey({ categoryId, letter })))
   const tiers = [open.filter((letter) => letter !== except), honest.filter((letter) => letter !== except), open, honest]
   const available = tiers.find((tier) => tier.length > 0) ?? []
-  return pickWeighted(rng, available, (letter) => Math.log2(1 + judge.known(categoryId, letter))) ?? available[0] ?? 'A'
+  const weight = (letter: string) => Math.log2(1 + judge.known(categoryId, letter)) * (judge.pull?.(categoryId, letter) ?? 1)
+  return pickWeighted(rng, available, weight) ?? available[0] ?? 'A'
 }
 
 /** What a run may not deal: the previous run's prompts, and the thin pairs it already dealt. */
@@ -196,8 +223,13 @@ export function nextPrompt(run: Run, judge: Judge): Prompt {
   return drawPrompt(run.seed, run.drawn, run.categoryIds, judge, lockOf(run.avoid, dealt, judge), run.prompt.categoryId)
 }
 
-/** The run moved on to a new prompt: it is drawn, counted, and remembered for the next run. */
-function advance(run: Run, judge: Judge): Pick<Run, 'prompt' | 'drawn' | 'dealt' | 'seeded' | 'joker'> {
+/** The run moved on to a new prompt: the one it leaves is settled, and the next is drawn and remembered. */
+function advance(
+  run: Run,
+  judge: Judge,
+  /** The prompt being left was answered. */
+  answered: boolean,
+): Pick<Run, 'prompt' | 'drawn' | 'dealt' | 'seeded' | 'settled' | 'joker'> {
   const prompt = nextPrompt(run, judge)
   const key = promptKey(prompt)
   return {
@@ -205,8 +237,18 @@ function advance(run: Run, judge: Judge): Pick<Run, 'prompt' | 'drawn' | 'dealt'
     drawn: run.drawn + 1,
     dealt: run.dealt.includes(key) ? run.dealt : [...run.dealt, key],
     seeded: run.seeded.includes(key) ? run.seeded : [...run.seeded, key],
+    settled: [...run.settled, { prompt: run.prompt, passed: !answered }],
     joker: null,
   }
+}
+
+/**
+ * What a finished run tells the crowd's record: the pairs it moved on from,
+ * and whether it left them empty. The pair on screen when the clock stopped
+ * has no verdict — nobody left it — and says nothing.
+ */
+export function promptOutcomes(run: Run): readonly SettledPrompt[] {
+  return run.settled
 }
 
 /** A validated word or a skip ends Silence: the clock takes back from `at`. */
@@ -246,6 +288,7 @@ export function createRun({ seed, categoryIds, avoid = [], powers = [], shared =
     drawn: 1,
     avoid,
     dealt: [promptKey(prompt)],
+    settled: [],
     shared,
     seeded: [promptKey(prompt)],
     found: [],
@@ -366,7 +409,7 @@ export function submit(run: Run, raw: string, judge: Judge, at = run.promptAt): 
     verdict,
     run: {
       ...run,
-      ...(stays ? { joker: null } : advance(run, judge)),
+      ...(stays ? { joker: null } : advance(run, judge, true)),
       ...release(run, at),
       chatter,
       ...(verdict.chatter && { charges: spend(run, 'chatter') }),
@@ -413,7 +456,7 @@ export function skip(run: Run, judge: Judge, at = run.promptAt): Run {
   return {
     ...run,
     ...(missed && { missed: [...run.missed, missed] }),
-    ...advance(run, judge),
+    ...advance(run, judge, false),
     ...release(run, at),
     promptAt: at,
     // Leaving a Bavardage is free: no skip counted, no seconds, the series kept.

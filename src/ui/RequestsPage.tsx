@@ -23,9 +23,11 @@ import { spelledExactly } from '../domain/words'
  * A request as the page lists it: still on the device, waiting for the next
  * connection, or already on the server with the status it was given there.
  */
-type Entry =
+export type RequestEntry =
   | { source: 'queued'; key: string; categoryId: string; display: string; queued: PendingSubmission }
   | { source: 'server'; key: string; categoryId: string; display: string; submission: Submission }
+
+type Entry = RequestEntry
 
 // Long enough to read « Déjà existant ! » before the row goes.
 const EXISTS_MS = 1600
@@ -223,12 +225,15 @@ interface RequestRowProps {
   fresh?: boolean
   /** Spelled this way in the dictionary already: on its way out. */
   exists?: boolean
+  /** A word of its own where the queue and the moderation would write one. */
+  note?: string
   /** Only a request still waiting can be taken back or respelled. */
   onWithdraw?(): void
   onCorrect?(display: string): Promise<boolean>
 }
 
-function RequestRow({ entry, fresh, exists, onWithdraw, onCorrect }: RequestRowProps) {
+/** A request as « Mes demandes » and the last screen of a run both list it. */
+export function RequestRow({ entry, fresh, exists, note, onWithdraw, onCorrect }: RequestRowProps) {
   const t = useT()
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(entry.display)
@@ -277,6 +282,7 @@ function RequestRow({ entry, fresh, exists, onWithdraw, onCorrect }: RequestRowP
               {categoryText(t, entry.categoryId).label}
               {entry.source === 'queued' && ` · ${t.requests.queued}`}
               {locked && ` · ${t.requests.locked}`}
+              {note && ` · ${note}`}
             </span>
           </span>
           {fresh && <span className="request-fresh">{t.requests.fresh}</span>}

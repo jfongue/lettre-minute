@@ -15,6 +15,11 @@ n'écrit rapportent le plus.
   Wiktionnaire ; les autres langues, le Wiktionary anglais par Wiktextract.
 - **Catégories fermées et stables** (pays, animaux, couleurs, métiers…) : pas de
   films ni de célébrités, qu'un dictionnaire ne peut pas arbitrer.
+- **Le tirage écoute la foule** : un couple lettre + catégorie que les joueurs
+  quittent sans rien écrire s'efface peu à peu du tirage, sans jamais en
+  disparaître ; un couple qu'ils réussissent y revient, et d'autant plus qu'il
+  était rare. Chaque partie rapporte les couples qu'elle a quittés — jamais un
+  défi, dont le tirage doit rester le même pour tout le monde.
 - **Rien n'est révélé pendant la frappe** : le champ nomme le mot seulement
   quand il est écrit juste, dit « à une lettre près » sans nommer la
   correction, et les points comme la rareté n'apparaissent qu'à la validation.
@@ -52,8 +57,11 @@ n'écrit rapportent le plus.
   une fois). Chacun a sa couleur, son
   icône, son geste et son son, qu'on entend en touchant sa carte.
 - **Fin de partie en deux temps** : le score, puis chaque mot trouvé, un par
-  un ; ensuite l'XP qui monte, la catégorie puis le pouvoir à choisir, les
-  nouveautés d'avatar et le résumé.
+  un — un mot que le joueur a lui-même fait entrer au dictionnaire s'y signale
+  d'une marque discrète, comme dans le champ à la validation ; ensuite l'XP qui
+  monte, la catégorie puis le pouvoir à choisir, les nouveautés d'avatar et le
+  résumé, qui relit les mots proposés pendant la partie pour les corriger ou
+  retirer la demande tant qu'elle attend.
 - **Compte et avatar** : après une partie, le joueur anonyme peut créer un
   compte (nom, adresse, mot de passe) ou se connecter, et la partie y entre
   aussitôt. L'avatar est une tuile de l'affiche — cent formes animées, trente
@@ -61,7 +69,8 @@ n'écrit rapportent le plus.
 - **Classements** : meilleure partie du jour, de la semaine, et mots découverts
   cette semaine — un mot que personne n'avait écrit dans la catégorie depuis
   sept jours. On passe de l'un à l'autre d'un glissement du doigt. Seuls les
-  comptes nommés y figurent ; Demontoon y tient 94 points chaque jour tant
+  comptes nommés y figurent, et jamais les joueurs maison du serveur
+  (Maxitoon, Terretciel) ; Demontoon y tient 94 points chaque jour tant
   qu'il n'a pas joué. Le titre, un glissement après le troisième tableau ou
   le lien des statistiques ouvrent la page des classements : meilleure
   partie, points, parties, mots trouvés, découvertes, série et mots ajoutés,
@@ -86,7 +95,9 @@ n'écrit rapportent le plus.
   volume dans les options ; sur le web, une sourdine attend en bas à droite.
 - **Mot manquant** : le joueur le propose en un clic ; validé par trois
   modérateurs, il entre au dictionnaire et rapporte 150 XP à chacun de ceux
-  qui l'ont proposé. Une pastille sur « Mes demandes » l'annonce à l'accueil.
+  qui l'ont proposé. Une pastille sur « Mes demandes » l'annonce à l'accueil, et
+  le mot revient dans les parties de celui qui l'a fait entrer, marqué comme le
+  sien.
 - **Défis entre amis** : de deux à huit joueurs, chacun joue la même partie
   (même graine, mêmes catégories — le chef les choisit parmi les siennes, et
   décide si les pouvoirs sont permis) quand il veut, dans les 24 heures qui
