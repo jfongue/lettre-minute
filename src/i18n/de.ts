@@ -299,6 +299,8 @@ export const de: Messages = {
     added: 'Dank dir aufgenommen',
     addedNote: (xp) => `${xp} XP für jedes.`,
     noneAdded: 'Noch keins: Ein Wort kommt hinein, sobald drei Moderatoren es bestätigt haben.',
+    more: (count: number) => `Mehr zeigen (${count})`,
+    less: 'Weniger anzeigen',
     fresh: 'neu',
     locked: 'wird geprüft',
     pending: 'Ausstehend',
@@ -321,8 +323,6 @@ export const de: Messages = {
     superLead: 'Dein Wort genügt: Ein Wort, das du für richtig hältst, kommt sofort hinein, und Sonderfälle warten nur auf Supermoderatoren.',
     progress: (done, needed) =>
       `${Math.min(done, needed)} / ${needed} unbestritten bestätigte Wörter bis zum Supermoderator`,
-    waiting: (count) =>
-      count === 0 ? 'Gerade wartet kein Wort.' : `${count} ${count > 1 ? 'Wörter warten' : 'Wort wartet'} auf dein Urteil`,
     start: (size) => `Sitzung starten · ${size} Wörter`,
     offer: {
       title: 'Werde Moderator!',

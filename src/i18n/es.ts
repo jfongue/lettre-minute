@@ -301,6 +301,8 @@ export const es: Messages = {
     added: 'Añadidas gracias a ti',
     addedNote: (xp) => `${xp} XP ganados por cada una.`,
     noneAdded: 'Ninguna aún: una palabra entra cuando tres moderadores la han validado.',
+    more: (count: number) => `Ver más (${count})`,
+    less: 'Ver menos',
     fresh: 'nueva',
     locked: 'en moderación',
     pending: 'En espera',
@@ -323,8 +325,6 @@ export const es: Messages = {
     superLead: 'Tu palabra basta: una palabra que das por correcta entra al instante, y los casos especiales solo esperan a los supermoderadores.',
     progress: (done, needed) =>
       `${Math.min(done, needed)} / ${needed} palabras validadas sin discusión para ser supermoderador`,
-    waiting: (count) =>
-      count === 0 ? 'Ninguna palabra espera por ahora.' : `${count} ${count > 1 ? 'palabras esperan' : 'palabra espera'} tu opinión`,
     start: (size) => `Empezar una sesión · ${size} palabras`,
     offer: {
       title: '¡Hazte moderador!',

@@ -300,6 +300,8 @@ export const nl: Messages = {
     added: 'Toegevoegd dankzij jou',
     addedNote: (xp) => `${xp} XP verdiend per woord.`,
     noneAdded: 'Nog geen: een woord komt erin zodra drie moderators het hebben goedgekeurd.',
+    more: (count: number) => `Meer tonen (${count})`,
+    less: 'Minder tonen',
     fresh: 'nieuw',
     locked: 'wordt beoordeeld',
     pending: 'In afwachting',
@@ -322,8 +324,6 @@ export const nl: Messages = {
     superLead: 'Jouw woord is genoeg: een woord dat jij goed noemt komt er meteen in, en speciale gevallen wachten alleen op supermoderators.',
     progress: (done, needed) =>
       `${Math.min(done, needed)} / ${needed} onbetwist goedgekeurde woorden om supermoderator te worden`,
-    waiting: (count) =>
-      count === 0 ? 'Er wacht nu geen enkel woord.' : `${count} ${count > 1 ? 'woorden wachten' : 'woord wacht'} op je oordeel`,
     start: (size) => `Sessie starten · ${size} woorden`,
     offer: {
       title: 'Word moderator!',

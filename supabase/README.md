@@ -1,6 +1,6 @@
 # Supabase
 
-Vingt-quatre migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Vingt-cinq migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -28,16 +28,19 @@ par e-mail au test fermé de Play, [`0021_leaderboards.sql`](migrations/0021_lea
 pour la page des classements, [`0022_prompt_weight.sql`](migrations/0022_prompt_weight.sql)
 pour les couples lettre + catégorie que les parties des joueurs effacent ou ramènent,
 et [`0023_moderation_topup_cooldown.sql`](migrations/0023_moderation_topup_cooldown.sql)
-pour le renflouage de la file limité à un versement par heure, et
+pour le renflouage de la file limité à un versement par heure,
 [`0024_bots_off_leaderboards.sql`](migrations/0024_bots_off_leaderboards.sql)
-pour sortir les joueurs maison des classements.
+pour sortir les joueurs maison des classements, et
+[`0025_insights.sql`](migrations/0025_insights.sql) pour les classements
+avancés du mode débug (pouvoirs joués, rythme des parties et des comptes,
+couples les plus rentables ou les plus quittés).
 
 ## Ce que le serveur détient
 
 | Table | Rôle |
 | --- | --- |
 | `profiles` | XP, niveau, records, avatar, nom de compte (unique, sauf « Anonyme »). Créé automatiquement à la naissance du compte. |
-| `runs` | Une partie terminée : graine, score, série, passes. |
+| `runs` | Une partie terminée : graine, score, série, passes, et les pouvoirs qu'elle a joués. |
 | `run_words` | Les mots d'une partie, forme normalisée — la matière du bonus de rareté. |
 | `daily_challenges` | La graine du jour, la même pour tous : base du classement quotidien. |
 | `dictionary_words` | Le dictionnaire vivant, en complément des fichiers embarqués. |
@@ -60,20 +63,45 @@ pour sortir les joueurs maison des classements.
 | `challenge_reactions` | Une réaction (emoji) par joueur et par trophée ou mot du bilan d'un défi. |
 | `ideas` | Une idée envoyée en texte libre par un joueur, vidée une fois par jour par la fonction Edge `ideas`. |
 | `tester_invites` | Une adresse e-mail saisie dans le champ d'ami, en attente d'être inscrite testeur Play puis invitée par `npm run testers:invite`. Aucune politique : jamais relue par un joueur. |
-| `prompt_stats` | Par langue, ce que les parties ont dit de chaque couple lettre + catégorie : combien l'ont tiré, combien l'ont laissé vide. Lu par le tirage du client, écrit par la seule fonction `report_prompts`. |
+| `prompt_stats` | Par langue, ce que les parties ont dit de chaque couple lettre + catégorie : combien l'ont tiré, combien l'ont laissé vide, ce qu'il a rapporté en points et en mots. Lu par le tirage du client et par les classements avancés, écrit par la seule fonction `report_prompts`. |
 | `prompt_reports` | Les graines qui ont déjà parlé, pour qu'une partie ne compte qu'une fois. Aucune politique : jamais relu. |
 
 Fonctions d'écriture : `report_prompts(graine, langue, couples)` — le rapport
 d'une partie terminée, une seule fois par graine, borné à trente couples et
-nettoyé de ce qui n'est pas une lettre + une catégorie. Fonctions de lecture : `leaderboard_board('day' | 'week' | 'discoveries')` — le
+nettoyé de ce qui n'est pas une lettre + une catégorie ; chaque couple y porte
+aussi les points et les mots qu'il a rendus (facultatifs : un client d'avant
+0025 les tait). Fonctions de lecture : `leaderboard_board('day' | 'week' | 'discoveries')` — le
 classement du jour, de la semaine (heure de Paris, semaine du lundi) et des
 découvertes de la semaine ; `leaderboard_stat(mesure, 'day' | 'week' | 'all')` —
 la page des classements (`best`, `points`, `runs`, `words`, `discoveries`,
 `combo`, `added`), cinquante lignes avec `rank()` et celle du joueur au-delà
-(`extra`) ; `my_friends()` — amis et demandes en cours.
+(`extra`) ; `my_friends()` — amis et demandes en cours ; `debug_activity('hour' | 'day' | 'week')`,
+`debug_powers()` et `debug_pairs(langue)` — les classements avancés du mode
+débug, agrégés et sans un nom de joueur.
 
 Vues : `leaderboard` (record de chaque compte nommé, joueurs maison écartés), `word_popularity` (part des parties où un mot
 apparaît), `submission_tally` (combien de joueurs réclament un mot).
+
+## Classements avancés
+
+- **Un mode caché, pas un écran public** : cinq tapes sur le mot
+  « Classement » les ouvrent dans l'application. Les trois fonctions ne
+  rendent que des comptes et des moyennes — aucun nom, aucun identifiant — et
+  restent réservées aux joueurs connectés, comme les classements.
+- **Ce que le profil ne garde pas, la partie le dit** (0025) : les pouvoirs
+  possédés et portés restent sur l'appareil, mais chaque partie envoyée
+  emporte ceux qu'elle a joués (`runs.powers`), seule façon de répondre
+  « quels pouvoirs sortent ». Une partie de robot ou de défi n'en porte
+  aucun.
+- **Un couple rend ce qu'il a rapporté** : les deux compteurs du tirage
+  (0022) ne disaient que « tiré » et « quitté » ; `report_prompts` y ajoute
+  les points et les mots de ses réponses. Un couple tiré deux fois dans la
+  même partie ne les compte qu'une fois, sur son premier passage.
+- **Le rythme se lit à l'heure de Paris**, comme les périodes des classements
+  (`period_start`) : les vingt-quatre dernières heures, les sept derniers
+  jours ou les douze dernières semaines, les cases vides sortant à zéro pour
+  que le graphique montre les creux. Les créations de compte sont celles des
+  comptes nommés : un joueur anonyme n'en a pas créé.
 
 ## Conventions
 

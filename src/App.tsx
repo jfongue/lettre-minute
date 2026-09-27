@@ -256,6 +256,9 @@ export function App() {
   )
   const [homeSettled, setHomeSettled] = useState(false)
   const [debugPhase, setDebugPhase] = useState<string | null>(() => (window.location.hash === '#debug' ? 'home' : null))
+  // Les classements avancés : le mode débug caché derrière cinq tapes sur
+  // « Classement ». Il ne survit pas au rechargement, comme la planche.
+  const [advancedBoards, setAdvancedBoards] = useState(false)
 
   // Written only once the cached account has been read, or the first render's
   // null would erase it.
@@ -1141,6 +1144,10 @@ export function App() {
             setMenuFocus(false)
             setMenuPage(page)
           }}
+          onBoardsHidden={() => {
+            setAdvancedBoards(true)
+            setMenuPage('boards')
+          }}
           onPlay={startFirstRun}
           onDebug={() => setDebugPhase('home')}
           onEquip={(slot, powerId) => dispatch({ type: 'equip', slot, powerId })}
@@ -1316,6 +1323,9 @@ export function App() {
           }}
           onRequestsSeen={refreshModeration}
           onRequestsOpen={topUpRequests}
+          lang={lang}
+          advancedBoards={advancedBoards}
+          onAdvancedBoards={setAdvancedBoards}
           onErase={async () => {
             // The device keeps its copy until the server has let go of its
             // own: a failed erase must not leave the player half-deleted.

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import type { AvatarChoice } from '../domain/avatar'
 import type { AccountMode } from './AccountPanel'
 import type { Boards as BoardsData } from '../domain/boards'
@@ -14,6 +14,7 @@ import type { ShapeKind, Tint } from './motifs'
 import { PageLinks, type LinkedPage } from './PageLinks'
 import { PowerSlots } from './PowerSlots'
 import type { PowerId } from '../domain/powers'
+import { useHiddenTaps } from './useHiddenTaps'
 import { useSwipe } from './useSwipe'
 
 const HOME_LINKS: readonly LinkedPage[] = ['profile', 'stats', 'requests', 'categories']
@@ -54,6 +55,8 @@ interface HomeScreenProps {
   onAccount?(mode: AccountMode): void
   /** Five quick taps on the poster's top-right tile: the debug board, hidden from players. */
   onDebug?(): void
+  /** Cinq tapes rapprochés sur « Classement » : la page des classements, en mode débug. */
+  onBoardsHidden?(): void
 }
 
 export function HomeScreen({
@@ -76,6 +79,7 @@ export function HomeScreen({
   onEquip,
   onAccount,
   onDebug,
+  onBoardsHidden,
 }: HomeScreenProps) {
   const t = useT()
   const progress = levelProgress(profile.xp)
@@ -157,7 +161,9 @@ export function HomeScreen({
                 </div>
               </section>
 
-              {boards && <Boards boards={boards} me={me} climbed={climbed} onAll={() => onMenu('boards')} />}
+              {boards && (
+                <Boards boards={boards} me={me} climbed={climbed} onAll={() => onMenu('boards')} onHidden={onBoardsHidden} />
+              )}
             </>
           )}
 
@@ -186,21 +192,11 @@ const POSTER: readonly Cell[] = [
 ]
 
 const DEBUG_TILE = 4
-const DEBUG_TAPS = 5
-const DEBUG_TAP_GAP_MS = 600
 
 /** The top-left tile doubles as the menu button: three bars where the quarter used to turn. */
 function Poster({ requests, onMenu, onDebug }: { requests: number; onMenu(): void; onDebug?(): void }) {
   const t = useT()
-  const taps = useRef({ count: 0, at: 0 })
-  const tapTile = () => {
-    const now = Date.now()
-    taps.current = { count: now - taps.current.at < DEBUG_TAP_GAP_MS ? taps.current.count + 1 : 1, at: now }
-    if (taps.current.count >= DEBUG_TAPS) {
-      taps.current = { count: 0, at: 0 }
-      onDebug?.()
-    }
-  }
+  const tapTile = useHiddenTaps()
   return (
     <div className="poster">
       {POSTER.map(([kind, tint, ground, motion], index) =>
@@ -226,7 +222,13 @@ function Poster({ requests, onMenu, onDebug }: { requests: number; onMenu(): voi
             className="poster-cell"
             style={{ background: `var(--${ground})`, '--i': index } as CSSProperties}
             aria-hidden="true"
-            onClick={index === DEBUG_TILE ? tapTile : undefined}
+            onClick={
+              index === DEBUG_TILE
+                ? () => {
+                    if (tapTile()) onDebug?.()
+                  }
+                : undefined
+            }
           >
             <span className={`motion${motion ? ` motion-${motion}` : ''}`}>
               <Shape kind={kind} tint={tint} />

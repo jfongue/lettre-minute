@@ -32,6 +32,9 @@ type Entry = RequestEntry
 // Long enough to read « Déjà existant ! » before the row goes.
 const EXISTS_MS = 1600
 
+/** Ce que « Ajoutés grâce à toi » montre avant son « Voir plus » : les dix derniers. */
+const ADDED_SHOWN = 10
+
 const langOf = (entry: Entry) => (entry.source === 'queued' ? (entry.queued.lang ?? 'fr') : entry.submission.lang)
 
 interface RequestsPageProps {
@@ -49,6 +52,9 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
   const [server, setServer] = useState<Submission[] | null | 'loading'>('loading')
   const [queue, setQueue] = useState<PendingSubmission[]>(loadSubmissions)
   const [failed, setFailed] = useState(false)
+  // La liste des mots entrés se replie sur ses dix derniers : la queue de
+  // l'archive n'intéresse personne.
+  const [allAdded, setAllAdded] = useState(false)
   // Read once, on arrival: the words accepted since the last visit keep their
   // highlight for the whole visit, though the server forgets them at once.
   const [fresh, setFresh] = useState<ReadonlySet<string>>(new Set())
@@ -116,6 +122,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
     ...submissions.filter((submission) => submission.status === 'pending').map(fromServer),
   ]
   const accepted = submissions.filter((submission) => submission.status === 'accepted').map(fromServer)
+  const added = allAdded ? accepted : accepted.slice(0, ADDED_SHOWN)
   const rejected = submissions.filter((submission) => submission.status === 'rejected').map(fromServer)
   const nothing = server !== 'loading' && pending.length === 0 && accepted.length === 0 && rejected.length === 0
 
@@ -173,10 +180,15 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
           ) : (
             <>
               <ul className="requests requests--added">
-                {accepted.map((entry) => (
+                {added.map((entry) => (
                   <RequestRow key={entry.key} entry={entry} fresh={fresh.has(entry.key)} />
                 ))}
               </ul>
+              {accepted.length > ADDED_SHOWN && (
+                <button type="button" className="btn btn--quiet" onClick={() => setAllAdded(!allAdded)}>
+                  {allAdded ? t.requests.less : t.requests.more(accepted.length - ADDED_SHOWN)}
+                </button>
+              )}
               <p className="note">{t.requests.addedNote(SUBMISSION_REWARD_XP)}</p>
             </>
           )}
@@ -381,7 +393,6 @@ function ModerationPanel({ status, onModerate }: { status: ModerationStatus; onM
           <p className="note">{t.moderation.progress(status.validated, SUPER_MODERATOR_VALIDATIONS)}</p>
         </div>
       )}
-      <p className="moderation-panel-waiting">{t.moderation.waiting(status.queue)}</p>
       <button type="button" className="btn btn--blue btn--block" onClick={onModerate}>
         {t.moderation.start(Math.min(MODERATION_SESSION_SIZE, status.queue))}
       </button>

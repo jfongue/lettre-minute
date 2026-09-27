@@ -75,7 +75,11 @@ n'écrit rapportent le plus.
   le lien des statistiques ouvrent la page des classements : meilleure
   partie, points, parties, mots trouvés, découvertes, série et mots ajoutés,
   chacun du jour, de la semaine ou au total, avec podium, ex æquo au même
-  rang et la place du joueur même au-delà des cinquante premiers.
+  rang et la place du joueur même au-delà des cinquante premiers. Cinq tapes
+  sur le mot « Classement » ouvrent les classements avancés — quels pouvoirs
+  les parties portent et ce qu'ils rapportent, les parties et les nouveaux
+  comptes par heure, par jour ou par semaine, et les couples lettre + thème
+  les plus rentables ou les plus quittés —, un mode débug que rien n'annonce.
 - **Menu** : la tuile en haut à gauche de l'affiche (ou un glissement du doigt vers la droite) ouvre le profil (compte,
   avatar, effacement), le social (amis par nom de compte, demandes reçues et
   envoyées, score de la semaine de chacun) et les options (thème auto, clair
@@ -97,7 +101,8 @@ n'écrit rapportent le plus.
   modérateurs, il entre au dictionnaire et rapporte 150 XP à chacun de ceux
   qui l'ont proposé. Une pastille sur « Mes demandes » l'annonce à l'accueil, et
   le mot revient dans les parties de celui qui l'a fait entrer, marqué comme le
-  sien.
+  sien. « Ajoutés grâce à toi » en montre les dix derniers, un « Voir plus »
+  dépliant l'archive.
 - **Défis entre amis** : de deux à huit joueurs, chacun joue la même partie
   (même graine, mêmes catégories — le chef les choisit parmi les siennes, et
   décide si les pouvoirs sont permis) quand il veut, dans les 24 heures qui
@@ -284,6 +289,9 @@ malachite très rare.
 - `src/lib/` — Supabase : profil, parties, usage global des mots, propositions,
   effacement du compte ; `native.ts` pour ce qui parle au téléphone.
 - `src/ui/` — un composant par écran.
+- `src/debug/` — la planche de développement, et les classements avancés
+  qu'un geste caché ouvre : des écrans réels, des données inventées ou
+  agrégées, jamais un mot écrit sur le serveur.
 - `scripts/` — l'import : Wikidata et le Wiktionnaire pour les mots, Lexique
   (français) ou Wiktextract (autres langues) pour les formes fléchies, wordfreq
   et la Wikipédia de la langue pour la notoriété. `languages.ts` dit ce qui

@@ -333,6 +333,9 @@ export const fr = {
     added: 'Ajoutés grâce à toi',
     addedNote: (xp: number) => `${xp} XP gagnés pour chacun.`,
     noneAdded: 'Aucun encore : un mot entre quand trois modérateurs l’ont validé.',
+    /** « Ajoutés grâce à toi » se replie sur ses dix derniers. */
+    more: (count: number) => `Voir plus (${count})`,
+    less: 'Voir moins',
     fresh: 'nouveau',
     locked: 'en cours de modération',
     pending: 'En attente',
@@ -355,8 +358,6 @@ export const fr = {
     superLead: 'Ta parole suffit : un mot que tu dis correct entre aussitôt, et les cas spéciaux n’attendent que les super modérateurs.',
     progress: (done: number, needed: number) =>
       `${Math.min(done, needed)} / ${needed} mots validés sans contestation pour devenir super modérateur`,
-    waiting: (count: number) =>
-      count === 0 ? 'Aucun mot n’attend pour l’instant.' : `${count} ${plural(count, 'mot attend', 'mots attendent')} ton avis`,
     start: (size: number) => `Lancer une session · ${size} mots`,
     offer: {
       title: 'Deviens modérateur !',

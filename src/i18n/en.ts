@@ -305,6 +305,8 @@ export const en: Messages = {
     added: 'Added thanks to you',
     addedNote: (xp) => `${xp} XP earned for each.`,
     noneAdded: 'None yet: a word gets in once three moderators have approved it.',
+    more: (count: number) => `Show more (${count})`,
+    less: 'Show less',
     fresh: 'new',
     locked: 'under review',
     pending: 'Waiting',
@@ -327,8 +329,6 @@ export const en: Messages = {
     superLead: 'Your word is enough: a word you call correct gets in at once, and special cases wait for super moderators only.',
     progress: (done, needed) =>
       `${Math.min(done, needed)} / ${needed} words approved without dispute to become a super moderator`,
-    waiting: (count) =>
-      count === 0 ? 'No word is waiting right now.' : `${count} ${count > 1 ? 'words are' : 'word is'} waiting for you`,
     start: (size) => `Start a session · ${size} words`,
     offer: {
       title: 'Become a moderator!',

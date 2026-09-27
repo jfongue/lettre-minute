@@ -1,5 +1,6 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
+import type { ActivityBucket, Insights, PairTally, PowerTally } from '../domain/insights'
 import type { Leaderboard, PeriodId, PlacedRow, StatId } from '../domain/leaderboards'
 import { challengeWordsOf, type ChallengeEntry, type ChallengeWord } from '../domain/challenge'
 import { MODERATION_SESSION_SIZE, type ModeratorOfferReason, type Verdict } from '../domain/moderation'
@@ -114,18 +115,21 @@ export function fetchCommunityWords(lang: string): Promise<Record<string, Commun
 export function pushRun(run: Run, profile: Profile, lang: string): Promise<boolean> {
   return guard(async () => {
     const identity = await connect()
-    const { data, error } = await supabase!
-      .from('runs')
-      .insert({
-        player_id: identity!.userId,
-        seed: run.seed,
-        score: run.score,
-        words: run.found.length,
-        best_combo: run.bestCombo,
-        skips: run.skips,
-      })
-      .select('id')
-      .single()
+    const row = {
+      player_id: identity!.userId,
+      seed: run.seed,
+      score: run.score,
+      words: run.found.length,
+      best_combo: run.bestCombo,
+      skips: run.skips,
+    }
+    // Ce que le profil ne garde pas (les pouvoirs restent sur l'appareil) :
+    // la partie dit avec quoi elle a été jouée, pour les classements avancés
+    // du mode débug. La colonne date de 0025 : un projet qui ne l'a pas encore
+    // appliquée la refuse, et la partie serait perdue pour un tableau de
+    // développeur — elle repart alors sans ses pouvoirs.
+    const written = await supabase!.from('runs').insert({ ...row, powers: [...run.powers] }).select('id').single()
+    const { data, error } = written.error ? await supabase!.from('runs').insert(row).select('id').single() : written
     if (error || !data) return false
 
     if (run.found.length > 0) {
@@ -145,14 +149,34 @@ export function pushRun(run: Run, profile: Profile, lang: string): Promise<boole
     // dictionaries alone, whatever the crowd does.
     const outcomes = promptOutcomes(run)
     if (outcomes.length > 0) {
+      // Ce que chaque couple a rendu : les points et les mots de ses réponses.
+      // Un couple tiré deux fois dans la partie ne les compte qu'une fois, sur
+      // son premier passage — la somme reste celle de la partie.
+      const scored = new Map<string, { points: number; words: number }>()
+      for (const found of run.found) {
+        const key = promptKey(found.prompt)
+        const tally = scored.get(key) ?? { points: 0, words: 0 }
+        tally.points += found.points
+        tally.words += 1
+        scored.set(key, tally)
+      }
+      const counted = new Set<string>()
       await supabase!.rpc('report_prompts', {
         p_seed: run.seed,
         p_lang: lang,
-        p_prompts: outcomes.map((outcome) => ({
-          category: outcome.prompt.categoryId,
-          letter: outcome.prompt.letter,
-          passed: outcome.passed,
-        })),
+        p_prompts: outcomes.map((outcome) => {
+          const key = promptKey(outcome.prompt)
+          const first = !counted.has(key)
+          counted.add(key)
+          const tally = scored.get(key)
+          return {
+            category: outcome.prompt.categoryId,
+            letter: outcome.prompt.letter,
+            passed: outcome.passed,
+            points: first ? (tally?.points ?? 0) : 0,
+            words: first ? (tally?.words ?? 0) : 0,
+          }
+        }),
       })
     }
 
@@ -424,6 +448,56 @@ export function fetchLeaderboard(stat: StatId, period: PeriodId): Promise<Leader
     return {
       rows: rows.filter((entry) => !entry.extra).map((entry) => entry.row),
       me: rows.find((entry) => entry.extra)?.row ?? null,
+    }
+  }, null)
+}
+
+/**
+ * Les classements avancés du mode débug (0025) : les pouvoirs que les parties
+ * ont portés, ce que chaque couple lettre + catégorie rend, et le rythme des
+ * parties et des comptes. Null quand le serveur ne répond pas — le mode caché
+ * le dit alors, comme la page des classements.
+ */
+export function fetchInsights(lang: string): Promise<Insights | null> {
+  return guard(async () => {
+    const [hours, days, weeks, powers, pairs] = await Promise.all([
+      supabase!.rpc('debug_activity', { p_bucket: 'hour' }),
+      supabase!.rpc('debug_activity', { p_bucket: 'day' }),
+      supabase!.rpc('debug_activity', { p_bucket: 'week' }),
+      supabase!.rpc('debug_powers'),
+      supabase!.rpc('debug_pairs', { p_lang: lang }),
+    ])
+    if (hours.error || days.error || weeks.error || powers.error || pairs.error) return null
+
+    const activity = (rows: unknown): ActivityBucket[] =>
+      ((rows ?? []) as Record<string, unknown>[]).map((row) => ({
+        at: Date.parse(row.bucket as string) || 0,
+        runs: Number(row.runs) || 0,
+        accounts: Number(row.accounts) || 0,
+      }))
+
+    return {
+      hours: activity(hours.data),
+      days: activity(days.data),
+      weeks: activity(weeks.data),
+      powers: ((powers.data ?? []) as Record<string, unknown>[]).map(
+        (row): PowerTally => ({
+          power: row.power as string,
+          runs: Number(row.runs) || 0,
+          points: Number(row.points) || 0,
+          best: Number(row.best) || 0,
+        }),
+      ),
+      pairs: ((pairs.data ?? []) as Record<string, unknown>[]).map(
+        (row): PairTally => ({
+          categoryId: row.category_id as string,
+          letter: row.letter as string,
+          dealt: Number(row.dealt) || 0,
+          passed: Number(row.passed) || 0,
+          words: Number(row.words) || 0,
+          points: Number(row.points) || 0,
+        }),
+      ),
     }
   }, null)
 }

@@ -36,7 +36,9 @@ qu'un nouvel arrivant casserait sans le savoir.
   un couple que les joueurs quittent sans rien écrire s'efface peu à peu, un
   couple qu'ils réussissent revient — jamais jusqu'à zéro, et jamais sur trois
   parties. Ce sont les compteurs de `prompt_stats`, que `pushRun` rapporte par
-  partie (`promptOutcomes`, une fois par graine) : **jamais un défi ni une
+  partie (`promptOutcomes`, une fois par graine), avec les points et les mots
+  que chaque couple a rendus — les classements avancés les lisent, le tirage
+  jamais. Là encore, **jamais un défi ni une
   partie de robot**, qui se rejouent sur chaque appareil et dont le tirage doit
   rester fonction de la graine et des dictionnaires embarqués seuls. Un couple
   quitté se lit dans `Run.settled`, pas dans `dealt` — qui est un ensemble, et
@@ -234,6 +236,10 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Pouvoirs possédés et portés restent sur l'appareil**, comme les
   catégories : le serveur ne garde que les totaux. Ils se déduisent du niveau
   (`powerPicksOwed`), donc un autre appareil se les voit simplement reproposer.
+  Seule exception, la partie envoyée emporte les pouvoirs qu'elle a joués
+  (`runs.powers`, 0025) : les classements avancés du mode débug en tirent
+  « quels pouvoirs sortent » et ce qu'ils rapportent, et rien d'autre ne les
+  relit. Une partie de robot ou de défi n'en porte aucun.
 
 - **Un défi n'est équitable que si tout le monde tire les mêmes couples** :
   même graine, mêmes catégories, `avoid` vide, et pas de mots de la
@@ -304,7 +310,8 @@ qu'un nouvel arrivant casserait sans le savoir.
 
 - **Tout écran difficile d'accès a son scénario dans `src/debug/DebugBoard.tsx`**
   (fin de partie avec offre, défi, offre de modérateur, notification…) : dès
-  qu'on en crée un, on l'y ajoute. On l'ouvre par cinq tapes rapides sur
+  qu'on en crée un, on l'y ajoute. Les classements avancés ont le leur
+  (`leaderboards-advanced`). On l'ouvre par cinq tapes rapides sur
   la tuile en haut à droite de l'affiche d'accueil, ou `#debug` sur le web, dans n'importe quel
   build. Elle montre les vrais composants avec des données inventées et
   n'écrit jamais sur le serveur : un écran qui appelle `cloud.ts` pour
@@ -315,6 +322,13 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Le bouton quitter reste à gauche** : le coin haut droit de l'affiche est
   celui des cinq tapes qui ouvrent la planche, un bouton au même endroit la
   refermait aussitôt.
+- **Les classements avancés vivent sous le même toit** (`src/debug/Insights.tsx`) :
+  cinq tapes rapprochées sur le mot « Classement » — le titre de l'accueil ou
+  celui de la page des classements — les ouvrent sous les sept mesures. Outil
+  de développeur, donc libellés français hors de l'i18n, comme la planche ;
+  les noms de pouvoirs et de catégories viennent de l'interface, qui les a
+  déjà. Le chargeur (`fetchInsights`) et la vue sont séparés, et rien n'est
+  écrit sur le serveur.
 - **Les planches touchées depuis les deux dernières versions livrées sont
   surlignées** (`npm run debug:recent`) : le script relit les commits
   « Version X.Y.Z » de git et écrit `src/debug/recent.ts`, à commiter — la

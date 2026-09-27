@@ -301,6 +301,8 @@ export const it: Messages = {
     added: 'Aggiunte grazie a te',
     addedNote: (xp) => `${xp} XP guadagnati per ognuna.`,
     noneAdded: 'Nessuna per ora: una parola entra quando tre moderatori l’hanno approvata.',
+    more: (count: number) => `Mostra altro (${count})`,
+    less: 'Mostra meno',
     fresh: 'nuova',
     locked: 'in moderazione',
     pending: 'In attesa',
@@ -323,8 +325,6 @@ export const it: Messages = {
     superLead: 'La tua parola basta: una parola che dici corretta entra subito, e i casi speciali aspettano solo i supermoderatori.',
     progress: (done, needed) =>
       `${Math.min(done, needed)} / ${needed} parole approvate senza contestazioni per diventare supermoderatore`,
-    waiting: (count) =>
-      count === 0 ? 'Nessuna parola in attesa per ora.' : `${count} ${count > 1 ? 'parole aspettano' : 'parola aspetta'} il tuo parere`,
     start: (size) => `Avvia una sessione · ${size} parole`,
     offer: {
       title: 'Diventa moderatore!',

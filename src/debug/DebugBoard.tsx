@@ -25,6 +25,7 @@ import { CategoryGiftPop } from '../ui/CategoryGiftPop'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
 import type { Boards } from '../domain/boards'
+import type { ActivityBucket, Insights as InsightData, PairTally, PowerTally } from '../domain/insights'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 import { RECENT_SCENARIOS, RECENT_VERSIONS } from './recent'
@@ -317,10 +318,63 @@ function fakeLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | 
   return later(completeLeaderboard(stat, period, { rows, me }), 500)
 }
 
+/** Ce qu'un mode débug montre : des pouvoirs qui pèsent, un couple rentable, un couple fui. */
+const POWERS: readonly PowerTally[] = [
+  { power: 'joker', runs: 128, points: 9_200, best: 420 },
+  { power: 'hush', runs: 61, points: 4_100, best: 310 },
+  { power: 'magic', runs: 44, points: 3_600, best: 290 },
+  { power: 'dodge', runs: 22, points: 1_500, best: 180 },
+  { power: 'divination', runs: 8, points: 900, best: 260 },
+  { power: 'dyslexia', runs: 3, points: 700, best: 340 },
+]
+
+const PAIRS: readonly PairTally[] = [
+  { categoryId: 'pays', letter: 'Z', dealt: 42, passed: 34, words: 9, points: 620 },
+  { categoryId: 'animaux', letter: 'Q', dealt: 31, passed: 24, words: 8, points: 540 },
+  { categoryId: 'couleurs', letter: 'V', dealt: 58, passed: 12, words: 51, points: 1_780 },
+  { categoryId: 'pays', letter: 'B', dealt: 74, passed: 9, words: 69, points: 2_240 },
+  { categoryId: 'metiers', letter: 'E', dealt: 26, passed: 11, words: 18, points: 430 },
+  { categoryId: 'fruits-legumes', letter: 'K', dealt: 19, passed: 14, words: 6, points: 260 },
+  { categoryId: 'animaux', letter: 'O', dealt: 61, passed: 8, words: 55, points: 1_690 },
+  { categoryId: 'sports', letter: 'C', dealt: 47, passed: 19, words: 33, points: 780 },
+  { categoryId: 'capitales', letter: 'A', dealt: 12, passed: 5, words: 8, points: 320 },
+  { categoryId: 'marques', letter: 'F', dealt: 23, passed: 15, words: 10, points: 240 },
+  { categoryId: 'plantes', letter: 'M', dealt: 9, passed: 6, words: 4, points: 150 },
+  { categoryId: 'objets', letter: 'T', dealt: 17, passed: 4, words: 14, points: 260 },
+]
+
+const RUN_HOURS = [3, 2, 1, 0, 0, 1, 4, 9, 14, 18, 21, 17, 12, 15, 19, 24, 31, 28, 22, 16, 11, 7, 5, 4]
+const ACCOUNT_HOURS = [0, 0, 0, 0, 0, 0, 1, 2, 3, 1, 0, 2, 4, 1, 0, 3, 5, 2, 1, 0, 0, 1, 0, 0]
+
+function series(step: number, count: number, runs: readonly number[], accounts: readonly number[]): ActivityBucket[] {
+  const last = Math.floor(Date.now() / step) * step
+  return Array.from({ length: count }, (_, index) => ({
+    at: last - (count - 1 - index) * step,
+    runs: runs[index % runs.length]!,
+    accounts: accounts[index % accounts.length]!,
+  }))
+}
+
+const INSIGHTS: InsightData = {
+  hours: series(HOUR, 24, RUN_HOURS, ACCOUNT_HOURS),
+  days: series(24 * HOUR, 7, [180, 240, 205, 310, 288, 352, 143], [7, 12, 9, 15, 11, 18, 6]),
+  weeks: series(7 * 24 * HOUR, 12, [1_240, 1_380, 1_190, 1_460, 1_710, 1_520, 1_830, 2_040, 1_960, 2_310, 2_180, 1_420], [42, 51, 38, 60, 55, 71, 66, 83, 74, 91, 79, 48]),
+  powers: POWERS,
+  pairs: PAIRS,
+}
+
+function AdvancedScenario() {
+  return (
+    <div className="sheet">
+      <LeaderboardsPage named lang="fr" load={fakeLeaderboard} advanced loadInsights={() => later(INSIGHTS, 300)} />
+    </div>
+  )
+}
+
 function LeaderboardsScenario({ named }: { named: boolean }) {
   return (
     <div className="sheet">
-      <LeaderboardsPage named={named} load={fakeLeaderboard} />
+      <LeaderboardsPage named={named} lang="fr" load={fakeLeaderboard} />
     </div>
   )
 }
@@ -865,6 +919,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Les classements se lisent, avec l’invitation à créer un compte',
     phase: 'home',
     render: () => <LeaderboardsScenario named={false} />,
+  },
+  {
+    id: 'leaderboards-advanced',
+    group: 'Accueil',
+    title: 'Classements avancés, mode débug',
+    how: 'Cinq tapes sur « Classements » : pouvoirs portés, points moyens par pouvoir, parties et comptes par heure / jour / semaine, couples les plus rentables et les plus passés',
+    phase: 'home',
+    render: () => <AdvancedScenario />,
   },
   {
     id: 'update',

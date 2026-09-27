@@ -40,6 +40,7 @@ import { PageLinks } from './PageLinks'
 import { RequestsPage } from './RequestsPage'
 import { StatsPage } from './StatsPage'
 import { DonateButton } from './Donate'
+import { useHiddenTaps } from './useHiddenTaps'
 import { useSwipe } from './useSwipe'
 import { Avatar } from './Avatar'
 
@@ -95,6 +96,11 @@ interface MenuProps {
   onChallenge(id: string): void
   onRequestsSeen(): void
   onRequestsOpen(): void
+  /** La langue du dictionnaire, comme celle de la partie : celle de l'interface. */
+  lang: string
+  /** Les classements avancés : le mode débug, ouvert par cinq tapes sur « Classements ». */
+  advancedBoards: boolean
+  onAdvancedBoards(open: boolean): void
   onClose(): void
 }
 
@@ -103,6 +109,9 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
   const [pane, setPane] = useState<MenuPane>(isPane(page) ? page : 'profile')
   const [sub, setSub] = useState<ProfilePage | null>(isPane(page) ? null : page)
   const body = useRef<HTMLDivElement>(null)
+  // Cinq tapes rapprochées sur le titre de la page : le mode débug des
+  // classements. Le mot est le seul du jeu qui les annonce.
+  const tapBoards = useHiddenTaps()
   // The leaderboards opened from the statistics lead back to them, not to the profile.
   const [parent, setParent] = useState<ProfilePage | null>(null)
   const open = (next: MenuPage, from: ProfilePage | null = null) => {
@@ -171,7 +180,18 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
                   <path d="M15 5l-7 7 7 7" />
                 </svg>
               </button>
-              <h2 className="subpage-title">{t.menu.pages[sub]}</h2>
+              <h2
+                className="subpage-title"
+                onClick={
+                  sub === 'boards'
+                    ? () => {
+                        if (tapBoards()) props.onAdvancedBoards(true)
+                      }
+                    : undefined
+                }
+              >
+                {t.menu.pages[sub]}
+              </h2>
             </div>
           )}
           {sub === 'stats' && (
@@ -184,7 +204,14 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               onBoards={props.account ? () => open('boards', 'stats') : undefined}
             />
           )}
-          {sub === 'boards' && <LeaderboardsPage named={Boolean(props.account && !props.account.anonymous)} />}
+          {sub === 'boards' && (
+            <LeaderboardsPage
+              named={Boolean(props.account && !props.account.anonymous)}
+              lang={props.lang}
+              advanced={props.advancedBoards}
+              onCloseAdvanced={() => props.onAdvancedBoards(false)}
+            />
+          )}
           {sub === 'requests' && (
             <RequestsPage
               moderation={props.moderation}

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from
 import { completeLeaderboard, myPlace, PERIODS, STATS, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from '../domain/leaderboards'
 import { formatNumber, useT } from '../i18n'
 import { fetchLeaderboard } from '../lib/cloud'
+import { Insights, type LoadInsights } from '../debug/Insights'
 import { Avatar } from './Avatar'
 import { Shape } from './bauhaus'
 import { onTint, type ShapeKind, type Tint } from './motifs'
@@ -30,8 +31,16 @@ async function loadFromServer(stat: StatId, period: PeriodId): Promise<Leaderboa
 interface LeaderboardsPageProps {
   /** An anonymous player reads the boards but stands on none of them. */
   named: boolean
+  /** The dictionary the advanced boards read their pairs in: the interface's. */
+  lang: string
   /** The debug board passes its own made-up boards. */
   load?: LoadLeaderboard
+  /** Cinq tapes sur « Classements » : les classements avancés, sous la page. */
+  advanced?: boolean
+  /** La planche nourrit les classements avancés de ses propres chiffres. */
+  loadInsights?: LoadInsights
+  /** Ferme le mode débug, pour ne pas le garder sous les yeux. */
+  onCloseAdvanced?(): void
 }
 
 /**
@@ -39,7 +48,14 @@ interface LeaderboardsPageProps {
  * home screen: the swipe is the browser's own. Each board is asked for when
  * it is reached, with its neighbours, and kept for the page's life.
  */
-export function LeaderboardsPage({ named, load = loadFromServer }: LeaderboardsPageProps) {
+export function LeaderboardsPage({
+  named,
+  lang,
+  load = loadFromServer,
+  advanced = false,
+  loadInsights,
+  onCloseAdvanced,
+}: LeaderboardsPageProps) {
   const t = useT()
   const [period, setPeriod] = useState<PeriodId>('day')
   const [active, setActive] = useState(0)
@@ -144,6 +160,8 @@ export function LeaderboardsPage({ named, load = loadFromServer }: LeaderboardsP
           </section>
         ))}
       </div>
+
+      {advanced && <Insights lang={lang} period={period} load={loadInsights} onClose={onCloseAdvanced} />}
     </div>
   )
 }
