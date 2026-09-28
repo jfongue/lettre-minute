@@ -7,6 +7,10 @@
  *
  * The pull results are cached under .cache/pulls so a failed run — the taxon
  * queries are slow and time out often — resumes instead of starting over.
+ *
+ * `--draft` builds the categories prepared but not shipped, and only them,
+ * into src/data/drafts/<lang>: nothing under src/data/words is touched, and
+ * no pull is fetched.
  */
 import { execFileSync } from 'node:child_process'
 import { createReadStream, mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
@@ -19,7 +23,7 @@ import { LANGUAGES, TOPICS, type Lang, type LanguageSource } from './languages.t
 import { loadFrequencies } from './wordfreq.ts'
 import { ADDED_ALIASES, ADDED_WORDS, DROPPED_WORDS, PLACEHOLDER_ELEMENT, SHORT_NAMES } from './dropped-words.ts'
 import { loadCommunityWords } from './community-words.ts'
-import { CATEGORY_SOURCES, CITIES_PER_COUNTRY, LARGE_COUNTRY_POPULATION, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
+import { CATEGORY_SOURCES, CITIES_PER_COUNTRY, DRAFT_SOURCES, LARGE_COUNTRY_POPULATION, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
 
 const ENDPOINT = 'https://query.wikidata.org/sparql'
 const AGENT = 'LettreMinuteWordImport/0.1 (https://github.com/jfongue; jeremy@enaos.com)'
@@ -46,6 +50,14 @@ function pathsFor(lang: Lang) {
     kaikki: `.cache/kaikki-${lang}.json`,
     out: `src/data/words/${lang}`,
   }
+}
+
+/**
+ * Where `--draft` writes: outside src/data/words, which the game ships from a
+ * glob, and outside the dictionaries every language must have.
+ */
+function draftsFor(lang: Lang): string {
+  return `src/data/drafts/${lang}`
 }
 
 /**
@@ -77,6 +89,15 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
   matieres: ['Métaux en français', 'Alliages en français', 'Roches en français', 'Textiles en français'],
   plantes: ['Plantes en français'],
   objets: ['Meubles en français', 'Ustensiles de cuisine en français', 'Outils en français', 'Récipients en français'],
+  // Drafts (see DRAFT_SOURCES). Neither « Ingrédients » nor « Bâtiments » names
+  // a category of the Wiktionnaire: the food tree answers for the first, the
+  // edifice tree for the second, and the whole grammatical class of adjectives
+  // — which Wikidata does not model at all — for the third. Meats and spices
+  // hang off no food category — « Viandes » is filed with the animals, and the
+  // condiments with the plants — so they are named here beside it.
+  ingredients: ['Aliments en français', 'Viandes en français', 'Épices, aromates et condiments en français'],
+  lieux: ['Édifices en français'],
+  adjectifs: ['Adjectifs en français'],
 }
 
 /**
@@ -86,7 +107,7 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
  * the tree stays on its subject: Matières would wander into jewellery and
  * shipwrecks.
  */
-const FRENCH_WALKED = new Set(['animaux', 'metiers', 'sports', 'fruits-legumes', 'plantes'])
+const FRENCH_WALKED = new Set(['animaux', 'metiers', 'sports', 'fruits-legumes', 'plantes', 'ingredients', 'lieux', 'adjectifs'])
 
 /** Subcategories that are about the subject rather than of it. */
 const FRENCH_SKIPPED = new Set([
@@ -164,6 +185,34 @@ const FRENCH_SKIPPED = new Set([
   'Asphodèlacées en français', 'Dioscoréacées en français', 'Graminées en français', 'Hypoxidacées en français',
   'Iridacées en français', 'Ixioliriacées en français', 'Marantacées en français', 'Cypéracées en koyukon',
   'Fabacées en français',
+  // Drafts. « Aliments » files the dishes a cook makes under « Préparations
+  // culinaires » and the wild plants a forager picks under « Plantes
+  // comestibles » — neither is what one buys to cook with. The adjective tree
+  // holds, besides the adjectives themselves, the multi-word locutions, the
+  // forms their lemmas already bring, and the grammatical classes that qualify
+  // no one.
+  'Préparations culinaires en français',
+  'Plantes comestibles en français',
+  'Locutions adjectivales en français',
+  'Formes d’adjectifs en français',
+  'Adjectifs dérivés de noms de personnages bibliques en français',
+  // The Wiktionnaire's grammar files determiners and possessives as
+  // adjectives; the class a player is asked to qualify a person with is not
+  // the one that answers « mon » or « trois ».
+  'Adjectifs possessifs en français',
+  'Formes d’adjectifs possessifs en français',
+  'Adjectifs indéfinis en français',
+  'Adjectifs indéfinis en français avec de',
+  'Formes d’adjectifs indéfinis en français',
+  'Adjectifs numéraux en français',
+  'Formes d’adjectifs numéraux en français',
+  'Adjectifs relatifs en français',
+  'Adjectifs interrogatifs en français',
+  'Adjectifs exclamatifs en français',
+  // Ordinals: what the class holds there is « 1er », « VIe », « XXIème », a
+  // numeral the domain cannot spell — « premier » and « second » are filed
+  // elsewhere in the class.
+  'Ordinaux en français',
 ])
 
 /**
@@ -188,7 +237,7 @@ const HOMOGRAPH_PRONE = new Set(['animaux', 'fruits-legumes', 'plantes'])
  * measured use in the language, came from Wikidata, or was vouched for by
  * hand (`ADDED_WORDS`, a moderator).
  */
-const STRICT_ATTESTED = new Set(['plantes', 'objets'])
+const STRICT_ATTESTED = new Set(['plantes', 'objets', 'adjectifs'])
 
 const FRENCH_TREE_CACHE = '.cache/wiktionnaire-subcategories.json'
 const FRENCH_TREE_DEPTH = 3
@@ -361,6 +410,10 @@ async function wiktionaryWords(title: string, force: boolean): Promise<string[]>
 
     // Walking the subcategories asks for dozens of lists in a row: the API
     // answers a burst with 429, which `wikimedia` waits out.
+    // Walking the subcategories asks for dozens of lists in a row: the API
+    // answers a burst with 429, which `wikimedia` waits out. The cap is a
+    // guard against a runaway category, not a size a category should reach:
+    // the Wiktionnaire files 73 000 French adjectives in one.
     const response = await wikimedia(url)
     if (!response.ok) throw new Error(`wiktionnaire ${title}: HTTP ${response.status}`)
 
@@ -370,7 +423,7 @@ async function wiktionaryWords(title: string, force: boolean): Promise<string[]>
     }
     for (const member of payload.query?.categorymembers ?? []) words.push(member.title)
     cursor = payload.continue?.cmcontinue ?? null
-  } while (cursor && words.length < 20_000)
+  } while (cursor && words.length < 100_000)
 
   writeFileSync(path, JSON.stringify(words))
   console.log(`· wiktionnaire ${title}: ${words.length} mots`)
@@ -1162,9 +1215,16 @@ function main(argv: readonly string[]) {
   mkdirSync(WIKT_CACHE, { recursive: true })
   mkdirSync(paths.out, { recursive: true })
 
-  const only = new Set(argv.filter((arg) => !arg.startsWith('--lang=')))
-  const force = only.has('--force')
-  const wanted = PULLS.filter((pull) => only.size === 0 || force || only.has(pull.id))
+  const flags = new Set(argv.filter((arg) => arg.startsWith('--')))
+  const only = new Set(argv.filter((arg) => !arg.startsWith('--')))
+  const force = flags.has('--force')
+  // A draft reads no pull and is written elsewhere: a plain run must not
+  // rewrite a shipped dictionary, and `--draft` must not fetch anything.
+  const draft = flags.has('--draft')
+  const wanted = draft ? [] : only.size === 0 || force ? PULLS : PULLS.filter((pull) => only.has(pull.id))
+  const categories = draft ? DRAFT_SOURCES : CATEGORY_SOURCES
+  const out = draft ? draftsFor(lang) : paths.out
+  mkdirSync(out, { recursive: true })
 
   return (async () => {
     // French bends its words by Lexique and files them by its own Wiktionary;
@@ -1235,9 +1295,11 @@ function main(argv: readonly string[]) {
       for (const root of roots) {
         // `frenchSubcategories` caches the whole walked tree under the root:
         // a title added to FRENCH_SKIPPED after that cache was written would
-        // otherwise stay in it forever, so the skip is re-applied here too.
+        // otherwise stay in it forever, so the skip is re-applied here too —
+        // never to a root, which a category names on purpose (« Viandes » is
+        // no animal, but it is an ingredient).
         const titles = FRENCH_WALKED.has(categoryId)
-          ? (await frenchSubcategories(root)).filter((title) => !FRENCH_SKIPPED.has(title))
+          ? (await frenchSubcategories(root)).filter((title) => title === root || !FRENCH_SKIPPED.has(title))
           : [root]
         for (const title of titles) {
           try {
@@ -1262,11 +1324,13 @@ function main(argv: readonly string[]) {
       commonNouns: boolean
       names: boolean
     }[] = []
-    for (const category of CATEGORY_SOURCES) {
+    for (const category of categories) {
       // A category is a union: it is worth rebuilding from the pulls that
-      // answered, as long as one did. Rebuilding from none would empty it.
+      // answered, as long as one did. Rebuilding from none would empty it —
+      // except for a category that reads no pull at all, and stands on its
+      // Wiktionary listing alone.
       const sources = category.pulls.filter((id) => byPull.has(id))
-      if (sources.length === 0) {
+      if (category.pulls.length > 0 && sources.length === 0) {
         console.warn(`~ ${category.id}: inchangé (aucune source)`)
         continue
       }
@@ -1412,10 +1476,14 @@ function main(argv: readonly string[]) {
         const everyday = frequencies.get(display.normalize('NFC').toLowerCase()) ?? 0
         const homograph = HOMOGRAPH_PRONE.has(category.id) && listed?.deep.has(key) && !best.has(key) && everyday >= HOMOGRAPH_FREQUENCY
         if (homograph && !moderated.has(key)) continue
-        // A flora or a toolshed word with no measured use at all and no
-        // Wikidata entry either is filed by a Wiktionary contributor, not
-        // said by anyone: dropped, unless it was vouched for by hand.
-        const obscure = STRICT_ATTESTED.has(category.id) && everyday === 0 && !best.has(key) && !handPicked.has(key)
+        // A flora, a toolshed or a whole grammatical class: the Wiktionary
+        // files what nobody says, so a word under the category's own
+        // frequency floor goes, unless it was vouched for by hand or
+        // described by Wikidata.
+        const obscure =
+          (category.minFrequency === undefined ? STRICT_ATTESTED.has(category.id) && everyday === 0 : everyday < category.minFrequency) &&
+          !best.has(key) &&
+          !handPicked.has(key)
         if (obscure) continue
         if (key !== '') attested.add(key)
         if (key === '' || best.has(key)) continue
@@ -1541,8 +1609,8 @@ function main(argv: readonly string[]) {
         .map(([, row]) => JSON.stringify(row))
 
       // One row per line, so a regenerated dictionary diffs word by word.
-      writeFileSync(`${paths.out}/${id}.json`, `[\n${lines.join(',\n')}\n]\n`)
-      console.log(`→ ${lang}/${id}: ${lines.length} mots (dont ${variants} formes fléchies, ${aliases} alias)`)
+      writeFileSync(`${out}/${id}.json`, `[\n${lines.join(',\n')}\n]\n`)
+      console.log(`→ ${draft ? 'brouillon ' : ''}${lang}/${id}: ${lines.length} mots (dont ${variants} formes fléchies, ${aliases} alias)`)
     }
     if (failed.length > 0) console.warn(`! sources en échec : ${failed.join(', ')}`)
   })()

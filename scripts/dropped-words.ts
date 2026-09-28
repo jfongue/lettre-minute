@@ -142,6 +142,51 @@ export const DROPPED_WORDS: Readonly<Record<string, Readonly<Record<string, read
     // and a crude one besides.
     pt: ['merda'],
   },
+  // Drafts, French for now. The Wiktionnaire's grammar calls a determiner, a
+  // pronoun or a cardinal an adjective: « mon », « trois », « sur » are filed
+  // in the class, and their everyday sense is the one the corpus counts. So
+  // are the abbreviations and symbols its own class collects — « GPS », « TTC »
+  // — which no one answers when asked to qualify someone.
+  adjectifs: {
+    fr: [
+      'un', 'une', 'ce', 'mon', 'ma', 'mes', 'ton', 'ta', 'tes', 'son', 'sa', 'ses', 'notre', 'nos', 'votre', 'vos',
+      'leur', 'leurs', 'me', 'te', 'se', 'moi', 'toi', 'lui', 'ça', 'cela', 'ceci', 'qui', 'que', 'quoi', 'dont',
+      'quel', 'quelle', 'chaque', 'aucun', 'aucune', 'plusieurs', 'quelques', 'peu', 'moins', 'plus', 'autant',
+      'trop', 'très', 'avant', 'après', 'sur', 'sous', 'dans', 'par', 'pour', 'avec', 'sans', 'vers', 'entre',
+      'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze', 'treize',
+      'quatorze', 'quinze', 'seize', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'cent', 'mille',
+      'million', 'milliard', 'Ce', 'Me', 'Mes', 'Ve', 'DoS', 'mm', 'AC', 'AP', 'DA', 'IE', 'IP', 'OP', 'US', 'GPS',
+      'SDF', 'KO', 'AB', 'BTS', 'FAI', 'PV', 'HT', 'HS', 'SM', 'RPG', 'XL', 'XXL', 'SF', 'DEV', 'nb', 'tt', 'ts',
+      'aka', 'Ste', 'ML', 'SR', 'AA', 'Panini', 'Xe', 'Carrez', 'tel', 'telle', 'tels', 'telles', 'AEC', 'ASA', 'BDSM',
+      'BS', 'Bx', 'CIF', 'DIY', 'DP', 'DVD', 'EC', 'ERP', 'FLINT', 'GC', 'HC', 'IDE', 'MINT', 'MURAT', 'NAC', 'NBC',
+      'NC', 'NS', 'ORL', 'OSI', 'PAM', 'PD', 'PLM', 'REI', 'RTL', 'Renaissance', 'SATA', 'SB', 'SDI', 'SNP', 'TB',
+      'TCC', 'TCE', 'TMA', 'TSA', 'TTBM', 'TTC', 'ULB', 'USB', 'UV', 'XS', 'Jedi',
+    ],
+  },
+  // A place the Wiktionnaire files as the speciality that names itself after
+  // it — « Strasbourg », « Morteau », « Narbonne » — the brands its fruit and
+  // cereal lists carry, and the Latin binomials its seafood list holds. The
+  // dish is in the category under its own name: « saucisse de Strasbourg ».
+  ingredients: {
+    fr: [
+      'casse', 'chinois', 'vienne', 'césar', 'made', 'Gala', 'Golden', 'williams', 'marion', 'Strasbourg',
+      'canada', 'montreuil', 'saint-Denis', 'suède', 'hollande', 'rodez', 'narbonne', 'dunkerque', 'colmar',
+      'autun', 'vendôme', 'Morteau', 'Bergues', 'madère', 'jésus', 'Antarès', 'Fabacées', 'Papilionacées',
+      'Robinia pseudoacacia', 'Froot Loops', 'Lucky Charms', 'Oregoniidae', 'Pinnotheres pisum', 'Uca', 'PST',
+      'Cambozola', 'Camelbert',
+    ],
+  },
+  // « celle » and « tel » are places only in a dictionary — a hermit's cell, an
+  // archaeological mound — and the corpus reads them as a pronoun and a
+  // determiner; the rest are initials, clipped words, a brand, one palace and
+  // the named houses of the Wiktionary's own examples.
+  lieux: {
+    fr: [
+      'celle', 'tel', 'CO', 'CHU', 'hyper', 'franchise', 'Élysée', 'CHRU', 'CHSLD', 'HIA', 'HLM', 'Marpa',
+      'restau U', 'resto U', 'Maison Blanche', 'Maison Bleue', 'Maison Rose', 'McDo', 'Reichstag', 'Westminster',
+      'Zarzuela', 'maison INSEAD', 'cayenne', 'grec', 'kegré',
+    ],
+  },
 }
 
 /**
@@ -271,6 +316,66 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
     it: ['telefono', 'lampada', 'penna', 'spazzolino'],
     nl: ['telefoon', 'lamp', 'pen', 'glas', 'horloge'],
     pt: ['telefone', 'lâmpada', 'caneta', 'copo'],
+  },
+  // Draft categories (see DRAFT_SOURCES), French for now. The Wiktionnaire's
+  // food tree holds the produce, the cheeses, the seafood and the spices, but
+  // files neither the pantry — sel, farine, huile — nor a single meat: the
+  // meats hang off the animals and the condiments off the plants, both pruned
+  // away there. Everything below is what a cook names before a recipe.
+  ingredients: {
+    fr: [
+      'sel', 'poivre', 'poivre noir', 'farine', 'fécule', 'levure', 'bicarbonate', 'sucre', 'sucre glace',
+      'sucre roux', 'sucre vanillé', 'miel', 'sirop', 'confiture', 'chocolat', 'chocolat noir', 'chocolat blanc',
+      'cacao', 'vanille', 'cannelle', 'curry', 'cumin', 'safran', 'muscade', 'clou de girofle', 'gingembre',
+      'piment', 'herbes de Provence', 'bouquet garni', 'laurier', 'thym', 'romarin', 'sauge', 'origan', 'estragon',
+      'ciboulette', 'persil', 'basilic', 'coriandre', 'menthe', 'aneth', 'moutarde', 'mayonnaise', 'ketchup',
+      'vinaigre', 'vinaigre balsamique', 'huile d’olive', 'beurre', 'margarine', 'crème', 'crème fraîche', 'lait',
+      'yaourt', 'fromage râpé', 'œuf', 'jaune d’œuf', 'blanc d’œuf', 'pain', 'chapelure', 'riz', 'semoule',
+      'pâtes', 'spaghetti', 'macaroni', 'nouilles', 'lentilles', 'pois chiches', 'haricots blancs',
+      'haricots rouges', 'tofu', 'bouillon', 'bouillon cube', 'concentré de tomate', 'coulis', 'sauce tomate',
+      'olives', 'câpres', 'cornichons', 'anchois', 'poulet', 'bœuf', 'porc', 'agneau', 'veau', 'dinde', 'canard',
+      'lapin', 'jambon', 'lardons', 'saucisse', 'saucisson', 'merguez', 'steak', 'côtelette', 'rôti', 'foie',
+      'pâté', 'thon', 'saumon', 'cabillaud', 'sardine', 'truite', 'maquereau', 'crevette', 'moule', 'huître',
+      'calamar', 'noix', 'amande', 'noisette', 'cacahuète', 'pistache', 'noix de coco', 'raisin sec', 'datte',
+      'pruneau', 'gélatine', 'eau', 'champignon', 'champignon de Paris', 'cèpe', 'girolle', 'chanterelle',
+      'morille', 'truffe', 'pleurote', 'bolet', 'shiitaké',
+    ],
+  },
+  // The edifice tree names the places a city is made of: mairie, piscine,
+  // parc and place are filed by no category of the Wiktionnaire, and neither
+  // are the shops and amenities of an everyday street.
+  lieux: {
+    fr: [
+      'mairie', 'hôtel de ville', 'préfecture', 'sous-préfecture', 'commissariat', 'gendarmerie', 'caserne',
+      'prison', 'tribunal', 'palais de justice', 'école', 'collège', 'lycée', 'université', 'crèche', 'hôpital',
+      'clinique', 'pharmacie', 'laboratoire', 'gare', 'gare routière', 'aéroport', 'port', 'parking',
+      'station-service', 'garage', 'supermarché', 'hypermarché', 'marché', 'épicerie', 'supérette', 'boulangerie',
+      'boucherie', 'charcuterie', 'poissonnerie', 'fromagerie', 'primeur', 'pâtisserie', 'librairie', 'papeterie',
+      'quincaillerie', 'droguerie', 'fleuriste', 'cordonnerie', 'coiffeur', 'pressing', 'laverie', 'banque',
+      'poste', 'bureau de tabac', 'kiosque', 'restaurant', 'brasserie', 'bistrot', 'bar', 'café', 'hôtel',
+      'auberge', 'cinéma', 'théâtre', 'opéra', 'musée', 'bibliothèque', 'médiathèque', 'discothèque',
+      'salle de concert', 'stade', 'gymnase', 'piscine', 'patinoire', 'terrain de sport', 'parc', 'jardin public',
+      'square', 'place', 'esplanade', 'fontaine', 'cimetière', 'église', 'cathédrale', 'chapelle', 'temple',
+      'mosquée', 'synagogue', 'château', 'palais', 'tour', 'pont', 'viaduc', 'tunnel', 'immeuble', 'maison',
+      'appartement', 'ferme', 'grange', 'étable', 'moulin', 'entrepôt', 'usine', 'atelier', 'bureau', 'zoo',
+      'aquarium', 'parc d’attractions', 'camping',
+    ],
+  },
+  // The adjectives a table shouts first: the whole grammatical class is read,
+  // and the eleven thousand a floor keeps can still miss the words a player
+  // types without thinking.
+  adjectifs: {
+    fr: [
+      'gentil', 'méchant', 'drôle', 'aimable', 'sympathique', 'antipathique', 'calme', 'nerveux', 'timide',
+      'courageux', 'peureux', 'lâche', 'honnête', 'menteur', 'généreux', 'avare', 'égoïste', 'altruiste', 'poli',
+      'impoli', 'grossier', 'patient', 'impatient', 'têtu', 'sérieux', 'joyeux', 'triste', 'heureux',
+      'malheureux', 'optimiste', 'pessimiste', 'curieux', 'intelligent', 'idiot', 'malin', 'rusé', 'naïf',
+      'crédule', 'méfiant', 'ambitieux', 'paresseux', 'travailleur', 'actif', 'dynamique', 'sportif', 'cultivé',
+      'sage', 'fou', 'raisonnable', 'impulsif', 'bavard', 'silencieux', 'discret', 'indiscret', 'agressif',
+      'doux', 'violent', 'cruel', 'sensible', 'insensible', 'émotif', 'accueillant', 'serviable', 'rancunier',
+      'jaloux', 'envieux', 'modeste', 'prétentieux', 'arrogant', 'humble', 'fier', 'vaniteux', 'séduisant',
+      'beau', 'laid', 'petit', 'grand', 'gros', 'mince', 'fort', 'faible', 'rapide', 'lent', 'jeune', 'vieux',
+    ],
   },
 }
 

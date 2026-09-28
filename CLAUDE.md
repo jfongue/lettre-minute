@@ -51,6 +51,16 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Une catégorie du catalogue sans fichier de mots est écartée du tirage**
   (`src/App.tsx`) : ajouter une entrée à `CATALOGUE` ne suffit pas, il faut
   lancer `npm run import:words` et commiter le `.json`.
+- **Une catégorie en brouillon vit hors du jeu** (`DRAFT_SOURCES`,
+  `scripts/sources.ts`) : ses dictionnaires sont sous `src/data/drafts/`, que
+  ni `packs.ts` ni `words.test.ts` ne lisent, et
+  `npm run import:words -- --draft` la construit seule, en français, sans lire
+  aucun *pull*. C'est `src/data/drafts.test.ts` qui la garde — lignes bien
+  formées, réponses évidentes trouvées, assez de lettres connues pour le
+  tirage. L'activer demande trois choses : une entrée de `CATALOGUE`, son nom
+  dans les sept langues, et un dictionnaire pour chacune — les six autres se
+  tirent des thèmes du Wiktionnaire anglais (`TOPICS`, `scripts/languages.ts`),
+  dont une entrée nouvelle fait relire tout le dump kaikki.
 - **Le Wiktionnaire est la source des noms communs**, Wikidata celle des
   entités : Wikidata connaît cinquante races de chat mais pas « abeille ». Une
   catégorie de noms communs bâtie sur Wikidata seul laisse dehors les réponses
