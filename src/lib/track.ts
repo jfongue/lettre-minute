@@ -81,7 +81,18 @@ let flushing: Promise<void> | null = null
 // Kept in memory as well: localStorage is read once, not at every tap.
 let queue: QueuedEvent[] = []
 const platform = isNativeApp() ? 'android' : 'web'
-const version = import.meta.env.VITE_APP_VERSION ?? 'dev'
+const version = import.meta.env.DEV ? 'dev' : (import.meta.env.VITE_APP_VERSION ?? 'dev')
+// The dev server talks to the real project: its events stay queued on the
+// machine unless asked for, or every test session would count as a player.
+const sending = !import.meta.env.DEV || readFlag('lettre-minute.track-dev')
+
+function readFlag(key: string): boolean {
+  try {
+    return localStorage.getItem(key) === '1'
+  } catch {
+    return false
+  }
+}
 
 /** Records one event. Cheap: a push and, at most once a frame, a write. */
 export function track(kind: string, props: Props = {}): void {
@@ -107,7 +118,7 @@ function scheduleSave(): void {
 }
 
 function flush(): Promise<void> {
-  if (!supabase || flushing || queue.length === 0) return flushing ?? Promise.resolve()
+  if (!supabase || !sending || flushing || queue.length === 0) return flushing ?? Promise.resolve()
   const client = supabase
   const batch = queue.slice(0, BATCH)
   flushing = (async () => {

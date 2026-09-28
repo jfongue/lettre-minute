@@ -1,7 +1,9 @@
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { PALETTE } from '../domain/avatar'
 import { CATALOGUE } from '../domain/catalogue'
-import { categoryText, detectLocale, LOCALES, messagesFor } from '.'
+import { categoryText, detectLocale, loadMessages, LOCALES, messagesFor } from '.'
+
+beforeAll(() => Promise.all(LOCALES.map((locale) => loadMessages(locale.id))))
 
 describe('detectLocale', () => {
   it('takes the first device language the game speaks', () => {
@@ -22,7 +24,8 @@ describe('detectLocale', () => {
 
 describe('messages', () => {
   it('names every category and every colour in every language', () => {
-    for (const { id, messages } of LOCALES) {
+    for (const { id } of LOCALES) {
+      const messages = messagesFor(id)
       for (const category of CATALOGUE) expect(messages.categories[category.id], `${id}: ${category.id}`).toBeDefined()
       for (const colour of PALETTE) expect(messages.colours[colour.id], `${id}: ${colour.id}`).toBeDefined()
     }

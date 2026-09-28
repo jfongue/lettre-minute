@@ -1,12 +1,16 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { Suspense, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { completeLeaderboard, myPlace, PERIODS, STATS, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from '../domain/leaderboards'
 import { formatNumber, useT } from '../i18n'
 import { fetchLeaderboard } from '../lib/cloud'
-import { Insights, type LoadInsights } from '../debug/Insights'
+import type { LoadInsights } from '../debug/Insights'
+import { lazyScreen } from './lazyScreen'
 import { Avatar } from './Avatar'
 import { Shape } from './bauhaus'
 import { onTint, type ShapeKind, type Tint } from './motifs'
 import { PlayerName } from './PlayerSheet'
+
+// A developer's tool behind five taps: no player should download it.
+const Insights = lazyScreen(() => import('../debug/Insights').then((module) => module.Insights))
 
 const LOOKS: Record<StatId, { kind: ShapeKind; tint: Tint }> = {
   best: { kind: 'star', tint: 'yellow' },
@@ -161,7 +165,11 @@ export function LeaderboardsPage({
         ))}
       </div>
 
-      {advanced && <Insights lang={lang} period={period} load={loadInsights} onClose={onCloseAdvanced} />}
+      {advanced && (
+        <Suspense fallback={null}>
+          <Insights lang={lang} period={period} load={loadInsights} onClose={onCloseAdvanced} />
+        </Suspense>
+      )}
     </div>
   )
 }

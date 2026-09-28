@@ -256,6 +256,47 @@ button.challenge-past::after {
   animation: fade 600ms var(--ease-out) 450ms backwards;
 }
 
+/* L'attente de l'accueil : trois formes de l'affiche qui sautillent sous le
+   titre. Elle n'entre qu'après un temps, pour qu'une réponse rapide passe
+   directement du titre à la page. */
+.home-loader {
+  display: flex;
+  justify-content: center;
+  gap: 0.7rem;
+  padding-block: 2.5rem;
+  animation: fade 300ms var(--ease-out) 350ms backwards;
+}
+
+.home-loader span {
+  width: 0.9rem;
+  height: 0.9rem;
+  background: var(--red);
+  animation: loader-hop 900ms var(--ease-out) infinite;
+}
+
+.home-loader span:nth-child(2) {
+  background: var(--blue);
+  border-radius: 50%;
+  animation-delay: 120ms;
+}
+
+.home-loader span:nth-child(3) {
+  background: var(--yellow);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+  animation-delay: 240ms;
+}
+
+@keyframes loader-hop {
+  0%,
+  60%,
+  100% {
+    transform: none;
+  }
+  30% {
+    transform: translateY(-0.6rem);
+  }
+}
+
 /* Anchored to the top, not centred: the page under the title arrives after
    it, and a centred sheet would jump up by half its height as it did. */
 .sheet--home {

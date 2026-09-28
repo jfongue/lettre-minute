@@ -110,6 +110,16 @@ export function HomeScreen({
         <p className="eyebrow">{t.home.tagline(RUN_SECONDS)}</p>
       </header>
 
+      {/* Only once the poster and the title have landed, and only while the
+          page still waits: a quick answer never shows it at all. */}
+      {introDone && !settled && (
+        <div className="home-loader" role="status" aria-label={t.loading}>
+          <span />
+          <span />
+          <span />
+        </div>
+      )}
+
       {introDone && settled && (
         <div className="home-body cascade">
           <div className="stack">

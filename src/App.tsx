@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { availableCategoryIds, loadPack, loadPacks } from './data/packs'
 import {
   cancelSubmission,
@@ -72,7 +72,7 @@ import type { PromptRecord } from './domain/prompts'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { compactWord, normalizeWord } from './domain/text'
 import { commonWord, withExtraWords } from './domain/words'
-import { MessagesContext, messagesFor, type Locale } from './i18n'
+import { loadMessages, MessagesContext, messagesFor, type Locale } from './i18n'
 import { standingMove } from './domain/standing'
 import { challengeNotice } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
@@ -102,29 +102,49 @@ import {
 import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
 import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
 import { useElapsed } from './state/useElapsed'
-import { DebugBoard } from './debug/DebugBoard'
 import type { AccountActions, AccountMode } from './ui/AccountPanel'
-import { AvatarScreen } from './ui/AvatarScreen'
 import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
 import { PowerGiftPop, WordsNewsPop } from './ui/WordsNews'
-import { ChallengePowers } from './ui/ChallengePowers'
-import { ChallengeSetup, type ChallengeRules } from './ui/ChallengeSetup'
+import type { ChallengeRules } from './ui/ChallengeSetup'
 import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
-import { ChallengeScreen } from './ui/ChallengeScreen'
-import { FriendPicker } from './ui/FriendPicker'
-import { CountdownScreen } from './ui/CountdownScreen'
 import { HomeScreen } from './ui/HomeScreen'
 import { LanguagePicker } from './ui/LanguagePicker'
-import { Menu, type MenuPage } from './ui/Menu'
-import { ModerationScreen } from './ui/ModerationScreen'
+import type { MenuPage } from './ui/Menu'
 import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
-import { OverScreen } from './ui/OverScreen'
 import { PushOffer } from './ui/PushOffer'
-import { RunScreen, type Racer } from './ui/RunScreen'
+import type { Racer } from './ui/RunScreen'
+import { lazyScreen } from './ui/lazyScreen'
 import { TutorialScreen, tutorialPrompt } from './ui/TutorialScreen'
 import { dismissTopOverlay } from './ui/useBackDismiss'
+
+// Everything but the home screen waits in its own chunk: the first paint only
+// parses what it shows. `preloadScreens` fetches them once the home screen has
+// settled, and a run awaits its own before it starts.
+const DebugBoard = lazyScreen(() => import('./debug/DebugBoard').then((module) => module.DebugBoard))
+const AvatarScreen = lazyScreen(() => import('./ui/AvatarScreen').then((module) => module.AvatarScreen))
+const ChallengePowers = lazyScreen(() => import('./ui/ChallengePowers').then((module) => module.ChallengePowers))
+const ChallengeSetup = lazyScreen(() => import('./ui/ChallengeSetup').then((module) => module.ChallengeSetup))
+const ChallengeScreen = lazyScreen(() => import('./ui/ChallengeScreen').then((module) => module.ChallengeScreen))
+const FriendPicker = lazyScreen(() => import('./ui/FriendPicker').then((module) => module.FriendPicker))
+const CountdownScreen = lazyScreen(() => import('./ui/CountdownScreen').then((module) => module.CountdownScreen))
+const Menu = lazyScreen(() => import('./ui/Menu').then((module) => module.Menu))
+const ModerationScreen = lazyScreen(() => import('./ui/ModerationScreen').then((module) => module.ModerationScreen))
+const OverScreen = lazyScreen(() => import('./ui/OverScreen').then((module) => module.OverScreen))
+const RunScreen = lazyScreen(() => import('./ui/RunScreen').then((module) => module.RunScreen))
+
+/** The run's own screens: awaited with its dictionaries, so the countdown never opens on a blank frame. */
+function preloadRunScreens(): Promise<unknown> {
+  return Promise.all([CountdownScreen.preload(), RunScreen.preload(), OverScreen.preload()])
+}
+
+/** One screen at a time, in the order a player is likely to need them. */
+async function preloadScreens(): Promise<void> {
+  for (const screen of [Menu, CountdownScreen, RunScreen, OverScreen, ChallengeScreen, FriendPicker, ChallengeSetup, ChallengePowers, AvatarScreen, ModerationScreen]) {
+    await screen.preload().catch(() => undefined)
+  }
+}
 
 /** The boards as the home screen shows them: without a server, none at all. */
 async function loadBoards(): Promise<Boards | null> {
@@ -205,8 +225,13 @@ export function App() {
   const lang = locale ?? 'fr'
   const speak = useCallback((next: Locale) => {
     trackFeature('language', { lang: next })
-    setLocale(next)
-    saveLocale(next)
+    // A language is loaded before it is shown: rendered first, it would flash French.
+    void loadMessages(next)
+      .catch(() => undefined)
+      .then(() => {
+        setLocale(next)
+        saveLocale(next)
+      })
   }, [])
   useEffect(() => {
     if (locale) applyLocale(locale)
@@ -589,7 +614,7 @@ export function App() {
         seed,
         playableCategoryIds(session.profile, ownedCategoryIds(session.profile)).filter((id) => shipped.has(id)),
       )
-      const judge = await judgeFor(lineup.dealt)
+      const [judge] = await Promise.all([judgeFor(lineup.dealt), preloadRunScreens()])
       dispatch({ type: 'ready', judge, seed, categoryIds: lineup.dealt, reserve: lineup.reserve })
       // Warmed while the categories are announced, so the first swap is instant.
       if (lineup.reserve[0]) loadPack(lang, lineup.reserve[0]).catch(() => undefined)
@@ -676,7 +701,11 @@ export function App() {
     if (homeReady) setHomeSettled(true)
   }, [homeReady])
   useEffect(() => {
-    if (homeSettled) trackReady()
+    if (!homeSettled) return
+    trackReady()
+    // After the home screen's own entrance, so its animation keeps the main thread.
+    const timer = setTimeout(() => void preloadScreens(), 1200)
+    return () => clearTimeout(timer)
   }, [homeSettled])
   useEffect(() => {
     const timer = setTimeout(() => setHomeSettled(true), 2500)
@@ -742,7 +771,7 @@ export function App() {
       setBoardsBefore(null)
       setBoardsAfter(null)
       try {
-        const judge = await judgeFor(detail.categoryIds, detail.lang, true)
+        const [judge] = await Promise.all([judgeFor(detail.categoryIds, detail.lang, true), preloadRunScreens()])
         dispatch({
           type: 'ready',
           judge,
@@ -1144,13 +1173,15 @@ export function App() {
     return (
       <MessagesContext value={t}>
         <main className={`stage stage--${debugPhase}${isNativeApp() ? '' : ' stage--muteable'}`}>
-          <DebugBoard
-            onPhase={setDebugPhase}
-            onClose={() => {
-              if (window.location.hash === '#debug') window.history.replaceState(null, '', window.location.pathname + window.location.search)
-              setDebugPhase(null)
-            }}
-          />
+          <Suspense fallback={null}>
+            <DebugBoard
+              onPhase={setDebugPhase}
+              onClose={() => {
+                if (window.location.hash === '#debug') window.history.replaceState(null, '', window.location.pathname + window.location.search)
+                setDebugPhase(null)
+              }}
+            />
+          </Suspense>
         </main>
       </MessagesContext>
     )
@@ -1171,41 +1202,47 @@ export function App() {
       {tutorial && (session.phase === 'home' || session.phase === 'loading') && <TutorialScreen lang={lang} onDone={endTutorial} />}
 
       {editingAvatar && (
-        <AvatarScreen
-          profile={session.profile}
-          avatar={avatar}
-          onSave={(next) => {
-            trackFeature('avatar_saved', { design: next.design, ground: next.ground })
-            wear(next)
-            // The boards read the avatar from the profile: only a fetch after the write shows it.
-            pushAvatar(next).then((saved) => {
-              if (saved) loadBoards().then(setBoards)
-            })
-            setEditingAvatar(false)
-          }}
-          onBack={() => setEditingAvatar(false)}
-        />
+        <Suspense fallback={null}>
+          <AvatarScreen
+            profile={session.profile}
+            avatar={avatar}
+            onSave={(next) => {
+              trackFeature('avatar_saved', { design: next.design, ground: next.ground })
+              wear(next)
+              // The boards read the avatar from the profile: only a fetch after the write shows it.
+              pushAvatar(next).then((saved) => {
+                if (saved) loadBoards().then(setBoards)
+              })
+              setEditingAvatar(false)
+            }}
+            onBack={() => setEditingAvatar(false)}
+          />
+        </Suspense>
       )}
 
       {moderating && (
-        <ModerationScreen
-          lang={lang}
-          onDone={() => {
-            setModerating(false)
-            refreshModeration()
-            setMenuPage('requests')
-          }}
-        />
+        <Suspense fallback={null}>
+          <ModerationScreen
+            lang={lang}
+            onDone={() => {
+              setModerating(false)
+              refreshModeration()
+              setMenuPage('requests')
+            }}
+          />
+        </Suspense>
       )}
 
       {challengeOpen && !editingAvatar && !moderating && session.phase === 'home' && (
-        <ChallengeScreen
-          key={challengeOpen}
-          id={challengeOpen}
-          onPlay={startChallenge}
-          onRematch={rematch}
-          onBack={leaveChallenge}
-        />
+        <Suspense fallback={null}>
+          <ChallengeScreen
+            key={challengeOpen}
+            id={challengeOpen}
+            onPlay={startChallenge}
+            onRematch={rematch}
+            onBack={leaveChallenge}
+          />
+        </Suspense>
       )}
 
       {!tutorial && !editingAvatar && !moderating && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
@@ -1252,34 +1289,38 @@ export function App() {
       )}
 
       {creating && session.phase === 'home' && (
-        <FriendPicker
-          title={t.challenge.create}
-          lead={t.challenge.createLead(CHALLENGE_MAX_PLAYERS - 1)}
-          exclude={[]}
-          max={CHALLENGE_MAX_PLAYERS - 1}
-          busy={creating.busy}
-          message={creating.message}
-          confirmLabel={t.challenge.launch}
-          initial={creating.friends}
-          onConfirm={(friends) => create(friends, creating.rules)}
-          onClose={() => setCreating(null)}
-        >
-          <ChallengeSetup
-            owned={challengeCategories}
-            hasPowers={challengePowers(session.profile).length > 0}
-            rules={creating.rules}
-            onRules={(rules) => setCreating({ ...creating, rules })}
-          />
-        </FriendPicker>
+        <Suspense fallback={null}>
+          <FriendPicker
+            title={t.challenge.create}
+            lead={t.challenge.createLead(CHALLENGE_MAX_PLAYERS - 1)}
+            exclude={[]}
+            max={CHALLENGE_MAX_PLAYERS - 1}
+            busy={creating.busy}
+            message={creating.message}
+            confirmLabel={t.challenge.launch}
+            initial={creating.friends}
+            onConfirm={(friends) => create(friends, creating.rules)}
+            onClose={() => setCreating(null)}
+          >
+            <ChallengeSetup
+              owned={challengeCategories}
+              hasPowers={challengePowers(session.profile).length > 0}
+              rules={creating.rules}
+              onRules={(rules) => setCreating({ ...creating, rules })}
+            />
+          </FriendPicker>
+        </Suspense>
       )}
 
       {picking && session.phase === 'home' && (
-        <ChallengePowers
-          allowed={challengePowers(session.profile)}
-          initial={defaultChallengePowers(session.profile)}
-          onStart={(powers) => launchChallenge(picking, powers)}
-          onClose={() => setPicking(null)}
-        />
+        <Suspense fallback={null}>
+          <ChallengePowers
+            allowed={challengePowers(session.profile)}
+            initial={defaultChallengePowers(session.profile)}
+            onStart={(powers) => launchChallenge(picking, powers)}
+            onClose={() => setPicking(null)}
+          />
+        </Suspense>
       )}
 
       {pushOffer !== null && session.phase === 'home' && !notice && (
@@ -1382,160 +1423,168 @@ export function App() {
       )}
 
       {menuOpen && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
-        <Menu
-          page={menuPage}
-          profile={session.profile}
-          history={history}
-          focusChallenges={menuFocus}
-          friendRequests={named ? friendRequests : 0}
-          onFriends={takeFriends}
-          challenges={named ? challenges : null}
-          onChallenge={(id) => {
-            setMenuPage(null)
-            setChallengeOpen(id)
-          }}
-          onChallengeFriend={(friendId) => {
-            setMenuPage(null)
-            openCreate([friendId])
-          }}
-          avatar={avatar}
-          account={account}
-          accountActions={accountActions}
-          accountMode={accountMode}
-          theme={theme}
-          locale={locale}
-          onLocale={speak}
-          sound={soundPrefs}
-          onSound={tune}
-          onTheme={(next) => {
-            trackFeature('theme', { theme: next })
-            setTheme(next)
-            saveTheme(next)
-            applyTheme(next)
-          }}
-          onAvatar={() => {
-            setMenuPage(null)
-            setEditingAvatar(true)
-          }}
-          onLogOut={async () => {
-            track('logout')
-            if (pushToken.current) await forgetPushToken(pushToken.current)
-            await logOut()
-            forget()
-          }}
-          moderation={moderation}
-          onModerate={() => {
-            setMenuPage(null)
-            setModerating(true)
-          }}
-          onRequestsSeen={refreshModeration}
-          onRequestsOpen={topUpRequests}
-          lang={lang}
-          advancedBoards={advancedBoards}
-          onAdvancedBoards={setAdvancedBoards}
-          banActions={banActions}
-          onErase={async () => {
-            // The device keeps its copy until the server has let go of its
-            // own: a failed erase must not leave the player half-deleted.
-            if (!(await deleteAccount())) return false
-            track('erase')
-            forget()
-            return true
-          }}
-          onClose={closeMenu}
-        />
+        <Suspense fallback={null}>
+          <Menu
+            page={menuPage}
+            profile={session.profile}
+            history={history}
+            focusChallenges={menuFocus}
+            friendRequests={named ? friendRequests : 0}
+            onFriends={takeFriends}
+            challenges={named ? challenges : null}
+            onChallenge={(id) => {
+              setMenuPage(null)
+              setChallengeOpen(id)
+            }}
+            onChallengeFriend={(friendId) => {
+              setMenuPage(null)
+              openCreate([friendId])
+            }}
+            avatar={avatar}
+            account={account}
+            accountActions={accountActions}
+            accountMode={accountMode}
+            theme={theme}
+            locale={locale}
+            onLocale={speak}
+            sound={soundPrefs}
+            onSound={tune}
+            onTheme={(next) => {
+              trackFeature('theme', { theme: next })
+              setTheme(next)
+              saveTheme(next)
+              applyTheme(next)
+            }}
+            onAvatar={() => {
+              setMenuPage(null)
+              setEditingAvatar(true)
+            }}
+            onLogOut={async () => {
+              track('logout')
+              if (pushToken.current) await forgetPushToken(pushToken.current)
+              await logOut()
+              forget()
+            }}
+            moderation={moderation}
+            onModerate={() => {
+              setMenuPage(null)
+              setModerating(true)
+            }}
+            onRequestsSeen={refreshModeration}
+            onRequestsOpen={topUpRequests}
+            lang={lang}
+            advancedBoards={advancedBoards}
+            onAdvancedBoards={setAdvancedBoards}
+            banActions={banActions}
+            onErase={async () => {
+              // The device keeps its copy until the server has let go of its
+              // own: a failed erase must not leave the player half-deleted.
+              if (!(await deleteAccount())) return false
+              track('erase')
+              forget()
+              return true
+            }}
+            onClose={closeMenu}
+          />
+        </Suspense>
       )}
 
       {session.phase === 'countdown' && session.run && (
-        <CountdownScreen
-          key={session.run.seed}
-          categoryIds={session.run.categoryIds}
-          reserve={session.reserve.length}
-          swaps={session.swapsLeft}
-          swapping={swapping}
-          onSwap={swap}
-          onDone={() => {
-            setStartedAt(Date.now())
-            dispatch({ type: 'start' })
-          }}
-        />
+        <Suspense fallback={null}>
+          <CountdownScreen
+            key={session.run.seed}
+            categoryIds={session.run.categoryIds}
+            reserve={session.reserve.length}
+            swaps={session.swapsLeft}
+            swapping={swapping}
+            onSwap={swap}
+            onDone={() => {
+              setStartedAt(Date.now())
+              dispatch({ type: 'start' })
+            }}
+          />
+        </Suspense>
       )}
 
       {session.phase === 'playing' && session.run && (
-        <RunScreen
-          run={session.run}
-          draft={session.draft}
-          live={session.live}
-          cheer={session.cheer}
-          remaining={remaining}
-          hushed={hushed}
-          next={coming}
-          onType={(draft) => {
-            // Dev only: "@" answers for the tester, who is left to validate.
-            if (import.meta.env.DEV && draft.includes('@') && session.run) {
-              const { prompt, found } = session.run
-              const played = found.map((word) => word.word)
-              void loadPack(lang, prompt.categoryId).then((pack) =>
-                dispatch({ type: 'type', draft: commonWord(pack, prompt.letter, played) ?? draft.replace('@', '') }),
-              )
-              return
-            }
-            dispatch({ type: 'type', draft })
-          }}
-          onSubmit={(auto) => dispatch({ type: 'submit', at: elapsed, auto })}
-          onSkip={() => dispatch({ type: 'skip', at: elapsed })}
-          onReroll={() => dispatch({ type: 'reroll', at: elapsed })}
-          proposed={session.proposals.map((proposal) => normalizeWord(proposal.word))}
-          mine={mineWords}
-          onPropose={propose}
-          rivals={rivals}
-          avatar={avatar}
-        />
+        <Suspense fallback={null}>
+          <RunScreen
+            run={session.run}
+            draft={session.draft}
+            live={session.live}
+            cheer={session.cheer}
+            remaining={remaining}
+            hushed={hushed}
+            next={coming}
+            onType={(draft) => {
+              // Dev only: "@" answers for the tester, who is left to validate.
+              if (import.meta.env.DEV && draft.includes('@') && session.run) {
+                const { prompt, found } = session.run
+                const played = found.map((word) => word.word)
+                void loadPack(lang, prompt.categoryId).then((pack) =>
+                  dispatch({ type: 'type', draft: commonWord(pack, prompt.letter, played) ?? draft.replace('@', '') }),
+                )
+                return
+              }
+              dispatch({ type: 'type', draft })
+            }}
+            onSubmit={(auto) => dispatch({ type: 'submit', at: elapsed, auto })}
+            onSkip={() => dispatch({ type: 'skip', at: elapsed })}
+            onReroll={() => dispatch({ type: 'reroll', at: elapsed })}
+            proposed={session.proposals.map((proposal) => normalizeWord(proposal.word))}
+            mine={mineWords}
+            onPropose={propose}
+            rivals={rivals}
+            avatar={avatar}
+          />
+        </Suspense>
       )}
 
       {!editingAvatar && session.phase === 'over' && session.run && (
-        <OverScreen
-          run={session.run}
-          profile={session.profile}
-          profileBefore={session.profileBefore}
-          revealed={revealed === session.run.seed}
-          onRevealed={() => setRevealed(session.run?.seed ?? null)}
-          lang={lang}
-          avatar={avatar}
-          account={account}
-          accountActions={accountActions}
-          onAvatar={() => setEditingAvatar(true)}
-          onChoose={choose}
-          onChoosePower={choosePower}
-          onSupportAsked={supportAsked}
-          boardsBefore={boardsBefore}
-          boardsAfter={boardsAfter}
-          me={account && !account.anonymous ? account.name : null}
-          mine={mineWords}
-          proposals={runProposals}
-          onCorrectProposal={correctProposal}
-          onWithdrawProposal={withdrawProposal}
-          hidden={hidden}
-          onPeek={peek}
-          onJoinPlus={joinPlus}
-          onReplay={play}
-          onHome={() => {
-            // Asked on the way home, never over the summary: after the tenth run, then every thirty.
-            if (cloudConfigured() && feedbackDue(session.profile)) {
-              dispatch({ type: 'feedback-asked' })
-              setFeedbackAsk(true)
-            }
-            dispatch({ type: 'home' })
-            if (session.challengeId) {
-              setPlayed(null)
-              refreshChallenges()
-            }
-          }}
-          challenge={session.challengeId ? afterRun : undefined}
-          onChallengeChanged={() => {
-            if (session.challengeId) fetchChallenge(session.challengeId).then((detail) => detail && setAfterRun(detail))
-          }}
-        />
+        <Suspense fallback={null}>
+          <OverScreen
+            run={session.run}
+            profile={session.profile}
+            profileBefore={session.profileBefore}
+            revealed={revealed === session.run.seed}
+            onRevealed={() => setRevealed(session.run?.seed ?? null)}
+            lang={lang}
+            avatar={avatar}
+            account={account}
+            accountActions={accountActions}
+            onAvatar={() => setEditingAvatar(true)}
+            onChoose={choose}
+            onChoosePower={choosePower}
+            onSupportAsked={supportAsked}
+            boardsBefore={boardsBefore}
+            boardsAfter={boardsAfter}
+            me={account && !account.anonymous ? account.name : null}
+            mine={mineWords}
+            proposals={runProposals}
+            onCorrectProposal={correctProposal}
+            onWithdrawProposal={withdrawProposal}
+            hidden={hidden}
+            onPeek={peek}
+            onJoinPlus={joinPlus}
+            onReplay={play}
+            onHome={() => {
+              // Asked on the way home, never over the summary: after the tenth run, then every thirty.
+              if (cloudConfigured() && feedbackDue(session.profile)) {
+                dispatch({ type: 'feedback-asked' })
+                setFeedbackAsk(true)
+              }
+              dispatch({ type: 'home' })
+              if (session.challengeId) {
+                setPlayed(null)
+                refreshChallenges()
+              }
+            }}
+            challenge={session.challengeId ? afterRun : undefined}
+            onChallengeChanged={() => {
+              if (session.challengeId) fetchChallenge(session.challengeId).then((detail) => detail && setAfterRun(detail))
+            }}
+          />
+        </Suspense>
       )}
 
       {!isNativeApp() && <MuteButton muted={soundPrefs.muted} onToggle={() => tune({ ...soundPrefs, muted: !soundPrefs.muted })} />}

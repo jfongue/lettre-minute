@@ -334,6 +334,29 @@ qu'un nouvel arrivant casserait sans le savoir.
   propriétaire du projet peut exécuter — jamais une fonction appelable
   depuis l'app.
 
+- **Le premier bundle ne porte que l'accueil** : les autres écrans sont des
+  `lazyScreen` (`src/ui/lazyScreen.ts`) préchargés une fois l'accueil posé,
+  et une partie attend les siens (`preloadRunScreens`, `src/App.tsx`) avec
+  ses dictionnaires — un écran de la partie chargé à l'affichage laisserait
+  une image vide entre annonce et chrono. Un écran nouveau entre dans
+  `preloadScreens`, sous son propre `<Suspense>` : un seul autour de tout
+  cacherait l'accueil pendant qu'un menu arrive. Les six langues autres que
+  le français viennent aussi à la demande (`loadMessages`), avant le premier
+  rendu et avant tout changement de langue.
+- **Le client Supabase est assemblé à la main** (`src/lib/supabase.ts`) :
+  `auth-js` et `postgrest-js` seuls, sans Realtime, Storage ni Functions,
+  qu'on n'appelle pas et qui pesaient un tiers du bundle. La clé de stockage
+  de la session reprend celle de `createClient` (`sb-<projet>-auth-token`) :
+  la changer déconnecterait tout le monde. Une fonction Edge garde
+  `supabase-js`, qu'elle importe par `npm:`.
+- **Le chrono ne rend qu'au dixième de seconde** (`useElapsed`) : rien de ce
+  que la partie affiche n'est plus fin, et rendre toute l'app à chaque image
+  coûtait leur fluidité aux vieux téléphones pendant la frappe.
+- **L'accueil entre en trois temps** : l'affiche et le titre, puis — seulement
+  si le profil, le compte ou les classements tardent — trois formes qui
+  sautillent (`home-loader`), puis la page d'un bloc. L'écran de lancement
+  natif ne se retire qu'une fois ce premier rendu demandé (`src/main.tsx`).
+
 ## Conventions
 
 - **Les idées se lisent dans l'app, pour l'administrateur seul** (0028,

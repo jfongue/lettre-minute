@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
 import { MODERATION_MIN_QUEUE, MODERATION_SESSION_SIZE, SUPER_MODERATOR_VALIDATIONS } from '../domain/moderation'
 import { SUBMISSION_REWARD_XP } from '../domain/progression'
 import {
@@ -18,8 +18,11 @@ import { VerdictMark } from './VerdictMark'
 import { RespellField, respellValid } from './RespellField'
 import { availableCategoryIds, loadPack } from '../data/packs'
 import { useHiddenTaps } from './useHiddenTaps'
-import { IdeasAdmin } from '../debug/IdeasAdmin'
+import { lazyScreen } from './lazyScreen'
 import { spelledExactly } from '../domain/words'
+
+// The owner's inbox, behind five taps: no player should download it.
+const IdeasAdmin = lazyScreen(() => import('../debug/IdeasAdmin').then((module) => module.IdeasAdmin))
 
 /**
  * A request as the page lists it: still on the device, waiting for the next
@@ -341,7 +344,12 @@ function IdeaBox() {
     if (ok) setDraft('')
   }
 
-  if (reading) return <IdeasAdmin onClose={() => setReading(false)} />
+  if (reading)
+    return (
+      <Suspense fallback={null}>
+        <IdeasAdmin onClose={() => setReading(false)} />
+      </Suspense>
+    )
   if (!open) {
     return (
       <button

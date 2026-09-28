@@ -1090,6 +1090,14 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <DebugHome back={back} error />,
   },
   {
+    id: 'home-waiting',
+    group: 'Accueil',
+    title: 'Ouverture en attente du serveur',
+    how: 'L’affiche et le titre sont entrés, le profil, le compte ou les classements pas encore : trois formes sautillent',
+    phase: 'home',
+    render: (back) => <DebugHome back={back} waiting />,
+  },
+  {
     id: 'home-news',
     group: 'Accueil',
     title: 'Mots acceptés à annoncer, demandes d’ami',
@@ -1344,8 +1352,11 @@ function DebugHome({
   boards = null,
   climbed = 0,
   categoriesNews = 0,
+  waiting = false,
 }: {
   back(): void
+  /** Ce que le serveur n'a pas encore rendu : l'accueil s'arrête sous son titre. */
+  waiting?: boolean
   error?: boolean
   newcomer?: boolean
   boards?: Boards | null
@@ -1358,7 +1369,7 @@ function DebugHome({
       profile={newcomer ? NEW_PROFILE : { ...PROFILE, powers: ['joker', 'hush'], equipped: ['joker'] }}
       error={error ? 'Le dictionnaire n’a pas pu être chargé.' : null}
       loading={false}
-      settled
+      settled={!waiting}
       boards={boards}
       me={newcomer ? null : 'Testeur'}
       climbed={climbed}
