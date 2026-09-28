@@ -5,13 +5,6 @@ export interface CategoryMeta {
   hint: string
   /** Level at which the category joins the draw. Level 1 opens the game. */
   unlockLevel: number
-  /**
-   * The wave of new categories it shipped with, if any — a player who had
-   * already unlocked everything else before that wave is offered one of its
-   * categories as a gift (`categoryGiftOffer` in `unlocks.ts`), so a level-up
-   * pick isn't the only way in for someone with nothing left to pick.
-   */
-  addedIn?: number
 }
 
 /**
@@ -32,18 +25,10 @@ export const CATALOGUE: readonly CategoryMeta[] = [
   // categories under it, and so do the server's prompt_stats.
   { id: 'capitales', label: 'Grandes villes', hint: 'Capitales, et villes de plus de 100 000 habitants', unlockLevel: 7 },
   { id: 'marques', label: 'Marque', hint: 'Marques connues', unlockLevel: 8 },
-  { id: 'prenoms', label: 'Prénoms', hint: 'D’ici et d’ailleurs, de Léa à Mohammed', unlockLevel: 9, addedIn: 2 },
-  { id: 'objets', label: 'Objets du quotidien', hint: 'Ce qu’on trouve à la maison ou dans son sac', unlockLevel: 10, addedIn: 2 },
-  { id: 'plantes', label: 'Plantes', hint: 'Fleurs, arbres, herbes et buissons', unlockLevel: 11, addedIn: 2 },
+  { id: 'prenoms', label: 'Prénoms', hint: 'D’ici et d’ailleurs, de Léa à Mohammed', unlockLevel: 9 },
+  { id: 'objets', label: 'Objets du quotidien', hint: 'Ce qu’on trouve à la maison ou dans son sac', unlockLevel: 10 },
+  { id: 'plantes', label: 'Plantes', hint: 'Fleurs, arbres, herbes et buissons', unlockLevel: 11 },
 ]
-
-/** The most recent wave shipped, or 0 if the catalogue has never been split into waves. */
-export const LATEST_WAVE = Math.max(0, ...CATALOGUE.flatMap((category) => (category.addedIn ? [category.addedIn] : [])))
-
-/** The categories the latest wave added, in catalogue order. */
-export function latestWaveCategoryIds(): string[] {
-  return CATALOGUE.filter((category) => category.addedIn === LATEST_WAVE).map((category) => category.id)
-}
 
 export function categoryMeta(id: string): CategoryMeta | null {
   return CATALOGUE.find((category) => category.id === id) ?? null

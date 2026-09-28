@@ -69,10 +69,6 @@ export const it: Messages = {
     joined: 'entra nelle tue partite',
   },
 
-  categoryGift: {
-    title: 'Nuove categorie!',
-    lead: 'Avevi già sbloccato tutto: scegline una in regalo.',
-  },
 
   over: {
     timeUp: 'Tempo scaduto',

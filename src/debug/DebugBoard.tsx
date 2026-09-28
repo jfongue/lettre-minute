@@ -21,7 +21,6 @@ import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
 import { PushOffer } from '../ui/PushOffer'
 import { OldChallengeList } from '../ui/StatsPage'
-import { CategoryGiftPop } from '../ui/CategoryGiftPop'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
 import { FriendPage } from '../ui/FriendPage'
@@ -488,7 +487,6 @@ function OverScenario({
   after,
   account = NAMED,
   challengeState,
-  gift = [],
   mine,
   requests = [],
   failing = false,
@@ -500,8 +498,6 @@ function OverScenario({
   after: Profile
   account?: Account
   challengeState?: ChallengeDetail | 'sending' | 'failed'
-  /** La catégorie offerte par la vague, remise par-dessus le bilan. */
-  gift?: readonly string[]
   /** Les mots que le joueur a lui-même fait entrer, pour la marque discrète. */
   mine?: ReadonlySet<string>
   /** Les mots proposés pendant la partie, corrigés et retirés comme en vrai. */
@@ -529,8 +525,6 @@ function OverScenario({
       onAvatar={noop}
       onChoose={(id) => setProfile((current) => chooseCategory(current, id))}
       onChoosePower={(id) => setProfile((current) => choosePower(current, id))}
-      gift={gift}
-      onChooseGift={noop}
       onSupportAsked={noop}
       mine={mine}
       proposals={proposals}
@@ -764,14 +758,6 @@ const SCENARIOS: readonly Scenario[] = [
       const [before, after] = levelUp(3, 4)
       return <OverScenario before={before} after={{ ...after, offer: ['sports', 'capitales', 'marques'] }} onBack={back} />
     },
-  },
-  {
-    id: 'over-gift',
-    group: 'Fin de partie',
-    title: 'Cadeau des nouvelles catégories sur le bilan',
-    how: 'Le cadeau de la vague, remis par-dessus le récapitulatif au lieu d’être perdu',
-    phase: 'over',
-    render: (back) => <OverScenario after={afterRun(PROFILE, RUN)} gift={['prenoms', 'objets', 'plantes']} onBack={back} />,
   },
   {
     id: 'over-power',
@@ -1276,14 +1262,6 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Juste après une nouvelle amitié, avant la question du téléphone (sans effet ici)',
     phase: 'home',
     render: (back) => <PushOffer onNo={back} onYes={back} />,
-  },
-  {
-    id: 'category-gift',
-    group: 'Accueil',
-    title: 'Cadeau des nouvelles catégories',
-    how: 'Joueur qui avait déjà tout débloqué avant la vague : choix d’une des trois offerte',
-    phase: 'home',
-    render: (back) => <CategoryGiftPop offer={['prenoms', 'objets', 'plantes']} onChoose={back} />,
   },
   {
     id: 'tutorial',

@@ -1,4 +1,4 @@
-import { CATALOGUE, categoryMeta, latestWaveCategoryIds } from './catalogue'
+import { CATALOGUE, categoryMeta } from './catalogue'
 import { levelFor, type Profile } from './progression'
 import { powersEarnedAt, unlockEveryPower } from './powers'
 import { createRng, shuffled } from './rng'
@@ -14,7 +14,7 @@ export function starterCategoryIds(): string[] {
   return CATALOGUE.filter((category) => category.unlockLevel <= 1).map((category) => category.id)
 }
 
-/** Starters first, then the picks in the order they were made, then any gift. */
+/** Starters first, then the picks in the order they were made, then the categories once given as a gift. */
 export function ownedCategoryIds(profile: Profile): string[] {
   const starters = starterCategoryIds()
   const picks = picked(profile).filter((id) => !starters.includes(id))
@@ -100,32 +100,6 @@ export function unlockEverything(profile: Profile): Profile {
 export function chooseCategory(profile: Profile, categoryId: string): Profile {
   if (!profile.offer.includes(categoryId)) return profile
   return { ...profile, unlocked: [...profile.unlocked, categoryId], offer: [], lastOffer: profile.offer }
-}
-
-/**
- * The latest wave's categories still worth offering as a gift: only when
- * everything else in the catalogue is owned (a category without a shipped
- * dictionary doesn't block it — it was never in the running), and only the
- * wave's categories not already owned, so a player who picked one at a
- * level-up before this ran is offered just what's left. Empty once every
- * wave category is owned, or is offered to no one.
- */
-export function categoryGiftOffer(profile: Profile, availableIds: readonly string[]): string[] {
-  const wave = latestWaveCategoryIds().filter((id) => availableIds.includes(id))
-  if (wave.length === 0) return []
-  const owned = new Set(ownedCategoryIds(profile))
-  const remaining = wave.filter((id) => !owned.has(id))
-  if (remaining.length === 0) return []
-  const everythingElseOwned = CATALOGUE.filter((category) => !wave.includes(category.id)).every(
-    (category) => owned.has(category.id) || !availableIds.includes(category.id),
-  )
-  return everythingElseOwned ? remaining : []
-}
-
-/** Hands over one of the wave's gifted categories, owned but never counted as a level-up pick. */
-export function giftCategory(profile: Profile, categoryId: string): Profile {
-  if (!latestWaveCategoryIds().includes(categoryId) || profile.gifted.includes(categoryId)) return profile
-  return { ...profile, gifted: [...profile.gifted, categoryId] }
 }
 
 export interface Lineup {

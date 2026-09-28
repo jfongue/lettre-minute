@@ -92,11 +92,6 @@ export const fr = {
     joined: 'rejoint tes parties',
   },
 
-  /** The gift offered at launch to a player who had already unlocked everything before a new wave of categories. */
-  categoryGift: {
-    title: 'Nouvelles catégories !',
-    lead: 'Tu avais tout débloqué : choisis-en une en cadeau.',
-  },
 
   over: {
     timeUp: 'Temps écoulé',

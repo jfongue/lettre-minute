@@ -21,7 +21,6 @@ import { categoryMotif } from './motifs'
 import { RankMove } from './RankMove'
 import { UnlockScreen } from './UnlockScreen'
 import { PowerOfferScreen } from './PowerOfferScreen'
-import { CategoryGiftPop } from './CategoryGiftPop'
 import { PowerBadge } from './PowerIcon'
 import { powerPicksOwed } from '../domain/powers'
 import { reducedMotion, useCountUp } from './useCountUp'
@@ -66,13 +65,6 @@ interface OverScreenProps {
   onAvatar(): void
   onChoose(categoryId: string): void
   onChoosePower(powerId: string): void
-  /**
-   * The wave's gift put off with the back gesture on the launch screen: handed
-   * over here, over the summary, rather than lost or asked again at every
-   * launch. Empty when there is none.
-   */
-  gift: readonly string[]
-  onChooseGift(categoryId: string): void
   /** The summary asked for support: the next ask waits ten runs from here. */
   onSupportAsked(): void
   onReplay(): void
@@ -91,7 +83,7 @@ interface OverScreenProps {
 }
 
 export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: OverScreenProps) {
-  const { profile, profileBefore, onChoose, onChoosePower, gift, onChooseGift } = summary
+  const { profile, profileBefore, onChoose, onChoosePower } = summary
   // Held from the pick to the end of its celebration: the offer is off the
   // table as soon as the pick is kept, and the screen must outlive it.
   const [celebrating, setCelebrating] = useState<'category' | 'power' | null>(null)
@@ -154,16 +146,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
       />
     )
   }
-  const board = summary.challenge ? <ChallengeSummary {...summary} challenge={summary.challenge} /> : <Summary run={run} {...summary} />
-  if (gift.length === 0) return board
-  // The gift covers the summary rather than replacing it: the run is read
-  // under the offer, and a tapped card hands the category over.
-  return (
-    <>
-      {board}
-      <CategoryGiftPop offer={gift} onChoose={onChooseGift} />
-    </>
-  )
+  return summary.challenge ? <ChallengeSummary {...summary} challenge={summary.challenge} /> : <Summary run={run} {...summary} />
 }
 
 /** The beat of silence before the score: the clock has stopped, let it register. */
