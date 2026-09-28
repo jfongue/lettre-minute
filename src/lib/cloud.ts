@@ -1,6 +1,7 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
 import type { Snapshot } from '../debug/snapshot'
+import { parseProgress, progressOf, type Progress } from '../domain/progress'
 import type { Leaderboard, PeriodId, PlacedRow, StatId } from '../domain/leaderboards'
 import { challengeWordsOf, type ChallengeEntry, type ChallengeWord } from '../domain/challenge'
 import { MODERATION_SESSION_SIZE, type ModeratorOfferReason, type Verdict } from '../domain/moderation'
@@ -453,6 +454,27 @@ export function fetchLeaderboard(stat: StatId, period: PeriodId): Promise<Leader
 }
 
 /**
+ * La sauvegarde cloud du joueur connecté (0032) : null sans serveur, sans
+ * sauvegarde encore, ou quand le serveur ne répond pas — le profil de
+ * l'appareil reste alors tel quel.
+ */
+export function fetchProgress(): Promise<Progress | null> {
+  return guard(async () => {
+    const identity = await connect()
+    const { data, error } = await supabase!.from('player_progress').select('progress').eq('id', identity!.userId).maybeSingle()
+    if (error || !data) return null
+    return parseProgress(data.progress)
+  }, null)
+}
+
+export function pushProgress(profile: Profile): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('save_progress', { p_progress: progressOf(profile) })
+    return !error && data === true
+  }, false)
+}
+
+/**
  * Les découvertes du joueur depuis toujours, telles que le classement du même
  * nom les compte : pour le succès Play Games des quinze découvertes. Null sans
  * serveur ou pour un joueur anonyme, que ce classement ne range pas.
@@ -767,6 +789,21 @@ function checkName(name: string): AuthError | null {
   return null
 }
 
+/**
+ * Names an account from its Play Games gamer name, trying a few numbered
+ * variants when it is taken. False when none would do: the player then names
+ * it by hand, as after any Google sign-in.
+ */
+export async function nameFromGamer(gamer: string): Promise<AuthOutcome | null> {
+  const base = gamer.trim().replace(/\s+/g, ' ').slice(0, 20)
+  if (checkName(base)) return null
+  for (const candidate of [base, ...[1, 2, 3].map(() => `${base}${Math.floor(10 + Math.random() * 90)}`)]) {
+    const outcome = await chooseName(candidate)
+    if (outcome.ok || outcome.error !== 'name-taken') return outcome.ok ? outcome : null
+  }
+  return null
+}
+
 async function signedInAccount(): Promise<AuthOutcome> {
   const account = await fetchAccount()
   return account && account !== 'unreachable' ? { ok: true, account } : refuse('unreachable')
@@ -884,11 +921,11 @@ async function sha256(text: string): Promise<string> {
  * awaited only once the picker has answered: in a browser the picker is a
  * popup, which must open while the tap still counts as the player's.
  */
-export async function logInWithGoogle(ready: Promise<unknown>): Promise<AuthOutcome | null> {
+export async function logInWithGoogle(ready: Promise<unknown>, quiet = false): Promise<AuthOutcome | null> {
   if (!supabase) return refuse('unreachable')
   try {
     const nonce = crypto.randomUUID()
-    const idToken = await googleIdToken(await sha256(nonce))
+    const idToken = await googleIdToken(await sha256(nonce), quiet)
     if (!idToken) return null
     await ready
     return await switchAccount(() => supabase!.auth.signInWithIdToken({ provider: 'google', token: idToken, nonce }))

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Le bouton de Play Games Sidekick : en bas à gauche, seul coin que ni
+     l'accueil (menu, planche debug) ni la partie (chrono, score, son) n'occupe,
+     et caché la première demi-heure, le temps du tutoriel. -->
+<deku-config>
+  <default-entrypoint-position orientation="portrait" value="BOTTOM_LEFT" />
+  <default-entrypoint-position orientation="landscape" value="BOTTOM_LEFT" />
+  <snooze duration_seconds="1800" />
+</deku-config>

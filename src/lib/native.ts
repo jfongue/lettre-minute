@@ -357,7 +357,7 @@ export function googleSignInSupported(): boolean {
  * hash Supabase will check against the raw nonce). Null when they close the
  * picker, have no account on the phone, or the plugin fails.
  */
-export async function googleIdToken(nonce: string): Promise<string | null> {
+export async function googleIdToken(nonce: string, quiet = false): Promise<string | null> {
   if (!googleSignInSupported()) return null
   try {
     googleStarted ??= SocialLogin.initialize({
@@ -376,7 +376,9 @@ export async function googleIdToken(nonce: string): Promise<string | null> {
     // No `scopes`: email and profile are already the defaults, and on Android
     // any scope at all is refused before the picker opens unless MainActivity
     // is rewritten for the plugin.
-    const { result } = await SocialLogin.login({ provider: 'google', options: { nonce } })
+    // Quiet: the system's small sheet, which picks the phone's only account by itself.
+    const options = quiet ? { nonce, style: 'bottom' as const, autoSelectEnabled: true } : { nonce }
+    const { result } = await SocialLogin.login({ provider: 'google', options })
     return 'idToken' in result ? result.idToken : null
   } catch {
     return null
@@ -439,6 +441,7 @@ const PlayGames = registerPlugin<{
   unlock(options: { ids: string[] }): Promise<{ signedIn: boolean }>
   increment(options: { id: string; steps: number }): Promise<{ signedIn: boolean }>
   showAchievements(): Promise<{ signedIn: boolean }>
+  player(): Promise<{ signedIn: boolean; name?: string }>
 }>('PlayGames')
 
 const playGamesReady = native && Capacitor.getPlatform() === 'android'
@@ -449,4 +452,15 @@ export function playGamesUnlock(ids: readonly string[]): void {
 
 export function playGamesIncrement(id: string, steps: number): void {
   if (playGamesReady && steps > 0) quietly(() => PlayGames.increment({ id, steps }))
+}
+
+/** The Play Games gamer name of the player the SDK signed in, or null. */
+export async function playGamesPlayer(): Promise<string | null> {
+  if (!playGamesReady) return null
+  try {
+    const { signedIn, name } = await PlayGames.player()
+    return signedIn ? (name ?? '') : null
+  } catch {
+    return null
+  }
 }

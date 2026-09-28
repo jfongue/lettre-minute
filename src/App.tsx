@@ -41,7 +41,11 @@ import {
   type ModerationStatus,
   chooseName,
   fetchMyDiscoveries,
+  fetchProgress,
+  nameFromGamer,
+  pushProgress,
 } from './lib/cloud'
+import { progressOf, withProgress } from './domain/progress'
 import { reportAchievements, reportRun } from './lib/playGames'
 import {
   askPush,
@@ -50,6 +54,7 @@ import {
   onBackButton,
   onPush,
   openStoreUpdate,
+  playGamesPlayer,
   prepareAds,
   pushState,
   storeUpdateAvailable,
@@ -92,6 +97,8 @@ import {
   loadAvatar,
   loadHistory,
   loadProfile,
+  loadQuietSignInTried,
+  saveQuietSignInTried,
   loadSubmissions,
   loadTutorialDone,
   saveAccount,
@@ -323,13 +330,36 @@ export function App() {
       if (next.anonymous) return
       const local: Profile = profile.current
       if (next.stats.runs >= local.runs) {
-        // The server keeps totals, not category picks: those stay on the device.
+        // The server keeps totals; the picks come from the cloud save below.
         dispatch({ type: 'profile-loaded', profile: { ...local, ...next.stats } })
       }
       if (next.avatar) wear(next.avatar)
+      // Another device's picks join this one's, and the merged copy goes back up.
+      fetchProgress().then((saved) => {
+        if (!saved) return
+        const merged = withProgress(profile.current, saved)
+        dispatch({ type: 'profile-loaded', profile: merged })
+        savedProgress.current = JSON.stringify(progressOf(merged))
+      })
     },
     [wear],
   )
+
+  // The cloud save follows the profile a few seconds behind, for a named
+  // account only: an anonymous one lives and dies with this device.
+  const savedProgress = useRef('')
+  const named = account !== null && !account.anonymous
+  useEffect(() => {
+    if (!named || session.profile === NEW_PROFILE) return
+    const next = JSON.stringify(progressOf(session.profile))
+    if (next === savedProgress.current) return
+    const timer = setTimeout(() => {
+      pushProgress(session.profile).then((ok) => {
+        if (ok) savedProgress.current = next
+      })
+    }, 3000)
+    return () => clearTimeout(timer)
+  }, [named, session.profile])
 
   useEffect(() => {
     if (session.profile !== NEW_PROFILE) saveProfile(session.profile)
@@ -413,6 +443,29 @@ export function App() {
     loadBoards().then(setBoards)
     return outcome.warning ? t.account.errors[outcome.warning] : null
   }
+
+  // Play Games has signed the player in: their Google account becomes the
+  // game's, named after their gamer name — no form. Tried once per device:
+  // closing the sheet, or signing out later, is an answer that stands.
+  const quietTried = useRef(false)
+  useEffect(() => {
+    if (!answered.account || (account && !account.anonymous) || quietTried.current) return
+    quietTried.current = true
+    if (loadQuietSignInTried()) return
+    playGamesPlayer().then(async (gamer) => {
+      if (gamer === null) return
+      saveQuietSignInTried()
+      const outcome = await logInWithGoogle(pushing.current, true)
+      if (!outcome?.ok) return
+      track('login', { method: 'play-games' })
+      enter(outcome)
+      if (!outcome.account.needsName) return
+      const named = await nameFromGamer(gamer)
+      if (named?.ok) setAccount(named.account)
+    })
+    // `enter` reads the latest state through refs; the effect keys on the answer alone.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answered.account, account])
 
   const accountActions: AccountActions = {
     async onRegister(name, email, password) {
@@ -681,7 +734,6 @@ export function App() {
     if (tutorial === 'launching' && session.phase !== 'loading') setTutorial(null)
   }, [tutorial, session.phase])
 
-  const named = account !== null && !account.anonymous
   const refreshChallenges = useCallback(() => {
     if (!named) return setChallenges(null)
     fetchChallenges().then((next) => {

@@ -50,6 +50,30 @@ public class PlayGamesPlugin extends Plugin {
         });
     }
 
+    /** The signed-in player's gamer name: the game names a new account after it. */
+    @PluginMethod
+    public void player(PluginCall call) {
+        PlayGames.getGamesSignInClient(getActivity())
+            .isAuthenticated()
+            .addOnCompleteListener(signIn -> {
+                JSObject result = new JSObject();
+                boolean signedIn = signIn.isSuccessful() && signIn.getResult().isAuthenticated();
+                result.put("signedIn", signedIn);
+                if (!signedIn) {
+                    call.resolve(result);
+                    return;
+                }
+                PlayGames.getPlayersClient(getActivity())
+                    .getCurrentPlayer()
+                    .addOnCompleteListener(player -> {
+                        if (player.isSuccessful() && player.getResult() != null) {
+                            result.put("name", player.getResult().getDisplayName());
+                        }
+                        call.resolve(result);
+                    });
+            });
+    }
+
     @PluginMethod
     public void showAchievements(PluginCall call) {
         whenSignedIn(call, () ->

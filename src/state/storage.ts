@@ -10,6 +10,9 @@ const HISTORY_KEY = 'lettre-minute.history.v1'
 const ACCOUNT_KEY = 'lettre-minute.account.v1'
 // Kept by clearLocalData: whoever signs out has already learnt to play.
 const TUTORIAL_KEY = 'lettre-minute.tutorial.v1'
+// Kept by clearLocalData too: a player who signed out chose to, and the quiet
+// Play Games sign-in must not sign them straight back in.
+const QUIET_SIGN_IN_KEY = 'lettre-minute.quiet-sign-in.v1'
 
 /** A word the player proposed while the dictionary did not know it. */
 export interface PendingSubmission {
@@ -71,6 +74,15 @@ export function loadTutorialDone(): boolean {
 
 export function saveTutorialDone(): void {
   write(TUTORIAL_KEY, true)
+}
+
+/** Whether the game already tried to sign this device in through Play Games: once, never again. */
+export function loadQuietSignInTried(): boolean {
+  return parsed(QUIET_SIGN_IN_KEY) === true
+}
+
+export function saveQuietSignInTried(): void {
+  write(QUIET_SIGN_IN_KEY, true)
 }
 
 export function loadProfile(): Profile {

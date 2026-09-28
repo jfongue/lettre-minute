@@ -339,6 +339,23 @@ qu'un nouvel arrivant casserait sans le savoir.
   `RESEND_API_KEY` dans les secrets, les idées s'accumulent en base sans
   mail.
 
+- **Catégories et pouvoirs suivent le compte nommé** (`src/domain/progress.ts`,
+  0032, `player_progress`) : à la connexion, la sauvegarde du serveur se
+  fusionne avec le profil de l'appareil — ce qui se possède s'additionne,
+  ce qui est en cours vient de la copie qui a le plus joué —, puis le profil
+  y remonte trois secondes après chaque changement. Un compte anonyme n'a
+  pas de sauvegarde : il vit et meurt avec l'appareil. Un champ nouveau du
+  profil qui ne se recompte pas depuis les parties entre dans la sauvegarde.
+- **Play Games connecte sans formulaire, une fois par appareil**
+  (`quietTried`, `src/App.tsx`) : un joueur anonyme que le SDK a reconnu
+  passe par la petite feuille Google (`style: 'bottom'`, choix automatique
+  du seul compte), puis son compte prend son nom de joueur Play Games
+  (`nameFromGamer`). Fermer la feuille ou se déconnecter plus tard est une
+  réponse : la clé `quiet-sign-in` survit à `clearLocalData`.
+- **Sidekick est posé en bas à gauche** (`res/xml/sidekick_config.xml`) :
+  seul coin libre à l'accueil comme en partie, et masqué la première
+  demi-heure. La Play Console l'ajoute d'elle-même à chaque bundle.
+
 - **Un succès Play Games ne se reprend jamais** (`src/domain/achievements.ts`) :
   ses quinze seuils sont écrits en dur, pas lus dans les paliers de l'avatar,
   qui peuvent bouger. Mots ajoutés et découvertes restent bas (10 et 15) :
