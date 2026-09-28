@@ -79,6 +79,7 @@ import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { createJudge } from './state/judge'
 import { banNews, feedbackDue, hiddenAnswers, playableCategoryIds, plusThanksDue } from './domain/perks'
 import { cloudConfigured } from './lib/supabase'
+import { setTrackLang, setTrackScreen, track, trackFeature, trackReady } from './lib/track'
 import { FeedbackPop } from './ui/FeedbackPop'
 import type { BanActions } from './ui/CategoriesPage'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
@@ -203,11 +204,13 @@ export function App() {
   // The dictionary follows the interface: a German player answers in German.
   const lang = locale ?? 'fr'
   const speak = useCallback((next: Locale) => {
+    trackFeature('language', { lang: next })
     setLocale(next)
     saveLocale(next)
   }, [])
   useEffect(() => {
     if (locale) applyLocale(locale)
+    setTrackLang(locale ?? 'none')
   }, [locale])
   const community = useRef<Record<string, CommunityWord[]>>({})
   const [avatar, setAvatar] = useState<AvatarChoice>(DEFAULT_AVATAR)
@@ -387,6 +390,7 @@ export function App() {
       await pushing.current
       const outcome = await register(name, email, password)
       if (!outcome.ok) return t.account.errors[outcome.error]
+      track('signup', { method: 'email', runs: profile.current.runs })
       setAccount(outcome.account)
       pushAvatar(avatar)
       loadBoards().then(setBoards)
@@ -395,10 +399,13 @@ export function App() {
     },
     async onLogIn(email, password) {
       await pushing.current
-      return enter(await logIn(email, password))
+      const outcome = await logIn(email, password)
+      if (outcome.ok) track('login', { method: 'email' })
+      return enter(outcome)
     },
     async onGoogle() {
       const outcome = await logInWithGoogle(pushing.current)
+      if (outcome?.ok) track('login', { method: 'google' })
       return outcome ? enter(outcome) : null
     },
     async onRequestReset(email) {
@@ -412,6 +419,7 @@ export function App() {
     async onChooseName(name) {
       const outcome = await chooseName(name)
       if (!outcome.ok) return t.account.errors[outcome.error]
+      track('signup', { method: 'name', runs: profile.current.runs })
       setAccount(outcome.account)
       loadBoards().then(setBoards)
       return null
@@ -668,6 +676,9 @@ export function App() {
     if (homeReady) setHomeSettled(true)
   }, [homeReady])
   useEffect(() => {
+    if (homeSettled) trackReady()
+  }, [homeSettled])
+  useEffect(() => {
     const timer = setTimeout(() => setHomeSettled(true), 2500)
     return () => clearTimeout(timer)
   }, [])
@@ -816,6 +827,7 @@ export function App() {
       const detail = id ? await fetchChallenge(id) : null
       if (!detail) return setCreating({ busy: false, message: t.challenge.createFailed, rules, friends })
       setCreating(null)
+      trackFeature('challenge_created', { friends: friends.length, powers: rules.powers })
       refreshChallenges()
       startChallenge(detail)
     },
@@ -829,6 +841,7 @@ export function App() {
       const id = detail.nextId ?? (await rematchChallenge(detail.id, Date.now() >>> 0, detail.categoryIds))
       const next = id ? await fetchChallenge(id) : null
       if (!next) return false
+      trackFeature('challenge_rematch')
       refreshChallenges()
       startChallenge(next)
       return true
@@ -871,6 +884,7 @@ export function App() {
       try {
         const judge = await judgeFor(lineup.dealt)
         dispatch({ type: 'swapped', judge, categoryIds: lineup.dealt, reserve: lineup.reserve })
+        trackFeature('swap')
         if (lineup.reserve[0]) loadPack(lang, lineup.reserve[0]).catch(() => undefined)
       } catch {
         /* the dictionary did not come: the run keeps the category it had */
@@ -881,15 +895,33 @@ export function App() {
     [session.run, session.reserve, session.swapsLeft, swapping, judgeFor, lang],
   )
 
-  const choose = useCallback((categoryId: string) => dispatch({ type: 'choose', categoryId }), [])
-  const choosePower = useCallback((powerId: string) => dispatch({ type: 'choose-power', powerId }), [])
+  const choose = useCallback((categoryId: string) => {
+    trackFeature('category_chosen', { category: categoryId })
+    dispatch({ type: 'choose', categoryId })
+  }, [])
+  const choosePower = useCallback((powerId: string) => {
+    trackFeature('power_chosen', { power: powerId })
+    dispatch({ type: 'choose-power', powerId })
+  }, [])
   const supportAsked = useCallback(() => dispatch({ type: 'support-asked' }), [])
-  const joinPlus = useCallback(() => dispatch({ type: 'join-plus', at: Date.now() }), [])
-  const peek = useCallback(() => dispatch({ type: 'peek' }), [])
+  const joinPlus = useCallback(() => {
+    trackFeature('premium_joined')
+    dispatch({ type: 'join-plus', at: Date.now() })
+  }, [])
+  const peek = useCallback(() => {
+    trackFeature('hidden_words_peek')
+    dispatch({ type: 'peek' })
+  }, [])
   const banActions = useMemo<BanActions>(
     () => ({
-      onBan: (categoryId) => dispatch({ type: 'ban', categoryId }),
-      onUnban: (categoryId) => dispatch({ type: 'unban', categoryId }),
+      onBan: (categoryId) => {
+        trackFeature('category_ban', { category: categoryId })
+        dispatch({ type: 'ban', categoryId })
+      },
+      onUnban: (categoryId) => {
+        trackFeature('category_unban', { category: categoryId })
+        dispatch({ type: 'unban', categoryId })
+      },
       onIntroSeen: () => dispatch({ type: 'ban-intro-seen' }),
       onJoinPlus: joinPlus,
     }),
@@ -913,6 +945,7 @@ export function App() {
         lang: runLang ?? lang,
       }
       saveSubmissions([...loadSubmissions(), proposal])
+      trackFeature('word_proposed', { category: proposal.categoryId })
       dispatch({ type: 'propose', proposal })
     },
     [session.run, lang, runLang],
@@ -975,6 +1008,20 @@ export function App() {
   useEffect(() => {
     if (session.phase !== 'over' || !session.run) return
     const playedLang = runLang ?? lang
+    track('run_end', {
+      mode: session.challengeId ? 'challenge' : 'solo',
+      score: session.run.score,
+      words: session.run.found.length,
+      skips: session.run.skips,
+      combo: session.run.bestCombo,
+      prompts: session.run.settled.length,
+      empty: session.run.settled.filter((prompt) => prompt.passed).length,
+      rerolls: session.run.rerolls,
+      categories: session.run.categoryIds,
+      powers: session.run.powers,
+      proposed: session.proposals.length,
+      lang: playedLang,
+    })
     const record = recordOf(session.run, Date.now(), playedLang)
     setHistory((previous) => {
       const next = appendRecord(previous, record)
@@ -1047,6 +1094,37 @@ export function App() {
     [mine, runLang, lang],
   )
 
+  // One run_start per run, read at its announcement: the lineup, the powers
+  // carried and the mode are all known by then.
+  useEffect(() => {
+    if (session.phase !== 'countdown' || !session.run) return
+    track('run_start', {
+      mode: session.challengeId ? 'challenge' : 'solo',
+      categories: session.run.categoryIds,
+      powers: session.run.powers,
+      first: session.profile.runs === 0,
+      lang: runLang ?? lang,
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session.phase])
+
+  const screenName = tutorial
+    ? 'tutorial'
+    : editingAvatar
+      ? 'avatar'
+      : moderating
+        ? 'moderation'
+        : picking
+          ? 'challenge-powers'
+          : creating
+            ? 'challenge-create'
+            : challengeOpen && session.phase === 'home'
+              ? 'challenge'
+              : menuPage && (session.phase === 'home' || session.phase === 'loading')
+                ? `menu:${menuPage}`
+                : session.phase
+  useEffect(() => setTrackScreen(screenName), [screenName])
+
   const quietHome = session.phase === 'home' && !tutorial && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
   const notice = quietHome ? challengeNotice(challenges, heldNotices) : null
   const popsQuiet =
@@ -1097,6 +1175,7 @@ export function App() {
           profile={session.profile}
           avatar={avatar}
           onSave={(next) => {
+            trackFeature('avatar_saved', { design: next.design, ground: next.ground })
             wear(next)
             // The boards read the avatar from the profile: only a fetch after the write shows it.
             pushAvatar(next).then((saved) => {
@@ -1211,6 +1290,7 @@ export function App() {
             setPushOffer(null)
           }}
           onYes={() => {
+            trackFeature('push_accepted')
             markPushOffered(pushOffer)
             setPushOffer(null)
             askPush()
@@ -1239,6 +1319,7 @@ export function App() {
         <UpdateNotice
           onLater={() => setUpdate('later')}
           onUpdate={() => {
+            trackFeature('store_update')
             setUpdate('later')
             openStoreUpdate()
           }}
@@ -1327,6 +1408,7 @@ export function App() {
           sound={soundPrefs}
           onSound={tune}
           onTheme={(next) => {
+            trackFeature('theme', { theme: next })
             setTheme(next)
             saveTheme(next)
             applyTheme(next)
@@ -1336,6 +1418,7 @@ export function App() {
             setEditingAvatar(true)
           }}
           onLogOut={async () => {
+            track('logout')
             if (pushToken.current) await forgetPushToken(pushToken.current)
             await logOut()
             forget()
@@ -1355,6 +1438,7 @@ export function App() {
             // The device keeps its copy until the server has let go of its
             // own: a failed erase must not leave the player half-deleted.
             if (!(await deleteAccount())) return false
+            track('erase')
             forget()
             return true
           }}

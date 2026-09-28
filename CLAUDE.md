@@ -324,6 +324,16 @@ qu'un nouvel arrivant casserait sans le savoir.
   `RESEND_API_KEY` dans les secrets, les idées s'accumulent en base sans
   mail.
 
+- **Le suivi d'usage ne lève jamais et ne bloque rien** (`src/lib/track.ts`,
+  0029) : les événements s'empilent dans une file de l'appareil, partent par
+  lots de cent toutes les vingt secondes et au passage en arrière-plan, et
+  une ouverture sans partie se lit dans les sessions sans `run_start`. Un
+  bouton touché se nomme par `data-track`, sinon `aria-label`, sinon son
+  texte : un bouton sans mots (icône seule) mérite un `data-track`. Le
+  tableau de bord (artefact) se nourrit de `npm run analytics`, que seul le
+  propriétaire du projet peut exécuter — jamais une fonction appelable
+  depuis l'app.
+
 ## Conventions
 
 - **Les idées se lisent dans l'app, pour l'administrateur seul** (0028,

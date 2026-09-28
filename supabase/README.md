@@ -1,6 +1,6 @@
 # Supabase
 
-Vingt-huit migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Vingt-neuf migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -39,7 +39,10 @@ sortir les joueurs maison et y lire les mots joués des parties qui n'ont rien
 rapporté, [`0027_friend_challenges.sql`](migrations/0027_friend_challenges.sql)
 pour l'historique des défis joués avec chaque ami, et
 [`0028_ideas_admin.sql`](migrations/0028_ideas_admin.sql) pour lire, archiver
-et effacer les idées reçues depuis l'app, réservé aux administrateurs.
+et effacer les idées reçues depuis l'app, réservé aux administrateurs, et
+[`0029_events.sql`](migrations/0029_events.sql) pour les statistiques d'usage
+(ouvertures, écrans, boutons, fonctions, erreurs) et le tableau de bord
+qui les lit (`analytics_snapshot`, par `npm run analytics`).
 
 ## Ce que le serveur détient
 
@@ -72,6 +75,7 @@ et effacer les idées reçues depuis l'app, réservé aux administrateurs.
 | `tester_invites` | Une adresse e-mail saisie dans le champ d'ami, en attente d'être inscrite testeur Play puis invitée par `npm run testers:invite`. Aucune politique : jamais relue par un joueur. |
 | `prompt_stats` | Par langue, ce que les parties ont dit de chaque couple lettre + catégorie : combien l'ont tiré, combien l'ont laissé vide, ce qu'il a rapporté en points et en mots. Lu par le tirage du client et par les classements avancés, écrit par la seule fonction `report_prompts`. |
 | `prompt_reports` | Les graines qui ont déjà parlé, pour qu'une partie ne compte qu'une fois. Aucune politique : jamais relu. |
+| `events` | Ce que les joueurs font de l'app, par lots de `track` : ouvertures, écrans, boutons touchés, fonctions, parties, erreurs. Un appareil, une ouverture, et le compte en plus (effacé avec lui). Aucune politique : jamais relu par le jeu, seulement par `analytics_snapshot`, que seul le propriétaire du projet exécute. |
 
 Fonctions d'écriture : `report_prompts(graine, langue, couples)` — le rapport
 d'une partie terminée, une seule fois par graine, borné à trente couples et
