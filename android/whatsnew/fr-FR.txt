@@ -1,2 +1,5 @@
-• « Villes » devient « Grandes villes » : aux capitales s’ajoutent les villes de plus de 100 000 habitants des pays où le jeu se joue — Villeurbanne, Coventry, Sabadell —, dans les sept langues
-• Sept nouvelles formes d’avatar récompensent les mots que tu as fait entrer au dictionnaire, du tout premier au millième
+• Écarte une catégorie de tes parties depuis « Mes catégories »
+• La page d’un ami montre vos défis joués ensemble et le score de vos duels
+• Les noms courts sont acceptés : USA, Angleterre, Samsung, Mercedes, Oslo, Francfort
+• Herbes, champignons, parties du corps et matières du quotidien entrent au dictionnaire
+• La musique ne grésille plus quand le volume est bas
