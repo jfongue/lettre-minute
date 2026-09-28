@@ -4,6 +4,10 @@ dist
 *.local
 .cache
 
+# Méthode de travail des agents, avec comptes et empreintes : hors du dépôt public
+CLAUDE.local.md
+AGENTS.local.md
+
 # Clés de signature des apps
 *.jks
 *.keystore
