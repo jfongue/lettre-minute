@@ -1,5 +1,4 @@
-• Écarte une catégorie de tes parties depuis « Mes catégories »
-• La page d’un ami montre vos défis joués ensemble et le score de vos duels
-• Les noms courts sont acceptés : USA, Angleterre, Samsung, Mercedes, Oslo, Francfort
-• Herbes, champignons, parties du corps et matières du quotidien entrent au dictionnaire
-• La musique ne grésille plus quand le volume est bas
+• Le jeu s’ouvre plus vite : son premier chargement pèse deux fois moins
+• La partie reste fluide sur les téléphones plus anciens pendant que tu tapes
+• Chaque catégorie a un sous-titre court, et « Marque » et « Partie du corps » passent au pluriel
+• « Mes catégories » : une catégorie bannie reste lisible, sur deux lignes
