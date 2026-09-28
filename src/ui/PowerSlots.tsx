@@ -6,6 +6,7 @@ import { sound } from '../lib/sound'
 import { onTint, POWER_TINTS, powerGround } from './motifs'
 import { PowerIcon } from './PowerIcon'
 import { reducedMotion } from './useCountUp'
+import { useBackDismiss } from './useBackDismiss'
 
 /** Long enough to see and hear the power land in its slot, short enough not to wait for it. */
 const WEAR_MS = 650
@@ -96,6 +97,7 @@ function PowerPicker({
       clearTimeout(timer.current)
     }
   }, [onClose])
+  useBackDismiss(onClose)
 
   const wear = (id: PowerId) => {
     if (chosen) return

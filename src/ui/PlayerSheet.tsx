@@ -4,6 +4,7 @@ import type { AvatarChoice } from '../domain/avatar'
 import { useT } from '../i18n'
 import { blockPlayer, fetchFriends, requestFriend, type BlockOutcome, type FriendRequestOutcome } from '../lib/cloud'
 import { Avatar } from './Avatar'
+import { useBackDismiss } from './useBackDismiss'
 
 export interface PlayerActions {
   befriend(name: string): Promise<FriendRequestOutcome>
@@ -73,6 +74,7 @@ function PlayerSheet({ name, avatar, onClose }: { name: string; avatar: AvatarCh
     window.addEventListener('keydown', escape)
     return () => window.removeEventListener('keydown', escape)
   }, [onClose])
+  useBackDismiss(onClose)
 
   const befriend = async () => {
     setStep('busy')

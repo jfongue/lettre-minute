@@ -2,8 +2,9 @@ import { applyChallengeRun } from '../domain/challenge'
 import { applyRun, levelFor, type Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
 import { capitalized, normalizeWord } from '../domain/text'
-import { chooseCategory, dealOffer } from '../domain/unlocks'
+import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
 import { markSupportAsked } from '../domain/support'
+import { ban, joinPlus, markBanIntroSeen, markFeedbackAsked, spendPeek, unban } from '../domain/perks'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, type PowerId } from '../domain/powers'
 import {
   createRun,
@@ -39,13 +40,25 @@ export interface Session {
    * player types, the field says whether the word counts, never what it pays.
    */
   cheer: Cheer | null
-  /** Words proposed during this run, normalized — the field acknowledges them inline. */
-  proposed: readonly string[]
+  /** The words proposed during this run — the field acknowledges them inline, the last screen hands them back. */
+  proposals: readonly Proposal[]
   /** The level held when the run started, so the end screen can announce what it opened. */
   levelBefore: number
   /** The profile as it stood before the run — what the end screen compares to announce new avatars and colours. */
   profileBefore: Profile
   error: string | null
+}
+
+/**
+ * A word proposed while the dictionary did not know it, as it was typed. The
+ * same shape as the queue on the device (`PendingSubmission`): a proposal lives
+ * there until the server takes it, and a correction rewrites whichever holds it.
+ */
+export interface Proposal {
+  word: string
+  categoryId: string
+  at: number
+  lang: string
 }
 
 export interface Cheer {
@@ -88,8 +101,19 @@ export type SessionAction =
   | { type: 'reroll'; at: number }
   | { type: 'skip'; at: number }
   | { type: 'time-up'; at: number }
-  | { type: 'propose'; word: string }
+  | { type: 'propose'; proposal: Proposal }
+  /** The last screen respelled a request still waiting, or took it back. */
+  | { type: 'proposal-amended'; at: number; display: string }
+  | { type: 'proposal-withdrawn'; at: number }
   | { type: 'support-asked' }
+  | { type: 'feedback-asked' }
+  | { type: 'ban'; categoryId: string }
+  | { type: 'unban'; categoryId: string }
+  | { type: 'ban-intro-seen' }
+  /** A hidden answer of the summary uncovered. */
+  | { type: 'peek' }
+  /** `at`: the wall clock, which the rules do not read themselves. */
+  | { type: 'join-plus'; at: number }
   | { type: 'home' }
 
 export function initialSession(profile: Profile): Session {
@@ -104,7 +128,7 @@ export function initialSession(profile: Profile): Session {
     draft: '',
     live: null,
     cheer: null,
-    proposed: [],
+    proposals: [],
     levelBefore: levelFor(profile.xp),
     profileBefore: profile,
     error: null,
@@ -137,7 +161,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         draft: '',
         live: null,
         cheer: null,
-        proposed: [],
+        proposals: [],
       }
     }
 
@@ -172,6 +196,19 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       const profile = grantPower(session.profile, action.powerId)
       return profile === session.profile ? session : { ...session, profile }
     }
+
+    case 'feedback-asked':
+      return withProfile(session, markFeedbackAsked(session.profile))
+    case 'ban':
+      return withProfile(session, ban(session.profile, ownedCategoryIds(session.profile), action.categoryId))
+    case 'unban':
+      return withProfile(session, unban(session.profile, action.categoryId))
+    case 'ban-intro-seen':
+      return withProfile(session, markBanIntroSeen(session.profile))
+    case 'peek':
+      return withProfile(session, spendPeek(session.profile))
+    case 'join-plus':
+      return withProfile(session, joinPlus(session.profile, action.at))
 
     case 'support-asked': {
       const profile = markSupportAsked(session.profile)
@@ -260,12 +297,30 @@ export function sessionReducer(session: Session, action: SessionAction): Session
     }
 
     case 'propose': {
-      const word = normalizeWord(action.word)
-      if (word === '' || session.proposed.includes(word)) return session
-      return { ...session, proposed: [...session.proposed, word] }
+      const word = normalizeWord(action.proposal.word)
+      if (word === '' || session.proposals.some((proposal) => normalizeWord(proposal.word) === word)) return session
+      return { ...session, proposals: [...session.proposals, action.proposal] }
     }
 
+    case 'proposal-amended': {
+      const at = session.proposals.findIndex((proposal) => proposal.at === action.at)
+      if (at < 0) return session
+      return {
+        ...session,
+        proposals: session.proposals.map((proposal, index) =>
+          index === at ? { ...proposal, word: action.display } : proposal,
+        ),
+      }
+    }
+
+    case 'proposal-withdrawn':
+      return { ...session, proposals: session.proposals.filter((proposal) => proposal.at !== action.at) }
+
     case 'home':
-      return { ...session, phase: 'home', run: null, draft: '', live: null, cheer: null, proposed: [] }
+      return { ...session, phase: 'home', run: null, draft: '', live: null, cheer: null, proposals: [] }
   }
+}
+
+function withProfile(session: Session, profile: Profile): Session {
+  return profile === session.profile ? session : { ...session, profile }
 }

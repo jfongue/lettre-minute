@@ -4,6 +4,7 @@ import { answerModeratorOffer } from '../lib/cloud'
 import { useT } from '../i18n'
 import { Burst, Shape } from './bauhaus'
 import { VerdictMark } from './VerdictMark'
+import { useBackDismiss } from './useBackDismiss'
 
 interface ModeratorOfferProps {
   reason: ModeratorOfferReason
@@ -43,6 +44,10 @@ export function ModeratorOffer({ reason, invitedBy, anonymous, onAccount, onAnsw
       : reason === 'words'
         ? t.moderation.offer.words
         : t.moderation.offer.level(MODERATOR_LEVEL)
+
+  // « Plus tard » while the question stands; once welcomed, the gesture is the
+  // same door as the button that closes the card.
+  useBackDismiss(welcomed ? () => onAnswered(true) : onLater)
 
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="moderator-offer-title">

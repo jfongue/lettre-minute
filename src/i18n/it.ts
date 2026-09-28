@@ -86,6 +86,9 @@ export const it: Messages = {
     newRecord: 'nuovo record',
     record: 'record',
     dayBoard: 'Classifica del giorno',
+    mineNote: (count) => `di cui ${count} ${plural(count, 'parola che hai fatto entrare nel dizionario', 'parole che hai fatto entrare nel dizionario')}`,
+    proposals: 'Parole proposte',
+    proposalsLead: 'Le hai proposte in questa partita: finché aspettano, puoi correggere l’ortografia o ritirare la richiesta.',
     keepTitle: 'Tieni questa partita',
     keepLead: 'Crea un account o accedi: questa partita e tutti i tuoi progressi ci entrano subito.',
     savedTo: ['Partita salvata sull’account ', ''],
@@ -170,6 +173,26 @@ export const it: Messages = {
     held: (place) => `Sempre ${place}`,
     more: (count) => `Vedi la classifica completa (${count})`,
     less: 'Vedi meno',
+    all: 'Tutte le classifiche',
+  },
+
+  leaderboards: {
+    periods: { day: 'Giorno', week: 'Settimana', all: 'Totale' },
+    stats: {
+      best: { label: 'Miglior partita', caption: 'Il punteggio più alto in una partita', unit: () => 'pt' },
+      points: { label: 'Punti', caption: 'Tutti i punti, partita dopo partita', unit: () => 'pt' },
+      runs: { label: 'Partite', caption: 'Quante partite sono state giocate', unit: (count) => plural(count, 'partita', 'partite') },
+      words: { label: 'Parole trovate', caption: 'Tutte le parole giuste, partita dopo partita', unit: (count) => plural(count, 'parola', 'parole') },
+      discoveries: { label: 'Scoperte', caption: 'Parole che nessuno aveva scritto da una settimana', unit: (count) => plural(count, 'parola', 'parole') },
+      combo: { label: 'Serie', caption: 'La serie più lunga di parole di fila', unit: (count) => plural(count, 'parola', 'parole') },
+      added: { label: 'Parole aggiunte', caption: 'Proposte, poi convalidate dai moderatori', unit: (count) => plural(count, 'parola', 'parole') },
+    },
+    empty: { day: 'Oggi non c’è ancora nessuno.', week: 'Questa settimana non c’è ancora nessuno.', all: 'Non c’è ancora nessuno.' },
+    offline: 'La classifica non risponde per ora.',
+    retry: 'Riprova',
+    you: 'Il tuo posto',
+    absent: 'Non ci sei ancora: tocca a te giocare.',
+    anonymous: 'Crea un account per comparire nelle classifiche.',
   },
 
   menu: {
@@ -186,7 +209,7 @@ export const it: Messages = {
     accountLead: 'Le tue partite ti seguono da un dispositivo all’altro, il tuo nome entra in classifica e i tuoi amici possono trovarti.',
     offline: 'Offline: i tuoi progressi restano su questo dispositivo.',
     back: 'Indietro',
-    pages: { stats: 'Statistiche', requests: 'Le mie proposte', categories: 'Le mie categorie' },
+    pages: { stats: 'Statistiche', requests: 'Le mie proposte', categories: 'Le mie categorie', boards: 'Classifiche' },
     support: 'Sostieni il creatore',
   },
 
@@ -238,6 +261,27 @@ export const it: Messages = {
     },
     blocked: 'Bloccati',
     unblock: 'Sblocca',
+    versus: (mine, theirs, name, count) => `Tu ${mine} – ${theirs} ${name} · ${count} ${plural(count, 'sfida', 'sfide')}`,
+    noShared: 'Nessuna sfida insieme',
+    openFriend: (name) => `Apri la scheda di ${name}`,
+    faceOff: 'Testa a testa',
+    won: (count) => plural(count, 'vittoria', 'vittorie'),
+    tied: (count) => plural(count, 'pareggio', 'pareggi'),
+    lost: (count) => plural(count, 'sconfitta', 'sconfitte'),
+    myPoints: 'i tuoi punti',
+    theirPoints: 'i suoi punti',
+    together: 'Sfide insieme',
+    togetherNone: 'Ancora nessuna sfida insieme.',
+    settling: 'Calcolo del bilancio…',
+    historyFailed: 'Impossibile caricare le vostre sfide per ora.',
+    players: (count) => `${count} ${plural(count, 'giocatore', 'giocatori')}`,
+    outcomes: { won: 'Vinta', lost: 'Persa', tie: 'Pareggio', open: 'In corso', void: 'Non conta' },
+    rank: (rank) => `${rank}º`,
+    you: 'Tu',
+    notPlayed: (name) => `${name} non ha giocato`,
+    youNotPlayed: 'Non hai giocato',
+    challengeFriend: 'Lancia una sfida',
+    removeNamed: (name) => `Rimuovi ${name}`,
   },
 
   stats: {
@@ -278,9 +322,13 @@ export const it: Messages = {
     added: 'Aggiunte grazie a te',
     addedNote: (xp) => `${xp} XP guadagnati per ognuna.`,
     noneAdded: 'Nessuna per ora: una parola entra quando tre moderatori l’hanno approvata.',
+    more: (count: number) => `Mostra altro (${count})`,
+    less: 'Mostra meno',
     fresh: 'nuova',
     locked: 'in moderazione',
     pending: 'In attesa',
+    mine: 'la tua parola',
+    entered: 'entrata nel dizionario',
     queued: 'non ancora inviata',
     rejected: (count) => `Rifiutate (${count})`,
     correct: 'Correggi',
@@ -298,8 +346,6 @@ export const it: Messages = {
     superLead: 'La tua parola basta: una parola che dici corretta entra subito, e i casi speciali aspettano solo i supermoderatori.',
     progress: (done, needed) =>
       `${Math.min(done, needed)} / ${needed} parole approvate senza contestazioni per diventare supermoderatore`,
-    waiting: (count) =>
-      count === 0 ? 'Nessuna parola in attesa per ora.' : `${count} ${count > 1 ? 'parole aspettano' : 'parola aspetta'} il tuo parere`,
     start: (size) => `Avvia una sessione · ${size} parole`,
     offer: {
       title: 'Diventa moderatore!',
@@ -407,6 +453,8 @@ export const it: Messages = {
           return `${milestone.at} parole trovate`
         case 'bestCombo':
           return `una serie di ${milestone.at}`
+        case 'wordsAdded':
+          return `${milestone.at} ${plural(milestone.at, 'parola aggiunta', 'parole aggiunte')}`
       }
     },
   },
@@ -600,6 +648,44 @@ export const it: Messages = {
     yes: 'Sì, attiva',
   },
 
+  feedback: {
+    title: 'La tua opinione conta!',
+    lead: 'Hai giocato un bel po’ di partite. Cosa ti piace, cosa manca, cosa ti dà fastidio? Il creatore legge tutto.',
+    placeholder: 'Cosa ne pensi…',
+    send: 'Invia',
+    later: 'Più tardi',
+    sent: 'Grazie! La tua opinione è partita.',
+    failed: 'La tua opinione non è partita. Controlla la connessione e riprova.',
+  },
+
+  bans: {
+    introTitle: 'Novità: escludere una categoria',
+    introLead: 'Hai sette categorie. Ce n’è una che ti annoia? Escludila: non uscirà più nelle tue partite. Puoi cambiare idea quando vuoi, proprio qui.',
+    introOk: 'Capito',
+    lead: 'Una categoria esclusa non esce più nelle tue partite (le sfide tengono le loro).',
+    ban: 'Escludi',
+    unban: 'Ripristina',
+    banned: 'Esclusa',
+    full: 'Devono restare in gioco almeno cinque categorie.',
+  },
+
+  plus: {
+    title: 'Riservato ai membri Premium',
+    ban: 'Escludere più di una categoria è riservato ai membri Premium.',
+    peek: 'Rivelare altre parole è riservato ai membri Premium.',
+    join: 'Passa a Premium per 0 €',
+    free: '(per ora è gratis!)',
+    later: 'Più tardi',
+    badge: 'Premium',
+  },
+
+  peek: {
+    title: 'Cosa avresti potuto scrivere',
+    hint: (left: number) =>
+      left === Infinity ? 'Tocca una banda per rivelare la parola.' : `Tocca una banda per rivelare la parola · ancora ${left}`,
+    reveal: (category: string, letter: string) => `Rivela una parola con ${letter}: ${category}`,
+  },
+
   update: {
     title: 'Nuova versione',
     lead: 'Una versione più recente di Lettre Minute ti aspetta sul Play Store.',
@@ -618,7 +704,7 @@ export const it: Messages = {
     sports: ['Sport', 'Discipline e pratiche'],
     'corps-humain': ['Parti del corpo', 'Dalla testa ai piedi'],
     matieres: ['Materiali ed elementi', 'Legno, ferro, ossigeno, fuoco…'],
-    capitales: ['Città', 'Tra le 5 più grandi del loro paese'],
+    capitales: ['Grandi città', 'Capitali e città oltre i 100 000 abitanti'],
     marques: ['Marchi', 'Marchi noti'],
     prenoms: ['Nomi propri', 'Di qui e d’altrove, da Giulia a Mohammed'],
     objets: ['Oggetti di uso quotidiano', 'Quel che si trova in casa o in borsa'],

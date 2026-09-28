@@ -41,15 +41,31 @@ export interface Pull {
    * another one may still be reading the old file.
    */
   version?: number
+  /**
+   * With `largestCities`: these countries — GeoNames' ISO codes — also keep
+   * every city from `minCityPopulation` up, not only their largest.
+   */
+  cityCountries?: readonly string[]
+  minCityPopulation?: number
 }
 
 /**
- * The category says « among the five largest of its country », but a country
- * of this many people keeps its ten largest: a player who names Charleroi or
- * Porto Alegre has not cheated. Luxembourg and Singapore stay at five.
+ * A country of this many people keeps its ten largest cities, a smaller one
+ * its five: a player who names Charleroi or Porto Alegre has not cheated.
+ * Luxembourg and Singapore stay at five.
  */
 export const LARGE_COUNTRY_POPULATION = 8_000_000
 export const CITIES_PER_COUNTRY = { large: 10, small: 5 }
+
+/**
+ * The ten countries the game's seven languages are spoken in, and the
+ * population from which their cities are all kept. A top-ten list leaves out
+ * the city a player answers without thinking — Villeurbanne, Coventry,
+ * Sabadell — where the rest of the world would only bring in towns nobody
+ * can name.
+ */
+export const BIG_CITY_COUNTRIES = ['BE', 'FR', 'DE', 'NL', 'ES', 'BR', 'PT', 'GB', 'IE', 'IT'] as const
+export const BIG_CITY_POPULATION = 100_000
 
 /** The language a query reads its labels in, and the Wikipedia it trusts for titles. */
 export interface Scope {
@@ -182,6 +198,18 @@ export const PULLS: readonly Pull[] = [
 }`,
   },
   { id: 'largest-cities', of: 'Q515', largestCities: true, version: 2 },
+  // The largest of each country are not enough for the ones the game is
+  // played in: the player names the city next door, which no top-ten list
+  // holds. Kept as its own pull, so the day the ten countries change — or
+  // the floor moves — only this one query is paid for again.
+  {
+    id: 'big-cities',
+    of: 'Q515',
+    largestCities: true,
+    cityCountries: BIG_CITY_COUNTRIES,
+    minCityPopulation: BIG_CITY_POPULATION,
+    version: 2,
+  },
   // Iron, copper, bronze, and every alloy. No class of "material" will do:
   // "material" has food as a subclass, "building material" windows and menhirs.
   { id: 'metals', of: 'Q11426', subclass: true },

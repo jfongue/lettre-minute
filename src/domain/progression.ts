@@ -54,6 +54,13 @@ export interface Profile {
   bestScore: number
   wordsFound: number
   bestCombo: number
+  /**
+   * Words this player got into the dictionary, counted from their accepted
+   * proposals. The server alone decides an acceptance, so the count is mirrored
+   * from `my_submissions` whenever it is read; the profile keeps it so the
+   * avatar unlocks it feeds still hold offline.
+   */
+  wordsAdded: number
   /** Normalized word → times answered, all runs. Feeds the rarity decay. */
   usage: Readonly<Record<string, number>>
   /** Categories picked at level ups, on top of the starters. */
@@ -80,6 +87,16 @@ export interface Profile {
   equipped: readonly string[]
   /** `runs` when the game last asked for support (`supportDue`); 0 before it ever did. */
   supportAskedAt: number
+  /** `runs` when the game last asked for an opinion (`feedbackDue`); 0 before it ever did. */
+  feedbackAskedAt: number
+  /** Owned categories the player keeps out of their solo runs (`bannedOf`), oldest first. */
+  banned: readonly string[]
+  /** 1 once the player has read what a ban does; the categories wear a dot until then. */
+  banIntroSeen: number
+  /** Hidden answers of the summary uncovered so far (`FREE_PEEKS`). */
+  peeks: number
+  /** When the player went Premium; 0 if they never did. */
+  plusSince: number
 }
 
 export const NEW_PROFILE: Profile = {
@@ -88,6 +105,7 @@ export const NEW_PROFILE: Profile = {
   bestScore: 0,
   wordsFound: 0,
   bestCombo: 0,
+  wordsAdded: 0,
   usage: {},
   unlocked: [],
   gifted: [],
@@ -99,6 +117,11 @@ export const NEW_PROFILE: Profile = {
   lastPowerOffer: [],
   equipped: [],
   supportAskedAt: 0,
+  feedbackAskedAt: 0,
+  banned: [],
+  banIntroSeen: 0,
+  peeks: 0,
+  plusSince: 0,
 }
 
 export interface RunOutcome {

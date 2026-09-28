@@ -5,6 +5,7 @@ import { fetchFriends } from '../lib/cloud'
 import { Avatar } from './Avatar'
 import { PlayerName } from './PlayerSheet'
 import { useCountUp } from './useCountUp'
+import { useHiddenTaps } from './useHiddenTaps'
 
 const BOARDS: readonly BoardId[] = ['day', 'week', 'discoveries']
 
@@ -19,6 +20,10 @@ interface BoardsProps {
   me: string | null
   /** Places the last run won on the day's board: the player's line climbs them, once. */
   climbed?: number
+  /** Opens the leaderboards page: from the title, or by swiping past the last board. */
+  onAll?(): void
+  /** Cinq tapes rapprochés sur « Classement » : la même page, en mode débug. */
+  onHidden?(): void
 }
 
 /**
@@ -26,11 +31,17 @@ interface BoardsProps {
  * browser's own, with its momentum and its accessibility, and the tabs above
  * scroll it for those who tap rather than swipe.
  */
-export function Boards({ boards, me, climbed = 0 }: BoardsProps) {
+export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps) {
   const t = useT()
   const track = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
   const [whole, setWhole] = useState(false)
+  // Le mot « Classement » ouvre la page ; cinq tapes rapprochées l'ouvrent en
+  // mode débug. Le compte survit au tiroir qui s'ouvre et se referme entre
+  // deux tapes : la planche passe par le même geste, sans le dire.
+  const tapTitle = useHiddenTaps()
+  // Snapping onto the onward page fires several scroll events: it opens once.
+  const leaving = useRef(false)
   const [friends, setFriends] = useState<readonly string[]>([])
   useEffect(() => {
     let live = true
@@ -39,6 +50,19 @@ export function Boards({ boards, me, climbed = 0 }: BoardsProps) {
       live = false
     }
   }, [me])
+
+  const follow = (element: HTMLDivElement) => {
+    const page = Math.round(element.scrollLeft / element.clientWidth)
+    setActive(Math.min(BOARDS.length - 1, page))
+    if (page < BOARDS.length) leaving.current = false
+    // Only once the onward page is all but in: a swipe let go halfway snaps back.
+    else if (onAll && !leaving.current && element.scrollLeft >= (BOARDS.length - 0.1) * element.clientWidth) {
+      leaving.current = true
+      onAll()
+      // Back on the last board for when the page closes over the home screen.
+      element.scrollTo({ left: (BOARDS.length - 1) * element.clientWidth })
+    }
+  }
 
   const show = (index: number) => {
     const element = track.current
@@ -49,7 +73,20 @@ export function Boards({ boards, me, climbed = 0 }: BoardsProps) {
   return (
     <section className="panel boards" data-no-swipe>
       <div className="spread">
-        <p className="section-title">{t.boards.title}</p>
+        {onAll ? (
+          <button
+            type="button"
+            className="section-title challenge-past"
+            onClick={() => {
+              if (onHidden && tapTitle()) onHidden()
+              else onAll()
+            }}
+          >
+            {t.boards.title}
+          </button>
+        ) : (
+          <p className="section-title">{t.boards.title}</p>
+        )}
         <p className="note">{t.boards[BOARDS[active]].caption}</p>
       </div>
 
@@ -71,10 +108,8 @@ export function Boards({ boards, me, climbed = 0 }: BoardsProps) {
       <div
         className="board-track"
         ref={track}
-        onScroll={(event) => {
-          const element = event.currentTarget
-          setActive(Math.min(BOARDS.length - 1, Math.round(element.scrollLeft / element.clientWidth)))
-        }}
+        onScroll={(event) => follow(event.currentTarget)}
+        onScrollEnd={(event) => follow(event.currentTarget)}
       >
         {BOARDS.map((board) => {
           const focused = focusedRows(boards[board], me ? [me, ...friends] : friends)
@@ -125,12 +160,20 @@ export function Boards({ boards, me, climbed = 0 }: BoardsProps) {
             </div>
           )
         })}
+        {onAll && (
+          <div className="board board-onward">
+            <button type="button" className="btn btn--blue" onClick={onAll}>
+              {t.boards.all} ›
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="board-dots" aria-hidden="true">
         {BOARDS.map((board, index) => (
           <span key={board} className={`board-dot${active === index ? ' board-dot--on' : ''}`} />
         ))}
+        {onAll && <span className="board-dot board-dot--onward" />}
       </div>
     </section>
   )

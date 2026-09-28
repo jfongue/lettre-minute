@@ -15,6 +15,11 @@ n'écrit rapportent le plus.
   Wiktionnaire ; les autres langues, le Wiktionary anglais par Wiktextract.
 - **Catégories fermées et stables** (pays, animaux, couleurs, métiers…) : pas de
   films ni de célébrités, qu'un dictionnaire ne peut pas arbitrer.
+- **Le tirage écoute la foule** : un couple lettre + catégorie que les joueurs
+  quittent sans rien écrire s'efface peu à peu du tirage, sans jamais en
+  disparaître ; un couple qu'ils réussissent y revient, et d'autant plus qu'il
+  était rare. Chaque partie rapporte les couples qu'elle a quittés — jamais un
+  défi, dont le tirage doit rester le même pour tout le monde.
 - **Rien n'est révélé pendant la frappe** : le champ nomme le mot seulement
   quand il est écrit juste, dit « à une lettre près » sans nommer la
   correction, et les points comme la rareté n'apparaissent qu'à la validation.
@@ -52,8 +57,11 @@ n'écrit rapportent le plus.
   une fois). Chacun a sa couleur, son
   icône, son geste et son son, qu'on entend en touchant sa carte.
 - **Fin de partie en deux temps** : le score, puis chaque mot trouvé, un par
-  un ; ensuite l'XP qui monte, la catégorie puis le pouvoir à choisir, les
-  nouveautés d'avatar et le résumé.
+  un — un mot que le joueur a lui-même fait entrer au dictionnaire s'y signale
+  d'une marque discrète, comme dans le champ à la validation ; ensuite l'XP qui
+  monte, la catégorie puis le pouvoir à choisir, les nouveautés d'avatar et le
+  résumé, qui relit les mots proposés pendant la partie pour les corriger ou
+  retirer la demande tant qu'elle attend.
 - **Compte et avatar** : après une partie, le joueur anonyme peut créer un
   compte (nom, adresse, mot de passe) ou se connecter, et la partie y entre
   aussitôt. L'avatar est une tuile de l'affiche — cent formes animées, trente
@@ -61,8 +69,17 @@ n'écrit rapportent le plus.
 - **Classements** : meilleure partie du jour, de la semaine, et mots découverts
   cette semaine — un mot que personne n'avait écrit dans la catégorie depuis
   sept jours. On passe de l'un à l'autre d'un glissement du doigt. Seuls les
-  comptes nommés y figurent ; Demontoon y tient 94 points chaque jour tant
-  qu'il n'a pas joué.
+  comptes nommés y figurent, et jamais les joueurs maison du serveur
+  (Maxitoon, Terretciel) ; Demontoon y tient 94 points chaque jour tant
+  qu'il n'a pas joué. Le titre, un glissement après le troisième tableau ou
+  le lien des statistiques ouvrent la page des classements : meilleure
+  partie, points, parties, mots trouvés, découvertes, série et mots ajoutés,
+  chacun du jour, de la semaine ou au total, avec podium, ex æquo au même
+  rang et la place du joueur même au-delà des cinquante premiers. Cinq tapes
+  sur le mot « Classement » ouvrent les classements avancés — quels pouvoirs
+  les parties portent et ce qu'ils rapportent, les parties et les nouveaux
+  comptes par heure, par jour ou par semaine, et les couples lettre + thème
+  les plus rentables ou les plus quittés —, un mode débug que rien n'annonce.
 - **Menu** : la tuile en haut à gauche de l'affiche (ou un glissement du doigt vers la droite) ouvre le profil (compte,
   avatar, effacement), le social (amis par nom de compte, demandes reçues et
   envoyées, score de la semaine de chacun) et les options (thème auto, clair
@@ -82,7 +99,10 @@ n'écrit rapportent le plus.
   volume dans les options ; sur le web, une sourdine attend en bas à droite.
 - **Mot manquant** : le joueur le propose en un clic ; validé par trois
   modérateurs, il entre au dictionnaire et rapporte 150 XP à chacun de ceux
-  qui l'ont proposé. Une pastille sur « Mes demandes » l'annonce à l'accueil.
+  qui l'ont proposé. Une pastille sur « Mes demandes » l'annonce à l'accueil, et
+  le mot revient dans les parties de celui qui l'a fait entrer, marqué comme le
+  sien. « Ajoutés grâce à toi » en montre les dix derniers, un « Voir plus »
+  dépliant l'archive.
 - **Défis entre amis** : de deux à huit joueurs, chacun joue la même partie
   (même graine, mêmes catégories — le chef les choisit parmi les siennes, et
   décide si les pouvoirs sont permis) quand il veut, dans les 24 heures qui
@@ -134,6 +154,7 @@ npm run dev          # serveur de dev (honore $PORT)
 npm test             # domaine, état et dictionnaires — Vitest, doit rester vert
 npm run lint         # oxlint
 npm run build        # tsc -b puis vite build
+npm run debug:recent # surligne les planches debug touchées depuis les deux dernières versions livrées
 npm run import:words # régénère src/data/words/fr/ (Wikidata, Wiktionnaire, Lexique, wordfreq, Wikipédia)
 npm run import:words -- --lang=de # idem pour une autre langue (en, es, de, it, nl, pt)
 npm run import:names # régénère prenoms, identique dans les sept langues (Wikidata, wordfreq)
@@ -142,6 +163,10 @@ npm run android:sync # build web puis copie dans le projet Android
 npm run android:bundle # .aab signé pour le Play Store
 npm run testers:invite # inscrit testeurs Play les adresses invitées depuis le jeu, puis leur envoie le mail (--login une fois, --watch, --preview)
 ```
+
+Le dépôt public `jfongue/lettre-minute` porte le code sur `main` et le site sur
+`gh-pages` : c'est cette branche-là que GitHub Pages sert, et `scripts/publish-web.sh`
+n'écrit jamais ailleurs — un `git push` depuis `main` ne peut donc pas casser le site.
 
 L'application Android (et iOS plus tard) est le même jeu emballé par Capacitor :
 voir [`docs/publication-android.md`](docs/publication-android.md).
@@ -264,6 +289,9 @@ malachite très rare.
 - `src/lib/` — Supabase : profil, parties, usage global des mots, propositions,
   effacement du compte ; `native.ts` pour ce qui parle au téléphone.
 - `src/ui/` — un composant par écran.
+- `src/debug/` — la planche de développement, et les classements avancés
+  qu'un geste caché ouvre : des écrans réels, des données inventées ou
+  agrégées, jamais un mot écrit sur le serveur.
 - `scripts/` — l'import : Wikidata et le Wiktionnaire pour les mots, Lexique
   (français) ou Wiktextract (autres langues) pour les formes fléchies, wordfreq
   et la Wikipédia de la langue pour la notoriété. `languages.ts` dit ce qui

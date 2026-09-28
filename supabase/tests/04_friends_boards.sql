@@ -124,6 +124,30 @@ select tests.login_anon();
 select tests.throws($$select * from public.leaderboard_board('day')$$, 'a request with no session reads no board', '42501');
 select tests.logout();
 
+-- --------------------------------------------------------- house bots --
+
+-- They play every hour (0006) and their runs are really there; no board
+-- shows one of them (0024). Read before the login: RLS shows a player only
+-- his own runs.
+insert into public.runs (player_id, seed, score, words, created_at)
+select b.id, 1, 999, 4, now() from public.bots b;
+
+select tests.ok(exists (select 1 from public.runs r join public.bots b on b.id = r.player_id where r.score = 999),
+                'house bots do play');
+
+select tests.login('la');
+select tests.ok(not exists (select 1 from public.leaderboard_board('day') d
+                              join public.profiles p on p.display_name = d.display_name
+                              join public.bots b on b.id = p.id),
+                'no house bot on the day board');
+select tests.ok(not exists (select 1 from public.leaderboard_board('week') d
+                              join public.profiles p on p.display_name = d.display_name
+                              join public.bots b on b.id = p.id),
+                'nor on the week one');
+select tests.ok(not exists (select 1 from public.leaderboard where id in (select id from public.bots)),
+                'nor on the record board');
+select tests.logout();
+
 -- ---------------------------------------------------------- discoveries --
 
 select tests.run_at('lb', now() - interval '3 days', 10, array['x-seen']);

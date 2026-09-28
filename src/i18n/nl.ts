@@ -85,6 +85,9 @@ export const nl: Messages = {
     newRecord: 'nieuw record',
     record: 'record',
     dayBoard: 'Klassement van vandaag',
+    mineNote: (count) => `waarvan ${count} ${plural(count, 'woord dat jij in het woordenboek kreeg', 'woorden die jij in het woordenboek kreeg')}`,
+    proposals: 'Voorgestelde woorden',
+    proposalsLead: 'Je stelde ze voor tijdens dit spel: zolang ze wachten kun je de spelling verbeteren of het voorstel intrekken.',
     keepTitle: 'Bewaar dit spel',
     keepLead: 'Maak een account of log in: dit spel en al je voortgang gaan er meteen in.',
     savedTo: ['Spel opgeslagen in het account ', ''],
@@ -169,6 +172,26 @@ export const nl: Messages = {
     held: (place) => `Nog steeds ${place}`,
     more: (count) => `Hele klassement bekijken (${count})`,
     less: 'Minder tonen',
+    all: 'Alle klassementen',
+  },
+
+  leaderboards: {
+    periods: { day: 'Dag', week: 'Week', all: 'Totaal' },
+    stats: {
+      best: { label: 'Beste spel', caption: 'De hoogste score in één spel', unit: () => 'ptn' },
+      points: { label: 'Punten', caption: 'Alle punten, spel na spel', unit: () => 'ptn' },
+      runs: { label: 'Spellen', caption: 'Hoeveel spellen er gespeeld zijn', unit: (count) => plural(count, 'spel', 'spellen') },
+      words: { label: 'Gevonden woorden', caption: 'Alle goede woorden, spel na spel', unit: (count) => plural(count, 'woord', 'woorden') },
+      discoveries: { label: 'Ontdekkingen', caption: 'Woorden die een week lang niemand had geschreven', unit: (count) => plural(count, 'woord', 'woorden') },
+      combo: { label: 'Reeks', caption: 'De langste reeks woorden achter elkaar', unit: (count) => plural(count, 'woord', 'woorden') },
+      added: { label: 'Toegevoegde woorden', caption: 'Voorgesteld en goedgekeurd door de moderatoren', unit: (count) => plural(count, 'woord', 'woorden') },
+    },
+    empty: { day: 'Vandaag staat er nog niemand op.', week: 'Deze week staat er nog niemand op.', all: 'Er staat nog niemand op.' },
+    offline: 'Het klassement antwoordt nu niet.',
+    retry: 'Opnieuw proberen',
+    you: 'Jouw plaats',
+    absent: 'Je staat er nog niet op: jij bent aan de beurt.',
+    anonymous: 'Maak een account om in de klassementen te komen.',
   },
 
   menu: {
@@ -185,7 +208,7 @@ export const nl: Messages = {
     accountLead: 'Je spellen volgen je van het ene apparaat naar het andere, je naam komt in het klassement en je vrienden kunnen je vinden.',
     offline: 'Offline: je voortgang blijft op dit apparaat.',
     back: 'Terug',
-    pages: { stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Mijn categorieën' },
+    pages: { stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Mijn categorieën', boards: 'Klassementen' },
     support: 'Steun de maker',
   },
 
@@ -237,6 +260,27 @@ export const nl: Messages = {
     },
     blocked: 'Geblokkeerd',
     unblock: 'Deblokkeren',
+    versus: (mine, theirs, name, count) => `Jij ${mine} – ${theirs} ${name} · ${count} ${plural(count, 'duel', 'duels')}`,
+    noShared: 'Nog geen duel samen',
+    openFriend: (name) => `Pagina van ${name} openen`,
+    faceOff: 'Onderling',
+    won: (count) => plural(count, 'winst', 'winsten'),
+    tied: (count) => plural(count, 'gelijkspel', 'gelijkspelen'),
+    lost: (count) => plural(count, 'verlies', 'verliezen'),
+    myPoints: 'jouw punten',
+    theirPoints: 'hun punten',
+    together: 'Duels samen',
+    togetherNone: 'Nog geen duel samen.',
+    settling: 'Balans wordt berekend…',
+    historyFailed: 'Jullie duels kunnen nu niet geladen worden.',
+    players: (count) => `${count} ${plural(count, 'speler', 'spelers')}`,
+    outcomes: { won: 'Gewonnen', lost: 'Verloren', tie: 'Gelijk', open: 'Bezig', void: 'Telt niet' },
+    rank: (rank) => `${rank}e`,
+    you: 'Jij',
+    notPlayed: (name) => `${name} heeft niet gespeeld`,
+    youNotPlayed: 'Je hebt niet gespeeld',
+    challengeFriend: 'Duel starten',
+    removeNamed: (name) => `${name} verwijderen`,
   },
 
   stats: {
@@ -277,9 +321,13 @@ export const nl: Messages = {
     added: 'Toegevoegd dankzij jou',
     addedNote: (xp) => `${xp} XP verdiend per woord.`,
     noneAdded: 'Nog geen: een woord komt erin zodra drie moderators het hebben goedgekeurd.',
+    more: (count: number) => `Meer tonen (${count})`,
+    less: 'Minder tonen',
     fresh: 'nieuw',
     locked: 'wordt beoordeeld',
     pending: 'In afwachting',
+    mine: 'jouw woord',
+    entered: 'in het woordenboek opgenomen',
     queued: 'nog niet verstuurd',
     rejected: (count) => `Afgewezen (${count})`,
     correct: 'Verbeteren',
@@ -297,8 +345,6 @@ export const nl: Messages = {
     superLead: 'Jouw woord is genoeg: een woord dat jij goed noemt komt er meteen in, en speciale gevallen wachten alleen op supermoderators.',
     progress: (done, needed) =>
       `${Math.min(done, needed)} / ${needed} onbetwist goedgekeurde woorden om supermoderator te worden`,
-    waiting: (count) =>
-      count === 0 ? 'Er wacht nu geen enkel woord.' : `${count} ${count > 1 ? 'woorden wachten' : 'woord wacht'} op je oordeel`,
     start: (size) => `Sessie starten · ${size} woorden`,
     offer: {
       title: 'Word moderator!',
@@ -406,6 +452,8 @@ export const nl: Messages = {
           return `${milestone.at} woorden gevonden`
         case 'bestCombo':
           return `een reeks van ${milestone.at}`
+        case 'wordsAdded':
+          return `${milestone.at} ${plural(milestone.at, 'toegevoegd woord', 'toegevoegde woorden')}`
       }
     },
   },
@@ -599,6 +647,44 @@ export const nl: Messages = {
     yes: 'Ja, aanzetten',
   },
 
+  feedback: {
+    title: 'Jouw mening telt!',
+    lead: 'Je hebt al flink wat rondes gespeeld. Wat vind je leuk, wat mis je, wat stoort je? De maker leest alles.',
+    placeholder: 'Wat je ervan vindt…',
+    send: 'Versturen',
+    later: 'Later',
+    sent: 'Bedankt! Je mening is onderweg.',
+    failed: 'Je mening is niet verstuurd. Controleer je verbinding en probeer het opnieuw.',
+  },
+
+  bans: {
+    introTitle: 'Nieuw: een categorie weren',
+    introLead: 'Je hebt zeven categorieën. Is er een die je niet leuk vindt? Weer hem: hij komt niet meer voor in je rondes. Je kunt je keuze hier altijd weer veranderen.',
+    introOk: 'Begrepen',
+    lead: 'Een geweerde categorie komt niet meer voor in je rondes (uitdagingen houden hun eigen categorieën).',
+    ban: 'Weren',
+    unban: 'Terugzetten',
+    banned: 'Geweerd',
+    full: 'Er moeten minstens vijf categorieën in het spel blijven.',
+  },
+
+  plus: {
+    title: 'Alleen voor Premium',
+    ban: 'Meer dan één categorie weren is voorbehouden aan Premium-leden.',
+    peek: 'Meer woorden onthullen is voorbehouden aan Premium-leden.',
+    join: 'Word Premium voor € 0',
+    free: '(voorlopig is het gratis!)',
+    later: 'Later',
+    badge: 'Premium',
+  },
+
+  peek: {
+    title: 'Wat je had kunnen schrijven',
+    hint: (left: number) =>
+      left === Infinity ? 'Tik op een balk om het woord te onthullen.' : `Tik op een balk om het woord te onthullen · nog ${left}`,
+    reveal: (category: string, letter: string) => `Een woord met ${letter} onthullen: ${category}`,
+  },
+
   update: {
     title: 'Nieuwe versie',
     lead: 'Een nieuwere versie van Lettre Minute wacht op je in de Play Store.',
@@ -617,7 +703,7 @@ export const nl: Messages = {
     sports: ['Sporten', 'Disciplines en bezigheden'],
     'corps-humain': ['Lichaamsdelen', 'Van top tot teen'],
     matieres: ['Materialen en elementen', 'Hout, ijzer, zuurstof, vuur…'],
-    capitales: ['Steden', 'Bij de 5 grootste van hun land'],
+    capitales: ['Grote steden', 'Hoofdsteden en steden vanaf 100.000 inwoners'],
     marques: ['Merken', 'Bekende merken'],
     prenoms: ['Voornamen', 'Van hier en elders, van Emma tot Mohammed'],
     objets: ['Alledaagse voorwerpen', 'Wat je thuis of in je tas vindt'],

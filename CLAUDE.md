@@ -32,6 +32,17 @@ qu'un nouvel arrivant casserait sans le savoir.
   ne revient pas dans la même partie, et ce verrou passe avant le changement
   de catégorie. Il n'y a plus de jeu de lettres par langue : c'est le
   dictionnaire qui dit quelles lettres existent.
+- **Le tirage écoute aussi la foule** (`Judge.pull`, `src/domain/prompts.ts`) :
+  un couple que les joueurs quittent sans rien écrire s'efface peu à peu, un
+  couple qu'ils réussissent revient — jamais jusqu'à zéro, et jamais sur trois
+  parties. Ce sont les compteurs de `prompt_stats`, que `pushRun` rapporte par
+  partie (`promptOutcomes`, une fois par graine), avec les points et les mots
+  que chaque couple a rendus — les classements avancés les lisent, le tirage
+  jamais. Là encore, **jamais un défi ni une
+  partie de robot**, qui se rejouent sur chaque appareil et dont le tirage doit
+  rester fonction de la graine et des dictionnaires embarqués seuls. Un couple
+  quitté se lit dans `Run.settled`, pas dans `dealt` — qui est un ensemble, et
+  dont le dernier mot est encore à l'écran.
 - **Les dictionnaires sont des tableaux JSON positionnels chargés à la
   demande** (`src/data/packs.ts`, type `WordRow`). Un objet par mot, avec ses
   clés répétées des dizaines de milliers de fois, doublerait la charge utile ; les tableaux ne
@@ -59,6 +70,17 @@ qu'un nouvel arrivant casserait sans le savoir.
   ont répondu. Un identifiant de taxon se vérifie auprès de l'API Wikidata avant
   d'être écrit dans `scripts/sources.ts` — une classe inexistante renvoie zéro
   ligne sans erreur.
+- **Les villes ne viennent pas de Wikidata mais de GeoNames** (`largestCities`,
+  `scripts/import-words.ts`) : le fichier `cities15000` porte déjà population et
+  pays, là où les classes de ville de Wikidata laissent Paris et Berlin dehors.
+  Chaque pays garde ses cinq plus grandes — dix au-dessus de
+  `LARGE_COUNTRY_POPULATION` —, et les dix pays où le jeu se joue
+  (`BIG_CITY_COUNTRIES`) gardent en plus toutes celles de `BIG_CITY_POPULATION`
+  et plus : c'est ce qui fait sortir Villeurbanne, Coventry ou Sabadell. Cette
+  extension est son propre *pull* (`big-cities`), pour que le jour où la liste
+  des pays ou le seuil bouge, seule cette requête se repaie. La catégorie garde
+  l'identifiant `capitales` sous lequel les profils et `prompt_stats` la
+  connaissent, même si elle s'appelle « Grandes villes ».
 - **Les sitelinks ne mesurent pas la notoriété** : des robots ont écrit un
   article en quarante langues pour chaque espèce et chaque commune. Ils ne
   servent que de repli ; la notoriété vient de wordfreq et des visites de
@@ -82,6 +104,14 @@ qu'un nouvel arrivant casserait sans le savoir.
   il n'existe que chargé du serveur, donc ni hors ligne ni en défi. Commiter
   `scripts/community-words.json` avec les `.json` : c'est lui que relit un
   import sans accès au projet.
+- **Une proposition vit à deux endroits** : la file de l'appareil
+  (`loadSubmissions`) tant que le serveur ne l'a pas vue, puis
+  `word_submissions`. Le bilan de fin de partie corrige et retire dans celui
+  qui la détient — `amend_submission` refuse dès qu'un modérateur a voté — et
+  `session.proposals` ne fait que l'afficher. Les mots que le joueur a
+  lui-même fait entrer se lisent dans ses demandes acceptées
+  (`fetchMySubmissions`), comparées en forme compacte : une marque discrète les
+  signale en partie comme au bilan.
 - **Un alias Wikidata de pays court est un code** (`shortestAlias`), et une
   catégorie de noms (`names`) ne fléchit pas : leurs « formes » sont celles
   d'un homographe. Deux lignes qui se compactent pareil n'en font qu'une
@@ -153,9 +183,16 @@ qu'un nouvel arrivant casserait sans le savoir.
   qu’elle joue ne coûte pas la catégorie. Sans `VITE_ADMOB_INTERSTITIAL_ID` ni
   `admobAppId` (`android/gradle.properties`), le build sert les pubs de test de
   Google — ne jamais cliquer sur les vraies depuis son propre téléphone.
-- **Demontoon est ajouté côté client** (`completeBoards`, `src/domain/boards.ts`),
-  pas en base : il ne figure qu'aux classements de score, et disparaît dès que
-  le compte de ce nom a une vraie partie sur la période.
+- **Demontoon est ajouté côté client** (`completeBoards`, `src/domain/boards.ts`,
+  et `completeLeaderboard` pour la page des classements, qui recompte les
+  rangs), pas en base : il ne figure qu'aux classements de meilleure partie du
+  jour et de la semaine, et disparaît dès que le compte de ce nom a une vraie
+  partie sur la période.
+- **Les joueurs maison sont hors classements** (0024, `bots`) : Maxitoon et
+  Terretciel jouent toujours — la liste d'amis et les défis les lisent —, mais
+  `leaderboard_board`, `leaderboard_stat` et la vue `leaderboard` les écartent
+  par leur compte, jamais par leur nom, qu'un vrai joueur peut porter. Le seul
+  score maison d'un tableau reste Demontoon, ajouté côté client.
 - **Une découverte se juge contre les sept jours qui précèdent la partie**, pas
   contre la semaine calendaire : un mot écrit dimanche soir n'est plus une
   découverte lundi matin.
@@ -194,6 +231,13 @@ qu'un nouvel arrivant casserait sans le savoir.
   quand la file est courte — c'est ce qui fait durer la réserve. Ses mots
   (`scripts/moderation-reserve.json`) doivent manquer aux dictionnaires : un
   mot déjà connu ferait voter les modérateurs pour rien, le script le jette.
+  **Un seul versement par heure, toutes langues confondues** (0023,
+  `moderation_topup`) : l'heure ne ferme que le versement, jamais la
+  modération — les mots versés restent à juger pour tout le monde, et le
+  modérateur bloqué garde son marqueur `moderation_drained` pour renflouer à
+  sa première visite une fois l'heure passée. `src/App.tsx` ne rafraîchit
+  qu'à un versement non nul : les autres découvrent ces mots à leur propre
+  ouverture de l'écran.
 
 - **Les pouvoirs sont des règles du domaine** (`src/domain/powers.ts`,
   `run.ts`), pas des effets d'interface : la partie porte ses pouvoirs et
@@ -214,6 +258,10 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Pouvoirs possédés et portés restent sur l'appareil**, comme les
   catégories : le serveur ne garde que les totaux. Ils se déduisent du niveau
   (`powerPicksOwed`), donc un autre appareil se les voit simplement reproposer.
+  Seule exception, la partie envoyée emporte les pouvoirs qu'elle a joués
+  (`runs.powers`, 0025) : les classements avancés du mode débug en tirent
+  « quels pouvoirs sortent » et ce qu'ils rapportent, et rien d'autre ne les
+  relit. Une partie de robot ou de défi n'en porte aucun.
 
 - **Un défi n'est équitable que si tout le monde tire les mêmes couples** :
   même graine, mêmes catégories, `avoid` vide, et pas de mots de la
@@ -251,6 +299,12 @@ qu'un nouvel arrivant casserait sans le savoir.
   `word:<catégorie>:<clé>`) : le serveur ne calcule pas les trophées. Changer
   un identifiant de trophée ou une clé de mot orpheline les réactions déjà
   données.
+- **Le face-à-face avec un ami se règle sur l'appareil** (`src/state/rivalry.ts`) :
+  le serveur (`friend_challenges`, 0027) ne dit que qui a partagé quel défi.
+  Le score réglé dépend des mots de tous et ceux des robots n'existent que
+  rejoués, d'où un détail chargé et rejoué par défi, un à la fois, puis gardé
+  sur l'appareil une fois le défi clos. Gagner contre un ami, c'est finir
+  devant lui, pas premier.
 - **Un défi ignoré ne l'est que sur l'appareil** (`hideChallenge`,
   `src/state/challenges.ts`), sous une empreinte (joués, clos, revanche) : il
   revient dès qu'elle change. Un bilan lu se masque tout seul et range son
@@ -272,6 +326,23 @@ qu'un nouvel arrivant casserait sans le savoir.
 
 ## Conventions
 
+- **Les idées se lisent dans l'app, pour l'administrateur seul** (0028,
+  `admins`, nommé par son compte) : cinq tapes sur « Boîte à idées » — le
+  bouton qui l'ouvre compte pour la première — ouvrent `src/debug/IdeasAdmin.tsx`.
+  Pour en tirer un backlog, les idées à traiter se lisent avec
+  `supabase db query --linked "select body, lang, source, created_at from ideas where archived_at is null order by created_at"`.
+  La question d'avis (`feedbackDue`, `src/domain/perks.ts`) tombe au retour à
+  l'accueil après la dixième partie, puis toutes les trente.
+- **Bannir une catégorie et Premium vivent dans le profil, sur l'appareil**
+  (`src/domain/perks.ts`) : un ban dès sept catégories, les suivants et plus
+  de cinq mots cachés révélés au récap réservés à Premium, gratuit pour
+  l'instant (`plusSince`). Un ban ne vaut que pour les parties seules : un
+  défi distribue ses propres catégories. Il reste toujours
+  `MAX_CATEGORIES_PER_RUN` catégories jouables.
+- **Le son part fort et la limite le tient** (`MAKEUP_GAIN`, `src/lib/sound.ts`) :
+  le téléphone baisse le volume sur des échantillons 16 bits, et un mixage
+  discret y devenait robotique. Ne pas rabaisser le bus maître pour « calmer »
+  le jeu : c'est le volume du téléphone qui doit le faire.
 - Contenu du jeu (catégories, textes d'interface) en français, avec apostrophe
   typographique (’) ; identifiants et code en anglais.
 - Commentaires réservés au *pourquoi* non évident (contrainte cachée, invariant,
@@ -284,7 +355,8 @@ qu'un nouvel arrivant casserait sans le savoir.
 
 - **Tout écran difficile d'accès a son scénario dans `src/debug/DebugBoard.tsx`**
   (fin de partie avec offre, défi, offre de modérateur, notification…) : dès
-  qu'on en crée un, on l'y ajoute. On l'ouvre par cinq tapes rapides sur
+  qu'on en crée un, on l'y ajoute. Les classements avancés ont le leur
+  (`leaderboards-advanced`). On l'ouvre par cinq tapes rapides sur
   la tuile en haut à droite de l'affiche d'accueil, ou `#debug` sur le web, dans n'importe quel
   build. Elle montre les vrais composants avec des données inventées et
   n'écrit jamais sur le serveur : un écran qui appelle `cloud.ts` pour
@@ -292,3 +364,31 @@ qu'un nouvel arrivant casserait sans le savoir.
   un écran qui charge lui-même ses données se découpe en chargeur + vue
   (`ChallengeScreen` / `ChallengeView`). Outil de développeur : ses
   libellés restent en français, hors de l'i18n.
+- **Le bouton quitter reste à gauche** : le coin haut droit de l'affiche est
+  celui des cinq tapes qui ouvrent la planche, un bouton au même endroit la
+  refermait aussitôt.
+- **Les classements avancés ne lisent ni les robots ni les seuls rapports**
+  (0026) : les joueurs maison jouent toutes les heures par `pg_cron`, et
+  `debug_activity`, `debug_powers` et `debug_pairs` les écartent par leur
+  compte (`bots`). Les deux derniers jours de parties n'ont rien rapporté :
+  `debug_pairs` réunit donc les rapports (`prompt_stats`) et les mots joués
+  des parties absentes de `prompt_reports`, sous `reported = false` — leurs
+  tirages quittés sont inconnus, d'où le « au moins » de l'interface et une
+  part de tirages quittés qui ne se lit que sur les lignes rapportées. Rien
+  n'est écrit dans `prompt_stats`, que le tirage lit.
+- **Les classements avancés vivent sous le même toit** (`src/debug/Insights.tsx`) :
+  cinq tapes rapprochées sur le mot « Classement » — le titre de l'accueil ou
+  celui de la page des classements — les ouvrent sous les sept mesures. Outil
+  de développeur, donc libellés français hors de l'i18n, comme la planche ;
+  les noms de pouvoirs et de catégories viennent de l'interface, qui les a
+  déjà. Le chargeur (`fetchInsights`) et la vue sont séparés, et rien n'est
+  écrit sur le serveur.
+- **Les planches touchées depuis les deux dernières versions livrées sont
+  surlignées** (`npm run debug:recent`) : le script relit les commits
+  « Version X.Y.Z » de git et écrit `src/debug/recent.ts`, à commiter — la
+  planche et le build n'ont donc pas besoin de git. Tout se lit dans `HEAD` :
+  ce qui n'est pas commité n'est pas livré. Un identifiant de planche reste
+  littéral dans `DebugBoard.tsx` (`id: 'moderator-level'`, pas
+  `` `moderator-${reason}` ``), sinon le script ne sait pas le nommer. Une
+  planche est retenue quand un écran de `src/ui/` qu'elle montre a changé, ou
+  quand son propre bloc a changé.

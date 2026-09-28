@@ -424,6 +424,47 @@ button.challenge-past::after {
   animation: spin 24s linear infinite;
 }
 
+/* Les sept tuiles des mots ajoutés : un mouvement chacune, aucun ne rejouant
+   ceux des tuiles déjà en place. Le délai négatif les désynchronise, comme les
+   autres, sans jamais les faire partir ensemble. Deux d'entre eux tournent —
+   `wiggle` et `nod` — mais d'un angle trop court pour faire le tour des
+   orientations d'une forme : c'est `turn` et `spin`, qui les traversent toutes,
+   que la règle écarte des formes dont le tour fait le dessin. */
+.motion-scatter {
+  animation: scatter 6s var(--ease-snap) infinite;
+  animation-delay: calc(var(--i, 0) * -0.7s);
+}
+
+.motion-wiggle {
+  animation: wiggle 3.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+}
+
+.motion-stamp {
+  animation: stamp 2.8s var(--ease-spring) infinite;
+  animation-delay: calc(var(--i, 0) * -0.4s);
+}
+
+.motion-hover {
+  animation: hover 4.5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.6s);
+}
+
+.motion-breathe {
+  animation: breathe-tall 5.5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.3s);
+}
+
+.motion-swing {
+  animation: swing 5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.9s);
+}
+
+.motion-nod {
+  animation: nod 4s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.55s);
+}
+
 /* ---------------------------------------------------------------- blocks - */
 .panel {
   display: grid;
@@ -549,6 +590,10 @@ button.challenge-past::after {
 
 .standing .name {
   font-weight: 600;
+  /* Un nom d'un seul tenant se replie dans sa colonne plutôt que de pousser les
+     points hors de la ligne. */
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .standing .points {
@@ -612,6 +657,8 @@ button.challenge-past::after {
   background: none;
   color: inherit;
   font: inherit;
+  text-align: start;
+  justify-self: start;
   cursor: pointer;
 }
 
@@ -1344,6 +1391,157 @@ button.challenge-past::after {
   box-shadow: inset 3px 0 0 var(--blue);
 }
 
+/* Tapping past the last board, or swiping onto it, opens the leaderboards page. */
+.board-onward {
+  display: grid;
+  place-items: center;
+  min-height: 9rem;
+}
+
+.board-dot--onward {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ink-faint);
+}
+
+/* ---------------------------------------------------------- leaderboards - */
+.leaderboards {
+  display: grid;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.leaderboards-periods .layer-tab {
+  min-height: 2.5rem;
+}
+
+/* The measures scroll sideways under the thumb, the chosen one kept centred. */
+.leaderboards-chips {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding: 0.1rem 0 0.2rem;
+}
+
+.leaderboards-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.leaderboards-chip {
+  appearance: none;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.8rem 0.35rem 0.6rem;
+  border: var(--line) solid var(--ink);
+  background: transparent;
+  font-weight: 700;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease,
+    transform 160ms var(--ease-out);
+}
+
+.leaderboards-chip:active {
+  transform: translateY(2px);
+}
+
+.leaderboards-chip-art {
+  display: inline-flex;
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.leaderboards-chip-art .shape {
+  width: 100%;
+  height: 100%;
+}
+
+.leaderboards-chip--on .leaderboards-chip-art {
+  animation: rise-in 420ms var(--ease-spring);
+}
+
+.leaderboards-track {
+  overflow-y: hidden;
+  transition: height 240ms var(--ease-out);
+}
+
+.leaderboard {
+  display: grid;
+  gap: 0.9rem;
+  align-content: start;
+}
+
+.leaderboard-caption {
+  text-align: center;
+}
+
+.leaderboard-podium .podium-step {
+  min-width: 0;
+}
+
+/* Un nom du top 3 ne plie pas : plié, il fait plus haut que le premier et
+   l'escalier perd sa forme. Il tient donc sur une ligne, s'achève en points de
+   suspension, et les plus longs descendent d'un cran ou deux de corps pour en
+   montrer davantage. La fiche du joueur porte le nom entier. */
+.leaderboard-podium .podium-word {
+  font-size: 0.85rem;
+  /* Le corps du nom change, sa ligne non : sinon un petit corps en première
+     place ferait une carte plus basse que la troisième. */
+  line-height: 1.25rem;
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.leaderboard-podium .podium-word--small {
+  font-size: 0.73rem;
+}
+
+.leaderboard-podium .podium-word--smaller {
+  font-size: 0.63rem;
+}
+
+/* Le nom est un bouton : c'est lui qui porte la coupure, une boîte atomique
+   n'affichant pas les points de suspension de son parent. */
+.leaderboard-podium .podium-word .player-link {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Le liseré de focus serait coupé par cette coupure. */
+.leaderboard-podium .podium-word .player-link:focus-visible {
+  outline-offset: -0.15rem;
+}
+
+.leaderboard-step--me {
+  outline: 3px solid var(--red);
+  outline-offset: 2px;
+}
+
+.leaderboard-me {
+  padding-top: 0.6rem;
+  border-top: var(--line) solid var(--ink);
+  text-align: center;
+}
+
+.leaderboard-me .standing {
+  border-bottom: 0;
+  text-align: start;
+}
+
 /* ------------------------------------------------------------------ menu - */
 .poster-menu {
   appearance: none;
@@ -1593,6 +1791,107 @@ button.challenge-past::after {
 
 .friend-actions .btn--quiet {
   padding-inline: 0.4rem;
+}
+
+.friend--open {
+  appearance: none;
+  width: 100%;
+  border-inline: 0;
+  border-top: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.friend--open:hover,
+.friend--open:focus-visible {
+  background: var(--paper-2);
+}
+
+.friend-chevron {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: square;
+  color: var(--ink-faint);
+}
+
+.friend-page {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.face-off {
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+}
+
+.face-off .figure-value {
+  font-size: clamp(1.4rem, 6.5vw, 2rem);
+}
+
+.face-off-points {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.face-off-points > span {
+  display: grid;
+}
+
+.face-off-points > span:last-child {
+  text-align: right;
+}
+
+.face-off-points strong {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-list.shared-challenges li {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.shared-scores {
+  display: grid;
+  font-variant-numeric: tabular-nums;
+}
+
+.outcome {
+  justify-self: end;
+  padding: 0.1rem 0.45rem;
+  border: 2px solid currentColor;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.outcome--won {
+  color: var(--green);
+}
+
+.outcome--lost {
+  color: var(--red);
+}
+
+.outcome--tie,
+.outcome--open,
+.outcome--void {
+  color: var(--ink-faint);
+}
+
+.friend-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 /* ------------------------------------------------------------ page links - */
@@ -2107,6 +2406,73 @@ button.challenge-past::after {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Une image clé par mouvement des sept tuiles des mots ajoutés : chacune se
+   distingue des cinq mouvements d'origine et des six autres. */
+@keyframes scatter {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes wiggle {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+/* Le point d'exclamation tape : bref, fort, puis long silence. */
+@keyframes stamp {
+  0%,
+  10%,
+  100% {
+    transform: scale(1);
+  }
+  4% {
+    transform: scale(1.22);
+  }
+}
+
+@keyframes hover {
+  0% {
+    transform: translateY(-4%);
+  }
+  100% {
+    transform: translateY(4%);
+  }
+}
+
+@keyframes breathe-tall {
+  to {
+    transform: scaleY(0.86);
+  }
+}
+
+@keyframes swing {
+  0% {
+    transform: rotate(-5deg);
+  }
+  100% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes nod {
+  0% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(3deg);
   }
 }
 
@@ -3417,10 +3783,6 @@ button.challenge-past::after {
   color: var(--black);
 }
 
-.moderation-panel-waiting {
-  font-weight: 700;
-}
-
 /* La session : un paquet de cartes, trois gestes. */
 .moderation {
   gap: 0.9rem;
@@ -3890,13 +4252,16 @@ button.challenge-past::after {
 
 /* La proposition de devenir modérateur : une petite carte qui monte. */
 .offer-pop-layer {
+  /* La carte se borne à ce que la couche laisse : ses deux marges verticales
+     sont nommées pour que .offer-pop puisse s'y mesurer. */
+  --pop-top: var(--gutter);
+  --pop-bottom: max(var(--gutter), env(safe-area-inset-bottom));
   position: fixed;
   inset: 0;
   z-index: 30;
   display: grid;
   place-items: end center;
-  padding: var(--gutter);
-  padding-bottom: max(var(--gutter), env(safe-area-inset-bottom));
+  padding: var(--pop-top) var(--gutter) var(--pop-bottom);
 }
 
 @media (min-width: 40rem) {
@@ -3907,7 +4272,7 @@ button.challenge-past::after {
 
 /* La sourdine du web reste au-dessus de tout : la carte se tient au-dessus d'elle. */
 .stage--muteable .offer-pop-layer {
-  padding-bottom: 4.5rem;
+  --pop-bottom: 4.5rem;
 }
 
 .offer-pop-scrim {
@@ -3920,6 +4285,11 @@ button.challenge-past::after {
 .offer-pop {
   position: relative;
   width: min(26rem, 100%);
+  /* Une carte plus haute que l'écran (une longue annonce de mots, une liste de
+     catégories) défile en elle-même : les boutons du bas restent atteignables. */
+  max-height: calc(100dvh - var(--pop-top) - var(--pop-bottom));
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: grid;
   justify-items: center;
   gap: 0.7rem;
@@ -4481,6 +4851,33 @@ button.challenge-past::after {
   width: 1.5rem;
   height: 1.5rem;
   padding: 0.22rem;
+}
+
+/* Le mot que le joueur a lui-même fait entrer au dictionnaire : une forme, deux
+   mots, et rien de plus — il se glisse à côté du mot, en partie comme au bilan. */
+.mine {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  vertical-align: middle;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--green);
+  white-space: nowrap;
+  animation: pop-in 420ms var(--ease-spring) both;
+}
+
+.mine-shape {
+  width: 0.6rem;
+  height: 0.6rem;
+  flex: none;
+}
+
+.mine-note {
+  color: var(--green);
+  font-weight: 600;
 }
 
 /* Célérité : le mot part comme un éclair. */
@@ -5251,6 +5648,32 @@ button.challenge-past::after {
   background: var(--paper-2);
 }
 
+/* Les planches touchées depuis les deux dernières versions livrées : un liseré
+   et une pastille, pour savoir quoi revérifier en ouvrant la planche. */
+.debug-item--recent {
+  border-color: var(--red);
+  box-shadow: inset 0.3rem 0 0 var(--red);
+}
+
+.debug-flag {
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: var(--red);
+  color: var(--cream);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.debug-note {
+  border-left: 0.3rem solid var(--red);
+  padding-left: 0.6rem;
+}
+
 .debug-scene {
   display: contents;
 }
@@ -6009,7 +6432,16 @@ button.challenge-word[aria-expanded='true'] {
 }
 
 /* The words that entered the dictionary, on opening the game. */
+.words-news {
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+}
+
+/* La liste peut être longue : elle défile dans la carte, les deux boutons
+   restent au bas de la pop. */
 .words-news-list {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   display: grid;
   gap: 0.35rem;
   width: 100%;
@@ -6136,4 +6568,360 @@ button.challenge-word[aria-expanded='true'] {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   animation: pop-in 420ms var(--ease-spring) both;
+}
+
+/* --------------------------------------------------- classements avancés - */
+/* Le mode débug caché : des listes et des barres, sous la page des
+   classements. Rien de la foule d'un tableau : des chiffres et des parts. */
+.insights {
+  border-top: var(--line) solid var(--ink);
+  padding-top: 1rem;
+}
+
+.insight {
+  gap: 0.45rem;
+}
+
+.insight-rows {
+  list-style: none;
+  display: grid;
+}
+
+.insight-row {
+  display: grid;
+  grid-template-columns: 1.4rem 1fr;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.45rem 0.2rem;
+  border-bottom: 1px solid var(--rule);
+  min-width: 0;
+}
+
+.insight-row .rank {
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-faint);
+}
+
+.insight-line {
+  min-width: 0;
+}
+
+.insight-line strong {
+  display: block;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+/* La case survolée : sa ligne de lecture au-dessus, et les autres barres qui
+   s'effacent pour la laisser seule en vue. */
+.insight-readout {
+  min-height: 1.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.insight-readout--on {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Une barre par case : la hauteur dit le nombre, le survol ou le doigt le chiffre. */
+.insight-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 5.5rem;
+  padding: 0.2rem 0;
+  border-bottom: var(--line) solid var(--ink);
+}
+
+.insight-bar {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  min-width: 0;
+  cursor: crosshair;
+  transition: opacity 160ms var(--ease-out);
+}
+
+.insight-chart--held .insight-bar {
+  opacity: 0.45;
+}
+
+.insight-chart--held .insight-bar--on {
+  opacity: 1;
+}
+
+.insight-bar-fill {
+  width: 100%;
+  height: calc(var(--ratio, 0) * 100%);
+  min-height: 2px;
+  transition: height 300ms var(--ease-out);
+}
+
+.insight-bar--on .insight-bar-fill {
+  box-shadow: 0 0 0 1px var(--paper), 0 0 0 2.5px var(--ink);
+}
+
+.insight-chart--runs .insight-bar-fill {
+  background: var(--blue);
+}
+
+.insight-chart--accounts .insight-bar-fill {
+  background: var(--green);
+}
+
+/* ------------------------------------------------- avis, bans, Premium - */
+.feedback-pop textarea {
+  justify-self: stretch;
+  width: 100%;
+  min-height: 6rem;
+  padding: 0.5rem 0.6rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  resize: vertical;
+}
+
+.plus-pop-actions {
+  grid-template-columns: 1fr;
+}
+
+.plus-join {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.plus-free {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.85;
+}
+
+.plus-badge {
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 0.7rem;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.categories--bans li {
+  grid-template-columns: 1.1rem auto 1fr auto;
+}
+
+.category-ban {
+  padding-inline: 0.4rem;
+}
+
+.categories li.category--banned .category-shape {
+  opacity: 0.3;
+}
+
+.categories li.category--banned .category-label {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+
+.category-banned-tag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.3rem;
+  background: var(--red);
+  color: var(--paper);
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+/* Les invites passées du récap : un mot sous une bande noire, qu'une tape arrache. */
+.hidden-answers {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 1.4rem;
+  animation: fade 400ms ease both;
+}
+
+.hidden-answer {
+  grid-template-columns: 1.75rem 1fr;
+}
+
+.peek-bar {
+  position: relative;
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: var(--ink);
+  color: transparent;
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  transform: rotate(-0.6deg);
+  animation: peek-tease 2.8s ease-in-out infinite;
+}
+
+/* Le mot est là, à sa vraie largeur, mais pas lisible : la bande en promet la longueur. */
+.peek-bar-ghost {
+  display: block;
+  padding: 0.05rem 0.35rem;
+  user-select: none;
+}
+
+/* Un reflet passe sur la bande : il y a quelque chose dessous. */
+.peek-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--paper) 35%, transparent) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: peek-shine 2.8s ease-in-out infinite;
+}
+
+.peek-bar:active {
+  transform: scale(0.94) rotate(-0.6deg);
+}
+
+@keyframes peek-tease {
+  0%, 80%, 100% {
+    transform: rotate(-0.6deg);
+  }
+  86% {
+    transform: rotate(1.2deg) scale(1.04);
+  }
+  92% {
+    transform: rotate(-1.4deg) scale(1.02);
+  }
+}
+
+@keyframes peek-shine {
+  0%, 55% {
+    transform: translateX(-120%);
+  }
+  85%, 100% {
+    transform: translateX(120%);
+  }
+}
+
+.peek-word {
+  position: relative;
+  justify-self: start;
+}
+
+.peek-word--torn {
+  color: var(--red);
+  animation: peek-pop 620ms var(--ease-spring) both;
+}
+
+/* La bande part en morceaux depuis le mot. */
+.peek-word--torn::before {
+  content: '';
+  position: absolute;
+  inset: -0.05rem -0.35rem;
+  background: var(--ink);
+  transform-origin: right center;
+  animation: peek-tear 380ms var(--ease-out) both;
+  pointer-events: none;
+}
+
+.peek-shards {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  pointer-events: none;
+}
+
+.peek-shards span {
+  position: absolute;
+  width: 0.45rem;
+  height: 0.3rem;
+  background: var(--ink);
+  animation: peek-shard 640ms var(--ease-out) both;
+  animation-delay: calc(var(--i) * 12ms);
+}
+
+.peek-shards span:nth-child(3n) {
+  background: var(--yellow);
+}
+
+.peek-shards span:nth-child(3n + 1) {
+  background: var(--red);
+}
+
+@keyframes peek-pop {
+  0% {
+    transform: scale(0.6);
+  }
+  55% {
+    transform: scale(1.22) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes peek-tear {
+  0% {
+    transform: scaleX(1) skewX(0);
+  }
+  100% {
+    transform: scaleX(0) skewX(-25deg) translateY(-0.3rem);
+    opacity: 0;
+  }
+}
+
+@keyframes peek-shard {
+  0% {
+    transform: rotate(var(--angle)) translateX(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--angle)) translateX(var(--reach)) rotate(160deg) scale(0.4);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peek-bar,
+  .peek-bar::after,
+  .peek-word--torn,
+  .peek-shards span {
+    animation: none;
+  }
+  .peek-shards {
+    display: none;
+  }
+}
+
+/* Les idées reçues, pour l'administrateur. */
+.ideas-admin {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.ideas-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+}
+
+.idea-item {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.idea-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }

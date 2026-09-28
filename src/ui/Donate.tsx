@@ -4,6 +4,7 @@ import photo from '../assets/jeremy.jpg'
 import { useT } from '../i18n'
 import { DONATION_URL, donationFrameUrl } from '../lib/native'
 import { reducedMotion } from './useCountUp'
+import { useBackDismiss } from './useBackDismiss'
 
 /** The pace of the typing: fast enough to read along, slow enough to feel written. */
 const TYPE_MS = 26
@@ -58,6 +59,7 @@ function DonationPop({ onClose }: { onClose(): void }) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [onClose])
+  useBackDismiss(onClose)
   // Out of its parent: an animated ancestor would pin the layer to itself instead of the window.
   return createPortal(
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-label={t.support.donate}>

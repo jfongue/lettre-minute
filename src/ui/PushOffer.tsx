@@ -1,9 +1,12 @@
 import { useT } from '../i18n'
 import { Shape } from './bauhaus'
+import { useBackDismiss } from './useBackDismiss'
 
 /** Before the phone's own question: said once a friendship lets challenges come in. */
 export function PushOffer({ onNo, onYes }: { onNo(): void; onYes(): void }) {
   const t = useT()
+  // The gesture is the same answer as the scrim: « non », and the next friend asks again.
+  useBackDismiss(onNo)
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="push-offer-title">
       <div className="offer-pop-scrim" onClick={onNo} />

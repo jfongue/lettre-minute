@@ -91,6 +91,9 @@ export const en: Messages = {
     newRecord: 'new record',
     record: 'record',
     dayBoard: 'Today’s leaderboard',
+    mineNote: (count) => `including ${count} you got into the dictionary`,
+    proposals: 'Words you proposed',
+    proposalsLead: 'You proposed them during this game: while they wait, you can fix the spelling or withdraw the request.',
     keepTitle: 'Keep this game',
     keepLead: 'Create an account or sign in: this game and all your progress go into it right away.',
     savedTo: ['Game saved to the account ', ''],
@@ -175,6 +178,26 @@ export const en: Messages = {
     held: (place) => `Still ${place}`,
     more: (count) => `See the full board (${count})`,
     less: 'See less',
+    all: 'All leaderboards',
+  },
+
+  leaderboards: {
+    periods: { day: 'Day', week: 'Week', all: 'All time' },
+    stats: {
+      best: { label: 'Best run', caption: 'The biggest score in a single run', unit: () => 'pts' },
+      points: { label: 'Points', caption: 'Every point scored, run after run', unit: () => 'pts' },
+      runs: { label: 'Runs', caption: 'How many runs were played', unit: (count) => plural(count, 'run', 'runs') },
+      words: { label: 'Words found', caption: 'Every right word, run after run', unit: (count) => plural(count, 'word', 'words') },
+      discoveries: { label: 'Discoveries', caption: 'Words nobody had written for a week', unit: (count) => plural(count, 'word', 'words') },
+      combo: { label: 'Streak', caption: 'The longest string of words in a row', unit: (count) => plural(count, 'word', 'words') },
+      added: { label: 'Words added', caption: 'Words proposed, then approved by the moderators', unit: (count) => plural(count, 'word', 'words') },
+    },
+    empty: { day: 'Nobody on it yet today.', week: 'Nobody on it yet this week.', all: 'Nobody on it yet.' },
+    offline: 'The leaderboard isn’t answering right now.',
+    retry: 'Try again',
+    you: 'Your place',
+    absent: 'You’re not on it yet: your turn to play.',
+    anonymous: 'Create an account to appear on the leaderboards.',
   },
 
   menu: {
@@ -191,7 +214,7 @@ export const en: Messages = {
     accountLead: 'Your games follow you from one device to another, your name enters the leaderboard and your friends can find you.',
     offline: 'Offline: your progress stays on this device.',
     back: 'Back',
-    pages: { stats: 'Statistics', requests: 'My requests', categories: 'My categories' },
+    pages: { stats: 'Statistics', requests: 'My requests', categories: 'My categories', boards: 'Leaderboards' },
     support: 'Support the creator',
   },
 
@@ -243,6 +266,27 @@ export const en: Messages = {
     },
     blocked: 'Blocked',
     unblock: 'Unblock',
+    versus: (mine, theirs, name, count) => `You ${mine} – ${theirs} ${name} · ${count} ${plural(count, 'challenge', 'challenges')}`,
+    noShared: 'No challenge together',
+    openFriend: (name) => `Open ${name}’s page`,
+    faceOff: 'Head to head',
+    won: (count) => plural(count, 'win', 'wins'),
+    tied: (count) => plural(count, 'tie', 'ties'),
+    lost: (count) => plural(count, 'loss', 'losses'),
+    myPoints: 'your points',
+    theirPoints: 'their points',
+    together: 'Challenges together',
+    togetherNone: 'No challenge together yet.',
+    settling: 'Working out the results…',
+    historyFailed: 'Couldn’t load your challenges right now.',
+    players: (count) => `${count} ${plural(count, 'player', 'players')}`,
+    outcomes: { won: 'Won', lost: 'Lost', tie: 'Tie', open: 'Running', void: 'Not counted' },
+    rank: (rank) => { const tens = rank % 100; const s = tens >= 11 && tens <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[rank % 10] ?? 'th'; return `${rank}${s}` },
+    you: 'You',
+    notPlayed: (name) => `${name} didn’t play`,
+    youNotPlayed: 'You didn’t play',
+    challengeFriend: 'Start a challenge',
+    removeNamed: (name) => `Remove ${name}`,
   },
 
   stats: {
@@ -282,9 +326,13 @@ export const en: Messages = {
     added: 'Added thanks to you',
     addedNote: (xp) => `${xp} XP earned for each.`,
     noneAdded: 'None yet: a word gets in once three moderators have approved it.',
+    more: (count: number) => `Show more (${count})`,
+    less: 'Show less',
     fresh: 'new',
     locked: 'under review',
     pending: 'Waiting',
+    mine: 'your word',
+    entered: 'entered the dictionary',
     queued: 'not sent yet',
     rejected: (count) => `Declined (${count})`,
     correct: 'Correct',
@@ -302,8 +350,6 @@ export const en: Messages = {
     superLead: 'Your word is enough: a word you call correct gets in at once, and special cases wait for super moderators only.',
     progress: (done, needed) =>
       `${Math.min(done, needed)} / ${needed} words approved without dispute to become a super moderator`,
-    waiting: (count) =>
-      count === 0 ? 'No word is waiting right now.' : `${count} ${count > 1 ? 'words are' : 'word is'} waiting for you`,
     start: (size) => `Start a session · ${size} words`,
     offer: {
       title: 'Become a moderator!',
@@ -411,6 +457,8 @@ export const en: Messages = {
           return `${milestone.at} words found`
         case 'bestCombo':
           return `a streak of ${milestone.at}`
+        case 'wordsAdded':
+          return `${milestone.at} ${plural(milestone.at, 'word added', 'words added')}`
       }
     },
   },
@@ -604,6 +652,44 @@ export const en: Messages = {
     yes: 'Yes, turn on',
   },
 
+  feedback: {
+    title: 'Your opinion counts!',
+    lead: 'You’ve played quite a few runs now. What do you like, what’s missing, what’s annoying? The creator reads everything.',
+    placeholder: 'What you think…',
+    send: 'Send',
+    later: 'Later',
+    sent: 'Thanks! Your feedback is on its way.',
+    failed: 'Your feedback didn’t go through. Check your connection and try again.',
+  },
+
+  bans: {
+    introTitle: 'New: ban a category',
+    introLead: 'You have seven categories. Is there one you don’t enjoy? Ban it: it won’t come up in your runs any more. You can change your mind whenever you like, right here.',
+    introOk: 'Got it',
+    lead: 'A banned category no longer comes up in your runs (challenges keep their own).',
+    ban: 'Ban',
+    unban: 'Restore',
+    banned: 'Banned',
+    full: 'At least five categories must stay in play.',
+  },
+
+  plus: {
+    title: 'Premium only',
+    ban: 'Banning more than one category is for Premium members only.',
+    peek: 'Revealing more words is for Premium members only.',
+    join: 'Go Premium for €0',
+    free: '(it’s free for now!)',
+    later: 'Later',
+    badge: 'Premium',
+  },
+
+  peek: {
+    title: 'What you could have written',
+    hint: (left: number) =>
+      left === Infinity ? 'Tap a bar to reveal the word.' : `Tap a bar to reveal the word · ${left} left`,
+    reveal: (category: string, letter: string) => `Reveal a word on ${letter}: ${category}`,
+  },
+
   update: {
     title: 'New version',
     lead: 'A newer version of Lettre Minute is waiting for you on the Play Store.',
@@ -622,7 +708,7 @@ export const en: Messages = {
     sports: ['Sports', 'Disciplines and pastimes'],
     'corps-humain': ['Parts of the body', 'From head to toe'],
     matieres: ['Materials and elements', 'Wood, iron, oxygen, fire…'],
-    capitales: ['Cities', 'Among the 5 largest in their country'],
+    capitales: ['Large cities', 'Capitals, and cities of over 100,000 people'],
     marques: ['Brands', 'Well-known brands'],
     prenoms: ['First names', 'From here and elsewhere, from Emma to Mohammed'],
     objets: ['Everyday objects', 'Things found at home or in a bag'],

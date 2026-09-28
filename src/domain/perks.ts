@@ -1,0 +1,130 @@
+import type { Profile } from './progression'
+import { promptKey, type Judge, type Prompt, type Run } from './run'
+import { MAX_CATEGORIES_PER_RUN } from './unlocks'
+
+/** Owned categories from which one may be banned from the draw. */
+export const BAN_UNLOCK_CATEGORIES = 7
+
+/** Bans a player keeps without Premium ; past it, every ban is theirs. */
+export const FREE_BANS = 1
+
+/** Hidden answers of the summary a player may uncover without Premium, over all their runs. */
+export const FREE_PEEKS = 5
+
+/** Runs before the game first asks for the player's opinion, then between two asks. */
+export const FEEDBACK_FIRST_RUNS = 10
+export const FEEDBACK_EVERY_RUNS = 30
+
+export function isPlus(profile: Profile): boolean {
+  return profile.plusSince > 0
+}
+
+/** Premium costs nothing for now: joining is a date written down. */
+export function joinPlus(profile: Profile, now: number): Profile {
+  return isPlus(profile) ? profile : { ...profile, plusSince: now }
+}
+
+export function banUnlocked(ownedIds: readonly string[]): boolean {
+  return ownedIds.length >= BAN_UNLOCK_CATEGORIES
+}
+
+/**
+ * What a ban asks for: `ok` bans at once, `plus` is the free ban already
+ * spent, `full` would leave fewer categories than a run deals.
+ */
+export type BanVerdict = 'ok' | 'plus' | 'full' | 'locked'
+
+export function banVerdict(profile: Profile, ownedIds: readonly string[], categoryId: string): BanVerdict {
+  if (!banUnlocked(ownedIds) || !ownedIds.includes(categoryId)) return 'locked'
+  const banned = bannedOf(profile, ownedIds)
+  if (banned.includes(categoryId)) return 'ok'
+  if (ownedIds.length - banned.length - 1 < MAX_CATEGORIES_PER_RUN) return 'full'
+  if (banned.length >= FREE_BANS && !isPlus(profile)) return 'plus'
+  return 'ok'
+}
+
+export function ban(profile: Profile, ownedIds: readonly string[], categoryId: string): Profile {
+  if (banVerdict(profile, ownedIds, categoryId) !== 'ok' || profile.banned.includes(categoryId)) return profile
+  return { ...profile, banned: [...profile.banned, categoryId] }
+}
+
+export function unban(profile: Profile, categoryId: string): Profile {
+  return profile.banned.includes(categoryId)
+    ? { ...profile, banned: profile.banned.filter((id) => id !== categoryId) }
+    : profile
+}
+
+/**
+ * The bans that still hold: on owned categories, and the free one alone once
+ * Premium is gone — the latest ones give way first.
+ */
+export function bannedOf(profile: Profile, ownedIds: readonly string[]): string[] {
+  if (!banUnlocked(ownedIds)) return []
+  const held = profile.banned.filter((id) => ownedIds.includes(id))
+  const allowed = isPlus(profile) ? held.length : FREE_BANS
+  return held.slice(0, Math.max(0, Math.min(allowed, ownedIds.length - MAX_CATEGORIES_PER_RUN)))
+}
+
+/**
+ * The categories a solo run deals from. A challenge ignores bans: every
+ * player must draw from the same categories.
+ */
+export function playableCategoryIds(profile: Profile, ownedIds: readonly string[]): string[] {
+  const banned = new Set(bannedOf(profile, ownedIds))
+  return ownedIds.filter((id) => !banned.has(id))
+}
+
+/** The ban is there to be learnt: a dot on the categories until the player has read what it does. */
+export function banNews(profile: Profile, ownedIds: readonly string[]): boolean {
+  return banUnlocked(ownedIds) && profile.banIntroSeen === 0
+}
+
+export function markBanIntroSeen(profile: Profile): Profile {
+  return profile.banIntroSeen > 0 ? profile : { ...profile, banIntroSeen: 1 }
+}
+
+export function peeksLeft(profile: Profile): number {
+  return isPlus(profile) ? Infinity : Math.max(0, FREE_PEEKS - profile.peeks)
+}
+
+export function spendPeek(profile: Profile): Profile {
+  if (peeksLeft(profile) <= 0) return profile
+  return { ...profile, peeks: profile.peeks + 1 }
+}
+
+/** A prompt the run left empty, and the word it could have taken. */
+export interface HiddenAnswer {
+  prompt: Prompt
+  display: string
+  /** Professeur already said it: shown as it is, for free. */
+  told: boolean
+}
+
+/**
+ * The prompts the player skipped, each with the best-known word it still
+ * had — what the summary hides under a bar. A pair skipped twice is shown
+ * once; a pair with nothing left is left out.
+ */
+export function hiddenAnswers(run: Run, judge: Judge): HiddenAnswer[] {
+  const seen = new Set<string>()
+  const answers: HiddenAnswer[] = []
+  for (const { prompt, passed } of run.settled) {
+    const key = promptKey(prompt)
+    if (!passed || seen.has(key)) continue
+    seen.add(key)
+    const told = run.missed.find((missed) => promptKey(missed.prompt) === key)
+    const display = told?.display ?? judge.common?.(prompt.categoryId, prompt.letter, run.used) ?? null
+    if (display) answers.push({ prompt, display, told: Boolean(told) })
+  }
+  return answers
+}
+
+/** Whether the next return home asks for the player's opinion: after ten runs, then every thirty. */
+export function feedbackDue(profile: Profile): boolean {
+  if (profile.feedbackAskedAt === 0) return profile.runs >= FEEDBACK_FIRST_RUNS
+  return profile.runs - profile.feedbackAskedAt >= FEEDBACK_EVERY_RUNS
+}
+
+export function markFeedbackAsked(profile: Profile): Profile {
+  return profile.feedbackAskedAt === profile.runs ? profile : { ...profile, feedbackAskedAt: profile.runs }
+}

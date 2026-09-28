@@ -85,6 +85,9 @@ export const de: Messages = {
     newRecord: 'neuer Rekord',
     record: 'Rekord',
     dayBoard: 'Tagesrangliste',
+    mineNote: (count) => `darunter ${count} ${plural(count, 'Wort, das du ins Wörterbuch gebracht hast', 'Wörter, die du ins Wörterbuch gebracht hast')}`,
+    proposals: 'Vorgeschlagene Wörter',
+    proposalsLead: 'Du hast sie in dieser Partie vorgeschlagen: Solange sie warten, kannst du die Schreibweise ändern oder den Vorschlag zurückziehen.',
     keepTitle: 'Behalte diese Partie',
     keepLead: 'Erstelle ein Konto oder melde dich an: Diese Partie und dein ganzer Fortschritt landen sofort darin.',
     savedTo: ['Partie im Konto ', ' gespeichert'],
@@ -169,6 +172,26 @@ export const de: Messages = {
     held: (place) => `Weiter ${place}`,
     more: (count) => `Ganze Rangliste ansehen (${count})`,
     less: 'Weniger anzeigen',
+    all: 'Alle Ranglisten',
+  },
+
+  leaderboards: {
+    periods: { day: 'Tag', week: 'Woche', all: 'Gesamt' },
+    stats: {
+      best: { label: 'Beste Partie', caption: 'Die höchste Punktzahl in einer Partie', unit: () => 'Pkt.' },
+      points: { label: 'Punkte', caption: 'Alle Punkte, Partie für Partie', unit: () => 'Pkt.' },
+      runs: { label: 'Partien', caption: 'Wie viele Partien gespielt wurden', unit: (count) => plural(count, 'Partie', 'Partien') },
+      words: { label: 'Gefundene Wörter', caption: 'Alle richtigen Wörter, Partie für Partie', unit: (count) => plural(count, 'Wort', 'Wörter') },
+      discoveries: { label: 'Entdeckungen', caption: 'Wörter, die seit einer Woche niemand geschrieben hatte', unit: (count) => plural(count, 'Wort', 'Wörter') },
+      combo: { label: 'Serie', caption: 'Die längste Serie von Wörtern am Stück', unit: (count) => plural(count, 'Wort', 'Wörter') },
+      added: { label: 'Neue Wörter', caption: 'Vorgeschlagen und von den Moderatoren bestätigt', unit: (count) => plural(count, 'Wort', 'Wörter') },
+    },
+    empty: { day: 'Heute steht noch niemand darauf.', week: 'Diese Woche steht noch niemand darauf.', all: 'Noch steht niemand darauf.' },
+    offline: 'Die Rangliste antwortet gerade nicht.',
+    retry: 'Erneut versuchen',
+    you: 'Dein Platz',
+    absent: 'Du stehst noch nicht darauf: Jetzt bist du dran.',
+    anonymous: 'Erstelle ein Konto, um in den Ranglisten zu erscheinen.',
   },
 
   menu: {
@@ -185,7 +208,7 @@ export const de: Messages = {
     accountLead: 'Deine Partien begleiten dich von Gerät zu Gerät, dein Name kommt in die Rangliste und deine Freunde können dich finden.',
     offline: 'Offline: Dein Fortschritt bleibt auf diesem Gerät.',
     back: 'Zurück',
-    pages: { stats: 'Statistik', requests: 'Meine Vorschläge', categories: 'Meine Kategorien' },
+    pages: { stats: 'Statistik', requests: 'Meine Vorschläge', categories: 'Meine Kategorien', boards: 'Ranglisten' },
     support: 'Den Entwickler unterstützen',
   },
 
@@ -237,6 +260,27 @@ export const de: Messages = {
     },
     blocked: 'Blockiert',
     unblock: 'Entsperren',
+    versus: (mine, theirs, name, count) => `Du ${mine} – ${theirs} ${name} · ${count} ${plural(count, 'Duell', 'Duelle')}`,
+    noShared: 'Noch kein gemeinsames Duell',
+    openFriend: (name) => `Seite von ${name} öffnen`,
+    faceOff: 'Direktvergleich',
+    won: (count) => plural(count, 'Sieg', 'Siege'),
+    tied: (count) => plural(count, 'Unentschieden', 'Unentschieden'),
+    lost: (count) => plural(count, 'Niederlage', 'Niederlagen'),
+    myPoints: 'deine Punkte',
+    theirPoints: 'ihre Punkte',
+    together: 'Gemeinsame Duelle',
+    togetherNone: 'Noch kein gemeinsames Duell.',
+    settling: 'Bilanz wird berechnet…',
+    historyFailed: 'Eure Duelle lassen sich gerade nicht laden.',
+    players: (count) => `${count} ${plural(count, 'Spieler', 'Spieler')}`,
+    outcomes: { won: 'Gewonnen', lost: 'Verloren', tie: 'Unentschieden', open: 'Läuft', void: 'Nicht gewertet' },
+    rank: (rank) => `${rank}.`,
+    you: 'Du',
+    notPlayed: (name) => `${name} hat nicht gespielt`,
+    youNotPlayed: 'Du hast nicht gespielt',
+    challengeFriend: 'Duell starten',
+    removeNamed: (name) => `${name} entfernen`,
   },
 
   stats: {
@@ -276,9 +320,13 @@ export const de: Messages = {
     added: 'Dank dir aufgenommen',
     addedNote: (xp) => `${xp} XP für jedes.`,
     noneAdded: 'Noch keins: Ein Wort kommt hinein, sobald drei Moderatoren es bestätigt haben.',
+    more: (count: number) => `Mehr zeigen (${count})`,
+    less: 'Weniger anzeigen',
     fresh: 'neu',
     locked: 'wird geprüft',
     pending: 'Ausstehend',
+    mine: 'dein Wort',
+    entered: 'ins Wörterbuch aufgenommen',
     queued: 'noch nicht gesendet',
     rejected: (count) => `Abgelehnt (${count})`,
     correct: 'Korrigieren',
@@ -296,8 +344,6 @@ export const de: Messages = {
     superLead: 'Dein Wort genügt: Ein Wort, das du für richtig hältst, kommt sofort hinein, und Sonderfälle warten nur auf Supermoderatoren.',
     progress: (done, needed) =>
       `${Math.min(done, needed)} / ${needed} unbestritten bestätigte Wörter bis zum Supermoderator`,
-    waiting: (count) =>
-      count === 0 ? 'Gerade wartet kein Wort.' : `${count} ${count > 1 ? 'Wörter warten' : 'Wort wartet'} auf dein Urteil`,
     start: (size) => `Sitzung starten · ${size} Wörter`,
     offer: {
       title: 'Werde Moderator!',
@@ -405,6 +451,8 @@ export const de: Messages = {
           return `${milestone.at} gefundene Wörter`
         case 'bestCombo':
           return `eine Serie von ${milestone.at}`
+        case 'wordsAdded':
+          return `${milestone.at} ${plural(milestone.at, 'hinzugefügtes Wort', 'hinzugefügte Wörter')}`
       }
     },
   },
@@ -598,6 +646,44 @@ export const de: Messages = {
     yes: 'Ja, einschalten',
   },
 
+  feedback: {
+    title: 'Deine Meinung zählt!',
+    lead: 'Du hast schon einige Runden gespielt. Was gefällt dir, was fehlt, was nervt? Der Entwickler liest alles.',
+    placeholder: 'Was du denkst…',
+    send: 'Senden',
+    later: 'Später',
+    sent: 'Danke! Deine Meinung ist unterwegs.',
+    failed: 'Deine Meinung wurde nicht gesendet. Prüfe deine Verbindung und versuche es noch einmal.',
+  },
+
+  bans: {
+    introTitle: 'Neu: eine Kategorie sperren',
+    introLead: 'Du hast sieben Kategorien. Langweilt dich eine davon? Sperr sie: Sie kommt in deinen Runden nicht mehr vor. Du kannst es dir jederzeit hier anders überlegen.',
+    introOk: 'Verstanden',
+    lead: 'Eine gesperrte Kategorie kommt in deinen Runden nicht mehr vor (Duelle behalten ihre eigenen).',
+    ban: 'Sperren',
+    unban: 'Zurückholen',
+    banned: 'Gesperrt',
+    full: 'Mindestens fünf Kategorien müssen im Spiel bleiben.',
+  },
+
+  plus: {
+    title: 'Nur für Premium',
+    ban: 'Mehr als eine Kategorie zu sperren ist Premium-Mitgliedern vorbehalten.',
+    peek: 'Mehr Wörter aufzudecken ist Premium-Mitgliedern vorbehalten.',
+    join: 'Premium werden für 0 €',
+    free: '(im Moment ist es gratis!)',
+    later: 'Später',
+    badge: 'Premium',
+  },
+
+  peek: {
+    title: 'Was du hättest schreiben können',
+    hint: (left: number) =>
+      left === Infinity ? 'Tippe auf einen Balken, um das Wort aufzudecken.' : `Tippe auf einen Balken, um das Wort aufzudecken · noch ${left}`,
+    reveal: (category: string, letter: string) => `Ein Wort mit ${letter} aufdecken: ${category}`,
+  },
+
   update: {
     title: 'Neue Version',
     lead: 'Eine neuere Version von Lettre Minute wartet auf dich im Play Store.',
@@ -616,7 +702,7 @@ export const de: Messages = {
     sports: ['Sportarten', 'Disziplinen und Aktivitäten'],
     'corps-humain': ['Körperteile', 'Von Kopf bis Fuß'],
     matieres: ['Stoffe und Elemente', 'Holz, Eisen, Sauerstoff, Feuer…'],
-    capitales: ['Städte', 'Unter den 5 größten ihres Landes'],
+    capitales: ['Großstädte', 'Hauptstädte und Städte ab 100.000 Einwohnern'],
     marques: ['Marken', 'Bekannte Marken'],
     prenoms: ['Vornamen', 'Von hier und anderswo, von Emma bis Mohammed'],
     objets: ['Alltagsgegenstände', 'Was man zu Hause oder in der Tasche findet'],

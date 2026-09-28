@@ -1,6 +1,6 @@
 # Supabase
 
-Vingt migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Vingt-huit migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -22,16 +22,31 @@ pour la boîte à idées, [`0016_challenge_setup.sql`](migrations/0016_challenge
 pour qu'un défi autorise ou non les pouvoirs, [`0017_challenge_name.sql`](migrations/0017_challenge_name.sql)
 pour nommer un défi, [`0018_gentler_levels.sql`](migrations/0018_gentler_levels.sql)
 pour la courbe d'XP adoucie, [`0019_moderation_reserve.sql`](migrations/0019_moderation_reserve.sql)
-pour la réserve de mots versée aux modérateurs qui ont vidé leur file, et
+pour la réserve de mots versée aux modérateurs qui ont vidé leur file,
 [`0020_tester_invites.sql`](migrations/0020_tester_invites.sql) pour inviter un ami
-par e-mail au test fermé de Play.
+par e-mail au test fermé de Play, [`0021_leaderboards.sql`](migrations/0021_leaderboards.sql)
+pour la page des classements, [`0022_prompt_weight.sql`](migrations/0022_prompt_weight.sql)
+pour les couples lettre + catégorie que les parties des joueurs effacent ou ramènent,
+et [`0023_moderation_topup_cooldown.sql`](migrations/0023_moderation_topup_cooldown.sql)
+pour le renflouage de la file limité à un versement par heure,
+[`0024_bots_off_leaderboards.sql`](migrations/0024_bots_off_leaderboards.sql)
+pour sortir les joueurs maison des classements, et
+[`0025_insights.sql`](migrations/0025_insights.sql) pour les classements
+avancés du mode débug (pouvoirs joués, rythme des parties et des comptes,
+couples les plus rentables ou les plus quittés), et
+[`0026_insights_history.sql`](migrations/0026_insights_history.sql) pour en
+sortir les joueurs maison et y lire les mots joués des parties qui n'ont rien
+rapporté, [`0027_friend_challenges.sql`](migrations/0027_friend_challenges.sql)
+pour l'historique des défis joués avec chaque ami, et
+[`0028_ideas_admin.sql`](migrations/0028_ideas_admin.sql) pour lire, archiver
+et effacer les idées reçues depuis l'app, réservé aux administrateurs.
 
 ## Ce que le serveur détient
 
 | Table | Rôle |
 | --- | --- |
 | `profiles` | XP, niveau, records, avatar, nom de compte (unique, sauf « Anonyme »). Créé automatiquement à la naissance du compte. |
-| `runs` | Une partie terminée : graine, score, série, passes. |
+| `runs` | Une partie terminée : graine, score, série, passes, et les pouvoirs qu'elle a joués. |
 | `run_words` | Les mots d'une partie, forme normalisée — la matière du bonus de rareté. |
 | `daily_challenges` | La graine du jour, la même pour tous : base du classement quotidien. |
 | `dictionary_words` | Le dictionnaire vivant, en complément des fichiers embarqués. |
@@ -41,9 +56,10 @@ par e-mail au test fermé de Play.
 | `moderators` | Les modérateurs, et l'ami qui les a élus. |
 | `moderation_reserve` | Mots évidents que les dictionnaires ignorent, versés au compte-goutte dans la file (`released_at`). |
 | `moderation_drained` | Un modérateur qui a fini sa file dans une langue : sa prochaine visite de « Mes demandes » la complète. |
+| `moderation_topup` | Une seule ligne : l'heure du dernier versement, qui ferme le renflouage pour une heure, toutes langues confondues. |
 | `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |
 | `friendships` | Une ligne par demande d'ami (`pending` puis `accepted`), lue dans les deux sens. |
-| `bots` | Les joueurs maison (Maxitoon, Terretciel) et les bornes de leurs scores. |
+| `bots` | Les joueurs maison (Maxitoon, Terretciel), hors classements, et les bornes de leurs scores. |
 | `challenges` | Un défi entre amis : langue, graine, catégories, chef, et la revanche qui lui fait suite. |
 | `challenge_players` | Un invité par ligne, puis sa partie : score, passes, série, mots en JSON ; ce qu'il a vu (invitation, bilan). |
 | `push_tokens` | Le jeton FCM de chaque téléphone, le compte qui s'y est connecté en dernier, et la langue de ses messages. |
@@ -51,15 +67,64 @@ par e-mail au test fermé de Play.
 | `account_merges` | Jetons à usage unique : versent un compte anonyme dans le compte auquel il se connecte. |
 | `blocks` | Qui a bloqué qui. Bloquer efface l'amitié ; les demandes du bloqué ne sont plus écrites. |
 | `challenge_reactions` | Une réaction (emoji) par joueur et par trophée ou mot du bilan d'un défi. |
-| `ideas` | Une idée envoyée en texte libre par un joueur, vidée une fois par jour par la fonction Edge `ideas`. |
+| `ideas` | Une idée envoyée en texte libre par un joueur, vidée une fois par jour par la fonction Edge `ideas` ; sa provenance (`box` ou `prompt`, la question du retour de partie) et son archivage (`archived_at`). |
+| `admins` | Les comptes qui lisent les idées dans l'app (`admin_ideas`, `archive_idea`, `delete_idea`). Aucune politique : seul `is_admin()` la lit. |
 | `tester_invites` | Une adresse e-mail saisie dans le champ d'ami, en attente d'être inscrite testeur Play puis invitée par `npm run testers:invite`. Aucune politique : jamais relue par un joueur. |
+| `prompt_stats` | Par langue, ce que les parties ont dit de chaque couple lettre + catégorie : combien l'ont tiré, combien l'ont laissé vide, ce qu'il a rapporté en points et en mots. Lu par le tirage du client et par les classements avancés, écrit par la seule fonction `report_prompts`. |
+| `prompt_reports` | Les graines qui ont déjà parlé, pour qu'une partie ne compte qu'une fois. Aucune politique : jamais relu. |
 
-Fonctions de lecture : `leaderboard_board('day' | 'week' | 'discoveries')` — le
+Fonctions d'écriture : `report_prompts(graine, langue, couples)` — le rapport
+d'une partie terminée, une seule fois par graine, borné à trente couples et
+nettoyé de ce qui n'est pas une lettre + une catégorie ; chaque couple y porte
+aussi les points et les mots qu'il a rendus (facultatifs : un client d'avant
+0025 les tait). Fonctions de lecture : `leaderboard_board('day' | 'week' | 'discoveries')` — le
 classement du jour, de la semaine (heure de Paris, semaine du lundi) et des
-découvertes de la semaine ; `my_friends()` — amis et demandes en cours.
+découvertes de la semaine ; `leaderboard_stat(mesure, 'day' | 'week' | 'all')` —
+la page des classements (`best`, `points`, `runs`, `words`, `discoveries`,
+`combo`, `added`), cinquante lignes avec `rank()` et celle du joueur au-delà
+(`extra`) ; `my_friends()` — amis et demandes en cours ; `debug_activity('hour' | 'day' | 'week')`,
+`debug_powers()` et `debug_pairs(langue)` — les classements avancés du mode
+débug, agrégés et sans un nom de joueur.
 
-Vues : `leaderboard` (record de chaque compte nommé), `word_popularity` (part des parties où un mot
+Vues : `leaderboard` (record de chaque compte nommé, joueurs maison écartés), `word_popularity` (part des parties où un mot
 apparaît), `submission_tally` (combien de joueurs réclament un mot).
+
+## Classements avancés
+
+- **Un mode caché, pas un écran public** : cinq tapes sur le mot
+  « Classement » les ouvrent dans l'application. Les trois fonctions ne
+  rendent que des comptes et des moyennes — aucun nom, aucun identifiant — et
+  restent réservées aux joueurs connectés, comme les classements.
+- **Ce que le profil ne garde pas, la partie le dit** (0025) : les pouvoirs
+  possédés et portés restent sur l'appareil, mais chaque partie envoyée
+  emporte ceux qu'elle a joués (`runs.powers`), seule façon de répondre
+  « quels pouvoirs sortent ». Une partie de robot ou de défi n'en porte
+  aucun.
+- **Un couple rend ce qu'il a rapporté** : les deux compteurs du tirage
+  (0022) ne disaient que « tiré » et « quitté » ; `report_prompts` y ajoute
+  les points et les mots de ses réponses. Un couple tiré deux fois dans la
+  même partie ne les compte qu'une fois, sur son premier passage.
+- **Les joueurs maison ne sont pas la foule** (0026) : leurs parties tournent
+  toutes les heures par `pg_cron` — elles gonflaient le rythme du jeu comme si
+  les joueurs veillaient la nuit. Les trois fonctions les écartent par leur
+  compte (`bots`), jamais par leur nom.
+- **L'histoire complète les rapports** : les compteurs de `prompt_stats` ne
+  datent que des clients qui rapportent leurs couples, et des points depuis
+  0025 seulement. `debug_pairs` y réunit donc les mots joués des parties dont
+  aucun rapport n'est arrivé (`prompt_reports` dit lesquelles), avec la lettre
+  que le jeu juge (`prompt_letter`, comme `initialOf` côté client). Ces lignes
+  portent `reported = false` : leurs tirages quittés sont invisibles, `dealt`
+  en est un plancher — « au moins N tirages » — et la part de tirages quittés
+  ne se lit que sur les lignes rapportées.
+- **Rien de tout cela n'écrit dans `prompt_stats`** : le tirage lit cette
+  table (`Judge.pull`), et un `dealt` qui ne compterait que les tirages
+  répondus fausserait la cote des couples concernés. L'histoire ne vit que
+  dans ce que lisent les classements avancés.
+- **Le rythme se lit à l'heure de Paris**, comme les périodes des classements
+  (`period_start`) : les vingt-quatre dernières heures, les sept derniers
+  jours ou les douze dernières semaines, les cases vides sortant à zéro pour
+  que le graphique montre les creux. Les créations de compte sont celles des
+  comptes nommés : un joueur anonyme n'en a pas créé.
 
 ## Conventions
 
@@ -86,12 +151,25 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   distingue pas d'un mot de joueur. La réserve se charge par
   `npm run seed:moderation` (`scripts/moderation-reserve.json`), qui écarte ce
   que les dictionnaires embarqués connaissent déjà.
+- **Un seul versement par heure, toutes langues confondues** (0023) : le
+  renflouage lit `moderation_topup`, la ligne unique que le versement précédent
+  a datée, et se tait tant que l'heure n'est pas passée. Sans elle, quelques
+  modérateurs à sec vidaient la réserve en quelques minutes. Les mots déjà
+  versés restent dans la file pour tout le monde : l'heure ne ferme que le
+  versement, jamais la modération. Un modérateur bloqué garde son marqueur
+  `moderation_drained`, donc la première visite une fois l'heure écoulée
+  renfloue, sans lui faire re-vider une file — le marqueur ne tombe que sur une
+  file pleine, un versement, ou une heure d'attente écoulée.
 - **Le niveau 6 est écrit en XP dans `moderator_offer_due`** (1650, depuis 0018) : SQL ne
   connaît pas `xpForLevel`. `MODERATOR_LEVEL_XP` et son test
   (`src/domain/moderation.ts`) cassent si la courbe change sans lui.
 - **Un profil est lisible par tous les comptes connectés** : c'est ce
   qu'affiche le classement, et rien de sensible n'y est stocké.
 - **Les parties sont insérées, jamais modifiées.** Un score ne se corrige pas.
+- **Le tirage adaptatif ne lit que la foule** : `prompt_stats` ne garde que
+  deux compteurs par couple, et `report_prompts` refuse une graine qui a déjà
+  parlé. Un défi ne rapporte rien — sa graine est publique, ses couples connus
+  d'avance, et son tirage doit rester le même pour tous (`src/domain/prompts.ts`).
 - **Les classements ne montrent que des comptes nommés** : les fonctions
   joignent `auth.users` et écartent `is_anonymous`.
 - **Une proposition ne se retire ou ne se corrige qu'en attente** : la politique
@@ -172,7 +250,13 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
   de chaque heure, pas la nuit) : une partie modeste, pas à chaque passage.
   Leurs bornes de score se règlent dans `bots`, sans redéploiement.
 - **Leurs parties n'ont pas de mots** : un mot de robot fausserait la rareté
-  et volerait des découvertes. Ils ne figurent qu'aux classements de score.
+  et volerait des découvertes. **Ils ne figurent à aucun classement** (0024) :
+  leurs parties restent en base — la liste d'amis, les défis et leur
+  avancement les lisent —, mais `leaderboard_board`, `leaderboard_stat` et la
+  vue `leaderboard` les écartent par leur compte (`bots`), jamais par leur nom,
+  qu'un vrai joueur peut porter. Le seul score maison des tableaux est
+  Demontoon, ajouté côté client aux meilleures parties du jour et de la
+  semaine.
 - **Une demande d'ami vers eux est acceptée à l'insertion**
   (`friendships_bots_accept`). `request_friend` répond quand même `sent`.
 - **Invités à un défi, ils acceptent et jouent seuls** : `challenge_players_bots_accept`

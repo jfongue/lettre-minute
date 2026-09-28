@@ -17,18 +17,25 @@ import { CategoryIcon } from './CategoryIcon'
 import { VerdictMark } from './VerdictMark'
 import { RespellField, respellValid } from './RespellField'
 import { availableCategoryIds, loadPack } from '../data/packs'
+import { useHiddenTaps } from './useHiddenTaps'
+import { IdeasAdmin } from '../debug/IdeasAdmin'
 import { spelledExactly } from '../domain/words'
 
 /**
  * A request as the page lists it: still on the device, waiting for the next
  * connection, or already on the server with the status it was given there.
  */
-type Entry =
+export type RequestEntry =
   | { source: 'queued'; key: string; categoryId: string; display: string; queued: PendingSubmission }
   | { source: 'server'; key: string; categoryId: string; display: string; submission: Submission }
 
+type Entry = RequestEntry
+
 // Long enough to read « Déjà existant ! » before the row goes.
 const EXISTS_MS = 1600
+
+/** Ce que « Ajoutés grâce à toi » montre avant son « Voir plus » : les dix derniers. */
+const ADDED_SHOWN = 10
 
 const langOf = (entry: Entry) => (entry.source === 'queued' ? (entry.queued.lang ?? 'fr') : entry.submission.lang)
 
@@ -47,6 +54,9 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
   const [server, setServer] = useState<Submission[] | null | 'loading'>('loading')
   const [queue, setQueue] = useState<PendingSubmission[]>(loadSubmissions)
   const [failed, setFailed] = useState(false)
+  // La liste des mots entrés se replie sur ses dix derniers : la queue de
+  // l'archive n'intéresse personne.
+  const [allAdded, setAllAdded] = useState(false)
   // Read once, on arrival: the words accepted since the last visit keep their
   // highlight for the whole visit, though the server forgets them at once.
   const [fresh, setFresh] = useState<ReadonlySet<string>>(new Set())
@@ -114,6 +124,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
     ...submissions.filter((submission) => submission.status === 'pending').map(fromServer),
   ]
   const accepted = submissions.filter((submission) => submission.status === 'accepted').map(fromServer)
+  const added = allAdded ? accepted : accepted.slice(0, ADDED_SHOWN)
   const rejected = submissions.filter((submission) => submission.status === 'rejected').map(fromServer)
   const nothing = server !== 'loading' && pending.length === 0 && accepted.length === 0 && rejected.length === 0
 
@@ -171,10 +182,15 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
           ) : (
             <>
               <ul className="requests requests--added">
-                {accepted.map((entry) => (
+                {added.map((entry) => (
                   <RequestRow key={entry.key} entry={entry} fresh={fresh.has(entry.key)} />
                 ))}
               </ul>
+              {accepted.length > ADDED_SHOWN && (
+                <button type="button" className="btn btn--quiet" onClick={() => setAllAdded(!allAdded)}>
+                  {allAdded ? t.requests.less : t.requests.more(accepted.length - ADDED_SHOWN)}
+                </button>
+              )}
               <p className="note">{t.requests.addedNote(SUBMISSION_REWARD_XP)}</p>
             </>
           )}
@@ -223,12 +239,15 @@ interface RequestRowProps {
   fresh?: boolean
   /** Spelled this way in the dictionary already: on its way out. */
   exists?: boolean
+  /** A word of its own where the queue and the moderation would write one. */
+  note?: string
   /** Only a request still waiting can be taken back or respelled. */
   onWithdraw?(): void
   onCorrect?(display: string): Promise<boolean>
 }
 
-function RequestRow({ entry, fresh, exists, onWithdraw, onCorrect }: RequestRowProps) {
+/** A request as « Mes demandes » and the last screen of a run both list it. */
+export function RequestRow({ entry, fresh, exists, note, onWithdraw, onCorrect }: RequestRowProps) {
   const t = useT()
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(entry.display)
@@ -277,6 +296,7 @@ function RequestRow({ entry, fresh, exists, onWithdraw, onCorrect }: RequestRowP
               {categoryText(t, entry.categoryId).label}
               {entry.source === 'queued' && ` · ${t.requests.queued}`}
               {locked && ` · ${t.requests.locked}`}
+              {note && ` · ${note}`}
             </span>
           </span>
           {fresh && <span className="request-fresh">{t.requests.fresh}</span>}
@@ -305,6 +325,10 @@ const IDEA_MAX = 2000
 function IdeaBox() {
   const t = useT()
   const [open, setOpen] = useState(false)
+  // Cinq tapes sur « Boîte à idées » — le bouton qui l'ouvre compte pour la
+  // première — ouvrent les idées reçues, pour l'administrateur seul.
+  const tap = useHiddenTaps()
+  const [reading, setReading] = useState(false)
   const [draft, setDraft] = useState('')
   const [state, setState] = useState<'idle' | 'busy' | 'sent' | 'failed'>('idle')
 
@@ -317,16 +341,26 @@ function IdeaBox() {
     if (ok) setDraft('')
   }
 
+  if (reading) return <IdeasAdmin onClose={() => setReading(false)} />
   if (!open) {
     return (
-      <button type="button" className="btn btn--quiet idea-open" onClick={() => setOpen(true)}>
+      <button
+        type="button"
+        className="btn btn--quiet idea-open"
+        onClick={() => {
+          tap()
+          setOpen(true)
+        }}
+      >
         {t.ideas.open}
       </button>
     )
   }
   return (
     <form className="idea-box stack" onSubmit={send}>
-      <p className="section-title">{t.ideas.title}</p>
+      <p className="section-title" onClick={() => tap() && setReading(true)}>
+        {t.ideas.title}
+      </p>
       <p className="note">{t.ideas.lead}</p>
       <textarea
         value={draft}
@@ -375,7 +409,6 @@ function ModerationPanel({ status, onModerate }: { status: ModerationStatus; onM
           <p className="note">{t.moderation.progress(status.validated, SUPER_MODERATOR_VALIDATIONS)}</p>
         </div>
       )}
-      <p className="moderation-panel-waiting">{t.moderation.waiting(status.queue)}</p>
       <button type="button" className="btn btn--blue btn--block" onClick={onModerate}>
         {t.moderation.start(Math.min(MODERATION_SESSION_SIZE, status.queue))}
       </button>

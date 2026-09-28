@@ -85,6 +85,9 @@ select tests.is(pg_temp.waiting('rm'), 0, 'his queue is empty');
 select tests.ok(exists (select 1 from public.moderation_drained where moderator_id = tests.uid('rm') and lang = 'fr'),
                 'his last vote marks it finished');
 select tests.is(pg_temp.waiting('rq'), 5, 'another moderator still has those five');
+-- L'heure du versement précédent (0023) est reculée : le harnais enchaîne ses
+-- appels en millisecondes, là où la vraie vie laisse passer l'heure.
+update public.moderation_topup set released_at = now() - interval '1 hour';
 select tests.is(pg_temp.top_up('rm'), 2, 'his next visit releases what the reserve has left, skipping what it cannot use');
 select tests.is(pg_temp.top_up('rm'), 0, 'the visit right after releases nothing');
 

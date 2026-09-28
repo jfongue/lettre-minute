@@ -12,6 +12,7 @@ import {
 } from '../state/challenges'
 import { categoryMotif, onTint } from './motifs'
 import { useHiddenChallenges } from '../state/useHiddenChallenges'
+import { useBackDismiss } from './useBackDismiss'
 
 interface ChallengeListProps {
   challenges: readonly ChallengeSummary[]
@@ -172,6 +173,7 @@ interface ChallengeNoticeProps {
 /** The in-app notification: the challenge a friend just sent, or the one whose recap is ready. */
 export function ChallengeNotice({ challenge, kind, onLater, onGo }: ChallengeNoticeProps) {
   const t = useT()
+  useBackDismiss(onLater)
   const invite = kind === 'invite'
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="challenge-notice-title">

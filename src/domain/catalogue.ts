@@ -28,7 +28,9 @@ export const CATALOGUE: readonly CategoryMeta[] = [
   { id: 'sports', label: 'Sports', hint: 'Disciplines et pratiques', unlockLevel: 4 },
   { id: 'corps-humain', label: 'Partie du corps humain', hint: 'De la tête aux pieds', unlockLevel: 5 },
   { id: 'matieres', label: 'Matières et éléments', hint: 'Bois, fer, oxygène, feu…', unlockLevel: 6 },
-  { id: 'capitales', label: 'Villes', hint: 'Parmi les 5 plus grandes de leur pays', unlockLevel: 7 },
+  // The id keeps the name the category was born with: a profile owns its
+  // categories under it, and so do the server's prompt_stats.
+  { id: 'capitales', label: 'Grandes villes', hint: 'Capitales, et villes de plus de 100 000 habitants', unlockLevel: 7 },
   { id: 'marques', label: 'Marque', hint: 'Marques connues', unlockLevel: 8 },
   { id: 'prenoms', label: 'Prénoms', hint: 'D’ici et d’ailleurs, de Léa à Mohammed', unlockLevel: 9, addedIn: 2 },
   { id: 'objets', label: 'Objets du quotidien', hint: 'Ce qu’on trouve à la maison ou dans son sac', unlockLevel: 10, addedIn: 2 },

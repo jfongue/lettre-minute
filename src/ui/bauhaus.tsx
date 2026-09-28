@@ -51,6 +51,19 @@ export function TierTag({ tier }: { tier: RarityTier }) {
   )
 }
 
+/**
+ * Le mot que le joueur a lui-même fait entrer au dictionnaire : discret, mais
+ * reconnaissable d'une partie à l'autre.
+ */
+export function MineMark({ label }: { label: string }) {
+  return (
+    <span className="mine">
+      <Shape kind="diamond" tint="green" className="mine-shape" />
+      {label}
+    </span>
+  )
+}
+
 const BURST: readonly Motif[] = [
   { kind: 'circle', tint: 'red' },
   { kind: 'square', tint: 'blue' },

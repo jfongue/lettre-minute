@@ -6,10 +6,12 @@ import type { Submission } from '../lib/cloud'
 import { Burst, Shape } from './bauhaus'
 import { onTint, POWER_TINTS, powerGround } from './motifs'
 import { PowerIcon } from './PowerIcon'
+import { useBackDismiss } from './useBackDismiss'
 
 /** On opening the game: the words of the player's that moderators let in since they last looked. */
 export function WordsNewsPop({ words, onClose, onOpen }: { words: readonly Submission[]; onClose(): void; onOpen(): void }) {
   const t = useT()
+  useBackDismiss(onClose)
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="words-news-title">
       <div className="offer-pop-scrim" onClick={onClose} />
@@ -48,6 +50,8 @@ export function WordsNewsPop({ words, onClose, onOpen }: { words: readonly Submi
 /** A power given for the player's words rather than picked at a level. */
 export function PowerGiftPop({ powerId, onClose }: { powerId: PowerId; onClose(): void }) {
   const t = useT()
+  // The only way out is the button, so the gesture is it: the power is earned.
+  useBackDismiss(onClose)
   const [name, description] = t.powers.names[powerId]
   const uses = POWER_CHARGES[powerId]
   return (

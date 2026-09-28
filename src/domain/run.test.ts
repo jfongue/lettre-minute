@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import { NO_USAGE, type WordUsage } from './rarity'
+import { PULL_MAX, PULL_MIN } from './prompts'
 import {
   celerityDue,
   createRun,
   inspect,
+  promptOutcomes,
   remainingSeconds,
   RUN_SECONDS,
   SKIP_PENALTY_SECONDS,
@@ -318,6 +320,36 @@ describe('odds of a pair', () => {
     for (let i = 0; i < 20; i++) letters.push((run = skip(run, stocked)).prompt.letter)
 
     expect(letters.filter((letter) => letter === 'A').length).toBeGreaterThan(1)
+  })
+
+  it('deals a pair players leave empty less often, without ever dropping it', () => {
+    const base = judgeKnowing({ A: 50, B: 50 })
+    const pulled: Judge = { ...base, pull: (_, letter) => (letter === 'A' ? PULL_MIN : PULL_MAX) }
+    const counts = { A: 0, B: 0 }
+    for (let seed = 1; seed <= 2000; seed++) {
+      counts[createRun({ seed, categoryIds: ['animaux'] }, pulled).prompt.letter as 'A' | 'B']++
+    }
+
+    expect(counts.B).toBeGreaterThan(counts.A * 2)
+    expect(counts.A).toBeGreaterThan(0)
+  })
+})
+
+describe('promptOutcomes', () => {
+  it('reports the pairs the run settled, and not the one still on screen', () => {
+    const run = createRun({ seed: 9, categoryIds: ['animaux', 'pays'] }, judge)
+    const answered = submit(run, answerOf(run), judge).run
+    const skipped = skip(answered, judge)
+    const outcomes = promptOutcomes(skipped)
+
+    expect(outcomes).toEqual([
+      { prompt: run.prompt, passed: false },
+      { prompt: answered.prompt, passed: true },
+    ])
+  })
+
+  it('says nothing of a run that left nothing behind', () => {
+    expect(promptOutcomes(createRun({ seed: 4, categoryIds: ['animaux'] }, judge))).toEqual([])
   })
 })
 

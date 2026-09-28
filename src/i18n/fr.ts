@@ -1,10 +1,18 @@
 import { PALETTE, type Milestone } from '../domain/avatar'
 import { CATALOGUE } from '../domain/catalogue'
 import type { TrophyId } from '../domain/challenge'
+import type { FaceOff } from '../domain/rivalry'
+import type { StatId } from '../domain/leaderboards'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
 import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
+
+interface LeaderboardText {
+  label: string
+  caption: string
+  unit: (count: number) => string
+}
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one)
 /** A trophy's name, and its line from the value that won it and the word, when one did. */
@@ -102,6 +110,10 @@ export const fr = {
     newRecord: 'nouveau record',
     record: 'record',
     dayBoard: 'Classement du jour',
+    mineNote: (count: number) =>
+      `dont ${count} ${plural(count, 'mot que tu as fait entrer au dictionnaire', 'mots que tu as fait entrer au dictionnaire')}`,
+    proposals: 'Mots proposés',
+    proposalsLead: 'Tu les as proposés pendant cette partie : tant qu’ils attendent, tu peux corriger leur orthographe ou retirer la demande.',
     keepTitle: 'Garde cette partie',
     keepLead: 'Crée un compte ou connecte-toi : cette partie et toute ta progression y entrent tout de suite.',
     /** Around the account name, which is set in bold. */
@@ -189,6 +201,26 @@ export const fr = {
     held: (place: string) => `Toujours ${place}`,
     more: (count: number) => `Voir le classement complet (${count})`,
     less: 'Voir moins',
+    all: 'Tous les classements',
+  },
+
+  leaderboards: {
+    periods: { day: 'Jour', week: 'Semaine', all: 'Total' },
+    stats: {
+      best: { label: 'Meilleure partie', caption: 'Le plus gros score en une partie', unit: () => 'pts' },
+      points: { label: 'Points', caption: 'Tous les points marqués, partie après partie', unit: () => 'pts' },
+      runs: { label: 'Parties', caption: 'Le nombre de parties jouées', unit: (count: number) => plural(count, 'partie', 'parties') },
+      words: { label: 'Mots trouvés', caption: 'Tous les mots justes, partie après partie', unit: (count: number) => plural(count, 'mot', 'mots') },
+      discoveries: { label: 'Découvertes', caption: 'Mots que personne n’avait écrits depuis une semaine', unit: (count: number) => plural(count, 'mot', 'mots') },
+      combo: { label: 'Série', caption: 'La plus longue série de mots d’affilée', unit: (count: number) => plural(count, 'mot', 'mots') },
+      added: { label: 'Mots ajoutés', caption: 'Mots proposés, puis validés par les modérateurs', unit: (count: number) => plural(count, 'mot', 'mots') },
+    } satisfies Record<StatId, LeaderboardText> as Record<StatId, LeaderboardText>,
+    empty: { day: 'Personne n’y figure encore aujourd’hui.', week: 'Personne n’y figure encore cette semaine.', all: 'Personne n’y figure encore.' },
+    offline: 'Le classement ne répond pas pour l’instant.',
+    retry: 'Réessayer',
+    you: 'Ta place',
+    absent: 'Tu n’y figures pas encore : à toi de jouer.',
+    anonymous: 'Crée un compte pour figurer aux classements.',
   },
 
   menu: {
@@ -206,7 +238,7 @@ export const fr = {
       'Tes parties te suivent d’un appareil à l’autre, ton nom entre au classement et tes amis peuvent te trouver.',
     offline: 'Hors ligne : ta progression reste sur cet appareil.',
     back: 'Retour',
-    pages: { stats: 'Statistiques', requests: 'Mes demandes', categories: 'Mes catégories' },
+    pages: { stats: 'Statistiques', requests: 'Mes demandes', categories: 'Mes catégories', boards: 'Classements' },
     support: 'Soutenir le créateur',
   },
 
@@ -262,6 +294,29 @@ export const fr = {
     } satisfies Record<InviteOutcome, (name: string) => string> as Record<InviteOutcome, (name: string) => string>,
     blocked: 'Bloqués',
     unblock: 'Débloquer',
+    /** Under a friend's name: challenges won by each, and how many were shared. */
+    versus: (mine: number, theirs: number, name: string, count: number) =>
+      `Toi ${mine} – ${theirs} ${name} · ${count} ${plural(count, 'défi', 'défis')}`,
+    noShared: 'Aucun défi ensemble',
+    openFriend: (name: string) => `Voir la fiche de ${name}`,
+    faceOff: 'Face à face',
+    won: (count: number) => plural(count, 'victoire', 'victoires'),
+    tied: (count: number) => plural(count, 'égalité', 'égalités'),
+    lost: (count: number) => plural(count, 'défaite', 'défaites'),
+    myPoints: 'tes points',
+    theirPoints: 'ses points',
+    together: 'Défis ensemble',
+    togetherNone: 'Pas encore de défi ensemble.',
+    settling: 'Calcul du bilan…',
+    historyFailed: 'Impossible de charger vos défis pour l’instant.',
+    players: (count: number) => `${count} ${plural(count, 'joueur', 'joueurs')}`,
+    outcomes: { won: 'Gagné', lost: 'Perdu', tie: 'Égalité', open: 'En cours', void: 'Non compté' } satisfies Record<FaceOff, string> as Record<FaceOff, string>,
+    rank: (rank: number) => (rank === 1 ? '1er' : `${rank}e`),
+    you: 'Toi',
+    notPlayed: (name: string) => `${name} n’a pas joué`,
+    youNotPlayed: 'Tu n’as pas joué',
+    challengeFriend: 'Lancer un défi',
+    removeNamed: (name: string) => `Retirer ${name}`,
   },
 
   stats: {
@@ -302,9 +357,14 @@ export const fr = {
     added: 'Ajoutés grâce à toi',
     addedNote: (xp: number) => `${xp} XP gagnés pour chacun.`,
     noneAdded: 'Aucun encore : un mot entre quand trois modérateurs l’ont validé.',
+    /** « Ajoutés grâce à toi » se replie sur ses dix derniers. */
+    more: (count: number) => `Voir plus (${count})`,
+    less: 'Voir moins',
     fresh: 'nouveau',
     locked: 'en cours de modération',
     pending: 'En attente',
+    mine: 'ton mot',
+    entered: 'entré au dictionnaire',
     queued: 'pas encore envoyé',
     rejected: (count: number) => `Refusées (${count})`,
     correct: 'Corriger',
@@ -322,8 +382,6 @@ export const fr = {
     superLead: 'Ta parole suffit : un mot que tu dis correct entre aussitôt, et les cas spéciaux n’attendent que les super modérateurs.',
     progress: (done: number, needed: number) =>
       `${Math.min(done, needed)} / ${needed} mots validés sans contestation pour devenir super modérateur`,
-    waiting: (count: number) =>
-      count === 0 ? 'Aucun mot n’attend pour l’instant.' : `${count} ${plural(count, 'mot attend', 'mots attendent')} ton avis`,
     start: (size: number) => `Lancer une session · ${size} mots`,
     offer: {
       title: 'Deviens modérateur !',
@@ -431,6 +489,8 @@ export const fr = {
           return `${milestone.at} mots trouvés`
         case 'bestCombo':
           return `série de ${milestone.at}`
+        case 'wordsAdded':
+          return `${milestone.at} ${plural(milestone.at, 'mot ajouté', 'mots ajoutés')}`
       }
     },
   },
@@ -629,6 +689,44 @@ export const fr = {
     lead: 'On ne t’enverra pas de notification, promis : c’est seulement pour les propositions de défi de tes amis !',
     no: 'Non merci',
     yes: 'Oui, activer',
+  },
+
+  feedback: {
+    title: 'Ton avis compte !',
+    lead: 'Tu as bien joué ces dernières parties. Qu’est-ce qui te plaît, qu’est-ce qui manque, qu’est-ce qui agace ? Le créateur lit tout.',
+    placeholder: 'Ce que tu en penses…',
+    send: 'Envoyer',
+    later: 'Plus tard',
+    sent: 'Merci ! Ton avis est parti.',
+    failed: 'Ton avis n’est pas parti. Vérifie ta connexion et réessaie.',
+  },
+
+  bans: {
+    introTitle: 'Nouveau : bannir une catégorie',
+    introLead: 'Tu as sept catégories. Il y en a une qui t’ennuie ? Bannis-la : elle ne sortira plus dans tes parties. Tu peux changer d’avis quand tu veux, ici même.',
+    introOk: 'Compris',
+    lead: 'Une catégorie bannie ne sort plus dans tes parties (les défis gardent les leurs).',
+    ban: 'Bannir',
+    unban: 'Rétablir',
+    banned: 'Bannie',
+    full: 'Il faut garder au moins cinq catégories en jeu.',
+  },
+
+  plus: {
+    title: 'Réservé aux membres Premium',
+    ban: 'Bannir plus d’une catégorie est réservé aux membres Premium.',
+    peek: 'Révéler plus de mots est réservé aux membres Premium.',
+    join: 'Passer Premium pour 0 €',
+    free: '(pour l’instant c’est gratuit !)',
+    later: 'Plus tard',
+    badge: 'Premium',
+  },
+
+  peek: {
+    title: 'Ce que tu aurais pu écrire',
+    hint: (left: number) =>
+      left === Infinity ? 'Touche une bande pour révéler le mot.' : `Touche une bande pour révéler le mot · encore ${left}`,
+    reveal: (category: string, letter: string) => `Révéler un mot en ${letter} : ${category}`,
   },
 
   update: {

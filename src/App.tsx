@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { availableCategoryIds, loadPack, loadPacks } from './data/packs'
 import {
+  cancelSubmission,
+  correctSubmission,
   createChallenge,
   deleteAccount,
   fetchAccount,
@@ -10,6 +12,7 @@ import {
   forgetPushToken,
   fetchCommunityWords,
   fetchCrowdUsage,
+  fetchPromptStats,
   fetchBoards,
   fetchModerationStatus,
   fetchMySubmissions,
@@ -65,25 +68,33 @@ import {
 import { complicationDue, type PowerId } from './domain/powers'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
+import type { PromptRecord } from './domain/prompts'
 import { adsDue, categoryGiftOffer, dealLineup, giftCategory, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
+import { compactWord, normalizeWord } from './domain/text'
 import { commonWord, withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
 import { standingMove } from './domain/standing'
 import { challengeNotice } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { createJudge } from './state/judge'
+import { banNews, feedbackDue, hiddenAnswers, playableCategoryIds } from './domain/perks'
+import { cloudConfigured } from './lib/supabase'
+import { FeedbackPop } from './ui/FeedbackPop'
+import type { BanActions } from './ui/CategoriesPage'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
-import { initialSession, sessionReducer } from './state/session'
+import { initialSession, sessionReducer, type Proposal } from './state/session'
 import {
   clearLocalData,
   loadAccount,
   loadAvatar,
+  loadGiftHeld,
   loadHistory,
   loadProfile,
   loadSubmissions,
   loadTutorialDone,
   saveAccount,
   saveAvatar,
+  saveGiftHeld,
   saveHistory,
   saveProfile,
   saveSubmissions,
@@ -115,6 +126,7 @@ import { OverScreen } from './ui/OverScreen'
 import { PushOffer } from './ui/PushOffer'
 import { RunScreen, type Racer } from './ui/RunScreen'
 import { TutorialScreen, tutorialPrompt } from './ui/TutorialScreen'
+import { dismissTopOverlay } from './ui/useBackDismiss'
 
 /** The boards as the home screen shows them: without a server, none at all. */
 async function loadBoards(): Promise<Boards | null> {
@@ -123,12 +135,28 @@ async function loadBoards(): Promise<Boards | null> {
 }
 
 /** Sends the words proposed while the game was offline, then clears the queue. */
-function flushSubmissions(): void {
+function flushSubmissions(): Promise<unknown> {
   const pending = loadSubmissions()
-  if (pending.length === 0) return
-  pushSubmissions(pending).then((sent) => {
+  if (pending.length === 0) return Promise.resolve()
+  return pushSubmissions(pending).then((sent) => {
     if (sent.length > 0) saveSubmissions([])
   })
+}
+
+/** Corrige un mot que le serveur n'a pas encore vu : la file de l'appareil se réécrit. */
+function amendQueued(proposal: Proposal, display: string): boolean {
+  const pending = loadSubmissions()
+  if (!pending.some((item) => item.at === proposal.at)) return false
+  saveSubmissions(pending.map((item) => (item.at === proposal.at ? { ...item, word: display.trim() } : item)))
+  return true
+}
+
+/** Retire de la file un mot que le serveur n'a pas encore vu. */
+function dropQueued(proposal: Proposal): boolean {
+  const pending = loadSubmissions()
+  if (!pending.some((item) => item.at === proposal.at)) return false
+  saveSubmissions(pending.filter((item) => item.at !== proposal.at))
+  return true
 }
 
 /** How often a home screen left open reads the boards again. */
@@ -142,6 +170,9 @@ export function App() {
   const [session, dispatch] = useReducer(sessionReducer, initialSession(NEW_PROFILE))
   const [startedAt, setStartedAt] = useState<number | null>(null)
   const [crowd, setCrowd] = useState<Readonly<Record<string, number>>>({})
+  // What the players' runs said of each pair, and the language they said it in:
+  // a borrowed dictionary has no such record, and a challenge never reads it.
+  const [promptStats, setPromptStats] = useState<{ lang: string; records: Readonly<Record<string, PromptRecord>> } | null>(null)
   const [boards, setBoards] = useState<Boards | null>(null)
   // The boards as they stood when the run started, and once it reached the
   // server: the end screen animates the player's move from one to the other.
@@ -189,6 +220,10 @@ export function App() {
   const [moderating, setModerating] = useState(false)
   // « Plus tard » holds the offer back until the next launch, without answering it.
   const [offerHeld, setOfferHeld] = useState(false)
+  // The gift put off with the back gesture: the next run's end hands it over.
+  const [giftHeld, setGiftHeld] = useState(loadGiftHeld)
+  // Set on the way home once `feedbackDue` says so: asked once, answered or not.
+  const [feedbackAsk, setFeedbackAsk] = useState(false)
   // The seed of the run whose reveal has played: leaving for the avatar editor
   // and coming back must not replay it.
   const [revealed, setRevealed] = useState<number | null>(null)
@@ -227,6 +262,9 @@ export function App() {
   )
   const [homeSettled, setHomeSettled] = useState(false)
   const [debugPhase, setDebugPhase] = useState<string | null>(() => (window.location.hash === '#debug' ? 'home' : null))
+  // Les classements avancés : le mode débug caché derrière cinq tapes sur
+  // « Classement ». Il ne survit pas au rechargement, comme la planche.
+  const [advancedBoards, setAdvancedBoards] = useState(false)
 
   // Written only once the cached account has been read, or the first render's
   // null would erase it.
@@ -274,6 +312,7 @@ export function App() {
   // rather than throwing, so a missing project simply leaves the game local.
   useEffect(() => {
     fetchCrowdUsage(lang).then((usage) => setCrowd(usage.shares))
+    fetchPromptStats(lang).then((records) => setPromptStats({ lang, records }))
     fetchCommunityWords(lang).then((words) => {
       community.current = words
     })
@@ -311,16 +350,31 @@ export function App() {
   // On opening, and on each sign-in: the player's words let in since they last
   // looked, and how many ever were — the third brings Challenge.
   const [wordsNews, setWordsNews] = useState<readonly Submission[]>([])
+  // Toutes ses demandes, et pas seulement les nouvelles : c'est là que le jeu
+  // lit les mots que ce joueur a lui-même fait entrer au dictionnaire.
+  const [mine, setMine] = useState<readonly Submission[]>([])
   const [acceptedWords, setAcceptedWords] = useState(0)
   const signedIn = account !== null
+  const refreshMine = useCallback(() => {
+    fetchMySubmissions().then((found) => found && setMine(found))
+  }, [])
   useEffect(() => {
     if (!signedIn) return
     fetchMySubmissions().then((found) => {
       if (!found) return
+      setMine(found)
       setAcceptedWords(found.filter((submission) => submission.status === 'accepted').length)
       setWordsNews(found.filter((submission) => submission.fresh))
     })
   }, [signedIn, account?.name, account?.anonymous])
+
+  // Les mots ajoutés se déduisent des demandes acceptées, et le serveur seul en
+  // décide : le profil les reçoit pour que les sept tuiles qu'ils débloquent
+  // tiennent hors ligne. Un compte anonyme n'en a aucun, faute de pouvoir proposer.
+  useEffect(() => {
+    if (session.profile.wordsAdded === acceptedWords) return
+    dispatch({ type: 'profile-loaded', profile: { ...session.profile, wordsAdded: acceptedWords } })
+  }, [acceptedWords, session.profile])
 
   /** After any sign-in that changes user: the anonymous player's runs have been merged into it. */
   const enter = (outcome: AuthOutcome): string | null => {
@@ -388,14 +442,24 @@ export function App() {
   menuShown.current = menuOpen
   // The challenge screens close one at a time, the way they opened.
   const closeChallengeLayer = useRef<() => boolean>(() => false)
+  // The gift pop is the one overlay with no refusal: the gesture puts it off,
+  // and the next run's end hands the category over instead.
+  const giftShown = useRef(false)
   useEffect(
     () =>
       onBackButton(() => {
+        // A pop-up is above whatever screen it covers: it goes first.
+        if (dismissTopOverlay()) return true
         if (menuShown.current) {
           setMenuPage(null)
           return true
         }
         if (closeChallengeLayer.current()) return true
+        if (giftShown.current) {
+          setGiftHeld(true)
+          saveGiftHeld(true)
+          return true
+        }
         if (phase.current === 'home' || phase.current === 'loading') return false
         dispatch({ type: 'home' })
         return true
@@ -506,9 +570,12 @@ export function App() {
           )
       // The crowd counts are the interface language's: another dictionary has none.
       const usage = { own: session.profile.usage, crowd: packLang === lang ? crowd : {} }
-      return createJudge(packs, usage, t.powers.spells)
+      // A challenge draws from the seed and the embedded dictionaries alone:
+      // the crowd's record of a pair would differ from one player to the next.
+      const served = packLang === promptStats?.lang ? promptStats.records : undefined
+      return createJudge(packs, usage, t.powers.spells, challenge ? undefined : served)
     },
-    [session.profile.usage, crowd, lang, t],
+    [session.profile.usage, crowd, promptStats, lang, t],
   )
 
   const play = useCallback(async () => {
@@ -522,9 +589,10 @@ export function App() {
       // is simply not dealt, rather than failing the whole run.
       const shipped = new Set(availableCategoryIds(lang))
       const seed = Date.now() >>> 0
+      // A ban holds for solo runs only: a challenge deals its own categories.
       const lineup = dealLineup(
         seed,
-        ownedCategoryIds(session.profile).filter((id) => shipped.has(id)),
+        playableCategoryIds(session.profile, ownedCategoryIds(session.profile)).filter((id) => shipped.has(id)),
       )
       const judge = await judgeFor(lineup.dealt)
       dispatch({ type: 'ready', judge, seed, categoryIds: lineup.dealt, reserve: lineup.reserve })
@@ -829,19 +897,100 @@ export function App() {
   const choose = useCallback((categoryId: string) => dispatch({ type: 'choose', categoryId }), [])
   const choosePower = useCallback((powerId: string) => dispatch({ type: 'choose-power', powerId }), [])
   const supportAsked = useCallback(() => dispatch({ type: 'support-asked' }), [])
+  const joinPlus = useCallback(() => dispatch({ type: 'join-plus', at: Date.now() }), [])
+  const peek = useCallback(() => dispatch({ type: 'peek' }), [])
+  const banActions = useMemo<BanActions>(
+    () => ({
+      onBan: (categoryId) => dispatch({ type: 'ban', categoryId }),
+      onUnban: (categoryId) => dispatch({ type: 'unban', categoryId }),
+      onIntroSeen: () => dispatch({ type: 'ban-intro-seen' }),
+      onJoinPlus: joinPlus,
+    }),
+    [joinPlus],
+  )
+  // Read from the run as it ended, with the dictionaries it was judged by.
+  const hidden = useMemo(
+    () => (session.phase === 'over' && session.run && session.judge ? hiddenAnswers(session.run, session.judge) : []),
+    [session.phase, session.run, session.judge],
+  )
+
+  // The gift is not a level-up pick: it is handed over, never counted against
+  // the picks a level owes.
+  const takeGift = useCallback((categoryId: string) => {
+    setGiftHeld(false)
+    saveGiftHeld(false)
+    dispatch({ type: 'profile-loaded', profile: giftCategory(session.profile, categoryId) })
+  }, [session.profile])
 
   // Proposing costs no clock: in a timed run, a confirmation dialog would take
   // the seconds the player is spending on the word they just failed to place.
   const propose = useCallback(
     (word: string) => {
       if (!session.run) return
-      saveSubmissions([
-        ...loadSubmissions(),
-        { word: word.trim(), categoryId: session.run.prompt.categoryId, at: Date.now(), lang: runLang ?? lang },
-      ])
-      dispatch({ type: 'propose', word })
+      const proposal: Proposal = {
+        word: word.trim(),
+        categoryId: session.run.prompt.categoryId,
+        at: Date.now(),
+        lang: runLang ?? lang,
+      }
+      saveSubmissions([...loadSubmissions(), proposal])
+      dispatch({ type: 'propose', proposal })
     },
     [session.run, lang, runLang],
+  )
+
+  /** Ce que le serveur tient d'un mot proposé : rien tant qu'il attend sur l'appareil. */
+  const submissionOf = useCallback(
+    (proposal: Proposal) =>
+      mine.find(
+        (submission) =>
+          submission.lang === proposal.lang &&
+          submission.categoryId === proposal.categoryId &&
+          compactWord(submission.display) === compactWord(proposal.word),
+      ) ?? null,
+    [mine],
+  )
+
+  const runProposals = useMemo(
+    () => session.proposals.map((proposal) => ({ proposal, submission: submissionOf(proposal) })),
+    [session.proposals, submissionOf],
+  )
+
+  const correctProposal = useCallback(
+    async (proposal: Proposal, display: string) => {
+      const submission = submissionOf(proposal)
+      // Un mot déjà chez le serveur passe par `amend_submission`, qui refuse
+      // dès qu'un modérateur a voté ; l'autre se corrige dans la file.
+      const ok = submission ? await correctSubmission(submission, display) : amendQueued(proposal, display)
+      // Un refus peut vouloir dire qu'un modérateur a voté entre-temps : relire
+      // ses demandes remet alors la ligne au statut qu'elle a maintenant.
+      if (!ok) {
+        refreshMine()
+        return false
+      }
+      dispatch({ type: 'proposal-amended', at: proposal.at, display: display.trim() })
+      refreshMine()
+      return true
+    },
+    [submissionOf, refreshMine],
+  )
+
+  const withdrawProposal = useCallback(
+    async (proposal: Proposal) => {
+      const submission = submissionOf(proposal)
+      // `cancelSubmission` ne retire qu'un mot encore en attente : un mot
+      // accepté a payé son XP, un mot refusé reste en archive.
+      const ok = submission ? await cancelSubmission(submission.id) : dropQueued(proposal)
+      // Même relecture qu'à la correction : le mot a pu être tranché depuis.
+      if (!ok) {
+        refreshMine()
+        return false
+      }
+      dispatch({ type: 'proposal-withdrawn', at: proposal.at })
+      refreshMine()
+      return true
+    },
+    [submissionOf, refreshMine],
   )
 
   useEffect(() => {
@@ -853,20 +1002,22 @@ export function App() {
       saveHistory(next)
       return next
     })
+    // Les mots proposés partent avec la partie : le bilan les relit aussitôt
+    // après, avec l'identifiant que le serveur leur a donné.
+    const flushed = flushSubmissions()
+    flushed.then(refreshMine)
     const challengeId = session.challengeId
     if (challengeId) {
       setAfterRun('sending')
       const sent = pushChallengeRun(challengeId, session.run, session.profile)
-      pushing.current = sent
-      flushSubmissions()
+      pushing.current = Promise.all([sent, flushed])
       sent
         .then((ok) => (ok ? fetchChallenge(challengeId) : null))
         .then((detail) => setAfterRun(detail ?? 'failed'))
       return
     }
     const pushed = pushRun(session.run, session.profile, playedLang)
-    pushing.current = pushed
-    flushSubmissions()
+    pushing.current = Promise.all([pushed, flushed])
     // Read after the run is in, or the boards would not count it yet.
     // A word proposed during the run may be waiting for a verdict already.
     pushed.then(refreshModeration)
@@ -905,8 +1056,43 @@ export function App() {
     return () => clearTimeout(timer)
   }, [climbing, boardsAfter])
 
+  // La langue de la partie qui vient de finir : un mot entré dans un autre
+  // dictionnaire ne se reconnaîtrait pas dans celui-ci.
+  const mineWords = useMemo(
+    () =>
+      new Set(
+        mine
+          .filter((submission) => submission.status === 'accepted' && submission.lang === (runLang ?? lang))
+          .map((submission) => compactWord(submission.display)),
+      ),
+    [mine, runLang, lang],
+  )
+
   const quietHome = session.phase === 'home' && !tutorial && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
   const notice = quietHome ? challengeNotice(challenges, heldNotices) : null
+  // The wave's categories still to be handed over, and the launch pop that
+  // offers them — unless the back gesture put it off for the next run's end.
+  const gift = categoryGiftOffer(session.profile, availableCategoryIds(lang))
+  const giftPop =
+    !notice &&
+    quietHome &&
+    update !== 'due' &&
+    !(moderation?.offer && !offerHeld) &&
+    wordsNews.length === 0 &&
+    !complicationDue(session.profile, acceptedWords) &&
+    !giftHeld &&
+    gift.length > 0
+  giftShown.current = giftPop
+  const feedbackPop =
+    feedbackAsk &&
+    !notice &&
+    quietHome &&
+    update !== 'due' &&
+    !(moderation?.offer && !offerHeld) &&
+    wordsNews.length === 0 &&
+    !complicationDue(session.profile, acceptedWords) &&
+    !giftPop &&
+    pushOffer === null
 
   if (debugPhase !== null && locale !== null) {
     return (
@@ -986,6 +1172,7 @@ export function App() {
           climbed={climbed}
           avatar={avatar}
           requestsNews={moderation?.news ?? 0}
+          categoriesNews={banNews(session.profile, ownedCategoryIds(session.profile)) ? 1 : 0}
           friendRequests={named ? friendRequests : 0}
           challenges={named ? challenges : null}
           onChallenge={setChallengeOpen}
@@ -998,6 +1185,10 @@ export function App() {
             setAccountMode('register')
             setMenuFocus(false)
             setMenuPage(page)
+          }}
+          onBoardsHidden={() => {
+            setAdvancedBoards(true)
+            setMenuPage('boards')
           }}
           onPlay={startFirstRun}
           onDebug={() => setDebugPhase('home')}
@@ -1129,18 +1320,9 @@ export function App() {
           <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
         )}
 
-      {!notice &&
-        quietHome &&
-        update !== 'due' &&
-        !(moderation?.offer && !offerHeld) &&
-        wordsNews.length === 0 &&
-        !complicationDue(session.profile, acceptedWords) &&
-        categoryGiftOffer(session.profile, availableCategoryIds(lang)).length > 0 && (
-          <CategoryGiftPop
-            offer={categoryGiftOffer(session.profile, availableCategoryIds(lang))}
-            onChoose={(categoryId) => dispatch({ type: 'profile-loaded', profile: giftCategory(session.profile, categoryId) })}
-          />
-        )}
+      {giftPop && <CategoryGiftPop offer={gift} onChoose={takeGift} />}
+
+      {feedbackPop && <FeedbackPop onClose={() => setFeedbackAsk(false)} />}
 
       {menuOpen && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
         <Menu
@@ -1154,6 +1336,10 @@ export function App() {
           onChallenge={(id) => {
             setMenuPage(null)
             setChallengeOpen(id)
+          }}
+          onChallengeFriend={(friendId) => {
+            setMenuPage(null)
+            openCreate([friendId])
           }}
           avatar={avatar}
           account={account}
@@ -1185,6 +1371,10 @@ export function App() {
           }}
           onRequestsSeen={refreshModeration}
           onRequestsOpen={topUpRequests}
+          lang={lang}
+          advancedBoards={advancedBoards}
+          onAdvancedBoards={setAdvancedBoards}
+          banActions={banActions}
           onErase={async () => {
             // The device keeps its copy until the server has let go of its
             // own: a failed erase must not leave the player half-deleted.
@@ -1235,7 +1425,8 @@ export function App() {
           onSubmit={(auto) => dispatch({ type: 'submit', at: elapsed, auto })}
           onSkip={() => dispatch({ type: 'skip', at: elapsed })}
           onReroll={() => dispatch({ type: 'reroll', at: elapsed })}
-          proposed={session.proposed}
+          proposed={session.proposals.map((proposal) => normalizeWord(proposal.word))}
+          mine={mineWords}
           onPropose={propose}
           rivals={rivals}
           avatar={avatar}
@@ -1256,12 +1447,26 @@ export function App() {
           onAvatar={() => setEditingAvatar(true)}
           onChoose={choose}
           onChoosePower={choosePower}
+          gift={giftHeld ? gift : []}
+          onChooseGift={takeGift}
           onSupportAsked={supportAsked}
           boardsBefore={boardsBefore}
           boardsAfter={boardsAfter}
           me={account && !account.anonymous ? account.name : null}
+          mine={mineWords}
+          proposals={runProposals}
+          onCorrectProposal={correctProposal}
+          onWithdrawProposal={withdrawProposal}
+          hidden={hidden}
+          onPeek={peek}
+          onJoinPlus={joinPlus}
           onReplay={play}
           onHome={() => {
+            // Asked on the way home, never over the summary: after the tenth run, then every thirty.
+            if (cloudConfigured() && feedbackDue(session.profile)) {
+              dispatch({ type: 'feedback-asked' })
+              setFeedbackAsk(true)
+            }
             dispatch({ type: 'home' })
             if (session.challengeId) {
               setPlayed(null)

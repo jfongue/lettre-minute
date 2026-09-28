@@ -3,7 +3,8 @@ import type { ChallengeSummary } from '../lib/cloud'
 import type { AvatarChoice } from '../domain/avatar'
 import type { RunRecord } from '../domain/history'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
-import { ADS_ENABLED } from '../domain/unlocks'
+import { ADS_ENABLED, ownedCategoryIds } from '../domain/unlocks'
+import { banNews } from '../domain/perks'
 import {
   blockPlayer,
   fetchBlocks,
@@ -34,21 +35,26 @@ import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
 import { sound as preview, type SoundPrefs } from '../lib/sound'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions, type AccountMode } from './AccountPanel'
-import { CategoriesPage } from './CategoriesPage'
+import { CategoriesPage, type BanActions } from './CategoriesPage'
+import { LeaderboardsPage } from './LeaderboardsPage'
 import { PageLinks } from './PageLinks'
 import { RequestsPage } from './RequestsPage'
 import { StatsPage } from './StatsPage'
+import { FriendPage } from './FriendPage'
+import { useFriendHistory } from '../state/rivalry'
+import { rivalry, type SharedChallenge } from '../domain/rivalry'
 import { DonateButton } from './Donate'
+import { useHiddenTaps } from './useHiddenTaps'
 import { useSwipe } from './useSwipe'
 import { Avatar } from './Avatar'
 
 export type MenuPane = 'profile' | 'social' | 'options'
 /** A page opened from the profile, which leads back to it. */
-export type ProfilePage = 'stats' | 'requests' | 'categories'
+export type ProfilePage = 'stats' | 'requests' | 'categories' | 'boards'
 export type MenuPage = MenuPane | ProfilePage
 
 const PANES: readonly MenuPane[] = ['profile', 'social', 'options']
-const PROFILE_PAGES: readonly ProfilePage[] = ['stats', 'requests', 'categories']
+const PROFILE_PAGES: readonly Exclude<ProfilePage, 'boards'>[] = ['stats', 'requests', 'categories']
 
 function isPane(page: MenuPage): page is MenuPane {
   return (PANES as readonly string[]).includes(page)
@@ -92,8 +98,17 @@ interface MenuProps {
   /** Null without an account; the statistics list the hidden ones. */
   challenges: readonly ChallengeSummary[] | null
   onChallenge(id: string): void
+  /** From a friend's page: a new challenge with them ticked. */
+  onChallengeFriend(friendId: string): void
   onRequestsSeen(): void
   onRequestsOpen(): void
+  /** La langue du dictionnaire, comme celle de la partie : celle de l'interface. */
+  lang: string
+  /** Les classements avancés : le mode débug, ouvert par cinq tapes sur « Classements ». */
+  advancedBoards: boolean
+  onAdvancedBoards(open: boolean): void
+  /** Bans and Premium, from « Mes catégories ». */
+  banActions: BanActions
   onClose(): void
 }
 
@@ -102,9 +117,15 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
   const [pane, setPane] = useState<MenuPane>(isPane(page) ? page : 'profile')
   const [sub, setSub] = useState<ProfilePage | null>(isPane(page) ? null : page)
   const body = useRef<HTMLDivElement>(null)
-  const open = (next: MenuPage) => {
+  // Cinq tapes rapprochées sur le titre de la page : le mode débug des
+  // classements. Le mot est le seul du jeu qui les annonce.
+  const tapBoards = useHiddenTaps()
+  // The leaderboards opened from the statistics lead back to them, not to the profile.
+  const [parent, setParent] = useState<ProfilePage | null>(null)
+  const open = (next: MenuPage, from: ProfilePage | null = null) => {
     setPane(isPane(next) ? next : 'profile')
     setSub(isPane(next) ? null : next)
+    setParent(from)
     body.current?.scrollTo({ top: 0 })
   }
   const drawer = useRef<HTMLElement>(null)
@@ -162,12 +183,23 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
         <div className="menu-body" ref={body}>
           {sub && (
             <div className="subpage-head">
-              <button type="button" className="subpage-back" onClick={() => open('profile')} aria-label={t.menu.back}>
+              <button type="button" className="subpage-back" onClick={() => open(parent ?? 'profile')} aria-label={t.menu.back}>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M15 5l-7 7 7 7" />
                 </svg>
               </button>
-              <h2 className="subpage-title">{t.menu.pages[sub]}</h2>
+              <h2
+                className="subpage-title"
+                onClick={
+                  sub === 'boards'
+                    ? () => {
+                        if (tapBoards()) props.onAdvancedBoards(true)
+                      }
+                    : undefined
+                }
+              >
+                {t.menu.pages[sub]}
+              </h2>
             </div>
           )}
           {sub === 'stats' && (
@@ -177,6 +209,15 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               challenges={props.challenges}
               focusChallenges={props.focusChallenges}
               onChallenge={props.onChallenge}
+              onBoards={props.account ? () => open('boards', 'stats') : undefined}
+            />
+          )}
+          {sub === 'boards' && (
+            <LeaderboardsPage
+              named={Boolean(props.account && !props.account.anonymous)}
+              lang={props.lang}
+              advanced={props.advancedBoards}
+              onCloseAdvanced={() => props.onAdvancedBoards(false)}
             />
           )}
           {sub === 'requests' && (
@@ -187,7 +228,7 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               onOpen={props.onRequestsOpen}
             />
           )}
-          {sub === 'categories' && <CategoriesPage profile={props.profile} />}
+          {sub === 'categories' && <CategoriesPage profile={props.profile} {...props.banActions} />}
           {!sub && pane === 'profile' && <ProfilePane {...props} onPage={open} />}
           {pane === 'social' && (
             <SocialPane
@@ -195,6 +236,8 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               moderator={props.moderation?.moderator ?? false}
               onProfile={() => open('profile')}
               onFriends={props.onFriends}
+              onChallenge={props.onChallenge}
+              onChallengeFriend={props.onChallengeFriend}
             />
           )}
           {pane === 'options' && (
@@ -243,6 +286,7 @@ function ProfilePane({
   | 'focusChallenges'
   | 'friendRequests'
   | 'onFriends'
+  | 'onChallengeFriend'
 > & {
   onPage(page: ProfilePage): void
 }) {
@@ -289,7 +333,7 @@ function ProfilePane({
 
       <PageLinks
         pages={PROFILE_PAGES}
-        badges={{ requests: moderation?.news ?? 0 }}
+        badges={{ requests: moderation?.news ?? 0, categories: banNews(profile, ownedCategoryIds(profile)) ? 1 : 0 }}
         onOpen={(next) => next !== 'profile' && onPage(next)}
       />
 
@@ -303,12 +347,16 @@ function SocialPane({
   moderator,
   onProfile,
   onFriends,
+  onChallenge,
+  onChallengeFriend,
 }: {
   account: Account | null
   /** A moderator can put a friend forward to become one. */
   moderator: boolean
   onProfile(): void
   onFriends(friends: readonly Friend[]): void
+  onChallenge(id: string): void
+  onChallengeFriend(friendId: string): void
 }) {
   const t = useT()
   const [friends, setFriends] = useState<Friend[] | null | 'loading'>('loading')
@@ -317,6 +365,8 @@ function SocialPane({
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const named = account && !account.anonymous
+  const history = useFriendHistory(Boolean(named))
+  const [opened, setOpened] = useState<string | null>(null)
 
   const refresh = () => {
     fetchBlocks().then((list) => setBlocks(list ?? []))
@@ -379,6 +429,35 @@ function SocialPane({
     .filter((friend) => friend.relation === 'friend')
     .sort((a, b) => b.weekBest - a.weekBest || b.xp - a.xp)
   const outgoing = list.filter((friend) => friend.relation === 'outgoing')
+  const sharedWith = (friendId: string) =>
+    history && (history.byFriend[friendId] ?? []).flatMap((id) => history.challenges[id] ?? [])
+
+  const page = accepted.find((friend) => friend.id === opened)
+  if (page) {
+    return (
+      <FriendPage
+        friend={page}
+        challenges={sharedWith(page.id)}
+        complete={history?.complete ?? false}
+        showModerator={moderator}
+        onBack={() => setOpened(null)}
+        onChallenge={onChallenge}
+        onChallengeFriend={() => onChallengeFriend(page.id)}
+        onRemove={() => {
+          setOpened(null)
+          act(removeFriend(page.id))
+        }}
+        onElect={
+          moderator && !page.moderator
+            ? async () => {
+                setMessage(t.social.invites[await inviteModerator(page.id)](page.name))
+                setOpened(null)
+              }
+            : undefined
+        }
+      />
+    )
+  }
 
   return (
     <>
@@ -440,12 +519,8 @@ function SocialPane({
                   key={friend.id}
                   friend={friend}
                   showModerator={moderator}
-                  onRemove={() => act(removeFriend(friend.id))}
-                  onElect={
-                    moderator && !friend.moderator
-                      ? async () => setMessage(t.social.invites[await inviteModerator(friend.id)](friend.name))
-                      : undefined
-                  }
+                  shared={sharedWith(friend.id)}
+                  onOpen={() => setOpened(friend.id)}
                 />
               ))}
             </ul>
@@ -543,71 +618,50 @@ function IncomingRow({
   )
 }
 
-/** Removing a friend takes a second tap: a stray one would cost a request and a wait. */
+/** A friend opens onto their page; under the name, how your challenges together went. */
 function FriendRow({
   friend,
   showModerator,
-  onRemove,
-  onElect,
+  shared,
+  onOpen,
 }: {
   friend: Friend
   /** Who moderates is known to moderators alone: a player would know whom to lobby. */
   showModerator: boolean
-  onRemove(): void
-  onElect?(): Promise<void>
+  /** Null until the shared challenges are listed. */
+  shared: readonly SharedChallenge[] | null
+  onOpen(): void
 }) {
   const t = useT()
-  const [confirming, setConfirming] = useState(false)
-  const [electing, setElecting] = useState(false)
+  const tally = shared && rivalry(shared, friend.id)
 
   return (
-    <li className="friend">
-      <Avatar choice={friend.avatar} size="sm" />
-      <span className="friend-name">
-        <span>
-          {friend.name}
-          {showModerator && friend.moderator && <span className="friend-moderator">{t.social.moderator}</span>}
+    <li>
+      <button type="button" className="friend friend--open" onClick={onOpen} aria-label={t.social.openFriend(friend.name)}>
+        <Avatar choice={friend.avatar} size="sm" />
+        <span className="friend-name">
+          <span>
+            {friend.name}
+            {showModerator && friend.moderator && <span className="friend-moderator">{t.social.moderator}</span>}
+          </span>
+          <span className="note">
+            {t.social.stats(levelFor(friend.xp), formatNumber(t, friend.weekBest), formatNumber(t, friend.bestScore))}
+          </span>
+          {tally && (
+            <span className="note">
+              {tally.challenges === 0 ? t.social.noShared : t.social.versus(tally.won, tally.lost, friend.name, tally.challenges)}
+            </span>
+          )}
         </span>
-        <span className="note">
-          {t.social.stats(levelFor(friend.xp), formatNumber(t, friend.weekBest), formatNumber(t, friend.bestScore))}
-        </span>
-      </span>
-      <span className="friend-actions">
-        {onElect && !confirming && (
-          <button
-            type="button"
-            className="btn btn--quiet"
-            aria-label={t.social.electLabel(friend.name)}
-            disabled={electing}
-            onClick={async () => {
-              setElecting(true)
-              await onElect()
-              setElecting(false)
-            }}
-          >
-            {t.social.elect}
-          </button>
-        )}
-        {confirming ? (
-          <>
-            <button type="button" className="btn btn--quiet" onClick={onRemove}>
-              {t.social.remove}
-            </button>
-            <button type="button" className="btn btn--quiet btn--muted" onClick={() => setConfirming(false)}>
-              {t.social.keep}
-            </button>
-          </>
-        ) : (
-          <button type="button" className="btn btn--quiet btn--muted" onClick={() => setConfirming(true)}>
-            {t.social.remove}
-          </button>
-        )}
-      </span>
+        <svg className="friend-chevron" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
     </li>
   )
 }
 
-const THEMES: readonly Theme[] = ['system', 'light', 'dark']
+const THEMES: readonly Theme[] = ['system', 'light']
 const SOUND_CHANNELS = ['master', 'effects', 'keys', 'music'] as const
 
 /** The music is heard as it plays; the effects and keys need a sample. */
