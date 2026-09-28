@@ -572,12 +572,22 @@ const HIDDEN: HiddenAnswer[] = [
 ]
 
 /** « Mes catégories » à sept catégories : le bannissement s'y ouvre, sur un profil qui ne sort pas de la planche. */
-function BansScenario({ seen = false, plus = false }: { seen?: boolean; plus?: boolean }) {
+function BansScenario({
+  seen = false,
+  plus = false,
+  banned = [],
+}: {
+  seen?: boolean
+  plus?: boolean
+  /** Déjà bannies à l'ouverture. */
+  banned?: readonly string[]
+}) {
   const [profile, setProfile] = useState<Profile>(() => ({
     ...PROFILE,
     unlocked: ['fruits-legumes', 'metiers', 'sports', 'marques'],
     banIntroSeen: seen ? 1 : 0,
     plusSince: plus ? 1 : 0,
+    banned,
   }))
   const owned = ownedCategoryIds(profile)
   return (
@@ -812,6 +822,24 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Trois bandes noires à arracher (deux gratuites restantes, puis Premium), une déjà soufflée par Professeur',
     phase: 'over',
     render: (back) => <OverScenario after={afterRun({ ...PROFILE, peeks: 3 }, RUN)} hidden={HIDDEN} onBack={back} />,
+  },
+  {
+    id: 'over-hidden-spent',
+    group: 'Fin de partie',
+    title: 'Mots cachés : plus aucun gratuit',
+    how: 'Les cinq révélations gratuites sont passées : la première bande ouvre l’offre Premium',
+    phase: 'over',
+    render: (back) => <OverScenario after={afterRun({ ...PROFILE, peeks: 5 }, RUN)} hidden={HIDDEN} onBack={back} />,
+  },
+  {
+    id: 'over-hidden-premium',
+    group: 'Fin de partie',
+    title: 'Mots cachés : Premium',
+    how: 'Premium : toutes les bandes s’arrachent, sans compteur',
+    phase: 'over',
+    render: (back) => (
+      <OverScenario after={afterRun({ ...PROFILE, peeks: 5, plusSince: 1 }, RUN)} hidden={HIDDEN} onBack={back} />
+    ),
   },
   {
     id: 'over-anonymous',
@@ -1149,6 +1177,22 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <FeedbackPop onClose={back} send={() => later(true)} />,
   },
   {
+    id: 'feedback-pop-failed',
+    group: 'Accueil',
+    title: 'Demande d’avis : envoi raté',
+    how: 'Le serveur ne répond pas : le texte reste, l’avis le dit',
+    phase: 'home',
+    render: (back) => <FeedbackPop onClose={back} send={() => later(false)} />,
+  },
+  {
+    id: 'home-categories-news',
+    group: 'Accueil',
+    title: 'Pastille sur « Catégories »',
+    how: 'Septième catégorie obtenue, bannissement pas encore lu',
+    phase: 'home',
+    render: (back) => <DebugHome back={back} categoriesNews={1} />,
+  },
+  {
     id: 'categories-ban',
     group: 'Accueil',
     title: 'Mes catégories : bannir',
@@ -1165,6 +1209,14 @@ const SCENARIOS: readonly Scenario[] = [
     render: () => <BansScenario seen plus />,
   },
   {
+    id: 'categories-ban-full',
+    group: 'Accueil',
+    title: 'Mes catégories : limite des cinq',
+    how: 'Premium, deux bannies sur sept : un troisième ban est refusé, il faut garder cinq catégories',
+    phase: 'home',
+    render: () => <BansScenario seen plus banned={['pays', 'animaux']} />,
+  },
+  {
     id: 'plus-pop',
     group: 'Accueil',
     title: 'Offre Premium',
@@ -1173,12 +1225,49 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <PlusPop reason="ban" onJoin={back} onClose={back} />,
   },
   {
+    id: 'plus-pop-peek',
+    group: 'Accueil',
+    title: 'Offre Premium : mots cachés',
+    how: 'Sixième mot caché demandé sans être Premium',
+    phase: 'home',
+    render: (back) => <PlusPop reason="peek" onJoin={back} onClose={back} />,
+  },
+  {
     id: 'ideas-admin',
     group: 'Accueil',
     title: 'Idées reçues (administrateur)',
     how: 'Cinq tapes sur « Boîte à idées » : à traiter, archivées, copier pour un backlog, effacer',
     phase: 'home',
     render: (back) => <IdeasScenario back={back} />,
+  },
+  {
+    id: 'ideas-admin-denied',
+    group: 'Accueil',
+    title: 'Idées reçues : pas administrateur',
+    how: 'Les cinq tapes d’un joueur ordinaire, ou un serveur muet',
+    phase: 'home',
+    render: (back) => (
+      <div className="sheet">
+        <IdeasAdminView ideas={null} onArchive={() => later(false)} onDelete={() => later(false)} onClose={back} />
+      </div>
+    ),
+  },
+  {
+    id: 'ideas-admin-empty',
+    group: 'Accueil',
+    title: 'Idées reçues : rien à traiter',
+    how: 'Tout est archivé',
+    phase: 'home',
+    render: (back) => (
+      <div className="sheet">
+        <IdeasAdminView
+          ideas={IDEAS.map((idea) => ({ ...idea, archivedAt: idea.archivedAt ?? new Date().toISOString() }))}
+          onArchive={() => later(true)}
+          onDelete={() => later(true)}
+          onClose={back}
+        />
+      </div>
+    ),
   },
   {
     id: 'push-offer',
@@ -1253,12 +1342,15 @@ function DebugHome({
   newcomer = false,
   boards = null,
   climbed = 0,
+  categoriesNews = 0,
 }: {
   back(): void
   error?: boolean
   newcomer?: boolean
   boards?: Boards | null
   climbed?: number
+  /** La pastille de « Catégories », tant que le bannissement n'a pas été lu. */
+  categoriesNews?: number
 }) {
   return (
     <HomeScreen
@@ -1271,6 +1363,7 @@ function DebugHome({
       climbed={climbed}
       avatar={DEFAULT_AVATAR}
       requestsNews={error || newcomer ? 0 : 3}
+      categoriesNews={categoriesNews}
       friendRequests={error || newcomer ? 0 : 2}
       challenges={null}
       onChallenge={noop}
