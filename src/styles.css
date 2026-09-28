@@ -5284,14 +5284,17 @@ button.challenge-past::after {
   grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
 }
 
-/* Avec les réglages du défi, la fenêtre entière défile plutôt que la seule liste. */
-.friend-picker:has(.challenge-setup) {
+/* Avec les réglages du défi, la fenêtre entière défile plutôt que la seule liste.
+   Une classe et non :has() : les WebView Android d'avant Chrome 105 l'ignorent,
+   et la liste s'y réduisait à trois amis dans une boîte minuscule. */
+.friend-picker--setup {
   grid-template-rows: none;
   overflow-y: auto;
 }
 
-.friend-picker:has(.challenge-setup) .friend-picks {
+.friend-picker--setup .friend-picks {
   overflow: visible;
+  min-height: auto;
 }
 
 .challenge-setup {

@@ -48,7 +48,7 @@ export function FriendPicker({ title, lead, exclude, max, busy, message, confirm
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="friend-picker-title">
       <div className="offer-pop-scrim" onClick={onClose} />
-      <div className="offer-pop friend-picker">
+      <div className={`offer-pop friend-picker${children ? ' friend-picker--setup' : ''}`}>
         <h2 id="friend-picker-title" className="offer-pop-title">
           {title}
         </h2>
