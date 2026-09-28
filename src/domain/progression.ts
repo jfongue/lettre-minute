@@ -95,7 +95,7 @@ export interface Profile {
   banIntroSeen: number
   /** Hidden answers of the summary uncovered so far (`FREE_PEEKS`). */
   peeks: number
-  /** When the player became Joueur +; 0 if they never did. */
+  /** When the player went Premium; 0 if they never did. */
   plusSince: number
 }
 

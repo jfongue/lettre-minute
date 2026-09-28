@@ -5,7 +5,7 @@ import { useBackDismiss } from './useBackDismiss'
 /** What the player reached for past the free share: a second ban, or a sixth hidden word. */
 export type PlusReason = 'ban' | 'peek'
 
-/** Joueur + is free for now: the offer says so, and joining is one tap. */
+/** Premium is free for now: the offer says so, and joining is one tap. */
 export function PlusPop({ reason, onJoin, onClose }: { reason: PlusReason; onJoin(): void; onClose(): void }) {
   const t = useT()
   useBackDismiss(onClose)

@@ -303,7 +303,7 @@ const SHARDS = Array.from({ length: 10 }, (_, i) => ({ angle: (i / 10) * 360 + (
 /**
  * The prompts the player skipped, each with a word it could have taken
  * under a black bar: close enough to tempt, too dark to read. A tap tears the
- * bar off — five times free, then Joueur +. What Professeur already told is
+ * bar off — five times free, then Premium. What Professeur already told is
  * shown as it is.
  */
 function HiddenAnswers({

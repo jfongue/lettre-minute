@@ -322,9 +322,9 @@ qu'un nouvel arrivant casserait sans le savoir.
   `supabase db query --linked "select body, lang, source, created_at from ideas where archived_at is null order by created_at"`.
   La question d'avis (`feedbackDue`, `src/domain/perks.ts`) tombe au retour à
   l'accueil après la dixième partie, puis toutes les trente.
-- **Bannir une catégorie et Joueur + vivent dans le profil, sur l'appareil**
+- **Bannir une catégorie et Premium vivent dans le profil, sur l'appareil**
   (`src/domain/perks.ts`) : un ban dès sept catégories, les suivants et plus
-  de cinq mots cachés révélés au récap réservés à Joueur +, gratuit pour
+  de cinq mots cachés révélés au récap réservés à Premium, gratuit pour
   l'instant (`plusSince`). Un ban ne vaut que pour les parties seules : un
   défi distribue ses propres catégories. Il reste toujours
   `MAX_CATEGORIES_PER_RUN` catégories jouables.

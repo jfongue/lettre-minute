@@ -669,13 +669,13 @@ export const nl: Messages = {
   },
 
   plus: {
-    title: 'Alleen voor Spelers +',
-    ban: 'Meer dan één categorie weren is voorbehouden aan Spelers +.',
-    peek: 'Meer woorden onthullen is voorbehouden aan Spelers +.',
-    join: 'Word Speler + voor € 0',
+    title: 'Alleen voor Premium',
+    ban: 'Meer dan één categorie weren is voorbehouden aan Premium-leden.',
+    peek: 'Meer woorden onthullen is voorbehouden aan Premium-leden.',
+    join: 'Word Premium voor € 0',
     free: '(voorlopig is het gratis!)',
     later: 'Later',
-    badge: 'Speler +',
+    badge: 'Premium',
   },
 
   peek: {

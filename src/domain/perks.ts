@@ -5,10 +5,10 @@ import { MAX_CATEGORIES_PER_RUN } from './unlocks'
 /** Owned categories from which one may be banned from the draw. */
 export const BAN_UNLOCK_CATEGORIES = 7
 
-/** Bans a player keeps without Joueur + ; past it, every ban is theirs. */
+/** Bans a player keeps without Premium ; past it, every ban is theirs. */
 export const FREE_BANS = 1
 
-/** Hidden answers of the summary a player may uncover without Joueur +, over all their runs. */
+/** Hidden answers of the summary a player may uncover without Premium, over all their runs. */
 export const FREE_PEEKS = 5
 
 /** Runs before the game first asks for the player's opinion, then between two asks. */
@@ -19,7 +19,7 @@ export function isPlus(profile: Profile): boolean {
   return profile.plusSince > 0
 }
 
-/** Joueur + costs nothing for now: joining is a date written down. */
+/** Premium costs nothing for now: joining is a date written down. */
 export function joinPlus(profile: Profile, now: number): Profile {
   return isPlus(profile) ? profile : { ...profile, plusSince: now }
 }
@@ -56,7 +56,7 @@ export function unban(profile: Profile, categoryId: string): Profile {
 
 /**
  * The bans that still hold: on owned categories, and the free one alone once
- * Joueur + is gone — the latest ones give way first.
+ * Premium is gone — the latest ones give way first.
  */
 export function bannedOf(profile: Profile, ownedIds: readonly string[]): string[] {
   if (!banUnlocked(ownedIds)) return []

@@ -107,7 +107,7 @@ interface MenuProps {
   /** Les classements avancés : le mode débug, ouvert par cinq tapes sur « Classements ». */
   advancedBoards: boolean
   onAdvancedBoards(open: boolean): void
-  /** Bans and Joueur +, from « Mes catégories ». */
+  /** Bans and Premium, from « Mes catégories ». */
   banActions: BanActions
   onClose(): void
 }

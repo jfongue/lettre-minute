@@ -668,13 +668,13 @@ export const de: Messages = {
   },
 
   plus: {
-    title: 'Nur für Spieler +',
-    ban: 'Mehr als eine Kategorie zu sperren ist Spielern + vorbehalten.',
-    peek: 'Mehr Wörter aufzudecken ist Spielern + vorbehalten.',
-    join: 'Spieler + werden für 0 €',
+    title: 'Nur für Premium',
+    ban: 'Mehr als eine Kategorie zu sperren ist Premium-Mitgliedern vorbehalten.',
+    peek: 'Mehr Wörter aufzudecken ist Premium-Mitgliedern vorbehalten.',
+    join: 'Premium werden für 0 €',
     free: '(im Moment ist es gratis!)',
     later: 'Später',
-    badge: 'Spieler +',
+    badge: 'Premium',
   },
 
   peek: {

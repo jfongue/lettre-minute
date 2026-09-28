@@ -670,13 +670,13 @@ export const es: Messages = {
   },
 
   plus: {
-    title: 'Solo para Jugadores +',
-    ban: 'Vetar más de una categoría está reservado a los Jugadores +.',
-    peek: 'Revelar más palabras está reservado a los Jugadores +.',
-    join: 'Hazte Jugador + por 0 €',
+    title: 'Solo para Premium',
+    ban: 'Vetar más de una categoría está reservado a los miembros Premium.',
+    peek: 'Revelar más palabras está reservado a los miembros Premium.',
+    join: 'Hazte Premium por 0 €',
     free: '(¡por ahora es gratis!)',
     later: 'Más tarde',
-    badge: 'Jugador +',
+    badge: 'Premium',
   },
 
   peek: {

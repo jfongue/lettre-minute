@@ -674,13 +674,13 @@ export const en: Messages = {
   },
 
   plus: {
-    title: 'For Players + only',
-    ban: 'Banning more than one category is for Players + only.',
-    peek: 'Revealing more words is for Players + only.',
-    join: 'Become a Player + for €0',
+    title: 'Premium only',
+    ban: 'Banning more than one category is for Premium members only.',
+    peek: 'Revealing more words is for Premium members only.',
+    join: 'Go Premium for €0',
     free: '(it’s free for now!)',
     later: 'Later',
-    badge: 'Player +',
+    badge: 'Premium',
   },
 
   peek: {

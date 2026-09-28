@@ -713,13 +713,13 @@ export const fr = {
   },
 
   plus: {
-    title: 'Réservé aux Joueurs +',
-    ban: 'Bannir plus d’une catégorie est réservé aux Joueurs +.',
-    peek: 'Révéler plus de mots est réservé aux Joueurs +.',
-    join: 'Devenir Joueur + pour 0 €',
+    title: 'Réservé aux membres Premium',
+    ban: 'Bannir plus d’une catégorie est réservé aux membres Premium.',
+    peek: 'Révéler plus de mots est réservé aux membres Premium.',
+    join: 'Passer Premium pour 0 €',
     free: '(pour l’instant c’est gratuit !)',
     later: 'Plus tard',
-    badge: 'Joueur +',
+    badge: 'Premium',
   },
 
   peek: {

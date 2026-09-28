@@ -6673,7 +6673,7 @@ button.challenge-word[aria-expanded='true'] {
   background: var(--green);
 }
 
-/* ------------------------------------------------- avis, bans, Joueur + - */
+/* ------------------------------------------------- avis, bans, Premium - */
 .feedback-pop textarea {
   justify-self: stretch;
   width: 100%;

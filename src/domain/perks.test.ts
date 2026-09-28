@@ -38,7 +38,7 @@ describe('bans', () => {
     expect(playableCategoryIds(unban(banned, 'c'), SEVEN)).toEqual(SEVEN)
   })
 
-  it('ask for Joueur + past the free ban', () => {
+  it('ask for Premium past the free ban', () => {
     const one = ban(NEW_PROFILE, SEVEN, 'c')
     expect(banVerdict(one, SEVEN, 'd')).toBe('plus')
     expect(ban(one, SEVEN, 'd')).toBe(one)
@@ -52,7 +52,7 @@ describe('bans', () => {
     expect(banVerdict(plus, SEVEN, 'c')).toBe('full')
   })
 
-  it('fall back to the free ban when Joueur + is gone', () => {
+  it('fall back to the free ban when Premium is gone', () => {
     const plus: Profile = { ...NEW_PROFILE, plusSince: 1, banned: ['a', 'b'] }
     expect(bannedOf({ ...plus, plusSince: 0 }, SEVEN)).toEqual(['a'])
   })
@@ -63,7 +63,7 @@ describe('bans', () => {
 })
 
 describe('peeks', () => {
-  it('stop after five without Joueur +', () => {
+  it('stop after five without Premium', () => {
     let profile = NEW_PROFILE
     for (let i = 0; i < FREE_PEEKS + 2; i++) profile = spendPeek(profile)
     expect(profile.peeks).toBe(FREE_PEEKS)

@@ -670,13 +670,13 @@ export const it: Messages = {
   },
 
   plus: {
-    title: 'Riservato ai Giocatori +',
-    ban: 'Escludere più di una categoria è riservato ai Giocatori +.',
-    peek: 'Rivelare altre parole è riservato ai Giocatori +.',
-    join: 'Diventa Giocatore + per 0 €',
+    title: 'Riservato ai membri Premium',
+    ban: 'Escludere più di una categoria è riservato ai membri Premium.',
+    peek: 'Rivelare altre parole è riservato ai membri Premium.',
+    join: 'Passa a Premium per 0 €',
     free: '(per ora è gratis!)',
     later: 'Più tardi',
-    badge: 'Giocatore +',
+    badge: 'Premium',
   },
 
   peek: {
