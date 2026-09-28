@@ -66,6 +66,8 @@ export function Checkout({ onPaid, onCancel }: { onPaid(): void; onCancel(): voi
               <ul className="checkout-perks">
                 <li>{t.checkout.perkBans}</li>
                 <li>{t.checkout.perkPeeks}</li>
+                <li>{t.checkout.perkCategories}</li>
+                <li>{t.checkout.perkEvents}</li>
               </ul>
               <p className="note">{t.checkout.period}</p>
             </section>

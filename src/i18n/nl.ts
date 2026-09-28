@@ -22,6 +22,7 @@ export const nl: Messages = {
     wordsFound: 'woorden gevonden',
     bestCombo: 'beste reeks',
     myCategories: 'Mijn categorieën',
+    comingSoon: 'Binnenkort…',
     links: { profile: 'Profiel', stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Categorieën' },
     accountLead: 'Bewaar je scores en daag je vrienden uit.',
     news: (count) => `${count} nieuw`,
@@ -682,6 +683,8 @@ export const nl: Messages = {
     plan: 'Premium',
     perkBans: 'Zoveel categorieën weren als je wilt',
     perkPeeks: 'Alle verborgen woorden onthullen',
+    perkCategories: 'Exclusieve categorieën',
+    perkEvents: 'Evenement-spelmodi',
     price: '€ 0,00',
     period: 'altijd opzegbaar',
     total: 'Totaal',
@@ -722,6 +725,8 @@ export const nl: Messages = {
     prenoms: ['Voornamen', 'Van hier en elders'],
     objets: ['Alledaagse voorwerpen', 'Thuis of in je tas'],
     plantes: ['Planten', 'Bloemen, bomen, kruiden'],
+    ingredients: ['Ingrediënten', 'Van zout tot pure chocolade'],
+    lieux: ['Plekken en gebouwen', 'Van stadhuis tot fabriek'],
   },
 
   colours: {

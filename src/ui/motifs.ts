@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react'
 import type { ShapeKind } from '../domain/avatar'
 import type { PowerId } from '../domain/powers'
-import { CATALOGUE } from '../domain/catalogue'
+import { announcedCategories } from '../domain/catalogue'
 
 export type { ShapeKind, DetailKind } from '../domain/avatar'
 
@@ -23,9 +23,9 @@ export function motifAt(index: number): Motif {
   return { kind: LETTER_SHAPES[index % LETTER_SHAPES.length], tint: TINTS[index % TINTS.length] }
 }
 
-/** Each category keeps the same colour everywhere it appears. */
+/** Each category keeps the same colour everywhere it appears — the announced ones too. */
 export function categoryMotif(categoryId: string): Motif {
-  return motifAt(Math.max(0, CATALOGUE.findIndex((category) => category.id === categoryId)))
+  return motifAt(Math.max(0, announcedCategories().findIndex((category) => category.id === categoryId)))
 }
 
 /** The text colour that reads on a given ground. */

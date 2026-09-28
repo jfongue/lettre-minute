@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
-import { CATALOGUE } from '../domain/catalogue'
+import { CATALOGUE, SOON } from '../domain/catalogue'
 import { bannedOf, banNews, banUnlocked, banVerdict, isPlus } from '../domain/perks'
 import type { Profile } from '../domain/progression'
 import { ownedCategoryIds } from '../domain/unlocks'
@@ -95,6 +95,21 @@ export function CategoriesPage({ profile, onBan, onUnban, onIntroSeen, onJoinPlu
             <SwipeRow key={id} out={out} label={out ? t.bans.unban : t.bans.ban} onSwipe={() => toggle(id, out)}>
               {row}
             </SwipeRow>
+          )
+        })}
+        {SOON.map((category) => {
+          const text = categoryText(t, category.id)
+          return (
+            <li key={category.id} className="category--soon">
+              <CategoryIcon categoryId={category.id} tint={categoryMotif(category.id).tint} className="category-shape" />
+              <span className="category-text">
+                <span className="category-label">
+                  {text.label}
+                  <span className="category-soon-tag">{t.home.comingSoon}</span>
+                </span>
+                <span className="note">{text.hint}</span>
+              </span>
+            </li>
           )
         })}
       </ul>

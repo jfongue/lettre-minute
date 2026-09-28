@@ -1,5 +1,5 @@
 import { PALETTE, type Milestone } from '../domain/avatar'
-import { CATALOGUE } from '../domain/catalogue'
+import { announcedCategories } from '../domain/catalogue'
 import type { TrophyId } from '../domain/challenge'
 import type { FaceOff } from '../domain/rivalry'
 import type { StatId } from '../domain/leaderboards'
@@ -45,6 +45,7 @@ export const fr = {
     wordsFound: 'mots trouvés',
     bestCombo: 'meilleure série',
     myCategories: 'Mes catégories',
+    comingSoon: 'Bientôt…',
     links: { profile: 'Profil', stats: 'Statistiques', requests: 'Mes demandes', categories: 'Catégories' },
     accountLead: 'Garde tes scores et défie tes amis.',
     news: (count: number) => `${count} ${plural(count, 'nouveauté', 'nouveautés')}`,
@@ -724,6 +725,8 @@ export const fr = {
     plan: 'Premium',
     perkBans: 'Bannir autant de catégories que tu veux',
     perkPeeks: 'Révéler tous les mots cachés',
+    perkCategories: 'Des catégories exclusives',
+    perkEvents: 'Des modes de jeu événements',
     price: '0,00 €',
     period: 'sans engagement',
     total: 'Total',
@@ -756,7 +759,7 @@ export const fr = {
   } satisfies Record<RarityTier, string> as Record<RarityTier, string>,
 
   /** By category id. French reads the catalogue itself, which stays the source of truth. */
-  categories: Object.fromEntries(CATALOGUE.map((category) => [category.id, [category.label, category.hint]])) as Record<
+  categories: Object.fromEntries(announcedCategories().map((category) => [category.id, [category.label, category.hint]])) as Record<
     string,
     readonly [label: string, hint: string]
   >,

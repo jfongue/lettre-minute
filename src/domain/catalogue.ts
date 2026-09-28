@@ -34,6 +34,29 @@ export function categoryMeta(id: string): CategoryMeta | null {
   return CATALOGUE.find((category) => category.id === id) ?? null
 }
 
+/**
+ * A category the menu announces before it can be played: its dictionary is
+ * still a draft under `src/data/drafts`, so no build ships it and no run can
+ * draw it — `availableCategoryIds` is what the draw asks.
+ */
+export type SoonCategory = Pick<CategoryMeta, 'id' | 'label' | 'hint'>
+
+/**
+ * Written, tested, and waiting for their dictionaries to ship. « Mes
+ * catégories » lists them under a « Bientôt… » tag; `src/data/drafts.test.ts`
+ * holds them to the answers each of the seven languages will need, and moving
+ * one into `CATALOGUE` is what puts it in play.
+ */
+export const SOON: readonly SoonCategory[] = [
+  { id: 'ingredients', label: 'Ingrédients', hint: 'Du sel au chocolat noir' },
+  { id: 'lieux', label: 'Lieux et bâtiments', hint: 'De la mairie à l’usine' },
+]
+
+/** Every category the game names, in play or announced — for the menu and the names. */
+export function announcedCategories(): readonly (CategoryMeta | SoonCategory)[] {
+  return [...CATALOGUE, ...SOON]
+}
+
 export function unlockedCategories(level: number): CategoryMeta[] {
   return CATALOGUE.filter((category) => category.unlockLevel <= level)
 }

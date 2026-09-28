@@ -22,6 +22,7 @@ export const pt: Messages = {
     wordsFound: 'palavras achadas',
     bestCombo: 'melhor sequência',
     myCategories: 'Minhas categorias',
+    comingSoon: 'Em breve…',
     links: { profile: 'Perfil', stats: 'Estatísticas', requests: 'Minhas sugestões', categories: 'Categorias' },
     accountLead: 'Guarda as tuas pontuações e desafia os teus amigos.',
     news: (count) => `${count} ${count > 1 ? 'novidades' : 'novidade'}`,
@@ -683,6 +684,8 @@ export const pt: Messages = {
     plan: 'Premium',
     perkBans: 'Excluir quantas categorias quiseres',
     perkPeeks: 'Revelar todas as palavras escondidas',
+    perkCategories: 'Categorias exclusivas',
+    perkEvents: 'Modos de jogo de eventos',
     price: '0,00 €',
     period: 'sem compromisso',
     total: 'Total',
@@ -723,6 +726,8 @@ export const pt: Messages = {
     prenoms: ['Nomes próprios', 'Daqui e de fora'],
     objets: ['Objetos do dia a dia', 'Em casa ou na mala'],
     plantes: ['Plantas', 'Flores, árvores, ervas'],
+    ingredients: ['Ingredientes', 'Do sal ao chocolate preto'],
+    lieux: ['Lugares e edifícios', 'Da prefeitura à fábrica'],
   },
 
   colours: {

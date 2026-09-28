@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { CATALOGUE, SOON } from '../domain/catalogue'
 import { THIN_PROMPT_WORDS } from '../domain/run'
 import { compactWord, initialOf, normalizeWord } from '../domain/text'
 import { buildWordPack, findWord, knownByLetter, type WordRow } from '../domain/words'
@@ -169,6 +170,13 @@ describe('draft dictionaries', () => {
         .sort()
       expect(ids, lang).toEqual([...DRAFTS].sort())
     }
+  })
+
+  it('is exactly what the game announces and cannot deal', () => {
+    // A draft that ships becomes a catalogue entry and leaves this file: the
+    // two lists move together, or the menu promises what no run can play.
+    expect(SOON.map((category) => category.id).sort()).toEqual([...DRAFTS].sort())
+    for (const id of DRAFTS) expect(CATALOGUE.some((category) => category.id === id), id).toBe(false)
   })
 
   for (const [name, rows] of rowsOf) {

@@ -52,17 +52,21 @@ qu'un nouvel arrivant casserait sans le savoir.
   (`src/App.tsx`) : ajouter une entrée à `CATALOGUE` ne suffit pas, il faut
   lancer `npm run import:words` et commiter le `.json`.
 - **Une catégorie en brouillon vit hors du jeu** (`DRAFT_SOURCES`,
-  `scripts/sources.ts`) : ses dictionnaires sont sous `src/data/drafts/`, que
-  ni `packs.ts` ni `words.test.ts` ne lisent, et
+  `scripts/sources.ts`, et `SOON`, `src/domain/catalogue.ts`) : elle est
+  annoncée dans « Mes catégories » sous une étiquette « Bientôt… », mais
+  `CATALOGUE` ne la liste pas, donc aucun tirage ne la distribue et aucun ban
+  ne la vise. Ses dictionnaires sont sous `src/data/drafts/`, que ni `packs.ts`
+  ni `words.test.ts` ne lisent, et
   `npm run import:words -- --lang=de --draft` la construit seule, sans lire
   aucun *pull* — le français depuis le Wiktionnaire français, les six autres
   langues depuis les thèmes du Wiktionnaire anglais (`TOPICS`,
   `scripts/languages.ts`), dont une entrée nouvelle périme le cache kaikki de
   chaque langue et fait relire tout son dump. C'est `src/data/drafts.test.ts`
   qui les garde — lignes bien formées, réponses évidentes trouvées dans chaque
-  langue, assez de lettres connues pour le tirage. Activer une catégorie
-  demande une entrée de `CATALOGUE` et son nom dans les sept langues : les
-  dictionnaires, eux, sont déjà là.
+  langue, assez de lettres connues pour le tirage, et la liste des brouillons
+  exactement celle de `SOON`. La mettre en jeu demande une entrée de
+  `CATALOGUE` et le déplacement de ses dictionnaires vers
+  `src/data/words/<langue>/`.
 - **Le Wiktionnaire est la source des noms communs**, Wikidata celle des
   entités : Wikidata connaît cinquante races de chat mais pas « abeille ». Une
   catégorie de noms communs bâtie sur Wikidata seul laisse dehors les réponses
