@@ -1,6 +1,6 @@
 # Supabase
 
-Vingt-six migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Vingt-sept migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -36,7 +36,8 @@ avancés du mode débug (pouvoirs joués, rythme des parties et des comptes,
 couples les plus rentables ou les plus quittés), et
 [`0026_insights_history.sql`](migrations/0026_insights_history.sql) pour en
 sortir les joueurs maison et y lire les mots joués des parties qui n'ont rien
-rapporté.
+rapporté, et [`0027_friend_challenges.sql`](migrations/0027_friend_challenges.sql)
+pour l'historique des défis joués avec chaque ami.
 
 ## Ce que le serveur détient
 

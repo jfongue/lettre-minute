@@ -39,6 +39,9 @@ import { LeaderboardsPage } from './LeaderboardsPage'
 import { PageLinks } from './PageLinks'
 import { RequestsPage } from './RequestsPage'
 import { StatsPage } from './StatsPage'
+import { FriendPage } from './FriendPage'
+import { useFriendHistory } from '../state/rivalry'
+import { rivalry, type SharedChallenge } from '../domain/rivalry'
 import { DonateButton } from './Donate'
 import { useHiddenTaps } from './useHiddenTaps'
 import { useSwipe } from './useSwipe'
@@ -94,6 +97,8 @@ interface MenuProps {
   /** Null without an account; the statistics list the hidden ones. */
   challenges: readonly ChallengeSummary[] | null
   onChallenge(id: string): void
+  /** From a friend's page: a new challenge with them ticked. */
+  onChallengeFriend(friendId: string): void
   onRequestsSeen(): void
   onRequestsOpen(): void
   /** La langue du dictionnaire, comme celle de la partie : celle de l'interface. */
@@ -228,6 +233,8 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               moderator={props.moderation?.moderator ?? false}
               onProfile={() => open('profile')}
               onFriends={props.onFriends}
+              onChallenge={props.onChallenge}
+              onChallengeFriend={props.onChallengeFriend}
             />
           )}
           {pane === 'options' && (
@@ -276,6 +283,7 @@ function ProfilePane({
   | 'focusChallenges'
   | 'friendRequests'
   | 'onFriends'
+  | 'onChallengeFriend'
 > & {
   onPage(page: ProfilePage): void
 }) {
@@ -336,12 +344,16 @@ function SocialPane({
   moderator,
   onProfile,
   onFriends,
+  onChallenge,
+  onChallengeFriend,
 }: {
   account: Account | null
   /** A moderator can put a friend forward to become one. */
   moderator: boolean
   onProfile(): void
   onFriends(friends: readonly Friend[]): void
+  onChallenge(id: string): void
+  onChallengeFriend(friendId: string): void
 }) {
   const t = useT()
   const [friends, setFriends] = useState<Friend[] | null | 'loading'>('loading')
@@ -350,6 +362,8 @@ function SocialPane({
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const named = account && !account.anonymous
+  const history = useFriendHistory(Boolean(named))
+  const [opened, setOpened] = useState<string | null>(null)
 
   const refresh = () => {
     fetchBlocks().then((list) => setBlocks(list ?? []))
@@ -412,6 +426,35 @@ function SocialPane({
     .filter((friend) => friend.relation === 'friend')
     .sort((a, b) => b.weekBest - a.weekBest || b.xp - a.xp)
   const outgoing = list.filter((friend) => friend.relation === 'outgoing')
+  const sharedWith = (friendId: string) =>
+    history && (history.byFriend[friendId] ?? []).flatMap((id) => history.challenges[id] ?? [])
+
+  const page = accepted.find((friend) => friend.id === opened)
+  if (page) {
+    return (
+      <FriendPage
+        friend={page}
+        challenges={sharedWith(page.id)}
+        complete={history?.complete ?? false}
+        showModerator={moderator}
+        onBack={() => setOpened(null)}
+        onChallenge={onChallenge}
+        onChallengeFriend={() => onChallengeFriend(page.id)}
+        onRemove={() => {
+          setOpened(null)
+          act(removeFriend(page.id))
+        }}
+        onElect={
+          moderator && !page.moderator
+            ? async () => {
+                setMessage(t.social.invites[await inviteModerator(page.id)](page.name))
+                setOpened(null)
+              }
+            : undefined
+        }
+      />
+    )
+  }
 
   return (
     <>
@@ -473,12 +516,8 @@ function SocialPane({
                   key={friend.id}
                   friend={friend}
                   showModerator={moderator}
-                  onRemove={() => act(removeFriend(friend.id))}
-                  onElect={
-                    moderator && !friend.moderator
-                      ? async () => setMessage(t.social.invites[await inviteModerator(friend.id)](friend.name))
-                      : undefined
-                  }
+                  shared={sharedWith(friend.id)}
+                  onOpen={() => setOpened(friend.id)}
                 />
               ))}
             </ul>
@@ -576,72 +615,49 @@ function IncomingRow({
   )
 }
 
-/** Removing a friend takes a second tap: a stray one would cost a request and a wait. */
+/** A friend opens onto their page; under the name, how your challenges together went. */
 function FriendRow({
   friend,
   showModerator,
-  onRemove,
-  onElect,
+  shared,
+  onOpen,
 }: {
   friend: Friend
   /** Who moderates is known to moderators alone: a player would know whom to lobby. */
   showModerator: boolean
-  onRemove(): void
-  onElect?(): Promise<void>
+  /** Null until the shared challenges are listed. */
+  shared: readonly SharedChallenge[] | null
+  onOpen(): void
 }) {
   const t = useT()
-  const [confirming, setConfirming] = useState(false)
-  const [electing, setElecting] = useState(false)
+  const tally = shared && rivalry(shared, friend.id)
 
   return (
-    <li className="friend">
-      <Avatar choice={friend.avatar} size="sm" />
-      <span className="friend-name">
-        <span>
-          {friend.name}
-          {showModerator && friend.moderator && <span className="friend-moderator">{t.social.moderator}</span>}
+    <li>
+      <button type="button" className="friend friend--open" onClick={onOpen} aria-label={t.social.openFriend(friend.name)}>
+        <Avatar choice={friend.avatar} size="sm" />
+        <span className="friend-name">
+          <span>
+            {friend.name}
+            {showModerator && friend.moderator && <span className="friend-moderator">{t.social.moderator}</span>}
+          </span>
+          <span className="note">
+            {t.social.stats(levelFor(friend.xp), formatNumber(t, friend.weekBest), formatNumber(t, friend.bestScore))}
+          </span>
+          {tally && (
+            <span className="note">
+              {tally.challenges === 0 ? t.social.noShared : t.social.versus(tally.won, tally.lost, friend.name, tally.challenges)}
+            </span>
+          )}
         </span>
-        <span className="note">
-          {t.social.stats(levelFor(friend.xp), formatNumber(t, friend.weekBest), formatNumber(t, friend.bestScore))}
-        </span>
-      </span>
-      <span className="friend-actions">
-        {onElect && !confirming && (
-          <button
-            type="button"
-            className="btn btn--quiet"
-            aria-label={t.social.electLabel(friend.name)}
-            disabled={electing}
-            onClick={async () => {
-              setElecting(true)
-              await onElect()
-              setElecting(false)
-            }}
-          >
-            {t.social.elect}
-          </button>
-        )}
-        {confirming ? (
-          <>
-            <button type="button" className="btn btn--quiet" onClick={onRemove}>
-              {t.social.remove}
-            </button>
-            <button type="button" className="btn btn--quiet btn--muted" onClick={() => setConfirming(false)}>
-              {t.social.keep}
-            </button>
-          </>
-        ) : (
-          <button type="button" className="btn btn--quiet btn--muted" onClick={() => setConfirming(true)}>
-            {t.social.remove}
-          </button>
-        )}
-      </span>
+        <svg className="friend-chevron" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
     </li>
   )
 }
 
-// « Sombre » ne se choisit plus : les jetons sombres et `data-theme` restent en
-// place, mais le menu n'offre que l'auto et le clair.
 const THEMES: readonly Theme[] = ['system', 'light']
 const SOUND_CHANNELS = ['master', 'effects', 'keys', 'music'] as const
 

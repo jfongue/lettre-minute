@@ -288,6 +288,12 @@ qu'un nouvel arrivant casserait sans le savoir.
   `word:<catégorie>:<clé>`) : le serveur ne calcule pas les trophées. Changer
   un identifiant de trophée ou une clé de mot orpheline les réactions déjà
   données.
+- **Le face-à-face avec un ami se règle sur l'appareil** (`src/state/rivalry.ts`) :
+  le serveur (`friend_challenges`, 0027) ne dit que qui a partagé quel défi.
+  Le score réglé dépend des mots de tous et ceux des robots n'existent que
+  rejoués, d'où un détail chargé et rejoué par défi, un à la fois, puis gardé
+  sur l'appareil une fois le défi clos. Gagner contre un ami, c'est finir
+  devant lui, pas premier.
 - **Un défi ignoré ne l'est que sur l'appareil** (`hideChallenge`,
   `src/state/challenges.ts`), sous une empreinte (joués, clos, revanche) : il
   revient dès qu'elle change. Un bilan lu se masque tout seul et range son

@@ -1301,6 +1301,10 @@ export function App() {
             setMenuPage(null)
             setChallengeOpen(id)
           }}
+          onChallengeFriend={(friendId) => {
+            setMenuPage(null)
+            openCreate([friendId])
+          }}
           avatar={avatar}
           account={account}
           accountActions={accountActions}

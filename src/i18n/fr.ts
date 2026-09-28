@@ -1,6 +1,7 @@
 import { PALETTE, type Milestone } from '../domain/avatar'
 import { CATALOGUE } from '../domain/catalogue'
 import type { TrophyId } from '../domain/challenge'
+import type { FaceOff } from '../domain/rivalry'
 import type { StatId } from '../domain/leaderboards'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
@@ -293,6 +294,29 @@ export const fr = {
     } satisfies Record<InviteOutcome, (name: string) => string> as Record<InviteOutcome, (name: string) => string>,
     blocked: 'Bloqués',
     unblock: 'Débloquer',
+    /** Under a friend's name: challenges won by each, and how many were shared. */
+    versus: (mine: number, theirs: number, name: string, count: number) =>
+      `Toi ${mine} – ${theirs} ${name} · ${count} ${plural(count, 'défi', 'défis')}`,
+    noShared: 'Aucun défi ensemble',
+    openFriend: (name: string) => `Voir la fiche de ${name}`,
+    faceOff: 'Face à face',
+    won: (count: number) => plural(count, 'victoire', 'victoires'),
+    tied: (count: number) => plural(count, 'égalité', 'égalités'),
+    lost: (count: number) => plural(count, 'défaite', 'défaites'),
+    myPoints: 'tes points',
+    theirPoints: 'ses points',
+    together: 'Défis ensemble',
+    togetherNone: 'Pas encore de défi ensemble.',
+    settling: 'Calcul du bilan…',
+    historyFailed: 'Impossible de charger vos défis pour l’instant.',
+    players: (count: number) => `${count} ${plural(count, 'joueur', 'joueurs')}`,
+    outcomes: { won: 'Gagné', lost: 'Perdu', tie: 'Égalité', open: 'En cours', void: 'Non compté' } satisfies Record<FaceOff, string> as Record<FaceOff, string>,
+    rank: (rank: number) => (rank === 1 ? '1er' : `${rank}e`),
+    you: 'Toi',
+    notPlayed: (name: string) => `${name} n’a pas joué`,
+    youNotPlayed: 'Tu n’as pas joué',
+    challengeFriend: 'Lancer un défi',
+    removeNamed: (name: string) => `Retirer ${name}`,
   },
 
   stats: {

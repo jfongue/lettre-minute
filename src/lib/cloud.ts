@@ -1018,6 +1018,24 @@ export function fetchChallenges(): Promise<ChallengeSummary[] | null> {
   }, null)
 }
 
+/** A challenge the player shared with an accepted friend, newest first. */
+export interface FriendChallenge {
+  friendId: string
+  challengeId: string
+}
+
+/** Null offline, or before 0027: the friends' pages then show no history. */
+export function fetchFriendChallenges(): Promise<FriendChallenge[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('friend_challenges')
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      friendId: row.friend_id as string,
+      challengeId: row.challenge_id as string,
+    }))
+  }, null)
+}
+
 export function fetchChallenge(id: string): Promise<ChallengeDetail | null> {
   return guard(async () => {
     const [{ data, error }, reacted] = await Promise.all([

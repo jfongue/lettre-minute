@@ -24,6 +24,8 @@ import { OldChallengeList } from '../ui/StatsPage'
 import { CategoryGiftPop } from '../ui/CategoryGiftPop'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
+import { FriendPage } from '../ui/FriendPage'
+import type { SharedChallenge, SharedPlayer } from '../domain/rivalry'
 import type { Boards } from '../domain/boards'
 import type { ActivityBucket, Insights as InsightData, PairTally, PowerTally } from '../domain/insights'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
@@ -378,6 +380,75 @@ function LeaderboardsScenario({ named }: { named: boolean }) {
   return (
     <div className="sheet">
       <LeaderboardsPage named={named} lang="fr" load={fakeLeaderboard} />
+    </div>
+  )
+}
+
+const FRIEND_LEA = {
+  id: 'lea',
+  name: 'Léa',
+  avatar: avatarOf(21, 'bleu', 'jaune', 'rouge'),
+  xp: at(12, 40),
+  bestScore: 2310,
+  weekBest: 1840,
+  moderator: false,
+  relation: 'friend' as const,
+}
+
+function shared(
+  id: string,
+  days: number,
+  finished: boolean,
+  players: [string, number | null, number | null][],
+  name: string | null = null,
+): SharedChallenge {
+  return {
+    id,
+    name,
+    ownerName: 'Léa',
+    owned: false,
+    createdAt: Date.now() - days * 24 * HOUR,
+    finished,
+    players: players.map(
+      ([playerId, score, rank]): SharedPlayer => ({
+        playerId,
+        name: playerId === 'lea' ? 'Léa' : playerId === 'me' ? 'Testeur' : 'Maxitoon',
+        me: playerId === 'me',
+        played: score !== null,
+        score: score ?? 0,
+        rank,
+      }),
+    ),
+  }
+}
+
+const SHARED: readonly SharedChallenge[] = [
+  shared('s-open', 0, false, [['me', 1910, null], ['lea', null, null]]),
+  shared('s-won', 2, true, [['me', 2140, 1], ['bot', 1780, 2], ['lea', 1610, 3]], 'Revanche du jeudi'),
+  shared('s-lost', 7, true, [['me', 1380, 2], ['lea', 1720, 1]]),
+  shared('s-void', 9, true, [['me', 1520, 1], ['lea', null, null]]),
+  shared('s-won-2', 14, true, [['lea', 1450, 2], ['me', 1600, 1]]),
+]
+
+function FriendPageScenario({ back, ties, empty }: { back(): void; ties?: boolean; empty?: boolean }) {
+  const challenges = empty
+    ? []
+    : ties
+      ? [...SHARED, shared('s-tie', 20, true, [['me', 1500, 1], ['lea', 1500, 2]])]
+      : SHARED
+  return (
+    <div className="sheet">
+      <FriendPage
+        friend={FRIEND_LEA}
+        challenges={challenges}
+        complete
+        showModerator
+        onBack={back}
+        onChallenge={back}
+        onChallengeFriend={back}
+        onRemove={back}
+        onElect={() => later(undefined)}
+      />
     </div>
   )
 }
@@ -793,6 +864,30 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Ouverts depuis le titre « Défis entre amis » de l’accueil : qui a gagné chacun',
     phase: 'home',
     render: (back) => <PastScenario back={back} />,
+  },
+  {
+    id: 'friend-page',
+    group: 'Défi entre amis',
+    title: 'Fiche d’un ami',
+    how: 'Mes amis → toucher un ami : face à face et défis joués ensemble',
+    phase: 'home',
+    render: (back) => <FriendPageScenario back={back} />,
+  },
+  {
+    id: 'friend-page-tie',
+    group: 'Défi entre amis',
+    title: 'Fiche d’un ami, avec une égalité',
+    how: 'La case « égalité » n’apparaît que s’il y en a une',
+    phase: 'home',
+    render: (back) => <FriendPageScenario back={back} ties />,
+  },
+  {
+    id: 'friend-page-empty',
+    group: 'Défi entre amis',
+    title: 'Fiche d’un ami sans défi',
+    how: 'Aucun défi joué ensemble',
+    phase: 'home',
+    render: (back) => <FriendPageScenario back={back} empty />,
   },
   {
     id: 'challenge-powers',

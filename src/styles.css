@@ -1791,6 +1791,107 @@ button.challenge-past::after {
   padding-inline: 0.4rem;
 }
 
+.friend--open {
+  appearance: none;
+  width: 100%;
+  border-inline: 0;
+  border-top: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.friend--open:hover,
+.friend--open:focus-visible {
+  background: var(--paper-2);
+}
+
+.friend-chevron {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: square;
+  color: var(--ink-faint);
+}
+
+.friend-page {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.face-off {
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+}
+
+.face-off .figure-value {
+  font-size: clamp(1.4rem, 6.5vw, 2rem);
+}
+
+.face-off-points {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.face-off-points > span {
+  display: grid;
+}
+
+.face-off-points > span:last-child {
+  text-align: right;
+}
+
+.face-off-points strong {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-list.shared-challenges li {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.shared-scores {
+  display: grid;
+  font-variant-numeric: tabular-nums;
+}
+
+.outcome {
+  justify-self: end;
+  padding: 0.1rem 0.45rem;
+  border: 2px solid currentColor;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.outcome--won {
+  color: var(--green);
+}
+
+.outcome--lost {
+  color: var(--red);
+}
+
+.outcome--tie,
+.outcome--open,
+.outcome--void {
+  color: var(--ink-faint);
+}
+
+.friend-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 /* ------------------------------------------------------------ page links - */
 .page-links {
   display: grid;
