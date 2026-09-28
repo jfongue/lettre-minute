@@ -652,6 +652,44 @@ export const en: Messages = {
     yes: 'Yes, turn on',
   },
 
+  feedback: {
+    title: 'Your opinion counts!',
+    lead: 'You’ve played quite a few runs now. What do you like, what’s missing, what’s annoying? The creator reads everything.',
+    placeholder: 'What you think…',
+    send: 'Send',
+    later: 'Later',
+    sent: 'Thanks! Your feedback is on its way.',
+    failed: 'Your feedback didn’t go through. Check your connection and try again.',
+  },
+
+  bans: {
+    introTitle: 'New: ban a category',
+    introLead: 'You have seven categories. Is there one you don’t enjoy? Ban it: it won’t come up in your runs any more. You can change your mind whenever you like, right here.',
+    introOk: 'Got it',
+    lead: 'A banned category no longer comes up in your runs (challenges keep their own).',
+    ban: 'Ban',
+    unban: 'Restore',
+    banned: 'Banned',
+    full: 'At least five categories must stay in play.',
+  },
+
+  plus: {
+    title: 'For Players + only',
+    ban: 'Banning more than one category is for Players + only.',
+    peek: 'Revealing more words is for Players + only.',
+    join: 'Become a Player + for €0',
+    free: '(it’s free for now!)',
+    later: 'Later',
+    badge: 'Player +',
+  },
+
+  peek: {
+    title: 'What you could have written',
+    hint: (left: number) =>
+      left === Infinity ? 'Tap a bar to reveal the word.' : `Tap a bar to reveal the word · ${left} left`,
+    reveal: (category: string, letter: string) => `Reveal a word on ${letter}: ${category}`,
+  },
+
   update: {
     title: 'New version',
     lead: 'A newer version of Lettre Minute is waiting for you on the Play Store.',

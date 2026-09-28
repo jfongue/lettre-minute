@@ -6672,3 +6672,256 @@ button.challenge-word[aria-expanded='true'] {
 .insight-chart--accounts .insight-bar-fill {
   background: var(--green);
 }
+
+/* ------------------------------------------------- avis, bans, Joueur + - */
+.feedback-pop textarea {
+  justify-self: stretch;
+  width: 100%;
+  min-height: 6rem;
+  padding: 0.5rem 0.6rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  resize: vertical;
+}
+
+.plus-pop-actions {
+  grid-template-columns: 1fr;
+}
+
+.plus-join {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.plus-free {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.85;
+}
+
+.plus-badge {
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.4rem;
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 0.7rem;
+  font-weight: 800;
+  vertical-align: middle;
+}
+
+.categories--bans li {
+  grid-template-columns: 1.1rem auto 1fr auto;
+}
+
+.category-ban {
+  padding-inline: 0.4rem;
+}
+
+.categories li.category--banned .category-shape {
+  opacity: 0.3;
+}
+
+.categories li.category--banned .category-label {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+
+.category-banned-tag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.3rem;
+  background: var(--red);
+  color: var(--paper);
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+/* Les invites passées du récap : un mot sous une bande noire, qu'une tape arrache. */
+.hidden-answers {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 1.4rem;
+  animation: fade 400ms ease both;
+}
+
+.hidden-answer {
+  grid-template-columns: 1.75rem 1fr;
+}
+
+.peek-bar {
+  position: relative;
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: var(--ink);
+  color: transparent;
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  transform: rotate(-0.6deg);
+  animation: peek-tease 2.8s ease-in-out infinite;
+}
+
+/* Le mot est là, à sa vraie largeur, mais pas lisible : la bande en promet la longueur. */
+.peek-bar-ghost {
+  display: block;
+  padding: 0.05rem 0.35rem;
+  user-select: none;
+}
+
+/* Un reflet passe sur la bande : il y a quelque chose dessous. */
+.peek-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--paper) 35%, transparent) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: peek-shine 2.8s ease-in-out infinite;
+}
+
+.peek-bar:active {
+  transform: scale(0.94) rotate(-0.6deg);
+}
+
+@keyframes peek-tease {
+  0%, 80%, 100% {
+    transform: rotate(-0.6deg);
+  }
+  86% {
+    transform: rotate(1.2deg) scale(1.04);
+  }
+  92% {
+    transform: rotate(-1.4deg) scale(1.02);
+  }
+}
+
+@keyframes peek-shine {
+  0%, 55% {
+    transform: translateX(-120%);
+  }
+  85%, 100% {
+    transform: translateX(120%);
+  }
+}
+
+.peek-word {
+  position: relative;
+  justify-self: start;
+}
+
+.peek-word--torn {
+  color: var(--red);
+  animation: peek-pop 620ms var(--ease-spring) both;
+}
+
+/* La bande part en morceaux depuis le mot. */
+.peek-word--torn::before {
+  content: '';
+  position: absolute;
+  inset: -0.05rem -0.35rem;
+  background: var(--ink);
+  transform-origin: right center;
+  animation: peek-tear 380ms var(--ease-out) both;
+  pointer-events: none;
+}
+
+.peek-shards {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  pointer-events: none;
+}
+
+.peek-shards span {
+  position: absolute;
+  width: 0.45rem;
+  height: 0.3rem;
+  background: var(--ink);
+  animation: peek-shard 640ms var(--ease-out) both;
+  animation-delay: calc(var(--i) * 12ms);
+}
+
+.peek-shards span:nth-child(3n) {
+  background: var(--yellow);
+}
+
+.peek-shards span:nth-child(3n + 1) {
+  background: var(--red);
+}
+
+@keyframes peek-pop {
+  0% {
+    transform: scale(0.6);
+  }
+  55% {
+    transform: scale(1.22) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes peek-tear {
+  0% {
+    transform: scaleX(1) skewX(0);
+  }
+  100% {
+    transform: scaleX(0) skewX(-25deg) translateY(-0.3rem);
+    opacity: 0;
+  }
+}
+
+@keyframes peek-shard {
+  0% {
+    transform: rotate(var(--angle)) translateX(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--angle)) translateX(var(--reach)) rotate(160deg) scale(0.4);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peek-bar,
+  .peek-bar::after,
+  .peek-word--torn,
+  .peek-shards span {
+    animation: none;
+  }
+  .peek-shards {
+    display: none;
+  }
+}
+
+/* Les idées reçues, pour l'administrateur. */
+.ideas-admin {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.ideas-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+}
+
+.idea-item {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.idea-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

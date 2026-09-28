@@ -315,6 +315,23 @@ qu'un nouvel arrivant casserait sans le savoir.
 
 ## Conventions
 
+- **Les idées se lisent dans l'app, pour l'administrateur seul** (0028,
+  `admins`, nommé par son compte) : cinq tapes sur « Boîte à idées » — le
+  bouton qui l'ouvre compte pour la première — ouvrent `src/debug/IdeasAdmin.tsx`.
+  Pour en tirer un backlog, les idées à traiter se lisent avec
+  `supabase db query --linked "select body, lang, source, created_at from ideas where archived_at is null order by created_at"`.
+  La question d'avis (`feedbackDue`, `src/domain/perks.ts`) tombe au retour à
+  l'accueil après la dixième partie, puis toutes les trente.
+- **Bannir une catégorie et Joueur + vivent dans le profil, sur l'appareil**
+  (`src/domain/perks.ts`) : un ban dès sept catégories, les suivants et plus
+  de cinq mots cachés révélés au récap réservés à Joueur +, gratuit pour
+  l'instant (`plusSince`). Un ban ne vaut que pour les parties seules : un
+  défi distribue ses propres catégories. Il reste toujours
+  `MAX_CATEGORIES_PER_RUN` catégories jouables.
+- **Le son part fort et la limite le tient** (`MAKEUP_GAIN`, `src/lib/sound.ts`) :
+  le téléphone baisse le volume sur des échantillons 16 bits, et un mixage
+  discret y devenait robotique. Ne pas rabaisser le bus maître pour « calmer »
+  le jeu : c'est le volume du téléphone qui doit le faire.
 - Contenu du jeu (catégories, textes d'interface) en français, avec apostrophe
   typographique (’) ; identifiants et code en anglais.
 - Commentaires réservés au *pourquoi* non évident (contrainte cachée, invariant,

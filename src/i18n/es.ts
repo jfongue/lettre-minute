@@ -648,6 +648,44 @@ export const es: Messages = {
     yes: 'Sí, activar',
   },
 
+  feedback: {
+    title: '¡Tu opinión cuenta!',
+    lead: 'Ya has jugado unas cuantas partidas. ¿Qué te gusta, qué falta, qué te molesta? El creador lo lee todo.',
+    placeholder: 'Lo que piensas…',
+    send: 'Enviar',
+    later: 'Más tarde',
+    sent: '¡Gracias! Tu opinión está en camino.',
+    failed: 'Tu opinión no se ha enviado. Comprueba tu conexión y vuelve a intentarlo.',
+  },
+
+  bans: {
+    introTitle: 'Nuevo: vetar una categoría',
+    introLead: 'Tienes siete categorías. ¿Hay alguna que te aburre? Vétala: ya no saldrá en tus partidas. Puedes cambiar de idea cuando quieras, aquí mismo.',
+    introOk: 'Entendido',
+    lead: 'Una categoría vetada ya no sale en tus partidas (los retos conservan las suyas).',
+    ban: 'Vetar',
+    unban: 'Recuperar',
+    banned: 'Vetada',
+    full: 'Tienen que quedar al menos cinco categorías en juego.',
+  },
+
+  plus: {
+    title: 'Solo para Jugadores +',
+    ban: 'Vetar más de una categoría está reservado a los Jugadores +.',
+    peek: 'Revelar más palabras está reservado a los Jugadores +.',
+    join: 'Hazte Jugador + por 0 €',
+    free: '(¡por ahora es gratis!)',
+    later: 'Más tarde',
+    badge: 'Jugador +',
+  },
+
+  peek: {
+    title: 'Lo que podrías haber escrito',
+    hint: (left: number) =>
+      left === Infinity ? 'Toca una banda para revelar la palabra.' : `Toca una banda para revelar la palabra · quedan ${left}`,
+    reveal: (category: string, letter: string) => `Revelar una palabra con ${letter}: ${category}`,
+  },
+
   update: {
     title: 'Nueva versión',
     lead: 'Una versión más reciente de Lettre Minute te espera en la Play Store.',

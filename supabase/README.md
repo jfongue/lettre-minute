@@ -1,6 +1,6 @@
 # Supabase
 
-Vingt-sept migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
+Vingt-huit migrations : [`0001_init.sql`](migrations/0001_init.sql) pour le schéma,
 [`0002_delete_account.sql`](migrations/0002_delete_account.sql) pour l'effacement
 d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts.sql)
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
@@ -36,8 +36,10 @@ avancés du mode débug (pouvoirs joués, rythme des parties et des comptes,
 couples les plus rentables ou les plus quittés), et
 [`0026_insights_history.sql`](migrations/0026_insights_history.sql) pour en
 sortir les joueurs maison et y lire les mots joués des parties qui n'ont rien
-rapporté, et [`0027_friend_challenges.sql`](migrations/0027_friend_challenges.sql)
-pour l'historique des défis joués avec chaque ami.
+rapporté, [`0027_friend_challenges.sql`](migrations/0027_friend_challenges.sql)
+pour l'historique des défis joués avec chaque ami, et
+[`0028_ideas_admin.sql`](migrations/0028_ideas_admin.sql) pour lire, archiver
+et effacer les idées reçues depuis l'app, réservé aux administrateurs.
 
 ## Ce que le serveur détient
 
@@ -65,7 +67,8 @@ pour l'historique des défis joués avec chaque ami.
 | `account_merges` | Jetons à usage unique : versent un compte anonyme dans le compte auquel il se connecte. |
 | `blocks` | Qui a bloqué qui. Bloquer efface l'amitié ; les demandes du bloqué ne sont plus écrites. |
 | `challenge_reactions` | Une réaction (emoji) par joueur et par trophée ou mot du bilan d'un défi. |
-| `ideas` | Une idée envoyée en texte libre par un joueur, vidée une fois par jour par la fonction Edge `ideas`. |
+| `ideas` | Une idée envoyée en texte libre par un joueur, vidée une fois par jour par la fonction Edge `ideas` ; sa provenance (`box` ou `prompt`, la question du retour de partie) et son archivage (`archived_at`). |
+| `admins` | Les comptes qui lisent les idées dans l'app (`admin_ideas`, `archive_idea`, `delete_idea`). Aucune politique : seul `is_admin()` la lit. |
 | `tester_invites` | Une adresse e-mail saisie dans le champ d'ami, en attente d'être inscrite testeur Play puis invitée par `npm run testers:invite`. Aucune politique : jamais relue par un joueur. |
 | `prompt_stats` | Par langue, ce que les parties ont dit de chaque couple lettre + catégorie : combien l'ont tiré, combien l'ont laissé vide, ce qu'il a rapporté en points et en mots. Lu par le tirage du client et par les classements avancés, écrit par la seule fonction `report_prompts`. |
 | `prompt_reports` | Les graines qui ont déjà parlé, pour qu'une partie ne compte qu'une fois. Aucune politique : jamais relu. |

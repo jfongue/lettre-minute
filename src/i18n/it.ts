@@ -648,6 +648,44 @@ export const it: Messages = {
     yes: 'Sì, attiva',
   },
 
+  feedback: {
+    title: 'La tua opinione conta!',
+    lead: 'Hai giocato un bel po’ di partite. Cosa ti piace, cosa manca, cosa ti dà fastidio? Il creatore legge tutto.',
+    placeholder: 'Cosa ne pensi…',
+    send: 'Invia',
+    later: 'Più tardi',
+    sent: 'Grazie! La tua opinione è partita.',
+    failed: 'La tua opinione non è partita. Controlla la connessione e riprova.',
+  },
+
+  bans: {
+    introTitle: 'Novità: escludere una categoria',
+    introLead: 'Hai sette categorie. Ce n’è una che ti annoia? Escludila: non uscirà più nelle tue partite. Puoi cambiare idea quando vuoi, proprio qui.',
+    introOk: 'Capito',
+    lead: 'Una categoria esclusa non esce più nelle tue partite (le sfide tengono le loro).',
+    ban: 'Escludi',
+    unban: 'Ripristina',
+    banned: 'Esclusa',
+    full: 'Devono restare in gioco almeno cinque categorie.',
+  },
+
+  plus: {
+    title: 'Riservato ai Giocatori +',
+    ban: 'Escludere più di una categoria è riservato ai Giocatori +.',
+    peek: 'Rivelare altre parole è riservato ai Giocatori +.',
+    join: 'Diventa Giocatore + per 0 €',
+    free: '(per ora è gratis!)',
+    later: 'Più tardi',
+    badge: 'Giocatore +',
+  },
+
+  peek: {
+    title: 'Cosa avresti potuto scrivere',
+    hint: (left: number) =>
+      left === Infinity ? 'Tocca una banda per rivelare la parola.' : `Tocca una banda per rivelare la parola · ancora ${left}`,
+    reveal: (category: string, letter: string) => `Rivela una parola con ${letter}: ${category}`,
+  },
+
   update: {
     title: 'Nuova versione',
     lead: 'Una versione più recente di Lettre Minute ti aspetta sul Play Store.',

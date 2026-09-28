@@ -31,6 +31,13 @@ import type { ActivityBucket, Insights as InsightData, PairTally, PowerTally } f
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 import { RECENT_SCENARIOS, RECENT_VERSIONS } from './recent'
+import { ban, joinPlus, markBanIntroSeen, spendPeek, unban, type HiddenAnswer } from '../domain/perks'
+import { ownedCategoryIds } from '../domain/unlocks'
+import { CategoriesPage } from '../ui/CategoriesPage'
+import { FeedbackPop } from '../ui/FeedbackPop'
+import { PlusPop } from '../ui/PlusPop'
+import { IdeasAdminView } from './IdeasAdmin'
+import type { AdminIdea } from '../lib/cloud'
 
 /*
  * The debug board: every screen a player only meets by luck or by level,
@@ -485,6 +492,7 @@ function OverScenario({
   mine,
   requests = [],
   failing = false,
+  hidden,
   onBack,
 }: {
   run?: Run
@@ -500,6 +508,8 @@ function OverScenario({
   requests?: readonly RunProposal[]
   /** Le serveur ne répond pas : les deux gestes échouent, le bilan le dit. */
   failing?: boolean
+  /** Les invites passées, chacune avec un mot caché sous une bande. */
+  hidden?: readonly HiddenAnswer[]
   onBack(): void
 }) {
   const [profile, setProfile] = useState(after)
@@ -547,7 +557,95 @@ function OverScenario({
       onHome={onBack}
       challenge={challengeState}
       onChallengeChanged={noop}
+      hidden={hidden}
+      onPeek={() => setProfile((current) => spendPeek(current))}
+      onJoinPlus={() => setProfile((current) => joinPlus(current, Date.now()))}
     />
+  )
+}
+
+const HIDDEN: HiddenAnswer[] = [
+  { prompt: { categoryId: 'pays', letter: 'K' }, display: 'kenya', told: false },
+  { prompt: { categoryId: 'animaux', letter: 'Z' }, display: 'zèbre', told: false },
+  { prompt: { categoryId: 'couleurs', letter: 'M' }, display: 'marron', told: false },
+  { prompt: { categoryId: 'animaux', letter: 'O' }, display: 'ours', told: true },
+]
+
+/** « Mes catégories » à sept catégories : le bannissement s'y ouvre, sur un profil qui ne sort pas de la planche. */
+function BansScenario({ seen = false, plus = false }: { seen?: boolean; plus?: boolean }) {
+  const [profile, setProfile] = useState<Profile>(() => ({
+    ...PROFILE,
+    unlocked: ['fruits-legumes', 'metiers', 'sports', 'marques'],
+    banIntroSeen: seen ? 1 : 0,
+    plusSince: plus ? 1 : 0,
+  }))
+  const owned = ownedCategoryIds(profile)
+  return (
+    <div className="sheet">
+      <CategoriesPage
+        profile={profile}
+        onBan={(id) => setProfile((current) => ban(current, owned, id))}
+        onUnban={(id) => setProfile((current) => unban(current, id))}
+        onIntroSeen={() => setProfile((current) => markBanIntroSeen(current))}
+        onJoinPlus={() => setProfile((current) => joinPlus(current, Date.now()))}
+      />
+    </div>
+  )
+}
+
+const IDEAS: AdminIdea[] = [
+  {
+    id: 'i1',
+    body: 'Un mode à deux sur le même téléphone, ce serait génial pour les soirées !',
+    lang: 'fr',
+    source: 'prompt',
+    author: 'Léa',
+    authorRuns: 41,
+    createdAt: new Date(Date.now() - 2 * HOUR).toISOString(),
+    archivedAt: null,
+  },
+  {
+    id: 'i2',
+    body: 'La catégorie Marques accepte « Nike » mais pas « Adidas » ?',
+    lang: 'fr',
+    source: 'box',
+    author: 'Anonyme',
+    authorRuns: 7,
+    createdAt: new Date(Date.now() - 30 * HOUR).toISOString(),
+    archivedAt: null,
+  },
+  {
+    id: 'i3',
+    body: 'Please add a dark mode for the keyboard.',
+    lang: 'en',
+    source: 'box',
+    author: 'Tom',
+    authorRuns: 120,
+    createdAt: new Date(Date.now() - 90 * HOUR).toISOString(),
+    archivedAt: new Date(Date.now() - 20 * HOUR).toISOString(),
+  },
+]
+
+/** Les idées reçues, archivées et effacées sur une copie : rien ne part au serveur. */
+function IdeasScenario({ back }: { back(): void }) {
+  const [ideas, setIdeas] = useState(IDEAS)
+  return (
+    <div className="sheet">
+      <IdeasAdminView
+        ideas={ideas}
+        onArchive={async (id, archived) => {
+          setIdeas((current) =>
+            current.map((idea) => (idea.id === id ? { ...idea, archivedAt: archived ? new Date().toISOString() : null } : idea)),
+          )
+          return true
+        }}
+        onDelete={async (id) => {
+          setIdeas((current) => current.filter((idea) => idea.id !== id))
+          return true
+        }}
+        onClose={back}
+      />
+    </div>
   )
 }
 
@@ -706,6 +804,14 @@ const SCENARIOS: readonly Scenario[] = [
       ])
       return <OverScenario run={run} after={afterRun(PROFILE, run)} onBack={back} />
     },
+  },
+  {
+    id: 'over-hidden',
+    group: 'Fin de partie',
+    title: 'Mots cachés des invites passées',
+    how: 'Trois bandes noires à arracher (deux gratuites restantes, puis Joueur +), une déjà soufflée par Professeur',
+    phase: 'over',
+    render: (back) => <OverScenario after={afterRun({ ...PROFILE, peeks: 3 }, RUN)} hidden={HIDDEN} onBack={back} />,
   },
   {
     id: 'over-anonymous',
@@ -1033,6 +1139,46 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le Play Store a une version plus récente',
     phase: 'home',
     render: (back) => <UpdateNotice onLater={back} onUpdate={back} />,
+  },
+  {
+    id: 'feedback-pop',
+    group: 'Accueil',
+    title: 'Demande d’avis',
+    how: 'Au retour d’une partie, après la dixième puis toutes les trente (envoi simulé)',
+    phase: 'home',
+    render: (back) => <FeedbackPop onClose={back} send={() => later(true)} />,
+  },
+  {
+    id: 'categories-ban',
+    group: 'Accueil',
+    title: 'Mes catégories : bannir',
+    how: 'Septième catégorie : explication à l’ouverture, un ban gratuit, le deuxième demande Joueur +',
+    phase: 'home',
+    render: () => <BansScenario />,
+  },
+  {
+    id: 'categories-ban-plus',
+    group: 'Accueil',
+    title: 'Mes catégories : Joueur +',
+    how: 'Joueur + : autant de bans qu’on veut, tant qu’il reste cinq catégories',
+    phase: 'home',
+    render: () => <BansScenario seen plus />,
+  },
+  {
+    id: 'plus-pop',
+    group: 'Accueil',
+    title: 'Offre Joueur +',
+    how: 'Deuxième ban demandé sans être Joueur + (gratuit pour l’instant)',
+    phase: 'home',
+    render: (back) => <PlusPop reason="ban" onJoin={back} onClose={back} />,
+  },
+  {
+    id: 'ideas-admin',
+    group: 'Accueil',
+    title: 'Idées reçues (administrateur)',
+    how: 'Cinq tapes sur « Boîte à idées » : à traiter, archivées, copier pour un backlog, effacer',
+    phase: 'home',
+    render: (back) => <IdeasScenario back={back} />,
   },
   {
     id: 'push-offer',

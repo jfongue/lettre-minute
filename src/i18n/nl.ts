@@ -647,6 +647,44 @@ export const nl: Messages = {
     yes: 'Ja, aanzetten',
   },
 
+  feedback: {
+    title: 'Jouw mening telt!',
+    lead: 'Je hebt al flink wat rondes gespeeld. Wat vind je leuk, wat mis je, wat stoort je? De maker leest alles.',
+    placeholder: 'Wat je ervan vindt…',
+    send: 'Versturen',
+    later: 'Later',
+    sent: 'Bedankt! Je mening is onderweg.',
+    failed: 'Je mening is niet verstuurd. Controleer je verbinding en probeer het opnieuw.',
+  },
+
+  bans: {
+    introTitle: 'Nieuw: een categorie weren',
+    introLead: 'Je hebt zeven categorieën. Is er een die je niet leuk vindt? Weer hem: hij komt niet meer voor in je rondes. Je kunt je keuze hier altijd weer veranderen.',
+    introOk: 'Begrepen',
+    lead: 'Een geweerde categorie komt niet meer voor in je rondes (uitdagingen houden hun eigen categorieën).',
+    ban: 'Weren',
+    unban: 'Terugzetten',
+    banned: 'Geweerd',
+    full: 'Er moeten minstens vijf categorieën in het spel blijven.',
+  },
+
+  plus: {
+    title: 'Alleen voor Spelers +',
+    ban: 'Meer dan één categorie weren is voorbehouden aan Spelers +.',
+    peek: 'Meer woorden onthullen is voorbehouden aan Spelers +.',
+    join: 'Word Speler + voor € 0',
+    free: '(voorlopig is het gratis!)',
+    later: 'Later',
+    badge: 'Speler +',
+  },
+
+  peek: {
+    title: 'Wat je had kunnen schrijven',
+    hint: (left: number) =>
+      left === Infinity ? 'Tik op een balk om het woord te onthullen.' : `Tik op een balk om het woord te onthullen · nog ${left}`,
+    reveal: (category: string, letter: string) => `Een woord met ${letter} onthullen: ${category}`,
+  },
+
   update: {
     title: 'Nieuwe versie',
     lead: 'Een nieuwere versie van Lettre Minute wacht op je in de Play Store.',

@@ -646,6 +646,44 @@ export const de: Messages = {
     yes: 'Ja, einschalten',
   },
 
+  feedback: {
+    title: 'Deine Meinung zählt!',
+    lead: 'Du hast schon einige Runden gespielt. Was gefällt dir, was fehlt, was nervt? Der Entwickler liest alles.',
+    placeholder: 'Was du denkst…',
+    send: 'Senden',
+    later: 'Später',
+    sent: 'Danke! Deine Meinung ist unterwegs.',
+    failed: 'Deine Meinung wurde nicht gesendet. Prüfe deine Verbindung und versuche es noch einmal.',
+  },
+
+  bans: {
+    introTitle: 'Neu: eine Kategorie sperren',
+    introLead: 'Du hast sieben Kategorien. Langweilt dich eine davon? Sperr sie: Sie kommt in deinen Runden nicht mehr vor. Du kannst es dir jederzeit hier anders überlegen.',
+    introOk: 'Verstanden',
+    lead: 'Eine gesperrte Kategorie kommt in deinen Runden nicht mehr vor (Duelle behalten ihre eigenen).',
+    ban: 'Sperren',
+    unban: 'Zurückholen',
+    banned: 'Gesperrt',
+    full: 'Mindestens fünf Kategorien müssen im Spiel bleiben.',
+  },
+
+  plus: {
+    title: 'Nur für Spieler +',
+    ban: 'Mehr als eine Kategorie zu sperren ist Spielern + vorbehalten.',
+    peek: 'Mehr Wörter aufzudecken ist Spielern + vorbehalten.',
+    join: 'Spieler + werden für 0 €',
+    free: '(im Moment ist es gratis!)',
+    later: 'Später',
+    badge: 'Spieler +',
+  },
+
+  peek: {
+    title: 'Was du hättest schreiben können',
+    hint: (left: number) =>
+      left === Infinity ? 'Tippe auf einen Balken, um das Wort aufzudecken.' : `Tippe auf einen Balken, um das Wort aufzudecken · noch ${left}`,
+    reveal: (category: string, letter: string) => `Ein Wort mit ${letter} aufdecken: ${category}`,
+  },
+
   update: {
     title: 'Neue Version',
     lead: 'Eine neuere Version von Lettre Minute wartet auf dich im Play Store.',

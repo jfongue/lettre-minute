@@ -17,6 +17,8 @@ import { CategoryIcon } from './CategoryIcon'
 import { VerdictMark } from './VerdictMark'
 import { RespellField, respellValid } from './RespellField'
 import { availableCategoryIds, loadPack } from '../data/packs'
+import { useHiddenTaps } from './useHiddenTaps'
+import { IdeasAdmin } from '../debug/IdeasAdmin'
 import { spelledExactly } from '../domain/words'
 
 /**
@@ -323,6 +325,10 @@ const IDEA_MAX = 2000
 function IdeaBox() {
   const t = useT()
   const [open, setOpen] = useState(false)
+  // Cinq tapes sur « Boîte à idées » — le bouton qui l'ouvre compte pour la
+  // première — ouvrent les idées reçues, pour l'administrateur seul.
+  const tap = useHiddenTaps()
+  const [reading, setReading] = useState(false)
   const [draft, setDraft] = useState('')
   const [state, setState] = useState<'idle' | 'busy' | 'sent' | 'failed'>('idle')
 
@@ -335,16 +341,26 @@ function IdeaBox() {
     if (ok) setDraft('')
   }
 
+  if (reading) return <IdeasAdmin onClose={() => setReading(false)} />
   if (!open) {
     return (
-      <button type="button" className="btn btn--quiet idea-open" onClick={() => setOpen(true)}>
+      <button
+        type="button"
+        className="btn btn--quiet idea-open"
+        onClick={() => {
+          tap()
+          setOpen(true)
+        }}
+      >
         {t.ideas.open}
       </button>
     )
   }
   return (
     <form className="idea-box stack" onSubmit={send}>
-      <p className="section-title">{t.ideas.title}</p>
+      <p className="section-title" onClick={() => tap() && setReading(true)}>
+        {t.ideas.title}
+      </p>
       <p className="note">{t.ideas.lead}</p>
       <textarea
         value={draft}

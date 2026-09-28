@@ -87,6 +87,16 @@ export interface Profile {
   equipped: readonly string[]
   /** `runs` when the game last asked for support (`supportDue`); 0 before it ever did. */
   supportAskedAt: number
+  /** `runs` when the game last asked for an opinion (`feedbackDue`); 0 before it ever did. */
+  feedbackAskedAt: number
+  /** Owned categories the player keeps out of their solo runs (`bannedOf`), oldest first. */
+  banned: readonly string[]
+  /** 1 once the player has read what a ban does; the categories wear a dot until then. */
+  banIntroSeen: number
+  /** Hidden answers of the summary uncovered so far (`FREE_PEEKS`). */
+  peeks: number
+  /** When the player became Joueur +; 0 if they never did. */
+  plusSince: number
 }
 
 export const NEW_PROFILE: Profile = {
@@ -107,6 +117,11 @@ export const NEW_PROFILE: Profile = {
   lastPowerOffer: [],
   equipped: [],
   supportAskedAt: 0,
+  feedbackAskedAt: 0,
+  banned: [],
+  banIntroSeen: 0,
+  peeks: 0,
+  plusSince: 0,
 }
 
 export interface RunOutcome {

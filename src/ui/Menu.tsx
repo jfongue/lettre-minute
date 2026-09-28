@@ -3,7 +3,8 @@ import type { ChallengeSummary } from '../lib/cloud'
 import type { AvatarChoice } from '../domain/avatar'
 import type { RunRecord } from '../domain/history'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
-import { ADS_ENABLED } from '../domain/unlocks'
+import { ADS_ENABLED, ownedCategoryIds } from '../domain/unlocks'
+import { banNews } from '../domain/perks'
 import {
   blockPlayer,
   fetchBlocks,
@@ -34,7 +35,7 @@ import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
 import { sound as preview, type SoundPrefs } from '../lib/sound'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions, type AccountMode } from './AccountPanel'
-import { CategoriesPage } from './CategoriesPage'
+import { CategoriesPage, type BanActions } from './CategoriesPage'
 import { LeaderboardsPage } from './LeaderboardsPage'
 import { PageLinks } from './PageLinks'
 import { RequestsPage } from './RequestsPage'
@@ -106,6 +107,8 @@ interface MenuProps {
   /** Les classements avancés : le mode débug, ouvert par cinq tapes sur « Classements ». */
   advancedBoards: boolean
   onAdvancedBoards(open: boolean): void
+  /** Bans and Joueur +, from « Mes catégories ». */
+  banActions: BanActions
   onClose(): void
 }
 
@@ -225,7 +228,7 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               onOpen={props.onRequestsOpen}
             />
           )}
-          {sub === 'categories' && <CategoriesPage profile={props.profile} />}
+          {sub === 'categories' && <CategoriesPage profile={props.profile} {...props.banActions} />}
           {!sub && pane === 'profile' && <ProfilePane {...props} onPage={open} />}
           {pane === 'social' && (
             <SocialPane
@@ -330,7 +333,7 @@ function ProfilePane({
 
       <PageLinks
         pages={PROFILE_PAGES}
-        badges={{ requests: moderation?.news ?? 0 }}
+        badges={{ requests: moderation?.news ?? 0, categories: banNews(profile, ownedCategoryIds(profile)) ? 1 : 0 }}
         onOpen={(next) => next !== 'profile' && onPage(next)}
       />
 

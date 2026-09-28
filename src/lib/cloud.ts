@@ -605,10 +605,64 @@ export function fetchBlocks(): Promise<BlockedPlayer[] | null> {
   }, null)
 }
 
+/** Where an idea was written: the box of « Mes demandes », or the question asked on the way home. */
+export type IdeaSource = 'box' | 'prompt'
+
 /** Sent as typed; the server trims it and turns away a flood. */
-export function submitIdea(body: string, lang: string): Promise<boolean> {
+export function submitIdea(body: string, lang: string, source: IdeaSource = 'box'): Promise<boolean> {
   return guard(async () => {
-    const { data, error } = await supabase!.rpc('submit_idea', { p_body: body, p_lang: lang })
+    const { data, error } = await supabase!.rpc('submit_idea', { p_body: body, p_lang: lang, p_source: source })
+    if (!error) return data === true
+    // A project without 0028 knows only the two-argument form: the idea still goes, its source untold.
+    if (error.code !== 'PGRST202') return false
+    const fallback = await supabase!.rpc('submit_idea', { p_body: body, p_lang: lang })
+    return !fallback.error && fallback.data === true
+  }, false)
+}
+
+/** An idea as the admin reads it (0028). */
+export interface AdminIdea {
+  id: string
+  body: string
+  lang: string | null
+  source: IdeaSource
+  author: string
+  /** The author's runs when read: how far into the game they wrote it, roughly. */
+  authorRuns: number
+  createdAt: string
+  archivedAt: string | null
+}
+
+/** Null for whoever is not an admin, or without a server; the list otherwise, newest first. */
+export function fetchAdminIdeas(): Promise<AdminIdea[] | null> {
+  return guard(async () => {
+    const { data: admin } = await supabase!.rpc('is_admin')
+    if (admin !== true) return null
+    const { data, error } = await supabase!.rpc('admin_ideas')
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      id: row.id as string,
+      body: row.body as string,
+      lang: (row.lang as string | null) ?? null,
+      source: row.source === 'prompt' ? 'prompt' : 'box',
+      author: row.author as string,
+      authorRuns: Number(row.author_runs) || 0,
+      createdAt: row.created_at as string,
+      archivedAt: (row.archived_at as string | null) ?? null,
+    }))
+  }, null)
+}
+
+export function archiveIdea(id: string, archived: boolean): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('archive_idea', { p_id: id, p_archived: archived })
+    return !error && data === true
+  }, false)
+}
+
+export function deleteIdea(id: string): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('delete_idea', { p_id: id })
     return !error && data === true
   }, false)
 }

@@ -27,6 +27,8 @@ import { powerPicksOwed } from '../domain/powers'
 import { reducedMotion, useCountUp } from './useCountUp'
 import { ShareSoon } from './ShareSoon'
 import { RequestRow, type RequestEntry } from './RequestsPage'
+import { peeksLeft, type HiddenAnswer } from '../domain/perks'
+import { PlusPop } from './PlusPop'
 
 /** A word proposed during the run, and what the server holds of it — nothing while it still waits on the device. */
 export interface RunProposal {
@@ -81,6 +83,11 @@ interface OverScreenProps {
    */
   challenge?: ChallengeDetail | 'sending' | 'failed'
   onChallengeChanged?(): void
+  /** The prompts the run skipped, each hiding a word it could have taken. */
+  hidden?: readonly HiddenAnswer[]
+  /** One hidden word uncovered: spends one of the free ones. */
+  onPeek?(): void
+  onJoinPlus?(): void
 }
 
 export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: OverScreenProps) {
@@ -93,7 +100,20 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
 
   // A challenge run beats no record: it does not count for one.
   const previousBest = profileBefore.runs > 0 && !summary.challenge ? profileBefore.bestScore : null
-  if (!revealed) return <Reveal run={run} previousBest={previousBest} mine={summary.mine} onNext={onRevealed} />
+  if (!revealed) {
+    return (
+      <Reveal
+        run={run}
+        previousBest={previousBest}
+        mine={summary.mine}
+        hidden={summary.hidden ?? []}
+        peeks={peeksLeft(profile)}
+        onPeek={summary.onPeek}
+        onJoinPlus={summary.onJoinPlus}
+        onNext={onRevealed}
+      />
+    )
+  }
   const levelled = levelFor(profile.xp) > levelFor(profileBefore.xp)
   // Categories first, then powers: the sixth category and the first power come on the same level.
   if ((profile.offer.length > 0 && celebrating !== 'power') || celebrating === 'category') {
@@ -167,11 +187,19 @@ function Reveal({
   run,
   previousBest,
   mine,
+  hidden,
+  peeks,
+  onPeek,
+  onJoinPlus,
   onNext,
 }: {
   run: Run
   previousBest: number | null
   mine?: ReadonlySet<string>
+  hidden: readonly HiddenAnswer[]
+  peeks: number
+  onPeek?(): void
+  onJoinPlus?(): void
   onNext(): void
 }) {
   const t = useT()
@@ -245,6 +273,8 @@ function Reveal({
         </ol>
       )}
 
+      {done && hidden.length > 0 && <HiddenAnswers hidden={hidden} peeks={peeks} onPeek={onPeek} onJoinPlus={onJoinPlus} />}
+
       {done && (
         <button
           type="button"
@@ -264,6 +294,100 @@ function Reveal({
         </button>
       )}
     </div>
+  )
+}
+
+/** Confetti of the bar torn off a hidden word: angle and reach of each piece. */
+const SHARDS = Array.from({ length: 10 }, (_, i) => ({ angle: (i / 10) * 360 + (i % 2) * 17, reach: 2.2 + (i % 3) * 0.9 }))
+
+/**
+ * The prompts the player skipped, each with a word it could have taken
+ * under a black bar: close enough to tempt, too dark to read. A tap tears the
+ * bar off — five times free, then Joueur +. What Professeur already told is
+ * shown as it is.
+ */
+function HiddenAnswers({
+  hidden,
+  peeks,
+  onPeek,
+  onJoinPlus,
+}: {
+  hidden: readonly HiddenAnswer[]
+  peeks: number
+  onPeek?(): void
+  onJoinPlus?(): void
+}) {
+  const t = useT()
+  const [open, setOpen] = useState<ReadonlySet<number>>(() => new Set())
+  const [asking, setAsking] = useState<number | null>(null)
+  const closed = hidden.some((answer, index) => !answer.told && !open.has(index))
+
+  const tear = (index: number) => {
+    setOpen((current) => new Set(current).add(index))
+    tapFeedback('medium')
+    sound.found(2, index + 3)
+  }
+
+  return (
+    <section className="hidden-answers" onClick={(event) => event.stopPropagation()} role="presentation">
+      <p className="section-title">{t.peek.title}</p>
+      {closed && <p className="note">{t.peek.hint(peeks)}</p>}
+      <ol className="reveal-words">
+        {hidden.map((answer, index) => {
+          const shown = answer.told || open.has(index)
+          const category = categoryText(t, answer.prompt.categoryId).label
+          return (
+            <li key={`${answer.prompt.categoryId}:${answer.prompt.letter}`} className="reveal-word hidden-answer">
+              <LetterMark letter={answer.prompt.letter} motif={categoryMotif(answer.prompt.categoryId)} size="sm" />
+              <span className="reveal-word-text">
+                {shown ? (
+                  <span className={`peek-word${answer.told ? '' : ' peek-word--torn'}`}>
+                    {capitalized(answer.display)}
+                    {!answer.told && (
+                      <span className="peek-shards" aria-hidden="true">
+                        {SHARDS.map((shard, i) => (
+                          <span
+                            key={i}
+                            style={{ '--angle': `${shard.angle}deg`, '--reach': `${shard.reach}rem`, '--i': i } as CSSProperties}
+                          />
+                        ))}
+                      </span>
+                    )}
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="peek-bar"
+                    aria-label={t.peek.reveal(category, answer.prompt.letter)}
+                    onClick={() => {
+                      if (peeks <= 0) return setAsking(index)
+                      onPeek?.()
+                      tear(index)
+                    }}
+                  >
+                    <span className="peek-bar-ghost" aria-hidden="true">
+                      {capitalized(answer.display)}
+                    </span>
+                  </button>
+                )}
+                <span className="reveal-word-category">{category}</span>
+              </span>
+            </li>
+          )
+        })}
+      </ol>
+      {asking !== null && (
+        <PlusPop
+          reason="peek"
+          onClose={() => setAsking(null)}
+          onJoin={() => {
+            onJoinPlus?.()
+            tear(asking)
+            setAsking(null)
+          }}
+        />
+      )}
+    </section>
   )
 }
 

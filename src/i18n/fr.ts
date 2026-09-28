@@ -691,6 +691,44 @@ export const fr = {
     yes: 'Oui, activer',
   },
 
+  feedback: {
+    title: 'Ton avis compte !',
+    lead: 'Tu as bien joué ces dernières parties. Qu’est-ce qui te plaît, qu’est-ce qui manque, qu’est-ce qui agace ? Le créateur lit tout.',
+    placeholder: 'Ce que tu en penses…',
+    send: 'Envoyer',
+    later: 'Plus tard',
+    sent: 'Merci ! Ton avis est parti.',
+    failed: 'Ton avis n’est pas parti. Vérifie ta connexion et réessaie.',
+  },
+
+  bans: {
+    introTitle: 'Nouveau : bannir une catégorie',
+    introLead: 'Tu as sept catégories. Il y en a une qui t’ennuie ? Bannis-la : elle ne sortira plus dans tes parties. Tu peux changer d’avis quand tu veux, ici même.',
+    introOk: 'Compris',
+    lead: 'Une catégorie bannie ne sort plus dans tes parties (les défis gardent les leurs).',
+    ban: 'Bannir',
+    unban: 'Rétablir',
+    banned: 'Bannie',
+    full: 'Il faut garder au moins cinq catégories en jeu.',
+  },
+
+  plus: {
+    title: 'Réservé aux Joueurs +',
+    ban: 'Bannir plus d’une catégorie est réservé aux Joueurs +.',
+    peek: 'Révéler plus de mots est réservé aux Joueurs +.',
+    join: 'Devenir Joueur + pour 0 €',
+    free: '(pour l’instant c’est gratuit !)',
+    later: 'Plus tard',
+    badge: 'Joueur +',
+  },
+
+  peek: {
+    title: 'Ce que tu aurais pu écrire',
+    hint: (left: number) =>
+      left === Infinity ? 'Touche une bande pour révéler le mot.' : `Touche une bande pour révéler le mot · encore ${left}`,
+    reveal: (category: string, letter: string) => `Révéler un mot en ${letter} : ${category}`,
+  },
+
   update: {
     title: 'Nouvelle version',
     lead: 'Une version plus récente de Lettre Minute t’attend sur le Play Store.',

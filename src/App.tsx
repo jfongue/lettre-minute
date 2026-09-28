@@ -77,6 +77,10 @@ import { standingMove } from './domain/standing'
 import { challengeNotice } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { createJudge } from './state/judge'
+import { banNews, feedbackDue, hiddenAnswers, playableCategoryIds } from './domain/perks'
+import { cloudConfigured } from './lib/supabase'
+import { FeedbackPop } from './ui/FeedbackPop'
+import type { BanActions } from './ui/CategoriesPage'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
 import { initialSession, sessionReducer, type Proposal } from './state/session'
 import {
@@ -218,6 +222,8 @@ export function App() {
   const [offerHeld, setOfferHeld] = useState(false)
   // The gift put off with the back gesture: the next run's end hands it over.
   const [giftHeld, setGiftHeld] = useState(loadGiftHeld)
+  // Set on the way home once `feedbackDue` says so: asked once, answered or not.
+  const [feedbackAsk, setFeedbackAsk] = useState(false)
   // The seed of the run whose reveal has played: leaving for the avatar editor
   // and coming back must not replay it.
   const [revealed, setRevealed] = useState<number | null>(null)
@@ -583,9 +589,10 @@ export function App() {
       // is simply not dealt, rather than failing the whole run.
       const shipped = new Set(availableCategoryIds(lang))
       const seed = Date.now() >>> 0
+      // A ban holds for solo runs only: a challenge deals its own categories.
       const lineup = dealLineup(
         seed,
-        ownedCategoryIds(session.profile).filter((id) => shipped.has(id)),
+        playableCategoryIds(session.profile, ownedCategoryIds(session.profile)).filter((id) => shipped.has(id)),
       )
       const judge = await judgeFor(lineup.dealt)
       dispatch({ type: 'ready', judge, seed, categoryIds: lineup.dealt, reserve: lineup.reserve })
@@ -890,6 +897,22 @@ export function App() {
   const choose = useCallback((categoryId: string) => dispatch({ type: 'choose', categoryId }), [])
   const choosePower = useCallback((powerId: string) => dispatch({ type: 'choose-power', powerId }), [])
   const supportAsked = useCallback(() => dispatch({ type: 'support-asked' }), [])
+  const joinPlus = useCallback(() => dispatch({ type: 'join-plus', at: Date.now() }), [])
+  const peek = useCallback(() => dispatch({ type: 'peek' }), [])
+  const banActions = useMemo<BanActions>(
+    () => ({
+      onBan: (categoryId) => dispatch({ type: 'ban', categoryId }),
+      onUnban: (categoryId) => dispatch({ type: 'unban', categoryId }),
+      onIntroSeen: () => dispatch({ type: 'ban-intro-seen' }),
+      onJoinPlus: joinPlus,
+    }),
+    [joinPlus],
+  )
+  // Read from the run as it ended, with the dictionaries it was judged by.
+  const hidden = useMemo(
+    () => (session.phase === 'over' && session.run && session.judge ? hiddenAnswers(session.run, session.judge) : []),
+    [session.phase, session.run, session.judge],
+  )
 
   // The gift is not a level-up pick: it is handed over, never counted against
   // the picks a level owes.
@@ -1060,6 +1083,16 @@ export function App() {
     !giftHeld &&
     gift.length > 0
   giftShown.current = giftPop
+  const feedbackPop =
+    feedbackAsk &&
+    !notice &&
+    quietHome &&
+    update !== 'due' &&
+    !(moderation?.offer && !offerHeld) &&
+    wordsNews.length === 0 &&
+    !complicationDue(session.profile, acceptedWords) &&
+    !giftPop &&
+    pushOffer === null
 
   if (debugPhase !== null && locale !== null) {
     return (
@@ -1139,6 +1172,7 @@ export function App() {
           climbed={climbed}
           avatar={avatar}
           requestsNews={moderation?.news ?? 0}
+          categoriesNews={banNews(session.profile, ownedCategoryIds(session.profile)) ? 1 : 0}
           friendRequests={named ? friendRequests : 0}
           challenges={named ? challenges : null}
           onChallenge={setChallengeOpen}
@@ -1288,6 +1322,8 @@ export function App() {
 
       {giftPop && <CategoryGiftPop offer={gift} onChoose={takeGift} />}
 
+      {feedbackPop && <FeedbackPop onClose={() => setFeedbackAsk(false)} />}
+
       {menuOpen && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
         <Menu
           page={menuPage}
@@ -1338,6 +1374,7 @@ export function App() {
           lang={lang}
           advancedBoards={advancedBoards}
           onAdvancedBoards={setAdvancedBoards}
+          banActions={banActions}
           onErase={async () => {
             // The device keeps its copy until the server has let go of its
             // own: a failed erase must not leave the player half-deleted.
@@ -1420,8 +1457,16 @@ export function App() {
           proposals={runProposals}
           onCorrectProposal={correctProposal}
           onWithdrawProposal={withdrawProposal}
+          hidden={hidden}
+          onPeek={peek}
+          onJoinPlus={joinPlus}
           onReplay={play}
           onHome={() => {
+            // Asked on the way home, never over the summary: after the tenth run, then every thirty.
+            if (cloudConfigured() && feedbackDue(session.profile)) {
+              dispatch({ type: 'feedback-asked' })
+              setFeedbackAsk(true)
+            }
             dispatch({ type: 'home' })
             if (session.challengeId) {
               setPlayed(null)
