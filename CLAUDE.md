@@ -376,7 +376,7 @@ qu'un nouvel arrivant casserait sans le savoir.
   déjà. Le chargeur (`fetchInsights`) et la vue sont séparés, et rien n'est
   écrit sur le serveur.
 - **Les planches touchées depuis les deux dernières versions livrées sont
-  surlignées** (`npm run debug:recent`) : le script relit les commits
+  surlignées en rouge, celles que la dernière version n'avait pas en bleu** (`npm run debug:recent`) : le script relit les commits
   « Version X.Y.Z » de git et écrit `src/debug/recent.ts`, à commiter — la
   planche et le build n'ont donc pas besoin de git. Tout se lit dans `HEAD` :
   ce qui n'est pas commité n'est pas livré. Un identifiant de planche reste

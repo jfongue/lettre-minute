@@ -5635,6 +5635,15 @@ button.challenge-past::after {
   box-shadow: inset 0.3rem 0 0 var(--red);
 }
 
+.debug-item--new {
+  border-color: var(--blue);
+  box-shadow: inset 0.3rem 0 0 var(--blue);
+}
+
+.debug-flag--new {
+  background: var(--blue);
+}
+
 .debug-flag {
   margin-left: 0.5rem;
   padding: 0.05rem 0.4rem;
@@ -5652,6 +5661,10 @@ button.challenge-past::after {
 .debug-note {
   border-left: 0.3rem solid var(--red);
   padding-left: 0.6rem;
+}
+
+.debug-note--new {
+  border-left-color: var(--blue);
 }
 
 .debug-scene {

@@ -4,8 +4,9 @@ import { join, normalize } from 'node:path'
 
 /**
  * Writes the debug scenarios touched since the two last delivered versions —
- * the ones the board highlights, so a release is checked without hunting for
- * what it changed.
+ * the ones the board highlights in red, so a release is checked without
+ * hunting for what it changed — and those the last delivered version did not
+ * have at all, in blue: a new screen is checked whole, not for what moved.
  *
  *   npm run debug:recent
  *
@@ -110,6 +111,8 @@ const endOfScenarios = source.findIndex((line, index) => line === ']' && index >
 /** Chaque planche, de son `{` à celui de la suivante. */
 const heads: { id: string; start: number }[] = []
 source.forEach((line, index) => {
+  // Seules les entrées du tableau SCENARIOS : les données inventées ont aussi des `id`.
+  if (index <= startOfScenarios || index >= endOfScenarios) return
   const id = /^    id: '([\w-]+)',$/.exec(line)
   if (id) heads.push({ id: id[1], start: head(index - 1) })
 })
@@ -155,8 +158,20 @@ const base = older ? older.sha : `${delivered[1]?.sha ?? delivered[0].sha}^`
 const files = changedFiles(base)
 const edited = changedLines(base)
 
+/** Les identifiants de planche d'une version de la planche. */
+function idsIn(text: string): Set<string> {
+  const lines = text.split('\n')
+  const from = lines.findIndex((line) => /^const SCENARIOS\b/.test(line))
+  const to = lines.findIndex((line, index) => line === ']' && index > from)
+  return new Set(lines.slice(from, to).flatMap((line) => /^    id: '([\w-]+)',$/.exec(line)?.[1] ?? []))
+}
+// Nouvelle : absente de la dernière version livrée. Une planche nouvelle n'est pas « touchée » en plus.
+const shipped = idsIn(git('show', `${delivered[0].sha}:${BOARD}`))
+const fresh = scenarios.map((scenario) => scenario.id).filter((id) => !shipped.has(id))
+
 const recent: string[] = []
 for (const scenario of scenarios) {
+  if (!shipped.has(scenario.id)) continue
   const { modules, renders } = shown(scenario.start, scenario.end)
   const screen = [...modules].some((module) => module.startsWith(SCREENS) && files.has(module))
   // La planche change aussi quand le rendu qu'elle appelle change.
@@ -176,10 +191,14 @@ writeFileSync(
     ` * Écrit par \`npm run debug:recent\` : les planches touchées depuis les deux\n` +
     ` * dernières versions livrées (${versions.join(', ')}). Le fichier est commité — la\n` +
     ` * planche et le build n'ont pas besoin de git — et se régénère avant de livrer.\n` +
+    ` * NEW_SCENARIOS : les planches que la ${delivered[0].version} n'avait pas.\n` +
     ` */\n` +
     `export const RECENT_VERSIONS: readonly string[] = [${list(versions)}]\n` +
-    `export const RECENT_SCENARIOS: readonly string[] = [${list(recent)}]\n`,
+    `export const RECENT_SCENARIOS: readonly string[] = [${list(recent)}]\n` +
+    `export const NEW_SINCE = '${delivered[0].version}'\n` +
+    `export const NEW_SCENARIOS: readonly string[] = [${list(fresh)}]\n`,
 )
 
 console.log(`→ ${recent.length} planche(s) touchée(s) depuis la ${versions[0]} : ${recent.join(', ') || '—'}`)
+console.log(`→ ${fresh.length} planche(s) nouvelle(s) depuis la ${delivered[0].version} : ${fresh.join(', ') || '—'}`)
 console.log(`  versions livrées : ${versions.join(', ')} ; ${files.size} fichier(s) changé(s)`)

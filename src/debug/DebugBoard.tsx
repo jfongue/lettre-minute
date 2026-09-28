@@ -29,7 +29,7 @@ import type { Boards } from '../domain/boards'
 import type { ActivityBucket, Insights as InsightData, PairTally, PowerTally } from '../domain/insights'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
-import { RECENT_SCENARIOS, RECENT_VERSIONS } from './recent'
+import { NEW_SCENARIOS, NEW_SINCE, RECENT_SCENARIOS, RECENT_VERSIONS } from './recent'
 import { ban, joinPlus, markBanIntroSeen, spendPeek, unban, type HiddenAnswer } from '../domain/perks'
 import { ownedCategoryIds } from '../domain/unlocks'
 import { CategoriesPage } from '../ui/CategoriesPage'
@@ -1374,6 +1374,8 @@ interface DebugBoardProps {
 
 /** Les planches touchées depuis les deux dernières versions livrées. */
 const RECENT = new Set(RECENT_SCENARIOS)
+/** Les planches que la dernière version livrée n'avait pas : en bleu, avant le rouge. */
+const NEW = new Set(NEW_SCENARIOS)
 
 export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
   const [open, setOpen] = useState<Scenario | null>(null)
@@ -1407,7 +1409,8 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
 
   const groups = [...new Set(SCENARIOS.map((scenario) => scenario.group))]
   // RECENT peut nommer une planche supprimée depuis : le compte suit la liste.
-  const recentCount = SCENARIOS.filter((scenario) => RECENT.has(scenario.id)).length
+  const recentCount = SCENARIOS.filter((scenario) => RECENT.has(scenario.id) && !NEW.has(scenario.id)).length
+  const newCount = SCENARIOS.filter((scenario) => NEW.has(scenario.id)).length
   return (
     <div className="sheet cascade debug-board">
       {/* À gauche : cinq tapes dans le coin haut droit ouvrent la planche,
@@ -1422,9 +1425,14 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
         Chaque écran difficile d’accès, avec des données inventées. Rien n’est envoyé au serveur ; les choix ne
         touchent pas au vrai profil.
       </p>
+      {newCount > 0 && (
+        <p className="note debug-note debug-note--new">
+          En bleu : {newCount} planches nouvelles, que la {NEW_SINCE} n’avait pas.
+        </p>
+      )}
       {recentCount > 0 && (
         <p className="note debug-note">
-          En surligné : {recentCount} des {SCENARIOS.length} planches montrent un écran ou un code qui a changé depuis
+          En rouge : {recentCount} des {SCENARIOS.length} planches montrent un écran ou un code qui a changé depuis
           les deux dernières versions livrées ({RECENT_VERSIONS.join(' et ')}). « npm run debug:recent » refait la liste
           au moment de livrer.
         </p>
@@ -1434,12 +1442,13 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
           <p className="section-title">{group}</p>
           <ul className="debug-list">
             {SCENARIOS.filter((scenario) => scenario.group === group).map((scenario) => {
-              const recent = RECENT.has(scenario.id)
+              const fresh = NEW.has(scenario.id)
+              const recent = !fresh && RECENT.has(scenario.id)
               return (
                 <li key={scenario.id}>
                   <button
                     type="button"
-                    className={recent ? 'debug-item debug-item--recent' : 'debug-item'}
+                    className={`debug-item${fresh ? ' debug-item--new' : recent ? ' debug-item--recent' : ''}`}
                     onClick={() => {
                       setTake(0)
                       setOpen(scenario)
@@ -1447,6 +1456,7 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
                   >
                     <strong>
                       {scenario.title}
+                      {fresh && <span className="debug-flag debug-flag--new">nouveau</span>}
                       {recent && <span className="debug-flag">récent</span>}
                     </strong>
                     <span className="note">{scenario.how}</span>
