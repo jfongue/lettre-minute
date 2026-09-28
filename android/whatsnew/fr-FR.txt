@@ -1,4 +1,2 @@
-• Succès Google Play Games : quinze défis à débloquer, du niveau 4 au Maître de la minute
-• Connecté à Play Games ? Ton compte se crée tout seul, à ton nom de joueur
-• Tes catégories et tes pouvoirs te suivent sur un autre téléphone
-• « Mes catégories » annonce deux thèmes à venir : Ingrédients, Lieux et bâtiments
+• Connecté à Play Games ? Le jeu te propose ton nom de joueur, que tu peux changer ou garder
+• « Plus tard » laisse la question pour le menu : rien ne t’est imposé
