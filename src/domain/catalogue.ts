@@ -13,21 +13,21 @@ export interface CategoryMeta {
  * deliberately absent — live validation cannot arbitrate them.
  */
 export const CATALOGUE: readonly CategoryMeta[] = [
-  { id: 'pays', label: 'Pays', hint: 'États du monde, actuels ou passés', unlockLevel: 1 },
-  { id: 'animaux', label: 'Animaux', hint: 'Noms courants, du moineau au morse', unlockLevel: 1 },
+  { id: 'pays', label: 'Pays', hint: 'États de notre monde', unlockLevel: 1 },
+  { id: 'animaux', label: 'Animaux', hint: 'Du moineau au morse', unlockLevel: 1 },
   { id: 'couleurs', label: 'Couleurs', hint: 'Teintes et nuances', unlockLevel: 1 },
-  { id: 'fruits-legumes', label: 'Fruits et légumes', hint: 'Ce qui se mange, cru ou cuit', unlockLevel: 2 },
-  { id: 'metiers', label: 'Métiers', hint: 'Professions, d’hier et d’aujourd’hui', unlockLevel: 3 },
+  { id: 'fruits-legumes', label: 'Fruits et légumes', hint: 'Crus ou cuits', unlockLevel: 2 },
+  { id: 'metiers', label: 'Métiers', hint: 'D’hier et d’aujourd’hui', unlockLevel: 3 },
   { id: 'sports', label: 'Sports', hint: 'Disciplines et pratiques', unlockLevel: 4 },
-  { id: 'corps-humain', label: 'Partie du corps humain', hint: 'De la tête aux pieds', unlockLevel: 5 },
+  { id: 'corps-humain', label: 'Parties du corps', hint: 'De la tête aux pieds', unlockLevel: 5 },
   { id: 'matieres', label: 'Matières et éléments', hint: 'Bois, fer, oxygène, feu…', unlockLevel: 6 },
   // The id keeps the name the category was born with: a profile owns its
   // categories under it, and so do the server's prompt_stats.
-  { id: 'capitales', label: 'Grandes villes', hint: 'Capitales, et villes de plus de 100 000 habitants', unlockLevel: 7 },
-  { id: 'marques', label: 'Marque', hint: 'Marques connues', unlockLevel: 8 },
-  { id: 'prenoms', label: 'Prénoms', hint: 'D’ici et d’ailleurs, de Léa à Mohammed', unlockLevel: 9 },
-  { id: 'objets', label: 'Objets du quotidien', hint: 'Ce qu’on trouve à la maison ou dans son sac', unlockLevel: 10 },
-  { id: 'plantes', label: 'Plantes', hint: 'Fleurs, arbres, herbes et buissons', unlockLevel: 11 },
+  { id: 'capitales', label: 'Grandes villes', hint: 'Les plus grandes de leur pays', unlockLevel: 7 },
+  { id: 'marques', label: 'Marques', hint: 'Connues de tous', unlockLevel: 8 },
+  { id: 'prenoms', label: 'Prénoms', hint: 'D’ici et d’ailleurs', unlockLevel: 9 },
+  { id: 'objets', label: 'Objets du quotidien', hint: 'À la maison ou dans le sac', unlockLevel: 10 },
+  { id: 'plantes', label: 'Plantes', hint: 'Fleurs, arbres, herbes', unlockLevel: 11 },
 ]
 
 export function categoryMeta(id: string): CategoryMeta | null {

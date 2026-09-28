@@ -32,7 +32,7 @@ describe('messages', () => {
   })
 
   it('keeps the French catalogue as the French wording', () => {
-    expect(categoryText(messagesFor('fr'), 'pays')).toEqual({ label: 'Pays', hint: 'États du monde, actuels ou passés' })
+    expect(categoryText(messagesFor('fr'), 'pays')).toEqual({ label: 'Pays', hint: 'États de notre monde' })
     expect(categoryText(messagesFor('en'), 'pays').label).toBe('Countries')
   })
 

@@ -709,19 +709,19 @@ export const nl: Messages = {
   tiers: { courant: 'gewoon', 'peu commun': 'ongewoon', rare: 'zeldzaam', 'très rare': 'zeer zeldzaam' },
 
   categories: {
-    pays: ['Landen', 'Staten van de wereld, nu of vroeger'],
-    animaux: ['Dieren', 'Gewone namen, van mus tot walrus'],
+    pays: ['Landen', 'Staten van onze wereld'],
+    animaux: ['Dieren', 'Van mus tot walrus'],
     couleurs: ['Kleuren', 'Tinten en nuances'],
-    'fruits-legumes': ['Groente en fruit', 'Wat je eet, rauw of gekookt'],
-    metiers: ['Beroepen', 'Vakken van vroeger en nu'],
+    'fruits-legumes': ['Groente en fruit', 'Rauw of gekookt'],
+    metiers: ['Beroepen', 'Van vroeger en nu'],
     sports: ['Sporten', 'Disciplines en bezigheden'],
     'corps-humain': ['Lichaamsdelen', 'Van top tot teen'],
     matieres: ['Materialen en elementen', 'Hout, ijzer, zuurstof, vuur…'],
-    capitales: ['Grote steden', 'Hoofdsteden en steden vanaf 100.000 inwoners'],
-    marques: ['Merken', 'Bekende merken'],
-    prenoms: ['Voornamen', 'Van hier en elders, van Emma tot Mohammed'],
-    objets: ['Alledaagse voorwerpen', 'Wat je thuis of in je tas vindt'],
-    plantes: ['Planten', 'Bloemen, bomen, kruiden en struiken'],
+    capitales: ['Grote steden', 'De grootste van hun land'],
+    marques: ['Merken', 'Bekend bij iedereen'],
+    prenoms: ['Voornamen', 'Van hier en elders'],
+    objets: ['Alledaagse voorwerpen', 'Thuis of in je tas'],
+    plantes: ['Planten', 'Bloemen, bomen, kruiden'],
   },
 
   colours: {

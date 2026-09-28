@@ -714,19 +714,19 @@ export const en: Messages = {
   tiers: { courant: 'common', 'peu commun': 'uncommon', rare: 'rare', 'très rare': 'very rare' },
 
   categories: {
-    pays: ['Countries', 'States of the world, present or past'],
-    animaux: ['Animals', 'Common names, from sparrow to walrus'],
+    pays: ['Countries', 'States of our world'],
+    animaux: ['Animals', 'From sparrow to walrus'],
     couleurs: ['Colours', 'Hues and shades'],
-    'fruits-legumes': ['Fruit and vegetables', 'What gets eaten, raw or cooked'],
-    metiers: ['Jobs', 'Trades, old and new'],
+    'fruits-legumes': ['Fruit and vegetables', 'Raw or cooked'],
+    metiers: ['Jobs', 'Trades old and new'],
     sports: ['Sports', 'Disciplines and pastimes'],
     'corps-humain': ['Parts of the body', 'From head to toe'],
     matieres: ['Materials and elements', 'Wood, iron, oxygen, fire…'],
-    capitales: ['Large cities', 'Capitals, and cities of over 100,000 people'],
-    marques: ['Brands', 'Well-known brands'],
-    prenoms: ['First names', 'From here and elsewhere, from Emma to Mohammed'],
-    objets: ['Everyday objects', 'Things found at home or in a bag'],
-    plantes: ['Plants', 'Flowers, trees, herbs and shrubs'],
+    capitales: ['Large cities', 'The largest of their country'],
+    marques: ['Brands', 'Household names'],
+    prenoms: ['First names', 'From here and elsewhere'],
+    objets: ['Everyday objects', 'At home or in a bag'],
+    plantes: ['Plants', 'Flowers, trees, herbs'],
   },
 
   colours: {

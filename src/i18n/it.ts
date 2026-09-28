@@ -710,19 +710,19 @@ export const it: Messages = {
   tiers: { courant: 'comune', 'peu commun': 'poco comune', rare: 'rara', 'très rare': 'rarissima' },
 
   categories: {
-    pays: ['Paesi', 'Stati del mondo, attuali o passati'],
-    animaux: ['Animali', 'Nomi comuni, dal passero al tricheco'],
+    pays: ['Paesi', 'Stati del nostro mondo'],
+    animaux: ['Animali', 'Dal passero al tricheco'],
     couleurs: ['Colori', 'Tinte e sfumature'],
-    'fruits-legumes': ['Frutta e verdura', 'Ciò che si mangia, crudo o cotto'],
-    metiers: ['Mestieri', 'Professioni di ieri e di oggi'],
+    'fruits-legumes': ['Frutta e verdura', 'Crudi o cotti'],
+    metiers: ['Mestieri', 'Di ieri e di oggi'],
     sports: ['Sport', 'Discipline e pratiche'],
     'corps-humain': ['Parti del corpo', 'Dalla testa ai piedi'],
     matieres: ['Materiali ed elementi', 'Legno, ferro, ossigeno, fuoco…'],
-    capitales: ['Grandi città', 'Capitali e città oltre i 100 000 abitanti'],
-    marques: ['Marchi', 'Marchi noti'],
-    prenoms: ['Nomi propri', 'Di qui e d’altrove, da Giulia a Mohammed'],
-    objets: ['Oggetti di uso quotidiano', 'Quel che si trova in casa o in borsa'],
-    plantes: ['Piante', 'Fiori, alberi, erbe e arbusti'],
+    capitales: ['Grandi città', 'Le più grandi del loro paese'],
+    marques: ['Marchi', 'Noti a tutti'],
+    prenoms: ['Nomi propri', 'Di qui e d’altrove'],
+    objets: ['Oggetti di uso quotidiano', 'In casa o nella borsa'],
+    plantes: ['Piante', 'Fiori, alberi, erbe'],
   },
 
   colours: {

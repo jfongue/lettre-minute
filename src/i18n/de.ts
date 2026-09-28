@@ -708,19 +708,19 @@ export const de: Messages = {
   tiers: { courant: 'gängig', 'peu commun': 'ungewöhnlich', rare: 'selten', 'très rare': 'sehr selten' },
 
   categories: {
-    pays: ['Länder', 'Staaten der Welt, heutige oder frühere'],
-    animaux: ['Tiere', 'Gängige Namen, vom Spatz bis zum Walross'],
+    pays: ['Länder', 'Staaten unserer Welt'],
+    animaux: ['Tiere', 'Vom Spatz bis zum Walross'],
     couleurs: ['Farben', 'Farbtöne und Nuancen'],
-    'fruits-legumes': ['Obst und Gemüse', 'Was man isst, roh oder gekocht'],
-    metiers: ['Berufe', 'Berufe von gestern und heute'],
+    'fruits-legumes': ['Obst und Gemüse', 'Roh oder gekocht'],
+    metiers: ['Berufe', 'Von gestern und heute'],
     sports: ['Sportarten', 'Disziplinen und Aktivitäten'],
     'corps-humain': ['Körperteile', 'Von Kopf bis Fuß'],
     matieres: ['Stoffe und Elemente', 'Holz, Eisen, Sauerstoff, Feuer…'],
-    capitales: ['Großstädte', 'Hauptstädte und Städte ab 100.000 Einwohnern'],
-    marques: ['Marken', 'Bekannte Marken'],
-    prenoms: ['Vornamen', 'Von hier und anderswo, von Emma bis Mohammed'],
-    objets: ['Alltagsgegenstände', 'Was man zu Hause oder in der Tasche findet'],
-    plantes: ['Pflanzen', 'Blumen, Bäume, Kräuter und Sträucher'],
+    capitales: ['Großstädte', 'Die größten ihres Landes'],
+    marques: ['Marken', 'Jedermann bekannt'],
+    prenoms: ['Vornamen', 'Von hier und anderswo'],
+    objets: ['Alltagsgegenstände', 'Zu Hause oder in der Tasche'],
+    plantes: ['Pflanzen', 'Blumen, Bäume, Kräuter'],
   },
 
   colours: {

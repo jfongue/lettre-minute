@@ -710,19 +710,19 @@ export const pt: Messages = {
   tiers: { courant: 'comum', 'peu commun': 'incomum', rare: 'rara', 'très rare': 'muito rara' },
 
   categories: {
-    pays: ['Países', 'Estados do mundo, atuais ou passados'],
-    animaux: ['Animais', 'Nomes comuns, do pardal à morsa'],
+    pays: ['Países', 'Estados do nosso mundo'],
+    animaux: ['Animais', 'Do pardal à morsa'],
     couleurs: ['Cores', 'Tons e matizes'],
-    'fruits-legumes': ['Frutas e legumes', 'O que se come, cru ou cozido'],
-    metiers: ['Profissões', 'Ofícios de ontem e de hoje'],
+    'fruits-legumes': ['Frutas e legumes', 'Crus ou cozidos'],
+    metiers: ['Profissões', 'De ontem e de hoje'],
     sports: ['Esportes', 'Modalidades e práticas'],
     'corps-humain': ['Partes do corpo', 'Da cabeça aos pés'],
     matieres: ['Materiais e elementos', 'Madeira, ferro, oxigênio, fogo…'],
-    capitales: ['Grandes cidades', 'Capitais e cidades com mais de 100.000 habitantes'],
-    marques: ['Marcas', 'Marcas conhecidas'],
-    prenoms: ['Nomes próprios', 'Daqui e de fora, de Maria a Mohammed'],
-    objets: ['Objetos do dia a dia', 'O que se encontra em casa ou na mala'],
-    plantes: ['Plantas', 'Flores, árvores, ervas e arbustos'],
+    capitales: ['Grandes cidades', 'As maiores do seu país'],
+    marques: ['Marcas', 'Conhecidas de todos'],
+    prenoms: ['Nomes próprios', 'Daqui e de fora'],
+    objets: ['Objetos do dia a dia', 'Em casa ou na mala'],
+    plantes: ['Plantas', 'Flores, árvores, ervas'],
   },
 
   colours: {

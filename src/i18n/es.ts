@@ -710,19 +710,19 @@ export const es: Messages = {
   tiers: { courant: 'común', 'peu commun': 'poco común', rare: 'rara', 'très rare': 'muy rara' },
 
   categories: {
-    pays: ['Países', 'Estados del mundo, actuales o pasados'],
-    animaux: ['Animales', 'Nombres comunes, del gorrión a la morsa'],
+    pays: ['Países', 'Estados de nuestro mundo'],
+    animaux: ['Animales', 'Del gorrión a la morsa'],
     couleurs: ['Colores', 'Tonos y matices'],
-    'fruits-legumes': ['Frutas y verduras', 'Lo que se come, crudo o cocinado'],
-    metiers: ['Oficios', 'Profesiones de ayer y de hoy'],
+    'fruits-legumes': ['Frutas y verduras', 'Crudas o cocidas'],
+    metiers: ['Oficios', 'De ayer y de hoy'],
     sports: ['Deportes', 'Disciplinas y prácticas'],
     'corps-humain': ['Partes del cuerpo', 'De la cabeza a los pies'],
     matieres: ['Materiales y elementos', 'Madera, hierro, oxígeno, fuego…'],
-    capitales: ['Grandes ciudades', 'Capitales y ciudades de más de 100 000 habitantes'],
-    marques: ['Marcas', 'Marcas conocidas'],
-    prenoms: ['Nombres de pila', 'De aquí y de allá, de Lucía a Mohammed'],
-    objets: ['Objetos cotidianos', 'Lo que hay en casa o en el bolso'],
-    plantes: ['Plantas', 'Flores, árboles, hierbas y arbustos'],
+    capitales: ['Grandes ciudades', 'Las más grandes de su país'],
+    marques: ['Marcas', 'Conocidas por todos'],
+    prenoms: ['Nombres de pila', 'De aquí y de allá'],
+    objets: ['Objetos cotidianos', 'En casa o en el bolso'],
+    plantes: ['Plantas', 'Flores, árboles, hierbas'],
   },
 
   colours: {
