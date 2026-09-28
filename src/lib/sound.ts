@@ -36,6 +36,8 @@ const THIRD = 4
 /** The note climbs with each word of a prompt, up to this step, then holds. */
 const TOP_STEP = 10
 const ROOM = 0.28
+/** +8 dB after the compressor: the mix peaks near full scale, where the phone's volume costs it no bits. */
+const MAKEUP_GAIN = 2.5
 /** The Silence filter, open and closed. */
 const OPEN_HZ = 20000
 const HUSHED_HZ = 480
@@ -78,6 +80,19 @@ function context(): AudioContext | null {
   const comp = c.createDynamicsCompressor()
   comp.threshold.value = -12
   comp.ratio.value = 3
+  // A phone lowers its volume on 16-bit samples, after the game has mixed:
+  // a quiet mix is left with only a few bits there, and the music's long
+  // tails come out gritty, robotic. The game sends its sound hot instead —
+  // lifted after the compressor and held under full scale by a limiter —
+  // and leaves the attenuating to the phone's own volume.
+  const makeup = c.createGain()
+  makeup.gain.value = MAKEUP_GAIN
+  const limiter = c.createDynamicsCompressor()
+  limiter.threshold.value = -1.5
+  limiter.knee.value = 0
+  limiter.ratio.value = 20
+  limiter.attack.value = 0.002
+  limiter.release.value = 0.12
   const master = c.createGain()
   masterNode = master
   // Wide open, until Silence closes it: everything the game plays goes through.
@@ -87,7 +102,9 @@ function context(): AudioContext | null {
   hushNode.Q.value = 0.9
   master.connect(hushNode)
   hushNode.connect(comp)
-  comp.connect(c.destination)
+  comp.connect(makeup)
+  makeup.connect(limiter)
+  limiter.connect(c.destination)
 
   // The reverb's cost grows with its tail: 1.4 s is as roomy to the ear, at
   // little more than half the work of the audio thread.
@@ -124,7 +141,7 @@ function context(): AudioContext | null {
 }
 
 /** The loudest a channel gets: the effects sit above the music, the keys well under both. */
-const CEILING = { effects: 0.9, keys: 0.9, music: 0.6 }
+const CEILING = { effects: 0.9, keys: 0.9, music: 0.75 }
 
 function applyLevels(): void {
   if (!ctx) return
