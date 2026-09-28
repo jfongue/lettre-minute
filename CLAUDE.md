@@ -335,6 +335,19 @@ qu'un nouvel arrivant casserait sans le savoir.
   `RESEND_API_KEY` dans les secrets, les idées s'accumulent en base sans
   mail.
 
+- **Un succès Play Games ne se reprend jamais** (`src/domain/achievements.ts`) :
+  ses quinze seuils sont écrits en dur, pas lus dans les paliers de l'avatar,
+  qui peuvent bouger. Mots ajoutés et découvertes restent bas (10 et 15) :
+  plus le dictionnaire grossit, plus ils se font rares. Les découvertes ne
+  se comptent que sur le serveur (`fetchMyDiscoveries`), une fois la partie
+  envoyée ; un anonyme n'en a pas. Le téléphone renvoie tous les succès
+  atteints au lancement et à chaque fin de partie : Play ignore un doublon,
+  et c'est ce qui rattrape un joueur pas encore connecté à Play Games. Les
+  identifiants Play vivent dans `src/lib/playGames.ts`, les icônes et le
+  ZIP d'import sous `store/android/play-games/` (`npm run render:achievements`,
+  `scripts/play-games-achievements.ts`) : la Console importe des succès
+  nouveaux, elle ne met jamais à jour ceux qu'elle a.
+
 - **Le suivi d'usage ne lève jamais et ne bloque rien** (`src/lib/track.ts`,
   0029) : les événements s'empilent dans une file de l'appareil, partent par
   lots de cent toutes les vingt secondes et au passage en arrière-plan, et

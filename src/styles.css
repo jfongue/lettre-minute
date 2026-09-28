@@ -7218,6 +7218,24 @@ button.challenge-word[aria-expanded='true'] {
   vertical-align: middle;
 }
 
+/* Une catégorie annoncée : pas encore jouable, donc pas de commande — la
+   ligne s'efface sans disparaître, et la mention reste lisible. */
+.categories li.category--soon {
+  color: var(--ink-faint);
+}
+
+.category-soon-tag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0 0.3rem;
+  border: 1px solid currentcolor;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
 /* Les invites passées du récap : un mot sous une bande noire, qu'une tape arrache. */
 .hidden-answers {
   display: grid;
@@ -7550,4 +7568,21 @@ button.challenge-word[aria-expanded='true'] {
   width: 4.5rem;
   height: 4.5rem;
   animation: stamp 520ms var(--ease-spring) both;
+}
+
+/* -------------------------------------------------- icônes des succès - */
+/* Une tuile par succès, à la taille que la Play Console veut (512 px), et
+   immobile : l'icône est une image fixe. */
+.achievement-icons {
+  display: grid;
+  gap: 24px;
+  justify-content: start;
+}
+
+.achievement-icon {
+  width: 512px;
+}
+
+.achievement-icon .motion {
+  animation: none !important;
 }

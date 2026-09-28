@@ -429,3 +429,24 @@ export function openStoreUpdate(): Promise<void> {
   if (!native) return Promise.resolve()
   return AppUpdate.openAppStore().catch(() => {})
 }
+
+/**
+ * Our own plugin (`PlayGamesPlugin.java`): Play Games achievements and events.
+ * Android only, and silent for a player the SDK did not sign in — the calls
+ * then do nothing, and the next run tries again.
+ */
+const PlayGames = registerPlugin<{
+  unlock(options: { ids: string[] }): Promise<{ signedIn: boolean }>
+  increment(options: { id: string; steps: number }): Promise<{ signedIn: boolean }>
+  showAchievements(): Promise<{ signedIn: boolean }>
+}>('PlayGames')
+
+const playGamesReady = native && Capacitor.getPlatform() === 'android'
+
+export function playGamesUnlock(ids: readonly string[]): void {
+  if (playGamesReady && ids.length > 0) quietly(() => PlayGames.unlock({ ids: [...ids] }))
+}
+
+export function playGamesIncrement(id: string, steps: number): void {
+  if (playGamesReady && steps > 0) quietly(() => PlayGames.increment({ id, steps }))
+}

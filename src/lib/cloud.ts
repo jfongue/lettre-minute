@@ -453,6 +453,17 @@ export function fetchLeaderboard(stat: StatId, period: PeriodId): Promise<Leader
 }
 
 /**
+ * Les découvertes du joueur depuis toujours, telles que le classement du même
+ * nom les compte : pour le succès Play Games des quinze découvertes. Null sans
+ * serveur ou pour un joueur anonyme, que ce classement ne range pas.
+ */
+export async function fetchMyDiscoveries(): Promise<number | null> {
+  const board = await fetchLeaderboard('discoveries', 'all')
+  if (!board) return null
+  return (board.rows.find((row) => row.mine) ?? board.me)?.value ?? null
+}
+
+/**
  * Le tableau de bord de l'administrateur (0030), d'un bloc. Null pour qui
  * n'est pas administrateur, ou quand le serveur ne répond pas.
  */

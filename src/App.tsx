@@ -40,7 +40,9 @@ import {
   type Friend,
   type ModerationStatus,
   chooseName,
+  fetchMyDiscoveries,
 } from './lib/cloud'
+import { reportAchievements, reportRun } from './lib/playGames'
 import {
   askPush,
   enablePush,
@@ -299,7 +301,9 @@ export function App() {
   // The stored profile is read after the first paint: touching localStorage
   // during render is a side effect, and the home screen is right either way.
   useEffect(() => {
-    dispatch({ type: 'profile-loaded', profile: loadProfile() })
+    const stored = loadProfile()
+    dispatch({ type: 'profile-loaded', profile: stored })
+    reportAchievements(stored)
     setAvatar(loadAvatar())
     setHistory(loadHistory())
     setAccount(loadAccount())
@@ -1061,6 +1065,8 @@ export function App() {
     // après, avec l'identifiant que le serveur leur a donné.
     const flushed = flushSubmissions()
     flushed.then(refreshMine)
+    reportRun(session.run)
+    reportAchievements(session.profile)
     const challengeId = session.challengeId
     if (challengeId) {
       setAfterRun('sending')
@@ -1076,6 +1082,8 @@ export function App() {
     // Read after the run is in, or the boards would not count it yet.
     // A word proposed during the run may be waiting for a verdict already.
     pushed.then(refreshModeration)
+    // Les découvertes ne se comptent que sur le serveur, la partie une fois arrivée.
+    pushed.then(fetchMyDiscoveries).then((count) => count !== null && reportAchievements(session.profile, count))
     pushed
       .then(loadBoards)
       .then((next) => {

@@ -26,7 +26,9 @@ import { FriendPicker } from '../ui/FriendPicker'
 import { FriendPage } from '../ui/FriendPage'
 import type { SharedChallenge, SharedPlayer } from '../domain/rivalry'
 import type { Boards } from '../domain/boards'
+import { Avatar } from '../ui/Avatar'
 import { DashboardView } from './Dashboard'
+import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
 import type { Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
@@ -422,6 +424,19 @@ function AdvancedScenario() {
   return (
     <div className="dashboard">
       <DashboardView data={data} />
+    </div>
+  )
+}
+
+/** Les icônes à téléverser dans la Play Console, une par succès, sans marge ni animation. */
+function AchievementIcons() {
+  return (
+    <div className="achievement-icons">
+      {ACHIEVEMENTS.map((achievement) => (
+        <div key={achievement.id} className="achievement-icon" data-achievement={achievement.id}>
+          <Avatar choice={achievementIcon(achievement.id)} size="fill" />
+        </div>
+      ))}
     </div>
   )
 }
@@ -1194,6 +1209,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Cinq tapes sur « Classements » : joueurs, actifs, parties, sessions, boutons touchés, rétention, erreurs — le relevé d’analytics_snapshot',
     phase: 'home',
     render: () => <AdvancedScenario />,
+  },
+  {
+    id: 'achievement-icons',
+    group: 'Accueil',
+    title: 'Icônes des succès Play Games',
+    how: 'Les quinze tuiles que les succès montrent sur Play Games, immobiles et à 512 px : npm run render:achievements les capture',
+    phase: 'home',
+    render: () => <AchievementIcons />,
   },
   {
     id: 'update',
