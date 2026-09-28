@@ -37,7 +37,7 @@ qu'un nouvel arrivant casserait sans le savoir.
   couple qu'ils réussissent revient — jamais jusqu'à zéro, et jamais sur trois
   parties. Ce sont les compteurs de `prompt_stats`, que `pushRun` rapporte par
   partie (`promptOutcomes`, une fois par graine), avec les points et les mots
-  que chaque couple a rendus — les classements avancés les lisent, le tirage
+  que chaque couple a rendus — `debug_pairs` (0025) les lit, le tirage
   jamais. Là encore, **jamais un défi ni une
   partie de robot**, qui se rejouent sur chaque appareil et dont le tirage doit
   rester fonction de la graine et des dictionnaires embarqués seuls. Un couple
@@ -259,9 +259,8 @@ qu'un nouvel arrivant casserait sans le savoir.
   catégories : le serveur ne garde que les totaux. Ils se déduisent du niveau
   (`powerPicksOwed`), donc un autre appareil se les voit simplement reproposer.
   Seule exception, la partie envoyée emporte les pouvoirs qu'elle a joués
-  (`runs.powers`, 0025) : les classements avancés du mode débug en tirent
-  « quels pouvoirs sortent » et ce qu'ils rapportent, et rien d'autre ne les
-  relit. Une partie de robot ou de défi n'en porte aucun.
+  (`runs.powers`, 0025) : le tableau de bord en tire « quels pouvoirs
+  sortent » et ce qu'ils rapportent, et rien d'autre ne les relit. Une partie de robot ou de défi n'en porte aucun.
 
 - **Un défi n'est équitable que si tout le monde tire les mêmes couples** :
   même graine, mêmes catégories, `avoid` vide, et pas de mots de la
@@ -330,9 +329,9 @@ qu'un nouvel arrivant casserait sans le savoir.
   une ouverture sans partie se lit dans les sessions sans `run_start`. Un
   bouton touché se nomme par `data-track`, sinon `aria-label`, sinon son
   texte : un bouton sans mots (icône seule) mérite un `data-track`. Le
-  tableau de bord (artefact) se nourrit de `npm run analytics`, que seul le
-  propriétaire du projet peut exécuter — jamais une fonction appelable
-  depuis l'app.
+  relevé (`analytics_snapshot`) reste fermé à l'app : elle ne le lit que par
+  `admin_analytics` (0030), qui ne rend rien à qui n'est pas dans `admins`,
+  et l'artefact par `npm run analytics`.
 
 - **Le premier bundle ne porte que l'accueil** : les autres écrans sont des
   `lazyScreen` (`src/ui/lazyScreen.ts`) préchargés une fois l'accueil posé,
@@ -394,7 +393,7 @@ qu'un nouvel arrivant casserait sans le savoir.
 
 - **Tout écran difficile d'accès a son scénario dans `src/debug/DebugBoard.tsx`**
   (fin de partie avec offre, défi, offre de modérateur, notification…) : dès
-  qu'on en crée un, on l'y ajoute. Les classements avancés ont le leur
+  qu'on en crée un, on l'y ajoute. Le tableau de bord a le sien
   (`leaderboards-advanced`). On l'ouvre par cinq tapes rapides sur
   la tuile en haut à droite de l'affiche d'accueil, ou `#debug` sur le web, dans n'importe quel
   build. Elle montre les vrais composants avec des données inventées et
@@ -406,22 +405,16 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Le bouton quitter reste à gauche** : le coin haut droit de l'affiche est
   celui des cinq tapes qui ouvrent la planche, un bouton au même endroit la
   refermait aussitôt.
-- **Les classements avancés ne lisent ni les robots ni les seuls rapports**
-  (0026) : les joueurs maison jouent toutes les heures par `pg_cron`, et
-  `debug_activity`, `debug_powers` et `debug_pairs` les écartent par leur
-  compte (`bots`). Les deux derniers jours de parties n'ont rien rapporté :
-  `debug_pairs` réunit donc les rapports (`prompt_stats`) et les mots joués
-  des parties absentes de `prompt_reports`, sous `reported = false` — leurs
-  tirages quittés sont inconnus, d'où le « au moins » de l'interface et une
-  part de tirages quittés qui ne se lit que sur les lignes rapportées. Rien
-  n'est écrit dans `prompt_stats`, que le tirage lit.
-- **Les classements avancés vivent sous le même toit** (`src/debug/Insights.tsx`) :
+- **Le tableau de bord remplace les classements avancés** (`src/debug/Dashboard.tsx`) :
   cinq tapes rapprochées sur le mot « Classement » — le titre de l'accueil ou
-  celui de la page des classements — les ouvrent sous les sept mesures. Outil
-  de développeur, donc libellés français hors de l'i18n, comme la planche ;
-  les noms de pouvoirs et de catégories viennent de l'interface, qui les a
-  déjà. Le chargeur (`fetchInsights`) et la vue sont séparés, et rien n'est
-  écrit sur le serveur.
+  celui de la page des classements — l'ouvrent par-dessus tout, posé sur
+  `body` parce que le tiroir du menu est trop étroit. C'est la page de
+  l'artefact, mêmes sections, lue à l'ouverture (`fetchDashboard`) ; un
+  joueur qui n'est pas administrateur n'y voit que « réservé ». Outil de
+  développeur, donc libellés français hors de l'i18n ; les noms de pouvoirs
+  et de catégories viennent de l'interface. Une section ajoutée au relevé
+  s'ajoute à `src/debug/snapshot.ts`, puis aux deux vues. Les fonctions
+  `debug_*` (0025, 0026) restent en base, plus aucun écran ne les lit.
 - **Les planches touchées depuis les deux dernières versions livrées sont
   surlignées en rouge, celles que la dernière version n'avait pas en bleu** (`npm run debug:recent`) : le script relit les commits
   « Version X.Y.Z » de git et écrit `src/debug/recent.ts`, à commiter — la

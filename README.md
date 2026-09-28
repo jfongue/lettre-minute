@@ -74,10 +74,9 @@ n'écrit rapportent le plus.
   partie, points, parties, mots trouvés, découvertes, série et mots ajoutés,
   chacun du jour, de la semaine ou au total, avec podium, ex æquo au même
   rang et la place du joueur même au-delà des cinquante premiers. Cinq tapes
-  sur le mot « Classement » ouvrent les classements avancés — quels pouvoirs
-  les parties portent et ce qu'ils rapportent, les parties et les nouveaux
-  comptes par heure, par jour ou par semaine, et les couples lettre + thème
-  les plus rentables ou les plus quittés —, un mode débug que rien n'annonce.
+  sur le mot « Classement » ouvrent le tableau de bord de l'administrateur —
+  joueurs, actifs, parties, sessions, boutons touchés, rétention, erreurs —,
+  que rien n'annonce et qu'un autre joueur trouve vide.
 - **Menu** : la tuile en haut à gauche de l'affiche (ou un glissement du doigt vers la droite) ouvre le profil (compte,
   avatar, effacement), le social (amis par nom de compte, demandes reçues et
   envoyées, score de la semaine de chacun) et les options (thème auto, clair
@@ -287,7 +286,7 @@ malachite très rare.
 - `src/lib/` — Supabase : profil, parties, usage global des mots, propositions,
   effacement du compte ; `native.ts` pour ce qui parle au téléphone.
 - `src/ui/` — un composant par écran.
-- `src/debug/` — la planche de développement, et les classements avancés
+- `src/debug/` — la planche de développement, et le tableau de bord
   qu'un geste caché ouvre : des écrans réels, des données inventées ou
   agrégées, jamais un mot écrit sur le serveur.
 - `scripts/` — l'import : Wikidata et le Wiktionnaire pour les mots, Lexique

@@ -215,7 +215,6 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
           {sub === 'boards' && (
             <LeaderboardsPage
               named={Boolean(props.account && !props.account.anonymous)}
-              lang={props.lang}
               advanced={props.advancedBoards}
               onCloseAdvanced={() => props.onAdvancedBoards(false)}
             />

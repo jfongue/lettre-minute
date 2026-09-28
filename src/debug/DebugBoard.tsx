@@ -26,7 +26,8 @@ import { FriendPicker } from '../ui/FriendPicker'
 import { FriendPage } from '../ui/FriendPage'
 import type { SharedChallenge, SharedPlayer } from '../domain/rivalry'
 import type { Boards } from '../domain/boards'
-import type { ActivityBucket, Insights as InsightData, PairTally, PowerTally } from '../domain/insights'
+import { DashboardView } from './Dashboard'
+import type { Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 import { NEW_SCENARIOS, NEW_SINCE, RECENT_SCENARIOS, RECENT_VERSIONS } from './recent'
@@ -328,58 +329,99 @@ function fakeLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | 
   return later(completeLeaderboard(stat, period, { rows, me }), 500)
 }
 
-/** Ce qu'un mode débug montre : des pouvoirs qui pèsent, un couple rentable, un couple fui. */
-const POWERS: readonly PowerTally[] = [
-  { power: 'joker', runs: 128, points: 9_200, best: 420 },
-  { power: 'hush', runs: 61, points: 4_100, best: 310 },
-  { power: 'magic', runs: 44, points: 3_600, best: 290 },
-  { power: 'dodge', runs: 22, points: 1_500, best: 180 },
-  { power: 'divination', runs: 8, points: 900, best: 260 },
-  { power: 'dyslexia', runs: 3, points: 700, best: 340 },
-]
-
-const PAIRS: readonly PairTally[] = [
-  // Rapportés par une partie : les tirages quittés s'y comptent.
-  { categoryId: 'pays', letter: 'Z', dealt: 42, passed: 34, words: 9, points: 620, reported: true },
-  { categoryId: 'animaux', letter: 'Q', dealt: 31, passed: 24, words: 8, points: 540, reported: true },
-  { categoryId: 'couleurs', letter: 'V', dealt: 58, passed: 12, words: 51, points: 1_780, reported: true },
-  { categoryId: 'pays', letter: 'B', dealt: 74, passed: 9, words: 69, points: 2_240, reported: true },
-  { categoryId: 'metiers', letter: 'E', dealt: 26, passed: 11, words: 18, points: 430, reported: true },
-  { categoryId: 'fruits-legumes', letter: 'K', dealt: 19, passed: 14, words: 6, points: 260, reported: true },
-  { categoryId: 'sports', letter: 'C', dealt: 47, passed: 19, words: 33, points: 780, reported: true },
-  { categoryId: 'marques', letter: 'F', dealt: 23, passed: 15, words: 10, points: 240, reported: true },
-  // Lus dans les mots joués d'une partie qui n'a rien rapporté : « au moins »
-  // N tirages, et leur part de tirages quittés reste inconnue.
-  { categoryId: 'animaux', letter: 'O', dealt: 61, passed: 0, words: 55, points: 1_690, reported: false },
-  { categoryId: 'capitales', letter: 'A', dealt: 12, passed: 0, words: 8, points: 320, reported: false },
-  { categoryId: 'plantes', letter: 'M', dealt: 9, passed: 0, words: 4, points: 150, reported: false },
-  { categoryId: 'objets', letter: 'T', dealt: 17, passed: 0, words: 14, points: 260, reported: false },
-]
-
-const RUN_HOURS = [3, 2, 1, 0, 0, 1, 4, 9, 14, 18, 21, 17, 12, 15, 19, 24, 31, 28, 22, 16, 11, 7, 5, 4]
-const ACCOUNT_HOURS = [0, 0, 0, 0, 0, 0, 1, 2, 3, 1, 0, 2, 4, 1, 0, 3, 5, 2, 1, 0, 0, 1, 0, 0]
-
-function series(step: number, count: number, runs: readonly number[], accounts: readonly number[]): ActivityBucket[] {
-  const last = Math.floor(Date.now() / step) * step
-  return Array.from({ length: count }, (_, index) => ({
-    at: last - (count - 1 - index) * step,
-    runs: runs[index % runs.length]!,
-    accounts: accounts[index % accounts.length]!,
-  }))
-}
-
-const INSIGHTS: InsightData = {
-  hours: series(HOUR, 24, RUN_HOURS, ACCOUNT_HOURS),
-  days: series(24 * HOUR, 7, [180, 240, 205, 310, 288, 352, 143], [7, 12, 9, 15, 11, 18, 6]),
-  weeks: series(7 * 24 * HOUR, 12, [1_240, 1_380, 1_190, 1_460, 1_710, 1_520, 1_830, 2_040, 1_960, 2_310, 2_180, 1_420], [42, 51, 38, 60, 55, 71, 66, 83, 74, 91, 79, 48]),
-  powers: POWERS,
-  pairs: PAIRS,
+/** Un mois de jeu inventé pour le tableau de bord : un creux le week-end, une pente douce. */
+function dashboardSnapshot(): Snapshot {
+  const today = new Date()
+  const daily = Array.from({ length: 30 }, (_, index) => {
+    const day = new Date(today.getTime() - (29 - index) * 24 * HOUR)
+    const weekend = day.getDay() === 0 || day.getDay() === 6
+    const runs = Math.round((40 + index * 3) * (weekend ? 1.3 : 1) + ((index * 7) % 11))
+    const newPlayers = 2 + ((index * 5) % 7)
+    return {
+      day: day.toISOString().slice(0, 10),
+      new_players: newPlayers,
+      signups: Math.floor(newPlayers / 3),
+      runs,
+      players: Math.round(runs / 4),
+      opens: Math.round(runs * 0.9),
+      sessions_with_run: Math.round(runs / 3),
+      sessions_without_run: Math.round(runs / 9),
+      challenges: index % 3,
+      submissions: index % 4,
+      ideas: index % 5 === 0 ? 1 : 0,
+    }
+  })
+  const hourly = [1, 2, 3, 4, 5, 6, 7].flatMap((dow) =>
+    Array.from({ length: 24 }, (_, hour) => ({ dow, hour, runs: hour < 7 ? 0 : Math.round(((hour % 12) + dow) * (hour > 17 ? 2 : 1)) })),
+  )
+  return {
+    generated_at: new Date(Date.now() - 2 * 60_000).toISOString(),
+    days: 30,
+    tracking_since: new Date(Date.now() - 9 * 24 * HOUR).toISOString(),
+    totals: {
+      players: 412, named: 138, anonymous: 274, runs: 5_318, words: 61_204, challenges: 96, moderators: 7,
+      friendships: 54, submissions_pending: 12, submissions_accepted: 88, ideas_open: 4, push_devices: 31, devices: 260, events: 48_110,
+    },
+    today: { runs: 131, players: 29, new_players: 6, signups: 2, opens: 118 },
+    active: { dau: 29, wau: 84, mau: 203 },
+    daily,
+    hourly,
+    sessions: {
+      total: 1_420, with_run: 1_060, without_run: 360, runs_per_session: 2.4, median_seconds: 312,
+      ready_p50_ms: 1_380, ready_p90_ms: 3_900, cold_opens: 820, resumes: 600,
+    },
+    kinds: [
+      { kind: 'tap', n: 21_400, devices: 240 }, { kind: 'screen', n: 9_800, devices: 250 }, { kind: 'open', n: 1_420, devices: 260 },
+      { kind: 'run_start', n: 3_100, devices: 190 }, { kind: 'run_end', n: 2_950, devices: 188 }, { kind: 'error', n: 14, devices: 6 },
+    ],
+    taps: [
+      { screen: 'home', label: 'Jouer', n: 2_900, devices: 190 }, { screen: 'over', label: 'Rejouer', n: 1_700, devices: 140 },
+      { screen: 'home', label: 'Défis', n: 640, devices: 88 }, { screen: 'menu:boards', label: 'Semaine', n: 210, devices: 61 },
+      { screen: 'playing', label: 'Passer', n: 4_100, devices: 180 },
+    ],
+    screens: [{ name: 'home', n: 3_800, devices: 250 }, { name: 'playing', n: 3_100, devices: 190 }, { name: 'menu:boards', n: 420, devices: 90 }],
+    features: [{ name: 'power_chosen', n: 310, devices: 120 }, { name: 'challenge_created', n: 96, devices: 51 }, { name: 'category_ban', n: 18, devices: 11 }],
+    platforms: [{ platform: 'android', version: '1.6.6', devices: 180 }, { platform: 'web', version: '1.6.6', devices: 70 }, { platform: 'android', version: '1.6.5', devices: 10 }],
+    langs: [{ lang: 'fr', devices: 210 }, { lang: 'en', devices: 30 }, { lang: 'de', devices: 12 }, { lang: 'es', devices: 8 }],
+    errors: [{ message: 'TypeError: Cannot read properties of undefined (reading \'rows\')', n: 9, devices: 4, last: new Date(Date.now() - 5 * HOUR).toISOString() }],
+    runs: {
+      count: 3_020, challenge_runs: 240, avg_score: 612, median_score: 540, avg_words: 11.4, avg_skips: 3.1,
+      scores: [2, 5, 9, 14, 22, 30, 34, 31, 26, 19, 12, 8, 5, 3, 2].map((n, index) => ({ from: index * 50, n: n * 10 })),
+      powers: [{ power: 'joker', runs: 640, avg_score: 690 }, { power: 'hush', runs: 410, avg_score: 655 }, { power: 'magic', runs: 220, avg_score: 610 }],
+      categories: [{ category: 'animaux', words: 9_800, points: 88_000 }, { category: 'pays', words: 7_200, points: 61_000 }, { category: 'capitales', words: 5_100, points: 49_000 }],
+      top_words: [{ word: 'chat', category: 'animaux', n: 410 }, { word: 'france', category: 'pays', n: 380 }, { word: 'paris', category: 'capitales', n: 350 }],
+    },
+    funnel: { new_players: 160, played_1: 131, played_3: 88, played_10: 41, named: 52 },
+    retention: Array.from({ length: 6 }, (_, index) => {
+      const size = 30 + index * 6
+      return {
+        week: new Date(today.getTime() - (5 - index) * 7 * 24 * HOUR).toISOString().slice(0, 10),
+        size, d1: Math.round(size * 0.42), w1: Math.round(size * 0.55), later: index < 5 ? Math.round(size * 0.31) : 0,
+      }
+    }),
+    recent_signups: [
+      { name: 'Léa', at: new Date(Date.now() - 3 * HOUR).toISOString(), runs: 12, best: 880 },
+      { name: 'Hugo', at: new Date(Date.now() - 20 * HOUR).toISOString(), runs: 4, best: 410 },
+      { name: 'Inès', at: new Date(Date.now() - 70 * HOUR).toISOString(), runs: 31, best: 1_240 },
+    ],
+    top_players: [
+      { name: 'Inès', runs: 212, best: 1_240, anonymous: false },
+      { name: 'Anonyme 3f2a', runs: 140, best: 760, anonymous: true },
+      { name: 'Léa', runs: 96, best: 880, anonymous: false },
+    ],
+    moderation: { votes: 420, submitted: 38, accepted: 21, rejected: 9 },
+    challenges: { created: 41, avg_players: 2.7, played_share: 0.86 },
+  }
 }
 
 function AdvancedScenario() {
+  const [data, setData] = useState<Snapshot | undefined>(undefined)
+  useEffect(() => {
+    later(dashboardSnapshot(), 300).then(setData)
+  }, [])
   return (
-    <div className="sheet">
-      <LeaderboardsPage named lang="fr" load={fakeLeaderboard} advanced loadInsights={() => later(INSIGHTS, 300)} />
+    <div className="dashboard">
+      <DashboardView data={data} />
     </div>
   )
 }
@@ -387,7 +429,7 @@ function AdvancedScenario() {
 function LeaderboardsScenario({ named }: { named: boolean }) {
   return (
     <div className="sheet">
-      <LeaderboardsPage named={named} lang="fr" load={fakeLeaderboard} />
+      <LeaderboardsPage named={named} load={fakeLeaderboard} />
     </div>
   )
 }
@@ -1148,8 +1190,8 @@ const SCENARIOS: readonly Scenario[] = [
   {
     id: 'leaderboards-advanced',
     group: 'Accueil',
-    title: 'Classements avancés, mode débug',
-    how: 'Cinq tapes sur « Classements » : pouvoirs portés, points moyens par pouvoir, parties et comptes par heure / jour / semaine, couples les plus rentables et les plus passés',
+    title: 'Tableau de bord de l’administrateur',
+    how: 'Cinq tapes sur « Classements » : joueurs, actifs, parties, sessions, boutons touchés, rétention, erreurs — le relevé d’analytics_snapshot',
     phase: 'home',
     render: () => <AdvancedScenario />,
   },

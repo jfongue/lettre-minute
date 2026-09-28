@@ -1,6 +1,6 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
-import type { ActivityBucket, Insights, PairTally, PowerTally } from '../domain/insights'
+import type { Snapshot } from '../debug/snapshot'
 import type { Leaderboard, PeriodId, PlacedRow, StatId } from '../domain/leaderboards'
 import { challengeWordsOf, type ChallengeEntry, type ChallengeWord } from '../domain/challenge'
 import { MODERATION_SESSION_SIZE, type ModeratorOfferReason, type Verdict } from '../domain/moderation'
@@ -453,53 +453,14 @@ export function fetchLeaderboard(stat: StatId, period: PeriodId): Promise<Leader
 }
 
 /**
- * Les classements avancés du mode débug (0025) : les pouvoirs que les parties
- * ont portés, ce que chaque couple lettre + catégorie rend, et le rythme des
- * parties et des comptes. Null quand le serveur ne répond pas — le mode caché
- * le dit alors, comme la page des classements.
+ * Le tableau de bord de l'administrateur (0030), d'un bloc. Null pour qui
+ * n'est pas administrateur, ou quand le serveur ne répond pas.
  */
-export function fetchInsights(lang: string): Promise<Insights | null> {
+export function fetchDashboard(days = 30): Promise<Snapshot | null> {
   return guard(async () => {
-    const [hours, days, weeks, powers, pairs] = await Promise.all([
-      supabase!.rpc('debug_activity', { p_bucket: 'hour' }),
-      supabase!.rpc('debug_activity', { p_bucket: 'day' }),
-      supabase!.rpc('debug_activity', { p_bucket: 'week' }),
-      supabase!.rpc('debug_powers'),
-      supabase!.rpc('debug_pairs', { p_lang: lang }),
-    ])
-    if (hours.error || days.error || weeks.error || powers.error || pairs.error) return null
-
-    const activity = (rows: unknown): ActivityBucket[] =>
-      ((rows ?? []) as Record<string, unknown>[]).map((row) => ({
-        at: Date.parse(row.bucket as string) || 0,
-        runs: Number(row.runs) || 0,
-        accounts: Number(row.accounts) || 0,
-      }))
-
-    return {
-      hours: activity(hours.data),
-      days: activity(days.data),
-      weeks: activity(weeks.data),
-      powers: ((powers.data ?? []) as Record<string, unknown>[]).map(
-        (row): PowerTally => ({
-          power: row.power as string,
-          runs: Number(row.runs) || 0,
-          points: Number(row.points) || 0,
-          best: Number(row.best) || 0,
-        }),
-      ),
-      pairs: ((pairs.data ?? []) as Record<string, unknown>[]).map(
-        (row): PairTally => ({
-          categoryId: row.category_id as string,
-          letter: row.letter as string,
-          dealt: Number(row.dealt) || 0,
-          passed: Number(row.passed) || 0,
-          words: Number(row.words) || 0,
-          points: Number(row.points) || 0,
-          reported: row.reported === true,
-        }),
-      ),
-    }
+    const { data, error } = await supabase!.rpc('admin_analytics', { p_days: days })
+    if (error || !data) return null
+    return data as Snapshot
   }, null)
 }
 

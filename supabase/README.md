@@ -42,7 +42,9 @@ pour l'historique des défis joués avec chaque ami, et
 et effacer les idées reçues depuis l'app, réservé aux administrateurs, et
 [`0029_events.sql`](migrations/0029_events.sql) pour les statistiques d'usage
 (ouvertures, écrans, boutons, fonctions, erreurs) et le tableau de bord
-qui les lit (`analytics_snapshot`, par `npm run analytics`).
+qui les lit (`analytics_snapshot`, par `npm run analytics`), et
+[`0030_admin_analytics.sql`](migrations/0030_admin_analytics.sql) pour que
+l'app le lise aussi, réservé aux administrateurs (`admin_analytics`).
 
 ## Ce que le serveur détient
 
@@ -75,7 +77,7 @@ qui les lit (`analytics_snapshot`, par `npm run analytics`).
 | `tester_invites` | Une adresse e-mail saisie dans le champ d'ami, en attente d'être inscrite testeur Play puis invitée par `npm run testers:invite`. Aucune politique : jamais relue par un joueur. |
 | `prompt_stats` | Par langue, ce que les parties ont dit de chaque couple lettre + catégorie : combien l'ont tiré, combien l'ont laissé vide, ce qu'il a rapporté en points et en mots. Lu par le tirage du client et par les classements avancés, écrit par la seule fonction `report_prompts`. |
 | `prompt_reports` | Les graines qui ont déjà parlé, pour qu'une partie ne compte qu'une fois. Aucune politique : jamais relu. |
-| `events` | Ce que les joueurs font de l'app, par lots de `track` : ouvertures, écrans, boutons touchés, fonctions, parties, erreurs. Un appareil, une ouverture, et le compte en plus (effacé avec lui). Aucune politique : jamais relu par le jeu, seulement par `analytics_snapshot`, que seul le propriétaire du projet exécute. |
+| `events` | Ce que les joueurs font de l'app, par lots de `track` : ouvertures, écrans, boutons touchés, fonctions, parties, erreurs. Un appareil, une ouverture, et le compte en plus (effacé avec lui). Aucune politique : jamais relu par le jeu, seulement par `analytics_snapshot`, que le propriétaire du projet exécute, et `admin_analytics`, qui ne la rend qu'à un administrateur. |
 
 Fonctions d'écriture : `report_prompts(graine, langue, couples)` — le rapport
 d'une partie terminée, une seule fois par graine, borné à trente couples et
@@ -94,6 +96,9 @@ Vues : `leaderboard` (record de chaque compte nommé, joueurs maison écartés),
 apparaît), `submission_tally` (combien de joueurs réclament un mot).
 
 ## Classements avancés
+
+Plus aucun écran ne les lit depuis que le tableau de bord (0030) les a
+remplacés derrière les cinq tapes ; les fonctions restent en base.
 
 - **Un mode caché, pas un écran public** : cinq tapes sur le mot
   « Classement » les ouvrent dans l'application. Les trois fonctions ne

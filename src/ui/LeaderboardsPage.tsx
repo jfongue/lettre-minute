@@ -2,7 +2,7 @@ import { Suspense, useEffect, useLayoutEffect, useRef, useState, type CSSPropert
 import { completeLeaderboard, myPlace, PERIODS, STATS, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from '../domain/leaderboards'
 import { formatNumber, useT } from '../i18n'
 import { fetchLeaderboard } from '../lib/cloud'
-import type { LoadInsights } from '../debug/Insights'
+import type { LoadDashboard } from '../debug/Dashboard'
 import { lazyScreen } from './lazyScreen'
 import { Avatar } from './Avatar'
 import { Shape } from './bauhaus'
@@ -10,7 +10,7 @@ import { onTint, type ShapeKind, type Tint } from './motifs'
 import { PlayerName } from './PlayerSheet'
 
 // A developer's tool behind five taps: no player should download it.
-const Insights = lazyScreen(() => import('../debug/Insights').then((module) => module.Insights))
+const Dashboard = lazyScreen(() => import('../debug/Dashboard').then((module) => module.Dashboard))
 
 const LOOKS: Record<StatId, { kind: ShapeKind; tint: Tint }> = {
   best: { kind: 'star', tint: 'yellow' },
@@ -35,15 +35,13 @@ async function loadFromServer(stat: StatId, period: PeriodId): Promise<Leaderboa
 interface LeaderboardsPageProps {
   /** An anonymous player reads the boards but stands on none of them. */
   named: boolean
-  /** The dictionary the advanced boards read their pairs in: the interface's. */
-  lang: string
   /** The debug board passes its own made-up boards. */
   load?: LoadLeaderboard
-  /** Cinq tapes sur « Classements » : les classements avancés, sous la page. */
+  /** Cinq tapes sur « Classements » : le tableau de bord, par-dessus la page. */
   advanced?: boolean
-  /** La planche nourrit les classements avancés de ses propres chiffres. */
-  loadInsights?: LoadInsights
-  /** Ferme le mode débug, pour ne pas le garder sous les yeux. */
+  /** La planche nourrit le tableau de bord de ses propres chiffres. */
+  loadDashboard?: LoadDashboard
+  /** Ferme le tableau de bord. */
   onCloseAdvanced?(): void
 }
 
@@ -54,10 +52,9 @@ interface LeaderboardsPageProps {
  */
 export function LeaderboardsPage({
   named,
-  lang,
   load = loadFromServer,
   advanced = false,
-  loadInsights,
+  loadDashboard,
   onCloseAdvanced,
 }: LeaderboardsPageProps) {
   const t = useT()
@@ -167,7 +164,7 @@ export function LeaderboardsPage({
 
       {advanced && (
         <Suspense fallback={null}>
-          <Insights lang={lang} period={period} load={loadInsights} onClose={onCloseAdvanced} />
+          <Dashboard load={loadDashboard} onClose={onCloseAdvanced ?? (() => {})} />
         </Suspense>
       )}
     </div>
