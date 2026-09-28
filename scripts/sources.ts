@@ -420,7 +420,7 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
   { id: 'metiers', pulls: ['professions', 'professions-sub'] },
   { id: 'sports', pulls: ['sports', 'sports-sub'] },
   // The aliases of a city are IATA and UN/LOCODE codes as often as names.
-  { id: 'capitales', pulls: ['capitals', 'largest-cities'], names: true, shortestAlias: 4, strictAliases: true },
+  { id: 'capitales', pulls: ['capitals', 'largest-cities', 'big-cities'], names: true, shortestAlias: 4, strictAliases: true },
   { id: 'matieres', pulls: ['metals', 'staple-materials', 'chemical-elements'] },
   { id: 'corps-humain', pulls: ['anatomy'], exclude: ['plant-organ'] },
   { id: 'marques', pulls: ['brand-class', 'brand-product'], names: true, strictAliases: true },
