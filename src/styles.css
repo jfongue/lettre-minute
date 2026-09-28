@@ -581,11 +581,19 @@ button.challenge-past::after {
 
 .categories li {
   display: grid;
-  grid-template-columns: 1.1rem auto 1fr;
+  grid-template-columns: 1.1rem minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 0;
   border-bottom: 1px solid var(--rule);
+}
+
+/* Le nom et son sous-titre s'empilent : sur une ligne, le badge « Bannie »
+   rognait la colonne du sous-titre, qui tenait sur cinq lignes. */
+.category-text {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
 }
 
 .category-shape {
@@ -598,7 +606,6 @@ button.challenge-past::after {
 }
 
 .categories li .note {
-  text-align: right;
   font-size: 0.8rem;
 }
 
@@ -6752,7 +6759,7 @@ button.challenge-word[aria-expanded='true'] {
 }
 
 .categories--bans li {
-  grid-template-columns: 1.1rem auto 1fr auto;
+  grid-template-columns: 1.1rem minmax(0, 1fr) auto;
 }
 
 /* Une ligne qu'un glissement bannit ou rétablit : elle suit le pouce au-dessus de sa couleur. */
@@ -6768,7 +6775,7 @@ button.challenge-word[aria-expanded='true'] {
 .category-swipe-row {
   position: relative;
   display: grid;
-  grid-template-columns: 1.1rem auto 1fr auto;
+  grid-template-columns: 1.1rem minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 0;

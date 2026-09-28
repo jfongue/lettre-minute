@@ -71,11 +71,13 @@ export function CategoriesPage({ profile, onBan, onUnban, onIntroSeen, onJoinPlu
           const row = (
             <>
               <CategoryIcon categoryId={id} tint={motif.tint} className="category-shape" />
-              <span className="category-label">
-                {text.label}
-                {out && <span className="category-banned-tag">{t.bans.banned}</span>}
+              <span className="category-text">
+                <span className="category-label">
+                  {text.label}
+                  {out && <span className="category-banned-tag">{t.bans.banned}</span>}
+                </span>
+                <span className="note">{text.hint}</span>
               </span>
-              <span className="note">{text.hint}</span>
               {banning && (
                 <button
                   type="button"
