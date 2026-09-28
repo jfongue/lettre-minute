@@ -4,7 +4,7 @@ import type { ChallengeWord } from '../domain/challenge'
 import { choosePower } from '../domain/powers'
 import { NEW_PROFILE, xpForLevel, type Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
-import type { KeptWord, MissedWord, Run } from '../domain/run'
+import type { KeptWord, Run } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
 import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, Submission, SubmissionStatus } from '../lib/cloud'
 import type { AccountActions } from '../ui/AccountPanel'
@@ -21,7 +21,6 @@ import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
 import { PushOffer } from '../ui/PushOffer'
 import { OldChallengeList } from '../ui/StatsPage'
-import { CategoryGiftPop } from '../ui/CategoryGiftPop'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
 import { FriendPage } from '../ui/FriendPage'
@@ -30,12 +29,15 @@ import type { Boards } from '../domain/boards'
 import type { ActivityBucket, Insights as InsightData, PairTally, PowerTally } from '../domain/insights'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
-import { RECENT_SCENARIOS, RECENT_VERSIONS } from './recent'
+import { NEW_SCENARIOS, NEW_SINCE, RECENT_SCENARIOS, RECENT_VERSIONS } from './recent'
 import { ban, joinPlus, markBanIntroSeen, spendPeek, unban, type HiddenAnswer } from '../domain/perks'
 import { ownedCategoryIds } from '../domain/unlocks'
+import { CATALOGUE } from '../domain/catalogue'
 import { CategoriesPage } from '../ui/CategoriesPage'
 import { FeedbackPop } from '../ui/FeedbackPop'
 import { PlusPop } from '../ui/PlusPop'
+import { Checkout } from '../ui/Checkout'
+import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import type { AdminIdea } from '../lib/cloud'
 
@@ -127,7 +129,7 @@ const WORDS: readonly Word[] = [
   ['animaux', 'L', 'Lama', 14, 'courant'],
 ]
 
-function makeRun(score: number, words: readonly Word[] = WORDS, missed: readonly MissedWord[] = []): Run {
+function makeRun(score: number, words: readonly Word[] = WORDS): Run {
   const found: KeptWord[] = words.map(([categoryId, letter, display, points, tier, approximate = false], index) => ({
     prompt: { categoryId, letter },
     word: display.toLowerCase(),
@@ -166,7 +168,6 @@ function makeRun(score: number, words: readonly Word[] = WORDS, missed: readonly
     hush: null,
     heldSeconds: 0,
     rerolls: 0,
-    missed,
     chatter: 0,
   }
 }
@@ -488,7 +489,6 @@ function OverScenario({
   after,
   account = NAMED,
   challengeState,
-  gift = [],
   mine,
   requests = [],
   failing = false,
@@ -500,8 +500,6 @@ function OverScenario({
   after: Profile
   account?: Account
   challengeState?: ChallengeDetail | 'sending' | 'failed'
-  /** La catégorie offerte par la vague, remise par-dessus le bilan. */
-  gift?: readonly string[]
   /** Les mots que le joueur a lui-même fait entrer, pour la marque discrète. */
   mine?: ReadonlySet<string>
   /** Les mots proposés pendant la partie, corrigés et retirés comme en vrai. */
@@ -529,8 +527,6 @@ function OverScenario({
       onAvatar={noop}
       onChoose={(id) => setProfile((current) => chooseCategory(current, id))}
       onChoosePower={(id) => setProfile((current) => choosePower(current, id))}
-      gift={gift}
-      onChooseGift={noop}
       onSupportAsked={noop}
       mine={mine}
       proposals={proposals}
@@ -565,26 +561,37 @@ function OverScenario({
 }
 
 const HIDDEN: HiddenAnswer[] = [
-  { prompt: { categoryId: 'pays', letter: 'K' }, display: 'kenya', told: false },
-  { prompt: { categoryId: 'animaux', letter: 'Z' }, display: 'zèbre', told: false },
-  { prompt: { categoryId: 'couleurs', letter: 'M' }, display: 'marron', told: false },
-  { prompt: { categoryId: 'animaux', letter: 'O' }, display: 'ours', told: true },
+  { prompt: { categoryId: 'pays', letter: 'K' }, display: 'kenya' },
+  { prompt: { categoryId: 'animaux', letter: 'Z' }, display: 'zèbre' },
+  { prompt: { categoryId: 'couleurs', letter: 'M' }, display: 'marron' },
+  { prompt: { categoryId: 'animaux', letter: 'O' }, display: 'ours' },
 ]
+
+/** Les écrans parlent la langue de l'interface : le merci aussi. */
+function PremiumThanksScenario({ back }: { back(): void }) {
+  const t = useT()
+  return <FeedbackPop intro={t.premiumThanks} onClose={back} send={() => later(true)} />
+}
 
 /** « Mes catégories » à sept catégories : le bannissement s'y ouvre, sur un profil qui ne sort pas de la planche. */
 function BansScenario({
   seen = false,
   plus = false,
   banned = [],
+  every = false,
 }: {
   seen?: boolean
   plus?: boolean
   /** Déjà bannies à l'ouverture. */
   banned?: readonly string[]
+  /** Tout le catalogue possédé, au lieu de sept catégories. */
+  every?: boolean
 }) {
   const [profile, setProfile] = useState<Profile>(() => ({
     ...PROFILE,
-    unlocked: ['fruits-legumes', 'metiers', 'sports', 'marques'],
+    unlocked: every
+      ? CATALOGUE.map((category) => category.id).filter((id) => !['pays', 'animaux', 'couleurs'].includes(id))
+      : ['fruits-legumes', 'metiers', 'sports', 'marques'],
     banIntroSeen: seen ? 1 : 0,
     plusSince: plus ? 1 : 0,
     banned,
@@ -766,14 +773,6 @@ const SCENARIOS: readonly Scenario[] = [
     },
   },
   {
-    id: 'over-gift',
-    group: 'Fin de partie',
-    title: 'Cadeau des nouvelles catégories sur le bilan',
-    how: 'Le cadeau de la vague, remis par-dessus le récapitulatif au lieu d’être perdu',
-    phase: 'over',
-    render: (back) => <OverScenario after={afterRun(PROFILE, RUN)} gift={['prenoms', 'objets', 'plantes']} onBack={back} />,
-  },
-  {
     id: 'over-power',
     group: 'Fin de partie',
     title: 'Proposition de pouvoir',
@@ -802,24 +801,10 @@ const SCENARIOS: readonly Scenario[] = [
     },
   },
   {
-    id: 'over-professor',
-    group: 'Fin de partie',
-    title: 'Mots soufflés par Professeur',
-    how: 'Bilan avec la liste des mots manqués',
-    phase: 'over',
-    render: (back) => {
-      const run = makeRun(120, WORDS.slice(3), [
-        { prompt: { categoryId: 'pays', letter: 'K' }, display: 'kenya' },
-        { prompt: { categoryId: 'animaux', letter: 'Z' }, display: 'zèbre' },
-      ])
-      return <OverScenario run={run} after={afterRun(PROFILE, run)} onBack={back} />
-    },
-  },
-  {
     id: 'over-hidden',
     group: 'Fin de partie',
     title: 'Mots cachés des invites passées',
-    how: 'Trois bandes noires à arracher (deux gratuites restantes, puis Premium), une déjà soufflée par Professeur',
+    how: 'Repliées sous un bouton ; quatre bandes à arracher, chacune à son rythme : deux gratuites, puis l’offre et le faux paiement',
     phase: 'over',
     render: (back) => <OverScenario after={afterRun({ ...PROFILE, peeks: 3 }, RUN)} hidden={HIDDEN} onBack={back} />,
   },
@@ -1030,7 +1015,7 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Plus de deux pouvoirs admis',
     phase: 'home',
     render: (back) => (
-      <ChallengePowers allowed={['joker', 'dodge', 'hush', 'divination', 'professor']} initial={['joker', 'dodge']} onStart={back} onClose={back} />
+      <ChallengePowers allowed={['joker', 'dodge', 'hush', 'divination', 'chatter']} initial={['joker', 'dodge']} onStart={back} onClose={back} />
     ),
   },
   // Les identifiants restent littéraux : `npm run debug:recent` les relit dans
@@ -1196,7 +1181,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'categories-ban',
     group: 'Accueil',
     title: 'Mes catégories : bannir',
-    how: 'Septième catégorie : explication à l’ouverture, un ban gratuit, le deuxième demande Premium',
+    how: 'Septième catégorie : explication à l’ouverture, un ban gratuit, par le bouton ou d’un glissement de la ligne',
     phase: 'home',
     render: () => <BansScenario />,
   },
@@ -1204,17 +1189,25 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'categories-ban-plus',
     group: 'Accueil',
     title: 'Mes catégories : Premium',
-    how: 'Premium : autant de bans qu’on veut, tant qu’il reste cinq catégories',
+    how: 'Premium, tout le catalogue : jusqu’à cinq bans, par le bouton ou d’un glissement',
     phase: 'home',
-    render: () => <BansScenario seen plus />,
+    render: () => <BansScenario seen plus every />,
   },
   {
     id: 'categories-ban-full',
     group: 'Accueil',
-    title: 'Mes catégories : limite des cinq',
-    how: 'Premium, deux bannies sur sept : un troisième ban est refusé, il faut garder cinq catégories',
+    title: 'Mes catégories : jamais moins de six',
+    how: 'Premium, une bannie sur sept : un deuxième ban est refusé, il faut garder six catégories en jeu',
     phase: 'home',
-    render: () => <BansScenario seen plus banned={['pays', 'animaux']} />,
+    render: () => <BansScenario seen plus banned={['pays']} />,
+  },
+  {
+    id: 'categories-ban-max',
+    group: 'Accueil',
+    title: 'Mes catégories : cinq bans au plus',
+    how: 'Premium, tout le catalogue, cinq bannies : un sixième est refusé ; glisser une ligne la rétablit',
+    phase: 'home',
+    render: () => <BansScenario seen plus every banned={['pays', 'animaux', 'couleurs', 'sports', 'marques']} />,
   },
   {
     id: 'plus-pop',
@@ -1223,6 +1216,22 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Deuxième ban demandé sans être Premium (gratuit pour l’instant)',
     phase: 'home',
     render: (back) => <PlusPop reason="ban" onJoin={back} onClose={back} />,
+  },
+  {
+    id: 'checkout',
+    group: 'Accueil',
+    title: 'Faux paiement Premium',
+    how: 'Après « Passer Premium » : la commande à 0 €, « Payer », le paiement qui tourne, puis la bienvenue',
+    phase: 'home',
+    render: (back) => <Checkout onPaid={back} onCancel={back} />,
+  },
+  {
+    id: 'premium-thanks',
+    group: 'Accueil',
+    title: 'Merci d’être Premium',
+    how: 'Premier retour à l’accueil après l’abonnement : le merci, puis la demande d’avis (envoi simulé)',
+    phase: 'home',
+    render: (back) => <PremiumThanksScenario back={back} />,
   },
   {
     id: 'plus-pop-peek',
@@ -1276,14 +1285,6 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Juste après une nouvelle amitié, avant la question du téléphone (sans effet ici)',
     phase: 'home',
     render: (back) => <PushOffer onNo={back} onYes={back} />,
-  },
-  {
-    id: 'category-gift',
-    group: 'Accueil',
-    title: 'Cadeau des nouvelles catégories',
-    how: 'Joueur qui avait déjà tout débloqué avant la vague : choix d’une des trois offerte',
-    phase: 'home',
-    render: (back) => <CategoryGiftPop offer={['prenoms', 'objets', 'plantes']} onChoose={back} />,
   },
   {
     id: 'tutorial',
@@ -1387,6 +1388,8 @@ interface DebugBoardProps {
 
 /** Les planches touchées depuis les deux dernières versions livrées. */
 const RECENT = new Set(RECENT_SCENARIOS)
+/** Les planches que la dernière version livrée n'avait pas : en bleu, avant le rouge. */
+const NEW = new Set(NEW_SCENARIOS)
 
 export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
   const [open, setOpen] = useState<Scenario | null>(null)
@@ -1420,7 +1423,8 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
 
   const groups = [...new Set(SCENARIOS.map((scenario) => scenario.group))]
   // RECENT peut nommer une planche supprimée depuis : le compte suit la liste.
-  const recentCount = SCENARIOS.filter((scenario) => RECENT.has(scenario.id)).length
+  const recentCount = SCENARIOS.filter((scenario) => RECENT.has(scenario.id) && !NEW.has(scenario.id)).length
+  const newCount = SCENARIOS.filter((scenario) => NEW.has(scenario.id)).length
   return (
     <div className="sheet cascade debug-board">
       {/* À gauche : cinq tapes dans le coin haut droit ouvrent la planche,
@@ -1435,9 +1439,14 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
         Chaque écran difficile d’accès, avec des données inventées. Rien n’est envoyé au serveur ; les choix ne
         touchent pas au vrai profil.
       </p>
+      {newCount > 0 && (
+        <p className="note debug-note debug-note--new">
+          En bleu : {newCount} planches nouvelles, que la {NEW_SINCE} n’avait pas.
+        </p>
+      )}
       {recentCount > 0 && (
         <p className="note debug-note">
-          En surligné : {recentCount} des {SCENARIOS.length} planches montrent un écran ou un code qui a changé depuis
+          En rouge : {recentCount} des {SCENARIOS.length} planches montrent un écran ou un code qui a changé depuis
           les deux dernières versions livrées ({RECENT_VERSIONS.join(' et ')}). « npm run debug:recent » refait la liste
           au moment de livrer.
         </p>
@@ -1447,12 +1456,13 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
           <p className="section-title">{group}</p>
           <ul className="debug-list">
             {SCENARIOS.filter((scenario) => scenario.group === group).map((scenario) => {
-              const recent = RECENT.has(scenario.id)
+              const fresh = NEW.has(scenario.id)
+              const recent = !fresh && RECENT.has(scenario.id)
               return (
                 <li key={scenario.id}>
                   <button
                     type="button"
-                    className={recent ? 'debug-item debug-item--recent' : 'debug-item'}
+                    className={`debug-item${fresh ? ' debug-item--new' : recent ? ' debug-item--recent' : ''}`}
                     onClick={() => {
                       setTake(0)
                       setOpen(scenario)
@@ -1460,6 +1470,7 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
                   >
                     <strong>
                       {scenario.title}
+                      {fresh && <span className="debug-flag debug-flag--new">nouveau</span>}
                       {recent && <span className="debug-flag">récent</span>}
                     </strong>
                     <span className="note">{scenario.how}</span>

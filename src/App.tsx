@@ -69,7 +69,7 @@ import { complicationDue, type PowerId } from './domain/powers'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import type { PromptRecord } from './domain/prompts'
-import { adsDue, categoryGiftOffer, dealLineup, giftCategory, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
+import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { compactWord, normalizeWord } from './domain/text'
 import { commonWord, withExtraWords } from './domain/words'
 import { MessagesContext, messagesFor, type Locale } from './i18n'
@@ -77,7 +77,7 @@ import { standingMove } from './domain/standing'
 import { challengeNotice } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { createJudge } from './state/judge'
-import { banNews, feedbackDue, hiddenAnswers, playableCategoryIds } from './domain/perks'
+import { banNews, feedbackDue, hiddenAnswers, playableCategoryIds, plusThanksDue } from './domain/perks'
 import { cloudConfigured } from './lib/supabase'
 import { FeedbackPop } from './ui/FeedbackPop'
 import type { BanActions } from './ui/CategoriesPage'
@@ -87,14 +87,12 @@ import {
   clearLocalData,
   loadAccount,
   loadAvatar,
-  loadGiftHeld,
   loadHistory,
   loadProfile,
   loadSubmissions,
   loadTutorialDone,
   saveAccount,
   saveAvatar,
-  saveGiftHeld,
   saveHistory,
   saveProfile,
   saveSubmissions,
@@ -109,7 +107,6 @@ import { AvatarScreen } from './ui/AvatarScreen'
 import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
 import { PowerGiftPop, WordsNewsPop } from './ui/WordsNews'
-import { CategoryGiftPop } from './ui/CategoryGiftPop'
 import { ChallengePowers } from './ui/ChallengePowers'
 import { ChallengeSetup, type ChallengeRules } from './ui/ChallengeSetup'
 import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
@@ -220,8 +217,6 @@ export function App() {
   const [moderating, setModerating] = useState(false)
   // « Plus tard » holds the offer back until the next launch, without answering it.
   const [offerHeld, setOfferHeld] = useState(false)
-  // The gift put off with the back gesture: the next run's end hands it over.
-  const [giftHeld, setGiftHeld] = useState(loadGiftHeld)
   // Set on the way home once `feedbackDue` says so: asked once, answered or not.
   const [feedbackAsk, setFeedbackAsk] = useState(false)
   // The seed of the run whose reveal has played: leaving for the avatar editor
@@ -442,9 +437,6 @@ export function App() {
   menuShown.current = menuOpen
   // The challenge screens close one at a time, the way they opened.
   const closeChallengeLayer = useRef<() => boolean>(() => false)
-  // The gift pop is the one overlay with no refusal: the gesture puts it off,
-  // and the next run's end hands the category over instead.
-  const giftShown = useRef(false)
   useEffect(
     () =>
       onBackButton(() => {
@@ -455,11 +447,6 @@ export function App() {
           return true
         }
         if (closeChallengeLayer.current()) return true
-        if (giftShown.current) {
-          setGiftHeld(true)
-          saveGiftHeld(true)
-          return true
-        }
         if (phase.current === 'home' || phase.current === 'loading') return false
         dispatch({ type: 'home' })
         return true
@@ -914,14 +901,6 @@ export function App() {
     [session.phase, session.run, session.judge],
   )
 
-  // The gift is not a level-up pick: it is handed over, never counted against
-  // the picks a level owes.
-  const takeGift = useCallback((categoryId: string) => {
-    setGiftHeld(false)
-    saveGiftHeld(false)
-    dispatch({ type: 'profile-loaded', profile: giftCategory(session.profile, categoryId) })
-  }, [session.profile])
-
   // Proposing costs no clock: in a timed run, a confirmation dialog would take
   // the seconds the player is spending on the word they just failed to place.
   const propose = useCallback(
@@ -1070,29 +1049,18 @@ export function App() {
 
   const quietHome = session.phase === 'home' && !tutorial && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
   const notice = quietHome ? challengeNotice(challenges, heldNotices) : null
-  // The wave's categories still to be handed over, and the launch pop that
-  // offers them — unless the back gesture put it off for the next run's end.
-  const gift = categoryGiftOffer(session.profile, availableCategoryIds(lang))
-  const giftPop =
+  const popsQuiet =
     !notice &&
     quietHome &&
     update !== 'due' &&
     !(moderation?.offer && !offerHeld) &&
     wordsNews.length === 0 &&
     !complicationDue(session.profile, acceptedWords) &&
-    !giftHeld &&
-    gift.length > 0
-  giftShown.current = giftPop
-  const feedbackPop =
-    feedbackAsk &&
-    !notice &&
-    quietHome &&
-    update !== 'due' &&
-    !(moderation?.offer && !offerHeld) &&
-    wordsNews.length === 0 &&
-    !complicationDue(session.profile, acceptedWords) &&
-    !giftPop &&
     pushOffer === null
+  // Premium thanks its new member once, back home, and asks for an opinion in
+  // exchange: that ask stands in for the regular one if both are due.
+  const thanksPop = popsQuiet && cloudConfigured() && plusThanksDue(session.profile)
+  const feedbackPop = popsQuiet && feedbackAsk && !thanksPop
 
   if (debugPhase !== null && locale !== null) {
     return (
@@ -1320,9 +1288,17 @@ export function App() {
           <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
         )}
 
-      {giftPop && <CategoryGiftPop offer={gift} onChoose={takeGift} />}
-
       {feedbackPop && <FeedbackPop onClose={() => setFeedbackAsk(false)} />}
+
+      {thanksPop && (
+        <FeedbackPop
+          intro={t.premiumThanks}
+          onClose={() => {
+            setFeedbackAsk(false)
+            dispatch({ type: 'plus-thanked' })
+          }}
+        />
+      )}
 
       {menuOpen && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
         <Menu
@@ -1447,8 +1423,6 @@ export function App() {
           onAvatar={() => setEditingAvatar(true)}
           onChoose={choose}
           onChoosePower={choosePower}
-          gift={giftHeld ? gift : []}
-          onChooseGift={takeGift}
           onSupportAsked={supportAsked}
           boardsBefore={boardsBefore}
           boardsAfter={boardsAfter}

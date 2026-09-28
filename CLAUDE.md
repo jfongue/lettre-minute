@@ -337,8 +337,14 @@ qu'un nouvel arrivant casserait sans le savoir.
   (`src/domain/perks.ts`) : un ban dès sept catégories, les suivants et plus
   de cinq mots cachés révélés au récap réservés à Premium, gratuit pour
   l'instant (`plusSince`). Un ban ne vaut que pour les parties seules : un
-  défi distribue ses propres catégories. Il reste toujours
-  `MAX_CATEGORIES_PER_RUN` catégories jouables.
+  défi distribue ses propres catégories. Cinq bans au plus (`MAX_BANS`), et
+  jamais moins de `MIN_PLAYABLE_CATEGORIES` (six) catégories en jeu : à sept
+  catégories, l'offre Premium ne sort donc pas, puisqu'elle ne pourrait rien
+  débloquer. Une ligne de « Mes catégories » se bannit ou se rétablit aussi
+  d'un glissement, sous `data-no-swipe` pour ne pas refermer le tiroir.
+  Passer Premium traverse un faux paiement (`src/ui/Checkout.tsx`) qui ne
+  demande aucune carte ; le retour suivant à l'accueil remercie le joueur
+  une fois (`plusThanked`) et ouvre la demande d'avis.
 - **Le son part fort et la limite le tient** (`MAKEUP_GAIN`, `src/lib/sound.ts`) :
   le téléphone baisse le volume sur des échantillons 16 bits, et un mixage
   discret y devenait robotique. Ne pas rabaisser le bus maître pour « calmer »
@@ -384,7 +390,7 @@ qu'un nouvel arrivant casserait sans le savoir.
   déjà. Le chargeur (`fetchInsights`) et la vue sont séparés, et rien n'est
   écrit sur le serveur.
 - **Les planches touchées depuis les deux dernières versions livrées sont
-  surlignées** (`npm run debug:recent`) : le script relit les commits
+  surlignées en rouge, celles que la dernière version n'avait pas en bleu** (`npm run debug:recent`) : le script relit les commits
   « Version X.Y.Z » de git et écrit `src/debug/recent.ts`, à commiter — la
   planche et le build n'ont donc pas besoin de git. Tout se lit dans `HEAD` :
   ce qui n'est pas commité n'est pas livré. Un identifiant de planche reste

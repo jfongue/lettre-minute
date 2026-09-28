@@ -69,10 +69,6 @@ export const pt: Messages = {
     joined: 'entra nas suas partidas',
   },
 
-  categoryGift: {
-    title: 'Novas categorias!',
-    lead: 'Você já tinha desbloqueado tudo: escolha uma de presente.',
-  },
 
   over: {
     timeUp: 'Tempo esgotado',
@@ -476,7 +472,6 @@ export const pt: Messages = {
       divination: ['Adivinhação', 'Você vê o tema e a letra que vêm a seguir.'],
       complication: ['Risco', 'Palavras incomuns valem ×1,15; as raras, ×1,3.'],
       celerity: ['Celeridade', 'Uma palavra se valida sozinha, sem apertar Enter, mesmo com um erro de digitação.'],
-      professor: ['Professor', 'Quando você passa, sopram o que você poderia ter respondido, e o fim da partida revisa a lição.'],
       chatter: ['Tagarela', 'Uma vez por partida, junta «...» a uma palavra: a letra e o tema ficam por mais três palavras.'],
     },
     spells: { joker: ['joker', 'coringa', 'curinga'], hush: ['psiu', 'shh', 'chiu'] },
@@ -510,8 +505,6 @@ export const pt: Messages = {
     reroll: (letter, left) => `Trocar a letra ${letter} · faltam ${left}`,
     boost: (factor) => `×${factor.toLocaleString('pt-PT')}`,
     auto: 'validada sozinha',
-    whisper: 'Você poderia ter dito',
-    missed: 'O que você poderia ter dito',
   },
 
   challenge: {
@@ -662,11 +655,12 @@ export const pt: Messages = {
     introTitle: 'Novidade: excluir uma categoria',
     introLead: 'Tens sete categorias. Há alguma que te aborrece? Exclui-a: deixa de sair nas tuas partidas. Podes mudar de ideias quando quiseres, aqui mesmo.',
     introOk: 'Percebi',
-    lead: 'Uma categoria excluída deixa de sair nas tuas partidas (os desafios mantêm as suas).',
+    lead: 'Uma categoria excluída deixa de sair nas tuas partidas (os desafios mantêm as suas). Desliza-a para a excluir ou repor.',
     ban: 'Excluir',
     unban: 'Repor',
     banned: 'Excluída',
-    full: 'Têm de ficar pelo menos cinco categorias em jogo.',
+    floor: 'Têm de ficar pelo menos seis categorias em jogo.',
+    max: 'Cinco categorias excluídas no máximo.',
   },
 
   plus: {
@@ -681,9 +675,29 @@ export const pt: Messages = {
 
   peek: {
     title: 'O que podias ter escrito',
-    hint: (left: number) =>
-      left === Infinity ? 'Toca numa faixa para revelar a palavra.' : `Toca numa faixa para revelar a palavra · faltam ${left}`,
     reveal: (category: string, letter: string) => `Revelar uma palavra com ${letter}: ${category}`,
+  },
+
+  checkout: {
+    title: 'Pagamento seguro',
+    plan: 'Premium',
+    perkBans: 'Excluir quantas categorias quiseres',
+    perkPeeks: 'Revelar todas as palavras escondidas',
+    price: '0,00 €',
+    period: 'sem compromisso',
+    total: 'Total',
+    pay: 'Pagar 0,00 €',
+    paying: 'A processar o pagamento…',
+    done: 'Bem-vindo ao Premium!',
+    note: 'Não é preciso cartão: por agora é grátis.',
+    cancel: 'Cancelar',
+  },
+
+  premiumThanks: {
+    title: 'Obrigado por te tornares Premium!',
+    lead: 'Por agora é grátis… Em troca, dás-me a tua opinião sobre esta versão do jogo?',
+    yes: 'Com gosto',
+    later: 'Mais tarde',
   },
 
   update: {

@@ -60,14 +60,7 @@ const ICONS: Record<PowerId, ReactNode> = {
     </>
   ),
   celerity: <path d="M58 2L12 56H44L34 98L88 38H56L68 2Z" />,
-  professor: (
-    <>
-      <path d="M50 10L98 34L50 58L2 34Z" />
-      <path d="M22 46V70C22 80 78 80 78 70V46L50 60Z" opacity="0.6" />
-      <path d="M86 40V74" fill="none" stroke="currentColor" strokeWidth="5" />
-      <circle cx="86" cy="80" r="7" />
-    </>
-  ),
+
   chatter: (
     <>
       <path fillRule="evenodd" d={`M8 12H92V70H44L22 90V70H8Z${hole(30, 41, 7)}${hole(50, 41, 7)}${hole(70, 41, 7)}`} />

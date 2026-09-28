@@ -69,10 +69,6 @@ export const es: Messages = {
     joined: 'se suma a tus partidas',
   },
 
-  categoryGift: {
-    title: '¡Nuevas categorías!',
-    lead: 'Ya lo habías desbloqueado todo: elige una de regalo.',
-  },
 
   over: {
     timeUp: 'Se acabó el tiempo',
@@ -476,7 +472,6 @@ export const es: Messages = {
       divination: ['Adivinación', 'Ves el tema y la letra que vienen después.'],
       complication: ['Riesgo', 'Las palabras poco comunes valen ×1,15; las raras, ×1,3.'],
       celerity: ['Celeridad', 'Una palabra se valida sola, sin pulsar Intro, incluso con una errata.'],
-      professor: ['Profesor', 'Cuando pasas, te soplan lo que podrías haber respondido, y el final de la partida repasa la lección.'],
       chatter: ['Cháchara', 'Una vez por partida, añade «...» a una palabra: la letra y el tema se quedan tres palabras más.'],
     },
     spells: { joker: ['joker', 'comodín'], hush: ['chis', 'shh', 'silencio'] },
@@ -510,8 +505,6 @@ export const es: Messages = {
     reroll: (letter, left) => `Cambiar la letra ${letter} · quedan ${left}`,
     boost: (factor) => `×${factor.toLocaleString('es-ES')}`,
     auto: 'validada sola',
-    whisper: 'Podrías haber dicho',
-    missed: 'Lo que podrías haber dicho',
   },
 
   challenge: {
@@ -662,11 +655,12 @@ export const es: Messages = {
     introTitle: 'Nuevo: vetar una categoría',
     introLead: 'Tienes siete categorías. ¿Hay alguna que te aburre? Vétala: ya no saldrá en tus partidas. Puedes cambiar de idea cuando quieras, aquí mismo.',
     introOk: 'Entendido',
-    lead: 'Una categoría vetada ya no sale en tus partidas (los retos conservan las suyas).',
+    lead: 'Una categoría vetada ya no sale en tus partidas (los retos conservan las suyas). Deslízala para vetarla o recuperarla.',
     ban: 'Vetar',
     unban: 'Recuperar',
     banned: 'Vetada',
-    full: 'Tienen que quedar al menos cinco categorías en juego.',
+    floor: 'Tienen que quedar al menos seis categorías en juego.',
+    max: 'Cinco categorías vetadas como máximo.',
   },
 
   plus: {
@@ -681,9 +675,29 @@ export const es: Messages = {
 
   peek: {
     title: 'Lo que podrías haber escrito',
-    hint: (left: number) =>
-      left === Infinity ? 'Toca una banda para revelar la palabra.' : `Toca una banda para revelar la palabra · quedan ${left}`,
     reveal: (category: string, letter: string) => `Revelar una palabra con ${letter}: ${category}`,
+  },
+
+  checkout: {
+    title: 'Pago seguro',
+    plan: 'Premium',
+    perkBans: 'Vetar tantas categorías como quieras',
+    perkPeeks: 'Revelar todas las palabras ocultas',
+    price: '0,00 €',
+    period: 'sin compromiso',
+    total: 'Total',
+    pay: 'Pagar 0,00 €',
+    paying: 'Procesando el pago…',
+    done: '¡Bienvenido a Premium!',
+    note: 'No hace falta tarjeta: por ahora es gratis.',
+    cancel: 'Cancelar',
+  },
+
+  premiumThanks: {
+    title: '¡Gracias por hacerte Premium!',
+    lead: 'Por ahora es gratis… A cambio, ¿me darías tu opinión sobre esta versión del juego?',
+    yes: 'Con gusto',
+    later: 'Más tarde',
   },
 
   update: {

@@ -1,14 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { CATALOGUE, latestWaveCategoryIds } from './catalogue'
+import { CATALOGUE } from './catalogue'
 import { NEW_PROFILE, xpForLevel, type Profile } from './progression'
 import {
   ADS_ENABLED,
   adsDue,
-  categoryGiftOffer,
   chooseCategory,
   dealLineup,
   dealOffer,
-  giftCategory,
   MAX_CATEGORIES_PER_RUN,
   OFFER_SIZE,
   ownedCategoryIds,
@@ -21,12 +19,12 @@ import {
 
 const ALL = CATALOGUE.map((category) => category.id)
 const atLevel = (level: number, profile: Profile = NEW_PROFILE): Profile => ({ ...profile, xp: xpForLevel(level) })
-const WAVE = latestWaveCategoryIds()
-// Everything outside the wave, owned — the state a player who cleared the whole
-// catalogue before it shipped is in.
+const NEWEST = ['prenoms', 'objets', 'plantes']
+// Everything but the newest categories, owned — the state of a player who
+// cleared the whole catalogue before they shipped.
 const ownsEverythingElse: Profile = {
   ...NEW_PROFILE,
-  unlocked: ALL.filter((id) => !WAVE.includes(id) && !starterCategoryIds().includes(id)),
+  unlocked: ALL.filter((id) => !NEWEST.includes(id) && !starterCategoryIds().includes(id)),
 }
 
 describe('owned categories', () => {
@@ -185,53 +183,12 @@ describe('pickShowsAd', () => {
   })
 })
 
-describe('categoryGiftOffer', () => {
-  it('offers nothing to a player who still has other categories to pick', () => {
-    expect(categoryGiftOffer(NEW_PROFILE, ALL)).toEqual([])
-    expect(categoryGiftOffer(atLevel(3), ALL)).toEqual([])
-  })
-
-  it('offers the whole wave once everything else is owned', () => {
-    expect(categoryGiftOffer(ownsEverythingElse, ALL)).toEqual(WAVE)
-  })
-
-  it('offers only what is left once one of the wave was picked at a level-up', () => {
-    const partial: Profile = { ...ownsEverythingElse, unlocked: [...ownsEverythingElse.unlocked, WAVE[0]!] }
-    expect(categoryGiftOffer(partial, ALL)).toEqual(WAVE.slice(1))
-  })
-
-  it('offers nothing once the whole wave is owned', () => {
-    const complete: Profile = { ...ownsEverythingElse, unlocked: [...ownsEverythingElse.unlocked, ...WAVE] }
-    expect(categoryGiftOffer(complete, ALL)).toEqual([])
-  })
-
-  it('leaves out a wave category the build ships no dictionary for', () => {
-    const shipped = ALL.filter((id) => id !== WAVE[0])
-    expect(categoryGiftOffer(ownsEverythingElse, shipped)).toEqual(WAVE.slice(1))
-  })
-
-  it('does not let a missing dictionary elsewhere in the catalogue block the gift', () => {
-    const shipped = ALL.filter((id) => id !== 'marques')
-    const withoutMarques: Profile = { ...ownsEverythingElse, unlocked: ownsEverythingElse.unlocked.filter((id) => id !== 'marques') }
-    expect(categoryGiftOffer(withoutMarques, shipped)).toEqual(WAVE)
-  })
-})
-
-describe('giftCategory', () => {
-  it('owns the category without spending a level-up pick', () => {
-    const before = picksOwed(ownsEverythingElse)
-    const gifted = giftCategory(ownsEverythingElse, WAVE[0]!)
-
-    expect(gifted.gifted).toEqual([WAVE[0]])
-    expect(ownedCategoryIds(gifted)).toContain(WAVE[0])
-    expect(picksOwed(gifted)).toBe(before)
-    expect(categoryGiftOffer(gifted, ALL)).toEqual(WAVE.slice(1))
-  })
-
-  it('does nothing for a category outside the wave, or gifted twice', () => {
-    expect(giftCategory(NEW_PROFILE, 'sports')).toBe(NEW_PROFILE)
-    const gifted = giftCategory(ownsEverythingElse, WAVE[0]!)
-    expect(giftCategory(gifted, WAVE[0]!)).toBe(gifted)
+describe('new categories', () => {
+  it('come with the next level, like any other pick', () => {
+    const level = [...Array(60).keys()].find((at) => picksOwed(atLevel(at, ownsEverythingElse)) === 1)!
+    expect(picksOwed(atLevel(level - 1, ownsEverythingElse))).toBe(0)
+    const dealt = dealOffer(atLevel(level, ownsEverythingElse), ALL, 1)
+    expect([...dealt.offer].sort()).toEqual([...NEWEST].sort())
   })
 })
 

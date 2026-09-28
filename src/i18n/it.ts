@@ -69,10 +69,6 @@ export const it: Messages = {
     joined: 'entra nelle tue partite',
   },
 
-  categoryGift: {
-    title: 'Nuove categorie!',
-    lead: 'Avevi già sbloccato tutto: scegline una in regalo.',
-  },
 
   over: {
     timeUp: 'Tempo scaduto',
@@ -476,7 +472,6 @@ export const it: Messages = {
       divination: ['Divinazione', 'Vedi il tema e la lettera che vengono dopo.'],
       complication: ['Rischio', 'Le parole poco comuni valgono ×1,15, le rare ×1,3.'],
       celerity: ['Celerità', 'Una parola si conferma da sola, senza premere Invio, anche con un refuso.'],
-      professor: ['Professore', 'Quando passi, ti suggeriscono cosa avresti potuto rispondere, e la fine della partita ripassa la lezione.'],
       chatter: ['Chiacchiera', 'Una volta per partita, aggiungi «...» a una parola: lettera e tema restano per altre tre parole.'],
     },
     spells: { joker: ['joker', 'jolly'], hush: ['zitto', 'shh', 'ssst'] },
@@ -510,8 +505,6 @@ export const it: Messages = {
     reroll: (letter, left) => `Cambia la lettera ${letter} · ancora ${left}`,
     boost: (factor) => `×${factor.toLocaleString('it-IT')}`,
     auto: 'confermata da sola',
-    whisper: 'Potevi dire',
-    missed: 'Cosa avresti potuto dire',
   },
 
   challenge: {
@@ -662,11 +655,12 @@ export const it: Messages = {
     introTitle: 'Novità: escludere una categoria',
     introLead: 'Hai sette categorie. Ce n’è una che ti annoia? Escludila: non uscirà più nelle tue partite. Puoi cambiare idea quando vuoi, proprio qui.',
     introOk: 'Capito',
-    lead: 'Una categoria esclusa non esce più nelle tue partite (le sfide tengono le loro).',
+    lead: 'Una categoria esclusa non esce più nelle tue partite (le sfide tengono le loro). Scorrila per escluderla o ripristinarla.',
     ban: 'Escludi',
     unban: 'Ripristina',
     banned: 'Esclusa',
-    full: 'Devono restare in gioco almeno cinque categorie.',
+    floor: 'Devono restare in gioco almeno sei categorie.',
+    max: 'Cinque categorie escluse al massimo.',
   },
 
   plus: {
@@ -681,9 +675,29 @@ export const it: Messages = {
 
   peek: {
     title: 'Cosa avresti potuto scrivere',
-    hint: (left: number) =>
-      left === Infinity ? 'Tocca una banda per rivelare la parola.' : `Tocca una banda per rivelare la parola · ancora ${left}`,
     reveal: (category: string, letter: string) => `Rivela una parola con ${letter}: ${category}`,
+  },
+
+  checkout: {
+    title: 'Pagamento sicuro',
+    plan: 'Premium',
+    perkBans: 'Escludi tutte le categorie che vuoi',
+    perkPeeks: 'Rivela tutte le parole nascoste',
+    price: '0,00 €',
+    period: 'senza vincoli',
+    total: 'Totale',
+    pay: 'Paga 0,00 €',
+    paying: 'Pagamento in corso…',
+    done: 'Benvenuto in Premium!',
+    note: 'Nessuna carta richiesta: per ora è gratis.',
+    cancel: 'Annulla',
+  },
+
+  premiumThanks: {
+    title: 'Grazie per essere passato a Premium!',
+    lead: 'Per ora è gratis… In cambio, mi daresti la tua opinione su questa versione del gioco?',
+    yes: 'Volentieri',
+    later: 'Più tardi',
   },
 
   update: {

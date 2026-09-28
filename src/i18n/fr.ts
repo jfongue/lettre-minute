@@ -92,11 +92,6 @@ export const fr = {
     joined: 'rejoint tes parties',
   },
 
-  /** The gift offered at launch to a player who had already unlocked everything before a new wave of categories. */
-  categoryGift: {
-    title: 'Nouvelles catégories !',
-    lead: 'Tu avais tout débloqué : choisis-en une en cadeau.',
-  },
 
   over: {
     timeUp: 'Temps écoulé',
@@ -513,7 +508,6 @@ export const fr = {
       divination: ['Divination', 'Tu vois la catégorie et la lettre qui viennent ensuite.'],
       complication: ['Challenge', 'Les mots peu communs valent ×1,15, les rares ×1,3.'],
       celerity: ['Célérité', 'Un mot se valide tout seul, sans appuyer sur Entrée, même avec une faute de frappe.'],
-      professor: ['Professeur', 'Quand tu passes, on te souffle ce que tu aurais pu répondre, et la fin de partie te fait la leçon.'],
       chatter: ['Bavardage', 'Une fois par partie, ajoute « ... » à un mot : la lettre et le thème restent pour trois mots de plus.'],
     } satisfies Record<PowerId, readonly [string, string]> as Record<PowerId, readonly [name: string, description: string]>,
     /** What the player types to cast a spell; the first is the one the descriptions name. */
@@ -549,9 +543,6 @@ export const fr = {
     reroll: (letter: string, left: number) => `Changer la lettre ${letter} · encore ${left}`,
     boost: (factor: number) => `×${factor.toLocaleString('fr-FR')}`,
     auto: 'validé tout seul',
-    /** Professeur, under the field after a skip, then on the summary. */
-    whisper: 'On aurait pu dire',
-    missed: 'Ce que tu aurais pu dire',
   },
 
   challenge: {
@@ -705,11 +696,12 @@ export const fr = {
     introTitle: 'Nouveau : bannir une catégorie',
     introLead: 'Tu as sept catégories. Il y en a une qui t’ennuie ? Bannis-la : elle ne sortira plus dans tes parties. Tu peux changer d’avis quand tu veux, ici même.',
     introOk: 'Compris',
-    lead: 'Une catégorie bannie ne sort plus dans tes parties (les défis gardent les leurs).',
+    lead: 'Une catégorie bannie ne sort plus dans tes parties (les défis gardent les leurs). Glisse-la pour la bannir ou la rétablir.',
     ban: 'Bannir',
     unban: 'Rétablir',
     banned: 'Bannie',
-    full: 'Il faut garder au moins cinq catégories en jeu.',
+    floor: 'Il faut garder au moins six catégories en jeu.',
+    max: 'Cinq catégories bannies au plus.',
   },
 
   plus: {
@@ -724,9 +716,29 @@ export const fr = {
 
   peek: {
     title: 'Ce que tu aurais pu écrire',
-    hint: (left: number) =>
-      left === Infinity ? 'Touche une bande pour révéler le mot.' : `Touche une bande pour révéler le mot · encore ${left}`,
     reveal: (category: string, letter: string) => `Révéler un mot en ${letter} : ${category}`,
+  },
+
+  checkout: {
+    title: 'Paiement sécurisé',
+    plan: 'Premium',
+    perkBans: 'Bannir autant de catégories que tu veux',
+    perkPeeks: 'Révéler tous les mots cachés',
+    price: '0,00 €',
+    period: 'sans engagement',
+    total: 'Total',
+    pay: 'Payer 0,00 €',
+    paying: 'Paiement en cours…',
+    done: 'Bienvenue en Premium !',
+    note: 'Aucune carte demandée : pour l’instant, c’est gratuit.',
+    cancel: 'Annuler',
+  },
+
+  premiumThanks: {
+    title: 'Merci de t’être abonné Premium !',
+    lead: 'Pour l’instant c’est gratuit… En échange, est-ce que tu veux bien me donner ton avis sur cette version du jeu ?',
+    yes: 'Avec plaisir',
+    later: 'Plus tard',
   },
 
   update: {

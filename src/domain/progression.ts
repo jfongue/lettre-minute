@@ -97,6 +97,8 @@ export interface Profile {
   peeks: number
   /** When the player went Premium; 0 if they never did. */
   plusSince: number
+  /** 1 once the home screen has thanked the player for going Premium, and asked their opinion. */
+  plusThanked: number
 }
 
 export const NEW_PROFILE: Profile = {
@@ -122,6 +124,7 @@ export const NEW_PROFILE: Profile = {
   banIntroSeen: 0,
   peeks: 0,
   plusSince: 0,
+  plusThanked: 0,
 }
 
 export interface RunOutcome {

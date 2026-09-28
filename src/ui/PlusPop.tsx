@@ -1,14 +1,18 @@
+import { useState } from 'react'
 import { useT } from '../i18n'
+import { Checkout } from './Checkout'
 import { Shape } from './bauhaus'
 import { useBackDismiss } from './useBackDismiss'
 
 /** What the player reached for past the free share: a second ban, or a sixth hidden word. */
 export type PlusReason = 'ban' | 'peek'
 
-/** Premium is free for now: the offer says so, and joining is one tap. */
+/** Premium is free for now: the offer says so, and joining goes through a pretend checkout. */
 export function PlusPop({ reason, onJoin, onClose }: { reason: PlusReason; onJoin(): void; onClose(): void }) {
   const t = useT()
-  useBackDismiss(onClose)
+  const [paying, setPaying] = useState(false)
+  useBackDismiss(paying ? null : onClose)
+  if (paying) return <Checkout onPaid={onJoin} onCancel={() => setPaying(false)} />
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="plus-pop-title">
       <div className="offer-pop-scrim" onClick={onClose} />
@@ -23,7 +27,7 @@ export function PlusPop({ reason, onJoin, onClose }: { reason: PlusReason; onJoi
         </h2>
         <p>{t.plus[reason]}</p>
         <div className="offer-pop-actions plus-pop-actions">
-          <button type="button" className="btn btn--blue plus-join" onClick={onJoin}>
+          <button type="button" className="btn btn--blue plus-join" onClick={() => setPaying(true)}>
             <span>{t.plus.join}</span>
             <span className="plus-free">{t.plus.free}</span>
           </button>

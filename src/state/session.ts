@@ -4,7 +4,7 @@ import type { RarityTier } from '../domain/rarity'
 import { capitalized, normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
 import { markSupportAsked } from '../domain/support'
-import { ban, joinPlus, markBanIntroSeen, markFeedbackAsked, spendPeek, unban } from '../domain/perks'
+import { ban, joinPlus, markBanIntroSeen, markFeedbackAsked, markPlusThanked, spendPeek, unban } from '../domain/perks'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, type PowerId } from '../domain/powers'
 import {
   createRun,
@@ -114,6 +114,7 @@ export type SessionAction =
   | { type: 'peek' }
   /** `at`: the wall clock, which the rules do not read themselves. */
   | { type: 'join-plus'; at: number }
+  | { type: 'plus-thanked' }
   | { type: 'home' }
 
 export function initialSession(profile: Profile): Session {
@@ -209,6 +210,8 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       return withProfile(session, spendPeek(session.profile))
     case 'join-plus':
       return withProfile(session, joinPlus(session.profile, action.at))
+    case 'plus-thanked':
+      return withProfile(session, markPlusThanked(session.profile))
 
     case 'support-asked': {
       const profile = markSupportAsked(session.profile)

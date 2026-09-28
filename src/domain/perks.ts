@@ -1,12 +1,17 @@
 import type { Profile } from './progression'
 import { promptKey, type Judge, type Prompt, type Run } from './run'
-import { MAX_CATEGORIES_PER_RUN } from './unlocks'
 
 /** Owned categories from which one may be banned from the draw. */
 export const BAN_UNLOCK_CATEGORIES = 7
 
-/** Bans a player keeps without Premium ; past it, every ban is theirs. */
+/** Bans a player keeps without Premium; past it, Premium's own. */
 export const FREE_BANS = 1
+
+/** The most bans anyone holds, Premium included. */
+export const MAX_BANS = 5
+
+/** Playable categories a ban never goes under: a run of five still has one to spare. */
+export const MIN_PLAYABLE_CATEGORIES = 6
 
 /** Hidden answers of the summary a player may uncover without Premium, over all their runs. */
 export const FREE_PEEKS = 5
@@ -24,21 +29,32 @@ export function joinPlus(profile: Profile, now: number): Profile {
   return isPlus(profile) ? profile : { ...profile, plusSince: now }
 }
 
+/** The home screen thanks a new Premium member once, and asks what they think of the game. */
+export function plusThanksDue(profile: Profile): boolean {
+  return isPlus(profile) && profile.plusThanked === 0
+}
+
+export function markPlusThanked(profile: Profile): Profile {
+  return profile.plusThanked > 0 ? profile : { ...profile, plusThanked: 1 }
+}
+
 export function banUnlocked(ownedIds: readonly string[]): boolean {
   return ownedIds.length >= BAN_UNLOCK_CATEGORIES
 }
 
 /**
  * What a ban asks for: `ok` bans at once, `plus` is the free ban already
- * spent, `full` would leave fewer categories than a run deals.
+ * spent, `max` the five bans all held, `floor` would leave fewer than six
+ * categories in play.
  */
-export type BanVerdict = 'ok' | 'plus' | 'full' | 'locked'
+export type BanVerdict = 'ok' | 'plus' | 'max' | 'floor' | 'locked'
 
 export function banVerdict(profile: Profile, ownedIds: readonly string[], categoryId: string): BanVerdict {
   if (!banUnlocked(ownedIds) || !ownedIds.includes(categoryId)) return 'locked'
   const banned = bannedOf(profile, ownedIds)
   if (banned.includes(categoryId)) return 'ok'
-  if (ownedIds.length - banned.length - 1 < MAX_CATEGORIES_PER_RUN) return 'full'
+  if (banned.length >= MAX_BANS) return 'max'
+  if (ownedIds.length - banned.length - 1 < MIN_PLAYABLE_CATEGORIES) return 'floor'
   if (banned.length >= FREE_BANS && !isPlus(profile)) return 'plus'
   return 'ok'
 }
@@ -61,8 +77,8 @@ export function unban(profile: Profile, categoryId: string): Profile {
 export function bannedOf(profile: Profile, ownedIds: readonly string[]): string[] {
   if (!banUnlocked(ownedIds)) return []
   const held = profile.banned.filter((id) => ownedIds.includes(id))
-  const allowed = isPlus(profile) ? held.length : FREE_BANS
-  return held.slice(0, Math.max(0, Math.min(allowed, ownedIds.length - MAX_CATEGORIES_PER_RUN)))
+  const allowed = isPlus(profile) ? MAX_BANS : FREE_BANS
+  return held.slice(0, Math.max(0, Math.min(allowed, ownedIds.length - MIN_PLAYABLE_CATEGORIES)))
 }
 
 /**
@@ -96,8 +112,6 @@ export function spendPeek(profile: Profile): Profile {
 export interface HiddenAnswer {
   prompt: Prompt
   display: string
-  /** Professeur already said it: shown as it is, for free. */
-  told: boolean
 }
 
 /**
@@ -112,9 +126,8 @@ export function hiddenAnswers(run: Run, judge: Judge): HiddenAnswer[] {
     const key = promptKey(prompt)
     if (!passed || seen.has(key)) continue
     seen.add(key)
-    const told = run.missed.find((missed) => promptKey(missed.prompt) === key)
-    const display = told?.display ?? judge.common?.(prompt.categoryId, prompt.letter, run.used) ?? null
-    if (display) answers.push({ prompt, display, told: Boolean(told) })
+    const display = judge.common?.(prompt.categoryId, prompt.letter, run.used) ?? null
+    if (display) answers.push({ prompt, display })
   }
   return answers
 }
