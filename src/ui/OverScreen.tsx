@@ -21,7 +21,6 @@ import { categoryMotif } from './motifs'
 import { RankMove } from './RankMove'
 import { UnlockScreen } from './UnlockScreen'
 import { PowerOfferScreen } from './PowerOfferScreen'
-import { PowerBadge } from './PowerIcon'
 import { powerPicksOwed } from '../domain/powers'
 import { reducedMotion, useCountUp } from './useCountUp'
 import { ShareSoon } from './ShareSoon'
@@ -284,10 +283,9 @@ function Reveal({
 const SHARDS = Array.from({ length: 10 }, (_, i) => ({ angle: (i / 10) * 360 + (i % 2) * 17, reach: 2.2 + (i % 3) * 0.9 }))
 
 /**
- * The prompts the player skipped, each with a word it could have taken
- * under a black bar: close enough to tempt, too dark to read. A tap tears the
- * bar off — five times free, then Premium. What Professeur already told is
- * shown as it is.
+ * The prompts the player skipped, folded under one toggle; opened, each shows
+ * a word it could have taken under a black bar — close enough to tempt, too
+ * dark to read. A tap tears the bar off: five times free, then Premium.
  */
 function HiddenAnswers({
   hidden,
@@ -301,9 +299,9 @@ function HiddenAnswers({
   onJoinPlus?(): void
 }) {
   const t = useT()
+  const [unfolded, setUnfolded] = useState(false)
   const [open, setOpen] = useState<ReadonlySet<number>>(() => new Set())
   const [asking, setAsking] = useState<number | null>(null)
-  const closed = hidden.some((answer, index) => !answer.told && !open.has(index))
 
   const tear = (index: number) => {
     setOpen((current) => new Set(current).add(index))
@@ -313,20 +311,37 @@ function HiddenAnswers({
 
   return (
     <section className="hidden-answers" onClick={(event) => event.stopPropagation()} role="presentation">
-      <p className="section-title">{t.peek.title}</p>
-      {closed && <p className="note">{t.peek.hint(peeks)}</p>}
-      <ol className="reveal-words">
-        {hidden.map((answer, index) => {
-          const shown = answer.told || open.has(index)
-          const category = categoryText(t, answer.prompt.categoryId).label
-          return (
-            <li key={`${answer.prompt.categoryId}:${answer.prompt.letter}`} className="reveal-word hidden-answer">
-              <LetterMark letter={answer.prompt.letter} motif={categoryMotif(answer.prompt.categoryId)} size="sm" />
-              <span className="reveal-word-text">
-                {shown ? (
-                  <span className={`peek-word${answer.told ? '' : ' peek-word--torn'}`}>
-                    {capitalized(answer.display)}
-                    {!answer.told && (
+      <button
+        type="button"
+        className={`hidden-answers-toggle${unfolded ? ' hidden-answers-toggle--open' : ''}`}
+        aria-expanded={unfolded}
+        onClick={() => {
+          setUnfolded(!unfolded)
+          sound.click()
+        }}
+      >
+        <span className="section-title">{t.peek.title}</span>
+        <span className="hidden-answers-count">{hidden.length}</span>
+        <svg className="hidden-answers-chevron" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {unfolded && (
+        <ol className="reveal-words">
+          {hidden.map((answer, index) => {
+            const shown = open.has(index)
+            const category = categoryText(t, answer.prompt.categoryId).label
+            return (
+              <li
+                key={`${answer.prompt.categoryId}:${answer.prompt.letter}`}
+                className="reveal-word hidden-answer"
+                style={{ '--i': index } as CSSProperties}
+              >
+                <LetterMark letter={answer.prompt.letter} motif={categoryMotif(answer.prompt.categoryId)} size="sm" />
+                <span className="reveal-word-text">
+                  {shown ? (
+                    <span className="peek-word peek-word--torn">
+                      {capitalized(answer.display)}
                       <span className="peek-shards" aria-hidden="true">
                         {SHARDS.map((shard, i) => (
                           <span
@@ -335,30 +350,32 @@ function HiddenAnswers({
                           />
                         ))}
                       </span>
-                    )}
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    className="peek-bar"
-                    aria-label={t.peek.reveal(category, answer.prompt.letter)}
-                    onClick={() => {
-                      if (peeks <= 0) return setAsking(index)
-                      onPeek?.()
-                      tear(index)
-                    }}
-                  >
-                    <span className="peek-bar-ghost" aria-hidden="true">
-                      {capitalized(answer.display)}
                     </span>
-                  </button>
-                )}
-                <span className="reveal-word-category">{category}</span>
-              </span>
-            </li>
-          )
-        })}
-      </ol>
+                  ) : (
+                    <button
+                      type="button"
+                      className="peek-bar"
+                      // Each bar keeps its own beat: together they would tick like one.
+                      style={{ '--beat': `${-((index * 1.37) % 2.8).toFixed(2)}s`, '--tempo': `${2.6 + (index % 3) * 0.35}s` } as CSSProperties}
+                      aria-label={t.peek.reveal(category, answer.prompt.letter)}
+                      onClick={() => {
+                        if (peeks <= 0) return setAsking(index)
+                        onPeek?.()
+                        tear(index)
+                      }}
+                    >
+                      <span className="peek-bar-ghost" aria-hidden="true">
+                        {capitalized(answer.display)}
+                      </span>
+                    </button>
+                  )}
+                  <span className="reveal-word-category">{category}</span>
+                </span>
+              </li>
+            )
+          })}
+        </ol>
+      )}
       {asking !== null && (
         <PlusPop
           reason="peek"
@@ -466,25 +483,6 @@ function Summary({
 
       {asking && <SupportPanel />}
 
-      {run.missed.length > 0 && (
-        <section className="panel lesson">
-          <p className="section-title">
-            <PowerBadge id="professor" className="cheer-power" />
-            {t.powers.missed}
-          </p>
-          <ol className="lesson-words">
-            {run.missed.map((missed, index) => (
-              <li key={`${missed.prompt.categoryId}:${missed.prompt.letter}:${index}`} style={{ '--i': index } as CSSProperties}>
-                <LetterMark letter={missed.prompt.letter} motif={categoryMotif(missed.prompt.categoryId)} size="sm" />
-                <span className="reveal-word-text">
-                  {capitalized(missed.display)}
-                  <span className="reveal-word-category">{categoryText(t, missed.prompt.categoryId).label}</span>
-                </span>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
 
       <RunRequests
         proposals={proposals ?? []}

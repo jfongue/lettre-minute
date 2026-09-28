@@ -24,6 +24,15 @@ export function joinPlus(profile: Profile, now: number): Profile {
   return isPlus(profile) ? profile : { ...profile, plusSince: now }
 }
 
+/** The home screen thanks a new Premium member once, and asks what they think of the game. */
+export function plusThanksDue(profile: Profile): boolean {
+  return isPlus(profile) && profile.plusThanked === 0
+}
+
+export function markPlusThanked(profile: Profile): Profile {
+  return profile.plusThanked > 0 ? profile : { ...profile, plusThanked: 1 }
+}
+
 export function banUnlocked(ownedIds: readonly string[]): boolean {
   return ownedIds.length >= BAN_UNLOCK_CATEGORIES
 }
@@ -96,8 +105,6 @@ export function spendPeek(profile: Profile): Profile {
 export interface HiddenAnswer {
   prompt: Prompt
   display: string
-  /** Professeur already said it: shown as it is, for free. */
-  told: boolean
 }
 
 /**
@@ -112,9 +119,8 @@ export function hiddenAnswers(run: Run, judge: Judge): HiddenAnswer[] {
     const key = promptKey(prompt)
     if (!passed || seen.has(key)) continue
     seen.add(key)
-    const told = run.missed.find((missed) => promptKey(missed.prompt) === key)
-    const display = told?.display ?? judge.common?.(prompt.categoryId, prompt.letter, run.used) ?? null
-    if (display) answers.push({ prompt, display, told: Boolean(told) })
+    const display = judge.common?.(prompt.categoryId, prompt.letter, run.used) ?? null
+    if (display) answers.push({ prompt, display })
   }
   return answers
 }

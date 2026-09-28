@@ -328,6 +328,9 @@ qu'un nouvel arrivant casserait sans le savoir.
   l'instant (`plusSince`). Un ban ne vaut que pour les parties seules : un
   défi distribue ses propres catégories. Il reste toujours
   `MAX_CATEGORIES_PER_RUN` catégories jouables.
+  Passer Premium traverse un faux paiement (`src/ui/Checkout.tsx`) qui ne
+  demande aucune carte ; le retour suivant à l'accueil remercie le joueur
+  une fois (`plusThanked`) et ouvre la demande d'avis.
 - **Le son part fort et la limite le tient** (`MAKEUP_GAIN`, `src/lib/sound.ts`) :
   le téléphone baisse le volume sur des échantillons 16 bits, et un mixage
   discret y devenait robotique. Ne pas rabaisser le bus maître pour « calmer »

@@ -77,7 +77,7 @@ import { standingMove } from './domain/standing'
 import { challengeNotice } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { createJudge } from './state/judge'
-import { banNews, feedbackDue, hiddenAnswers, playableCategoryIds } from './domain/perks'
+import { banNews, feedbackDue, hiddenAnswers, playableCategoryIds, plusThanksDue } from './domain/perks'
 import { cloudConfigured } from './lib/supabase'
 import { FeedbackPop } from './ui/FeedbackPop'
 import type { BanActions } from './ui/CategoriesPage'
@@ -1049,8 +1049,7 @@ export function App() {
 
   const quietHome = session.phase === 'home' && !tutorial && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
   const notice = quietHome ? challengeNotice(challenges, heldNotices) : null
-  const feedbackPop =
-    feedbackAsk &&
+  const popsQuiet =
     !notice &&
     quietHome &&
     update !== 'due' &&
@@ -1058,6 +1057,10 @@ export function App() {
     wordsNews.length === 0 &&
     !complicationDue(session.profile, acceptedWords) &&
     pushOffer === null
+  // Premium thanks its new member once, back home, and asks for an opinion in
+  // exchange: that ask stands in for the regular one if both are due.
+  const thanksPop = popsQuiet && cloudConfigured() && plusThanksDue(session.profile)
+  const feedbackPop = popsQuiet && feedbackAsk && !thanksPop
 
   if (debugPhase !== null && locale !== null) {
     return (
@@ -1286,6 +1289,16 @@ export function App() {
         )}
 
       {feedbackPop && <FeedbackPop onClose={() => setFeedbackAsk(false)} />}
+
+      {thanksPop && (
+        <FeedbackPop
+          intro={t.premiumThanks}
+          onClose={() => {
+            setFeedbackAsk(false)
+            dispatch({ type: 'plus-thanked' })
+          }}
+        />
+      )}
 
       {menuOpen && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
         <Menu

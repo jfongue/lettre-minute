@@ -476,7 +476,6 @@ export const en: Messages = {
       divination: ['Divination', 'You see the theme and letter coming next.'],
       complication: ['High stakes', 'Uncommon words are worth ×1.15, rare ones ×1.3.'],
       celerity: ['Celerity', 'A word validates itself, no need to press Enter — even with a typo.'],
-      professor: ['Professor', 'When you skip, you are told what you could have answered, and the end of the game goes over the lesson.'],
       chatter: ['Chatter', 'Once a game, add “...” to a word: the letter and topic stay for three more words.'],
     },
     spells: { joker: ['joker'], hush: ['shh', 'hush', 'shhh'] },
@@ -510,8 +509,6 @@ export const en: Messages = {
     reroll: (letter, left) => `Change the letter ${letter} · ${left} left`,
     boost: (factor) => `×${factor.toLocaleString('en-GB')}`,
     auto: 'validated by itself',
-    whisper: 'You could have said',
-    missed: 'What you could have said',
   },
 
   challenge: {
@@ -681,9 +678,29 @@ export const en: Messages = {
 
   peek: {
     title: 'What you could have written',
-    hint: (left: number) =>
-      left === Infinity ? 'Tap a bar to reveal the word.' : `Tap a bar to reveal the word · ${left} left`,
     reveal: (category: string, letter: string) => `Reveal a word on ${letter}: ${category}`,
+  },
+
+  checkout: {
+    title: 'Secure checkout',
+    plan: 'Premium',
+    perkBans: 'Ban as many categories as you like',
+    perkPeeks: 'Reveal every hidden word',
+    price: '€0.00',
+    period: 'cancel anytime',
+    total: 'Total',
+    pay: 'Pay €0.00',
+    paying: 'Processing payment…',
+    done: 'Welcome to Premium!',
+    note: 'No card needed: it’s free for now.',
+    cancel: 'Cancel',
+  },
+
+  premiumThanks: {
+    title: 'Thanks for going Premium!',
+    lead: 'It’s free for now… In return, would you mind telling me what you think of this version of the game?',
+    yes: 'Happy to',
+    later: 'Later',
   },
 
   update: {

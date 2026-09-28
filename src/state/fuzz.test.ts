@@ -127,11 +127,6 @@ function playOne(seed: number, lang: string): void {
       const before = run
       run = skip(run, judge, step)
       expect(run.skips, context()).toBe(before.skips + 1)
-      const missed = run.missed.length > before.missed.length ? run.missed[run.missed.length - 1]! : null
-      if (missed) {
-        const taught = inspect({ ...before, prompt: missed.prompt }, missed.display, judge)
-        expect(taught.kind, `${context()} — Professeur whispered ${missed.display}`).toBe('accepted')
-      }
       expect(run.combo, context()).toBe(0)
       continue
     }

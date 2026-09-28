@@ -12,6 +12,8 @@ import {
   joinPlus,
   markBanIntroSeen,
   markFeedbackAsked,
+  markPlusThanked,
+  plusThanksDue,
   peeksLeft,
   playableCategoryIds,
   spendPeek,
@@ -72,6 +74,15 @@ describe('peeks', () => {
   })
 })
 
+describe('plusThanksDue', () => {
+  it('thanks a new Premium member once', () => {
+    expect(plusThanksDue(NEW_PROFILE)).toBe(false)
+    const plus = joinPlus(NEW_PROFILE, 1)
+    expect(plusThanksDue(plus)).toBe(true)
+    expect(plusThanksDue(markPlusThanked(plus))).toBe(false)
+  })
+})
+
 describe('feedbackDue', () => {
   it('asks after ten runs, then every thirty', () => {
     expect(feedbackDue({ ...NEW_PROFILE, runs: 9 })).toBe(false)
@@ -107,13 +118,7 @@ describe('hiddenAnswers', () => {
     const answers = hiddenAnswers(run, judge)
     expect(answers).toHaveLength(1)
     expect(answers[0]!.prompt).toEqual(first)
-    expect(answers[0]!.told).toBe(false)
     expect(answers[0]!.display.toLowerCase()).toBe(`${first.letter}chat`.toLowerCase())
   })
 
-  it('shows what Professeur already told as told', () => {
-    let run = createRun({ seed: 3, categoryIds: ['animaux'], powers: ['professor'] }, judge)
-    run = skip(run, judge)
-    expect(hiddenAnswers(run, judge)[0]!.told).toBe(true)
-  })
 })

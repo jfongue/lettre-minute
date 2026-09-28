@@ -470,7 +470,6 @@ export const de: Messages = {
       divination: ['Weissagung', 'Du siehst das nächste Thema und den nächsten Buchstaben.'],
       complication: ['Risiko', 'Ungewöhnliche Wörter zählen ×1,15, seltene ×1,3.'],
       celerity: ['Schnelligkeit', 'Ein Wort bestätigt sich selbst, ohne Enter – auch mit einem Tippfehler.'],
-      professor: ['Professor', 'Wenn du überspringst, wird dir eingeflüstert, was du hättest sagen können, und am Ende gibt es die Lektion.'],
       chatter: ['Geplapper', 'Einmal pro Partie „...“ an ein Wort hängen: Buchstabe und Thema bleiben für drei weitere Wörter.'],
     },
     spells: { joker: ['joker'], hush: ['pst', 'psst', 'pscht'] },
@@ -504,8 +503,6 @@ export const de: Messages = {
     reroll: (letter, left) => `Buchstaben ${letter} tauschen · noch ${left}`,
     boost: (factor) => `×${factor.toLocaleString('de-DE')}`,
     auto: 'von selbst bestätigt',
-    whisper: 'Du hättest sagen können',
-    missed: 'Was du hättest sagen können',
   },
 
   challenge: {
@@ -675,9 +672,29 @@ export const de: Messages = {
 
   peek: {
     title: 'Was du hättest schreiben können',
-    hint: (left: number) =>
-      left === Infinity ? 'Tippe auf einen Balken, um das Wort aufzudecken.' : `Tippe auf einen Balken, um das Wort aufzudecken · noch ${left}`,
     reveal: (category: string, letter: string) => `Ein Wort mit ${letter} aufdecken: ${category}`,
+  },
+
+  checkout: {
+    title: 'Sichere Zahlung',
+    plan: 'Premium',
+    perkBans: 'So viele Kategorien sperren, wie du willst',
+    perkPeeks: 'Alle versteckten Wörter aufdecken',
+    price: '0,00 €',
+    period: 'jederzeit kündbar',
+    total: 'Gesamt',
+    pay: '0,00 € bezahlen',
+    paying: 'Zahlung läuft…',
+    done: 'Willkommen bei Premium!',
+    note: 'Keine Karte nötig: Im Moment ist es gratis.',
+    cancel: 'Abbrechen',
+  },
+
+  premiumThanks: {
+    title: 'Danke, dass du Premium bist!',
+    lead: 'Im Moment ist es gratis… Magst du mir dafür sagen, was du von dieser Version des Spiels hältst?',
+    yes: 'Gern',
+    later: 'Später',
   },
 
   update: {

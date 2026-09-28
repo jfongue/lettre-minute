@@ -471,7 +471,6 @@ export const nl: Messages = {
       divination: ['Waarzeggerij', 'Je ziet het volgende thema en de volgende letter.'],
       complication: ['Risico', 'Ongewone woorden tellen ×1,15, zeldzame ×1,3.'],
       celerity: ['Snelheid', 'Een woord bevestigt zichzelf, zonder Enter, ook met een tikfout.'],
-      professor: ['Professor', 'Sla je over, dan wordt je ingefluisterd wat je had kunnen zeggen, en aan het eind volgt de les.'],
       chatter: ['Gekwebbel', 'Eén keer per spel: zet „...” achter een woord, en letter en thema blijven voor nog drie woorden.'],
     },
     spells: { joker: ['joker'], hush: ['sst', 'ssst', 'stil'] },
@@ -505,8 +504,6 @@ export const nl: Messages = {
     reroll: (letter, left) => `Letter ${letter} ruilen · nog ${left}`,
     boost: (factor) => `×${factor.toLocaleString('nl-NL')}`,
     auto: 'vanzelf bevestigd',
-    whisper: 'Je had kunnen zeggen',
-    missed: 'Wat je had kunnen zeggen',
   },
 
   challenge: {
@@ -676,9 +673,29 @@ export const nl: Messages = {
 
   peek: {
     title: 'Wat je had kunnen schrijven',
-    hint: (left: number) =>
-      left === Infinity ? 'Tik op een balk om het woord te onthullen.' : `Tik op een balk om het woord te onthullen · nog ${left}`,
     reveal: (category: string, letter: string) => `Een woord met ${letter} onthullen: ${category}`,
+  },
+
+  checkout: {
+    title: 'Veilig betalen',
+    plan: 'Premium',
+    perkBans: 'Zoveel categorieën weren als je wilt',
+    perkPeeks: 'Alle verborgen woorden onthullen',
+    price: '€ 0,00',
+    period: 'altijd opzegbaar',
+    total: 'Totaal',
+    pay: '€ 0,00 betalen',
+    paying: 'Betaling wordt verwerkt…',
+    done: 'Welkom bij Premium!',
+    note: 'Geen kaart nodig: voorlopig is het gratis.',
+    cancel: 'Annuleren',
+  },
+
+  premiumThanks: {
+    title: 'Bedankt dat je Premium bent geworden!',
+    lead: 'Voorlopig is het gratis… Wil je me in ruil daarvoor vertellen wat je van deze versie van het spel vindt?',
+    yes: 'Graag',
+    later: 'Later',
   },
 
   update: {

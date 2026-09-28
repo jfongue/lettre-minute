@@ -4,7 +4,7 @@ import type { ChallengeWord } from '../domain/challenge'
 import { choosePower } from '../domain/powers'
 import { NEW_PROFILE, xpForLevel, type Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
-import type { KeptWord, MissedWord, Run } from '../domain/run'
+import type { KeptWord, Run } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
 import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, Submission, SubmissionStatus } from '../lib/cloud'
 import type { AccountActions } from '../ui/AccountPanel'
@@ -35,6 +35,8 @@ import { ownedCategoryIds } from '../domain/unlocks'
 import { CategoriesPage } from '../ui/CategoriesPage'
 import { FeedbackPop } from '../ui/FeedbackPop'
 import { PlusPop } from '../ui/PlusPop'
+import { Checkout } from '../ui/Checkout'
+import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import type { AdminIdea } from '../lib/cloud'
 
@@ -126,7 +128,7 @@ const WORDS: readonly Word[] = [
   ['animaux', 'L', 'Lama', 14, 'courant'],
 ]
 
-function makeRun(score: number, words: readonly Word[] = WORDS, missed: readonly MissedWord[] = []): Run {
+function makeRun(score: number, words: readonly Word[] = WORDS): Run {
   const found: KeptWord[] = words.map(([categoryId, letter, display, points, tier, approximate = false], index) => ({
     prompt: { categoryId, letter },
     word: display.toLowerCase(),
@@ -165,7 +167,6 @@ function makeRun(score: number, words: readonly Word[] = WORDS, missed: readonly
     hush: null,
     heldSeconds: 0,
     rerolls: 0,
-    missed,
     chatter: 0,
   }
 }
@@ -559,11 +560,17 @@ function OverScenario({
 }
 
 const HIDDEN: HiddenAnswer[] = [
-  { prompt: { categoryId: 'pays', letter: 'K' }, display: 'kenya', told: false },
-  { prompt: { categoryId: 'animaux', letter: 'Z' }, display: 'zèbre', told: false },
-  { prompt: { categoryId: 'couleurs', letter: 'M' }, display: 'marron', told: false },
-  { prompt: { categoryId: 'animaux', letter: 'O' }, display: 'ours', told: true },
+  { prompt: { categoryId: 'pays', letter: 'K' }, display: 'kenya' },
+  { prompt: { categoryId: 'animaux', letter: 'Z' }, display: 'zèbre' },
+  { prompt: { categoryId: 'couleurs', letter: 'M' }, display: 'marron' },
+  { prompt: { categoryId: 'animaux', letter: 'O' }, display: 'ours' },
 ]
+
+/** Les écrans parlent la langue de l'interface : le merci aussi. */
+function PremiumThanksScenario({ back }: { back(): void }) {
+  const t = useT()
+  return <FeedbackPop intro={t.premiumThanks} onClose={back} send={() => later(true)} />
+}
 
 /** « Mes catégories » à sept catégories : le bannissement s'y ouvre, sur un profil qui ne sort pas de la planche. */
 function BansScenario({
@@ -788,24 +795,10 @@ const SCENARIOS: readonly Scenario[] = [
     },
   },
   {
-    id: 'over-professor',
-    group: 'Fin de partie',
-    title: 'Mots soufflés par Professeur',
-    how: 'Bilan avec la liste des mots manqués',
-    phase: 'over',
-    render: (back) => {
-      const run = makeRun(120, WORDS.slice(3), [
-        { prompt: { categoryId: 'pays', letter: 'K' }, display: 'kenya' },
-        { prompt: { categoryId: 'animaux', letter: 'Z' }, display: 'zèbre' },
-      ])
-      return <OverScenario run={run} after={afterRun(PROFILE, run)} onBack={back} />
-    },
-  },
-  {
     id: 'over-hidden',
     group: 'Fin de partie',
     title: 'Mots cachés des invites passées',
-    how: 'Trois bandes noires à arracher (deux gratuites restantes, puis Premium), une déjà soufflée par Professeur',
+    how: 'Repliées sous un bouton ; quatre bandes à arracher, chacune à son rythme : deux gratuites, puis l’offre et le faux paiement',
     phase: 'over',
     render: (back) => <OverScenario after={afterRun({ ...PROFILE, peeks: 3 }, RUN)} hidden={HIDDEN} onBack={back} />,
   },
@@ -1016,7 +1009,7 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Plus de deux pouvoirs admis',
     phase: 'home',
     render: (back) => (
-      <ChallengePowers allowed={['joker', 'dodge', 'hush', 'divination', 'professor']} initial={['joker', 'dodge']} onStart={back} onClose={back} />
+      <ChallengePowers allowed={['joker', 'dodge', 'hush', 'divination', 'chatter']} initial={['joker', 'dodge']} onStart={back} onClose={back} />
     ),
   },
   // Les identifiants restent littéraux : `npm run debug:recent` les relit dans
@@ -1209,6 +1202,22 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Deuxième ban demandé sans être Premium (gratuit pour l’instant)',
     phase: 'home',
     render: (back) => <PlusPop reason="ban" onJoin={back} onClose={back} />,
+  },
+  {
+    id: 'checkout',
+    group: 'Accueil',
+    title: 'Faux paiement Premium',
+    how: 'Après « Passer Premium » : la commande à 0 €, « Payer », le paiement qui tourne, puis la bienvenue',
+    phase: 'home',
+    render: (back) => <Checkout onPaid={back} onCancel={back} />,
+  },
+  {
+    id: 'premium-thanks',
+    group: 'Accueil',
+    title: 'Merci d’être Premium',
+    how: 'Premier retour à l’accueil après l’abonnement : le merci, puis la demande d’avis (envoi simulé)',
+    phase: 'home',
+    render: (back) => <PremiumThanksScenario back={back} />,
   },
   {
     id: 'plus-pop-peek',

@@ -5027,26 +5027,6 @@ button.challenge-past::after {
   40% { transform: none; filter: brightness(1.8); }
 }
 
-/* Professeur : le mot soufflé après un passage, puis la leçon du récap. */
-.verdict--whisper {
-  color: var(--ink-soft);
-  animation: whisper-in 700ms var(--ease-out) both;
-}
-
-.whisper-word {
-  font-weight: 700;
-  font-style: italic;
-  color: var(--green);
-}
-
-@keyframes whisper-in {
-  from {
-    opacity: 0;
-    letter-spacing: 0.25em;
-    filter: blur(3px);
-  }
-}
-
 .lesson .section-title {
   display: flex;
   align-items: center;
@@ -6752,6 +6732,51 @@ button.challenge-word[aria-expanded='true'] {
   animation: fade 400ms ease both;
 }
 
+.hidden-answers-toggle {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hidden-answers-toggle:active {
+  transform: translateY(1px);
+}
+
+.hidden-answers-count {
+  min-width: 1.6rem;
+  padding: 0.05rem 0.4rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 800;
+  text-align: center;
+}
+
+.hidden-answers-chevron {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  transition: transform 220ms var(--ease-spring);
+}
+
+.hidden-answers-toggle--open .hidden-answers-chevron {
+  transform: rotate(180deg);
+}
+
+.hidden-answers .hidden-answer {
+  animation-delay: calc(var(--i) * 60ms);
+}
+
 .hidden-answer {
   grid-template-columns: 1.75rem 1fr;
 }
@@ -6767,7 +6792,7 @@ button.challenge-word[aria-expanded='true'] {
   cursor: pointer;
   overflow: hidden;
   transform: rotate(-0.6deg);
-  animation: peek-tease 2.8s ease-in-out infinite;
+  animation: peek-tease var(--tempo, 2.8s) ease-in-out var(--beat, 0s) infinite;
 }
 
 /* Le mot est là, à sa vraie largeur, mais pas lisible : la bande en promet la longueur. */
@@ -6784,7 +6809,7 @@ button.challenge-word[aria-expanded='true'] {
   inset: 0;
   background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--paper) 35%, transparent) 50%, transparent 70%);
   transform: translateX(-120%);
-  animation: peek-shine 2.8s ease-in-out infinite;
+  animation: peek-shine var(--tempo, 2.8s) ease-in-out var(--beat, 0s) infinite;
 }
 
 .peek-bar:active {
@@ -6924,4 +6949,111 @@ button.challenge-word[aria-expanded='true'] {
 .idea-body {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+/* Le faux paiement Premium : une commande à 0 €, sans carte. */
+.checkout-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+  animation: fade 200ms var(--ease-out) both;
+}
+
+.checkout {
+  width: min(24rem, 100%);
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.2rem;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 8px 8px 0 var(--yellow);
+  animation: pop-rise 480ms var(--ease-spring) both;
+}
+
+.checkout-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.checkout-head h2 {
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.checkout-lock {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: var(--green, currentColor);
+  stroke-width: 2.2;
+}
+
+.checkout-order {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.8rem;
+  border: var(--line) solid var(--ink);
+}
+
+.checkout-plan {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.checkout-perks {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.92rem;
+}
+
+.checkout-total {
+  font-size: 1.1rem;
+  padding-top: 0.2rem;
+  border-top: 2px solid var(--ink);
+}
+
+.checkout-pay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.checkout-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: checkout-spin 700ms linear infinite;
+}
+
+@keyframes checkout-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.checkout-done {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.checkout-done-art {
+  display: grid;
+  width: 4.5rem;
+  height: 4.5rem;
+  animation: stamp 520ms var(--ease-spring) both;
 }
