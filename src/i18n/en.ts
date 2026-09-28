@@ -646,6 +646,12 @@ export const en: Messages = {
     yes: 'Yes, turn on',
   },
 
+  namePrompt: {
+    title: 'Your player name',
+    lead: 'Your account is ready, thanks to Play Games. Keep this name or pick another: it is the one the leaderboards show and your friends search for.',
+    later: 'Later',
+  },
+
   feedback: {
     title: 'Your opinion counts!',
     lead: 'You’ve played quite a few runs now. What do you like, what’s missing, what’s annoying? The creator reads everything.',

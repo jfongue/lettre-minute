@@ -349,8 +349,9 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Play Games connecte sans formulaire, une fois par appareil**
   (`quietTried`, `src/App.tsx`) : un joueur anonyme que le SDK a reconnu
   passe par la petite feuille Google (`style: 'bottom'`, choix automatique
-  du seul compte), puis son compte prend son nom de joueur Play Games
-  (`nameFromGamer`). Fermer la feuille ou se déconnecter plus tard est une
+  du seul compte), puis l'accueil lui demande son nom en proposant celui de
+  Play Games (`NamePrompt`) — jamais imposé. « Plus tard » laisse la
+  question au menu. Fermer la feuille ou se déconnecter plus tard est une
   réponse : la clé `quiet-sign-in` survit à `clearLocalData`.
 - **Sidekick est posé en bas à gauche** (`res/xml/sidekick_config.xml`) :
   seul coin libre à l'accueil comme en partie, et masqué la première

@@ -640,6 +640,12 @@ export const de: Messages = {
     yes: 'Ja, einschalten',
   },
 
+  namePrompt: {
+    title: 'Dein Spielername',
+    lead: 'Dein Konto ist dank Play Games bereit. Behalte diesen Namen oder wähle einen anderen: Unter ihm zeigen dich die Bestenlisten, und deine Freunde finden dich.',
+    later: 'Später',
+  },
+
   feedback: {
     title: 'Deine Meinung zählt!',
     lead: 'Du hast schon einige Runden gespielt. Was gefällt dir, was fehlt, was nervt? Der Entwickler liest alles.',

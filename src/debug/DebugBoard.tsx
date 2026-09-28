@@ -27,6 +27,7 @@ import { FriendPage } from '../ui/FriendPage'
 import type { SharedChallenge, SharedPlayer } from '../domain/rivalry'
 import type { Boards } from '../domain/boards'
 import { Avatar } from '../ui/Avatar'
+import { NamePrompt } from '../ui/NamePrompt'
 import { DashboardView } from './Dashboard'
 import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
 import type { Snapshot } from './snapshot'
@@ -1367,6 +1368,16 @@ const SCENARIOS: readonly Scenario[] = [
           onClose={back}
         />
       </div>
+    ),
+  },
+  {
+    id: 'name-prompt',
+    group: 'Accueil',
+    title: 'Nom après la connexion Play Games',
+    how: 'Joueur anonyme reconnu par Play Games : le compte Google est créé, l’accueil demande le nom en proposant celui de Play Games (sans effet ici)',
+    phase: 'home',
+    render: (back) => (
+      <NamePrompt suggestion="Lettrophile42" onChoose={async (name) => (name.trim().length < 2 ? 'Nom trop court.' : (back(), null))} onLater={back} />
     ),
   },
   {

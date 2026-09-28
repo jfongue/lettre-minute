@@ -683,6 +683,12 @@ export const fr = {
     yes: 'Oui, activer',
   },
 
+  namePrompt: {
+    title: 'Ton nom de joueur',
+    lead: 'Ton compte est prêt grâce à Play Games. Garde ce nom ou choisis-en un autre : c’est lui que le classement affiche et que tes amis cherchent.',
+    later: 'Plus tard',
+  },
+
   feedback: {
     title: 'Ton avis compte !',
     lead: 'Tu as bien joué ces dernières parties. Qu’est-ce qui te plaît, qu’est-ce qui manque, qu’est-ce qui agace ? Le créateur lit tout.',

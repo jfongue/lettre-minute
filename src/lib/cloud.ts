@@ -789,21 +789,6 @@ function checkName(name: string): AuthError | null {
   return null
 }
 
-/**
- * Names an account from its Play Games gamer name, trying a few numbered
- * variants when it is taken. False when none would do: the player then names
- * it by hand, as after any Google sign-in.
- */
-export async function nameFromGamer(gamer: string): Promise<AuthOutcome | null> {
-  const base = gamer.trim().replace(/\s+/g, ' ').slice(0, 20)
-  if (checkName(base)) return null
-  for (const candidate of [base, ...[1, 2, 3].map(() => `${base}${Math.floor(10 + Math.random() * 90)}`)]) {
-    const outcome = await chooseName(candidate)
-    if (outcome.ok || outcome.error !== 'name-taken') return outcome.ok ? outcome : null
-  }
-  return null
-}
-
 async function signedInAccount(): Promise<AuthOutcome> {
   const account = await fetchAccount()
   return account && account !== 'unreachable' ? { ok: true, account } : refuse('unreachable')

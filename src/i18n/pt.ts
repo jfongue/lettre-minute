@@ -642,6 +642,12 @@ export const pt: Messages = {
     yes: 'Sim, ativar',
   },
 
+  namePrompt: {
+    title: 'O teu nome de jogador',
+    lead: 'A tua conta está pronta graças ao Play Games. Fica com este nome ou escolhe outro: é ele que aparece nos rankings e que os teus amigos procuram.',
+    later: 'Mais tarde',
+  },
+
   feedback: {
     title: 'A tua opinião conta!',
     lead: 'Já jogaste umas quantas partidas. O que te agrada, o que falta, o que te irrita? O criador lê tudo.',

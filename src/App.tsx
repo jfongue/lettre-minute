@@ -42,7 +42,6 @@ import {
   chooseName,
   fetchMyDiscoveries,
   fetchProgress,
-  nameFromGamer,
   pushProgress,
 } from './lib/cloud'
 import { progressOf, withProgress } from './domain/progress'
@@ -122,6 +121,7 @@ import { LanguagePicker } from './ui/LanguagePicker'
 import type { MenuPage } from './ui/Menu'
 import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
+import { NamePrompt } from './ui/NamePrompt'
 import { PushOffer } from './ui/PushOffer'
 import type { Racer } from './ui/RunScreen'
 import { lazyScreen } from './ui/lazyScreen'
@@ -445,9 +445,11 @@ export function App() {
   }
 
   // Play Games has signed the player in: their Google account becomes the
-  // game's, named after their gamer name — no form. Tried once per device:
-  // closing the sheet, or signing out later, is an answer that stands.
+  // game's without a form, and only its name is asked, the gamer name offered.
+  // Tried once per device: closing the sheet, or signing out later, is an
+  // answer that stands.
   const quietTried = useRef(false)
+  const [nameAsk, setNameAsk] = useState<string | null>(null)
   useEffect(() => {
     if (!answered.account || (account && !account.anonymous) || quietTried.current) return
     quietTried.current = true
@@ -459,9 +461,7 @@ export function App() {
       if (!outcome?.ok) return
       track('login', { method: 'play-games' })
       enter(outcome)
-      if (!outcome.account.needsName) return
-      const named = await nameFromGamer(gamer)
-      if (named?.ok) setAccount(named.account)
+      if (outcome.account.needsName) setNameAsk(gamer)
     })
     // `enter` reads the latest state through refs; the effect keys on the answer alone.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1381,6 +1381,18 @@ export function App() {
             onClose={() => setPicking(null)}
           />
         </Suspense>
+      )}
+
+      {nameAsk !== null && session.phase === 'home' && !notice && (
+        <NamePrompt
+          suggestion={nameAsk}
+          onChoose={async (name) => {
+            const refused = await accountActions.onChooseName(name)
+            if (refused === null) setNameAsk(null)
+            return refused
+          }}
+          onLater={() => setNameAsk(null)}
+        />
       )}
 
       {pushOffer !== null && session.phase === 'home' && !notice && (

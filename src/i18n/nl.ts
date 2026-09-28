@@ -641,6 +641,12 @@ export const nl: Messages = {
     yes: 'Ja, aanzetten',
   },
 
+  namePrompt: {
+    title: 'Je spelersnaam',
+    lead: 'Je account staat klaar dankzij Play Games. Houd deze naam of kies een andere: die tonen de ranglijsten en daarop zoeken je vrienden je.',
+    later: 'Later',
+  },
+
   feedback: {
     title: 'Jouw mening telt!',
     lead: 'Je hebt al flink wat rondes gespeeld. Wat vind je leuk, wat mis je, wat stoort je? De maker leest alles.',
