@@ -657,6 +657,8 @@ button.challenge-past::after {
   background: none;
   color: inherit;
   font: inherit;
+  text-align: start;
+  justify-self: start;
   cursor: pointer;
 }
 
