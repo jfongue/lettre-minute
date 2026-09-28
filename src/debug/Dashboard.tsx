@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { isPowerId } from '../domain/powers'
 import { categoryText, useT } from '../i18n'
 import { fetchDashboard } from '../lib/cloud'
-import type { DayRow, Snapshot } from './snapshot'
+import type { DayRow, HourRow, Snapshot } from './snapshot'
 
 /*
  * Le tableau de bord de l'administrateur : cinq tapes sur « Classements »
@@ -155,7 +155,7 @@ function ago(iso: string): string {
 
 /* ------------------------------------------------------------------ la vue */
 
-const RANGES = [7, 14, 30] as const
+const RANGES = [1, 7, 14, 30] as const
 type Range = (typeof RANGES)[number]
 
 /** `undefined` : le relevé arrive ; `null` : pas administrateur, ou serveur muet. */
@@ -243,7 +243,9 @@ export function DashboardView({
 function Body({ data: d }: { data: Snapshot }) {
   const t = useT()
   const [range, setRange] = useState<Range>(14)
-  const daily = d.daily.slice(-range)
+  // « 1 j » : aujourd'hui heure par heure, et non une seule barre.
+  const daily: Day[] = range === 1 ? (d.today_hourly ?? []) : d.daily.slice(-range)
+  const per = range === 1 ? 'par heure' : 'par jour'
   const sum = (key: keyof DayRow) => daily.reduce((total, row) => total + (Number(row[key]) || 0), 0)
   const tracked = Boolean(d.tracking_since)
   const s = d.sessions
@@ -295,10 +297,10 @@ function Body({ data: d }: { data: Snapshot }) {
         </div>
       }>
         <div className="dashboard-grid">
-          <Card title="Parties par jour" tag={fmt(sum('runs'))}>
+          <Card title={`Parties ${per}`} tag={fmt(sum('runs'))}>
             <DayBars rows={daily} series={[{ key: 'runs', label: 'Parties', color: 'var(--blue)' }]} />
           </Card>
-          <Card title="Joueurs actifs par jour">
+          <Card title={`Joueurs actifs ${per}`}>
             <DayBars rows={daily} series={[{ key: 'players', label: 'Joueurs actifs', color: 'var(--green)' }]} />
           </Card>
           <Card title="Arrivées et inscriptions" tag={`${fmt(sum('new_players'))} arrivées · ${fmt(sum('signups'))} inscrits`}>
@@ -536,7 +538,7 @@ function Body({ data: d }: { data: Snapshot }) {
       </Section>
 
       <p className="note">
-        « app. » compte les appareils distincts. Les joueurs maison (Maxitoon, Terretciel) sont exclus partout. Chiffres
+        « app. » compte les appareils distincts. Les joueurs maison (Maxitoon, Terretciel) et l’administrateur, appareils compris, sont exclus partout. Chiffres
         calculés par <code>analytics_snapshot</code> à l’ouverture.
       </p>
     </div>
@@ -685,6 +687,7 @@ function Bars<T>({
 const W = 560
 
 const read = (row: Day, key: Series['key']) => row[key] ?? 0
+const columnLabel = (row: Day) => (row.hour == null ? dayLabel(row.day) : `${row.hour} h`)
 
 function niceMax(value: number): number {
   if (value <= 4) return 4
@@ -699,7 +702,7 @@ function roundedTop(x: number, base: number, width: number, height: number): str
   return `M${x},${base} v${-(height - r)} q0,${-r} ${r},${-r} h${width - 2 * r} q${r},0 ${r},${r} v${height - r} z`
 }
 
-type Day = DayRow & { anon?: number }
+type Day = (DayRow | HourRow) & { anon?: number; hour?: number }
 
 interface Series {
   key: 'runs' | 'players' | 'signups' | 'anon' | 'sessions_with_run' | 'sessions_without_run'
@@ -729,12 +732,12 @@ function DayBars({ rows, series }: { rows: readonly Day[]; series: Series[] }) {
         </g>
       ))}
       {rows.map((row, index) => (
-        <DayColumn key={row.day} row={row} index={index} series={series} band={band} left={left} y={y} top={top} height={H - top - bottom} />
+        <DayColumn key={`${row.day}:${row.hour}`} row={row} index={index} series={series} band={band} left={left} y={y} top={top} height={H - top - bottom} />
       ))}
       {rows.map((row, index) =>
         (index % every === 0 && rows.length - 1 - index >= every * 0.6) || index === rows.length - 1 ? (
-          <text key={row.day} x={left + index * band + band / 2} y={H - 6} textAnchor="middle">
-            {dayLabel(row.day)}
+          <text key={`${row.day}:${row.hour}`} x={left + index * band + band / 2} y={H - 6} textAnchor="middle">
+            {columnLabel(row)}
           </text>
         ) : null,
       )}
@@ -769,7 +772,7 @@ function DayColumn({
 }) {
   const tip = useTip(
     <>
-      <b>{dayLabel(row.day)}</b>
+      <b>{row.hour == null ? dayLabel(row.day) : `${row.hour} h–${row.hour + 1} h`}</b>
       {series
         .slice()
         .reverse()

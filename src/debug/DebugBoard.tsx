@@ -356,6 +356,23 @@ function dashboardSnapshot(): Snapshot {
   const hourly = [1, 2, 3, 4, 5, 6, 7].flatMap((dow) =>
     Array.from({ length: 24 }, (_, hour) => ({ dow, hour, runs: hour < 7 ? 0 : Math.round(((hour % 12) + dow) * (hour > 17 ? 2 : 1)) })),
   )
+  const todayHourly = Array.from({ length: today.getHours() + 1 }, (_, hour) => {
+    const runs = hour < 7 ? 0 : Math.round((hour % 12) * (hour > 17 ? 2 : 1) + ((hour * 5) % 4))
+    return {
+      day: daily[daily.length - 1]!.day,
+      hour,
+      new_players: hour % 5 === 0 ? 1 : 0,
+      signups: hour === 10 ? 1 : 0,
+      runs,
+      players: Math.ceil(runs / 3),
+      opens: Math.round(runs * 0.9),
+      sessions_with_run: Math.round(runs / 3),
+      sessions_without_run: Math.round(runs / 8),
+      challenges: 0,
+      submissions: 0,
+      ideas: 0,
+    }
+  })
   return {
     generated_at: new Date(Date.now() - 2 * 60_000).toISOString(),
     days: 30,
@@ -367,6 +384,7 @@ function dashboardSnapshot(): Snapshot {
     today: { runs: 131, players: 29, new_players: 6, signups: 2, opens: 118 },
     active: { dau: 29, wau: 84, mau: 203 },
     daily,
+    today_hourly: todayHourly,
     hourly,
     sessions: {
       total: 1_420, with_run: 1_060, without_run: 360, runs_per_session: 2.4, median_seconds: 312,

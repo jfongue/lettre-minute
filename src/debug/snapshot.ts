@@ -18,6 +18,9 @@ export interface DayRow {
   ideas: number
 }
 
+/** Une heure d'aujourd'hui (0–23, heure de Paris), jusqu'à l'heure en cours. */
+export type HourRow = DayRow & { hour: number }
+
 export interface Counted {
   n: number
   devices: number
@@ -46,6 +49,8 @@ export interface Snapshot {
   today: { runs: number; players: number; new_players: number; signups: number; opens: number }
   active: { dau: number; wau: number; mau: number }
   daily: DayRow[]
+  /** Absent d'un serveur antérieur à 0031. */
+  today_hourly?: HourRow[]
   hourly: { dow: number; hour: number; runs: number }[]
   sessions: {
     total: number
