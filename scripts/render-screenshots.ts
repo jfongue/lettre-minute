@@ -183,6 +183,14 @@ async function render(lang: Locale, dark: boolean) {
   await tab.click('.offer-pop-scrim')
   await sleep(800)
 
+  // The run itself goes without powers: their badges and previews crowd a
+  // screen that must read at a glance on the store.
+  await tab.eval(`(() => {
+    localStorage.setItem('lettre-minute.profile.v1', ${JSON.stringify(JSON.stringify({ ...PROFILE, equipped: [] }))})
+    return true
+  })()`)
+  await tab.send('Page.reload')
+  await sleep(2500)
   await tab.click('.btn--play')
   await sleep(2400)
   await tab.shot(`${dir}/2-annonce${suffix}.png`)

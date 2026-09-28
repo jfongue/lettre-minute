@@ -1,7 +1,7 @@
 # Fiche Play Store — Lettre Minute
 
 Textes et réponses à recopier dans la Play Console. Les visuels sont à côté :
-`icon-512.png`, `feature-graphic.png` (1024 × 500), `listing/fr/` (les cinq
+`icon-512.png`, `feature-graphic.png` (1024 × 500), `listing/fr/` (les six
 captures légendées à téléverser, 1080 × 1920) et `screenshots/fr/` (les
 captures brutes dont elles partent). Pour les régénérer :
 `scripts/render-store.sh`.

@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- Capture légendée de la fiche Play Store (1080 × 1920), rendue par
-     scripts/render-store.sh : ?lang=fr&n=1 à 5. La capture brute vient de
+     scripts/render-store.sh : ?lang=fr&n=1 à 6. La capture brute vient de
      store/android/screenshots/<lang>/ ; la légende, du tableau ci-dessous. -->
 <html>
 <head>
@@ -32,15 +32,15 @@
   <img alt="" />
 <script>
   // Dans l’ordre de la fiche, une capture par section de la description, légendée de son titre.
-  const shots = ['3-partie', '6-defi', '5-pouvoirs', '2-annonce', '4-bilan']
+  const shots = ['1-accueil', '3-partie', '6-defi', '5-pouvoirs', '2-annonce', '4-bilan']
   const captions = {
-    fr: ['Une lettre tombe, un thème s’affiche, le chrono démarre', 'Défie tes amis', 'Des pouvoirs pour tricher un peu', 'De nouveaux thèmes à chaque niveau', 'Et pour les acharnés'],
-    en: ['A letter drops, a category appears, the clock starts', 'Challenge your friends', 'Powers to cheat a little', 'New categories at every level', 'For the die-hards'],
-    de: ['Ein Buchstabe fällt, ein Thema erscheint, die Uhr läuft', 'Fordere deine Freunde heraus', 'Kräfte zum Schummeln', 'Neue Themen mit jedem Level', 'Für die Hartnäckigen'],
-    es: ['Cae una letra, aparece un tema, arranca el crono', 'Reta a tus amigos', 'Poderes para hacer un poco de trampa', 'Nuevos temas en cada nivel', 'Para los más competitivos'],
-    it: ['Esce una lettera, compare un tema, parte il cronometro', 'Sfida i tuoi amici', 'Poteri per barare un po’', 'Nuovi temi a ogni livello', 'Per i più accaniti'],
-    nl: ['Er valt een letter, er verschijnt een thema, de klok loopt', 'Daag je vrienden uit', 'Krachten om een beetje vals te spelen', 'Nieuwe thema’s bij elk level', 'Voor de fanatiekelingen'],
-    pt: ['Cai uma letra, aparece um tema, o cronômetro dispara', 'Desafie seus amigos', 'Poderes para trapacear um pouco', 'Novos temas a cada nível', 'Para os mais viciados'],
+    fr: ['Une lettre, un thème, 60 secondes', 'Trouve le plus de mots possible', 'Défie tes amis', 'Des pouvoirs pour tricher un peu', 'Plein de thèmes à découvrir', 'Maîtrise le jeu et deviens expert'],
+    en: ['One letter, one category, 60 seconds', 'Find as many words as you can', 'Challenge your friends', 'Powers to cheat a little', 'Lots of categories to discover', 'Master the game and become an expert'],
+    de: ['Ein Buchstabe, ein Thema, 60 Sekunden', 'Finde so viele Wörter wie möglich', 'Fordere deine Freunde heraus', 'Kräfte zum Schummeln', 'Jede Menge Themen zu entdecken', 'Meistere das Spiel und werde zum Profi'],
+    es: ['Una letra, un tema, 60 segundos', 'Encuentra todas las palabras que puedas', 'Reta a tus amigos', 'Poderes para hacer un poco de trampa', 'Un montón de temas por descubrir', 'Domina el juego y conviértete en experto'],
+    it: ['Una lettera, un tema, 60 secondi', 'Trova più parole che puoi', 'Sfida i tuoi amici', 'Poteri per barare un po’', 'Tanti temi da scoprire', 'Padroneggia il gioco e diventa un esperto'],
+    nl: ['Eén letter, één thema, 60 seconden', 'Vind zoveel mogelijk woorden', 'Daag je vrienden uit', 'Krachten om een beetje vals te spelen', 'Heel veel thema’s om te ontdekken', 'Beheers het spel en word een expert'],
+    pt: ['Uma letra, um tema, 60 segundos', 'Encontre o máximo de palavras', 'Desafie seus amigos', 'Poderes para trapacear um pouco', 'Muitos temas para descobrir', 'Domine o jogo e vire especialista'],
   }
   const params = new URLSearchParams(location.search)
   const lang = params.get('lang') ?? 'fr'

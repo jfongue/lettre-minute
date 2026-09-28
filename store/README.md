@@ -12,7 +12,7 @@ Ce qu’il faut pour publier Lettre Minute, hors du code et hors de `public/`
   clair et sombre, dans l’interface et avec les mots de cette langue.
   Régénérées par `scripts/render-screenshots.ts` (mode d’emploi en tête du
   script).
-- `android/listing/<lang>/1.png` à `5.png` — une capture par section de la
+- `android/listing/<lang>/1.png` à `6.png` — l’accueil, la partie, puis une capture par section de la
   description, légendée du titre de la section dans sa langue : ce sont elles
   qu’on téléverse.
   Régénérées par `scripts/render-store.sh`, légendes dans
