@@ -655,11 +655,12 @@ export const es: Messages = {
     introTitle: 'Nuevo: vetar una categoría',
     introLead: 'Tienes siete categorías. ¿Hay alguna que te aburre? Vétala: ya no saldrá en tus partidas. Puedes cambiar de idea cuando quieras, aquí mismo.',
     introOk: 'Entendido',
-    lead: 'Una categoría vetada ya no sale en tus partidas (los retos conservan las suyas).',
+    lead: 'Una categoría vetada ya no sale en tus partidas (los retos conservan las suyas). Deslízala para vetarla o recuperarla.',
     ban: 'Vetar',
     unban: 'Recuperar',
     banned: 'Vetada',
-    full: 'Tienen que quedar al menos cinco categorías en juego.',
+    floor: 'Tienen que quedar al menos seis categorías en juego.',
+    max: 'Cinco categorías vetadas como máximo.',
   },
 
   plus: {

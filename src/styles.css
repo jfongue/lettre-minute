@@ -6711,6 +6711,60 @@ button.challenge-word[aria-expanded='true'] {
   grid-template-columns: 1.1rem auto 1fr auto;
 }
 
+/* Une ligne qu'un glissement bannit ou rétablit : elle suit le pouce au-dessus de sa couleur. */
+.categories--bans li.category-swipe {
+  position: relative;
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.category-swipe-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.1rem auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  background: var(--paper);
+  transform: translateX(var(--dx, 0));
+  transition: transform 320ms var(--ease-spring);
+}
+
+.category-swipe--drag .category-swipe-row {
+  transition: none;
+}
+
+.category-swipe-under {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.8rem;
+  color: var(--paper);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.55;
+  transition: opacity 160ms ease;
+}
+
+.category-swipe-under--ban {
+  background: var(--red);
+}
+
+.category-swipe-under--restore {
+  background: var(--green);
+}
+
+.category-swipe--armed .category-swipe-under {
+  opacity: 1;
+}
+
 .category-ban {
   padding-inline: 0.4rem;
 }

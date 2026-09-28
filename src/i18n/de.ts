@@ -653,11 +653,12 @@ export const de: Messages = {
     introTitle: 'Neu: eine Kategorie sperren',
     introLead: 'Du hast sieben Kategorien. Langweilt dich eine davon? Sperr sie: Sie kommt in deinen Runden nicht mehr vor. Du kannst es dir jederzeit hier anders überlegen.',
     introOk: 'Verstanden',
-    lead: 'Eine gesperrte Kategorie kommt in deinen Runden nicht mehr vor (Duelle behalten ihre eigenen).',
+    lead: 'Eine gesperrte Kategorie kommt in deinen Runden nicht mehr vor (Duelle behalten ihre eigenen). Wisch sie zur Seite, um sie zu sperren oder zurückzuholen.',
     ban: 'Sperren',
     unban: 'Zurückholen',
     banned: 'Gesperrt',
-    full: 'Mindestens fünf Kategorien müssen im Spiel bleiben.',
+    floor: 'Mindestens sechs Kategorien müssen im Spiel bleiben.',
+    max: 'Höchstens fünf gesperrte Kategorien.',
   },
 
   plus: {

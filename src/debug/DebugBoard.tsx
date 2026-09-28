@@ -32,6 +32,7 @@ import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 import { NEW_SCENARIOS, NEW_SINCE, RECENT_SCENARIOS, RECENT_VERSIONS } from './recent'
 import { ban, joinPlus, markBanIntroSeen, spendPeek, unban, type HiddenAnswer } from '../domain/perks'
 import { ownedCategoryIds } from '../domain/unlocks'
+import { CATALOGUE } from '../domain/catalogue'
 import { CategoriesPage } from '../ui/CategoriesPage'
 import { FeedbackPop } from '../ui/FeedbackPop'
 import { PlusPop } from '../ui/PlusPop'
@@ -577,15 +578,20 @@ function BansScenario({
   seen = false,
   plus = false,
   banned = [],
+  every = false,
 }: {
   seen?: boolean
   plus?: boolean
   /** Déjà bannies à l'ouverture. */
   banned?: readonly string[]
+  /** Tout le catalogue possédé, au lieu de sept catégories. */
+  every?: boolean
 }) {
   const [profile, setProfile] = useState<Profile>(() => ({
     ...PROFILE,
-    unlocked: ['fruits-legumes', 'metiers', 'sports', 'marques'],
+    unlocked: every
+      ? CATALOGUE.map((category) => category.id).filter((id) => !['pays', 'animaux', 'couleurs'].includes(id))
+      : ['fruits-legumes', 'metiers', 'sports', 'marques'],
     banIntroSeen: seen ? 1 : 0,
     plusSince: plus ? 1 : 0,
     banned,
@@ -1175,7 +1181,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'categories-ban',
     group: 'Accueil',
     title: 'Mes catégories : bannir',
-    how: 'Septième catégorie : explication à l’ouverture, un ban gratuit, le deuxième demande Premium',
+    how: 'Septième catégorie : explication à l’ouverture, un ban gratuit, par le bouton ou d’un glissement de la ligne',
     phase: 'home',
     render: () => <BansScenario />,
   },
@@ -1183,17 +1189,25 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'categories-ban-plus',
     group: 'Accueil',
     title: 'Mes catégories : Premium',
-    how: 'Premium : autant de bans qu’on veut, tant qu’il reste cinq catégories',
+    how: 'Premium, tout le catalogue : jusqu’à cinq bans, par le bouton ou d’un glissement',
     phase: 'home',
-    render: () => <BansScenario seen plus />,
+    render: () => <BansScenario seen plus every />,
   },
   {
     id: 'categories-ban-full',
     group: 'Accueil',
-    title: 'Mes catégories : limite des cinq',
-    how: 'Premium, deux bannies sur sept : un troisième ban est refusé, il faut garder cinq catégories',
+    title: 'Mes catégories : jamais moins de six',
+    how: 'Premium, une bannie sur sept : un deuxième ban est refusé, il faut garder six catégories en jeu',
     phase: 'home',
-    render: () => <BansScenario seen plus banned={['pays', 'animaux']} />,
+    render: () => <BansScenario seen plus banned={['pays']} />,
+  },
+  {
+    id: 'categories-ban-max',
+    group: 'Accueil',
+    title: 'Mes catégories : cinq bans au plus',
+    how: 'Premium, tout le catalogue, cinq bannies : un sixième est refusé ; glisser une ligne la rétablit',
+    phase: 'home',
+    render: () => <BansScenario seen plus every banned={['pays', 'animaux', 'couleurs', 'sports', 'marques']} />,
   },
   {
     id: 'plus-pop',

@@ -654,11 +654,12 @@ export const nl: Messages = {
     introTitle: 'Nieuw: een categorie weren',
     introLead: 'Je hebt zeven categorieën. Is er een die je niet leuk vindt? Weer hem: hij komt niet meer voor in je rondes. Je kunt je keuze hier altijd weer veranderen.',
     introOk: 'Begrepen',
-    lead: 'Een geweerde categorie komt niet meer voor in je rondes (uitdagingen houden hun eigen categorieën).',
+    lead: 'Een geweerde categorie komt niet meer voor in je rondes (uitdagingen houden hun eigen categorieën). Veeg hem opzij om hem te weren of terug te zetten.',
     ban: 'Weren',
     unban: 'Terugzetten',
     banned: 'Geweerd',
-    full: 'Er moeten minstens vijf categorieën in het spel blijven.',
+    floor: 'Er moeten minstens zes categorieën in het spel blijven.',
+    max: 'Hoogstens vijf geweerde categorieën.',
   },
 
   plus: {

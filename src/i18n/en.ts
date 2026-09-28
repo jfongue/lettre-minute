@@ -659,11 +659,12 @@ export const en: Messages = {
     introTitle: 'New: ban a category',
     introLead: 'You have seven categories. Is there one you don’t enjoy? Ban it: it won’t come up in your runs any more. You can change your mind whenever you like, right here.',
     introOk: 'Got it',
-    lead: 'A banned category no longer comes up in your runs (challenges keep their own).',
+    lead: 'A banned category no longer comes up in your runs (challenges keep their own). Swipe it to ban or restore it.',
     ban: 'Ban',
     unban: 'Restore',
     banned: 'Banned',
-    full: 'At least five categories must stay in play.',
+    floor: 'At least six categories must stay in play.',
+    max: 'Five banned categories at most.',
   },
 
   plus: {

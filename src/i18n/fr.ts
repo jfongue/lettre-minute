@@ -696,11 +696,12 @@ export const fr = {
     introTitle: 'Nouveau : bannir une catégorie',
     introLead: 'Tu as sept catégories. Il y en a une qui t’ennuie ? Bannis-la : elle ne sortira plus dans tes parties. Tu peux changer d’avis quand tu veux, ici même.',
     introOk: 'Compris',
-    lead: 'Une catégorie bannie ne sort plus dans tes parties (les défis gardent les leurs).',
+    lead: 'Une catégorie bannie ne sort plus dans tes parties (les défis gardent les leurs). Glisse-la pour la bannir ou la rétablir.',
     ban: 'Bannir',
     unban: 'Rétablir',
     banned: 'Bannie',
-    full: 'Il faut garder au moins cinq catégories en jeu.',
+    floor: 'Il faut garder au moins six catégories en jeu.',
+    max: 'Cinq catégories bannies au plus.',
   },
 
   plus: {

@@ -655,11 +655,12 @@ export const pt: Messages = {
     introTitle: 'Novidade: excluir uma categoria',
     introLead: 'Tens sete categorias. Há alguma que te aborrece? Exclui-a: deixa de sair nas tuas partidas. Podes mudar de ideias quando quiseres, aqui mesmo.',
     introOk: 'Percebi',
-    lead: 'Uma categoria excluída deixa de sair nas tuas partidas (os desafios mantêm as suas).',
+    lead: 'Uma categoria excluída deixa de sair nas tuas partidas (os desafios mantêm as suas). Desliza-a para a excluir ou repor.',
     ban: 'Excluir',
     unban: 'Repor',
     banned: 'Excluída',
-    full: 'Têm de ficar pelo menos cinco categorias em jogo.',
+    floor: 'Têm de ficar pelo menos seis categorias em jogo.',
+    max: 'Cinco categorias excluídas no máximo.',
   },
 
   plus: {

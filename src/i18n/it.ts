@@ -655,11 +655,12 @@ export const it: Messages = {
     introTitle: 'Novità: escludere una categoria',
     introLead: 'Hai sette categorie. Ce n’è una che ti annoia? Escludila: non uscirà più nelle tue partite. Puoi cambiare idea quando vuoi, proprio qui.',
     introOk: 'Capito',
-    lead: 'Una categoria esclusa non esce più nelle tue partite (le sfide tengono le loro).',
+    lead: 'Una categoria esclusa non esce più nelle tue partite (le sfide tengono le loro). Scorrila per escluderla o ripristinarla.',
     ban: 'Escludi',
     unban: 'Ripristina',
     banned: 'Esclusa',
-    full: 'Devono restare in gioco almeno cinque categorie.',
+    floor: 'Devono restare in gioco almeno sei categorie.',
+    max: 'Cinque categorie escluse al massimo.',
   },
 
   plus: {

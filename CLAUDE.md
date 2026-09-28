@@ -326,8 +326,11 @@ qu'un nouvel arrivant casserait sans le savoir.
   (`src/domain/perks.ts`) : un ban dès sept catégories, les suivants et plus
   de cinq mots cachés révélés au récap réservés à Premium, gratuit pour
   l'instant (`plusSince`). Un ban ne vaut que pour les parties seules : un
-  défi distribue ses propres catégories. Il reste toujours
-  `MAX_CATEGORIES_PER_RUN` catégories jouables.
+  défi distribue ses propres catégories. Cinq bans au plus (`MAX_BANS`), et
+  jamais moins de `MIN_PLAYABLE_CATEGORIES` (six) catégories en jeu : à sept
+  catégories, l'offre Premium ne sort donc pas, puisqu'elle ne pourrait rien
+  débloquer. Une ligne de « Mes catégories » se bannit ou se rétablit aussi
+  d'un glissement, sous `data-no-swipe` pour ne pas refermer le tiroir.
   Passer Premium traverse un faux paiement (`src/ui/Checkout.tsx`) qui ne
   demande aucune carte ; le retour suivant à l'accueil remercie le joueur
   une fois (`plusThanked`) et ouvre la demande d'avis.

@@ -41,17 +41,27 @@ describe('bans', () => {
   })
 
   it('ask for Premium past the free ban', () => {
-    const one = ban(NEW_PROFILE, SEVEN, 'c')
-    expect(banVerdict(one, SEVEN, 'd')).toBe('plus')
-    expect(ban(one, SEVEN, 'd')).toBe(one)
-    const plus = joinPlus(one, 1)
-    expect(banVerdict(plus, SEVEN, 'd')).toBe('ok')
-    expect(bannedOf(ban(plus, SEVEN, 'd'), SEVEN)).toEqual(['c', 'd'])
+    const EIGHT = [...SEVEN, 'h']
+    const one = ban(NEW_PROFILE, EIGHT, 'c')
+    expect(banVerdict(one, EIGHT, 'd')).toBe('plus')
+    expect(ban(one, EIGHT, 'd')).toBe(one)
+    const plus = joinPlus(ban(NEW_PROFILE, EIGHT, 'c'), 1)
+    expect(banVerdict(plus, EIGHT, 'd')).toBe('ok')
+    expect(bannedOf(ban(plus, EIGHT, 'd'), EIGHT)).toEqual(['c', 'd'])
   })
 
-  it('never leave fewer categories than a run deals', () => {
-    const plus = joinPlus(ban(ban(joinPlus(NEW_PROFILE, 1), SEVEN, 'a'), SEVEN, 'b'), 1)
-    expect(banVerdict(plus, SEVEN, 'c')).toBe('full')
+  it('never leave fewer than six categories in play', () => {
+    const plus = ban(joinPlus(NEW_PROFILE, 1), SEVEN, 'a')
+    expect(banVerdict(plus, SEVEN, 'b')).toBe('floor')
+    expect(bannedOf({ ...plus, banned: ['a', 'b'] }, SEVEN)).toEqual(['a'])
+  })
+
+  it('stop at five bans, Premium included', () => {
+    const owned = 'abcdefghijklm'.split('')
+    let plus = joinPlus(NEW_PROFILE, 1)
+    for (const id of 'abcde') plus = ban(plus, owned, id)
+    expect(bannedOf(plus, owned)).toEqual(['a', 'b', 'c', 'd', 'e'])
+    expect(banVerdict(plus, owned, 'f')).toBe('max')
   })
 
   it('fall back to the free ban when Premium is gone', () => {
