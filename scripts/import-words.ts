@@ -90,14 +90,12 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
   plantes: ['Plantes en français'],
   objets: ['Meubles en français', 'Ustensiles de cuisine en français', 'Outils en français', 'Récipients en français'],
   // Drafts (see DRAFT_SOURCES). Neither « Ingrédients » nor « Bâtiments » names
-  // a category of the Wiktionnaire: the food tree answers for the first, the
-  // edifice tree for the second, and the whole grammatical class of adjectives
-  // — which Wikidata does not model at all — for the third. Meats and spices
-  // hang off no food category — « Viandes » is filed with the animals, and the
-  // condiments with the plants — so they are named here beside it.
+  // a category of the Wiktionnaire: the food tree answers for the first and the
+  // edifice tree for the second. Meats and spices hang off no food category —
+  // « Viandes » is filed with the animals, the condiments with the plants — so
+  // they are named here beside it.
   ingredients: ['Aliments en français', 'Viandes en français', 'Épices, aromates et condiments en français'],
   lieux: ['Édifices en français'],
-  adjectifs: ['Adjectifs en français'],
 }
 
 /**
@@ -107,7 +105,7 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
  * the tree stays on its subject: Matières would wander into jewellery and
  * shipwrecks.
  */
-const FRENCH_WALKED = new Set(['animaux', 'metiers', 'sports', 'fruits-legumes', 'plantes', 'ingredients', 'lieux', 'adjectifs'])
+const FRENCH_WALKED = new Set(['animaux', 'metiers', 'sports', 'fruits-legumes', 'plantes', 'ingredients', 'lieux'])
 
 /** Subcategories that are about the subject rather than of it. */
 const FRENCH_SKIPPED = new Set([
@@ -187,32 +185,9 @@ const FRENCH_SKIPPED = new Set([
   'Fabacées en français',
   // Drafts. « Aliments » files the dishes a cook makes under « Préparations
   // culinaires » and the wild plants a forager picks under « Plantes
-  // comestibles » — neither is what one buys to cook with. The adjective tree
-  // holds, besides the adjectives themselves, the multi-word locutions, the
-  // forms their lemmas already bring, and the grammatical classes that qualify
-  // no one.
+  // comestibles » — neither is what one buys to cook with.
   'Préparations culinaires en français',
   'Plantes comestibles en français',
-  'Locutions adjectivales en français',
-  'Formes d’adjectifs en français',
-  'Adjectifs dérivés de noms de personnages bibliques en français',
-  // The Wiktionnaire's grammar files determiners and possessives as
-  // adjectives; the class a player is asked to qualify a person with is not
-  // the one that answers « mon » or « trois ».
-  'Adjectifs possessifs en français',
-  'Formes d’adjectifs possessifs en français',
-  'Adjectifs indéfinis en français',
-  'Adjectifs indéfinis en français avec de',
-  'Formes d’adjectifs indéfinis en français',
-  'Adjectifs numéraux en français',
-  'Formes d’adjectifs numéraux en français',
-  'Adjectifs relatifs en français',
-  'Adjectifs interrogatifs en français',
-  'Adjectifs exclamatifs en français',
-  // Ordinals: what the class holds there is « 1er », « VIe », « XXIème », a
-  // numeral the domain cannot spell — « premier » and « second » are filed
-  // elsewhere in the class.
-  'Ordinaux en français',
 ])
 
 /**
@@ -237,7 +212,7 @@ const HOMOGRAPH_PRONE = new Set(['animaux', 'fruits-legumes', 'plantes'])
  * measured use in the language, came from Wikidata, or was vouched for by
  * hand (`ADDED_WORDS`, a moderator).
  */
-const STRICT_ATTESTED = new Set(['plantes', 'objets', 'adjectifs'])
+const STRICT_ATTESTED = new Set(['plantes', 'objets'])
 
 const FRENCH_TREE_CACHE = '.cache/wiktionnaire-subcategories.json'
 const FRENCH_TREE_DEPTH = 3
@@ -410,10 +385,6 @@ async function wiktionaryWords(title: string, force: boolean): Promise<string[]>
 
     // Walking the subcategories asks for dozens of lists in a row: the API
     // answers a burst with 429, which `wikimedia` waits out.
-    // Walking the subcategories asks for dozens of lists in a row: the API
-    // answers a burst with 429, which `wikimedia` waits out. The cap is a
-    // guard against a runaway category, not a size a category should reach:
-    // the Wiktionnaire files 73 000 French adjectives in one.
     const response = await wikimedia(url)
     if (!response.ok) throw new Error(`wiktionnaire ${title}: HTTP ${response.status}`)
 
@@ -423,7 +394,7 @@ async function wiktionaryWords(title: string, force: boolean): Promise<string[]>
     }
     for (const member of payload.query?.categorymembers ?? []) words.push(member.title)
     cursor = payload.continue?.cmcontinue ?? null
-  } while (cursor && words.length < 100_000)
+  } while (cursor && words.length < 20_000)
 
   writeFileSync(path, JSON.stringify(words))
   console.log(`· wiktionnaire ${title}: ${words.length} mots`)
@@ -1476,14 +1447,10 @@ function main(argv: readonly string[]) {
         const everyday = frequencies.get(display.normalize('NFC').toLowerCase()) ?? 0
         const homograph = HOMOGRAPH_PRONE.has(category.id) && listed?.deep.has(key) && !best.has(key) && everyday >= HOMOGRAPH_FREQUENCY
         if (homograph && !moderated.has(key)) continue
-        // A flora, a toolshed or a whole grammatical class: the Wiktionary
-        // files what nobody says, so a word under the category's own
-        // frequency floor goes, unless it was vouched for by hand or
-        // described by Wikidata.
-        const obscure =
-          (category.minFrequency === undefined ? STRICT_ATTESTED.has(category.id) && everyday === 0 : everyday < category.minFrequency) &&
-          !best.has(key) &&
-          !handPicked.has(key)
+        // A flora or a toolshed word with no measured use at all and no
+        // Wikidata entry either is filed by a Wiktionary contributor, not
+        // said by anyone: dropped, unless it was vouched for by hand.
+        const obscure = STRICT_ATTESTED.has(category.id) && everyday === 0 && !best.has(key) && !handPicked.has(key)
         if (obscure) continue
         if (key !== '') attested.add(key)
         if (key === '' || best.has(key)) continue

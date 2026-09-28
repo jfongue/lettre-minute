@@ -142,28 +142,7 @@ export const DROPPED_WORDS: Readonly<Record<string, Readonly<Record<string, read
     // and a crude one besides.
     pt: ['merda'],
   },
-  // Drafts, French for now. The Wiktionnaire's grammar calls a determiner, a
-  // pronoun or a cardinal an adjective: « mon », « trois », « sur » are filed
-  // in the class, and their everyday sense is the one the corpus counts. So
-  // are the abbreviations and symbols its own class collects — « GPS », « TTC »
-  // — which no one answers when asked to qualify someone.
-  adjectifs: {
-    fr: [
-      'un', 'une', 'ce', 'mon', 'ma', 'mes', 'ton', 'ta', 'tes', 'son', 'sa', 'ses', 'notre', 'nos', 'votre', 'vos',
-      'leur', 'leurs', 'me', 'te', 'se', 'moi', 'toi', 'lui', 'ça', 'cela', 'ceci', 'qui', 'que', 'quoi', 'dont',
-      'quel', 'quelle', 'chaque', 'aucun', 'aucune', 'plusieurs', 'quelques', 'peu', 'moins', 'plus', 'autant',
-      'trop', 'très', 'avant', 'après', 'sur', 'sous', 'dans', 'par', 'pour', 'avec', 'sans', 'vers', 'entre',
-      'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze', 'treize',
-      'quatorze', 'quinze', 'seize', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'cent', 'mille',
-      'million', 'milliard', 'Ce', 'Me', 'Mes', 'Ve', 'DoS', 'mm', 'AC', 'AP', 'DA', 'IE', 'IP', 'OP', 'US', 'GPS',
-      'SDF', 'KO', 'AB', 'BTS', 'FAI', 'PV', 'HT', 'HS', 'SM', 'RPG', 'XL', 'XXL', 'SF', 'DEV', 'nb', 'tt', 'ts',
-      'aka', 'Ste', 'ML', 'SR', 'AA', 'Panini', 'Xe', 'Carrez', 'tel', 'telle', 'tels', 'telles', 'AEC', 'ASA', 'BDSM',
-      'BS', 'Bx', 'CIF', 'DIY', 'DP', 'DVD', 'EC', 'ERP', 'FLINT', 'GC', 'HC', 'IDE', 'MINT', 'MURAT', 'NAC', 'NBC',
-      'NC', 'NS', 'ORL', 'OSI', 'PAM', 'PD', 'PLM', 'REI', 'RTL', 'Renaissance', 'SATA', 'SB', 'SDI', 'SNP', 'TB',
-      'TCC', 'TCE', 'TMA', 'TSA', 'TTBM', 'TTC', 'ULB', 'USB', 'UV', 'XS', 'Jedi',
-    ],
-  },
-  // A place the Wiktionnaire files as the speciality that names itself after
+  // A place the Wiktionary files as the speciality that names itself after
   // it — « Strasbourg », « Morteau », « Narbonne » — the brands its fruit and
   // cereal lists carry, and the Latin binomials its seafood list holds. The
   // dish is in the category under its own name: « saucisse de Strasbourg ».
@@ -175,6 +154,17 @@ export const DROPPED_WORDS: Readonly<Record<string, Readonly<Record<string, read
       'Robinia pseudoacacia', 'Froot Loops', 'Lucky Charms', 'Oregoniidae', 'Pinnotheres pisum', 'Uca', 'PST',
       'Cambozola', 'Camelbert',
     ],
+    // The six others read the English Wiktionary's topics, which file a word
+    // under a topic for one of its senses while the corpus counts the everyday
+    // one — "big", "stock", "sulla", "data" — and its translation tables land
+    // on that everyday sense in the language they feed: « tipo », « plata »,
+    // « Rolle ». The words the category is about stay.
+    en: ['big', 'cut', 'main', 'round', 'kid', 'stock', 'long pork', 'fat choy', 'naruto', "Jacob's ladder"],
+    de: ['Rolle', 'Verbindung'],
+    es: ['tipo', 'vuelta', 'fecha', 'plata', 'fondo', 'corte', 'china', 'siete', 'loco', 'completo'],
+    it: ['sulla', 'roma', 'data', 'napoli', 'mamma', 'cibo', 'prodotti'],
+    nl: ['rol'],
+    pt: ['produção', 'data', 'corte', 'copa', 'achar'],
   },
   // « celle » and « tel » are places only in a dictionary — a hermit's cell, an
   // archaeological mound — and the corpus reads them as a pronoun and a
@@ -186,6 +176,14 @@ export const DROPPED_WORDS: Readonly<Record<string, Readonly<Record<string, read
       'restau U', 'resto U', 'Maison Blanche', 'Maison Bleue', 'Maison Rose', 'McDo', 'Reichstag', 'Westminster',
       'Zarzuela', 'maison INSEAD', 'cayenne', 'grec', 'kegré',
     ],
+    // Same cause as the ingredients above: a numeral, a group, a service, a
+    // distance — the everyday sense of a word the topic filed as a place.
+    en: ['final', 'foreign', 'moving picture'],
+    de: ['Zwei', 'Wirtschaft', 'Kreis', 'Aufgabe'],
+    es: ['dos', 'grupo', 'final', 'último', 'servicio', 'zona', 'libre', 'común', 'cámara', 'banda'],
+    it: ['due', 'gruppo', 'ultimo'],
+    nl: ['laatste', 'groep', 'zaak', 'afstand'],
+    pt: ['dois', 'grupo', 'final', 'último', 'direção', 'câmara'],
   },
 }
 
@@ -317,11 +315,13 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
     nl: ['telefoon', 'lamp', 'pen', 'glas', 'horloge'],
     pt: ['telefone', 'lâmpada', 'caneta', 'copo'],
   },
-  // Draft categories (see DRAFT_SOURCES), French for now. The Wiktionnaire's
-  // food tree holds the produce, the cheeses, the seafood and the spices, but
-  // files neither the pantry — sel, farine, huile — nor a single meat: the
-  // meats hang off the animals and the condiments off the plants, both pruned
-  // away there. Everything below is what a cook names before a recipe.
+  // Draft categories (see DRAFT_SOURCES). The Wiktionnaire's food tree holds
+  // the produce, the cheeses, the seafood and the spices, but files neither
+  // the pantry — sel, farine, huile — nor a single meat: the meats hang off the
+  // animals and the condiments off the plants, both pruned away there.
+  // Everything below is what a cook names before a recipe, and the six other
+  // languages read the English Wiktionary's topics, which hold the topic's own
+  // words rather than the one every table shouts first.
   ingredients: {
     fr: [
       'sel', 'poivre', 'poivre noir', 'farine', 'fécule', 'levure', 'bicarbonate', 'sucre', 'sucre glace',
@@ -339,6 +339,112 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
       'calamar', 'noix', 'amande', 'noisette', 'cacahuète', 'pistache', 'noix de coco', 'raisin sec', 'datte',
       'pruneau', 'gélatine', 'eau', 'champignon', 'champignon de Paris', 'cèpe', 'girolle', 'chanterelle',
       'morille', 'truffe', 'pleurote', 'bolet', 'shiitaké',
+    ],
+    en: [
+      'salt', 'pepper', 'flour', 'sugar', 'butter', 'oil', 'olive oil', 'milk', 'egg', 'honey', 'vinegar',
+      'mustard', 'mayonnaise', 'ketchup', 'chocolate', 'dark chocolate', 'cocoa', 'vanilla', 'cinnamon', 'curry',
+      'cumin', 'saffron', 'nutmeg', 'ginger', 'parsley', 'basil', 'thyme', 'rosemary', 'sage', 'oregano', 'mint',
+      'chives', 'dill', 'bay leaf', 'tarragon', 'garlic', 'onion', 'shallot', 'tomato', 'carrot', 'potato',
+      'mushroom', 'leek', 'cabbage', 'cauliflower', 'broccoli', 'spinach', 'lettuce', 'courgette', 'aubergine',
+      'pepper', 'cucumber', 'beetroot', 'turnip', 'radish', 'celery', 'asparagus', 'pea', 'bean', 'chickpea',
+      'lentil', 'rice', 'pasta', 'spaghetti', 'semolina', 'bread', 'yeast', 'baking soda', 'icing sugar', 'syrup',
+      'jam', 'cheese', 'cream', 'yoghurt', 'tofu', 'stock', 'tomato sauce', 'tomato paste', 'olive', 'caper',
+      'pickle', 'anchovy', 'chicken', 'beef', 'pork', 'lamb', 'veal', 'turkey', 'duck', 'rabbit', 'ham', 'bacon',
+      'sausage', 'black pudding', 'pâté', 'tuna', 'salmon', 'cod', 'sardine', 'trout', 'mackerel', 'prawn',
+      'mussel', 'oyster', 'squid', 'walnut', 'hazelnut', 'almond', 'peanut', 'pistachio', 'coconut', 'sesame',
+      'sunflower seed', 'raisin', 'date', 'prune', 'lemon', 'orange', 'apple', 'pear', 'banana', 'strawberry',
+      'raspberry', 'blueberry', 'grape', 'peach', 'apricot', 'cherry', 'plum', 'fig', 'pineapple', 'melon',
+      'watermelon', 'kiwi', 'mango', 'water',
+      'shrimp', 'nut',
+    ],
+    de: [
+      'Salz', 'Pfeffer', 'Mehl', 'Zucker', 'Butter', 'Öl', 'Olivenöl', 'Milch', 'Ei', 'Honig', 'Essig', 'Senf',
+      'Mayonnaise', 'Ketchup', 'Schokolade', 'Zartbitterschokolade', 'Kakao', 'Vanille', 'Zimt', 'Curry',
+      'Kümmel', 'Safran', 'Muskatnuss', 'Ingwer', 'Petersilie', 'Basilikum', 'Thymian', 'Rosmarin', 'Salbei',
+      'Oregano', 'Minze', 'Schnittlauch', 'Dill', 'Lorbeerblatt', 'Estragon', 'Knoblauch', 'Zwiebel', 'Schalotte',
+      'Tomate', 'Karotte', 'Kartoffel', 'Pilz', 'Lauch', 'Kohl', 'Blumenkohl', 'Brokkoli', 'Spinat', 'Salat',
+      'Zucchini', 'Aubergine', 'Paprika', 'Gurke', 'Rote Bete', 'Rübe', 'Radieschen', 'Sellerie', 'Spargel',
+      'Erbse', 'Bohne', 'Kichererbse', 'Linse', 'Reis', 'Nudeln', 'Spaghetti', 'Grieß', 'Brot', 'Hefe',
+      'Natron', 'Puderzucker', 'Sirup', 'Marmelade', 'Käse', 'Sahne', 'Joghurt', 'Tofu', 'Brühe', 'Tomatensauce',
+      'Tomatenmark', 'Olive', 'Kaper', 'Gewürzgurke', 'Sardelle', 'Hähnchen', 'Rindfleisch', 'Schweinefleisch',
+      'Lammfleisch', 'Kalb', 'Pute', 'Ente', 'Kaninchen', 'Schinken', 'Speck', 'Wurst', 'Blutwurst', 'Pastete',
+      'Thunfisch', 'Lachs', 'Kabeljau', 'Sardine', 'Forelle', 'Makrele', 'Garnele', 'Muschel', 'Auster',
+      'Tintenfisch', 'Walnuss', 'Haselnuss', 'Mandel', 'Erdnuss', 'Pistazie', 'Kokosnuss', 'Sesam',
+      'Sonnenblumenkern', 'Rosine', 'Dattel', 'Backpflaume', 'Zitrone', 'Orange', 'Apfel', 'Birne', 'Banane',
+      'Erdbeere', 'Himbeere', 'Heidelbeere', 'Weintraube', 'Pfirsich', 'Aprikose', 'Kirsche', 'Pflaume', 'Feige',
+      'Ananas', 'Melone', 'Wassermelone', 'Kiwi', 'Mango', 'Wasser',
+      'Nuss',
+    ],
+    es: [
+      'sal', 'pimienta', 'harina', 'azúcar', 'mantequilla', 'aceite', 'aceite de oliva', 'leche', 'huevo', 'miel',
+      'vinagre', 'mostaza', 'mayonesa', 'kétchup', 'chocolate', 'chocolate negro', 'cacao', 'vainilla', 'canela',
+      'curry', 'comino', 'azafrán', 'nuez moscada', 'jengibre', 'perejil', 'albahaca', 'tomillo', 'romero',
+      'salvia', 'orégano', 'menta', 'cebollino', 'eneldo', 'laurel', 'estragón', 'ajo', 'cebolla', 'chalota',
+      'tomate', 'zanahoria', 'patata', 'champiñón', 'puerro', 'col', 'coliflor', 'brócoli', 'espinaca', 'lechuga',
+      'calabacín', 'berenjena', 'pimiento', 'pepino', 'remolacha', 'nabo', 'rábano', 'apio', 'espárrago',
+      'guisante', 'judía', 'garbanzo', 'lenteja', 'arroz', 'pasta', 'espagueti', 'sémola', 'pan', 'levadura',
+      'bicarbonato', 'azúcar glas', 'jarabe', 'mermelada', 'queso', 'nata', 'yogur', 'tofu', 'caldo', 'salsa de tomate',
+      'concentrado de tomate', 'aceituna', 'alcaparra', 'pepinillo', 'anchoa', 'pollo', 'ternera', 'cerdo',
+      'cordero', 'ternera', 'pavo', 'pato', 'conejo', 'jamón', 'beicon', 'salchicha', 'morcilla', 'paté', 'atún',
+      'salmón', 'bacalao', 'sardina', 'trucha', 'caballa', 'gamba', 'mejillón', 'ostra', 'calamar', 'nuez',
+      'avellana', 'almendra', 'cacahuete', 'pistacho', 'coco', 'sésamo', 'semilla de girasol', 'pasa', 'dátil',
+      'ciruela pasa', 'limón', 'naranja', 'manzana', 'pera', 'plátano', 'fresa', 'frambuesa', 'arándano', 'uva',
+      'melocotón', 'albaricoque', 'cereza', 'ciruela', 'higo', 'piña', 'melón', 'sandía', 'kiwi', 'mango', 'agua',
+      
+    ],
+    it: [
+      'sale', 'pepe', 'farina', 'zucchero', 'burro', 'olio', 'olio d’oliva', 'latte', 'uovo', 'miele', 'aceto',
+      'senape', 'maionese', 'ketchup', 'cioccolato', 'cioccolato fondente', 'cacao', 'vaniglia', 'cannella',
+      'curry', 'cumino', 'zafferano', 'noce moscata', 'zenzero', 'prezzemolo', 'basilico', 'timo', 'rosmarino',
+      'salvia', 'origano', 'menta', 'erba cipollina', 'aneto', 'alloro', 'dragoncello', 'aglio', 'cipolla',
+      'scalogno', 'pomodoro', 'carota', 'patata', 'fungo', 'porro', 'cavolo', 'cavolfiore', 'broccolo', 'spinacio',
+      'lattuga', 'zucchina', 'melanzana', 'peperone', 'cetriolo', 'barbabietola', 'rapa', 'ravanello', 'sedano',
+      'asparago', 'pisello', 'fagiolo', 'cece', 'lenticchia', 'riso', 'pasta', 'spaghetti', 'semolino', 'pane',
+      'lievito', 'bicarbonato', 'zucchero a velo', 'sciroppo', 'marmellata', 'formaggio', 'panna', 'yogurt',
+      'tofu', 'brodo', 'salsa di pomodoro', 'concentrato di pomodoro', 'oliva', 'cappero', 'cetriolino', 'acciuga',
+      'pollo', 'manzo', 'maiale', 'agnello', 'vitello', 'tacchino', 'anatra', 'coniglio', 'prosciutto', 'pancetta',
+      'salsiccia', 'sanguinaccio', 'paté', 'tonno', 'salmone', 'merluzzo', 'sardina', 'trota', 'sgombro',
+      'gambero', 'cozza', 'ostrica', 'calamaro', 'noce', 'nocciola', 'mandorla', 'arachide', 'pistacchio',
+      'noce di cocco', 'sesamo', 'seme di girasole', 'uva passa', 'dattero', 'prugna secca', 'limone', 'arancia',
+      'mela', 'pera', 'banana', 'fragola', 'lampone', 'mirtillo', 'uva', 'pesca', 'albicocca', 'ciliegia',
+      'susina', 'fico', 'ananas', 'melone', 'anguria', 'kiwi', 'mango', 'acqua',
+      
+    ],
+    nl: [
+      'zout', 'peper', 'bloem', 'suiker', 'boter', 'olie', 'olijfolie', 'melk', 'ei', 'honing', 'azijn', 'mosterd',
+      'mayonaise', 'ketchup', 'chocolade', 'pure chocolade', 'cacao', 'vanille', 'kaneel', 'kerrie', 'komijn',
+      'saffraan', 'nootmuskaat', 'gember', 'peterselie', 'basilicum', 'tijm', 'rozemarijn', 'salie', 'oregano',
+      'munt', 'bieslook', 'dille', 'laurier', 'dragon', 'knoflook', 'ui', 'sjalot', 'tomaat', 'wortel',
+      'aardappel', 'champignon', 'prei', 'kool', 'bloemkool', 'broccoli', 'spinazie', 'sla', 'courgette',
+      'aubergine', 'paprika', 'komkommer', 'biet', 'raap', 'radijs', 'selderij', 'asperge', 'erwt', 'boon',
+      'kikkererwt', 'linze', 'rijst', 'pasta', 'spaghetti', 'griesmeel', 'brood', 'gist', 'zuiveringszout',
+      'poedersuiker', 'siroop', 'jam', 'kaas', 'room', 'yoghurt', 'tofoe', 'bouillon', 'tomatensaus',
+      'tomatenpuree', 'olijf', 'kappertje', 'augurk', 'ansjovis', 'kip', 'rundvlees', 'varkensvlees', 'lamsvlees',
+      'kalfsvlees', 'kalkoen', 'eend', 'konijn', 'ham', 'spek', 'worst', 'bloedworst', 'paté', 'tonijn', 'zalm',
+      'kabeljauw', 'sardien', 'forel', 'makreel', 'garnaal', 'mossel', 'oester', 'inktvis', 'walnoot',
+      'hazelnoot', 'amandel', 'pinda', 'pistache', 'kokosnoot', 'sesam', 'zonnebloempit', 'rozijn', 'dadel',
+      'gedroogde pruim', 'citroen', 'sinaasappel', 'appel', 'peer', 'banaan', 'aardbei', 'framboos', 'bosbes',
+      'druif', 'perzik', 'abrikoos', 'kers', 'pruim', 'vijg', 'ananas', 'meloen', 'watermeloen', 'kiwi', 'mango',
+      'water',
+      'noot',
+    ],
+    pt: [
+      'sal', 'pimenta', 'farinha', 'açúcar', 'manteiga', 'azeite', 'óleo', 'leite', 'ovo', 'mel', 'vinagre',
+      'mostarda', 'maionese', 'ketchup', 'chocolate', 'chocolate preto', 'cacau', 'baunilha', 'canela', 'caril',
+      'cominho', 'açafrão', 'noz-moscada', 'gengibre', 'salsa', 'manjericão', 'tomilho', 'alecrim', 'salva',
+      'orégano', 'hortelã', 'cebolinho', 'endro', 'louro', 'estragão', 'alho', 'cebola', 'chalota', 'tomate',
+      'cenoura', 'batata', 'cogumelo', 'alho-porro', 'repolho', 'couve-flor', 'brócolos', 'espinafre', 'alface',
+      'courgette', 'beringela', 'pimento', 'pepino', 'beterraba', 'nabo', 'rabanete', 'aipo', 'espargo', 'ervilha',
+      'feijão', 'grão-de-bico', 'lentilha', 'arroz', 'massa', 'esparguete', 'sêmola', 'pão', 'levedura',
+      'bicarbonato', 'açúcar de confeiteiro', 'xarope', 'compota', 'queijo', 'nata', 'iogurte', 'tofu', 'caldo',
+      'molho de tomate', 'polpa de tomate', 'azeitona', 'alcaparra', 'picles', 'anchova', 'frango', 'carne bovina',
+      'carne de porco', 'carne de cordeiro', 'vitela', 'peru', 'pato', 'coelho', 'presunto', 'bacon', 'salsicha',
+      'morcela', 'patê', 'atum', 'salmão', 'bacalhau', 'sardinha', 'truta', 'cavala', 'camarão', 'mexilhão',
+      'ostra', 'lula', 'noz', 'avelã', 'amêndoa', 'amendoim', 'pistácio', 'coco', 'gergelim', 'semente de girassol',
+      'passa', 'tâmara', 'ameixa seca', 'limão', 'laranja', 'maçã', 'pera', 'banana', 'morango', 'framboesa',
+      'mirtilo', 'uva', 'pêssego', 'damasco', 'cereja', 'ameixa', 'figo', 'ananás', 'melão', 'melancia', 'kiwi',
+      'manga', 'água',
+      'porco', 'cordeiro', 'castanha',
     ],
   },
   // The edifice tree names the places a city is made of: mairie, piscine,
@@ -360,21 +466,57 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
       'appartement', 'ferme', 'grange', 'étable', 'moulin', 'entrepôt', 'usine', 'atelier', 'bureau', 'zoo',
       'aquarium', 'parc d’attractions', 'camping',
     ],
-  },
-  // The adjectives a table shouts first: the whole grammatical class is read,
-  // and the eleven thousand a floor keeps can still miss the words a player
-  // types without thinking.
-  adjectifs: {
-    fr: [
-      'gentil', 'méchant', 'drôle', 'aimable', 'sympathique', 'antipathique', 'calme', 'nerveux', 'timide',
-      'courageux', 'peureux', 'lâche', 'honnête', 'menteur', 'généreux', 'avare', 'égoïste', 'altruiste', 'poli',
-      'impoli', 'grossier', 'patient', 'impatient', 'têtu', 'sérieux', 'joyeux', 'triste', 'heureux',
-      'malheureux', 'optimiste', 'pessimiste', 'curieux', 'intelligent', 'idiot', 'malin', 'rusé', 'naïf',
-      'crédule', 'méfiant', 'ambitieux', 'paresseux', 'travailleur', 'actif', 'dynamique', 'sportif', 'cultivé',
-      'sage', 'fou', 'raisonnable', 'impulsif', 'bavard', 'silencieux', 'discret', 'indiscret', 'agressif',
-      'doux', 'violent', 'cruel', 'sensible', 'insensible', 'émotif', 'accueillant', 'serviable', 'rancunier',
-      'jaloux', 'envieux', 'modeste', 'prétentieux', 'arrogant', 'humble', 'fier', 'vaniteux', 'séduisant',
-      'beau', 'laid', 'petit', 'grand', 'gros', 'mince', 'fort', 'faible', 'rapide', 'lent', 'jeune', 'vieux',
+    en: [
+      'factory', 'bakery', 'town hall', 'swimming pool', 'park', 'square', 'garden', 'school', 'hospital',
+      'station', 'airport', 'supermarket', 'market', 'bank', 'post office', 'restaurant', 'café', 'hotel', 'museum',
+      'library', 'stadium', 'gym', 'church', 'cathedral', 'mosque', 'synagogue', 'castle', 'bridge', 'building',
+      'house', 'flat', 'farm', 'mill', 'warehouse', 'workshop', 'garage', 'car park', 'pharmacy', 'bookshop',
+      'butcher', 'fishmonger', 'cinema', 'theatre', 'prison', 'court', 'casino', 'cemetery', 'fountain', 'pub',
+      'harbour', 'bakery shop', 'fire station', 'police station', 'city hall', 'town square', 'block of flats',
+    ],
+    de: [
+      'Fabrik', 'Bäckerei', 'Rathaus', 'Schwimmbad', 'Park', 'Platz', 'Garten', 'Schule', 'Krankenhaus', 'Bahnhof',
+      'Flughafen', 'Supermarkt', 'Markt', 'Bank', 'Post', 'Restaurant', 'Café', 'Hotel', 'Museum', 'Bibliothek',
+      'Stadion', 'Turnhalle', 'Kirche', 'Dom', 'Moschee', 'Synagoge', 'Schloss', 'Brücke', 'Gebäude', 'Haus',
+      'Wohnung', 'Bauernhof', 'Mühle', 'Lager', 'Werkstatt', 'Garage', 'Parkplatz', 'Apotheke', 'Buchhandlung',
+      'Metzgerei', 'Fischgeschäft', 'Kino', 'Theater', 'Gefängnis', 'Gericht', 'Kasino', 'Friedhof', 'Brunnen',
+      'Kneipe', 'Hafen', 'Feuerwehr', 'Polizeiwache', 'Universität', 'Kloster', 'Turm', 'Brücke',
+    ],
+    es: [
+      'fábrica', 'panadería', 'ayuntamiento', 'piscina', 'parque', 'plaza', 'jardín', 'escuela', 'hospital',
+      'estación', 'aeropuerto', 'supermercado', 'mercado', 'banco', 'correos', 'restaurante', 'café', 'hotel',
+      'museo', 'biblioteca', 'estadio', 'gimnasio', 'iglesia', 'catedral', 'mezquita', 'sinagoga', 'castillo',
+      'puente', 'edificio', 'casa', 'piso', 'granja', 'molino', 'almacén', 'taller', 'garaje', 'aparcamiento',
+      'farmacia', 'librería', 'carnicería', 'pescadería', 'cine', 'teatro', 'cárcel', 'juzgado', 'casino',
+      'cementerio', 'fuente', 'bar', 'puerto', 'parque de bomberos', 'comisaría', 'universidad', 'monasterio',
+      'torre',
+    ],
+    it: [
+      'fabbrica', 'panetteria', 'municipio', 'piscina', 'parco', 'piazza', 'giardino', 'scuola', 'ospedale',
+      'stazione', 'aeroporto', 'supermercato', 'mercato', 'banca', 'posta', 'ristorante', 'caffè', 'albergo',
+      'museo', 'biblioteca', 'stadio', 'palestra', 'chiesa', 'cattedrale', 'moschea', 'sinagoga', 'castello',
+      'ponte', 'edificio', 'casa', 'appartamento', 'fattoria', 'mulino', 'magazzino', 'officina', 'garage',
+      'parcheggio', 'farmacia', 'libreria', 'macelleria', 'pescheria', 'cinema', 'teatro', 'prigione',
+      'tribunale', 'casinò', 'cimitero', 'fontana', 'bar', 'porto', 'caserma dei pompieri', 'questura',
+      'università', 'monastero', 'torre',
+    ],
+    nl: [
+      'fabriek', 'bakkerij', 'stadhuis', 'zwembad', 'park', 'plein', 'tuin', 'school', 'ziekenhuis', 'station',
+      'vliegveld', 'supermarkt', 'markt', 'bank', 'postkantoor', 'restaurant', 'café', 'hotel', 'museum',
+      'bibliotheek', 'stadion', 'sportschool', 'kerk', 'kathedraal', 'moskee', 'synagoge', 'kasteel', 'brug',
+      'gebouw', 'huis', 'flat', 'boerderij', 'molen', 'pakhuis', 'werkplaats', 'garage', 'parkeerplaats',
+      'apotheek', 'boekhandel', 'slagerij', 'viswinkel', 'bioscoop', 'theater', 'gevangenis', 'rechtbank',
+      'casino', 'begraafplaats', 'fontein', 'kroeg', 'haven', 'brandweerkazerne', 'politiebureau', 'universiteit',
+      'klooster', 'toren',
+    ],
+    pt: [
+      'fábrica', 'padaria', 'prefeitura', 'piscina', 'parque', 'praça', 'jardim', 'escola', 'hospital', 'estação',
+      'aeroporto', 'supermercado', 'mercado', 'banco', 'correios', 'restaurante', 'café', 'hotel', 'museu',
+      'biblioteca', 'estádio', 'ginásio', 'igreja', 'catedral', 'mesquita', 'sinagoga', 'castelo', 'ponte',
+      'edifício', 'casa', 'apartamento', 'fazenda', 'moinho', 'armazém', 'oficina', 'garagem', 'estacionamento',
+      'farmácia', 'livraria', 'açougue', 'peixaria', 'cinema', 'teatro', 'prisão', 'tribunal', 'cassino',
+      'cemitério', 'fonte', 'bar', 'porto', 'quartel dos bombeiros', 'delegacia', 'universidade', 'mosteiro',
+      'torre',
     ],
   },
 }

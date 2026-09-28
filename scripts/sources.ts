@@ -377,13 +377,6 @@ export interface CategorySource {
    * named on, or name another.
    */
   strictAliases?: boolean
-  /**
-   * Occurrences per million under which the words of the Wiktionary's own
-   * listing are not kept. Needed by a category that reads a whole grammatical
-   * class: the Wiktionnaire files 73 000 adjectives, most of which nobody has
-   * read. The domain's rarity ranks a dictionary, it does not shrink it.
-   */
-  minFrequency?: number
 }
 
 export const CATEGORY_SOURCES: readonly CategorySource[] = [
@@ -439,22 +432,19 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
  * the glob the app loads and outside the files every language must have.
  * `import-words.ts --draft` builds these and only these.
  *
- * None of the three reads a pull: Wikidata models no adjective, and for food
- * and edifices the French Wiktionary's own trees are the richer source.
+ * Neither reads a pull: for food and edifices the Wiktionary's own trees are
+ * the richer source, French from its own site, the six other languages from
+ * the English Wiktionary's topics (`TOPICS`).
  *
- * Activating one costs three things: a CATALOGUE entry, its name in the seven
- * languages, and a dictionary for each of them — the French one built here,
- * the six others from the English Wiktionary's topics (`TOPICS`).
+ * Activating one costs a CATALOGUE entry and its name in the seven languages:
+ * the dictionaries are already there, built by
+ * `import-words.ts --lang=<lang> --draft`.
  */
 export const DRAFT_SOURCES: readonly CategorySource[] = [
   // What a recipe calls for. The food tree holds the families — cheeses,
   // spices, meats, cereals, seafood — and the everyday words it files nowhere
   // (sel, poivre, farine) are added by hand.
   { id: 'ingredients', pulls: [] },
-  // The Wiktionnaire's own class of adjectives, minus the relational and
-  // grammatical ones its subcategories file apart. 73 000 of them, of which
-  // the floor keeps those anyone has read.
-  { id: 'adjectifs', pulls: [], minFrequency: 0.3 },
   // A city's buildings and public places, which the Wiktionnaire files under
   // « Édifices »: mairie, piscine and parc, filed by no category, come by hand.
   { id: 'lieux', pulls: [] },

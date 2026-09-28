@@ -95,4 +95,23 @@ export const TOPICS: Record<string, Topics> = {
   // Not expanded: "Tools" also holds weapons, sports and medical equipment,
   // which are not the everyday objects the category means.
   objets: { topics: ['Furniture', 'Tools', 'Cutlery', 'Tableware', 'Containers', 'Kitchenware'] },
+  // Drafts (see DRAFT_SOURCES). Not expanded either, and for a sharper reason:
+  // "Foods" files the dish a cook makes and the cereal a child asks for beside
+  // the ingredients, "Buildings" a plank and a parliament's chamber beside a
+  // bakehouse. Topics a reader would expect are left out on purpose —
+  // "Museums", "Airports" and "Parks" hold the proper names of places,
+  // "Offices" the positions held in one, "Universities" its institutions,
+  // "Housing" rent control, "Rooms" a jail cell. What the topics miss — the
+  // pantry, the meats, the shops of an everyday street — comes by hand, in
+  // `ADDED_WORDS`.
+  ingredients: {
+    topics: [
+      'Foods', 'Spices', 'Herbs', 'Condiments', 'Sauces', 'Cheeses', 'Dairy products', 'Meats', 'Seafood',
+      'Vegetables', 'Fruits', 'Grains', 'Legumes', 'Nuts', 'Sugars', 'Breads', 'Mushrooms', 'Seasonings',
+      'Cuts of meat', 'Poultry',
+    ],
+  },
+  lieux: {
+    topics: ['Buildings', 'Buildings and structures', 'Shops', 'Restaurants', 'Bars', 'Hotels', 'Schools', 'Places of worship', 'Gardens', 'Bridges'],
+  },
 }

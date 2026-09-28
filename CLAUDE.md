@@ -54,13 +54,15 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Une catégorie en brouillon vit hors du jeu** (`DRAFT_SOURCES`,
   `scripts/sources.ts`) : ses dictionnaires sont sous `src/data/drafts/`, que
   ni `packs.ts` ni `words.test.ts` ne lisent, et
-  `npm run import:words -- --draft` la construit seule, en français, sans lire
-  aucun *pull*. C'est `src/data/drafts.test.ts` qui la garde — lignes bien
-  formées, réponses évidentes trouvées, assez de lettres connues pour le
-  tirage. L'activer demande trois choses : une entrée de `CATALOGUE`, son nom
-  dans les sept langues, et un dictionnaire pour chacune — les six autres se
-  tirent des thèmes du Wiktionnaire anglais (`TOPICS`, `scripts/languages.ts`),
-  dont une entrée nouvelle fait relire tout le dump kaikki.
+  `npm run import:words -- --lang=de --draft` la construit seule, sans lire
+  aucun *pull* — le français depuis le Wiktionnaire français, les six autres
+  langues depuis les thèmes du Wiktionnaire anglais (`TOPICS`,
+  `scripts/languages.ts`), dont une entrée nouvelle périme le cache kaikki de
+  chaque langue et fait relire tout son dump. C'est `src/data/drafts.test.ts`
+  qui les garde — lignes bien formées, réponses évidentes trouvées dans chaque
+  langue, assez de lettres connues pour le tirage. Activer une catégorie
+  demande une entrée de `CATALOGUE` et son nom dans les sept langues : les
+  dictionnaires, eux, sont déjà là.
 - **Le Wiktionnaire est la source des noms communs**, Wikidata celle des
   entités : Wikidata connaît cinquante races de chat mais pas « abeille ». Une
   catégorie de noms communs bâtie sur Wikidata seul laisse dehors les réponses
