@@ -7,9 +7,14 @@ describe('refIn', () => {
     expect(refIn('ref=0123456789ab&utm_source=x')).toBe('0123456789ab')
   })
 
+  it('reads the code the invitation page left on the clipboard', () => {
+    expect(refIn('Invitation Lettre Minute de Demontoon : LM-0123456789ab')).toBe('0123456789ab')
+  })
+
   it('refuses anything that is not a code', () => {
     expect(refIn('https://jfongue.github.io/lettre-minute/')).toBeNull()
     expect(refIn('utm_source=google-play&utm_medium=organic')).toBeNull()
     expect(refIn('ref=../../etc')).toBeNull()
+    expect(refIn('un texte copié sans rapport, LM-court')).toBeNull()
   })
 })

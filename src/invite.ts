@@ -22,6 +22,8 @@ interface PageText {
   install: string
   /** A quiet line under the steps: the web version, for everyone not on Android. */
   iphone: readonly [string, string]
+  /** What the buttons leave on the clipboard, for the app to read at its first launch. */
+  clip(inviter: string, code: string): string
 }
 
 const TEXTS: Record<string, PageText> = {
@@ -36,6 +38,7 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Devenir testeur',
     install: 'Installer le jeu',
     iphone: ['Tu as un iPhone ? ', 'Clique ici'],
+    clip: (inviter, code) => `Invitation Lettre Minute${inviter ? ` de ${inviter}` : ''} : ${code}`,
   },
   en: {
     appName: 'Letter Minute',
@@ -48,6 +51,7 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Become a tester',
     install: 'Install the game',
     iphone: ['Got an iPhone? ', 'Tap here'],
+    clip: (inviter, code) => `Letter Minute invitation${inviter ? ` from ${inviter}` : ''}: ${code}`,
   },
   de: {
     appName: 'Letter Minute',
@@ -60,6 +64,7 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Tester werden',
     install: 'Spiel installieren',
     iphone: ['Du hast ein iPhone? ', 'Hier tippen'],
+    clip: (inviter, code) => `Letter-Minute-Einladung${inviter ? ` von ${inviter}` : ''}: ${code}`,
   },
   es: {
     appName: 'Letra Minuto',
@@ -72,6 +77,7 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Hacerme tester',
     install: 'Instalar el juego',
     iphone: ['¿Tienes un iPhone? ', 'Pulsa aquí'],
+    clip: (inviter, code) => `Invitación a Letra Minuto${inviter ? ` de ${inviter}` : ''}: ${code}`,
   },
   it: {
     appName: 'Lettera Minuto',
@@ -84,6 +90,7 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Diventa tester',
     install: 'Installa il gioco',
     iphone: ['Hai un iPhone? ', 'Tocca qui'],
+    clip: (inviter, code) => `Invito a Lettera Minuto${inviter ? ` di ${inviter}` : ''}: ${code}`,
   },
   nl: {
     appName: 'Letter Minuut',
@@ -96,6 +103,7 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Word tester',
     install: 'Spel installeren',
     iphone: ['Heb je een iPhone? ', 'Tik hier'],
+    clip: (inviter, code) => `Uitnodiging voor Letter Minuut${inviter ? ` van ${inviter}` : ''}: ${code}`,
   },
   pt: {
     appName: 'Letra Minuto',
@@ -108,6 +116,7 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Virar testador',
     install: 'Instalar o jogo',
     iphone: ['Tem um iPhone? ', 'Toque aqui'],
+    clip: (inviter, code) => `Convite para Letra Minuto${inviter ? ` de ${inviter}` : ''}: ${code}`,
   },
 }
 
@@ -171,3 +180,15 @@ document.getElementById('invite')!.innerHTML = `
   ${androidSteps}
   <p class="other">${escapeHtml(t.iphone[0])}<a href="${gameUrl}">${escapeHtml(t.iphone[1])}</a></p>
 `
+
+// Every way off the page leaves the code on the clipboard as well: the app
+// reads it at its first launch, whatever route its install took.
+if (ref) {
+  document.getElementById('invite')!.addEventListener('click', (event) => {
+    const link = (event.target as Element).closest('a')
+    if (!link || !navigator.clipboard) return
+    event.preventDefault()
+    const go = () => (window.location.href = link.href)
+    navigator.clipboard.writeText(t.clip(inviter, `LM-${ref}`)).then(go, go)
+  })
+}

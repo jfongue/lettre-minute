@@ -44,8 +44,13 @@ export function takeAddressRef(): void {
   window.history.replaceState(null, '', window.location.pathname + (rest ? `?${rest}` : '') + window.location.hash)
 }
 
-/** A code inside a Play referrer or an address: `ref=…` in its query. */
+/**
+ * A code inside a Play referrer or an address (`ref=…` in its query), or in
+ * the sentence the invitation page leaves on the clipboard (`LM-…`).
+ */
 export function refIn(text: string): string | null {
+  const copied = /\bLM-([0-9a-f]{12})\b/.exec(text)
+  if (copied) return copied[1]!
   const query = text.includes('?') ? text.slice(text.indexOf('?') + 1) : text
   const ref = new URLSearchParams(query).get('ref')
   return ref && CODE.test(ref) ? ref : null

@@ -342,7 +342,12 @@ qu'un nouvel arrivant casserait sans le savoir.
   un bouton vers la même page (`supabase/functions/invite/mail.ts`, que
   l'app relit pour `invitePage`). Le compte qui prend l'adresse invitée
   devient ami de l'inviteur sans demande (`befriend_invited`, déclencheur
-  sur `auth.users`) ; une adresse qui joue déjà reçoit une demande
+  sur `auth.users`), comme celui qui présente un code : referrer Play,
+  `?ref=` de la version web, ou presse-papiers que les boutons de la page
+  remplissent (`LM-…`, lu une fois au premier lancement, `onInstallTraces`).
+  Si rien n'est arrivé, le compte des trente premiers jours se voit demander
+  une fois qui l'a invité (`InviterPrompt`, `claim_inviter`, 0035) ; toute
+  voie encaissée, ou « Personne », ferme la question (`invite_claims`) ; une adresse qui joue déjà reçoit une demande
   ordinaire, et l'inviteur lit `sent` dans les deux cas, pour que le champ
   ne dise jamais qui joue. Un nom de compte en forme d'adresse reste refusé
   (`checkName`). Un groupe Google grand public n'a pas d'API : c'est

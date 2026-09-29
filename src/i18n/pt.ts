@@ -668,6 +668,16 @@ export const pt: Messages = {
     later: 'Mais tarde',
   },
 
+  inviterPrompt: {
+    title: 'Alguém convidou você?',
+    lead: 'Digite o nome de jogador e vocês serão amigos na hora.',
+    field: 'O nome de jogador',
+    nobody: 'Ninguém',
+    add: 'Adicionar',
+    unknown: 'Nenhum jogador com esse nome.',
+    self: 'É o seu próprio nome.',
+  },
+
   feedback: {
     title: 'A tua opinião conta!',
     lead: 'Já jogaste umas quantas partidas. O que te agrada, o que falta, o que te irrita? O criador lê tudo.',

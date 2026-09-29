@@ -5,6 +5,7 @@ import {
 } from '@capacitor-community/admob'
 import { AppUpdate, AppUpdateAvailability } from '@capawesome/capacitor-app-update'
 import { App as NativeApp } from '@capacitor/app'
+import { Clipboard } from '@capacitor/clipboard'
 import { Capacitor, registerPlugin } from '@capacitor/core'
 import { Haptics, ImpactStyle } from '@capacitor/haptics'
 import { Preferences } from '@capacitor/preferences'
@@ -414,21 +415,27 @@ export async function shareText(text: string): Promise<ShareOutcome> {
 const InstallReferrer = registerPlugin<{ read(): Promise<{ referrer: string }> }>('InstallReferrer')
 const REFERRER_READ = 'install-referrer-read'
 
+const CLIPBOARD_READ = 'invite-clipboard-read'
+
 /**
- * The Play referrer the invitation page's store link carried (`ref=…`), read
- * once per install: the only trace an install keeps of who invited it.
+ * What an install keeps of the invitation page, read once each: the Play
+ * referrer its store link carried (`ref=…`), and the clipboard its buttons
+ * filled (`LM-…`), which survives an install that went round the store link.
  */
-export function onInstallReferrer(onReferrer: (referrer: string) => void): () => void {
-  if (Capacitor.getPlatform() !== 'android') return () => {}
+export function onInstallTraces(onTrace: (text: string) => void): () => void {
+  if (!native) return () => {}
   let live = true
-  Preferences.get({ key: REFERRER_READ })
-    .then(async ({ value }) => {
-      if (value) return
-      const { referrer } = await InstallReferrer.read()
-      await Preferences.set({ key: REFERRER_READ, value: '1' })
-      if (live && referrer) onReferrer(referrer)
-    })
-    .catch(() => {})
+  const once = (key: string, read: () => Promise<string>) =>
+    Preferences.get({ key })
+      .then(async ({ value }) => {
+        if (value) return
+        const text = await read()
+        await Preferences.set({ key, value: '1' })
+        if (live && text) onTrace(text)
+      })
+      .catch(() => {})
+  if (Capacitor.getPlatform() === 'android') once(REFERRER_READ, async () => (await InstallReferrer.read()).referrer)
+  once(CLIPBOARD_READ, async () => (await Clipboard.read()).value)
   return () => {
     live = false
   }
