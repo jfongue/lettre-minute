@@ -20,6 +20,11 @@ interface PageText {
   join: string
   tester: string
   install: string
+  /**
+   * Under the step to take next, since each leaves for a Google page of its
+   * own: which button to press there, and to come back to this tab.
+   */
+  hints: { join: string; tester: string; install: string }
   /** Above the steps when the mail came after the group took the address. */
   joined: string
   /** A quiet line under the steps: the web version, for everyone not on Android. */
@@ -39,6 +44,11 @@ const TEXTS: Record<string, PageText> = {
     join: 'Rejoindre les testeurs',
     tester: 'Devenir testeur',
     install: 'Installer le jeu',
+    hints: {
+      join: 'Sur la page Google, touche « Rejoindre le groupe » avec le compte Google de ton téléphone, puis reviens sur cet onglet.',
+      tester: 'Touche « Devenir testeur », puis reviens sur cet onglet.',
+      install: 'Installe le jeu depuis le Play Store, puis ouvre-le.',
+    },
     joined: 'Tu es déjà dans le groupe des testeurs.',
     iphone: ['Tu as un iPhone ? ', 'Clique ici'],
     clip: (inviter, code) => `Invitation Lettre Minute${inviter ? ` de ${inviter}` : ''} : ${code}`,
@@ -53,6 +63,11 @@ const TEXTS: Record<string, PageText> = {
     join: 'Join the testers',
     tester: 'Become a tester',
     install: 'Install the game',
+    hints: {
+      join: 'On the Google page, tap “Join group” with your phone’s Google account, then come back to this tab.',
+      tester: 'Tap “Become a tester”, then come back to this tab.',
+      install: 'Install the game from the Play Store, then open it.',
+    },
     joined: 'You are already in the testers’ group.',
     iphone: ['Got an iPhone? ', 'Tap here'],
     clip: (inviter, code) => `Letter Minute invitation${inviter ? ` from ${inviter}` : ''}: ${code}`,
@@ -67,6 +82,11 @@ const TEXTS: Record<string, PageText> = {
     join: 'Testergruppe beitreten',
     tester: 'Tester werden',
     install: 'Spiel installieren',
+    hints: {
+      join: 'Tippe auf der Google-Seite mit dem Google-Konto deines Handys auf „Gruppe beitreten“ und komm dann zu diesem Tab zurück.',
+      tester: 'Tippe auf „Tester werden“ und komm dann zu diesem Tab zurück.',
+      install: 'Installiere das Spiel aus dem Play Store und öffne es.',
+    },
     joined: 'Du bist schon in der Testergruppe.',
     iphone: ['Du hast ein iPhone? ', 'Hier tippen'],
     clip: (inviter, code) => `Letter-Minute-Einladung${inviter ? ` von ${inviter}` : ''}: ${code}`,
@@ -81,6 +101,11 @@ const TEXTS: Record<string, PageText> = {
     join: 'Unirme a los testers',
     tester: 'Hacerme tester',
     install: 'Instalar el juego',
+    hints: {
+      join: 'En la página de Google, pulsa «Unirse al grupo» con la cuenta de Google de tu móvil y vuelve a esta pestaña.',
+      tester: 'Pulsa «Convertirme en tester» y vuelve a esta pestaña.',
+      install: 'Instala el juego desde Play Store y ábrelo.',
+    },
     joined: 'Ya estás en el grupo de testers.',
     iphone: ['¿Tienes un iPhone? ', 'Pulsa aquí'],
     clip: (inviter, code) => `Invitación a Letra Minuto${inviter ? ` de ${inviter}` : ''}: ${code}`,
@@ -95,6 +120,11 @@ const TEXTS: Record<string, PageText> = {
     join: 'Entra tra i tester',
     tester: 'Diventa tester',
     install: 'Installa il gioco',
+    hints: {
+      join: 'Nella pagina Google, tocca «Iscriviti al gruppo» con l’account Google del telefono, poi torna su questa scheda.',
+      tester: 'Tocca «Diventa un tester», poi torna su questa scheda.',
+      install: 'Installa il gioco dal Play Store, poi aprilo.',
+    },
     joined: 'Sei già nel gruppo dei tester.',
     iphone: ['Hai un iPhone? ', 'Tocca qui'],
     clip: (inviter, code) => `Invito a Lettera Minuto${inviter ? ` di ${inviter}` : ''}: ${code}`,
@@ -109,6 +139,11 @@ const TEXTS: Record<string, PageText> = {
     join: 'Word lid van de testers',
     tester: 'Word tester',
     install: 'Spel installeren',
+    hints: {
+      join: 'Tik op de Google-pagina op ‘Lid worden van groep’ met het Google-account van je telefoon en kom dan terug naar dit tabblad.',
+      tester: 'Tik op ‘Tester worden’ en kom dan terug naar dit tabblad.',
+      install: 'Installeer het spel via de Play Store en open het.',
+    },
     joined: 'Je zit al in de testersgroep.',
     iphone: ['Heb je een iPhone? ', 'Tik hier'],
     clip: (inviter, code) => `Uitnodiging voor Letter Minuut${inviter ? ` van ${inviter}` : ''}: ${code}`,
@@ -123,6 +158,11 @@ const TEXTS: Record<string, PageText> = {
     join: 'Entrar nos testadores',
     tester: 'Virar testador',
     install: 'Instalar o jogo',
+    hints: {
+      join: 'Na página do Google, toque em “Participar do grupo” com a conta Google do seu celular e volte para esta aba.',
+      tester: 'Toque em “Quero ser testador” e volte para esta aba.',
+      install: 'Instale o jogo pela Play Store e abra.',
+    },
     joined: 'Você já está no grupo de testadores.',
     iphone: ['Tem um iPhone? ', 'Toque aqui'],
     clip: (inviter, code) => `Convite para Letra Minuto${inviter ? ` de ${inviter}` : ''}: ${code}`,
@@ -186,9 +226,9 @@ function markDone(id: string) {
 }
 
 const STEPS = [
-  ...(inGroup ? [] : [{ id: 'join', href: group ?? '', label: t.join }]),
-  { id: 'tester', href: TESTING_URL, label: t.tester },
-  { id: 'install', href: storeUrl, label: t.install },
+  ...(inGroup ? [] : [{ id: 'join', href: group ?? '', label: t.join } as const]),
+  { id: 'tester', href: TESTING_URL, label: t.tester } as const,
+  { id: 'install', href: storeUrl, label: t.install } as const,
 ]
 
 function androidSteps(): string {
@@ -200,7 +240,9 @@ function androidSteps(): string {
       ${inGroup ? `<p class="joined">✓ ${escapeHtml(t.joined)}</p>` : ''}
       ${STEPS.map(
         (step) =>
-          `<a class="btn${step.id === next ? ' btn--main' : ''}${done.has(step.id) ? ' btn--done' : ''}" href="${step.href}" target="_blank" rel="noopener" data-step="${step.id}">${escapeHtml(step.label)}</a>`,
+          `<a class="btn${step.id === next ? ' btn--main' : ''}${done.has(step.id) ? ' btn--done' : ''}" href="${step.href}" target="_blank" rel="noopener" data-step="${step.id}">${escapeHtml(step.label)}</a>${
+            step.id === next ? `<p class="hint">${escapeHtml(t.hints[step.id])}</p>` : ''
+          }`,
       ).join('')}
     </section>`
 }
