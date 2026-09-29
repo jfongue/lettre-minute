@@ -1868,6 +1868,164 @@ button.challenge-past::after {
   color: var(--ink-faint);
 }
 
+/* What a friend types to find you, set apart from the list it opens. */
+.friends-me {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border: var(--line) solid var(--ink);
+}
+
+.friends-me-name {
+  display: grid;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.friends-me-name .note {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.friends-me-name strong {
+  font-size: 1.15rem;
+}
+
+.friends-me-share {
+  min-height: 2.5rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+}
+
+.friends-requests {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.75rem;
+  background: var(--paper-2);
+}
+
+.friends-requests .friend {
+  border-bottom: 0;
+}
+
+.friends-requests .player-link {
+  justify-self: start;
+  padding: 0;
+  font-weight: 600;
+}
+
+.friend-answer {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.friend-answer button {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.friend-answer .friend-answer-yes {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.friend-answer svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.8;
+  stroke-linecap: square;
+}
+
+.friends-head {
+  align-items: center;
+}
+
+.friends-sort {
+  flex: none;
+}
+
+.friends-sort .layer-tab {
+  min-height: 2rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.68rem;
+}
+
+.friends--ranked .friend--open {
+  grid-template-columns: 1.4rem auto 1fr auto;
+}
+
+.friend-rank {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--ink-faint);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.friend-score {
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.friend-tally {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.friend-tally--up {
+  color: var(--green);
+}
+
+.friend-tally--down {
+  color: var(--red);
+}
+
+.friends-more summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.friends-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.friends-more summary::after {
+  content: '›';
+  transition: transform 160ms var(--ease-out);
+}
+
+.friends-more[open] summary::after {
+  transform: rotate(90deg);
+}
+
+.add-friend .layer-tab {
+  min-height: 2.75rem;
+  font-size: 0.72rem;
+}
+
 .friend-page {
   display: grid;
   gap: 1.4rem;

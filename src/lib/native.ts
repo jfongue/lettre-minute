@@ -9,6 +9,7 @@ import { Capacitor, registerPlugin } from '@capacitor/core'
 import { Haptics, ImpactStyle } from '@capacitor/haptics'
 import { Preferences } from '@capacitor/preferences'
 import { PushNotifications } from '@capacitor/push-notifications'
+import { Share } from '@capacitor/share'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { SocialLogin } from '@capgo/capacitor-social-login'
@@ -382,6 +383,43 @@ export async function googleIdToken(nonce: string, quiet = false): Promise<strin
     return 'idToken' in result ? result.idToken : null
   } catch {
     return null
+  }
+}
+
+export type ShareOutcome = 'shared' | 'copied' | 'failed'
+
+/**
+ * The phone's share sheet. A browser without the Web Share API gets the text
+ * on its clipboard instead; a sheet closed without choosing counts as shared,
+ * since nothing is left to tell the player.
+ */
+export async function shareText(text: string): Promise<ShareOutcome> {
+  try {
+    if (native) {
+      await Share.share({ text }).catch(() => {})
+      return 'shared'
+    }
+    if (navigator.share) {
+      await navigator.share({ text }).catch(() => {})
+      return 'shared'
+    }
+    await navigator.clipboard.writeText(text)
+    return 'copied'
+  } catch {
+    return 'failed'
+  }
+}
+
+/**
+ * Where a friend without the game gets it. Android is a closed test on Play,
+ * open to whoever joins its public Google group; without that group's address
+ * the invitation only carries the web version, the one anyone can open.
+ */
+export function inviteLinks(): { group: string | null; testing: string; web: string } {
+  return {
+    group: import.meta.env.VITE_TESTER_GROUP_URL || null,
+    testing: 'https://play.google.com/apps/testing/fr.lettreminute.app',
+    web: 'https://jfongue.github.io/lettre-minute/',
   }
 }
 

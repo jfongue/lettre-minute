@@ -1,19 +1,16 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ChallengeSummary } from '../lib/cloud'
 import type { AvatarChoice } from '../domain/avatar'
 import type { RunRecord } from '../domain/history'
-import { levelFor, levelProgress, type Profile } from '../domain/progression'
+import { levelProgress, type Profile } from '../domain/progression'
 import { ADS_ENABLED, ownedCategoryIds } from '../domain/unlocks'
 import { banNews } from '../domain/perks'
 import {
-  blockPlayer,
   fetchBlocks,
   fetchFriends,
   inviteModerator,
   removeFriend,
   requestFriend,
-  inviteTester,
-  isEmail,
   respondFriend,
   unblockPlayer,
   type Account,
@@ -42,7 +39,7 @@ import { RequestsPage } from './RequestsPage'
 import { StatsPage } from './StatsPage'
 import { FriendPage } from './FriendPage'
 import { useFriendHistory } from '../state/rivalry'
-import { rivalry, type SharedChallenge } from '../domain/rivalry'
+import { FriendsView } from './FriendsView'
 import { DonateButton } from './Donate'
 import { useHiddenTaps } from './useHiddenTaps'
 import { useSwipe } from './useSwipe'
@@ -367,8 +364,6 @@ function SocialPane({
   const t = useT()
   const [friends, setFriends] = useState<Friend[] | null | 'loading'>('loading')
   const [blocks, setBlocks] = useState<BlockedPlayer[]>([])
-  const [name, setName] = useState('')
-  const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const named = Boolean(account && !account.anonymous && !account.needsName)
   const history = useFriendHistory(named)
@@ -415,27 +410,15 @@ function SocialPane({
     )
   }
 
-  const inviting = isEmail(name.trim())
-
-  const send = async (event: FormEvent) => {
-    event.preventDefault()
-    const wanted = name.trim()
-    if (wanted === '') return
-    setBusy(true)
-    if (inviting) {
-      const outcome = await inviteTester(wanted, t.tag.split('-')[0]!)
-      setBusy(false)
-      setMessage(t.social.testerInvites[outcome](wanted))
-      if (outcome === 'sent') setName('')
-      return
-    }
+  const request = async (wanted: string) => {
     const outcome = await requestFriend(wanted)
-    setBusy(false)
-    setMessage(t.social.requests[outcome](wanted))
-    if (outcome === 'sent' || outcome === 'accepted') {
-      setName('')
+    const said = t.social.requests[outcome](wanted)
+    const done = outcome === 'sent' || outcome === 'accepted'
+    if (done) {
+      setMessage(said)
       refresh()
     }
+    return { said, done }
   }
 
   const act = async (work: Promise<boolean>) => {
@@ -443,12 +426,7 @@ function SocialPane({
     refresh()
   }
 
-  const list = friends === 'loading' || friends === null ? [] : friends
-  const incoming = list.filter((friend) => friend.relation === 'incoming')
-  const accepted = list
-    .filter((friend) => friend.relation === 'friend')
-    .sort((a, b) => b.weekBest - a.weekBest || b.xp - a.xp)
-  const outgoing = list.filter((friend) => friend.relation === 'outgoing')
+  const accepted = friends === 'loading' || friends === null ? [] : friends.filter((friend) => friend.relation === 'friend')
   const sharedWith = (friendId: string) =>
     history && (history.byFriend[friendId] ?? []).flatMap((id) => history.challenges[id] ?? [])
 
@@ -480,204 +458,19 @@ function SocialPane({
   }
 
   return (
-    <>
-      <form className="account-form" onSubmit={send}>
-        <label className="field">
-          <span>{t.social.add}</span>
-          <input
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder={t.social.addPlaceholder}
-            autoComplete="off"
-            autoCapitalize="off"
-            maxLength={254}
-          />
-        </label>
-        {message && <p className="note">{message}</p>}
-        <button type="submit" className="btn btn--block" disabled={busy || name.trim() === ''}>
-          {busy ? t.wait : inviting ? t.social.sendInvite : t.social.send}
-        </button>
-        <p className="note">
-          {t.social.yourName[0]}
-          <strong>{account.name}</strong>
-          {t.social.yourName[1]}
-        </p>
-      </form>
-
-      {friends === 'loading' && <p className="note">{t.loading}</p>}
-      {friends === null && <p className="note note--warn">{t.social.loadFailed}</p>}
-
-      {incoming.length > 0 && (
-        <section className="stack">
-          <p className="section-title">{t.social.incoming}</p>
-          <ul className="friends">
-            {incoming.map((friend) => (
-              <IncomingRow
-                key={friend.id}
-                friend={friend}
-                onAccept={() => act(respondFriend(friend.id, true))}
-                onDecline={() => act(respondFriend(friend.id, false))}
-                onBlock={() => act(blockPlayer(friend.name).then((outcome) => outcome === 'blocked'))}
-              />
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {friends !== 'loading' && friends !== null && (
-        <section className="stack">
-          <div className="spread">
-            <p className="section-title">{t.social.friends}</p>
-            <p className="note">{accepted.length}</p>
-          </div>
-          {accepted.length === 0 ? (
-            <p className="note">{t.social.none}</p>
-          ) : (
-            <ul className="friends">
-              {accepted.map((friend) => (
-                <FriendRow
-                  key={friend.id}
-                  friend={friend}
-                  showModerator={moderator}
-                  shared={sharedWith(friend.id)}
-                  onOpen={() => setOpened(friend.id)}
-                />
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
-
-      {outgoing.length > 0 && (
-        <section className="stack">
-          <p className="section-title">{t.social.outgoing}</p>
-          <ul className="friends">
-            {outgoing.map((friend) => (
-              <li key={friend.id} className="friend">
-                <Avatar choice={friend.avatar} size="sm" />
-                <span className="friend-name">{friend.name}</span>
-                <span className="friend-actions">
-                  <button type="button" className="btn btn--quiet btn--muted" onClick={() => act(removeFriend(friend.id))}>
-                    {t.cancel}
-                  </button>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {blocks.length > 0 && (
-        <section className="stack">
-          <p className="section-title">{t.social.blocked}</p>
-          <ul className="friends">
-            {blocks.map((blocked) => (
-              <li key={blocked.id} className="friend">
-                <Avatar choice={blocked.avatar} size="sm" />
-                <span className="friend-name">{blocked.name}</span>
-                <span className="friend-actions">
-                  <button type="button" className="btn btn--quiet btn--muted" onClick={() => act(unblockPlayer(blocked.id))}>
-                    {t.social.unblock}
-                  </button>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-    </>
-  )
-}
-
-/** A request can be declined, or its sender blocked — which takes a second, explicit tap. */
-function IncomingRow({
-  friend,
-  onAccept,
-  onDecline,
-  onBlock,
-}: {
-  friend: Friend
-  onAccept(): void
-  onDecline(): void
-  onBlock(): void
-}) {
-  const t = useT()
-  const [confirming, setConfirming] = useState(false)
-  return (
-    <li className="friend">
-      <Avatar choice={friend.avatar} size="sm" />
-      <span className="friend-name">
-        <span>{friend.name}</span>
-        {confirming && <span className="note">{t.player.blockWarning(friend.name)}</span>}
-      </span>
-      <span className="friend-actions">
-        {confirming ? (
-          <>
-            <button type="button" className="btn btn--quiet" onClick={onBlock}>
-              {t.player.blockConfirm}
-            </button>
-            <button type="button" className="btn btn--quiet btn--muted" onClick={() => setConfirming(false)}>
-              {t.cancel}
-            </button>
-          </>
-        ) : (
-          <>
-            <button type="button" className="btn btn--quiet" onClick={onAccept}>
-              {t.social.accept}
-            </button>
-            <button type="button" className="btn btn--quiet btn--muted" onClick={onDecline}>
-              {t.social.decline}
-            </button>
-            <button type="button" className="btn btn--quiet btn--muted" onClick={() => setConfirming(true)}>
-              {t.player.block}
-            </button>
-          </>
-        )}
-      </span>
-    </li>
-  )
-}
-
-/** A friend opens onto their page; under the name, how your challenges together went. */
-function FriendRow({
-  friend,
-  showModerator,
-  shared,
-  onOpen,
-}: {
-  friend: Friend
-  /** Who moderates is known to moderators alone: a player would know whom to lobby. */
-  showModerator: boolean
-  /** Null until the shared challenges are listed. */
-  shared: readonly SharedChallenge[] | null
-  onOpen(): void
-}) {
-  const t = useT()
-  const tally = shared && rivalry(shared, friend.id)
-
-  return (
-    <li>
-      <button type="button" className="friend friend--open" onClick={onOpen} aria-label={t.social.openFriend(friend.name)}>
-        <Avatar choice={friend.avatar} size="sm" />
-        <span className="friend-name">
-          <span>
-            {friend.name}
-            {showModerator && friend.moderator && <span className="friend-moderator">{t.social.moderator}</span>}
-          </span>
-          <span className="note">
-            {t.social.stats(levelFor(friend.xp), formatNumber(t, friend.weekBest), formatNumber(t, friend.bestScore))}
-          </span>
-          {tally && (
-            <span className="note">
-              {tally.challenges === 0 ? t.social.noShared : t.social.versus(tally.won, tally.lost, friend.name, tally.challenges)}
-            </span>
-          )}
-        </span>
-        <svg className="friend-chevron" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-    </li>
+    <FriendsView
+      name={account.name}
+      friends={friends}
+      blocks={blocks}
+      showModerator={moderator}
+      sharedWith={sharedWith}
+      message={message}
+      onOpen={setOpened}
+      onRespond={(friendId, accept) => act(respondFriend(friendId, accept))}
+      onCancel={(friendId) => act(removeFriend(friendId))}
+      onUnblock={(playerId) => act(unblockPlayer(playerId))}
+      onRequest={request}
+    />
   )
 }
 

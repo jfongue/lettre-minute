@@ -5,7 +5,7 @@ import type { FaceOff } from '../domain/rivalry'
 import type { StatId } from '../domain/leaderboards'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
-import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
+import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
 
 interface LeaderboardText {
@@ -255,25 +255,41 @@ export const fr = {
     needAccount: 'Un ami te trouve par ton nom de compte : crée-le d’abord, tes parties déjà jouées te suivent.',
     createAccount: 'Créer mon compte',
     add: 'Ajouter un ami',
-    addPlaceholder: 'Son nom de compte, ou son e-mail',
+    /** The Social tab's card: what a friend types to find you. */
+    nameLabel: 'Ton nom de joueur',
+    share: 'Partager',
+    shareName: (name: string) => `Ajoute-moi en ami sur Lettre Minute : mon nom de joueur est ${name}.`,
+    incomingCount: (count: number) => `${count} ${plural(count, 'demande', 'demandes')}`,
+    wantsFriend: 'veut être ton ami',
+    sortLabel: 'Trier tes amis',
+    sortRecord: 'Record',
+    sortAlpha: 'A–Z',
+    level: (level: number) => `Niv. ${level}`,
+    noRecord: 'pas encore joué',
+    elsewhere: (sent: number, blocked: number) =>
+      [sent > 0 && `${sent} ${plural(sent, 'demande envoyée', 'demandes envoyées')}`, blocked > 0 && `${blocked} ${plural(blocked, 'bloqué', 'bloqués')}`]
+        .filter(Boolean)
+        .join(' · '),
+    hasGame: 'A déjà le jeu',
+    noGame: 'N’a pas le jeu',
+    namePlaceholder: 'Son nom de joueur',
+    inviteLead: 'Envoie-lui un lien. Sur Android, le jeu est en test fermé : il rejoint le groupe des testeurs, puis l’installe depuis Play. Sur iPhone ou ordinateur, il joue dans son navigateur.',
+    inviteLeadWeb: 'Envoie-lui le lien du jeu : il y joue dans son navigateur, sur téléphone comme sur ordinateur.',
+    /** Shared to a friend without the game: the closed test on Android, the web elsewhere. */
+    inviteText: (name: string, links: { group: string | null; testing: string; web: string }) =>
+      links.group
+        ? `Viens jouer à Lettre Minute avec moi ! Mon nom de joueur : ${name}\n\nSur Android (test fermé) :\n1. Rejoins le groupe des testeurs : ${links.group}\n2. Deviens testeur : ${links.testing}\n3. Installe le jeu depuis Play.\n\nSur iPhone ou ordinateur : ${links.web}`
+        : `Viens jouer à Lettre Minute avec moi ! Mon nom de joueur : ${name}\n${links.web}`,
+    copied: 'Copié : colle-le dans un message.',
+    shareFailed: 'Le partage n’a pas marché. Réessaie.',
     sendInvite: 'Envoyer l’invitation',
-    testerInvites: {
-      sent: (email: string) => `${email} va recevoir une invitation à installer le jeu.`,
-      already: (email: string) => `${email} a déjà été invité.`,
-      invalid: () => 'Cette adresse e-mail ne semble pas valide.',
-      limit: () => 'Cinq invitations par jour au plus : réessaie demain.',
-      anonymous: () => 'Crée un compte pour inviter tes amis.',
-      unreachable: () => 'Le serveur ne répond pas. Réessaie dans un instant.',
-    } satisfies Record<TesterInviteOutcome, (email: string) => string> as Record<TesterInviteOutcome, (email: string) => string>,
     send: 'Envoyer la demande',
-    /** Around the player's own account name, which is set in bold. */
-    yourName: ['Ton nom à donner : ', ''] as readonly [string, string],
     loadFailed: 'Impossible de charger tes amis pour l’instant.',
     incoming: 'Demandes reçues',
     accept: 'Accepter',
     decline: 'Refuser',
     friends: 'Mes amis',
-    none: 'Pas encore d’amis. Envoie une demande avec leur nom de compte.',
+    none: 'Pas encore d’amis. Ajoute-les par leur nom de joueur, ou invite-les.',
     outgoing: 'En attente de réponse',
     stats: (level: number, week: string, record: string) => `Niv. ${level} · semaine ${week} · record ${record}`,
     remove: 'Retirer',
@@ -290,10 +306,6 @@ export const fr = {
     } satisfies Record<InviteOutcome, (name: string) => string> as Record<InviteOutcome, (name: string) => string>,
     blocked: 'Bloqués',
     unblock: 'Débloquer',
-    /** Under a friend's name: challenges won by each, and how many were shared. */
-    versus: (mine: number, theirs: number, name: string, count: number) =>
-      `Toi ${mine} – ${theirs} ${name} · ${count} ${plural(count, 'défi', 'défis')}`,
-    noShared: 'Aucun défi ensemble',
     openFriend: (name: string) => `Voir la fiche de ${name}`,
     faceOff: 'Face à face',
     won: (count: number) => plural(count, 'victoire', 'victoires'),

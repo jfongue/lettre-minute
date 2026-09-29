@@ -24,6 +24,7 @@ import { OldChallengeList } from '../ui/StatsPage'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
 import { FriendPage } from '../ui/FriendPage'
+import { FriendsView } from '../ui/FriendsView'
 import { Menu } from '../ui/Menu'
 import type { SharedChallenge, SharedPlayer } from '../domain/rivalry'
 import type { Boards } from '../domain/boards'
@@ -536,6 +537,45 @@ function FriendPageScenario({ back, ties, empty }: { back(): void; ties?: boolea
         onRemove={back}
         onElect={() => later(undefined)}
       />
+    </div>
+  )
+}
+
+const FRIENDS = [
+  FRIEND_LEA,
+  { ...FRIEND_LEA, id: 'tom', name: 'Tom', avatar: avatarOf(31, 'jaune', 'noir', 'rouge'), xp: at(9), bestScore: 2480, weekBest: 1210 },
+  { ...FRIEND_LEA, id: 'maxitoon', name: 'Maxitoon', avatar: avatarOf(47, 'vert', 'creme', 'rose'), xp: at(30), bestScore: 4400, weekBest: 2010, moderator: true },
+  { ...FRIEND_LEA, id: 'camille', name: 'Camille', avatar: avatarOf(64, 'rose', 'noir', 'jaune'), xp: at(2), bestScore: 0, weekBest: 0 },
+  { ...FRIEND_LEA, id: 'nino', name: 'Nino', avatar: avatarOf(5, 'rouge', 'creme', 'bleu'), relation: 'incoming' as const },
+  { ...FRIEND_LEA, id: 'sacha', name: 'Sacha', avatar: avatarOf(88, 'noir', 'jaune', 'rouge'), relation: 'outgoing' as const },
+]
+
+/** La vue de l'onglet Social d'un compte nommé, sur des amis inventés : rien ne part au serveur. */
+function FriendsScenario({ back, sheet }: { back(): void; sheet?: 'name' | 'invite' }) {
+  const [said, setSaid] = useState<string | null>(null)
+  return (
+    <div className="sheet">
+      <div className="stack">
+        <button type="button" className="btn btn--quiet" onClick={back}>
+          Retour
+        </button>
+        <FriendsView
+          name="Jérémy"
+          friends={FRIENDS}
+          blocks={[{ id: 'kev', name: 'xXkevXx', avatar: avatarOf(3, 'bleu', 'noir', 'jaune') }]}
+          showModerator
+          sharedWith={(id) => (id === 'lea' ? SHARED : id === 'maxitoon' ? SHARED.slice(2, 4) : [])}
+          message={said}
+          onOpen={(id) => setSaid(`Ouvrirait la fiche de ${id}`)}
+          onRespond={(id, accept) => setSaid(`${accept ? 'Accepterait' : 'Refuserait'} ${id}`)}
+          onCancel={(id) => setSaid(`Annulerait la demande à ${id}`)}
+          onUnblock={(id) => setSaid(`Débloquerait ${id}`)}
+          onRequest={(name) =>
+            later(name === 'Personne' ? { said: 'Aucun compte à ce nom.', done: false } : { said: `Demande envoyée à ${name}.`, done: true })
+          }
+          initialSheet={sheet}
+        />
+      </div>
     </div>
   )
 }
@@ -1123,6 +1163,30 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Aucun défi joué ensemble',
     phase: 'home',
     render: (back) => <FriendPageScenario back={back} empty />,
+  },
+  {
+    id: 'social-friends',
+    group: 'Défi entre amis',
+    title: 'Mes amis',
+    how: 'Onglet Social d’un compte nommé : une demande reçue, amis par record ou A–Z, envoyées et bloqués repliés',
+    phase: 'home',
+    render: (back) => <FriendsScenario back={back} />,
+  },
+  {
+    id: 'social-add-friend',
+    group: 'Défi entre amis',
+    title: 'Ajouter un ami par son nom',
+    how: 'Mes amis → Ajouter un ami, onglet « A déjà le jeu » (« Personne » répond aucun compte)',
+    phase: 'home',
+    render: (back) => <FriendsScenario back={back} sheet="name" />,
+  },
+  {
+    id: 'social-invite',
+    group: 'Défi entre amis',
+    title: 'Inviter un ami sans le jeu',
+    how: 'Mes amis → Ajouter un ami, onglet « N’a pas le jeu » : partage le lien du groupe de testeurs (VITE_TESTER_GROUP_URL), sinon celui du web',
+    phase: 'home',
+    render: (back) => <FriendsScenario back={back} sheet="invite" />,
   },
   {
     id: 'social-unnamed',

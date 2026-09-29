@@ -618,19 +618,6 @@ export function requestFriend(name: string): Promise<FriendRequestOutcome> {
   }, 'unreachable')
 }
 
-export type TesterInviteOutcome = 'sent' | 'already' | 'invalid' | 'limit' | 'anonymous' | 'unreachable'
-
-/**
- * Invites someone by e-mail to the Play closed test: the address waits on the
- * server until the developer's script lists it as a tester and mails it.
- */
-export function inviteTester(email: string, lang: string): Promise<TesterInviteOutcome> {
-  return guard(async () => {
-    const { data, error } = await supabase!.rpc('invite_tester', { p_email: email.trim(), p_lang: lang })
-    return error ? 'unreachable' : (data as TesterInviteOutcome)
-  }, 'unreachable')
-}
-
 export function respondFriend(from: string, accept: boolean): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('respond_friend', { p_from: from, p_accept: accept })
