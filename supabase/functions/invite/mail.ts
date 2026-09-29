@@ -13,9 +13,11 @@ export const WEB_URL = 'https://jfongue.github.io/lettre-minute/'
  * code (`my_invite_code`, 0034) lets the game befriend them once the invitee
  * has an account; without it the page still names the inviter.
  */
-export function invitePage(inviter: string, code: string | null): string {
+export function invitePage(inviter: string, code: string | null, inGroup = false): string {
   const query = new URLSearchParams({ from: inviter })
   if (code) query.set('ref', code)
+  // The invitee is in the testers' group already: the page skips that step.
+  if (inGroup) query.set('in', '1')
   return `${WEB_URL}invite.html?${query}`
 }
 
@@ -120,11 +122,11 @@ function escapeHtml(text: string): string {
 const type = (size: number, weight: number, colour: string, extra = '') =>
   `font-family:${FONT};font-size:${size}px;font-weight:${weight};color:${colour};${extra}`
 
-export function inviteMail(lang: string | null, inviter: string, email: string, code: string | null = null): { subject: string; html: string; text: string } {
+export function inviteMail(lang: string | null, inviter: string, email: string, code: string | null = null, inGroup = false): { subject: string; html: string; text: string } {
   const t = TEXTS[lang ?? ''] ?? TEXTS.fr!
   const who = inviter.trim() || t.appName
   const subject = t.subject(who)
-  const link = invitePage(who, code)
+  const link = invitePage(who, code, inGroup)
   // The game's own pictures (npm run render:invite), in the mail's language.
   const art = (name: 'header') => `${WEB_URL}invite/${name}-${TEXTS[lang ?? ''] ? lang : 'fr'}.png`
 

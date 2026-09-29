@@ -20,6 +20,8 @@ interface PageText {
   join: string
   tester: string
   install: string
+  /** Above the steps when the mail came after the group took the address. */
+  joined: string
   /** A quiet line under the steps: the web version, for everyone not on Android. */
   iphone: readonly [string, string]
   /** What the buttons leave on the clipboard, for the app to read at its first launch. */
@@ -37,6 +39,7 @@ const TEXTS: Record<string, PageText> = {
     join: 'Rejoindre les testeurs',
     tester: 'Devenir testeur',
     install: 'Installer le jeu',
+    joined: 'Tu es déjà dans le groupe des testeurs.',
     iphone: ['Tu as un iPhone ? ', 'Clique ici'],
     clip: (inviter, code) => `Invitation Lettre Minute${inviter ? ` de ${inviter}` : ''} : ${code}`,
   },
@@ -50,6 +53,7 @@ const TEXTS: Record<string, PageText> = {
     join: 'Join the testers',
     tester: 'Become a tester',
     install: 'Install the game',
+    joined: 'You are already in the testers’ group.',
     iphone: ['Got an iPhone? ', 'Tap here'],
     clip: (inviter, code) => `Letter Minute invitation${inviter ? ` from ${inviter}` : ''}: ${code}`,
   },
@@ -63,6 +67,7 @@ const TEXTS: Record<string, PageText> = {
     join: 'Testergruppe beitreten',
     tester: 'Tester werden',
     install: 'Spiel installieren',
+    joined: 'Du bist schon in der Testergruppe.',
     iphone: ['Du hast ein iPhone? ', 'Hier tippen'],
     clip: (inviter, code) => `Letter-Minute-Einladung${inviter ? ` von ${inviter}` : ''}: ${code}`,
   },
@@ -76,6 +81,7 @@ const TEXTS: Record<string, PageText> = {
     join: 'Unirme a los testers',
     tester: 'Hacerme tester',
     install: 'Instalar el juego',
+    joined: 'Ya estás en el grupo de testers.',
     iphone: ['¿Tienes un iPhone? ', 'Pulsa aquí'],
     clip: (inviter, code) => `Invitación a Letra Minuto${inviter ? ` de ${inviter}` : ''}: ${code}`,
   },
@@ -89,6 +95,7 @@ const TEXTS: Record<string, PageText> = {
     join: 'Entra tra i tester',
     tester: 'Diventa tester',
     install: 'Installa il gioco',
+    joined: 'Sei già nel gruppo dei tester.',
     iphone: ['Hai un iPhone? ', 'Tocca qui'],
     clip: (inviter, code) => `Invito a Lettera Minuto${inviter ? ` di ${inviter}` : ''}: ${code}`,
   },
@@ -102,6 +109,7 @@ const TEXTS: Record<string, PageText> = {
     join: 'Word lid van de testers',
     tester: 'Word tester',
     install: 'Spel installeren',
+    joined: 'Je zit al in de testersgroep.',
     iphone: ['Heb je een iPhone? ', 'Tik hier'],
     clip: (inviter, code) => `Uitnodiging voor Letter Minuut${inviter ? ` van ${inviter}` : ''}: ${code}`,
   },
@@ -115,6 +123,7 @@ const TEXTS: Record<string, PageText> = {
     join: 'Entrar nos testadores',
     tester: 'Virar testador',
     install: 'Instalar o jogo',
+    joined: 'Você já está no grupo de testadores.',
     iphone: ['Tem um iPhone? ', 'Toque aqui'],
     clip: (inviter, code) => `Convite para Letra Minuto${inviter ? ` de ${inviter}` : ''}: ${code}`,
   },
@@ -132,10 +141,13 @@ const t = TEXTS[lang]!
 const query = new URLSearchParams(location.search)
 // A name typed by the inviter, shown back to a stranger: short, and escaped.
 const inviter = (query.get('from') ?? '').trim().slice(0, 24)
-// The inviter's code (`my_invite_code`, 0034) travels on to the game by both
-// ways in: Play's install referrer and the web version's address. Whichever arrives, the account made next befriends the inviter.
+// The inviter's code (`my_invite_code`, 0034) travels on to the game by every
+// way in: Play's install referrer, the web version's address, the clipboard.
+// Whichever arrives, the account made next befriends the inviter.
 const ref = /^[0-9a-f]{12}$/.test(query.get('ref') ?? '') ? query.get('ref')! : null
 const group = import.meta.env.VITE_TESTER_GROUP_URL || null
+// Mailed once `npm run group:invites` had put the address in the group (0035).
+const inGroup = query.get('in') === '1'
 
 const gameUrl = ref ? `./?ref=${ref}` : './'
 const storeUrl = ref ? `${STORE_URL}&referrer=${encodeURIComponent(`ref=${ref}`)}` : STORE_URL
@@ -154,18 +166,44 @@ const poster = POSTER.map(
     `<span class="tile" style="background:var(--${ground});--i:${index}"><span class="motion${motion ? ` motion-${motion}` : ''}"><svg viewBox="0 0 100 100" fill="currentColor" style="color:var(--${tint})">${shape}</svg></span></span>`,
 ).join('')
 
-const button = (href: string, label: string, main = false) =>
-  `<a class="btn${main ? ' btn--main' : ''}" href="${href}">${escapeHtml(label)}</a>`
+// Steps already taken, kept on this browser: each opens in a tab of its own
+// so this page stays underneath, and the next step is the one to press when
+// the invitee comes back — from a mail app, going back leaves the page.
+const DONE_KEY = 'invite-steps'
+function loadDone(): Set<string> {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(DONE_KEY) ?? '[]') as string[])
+  } catch {
+    return new Set()
+  }
+}
+function markDone(id: string) {
+  try {
+    localStorage.setItem(DONE_KEY, JSON.stringify([...loadDone(), id]))
+  } catch {
+    // A step shown again costs a tap.
+  }
+}
 
-const androidSteps = group
-  ? `<section class="steps">
+const STEPS = [
+  ...(inGroup ? [] : [{ id: 'join', href: group ?? '', label: t.join }]),
+  { id: 'tester', href: TESTING_URL, label: t.tester },
+  { id: 'install', href: storeUrl, label: t.install },
+]
+
+function androidSteps(): string {
+  if (!group) return ''
+  const done = loadDone()
+  const next = STEPS.find((step) => !done.has(step.id))?.id
+  return `<section class="steps">
       <p class="label">${escapeHtml(t.android)}</p>
-      ${button(group, t.join, true)}
-      ${button(TESTING_URL, t.tester)}
-      ${button(storeUrl, t.install)}
+      ${inGroup ? `<p class="joined">✓ ${escapeHtml(t.joined)}</p>` : ''}
+      ${STEPS.map(
+        (step) =>
+          `<a class="btn${step.id === next ? ' btn--main' : ''}${done.has(step.id) ? ' btn--done' : ''}" href="${step.href}" target="_blank" rel="noopener" data-step="${step.id}">${escapeHtml(step.label)}</a>`,
+      ).join('')}
     </section>`
-  : ''
-
+}
 
 document.documentElement.lang = lang
 document.title = inviter ? `${inviter}${t.lead[1].replace(/\.$/, '')} · ${t.appName}` : t.appName
@@ -177,18 +215,32 @@ document.getElementById('invite')!.innerHTML = `
     <span class="letter">R</span>
     <span><small>${escapeHtml(t.category)}</small><b>${escapeHtml(t.find[0])}<em>R</em>${escapeHtml(t.find[1])}</b></span>
   </div>
-  ${androidSteps}
+  <div id="steps">${androidSteps()}</div>
   <p class="other">${escapeHtml(t.iphone[0])}<a href="${gameUrl}">${escapeHtml(t.iphone[1])}</a></p>
 `
 
+const refreshSteps = () => (document.getElementById('steps')!.innerHTML = androidSteps())
+window.addEventListener('pageshow', refreshSteps)
+document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && refreshSteps())
+
 // Every way off the page leaves the code on the clipboard as well: the app
 // reads it at its first launch, whatever route its install took.
-if (ref) {
-  document.getElementById('invite')!.addEventListener('click', (event) => {
-    const link = (event.target as Element).closest('a')
-    if (!link || !navigator.clipboard) return
-    event.preventDefault()
-    const go = () => (window.location.href = link.href)
-    navigator.clipboard.writeText(t.clip(inviter, `LM-${ref}`)).then(go, go)
-  })
-}
+document.getElementById('invite')!.addEventListener('click', (event) => {
+  const link = (event.target as Element).closest('a')
+  if (!link) return
+  if (link.dataset.step) {
+    markDone(link.dataset.step)
+    // Marked now, drawn once the new tab has taken over: this page is what
+    // the invitee comes back to.
+    setTimeout(refreshSteps, 500)
+  }
+  if (!ref || !navigator.clipboard) return
+  const text = t.clip(inviter, `LM-${ref}`)
+  if (link.target === '_blank') {
+    void navigator.clipboard.writeText(text).catch(() => {})
+    return
+  }
+  event.preventDefault()
+  const go = () => (window.location.href = link.href)
+  navigator.clipboard.writeText(text).then(go, go)
+})

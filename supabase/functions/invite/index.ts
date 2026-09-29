@@ -1,7 +1,8 @@
-// Sends the invitations players type in the Social tab (migration 0034):
-// woken by the database as soon as one is written, and hourly for those a
-// failed pass left behind. Deployed with `--no-verify-jwt`: the caller is the
-// database, which proves itself with the `x-invites-secret` it drew itself.
+// Sends the invitations players type in the Social tab (migrations 0034,
+// 0035): woken once `npm run group:invites` has put the address in the
+// testers' group, and every quarter of an hour for what waits longer.
+// Deployed with `--no-verify-jwt`: the caller is the database, which proves
+// itself with the `x-invites-secret` it drew itself.
 //
 // The mail leaves the game's Gmail box (GMAIL_USER, GMAIL_APP_PASSWORD, an
 // app password) under the inviter's name, and a reply reaches the inviter:
@@ -18,6 +19,7 @@ interface Row {
   inviter_name: string
   inviter_email: string | null
   inviter_code: string | null
+  listed: boolean
 }
 
 function sender(name: string): string {
@@ -44,7 +46,7 @@ Deno.serve(async (request) => {
   const transport = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user, pass } })
   const mailed: string[] = []
   for (const row of rows) {
-    const mail = inviteMail(row.lang, row.inviter_name, row.email, row.inviter_code)
+    const mail = inviteMail(row.lang, row.inviter_name, row.email, row.inviter_code, row.listed)
     try {
       await transport.sendMail({
         from: `${sender(row.inviter_name)} <${user}>`,

@@ -188,11 +188,22 @@
         background: var(--ink);
         color: var(--paper);
       }
+      .joined {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--green);
+      }
+      a.btn--done {
+        opacity: 0.5;
+      }
       .steps a.btn::before {
         counter-increment: step;
         content: counter(step);
         font-variant-numeric: tabular-nums;
         opacity: 0.55;
+      }
+      .steps a.btn--done::before {
+        content: '✓';
       }
       a.btn:focus-visible {
         outline: 3px solid #f4b41a;

@@ -58,9 +58,12 @@ function pendingInvites(): Invite[] {
      limit 20`)
 }
 
+/** Marks the addresses the group holds, then wakes the mail that waited for them (0035). */
 function markListed(ids: string[]) {
   const list = ids.map((id) => `'${id.replace(/[^0-9a-f-]/g, '')}'`).join(',')
-  if (ids.length > 0) query(`update public.tester_invites set listed_at = now() where id in (${list})`)
+  if (ids.length === 0) return
+  query(`update public.tester_invites set listed_at = now() where id in (${list})`)
+  query('select public.kick_invites()')
 }
 
 // ------------------------------------------------------------- the browser --
