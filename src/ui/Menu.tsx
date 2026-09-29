@@ -232,6 +232,8 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
           {pane === 'social' && (
             <SocialPane
               account={props.account}
+              accountActions={props.accountActions}
+              accountMode={props.accountMode}
               moderator={props.moderation?.moderator ?? false}
               onProfile={() => open('profile')}
               onFriends={props.onFriends}
@@ -343,6 +345,8 @@ function ProfilePane({
 
 function SocialPane({
   account,
+  accountActions,
+  accountMode,
   moderator,
   onProfile,
   onFriends,
@@ -350,6 +354,9 @@ function SocialPane({
   onChallengeFriend,
 }: {
   account: Account | null
+  accountActions: AccountActions
+  /** The account form's opening tab, when it has to be shown here. */
+  accountMode?: AccountMode
   /** A moderator can put a friend forward to become one. */
   moderator: boolean
   onProfile(): void
@@ -363,8 +370,8 @@ function SocialPane({
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
-  const named = account && !account.anonymous
-  const history = useFriendHistory(Boolean(named))
+  const named = Boolean(account && !account.anonymous && !account.needsName)
+  const history = useFriendHistory(named)
   const [opened, setOpened] = useState<string | null>(null)
 
   const refresh = () => {
@@ -384,6 +391,20 @@ function SocialPane({
   }
 
   if (!named) {
+    // A friend is found by the account's name: as long as it has none — an
+    // anonymous player, or a Google account whose name is still « Anonyme » —
+    // the tab asks for that name rather than showing anyone.
+    if (account.needsName) {
+      return (
+        <AccountPanel
+          title={t.menu.accountTitle}
+          lead={t.menu.accountLead}
+          needsName
+          initialMode={accountMode}
+          {...accountActions}
+        />
+      )
+    }
     return (
       <div className="stack">
         <p className="note">{t.social.needAccount}</p>

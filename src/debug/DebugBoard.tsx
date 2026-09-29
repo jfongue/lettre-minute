@@ -24,6 +24,7 @@ import { OldChallengeList } from '../ui/StatsPage'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
 import { FriendPage } from '../ui/FriendPage'
+import { Menu } from '../ui/Menu'
 import type { SharedChallenge, SharedPlayer } from '../domain/rivalry'
 import type { Boards } from '../domain/boards'
 import { Avatar } from '../ui/Avatar'
@@ -86,6 +87,8 @@ const NAMED: Account = {
   avatar: DEFAULT_AVATAR,
 }
 const ANONYMOUS: Account = { ...NAMED, name: 'Anonyme', email: null, anonymous: true }
+/** A Google account whose name is still « Anonyme »: nothing social is open to it. */
+const UNNAMED: Account = { ...NAMED, name: 'Anonyme', needsName: true }
 
 const avatarOf = (design: number, ground: string, shape: string, accent: string): AvatarChoice => ({ design, ground, shape, accent })
 
@@ -534,6 +537,43 @@ function FriendPageScenario({ back, ties, empty }: { back(): void; ties?: boolea
         onElect={() => later(undefined)}
       />
     </div>
+  )
+}
+
+/** Le vrai tiroir, ouvert sur « Social » pour un compte sans nom : rien à y voir, le nom à choisir. */
+function SocialScenario({ back }: { back(): void }) {
+  return (
+    <Menu
+      page="social"
+      profile={PROFILE}
+      history={[]}
+      avatar={DEFAULT_AVATAR}
+      account={UNNAMED}
+      accountActions={quietAccount}
+      friendRequests={0}
+      onFriends={noop}
+      challenges={null}
+      onChallenge={noop}
+      onChallengeFriend={noop}
+      theme="system"
+      onTheme={noop}
+      locale="fr"
+      onLocale={noop}
+      sound={{ master: 1, effects: 0.8, keys: 0.6, music: 0, muted: false }}
+      onSound={noop}
+      onAvatar={noop}
+      onLogOut={noop}
+      onErase={() => later(true)}
+      moderation={null}
+      onModerate={noop}
+      onRequestsSeen={noop}
+      onRequestsOpen={noop}
+      lang="fr"
+      advancedBoards={false}
+      onAdvancedBoards={noop}
+      banActions={{ onBan: noop, onUnban: noop, onIntroSeen: noop, onJoinPlus: noop }}
+      onClose={back}
+    />
   )
 }
 
@@ -1083,6 +1123,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Aucun défi joué ensemble',
     phase: 'home',
     render: (back) => <FriendPageScenario back={back} empty />,
+  },
+  {
+    id: 'social-unnamed',
+    group: 'Défi entre amis',
+    title: 'Onglet Social sans nom de compte',
+    how: 'Compte Google pas encore nommé (profil « Anonyme ») : l’onglet demande le nom au lieu de montrer des amis (sans effet ici)',
+    phase: 'home',
+    render: (back) => <SocialScenario back={back} />,
   },
   {
     id: 'challenge-powers',
