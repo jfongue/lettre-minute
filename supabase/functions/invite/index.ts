@@ -8,10 +8,6 @@
 // app password) under the inviter's name, and a reply reaches the inviter:
 // no provider lets a mail claim the inviter's own address as its sender.
 // Port 465, since Supabase closes 25 and 587.
-//
-// An address the group never took means the developer's Mac was off: the
-// mail left with its join step, and the same box warns its owner, whose
-// phone can add the address to the group by hand.
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import nodemailer from 'npm:nodemailer@6'
 import { inviteMail } from './mail.ts'
@@ -25,8 +21,6 @@ interface Row {
   inviter_code: string | null
   listed: boolean
 }
-
-const MEMBERS_URL = 'https://groups.google.com/g/lettre-minute/members'
 
 function sender(name: string): string {
   return `"${name.replace(/["\\]/g, '')} · Lettre Minute"`
@@ -69,24 +63,5 @@ Deno.serve(async (request) => {
   }
 
   if (mailed.length > 0) await supabase.rpc('finish_invites', { p_ids: mailed })
-
-  const unlisted = rows.filter((row) => !row.listed && mailed.includes(row.id))
-  if (unlisted.length > 0) {
-    const lines = unlisted.map((row) => `${row.email} (invité par ${row.inviter_name})`)
-    await transport
-      .sendMail({
-        from: `"Lettre Minute" <${user}>`,
-        to: user,
-        subject: `À ajouter au groupe des testeurs : ${unlisted.map((row) => row.email).join(', ')}`,
-        text: [
-          'Ces adresses attendent depuis une heure : ton Mac n’a pas pu les ajouter au groupe. Leur mail est parti avec l’étape « Rejoindre les testeurs ».',
-          '',
-          ...lines,
-          '',
-          `Ajoute-les toi-même (Ajouter des membres, cocher « Ajouter directement ») : ${MEMBERS_URL}`,
-        ].join('\n'),
-      })
-      .catch((failure: unknown) => console.warn(`alert: ${failure instanceof Error ? failure.message : failure}`))
-  }
   return Response.json({ mailed: mailed.length, failed: rows.length - mailed.length })
 })
