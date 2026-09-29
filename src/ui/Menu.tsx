@@ -76,6 +76,8 @@ interface MenuProps {
   accountMode?: AccountMode
   /** On the statistics: open straight onto the old challenges. */
   focusChallenges?: boolean
+  /** Relit les parties du compte : la page des statistiques la redemande à chaque ouverture. */
+  onStatsRefresh(): Promise<unknown>
   /** Friend requests waiting: a dot on the social tab. */
   friendRequests: number
   /** Each fresh friend list, for the home screen's dot and the notifications offer. */
@@ -207,6 +209,7 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
               challenges={props.challenges}
               focusChallenges={props.focusChallenges}
               onChallenge={props.onChallenge}
+              onRefresh={props.onStatsRefresh}
               onBoards={props.account ? () => open('boards', 'stats') : undefined}
             />
           )}
@@ -481,7 +484,7 @@ function SocialPane({
   )
 }
 
-const THEMES: readonly Theme[] = ['system', 'light']
+const THEMES: readonly Theme[] = ['system', 'light', 'dark']
 const SOUND_CHANNELS = ['master', 'effects', 'keys', 'music'] as const
 
 /** The music is heard as it plays; the effects and keys need a sample. */

@@ -2,26 +2,40 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { createPortal } from 'react-dom'
 import type { AvatarChoice } from '../domain/avatar'
 import { useT } from '../i18n'
-import { blockPlayer, fetchFriends, requestFriend, type BlockOutcome, type FriendRequestOutcome } from '../lib/cloud'
+import {
+  blockPlayer,
+  fetchFriends,
+  requestFriend,
+  type BlockOutcome,
+  type Friend,
+  type FriendRequestOutcome,
+} from '../lib/cloud'
 import { Avatar } from './Avatar'
 import { useBackDismiss } from './useBackDismiss'
+
+/** What that name already is to this player, and its id when a challenge needs one. */
+export interface PlayerRelation {
+  id: string
+  relation: Friend['relation']
+}
 
 export interface PlayerActions {
   befriend(name: string): Promise<FriendRequestOutcome>
   block(name: string): Promise<BlockOutcome>
-  /** The friend's id when that name is already a friend, null otherwise. */
-  friendId(name: string): Promise<string | null>
+  /** Null when that name is nothing to this player, or without a server. */
+  relation(name: string): Promise<PlayerRelation | null>
   /** Opens a new challenge with that friend ticked; absent where none can start. */
   challenge?(friendId: string): void
 }
 
-async function friendIdOf(name: string): Promise<string | null> {
+async function relationOf(name: string): Promise<PlayerRelation | null> {
   const friends = await fetchFriends()
   const lower = name.toLowerCase()
-  return friends?.find((friend) => friend.relation === 'friend' && friend.name.toLowerCase() === lower)?.id ?? null
+  const found = friends?.find((friend) => friend.name.toLowerCase() === lower)
+  return found ? { id: found.id, relation: found.relation } : null
 }
 
-export const DEFAULT_PLAYER_ACTIONS: PlayerActions = { befriend: requestFriend, block: blockPlayer, friendId: friendIdOf }
+export const DEFAULT_PLAYER_ACTIONS: PlayerActions = { befriend: requestFriend, block: blockPlayer, relation: relationOf }
 
 /** The app adds the way to a challenge; the debug board swaps in stand-ins, never writing to the server. */
 export const PlayerActionsContext = createContext<PlayerActions>(DEFAULT_PLAYER_ACTIONS)
@@ -59,11 +73,11 @@ function PlayerSheet({ name, avatar, onClose }: { name: string; avatar: AvatarCh
   const t = useT()
   const actions = useContext(PlayerActionsContext)
   const [step, setStep] = useState<Step>('idle')
-  // Asked on opening: a friend is offered a challenge, not a request.
-  const [friend, setFriend] = useState<string | null | 'loading'>('loading')
+  // Asked on opening: a friend is offered a challenge, one who already asked is not asked again.
+  const [relation, setRelation] = useState<PlayerRelation | null | 'loading'>('loading')
   useEffect(() => {
     let live = true
-    actions.friendId(name).then((id) => live && setFriend(id))
+    actions.relation(name).then((found) => live && setRelation(found))
     return () => {
       live = false
     }
@@ -116,27 +130,34 @@ function PlayerSheet({ name, avatar, onClose }: { name: string; avatar: AvatarCh
           </>
         ) : (
           <div className="stack">
-            {typeof friend === 'string' ? (
+            {relation === 'loading' ? (
+              <button type="button" className="btn btn--blue btn--block" disabled>
+                {t.wait}
+              </button>
+            ) : relation?.relation === 'friend' ? (
               actions.challenge && (
                 <button
                   type="button"
                   className="btn btn--blue btn--block"
                   onClick={() => {
                     onClose()
-                    actions.challenge!(friend)
+                    actions.challenge!(relation.id)
                   }}
                 >
                   {t.player.challenge}
                 </button>
               )
+            ) : relation?.relation === 'outgoing' ? (
+              // The request is already on its way: offering to send it again says nothing but « already ».
+              <p>{t.player.requestSent}</p>
             ) : (
               <button
                 type="button"
                 className="btn btn--blue btn--block"
-                disabled={step === 'busy' || friend === 'loading'}
+                disabled={step === 'busy'}
                 onClick={befriend}
               >
-                {step === 'busy' || friend === 'loading' ? t.wait : t.player.befriend}
+                {step === 'busy' ? t.wait : relation?.relation === 'incoming' ? t.social.accept : t.player.befriend}
               </button>
             )}
             <button

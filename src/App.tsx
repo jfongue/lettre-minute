@@ -321,24 +321,19 @@ export function App() {
 
   // Les parties du compte : un téléphone qui vient de se connecter n'en a
   // aucune, et la page des statistiques doit couvrir au moins les vingt
-  // dernières ou les trois derniers jours. Le serveur ne rend que cette
-  // fenêtre, et les parties déjà sur l'appareil ne comptent pas deux fois.
-  useEffect(() => {
-    if (!answered.profile) return
-    let live = true
-    fetchMyRuns().then((runs) => {
-      if (!live || !runs || runs.length === 0) return
-      setHistory((previous) => {
-        const next = mergeHistory(previous, runs)
-        if (next.length === previous.length) return previous
-        saveHistory(next)
-        return next
-      })
+  // dernières ou les trois derniers jours. Elle redemande cette fenêtre à
+  // chaque ouverture — une lecture ratée au lancement ne la laisse donc plus
+  // vide —, et les parties déjà sur l'appareil ne comptent pas deux fois.
+  const loadAccountRuns = useCallback(async () => {
+    const runs = await fetchMyRuns()
+    if (!runs || runs.length === 0) return
+    setHistory((previous) => {
+      const next = mergeHistory(previous, runs)
+      if (next.length === previous.length) return previous
+      saveHistory(next)
+      return next
     })
-    return () => {
-      live = false
-    }
-  }, [answered.profile, account?.name])
+  }, [])
 
   // La tuile portée, lue par `adopt` sans en dépendre : une dépendance à
   // `avatar` recréerait `adopt` à chaque changement, et l'effet qui relit le
@@ -1543,6 +1538,7 @@ export function App() {
             profile={session.profile}
             history={history}
             focusChallenges={menuFocus}
+            onStatsRefresh={loadAccountRuns}
             friendRequests={named ? friendRequests : 0}
             onFriends={takeFriends}
             challenges={named ? challenges : null}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type Ref } from 'react'
-import { summarize, type RunRecord } from '../domain/history'
+import { listedHistory, summarize, type RunRecord } from '../domain/history'
 import { capitalized } from '../domain/text'
 import type { Profile } from '../domain/progression'
 import { categoryText, formatNumber, useT, type Messages } from '../i18n'
@@ -25,12 +25,29 @@ interface StatsPageProps {
   /** Opened from the home screen's challenges: the old ones show, unfolded. */
   focusChallenges?: boolean
   onChallenge(id: string): void
+  /** Relit les parties du compte : la page la redemande à chaque ouverture. */
+  onRefresh?(): Promise<unknown>
   /** Absent without a server, which keeps no leaderboard. */
   onBoards?(): void
 }
 
-export function StatsPage({ history, profile, challenges, focusChallenges = false, onChallenge, onBoards }: StatsPageProps) {
+export function StatsPage({ history, profile, challenges, focusChallenges = false, onChallenge, onRefresh, onBoards }: StatsPageProps) {
   const t = useT()
+  // Une lecture en cours ne dit pas « tu n'as rien joué » : elle attend son
+  // tour. Sans rappel, la page n'a que ce que l'appareil a gardé.
+  const [reading, setReading] = useState(Boolean(onRefresh) && history.length === 0)
+
+  useEffect(() => {
+    if (!onRefresh) return
+    let live = true
+    onRefresh().finally(() => {
+      if (live) setReading(false)
+    })
+    return () => {
+      live = false
+    }
+  }, [onRefresh])
+
   return (
     <>
       {onBoards && (
@@ -38,7 +55,11 @@ export function StatsPage({ history, profile, challenges, focusChallenges = fals
           {t.boards.all}
         </button>
       )}
-      {history.length === 0 ? <p className="note">{t.stats.empty}</p> : <RunStats history={history} profile={profile} />}
+      {history.length === 0 ? (
+        <p className="note">{reading ? t.loading : t.stats.empty}</p>
+      ) : (
+        <RunStats history={history} profile={profile} />
+      )}
       {challenges && <OldChallenges challenges={challenges} focus={focusChallenges} onOpen={onChallenge} />}
     </>
   )
@@ -157,7 +178,8 @@ function RunStats({ history, profile }: { history: readonly RunRecord[]; profile
   const [shown, setShown] = useState(0)
 
   const trend = summary.trend === null ? null : Math.round(summary.trend)
-  const older = history.slice(summary.recent.length)
+  const listed = listedHistory(history)
+  const older = history.slice(listed.length)
   // The profile's record may predate the history, and a merged account's may come from elsewhere.
   const best = Math.max(profile.bestScore, ...history.map((run) => run.score))
 
@@ -173,7 +195,7 @@ function RunStats({ history, profile }: { history: readonly RunRecord[]; profile
 
       <section className="stack">
         <p className="section-title">{t.stats.recent}</p>
-        <RunList runs={summary.recent} />
+        <RunList runs={listed} />
         {older.length > 0 && (
           <>
             {shown > 0 && <RunList runs={older.slice(0, shown)} />}

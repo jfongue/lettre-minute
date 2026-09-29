@@ -302,7 +302,7 @@ export const es: Messages = {
 
   stats: {
     empty: 'Juega una partida: tus estadísticas empiezan aquí.',
-    partial: 'El detalle cuenta las partidas jugadas en este dispositivo desde esta actualización.',
+    partial: 'El detalle no llega a todas tus partidas.',
     average: 'media reciente',
     best: 'récord',
     trend: 'vs las 10 anteriores',
@@ -629,6 +629,7 @@ export const es: Messages = {
     open: (name) => `¿Qué hacer con ${name}?`,
     befriend: 'Añadir como amigo',
     challenge: 'Lanzar un reto',
+    requestSent: 'Solicitud enviada. Esperando su respuesta.',
     block: 'Bloquear',
     blockConfirm: 'Bloquear',
     blockWarning: (name) =>

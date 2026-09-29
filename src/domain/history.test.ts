@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { appendRecord, HISTORY_LIMIT, mergeHistory, parseRecord, summarize, type RunRecord } from './history'
+import { appendRecord, HISTORY_LIMIT, listedHistory, mergeHistory, parseRecord, summarize, type RunRecord } from './history'
 
 function record(score: number, words: [categoryId: string, word: string, points: number][] = [], lang = 'fr'): RunRecord {
   return {
@@ -61,6 +61,19 @@ describe('summarize', () => {
 
   it('has nothing to say before the first run', () => {
     expect(summarize([])).toEqual({ recent: [], recentAverage: 0, trend: null, topWords: [], categories: [] })
+  })
+})
+
+describe('listedHistory', () => {
+  const many = Array.from({ length: 35 }, (_, i) => record(i))
+
+  it('shows the twenty last runs, even though the figures compare ten', () => {
+    expect(listedHistory(many).map((run) => run.score)).toEqual(many.slice(0, 20).map((run) => run.score))
+    expect(summarize(many).recent).toHaveLength(10)
+  })
+
+  it('shows the whole device history when it reaches no further', () => {
+    expect(listedHistory(many.slice(0, 7))).toHaveLength(7)
   })
 })
 

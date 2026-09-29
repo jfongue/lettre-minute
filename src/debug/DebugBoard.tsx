@@ -3,6 +3,7 @@ import { DEFAULT_AVATAR, type AvatarChoice } from '../domain/avatar'
 import type { ChallengeWord } from '../domain/challenge'
 import { choosePower } from '../domain/powers'
 import { NEW_PROFILE, xpForLevel, type Profile } from '../domain/progression'
+import type { RunRecord } from '../domain/history'
 import type { RarityTier } from '../domain/rarity'
 import type { KeptWord, Run } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
@@ -20,7 +21,7 @@ import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
 import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
 import { PushOffer } from '../ui/PushOffer'
-import { OldChallengeList } from '../ui/StatsPage'
+import { OldChallengeList, StatsPage } from '../ui/StatsPage'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
 import { FriendPage } from '../ui/FriendPage'
@@ -64,8 +65,16 @@ const later = <T,>(value: T, ms = 400) => new Promise<T>((resolve) => setTimeout
 const PLAYER_ACTIONS: PlayerActions = {
   befriend: () => later('sent'),
   block: () => later('blocked'),
-  // Léa and Tom are friends here: their sheet offers a challenge.
-  friendId: (name) => later(name === 'Léa' || name === 'Tom' ? name.toLowerCase() : null, 200),
+  // Léa and Tom are friends here, Joueur 3 waits for an answer: their sheet tells the three apart.
+  relation: (name) =>
+    later(
+      name === 'Léa' || name === 'Tom'
+        ? { id: name.toLowerCase(), relation: 'friend' as const }
+        : name === 'Joueur 3'
+          ? { id: 'joueur-3', relation: 'outgoing' as const }
+          : null,
+      200,
+    ),
   challenge: () => undefined,
 }
 
@@ -194,6 +203,25 @@ const PROFILE: Profile = {
   unlocked: ['fruits-legumes', 'metiers'],
   supportAskedAt: 14,
 }
+
+/**
+ * Plus de parties que la liste n'en déplie : la page en montre vingt, le reste
+ * au bouton, et le profil en compte davantage encore — le compte du serveur.
+ */
+const STATS_PROFILE: Profile = { ...PROFILE, runs: 132, bestScore: 312 }
+
+const STATS_HISTORY: RunRecord[] = Array.from({ length: 25 }, (_, index) => ({
+  at: Date.now() - index * 40 * 60 * 1000,
+  lang: 'fr',
+  score: 190 + ((index * 37) % 130),
+  bestCombo: 2 + (index % 4),
+  skips: index % 3,
+  categoryIds: ['animaux', 'pays'],
+  words: [
+    { categoryId: 'animaux', word: 'chat', display: 'chat', points: 10, seconds: 3 + (index % 3) },
+    { categoryId: 'pays', word: 'chili', display: 'Chili', points: 20, seconds: 4 + (index % 4) },
+  ],
+}))
 
 /** The profile before and after the run: the gap is what the end screen celebrates. */
 function afterRun(before: Profile, run: Run, changes: Partial<Profile> = {}): Profile {
@@ -611,6 +639,7 @@ function SocialScenario({ back }: { back(): void }) {
       onModerate={noop}
       onRequestsSeen={noop}
       onRequestsOpen={noop}
+      onStatsRefresh={() => later(undefined)}
       lang="fr"
       advancedBoards={false}
       onAdvancedBoards={noop}
@@ -764,6 +793,21 @@ function BansScenario({
         onUnban={(id) => setProfile((current) => unban(current, id))}
         onIntroSeen={() => setProfile((current) => markBanIntroSeen(current))}
         onJoinPlus={() => setProfile((current) => joinPlus(current, Date.now()))}
+      />
+    </div>
+  )
+}
+
+/** La page des statistiques, telle qu'un compte qui a joué ailleurs la remplit. */
+function StatsScenario() {
+  return (
+    <div className="sheet">
+      <StatsPage
+        history={STATS_HISTORY}
+        profile={STATS_PROFILE}
+        challenges={null}
+        onChallenge={noop}
+        onRefresh={() => later(undefined)}
       />
     </div>
   )
@@ -1383,6 +1427,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Septième catégorie obtenue, bannissement pas encore lu',
     phase: 'home',
     render: (back) => <DebugHome back={back} categoriesNews={1} />,
+  },
+  {
+    id: 'stats',
+    group: 'Accueil',
+    title: 'Page des statistiques',
+    how: 'Vingt-cinq parties gardées : la liste en déplie vingt, le reste derrière « Tout l’historique (132) » ; les figures restent sur les dix dernières',
+    phase: 'home',
+    render: () => <StatsScenario />,
   },
   {
     id: 'categories-ban',

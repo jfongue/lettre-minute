@@ -301,7 +301,7 @@ export const de: Messages = {
 
   stats: {
     empty: 'Spiel eine Runde: Hier beginnt deine Statistik.',
-    partial: 'Die Details zählen die Runden auf diesem Gerät seit diesem Update.',
+    partial: 'Die Details reichen nicht bis zu allen deinen Runden zurück.',
     average: 'Schnitt zuletzt',
     best: 'Rekord',
     trend: 'vs die 10 davor',
@@ -627,6 +627,7 @@ export const de: Messages = {
     open: (name) => `Was tun mit ${name}?`,
     befriend: 'Als Freund hinzufügen',
     challenge: 'Duell starten',
+    requestSent: 'Anfrage gesendet. Warte auf die Antwort.',
     block: 'Blockieren',
     blockConfirm: 'Blockieren',
     blockWarning: (name) =>
