@@ -684,7 +684,7 @@ function FriendRow({
   )
 }
 
-const THEMES: readonly Theme[] = ['system', 'light']
+const THEMES: readonly Theme[] = ['system', 'light', 'dark']
 const SOUND_CHANNELS = ['master', 'effects', 'keys', 'music'] as const
 
 /** The music is heard as it plays; the effects and keys need a sample. */
