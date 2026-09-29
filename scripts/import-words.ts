@@ -23,6 +23,7 @@ import { LANGUAGES, TOPICS, type Lang, type LanguageSource } from './languages.t
 import { loadFrequencies } from './wordfreq.ts'
 import { ADDED_ALIASES, ADDED_WORDS, DROPPED_WORDS, PLACEHOLDER_ELEMENT, SHORT_NAMES } from './dropped-words.ts'
 import { loadCommunityWords } from './community-words.ts'
+import { acceptable } from './word-shape.ts'
 import { CATEGORY_SOURCES, CITIES_PER_COUNTRY, DRAFT_SOURCES, LARGE_COUNTRY_POPULATION, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
 
 const ENDPOINT = 'https://query.wikidata.org/sparql'
@@ -1079,24 +1080,6 @@ async function loadTranslations(
   return byLang
 }
 
-
-/**
- * Wikidata labels carry disambiguations, catalogue numbers and stray plurals.
- * Anything a player could not type in a hurry is dropped rather than kept as a
- * word that would only ever be refused.
- */
-function acceptable(display: string): boolean {
-  if (display.length < 2 || display.length > 28) return false
-  if (/[0-9(),:;"«»/\\[\]]/.test(display)) return false
-  if (/\b(?:sp|ssp|var|cf)\./.test(display)) return false
-  // Any Latin letter: Latin-1 alone turned away « cœur », « œil » and « bœuf »,
-  // and the Wiktionary's typographic apostrophe every « maître d’hôtel ».
-  if (!/^\p{Script=Latin}[\p{Script=Latin}'’ -]*$/u.test(display.normalize('NFC'))) return false
-  // A letter the matching cannot spell in ASCII — « ə », « ŋ » — would vanish
-  // from the answer, and a word judged without one of its letters is another word.
-  return [...display.normalize('NFC')].every((char) => !/\p{L}/u.test(char) || normalizeWord(char) !== '')
-}
-
 const ACRONYM = /^[A-Z]{2,5}$/
 
 /**
@@ -1453,7 +1436,12 @@ function main(argv: readonly string[]) {
         const obscure = STRICT_ATTESTED.has(category.id) && everyday === 0 && !best.has(key) && !handPicked.has(key)
         if (obscure) continue
         if (key !== '') attested.add(key)
-        if (key === '' || best.has(key)) continue
+        // A word a pull already filed keeps its own row — its sitelinks, its
+        // spelling, the word it names — rather than being shadowed by a
+        // proposal that only knows the spelling a player typed: « Mercedes »
+        // stays the alias of « Mercedes-Benz » instead of becoming a word of
+        // its own with no fame, played twice in the same run.
+        if (key === '' || best.has(key) || aliasOf.has(key)) continue
         // No sitelinks: a Wiktionary word is rated on its corpus frequency
         // alone, which is exactly what a common noun has.
         best.set(key, { display, sitelinks: 0, alias: false, title: display })

@@ -33,6 +33,7 @@ import { compactWord, initialOf, normalizeWord } from '../src/domain/text.ts'
 import type { WordRow } from '../src/domain/words.ts'
 import { LANGUAGES, type Lang } from './languages.ts'
 import { loadFrequencies } from './wordfreq.ts'
+import { loadCommunityWords } from './community-words.ts'
 
 const ENDPOINT = 'https://query.wikidata.org/sparql'
 const AGENT = 'LettreMinuteWordImport/0.1 (https://github.com/jfongue; jeremy@enaos.com)'
@@ -541,6 +542,15 @@ async function main() {
     const key = compactWord(display)
     if (!bySitelinks.has(key)) bySitelinks.set(key, { display, sitelinks: 0 })
   }
+  // The names the moderators accepted: three players vouched for each, so they
+  // ship like the curated backstop — wordfreq knows nothing of a name a
+  // handful of families gave, and the file is written for every language at
+  // once, hence the union.
+  const moderated = Object.values(await loadCommunityWords()).flatMap((categories) => categories.prenoms ?? [])
+  for (const display of moderated) {
+    const key = compactWord(display)
+    if (!bySitelinks.has(key)) bySitelinks.set(key, { display, sitelinks: 0 })
+  }
 
   // A name in a country's actual birth registry ships and reads as known no
   // matter what Wikidata or wordfreq say about it (see loadNationalTopNames).
@@ -553,7 +563,7 @@ async function main() {
   // say — settle on whichever was given to more children, since a rough
   // count is still a better tie-breaker than pull order.
   const nationalTop = await loadNationalTopNames()
-  const guaranteed = new Set<string>(ADDED_NAMES.map((display) => compactWord(display)))
+  const guaranteed = new Set<string>([...ADDED_NAMES, ...moderated].map((display) => compactWord(display)))
   const bestNational = new Map<string, { display: string; count: number }>()
   for (const [display, count] of nationalTop) {
     if (junk(display)) continue
