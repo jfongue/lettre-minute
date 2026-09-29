@@ -4,7 +4,8 @@ import { levelFor } from '../domain/progression'
 import { rivalry, type SharedChallenge } from '../domain/rivalry'
 import { formatNumber, useT } from '../i18n'
 import type { BlockedPlayer, Friend } from '../lib/cloud'
-import { inviteLinks, shareText, type ShareOutcome } from '../lib/native'
+import { isNativeApp, shareText, type ShareOutcome } from '../lib/native'
+import { invitePage } from '../../supabase/functions/invite/mail'
 import { Avatar } from './Avatar'
 import { PlayerName } from './PlayerSheet'
 import { useBackDismiss } from './useBackDismiss'
@@ -44,6 +45,7 @@ export interface FriendsViewProps {
   onUnblock(playerId: string): void
   /** Resolves to what to tell the player, and whether the request went out. */
   onRequest(name: string): Promise<{ said: string; done: boolean }>
+  onInvite(email: string): Promise<{ said: string; done: boolean }>
   /** The debug board opens the sheet straight away, on either tab. */
   initialSheet?: AddTab
 }
@@ -225,6 +227,7 @@ export function FriendsView(props: FriendsViewProps) {
             name={props.name}
             initialTab={props.initialSheet}
             onRequest={props.onRequest}
+            onInvite={props.onInvite}
             onClose={() => setAdding(false)}
           />,
           document.body,
@@ -287,11 +290,14 @@ type AddTab = 'name' | 'invite'
 export function AddFriendSheet({
   name,
   onRequest,
+  onInvite,
   onClose,
   initialTab = 'name',
 }: {
   name: string
   onRequest(name: string): Promise<{ said: string; done: boolean }>
+  /** Resolves to what to tell the player, and whether the mail went out. */
+  onInvite(email: string): Promise<{ said: string; done: boolean }>
   onClose(): void
   initialTab?: AddTab
 }) {
@@ -300,7 +306,6 @@ export function AddFriendSheet({
   const [wanted, setWanted] = useState('')
   const [busy, setBusy] = useState(false)
   const [said, setSaid] = useState<string | null>(null)
-  const links = inviteLinks()
 
   useEffect(() => {
     const escape = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
@@ -317,11 +322,6 @@ export function AddFriendSheet({
     setBusy(false)
     if (outcome.done) onClose()
     else setSaid(outcome.said)
-  }
-
-  const invite = async () => {
-    const outcome = await shareText(t.social.inviteText(name, links))
-    setSaid(outcome === 'copied' ? t.social.copied : outcome === 'failed' ? t.social.shareFailed : null)
   }
 
   const switchTo = (next: AddTab) => {
@@ -373,18 +373,98 @@ export function AddFriendSheet({
             </button>
           </form>
         ) : (
-          <div className="stack">
-            <p>{links.group ? t.social.inviteLead : t.social.inviteLeadWeb}</p>
-            {said && <p className="note">{said}</p>}
-            <button type="button" className="btn btn--blue btn--block" onClick={invite}>
-              {t.social.sendInvite}
-            </button>
-          </div>
+          <InvitePanel name={name} onInvite={onInvite} />
         )}
         <button type="button" className="btn btn--quiet btn--muted" onClick={onClose}>
           {t.player.close}
         </button>
       </div>
+    </div>
+  )
+}
+
+/** Chat apps by their own names: proper nouns, the same in every language. */
+const CHAT_APPS = [
+  { id: 'whatsapp', label: 'WhatsApp', href: (text: string) => `https://wa.me/?text=${encodeURIComponent(text)}` },
+  // Messenger shares from its app only: the web dialog asks for a Facebook app id.
+  { id: 'messenger', label: 'Messenger', native: true, href: (_: string, link: string) => `fb-messenger://share/?link=${encodeURIComponent(link)}` },
+  { id: 'telegram', label: 'Telegram', href: (text: string, link: string) => `https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text.replace(link, '').trim())}` },
+  { id: 'sms', label: 'SMS', href: (text: string) => `sms:?&body=${encodeURIComponent(text)}` },
+] as const
+
+function InvitePanel({ name, onInvite }: { name: string; onInvite(email: string): Promise<{ said: string; done: boolean }> }) {
+  const t = useT()
+  const [email, setEmail] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [said, setSaid] = useState<string | null>(null)
+  const link = invitePage(name)
+  const text = t.social.inviteText(link)
+  const native = isNativeApp()
+
+  const tell = (outcome: ShareOutcome, copied = t.social.copied) =>
+    setSaid(outcome === 'copied' ? copied : outcome === 'failed' ? t.social.shareFailed : null)
+
+  // Discord has no share link: the text goes to the clipboard, to paste there.
+  const discord = async () => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setSaid(t.social.discordCopied)
+    } catch {
+      setSaid(t.social.shareFailed)
+    }
+  }
+
+  const send = async (event: FormEvent) => {
+    event.preventDefault()
+    if (email.trim() === '') return
+    setBusy(true)
+    const outcome = await onInvite(email.trim())
+    setBusy(false)
+    setSaid(outcome.said)
+    if (outcome.done) setEmail('')
+  }
+
+  return (
+    <div className="stack invite-panel">
+      <p>{t.social.inviteLead}</p>
+      <div className="chat-apps">
+        {CHAT_APPS.filter((app) => native || !('native' in app)).map((app) => (
+          <a
+            key={app.id}
+            className={`chat-app chat-app--${app.id}`}
+            href={app.href(text, link)}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-track={`invite-${app.id}`}
+          >
+            {app.label}
+          </a>
+        ))}
+        <button type="button" className="chat-app chat-app--discord" onClick={discord} data-track="invite-discord">
+          Discord
+        </button>
+        <button type="button" className="chat-app chat-app--other" onClick={async () => tell(await shareText(text))}>
+          {t.social.otherApps}
+        </button>
+      </div>
+      {said && <p className="note">{said}</p>}
+      <form className="account-form" onSubmit={send}>
+        <label className="field">
+          <span>{t.social.byEmail}</span>
+          <input
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder={t.social.emailPlaceholder}
+            autoComplete="off"
+            autoCapitalize="off"
+            maxLength={254}
+          />
+        </label>
+        <button type="submit" className="btn btn--block" disabled={busy || email.trim() === ''}>
+          {busy ? t.wait : t.social.sendInvite}
+        </button>
+      </form>
     </div>
   )
 }

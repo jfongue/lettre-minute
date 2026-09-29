@@ -16,6 +16,7 @@ export default defineConfig({
   server: { port: Number(process.env.PORT) || 5199 },
   // The dictionaries are data chunks, loaded only when a category is played:
   // a 600 kB "animaux" chunk is the point, not an accident of bundling.
-  // google.html is where the browser's Google popup lands (`googleIdToken`).
-  build: { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html'] } },
+  // google.html is where the browser's Google popup lands (`googleIdToken`),
+  // invite.html the page a shared invitation opens (src/invite.ts).
+  build: { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html', 'invite.html'] } },
 })

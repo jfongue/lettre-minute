@@ -238,12 +238,20 @@ export const nl: Messages = {
     hasGame: 'Heeft het spel',
     noGame: 'Heeft het niet',
     namePlaceholder: 'Spelersnaam',
-    inviteLead: 'Stuur een link. Op Android zit het spel in een gesloten test: eerst lid worden van de testersgroep, dan installeren via Play. Op iPhone of computer speel je in de browser.',
-    inviteLeadWeb: 'Stuur de link van het spel: je speelt in de browser, op telefoon of computer.',
-    inviteText: (name, links) =>
-      links.group
-        ? `Kom Letter Minuut met me spelen! Mijn spelersnaam: ${name}\n\nOp Android (gesloten test):\n1. Word lid van de testersgroep: ${links.group}\n2. Word tester: ${links.testing}\n3. Installeer het spel via Play.\n\nOp iPhone of computer: ${links.web}`
-        : `Kom Letter Minuut met me spelen! Mijn spelersnaam: ${name}\n${links.web}`,
+    inviteLead: 'Stuur de link van het spel, of een uitnodiging per e-mail: wie een account met dat adres aanmaakt, is meteen je vriend.',
+    inviteText: (link) => `Kom Letter Minuut met me spelen! ${link}`,
+    otherApps: 'Anders…',
+    discordCopied: 'Link gekopieerd: plak hem in Discord.',
+    byEmail: 'Per e-mail',
+    emailPlaceholder: 'E-mailadres',
+    testerInvites: {
+      sent: (email) => `${email} krijgt je uitnodiging. Met een account op dat adres zijn jullie vrienden.`,
+      already: (email) => `${email} is al uitgenodigd.`,
+      invalid: () => 'Dit e-mailadres lijkt niet geldig.',
+      limit: () => 'Hoogstens vijf uitnodigingen per dag: probeer het morgen opnieuw.',
+      anonymous: () => 'Maak een account aan om vrienden uit te nodigen.',
+      unreachable: () => 'De server antwoordt niet. Probeer het zo opnieuw.',
+    },
     copied: 'Gekopieerd: plak het in een bericht.',
     shareFailed: 'Delen is niet gelukt. Probeer het opnieuw.',
     sendInvite: 'Uitnodiging sturen',

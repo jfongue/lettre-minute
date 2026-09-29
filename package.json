@@ -15,7 +15,6 @@
     "debug:recent": "node --experimental-strip-types scripts/debug-recent.ts",
     "import:words": "node --experimental-strip-types scripts/import-words.ts",
     "seed:moderation": "node --experimental-strip-types scripts/moderation-reserve.ts",
-    "testers:invite": "node --experimental-strip-types scripts/tester-invites.ts",
     "analytics": "node --experimental-strip-types scripts/analytics.ts",
     "import:names": "node --experimental-strip-types scripts/first-names.ts",
     "web:publish": "scripts/publish-web.sh",

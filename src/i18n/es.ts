@@ -239,12 +239,20 @@ export const es: Messages = {
     hasGame: 'Ya tiene el juego',
     noGame: 'No lo tiene',
     namePlaceholder: 'Su nombre de jugador',
-    inviteLead: 'Envíale un enlace. En Android el juego está en prueba cerrada: se une al grupo de testers y luego lo instala desde Play. En iPhone u ordenador, juega en su navegador.',
-    inviteLeadWeb: 'Envíale el enlace del juego: juega en su navegador, en el móvil o en el ordenador.',
-    inviteText: (name, links) =>
-      links.group
-        ? `¡Ven a jugar a Letra Minuto conmigo! Mi nombre de jugador: ${name}\n\nEn Android (prueba cerrada):\n1. Únete al grupo de testers: ${links.group}\n2. Hazte tester: ${links.testing}\n3. Instala el juego desde Play.\n\nEn iPhone u ordenador: ${links.web}`
-        : `¡Ven a jugar a Letra Minuto conmigo! Mi nombre de jugador: ${name}\n${links.web}`,
+    inviteLead: 'Envíale el enlace del juego, o una invitación por correo: si crea su cuenta con esa dirección, seréis amigos al instante.',
+    inviteText: (link) => `¡Ven a jugar a Letra Minuto conmigo! ${link}`,
+    otherApps: 'Otra…',
+    discordCopied: 'Enlace copiado: pégalo en Discord.',
+    byEmail: 'Por correo',
+    emailPlaceholder: 'Su dirección de correo',
+    testerInvites: {
+      sent: (email) => `${email} recibe tu invitación. Si crea su cuenta con esa dirección, seréis amigos.`,
+      already: (email) => `${email} ya ha sido invitado.`,
+      invalid: () => 'Esa dirección de correo no parece válida.',
+      limit: () => 'Cinco invitaciones al día como máximo: vuelve a intentarlo mañana.',
+      anonymous: () => 'Crea una cuenta para invitar a tus amigos.',
+      unreachable: () => 'El servidor no responde. Inténtalo de nuevo en un momento.',
+    },
     copied: 'Copiado: pégalo en un mensaje.',
     shareFailed: 'No se pudo compartir. Inténtalo de nuevo.',
     sendInvite: 'Enviar la invitación',

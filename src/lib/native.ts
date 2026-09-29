@@ -410,19 +410,6 @@ export async function shareText(text: string): Promise<ShareOutcome> {
   }
 }
 
-/**
- * Where a friend without the game gets it. Android is a closed test on Play,
- * open to whoever joins its public Google group; without that group's address
- * the invitation only carries the web version, the one anyone can open.
- */
-export function inviteLinks(): { group: string | null; testing: string; web: string } {
-  return {
-    group: import.meta.env.VITE_TESTER_GROUP_URL || null,
-    testing: 'https://play.google.com/apps/testing/fr.lettreminute.app',
-    web: 'https://jfongue.github.io/lettre-minute/',
-  }
-}
-
 export const DONATION_URL = 'https://buymeacoffee.com/demontoon'
 
 /**

@@ -573,6 +573,9 @@ function FriendsScenario({ back, sheet }: { back(): void; sheet?: 'name' | 'invi
           onRequest={(name) =>
             later(name === 'Personne' ? { said: 'Aucun compte à ce nom.', done: false } : { said: `Demande envoyée à ${name}.`, done: true })
           }
+          onInvite={(email) =>
+            later(email.includes('@') ? { said: `${email} reçoit ton invitation. S’il crée son compte avec cette adresse, vous serez amis.`, done: true } : { said: 'Cette adresse e-mail ne semble pas valide.', done: false })
+          }
           initialSheet={sheet}
         />
       </div>
@@ -1184,7 +1187,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'social-invite',
     group: 'Défi entre amis',
     title: 'Inviter un ami sans le jeu',
-    how: 'Mes amis → Ajouter un ami, onglet « N’a pas le jeu » : partage le lien du groupe de testeurs (VITE_TESTER_GROUP_URL), sinon celui du web',
+    how: 'Mes amis → Ajouter un ami, onglet « N’a pas le jeu » : lien de la page d’invitation par WhatsApp, Messenger (app seule), Telegram, SMS, Discord (copié) ou la feuille de partage, et invitation par e-mail (rien n’est envoyé ici)',
     phase: 'home',
     render: (back) => <FriendsScenario back={back} sheet="invite" />,
   },

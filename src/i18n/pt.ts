@@ -239,12 +239,20 @@ export const pt: Messages = {
     hasGame: 'Já tem o jogo',
     noGame: 'Não tem',
     namePlaceholder: 'O nome de jogador',
-    inviteLead: 'Envie um link. No Android o jogo está em teste fechado: a pessoa entra no grupo de testadores e depois instala pelo Play. No iPhone ou computador, joga no navegador.',
-    inviteLeadWeb: 'Envie o link do jogo: joga-se no navegador, no celular ou no computador.',
-    inviteText: (name, links) =>
-      links.group
-        ? `Venha jogar Letra Minuto comigo! Meu nome de jogador: ${name}\n\nNo Android (teste fechado):\n1. Entre no grupo de testadores: ${links.group}\n2. Vire testador: ${links.testing}\n3. Instale o jogo pelo Play.\n\nNo iPhone ou computador: ${links.web}`
-        : `Venha jogar Letra Minuto comigo! Meu nome de jogador: ${name}\n${links.web}`,
+    inviteLead: 'Envie o link do jogo, ou um convite por e-mail: se a pessoa criar a conta com esse endereço, vocês serão amigos na hora.',
+    inviteText: (link) => `Venha jogar Letra Minuto comigo! ${link}`,
+    otherApps: 'Outro…',
+    discordCopied: 'Link copiado: cole no Discord.',
+    byEmail: 'Por e-mail',
+    emailPlaceholder: 'O endereço de e-mail',
+    testerInvites: {
+      sent: (email) => `${email} recebe seu convite. Se criar a conta com esse endereço, vocês serão amigos.`,
+      already: (email) => `${email} já foi convidado.`,
+      invalid: () => 'Esse endereço de e-mail não parece válido.',
+      limit: () => 'No máximo cinco convites por dia: tente de novo amanhã.',
+      anonymous: () => 'Crie uma conta para convidar seus amigos.',
+      unreachable: () => 'O servidor não está respondendo. Tente de novo em instantes.',
+    },
     copied: 'Copiado: cole numa mensagem.',
     shareFailed: 'Não deu para compartilhar. Tente de novo.',
     sendInvite: 'Enviar o convite',

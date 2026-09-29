@@ -158,7 +158,6 @@ npm run import:names # régénère prenoms, identique dans les sept langues (Wik
 npm run web:publish  # build web et mise en ligne sur https://jfongue.github.io/lettre-minute/
 npm run android:sync # build web puis copie dans le projet Android
 npm run android:bundle # .aab signé pour le Play Store
-npm run testers:invite # inscrit testeurs Play les adresses invitées depuis le jeu, puis leur envoie le mail (--login une fois, --watch, --preview)
 ```
 
 Le dépôt public `jfongue/lettre-minute` porte le code sur `main` et le site sur

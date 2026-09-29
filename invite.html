@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f2ecdf" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Lettre Minute</title>
+    <!-- What WhatsApp, Messenger or Discord show under a shared link: crawlers run no script. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Lettre Minute" />
+    <meta property="og:title" content="Viens jouer à Lettre Minute" />
+    <meta property="og:description" content="Une lettre, un thème, 60 secondes. Le Petit Bac express, entre amis." />
+    <meta property="og:image" content="https://jfongue.github.io/lettre-minute/invite-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <style>
+      :root {
+        --paper: #f2ecdf;
+        --paper-2: #e6ddca;
+        --ink: #151515;
+        --ink-faint: #8a8478;
+        --red: #e0402a;
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'Jost Variable', Futura, 'Century Gothic', system-ui, sans-serif;
+      }
+      main {
+        max-width: 26rem;
+        margin: 0 auto;
+        padding: max(2.5rem, env(safe-area-inset-top)) 1.5rem 3rem;
+        display: grid;
+        gap: 1.75rem;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+      }
+      .brand::before {
+        content: '';
+        width: 0.65rem;
+        height: 0.65rem;
+        background: var(--red);
+      }
+      h1 {
+        font-size: 1.75rem;
+        font-weight: 800;
+        line-height: 1.18;
+        text-wrap: balance;
+      }
+      h1 span {
+        color: var(--red);
+      }
+      .round {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 0.9rem;
+        padding: 0.9rem 0;
+        border-block: 2px solid var(--ink);
+      }
+      .letter {
+        width: 2.75rem;
+        height: 2.75rem;
+        display: grid;
+        place-items: center;
+        background: var(--red);
+        color: var(--paper);
+        font-size: 1.75rem;
+        font-weight: 800;
+      }
+      .round b {
+        display: block;
+        font-size: 1.05rem;
+        font-weight: 800;
+      }
+      .round small {
+        color: var(--ink-faint);
+        font-size: 0.82rem;
+        font-weight: 500;
+      }
+      .clock {
+        font-size: 1.05rem;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+      }
+      .steps {
+        display: grid;
+        gap: 0.6rem;
+        padding: 0;
+        list-style: none;
+        counter-reset: step;
+      }
+      .label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+      }
+      a.btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        min-height: 3.25rem;
+        padding: 0.8rem 1rem;
+        border: 2px solid var(--ink);
+        background: transparent;
+        color: var(--ink);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        text-decoration: none;
+        text-align: center;
+      }
+      a.btn--main {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      .steps a.btn::before {
+        counter-increment: step;
+        content: counter(step);
+        font-variant-numeric: tabular-nums;
+        opacity: 0.55;
+      }
+      a.btn:focus-visible {
+        outline: 3px solid #f4b41a;
+        outline-offset: 3px;
+      }
+      .note {
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
+      .other {
+        font-size: 0.85rem;
+        color: var(--ink-faint);
+      }
+      .other a {
+        color: var(--ink);
+        text-decoration-color: var(--red);
+        text-decoration-thickness: 2px;
+        text-underline-offset: 0.2em;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="invite"></main>
+    <script type="module" src="/src/invite.ts"></script>
+  </body>
+</html>

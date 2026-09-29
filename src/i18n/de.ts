@@ -238,12 +238,20 @@ export const de: Messages = {
     hasGame: 'Hat das Spiel',
     noGame: 'Hat es nicht',
     namePlaceholder: 'Spielername',
-    inviteLead: 'Schick einen Link. Auf Android ist das Spiel im geschlossenen Test: Man tritt der Testergruppe bei und installiert es dann über Play. Auf dem iPhone oder Computer spielt man im Browser.',
-    inviteLeadWeb: 'Schick den Link zum Spiel: Man spielt im Browser, auf dem Handy wie am Computer.',
-    inviteText: (name, links) =>
-      links.group
-        ? `Spiel Letter Minute mit mir! Mein Spielername: ${name}\n\nAuf Android (geschlossener Test):\n1. Tritt der Testergruppe bei: ${links.group}\n2. Werde Tester: ${links.testing}\n3. Installiere das Spiel über Play.\n\nAuf iPhone oder Computer: ${links.web}`
-        : `Spiel Letter Minute mit mir! Mein Spielername: ${name}\n${links.web}`,
+    inviteLead: 'Schick den Link zum Spiel oder eine Einladung per E-Mail: Wer sein Konto mit dieser Adresse erstellt, ist sofort mit dir befreundet.',
+    inviteText: (link) => `Spiel Letter Minute mit mir! ${link}`,
+    otherApps: 'Andere…',
+    discordCopied: 'Link kopiert: Füg ihn in Discord ein.',
+    byEmail: 'Per E-Mail',
+    emailPlaceholder: 'E-Mail-Adresse',
+    testerInvites: {
+      sent: (email) => `${email} bekommt deine Einladung. Mit einem Konto unter dieser Adresse seid ihr befreundet.`,
+      already: (email) => `${email} wurde schon eingeladen.`,
+      invalid: () => 'Diese E-Mail-Adresse sieht nicht gültig aus.',
+      limit: () => 'Höchstens fünf Einladungen am Tag: Versuch es morgen wieder.',
+      anonymous: () => 'Erstelle ein Konto, um Freunde einzuladen.',
+      unreachable: () => 'Der Server antwortet nicht. Versuch es gleich noch einmal.',
+    },
     copied: 'Kopiert: Füg es in eine Nachricht ein.',
     shareFailed: 'Teilen hat nicht geklappt. Versuch es noch einmal.',
     sendInvite: 'Einladung senden',

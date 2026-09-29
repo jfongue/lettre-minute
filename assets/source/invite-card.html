@@ -1,0 +1,31 @@
+<!doctype html>
+<!-- The picture chat apps show under a shared invitation (public/invite-card.png, 1200 × 630):
+     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --window-size=1200,630 --screenshot=public/invite-card.png assets/source/invite-card.html -->
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../node_modules/@fontsource-variable/jost/index.css">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1200px; height: 630px; background: #f2ecdf; color: #151515; font-family: 'Jost Variable', Futura, sans-serif; padding: 84px 96px; display: grid; align-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 18px; font-size: 26px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; }
+  .brand::before { content: ''; width: 24px; height: 24px; background: #e0402a; }
+  h1 { font-size: 92px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; }
+  h1 span { color: #e0402a; }
+  .round { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 32px; padding: 26px 0; border-block: 5px solid #151515; }
+  .letter { width: 104px; height: 104px; display: grid; place-items: center; background: #e0402a; color: #f2ecdf; font-size: 68px; font-weight: 800; }
+  .round b { display: block; font-size: 44px; font-weight: 800; }
+  .round small { font-size: 30px; font-weight: 500; color: #8a8478; }
+  .clock { font-size: 48px; font-weight: 800; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+  <p class="brand">Lettre Minute</p>
+  <h1>Viens jouer avec <span>moi.</span></h1>
+  <div class="round">
+    <span class="letter">B</span>
+    <span><b>Animaux</b><small>Baleine · Blaireau · Bison</small></span>
+    <span class="clock">0:42</span>
+  </div>
+</body>
+</html>

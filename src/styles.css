@@ -2021,6 +2021,64 @@ button.challenge-past::after {
   transform: rotate(90deg);
 }
 
+.invite-panel {
+  text-align: left;
+}
+
+.chat-apps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+/* Each app in its own colour, the one a player looks for among their icons. */
+.chat-app {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  min-height: 3rem;
+  padding: 0.4rem;
+  border: var(--line) solid transparent;
+  color: #fff;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.chat-app:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.chat-app--whatsapp {
+  background: #1f8f4e;
+}
+
+.chat-app--messenger {
+  background: #0866ff;
+}
+
+.chat-app--telegram {
+  background: #1d8fcf;
+}
+
+.chat-app--sms {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.chat-app--discord {
+  background: #5865f2;
+}
+
+.chat-app--other {
+  background: transparent;
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
 .add-friend .layer-tab {
   min-height: 2.75rem;
   font-size: 0.72rem;

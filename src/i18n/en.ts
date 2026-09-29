@@ -244,12 +244,20 @@ export const en: Messages = {
     hasGame: 'Has the game',
     noGame: 'Doesn’t have it',
     namePlaceholder: 'Their player name',
-    inviteLead: 'Send them a link. On Android the game is in closed testing: they join the testers’ group, then install it from Play. On iPhone or a computer, they play in their browser.',
-    inviteLeadWeb: 'Send them the game’s link: they play in their browser, on a phone or a computer.',
-    inviteText: (name, links) =>
-      links.group
-        ? `Come play Letter Minute with me! My player name: ${name}\n\nOn Android (closed testing):\n1. Join the testers’ group: ${links.group}\n2. Become a tester: ${links.testing}\n3. Install the game from Play.\n\nOn iPhone or a computer: ${links.web}`
-        : `Come play Letter Minute with me! My player name: ${name}\n${links.web}`,
+    inviteLead: 'Send them the game’s link, or an invitation by e-mail: if they create their account with that address, you will be friends straight away.',
+    inviteText: (link) => `Come play Letter Minute with me! ${link}`,
+    otherApps: 'Other…',
+    discordCopied: 'Link copied: paste it into Discord.',
+    byEmail: 'By e-mail',
+    emailPlaceholder: 'Their e-mail address',
+    testerInvites: {
+      sent: (email) => `${email} gets your invitation. If they create their account with that address, you will be friends.`,
+      already: (email) => `${email} has already been invited.`,
+      invalid: () => 'That e-mail address does not look valid.',
+      limit: () => 'Five invitations a day at most: try again tomorrow.',
+      anonymous: () => 'Create an account to invite your friends.',
+      unreachable: () => 'The server is not answering. Try again in a moment.',
+    },
     copied: 'Copied: paste it into a message.',
     shareFailed: 'Sharing did not work. Try again.',
     sendInvite: 'Send the invitation',

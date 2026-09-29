@@ -326,15 +326,26 @@ qu'un nouvel arrivant casserait sans le savoir.
   gagnant sur l'appareil (`rememberWinner`) : le serveur ne connaît pas le
   score des robots, que seul un client rejoue. Les anciens défis des
   statistiques relisent le détail de ceux qui n'en ont pas.
-- **Un ami sans le jeu s'invite par un lien, pas par son adresse**
-  (`AddFriendSheet`, `src/ui/FriendsView.tsx`) : le test fermé Android prend
-  pour liste de testeurs un groupe Google public (`VITE_TESTER_GROUP_URL`),
-  et l'invitation partage ce groupe, le lien d'adhésion Play et la version
-  web (`inviteLinks`, `src/lib/native.ts`). Sans la variable, elle ne porte
-  que le web : un lien Play seul répondrait « application indisponible » à
-  qui n'est pas testeur. L'ancienne voie par e-mail (`invite_tester`, 0020,
-  et `npm run testers:invite`) reste en base mais l'app n'y écrit plus. Un
-  nom de compte en forme d'adresse reste refusé (`checkName`).
+- **Un ami sans le jeu s'invite par un lien ou par e-mail** (`InvitePanel`,
+  `src/ui/FriendsView.tsx`). Le lien mène à `invite.html` (`src/invite.ts`,
+  entrée Vite à part), dont les balises Open Graph et `invite-card.png`
+  font l'aperçu dans WhatsApp ou Discord : ils ne lisent aucun script, ces
+  balises restent donc statiques. Sur Android, la page envoie au groupe
+  Google public qui sert de liste de testeurs au test fermé
+  (`VITE_TESTER_GROUP_URL`) ; sans lui, elle ne propose que le web, un lien
+  Play répondant « application indisponible » à qui n'est pas testeur.
+  L'e-mail (`invite_tester`, 0034) part aussitôt par la fonction Edge
+  `invite`, depuis la boîte Gmail du jeu (`GMAIL_USER`,
+  `GMAIL_APP_PASSWORD`, un mot de passe d'application) au nom de
+  l'inviteur, une réponse allant à l'inviteur : aucun service ne laisse un
+  mail se donner l'adresse de l'inviteur pour expéditeur. Le mail tient en
+  un bouton vers la même page (`supabase/functions/invite/mail.ts`, que
+  l'app relit pour `invitePage`). Le compte qui prend l'adresse invitée
+  devient ami de l'inviteur sans demande (`befriend_invited`, déclencheur
+  sur `auth.users`) ; une adresse qui joue déjà reçoit une demande
+  ordinaire, et l'inviteur lit `sent` dans les deux cas, pour que le champ
+  ne dise jamais qui joue. Un nom de compte en forme d'adresse reste refusé
+  (`checkName`).
 - **La boîte à idées part par Resend** (fonction Edge `ideas`, 0015) : sans
   `RESEND_API_KEY` dans les secrets, les idées s'accumulent en base sans
   mail.

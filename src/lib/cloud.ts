@@ -618,6 +618,20 @@ export function requestFriend(name: string): Promise<FriendRequestOutcome> {
   }, 'unreachable')
 }
 
+export type TesterInviteOutcome = 'sent' | 'already' | 'invalid' | 'limit' | 'anonymous' | 'unreachable'
+
+/**
+ * Invites someone by e-mail (0034): the server mails them at once and makes
+ * them the inviter's friend when an account takes that address. An address
+ * that already plays gets a friend request and the same `sent`.
+ */
+export function inviteTester(email: string, lang: string): Promise<TesterInviteOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('invite_tester', { p_email: email.trim(), p_lang: lang })
+    return error ? 'unreachable' : (data as TesterInviteOutcome)
+  }, 'unreachable')
+}
+
 export function respondFriend(from: string, accept: boolean): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('respond_friend', { p_from: from, p_accept: accept })

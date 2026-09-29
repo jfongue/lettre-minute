@@ -11,6 +11,7 @@ import {
   inviteModerator,
   removeFriend,
   requestFriend,
+  inviteTester,
   respondFriend,
   unblockPlayer,
   type Account,
@@ -421,6 +422,11 @@ function SocialPane({
     return { said, done }
   }
 
+  const invite = async (email: string) => {
+    const outcome = await inviteTester(email, t.tag.split('-')[0]!)
+    return { said: t.social.testerInvites[outcome](email), done: outcome === 'sent' }
+  }
+
   const act = async (work: Promise<boolean>) => {
     if (!(await work)) setMessage(t.social.requests.unreachable(''))
     refresh()
@@ -470,6 +476,7 @@ function SocialPane({
       onCancel={(friendId) => act(removeFriend(friendId))}
       onUnblock={(playerId) => act(unblockPlayer(playerId))}
       onRequest={request}
+      onInvite={invite}
     />
   )
 }

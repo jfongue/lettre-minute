@@ -5,7 +5,7 @@ import type { FaceOff } from '../domain/rivalry'
 import type { StatId } from '../domain/leaderboards'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
-import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, VoteOutcome } from '../lib/cloud'
+import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
 
 interface LeaderboardText {
@@ -273,13 +273,21 @@ export const fr = {
     hasGame: 'A déjà le jeu',
     noGame: 'N’a pas le jeu',
     namePlaceholder: 'Son nom de joueur',
-    inviteLead: 'Envoie-lui un lien. Sur Android, le jeu est en test fermé : il rejoint le groupe des testeurs, puis l’installe depuis Play. Sur iPhone ou ordinateur, il joue dans son navigateur.',
-    inviteLeadWeb: 'Envoie-lui le lien du jeu : il y joue dans son navigateur, sur téléphone comme sur ordinateur.',
-    /** Shared to a friend without the game: the closed test on Android, the web elsewhere. */
-    inviteText: (name: string, links: { group: string | null; testing: string; web: string }) =>
-      links.group
-        ? `Viens jouer à Lettre Minute avec moi ! Mon nom de joueur : ${name}\n\nSur Android (test fermé) :\n1. Rejoins le groupe des testeurs : ${links.group}\n2. Deviens testeur : ${links.testing}\n3. Installe le jeu depuis Play.\n\nSur iPhone ou ordinateur : ${links.web}`
-        : `Viens jouer à Lettre Minute avec moi ! Mon nom de joueur : ${name}\n${links.web}`,
+    inviteLead: 'Envoie-lui le lien du jeu, ou une invitation par e-mail : s’il crée son compte avec cette adresse, vous serez amis tout de suite.',
+    /** What a chat app receives: the invitation page names who sent it. */
+    inviteText: (link: string) => `Viens jouer à Lettre Minute avec moi ! ${link}`,
+    otherApps: 'Autre…',
+    discordCopied: 'Lien copié : colle-le dans Discord.',
+    byEmail: 'Par e-mail',
+    emailPlaceholder: 'Son adresse e-mail',
+    testerInvites: {
+      sent: (email: string) => `${email} reçoit ton invitation. S’il crée son compte avec cette adresse, vous serez amis.`,
+      already: (email: string) => `${email} a déjà été invité.`,
+      invalid: () => 'Cette adresse e-mail ne semble pas valide.',
+      limit: () => 'Cinq invitations par jour au plus : réessaie demain.',
+      anonymous: () => 'Crée un compte pour inviter tes amis.',
+      unreachable: () => 'Le serveur ne répond pas. Réessaie dans un instant.',
+    } satisfies Record<TesterInviteOutcome, (email: string) => string> as Record<TesterInviteOutcome, (email: string) => string>,
     copied: 'Copié : colle-le dans un message.',
     shareFailed: 'Le partage n’a pas marché. Réessaie.',
     sendInvite: 'Envoyer l’invitation',
