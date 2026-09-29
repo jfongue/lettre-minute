@@ -123,9 +123,8 @@ const t = TEXTS[lang]!
 const query = new URLSearchParams(location.search)
 // A name typed by the inviter, shown back to a stranger: short, and escaped.
 const inviter = (query.get('from') ?? '').trim().slice(0, 24)
-// The inviter's code (`my_invite_code`, 0034) travels on to the game by every
-// way in: Play's install referrer, the app's own link, the web version's
-// address. Whichever arrives, the account made next befriends the inviter.
+// The inviter's code (`my_invite_code`, 0034) travels on to the game by both
+// ways in: Play's install referrer and the web version's address. Whichever arrives, the account made next befriends the inviter.
 const ref = /^[0-9a-f]{12}$/.test(query.get('ref') ?? '') ? query.get('ref')! : null
 const group = import.meta.env.VITE_TESTER_GROUP_URL || null
 

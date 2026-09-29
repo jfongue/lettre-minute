@@ -19,13 +19,6 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <!-- The invitation page's « Ouvrir le jeu », carrying who invited (src/invite.ts). -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="lettreminute" android:host="invite" />
-            </intent-filter>
         </activity>
 
         <!-- Sans elles, une notification reçue app fermée prend l'icône du lanceur,

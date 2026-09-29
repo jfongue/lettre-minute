@@ -44,7 +44,7 @@ export function takeAddressRef(): void {
   window.history.replaceState(null, '', window.location.pathname + (rest ? `?${rest}` : '') + window.location.hash)
 }
 
-/** A code inside a link or a Play referrer: `ref=…` in its query. */
+/** A code inside a Play referrer or an address: `ref=…` in its query. */
 export function refIn(text: string): string | null {
   const query = text.includes('?') ? text.slice(text.indexOf('?') + 1) : text
   const ref = new URLSearchParams(query).get('ref')

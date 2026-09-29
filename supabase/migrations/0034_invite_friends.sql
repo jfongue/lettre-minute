@@ -183,8 +183,8 @@ select cron.schedule('invites-retry', '17 * * * *', 'select public.kick_invites(
 -- ---------------------------------------------------- par un lien partagé --
 
 -- Un lien de chat ne connaît pas d'adresse : il porte le code de l'inviteur,
--- que la page d'invitation passe au jeu (install referrer de Play, lien
--- lettreminute://, ou la version web). Le compte nommé qui le présente
+-- que la page d'invitation passe au jeu (install referrer de Play, ou
+-- l'adresse de la version web). Le compte nommé qui le présente
 -- devient aussitôt ami de l'inviteur. Un code, pas l'identifiant du compte :
 -- les identifiants circulent dans les listes d'amis, et n'importe qui
 -- pourrait alors s'imposer en ami de n'importe qui.

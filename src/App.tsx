@@ -61,7 +61,7 @@ import {
   storeUpdateAvailable,
   tapFeedback,
   type PushData,
-  onInviteLink,
+  onInstallReferrer,
 } from './lib/native'
 import { configureSound, setHush, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
 import { DEFAULT_AVATAR, isDefaultAvatar, sameAvatar, type AvatarChoice } from './domain/avatar'
@@ -832,7 +832,7 @@ export function App() {
     takeAddressRef()
     return loadInviteRef()
   })
-  useEffect(() => onInviteLink((text) => setInviteRef((kept) => keepInviteRef(refIn(text)) ?? kept)), [])
+  useEffect(() => onInstallReferrer((text) => setInviteRef((kept) => keepInviteRef(refIn(text)) ?? kept)), [])
   useEffect(() => {
     if (!named || !inviteRef) return
     let live = true
