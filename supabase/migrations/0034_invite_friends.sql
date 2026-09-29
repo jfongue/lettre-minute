@@ -14,6 +14,16 @@ alter table public.tester_invites
   add column joined_by uuid references public.profiles on delete set null,
   add column joined_at timestamptz;
 
+-- Le code qu'un lien partagé porte (voir plus bas, « par un lien partagé »).
+create table public.invite_links (
+  code text primary key,
+  inviter uuid not null unique references public.profiles on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+alter table public.invite_links enable row level security;
+-- Aucune politique : le code ne se lit que par les fonctions de ce fichier.
+
 create or replace function public.invite_tester(p_email text, p_lang text) returns text
 language plpgsql security definer set search_path = public as $$
 declare
@@ -188,14 +198,6 @@ select cron.schedule('invites-retry', '17 * * * *', 'select public.kick_invites(
 -- devient aussitôt ami de l'inviteur. Un code, pas l'identifiant du compte :
 -- les identifiants circulent dans les listes d'amis, et n'importe qui
 -- pourrait alors s'imposer en ami de n'importe qui.
-create table public.invite_links (
-  code text primary key,
-  inviter uuid not null unique references public.profiles on delete cascade,
-  created_at timestamptz not null default now()
-);
-
-alter table public.invite_links enable row level security;
--- Aucune politique : le code ne se lit que par les fonctions ci-dessous.
 
 create function public.my_invite_code() returns text
 language plpgsql security definer set search_path = public as $$
