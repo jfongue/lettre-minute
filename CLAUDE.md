@@ -345,7 +345,12 @@ qu'un nouvel arrivant casserait sans le savoir.
   sur `auth.users`) ; une adresse qui joue déjà reçoit une demande
   ordinaire, et l'inviteur lit `sent` dans les deux cas, pour que le champ
   ne dise jamais qui joue. Un nom de compte en forme d'adresse reste refusé
-  (`checkName`).
+  (`checkName`). Un groupe Google grand public n'a pas d'API : c'est
+  `npm run group:invites` (`scripts/group-invites.ts`), lancé toutes les dix
+  minutes par launchd sur le poste du développeur (`--install`), qui ajoute
+  les adresses invitées au groupe dans un Chrome sans tête connecté une fois
+  par `--login`, et les marque `listed_at`. Mac éteint, l'invité rejoint le
+  groupe lui-même depuis la page.
 - **La boîte à idées part par Resend** (fonction Edge `ideas`, 0015) : sans
   `RESEND_API_KEY` dans les secrets, les idées s'accumulent en base sans
   mail.

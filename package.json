@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "test:db": "scripts/test-db.sh",
     "render:achievements": "node --experimental-strip-types scripts/render-achievements.ts",
+    "group:invites": "node --experimental-strip-types scripts/group-invites.ts",
     "debug:recent": "node --experimental-strip-types scripts/debug-recent.ts",
     "import:words": "node --experimental-strip-types scripts/import-words.ts",
     "seed:moderation": "node --experimental-strip-types scripts/moderation-reserve.ts",
