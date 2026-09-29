@@ -22,6 +22,10 @@
         --ink: #151515;
         --ink-faint: #8a8478;
         --red: #e0402a;
+        --blue: #1f48c7;
+        --yellow: #f4b41a;
+        --green: #17614c;
+        --pink: #f1a3b3;
         color-scheme: light;
       }
       * {
@@ -39,6 +43,56 @@
         padding: max(2.5rem, env(safe-area-inset-top)) 1.5rem 3rem;
         display: grid;
         gap: 1.75rem;
+      }
+      .poster {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        aspect-ratio: 5 / 1;
+        overflow: hidden;
+      }
+      .tile {
+        display: block;
+        overflow: hidden;
+        animation: pop-in 520ms cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+        animation-delay: calc(var(--i) * 35ms);
+      }
+      .motion,
+      .tile svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      .motion-turn {
+        animation: quarter-turns 12s cubic-bezier(0.7, 0, 0.2, 1) infinite;
+        animation-delay: calc(var(--i) * -1.7s);
+      }
+      .motion-pulse {
+        animation: breathe 5s ease-in-out infinite alternate;
+        animation-delay: calc(var(--i) * -0.8s);
+      }
+      @keyframes pop-in {
+        from {
+          opacity: 0;
+          transform: scale(0.4);
+        }
+      }
+      @keyframes quarter-turns {
+        0%, 18% { transform: rotate(0deg); }
+        25%, 43% { transform: rotate(90deg); }
+        50%, 68% { transform: rotate(180deg); }
+        75%, 93% { transform: rotate(270deg); }
+        100% { transform: rotate(360deg); }
+      }
+      @keyframes breathe {
+        to {
+          transform: scale(0.8);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .tile,
+        .motion {
+          animation: none;
+        }
       }
       .brand {
         display: flex;

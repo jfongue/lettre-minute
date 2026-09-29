@@ -22,7 +22,6 @@ interface PageText {
   install: string
   /** A quiet line under the steps: the web version, for everyone not on Android. */
   iphone: readonly [string, string]
-  openGame: string
 }
 
 const TEXTS: Record<string, PageText> = {
@@ -37,7 +36,6 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Devenir testeur',
     install: 'Installer le jeu',
     iphone: ['Tu as un iPhone ? ', 'Clique ici'],
-    openGame: 'Ouvrir le jeu',
   },
   en: {
     appName: 'Letter Minute',
@@ -50,7 +48,6 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Become a tester',
     install: 'Install the game',
     iphone: ['Got an iPhone? ', 'Tap here'],
-    openGame: 'Open the game',
   },
   de: {
     appName: 'Letter Minute',
@@ -63,7 +60,6 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Tester werden',
     install: 'Spiel installieren',
     iphone: ['Du hast ein iPhone? ', 'Hier tippen'],
-    openGame: 'Spiel öffnen',
   },
   es: {
     appName: 'Letra Minuto',
@@ -76,7 +72,6 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Hacerme tester',
     install: 'Instalar el juego',
     iphone: ['¿Tienes un iPhone? ', 'Pulsa aquí'],
-    openGame: 'Abrir el juego',
   },
   it: {
     appName: 'Lettera Minuto',
@@ -89,7 +84,6 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Diventa tester',
     install: 'Installa il gioco',
     iphone: ['Hai un iPhone? ', 'Tocca qui'],
-    openGame: 'Apri il gioco',
   },
   nl: {
     appName: 'Letter Minuut',
@@ -102,7 +96,6 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Word tester',
     install: 'Spel installeren',
     iphone: ['Heb je een iPhone? ', 'Tik hier'],
-    openGame: 'Open het spel',
   },
   pt: {
     appName: 'Letra Minuto',
@@ -115,7 +108,6 @@ const TEXTS: Record<string, PageText> = {
     tester: 'Virar testador',
     install: 'Instalar o jogo',
     iphone: ['Tem um iPhone? ', 'Toque aqui'],
-    openGame: 'Abrir o jogo',
   },
 }
 
@@ -136,11 +128,23 @@ const inviter = (query.get('from') ?? '').trim().slice(0, 24)
 // address. Whichever arrives, the account made next befriends the inviter.
 const ref = /^[0-9a-f]{12}$/.test(query.get('ref') ?? '') ? query.get('ref')! : null
 const group = import.meta.env.VITE_TESTER_GROUP_URL || null
-const android = /android/i.test(navigator.userAgent)
 
 const gameUrl = ref ? `./?ref=${ref}` : './'
 const storeUrl = ref ? `${STORE_URL}&referrer=${encodeURIComponent(`ref=${ref}`)}` : STORE_URL
-const appUrl = `lettreminute://invite${ref ? `?ref=${ref}` : ''}`
+
+// The home poster's first row, its menu tile given back its quarter disc: the
+// same shapes as src/ui/paths.tsx, drawn without React.
+const POSTER: readonly [shape: string, tint: string, ground: string, motion: string][] = [
+  ['<path d="M0 0H100A100 100 0 0 1 0 100Z"/>', 'yellow', 'blue', 'turn'],
+  ['<circle cx="50" cy="50" r="50"/>', 'red', 'paper', 'pulse'],
+  ['<rect width="100" height="20"/><rect y="40" width="100" height="20"/><rect y="80" width="100" height="20"/>', 'ink', 'pink', ''],
+  ['<path d="M0 100V50A50 50 0 0 1 100 50V100Z"/>', 'green', 'yellow', 'turn'],
+  ['<path d="M50 0L100 100H0Z"/>', 'blue', 'paper', 'turn'],
+]
+const poster = POSTER.map(
+  ([shape, tint, ground, motion], index) =>
+    `<span class="tile" style="background:var(--${ground});--i:${index}"><span class="motion${motion ? ` motion-${motion}` : ''}"><svg viewBox="0 0 100 100" fill="currentColor" style="color:var(--${tint})">${shape}</svg></span></span>`,
+).join('')
 
 const button = (href: string, label: string, main = false) =>
   `<a class="btn${main ? ' btn--main' : ''}" href="${href}">${escapeHtml(label)}</a>`
@@ -153,13 +157,12 @@ const androidSteps = group
       ${button(storeUrl, t.install)}
     </section>`
   : ''
-// Once installed from the steps above, the app's own link hands it the code
-// whenever Play's referrer did not.
-const openGame = android && ref ? `<a href="${appUrl}">${escapeHtml(t.openGame)}</a> · ` : ''
+
 
 document.documentElement.lang = lang
 document.title = inviter ? `${inviter}${t.lead[1].replace(/\.$/, '')} · ${t.appName}` : t.appName
 document.getElementById('invite')!.innerHTML = `
+  <div class="poster" aria-hidden="true">${poster}</div>
   <p class="brand">${escapeHtml(t.appName)}</p>
   <h1>${inviter ? `${escapeHtml(t.lead[0])}<span>${escapeHtml(inviter)}</span>${escapeHtml(t.lead[1])}` : escapeHtml(t.leadAnonymous)}</h1>
   <div class="round" aria-hidden="true">
@@ -167,5 +170,5 @@ document.getElementById('invite')!.innerHTML = `
     <span><small>${escapeHtml(t.category)}</small><b>${escapeHtml(t.find[0])}<em>R</em>${escapeHtml(t.find[1])}</b></span>
   </div>
   ${androidSteps}
-  <p class="other">${openGame}${escapeHtml(t.iphone[0])}<a href="${gameUrl}">${escapeHtml(t.iphone[1])}</a></p>
+  <p class="other">${escapeHtml(t.iphone[0])}<a href="${gameUrl}">${escapeHtml(t.iphone[1])}</a></p>
 `
