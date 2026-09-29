@@ -353,8 +353,10 @@ qu'un nouvel arrivant casserait sans le savoir.
   `npm run group:invites` (`scripts/group-invites.ts`), lancé toutes les dix
   minutes par launchd sur le poste du développeur (`--install`), qui ajoute
   les adresses invitées au groupe dans un Chrome sans tête connecté une fois
-  par `--login`, et les marque `listed_at`. Mac éteint, l'invité rejoint le
-  groupe lui-même depuis la page.
+  par `--login`, et les marque `listed_at`. Mac éteint, le mail part au bout
+  d'une heure et l'invité rejoint le groupe lui-même depuis la page ; la
+  boîte du jeu prévient alors son propriétaire, qui peut l'ajouter du
+  téléphone.
 - **La boîte à idées part par Resend** (fonction Edge `ideas`, 0015) : sans
   `RESEND_API_KEY` dans les secrets, les idées s'accumulent en base sans
   mail.
