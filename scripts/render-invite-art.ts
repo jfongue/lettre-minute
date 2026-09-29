@@ -1,12 +1,12 @@
 /**
  * Photographs, in every language, what the invitation mail and the chat
  * preview show of the game: the debug board's « Images du mail
- * d’invitation » — the home poster and title, then the tutorial's prompt.
+ * d’invitation » — the home poster and its title.
  *
  *   npx vite --port 5299 --strictPort   (with VITE_SUPABASE_URL= so nothing is asked of a server)
  *   npm run render:invite [-- http://localhost:5299]
  *
- * Writes public/invite/header-<lang>.png and prompt-<lang>.png, twice the
+ * Writes public/invite/header-<lang>.png, twice the
  * size they are shown at, for the next `npm run web:publish`.
  */
 import { spawn } from 'node:child_process'
@@ -77,7 +77,7 @@ try {
     // paper, which would stop at the edge of the picture in a mail.
     await evaluate(`(() => { const s = document.createElement('style'); s.textContent = '*,*::before,*::after{animation:none!important;transition:none!important;background-image:none!important}'; document.head.append(s); return true })()`)
     await sleep(500)
-    for (const art of ['header', 'prompt']) {
+    for (const art of ['header']) {
       const box = await evaluate<{ x: number; y: number; width: number; height: number }>(
         `(() => { const r = document.querySelector('[data-art=${art}]').getBoundingClientRect(); return { x: r.x, y: r.y + scrollY, width: r.width, height: r.height } })()`,
       )
@@ -88,7 +88,7 @@ try {
       })
       writeFileSync(join(OUT, `${art}-${locale}.png`), Buffer.from(shot.data, 'base64'))
     }
-    console.log(`${locale} : ${OUT}/header-${locale}.png, ${OUT}/prompt-${locale}.png`)
+    console.log(`${locale} : ${OUT}/header-${locale}.png`)
   }
   socket.close()
 } finally {

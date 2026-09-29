@@ -32,6 +32,8 @@ interface MailText {
   /** Around the inviter's name, set in red. */
   lead: readonly [string, string]
   category: string
+  /** Around the letter, set in red: the game's own way of asking. */
+  find: readonly [string, string]
   cta: string
   /** Around the invited address, set in bold. */
   account: readonly [string, string]
@@ -44,6 +46,7 @@ const TEXTS: Record<string, MailText> = {
     subject: (inviter) => `${inviter} t’invite à jouer à Lettre Minute`,
     lead: ['', ' t’invite à jouer.'],
     category: 'Couleurs',
+    find: ['Trouve une couleur en ', ''],
     cta: 'Accepter l’invitation',
     account: ['Crée ton compte avec ', ' : vous serez amis tout de suite.'],
     footer: 'Un joueur a saisi ton adresse dans Lettre Minute. Tu ne recevras pas d’autre mail.',
@@ -53,6 +56,7 @@ const TEXTS: Record<string, MailText> = {
     subject: (inviter) => `${inviter} invites you to play Letter Minute`,
     lead: ['', ' invites you to play.'],
     category: 'Colours',
+    find: ['Find a colour starting with ', ''],
     cta: 'Accept the invitation',
     account: ['Create your account with ', ' and you will be friends straight away.'],
     footer: 'A player entered your address in Letter Minute. You will not get another e-mail.',
@@ -62,6 +66,7 @@ const TEXTS: Record<string, MailText> = {
     subject: (inviter) => `${inviter} lädt dich zu Letter Minute ein`,
     lead: ['', ' lädt dich zum Spielen ein.'],
     category: 'Farben',
+    find: ['Finde eine Farbe mit ', ''],
     cta: 'Einladung annehmen',
     account: ['Erstelle dein Konto mit ', ', dann seid ihr sofort befreundet.'],
     footer: 'Jemand hat deine Adresse in Letter Minute eingegeben. Du bekommst keine weitere E-Mail.',
@@ -71,6 +76,7 @@ const TEXTS: Record<string, MailText> = {
     subject: (inviter) => `${inviter} te invita a jugar a Letra Minuto`,
     lead: ['', ' te invita a jugar.'],
     category: 'Colores',
+    find: ['Encuentra un color con ', ''],
     cta: 'Aceptar la invitación',
     account: ['Crea tu cuenta con ', ' y seréis amigos al instante.'],
     footer: 'Un jugador escribió tu dirección en Letra Minuto. No recibirás otro correo.',
@@ -80,6 +86,7 @@ const TEXTS: Record<string, MailText> = {
     subject: (inviter) => `${inviter} ti invita a giocare a Lettera Minuto`,
     lead: ['', ' ti invita a giocare.'],
     category: 'Colori',
+    find: ['Trova un colore con la ', ''],
     cta: 'Accetta l’invito',
     account: ['Crea il tuo account con ', ' e sarete subito amici.'],
     footer: 'Un giocatore ha inserito il tuo indirizzo in Lettera Minuto. Non riceverai altre e-mail.',
@@ -89,6 +96,7 @@ const TEXTS: Record<string, MailText> = {
     subject: (inviter) => `${inviter} nodigt je uit voor Letter Minuut`,
     lead: ['', ' nodigt je uit om te spelen.'],
     category: 'Kleuren',
+    find: ['Vind een kleur met een ', ''],
     cta: 'Uitnodiging aannemen',
     account: ['Maak je account aan met ', ', dan zijn jullie meteen vrienden.'],
     footer: 'Een speler heeft je adres in Letter Minuut ingevuld. Je krijgt geen andere e-mail.',
@@ -98,6 +106,7 @@ const TEXTS: Record<string, MailText> = {
     subject: (inviter) => `${inviter} convida você para jogar Letra Minuto`,
     lead: ['', ' convida você para jogar.'],
     category: 'Cores',
+    find: ['Encontra uma cor com ', ''],
     cta: 'Aceitar o convite',
     account: ['Crie sua conta com ', ' e vocês serão amigos na hora.'],
     footer: 'Um jogador digitou seu endereço no Letra Minuto. Você não receberá outro e-mail.',
@@ -117,7 +126,7 @@ export function inviteMail(lang: string | null, inviter: string, email: string, 
   const subject = t.subject(who)
   const link = invitePage(who, code)
   // The game's own pictures (npm run render:invite), in the mail's language.
-  const art = (name: 'header' | 'prompt') => `${WEB_URL}invite/${name}-${TEXTS[lang ?? ''] ? lang : 'fr'}.png`
+  const art = (name: 'header') => `${WEB_URL}invite/${name}-${TEXTS[lang ?? ''] ? lang : 'fr'}.png`
 
   const html = `<!doctype html>
 <html lang="${lang ?? 'fr'}">
@@ -127,13 +136,21 @@ export function inviteMail(lang: string | null, inviter: string, email: string, 
 <tr><td align="center" style="padding:40px 24px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:420px;">
     <tr><td style="padding:0 0 28px 0;">
-      <img src="${art('header')}" width="378" alt="${escapeHtml(t.appName)}" style="display:block;width:100%;max-width:378px;height:auto;border:0;">
+      <img src="${art('header')}" width="420" alt="${escapeHtml(t.appName)}" style="display:block;width:100%;max-width:420px;height:auto;border:0;">
     </td></tr>
     <tr><td style="padding:0 0 24px 0;${type(28, 800, INK, 'line-height:33px;')}">
       ${escapeHtml(t.lead[0])}<span style="color:${RED};">${escapeHtml(who)}</span>${escapeHtml(t.lead[1])}
     </td></tr>
-    <tr><td style="padding:0 0 28px 0;">
-      <img src="${art('prompt')}" width="378" alt="${escapeHtml(t.category)}" style="display:block;width:100%;max-width:378px;height:auto;border:0;">
+    <tr><td style="padding:0 0 32px 0;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:2px solid ${INK};border-bottom:2px solid ${INK};"><tr>
+        <td width="58" style="padding:14px 0;">
+          <div style="width:44px;height:44px;background:${RED};${type(28, 800, PAPER, 'line-height:44px;text-align:center;')}">R</div>
+        </td>
+        <td style="padding:14px 0;">
+          <div style="${type(10, 700, INK_FAINT, 'letter-spacing:2px;text-transform:uppercase;')}">${escapeHtml(t.category)}</div>
+          <div style="${type(17, 800, INK, 'padding-top:2px;')}">${escapeHtml(t.find[0])}<span style="color:${RED};">R</span>${escapeHtml(t.find[1])}</div>
+        </td>
+      </tr></table>
     </td></tr>
     <tr><td style="padding:0 0 20px 0;">
       <a href="${link}" style="display:block;background:${INK};padding:16px 18px;${type(13, 700, PAPER, 'letter-spacing:2px;text-transform:uppercase;text-decoration:none;text-align:center;')}">${escapeHtml(t.cta)}</a>

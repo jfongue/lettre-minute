@@ -1,19 +1,27 @@
 <!doctype html>
-<!-- The picture chat apps show under a shared invitation (public/invite-card.png, 1200 × 630), made of the
-     game's own pictures (npm run render:invite first):
+<!-- The picture chat apps show under a shared invitation (public/invite-card.png, 1200 × 630): the game's own
+     poster (npm run render:invite first) beside the prompt the mail and the page ask.
      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --hide-scrollbars --window-size=1200,630 --allow-file-access-from-files --screenshot=public/invite-card.png "file://$PWD/assets/source/invite-card.html" -->
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<link rel="stylesheet" href="../../node_modules/@fontsource-variable/jost/index.css">
 <style>
   * { box-sizing: border-box; margin: 0; }
-  body { width: 1200px; height: 630px; background: #f2ecdf; padding: 60px 72px; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 64px; }
+  body { width: 1200px; height: 630px; background: #f2ecdf; color: #151515; font-family: 'Jost Variable', Futura, sans-serif; padding: 60px 72px; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 64px; }
   .header { height: 510px; display: block; }
-  .prompt { width: 100%; display: block; }
+  .round { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 24px; padding: 26px 0; border-block: 5px solid #151515; }
+  .letter { width: 96px; height: 96px; display: grid; place-items: center; background: #e0402a; color: #f2ecdf; font-size: 62px; font-weight: 800; }
+  .round small { display: block; font-size: 18px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #8a8478; }
+  .round b { display: block; font-size: 34px; font-weight: 800; line-height: 1.15; }
+  .round em { font-style: normal; color: #e0402a; }
 </style>
 </head>
 <body>
   <img class="header" src="../../public/invite/header-fr.png" alt="">
-  <img class="prompt" src="../../public/invite/prompt-fr.png" alt="">
+  <div class="round">
+    <span class="letter">R</span>
+    <span><small>Couleurs</small><b>Trouve une couleur en <em>R</em></b></span>
+  </div>
 </body>
 </html>

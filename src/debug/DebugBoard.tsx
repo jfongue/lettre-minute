@@ -18,7 +18,7 @@ import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
 import { OverScreen, type RunProposal } from '../ui/OverScreen'
 import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
-import { TutorialScreen, tutorialPrompt } from '../ui/TutorialScreen'
+import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
 import { PushOffer } from '../ui/PushOffer'
 import { OldChallengeList, StatsPage } from '../ui/StatsPage'
@@ -30,8 +30,7 @@ import { Menu } from '../ui/Menu'
 import type { SharedChallenge, SharedPlayer } from '../domain/rivalry'
 import type { Boards } from '../domain/boards'
 import { Avatar } from '../ui/Avatar'
-import { LetterMark, Shape } from '../ui/bauhaus'
-import { categoryMotif } from '../ui/motifs'
+import { Shape } from '../ui/bauhaus'
 import { NamePrompt } from '../ui/NamePrompt'
 import { InviterPrompt } from '../ui/InviterPrompt'
 import { DashboardView } from './Dashboard'
@@ -47,7 +46,7 @@ import { CategoriesPage } from '../ui/CategoriesPage'
 import { FeedbackPop } from '../ui/FeedbackPop'
 import { PlusPop } from '../ui/PlusPop'
 import { Checkout } from '../ui/Checkout'
-import { categoryText, useT } from '../i18n'
+import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import type { AdminIdea } from '../lib/cloud'
 
@@ -618,12 +617,11 @@ function FriendsScenario({ back, sheet }: { back(): void; sheet?: 'name' | 'invi
 /**
  * Ce que le mail d'invitation et la carte d'aperçu montrent du jeu, dans la
  * langue de l'interface : l'affiche de l'accueil — le quart de disque rendu à
- * la tuile du menu — et son titre, puis la consigne du tutoriel.
+ * la tuile du menu — et son titre.
  * `npm run render:invite` les photographie (scripts/render-invite-art.ts).
  */
 function InviteArtScenario({ back }: { back(): void }) {
   const t = useT()
-  const prompt = tutorialPrompt(t)
   return (
     <div className="sheet stack">
       <div data-art="header" className="stack">
@@ -640,19 +638,6 @@ function InviteArtScenario({ back }: { back(): void }) {
             <span>{t.appName[1]}</span>
           </h1>
         </header>
-      </div>
-      <div data-art="prompt" className="stack">
-        <section className="tutorial-prompt">
-          <div className="tutorial-piece tutorial-piece--letter">
-            <LetterMark letter={prompt.letter} motif={categoryMotif(prompt.categoryId)} size="lg" />
-          </div>
-          <div className="tutorial-piece tutorial-piece--theme">
-            <h2 className="prompt-label">{categoryText(t, prompt.categoryId).label}</h2>
-          </div>
-        </section>
-        <p className="tutorial-ask">
-          {t.tutorial.ask} <strong>{prompt.letter}</strong>
-        </p>
       </div>
       <button type="button" className="btn btn--quiet" onClick={back}>
         Retour
@@ -1622,7 +1607,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'invite-art',
     group: 'Accueil',
     title: 'Images du mail d’invitation',
-    how: 'L’affiche, le titre et la consigne du tutoriel que npm run render:invite photographie pour le mail et la carte d’aperçu',
+    how: 'L’affiche et le titre que npm run render:invite photographie pour le mail et la carte d’aperçu',
     phase: 'home',
     render: (back) => <InviteArtScenario back={back} />,
   },
