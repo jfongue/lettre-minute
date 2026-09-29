@@ -334,7 +334,8 @@ qu'un nouvel arrivant casserait sans le savoir.
   Google public qui sert de liste de testeurs au test fermé
   (`VITE_TESTER_GROUP_URL`) ; sans lui, elle ne propose que le web, un lien
   Play répondant « application indisponible » à qui n'est pas testeur.
-  L'e-mail (`invite_tester`, 0034) part aussitôt par la fonction Edge
+  L'e-mail (`invite_tester`, 0034) attend que l'adresse soit dans le groupe
+  (ou une heure, 0035), puis part par la fonction Edge
   `invite`, depuis la boîte Gmail du jeu (`GMAIL_USER`,
   `GMAIL_APP_PASSWORD`, un mot de passe d'application) au nom de
   l'inviteur, une réponse allant à l'inviteur : aucun service ne laisse un
@@ -345,9 +346,7 @@ qu'un nouvel arrivant casserait sans le savoir.
   sur `auth.users`), comme celui qui présente un code : referrer Play,
   `?ref=` de la version web, ou presse-papiers que les boutons de la page
   remplissent (`LM-…`, lu une fois au premier lancement, `onInstallTraces`).
-  Si rien n'est arrivé, le compte des trente premiers jours se voit demander
-  une fois qui l'a invité (`InviterPrompt`, `claim_inviter`, 0035) ; toute
-  voie encaissée, ou « Personne », ferme la question (`invite_claims`) ; une adresse qui joue déjà reçoit une demande
+  Une adresse qui joue déjà reçoit une demande
   ordinaire, et l'inviteur lit `sent` dans les deux cas, pour que le champ
   ne dise jamais qui joue. Un nom de compte en forme d'adresse reste refusé
   (`checkName`). Un groupe Google grand public n'a pas d'API : c'est

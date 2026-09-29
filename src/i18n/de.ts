@@ -666,15 +666,6 @@ export const de: Messages = {
     later: 'Später',
   },
 
-  inviterPrompt: {
-    title: 'Hat dich jemand eingeladen?',
-    lead: 'Gib den Spielernamen ein, dann seid ihr sofort befreundet.',
-    field: 'Spielername',
-    nobody: 'Niemand',
-    add: 'Hinzufügen',
-    unknown: 'Kein Spieler mit diesem Namen.',
-    self: 'Das ist dein eigener Name.',
-  },
 
   feedback: {
     title: 'Deine Meinung zählt!',

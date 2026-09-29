@@ -79,8 +79,6 @@ const ARGS: Record<string, unknown[]> = {
   inviteTester: ['ami@example.com', 'fr'],
   fetchInviteCode: [],
   acceptInvite: ['0123456789ab'],
-  fetchInviteStatus: [],
-  claimInviter: ['ami'],
   respondFriend: ['ami', true],
   removeFriend: ['ami'],
   register: ['Joueur', 'joueur@example.com', 'secret-password'],

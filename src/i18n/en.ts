@@ -672,15 +672,6 @@ export const en: Messages = {
     later: 'Later',
   },
 
-  inviterPrompt: {
-    title: 'Did someone invite you?',
-    lead: 'Enter their player name and you will be friends straight away.',
-    field: 'Their player name',
-    nobody: 'Nobody',
-    add: 'Add',
-    unknown: 'No player by that name.',
-    self: 'That is your own name.',
-  },
 
   feedback: {
     title: 'Your opinion counts!',

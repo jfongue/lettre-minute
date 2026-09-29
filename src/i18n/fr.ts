@@ -710,16 +710,6 @@ export const fr = {
     later: 'Plus tard',
   },
 
-  /** Once, to a new account no invitation reached: who invited it. */
-  inviterPrompt: {
-    title: 'Quelqu’un t’a invité\u00a0?',
-    lead: 'Donne son nom de joueur : vous serez amis tout de suite.',
-    field: 'Son nom de joueur',
-    nobody: 'Personne',
-    add: 'Ajouter',
-    unknown: 'Aucun joueur à ce nom.',
-    self: 'C’est ton propre nom.',
-  },
 
   feedback: {
     title: 'Ton avis compte !',

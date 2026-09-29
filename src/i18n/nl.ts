@@ -667,15 +667,6 @@ export const nl: Messages = {
     later: 'Later',
   },
 
-  inviterPrompt: {
-    title: 'Heeft iemand je uitgenodigd?',
-    lead: 'Vul de spelersnaam in, dan zijn jullie meteen vrienden.',
-    field: 'Spelersnaam',
-    nobody: 'Niemand',
-    add: 'Toevoegen',
-    unknown: 'Geen speler met die naam.',
-    self: 'Dat is je eigen naam.',
-  },
 
   feedback: {
     title: 'Jouw mening telt!',

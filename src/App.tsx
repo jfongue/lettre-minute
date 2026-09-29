@@ -2,8 +2,6 @@ import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState
 import { availableCategoryIds, loadPack, loadPacks } from './data/packs'
 import {
   acceptInvite,
-  claimInviter,
-  fetchInviteStatus,
   cancelSubmission,
   correctSubmission,
   createChallenge,
@@ -128,7 +126,6 @@ import type { MenuPage } from './ui/Menu'
 import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
 import { NamePrompt } from './ui/NamePrompt'
-import { InviterPrompt } from './ui/InviterPrompt'
 import { PushOffer } from './ui/PushOffer'
 import type { Racer } from './ui/RunScreen'
 import { lazyScreen } from './ui/lazyScreen'
@@ -849,17 +846,6 @@ export function App() {
       live = false
     }
   }, [named, inviteRef, refreshFriends])
-  // No code reached the device, or it led nowhere: a new account is asked
-  // once who invited it (0035), after any code has been cashed.
-  const [inviterAsk, setInviterAsk] = useState(false)
-  useEffect(() => {
-    if (!named || inviteRef) return
-    let live = true
-    fetchInviteStatus().then((status) => live && setInviterAsk(status === 'ask'))
-    return () => {
-      live = false
-    }
-  }, [named, inviteRef])
 
   // No push service: the home screen asks again when it comes back into view,
   // and every minute while it stays there. The boards follow, less often.
@@ -1467,17 +1453,6 @@ export function App() {
             return refused
           }}
           onLater={() => setNameAsk(null)}
-        />
-      )}
-
-      {inviterAsk && nameAsk === null && session.phase === 'home' && !notice && (
-        <InviterPrompt
-          onClaim={async (name) => {
-            const outcome = await claimInviter(name)
-            if (outcome === 'friends') refreshFriends()
-            return outcome
-          }}
-          onClose={() => setInviterAsk(false)}
         />
       )}
 

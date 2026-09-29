@@ -668,15 +668,6 @@ export const it: Messages = {
     later: 'Più tardi',
   },
 
-  inviterPrompt: {
-    title: 'Qualcuno ti ha invitato?',
-    lead: 'Scrivi il suo nome giocatore e sarete subito amici.',
-    field: 'Il suo nome giocatore',
-    nobody: 'Nessuno',
-    add: 'Aggiungi',
-    unknown: 'Nessun giocatore con questo nome.',
-    self: 'È il tuo nome.',
-  },
 
   feedback: {
     title: 'La tua opinione conta!',

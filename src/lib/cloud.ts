@@ -651,24 +651,6 @@ export function acceptInvite(code: string): Promise<string | null | 'unreachable
   }, 'unreachable')
 }
 
-/** Whether the account may still name who invited it (0035); `done` without a server too. */
-export function fetchInviteStatus(): Promise<'ask' | 'done'> {
-  return guard(async () => {
-    const { data, error } = await supabase!.rpc('invite_status')
-    return !error && data === 'ask' ? 'ask' : 'done'
-  }, 'done')
-}
-
-export type InviterClaim = 'friends' | 'unknown' | 'self' | 'done' | 'unreachable'
-
-/** Names who invited this account, or nobody with null: either way the question closes. */
-export function claimInviter(name: string | null): Promise<InviterClaim> {
-  return guard(async () => {
-    const { data, error } = await supabase!.rpc('claim_inviter', { p_name: name?.trim() ?? null })
-    return error ? 'unreachable' : (data as InviterClaim)
-  }, 'unreachable')
-}
-
 export function respondFriend(from: string, accept: boolean): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('respond_friend', { p_from: from, p_accept: accept })

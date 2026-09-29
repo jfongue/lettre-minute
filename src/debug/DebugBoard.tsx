@@ -32,7 +32,6 @@ import type { Boards } from '../domain/boards'
 import { Avatar } from '../ui/Avatar'
 import { Shape } from '../ui/bauhaus'
 import { NamePrompt } from '../ui/NamePrompt'
-import { InviterPrompt } from '../ui/InviterPrompt'
 import { DashboardView } from './Dashboard'
 import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
 import type { Snapshot } from './snapshot'
@@ -1570,19 +1569,6 @@ const SCENARIOS: readonly Scenario[] = [
           onClose={back}
         />
       </div>
-    ),
-  },
-  {
-    id: 'inviter-prompt',
-    group: 'Accueil',
-    title: 'Qui t’a invité ?',
-    how: 'Nouveau compte qu’aucun code n’a atteint : « Personne » ou un nom (« Personne » ferme, « Inconnu » répond aucun joueur, rien n’est envoyé)',
-    phase: 'home',
-    render: (back) => (
-      <InviterPrompt
-        onClaim={(name) => later(name === null ? 'done' : name === 'Inconnu' ? 'unknown' : 'friends')}
-        onClose={back}
-      />
     ),
   },
   {
