@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:db": "scripts/test-db.sh",
+    "render:invite": "node --experimental-strip-types scripts/render-invite-art.ts",
     "render:achievements": "node --experimental-strip-types scripts/render-achievements.ts",
     "group:invites": "node --experimental-strip-types scripts/group-invites.ts",
     "debug:recent": "node --experimental-strip-types scripts/debug-recent.ts",

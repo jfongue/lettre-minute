@@ -191,7 +191,7 @@ type Cell = [kind: ShapeKind, tint: Tint, ground: Tint, motion?: 'turn' | 'pulse
 
 // Composed by hand rather than drawn at random: a poster needs its colours
 // balanced across the grid, which a shuffle does not guarantee.
-const POSTER: readonly Cell[] = [
+export const POSTER: readonly Cell[] = [
   ['quarter', 'yellow', 'blue', 'turn'],
   ['circle', 'red', 'paper', 'pulse'],
   ['bars', 'ink', 'pink'],

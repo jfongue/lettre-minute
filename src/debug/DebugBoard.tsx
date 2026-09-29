@@ -13,12 +13,12 @@ import { ChallengeNotice } from '../ui/ChallengeHome'
 import { ChallengePowers } from '../ui/ChallengePowers'
 import { ChallengeView } from '../ui/ChallengeScreen'
 import { PowerGiftPop, WordsNewsPop } from '../ui/WordsNews'
-import { HomeScreen } from '../ui/HomeScreen'
+import { HomeScreen, POSTER } from '../ui/HomeScreen'
 import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
 import { OverScreen, type RunProposal } from '../ui/OverScreen'
 import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
-import { TutorialScreen } from '../ui/TutorialScreen'
+import { TutorialScreen, tutorialPrompt } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
 import { PushOffer } from '../ui/PushOffer'
 import { OldChallengeList, StatsPage } from '../ui/StatsPage'
@@ -30,6 +30,8 @@ import { Menu } from '../ui/Menu'
 import type { SharedChallenge, SharedPlayer } from '../domain/rivalry'
 import type { Boards } from '../domain/boards'
 import { Avatar } from '../ui/Avatar'
+import { LetterMark, Shape } from '../ui/bauhaus'
+import { categoryMotif } from '../ui/motifs'
 import { NamePrompt } from '../ui/NamePrompt'
 import { DashboardView } from './Dashboard'
 import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
@@ -44,7 +46,7 @@ import { CategoriesPage } from '../ui/CategoriesPage'
 import { FeedbackPop } from '../ui/FeedbackPop'
 import { PlusPop } from '../ui/PlusPop'
 import { Checkout } from '../ui/Checkout'
-import { useT } from '../i18n'
+import { categoryText, useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import type { AdminIdea } from '../lib/cloud'
 
@@ -608,6 +610,52 @@ function FriendsScenario({ back, sheet }: { back(): void; sheet?: 'name' | 'invi
           initialSheet={sheet}
         />
       </div>
+    </div>
+  )
+}
+
+/**
+ * Ce que le mail d'invitation et la carte d'aperçu montrent du jeu, dans la
+ * langue de l'interface : l'affiche de l'accueil — le quart de disque rendu à
+ * la tuile du menu — et son titre, puis la consigne du tutoriel.
+ * `npm run render:invite` les photographie (scripts/render-invite-art.ts).
+ */
+function InviteArtScenario({ back }: { back(): void }) {
+  const t = useT()
+  const prompt = tutorialPrompt(t)
+  return (
+    <div className="sheet stack">
+      <div data-art="header" className="stack">
+        <div className="poster">
+          {POSTER.map(([kind, tint, ground], index) => (
+            <span key={index} className="poster-cell" style={{ background: `var(--${ground})` }}>
+              <Shape kind={kind} tint={tint} />
+            </span>
+          ))}
+        </div>
+        <header className="masthead">
+          <h1 className="title">
+            <span>{t.appName[0]}</span>
+            <span>{t.appName[1]}</span>
+          </h1>
+        </header>
+      </div>
+      <div data-art="prompt" className="stack">
+        <section className="tutorial-prompt">
+          <div className="tutorial-piece tutorial-piece--letter">
+            <LetterMark letter={prompt.letter} motif={categoryMotif(prompt.categoryId)} size="lg" />
+          </div>
+          <div className="tutorial-piece tutorial-piece--theme">
+            <h2 className="prompt-label">{categoryText(t, prompt.categoryId).label}</h2>
+          </div>
+        </section>
+        <p className="tutorial-ask">
+          {t.tutorial.ask} <strong>{prompt.letter}</strong>
+        </p>
+      </div>
+      <button type="button" className="btn btn--quiet" onClick={back}>
+        Retour
+      </button>
     </div>
   )
 }
@@ -1555,6 +1603,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Juste après une nouvelle amitié, avant la question du téléphone (sans effet ici)',
     phase: 'home',
     render: (back) => <PushOffer onNo={back} onYes={back} />,
+  },
+  {
+    id: 'invite-art',
+    group: 'Accueil',
+    title: 'Images du mail d’invitation',
+    how: 'L’affiche, le titre et la consigne du tutoriel que npm run render:invite photographie pour le mail et la carte d’aperçu',
+    phase: 'home',
+    render: (back) => <InviteArtScenario back={back} />,
   },
   {
     id: 'tutorial',
