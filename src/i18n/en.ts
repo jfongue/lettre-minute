@@ -614,6 +614,7 @@ export const en: Messages = {
     open: (name) => `What to do about ${name}?`,
     befriend: 'Add as friend',
     challenge: 'Start a challenge',
+    requestSent: 'Request sent. Waiting for their answer.',
     block: 'Block',
     blockConfirm: 'Block',
     blockWarning: (name) =>

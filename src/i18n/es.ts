@@ -610,6 +610,7 @@ export const es: Messages = {
     open: (name) => `¿Qué hacer con ${name}?`,
     befriend: 'Añadir como amigo',
     challenge: 'Lanzar un reto',
+    requestSent: 'Solicitud enviada. Esperando su respuesta.',
     block: 'Bloquear',
     blockConfirm: 'Bloquear',
     blockWarning: (name) =>

@@ -610,6 +610,7 @@ export const pt: Messages = {
     open: (name) => `O que fazer com ${name}?`,
     befriend: 'Adicionar como amigo',
     challenge: 'Lançar um desafio',
+    requestSent: 'Pedido enviado. À espera da resposta.',
     block: 'Bloquear',
     blockConfirm: 'Bloquear',
     blockWarning: (name) =>

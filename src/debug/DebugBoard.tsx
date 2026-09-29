@@ -64,8 +64,16 @@ const later = <T,>(value: T, ms = 400) => new Promise<T>((resolve) => setTimeout
 const PLAYER_ACTIONS: PlayerActions = {
   befriend: () => later('sent'),
   block: () => later('blocked'),
-  // Léa and Tom are friends here: their sheet offers a challenge.
-  friendId: (name) => later(name === 'Léa' || name === 'Tom' ? name.toLowerCase() : null, 200),
+  // Léa and Tom are friends here, Joueur 3 waits for an answer: their sheet tells the three apart.
+  relation: (name) =>
+    later(
+      name === 'Léa' || name === 'Tom'
+        ? { id: name.toLowerCase(), relation: 'friend' as const }
+        : name === 'Joueur 3'
+          ? { id: 'joueur-3', relation: 'outgoing' as const }
+          : null,
+      200,
+    ),
   challenge: () => undefined,
 }
 

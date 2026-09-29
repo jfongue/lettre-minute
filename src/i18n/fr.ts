@@ -651,6 +651,7 @@ export const fr = {
     open: (name: string) => `Que faire avec ${name} ?`,
     befriend: 'Ajouter en ami',
     challenge: 'Lancer un défi',
+    requestSent: 'Demande envoyée. En attente de sa réponse.',
     block: 'Bloquer',
     blockConfirm: 'Bloquer',
     blockWarning: (name: string) =>

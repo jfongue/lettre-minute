@@ -609,6 +609,7 @@ export const nl: Messages = {
     open: (name) => `Wat wil je doen met ${name}?`,
     befriend: 'Als vriend toevoegen',
     challenge: 'Start een uitdaging',
+    requestSent: 'Verzoek verstuurd. Wachten op antwoord.',
     block: 'Blokkeren',
     blockConfirm: 'Blokkeren',
     blockWarning: (name) =>
