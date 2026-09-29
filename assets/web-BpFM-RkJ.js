@@ -1,1 +1,0 @@
-import{m as e}from"./oauth-popup-redirect-Bn7qzHXr.js";var t=class extends e{async show(e){}async hide(e){}};export{t as SplashScreenWeb};
