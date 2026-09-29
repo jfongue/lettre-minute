@@ -1,4 +1,4 @@
-import { DEFAULT_AVATAR, type AvatarChoice } from './avatar'
+import type { AvatarChoice } from './avatar'
 
 export type BoardId = 'day' | 'week' | 'discoveries'
 
@@ -14,8 +14,16 @@ export type Boards = Readonly<Record<BoardId, readonly BoardRow[]>>
 /**
  * The house player: a score to beat on a quiet day, so the board is never
  * empty. A real run by that account replaces it.
+ *
+ * His tile is the one the account wears, written out here because a day he has
+ * not played yet has no row to read it from: the starting tile would put a
+ * stranger's face on the board every quiet morning.
  */
-export const HOUSE_PLAYER: BoardRow = { name: 'Demontoon', avatar: DEFAULT_AVATAR, value: 94 }
+export const HOUSE_PLAYER: BoardRow = {
+  name: 'Demontoon',
+  avatar: { design: 30, ground: 'jaune', shape: 'violet', accent: 'brique' },
+  value: 94,
+}
 
 /** The house player's standing score, placed where it ranks unless the account already has one. */
 export function withHousePlayer(rows: readonly BoardRow[], house: BoardRow = HOUSE_PLAYER): BoardRow[] {

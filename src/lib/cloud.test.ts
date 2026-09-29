@@ -55,9 +55,20 @@ const RUN = {
   found: [{ word: 'chat', prompt: { categoryId: 'animaux', letter: 'C' }, points: 10 }],
 } as unknown as Run
 
+const RECORD = {
+  at: 1_700_000_000_000,
+  lang: 'fr',
+  score: 10,
+  bestCombo: 2,
+  skips: 0,
+  categoryIds: ['animaux'],
+  words: [{ categoryId: 'animaux', word: 'chat', display: 'chat', points: 10 }],
+}
+
 /** Arguments per export; anything not listed is called with a language. */
 const ARGS: Record<string, unknown[]> = {
-  pushRun: [RUN, NEW_PROFILE, 'de'],
+  pushRun: [RUN, RECORD, NEW_PROFILE],
+  fetchMyRuns: [],
   pushSubmissions: [[{ word: 'dahu', categoryId: 'animaux', at: 1, lang: 'fr' }]],
   castVote: ['review-1', 'correct'],
   answerModeratorOffer: ['level', true],
@@ -141,6 +152,6 @@ describe('cloud without a working server', () => {
   it('keeps an unsent proposal queued rather than claiming it went through', async () => {
     mode.current = 'error'
     expect(await cloud.pushSubmissions([{ word: 'dahu', categoryId: 'animaux', at: 1, lang: 'fr' }])).toEqual([])
-    expect(await cloud.pushRun(RUN, NEW_PROFILE, 'fr')).toBe(false)
+    expect(await cloud.pushRun(RUN, RECORD, NEW_PROFILE)).toBe(false)
   })
 })

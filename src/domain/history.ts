@@ -42,8 +42,74 @@ export function recordOf(run: Run, at: number, lang: string): RunRecord {
 /** Newest first; the oldest runs go once the device holds this many. */
 export const HISTORY_LIMIT = 2000
 
+/**
+ * What the statistics page is guaranteed to cover, whatever the device kept:
+ * the last twenty runs, or everything since three days ago — whichever
+ * reaches further back. A phone that just signed in has no history of its own,
+ * and the account's runs fill that window.
+ */
+export const RECENT_MIN_RUNS = 20
+export const RECENT_MIN_DAYS = 3
+
 export function appendRecord(history: readonly RunRecord[], record: RunRecord): RunRecord[] {
   return [record, ...history].slice(0, HISTORY_LIMIT)
+}
+
+/**
+ * Reads a run record as the server holds it, where anything may have been
+ * written: one malformed run is dropped, not the whole answer.
+ */
+export function parseRecord(raw: unknown): RunRecord | null {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null
+  const value = raw as Record<string, unknown>
+  const count = (field: unknown) => (typeof field === 'number' && Number.isFinite(field) && field >= 0 ? field : null)
+  const at = count(value.at)
+  const score = count(value.score)
+  const bestCombo = count(value.bestCombo)
+  const skips = count(value.skips)
+  if (at === null || score === null || bestCombo === null || skips === null) return null
+  if (typeof value.lang !== 'string' || !Array.isArray(value.categoryIds) || !Array.isArray(value.words)) return null
+  return {
+    at,
+    lang: value.lang,
+    score,
+    bestCombo,
+    skips,
+    categoryIds: value.categoryIds.filter((id): id is string => typeof id === 'string'),
+    words: value.words.flatMap((word: unknown) => {
+      if (!word || typeof word !== 'object') return []
+      const played = word as Record<string, unknown>
+      const points = count(played.points)
+      if (typeof played.categoryId !== 'string' || typeof played.word !== 'string' || typeof played.display !== 'string' || points === null)
+        return []
+      const seconds = count(played.seconds)
+      return [{ categoryId: played.categoryId, word: played.word, display: played.display, points, ...(seconds === null ? {} : { seconds }) }]
+    }),
+  }
+}
+
+// Une partie remontée du serveur porte l'instant que son appareil lui a donné ;
+// les deux copies de la même partie se reconnaissent à cet instant, large d'une
+// horloge d'appareil un peu déréglée, et à ce qu'elle a marqué.
+const SAME_RUN_MS = 5 * 60_000
+
+function sameRun(one: RunRecord, other: RunRecord): boolean {
+  return (
+    one.score === other.score &&
+    one.bestCombo === other.bestCombo &&
+    one.skips === other.skips &&
+    one.words.length === other.words.length &&
+    Math.abs(one.at - other.at) <= SAME_RUN_MS
+  )
+}
+
+/** The device's runs and the account's, newest first, without counting one twice. */
+export function mergeHistory(local: readonly RunRecord[], incoming: readonly RunRecord[]): RunRecord[] {
+  const kept = [...local]
+  for (const run of incoming) {
+    if (!kept.some((held) => sameRun(held, run))) kept.push(run)
+  }
+  return kept.sort((one, other) => other.at - one.at).slice(0, HISTORY_LIMIT)
 }
 
 export interface WordCount {

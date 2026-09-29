@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { appendRecord, HISTORY_LIMIT, summarize, type RunRecord } from './history'
+import { appendRecord, HISTORY_LIMIT, mergeHistory, parseRecord, summarize, type RunRecord } from './history'
 
 function record(score: number, words: [categoryId: string, word: string, points: number][] = [], lang = 'fr'): RunRecord {
   return {
@@ -71,5 +71,43 @@ describe('appendRecord', () => {
     expect(next).toHaveLength(HISTORY_LIMIT)
     expect(next[0]!.score).toBe(-1)
     expect(next.at(-1)!.score).toBe(HISTORY_LIMIT - 2)
+  })
+})
+
+describe('parseRecord', () => {
+  it('reads back what a device wrote, seconds included', () => {
+    const played = { categoryId: 'pays', word: 'chili', display: 'Chili', points: 10, seconds: 4 }
+    const raw = { at: 12, lang: 'fr', score: 30, bestCombo: 2, skips: 1, categoryIds: ['pays'], words: [played] }
+    expect(parseRecord(raw)).toEqual(raw)
+  })
+
+  it('drops a run the server mangled rather than the whole answer', () => {
+    expect(parseRecord(null)).toBeNull()
+    expect(parseRecord([])).toBeNull()
+    expect(parseRecord({ at: 1, lang: 'fr', score: 1, bestCombo: 0, skips: 'deux', categoryIds: [], words: [] })).toBeNull()
+    expect(parseRecord({ at: 1, lang: 'fr', score: 1, bestCombo: 0, skips: 0, categoryIds: 'pays', words: [] })).toBeNull()
+  })
+
+  it('keeps the sound words of a run that also holds a broken one', () => {
+    const raw = { at: 1, lang: 'fr', score: 10, bestCombo: 0, skips: 0, categoryIds: [], words: [{ categoryId: 'pays', word: 'chili' }, 'nope'] }
+    expect(parseRecord(raw)?.words).toEqual([])
+  })
+})
+
+describe('mergeHistory', () => {
+  const HOUR = 60 * 60 * 1000
+  const run = (at: number, score = 10): RunRecord => ({ ...record(score), at })
+
+  it('adds the account runs the device never played, newest first', () => {
+    const merged = mergeHistory([run(3 * HOUR), run(2 * HOUR)], [run(2.5 * HOUR), run(HOUR)])
+    expect(merged.map((entry) => entry.at)).toEqual([3 * HOUR, 2.5 * HOUR, 2 * HOUR, HOUR])
+  })
+
+  it('never counts the same run twice', () => {
+    const device = run(10 * HOUR)
+    // Le même instant, à l'horloge de l'appareil près, et le même score : la copie du serveur s'efface.
+    expect(mergeHistory([device], [{ ...device, at: 10 * HOUR + 1_000 }])).toHaveLength(1)
+    // A different score at the same moment is another run.
+    expect(mergeHistory([device], [{ ...device, score: 99 }])).toHaveLength(2)
   })
 })

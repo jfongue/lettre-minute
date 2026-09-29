@@ -15,6 +15,7 @@ import {
   fetchPromptStats,
   fetchBoards,
   fetchModerationStatus,
+  fetchMyRuns,
   fetchMySubmissions,
   markRequestsSeen,
   topUpModeration,
@@ -61,8 +62,8 @@ import {
   type PushData,
 } from './lib/native'
 import { configureSound, setHush, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
-import { DEFAULT_AVATAR, type AvatarChoice } from './domain/avatar'
-import { appendRecord, recordOf, type RunRecord } from './domain/history'
+import { DEFAULT_AVATAR, isDefaultAvatar, sameAvatar, type AvatarChoice } from './domain/avatar'
+import { appendRecord, mergeHistory, recordOf, type RunRecord } from './domain/history'
 import { completeBoards, HOUSE_PLAYER, type Boards } from './domain/boards'
 import {
   challengePowers,
@@ -318,6 +319,33 @@ export function App() {
     answer('profile')
   }, [answer])
 
+  // Les parties du compte : un téléphone qui vient de se connecter n'en a
+  // aucune, et la page des statistiques doit couvrir au moins les vingt
+  // dernières ou les trois derniers jours. Le serveur ne rend que cette
+  // fenêtre, et les parties déjà sur l'appareil ne comptent pas deux fois.
+  useEffect(() => {
+    if (!answered.profile) return
+    let live = true
+    fetchMyRuns().then((runs) => {
+      if (!live || !runs || runs.length === 0) return
+      setHistory((previous) => {
+        const next = mergeHistory(previous, runs)
+        if (next.length === previous.length) return previous
+        saveHistory(next)
+        return next
+      })
+    })
+    return () => {
+      live = false
+    }
+  }, [answered.profile, account?.name])
+
+  // La tuile portée, lue par `adopt` sans en dépendre : une dépendance à
+  // `avatar` recréerait `adopt` à chaque changement, et l'effet qui relit le
+  // compte et les classements repartirait en boucle.
+  const worn = useRef(avatar)
+  worn.current = avatar
+
   const wear = useCallback((next: AvatarChoice) => {
     setAvatar(next)
     saveAvatar(next)
@@ -333,7 +361,21 @@ export function App() {
         // The server keeps totals; the picks come from the cloud save below.
         dispatch({ type: 'profile-loaded', profile: { ...local, ...next.stats } })
       }
-      if (next.avatar) wear(next.avatar)
+      // Le compte porte sa tuile. Une tuile de départ n'en est pas une : le
+      // téléphone qui tenait déjà ce compte remet la sienne, qu'un
+      // enregistrement hors ligne avait laissée sur le serveur ; un autre
+      // compte, lui, l'écarte au lieu de la lui prêter.
+      const held = loadAccount()?.name ?? null
+      const server = next.avatar
+      if (!server) {
+        if (!isDefaultAvatar(worn.current)) pushAvatar(worn.current).then((saved) => { if (saved) loadBoards().then(setBoards) })
+      } else if (!isDefaultAvatar(server)) {
+        wear(server)
+      } else if (held === next.name && !sameAvatar(worn.current, server)) {
+        pushAvatar(worn.current).then((saved) => { if (saved) loadBoards().then(setBoards) })
+      } else if (held !== next.name) {
+        wear(server)
+      }
       // Another device's picks join this one's, and the merged copy goes back up.
       fetchProgress().then((saved) => {
         if (!saved) return
@@ -1129,7 +1171,7 @@ export function App() {
         .then((detail) => setAfterRun(detail ?? 'failed'))
       return
     }
-    const pushed = pushRun(session.run, session.profile, playedLang)
+    const pushed = pushRun(session.run, record, session.profile)
     pushing.current = Promise.all([pushed, flushed])
     // Read after the run is in, or the boards would not count it yet.
     // A word proposed during the run may be waiting for a verdict already.

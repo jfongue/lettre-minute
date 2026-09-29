@@ -304,3 +304,16 @@ export function parseAvatar(raw: unknown): AvatarChoice {
     accent: colour(value.accent, DEFAULT_AVATAR.accent),
   }
 }
+
+/** The same tile worn twice, field by field. */
+export function sameAvatar(one: AvatarChoice, other: AvatarChoice): boolean {
+  return one.design === other.design && one.ground === other.ground && one.shape === other.shape && one.accent === other.accent
+}
+
+/**
+ * The tile every player starts on. Wearing it says nothing was ever chosen —
+ * a device that signs in without one leaves the account on it.
+ */
+export function isDefaultAvatar(avatar: AvatarChoice): boolean {
+  return sameAvatar(avatar, DEFAULT_AVATAR)
+}

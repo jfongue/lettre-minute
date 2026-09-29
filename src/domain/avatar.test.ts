@@ -3,12 +3,14 @@ import {
   AVATARS,
   DEFAULT_AVATAR,
   designUnlock,
+  isDefaultAvatar,
   newlyEarned,
   ownedColours,
   ownedDesigns,
   PALETTE,
   parseAvatar,
   reached,
+  sameAvatar,
   type AvatarDesign,
 } from './avatar'
 import { applyRun, NEW_PROFILE, xpForLevel } from './progression'
@@ -107,5 +109,18 @@ describe('parseAvatar', () => {
       ...DEFAULT_AVATAR,
       shape: 'noir',
     })
+  })
+})
+
+describe('worn tiles', () => {
+  it('reads the starting tile as one nobody chose', () => {
+    expect(isDefaultAvatar(DEFAULT_AVATAR)).toBe(true)
+    expect(isDefaultAvatar({ ...DEFAULT_AVATAR, ground: 'jaune' })).toBe(false)
+    expect(isDefaultAvatar({ ...DEFAULT_AVATAR, design: 30 })).toBe(false)
+  })
+
+  it('tells two tiles apart on any of their four layers', () => {
+    expect(sameAvatar(DEFAULT_AVATAR, { ...DEFAULT_AVATAR })).toBe(true)
+    expect(sameAvatar(DEFAULT_AVATAR, { ...DEFAULT_AVATAR, accent: 'violet' })).toBe(false)
   })
 })

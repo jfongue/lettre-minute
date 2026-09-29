@@ -1,6 +1,7 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
 import type { Snapshot } from '../debug/snapshot'
+import { parseRecord, RECENT_MIN_DAYS, RECENT_MIN_RUNS, type RunRecord } from '../domain/history'
 import { parseProgress, progressOf, type Progress } from '../domain/progress'
 import type { Leaderboard, PeriodId, PlacedRow, StatId } from '../domain/leaderboards'
 import { challengeWordsOf, type ChallengeEntry, type ChallengeWord } from '../domain/challenge'
@@ -113,7 +114,7 @@ export function fetchCommunityWords(lang: string): Promise<Record<string, Commun
   }, {})
 }
 
-export function pushRun(run: Run, profile: Profile, lang: string): Promise<boolean> {
+export function pushRun(run: Run, record: RunRecord, profile: Profile): Promise<boolean> {
   return guard(async () => {
     const identity = await connect()
     const row = {
@@ -129,16 +130,24 @@ export function pushRun(run: Run, profile: Profile, lang: string): Promise<boole
     // du mode débug. La colonne date de 0025 : un projet qui ne l'a pas encore
     // appliquée la refuse, et la partie serait perdue pour un tableau de
     // développeur — elle repart alors sans ses pouvoirs.
-    const written = await supabase!.from('runs').insert({ ...row, powers: [...run.powers] }).select('id').single()
-    const { data, error } = written.error ? await supabase!.from('runs').insert(row).select('id').single() : written
+    //
+    // Le compte emporte aussi le relevé de la partie (0033) : c'est lui que la
+    // page des statistiques relit sur un autre appareil, avec l'orthographe de
+    // chaque mot et le temps qu'il a mis. Sans la colonne, la partie repart
+    // sans ce relevé, et les mots seuls la recomposent.
+    const written = await supabase!.from('runs').insert({ ...row, powers: [...run.powers], record }).select('id').single()
+    const withoutRecord = written.error
+      ? await supabase!.from('runs').insert({ ...row, powers: [...run.powers] }).select('id').single()
+      : written
+    const { data, error } = withoutRecord.error ? await supabase!.from('runs').insert(row).select('id').single() : withoutRecord
     if (error || !data) return false
 
-    if (run.found.length > 0) {
+    if (record.words.length > 0) {
       await supabase!.from('run_words').insert(
-        run.found.map((found) => ({
+        record.words.map((found) => ({
           run_id: data.id,
-          word: scoped(lang, found.word),
-          category_id: scoped(lang, found.prompt.categoryId),
+          word: scoped(record.lang, found.word),
+          category_id: scoped(record.lang, found.categoryId),
           points: found.points,
         })),
       )
@@ -164,7 +173,7 @@ export function pushRun(run: Run, profile: Profile, lang: string): Promise<boole
       const counted = new Set<string>()
       await supabase!.rpc('report_prompts', {
         p_seed: run.seed,
-        p_lang: lang,
+        p_lang: record.lang,
         p_prompts: outcomes.map((outcome) => {
           const key = promptKey(outcome.prompt)
           const first = !counted.has(key)
@@ -198,6 +207,79 @@ async function pushProfile(userId: string, profile: Profile): Promise<void> {
       updated_at: new Date().toISOString(),
     })
     .eq('id', userId)
+}
+
+/** A run as `runs` holds it: the totals, its record (0033) and, for older ones, only its words. */
+interface StoredRun {
+  id: string
+  created_at: string
+  score: number
+  best_combo: number
+  skips: number
+  record?: unknown
+  run_words?: { word: string; category_id: string; points: number }[]
+}
+
+// Les mots viennent avec la partie : une liste d'identifiants passée à `.in()`
+// ferait une adresse de plusieurs kilo-octets, que le serveur refuse.
+const RUN_COLUMNS = 'id, created_at, score, best_combo, skips, record, run_words(word, category_id, points)'
+const RUN_COLUMNS_WITHOUT_RECORD = 'id, created_at, score, best_combo, skips, run_words(word, category_id, points)'
+
+/** The language the server filed a run's words under: their prefix, French's rows staying bare. */
+function langOf(values: readonly string[]): string {
+  for (const value of values) {
+    const at = value.indexOf(':')
+    if (at !== -1) return value.slice(0, at)
+  }
+  return 'fr'
+}
+
+/**
+ * Les parties du joueur telles que le serveur les garde : au moins les vingt
+ * dernières ou les trois derniers jours, la plus large des deux, pour que la
+ * page des statistiques dise la même chose sur un téléphone qui vient de se
+ * connecter que sur celui qui a joué. Une partie poussée depuis 0033 emporte
+ * son relevé entier ; les plus anciennes, qui n'ont gardé que leurs mots, se
+ * recomposent sans leur orthographe ni leur chrono.
+ */
+export function fetchMyRuns(): Promise<RunRecord[] | null> {
+  return guard(async () => {
+    const identity = await connect()
+    const read = (columns: string) => {
+      const since = new Date(Date.now() - RECENT_MIN_DAYS * 24 * 60 * 60 * 1000).toISOString()
+      const newest = supabase!.from('runs').select(columns).eq('player_id', identity!.userId).order('created_at', { ascending: false }).limit(RECENT_MIN_RUNS)
+      const windowed = supabase!.from('runs').select(columns).eq('player_id', identity!.userId).gte('created_at', since).order('created_at', { ascending: false }).limit(500)
+      return Promise.all([newest, windowed])
+    }
+    let [newest, windowed] = await read(RUN_COLUMNS)
+    // 0033 pas encore appliquée : `record` n'existe pas, on relit ce qui existe.
+    if (newest.error || windowed.error) [newest, windowed] = await read(RUN_COLUMNS_WITHOUT_RECORD)
+    const rows = [
+      ...new Map(
+        [...((newest.data ?? []) as unknown as StoredRun[]), ...((windowed.data ?? []) as unknown as StoredRun[])].map((row) => [row.id, row]),
+      ).values(),
+    ]
+
+    return rows
+      .map((row): RunRecord | null => {
+        const record = parseRecord(row.record)
+        if (record) return record
+        const played = (row.run_words ?? []).map((word) => ({ word: word.word, categoryId: word.category_id, points: Number(word.points) || 0 }))
+        const lang = langOf(played.map((entry) => entry.categoryId))
+        const category = (value: string) => unscoped(lang, value) ?? value
+        return {
+          at: Date.parse(row.created_at) || 0,
+          lang,
+          score: Number(row.score) || 0,
+          bestCombo: Number(row.best_combo) || 0,
+          skips: Number(row.skips) || 0,
+          categoryIds: [...new Set(played.map((entry) => category(entry.categoryId)))],
+          words: played.map((entry) => ({ categoryId: category(entry.categoryId), word: category(entry.word), display: category(entry.word), points: entry.points })),
+        }
+      })
+      .filter((record): record is RunRecord => record !== null)
+      .sort((one, other) => other.at - one.at)
+  }, null)
 }
 
 /** Sends the words proposed while offline; returns those that went through. */
