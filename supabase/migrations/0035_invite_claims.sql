@@ -123,3 +123,9 @@ $$;
 
 revoke execute on function public.invite_status(), public.claim_inviter(text) from public, anon;
 grant execute on function public.invite_status(), public.claim_inviter(text) to authenticated;
+
+-- Les comptes d'avant ce filet ne sont pas venus par une invitation qu'on
+-- aurait perdue : on ne leur pose pas la question.
+insert into public.invite_claims (invitee, via)
+select id, 'none' from public.profiles
+on conflict (invitee) do nothing;
