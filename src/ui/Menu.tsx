@@ -12,6 +12,7 @@ import {
   removeFriend,
   requestFriend,
   inviteTester,
+  fetchInviteCode,
   respondFriend,
   unblockPlayer,
   type Account,
@@ -372,6 +373,7 @@ function SocialPane({
   const named = Boolean(account && !account.anonymous && !account.needsName)
   const history = useFriendHistory(named)
   const [opened, setOpened] = useState<string | null>(null)
+  const [inviteCode, setInviteCode] = useState<string | null>(null)
 
   const refresh = () => {
     fetchBlocks().then((list) => setBlocks(list ?? []))
@@ -384,6 +386,9 @@ function SocialPane({
   useEffect(() => {
     if (named) refresh()
   }, [named, account?.name])
+  useEffect(() => {
+    if (named) fetchInviteCode().then(setInviteCode)
+  }, [named])
 
   if (!account) {
     return <p className="note">{t.social.noServer}</p>
@@ -480,6 +485,7 @@ function SocialPane({
       onUnblock={(playerId) => act(unblockPlayer(playerId))}
       onRequest={request}
       onInvite={invite}
+      inviteCode={inviteCode}
     />
   )
 }

@@ -12,20 +12,19 @@
   .brand::before { content: ''; width: 24px; height: 24px; background: #e0402a; }
   h1 { font-size: 92px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; }
   h1 span { color: #e0402a; }
-  .round { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 32px; padding: 26px 0; border-block: 5px solid #151515; }
+  .round { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 32px; padding: 26px 0; border-block: 5px solid #151515; }
   .letter { width: 104px; height: 104px; display: grid; place-items: center; background: #e0402a; color: #f2ecdf; font-size: 68px; font-weight: 800; }
-  .round b { display: block; font-size: 44px; font-weight: 800; }
-  .round small { font-size: 30px; font-weight: 500; color: #8a8478; }
-  .clock { font-size: 48px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .round small { display: block; font-size: 22px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #8a8478; }
+  .round b { display: block; font-size: 48px; font-weight: 800; }
+  .round em { font-style: normal; color: #e0402a; }
 </style>
 </head>
 <body>
   <p class="brand">Lettre Minute</p>
   <h1>Viens jouer avec <span>moi.</span></h1>
   <div class="round">
-    <span class="letter">B</span>
-    <span><b>Animaux</b><small>Baleine · Blaireau · Bison</small></span>
-    <span class="clock">0:42</span>
+    <span class="letter">R</span>
+    <span><small>Couleurs</small><b>Trouve une couleur en <em>R</em></b></span>
   </div>
 </body>
 </html>

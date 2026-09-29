@@ -46,6 +46,8 @@ export interface FriendsViewProps {
   /** Resolves to what to tell the player, and whether the request went out. */
   onRequest(name: string): Promise<{ said: string; done: boolean }>
   onInvite(email: string): Promise<{ said: string; done: boolean }>
+  /** What a shared link carries to befriend its reader (0034); null until known. */
+  inviteCode: string | null
   /** The debug board opens the sheet straight away, on either tab. */
   initialSheet?: AddTab
 }
@@ -228,6 +230,7 @@ export function FriendsView(props: FriendsViewProps) {
             initialTab={props.initialSheet}
             onRequest={props.onRequest}
             onInvite={props.onInvite}
+            inviteCode={props.inviteCode}
             onClose={() => setAdding(false)}
           />,
           document.body,
@@ -291,6 +294,7 @@ export function AddFriendSheet({
   name,
   onRequest,
   onInvite,
+  inviteCode,
   onClose,
   initialTab = 'name',
 }: {
@@ -298,6 +302,7 @@ export function AddFriendSheet({
   onRequest(name: string): Promise<{ said: string; done: boolean }>
   /** Resolves to what to tell the player, and whether the mail went out. */
   onInvite(email: string): Promise<{ said: string; done: boolean }>
+  inviteCode: string | null
   onClose(): void
   initialTab?: AddTab
 }) {
@@ -373,7 +378,7 @@ export function AddFriendSheet({
             </button>
           </form>
         ) : (
-          <InvitePanel name={name} onInvite={onInvite} />
+          <InvitePanel name={name} code={inviteCode} onInvite={onInvite} />
         )}
         <button type="button" className="btn btn--quiet btn--muted" onClick={onClose}>
           {t.player.close}
@@ -392,12 +397,20 @@ const CHAT_APPS = [
   { id: 'sms', label: 'SMS', href: (text: string) => `sms:?&body=${encodeURIComponent(text)}` },
 ] as const
 
-function InvitePanel({ name, onInvite }: { name: string; onInvite(email: string): Promise<{ said: string; done: boolean }> }) {
+function InvitePanel({
+  name,
+  code,
+  onInvite,
+}: {
+  name: string
+  code: string | null
+  onInvite(email: string): Promise<{ said: string; done: boolean }>
+}) {
   const t = useT()
   const [email, setEmail] = useState('')
   const [busy, setBusy] = useState(false)
   const [said, setSaid] = useState<string | null>(null)
-  const link = invitePage(name)
+  const link = invitePage(name, code)
   const text = t.social.inviteText(link)
   const native = isNativeApp()
 

@@ -17,6 +17,7 @@ interface Row {
   lang: string | null
   inviter_name: string
   inviter_email: string | null
+  inviter_code: string | null
 }
 
 function sender(name: string): string {
@@ -43,7 +44,7 @@ Deno.serve(async (request) => {
   const transport = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user, pass } })
   const mailed: string[] = []
   for (const row of rows) {
-    const mail = inviteMail(row.lang, row.inviter_name, row.email)
+    const mail = inviteMail(row.lang, row.inviter_name, row.email, row.inviter_code)
     try {
       await transport.sendMail({
         from: `${sender(row.inviter_name)} <${user}>`,

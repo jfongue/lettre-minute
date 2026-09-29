@@ -66,7 +66,7 @@
       }
       .round {
         display: grid;
-        grid-template-columns: auto 1fr auto;
+        grid-template-columns: auto 1fr;
         align-items: center;
         gap: 0.9rem;
         padding: 0.9rem 0;
@@ -88,14 +88,16 @@
         font-weight: 800;
       }
       .round small {
+        display: block;
         color: var(--ink-faint);
-        font-size: 0.82rem;
-        font-weight: 500;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
       }
-      .clock {
-        font-size: 1.05rem;
-        font-weight: 800;
-        font-variant-numeric: tabular-nums;
+      .round em {
+        font-style: normal;
+        color: var(--red);
       }
       .steps {
         display: grid;
@@ -142,17 +144,14 @@
         outline: 3px solid #f4b41a;
         outline-offset: 3px;
       }
-      .note {
-        font-size: 0.9rem;
-        line-height: 1.5;
-      }
       .other {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: var(--ink-faint);
+        text-align: center;
       }
       .other a {
-        color: var(--ink);
-        text-decoration-color: var(--red);
+        color: var(--ink-faint);
+        text-decoration-color: var(--paper-2);
         text-decoration-thickness: 2px;
         text-underline-offset: 0.2em;
       }

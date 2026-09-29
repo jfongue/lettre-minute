@@ -410,6 +410,39 @@ export async function shareText(text: string): Promise<ShareOutcome> {
   }
 }
 
+/** Our own plugin (`InstallReferrerPlugin.java`), Android only. */
+const InstallReferrer = registerPlugin<{ read(): Promise<{ referrer: string }> }>('InstallReferrer')
+const REFERRER_READ = 'install-referrer-read'
+
+/**
+ * Every way an invitation reaches the installed game: the link the invitation
+ * page opens (`lettreminute://invite?ref=…`), at launch or while running, and
+ * once per install the Play referrer its store link carried. Returns the
+ * listener's removal.
+ */
+export function onInviteLink(onLink: (text: string) => void): () => void {
+  if (!native) return () => {}
+  let live = true
+  NativeApp.getLaunchUrl()
+    .then((launch) => live && launch?.url && onLink(launch.url))
+    .catch(() => {})
+  const listener = NativeApp.addListener('appUrlOpen', (event) => onLink(event.url))
+  if (Capacitor.getPlatform() === 'android') {
+    Preferences.get({ key: REFERRER_READ })
+      .then(async ({ value }) => {
+        if (value) return
+        const { referrer } = await InstallReferrer.read()
+        await Preferences.set({ key: REFERRER_READ, value: '1' })
+        if (live && referrer) onLink(referrer)
+      })
+      .catch(() => {})
+  }
+  return () => {
+    live = false
+    listener.then((handle) => handle.remove()).catch(() => {})
+  }
+}
+
 export const DONATION_URL = 'https://buymeacoffee.com/demontoon'
 
 /**

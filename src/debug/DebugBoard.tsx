@@ -604,6 +604,7 @@ function FriendsScenario({ back, sheet }: { back(): void; sheet?: 'name' | 'invi
           onInvite={(email) =>
             later(email.includes('@') ? { said: `${email} reçoit ton invitation. S’il crée son compte avec cette adresse, vous serez amis.`, done: true } : { said: 'Cette adresse e-mail ne semble pas valide.', done: false })
           }
+          inviteCode="0123456789ab"
           initialSheet={sheet}
         />
       </div>

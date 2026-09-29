@@ -59,6 +59,9 @@ begin
   end if;
 
   insert into public.tester_invites (email, invited_by, lang) values (v_email, auth.uid(), nullif(p_lang, ''));
+  -- Le bouton du mail porte aussi le code : l'invité qui s'inscrit sous une
+  -- autre adresse retrouve quand même l'inviteur.
+  perform public.my_invite_code();
   perform public.kick_invites();
   return 'sent';
 end;
@@ -154,14 +157,15 @@ $$;
 alter table public.tester_invites add column attempts int not null default 0;
 
 create function public.claim_invites() returns table (
-  id uuid, email text, lang text, inviter_name text, inviter_email text
+  id uuid, email text, lang text, inviter_name text, inviter_email text, inviter_code text
 )
 language sql security definer set search_path = public as $$
   update public.tester_invites i set attempts = i.attempts + 1
     from public.profiles p, auth.users u
    where i.mailed_at is null and i.attempts < 3 and i.created_at > now() - interval '7 days'
      and p.id = i.invited_by and u.id = i.invited_by
-  returning i.id, i.email, i.lang, p.display_name, u.email;
+  returning i.id, i.email, i.lang, p.display_name, u.email,
+    (select l.code from public.invite_links l where l.inviter = i.invited_by);
 $$;
 
 create function public.finish_invites(p_ids uuid[]) returns void
@@ -175,3 +179,69 @@ grant execute on function public.invites_config(text), public.kick_invites(), pu
   public.finish_invites(uuid[]) to service_role;
 
 select cron.schedule('invites-retry', '17 * * * *', 'select public.kick_invites()');
+
+-- ---------------------------------------------------- par un lien partagé --
+
+-- Un lien de chat ne connaît pas d'adresse : il porte le code de l'inviteur,
+-- que la page d'invitation passe au jeu (install referrer de Play, lien
+-- lettreminute://, ou la version web). Le compte nommé qui le présente
+-- devient aussitôt ami de l'inviteur. Un code, pas l'identifiant du compte :
+-- les identifiants circulent dans les listes d'amis, et n'importe qui
+-- pourrait alors s'imposer en ami de n'importe qui.
+create table public.invite_links (
+  code text primary key,
+  inviter uuid not null unique references public.profiles on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+alter table public.invite_links enable row level security;
+-- Aucune politique : le code ne se lit que par les fonctions ci-dessous.
+
+create function public.my_invite_code() returns text
+language plpgsql security definer set search_path = public as $$
+declare
+  v_code text;
+begin
+  if not public.is_named_account() then
+    return null;
+  end if;
+  select code into v_code from public.invite_links where inviter = auth.uid();
+  if v_code is null then
+    v_code := substr(replace(gen_random_uuid()::text, '-', ''), 1, 12);
+    insert into public.invite_links (code, inviter) values (v_code, auth.uid());
+  end if;
+  return v_code;
+end;
+$$;
+
+-- Répond par le nom de l'inviteur une fois l'amitié faite, null sinon (code
+-- inconnu, soi-même, blocage, compte anonyme). Rejouer un code déjà
+-- encaissé ne change rien.
+create function public.accept_invite(p_code text) returns text
+language plpgsql security definer set search_path = public as $$
+declare
+  v_inviter uuid;
+begin
+  if not public.is_named_account() then
+    return null;
+  end if;
+  select inviter into v_inviter from public.invite_links where code = p_code;
+  if v_inviter is null or v_inviter = auth.uid() then
+    return null;
+  end if;
+  if exists (
+    select 1 from public.blocks
+     where (blocker = v_inviter and blocked = auth.uid()) or (blocker = auth.uid() and blocked = v_inviter)
+  ) then
+    return null;
+  end if;
+  delete from public.friendships where requester = auth.uid() and addressee = v_inviter;
+  insert into public.friendships (requester, addressee, status)
+  values (v_inviter, auth.uid(), 'accepted')
+  on conflict (requester, addressee) do update set status = 'accepted';
+  return (select display_name from public.profiles where id = v_inviter);
+end;
+$$;
+
+revoke execute on function public.my_invite_code(), public.accept_invite(text) from public, anon;
+grant execute on function public.my_invite_code(), public.accept_invite(text) to authenticated;

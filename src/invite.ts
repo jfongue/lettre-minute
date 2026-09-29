@@ -14,14 +14,15 @@ interface PageText {
   lead: readonly [string, string]
   leadAnonymous: string
   category: string
-  words: readonly [string, string, string]
-  play: string
+  /** Around the letter, set in red: the game's own way of asking. */
+  find: readonly [string, string]
   android: string
   join: string
   tester: string
   install: string
-  elsewhere: string
-  addFriend(inviter: string): string
+  /** A quiet line under the steps: the web version, for everyone not on Android. */
+  iphone: readonly [string, string]
+  openGame: string
 }
 
 const TEXTS: Record<string, PageText> = {
@@ -29,105 +30,97 @@ const TEXTS: Record<string, PageText> = {
     appName: 'Lettre Minute',
     lead: ['', ' t’invite à jouer.'],
     leadAnonymous: 'Viens jouer à Lettre Minute.',
-    category: 'Animaux',
-    words: ['Baleine', 'Blaireau', 'Bison'],
-    play: 'Jouer maintenant',
+    category: 'Couleurs',
+    find: ['Trouve une couleur en ', ''],
     android: 'Sur Android',
     join: 'Rejoindre les testeurs',
     tester: 'Devenir testeur',
     install: 'Installer le jeu',
-    elsewhere: 'Pas sur Android ? Joue dans ton navigateur :',
-    addFriend: (inviter) => `Dans le jeu, ajoute ${inviter} en ami : Social → Ajouter un ami.`,
+    iphone: ['Tu as un iPhone ? ', 'Clique ici'],
+    openGame: 'Ouvrir le jeu',
   },
   en: {
     appName: 'Letter Minute',
     lead: ['', ' invites you to play.'],
     leadAnonymous: 'Come play Letter Minute.',
-    category: 'Animals',
-    words: ['Bear', 'Beaver', 'Bison'],
-    play: 'Play now',
+    category: 'Colours',
+    find: ['Find a colour starting with ', ''],
     android: 'On Android',
     join: 'Join the testers',
     tester: 'Become a tester',
     install: 'Install the game',
-    elsewhere: 'Not on Android? Play in your browser:',
-    addFriend: (inviter) => `In the game, add ${inviter} as a friend: Friends → Add a friend.`,
+    iphone: ['Got an iPhone? ', 'Tap here'],
+    openGame: 'Open the game',
   },
   de: {
     appName: 'Letter Minute',
     lead: ['', ' lädt dich zum Spielen ein.'],
     leadAnonymous: 'Spiel Letter Minute.',
-    category: 'Tiere',
-    words: ['Bär', 'Biber', 'Bison'],
-    play: 'Jetzt spielen',
+    category: 'Farben',
+    find: ['Finde eine Farbe mit ', ''],
     android: 'Auf Android',
     join: 'Testergruppe beitreten',
     tester: 'Tester werden',
     install: 'Spiel installieren',
-    elsewhere: 'Kein Android? Spiel im Browser:',
-    addFriend: (inviter) => `Im Spiel fügst du ${inviter} als Freund hinzu: Freunde → Freund hinzufügen.`,
+    iphone: ['Du hast ein iPhone? ', 'Hier tippen'],
+    openGame: 'Spiel öffnen',
   },
   es: {
     appName: 'Letra Minuto',
     lead: ['', ' te invita a jugar.'],
     leadAnonymous: 'Ven a jugar a Letra Minuto.',
-    category: 'Animales',
-    words: ['Ballena', 'Búho', 'Burro'],
-    play: 'Jugar ahora',
+    category: 'Colores',
+    find: ['Encuentra un color con ', ''],
     android: 'En Android',
     join: 'Unirme a los testers',
     tester: 'Hacerme tester',
     install: 'Instalar el juego',
-    elsewhere: '¿No tienes Android? Juega en el navegador:',
-    addFriend: (inviter) => `En el juego, añade a ${inviter} como amigo: Amigos → Añadir un amigo.`,
+    iphone: ['¿Tienes un iPhone? ', 'Pulsa aquí'],
+    openGame: 'Abrir el juego',
   },
   it: {
     appName: 'Lettera Minuto',
     lead: ['', ' ti invita a giocare.'],
     leadAnonymous: 'Vieni a giocare a Lettera Minuto.',
-    category: 'Animali',
-    words: ['Balena', 'Bruco', 'Bisonte'],
-    play: 'Gioca ora',
+    category: 'Colori',
+    find: ['Trova un colore con la ', ''],
     android: 'Su Android',
     join: 'Entra tra i tester',
     tester: 'Diventa tester',
     install: 'Installa il gioco',
-    elsewhere: 'Non hai Android? Gioca nel browser:',
-    addFriend: (inviter) => `Nel gioco, aggiungi ${inviter} come amico: Amici → Aggiungi un amico.`,
+    iphone: ['Hai un iPhone? ', 'Tocca qui'],
+    openGame: 'Apri il gioco',
   },
   nl: {
     appName: 'Letter Minuut',
     lead: ['', ' nodigt je uit om te spelen.'],
     leadAnonymous: 'Kom Letter Minuut spelen.',
-    category: 'Dieren',
-    words: ['Beer', 'Bever', 'Bizon'],
-    play: 'Nu spelen',
+    category: 'Kleuren',
+    find: ['Vind een kleur met een ', ''],
     android: 'Op Android',
     join: 'Word lid van de testers',
     tester: 'Word tester',
     install: 'Spel installeren',
-    elsewhere: 'Geen Android? Speel in je browser:',
-    addFriend: (inviter) => `Voeg ${inviter} in het spel toe als vriend: Vrienden → Vriend toevoegen.`,
+    iphone: ['Heb je een iPhone? ', 'Tik hier'],
+    openGame: 'Open het spel',
   },
   pt: {
     appName: 'Letra Minuto',
     lead: ['', ' convida você para jogar.'],
     leadAnonymous: 'Venha jogar Letra Minuto.',
-    category: 'Animais',
-    words: ['Baleia', 'Búfalo', 'Burro'],
-    play: 'Jogar agora',
+    category: 'Cores',
+    find: ['Encontra uma cor com ', ''],
     android: 'No Android',
     join: 'Entrar nos testadores',
     tester: 'Virar testador',
     install: 'Instalar o jogo',
-    elsewhere: 'Não usa Android? Jogue no navegador:',
-    addFriend: (inviter) => `No jogo, adicione ${inviter} como amigo: Amigos → Adicionar um amigo.`,
+    iphone: ['Tem um iPhone? ', 'Toque aqui'],
+    openGame: 'Abrir o jogo',
   },
 }
 
 const TESTING_URL = 'https://play.google.com/apps/testing/fr.lettreminute.app'
 const STORE_URL = 'https://play.google.com/store/apps/details?id=fr.lettreminute.app'
-const GAME_URL = './'
 
 function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -135,10 +128,19 @@ function escapeHtml(text: string): string {
 
 const lang = navigator.languages.map((tag) => tag.slice(0, 2)).find((tag) => tag in TEXTS) ?? 'fr'
 const t = TEXTS[lang]!
+const query = new URLSearchParams(location.search)
 // A name typed by the inviter, shown back to a stranger: short, and escaped.
-const inviter = (new URLSearchParams(location.search).get('from') ?? '').trim().slice(0, 24)
+const inviter = (query.get('from') ?? '').trim().slice(0, 24)
+// The inviter's code (`my_invite_code`, 0034) travels on to the game by every
+// way in: Play's install referrer, the app's own link, the web version's
+// address. Whichever arrives, the account made next befriends the inviter.
+const ref = /^[0-9a-f]{12}$/.test(query.get('ref') ?? '') ? query.get('ref')! : null
 const group = import.meta.env.VITE_TESTER_GROUP_URL || null
 const android = /android/i.test(navigator.userAgent)
+
+const gameUrl = ref ? `./?ref=${ref}` : './'
+const storeUrl = ref ? `${STORE_URL}&referrer=${encodeURIComponent(`ref=${ref}`)}` : STORE_URL
+const appUrl = `lettreminute://invite${ref ? `?ref=${ref}` : ''}`
 
 const button = (href: string, label: string, main = false) =>
   `<a class="btn${main ? ' btn--main' : ''}" href="${href}">${escapeHtml(label)}</a>`
@@ -146,26 +148,24 @@ const button = (href: string, label: string, main = false) =>
 const androidSteps = group
   ? `<section class="steps">
       <p class="label">${escapeHtml(t.android)}</p>
-      ${button(group, t.join, android)}
+      ${button(group, t.join, true)}
       ${button(TESTING_URL, t.tester)}
-      ${button(STORE_URL, t.install)}
+      ${button(storeUrl, t.install)}
     </section>`
   : ''
+// Once installed from the steps above, the app's own link hands it the code
+// whenever Play's referrer did not.
+const openGame = android && ref ? `<a href="${appUrl}">${escapeHtml(t.openGame)}</a> · ` : ''
 
 document.documentElement.lang = lang
-document.title = inviter ? `${inviter}${t.lead[1]} · ${t.appName}` : t.appName
+document.title = inviter ? `${inviter}${t.lead[1].replace(/\.$/, '')} · ${t.appName}` : t.appName
 document.getElementById('invite')!.innerHTML = `
   <p class="brand">${escapeHtml(t.appName)}</p>
   <h1>${inviter ? `${escapeHtml(t.lead[0])}<span>${escapeHtml(inviter)}</span>${escapeHtml(t.lead[1])}` : escapeHtml(t.leadAnonymous)}</h1>
   <div class="round" aria-hidden="true">
-    <span class="letter">B</span>
-    <span><b>${escapeHtml(t.category)}</b><small>${t.words.map(escapeHtml).join(' · ')}</small></span>
-    <span class="clock">0:42</span>
+    <span class="letter">R</span>
+    <span><small>${escapeHtml(t.category)}</small><b>${escapeHtml(t.find[0])}<em>R</em>${escapeHtml(t.find[1])}</b></span>
   </div>
-  ${
-    android && group
-      ? `${androidSteps}<p class="other">${escapeHtml(t.elsewhere)} <a href="${GAME_URL}">${escapeHtml(t.play)}</a></p>`
-      : `${button(GAME_URL, t.play, true)}${androidSteps}`
-  }
-  ${inviter ? `<p class="note">${escapeHtml(t.addFriend(inviter))}</p>` : ''}
+  ${androidSteps}
+  <p class="other">${openGame}${escapeHtml(t.iphone[0])}<a href="${gameUrl}">${escapeHtml(t.iphone[1])}</a></p>
 `

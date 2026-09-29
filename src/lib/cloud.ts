@@ -632,6 +632,25 @@ export function inviteTester(email: string, lang: string): Promise<TesterInviteO
   }, 'unreachable')
 }
 
+/** The code a shared invitation carries (0034); null without a named account or a server. */
+export function fetchInviteCode(): Promise<string | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('my_invite_code')
+    return error || typeof data !== 'string' ? null : data
+  }, null)
+}
+
+/**
+ * Befriends whoever shared the code: their name once done, null when the code
+ * leads nowhere (unknown, one's own, a block), `unreachable` to try again.
+ */
+export function acceptInvite(code: string): Promise<string | null | 'unreachable'> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('accept_invite', { p_code: code })
+    return error ? 'unreachable' : typeof data === 'string' ? data : null
+  }, 'unreachable')
+}
+
 export function respondFriend(from: string, accept: boolean): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('respond_friend', { p_from: from, p_accept: accept })

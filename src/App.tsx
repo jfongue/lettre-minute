@@ -1,6 +1,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { availableCategoryIds, loadPack, loadPacks } from './data/packs'
 import {
+  acceptInvite,
   cancelSubmission,
   correctSubmission,
   createChallenge,
@@ -60,6 +61,7 @@ import {
   storeUpdateAvailable,
   tapFeedback,
   type PushData,
+  onInviteLink,
 } from './lib/native'
 import { configureSound, setHush, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
 import { DEFAULT_AVATAR, isDefaultAvatar, sameAvatar, type AvatarChoice } from './domain/avatar'
@@ -83,6 +85,7 @@ import { loadMessages, MessagesContext, messagesFor, type Locale } from './i18n'
 import { standingMove } from './domain/standing'
 import { challengeNotice } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
+import { clearInviteRef, keepInviteRef, loadInviteRef, refIn, takeAddressRef } from './state/inviteRef'
 import { createJudge } from './state/judge'
 import { banNews, feedbackDue, hiddenAnswers, playableCategoryIds, plusThanksDue } from './domain/perks'
 import { cloudConfigured } from './lib/supabase'
@@ -822,6 +825,27 @@ export function App() {
     if (!named) return setFriendRequests(0)
     fetchFriends().then((list) => list && takeFriends(list))
   }, [named, takeFriends])
+
+  // Whoever invited this device becomes a friend as soon as its account has
+  // a name: at once if it already has one, else the moment it is chosen.
+  const [inviteRef, setInviteRef] = useState(() => {
+    takeAddressRef()
+    return loadInviteRef()
+  })
+  useEffect(() => onInviteLink((text) => setInviteRef((kept) => keepInviteRef(refIn(text)) ?? kept)), [])
+  useEffect(() => {
+    if (!named || !inviteRef) return
+    let live = true
+    acceptInvite(inviteRef).then((inviter) => {
+      if (!live || inviter === 'unreachable') return
+      clearInviteRef()
+      setInviteRef(null)
+      if (inviter) refreshFriends()
+    })
+    return () => {
+      live = false
+    }
+  }, [named, inviteRef, refreshFriends])
 
   // No push service: the home screen asks again when it comes back into view,
   // and every minute while it stays there. The boards follow, less often.

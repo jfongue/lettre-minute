@@ -77,6 +77,8 @@ const ARGS: Record<string, unknown[]> = {
   correctSubmission: [{ id: 'sub-1', word: 'dahu', display: 'Dahu', categoryId: 'animaux' }, 'Dahut'],
   requestFriend: ['ami'],
   inviteTester: ['ami@example.com', 'fr'],
+  fetchInviteCode: [],
+  acceptInvite: ['0123456789ab'],
   respondFriend: ['ami', true],
   removeFriend: ['ami'],
   register: ['Joueur', 'joueur@example.com', 'secret-password'],
