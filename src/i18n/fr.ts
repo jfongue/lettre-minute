@@ -317,7 +317,7 @@ export const fr = {
 
   stats: {
     empty: 'Joue une partie : tes statistiques commencent ici.',
-    partial: 'Le détail compte les parties jouées sur cet appareil depuis cette mise à jour.',
+    partial: 'Le détail ne remonte pas à toutes tes parties.',
     average: 'moyenne récente',
     best: 'record',
     trend: 'vs les 10 d’avant',

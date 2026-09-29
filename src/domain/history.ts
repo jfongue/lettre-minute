@@ -142,6 +142,18 @@ export interface Summary {
 export const RECENT_RUNS = 10
 export const TOP_WORDS = 3
 
+/**
+ * Ce que la page liste sans qu'on le demande : les figures restent sur les dix
+ * que compare la tendance, la liste montre au moins les vingt dont le compte
+ * répond, sinon un téléphone fraîchement connecté croirait n'avoir rien joué.
+ */
+export const LISTED_RUNS = Math.max(RECENT_RUNS, RECENT_MIN_RUNS)
+
+/** The runs the statistics show unfolded, newest first. */
+export function listedHistory(history: readonly RunRecord[]): RunRecord[] {
+  return history.slice(0, LISTED_RUNS)
+}
+
 const mean = (runs: readonly RunRecord[]) =>
   runs.length === 0 ? 0 : runs.reduce((sum, run) => sum + run.score, 0) / runs.length
 

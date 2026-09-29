@@ -288,7 +288,7 @@ export const en: Messages = {
 
   stats: {
     empty: 'Play a game: your statistics start here.',
-    partial: 'The details count the games played on this device since this update.',
+    partial: 'The details do not go back to all your games.',
     average: 'recent average',
     best: 'best score',
     trend: 'vs the 10 before',

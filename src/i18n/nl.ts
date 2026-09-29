@@ -282,7 +282,7 @@ export const nl: Messages = {
 
   stats: {
     empty: 'Speel een potje: hier beginnen je statistieken.',
-    partial: 'De details tellen de potjes op dit apparaat sinds deze update.',
+    partial: 'De details gaan niet terug tot al je potjes.',
     average: 'recent gemiddelde',
     best: 'record',
     trend: 'vs de 10 ervoor',

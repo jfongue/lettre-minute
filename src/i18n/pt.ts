@@ -283,7 +283,7 @@ export const pt: Messages = {
 
   stats: {
     empty: 'Jogue uma partida: suas estatísticas começam aqui.',
-    partial: 'O detalhe conta as partidas jogadas neste aparelho desde esta atualização.',
+    partial: 'O detalhe não chega a todas as tuas partidas.',
     average: 'média recente',
     best: 'recorde',
     trend: 'vs as 10 anteriores',
