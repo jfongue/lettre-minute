@@ -1,6 +1,6 @@
--- The reserve of words poured into the moderation queue: only for a
--- moderator who finished his queue last time, just enough for a session,
--- proposed by a house bot who is not paid for them.
+-- The reserve of words poured into the moderation queue: for a moderator
+-- who opens a queue shorter than a session, just enough to fill it, proposed
+-- by a house bot who is not paid for them.
 
 select tests.new_user('rp');
 select tests.new_user('rm');
@@ -48,7 +48,6 @@ select tests.is((select count(*)::int from public.moderation_reserve where relea
                 'and releases nothing');
 select tests.login('rm');
 select tests.is((select count(*)::int from public.moderation_reserve), 0, 'a moderator cannot read the reserve');
-select tests.is((select count(*)::int from public.moderation_drained), 0, 'nor who finished his queue');
 select tests.logout();
 select tests.login_anon();
 select tests.throws($$select public.top_up_moderation('fr')$$, 'nor topped up without a session', '42501');
@@ -57,8 +56,7 @@ select tests.logout();
 -- ------------------------------------------------------------- the drip --
 
 select tests.is(pg_temp.waiting('rm'), 1, 'one word waits from a player');
-select tests.is(pg_temp.top_up('rm'), 0, 'a first visit to a short queue releases nothing');
-select tests.is(pg_temp.top_up('rm'), 4, 'the next visit tops it up to a session');
+select tests.is(pg_temp.top_up('rm'), 4, 'the first visit to a short queue tops it up to a session');
 select tests.is(pg_temp.waiting('rm'), 5, 'five words wait');
 select tests.is((select count(*)::int from public.word_submissions s join public.bots b on b.id = s.player_id), 4,
                 'a house bot proposes them');
@@ -69,7 +67,6 @@ select tests.is((select count(*)::int from public.word_submissions where word = 
 select tests.is(pg_temp.top_up('rm'), 0, 'a full queue is not topped up');
 select tests.is(pg_temp.top_up('rm', 'de'), 0, 'each language keeps its own count');
 
--- A moderator who votes down to under a session has finished it.
 do $$
 declare
   v_word record;
@@ -82,8 +79,6 @@ begin
 end;
 $$;
 select tests.is(pg_temp.waiting('rm'), 0, 'his queue is empty');
-select tests.ok(exists (select 1 from public.moderation_drained where moderator_id = tests.uid('rm') and lang = 'fr'),
-                'his last vote marks it finished');
 select tests.is(pg_temp.waiting('rq'), 5, 'another moderator still has those five');
 -- L'heure du versement précédent (0023) est reculée : le harnais enchaîne ses
 -- appels en millisecondes, là où la vraie vie laisse passer l'heure.

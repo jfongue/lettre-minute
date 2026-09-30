@@ -44,7 +44,9 @@ et effacer les idées reçues depuis l'app, réservé aux administrateurs, et
 (ouvertures, écrans, boutons, fonctions, erreurs) et le tableau de bord
 qui les lit (`analytics_snapshot`, par `npm run analytics`), et
 [`0030_admin_analytics.sql`](migrations/0030_admin_analytics.sql) pour que
-l'app le lise aussi, réservé aux administrateurs (`admin_analytics`).
+l'app le lise aussi, réservé aux administrateurs (`admin_analytics`), et
+[`0037_moderation_topup_on_open.sql`](migrations/0037_moderation_topup_on_open.sql)
+pour renflouer la file dès la visite qui la trouve courte.
 
 ## Ce que le serveur détient
 
@@ -60,7 +62,6 @@ l'app le lise aussi, réservé aux administrateurs (`admin_analytics`).
 | `moderation_votes` | Un vote par modérateur et par mot : `correct`, `unsure`, `incorrect` ou `special`. |
 | `moderators` | Les modérateurs, et l'ami qui les a élus. |
 | `moderation_reserve` | Mots évidents que les dictionnaires ignorent, versés au compte-goutte dans la file (`released_at`). |
-| `moderation_drained` | Un modérateur qui a fini sa file dans une langue : sa prochaine visite de « Mes demandes » la complète. |
 | `moderation_topup` | Une seule ligne : l'heure du dernier versement, qui ferme le renflouage pour une heure, toutes langues confondues. |
 | `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |
 | `friendships` | Une ligne par demande d'ami (`pending` puis `accepted`), lue dans les deux sens. |
@@ -152,23 +153,21 @@ remplacés derrière les cinq tapes ; les fonctions restent en base.
   politique. La fonction refuse un modérateur qui a proposé le mot lui-même,
   un second vote, un cas spécial jugé par un modérateur ordinaire, et une
   correction d'orthographe après le premier vote (`gone`).
-- **La file ne se vide jamais pour de bon** (`top_up_moderation`, 0019) : un
-  modérateur qui a fini sa file (un vote la laisse sous cinq mots, ou une
-  visite l'y trouve) la voit complétée à cinq à sa visite suivante de « Mes
-  demandes », depuis `moderation_reserve`. Un joueur maison propose ces mots,
-  sans en toucher d'XP : le reste — votes, dictionnaire, import — ne les
-  distingue pas d'un mot de joueur. La réserve se charge par
-  `npm run seed:moderation` (`scripts/moderation-reserve.json`), qui écarte ce
-  que les dictionnaires embarqués connaissent déjà.
+- **La file ne se vide jamais pour de bon** (`top_up_moderation`, 0019,
+  0037) : un modérateur, super modérateur compris, qui ouvre « Mes demandes »
+  avec moins de cinq mots à juger la voit complétée à cinq depuis
+  `moderation_reserve`. Un joueur maison propose ces mots, sans en toucher
+  d'XP : le reste — votes, dictionnaire, import — ne les distingue pas d'un mot
+  de joueur. La réserve se charge par `npm run seed:moderation`
+  (`scripts/moderation-reserve.json`), qui écarte ce que les dictionnaires
+  embarqués connaissent déjà.
 - **Un seul versement par heure, toutes langues confondues** (0023) : le
   renflouage lit `moderation_topup`, la ligne unique que le versement précédent
   a datée, et se tait tant que l'heure n'est pas passée. Sans elle, quelques
   modérateurs à sec vidaient la réserve en quelques minutes. Les mots déjà
   versés restent dans la file pour tout le monde : l'heure ne ferme que le
-  versement, jamais la modération. Un modérateur bloqué garde son marqueur
-  `moderation_drained`, donc la première visite une fois l'heure écoulée
-  renfloue, sans lui faire re-vider une file — le marqueur ne tombe que sur une
-  file pleine, un versement, ou une heure d'attente écoulée.
+  versement, jamais la modération. Seul un versement qui a vraiment versé
+  referme l'heure (0037) : une réserve à sec la laisse ouverte.
 - **Le niveau 6 est écrit en XP dans `moderator_offer_due`** (1650, depuis 0018) : SQL ne
   connaît pas `xpForLevel`. `MODERATOR_LEVEL_XP` et son test
   (`src/domain/moderation.ts`) cassent si la courbe change sans lui.

@@ -247,17 +247,16 @@ qu'un nouvel arrivant casserait sans le savoir.
   langue de l'interface : un modérateur ne voit que les mots préfixés de la
   sienne.
 
-- **Une file de modération vide se remplit toute seule** (`top_up_moderation`,
-  0019) : ouvrir « Mes demandes » après avoir fini sa file y verse cinq mots
-  de la réserve, proposés par un joueur maison. Seulement une visite sur deux
-  quand la file est courte — c'est ce qui fait durer la réserve. Ses mots
+- **Une file de modération courte se remplit toute seule** (`top_up_moderation`,
+  0019, 0037) : ouvrir « Mes demandes » avec moins de cinq mots à juger
+  complète la file à cinq depuis la réserve, super modérateur compris,
+  proposés par un joueur maison. Ses mots
   (`scripts/moderation-reserve.json`) doivent manquer aux dictionnaires : un
   mot déjà connu ferait voter les modérateurs pour rien, le script le jette.
   **Un seul versement par heure, toutes langues confondues** (0023,
   `moderation_topup`) : l'heure ne ferme que le versement, jamais la
-  modération — les mots versés restent à juger pour tout le monde, et le
-  modérateur bloqué garde son marqueur `moderation_drained` pour renflouer à
-  sa première visite une fois l'heure passée. `src/App.tsx` ne rafraîchit
+  modération — les mots versés restent à juger pour tout le monde —, et
+  seul un versement non vide la referme. `src/App.tsx` ne rafraîchit
   qu'à un versement non nul : les autres découvrent ces mots à leur propre
   ouverture de l'écran.
 

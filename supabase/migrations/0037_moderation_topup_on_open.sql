@@ -1,0 +1,81 @@
+-- Le renflouage de la file (0019, 0023) verse dès la visite qui trouve la file
+-- courte : un modérateur qui ouvre « Mes demandes » avec moins de cinq mots à
+-- juger la voit complétée à cinq, super modérateur compris, dans la limite
+-- d'un versement par heure toutes langues confondues. La première visite ne
+-- faisait jusqu'ici que poser le marqueur `moderation_drained`, et seule la
+-- suivante versait : une file vidée par les autres modérateurs, ou par
+-- personne, restait courte une visite de plus.
+--
+-- L'heure ne se referme plus sur un versement vide (réserve à sec, aucun
+-- joueur maison) : elle attend le premier mot réellement versé.
+--
+-- Le marqueur ne sert plus à rien : son déclencheur et sa table s'en vont.
+
+drop trigger if exists moderation_votes_note_drained on public.moderation_votes;
+drop function if exists public.note_drained();
+drop table if exists public.moderation_drained;
+
+create or replace function public.top_up_moderation(p_lang text) returns integer
+language plpgsql security definer set search_path = public as $$
+declare
+  v_waiting integer;
+  v_released integer := 0;
+  v_bots uuid[];
+  v_seed record;
+  v_last timestamptz;
+  v_now timestamptz := now();
+begin
+  if not public.is_moderator() or p_lang is null or p_lang !~ '^[a-z]{2}$' then
+    return 0;
+  end if;
+
+  -- Le verrou tient jusqu'à la fin de l'appel : deux modérateurs qui arrivent
+  -- ensemble lisent la même heure, et le second trouve la porte fermée.
+  select released_at into v_last from public.moderation_topup for no key update;
+
+  v_waiting := (select count(*) from public.moderation_queue(p_lang, 20));
+  if v_waiting >= 5 then
+    return 0;
+  end if;
+  if v_last is not null and v_now - v_last < interval '1 hour' then
+    return 0;
+  end if;
+
+  select array_agg(id) into v_bots from public.bots;
+  if v_bots is null then
+    return 0;
+  end if;
+
+  for v_seed in
+    select r.category_id, r.word, r.display
+      from public.moderation_reserve r
+     where r.released_at is null
+       and public.category_lang(r.category_id) = p_lang
+     order by random()
+       for update skip locked
+  loop
+    exit when v_waiting >= 5;
+    update public.moderation_reserve set released_at = now()
+     where category_id = v_seed.category_id and word = v_seed.word;
+    -- Un joueur l'a proposé entre-temps, ou il est déjà entré : il
+    -- n'ajouterait rien à la file.
+    continue when exists (select 1 from public.word_reviews w
+                           where w.category_id = v_seed.category_id and w.word = v_seed.word)
+               or exists (select 1 from public.dictionary_words d
+                           where d.category_id = v_seed.category_id and d.word = v_seed.word);
+    insert into public.word_submissions (player_id, category_id, word, display)
+    values (v_bots[1 + floor(random() * array_length(v_bots, 1))::integer], v_seed.category_id, v_seed.word, v_seed.display)
+    on conflict do nothing;
+    v_waiting := v_waiting + 1;
+    v_released := v_released + 1;
+  end loop;
+
+  if v_released > 0 then
+    update public.moderation_topup set released_at = v_now;
+  end if;
+  return v_released;
+end;
+$$;
+
+revoke execute on function public.top_up_moderation(text) from public, anon;
+grant execute on function public.top_up_moderation(text) to authenticated;
