@@ -22,6 +22,7 @@ import {
   type ChallengePlayer,
   type ReactionEmoji,
 } from '../lib/cloud'
+import { clearPushes } from '../lib/native'
 import { sound } from '../lib/sound'
 import {
   challengeTitle,
@@ -580,6 +581,7 @@ export function ChallengeScreen({ id, onPlay, onRematch, onBack }: ChallengeScre
   useEffect(() => {
     if (!recap) return
     markChallengeSeen(id, 'recap')
+    clearPushes([`recap:${id}`])
     rememberWinner(id, winnerOf(recap))
     hideChallengeDetail(recap)
   }, [recap, id])

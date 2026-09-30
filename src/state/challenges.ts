@@ -26,6 +26,18 @@ export function challengeNotice(
   return recap ? { challenge: recap, kind: 'recap' } : null
 }
 
+/**
+ * The pushes that no longer ask anything, by the tag the server gave them
+ * (`push/index.ts`): an invitation once played or closed, a recap once read —
+ * here or on another device.
+ */
+export function settledPushTags(challenges: readonly ChallengeSummary[]): string[] {
+  return challenges.flatMap((challenge) => [
+    ...(challenge.mePlayed || challenge.finished ? [`invite:${challenge.id}`] : []),
+    ...(challenge.seenRecap ? [`recap:${challenge.id}`] : []),
+  ])
+}
+
 export function challengeTitle(t: Messages, challenge: { owned: boolean; ownerName: string; name: string | null }): string {
   if (challenge.name) return challenge.name
   return challenge.owned ? t.challenge.mine : t.challenge.by(challenge.ownerName)

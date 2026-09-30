@@ -280,6 +280,16 @@ export function onPush(onOpen: (data: PushData) => void, onReceived: (data: Push
   }
 }
 
+/** Takes down the game's notifications still shown under these tags; the others stay. */
+export function clearPushes(tags: readonly string[]): void {
+  if (!pushReady || tags.length === 0) return
+  quietly(async () => {
+    const { notifications } = await PushNotifications.getDeliveredNotifications()
+    const settled = notifications.filter((notification) => notification.tag && tags.includes(notification.tag))
+    if (settled.length > 0) await PushNotifications.removeDeliveredNotifications({ notifications: settled })
+  })
+}
+
 /**
  * Where the sign-in session lives on the phone. A WebView's localStorage is a
  * cache the system may reclaim, and losing it silently turns a player back

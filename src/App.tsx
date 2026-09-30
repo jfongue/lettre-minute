@@ -50,6 +50,7 @@ import { progressOf, withProgress } from './domain/progress'
 import { reportAchievements, reportRun } from './lib/playGames'
 import {
   askPush,
+  clearPushes,
   enablePush,
   isNativeApp,
   onBackButton,
@@ -83,7 +84,7 @@ import { compactWord, normalizeWord } from './domain/text'
 import { commonWord, withExtraWords } from './domain/words'
 import { loadMessages, MessagesContext, messagesFor, type Locale } from './i18n'
 import { standingMove } from './domain/standing'
-import { challengeNotice } from './state/challenges'
+import { challengeNotice, settledPushTags } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { clearInviteRef, keepInviteRef, loadInviteRef, refIn, takeAddressRef } from './state/inviteRef'
 import { createJudge } from './state/judge'
@@ -823,6 +824,11 @@ export function App() {
     })
   }, [named, answer])
   useEffect(refreshChallenges, [refreshChallenges])
+  // A notification whose challenge was played or whose recap was read, here or
+  // elsewhere, would only send the player to what they have already done.
+  useEffect(() => {
+    if (challenges) clearPushes(settledPushTags(challenges))
+  }, [challenges])
   useEffect(() => {
     const check = () =>
       document.visibilityState === 'visible' &&

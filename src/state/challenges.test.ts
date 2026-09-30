@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ChallengeSummary } from '../lib/cloud'
-import { challengeNotice, challengeStatus, hideChallenge, isHidden, loadHiddenChallenges } from './challenges'
+import { challengeNotice, challengeStatus, hideChallenge, isHidden, loadHiddenChallenges, settledPushTags } from './challenges'
 
 function summary(id: string, extra: Partial<ChallengeSummary> = {}): ChallengeSummary {
   return {
@@ -45,6 +45,20 @@ describe('challengeNotice', () => {
       ),
     ).toBeNull()
     expect(challengeStatus(summary('missed', { finished: true }))).toBe('missed')
+  })
+})
+
+describe('settledPushTags', () => {
+  it('clears an invitation once played or closed, and a recap once read', () => {
+    expect(
+      settledPushTags([
+        summary('open'),
+        summary('played', { mePlayed: true }),
+        summary('missed', { finished: true }),
+        summary('unread', { finished: true, mePlayed: true }),
+        summary('read', { finished: true, mePlayed: true, seenRecap: true }),
+      ]),
+    ).toEqual(['invite:played', 'invite:missed', 'invite:unread', 'invite:read', 'recap:read'])
   })
 })
 
