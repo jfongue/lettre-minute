@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { useT } from '../i18n'
+import { sound } from '../lib/sound'
 import { Shape } from './bauhaus'
 import { useBackDismiss } from './useBackDismiss'
 
@@ -6,6 +8,7 @@ import { useBackDismiss } from './useBackDismiss'
 export function UpdateNotice({ onLater, onUpdate }: { onLater(): void; onUpdate(): void }) {
   const t = useT()
   useBackDismiss(onLater)
+  useEffect(() => sound.pop(), [])
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="update-notice-title">
       <div className="offer-pop-scrim" onClick={onLater} />

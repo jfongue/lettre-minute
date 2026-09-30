@@ -1,4 +1,6 @@
+import { useEffect } from 'react'
 import { useT } from '../i18n'
+import { sound } from '../lib/sound'
 import { Shape } from './bauhaus'
 import { useBackDismiss } from './useBackDismiss'
 
@@ -7,6 +9,7 @@ export function PushOffer({ onNo, onYes }: { onNo(): void; onYes(): void }) {
   const t = useT()
   // The gesture is the same answer as the scrim: « non », and the next friend asks again.
   useBackDismiss(onNo)
+  useEffect(() => sound.pop(), [])
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="push-offer-title">
       <div className="offer-pop-scrim" onClick={onNo} />

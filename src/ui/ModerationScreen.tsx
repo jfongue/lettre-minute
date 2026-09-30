@@ -72,6 +72,12 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
   const deck = cards === 'loading' || cards === null ? [] : cards
   const card = deck[index] ?? null
   const finished = cards !== 'loading' && cards !== null && deck.length > 0 && index >= deck.length
+  // The last card's verdict sounds first; the confetti of a queue cleared come just after.
+  useEffect(() => {
+    if (!finished) return
+    const timer = setTimeout(sound.news, 450)
+    return () => clearTimeout(timer)
+  }, [finished])
 
   const vote = useCallback(
     async (verdict: Verdict, extra: { note?: string; respell?: string } = {}, from = { dx: 0, dy: 0 }) => {

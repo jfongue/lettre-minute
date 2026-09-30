@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useT } from '../i18n'
+import { sound } from '../lib/sound'
 import { REACTIONS, type Reaction, type ReactionEmoji } from '../lib/cloud'
 import { useBackDismiss } from './useBackDismiss'
 
@@ -111,6 +112,7 @@ export function Reactable({
               className={`reaction-pick${mine === emoji ? ' reaction-pick--on' : ''}`}
               style={{ '--i': index } as CSSProperties}
               onClick={() => {
+                if (mine !== emoji) sound.react()
                 reactions.react(target, mine === emoji ? null : emoji)
                 setOpen(null)
               }}

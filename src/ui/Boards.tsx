@@ -2,17 +2,25 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { focusedRows, type BoardId, type Boards as BoardsData } from '../domain/boards'
 import { formatNumber, useT } from '../i18n'
 import { fetchFriends } from '../lib/cloud'
+import { sound } from '../lib/sound'
 import { Avatar } from './Avatar'
 import { PlayerName } from './PlayerSheet'
-import { useCountUp } from './useCountUp'
+import { reducedMotion, useCountUp } from './useCountUp'
 import { useHiddenTaps } from './useHiddenTaps'
 
 // Discoveries live on the leaderboards page, which « Plus… » opens.
 const BOARDS: readonly BoardId[] = ['day', 'week']
 
+const CLIMB_DELAY_MS = 700
+const CLIMB_MS = 900
+
 /** The rank the line held before the run, counted down to the one it won, as the line rises. */
 function ClimbingRank({ rank, climbed }: { rank: number; climbed: number }) {
-  return <>{useCountUp(rank, 900, rank + climbed, 700)}</>
+  useEffect(() => {
+    if (!reducedMotion()) sound.climb(climbed, CLIMB_MS / 1000, CLIMB_DELAY_MS / 1000)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  return <>{useCountUp(rank, CLIMB_MS, rank + climbed, CLIMB_DELAY_MS)}</>
 }
 
 interface BoardsProps {

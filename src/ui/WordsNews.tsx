@@ -1,7 +1,9 @@
+import { useEffect } from 'react'
 import type { PowerId } from '../domain/powers'
 import { POWER_CHARGES } from '../domain/powers'
 import { capitalized } from '../domain/text'
 import { categoryText, useT } from '../i18n'
+import { sound } from '../lib/sound'
 import type { Submission } from '../lib/cloud'
 import { Burst, Shape } from './bauhaus'
 import { onTint, POWER_TINTS, powerGround } from './motifs'
@@ -12,6 +14,7 @@ import { useBackDismiss } from './useBackDismiss'
 export function WordsNewsPop({ words, onClose, onOpen }: { words: readonly Submission[]; onClose(): void; onOpen(): void }) {
   const t = useT()
   useBackDismiss(onClose)
+  useEffect(() => sound.news(), [])
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="words-news-title">
       <div className="offer-pop-scrim" onClick={onClose} />
@@ -52,6 +55,9 @@ export function PowerGiftPop({ powerId, onClose }: { powerId: PowerId; onClose()
   const t = useT()
   // The only way out is the button, so the gesture is it: the power is earned.
   useBackDismiss(onClose)
+  // The power's own signature, as when a level offers it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => sound.power(powerId), [])
   const [name, description] = t.powers.names[powerId]
   const uses = POWER_CHARGES[powerId]
   return (
@@ -82,6 +88,7 @@ export function PowerGiftPop({ powerId, onClose }: { powerId: PowerId; onClose()
 export function ShareNewsPop({ onLater, onOpen }: { onLater(): void; onOpen(): void }) {
   const t = useT()
   useBackDismiss(onLater)
+  useEffect(() => sound.news(), [])
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="share-news-title">
       <div className="offer-pop-scrim" onClick={onLater} />

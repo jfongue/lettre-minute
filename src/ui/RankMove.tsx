@@ -3,6 +3,7 @@ import type { BoardRow } from '../domain/boards'
 import { standingMove } from '../domain/standing'
 import { formatNumber, useT, type Messages } from '../i18n'
 import { tapFeedback } from '../lib/native'
+import { sound } from '../lib/sound'
 import { Avatar } from './Avatar'
 import { reducedMotion, useCountUp } from './useCountUp'
 
@@ -38,9 +39,10 @@ export function RankMove({ title, before, after, me }: RankMoveProps) {
   const target = move?.to ?? 0
   const rank = useCountUp(target, CLIMB_MS, move?.from ?? target + climb, CLIMB_DELAY_MS)
 
-  // The phone knocks once as the line lands, not as it sets off.
+  // The phone knocks once as the line lands, not as it sets off; the sound climbs with it.
   useEffect(() => {
     if (climb === 0 || reducedMotion()) return
+    sound.climb(climb, CLIMB_MS / 1000, CLIMB_DELAY_MS / 1000)
     const timer = setTimeout(() => tapFeedback('medium'), CLIMB_DELAY_MS + CLIMB_MS * 0.8)
     return () => clearTimeout(timer)
   }, [target, climb])

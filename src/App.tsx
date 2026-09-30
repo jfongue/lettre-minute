@@ -205,6 +205,9 @@ const PACK_WARM_GAP_MS = 400
 
 /** The drawer's way out, as long as `menu-out` in styles.css. */
 const MENU_LEAVE_MS = 200
+// A card's scrim closes it like its « Plus tard »: the tap clicks the same.
+const TAPPABLE = 'button, a, summary, input[type="checkbox"], .offer-pop-scrim'
+const TYPED = new Set(['text', 'email', 'password', 'search'])
 
 export function App() {
   const [session, dispatch] = useReducer(sessionReducer, initialSession(NEW_PROFILE))
@@ -231,6 +234,12 @@ export function App() {
   const [inviteOpen, setInviteOpen] = useState(false)
   useEffect(() => {
     if (!menuOpen) setInviteOpen(false)
+  }, [menuOpen])
+  // However the drawer moves — tap, swipe, scrim or back — it sounds the same.
+  const drawerMoved = useRef(false)
+  useEffect(() => {
+    if (drawerMoved.current) sound.drawer(menuOpen)
+    drawerMoved.current = true
   }, [menuOpen])
   const [shareNewsSeen, setShareNewsSeen] = useState(loadShareNewsSeen)
   const [accountMode, setAccountMode] = useState<AccountMode>('register')
@@ -628,10 +637,21 @@ export function App() {
   useEffect(() => {
     if (quietTaps) return
     const click = (event: MouseEvent) => {
-      if (event.target instanceof Element && event.target.closest('button, a')) sound.click()
+      if (event.target instanceof Element && event.target.closest(TAPPABLE)) sound.click()
+    }
+    // A field outside the run types like the run's own; one that plays its keys itself says so.
+    const type = (event: Event) => {
+      const field = event.target
+      if (!(field instanceof HTMLTextAreaElement || (field instanceof HTMLInputElement && TYPED.has(field.type)))) return
+      if (field.closest('[data-keys]')) return
+      sound.key(event instanceof InputEvent && event.inputType.startsWith('delete'))
     }
     document.addEventListener('click', click, true)
-    return () => document.removeEventListener('click', click, true)
+    document.addEventListener('input', type, true)
+    return () => {
+      document.removeEventListener('click', click, true)
+      document.removeEventListener('input', type, true)
+    }
   }, [quietTaps])
 
   const elapsed = useElapsed(session.phase === 'playing' ? startedAt : null)
@@ -1113,6 +1133,8 @@ export function App() {
       }
       saveSubmissions([...loadSubmissions(), proposal])
       trackFeature('word_proposed', { category: proposal.categoryId })
+      // The run's taps are silent: the word leaving is the only sign it went.
+      sound.sent()
       dispatch({ type: 'propose', proposal })
     },
     [session.run, lang, runLang],

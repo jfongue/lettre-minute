@@ -1,5 +1,6 @@
-import { useRef, useState, type CSSProperties, type ReactNode, type TouchEvent } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type TouchEvent } from 'react'
 import { useT } from '../i18n'
+import { sound } from '../lib/sound'
 import type { ChallengeSummary } from '../lib/cloud'
 import { Burst, Shape } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
@@ -175,6 +176,9 @@ export function ChallengeNotice({ challenge, kind, onLater, onGo }: ChallengeNot
   const t = useT()
   useBackDismiss(onLater)
   const invite = kind === 'invite'
+  // A friend's call is a question; a recap to read is news.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => (invite ? sound.pop() : sound.news()), [])
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="challenge-notice-title">
       <div className="offer-pop-scrim" onClick={onLater} />

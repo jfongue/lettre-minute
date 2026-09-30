@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useT } from '../i18n'
+import { sound } from '../lib/sound'
 import { Shape } from './bauhaus'
 import { useBackDismiss } from './useBackDismiss'
 
@@ -23,6 +24,7 @@ export function NamePrompt({
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   useBackDismiss(onLater)
+  useEffect(() => sound.pop(), [])
 
   const send = async (event: FormEvent) => {
     event.preventDefault()

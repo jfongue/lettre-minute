@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MODERATOR_LEVEL, type ModeratorOfferReason } from '../domain/moderation'
 import { answerModeratorOffer } from '../lib/cloud'
 import { useT } from '../i18n'
+import { sound } from '../lib/sound'
 import { Burst, Shape } from './bauhaus'
 import { VerdictMark } from './VerdictMark'
 import { useBackDismiss } from './useBackDismiss'
@@ -27,6 +28,7 @@ export function ModeratorOffer({ reason, invitedBy, anonymous, onAccount, onAnsw
   const [busy, setBusy] = useState(false)
   const [failed, setFailed] = useState(false)
   const [welcomed, setWelcomed] = useState(false)
+  useEffect(() => sound.pop(), [])
 
   const answer = async (accept: boolean) => {
     setBusy(true)
@@ -34,7 +36,10 @@ export function ModeratorOffer({ reason, invitedBy, anonymous, onAccount, onAnsw
     setBusy(false)
     setFailed(!ok)
     if (!ok) return
-    if (accept) setWelcomed(true)
+    if (accept) {
+      setWelcomed(true)
+      sound.news()
+    }
     else onAnswered(false)
   }
 

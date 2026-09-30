@@ -11,6 +11,7 @@ import {
   type Submission,
 } from '../lib/cloud'
 import { categoryText, useT } from '../i18n'
+import { sound } from '../lib/sound'
 import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
@@ -341,6 +342,7 @@ function IdeaBox() {
     setState('busy')
     const ok = await submitIdea(draft, t.tag.slice(0, 2))
     setState(ok ? 'sent' : 'failed')
+    if (ok) sound.sent()
     if (ok) setDraft('')
   }
 

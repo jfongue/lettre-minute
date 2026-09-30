@@ -231,6 +231,10 @@ qu'un nouvel arrivant casserait sans le savoir.
   module ne lève jamais, et un navigateur n’ouvre le son qu’après un geste :
   `armSound()` réveille le contexte au premier toucher, un son demandé avant
   est perdu, la musique attend.
+  Hors partie, tout bouton clique et tout champ de texte tape par deux
+  écouteurs globaux (`src/App.tsx`) : un champ qui joue ses touches lui-même
+  (celui de la partie, du tutoriel) porte `data-keys`, sinon il sonne deux
+  fois.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client — et depuis 0007, seules les fonctions
   du serveur peuvent l'appeler.

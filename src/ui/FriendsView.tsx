@@ -4,6 +4,7 @@ import type { AvatarChoice } from '../domain/avatar'
 import { levelFor } from '../domain/progression'
 import { rivalry, type SharedChallenge } from '../domain/rivalry'
 import { formatNumber, useT } from '../i18n'
+import { sound } from '../lib/sound'
 import type { BlockedPlayer, Friend } from '../lib/cloud'
 import { isNativeApp, shareText, type ShareOutcome } from '../lib/native'
 import { invitePage } from '../../supabase/functions/invite/mail'
@@ -322,6 +323,7 @@ export function AddFriendSheet({
     setBusy(true)
     const outcome = await onRequest(wanted.trim())
     setBusy(false)
+    if (outcome.done) sound.sent()
     if (outcome.done) onClose()
     else setSaid(outcome.said)
   }
@@ -431,6 +433,7 @@ function InvitePanel({
     const outcome = await onInvite(email.trim())
     setBusy(false)
     setSaid(outcome.said)
+    if (outcome.done) sound.sent()
     if (outcome.done) setEmail('')
   }
 

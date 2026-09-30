@@ -493,6 +493,86 @@ export const sound = {
       tone(c, 'sine', 1400, t, 0.02, sfx, 0.035)
     })
   },
+  /** The menu drawer slides: a breath of air the way it goes, and a knock as it lands. */
+  drawer(open: boolean): void {
+    cue((c, t) => {
+      hiss(c, t, 0.16, sfx, 0.1, 'bandpass', open ? 700 : 3200, 1.6, open ? 3200 : 700, 0.03)
+      wood(c, open ? deg(7) : deg(0), t + 0.15, 0.28, sfx)
+    })
+  },
+  /** A card the game brings up on its own: two soft notes, a question rather than news. */
+  pop(): void {
+    cue((c, t) => {
+      hiss(c, t, 0.1, sfx, 0.06, 'bandpass', 900, 1.2, 2400, 0.02)
+      marimba(c, deg(4), t + 0.04, 0.45, sfx)
+      marimba(c, deg(7), t + 0.12, 0.4, sfx)
+    })
+  },
+  /** Good news with its confetti: a quick climb that lands on glass. */
+  news(): void {
+    cue((c, t) => {
+      ;[0, 4, 7].forEach((step, i) => marimba(c, deg(step), t + i * 0.07, 0.55, sfx))
+      glock(c, deg(5, 1), t + 0.21, 0.45, sfx)
+      glass(c, deg(0, 2), t + 0.23, 0.35, sfx)
+      duck(t)
+    })
+  },
+  /** Something left for someone else — an idea, a word, a request: it flies off, up and away. */
+  sent(): void {
+    cue((c, t) => {
+      hiss(c, t, 0.22, sfx, 0.14, 'bandpass', 1200, 2, 8000, 0.02)
+      glock(c, deg(4, 1), t + 0.12, 0.4, sfx)
+      glock(c, deg(9, 1), t + 0.2, 0.35, sfx)
+    })
+  },
+  /** An emoji stuck on a word or a trophy: a bubble that pops. */
+  react(): void {
+    cue((c, t) => {
+      tone(c, 'sine', deg(4), t, 0.06, sfx, 0.18, 0.003, deg(9, 1))
+      glock(c, deg(9, 1), t + 0.05, 0.4, sfx)
+    })
+  },
+  /** A challenge's standing lifts its veil; `step` climbs from the last place to the first. */
+  unveil(step: number): void {
+    cue((c, t) => {
+      wood(c, deg(step), t, 0.55, sfx)
+      piano(c, deg(step, -1), t, 0.35, sfx, 0.6)
+    })
+  },
+  /** The pause before the winner: a roll on the wood that tightens and swells. */
+  drumroll(durationS: number): void {
+    cue((c, t) => {
+      const end = durationS * 0.9
+      for (let at = 0, gap = 0.13; at < end; at += gap, gap = Math.max(0.035, gap * 0.9)) {
+        const x = at / end
+        wood(c, deg(x < 0.5 ? 0 : 2, -1), t + at, 0.14 + 0.3 * x, sfx)
+      }
+    })
+  },
+  /** The winner shown: a fanfare when it is the player, a warm chord for the others' win. */
+  crowned(won: boolean): void {
+    cue((c, t) => {
+      if (won) {
+        triad(TONIC).forEach((f, i) => marimba(c, f, t + i * 0.015, 0.7, sfx))
+        piano(c, TONIC / 2, t, 0.8, sfx, 2)
+        ;[0, 2, 4, 7].forEach((step, i) => glock(c, deg(step, 1), t + 0.1 + i * 0.06, 0.5, sfx))
+        bell(c, deg(0, 2), t + 0.34, 0.5, sfx, 2)
+      } else {
+        triad(semi(TONIC, -3), 3).forEach((f, i) => piano(c, f, t + i * 0.03, 0.4, sfx, 1.8))
+        glass(c, deg(7), t + 0.1, 0.3, sfx)
+      }
+      duck(t)
+    })
+  },
+  /** The leaderboard line climbs past `rows` players, then lands. */
+  climb(rows: number, durationS: number, delayS: number): void {
+    cue((c, t) => {
+      const count = Math.min(rows, 8)
+      for (let i = 0; i < count; i++) wood(c, deg(2 + i), t + delayS + (i / count) * durationS * 0.8, 0.4, sfx)
+      glock(c, deg(2 + count, 1), t + delayS + durationS * 0.8, 0.5, sfx)
+      glass(c, deg(2 + count), t + delayS + durationS * 0.8, 0.3, sfx)
+    })
+  },
 }
 
 // ---------- Music ----------

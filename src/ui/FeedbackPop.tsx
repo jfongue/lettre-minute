@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useT } from '../i18n'
+import { sound } from '../lib/sound'
 import { submitIdea, type IdeaSource } from '../lib/cloud'
 import { Shape } from './bauhaus'
 import { useBackDismiss } from './useBackDismiss'
@@ -35,6 +36,7 @@ export function FeedbackPop({
   const [state, setState] = useState<'idle' | 'busy' | 'sent' | 'failed'>('idle')
   const [asking, setAsking] = useState(Boolean(intro))
   useBackDismiss(onClose)
+  useEffect(() => sound.pop(), [])
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
@@ -42,6 +44,7 @@ export function FeedbackPop({
     setState('busy')
     const ok = await send(draft, t.tag.slice(0, 2), 'prompt')
     setState(ok ? 'sent' : 'failed')
+    if (ok) sound.sent()
     if (ok) setTimeout(onClose, 1400)
   }
 

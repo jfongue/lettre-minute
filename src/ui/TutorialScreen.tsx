@@ -120,6 +120,7 @@ export function TutorialScreen({ lang, onDone }: TutorialScreenProps) {
         >
           <input
             ref={field}
+            data-keys
             value={draft}
             onChange={(event) => {
               sound.key(event.target.value.length < draft.length)
