@@ -1,3 +1,4 @@
-• La notification d’un défi s’efface d’elle-même une fois le défi joué ou son bilan lu
-• Glisser les classements de l’accueil vers « Plus… » ne clignote plus
-• Sur le podium des classements, ta place est encadrée proprement
+• Statistiques : tout ton historique et le récap de chaque partie
+• Les notifications de défi s’effacent une fois traitées
+• Ajustement des taux d’apparition
+• Petites corrections
