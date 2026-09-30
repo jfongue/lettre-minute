@@ -1574,9 +1574,11 @@ button.challenge-past::after {
   outline-offset: -0.15rem;
 }
 
+/* Dans la marche plutôt qu'autour : un liseré extérieur débordait du podium,
+   dont le conteneur le rognait. */
 .leaderboard-step--me {
-  outline: 3px solid var(--red);
-  outline-offset: 2px;
+  border-color: var(--red);
+  box-shadow: inset 0 0 0 3px var(--red);
 }
 
 .leaderboard-me {

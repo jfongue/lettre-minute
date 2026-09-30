@@ -348,18 +348,18 @@ const LEADERBOARD_SIZES: Record<StatId, number> = { best: 24, points: 60, runs: 
 /** A name past the podium's width: the top 3 must trim it rather than grow a step. */
 const LONG_PLAYER = 'MaximilienDeRobespierre'
 
-function fakeLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | null> {
+function fakeLeaderboard(stat: StatId, period: PeriodId, mineAt = 14): Promise<Leaderboard | null> {
   if (stat === 'combo' && period === 'week') return later(null, 700)
   const scale = period === 'day' ? 1 : period === 'week' ? 4 : 20
   const top = stat === 'best' ? 400 : stat === 'runs' ? 9 : stat === 'discoveries' ? 6 : 120
   const count = Math.min(LEADERBOARD_SIZES[stat], 50)
   const far = LEADERBOARD_SIZES[stat] > 50
   const rows = Array.from({ length: count }, (_, index) => ({
-    name: index === 0 ? LONG_PLAYER : index === 14 && !far ? 'Testeur' : `Joueur ${index + 1}`,
+    name: index === 0 ? LONG_PLAYER : index === mineAt && !far ? 'Testeur' : `Joueur ${index + 1}`,
     avatar: avatarOf((index * 7 + top) % 100, index % 2 ? 'jaune' : 'bleu', 'noir', 'rouge'),
     value: Math.max(1, Math.round((top - index * (top / 60)) * scale)),
     place: index + 1,
-    mine: index === 14 && !far,
+    mine: index === mineAt && !far,
   }))
   const me = far ? { name: 'Testeur', avatar: DEFAULT_AVATAR, value: 3 * scale, place: 73, mine: true } : null
   return later(completeLeaderboard(stat, period, { rows, me }), 500)
@@ -546,10 +546,10 @@ function AchievementIcons() {
   )
 }
 
-function LeaderboardsScenario({ named }: { named: boolean }) {
+function LeaderboardsScenario({ named, mineAt }: { named: boolean; mineAt?: number }) {
   return (
     <div className="sheet">
-      <LeaderboardsPage named={named} load={fakeLeaderboard} />
+      <LeaderboardsPage named={named} load={(stat, period) => fakeLeaderboard(stat, period, mineAt)} />
     </div>
   )
 }
@@ -1467,6 +1467,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Sept mesures, jour / semaine / total : « Points » dépasse cinquante (ta place en bas), « Mots ajoutés » vide, « Série » semaine hors ligne',
     phase: 'home',
     render: () => <LeaderboardsScenario named />,
+  },
+  {
+    id: 'leaderboards-podium',
+    group: 'Accueil',
+    title: 'Page des classements, joueur sur le podium',
+    how: 'Le joueur est deuxième : sa marche du podium est cerclée de rouge',
+    phase: 'home',
+    render: () => <LeaderboardsScenario named mineAt={1} />,
   },
   {
     id: 'leaderboards-anonymous',
