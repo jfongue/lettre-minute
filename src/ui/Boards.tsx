@@ -7,7 +7,8 @@ import { PlayerName } from './PlayerSheet'
 import { useCountUp } from './useCountUp'
 import { useHiddenTaps } from './useHiddenTaps'
 
-const BOARDS: readonly BoardId[] = ['day', 'week', 'discoveries']
+// Discoveries live on the leaderboards page, which « Plus… » opens.
+const BOARDS: readonly BoardId[] = ['day', 'week']
 
 /** The rank the line held before the run, counted down to the one it won, as the line rises. */
 function ClimbingRank({ rank, climbed }: { rank: number; climbed: number }) {
@@ -103,6 +104,11 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
             {t.boards[board].label}
           </button>
         ))}
+        {onAll && (
+          <button type="button" className="layer-tab" onClick={onAll}>
+            {t.boards.plus}
+          </button>
+        )}
       </div>
 
       <div
@@ -145,7 +151,6 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
                         <span className="points">
                           {climbing && <span className="standing-climb">+{climbed}</span>}
                           {formatNumber(t, row.value)}
-                          {board === 'discoveries' && <small> {t.boards.words(row.value)}</small>}
                         </span>
                       </div>
                     )

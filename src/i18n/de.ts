@@ -26,6 +26,7 @@ export const de: Messages = {
     links: { profile: 'Profil', stats: 'Statistik', requests: 'Meine Vorschläge', categories: 'Kategorien' },
     accountLead: 'Behalte deine Punkte und fordere deine Freunde heraus.',
     news: (count) => `${count} neu`,
+    queueWaiting: 'Wörter warten auf dein Urteil',
   },
 
   tutorial: {
@@ -170,6 +171,7 @@ export const de: Messages = {
     more: (count) => `Ganze Rangliste ansehen (${count})`,
     less: 'Weniger anzeigen',
     all: 'Alle Ranglisten',
+    plus: 'Mehr…',
   },
 
   leaderboards: {

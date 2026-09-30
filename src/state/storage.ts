@@ -13,6 +13,8 @@ const TUTORIAL_KEY = 'lettre-minute.tutorial.v1'
 // Kept by clearLocalData too: a player who signed out chose to, and the quiet
 // Play Games sign-in must not sign them straight back in.
 const QUIET_SIGN_IN_KEY = 'lettre-minute.quiet-sign-in.v1'
+// The day « Mes demandes » was last opened: its « ! » waits for the next one.
+const QUEUE_SEEN_KEY = 'lettre-minute.queue-seen.v1'
 
 /** A word the player proposed while the dictionary did not know it. */
 export interface PendingSubmission {
@@ -83,6 +85,15 @@ export function loadQuietSignInTried(): boolean {
 
 export function saveQuietSignInTried(): void {
   write(QUIET_SIGN_IN_KEY, true)
+}
+
+export function loadQueueSeenOn(): string | null {
+  const day = parsed(QUEUE_SEEN_KEY)
+  return typeof day === 'string' ? day : null
+}
+
+export function saveQueueSeenOn(day: string): void {
+  write(QUEUE_SEEN_KEY, day)
 }
 
 export function loadProfile(): Profile {

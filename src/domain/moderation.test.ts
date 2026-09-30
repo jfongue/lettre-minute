@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { MODERATOR_LEVEL, MODERATOR_LEVEL_XP, reachesModeratorLevel, swipeVerdict } from './moderation'
+import { MODERATOR_LEVEL, MODERATOR_LEVEL_XP, queueAlertDue, reachesModeratorLevel, swipeVerdict } from './moderation'
 import { levelFor, xpForLevel } from './progression'
 
 describe('moderator level', () => {
@@ -32,5 +32,14 @@ describe('swipeVerdict', () => {
   it('lets the longer direction win', () => {
     expect(swipeVerdict(200, -120, 300)).toBe('correct')
     expect(swipeVerdict(-120, -200, 300)).toBe('unsure')
+  })
+})
+
+describe('queueAlertDue', () => {
+  it('shows past twenty words waiting, until opened that day', () => {
+    expect(queueAlertDue(20, null, '2026-09-30')).toBe(false)
+    expect(queueAlertDue(21, null, '2026-09-30')).toBe(true)
+    expect(queueAlertDue(21, '2026-09-30', '2026-09-30')).toBe(false)
+    expect(queueAlertDue(21, '2026-09-30', '2026-10-01')).toBe(true)
   })
 })

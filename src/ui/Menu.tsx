@@ -95,6 +95,7 @@ interface MenuProps {
   onErase(): Promise<boolean>
   /** Null without a server: nothing about moderation shows. */
   moderation: ModerationStatus | null
+  queueAlert?: boolean
   onModerate(): void
   /** Null without an account; the statistics list the hidden ones. */
   challenges: readonly ChallengeSummary[] | null
@@ -270,6 +271,7 @@ function ProfilePane({
   onAvatar,
   onLogOut,
   moderation,
+  queueAlert,
   onPage,
 }: Omit<
   MenuProps,
@@ -337,6 +339,7 @@ function ProfilePane({
       <PageLinks
         pages={PROFILE_PAGES}
         badges={{ requests: moderation?.news ?? 0, categories: banNews(profile, ownedCategoryIds(profile)) ? 1 : 0 }}
+        queueAlert={queueAlert}
         onOpen={(next) => next !== 'profile' && onPage(next)}
       />
 

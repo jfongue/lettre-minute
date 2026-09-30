@@ -51,3 +51,11 @@ export function swipeVerdict(dx: number, dy: number, width: number): Exclude<Ver
   if (dx < -reach) return 'incorrect'
   return null
 }
+
+/** More words than this waiting for a moderator, and « Mes demandes » wears a « ! ». */
+export const MODERATION_QUEUE_ALERT = 20
+
+/** Whether the « ! » shows: opening « Mes demandes » quiets it until the next day. */
+export function queueAlertDue(queue: number, seenOn: string | null, today: string): boolean {
+  return queue > MODERATION_QUEUE_ALERT && seenOn !== today
+}

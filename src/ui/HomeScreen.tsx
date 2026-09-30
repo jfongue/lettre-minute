@@ -41,6 +41,7 @@ interface HomeScreenProps {
   avatar: AvatarChoice
   /** The player's words accepted since they last opened « Mes demandes ». */
   requestsNews: number
+  queueAlert?: boolean
   /** A dot on « Mes catégories » until the player has read what a ban does. */
   categoriesNews?: number
   /** Friend requests waiting for an answer: a dot on the menu tile. */
@@ -71,6 +72,7 @@ export function HomeScreen({
   climbed,
   avatar,
   requestsNews,
+  queueAlert,
   categoriesNews = 0,
   friendRequests,
   challenges,
@@ -180,7 +182,7 @@ export function HomeScreen({
             </>
           )}
 
-          <PageLinks pages={HOME_LINKS} avatar={avatar} badges={{ requests: requestsNews, categories: categoriesNews }} onOpen={onMenu} />
+          <PageLinks pages={HOME_LINKS} avatar={avatar} badges={{ requests: requestsNews, categories: categoriesNews }} queueAlert={queueAlert} onOpen={onMenu} />
         </div>
       )}
     </div>

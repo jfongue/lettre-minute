@@ -32,6 +32,7 @@ export const en: Messages = {
     links: { profile: 'Profile', stats: 'Statistics', requests: 'My requests', categories: 'Categories' },
     accountLead: 'Keep your scores and challenge your friends.',
     news: (count) => `${count} new`,
+    queueWaiting: 'Words are waiting for your verdict',
   },
 
   tutorial: {
@@ -176,6 +177,7 @@ export const en: Messages = {
     more: (count) => `See the full board (${count})`,
     less: 'See less',
     all: 'All leaderboards',
+    plus: 'More…',
   },
 
   leaderboards: {

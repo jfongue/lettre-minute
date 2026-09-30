@@ -26,6 +26,7 @@ export const nl: Messages = {
     links: { profile: 'Profiel', stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Categorieën' },
     accountLead: 'Bewaar je scores en daag je vrienden uit.',
     news: (count) => `${count} nieuw`,
+    queueWaiting: 'Er wachten woorden op je oordeel',
   },
 
   tutorial: {
@@ -170,6 +171,7 @@ export const nl: Messages = {
     more: (count) => `Hele klassement bekijken (${count})`,
     less: 'Minder tonen',
     all: 'Alle klassementen',
+    plus: 'Meer…',
   },
 
   leaderboards: {

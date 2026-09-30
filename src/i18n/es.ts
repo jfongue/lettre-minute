@@ -26,6 +26,7 @@ export const es: Messages = {
     links: { profile: 'Perfil', stats: 'Estadísticas', requests: 'Mis propuestas', categories: 'Categorías' },
     accountLead: 'Guarda tus puntuaciones y reta a tus amigos.',
     news: (count) => `${count} ${count > 1 ? 'novedades' : 'novedad'}`,
+    queueWaiting: 'Hay palabras esperando tu opinión',
   },
 
   tutorial: {
@@ -171,6 +172,7 @@ export const es: Messages = {
     more: (count) => `Ver la clasificación completa (${count})`,
     less: 'Ver menos',
     all: 'Todas las clasificaciones',
+    plus: 'Más…',
   },
 
   leaderboards: {

@@ -26,6 +26,7 @@ export const pt: Messages = {
     links: { profile: 'Perfil', stats: 'Estatísticas', requests: 'Minhas sugestões', categories: 'Categorias' },
     accountLead: 'Guarda as tuas pontuações e desafia os teus amigos.',
     news: (count) => `${count} ${count > 1 ? 'novidades' : 'novidade'}`,
+    queueWaiting: 'Tem palavras esperando sua opinião',
   },
 
   tutorial: {
@@ -171,6 +172,7 @@ export const pt: Messages = {
     more: (count) => `Ver o ranking completo (${count})`,
     less: 'Ver menos',
     all: 'Todos os rankings',
+    plus: 'Mais…',
   },
 
   leaderboards: {

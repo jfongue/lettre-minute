@@ -19,11 +19,13 @@ interface PageLinksProps {
   avatar?: AvatarChoice
   /** News waiting behind a tile, counted on a sticker in its corner. */
   badges?: Partial<Record<LinkedPage, number>>
+  /** Many words waiting for this moderator: a « ! » on « Mes demandes » when no count is there. */
+  queueAlert?: boolean
   onOpen(page: LinkedPage): void
 }
 
 /** Poster tiles that open a page of the drawer: the shape jumps when the tile is reached. */
-export function PageLinks({ pages, avatar, badges, onOpen }: PageLinksProps) {
+export function PageLinks({ pages, avatar, badges, queueAlert = false, onOpen }: PageLinksProps) {
   const t = useT()
   return (
     <nav className="page-links" style={{ '--count': pages.length } as CSSProperties}>
@@ -31,6 +33,7 @@ export function PageLinks({ pages, avatar, badges, onOpen }: PageLinksProps) {
         const look = page === 'profile' ? null : LOOKS[page]
         const ground: Tint = look?.ground ?? 'paper'
         const badge = badges?.[page] ?? 0
+        const alert = badge === 0 && queueAlert && page === 'requests'
         return (
           <button
             key={page}
@@ -38,7 +41,7 @@ export function PageLinks({ pages, avatar, badges, onOpen }: PageLinksProps) {
             className={`page-link page-link--${page}`}
             style={{ background: `var(--${ground})`, color: `var(--${onTint(ground)})`, '--i': index } as CSSProperties}
             onClick={() => onOpen(page)}
-            aria-label={badge > 0 ? `${t.home.links[page]} · ${t.home.news(badge)}` : undefined}
+            aria-label={badge > 0 ? `${t.home.links[page]} · ${t.home.news(badge)}` : alert ? `${t.home.links[page]} · ${t.home.queueWaiting}` : undefined}
           >
             <span className="page-link-art">
               {page === 'profile' && avatar ? (
@@ -51,6 +54,11 @@ export function PageLinks({ pages, avatar, badges, onOpen }: PageLinksProps) {
             {badge > 0 && (
               <span className="page-link-badge" aria-hidden="true">
                 {badge}
+              </span>
+            )}
+            {alert && (
+              <span className="page-link-badge" aria-hidden="true">
+                !
               </span>
             )}
           </button>

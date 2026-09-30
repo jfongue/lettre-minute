@@ -49,6 +49,7 @@ export const fr = {
     links: { profile: 'Profil', stats: 'Statistiques', requests: 'Mes demandes', categories: 'Catégories' },
     accountLead: 'Garde tes scores et défie tes amis.',
     news: (count: number) => `${count} ${plural(count, 'nouveauté', 'nouveautés')}`,
+    queueWaiting: 'Des mots attendent ton avis',
   },
 
   tutorial: {
@@ -198,6 +199,7 @@ export const fr = {
     more: (count: number) => `Voir le classement complet (${count})`,
     less: 'Voir moins',
     all: 'Tous les classements',
+    plus: 'Plus…',
   },
 
   leaderboards: {

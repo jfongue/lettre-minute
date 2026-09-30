@@ -102,15 +102,18 @@ import {
   loadProfile,
   loadQuietSignInTried,
   saveQuietSignInTried,
+  loadQueueSeenOn,
   loadSubmissions,
   loadTutorialDone,
   saveAccount,
   saveAvatar,
   saveHistory,
   saveProfile,
+  saveQueueSeenOn,
   saveSubmissions,
   saveTutorialDone,
 } from './state/storage'
+import { queueAlertDue } from './domain/moderation'
 import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
 import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
 import { useElapsed } from './state/useElapsed'
@@ -437,7 +440,12 @@ export function App() {
   useEffect(refreshModeration, [refreshModeration, account?.name, account?.anonymous])
 
   const moderator = moderation?.moderator === true
+  const [queueSeenOn, setQueueSeenOn] = useState(loadQueueSeenOn)
+  const queueAlert = moderator && queueAlertDue(moderation?.queue ?? 0, queueSeenOn, new Date().toLocaleDateString('sv'))
   const topUpRequests = useCallback(() => {
+    const today = new Date().toLocaleDateString('sv')
+    saveQueueSeenOn(today)
+    setQueueSeenOn(today)
     if (!moderator) return
     topUpModeration(lang).then((released) => {
       if (released > 0) refreshModeration()
@@ -1377,6 +1385,7 @@ export function App() {
           climbed={climbed}
           avatar={avatar}
           requestsNews={moderation?.news ?? 0}
+          queueAlert={queueAlert}
           categoriesNews={banNews(session.profile, ownedCategoryIds(session.profile)) ? 1 : 0}
           friendRequests={named ? friendRequests : 0}
           challenges={named ? challenges : null}
@@ -1600,6 +1609,7 @@ export function App() {
               forget()
             }}
             moderation={moderation}
+            queueAlert={queueAlert}
             onModerate={() => {
               setMenuPage(null)
               setModerating(true)
