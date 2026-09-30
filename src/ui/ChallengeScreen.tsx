@@ -23,7 +23,7 @@ import {
   type ReactionEmoji,
 } from '../lib/cloud'
 import { clearPushes } from '../lib/native'
-import { sound } from '../lib/sound'
+import { holdMusic, sound } from '../lib/sound'
 import {
   challengeTitle,
   hideChallengeDetail,
@@ -54,6 +54,7 @@ const MY_WORDS_ID = 'challenge-my-words'
 
 const REVEAL_STEP_MS = 900
 const REVEAL_DRUMROLL_MS = 1900
+const CROWNED_RING_MS = 2500
 
 /**
  * How many standings show, counted from the last: one more at each step, and
@@ -473,6 +474,18 @@ export function ChallengeRecap({ detail, suspense = false, onRevealed, onRematch
     if (revealed === count) sound.crowned(standings[0]?.playerId === me?.playerId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [revealed])
+  // The music steps aside for the whole reveal, and comes back once the winner's fanfare has rung out.
+  const revealing = suspense && revealed < standings.length
+  useEffect(() => {
+    if (!suspense) return
+    if (revealing) {
+      holdMusic(true)
+      return
+    }
+    const timer = setTimeout(() => holdMusic(false), CROWNED_RING_MS)
+    return () => clearTimeout(timer)
+  }, [suspense, revealing])
+  useEffect(() => () => holdMusic(false), [])
   const standingsPanel = (
     <section className="panel">
       <p className="section-title">{t.challenge.final}</p>

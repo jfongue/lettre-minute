@@ -51,6 +51,7 @@ let music: GainNode
 let duckNode: GainNode
 let hushNode: BiquadFilterNode
 let noise: AudioBuffer
+let musicHeld = false
 
 function deg(step: number, octave = 0): number {
   const n = SCALE.length
@@ -150,7 +151,7 @@ function applyLevels(): void {
   masterNode.gain.setTargetAtTime(on * prefs.master * 0.9, t, 0.03)
   sfx.gain.setTargetAtTime(on * prefs.effects * CEILING.effects, t, 0.03)
   keysNode.gain.setTargetAtTime(on * prefs.keys * CEILING.keys, t, 0.03)
-  music.gain.setTargetAtTime(on * prefs.music * CEILING.music, t, 0.03)
+  music.gain.setTargetAtTime(musicHeld ? 0 : on * prefs.music * CEILING.music, t, 0.03)
 }
 
 /** The context, awake, or null: a cue asked for before the first touch is simply dropped. */
@@ -693,6 +694,20 @@ export function setHush(on: boolean): void {
   safely(() => {
     if (!ctx) return
     hushNode.frequency.setTargetAtTime(on ? HUSHED_HZ : OPEN_HZ, ctx.currentTime, on ? 0.25 : 0.5)
+  })
+}
+
+/**
+ * Draws the music out slowly, and back in more slowly still, without stopping
+ * it: the loop keeps its place and the player hardly notices it went.
+ */
+export function holdMusic(on: boolean): void {
+  if (musicHeld === on) return
+  musicHeld = on
+  safely(() => {
+    if (!ctx) return
+    const level = on || prefs.muted ? 0 : prefs.music * CEILING.music
+    music.gain.setTargetAtTime(level, ctx.currentTime, on ? 0.6 : 1.2)
   })
 }
 
