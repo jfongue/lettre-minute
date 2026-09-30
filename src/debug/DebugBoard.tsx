@@ -34,7 +34,7 @@ import { Shape } from '../ui/bauhaus'
 import { NamePrompt } from '../ui/NamePrompt'
 import { DashboardView } from './Dashboard'
 import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
-import type { Snapshot } from './snapshot'
+import type { SlotEntry, Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 import { NEW_SCENARIOS, NEW_SINCE, RECENT_SCENARIOS, RECENT_VERSIONS } from './recent'
@@ -465,7 +465,60 @@ function dashboardSnapshot(): Snapshot {
     ],
     moderation: { votes: 420, submitted: 38, accepted: 21, rejected: 9 },
     challenges: { created: 41, avg_players: 2.7, played_share: 0.86 },
+    invites: {
+      mails: 23, mails_to_players: 4, mail_joins: 9, shares: 61, sharers: 27, link_joins: 14, played: 19,
+      links_since: new Date(Date.now() - 12 * 24 * HOUR).toISOString(),
+      daily: daily.map((row, index) => ({ day: row.day, mails: index % 3, shares: (index * 7) % 5, joins: index % 4 === 0 ? 2 : index % 5 === 0 ? 1 : 0 })),
+      top: [
+        { name: 'Inès', anonymous: false, mails: 6, shares: 11, joins: 7, played: 6 },
+        { name: 'Léa', anonymous: false, mails: 3, shares: 8, joins: 4, played: 3 },
+        { name: 'Hugo', anonymous: false, mails: 5, shares: 2, joins: 1, played: 1 },
+        { name: 'Anonyme 3f2a', anonymous: true, mails: 0, shares: 4, joins: 0, played: 0 },
+      ],
+    },
+    prompts: {
+      langs: [{ lang: 'fr', dealt: 14_380, passed: 2_210, pairs: 612 }, { lang: 'en', dealt: 1_240, passed: 260, pairs: 188 }],
+      most_passed: (
+        [
+          ['metiers', 'Y', 88, 61], ['pays', 'W', 140, 58], ['animaux', 'X', 95, 55], ['capitales', 'Q', 72, 49], ['fruits-legumes', 'K', 60, 41],
+          ['sports', 'U', 81, 37], ['pays', 'K', 150, 30], ['marques', 'Z', 34, 28], ['animaux', 'Q', 70, 26], ['metiers', 'W', 22, 20],
+          ['capitales', 'Y', 48, 19], ['pays', 'Z', 60, 18], ['fruits-legumes', 'H', 90, 17], ['sports', 'N', 110, 16], ['animaux', 'U', 75, 15],
+          ['metiers', 'O', 66, 14],
+        ] as const
+      ).map(([category, letter, dealt, passed]) => ({
+        lang: 'fr', category, letter, dealt, passed, words: Math.round((dealt - passed) * 1.4), points: (dealt - passed) * 60, lang_dealt: 14_380,
+      })),
+      worst_rate: (
+        [
+          ['metiers', 'W', 22, 20], ['marques', 'Z', 34, 28], ['metiers', 'Y', 88, 61], ['capitales', 'Q', 72, 49], ['fruits-legumes', 'K', 60, 41],
+          ['animaux', 'X', 95, 55], ['pays', 'W', 140, 58],
+        ] as const
+      ).map(([category, letter, dealt, passed]) => ({
+        lang: 'fr', category, letter, dealt, passed, words: Math.round((dealt - passed) * 1.4), points: (dealt - passed) * 60, lang_dealt: 14_380,
+      })),
+    },
   }
+}
+
+/** Les joueurs d'une barre : quelques profils, un compte arrivé, un appareil sans compte. */
+function dashboardSlot(): Promise<SlotEntry[]> {
+  const player = (name: string, extra: Partial<Extract<SlotEntry, { anonymous: boolean }>>) => ({
+    key: name, name, anonymous: false, avatar: avatarOf(21, 'bleu', 'jaune', 'rouge'), xp: at(12, 40), total_runs: 96, total_best: 880,
+    words_found: 1_120, created_at: new Date(Date.now() - 20 * 24 * HOUR).toISOString(), named_at: new Date(Date.now() - 19 * 24 * HOUR).toISOString(),
+    moderator: false, friends: 3, lang: 'fr', platform: 'android', version: '1.7.1', runs: 0, best: null, words: 0, active: true, arrived: false,
+    signed: false, sessions_with_run: 0, sessions_without_run: 0, mails: 0, shares: 0, invited_by: null, ...extra,
+  })
+  return later(
+    [
+      player('Inès', { avatar: avatarOf(7, 'rouge', 'creme', 'jaune'), xp: at(24), total_runs: 212, total_best: 1_240, moderator: true, friends: 9, runs: 8, best: 1_010, words: 104, sessions_with_run: 3, shares: 2 }),
+      player('Léa', { runs: 5, best: 720, words: 61, sessions_with_run: 2, sessions_without_run: 1, mails: 1 }),
+      player('Hugo', { avatar: avatarOf(33, 'vert', 'creme', 'bleu'), xp: at(3), total_runs: 4, total_best: 410, created_at: new Date(Date.now() - 6 * HOUR).toISOString(), named_at: new Date(Date.now() - 5 * HOUR).toISOString(), friends: 1, runs: 4, best: 410, words: 38, arrived: true, signed: true, sessions_with_run: 1, invited_by: 'Inès' }),
+      player('Anonyme 3f2a', { anonymous: true, avatar: DEFAULT_AVATAR, xp: at(1, 20), total_runs: 1, total_best: 90, named_at: null, created_at: new Date(Date.now() - 3 * HOUR).toISOString(), friends: 0, platform: 'web', runs: 1, best: 90, words: 7, arrived: true, sessions_with_run: 1 }),
+      player('Tom', { avatar: avatarOf(12, 'jaune', 'bleu', 'rouge'), xp: at(8), total_runs: 51, total_best: 640, sessions_without_run: 2 }),
+      { key: 'device:9c1e', name: 'Appareil 9c1e', device: true as const, sessions_with_run: 0, sessions_without_run: 1 },
+    ],
+    500,
+  )
 }
 
 function AdvancedScenario() {
@@ -475,7 +528,7 @@ function AdvancedScenario() {
   }, [])
   return (
     <div className="dashboard">
-      <DashboardView data={data} />
+      <DashboardView data={data} loadSlot={dashboardSlot} />
     </div>
   )
 }

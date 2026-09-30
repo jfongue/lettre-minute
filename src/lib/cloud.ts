@@ -1,6 +1,6 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
-import type { Snapshot } from '../debug/snapshot'
+import type { SlotEntry, Snapshot } from '../debug/snapshot'
 import { parseRecord, RECENT_MIN_DAYS, RECENT_MIN_RUNS, type RunRecord } from '../domain/history'
 import { parseProgress, progressOf, type Progress } from '../domain/progress'
 import type { Leaderboard, PeriodId, PlacedRow, StatId } from '../domain/leaderboards'
@@ -576,6 +576,15 @@ export function fetchDashboard(days = 30): Promise<Snapshot | null> {
     const { data, error } = await supabase!.rpc('admin_analytics', { p_days: days })
     if (error || !data) return null
     return data as Snapshot
+  }, null)
+}
+
+/** Les joueurs d'un jour, ou d'une heure (heure de Paris) : `admin_slot`, 0036. */
+export function fetchDashboardSlot(day: string, hour?: number): Promise<SlotEntry[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('admin_slot', { p_day: day, p_hour: hour ?? null })
+    if (error || !data) return null
+    return data as SlotEntry[]
   }, null)
 }
 

@@ -1,9 +1,12 @@
 import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { parseAvatar } from '../domain/avatar'
 import { isPowerId } from '../domain/powers'
+import { levelFor } from '../domain/progression'
 import { categoryText, useT } from '../i18n'
-import { fetchDashboard } from '../lib/cloud'
-import type { DayRow, HourRow, Snapshot } from './snapshot'
+import { fetchDashboard, fetchDashboardSlot } from '../lib/cloud'
+import { Avatar } from '../ui/Avatar'
+import type { DayRow, HourRow, Invites, PromptRow, Prompts, SlotEntry, Snapshot } from './snapshot'
 
 /*
  * Le tableau de bord de l'administrateur : cinq tapes sur « Classements »
@@ -16,9 +19,18 @@ import type { DayRow, HourRow, Snapshot } from './snapshot'
  */
 
 export type LoadDashboard = () => Promise<Snapshot | null>
+export type LoadSlot = (day: string, hour?: number) => Promise<SlotEntry[] | null>
 
 /** Le chargeur, posé sur `body` : le tiroir du menu est trop étroit pour lui. */
-export function Dashboard({ onClose, load = fetchDashboard }: { onClose(): void; load?: LoadDashboard }) {
+export function Dashboard({
+  onClose,
+  load = fetchDashboard,
+  loadSlot = fetchDashboardSlot,
+}: {
+  onClose(): void
+  load?: LoadDashboard
+  loadSlot?: LoadSlot
+}) {
   const [data, setData] = useState<Snapshot | null | undefined>(undefined)
   const [attempt, setAttempt] = useState(0)
   useEffect(() => {
@@ -36,7 +48,7 @@ export function Dashboard({ onClose, load = fetchDashboard }: { onClose(): void;
 
   return createPortal(
     <div className="dashboard dashboard--overlay" data-no-swipe role="dialog" aria-label="Tableau de bord">
-      <DashboardView data={data} onClose={onClose} onReload={() => {
+      <DashboardView data={data} loadSlot={loadSlot} onClose={onClose} onReload={() => {
           setData(undefined)
           setAttempt(attempt + 1)
         }} />
@@ -161,10 +173,12 @@ type Range = (typeof RANGES)[number]
 /** `undefined` : le relevé arrive ; `null` : pas administrateur, ou serveur muet. */
 export function DashboardView({
   data,
+  loadSlot = fetchDashboardSlot,
   onClose,
   onReload,
 }: {
   data: Snapshot | null | undefined
+  loadSlot?: LoadSlot
   onClose?(): void
   onReload?(): void
 }) {
@@ -232,7 +246,7 @@ export function DashboardView({
             )}
           </div>
         ) : (
-          <Body data={data} />
+          <Body data={data} loadSlot={loadSlot} />
         )}
       </div>
       <Bubble tip={tip} />
@@ -240,11 +254,13 @@ export function DashboardView({
   )
 }
 
-function Body({ data: d }: { data: Snapshot }) {
+function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
   const t = useT()
   const [range, setRange] = useState<Range>(14)
+  const [picked, setPicked] = useState<Picked | null>(null)
+  const pick = (title: string, series: Series[]) => (row: Day) => setPicked({ title, row, series })
   // « 1 j » : aujourd'hui heure par heure, et non une seule barre.
-  const daily: Day[] = range === 1 ? (d.today_hourly ?? []) : d.daily.slice(-range)
+  const daily: (DayRow | HourRow)[] = range === 1 ? (d.today_hourly ?? []) : d.daily.slice(-range)
   const per = range === 1 ? 'par heure' : 'par jour'
   const sum = (key: keyof DayRow) => daily.reduce((total, row) => total + (Number(row[key]) || 0), 0)
   const tracked = Boolean(d.tracking_since)
@@ -298,19 +314,17 @@ function Body({ data: d }: { data: Snapshot }) {
       }>
         <div className="dashboard-grid">
           <Card title={`Parties ${per}`} tag={fmt(sum('runs'))}>
-            <DayBars rows={daily} series={[{ key: 'runs', label: 'Parties', color: 'var(--blue)' }]} />
+            <DayBars rows={daily} series={RUNS} onPick={pick('Parties', RUNS)} />
           </Card>
           <Card title={`Joueurs actifs ${per}`}>
-            <DayBars rows={daily} series={[{ key: 'players', label: 'Joueurs actifs', color: 'var(--green)' }]} />
+            <DayBars rows={daily} series={PLAYERS} onPick={pick('Joueurs actifs', PLAYERS)} />
           </Card>
           <Card title="Arrivées et inscriptions" tag={`${fmt(sum('new_players'))} arrivées · ${fmt(sum('signups'))} inscrits`}>
             <Legend items={[{ label: 'Restés anonymes', color: 'var(--blue)' }, { label: 'Comptes nommés', color: 'var(--red)' }]} />
             <DayBars
               rows={daily.map((row) => ({ ...row, anon: Math.max(0, row.new_players - row.signups) }))}
-              series={[
-                { key: 'signups', label: 'Comptes nommés', color: 'var(--red)' },
-                { key: 'anon', label: 'Restés anonymes', color: 'var(--blue)' },
-              ]}
+              series={ARRIVALS}
+              onPick={pick('Arrivées et inscriptions', ARRIVALS)}
             />
             <p className="note">Un joueur arrive anonyme à sa première ouverture ; l’inscription se date à la confirmation de son adresse.</p>
           </Card>
@@ -318,19 +332,14 @@ function Body({ data: d }: { data: Snapshot }) {
             {tracked ? (
               <>
                 <Legend items={[{ label: 'Avec partie', color: 'var(--green)' }, { label: 'Sans partie', color: 'var(--yellow)' }]} />
-                <DayBars
-                  rows={daily}
-                  series={[
-                    { key: 'sessions_with_run', label: 'Avec partie', color: 'var(--green)' },
-                    { key: 'sessions_without_run', label: 'Sans partie', color: 'var(--yellow)' },
-                  ]}
-                />
+                <DayBars rows={daily} series={SESSIONS} onPick={pick('Ouvertures de l’app', SESSIONS)} />
               </>
             ) : (
               noTrack
             )}
           </Card>
         </div>
+        <p className="note">Touche une barre pour voir les joueurs qu’elle compte.</p>
       </Section>
 
       <Section title="Sessions" mark="var(--yellow)" round aside={<p className="note">{d.days} derniers jours</p>}>
@@ -457,6 +466,10 @@ function Body({ data: d }: { data: Snapshot }) {
         </div>
       </Section>
 
+      {d.prompts && <PromptsSection prompts={d.prompts} />}
+
+      {d.invites && <InvitesSection invites={d.invites} onPick={pick('Invitations', INVITES)} />}
+
       <Section title="Joueurs" mark="var(--pink)">
         <div className="dashboard-grid">
           <Card title="Les plus assidus">
@@ -541,8 +554,311 @@ function Body({ data: d }: { data: Snapshot }) {
         « app. » compte les appareils distincts. Les joueurs maison (Maxitoon, Terretciel) et l’administrateur, appareils compris, sont exclus partout. Chiffres
         calculés par <code>analytics_snapshot</code> à l’ouverture.
       </p>
+      {picked && <SlotSheet key={`${picked.title}:${picked.row.day}:${picked.row.hour}`} picked={picked} load={loadSlot} onClose={() => setPicked(null)} />}
     </div>
   )
+}
+
+/* -------------------------------------------------------------- sections */
+
+function PromptsSection({ prompts }: { prompts: Prompts }) {
+  const t = useT()
+  const [order, setOrder] = useState<'passed' | 'rate'>('passed')
+  const [whole, setWhole] = useState(false)
+  const rows = order === 'passed' ? prompts.most_passed : prompts.worst_rate
+  const shown = whole ? rows : rows.slice(0, 15)
+  const many = prompts.langs.length > 1
+  const pair = (row: PromptRow) => (
+    <>
+      <b className="dashboard-letter">{row.letter}</b> {categoryText(t, row.category).label}
+      {many && <span className="dashboard-tag">{row.lang.toUpperCase()}</span>}
+    </>
+  )
+  return (
+    <Section
+      title="Couples lettre + catégorie"
+      mark="var(--yellow)"
+      aside={
+        <div className="layer-tabs dashboard-range" role="tablist" aria-label="Ordre">
+          {(['passed', 'rate'] as const).map((one) => (
+            <button
+              key={one}
+              type="button"
+              role="tab"
+              aria-selected={order === one}
+              className={`layer-tab${order === one ? ' layer-tab--on' : ''}`}
+              onClick={() => setOrder(one)}
+            >
+              {one === 'passed' ? 'Plus passés' : 'Taux de passe'}
+            </button>
+          ))}
+        </div>
+      }
+    >
+      <div className="dashboard-stats">
+        {prompts.langs.map((lang) => (
+          <Stat
+            key={lang.lang}
+            value={pct(lang.passed, lang.dealt)}
+            label={`passés${many ? ` en ${lang.lang.toUpperCase()}` : ''} · ${fmt(lang.dealt)} tirages, ${fmt(lang.pairs)} couples`}
+          />
+        ))}
+      </div>
+      {rows.length ? (
+        <Table head={['Couple', 'Tirages', 'Apparition', 'Passés', 'Taux de passe', 'Mots / tirage']}>
+          {shown.map((row) => (
+            <tr key={`${row.lang}:${row.category}:${row.letter}`}>
+              <td>{pair(row)}</td>
+              <td className="n">{fmt(row.dealt)}</td>
+              <td className="n">{share(row.dealt, row.lang_dealt)}</td>
+              <td className="n">{fmt(row.passed)}</td>
+              <td className="n">
+                <span className="dashboard-cell" style={{ background: `color-mix(in srgb, var(--red) ${Math.round((row.passed / row.dealt) * 60)}%, transparent)` }}>
+                  {pct(row.passed, row.dealt)}
+                </span>
+              </td>
+              <td className="n">{decimal(Math.round((row.words / row.dealt) * 10) / 10)}</td>
+            </tr>
+          ))}
+        </Table>
+      ) : (
+        <div className="dashboard-empty">Aucun couple assez tiré encore.</div>
+      )}
+      {rows.length > 15 && (
+        <button type="button" className="btn btn--quiet dashboard-more" onClick={() => setWhole(!whole)}>
+          {whole ? 'Voir moins' : `Voir les ${rows.length} couples`}
+        </button>
+      )}
+      <p className="note">
+        Depuis toujours, parties seules seulement : les compteurs du tirage ne savent pas qui a joué. « Apparition » : part des tirages de sa langue.
+        {order === 'rate' && ' Taux de passe classé sur les couples tirés au moins dix fois.'}
+      </p>
+    </Section>
+  )
+}
+
+function InvitesSection({ invites: v, onPick }: { invites: Invites; onPick(row: Day): void }) {
+  const sent = v.mails + v.shares
+  const joins = v.mail_joins + v.link_joins
+  return (
+    <Section title="Invitations" mark="var(--green)" round>
+      <div className="dashboard-stats">
+        <Stat value={fmt(sent)} label={`invitations · ${fmt(v.mails)} mails, ${fmt(v.shares)} liens partagés`} />
+        <Stat value={pct(joins, sent)} label={`converties · ${fmt(joins)} venus`} />
+        <Stat value={pct(v.mail_joins, v.mails)} label={`des mails · ${fmt(v.mail_joins)} venus`} />
+        <Stat value={fmt(v.link_joins)} label={`venus par un lien · ${fmt(v.sharers)} app. ont partagé`} />
+        <Stat value={pct(v.played, joins)} label={`des venus ont joué · ${fmt(v.played)}`} />
+        <Stat value={fmt(v.mails_to_players)} label="mails vers un joueur déjà là" />
+      </div>
+      <div className="dashboard-grid">
+        <Card title="Invitations par jour" tag={`${fmt(sent)} · ${fmt(joins)} venus`}>
+          <Legend items={INVITES.map(({ label, color }) => ({ label, color }))} />
+          <DayBars rows={v.daily} series={INVITES} onPick={onPick} />
+        </Card>
+        <Card title="Meilleurs inviteurs" note="Depuis toujours, classés par joueurs amenés.">
+          {v.top.length ? (
+            <Table head={['Joueur', 'Mails', 'Partages', 'Venus', 'Ont joué', 'Conversion']}>
+              {v.top.map((player, index) => (
+                <tr key={index}>
+                  <td>
+                    {player.name}
+                    {player.anonymous && <span className="dashboard-tag">anonyme</span>}
+                  </td>
+                  <td className="n">{fmt(player.mails)}</td>
+                  <td className="n">{fmt(player.shares)}</td>
+                  <td className="n">{fmt(player.joins)}</td>
+                  <td className="n">{fmt(player.played)}</td>
+                  <td className="n">{pct(player.joins, player.mails + player.shares)}</td>
+                </tr>
+              ))}
+            </Table>
+          ) : (
+            <div className="dashboard-empty">Personne n’a encore invité.</div>
+          )}
+        </Card>
+      </div>
+      <p className="note">
+        Un partage est un toucher sur WhatsApp, Messenger, SMS… dans « Ajouter un ami » ; un mail vers une adresse qui joue déjà n’est qu’une demande d’ami.
+        {v.links_since
+          ? ` Venues par lien comptées depuis le ${new Date(v.links_since).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}.`
+          : ' Les venues par lien se comptent depuis la migration 0036.'}
+      </p>
+    </Section>
+  )
+}
+
+/* -------------------------------------------------- le détail d'une barre */
+
+interface Picked {
+  title: string
+  row: Day
+  series: Series[]
+}
+
+const RUNS: Series[] = [{ key: 'runs', label: 'Parties', color: 'var(--blue)' }]
+const PLAYERS: Series[] = [{ key: 'players', label: 'Joueurs actifs', color: 'var(--green)' }]
+const ARRIVALS: Series[] = [
+  { key: 'signups', label: 'Comptes nommés', color: 'var(--red)' },
+  { key: 'anon', label: 'Restés anonymes', color: 'var(--blue)' },
+]
+const SESSIONS: Series[] = [
+  { key: 'sessions_with_run', label: 'Avec partie', color: 'var(--green)' },
+  { key: 'sessions_without_run', label: 'Sans partie', color: 'var(--yellow)' },
+]
+const INVITES: Series[] = [
+  { key: 'joins', label: 'Venus', color: 'var(--green)' },
+  { key: 'mails', label: 'Mails', color: 'var(--blue)' },
+  { key: 'shares', label: 'Liens partagés', color: 'var(--yellow)' },
+]
+
+/** Qui une série compte : la même règle que la barre, joueur par joueur. */
+const COUNTS: Record<Series['key'], (entry: SlotEntry) => boolean> = {
+  runs: (entry) => !entry.device && entry.runs > 0,
+  players: (entry) => !entry.device && entry.active,
+  signups: (entry) => !entry.device && entry.signed,
+  anon: (entry) => !entry.device && entry.arrived && !entry.signed,
+  sessions_with_run: (entry) => entry.sessions_with_run > 0,
+  sessions_without_run: (entry) => entry.sessions_without_run > 0,
+  mails: (entry) => !entry.device && entry.mails > 0,
+  shares: (entry) => !entry.device && entry.shares > 0,
+  joins: (entry) => !entry.device && entry.invited_by != null,
+}
+
+function SlotSheet({ picked, load, onClose }: { picked: Picked; load: LoadSlot; onClose(): void }) {
+  const { row, series, title } = picked
+  const [entries, setEntries] = useState<SlotEntry[] | null | undefined>(undefined)
+  useEffect(() => {
+    let live = true
+    load(row.day, row.hour).then((found) => live && setEntries(found))
+    return () => {
+      live = false
+    }
+  }, [load, row.day, row.hour])
+  // Échap ferme la feuille, pas tout le tableau de bord qui écoute aussi.
+  useEffect(() => {
+    const close = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.stopImmediatePropagation()
+      onClose()
+    }
+    window.addEventListener('keydown', close, true)
+    return () => window.removeEventListener('keydown', close, true)
+  }, [onClose])
+
+  const counted = entries?.filter((entry) => series.some((one) => COUNTS[one.key](entry))) ?? []
+  const when = row.hour == null ? dayLabel(row.day) : `${dayLabel(row.day)}, ${row.hour} h–${row.hour + 1} h`
+  return createPortal(
+    <div className="dashboard dashboard-slot" data-no-swipe role="dialog" aria-label={`${title}, ${when}`}>
+      <button type="button" className="dashboard-slot-backdrop" aria-label="Fermer le détail" onClick={onClose} />
+      <div className="dashboard-slot-panel">
+        <div className="dashboard-slot-head">
+          <div>
+            <h3>{title}</h3>
+            <p className="note">
+              {when}
+              {series.map((one) => (
+                <span key={one.key}>
+                  {' · '}
+                  {one.label} <b>{fmt(read(row, one.key))}</b>
+                </span>
+              ))}
+            </p>
+          </div>
+          <button type="button" className="btn btn--quiet btn--muted" onClick={onClose}>
+            Fermer
+          </button>
+        </div>
+        {entries === undefined ? (
+          <div className="dashboard-state">
+            <div className="home-loader" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </div>
+          </div>
+        ) : entries === null ? (
+          <div className="dashboard-empty">Détail réservé à l’administrateur (ou serveur injoignable).</div>
+        ) : counted.length === 0 ? (
+          <div className="dashboard-empty">Personne à nommer sur ce créneau.</div>
+        ) : (
+          <ul className="dashboard-people">
+            {counted.map((entry) => (
+              <SlotLine key={entry.key} entry={entry} series={series} />
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+function SlotLine({ entry, series }: { entry: SlotEntry; series: Series[] }) {
+  const marks = series.filter((one) => COUNTS[one.key](entry))
+  const sessions = (entry.sessions_with_run || entry.sessions_without_run) && series.some((one) => one.key.startsWith('sessions'))
+    ? `${fmt(entry.sessions_with_run)} ouverture${entry.sessions_with_run > 1 ? 's' : ''} avec partie, ${fmt(entry.sessions_without_run)} sans`
+    : null
+  if (entry.device) {
+    return (
+      <li className="dashboard-person">
+        <span className="dashboard-person-blank" aria-hidden="true" />
+        <div>
+          <b>{entry.name}</b> <span className="dashboard-tag">sans compte</span>
+          {series.length > 1 && <Marks marks={marks} />}
+          {sessions && <p className="note">{sessions}</p>}
+        </div>
+      </li>
+    )
+  }
+  const did = [
+    entry.runs > 0 && `${fmt(entry.runs)} partie${entry.runs > 1 ? 's' : ''}, meilleure ${fmt(entry.best)}, ${fmt(entry.words)} mots`,
+    sessions,
+    entry.mails > 0 && `${fmt(entry.mails)} mail${entry.mails > 1 ? 's' : ''} d’invitation`,
+    entry.shares > 0 && `${fmt(entry.shares)} lien${entry.shares > 1 ? 's' : ''} partagé${entry.shares > 1 ? 's' : ''}`,
+    entry.invited_by && `invité par ${entry.invited_by}`,
+  ].filter(Boolean)
+  const profile = [
+    `niv. ${levelFor(entry.xp)}`,
+    `${fmt(entry.total_runs)} partie${entry.total_runs > 1 ? 's' : ''}`,
+    `record ${fmt(entry.total_best)}`,
+    `${fmt(entry.words_found)} mots`,
+    `${fmt(entry.friends)} ami${entry.friends > 1 ? 's' : ''}`,
+    `arrivé ${ago(entry.created_at)}`,
+    entry.named_at && !entry.signed && `nommé ${ago(entry.named_at)}`,
+    entry.platform && `${entry.platform === 'android' ? 'Android' : entry.platform === 'web' ? 'Web' : entry.platform} ${entry.version ?? ''}`.trim(),
+    entry.lang?.toUpperCase(),
+  ].filter(Boolean)
+  return (
+    <li className="dashboard-person">
+      <Avatar choice={parseAvatar(entry.avatar)} size="sm" />
+      <div>
+        <b>{entry.name}</b>
+        {entry.anonymous && <span className="dashboard-tag">anonyme</span>}
+        {entry.moderator && <span className="dashboard-tag">modérateur</span>}
+        {entry.arrived && <span className="dashboard-tag">nouveau</span>}
+        {entry.signed && <span className="dashboard-tag">inscrit</span>}
+        {series.length > 1 && <Marks marks={marks} />}
+        {did.length > 0 && <p className="dashboard-person-did">{did.join(' · ')}</p>}
+        <p className="note">{profile.join(' · ')}</p>
+      </div>
+    </li>
+  )
+}
+
+function Marks({ marks }: { marks: Series[] }) {
+  return (
+    <span className="dashboard-marks" aria-label={marks.map((one) => one.label).join(', ')}>
+      {marks.map((one) => (
+        <i key={one.key} style={{ background: one.color }} title={one.label} />
+      ))}
+    </span>
+  )
+}
+
+const share = (part: number, whole: number) => {
+  if (!whole) return '—'
+  const ratio = (part / whole) * 100
+  return `${ratio < 1 ? ratio.toFixed(2).replace('.', ',') : ratio.toFixed(1).replace('.', ',')} %`
 }
 
 /* ------------------------------------------------------------ morceaux */
@@ -702,16 +1018,17 @@ function roundedTop(x: number, base: number, width: number, height: number): str
   return `M${x},${base} v${-(height - r)} q0,${-r} ${r},${-r} h${width - 2 * r} q${r},0 ${r},${r} v${height - r} z`
 }
 
-type Day = (DayRow | HourRow) & { anon?: number; hour?: number }
-
 interface Series {
-  key: 'runs' | 'players' | 'signups' | 'anon' | 'sessions_with_run' | 'sessions_without_run'
+  key: 'runs' | 'players' | 'signups' | 'anon' | 'sessions_with_run' | 'sessions_without_run' | 'mails' | 'shares' | 'joins'
   label: string
   color: string
 }
 
+/** Une colonne : un jour de `daily`, une heure de `today_hourly`, ou un jour d'invitations. */
+type Day = { day: string; hour?: number } & Partial<Record<Series['key'], number>>
+
 /** Une barre par jour ; plusieurs séries s'empilent depuis l'axe. */
-function DayBars({ rows, series }: { rows: readonly Day[]; series: Series[] }) {
+function DayBars({ rows, series, onPick }: { rows: readonly Day[]; series: Series[]; onPick?(row: Day): void }) {
   const H = 170
   const left = 30
   const bottom = 22
@@ -732,7 +1049,7 @@ function DayBars({ rows, series }: { rows: readonly Day[]; series: Series[] }) {
         </g>
       ))}
       {rows.map((row, index) => (
-        <DayColumn key={`${row.day}:${row.hour}`} row={row} index={index} series={series} band={band} left={left} y={y} top={top} height={H - top - bottom} />
+        <DayColumn key={`${row.day}:${row.hour}`} row={row} index={index} series={series} band={band} left={left} y={y} top={top} height={H - top - bottom} onPick={onPick} />
       ))}
       {rows.map((row, index) =>
         (index % every === 0 && rows.length - 1 - index >= every * 0.6) || index === rows.length - 1 ? (
@@ -760,6 +1077,7 @@ function DayColumn({
   y,
   top,
   height,
+  onPick,
 }: {
   row: Day
   index: number
@@ -769,7 +1087,9 @@ function DayColumn({
   y(value: number): number
   top: number
   height: number
+  onPick?(row: Day): void
 }) {
+  const hide = useContext(TipContext)
   const tip = useTip(
     <>
       <b>{row.hour == null ? dayLabel(row.day) : `${row.hour} h–${row.hour + 1} h`}</b>
@@ -804,7 +1124,21 @@ function DayColumn({
           <rect key={one.key} fill={one.color} x={x + (band - width) / 2} y={y0 - h} width={width} height={h} />
         )
       })}
-      <rect className="dashboard-hit" x={x} y={top} width={band} height={height} {...tip} />
+      <rect
+        className={`dashboard-hit${onPick ? ' dashboard-hit--pick' : ''}`}
+        x={x}
+        y={top}
+        width={band}
+        height={height}
+        {...tip}
+        onClick={
+          onPick &&
+          (() => {
+            hide(null)
+            onPick(row)
+          })
+        }
+      />
     </g>
   )
 }

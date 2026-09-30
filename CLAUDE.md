@@ -484,7 +484,12 @@ qu'un nouvel arrivant casserait sans le savoir.
   joueur qui n'est pas administrateur n'y voit que « réservé ». Outil de
   développeur, donc libellés français hors de l'i18n ; les noms de pouvoirs
   et de catégories viennent de l'interface. Une section ajoutée au relevé
-  s'ajoute à `src/debug/snapshot.ts`, puis aux deux vues. Les fonctions
+  s'ajoute à `src/debug/snapshot.ts`, puis aux deux vues. Depuis 0036,
+  `analytics_snapshot` n'est que `analytics_core` (le corps de 0031) fusionné
+  à `analytics_extras` (invitations, couples passés) : une section nouvelle
+  va dans l'une des deux, sans réécrire l'autre. Toucher une barre
+  d'activité ou d'invitations nomme ses joueurs (`admin_slot`), filtrés
+  côté client par la même règle que la série (`COUNTS`). Les fonctions
   `debug_*` (0025, 0026) restent en base, plus aucun écran ne les lit.
 - **Les planches touchées depuis les deux dernières versions livrées sont
   surlignées en rouge, celles que la dernière version n'avait pas en bleu** (`npm run debug:recent`) : le script relit les commits

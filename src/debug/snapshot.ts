@@ -88,4 +88,87 @@ export interface Snapshot {
   top_players: { name: string; runs: number; best: number; anonymous: boolean }[]
   moderation: { votes: number; submitted: number; accepted: number; rejected: number }
   challenges: { created: number; avg_players: number | null; played_share: number | null }
+  /** Absent d'un serveur antérieur à 0036, comme `prompts`. */
+  invites?: Invites
+  prompts?: Prompts
+}
+
+/**
+ * Un mail vers une adresse qui jouait déjà n'est pas une invitation mais une
+ * demande d'ami (`mails_to_players`). Les venues par lien ne se comptent que
+ * depuis `links_since`, la première que `invite_accepts` a retenue.
+ */
+export interface Invites {
+  mails: number
+  mails_to_players: number
+  mail_joins: number
+  shares: number
+  sharers: number
+  link_joins: number
+  played: number
+  links_since: string | null
+  daily: { day: string; mails: number; shares: number; joins: number }[]
+  /** Depuis toujours. */
+  top: { name: string; anonymous: boolean; mails: number; shares: number; joins: number; played: number }[]
+}
+
+export interface PromptRow {
+  lang: string
+  category: string
+  letter: string
+  dealt: number
+  passed: number
+  words: number
+  points: number
+  /** Tous les tirages de sa langue. */
+  lang_dealt: number
+}
+
+/** Les compteurs du tirage (0022), depuis toujours. */
+export interface Prompts {
+  langs: { lang: string; dealt: number; passed: number; pairs: number }[]
+  most_passed: PromptRow[]
+  /** Au moins dix tirages. */
+  worst_rate: PromptRow[]
+}
+
+/** Qui une barre compte (`admin_slot`, 0036) : un joueur, ou un appareil sans compte. */
+export type SlotEntry = SlotPlayer | SlotDevice
+
+export interface SlotPlayer {
+  key: string
+  name: string
+  device?: undefined
+  anonymous: boolean
+  avatar: unknown
+  xp: number
+  total_runs: number
+  total_best: number
+  words_found: number
+  created_at: string
+  named_at: string | null
+  moderator: boolean
+  friends: number
+  lang: string | null
+  platform: string | null
+  version: string | null
+  runs: number
+  best: number | null
+  words: number
+  active: boolean
+  arrived: boolean
+  signed: boolean
+  sessions_with_run: number
+  sessions_without_run: number
+  mails: number
+  shares: number
+  invited_by: string | null
+}
+
+export interface SlotDevice {
+  key: string
+  name: string
+  device: true
+  sessions_with_run: number
+  sessions_without_run: number
 }
