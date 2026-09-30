@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
+import type { AvatarChoice } from '../domain/avatar'
 import { levelFor } from '../domain/progression'
 import { rivalry, type SharedChallenge } from '../domain/rivalry'
 import { formatNumber, useT } from '../i18n'
@@ -32,6 +33,8 @@ function saveSort(sort: FriendSort): void {
 export interface FriendsViewProps {
   /** The player's own account name, the one friends type. */
   name: string
+  /** Worn beside the player's name. */
+  avatar: AvatarChoice
   friends: readonly Friend[] | null | 'loading'
   blocks: readonly BlockedPlayer[]
   /** Who moderates is known to moderators alone: a player would know whom to lobby. */
@@ -57,7 +60,6 @@ export function FriendsView(props: FriendsViewProps) {
   const t = useT()
   const [sort, setSort] = useState<FriendSort>(loadSort)
   const [adding, setAdding] = useState(props.initialSheet !== undefined)
-  const [said, setSaid] = useState<string | null>(null)
 
   const list = props.friends === 'loading' || props.friends === null ? [] : props.friends
   const incoming = list.filter((friend) => friend.relation === 'incoming')
@@ -74,25 +76,19 @@ export function FriendsView(props: FriendsViewProps) {
     setSort(next)
     saveSort(next)
   }
-  const tell = (outcome: ShareOutcome) =>
-    setSaid(outcome === 'copied' ? t.social.copied : outcome === 'failed' ? t.social.shareFailed : null)
-
   return (
     <>
       <div className="friends-me">
+        <Avatar choice={props.avatar} size="md" />
         <span className="friends-me-name">
           <span className="note">{t.social.nameLabel}</span>
           <strong>{props.name}</strong>
         </span>
-        <button
-          type="button"
-          className="btn btn--ghost friends-me-share"
-          onClick={async () => tell(await shareText(t.social.shareName(props.name)))}
-        >
-          {t.social.share}
-        </button>
       </div>
-      {(said ?? props.message) && <p className="note">{said ?? props.message}</p>}
+      <button type="button" className="btn btn--block friends-add" onClick={() => setAdding(true)}>
+        {t.social.add}
+      </button>
+      {props.message && <p className="note">{props.message}</p>}
 
       {props.friends === 'loading' && <p className="note">{t.loading}</p>}
       {props.friends === null && <p className="note note--warn">{t.social.loadFailed}</p>}
@@ -219,9 +215,6 @@ export function FriendsView(props: FriendsViewProps) {
         </details>
       )}
 
-      <button type="button" className="btn btn--block friends-add" onClick={() => setAdding(true)}>
-        {t.social.add}
-      </button>
       {/* Out of the drawer: an animated ancestor would pin the layer to itself instead of the window. */}
       {adding &&
         createPortal(
@@ -266,7 +259,11 @@ function FriendRow({
         <span className="friend-name">
           <span>
             {friend.name}
-            {showModerator && friend.moderator && <span className="friend-moderator">{t.social.moderator}</span>}
+            {showModerator && friend.moderator && (
+              <span className="friend-moderator" title={t.social.moderator} aria-label={t.social.moderator}>
+                {t.social.moderatorShort}
+              </span>
+            )}
           </span>
           <span className="note">
             {t.social.level(levelFor(friend.xp))}

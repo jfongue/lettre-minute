@@ -7,6 +7,7 @@ import {
   bannedOf,
   banVerdict,
   feedbackDue,
+  shareNewsDue,
   FREE_PEEKS,
   hiddenAnswers,
   joinPlus,
@@ -131,4 +132,13 @@ describe('hiddenAnswers', () => {
     expect(answers[0]!.display.toLowerCase()).toBe(`${first.letter}chat`.toLowerCase())
   })
 
+})
+
+describe('shareNewsDue', () => {
+  it('tells a named account at once, anyone else from the fifteenth run, and only once', () => {
+    expect(shareNewsDue(NEW_PROFILE, true, false)).toBe(true)
+    expect(shareNewsDue({ ...NEW_PROFILE, runs: 14 }, false, false)).toBe(false)
+    expect(shareNewsDue({ ...NEW_PROFILE, runs: 15 }, false, false)).toBe(true)
+    expect(shareNewsDue({ ...NEW_PROFILE, runs: 40 }, true, true)).toBe(false)
+  })
 })

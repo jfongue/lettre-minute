@@ -15,6 +15,7 @@ const TUTORIAL_KEY = 'lettre-minute.tutorial.v1'
 const QUIET_SIGN_IN_KEY = 'lettre-minute.quiet-sign-in.v1'
 // The day « Mes demandes » was last opened: its « ! » waits for the next one.
 const QUEUE_SEEN_KEY = 'lettre-minute.queue-seen.v1'
+const SHARE_NEWS_KEY = 'lettre-minute.share-news.v1'
 
 /** A word the player proposed while the dictionary did not know it. */
 export interface PendingSubmission {
@@ -94,6 +95,14 @@ export function loadQueueSeenOn(): string | null {
 
 export function saveQueueSeenOn(day: string): void {
   write(QUEUE_SEEN_KEY, day)
+}
+
+export function loadShareNewsSeen(): boolean {
+  return parsed(SHARE_NEWS_KEY) === true
+}
+
+export function saveShareNewsSeen(): void {
+  write(SHARE_NEWS_KEY, true)
 }
 
 export function loadProfile(): Profile {

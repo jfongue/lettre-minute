@@ -269,6 +269,13 @@ export const nl: Messages = {
     remove: 'Verwijderen',
     keep: 'Houden',
     moderator: 'moderator',
+    moderatorShort: 'M',
+    shareNews: {
+      title: 'Nodig je vrienden uit',
+      lead: 'Je kunt het spel nu met je vrienden delen: steun ons en nodig vrienden uit (alleen op Android-telefoons).',
+      later: 'Later',
+      ok: 'Oké!',
+    },
     elect: 'Moderator maken',
     electLabel: (name) => `${name} voorstellen om moderator te worden`,
     invites: {

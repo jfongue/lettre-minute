@@ -141,3 +141,11 @@ export function feedbackDue(profile: Profile): boolean {
 export function markFeedbackAsked(profile: Profile): Profile {
   return profile.feedbackAskedAt === profile.runs ? profile : { ...profile, feedbackAskedAt: profile.runs }
 }
+
+/** Runs after which even an anonymous player hears that the game can be shared. */
+export const SHARE_NEWS_RUNS = 15
+
+/** The one-time news that friends can now be invited: a named account at once, anyone else after fifteen runs. */
+export function shareNewsDue(profile: Profile, named: boolean, seen: boolean): boolean {
+  return !seen && (named || profile.runs >= SHARE_NEWS_RUNS)
+}

@@ -77,3 +77,34 @@ export function PowerGiftPop({ powerId, onClose }: { powerId: PowerId; onClose()
     </div>
   )
 }
+
+/** Once, on opening the game: friends can now be invited, and « Okay ! » leads to the invitation. */
+export function ShareNewsPop({ onLater, onOpen }: { onLater(): void; onOpen(): void }) {
+  const t = useT()
+  useBackDismiss(onLater)
+  return (
+    <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="share-news-title">
+      <div className="offer-pop-scrim" onClick={onLater} />
+      <div className="offer-pop">
+        <span className="offer-pop-art" aria-hidden="true">
+          <span className="offer-pop-shape offer-pop-shape--circle">
+            <Shape kind="circle" tint="red" />
+          </span>
+          <Burst />
+        </span>
+        <h2 id="share-news-title" className="offer-pop-title">
+          {t.social.shareNews.title}
+        </h2>
+        <p className="note">{t.social.shareNews.lead}</p>
+        <div className="offer-pop-actions">
+          <button type="button" className="btn btn--ghost" onClick={onLater}>
+            {t.social.shareNews.later}
+          </button>
+          <button type="button" className="btn btn--blue" onClick={onOpen}>
+            {t.social.shareNews.ok}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

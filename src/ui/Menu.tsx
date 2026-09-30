@@ -77,6 +77,8 @@ interface MenuProps {
   accountMode?: AccountMode
   /** On the statistics: open straight onto the old challenges. */
   focusChallenges?: boolean
+  /** The Social tab opens on « Ajouter un ami », on the invitation side. */
+  inviteOpen?: boolean
   /** Relit les parties du compte : la page des statistiques la redemande à chaque ouverture. */
   onStatsRefresh(): Promise<unknown>
   /** Friend requests waiting: a dot on the social tab. */
@@ -235,6 +237,8 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
           {pane === 'social' && (
             <SocialPane
               account={props.account}
+              avatar={props.avatar}
+              inviteOpen={props.inviteOpen}
               accountActions={props.accountActions}
               accountMode={props.accountMode}
               moderator={props.moderation?.moderator ?? false}
@@ -289,6 +293,7 @@ function ProfilePane({
   | 'onRequestsOpen'
   | 'onErase'
   | 'focusChallenges'
+  | 'inviteOpen'
   | 'friendRequests'
   | 'onFriends'
   | 'onChallengeFriend'
@@ -350,6 +355,8 @@ function ProfilePane({
 
 function SocialPane({
   account,
+  avatar,
+  inviteOpen,
   accountActions,
   accountMode,
   moderator,
@@ -359,6 +366,8 @@ function SocialPane({
   onChallengeFriend,
 }: {
   account: Account | null
+  avatar: AvatarChoice
+  inviteOpen?: boolean
   accountActions: AccountActions
   /** The account form's opening tab, when it has to be shown here. */
   accountMode?: AccountMode
@@ -477,6 +486,7 @@ function SocialPane({
   return (
     <FriendsView
       name={account.name}
+      avatar={avatar}
       friends={friends}
       blocks={blocks}
       showModerator={moderator}
@@ -489,6 +499,7 @@ function SocialPane({
       onRequest={request}
       onInvite={invite}
       inviteCode={inviteCode}
+      initialSheet={inviteOpen ? 'invite' : undefined}
     />
   )
 }

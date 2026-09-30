@@ -305,6 +305,13 @@ export const fr = {
     remove: 'Retirer',
     keep: 'Garder',
     moderator: 'modérateur',
+    moderatorShort: 'M',
+    shareNews: {
+      title: 'Invite tes amis',
+      lead: 'Il est maintenant possible de partager le jeu avec tes amis : soutiens-nous et invite des amis (uniquement sur mobile Android).',
+      later: 'Plus tard',
+      ok: 'Okay !',
+    },
     elect: 'Élire modérateur',
     electLabel: (name: string) => `Proposer à ${name} de devenir modérateur`,
     invites: {

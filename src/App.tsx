@@ -87,7 +87,7 @@ import { challengeNotice } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { clearInviteRef, keepInviteRef, loadInviteRef, refIn, takeAddressRef } from './state/inviteRef'
 import { createJudge } from './state/judge'
-import { banNews, feedbackDue, hiddenAnswers, playableCategoryIds, plusThanksDue } from './domain/perks'
+import { banNews, feedbackDue, hiddenAnswers, playableCategoryIds, plusThanksDue, shareNewsDue } from './domain/perks'
 import { cloudConfigured } from './lib/supabase'
 import { setTrackLang, setTrackScreen, track, trackFeature, trackReady } from './lib/track'
 import { FeedbackPop } from './ui/FeedbackPop'
@@ -103,6 +103,7 @@ import {
   loadQuietSignInTried,
   saveQuietSignInTried,
   loadQueueSeenOn,
+  loadShareNewsSeen,
   loadSubmissions,
   loadTutorialDone,
   saveAccount,
@@ -110,6 +111,7 @@ import {
   saveHistory,
   saveProfile,
   saveQueueSeenOn,
+  saveShareNewsSeen,
   saveSubmissions,
   saveTutorialDone,
 } from './state/storage'
@@ -120,7 +122,7 @@ import { useElapsed } from './state/useElapsed'
 import type { AccountActions, AccountMode } from './ui/AccountPanel'
 import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
-import { PowerGiftPop, WordsNewsPop } from './ui/WordsNews'
+import { PowerGiftPop, ShareNewsPop, WordsNewsPop } from './ui/WordsNews'
 import type { ChallengeRules } from './ui/ChallengeSetup'
 import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
 import { HomeScreen } from './ui/HomeScreen'
@@ -220,6 +222,11 @@ export function App() {
   const [menuPage, setMenuPage] = useState<MenuPage | null>(null)
   const [menuFocus, setMenuFocus] = useState(false)
   const menuOpen = menuPage !== null
+  const [inviteOpen, setInviteOpen] = useState(false)
+  useEffect(() => {
+    if (!menuOpen) setInviteOpen(false)
+  }, [menuOpen])
+  const [shareNewsSeen, setShareNewsSeen] = useState(loadShareNewsSeen)
   const [accountMode, setAccountMode] = useState<AccountMode>('register')
   // The very first « Jouer » teaches one word before the clock starts; the
   // lesson then stays up while the run loads.
@@ -1297,6 +1304,11 @@ export function App() {
   // exchange: that ask stands in for the regular one if both are due.
   const thanksPop = popsQuiet && cloudConfigured() && plusThanksDue(session.profile)
   const feedbackPop = popsQuiet && feedbackAsk && !thanksPop
+  const shareNewsPop = popsQuiet && !thanksPop && !feedbackPop && shareNewsDue(session.profile, named, shareNewsSeen)
+  const settleShareNews = () => {
+    saveShareNewsSeen()
+    setShareNewsSeen(true)
+  }
 
   if (debugPhase !== null && locale !== null) {
     return (
@@ -1552,6 +1564,17 @@ export function App() {
           <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
         )}
 
+      {shareNewsPop && (
+        <ShareNewsPop
+          onLater={settleShareNews}
+          onOpen={() => {
+            settleShareNews()
+            setInviteOpen(true)
+            setMenuPage('social')
+          }}
+        />
+      )}
+
       {feedbackPop && <FeedbackPop onClose={() => setFeedbackAsk(false)} />}
 
       {thanksPop && (
@@ -1571,6 +1594,7 @@ export function App() {
             profile={session.profile}
             history={history}
             focusChallenges={menuFocus}
+            inviteOpen={inviteOpen}
             onStatsRefresh={loadAccountRuns}
             friendRequests={named ? friendRequests : 0}
             onFriends={takeFriends}

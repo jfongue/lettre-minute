@@ -270,6 +270,13 @@ export const it: Messages = {
     remove: 'Rimuovi',
     keep: 'Tieni',
     moderator: 'moderatore',
+    moderatorShort: 'M',
+    shareNews: {
+      title: 'Invita i tuoi amici',
+      lead: 'Ora puoi condividere il gioco con i tuoi amici: sostienici e invita degli amici (solo su telefoni Android).',
+      later: 'Più tardi',
+      ok: 'Okay!',
+    },
     elect: 'Nomina moderatore',
     electLabel: (name) => `Proponi a ${name} di diventare moderatore`,
     invites: {

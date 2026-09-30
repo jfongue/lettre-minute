@@ -12,7 +12,7 @@ import type { AccountActions } from '../ui/AccountPanel'
 import { ChallengeNotice } from '../ui/ChallengeHome'
 import { ChallengePowers } from '../ui/ChallengePowers'
 import { ChallengeView } from '../ui/ChallengeScreen'
-import { PowerGiftPop, WordsNewsPop } from '../ui/WordsNews'
+import { PowerGiftPop, ShareNewsPop, WordsNewsPop } from '../ui/WordsNews'
 import { HomeScreen, POSTER } from '../ui/HomeScreen'
 import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
@@ -590,6 +590,7 @@ function FriendsScenario({ back, sheet }: { back(): void; sheet?: 'name' | 'invi
         </button>
         <FriendsView
           name="Jérémy"
+          avatar={avatarOf(1, 'rouge', 'jaune', 'bleu')}
           friends={FRIENDS}
           blocks={[{ id: 'kev', name: 'xXkevXx', avatar: avatarOf(3, 'bleu', 'noir', 'jaune') }]}
           showModerator
@@ -1196,6 +1197,14 @@ const SCENARIOS: readonly Scenario[] = [
         onOpen={back}
       />
     ),
+  },
+  {
+    id: 'share-news',
+    group: 'Amis',
+    title: 'Annonce : inviter ses amis',
+    how: 'Une seule fois, à l’ouverture : compte nommé, ou quinzième partie jouée',
+    phase: 'home',
+    render: (back) => <ShareNewsPop onLater={back} onOpen={back} />,
   },
   {
     id: 'words-news-long',
