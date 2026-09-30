@@ -1,4 +1,4 @@
-• Des animations plus fluides, et un accueil qui ne se fige plus au chargement des catégories
-• Le menu se referme en glissant, la barre d’XP se remplit d’un trait, et tes rivaux en défi se doublent en glissant
-• L’onglet Social montre ton avatar, et « Ajouter un ami » juste sous ton nom
-• Les classements de l’accueil gagnent « Plus… », qui ouvre tous les classements
+• Le jeu sonne là où il était muet : menu, champs de texte, fenêtres, envois, réactions et montée au classement
+• Le bilan d’un défi dévoile son classement en musique, jusqu’au gagnant
+• Le tutoriel a ses sons, lui aussi
+• Couleurs tombe moins souvent sur H, P et T, où l’on sèche presque toujours
