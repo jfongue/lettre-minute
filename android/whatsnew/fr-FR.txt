@@ -1,4 +1,3 @@
-• Le jeu sonne là où il était muet : menu, champs de texte, fenêtres, envois, réactions et montée au classement
-• Le bilan d’un défi dévoile son classement en musique, jusqu’au gagnant
-• Le tutoriel a ses sons, lui aussi
-• Couleurs tombe moins souvent sur H, P et T, où l’on sèche presque toujours
+• La notification d’un défi s’efface d’elle-même une fois le défi joué ou son bilan lu
+• Glisser les classements de l’accueil vers « Plus… » ne clignote plus
+• Sur le podium des classements, ta place est encadrée proprement
