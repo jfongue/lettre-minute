@@ -3,6 +3,7 @@
  * and "ELEPHANT " are the same word, so a table never argues about an accent.
  */
 const COMBINING_MARKS = /[̀-ͯ]/g
+const PRINTABLE_ASCII = /^[ -~]*$/
 
 /**
  * Ligatures, the German ß and the barred Nordic and Slavic letters survive NFD
@@ -23,6 +24,9 @@ function expandLigatures(raw: string): string {
 }
 
 export function normalizeWord(raw: string): string {
+  // Plain ASCII has no ligature nor accent to take apart: a dictionary is
+  // mostly that, and each of its words is normalized as it loads.
+  if (PRINTABLE_ASCII.test(raw)) return raw.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
   return expandLigatures(raw)
     .normalize('NFD')
     .replace(COMBINING_MARKS, '')
@@ -43,7 +47,11 @@ export function compactWord(raw: string): string {
 
 /** The letter an answer is judged on: its first alphabetic character, accents removed. */
 export function initialOf(raw: string): string {
-  const normalized = normalizeWord(raw)
+  return initialOfNormalized(normalizeWord(raw))
+}
+
+/** `initialOf`, for a word already through `normalizeWord`. */
+export function initialOfNormalized(normalized: string): string {
   const first = normalized.match(/[a-z]/)
   return first ? first[0].toUpperCase() : ''
 }

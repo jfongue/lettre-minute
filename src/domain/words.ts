@@ -1,4 +1,4 @@
-import { compactWord, initialOf, normalizeWord } from './text'
+import { compactWord, initialOf, initialOfNormalized, normalizeWord } from './text'
 import { COMMUNITY_NOTORIETY } from './rarity'
 
 export interface WordEntry {
@@ -87,10 +87,12 @@ export function buildWordPack(categoryId: string, rows: readonly WordRow[]): Wor
   const byLetter = new Map<string, string[]>()
 
   for (const [display, sitelinks, frequency, canonical = '', views] of rows) {
-    const word = compactWord(display)
+    // Normalized once: a pack of eighty thousand rows paid for it five times.
+    const normalized = normalizeWord(display)
+    const word = normalized.replace(/ /g, '')
     if (word === '' || entries.has(word)) continue
 
-    const key = canonical === '' ? normalizeWord(display) : canonical
+    const key = canonical === '' ? normalized : canonical
     entries.set(word, {
       key,
       display,
@@ -100,7 +102,7 @@ export function buildWordPack(categoryId: string, rows: readonly WordRow[]): Wor
       notoriety: 0,
     })
 
-    const letter = initialOf(display)
+    const letter = initialOfNormalized(normalized)
     if (letter !== '') {
       const bucket = byLetter.get(letter) ?? []
       bucket.push(word)
@@ -113,15 +115,22 @@ export function buildWordPack(categoryId: string, rows: readonly WordRow[]): Wor
     if (letter !== '') counts.set(letter, (counts.get(letter) ?? 0) + 1)
   }
 
+  // Most forms of a word share its key: each key is compacted once.
+  const compacted = new Map<string, string>()
+  const compactKey = (key: string) => {
+    let word = compacted.get(key)
+    if (word === undefined) compacted.set(key, (word = compactWord(key)))
+    return word
+  }
   // The importer's canonical may space the base word differently — "bigeyes"
   // points at "bigeye", the base is "big eye" — and a run compares keys, so a
   // form takes its base's own key or it scores as a second answer.
   for (const entry of entries.values()) {
-    const base = entries.get(compactWord(entry.key))
+    const base = entries.get(compactKey(entry.key))
     if (base && base !== entry) entry.key = base.key
   }
 
-  rankNotoriety(entries)
+  rankNotoriety(entries, compactKey)
   return { categoryId, entries, counts, byLetter }
 }
 
@@ -131,11 +140,14 @@ export function buildWordPack(categoryId: string, rows: readonly WordRow[]): Wor
  * left out — "chats" after "chat" says nothing new.
  */
 export function showcaseWords(pack: WordPack, count: number): string[] {
-  return [...pack.entries.values()]
-    .filter((entry) => entry.key === normalizeWord(entry.display))
-    .sort((a, b) => b.notoriety - a.notoriety)
-    .slice(0, count)
-    .map((entry) => entry.display)
+  // Sorted before it is filtered: the base forms are then looked for among the
+  // best-known words only, not normalized across the whole pack.
+  const shown: string[] = []
+  for (const entry of [...pack.entries.values()].sort((a, b) => b.notoriety - a.notoriety)) {
+    if (shown.length === count) break
+    if (entry.key === normalizeWord(entry.display)) shown.push(entry.display)
+  }
+  return shown
 }
 
 /** The best-known base word on that letter the run has not played yet (by `key`): a debug shortcut's answer. */
@@ -153,19 +165,17 @@ export function commonWord(pack: WordPack, letter: string, played: readonly stri
  * Turns the raw signals into a rank inside the category. Inflected forms borrow
  * the rank of the word they bend: "chats" is exactly as well known as "chat".
  */
-function rankNotoriety(entries: Map<string, WordEntry>): void {
-  const ranked = [...entries.values()].sort(
-    (a, b) => rawFame(a) - rawFame(b),
-  )
+function rankNotoriety(entries: Map<string, WordEntry>, compactKey: (key: string) => string): void {
+  // Each fame read once, not twice per comparison of the sort.
+  const ranked = [...entries.values()].map((entry) => ({ entry, fame: rawFame(entry) })).sort((a, b) => a.fame - b.fame)
   const last = Math.max(1, ranked.length - 1)
-  for (const [index, entry] of ranked.entries()) {
-    const absolute = Math.min(1, Math.max(0, rawFame(entry)))
-    entry.notoriety = (index / last + absolute) / 2
+  for (const [index, { entry, fame }] of ranked.entries()) {
+    entry.notoriety = (index / last + Math.min(1, Math.max(0, fame))) / 2
   }
 
   for (const entry of entries.values()) {
     if (entry.key === '') continue
-    const base = entries.get(compactWord(entry.key))
+    const base = entries.get(compactKey(entry.key))
     if (base && base !== entry) entry.notoriety = base.notoriety
   }
 }
@@ -305,8 +315,11 @@ export const KNOWN_FAME = 0.4
 export function knownByLetter(pack: WordPack): Map<string, number> {
   const known = new Map<string, number>()
   for (const entry of pack.entries.values()) {
-    if (entry.key !== normalizeWord(entry.display) || rawFame(entry) < KNOWN_FAME) continue
-    const letter = initialOf(entry.display)
+    // Fame first: it is cheap, and turns most of the pack away before a normalization.
+    if (rawFame(entry) < KNOWN_FAME) continue
+    const normalized = normalizeWord(entry.display)
+    if (entry.key !== normalized) continue
+    const letter = initialOfNormalized(normalized)
     if (letter !== '') known.set(letter, (known.get(letter) ?? 0) + 1)
   }
   return known
