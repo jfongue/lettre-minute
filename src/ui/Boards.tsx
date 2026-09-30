@@ -60,16 +60,28 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
     }
   }, [me])
 
-  const follow = (element: HTMLDivElement) => {
+  // Back on the last board for when the page closes over the home screen.
+  const settle = (element: HTMLDivElement) => {
+    if (!leaving.current) return
+    leaving.current = false
+    element.scrollTo({ left: (BOARDS.length - 1) * element.clientWidth })
+  }
+
+  const follow = (element: HTMLDivElement, ended = false) => {
     const page = Math.round(element.scrollLeft / element.clientWidth)
     setActive(Math.min(BOARDS.length - 1, page))
-    if (page < BOARDS.length) leaving.current = false
+    // Jumping back while the fling still runs fought the snap: the track
+    // flickered between the two pages under the drawer coming in.
+    if (leaving.current) {
+      if (ended) settle(element)
+      return
+    }
     // Only once the onward page is all but in: a swipe let go halfway snaps back.
-    else if (onAll && !leaving.current && element.scrollLeft >= (BOARDS.length - 0.1) * element.clientWidth) {
+    if (onAll && page >= BOARDS.length && element.scrollLeft >= (BOARDS.length - 0.1) * element.clientWidth) {
       leaving.current = true
       onAll()
-      // Back on the last board for when the page closes over the home screen.
-      element.scrollTo({ left: (BOARDS.length - 1) * element.clientWidth })
+      // WebViews before Chrome 114 never say when the scroll ends.
+      if (!('onscrollend' in window)) setTimeout(() => settle(element), 700)
     }
   }
 
@@ -123,7 +135,7 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
         className="board-track"
         ref={track}
         onScroll={(event) => follow(event.currentTarget)}
-        onScrollEnd={(event) => follow(event.currentTarget)}
+        onScrollEnd={(event) => follow(event.currentTarget, true)}
       >
         {BOARDS.map((board) => {
           const focused = focusedRows(boards[board], me ? [me, ...friends] : friends)
