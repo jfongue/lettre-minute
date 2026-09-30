@@ -1,4 +1,4 @@
-• Mes amis, en plus clair : ton classement entre amis par record, ou de A à Z d’un toucher
-• Invite un ami qui n’a pas le jeu : par WhatsApp, Messenger, Telegram, SMS, Discord ou par e-mail
-• Ton invité devient ton ami dès qu’il crée son compte
-• Le thème Sombre est de retour
+• Des animations plus fluides, et un accueil qui ne se fige plus au chargement des catégories
+• Le menu se referme en glissant, la barre d’XP se remplit d’un trait, et tes rivaux en défi se doublent en glissant
+• L’onglet Social montre ton avatar, et « Ajouter un ami » juste sous ton nom
+• Les classements de l’accueil gagnent « Plus… », qui ouvre tous les classements
