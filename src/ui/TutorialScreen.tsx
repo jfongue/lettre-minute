@@ -4,12 +4,23 @@ import type { Prompt } from '../domain/run'
 import { capitalized, compactWord, initialOf } from '../domain/text'
 import { lookup, type WordPack } from '../domain/words'
 import { categoryText, useT, type Messages } from '../i18n'
-import { sound } from '../lib/sound'
+import { sound, type Timbre } from '../lib/sound'
 import { LetterMark, Shape } from './bauhaus'
 import { categoryMotif } from './motifs'
 
 /** Long enough to enjoy the find, short enough to keep the pace. */
 const SOLVED_MS = 2000
+/** When each label springs up, as `tutorial-tag` in styles.css. */
+const TAG_S = { letter: 1.15, theme: 1.95 }
+/** The top of each of the three `tutorial-beat` pulses on the letter. */
+const BEAT_MS = [3500, 4500, 5500]
+/** When each shape of the solved screen pops in, and its note. */
+const SHAPE_NOTES: readonly { timbre: Timbre; step: number; at: number }[] = [
+  { timbre: 'marimba', step: 5, at: 0.3 },
+  { timbre: 'glass', step: 7, at: 0.38 },
+  { timbre: 'marimba', step: 9, at: 0.46 },
+  { timbre: 'marimba', step: 10, at: 0.54 },
+]
 
 /** Red in the interface's language, on its own initial: « Vermelho » asks for a V. */
 export function tutorialPrompt(t: Messages): Prompt & { answer: string } {
@@ -46,6 +57,20 @@ export function TutorialScreen({ lang, onDone }: TutorialScreenProps) {
     loadPack(lang, categoryId).then(setPack, () => undefined)
   }, [lang, categoryId])
 
+  // Each piece names itself with a note as its label springs up, like the countdown's tiles.
+  useEffect(() => {
+    sound.tile('marimba', 2, TAG_S.letter)
+    sound.tile('glass', 4, TAG_S.theme)
+  }, [])
+
+  // The letter's pulses knock softly, until the player starts typing.
+  const typing = draft !== ''
+  useEffect(() => {
+    if (typing || solved) return
+    const timers = BEAT_MS.map((at) => setTimeout(() => sound.tile('wood', 7), at))
+    return () => timers.forEach(clearTimeout)
+  }, [typing, solved])
+
   useEffect(() => {
     if (!solved) return
     const timer = setTimeout(onDone, SOLVED_MS)
@@ -55,10 +80,18 @@ export function TutorialScreen({ lang, onDone }: TutorialScreenProps) {
   const known = pack && initialOf(draft) === letter ? lookup(pack, draft) : null
   const found = compactWord(draft) === compactWord(answer) ? answer : known ? capitalized(known.display) : null
 
+  // As in the run: the field names the word the moment it is one.
+  const named = found !== null
+  useEffect(() => {
+    if (named && !solved) sound.recognized()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [named])
+
   const submit = () => {
     if (solved) return
     if (found) {
       sound.found(3, 0)
+      SHAPE_NOTES.forEach((note) => sound.tile(note.timbre, note.step, note.at))
       setSolved(found)
       return
     }

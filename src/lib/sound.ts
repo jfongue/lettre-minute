@@ -539,14 +539,22 @@ export const sound = {
       piano(c, deg(step, -1), t, 0.35, sfx, 0.6)
     })
   },
-  /** The pause before the winner: a roll on the wood that tightens and swells. */
-  drumroll(durationS: number): void {
+  /**
+   * The pause before the winner, as a music box winds up: a low pedal on the
+   * fifth, bells ticking in pairs that climb the scale and swell, air rising
+   * behind them — and a breath of silence just before the name, left
+   * unresolved for the fanfare to land on.
+   */
+  suspense(durationS: number): void {
     cue((c, t) => {
-      const end = durationS * 0.9
-      for (let at = 0, gap = 0.13; at < end; at += gap, gap = Math.max(0.035, gap * 0.9)) {
+      const end = durationS - 0.22
+      for (let at = 0; at < end; at += 0.5) pizz(c, deg(3, -2), t + at, 0.45, sfx)
+      for (let at = 0, i = 0; at < end; at += 0.125, i++) {
         const x = at / end
-        wood(c, deg(x < 0.5 ? 0 : 2, -1), t + at, 0.14 + 0.3 * x, sfx)
+        const step = 2 + Math.floor(x * 4) + (i % 2 ? 2 : 0)
+        glock(c, deg(step, 1), t + at, 0.16 + 0.3 * x, sfx)
       }
+      hiss(c, t, 0.08, sfx, 0.09, 'highpass', 3500, 0.8, undefined, end - 0.08)
     })
   },
   /** The winner shown: a fanfare when it is the player, a warm chord for the others' win. */

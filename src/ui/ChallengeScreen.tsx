@@ -461,14 +461,14 @@ export function ChallengeRecap({ detail, suspense = false, onRevealed, onRematch
     onReact,
   )
   const revealed = useReveal(standings.length, suspense, onRevealed)
-  // Each veil lifts on a note one step higher; the winner's waits under a roll.
+  // Each veil lifts on a note one step higher; the winner's waits under a music box winding up.
   const heardVeil = useRef(revealed)
   useEffect(() => {
     if (!suspense || revealed === heardVeil.current) return
     heardVeil.current = revealed
     const count = standings.length
     if (revealed < count) sound.unveil(revealed - 1)
-    if (revealed === count - 1 && count > 1) sound.drumroll(REVEAL_DRUMROLL_MS / 1000)
+    if (revealed === count - 1 && count > 1) sound.suspense(REVEAL_DRUMROLL_MS / 1000)
     if (revealed === count) sound.crowned(standings[0]?.playerId === me?.playerId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [revealed])
