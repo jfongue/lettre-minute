@@ -41,6 +41,8 @@ qu'un nouvel arrivant casserait sans le savoir.
   jamais. Là encore, **jamais un défi ni une
   partie de robot**, qui se rejouent sur chaque appareil et dont le tirage doit
   rester fonction de la graine et des dictionnaires embarqués seuls. Un couple
+  à freiner à la main s'écrit dans `DAMPED_PROMPTS` (`src/domain/prompts.ts`),
+  qui multiplie sa cote dans les parties seules. Un couple
   quitté se lit dans `Run.settled`, pas dans `dealt` — qui est un ensemble, et
   dont le dernier mot est encore à l'écran.
 - **Les dictionnaires sont des tableaux JSON positionnels chargés à la

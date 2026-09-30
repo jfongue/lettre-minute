@@ -77,7 +77,7 @@ import {
 import { complicationDue, type PowerId } from './domain/powers'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
-import type { PromptRecord } from './domain/prompts'
+import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { compactWord, normalizeWord } from './domain/text'
 import { commonWord, withExtraWords } from './domain/words'
@@ -731,7 +731,7 @@ export function App() {
       // A challenge draws from the seed and the embedded dictionaries alone:
       // the crowd's record of a pair would differ from one player to the next.
       const served = packLang === promptStats?.lang ? promptStats.records : undefined
-      return createJudge(packs, usage, t.powers.spells, challenge ? undefined : served)
+      return createJudge(packs, usage, t.powers.spells, challenge ? undefined : served, challenge ? undefined : DAMPED_PROMPTS[packLang])
     },
     [session.profile.usage, crowd, promptStats, lang, t],
   )

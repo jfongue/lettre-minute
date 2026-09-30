@@ -18,8 +18,9 @@ export interface UsageSource {
  * the rules ask questions of. Letters are precomputed once per pack: the field
  * judges every keystroke, and nothing here may walk the word list.
  *
- * `records` are the crowd's tally per pair, in the dictionary's own language.
- * A challenge leaves them out: two players must draw the same prompts, whatever
+ * `records` are the crowd's tally per pair, in the dictionary's own language,
+ * and `damped` the pairs the maintainer slowed by hand (`DAMPED_PROMPTS`). A
+ * challenge leaves both out: two players must draw the same prompts, whatever
  * the crowd did with them since.
  */
 export function createJudge(
@@ -27,6 +28,7 @@ export function createJudge(
   usage: UsageSource,
   spells?: Readonly<Record<Spell, readonly string[]>>,
   records?: Readonly<Record<string, PromptRecord>>,
+  damped?: Readonly<Record<string, number>>,
 ): Judge {
   const byId = new Map(packs.map((pack) => [pack.categoryId, pack]))
   const known = new Map(packs.map((pack) => [pack.categoryId, knownByLetter(pack)]))
@@ -62,14 +64,17 @@ export function createJudge(
     known(categoryId, letter) {
       return known.get(categoryId)?.get(letter) ?? 0
     },
-    ...(records && {
+    ...((records || damped) && {
       pull(categoryId: string, letter: string) {
+        const key = promptKey({ categoryId, letter })
+        const hand = damped?.[key] ?? 1
+        if (!records) return hand
         let baseline = baselines.get(categoryId)
         if (baseline === undefined) {
           baseline = baselinePass((letters.get(categoryId) ?? []).map((id) => records[promptKey({ categoryId, letter: id })]))
           baselines.set(categoryId, baseline)
         }
-        return promptPull(records[promptKey({ categoryId, letter })], baseline)
+        return promptPull(records[key], baseline) * hand
       },
     }),
   }

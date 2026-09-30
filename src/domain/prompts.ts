@@ -21,6 +21,17 @@ export const PULL_MAX = 1.8
 /** Et ce qu'il peut perdre, au plus, quand ils le laissent vide : jamais zéro, il revient toujours. */
 export const PULL_MIN = 0.4
 
+/**
+ * Les couples que le mainteneur freine à la main, par langue : leur cote est
+ * multipliée par ce facteur, en plus de ce qu'en dit la foule. Jamais zéro,
+ * comme la foule. Parties seules seulement : un défi, rejoué sur chaque
+ * appareil, ne tire que selon la graine et les dictionnaires.
+ */
+export const DAMPED_PROMPTS: Readonly<Record<string, Readonly<Record<string, number>>>> = {
+  // Couleurs : peu de teintes évidentes, et la plupart des joueurs passent.
+  fr: { 'couleurs:H': 0.25, 'couleurs:P': 0.25, 'couleurs:T': 0.25 },
+}
+
 /** L'écart à la moyenne de la catégorie qui vaut déjà le maximum : au-delà, la cote ne bouge plus. */
 const FULL_SWING = 0.5
 
