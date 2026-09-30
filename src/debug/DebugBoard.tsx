@@ -644,6 +644,7 @@ function FriendsScenario({ back, sheet }: { back(): void; sheet?: 'name' | 'invi
         <FriendsView
           name="Jérémy"
           avatar={avatarOf(1, 'rouge', 'jaune', 'bleu')}
+          onAvatar={() => setSaid('Ouvrirait l’éditeur d’avatar')}
           friends={FRIENDS}
           blocks={[{ id: 'kev', name: 'xXkevXx', avatar: avatarOf(3, 'bleu', 'noir', 'jaune') }]}
           showModerator

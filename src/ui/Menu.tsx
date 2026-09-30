@@ -245,6 +245,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               accountMode={props.accountMode}
               moderator={props.moderation?.moderator ?? false}
               onProfile={() => open('profile')}
+              onAvatar={props.onAvatar}
               onFriends={props.onFriends}
               onChallenge={props.onChallenge}
               onChallengeFriend={props.onChallengeFriend}
@@ -363,6 +364,7 @@ function SocialPane({
   accountMode,
   moderator,
   onProfile,
+  onAvatar,
   onFriends,
   onChallenge,
   onChallengeFriend,
@@ -376,6 +378,7 @@ function SocialPane({
   /** A moderator can put a friend forward to become one. */
   moderator: boolean
   onProfile(): void
+  onAvatar(): void
   onFriends(friends: readonly Friend[]): void
   onChallenge(id: string): void
   onChallengeFriend(friendId: string): void
@@ -489,6 +492,7 @@ function SocialPane({
     <FriendsView
       name={account.name}
       avatar={avatar}
+      onAvatar={onAvatar}
       friends={friends}
       blocks={blocks}
       showModerator={moderator}

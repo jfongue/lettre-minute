@@ -36,6 +36,7 @@ export interface FriendsViewProps {
   name: string
   /** Worn beside the player's name. */
   avatar: AvatarChoice
+  onAvatar(): void
   friends: readonly Friend[] | null | 'loading'
   blocks: readonly BlockedPlayer[]
   /** Who moderates is known to moderators alone: a player would know whom to lobby. */
@@ -80,7 +81,9 @@ export function FriendsView(props: FriendsViewProps) {
   return (
     <>
       <div className="friends-me">
-        <Avatar choice={props.avatar} size="md" />
+        <button type="button" className="player-avatar" onClick={props.onAvatar} aria-label={t.menu.editAvatarLabel}>
+          <Avatar choice={props.avatar} size="md" />
+        </button>
         <span className="friends-me-name">
           <span className="note">{t.social.nameLabel}</span>
           <strong>{props.name}</strong>
