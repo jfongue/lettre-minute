@@ -3,8 +3,8 @@ import { existsSync, writeFileSync } from 'node:fs'
 import { join, normalize } from 'node:path'
 
 /**
- * Writes the debug scenarios touched since the two last delivered versions —
- * the ones the board highlights in red, so a release is checked without
+ * Writes the debug scenarios touched since the last delivered version — the
+ * ones the board highlights in red, so a release is checked without
  * hunting for what it changed — and those the last delivered version did not
  * have at all, in blue: a new screen is checked whole, not for what moved.
  *
@@ -33,7 +33,7 @@ function releases(): { sha: string; version: string }[] {
     const match = /^Version (\d+\.\d+\.\d+)\b/.exec(subject)
     if (!match) continue
     found.push({ sha, version: match[1] })
-    if (found.length === 3) break
+    if (found.length === 1) break
   }
   return found
 }
@@ -144,17 +144,14 @@ function shown(start: number, end: number): { modules: Set<string>; renders: { s
 
 // ------------------------------------------------------------------ la liste --
 
-const found = releases()
-const delivered = found.slice(0, 2)
-if (delivered.length === 0) {
+const [last] = releases()
+if (!last) {
   console.error('! aucun commit « Version X.Y.Z » : la liste précédente est laissée telle quelle')
   process.exit(1)
 }
 
-// La fenêtre part de la livraison qui précède les deux dernières : ce qu'ont
-// livré la 1.6.1 et la 1.6.2 est tout ce qui a suivi la 1.6.0.
-const older = found[2]
-const base = older ? older.sha : `${delivered[1]?.sha ?? delivered[0].sha}^`
+// La fenêtre part de la dernière livraison : ce qui a changé depuis est ce que la prochaine livrera.
+const base = last.sha
 const files = changedFiles(base)
 const edited = changedLines(base)
 
@@ -166,7 +163,7 @@ function idsIn(text: string): Set<string> {
   return new Set(lines.slice(from, to).flatMap((line) => /^    id: '([\w-]+)',$/.exec(line)?.[1] ?? []))
 }
 // Nouvelle : absente de la dernière version livrée. Une planche nouvelle n'est pas « touchée » en plus.
-const shipped = idsIn(git('show', `${delivered[0].sha}:${BOARD}`))
+const shipped = idsIn(git('show', `${last.sha}:${BOARD}`))
 const fresh = scenarios.map((scenario) => scenario.id).filter((id) => !shipped.has(id))
 
 const recent: string[] = []
@@ -183,22 +180,20 @@ for (const scenario of scenarios) {
   if (screen || block) recent.push(scenario.id)
 }
 
-const versions = delivered.map((release) => release.version).reverse()
 const list = (values: readonly string[]) => values.map((value) => `'${value}'`).join(', ')
 writeFileSync(
   OUT,
   `/*\n` +
-    ` * Écrit par \`npm run debug:recent\` : les planches touchées depuis les deux\n` +
-    ` * dernières versions livrées (${versions.join(', ')}). Le fichier est commité — la\n` +
-    ` * planche et le build n'ont pas besoin de git — et se régénère avant de livrer.\n` +
-    ` * NEW_SCENARIOS : les planches que la ${delivered[0].version} n'avait pas.\n` +
+    ` * Écrit par \`npm run debug:recent\` : les planches touchées depuis la dernière\n` +
+    ` * version livrée (${last.version}). Le fichier est commité — la planche et le\n` +
+    ` * build n'ont pas besoin de git — et se régénère avant de livrer.\n` +
+    ` * NEW_SCENARIOS : les planches que la ${last.version} n'avait pas.\n` +
     ` */\n` +
-    `export const RECENT_VERSIONS: readonly string[] = [${list(versions)}]\n` +
     `export const RECENT_SCENARIOS: readonly string[] = [${list(recent)}]\n` +
-    `export const NEW_SINCE = '${delivered[0].version}'\n` +
+    `export const NEW_SINCE = '${last.version}'\n` +
     `export const NEW_SCENARIOS: readonly string[] = [${list(fresh)}]\n`,
 )
 
-console.log(`→ ${recent.length} planche(s) touchée(s) depuis la ${versions[0]} : ${recent.join(', ') || '—'}`)
-console.log(`→ ${fresh.length} planche(s) nouvelle(s) depuis la ${delivered[0].version} : ${fresh.join(', ') || '—'}`)
-console.log(`  versions livrées : ${versions.join(', ')} ; ${files.size} fichier(s) changé(s)`)
+console.log(`→ ${recent.length} planche(s) touchée(s) depuis la ${last.version} : ${recent.join(', ') || '—'}`)
+console.log(`→ ${fresh.length} planche(s) nouvelle(s) depuis la ${last.version} : ${fresh.join(', ') || '—'}`)
+console.log(`  ${files.size} fichier(s) changé(s)`)

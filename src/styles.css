@@ -5925,7 +5925,7 @@ button.challenge-past::after {
   background: var(--paper-2);
 }
 
-/* Les planches touchées depuis les deux dernières versions livrées : un liseré
+/* Les planches touchées depuis la dernière version livrée : un liseré
    et une pastille, pour savoir quoi revérifier en ouvrant la planche. */
 .debug-item--recent {
   border-color: var(--red);

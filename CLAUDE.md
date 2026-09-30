@@ -491,8 +491,8 @@ qu'un nouvel arrivant casserait sans le savoir.
   d'activité ou d'invitations nomme ses joueurs (`admin_slot`), filtrés
   côté client par la même règle que la série (`COUNTS`). Les fonctions
   `debug_*` (0025, 0026) restent en base, plus aucun écran ne les lit.
-- **Les planches touchées depuis les deux dernières versions livrées sont
-  surlignées en rouge, celles que la dernière version n'avait pas en bleu** (`npm run debug:recent`) : le script relit les commits
+- **Les planches touchées depuis la dernière version livrée sont surlignées
+  en rouge, celles qu'elle n'avait pas en bleu** (`npm run debug:recent`) : le script relit les commits
   « Version X.Y.Z » de git et écrit `src/debug/recent.ts`, à commiter — la
   planche et le build n'ont donc pas besoin de git. Tout se lit dans `HEAD` :
   ce qui n'est pas commité n'est pas livré. Un identifiant de planche reste

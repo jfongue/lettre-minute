@@ -37,7 +37,7 @@ import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
 import type { SlotEntry, Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
-import { NEW_SCENARIOS, NEW_SINCE, RECENT_SCENARIOS, RECENT_VERSIONS } from './recent'
+import { NEW_SCENARIOS, NEW_SINCE, RECENT_SCENARIOS } from './recent'
 import { ban, joinPlus, markBanIntroSeen, spendPeek, unban, type HiddenAnswer } from '../domain/perks'
 import { ownedCategoryIds } from '../domain/unlocks'
 import { CATALOGUE } from '../domain/catalogue'
@@ -1350,7 +1350,7 @@ const SCENARIOS: readonly Scenario[] = [
     ),
   },
   // Les identifiants restent littéraux : `npm run debug:recent` les relit dans
-  // le fichier pour nommer les planches touchées depuis les deux dernières versions.
+  // le fichier pour nommer les planches touchées depuis la dernière version.
   {
     id: 'moderator-level',
     group: 'Modération',
@@ -1762,7 +1762,7 @@ interface DebugBoardProps {
   onPhase(phase: string): void
 }
 
-/** Les planches touchées depuis les deux dernières versions livrées. */
+/** Les planches touchées depuis la dernière version livrée. */
 const RECENT = new Set(RECENT_SCENARIOS)
 /** Les planches que la dernière version livrée n'avait pas : en bleu, avant le rouge. */
 const NEW = new Set(NEW_SCENARIOS)
@@ -1823,7 +1823,7 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
       {recentCount > 0 && (
         <p className="note debug-note">
           En rouge : {recentCount} des {SCENARIOS.length} planches montrent un écran ou un code qui a changé depuis
-          les deux dernières versions livrées ({RECENT_VERSIONS.join(' et ')}). « npm run debug:recent » refait la liste
+          la dernière version livrée ({NEW_SINCE}). « npm run debug:recent » refait la liste
           au moment de livrer.
         </p>
       )}
