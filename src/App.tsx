@@ -122,6 +122,7 @@ import { useElapsed } from './state/useElapsed'
 import type { AccountActions, AccountMode } from './ui/AccountPanel'
 import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
+import { useLeaving } from './ui/useLeaving'
 import { PowerGiftPop, ShareNewsPop, WordsNewsPop } from './ui/WordsNews'
 import type { ChallengeRules } from './ui/ChallengeSetup'
 import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
@@ -202,6 +203,9 @@ const BOARDS_REFRESH_MS = 120_000
 const PACK_WARM_DELAY_MS = 2500
 const PACK_WARM_GAP_MS = 400
 
+/** The drawer's way out, as long as `menu-out` in styles.css. */
+const MENU_LEAVE_MS = 200
+
 export function App() {
   const [session, dispatch] = useReducer(sessionReducer, initialSession(NEW_PROFILE))
   const [startedAt, setStartedAt] = useState<number | null>(null)
@@ -222,6 +226,8 @@ export function App() {
   const [menuPage, setMenuPage] = useState<MenuPage | null>(null)
   const [menuFocus, setMenuFocus] = useState(false)
   const menuOpen = menuPage !== null
+  // Closed, the drawer slides back out before it goes (`.menu-layer--leaving`).
+  const menuLayer = useLeaving(menuPage, MENU_LEAVE_MS)
   const [inviteOpen, setInviteOpen] = useState(false)
   useEffect(() => {
     if (!menuOpen) setInviteOpen(false)
@@ -1587,10 +1593,11 @@ export function App() {
         />
       )}
 
-      {menuOpen && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
+      {menuLayer.shown !== null && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
         <Suspense fallback={null}>
           <Menu
-            page={menuPage}
+            page={menuLayer.shown}
+            leaving={menuLayer.leaving}
             profile={session.profile}
             history={history}
             focusChallenges={menuFocus}

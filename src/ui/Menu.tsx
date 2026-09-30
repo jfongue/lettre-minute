@@ -66,6 +66,8 @@ const PRIVACY_URL = import.meta.env.VITE_PRIVACY_URL || '/confidentialite.html'
 interface MenuProps {
   /** Where the drawer opens: a tab, or one of the profile's pages. */
   page: MenuPage
+  /** Closed, and sliding out: it no longer answers the finger. */
+  leaving?: boolean
   profile: Profile
   /** Newest first, for the statistics. */
   history: readonly RunRecord[]
@@ -116,7 +118,7 @@ interface MenuProps {
   onClose(): void
 }
 
-export function Menu({ onClose, page, ...props }: MenuProps) {
+export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
   const t = useT()
   const [pane, setPane] = useState<MenuPane>(isPane(page) ? page : 'profile')
   const [sub, setSub] = useState<ProfilePage | null>(isPane(page) ? null : page)
@@ -150,7 +152,7 @@ export function Menu({ onClose, page, ...props }: MenuProps) {
   }, [onClose])
 
   return (
-    <div className="menu-layer">
+    <div className={`menu-layer${leaving ? ' menu-layer--leaving' : ''}`}>
       <div className="menu-scrim" onClick={onClose} />
       <aside
         className="menu"

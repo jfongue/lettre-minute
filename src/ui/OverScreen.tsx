@@ -22,7 +22,7 @@ import { RankMove } from './RankMove'
 import { UnlockScreen } from './UnlockScreen'
 import { PowerOfferScreen } from './PowerOfferScreen'
 import { powerPicksOwed } from '../domain/powers'
-import { reducedMotion, useCountUp } from './useCountUp'
+import { reducedMotion, useCountUp, useTween } from './useCountUp'
 import { ShareSoon } from './ShareSoon'
 import { RequestRow, type RequestEntry } from './RequestsPage'
 import { peeksLeft, type HiddenAnswer } from '../domain/perks'
@@ -709,7 +709,7 @@ const XP_DELAY_MS = 450
 
 function XpGain({ from, to }: { from: number; to: number }) {
   const t = useT()
-  const xp = useCountUp(to, XP_MS, from, XP_DELAY_MS)
+  const xp = useTween(to, XP_MS, from, XP_DELAY_MS)
   const progress = levelProgress(xp)
   const levelledUp = progress.level > levelFor(from)
 
@@ -730,7 +730,7 @@ function XpGain({ from, to }: { from: number; to: number }) {
         <span style={{ '--ratio': progress.ratio } as CSSProperties} />
       </div>
       <p className="note">
-        {t.over.towards(progress.into, progress.span, progress.level + 1)}
+        {t.over.towards(Math.floor(progress.into), progress.span, progress.level + 1)}
       </p>
       {levelledUp && (
         <div className="unlock" key={progress.level}>

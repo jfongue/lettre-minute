@@ -10,6 +10,7 @@ import { Avatar } from './Avatar'
 import { Burst, LetterMark, MineMark, TierTag } from './bauhaus'
 import { motifAt } from './motifs'
 import { PowerBadge } from './PowerIcon'
+import { useFlip } from './useFlip'
 
 const URGENT_FROM = 10
 /** Célérité waits this long after the last key, so « Chat » does not cut « Chatte » short. */
@@ -434,10 +435,12 @@ function Feedback({
 function Race({ rivals, avatar, score }: { rivals: readonly Racer[]; avatar: AvatarChoice; score: number }) {
   const t = useT()
   const racers = [...rivals, { id: '', name: t.challenge.you, avatar, score }].sort((a, b) => b.score - a.score)
+  const list = useRef<HTMLOListElement>(null)
+  useFlip(list, racers.map((racer) => racer.id).join(' '))
   return (
-    <ol className="race" aria-label={t.challenge.race}>
+    <ol className="race" aria-label={t.challenge.race} ref={list}>
       {racers.map((racer, index) => (
-        <li key={racer.id} className={`race-entry${racer.id === '' ? ' race-entry--me' : ''}${index === 0 ? ' race-entry--lead' : ''}`}>
+        <li key={racer.id} data-flip={racer.id} className={`race-entry${racer.id === '' ? ' race-entry--me' : ''}${index === 0 ? ' race-entry--lead' : ''}`}>
           <Avatar choice={racer.avatar} size="sm" />
           <span className="race-name">{racer.name}</span>
           <span className="race-score" key={racer.score}>
