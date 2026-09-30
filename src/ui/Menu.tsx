@@ -38,7 +38,7 @@ import { CategoriesPage, type BanActions } from './CategoriesPage'
 import { LeaderboardsPage } from './LeaderboardsPage'
 import { PageLinks } from './PageLinks'
 import { RequestsPage } from './RequestsPage'
-import { StatsPage } from './StatsPage'
+import { StatsPage, type RecapActions } from './StatsPage'
 import { FriendPage } from './FriendPage'
 import { useFriendHistory } from '../state/rivalry'
 import { FriendsView } from './FriendsView'
@@ -83,6 +83,9 @@ interface MenuProps {
   inviteOpen?: boolean
   /** Relit les parties du compte : la page des statistiques la redemande à chaque ouverture. */
   onStatsRefresh(): Promise<unknown>
+  /** The account's older runs, a page at a time; absent without a server. */
+  onStatsOlder?(before: number, limit: number): Promise<RunRecord[] | null>
+  statsRecap: RecapActions
   /** Friend requests waiting: a dot on the social tab. */
   friendRequests: number
   /** Each fresh friend list, for the home screen's dot and the notifications offer. */
@@ -216,6 +219,8 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               focusChallenges={props.focusChallenges}
               onChallenge={props.onChallenge}
               onRefresh={props.onStatsRefresh}
+              loadOlder={props.onStatsOlder}
+              recap={props.statsRecap}
               onBoards={props.account ? () => open('boards', 'stats') : undefined}
             />
           )}

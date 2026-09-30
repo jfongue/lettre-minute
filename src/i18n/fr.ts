@@ -351,9 +351,8 @@ export const fr = {
     best: 'record',
     trend: 'vs les 10 d’avant',
     recent: 'Parties récentes',
-    history: (count: number) => `Tout l’historique (${count})`,
     hideHistory: 'Replier l’historique',
-    more: 'Afficher plus',
+    more: 'Voir plus',
     oldChallenges: (count: number) => `Anciens défis (${count})`,
     wonBy: (name: string) => `${name} a gagné`,
     youWon: 'Tu as gagné',
@@ -365,8 +364,10 @@ export const fr = {
     categoryLine: (runs: number, words: number) =>
       `${runs} ${plural(runs, 'partie', 'parties')} · ${words} ${plural(words, 'mot', 'mots')}`,
     perWord: (points: string) => `${points} pts/mot`,
-    timePerWord: (seconds: string) => `${seconds} s en moyenne pour trouver un mot`,
+    secondsPerWord: (seconds: string) => `${seconds} s/mot`,
+    passRate: (percent: string) => `${percent} % passés`,
     bestWord: (word: string, points: number) => `Meilleur mot : ${word} · ${points} pts`,
+    recapWords: 'Mots dits',
     points: 'pts',
   },
 

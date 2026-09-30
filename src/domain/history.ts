@@ -1,4 +1,4 @@
-import type { Run } from './run'
+import type { Run, SettledPrompt } from './run'
 
 export interface PlayedWord {
   categoryId: string
@@ -19,6 +19,8 @@ export interface RunRecord {
   skips: number
   categoryIds: readonly string[]
   words: readonly PlayedWord[]
+  /** The prompts the run moved on from, in order; absent from runs recorded before it was kept. */
+  prompts?: readonly SettledPrompt[]
 }
 
 export function recordOf(run: Run, at: number, lang: string): RunRecord {
@@ -36,6 +38,7 @@ export function recordOf(run: Run, at: number, lang: string): RunRecord {
       points: found.points,
       seconds: found.seconds,
     })),
+    prompts: run.settled,
   }
 }
 
@@ -85,7 +88,16 @@ export function parseRecord(raw: unknown): RunRecord | null {
       const seconds = count(played.seconds)
       return [{ categoryId: played.categoryId, word: played.word, display: played.display, points, ...(seconds === null ? {} : { seconds }) }]
     }),
+    ...(Array.isArray(value.prompts) ? { prompts: value.prompts.flatMap(parseSettled) } : {}),
   }
+}
+
+function parseSettled(raw: unknown): SettledPrompt[] {
+  if (!raw || typeof raw !== 'object') return []
+  const settled = raw as Record<string, unknown>
+  const prompt = (settled.prompt ?? {}) as Record<string, unknown>
+  if (typeof prompt.categoryId !== 'string' || typeof prompt.letter !== 'string' || typeof settled.passed !== 'boolean') return []
+  return [{ prompt: { categoryId: prompt.categoryId, letter: prompt.letter }, passed: settled.passed }]
 }
 
 // Une partie remontée du serveur porte l'instant que son appareil lui a donné ;
@@ -127,6 +139,8 @@ export interface CategoryStats {
   bestWord: PlayedWord | null
   /** Mean seconds from a prompt to the word that answered it; null until a timed word is recorded. */
   averageSeconds: number | null
+  /** Share of its prompts left without a word, from 0 to 1; null until a run records its prompts. */
+  passRate: number | null
 }
 
 export interface Summary {
@@ -140,7 +154,11 @@ export interface Summary {
 }
 
 export const RECENT_RUNS = 10
-export const TOP_WORDS = 3
+/** The words said more than twice, the ten most said at most. */
+export const TOP_WORDS = 10
+export const TOP_WORD_MIN_COUNT = 3
+/** Fewer repeated words than this say nothing about the player: the list stays hidden. */
+export const TOP_WORDS_SHOWN = 3
 
 /**
  * Ce que la page liste sans qu'on le demande : les figures restent sur les dix
@@ -166,16 +184,23 @@ export function summarize(history: readonly RunRecord[]): Summary {
   const counts = new Map<string, WordCount>()
   const categories = new Map<string, CategoryStats>()
   const timing = new Map<string, { words: number; seconds: number }>()
+  const passing = new Map<string, { prompts: number; passed: number }>()
   const category = (id: string) => {
     let stats = categories.get(id)
     if (!stats) {
-      categories.set(id, (stats = { categoryId: id, runs: 0, words: 0, points: 0, bestWord: null, averageSeconds: null }))
+      categories.set(id, (stats = { categoryId: id, runs: 0, words: 0, points: 0, bestWord: null, averageSeconds: null, passRate: null }))
     }
     return stats
   }
 
   for (const run of history) {
     for (const id of run.categoryIds) category(id).runs++
+    for (const { prompt, passed } of run.prompts ?? []) {
+      const tally = passing.get(prompt.categoryId) ?? { prompts: 0, passed: 0 }
+      tally.prompts++
+      if (passed) tally.passed++
+      passing.set(prompt.categoryId, tally)
+    }
     for (const played of run.words) {
       const key = `${run.lang}:${played.word}`
       const count = counts.get(key)
@@ -196,12 +221,14 @@ export function summarize(history: readonly RunRecord[]): Summary {
     }
   }
   for (const [id, timed] of timing) category(id).averageSeconds = timed.seconds / timed.words
+  for (const [id, tally] of passing) category(id).passRate = tally.passed / tally.prompts
+  const repeated = [...counts.values()].filter((word) => word.count >= TOP_WORD_MIN_COUNT).sort((a, b) => b.count - a.count)
 
   return {
     recent,
     recentAverage: mean(recent),
     trend: recent.length > 0 && before.length > 0 ? mean(recent) - mean(before) : null,
-    topWords: [...counts.values()].sort((a, b) => b.count - a.count).slice(0, TOP_WORDS),
+    topWords: repeated.length >= TOP_WORDS_SHOWN ? repeated.slice(0, TOP_WORDS) : [],
     categories: [...categories.values()].sort((a, b) => b.points - a.points || b.runs - a.runs),
   }
 }

@@ -234,6 +234,47 @@ function langOf(values: readonly string[]): string {
   return 'fr'
 }
 
+function recordOfRow(row: StoredRun): RunRecord | null {
+  const record = parseRecord(row.record)
+  if (record) return record
+  const played = (row.run_words ?? []).map((word) => ({ word: word.word, categoryId: word.category_id, points: Number(word.points) || 0 }))
+  const lang = langOf(played.map((entry) => entry.categoryId))
+  const category = (value: string) => unscoped(lang, value) ?? value
+  return {
+    at: Date.parse(row.created_at) || 0,
+    lang,
+    score: Number(row.score) || 0,
+    bestCombo: Number(row.best_combo) || 0,
+    skips: Number(row.skips) || 0,
+    categoryIds: [...new Set(played.map((entry) => category(entry.categoryId)))],
+    words: played.map((entry) => ({ categoryId: category(entry.categoryId), word: category(entry.word), display: category(entry.word), points: entry.points })),
+  }
+}
+
+/**
+ * One page of the account's runs older than `before`, newest first: the
+ * statistics' history reaches back through every device, thirty at a time.
+ * Null when the server does not answer, and for a player without an account.
+ */
+export function fetchRunsBefore(before: number, limit: number): Promise<RunRecord[] | null> {
+  return guard(async () => {
+    const identity = await connect()
+    if (!identity) return null
+    const read = (columns: string) =>
+      supabase!
+        .from('runs')
+        .select(columns)
+        .eq('player_id', identity.userId)
+        .lt('created_at', new Date(before).toISOString())
+        .order('created_at', { ascending: false })
+        .limit(limit)
+    let page = await read(RUN_COLUMNS)
+    if (page.error) page = await read(RUN_COLUMNS_WITHOUT_RECORD)
+    if (page.error) return null
+    return ((page.data ?? []) as unknown as StoredRun[]).map(recordOfRow).filter((record): record is RunRecord => record !== null)
+  }, null)
+}
+
 /**
  * Les parties du joueur telles que le serveur les garde : au moins les vingt
  * dernières ou les trois derniers jours, la plus large des deux, pour que la
@@ -261,22 +302,7 @@ export function fetchMyRuns(): Promise<RunRecord[] | null> {
     ]
 
     return rows
-      .map((row): RunRecord | null => {
-        const record = parseRecord(row.record)
-        if (record) return record
-        const played = (row.run_words ?? []).map((word) => ({ word: word.word, categoryId: word.category_id, points: Number(word.points) || 0 }))
-        const lang = langOf(played.map((entry) => entry.categoryId))
-        const category = (value: string) => unscoped(lang, value) ?? value
-        return {
-          at: Date.parse(row.created_at) || 0,
-          lang,
-          score: Number(row.score) || 0,
-          bestCombo: Number(row.best_combo) || 0,
-          skips: Number(row.skips) || 0,
-          categoryIds: [...new Set(played.map((entry) => category(entry.categoryId)))],
-          words: played.map((entry) => ({ categoryId: category(entry.categoryId), word: category(entry.word), display: category(entry.word), points: entry.points })),
-        }
-      })
+      .map(recordOfRow)
       .filter((record): record is RunRecord => record !== null)
       .sort((one, other) => other.at - one.at)
   }, null)

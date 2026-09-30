@@ -14,19 +14,44 @@ function record(score: number, words: [categoryId: string, word: string, points:
 }
 
 describe('summarize', () => {
-  it('ranks the words said most often, per language', () => {
-    const history = [
-      record(30, [['animaux', 'chat', 10], ['animaux', 'chien', 10]]),
-      record(20, [['animaux', 'chat', 10]]),
-      record(20, [['animaux', 'chat', 10]], 'en'),
-      record(10, [['pays', 'chili', 10], ['animaux', 'chien', 10]]),
-    ]
+  it('ranks the words said more than twice, per language', () => {
+    const said = (word: string, times: number, lang = 'fr') =>
+      Array.from({ length: times }, () => record(10, [['animaux', word, 10]], lang))
+    const history = [...said('chat', 4), ...said('chien', 3), ...said('chat', 3, 'en'), ...said('lion', 2)]
     const { topWords } = summarize(history)
     expect(topWords.map((word) => [word.word, word.count])).toEqual([
-      ['chat', 2],
-      ['chien', 2],
-      ['chat', 1],
+      ['chat', 4],
+      ['chien', 3],
+      ['chat', 3],
     ])
+  })
+
+  it('keeps the list hidden with fewer than three repeated words, and to ten at most', () => {
+    const said = (word: string, times: number) => Array.from({ length: times }, () => record(10, [['animaux', word, 10]]))
+    expect(summarize([...said('chat', 5), ...said('chien', 3), ...said('lion', 2)]).topWords).toEqual([])
+    const many = Array.from({ length: 12 }, (_, index) => said(`mot${index}`, 3)).flat()
+    expect(summarize(many).topWords).toHaveLength(10)
+  })
+
+  it('counts the prompts each category left without a word', () => {
+    const run = {
+      ...record(10, [['pays', 'chili', 10]]),
+      prompts: [
+        { prompt: { categoryId: 'pays', letter: 'C' }, passed: false },
+        { prompt: { categoryId: 'pays', letter: 'Z' }, passed: true },
+        { prompt: { categoryId: 'pays', letter: 'X' }, passed: true },
+        { prompt: { categoryId: 'pays', letter: 'B' }, passed: false },
+      ],
+    }
+    const { categories } = summarize([run, record(10, [['animaux', 'chat', 10]])])
+    expect(categories.find((stats) => stats.categoryId === 'pays')?.passRate).toBe(0.5)
+    expect(categories.find((stats) => stats.categoryId === 'animaux')?.passRate).toBeNull()
+  })
+
+  it('reads back the prompts a record kept, and none from an older one', () => {
+    const prompts = [{ prompt: { categoryId: 'pays', letter: 'C' }, passed: true }]
+    expect(parseRecord(JSON.parse(JSON.stringify({ ...record(10), prompts })))?.prompts).toEqual(prompts)
+    expect(parseRecord(JSON.parse(JSON.stringify(record(10))))?.prompts).toBeUndefined()
   })
 
   it('totals each category and keeps its best word', () => {

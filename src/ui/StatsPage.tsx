@@ -1,17 +1,19 @@
 import { useEffect, useMemo, useRef, useState, type Ref } from 'react'
-import { listedHistory, summarize, type RunRecord } from '../domain/history'
-import { capitalized } from '../domain/text'
+import { listedHistory, mergeHistory, summarize, type RunRecord } from '../domain/history'
+import type { HiddenAnswer } from '../domain/perks'
+import { capitalized, normalizeWord } from '../domain/text'
 import type { Profile } from '../domain/progression'
 import { categoryText, formatNumber, useT, type Messages } from '../i18n'
-import { Figure } from './bauhaus'
+import { Figure, LetterMark } from './bauhaus'
+import { HiddenAnswers } from './HiddenAnswers'
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
 import { fetchChallenge, type ChallengeSummary } from '../lib/cloud'
 import { challengeTitle, isHidden, loadWinners, rememberWinner, winnerOf, type ChallengeWinner } from '../state/challenges'
 import { useHiddenChallenges } from '../state/useHiddenChallenges'
 
-/** Rows added each time the full history is asked for more. */
-const PAGE = 50
+/** Rows added each time the history is asked for more, from the device or the account. */
+const PAGE = 30
 
 function formatDate(t: Messages, at: number): string {
   return new Date(at).toLocaleString(t.tag, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
@@ -29,10 +31,33 @@ interface StatsPageProps {
   onRefresh?(): Promise<unknown>
   /** Absent without a server, which keeps no leaderboard. */
   onBoards?(): void
+  /** The account's runs older than `before`, one page at a time; absent without a server. */
+  loadOlder?(before: number, limit: number): Promise<RunRecord[] | null>
+  /** What a past run's summary needs to show the words it could have taken. */
+  recap: RecapActions
 }
 
-export function StatsPage({ history, profile, challenges, focusChallenges = false, onChallenge, onRefresh, onBoards }: StatsPageProps) {
+export interface RecapActions {
+  /** The words the run's skipped prompts still had, read from its dictionaries. */
+  hiddenFor(run: RunRecord): Promise<readonly HiddenAnswer[]>
+  peeks: number
+  onPeek(): void
+  onJoinPlus(): void
+}
+
+export function StatsPage({
+  history,
+  profile,
+  challenges,
+  focusChallenges = false,
+  onChallenge,
+  onRefresh,
+  onBoards,
+  loadOlder,
+  recap,
+}: StatsPageProps) {
   const t = useT()
+  const [opened, setOpened] = useState<RunRecord | null>(null)
   // Une lecture en cours ne dit pas « tu n'as rien joué » : elle attend son
   // tour. Sans rappel, la page n'a que ce que l'appareil a gardé.
   const [reading, setReading] = useState(Boolean(onRefresh) && history.length === 0)
@@ -48,6 +73,7 @@ export function StatsPage({ history, profile, challenges, focusChallenges = fals
     }
   }, [onRefresh])
 
+  if (opened) return <RunRecap run={opened} actions={recap} onBack={() => setOpened(null)} />
   return (
     <>
       {onBoards && (
@@ -58,7 +84,7 @@ export function StatsPage({ history, profile, challenges, focusChallenges = fals
       {history.length === 0 ? (
         <p className="note">{reading ? t.loading : t.stats.empty}</p>
       ) : (
-        <RunStats history={history} profile={profile} />
+        <RunStats history={history} profile={profile} loadOlder={loadOlder} onOpen={setOpened} />
       )}
       {challenges && <OldChallenges challenges={challenges} focus={focusChallenges} onOpen={onChallenge} />}
     </>
@@ -172,16 +198,51 @@ export function OldChallengeList({
   )
 }
 
-function RunStats({ history, profile }: { history: readonly RunRecord[]; profile: Profile }) {
+function RunStats({
+  history,
+  profile,
+  loadOlder,
+  onOpen,
+}: {
+  history: readonly RunRecord[]
+  profile: Profile
+  loadOlder?: StatsPageProps['loadOlder']
+  onOpen(run: RunRecord): void
+}) {
   const t = useT()
   const summary = useMemo(() => summarize(history), [history])
   const [shown, setShown] = useState(0)
+  const [fetched, setFetched] = useState<readonly RunRecord[]>([])
+  const [exhausted, setExhausted] = useState(!loadOlder)
+  const [loading, setLoading] = useState(false)
+  // The account's page is asked from the last one it gave, not from the
+  // device's oldest: a page made only of runs the device already had would
+  // otherwise be asked for again and again.
+  const cursor = useRef<number | null>(null)
 
+  const all = useMemo(() => (fetched.length > 0 ? mergeHistory(history, fetched) : [...history]), [history, fetched])
   const trend = summary.trend === null ? null : Math.round(summary.trend)
-  const listed = listedHistory(history)
-  const older = history.slice(listed.length)
+  const listed = listedHistory(all)
+  const older = all.slice(listed.length)
   // The profile's record may predate the history, and a merged account's may come from elsewhere.
   const best = Math.max(profile.bestScore, ...history.map((run) => run.score))
+
+  const more = () => {
+    const next = shown + PAGE
+    setShown(next)
+    if (older.length >= next || exhausted || loading || !loadOlder) return
+    const before = Math.min(cursor.current ?? Infinity, all[all.length - 1]?.at ?? Date.now())
+    setLoading(true)
+    loadOlder(before, PAGE)
+      .then((page) => {
+        if (!page) return
+        if (page.length < PAGE) setExhausted(true)
+        const last = page[page.length - 1]
+        if (last) cursor.current = last.at
+        setFetched((current) => [...current, ...page])
+      })
+      .finally(() => setLoading(false))
+  }
 
   return (
     <>
@@ -195,34 +256,33 @@ function RunStats({ history, profile }: { history: readonly RunRecord[]; profile
 
       <section className="stack">
         <p className="section-title">{t.stats.recent}</p>
-        <RunList runs={listed} />
-        {older.length > 0 && (
-          <>
-            {shown > 0 && <RunList runs={older.slice(0, shown)} />}
-            <div className="stats-more">
-              {shown < older.length && (
-                <button type="button" className="btn btn--quiet menu-start" onClick={() => setShown(shown + PAGE)}>
-                  {shown === 0 ? t.stats.history(history.length) : t.stats.more}
-                </button>
-              )}
-              {shown > 0 && (
-                <button type="button" className="btn btn--quiet btn--muted menu-start" onClick={() => setShown(0)}>
-                  {t.stats.hideHistory}
-                </button>
-              )}
-            </div>
-          </>
+        <RunList runs={listed} onOpen={onOpen} />
+        {shown > 0 && <RunList runs={older.slice(0, shown)} onOpen={onOpen} />}
+        {loading && <p className="note">{t.loading}</p>}
+        {(shown < older.length || !exhausted || shown > 0) && (
+          <div className="stats-more">
+            {(shown < older.length || !exhausted) && !loading && (
+              <button type="button" className="btn btn--quiet menu-start" onClick={more}>
+                {t.stats.more}
+              </button>
+            )}
+            {shown > 0 && (
+              <button type="button" className="btn btn--quiet btn--muted menu-start" onClick={() => setShown(0)}>
+                {t.stats.hideHistory}
+              </button>
+            )}
+          </div>
         )}
       </section>
 
       {summary.topWords.length > 0 && (
         <section className="stack">
           <p className="section-title">{t.stats.topWords}</p>
-          <ol className="podium">
+          <ol className="top-words">
             {summary.topWords.map((word, index) => (
-              <li key={`${word.word}-${index}`} className={`podium-step podium-step--${index + 1}`}>
-                <span className="podium-rank">{index + 1}</span>
-                <span className="podium-word">{capitalized(word.display)}</span>
+              <li key={`${word.word}-${index}`}>
+                <span className="top-words-rank">{index + 1}</span>
+                <span className="top-words-word">{capitalized(word.display)}</span>
                 <span className="note">{t.stats.times(word.count)}</span>
               </li>
             ))}
@@ -233,29 +293,35 @@ function RunStats({ history, profile }: { history: readonly RunRecord[]; profile
       {summary.categories.length > 0 && (
         <section className="stack">
           <p className="section-title">{t.stats.byCategory}</p>
-          <ul className="categories category-stats">
+          <ul className="category-stats">
             {summary.categories.map((stats) => {
               const motif = categoryMotif(stats.categoryId)
+              const decimal = (value: number) => value.toLocaleString(t.tag, { maximumFractionDigits: 1 })
               const perWord = stats.words > 0 ? stats.points / stats.words : 0
               return (
                 <li key={stats.categoryId}>
-                  <CategoryIcon categoryId={stats.categoryId} tint={motif.tint} className="category-shape" />
-                  <span className="category-stats-body">
-                    <span className="category-label">{categoryText(t, stats.categoryId).label}</span>
-                    <span className="note">{t.stats.categoryLine(stats.runs, stats.words)}</span>
-                    {stats.bestWord && (
-                      <span className="note">{t.stats.bestWord(capitalized(stats.bestWord.display), stats.bestWord.points)}</span>
-                    )}
+                  <span className="category-stats-head">
+                    <CategoryIcon categoryId={stats.categoryId} tint={motif.tint} className="category-shape" />
+                    <span className="category-stats-name">
+                      <span className="category-label">{categoryText(t, stats.categoryId).label}</span>
+                      <span className="note">{t.stats.categoryLine(stats.runs, stats.words)}</span>
+                    </span>
+                    <strong className="category-stats-points">
+                      {formatNumber(t, stats.points)} <small>{t.stats.points}</small>
+                    </strong>
+                  </span>
+                  <span className="category-stats-chips">
+                    <span className="category-stats-chip">{t.stats.perWord(decimal(perWord))}</span>
                     {stats.averageSeconds !== null && (
-                      <span className="note">
-                        {t.stats.timePerWord(stats.averageSeconds.toLocaleString(t.tag, { maximumFractionDigits: 1 }))}
-                      </span>
+                      <span className="category-stats-chip">{t.stats.secondsPerWord(decimal(stats.averageSeconds))}</span>
+                    )}
+                    {stats.passRate !== null && (
+                      <span className="category-stats-chip">{t.stats.passRate(formatNumber(t, Math.round(stats.passRate * 100)))}</span>
                     )}
                   </span>
-                  <span className="category-stats-figure">
-                    <strong>{formatNumber(t, stats.points)}</strong>
-                    <span className="note">{t.stats.perWord(perWord.toLocaleString(t.tag, { maximumFractionDigits: 1 }))}</span>
-                  </span>
+                  {stats.bestWord && (
+                    <span className="note">{t.stats.bestWord(capitalized(stats.bestWord.display), stats.bestWord.points)}</span>
+                  )}
                 </li>
               )
             })}
@@ -268,19 +334,77 @@ function RunStats({ history, profile }: { history: readonly RunRecord[]; profile
   )
 }
 
-function RunList({ runs }: { runs: readonly RunRecord[] }) {
+function RunList({ runs, onOpen }: { runs: readonly RunRecord[]; onOpen(run: RunRecord): void }) {
   const t = useT()
   return (
     <ul className="run-list">
       {runs.map((run) => (
-        <li key={`${run.at}-${run.score}`}>
-          <span className="run-list-when note">{formatDate(t, run.at)}</span>
-          <span className="note">{t.stats.runLine(run.words.length, run.bestCombo)}</span>
-          <strong className="run-list-score">
-            {formatNumber(t, run.score)} <small>{t.stats.points}</small>
-          </strong>
+        <li key={`${run.at}-${run.score}`} className="run-list-item">
+          <button type="button" className="run-list-open" onClick={() => onOpen(run)}>
+            <span className="run-list-when note">{formatDate(t, run.at)}</span>
+            <span className="note">{t.stats.runLine(run.words.length, run.bestCombo)}</span>
+            <strong className="run-list-score">
+              {formatNumber(t, run.score)} <small>{t.stats.points}</small>
+            </strong>
+          </button>
         </li>
       ))}
     </ul>
+  )
+}
+
+/** A past run's summary: the words it found, then those its skipped prompts still had. */
+function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActions; onBack(): void }) {
+  const t = useT()
+  // Runs recorded before their prompts were kept have nothing to hide.
+  const [hidden, setHidden] = useState<readonly HiddenAnswer[] | null>(run.prompts ? null : [])
+  const hiddenFor = useRef(actions.hiddenFor)
+
+  useEffect(() => {
+    if (!run.prompts) return
+    let live = true
+    hiddenFor.current(run)
+      .then((answers) => live && setHidden(answers))
+      .catch(() => live && setHidden([]))
+    return () => {
+      live = false
+    }
+  }, [run])
+
+  return (
+    <div className="stack run-recap">
+      <button type="button" className="btn btn--quiet menu-start run-recap-back" onClick={onBack}>
+        ← {t.menu.back}
+      </button>
+      <header className="run-recap-head">
+        <span className="note">{formatDate(t, run.at)}</span>
+        <strong className="run-recap-score">
+          {formatNumber(t, run.score)} <small>{t.stats.points}</small>
+        </strong>
+        <span className="note">{t.stats.runLine(run.words.length, run.bestCombo)}</span>
+      </header>
+      {run.words.length > 0 && (
+        <section className="stack">
+          <p className="section-title">{t.stats.recapWords}</p>
+          <ol className="reveal-words">
+            {run.words.map((word, index) => (
+              <li key={`${word.word}-${index}`} className="reveal-word">
+                <LetterMark letter={normalizeWord(word.display).charAt(0).toUpperCase()} motif={categoryMotif(word.categoryId)} size="sm" />
+                <span className="reveal-word-text">
+                  {capitalized(word.display)}
+                  <span className="reveal-word-category">{categoryText(t, word.categoryId).label}</span>
+                </span>
+                <span className="reveal-word-points">+{formatNumber(t, word.points)}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+      {hidden === null ? (
+        <p className="note">{t.loading}</p>
+      ) : (
+        hidden.length > 0 && <HiddenAnswers hidden={hidden} peeks={actions.peeks} onPeek={actions.onPeek} onJoinPlus={actions.onJoinPlus} />
+      )}
+    </div>
   )
 }

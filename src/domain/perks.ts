@@ -1,5 +1,5 @@
 import type { Profile } from './progression'
-import { promptKey, type Judge, type Prompt, type Run } from './run'
+import { promptKey, type Judge, type Prompt, type Run, type SettledPrompt } from './run'
 
 /** Owned categories from which one may be banned from the draw. */
 export const BAN_UNLOCK_CATEGORIES = 7
@@ -120,13 +120,18 @@ export interface HiddenAnswer {
  * once; a pair with nothing left is left out.
  */
 export function hiddenAnswers(run: Run, judge: Judge): HiddenAnswer[] {
+  return hiddenAnswersOf(run.settled, run.used, judge)
+}
+
+/** The same, from what a run left behind: its settled prompts and the keys it played. */
+export function hiddenAnswersOf(settled: readonly SettledPrompt[], used: readonly string[], judge: Judge): HiddenAnswer[] {
   const seen = new Set<string>()
   const answers: HiddenAnswer[] = []
-  for (const { prompt, passed } of run.settled) {
+  for (const { prompt, passed } of settled) {
     const key = promptKey(prompt)
     if (!passed || seen.has(key)) continue
     seen.add(key)
-    const display = judge.common?.(prompt.categoryId, prompt.letter, run.used) ?? null
+    const display = judge.common?.(prompt.categoryId, prompt.letter, used) ?? null
     if (display) answers.push({ prompt, display })
   }
   return answers

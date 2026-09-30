@@ -2303,12 +2303,37 @@ button.challenge-past::after {
 }
 
 .run-list li {
+  border-bottom: 1px solid var(--rule);
+}
+
+.run-list li,
+.run-list-open {
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: baseline;
   gap: 0.75rem;
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--rule);
+}
+
+/* Une partie récente s'ouvre sur son récap : toute la ligne est le bouton. */
+.run-list li.run-list-item {
+  display: block;
+  padding: 0;
+}
+
+.run-list-open {
+  appearance: none;
+  width: 100%;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.run-list-open:active {
+  background: var(--rule);
 }
 
 .run-list .note {
@@ -2358,6 +2383,53 @@ button.challenge-past::after {
 
 .stats-figures .figure-value {
   font-size: clamp(1.4rem, 6.5vw, 2rem);
+}
+
+.top-words {
+  list-style: none;
+  padding: 0;
+  display: grid;
+}
+
+.top-words li {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.top-words-rank {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.top-words li:nth-child(-n + 3) .top-words-rank {
+  color: var(--red);
+}
+
+.top-words-word {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.run-recap-head {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  text-align: center;
+}
+
+.run-recap-score {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-recap-score small {
+  font-size: 0.9rem;
 }
 
 .stats-more {
@@ -2425,30 +2497,75 @@ button.challenge-past::after {
   overflow-wrap: anywhere;
 }
 
+.category-stats {
+  list-style: none;
+  padding: 0;
+  display: grid;
+}
+
+/* Une carte par catégorie : son nom et ses points sur la première ligne,
+   puis ses mesures côte à côte, lisibles d'un coup d'œil. */
 .category-stats li {
-  grid-template-columns: 1.1rem 1fr auto;
-  align-items: start;
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.category-stats-head {
+  display: grid;
+  grid-template-columns: 1.3rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
 }
 
 .category-stats .category-shape {
-  margin-top: 0.2rem;
+  width: 1.3rem;
+  height: 1.3rem;
 }
 
-.category-stats-body {
+.category-stats-name {
   display: grid;
-  gap: 0.1rem;
   min-width: 0;
 }
 
-.category-stats .category-stats-body .note {
-  text-align: left;
-  font-size: 0.75rem;
+.category-stats-name .category-label {
+  font-weight: 700;
 }
 
-.category-stats-figure {
-  display: grid;
-  justify-items: end;
+.category-stats .note {
+  font-size: 0.78rem;
+}
+
+.category-stats-points {
+  font-size: 1.15rem;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.category-stats-points small {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.category-stats-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding-left: 1.95rem;
+}
+
+.category-stats-chip {
+  padding: 0.15rem 0.5rem;
+  border: 2px solid var(--ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.category-stats li > .note {
+  padding-left: 1.95rem;
 }
 
 .requests {

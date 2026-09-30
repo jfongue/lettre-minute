@@ -316,9 +316,8 @@ export const it: Messages = {
     best: 'record',
     trend: 'vs le 10 prima',
     recent: 'Partite recenti',
-    history: (count) => `Tutta la cronologia (${count})`,
     hideHistory: 'Chiudi la cronologia',
-    more: 'Mostra altro',
+    more: 'Vedi altro',
     oldChallenges: (count) => `Sfide passate (${count})`,
     wonBy: (name) => `Ha vinto ${name}`,
     youWon: 'Hai vinto',
@@ -330,8 +329,10 @@ export const it: Messages = {
     categoryLine: (runs, words) =>
       `${runs} ${plural(runs, 'partita', 'partite')} · ${words} ${plural(words, 'parola', 'parole')}`,
     perWord: (points) => `${points} pt/parola`,
-    timePerWord: (seconds) => `${seconds} s in media per trovare una parola`,
+    secondsPerWord: (seconds) => `${seconds} s/parola`,
+    passRate: (percent) => `${percent}% passate`,
     bestWord: (word, points) => `Parola migliore: ${word} · ${points} pt`,
+    recapWords: 'Parole dette',
     points: 'pt',
   },
 

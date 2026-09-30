@@ -211,18 +211,57 @@ const PROFILE: Profile = {
  */
 const STATS_PROFILE: Profile = { ...PROFILE, runs: 132, bestScore: 312 }
 
-const STATS_HISTORY: RunRecord[] = Array.from({ length: 25 }, (_, index) => ({
-  at: Date.now() - index * 40 * 60 * 1000,
-  lang: 'fr',
-  score: 190 + ((index * 37) % 130),
-  bestCombo: 2 + (index % 4),
-  skips: index % 3,
-  categoryIds: ['animaux', 'pays'],
-  words: [
-    { categoryId: 'animaux', word: 'chat', display: 'chat', points: 10, seconds: 3 + (index % 3) },
-    { categoryId: 'pays', word: 'chili', display: 'Chili', points: 20, seconds: 4 + (index % 4) },
-  ],
-}))
+const STATS_WORDS: [categoryId: string, word: string, display: string, points: number][] = [
+  ['animaux', 'chat', 'chat', 10],
+  ['pays', 'chili', 'Chili', 20],
+  ['animaux', 'lion', 'lion', 12],
+  ['fruits-legumes', 'pomme', 'pomme', 8],
+  ['pays', 'perou', 'Pérou', 18],
+  ['animaux', 'zebre', 'zèbre', 30],
+]
+
+function statsRun(index: number, at: number): RunRecord {
+  const words = STATS_WORDS.filter((_, word) => (index + word) % 3 !== 0)
+  return {
+    at,
+    lang: 'fr',
+    score: 190 + ((index * 37) % 130),
+    bestCombo: 2 + (index % 4),
+    skips: index % 3,
+    categoryIds: ['animaux', 'pays', 'fruits-legumes'],
+    words: words.map(([categoryId, word, display, points], order) => ({ categoryId, word, display, points, seconds: 3 + ((index + order) % 4) })),
+    prompts: [
+      ...words.map(([categoryId, , display]) => ({ prompt: { categoryId, letter: display.charAt(0).toUpperCase() }, passed: false })),
+      { prompt: { categoryId: 'pays', letter: 'W' }, passed: true },
+      ...(index % 2 ? [{ prompt: { categoryId: 'animaux', letter: 'X' }, passed: true }] : []),
+    ],
+  }
+}
+
+const STATS_HISTORY: RunRecord[] = Array.from({ length: 25 }, (_, index) => statsRun(index, Date.now() - index * 40 * 60 * 1000))
+
+/** Le compte en garde soixante-dix de plus, plus anciennes que l'appareil. */
+function olderStatsRuns(before: number, limit: number): Promise<RunRecord[] | null> {
+  const oldest = Date.now() - 95 * 40 * 60 * 1000
+  const runs = Array.from({ length: limit }, (_, index) => before - (index + 1) * 3 * 60 * 60 * 1000)
+    .filter((at) => at > oldest)
+    .map((at, index) => statsRun(index + 25, at))
+  return later(runs, 600)
+}
+
+const STATS_RECAP = {
+  hiddenFor: () =>
+    later(
+      [
+        { prompt: { categoryId: 'pays', letter: 'W' }, display: 'Wallis-et-Futuna' },
+        { prompt: { categoryId: 'animaux', letter: 'X' }, display: 'xérus' },
+      ],
+      500,
+    ),
+  peeks: 5,
+  onPeek: noop,
+  onJoinPlus: noop,
+}
 
 /** The profile before and after the run: the gap is what the end screen celebrates. */
 function afterRun(before: Profile, run: Run, changes: Partial<Profile> = {}): Profile {
@@ -707,6 +746,7 @@ function SocialScenario({ back }: { back(): void }) {
       page="social"
       profile={PROFILE}
       history={[]}
+      statsRecap={STATS_RECAP}
       avatar={DEFAULT_AVATAR}
       account={UNNAMED}
       accountActions={quietAccount}
@@ -897,6 +937,8 @@ function StatsScenario() {
         challenges={null}
         onChallenge={noop}
         onRefresh={() => later(undefined)}
+        loadOlder={olderStatsRuns}
+        recap={STATS_RECAP}
       />
     </div>
   )
@@ -1537,7 +1579,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'stats',
     group: 'Accueil',
     title: 'Page des statistiques',
-    how: 'Vingt-cinq parties gardées : la liste en déplie vingt, le reste derrière « Tout l’historique (132) » ; les figures restent sur les dix dernières',
+    how: 'Vingt-cinq parties sur l’appareil, soixante-dix de plus au compte : « Voir plus » en charge trente à la fois ; une partie touchée ouvre son récap (mots dits, mots cachés) ; top des mots dits trois fois, taux de passe par catégorie',
     phase: 'home',
     render: () => <StatsScenario />,
   },

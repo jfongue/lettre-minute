@@ -315,9 +315,8 @@ export const nl: Messages = {
     best: 'record',
     trend: 'vs de 10 ervoor',
     recent: 'Recente potjes',
-    history: (count) => `Hele geschiedenis (${count})`,
     hideHistory: 'Geschiedenis inklappen',
-    more: 'Meer tonen',
+    more: 'Meer zien',
     oldChallenges: (count) => `Eerdere uitdagingen (${count})`,
     wonBy: (name) => `${name} won`,
     youWon: 'Jij won',
@@ -329,8 +328,10 @@ export const nl: Messages = {
     categoryLine: (runs, words) =>
       `${runs} ${plural(runs, 'potje', 'potjes')} · ${words} ${plural(words, 'woord', 'woorden')}`,
     perWord: (points) => `${points} ptn/woord`,
-    timePerWord: (seconds) => `gemiddeld ${seconds} s om een woord te vinden`,
+    secondsPerWord: (seconds) => `${seconds} s/woord`,
+    passRate: (percent) => `${percent}% gepast`,
     bestWord: (word, points) => `Beste woord: ${word} · ${points} ptn`,
+    recapWords: 'Gezegde woorden',
     points: 'ptn',
   },
 

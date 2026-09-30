@@ -17,6 +17,7 @@ import {
   fetchBoards,
   fetchModerationStatus,
   fetchMyRuns,
+  fetchRunsBefore,
   fetchMySubmissions,
   markRequestsSeen,
   topUpModeration,
@@ -88,7 +89,7 @@ import { challengeNotice, settledPushTags } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { clearInviteRef, keepInviteRef, loadInviteRef, refIn, takeAddressRef } from './state/inviteRef'
 import { createJudge } from './state/judge'
-import { banNews, feedbackDue, hiddenAnswers, playableCategoryIds, plusThanksDue, shareNewsDue } from './domain/perks'
+import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, peeksLeft, playableCategoryIds, plusThanksDue, shareNewsDue } from './domain/perks'
 import { cloudConfigured } from './lib/supabase'
 import { setTrackLang, setTrackScreen, track, trackFeature, trackReady } from './lib/track'
 import { FeedbackPop } from './ui/FeedbackPop'
@@ -130,6 +131,7 @@ import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from
 import { HomeScreen } from './ui/HomeScreen'
 import { LanguagePicker } from './ui/LanguagePicker'
 import type { MenuPage } from './ui/Menu'
+import type { RecapActions } from './ui/StatsPage'
 import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
 import { NamePrompt } from './ui/NamePrompt'
@@ -1120,6 +1122,17 @@ export function App() {
     }),
     [joinPlus],
   )
+  // A past run is read with today's dictionaries: its own are gone with it.
+  const statsRecap = useMemo<RecapActions>(
+    () => ({
+      hiddenFor: async (run) =>
+        hiddenAnswersOf(run.prompts ?? [], run.words.map((word) => word.word), await judgeFor(run.categoryIds, run.lang)),
+      peeks: peeksLeft(session.profile),
+      onPeek: peek,
+      onJoinPlus: joinPlus,
+    }),
+    [judgeFor, session.profile, peek, joinPlus],
+  )
   // Read from the run as it ended, with the dictionaries it was judged by.
   const hidden = useMemo(
     () => (session.phase === 'over' && session.run && session.judge ? hiddenAnswers(session.run, session.judge) : []),
@@ -1631,6 +1644,8 @@ export function App() {
             focusChallenges={menuFocus}
             inviteOpen={inviteOpen}
             onStatsRefresh={loadAccountRuns}
+            onStatsOlder={account ? fetchRunsBefore : undefined}
+            statsRecap={statsRecap}
             friendRequests={named ? friendRequests : 0}
             onFriends={takeFriends}
             challenges={named ? challenges : null}
