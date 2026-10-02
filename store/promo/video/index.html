@@ -1,0 +1,207 @@
+<!doctype html>
+<!-- Promo de 30 s (1080 × 1920) : npm run render. Les clips et le son viennent
+     des prises de ../capture (voir ../README.md). -->
+<html lang="fr" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: Jost; src: url(assets/jost.woff2); font-weight: 100 900; }
+      :root { --paper: #f2ecdf; --ink: #151515; --soft: #4d4943; --red: #e0402a; --blue: #1f48c7; --yellow: #f4b41a; --green: #17614c; --pink: #f1a3b3; --taupe: #9c8b87; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--paper); }
+      #root {
+        position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: Jost, sans-serif; color: var(--ink); background: var(--paper);
+        background-image: linear-gradient(rgba(21,21,21,.045) 2px, transparent 2px), linear-gradient(90deg, rgba(21,21,21,.045) 2px, transparent 2px);
+        background-size: 72px 72px;
+      }
+      .clip { position: absolute; inset: 0; }
+      .tiles { position: absolute; left: 60px; display: grid; grid-template-columns: repeat(5, 192px); grid-auto-rows: 192px; }
+      .tile { position: relative; overflow: hidden; }
+      .tile > i { position: absolute; display: block; }
+      .sq-blue { background: var(--blue); } .sq-ink { background: var(--ink); } .sq-yellow { background: var(--yellow); }
+      .sq-green { background: var(--green); } .sq-red { background: var(--red); } .sq-paper { background: var(--paper); } .sq-pink { background: var(--pink); }
+      .burger > i { left: 48px; width: 96px; height: 14px; background: var(--yellow); }
+      .disc > i { inset: 14px; border-radius: 50%; }
+      .stripes { background: repeating-linear-gradient(var(--ink) 0 38px, var(--pink) 38px 76px); }
+      .tri > i { inset: 0; background: var(--blue); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+      .half > i { top: 0; bottom: 0; left: 0; width: 60%; background: var(--paper); border-radius: 0 100% 100% 0 / 0 50% 50% 0; }
+      .diamond > i { inset: 0; background: var(--yellow); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+      .quarter > i { inset: 0; background: var(--blue); border-radius: 100% 0 0 0; }
+      .sun > i { inset: 52px; border-radius: 50%; background: var(--red); }
+      .logo { position: absolute; left: 60px; right: 60px; }
+      .logo b { display: block; font-weight: 800; line-height: .84; letter-spacing: -.035em; }
+      .logo .l1 { color: var(--ink); } .logo .l2 { color: var(--red); text-align: right; }
+      .tagline { font-weight: 600; letter-spacing: .2em; text-transform: uppercase; text-align: right; }
+      .kicker { position: absolute; left: 120px; top: 92px; display: flex; align-items: center; gap: 20px; font-weight: 700; font-size: 32px; letter-spacing: .26em; text-transform: uppercase; }
+      .kicker::before { content: ''; width: 24px; height: 24px; background: var(--red); flex: none; }
+      .caption { position: absolute; left: 120px; right: 80px; top: 150px; font-weight: 800; font-size: 88px; line-height: .98; letter-spacing: -.02em; text-transform: uppercase; }
+      .caption span { display: inline-block; }
+      .caption em { font-style: normal; color: var(--red); } .caption .blue { color: var(--blue); }
+      #phone { position: absolute; left: 120px; top: 460px; width: 840px; height: 1260px; border: 10px solid var(--ink); border-radius: 46px; overflow: hidden; background: var(--paper); box-shadow: 20px 20px 0 var(--ink); }
+      #phone video { position: absolute; left: -10px; top: -10px; width: 840px; height: 1260px; object-fit: cover; }
+      .wipe { position: absolute; inset: 0; }
+      .chips { position: absolute; left: 120px; right: 60px; top: 1790px; display: flex; gap: 14px; }
+      .chip { display: flex; align-items: center; gap: 12px; padding: 14px 20px; background: var(--ink); color: var(--paper); font-weight: 700; font-size: 26px; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+      .chip i { width: 18px; height: 18px; display: block; flex: none; }
+      .play { position: absolute; left: 60px; right: 60px; height: 190px; background: var(--ink); color: var(--paper); display: flex; align-items: center; justify-content: space-between; padding: 0 44px 0 70px; font-weight: 800; font-size: 84px; letter-spacing: .14em; }
+      .play .go { width: 128px; height: 128px; border-radius: 50%; background: var(--yellow); position: relative; }
+      .play .go::after { content: ''; position: absolute; left: 44px; top: 32px; border-left: 58px solid var(--red); border-top: 32px solid transparent; border-bottom: 32px solid transparent; }
+      .where { position: absolute; left: 60px; right: 60px; text-align: center; font-weight: 600; font-size: 40px; letter-spacing: .26em; text-transform: uppercase; color: var(--soft); }
+      .foot { position: absolute; left: 90px; right: 90px; height: 64px; display: flex; }
+      .foot i { flex: 1; display: block; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="30" data-width="1080" data-height="1920">
+      <!-- Les sons du jeu, rendus par src/lib/sound.ts sur la partition de ../sound. -->
+      <audio id="sfx" src="assets/sfx.wav" data-start="0" data-duration="30" data-volume="1" data-fade-out="0.4" data-track-index="9"></audio>
+
+      <div id="intro" class="clip" data-start="0" data-duration="2.8" data-track-index="0">
+        <div class="tiles intro-tiles" style="top: 150px">
+          <div class="tile sq-blue burger"><i style="top:62px"></i><i style="top:89px"></i><i style="top:116px"></i></div>
+          <div class="tile sq-paper disc"><i style="background:#e98672"></i></div>
+          <div class="tile stripes"></div>
+          <div class="tile sq-yellow disc"><i style="background:var(--green)"></i></div>
+          <div class="tile sq-paper tri"><i></i></div>
+          <div class="tile sq-red half"><i></i></div>
+          <div class="tile sq-yellow sun"><i></i></div>
+          <div class="tile sq-ink diamond"><i></i></div>
+          <div class="tile sq-green disc"><i style="background:var(--taupe)"></i></div>
+          <div class="tile sq-pink quarter"><i></i></div>
+        </div>
+        <div class="logo" style="top: 640px">
+          <b class="l1 intro-l1" style="font-size: 250px">LETTRE</b>
+          <b class="l2 intro-l2" style="font-size: 250px">MINUTE</b>
+          <p class="tagline intro-tag" style="font-size: 31px; margin-top: 46px">Une lettre · un thème · 60 secondes</p>
+        </div>
+        <div class="chips intro-chip" style="top: 1420px; left: 60px; justify-content: flex-end">
+          <span class="chip" style="font-size: 34px; padding: 18px 26px"><i style="background:var(--yellow)"></i>Le Petit Bac express</span>
+        </div>
+      </div>
+
+      <div id="stage" class="clip">
+        <div id="phone">
+          <video id="v-countdown" class="clip" src="assets/a_countdown.mp4" muted playsinline data-start="2.8" data-duration="2.6" data-track-index="2"></video>
+          <video id="v-play" class="clip" src="assets/b_play.mp4" muted playsinline data-start="5.4" data-duration="8" data-track-index="2"></video>
+          <video id="v-joker" class="clip" src="assets/c_joker.mp4" muted playsinline data-start="13.4" data-duration="3.6" data-track-index="2"></video>
+          <video id="v-powers" class="clip" src="assets/e_powers.mp4" muted playsinline data-start="17" data-duration="2.5" data-track-index="2"></video>
+          <video id="v-score" class="clip" src="assets/d_score.mp4" muted playsinline data-start="19.5" data-duration="4" data-track-index="2"></video>
+          <video id="v-moder" class="clip" src="assets/f_moder.mp4" muted playsinline data-start="23.5" data-duration="3.5" data-track-index="2"></video>
+          <div class="wipe" id="w1" style="background:var(--blue)"></div>
+          <div class="wipe" id="w2" style="background:var(--red)"></div>
+          <div class="wipe" id="w3" style="background:var(--yellow)"></div>
+          <div class="wipe" id="w4" style="background:var(--green)"></div>
+          <div class="wipe" id="w5" style="background:var(--pink)"></div>
+        </div>
+
+        <div class="cap clip" data-track-index="3" id="c1" data-start="2.8" data-duration="2.6">
+          <p class="kicker">Au programme</p>
+          <h1 class="caption"><span>Une lettre,</span> <span><em>un thème</em></span></h1>
+        </div>
+        <div class="cap clip" data-track-index="3" id="c2" data-start="5.4" data-duration="4">
+          <p class="kicker">60 secondes chrono</p>
+          <h1 class="caption"><span>Trouve un max</span> <span>de <em>mots</em></span></h1>
+        </div>
+        <div class="cap clip" data-track-index="3" id="c3" data-start="9.4" data-duration="4">
+          <p class="kicker">Validation immédiate</p>
+          <h1 class="caption"><span>Le jeu valide</span> <span class="blue">à la frappe</span></h1>
+        </div>
+        <div class="cap clip" data-track-index="3" id="c4" data-start="13.4" data-duration="6.1">
+          <p class="kicker">10 pouvoirs</p>
+          <h1 class="caption"><span>Des pouvoirs</span> <span>pour <em>tricher</em></span> <span>un peu</span></h1>
+        </div>
+        <div class="cap clip" data-track-index="3" id="c5" data-start="19.5" data-duration="4">
+          <p class="kicker">Rareté</p>
+          <h1 class="caption"><span>Les mots rares</span> <span>rapportent <em>gros</em></span></h1>
+        </div>
+        <div class="cap clip" data-track-index="3" id="c6" data-start="23.5" data-duration="3.5">
+          <p class="kicker">Modération</p>
+          <h1 class="caption"><span>Fais entrer</span> <span>tes mots au</span> <span class="blue">dictionnaire</span></h1>
+        </div>
+
+        <div class="chips" id="chips">
+          <span class="chip ch"><i style="background:var(--red)"></i>Pays</span>
+          <span class="chip ch"><i style="background:var(--yellow)"></i>Couleurs</span>
+          <span class="chip ch"><i style="background:var(--pink)"></i>Prénoms</span>
+          <span class="chip ch"><i style="background:var(--blue)"></i>Objets</span>
+        </div>
+        <div class="chips" id="pchips"><span class="chip pc"><i style="background:var(--red)"></i>Tricherie : écris « Joker »</span></div>
+        <div class="chips" id="mchips">
+          <span class="chip mc"><i style="background:var(--green)"></i>Correct</span>
+          <span class="chip mc"><i style="background:var(--yellow)"></i>Je ne sais pas</span>
+          <span class="chip mc"><i style="background:var(--red)"></i>Incorrect</span>
+        </div>
+      </div>
+
+      <div id="outro" class="clip" data-start="27" data-duration="3" data-track-index="0">
+        <div class="tiles outro-tiles" style="top: 130px">
+          <div class="tile sq-blue burger"><i style="top:62px"></i><i style="top:89px"></i><i style="top:116px"></i></div>
+          <div class="tile sq-paper disc"><i style="background:#e98672"></i></div>
+          <div class="tile stripes"></div>
+          <div class="tile sq-yellow disc"><i style="background:var(--green)"></i></div>
+          <div class="tile sq-paper tri"><i></i></div>
+        </div>
+        <div class="logo" style="top: 400px">
+          <b class="l1 outro-l1" style="font-size: 230px">LETTRE</b>
+          <b class="l2 outro-l2" style="font-size: 230px">MINUTE</b>
+        </div>
+        <div class="play outro-play" style="top: 930px"><span>JOUE</span><span class="go"></span></div>
+        <p class="where outro-where" style="top: 1200px">Gratuit sur Android</p>
+        <div class="foot outro-foot" style="bottom: 190px">
+          <i style="background:var(--red)"></i><i style="background:var(--yellow)"></i><i style="background:var(--blue)"></i><i style="background:var(--green)"></i><i style="background:var(--pink)"></i>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const E = 'power3.out';
+      tl.from('.intro-tiles .tile', { scale: 0, duration: 0.45, ease: 'back.out(1.8)', stagger: 0.05 }, 0.05);
+      tl.from('.intro-l1', { x: -1100, duration: 0.55, ease: E }, 0.35);
+      tl.from('.intro-l2', { x: 1100, duration: 0.55, ease: E }, 0.5);
+      tl.from('.intro-tag', { opacity: 0, y: 30, duration: 0.4, ease: E }, 0.9);
+      tl.from('.intro-chip .chip', { x: 700, duration: 0.5, ease: E }, 1.15);
+      tl.to('#intro', { y: -1920, duration: 0.45, ease: 'power3.in' }, 2.35);
+      tl.from('#phone', { y: 1500, rotation: 6, duration: 0.6, ease: E }, 2.55);
+
+      const caps = [['#c1', 2.8, 2.6], ['#c2', 5.4, 4], ['#c3', 9.4, 4], ['#c4', 13.4, 6.1], ['#c5', 19.5, 4], ['#c6', 23.5, 3.5]];
+      for (const [id, at, len] of caps) {
+        tl.from(`${id} .kicker`, { opacity: 0, x: -60, duration: 0.35, ease: E }, at);
+        tl.from(`${id} .caption span`, { y: 90, opacity: 0, duration: 0.45, ease: E, stagger: 0.09 }, at + 0.05);
+        if (id !== '#c6') tl.to(`${id} .caption, ${id} .kicker`, { opacity: 0, y: -40, duration: 0.25, ease: 'power2.in' }, at + len - 0.25);
+      }
+
+      // Entre deux clips, un aplat de couleur balaie l'écran du téléphone.
+      tl.set('.wipe', { xPercent: -101 }, 0);
+      for (const [id, at] of [['#w1', 5.4], ['#w2', 13.4], ['#w3', 17], ['#w4', 19.5], ['#w5', 23.5]]) {
+        tl.to(id, { xPercent: 0, duration: 0.2, ease: 'power2.in' }, at - 0.2);
+        tl.to(id, { xPercent: 101, duration: 0.25, ease: 'power2.out' }, at);
+      }
+
+      tl.from('#chips .ch', { y: 120, opacity: 0, duration: 0.35, ease: 'back.out(1.6)', stagger: 0.07 }, 3.0);
+      tl.to('#chips', { opacity: 0, duration: 0.25 }, 5.2);
+      tl.set('#pchips, #mchips', { opacity: 0 }, 0);
+      tl.set('#pchips', { opacity: 1 }, 13.5);
+      tl.from('#pchips .pc', { y: 120, opacity: 0, duration: 0.35, ease: 'back.out(1.6)' }, 13.6);
+      tl.to('#pchips', { opacity: 0, duration: 0.25 }, 19.3);
+      tl.set('#mchips', { opacity: 1 }, 23.6);
+      tl.from('#mchips .mc', { y: 120, opacity: 0, duration: 0.35, ease: 'back.out(1.6)', stagger: 0.08 }, 23.7);
+
+      tl.to('#stage', { y: -1920, duration: 0.45, ease: 'power3.in' }, 26.6);
+      tl.from('.outro-tiles .tile', { scale: 0, duration: 0.4, ease: 'back.out(1.8)', stagger: 0.05 }, 27.05);
+      tl.from('.outro-l1', { x: -1100, duration: 0.5, ease: E }, 27.15);
+      tl.from('.outro-l2', { x: 1100, duration: 0.5, ease: E }, 27.28);
+      tl.from('.outro-play', { scaleX: 0, transformOrigin: 'left center', duration: 0.45, ease: E }, 27.75);
+      tl.from('.outro-play .go', { scale: 0, rotation: -90, duration: 0.45, ease: 'back.out(2)' }, 28.1);
+      tl.from('.outro-where', { opacity: 0, y: 30, duration: 0.35, ease: E }, 28.25);
+      tl.from('.outro-foot i', { scaleY: 0, transformOrigin: 'bottom', duration: 0.3, ease: E, stagger: 0.05 }, 28.4);
+      tl.to('.outro-play .go', { scale: 1.12, duration: 0.25, yoyo: true, repeat: 3, ease: 'sine.inOut' }, 28.9);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines['main'] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

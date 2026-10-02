@@ -1,0 +1,10 @@
+{
+  "name": "lettre-minute-promo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "hyperframes render -f 30 -q high --video-frame-format png -o ../lettre-minute-promo.mp4",
+    "snapshot": "hyperframes snapshot --describe false --no-end"
+  },
+  "devDependencies": { "hyperframes": "0.8.96", "puppeteer-core": "*", "esbuild": "*" }
+}

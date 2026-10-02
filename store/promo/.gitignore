@@ -1,0 +1,7 @@
+# Raw takes and anything rebuilt from them; the gesture logs stay.
+takes/*
+!takes/*.log
+video/node_modules/
+video/snapshots/
+video/assets/sfx.wav
+sound/.sfx.*
