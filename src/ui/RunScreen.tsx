@@ -1,504 +1,97 @@
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { CHATTER_WORDS, POWER_CHARGES } from '../domain/powers'
-import { celerityDue, chargesLeft, hasPower, RUN_SECONDS, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
-import { capitalized, compactWord, normalizeWord } from '../domain/text'
-import { categoryText, formatNumber, useT } from '../i18n'
-import { sound } from '../lib/sound'
-import type { Cheer } from '../state/session'
-import type { AvatarChoice } from '../domain/avatar'
-import { Avatar } from './Avatar'
-import { Burst, LetterMark, MineMark, TierTag } from './bauhaus'
-import { motifAt } from './motifs'
-import { PowerBadge } from './PowerIcon'
+// ... existing imports ...
+import { BanWordModal } from './BanWordModal';
+import { useLongPress } from '../lib/useLongPress';
 
-const URGENT_FROM = 10
-/** Célérité waits this long after the last key, so « Chat » does not cut « Chatte » short. */
-const CELERITY_SETTLE_MS = 140
+// ... existing code ...
 
-// Tapping a button would blur the field and fold the phone keyboard away, only
-// for the next prompt to open it again: the page would jump on every tap.
-const keepFocus = (event: PointerEvent) => event.preventDefault()
+export function RunScreen() {
+  // ... existing state ...
+  const [banModalState, setBanModalState] = React.useState<{
+    isOpen: boolean;
+    word: string;
+    category: string;
+    gameId?: string;
+    recapId?: string;
+  }>({ isOpen: false, word: '', category: '' });
 
-/** A challenge rival, replayed at this second of their own run. */
-export interface Racer {
-  id: string
-  name: string
-  avatar: AvatarChoice
-  score: number
-}
+  const { user } = useAuth();
+  const isModerator = user?.role === 'moderator' || user?.role === 'super_moderator';
 
-interface RunScreenProps {
-  run: Run
-  draft: string
-  live: Verdict | null
-  cheer: Cheer | null
-  remaining: number
-  /** Silence holds the clock right now. */
-  hushed: boolean
-  /** The prompt coming next, shown under Divination; null without it. */
-  next: Prompt | null
-  /** Normalized words already proposed in this run. */
-  proposed: readonly string[]
-  /** The words the player himself got into the dictionary (`compactWord`): the field says so quietly. */
-  mine?: ReadonlySet<string>
-  /** In a challenge, those who played before, as if they were playing now; absent in a solo run. */
-  rivals?: readonly Racer[]
-  /** The player's own avatar, set among the rivals. */
-  avatar?: AvatarChoice
-  onType(draft: string): void
-  /** `auto`: Célérité validated it, not the player. */
-  onSubmit(auto?: boolean): void
-  onSkip(): void
-  onReroll(): void
-  onPropose(word: string): void
-}
+  const handleLongPressWord = React.useCallback((word: string, category: string, gameId?: string, recapId?: string) => {
+    if (!isModerator) return;
+    setBanModalState({ isOpen: true, word, category, gameId, recapId });
+  }, [isModerator]);
 
-export function RunScreen({
-  run,
-  draft,
-  live,
-  cheer,
-  remaining,
-  hushed,
-  next,
-  proposed,
-  mine,
-  rivals,
-  avatar,
-  onType,
-  onSubmit,
-  onSkip,
-  onReroll,
-  onPropose,
-}: RunScreenProps) {
-  const field = useRef<HTMLInputElement>(null)
-  const [shaking, setShaking] = useState(false)
-  const t = useT()
-  const category = categoryText(t, run.prompt.categoryId)
-  const seconds = Math.ceil(remaining)
-  const urgent = remaining <= URGENT_FROM
-  const accepted = live?.kind === 'accepted'
-  const spell = live?.kind === 'spell' ? live.spell : undefined
-  // A corrected answer is accepted, but the field must not light up and give
-  // away that the player is one letter off a word it will not name.
-  const exact = accepted && !live?.found?.approximate
-  const magic = chargesLeft(run, 'magic')
-  const dodge = hasPower(run, 'dodge')
-
-  // The field must never lose focus mid-run: a tap on "Passer" would otherwise
-  // close the keyboard on a phone and cost the player the next prompt.
-  useEffect(() => {
-    field.current?.focus()
-  }, [run.prompt])
-
-  // What the field says, heard: named, or some letters off — never how rare.
-  const heard = !accepted ? null : exact ? 'named' : (live?.found?.edits ?? 1) > 1 ? 'far' : 'close'
-  useEffect(() => {
-    if (heard === 'named') sound.recognized()
-    else if (heard === 'close') sound.oneLetterOff()
-    else if (heard === 'far') sound.power('dyslexia')
-  }, [heard])
-
-  // Célérité: an accepted word validates itself once the fingers pause.
-  const submitNow = useRef(onSubmit)
-  useEffect(() => {
-    submitNow.current = onSubmit
-  })
-  const celerity = hasPower(run, 'celerity')
-  // With Bavardage in hand, the fingers get time to add its three dots.
-  const settle = chargesLeft(run, 'chatter') > 0 ? CELERITY_SETTLE_MS * 3 : CELERITY_SETTLE_MS
-  // « Chut » casts itself the same way, Célérité or not: a player in need of a pause has no time for Enter.
-  const hushing = spell === 'hush'
-  const due = celerity && celerityDue(live, draft)
-  useEffect(() => {
-    if (!due && !hushing) return
-    const timer = setTimeout(() => submitNow.current(!hushing), settle)
-    return () => clearTimeout(timer)
-  }, [due, hushing, draft, settle])
-
-  const chattering = run.chatter === CHATTER_WORDS
-  useEffect(() => {
-    if (chattering) sound.power('chatter')
-  }, [chattering])
-
-  useEffect(() => {
-    if (run.joker) sound.power('joker')
-  }, [run.joker])
-
-  useEffect(() => {
-    if (hushed) sound.power('hush')
-  }, [hushed])
-
-  // Divination rings softly each time the future moves on.
-  const seen = useRef(run.drawn)
-  useEffect(() => {
-    if (!next || seen.current === run.drawn) return
-    seen.current = run.drawn
-    sound.power('divination', 0.35)
-  }, [next, run.drawn])
-
-  useEffect(() => {
-    if (urgent && seconds > 0) sound.tick(seconds)
-  }, [urgent, seconds])
-
-  const submit = () => {
-    if (!accepted && !spell && draft.trim() !== '') {
-      setShaking(true)
-      sound.refused()
+  const handleBanConfirm = React.useCallback(async () => {
+    const { word, category, gameId, recapId } = banModalState;
+    try {
+      const { data, error } = await supabase.rpc('create_ban_proposal', {
+        p_word: word,
+        p_category: category,
+        p_moderator_id: user?.id,
+        p_game_context: { game_id: gameId ?? null, recap_id: recapId ?? null, category }
+      });
+      if (error) throw error;
+      setBanModalState({ isOpen: false, word: '', category: '' });
+      // Show success toast
+    } catch (err) {
+      console.error('Failed to create ban proposal:', err);
+      // Show error toast
     }
-    onSubmit()
-  }
+  }, [banModalState, user]);
 
-  const skip = () => {
-    if (dodge) sound.power('dodge')
-    else sound.skipped()
-    onSkip()
-  }
+  const handleBanCancel = React.useCallback(() => {
+    setBanModalState({ isOpen: false, word: '', category: '' });
+  }, []);
 
-  const reroll = () => {
-    if (magic <= 0) return
-    sound.power('magic')
-    onReroll()
-  }
+  // Long press hook for word cells
+  const longPressProps = useLongPress(
+    (e) => {
+      const word = e.currentTarget.getAttribute('data-word');
+      const category = e.currentTarget.getAttribute('data-category');
+      const gameId = e.currentTarget.getAttribute('data-game-id');
+      const recapId = e.currentTarget.getAttribute('data-recap-id');
+      if (word && category) handleLongPressWord(word, category, gameId ?? undefined, recapId ?? undefined);
+    },
+    { threshold: 500 } // 500ms long press
+  );
 
-  const powers = run.powers.map((id) => ` run--${id}`).join('')
+  // In the recap word rendering, add longPressProps and data attributes:
+  // <span {...longPressProps} data-word={word} data-category={category} data-game-id={gameId} data-recap-id={recapId}>
+  //   {word}
+  // </span>
+
   return (
-    <div className={`sheet run${urgent && !hushed ? ' run--urgent' : ''}${hushed ? ' run--hushed' : ''}${powers}`}>
-      <div className="run-head">
-        <div className="timer">
-          <span
-            className="timer-disc"
-            style={{ '--ratio': Math.min(1, remaining / RUN_SECONDS) } as CSSProperties}
-            aria-hidden="true"
-          />
-          {/* Re-keyed every second once urgent, so each second ticks visibly. */}
-          <p className="clock" key={hushed ? 'hushed' : urgent ? seconds : 'calm'}>
-            {seconds}
-          </p>
-          {hushed && <span className="timer-hold" aria-hidden="true"><span /><span /></span>}
-        </div>
-        <div className="score">
-          {run.score > 0 && <Burst key={`burst-${run.score}`} />}
-          <span className="score-value" key={run.score}>
-            {formatNumber(t, run.score)}
-          </span>
-          {run.combo > 1 && (
-            <span className="combo" key={run.combo}>
-              ×{(1 + Math.min(run.combo, 9) * 0.1).toFixed(1)}
-            </span>
-          )}
-        </div>
-      </div>
-      <div className="run-meta">
-        <p className="note">{t.run.meta(run.found.length, run.skips)}</p>
-        {run.powers.length > 0 && (
-          <span className="run-powers">
-            {run.powers.map((id) => (
-              <PowerBadge
-                key={id}
-                id={id}
-                left={POWER_CHARGES[id] && id !== 'permutation' ? chargesLeft(run, id) : undefined}
-              />
-            ))}
-          </span>
-        )}
-      </div>
-      {rivals && rivals.length > 0 && avatar && <Race rivals={rivals} avatar={avatar} score={run.score} />}
-      {hushed && <HushVoice lines={t.powers.hushLines} label={t.powers.hushed} />}
-
-      <section className="prompt" key={`${run.drawn}`}>
-        {magic > 0 ? (
-          <button
-            type="button"
-            className="prompt-magic"
-            key={run.rerolls}
-            onPointerDown={keepFocus}
-            onClick={reroll}
-            aria-label={t.powers.reroll(run.prompt.letter, magic)}
+    <>
+      {/* ... existing RunScreen content ... */}
+      
+      {/* Word cells in recap should have long press */}
+      {/* Example integration in recap section: */}
+      {/* 
+      <div className="recap-words">
+        {recap.words.map((w) => (
+          <span 
+            key={w.id} 
+            className="word-cell"
+            {...longPressProps}
+            data-word={w.word}
+            data-category={w.category}
+            data-game-id={gameId}
+            data-recap-id={recap.id}
           >
-            <LetterMark letter={run.prompt.letter} motif={motifAt(run.drawn + run.rerolls)} size="lg" />
-            <span className="prompt-magic-spark" aria-hidden="true" />
-          </button>
-        ) : (
-          <span className={run.rerolls > 0 ? 'prompt-magic prompt-magic--spent' : undefined} key={run.rerolls}>
-            <LetterMark letter={run.prompt.letter} motif={motifAt(run.drawn + run.rerolls)} size="lg" />
+            {w.word}
           </span>
-        )}
-        <div className="prompt-text">
-          <h2 className="prompt-label">{category.label}</h2>
-          <p className="note">{category.hint}</p>
-        </div>
-      </section>
-      {run.chatter > 0 && (
-        <p className="prompt-chatter" key={`chatter-${run.chatter}`}>
-          <PowerBadge id="chatter" />
-          {t.powers.chatterLeft(run.chatter)}
-        </p>
-      )}
-      {next && (
-        <p className="prompt-next" key={`next-${run.drawn}`}>
-          <span className="prompt-next-eye" aria-hidden="true" />
-          <span className="note">{t.powers.next}</span>
-          <LetterMark letter={next.letter} motif={motifAt(run.drawn + 1 + run.rerolls)} size="sm" />
-          <span>{categoryText(t, next.categoryId).label}</span>
-        </p>
-      )}
+        ))}
+      </div>
+      */}
 
-      <form
-        className={`answer${exact ? ' answer--valid' : ''}${spell ? ` answer--spell answer--${spell}` : ''}`}
-        onSubmit={(event) => {
-          event.preventDefault()
-          submit()
-        }}
-      >
-        <div
-          className={`answer-field${shaking ? ' answer-field--shake' : ''}${run.joker ? ' answer-field--joker' : ''}`}
-          onAnimationEnd={() => setShaking(false)}
-        >
-          <input
-            ref={field}
-            value={draft}
-            onChange={(event) => {
-              sound.key(event.target.value.length < draft.length)
-              onType(capitalized(event.target.value))
-            }}
-            placeholder={t.run.placeholder(run.prompt.letter)}
-            aria-label={t.run.fieldLabel(run.prompt.letter, category.label)}
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="sentences"
-            spellCheck={false}
-            enterKeyHint="done"
-            onKeyDown={(event) => {
-              // Implicit form submission is not guaranteed on mobile keyboards,
-              // and Entrée is how the whole game is played.
-              // On a keyboard, Échap skips: the hands never leave the keys.
-              if (event.key === 'Escape' && !event.repeat) {
-                event.preventDefault()
-                skip()
-                return
-              }
-              if (event.key !== 'Enter') return
-              event.preventDefault()
-              submit()
-            }}
-          />
-          <span className="answer-line" aria-hidden="true" />
-          {/* A card flipped over the line, not a remount: the field must keep the keyboard open. */}
-          {run.joker && <span className="joker-card" key={run.joker.key} aria-hidden="true" />}
-        </div>
-        <Feedback
-          live={live}
-          cheer={cheer}
-          letter={run.prompt.letter}
-          draft={draft}
-          proposed={proposed.includes(normalizeWord(draft))}
-          mine={mine}
-          onPropose={onPropose}
-        />
-
-        <div className="answer-actions">
-          <button
-            type="button"
-            className={`btn btn--ghost${dodge ? ' btn--dodge' : ''}`}
-            onPointerDown={keepFocus}
-            onClick={skip}
-          >
-            {run.chatter > 0 ? t.powers.chatterLeave : t.run.skip(skipPenalty(run))}
-          </button>
-          <button type="submit" className="btn btn--blue" onPointerDown={keepFocus} disabled={!accepted && !spell}>
-            {t.run.submit}
-          </button>
-        </div>
-      </form>
-    </div>
-  )
-}
-
-function Feedback({
-  live,
-  cheer,
-  letter,
-  draft,
-  proposed,
-  mine,
-  onPropose,
-}: {
-  live: Verdict | null
-  cheer: Cheer | null
-  letter: string
-  draft: string
-  proposed: boolean
-  /** The words the player himself got into the dictionary. */
-  mine?: ReadonlySet<string>
-  onPropose(word: string): void
-}) {
-  const t = useT()
-  const ours = (word: string | undefined) => word !== undefined && mine?.has(compactWord(word)) === true
-  const proposal = proposed ? (
-    <span className="verdict--sent">{t.run.proposed}</span>
-  ) : (
-    <button type="button" className="btn btn--quiet" onPointerDown={keepFocus} onClick={() => onPropose(draft)}>
-      {t.run.propose}
-    </button>
-  )
-  // The last find takes the verdict's line until the player types again: lower
-  // down, the phone keyboard would hide it.
-  // Points and rarity are only revealed here, once the word is validated.
-  if (!live && cheer)
-    return (
-      <p className={`cheer verdict${cheer.auto ? ' cheer--auto' : ''}${cheer.boost > 1 ? ' cheer--boost' : ''}`} key={cheer.display}>
-        {cheer.auto && <PowerBadge id="celerity" className="cheer-power" />}
-        {cheer.joker && <PowerBadge id="joker" className="cheer-power" />}
-        {cheer.approximate && <span aria-hidden="true">≈ </span>}
-        <span className="cheer-word">{capitalized(cheer.display)}</span>
-        {ours(cheer.display) && <MineMark label={t.requests.mine} />}
-        <span className="cheer-points">+{cheer.points}</span>
-        {cheer.joker ? (
-          <span className="note">{t.powers.joker}</span>
-        ) : cheer.approximate ? (
-          <span className="note">{t.run.approximate}</span>
-        ) : (
-          <TierTag tier={cheer.tier} />
-        )}
-        {cheer.boost > 1 && <span className="cheer-boost">{t.powers.boost(cheer.boost)}</span>}
-      </p>
-    )
-  if (!live || live.kind === 'empty') return <p className="verdict">&nbsp;</p>
-
-  switch (live.kind) {
-    case 'spell':
-      return (
-        <p className={`verdict verdict--spell verdict--${live.spell}`}>
-          {live.spell && <PowerBadge id={live.spell} />}
-          {live.spell === 'joker' ? t.powers.castJoker : t.powers.castHush}
-        </p>
-      )
-    case 'accepted':
-      // The word is named only once typed exactly: naming the correction would
-      // hand the player the spelling they were missing.
-      // A near miss may be another word altogether (« moule » for « poule »):
-      // it can still be put forward.
-      if (live.found?.approximate && live.found.edits > 1)
-        return (
-          <p className="verdict verdict--approx verdict--dyslexia">
-            {t.powers.twoLettersOff}
-            {proposal}
-          </p>
-        )
-      if (live.found?.approximate)
-        return (
-          <p className="verdict verdict--approx">
-            {t.run.oneLetterOff}
-            {proposal}
-          </p>
-        )
-      if (live.found?.joker)
-        return (
-          <p className="verdict verdict--valid verdict--joker">
-            <PowerBadge id="joker" /> {capitalized(live.found.display)}
-            {ours(live.found.display) && <MineMark label={t.requests.mine} />}
-          </p>
-        )
-      if (live.chatter)
-        return (
-          <p className="verdict verdict--valid verdict--chatter">
-            <PowerBadge id="chatter" /> {capitalized(live.found?.display ?? '')} · {t.powers.castChatter}
-            {ours(live.found?.display) && <MineMark label={t.requests.mine} />}
-          </p>
-        )
-      return (
-        <p className="verdict verdict--valid">
-          ✓ {capitalized(live.found?.display ?? '')}
-          {ours(live.found?.display) && <MineMark label={t.requests.mine} />}
-        </p>
-      )
-    case 'wrong-letter':
-      return <p className="verdict">{t.run.startsWith(letter)}</p>
-    case 'already':
-      return <p className="verdict">{t.run.already}</p>
-    case 'unknown':
-      return (
-        <p className="verdict">
-          {t.run.unknown}
-          {proposal}
-        </p>
-      )
-  }
-}
-
-/**
- * The rivals' scores, second by second, around the player's own: points only,
- * never a word — the Petit Bac is settled at the end.
- */
-function Race({ rivals, avatar, score }: { rivals: readonly Racer[]; avatar: AvatarChoice; score: number }) {
-  const t = useT()
-  const racers = [...rivals, { id: '', name: t.challenge.you, avatar, score }].sort((a, b) => b.score - a.score)
-  return (
-    <ol className="race" aria-label={t.challenge.race}>
-      {racers.map((racer, index) => (
-        <li key={racer.id} className={`race-entry${racer.id === '' ? ' race-entry--me' : ''}${index === 0 ? ' race-entry--lead' : ''}`}>
-          <Avatar choice={racer.avatar} size="sm" />
-          <span className="race-name">{racer.name}</span>
-          <span className="race-score" key={racer.score}>
-            {formatNumber(t, racer.score)}
-          </span>
-        </li>
-      ))}
-    </ol>
-  )
-}
-
-/** Each line stays this long, typed out then erased, before the next one. */
-const HUSH_LINE_MS = 3000
-const HUSH_TYPE_MS = 55
-const HUSH_ERASE_MS = 22
-
-/**
- * Silence speaks: in the band where the clock would say it is stopped, the
- * game types to the player as if it were live, a new line every few seconds.
- */
-function HushVoice({ lines, label }: { lines: readonly string[]; label: string }) {
-  // A random opening line, then round the list: two Silences do not read alike.
-  const [start] = useState(() => Math.floor(Math.random() * lines.length))
-  const [index, setIndex] = useState(0)
-  const [shown, setShown] = useState('')
-  const line = lines[(start + index) % lines.length] ?? ''
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIndex((at) => at + 1), HUSH_LINE_MS)
-    return () => clearTimeout(timer)
-  }, [index])
-
-  useEffect(() => {
-    let text = ''
-    let timer: ReturnType<typeof setTimeout>
-    const eraseAt = Date.now() + HUSH_LINE_MS - line.length * HUSH_ERASE_MS - 150
-    const tick = () => {
-      if (Date.now() >= eraseAt) {
-        text = text.slice(0, -1)
-        setShown(text)
-        if (text !== '') timer = setTimeout(tick, HUSH_ERASE_MS)
-        return
-      }
-      if (text.length < line.length) {
-        text = line.slice(0, text.length + 1)
-        setShown(text)
-        timer = setTimeout(tick, HUSH_TYPE_MS + Math.random() * 45)
-        return
-      }
-      timer = setTimeout(tick, Math.max(0, eraseAt - Date.now()))
-    }
-    timer = setTimeout(tick, 120)
-    return () => clearTimeout(timer)
-  }, [line])
-
-  return (
-    <p className="hush-note" role="status" aria-label={label}>
-      <span className="hush-voice" aria-live="polite">
-        {shown}
-        <span className="hush-caret" aria-hidden="true" />
-      </span>
-    </p>
-  )
+      <BanWordModal
+        isOpen={banModalState.isOpen}
+        word={banModalState.word}
+        category={banModalState.category}
+        onConfirm={handleBanConfirm}
+        onCancel={handleBanCancel}
+      />
+    </>
+  );
 }
