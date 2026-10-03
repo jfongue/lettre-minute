@@ -122,6 +122,13 @@ qu'un nouvel arrivant casserait sans le savoir.
   il n'existe que chargé du serveur, donc ni hors ligne ni en défi. Commiter
   `scripts/community-words.json` avec les `.json` : c'est lui que relit un
   import sans accès au projet.
+- **Un mot signalé par un modérateur ne sort qu'au prochain import non plus**
+  (0038, `scripts/banned-words.ts`, `scripts/banned-words.json`) : le
+  dictionnaire est embarqué dans l'app, et le tirage d'un défi doit rester
+  fonction de la graine et des dictionnaires seuls — un ban lu du serveur le
+  ferait mentir. Le mot est jugé comme un ajout (`word_reviews.kind`), et
+  l'import retire sa ligne et les formes qui le fléchissent. Commiter
+  l'instantané avec les `.json`.
 - **Une proposition vit à deux endroits** : la file de l'appareil
   (`loadSubmissions`) tant que le serveur ne l'a pas vue, puis
   `word_submissions`. Le bilan de fin de partie corrige et retire dans celui
