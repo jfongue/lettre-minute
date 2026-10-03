@@ -414,8 +414,9 @@ export const nl: Messages = {
       proposedByFriends: (names, others) =>
         `voorgesteld door ${names.join(', ')}${others > 0 ? ` en ${others} ${others > 1 ? 'anderen' : 'andere'}` : ''}`,
       question: 'Hoort het in deze categorie?',
-      hint: 'Veeg de kaart: naar rechts goed, naar links fout, omhoog weet ik niet.',
-      verdicts: { correct: 'Goed', unsure: 'Weet ik niet', incorrect: 'Fout', special: 'Speciaal geval' },
+      hint: 'Veeg de kaart: naar rechts toevoegen, naar links weigeren, omhoog weet ik niet.',
+      verdicts: { correct: 'Toevoegen', unsure: 'Weet ik niet', incorrect: 'Weigeren', special: 'Speciaal geval' },
+      gestures: { correct: 'Voor', unsure: 'Weet ik niet', incorrect: 'Tegen', special: 'Speciaal geval' },
       banQuestion: 'Moet dit woord blijven?',
       banHint: 'Veeg de kaart: naar rechts houden, naar links verwijderen, omhoog weet ik niet.',
       banVerdicts: { correct: 'Houden', unsure: 'Weet ik niet', incorrect: 'Verwijderen', special: 'Speciaal geval' },

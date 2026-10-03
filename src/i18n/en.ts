@@ -419,8 +419,9 @@ export const en: Messages = {
       proposedByFriends: (names, others) =>
         `proposed by ${names.join(', ')}${others > 0 ? ` and ${others} ${others > 1 ? 'others' : 'other'}` : ''}`,
       question: 'Does it belong in this category?',
-      hint: 'Swipe the card: right for correct, left for incorrect, up for not sure.',
-      verdicts: { correct: 'Correct', unsure: 'Not sure', incorrect: 'Incorrect', special: 'Special case' },
+      hint: 'Swipe the card: right to add it, left to refuse it, up for not sure.',
+      verdicts: { correct: 'Add', unsure: 'Not sure', incorrect: 'Refuse', special: 'Special case' },
+      gestures: { correct: 'For', unsure: 'Not sure', incorrect: 'Against', special: 'Special case' },
       banQuestion: 'Should this word be kept?',
       banHint: 'Swipe the card: right to keep it, left to remove it, up for not sure.',
       banVerdicts: { correct: 'Keep', unsure: 'Not sure', incorrect: 'Remove', special: 'Special case' },

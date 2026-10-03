@@ -413,8 +413,9 @@ export const de: Messages = {
       proposedByFriends: (names, others) =>
         `vorgeschlagen von ${names.join(', ')}${others > 0 ? ` und ${others} ${others > 1 ? 'weiteren' : 'weiterer'}` : ''}`,
       question: 'Gehört es in diese Kategorie?',
-      hint: 'Wisch die Karte: nach rechts richtig, nach links falsch, nach oben weiß nicht.',
-      verdicts: { correct: 'Richtig', unsure: 'Weiß nicht', incorrect: 'Falsch', special: 'Sonderfall' },
+      hint: 'Wisch die Karte: nach rechts hinzufügen, nach links ablehnen, nach oben weiß nicht.',
+      verdicts: { correct: 'Hinzufügen', unsure: 'Weiß nicht', incorrect: 'Ablehnen', special: 'Sonderfall' },
+      gestures: { correct: 'Dafür', unsure: 'Weiß nicht', incorrect: 'Dagegen', special: 'Sonderfall' },
       banQuestion: 'Soll dieses Wort bleiben?',
       banHint: 'Wisch die Karte: nach rechts behalten, nach links entfernen, nach oben weiß nicht.',
       banVerdicts: { correct: 'Behalten', unsure: 'Weiß nicht', incorrect: 'Entfernen', special: 'Sonderfall' },

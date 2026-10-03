@@ -4344,6 +4344,7 @@ button.challenge-past::after {
 }
 
 .word-card-stamp {
+  position: relative;
   display: grid;
   place-items: center;
   width: 2.6rem;
@@ -4351,6 +4352,34 @@ button.challenge-past::after {
   border: 3px solid currentColor;
   font-size: 1.4rem;
   transition: opacity 80ms linear;
+}
+
+/* Le mot du geste, à côté de la marque : le pouce le lit pendant le glissement.
+   Hors du flux — les trois tampons n'en tiennent pas moins dans la carte — et
+   vers l'intérieur, le tampon de droite étant collé au bord droit. */
+.word-card-stamp-word {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.word-card-stamp--correct .word-card-stamp-word {
+  left: calc(100% + 0.5rem);
+}
+
+.word-card-stamp--incorrect .word-card-stamp-word {
+  right: calc(100% + 0.5rem);
+}
+
+.word-card-stamp--unsure .word-card-stamp-word {
+  top: calc(100% + 0.35rem);
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .word-card-stamp--correct {

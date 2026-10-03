@@ -415,8 +415,9 @@ export const pt: Messages = {
       proposedByFriends: (names, others) =>
         `proposta por ${names.join(', ')}${others > 0 ? ` e ${others} ${others > 1 ? 'outros' : 'outro'}` : ''}`,
       question: 'Tem lugar nesta categoria?',
-      hint: 'Deslize o cartão: para a direita correta, para a esquerda incorreta, para cima não sei.',
-      verdicts: { correct: 'Correta', unsure: 'Não sei', incorrect: 'Incorreta', special: 'Caso especial' },
+      hint: 'Deslize o cartão: para a direita adicionar, para a esquerda recusar, para cima não sei.',
+      verdicts: { correct: 'Adicionar', unsure: 'Não sei', incorrect: 'Recusar', special: 'Caso especial' },
+      gestures: { correct: 'A favor', unsure: 'Não sei', incorrect: 'Contra', special: 'Caso especial' },
       banQuestion: 'Esta palavra deve ficar?',
       banHint: 'Deslize o cartão: para a direita mantê-la, para a esquerda removê-la, para cima não sei.',
       banVerdicts: { correct: 'Manter', unsure: 'Não sei', incorrect: 'Remover', special: 'Caso especial' },

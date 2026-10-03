@@ -451,16 +451,19 @@ export const fr = {
       proposedByFriends: (names: readonly string[], others: number) =>
         `proposé par ${names.join(', ')}${others > 0 ? ` et ${others} ${others > 1 ? 'autres' : 'autre'}` : ''}`,
       question: 'A-t-il sa place dans cette catégorie ?',
-      hint: 'Glisse la carte : à droite correct, à gauche incorrect, vers le haut je ne sais pas.',
-      verdicts: { correct: 'Correct', unsure: 'Je ne sais pas', incorrect: 'Incorrect', special: 'Cas spécial' },
+      hint: 'Glisse la carte : à droite ajouter, à gauche refuser, vers le haut je ne sais pas.',
+      verdicts: { correct: 'Ajouter', unsure: 'Je ne sais pas', incorrect: 'Refuser', special: 'Cas spécial' },
+      // Les compteurs d'une session mélangent les deux sortes de mot : le
+      // geste y est nommé pour ce qu'il est, pas pour ce qu'il fait.
+      gestures: { correct: 'Pour', unsure: 'Je ne sais pas', incorrect: 'Contre', special: 'Cas spécial' },
       banQuestion: 'Faut-il conserver ce mot ?',
-      banHint: 'Glisse la carte : à droite le garder, à gauche le bannir, vers le haut je ne sais pas.',
-      banVerdicts: { correct: 'Garder', unsure: 'Je ne sais pas', incorrect: 'Bannir', special: 'Cas spécial' },
+      banHint: 'Glisse la carte : à droite le conserver, à gauche le retirer, vers le haut je ne sais pas.',
+      banVerdicts: { correct: 'Conserver', unsure: 'Je ne sais pas', incorrect: 'Retirer', special: 'Cas spécial' },
       banOutcomes: {
         pending: 'Vote compté',
         special: 'Transmis aux super modérateurs',
         accepted: 'Retiré : le mot quittera la catégorie à la prochaine version.',
-        rejected: 'Gardé : le mot reste dans la catégorie.',
+        rejected: 'Conservé : le mot reste dans la catégorie.',
         gone: 'Réglé entre-temps',
         unreachable: 'Le serveur n’a pas répondu. Réessaie.',
       } satisfies Record<VoteOutcome, string> as Record<VoteOutcome, string>,

@@ -230,10 +230,10 @@ export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps)
           {tally.entered > 0 && <p className="moderation-entered">{t.moderation.screen.entered(tally.entered)}</p>}
         </div>
         <div className="figures">
-          <Figure tint="green" value={tally.correct} label={t.moderation.screen.verdicts.correct} />
-          <Figure tint="yellow" value={tally.unsure} label={t.moderation.screen.verdicts.unsure} />
-          <Figure tint="red" value={tally.incorrect} label={t.moderation.screen.verdicts.incorrect} />
-          <Figure tint="blue" value={tally.special} label={t.moderation.screen.verdicts.special} />
+          <Figure tint="green" value={tally.correct} label={t.moderation.screen.gestures.correct} />
+          <Figure tint="yellow" value={tally.unsure} label={t.moderation.screen.gestures.unsure} />
+          <Figure tint="red" value={tally.incorrect} label={t.moderation.screen.gestures.incorrect} />
+          <Figure tint="blue" value={tally.special} label={t.moderation.screen.gestures.special} />
         </div>
         <button type="button" className="btn btn--block" onClick={onDone}>
           {t.moderation.screen.finish}
@@ -406,6 +406,8 @@ function WordCard({ card, behind, drag, leaving, lean, children, ...pointer }: W
   const t = useT()
   const text = categoryText(t, card.categoryId)
   const motif = categoryMotif(card.categoryId)
+  // What each gesture does to this card, said on the stamp that follows the thumb.
+  const labels = card.kind === 'ban' ? t.moderation.screen.banVerdicts : t.moderation.screen.verdicts
   const style: CSSProperties = {}
   if (drag) {
     style.transform = `translate(${drag.dx}px, ${drag.dy}px) rotate(${drag.dx * 0.05}deg)`
@@ -430,6 +432,7 @@ function WordCard({ card, behind, drag, leaving, lean, children, ...pointer }: W
             style={{ opacity: lean?.[verdict] ?? 0 } as CSSProperties}
           >
             <VerdictMark verdict={verdict} />
+            <span className="word-card-stamp-word">{labels[verdict]}</span>
           </span>
         ))}
       </div>

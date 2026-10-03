@@ -415,8 +415,9 @@ export const es: Messages = {
       proposedByFriends: (names, others) =>
         `propuesta por ${names.join(', ')}${others > 0 ? ` y ${others} ${others > 1 ? 'otros' : 'otro'}` : ''}`,
       question: '¿Tiene su lugar en esta categoría?',
-      hint: 'Desliza la tarjeta: a la derecha correcta, a la izquierda incorrecta, hacia arriba no lo sé.',
-      verdicts: { correct: 'Correcta', unsure: 'No lo sé', incorrect: 'Incorrecta', special: 'Caso especial' },
+      hint: 'Desliza la tarjeta: a la derecha añadirla, a la izquierda rechazarla, hacia arriba no lo sé.',
+      verdicts: { correct: 'Añadir', unsure: 'No lo sé', incorrect: 'Rechazar', special: 'Caso especial' },
+      gestures: { correct: 'A favor', unsure: 'No lo sé', incorrect: 'En contra', special: 'Caso especial' },
       banQuestion: '¿Hay que conservar esta palabra?',
       banHint: 'Desliza la tarjeta: a la derecha conservarla, a la izquierda retirarla, hacia arriba no lo sé.',
       banVerdicts: { correct: 'Conservar', unsure: 'No lo sé', incorrect: 'Retirar', special: 'Caso especial' },
