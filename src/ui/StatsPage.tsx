@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type Ref } from 'react'
 import { createPortal } from 'react-dom'
-import { listedHistory, mergeHistory, summarize, type PlayedWord, type RunRecord } from '../domain/history'
+import { listedHistory, mergeHistory, summarize, type RunRecord } from '../domain/history'
 import type { HiddenAnswer } from '../domain/perks'
 import { capitalized, normalizeWord } from '../domain/text'
 import type { Profile } from '../domain/progression'
@@ -13,12 +13,18 @@ import { fetchChallenge, type BanOutcome, type ChallengeSummary } from '../lib/c
 import { challengeTitle, isHidden, loadWinners, rememberWinner, winnerOf, type ChallengeWinner } from '../state/challenges'
 import { useHiddenChallenges } from '../state/useHiddenChallenges'
 import { useBackDismiss } from './useBackDismiss'
+import { useLongPress } from './useLongPress'
 
 /** Rows added each time the history is asked for more, from the device or the account. */
 const PAGE = 30
 
-/** Long enough that a tap on a word of the recap is not taken for a flag. */
-const LONG_PRESS_MS = 550
+/** A word a moderator can flag: one the run said, or one its prompts still had. */
+export interface FlagWord {
+  categoryId: string
+  /** The dictionary's own key (`WordEntry.key`), which is what a ban targets. */
+  word: string
+  display: string
+}
 
 function formatDate(t: Messages, at: number): string {
   return new Date(at).toLocaleString(t.tag, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
@@ -51,10 +57,11 @@ export interface RecapActions {
   onPeek(): void
   onJoinPlus(): void
   /**
-   * Signals one of the run's words to the other moderators; absent for a player
-   * who is not one, which is what keeps the recap from offering it.
+   * Signals one of the run's words — said, or still hidden — to the other
+   * moderators, with the reason the card asks for; absent for a player who is
+   * not one, which is what keeps the recap from offering it.
    */
-  onFlag?(run: RunRecord, word: PlayedWord): Promise<BanOutcome>
+  onFlag?(run: RunRecord, word: FlagWord, reason: string): Promise<BanOutcome>
 }
 
 export function StatsPage({
@@ -372,8 +379,7 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
   // Runs recorded before their prompts were kept have nothing to hide.
   const [hidden, setHidden] = useState<readonly HiddenAnswer[] | null>(run.prompts ? null : [])
   const hiddenFor = useRef(actions.hiddenFor)
-  const [flagged, setFlagged] = useState<PlayedWord | null>(null)
-  const press = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const [flagged, setFlagged] = useState<FlagWord | null>(null)
   const onFlag = actions.onFlag
 
   useEffect(() => {
@@ -389,7 +395,7 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
 
   // A word only leaves the game at the next dictionary build: the flag opens a
   // card rather than acting on the tap that ends it.
-  const openFlag = onFlag ? (word: PlayedWord) => setFlagged(word) : undefined
+  const press = useLongPress<FlagWord>((word) => setFlagged(word))
 
   return (
     <div className="stack run-recap">
@@ -403,29 +409,13 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
         </strong>
         <span className="note">{t.stats.runLine(run.words.length, run.bestCombo)}</span>
       </header>
+      {onFlag && <p className="note">{t.moderation.flag.hint}</p>}
       {run.words.length > 0 && (
         <section className="stack">
           <p className="section-title">{t.stats.recapWords}</p>
-          {openFlag && <p className="note">{t.moderation.flag.hint}</p>}
           <ol className="reveal-words">
             {run.words.map((word, index) => (
-              <li
-                key={`${word.word}-${index}`}
-                className="reveal-word"
-                onTouchStart={openFlag && (() => {
-                  press.current = setTimeout(() => openFlag(word), LONG_PRESS_MS)
-                })}
-                onTouchMove={() => clearTimeout(press.current)}
-                onTouchEnd={() => clearTimeout(press.current)}
-                onContextMenu={
-                  openFlag &&
-                  ((event) => {
-                    // The long press already answered: no browser menu on top of it.
-                    event.preventDefault()
-                    openFlag(word)
-                  })
-                }
-              >
+              <li key={`${word.word}-${index}`} className="reveal-word" {...(onFlag ? press(word) : {})}>
                 <LetterMark letter={normalizeWord(word.display).charAt(0).toUpperCase()} motif={categoryMotif(word.categoryId)} size="sm" />
                 <span className="reveal-word-text">
                   {capitalized(word.display)}
@@ -440,13 +430,21 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
       {hidden === null ? (
         <p className="note">{t.loading}</p>
       ) : (
-        hidden.length > 0 && <HiddenAnswers hidden={hidden} peeks={actions.peeks} onPeek={actions.onPeek} onJoinPlus={actions.onJoinPlus} />
+        hidden.length > 0 && (
+          <HiddenAnswers
+            hidden={hidden}
+            peeks={actions.peeks}
+            onPeek={actions.onPeek}
+            onJoinPlus={actions.onJoinPlus}
+            onFlag={onFlag && ((answer) => setFlagged(answer))}
+          />
+        )
       )}
       {flagged && onFlag && (
         <FlagWordCard
           word={flagged}
           category={categoryText(t, flagged.categoryId).label}
-          onFlag={() => onFlag(run, flagged)}
+          onFlag={(reason) => onFlag(run, flagged, reason)}
           onClose={() => setFlagged(null)}
         />
       )}
@@ -455,9 +453,9 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
 }
 
 /**
- * A word of the recap flagged for removal: the moderator confirms, and the
- * others judge it in « Mes demandes » — as many votes as an addition. Exported
- * so the debug board can show the card on its own.
+ * A word of the recap flagged for removal: the moderator confirms and says why,
+ * and the others judge it in « Mes demandes » — as many votes as an addition,
+ * with his reason on the card. Exported so the debug board can show it alone.
  */
 export function FlagWordCard({
   word,
@@ -465,18 +463,19 @@ export function FlagWordCard({
   onFlag,
   onClose,
 }: {
-  word: PlayedWord
+  word: FlagWord
   category: string
-  onFlag(): Promise<BanOutcome>
+  onFlag(reason: string): Promise<BanOutcome>
   onClose(): void
 }) {
   const t = useT()
   const [step, setStep] = useState<'ask' | 'busy' | BanOutcome>('ask')
+  const [reason, setReason] = useState('')
   useBackDismiss(onClose)
 
   const confirm = async () => {
     setStep('busy')
-    setStep(await onFlag())
+    setStep(await onFlag(reason))
   }
 
   return createPortal(
@@ -489,6 +488,17 @@ export function FlagWordCard({
         {step === 'ask' || step === 'busy' ? (
           <>
             <p>{t.moderation.flag.lead(capitalized(word.display), category)}</p>
+            <label className="flag-reason" htmlFor="flag-reason">
+              <span className="note">{t.moderation.flag.reasonLabel}</span>
+              <textarea
+                id="flag-reason"
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                placeholder={t.moderation.flag.reasonPlaceholder}
+                maxLength={140}
+                rows={2}
+              />
+            </label>
             <div className="offer-pop-actions">
               <button type="button" className="btn btn--ghost" onClick={onClose}>
                 {t.cancel}

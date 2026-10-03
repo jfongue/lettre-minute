@@ -401,6 +401,8 @@ export const en: Messages = {
         `“${word}” does not belong in “${category}”? The other moderators will judge it: three in agreement and it leaves the category in the next version.`,
       confirm: 'Flag',
       close: 'Close',
+      reasonLabel: 'Reason (optional)',
+      reasonPlaceholder: 'That country no longer exists, a spelling mistake…',
       said: {
         sent: 'Flagged. The other moderators will judge it.',
         accepted: 'Removed. The word leaves the category in the next dictionary shipped.',
@@ -424,6 +426,7 @@ export const en: Messages = {
       banVerdicts: { correct: 'Remove', unsure: 'Not sure', incorrect: 'Keep', special: 'Special case' },
       banProposedBy: (count) => `flagged by ${count} ${count > 1 ? 'moderators' : 'moderator'}`,
       kinds: { add: 'Addition', ban: 'Removal' },
+      banReason: (reason) => `Reason: ${reason}`,
       respell: 'Fix the spelling',
       respellLead: 'Your approval counts, but one more moderator will be needed.',
       respellLabel: 'Corrected spelling',

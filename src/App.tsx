@@ -1133,7 +1133,7 @@ export function App() {
       onJoinPlus: joinPlus,
       // Only a moderator flags a word: without the role, the recap says nothing of it.
       ...(moderation?.moderator && {
-        onFlag: (run, word) => proposeBan(run.lang, word.categoryId, word.word, word.display),
+        onFlag: (run, word, reason) => proposeBan(run.lang, word.categoryId, word.word, word.display, reason),
       }),
     }),
     [judgeFor, session.profile, peek, joinPlus, moderation],

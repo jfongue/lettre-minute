@@ -395,6 +395,8 @@ export const de: Messages = {
         `„${word}“ gehört nicht in „${category}“? Die anderen Moderatoren beurteilen es: drei dafür und es verlässt die Kategorie in der nächsten Version.`,
       confirm: 'Melden',
       close: 'Schließen',
+      reasonLabel: 'Grund (optional)',
+      reasonPlaceholder: 'Dieses Land gibt es nicht mehr, ein Schreibfehler …',
       said: {
         sent: 'Gemeldet. Die anderen Moderatoren beurteilen es.',
         accepted: 'Entfernt. Das Wort verlässt die Kategorie im nächsten ausgelieferten Wörterbuch.',
@@ -418,6 +420,7 @@ export const de: Messages = {
       banVerdicts: { correct: 'Entfernen', unsure: 'Weiß nicht', incorrect: 'Behalten', special: 'Sonderfall' },
       banProposedBy: (count) => `gemeldet von ${count} ${count > 1 ? 'Moderatoren' : 'Moderator'}`,
       kinds: { add: 'Aufnahme', ban: 'Entfernung' },
+      banReason: (reason) => `Grund: ${reason}`,
       respell: 'Schreibweise korrigieren',
       respellLead: 'Deine Bestätigung zählt, aber es braucht einen Moderator mehr.',
       respellLabel: 'Korrigierte Schreibweise',

@@ -433,6 +433,8 @@ export const fr = {
         `« ${word} » n’a pas sa place dans « ${category} » ? Les autres modérateurs le jugeront : trois d’accord et il quittera la catégorie à la prochaine version.`,
       confirm: 'Signaler',
       close: 'Fermer',
+      reasonLabel: 'Motif (facultatif)',
+      reasonPlaceholder: 'Ce pays n’existe plus, une faute d’orthographe…',
       said: {
         sent: 'Signalé. Les autres modérateurs le jugeront.',
         accepted: 'Retiré. Le mot quittera la catégorie au prochain dictionnaire livré.',
@@ -456,6 +458,7 @@ export const fr = {
       banVerdicts: { correct: 'Retirer', unsure: 'Je ne sais pas', incorrect: 'Garder', special: 'Cas spécial' },
       banProposedBy: (count: number) => `signalé par ${count} ${plural(count, 'modérateur', 'modérateurs')}`,
       kinds: { add: 'Ajout', ban: 'Retrait' },
+      banReason: (reason: string) => `Motif : ${reason}`,
       respell: 'Corriger l’orthographe',
       respellLead: 'Ta validation comptera, mais il faudra un modérateur de plus.',
       respellLabel: 'Orthographe corrigée',

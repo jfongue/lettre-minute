@@ -468,15 +468,23 @@ export type BanOutcome = 'sent' | 'accepted' | 'rejected' | 'known' | 'forbidden
 
 /**
  * A moderator flags a word of the dictionary he was just given: his word counts
- * for one vote, and the others judge it in « Mes demandes ». The word only
- * leaves the game at the next dictionary build (`scripts/banned-words.ts`).
+ * for one vote, and the others judge it in « Mes demandes » — with his reason,
+ * which they read on the card. The word only leaves the game at the next
+ * dictionary build (`scripts/banned-words.ts`).
  */
-export function proposeBan(lang: string, categoryId: string, word: string, display: string): Promise<BanOutcome> {
+export function proposeBan(
+  lang: string,
+  categoryId: string,
+  word: string,
+  display: string,
+  reason: string,
+): Promise<BanOutcome> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('propose_ban', {
       p_category: scoped(lang, categoryId),
       p_word: word,
       p_display: display,
+      p_note: reason.trim() || null,
     })
     return error ? 'unreachable' : (data as BanOutcome)
   }, 'unreachable')

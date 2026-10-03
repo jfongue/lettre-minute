@@ -436,6 +436,9 @@ function WordCard({ card, behind, drag, leaving, lean, children, ...pointer }: W
         {card.kind === 'ban' ? t.moderation.screen.banQuestion : t.moderation.screen.question}
       </p>
       <p className="word-card-word">{card.display}</p>
+      {card.kind === 'ban' && card.note && (
+        <p className="note word-card-reason">{t.moderation.screen.banReason(card.note)}</p>
+      )}
       <p className="note">
         {card.kind === 'ban'
           ? t.moderation.screen.banProposedBy(card.proposals)

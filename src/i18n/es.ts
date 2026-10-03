@@ -397,6 +397,8 @@ export const es: Messages = {
         `¿«${word}» no tiene su lugar en «${category}»? Los demás moderadores la juzgarán: tres de acuerdo y saldrá de la categoría en la próxima versión.`,
       confirm: 'Señalar',
       close: 'Cerrar',
+      reasonLabel: 'Motivo (opcional)',
+      reasonPlaceholder: 'Ese país ya no existe, una falta de ortografía…',
       said: {
         sent: 'Señalada. Los demás moderadores la juzgarán.',
         accepted: 'Quitada. La palabra saldrá de la categoría en el próximo diccionario publicado.',
@@ -420,6 +422,7 @@ export const es: Messages = {
       banVerdicts: { correct: 'Quitar', unsure: 'No lo sé', incorrect: 'Dejar', special: 'Caso especial' },
       banProposedBy: (count) => `señalada por ${count} ${count > 1 ? 'moderadores' : 'moderador'}`,
       kinds: { add: 'Adición', ban: 'Retirada' },
+      banReason: (reason) => `Motivo: ${reason}`,
       respell: 'Corregir la ortografía',
       respellLead: 'Tu validación cuenta, pero hará falta un moderador más.',
       respellLabel: 'Ortografía corregida',

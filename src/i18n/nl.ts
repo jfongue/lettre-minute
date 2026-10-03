@@ -396,6 +396,8 @@ export const nl: Messages = {
         `„${word}” hoort niet in „${category}”? De andere moderators beoordelen het: drie eens en het verlaat de categorie in de volgende versie.`,
       confirm: 'Melden',
       close: 'Sluiten',
+      reasonLabel: 'Reden (optioneel)',
+      reasonPlaceholder: 'Dat land bestaat niet meer, een spelfout …',
       said: {
         sent: 'Gemeld. De andere moderators beoordelen het.',
         accepted: 'Verwijderd. Het woord verlaat de categorie in het volgende woordenboek.',
@@ -419,6 +421,7 @@ export const nl: Messages = {
       banVerdicts: { correct: 'Verwijderen', unsure: 'Weet ik niet', incorrect: 'Houden', special: 'Speciaal geval' },
       banProposedBy: (count) => `gemeld door ${count} ${count > 1 ? 'moderators' : 'moderator'}`,
       kinds: { add: 'Toevoeging', ban: 'Verwijdering' },
+      banReason: (reason) => `Reden: ${reason}`,
       respell: 'Spelling verbeteren',
       respellLead: 'Je goedkeuring telt, maar er is één moderator meer nodig.',
       respellLabel: 'Verbeterde spelling',
