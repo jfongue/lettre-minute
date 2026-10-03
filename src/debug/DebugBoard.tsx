@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { DEFAULT_AVATAR, type AvatarChoice } from '../domain/avatar'
 import type { ChallengeWord } from '../domain/challenge'
 import { choosePower } from '../domain/powers'
@@ -964,7 +964,7 @@ function ModerationQueueScenario({ onBack }: { onBack(): void }) {
 const FLAGGED_WORD: PlayedWord = { categoryId: 'animaux', word: 'quiscale', display: 'Quiscale', points: 14 }
 
 /** Le récap d'une de ses parties, ouvert : un mot s'y signale d'un appui long. */
-function FlagRecapScenario({ onBack }: { onBack(): void }) {
+function FlagRecapScenario() {
   return (
     <div className="sheet">
       <StatsPage
@@ -975,9 +975,6 @@ function FlagRecapScenario({ onBack }: { onBack(): void }) {
         onChallenge={noop}
         recap={STATS_RECAP}
       />
-      <button type="button" className="btn btn--ghost btn--block" onClick={onBack}>
-        Retour à la planche
-      </button>
     </div>
   )
 }
@@ -1648,7 +1645,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Signaler un mot : le récap d’une partie',
     how: 'Modérateur : appui long sur un mot de ses parties — clic droit sur le web — pour ouvrir la carte qui le signale',
     phase: 'home',
-    render: (back) => <FlagRecapScenario onBack={back} />,
+    render: () => <FlagRecapScenario />,
   },
   {
     id: 'flag-word-card',
@@ -1913,10 +1910,12 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
   const [open, setOpen] = useState<Scenario | null>(null)
   // Replaying remounts the screen, its animations and picks with it.
   const [take, setTake] = useState(0)
+  // Où la liste était : y revenir évite de la rescroller à chaque planche vue.
+  const listScroll = useRef(0)
 
   useEffect(() => {
     onPhase(open?.phase ?? 'home')
-    window.scrollTo(0, 0)
+    window.scrollTo(0, open ? 0 : listScroll.current)
   }, [open, onPhase])
 
   if (open) {
@@ -1982,6 +1981,7 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
                     type="button"
                     className={`debug-item${fresh ? ' debug-item--new' : recent ? ' debug-item--recent' : ''}`}
                     onClick={() => {
+                      listScroll.current = window.scrollY
                       setTake(0)
                       setOpen(scenario)
                     }}

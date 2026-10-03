@@ -4383,6 +4383,22 @@ button.challenge-past::after {
   text-align: left;
 }
 
+/* Ce qu'on juge : un mot proposé entre, un mot signalé sort. La couleur seule
+   les distingue d'un coup d'œil, la phrase n'étant lue qu'après. */
+.word-card-kind {
+  align-self: flex-start;
+}
+
+.word-card-kind--add {
+  box-shadow: inset 0 0 0 1.5px var(--blue);
+  color: var(--blue);
+}
+
+.word-card-kind--ban {
+  box-shadow: inset 0 0 0 1.5px var(--red);
+  color: var(--red);
+}
+
 .word-card-question {
   margin-top: auto;
   font-weight: 600;

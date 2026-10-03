@@ -417,6 +417,7 @@ export const de: Messages = {
       banHint: 'Wisch die Karte: nach rechts entfernen, nach links behalten, nach oben weiß nicht.',
       banVerdicts: { correct: 'Entfernen', unsure: 'Weiß nicht', incorrect: 'Behalten', special: 'Sonderfall' },
       banProposedBy: (count) => `gemeldet von ${count} ${count > 1 ? 'Moderatoren' : 'Moderator'}`,
+      kinds: { add: 'Aufnahme', ban: 'Entfernung' },
       respell: 'Schreibweise korrigieren',
       respellLead: 'Deine Bestätigung zählt, aber es braucht einen Moderator mehr.',
       respellLabel: 'Korrigierte Schreibweise',

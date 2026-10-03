@@ -419,6 +419,7 @@ export const it: Messages = {
       banHint: 'Scorri la carta: a destra toglierla, a sinistra tenerla, in alto non lo so.',
       banVerdicts: { correct: 'Togliere', unsure: 'Non lo so', incorrect: 'Tenere', special: 'Caso speciale' },
       banProposedBy: (count) => `segnalata da ${count} ${count > 1 ? 'moderatori' : 'moderatore'}`,
+      kinds: { add: 'Aggiunta', ban: 'Rimozione' },
       respell: 'Correggi l’ortografia',
       respellLead: 'La tua approvazione conta, ma servirà un moderatore in più.',
       respellLabel: 'Ortografia corretta',

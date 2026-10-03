@@ -431,6 +431,7 @@ function WordCard({ card, behind, drag, leaving, lean, children, ...pointer }: W
         </p>
       )}
 
+      <p className={`tag word-card-kind word-card-kind--${card.kind}`}>{t.moderation.screen.kinds[card.kind]}</p>
       <p className="word-card-question note">
         {card.kind === 'ban' ? t.moderation.screen.banQuestion : t.moderation.screen.question}
       </p>

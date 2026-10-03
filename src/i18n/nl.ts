@@ -418,6 +418,7 @@ export const nl: Messages = {
       banHint: 'Veeg de kaart: naar rechts verwijderen, naar links houden, omhoog weet ik niet.',
       banVerdicts: { correct: 'Verwijderen', unsure: 'Weet ik niet', incorrect: 'Houden', special: 'Speciaal geval' },
       banProposedBy: (count) => `gemeld door ${count} ${count > 1 ? 'moderators' : 'moderator'}`,
+      kinds: { add: 'Toevoeging', ban: 'Verwijdering' },
       respell: 'Spelling verbeteren',
       respellLead: 'Je goedkeuring telt, maar er is één moderator meer nodig.',
       respellLabel: 'Verbeterde spelling',

@@ -419,6 +419,7 @@ export const es: Messages = {
       banHint: 'Desliza la tarjeta: a la derecha quitarla, a la izquierda dejarla, hacia arriba no lo sé.',
       banVerdicts: { correct: 'Quitar', unsure: 'No lo sé', incorrect: 'Dejar', special: 'Caso especial' },
       banProposedBy: (count) => `señalada por ${count} ${count > 1 ? 'moderadores' : 'moderador'}`,
+      kinds: { add: 'Adición', ban: 'Retirada' },
       respell: 'Corregir la ortografía',
       respellLead: 'Tu validación cuenta, pero hará falta un moderador más.',
       respellLabel: 'Ortografía corregida',

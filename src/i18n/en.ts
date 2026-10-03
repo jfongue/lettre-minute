@@ -423,6 +423,7 @@ export const en: Messages = {
       banHint: 'Swipe the card: right to remove it, left to keep it, up for not sure.',
       banVerdicts: { correct: 'Remove', unsure: 'Not sure', incorrect: 'Keep', special: 'Special case' },
       banProposedBy: (count) => `flagged by ${count} ${count > 1 ? 'moderators' : 'moderator'}`,
+      kinds: { add: 'Addition', ban: 'Removal' },
       respell: 'Fix the spelling',
       respellLead: 'Your approval counts, but one more moderator will be needed.',
       respellLabel: 'Corrected spelling',

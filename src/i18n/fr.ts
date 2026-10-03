@@ -455,6 +455,7 @@ export const fr = {
       banHint: 'Glisse la carte : à droite le retirer, à gauche le garder, vers le haut je ne sais pas.',
       banVerdicts: { correct: 'Retirer', unsure: 'Je ne sais pas', incorrect: 'Garder', special: 'Cas spécial' },
       banProposedBy: (count: number) => `signalé par ${count} ${plural(count, 'modérateur', 'modérateurs')}`,
+      kinds: { add: 'Ajout', ban: 'Retrait' },
       respell: 'Corriger l’orthographe',
       respellLead: 'Ta validation comptera, mais il faudra un modérateur de plus.',
       respellLabel: 'Orthographe corrigée',
