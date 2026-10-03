@@ -1,4 +1,4 @@
-• Modérateurs : signaler un mot qui n’a pas sa place, d’un appui long dans le récapitulatif d’une partie, avec le motif
-• Un mot signalé se juge d’un geste plus clair : le conserver à droite, le retirer à gauche
-• Les mots retirés quittent les dictionnaires, et les lettres+catégories qu’ils vidaient sortent moins souvent
-• Petites corrections
+• Trois nouveaux pouvoirs : Retardataire, Passe-passe et Sans faute
+• Retardataire : un mot validé dans les 5 dernières secondes te rend une seconde, jusqu’à 5 par partie
+• Passe-passe saute gratuitement le thème suivant après un passage, une fois par partie
+• Sans faute paie 10 points tous les trois mots écrits sans faute de frappe
