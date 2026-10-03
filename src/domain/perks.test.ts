@@ -21,6 +21,7 @@ import {
   unban,
 } from './perks'
 import { createRun, skip, submit, type Judge } from './run'
+import { normalizeWord } from './text'
 import { buildWordPack, commonWord, findWord, lettersWithEnough } from './words'
 
 const SEVEN = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
@@ -130,6 +131,18 @@ describe('hiddenAnswers', () => {
     expect(answers).toHaveLength(1)
     expect(answers[0]!.prompt).toEqual(first)
     expect(answers[0]!.display.toLowerCase()).toBe(`${first.letter}chat`.toLowerCase())
+  })
+
+  it('names a word whose spelling is its own key, which is what a flag sends', () => {
+    let run = createRun({ seed: 3, categoryIds: ['animaux'] }, judge)
+    run = skip(run, judge)
+    run = submit(run, `${run.prompt.letter}chat`, judge).run
+    // Le récap signale un mot caché par sa clé (`WordEntry.key`, celle d'une
+    // réponse jouée) : sa forme repliée doit être cette clé, sinon un ban
+    // viserait une autre ligne du dictionnaire que celle qu'on lit.
+    const [answer] = hiddenAnswers(run, judge)
+    const entry = [...pack.entries.values()].find((candidate) => candidate.display === answer!.display)
+    expect(entry?.key).toBe(normalizeWord(answer!.display))
   })
 
 })
