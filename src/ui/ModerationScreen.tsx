@@ -12,6 +12,14 @@ import { RespellField, respellValid } from './RespellField'
 type Judged = Exclude<Verdict, 'special'>
 type Mode = 'judge' | 'respell' | 'special'
 
+/** What a gesture means to a review that proposes the opposite: the green thumb keeps. */
+const OPPOSITE: Record<Verdict, Verdict> = {
+  correct: 'incorrect',
+  incorrect: 'correct',
+  unsure: 'unsure',
+  special: 'special',
+}
+
 interface Leaving {
   verdict: Verdict
   /** Where the card was let go, so it flies on from there rather than from the centre. */
@@ -54,7 +62,7 @@ export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps)
   const [mode, setMode] = useState<Mode>('judge')
   const [drag, setDrag] = useState<Drag | null>(null)
   const [leaving, setLeaving] = useState<Leaving | null>(null)
-  const [toast, setToast] = useState<{ key: number; outcome: VoteOutcome } | null>(null)
+  const [toast, setToast] = useState<{ key: number; outcome: VoteOutcome; ban: boolean } | null>(null)
   const [tally, setTally] = useState<Tally>(NO_TALLY)
   const [draft, setDraft] = useState('')
   const busy = useRef(false)
@@ -74,7 +82,8 @@ export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps)
 
   const deck = cards === 'loading' || cards === null ? [] : cards
   const card = deck[index] ?? null
-  // A flagged word reads the other way: « correct » there means « take it out ».
+  // A flagged word asks the opposite question — keep it? — so the green gesture
+  // is « keep », and the word only goes once enough moderators say it should.
   const labels = card?.kind === 'ban' ? t.moderation.screen.banVerdicts : t.moderation.screen.verdicts
   const finished = cards !== 'loading' && cards !== null && deck.length > 0 && index >= deck.length
   // The last card's verdict sounds first; the confetti of a queue cleared come just after.
@@ -94,13 +103,15 @@ export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps)
       // The card leaves at once: waiting on the server before moving would
       // make every gesture feel like it had missed.
       const [outcome] = await Promise.all([
-        castVote(card, lang, verdict, extra),
+        // What a flagged word's review proposes is to take the word out: keeping
+        // it is a « no », and the green gesture is the one that says so.
+        castVote(card, lang, card.kind === 'ban' ? OPPOSITE[verdict] : verdict, extra),
         new Promise((resolve) => setTimeout(resolve, FLY_MS)),
       ])
       busy.current = false
       if (outcome === 'unreachable') {
         setLeaving(null)
-        setToast({ key: Date.now(), outcome })
+        setToast({ key: Date.now(), outcome, ban: card.kind === 'ban' })
         sound.refused()
         return
       }
@@ -109,9 +120,11 @@ export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps)
       setTally((before) => ({
         ...before,
         [verdict]: before[verdict] + 1,
-        entered: before.entered + (outcome === 'accepted' ? 1 : 0),
+        // Only an addition enters the dictionary: a flagged word that settles
+        // leaves it, which the judgement card's own words say.
+        entered: before.entered + (outcome === 'accepted' && card.kind === 'add' ? 1 : 0),
       }))
-      setToast({ key: Date.now(), outcome })
+      setToast({ key: Date.now(), outcome, ban: card.kind === 'ban' })
       setLeaving(null)
       setMode('judge')
       setIndex((at) => at + 1)
@@ -314,7 +327,7 @@ export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps)
         {toast && (
           <p key={toast.key} className={`moderation-toast moderation-toast--${toast.outcome}`}>
             {toast.outcome === 'accepted' && <Burst />}
-            {t.moderation.screen.outcomes[toast.outcome]}
+            {(toast.ban ? t.moderation.screen.banOutcomes : t.moderation.screen.outcomes)[toast.outcome]}
           </p>
         )}
       </div>
