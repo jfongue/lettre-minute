@@ -1,4 +1,4 @@
-• Statistiques : tout ton historique et le récap de chaque partie
-• Les notifications de défi s’effacent une fois traitées
-• Ajustement des taux d’apparition
+• Modérateurs : signaler un mot qui n’a pas sa place, d’un appui long dans le récapitulatif d’une partie, avec le motif
+• Un mot signalé se juge d’un geste plus clair : le conserver à droite, le retirer à gauche
+• Les mots retirés quittent les dictionnaires, et les lettres+catégories qu’ils vidaient sortent moins souvent
 • Petites corrections
