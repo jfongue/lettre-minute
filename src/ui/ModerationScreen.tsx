@@ -43,11 +43,13 @@ interface ModerationScreenProps {
   lang: string
   /** Back to « Mes demandes », where the next session is started. */
   onDone(): void
+  /** The words to judge, from the debug board: no call, no server. */
+  queue?: readonly ReviewCard[]
 }
 
-export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
+export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps) {
   const t = useT()
-  const [cards, setCards] = useState<ReviewCard[] | null | 'loading'>('loading')
+  const [cards, setCards] = useState<ReviewCard[] | null | 'loading'>(() => (queue ? [...queue] : 'loading'))
   const [index, setIndex] = useState(0)
   const [mode, setMode] = useState<Mode>('judge')
   const [drag, setDrag] = useState<Drag | null>(null)
@@ -60,8 +62,9 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
 
   useEffect(() => {
     window.scrollTo(0, 0)
+    if (queue) return
     fetchModerationQueue(lang).then(setCards)
-  }, [lang])
+  }, [lang, queue])
 
   useEffect(() => {
     if (!toast) return
@@ -71,6 +74,8 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
 
   const deck = cards === 'loading' || cards === null ? [] : cards
   const card = deck[index] ?? null
+  // A flagged word reads the other way: « correct » there means « take it out ».
+  const labels = card?.kind === 'ban' ? t.moderation.screen.banVerdicts : t.moderation.screen.verdicts
   const finished = cards !== 'loading' && cards !== null && deck.length > 0 && index >= deck.length
   // The last card's verdict sounds first; the confetti of a queue cleared come just after.
   useEffect(() => {
@@ -324,14 +329,14 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
                 className={`vote vote--${verdict}`}
                 style={{ '--lean': lean[verdict] } as CSSProperties}
                 onClick={() => vote(verdict)}
-                aria-label={t.moderation.screen.verdicts[verdict]}
-                title={t.moderation.screen.verdicts[verdict]}
+                aria-label={labels[verdict]}
+                title={labels[verdict]}
               >
                 <VerdictMark verdict={verdict} />
               </button>
             ))}
           </div>
-          <p className="note moderation-hint">{t.moderation.screen.hint}</p>
+          <p className="note moderation-hint">{card.kind === 'ban' ? t.moderation.screen.banHint : t.moderation.screen.hint}</p>
           <div className="moderation-extras">
             {card.canRespell && !card.special && (
               <button type="button" className="btn btn--quiet" onClick={openRespell}>
@@ -339,7 +344,7 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
                 {t.moderation.screen.respell}
               </button>
             )}
-            {!card.special && (
+            {!card.special && card.kind === 'add' && (
               <button type="button" className="btn btn--quiet" onClick={openSpecial}>
                 <VerdictMark verdict="special" />
                 {t.moderation.screen.verdicts.special}
@@ -426,12 +431,16 @@ function WordCard({ card, behind, drag, leaving, lean, children, ...pointer }: W
         </p>
       )}
 
-      <p className="word-card-question note">{t.moderation.screen.question}</p>
+      <p className="word-card-question note">
+        {card.kind === 'ban' ? t.moderation.screen.banQuestion : t.moderation.screen.question}
+      </p>
       <p className="word-card-word">{card.display}</p>
       <p className="note">
-        {card.friends.length > 0
-          ? t.moderation.screen.proposedByFriends(card.friends, card.proposals - card.friends.length)
-          : t.moderation.screen.proposedBy(card.proposals)}
+        {card.kind === 'ban'
+          ? t.moderation.screen.banProposedBy(card.proposals)
+          : card.friends.length > 0
+            ? t.moderation.screen.proposedByFriends(card.friends, card.proposals - card.friends.length)
+            : t.moderation.screen.proposedBy(card.proposals)}
       </p>
 
       {children}

@@ -427,8 +427,10 @@ export function topUpModeration(lang: string): Promise<number> {
 export interface ReviewCard {
   id: string
   categoryId: string
+  /** `ban` is a word of the dictionary a moderator flagged: `correct` means remove it. */
+  kind: 'add' | 'ban'
   display: string
-  /** How many players asked for it. */
+  /** Players who asked for it, or moderators who agreed to remove it. */
   proposals: number
   special: boolean
   /** Why a moderator sent it to the super moderators. */
@@ -447,6 +449,7 @@ export function fetchModerationQueue(lang: string): Promise<ReviewCard[] | null>
     return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
       id: row.id as string,
       categoryId: split(row.category_id as string).value,
+      kind: row.kind === 'ban' ? 'ban' : 'add',
       display: row.display as string,
       proposals: Number(row.proposals) || 1,
       special: row.special === true,
@@ -459,6 +462,25 @@ export function fetchModerationQueue(lang: string): Promise<ReviewCard[] | null>
 
 /** What became of the word: `gone` when the vote could not be taken, `unreachable` when it never arrived. */
 export type VoteOutcome = 'pending' | 'special' | 'accepted' | 'rejected' | 'gone' | 'unreachable'
+
+/** A word flagged for removal: counted, already settled, settled by this vote, or refused. */
+export type BanOutcome = 'sent' | 'accepted' | 'rejected' | 'known' | 'forbidden' | 'unreachable'
+
+/**
+ * A moderator flags a word of the dictionary he was just given: his word counts
+ * for one vote, and the others judge it in « Mes demandes ». The word only
+ * leaves the game at the next dictionary build (`scripts/banned-words.ts`).
+ */
+export function proposeBan(lang: string, categoryId: string, word: string, display: string): Promise<BanOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('propose_ban', {
+      p_category: scoped(lang, categoryId),
+      p_word: word,
+      p_display: display,
+    })
+    return error ? 'unreachable' : (data as BanOutcome)
+  }, 'unreachable')
+}
 
 export function castVote(
   card: ReviewCard,

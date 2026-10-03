@@ -394,6 +394,22 @@ export const en: Messages = {
       close: 'Close',
       failed: 'The server did not answer. Try again.',
     },
+    flag: {
+      hint: 'Moderator: press and hold a word to flag it.',
+      title: 'Flag this word',
+      lead: (word, category) =>
+        `“${word}” does not belong in “${category}”? The other moderators will judge it: three in agreement and it leaves the category in the next version.`,
+      confirm: 'Flag',
+      close: 'Close',
+      said: {
+        sent: 'Flagged. The other moderators will judge it.',
+        accepted: 'Removed. The word leaves the category in the next dictionary shipped.',
+        rejected: 'The moderators kept the word.',
+        known: 'That word is already flagged or already judged.',
+        forbidden: 'The flag was not recorded.',
+        unreachable: 'The server did not answer. Try again.',
+      },
+    },
     screen: {
       quit: 'Leave the session',
       counter: (index, total) => `Word ${index} of ${total}`,
@@ -403,6 +419,10 @@ export const en: Messages = {
       question: 'Does it belong in this category?',
       hint: 'Swipe the card: right for correct, left for incorrect, up for not sure.',
       verdicts: { correct: 'Correct', unsure: 'Not sure', incorrect: 'Incorrect', special: 'Special case' },
+      banQuestion: 'Should this word leave the category?',
+      banHint: 'Swipe the card: right to remove it, left to keep it, up for not sure.',
+      banVerdicts: { correct: 'Remove', unsure: 'Not sure', incorrect: 'Keep', special: 'Special case' },
+      banProposedBy: (count) => `flagged by ${count} ${count > 1 ? 'moderators' : 'moderator'}`,
       respell: 'Fix the spelling',
       respellLead: 'Your approval counts, but one more moderator will be needed.',
       respellLabel: 'Corrected spelling',

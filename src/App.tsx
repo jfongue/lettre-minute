@@ -26,6 +26,7 @@ import {
   logInWithGoogle,
   logOut,
   markChallengeSeen,
+  proposeBan,
   pushAvatar,
   pushChallengeRun,
   pushRun,
@@ -1130,8 +1131,12 @@ export function App() {
       peeks: peeksLeft(session.profile),
       onPeek: peek,
       onJoinPlus: joinPlus,
+      // Only a moderator flags a word: without the role, the recap says nothing of it.
+      ...(moderation?.moderator && {
+        onFlag: (run, word) => proposeBan(run.lang, word.categoryId, word.word, word.display),
+      }),
     }),
-    [judgeFor, session.profile, peek, joinPlus],
+    [judgeFor, session.profile, peek, joinPlus, moderation],
   )
   // Read from the run as it ended, with the dictionaries it was judged by.
   const hidden = useMemo(

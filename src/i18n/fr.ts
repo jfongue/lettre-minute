@@ -5,7 +5,7 @@ import type { FaceOff } from '../domain/rivalry'
 import type { StatId } from '../domain/leaderboards'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
-import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
+import type { AuthError, BanOutcome, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
 
 interface LeaderboardText {
@@ -426,6 +426,22 @@ export const fr = {
       close: 'Fermer',
       failed: 'Le serveur n’a pas répondu. Réessaie.',
     },
+    flag: {
+      hint: 'Modérateur : appui long sur un mot pour le signaler.',
+      title: 'Signaler ce mot',
+      lead: (word: string, category: string) =>
+        `« ${word} » n’a pas sa place dans « ${category} » ? Les autres modérateurs le jugeront : trois d’accord et il quittera la catégorie à la prochaine version.`,
+      confirm: 'Signaler',
+      close: 'Fermer',
+      said: {
+        sent: 'Signalé. Les autres modérateurs le jugeront.',
+        accepted: 'Retiré. Le mot quittera la catégorie au prochain dictionnaire livré.',
+        rejected: 'Les modérateurs ont gardé le mot.',
+        known: 'Ce mot est déjà signalé ou déjà jugé.',
+        forbidden: 'Le signalement n’a pas été pris en compte.',
+        unreachable: 'Le serveur n’a pas répondu. Réessaie.',
+      } satisfies Record<BanOutcome, string> as Record<BanOutcome, string>,
+    },
     screen: {
       quit: 'Quitter la session',
       counter: (index: number, total: number) => `Mot ${index} sur ${total}`,
@@ -435,6 +451,10 @@ export const fr = {
       question: 'A-t-il sa place dans cette catégorie ?',
       hint: 'Glisse la carte : à droite correct, à gauche incorrect, vers le haut je ne sais pas.',
       verdicts: { correct: 'Correct', unsure: 'Je ne sais pas', incorrect: 'Incorrect', special: 'Cas spécial' },
+      banQuestion: 'Ce mot doit-il quitter cette catégorie ?',
+      banHint: 'Glisse la carte : à droite le retirer, à gauche le garder, vers le haut je ne sais pas.',
+      banVerdicts: { correct: 'Retirer', unsure: 'Je ne sais pas', incorrect: 'Garder', special: 'Cas spécial' },
+      banProposedBy: (count: number) => `signalé par ${count} ${plural(count, 'modérateur', 'modérateurs')}`,
       respell: 'Corriger l’orthographe',
       respellLead: 'Ta validation comptera, mais il faudra un modérateur de plus.',
       respellLabel: 'Orthographe corrigée',

@@ -389,6 +389,22 @@ export const nl: Messages = {
       close: 'Sluiten',
       failed: 'De server reageerde niet. Probeer het opnieuw.',
     },
+    flag: {
+      hint: 'Moderator: houd een woord ingedrukt om het te melden.',
+      title: 'Dit woord melden',
+      lead: (word, category) =>
+        `„${word}” hoort niet in „${category}”? De andere moderators beoordelen het: drie eens en het verlaat de categorie in de volgende versie.`,
+      confirm: 'Melden',
+      close: 'Sluiten',
+      said: {
+        sent: 'Gemeld. De andere moderators beoordelen het.',
+        accepted: 'Verwijderd. Het woord verlaat de categorie in het volgende woordenboek.',
+        rejected: 'De moderators hebben het woord gehouden.',
+        known: 'Dat woord is al gemeld of al beoordeeld.',
+        forbidden: 'De melding is niet doorgekomen.',
+        unreachable: 'De server reageerde niet. Probeer het opnieuw.',
+      },
+    },
     screen: {
       quit: 'Sessie verlaten',
       counter: (index, total) => `Woord ${index} van ${total}`,
@@ -398,6 +414,10 @@ export const nl: Messages = {
       question: 'Hoort het in deze categorie?',
       hint: 'Veeg de kaart: naar rechts goed, naar links fout, omhoog weet ik niet.',
       verdicts: { correct: 'Goed', unsure: 'Weet ik niet', incorrect: 'Fout', special: 'Speciaal geval' },
+      banQuestion: 'Moet dit woord de categorie verlaten?',
+      banHint: 'Veeg de kaart: naar rechts verwijderen, naar links houden, omhoog weet ik niet.',
+      banVerdicts: { correct: 'Verwijderen', unsure: 'Weet ik niet', incorrect: 'Houden', special: 'Speciaal geval' },
+      banProposedBy: (count) => `gemeld door ${count} ${count > 1 ? 'moderators' : 'moderator'}`,
       respell: 'Spelling verbeteren',
       respellLead: 'Je goedkeuring telt, maar er is één moderator meer nodig.',
       respellLabel: 'Verbeterde spelling',

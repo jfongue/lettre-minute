@@ -390,6 +390,22 @@ export const es: Messages = {
       close: 'Cerrar',
       failed: 'El servidor no respondió. Inténtalo de nuevo.',
     },
+    flag: {
+      hint: 'Moderador: mantén pulsada una palabra para señalarla.',
+      title: 'Señalar esta palabra',
+      lead: (word, category) =>
+        `¿«${word}» no tiene su lugar en «${category}»? Los demás moderadores la juzgarán: tres de acuerdo y saldrá de la categoría en la próxima versión.`,
+      confirm: 'Señalar',
+      close: 'Cerrar',
+      said: {
+        sent: 'Señalada. Los demás moderadores la juzgarán.',
+        accepted: 'Quitada. La palabra saldrá de la categoría en el próximo diccionario publicado.',
+        rejected: 'Los moderadores han dejado la palabra.',
+        known: 'Esa palabra ya está señalada o ya juzgada.',
+        forbidden: 'La señal no se registró.',
+        unreachable: 'El servidor no respondió. Inténtalo de nuevo.',
+      },
+    },
     screen: {
       quit: 'Salir de la sesión',
       counter: (index, total) => `Palabra ${index} de ${total}`,
@@ -399,6 +415,10 @@ export const es: Messages = {
       question: '¿Tiene su lugar en esta categoría?',
       hint: 'Desliza la tarjeta: a la derecha correcta, a la izquierda incorrecta, hacia arriba no lo sé.',
       verdicts: { correct: 'Correcta', unsure: 'No lo sé', incorrect: 'Incorrecta', special: 'Caso especial' },
+      banQuestion: '¿Debe salir esta palabra de la categoría?',
+      banHint: 'Desliza la tarjeta: a la derecha quitarla, a la izquierda dejarla, hacia arriba no lo sé.',
+      banVerdicts: { correct: 'Quitar', unsure: 'No lo sé', incorrect: 'Dejar', special: 'Caso especial' },
+      banProposedBy: (count) => `señalada por ${count} ${count > 1 ? 'moderadores' : 'moderador'}`,
       respell: 'Corregir la ortografía',
       respellLead: 'Tu validación cuenta, pero hará falta un moderador más.',
       respellLabel: 'Ortografía corregida',

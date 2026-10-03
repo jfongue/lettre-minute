@@ -46,7 +46,9 @@ qui les lit (`analytics_snapshot`, par `npm run analytics`), et
 [`0030_admin_analytics.sql`](migrations/0030_admin_analytics.sql) pour que
 l'app le lise aussi, réservé aux administrateurs (`admin_analytics`), et
 [`0037_moderation_topup_on_open.sql`](migrations/0037_moderation_topup_on_open.sql)
-pour renflouer la file dès la visite qui la trouve courte.
+pour renflouer la file dès la visite qui la trouve courte, et
+[`0038_word_bans.sql`](migrations/0038_word_bans.sql) pour qu'un modérateur
+signale un mot à retirer, jugé par les autres comme un ajout.
 
 ## Ce que le serveur détient
 
@@ -58,7 +60,7 @@ pour renflouer la file dès la visite qui la trouve courte.
 | `daily_challenges` | La graine du jour, la même pour tous : base du classement quotidien. |
 | `dictionary_words` | Le dictionnaire vivant, en complément des fichiers embarqués. |
 | `word_submissions` | Les mots proposés par les joueurs, avec leur statut ; `seen_at` éteint la pastille de « Mes demandes ». |
-| `word_reviews` | Un mot proposé en cours de jugement (catégorie + mot), que rejoignent tous ceux qui l'ont réclamé. |
+| `word_reviews` | Un mot en cours de jugement (catégorie + mot) : un ajout, que rejoignent tous ceux qui l'ont réclamé, ou un ban (`kind`), signalé par un modérateur. |
 | `moderation_votes` | Un vote par modérateur et par mot : `correct`, `unsure`, `incorrect` ou `special`. |
 | `moderators` | Les modérateurs, et l'ami qui les a élus. |
 | `moderation_reserve` | Mots évidents que les dictionnaires ignorent, versés au compte-goutte dans la file (`released_at`). |
@@ -149,6 +151,14 @@ remplacés derrière les cinq tapes ; les fonctions restent en base.
   « correct », ou un seul d'un super modérateur. Depuis 0007, trois joueurs
   qui réclament le même mot ne suffisent plus. Les seuils sont dans la
   fonction, pas dans le client : les changer ne demande pas de redéploiement.
+- **Un modérateur peut aussi signaler un mot à retirer** (0038,
+  `propose_ban`) : son signalement est un premier vote, et les autres le
+  jugent aux mêmes seuils — « correct » veut dire retirer. La revue porte un
+  `kind`, et un mot peut en avoir deux, un ajout et un ban : la dernière
+  réglée gagne. **Un ban ne touche pas la base du jeu** : le dictionnaire est
+  embarqué dans l'app, et c'est l'import qui retire le mot
+  (`scripts/banned-words.ts`, son instantané commité) — un mot signalé reste
+  donc jouable jusqu'à la version d'après.
 - **Tout vote passe par `cast_vote`** : les tables de modération n'ont aucune
   politique. La fonction refuse un modérateur qui a proposé le mot lui-même,
   un second vote, un cas spécial jugé par un modérateur ordinaire, et une

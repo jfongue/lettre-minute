@@ -388,6 +388,22 @@ export const de: Messages = {
       close: 'Schließen',
       failed: 'Der Server hat nicht geantwortet. Versuch es noch einmal.',
     },
+    flag: {
+      hint: 'Moderator: Wort lange drücken, um es zu melden.',
+      title: 'Dieses Wort melden',
+      lead: (word, category) =>
+        `„${word}“ gehört nicht in „${category}“? Die anderen Moderatoren beurteilen es: drei dafür und es verlässt die Kategorie in der nächsten Version.`,
+      confirm: 'Melden',
+      close: 'Schließen',
+      said: {
+        sent: 'Gemeldet. Die anderen Moderatoren beurteilen es.',
+        accepted: 'Entfernt. Das Wort verlässt die Kategorie im nächsten ausgelieferten Wörterbuch.',
+        rejected: 'Die Moderatoren haben das Wort behalten.',
+        known: 'Dieses Wort ist schon gemeldet oder schon beurteilt.',
+        forbidden: 'Die Meldung wurde nicht angenommen.',
+        unreachable: 'Der Server hat nicht geantwortet. Versuch es noch einmal.',
+      },
+    },
     screen: {
       quit: 'Sitzung verlassen',
       counter: (index, total) => `Wort ${index} von ${total}`,
@@ -397,6 +413,10 @@ export const de: Messages = {
       question: 'Gehört es in diese Kategorie?',
       hint: 'Wisch die Karte: nach rechts richtig, nach links falsch, nach oben weiß nicht.',
       verdicts: { correct: 'Richtig', unsure: 'Weiß nicht', incorrect: 'Falsch', special: 'Sonderfall' },
+      banQuestion: 'Soll dieses Wort die Kategorie verlassen?',
+      banHint: 'Wisch die Karte: nach rechts entfernen, nach links behalten, nach oben weiß nicht.',
+      banVerdicts: { correct: 'Entfernen', unsure: 'Weiß nicht', incorrect: 'Behalten', special: 'Sonderfall' },
+      banProposedBy: (count) => `gemeldet von ${count} ${count > 1 ? 'Moderatoren' : 'Moderator'}`,
       respell: 'Schreibweise korrigieren',
       respellLead: 'Deine Bestätigung zählt, aber es braucht einen Moderator mehr.',
       respellLabel: 'Korrigierte Schreibweise',

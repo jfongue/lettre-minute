@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type Ref } from 'react'
-import { listedHistory, mergeHistory, summarize, type RunRecord } from '../domain/history'
+import { createPortal } from 'react-dom'
+import { listedHistory, mergeHistory, summarize, type PlayedWord, type RunRecord } from '../domain/history'
 import type { HiddenAnswer } from '../domain/perks'
 import { capitalized, normalizeWord } from '../domain/text'
 import type { Profile } from '../domain/progression'
@@ -8,12 +9,16 @@ import { Figure, LetterMark } from './bauhaus'
 import { HiddenAnswers } from './HiddenAnswers'
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
-import { fetchChallenge, type ChallengeSummary } from '../lib/cloud'
+import { fetchChallenge, type BanOutcome, type ChallengeSummary } from '../lib/cloud'
 import { challengeTitle, isHidden, loadWinners, rememberWinner, winnerOf, type ChallengeWinner } from '../state/challenges'
 import { useHiddenChallenges } from '../state/useHiddenChallenges'
+import { useBackDismiss } from './useBackDismiss'
 
 /** Rows added each time the history is asked for more, from the device or the account. */
 const PAGE = 30
+
+/** Long enough that a tap on a word of the recap is not taken for a flag. */
+const LONG_PRESS_MS = 550
 
 function formatDate(t: Messages, at: number): string {
   return new Date(at).toLocaleString(t.tag, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
@@ -43,6 +48,11 @@ export interface RecapActions {
   peeks: number
   onPeek(): void
   onJoinPlus(): void
+  /**
+   * Signals one of the run's words to the other moderators; absent for a player
+   * who is not one, which is what keeps the recap from offering it.
+   */
+  onFlag?(run: RunRecord, word: PlayedWord): Promise<BanOutcome>
 }
 
 export function StatsPage({
@@ -359,6 +369,9 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
   // Runs recorded before their prompts were kept have nothing to hide.
   const [hidden, setHidden] = useState<readonly HiddenAnswer[] | null>(run.prompts ? null : [])
   const hiddenFor = useRef(actions.hiddenFor)
+  const [flagged, setFlagged] = useState<PlayedWord | null>(null)
+  const press = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const onFlag = actions.onFlag
 
   useEffect(() => {
     if (!run.prompts) return
@@ -370,6 +383,10 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
       live = false
     }
   }, [run])
+
+  // A word only leaves the game at the next dictionary build: the flag opens a
+  // card rather than acting on the tap that ends it.
+  const openFlag = onFlag ? (word: PlayedWord) => setFlagged(word) : undefined
 
   return (
     <div className="stack run-recap">
@@ -386,9 +403,26 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
       {run.words.length > 0 && (
         <section className="stack">
           <p className="section-title">{t.stats.recapWords}</p>
+          {openFlag && <p className="note">{t.moderation.flag.hint}</p>}
           <ol className="reveal-words">
             {run.words.map((word, index) => (
-              <li key={`${word.word}-${index}`} className="reveal-word">
+              <li
+                key={`${word.word}-${index}`}
+                className="reveal-word"
+                onTouchStart={openFlag && (() => {
+                  press.current = setTimeout(() => openFlag(word), LONG_PRESS_MS)
+                })}
+                onTouchMove={() => clearTimeout(press.current)}
+                onTouchEnd={() => clearTimeout(press.current)}
+                onContextMenu={
+                  openFlag &&
+                  ((event) => {
+                    // The long press already answered: no browser menu on top of it.
+                    event.preventDefault()
+                    openFlag(word)
+                  })
+                }
+              >
                 <LetterMark letter={normalizeWord(word.display).charAt(0).toUpperCase()} motif={categoryMotif(word.categoryId)} size="sm" />
                 <span className="reveal-word-text">
                   {capitalized(word.display)}
@@ -405,6 +439,71 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
       ) : (
         hidden.length > 0 && <HiddenAnswers hidden={hidden} peeks={actions.peeks} onPeek={actions.onPeek} onJoinPlus={actions.onJoinPlus} />
       )}
+      {flagged && onFlag && (
+        <FlagWordCard
+          word={flagged}
+          category={categoryText(t, flagged.categoryId).label}
+          onFlag={() => onFlag(run, flagged)}
+          onClose={() => setFlagged(null)}
+        />
+      )}
     </div>
+  )
+}
+
+/**
+ * A word of the recap flagged for removal: the moderator confirms, and the
+ * others judge it in « Mes demandes » — as many votes as an addition.
+ */
+function FlagWordCard({
+  word,
+  category,
+  onFlag,
+  onClose,
+}: {
+  word: PlayedWord
+  category: string
+  onFlag(): Promise<BanOutcome>
+  onClose(): void
+}) {
+  const t = useT()
+  const [step, setStep] = useState<'ask' | 'busy' | BanOutcome>('ask')
+  useBackDismiss(onClose)
+
+  const confirm = async () => {
+    setStep('busy')
+    setStep(await onFlag())
+  }
+
+  return createPortal(
+    <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="flag-word-title">
+      <div className="offer-pop-scrim" onClick={onClose} />
+      <div className="offer-pop">
+        <h2 id="flag-word-title" className="offer-pop-title">
+          {t.moderation.flag.title}
+        </h2>
+        {step === 'ask' || step === 'busy' ? (
+          <>
+            <p>{t.moderation.flag.lead(capitalized(word.display), category)}</p>
+            <div className="offer-pop-actions">
+              <button type="button" className="btn btn--ghost" onClick={onClose}>
+                {t.cancel}
+              </button>
+              <button type="button" className="btn btn--red" onClick={confirm} disabled={step === 'busy'}>
+                {t.moderation.flag.confirm}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>{t.moderation.flag.said[step]}</p>
+            <button type="button" className="btn btn--ghost btn--block" onClick={onClose}>
+              {t.moderation.flag.close}
+            </button>
+          </>
+        )}
+      </div>
+    </div>,
+    document.body,
   )
 }

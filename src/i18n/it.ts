@@ -390,6 +390,22 @@ export const it: Messages = {
       close: 'Chiudi',
       failed: 'Il server non ha risposto. Riprova.',
     },
+    flag: {
+      hint: 'Moderatore: tieni premuta una parola per segnalarla.',
+      title: 'Segnala questa parola',
+      lead: (word, category) =>
+        `«${word}» non ha il suo posto in «${category}»? Gli altri moderatori la giudicheranno: tre d’accordo e lascerà la categoria nella prossima versione.`,
+      confirm: 'Segnala',
+      close: 'Chiudi',
+      said: {
+        sent: 'Segnalata. Gli altri moderatori la giudicheranno.',
+        accepted: 'Tolta. La parola lascerà la categoria nel prossimo dizionario pubblicato.',
+        rejected: 'I moderatori hanno tenuto la parola.',
+        known: 'Questa parola è già segnalata o già giudicata.',
+        forbidden: 'La segnalazione non è stata registrata.',
+        unreachable: 'Il server non ha risposto. Riprova.',
+      },
+    },
     screen: {
       quit: 'Esci dalla sessione',
       counter: (index, total) => `Parola ${index} di ${total}`,
@@ -399,6 +415,10 @@ export const it: Messages = {
       question: 'Ha il suo posto in questa categoria?',
       hint: 'Scorri la carta: a destra corretta, a sinistra sbagliata, in alto non lo so.',
       verdicts: { correct: 'Corretta', unsure: 'Non lo so', incorrect: 'Sbagliata', special: 'Caso speciale' },
+      banQuestion: 'Questa parola deve lasciare la categoria?',
+      banHint: 'Scorri la carta: a destra toglierla, a sinistra tenerla, in alto non lo so.',
+      banVerdicts: { correct: 'Togliere', unsure: 'Non lo so', incorrect: 'Tenere', special: 'Caso speciale' },
+      banProposedBy: (count) => `segnalata da ${count} ${count > 1 ? 'moderatori' : 'moderatore'}`,
       respell: 'Correggi l’ortografia',
       respellLead: 'La tua approvazione conta, ma servirà un moderatore in più.',
       respellLabel: 'Ortografia corretta',
