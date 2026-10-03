@@ -1,5 +1,10 @@
 import {
   CHATTER_WORDS,
+FLAWLESS_POINTS,
+FLAWLESS_STREAK,
+LATECOMER_CAP_SECONDS,
+LATECOMER_SECONDS,
+LATECOMER_THRESHOLD_SECONDS,
   COMPLICATION_BOOST,
   DODGE_PENALTY_SECONDS,
   HUSH_SECONDS,
@@ -150,6 +155,12 @@ export interface Run {
   rerolls: number
   /** Bavardage holds the prompt for this many more words; a skip meanwhile is free. */
   chatter: number
+/** Extra seconds earned by Retardataire. */
+latecomerSeconds: number
+/** Correct words in the current streak that count toward Sans faute. */
+flawlessStreak: number
+/** A free follow-up skip from Passe-passe is ready after a paid skip. */
+freeSkipReady: boolean
 }
 
 /** A prompt the run moved on from, and whether it was left empty. */
@@ -297,7 +308,10 @@ export function createRun({ seed, categoryIds, avoid = [], powers = [], shared =
     hush: null,
     heldSeconds: 0,
     rerolls: 0,
-    chatter: 0,
+chatter: 0,
+latecomerSeconds: 0,
+flawlessStreak: 0,
+freeSkipReady: false,
   }
 }
 
@@ -393,6 +407,15 @@ export function submit(run: Run, raw: string, judge: Judge, at = run.promptAt): 
   if (verdict.kind !== 'accepted' || !verdict.found) return { run, verdict }
 
   const combo = run.combo + 1
+const latecomerTriggered = latecomerDue(run, at) && chargesLeft(run, 'latecomer') > 0
+const latecomerCharges = latecomerTriggered ? spend(run, 'latecomer') : run.charges
+const latecomerSeconds = latecomerTriggered
+? Math.min(LATECOMER_CAP_SECONDS, run.latecomerSeconds + LATECOMER_SECONDS)
+: run.latecomerSeconds
+const flawlessStreak = hasPower(run, 'flawless') && !verdict.found.approximate && !verdict.found.joker
+? run.flawlessStreak + 1
+: 0
+const flawlessBonus = flawlessStreak > 0 && flawlessStreak % FLAWLESS_STREAK === 0 ? FLAWLESS_POINTS : 0
   // Bavardage keeps the prompt: cast, it holds for `CHATTER_WORDS` more; under way, it counts one down.
   const chatter = verdict.chatter ? CHATTER_WORDS : Math.max(0, run.chatter - 1)
   const stays = verdict.chatter === true || run.chatter > 0 ? chatter > 0 : false
@@ -403,13 +426,16 @@ export function submit(run: Run, raw: string, judge: Judge, at = run.promptAt): 
       ...(stays ? { joker: null } : advance(run, judge, true)),
       ...release(run, at),
       chatter,
-      ...(verdict.chatter && { charges: spend(run, 'chatter') }),
+latecomerSeconds,
+
+flawlessStreak,
+      charges: verdict.chatter ? { ...latecomerCharges, ...spend(run, 'chatter') } : latecomerCharges,
       found: [...run.found, { ...verdict.found, seconds: Math.max(0, at - run.promptAt), at }],
       promptAt: at,
       used: [...run.used, verdict.found.word],
       combo,
       bestCombo: Math.max(run.bestCombo, combo),
-      score: run.score + verdict.found.points,
+      score: run.score + verdict.found.points + flawlessBonus,
     },
   }
 }
@@ -428,20 +454,38 @@ function cast(run: Run, spell: Spell, judge: Judge, at: number): Run {
 }
 
 export function skipPenalty(run: Run): number {
-  if (run.chatter > 0) return 0
+  if (run.chatter > 0 || run.freeSkipReady) return 0
   return hasPower(run, 'dodge') ? DODGE_PENALTY_SECONDS : SKIP_PENALTY_SECONDS
 }
 
 export function skip(run: Run, judge: Judge, at = run.promptAt): Run {
+const advanced = advance(run, judge, false)
+if (run.chatter === 0 && run.freeSkipReady) {
+return {
+...run,
+...advanced,
+...release(run, at),
+promptAt: at,
+skips: run.skips + 1,
+combo: run.combo,
+chatter: 0,
+freeSkipReady: false,
+
+}
+}
+const paid = run.chatter === 0
+const grantsFreeSkip = hasPower(run, 'double-skip') && paid && !run.freeSkipReady && chargesLeft(run, 'double-skip') > 0
   return {
     ...run,
-    ...advance(run, judge, false),
+    ...advanced,
     ...release(run, at),
     promptAt: at,
     // Leaving a Bavardage is free: no skip counted, no seconds, the series kept.
     skips: run.chatter > 0 ? run.skips : run.skips + 1,
     penaltySeconds: run.penaltySeconds + skipPenalty(run),
-    combo: run.chatter > 0 ? run.combo : 0,
+    combo: run.chatter > 0 || grantsFreeSkip ? run.combo : 0,
+freeSkipReady: grantsFreeSkip,
+...(grantsFreeSkip && { charges: spend(run, 'double-skip') }),
     chatter: 0,
   }
 }
@@ -479,6 +523,10 @@ export function isHushed(run: Run, elapsedSeconds: number): boolean {
   return run.hush !== null && elapsedSeconds - run.hush.at < HUSH_SECONDS
 }
 
+export function latecomerDue(run: Run, elapsedSeconds: number): boolean {
+return hasPower(run, 'latecomer') && chargesLeft(run, 'latecomer') > 0 && remainingSeconds(run, elapsedSeconds) < LATECOMER_THRESHOLD_SECONDS
+}
+
 export function remainingSeconds(run: Run, elapsedSeconds: number): number {
-  return Math.max(0, RUN_SECONDS - elapsedSeconds - run.penaltySeconds + heldSeconds(run, elapsedSeconds))
+  return Math.max(0, RUN_SECONDS - elapsedSeconds - run.penaltySeconds + heldSeconds(run, elapsedSeconds) + run.latecomerSeconds)
 }

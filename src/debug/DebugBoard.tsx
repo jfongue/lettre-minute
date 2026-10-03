@@ -182,12 +182,15 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     bestCombo: 4,
     score,
     powers: [],
-    charges: {},
+    charges: { latecomer: 5 },
     joker: null,
     hush: null,
     heldSeconds: 0,
     rerolls: 0,
     chatter: 0,
+latecomerSeconds: 0,
+flawlessStreak: 0,
+freeSkipReady: false,
   }
 }
 

@@ -520,6 +520,7 @@ export const pt: Messages = {
 
   powers: {
     castChatter: 'Tagarela! A letra fica',
+doubleSkipFree: 'Pular em dobro · passe grátis',
     chatterLeft: (left) => `Tagarela · mais ${left} ${plural(left, 'palavra', 'palavras')}`,
     chatterLeave: 'Mudar',
     giftTitle: 'Novo poder!',
@@ -536,6 +537,10 @@ export const pt: Messages = {
       complication: ['Risco', 'Palavras incomuns valem ×1,15; as raras, ×1,3.'],
       celerity: ['Celeridade', 'Uma palavra se valida sozinha, sem apertar Enter, mesmo com um erro de digitação.'],
       chatter: ['Tagarela', 'Uma vez por partida, junta «...» a uma palavra: a letra e o tema ficam por mais três palavras.'],
+latecomer: ['No último instante', 'Valide uma palavra nos últimos 5 segundos: ganhe 1 segundo, até 5 por partida.'],
+'double-skip': ['Pular em dobro', 'Depois de passar normalmente, passe logo o tema seguinte sem perder tempo ou sequência. Uma vez por partida.'],
+flawless: ['Sem erros', 'A cada três palavras válidas digitadas sem erros, ganhe 10 pontos extras na hora.'],
+
     },
     spells: { joker: ['joker', 'coringa', 'curinga'], hush: ['psiu', 'shh', 'chiu'] },
     title: 'Poderes',

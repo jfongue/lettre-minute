@@ -61,7 +61,20 @@ const ICONS: Record<PowerId, ReactNode> = {
   ),
   celerity: <path d="M58 2L12 56H44L34 98L88 38H56L68 2Z" />,
 
-  chatter: (
+  'latecomer': <path d="M50 8V50L78 66M50 8A42 42 0 1 0 92 50" fill="none" stroke="currentColor" strokeWidth="10" strokeLinecap="round" />,
+'double-skip': (
+<>
+<path d="M8 25H76V9L96 29L76 49V33H8Z" />
+<path d="M8 67H76V51L96 71L76 91V75H8Z" opacity="0.65" />
+</>
+),
+flawless: (
+<>
+<path d="M50 5L62 37L95 50L62 63L50 95L38 63L5 50L38 37Z" />
+<circle cx="80" cy="20" r="7" opacity="0.6" />
+</>
+),
+chatter: (
     <>
       <path fillRule="evenodd" d={`M8 12H92V70H44L22 90V70H8Z${hole(30, 41, 7)}${hole(50, 41, 7)}${hole(70, 41, 7)}`} />
     </>
