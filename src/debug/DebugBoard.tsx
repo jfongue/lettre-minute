@@ -3,7 +3,7 @@ import { DEFAULT_AVATAR, type AvatarChoice } from '../domain/avatar'
 import type { ChallengeWord } from '../domain/challenge'
 import { choosePower } from '../domain/powers'
 import { NEW_PROFILE, xpForLevel, type Profile } from '../domain/progression'
-import type { RunRecord } from '../domain/history'
+import type { PlayedWord, RunRecord } from '../domain/history'
 import type { RarityTier } from '../domain/rarity'
 import type { KeptWord, Run } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
@@ -22,7 +22,7 @@ import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
 import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
 import { PushOffer } from '../ui/PushOffer'
-import { OldChallengeList, StatsPage } from '../ui/StatsPage'
+import { FlagWordCard, OldChallengeList, StatsPage } from '../ui/StatsPage'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
 import { FriendPage } from '../ui/FriendPage'
@@ -960,6 +960,40 @@ function ModerationQueueScenario({ onBack }: { onBack(): void }) {
   return <ModerationScreen lang="fr" queue={MODERATION_QUEUE} onDone={onBack} />
 }
 
+/** Le mot d'un récap qu'un modérateur peut signaler, la carte ouverte dessus. */
+const FLAGGED_WORD: PlayedWord = { categoryId: 'animaux', word: 'quiscale', display: 'Quiscale', points: 14 }
+
+/** Le récap d'une de ses parties, ouvert : un mot s'y signale d'un appui long. */
+function FlagRecapScenario({ onBack }: { onBack(): void }) {
+  return (
+    <div className="sheet">
+      <StatsPage
+        history={STATS_HISTORY}
+        profile={STATS_PROFILE}
+        challenges={null}
+        openRun={STATS_HISTORY[0]}
+        onChallenge={noop}
+        recap={STATS_RECAP}
+      />
+      <button type="button" className="btn btn--ghost btn--block" onClick={onBack}>
+        Retour à la planche
+      </button>
+    </div>
+  )
+}
+
+/** La carte de signalement seule, telle que la planche la montre sans geste. */
+function FlagCardScenario({ onBack }: { onBack(): void }) {
+  return (
+    <FlagWordCard
+      word={FLAGGED_WORD}
+      category="Animaux"
+      onFlag={() => later('sent' as const)}
+      onClose={onBack}
+    />
+  )
+}
+
 /** La page des statistiques, telle qu'un compte qui a joué ailleurs la remplit. */
 function StatsScenario() {
   return (
@@ -1609,9 +1643,25 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <DebugHome back={back} categoriesNews={1} />,
   },
   {
+    id: 'flag-word-recap',
+    group: 'Modération',
+    title: 'Signaler un mot : le récap d’une partie',
+    how: 'Modérateur : appui long sur un mot de ses parties — clic droit sur le web — pour ouvrir la carte qui le signale',
+    phase: 'home',
+    render: (back) => <FlagRecapScenario onBack={back} />,
+  },
+  {
+    id: 'flag-word-card',
+    group: 'Modération',
+    title: 'Signaler un mot : la carte',
+    how: 'Ce que lit le modérateur avant de confirmer, puis « Signalé. Les autres modérateurs le jugeront. »',
+    phase: 'home',
+    render: (back) => <FlagCardScenario onBack={back} />,
+  },
+  {
     id: 'moderation-ban',
-    group: 'Accueil',
-    title: 'Modération : un mot signalé',
+    group: 'Modération',
+    title: 'Juger un mot signalé',
     how: 'File de jugement avec un mot signalé et un ajout : « Retirer » à droite, « Garder » à gauche, ni correction ni cas spécial',
     phase: 'home',
     render: (back) => <ModerationQueueScenario onBack={back} />,

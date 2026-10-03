@@ -31,6 +31,8 @@ interface StatsPageProps {
   challenges: readonly ChallengeSummary[] | null
   /** Opened from the home screen's challenges: the old ones show, unfolded. */
   focusChallenges?: boolean
+  /** The run's summary open from the start, which the debug board shows directly. */
+  openRun?: RunRecord
   onChallenge(id: string): void
   /** Relit les parties du compte : la page la redemande à chaque ouverture. */
   onRefresh?(): Promise<unknown>
@@ -60,6 +62,7 @@ export function StatsPage({
   profile,
   challenges,
   focusChallenges = false,
+  openRun,
   onChallenge,
   onRefresh,
   onBoards,
@@ -67,7 +70,7 @@ export function StatsPage({
   recap,
 }: StatsPageProps) {
   const t = useT()
-  const [opened, setOpened] = useState<RunRecord | null>(null)
+  const [opened, setOpened] = useState<RunRecord | null>(openRun ?? null)
   // Une lecture en cours ne dit pas « tu n'as rien joué » : elle attend son
   // tour. Sans rappel, la page n'a que ce que l'appareil a gardé.
   const [reading, setReading] = useState(Boolean(onRefresh) && history.length === 0)
@@ -453,9 +456,10 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
 
 /**
  * A word of the recap flagged for removal: the moderator confirms, and the
- * others judge it in « Mes demandes » — as many votes as an addition.
+ * others judge it in « Mes demandes » — as many votes as an addition. Exported
+ * so the debug board can show the card on its own.
  */
-function FlagWordCard({
+export function FlagWordCard({
   word,
   category,
   onFlag,
