@@ -486,6 +486,7 @@ export const nl: Messages = {
 
   powers: {
     castChatter: 'Gekwebbel! De letter blijft',
+doubleSkipFree: 'Dubbel overslaan · gratis beurt',
     chatterLeft: (left) => `Gekwebbel · nog ${left} ${plural(left, 'woord', 'woorden')}`,
     chatterLeave: 'Verder',
     giftTitle: 'Nieuwe kracht!',
@@ -502,6 +503,10 @@ export const nl: Messages = {
       complication: ['Risico', 'Ongewone woorden tellen ×1,15, zeldzame ×1,3.'],
       celerity: ['Snelheid', 'Een woord bevestigt zichzelf, zonder Enter, ook met een tikfout.'],
       chatter: ['Gekwebbel', 'Eén keer per spel: zet „...” achter een woord, en letter en thema blijven voor nog drie woorden.'],
+latecomer: ['Op het nippertje', 'Bevestig een woord in de laatste 5 seconden: krijg 1 seconde, tot 5 per spel.'],
+'double-skip': ['Dubbel overslaan', 'Sla na een normale beurt meteen het volgende thema over zonder tijd of reeks te verliezen. Eén keer per spel.'],
+flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonuspunten op.'],
+
     },
     spells: { joker: ['joker'], hush: ['sst', 'ssst', 'stil'] },
     title: 'Krachten',

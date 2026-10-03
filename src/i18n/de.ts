@@ -485,6 +485,7 @@ export const de: Messages = {
 
   powers: {
     castChatter: 'Geplapper! Der Buchstabe bleibt',
+doubleSkipFree: 'Doppelsprung · kostenlos überspringen',
     chatterLeft: (left) => `Geplapper · noch ${left} ${plural(left, 'Wort', 'Wörter')}`,
     chatterLeave: 'Weiter',
     giftTitle: 'Neue Kraft!',
@@ -501,6 +502,10 @@ export const de: Messages = {
       complication: ['Risiko', 'Ungewöhnliche Wörter zählen ×1,15, seltene ×1,3.'],
       celerity: ['Schnelligkeit', 'Ein Wort bestätigt sich selbst, ohne Enter – auch mit einem Tippfehler.'],
       chatter: ['Geplapper', 'Einmal pro Partie „...“ an ein Wort hängen: Buchstabe und Thema bleiben für drei weitere Wörter.'],
+latecomer: ['Auf den letzten Drücker', 'In den letzten 5 Sekunden ein Wort bestätigen: 1 Sekunde dazu, bis zu 5 Sekunden pro Partie.'],
+'double-skip': ['Doppelsprung', 'Nach einem normalen Überspringen sofort das nächste Thema überspringen, ohne Zeit oder Serie zu verlieren. Einmal pro Partie.'],
+flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 10 Bonuspunkte.'],
+
     },
     spells: { joker: ['joker'], hush: ['pst', 'psst', 'pscht'] },
     title: 'Kräfte',

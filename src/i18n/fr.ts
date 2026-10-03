@@ -523,6 +523,7 @@ export const fr = {
 
   powers: {
     castChatter: 'Bavardage ! La lettre reste',
+doubleSkipFree: 'Passe-passe · passage gratuit',
     chatterLeft: (left: number) => `Bavardage · encore ${left} ${plural(left, 'mot', 'mots')}`,
     chatterLeave: 'Changer',
     giftTitle: 'Nouveau pouvoir !',
@@ -540,6 +541,11 @@ export const fr = {
       complication: ['Challenge', 'Les mots peu communs valent ×1,15, les rares ×1,3.'],
       celerity: ['Célérité', 'Un mot se valide tout seul, sans appuyer sur Entrée, même avec une faute de frappe.'],
       chatter: ['Bavardage', 'Une fois par partie, ajoute « ... » à un mot : la lettre et le thème restent pour trois mots de plus.'],
+latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 seconde, jusqu’à 5 secondes gagnées par partie.'],
+'double-skip': ['Passe-passe', 'Une fois par partie, après un passage, passe immédiatement au thème suivant sans coût.'],
+
+flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frappe, gagne immédiatement 10 points bonus.'],
+
     } satisfies Record<PowerId, readonly [string, string]> as Record<PowerId, readonly [name: string, description: string]>,
     /** What the player types to cast a spell; the first is the one the descriptions name. */
     spells: { joker: ['joker'], hush: ['chut'] } satisfies Record<Spell, readonly string[]> as Record<Spell, readonly string[]>,

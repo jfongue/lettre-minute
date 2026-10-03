@@ -17,6 +17,9 @@ export type PowerId =
   | 'complication'
   | 'celerity'
   | 'chatter'
+| 'latecomer'
+| 'double-skip'
+| 'flawless'
 
 /** In the order the game introduces them when the draw has a choice. */
 export const POWER_IDS: readonly PowerId[] = [
@@ -30,6 +33,9 @@ export const POWER_IDS: readonly PowerId[] = [
   'complication',
   'celerity',
   'chatter',
+'latecomer',
+'double-skip',
+'flawless',
 ]
 
 /**
@@ -48,10 +54,17 @@ export const POWER_CHARGES: Readonly<Partial<Record<PowerId, number>>> = {
   magic: 2,
   hush: 1,
   chatter: 1,
+latecomer: 5,
+'double-skip': 1,
 }
 
 /** Words Bavardage keeps the prompt for, after the one that cast it. */
 export const CHATTER_WORDS = 3
+export const LATECOMER_THRESHOLD_SECONDS = 5
+export const LATECOMER_SECONDS = 1
+export const LATECOMER_CAP_SECONDS = 5
+export const FLAWLESS_STREAK = 3
+export const FLAWLESS_POINTS = 10
 
 /** The powers a player can type into the field, rather than tap. */
 export type Spell = 'joker' | 'hush'

@@ -491,6 +491,7 @@ export const en: Messages = {
 
   powers: {
     castChatter: 'Chatter! The letter stays',
+doubleSkipFree: 'Double skip · free pass',
     chatterLeft: (left) => `Chatter · ${left} more ${plural(left, 'word', 'words')}`,
     chatterLeave: 'Move on',
     giftTitle: 'New power!',
@@ -507,6 +508,10 @@ export const en: Messages = {
       complication: ['High stakes', 'Uncommon words are worth ×1.15, rare ones ×1.3.'],
       celerity: ['Celerity', 'A word validates itself, no need to press Enter — even with a typo.'],
       chatter: ['Chatter', 'Once a game, add “...” to a word: the letter and topic stay for three more words.'],
+latecomer: ['Last-minute', 'Validate a word in the final 5 seconds: gain 1 second, up to 5 seconds per game.'],
+'double-skip': ['Double skip', 'Once a game, after skipping a prompt, skip the next one for free.'],
+flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 bonus points immediately.'],
+
     },
     spells: { joker: ['joker'], hush: ['shh', 'hush', 'shhh'] },
     title: 'Powers',

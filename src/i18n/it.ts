@@ -487,6 +487,7 @@ export const it: Messages = {
 
   powers: {
     castChatter: 'Chiacchiera! La lettera resta',
+doubleSkipFree: 'Doppio salto · passaggio gratuito',
     chatterLeft: (left) => `Chiacchiera · ancora ${left} ${plural(left, 'parola', 'parole')}`,
     chatterLeave: 'Cambia',
     giftTitle: 'Nuovo potere!',
@@ -503,6 +504,10 @@ export const it: Messages = {
       complication: ['Rischio', 'Le parole poco comuni valgono ×1,15, le rare ×1,3.'],
       celerity: ['Celerità', 'Una parola si conferma da sola, senza premere Invio, anche con un refuso.'],
       chatter: ['Chiacchiera', 'Una volta per partita, aggiungi «...» a una parola: lettera e tema restano per altre tre parole.'],
+latecomer: ['All’ultimo secondo', 'Convalida una parola negli ultimi 5 secondi: guadagni 1 secondo, fino a 5 a partita.'],
+'double-skip': ['Doppio salto', 'Dopo un normale salto, salta subito il tema successivo senza perdere tempo o serie. Una volta a partita.'],
+flawless: ['Senza errori', 'Ogni tre parole valide digitate senza errori danno subito 10 punti bonus.'],
+
     },
     spells: { joker: ['joker', 'jolly'], hush: ['zitto', 'shh', 'ssst'] },
     title: 'Poteri',

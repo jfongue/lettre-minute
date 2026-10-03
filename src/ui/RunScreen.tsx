@@ -77,6 +77,17 @@ export function RunScreen({
   const t = useT()
   const category = categoryText(t, run.prompt.categoryId)
   const seconds = Math.ceil(remaining)
+const latecomerTriggered = remaining < 5 && hasPower(run, 'latecomer') && chargesLeft(run, 'latecomer') > 0
+const latecomerAnnounced = useRef(false)
+useEffect(() => {
+if (!latecomerTriggered) {
+latecomerAnnounced.current = false
+return
+}
+if (latecomerAnnounced.current) return
+latecomerAnnounced.current = true
+sound.power('latecomer')
+}, [latecomerTriggered])
   const urgent = remaining <= URGENT_FROM
   const accepted = live?.kind === 'accepted'
   const spell = live?.kind === 'spell' ? live.spell : undefined
@@ -85,6 +96,8 @@ export function RunScreen({
   const exact = accepted && !live?.found?.approximate
   const magic = chargesLeft(run, 'magic')
   const dodge = hasPower(run, 'dodge')
+const doubleSkip = hasPower(run, 'double-skip')
+const flawless = hasPower(run, 'flawless')
 
   // The field must never lose focus mid-run: a tap on "Passer" would otherwise
   // close the keyboard on a phone and cost the player the next prompt.
@@ -152,6 +165,7 @@ export function RunScreen({
 
   const skip = () => {
     if (dodge) sound.power('dodge')
+else if (doubleSkip) sound.power('double-skip')
     else sound.skipped()
     onSkip()
   }
@@ -173,7 +187,7 @@ export function RunScreen({
             aria-hidden="true"
           />
           {/* Re-keyed every second once urgent, so each second ticks visibly. */}
-          <p className="clock" key={hushed ? 'hushed' : urgent ? seconds : 'calm'}>
+          <p className={`clock${latecomerTriggered ? ' clock--latecomer' : ''}`} key={hushed ? 'hushed' : urgent ? seconds : 'calm'}>
             {seconds}
           </p>
           {hushed && <span className="timer-hold" aria-hidden="true"><span /><span /></span>}
@@ -290,6 +304,7 @@ export function RunScreen({
           {run.joker && <span className="joker-card" key={run.joker.key} aria-hidden="true" />}
         </div>
         <Feedback
+flawlessTriggered={flawless && run.flawlessStreak > 0 && run.flawlessStreak % 3 === 0}
           live={live}
           cheer={cheer}
           letter={run.prompt.letter}
@@ -306,7 +321,7 @@ export function RunScreen({
             onPointerDown={keepFocus}
             onClick={skip}
           >
-            {run.chatter > 0 ? t.powers.chatterLeave : t.run.skip(skipPenalty(run))}
+            {run.chatter > 0 ? t.powers.chatterLeave : run.freeSkipReady ? t.powers.doubleSkipFree : t.run.skip(skipPenalty(run))}
           </button>
           <button type="submit" className="btn btn--blue" onPointerDown={keepFocus} disabled={!accepted && !spell}>
             {t.run.submit}
@@ -318,6 +333,7 @@ export function RunScreen({
 }
 
 function Feedback({
+flawlessTriggered,
   live,
   cheer,
   letter,
@@ -326,6 +342,7 @@ function Feedback({
   mine,
   onPropose,
 }: {
+flawlessTriggered: boolean
   live: Verdict | null
   cheer: Cheer | null
   letter: string
@@ -355,7 +372,8 @@ function Feedback({
         {cheer.approximate && <span aria-hidden="true">≈ </span>}
         <span className="cheer-word">{capitalized(cheer.display)}</span>
         {ours(cheer.display) && <MineMark label={t.requests.mine} />}
-        <span className="cheer-points">+{cheer.points}</span>
+        <span className="cheer-points">+{cheer.points + (flawlessTriggered ? 10 : 0)}</span>
+{flawlessTriggered && <PowerBadge id="flawless" className="cheer-power" />}
         {cheer.joker ? (
           <span className="note">{t.powers.joker}</span>
         ) : cheer.approximate ? (
