@@ -142,6 +142,7 @@ export function WordsBoardView({
   const [answer, setAnswer] = useState<{ scope: string; data: WordsReport | null } | null>(null)
   const [flagged, setFlagged] = useState<FlagWord | null>(null)
   const [adding, setAdding] = useState(false)
+  const [wholePairs, setWholePairs] = useState(false)
 
   useEffect(() => {
     let live = true
@@ -192,16 +193,29 @@ export function WordsBoardView({
   }, [lang, report])
 
   const pairs = useMemo<PairRow[]>(() => {
-    const rows: PairRow[] = (report?.pairs ?? []).map((pair) => ({ ...pair, theory: theoryOf(pair.category, pair.letter) }))
-    // Le dictionnaire chargé, les couples que personne n'a encore tirés
-    // existent quand même : c'est là qu'un tirage mort se voit.
-    const only = category ? theory?.get(category) : undefined
-    if (only) {
-      const dealt = new Set(rows.map((row) => row.letter))
-      for (const one of only.keys()) {
-        if (!dealt.has(one)) rows.push({ category, letter: one, dealt: 0, passed: 0, words: 0, points: 0, theory: theoryOf(category, one) })
+    // Le dictionnaire d'abord : un couple que personne n'a encore tiré compte
+    // aussi — sans quoi une langue que personne ne joue n'afficherait rien.
+    const counted = new Map((report?.pairs ?? []).map((pair) => [`${pair.category}\u0000${pair.letter}`, pair]))
+    const rows: PairRow[] = []
+    for (const [id, shares] of theory ?? []) {
+      if (category && id !== category) continue
+      for (const one of shares.keys()) {
+        const real = counted.get(`${id}\u0000${one}`)
+        counted.delete(`${id}\u0000${one}`)
+        rows.push({
+          category: id,
+          letter: one,
+          dealt: real?.dealt ?? 0,
+          passed: real?.passed ?? 0,
+          words: real?.words ?? 0,
+          points: real?.points ?? 0,
+          theory: theoryOf(id, one),
+        })
       }
     }
+    // Puis ce que le serveur a compté sans que le dictionnaire le connaisse :
+    // une catégorie hors catalogue, un dictionnaire d'une autre version.
+    for (const left of counted.values()) rows.push({ ...left, theory: theoryOf(left.category, left.letter) })
     return rows
   }, [report, theory, theoryOf, category])
 
@@ -242,6 +256,45 @@ export function WordsBoardView({
     return [...rows.values()]
   }, [report, packs, category])
 
+  /** Ce que chaque dictionnaire de la langue compte, formes fléchies repliées. */
+  const sizes = useMemo(() => {
+    if (!packs) return null
+    const counts = new Map<string, number>()
+    for (const [id, pack] of packs) {
+      const keys = new Set<string>()
+      for (const entry of pack.entries.values()) keys.add(entry.key)
+      counts.set(id, keys.size)
+    }
+    return counts
+  }, [packs])
+
+  /**
+   * Toutes catégories : ce que la langue a au dictionnaire et ce qu'on en a
+   * écrit. Une langue que personne ne joue montre au moins son dictionnaire.
+   */
+  const summary = useMemo(() => {
+    if (!sizes) return null
+    const written = new Map<string, { words: number; uses: number }>()
+    for (const use of report?.words ?? []) {
+      const tally = written.get(use.category) ?? { words: 0, uses: 0 }
+      written.set(use.category, { words: tally.words + 1, uses: tally.uses + use.uses })
+    }
+    const ids = [...sizes.keys()]
+    for (const id of written.keys()) if (!sizes.has(id)) ids.push(id)
+    return ids
+      .sort((one, other) => catalogueRank(one) - catalogueRank(other) || one.localeCompare(other))
+      .map((id) => ({
+        category: id,
+        words: sizes.get(id) ?? 0,
+        written: written.get(id)?.words ?? 0,
+        uses: written.get(id)?.uses ?? 0,
+      }))
+  }, [sizes, report])
+  const dictionary = summary?.reduce(
+    (total, row) => ({ words: total.words + row.words, written: total.written + row.written }),
+    { words: 0, written: 0 },
+  )
+
   const wanted = useCallback(
     (word: string) => {
       const term = normalizeWord(search.trim())
@@ -260,6 +313,7 @@ export function WordsBoardView({
         .sort(
           (one, other) =>
             other.dealt - one.dealt ||
+            (other.theory ?? 0) - (one.theory ?? 0) ||
             catalogueRank(one.category) - catalogueRank(other.category) ||
             one.letter.localeCompare(other.letter),
         ),
@@ -329,13 +383,7 @@ export function WordsBoardView({
       <div className="words-filters">
         <label>
           <span className="note">Langue</span>
-          <select
-            value={lang}
-            onChange={(event) => {
-              setLang(event.target.value)
-              setCategory(EMPTY)
-            }}
-          >
+          <select value={lang} onChange={(event) => setLang(event.target.value)}>
             {LOCALES.map((locale) => (
               <option key={locale.id} value={locale.id}>
                 {locale.name} · {availableCategoryIds(locale.id).length} catégories
@@ -404,8 +452,12 @@ export function WordsBoardView({
             <Kpi label="Couples" value={fmt(shownPairs.length)}>
               {never ? `${fmt(never)} jamais tirés` : 'tous déjà tirés'}
             </Kpi>
-            <Kpi label="Mots" value={fmt(shownWords.length)}>
-              {untouched ? `${fmt(untouched)} jamais écrits` : 'tous déjà écrits'}
+            <Kpi label="Mots" value={fmt(dictionary ? dictionary.words : shownWords.length)}>
+              {dictionary
+                ? `${fmt(dictionary.written)} déjà écrits, ${fmt(Math.max(0, dictionary.words - dictionary.written))} jamais`
+                : untouched
+                  ? `${fmt(untouched)} jamais écrits`
+                  : 'tous déjà écrits'}
             </Kpi>
             <Kpi label="Ajoutés" value={fmt(shownAdded.length)}>
               entrés par la modération
@@ -440,7 +492,7 @@ export function WordsBoardView({
                   { label: 'Mots / tirage', n: true },
                 ]}
               >
-                {shownPairs.slice(0, 40).map((pair) => {
+                {shownPairs.slice(0, wholePairs ? shownPairs.length : 40).map((pair) => {
                   const real = report.dealt ? pair.dealt / report.dealt : 0
                   const gap = pair.theory !== null && pair.theory > 0 && real > 0 ? real / pair.theory : null
                   return (
@@ -473,10 +525,17 @@ export function WordsBoardView({
             ) : (
               <div className="dashboard-empty">Aucun couple tiré pour ce filtre.</div>
             )}
+          {shownPairs.length > 40 && (
+            <button type="button" className="btn btn--quiet dashboard-more" onClick={() => setWholePairs(!wholePairs)}>
+              {wholePairs ? 'Voir moins' : `Voir les ${fmt(shownPairs.length)} couples`}
+            </button>
+          )}
             <p className="note">
               « Théorique » : la part du tirage que le dictionnaire de la catégorie donne à cette lettre, sur les {fmt(playable)}{' '}
               catégories jouables de la langue — verrou de la partie précédente et catégories possédées non comptés. « Réel » : sa part
               des {fmt(report.dealt)} tirages de la langue. « Écart » : le réel sur le théorique, ×1 quand le tirage tient sa promesse.
+              Les couples que personne n’a encore tirés viennent du dictionnaire, avec zéro tirage : c’est ce qu’une langue que
+              personne ne joue montre d’elle-même.
             </p>
           </Section>
 
@@ -489,7 +548,26 @@ export function WordsBoardView({
               </button>
             }
           >
-            {shownWords.length ? (
+            {!category &&
+            (summary ? (
+              <Table head={[text('Catégorie'), 'Mots au dictionnaire', 'Déjà écrits', 'Utilisations']}>
+                {summary.map((row) => (
+                  <tr key={row.category}>
+                    <td>
+                      <button type="button" className="words-pick" onClick={() => setCategory(row.category)}>
+                        {categoryText(t, row.category).label}
+                      </button>
+                    </td>
+                    <td className="n">{fmt(row.words)}</td>
+                    <td className="n">{fmt(row.written)}</td>
+                    <td className="n">{fmt(row.uses)}</td>
+                  </tr>
+                ))}
+              </Table>
+            ) : (
+              <div className="dashboard-empty">Lecture des dictionnaires de la langue…</div>
+            ))}
+          {category && shownWords.length ? (
               <Table head={['Mot', text('Catégorie'), 'Utilisations', 'Mal écrit', 'Utilisation', text('Dernière')]}>
                 {shownWords.slice(0, 120).map((row) => (
                   <tr key={`${row.category}:${row.word}`} {...press({ categoryId: row.category, word: row.word, display: row.display })}>
@@ -505,24 +583,29 @@ export function WordsBoardView({
                   </tr>
                 ))}
               </Table>
-            ) : (
-              <div className="dashboard-empty">
-                {category
-                  ? 'Aucun mot pour ce filtre.'
-                  : 'Toutes catégories : seuls les mots déjà écrits par quelqu’un apparaissent. Choisissez une catégorie pour lister tout son dictionnaire.'}
-              </div>
-            )}
+          ) : category ? (
+            <div className="dashboard-empty">Aucun mot pour ce filtre.</div>
+          ) : null}
             {shownWords.length > 120 && (
               <p className="note">
                 Les {fmt(120)} mots les plus écrits, sur {fmt(shownWords.length)} : cherchez un mot, ou prenez une lettre.
               </p>
             )}
+            {category ? (
             <p className="note">
               « Utilisation » : part des tirages de son couple — sa catégorie et sa lettre — où ce mot est sorti. « Mal écrit » :
-              accepté à une lettre près, payé au tarif plat. Un appui long sur une ligne (un clic droit, sur ordinateur) ouvre la
-              carte de signalement : comme dans le récapitulatif d’une partie, le mot passe par la file de modération et ne sort du
-              jeu qu’au dictionnaire livré d’après.
+              accepté à une lettre près, payé au tarif plat.
             </p>
+          ) : (
+            <p className="note">
+              Le dictionnaire de chaque catégorie, et ce que les joueurs en ont écrit : touchez une catégorie pour son détail mot à
+              mot, c’est là que la lettre et la recherche s’appliquent.
+            </p>
+          )}
+          <p className="note">
+            Un appui long sur une ligne (un clic droit, sur ordinateur) ouvre la carte de signalement : comme dans le récapitulatif
+            d’une partie, le mot passe par la file de modération et ne sort du jeu qu’au dictionnaire livré d’après.
+          </p>
           </Section>
 
           <Section title="Mots ajoutés" mark="var(--green)" round>
