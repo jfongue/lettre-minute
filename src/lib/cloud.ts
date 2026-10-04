@@ -14,6 +14,7 @@ import { withBotRuns } from '../state/botRuns'
 import type { PendingSubmission } from '../state/storage'
 import { googleIdToken } from './native'
 import { connect, forgetSession, supabase } from './supabase'
+import { testClient } from './testClient'
 
 export interface CrowdUsage {
   /** Normalized word → share of recent runs that contained it. */
@@ -117,29 +118,42 @@ export function fetchCommunityWords(lang: string): Promise<Record<string, Commun
 export function pushRun(run: Run, record: RunRecord, profile: Profile): Promise<boolean> {
   return guard(async () => {
     const identity = await connect()
-    const row = {
+    // Ce que le profil ne garde pas (les pouvoirs restent sur l'appareil) :
+    // la partie dit avec quoi elle a été jouée, pour les classements avancés
+    // du mode débug. La colonne date de 0025.
+    //
+    // Le compte emporte aussi le relevé de la partie (0033) : c'est lui que la
+    // page des statistiques relit sur un autre appareil, avec l'orthographe de
+    // chaque mot et le temps qu'il a mis.
+    //
+    // Un client d'agent (`testClient`) étiquette enfin sa partie (0040) : le
+    // tableau de bord l'écarte. Aucune de ces trois colonnes n'existe sur un
+    // projet plus ancien, et chacune refusée ferait perdre la partie — elles
+    // tombent donc l'une après l'autre, la partie nue passant toujours.
+    const fields: [string, () => unknown][] = [
+      ['record', () => record],
+      ['powers', () => [...run.powers]],
+      ['test', () => testClient()],
+    ]
+    const payload = () => ({
       player_id: identity!.userId,
       seed: run.seed,
       score: run.score,
       words: run.found.length,
       best_combo: run.bestCombo,
       skips: run.skips,
+      ...Object.fromEntries(fields.map(([name, value]) => [name, value()])),
+    })
+
+    let data: { id?: string } | null = null
+    let error: unknown = null
+    for (;;) {
+      const answer = await supabase!.from('runs').insert(payload()).select('id').single()
+      data = answer.data
+      error = answer.error
+      if (!error || fields.length === 0) break
+      fields.pop()
     }
-    // Ce que le profil ne garde pas (les pouvoirs restent sur l'appareil) :
-    // la partie dit avec quoi elle a été jouée, pour les classements avancés
-    // du mode débug. La colonne date de 0025 : un projet qui ne l'a pas encore
-    // appliquée la refuse, et la partie serait perdue pour un tableau de
-    // développeur — elle repart alors sans ses pouvoirs.
-    //
-    // Le compte emporte aussi le relevé de la partie (0033) : c'est lui que la
-    // page des statistiques relit sur un autre appareil, avec l'orthographe de
-    // chaque mot et le temps qu'il a mis. Sans la colonne, la partie repart
-    // sans ce relevé, et les mots seuls la recomposent.
-    const written = await supabase!.from('runs').insert({ ...row, powers: [...run.powers], record }).select('id').single()
-    const withoutRecord = written.error
-      ? await supabase!.from('runs').insert({ ...row, powers: [...run.powers] }).select('id').single()
-      : written
-    const { data, error } = withoutRecord.error ? await supabase!.from('runs').insert(row).select('id').single() : withoutRecord
     if (error || !data) return false
 
     if (record.words.length > 0) {
