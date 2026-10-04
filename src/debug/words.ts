@@ -1,5 +1,5 @@
 /*
- * Le relevé des mots, tel que `admin_words` (0042) le rend : les compteurs du
+ * Le relevé des mots, tel que `admin_words` (0043) le rend : les compteurs du
  * dictionnaire vivant, par langue et par catégorie, pour l'écran caché de
  * « Mes catégories ». Les dictionnaires embarqués, eux, ne sont pas en base —
  * c'est la vue qui les confronte à ces chiffres.
@@ -23,7 +23,7 @@ export interface WordUse {
   word: string
   category: string
   uses: number
-  /** Écrit de travers et accepté par le dictionnaire, au tarif plat (0042). */
+  /** Écrit de travers et accepté par le dictionnaire, au tarif plat (0043). */
   approx: number
   /** La dernière fois qu'il a été écrit. */
   last: string | null
