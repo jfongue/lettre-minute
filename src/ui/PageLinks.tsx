@@ -8,17 +8,19 @@ import { onTint, type ShapeKind, type Tint } from './motifs'
 export type LinkedPage = 'profile' | 'stats' | 'requests' | 'categories' | 'premium'
 type LabelPage = Exclude<LinkedPage, 'premium'>
 
-const LOOKS: Record<Exclude<LinkedPage, 'profile'>, { kind: ShapeKind; tint: Tint; ground: Tint }> = {
+// `soon` : la tuile se montre à sa place, mais son contenu n'est pas prêt et
+// elle ne mène nulle part — même traitement que le partage d'un bilan.
+const LOOKS: Record<Exclude<LinkedPage, 'profile'>, { kind: ShapeKind; tint: Tint; ground: Tint; soon?: boolean }> = {
   stats: { kind: 'bars', tint: 'black', ground: 'yellow' },
   requests: { kind: 'quarter', tint: 'cream', ground: 'blue' },
   categories: { kind: 'circle', tint: 'yellow', ground: 'red' },
-premium: { kind: 'sun', tint: 'red', ground: 'pink' },
+  premium: { kind: 'sun', tint: 'red', ground: 'pink', soon: true },
 }
 
 function labelOf(t: ReturnType<typeof useT>, page: LinkedPage): string {
- if (page === 'premium') return t.menu.pages.premium
- const ordinary: LabelPage = page
- return t.home.links[ordinary]
+  if (page === 'premium') return t.menu.pages.premium
+  const ordinary: LabelPage = page
+  return t.home.links[ordinary]
 }
 
 interface PageLinksProps {
@@ -42,13 +44,16 @@ export function PageLinks({ pages, avatar, badges, queueAlert = false, onOpen }:
         const ground: Tint = look?.ground ?? 'paper'
         const badge = badges?.[page] ?? 0
         const alert = badge === 0 && queueAlert && page === 'requests'
+        const soon = Boolean(look?.soon)
         return (
           <button
             key={page}
             type="button"
-            className={`page-link page-link--${page}`}
+            className={`page-link page-link--${page}${soon ? ' coming-soon' : ''}`}
             style={{ background: `var(--${ground})`, color: `var(--${onTint(ground)})`, '--i': index } as CSSProperties}
             onClick={() => onOpen(page)}
+            disabled={soon}
+            aria-disabled={soon || undefined}
             aria-label={badge > 0 ? `${labelOf(t, page)} · ${t.home.news(badge)}` : alert ? `${labelOf(t, page)} · ${t.home.queueWaiting}` : undefined}
           >
             <span className="page-link-art">
@@ -58,7 +63,10 @@ export function PageLinks({ pages, avatar, badges, queueAlert = false, onOpen }:
                 look && <Shape kind={look.kind} tint={look.tint} />
               )}
             </span>
-            <span className="page-link-label">{labelOf(t, page)}</span>
+            <span className="page-link-label">
+              {labelOf(t, page)}
+              {soon && <span className="tag tag--plain">{t.challenge.soon}</span>}
+            </span>
             {badge > 0 && (
               <span className="page-link-badge" aria-hidden="true">
                 {badge}

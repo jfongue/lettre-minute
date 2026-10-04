@@ -52,7 +52,6 @@ interface HomeScreenProps {
   onChallenge(id: string): void
   onCreateChallenge(): void
   onPastChallenges(): void
-onDailyEvent(): void
   onMenu(page?: MenuPage): void
   onPlay(): void
   onEquip(slot: number, powerId: PowerId | null): void
@@ -81,7 +80,6 @@ export function HomeScreen({
   onChallenge,
   onCreateChallenge,
   onPastChallenges,
-onDailyEvent,
   onMenu,
   onPlay,
   onEquip,
@@ -139,7 +137,7 @@ onDailyEvent,
             </button>
             {error && <p className="note note--warn">{error}</p>}
             <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} />
-<DailyEventCard onOpen={onDailyEvent} />
+<DailyEventCard />
           </div>
 
           {challenges && (

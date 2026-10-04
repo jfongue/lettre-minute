@@ -214,7 +214,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
             </div>
           )}
           {sub === 'premium' && <PremiumPage />}
-{sub === 'event' && <DailyEventPage onOpenPremium={() => open('premium', 'event')} />}
+{sub === 'event' && <DailyEventPage />}
 {sub === 'stats' && (
             <StatsPage
               history={props.history}
@@ -225,7 +225,6 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               onRefresh={props.onStatsRefresh}
               loadOlder={props.onStatsOlder}
               recap={props.statsRecap}
-onPremium={() => open('premium', 'stats')}
               onBoards={props.account ? () => open('boards', 'stats') : undefined}
             />
           )}

@@ -743,6 +743,34 @@ button.challenge-past::after {
   color: var(--ink-soft);
 }
 
+.coming-soon,
+.soon-block,
+.page-link.coming-soon,
+.daily-event-card.soon-block {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.coming-soon:hover,
+.coming-soon:focus-visible,
+.coming-soon:active {
+  transform: none;
+  box-shadow: 0 0 0 var(--ink);
+  outline: none;
+}
+
+.coming-soon .page-link-art > *,
+.soon-block .daily-event-art > * {
+  animation: none;
+}
+
+.soon-block {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .tag-sun {
   width: 0.9rem;
   height: 0.9rem;
@@ -2216,24 +2244,24 @@ button.challenge-past::after {
   grid-column: 1 / -1;
 }
 
-.page-link:hover,
-.page-link:focus-visible {
+.page-link:not(:disabled):hover,
+.page-link:not(:disabled):focus-visible {
   transform: translate(-4px, -4px) rotate(-1.5deg);
   box-shadow: 6px 6px 0 var(--ink);
   outline: none;
 }
 
-.page-link:nth-child(even):hover,
-.page-link:nth-child(even):focus-visible {
+.page-link:nth-child(even):not(:disabled):hover,
+.page-link:nth-child(even):not(:disabled):focus-visible {
   transform: translate(-4px, -4px) rotate(1.5deg);
 }
 
-.page-link:hover .page-link-art > *,
-.page-link:focus-visible .page-link-art > * {
+.page-link:not(:disabled):hover .page-link-art > *,
+.page-link:not(:disabled):focus-visible .page-link-art > * {
   animation: tile-hop 620ms var(--ease-spring) both;
 }
 
-.page-link:active {
+.page-link:not(:disabled):active {
   transform: translate(2px, 2px);
   box-shadow: 0 0 0 var(--ink);
 }
@@ -8395,8 +8423,8 @@ button.challenge-word[aria-expanded='true'] {
   line-height: 1;
 }
 
-.daily-event-card:hover,
-.daily-event-card:focus-visible {
+.daily-event-card:not(:disabled):hover,
+.daily-event-card:not(:disabled):focus-visible {
   transform: translate(-4px, -4px) rotate(-1deg);
   box-shadow: 6px 6px 0 var(--ink);
   outline: none;

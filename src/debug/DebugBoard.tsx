@@ -1670,8 +1670,8 @@ const SCENARIOS: readonly Scenario[] = [
           <button type="button" className="btn btn--quiet" onClick={back}>
             Retour
           </button>
-          <DailyEventCard onOpen={back} />
-          <DailyEventPage onOpenPremium={back} />
+          <DailyEventCard />
+          <DailyEventPage />
         </div>
       </div>
     ),
@@ -1858,7 +1858,6 @@ function DebugHome({
       onChallenge={noop}
       onCreateChallenge={noop}
       onPastChallenges={noop}
-onDailyEvent={noop}
       onMenu={back}
       onPlay={back}
       onEquip={noop}
