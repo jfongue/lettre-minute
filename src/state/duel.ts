@@ -24,7 +24,7 @@ import {
 import { createRng } from '../domain/rng'
 import { playableCategoryIds } from '../domain/perks'
 import type { RarityTier } from '../domain/rarity'
-import type { Judge, Verdict } from '../domain/run'
+import type { Judge, Prompt, Verdict } from '../domain/run'
 import { ownedCategoryIds } from '../domain/unlocks'
 import { setMusic, sound } from '../lib/sound'
 import { createJudge } from './judge'
@@ -173,6 +173,8 @@ export function useDuelTable(lang: string): DuelTable {
   const [stagedAt, setStagedAt] = useState(0)
   const [rematchOpen, setRematchOpen] = useState(false)
   const [leavers, setLeavers] = useState<readonly string[]>([])
+  /** Le dernier couple à l'écran : la dernière mort retire le tour, pas l'écran. */
+  const [lastPrompt, setLastPrompt] = useState<Prompt | null>(null)
 
   const zero = useRef(0)
   const marks = useRef<number[]>([])
@@ -550,6 +552,13 @@ export function useDuelTable(lang: string): DuelTable {
     }
   }, [at, auto, duel, judge, markReady, myIndex, open, pass, phase, play, ready.me])
 
+  // Le couple en cours, gardé pour la mise en scène : la dernière mort ferme le
+  // duel (`turn` passe à null) et l'écran de partie doit rester derrière elle.
+  useEffect(() => {
+    const turned = duel ? duelPrompt(duel) : null
+    if (turned) setLastPrompt(turned)
+  }, [duel])
+
   const picker = duel && phase === 'draft' && !draftComplete(duel) ? (seats[draftPlayer(duel)] ?? null) : null
   const myTurn = phase === 'play' && duel?.turn?.player === myIndex
   const watching = phase === 'play' && !!duel?.turn && duel.turn.player !== myIndex
@@ -566,7 +575,7 @@ export function useDuelTable(lang: string): DuelTable {
     duel,
     judge,
     pool: mine,
-    prompt: duel ? duelPrompt(duel) : null,
+    prompt: (duel ? duelPrompt(duel) : null) ?? lastPrompt,
     picker,
     pickLeft: picker ? Math.max(0, pickEndsAt - at) : 0,
     myIndex,
