@@ -1,23 +1,28 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties, FormEvent } from 'react'
-import { DUEL_PASS_PENALTY_SECONDS, DUEL_RESERVE_SECONDS, duelRanking, humanPicks, type Duel } from '../domain/duel'
-import { HOUSE_BOTS, MAX_TABLE, MIN_TABLE, useDuelTable, type Seat } from '../state/duel'
+import { HOUSE_BOTS, MAX_TABLE, MIN_TABLE, useDuelTable, type DuelTable, type Seat } from '../state/duel'
+import { DUEL_PASS_PENALTY_SECONDS, DUEL_PICK_SECONDS, DUEL_RESERVE_SECONDS, duelRanking, humanPicks, type Duel } from '../domain/duel'
 import type { Verdict } from '../domain/run'
 import type { RarityTier } from '../domain/rarity'
-import { categoryText, useT } from '../i18n'
+import { categoryText, formatNumber, useT } from '../i18n'
+import { capitalized } from '../domain/text'
 import { armSound, sound, tierSound } from '../lib/sound'
 import { Avatar } from './Avatar'
-import { Burst, Shape, TierTag } from './bauhaus'
+import { Burst, LetterMark, Shape, TierTag } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
-import { categoryMotif } from './motifs'
+import { CountdownScreen } from './CountdownScreen'
+import { categoryMotif, onTint } from './motifs'
+import { reducedMotion } from './useCountUp'
 
 /**
- * L'écran du duel : le salon, le draft, la partie et le récapitulatif. Tout ce
- * qui est règle vient du domaine, tout ce qui est temps vient de la table
- * (`useDuelTable`) ; ici, seulement ce que le joueur voit et entend.
+ * L'écran du duel : le salon, l'annonce, le draft, l'écran des catégories
+ * tirées et son compte à rebours, puis la partie et son récapitulatif. Il
+ * reprend les écrans et les classes du mode solo — `.stage`, `.sheet`,
+ * `.run`, `.answer`, `.verdict`, `CountdownScreen` — et n'ajoute que ce que le
+ * multijoueur demande : le bandeau de la table et le draft.
  */
 
-const TAU = Math.PI * 2
+const BONUS: Record<RarityTier, number> = { courant: 0, 'peu commun': 1, rare: 1.5, 'très rare': 1.5 }
 
 function reserveOf(duel: Duel, index: number, at: number): number {
   const player = duel.players[index]
@@ -26,231 +31,74 @@ function reserveOf(duel: Duel, index: number, at: number): number {
   return Math.max(0, player.reserve - Math.max(0, at - duel.turn.startedAt))
 }
 
-/** La réserve du joueur en cours : un anneau qui se vide, jamais un chiffre seul. */
-function ReserveRing({ seconds, urgent }: { seconds: number; urgent: boolean }) {
-  const share = Math.max(0, Math.min(1, seconds / DUEL_RESERVE_SECONDS))
-  const radius = 42
-  return (
-    <div className={`duel-ring${seconds <= 5 ? ' duel-ring--low' : ''}${urgent ? ' duel-ring--urgent' : ''}`}>
-      <svg viewBox="0 0 100 100" aria-hidden="true">
-        <circle className="duel-ring__track" cx="50" cy="50" r={radius} fill="none" strokeWidth="8" />
-        <circle
-          className="duel-ring__fill"
-          cx="50"
-          cy="50"
-          r={radius}
-          fill="none"
-          strokeWidth="8"
-          strokeDasharray={TAU * radius}
-          strokeDashoffset={TAU * radius * (1 - share)}
-          transform="rotate(-90 50 50)"
-        />
-      </svg>
-      <b className="duel-ring__value">{seconds.toFixed(1)}</b>
-      <span className="duel-ring__unit">s</span>
-    </div>
-  )
-}
+const nameOf = (seat: Seat | undefined, you: string): string => (seat?.bot ? seat.name : you)
 
-/** Un siège dans la bande du haut : avatar, nom, réserve, état. */
-function SeatChip({ seat, seconds, active, dead, mine }: { seat: Seat; seconds: number; active: boolean; dead: boolean; mine: boolean }) {
+/** La table, en bandeau : qui joue, ce qu'il lui reste, qui est tombé. */
+function TableStrip({ duel, seats, at, me }: { duel: Duel; seats: readonly Seat[]; at: number; me: number }) {
   const t = useT()
-  const share = Math.max(0, Math.min(1, seconds / DUEL_RESERVE_SECONDS))
   return (
-    <div className={`duel-chip${active ? ' duel-chip--active' : ''}${dead ? ' duel-chip--dead' : ''}${mine ? ' duel-chip--mine' : ''}`}>
-      <span className="duel-chip__face">
-        <Avatar choice={seat.avatar} size="sm" />
-        {dead ? (
-          <span className="duel-chip__cross" aria-hidden="true">
-            ✕
-          </span>
-        ) : null}
-      </span>
-      <b className="duel-chip__name">{mine ? t.duel.you : seat.name}</b>
-      <span className="duel-chip__bar" aria-hidden="true">
-        <i style={{ transform: `scaleX(${share})` } as CSSProperties} />
-      </span>
-      <span className="duel-chip__seconds">{dead ? t.duel.out : `${Math.ceil(seconds)}`}</span>
-    </div>
-  )
-}
-
-/** Le couple : un bloc de couleur, la lettre en grand. */
-function PromptCard({ categoryId, letter, note, front }: { categoryId: string; letter: string; note?: string; front: boolean }) {
-  const t = useT()
-  const text = categoryText(t, categoryId)
-  const motif = categoryMotif(categoryId)
-  return (
-    <div className={`duel-prompt duel-prompt--${motif.tint}${front ? ' duel-prompt--front' : ''}`}>
-      <span className="duel-prompt__icon" aria-hidden="true">
-        <CategoryIcon categoryId={categoryId} tint={motif.tint} />
-      </span>
-      <span className="duel-prompt__body">
-        <small>{text.label}</small>
-        <strong>{letter}</strong>
-        {note ? <em>{note}</em> : null}
-      </span>
-    </div>
-  )
-}
-
-function saidText(t: ReturnType<typeof useT>, live: Verdict, mine: boolean, typing: boolean): string {
-  if (!typing) return mine ? t.duel.hintMine : t.duel.hintWait
-  if (live.kind === 'accepted') return live.found?.approximate ? t.duel.verdictClose : t.duel.verdictOk
-  if (live.kind === 'unknown') return t.duel.verdictUnknown
-  if (live.kind === 'wrong-letter') return t.duel.verdictWrong
-  if (live.kind === 'already') return t.duel.verdictAlready
-  return t.duel.hintMine
-}
-
-const BONUS: Record<RarityTier, number> = { courant: 0, 'peu commun': 1, rare: 1.5, 'très rare': 1.5 }
-const VERDICT_CLASS: Partial<Record<Verdict['kind'], string>> = {
-  unknown: 'duel-field--unknown',
-  'wrong-letter': 'duel-field--wrong',
-  already: 'duel-field--already',
-  accepted: 'duel-field--ok',
-}
-
-export function DuelScreen({ lang }: { lang: string }) {
-  const t = useT()
-  const table = useDuelTable(lang)
-  const { phase, seats, duel, at, event, prompt } = table
-  // Le champ se vide quand le couple change, jamais quand il est hérité :
-  // la frappe vit sous la clé du couple, et une clé neuve repart à vide.
-  const roundKey = `${prompt?.categoryId ?? ''}:${prompt?.letter ?? ''}`
-  const [typed, setTyped] = useState({ key: '', text: '' })
-  const draft = typed.key === roundKey ? typed.text : ''
-  const field = useRef<HTMLInputElement>(null)
-  const mine = table.myTurn
-  const alive = duel ? duel.players[table.myIndex]?.alive !== false : true
-  const live = useMemo<Verdict>(
-    () => (phase === 'play' && alive ? table.inspect(draft) : { kind: 'empty', found: null }),
-    [alive, draft, phase, table],
-  )
-  const accepted = live.kind === 'accepted'
-  const seconds = duel ? reserveOf(duel, table.myIndex, at) : 0
-  const wake = useCallback(() => armSound(), [])
-  const type = useCallback((text: string) => setTyped({ key: roundKey, text }), [roundKey])
-
-  // Le champ garde le focus : perdre le clavier coûte la manche suivante.
-  useEffect(() => {
-    if (phase === 'play' && alive) field.current?.focus()
-  }, [alive, mine, phase, prompt?.categoryId, prompt?.letter])
-
-  // Ce que le champ dit s'entend : nommé, ou à une lettre près — jamais le palier.
-  const heard = !accepted ? null : live.found?.approximate ? 'close' : 'named'
-  useEffect(() => {
-    if (heard === 'named') sound.recognized()
-    else if (heard === 'close') sound.oneLetterOff()
-  }, [heard])
-
-  const seen = useRef(0)
-  useEffect(() => {
-    if (!event) return
-    if (event.kind === 'dead') sound.timeUp()
-    else if (event.kind === 'failed') sound.refused()
-    else if (event.kind === 'over') sound.go()
-    else if (event.kind === 'solved' && event.tier && event.id !== seen.current) {
-      sound.found(tierSound(event.tier, false), Math.min(3, event.player))
-    }
-    seen.current = event.id
-  }, [event])
-
-  // Les dernières secondes battent, une fois par seconde.
-  const shown = Math.ceil(seconds)
-  useEffect(() => {
-    if (!mine || shown > 5 || shown <= 0) return
-    sound.tick(shown)
-  }, [mine, shown])
-
-  const submit = useCallback(
-    (formEvent?: FormEvent) => {
-      formEvent?.preventDefault()
-      wake()
-      if (!mine) return
-      if (!accepted && draft.trim() !== '') sound.refused()
-      table.play(draft)
-    },
-    [accepted, draft, mine, table, wake],
-  )
-
-  if (phase === 'setup') {
-    return (
-      <main className="duel duel--setup">
-        <h1 className="duel__title">{t.duel.title}</h1>
-        <p className="duel__lead">{t.duel.lead}</p>
-        <ul className="duel__bots">
-          {HOUSE_BOTS.map((bot) => {
-            const picked = table.invited.includes(bot.id)
-            return (
-              <li key={bot.id}>
-                <button
-                  type="button"
-                  className={`duel-bot${picked ? ' duel-bot--on' : ''}`}
-                  aria-pressed={picked}
-                  disabled={!picked && seats.length >= MAX_TABLE}
-                  onClick={() => {
-                    wake()
-                    sound.tile('marimba', picked ? 3 : 5)
-                    table.toggleInvite(bot.id)
-                  }}
-                >
-                  <Avatar choice={bot.avatar} size="fill" />
-                  <b>{bot.name}</b>
-                  <small>{t.duel.trait[bot.trait]}</small>
-                  <span className="duel-bot__mark" aria-hidden="true">
-                    {picked ? (seats.length <= MIN_TABLE ? '•' : '✓') : '+'}
-                  </span>
-                </button>
-              </li>
-            )
-          })}
-        </ul>
-        <p className="duel__note">{t.duel.inviteNote}</p>
-        {table.pool.length === 0 ? (
-          <p className="duel__note">{t.duel.loadFailed}</p>
-        ) : (
-          <button
-            type="button"
-            className="duel__go"
-            onClick={() => {
-              wake()
-              sound.go()
-              table.open()
-            }}
+    <ol className="duel-strip" aria-label={t.duel.table}>
+      {seats.map((seat, index) => {
+        const player = duel.players[index]
+        const dead = player?.alive === false
+        const active = duel.turn?.player === index
+        const seconds = reserveOf(duel, index, at)
+        return (
+          <li
+            key={seat.id}
+            className={`duel-seat${active ? ' duel-seat--active' : ''}${dead ? ' duel-seat--dead' : ''}${index === me ? ' duel-seat--me' : ''}`}
           >
-            {t.duel.invite(seats.length)}
-          </button>
-        )}
-      </main>
-    )
-  }
+            <span className="duel-seat__face">
+              <Avatar choice={seat.avatar} size="sm" />
+              {dead ? (
+                <span className="duel-seat__cross" aria-hidden="true">
+                  ✕
+                </span>
+              ) : null}
+            </span>
+            <span className="duel-seat__name">{nameOf(seat, t.duel.you)}</span>
+            <span className="duel-seat__bar" aria-hidden="true">
+              <i style={{ transform: `scaleX(${Math.min(1, seconds / DUEL_RESERVE_SECONDS)})` } as CSSProperties} />
+            </span>
+            <span className="duel-seat__clock">{dead ? t.duel.out : `${Math.ceil(seconds)} s`}</span>
+          </li>
+        )
+      })}
+    </ol>
+  )
+}
 
-  if (phase === 'lobby' || phase === 'countdown') {
-    const left = Math.max(0, Math.ceil(table.countdownEndsAt - at))
-    return (
-      <main className="duel duel--lobby">
-        <h1 className="duel__title">{phase === 'countdown' ? t.duel.go : t.duel.lobbyTitle}</h1>
-        <ul className="duel__table">
-          {seats.map((seat, index) => (
-            <li key={seat.id} className={`duel-seat${table.ready[seat.id] ? ' duel-seat--ready' : ''}`} style={{ '--i': index } as CSSProperties}>
+/** Le salon : la table qui se met en place, puis l'annonce. */
+function Lobby({ table }: { table: DuelTable }) {
+  const t = useT()
+  const counting = table.phase === 'announcing'
+  return (
+    <main className="stage stage--duel">
+      <div className="sheet">
+        <p className="eyebrow">{t.duel.title}</p>
+        <h1 className="duel-title">{counting ? t.duel.announceTitle : t.duel.lobbyTitle}</h1>
+        <p className="note">{counting ? t.duel.announceLead : t.duel.inviteNote}</p>
+        <ul className="duel-table">
+          {table.seats.map((seat, index) => (
+            <li key={seat.id} className={`duel-player${table.ready[seat.id] ? ' duel-player--ready' : ''}`} style={{ '--i': index } as CSSProperties}>
               <Avatar choice={seat.avatar} size="fill" />
-              <b>{seat.bot ? seat.name : t.duel.you}</b>
-              <span className="duel-seat__stamp">{table.ready[seat.id] ? t.duel.ready : t.duel.waiting}</span>
+              <b>{nameOf(seat, t.duel.you)}</b>
+              <span className="duel-player__stamp">{table.ready[seat.id] ? t.duel.ready : t.duel.waiting}</span>
             </li>
           ))}
         </ul>
-        {phase === 'countdown' ? (
-          <p className="duel__count" aria-live="assertive">
-            <b key={left}>{left > 0 ? left : t.duel.go}</b>
+        {counting ? (
+          <p className="duel-announce" aria-live="assertive">
+            <Shape kind="arch" tint="yellow" />
+            <b>{t.duel.announceTitle}</b>
           </p>
         ) : (
           <button
             type="button"
-            className={`duel__go${table.ready.me ? ' duel__go--done' : ''}`}
+            className="btn btn--play btn--block"
             disabled={!!table.ready.me}
             onClick={() => {
-              wake()
+              armSound()
               sound.beat()
               table.markReady()
             }}
@@ -258,106 +106,318 @@ export function DuelScreen({ lang }: { lang: string }) {
             {table.ready.me ? t.duel.waitingOthers : t.duel.readyButton}
           </button>
         )}
-        <button type="button" className="duel__leave" onClick={() => table.leave()}>
+        <button type="button" className="btn btn--quiet btn--block" onClick={() => table.leave()}>
           {t.duel.quit}
         </button>
-      </main>
-    )
-  }
+      </div>
+    </main>
+  )
+}
 
-  if (phase === 'loading' || table.error) {
-    return (
-      <main className="duel duel--loading">
-        <span className="duel-loader" aria-hidden="true">
-          <Shape kind="triangle" tint="red" />
-          <Shape kind="circle" tint="blue" />
-          <Shape kind="square" tint="yellow" />
-        </span>
-        <p>{table.error ? t.duel.loadFailed : t.duel.loading}</p>
-        {table.error ? (
-          <button type="button" className="duel__go" onClick={() => table.leave()}>
-            {t.duel.back}
-          </button>
-        ) : null}
-      </main>
-    )
-  }
-
-  if (phase === 'draft' && duel) {
-    const actor = duel.order[duel.picks.length % duel.order.length] ?? 0
-    const actorSeat = seats[actor]
-    const mineToPick = actor === table.myIndex
-    const chosen = humanPicks(duel.players.length)
-    return (
-      <main className="duel duel--draft">
-        <h1 className="duel__title">{t.duel.draftTitle}</h1>
-        <p className="duel__turn" aria-live="polite">
-          {mineToPick ? <b>{t.duel.draftYours}</b> : t.duel.draftTurn(actorSeat?.bot ? actorSeat.name : t.duel.you)}
+/** Le draft : une tuile par catégorie jouable, dix secondes par choix. */
+function Draft({ table }: { table: DuelTable }) {
+  const t = useT()
+  const duel = table.duel!
+  const picker = table.picker
+  const mine = table.myPickTurn
+  const chosen = humanPicks(duel.players.length)
+  return (
+    <main className="stage stage--duel">
+      <div className="sheet">
+        <div className="spread">
+          <p className="eyebrow">{t.duel.announceTitle}</p>
+          <p className="note">{t.duel.pickLeft(Math.ceil(table.pickLeft))}</p>
+        </div>
+        <p className="duel-turn" aria-live="polite">
+          {picker ? <b>{mine ? t.duel.draftTitle : t.duel.draftTurn(nameOf(picker, t.duel.you))}</b> : null}
         </p>
-        <div className="duel__pool" aria-hidden="true">
-          {Array.from({ length: 5 }, (_, index) => {
-            const id = duel.picks[index]
+        <span className="duel-fuse" aria-hidden="true">
+          <i style={{ transform: `scaleX(${Math.max(0, Math.min(1, table.pickLeft / DUEL_PICK_SECONDS))})` } as CSSProperties} />
+        </span>
+        <ul className="dealt dealt--pick">
+          {table.pool.map((id, index) => {
+            const place = duel.picks.indexOf(id)
+            const taken = place >= 0
+            const who = taken && place < chosen ? table.seats[duel.order[place % duel.order.length] ?? 0] : null
+            const motif = categoryMotif(id)
             return (
-              <span
-                key={index}
-                className={`duel-slot${id ? ' duel-slot--full' : ''}${index >= chosen ? ' duel-slot--drawn' : ''}`}
-                style={{ '--i': index } as CSSProperties}
+              <li
+                key={id}
+                style={{ '--i': index, background: `var(--${motif.tint})`, color: `var(--${onTint(motif.tint)})` } as CSSProperties}
               >
-                {id ? <CategoryIcon categoryId={id} tint={categoryMotif(id).tint} /> : null}
-              </span>
+                <button
+                  type="button"
+                  className={`dealt-tile${taken ? ' dealt-tile--taken' : ''}`}
+                  disabled={!mine || taken}
+                  onClick={() => {
+                    armSound()
+                    sound.tile('glass', 2)
+                    table.pick(id)
+                  }}
+                >
+                  <CategoryIcon categoryId={id} tint={onTint(motif.tint)} className="dealt-shape" />
+                  <span>{categoryText(t, id).label}</span>
+                  {taken ? (
+                    <span className="dealt-taken">
+                      {place >= chosen ? t.duel.drawn : nameOf(who ?? undefined, t.duel.you)}
+                    </span>
+                  ) : null}
+                </button>
+              </li>
             )
           })}
+        </ul>
+      </div>
+    </main>
+  )
+}
+
+/** La partie : l'écran du solo, avec le bandeau de la table en plus. */
+function Play({ table }: { table: DuelTable }) {
+  const t = useT()
+  const duel = table.duel!
+  const prompt = table.prompt!
+  const at = table.at
+  const me = table.myIndex
+  const mine = table.myTurn
+  const alive = duel.players[me]?.alive !== false
+  const [typed, setTyped] = useState({ key: '', text: '' })
+  const roundKey = `${prompt.categoryId}:${prompt.letter}`
+  const draft = typed.key === roundKey ? typed.text : ''
+  const field = useRef<HTMLInputElement>(null)
+  const [shaking, setShaking] = useState(false)
+
+  const live = useMemo<Verdict>(() => (alive ? table.inspect(draft) : { kind: 'empty', found: null }), [alive, draft, table])
+  const accepted = live.kind === 'accepted'
+  const exact = accepted && !live.found?.approximate
+  const seconds = reserveOf(duel, me, at)
+  const urgent = mine && seconds <= 10
+  const shown = Math.ceil(seconds)
+
+  // Le champ prend le focus quand la main m'arrive — pas pendant le tour des
+  // autres : le clavier du téléphone n'a pas à s'ouvrir sur un écran qu'on
+  // regarde. Qui veut taper d'avance touche le champ.
+  useEffect(() => {
+    if (alive && mine) field.current?.focus()
+  }, [alive, mine, roundKey])
+
+  const heard = !accepted ? null : exact ? 'named' : 'close'
+  useEffect(() => {
+    if (heard === 'named') sound.recognized()
+    else if (heard === 'close') sound.oneLetterOff()
+  }, [heard])
+
+  useEffect(() => {
+    if (urgent && shown > 0) sound.tick(shown)
+  }, [urgent, shown])
+
+  // Les faits de la table s'entendent : la note du palier, la mort, le couple refusé.
+  useEffect(() => {
+    const news = table.event
+    if (!news) return
+    if (news.kind === 'dead') sound.timeUp()
+    else if (news.kind === 'failed') sound.refused()
+    else if (news.kind === 'solved' && news.tier) sound.found(tierSound(news.tier, false), Math.min(3, news.player))
+  }, [table.event])
+
+  const turn = duel.turn
+  const watching = table.watching
+  const news = table.event
+  // Ce que le champ dit : les mots du jeu, et le duel en plus.
+  const said =
+    draft.trim() === ''
+      ? mine
+        ? t.duel.yourTurn
+        : t.duel.inherited
+      : live.kind === 'accepted'
+        ? exact
+          ? `✓ ${capitalized(live.found?.display ?? '')}`
+          : t.run.oneLetterOff
+        : live.kind === 'wrong-letter'
+          ? t.run.startsWith(prompt.letter)
+          : live.kind === 'already'
+            ? t.run.already
+            : live.kind === 'spell'
+              ? ''
+              : t.run.unknown
+
+  const submit = (event?: FormEvent) => {
+    event?.preventDefault()
+    armSound()
+    if (!accepted && draft.trim() !== '') {
+      setShaking(true)
+      sound.refused()
+    }
+    if (canValidate) table.play(draft)
+  }
+  const canValidate = mine && (accepted || live.kind === 'spell')
+
+  return (
+    <main className={`stage stage--playing${alive ? '' : ' stage--out'}`}>
+      <div className={`sheet run${urgent ? ' run--urgent' : ''}`}>
+        <div className="run-head">
+          <div className="timer">
+            <span className="timer-disc" style={{ '--ratio': Math.min(1, seconds / DUEL_RESERVE_SECONDS) } as CSSProperties} aria-hidden="true" />
+            <p className={`clock${mine ? '' : ' clock--away'}`} key={urgent ? shown : 'calm'}>
+              {shown}
+            </p>
+          </div>
+          <div className="score">
+            {duel.players[me]!.score > 0 ? <Burst key={`burst-${duel.players[me]!.score}`} /> : null}
+            <span className="score-value" key={duel.players[me]!.score}>
+              {formatNumber(t, duel.players[me]!.score)}
+            </span>
+          </div>
         </div>
-        <div className="duel__grid">
-          {table.pool.map((id) => {
-            const text = categoryText(t, id)
-            const place = duel.picks.indexOf(id)
-            const used = place >= 0
-            const who = used && place < chosen ? seats[duel.order[place % duel.order.length] ?? 0] : null
-            return (
+
+        <p className="run-meta">
+          <span className="note">{t.duel.meta(duel.players[me]!.words.length, duel.players.length)}</span>
+        </p>
+
+        <TableStrip duel={duel} seats={table.seats} at={at} me={me} />
+
+        <p className={`duel-face${watching ? ' duel-face--watching' : ''}`} aria-live="polite">
+          <span className="duel-face__dot" aria-hidden="true" />
+          {watching ? t.duel.watching(nameOf(table.seats[turn?.player ?? 0], t.duel.you)) : t.duel.yourTurn}
+        </p>
+
+        {/* Le fait de la table : une ligne, comme le verdict du solo, jamais une boîte. */}
+        {news && (news.kind === 'solved' || news.kind === 'dead' || news.kind === 'failed') ? (
+          <p key={news.id} className={`verdict duel-news duel-news--${news.kind}`}>
+            {news.kind === 'dead' ? <b>{t.duel.dead(nameOf(table.seats[news.player], t.duel.you))}</b> : null}
+            {news.kind === 'failed' ? <span>{t.duel.failed}</span> : null}
+            {news.kind === 'solved' ? (
+              <>
+                <span className="cheer-word">
+                  {news.player === me
+                    ? t.duel.youFound(capitalized(news.word ?? ''))
+                    : t.duel.solved(nameOf(table.seats[news.player], t.duel.you), capitalized(news.word ?? ''))}
+                </span>
+                {news.tier ? <TierTag tier={news.tier} /> : null}
+                {news.tier && news.tier !== 'courant' ? <em className="cheer-points">{t.duel.bonus(BONUS[news.tier])}</em> : null}
+              </>
+            ) : null}
+          </p>
+        ) : null}
+
+        <section className="prompt" key={roundKey}>
+          <LetterMark letter={prompt.letter} motif={categoryMotif(prompt.categoryId)} size="lg" />
+          <div className="prompt-text">
+            <h2 className="prompt-label">{categoryText(t, prompt.categoryId).label}</h2>
+            <p className="note">{categoryText(t, prompt.categoryId).hint}</p>
+          </div>
+        </section>
+
+        {alive ? (
+          <form className={`answer${exact ? ' answer--valid' : ''}`} onSubmit={submit}>
+            <div className={`answer-field${shaking ? ' answer-field--shake' : ''}`} onAnimationEnd={() => setShaking(false)}>
+              <input
+                ref={field}
+                value={draft}
+                onChange={(event) => {
+                  armSound()
+                  sound.key(event.target.value.length < draft.length)
+                  setTyped({ key: roundKey, text: capitalized(event.target.value) })
+                }}
+                placeholder={t.run.placeholder(prompt.letter)}
+                aria-label={t.run.fieldLabel(prompt.letter, categoryText(t, prompt.categoryId).label)}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="sentences"
+                spellCheck={false}
+                enterKeyHint="done"
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape' && !event.repeat && mine) {
+                    event.preventDefault()
+                    sound.skipped()
+                    table.pass()
+                    return
+                  }
+                  if (event.key !== 'Enter') return
+                  event.preventDefault()
+                  submit()
+                }}
+              />
+              <span className="answer-line" aria-hidden="true" />
+            </div>
+            <p className={`verdict${exact ? ' verdict--valid' : ''}${live.kind === 'accepted' && !exact ? ' verdict--approx' : ''}`}>
+              {said}
+            </p>
+            <div className="answer-actions">
               <button
-                key={id}
                 type="button"
-                className={`duel-pick${used ? ' duel-pick--used' : ''}${used && place >= chosen ? ' duel-pick--drawn' : ''}`}
-                disabled={!mineToPick || used}
+                className="btn btn--ghost"
+                disabled={!mine}
                 onClick={() => {
-                  wake()
-                  sound.tile('glass', 2)
-                  table.pick(id)
+                  armSound()
+                  sound.skipped()
+                  table.pass()
                 }}
               >
-                <span className="duel-pick__icon" aria-hidden="true">
-                  <CategoryIcon categoryId={id} tint={categoryMotif(id).tint} />
-                </span>
-                <b>{text.label}</b>
-                <small>{used ? (place >= chosen ? t.duel.drawn : who?.bot ? who.name : t.duel.you) : text.hint}</small>
+                {t.run.skip(DUEL_PASS_PENALTY_SECONDS)}
               </button>
-            )
-          })}
-        </div>
-      </main>
-    )
-  }
+              <button type="submit" className="btn btn--blue" disabled={!canValidate}>
+                {t.run.submit}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <p className="note duel-out">{t.duel.spectating}</p>
+        )}
+      </div>
+    </main>
+  )
+}
 
-  if (phase === 'over' && duel) {
-    const order = duelRanking(duel)
-    const champion = order[0] ?? 0
-    const win = champion === table.myIndex
-    return (
-      <main className="duel duel--over">
+/** Le récapitulatif : les joueurs révélés un à un, puis les figures. */
+function Over({ table }: { table: DuelTable }) {
+  const t = useT()
+  const duel = table.duel!
+  const order = duelRanking(duel)
+  const champion = order[0] ?? 0
+  const win = champion === table.myIndex
+  const [shown, setShown] = useState(() => (reducedMotion() ? order.length : 0))
+  const heard = useRef(0)
+
+  useEffect(() => {
+    if (shown >= order.length) return
+    const timer = setTimeout(() => setShown((current) => current + 1), shown === 0 ? 500 : 620)
+    return () => clearTimeout(timer)
+  }, [order.length, shown])
+
+  useEffect(() => {
+    if (shown === 0 || shown === heard.current) return
+    heard.current = shown
+    const words = duel.players[order[shown - 1] ?? 0]?.words ?? []
+    const best = words[words.length - 1]
+    if (best) sound.recap(tierSound(best.tier, best.approximate), shown - 1)
+    else sound.tile('marimba', shown - 1)
+  }, [duel.players, order, shown])
+
+  const done = shown >= order.length
+  return (
+    <main className="stage stage--duel">
+      <div className="sheet reveal">
         {win ? <Burst /> : null}
-        <h1 className="duel__title">{win ? t.duel.youWin : t.duel.overTitle(seats[champion]?.bot ? seats[champion]!.name : t.duel.you)}</h1>
-        <ol className="duel__ranking">
+        <header className="reveal-score">
+          <p className="eyebrow">{t.duel.overEyebrow}</p>
+          <h1 className="score-final">{win ? t.duel.youWin : t.duel.overTitle(nameOf(table.seats[champion], t.duel.you))}</h1>
+        </header>
+        <ol className="duel-ranking">
           {order.map((index, place) => {
-            const seat = seats[index]
+            const seat = table.seats[index]
             const player = duel.players[index]
             if (!seat || !player) return null
             return (
-              <li key={seat.id} className={`duel-rank${place === 0 ? ' duel-rank--first' : ''}${player.alive ? '' : ' duel-rank--dead'}`}>
+              <li
+                key={seat.id}
+                className={`duel-rank${place === 0 ? ' duel-rank--first' : ''}${player.alive ? '' : ' duel-rank--dead'}${place < shown ? ' duel-rank--in' : ''}`}
+                aria-hidden={place >= shown}
+              >
                 <span className="duel-rank__place">{place + 1}</span>
                 <Avatar choice={seat.avatar} size="sm" />
                 <span className="duel-rank__who">
-                  <b>{seat.bot ? seat.name : t.duel.you}</b>
+                  <b>{nameOf(seat, t.duel.you)}</b>
                   <small>{t.duel.scoreLine(player.score, player.words.length)}</small>
                 </span>
                 <span className="duel-rank__words">
@@ -369,142 +429,125 @@ export function DuelScreen({ lang }: { lang: string }) {
             )
           })}
         </ol>
-        <div className="duel__actions">
-          <button
-            type="button"
-            className="duel__go"
-            onClick={() => {
-              wake()
-              sound.go()
-              table.rematch()
-            }}
-          >
-            {t.duel.rematch}
-          </button>
-          <button type="button" className="duel__leave" onClick={() => table.leave()}>
-            {t.duel.quit}
-          </button>
-        </div>
-      </main>
-    )
-  }
-
-  if (phase === 'play' && duel && prompt) {
-    const turn = duel.turn
-    const turnSeat = turn ? seats[turn.player] : null
-    const watching = table.watching
-    const typing = draft.trim() !== ''
-    return (
-      <main className={`duel duel--play${watching ? ' duel--watching' : ''}${alive ? '' : ' duel--out'}`}>
-        <ul className="duel__strip">
-          {seats.map((seat, index) => (
-            <li key={seat.id}>
-              <SeatChip
-                seat={seat}
-                seconds={reserveOf(duel, index, at)}
-                active={turn?.player === index}
-                dead={duel.players[index]?.alive === false}
-                mine={index === table.myIndex}
-              />
-            </li>
-          ))}
-        </ul>
-
-        <div className="duel__stage">
-          <div className="duel__against">
-            {watching && turnSeat ? (
-              <>
-                <span className="duel__against-who">
-                  <Avatar choice={turnSeat.avatar} size="sm" />
-                  <b>{turnSeat.bot ? turnSeat.name : t.duel.you}</b>
-                </span>
-                <PromptCard categoryId={prompt.categoryId} letter={prompt.letter} front={false} />
-                <span className="duel__against-ring">
-                  <ReserveRing seconds={reserveOf(duel, turn!.player, at)} urgent={false} />
-                </span>
-              </>
-            ) : (
-              <span className="duel__against-idle">{t.duel.faceNote}</span>
-            )}
-          </div>
-
-          <section className="duel__front">
-            {alive ? (
-              <>
-                <PromptCard
-                  categoryId={prompt.categoryId}
-                  letter={prompt.letter}
-                  note={mine ? undefined : t.duel.inherited}
-                  front
-                />
-                {mine ? <ReserveRing seconds={seconds} urgent={seconds <= 5} /> : null}
-                <form className={`duel-field${VERDICT_CLASS[live.kind] ? ` ${VERDICT_CLASS[live.kind]}` : ''}`} onSubmit={submit}>
-                  <input
-                    ref={field}
-                    value={draft}
-                    onChange={(changeEvent) => {
-                      wake()
-                      sound.key(changeEvent.target.value.length < draft.length)
-                      type(changeEvent.target.value)
-                    }}
-                    onFocus={wake}
-                    placeholder={t.duel.fieldPlaceholder}
-                    autoComplete="off"
-                    autoCapitalize="characters"
-                    spellCheck={false}
-                    enterKeyHint="send"
-                    aria-label={t.duel.fieldPlaceholder}
-                  />
-                  <p className={`duel-field__said${accepted ? ' duel-field__said--ok' : ''}`} aria-live="polite">
-                    {saidText(t, live, mine, typing)}
-                  </p>
-                  <div className="duel-field__row">
-                    <button type="submit" className="duel-field__go" disabled={!mine || (!accepted && !typing)}>
-                      {t.duel.validate}
-                    </button>
-                    <button
-                      type="button"
-                      className="duel-field__pass"
-                      disabled={!mine}
-                      onClick={() => {
-                        wake()
-                        sound.skipped()
-                        table.pass()
-                      }}
-                    >
-                      {t.duel.pass(DUEL_PASS_PENALTY_SECONDS)}
-                    </button>
-                  </div>
-                </form>
-              </>
-            ) : (
-              <p className="duel__out-note">{t.duel.spectating}</p>
-            )}
-          </section>
-        </div>
-
-        {/* Les faits de la table : un tampon qui passe, jamais une boîte de dialogue. */}
-        {event && event.kind !== 'ready' && event.kind !== 'picked' ? (
-          <div key={event.id} className={`duel-flash duel-flash--${event.kind}`} aria-live="polite">
-            {event.kind === 'dead' ? <b>{t.duel.dead(seats[event.player]?.bot ? seats[event.player]!.name : t.duel.you)}</b> : null}
-            {event.kind === 'failed' ? <b>{t.duel.failed}</b> : null}
-            {event.kind === 'over' ? <b>{t.duel.overTitle(seats[event.player]?.bot ? seats[event.player]!.name : t.duel.you)}</b> : null}
-            {event.kind === 'solved' ? (
-              <>
-                <b>
-                  {event.player === table.myIndex
-                    ? t.duel.youFound(event.word ?? '')
-                    : t.duel.solved(seats[event.player]?.bot ? seats[event.player]!.name : t.duel.you, event.word ?? '')}
-                </b>
-                {event.tier ? <TierTag tier={event.tier} /> : null}
-                {event.tier && event.tier !== 'courant' ? <em>{t.duel.bonus(BONUS[event.tier])}</em> : null}
-              </>
-            ) : null}
+        {done ? (
+          <div className="sheet cascade duel-actions">
+            <button
+              type="button"
+              className="btn btn--play btn--block"
+              onClick={() => {
+                armSound()
+                sound.go()
+                table.rematch()
+              }}
+            >
+              {t.duel.rematch}
+            </button>
+            <button type="button" className="btn btn--ghost btn--block" onClick={() => table.leave()}>
+              {t.duel.quit}
+            </button>
           </div>
         ) : null}
+      </div>
+    </main>
+  )
+}
+
+export function DuelScreen({ lang }: { lang: string }) {
+  const t = useT()
+  const table = useDuelTable(lang)
+  const wake = useCallback(() => armSound(), [])
+  const { phase, seats } = table
+
+  if (phase === 'setup') {
+    return (
+      <main className="stage stage--duel">
+        <div className="sheet">
+          <p className="eyebrow">{t.duel.title}</p>
+          <h1 className="duel-title">{t.duel.leadTitle}</h1>
+          <p className="note">{t.duel.lead}</p>
+          <ul className="duel-bots">
+            {HOUSE_BOTS.map((bot) => {
+              const picked = table.invited.includes(bot.id)
+              return (
+                <li key={bot.id}>
+                  <button
+                    type="button"
+                    className={`duel-bot${picked ? ' duel-bot--on' : ''}`}
+                    aria-pressed={picked}
+                    disabled={!picked && seats.length >= MAX_TABLE}
+                    onClick={() => {
+                      wake()
+                      sound.tile('marimba', picked ? 3 : 5)
+                      table.toggleInvite(bot.id)
+                    }}
+                  >
+                    <Avatar choice={bot.avatar} size="fill" />
+                    <b>{bot.name}</b>
+                    <small>{t.duel.trait[bot.trait]}</small>
+                    <span className="duel-bot__mark" aria-hidden="true">
+                      {picked ? (seats.length <= MIN_TABLE ? '•' : '✓') : '+'}
+                    </span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+          {table.pool.length === 0 ? (
+            <p className="note note--warn">{t.duel.loadFailed}</p>
+          ) : (
+            <button
+              type="button"
+              className="btn btn--play btn--block"
+              onClick={() => {
+                wake()
+                sound.go()
+                table.open()
+              }}
+            >
+              {t.duel.invite(seats.length)}
+            </button>
+          )}
+        </div>
       </main>
     )
   }
 
-  return null
+  if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} />
+  if (table.error) {
+    return (
+      <main className="stage stage--duel">
+        <div className="sheet">
+          <p className="eyebrow">{t.duel.title}</p>
+          <p className="note note--warn">{t.duel.loadFailed}</p>
+          <button type="button" className="btn btn--ghost btn--block" onClick={() => table.leave()}>
+            {t.duel.back}
+          </button>
+        </div>
+      </main>
+    )
+  }
+  if (phase === 'draft' && table.duel) return <Draft table={table} />
+  if (phase === 'countdown' && table.duel) {
+    return (
+      <main className="stage">
+        <CountdownScreen
+          categoryIds={table.duel.picks}
+          reserve={0}
+          swaps={0}
+          swapping={false}
+          onSwap={() => undefined}
+          onDone={table.startPlay}
+        />
+      </main>
+    )
+  }
+  if (phase === 'play' && table.duel && table.judge && table.prompt) return <Play table={table} />
+  if (phase === 'over' && table.duel) return <Over table={table} />
+  return (
+    <main className="stage stage--duel">
+      <div className="sheet">
+        <p className="eyebrow">{t.duel.title}</p>
+      </div>
+    </main>
+  )
 }

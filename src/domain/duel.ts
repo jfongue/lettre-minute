@@ -34,6 +34,8 @@ export const DUEL_TIME_BONUS: Readonly<Record<RarityTier, number>> = {
   rare: 1.5,
   'très rare': 1.5,
 }
+/** Le temps qu'un joueur a pour choisir sa catégorie avant que le sort le fasse. */
+export const DUEL_PICK_SECONDS = 10
 
 /**
  * Chaque joueur choisit le même nombre de catégories, le plus grand tel que la
@@ -394,6 +396,19 @@ export function botPick(duel: Duel, bot: BotProfile): string | null {
   const choices = draftChoices(duel)
   if (choices.length === 0) return null
   const rng = createRng((duel.seed ^ hashId(`${bot.id}:${duel.picks.length}`)) >>> 0)
+  return choices[Math.floor(rng.next() * choices.length)] ?? null
+}
+
+/**
+ * Le choix du sort quand le joueur n'a pas choisi dans ses dix secondes : une
+ * des catégories restantes, tirée de la graine et du rang du choix. Déterministe
+ * comme le reste du duel, donc rejouable et identique sur chaque appareil.
+ */
+export function forcedPick(duel: Duel): string | null {
+  if (duel.phase !== 'draft') return null
+  const choices = draftChoices(duel)
+  if (choices.length === 0) return null
+  const rng = createRng((duel.seed ^ Math.imul(duel.picks.length + 1, 0x666f7263)) >>> 0)
   return choices[Math.floor(rng.next() * choices.length)] ?? null
 }
 

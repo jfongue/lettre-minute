@@ -1,118 +1,57 @@
 /*
- * Le duel : sa page, ses gestes. Les jetons de couleur, la police et les
- * formes viennent de styles.css ; ici, seulement la table, l'anneau de
- * réserve et les tampons. À fondre dans styles.css le jour où le duel
- * rejoint l'accueil.
+ * Le duel : ce que le multijoueur ajoute au jeu. Les jetons de couleur, la
+ * police, `.stage`, `.sheet`, `.run`, `.answer`, `.verdict`, `.dealt` et leurs
+ * animations vivent dans styles.css et sont repris tels quels ; ici, seulement
+ * le salon, l'annonce, le draft et le bandeau de la table. À fondre dans
+ * styles.css le jour où le duel rejoint l'accueil.
  */
 
-.duel {
-  --duel-gap: clamp(0.9rem, 3.5vw, 1.4rem);
-  display: flex;
-  flex-direction: column;
-  gap: var(--duel-gap);
-  width: 100%;
-  max-width: 34rem;
-  min-height: 100dvh;
-  margin: 0 auto;
-  padding: calc(env(safe-area-inset-top, 0px) + var(--duel-gap)) var(--gutter)
-    calc(env(safe-area-inset-bottom, 0px) + var(--duel-gap));
-  color: var(--ink);
-  background: var(--paper);
-  font-family: var(--font);
-  overflow-x: hidden;
+/* La colonne du `.stage` se dimensionne sur son contenu : une liste longue
+   (le récapitulatif) élargirait la feuille au-delà de l'écran. Ici la colonne
+   prend la largeur disponible, et `.sheet` garde sa largeur. */
+.stage--duel {
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.duel__title {
-  margin: 0;
-  font-size: clamp(1.7rem, 7vw, 2.6rem);
-  font-weight: 700;
+/* Même chose dans la feuille : une colonne implicite se dimensionne sur son
+   contenu, et une longue liste pousserait la ligne hors de l'écran. */
+.stage--duel .sheet {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.duel-title {
+  font-size: clamp(1.8rem, 8vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1;
   letter-spacing: -0.02em;
-  text-transform: uppercase;
 }
 
-.duel__lead,
-.duel__note {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.95rem;
-  line-height: 1.45;
-}
+/* ------------------------------------------------------------- le salon - */
 
-.duel__note {
-  color: var(--ink-faint);
-  font-size: 0.82rem;
-}
-
-.duel__go {
-  min-height: 3.4rem;
-  padding: 0 1.4rem;
-  border: 0;
-  border-radius: 0.9rem;
-  color: var(--cream);
-  background: var(--ink);
-  font: inherit;
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  cursor: pointer;
-  transition: transform 0.18s var(--ease-spring), background 0.2s var(--ease-out), opacity 0.2s;
-}
-
-.duel__go:active {
-  transform: scale(0.97);
-}
-
-.duel__go:disabled {
-  opacity: 0.55;
-}
-
-.duel__go--done {
-  color: var(--ink);
-  background: var(--paper-2);
-}
-
-.duel__leave {
-  display: flex;
-  align-items: center;
-  align-self: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0.5rem 1rem;
-  border: 0;
-  color: var(--ink-faint);
-  background: none;
-  font: inherit;
-  font-size: 0.85rem;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-/* — Le salon : les joueurs maison à inviter — */
-
-.duel__bots {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-  gap: 0.7rem;
-  margin: 0;
-  padding: 0;
+.duel-bots {
   list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: 0.6rem;
 }
 
 .duel-bot {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  display: grid;
+  gap: 0.3rem;
   width: 100%;
   padding: 0.6rem 0.6rem 0.7rem;
   border: var(--line) solid var(--rule);
-  border-radius: 1rem;
-  color: var(--ink);
   background: var(--paper-2);
+  color: var(--ink);
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: transform 0.2s var(--ease-spring), border-color 0.2s, background 0.2s;
+  transition:
+    transform 180ms var(--ease-spring),
+    border-color 200ms ease,
+    background 200ms ease;
 }
 
 .duel-bot:active {
@@ -125,12 +64,12 @@
 }
 
 .duel-bot b {
-  font-size: 0.98rem;
+  font-size: 0.95rem;
 }
 
 .duel-bot small {
   color: var(--ink-soft);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
 }
 
 .duel-bot--on {
@@ -139,726 +78,363 @@
 }
 
 .duel-bot--on small {
-  color: var(--ink);
+  color: var(--black);
   opacity: 0.75;
 }
 
 .duel-bot__mark {
   position: absolute;
-  top: 0.5rem;
-  right: 0.6rem;
+  top: 0.4rem;
+  right: 0.4rem;
   display: grid;
   place-items: center;
   width: 1.6rem;
   height: 1.6rem;
-  border-radius: 50%;
-  color: var(--cream);
   background: var(--ink);
-  font-size: 0.95rem;
+  color: var(--cream);
+  font-size: 0.9rem;
   line-height: 1;
 }
 
 .duel-bot--on .duel-bot__mark {
-  animation: duel-stamp 0.32s var(--ease-spring);
+  animation: pop-in 320ms var(--ease-spring) both;
 }
 
-/* — La table : les prêts, le compte à rebours — */
-
-.duel__table {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
-  gap: 0.7rem;
-  margin: 0;
-  padding: 0;
+/* La table qui se met en place, puis l'annonce du draft. */
+.duel-table {
   list-style: none;
-}
-
-.duel-seat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.8rem 0.5rem;
-  border: var(--line) solid var(--rule);
-  border-radius: 1rem;
-  background: var(--paper-2);
-  text-align: center;
-  animation: duel-seat-in 0.4s var(--ease-out) backwards;
-  animation-delay: calc(var(--i, 0) * 70ms);
-}
-
-.duel-seat b {
-  font-size: 0.95rem;
-}
-
-.duel-seat__stamp {
-  padding: 0.12rem 0.5rem;
-  border: var(--line) solid var(--rule);
-  border-radius: 999px;
-  color: var(--ink-faint);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.duel-seat--ready {
-  border-color: var(--green);
-  background: var(--paper);
-}
-
-.duel-seat--ready .duel-seat__stamp {
-  border-color: var(--green);
-  color: var(--cream);
-  background: var(--green);
-  animation: duel-stamp 0.3s var(--ease-spring);
-}
-
-.duel__count {
+  padding: 0;
   display: grid;
-  place-items: center;
-  margin: 0;
-  padding: 1.5rem 0;
-}
-
-.duel__count b {
-  font-size: clamp(4rem, 30vw, 9rem);
-  font-weight: 700;
-  line-height: 0.9;
-  color: var(--red);
-  animation: duel-pop 0.5s var(--ease-spring);
-}
-
-/* — Le draft — */
-
-.duel__turn {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 1rem;
-  min-height: 1.5rem;
-}
-
-.duel__pool {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.duel-slot {
-  display: grid;
-  place-items: center;
-  flex: 1;
-  aspect-ratio: 1;
-  border: var(--line) dashed var(--rule);
-  border-radius: 0.8rem;
-  color: var(--ink);
-  background: var(--paper-2);
-}
-
-.duel-slot svg {
-  width: 62%;
-  height: 62%;
-}
-
-.duel-slot--full {
-  border-style: solid;
-  border-color: var(--ink);
-  background: var(--paper);
-  animation: duel-slot-in 0.35s var(--ease-spring) backwards;
-  animation-delay: calc(var(--i, 0) * 90ms);
-}
-
-.duel-slot--drawn {
-  background: var(--pink);
-  border-style: dashed;
-  transform: rotate(-3deg);
-}
-
-.duel__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
   gap: 0.6rem;
 }
 
-.duel-pick {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.6rem;
+.duel-player {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: center;
+  padding: 0.7rem 0.5rem;
   border: var(--line) solid var(--rule);
-  border-radius: 0.9rem;
-  color: var(--ink);
   background: var(--paper-2);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: transform 0.16s var(--ease-spring), border-color 0.2s, opacity 0.2s;
+  text-align: center;
+  animation: band-from-left 520ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
 }
 
-.duel-pick:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.duel-pick:disabled {
-  cursor: default;
-}
-
-.duel-pick__icon {
-  display: block;
-  width: 2.2rem;
-  height: 2.2rem;
-  color: var(--ink);
-}
-
-.duel-pick__icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-.duel-pick b {
+.duel-player b {
   font-size: 0.95rem;
 }
 
-.duel-pick small {
+.duel-player__stamp {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--ink-faint);
-  font-size: 0.75rem;
-  line-height: 1.3;
 }
 
-.duel-pick--used {
-  opacity: 0.5;
-  border-style: dashed;
+.duel-player--ready {
+  border-color: var(--green);
 }
 
-.duel-pick--drawn {
-  opacity: 0.75;
-  background: var(--pink);
+.duel-player--ready .duel-player__stamp {
+  color: var(--green);
 }
 
-/* — La partie : la bande des joueurs — */
-
-.duel__strip {
-  display: flex;
-  gap: 0.4rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.duel-player__stamp,
+.duel-player--ready .duel-player__stamp {
+  transition: color 200ms ease;
 }
 
-.duel__strip > li {
-  flex: 1;
-  min-width: 0;
-}
-
-.duel-chip {
+.duel-announce {
   display: grid;
-  grid-template-rows: auto auto auto auto;
+  justify-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  text-align: center;
+  animation: pop-in 520ms var(--ease-spring) both;
+}
+
+.duel-announce > .shape {
+  width: 2.6rem;
+  height: 2.6rem;
+}
+
+.duel-announce b {
+  font-size: clamp(1.4rem, 7vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* -------------------------------------------------------------- le draft - */
+
+.duel-turn {
+  margin: 0;
+  font-size: clamp(1.1rem, 5vw, 1.4rem);
+  font-weight: 700;
+  min-height: 1.6rem;
+}
+
+.duel-fuse {
+  display: block;
+  height: 4px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.duel-fuse i {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: left center;
+  transition: transform 100ms linear;
+}
+
+.dealt--pick {
+  width: 100%;
+}
+
+.dealt--pick .dealt-tile {
+  font-size: clamp(1.2rem, 6vw, 1.7rem);
+}
+
+.dealt-tile--taken {
+  opacity: 0.42;
+}
+
+.dealt-taken {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+/* --------------------------------------------------------- la partie - */
+
+/* Mon chrono s'éteint quand ce n'est pas mon tour : le temps ne court plus. */
+.clock--away {
+  color: var(--ink-faint);
+}
+
+.duel-strip {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.duel-seat {
+  display: grid;
   justify-items: center;
   gap: 0.15rem;
-  padding: 0.4rem 0.25rem;
+  padding: 0.4rem 0.2rem;
   border: var(--line) solid transparent;
-  border-radius: 0.8rem;
   background: var(--paper-2);
-  transition: transform 0.25s var(--ease-spring), background 0.25s, border-color 0.25s;
+  transition:
+    transform 220ms var(--ease-spring),
+    background 220ms ease,
+    border-color 220ms ease;
 }
 
-.duel-chip--active {
+.duel-seat--active {
   border-color: var(--ink);
   background: var(--yellow);
   transform: translateY(-2px);
 }
 
-.duel-chip--mine .duel-chip__name {
+.duel-seat--me .duel-seat__name {
   font-weight: 700;
 }
 
-.duel-chip--dead {
+.duel-seat--dead {
   opacity: 0.45;
   filter: grayscale(1);
 }
 
-.duel-chip__face {
+.duel-seat__face {
   position: relative;
   display: block;
-  width: 2.2rem;
+  width: 2rem;
 }
 
-.duel-chip__cross {
+.duel-seat__cross {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
   color: var(--red);
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  text-shadow: 0 0 6px var(--paper);
 }
 
-.duel-chip__name {
+.duel-seat__name {
   max-width: 100%;
   overflow: hidden;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.duel-chip__bar {
-  position: relative;
+.duel-seat__bar {
   display: block;
   width: 100%;
   height: 4px;
-  border-radius: 999px;
   background: var(--rule);
   overflow: hidden;
 }
 
-.duel-chip__bar i {
-  position: absolute;
-  inset: 0;
+.duel-seat__bar i {
   display: block;
-  border-radius: 999px;
+  height: 100%;
   background: currentColor;
   transform-origin: left center;
-  transition: transform 0.1s linear;
+  transition: transform 100ms linear;
 }
 
-.duel-chip__seconds {
-  color: var(--ink-soft);
-  font-size: 0.7rem;
+.duel-seat__clock {
+  font-size: 0.68rem;
   font-variant-numeric: tabular-nums;
-}
-
-/* — La partie : mon écran et celui d'en face — */
-
-.duel__stage {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 0.7rem;
-  justify-content: center;
-}
-
-.duel__against {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.6rem 0.7rem;
-  border: var(--line) solid var(--rule);
-  border-radius: 1rem;
-  background: var(--paper-2);
-  opacity: 0;
-  transform: translateY(-0.6rem) scale(0.96);
-  transition: opacity 0.3s var(--ease-out), transform 0.35s var(--ease-spring);
-}
-
-.duel--watching .duel__against {
-  border-color: var(--ink);
-  background: var(--pink);
-  opacity: 1;
-  transform: none;
-}
-
-.duel__against-idle {
-  color: var(--ink-faint);
-  font-size: 0.85rem;
-}
-
-.duel__against-who {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.15rem;
-  font-size: 0.75rem;
-}
-
-.duel__against-ring {
-  margin-left: auto;
-}
-
-.duel__against-ring .duel-ring {
-  width: 3.4rem;
-  height: 3.4rem;
-}
-
-.duel__against-ring .duel-ring__value {
-  font-size: 0.85rem;
-}
-
-.duel__against-ring .duel-ring__unit {
-  display: none;
-}
-
-.duel__front {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
-  transition: transform 0.4s var(--ease-spring), opacity 0.3s var(--ease-out);
-}
-
-.duel--watching .duel__front {
-  transform: translateY(0.8rem) scale(0.93);
-  opacity: 0.6;
-}
-
-.duel--out .duel__front {
-  opacity: 1;
-  transform: none;
-}
-
-.duel__out-note {
-  margin: 2rem 0;
   color: var(--ink-soft);
-  text-align: center;
 }
 
-/* Le couple */
-
-.duel-prompt {
+/* Qui joue : le bandeau d'en face, en une ligne, au-dessus du couple. */
+.duel-face {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
-  width: 100%;
-  padding: 0.9rem 1rem;
-  border-radius: 1.1rem;
-  color: var(--cream);
-  background: var(--blue);
+  gap: 0.45rem;
+  margin: -0.4rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
 }
 
-.duel-prompt--red { background: var(--red); }
-.duel-prompt--green { background: var(--green); }
-.duel-prompt--blue { background: var(--blue); }
-.duel-prompt--pink { color: var(--ink); background: var(--pink); }
-.duel-prompt--yellow { color: var(--ink); background: var(--yellow); }
-.duel-prompt--ink,
-.duel-prompt--black { background: var(--ink); }
-.duel-prompt--paper,
-.duel-prompt--cream { color: var(--ink); background: var(--paper-2); }
-
-.duel-prompt--front {
-  animation: duel-card-in 0.35s var(--ease-out);
-}
-
-.duel-prompt__icon {
-  display: block;
+.duel-face__dot {
+  width: 0.55rem;
+  height: 0.55rem;
   flex: none;
-  width: 2.6rem;
-  height: 2.6rem;
+  border-radius: 50%;
+  background: var(--ink-faint);
 }
 
-.duel-prompt__icon svg {
-  width: 100%;
-  height: 100%;
+.duel-face--watching .duel-face__dot {
+  background: var(--red);
+  animation: throb 1.2s var(--ease-out) infinite;
 }
 
-.duel-prompt__body {
-  display: flex;
-  flex: 1;
-  align-items: baseline;
-  gap: 0.6rem;
-  min-width: 0;
+.duel-out {
+  text-align: center;
+  padding: 2rem 0;
 }
 
-.duel-prompt__body small {
-  flex: 1;
-  font-size: 0.95rem;
-  opacity: 0.85;
+/* Le fait de la table, sur la ligne du verdict du solo. */
+.duel-news {
+  min-height: 0;
 }
 
-.duel-prompt__body strong {
-  font-size: clamp(2.4rem, 14vw, 3.6rem);
-  font-weight: 700;
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-}
-
-.duel-prompt__body em {
-  flex-basis: 100%;
-  font-size: 0.75rem;
-  font-style: normal;
-  opacity: 0.85;
-}
-
-/* L'anneau de réserve */
-
-.duel-ring {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: clamp(6.5rem, 34vw, 9rem);
-  height: clamp(6.5rem, 34vw, 9rem);
-}
-
-.duel-ring svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.duel-ring__track {
-  stroke: var(--rule);
-}
-
-.duel-ring__fill {
-  stroke: var(--ink);
-  transition: stroke-dashoffset 0.1s linear, stroke 0.3s;
-}
-
-.duel-ring--low .duel-ring__fill {
-  stroke: var(--red);
-}
-
-.duel-ring--urgent {
-  animation: duel-pulse 1s ease-in-out infinite;
-}
-
-.duel-ring__value {
-  font-size: clamp(1.6rem, 9vw, 2.2rem);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.duel-ring__unit {
-  position: absolute;
-  bottom: 22%;
-  color: var(--ink-faint);
-  font-size: 0.7rem;
-}
-
-/* Le champ */
-
-.duel-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  width: 100%;
-}
-
-.duel-field input {
-  width: 100%;
-  padding: 0.5rem 0.2rem;
-  border: 0;
-  border-bottom: 3px solid var(--ink);
-  color: var(--ink);
-  background: none;
-  font: inherit;
-  font-size: 1.6rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  outline: none;
-  transition: border-color 0.2s var(--ease-out);
-}
-
-.duel-field input::placeholder {
-  color: var(--ink-faint);
-  font-size: 1rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.duel-field--ok input { border-color: var(--green); }
-.duel-field--unknown input,
-.duel-field--wrong input { border-color: var(--red); animation: duel-shake 0.3s var(--ease-out); }
-.duel-field--already input { border-color: var(--ink-faint); }
-
-.duel-field__said {
-  margin: 0;
-  min-height: 1.1rem;
-  color: var(--ink-faint);
-  font-size: 0.8rem;
-}
-
-.duel-field__said--ok {
-  color: var(--green);
-  font-weight: 600;
-}
-
-.duel-field__row {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.2rem;
-}
-
-.duel-field__go,
-.duel-field__pass {
-  flex: 1;
-  min-height: 3.1rem;
-  border: 0;
-  border-radius: 0.9rem;
-  font: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.16s var(--ease-spring), opacity 0.2s, background 0.2s;
-}
-
-.duel-field__go {
-  color: var(--cream);
-  background: var(--green);
-}
-
-.duel-field__go:disabled {
-  color: var(--ink-faint);
-  background: var(--paper-2);
-  cursor: default;
-}
-
-.duel-field__pass {
-  flex: 0 1 45%;
+.duel-news--dead,
+.duel-news--dead b {
   color: var(--red);
-  background: var(--paper-2);
-}
-
-.duel-field__push:active,
-.duel-field__go:active:not(:disabled),
-.duel-field__pass:active:not(:disabled) {
-  transform: scale(0.97);
-}
-
-.duel-field__pass:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-/* — Les tampons : un fait de la table qui passe — */
-
-.duel-flash {
-  position: fixed;
-  right: 0;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 0.9rem);
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  width: max-content;
-  max-width: min(92vw, 32rem);
-  margin: 0 auto;
-  padding: 0.6rem 1rem;
-  border-radius: 0.9rem;
-  color: var(--cream);
-  background: var(--ink);
-  font-size: 0.95rem;
-  box-shadow: 0 0.6rem 1.6rem rgb(0 0 0 / 25%);
-  pointer-events: none;
-  animation: duel-flash 2.4s var(--ease-out) forwards;
-}
-
-.duel-flash--solved { background: var(--green); }
-.duel-flash--failed { background: var(--ink); }
-.duel-flash--dead { background: var(--red); }
-.duel-flash--over { background: var(--blue); }
-
-.duel-flash b {
-  text-align: center;
-}
-
-.duel-flash--dead b {
-  font-size: 1.1rem;
-  text-transform: uppercase;
+  font-size: 1rem;
+  font-weight: 800;
   letter-spacing: 0.04em;
-  animation: duel-stamp 0.35s var(--ease-spring);
+  text-transform: uppercase;
+  animation: duel-stamp 380ms var(--ease-spring) both;
 }
 
-.duel-flash em {
-  font-style: normal;
-  font-weight: 700;
+.duel-news--solved {
+  color: var(--ink);
+  animation: slide-from-left 420ms var(--ease-spring) both;
 }
 
-/* — Le chargement et le récapitulatif — */
-
-.duel--loading {
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+.duel-news--failed {
+  animation: fade 260ms ease both;
 }
 
-.duel-loader {
-  display: flex;
-  gap: 0.6rem;
-  width: 4rem;
+@keyframes duel-stamp {
+  from {
+    transform: scale(1.4) rotate(-4deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
 }
 
-.duel-loader > * {
-  width: 1.2rem;
-  animation: duel-bounce 1.1s ease-in-out infinite;
-}
+/* ---------------------------------------------------- le récapitulatif - */
 
-.duel-loader > *:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.duel-loader > *:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-.duel--over {
-  position: relative;
-  justify-content: center;
-}
-
-.duel__ranking {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0;
+.duel-ranking {
   list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  opacity: 1;
 }
 
 .duel-rank {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1.75rem auto 1fr auto;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.6rem 0.8rem;
-  border: var(--line) solid var(--rule);
-  border-radius: 0.9rem;
-  background: var(--paper-2);
-  animation: duel-seat-in 0.4s var(--ease-out) backwards;
+  gap: 0.65rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+  opacity: 0;
 }
 
-.duel-rank:nth-child(2) { animation-delay: 80ms; }
-.duel-rank:nth-child(3) { animation-delay: 160ms; }
-.duel-rank:nth-child(4) { animation-delay: 240ms; }
+.duel-rank--in {
+  animation: word-land 420ms var(--ease-spring) both;
+}
 
 .duel-rank--first {
-  border-color: var(--green);
-  background: var(--paper);
+  background: var(--yellow);
+  color: var(--black);
+  padding-inline: 0.5rem;
 }
 
 .duel-rank--dead {
-  opacity: 0.6;
-  filter: grayscale(0.7);
+  color: var(--ink-faint);
+}
+
+.duel-rank--dead .avatar {
+  filter: grayscale(1);
+  opacity: 0.7;
 }
 
 .duel-rank__place {
   display: grid;
   place-items: center;
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 1.6rem;
+  height: 1.6rem;
   border-radius: 50%;
-  color: var(--cream);
   background: var(--ink);
-  font-size: 0.85rem;
-  font-weight: 700;
+  color: var(--cream);
+  font-size: 0.8rem;
+  font-weight: 800;
 }
 
 .duel-rank--first .duel-rank__place {
-  background: var(--green);
+  background: var(--black);
 }
 
 .duel-rank__who {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  display: grid;
   min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.duel-rank__who b {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
 .duel-rank__who small {
-  color: var(--ink-soft);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
+  opacity: 0.7;
 }
 
 .duel-rank__words {
@@ -871,73 +447,33 @@
 
 .duel-rank__words em {
   padding: 0.1rem 0.4rem;
-  border-radius: 999px;
-  background: var(--paper);
-  font-size: 0.72rem;
+  background: var(--paper-2);
+  color: var(--ink);
+  font-size: 0.7rem;
   font-style: normal;
 }
 
-.duel__actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+.duel-rank--first .duel-rank__words em {
+  background: var(--black);
+  color: var(--cream);
 }
 
-/* — Les animations — */
-
-@keyframes duel-stamp {
-  from { transform: scale(1.7) rotate(-8deg); opacity: 0; }
-  to { transform: none; opacity: 1; }
-}
-
-@keyframes duel-pop {
-  from { transform: scale(0.4); opacity: 0; }
-  60% { transform: scale(1.08); opacity: 1; }
-  to { transform: none; }
-}
-
-@keyframes duel-card-in {
-  from { transform: translateY(0.6rem) scale(0.98); opacity: 0; }
-  to { transform: none; opacity: 1; }
-}
-
-@keyframes duel-seat-in {
-  from { transform: translateY(0.5rem); opacity: 0; }
-  to { transform: none; opacity: 1; }
-}
-
-@keyframes duel-slot-in {
-  from { transform: scale(0.6); opacity: 0; }
-  to { transform: none; opacity: 1; }
-}
-
-@keyframes duel-shake {
-  25% { transform: translateX(-4px); }
-  50% { transform: translateX(4px); }
-  75% { transform: translateX(-2px); }
-}
-
-@keyframes duel-pulse {
-  50% { transform: scale(1.04); }
-}
-
-@keyframes duel-flash {
-  0% { transform: translateY(1.2rem); opacity: 0; }
-  12% { transform: none; opacity: 1; }
-  82% { transform: none; opacity: 1; }
-  100% { transform: translateY(-0.4rem); opacity: 0; }
-}
-
-@keyframes duel-bounce {
-  50% { transform: translateY(-0.5rem); }
+.duel-actions {
+  gap: 0.5rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .duel *,
-  .duel *::before,
-  .duel *::after {
+  .duel-bot,
+  .duel-player,
+  .duel-rank,
+  .duel-seat,
+  .duel-announce,
+  .duel-bot__mark {
     animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .duel-rank {
+    opacity: 1;
   }
 }
