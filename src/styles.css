@@ -3405,6 +3405,169 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 /* ---------------------------------------------------------------- unlock - */
+.power-offer-head {
+  max-width: 34rem;
+  margin-inline: auto;
+}
+
+.power-offer-lead {
+  max-width: 28rem;
+  margin-top: 0.35rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.power-cards {
+  width: min(100%, 38rem);
+  gap: 1rem;
+  margin-inline: auto;
+}
+
+.power-card {
+  min-height: 14rem;
+  align-content: start;
+  gap: 0.7rem;
+  padding: 1rem;
+  border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform 240ms var(--ease-spring), opacity 240ms ease, box-shadow 200ms ease;
+}
+
+.power-card:hover {
+  transform: translateY(-3px);
+}
+
+.power-card:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.power-card span {
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.power-card-uses {
+  margin-top: auto;
+  padding-top: 0.65rem;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 24%, transparent);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.power-card-art {
+  display: grid;
+  place-items: center;
+  width: 4.1rem;
+  height: 4.1rem;
+  padding: 0.75rem;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.power-card .unlock-card-shape {
+  width: 100%;
+  height: 100%;
+}
+
+.power-card.unlock-card--selected,
+.power-card.unlock-card--selected:hover {
+  transform: translateY(-5px) scale(1.025);
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--ink), 7px 10px 0 var(--blue);
+}
+
+.power-card.unlock-card--selected .power-card-art {
+  animation: var(--power-gesture, pop-in) 900ms var(--ease-out) both;
+}
+
+.power-card.unlock-card--selected .unlock-card-shape {
+  transform: none;
+}
+
+.power-offer-actions {
+  width: min(100%, 30rem);
+  margin-inline: auto;
+}
+
+@media (max-width: 34rem) {
+  .power-picker {
+    width: min(100%, 30rem);
+    gap: 0.55rem;
+    padding: 1rem 0.85rem 0.85rem;
+  }
+
+  .power-picker .power-list {
+    gap: 0.4rem;
+  }
+
+  .power-row {
+    gap: 0.55rem;
+    padding: 0.5rem;
+  }
+
+  .power-row-icon {
+    width: 2.45rem;
+    height: 2.45rem;
+  }
+
+  .power-offer {
+    min-height: auto;
+    align-content: start;
+    gap: 1.25rem;
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .power-offer .unlock-head-sun {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .power-offer .unlock-title {
+    font-size: clamp(2rem, 10vw, 2.8rem);
+  }
+
+  .power-cards {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    max-width: 28rem;
+  }
+
+  .power-card {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr;
+    align-items: center;
+    column-gap: 0.85rem;
+    row-gap: 0.3rem;
+    padding: 0.8rem;
+  }
+
+  .power-card-art {
+    grid-row: 1 / span 3;
+    width: 3.25rem;
+    height: 3.25rem;
+    padding: 0.6rem;
+  }
+
+  .power-card strong {
+    align-self: end;
+  }
+
+  .power-card > span:not(.power-card-art):not(.unlock-card-check) {
+    grid-column: 2;
+  }
+
+  .power-card-uses {
+    padding-top: 0.35rem;
+  }
+}
+
 .unlock-screen {
   min-height: 86dvh;
   align-content: center;
@@ -4840,6 +5003,38 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 /* --------------------------------------------------------------- powers - */
+.power-picker-lead {
+  max-width: 24rem;
+  margin: -0.2rem auto 0.35rem;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.power-picker .power-list {
+  width: 100%;
+}
+
+.power-row {
+  border-radius: 0;
+  transition: transform 160ms var(--ease-spring), box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.power-row:hover {
+  transform: translateX(2px);
+}
+
+.power-row--here {
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 var(--blue);
+}
+
+.power-row:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
 /* Chaque pouvoir a sa couleur (motifs.ts), son icône (PowerIcon.tsx), son
    son (sound.ts) et son geste, ici : la même grammaire sur sa carte, son
    emplacement, sa pastille en partie et l'effet qu'il produit. Les formes

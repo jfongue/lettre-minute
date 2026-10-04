@@ -114,6 +114,7 @@ function PowerPicker({
         <h2 id="power-picker-title" className="offer-pop-title">
           {t.powers.pickTitle}
         </h2>
+        <p className="power-picker-lead">{t.powers.pickLead}</p>
         <ul className="power-list">
           {owned.map((id, index) => {
             const at = worn.indexOf(id)
