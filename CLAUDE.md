@@ -85,7 +85,7 @@ qu'un nouvel arrivant casserait sans le savoir.
   catégorie **nue** (sa langue est dans une colonne à elle, et son motif
   refuse le préfixe), et un signalement de retrait nomme son mot **nu** lui
   aussi (`propose_ban`), parce que c'est sous cette forme que
-  `banned-words.ts` le retire — `admin_words` (0042) en tire `words_unscoped`
+  `banned-words.ts` le retire — `admin_words` (0043) en tire `words_unscoped`
   et `words_bare`.
 - **L'import Wikidata est fragile par nature** : les requêtes lourdes (taxons)
   dépassent la limite serveur, et les réponses JSON reviennent parfois tronquées
@@ -512,7 +512,7 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Le tableau des mots dit ce que le dictionnaire est devenu**
   (`src/debug/WordsBoard.tsx`) : cinq tapes rapprochées sur « Mes catégories » —
   le titre de la page ou celui de la section — l'ouvrent par-dessus tout, comme
-  le tableau de bord, et `admin_words` (0042) ne rend rien à qui n'est pas
+  le tableau de bord, et `admin_words` (0043) ne rend rien à qui n'est pas
   administrateur. Le serveur ne connaît que les mots déjà écrits ; c'est
   l'écran qui charge les dictionnaires embarqués (`loadPack`) pour dire la part
   **théorique** d'un couple lettre + catégorie (`letterShares`, `src/domain/run.ts`,

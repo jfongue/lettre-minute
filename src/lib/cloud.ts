@@ -164,10 +164,10 @@ export function pushRun(run: Run, record: RunRecord, profile: Profile): Promise<
         category_id: scoped(record.lang, found.categoryId),
         points: found.points,
         // Un mot que le dictionnaire a corrigé : l'écran des mots le compte à
-        // part (0042), la rareté ne le paie déjà pas.
+        // part (0043), la rareté ne le paie déjà pas.
         approximate: found.approximate === true,
       }))
-      // La colonne n'existe pas sur un projet d'avant 0042 : la partie passe
+      // La colonne n'existe pas sur un projet d'avant 0043 : la partie passe
       // sans elle plutôt que d'être perdue.
       const { error: missed } = await supabase!.from('run_words').insert(shots)
       if (missed) {
@@ -712,7 +712,7 @@ export function fetchDashboardSlot(day: string, hour?: number): Promise<SlotEntr
 }
 
 /**
- * Le tableau des mots (`admin_words`, 0042) : ce que le tirage a donné à
+ * Le tableau des mots (`admin_words`, 0043) : ce que le tirage a donné à
  * chaque couple lettre + catégorie, ce que les joueurs ont écrit, et ce que la
  * modération a ajouté, retiré ou garde. `null` hors administrateur, comme
  * `fetchDashboard`, ou sans serveur.

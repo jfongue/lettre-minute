@@ -56,7 +56,7 @@ signale un mot à retirer, jugé par les autres comme un ajout.
 | --- | --- |
 | `profiles` | XP, niveau, records, avatar, nom de compte (unique, sauf « Anonyme »). Créé automatiquement à la naissance du compte. |
 | `runs` | Une partie terminée : graine, score, série, passes, et les pouvoirs qu'elle a joués. |
-| `run_words` | Les mots d'une partie, forme normalisée — la matière du bonus de rareté, et `approximate` quand le dictionnaire a corrigé l'orthographe (0042). |
+| `run_words` | Les mots d'une partie, forme normalisée — la matière du bonus de rareté, et `approximate` quand le dictionnaire a corrigé l'orthographe (0043). |
 | `daily_challenges` | La graine du jour, la même pour tous : base du classement quotidien. |
 | `dictionary_words` | Le dictionnaire vivant, en complément des fichiers embarqués. |
 | `word_submissions` | Les mots proposés par les joueurs, avec leur statut ; `seen_at` éteint la pastille de « Mes demandes ». |
@@ -96,7 +96,7 @@ la page des classements (`best`, `points`, `runs`, `words`, `discoveries`,
 débug, agrégés et sans un nom de joueur ; `admin_words(langue, catégorie?)` — le
 dictionnaire vivant de l'écran des mots : couples lettre + catégorie, usages de
 chaque mot, ajouts, retraits et file de modération, réservé à l'administrateur
-(0042) comme `admin_analytics` l'est au tableau de bord.
+(0043) comme `admin_analytics` l'est au tableau de bord.
 
 Vues : `leaderboard` (record de chaque compte nommé, joueurs maison écartés), `word_popularity` (part des parties où un mot
 apparaît), `submission_tally` (combien de joueurs réclament un mot).

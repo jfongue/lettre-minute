@@ -1,6 +1,6 @@
 -- The words board: what the draw gave each letter + category, what the players
 -- wrote, and what moderation added, removed or still holds. Read by
--- `admin_words` (0042), which nobody but the administrator may call — and
+-- `admin_words` (0043), which nobody but the administrator may call — and
 -- which scopes every line to its language, the server prefixing them.
 
 select tests.new_user(n) from unnest(array['wa', 'wb', 'wm']) n;
