@@ -16,10 +16,12 @@ import {
   passTurn,
   pickCategory,
   playWord,
+  resume,
   DUEL_PICK_SECONDS,
   type BotProfile,
   type Duel,
 } from '../domain/duel'
+import { createRng } from '../domain/rng'
 import { playableCategoryIds } from '../domain/perks'
 import type { RarityTier } from '../domain/rarity'
 import type { Judge, Verdict } from '../domain/run'
@@ -60,7 +62,7 @@ export const HOUSE_BOTS: readonly HouseBot[] = [
 export const MIN_TABLE = 2
 export const MAX_TABLE = 4
 
-export type TablePhase = 'setup' | 'lobby' | 'announcing' | 'draft' | 'countdown' | 'play' | 'over'
+export type TablePhase = 'setup' | 'lobby' | 'announcing' | 'draft' | 'countdown' | 'play' | 'deaths' | 'over'
 
 /** Ce qui vient de se passer : l'écran l'anime une fois, sur `id`. */
 export interface DuelEvent {
@@ -107,11 +109,25 @@ export interface DuelTable {
   watching: boolean
   event: DuelEvent | null
   error: boolean
+  /** La mise en scène d'une mort : qui est tombé, et quand la table reprend. */
+  fallen: number | null
+  stagedAt: number
+  /** La seconde montrée par le compte à rebours de reprise, 0 quand il n'a pas commencé. */
+  resumeIn: number
+  /** Une revanche est ouverte : la table se reforme, elle n'attend personne. */
+  rematchOpen: boolean
+  /** Les joueurs de la table précédente qui ont quitté la revanche. */
+  leavers: readonly string[]
+  openRematch(): void
+  launch(): void
+  backToRecap(): void
+  /** Retour à la table depuis le rapport, sans refermer la revanche. */
+  joinRematch(): void
+  closeRematch(): void
   inspect(raw: string): Verdict
   pick(categoryId: string): void
   play(raw: string): void
   pass(): void
-  rematch(): void
   leave(): void
   /** L'écran des catégories tirées a fini son compte à rebours. */
   startPlay(): void
@@ -120,10 +136,18 @@ export interface DuelTable {
 const READY_GAP = 0.55
 const ANNOUNCE_SECONDS = 2.6
 const GAP_AFTER_ANNOUNCE = 0.4
+/** La mise en scène d'une mort : le compteur s'arrête le temps de l'animation. */
+const DEATH_STAGING_SECONDS = 2.3
+const BEAT_SECONDS = 0.8
+const BEATS = 3
+/** Pendant la mise en scène d'une mort, personne ne brûle de réserve. */
+const RESTART_SECONDS = BEATS * BEAT_SECONDS
 
-/** Quand chaque siège se déclare prêt : moi tout de suite, les autres à la file. */
-function readyMarks(seats: readonly Seat[], me: number, at: number): number[] {
-  return seats.map((_, index) => at + (index === me ? 0 : READY_GAP * index))
+/** Les joueurs qui quittent une revanche : jamais toute la table, sinon il n'y a plus de duel. */
+function leaversOf(seed: number, seats: readonly Seat[]): readonly string[] {
+  const bots = seats.filter((seat) => seat.bot)
+  const drawn = bots.filter((_, index) => createRng((seed ^ Math.imul(index + 1, 0x6c656176)) >>> 0).next() < 0.34).map((seat) => seat.id)
+  return drawn.length >= bots.length ? drawn.slice(1) : drawn
 }
 
 /** Le temps qu'un robot prend pour choisir sa catégorie : jamais ses dix secondes entières. */
@@ -145,6 +169,10 @@ export function useDuelTable(lang: string): DuelTable {
   const [seed, setSeed] = useState(1)
   const [pickEndsAt, setPickEndsAt] = useState(0)
   const [countdownDone, setCountdownDone] = useState(false)
+  const [fallen, setFallen] = useState<number | null>(null)
+  const [stagedAt, setStagedAt] = useState(0)
+  const [rematchOpen, setRematchOpen] = useState(false)
+  const [leavers, setLeavers] = useState<readonly string[]>([])
 
   const zero = useRef(0)
   const marks = useRef<number[]>([])
@@ -200,6 +228,9 @@ export function useDuelTable(lang: string): DuelTable {
     setJudge(null)
     setEvent(null)
     setCountdownDone(false)
+    setFallen(null)
+    setStagedAt(0)
+    setLeavers([])
     setPickEndsAt(0)
     setAnnounceEndsAt(0)
     setAt(0)
@@ -207,28 +238,53 @@ export function useDuelTable(lang: string): DuelTable {
 
   const open = useCallback(() => {
     reset()
+    setRematchOpen(false)
     setSeed(Date.now() >>> 0)
     setPhase('lobby')
   }, [reset])
 
   const markReady = useCallback(() => {
-    marks.current = readyMarks(seats, myIndex, now())
-    setReady({ me: true })
+    setReady((current) => ({ ...current, me: true }))
     push({ kind: 'ready', player: myIndex })
-  }, [myIndex, now, push, seats])
+  }, [myIndex, push])
 
   const leave = useCallback(() => {
     reset()
+    setRematchOpen(false)
     setPhase('setup')
   }, [reset])
 
-  const rematch = useCallback(() => {
+  /**
+   * La revanche : la même table se reforme tout de suite, chacun se déclare
+   * prêt à son rythme, et personne n'attend les autres — celui qui est parti
+   * ne bloque rien, on lance avec les présents.
+   */
+  const openRematch = useCallback(() => {
+    const fresh = Date.now() >>> 0
     reset()
-    marks.current = readyMarks(seats, myIndex, now())
-    setReady({ me: true })
-    setSeed(Date.now() >>> 0)
+    setSeed(fresh)
+    setRematchOpen(true)
+    setLeavers(leaversOf(fresh, seats))
     setPhase('lobby')
-  }, [now, reset, seats])
+  }, [reset, seats])
+
+  /** La partie part avec les joueurs confirmés : les autres sont laissés de côté. */
+  const launch = useCallback(() => {
+    const going = seats.filter((seat) => ready[seat.id]).map((seat) => seat.id)
+    if (going.length < MIN_TABLE) return
+    setInvited(going.filter((id) => id !== 'me'))
+    setAnnounceEndsAt(at + ANNOUNCE_SECONDS + GAP_AFTER_ANNOUNCE)
+    setPhase('announcing')
+  }, [at, ready, seats])
+
+  /** Retour au rapport sans refermer la revanche : elle reste ouverte pour les autres. */
+  const backToRecap = useCallback(() => setPhase('over'), [])
+  const joinRematch = useCallback(() => setPhase('lobby'), [])
+
+  const closeRematch = useCallback(() => {
+    setRematchOpen(false)
+    setLeavers([])
+  }, [])
 
   // La montre : un battement de 100 ms, la finesse de ce que la réserve affiche.
   useEffect(() => {
@@ -250,11 +306,18 @@ export function useDuelTable(lang: string): DuelTable {
     if (phase === 'over') sound.timeUp()
   }, [phase])
 
-  // Le salon : les robots se déclarent prêts l'un après l'autre, puis l'annonce
-  // part quand toute la table l'est.
+  // Le salon : les robots se déclarent prêts l'un après l'autre — celui qui a
+  // quitté la revanche ne se déclare jamais —, et l'annonce part quand toute
+  // la table est prête. Un siège ajouté en route prend son tour à son arrivée.
   useEffect(() => {
     if (phase !== 'lobby') return
-    const late = seats.filter((seat, index) => index > myIndex && at >= (marks.current[index] ?? Infinity) && !ready[seat.id])
+    seats.forEach((_, index) => {
+      if (index > myIndex && marks.current[index] === undefined) marks.current[index] = at + READY_GAP * index
+    })
+    const late = seats.filter((seat, index) => {
+      if (index <= myIndex || ready[seat.id] || leavers.includes(seat.id)) return false
+      return at >= (marks.current[index] ?? Infinity)
+    })
     if (late.length > 0) {
       setReady((current) => {
         const next = { ...current }
@@ -268,7 +331,7 @@ export function useDuelTable(lang: string): DuelTable {
       setAnnounceEndsAt(at + ANNOUNCE_SECONDS + GAP_AFTER_ANNOUNCE)
       setPhase('announcing')
     }
-  }, [at, myIndex, phase, push, ready, seats])
+  }, [at, leavers, myIndex, phase, push, ready, seats])
 
   // L'annonce, puis le draft : la table est complète, l'ordre des choix va du
   // plus petit catalogue au plus grand.
@@ -371,11 +434,47 @@ export function useDuelTable(lang: string): DuelTable {
     }
 
     if (next !== duel) {
+      const died = next.deaths.length > duel.deaths.length
       if (next.phase === 'over' && duel.phase !== 'over') push({ kind: 'over', player: next.deaths[next.deaths.length - 1] ?? 0 })
       setDuel(next)
-      setPhase(next.phase === 'over' ? 'over' : 'play')
+      // Toute mort a sa mise en scène, la dernière comprise : le compteur
+      // s'arrête, l'animation joue, puis un compte à rebours rend la main.
+      if (died) {
+        setFallen(duel.turn?.player ?? null)
+        setStagedAt(at + DEATH_STAGING_SECONDS)
+        setPhase('deaths')
+      } else if (next.phase === 'over') setPhase('over')
+      else setPhase('play')
     }
   }, [at, botOf, duel, judge, phase, push, seats])
+
+  // La mise en scène d'une mort : le compteur reste arrêté, puis trois temps
+  // rendent la main aux survivants — leur réserve ne court qu'à partir de là.
+  const beatsPlayed = useRef(-1)
+  useEffect(() => {
+    if (phase !== 'deaths' || !duel) return
+    if (at < stagedAt) {
+      beatsPlayed.current = -1
+      return
+    }
+    const beat = Math.max(0, Math.ceil((stagedAt + RESTART_SECONDS - at) / BEAT_SECONDS))
+    if (beat === 0) {
+      beatsPlayed.current = -1
+      setFallen(null)
+      if (duel.phase === 'over') {
+        setPhase('over')
+        return
+      }
+      setDuel((current) => (current ? resume(current, now()) : current))
+      setPhase('play')
+      sound.go()
+      return
+    }
+    if (beatsPlayed.current !== beat) {
+      beatsPlayed.current = beat
+      sound.beat()
+    }
+  }, [at, duel, now, phase, stagedAt])
 
   // Le raccourci `#auto` joue la table sans moi, plus bas : il lui faut `play`
   // et `pass`, déclarés après les règles du tour.
@@ -476,11 +575,20 @@ export function useDuelTable(lang: string): DuelTable {
     watching,
     event,
     error: failed,
+    fallen,
+    stagedAt,
+    resumeIn: phase === 'deaths' && at >= stagedAt ? Math.max(0, Math.ceil((stagedAt + RESTART_SECONDS - at) / BEAT_SECONDS)) : 0,
+    rematchOpen,
+    leavers,
+    openRematch,
+    launch,
+    backToRecap,
+    joinRematch,
+    closeRematch,
     inspect,
     pick,
     play,
     pass,
-    rematch,
     leave,
     startPlay: () => setCountdownDone(true),
   }
