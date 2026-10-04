@@ -7921,23 +7921,10 @@ button.challenge-word[aria-expanded='true'] {
   color: var(--red);
 }
 
-/* Le drapeau qui propose un mot au retrait : discret, mais toujours là — un
-   survol n'existe pas au doigt. */
-.words-flag {
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--ink-soft);
-  font-size: 0.85rem;
-  line-height: 1;
-  padding: 0.25rem 0.45rem;
-  cursor: pointer;
-}
-
-.words-flag:hover,
-.words-flag:focus-visible {
-  border-color: color-mix(in srgb, var(--red) 55%, transparent);
-  color: var(--red);
+/* Le tableau des mots couvre tout l’écran ; sa carte de signalement se pose
+   sur `body`, où il la cacherait : tant qu’il est ouvert, elle passe au-dessus. */
+body[data-words='board'] .offer-pop-layer {
+  z-index: 70;
 }
 
 /* Une cellule qui porte une phrase : elle se replie au lieu de pousser le

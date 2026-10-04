@@ -137,21 +137,31 @@ export function WordsBoardView({
   const [letter, setLetter] = useState(EMPTY)
   const [search, setSearch] = useState(EMPTY)
   const [attempt, setAttempt] = useState(0)
-  const key = `${lang}\u0000${category}\u0000${attempt}`
-  const [answer, setAnswer] = useState<{ key: string; data: WordsReport | null } | null>(null)
+  /** La portée du relevé : sa langue et son filtre. Un rafraîchissement ne la change pas. */
+  const scope = `${lang}\u0000${category}`
+  const [answer, setAnswer] = useState<{ scope: string; data: WordsReport | null } | null>(null)
   const [flagged, setFlagged] = useState<FlagWord | null>(null)
   const [adding, setAdding] = useState(false)
 
   useEffect(() => {
     let live = true
-    load(lang, category || null).then((found) => live && setAnswer({ key, data: found }))
+    load(lang, category || null).then((found) => live && setAnswer({ scope, data: found }))
     return () => {
       live = false
     }
-  }, [load, lang, category, key])
+  }, [load, lang, category, attempt, scope])
+
+  // La carte de signalement se pose sur `body`, où le tableau des mots la
+  // couvrirait : tant qu'il est ouvert, elle passe au-dessus.
+  useEffect(() => {
+    document.body.dataset.words = 'board'
+    return () => {
+      delete document.body.dataset.words
+    }
+  }, [])
 
   /** `undefined` : le relevé arrive ; `null` : pas administrateur, ou serveur muet. */
-  const report: WordsReport | null | undefined = answer?.key === key ? answer.data : undefined
+  const report: WordsReport | null | undefined = answer?.scope === scope ? answer.data : undefined
 
   const packs = useDictionaries(lang, category || null)
   const playable = availableCategoryIds(lang).length
@@ -480,7 +490,7 @@ export function WordsBoardView({
             }
           >
             {shownWords.length ? (
-              <Table head={['Mot', text('Catégorie'), 'Utilisations', 'Mal écrit', 'Utilisation', text('Dernière'), text('')]}>
+              <Table head={['Mot', text('Catégorie'), 'Utilisations', 'Mal écrit', 'Utilisation', text('Dernière')]}>
                 {shownWords.slice(0, 120).map((row) => (
                   <tr key={`${row.category}:${row.word}`} {...press({ categoryId: row.category, word: row.word, display: row.display })}>
                     <td>
@@ -492,11 +502,6 @@ export function WordsBoardView({
                     <td className="n">{row.approx ? fmt(row.approx) : '—'}</td>
                     <td className="n">{share(row.uses, pairDealt(report.pairs, row.category, initialOf(row.word)))}</td>
                     <td>{row.last ? ago(row.last) : 'jamais'}</td>
-                    <td>
-                      {/* Le geste caché ne suffit pas : à la souris, un clic
-                          maintenu n'ouvre rien — d'où ce bouton. */}
-                      <FlagButton word={row} onFlag={setFlagged} />
-                    </td>
                   </tr>
                 ))}
               </Table>
@@ -514,9 +519,9 @@ export function WordsBoardView({
             )}
             <p className="note">
               « Utilisation » : part des tirages de son couple — sa catégorie et sa lettre — où ce mot est sorti. « Mal écrit » :
-              accepté à une lettre près, payé au tarif plat. Le <b>⚑</b> d’une ligne propose le mot au retrait (un appui long l’ouvre
-              aussi) : le signalement passe par la file de modération comme un ajout, et le mot ne sort du jeu qu’au dictionnaire
-              livré d’après.
+              accepté à une lettre près, payé au tarif plat. Un appui long sur une ligne (un clic droit, sur ordinateur) ouvre la
+              carte de signalement : comme dans le récapitulatif d’une partie, le mot passe par la file de modération et ne sort du
+              jeu qu’au dictionnaire livré d’après.
             </p>
           </Section>
 
@@ -531,7 +536,6 @@ export function WordsBoardView({
                   'Depuis',
                   { label: 'Utilisation', n: true },
                   { label: 'Mal écrit', n: true },
-                  text(''),
                 ]}
               >
                 {shownAdded.slice(0, 120).map((row) => (
@@ -549,9 +553,6 @@ export function WordsBoardView({
                     </td>
                     <td className="n">{share(row.uses_since, row.parties_since)}</td>
                     <td className="n">{row.approx ? fmt(row.approx) : '—'}</td>
-                    <td>
-                      <FlagButton word={row} onFlag={setFlagged} />
-                    </td>
                   </tr>
                 ))}
               </Table>
@@ -630,7 +631,13 @@ export function WordsBoardView({
         <FlagWordCard
           word={flagged}
           category={categoryText(t, flagged.categoryId).label}
-          onFlag={(reason) => onBan(lang, flagged, reason)}
+          onFlag={async (reason) => {
+            const outcome = await onBan(lang, flagged, reason)
+            // Le signalement est passé : le relevé se relit pour que la revue
+            // apparaisse dans la file, en bas de l'écran.
+            if (outcome === 'sent' || outcome === 'accepted') setAttempt(attempt + 1)
+            return outcome
+          }}
           onClose={() => setFlagged(null)}
         />
       )}
@@ -656,31 +663,6 @@ function Gap({ value }: { value: number | null }) {
     <span className="dashboard-cell" style={{ background: `color-mix(in srgb, ${color} ${tint}%, transparent)` }}>
       {value < 10 ? value.toFixed(2).replace('.', ',') : String(Math.round(value))}×
     </span>
-  )
-}
-
-/**
- * Le drapeau d'une ligne : la porte visible du signalement. L'appui long
- * existe aussi, mais il ne répond qu'au toucher et au clic droit — un clic
- * maintenu à la souris ne l'ouvre pas, et l'écran ne s'en trouvait pas.
- */
-function FlagButton({
-  word,
-  onFlag,
-}: {
-  word: { category: string; word: string; display: string }
-  onFlag(word: FlagWord): void
-}) {
-  return (
-    <button
-      type="button"
-      className="words-flag"
-      title="Proposer ce mot au retrait"
-      aria-label={`Signaler « ${word.display} »`}
-      onClick={() => onFlag({ categoryId: word.category, word: word.word, display: word.display })}
-    >
-      ⚑
-    </button>
   )
 }
 
