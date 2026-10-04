@@ -22,6 +22,7 @@ import {
   pickCategory,
   playWord,
   reserveSeconds,
+  resume,
   type BotProfile,
   type Duel,
 } from './duel'
@@ -147,8 +148,19 @@ describe('la réserve', () => {
     expect(duelRanking(duel)).toEqual([1, 0])
   })
 
-  it('laisse la partie continuer sans le mort, en sautant son tour', () => {
-    let duel = duelTimeout(draft(4), judge, DUEL_RESERVE_SECONDS + 0.1)
+  it('ne fait pas courir la réserve du survivant pendant la mise en scène', () => {
+    const killed = duelTimeout(draft(3), judge, DUEL_RESERVE_SECONDS + 0.1)
+    const next = killed.turn!.player
+
+    // La mort a ouvert le tour du survivant à l'instant du décès…
+    expect(reserveSeconds(killed, next, 40)).toBeLessThan(DUEL_RESERVE_SECONDS)
+    // …et la reprise le re-date : sa réserve est entière au moment où il joue.
+    const resumed = resume(killed, 40)
+    expect(reserveSeconds(resumed, next, 40)).toBe(DUEL_RESERVE_SECONDS)
+    expect(reserveSeconds(resumed, next, 42.5)).toBe(DUEL_RESERVE_SECONDS - 2.5)
+  })
+
+  it('laisse la partie continuer sans le mort, en sautant son tour', () => {    let duel = duelTimeout(draft(4), judge, DUEL_RESERVE_SECONDS + 0.1)
     expect(duel.turn?.player).toBe(1)
 
     duel = duelTimeout(duel, judge, 100)

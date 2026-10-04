@@ -318,8 +318,17 @@ export function duelTimeout(duel: Duel, judge: Judge, at: number): Duel {
   return eliminate(duel, judge, at)
 }
 
-/** Fin de tour : la main avance ; le couple neuf n'arrive qu'une manche consommée. */
-function advance(duel: Duel, judge: Judge, at: number, consumed: boolean): Duel {
+/**
+ * La partie reprend à l'heure dite : le tour en cours est re-daté, donc la
+ * réserve du joueur qui a la main ne court pas pendant la mise en scène d'une
+ * mort. Sans ça, l'animation d'élimination mangerait le temps du survivant.
+ */
+export function resume(duel: Duel, at: number): Duel {
+  if (!duel.turn) return duel
+  return { ...duel, turn: { ...duel.turn, startedAt: at } }
+}
+
+/** Fin de tour : la main avance ; le couple neuf n'arrive qu'une manche consommée. */function advance(duel: Duel, judge: Judge, at: number, consumed: boolean): Duel {
   const turn = duel.turn
   if (!turn) return duel
   const player = nextAlive(duel, turn.player)

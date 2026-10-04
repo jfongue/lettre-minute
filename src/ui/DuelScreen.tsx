@@ -68,16 +68,22 @@ function TableStrip({ duel, seats, at, me }: { duel: Duel; seats: readonly Seat[
   )
 }
 
-/** Le salon : la table qui se met en place, puis l'annonce. */
+/** Le salon : la table qui se met en place, l'annonce, et la revanche ouverte. */
 function Lobby({ table }: { table: DuelTable }) {
   const t = useT()
   const counting = table.phase === 'announcing'
+  const going = table.seats.filter((seat) => table.ready[seat.id]).length
+  const left = table.leavers
+    .map((id) => table.seats.find((seat) => seat.id === id))
+    .filter((seat): seat is Seat => Boolean(seat))
   return (
     <main className="stage stage--duel">
       <div className="sheet">
-        <p className="eyebrow">{t.duel.title}</p>
-        <h1 className="duel-title">{counting ? t.duel.announceTitle : t.duel.lobbyTitle}</h1>
-        <p className="note">{counting ? t.duel.announceLead : t.duel.inviteNote}</p>
+        <p className="eyebrow">{table.rematchOpen ? t.duel.revenging : t.duel.title}</p>
+        <h1 className="duel-title">{counting ? t.duel.announceTitle : table.rematchOpen ? t.duel.rematchTitle : t.duel.lobbyTitle}</h1>
+        <p className="note">
+          {counting ? t.duel.announceLead : table.rematchOpen ? (going >= MIN_TABLE ? t.duel.rematchLead(going) : t.duel.rematchNeed) : t.duel.inviteNote}
+        </p>
         <ul className="duel-table">
           {table.seats.map((seat, index) => (
             <li key={seat.id} className={`duel-player${table.ready[seat.id] ? ' duel-player--ready' : ''}`} style={{ '--i': index } as CSSProperties}>
@@ -87,11 +93,55 @@ function Lobby({ table }: { table: DuelTable }) {
             </li>
           ))}
         </ul>
+        {left.length > 0 ? <p className="note duel-left">{t.duel.left(left.map((seat) => nameOf(seat, t.duel.you)).join(', '))}</p> : null}
+        {table.rematchOpen ? (
+          <ul className="duel-bots">
+            {HOUSE_BOTS.filter((bot) => !table.invited.includes(bot.id)).map((bot) => (
+              <li key={bot.id}>
+                <button
+                  type="button"
+                  className="duel-bot"
+                  disabled={table.seats.length >= MAX_TABLE}
+                  onClick={() => {
+                    armSound()
+                    sound.tile('marimba', 5)
+                    table.toggleInvite(bot.id)
+                  }}
+                >
+                  <Avatar choice={bot.avatar} size="fill" />
+                  <b>{bot.name}</b>
+                  <small>{t.duel.trait[bot.trait]}</small>
+                  <span className="duel-bot__mark" aria-hidden="true">
+                    +
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : null}
         {counting ? (
           <p className="duel-announce" aria-live="assertive">
             <Shape kind="arch" tint="yellow" />
             <b>{t.duel.announceTitle}</b>
           </p>
+        ) : table.rematchOpen ? (
+          <div className="stack">
+            <button
+              type="button"
+              className="btn btn--play btn--block"
+              disabled={going < MIN_TABLE}
+              onClick={() => {
+                armSound()
+                sound.go()
+                table.launch()
+              }}
+            >
+              {t.duel.startNow(going)}
+            </button>
+            <button type="button" className="btn btn--ghost btn--block" onClick={() => table.backToRecap()}>
+              {t.duel.back}
+            </button>
+          </div>
         ) : (
           <button
             type="button"
@@ -106,7 +156,14 @@ function Lobby({ table }: { table: DuelTable }) {
             {table.ready.me ? t.duel.waitingOthers : t.duel.readyButton}
           </button>
         )}
-        <button type="button" className="btn btn--quiet btn--block" onClick={() => table.leave()}>
+        <button
+          type="button"
+          className="btn btn--quiet btn--block"
+          onClick={() => {
+            table.closeRematch()
+            table.leave()
+          }}
+        >
           {t.duel.quit}
         </button>
       </div>
@@ -276,15 +333,9 @@ function Play({ table }: { table: DuelTable }) {
 
         <TableStrip duel={duel} seats={table.seats} at={at} me={me} />
 
-        <p className={`duel-face${watching ? ' duel-face--watching' : ''}`} aria-live="polite">
-          <span className="duel-face__dot" aria-hidden="true" />
-          {watching ? t.duel.watching(nameOf(table.seats[turn?.player ?? 0], t.duel.you)) : t.duel.yourTurn}
-        </p>
-
         {/* Le fait de la table : une ligne, comme le verdict du solo, jamais une boîte. */}
-        {news && (news.kind === 'solved' || news.kind === 'dead' || news.kind === 'failed') ? (
+        {news && (news.kind === 'solved' || news.kind === 'failed') ? (
           <p key={news.id} className={`verdict duel-news duel-news--${news.kind}`}>
-            {news.kind === 'dead' ? <b>{t.duel.dead(nameOf(table.seats[news.player], t.duel.you))}</b> : null}
             {news.kind === 'failed' ? <span>{t.duel.failed}</span> : null}
             {news.kind === 'solved' ? (
               <>
@@ -300,6 +351,11 @@ function Play({ table }: { table: DuelTable }) {
           </p>
         ) : null}
 
+        <p className={`duel-face${watching ? ' duel-face--watching' : ''}`} aria-live="polite">
+          <span className="duel-face__dot" aria-hidden="true" />
+          {watching ? t.duel.watching(nameOf(table.seats[turn?.player ?? 0], t.duel.you)) : t.duel.yourTurn}
+        </p>
+
         <section className="prompt" key={roundKey}>
           <LetterMark letter={prompt.letter} motif={categoryMotif(prompt.categoryId)} size="lg" />
           <div className="prompt-text">
@@ -310,8 +366,7 @@ function Play({ table }: { table: DuelTable }) {
 
         {alive ? (
           <form className={`answer${exact ? ' answer--valid' : ''}`} onSubmit={submit}>
-            <div className={`answer-field${shaking ? ' answer-field--shake' : ''}`} onAnimationEnd={() => setShaking(false)}>
-              <input
+            <div className={`answer-field${shaking ? ' answer-field--shake' : ''}`} onAnimationEnd={() => setShaking(false)}>              <input
                 ref={field}
                 value={draft}
                 onChange={(event) => {
@@ -369,8 +424,50 @@ function Play({ table }: { table: DuelTable }) {
   )
 }
 
-/** Le récapitulatif : les joueurs révélés un à un, puis les figures. */
-function Over({ table }: { table: DuelTable }) {
+/**
+ * La mise en scène d'une mort : le compteur s'est arrêté, l'écran passe en
+ * noir et blanc, le tampon tombe, puis trois temps rendent la main aux
+ * survivants. Aucun décompte n'est retiré à personne : la reprise re-date le
+ * tour (`resume`).
+ */
+function Deaths({ table }: { table: DuelTable }) {
+  const t = useT()
+  const duel = table.duel!
+  const seat = table.fallen !== null ? table.seats[table.fallen] : undefined
+  const counting = table.resumeIn > 0
+  const living = duel.players.filter((player) => player.alive).length
+  useEffect(() => {
+    sound.timeUp()
+  }, [])
+  return (
+    <main className="stage stage--deaths">
+      <div className="sheet death-stage" aria-live="assertive">
+        <p className="death-word">{t.duel.out}</p>
+        <span className={`death-face${counting ? ' death-face--done' : ''}`}>
+          {seat ? <Avatar choice={seat.avatar} size="lg" /> : <Shape kind="circle" tint="red" />}
+          <span className="death-cross" aria-hidden="true">
+            ✕
+          </span>
+        </span>
+        <h1 className="death-name">{nameOf(seat, t.duel.you)}</h1>
+        <p className="note">{countStanding(living, t)}</p>
+        {counting ? (
+          <p className="duel-count" aria-live="assertive">
+            <b key={table.resumeIn}>{table.resumeIn}</b>
+          </p>
+        ) : (
+          <p className="eyebrow death-next">{t.duel.next}</p>
+        )}
+      </div>
+    </main>
+  )
+}
+
+function countStanding(living: number, t: ReturnType<typeof useT>): string {
+  return living > 1 ? t.duel.standing(living) : t.duel.lastStanding
+}
+
+/** Le récapitulatif : les joueurs révélés un à un, puis les figures. */function Over({ table }: { table: DuelTable }) {
   const t = useT()
   const duel = table.duel!
   const order = duelRanking(duel)
@@ -431,18 +528,42 @@ function Over({ table }: { table: DuelTable }) {
         </ol>
         {done ? (
           <div className="sheet cascade duel-actions">
+            {table.rematchOpen ? (
+              <>
+                <p className="note">{t.duel.rematchWaiting}</p>
+                <button
+                  type="button"
+                  className="btn btn--play btn--block"
+                  onClick={() => {
+                    armSound()
+                    sound.go()
+                    table.joinRematch()
+                  }}
+                >
+                  {t.duel.joinRematch}
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="btn btn--play btn--block"
+                onClick={() => {
+                  armSound()
+                  sound.go()
+                  table.openRematch()
+                }}
+              >
+                {t.duel.rematch}
+              </button>
+            )}
             <button
               type="button"
-              className="btn btn--play btn--block"
+              className="btn btn--ghost btn--block"
               onClick={() => {
-                armSound()
-                sound.go()
-                table.rematch()
+                table.closeRematch()
+                table.leave()
               }}
             >
-              {t.duel.rematch}
-            </button>
-            <button type="button" className="btn btn--ghost btn--block" onClick={() => table.leave()}>
               {t.duel.quit}
             </button>
           </div>
@@ -542,6 +663,7 @@ export function DuelScreen({ lang }: { lang: string }) {
     )
   }
   if (phase === 'play' && table.duel && table.judge && table.prompt) return <Play table={table} />
+  if (phase === 'deaths' && table.duel) return <Deaths table={table} />
   if (phase === 'over' && table.duel) return <Over table={table} />
   return (
     <main className="stage stage--duel">
