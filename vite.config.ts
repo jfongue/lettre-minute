@@ -18,5 +18,5 @@ export default defineConfig({
   // a 600 kB "animaux" chunk is the point, not an accident of bundling.
   // google.html is where the browser's Google popup lands (`googleIdToken`),
   // invite.html the page a shared invitation opens (src/invite.ts).
-  build: { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html', 'invite.html'] } },
+  build: { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html', 'invite.html', 'duel.html'] } },
 })

@@ -312,6 +312,22 @@ qu'un nouvel arrivant casserait sans le savoir.
   l'envoie à son défi, hors classements et hors rareté, et
   `applyChallengeRun` ne touche ni au record ni à `lastPrompts`.
 
+- **Le duel en direct vit sur sa propre page** (`duel.html`, `src/duel.tsx`,
+  `src/ui/DuelScreen.tsx`) tant qu'il est un prototype : il se joue contre les
+  joueurs maison, sans serveur, et ne passe donc ni par l'accueil ni par
+  `App.tsx`. Ses règles sont dans `src/domain/duel.ts` et nulle part ailleurs :
+  une manche est un couple, la main avance à chaque fin de tour, le couple est
+  hérité jusqu'à ce qu'il soit validé ou refusé par tous les vivants, et chaque
+  joueur ne brûle sa réserve de 30 s que pendant son propre tour. Le domaine ne
+  connaît ni horloge ni identité : `src/state/duel.ts` tient la montre, la table
+  et les robots — c'est cette boucle qu'une table en ligne remplacera par une
+  lecture du serveur. Le champ du joueur qui attend juge avec `inspectFor`, et
+  `playWord` rejoue le même verdict avant d'encaisser, comme `inspect`/`submit`.
+  `#auto` à la fin de l'URL fait jouer la table toute seule (trois joueurs
+  maison, choix et validations automatiques) : de quoi regarder chaque écran
+  sans jouer trois minutes. Ses styles sont dans `src/duel.css`, à fondre dans
+  `styles.css` le jour où le duel rejoint l'accueil.
+
 - **Le téléphone ne demande le droit de notifier qu'après une nouvelle
   amitié** (`pushOfferDue`, `src/state/pushOffer.ts`), et après la question
   du jeu (`PushOffer`) : `enablePush` enregistre sans jamais demander. Un
