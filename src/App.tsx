@@ -157,6 +157,7 @@ const Menu = lazyScreen(() => import('./ui/Menu').then((module) => module.Menu))
 const ModerationScreen = lazyScreen(() => import('./ui/ModerationScreen').then((module) => module.ModerationScreen))
 const OverScreen = lazyScreen(() => import('./ui/OverScreen').then((module) => module.OverScreen))
 const RunScreen = lazyScreen(() => import('./ui/RunScreen').then((module) => module.RunScreen))
+const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) => module.WordsBoard))
 
 /** The run's own screens: awaited with its dictionaries, so the countdown never opens on a blank frame. */
 function preloadRunScreens(): Promise<unknown> {
@@ -331,6 +332,9 @@ export function App() {
   // Les classements avancés : le mode débug caché derrière cinq tapes sur
   // « Classement ». Il ne survit pas au rechargement, comme la planche.
   const [advancedBoards, setAdvancedBoards] = useState(false)
+  // Le tableau des mots : l'autre mode débug caché, derrière cinq tapes sur
+  // « Mes catégories ». Hors du tiroir : il s'affiche même refermé.
+  const [wordsBoard, setWordsBoard] = useState(false)
 
   // Written only once the cached account has been read, or the first render's
   // null would erase it.
@@ -1702,6 +1706,7 @@ export function App() {
             lang={lang}
             advancedBoards={advancedBoards}
             onAdvancedBoards={setAdvancedBoards}
+            onWordsBoard={setWordsBoard}
             banActions={banActions}
             onErase={async () => {
               // The device keeps its copy until the server has let go of its
@@ -1713,6 +1718,12 @@ export function App() {
             }}
             onClose={closeMenu}
           />
+        </Suspense>
+      )}
+
+      {wordsBoard && (
+        <Suspense fallback={null}>
+          <WordsBoard lang={lang} onClose={() => setWordsBoard(false)} />
         </Suspense>
       )}
 

@@ -116,6 +116,8 @@ interface MenuProps {
   /** Les classements avancés : le mode débug, ouvert par cinq tapes sur « Classements ». */
   advancedBoards: boolean
   onAdvancedBoards(open: boolean): void
+  /** Le tableau des mots : l'autre mode débug, ouvert par cinq tapes sur « Mes catégories ». */
+  onWordsBoard(open: boolean): void
   /** Bans and Premium, from « Mes catégories ». */
   banActions: BanActions
   onClose(): void
@@ -127,8 +129,9 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
   const [sub, setSub] = useState<ProfilePage | null>(isPane(page) ? null : page)
   const body = useRef<HTMLDivElement>(null)
   // Cinq tapes rapprochées sur le titre de la page : le mode débug des
-  // classements. Le mot est le seul du jeu qui les annonce.
-  const tapBoards = useHiddenTaps()
+  // classements, ou celui des mots. Le compte survit au tiroir qui s'ouvre et
+  // se referme entre deux tapes.
+  const tapTitle = useHiddenTaps()
   // The leaderboards opened from the statistics lead back to them, not to the profile.
   const [parent, setParent] = useState<ProfilePage | null>(null)
   const open = (next: MenuPage, from: ProfilePage | null = null) => {
@@ -200,9 +203,11 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               <h2
                 className="subpage-title"
                 onClick={
-                  sub === 'boards'
+                  sub === 'boards' || sub === 'categories'
                     ? () => {
-                        if (tapBoards()) props.onAdvancedBoards(true)
+                        if (!tapTitle()) return
+                        if (sub === 'boards') props.onAdvancedBoards(true)
+                        else props.onWordsBoard(true)
                       }
                     : undefined
                 }
@@ -239,7 +244,9 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               onOpen={props.onRequestsOpen}
             />
           )}
-          {sub === 'categories' && <CategoriesPage profile={props.profile} {...props.banActions} />}
+          {sub === 'categories' && (
+            <CategoriesPage profile={props.profile} onHidden={() => props.onWordsBoard(true)} {...props.banActions} />
+          )}
           {!sub && pane === 'profile' && <ProfilePane {...props} onPage={open} />}
           {pane === 'social' && (
             <SocialPane

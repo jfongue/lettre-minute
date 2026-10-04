@@ -7868,6 +7868,67 @@ button.challenge-word[aria-expanded='true'] {
   border-radius: 2px;
 }
 
+/* ------------------------------------------------------- les mots (débug) - */
+/* Les filtres du tableau des mots restent sous la main pendant qu'on descend
+   ses longues listes. */
+.words-filters {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  gap: 0.5rem 0.9rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  padding: 0.75rem 0;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+
+.words-filters label {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.words-filters select,
+.words-filters input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--paper-2);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.words-filters input::placeholder {
+  color: var(--ink-faint);
+}
+
+/* Le genre d'une revue, dans la file de modération. */
+.words-kind {
+  display: inline-block;
+  padding: 0.05rem 0.45rem;
+  border-radius: 99px;
+  border: 1px solid var(--rule);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.words-kind--out {
+  border-color: color-mix(in srgb, var(--red) 45%, transparent);
+  color: var(--red);
+}
+
+/* Une cellule qui porte une phrase : elle se replie au lieu de pousser le
+   tableau dans la marge. */
+.words-note {
+  white-space: normal !important;
+  max-width: 34ch;
+  color: var(--ink-soft);
+}
+
 /* ------------------------------------------------- avis, bans, Premium - */
 .feedback-pop textarea {
   justify-self: stretch;

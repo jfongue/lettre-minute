@@ -34,6 +34,8 @@ import { Avatar } from '../ui/Avatar'
 import { Shape } from '../ui/bauhaus'
 import { NamePrompt } from '../ui/NamePrompt'
 import { DashboardView } from './Dashboard'
+import { WordsBoardView } from './WordsBoard'
+import type { WordsReport } from './words'
 import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
 import type { SlotEntry, Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
@@ -579,6 +581,152 @@ function AdvancedScenario() {
   )
 }
 
+/**
+ * Le tableau des mots, nourri d'inventé : aucun appel au serveur, et les vrais
+ * dictionnaires embarqués pour la colonne « théorique ».
+ */
+const WORDS_REPORT: WordsReport = {
+  generated_at: new Date(Date.now() - 4 * 60_000).toISOString(),
+  lang: 'fr',
+  category: null,
+  runs: 987,
+  lang_runs: 412,
+  dealt: 3_074,
+  pairs: [
+    { category: 'animaux', letter: 'A', dealt: 96, passed: 9, words: 118, points: 2_140 },
+    { category: 'animaux', letter: 'C', dealt: 88, passed: 6, words: 121, points: 2_310 },
+    { category: 'animaux', letter: 'Z', dealt: 4, passed: 3, words: 1, points: 30 },
+    { category: 'pays', letter: 'A', dealt: 61, passed: 12, words: 52, points: 880 },
+    { category: 'pays', letter: 'R', dealt: 22, passed: 9, words: 14, points: 210 },
+    { category: 'couleurs', letter: 'T', dealt: 12, passed: 10, words: 2, points: 24 },
+    { category: 'metiers', letter: 'M', dealt: 44, passed: 7, words: 49, points: 760 },
+    { category: 'sports', letter: 'F', dealt: 39, passed: 5, words: 44, points: 690 },
+  ],
+  words: [
+    { word: 'chat', category: 'animaux', uses: 61, approx: 4, last: new Date(Date.now() - 2 * 60_000).toISOString() },
+    { word: 'cheval', category: 'animaux', uses: 48, approx: 2, last: new Date(Date.now() - 26 * 60_000).toISOString() },
+    { word: 'autruche', category: 'animaux', uses: 9, approx: 3, last: new Date(Date.now() - 5 * 60 * 60_000).toISOString() },
+    { word: 'zebre', category: 'animaux', uses: 3, approx: 1, last: new Date(Date.now() - 3 * 24 * 60 * 60_000).toISOString() },
+    { word: 'aigle royal', category: 'animaux', uses: 0, approx: 0, last: null },
+    { word: 'cote d ivoire', category: 'pays', uses: 12, approx: 1, last: new Date(Date.now() - 3 * 60 * 60_000).toISOString() },
+    { word: 'vert bouteille', category: 'couleurs', uses: 4, approx: 0, last: new Date(Date.now() - 8 * 60 * 60_000).toISOString() },
+    { word: 'taxidermiste', category: 'metiers', uses: 0, approx: 0, last: null },
+  ],
+  added: [
+    {
+      word: 'taxidermiste',
+      category: 'metiers',
+      display: 'Taxidermiste',
+      at: new Date(Date.now() - 3 * 24 * 60 * 60_000).toISOString(),
+      uses: 2,
+      approx: 0,
+      uses_since: 2,
+      approx_since: 0,
+      parties_since: 38,
+      requesters: [{ name: 'Camille', at: new Date(Date.now() - 9 * 24 * 60 * 60_000).toISOString() }],
+      moderators: [
+        { name: 'Maxitoon', verdict: 'correct', note: null, at: new Date(Date.now() - 4 * 24 * 60 * 60_000).toISOString() },
+        { name: 'Inès', verdict: 'correct', note: null, at: new Date(Date.now() - 4 * 24 * 60 * 60_000).toISOString() },
+        { name: 'Terretciel', verdict: 'correct', note: null, at: new Date(Date.now() - 3 * 24 * 60 * 60_000).toISOString() },
+      ],
+    },
+    {
+      word: 'vert bouteille',
+      category: 'couleurs',
+      display: 'Vert bouteille',
+      at: new Date(Date.now() - 30 * 24 * 60 * 60_000).toISOString(),
+      uses: 17,
+      approx: 2,
+      uses_since: 17,
+      approx_since: 2,
+      parties_since: 210,
+      requesters: [
+        { name: 'Léa', at: new Date(Date.now() - 40 * 24 * 60 * 60_000).toISOString() },
+        { name: 'Hugo', at: new Date(Date.now() - 39 * 24 * 60 * 60_000).toISOString() },
+      ],
+      moderators: [{ name: 'Maxitoon', verdict: 'special', note: 'Deux mots, une teinte : à garder.', at: new Date(Date.now() - 30 * 24 * 60 * 60_000).toISOString() }],
+    },
+  ],
+  removed: [
+    {
+      word: 'yougoslavie',
+      category: 'pays',
+      display: 'Yougoslavie',
+      at: new Date(Date.now() - 11 * 24 * 60 * 60_000).toISOString(),
+      uses_before: 31,
+      approx_before: 2,
+      parties_before: 640,
+      moderators: [
+        { name: 'Inès', verdict: 'correct', note: 'Ce pays n’existe plus.', at: new Date(Date.now() - 12 * 24 * 60 * 60_000).toISOString() },
+        { name: 'Maxitoon', verdict: 'correct', note: null, at: new Date(Date.now() - 11 * 24 * 60 * 60_000).toISOString() },
+      ],
+    },
+  ],
+  pending: [
+    {
+      id: 'add-taxi',
+      word: 'taxidermiste',
+      category: 'metiers',
+      display: 'Taxidermiste',
+      kind: 'add',
+      at: new Date(Date.now() - 2 * 24 * 60 * 60_000).toISOString(),
+      respelled: false,
+      special: false,
+      proposals: 2,
+      proposers: [
+        { name: 'Camille', at: new Date(Date.now() - 2 * 24 * 60 * 60_000).toISOString() },
+        { name: 'Nino', at: new Date(Date.now() - 20 * 60 * 60_000).toISOString() },
+      ],
+      votes: [
+        { name: 'Léa', verdict: 'correct', note: null, at: new Date(Date.now() - 30 * 60 * 60_000).toISOString() },
+        { name: 'Tom', verdict: 'unsure', note: null, at: new Date(Date.now() - 28 * 60 * 60_000).toISOString() },
+        { name: 'Sacha', verdict: 'correct', note: null, at: new Date(Date.now() - 26 * 60 * 60_000).toISOString() },
+      ],
+    },
+    {
+      id: 'ban-yougo',
+      word: 'yougoslavie',
+      category: 'pays',
+      display: 'Yougoslavie',
+      kind: 'ban',
+      at: new Date(Date.now() - 5 * 60 * 60_000).toISOString(),
+      respelled: false,
+      special: true,
+      proposals: 0,
+      proposers: [],
+      votes: [{ name: 'Inès', verdict: 'correct', note: 'Ce pays n’existe plus.', at: new Date(Date.now() - 5 * 60 * 60_000).toISOString() }],
+    },
+  ],
+}
+
+/** Le relevé d'une catégorie seule, comme `admin_words` le rend : filtré par le serveur. */
+function wordsReportOf(category: string | null): WordsReport {
+  if (!category) return WORDS_REPORT
+  const kept = <T extends { category: string }>(rows: readonly T[]) => rows.filter((row) => row.category === category)
+  return {
+    ...WORDS_REPORT,
+    category,
+    pairs: kept(WORDS_REPORT.pairs),
+    words: kept(WORDS_REPORT.words),
+    added: kept(WORDS_REPORT.added),
+    removed: kept(WORDS_REPORT.removed),
+    pending: kept(WORDS_REPORT.pending),
+  }
+}
+
+function WordsScenario() {
+  return (
+    <div className="dashboard">
+      <WordsBoardView
+        lang="fr"
+        load={(_lang, category) => later(wordsReportOf(category), 300)}
+        onBan={() => later('sent' as const)}
+        onAdd={() => later(true)}
+      />
+    </div>
+  )
+}
+
 /** Les icônes à téléverser dans la Play Console, une par succès, sans marge ni animation. */
 function AchievementIcons() {
   return (
@@ -779,6 +927,7 @@ function SocialScenario({ back }: { back(): void }) {
       lang="fr"
       advancedBoards={false}
       onAdvancedBoards={noop}
+      onWordsBoard={noop}
       banActions={{ onBan: noop, onUnban: noop, onIntroSeen: noop, onJoinPlus: noop }}
       onClose={back}
     />
@@ -925,6 +1074,7 @@ function BansScenario({
     <div className="sheet">
       <CategoriesPage
         profile={profile}
+        onHidden={noop}
         onBan={(id) => setProfile((current) => ban(current, owned, id))}
         onUnban={(id) => setProfile((current) => unban(current, id))}
         onIntroSeen={() => setProfile((current) => markBanIntroSeen(current))}
@@ -1602,6 +1752,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Cinq tapes sur « Classements » : joueurs, actifs, parties, sessions, boutons touchés, rétention, erreurs — le relevé d’analytics_snapshot',
     phase: 'home',
     render: () => <AdvancedScenario />,
+  },
+  {
+    id: 'words-board',
+    group: 'Accueil',
+    title: 'Tableau des mots du dictionnaire',
+    how: 'Cinq tapes sur « Mes catégories » : ce que le tirage donne à chaque couple lettre + catégorie, théorique et réel, les mots écrits, ajoutés, retirés, en modération ; appui long sur une ligne pour signaler un mot, bouton pour en proposer un',
+    phase: 'home',
+    render: () => <WordsScenario />,
   },
   {
     id: 'achievement-icons',
