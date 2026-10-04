@@ -70,7 +70,7 @@ export function ChallengeList({ challenges, onOpen, onCreate, onPast }: Challeng
             return (
               <li key={challenge.id} style={{ '--i': index } as CSSProperties}>
                 {challenge.finished ? (
-                  <Dismissable label={t.challenge.ignore} onDismiss={() => hideChallenge(hidden, challenge)}>
+                  <Dismissable label={t.challenge.ignore} onDismiss={() => hideChallenge(challenge)}>
                     {(open) => row(open(() => onOpen(challenge.id)))}
                   </Dismissable>
                 ) : (

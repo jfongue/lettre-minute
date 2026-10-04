@@ -213,8 +213,14 @@ remplacés derrière les cinq tapes ; les fonctions restent en base.
   seuls les totaux du profil (XP, parties, mots) bougent.
 - **Tout passe par fonction** : `create_challenge`, `invite_to_challenge` (le
   chef seul, huit joueurs au plus), `submit_challenge_run` (une fois par
-  invité), `mark_challenge_seen`, `rematch_challenge`, `my_challenges`,
-  `challenge_detail`. Les deux tables n'ont aucune politique.
+  invité), `mark_challenge_seen`, `mark_challenge_hidden`, `rematch_challenge`,
+  `my_challenges`, `challenge_detail`. Les deux tables n'ont aucune politique.
+- **Ce qui est vu ou écarté suit le compte** (`seen_invite_at`,
+  `seen_recap_at`, `hidden_stamp`, 0041) : ces marques vivent dans la ligne du
+  joueur, pas dans le stockage d'un appareil, pour qu'un défi lu ou masqué sur
+  le téléphone le reste dans le navigateur. L'empreinte masquée dit à quoi le
+  défi ressemblait quand il a été écarté — un invité qui joue, la clôture, une
+  revanche la font changer, et le défi revient de lui-même dans `my_challenges`.
 - **Un défi se clôt de lui-même** : chaque invité a joué, ou vingt-quatre
   heures ont passé depuis la dernière partie (`challenge_finished`). Rien ne
   tourne pour le clore, chaque lecture le recalcule.

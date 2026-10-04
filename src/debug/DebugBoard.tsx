@@ -386,6 +386,7 @@ function summaryOf(detail: ChallengeDetail): ChallengeSummary {
     seenRecap: false,
     name: detail.name,
     nextId: null,
+    hiddenStamp: null,
   }
 }
 
