@@ -39,9 +39,11 @@
 .duel-bot {
   position: relative;
   display: grid;
-  gap: 0.3rem;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.15rem 0.5rem;
   width: 100%;
-  padding: 0.6rem 0.6rem 0.7rem;
+  padding: 0.5rem 0.6rem;
   border: var(--line) solid var(--rule);
   background: var(--paper-2);
   color: var(--ink);
@@ -52,6 +54,11 @@
     transform 180ms var(--ease-spring),
     border-color 200ms ease,
     background 200ms ease;
+}
+
+.duel-bot .avatar {
+  grid-row: span 2;
+  width: 2.4rem;
 }
 
 .duel-bot:active {
@@ -84,15 +91,15 @@
 
 .duel-bot__mark {
   position: absolute;
-  top: 0.4rem;
-  right: 0.4rem;
+  top: 0.35rem;
+  right: 0.35rem;
   display: grid;
   place-items: center;
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1.35rem;
+  height: 1.35rem;
   background: var(--ink);
   color: var(--cream);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   line-height: 1;
 }
 
@@ -255,6 +262,55 @@
   filter: grayscale(1);
 }
 
+.duel-seat--late .duel-seat__bar i {
+  background: var(--red);
+  animation: duel-blink 460ms steps(1, end) infinite;
+}
+
+.duel-seat--late .duel-seat__clock,
+.duel-seat--late .duel-seat__name {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.duel-seat--fallen {
+  animation: duel-seat-fall 620ms var(--ease-snap) both;
+}
+
+@keyframes duel-seat-fall {
+  35% {
+    transform: translateY(-4px) rotate(-3deg);
+  }
+  100% {
+    transform: translateY(2px) rotate(2deg);
+    opacity: 0.6;
+  }
+}
+
+@keyframes duel-blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+
+/* Les trois dernières secondes de mon tour : le camembert bat en rouge. */
+.run--critical .timer-disc {
+  background: conic-gradient(var(--red) calc(var(--ratio, 1) * 360deg), var(--paper) 0);
+  animation: duel-blink 460ms steps(1, end) infinite;
+}
+
+/* Ce que j'écris n'est que de l'avance : une étiquette discrète le dit. */
+.duel-ahead {
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--ink-faint);
+  color: var(--ink-faint);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: fade 200ms ease both;
+}
+
 .duel-seat__face {
   position: relative;
   display: block;
@@ -367,28 +423,61 @@
 
 /* ------------------------------------------------- la mort d'un joueur - */
 
-/* Le compteur s'arrête, l'écran se vide de sa couleur : le duel retient son
-   souffle le temps que le joueur tombé quitte la table. */
-.stage--deaths {
-  background: var(--black);
-  color: var(--cream);
+/* La partie reste à l'écran, assombrie : la mort se joue par-dessus, jamais à
+   la place. Le tombé se barre, trois temps passent, la main revient. */
+.duel-death {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  background: rgb(0 0 0 / 42%);
+  backdrop-filter: blur(1.5px);
+  pointer-events: none;
+  animation: fade 240ms ease both;
 }
 
-.stage--deaths .note {
-  color: var(--cream);
-  opacity: 0.7;
-}
-
-.death-stage {
+.duel-death__card {
+  display: grid;
   justify-items: center;
+  gap: 0.5rem;
+  width: min(22rem, 100%);
+  padding: 1.4rem 1.2rem 1.2rem;
+  color: var(--cream);
+  background: var(--black);
+  border: var(--line) solid var(--red);
   text-align: center;
-  gap: 0.7rem;
-  animation: fade 300ms ease both;
+  animation: pop-in 460ms var(--ease-spring) both;
 }
 
-.death-word {
+.duel-death__face {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 6rem;
+  animation: death-fall 700ms var(--ease-snap) both;
+}
+
+.duel-death__face .avatar {
+  filter: grayscale(1) contrast(1.15);
+}
+
+.duel-death__cross {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--red);
+  font-size: 5rem;
+  font-weight: 800;
+  line-height: 1;
+  animation: death-cross 520ms var(--ease-spring) 240ms both;
+}
+
+.duel-death__word {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -396,48 +485,46 @@
   animation: duel-stamp 460ms var(--ease-spring) both;
 }
 
-.death-face {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 7rem;
-  animation: death-fall 700ms var(--ease-snap) both;
-}
-
-.death-face .avatar {
-  filter: grayscale(1) contrast(1.2);
-}
-
-.death-face--done .avatar {
-  transition: filter 400ms ease;
-}
-
-.death-cross {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  color: var(--red);
-  font-size: 6rem;
-  font-weight: 800;
-  line-height: 1;
-  animation: death-cross 520ms var(--ease-spring) 260ms both;
-}
-
-.death-name {
-  margin: 0;
-  font-size: clamp(1.6rem, 9vw, 2.4rem);
+.duel-death__name {
+  font-size: clamp(1.5rem, 8vw, 2.1rem);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: -0.01em;
 }
 
-.death-next {
-  animation: fade 400ms ease 200ms both;
+.duel-death__card .note {
+  color: var(--cream);
+  opacity: 0.75;
 }
 
-.duel-left {
-  animation: fade 300ms ease both;
+.duel-death__beat {
+  display: grid;
+  place-items: center;
+  margin: 0.2rem 0 0;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--black);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  animation: duel-death-beat 800ms var(--ease-out) both;
+}
+
+@keyframes duel-death-beat {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 @keyframes death-fall {
@@ -445,11 +532,11 @@
     transform: rotate(0deg) scale(1);
   }
   35% {
-    transform: rotate(-6deg) scale(1.04);
+    transform: rotate(-7deg) scale(1.05);
   }
   100% {
-    transform: rotate(8deg) translateY(0.4rem) scale(0.94);
-    opacity: 0.75;
+    transform: rotate(9deg) translateY(0.3rem) scale(0.92);
+    opacity: 0.85;
   }
 }
 
@@ -468,6 +555,15 @@
 }
 
 /* ---------------------------------------------------- le récapitulatif - */
+
+.duel-winner {
+  font-size: clamp(1.4rem, 7vw, 2rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  animation: pop-in 460ms var(--ease-spring) both;
+}
 
 .duel-ranking {
   list-style: none;
