@@ -1,5 +1,6 @@
 import { isNativeApp } from './native'
 import { connect, supabase } from './supabase'
+import { testClient } from './testClient'
 
 /**
  * What players do with the app, for the owner's dashboard (`analytics_snapshot`,
@@ -9,7 +10,9 @@ import { connect, supabase } from './supabase'
  * event costs a line on a chart, never a tap.
  */
 
-const QUEUE_KEY = 'lettre-minute.events.v1'
+// Versioned: an entry queued by a build that knew nothing of `test` is dropped
+// rather than sent, or the server's not-null column would refuse the batch.
+const QUEUE_KEY = 'lettre-minute.events.v2'
 const DEVICE_KEY = 'lettre-minute.device.v1'
 const FLUSH_MS = 20_000
 const BATCH = 100
@@ -29,6 +32,8 @@ interface QueuedEvent {
   platform: string
   version: string
   at: string
+  /** A client that plays by itself: the relevé leaves its events out (0040). */
+  test: boolean
 }
 
 function randomId(): string {
@@ -98,7 +103,7 @@ function readFlag(key: string): boolean {
 export function track(kind: string, props: Props = {}): void {
   if (!supabase) return
   if (kind === 'run_start') sessionRuns += 1
-  queue.push({ device, session, kind, props, lang, platform, version, at: new Date().toISOString() })
+  queue.push({ device, session, kind, props, lang, platform, version, at: new Date().toISOString(), test: testClient() })
   scheduleSave()
 }
 
