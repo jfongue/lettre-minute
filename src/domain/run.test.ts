@@ -5,6 +5,7 @@ import {
   celerityDue,
   createRun,
   inspect,
+  letterShares,
   promptOutcomes,
   remainingSeconds,
   RUN_SECONDS,
@@ -385,5 +386,31 @@ describe('celerityDue', () => {
   it('never validates what the dictionary did not accept', () => {
     expect(celerityDue({ kind: 'unknown', found: null }, 'xyz')).toBe(false)
     expect(celerityDue(null, '')).toBe(false)
+  })
+})
+
+describe('letterShares', () => {
+  // « Banane » est connue, « Cactus » ne l'est pas (aucun signal), et « Chats »
+  // n'est qu'une forme fléchie de « Chat » : elle ne compte pas pour un mot de
+  // plus sous son C.
+  const pack = buildWordPack('animaux', [
+    ...Array.from({ length: 3 }, (_, i) => [`Abeille${i}`, 50, 1] as const),
+    ['Banane', 50, 1],
+    ['Cactus', 0, 0],
+    ['Chat', 50, 1],
+    ['Chats', 50, 1, 'chat'],
+  ])
+
+  it('gives each letter its share of the draw', () => {
+    const shares = letterShares(pack)
+    const total = Math.log2(4) + 2 * Math.log2(2)
+    expect(shares.get('A')).toBeCloseTo(Math.log2(4) / total, 10)
+    expect(shares.get('B')).toBeCloseTo(Math.log2(2) / total, 10)
+    expect(shares.get('C')).toBeCloseTo(Math.log2(2) / total, 10)
+    expect([...shares.values()].reduce((sum, share) => sum + share, 0)).toBeCloseTo(1, 10)
+  })
+
+  it('leaves out a letter the draw would never take', () => {
+    expect(letterShares(pack).has('D')).toBe(false)
   })
 })

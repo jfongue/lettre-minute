@@ -23,7 +23,7 @@ import {
 } from './rarity'
 import { pickWeighted, streamFor, type Rng } from './rng'
 import { compactWord, initialOf, normalizeWord } from './text'
-import type { WordMatch } from './words'
+import { knownByLetter, type WordMatch, type WordPack } from './words'
 
 export const RUN_SECONDS = 60
 /** A skip costs clock, not points: the player always leaves with what they found. */
@@ -170,6 +170,23 @@ export interface SettledPrompt {
   passed: boolean
 }
 
+/** Le poids d'une lettre au tirage : ses mots connus, en logarithme — jamais zéro tant qu'un seul est connu. */
+export function letterWeight(known: number): number {
+  return Math.log2(1 + known)
+}
+
+/**
+ * La part du tirage que chaque lettre reçoit d'une catégorie quand seule la
+ * question du dictionnaire compte : le poids de `drawLetter`, sans la foule
+ * qui le penche ni le verrou de la partie précédente. L'écran des mots la
+ * compare à ce que le tirage a réellement donné.
+ */
+export function letterShares(pack: WordPack): Map<string, number> {
+  const weights = new Map([...knownByLetter(pack)].map(([letter, known]) => [letter, letterWeight(known)]))
+  const total = [...weights.values()].reduce((sum, weight) => sum + weight, 0)
+  return new Map([...weights].map(([letter, weight]) => [letter, total > 0 ? weight / total : 0]))
+}
+
 /**
  * A letter the category can be prompted on, preferring those the lock leaves open and not `except`.
  * Its odds grow with the logarithm of its known words: Z still comes up on the
@@ -182,7 +199,7 @@ function drawLetter(rng: Rng, categoryId: string, judge: Judge, locked: Readonly
   const open = honest.filter((letter) => !locked.has(promptKey({ categoryId, letter })))
   const tiers = [open.filter((letter) => letter !== except), honest.filter((letter) => letter !== except), open, honest]
   const available = tiers.find((tier) => tier.length > 0) ?? []
-  const weight = (letter: string) => Math.log2(1 + judge.known(categoryId, letter)) * (judge.pull?.(categoryId, letter) ?? 1)
+  const weight = (letter: string) => letterWeight(judge.known(categoryId, letter)) * (judge.pull?.(categoryId, letter) ?? 1)
   return pickWeighted(rng, available, weight) ?? available[0] ?? 'A'
 }
 

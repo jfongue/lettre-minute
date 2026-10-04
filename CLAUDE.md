@@ -80,7 +80,13 @@ qu'un nouvel arrivant casserait sans le savoir.
 - **Le dictionnaire suit la langue de l'interface**, et le serveur ne connaît
   pas les langues : `cloud.ts` préfixe mots et catégories (`de:animaux`) pour
   que rareté, découvertes et mots proposés restent dans leur langue. Le
-  français garde les noms nus sous lesquels ses lignes existent déjà.
+  français garde les noms nus sous lesquels ses lignes existent déjà. Deux
+  exceptions à connaître avant de lire ces tables : `prompt_stats` garde sa
+  catégorie **nue** (sa langue est dans une colonne à elle, et son motif
+  refuse le préfixe), et un signalement de retrait nomme son mot **nu** lui
+  aussi (`propose_ban`), parce que c'est sous cette forme que
+  `banned-words.ts` le retire — `admin_words` (0042) en tire `words_unscoped`
+  et `words_bare`.
 - **L'import Wikidata est fragile par nature** : les requêtes lourdes (taxons)
   dépassent la limite serveur, et les réponses JSON reviennent parfois tronquées
   à un mégaoctet. D'où le cache par source sous `.cache/pulls`, le repli CSV à la
@@ -503,6 +509,19 @@ qu'un nouvel arrivant casserait sans le savoir.
   d'activité ou d'invitations nomme ses joueurs (`admin_slot`), filtrés
   côté client par la même règle que la série (`COUNTS`). Les fonctions
   `debug_*` (0025, 0026) restent en base, plus aucun écran ne les lit.
+- **Le tableau des mots dit ce que le dictionnaire est devenu**
+  (`src/debug/WordsBoard.tsx`) : cinq tapes rapprochées sur « Mes catégories » —
+  le titre de la page ou celui de la section — l'ouvrent par-dessus tout, comme
+  le tableau de bord, et `admin_words` (0042) ne rend rien à qui n'est pas
+  administrateur. Le serveur ne connaît que les mots déjà écrits ; c'est
+  l'écran qui charge les dictionnaires embarqués (`loadPack`) pour dire la part
+  **théorique** d'un couple lettre + catégorie (`letterShares`, `src/domain/run.ts`,
+  le poids de `drawLetter` sans la foule) et pour lister tout ce qu'une
+  catégorie accepte, usages à zéro compris. Un mot s'y signale par appui long
+  (`FlagWordCard`) et s'y propose par un bouton : les deux passent par les mêmes
+  portes que le reste du jeu — `propose_ban` et la file des propositions —,
+  sans vote ni raccourci. Outil de développeur, donc libellés français hors de
+  l'i18n ; son scénario est `words-board` dans la planche.
 - **Les planches touchées depuis la dernière version livrée sont surlignées
   en rouge, celles qu'elle n'avait pas en bleu** (`npm run debug:recent`) : le script relit les commits
   « Version X.Y.Z » de git et écrit `src/debug/recent.ts`, à commiter — la

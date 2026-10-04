@@ -8,6 +8,8 @@ export interface PlayedWord {
   points: number
   /** How long its prompt stayed up before it came; absent from runs recorded before it was kept. */
   seconds?: number
+  /** The dictionary corrected a slip to accept it; absent from runs recorded before it was kept. */
+  approximate?: boolean
 }
 
 /** A finished run, as the statistics remember it. */
@@ -37,6 +39,7 @@ export function recordOf(run: Run, at: number, lang: string): RunRecord {
       display: found.display,
       points: found.points,
       seconds: found.seconds,
+      approximate: found.approximate,
     })),
     prompts: run.settled,
   }
@@ -86,7 +89,14 @@ export function parseRecord(raw: unknown): RunRecord | null {
       if (typeof played.categoryId !== 'string' || typeof played.word !== 'string' || typeof played.display !== 'string' || points === null)
         return []
       const seconds = count(played.seconds)
-      return [{ categoryId: played.categoryId, word: played.word, display: played.display, points, ...(seconds === null ? {} : { seconds }) }]
+      return [{
+        categoryId: played.categoryId,
+        word: played.word,
+        display: played.display,
+        points,
+        ...(seconds === null ? {} : { seconds }),
+        ...(typeof played.approximate === 'boolean' ? { approximate: played.approximate } : {}),
+      }]
     }),
     ...(Array.isArray(value.prompts) ? { prompts: value.prompts.flatMap(parseSettled) } : {}),
   }

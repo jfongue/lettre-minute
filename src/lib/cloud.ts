@@ -1,6 +1,7 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
 import type { SlotEntry, Snapshot } from '../debug/snapshot'
+import type { WordsReport } from '../debug/words'
 import { parseRecord, RECENT_MIN_DAYS, RECENT_MIN_RUNS, type RunRecord } from '../domain/history'
 import { parseProgress, progressOf, type Progress } from '../domain/progress'
 import type { Leaderboard, PeriodId, PlacedRow, StatId } from '../domain/leaderboards'
@@ -11,7 +12,7 @@ import type { PromptRecord } from '../domain/prompts'
 import type { RarityTier } from '../domain/rarity'
 import { promptKey, promptOutcomes, type Run } from '../domain/run'
 import { withBotRuns } from '../state/botRuns'
-import type { PendingSubmission } from '../state/storage'
+import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
 import { googleIdToken } from './native'
 import { connect, forgetSession, supabase } from './supabase'
 import { testClient } from './testClient'
@@ -157,14 +158,28 @@ export function pushRun(run: Run, record: RunRecord, profile: Profile): Promise<
     if (error || !data) return false
 
     if (record.words.length > 0) {
-      await supabase!.from('run_words').insert(
-        record.words.map((found) => ({
-          run_id: data.id,
-          word: scoped(record.lang, found.word),
-          category_id: scoped(record.lang, found.categoryId),
-          points: found.points,
-        })),
-      )
+      const shots = record.words.map((found) => ({
+        run_id: data.id,
+        word: scoped(record.lang, found.word),
+        category_id: scoped(record.lang, found.categoryId),
+        points: found.points,
+        // Un mot que le dictionnaire a corrigé : l'écran des mots le compte à
+        // part (0042), la rareté ne le paie déjà pas.
+        approximate: found.approximate === true,
+      }))
+      // La colonne n'existe pas sur un projet d'avant 0042 : la partie passe
+      // sans elle plutôt que d'être perdue.
+      const { error: missed } = await supabase!.from('run_words').insert(shots)
+      if (missed) {
+        await supabase!.from('run_words').insert(
+          shots.map((shot) => ({
+            run_id: shot.run_id,
+            word: shot.word,
+            category_id: shot.category_id,
+            points: shot.points,
+          })),
+        )
+      }
     }
 
     // What the run says of the pairs it left: the seed never replays server
@@ -339,6 +354,44 @@ export function pushSubmissions(pending: readonly PendingSubmission[]): Promise<
     )
     return error ? [] : [...pending]
   }, [])
+}
+
+/**
+ * Un mot proposé hors d'une partie — depuis l'écran des mots, ouvert par cinq
+ * tapes sur « Mes catégories » : il attend dans la file de l'appareil quand le
+ * serveur ne répond pas, puis rejoint la modération comme n'importe quelle
+ * proposition. Rien n'est validé ici, pas même d'un modérateur.
+ *
+ * `false` : le mot est gardé sur l'appareil, il partira au prochain envoi.
+ */
+export function proposeWord(lang: string, categoryId: string, word: string): Promise<boolean> {
+  const trimmed = word.trim()
+  if (trimmed.length < 2 || categoryId === '') return Promise.resolve(false)
+
+  const entry: PendingSubmission = { word: trimmed, categoryId, at: Date.now(), lang }
+  // La file de l'appareil est une frontière comme le réseau : sans elle, rien
+  // ne s'écrit — et rien ne lève.
+  try {
+    const pending = loadSubmissions()
+    const known = (item: PendingSubmission) =>
+      item.categoryId === categoryId &&
+      (item.lang ?? 'fr') === lang &&
+      item.word.trim().toLowerCase() === trimmed.toLowerCase()
+    if (pending.some(known)) return Promise.resolve(true)
+    saveSubmissions([...pending, entry])
+  } catch {
+    return Promise.resolve(false)
+  }
+
+  return pushSubmissions([entry]).then((sent) => {
+    if (sent.length === 0) return false
+    try {
+      saveSubmissions(loadSubmissions().filter((item) => item.at !== entry.at))
+    } catch {
+      // Le mot est parti ; une file qu'on ne peut pas relire ne le rappellera pas.
+    }
+    return true
+  })
 }
 
 export type SubmissionStatus = 'pending' | 'accepted' | 'rejected'
@@ -655,6 +708,20 @@ export function fetchDashboardSlot(day: string, hour?: number): Promise<SlotEntr
     const { data, error } = await supabase!.rpc('admin_slot', { p_day: day, p_hour: hour ?? null })
     if (error || !data) return null
     return data as SlotEntry[]
+  }, null)
+}
+
+/**
+ * Le tableau des mots (`admin_words`, 0042) : ce que le tirage a donné à
+ * chaque couple lettre + catégorie, ce que les joueurs ont écrit, et ce que la
+ * modération a ajouté, retiré ou garde. `null` hors administrateur, comme
+ * `fetchDashboard`, ou sans serveur.
+ */
+export function fetchAdminWords(lang: string, category: string | null): Promise<WordsReport | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('admin_words', { p_lang: lang, p_category: category })
+    if (error || !data) return null
+    return data as WordsReport
   }, null)
 }
 

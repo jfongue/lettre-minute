@@ -6,6 +6,8 @@ import { levelFor } from '../domain/progression'
 import { categoryText, useT } from '../i18n'
 import { fetchDashboard, fetchDashboardSlot } from '../lib/cloud'
 import { Avatar } from '../ui/Avatar'
+import { Card, Kpi, Legend, Section, Stat, Table } from './board'
+import { ago, decimal, fmt, pct, share } from './format'
 import type { DayRow, HourRow, Invites, PromptRow, Prompts, SlotEntry, Snapshot } from './snapshot'
 
 /*
@@ -151,19 +153,8 @@ const KINDS: Record<string, string> = {
 const screenName = (screen: string) =>
   SCREENS[screen] ?? (screen.startsWith('menu:') ? `Menu · ${screen.slice(5)}` : screen || '?')
 
-const fmt = (value: number | null | undefined) => (value == null ? '—' : Number(value).toLocaleString('fr-FR'))
-const decimal = (value: number | null | undefined) => (value == null ? '—' : String(value).replace('.', ','))
-const pct = (part: number, whole: number) => (whole ? `${Math.round((part / whole) * 100)} %` : '—')
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1).replace('.', ',')} s`
 const dayLabel = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
-
-function ago(iso: string): string {
-  const minutes = Math.round((Date.now() - Date.parse(iso)) / 60_000)
-  if (minutes < 1) return 'à l’instant'
-  if (minutes < 60) return `il y a ${minutes} min`
-  const hours = Math.round(minutes / 60)
-  return hours < 48 ? `il y a ${hours} h` : `il y a ${Math.round(hours / 24)} jours`
-}
 
 /* ------------------------------------------------------------------ la vue */
 
@@ -855,103 +846,7 @@ function Marks({ marks }: { marks: Series[] }) {
   )
 }
 
-const share = (part: number, whole: number) => {
-  if (!whole) return '—'
-  const ratio = (part / whole) * 100
-  return `${ratio < 1 ? ratio.toFixed(2).replace('.', ',') : ratio.toFixed(1).replace('.', ',')} %`
-}
-
 /* ------------------------------------------------------------ morceaux */
-
-function Kpi({ label, value, children }: { label: string; value: string; children: ReactNode }) {
-  return (
-    <div className="dashboard-kpi">
-      <span className="dashboard-kpi-label">{label}</span>
-      <span className="dashboard-kpi-value">{value}</span>
-      <span className="note">{children}</span>
-    </div>
-  )
-}
-
-function Section({
-  title,
-  mark,
-  round = false,
-  aside,
-  children,
-}: {
-  title: string
-  mark: string
-  round?: boolean
-  aside?: ReactNode
-  children: ReactNode
-}) {
-  return (
-    <section className="dashboard-section">
-      <div className="dashboard-section-head">
-        <h2>
-          <span className="dashboard-mark" style={{ background: mark, borderRadius: round ? '50%' : 0 }} aria-hidden="true" />
-          {title}
-        </h2>
-        {aside}
-      </div>
-      {children}
-    </section>
-  )
-}
-
-function Card({ title, tag, note, children }: { title: string; tag?: string; note?: string; children: ReactNode }) {
-  return (
-    <div className="dashboard-card">
-      <h3>
-        {title} {tag && <span className="dashboard-tag">{tag}</span>}
-      </h3>
-      {note && <p className="note">{note}</p>}
-      {children}
-    </div>
-  )
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="dashboard-stat">
-      <b>{value}</b>
-      <span>{label}</span>
-    </div>
-  )
-}
-
-function Legend({ items }: { items: { label: string; color: string }[] }) {
-  return (
-    <div className="dashboard-legend">
-      {items.map((item) => (
-        <span key={item.label}>
-          <i style={{ background: item.color }} />
-          {item.label}
-        </span>
-      ))}
-    </div>
-  )
-}
-
-function Table({ head, children }: { head: string[]; children: ReactNode }) {
-  return (
-    <div className="dashboard-table">
-      <table>
-        <thead>
-          <tr>
-            {head.map((cell, index) => (
-              <th key={cell} className={index > 0 && cell !== 'Inscrit' && cell !== 'Dernière' ? 'n' : undefined}>
-                {cell}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>{children}</tbody>
-      </table>
-    </div>
-  )
-}
 
 /** Une liste à barres ; au-delà de `limit`, « Voir les N lignes ». */
 function Bars<T>({

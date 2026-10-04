@@ -70,6 +70,8 @@ const ARGS: Record<string, unknown[]> = {
   pushRun: [RUN, RECORD, NEW_PROFILE],
   fetchMyRuns: [],
   pushSubmissions: [[{ word: 'dahu', categoryId: 'animaux', at: 1, lang: 'fr' }]],
+  proposeWord: ['fr', 'animaux', 'dahu'],
+  fetchAdminWords: ['fr', null],
   castVote: ['review-1', 'correct'],
   answerModeratorOffer: ['level', true],
   inviteModerator: ['ami'],

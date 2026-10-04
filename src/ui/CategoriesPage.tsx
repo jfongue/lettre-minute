@@ -11,6 +11,7 @@ import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
 import { PlusPop } from './PlusPop'
 import { useBackDismiss } from './useBackDismiss'
+import { useHiddenTaps } from './useHiddenTaps'
 
 export interface BanActions {
   onBan(categoryId: string): void
@@ -19,7 +20,14 @@ export interface BanActions {
   onJoinPlus(): void
 }
 
-export function CategoriesPage({ profile, onBan, onUnban, onIntroSeen, onJoinPlus }: { profile: Profile } & BanActions) {
+export function CategoriesPage({
+  profile,
+  onHidden,
+  onBan,
+  onUnban,
+  onIntroSeen,
+  onJoinPlus,
+}: { profile: Profile; /** Cinq tapes rapprochées sur le titre : le tableau des mots, caché comme la planche. */ onHidden(): void } & BanActions) {
   const t = useT()
   const owned = ownedCategoryIds(profile)
   const banning = banUnlocked(owned)
@@ -28,6 +36,7 @@ export function CategoriesPage({ profile, onBan, onUnban, onIntroSeen, onJoinPlu
   const [intro, setIntro] = useState(() => banNews(profile, owned))
   const [plusFor, setPlusFor] = useState<string | null>(null)
   const [warning, setWarning] = useState<'floor' | 'max' | null>(null)
+  const tapTitle = useHiddenTaps()
 
   useEffect(() => {
     if (intro) onIntroSeen()
@@ -53,7 +62,12 @@ export function CategoriesPage({ profile, onBan, onUnban, onIntroSeen, onJoinPlu
   return (
     <section className="stack">
       <div className="spread">
-        <p className="section-title">
+        <p
+          className="section-title"
+          onClick={() => {
+            if (tapTitle()) onHidden()
+          }}
+        >
           {t.home.myCategories}
           {isPlus(profile) && <span className="plus-badge">{t.plus.badge}</span>}
         </p>
