@@ -23,11 +23,7 @@ const SEALED_MS = 2600
 
 type Phase = 'choosing' | 'leaving' | 'sealed'
 
-/**
- * The categories' ritual, with two cards instead of three. Touching a card
- * plays the power's own sound and shows its own motion: the player hears and
- * sees what it will do in a run before keeping it.
- */
+/** Two clear options, with each power's impact and use limits visible before the choice. */
 export function PowerOfferScreen({ onChoose, onDone, ...dealt }: PowerOfferScreenProps) {
   const t = useT()
   // Read once: the pick empties the offer, and the celebration still shows the cards.
@@ -57,7 +53,7 @@ export function PowerOfferScreen({ onChoose, onDone, ...dealt }: PowerOfferScree
     sound.power(id)
   }
 
-  // Kept before anything plays, as for a category: leaving now must not cost the power.
+  // Keep the pick before the celebration: leaving now must not cost the power.
   const confirm = () => {
     if (!selected || phase !== 'choosing') return
     onChoose(selected)
@@ -72,13 +68,15 @@ export function PowerOfferScreen({ onChoose, onDone, ...dealt }: PowerOfferScree
       onClick={phase === 'sealed' ? () => finish.current() : undefined}
       role="presentation"
     >
-      <header className="unlock-head">
+            <header className="unlock-head power-offer-head">
         <Shape kind="sun" tint="yellow" className="unlock-head-sun" />
         <p className="eyebrow">
           {level !== null ? t.over.levelReached(level) : t.over.levelUp}
-          {owed > 1 && ` · ${t.offer.more(owed - 1)}`}
+          
         </p>
         <h1 className="unlock-title">{t.powers.offerTitle}</h1>
+        <p className="power-offer-lead">{t.powers.offerLead}</p>
+        {owed > 1 && <p className="power-offer-queue">{t.offer.more(owed - 1)}</p>}
       </header>
 
       {phase === 'sealed' && selected ? (
@@ -132,7 +130,7 @@ export function PowerOfferScreen({ onChoose, onDone, ...dealt }: PowerOfferScree
       )}
 
       {phase === 'choosing' && (
-        <div className="stack unlock-actions">
+        <div className="stack unlock-actions power-offer-actions">
           <button type="button" className="btn btn--play btn--block" disabled={!selected} onClick={confirm}>
             <span>{selected ? t.offer.confirm : t.offer.pickFirst}</span>
             <span className="play-glyph unlock-glyph" aria-hidden="true">

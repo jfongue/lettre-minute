@@ -17,11 +17,15 @@ import { HomeScreen, POSTER } from '../ui/HomeScreen'
 import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
 import { OverScreen, type RunProposal } from '../ui/OverScreen'
+import { PowerOfferScreen } from '../ui/PowerOfferScreen'
 import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
 import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
 import { PushOffer } from '../ui/PushOffer'
 import { OldChallengeList, StatsPage } from '../ui/StatsPage'
+import { DailyEventCard, DailyEventPage } from '../ui/DailyEventCard'
+import { PremiumPage } from '../ui/PremiumPage'
+import { PremiumStats } from '../ui/PremiumStats'
 import { ChallengeSetup, type ChallengeRules } from '../ui/ChallengeSetup'
 import { FriendPicker } from '../ui/FriendPicker'
 import { FriendPage } from '../ui/FriendPage'
@@ -1110,12 +1114,17 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'over-power',
     group: 'Fin de partie',
     title: 'Proposition de pouvoir',
-    how: 'Passage au niveau 5 : deux cartes de pouvoir',
+    how: 'Deux cartes, effet et usages visibles ; choix confirmé puis pouvoir animé',
     phase: 'over',
-    render: (back) => {
-      const [before, after] = levelUp(4, 5)
-      return <OverScenario before={{ ...before, powers: ['joker'] }} after={{ ...after, powers: ['joker'], powerOffer: ['hush', 'divination'] }} onBack={back} />
-    },
+    render: (back) => (
+      <PowerOfferScreen
+        offer={['hush', 'divination']}
+        owed={1}
+        level={5}
+        onChoose={noop}
+        onDone={back}
+      />
+    ),
   },
   {
     id: 'over-both',
@@ -1616,6 +1625,58 @@ const SCENARIOS: readonly Scenario[] = [
     render: () => <BansScenario seen plus every banned={['pays', 'animaux', 'couleurs', 'sports', 'marques']} />,
   },
   {
+    id: 'premium-page',
+    group: 'Accueil',
+    title: 'Page Premium',
+    how: 'Le tiroir, sur la page Premium : la promesse, le prix et ses avantages — aucun paiement',
+    phase: 'home',
+    render: (back) => (
+      <div className="sheet">
+        <div className="stack">
+          <button type="button" className="btn btn--quiet" onClick={back}>
+            Retour
+          </button>
+          <PremiumPage />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'premium-stats',
+    group: 'Accueil',
+    title: 'Statistiques Premium',
+    how: 'Les analyses avancées : période, couples catégorie + lettre passés, courbe des derniers scores',
+    phase: 'home',
+    render: (back) => (
+      <div className="sheet">
+        <div className="stack">
+          <button type="button" className="btn btn--quiet" onClick={back}>
+            Retour
+          </button>
+          <PremiumStats history={STATS_HISTORY} onOpenPremium={back} />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'daily-event',
+    group: 'Accueil',
+    title: 'Défi du jour',
+    how: 'La carte sous « Jouer » et sa page : même défi pour tous, 1 tentative gratuite et 5 Premium par jour',
+    phase: 'home',
+    render: (back) => (
+      <div className="sheet">
+        <div className="stack">
+          <button type="button" className="btn btn--quiet" onClick={back}>
+            Retour
+          </button>
+          <DailyEventCard onOpen={back} />
+          <DailyEventPage onOpenPremium={back} />
+        </div>
+      </div>
+    ),
+  },
+  {
     id: 'plus-pop',
     group: 'Accueil',
     title: 'Offre Premium',
@@ -1797,6 +1858,7 @@ function DebugHome({
       onChallenge={noop}
       onCreateChallenge={noop}
       onPastChallenges={noop}
+onDailyEvent={noop}
       onMenu={back}
       onPlay={back}
       onEquip={noop}

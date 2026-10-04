@@ -11,6 +11,7 @@ import { CategoryIcon } from './CategoryIcon'
 import { fetchChallenge, type ChallengeSummary } from '../lib/cloud'
 import { challengeTitle, isHidden, loadWinners, rememberWinner, winnerOf, type ChallengeWinner } from '../state/challenges'
 import { useHiddenChallenges } from '../state/useHiddenChallenges'
+import { PremiumStats } from './PremiumStats'
 
 /** Rows added each time the history is asked for more, from the device or the account. */
 const PAGE = 30
@@ -35,6 +36,7 @@ interface StatsPageProps {
   loadOlder?(before: number, limit: number): Promise<RunRecord[] | null>
   /** What a past run's summary needs to show the words it could have taken. */
   recap: RecapActions
+onPremium?(): void
 }
 
 export interface RecapActions {
@@ -55,6 +57,7 @@ export function StatsPage({
   onBoards,
   loadOlder,
   recap,
+onPremium,
 }: StatsPageProps) {
   const t = useT()
   const [opened, setOpened] = useState<RunRecord | null>(null)
@@ -76,7 +79,8 @@ export function StatsPage({
   if (opened) return <RunRecap run={opened} actions={recap} onBack={() => setOpened(null)} />
   return (
     <>
-      {onBoards && (
+      {onPremium && <PremiumStats history={history} onOpenPremium={onPremium} />}
+ {onBoards && (
         <button type="button" className="btn btn--blue btn--block" onClick={onBoards}>
           {t.boards.all}
         </button>

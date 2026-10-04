@@ -1450,7 +1450,8 @@ export function App() {
           challenges={named ? challenges : null}
           onChallenge={setChallengeOpen}
           onCreateChallenge={() => openCreate()}
-          onPastChallenges={() => {
+          onDailyEvent={() => setMenuPage('event')}
+onPastChallenges={() => {
             setMenuFocus(true)
             setMenuPage('stats')
           }}

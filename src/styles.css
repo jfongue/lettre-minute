@@ -2977,6 +2977,23 @@ button.challenge-past::after {
 /* Cent tuiles qui bougent en même temps saturent l'œil : une case verrouillée
    se tait, seules celles qu'on possède s'animent. */
 .avatar--locked .avatar-art {
+animation: none;
+}
+
+/* Le cercle roule sur l’arête courbe du quart de cercle. */
+.motion-roll svg {
+transform-box: fill-box;
+transform-origin: 16% 84%;
+animation: avatar-roll 4s ease-in-out infinite;
+animation-delay: calc(var(--i, 0) * -0.6s);
+}
+
+@keyframes avatar-roll {
+0%, 100% { transform: translate(0, 0) rotate(0); }
+50% { transform: translate(13%, 0) rotate(90deg); }
+}
+
+.avatar--locked .motion-roll svg {
   animation: none;
 }
 
@@ -3395,6 +3412,169 @@ button.challenge-past::after {
 }
 
 /* ---------------------------------------------------------------- unlock - */
+.power-offer-head {
+  max-width: 34rem;
+  margin-inline: auto;
+}
+
+.power-offer-lead {
+  max-width: 28rem;
+  margin-top: 0.35rem;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.power-cards {
+  width: min(100%, 38rem);
+  gap: 1rem;
+  margin-inline: auto;
+}
+
+.power-card {
+  min-height: 14rem;
+  align-content: start;
+  gap: 0.7rem;
+  padding: 1rem;
+  border: 2px solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  transition: transform 240ms var(--ease-spring), opacity 240ms ease, box-shadow 200ms ease;
+}
+
+.power-card:hover {
+  transform: translateY(-3px);
+}
+
+.power-card:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.power-card span {
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.power-card-uses {
+  margin-top: auto;
+  padding-top: 0.65rem;
+  border-top: 1px solid color-mix(in srgb, var(--ink) 24%, transparent);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.power-card-art {
+  display: grid;
+  place-items: center;
+  width: 4.1rem;
+  height: 4.1rem;
+  padding: 0.75rem;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.power-card .unlock-card-shape {
+  width: 100%;
+  height: 100%;
+}
+
+.power-card.unlock-card--selected,
+.power-card.unlock-card--selected:hover {
+  transform: translateY(-5px) scale(1.025);
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--ink), 7px 10px 0 var(--blue);
+}
+
+.power-card.unlock-card--selected .power-card-art {
+  animation: var(--power-gesture, pop-in) 900ms var(--ease-out) both;
+}
+
+.power-card.unlock-card--selected .unlock-card-shape {
+  transform: none;
+}
+
+.power-offer-actions {
+  width: min(100%, 30rem);
+  margin-inline: auto;
+}
+
+@media (max-width: 34rem) {
+  .power-picker {
+    width: min(100%, 30rem);
+    gap: 0.55rem;
+    padding: 1rem 0.85rem 0.85rem;
+  }
+
+  .power-picker .power-list {
+    gap: 0.4rem;
+  }
+
+  .power-row {
+    gap: 0.55rem;
+    padding: 0.5rem;
+  }
+
+  .power-row-icon {
+    width: 2.45rem;
+    height: 2.45rem;
+  }
+
+  .power-offer {
+    min-height: auto;
+    align-content: start;
+    gap: 1.25rem;
+    padding-top: max(1rem, env(safe-area-inset-top));
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .power-offer .unlock-head-sun {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .power-offer .unlock-title {
+    font-size: clamp(2rem, 10vw, 2.8rem);
+  }
+
+  .power-cards {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    max-width: 28rem;
+  }
+
+  .power-card {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto 1fr;
+    align-items: center;
+    column-gap: 0.85rem;
+    row-gap: 0.3rem;
+    padding: 0.8rem;
+  }
+
+  .power-card-art {
+    grid-row: 1 / span 3;
+    width: 3.25rem;
+    height: 3.25rem;
+    padding: 0.6rem;
+  }
+
+  .power-card strong {
+    align-self: end;
+  }
+
+  .power-card > span:not(.power-card-art):not(.unlock-card-check) {
+    grid-column: 2;
+  }
+
+  .power-card-uses {
+    padding-top: 0.35rem;
+  }
+}
+
 .unlock-screen {
   min-height: 86dvh;
   align-content: center;
@@ -4755,6 +4935,38 @@ button.challenge-past::after {
 }
 
 /* --------------------------------------------------------------- powers - */
+.power-picker-lead {
+  max-width: 24rem;
+  margin: -0.2rem auto 0.35rem;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.power-picker .power-list {
+  width: 100%;
+}
+
+.power-row {
+  border-radius: 0;
+  transition: transform 160ms var(--ease-spring), box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.power-row:hover {
+  transform: translateX(2px);
+}
+
+.power-row--here {
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 var(--blue);
+}
+
+.power-row:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
 /* Chaque pouvoir a sa couleur (motifs.ts), son icône (PowerIcon.tsx), son
    son (sound.ts) et son geste, ici : la même grammaire sur sa carte, son
    emplacement, sa pastille en partie et l'effet qu'il produit. Les formes
@@ -4823,6 +5035,38 @@ button.challenge-past::after {
 .power-slot-name {
   min-width: 0;
   overflow-wrap: anywhere;
+}
+
+.power-picker-lead {
+  max-width: 24rem;
+  margin: -0.2rem auto 0.35rem;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.power-picker .power-list {
+  width: 100%;
+}
+
+.power-row {
+  border-radius: 0;
+  transition: transform 160ms var(--ease-spring), box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.power-row:hover {
+  transform: translateX(2px);
+}
+
+.power-row--here {
+  border-color: var(--ink);
+  box-shadow: 4px 4px 0 var(--blue);
+}
+
+.power-row:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
 }
 
 .power-picker {
@@ -5897,6 +6141,28 @@ button.challenge-past::after {
   background: var(--blue);
   border-color: var(--blue);
   color: var(--cream);
+}
+
+@media (max-width: 34rem) {
+  .power-picker {
+    width: min(100%, 30rem);
+    gap: 0.55rem;
+    padding: 1rem 0.85rem 0.85rem;
+  }
+
+  .power-picker .power-list {
+    gap: 0.4rem;
+  }
+
+  .power-row {
+    gap: 0.55rem;
+    padding: 0.5rem;
+  }
+
+  .power-row-icon {
+    width: 2.45rem;
+    height: 2.45rem;
+  }
 }
 
 .power-picker .power-list {
@@ -8080,4 +8346,163 @@ button.challenge-word[aria-expanded='true'] {
 
 .achievement-icon .motion {
   animation: none !important;
+}
+
+/* ------------------------------------------------- défi du jour, premium - */
+.daily-event-card {
+  appearance: none;
+  display: grid;
+  grid-template-columns: clamp(2.5rem, 11vw, 3.5rem) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 4.25rem;
+  padding: 0.5rem 0.55rem 0.5rem 0.5rem;
+  border: 3px solid var(--ink);
+  background: var(--paper-2);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    transform 220ms var(--ease-spring),
+    box-shadow 220ms var(--ease-out);
+}
+
+.daily-event-art {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+}
+
+.daily-event-art > * {
+  width: 78%;
+  animation: tile-bob 3.4s ease-in-out infinite;
+}
+
+.daily-event-copy {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.daily-event-copy strong {
+  font-size: clamp(0.9rem, 3.6vw, 1.05rem);
+}
+
+.daily-event-arrow {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.daily-event-card:hover,
+.daily-event-card:focus-visible {
+  transform: translate(-4px, -4px) rotate(-1deg);
+  box-shadow: 6px 6px 0 var(--ink);
+  outline: none;
+}
+
+.daily-event-page header h2 {
+  margin: 0;
+}
+
+.daily-event-panel {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.premium-hero {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: start;
+  padding: 1rem;
+  border: 3px solid var(--ink);
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.premium-hero > .shape {
+  width: 2.6rem;
+}
+
+.premium-hero h2 {
+  margin: 0;
+}
+
+.premium-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.premium-perks {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.premium-perks li {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.premium-perks .shape {
+  width: 1.6rem;
+}
+
+.premium-note {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.premium-stats-intro h3 {
+  margin: 0;
+}
+
+.premium-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.35rem;
+  height: 5rem;
+  padding: 0.4rem;
+  border: 3px solid var(--ink);
+  background: var(--paper-2);
+}
+
+.premium-chart > span {
+  flex: 1;
+  min-width: 0.4rem;
+  height: var(--bar, 10%);
+  background: var(--blue);
+}
+
+.premium-pairs {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.premium-pairs li {
+  display: grid;
+  grid-template-columns: 1.4rem 1.6rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.premium-pairs .shape {
+  width: 1.6rem;
+}
+
+.premium-pair-copy {
+  display: grid;
+  min-width: 0;
+}
+
+.premium-pair-rank {
+  font-weight: 700;
 }

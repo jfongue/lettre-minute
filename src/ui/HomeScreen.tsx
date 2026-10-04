@@ -16,8 +16,9 @@ import { PowerSlots } from './PowerSlots'
 import type { PowerId } from '../domain/powers'
 import { useHiddenTaps } from './useHiddenTaps'
 import { useSwipe } from './useSwipe'
+import { DailyEventCard } from './DailyEventCard'
 
-const HOME_LINKS: readonly LinkedPage[] = ['profile', 'stats', 'requests', 'categories']
+const HOME_LINKS: readonly LinkedPage[] = ['profile', 'stats', 'requests', 'categories', 'premium']
 
 // Long enough for the poster's tiles and the title to have landed.
 const INTRO_MS = 650
@@ -51,6 +52,7 @@ interface HomeScreenProps {
   onChallenge(id: string): void
   onCreateChallenge(): void
   onPastChallenges(): void
+onDailyEvent(): void
   onMenu(page?: MenuPage): void
   onPlay(): void
   onEquip(slot: number, powerId: PowerId | null): void
@@ -79,6 +81,7 @@ export function HomeScreen({
   onChallenge,
   onCreateChallenge,
   onPastChallenges,
+onDailyEvent,
   onMenu,
   onPlay,
   onEquip,
@@ -136,6 +139,7 @@ export function HomeScreen({
             </button>
             {error && <p className="note note--warn">{error}</p>}
             <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} />
+<DailyEventCard onOpen={onDailyEvent} />
           </div>
 
           {challenges && (

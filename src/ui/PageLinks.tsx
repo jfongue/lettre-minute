@@ -5,12 +5,20 @@ import { Avatar } from './Avatar'
 import { Shape } from './bauhaus'
 import { onTint, type ShapeKind, type Tint } from './motifs'
 
-export type LinkedPage = 'profile' | 'stats' | 'requests' | 'categories'
+export type LinkedPage = 'profile' | 'stats' | 'requests' | 'categories' | 'premium'
+type LabelPage = Exclude<LinkedPage, 'premium'>
 
 const LOOKS: Record<Exclude<LinkedPage, 'profile'>, { kind: ShapeKind; tint: Tint; ground: Tint }> = {
   stats: { kind: 'bars', tint: 'black', ground: 'yellow' },
   requests: { kind: 'quarter', tint: 'cream', ground: 'blue' },
   categories: { kind: 'circle', tint: 'yellow', ground: 'red' },
+premium: { kind: 'sun', tint: 'red', ground: 'pink' },
+}
+
+function labelOf(t: ReturnType<typeof useT>, page: LinkedPage): string {
+ if (page === 'premium') return t.menu.pages.premium
+ const ordinary: LabelPage = page
+ return t.home.links[ordinary]
 }
 
 interface PageLinksProps {
@@ -41,7 +49,7 @@ export function PageLinks({ pages, avatar, badges, queueAlert = false, onOpen }:
             className={`page-link page-link--${page}`}
             style={{ background: `var(--${ground})`, color: `var(--${onTint(ground)})`, '--i': index } as CSSProperties}
             onClick={() => onOpen(page)}
-            aria-label={badge > 0 ? `${t.home.links[page]} · ${t.home.news(badge)}` : alert ? `${t.home.links[page]} · ${t.home.queueWaiting}` : undefined}
+            aria-label={badge > 0 ? `${labelOf(t, page)} · ${t.home.news(badge)}` : alert ? `${labelOf(t, page)} · ${t.home.queueWaiting}` : undefined}
           >
             <span className="page-link-art">
               {page === 'profile' && avatar ? (
@@ -50,7 +58,7 @@ export function PageLinks({ pages, avatar, badges, queueAlert = false, onOpen }:
                 look && <Shape kind={look.kind} tint={look.tint} />
               )}
             </span>
-            <span className="page-link-label">{t.home.links[page]}</span>
+            <span className="page-link-label">{labelOf(t, page)}</span>
             {badge > 0 && (
               <span className="page-link-badge" aria-hidden="true">
                 {badge}

@@ -53,6 +53,7 @@ export type Motion =
   | 'swing'
   | 'breathe'
   | 'nod'
+| 'roll'
 
 /** One tile of the poster: a shape, turned by quarters, with an optional small accent in a corner. */
 export interface AvatarDesign {
@@ -126,11 +127,12 @@ const LOOKS: readonly Look[] = [
   ['ring', 0, 'square', 'spin'],
   ['half', 0, 'circle', 'bob'],
   ['bars', 0, 'triangle', 'still'],
-  ['quarter', 0, 'circle', 'sway'],
+  ['quarter', 0, 'circle', 'roll'],
   ['sun', 0, 'square', 'pulse'],
   ['arch', 0, 'square', 'still'],
   ['triangle', 0, 'circle', 'bob'],
   ['corner', 0, 'square', 'pulse'],
+
   ['half', 2, 'sun', 'sway'],
   ['triangle', 0, 'sun', 'still'],
   ['circle', 0, 'sun', 'spin'],

@@ -46,14 +46,16 @@ import { DonateButton } from './Donate'
 import { useHiddenTaps } from './useHiddenTaps'
 import { useSwipe } from './useSwipe'
 import { Avatar } from './Avatar'
+import { DailyEventPage } from './DailyEventCard'
+import { PremiumPage } from './PremiumPage'
 
 export type MenuPane = 'profile' | 'social' | 'options'
 /** A page opened from the profile, which leads back to it. */
-export type ProfilePage = 'stats' | 'requests' | 'categories' | 'boards'
+export type ProfilePage = 'stats' | 'requests' | 'categories' | 'boards' | 'premium' | 'event'
 export type MenuPage = MenuPane | ProfilePage
 
 const PANES: readonly MenuPane[] = ['profile', 'social', 'options']
-const PROFILE_PAGES: readonly Exclude<ProfilePage, 'boards'>[] = ['stats', 'requests', 'categories']
+const PROFILE_PAGES: readonly Exclude<ProfilePage, 'boards' | 'event'>[] = ['stats', 'premium', 'requests', 'categories']
 
 function isPane(page: MenuPage): page is MenuPane {
   return (PANES as readonly string[]).includes(page)
@@ -211,7 +213,9 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               </h2>
             </div>
           )}
-          {sub === 'stats' && (
+          {sub === 'premium' && <PremiumPage />}
+{sub === 'event' && <DailyEventPage onOpenPremium={() => open('premium', 'event')} />}
+{sub === 'stats' && (
             <StatsPage
               history={props.history}
               profile={props.profile}
@@ -221,6 +225,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               onRefresh={props.onStatsRefresh}
               loadOlder={props.onStatsOlder}
               recap={props.statsRecap}
+onPremium={() => open('premium', 'stats')}
               onBoards={props.account ? () => open('boards', 'stats') : undefined}
             />
           )}
