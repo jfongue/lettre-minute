@@ -52,7 +52,10 @@ n'écrit rapportent le plus.
   ×1,3), Célérité (un mot accepté se valide seul, faute comprise, sauf
   s'il ne lui manque qu'une lettre) et Bavardage (« ... » après un mot garde la
   lettre et le thème pour trois mots de plus, qu'on quitte sans pénalité,
-  une fois). Chacun a sa couleur, son
+  une fois), Retardataire (un mot validé dans les cinq dernières secondes rend
+une seconde, cinq au plus par partie), Passe-passe (après un passage, le
+suivant est gratuit, une fois) et Sans faute (trois mots justes écrits sans
+faute de frappe rendent aussitôt 10 points, toute la partie). Chacun a sa couleur, son
   icône, son geste et son son, qu'on entend en touchant sa carte.
 - **Fin de partie en deux temps** : le score, puis chaque mot trouvé, un par
   un — un mot que le joueur a lui-même fait entrer au dictionnaire s'y signale

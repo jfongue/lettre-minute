@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type Ref } from 'react'
+import { createPortal } from 'react-dom'
 import { listedHistory, mergeHistory, summarize, type RunRecord } from '../domain/history'
 import type { HiddenAnswer } from '../domain/perks'
 import { capitalized, normalizeWord } from '../domain/text'
@@ -8,12 +9,22 @@ import { Figure, LetterMark } from './bauhaus'
 import { HiddenAnswers } from './HiddenAnswers'
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
-import { fetchChallenge, type ChallengeSummary } from '../lib/cloud'
+import { fetchChallenge, type BanOutcome, type ChallengeSummary } from '../lib/cloud'
 import { challengeTitle, isHidden, loadWinners, rememberWinner, winnerOf, type ChallengeWinner } from '../state/challenges'
 import { useHiddenChallenges } from '../state/useHiddenChallenges'
+import { useBackDismiss } from './useBackDismiss'
+import { useLongPress } from './useLongPress'
 
 /** Rows added each time the history is asked for more, from the device or the account. */
 const PAGE = 30
+
+/** A word a moderator can flag: one the run said, or one its prompts still had. */
+export interface FlagWord {
+  categoryId: string
+  /** The dictionary's own key (`WordEntry.key`), which is what a ban targets. */
+  word: string
+  display: string
+}
 
 function formatDate(t: Messages, at: number): string {
   return new Date(at).toLocaleString(t.tag, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
@@ -26,6 +37,8 @@ interface StatsPageProps {
   challenges: readonly ChallengeSummary[] | null
   /** Opened from the home screen's challenges: the old ones show, unfolded. */
   focusChallenges?: boolean
+  /** The run's summary open from the start, which the debug board shows directly. */
+  openRun?: RunRecord
   onChallenge(id: string): void
   /** Relit les parties du compte : la page la redemande à chaque ouverture. */
   onRefresh?(): Promise<unknown>
@@ -43,6 +56,12 @@ export interface RecapActions {
   peeks: number
   onPeek(): void
   onJoinPlus(): void
+  /**
+   * Signals one of the run's words — said, or still hidden — to the other
+   * moderators, with the reason the card asks for; absent for a player who is
+   * not one, which is what keeps the recap from offering it.
+   */
+  onFlag?(run: RunRecord, word: FlagWord, reason: string): Promise<BanOutcome>
 }
 
 export function StatsPage({
@@ -50,6 +69,7 @@ export function StatsPage({
   profile,
   challenges,
   focusChallenges = false,
+  openRun,
   onChallenge,
   onRefresh,
   onBoards,
@@ -57,7 +77,7 @@ export function StatsPage({
   recap,
 }: StatsPageProps) {
   const t = useT()
-  const [opened, setOpened] = useState<RunRecord | null>(null)
+  const [opened, setOpened] = useState<RunRecord | null>(openRun ?? null)
   // Une lecture en cours ne dit pas « tu n'as rien joué » : elle attend son
   // tour. Sans rappel, la page n'a que ce que l'appareil a gardé.
   const [reading, setReading] = useState(Boolean(onRefresh) && history.length === 0)
@@ -359,6 +379,8 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
   // Runs recorded before their prompts were kept have nothing to hide.
   const [hidden, setHidden] = useState<readonly HiddenAnswer[] | null>(run.prompts ? null : [])
   const hiddenFor = useRef(actions.hiddenFor)
+  const [flagged, setFlagged] = useState<FlagWord | null>(null)
+  const onFlag = actions.onFlag
 
   useEffect(() => {
     if (!run.prompts) return
@@ -370,6 +392,10 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
       live = false
     }
   }, [run])
+
+  // A word only leaves the game at the next dictionary build: the flag opens a
+  // card rather than acting on the tap that ends it.
+  const press = useLongPress<FlagWord>((word) => setFlagged(word))
 
   return (
     <div className="stack run-recap">
@@ -383,12 +409,13 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
         </strong>
         <span className="note">{t.stats.runLine(run.words.length, run.bestCombo)}</span>
       </header>
+      {onFlag && <p className="note">{t.moderation.flag.hint}</p>}
       {run.words.length > 0 && (
         <section className="stack">
           <p className="section-title">{t.stats.recapWords}</p>
           <ol className="reveal-words">
             {run.words.map((word, index) => (
-              <li key={`${word.word}-${index}`} className="reveal-word">
+              <li key={`${word.word}-${index}`} className="reveal-word" {...(onFlag ? press(word) : {})}>
                 <LetterMark letter={normalizeWord(word.display).charAt(0).toUpperCase()} motif={categoryMotif(word.categoryId)} size="sm" />
                 <span className="reveal-word-text">
                   {capitalized(word.display)}
@@ -403,8 +430,94 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
       {hidden === null ? (
         <p className="note">{t.loading}</p>
       ) : (
-        hidden.length > 0 && <HiddenAnswers hidden={hidden} peeks={actions.peeks} onPeek={actions.onPeek} onJoinPlus={actions.onJoinPlus} />
+        hidden.length > 0 && (
+          <HiddenAnswers
+            hidden={hidden}
+            peeks={actions.peeks}
+            onPeek={actions.onPeek}
+            onJoinPlus={actions.onJoinPlus}
+            onFlag={onFlag && ((answer) => setFlagged(answer))}
+          />
+        )
+      )}
+      {flagged && onFlag && (
+        <FlagWordCard
+          word={flagged}
+          category={categoryText(t, flagged.categoryId).label}
+          onFlag={(reason) => onFlag(run, flagged, reason)}
+          onClose={() => setFlagged(null)}
+        />
       )}
     </div>
+  )
+}
+
+/**
+ * A word of the recap flagged for removal: the moderator confirms and says why,
+ * and the others judge it in « Mes demandes » — as many votes as an addition,
+ * with his reason on the card. Exported so the debug board can show it alone.
+ */
+export function FlagWordCard({
+  word,
+  category,
+  onFlag,
+  onClose,
+}: {
+  word: FlagWord
+  category: string
+  onFlag(reason: string): Promise<BanOutcome>
+  onClose(): void
+}) {
+  const t = useT()
+  const [step, setStep] = useState<'ask' | 'busy' | BanOutcome>('ask')
+  const [reason, setReason] = useState('')
+  useBackDismiss(onClose)
+
+  const confirm = async () => {
+    setStep('busy')
+    setStep(await onFlag(reason))
+  }
+
+  return createPortal(
+    <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="flag-word-title">
+      <div className="offer-pop-scrim" onClick={onClose} />
+      <div className="offer-pop">
+        <h2 id="flag-word-title" className="offer-pop-title">
+          {t.moderation.flag.title}
+        </h2>
+        {step === 'ask' || step === 'busy' ? (
+          <>
+            <p>{t.moderation.flag.lead(capitalized(word.display), category)}</p>
+            <label className="flag-reason" htmlFor="flag-reason">
+              <span className="note">{t.moderation.flag.reasonLabel}</span>
+              <textarea
+                id="flag-reason"
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                placeholder={t.moderation.flag.reasonPlaceholder}
+                maxLength={140}
+                rows={2}
+              />
+            </label>
+            <div className="offer-pop-actions">
+              <button type="button" className="btn btn--ghost" onClick={onClose}>
+                {t.cancel}
+              </button>
+              <button type="button" className="btn btn--red" onClick={confirm} disabled={step === 'busy'}>
+                {t.moderation.flag.confirm}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>{t.moderation.flag.said[step]}</p>
+            <button type="button" className="btn btn--ghost btn--block" onClick={onClose}>
+              {t.moderation.flag.close}
+            </button>
+          </>
+        )}
+      </div>
+    </div>,
+    document.body,
   )
 }

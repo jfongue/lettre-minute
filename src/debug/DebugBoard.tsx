@@ -1,13 +1,13 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { DEFAULT_AVATAR, type AvatarChoice } from '../domain/avatar'
 import type { ChallengeWord } from '../domain/challenge'
 import { choosePower } from '../domain/powers'
 import { NEW_PROFILE, xpForLevel, type Profile } from '../domain/progression'
-import type { RunRecord } from '../domain/history'
+import type { PlayedWord, RunRecord } from '../domain/history'
 import type { RarityTier } from '../domain/rarity'
 import type { KeptWord, Run } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
-import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, Submission, SubmissionStatus } from '../lib/cloud'
+import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, ReviewCard, Submission, SubmissionStatus } from '../lib/cloud'
 import type { AccountActions } from '../ui/AccountPanel'
 import { ChallengeNotice } from '../ui/ChallengeHome'
 import { ChallengePowers } from '../ui/ChallengePowers'
@@ -16,13 +16,14 @@ import { PowerGiftPop, ShareNewsPop, WordsNewsPop } from '../ui/WordsNews'
 import { HomeScreen, POSTER } from '../ui/HomeScreen'
 import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
+import { ModerationScreen } from '../ui/ModerationScreen'
 import { OverScreen, type RunProposal } from '../ui/OverScreen'
 import { PowerOfferScreen } from '../ui/PowerOfferScreen'
 import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
 import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
 import { PushOffer } from '../ui/PushOffer'
-import { OldChallengeList, StatsPage } from '../ui/StatsPage'
+import { FlagWordCard, OldChallengeList, StatsPage } from '../ui/StatsPage'
 import { DailyEventCard, DailyEventPage } from '../ui/DailyEventCard'
 import { PremiumPage } from '../ui/PremiumPage'
 import { PremiumStats } from '../ui/PremiumStats'
@@ -185,12 +186,15 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     bestCombo: 4,
     score,
     powers: [],
-    charges: {},
+    charges: { latecomer: 5 },
     joker: null,
     hush: null,
     heldSeconds: 0,
     rerolls: 0,
     chatter: 0,
+latecomerSeconds: 0,
+flawlessStreak: 0,
+freeSkipReady: false,
   }
 }
 
@@ -265,6 +269,8 @@ const STATS_RECAP = {
   peeks: 5,
   onPeek: noop,
   onJoinPlus: noop,
+  // Un signalement de mot ne s'écrit pas depuis la planche : la carte répond seule.
+  onFlag: () => later('sent' as const),
 }
 
 /** The profile before and after the run: the gap is what the end screen celebrates. */
@@ -931,6 +937,67 @@ function BansScenario({
   )
 }
 
+/** La file de modération, avec un mot signalé : la planche n'écrit jamais au serveur. */
+const MODERATION_QUEUE: readonly ReviewCard[] = [
+  {
+    id: 'ban-1',
+    categoryId: 'animaux',
+    kind: 'ban',
+    display: 'Quiscale',
+    proposals: 2,
+    special: false,
+    note: 'Ce n’est pas un animal : c’est le nom d’un genre de passereaux.',
+    canRespell: false,
+    friends: [],
+  },
+  {
+    id: 'add-1',
+    categoryId: 'animaux',
+    kind: 'add',
+    display: 'Pangolin',
+    proposals: 3,
+    special: false,
+    note: null,
+    canRespell: true,
+    friends: [],
+  },
+]
+
+function ModerationQueueScenario({ onBack }: { onBack(): void }) {
+  return <ModerationScreen lang="fr" queue={MODERATION_QUEUE} onDone={onBack} />
+}
+
+/** Le mot d'un récap qu'un modérateur peut signaler, la carte ouverte dessus. */
+const FLAGGED_WORD: PlayedWord = { categoryId: 'animaux', word: 'quiscale', display: 'Quiscale', points: 14 }
+
+/** Le récap d'une de ses parties, ouvert : un mot s'y signale d'un appui long. */
+function FlagRecapScenario() {
+  return (
+    <div className="sheet">
+      <StatsPage
+        history={STATS_HISTORY}
+        profile={STATS_PROFILE}
+        challenges={null}
+        openRun={STATS_HISTORY[0]}
+        onChallenge={noop}
+        recap={STATS_RECAP}
+      />
+    </div>
+  )
+}
+
+/** La carte de signalement seule, telle que la planche la montre sans geste. */
+function FlagCardScenario({ onBack }: { onBack(): void }) {
+  return (
+    <FlagWordCard
+      word={FLAGGED_WORD}
+      category="Animaux"
+      onFlag={() => later('sent' as const)}
+      onClose={onBack}
+    />
+  )
+}
+
 /** La page des statistiques, telle qu'un compte qui a joué ailleurs la remplit. */
 function StatsScenario() {
   return (
@@ -1585,6 +1652,30 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <DebugHome back={back} categoriesNews={1} />,
   },
   {
+    id: 'flag-word-recap',
+    group: 'Modération',
+    title: 'Signaler un mot : le récap d’une partie',
+    how: 'Modérateur : appui long sur un mot de ses parties — clic droit sur le web — pour ouvrir la carte, motif compris ; « Ce que tu aurais pu écrire » se signale aussi, une fois la bande arrachée',
+    phase: 'home',
+    render: () => <FlagRecapScenario />,
+  },
+  {
+    id: 'flag-word-card',
+    group: 'Modération',
+    title: 'Signaler un mot : la carte',
+    how: 'Ce que lit le modérateur avant de confirmer — la phrase, le motif à écrire — puis « Signalé. Les autres modérateurs le jugeront. »',
+    phase: 'home',
+    render: (back) => <FlagCardScenario onBack={back} />,
+  },
+  {
+    id: 'moderation-ban',
+    group: 'Modération',
+    title: 'Juger un mot signalé',
+    how: 'File de jugement avec un mot signalé et un ajout : « Retirer » à droite, « Garder » à gauche, ni correction ni cas spécial',
+    phase: 'home',
+    render: (back) => <ModerationQueueScenario onBack={back} />,
+  },
+  {
     id: 'stats',
     group: 'Accueil',
     title: 'Page des statistiques',
@@ -1883,10 +1974,12 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
   const [open, setOpen] = useState<Scenario | null>(null)
   // Replaying remounts the screen, its animations and picks with it.
   const [take, setTake] = useState(0)
+  // Où la liste était : y revenir évite de la rescroller à chaque planche vue.
+  const listScroll = useRef(0)
 
   useEffect(() => {
     onPhase(open?.phase ?? 'home')
-    window.scrollTo(0, 0)
+    window.scrollTo(0, open ? 0 : listScroll.current)
   }, [open, onPhase])
 
   if (open) {
@@ -1952,6 +2045,7 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
                     type="button"
                     className={`debug-item${fresh ? ' debug-item--new' : recent ? ' debug-item--recent' : ''}`}
                     onClick={() => {
+                      listScroll.current = window.scrollY
                       setTake(0)
                       setOpen(scenario)
                     }}

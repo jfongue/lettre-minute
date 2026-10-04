@@ -12,6 +12,14 @@ import { RespellField, respellValid } from './RespellField'
 type Judged = Exclude<Verdict, 'special'>
 type Mode = 'judge' | 'respell' | 'special'
 
+/** What a gesture means to a review that proposes the opposite: the green thumb keeps. */
+const OPPOSITE: Record<Verdict, Verdict> = {
+  correct: 'incorrect',
+  incorrect: 'correct',
+  unsure: 'unsure',
+  special: 'special',
+}
+
 interface Leaving {
   verdict: Verdict
   /** Where the card was let go, so it flies on from there rather than from the centre. */
@@ -43,16 +51,18 @@ interface ModerationScreenProps {
   lang: string
   /** Back to « Mes demandes », where the next session is started. */
   onDone(): void
+  /** The words to judge, from the debug board: no call, no server. */
+  queue?: readonly ReviewCard[]
 }
 
-export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
+export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps) {
   const t = useT()
-  const [cards, setCards] = useState<ReviewCard[] | null | 'loading'>('loading')
+  const [cards, setCards] = useState<ReviewCard[] | null | 'loading'>(() => (queue ? [...queue] : 'loading'))
   const [index, setIndex] = useState(0)
   const [mode, setMode] = useState<Mode>('judge')
   const [drag, setDrag] = useState<Drag | null>(null)
   const [leaving, setLeaving] = useState<Leaving | null>(null)
-  const [toast, setToast] = useState<{ key: number; outcome: VoteOutcome } | null>(null)
+  const [toast, setToast] = useState<{ key: number; outcome: VoteOutcome; ban: boolean } | null>(null)
   const [tally, setTally] = useState<Tally>(NO_TALLY)
   const [draft, setDraft] = useState('')
   const busy = useRef(false)
@@ -60,8 +70,9 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
 
   useEffect(() => {
     window.scrollTo(0, 0)
+    if (queue) return
     fetchModerationQueue(lang).then(setCards)
-  }, [lang])
+  }, [lang, queue])
 
   useEffect(() => {
     if (!toast) return
@@ -71,6 +82,9 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
 
   const deck = cards === 'loading' || cards === null ? [] : cards
   const card = deck[index] ?? null
+  // A flagged word asks the opposite question — keep it? — so the green gesture
+  // is « keep », and the word only goes once enough moderators say it should.
+  const labels = card?.kind === 'ban' ? t.moderation.screen.banVerdicts : t.moderation.screen.verdicts
   const finished = cards !== 'loading' && cards !== null && deck.length > 0 && index >= deck.length
   // The last card's verdict sounds first; the confetti of a queue cleared come just after.
   useEffect(() => {
@@ -89,13 +103,15 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
       // The card leaves at once: waiting on the server before moving would
       // make every gesture feel like it had missed.
       const [outcome] = await Promise.all([
-        castVote(card, lang, verdict, extra),
+        // What a flagged word's review proposes is to take the word out: keeping
+        // it is a « no », and the green gesture is the one that says so.
+        castVote(card, lang, card.kind === 'ban' ? OPPOSITE[verdict] : verdict, extra),
         new Promise((resolve) => setTimeout(resolve, FLY_MS)),
       ])
       busy.current = false
       if (outcome === 'unreachable') {
         setLeaving(null)
-        setToast({ key: Date.now(), outcome })
+        setToast({ key: Date.now(), outcome, ban: card.kind === 'ban' })
         sound.refused()
         return
       }
@@ -104,9 +120,11 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
       setTally((before) => ({
         ...before,
         [verdict]: before[verdict] + 1,
-        entered: before.entered + (outcome === 'accepted' ? 1 : 0),
+        // Only an addition enters the dictionary: a flagged word that settles
+        // leaves it, which the judgement card's own words say.
+        entered: before.entered + (outcome === 'accepted' && card.kind === 'add' ? 1 : 0),
       }))
-      setToast({ key: Date.now(), outcome })
+      setToast({ key: Date.now(), outcome, ban: card.kind === 'ban' })
       setLeaving(null)
       setMode('judge')
       setIndex((at) => at + 1)
@@ -212,10 +230,10 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
           {tally.entered > 0 && <p className="moderation-entered">{t.moderation.screen.entered(tally.entered)}</p>}
         </div>
         <div className="figures">
-          <Figure tint="green" value={tally.correct} label={t.moderation.screen.verdicts.correct} />
-          <Figure tint="yellow" value={tally.unsure} label={t.moderation.screen.verdicts.unsure} />
-          <Figure tint="red" value={tally.incorrect} label={t.moderation.screen.verdicts.incorrect} />
-          <Figure tint="blue" value={tally.special} label={t.moderation.screen.verdicts.special} />
+          <Figure tint="green" value={tally.correct} label={t.moderation.screen.gestures.correct} />
+          <Figure tint="yellow" value={tally.unsure} label={t.moderation.screen.gestures.unsure} />
+          <Figure tint="red" value={tally.incorrect} label={t.moderation.screen.gestures.incorrect} />
+          <Figure tint="blue" value={tally.special} label={t.moderation.screen.gestures.special} />
         </div>
         <button type="button" className="btn btn--block" onClick={onDone}>
           {t.moderation.screen.finish}
@@ -309,7 +327,7 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
         {toast && (
           <p key={toast.key} className={`moderation-toast moderation-toast--${toast.outcome}`}>
             {toast.outcome === 'accepted' && <Burst />}
-            {t.moderation.screen.outcomes[toast.outcome]}
+            {(toast.ban ? t.moderation.screen.banOutcomes : t.moderation.screen.outcomes)[toast.outcome]}
           </p>
         )}
       </div>
@@ -324,14 +342,14 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
                 className={`vote vote--${verdict}`}
                 style={{ '--lean': lean[verdict] } as CSSProperties}
                 onClick={() => vote(verdict)}
-                aria-label={t.moderation.screen.verdicts[verdict]}
-                title={t.moderation.screen.verdicts[verdict]}
+                aria-label={labels[verdict]}
+                title={labels[verdict]}
               >
                 <VerdictMark verdict={verdict} />
               </button>
             ))}
           </div>
-          <p className="note moderation-hint">{t.moderation.screen.hint}</p>
+          <p className="note moderation-hint">{card.kind === 'ban' ? t.moderation.screen.banHint : t.moderation.screen.hint}</p>
           <div className="moderation-extras">
             {card.canRespell && !card.special && (
               <button type="button" className="btn btn--quiet" onClick={openRespell}>
@@ -339,7 +357,7 @@ export function ModerationScreen({ lang, onDone }: ModerationScreenProps) {
                 {t.moderation.screen.respell}
               </button>
             )}
-            {!card.special && (
+            {!card.special && card.kind === 'add' && (
               <button type="button" className="btn btn--quiet" onClick={openSpecial}>
                 <VerdictMark verdict="special" />
                 {t.moderation.screen.verdicts.special}
@@ -388,6 +406,8 @@ function WordCard({ card, behind, drag, leaving, lean, children, ...pointer }: W
   const t = useT()
   const text = categoryText(t, card.categoryId)
   const motif = categoryMotif(card.categoryId)
+  // What each gesture does to this card, said on the stamp that follows the thumb.
+  const labels = card.kind === 'ban' ? t.moderation.screen.banVerdicts : t.moderation.screen.verdicts
   const style: CSSProperties = {}
   if (drag) {
     style.transform = `translate(${drag.dx}px, ${drag.dy}px) rotate(${drag.dx * 0.05}deg)`
@@ -412,6 +432,7 @@ function WordCard({ card, behind, drag, leaving, lean, children, ...pointer }: W
             style={{ opacity: lean?.[verdict] ?? 0 } as CSSProperties}
           >
             <VerdictMark verdict={verdict} />
+            <span className="word-card-stamp-word">{labels[verdict]}</span>
           </span>
         ))}
       </div>
@@ -426,12 +447,20 @@ function WordCard({ card, behind, drag, leaving, lean, children, ...pointer }: W
         </p>
       )}
 
-      <p className="word-card-question note">{t.moderation.screen.question}</p>
+      <p className={`tag word-card-kind word-card-kind--${card.kind}`}>{t.moderation.screen.kinds[card.kind]}</p>
+      <p className="word-card-question note">
+        {card.kind === 'ban' ? t.moderation.screen.banQuestion : t.moderation.screen.question}
+      </p>
       <p className="word-card-word">{card.display}</p>
+      {card.kind === 'ban' && card.note && (
+        <p className="note word-card-reason">{t.moderation.screen.banReason(card.note)}</p>
+      )}
       <p className="note">
-        {card.friends.length > 0
-          ? t.moderation.screen.proposedByFriends(card.friends, card.proposals - card.friends.length)
-          : t.moderation.screen.proposedBy(card.proposals)}
+        {card.kind === 'ban'
+          ? t.moderation.screen.banProposedBy(card.proposals)
+          : card.friends.length > 0
+            ? t.moderation.screen.proposedByFriends(card.friends, card.proposals - card.friends.length)
+            : t.moderation.screen.proposedBy(card.proposals)}
       </p>
 
       {children}

@@ -26,6 +26,7 @@ import {
   logInWithGoogle,
   logOut,
   markChallengeSeen,
+  proposeBan,
   pushAvatar,
   pushChallengeRun,
   pushRun,
@@ -80,6 +81,7 @@ import { complicationDue, type PowerId } from './domain/powers'
 import { NEW_PROFILE, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
+import { DAMPED_WORDS } from './data/damped-words'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { compactWord, normalizeWord } from './domain/text'
 import { commonWord, withExtraWords } from './domain/words'
@@ -734,7 +736,10 @@ export function App() {
       // A challenge draws from the seed and the embedded dictionaries alone:
       // the crowd's record of a pair would differ from one player to the next.
       const served = packLang === promptStats?.lang ? promptStats.records : undefined
-      return createJudge(packs, usage, t.powers.spells, challenge ? undefined : served, challenge ? undefined : DAMPED_PROMPTS[packLang])
+      // Les freins écrits à la main, et ceux que `ban:sync` calcule pour les
+      // couples qu'un ban a vidés : les deux multiplient la cote du tirage.
+      const damped = { ...DAMPED_PROMPTS[packLang], ...DAMPED_WORDS[packLang] }
+      return createJudge(packs, usage, t.powers.spells, challenge ? undefined : served, challenge ? undefined : damped)
     },
     [session.profile.usage, crowd, promptStats, lang, t],
   )
@@ -1130,8 +1135,12 @@ export function App() {
       peeks: peeksLeft(session.profile),
       onPeek: peek,
       onJoinPlus: joinPlus,
+      // Only a moderator flags a word: without the role, the recap says nothing of it.
+      ...(moderation?.moderator && {
+        onFlag: (run, word, reason) => proposeBan(run.lang, word.categoryId, word.word, word.display, reason),
+      }),
     }),
-    [judgeFor, session.profile, peek, joinPlus],
+    [judgeFor, session.profile, peek, joinPlus, moderation],
   )
   // Read from the run as it ended, with the dictionaries it was judged by.
   const hidden = useMemo(

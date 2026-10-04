@@ -882,6 +882,16 @@ button.challenge-past::after {
   animation: tick 1s var(--ease-out);
 }
 
+.clock--latecomer {
+text-shadow: 0 0 0.65em var(--blue);
+animation: clock-bonus 500ms var(--ease-out);
+}
+
+@keyframes clock-bonus {
+0% { transform: scale(1.28); }
+100% { transform: scale(1); }
+}
+
 .score {
   position: relative;
   display: flex;
@@ -4552,6 +4562,7 @@ animation-delay: calc(var(--i, 0) * -0.6s);
 }
 
 .word-card-stamp {
+  position: relative;
   display: grid;
   place-items: center;
   width: 2.6rem;
@@ -4559,6 +4570,34 @@ animation-delay: calc(var(--i, 0) * -0.6s);
   border: 3px solid currentColor;
   font-size: 1.4rem;
   transition: opacity 80ms linear;
+}
+
+/* Le mot du geste, à côté de la marque : le pouce le lit pendant le glissement.
+   Hors du flux — les trois tampons n'en tiennent pas moins dans la carte — et
+   vers l'intérieur, le tampon de droite étant collé au bord droit. */
+.word-card-stamp-word {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.word-card-stamp--correct .word-card-stamp-word {
+  left: calc(100% + 0.5rem);
+}
+
+.word-card-stamp--incorrect .word-card-stamp-word {
+  right: calc(100% + 0.5rem);
+}
+
+.word-card-stamp--unsure .word-card-stamp-word {
+  top: calc(100% + 0.35rem);
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .word-card-stamp--correct {
@@ -4589,6 +4628,31 @@ animation-delay: calc(var(--i, 0) * -0.6s);
   font-size: 0.8rem;
   font-weight: 700;
   text-align: left;
+}
+
+/* Ce qu'on juge : un mot proposé entre, un mot signalé sort. La couleur seule
+   les distingue d'un coup d'œil, la phrase n'étant lue qu'après. */
+.word-card-kind {
+  align-self: flex-start;
+}
+
+.word-card-kind--add {
+  box-shadow: inset 0 0 0 1.5px var(--blue);
+  color: var(--blue);
+}
+
+.word-card-kind--ban {
+  box-shadow: inset 0 0 0 1.5px var(--red);
+  color: var(--red);
+}
+
+/* Le motif du signalement : ce que le modérateur doit lire avant de trancher. */
+.word-card-reason {
+  max-width: 100%;
+  padding-left: 0.6rem;
+  border-left: 3px solid var(--red);
+  text-align: left;
+  overflow-wrap: anywhere;
 }
 
 .word-card-question {
@@ -4960,6 +5024,27 @@ animation-delay: calc(var(--i, 0) * -0.6s);
 .offer-pop-actions .btn {
   padding-inline: 0.6rem;
   font-size: 0.82rem;
+}
+
+/* Le motif du signalement, dans sa carte : la carte est étroite, le champ suit. */
+.flag-reason {
+  justify-self: stretch;
+  display: grid;
+  gap: 0.25rem;
+  text-align: left;
+}
+
+.flag-reason textarea {
+  width: 100%;
+  min-height: 3.4rem;
+  padding: 0.45rem 0.6rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+  user-select: text;
 }
 
 /* --------------------------------------------------------------- powers - */

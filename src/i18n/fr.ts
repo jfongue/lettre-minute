@@ -5,7 +5,7 @@ import type { FaceOff } from '../domain/rivalry'
 import type { StatId } from '../domain/leaderboards'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
-import type { AuthError, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
+import type { AuthError, BanOutcome, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
 
 interface LeaderboardText {
@@ -456,6 +456,24 @@ export const fr = {
       close: 'Fermer',
       failed: 'Le serveur n’a pas répondu. Réessaie.',
     },
+    flag: {
+      hint: 'Modérateur : appui long sur un mot pour le signaler.',
+      title: 'Signaler ce mot',
+      lead: (word: string, category: string) =>
+        `« ${word} » n’a pas sa place dans « ${category} » ? Les autres modérateurs le jugeront : trois d’accord et il quittera la catégorie à la prochaine version.`,
+      confirm: 'Signaler',
+      close: 'Fermer',
+      reasonLabel: 'Motif (facultatif)',
+      reasonPlaceholder: 'Ce pays n’existe plus, une faute d’orthographe…',
+      said: {
+        sent: 'Signalé. Les autres modérateurs le jugeront.',
+        accepted: 'Retiré. Le mot quittera la catégorie au prochain dictionnaire livré.',
+        rejected: 'Les modérateurs ont gardé le mot.',
+        known: 'Ce mot est déjà signalé ou déjà jugé.',
+        forbidden: 'Le signalement n’a pas été pris en compte.',
+        unreachable: 'Le serveur n’a pas répondu. Réessaie.',
+      } satisfies Record<BanOutcome, string> as Record<BanOutcome, string>,
+    },
     screen: {
       quit: 'Quitter la session',
       counter: (index: number, total: number) => `Mot ${index} sur ${total}`,
@@ -463,8 +481,25 @@ export const fr = {
       proposedByFriends: (names: readonly string[], others: number) =>
         `proposé par ${names.join(', ')}${others > 0 ? ` et ${others} ${others > 1 ? 'autres' : 'autre'}` : ''}`,
       question: 'A-t-il sa place dans cette catégorie ?',
-      hint: 'Glisse la carte : à droite correct, à gauche incorrect, vers le haut je ne sais pas.',
-      verdicts: { correct: 'Correct', unsure: 'Je ne sais pas', incorrect: 'Incorrect', special: 'Cas spécial' },
+      hint: 'Glisse la carte : à droite ajouter, à gauche refuser, vers le haut je ne sais pas.',
+      verdicts: { correct: 'Ajouter', unsure: 'Je ne sais pas', incorrect: 'Refuser', special: 'Cas spécial' },
+      // Les compteurs d'une session mélangent les deux sortes de mot : le
+      // geste y est nommé pour ce qu'il est, pas pour ce qu'il fait.
+      gestures: { correct: 'Pour', unsure: 'Je ne sais pas', incorrect: 'Contre', special: 'Cas spécial' },
+      banQuestion: 'Faut-il conserver ce mot ?',
+      banHint: 'Glisse la carte : à droite le conserver, à gauche le retirer, vers le haut je ne sais pas.',
+      banVerdicts: { correct: 'Conserver', unsure: 'Je ne sais pas', incorrect: 'Retirer', special: 'Cas spécial' },
+      banOutcomes: {
+        pending: 'Vote compté',
+        special: 'Transmis aux super modérateurs',
+        accepted: 'Retiré : le mot quittera la catégorie à la prochaine version.',
+        rejected: 'Conservé : le mot reste dans la catégorie.',
+        gone: 'Réglé entre-temps',
+        unreachable: 'Le serveur n’a pas répondu. Réessaie.',
+      } satisfies Record<VoteOutcome, string> as Record<VoteOutcome, string>,
+      banProposedBy: (count: number) => `signalé par ${count} ${plural(count, 'modérateur', 'modérateurs')}`,
+      kinds: { add: 'Ajout', ban: 'Retrait' },
+      banReason: (reason: string) => `Motif : ${reason}`,
       respell: 'Corriger l’orthographe',
       respellLead: 'Ta validation comptera, mais il faudra un modérateur de plus.',
       respellLabel: 'Orthographe corrigée',
@@ -553,6 +588,7 @@ export const fr = {
 
   powers: {
     castChatter: 'Bavardage ! La lettre reste',
+doubleSkipFree: 'Passe-passe · passage gratuit',
     chatterLeft: (left: number) => `Bavardage · encore ${left} ${plural(left, 'mot', 'mots')}`,
     chatterLeave: 'Changer',
     giftTitle: 'Nouveau pouvoir !',
@@ -570,6 +606,11 @@ export const fr = {
       complication: ['Challenge', 'Les mots peu communs valent ×1,15, les rares ×1,3.'],
       celerity: ['Célérité', 'Un mot se valide tout seul, sans appuyer sur Entrée, même avec une faute de frappe.'],
       chatter: ['Bavardage', 'Une fois par partie, ajoute « ... » à un mot : la lettre et le thème restent pour trois mots de plus.'],
+latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 seconde, jusqu’à 5 secondes gagnées par partie.'],
+'double-skip': ['Passe-passe', 'Une fois par partie, après un passage, passe immédiatement au thème suivant sans coût.'],
+
+flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frappe, gagne immédiatement 10 points bonus.'],
+
     } satisfies Record<PowerId, readonly [string, string]> as Record<PowerId, readonly [name: string, description: string]>,
     /** What the player types to cast a spell; the first is the one the descriptions name. */
     spells: { joker: ['joker'], hush: ['chut'] } satisfies Record<Spell, readonly string[]> as Record<Spell, readonly string[]>,

@@ -47,6 +47,9 @@ export const POWER_TINTS: Record<PowerId, Tint> = {
   complication: 'red',
   celerity: 'yellow',
   chatter: 'pink',
+latecomer: 'blue',
+'double-skip': 'green',
+flawless: 'yellow',
 }
 
 /** The block of colour a power sits on, and the ink that reads on it. */

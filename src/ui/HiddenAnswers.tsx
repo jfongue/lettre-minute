@@ -1,12 +1,14 @@
 import { useState, type CSSProperties } from 'react'
 import type { HiddenAnswer } from '../domain/perks'
-import { capitalized } from '../domain/text'
+import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, useT } from '../i18n'
 import { tapFeedback } from '../lib/native'
 import { sound } from '../lib/sound'
 import { LetterMark } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { PlusPop } from './PlusPop'
+import { useLongPress } from './useLongPress'
+import type { FlagWord } from './StatsPage'
 
 /** Confetti of the bar torn off a hidden word: angle and reach of each piece. */
 const SHARDS = Array.from({ length: 10 }, (_, i) => ({ angle: (i / 10) * 360 + (i % 2) * 17, reach: 2.2 + (i % 3) * 0.9 }))
@@ -15,22 +17,29 @@ const SHARDS = Array.from({ length: 10 }, (_, i) => ({ angle: (i / 10) * 360 + (
  * The prompts the player skipped, folded under one toggle; opened, each shows
  * a word it could have taken under a black bar — close enough to tempt, too
  * dark to read. A tap tears the bar off: five times free, then Premium.
+ *
+ * A torn-off word is one a moderator can flag like any other: what the game
+ * still had to give is exactly what does not belong there.
  */
 export function HiddenAnswers({
   hidden,
   peeks,
   onPeek,
   onJoinPlus,
+  onFlag,
 }: {
   hidden: readonly HiddenAnswer[]
   peeks: number
   onPeek?(): void
   onJoinPlus?(): void
+  /** Signals a word the run never took, uncovered: `WordEntry.key` is its display. */
+  onFlag?(word: FlagWord): void
 }) {
   const t = useT()
   const [unfolded, setUnfolded] = useState(false)
   const [open, setOpen] = useState<ReadonlySet<number>>(() => new Set())
   const [asking, setAsking] = useState<number | null>(null)
+  const press = useLongPress<FlagWord>((word) => onFlag?.(word))
 
   const tear = (index: number) => {
     setOpen((current) => new Set(current).add(index))
@@ -65,6 +74,15 @@ export function HiddenAnswers({
                 key={`${answer.prompt.categoryId}:${answer.prompt.letter}`}
                 className="reveal-word hidden-answer"
                 style={{ '--i': index } as CSSProperties}
+                // Only a word the moderator has uncovered: the bar answers a
+                // tap, and there is nothing to signal behind it.
+                {...(onFlag && shown
+                  ? press({
+                      categoryId: answer.prompt.categoryId,
+                      word: normalizeWord(answer.display),
+                      display: answer.display,
+                    })
+                  : {})}
               >
                 <LetterMark letter={answer.prompt.letter} motif={categoryMotif(answer.prompt.categoryId)} size="sm" />
                 <span className="reveal-word-text">

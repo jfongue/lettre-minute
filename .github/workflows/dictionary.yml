@@ -1,0 +1,57 @@
+# Les dictionnaires suivent les bans tout seuls : chaque nuit, le job relit les
+# mots que les modérateurs ont réglés et retire leur ligne des dictionnaires
+# livrés, avec les freins des couples qu'ils vidaient (`npm run ban:sync`).
+#
+# Ce qu'il faut une fois, dans les secrets du dépôt : SUPABASE_URL et
+# SUPABASE_SERVICE_KEY (Settings → Secrets and variables → Actions). Sans eux,
+# le job échoue et le dit — il n'écrit jamais à moitié.
+#
+# Ce qu'il ne fait pas : faire entrer un mot accepté, qui a besoin d'une ligne
+# complète (fréquence, visites, sitelinks) et donc d'un import entier, à la main.
+#
+# Il pousse sur `main` : la version livrée ne part qu'ensuite, à la main (ou par
+# la piste alpha), un dictionnaire sans code n'ayant rien à publier d'autre.
+name: Dictionnaires
+
+on:
+  schedule:
+    # 4 h 17, heure de Paris en hiver : une nuit sur deux ne suffirait pas à
+    # rattraper un ban réglé le soir.
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bans:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Retirer les mots signalés
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          test -n "$SUPABASE_SERVICE_KEY" || { echo "SUPABASE_SERVICE_KEY manquant"; exit 1; }
+          npm run ban:sync
+      - name: Vérifier ce que le job a écrit
+        run: npm run check
+      - name: Commiter et pousser
+        run: |
+          if git diff --quiet; then
+            echo "Rien à retirer cette nuit."
+            exit 0
+          fi
+          git config user.name 'lettre-minute'
+          git config user.email 'fongue.jeremy@gmail.com'
+          git add src/data/words src/data/damped-words.ts scripts/banned-words.json
+          git commit -m "Les mots signalés quittent les dictionnaires, et les couples qu'ils vidaient sont freinés (ban:sync, no migration)"
+          git push

@@ -23,6 +23,7 @@ import { LANGUAGES, TOPICS, type Lang, type LanguageSource } from './languages.t
 import { loadFrequencies } from './wordfreq.ts'
 import { ADDED_ALIASES, ADDED_WORDS, DROPPED_WORDS, PLACEHOLDER_ELEMENT, SHORT_NAMES } from './dropped-words.ts'
 import { loadCommunityWords } from './community-words.ts'
+import { loadBannedWords } from './banned-words.ts'
 import { acceptable } from './word-shape.ts'
 import { CATEGORY_SOURCES, CITIES_PER_COUNTRY, DRAFT_SOURCES, LARGE_COUNTRY_POPULATION, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
 
@@ -1209,6 +1210,7 @@ function main(argv: readonly string[]) {
     }
     const frequencies = await loadFrequencies(lang, paths.wordfreq)
     const community = (await loadCommunityWords())[lang] ?? {}
+    const banned = (await loadBannedWords())[lang] ?? {}
 
     const byPull = new Map<string, Row[]>()
     const failed: string[] = []
@@ -1557,6 +1559,15 @@ function main(argv: readonly string[]) {
       for (const [key, row] of rows) {
         const lemma = row[3] ? renamed.get(row[3]) : undefined
         if (lemma !== undefined) rows.set(key, [row[0], row[1], row[2], lemma])
+      }
+
+      // A word the moderators flagged leaves the dictionary, and the forms that
+      // bend to it with it. It goes last: a form added above still names it, and
+      // a ban only takes effect here — the game reads embedded files, never a
+      // list of banned words.
+      const bannedHere = new Set((banned[category.id] ?? []).map(normalizeWord))
+      for (const [key, row] of [...rows]) {
+        if (bannedHere.has(key) || (row[3] !== undefined && bannedHere.has(row[3]))) rows.delete(key)
       }
 
       const lines = [...rows.entries()]

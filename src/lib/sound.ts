@@ -364,6 +364,20 @@ const SIGNATURES: Record<PowerId, (c: AudioContext, t: number, v: number) => voi
     piano(c, deg(5), t + 0.09, 0.45 * v, sfx, 0.25)
     piano(c, deg(7), t + 0.18, 0.5 * v, sfx, 0.4)
   },
+// The clock lands on a final beat.
+latecomer(c, t, v) {
+;[0, 4, 7].forEach((step, i) => glock(c, deg(step), t + i * 0.07, 0.4 * v, sfx))
+},
+// Two skips, the second one lighter.
+'double-skip'(c, t, v) {
+hiss(c, t, 0.2, sfx, 0.3 * v, 'bandpass', 900, 2.5, 7000, 0.02)
+hiss(c, t + 0.2, 0.16, sfx, 0.2 * v, 'bandpass', 900, 2.5, 5000, 0.02)
+},
+// A clear chime for a mistake-free streak.
+flawless(c, t, v) {
+triad(TONIC).forEach((f) => marimba(c, f, t, 0.45 * v, sfx))
+glass(c, deg(7, 1), t + 0.08, 0.3 * v, sfx)
+},
 }
 
 export const sound = {

@@ -12,6 +12,9 @@ import {
   LEVEL_POWER_IDS,
   complicationDue,
   CHATTER_WORDS,
+FLAWLESS_POINTS,
+FLAWLESS_STREAK,
+LATECOMER_CAP_SECONDS,
   grantPower,
   WORDS_FOR_COMPLICATION,
   unlockEveryPower,
@@ -29,6 +32,7 @@ import {
   reroll,
   RUN_SECONDS,
   skip,
+skipPenalty,
   submit,
   type Judge,
   type Run,
@@ -133,6 +137,63 @@ describe('equipping', () => {
   it('never carries a power the player does not own', () => {
     expect(equippedPowers({ ...owner, equipped: ['celerity', 'joker', 'nope'] })).toEqual(['joker'])
   })
+})
+
+describe('Retardataire', () => {
+it('awards one second only below five seconds, up to five bonus seconds', () => {
+const run = { ...onLetter(runWith('latecomer'), 'A'), latecomerSeconds: LATECOMER_CAP_SECONDS - 1, charges: { latecomer: 1 }, penaltySeconds: RUN_SECONDS }
+const awarded = submit(run, 'Animal0', judge, 0).run
+expect(awarded.latecomerSeconds).toBe(LATECOMER_CAP_SECONDS)
+const atCap = submit({ ...onLetter(runWith('latecomer'), 'A'), latecomerSeconds: LATECOMER_CAP_SECONDS, charges: { latecomer: 0 } }, 'Animal0', judge, 0).run
+expect(atCap.latecomerSeconds).toBe(LATECOMER_CAP_SECONDS)
+})
+
+it('does not add time when five seconds remain', () => {
+const run = { ...onLetter(runWith('latecomer'), 'A'), charges: { latecomer: 5 }, penaltySeconds: RUN_SECONDS - 5 }
+expect(submit(run, 'Animal0', judge, 0).run.latecomerSeconds).toBe(0)
+})
+})
+
+describe('Passe-passe', () => {
+it('grants one free follow-up skip and keeps the streak through both', () => {
+const run = { ...runWith('double-skip'), combo: 4 }
+const first = skip(run, judge, 1)
+expect(first.penaltySeconds).toBe(5)
+expect(first.freeSkipReady).toBe(true)
+expect(first.combo).toBe(4)
+expect(chargesLeft(first, 'double-skip')).toBe(0)
+expect(skipPenalty(first)).toBe(0)
+const second = skip(first, judge, 2)
+expect(second.penaltySeconds).toBe(5)
+expect(second.freeSkipReady).toBe(false)
+expect(second.combo).toBe(4)
+expect(second.skips).toBe(2)
+})
+
+it('does not grant a free skip after Bavardage’s free change', () => {
+const run = { ...runWith('double-skip'), chatter: 1 }
+const changed = skip(run, judge, 1)
+expect(changed.freeSkipReady).toBe(false)
+expect(changed.penaltySeconds).toBe(0)
+})
+})
+
+describe('Sans faute', () => {
+it('pays ten points immediately after every three exact words', () => {
+let run = onLetter(runWith('flawless'), 'A')
+for (let index = 0; index < FLAWLESS_STREAK; index++) {
+run = submit({ ...run, prompt: { ...run.prompt, letter: 'A' }, promptAt: index, used: [] }, `Animal${index}`, judge, index + 1).run
+}
+expect(run.flawlessStreak).toBe(FLAWLESS_STREAK)
+expect(run.score).toBe(run.found.reduce((sum, found) => sum + found.points, 0) + FLAWLESS_POINTS)
+})
+
+it('resets the streak on an approximate or joker word', () => {
+const exacts = onLetter(runWith('flawless', 'joker'), 'A')
+const first = submit(exacts, 'Animal0', judge, 1).run
+const approximate = submit({ ...first, prompt: { ...first.prompt, letter: 'A' } }, 'Anmial1', judge, 2).run
+expect(approximate.flawlessStreak).toBe(0)
+})
 })
 
 describe('Esquive', () => {
