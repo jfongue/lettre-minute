@@ -480,7 +480,7 @@ export function WordsBoardView({
             }
           >
             {shownWords.length ? (
-              <Table head={['Mot', text('Catégorie'), 'Utilisations', 'Mal écrit', 'Utilisation', text('Dernière')]}>
+              <Table head={['Mot', text('Catégorie'), 'Utilisations', 'Mal écrit', 'Utilisation', text('Dernière'), text('')]}>
                 {shownWords.slice(0, 120).map((row) => (
                   <tr key={`${row.category}:${row.word}`} {...press({ categoryId: row.category, word: row.word, display: row.display })}>
                     <td>
@@ -492,6 +492,11 @@ export function WordsBoardView({
                     <td className="n">{row.approx ? fmt(row.approx) : '—'}</td>
                     <td className="n">{share(row.uses, pairDealt(report.pairs, row.category, initialOf(row.word)))}</td>
                     <td>{row.last ? ago(row.last) : 'jamais'}</td>
+                    <td>
+                      {/* Le geste caché ne suffit pas : à la souris, un clic
+                          maintenu n'ouvre rien — d'où ce bouton. */}
+                      <FlagButton word={row} onFlag={setFlagged} />
+                    </td>
                   </tr>
                 ))}
               </Table>
@@ -509,8 +514,9 @@ export function WordsBoardView({
             )}
             <p className="note">
               « Utilisation » : part des tirages de son couple — sa catégorie et sa lettre — où ce mot est sorti. « Mal écrit » :
-              accepté à une lettre près, payé au tarif plat. Appui long sur une ligne : signaler le mot pour le retirer, ce qui passe
-              par la modération comme les autres signalements.
+              accepté à une lettre près, payé au tarif plat. Le <b>⚑</b> d’une ligne propose le mot au retrait (un appui long l’ouvre
+              aussi) : le signalement passe par la file de modération comme un ajout, et le mot ne sort du jeu qu’au dictionnaire
+              livré d’après.
             </p>
           </Section>
 
@@ -525,6 +531,7 @@ export function WordsBoardView({
                   'Depuis',
                   { label: 'Utilisation', n: true },
                   { label: 'Mal écrit', n: true },
+                  text(''),
                 ]}
               >
                 {shownAdded.slice(0, 120).map((row) => (
@@ -542,6 +549,9 @@ export function WordsBoardView({
                     </td>
                     <td className="n">{share(row.uses_since, row.parties_since)}</td>
                     <td className="n">{row.approx ? fmt(row.approx) : '—'}</td>
+                    <td>
+                      <FlagButton word={row} onFlag={setFlagged} />
+                    </td>
                   </tr>
                 ))}
               </Table>
@@ -646,6 +656,31 @@ function Gap({ value }: { value: number | null }) {
     <span className="dashboard-cell" style={{ background: `color-mix(in srgb, ${color} ${tint}%, transparent)` }}>
       {value < 10 ? value.toFixed(2).replace('.', ',') : String(Math.round(value))}×
     </span>
+  )
+}
+
+/**
+ * Le drapeau d'une ligne : la porte visible du signalement. L'appui long
+ * existe aussi, mais il ne répond qu'au toucher et au clic droit — un clic
+ * maintenu à la souris ne l'ouvre pas, et l'écran ne s'en trouvait pas.
+ */
+function FlagButton({
+  word,
+  onFlag,
+}: {
+  word: { category: string; word: string; display: string }
+  onFlag(word: FlagWord): void
+}) {
+  return (
+    <button
+      type="button"
+      className="words-flag"
+      title="Proposer ce mot au retrait"
+      aria-label={`Signaler « ${word.display} »`}
+      onClick={() => onFlag({ categoryId: word.category, word: word.word, display: word.display })}
+    >
+      ⚑
+    </button>
   )
 }
 
