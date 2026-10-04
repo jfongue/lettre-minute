@@ -7906,6 +7906,18 @@ button.challenge-word[aria-expanded='true'] {
   color: var(--ink-faint);
 }
 
+/* Une catégorie cliquable : elle ouvre le détail de son dictionnaire. */
+.words-pick {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--blue);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--blue) 40%, transparent);
+}
+
 /* Le genre d'une revue, dans la file de modération. */
 .words-kind {
   display: inline-block;
