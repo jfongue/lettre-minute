@@ -1146,6 +1146,12 @@ export interface ChallengeSummary {
   nextId: string | null
   /** Chosen by the owner, or null: the challenge is then named after them. */
   name: string | null
+  /**
+   * What the challenge looked like when its player set it aside; null while it
+   * is not. Kept by the account, not the device, so the same challenges stay
+   * out of the list on the phone and in the browser.
+   */
+  hiddenStamp: string | null
 }
 
 export interface ChallengePlayer extends ChallengeEntry {
@@ -1229,6 +1235,7 @@ export function fetchChallenges(): Promise<ChallengeSummary[] | null> {
       seenRecap: row.seen_recap === true,
       nextId: (row.next_id as string | null) ?? null,
       name: text(row.name) || null,
+      hiddenStamp: (row.hidden_stamp as string | null) ?? null,
     }))
   }, null)
 }
@@ -1353,6 +1360,14 @@ export function reactInChallenge(id: string, target: string, emoji: ReactionEmoj
 export function markChallengeSeen(id: string, what: 'invite' | 'recap'): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('mark_challenge_seen', { p_challenge: id, p_what: what })
+    return !error
+  }, false)
+}
+
+/** Sets a challenge aside for this account, or brings it back with a null stamp. */
+export function markChallengeHidden(id: string, stamp: string | null): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('mark_challenge_hidden', { p_challenge: id, p_stamp: stamp })
     return !error
   }, false)
 }

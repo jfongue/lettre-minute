@@ -1,5 +1,6 @@
 import { settleChallenge } from '../domain/challenge'
 import type { Messages } from '../i18n'
+import { markChallengeHidden } from '../lib/cloud'
 import type { ChallengeDetail, ChallengeSummary } from '../lib/cloud'
 
 /** Whole hours before the challenge closes, one at least while it runs. */
@@ -43,8 +44,6 @@ export function challengeTitle(t: Messages, challenge: { owned: boolean; ownerNa
   return challenge.owned ? t.challenge.mine : t.challenge.by(challenge.ownerName)
 }
 
-const HIDDEN_KEY = 'lettre-minute.hidden-challenges.v1'
-
 /**
  * What a hidden challenge was when it was set aside. Anything new since — a
  * late player, a rematch — changes it, and the challenge shows again.
@@ -55,38 +54,33 @@ function stampOf(challenge: Stamped): string {
   return `${challenge.played}/${challenge.players}/${challenge.finished}/${challenge.nextId ?? ''}`
 }
 
-/** Challenge id → its stamp when hidden. On this device only: hiding is a matter of tidiness, not of record. */
-export function loadHiddenChallenges(): Record<string, string> {
-  try {
-    const stored: unknown = JSON.parse(localStorage.getItem(HIDDEN_KEY) ?? 'null')
-    if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return {}
-    return Object.fromEntries(Object.entries(stored).filter(([, stamp]) => typeof stamp === 'string'))
-  } catch {
-    return {}
-  }
-}
+/**
+ * The stamps set since the list was read, ahead of the server's answer. What
+ * the account hid on another device arrives with the list itself
+ * (`ChallengeSummary.hiddenStamp`); a null here brings one back.
+ */
+export type HiddenOverrides = Record<string, string | null>
+
+const pending: HiddenOverrides = {}
 
 /** Sent on the window each time the hidden set changes: the home list and the statistics both read it. */
 export const HIDDEN_CHANGED = 'lettre-minute:hidden-challenges'
 
-function saveHidden(next: Record<string, string>): Record<string, string> {
-  try {
-    localStorage.setItem(HIDDEN_KEY, JSON.stringify(next))
-  } catch {
-    /* hidden until the app closes */
-  }
+export function hiddenOverrides(): HiddenOverrides {
+  return { ...pending }
+}
+
+export function hideChallenge(challenge: Stamped): void {
+  const stamp = stampOf(challenge)
+  pending[challenge.id] = stamp
+  markChallengeHidden(challenge.id, stamp)
   globalThis.dispatchEvent?.(new Event(HIDDEN_CHANGED))
-  return next
 }
 
-export function hideChallenge(hidden: Record<string, string>, challenge: Stamped): Record<string, string> {
-  return saveHidden({ ...hidden, [challenge.id]: stampOf(challenge) })
-}
-
-export function unhideChallenge(hidden: Record<string, string>, id: string): Record<string, string> {
-  const next = { ...hidden }
-  delete next[id]
-  return saveHidden(next)
+export function unhideChallenge(id: string): void {
+  pending[id] = null
+  markChallengeHidden(id, null)
+  globalThis.dispatchEvent?.(new Event(HIDDEN_CHANGED))
 }
 
 /** A recap once read: the detail stamped as the list will read it. */
@@ -96,7 +90,7 @@ export function hideChallengeDetail(detail: {
   nextId: string | null
   players: readonly { playedAt: number | null }[]
 }): void {
-  hideChallenge(loadHiddenChallenges(), {
+  hideChallenge({
     id: detail.id,
     finished: detail.finished,
     nextId: detail.nextId,
@@ -105,8 +99,10 @@ export function hideChallengeDetail(detail: {
   })
 }
 
-export function isHidden(hidden: Record<string, string>, challenge: ChallengeSummary): boolean {
-  return hidden[challenge.id] === stampOf(challenge)
+/** Whether the account set it aside and nothing about it moved since. */
+export function isHidden(overrides: HiddenOverrides, challenge: ChallengeSummary): boolean {
+  const stamp = challenge.id in overrides ? overrides[challenge.id] : challenge.hiddenStamp
+  return stamp === stampOf(challenge)
 }
 
 const REVEALED_KEY = 'lettre-minute.revealed-recaps.v1'

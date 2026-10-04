@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ChallengeSummary } from '../lib/cloud'
-import { challengeNotice, challengeStatus, hideChallenge, isHidden, loadHiddenChallenges, settledPushTags } from './challenges'
+import { challengeNotice, challengeStatus, hideChallenge, hiddenOverrides, isHidden, settledPushTags } from './challenges'
 
 function summary(id: string, extra: Partial<ChallengeSummary> = {}): ChallengeSummary {
   return {
@@ -20,6 +20,7 @@ function summary(id: string, extra: Partial<ChallengeSummary> = {}): ChallengeSu
     seenRecap: false,
     name: null,
     nextId: null,
+    hiddenStamp: null,
     ...extra,
   }
 }
@@ -64,16 +65,17 @@ describe('settledPushTags', () => {
 
 describe('hidden challenges', () => {
   it('stay hidden until something changes, then show again', () => {
-    const store = new Map<string, string>()
-    Object.defineProperty(globalThis, 'localStorage', {
-      value: { getItem: (key: string) => store.get(key) ?? null, setItem: (key: string, value: string) => void store.set(key, value) },
-      configurable: true,
-    })
     const over = summary('over', { finished: true, mePlayed: true, played: 3 })
-    const hidden = hideChallenge(loadHiddenChallenges(), over)
-    expect(isHidden(loadHiddenChallenges(), over)).toBe(true)
-    expect(isHidden(hidden, summary('other'))).toBe(false)
-    expect(isHidden(hidden, { ...over, nextId: 'rematch' })).toBe(false)
-    Reflect.deleteProperty(globalThis, 'localStorage')
+    hideChallenge(over)
+    expect(isHidden(hiddenOverrides(), over)).toBe(true)
+    expect(isHidden(hiddenOverrides(), summary('other'))).toBe(false)
+    expect(isHidden(hiddenOverrides(), { ...over, nextId: 'rematch' })).toBe(false)
+  })
+
+  it('reads what the account hid earlier from the list itself', () => {
+    const stored = summary('kept', { finished: true, mePlayed: true, played: 3, hiddenStamp: '3/3/true/' })
+    expect(isHidden({}, stored)).toBe(true)
+    expect(isHidden({}, { ...stored, players: 4 })).toBe(false)
+    expect(isHidden({ kept: null }, stored)).toBe(false)
   })
 })

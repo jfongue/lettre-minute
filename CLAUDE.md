@@ -332,12 +332,16 @@ qu'un nouvel arrivant casserait sans le savoir.
   rejoués, d'où un détail chargé et rejoué par défi, un à la fois, puis gardé
   sur l'appareil une fois le défi clos. Gagner contre un ami, c'est finir
   devant lui, pas premier.
-- **Un défi ignoré ne l'est que sur l'appareil** (`hideChallenge`,
-  `src/state/challenges.ts`), sous une empreinte (joués, clos, revanche) : il
-  revient dès qu'elle change. Un bilan lu se masque tout seul et range son
-  gagnant sur l'appareil (`rememberWinner`) : le serveur ne connaît pas le
-  score des robots, que seul un client rejoue. Les anciens défis des
-  statistiques relisent le détail de ceux qui n'en ont pas.
+- **Un défi vu ou écarté l'est pour le compte, pas pour l'appareil**
+  (`mark_challenge_hidden`, 0041, `hideChallenge`, `src/state/challenges.ts`) :
+  les marques vivent dans la ligne du joueur, sous une empreinte (joués, clos,
+  revanche) que le client relit dans `my_challenges` — un défi écarté reste
+  écarté sur le téléphone comme dans le navigateur, et revient dès que
+  l'empreinte change. Le client n'en garde qu'un dépassement de session
+  (`hiddenOverrides`), le temps que la liste revienne du serveur. Un bilan lu se
+  masque tout seul et range son gagnant sur l'appareil (`rememberWinner`), lui :
+  le serveur ne connaît pas le score des robots, que seul un client rejoue. Les
+  anciens défis des statistiques relisent le détail de ceux qui n'en ont pas.
 - **Un ami sans le jeu s'invite par un lien ou par e-mail** (`InvitePanel`,
   `src/ui/FriendsView.tsx`). Le lien mène à `invite.html` (`src/invite.ts`,
   entrée Vite à part), dont les balises Open Graph et `invite-card.png`

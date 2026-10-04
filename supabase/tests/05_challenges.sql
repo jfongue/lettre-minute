@@ -98,6 +98,12 @@ select tests.is((select finished from public.my_challenges() where id = :'big'),
 select public.mark_challenge_seen(:'big', 'recap');
 select public.mark_challenge_seen(:'big', 'nonsense');
 select tests.is((select seen_recap from public.my_challenges() where id = :'big'), true, 'mark_challenge_seen marks the recap');
+select public.mark_challenge_hidden(:'big', '2/3/false/');
+select tests.is((select hidden_stamp from public.my_challenges() where id = :'big'), '2/3/false/',
+                'mark_challenge_hidden keeps the stamp the list reads');
+select public.mark_challenge_hidden(:'big', null);
+select tests.is((select hidden_stamp from public.my_challenges() where id = :'big'), null,
+                'a null stamp brings the challenge back');
 select tests.logout();
 
 -- -------------------------------------------------------------- closing --
