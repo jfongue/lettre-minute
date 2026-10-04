@@ -15,6 +15,7 @@ import {
   duelPrompt,
   duelRanking,
   duelTimeout,
+  forcedPick,
   inspectFor,
   openDuel,
   passTurn,
@@ -307,5 +308,15 @@ describe('les joueurs maison', () => {
     expect(botPick(duel, bot)).toBeNull()
     duel = pickCategory(duel, draftChoices(duel)[0]!)
     expect(IDS).toContain(botPick(duel, bot))
+  })
+
+  it('tire une catégorie du sort quand le joueur n’a pas choisi à temps', () => {
+    const duel = createDuel({ seed: 4, playerIds: ['me', 'maxitoon'], categories: IDS })
+    const forced = forcedPick(duel)
+
+    expect(IDS).toContain(forced)
+    expect(forcedPick(duel)).toBe(forced)
+    expect(forcedPick(pickCategory(duel, forced!))).not.toBe(forced)
+    expect(forcedPick({ ...duel, phase: 'play' })).toBeNull()
   })
 })
