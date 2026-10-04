@@ -888,6 +888,17 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     youWin: 'Tu remportes le duel',
     scoreLine: (points: number, words: number) => `${points} points · ${words} mot${words > 1 ? 's' : ''}`,
     rematch: 'Revanche',
+    revenging: 'Revanche',
+    rematchTitle: 'Nouveau duel',
+    rematchLead: (players: number) => `${players} joueurs confirmés : la table peut partir sans attendre les autres.`,
+    rematchNeed: 'Il faut au moins deux joueurs confirmés pour relancer.',
+    startNow: (players: number) => `Lancer maintenant (${players})`,
+    left: (names: string) => `${names} a quitté la revanche.`,
+    rematchWaiting: 'Une revanche est ouverte : la table se reforme.',
+    joinRematch: 'Rejoindre la revanche',
+    next: 'La main passe',
+    standing: (players: number) => `${players} joueurs encore en jeu`,
+    lastStanding: 'Dernier en jeu',
   },
 }
 
