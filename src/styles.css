@@ -8690,8 +8690,9 @@ body[data-words='board'] .offer-pop-layer {
 }
 
 /* Le duel : quatre places autour d'une table, la main posée sur l'une d'elles ;
-   le défi : un cadran, la journée entamée au quart. Les deux dessins sont taillés
-   comme les icônes du jeu — un seul aplat, un trait épais, rien qui bouge. */
+   le défi : un disque jaune cerclé de noir, le quart de la journée en bleu. Les
+   deux dessins sont taillés comme les icônes du jeu — un aplat, un trait épais,
+   rien qui bouge. */
 .together-art {
   display: block;
   width: 4.2rem;
@@ -8709,14 +8710,16 @@ body[data-words='board'] .offer-pop-layer {
   fill: var(--red);
 }
 
-.together-dial {
-  fill: none;
+/* Le quart s'arrête au bord intérieur du cerne : les deux se touchent sans se
+   chevaucher, et le disque reste rond. */
+.together-disc {
+  fill: var(--yellow);
   stroke: currentColor;
   stroke-width: 8;
 }
 
 .together-slice {
-  fill: var(--green);
+  fill: var(--blue);
 }
 
 /* -------------------------------------------- une invitation à une table - */

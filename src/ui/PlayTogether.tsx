@@ -67,10 +67,9 @@ export function PlayTogether({ challenge, onDuel, onChallenge, onClose }: { chal
               onChallenge()
             }}
           >
-            <svg className="together-art together-art--challenge" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
-              <circle className="together-dial" cx="50" cy="50" r="41" />
-              <path className="together-slice" d="M50 50V9A41 41 0 0 1 91 50Z" />
-              <path d="M47 50V24H53V50Z" transform="rotate(90 50 50)" />
+            <svg className="together-art together-art--challenge" viewBox="0 0 100 100" aria-hidden="true">
+              <circle className="together-disc" cx="50" cy="50" r="42" />
+              <path className="together-slice" d="M50 50V12A38 38 0 0 1 88 50Z" />
             </svg>
             <span className="together-text">
               <b>{t.duel.challengeCard}</b>
