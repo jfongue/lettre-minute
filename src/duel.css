@@ -1,0 +1,1602 @@
+/*
+ * Le duel : ce que le multijoueur ajoute au jeu. Les jetons de couleur, la
+ * police, `.stage`, `.sheet`, `.run`, `.answer`, `.verdict`, `.dealt` et leurs
+ * animations vivent dans styles.css et sont repris tels quels ; ici, seulement
+ * le salon, le draft, le tirage de l'ouvreur, la table en partie et le bilan.
+ * À fondre dans styles.css le jour où le duel rejoint l'accueil.
+ */
+
+/* La colonne du `.stage` se dimensionne sur son contenu : une liste longue
+   (le récapitulatif) élargirait la feuille au-delà de l'écran. Ici la colonne
+   prend la largeur disponible, et `.sheet` garde sa largeur. */
+.stage--duel {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Même chose dans la feuille : une colonne implicite se dimensionne sur son
+   contenu, et une longue liste pousserait la ligne hors de l'écran. */
+.stage--duel .sheet {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.duel-title {
+  font-size: clamp(1.8rem, 8vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  animation: slide-from-left 420ms var(--ease-out) both;
+}
+
+.duel-lead {
+  animation: fade 360ms ease both;
+}
+
+/* ------------------------------------------------------------- le salon - */
+
+/* Les quatre places de la table : moi, puis les trois joueurs maison. */
+.duel-seats {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.duel-seatcard {
+  animation: band-from-left 520ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 80ms);
+  transition:
+    opacity 260ms ease,
+    transform 260ms var(--ease-out);
+}
+
+.duel-seatcard__button {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto auto;
+  align-items: center;
+  gap: 0.1rem 0.5rem;
+  width: 100%;
+  min-height: 5.6rem;
+  padding: 0.65rem 0.65rem 0.55rem;
+  border: var(--line) solid var(--rule);
+  background: var(--paper-2);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  transition:
+    transform 180ms var(--ease-spring),
+    border-color 220ms ease,
+    background 220ms ease;
+}
+
+.duel-seatcard__face {
+  grid-row: 1 / span 2;
+  display: block;
+}
+
+.duel-seatcard__face .avatar {
+  width: 2.5rem;
+}
+
+.duel-seatcard__text {
+  display: grid;
+  min-width: 0;
+}
+
+.duel-seatcard__text b {
+  overflow: hidden;
+  font-size: 0.95rem;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-seatcard__text small {
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-seatcard__stamp {
+  grid-column: 1 / -1;
+  margin-top: 0.35rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  animation: duel-stamp 360ms var(--ease-spring) both;
+}
+
+/* Une place libre : en pointillé, elle attend un invité. */
+.duel-seatcard--empty .duel-seatcard__button {
+  border-style: dashed;
+  background: transparent;
+  color: var(--ink-faint);
+}
+
+.duel-seatcard__face--empty {
+  width: 2.5rem;
+  aspect-ratio: 1;
+  border: var(--line) dashed var(--rule);
+}
+
+.duel-seatcard--seated .duel-seatcard__button {
+  border-color: var(--ink);
+}
+
+/* Invité, pas encore assis : la place est retenue, en pointillé. */
+.duel-seatcard--pending .duel-seatcard__button {
+  border-style: dashed;
+  border-color: var(--ink-soft);
+}
+
+.duel-seatcard--pending .duel-seatcard__face {
+  opacity: 0.55;
+}
+
+.duel-seatcard--pending .duel-seatcard__stamp {
+  color: var(--blue);
+}
+
+.duel-seatcard--ready .duel-seatcard__button {
+  border-color: var(--green);
+}
+
+.duel-seatcard--ready .duel-seatcard__stamp {
+  color: var(--green);
+}
+
+.duel-seatcard--ready .duel-seatcard__face {
+  animation: bump 420ms var(--ease-spring);
+}
+
+/* L'hôte retient une place pour la retirer : la carte se remplit pendant l'appui. */
+.duel-seatcard--kickable {
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+.duel-seatcard--kickable .duel-seatcard__button {
+  overflow: hidden;
+}
+
+.duel-seatcard--kickable .duel-seatcard__button::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.duel-seatcard--kickable:active .duel-seatcard__button::after {
+  transform: scaleX(1);
+  transition: transform 550ms linear;
+}
+
+.duel-seatcard--kickable:active .duel-seatcard__button {
+  transform: scale(0.97);
+}
+
+.duel-hint {
+  min-height: 1.4em;
+  margin: -0.3rem 0 0;
+  animation: fade 240ms ease both;
+}
+
+/* Qui inviter : une liste courte, une ligne par joueur, un « + » qui s'enfonce. */
+.duel-invite {
+  display: grid;
+  gap: 0.45rem;
+  animation: fade 300ms ease both;
+}
+
+.duel-invite__list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+.duel-invite__list li {
+  animation: band-from-left 420ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+.duel-invite__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: var(--line) solid var(--rule);
+  background: var(--paper-2);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-spring);
+}
+
+.duel-invite__row:active {
+  transform: scale(0.98);
+}
+
+.duel-invite__row .avatar {
+  width: 2rem;
+}
+
+.duel-invite__name {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+
+.duel-invite__name b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-invite__name small {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+}
+
+.duel-invite__plus {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  flex: none;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 800;
+}
+
+/* La feuille d'expulsion : par-dessus le salon, un geste qui se confirme. */
+.duel-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  padding: var(--gutter);
+  padding-bottom: max(var(--gutter), env(safe-area-inset-bottom));
+  background: rgb(0 0 0 / 38%);
+  animation: fade 200ms ease both;
+}
+
+.duel-sheet__card {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  width: min(24rem, 100%);
+  padding: 1.2rem 1rem 1rem;
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  animation: rise-in 320ms var(--ease-spring) both;
+}
+
+.duel-sheet__face .avatar {
+  width: 3.2rem;
+}
+
+.duel-kick {
+  background: var(--red);
+  color: var(--black);
+  border-color: var(--red);
+}
+
+/* Le bouton du salon : l'action à gauche, la taille de la table à droite. */
+.duel-cta {
+  padding-right: 1.5rem;
+  font-size: 1.15rem;
+  letter-spacing: 0.12em;
+}
+
+.duel-cta small {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/* La mèche de l'annonce : le draft arrive quand elle est consumée. */
+.duel-fuse--announce i {
+  animation: fuse 3.2s linear both;
+}
+
+/* -------------------------------------------------------------- le draft - */
+
+.duel-order {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.duel-order__slot {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: var(--line) solid var(--rule);
+  background: var(--paper-2);
+  color: var(--ink-faint);
+  font-weight: 800;
+  transition:
+    transform 220ms var(--ease-spring),
+    border-color 200ms ease;
+}
+
+.duel-order__slot .avatar {
+  width: 1.6rem;
+}
+
+.duel-order__slot--now {
+  border-color: var(--ink);
+  transform: translateY(-3px);
+}
+
+.duel-order__slot--done {
+  border-color: transparent;
+  animation: pop-in 360ms var(--ease-spring) both;
+}
+
+.duel-order__slot--luck:not(.duel-order__slot--done) {
+  border-style: dashed;
+}
+
+.duel-order__icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.duel-turn {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  min-height: 2rem;
+  min-width: 0;
+  font-size: clamp(1.05rem, 4.8vw, 1.3rem);
+  animation: slide-from-left 320ms var(--ease-out) both;
+}
+
+.duel-turn .avatar,
+.duel-turn .duel-turn__icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+}
+
+.duel-turn b {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-turn--mine b {
+  font-weight: 800;
+}
+
+.duel-turn__left {
+  margin-left: auto;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.duel-fuse {
+  display: block;
+  height: 4px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.duel-fuse i {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: left center;
+  transition: transform 100ms linear;
+}
+
+.duel-fuse--mine i {
+  background: var(--blue);
+}
+
+.duel-fuse--late i {
+  background: var(--red);
+}
+
+.dealt--pick {
+  width: 100%;
+}
+
+.dealt--pick li {
+  animation-delay: calc(var(--i, 0) * 55ms + 80ms);
+}
+
+.dealt--pick .dealt-tile {
+  font-size: clamp(1.15rem, 5.6vw, 1.6rem);
+  padding-block: 0.7rem;
+  transition:
+    opacity 240ms ease,
+    transform 200ms var(--ease-spring);
+}
+
+/* À mon tour, les tuiles libres respirent : on comprend qu'elles se touchent. */
+.dealt-tile--open .dealt-shape {
+  animation: bob 1.6s var(--ease-out) infinite;
+}
+
+.dealt-tile--taken {
+  opacity: 0.45;
+}
+
+.dealt--chosen .dealt-tile--taken {
+  animation: duel-taken 420ms var(--ease-spring);
+}
+
+/* Le choix d'office se signale avant de tomber — sur la tuile, pas sur sa
+   ligne, dont l'entrée rejouerait sinon quand la classe tombe. */
+.dealt--offered .dealt-tile {
+  animation: duel-offered 520ms var(--ease-out) infinite alternate;
+}
+
+.dealt-taken {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  animation: duel-stamp 360ms var(--ease-spring) both;
+}
+
+.dealt-taken .avatar {
+  width: 1.3rem;
+}
+
+.dealt--luck .dealt-taken {
+  padding: 0.12rem 0.4rem;
+  border: 1px dashed currentColor;
+}
+
+@keyframes duel-taken {
+  40% {
+    transform: scale(0.96);
+  }
+}
+
+@keyframes duel-offered {
+  to {
+    filter: brightness(1.12);
+    transform: translateX(4px);
+  }
+}
+
+/* --------------------------------------------------------- le tirage - */
+
+.duel-opening {
+  min-height: 70dvh;
+  align-content: center;
+}
+
+.duel-pool {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.duel-pool li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  animation: pop-in 360ms var(--ease-spring) both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+.duel-pool__icon {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.duel-wheel {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.duel-wheel__seat {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 0.2rem;
+  border: var(--line) solid var(--rule);
+  background: var(--paper-2);
+  transition:
+    transform 140ms var(--ease-spring),
+    opacity 300ms ease,
+    background 120ms ease,
+    border-color 120ms ease;
+}
+
+.duel-wheel__seat .avatar {
+  width: min(3.4rem, 100%);
+}
+
+.duel-wheel__seat b {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.74rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-wheel__seat--lit {
+  border-color: var(--ink);
+  background: var(--yellow);
+  color: var(--black);
+  transform: translateY(-4px);
+}
+
+.duel-wheel__seat--chosen {
+  animation: duel-chosen 620ms var(--ease-spring) both;
+}
+
+.duel-wheel__seat--rest {
+  opacity: 0.4;
+}
+
+@keyframes duel-chosen {
+  0% {
+    transform: translateY(-4px) scale(1);
+  }
+  40% {
+    transform: translateY(-8px) scale(1.1) rotate(-3deg);
+  }
+  100% {
+    transform: translateY(-4px) scale(1.04);
+  }
+}
+
+/* Le nom de l'ouvreur et le compte à rebours se relaient au même endroit. */
+.duel-opening__stage {
+  display: grid;
+  place-items: center;
+  min-height: min(52vw, 13rem);
+}
+
+.duel-opening__name {
+  display: grid;
+  gap: 0.4rem;
+  text-align: center;
+}
+
+.duel-beat {
+  width: min(48vw, 12rem);
+}
+
+.duel-beat .countdown-number {
+  font-size: clamp(5rem, 28vw, 8rem);
+}
+
+/* --------------------------------------------------------- la partie - */
+
+.duel-run {
+  gap: 0.8rem;
+}
+
+/* Mes trois dernières secondes : le chiffre bat en rouge. */
+.clock--late {
+  color: var(--red);
+}
+
+/* La table en tête d'écran : ma place d'abord, plus large, qui porte ma
+   réserve en grand ; les autres n'ont que leur barre. */
+.duel-strip {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr);
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 0.35rem;
+}
+
+.duel-seat {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 0.45rem 0.25rem 0.4rem;
+  border: var(--line) solid transparent;
+  background: var(--paper-2);
+  color: var(--ink);
+  transition:
+    transform 260ms var(--ease-spring),
+    background 220ms ease,
+    border-color 220ms ease;
+}
+
+.duel-seat--me {
+  grid-template-columns: auto minmax(0, 1fr);
+  justify-items: start;
+  align-items: center;
+  column-gap: 0.55rem;
+  padding-inline: 0.5rem;
+  border-color: var(--rule);
+}
+
+.duel-seat--me .duel-seat__bar,
+.duel-seat--me .duel-seat__clock {
+  grid-column: 1 / -1;
+}
+
+.duel-seat__mine {
+  min-width: 2ch;
+  font-size: clamp(2.1rem, 10vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Le « s » des secondes : petit, collé au chiffre, jamais plus gros que lui. */
+.duel-seat__mine .duel-seat__unit {
+  margin-left: 0.08em;
+  font-size: 0.42em;
+}
+
+.duel-seat__secs .duel-seat__unit {
+  margin-left: 0.15em;
+  font-size: 0.85em;
+}
+
+.run--critical .duel-seat__mine {
+  animation: duel-blink 460ms steps(1, end) infinite;
+}
+
+/* Qui a la main : un jaune franc, et un texte toujours noir dessus, en clair
+   comme en sombre. */
+.duel-seat--active {
+  border-color: var(--ink);
+  background: var(--yellow);
+  color: var(--black);
+  transform: translateY(-3px);
+}
+
+.duel-seat--active .duel-seat__clock {
+  color: var(--black);
+  font-weight: 800;
+}
+
+.duel-seat--active .duel-seat__bar {
+  background: rgb(21 21 21 / 18%);
+}
+
+/* La place qui prend la main ne change pas de taille : elle s'allume. Un siège
+   qui grossit ferait bouger la largeur du bandeau à chaque tour. */
+.duel-seat--me .duel-seat__name {
+  font-weight: 800;
+}
+
+.duel-seat--dead {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.duel-seat--late .duel-seat__bar i {
+  background: var(--red);
+  animation: duel-blink 460ms steps(1, end) infinite;
+}
+
+.duel-seat--late .duel-seat__clock,
+.duel-seat--late .duel-seat__name {
+  color: var(--red);
+  font-weight: 800;
+}
+
+.duel-seat--active.duel-seat--late {
+  background: var(--black);
+  color: var(--cream);
+  border-color: var(--red);
+}
+
+/* Le tombé se marque sur place, d'un liseré rouge : le bandeau garde ses
+   largeurs pendant la mise en scène. */
+.duel-seat--fallen {
+  box-shadow: inset 0 0 0 3px var(--red);
+}
+
+@keyframes duel-blink {
+  50% {
+    opacity: 0.15;
+  }
+}
+
+.duel-seat__face {
+  position: relative;
+  display: block;
+}
+
+.duel-seat__face .avatar {
+  width: 2.3rem;
+}
+
+.duel-seat__cross {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--red);
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+
+.duel-seat__name {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 0.68rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-seat__bar {
+  display: block;
+  width: 100%;
+  height: 5px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.duel-seat__bar i {
+  display: block;
+  height: 100%;
+  background: currentColor;
+  transform-origin: left center;
+  transition: transform 100ms linear;
+}
+
+/* Les secondes des autres, en tout petit au-dessus de leur barre. */
+.duel-seat__secs {
+  margin-bottom: -0.15rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.duel-seat--me .duel-seat__secs {
+  display: none;
+}
+
+.duel-seat__clock {
+  font-size: 0.78rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+
+/* Ce qu'un fait vient de rendre ou de coûter : un chiffre qui s'envole du siège. */
+.duel-seat__delta {
+  position: absolute;
+  top: -0.2rem;
+  left: 50%;
+  padding: 0.05rem 0.4rem;
+  background: var(--green);
+  color: var(--cream);
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: duel-delta 1300ms var(--ease-out) both;
+}
+
+.duel-seat__delta--loss {
+  background: var(--red);
+}
+
+@keyframes duel-delta {
+  0% {
+    transform: translate(-50%, 0.6rem) scale(0.6);
+    opacity: 0;
+  }
+  18% {
+    transform: translate(-50%, -0.5rem) scale(1.1);
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-50%, -0.9rem) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -1.4rem) scale(1);
+    opacity: 0;
+  }
+}
+
+/* La main reprise après une mort : la place s'allume d'un anneau, sans grossir. */
+.duel-seat--resume {
+  box-shadow: 0 0 0 3px var(--blue);
+}
+
+/* Posée sur le fil, jamais sur le couple : la main qui m'arrive ne me cache pas ma lettre. */
+.duel-resume {
+  position: fixed;
+  left: 50%;
+  top: calc(max(1.25rem, env(safe-area-inset-top)) + 5.4rem);
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.7rem 1.1rem;
+  background: var(--blue);
+  color: var(--cream);
+  font-size: clamp(1.3rem, 6.5vw, 1.8rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: duel-resume 1100ms var(--ease-out) both;
+}
+
+.duel-resume .avatar {
+  width: 2rem;
+}
+
+@keyframes duel-resume {
+  0% {
+    transform: translate(-50%, 0.6rem) scale(0.6);
+    opacity: 0;
+  }
+  18% {
+    transform: translate(-50%, 0) scale(1.06);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(-50%, 0) scale(1);
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -0.8rem) scale(1);
+    opacity: 0;
+  }
+}
+
+/* Le fil de la table : trois lignes réservées, le plus récent en tête, pour
+   que rien ne pousse le couple pendant qu'on tape. */
+.duel-feed {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-auto-rows: 1.55rem;
+  height: calc(3 * 1.55rem + 2 * 0.15rem);
+  gap: 0.15rem;
+  overflow: hidden;
+}
+
+.duel-feed__line {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  font-size: 0.86rem;
+  opacity: calc(1 - var(--rank, 0) * 0.3);
+  transition: opacity 300ms ease;
+}
+
+.duel-feed__line:first-child {
+  font-weight: 700;
+  animation: slide-from-left 360ms var(--ease-spring) both;
+}
+
+.duel-feed__line .avatar {
+  width: 1.25rem;
+}
+
+.duel-feed__line .tag {
+  flex: none;
+  font-size: 0.6rem;
+  padding: 0.05rem 0.35rem;
+}
+
+.duel-feed__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-feed__mark {
+  display: grid;
+  place-items: center;
+  width: 1.25rem;
+  flex: none;
+  color: var(--red);
+  font-weight: 800;
+}
+
+.duel-feed__saved {
+  flex: none;
+  padding: 0.05rem 0.35rem;
+  background: var(--green);
+  color: var(--cream);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  animation: duel-stamp 360ms var(--ease-spring) both;
+}
+
+.duel-feed__delta {
+  flex: none;
+  margin-left: auto;
+  color: var(--green);
+  font-size: 0.8rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.duel-feed__delta--loss {
+  color: var(--red);
+}
+
+.duel-feed__line--dead .duel-feed__text {
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.duel-board {
+  display: grid;
+  gap: 0.4rem;
+}
+
+/* Qui a la main : une ligne au-dessus du couple. */
+.duel-face {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 1.6rem;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  animation: slide-from-left 300ms var(--ease-out) both;
+}
+
+.duel-face .avatar {
+  width: 1.4rem;
+}
+
+.duel-face--mine {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.duel-face--mine b {
+  font-weight: 800;
+}
+
+.duel-face__dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  flex: none;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: throb 1.2s var(--ease-out) infinite;
+}
+
+.duel-face--watching b {
+  font-weight: 600;
+}
+
+/* Un couple hérité le dit : quelqu'un l'a déjà eu entre les mains. */
+.duel-inherited {
+  margin-left: auto;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid currentColor;
+  color: var(--ink-soft);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  animation: duel-stamp 360ms var(--ease-spring) both;
+}
+
+.duel-prompt__mark {
+  display: block;
+}
+
+/* La main passe sans couple neuf : la lettre glisse d'un cran, elle a changé de joueur. */
+.duel-prompt--inherited .duel-prompt__mark {
+  animation: duel-handoff 460ms var(--ease-spring);
+}
+
+@keyframes duel-handoff {
+  0% {
+    transform: translateX(-0.8rem) rotate(-6deg);
+  }
+  60% {
+    transform: translateX(0.25rem) rotate(2deg);
+  }
+}
+
+/* Ce que j'écris n'est que de l'avance : le champ est plus discret. */
+.answer--ahead input {
+  opacity: 0.75;
+}
+
+.duel-ahead {
+  margin-right: 0.4rem;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--ink-faint);
+  color: var(--ink-faint);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: fade 200ms ease both;
+}
+
+/* La main m'arrive avec un mot déjà juste : le bouton appelle le doigt. */
+.duel-armed {
+  animation: duel-armed 900ms var(--ease-out) infinite;
+}
+
+@keyframes duel-armed {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(31 72 199 / 45%);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgb(31 72 199 / 0%);
+  }
+}
+
+@keyframes duel-stamp {
+  from {
+    transform: scale(1.4) rotate(-4deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------- la mort d'un joueur - */
+
+/* La partie reste à l'écran, assombrie : la mort se joue par-dessus, jamais à
+   la place. Le tombé se barre, trois temps passent, la main revient. */
+.duel-death {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  background: rgb(0 0 0 / 42%);
+  backdrop-filter: blur(1.5px);
+  pointer-events: none;
+  animation: fade 240ms ease both;
+}
+
+.duel-death__card {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  width: min(22rem, 100%);
+  padding: 1.4rem 1.2rem 1.2rem;
+  color: var(--cream);
+  background: var(--black);
+  border: var(--line) solid var(--red);
+  text-align: center;
+  animation: pop-in 460ms var(--ease-spring) both;
+}
+
+.duel-death__face {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 6rem;
+  animation: death-fall 700ms var(--ease-snap) both;
+}
+
+.duel-death__face .avatar {
+  width: 6rem;
+  filter: grayscale(1) contrast(1.15);
+}
+
+.duel-death__cross {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--red);
+  font-size: 5rem;
+  font-weight: 800;
+  line-height: 1;
+  animation: death-cross 520ms var(--ease-spring) 240ms both;
+}
+
+.duel-death__word {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--red);
+  animation: duel-stamp 460ms var(--ease-spring) both;
+}
+
+.duel-death__name {
+  font-size: clamp(1.5rem, 8vw, 2.1rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.duel-death__card .note {
+  color: var(--cream);
+  opacity: 0.75;
+}
+
+/* La dernière mort nomme le gagnant, au lieu de rendre la main. */
+.duel-death__winner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.4rem 0 0;
+  padding: 0.45rem 0.7rem;
+  background: var(--yellow);
+  color: var(--black);
+  font-weight: 800;
+  animation: pop-in 520ms var(--ease-spring) 900ms both;
+}
+
+.duel-death__winner .avatar {
+  width: 1.6rem;
+}
+
+.duel-death__next {
+  color: var(--cream);
+}
+
+.duel-death__beat {
+  display: grid;
+  place-items: center;
+  margin: 0.2rem 0 0;
+  width: 3.6rem;
+  height: 3.6rem;
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--black);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  animation: duel-death-beat 800ms var(--ease-out) both;
+}
+
+@keyframes duel-death-beat {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes death-fall {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  35% {
+    transform: rotate(-7deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(9deg) translateY(0.3rem) scale(0.92);
+    opacity: 0.85;
+  }
+}
+
+@keyframes death-cross {
+  from {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* ---------------------------------------------------- le récapitulatif - */
+
+/* L'affiche du gagnant : son portrait, son nom, et les confettis si c'est moi. */
+.duel-poster {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  padding: 1.4rem 1rem 1.2rem;
+  border: var(--line) solid var(--ink);
+  text-align: center;
+  isolation: isolate;
+  animation: pop-in 520ms var(--ease-spring) both;
+}
+
+.duel-poster--win {
+  background: var(--yellow);
+  color: var(--black);
+  border-color: var(--black);
+}
+
+.duel-poster--win .eyebrow,
+.duel-poster--win .note {
+  color: var(--black);
+}
+
+.duel-poster .burst {
+  z-index: -1;
+}
+
+.duel-poster__face {
+  display: block;
+  animation: duel-chosen 720ms var(--ease-spring) 200ms both;
+}
+
+.duel-poster__face .avatar {
+  width: 5.5rem;
+}
+
+.duel-winner {
+  font-size: clamp(1.5rem, 7.5vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  animation: pop-in 460ms var(--ease-spring) 320ms both;
+}
+
+.duel-ranking {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  opacity: 1;
+}
+
+.duel-rank {
+  display: grid;
+  grid-template-columns: 1.75rem auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.35rem 0.65rem;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--rule);
+  opacity: 0;
+}
+
+.duel-rank--in {
+  animation: word-land 420ms var(--ease-spring) both;
+}
+
+.duel-rank--first {
+  background: var(--paper-2);
+}
+
+.duel-rank--me .duel-rank__who b {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.duel-rank--dead {
+  color: var(--ink-soft);
+}
+
+.duel-rank--dead .avatar {
+  filter: grayscale(1);
+  opacity: 0.7;
+}
+
+.duel-rank__place {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.duel-rank--first .duel-rank__place {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.duel-rank__who {
+  display: grid;
+  min-width: 0;
+}
+
+.duel-rank__who b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-rank__who b {
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.duel-rank__who small {
+  font-size: 0.74rem;
+  opacity: 0.75;
+}
+
+.duel-rank__words {
+  grid-column: 3 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.duel-rank__words:empty {
+  display: none;
+}
+
+/* Le bilan n'a pas de pictogramme dans ses boutons : le libellé se centre. */
+.duel-over .btn--play {
+  justify-content: center;
+  padding-inline: 1.5rem;
+}
+
+.duel-rank__words em {
+  padding: 0.1rem 0.4rem;
+  background: var(--paper-2);
+  color: var(--ink);
+  font-size: 0.7rem;
+  font-style: normal;
+}
+
+.duel-rank--first .duel-rank__words em {
+  background: var(--paper);
+}
+
+.duel-rank__words em.duel-rank__word--rare {
+  background: var(--blue);
+  color: var(--cream);
+}
+
+.duel-actions {
+  opacity: 0;
+  transform: translateY(0.5rem);
+  transition:
+    opacity 320ms ease,
+    transform 320ms var(--ease-out);
+}
+
+.duel-actions--in {
+  opacity: 1;
+  transform: none;
+}
+
+/* --------------------------------------------------------- l'attente - */
+
+.duel-notice {
+  min-height: 60dvh;
+  align-content: center;
+  text-align: center;
+}
+
+.duel-notice__dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.duel-notice__dots i {
+  width: 0.7rem;
+  height: 0.7rem;
+  background: var(--ink);
+  animation: loader-hop 900ms var(--ease-out) infinite;
+}
+
+.duel-notice__dots i:nth-child(2) {
+  animation-delay: 150ms;
+  border-radius: 50%;
+}
+
+.duel-notice__dots i:nth-child(3) {
+  animation-delay: 300ms;
+}
+
+/* ------------------------------------------------------ sous le clavier - */
+
+/* Le clavier du téléphone prend la moitié basse de l'écran, et l'app Android
+   rétrécit la vue d'autant (`resize: 'native'`) : sous cette hauteur, la
+   partie se resserre pour que la montre, la table, le couple, le champ et ses
+   deux boutons tiennent tous au-dessus des touches. */
+@media (max-height: 640px) {
+  .stage--duel-play {
+    padding-top: max(0.6rem, env(safe-area-inset-top));
+    padding-bottom: 0.6rem;
+  }
+
+  .duel-run {
+    gap: 0.45rem;
+  }
+
+  /* Les sièges se resserrent : les autres perdent leur nom, ma réserve rapetisse. */
+  .duel-seat {
+    padding: 0.3rem 0.35rem;
+    row-gap: 0.2rem;
+  }
+
+  .duel-seat--active {
+    transform: none;
+  }
+
+  .duel-seat__face .avatar {
+    width: 1.6rem;
+  }
+
+  .duel-seat__name {
+    display: none;
+  }
+
+  .duel-seat__mine {
+    font-size: 1.9rem;
+  }
+
+  .duel-seat__bar {
+    height: 4px;
+  }
+
+  .duel-seat__cross {
+    font-size: 1.2rem;
+  }
+
+  .duel-resume {
+    top: calc(max(0.6rem, env(safe-area-inset-top)) + 3.4rem);
+    font-size: 1.15rem;
+    padding: 0.45rem 0.8rem;
+  }
+
+  /* Le fil ne garde que ses deux derniers faits. */
+  .duel-feed {
+    height: calc(2 * 1.35rem + 0.15rem);
+    grid-auto-rows: 1.35rem;
+  }
+
+  .duel-feed__line:nth-child(n + 3) {
+    visibility: hidden;
+  }
+
+  .duel-board {
+    gap: 0.2rem;
+  }
+
+  .duel-face {
+    min-height: 1.3rem;
+    font-size: 0.82rem;
+  }
+
+  .duel-prompt {
+    gap: 0.8rem;
+    padding: 0;
+  }
+
+  .duel-prompt .mark--lg {
+    width: 3.6rem;
+    height: 3.6rem;
+    font-size: 2.2rem;
+  }
+
+  .duel-prompt .prompt-label {
+    font-size: 1.45rem;
+  }
+
+  .duel-prompt .note {
+    display: none;
+  }
+
+  .duel-run .answer input {
+    padding-block: 0.25rem;
+    font-size: 1.7rem;
+  }
+
+  .duel-run .verdict {
+    min-height: 1.2rem;
+    font-size: 0.8rem;
+  }
+
+  .duel-run .answer-actions {
+    margin-top: 0.1rem;
+  }
+
+  .duel-run .answer-actions .btn {
+    min-height: 2.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .duel-seatcard,
+  .duel-seatcard__button,
+  .duel-seatcard__button::after,
+  .duel-invite__list li,
+  .duel-sheet__card,
+  .duel-resume,
+  .duel-notice__dots i,
+  .duel-seatcard__face,
+  .duel-seatcard__stamp,
+  .duel-rank,
+  .duel-seat,
+  .duel-seat__face,
+  .duel-seat__delta,
+  .duel-feed__line,
+  .duel-face,
+  .duel-wheel__seat,
+  .duel-order__slot,
+  .duel-prompt__mark,
+  .duel-poster,
+  .duel-poster__face,
+  .duel-winner,
+  .duel-armed,
+  .dealt--offered,
+  .dealt-tile--open .dealt-shape {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .duel-rank {
+    opacity: 1;
+  }
+}

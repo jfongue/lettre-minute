@@ -8449,3 +8449,363 @@ body[data-words='board'] .offer-pop-layer {
 .achievement-icon .motion {
   animation: none !important;
 }
+
+/* ------------------------------------------------------ fonctionnalités - */
+/* Le réglage des fonctionnalités : une ligne par fonctionnalité, une case par
+   public, qu'on touche pour la faire tourner dispo → bloqué → neutre. */
+.features-grid {
+  display: grid;
+  gap: 0.35rem;
+  overflow-x: auto;
+}
+
+.features-row {
+  display: grid;
+  grid-template-columns: minmax(11rem, 2.4fr) repeat(4, minmax(4.6rem, 1fr)) minmax(4rem, 0.8fr);
+  align-items: stretch;
+  gap: 0.35rem;
+  min-width: 40rem;
+}
+
+.features-row--head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 0.4rem 0;
+  background: var(--paper);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.features-name {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.35rem 0;
+}
+
+.features-name small {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+}
+
+.features-cell {
+  border: var(--line) solid transparent;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-spring),
+    background 160ms ease;
+}
+
+.features-cell:active {
+  transform: scale(0.94);
+}
+
+.features-cell--on {
+  background: var(--green);
+  color: var(--cream);
+}
+
+.features-cell--off {
+  background: var(--red);
+  color: var(--black);
+}
+
+.features-cell--neutral {
+  background: transparent;
+  border-color: var(--rule);
+  color: var(--ink-soft);
+}
+
+.features-cell--saving {
+  opacity: 0.55;
+}
+
+.features-cell--error {
+  outline: 2px dashed var(--red);
+  outline-offset: 2px;
+}
+
+.features-mine {
+  display: grid;
+  place-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ink-faint);
+}
+
+.features-mine--on {
+  color: var(--green);
+}
+
+/* Sur téléphone, une carte par fonctionnalité : son nom, puis ses quatre
+   cases côte à côte, chacune nommée, et ce qu'elle donne pour soi. */
+@media (max-width: 40rem) {
+  .features-grid {
+    gap: 0.6rem;
+  }
+
+  .features-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    min-width: 0;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .features-row--head {
+    display: none;
+  }
+
+  .features-name {
+    grid-column: 1 / span 3;
+  }
+
+  .features-mine {
+    grid-column: 4;
+    grid-row: 1;
+  }
+
+  .features-cell {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.35rem 0.2rem;
+    min-height: 2.8rem;
+  }
+
+  .features-cell::before {
+    content: attr(data-audience);
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+}
+
+/* ---------------------------------------------------- jouer entre amis - */
+/* Le choix du duel ou du défi : deux grandes cartes, leur dessin à côté du
+   texte, qui arrivent l'une après l'autre. */
+.together {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow-y: auto;
+  background: var(--paper);
+  padding: max(1.25rem, env(safe-area-inset-top)) var(--gutter) max(1.25rem, env(safe-area-inset-bottom));
+  animation: fade 220ms ease both;
+}
+
+.together-sheet {
+  display: grid;
+  gap: 0.9rem;
+  width: min(34rem, 100%);
+  margin: 0 auto;
+}
+
+.together-close {
+  justify-self: start;
+}
+
+.together-title {
+  font-size: clamp(1.9rem, 9vw, 2.7rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  animation: fade 240ms ease both;
+}
+
+.together-lead {
+  margin-top: -0.3rem;
+  animation: fade 240ms ease 60ms both;
+}
+
+.together-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.1rem 1rem;
+  border: var(--line) solid var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  animation: fade 260ms ease both;
+  animation-delay: calc(var(--i, 0) * 90ms + 60ms);
+  transition: transform 180ms var(--ease-spring);
+}
+
+.together-card:active {
+  transform: scale(0.98);
+}
+
+.together-card--duel {
+  background: var(--yellow);
+  color: var(--black);
+  border-color: var(--black);
+}
+
+.together-card--challenge {
+  background: var(--paper-2);
+  color: var(--ink);
+}
+
+.together-text {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.together-text b {
+  font-size: clamp(1.25rem, 6vw, 1.6rem);
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.together-text small {
+  font-size: 0.82rem;
+  opacity: 0.8;
+}
+
+.together-chip {
+  justify-self: start;
+  margin-top: 0.15rem;
+  padding: 0.12rem 0.5rem;
+  border: 1px solid currentColor;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.together-go {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+/* Le duel : quatre places autour d'une table, la main posée sur l'une d'elles ;
+   le défi : un disque jaune cerclé de noir, le quart de la journée en bleu. Les
+   deux dessins sont taillés comme les icônes du jeu — un aplat, un trait épais,
+   rien qui bouge. */
+.together-art {
+  display: block;
+  width: 4.2rem;
+  aspect-ratio: 1;
+  flex: none;
+}
+
+.together-table {
+  fill: var(--paper);
+  stroke: currentColor;
+  stroke-width: 8;
+}
+
+.together-seat--hand {
+  fill: var(--red);
+}
+
+/* Le quart s'arrête au bord intérieur du cerne : les deux se touchent sans se
+   chevaucher, et le disque reste rond. */
+.together-disc {
+  fill: var(--yellow);
+  stroke: currentColor;
+  stroke-width: 8;
+}
+
+.together-slice {
+  fill: var(--blue);
+}
+
+/* -------------------------------------------- une invitation à une table - */
+.duel-invite-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.4rem 0.8rem;
+  padding: 0.8rem;
+  border: var(--line) solid var(--black);
+  background: var(--yellow);
+  color: var(--black);
+  animation: pop-in 460ms var(--ease-spring) both;
+}
+
+.duel-invite-card__face {
+  position: relative;
+  grid-row: span 2;
+}
+
+.duel-invite-card__face .avatar {
+  width: 3rem;
+}
+
+.duel-invite-card__pulse {
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--black);
+  animation: throb 1.2s var(--ease-out) infinite;
+}
+
+.duel-invite-card__text {
+  display: grid;
+  min-width: 0;
+}
+
+.duel-invite-card__text small {
+  font-size: 0.75rem;
+  opacity: 0.75;
+}
+
+.duel-invite-card__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.duel-invite-card__actions .btn--quiet {
+  color: var(--black);
+}
+
+.duel-banner {
+  position: fixed;
+  left: 50%;
+  top: max(1rem, env(safe-area-inset-top));
+  z-index: 70;
+  width: min(30rem, calc(100% - 2 * var(--gutter)));
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background: var(--black);
+  color: var(--cream);
+  border: var(--line) solid var(--red);
+  font-weight: 700;
+  text-align: center;
+  transform: translateX(-50%);
+  animation: duel-banner 4.5s var(--ease-out) both;
+}
+
+@keyframes duel-banner {
+  0% {
+    transform: translate(-50%, -150%);
+  }
+  8%,
+  88% {
+    transform: translate(-50%, 0);
+  }
+  100% {
+    transform: translate(-50%, -150%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .together-card,
+  .duel-invite-card,
+  .duel-invite-card__pulse,
+  .duel-banner {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

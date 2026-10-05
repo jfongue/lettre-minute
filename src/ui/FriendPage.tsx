@@ -6,6 +6,7 @@ import type { Friend } from '../lib/cloud'
 import { challengeTitle } from '../state/challenges'
 import { Avatar } from './Avatar'
 import { Figure } from './bauhaus'
+import { useFeature } from './features'
 
 function formatDate(t: Messages, at: number): string {
   return new Date(at).toLocaleString(t.tag, { day: 'numeric', month: 'short' })
@@ -21,7 +22,8 @@ interface FriendPageProps {
   showModerator: boolean
   onBack(): void
   onChallenge(id: string): void
-  onChallengeFriend(): void
+  /** Absent quand les défis sont fermés. */
+  onChallengeFriend?(): void
   onRemove(): void
   onElect?(): Promise<void>
 }
@@ -41,7 +43,8 @@ export function FriendPage({
   const t = useT()
   const [confirming, setConfirming] = useState(false)
   const [electing, setElecting] = useState(false)
-  const tally = challenges && rivalry(challenges, friend.id)
+  const faceOff = useFeature('rivalry')
+  const tally = faceOff && challenges && rivalry(challenges, friend.id)
 
   return (
     <div className="friend-page">
@@ -61,9 +64,11 @@ export function FriendPage({
             {t.social.stats(levelFor(friend.xp), formatNumber(t, friend.weekBest), formatNumber(t, friend.bestScore))}
             {showModerator && friend.moderator && <span className="friend-moderator">{t.social.moderator}</span>}
           </span>
-          <button type="button" className="btn btn--quiet menu-start" onClick={onChallengeFriend}>
-            {t.social.challengeFriend}
-          </button>
+          {onChallengeFriend ? (
+            <button type="button" className="btn btn--quiet menu-start" onClick={onChallengeFriend}>
+              {t.social.challengeFriend}
+            </button>
+          ) : null}
         </div>
       </section>
 

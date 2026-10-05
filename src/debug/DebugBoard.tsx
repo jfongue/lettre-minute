@@ -50,6 +50,10 @@ import { PlusPop } from '../ui/PlusPop'
 import { Checkout } from '../ui/Checkout'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
+import { FeaturesBoardView } from './FeaturesBoard'
+import { DuelScreen } from '../ui/DuelScreen'
+import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
+import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
 
 /*
@@ -724,6 +728,23 @@ function WordsScenario() {
         onBan={() => later('sent' as const)}
         onForce={() => later('accepted' as const)}
         onAdd={() => later(true)}
+      />
+    </div>
+  )
+}
+
+/** Le réglage des fonctionnalités, avec deux lignes déjà réglées : rien n'est écrit sur le serveur. */
+function FeaturesScenario() {
+  const flags: Record<string, FlagRow> = {
+    duel: { everyone: 'off', moderator: 'neutral', premium: 'on', superModerator: 'on' },
+    moderation: { everyone: 'off', moderator: 'on', premium: 'neutral', superModerator: 'on' },
+  }
+  return (
+    <div className="dashboard">
+      <FeaturesBoardView
+        load={() => later(flags, 300)}
+        save={() => later('saved' as const, 400)}
+        roles={{ moderator: true, superModerator: true, premium: false }}
       />
     </div>
   )
@@ -1754,6 +1775,52 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Cinq tapes sur « Classements » : joueurs, actifs, parties, sessions, boutons touchés, rétention, erreurs — le relevé d’analytics_snapshot',
     phase: 'home',
     render: () => <AdvancedScenario />,
+  },
+  {
+    id: 'features-board',
+    group: 'Accueil',
+    title: 'Réglage des fonctionnalités',
+    how: `Options d’un super modérateur, « Fonctionnalités » : ${FEATURES.length} fonctionnalités, quatre publics, une case qu’on touche pour la faire tourner dispo → bloqué → neutre`,
+    phase: 'home',
+    render: () => <FeaturesScenario />,
+  },
+  {
+    id: 'play-together',
+    group: 'Duel',
+    title: 'Choix : duel en direct ou défi 24h',
+    how: 'Le bouton « Créer un défi » quand le duel est ouvert au joueur',
+    phase: 'home',
+    render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onChallenge={back} />,
+  },
+  {
+    id: 'duel-invite',
+    group: 'Duel',
+    title: 'Invitation à une table, sur l’accueil',
+    how: 'Un ami a invité le joueur à sa table de duel',
+    phase: 'home',
+    render: (back) => (
+      <div className="stage stage--home">
+        <div className="sheet">
+          <DuelInviteCard host="Maxitoon" avatar={{ design: 47, ground: 'vert', shape: 'creme', accent: 'rose' }} players={3} onJoin={back} onDecline={back} />
+        </div>
+      </div>
+    ),
+  },
+  {
+    id: 'duel-kicked',
+    group: 'Duel',
+    title: 'Retiré de la table',
+    how: 'L’hôte a expulsé le joueur du salon : l’accueil le lui dit',
+    phase: 'home',
+    render: (back) => <DuelBanner text="L’hôte t’a retiré de la table." onDone={back} />,
+  },
+  {
+    id: 'duel-table',
+    group: 'Duel',
+    title: 'Table contre les joueurs maison',
+    how: 'Une table locale, sans serveur : salon, expulsion par appui long, draft, ouvreur, partie, morts, bilan, revanche',
+    phase: 'home',
+    render: () => <DuelScreen lang="fr" mode="local" />,
   },
   {
     id: 'words-board',

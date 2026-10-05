@@ -48,7 +48,14 @@ l'app le lise aussi, réservé aux administrateurs (`admin_analytics`), et
 [`0037_moderation_topup_on_open.sql`](migrations/0037_moderation_topup_on_open.sql)
 pour renflouer la file dès la visite qui la trouve courte, et
 [`0038_word_bans.sql`](migrations/0038_word_bans.sql) pour qu'un modérateur
-signale un mot à retirer, jugé par les autres comme un ajout.
+signale un mot à retirer, jugé par les autres comme un ajout, et
+[`0045_feature_flags.sql`](migrations/0045_feature_flags.sql) pour les
+fonctionnalités que les super modérateurs ouvrent ou ferment à chaque public,
+et [`0046_duels.sql`](migrations/0046_duels.sql) pour le duel en direct en
+ligne : tables, places, invitations et journal de coups, et
+[`0047_super_moderator_role.sql`](migrations/0047_super_moderator_role.sql) pour
+faire de super modérateur un rôle donné (`moderators.super`) plutôt qu'un rang
+gagné par cinq mots validés.
 
 ## Ce que le serveur détient
 
@@ -62,7 +69,7 @@ signale un mot à retirer, jugé par les autres comme un ajout.
 | `word_submissions` | Les mots proposés par les joueurs, avec leur statut ; `seen_at` éteint la pastille de « Mes demandes ». |
 | `word_reviews` | Un mot en cours de jugement (catégorie + mot) : un ajout, que rejoignent tous ceux qui l'ont réclamé, ou un ban (`kind`), signalé par un modérateur. |
 | `moderation_votes` | Un vote par modérateur et par mot : `correct`, `unsure`, `incorrect` ou `special`. |
-| `moderators` | Les modérateurs, et l'ami qui les a élus. |
+| `moderators` | Les modérateurs, l'ami qui les a élus, et `super` : le rôle de super modérateur, donné à la main depuis 0047. |
 | `moderation_reserve` | Mots évidents que les dictionnaires ignorent, versés au compte-goutte dans la file (`released_at`). |
 | `moderation_topup` | Une seule ligne : l'heure du dernier versement, qui ferme le renflouage pour une heure, toutes langues confondues. |
 | `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |
@@ -80,6 +87,11 @@ signale un mot à retirer, jugé par les autres comme un ajout.
 | `tester_invites` | Une adresse e-mail invitée depuis « Ajouter un ami » : la fonction Edge `invite` l'écrit aussitôt (0034), et le compte qui la prend devient ami de l'inviteur (`joined_by`). Aucune politique : jamais relue par un joueur. |
 | `prompt_stats` | Par langue, ce que les parties ont dit de chaque couple lettre + catégorie : combien l'ont tiré, combien l'ont laissé vide, ce qu'il a rapporté en points et en mots. Lu par le tirage du client et par les classements avancés, écrit par la seule fonction `report_prompts`. |
 | `prompt_reports` | Les graines qui ont déjà parlé, pour qu'une partie ne compte qu'une fois. Aucune politique : jamais relu. |
+| `feature_flags` | Une ligne par fonctionnalité : `on`, `off` ou `neutral` pour tout le monde, les modérateurs, Premium et les super modérateurs. Lue par tous au démarrage, écrite par le seul `set_feature_flag`, réservé aux super modérateurs (0045). |
+| `duel_tables` | Une table de duel : hôte, langue, graine, vivier du draft, statut (`lobby`, `playing`, `over`, `closed`), heure de lancement, revanche. Une invitation vaut un quart d'heure. |
+| `duel_seats` | Une place par joueur (ou joueur maison) : prêt, place numérotée au lancement, parti, expulsé, dernière lecture — c'est elle qui désigne le meneur. |
+| `duel_invites` | Qui l'hôte a invité, et quand l'invité a répondu. Un blocage tait l'invitation, comme une demande d'ami. |
+| `duel_moves` | Le journal d'une table : un coup par numéro (`seq`), daté par le serveur. Les quatre tables du duel n'ont aucune politique : tout passe par les fonctions `duel_*`. |
 | `events` | Ce que les joueurs font de l'app, par lots de `track` : ouvertures, écrans, boutons touchés, fonctions, parties, erreurs. Un appareil, une ouverture, et le compte en plus (effacé avec lui). Aucune politique : jamais relu par le jeu, seulement par `analytics_snapshot`, que le propriétaire du projet exécute, et `admin_analytics`, qui ne la rend qu'à un administrateur. |
 
 Fonctions d'écriture : `report_prompts(graine, langue, couples)` — le rapport

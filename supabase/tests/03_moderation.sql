@@ -86,7 +86,7 @@ select tests.is((select count(*)::int from public.moderation_votes where review_
 -- ------------------------------------------------------ super moderators --
 
 select tests.login('s1');
-select tests.is((public.moderation_status('fr') ->> 'super')::boolean, true, 'five validated words make a super moderator');
+select tests.is((public.moderation_status('fr') ->> 'super')::boolean, true, 'a super moderator is told so');
 select tests.logout();
 select tests.login('m1');
 select tests.is((public.moderation_status('fr') ->> 'super')::boolean, false, 'an ordinary moderator is not one');
@@ -294,4 +294,22 @@ select tests.is(tests.affected($$update public.word_submissions set status = 'ac
 select tests.throws($$insert into public.dictionary_words (category_id, word, display) values ('animaux', 'dahu', 'Dahu')$$,
                     'nor write the dictionary alone', '42501');
 select tests.ok((select count(*) from public.word_submissions) > 1, 'he still reads every proposal');
+select tests.logout();
+
+-- 0047 : super modérateur est un rôle donné. Cinq mots validés ne le donnent plus.
+select tests.new_user('s9');
+select tests.make_moderator('s9');
+do $$
+declare
+  v_review uuid;
+begin
+  for i in 1..6 loop
+    insert into public.word_reviews (category_id, word, display, status, decided_at)
+    values ('seed', 's9-seed-' || i, 'seed', 'accepted', now()) returning id into v_review;
+    insert into public.moderation_votes (review_id, moderator_id, verdict) values (v_review, tests.uid('s9'), 'correct');
+  end loop;
+end;
+$$;
+select tests.login('s9');
+select tests.is((public.moderation_status('fr') ->> 'super')::boolean, false, 'six validated words no longer make a super moderator');
 select tests.logout();

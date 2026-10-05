@@ -146,14 +146,15 @@ language sql security definer set search_path = public as $$
   insert into public.moderators (id) values (tests.uid(p_label));
 $$;
 
--- Five words he said « correct » that went in without an « incorrect »:
--- the definition of a super moderator.
+-- A super moderator is a role given (0047), not earned; the five words he
+-- said « correct » stay, for the tests that count validations.
 create function tests.make_super_moderator(p_label text) returns void
 language plpgsql security definer set search_path = public as $$
 declare
   v_review uuid;
 begin
-  insert into public.moderators (id) values (tests.uid(p_label)) on conflict do nothing;
+  insert into public.moderators (id, super) values (tests.uid(p_label), true)
+  on conflict (id) do update set super = true;
   for i in 1..5 loop
     insert into public.word_reviews (category_id, word, display, status, decided_at)
     values ('seed', p_label || '-seed-' || i, 'seed', 'accepted', now())

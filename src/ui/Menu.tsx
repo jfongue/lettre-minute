@@ -44,6 +44,7 @@ import { useFriendHistory } from '../state/rivalry'
 import { FriendsView } from './FriendsView'
 import { DonateButton } from './Donate'
 import { useHiddenTaps } from './useHiddenTaps'
+import { useFeature } from './features'
 import { useSwipe } from './useSwipe'
 import { Avatar } from './Avatar'
 
@@ -107,17 +108,19 @@ interface MenuProps {
   /** Null without an account; the statistics list the hidden ones. */
   challenges: readonly ChallengeSummary[] | null
   onChallenge(id: string): void
-  /** From a friend's page: a new challenge with them ticked. */
-  onChallengeFriend(friendId: string): void
+  /** From a friend's page: a new challenge with them ticked; absent when challenges are closed. */
+  onChallengeFriend?(friendId: string): void
   onRequestsSeen(): void
   onRequestsOpen(): void
   /** La langue du dictionnaire, comme celle de la partie : celle de l'interface. */
   lang: string
   /** Les classements avancés : le mode débug, ouvert par cinq tapes sur « Classements ». */
   advancedBoards: boolean
-  onAdvancedBoards(open: boolean): void
+  onAdvancedBoards?(open: boolean): void
   /** Le tableau des mots : l'autre mode débug, ouvert par cinq tapes sur « Mes catégories ». */
-  onWordsBoard(open: boolean): void
+  onWordsBoard?(open: boolean): void
+  /** Le réglage des fonctionnalités, pour un super modérateur seul. */
+  onFeatures?(): void
   /** Bans and Premium, from « Mes catégories ». */
   banActions: BanActions
   onClose(): void
@@ -125,6 +128,8 @@ interface MenuProps {
 
 export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
   const t = useT()
+  const friends = useFeature('friends')
+  const leaderboards = useFeature('leaderboards')
   const [pane, setPane] = useState<MenuPane>(isPane(page) ? page : 'profile')
   const [sub, setSub] = useState<ProfilePage | null>(isPane(page) ? null : page)
   const body = useRef<HTMLDivElement>(null)
@@ -171,7 +176,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
       >
         <div className="menu-head">
           <div className="layer-tabs menu-tabs" role="tablist">
-            {PANES.map((id) => (
+            {PANES.filter((id) => id !== 'social' || friends).map((id) => (
               <button
                 key={id}
                 type="button"
@@ -206,8 +211,8 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
                   sub === 'boards' || sub === 'categories'
                     ? () => {
                         if (!tapTitle()) return
-                        if (sub === 'boards') props.onAdvancedBoards(true)
-                        else props.onWordsBoard(true)
+                        if (sub === 'boards') props.onAdvancedBoards?.(true)
+                        else props.onWordsBoard?.(true)
                       }
                     : undefined
                 }
@@ -226,14 +231,14 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               onRefresh={props.onStatsRefresh}
               loadOlder={props.onStatsOlder}
               recap={props.statsRecap}
-              onBoards={props.account ? () => open('boards', 'stats') : undefined}
+              onBoards={props.account && leaderboards ? () => open('boards', 'stats') : undefined}
             />
           )}
           {sub === 'boards' && (
             <LeaderboardsPage
               named={Boolean(props.account && !props.account.anonymous)}
               advanced={props.advancedBoards}
-              onCloseAdvanced={() => props.onAdvancedBoards(false)}
+              onCloseAdvanced={() => props.onAdvancedBoards?.(false)}
             />
           )}
           {sub === 'requests' && (
@@ -245,10 +250,10 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
             />
           )}
           {sub === 'categories' && (
-            <CategoriesPage profile={props.profile} onHidden={() => props.onWordsBoard(true)} {...props.banActions} />
+            <CategoriesPage profile={props.profile} onHidden={() => props.onWordsBoard?.(true)} {...props.banActions} />
           )}
           {!sub && pane === 'profile' && <ProfilePane {...props} onPage={open} />}
-          {pane === 'social' && (
+          {pane === 'social' && friends && (
             <SocialPane
               account={props.account}
               avatar={props.avatar}
@@ -273,6 +278,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               onSound={props.onSound}
               onErase={props.onErase}
               named={Boolean(props.account && !props.account.anonymous)}
+              onFeatures={props.onFeatures}
             />
           )}
         </div>
@@ -317,11 +323,13 @@ function ProfilePane({
 }) {
   const t = useT()
   const named = account && !account.anonymous
+  const avatars = useFeature('avatar')
+  const support = useFeature('support')
 
   return (
     <div className="profile-pane">
       <section className="player">
-        <button type="button" className="player-avatar" onClick={onAvatar} aria-label={t.menu.editAvatarLabel}>
+        <button type="button" className="player-avatar" onClick={avatars ? onAvatar : undefined} aria-label={t.menu.editAvatarLabel} disabled={!avatars}>
           <Avatar choice={avatar} size="md" />
         </button>
         <div className="player-id">
@@ -329,9 +337,11 @@ function ProfilePane({
           <span className="note">
             {t.menu.standing(levelProgress(profile.xp).level, formatNumber(t, profile.bestScore))}
           </span>
-          <button type="button" className="btn btn--quiet" onClick={onAvatar}>
-            {t.menu.editAvatar}
-          </button>
+          {avatars ? (
+            <button type="button" className="btn btn--quiet" onClick={onAvatar}>
+              {t.menu.editAvatar}
+            </button>
+          ) : null}
         </div>
       </section>
 
@@ -363,7 +373,7 @@ function ProfilePane({
         onOpen={(next) => next !== 'profile' && onPage(next)}
       />
 
-      <DonateButton className="btn btn--ghost btn--block menu-support" label={t.menu.support} />
+      {support ? <DonateButton className="btn btn--ghost btn--block menu-support" label={t.menu.support} /> : null}
     </div>
   )
 }
@@ -393,9 +403,10 @@ function SocialPane({
   onAvatar(): void
   onFriends(friends: readonly Friend[]): void
   onChallenge(id: string): void
-  onChallengeFriend(friendId: string): void
+  onChallengeFriend?(friendId: string): void
 }) {
   const t = useT()
+  const elect = useFeature('electModerator')
   const [friends, setFriends] = useState<Friend[] | null | 'loading'>('loading')
   const [blocks, setBlocks] = useState<BlockedPlayer[]>([])
   const [message, setMessage] = useState<string | null>(null)
@@ -483,13 +494,13 @@ function SocialPane({
         showModerator={moderator}
         onBack={() => setOpened(null)}
         onChallenge={onChallenge}
-        onChallengeFriend={() => onChallengeFriend(page.id)}
+        onChallengeFriend={onChallengeFriend ? () => onChallengeFriend(page.id) : undefined}
         onRemove={() => {
           setOpened(null)
           act(removeFriend(page.id))
         }}
         onElect={
-          moderator && !page.moderator
+          moderator && elect && !page.moderator
             ? async () => {
                 setMessage(t.social.invites[await inviteModerator(page.id)](page.name))
                 setOpened(null)
@@ -541,9 +552,10 @@ interface OptionsPaneProps {
   onErase(): Promise<boolean>
   /** Pushes announce challenges, which only an account receives. */
   named: boolean
+  onFeatures?(): void
 }
 
-function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onErase, named }: OptionsPaneProps) {
+function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onErase, named, onFeatures }: OptionsPaneProps) {
   const t = useT()
   // Once an ad has asked for consent, EU law requires a way back to that form.
   const [adChoices, setAdChoices] = useState(false)
@@ -618,6 +630,12 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onErase
       </section>
 
       {pushSupported() && <NotificationOptions named={named} />}
+
+      {onFeatures ? (
+        <button type="button" className="btn btn--ghost btn--block" onClick={onFeatures}>
+          {t.options.features}
+        </button>
+      ) : null}
 
       <div className="menu-foot">
         <a className="btn btn--quiet menu-start" href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">

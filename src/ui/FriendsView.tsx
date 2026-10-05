@@ -11,6 +11,7 @@ import { invitePage } from '../../supabase/functions/invite/mail'
 import { Avatar } from './Avatar'
 import { PlayerName } from './PlayerSheet'
 import { useBackDismiss } from './useBackDismiss'
+import { useFeature } from './features'
 
 type FriendSort = 'record' | 'alpha'
 const SORT_KEY = 'friends-sort'
@@ -60,6 +61,7 @@ export interface FriendsViewProps {
 /** The Social tab once the account has a name: its card, requests received, then friends by record or by name. */
 export function FriendsView(props: FriendsViewProps) {
   const t = useT()
+  const avatars = useFeature('avatar')
   const [sort, setSort] = useState<FriendSort>(loadSort)
   const [adding, setAdding] = useState(props.initialSheet !== undefined)
 
@@ -81,7 +83,7 @@ export function FriendsView(props: FriendsViewProps) {
   return (
     <>
       <div className="friends-me">
-        <button type="button" className="player-avatar" onClick={props.onAvatar} aria-label={t.menu.editAvatarLabel}>
+        <button type="button" className="player-avatar" onClick={avatars ? props.onAvatar : undefined} disabled={!avatars} aria-label={t.menu.editAvatarLabel}>
           <Avatar choice={props.avatar} size="md" />
         </button>
         <span className="friends-me-name">
@@ -252,7 +254,8 @@ function FriendRow({
   onOpen(): void
 }) {
   const t = useT()
-  const tally = shared && rivalry(shared, friend.id)
+  const faceOff = useFeature('rivalry')
+  const tally = faceOff && shared && rivalry(shared, friend.id)
   const lead = tally ? Math.sign(tally.won - tally.lost) : 0
 
   return (
@@ -308,7 +311,8 @@ export function AddFriendSheet({
   initialTab?: AddTab
 }) {
   const t = useT()
-  const [tab, setTab] = useState<AddTab>(initialTab)
+  const invites = useFeature('friendInvite')
+  const [tab, setTab] = useState<AddTab>(invites ? initialTab : 'name')
   const [wanted, setWanted] = useState('')
   const [busy, setBusy] = useState(false)
   const [said, setSaid] = useState<string | null>(null)
@@ -343,7 +347,7 @@ export function AddFriendSheet({
         <h2 id="add-friend-title" className="offer-pop-title">
           {t.social.add}
         </h2>
-        <div className="layer-tabs" role="tablist">
+        <div className="layer-tabs" role="tablist" hidden={!invites}>
           {(
             [
               ['name', t.social.hasGame],

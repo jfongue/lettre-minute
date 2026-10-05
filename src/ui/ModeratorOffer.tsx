@@ -17,7 +17,8 @@ interface ModeratorOfferProps {
   onAnswered(accepted: boolean): void
   /** Closed without answering: offered again next time. */
   onLater(): void
-  onModerate(): void
+  /** Absent quand la modération est fermée : l'offre ne mène alors nulle part. */
+  onModerate?(): void
   /** The server call, replaced on the debug board so an answer there changes nothing. */
   answerOffer?: typeof answerModeratorOffer
 }
@@ -78,16 +79,18 @@ export function ModeratorOffer({ reason, invitedBy, anonymous, onAccount, onAnsw
               <button type="button" className="btn btn--ghost" onClick={() => onAnswered(true)}>
                 {t.moderation.offer.close}
               </button>
-              <button
-                type="button"
-                className="btn btn--blue"
-                onClick={() => {
-                  onAnswered(true)
-                  onModerate()
-                }}
-              >
-                {t.moderation.offer.open}
-              </button>
+              {onModerate ? (
+                <button
+                  type="button"
+                  className="btn btn--blue"
+                  onClick={() => {
+                    onAnswered(true)
+                    onModerate()
+                  }}
+                >
+                  {t.moderation.offer.open}
+                </button>
+              ) : null}
             </div>
           </>
         ) : (

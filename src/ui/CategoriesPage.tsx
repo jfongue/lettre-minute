@@ -12,6 +12,7 @@ import { CategoryIcon } from './CategoryIcon'
 import { PlusPop } from './PlusPop'
 import { useBackDismiss } from './useBackDismiss'
 import { useHiddenTaps } from './useHiddenTaps'
+import { useFeature } from './features'
 
 export interface BanActions {
   onBan(categoryId: string): void
@@ -30,7 +31,8 @@ export function CategoriesPage({
 }: { profile: Profile; /** Cinq tapes rapprochées sur le titre : le tableau des mots, caché comme la planche. */ onHidden(): void } & BanActions) {
   const t = useT()
   const owned = ownedCategoryIds(profile)
-  const banning = banUnlocked(owned)
+  const banning = useFeature('categoryBans') && banUnlocked(owned)
+  const premium = useFeature('premium')
   const banned = new Set(bannedOf(profile, owned))
   // Read once, on arrival: the dot goes as soon as the page is seen, the explanation stays until closed.
   const [intro, setIntro] = useState(() => banNews(profile, owned))
@@ -129,7 +131,7 @@ export function CategoriesPage({
       </ul>
 
       {intro && <BanIntro onClose={() => setIntro(false)} />}
-      {plusFor && (
+      {plusFor && premium && (
         <PlusPop
           reason="ban"
           onClose={() => setPlusFor(null)}

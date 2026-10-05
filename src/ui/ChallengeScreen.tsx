@@ -44,6 +44,7 @@ import { ScoreRace } from './ScoreRace'
 import { ShareSoon } from './ShareSoon'
 import { TROPHY_TINTS, TrophyIcon } from './TrophyIcon'
 import { reducedMotion } from './useCountUp'
+import { useFeature } from './features'
 
 const playerOf = (detail: ChallengeDetail) => {
   const byId = new Map(detail.players.map((player) => [player.playerId, player]))
@@ -455,10 +456,11 @@ export function ChallengeRecap({ detail, suspense = false, onRevealed, onRematch
   const me = detail.players.find((player) => player.me)
   const mine = standings.find((standing) => standing.playerId === me?.playerId)
   const player = playerOf(detail)
+  const reacting = useFeature('reactions')
   const reactions = useRecapReactions(
     detail.reactions,
     me?.playerId,
-    me?.playedAt !== null && me !== undefined,
+    reacting && me?.playedAt !== null && me !== undefined,
     (id) => player(id)?.name ?? '',
     onReact,
   )

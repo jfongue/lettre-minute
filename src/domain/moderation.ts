@@ -25,9 +25,6 @@ export const MODERATOR_LEVEL = 6
  */
 export const MODERATOR_LEVEL_XP = 1650
 
-/** Clean validations that make a moderator's word enough on its own. */
-export const SUPER_MODERATOR_VALIDATIONS = 5
-
 export type Verdict = 'correct' | 'unsure' | 'incorrect' | 'special'
 
 /** Why the game offers a player to moderate. */
