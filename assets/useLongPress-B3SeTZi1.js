@@ -1,0 +1,1 @@
+import{S as e}from"./jsx-runtime-BrKz0cZE.js";var t=e(),n=550;function r(e){let r=(0,t.useRef)(void 0),i=(0,t.useCallback)(()=>clearTimeout(r.current),[]);return(0,t.useCallback)(t=>({onTouchStart:()=>{i(),r.current=setTimeout(()=>e(t),n)},onTouchMove:i,onTouchEnd:i,onContextMenu:n=>{n.preventDefault(),i(),e(t)}}),[i,e])}export{r as t};
