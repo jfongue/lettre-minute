@@ -96,7 +96,10 @@ la page des classements (`best`, `points`, `runs`, `words`, `discoveries`,
 débug, agrégés et sans un nom de joueur ; `admin_words(langue, catégorie?)` — le
 dictionnaire vivant de l'écran des mots : couples lettre + catégorie, usages de
 chaque mot, ajouts, retraits et file de modération, réservé à l'administrateur
-(0043) comme `admin_analytics` l'est au tableau de bord.
+(0043) comme `admin_analytics` l'est au tableau de bord ; `force_ban(catégorie, mot, libellé, motif)`
+— le retrait d'office d'un super modérateur : sa voix règle le signalement seule et la copie
+communautaire du mot quitte le serveur aussitôt, le dictionnaire livré ne le perdant qu'au
+prochain import (0044).
 
 Vues : `leaderboard` (record de chaque compte nommé, joueurs maison écartés), `word_popularity` (part des parties où un mot
 apparaît), `submission_tally` (combien de joueurs réclament un mot).

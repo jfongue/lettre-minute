@@ -6,7 +6,7 @@ import { letterShares } from '../domain/run'
 import { normalizeWord, initialOf } from '../domain/text'
 import type { WordPack } from '../domain/words'
 import { LOCALES, categoryText, useT } from '../i18n'
-import { fetchAdminWords, proposeBan, proposeWord, type BanOutcome } from '../lib/cloud'
+import { fetchAdminWords, forceRemoveWord, proposeBan, proposeWord, type BanOutcome } from '../lib/cloud'
 import { FlagWordCard, type FlagWord } from '../ui/StatsPage'
 import { useBackDismiss } from '../ui/useBackDismiss'
 import { useLongPress } from '../ui/useLongPress'
@@ -30,21 +30,30 @@ import type { PairStat, PendingWord, RemovedWord, WordsReport } from './words'
 export type LoadWords = (lang: string, category: string | null) => Promise<WordsReport | null>
 export type BanWords = (lang: string, word: FlagWord, reason: string) => Promise<BanOutcome>
 export type AddWord = (lang: string, categoryId: string, word: string) => Promise<boolean>
+/** Le retrait d'office : un super modérateur décide seul, sans attendre les autres. */
+export type ForceWord = (lang: string, word: FlagWord, reason: string) => Promise<BanOutcome>
 
 const banDefault: BanWords = (lang, word, reason) => proposeBan(lang, word.categoryId, word.word, word.display, reason)
+const forceDefault: ForceWord = (lang, word, reason) =>
+  forceRemoveWord(lang, word.categoryId, word.word, word.display, reason)
 
 /** Le chargeur, posé sur `body` : le tiroir du menu est trop étroit pour ses tableaux. */
 export function WordsBoard({
   lang,
   onClose,
+  superModerator = false,
   load = fetchAdminWords,
   onBan = banDefault,
+  onForce = forceDefault,
   onAdd = proposeWord,
 }: {
   lang: string
   onClose(): void
+  /** Un super modérateur retire un mot d'office : sa voix suffit, sans les autres. */
+  superModerator?: boolean
   load?: LoadWords
   onBan?: BanWords
+  onForce?: ForceWord
   onAdd?: AddWord
 }) {
   useEffect(() => {
@@ -55,7 +64,15 @@ export function WordsBoard({
 
   return createPortal(
     <div className="dashboard dashboard--overlay" data-no-swipe role="dialog" aria-label="Tableau des mots">
-      <WordsBoardView lang={lang} load={load} onBan={onBan} onAdd={onAdd} onClose={onClose} />
+      <WordsBoardView
+        lang={lang}
+        load={load}
+        superModerator={superModerator}
+        onBan={onBan}
+        onForce={onForce}
+        onAdd={onAdd}
+        onClose={onClose}
+      />
     </div>,
     document.body,
   )
@@ -122,14 +139,19 @@ export function WordsBoardView({
   lang: language,
   load,
   onBan,
+  onForce,
   onAdd,
   onClose,
+  superModerator = false,
 }: {
   lang: string
   load: LoadWords
   onBan: BanWords
+  onForce: ForceWord
   onAdd: AddWord
   onClose?(): void
+  /** Un super modérateur choisit entre proposer le retrait et le décider seul. */
+  superModerator?: boolean
 }) {
   const t = useT()
   const [lang, setLang] = useState(language)
@@ -141,6 +163,9 @@ export function WordsBoardView({
   const scope = `${lang}\u0000${category}`
   const [answer, setAnswer] = useState<{ scope: string; data: WordsReport | null } | null>(null)
   const [flagged, setFlagged] = useState<FlagWord | null>(null)
+  /** Le mot dont on choisit le mode de retrait : proposer, ou retirer d'office. */
+  const [removal, setRemoval] = useState<FlagWord | null>(null)
+  const [forced, setForced] = useState<FlagWord | null>(null)
   const [adding, setAdding] = useState(false)
   const [wholePairs, setWholePairs] = useState(false)
 
@@ -166,7 +191,9 @@ export function WordsBoardView({
 
   const packs = useDictionaries(lang, category || null)
   const playable = availableCategoryIds(lang).length
-  const press = useLongPress<FlagWord>((word) => setFlagged(word))
+  // Un super modérateur a deux façons de retirer un mot : la pop-up qui les
+  // propose s'ouvre d'abord. Les autres gardent la carte de signalement.
+  const press = useLongPress<FlagWord>((word) => (superModerator ? setRemoval(word) : setFlagged(word)))
 
   // La théorie d'un couple : la part de sa lettre dans sa catégorie, sur
   // autant de catégories jouables que la langue en compte. Le verrou de la
@@ -603,8 +630,10 @@ export function WordsBoardView({
             </p>
           )}
           <p className="note">
-            Un appui long sur une ligne (un clic droit, sur ordinateur) ouvre la carte de signalement : comme dans le récapitulatif
-            d’une partie, le mot passe par la file de modération et ne sort du jeu qu’au dictionnaire livré d’après.
+            Un appui long sur une ligne (un clic droit, sur ordinateur) ouvre le retrait : comme dans le récapitulatif d’une partie, le
+            mot passe par la file de modération et ne sort du jeu qu’au dictionnaire livré d’après.{' '}
+            {superModerator &&
+              'Super modérateur : la même pop-up propose de le retirer d’office — ta voix suffit, et sa copie communautaire quitte le serveur tout de suite.'}
           </p>
           </Section>
 
@@ -724,6 +753,35 @@ export function WordsBoardView({
           onClose={() => setFlagged(null)}
         />
       )}
+      {removal && (
+        <RemoveModeCard
+          word={removal}
+          category={categoryText(t, removal.categoryId).label}
+          onPropose={() => {
+            setFlagged(removal)
+            setRemoval(null)
+          }}
+          onForce={() => {
+            setForced(removal)
+            setRemoval(null)
+          }}
+          onClose={() => setRemoval(null)}
+        />
+      )}
+      {forced && (
+        <ForceRemoveCard
+          word={forced}
+          category={categoryText(t, forced.categoryId).label}
+          onForce={async (reason) => {
+            const outcome = await onForce(lang, forced, reason)
+            // Le retrait est passé : le relevé se relit pour que la revue
+            // apparaisse dans la file, en bas de l'écran.
+            if (outcome === 'accepted') setAttempt(attempt + 1)
+            return outcome
+          }}
+          onClose={() => setForced(null)}
+        />
+      )}
       {adding && (
         <AddWordCard lang={lang} categories={categories} category={category} onAdd={onAdd} onClose={() => setAdding(false)} />
       )}
@@ -772,6 +830,131 @@ function tally(word: PendingWord): string {
     return word.kind === 'ban' ? 'aucun vote' : `${fmt(word.proposals)} demande${word.proposals > 1 ? 's' : ''}, aucun vote`
   }
   return who === '—' ? said : `${said} — ${who}`
+}
+
+/** Le choix du mode de retrait : la file de modération, ou la décision seule. */
+function RemoveModeCard({
+  word,
+  category,
+  onPropose,
+  onForce,
+  onClose,
+}: {
+  word: FlagWord
+  category: string
+  onPropose(): void
+  onForce(): void
+  onClose(): void
+}) {
+  useBackDismiss(onClose)
+  return createPortal(
+    <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="remove-mode-title">
+      <div className="offer-pop-scrim" onClick={onClose} />
+      <div className="offer-pop">
+        <h2 id="remove-mode-title" className="offer-pop-title">
+          Retirer « {word.display} »
+        </h2>
+        <p>
+          Deux façons de le sortir de « {category} » : le signaler aux autres modérateurs — trois d’accord et il part —, ou le retirer
+          d’office, ta voix suffisant.
+        </p>
+        <div className="offer-pop-actions">
+          <button type="button" className="btn btn--ghost" onClick={onClose}>
+            Annuler
+          </button>
+          <button type="button" className="btn btn--blue" onClick={onPropose}>
+            Proposer à la modération
+          </button>
+          <button type="button" className="btn btn--red" onClick={onForce}>
+            Retirer d’office
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+/**
+ * Le retrait d'office : un super modérateur décide seul, et la copie
+ * communautaire du mot quitte le serveur tout de suite. Le dictionnaire livré,
+ * lui, ne bouge qu'au prochain import — comme pour n'importe quel ban.
+ */
+function ForceRemoveCard({
+  word,
+  category,
+  onForce,
+  onClose,
+}: {
+  word: FlagWord
+  category: string
+  onForce(reason: string): Promise<BanOutcome>
+  onClose(): void
+}) {
+  const [step, setStep] = useState<'ask' | 'busy' | BanOutcome>('ask')
+  const [reason, setReason] = useState(EMPTY)
+  useBackDismiss(onClose)
+
+  const said: Record<BanOutcome, string> = {
+    accepted: 'Retiré. Sa copie communautaire a quitté le serveur ; le dictionnaire livré le perdra au prochain import.',
+    rejected: 'La revue a été refusée.',
+    sent: 'Le signalement attend les autres modérateurs.',
+    known: 'Ce mot est déjà signalé ou déjà retiré.',
+    forbidden: 'Réservé au super modérateur.',
+    unreachable: 'Le serveur n’a pas répondu. Réessaie.',
+  }
+
+  const confirm = async () => {
+    setStep('busy')
+    setStep(await onForce(reason))
+  }
+
+  return createPortal(
+    <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="force-word-title">
+      <div className="offer-pop-scrim" onClick={onClose} />
+      <div className="offer-pop">
+        <h2 id="force-word-title" className="offer-pop-title">
+          Retirer d’office
+        </h2>
+        {step === 'ask' || step === 'busy' ? (
+          <>
+            <p>
+              « {word.display} » quitte « {category} » sans attendre les autres modérateurs : sa copie communautaire part du serveur
+              tout de suite, et le dictionnaire livré le perdra au prochain import. Le retrait reste inscrit dans la file, avec ton
+              motif.
+            </p>
+            <label className="flag-reason" htmlFor="force-word-reason">
+              <span className="note">Motif</span>
+              <textarea
+                id="force-word-reason"
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                placeholder="Ce pays n’existe plus, une faute d’orthographe…"
+                maxLength={140}
+                rows={2}
+              />
+            </label>
+            <div className="offer-pop-actions">
+              <button type="button" className="btn btn--ghost" onClick={onClose}>
+                Annuler
+              </button>
+              <button type="button" className="btn btn--red" onClick={confirm} disabled={step === 'busy'}>
+                Retirer d’office
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>{said[step]}</p>
+            <button type="button" className="btn btn--ghost btn--block" onClick={onClose}>
+              Fermer
+            </button>
+          </>
+        )}
+      </div>
+    </div>,
+    document.body,
+  )
 }
 
 /**
