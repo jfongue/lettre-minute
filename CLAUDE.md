@@ -312,29 +312,57 @@ qu'un nouvel arrivant casserait sans le savoir.
   l'envoie à son défi, hors classements et hors rareté, et
   `applyChallengeRun` ne touche ni au record ni à `lastPrompts`.
 
-- **Le duel en direct vit sur sa propre page** (`duel.html`, `src/duel.tsx`,
-  `src/ui/DuelScreen.tsx`) tant qu'il est un prototype : il se joue contre les
-  joueurs maison, sans serveur, et ne passe donc ni par l'accueil ni par
-  `App.tsx`. Ses règles sont dans `src/domain/duel.ts` et nulle part ailleurs :
-  une manche est un couple, la main avance à chaque fin de tour, le couple est
-  hérité jusqu'à ce qu'il soit validé ou refusé par tous les vivants, et chaque
-  joueur ne brûle sa réserve de 30 s que pendant son propre tour. Le domaine ne
-  connaît ni horloge ni identité : `src/state/duel.ts` tient la montre, la table
-  et les robots — c'est cette boucle qu'une table en ligne remplacera par une
-  lecture du serveur. Le champ du joueur qui attend juge avec `inspectFor`, et
-  `playWord` rejoue le même verdict avant d'encaisser, comme `inspect`/`submit`.
-  `#auto` à la fin de l'URL fait jouer la table toute seule (trois joueurs
-  maison, choix et validations automatiques) : de quoi regarder chaque écran
-  sans jouer trois minutes. Le temps est la seule monnaie du duel : un mot
-  rend de 0 à 2 s selon son palier (`DUEL_TIME_BONUS`), et les points du solo,
-  que `submit` calcule encore, ne s'affichent nulle part. L'ouvreur se tire de
-  la graine (`Duel.opener`) : ouvrir est un handicap, et la place à table le
-  faisait toujours porter au joueur. Toute action passe par `commit`
-  (`src/state/duel.ts`), qui écrit le fil et met en scène chaque mort, qu'elle
-  vienne du temps ou d'un passe. Sous 640 px de haut — le clavier ouvert, que
-  l'app rétrécit (`resize: 'native'`) — la partie se resserre (`duel.css`) pour
-  que le couple, le champ et ses boutons restent au-dessus des touches. Ses styles sont dans `src/duel.css`, à fondre dans
-  `styles.css` le jour où le duel rejoint l'accueil.
+- **Une partie de duel n'est qu'un journal de coups datés** (`src/domain/duelLog.ts`) :
+  choix de catégorie, mot, passe, temps écoulé, numérotés et horodatés par
+  l'horloge de la table. Chaque appareil rejoue ce journal par
+  `src/domain/duel.ts` et voit la même partie — toutes les pauses (annonce du
+  draft, choix d'office, ouverture, mise en scène d'une mort) sont des heures du
+  domaine, jamais des minuteries d'écran. Une règle de duel nouvelle s'écrit
+  donc en fonction de la graine, des coups et de leurs heures seules. Les
+  règles : une manche est un couple, la main avance à chaque fin de tour, le
+  couple est hérité jusqu'à ce qu'il soit validé ou refusé par tous les vivants,
+  chacun ne brûle sa réserve de 30 s que pendant son tour, et la main n'arrive
+  jamais avec moins d'une seconde (`DUEL_FLOOR_SECONDS`). Un mot juste resté
+  dans le champ à zéro se joue tout seul et sauve son joueur (`hold`, puis
+  `DUEL_GRACE_SECONDS` de marge pour le réseau). Le temps est la seule monnaie :
+  un mot rend de 0 à 2 s selon son palier (`DUEL_TIME_BONUS`), les points du solo
+  ne s'affichent nulle part. L'ouvreur se tire de la graine (`Duel.opener`).
+- **Deux sources pour la même table** (`src/state/duel.ts`) : `online`, la
+  table du serveur (0046), relue toutes les 450 ms en partie — il n'y a pas de
+  Realtime dans le client, et c'est voulu (`src/lib/supabase.ts`) —, et `local`,
+  contre les joueurs maison sans serveur, celle de `duel.html` et du repli hors
+  ligne. Deux coups concurrents se départagent par leur numéro (`stale`, puis
+  relecture). Le serveur ne juge rien : il vérifie seulement qu'un mot ou un
+  passe vient du joueur lui-même. Le « meneur » — le premier joueur présent qui
+  relit encore la table — déclare ce que personne d'autre ne déclarerait : les
+  coups des joueurs maison, les choix que le temps tranche, le temps écoulé
+  d'un absent (`driverMove`, fonction pure : n'importe quel appareil qui
+  reprend la main déclare les mêmes coups). Le joueur dont la réserve tombe à
+  zéro déclare lui-même son mot ou sa mort.
+- **Le duel est dans l'app, derrière le bouton des défis** : quand la
+  fonctionnalité `duel` est ouverte, « Créer un défi » passe par l'écran de choix
+  (`PlayTogether`) entre le duel en direct et le défi 24 h. Une invitation à une
+  table attend sur l'accueil (`DuelInviteCard`, relue toutes les 8 s). L'hôte
+  retire quelqu'un du salon par un appui long et une confirmation, jamais d'une
+  touche ; l'expulsé rentre à l'accueil, qui le lui dit (`DuelBanner`). Les
+  joueurs maison du serveur (`bots`) s'assoient dès qu'ils sont invités et
+  prennent le profil local de leur nom. Les styles vivent dans `src/duel.css`,
+  chargé avec l'écran. `duel.html#auto` fait jouer une table locale toute seule.
+  Sous 640 px de haut — le clavier ouvert, que l'app rétrécit
+  (`resize: 'native'`) — la partie se resserre pour que le couple, le champ et
+  ses deux boutons restent au-dessus des touches.
+- **Chaque fonctionnalité est un interrupteur** (`src/domain/features.ts`,
+  0045) : quatre publics — tout le monde, modérateur, Premium, super
+  modérateur —, une case dispo, bloquée ou neutre. Une case dispo parmi les
+  publics du joueur suffit, sinon une case bloquée ferme, sinon le code
+  décide. Un super modérateur règle la table depuis ses options
+  (`FeaturesBoard`) ; chaque appareil la lit au démarrage et ne l'applique
+  qu'au suivant (`loadFeatures`), rôles compris tant que le serveur n'a pas
+  répondu. Un écran lit ce qui lui est ouvert par `useFeature` ; sans
+  fournisseur (planche debug, `duel.html`), tout est ouvert. Une fonctionnalité
+  nouvelle entre dans `FEATURES`, et son point d'entrée se garde : la planche
+  debug elle-même n'est plus ouverte qu'aux super modérateurs. Le serveur ne
+  connaît pas Premium : la table ne refuse jamais rien côté serveur.
 
 - **Le téléphone ne demande le droit de notifier qu'après une nouvelle
   amitié** (`pushOfferDue`, `src/state/pushOffer.ts`), et après la question
@@ -509,7 +537,8 @@ qu'un nouvel arrivant casserait sans le savoir.
   qu'on en crée un, on l'y ajoute. Le tableau de bord a le sien
   (`leaderboards-advanced`). On l'ouvre par cinq tapes rapides sur
   la tuile en haut à droite de l'affiche d'accueil, ou `#debug` sur le web, dans n'importe quel
-  build. Elle montre les vrais composants avec des données inventées et
+  build — pour qui la fonctionnalité `debugBoard` est ouverte, les super
+  modérateurs par défaut. Elle montre les vrais composants avec des données inventées et
   n'écrit jamais sur le serveur : un écran qui appelle `cloud.ts` pour
   écrire reçoit une doublure en prop (`answerOffer` de `ModeratorOffer`),
   un écran qui charge lui-même ses données se découpe en chargeur + vue

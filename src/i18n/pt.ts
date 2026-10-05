@@ -939,5 +939,8 @@ flawless: ['Sem erros', 'A cada três palavras válidas digitadas sem erros, gan
     challengeCard: 'Desafio 24h',
     challengeCardNote: 'A mesma partida para todos, para jogar no dia.',
     challengeCardPlayers: '2 a 8 jogadores',
+    offlineTitle: 'A mesa online não abre',
+    offlineLead: 'Jogar com amigos exige uma conta com nome e o servidor. Você pode jogar agora contra os jogadores da casa.',
+    playBots: 'Jogar contra os jogadores da casa',
   },
 }

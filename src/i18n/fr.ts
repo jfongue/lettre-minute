@@ -948,6 +948,9 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     challengeCard: 'Défi 24h',
     challengeCardNote: 'La même partie pour tous, à jouer dans la journée.',
     challengeCardPlayers: '2 à 8 joueurs',
+    offlineTitle: 'La table en ligne ne s’ouvre pas',
+    offlineLead: 'Il faut un compte nommé et le serveur pour jouer avec tes amis. Tu peux jouer tout de suite contre les joueurs maison.',
+    playBots: 'Jouer contre les joueurs maison',
   },
 }
 

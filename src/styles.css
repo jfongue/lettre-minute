@@ -8543,6 +8543,50 @@ body[data-words='board'] .offer-pop-layer {
   color: var(--green);
 }
 
+/* Sur téléphone, une carte par fonctionnalité : son nom, puis ses quatre
+   cases côte à côte, chacune nommée, et ce qu'elle donne pour soi. */
+@media (max-width: 40rem) {
+  .features-grid {
+    gap: 0.6rem;
+  }
+
+  .features-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    min-width: 0;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .features-row--head {
+    display: none;
+  }
+
+  .features-name {
+    grid-column: 1 / span 3;
+  }
+
+  .features-mine {
+    grid-column: 4;
+    grid-row: 1;
+  }
+
+  .features-cell {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.35rem 0.2rem;
+    min-height: 2.8rem;
+  }
+
+  .features-cell::before {
+    content: attr(data-audience);
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+}
+
 /* ---------------------------------------------------- jouer entre amis - */
 /* Le choix du duel ou du défi : deux grandes cartes, leur dessin à côté du
    texte, qui arrivent l'une après l'autre. */

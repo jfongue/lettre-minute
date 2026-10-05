@@ -152,6 +152,10 @@ export interface DuelTable {
   feed: readonly DuelFact[]
   facts: readonly DuelFact[]
   error: boolean
+  /** La table en ligne n'a pas pu s'ouvrir : pas de compte nommé, ou pas de serveur. */
+  offline: boolean
+  /** Dans l'app : quitter la table rend l'accueil, au lieu d'en rouvrir une. */
+  embedded: boolean
   /** La mise en scène d'une mort : qui est tombé, et quand elle a commencé. */
   fallen: number | null
   fallenAt: number
@@ -279,6 +283,7 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
 
   const [table, setTable] = useState<TableData | null>(() => (mode === 'local' ? freshLocal(lang, meSeat, [HOUSE_BOTS[0]!.id], mine) : null))
   const [failed, setFailed] = useState(false)
+  const [offline, setOffline] = useState(false)
   const [leavers, setLeavers] = useState<readonly string[]>([])
   const [candidates, setCandidates] = useState<readonly Candidate[]>([])
   const [judge, setJudge] = useState<Judge | null>(null)
@@ -333,14 +338,14 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
       // Une invitation : la place se prend d'abord, la table se lit ensuite.
       void joinDuel(join, mine.length).then((outcome) => {
         if (outcome === 'joined') setTableId(join)
-        else if (outcome === 'unreachable') setFailed(true)
+        else if (outcome === 'unreachable') setOffline(true)
         else exit.current?.(outcome === 'kicked' ? 'kicked' : 'closed')
       })
       return
     }
     void createDuelTable(lang, mine, mine.length).then((id) => {
       if (id) setTableId(id)
-      else setFailed(true)
+      else setOffline(true)
     })
   }, [join, lang, mine, mode])
 
@@ -565,7 +570,7 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
 
   const lastDeath = [...facts].reverse().find((fact) => fact.kind === 'dead')
   const phase: TablePhase = (() => {
-    if (!table) return failed ? 'gone' : 'connecting'
+    if (!table) return failed || offline ? 'gone' : 'connecting'
     if (table.status === 'closed') return 'gone'
     if (table.status === 'lobby') return 'lobby'
     if (!duel || table.startedAt === null) return 'connecting'
@@ -640,6 +645,10 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     if (mode === 'online') {
       if (currentId) void leaveDuel(currentId)
       exit.current?.(null)
+      return
+    }
+    if (exit.current) {
+      exit.current(null)
       return
     }
     finished.current = null
@@ -753,6 +762,8 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     feed,
     facts,
     error: failed,
+    offline,
+    embedded: !!onExit,
     fallen: phase === 'deaths' && lastDeath ? lastDeath.player : null,
     fallenAt: lastDeath?.at ?? 0,
     openingAt: opensAt === null ? 0 : opensAt - DUEL_OPENING_SECONDS + DRAFT_HOLD_SECONDS,

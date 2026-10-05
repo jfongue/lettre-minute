@@ -49,7 +49,7 @@ import '../duel.css'
 /** Sous ce reste, la réserve de celui qui répond bat en rouge. */
 const LOW_SECONDS = 3
 /** Le temps que la main reprise après une mort s'annonce. */
-const RESUME_FLASH_MS = 1300
+const RESUME_FLASH_MS = 1100
 
 const BEAT_MOTIFS: Record<number, Motif> = {
   3: { kind: 'circle', tint: 'red' },
@@ -189,7 +189,7 @@ function Lobby({ table }: { table: DuelTable }) {
                 {t.duel.back}
               </button>
             ) : null}
-            {!locked && (table.mode === 'online' || table.rematchOpen) ? (
+            {!locked && (table.mode === 'online' || table.rematchOpen || table.embedded) ? (
               <button type="button" className="btn btn--quiet btn--block" onClick={() => table.leave()}>
                 {t.duel.quit}
               </button>
@@ -939,13 +939,39 @@ function Over({ table }: { table: DuelTable }) {
 }
 
 /** Un écran d'attente ou d'erreur, dans la feuille du duel. */
-function Notice({ text, onBack, back }: { text: string; onBack?: () => void; back?: string }) {
+function Notice({
+  title,
+  text,
+  onBack,
+  back,
+  onBots,
+}: {
+  title?: string
+  text: string
+  onBack?: () => void
+  back?: string
+  onBots?: () => void
+}) {
   const t = useT()
   return (
     <main className="stage stage--duel">
       <div className="sheet duel-notice">
         <p className="eyebrow">{t.duel.title}</p>
+        {title ? <h1 className="duel-title">{title}</h1> : null}
         <p className="note">{text}</p>
+        {onBots ? (
+          <button
+            type="button"
+            className="btn btn--play btn--block duel-cta"
+            onClick={() => {
+              armSound()
+              sound.go()
+              onBots()
+            }}
+          >
+            <span>{t.duel.playBots}</span>
+          </button>
+        ) : null}
         {onBack ? (
           <button type="button" className="btn btn--ghost btn--block" onClick={onBack}>
             {back ?? t.duel.errorBack}
@@ -971,10 +997,17 @@ export interface DuelScreenProps {
 }
 
 export function DuelScreen({ lang, mode = 'local', join = null, onExit }: DuelScreenProps) {
+  // Hors ligne, la table en ligne cède la place à une table locale, sur le même écran.
+  const [local, setLocal] = useState(false)
+  return <DuelTableScreen key={local ? 'local' : mode} lang={lang} mode={local ? 'local' : mode} join={local ? null : join} onExit={onExit} onBots={() => setLocal(true)} />
+}
+
+function DuelTableScreen({ lang, mode, join, onExit, onBots }: Required<Omit<DuelScreenProps, 'onExit'>> & Pick<DuelScreenProps, 'onExit'> & { onBots(): void }) {
   const t = useT()
   const table = useDuelTable({ lang, mode, join, onExit })
   const { phase } = table
 
+  if (table.offline) return <Notice title={t.duel.offlineTitle} text={t.duel.offlineLead} onBots={onBots} onBack={() => onExit?.(null)} />
   if (table.error) return <Notice text={t.duel.loadFailed} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'connecting') return <Notice text={t.duel.connecting} />
   if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />

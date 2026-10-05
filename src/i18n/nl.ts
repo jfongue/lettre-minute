@@ -938,5 +938,8 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
     challengeCard: '24-uursuitdaging',
     challengeCardNote: 'Hetzelfde spel voor iedereen, binnen een dag te spelen.',
     challengeCardPlayers: '2 tot 8 spelers',
+    offlineTitle: 'De online tafel gaat niet open',
+    offlineLead: 'Spelen met vrienden vraagt een account met naam en de server. Je kunt meteen tegen de huisspelers spelen.',
+    playBots: 'Tegen de huisspelers spelen',
   },
 }

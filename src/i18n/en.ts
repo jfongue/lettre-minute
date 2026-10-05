@@ -942,5 +942,8 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
     challengeCard: '24h challenge',
     challengeCardNote: 'The same game for everyone, to play within the day.',
     challengeCardPlayers: '2 to 8 players',
+    offlineTitle: 'The online table won’t open',
+    offlineLead: 'Playing with friends needs a named account and the server. You can play the house players right now.',
+    playBots: 'Play the house players',
   },
 }

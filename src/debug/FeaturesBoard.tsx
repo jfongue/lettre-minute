@@ -21,6 +21,14 @@ const AUDIENCE_LABELS: Record<Audience, string> = {
   superModerator: 'Super modérateur',
 }
 
+/** Sur téléphone, chaque case porte son public au-dessus de sa valeur. */
+const SHORT_LABELS: Record<Audience, string> = {
+  everyone: 'Tous',
+  moderator: 'Modo',
+  premium: 'Premium',
+  superModerator: 'Super',
+}
+
 const VALUE_LABELS: Record<FlagValue, string> = { on: 'Dispo', off: 'Bloqué', neutral: 'Neutre' }
 const NEXT: Record<FlagValue, FlagValue> = { on: 'off', off: 'neutral', neutral: 'on' }
 
@@ -135,6 +143,7 @@ export function FeaturesBoardView({ load, save, roles, onClose }: { load: LoadFl
                       key={audience}
                       type="button"
                       role="cell"
+                      data-audience={SHORT_LABELS[audience]}
                       className={`features-cell features-cell--${row[audience]}${busy[key] ? ` features-cell--${busy[key]}` : ''}`}
                       aria-label={`${feature.label}, ${AUDIENCE_LABELS[audience]} : ${VALUE_LABELS[row[audience]]}`}
                       onClick={() => void cycle(feature.id, audience)}

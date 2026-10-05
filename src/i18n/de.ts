@@ -937,5 +937,8 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
     challengeCard: '24-Stunden-Duell',
     challengeCardNote: 'Dieselbe Partie für alle, innerhalb eines Tages zu spielen.',
     challengeCardPlayers: '2 bis 8 Spieler',
+    offlineTitle: 'Der Online-Tisch öffnet sich nicht',
+    offlineLead: 'Mit Freunden zu spielen braucht ein benanntes Konto und den Server. Du kannst sofort gegen die Hausspieler spielen.',
+    playBots: 'Gegen die Hausspieler spielen',
   },
 }
