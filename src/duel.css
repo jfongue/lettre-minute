@@ -28,7 +28,6 @@
 }
 
 .duel-lead {
-  min-height: 3.9em;
   animation: fade 360ms ease both;
 }
 
@@ -667,6 +666,17 @@
   font-size: clamp(2.1rem, 10vw, 2.6rem);
   font-weight: 800;
   line-height: 1;
+}
+
+/* Le « s » des secondes : petit, collé au chiffre, jamais plus gros que lui. */
+.duel-seat__mine .duel-seat__unit {
+  margin-left: 0.08em;
+  font-size: 0.42em;
+}
+
+.duel-seat__secs .duel-seat__unit {
+  margin-left: 0.15em;
+  font-size: 0.85em;
 }
 
 .run--critical .duel-seat__mine {

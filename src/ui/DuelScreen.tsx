@@ -20,6 +20,7 @@ import {
   draftShape,
   duelRanking,
   reserveSeconds,
+  reserveShown,
   timeGained,
   type Duel,
 } from '../domain/duel'
@@ -106,9 +107,11 @@ function Lobby({ table }: { table: DuelTable }) {
         <h1 className="duel-title" key={counting ? 'draft' : 'table'}>
           {counting ? t.duel.announceTitle : table.rematchOpen ? t.duel.rematchTitle : t.duel.leadTitle}
         </h1>
-        <p className="note duel-lead" key={counting ? 'rule' : 'lead'}>
-          {counting ? t.duel.draftRule(shape.picks, shape.drawn) : table.rematchOpen ? t.duel.rematchLead : t.duel.lead}
-        </p>
+        {counting || table.rematchOpen ? (
+          <p className="note duel-lead" key={counting ? 'rule' : 'lead'}>
+            {counting ? t.duel.draftRule(shape.picks, 0) : t.duel.rematchLead}
+          </p>
+        ) : null}
         {counting ? (
           <span className="duel-fuse duel-fuse--announce" aria-hidden="true">
             <i />
@@ -273,11 +276,8 @@ function Draft({ table }: { table: DuelTable }) {
   const duel = table.duel!
   const picker = table.picker
   const mine = table.myPickTurn
-  const { chosen: total, drawn } = draftShape(duel.players.length, duel.categories.length)
+  const { chosen: total } = draftShape(duel.players.length, duel.categories.length)
   const done = !picker
-  // Ce que l'écran a déjà posé : les choix des joueurs, puis les catégories que
-  // le sort a posées une à une — celles qui restent ne sont pas encore tombées.
-  const revealed = total + table.drawnShown
   const forcedLabel = table.forced ? categoryText(t, table.forced).label : ''
 
   // Mon tour de choisir s'annonce ; chaque choix des autres s'entend.
@@ -289,18 +289,9 @@ function Draft({ table }: { table: DuelTable }) {
     if (duel.picks.length > heardPicks.current && !done) sound.tile('glass', duel.picks.length)
     heardPicks.current = duel.picks.length
   }, [done, duel.picks.length])
-  // Chaque catégorie que le sort pose s'entend en tombant, pas toutes ensemble :
-  // c'est la pause entre deux qui fait le tirage.
-  const heardDraw = useRef(table.drawnShown)
-  useEffect(() => {
-    for (let index = heardDraw.current; index < table.drawnShown; index++) sound.tile('wood', 3 + index)
-    heardDraw.current = table.drawnShown
-  }, [table.drawnShown])
 
   const line = done
-    ? drawn > 0
-      ? t.duel.drawing
-      : t.duel.draftDone
+    ? t.duel.draftDone
     : table.forced
       ? t.duel.forced(forcedLabel)
       : mine
@@ -331,19 +322,6 @@ function Draft({ table }: { table: DuelTable }) {
               </li>
             )
           })}
-          {Array.from({ length: drawn }, (_, index) => {
-            const taken = index < table.drawnShown ? duel.picks[total + index] : undefined
-            const motif = taken ? categoryMotif(taken) : null
-            return (
-              <li
-                key={`drawn-${index}`}
-                className={`duel-order__slot duel-order__slot--luck${taken ? ' duel-order__slot--done' : ''}`}
-                style={motif ? ({ background: `var(--${motif.tint})`, color: `var(--${onTint(motif.tint)})` } as CSSProperties) : undefined}
-              >
-                {taken ? <CategoryIcon categoryId={taken} tint={onTint(motif!.tint)} className="duel-order__icon" /> : <span>?</span>}
-              </li>
-            )
-          })}
         </ol>
 
         <p className={`duel-turn${mine && !table.forced ? ' duel-turn--mine' : ''}`} aria-live="polite" key={line}>
@@ -362,7 +340,7 @@ function Draft({ table }: { table: DuelTable }) {
         <ul className="dealt dealt--pick">
           {table.pool.map((id, index) => {
             const place = duel.picks.indexOf(id)
-            const taken = place >= 0 && place < revealed
+            const taken = place >= 0
             const luck = taken && place >= total
             const whoIndex = taken && !luck ? (duel.order[place % duel.order.length] ?? 0) : -1
             const who = whoIndex >= 0 ? table.seats[whoIndex] : null
@@ -534,14 +512,16 @@ function TableStrip({ table, at, urgent, resumed }: { table: DuelTable; at: numb
             {mine && !dead ? (
               // Ma réserve, en grand, dans ma place : c'est le seul chrono que je lis.
               <span className={`duel-seat__mine clock${late ? ' clock--late' : ''}`} key={urgent ? Math.ceil(seconds) : 'calm'}>
-                {Math.ceil(seconds)}
+                {reserveShown(seconds)}
+                <span className="duel-seat__unit">s</span>
               </span>
             ) : (
               <span className="duel-seat__name">{nameOf(seat, t.duel.you, mine)}</span>
             )}
             {!mine && !dead ? (
-              <span className="duel-seat__secs" aria-label={t.duel.secondsLeft(Math.ceil(seconds))}>
-                {Math.ceil(seconds)}
+              <span className="duel-seat__secs" aria-label={t.duel.secondsLeft(reserveShown(seconds))}>
+                {reserveShown(seconds)}
+                <span className="duel-seat__unit">s</span>
               </span>
             ) : null}
             <span className="duel-seat__bar" aria-hidden="true">

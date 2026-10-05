@@ -39,12 +39,13 @@ export function PlayTogether({ challenge, onDuel, onChallenge, onClose }: { chal
             onDuel()
           }}
         >
-          <span className="together-art together-art--duel" aria-hidden="true">
-            <span className="together-table" />
-            {[0, 1, 2, 3].map((seat) => (
-              <i key={seat} />
-            ))}
-          </span>
+          <svg className="together-art together-art--duel" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+            <rect className="together-table" x="33" y="33" width="34" height="34" />
+            <circle className="together-seat--hand" cx="50" cy="11" r="11" />
+            <circle cx="89" cy="50" r="11" />
+            <circle cx="50" cy="89" r="11" />
+            <circle cx="11" cy="50" r="11" />
+          </svg>
           <span className="together-text">
             <b>{t.duel.duelCard}</b>
             <small>{t.duel.duelCardNote}</small>
@@ -66,10 +67,11 @@ export function PlayTogether({ challenge, onDuel, onChallenge, onClose }: { chal
               onChallenge()
             }}
           >
-            <span className="together-art together-art--challenge" aria-hidden="true">
-              <span className="together-day" />
-              <span className="together-hand" />
-            </span>
+            <svg className="together-art together-art--challenge" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+              <circle className="together-dial" cx="50" cy="50" r="41" />
+              <path className="together-slice" d="M50 50V9A41 41 0 0 1 91 50Z" />
+              <path d="M47 50V24H53V50Z" transform="rotate(90 50 50)" />
+            </svg>
             <span className="together-text">
               <b>{t.duel.challengeCard}</b>
               <small>{t.duel.challengeCardNote}</small>
