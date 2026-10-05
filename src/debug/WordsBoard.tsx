@@ -34,7 +34,7 @@ export type AddWord = (lang: string, categoryId: string, word: string) => Promis
 export type ForceWord = (lang: string, word: FlagWord, reason: string) => Promise<BanOutcome>
 
 // La porte « modération » de cet écran demande vraiment l'avis des autres :
-// `wait` empêche la voix d'un super modérateur de régler la revue seule (0045).
+// `wait` empêche la voix d'un super modérateur de régler la revue seule (0048).
 const banDefault: BanWords = (lang, word, reason) =>
   proposeBan(lang, word.categoryId, word.word, word.display, reason, true)
 const forceDefault: ForceWord = (lang, word, reason) =>

@@ -1,6 +1,6 @@
 -- « Proposer à la modération » depuis l'écran des mots demande l'avis des
 -- autres : un super modérateur qui signale ainsi ne règle pas la revue à lui
--- seul (0045) — sa voix compte pour une des trois, comme celle de n'importe
+-- seul (0048) — sa voix compte pour une des trois, comme celle de n'importe
 -- qui. Ce que la file rend, et ce que deux autres modérateurs en font.
 
 select tests.new_user(n) from unnest(array['ba', 'bb', 'bc', 'bs']) n;

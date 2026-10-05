@@ -547,7 +547,7 @@ export function proposeBan(
   word: string,
   display: string,
   reason: string,
-  /** Le signaleur demande l'avis des autres : sa voix ne règle pas la revue seule (0045). */
+  /** Le signaleur demande l'avis des autres : sa voix ne règle pas la revue seule (0048). */
   wait = false,
 ): Promise<BanOutcome> {
   return guard(async () => {
