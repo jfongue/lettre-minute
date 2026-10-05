@@ -7918,6 +7918,15 @@ button.challenge-word[aria-expanded='true'] {
   text-decoration-color: color-mix(in srgb, var(--blue) 40%, transparent);
 }
 
+/* Un couple cliquable : il filtre l'écran dessus, mots du couple compris. */
+.words-pair {
+  cursor: pointer;
+}
+
+.words-pair:hover td {
+  background: color-mix(in srgb, var(--blue) 8%, transparent);
+}
+
 /* Le genre d'une revue, dans la file de modération. */
 .words-kind {
   display: inline-block;
