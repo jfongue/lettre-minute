@@ -55,7 +55,11 @@ et [`0046_duels.sql`](migrations/0046_duels.sql) pour le duel en direct en
 ligne : tables, places, invitations et journal de coups, et
 [`0047_super_moderator_role.sql`](migrations/0047_super_moderator_role.sql) pour
 faire de super modérateur un rôle donné (`moderators.super`) plutôt qu'un rang
-gagné par cinq mots validés.
+gagné par cinq mots validés, et
+[`0048_ban_waiting.sql`](migrations/0048_ban_waiting.sql) pour qu'un
+signalement de super modérateur attende vraiment les autres — sa voix compte
+pour une parmi les trois au lieu de régler la revue seule. Le numéro 0045 est
+pris par `feature_flags` : cette migration-là a été renumérotée, jamais rejouée.
 
 ## Ce que le serveur détient
 
