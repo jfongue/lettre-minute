@@ -557,6 +557,30 @@ export function proposeBan(
   }, 'unreachable')
 }
 
+/**
+ * Un super modérateur retire un mot d'office, depuis l'écran des mots : sa
+ * voix règle le signalement seule, et la copie communautaire quitte le serveur
+ * tout de suite — le dictionnaire livré, lui, ne bouge qu'au prochain import.
+ * `forbidden` à qui n'est pas super modérateur : le serveur le vérifie aussi.
+ */
+export function forceRemoveWord(
+  lang: string,
+  categoryId: string,
+  word: string,
+  display: string,
+  reason: string,
+): Promise<BanOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('force_ban', {
+      p_category: scoped(lang, categoryId),
+      p_word: word,
+      p_display: display,
+      p_note: reason.trim() || null,
+    })
+    return error ? 'unreachable' : (data as BanOutcome)
+  }, 'unreachable')
+}
+
 export function castVote(
   card: ReviewCard,
   lang: string,

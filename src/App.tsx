@@ -1723,7 +1723,7 @@ export function App() {
 
       {wordsBoard && (
         <Suspense fallback={null}>
-          <WordsBoard lang={lang} onClose={() => setWordsBoard(false)} />
+          <WordsBoard lang={lang} superModerator={moderation?.super === true} onClose={() => setWordsBoard(false)} />
         </Suspense>
       )}
 
