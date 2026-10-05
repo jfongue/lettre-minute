@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { availableCategoryIds, loadPack } from '../data/packs'
 import { CATALOGUE } from '../domain/catalogue'
@@ -168,6 +168,15 @@ export function WordsBoardView({
   const [forced, setForced] = useState<FlagWord | null>(null)
   const [adding, setAdding] = useState(false)
   const [wholePairs, setWholePairs] = useState(false)
+  /** La section des mots : on y descend en cliquant un couple. */
+  const wordsRef = useRef<HTMLDivElement>(null)
+
+  /** Un couple cliqué filtre l'écran dessus — sa catégorie, sa lettre — et montre ses mots. */
+  const pickPair = (one: { category: string; letter: string }) => {
+    setCategory(one.category)
+    setLetter(one.letter)
+    wordsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   useEffect(() => {
     let live = true
@@ -497,7 +506,24 @@ export function WordsBoardView({
           <Section
             title="Couples lettre + catégorie"
             mark="var(--yellow)"
-            aside={<p className="note">{category ? categoryText(t, category).label : 'toutes catégories'}{letter ? ` · lettre ${letter}` : ''}</p>}
+            aside={
+              <p className="note">
+                {category ? categoryText(t, category).label : 'toutes catégories'}
+                {letter ? ` · lettre ${letter}` : ''}
+                {category && letter && (
+                  <button
+                    type="button"
+                    className="words-pick"
+                    onClick={() => {
+                      setCategory(EMPTY)
+                      setLetter(EMPTY)
+                    }}
+                  >
+                    voir tous les couples
+                  </button>
+                )}
+              </p>
+            }
           >
             {theory === null && (
               <div className="dashboard-empty">
@@ -523,9 +549,11 @@ export function WordsBoardView({
                   const real = report.dealt ? pair.dealt / report.dealt : 0
                   const gap = pair.theory !== null && pair.theory > 0 && real > 0 ? real / pair.theory : null
                   return (
-                    <tr key={`${pair.category}:${pair.letter}`}>
+                    <tr key={`${pair.category}:${pair.letter}`} className="words-pair" onClick={() => pickPair(pair)}>
                       <td>
-                        <b className="dashboard-letter">{pair.letter}</b> {categoryText(t, pair.category).label}
+                        <button type="button" className="words-pick" onClick={() => pickPair(pair)}>
+                          <b className="dashboard-letter">{pair.letter}</b> {categoryText(t, pair.category).label}
+                        </button>
                       </td>
                       <td className="n">{fmt(pair.dealt)}</td>
                       <td className="n">{pair.theory === null ? '…' : share(pair.theory, 1)}</td>
@@ -566,6 +594,7 @@ export function WordsBoardView({
             </p>
           </Section>
 
+          <div ref={wordsRef} className="words-words">
           <Section
             title="Mots du dictionnaire"
             mark="var(--blue)"
@@ -637,6 +666,7 @@ export function WordsBoardView({
           </p>
           </Section>
 
+          </div>
           <Section title="Mots ajoutés" mark="var(--green)" round>
             {shownAdded.length ? (
               <Table
