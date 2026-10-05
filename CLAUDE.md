@@ -12,6 +12,14 @@ qu'un nouvel arrivant casserait sans le savoir.
 
 ## Pièges connus
 
+- **Chrome sans tête ne démarre pas depuis une session d'agent** : le sandbox
+de fichiers du harnais empêche Chrome d'imbriquer le sien (`sandbox
+initialization failed: Operation not permitted`, puis `GPU process isn't
+usable. Goodbye.`). Les scripts qui le lancent passent donc `--no-sandbox
+--disable-gpu --disable-crash-reporter` avec un `--user-data-dir` dans le
+dossier de travail : sans eux, aucune capture ni planche debug ne se rend, et
+ce n'est pas une raison de renoncer au protocole DevTools.
+
 - **`src/domain/` n'a aucune dépendance vers React, le DOM ou Supabase**, et doit
   le rester : c'est ce qui le rend testable et rejouable à l'identique depuis sa
   graine. Toute nouvelle règle s'y écrit d'abord, avec ses tests. Le dictionnaire

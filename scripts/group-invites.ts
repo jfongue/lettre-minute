@@ -129,6 +129,13 @@ async function withChrome<T>(headless: boolean, work: (tab: Tab) => Promise<T>):
     CHROME,
     [
       ...(headless ? ['--headless=new'] : []),
+      // Chrome's own process sandbox cannot nest inside the harness file
+      // sandbox: macOS refuses sandbox_init there, and the GPU process takes
+      // Chrome down with it. Crashpad's default dump directory is outside the
+      // workspace too.
+      '--no-sandbox',
+      '--disable-gpu',
+      '--disable-crash-reporter',
       `--remote-debugging-port=${PORT}`,
       `--user-data-dir=${PROFILE}`,
       '--window-size=1280,1400',
