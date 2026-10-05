@@ -325,7 +325,15 @@ qu'un nouvel arrivant casserait sans le savoir.
   `playWord` rejoue le même verdict avant d'encaisser, comme `inspect`/`submit`.
   `#auto` à la fin de l'URL fait jouer la table toute seule (trois joueurs
   maison, choix et validations automatiques) : de quoi regarder chaque écran
-  sans jouer trois minutes. Ses styles sont dans `src/duel.css`, à fondre dans
+  sans jouer trois minutes. Le temps est la seule monnaie du duel : un mot
+  rend de 0 à 2 s selon son palier (`DUEL_TIME_BONUS`), et les points du solo,
+  que `submit` calcule encore, ne s'affichent nulle part. L'ouvreur se tire de
+  la graine (`Duel.opener`) : ouvrir est un handicap, et la place à table le
+  faisait toujours porter au joueur. Toute action passe par `commit`
+  (`src/state/duel.ts`), qui écrit le fil et met en scène chaque mort, qu'elle
+  vienne du temps ou d'un passe. Sous 640 px de haut — le clavier ouvert, que
+  l'app rétrécit (`resize: 'native'`) — la partie se resserre (`duel.css`) pour
+  que le couple, le champ et ses boutons restent au-dessus des touches. Ses styles sont dans `src/duel.css`, à fondre dans
   `styles.css` le jour où le duel rejoint l'accueil.
 
 - **Le téléphone ne demande le droit de notifier qu'après une nouvelle

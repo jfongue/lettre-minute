@@ -3,6 +3,8 @@
  * 30 s qui ne court que pendant le sien. Passer coûte 5 s de plus, un mot
  * validé en rend selon son palier. Le premier dont la réserve tombe à zéro
  * meurt ; le dernier debout gagne, les autres se classent à l'ordre des morts.
+ * Le temps est la seule monnaie du duel : les points du solo n'y décident rien,
+ * et l'interface ne les montre pas.
  *
  * Le couple appartient à la manche, pas au tour : la main avance d'un cran à
  * chaque fin de tour et le couple est hérité. Il n'est consommé — et remplacé
@@ -27,12 +29,12 @@ export const DUEL_PASS_PENALTY_SECONDS = 5
 export const DUEL_POOL_SIZE = 5
 /** Les catégories que les joueurs choisissent eux-mêmes, tout compris. */
 export const DUEL_PICKED_SIZE = 4
-/** Ce qu'un mot validé rend à la réserve du joueur, selon son palier. */
+/** Ce qu'un mot validé rend à la réserve du joueur, selon son palier : de rien à deux secondes. */
 export const DUEL_TIME_BONUS: Readonly<Record<RarityTier, number>> = {
   courant: 0,
   'peu commun': 1,
   rare: 1.5,
-  'très rare': 1.5,
+  'très rare': 2,
 }
 /** Le temps qu'un joueur a pour choisir sa catégorie avant que le sort le fasse. */
 export const DUEL_PICK_SECONDS = 10
@@ -86,6 +88,12 @@ export interface Duel {
   picks: readonly string[]
   /** Qui choisit, dans l'ordre : le plus petit catalogue ouvre le draft. */
   order: readonly number[]
+  /**
+   * Qui ouvre la première manche. Ouvrir est un handicap — l'ouvreur cherche
+   * à froid, les suivants héritent d'un couple déjà médité —, donc le sort
+   * tranche plutôt que la place à table.
+   */
+  opener: number
   /** Les couples consommés : c'est aussi le numéro de la manche à tirer. */
   dealt: readonly string[]
   /** Tours joués, morts comprises. */
@@ -104,9 +112,11 @@ export interface CreateDuelInput {
   categories: readonly string[]
   /** L'ordre des choix ; celui de la table par défaut. */
   order?: readonly number[]
+  /** Qui ouvre ; tiré de la graine par défaut. */
+  opener?: number
 }
 
-export function createDuel({ seed, playerIds, categories, order }: CreateDuelInput): Duel {
+export function createDuel({ seed, playerIds, categories, order, opener }: CreateDuelInput): Duel {
   if (playerIds.length < DUEL_MIN_PLAYERS || playerIds.length > DUEL_MAX_PLAYERS) {
     throw new Error(`duel: ${playerIds.length} players, expected ${DUEL_MIN_PLAYERS} to ${DUEL_MAX_PLAYERS}`)
   }
@@ -115,6 +125,7 @@ export function createDuel({ seed, playerIds, categories, order }: CreateDuelInp
     categories,
     picks: [],
     order: order ?? playerIds.map((_, index) => index),
+    opener: opener ?? Math.floor(createRng(mix(seed, 0, 0x6f70656e)).next() * playerIds.length),
     dealt: [],
     turns: 0,
     phase: 'draft',
@@ -128,6 +139,24 @@ export function createDuel({ seed, playerIds, categories, order }: CreateDuelInp
 export function draftPlayer(duel: Duel): number {
   const order = duel.order.length > 0 ? duel.order : duel.players.map((_, index) => index)
   return order[duel.picks.length % order.length] ?? 0
+}
+
+/**
+ * La catégorie qu'un choix ne laisse pas choisir : il n'en reste qu'une. La
+ * table la prend d'office plutôt que de faire attendre dix secondes un geste
+ * qui ne décide rien.
+ */
+export function onlyChoice(duel: Duel): string | null {
+  if (duel.phase !== 'draft' || draftComplete(duel)) return null
+  const choices = draftChoices(duel)
+  return choices.length === 1 ? choices[0]! : null
+}
+
+/** Combien de catégories chacun choisit, et combien le sort en ajoute, à cette table. */
+export function draftShape(players: number, categories: number): { picks: number; chosen: number; drawn: number } {
+  const pool = Math.min(DUEL_POOL_SIZE, categories)
+  const chosen = Math.min(humanPicks(players), pool)
+  return { picks: picksPerPlayer(players), chosen, drawn: pool - chosen }
 }
 
 /** Ce qu'un joueur peut encore choisir. */
@@ -163,7 +192,7 @@ export function draftComplete(duel: Duel): boolean {
 /** Ouvre la première manche : le draft est fini et les dictionnaires du pool sont là. */
 export function openDuel(duel: Duel, judge: Judge, at = 0): Duel {
   if (!draftComplete(duel)) return duel
-  return openRound({ ...duel, phase: 'play' }, judge, at, -1)
+  return openRound({ ...duel, phase: 'play' }, judge, at, duel.opener - 1)
 }
 
 /**
@@ -227,6 +256,11 @@ export function duelOver(duel: Duel): boolean {
 /** Le classement : le survivant, puis les morts du dernier au premier. */
 export function duelRanking(duel: Duel): readonly number[] {
   return [...aliveIndexes(duel), ...[...duel.deaths].reverse()]
+}
+
+/** Le temps que les mots d'un joueur lui ont rendu, tout le duel. */
+export function timeGained(player: DuelPlayer): number {
+  return player.words.reduce((sum, word) => sum + DUEL_TIME_BONUS[word.tier], 0)
 }
 
 /** Le numéro de la manche en cours : celle que les joueurs sont en train de jouer. */
@@ -328,7 +362,8 @@ export function resume(duel: Duel, at: number): Duel {
   return { ...duel, turn: { ...duel.turn, startedAt: at } }
 }
 
-/** Fin de tour : la main avance ; le couple neuf n'arrive qu'une manche consommée. */function advance(duel: Duel, judge: Judge, at: number, consumed: boolean): Duel {
+/** Fin de tour : la main avance ; le couple neuf n'arrive qu'une manche consommée. */
+function advance(duel: Duel, judge: Judge, at: number, consumed: boolean): Duel {
   const turn = duel.turn
   if (!turn) return duel
   const player = nextAlive(duel, turn.player)
