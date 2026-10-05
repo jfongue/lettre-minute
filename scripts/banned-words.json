@@ -2,6 +2,31 @@
   "fr": {
     "corps-humain": [
       "kiwi"
+    ],
+    "animaux": [
+      "ecu",
+      "walrus"
+    ],
+    "marques": [
+      "xxxx"
+    ],
+    "couleurs": [
+      "diapre",
+      "glauque",
+      "gomme gutte",
+      "guede",
+      "gueules",
+      "havane",
+      "heliotrope",
+      "hermine",
+      "heterochromie chez le chat",
+      "pers",
+      "phosphorescence",
+      "pissouille",
+      "plasticite phenotypique",
+      "plumage",
+      "ponceau",
+      "puce"
     ]
   }
 }
