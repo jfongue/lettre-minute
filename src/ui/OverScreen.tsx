@@ -27,6 +27,7 @@ import { ShareSoon } from './ShareSoon'
 import { RequestRow, type RequestEntry } from './RequestsPage'
 import { peeksLeft, type HiddenAnswer } from '../domain/perks'
 import { HiddenAnswers } from './HiddenAnswers'
+import { useFeature } from './features'
 
 /** A word proposed during the run, and what the server holds of it — nothing while it still waits on the device. */
 export interface RunProposal {
@@ -88,6 +89,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
   const [celebrating, setCelebrating] = useState<'category' | 'power' | null>(null)
   // Each offer gets a fresh screen: a second pick owed deals the next one.
   const [round, setRound] = useState(0)
+  const powers = useFeature('powers')
 
   // A challenge run beats no record: it does not count for one.
   const previousBest = profileBefore.runs > 0 && !summary.challenge ? profileBefore.bestScore : null
@@ -127,7 +129,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
       />
     )
   }
-  if (profile.powerOffer.length > 0 || celebrating === 'power') {
+  if ((powers && profile.powerOffer.length > 0) || celebrating === 'power') {
     return (
       <PowerOfferScreen
         key={`power-${round}`}
@@ -335,6 +337,8 @@ function Summary({
   onHome,
 }: SummaryProps) {
   const t = useT()
+  const support = useFeature('support')
+  const leaderboards = useFeature('leaderboards')
   // The reveal may have scrolled down its list: the summary reads from the top.
   // Braced: recent Chrome returns a promise from scrollTo, which React would
   // take for a clean-up function and crash on.
@@ -345,7 +349,7 @@ function Summary({
   const bonus = recordBonus(profileBefore, run.score)
   const ours = mine ? run.found.filter((found) => mine.has(compactWord(found.display))).length : 0
   // Decided once: marking the ask makes `supportDue` false, and the panel must stay.
-  const [asking] = useState(() => supportDue(profileBefore, profile, run.score, false))
+  const [asking] = useState(() => support && supportDue(profileBefore, profile, run.score, false))
   useEffect(() => {
     if (asking) onSupportAsked()
   }, [asking, onSupportAsked])
@@ -378,7 +382,7 @@ function Summary({
         onWithdraw={onWithdrawProposal}
       />
 
-      {me && boardsBefore && boardsAfter && (
+      {me && leaderboards && boardsBefore && boardsAfter && (
         <RankMove title={t.over.dayBoard} before={boardsBefore.day} after={boardsAfter.day} me={me} />
       )}
 
@@ -516,6 +520,7 @@ function Earned({
   onAvatar,
 }: Pick<OverScreenProps, 'profileBefore' | 'profile' | 'avatar' | 'onAvatar'>) {
   const t = useT()
+  const avatars = useFeature('avatar')
   const earned = newlyEarned(profileBefore, profile)
   if (earned.designs.length === 0 && earned.colours.length === 0) return null
   return (
@@ -538,9 +543,11 @@ function Earned({
           </span>
         ))}
       </div>
-      <button type="button" className="btn btn--ghost" onClick={onAvatar}>
-        {t.over.customize}
-      </button>
+      {avatars ? (
+        <button type="button" className="btn btn--ghost" onClick={onAvatar}>
+          {t.over.customize}
+        </button>
+      ) : null}
     </section>
   )
 }

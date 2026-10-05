@@ -11,7 +11,7 @@ import { PowerIcon } from './PowerIcon'
 import { useBackDismiss } from './useBackDismiss'
 
 /** On opening the game: the words of the player's that moderators let in since they last looked. */
-export function WordsNewsPop({ words, onClose, onOpen }: { words: readonly Submission[]; onClose(): void; onOpen(): void }) {
+export function WordsNewsPop({ words, onClose, onOpen }: { words: readonly Submission[]; onClose(): void; onOpen?(): void }) {
   const t = useT()
   useBackDismiss(onClose)
   useEffect(() => sound.news(), [])
@@ -38,9 +38,11 @@ export function WordsNewsPop({ words, onClose, onOpen }: { words: readonly Submi
         </ul>
         <p className="note">{t.requests.newsLead}</p>
         <div className="offer-pop-actions">
-          <button type="button" className="btn btn--ghost" onClick={onOpen}>
-            {t.requests.newsOpen}
-          </button>
+          {onOpen ? (
+            <button type="button" className="btn btn--ghost" onClick={onOpen}>
+              {t.requests.newsOpen}
+            </button>
+          ) : null}
           <button type="button" className="btn btn--blue" onClick={onClose}>
             {t.requests.newsOk}
           </button>

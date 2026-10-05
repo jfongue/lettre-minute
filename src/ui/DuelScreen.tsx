@@ -3,13 +3,13 @@ import type { CSSProperties, FormEvent } from 'react'
 import {
   BEAT_SECONDS,
   BEATS,
-  HOUSE_BOTS,
   MAX_TABLE,
-  MIN_TABLE,
   OPENING_LAND_SECONDS,
   OPENING_SPIN_SECONDS,
   useDuelTable,
-  type DuelEvent,
+  type Candidate,
+  type DuelExit,
+  type DuelMode,
   type DuelTable,
   type Seat,
 } from '../state/duel'
@@ -23,6 +23,7 @@ import {
   timeGained,
   type Duel,
 } from '../domain/duel'
+import type { DuelFact } from '../domain/duelLog'
 import type { Verdict } from '../domain/run'
 import { categoryText, useT } from '../i18n'
 import { capitalized } from '../domain/text'
@@ -32,18 +33,23 @@ import { Burst, LetterMark, Shape, TierTag } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
 import { categoryMotif, onTint, type Motif } from './motifs'
 import { reducedMotion } from './useCountUp'
+import { useLongPress } from './useLongPress'
+// Le duel ne charge ses styles qu'avec son écran : l'accueil n'en paie rien.
+import '../duel.css'
 
 /**
  * L'écran du duel : le salon, le draft, le tirage de l'ouvreur, la partie et
  * son bilan. Il reprend les écrans et les classes du mode solo — `.stage`,
  * `.sheet`, `.run`, `.answer`, `.verdict`, `.dealt`, `.countdown-beat` — et
- * n'ajoute que ce que le multijoueur demande : les sièges, le fil de la table
+ * n'ajoute que ce que le multijoueur demande : les places, le fil de la table
  * et la mise en scène des morts. Le temps est la seule monnaie du duel : aucun
  * point n'est affiché.
  */
 
 /** Sous ce reste, la réserve de celui qui répond bat en rouge. */
 const LOW_SECONDS = 3
+/** Le temps que la main reprise après une mort s'annonce. */
+const RESUME_FLASH_MS = 1300
 
 const BEAT_MOTIFS: Record<number, Motif> = {
   3: { kind: 'circle', tint: 'red' },
@@ -51,7 +57,7 @@ const BEAT_MOTIFS: Record<number, Motif> = {
   1: { kind: 'arch', tint: 'yellow' },
 }
 
-const nameOf = (seat: Seat | undefined, you: string): string => (seat?.bot ? seat.name : you)
+const nameOf = (seat: Seat | Candidate | undefined, you: string, mine = false): string => (mine || !seat ? you : seat.name)
 
 /** La réserve à afficher : jamais négative. */
 const reserveOf = (duel: Duel, index: number, at: number): number => Math.max(0, reserveSeconds(duel, index, at))
@@ -59,37 +65,39 @@ const reserveOf = (duel: Duel, index: number, at: number): number => Math.max(0,
 /* ------------------------------------------------------------- le salon - */
 
 /**
- * Le salon, en un écran : les quatre places de la table — moi, puis les trois
- * joueurs maison, qu'on invite d'une touche —, le bouton « prêt », puis les
- * robots qui se déclarent prêts sous les yeux du joueur, et l'annonce du
- * draft au même endroit. Rien ne change de page tant que la table se forme.
+ * Le salon, en un écran : les quatre places de la table, les joueurs qu'on peut
+ * y inviter, le bouton « prêt », puis l'annonce du draft au même endroit.
+ * L'hôte retire quelqu'un par un appui long sur sa place, jamais d'une touche :
+ * un geste qui renvoie un ami chez lui ne se fait pas par mégarde.
  */
 function Lobby({ table }: { table: DuelTable }) {
   const t = useT()
   const counting = table.phase === 'announcing'
-  const locked = !!table.ready.me || counting
-  const [warned, setWarned] = useState(0)
   const me = table.seats[table.myIndex]
-  const left = table.leavers.map((id) => HOUSE_BOTS.find((bot) => bot.id === id)?.name).filter(Boolean) as string[]
-  const shape = draftShape(table.seats.length, table.pool.length)
+  const locked = !!me?.ready || counting
+  const [kicking, setKicking] = useState<Seat | null>(null)
+  const shape = draftShape(table.seats.filter((seat) => !seat.pending).length, table.pool.length)
+  const left = table.leavers.map((id) => id.charAt(0).toUpperCase() + id.slice(1))
+  const press = useLongPress<Seat>((seat) => {
+    if (!table.host || locked || seat.id === me?.id) return
+    sound.pop()
+    setKicking(seat)
+  })
 
-  // Un robot qui se déclare prêt s'entend, chacun sur sa note.
-  const heard = useRef(0)
+  // Une place qui se déclare prête s'entend, chacune sur sa note.
+  const readyCount = table.seats.filter((seat) => seat.ready).length
+  const heard = useRef(readyCount)
   useEffect(() => {
-    const news = table.event
-    if (!news || news.id <= heard.current || news.kind !== 'ready') return
-    heard.current = news.id
-    sound.tile('marimba', 2 + news.player)
-  }, [table.event])
+    if (readyCount > heard.current) sound.tile('marimba', 2 + readyCount)
+    heard.current = readyCount
+  }, [readyCount])
 
   useEffect(() => {
     if (counting) sound.pop()
   }, [counting])
 
-  const tiles: { seat: Seat | null; bot: (typeof HOUSE_BOTS)[number] | null }[] = [
-    { seat: me ?? null, bot: null },
-    ...HOUSE_BOTS.map((bot) => ({ seat: table.seats.find((seat) => seat.id === bot.id) ?? null, bot })),
-  ]
+  const slots = Array.from({ length: MAX_TABLE }, (_, index) => table.seats[index] ?? null)
+  const full = table.seats.length >= MAX_TABLE
 
   return (
     <main className="stage stage--duel">
@@ -108,70 +116,51 @@ function Lobby({ table }: { table: DuelTable }) {
         ) : null}
 
         <ul className="duel-seats" aria-label={t.duel.table}>
-          {tiles.map(({ seat, bot }, index) => {
-            const id = seat?.id ?? bot!.id
-            const gone = !!bot && table.leavers.includes(bot.id)
-            const ready = !!seat && !!table.ready[seat.id]
-            const open = !seat && !gone
-            const avatar = seat?.avatar ?? bot!.avatar
-            const last = !!bot && !!seat && table.invited.length <= MIN_TABLE - 1
-            const full = open && table.seats.length >= MAX_TABLE
-            const stamp = gone
-              ? t.duel.leftStamp
-              : ready
-                ? t.duel.ready
-                : !seat
-                  ? t.duel.inviteAction
-                  : bot
-                    ? t.duel.invited
-                    : t.duel.notReady
-            const state = gone ? 'gone' : ready ? 'ready' : open ? 'open' : 'seated'
-            const body = (
-              <>
-                <span className="duel-seatcard__face">
-                  <Avatar choice={avatar} size="md" />
-                </span>
-                <span className="duel-seatcard__text">
-                  <b>{bot ? bot.name : seat?.name || t.duel.you}</b>
-                  <small>{bot ? t.duel.trait[bot.trait] : seat?.name ? t.duel.you : '\u00a0'}</small>
-                </span>
-                <span className="duel-seatcard__stamp" key={stamp}>
-                  {open ? <span aria-hidden="true">+ </span> : null}
-                  {stamp}
-                </span>
-              </>
-            )
+          {slots.map((seat, index) => {
+            if (!seat) {
+              return (
+                <li key={`empty-${index}`} className="duel-seatcard duel-seatcard--empty" style={{ '--i': index } as CSSProperties}>
+                  <div className="duel-seatcard__button">
+                    <span className="duel-seatcard__face duel-seatcard__face--empty" aria-hidden="true" />
+                    <span className="duel-seatcard__text">
+                      <b>{t.duel.emptySeat}</b>
+                    </span>
+                  </div>
+                </li>
+              )
+            }
+            const mine = index === table.myIndex
+            const state = seat.ready ? 'ready' : seat.pending ? 'pending' : 'seated'
+            const stamp = seat.ready ? t.duel.ready : seat.pending ? t.duel.pendingStamp : seat.bot ? t.duel.invited : t.duel.notReady
+            const kickable = table.host && !locked && !mine
             return (
-              <li key={id} className={`duel-seatcard duel-seatcard--${state}${locked && open ? ' duel-seatcard--shut' : ''}`} style={{ '--i': index } as CSSProperties}>
-                {bot ? (
-                  <button
-                    type="button"
-                    className="duel-seatcard__button"
-                    aria-pressed={!!seat}
-                    disabled={locked || gone || full}
-                    onClick={() => {
-                      armSound()
-                      if (last) {
-                        sound.refused()
-                        setWarned((count) => count + 1)
-                        return
-                      }
-                      sound.tile('marimba', seat ? 3 : 5)
-                      table.toggleInvite(bot.id)
-                    }}
-                  >
-                    {body}
-                  </button>
-                ) : (
-                  <div className="duel-seatcard__button">{body}</div>
-                )}
+              <li
+                key={seat.id}
+                className={`duel-seatcard duel-seatcard--${state}${kickable ? ' duel-seatcard--kickable' : ''}`}
+                style={{ '--i': index } as CSSProperties}
+                {...(kickable ? press(seat) : {})}
+              >
+                <div className="duel-seatcard__button">
+                  <span className="duel-seatcard__face">
+                    <Avatar choice={seat.avatar} size="md" />
+                  </span>
+                  <span className="duel-seatcard__text">
+                    <b>{mine ? seat.name || t.duel.you : seat.name}</b>
+                    <small>{seat.bot && seat.trait ? t.duel.trait[seat.trait] : mine ? t.duel.you : table.mode === 'online' && index === 0 ? t.duel.hostStamp : ' '}</small>
+                  </span>
+                  <span className="duel-seatcard__stamp" key={stamp}>
+                    {stamp}
+                  </span>
+                </div>
               </li>
             )
           })}
         </ul>
-        <p className="note duel-hint" aria-live="polite" key={warned}>
-          {warned > 0 && !locked ? t.duel.keepOne : left.length > 0 ? t.duel.left(left.join(', '), left.length) : ' '}
+        <p className="note duel-hint" aria-live="polite">
+          {left.length > 0 ? t.duel.left(left.join(', '), left.length) : table.host && !locked && table.seats.length > 1 ? t.duel.kickHint : ' '}
         </p>
+
+        {table.host && !locked && !full ? <InviteList table={table} /> : null}
 
         {table.pool.length === 0 ? (
           <p className="note note--warn">{t.duel.loadFailed}</p>
@@ -180,7 +169,7 @@ function Lobby({ table }: { table: DuelTable }) {
             <button
               type="button"
               className="btn btn--play btn--block duel-cta"
-              disabled={locked}
+              disabled={locked || table.seats.filter((seat) => !seat.pending).length < 2}
               onClick={() => {
                 armSound()
                 sound.go()
@@ -188,26 +177,91 @@ function Lobby({ table }: { table: DuelTable }) {
               }}
             >
               <span>{locked ? t.duel.waitingOthers : t.duel.readyButton}</span>
-              {locked ? null : <small>{t.duel.tableSize(table.seats.length)}</small>}
+              {locked ? null : <small>{t.duel.tableSize(table.seats.filter((seat) => !seat.pending).length)}</small>}
             </button>
             {locked ? (
               <button type="button" className="btn btn--ghost btn--block" onClick={() => table.unready()}>
                 {t.duel.cancel}
               </button>
-            ) : table.rematchOpen ? (
-              <>
-                <button type="button" className="btn btn--ghost btn--block" onClick={() => table.backToRecap()}>
-                  {t.duel.back}
-                </button>
-                <button type="button" className="btn btn--quiet btn--block" onClick={() => table.leave()}>
-                  {t.duel.quit}
-                </button>
-              </>
+            ) : null}
+            {!locked && table.mode === 'local' && table.rematchOpen ? (
+              <button type="button" className="btn btn--ghost btn--block" onClick={() => table.backToRecap()}>
+                {t.duel.back}
+              </button>
+            ) : null}
+            {!locked && (table.mode === 'online' || table.rematchOpen) ? (
+              <button type="button" className="btn btn--quiet btn--block" onClick={() => table.leave()}>
+                {t.duel.quit}
+              </button>
             ) : null}
           </div>
         )}
       </div>
+
+      {kicking ? (
+        <div className="duel-sheet" role="dialog" aria-label={t.duel.kick(kicking.name)} onClick={() => setKicking(null)}>
+          <div className="duel-sheet__card" onClick={(event) => event.stopPropagation()}>
+            <span className="duel-sheet__face">
+              <Avatar choice={kicking.avatar} size="md" />
+            </span>
+            <b>{kicking.name}</b>
+            <button
+              type="button"
+              className="btn btn--block duel-kick"
+              onClick={() => {
+                armSound()
+                sound.refused()
+                table.kick(kicking.id)
+                setKicking(null)
+              }}
+            >
+              {kicking.pending ? t.duel.kickInvite : t.duel.kick(kicking.name)}
+            </button>
+            <button type="button" className="btn btn--ghost btn--block" onClick={() => setKicking(null)}>
+              {t.duel.cancel}
+            </button>
+          </div>
+        </div>
+      ) : null}
     </main>
+  )
+}
+
+/** Qui l'hôte peut asseoir à sa table : les joueurs maison, et ses amis en ligne. */
+function InviteList({ table }: { table: DuelTable }) {
+  const t = useT()
+  return (
+    <section className="duel-invite">
+      <p className="eyebrow">{t.duel.inviteTitle}</p>
+      {table.candidates.length === 0 ? (
+        <p className="note">{t.duel.inviteEmpty}</p>
+      ) : (
+        <ul className="duel-invite__list">
+          {table.candidates.map((candidate, index) => (
+            <li key={candidate.id} style={{ '--i': index } as CSSProperties}>
+              <button
+                type="button"
+                className="duel-invite__row"
+                onClick={() => {
+                  armSound()
+                  sound.tile('marimba', 5)
+                  table.invite(candidate.id)
+                }}
+              >
+                <Avatar choice={candidate.avatar} size="sm" />
+                <span className="duel-invite__name">
+                  <b>{candidate.name}</b>
+                  <small>{candidate.bot && candidate.trait ? t.duel.trait[candidate.trait] : candidate.bot ? t.duel.houseBot : t.duel.friend}</small>
+                </span>
+                <span className="duel-invite__plus" aria-hidden="true">
+                  +
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   )
 }
 
@@ -227,13 +281,11 @@ function Draft({ table }: { table: DuelTable }) {
   useEffect(() => {
     if (mine && !table.forced) sound.pop()
   }, [mine, table.forced, duel.picks.length])
-  const heard = useRef(0)
+  const heardPicks = useRef(duel.picks.length)
   useEffect(() => {
-    const news = table.event
-    if (!news || news.id <= heard.current || news.kind !== 'picked') return
-    heard.current = news.id
-    if (news.player !== table.myIndex) sound.tile('glass', duel.picks.length)
-  }, [duel.picks.length, table.event, table.myIndex])
+    if (duel.picks.length > heardPicks.current && !done) sound.tile('glass', duel.picks.length)
+    heardPicks.current = duel.picks.length
+  }, [done, duel.picks.length])
   useEffect(() => {
     if (!done) return
     duel.picks.slice(total).forEach((_, index) => sound.tile('wood', 3 + index, 0.15 + index * 0.18))
@@ -306,7 +358,8 @@ function Draft({ table }: { table: DuelTable }) {
             const place = duel.picks.indexOf(id)
             const taken = place >= 0
             const luck = taken && place >= total
-            const who = taken && !luck ? table.seats[duel.order[place % duel.order.length] ?? 0] : null
+            const whoIndex = taken && !luck ? (duel.order[place % duel.order.length] ?? 0) : -1
+            const who = whoIndex >= 0 ? table.seats[whoIndex] : null
             const motif = categoryMotif(id)
             const offered = !taken && table.forced === id
             return (
@@ -330,7 +383,7 @@ function Draft({ table }: { table: DuelTable }) {
                   {taken ? (
                     <span className="dealt-taken" key={place}>
                       {luck ? t.duel.drawn : who ? <Avatar choice={who.avatar} size="sm" /> : null}
-                      {luck ? null : nameOf(who ?? undefined, t.duel.you)}
+                      {luck ? null : nameOf(who ?? undefined, t.duel.you, whoIndex === table.myIndex)}
                     </span>
                   ) : null}
                 </button>
@@ -409,7 +462,7 @@ function Opening({ table }: { table: DuelTable }) {
               className={`duel-wheel__seat${index === lit ? ' duel-wheel__seat--lit' : ''}${landed && index === duel.opener ? ' duel-wheel__seat--chosen' : ''}${landed && index !== duel.opener ? ' duel-wheel__seat--rest' : ''}`}
             >
               <Avatar choice={seat.avatar} size="md" />
-              <b>{nameOf(seat, t.duel.you)}</b>
+              <b>{nameOf(seat, t.duel.you, index === table.myIndex)}</b>
             </li>
           ))}
         </ol>
@@ -434,25 +487,35 @@ function Opening({ table }: { table: DuelTable }) {
 
 /* --------------------------------------------------------- la partie - */
 
-/** La table, en bandeau : qui joue, ce qu'il lui reste, ce qu'il vient de gagner ou perdre. */
-function TableStrip({ table, at, urgent }: { table: DuelTable; at: number; urgent: boolean }) {
+/**
+ * La table, en tête d'écran : ma place d'abord, plus large, qui porte ma
+ * réserve en grand ; les autres ont leur barre et, en tout petit au-dessus,
+ * leurs secondes.
+ */
+function TableStrip({ table, at, urgent, resumed }: { table: DuelTable; at: number; urgent: boolean; resumed: number | null }) {
   const t = useT()
   const duel = table.duel!
   const news = table.event
+  const order = useMemo(() => {
+    const all = table.seats.map((_, index) => index)
+    return [table.myIndex, ...all.filter((index) => index !== table.myIndex)].filter((index) => index >= 0)
+  }, [table.myIndex, table.seats])
   return (
     <ol className="duel-strip" aria-label={t.duel.table}>
-      {table.seats.map((seat, index) => {
+      {order.map((index) => {
+        const seat = table.seats[index]!
         const player = duel.players[index]
         const dead = player?.alive === false
-        const active = duel.turn?.player === index && !dead
+        const active = duel.turn?.player === index && !dead && at >= duel.turn.startedAt
         const seconds = reserveOf(duel, index, at)
+        const mine = index === table.myIndex
         // Les trois dernières secondes de celui qui répond battent en rouge.
         const late = active && seconds <= LOW_SECONDS && table.phase === 'play'
         const delta = news && news.player === index && news.delta ? news : null
         return (
           <li
             key={seat.id}
-            className={`duel-seat${active ? ' duel-seat--active' : ''}${dead ? ' duel-seat--dead' : ''}${index === table.myIndex ? ' duel-seat--me' : ''}${late ? ' duel-seat--late' : ''}${table.fallen === index ? ' duel-seat--fallen' : ''}`}
+            className={`duel-seat${active ? ' duel-seat--active' : ''}${dead ? ' duel-seat--dead' : ''}${mine ? ' duel-seat--me' : ''}${late ? ' duel-seat--late' : ''}${table.fallen === index ? ' duel-seat--fallen' : ''}${resumed === index ? ' duel-seat--resume' : ''}`}
           >
             <span className="duel-seat__face" key={active ? 'on' : 'off'}>
               <Avatar choice={seat.avatar} size="sm" />
@@ -462,14 +525,19 @@ function TableStrip({ table, at, urgent }: { table: DuelTable; at: number; urgen
                 </span>
               ) : null}
             </span>
-            {index === table.myIndex && !dead ? (
+            {mine && !dead ? (
               // Ma réserve, en grand, dans ma place : c'est le seul chrono que je lis.
               <span className={`duel-seat__mine clock${late ? ' clock--late' : ''}`} key={urgent ? Math.ceil(seconds) : 'calm'}>
                 {Math.ceil(seconds)}
               </span>
             ) : (
-              <span className="duel-seat__name">{nameOf(seat, t.duel.you)}</span>
+              <span className="duel-seat__name">{nameOf(seat, t.duel.you, mine)}</span>
             )}
+            {!mine && !dead ? (
+              <span className="duel-seat__secs" aria-label={t.duel.secondsLeft(Math.ceil(seconds))}>
+                {Math.ceil(seconds)}
+              </span>
+            ) : null}
             <span className="duel-seat__bar" aria-hidden="true">
               <i style={{ transform: `scaleX(${Math.min(1, seconds / DUEL_RESERVE_SECONDS)})` } as CSSProperties} />
             </span>
@@ -490,7 +558,7 @@ function TableStrip({ table, at, urgent }: { table: DuelTable; at: number; urgen
 function Feed({ table }: { table: DuelTable }) {
   const t = useT()
   const me = table.myIndex
-  const line = (fact: DuelEvent) => {
+  const line = (fact: DuelFact) => {
     const seat = table.seats[fact.player]
     const name = nameOf(seat, t.duel.you)
     const self = fact.player === me
@@ -507,10 +575,9 @@ function Feed({ table }: { table: DuelTable }) {
         return ''
     }
   }
-  const facts = table.feed.filter((fact) => fact.kind === 'solved' || fact.kind === 'passed' || fact.kind === 'failed' || fact.kind === 'dead')
   return (
     <ol className="duel-feed" aria-live="polite">
-      {facts.map((fact, rank) => {
+      {table.feed.map((fact, rank) => {
         const seat = table.seats[fact.player]
         return (
           <li key={fact.id} className={`duel-feed__line duel-feed__line--${fact.kind}`} style={{ '--rank': rank } as CSSProperties}>
@@ -522,6 +589,7 @@ function Feed({ table }: { table: DuelTable }) {
               <Avatar choice={seat.avatar} size="sm" />
             ) : null}
             <span className="duel-feed__text">{line(fact)}</span>
+            {fact.saved ? <span className="duel-feed__saved">{t.duel.saved}</span> : null}
             {fact.kind === 'solved' && fact.tier ? <TierTag tier={fact.tier} /> : null}
             {fact.delta ? <em className={`duel-feed__delta${fact.delta < 0 ? ' duel-feed__delta--loss' : ''}`}>{t.duel.seconds(fact.delta)}</em> : null}
           </li>
@@ -531,7 +599,7 @@ function Feed({ table }: { table: DuelTable }) {
   )
 }
 
-/** La partie : l'écran du solo, avec la table, son fil et la montre de celui qui a la main. */
+/** La partie : l'écran du solo, avec la table, son fil, et la main qui passe. */
 function Play({ table }: { table: DuelTable }) {
   const t = useT()
   const duel = table.duel!
@@ -548,18 +616,21 @@ function Play({ table }: { table: DuelTable }) {
   const live = useMemo<Verdict>(() => (alive ? table.inspect(draft) : { kind: 'empty', found: null }), [alive, draft, table])
   const accepted = live.kind === 'accepted'
   const exact = accepted && !live.found?.approximate
-  // Pendant la mise en scène d'une mort, la montre est arrêtée : on lit la
-  // réserve telle qu'elle repartira, pas le temps de l'animation.
   const frozen = table.phase === 'deaths'
   const turn = duel.turn
-  const clockAt = frozen ? (turn?.startedAt ?? table.at) : table.at
-  // Le gros chrono est toujours le mien : la réserve des autres se lit à leur barre.
+  const clockAt = table.at
   const seconds = reserveOf(duel, me, clockAt)
   const critical = mine && seconds <= LOW_SECONDS && !frozen
   const urgent = mine && seconds <= 10
   const shown = Math.ceil(seconds)
   const holderSeat = table.seats[turn?.player ?? me]
   const inheritedFrom = turn && turn.declined.length > 0 ? table.seats[turn.declined[turn.declined.length - 1]!] : undefined
+  const inheritedMine = turn && turn.declined.length > 0 && turn.declined[turn.declined.length - 1] === me
+
+  // Ce que mon champ tient, l'état le valide tout seul à zéro s'il est juste.
+  useEffect(() => {
+    table.hold(draft)
+  }, [draft, table])
 
   // Le champ prend le focus quand la main m'arrive — pas pendant le tour des
   // autres : le clavier du téléphone n'a pas à s'ouvrir sur un écran qu'on
@@ -581,20 +652,40 @@ function Play({ table }: { table: DuelTable }) {
   }, [frozen, urgent, shown])
 
   // Les faits de la table s'entendent, une fois chacun : le palier d'un mot,
-  // le passe des autres (le mien a déjà sonné sous le doigt), le couple
-  // refusé de tous, la mort.
-  const lastHeard = useRef(table.feed[0]?.id ?? 0)
+  // le passe des autres (le mien a déjà sonné sous le doigt), le couple refusé
+  // de tous, la mort. Ceux d'avant l'ouverture de l'écran se taisent.
+  const heardFacts = useRef<Set<string> | null>(null)
   useEffect(() => {
-    const fresh = table.feed.filter((fact) => fact.id > lastHeard.current).reverse()
-    if (fresh.length === 0) return
-    lastHeard.current = fresh[fresh.length - 1]!.id
-    for (const fact of fresh) {
+    if (!heardFacts.current) {
+      heardFacts.current = new Set(table.facts.map((fact) => fact.id))
+      return
+    }
+    for (const fact of table.facts) {
+      if (heardFacts.current.has(fact.id)) continue
+      heardFacts.current.add(fact.id)
       if (fact.kind === 'dead') sound.timeUp()
       else if (fact.kind === 'failed') sound.refused()
       else if (fact.kind === 'passed' && fact.player !== me) sound.skipped()
       else if (fact.kind === 'solved' && fact.tier) sound.found(tierSound(fact.tier, false), Math.min(3, fact.player))
     }
-  }, [me, table.feed])
+  }, [me, table.facts])
+
+  // La reprise après une mort : pas de compte à rebours, la place qui reprend
+  // la main s'allume et le dit, d'un son.
+  const [resumed, setResumed] = useState<{ player: number; key: number } | null>(null)
+  const wasFrozen = useRef(frozen)
+  useEffect(() => {
+    if (wasFrozen.current && !frozen && turn) {
+      sound.go()
+      setResumed({ player: turn.player, key: Date.now() })
+    }
+    wasFrozen.current = frozen
+  }, [frozen, turn])
+  useEffect(() => {
+    if (!resumed) return
+    const timer = setTimeout(() => setResumed(null), RESUME_FLASH_MS)
+    return () => clearTimeout(timer)
+  }, [resumed])
 
   const watching = table.watching
   const faller = table.fallen !== null ? table.seats[table.fallen] : undefined
@@ -636,14 +727,14 @@ function Play({ table }: { table: DuelTable }) {
     // donc les classes de l'écran ne suffisent pas à dire où en est le duel.
     <main className={`stage stage--playing stage--duel-play${alive ? '' : ' stage--out'}`} data-phase={table.phase}>
       <div className={`sheet run duel-run${urgent ? ' run--urgent' : ''}${critical ? ' run--critical' : ''}`}>
-        <TableStrip table={table} at={clockAt} urgent={urgent} />
+        <TableStrip table={table} at={clockAt} urgent={urgent} resumed={resumed?.player ?? null} />
         <Feed table={table} />
 
         <div className="duel-board">
           <p className={`duel-face${watching ? ' duel-face--watching' : ' duel-face--mine'}`} key={`${duel.turns}`} aria-live="polite">
             {watching && holderSeat ? <Avatar choice={holderSeat.avatar} size="sm" /> : <span className="duel-face__dot" aria-hidden="true" />}
             <b>{watching ? t.duel.watching(nameOf(holderSeat, t.duel.you)) : alive ? t.duel.yourTurn : t.duel.spectating}</b>
-            {inheritedFrom ? <span className="duel-inherited">{t.duel.inheritedFrom(nameOf(inheritedFrom, t.duel.you))}</span> : null}
+            {inheritedFrom ? <span className="duel-inherited">{t.duel.inheritedFrom(nameOf(inheritedFrom, t.duel.you, !!inheritedMine))}</span> : null}
           </p>
 
           <section className={`prompt duel-prompt${inheritedFrom ? ' duel-prompt--inherited' : ''}`} key={roundKey}>
@@ -715,9 +806,16 @@ function Play({ table }: { table: DuelTable }) {
         ) : null}
       </div>
 
+      {resumed && !frozen ? (
+        <p className="duel-resume" key={resumed.key} aria-live="assertive">
+          <Avatar choice={table.seats[resumed.player]!.avatar} size="sm" />
+          <b>{resumed.player === me ? t.duel.resumeYou : t.duel.resumeOf(nameOf(table.seats[resumed.player], t.duel.you))}</b>
+        </p>
+      ) : null}
+
       {/* La mort d'un joueur se joue par-dessus la partie, qui reste visible
-          derrière : la table s'assombrit, le tombé se barre, trois temps
-          passent et la main revient — ou, à la dernière, le gagnant est nommé. */}
+          derrière : la table s'assombrit, le tombé se barre, et la main
+          revient — ou, à la dernière, le gagnant est nommé. */}
       {frozen && faller ? (
         <div className="duel-death" aria-live="assertive">
           <div className="duel-death__card">
@@ -728,7 +826,7 @@ function Play({ table }: { table: DuelTable }) {
               </span>
             </span>
             <p className="duel-death__word">{t.duel.out}</p>
-            <b className="duel-death__name">{nameOf(faller, t.duel.you)}</b>
+            <b className="duel-death__name">{nameOf(faller, t.duel.you, table.fallen === me)}</b>
             {over ? (
               <p className="duel-death__winner">
                 <Avatar choice={table.seats[champion]!.avatar} size="sm" />
@@ -736,13 +834,6 @@ function Play({ table }: { table: DuelTable }) {
               </p>
             ) : (
               <p className="note">{table.fallen === me ? t.duel.spectating : t.duel.standing(standing)}</p>
-            )}
-            {over ? null : table.resumeIn > 0 ? (
-              <p className="duel-death__beat" key={table.resumeIn}>
-                {table.resumeIn}
-              </p>
-            ) : (
-              <p className="eyebrow duel-death__next">{t.duel.next}</p>
             )}
           </div>
         </div>
@@ -781,6 +872,7 @@ function Over({ table }: { table: DuelTable }) {
 
   const done = shown >= order.length
   const seat = table.seats[champion]
+  const someoneElse = table.mode === 'online' && table.rematchOpen
   return (
     <main className="stage stage--duel">
       <div className="sheet reveal duel-over">
@@ -808,7 +900,7 @@ function Over({ table }: { table: DuelTable }) {
                 <span className="duel-rank__place">{place + 1}</span>
                 <Avatar choice={row.avatar} size="sm" />
                 <span className="duel-rank__who">
-                  <b>{nameOf(row, t.duel.you)}</b>
+                  <b>{nameOf(row, t.duel.you, index === table.myIndex)}</b>
                   <small>{t.duel.recapLine(player.words.length, timeGained(player))}</small>
                 </span>
                 <span className="duel-rank__words">
@@ -823,36 +915,20 @@ function Over({ table }: { table: DuelTable }) {
           })}
         </ol>
         <div className={`stack duel-actions${done ? ' duel-actions--in' : ''}`}>
-          {table.rematchOpen ? (
-            <>
-              <p className="note">{t.duel.rematchWaiting}</p>
-              <button
-                type="button"
-                className="btn btn--play btn--block"
-                disabled={!done}
-                onClick={() => {
-                  armSound()
-                  sound.go()
-                  table.joinRematch()
-                }}
-              >
-                {t.duel.joinRematch}
-              </button>
-            </>
-          ) : (
-            <button
-              type="button"
-              className="btn btn--play btn--block"
-              disabled={!done}
-              onClick={() => {
-                armSound()
-                sound.go()
-                table.openRematch()
-              }}
-            >
-              {t.duel.rematch}
-            </button>
-          )}
+          {someoneElse ? <p className="note">{t.duel.rematchWaiting}</p> : null}
+          <button
+            type="button"
+            className="btn btn--play btn--block"
+            disabled={!done}
+            onClick={() => {
+              armSound()
+              sound.go()
+              if (someoneElse) table.joinRematch()
+              else table.openRematch()
+            }}
+          >
+            {someoneElse ? t.duel.joinRematch : t.duel.rematch}
+          </button>
           <button type="button" className="btn btn--ghost btn--block" disabled={!done} onClick={() => table.leave()}>
             {t.duel.quit}
           </button>
@@ -862,34 +938,50 @@ function Over({ table }: { table: DuelTable }) {
   )
 }
 
-export function DuelScreen({ lang }: { lang: string }) {
+/** Un écran d'attente ou d'erreur, dans la feuille du duel. */
+function Notice({ text, onBack, back }: { text: string; onBack?: () => void; back?: string }) {
   const t = useT()
-  const table = useDuelTable(lang)
+  return (
+    <main className="stage stage--duel">
+      <div className="sheet duel-notice">
+        <p className="eyebrow">{t.duel.title}</p>
+        <p className="note">{text}</p>
+        {onBack ? (
+          <button type="button" className="btn btn--ghost btn--block" onClick={onBack}>
+            {back ?? t.duel.errorBack}
+          </button>
+        ) : (
+          <span className="duel-notice__dots" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+        )}
+      </div>
+    </main>
+  )
+}
+
+export interface DuelScreenProps {
+  lang: string
+  mode?: DuelMode
+  /** La table où l'on a été invité ; sans elle, l'écran ouvre une table neuve. */
+  join?: string | null
+  onExit?(reason: DuelExit): void
+}
+
+export function DuelScreen({ lang, mode = 'local', join = null, onExit }: DuelScreenProps) {
+  const t = useT()
+  const table = useDuelTable({ lang, mode, join, onExit })
   const { phase } = table
 
-  if (table.error) {
-    return (
-      <main className="stage stage--duel">
-        <div className="sheet">
-          <p className="eyebrow">{t.duel.title}</p>
-          <p className="note note--warn">{t.duel.loadFailed}</p>
-          <button type="button" className="btn btn--ghost btn--block" onClick={() => table.leave()}>
-            {t.duel.errorBack}
-          </button>
-        </div>
-      </main>
-    )
-  }
+  if (table.error) return <Notice text={t.duel.loadFailed} onBack={() => (onExit ? onExit(null) : table.leave())} />
+  if (phase === 'connecting') return <Notice text={t.duel.connecting} />
+  if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} />
   if (phase === 'draft' && table.duel) return <Draft table={table} />
   if (phase === 'opening' && table.duel) return <Opening table={table} />
   if ((phase === 'play' || phase === 'deaths') && table.duel && table.judge && table.prompt) return <Play table={table} />
   if (phase === 'over' && table.duel) return <Over table={table} />
-  return (
-    <main className="stage stage--duel">
-      <div className="sheet">
-        <p className="eyebrow">{t.duel.title}</p>
-      </div>
-    </main>
-  )
+  return <Notice text={t.duel.connecting} />
 }

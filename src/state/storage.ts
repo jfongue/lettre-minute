@@ -1,5 +1,6 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { RunRecord } from '../domain/history'
+import type { FlagRow, FlagValue, Roles } from '../domain/features'
 import { NEW_PROFILE, type Profile } from '../domain/progression'
 import type { Account } from '../lib/cloud'
 
@@ -237,4 +238,40 @@ export function clearLocalData(): void {
   } catch {
     /* nothing stored, nothing to clear */
   }
+}
+
+// Ce que la table des fonctionnalités disait au dernier démarrage, et les
+// rôles qu'on connaissait au joueur : appliqués au démarrage suivant, pour
+// qu'un réglage ne change jamais un écran sous ses doigts. Gardé par
+// `clearLocalData` : effacer ses parties ne rouvre pas un outil fermé.
+const FEATURES_KEY = 'lettre-minute.features.v1'
+
+export interface StoredFeatures {
+  flags: Record<string, FlagRow>
+  roles: Pick<Roles, 'moderator' | 'superModerator'>
+}
+
+const FLAG_VALUES: readonly FlagValue[] = ['on', 'off', 'neutral']
+
+export function loadFeatures(): StoredFeatures {
+  const raw = parsed(FEATURES_KEY) as { flags?: unknown; roles?: unknown } | null
+  const flags: Record<string, FlagRow> = {}
+  if (raw?.flags && typeof raw.flags === 'object') {
+    for (const [id, row] of Object.entries(raw.flags as Record<string, unknown>)) {
+      if (!row || typeof row !== 'object') continue
+      const cells = row as Record<string, unknown>
+      const cell = (key: string): FlagValue => (FLAG_VALUES.includes(cells[key] as FlagValue) ? (cells[key] as FlagValue) : 'neutral')
+      flags[id] = { everyone: cell('everyone'), moderator: cell('moderator'), premium: cell('premium'), superModerator: cell('superModerator') }
+    }
+  }
+  const roles = (raw?.roles ?? {}) as Record<string, unknown>
+  return { flags, roles: { moderator: roles.moderator === true, superModerator: roles.superModerator === true } }
+}
+
+export function saveFeatureFlags(flags: Record<string, FlagRow>): void {
+  write(FEATURES_KEY, { ...loadFeatures(), flags })
+}
+
+export function saveFeatureRoles(roles: StoredFeatures['roles']): void {
+  write(FEATURES_KEY, { ...loadFeatures(), roles })
 }

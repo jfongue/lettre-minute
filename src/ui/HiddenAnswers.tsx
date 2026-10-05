@@ -9,6 +9,7 @@ import { categoryMotif } from './motifs'
 import { PlusPop } from './PlusPop'
 import { useLongPress } from './useLongPress'
 import type { FlagWord } from './StatsPage'
+import { useFeature } from './features'
 
 /** Confetti of the bar torn off a hidden word: angle and reach of each piece. */
 const SHARDS = Array.from({ length: 10 }, (_, i) => ({ angle: (i / 10) * 360 + (i % 2) * 17, reach: 2.2 + (i % 3) * 0.9 }))
@@ -36,6 +37,8 @@ export function HiddenAnswers({
   onFlag?(word: FlagWord): void
 }) {
   const t = useT()
+  const shown = useFeature('hiddenWords')
+  const premium = useFeature('premium')
   const [unfolded, setUnfolded] = useState(false)
   const [open, setOpen] = useState<ReadonlySet<number>>(() => new Set())
   const [asking, setAsking] = useState<number | null>(null)
@@ -47,6 +50,7 @@ export function HiddenAnswers({
     sound.found(2, index + 3)
   }
 
+  if (!shown) return null
   return (
     <section className="hidden-answers" onClick={(event) => event.stopPropagation()} role="presentation">
       <button
@@ -123,7 +127,7 @@ export function HiddenAnswers({
           })}
         </ol>
       )}
-      {asking !== null && (
+      {asking !== null && premium && (
         <PlusPop
           reason="peek"
           onClose={() => setAsking(null)}

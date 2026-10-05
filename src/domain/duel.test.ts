@@ -9,7 +9,13 @@ import {
   draftChoices,
   draftComplete,
   draftShape,
+  DUEL_DEATH_PAUSE_SECONDS,
+  DUEL_FLOOR_SECONDS,
+  DUEL_FORCED_PICK_SECONDS,
+  DUEL_GRACE_SECONDS,
+  DUEL_OPENING_SECONDS,
   DUEL_PASS_PENALTY_SECONDS,
+  DUEL_PICK_SECONDS,
   DUEL_RESERVE_SECONDS,
   DUEL_TIME_BONUS,
   duelOver,
@@ -20,11 +26,12 @@ import {
   inspectFor,
   onlyChoice,
   openDuel,
+  openingAt,
+  pickDeadline,
   passTurn,
   pickCategory,
   playWord,
   reserveSeconds,
-  resume,
   timeGained,
   type BotProfile,
   type Duel,
@@ -198,12 +205,12 @@ describe('la réserve', () => {
     const killed = duelTimeout(draft(3), judge, DUEL_RESERVE_SECONDS + 0.1)
     const next = killed.turn!.player
 
-    // La mort a ouvert le tour du survivant à l'instant du décès…
-    expect(reserveSeconds(killed, next, 40)).toBeLessThan(DUEL_RESERVE_SECONDS)
-    // …et la reprise le re-date : sa réserve est entière au moment où il joue.
-    const resumed = resume(killed, 40)
-    expect(reserveSeconds(resumed, next, 40)).toBe(DUEL_RESERVE_SECONDS)
-    expect(reserveSeconds(resumed, next, 42.5)).toBe(DUEL_RESERVE_SECONDS - 2.5)
+    const died = DUEL_RESERVE_SECONDS + 0.1
+    // Le tour du survivant ne s'ouvre qu'après la mise en scène de la mort…
+    expect(killed.turn!.startedAt).toBeCloseTo(died + DUEL_DEATH_PAUSE_SECONDS)
+    expect(reserveSeconds(killed, next, died + 1)).toBe(DUEL_RESERVE_SECONDS)
+    // …puis sa réserve court normalement.
+    expect(reserveSeconds(killed, next, died + DUEL_DEATH_PAUSE_SECONDS + 2.5)).toBeCloseTo(DUEL_RESERVE_SECONDS - 2.5)
   })
 
   it('laisse la partie continuer sans le mort, en sautant son tour', () => {    let duel = duelTimeout(draft(4), judge, DUEL_RESERVE_SECONDS + 0.1)
@@ -215,6 +222,63 @@ describe('la réserve', () => {
     expect(duelOver(duel)).toBe(true)
     expect(duel.deaths).toEqual([0, 1, 2])
     expect(duelRanking(duel)).toEqual([3, 2, 1, 0])
+  })
+})
+
+describe('le plancher', () => {
+  it('donne toujours au moins une seconde à qui reçoit la main', () => {
+    let duel = draft(2)
+    // Le premier joueur passe en ne gardant qu'une demi-seconde.
+    duel = passTurn(duel, judge, DUEL_RESERVE_SECONDS - DUEL_PASS_PENALTY_SECONDS - 0.5)
+    expect(duel.players[0]!.reserve).toBeCloseTo(0.5)
+    duel = passTurn(duel, judge, 30)
+    // La main lui revient : il repart d'une seconde, pas d'une demi.
+    expect(duel.turn?.player).toBe(0)
+    expect(duel.players[0]!.reserve).toBe(DUEL_FLOOR_SECONDS)
+  })
+})
+
+describe('le mot sauvé à zéro', () => {
+  it('valide un mot juste arrivé dans la marge et ramène son joueur au plancher', () => {
+    const opening = draft(2)
+    const played = playWord(opening, answer(opening), judge, DUEL_RESERVE_SECONDS + DUEL_GRACE_SECONDS / 2)
+
+    expect(played.verdict.kind).toBe('accepted')
+    expect(played.saved).toBe(true)
+    expect(played.duel.players[0]!.alive).toBe(true)
+    expect(played.duel.players[0]!.reserve).toBeGreaterThanOrEqual(DUEL_FLOOR_SECONDS)
+    expect(played.duel.turn?.player).toBe(1)
+  })
+
+  it('ne sauve plus personne après la marge, ni avec un mot faux à zéro', () => {
+    const opening = draft(2)
+    expect(playWord(opening, answer(opening), judge, DUEL_RESERVE_SECONDS + DUEL_GRACE_SECONDS + 0.1).duel.players[0]!.alive).toBe(false)
+    expect(playWord(opening, 'zzzz', judge, DUEL_RESERVE_SECONDS).duel.players[0]!.alive).toBe(false)
+  })
+
+  it('ne parle pas de sauvetage pour un mot dans le temps', () => {
+    const opening = draft(2)
+    expect(playWord(opening, answer(opening), judge, 4).saved).toBe(false)
+  })
+})
+
+describe('les heures du draft', () => {
+  it('fait courir chaque choix depuis le précédent, et ouvre la partie après la mise en scène', () => {
+    let duel = createDuel({ seed: 3, playerIds: ['me', 'maxitoon'], categories: IDS, at: 5 })
+    expect(pickDeadline(duel)).toBe(5 + DUEL_PICK_SECONDS)
+    duel = pickCategory(duel, 'animaux', 8)
+    expect(pickDeadline(duel)).toBe(8 + DUEL_PICK_SECONDS)
+    expect(openingAt(duel)).toBeNull()
+    for (const [index, id] of ['pays', 'villes', 'metiers'].entries()) duel = pickCategory(duel, id, 9 + index)
+    expect(draftComplete(duel)).toBe(true)
+    expect(openingAt(duel)).toBe(11 + DUEL_OPENING_SECONDS)
+    expect(openDuel(duel, judge).turn?.startedAt).toBe(11 + DUEL_OPENING_SECONDS)
+  })
+
+  it('laisse moins de temps à une catégorie restée seule', () => {
+    let duel = createDuel({ seed: 1, playerIds: ['me', 'maxitoon'], categories: IDS.slice(0, 3), at: 0 })
+    duel = pickCategory(pickCategory(duel, 'animaux', 1), 'pays', 2)
+    expect(pickDeadline(duel)).toBe(2 + DUEL_FORCED_PICK_SECONDS)
   })
 })
 

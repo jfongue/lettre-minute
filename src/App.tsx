@@ -44,7 +44,11 @@ import {
   type Friend,
   type ModerationStatus,
   chooseName,
+  declineDuel,
+  fetchDuelInvites,
+  fetchFeatureFlags,
   fetchMyDiscoveries,
+  type DuelInvitation,
   fetchProgress,
   pushProgress,
 } from './lib/cloud'
@@ -91,7 +95,8 @@ import { challengeNotice, settledPushTags } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { clearInviteRef, keepInviteRef, loadInviteRef, refIn, takeAddressRef } from './state/inviteRef'
 import { createJudge } from './state/judge'
-import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, peeksLeft, playableCategoryIds, plusThanksDue, shareNewsDue } from './domain/perks'
+import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, isPlus, peeksLeft, playableCategoryIds, plusThanksDue, shareNewsDue } from './domain/perks'
+import { enabledFeatures, type FeatureId, type Roles } from './domain/features'
 import { cloudConfigured } from './lib/supabase'
 import { setTrackLang, setTrackScreen, track, trackFeature, trackReady } from './lib/track'
 import { FeedbackPop } from './ui/FeedbackPop'
@@ -119,6 +124,7 @@ import {
   saveSubmissions,
   saveTutorialDone,
 } from './state/storage'
+import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storage'
 import { queueAlertDue } from './domain/moderation'
 import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
 import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
@@ -142,6 +148,9 @@ import type { Racer } from './ui/RunScreen'
 import { lazyScreen } from './ui/lazyScreen'
 import { TutorialScreen, tutorialPrompt } from './ui/TutorialScreen'
 import { dismissTopOverlay } from './ui/useBackDismiss'
+import { FeaturesContext } from './ui/features'
+import { DuelBanner, DuelInviteCard, PlayTogether } from './ui/PlayTogether'
+import type { DuelExit } from './state/duel'
 
 // Everything but the home screen waits in its own chunk: the first paint only
 // parses what it shows. `preloadScreens` fetches them once the home screen has
@@ -158,6 +167,8 @@ const ModerationScreen = lazyScreen(() => import('./ui/ModerationScreen').then((
 const OverScreen = lazyScreen(() => import('./ui/OverScreen').then((module) => module.OverScreen))
 const RunScreen = lazyScreen(() => import('./ui/RunScreen').then((module) => module.RunScreen))
 const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) => module.WordsBoard))
+const FeaturesBoard = lazyScreen(() => import('./debug/FeaturesBoard').then((module) => module.FeaturesBoard))
+const DuelScreen = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelScreen))
 
 /** The run's own screens: awaited with its dictionaries, so the countdown never opens on a blank frame. */
 function preloadRunScreens(): Promise<unknown> {
@@ -328,7 +339,39 @@ export function App() {
     [],
   )
   const [homeSettled, setHomeSettled] = useState(false)
-  const [debugPhase, setDebugPhase] = useState<string | null>(() => (window.location.hash === '#debug' ? 'home' : null))
+  // Les fonctionnalités ouvertes : la table lue au démarrage précédent — un
+  // réglage ne change jamais un écran en cours de session —, et les rôles du
+  // serveur dès qu'il répond, ceux du dernier lancement en attendant.
+  const [storedFeatures] = useState(loadFeatures)
+  const roles: Roles = {
+    moderator: moderation ? moderation.moderator : storedFeatures.roles.moderator,
+    superModerator: moderation ? moderation.super : storedFeatures.roles.superModerator,
+    premium: isPlus(session.profile),
+  }
+  const features = useMemo(
+    () => enabledFeatures(storedFeatures.flags, roles),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [storedFeatures, roles.moderator, roles.superModerator, roles.premium],
+  )
+  const on = useCallback((id: FeatureId) => features.has(id), [features])
+  const featuresNow = useRef(features)
+  featuresNow.current = features
+  useEffect(() => {
+    void fetchFeatureFlags().then((flags) => flags && saveFeatureFlags(flags))
+  }, [])
+  useEffect(() => {
+    if (moderation) saveFeatureRoles({ moderator: moderation.moderator, superModerator: moderation.super })
+  }, [moderation])
+  const [featuresBoard, setFeaturesBoard] = useState(false)
+  // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
+  // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
+  const [together, setTogether] = useState(false)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null } | null>(null)
+  const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
+  const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
+  const [debugPhase, setDebugPhase] = useState<string | null>(() =>
+    window.location.hash === '#debug' && enabledFeatures(storedFeatures.flags, { ...storedFeatures.roles, premium: false }).has('debugBoard') ? 'home' : null,
+  )
   // Les classements avancés : le mode débug caché derrière cinq tapes sur
   // « Classement ». Il ne survit pas au rechargement, comme la planche.
   const [advancedBoards, setAdvancedBoards] = useState(false)
@@ -530,7 +573,7 @@ export function App() {
   const quietTried = useRef(false)
   const [nameAsk, setNameAsk] = useState<string | null>(null)
   useEffect(() => {
-    if (!answered.account || (account && !account.anonymous) || quietTried.current) return
+    if (!answered.account || (account && !account.anonymous) || quietTried.current || !featuresNow.current.has('playGames')) return
     quietTried.current = true
     if (loadQuietSignInTried()) return
     playGamesPlayer().then(async (gamer) => {
@@ -710,7 +753,7 @@ export function App() {
   // Loading an ad takes seconds, consent included: started once the free pick
   // is spent, it is ready by the next offer. Never mid-run, where the consent
   // form would cover the clock.
-  const adsWanted = adsDue(session.profile) && (session.phase === 'home' || session.phase === 'over')
+  const adsWanted = on('ads') && adsDue(session.profile) && (session.phase === 'home' || session.phase === 'over')
   useEffect(() => {
     if (adsWanted) prepareAds()
   }, [adsWanted])
@@ -765,7 +808,7 @@ export function App() {
         playableCategoryIds(session.profile, ownedCategoryIds(session.profile)).filter((id) => shipped.has(id)),
       )
       const [judge] = await Promise.all([judgeFor(lineup.dealt), preloadRunScreens()])
-      dispatch({ type: 'ready', judge, seed, categoryIds: lineup.dealt, reserve: lineup.reserve })
+      dispatch({ type: 'ready', judge, seed, categoryIds: lineup.dealt, reserve: lineup.reserve, noPowers: !featuresNow.current.has('powers') })
       // Warmed while the categories are announced, so the first swap is instant.
       if (lineup.reserve[0]) loadPack(lang, lineup.reserve[0]).catch(() => undefined)
     } catch {
@@ -803,10 +846,10 @@ export function App() {
   }, [idleHome, ownedShipped, lang])
 
   const startFirstRun = useCallback(() => {
-    if (session.profile.runs > 0 || loadTutorialDone()) return play()
+    if (session.profile.runs > 0 || loadTutorialDone() || !on('tutorial')) return play()
     setMenuPage(null)
     setTutorial('teaching')
-  }, [session.profile.runs, play])
+  }, [session.profile.runs, play, on])
   // The answer was just handed over: the run that follows must not deal the
   // same pair. `lastPrompts` already keeps it out, and the run's own prompts
   // replace it once it ends.
@@ -872,7 +915,7 @@ export function App() {
   const takeFriends = useCallback((list: readonly Friend[]) => {
     setFriendRequests(list.filter((friend) => friend.relation === 'incoming').length)
     const friends = list.filter((friend) => friend.relation === 'friend').length
-    if (!pushOfferDue(friends)) return
+    if (!pushOfferDue(friends) || !featuresNow.current.has('pushOffer')) return
     pushState().then((state) => {
       // Already allowed, refused, or no push in this build: nothing to offer.
       if (state === 'ask') setPushOffer(friends)
@@ -935,6 +978,37 @@ export function App() {
     }
   }, [atHome, named, refreshChallenges, refreshFriends])
 
+  // Les invitations à une table de duel : relues à l'accueil, plus souvent que
+  // les défis — une table attend ses joueurs, pas une journée.
+  const refreshDuelInvites = useCallback(() => {
+    if (!named || !featuresNow.current.has('duel')) return setDuelInvites([])
+    fetchDuelInvites().then((list) => list && setDuelInvites(list))
+  }, [named])
+  useEffect(() => {
+    if (!atHome || duelOpen || !named || !on('duel')) return
+    refreshDuelInvites()
+    const timer = setInterval(() => document.visibilityState === 'visible' && refreshDuelInvites(), 8_000)
+    return () => clearInterval(timer)
+  }, [atHome, duelOpen, named, on, refreshDuelInvites])
+  const joinDuelInvite = (table: string) => {
+    setDuelInvites((list) => list.filter((invite) => invite.table !== table))
+    setMenuPage(null)
+    setDuelOpen({ join: table })
+  }
+  const dropDuelInvite = (table: string) => {
+    setDuelInvites((list) => list.filter((invite) => invite.table !== table))
+    void declineDuel(table)
+  }
+  const leaveDuel = useCallback(
+    (reason: DuelExit) => {
+      setDuelOpen(null)
+      if (reason) setDuelBanner(reason)
+      refreshDuelInvites()
+    },
+    [refreshDuelInvites],
+  )
+  const clearDuelBanner = useCallback(() => setDuelBanner(null), [])
+
   const launchChallenge = useCallback(
     async (detail: ChallengeDetail, powers: readonly PowerId[]) => {
       setPicking(null)
@@ -954,6 +1028,7 @@ export function App() {
           categoryIds: detail.categoryIds,
           reserve: [],
           challenge: { id: detail.id, powers },
+          noPowers: !featuresNow.current.has('powers'),
         })
       } catch {
         dispatch({ type: 'load-failed', message: t.loadFailed })
@@ -1019,8 +1094,8 @@ export function App() {
     [challengeLineup, lang, session.profile],
   )
   const playerActions = useMemo<PlayerActions>(
-    () => ({ ...DEFAULT_PLAYER_ACTIONS, challenge: (friendId) => openCreate([friendId]) }),
-    [openCreate],
+    () => ({ ...DEFAULT_PLAYER_ACTIONS, ...(on('challenges') && { challenge: (friendId: string) => openCreate([friendId]) }) }),
+    [on, openCreate],
   )
 
   const create = useCallback(
@@ -1072,11 +1147,12 @@ export function App() {
   useEffect(() => {
     if (!tapped || !named || session.phase !== 'home') return
     setTapped(null)
+    if (!on('challenges')) return
     setMenuPage(null)
     setHeldNotices((held) => [...held, tapped.challenge])
     // Even an invitation opens on its screen: the player may not want to play right now.
     setChallengeOpen(tapped.challenge)
-  }, [tapped, named, session.phase])
+  }, [tapped, named, session.phase, on])
 
   const [swapping, setSwapping] = useState(false)
   const swap = useCallback(
@@ -1140,11 +1216,11 @@ export function App() {
       onPeek: peek,
       onJoinPlus: joinPlus,
       // Only a moderator flags a word: without the role, the recap says nothing of it.
-      ...(moderation?.moderator && {
+      ...(moderation?.moderator && on('wordFlag') && {
         onFlag: (run, word, reason) => proposeBan(run.lang, word.categoryId, word.word, word.display, reason),
       }),
     }),
-    [judgeFor, session.profile, peek, joinPlus, moderation],
+    [judgeFor, session.profile, peek, joinPlus, moderation, on],
   )
   // Read from the run as it ended, with the dictionaries it was judged by.
   const hidden = useMemo(
@@ -1253,8 +1329,10 @@ export function App() {
     // après, avec l'identifiant que le serveur leur a donné.
     const flushed = flushSubmissions()
     flushed.then(refreshMine)
-    reportRun(session.run)
-    reportAchievements(session.profile)
+    if (featuresNow.current.has('playGames')) {
+      reportRun(session.run)
+      reportAchievements(session.profile)
+    }
     const challengeId = session.challengeId
     if (challengeId) {
       setAfterRun('sending')
@@ -1271,7 +1349,7 @@ export function App() {
     // A word proposed during the run may be waiting for a verdict already.
     pushed.then(refreshModeration)
     // Les découvertes ne se comptent que sur le serveur, la partie une fois arrivée.
-    pushed.then(fetchMyDiscoveries).then((count) => count !== null && reportAchievements(session.profile, count))
+    pushed.then(fetchMyDiscoveries).then((count) => count !== null && featuresNow.current.has('playGames') && reportAchievements(session.profile, count))
     pushed
       .then(loadBoards)
       .then((next) => {
@@ -1284,7 +1362,11 @@ export function App() {
   }, [session.phase])
 
   closeChallengeLayer.current = () => {
-    if (picking) setPicking(null)
+    // Une table de duel se quitte par son bouton : un geste de retour en pleine
+    // partie abandonnerait sa réserve sans le dire.
+    if (duelOpen) return true
+    if (together) setTogether(false)
+    else if (picking) setPicking(null)
     else if (creating) setCreating(null)
     else if (challengeOpen) setChallengeOpen(null)
     else return false
@@ -1350,21 +1432,19 @@ export function App() {
                 : session.phase
   useEffect(() => setTrackScreen(screenName), [screenName])
 
-  const quietHome = session.phase === 'home' && !tutorial && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking
-  const notice = quietHome ? challengeNotice(challenges, heldNotices) : null
-  const popsQuiet =
-    !notice &&
-    quietHome &&
-    update !== 'due' &&
-    !(moderation?.offer && !offerHeld) &&
-    wordsNews.length === 0 &&
-    !complicationDue(session.profile, acceptedWords) &&
-    pushOffer === null
+  const quietHome =
+    session.phase === 'home' && !tutorial && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking && !together && !duelOpen
+  const notice = quietHome && on('challenges') ? challengeNotice(challenges, heldNotices) : null
+  const updateDue = update === 'due' && on('storeUpdate')
+  const offerDue = !!moderation?.offer && !offerHeld && on('moderatorOffer')
+  const wordsNewsDue = wordsNews.length > 0 && on('wordsNews')
+  const giftDue = complicationDue(session.profile, acceptedWords) && on('powerGift')
+  const popsQuiet = !notice && quietHome && !updateDue && !offerDue && !wordsNewsDue && !giftDue && pushOffer === null
   // Premium thanks its new member once, back home, and asks for an opinion in
   // exchange: that ask stands in for the regular one if both are due.
   const thanksPop = popsQuiet && cloudConfigured() && plusThanksDue(session.profile)
-  const feedbackPop = popsQuiet && feedbackAsk && !thanksPop
-  const shareNewsPop = popsQuiet && !thanksPop && !feedbackPop && shareNewsDue(session.profile, named, shareNewsSeen)
+  const feedbackPop = popsQuiet && feedbackAsk && !thanksPop && on('feedback')
+  const shareNewsPop = popsQuiet && !thanksPop && !feedbackPop && on('friendInvite') && shareNewsDue(session.profile, named, shareNewsSeen)
   const settleShareNews = () => {
     saveShareNewsSeen()
     setShareNewsSeen(true)
@@ -1398,6 +1478,7 @@ export function App() {
 
   return (
     <MessagesContext value={t}>
+    <FeaturesContext value={features}>
     <PlayerActionsContext value={playerActions}>
     <main className={`stage stage--${tutorial ? 'playing' : session.phase}${isNativeApp() ? '' : ' stage--muteable'}`}>
       {tutorial && (session.phase === 'home' || session.phase === 'loading') && <TutorialScreen lang={lang} onDone={endTutorial} />}
@@ -1446,23 +1527,60 @@ export function App() {
         </Suspense>
       )}
 
-      {!tutorial && !editingAvatar && !moderating && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
+      {duelOpen && session.phase === 'home' && (
+        <Suspense fallback={null}>
+          <DuelScreen lang={lang} mode="online" join={duelOpen.join} onExit={leaveDuel} />
+        </Suspense>
+      )}
+
+      {together && session.phase === 'home' && !duelOpen && (
+        <PlayTogether
+          challenge={on('challenges')}
+          onClose={() => setTogether(false)}
+          onDuel={() => {
+            setTogether(false)
+            setDuelOpen({ join: null })
+          }}
+          onChallenge={() => {
+            setTogether(false)
+            openCreate()
+          }}
+        />
+      )}
+
+      {duelBanner && (
+        <DuelBanner text={duelBanner === 'kicked' ? t.duel.kickedBanner : t.duel.closedBanner} onDone={clearDuelBanner} />
+      )}
+
+      {!tutorial && !editingAvatar && !moderating && !duelOpen && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
           loading={session.phase === 'loading'}
           settled={homeSettled}
-          boards={boards}
+          boards={on('leaderboards') ? boards : null}
           me={account && !account.anonymous ? account.name : null}
           climbed={climbed}
           avatar={avatar}
           requestsNews={moderation?.news ?? 0}
           queueAlert={queueAlert}
           categoriesNews={banNews(session.profile, ownedCategoryIds(session.profile)) ? 1 : 0}
-          friendRequests={named ? friendRequests : 0}
-          challenges={named ? challenges : null}
+          friendRequests={named && on('friends') ? friendRequests : 0}
+          challenges={named && (on('challenges') || on('duel')) ? (on('challenges') ? challenges : []) : null}
+          invites={
+            duelInvites[0] ? (
+              <DuelInviteCard
+                key={duelInvites[0].table}
+                host={duelInvites[0].host}
+                avatar={duelInvites[0].avatar}
+                players={duelInvites[0].players}
+                onJoin={() => joinDuelInvite(duelInvites[0]!.table)}
+                onDecline={() => dropDuelInvite(duelInvites[0]!.table)}
+              />
+            ) : null
+          }
           onChallenge={setChallengeOpen}
-          onCreateChallenge={() => openCreate()}
+          onCreateChallenge={() => (on('duel') ? setTogether(true) : openCreate())}
           onPastChallenges={() => {
             setMenuFocus(true)
             setMenuPage('stats')
@@ -1472,12 +1590,16 @@ export function App() {
             setMenuFocus(false)
             setMenuPage(page)
           }}
-          onBoardsHidden={() => {
-            setAdvancedBoards(true)
-            setMenuPage('boards')
-          }}
+          onBoardsHidden={
+            on('dashboard')
+              ? () => {
+                  setAdvancedBoards(true)
+                  setMenuPage('boards')
+                }
+              : undefined
+          }
           onPlay={startFirstRun}
-          onDebug={() => setDebugPhase('home')}
+          onDebug={on('debugBoard') ? () => setDebugPhase('home') : undefined}
           onEquip={(slot, powerId) => dispatch({ type: 'equip', slot, powerId })}
           onAccount={
             account?.anonymous
@@ -1537,7 +1659,7 @@ export function App() {
         />
       )}
 
-      {pushOffer !== null && session.phase === 'home' && !notice && (
+      {pushOffer !== null && session.phase === 'home' && !notice && on('pushOffer') && (
         // Over the menu too: the friendship is often made there, and the offer follows it at once.
         <PushOffer
           onNo={() => {
@@ -1570,7 +1692,7 @@ export function App() {
         />
       )}
 
-      {!notice && quietHome && update === 'due' && (
+      {!notice && quietHome && updateDue && (
         <UpdateNotice
           onLater={() => setUpdate('later')}
           onUpdate={() => {
@@ -1583,8 +1705,8 @@ export function App() {
 
       {!notice &&
         quietHome &&
-        update !== 'due' &&
-        !offerHeld &&
+        !updateDue &&
+        offerDue &&
         moderation?.offer && (
           <ModeratorOffer
             reason={moderation.offer}
@@ -1596,11 +1718,11 @@ export function App() {
             }}
             onAnswered={refreshModeration}
             onLater={() => setOfferHeld(true)}
-            onModerate={() => setModerating(true)}
+            onModerate={on('moderation') ? () => setModerating(true) : undefined}
           />
         )}
 
-      {!notice && quietHome && update !== 'due' && !(moderation?.offer && !offerHeld) && wordsNews.length > 0 && (
+      {!notice && quietHome && !updateDue && !offerDue && wordsNewsDue && (
         <WordsNewsPop
           words={wordsNews}
           onClose={() => {
@@ -1608,19 +1730,18 @@ export function App() {
             markRequestsSeen().then((seen) => seen && refreshModeration())
           }}
           // « Mes demandes » marks them seen itself, and shows them highlighted.
-          onOpen={() => {
-            setWordsNews([])
-            setMenuPage('requests')
-          }}
+          onOpen={
+            on('myRequests')
+              ? () => {
+                  setWordsNews([])
+                  setMenuPage('requests')
+                }
+              : undefined
+          }
         />
       )}
 
-      {!notice &&
-        quietHome &&
-        update !== 'due' &&
-        !(moderation?.offer && !offerHeld) &&
-        wordsNews.length === 0 &&
-        complicationDue(session.profile, acceptedWords) && (
+      {!notice && quietHome && !updateDue && !offerDue && !wordsNewsDue && giftDue && (
           <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
         )}
 
@@ -1659,17 +1780,21 @@ export function App() {
             onStatsRefresh={loadAccountRuns}
             onStatsOlder={account ? fetchRunsBefore : undefined}
             statsRecap={statsRecap}
-            friendRequests={named ? friendRequests : 0}
+            friendRequests={named && on('friends') ? friendRequests : 0}
             onFriends={takeFriends}
-            challenges={named ? challenges : null}
+            challenges={named && on('challenges') ? challenges : null}
             onChallenge={(id) => {
               setMenuPage(null)
               setChallengeOpen(id)
             }}
-            onChallengeFriend={(friendId) => {
-              setMenuPage(null)
-              openCreate([friendId])
-            }}
+            onChallengeFriend={
+              on('challenges')
+                ? (friendId) => {
+                    setMenuPage(null)
+                    openCreate([friendId])
+                  }
+                : undefined
+            }
             avatar={avatar}
             account={account}
             accountActions={accountActions}
@@ -1698,15 +1823,17 @@ export function App() {
             moderation={moderation}
             queueAlert={queueAlert}
             onModerate={() => {
+              if (!on('moderation')) return
               setMenuPage(null)
               setModerating(true)
             }}
             onRequestsSeen={refreshModeration}
             onRequestsOpen={topUpRequests}
             lang={lang}
-            advancedBoards={advancedBoards}
-            onAdvancedBoards={setAdvancedBoards}
-            onWordsBoard={setWordsBoard}
+            advancedBoards={advancedBoards && on('dashboard')}
+            onAdvancedBoards={on('dashboard') ? setAdvancedBoards : undefined}
+            onWordsBoard={on('wordsBoard') ? setWordsBoard : undefined}
+            onFeatures={moderation?.super ? () => setFeaturesBoard(true) : undefined}
             banActions={banActions}
             onErase={async () => {
               // The device keeps its copy until the server has let go of its
@@ -1721,9 +1848,15 @@ export function App() {
         </Suspense>
       )}
 
-      {wordsBoard && (
+      {wordsBoard && on('wordsBoard') && (
         <Suspense fallback={null}>
           <WordsBoard lang={lang} superModerator={moderation?.super === true} onClose={() => setWordsBoard(false)} />
+        </Suspense>
+      )}
+
+      {featuresBoard && moderation?.super && (
+        <Suspense fallback={null}>
+          <FeaturesBoard roles={roles} onClose={() => setFeaturesBoard(false)} />
         </Suspense>
       )}
 
@@ -1807,7 +1940,7 @@ export function App() {
             onReplay={play}
             onHome={() => {
               // Asked on the way home, never over the summary: after the tenth run, then every thirty.
-              if (cloudConfigured() && feedbackDue(session.profile)) {
+              if (cloudConfigured() && feedbackDue(session.profile) && on('feedback')) {
                 dispatch({ type: 'feedback-asked' })
                 setFeedbackAsk(true)
               }
@@ -1828,6 +1961,7 @@ export function App() {
       {!isNativeApp() && <MuteButton muted={soundPrefs.muted} onToggle={() => tune({ ...soundPrefs, muted: !soundPrefs.muted })} />}
     </main>
     </PlayerActionsContext>
+    </FeaturesContext>
     </MessagesContext>
   )
 }

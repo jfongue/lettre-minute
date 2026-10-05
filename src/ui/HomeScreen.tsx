@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import type { AvatarChoice } from '../domain/avatar'
 import type { AccountMode } from './AccountPanel'
 import type { Boards as BoardsData } from '../domain/boards'
@@ -13,6 +13,7 @@ import type { MenuPage } from './Menu'
 import type { ShapeKind, Tint } from './motifs'
 import { PageLinks, type LinkedPage } from './PageLinks'
 import { PowerSlots } from './PowerSlots'
+import { useFeature } from './features'
 import type { PowerId } from '../domain/powers'
 import { useHiddenTaps } from './useHiddenTaps'
 import { useSwipe } from './useSwipe'
@@ -48,6 +49,8 @@ interface HomeScreenProps {
   friendRequests: number
   /** Null without a named account: challenges are played between friends. */
   challenges: readonly ChallengeSummary[] | null
+  /** Les invitations à une table de duel qui attendent le joueur, sous « Jouer ». */
+  invites?: ReactNode
   onChallenge(id: string): void
   onCreateChallenge(): void
   onPastChallenges(): void
@@ -85,8 +88,10 @@ export function HomeScreen({
   onAccount,
   onDebug,
   onBoardsHidden,
+  invites,
 }: HomeScreenProps) {
   const t = useT()
+  const powers = useFeature('powers')
   const progress = levelProgress(profile.xp)
   // A row of zeros and an empty board say nothing to a newcomer: the space
   // goes to what would keep their first scores instead.
@@ -135,8 +140,10 @@ export function HomeScreen({
               </span>
             </button>
             {error && <p className="note note--warn">{error}</p>}
-            <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} />
+            {powers ? <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} /> : null}
           </div>
+
+          {invites}
 
           {challenges && (
             <ChallengeList challenges={challenges} onOpen={onChallenge} onCreate={onCreateChallenge} onPast={onPastChallenges} />

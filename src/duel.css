@@ -72,18 +72,6 @@
     background 220ms ease;
 }
 
-button.duel-seatcard__button {
-  cursor: pointer;
-}
-
-button.duel-seatcard__button:not(:disabled):active {
-  transform: scale(0.97);
-}
-
-button.duel-seatcard__button:disabled {
-  cursor: default;
-}
-
 .duel-seatcard__face {
   grid-row: 1 / span 2;
   display: block;
@@ -125,28 +113,39 @@ button.duel-seatcard__button:disabled {
   animation: duel-stamp 360ms var(--ease-spring) both;
 }
 
-/* Une place libre : en pointillé, on l'invite d'une touche. */
-.duel-seatcard--open .duel-seatcard__button {
+/* Une place libre : en pointillé, elle attend un invité. */
+.duel-seatcard--empty .duel-seatcard__button {
   border-style: dashed;
   background: transparent;
+  color: var(--ink-faint);
 }
 
-.duel-seatcard--open .duel-seatcard__face {
-  opacity: 0.4;
-  filter: grayscale(1);
-}
-
-.duel-seatcard--open .duel-seatcard__stamp {
-  color: var(--ink);
+.duel-seatcard__face--empty {
+  width: 2.5rem;
+  aspect-ratio: 1;
+  border: var(--line) dashed var(--rule);
 }
 
 .duel-seatcard--seated .duel-seatcard__button {
   border-color: var(--ink);
 }
 
+/* Invité, pas encore assis : la place est retenue, en pointillé. */
+.duel-seatcard--pending .duel-seatcard__button {
+  border-style: dashed;
+  border-color: var(--ink-soft);
+}
+
+.duel-seatcard--pending .duel-seatcard__face {
+  opacity: 0.55;
+}
+
+.duel-seatcard--pending .duel-seatcard__stamp {
+  color: var(--blue);
+}
+
 .duel-seatcard--ready .duel-seatcard__button {
   border-color: var(--green);
-  background: var(--paper-2);
 }
 
 .duel-seatcard--ready .duel-seatcard__stamp {
@@ -157,31 +156,146 @@ button.duel-seatcard__button:disabled {
   animation: bump 420ms var(--ease-spring);
 }
 
-.duel-seatcard--gone .duel-seatcard__button {
-  border-style: dashed;
-  background: transparent;
+/* L'hôte retient une place pour la retirer : la carte se remplit pendant l'appui. */
+.duel-seatcard--kickable {
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 
-.duel-seatcard--gone .duel-seatcard__face,
-.duel-seatcard--gone .duel-seatcard__text {
-  opacity: 0.35;
-  filter: grayscale(1);
+.duel-seatcard--kickable .duel-seatcard__button {
+  overflow: hidden;
 }
 
-.duel-seatcard--gone .duel-seatcard__stamp {
-  color: var(--red);
+.duel-seatcard--kickable .duel-seatcard__button::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left center;
 }
 
-/* Prêt, la table se ferme : les places libres s'effacent sans quitter la grille. */
-.duel-seatcard--shut {
-  opacity: 0.25;
-  transform: scale(0.96);
+.duel-seatcard--kickable:active .duel-seatcard__button::after {
+  transform: scaleX(1);
+  transition: transform 550ms linear;
+}
+
+.duel-seatcard--kickable:active .duel-seatcard__button {
+  transform: scale(0.97);
 }
 
 .duel-hint {
   min-height: 1.4em;
   margin: -0.3rem 0 0;
   animation: fade 240ms ease both;
+}
+
+/* Qui inviter : une liste courte, une ligne par joueur, un « + » qui s'enfonce. */
+.duel-invite {
+  display: grid;
+  gap: 0.45rem;
+  animation: fade 300ms ease both;
+}
+
+.duel-invite__list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+.duel-invite__list li {
+  animation: band-from-left 420ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+.duel-invite__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  border: var(--line) solid var(--rule);
+  background: var(--paper-2);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-spring);
+}
+
+.duel-invite__row:active {
+  transform: scale(0.98);
+}
+
+.duel-invite__row .avatar {
+  width: 2rem;
+}
+
+.duel-invite__name {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+
+.duel-invite__name b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-invite__name small {
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+}
+
+.duel-invite__plus {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  flex: none;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 800;
+}
+
+/* La feuille d'expulsion : par-dessus le salon, un geste qui se confirme. */
+.duel-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  padding: var(--gutter);
+  padding-bottom: max(var(--gutter), env(safe-area-inset-bottom));
+  background: rgb(0 0 0 / 38%);
+  animation: fade 200ms ease both;
+}
+
+.duel-sheet__card {
+  display: grid;
+  justify-items: center;
+  gap: 0.6rem;
+  width: min(24rem, 100%);
+  padding: 1.2rem 1rem 1rem;
+  background: var(--paper);
+  border: var(--line) solid var(--ink);
+  animation: rise-in 320ms var(--ease-spring) both;
+}
+
+.duel-sheet__face .avatar {
+  width: 3.2rem;
+}
+
+.duel-kick {
+  background: var(--red);
+  color: var(--black);
+  border-color: var(--red);
 }
 
 /* Le bouton du salon : l'action à gauche, la taille de la table à droite. */
@@ -676,6 +790,20 @@ button.duel-seatcard__button:disabled {
   transition: transform 100ms linear;
 }
 
+/* Les secondes des autres, en tout petit au-dessus de leur barre. */
+.duel-seat__secs {
+  margin-bottom: -0.15rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+.duel-seat--me .duel-seat__secs {
+  display: none;
+}
+
 .duel-seat__clock {
   font-size: 0.78rem;
   font-weight: 600;
@@ -717,6 +845,69 @@ button.duel-seatcard__button:disabled {
   }
   100% {
     transform: translate(-50%, -1.4rem) scale(1);
+    opacity: 0;
+  }
+}
+
+/* La main reprise après une mort : la place s'allume, et le dit en grand. */
+.duel-seat--resume {
+  animation: duel-resume-seat 900ms var(--ease-spring);
+  box-shadow: 0 0 0 3px var(--blue);
+}
+
+@keyframes duel-resume-seat {
+  0% {
+    transform: scale(1);
+  }
+  30% {
+    transform: translateY(-5px) scale(1.08);
+  }
+  100% {
+    transform: translateY(-3px) scale(1);
+  }
+}
+
+.duel-resume {
+  position: fixed;
+  left: 50%;
+  top: 38%;
+  z-index: 35;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.7rem 1.1rem;
+  background: var(--blue);
+  color: var(--cream);
+  font-size: clamp(1.3rem, 6.5vw, 1.8rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: duel-resume 1300ms var(--ease-out) both;
+}
+
+.duel-resume .avatar {
+  width: 2rem;
+}
+
+@keyframes duel-resume {
+  0% {
+    transform: translate(-50%, 0.6rem) scale(0.6);
+    opacity: 0;
+  }
+  18% {
+    transform: translate(-50%, 0) scale(1.06);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(-50%, 0) scale(1);
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -0.8rem) scale(1);
     opacity: 0;
   }
 }
@@ -773,6 +964,18 @@ button.duel-seatcard__button:disabled {
   flex: none;
   color: var(--red);
   font-weight: 800;
+}
+
+.duel-feed__saved {
+  flex: none;
+  padding: 0.05rem 0.35rem;
+  background: var(--green);
+  color: var(--cream);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  animation: duel-stamp 360ms var(--ease-spring) both;
 }
 
 .duel-feed__delta {
@@ -1242,6 +1445,36 @@ button.duel-seatcard__button:disabled {
   transform: none;
 }
 
+/* --------------------------------------------------------- l'attente - */
+
+.duel-notice {
+  min-height: 60dvh;
+  align-content: center;
+  text-align: center;
+}
+
+.duel-notice__dots {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.duel-notice__dots i {
+  width: 0.7rem;
+  height: 0.7rem;
+  background: var(--ink);
+  animation: loader-hop 900ms var(--ease-out) infinite;
+}
+
+.duel-notice__dots i:nth-child(2) {
+  animation-delay: 150ms;
+  border-radius: 50%;
+}
+
+.duel-notice__dots i:nth-child(3) {
+  animation-delay: 300ms;
+}
+
 /* ------------------------------------------------------ sous le clavier - */
 
 /* Le clavier du téléphone prend la moitié basse de l'écran, et l'app Android
@@ -1348,6 +1581,11 @@ button.duel-seatcard__button:disabled {
 @media (prefers-reduced-motion: reduce) {
   .duel-seatcard,
   .duel-seatcard__button,
+  .duel-seatcard__button::after,
+  .duel-invite__list li,
+  .duel-sheet__card,
+  .duel-resume,
+  .duel-notice__dots i,
   .duel-seatcard__face,
   .duel-seatcard__stamp,
   .duel-rank,

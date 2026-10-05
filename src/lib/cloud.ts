@@ -6,6 +6,8 @@ import { parseRecord, RECENT_MIN_DAYS, RECENT_MIN_RUNS, type RunRecord } from '.
 import { parseProgress, progressOf, type Progress } from '../domain/progress'
 import type { Leaderboard, PeriodId, PlacedRow, StatId } from '../domain/leaderboards'
 import { challengeWordsOf, type ChallengeEntry, type ChallengeWord } from '../domain/challenge'
+import type { DuelMove } from '../domain/duelLog'
+import type { Audience, FlagRow, FlagValue } from '../domain/features'
 import { MODERATION_SESSION_SIZE, type ModeratorOfferReason, type Verdict } from '../domain/moderation'
 import type { Profile } from '../domain/progression'
 import type { PromptRecord } from '../domain/prompts'
@@ -1503,4 +1505,259 @@ export function forgetPushToken(token: string): Promise<boolean> {
     const { error } = await supabase!.rpc('forget_push_token', { p_token: token })
     return !error
   }, false)
+}
+
+// -------------------------------------------------- fonctionnalités (0045) --
+
+/** La table des fonctionnalités telle que le serveur la tient ; null s'il ne répond pas. */
+export function fetchFeatureFlags(): Promise<Record<string, FlagRow> | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.from('feature_flags').select('feature, everyone, moderator, premium, super_moderator')
+    if (error || !data) return null
+    const rows: Record<string, FlagRow> = {}
+    for (const row of data as Record<string, unknown>[]) {
+      rows[row.feature as string] = {
+        everyone: flagValue(row.everyone),
+        moderator: flagValue(row.moderator),
+        premium: flagValue(row.premium),
+        superModerator: flagValue(row.super_moderator),
+      }
+    }
+    return rows
+  }, null)
+}
+
+const flagValue = (value: unknown): FlagValue => (value === 'on' || value === 'off' ? value : 'neutral')
+
+export type FlagOutcome = 'saved' | 'forbidden' | 'invalid' | 'unreachable'
+
+const AUDIENCE_COLUMNS: Record<Audience, string> = {
+  everyone: 'everyone',
+  moderator: 'moderator',
+  premium: 'premium',
+  superModerator: 'super_moderator',
+}
+
+/** Une case du tableau, réglée par un super modérateur. */
+export function setFeatureFlag(feature: string, audience: Audience, value: FlagValue): Promise<FlagOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('set_feature_flag', { p_feature: feature, p_audience: AUDIENCE_COLUMNS[audience], p_value: value })
+    return error ? 'unreachable' : (data as FlagOutcome)
+  }, 'unreachable')
+}
+
+// ------------------------------------------------------- duel en ligne (0046) --
+
+export interface DuelCandidate {
+  id: string
+  name: string
+  avatar: AvatarChoice
+  bot: boolean
+}
+
+/** Qui l'hôte peut inviter : ses amis, et les joueurs maison. */
+export function fetchDuelCandidates(): Promise<DuelCandidate[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_candidates')
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      id: row.id as string,
+      name: row.display_name as string,
+      avatar: parseAvatar(row.avatar),
+      bot: row.bot === true,
+    }))
+  }, null)
+}
+
+/** Ouvre une table dont le joueur est l'hôte ; null sans serveur ou sans compte nommé. */
+export function createDuelTable(lang: string, categories: readonly string[], owned: number): Promise<string | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_create', { p_lang: lang, p_categories: categories, p_owned: owned })
+    return error ? null : (data as string)
+  }, null)
+}
+
+export type DuelInviteOutcome = 'sent' | 'seated' | 'full' | 'closed' | 'forbidden' | 'unreachable'
+
+export function inviteToDuel(table: string, player: string): Promise<DuelInviteOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_invite', { p_table: table, p_player: player })
+    return error ? 'unreachable' : (data as DuelInviteOutcome)
+  }, 'unreachable')
+}
+
+export interface DuelInvitation {
+  table: string
+  host: string
+  avatar: AvatarChoice
+  players: number
+  at: number
+}
+
+/** Les invitations qui attendent le joueur ; null s'il n'y a pas de serveur. */
+export function fetchDuelInvites(): Promise<DuelInvitation[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_my_invites')
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      table: row.table_id as string,
+      host: row.host_name as string,
+      avatar: parseAvatar(row.host_avatar),
+      players: Number(row.players) || 0,
+      at: Date.parse(row.created_at as string) || 0,
+    }))
+  }, null)
+}
+
+export type DuelJoinOutcome = 'joined' | 'full' | 'closed' | 'kicked' | 'forbidden' | 'unreachable'
+
+export function joinDuel(table: string, owned: number): Promise<DuelJoinOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_join', { p_table: table, p_owned: owned })
+    return error ? 'unreachable' : (data as DuelJoinOutcome)
+  }, 'unreachable')
+}
+
+export function declineDuel(table: string): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('duel_decline', { p_table: table })
+    return !error
+  }, false)
+}
+
+export type DuelReadyOutcome = 'waiting' | 'started' | 'closed' | 'unreachable'
+
+export function setDuelReady(table: string, ready: boolean): Promise<DuelReadyOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_ready', { p_table: table, p_ready: ready })
+    return error ? 'unreachable' : (data as DuelReadyOutcome)
+  }, 'unreachable')
+}
+
+export function kickFromDuel(table: string, player: string): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_kick', { p_table: table, p_player: player })
+    return !error && data === 'kicked'
+  }, false)
+}
+
+export function leaveDuel(table: string): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('duel_leave', { p_table: table })
+    return !error
+  }, false)
+}
+
+export type DuelMoveOutcome = 'ok' | 'stale' | 'closed' | 'forbidden' | 'unreachable'
+
+export function postDuelMove(table: string, move: DuelMove): Promise<DuelMoveOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_move', {
+      p_table: table,
+      p_seq: move.seq,
+      p_seat: move.seat,
+      p_kind: move.kind,
+      p_payload: move.payload,
+    })
+    return error ? 'unreachable' : (data as DuelMoveOutcome)
+  }, 'unreachable')
+}
+
+export function finishDuel(table: string): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('duel_finish', { p_table: table })
+    return !error
+  }, false)
+}
+
+export function openDuelRematch(table: string, owned: number): Promise<string | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_rematch', { p_table: table, p_owned: owned })
+    return error ? null : (data as string)
+  }, null)
+}
+
+export interface DuelSeatRow {
+  player: string
+  name: string
+  avatar: AvatarChoice
+  bot: boolean
+  owned: number
+  ready: boolean
+  seat: number | null
+  left: boolean
+  kicked: boolean
+  /** La dernière lecture de cet appareil, à l'horloge du serveur. */
+  seen: number
+}
+
+export interface DuelSnapshot {
+  /** L'heure du serveur à la réponse, en secondes. */
+  now: number
+  table: {
+    id: string
+    host: string
+    lang: string
+    seed: number
+    categories: readonly string[]
+    status: 'lobby' | 'playing' | 'over' | 'closed'
+    startedAt: number | null
+    rematch: string | null
+  }
+  seats: readonly DuelSeatRow[]
+  invites: readonly { player: string; name: string; avatar: AvatarChoice }[]
+  moves: readonly DuelMove[]
+}
+
+/** La table et les coups après `after` ; null si le joueur n'y est pas, 'unreachable' si le serveur se tait. */
+export function syncDuel(table: string, after: number): Promise<DuelSnapshot | null | 'unreachable'> {
+  return guard<DuelSnapshot | null | 'unreachable'>(async () => {
+    const { data, error } = await supabase!.rpc('duel_sync', { p_table: table, p_after: after })
+    if (error) return 'unreachable'
+    if (!data) return null
+    const row = data as Record<string, unknown>
+    const info = row.table as Record<string, unknown>
+    return {
+      now: Number(row.now) || 0,
+      table: {
+        id: info.id as string,
+        host: info.host as string,
+        lang: info.lang as string,
+        seed: Number(info.seed) >>> 0,
+        categories: (info.categories as string[]) ?? [],
+        status: info.status as DuelSnapshot['table']['status'],
+        startedAt: info.started_at === null || info.started_at === undefined ? null : Number(info.started_at),
+        rematch: (info.rematch as string | null) ?? null,
+      },
+      seats: ((row.seats as Record<string, unknown>[]) ?? []).map((seat) => ({
+        player: seat.player as string,
+        name: seat.name as string,
+        avatar: parseAvatar(seat.avatar),
+        bot: seat.bot === true,
+        owned: Number(seat.owned) || 0,
+        ready: seat.ready === true,
+        seat: seat.seat === null || seat.seat === undefined ? null : Number(seat.seat),
+        left: seat.left === true,
+        kicked: seat.kicked === true,
+        seen: Number(seat.seen) || 0,
+      })),
+      invites: ((row.invites as Record<string, unknown>[]) ?? []).map((invite) => ({
+        player: invite.player as string,
+        name: invite.name as string,
+        avatar: parseAvatar(invite.avatar),
+      })),
+      moves: ((row.moves as Record<string, unknown>[]) ?? []).map((move) => ({
+        seq: Number(move.seq),
+        seat: Number(move.seat),
+        kind: move.kind as DuelMove['kind'],
+        payload: (move.payload as string) ?? '',
+        at: Number(move.at),
+      })),
+    }
+  }, 'unreachable')
+}
+
+/** L'identifiant du joueur sur le serveur : c'est sous lui que le duel range sa place. */
+export function fetchPlayerId(): Promise<string | null> {
+  return guard(async () => (await connect())?.userId ?? null, null)
 }

@@ -13,7 +13,10 @@
  * Deux joueurs ne jouent jamais en même temps : le couple ne se tire que de la
  * graine et du numéro de manche, donc n'importe quel client peut l'afficher
  * sans rien demander. Le domaine ne connaît que des identifiants de
- * catégories : ni mot, ni palier d'une langue, ni horloge.
+ * catégories : ni mot, ni palier d'une langue, ni horloge — l'heure lui est
+ * passée à chaque coup, et toutes ses pauses (draft, ouverture, mort) en
+ * découlent : rejouer les mêmes coups aux mêmes heures redonne la même partie
+ * sur chaque appareil.
  */
 import { createRng, shuffled } from './rng'
 import { createRun, inspect, promptKey, submit, type Judge, type KeptWord, type Prompt, type Run, type Verdict } from './run'
@@ -38,6 +41,22 @@ export const DUEL_TIME_BONUS: Readonly<Record<RarityTier, number>> = {
 }
 /** Le temps qu'un joueur a pour choisir sa catégorie avant que le sort le fasse. */
 export const DUEL_PICK_SECONDS = 10
+/** Une catégorie qui reste seule se prend d'office, le temps qu'on la voie partir. */
+export const DUEL_FORCED_PICK_SECONDS = 1.1
+/**
+ * Du dernier choix à la première manche : le draft reste lisible, l'ouvreur
+ * est tiré, trois temps sonnent. L'écran découpe ce temps, le domaine le fixe.
+ */
+export const DUEL_OPENING_SECONDS = 7.4
+/** Le plancher de chacun : la main n'arrive jamais avec moins d'une seconde pour répondre. */
+export const DUEL_FLOOR_SECONDS = 1
+/**
+ * Un mot juste qui arrive après le zéro compte encore dans cette marge : le
+ * champ le valide tout seul à zéro, et le réseau peut le dater un peu après.
+ */
+export const DUEL_GRACE_SECONDS = 1
+/** La mort se joue avant que la main reparte : la réserve du suivant attend la fin de l'animation. */
+export const DUEL_DEATH_PAUSE_SECONDS = 2.6
 
 /**
  * Chaque joueur choisit le même nombre de catégories, le plus grand tel que la
@@ -88,6 +107,10 @@ export interface Duel {
   picks: readonly string[]
   /** Qui choisit, dans l'ordre : le plus petit catalogue ouvre le draft. */
   order: readonly number[]
+  /** L'heure du dernier choix, ou de l'ouverture du draft : le choix suivant court depuis là. */
+  pickSince: number
+  /** L'heure où le pool s'est complété : la première manche s'ouvre `DUEL_OPENING_SECONDS` plus tard. */
+  draftedAt: number | null
   /**
    * Qui ouvre la première manche. Ouvrir est un handicap — l'ouvreur cherche
    * à froid, les suivants héritent d'un couple déjà médité —, donc le sort
@@ -114,9 +137,11 @@ export interface CreateDuelInput {
   order?: readonly number[]
   /** Qui ouvre ; tiré de la graine par défaut. */
   opener?: number
+  /** L'heure où le draft s'ouvre. */
+  at?: number
 }
 
-export function createDuel({ seed, playerIds, categories, order, opener }: CreateDuelInput): Duel {
+export function createDuel({ seed, playerIds, categories, order, opener, at = 0 }: CreateDuelInput): Duel {
   if (playerIds.length < DUEL_MIN_PLAYERS || playerIds.length > DUEL_MAX_PLAYERS) {
     throw new Error(`duel: ${playerIds.length} players, expected ${DUEL_MIN_PLAYERS} to ${DUEL_MAX_PLAYERS}`)
   }
@@ -126,6 +151,8 @@ export function createDuel({ seed, playerIds, categories, order, opener }: Creat
     picks: [],
     order: order ?? playerIds.map((_, index) => index),
     opener: opener ?? Math.floor(createRng(mix(seed, 0, 0x6f70656e)).next() * playerIds.length),
+    pickSince: at,
+    draftedAt: null,
     dealt: [],
     turns: 0,
     phase: 'draft',
@@ -159,6 +186,11 @@ export function draftShape(players: number, categories: number): { picks: number
   return { picks: picksPerPlayer(players), chosen, drawn: pool - chosen }
 }
 
+/** L'heure où le choix en cours sera fait d'office : par le sort, ou parce qu'il ne reste qu'une catégorie. */
+export function pickDeadline(duel: Duel): number {
+  return duel.pickSince + (onlyChoice(duel) ? DUEL_FORCED_PICK_SECONDS : DUEL_PICK_SECONDS)
+}
+
 /** Ce qu'un joueur peut encore choisir. */
 export function draftChoices(duel: Duel): readonly string[] {
   return duel.categories.filter((id) => !duel.picks.includes(id))
@@ -170,18 +202,18 @@ export function draftChoices(duel: Duel): readonly string[] {
  * dictionnaires du pool chargés — le draft n'en a pas besoin. Un choix hors du
  * vivier, ou déjà pris, ne compte pas.
  */
-export function pickCategory(duel: Duel, categoryId: string): Duel {
-  if (duel.phase !== 'draft' || duel.picks.includes(categoryId) || !duel.categories.includes(categoryId)) return duel
+export function pickCategory(duel: Duel, categoryId: string, at = duel.pickSince): Duel {
+  if (draftComplete(duel) || duel.phase !== 'draft' || duel.picks.includes(categoryId) || !duel.categories.includes(categoryId)) return duel
 
   const picks = [...duel.picks, categoryId]
   const due = humanPicks(duel.players.length)
   // Un vivier plus court que le pool (catalogue réduit) joue avec ce qu'il a
   // plutôt que de rester bloqué au draft.
-  if (picks.length < due && duel.categories.some((id) => !picks.includes(id))) return { ...duel, picks }
+  if (picks.length < due && duel.categories.some((id) => !picks.includes(id))) return { ...duel, picks, pickSince: at }
 
   const rest = duel.categories.filter((id) => !picks.includes(id))
   const drawn = shuffled(createRng(mix(duel.seed, 0, 0x64726166)), rest).slice(0, Math.max(0, DUEL_POOL_SIZE - picks.length))
-  return { ...duel, picks: [...picks, ...drawn] }
+  return { ...duel, picks: [...picks, ...drawn], pickSince: at, draftedAt: at }
 }
 
 /** Le pool est-il complet ? Il ne reste alors qu'à charger ses dictionnaires. */
@@ -189,8 +221,13 @@ export function draftComplete(duel: Duel): boolean {
   return duel.phase === 'draft' && duel.picks.length >= Math.min(DUEL_POOL_SIZE, duel.categories.length)
 }
 
+/** L'heure de la première manche, une fois le pool complet. */
+export function openingAt(duel: Duel): number | null {
+  return duel.draftedAt === null ? null : duel.draftedAt + DUEL_OPENING_SECONDS
+}
+
 /** Ouvre la première manche : le draft est fini et les dictionnaires du pool sont là. */
-export function openDuel(duel: Duel, judge: Judge, at = 0): Duel {
+export function openDuel(duel: Duel, judge: Judge, at = openingAt(duel) ?? 0): Duel {
   if (!draftComplete(duel)) return duel
   return openRound({ ...duel, phase: 'play' }, judge, at, duel.opener - 1)
 }
@@ -221,7 +258,15 @@ function drawPrompt(duel: Duel, judge: Judge, round: number, except?: string): P
 function openRound(duel: Duel, judge: Judge, at: number, from: number, except?: string): Duel {
   const player = nextAlive(duel, from)
   if (player === null) return { ...duel, phase: 'over', turn: null }
-  return { ...duel, turn: { player, prompt: drawPrompt(duel, judge, duel.dealt.length, except), startedAt: at, declined: [] } }
+  return handTo({ ...duel, turn: { player, prompt: drawPrompt(duel, judge, duel.dealt.length, except), startedAt: at, declined: [] } })
+}
+
+/** La main arrive : jamais avec moins du plancher pour répondre. */
+function handTo(duel: Duel): Duel {
+  const turn = duel.turn
+  const player = turn ? duel.players[turn.player] : undefined
+  if (!turn || !player || player.reserve >= DUEL_FLOOR_SECONDS) return duel
+  return { ...duel, players: replace(duel.players, turn.player, { ...player, reserve: DUEL_FLOOR_SECONDS }) }
 }
 
 /** Le premier joueur vivant après `index`, dans l'ordre de la table. */
@@ -293,32 +338,40 @@ export function inspectFor(duel: Duel, index: number, raw: string, judge: Judge)
 export interface DuelPlay {
   duel: Duel
   verdict: Verdict
+  /** Le mot est arrivé à zéro ou après : il sauve son joueur, qui repart du plancher. */
+  saved?: boolean
 }
 
 /**
  * Un mot validé : il entre au récapitulatif, rend son temps au palier, et la
  * manche est consommée — la main passe avec un couple neuf. Un mot refusé ne
- * coûte que du temps, le tour continue.
+ * coûte que du temps, le tour continue. Un mot juste arrivé à zéro, ou dans la
+ * marge qui suit, sauve son joueur : sa réserve repart d'au moins le plancher.
  */
 export function playWord(duel: Duel, raw: string, judge: Judge, at: number): DuelPlay {
   const turn = duel.turn
   if (duel.phase !== 'play' || !turn) return { duel, verdict: { kind: 'empty', found: null } }
   const player = duel.players[turn.player]
-  if (!player?.alive || reserveSeconds(duel, turn.player, at) <= 0) return { duel: eliminate(duel, judge, at), verdict: { kind: 'empty', found: null } }
+  const left = reserveSeconds(duel, turn.player, at)
+  if (!player?.alive || left < -DUEL_GRACE_SECONDS) return { duel: eliminate(duel, judge, at), verdict: { kind: 'empty', found: null } }
 
   const played = submit(turnRun(duel, turn.player, judge), raw, judge)
-  if (played.verdict.kind !== 'accepted' || !played.verdict.found) return { duel, verdict: played.verdict }
+  if (played.verdict.kind !== 'accepted' || !played.verdict.found) {
+    return { duel: left <= 0 ? eliminate(duel, judge, at) : duel, verdict: played.verdict }
+  }
 
+  const saved = left <= 0
+  const earned = Math.max(0, left) + DUEL_TIME_BONUS[played.verdict.found.tier]
   const banked: DuelPlayer = {
     ...player,
-    reserve: reserveSeconds(duel, turn.player, at) + DUEL_TIME_BONUS[played.verdict.found.tier],
+    reserve: saved ? Math.max(DUEL_FLOOR_SECONDS, earned) : earned,
     words: played.run.found,
     used: played.run.used,
     score: played.run.score,
     combo: played.run.combo,
   }
   const next = advance({ ...duel, players: replace(duel.players, turn.player, banked) }, judge, at, true)
-  return { duel: next, verdict: played.verdict }
+  return { duel: next, verdict: played.verdict, saved }
 }
 
 /**
@@ -341,25 +394,15 @@ export function passTurn(duel: Duel, judge: Judge, at: number): Duel {
 
 /**
  * Le tour en cours a dépassé sa réserve : le joueur meurt et la partie reprend
- * avec les survivants, le couple étant hérité comme après un passe. Le client
- * l'appelle à chaque battement, le serveur par sa passe de nettoyage : la
- * montre ne s'arrête pas parce qu'une app est fermée.
+ * avec les survivants, le couple étant hérité comme après un passe. C'est un
+ * coup comme un autre : le joueur le déclare lui-même à zéro s'il n'avait rien
+ * de juste dans son champ, le meneur de la table pour un absent.
  */
 export function duelTimeout(duel: Duel, judge: Judge, at: number): Duel {
   const turn = duel.turn
   if (duel.phase !== 'play' || !turn) return duel
   if (reserveSeconds(duel, turn.player, at) > 0) return duel
   return eliminate(duel, judge, at)
-}
-
-/**
- * La partie reprend à l'heure dite : le tour en cours est re-daté, donc la
- * réserve du joueur qui a la main ne court pas pendant la mise en scène d'une
- * mort. Sans ça, l'animation d'élimination mangerait le temps du survivant.
- */
-export function resume(duel: Duel, at: number): Duel {
-  if (!duel.turn) return duel
-  return { ...duel, turn: { ...duel.turn, startedAt: at } }
 }
 
 /** Fin de tour : la main avance ; le couple neuf n'arrive qu'une manche consommée. */
@@ -370,7 +413,7 @@ function advance(duel: Duel, judge: Judge, at: number, consumed: boolean): Duel 
   if (player === null) return { ...duel, phase: 'over', turn: null }
   const turns = duel.turns + 1
   const spent = consumed || aliveIndexes(duel).every((index) => turn.declined.includes(index))
-  if (!spent) return { ...duel, turns, turn: { ...turn, player, startedAt: at } }
+  if (!spent) return handTo({ ...duel, turns, turn: { ...turn, player, startedAt: at } })
   return openRound({ ...duel, turns, dealt: [...duel.dealt, promptKey(turn.prompt)] }, judge, at, turn.player, turn.prompt.categoryId)
 }
 
@@ -383,7 +426,8 @@ function eliminate(duel: Duel, judge: Judge, at: number, declined?: readonly num
   const deaths = [...duel.deaths, turn.player]
   const mid = { ...duel, players, deaths, turn: { ...turn, declined: declined ?? turn.declined } }
   if (aliveIndexes(mid).length <= 1) return { ...mid, phase: 'over', turn: null }
-  return advance(mid, judge, at, false)
+  // La main ne repart qu'après la mise en scène : la réserve du suivant n'y fond pas.
+  return advance(mid, judge, at + DUEL_DEATH_PAUSE_SECONDS, false)
 }
 
 function replace(players: readonly DuelPlayer[], index: number, player: DuelPlayer): readonly DuelPlayer[] {

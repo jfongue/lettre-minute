@@ -21,6 +21,7 @@ import { availableCategoryIds, loadPack } from '../data/packs'
 import { useHiddenTaps } from './useHiddenTaps'
 import { lazyScreen } from './lazyScreen'
 import { spelledExactly } from '../domain/words'
+import { useFeature } from './features'
 
 // The owner's inbox, behind five taps: no player should download it.
 const IdeasAdmin = lazyScreen(() => import('../debug/IdeasAdmin').then((module) => module.IdeasAdmin))
@@ -55,6 +56,8 @@ interface RequestsPageProps {
 
 export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: RequestsPageProps) {
   const t = useT()
+  const moderating = useFeature('moderation')
+  const ideas = useFeature('ideasBox')
   const [server, setServer] = useState<Submission[] | null | 'loading'>('loading')
   const [queue, setQueue] = useState<PendingSubmission[]>(loadSubmissions)
   const [failed, setFailed] = useState(false)
@@ -169,7 +172,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
 
   return (
     <>
-      {moderation?.moderator && moderation.queue >= MODERATION_MIN_QUEUE && <ModerationPanel status={moderation} onModerate={onModerate} />}
+      {moderating && moderation?.moderator && moderation.queue >= MODERATION_MIN_QUEUE && <ModerationPanel status={moderation} onModerate={onModerate} />}
       {server === 'loading' && <p className="note">{t.loading}</p>}
       {server === null && <p className="note">{t.requests.offline}</p>}
       {failed && <p className="note note--warn">{t.requests.failed}</p>}
@@ -232,7 +235,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
         </details>
       )}
 
-      <IdeaBox />
+      {ideas ? <IdeaBox /> : null}
     </>
   )
 }
@@ -332,6 +335,7 @@ function IdeaBox() {
   // Cinq tapes sur « Boîte à idées » — le bouton qui l'ouvre compte pour la
   // première — ouvrent les idées reçues, pour l'administrateur seul.
   const tap = useHiddenTaps()
+  const admin = useFeature('ideasAdmin')
   const [reading, setReading] = useState(false)
   const [draft, setDraft] = useState('')
   const [state, setState] = useState<'idle' | 'busy' | 'sent' | 'failed'>('idle')
@@ -368,7 +372,7 @@ function IdeaBox() {
   }
   return (
     <form className="idea-box stack" onSubmit={send}>
-      <p className="section-title" onClick={() => tap() && setReading(true)}>
+      <p className="section-title" onClick={() => tap() && admin && setReading(true)}>
         {t.ideas.title}
       </p>
       <p className="note">{t.ideas.lead}</p>

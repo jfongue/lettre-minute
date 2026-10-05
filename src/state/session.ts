@@ -84,6 +84,8 @@ export type SessionAction =
       reserve: readonly string[]
       /** A challenge brings its own lineup and the powers picked for it. */
       challenge?: { id: string; powers: readonly PowerId[] }
+      /** Les pouvoirs sont fermés à ce joueur : la partie se joue sans, même portés. */
+      noPowers?: boolean
     }
   /** The countdown traded a category: same seed, new lineup, a judge that knows the incoming dictionary. */
   | { type: 'swapped'; judge: Judge; categoryIds: readonly string[]; reserve: readonly string[] }
@@ -146,7 +148,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
 
     case 'ready': {
       const { challenge } = action
-      const powers = challenge ? challenge.powers : equippedPowers(session.profile)
+      const powers = action.noPowers ? [] : challenge ? challenge.powers : equippedPowers(session.profile)
       // A challenge avoids nothing: every player's draw must follow the seed alone.
       const avoid = challenge ? [] : session.profile.lastPrompts
       return {

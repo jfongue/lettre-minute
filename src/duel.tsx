@@ -8,7 +8,6 @@ import { loadLocale } from './state/locale'
 import { applyTheme, loadTheme } from './state/theme'
 import { DuelScreen } from './ui/DuelScreen'
 import './styles.css'
-import './duel.css'
 
 /**
  * The duel, as its own page (duel.html): the table prototype plays against the

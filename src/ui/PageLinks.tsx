@@ -1,8 +1,9 @@
-import type { CSSProperties } from 'react'
+import { useContext, type CSSProperties } from 'react'
 import type { AvatarChoice } from '../domain/avatar'
 import { useT } from '../i18n'
 import { Avatar } from './Avatar'
 import { Shape } from './bauhaus'
+import { FeaturesContext } from './features'
 import { onTint, type ShapeKind, type Tint } from './motifs'
 
 export type LinkedPage = 'profile' | 'stats' | 'requests' | 'categories'
@@ -25,8 +26,13 @@ interface PageLinksProps {
 }
 
 /** Poster tiles that open a page of the drawer: the shape jumps when the tile is reached. */
-export function PageLinks({ pages, avatar, badges, queueAlert = false, onOpen }: PageLinksProps) {
+/** La fonctionnalité qui ouvre chaque page : une page fermée perd sa tuile. */
+const GATES: Partial<Record<LinkedPage, string>> = { stats: 'stats', requests: 'myRequests' }
+
+export function PageLinks({ pages: all, avatar, badges, queueAlert = false, onOpen }: PageLinksProps) {
   const t = useT()
+  const features = useContext(FeaturesContext)
+  const pages = all.filter((page) => !GATES[page] || features.has(GATES[page]))
   return (
     <nav className="page-links" style={{ '--count': pages.length } as CSSProperties}>
       {pages.map((page, index) => {

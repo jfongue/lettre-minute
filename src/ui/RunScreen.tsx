@@ -11,6 +11,7 @@ import { Burst, LetterMark, MineMark, TierTag } from './bauhaus'
 import { motifAt } from './motifs'
 import { PowerBadge } from './PowerIcon'
 import { useFlip } from './useFlip'
+import { useFeature } from './features'
 
 const URGENT_FROM = 10
 /** Célérité waits this long after the last key, so « Chat » does not cut « Chatte » short. */
@@ -353,8 +354,9 @@ flawlessTriggered: boolean
   onPropose(word: string): void
 }) {
   const t = useT()
+  const canPropose = useFeature('proposeWord')
   const ours = (word: string | undefined) => word !== undefined && mine?.has(compactWord(word)) === true
-  const proposal = proposed ? (
+  const proposal = !canPropose ? null : proposed ? (
     <span className="verdict--sent">{t.run.proposed}</span>
   ) : (
     <button type="button" className="btn btn--quiet" onPointerDown={keepFocus} onClick={() => onPropose(draft)}>
