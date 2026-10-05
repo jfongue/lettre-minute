@@ -8,6 +8,7 @@ import {
   createDuel,
   draftChoices,
   draftComplete,
+  draftShape,
   DUEL_PASS_PENALTY_SECONDS,
   DUEL_RESERVE_SECONDS,
   DUEL_TIME_BONUS,
@@ -17,12 +18,14 @@ import {
   duelTimeout,
   forcedPick,
   inspectFor,
+  onlyChoice,
   openDuel,
   passTurn,
   pickCategory,
   playWord,
   reserveSeconds,
   resume,
+  timeGained,
   type BotProfile,
   type Duel,
 } from './duel'
@@ -67,7 +70,7 @@ function answer(duel: Duel): string {
 const NAMES = ['me', 'maxitoon', 'terretciel', 'demontoon']
 
 function draft(players: number, seed = 7): Duel {
-  let duel = createDuel({ seed, playerIds: NAMES.slice(0, players), categories: IDS })
+  let duel = createDuel({ seed, playerIds: NAMES.slice(0, players), categories: IDS, opener: 0 })
   while (duel.phase === 'draft' && !draftComplete(duel)) {
     const choices = draftChoices(duel)
     const picked = choices[duel.picks.length % Math.max(1, choices.length)]
@@ -127,6 +130,49 @@ describe('le draft', () => {
     expect(duel.turn?.startedAt).toBe(0)
     expect(duel.turn?.declined).toEqual([])
     expect(judge.letters(duelPrompt(duel)!.categoryId)).toContain(duelPrompt(duel)!.letter)
+  })
+})
+
+describe('l’ouvreur', () => {
+  it('est tiré de la graine, pas de la place à table', () => {
+    const openers = new Set(
+      Array.from({ length: 40 }, (_, seed) => createDuel({ seed, playerIds: NAMES, categories: IDS }).opener),
+    )
+    expect([...openers].sort()).toEqual([0, 1, 2, 3])
+    expect(createDuel({ seed: 11, playerIds: NAMES, categories: IDS }).opener).toBe(
+      createDuel({ seed: 11, playerIds: NAMES, categories: IDS }).opener,
+    )
+  })
+
+  it('ouvre la première manche', () => {
+    let duel = createDuel({ seed: 1, playerIds: NAMES.slice(0, 3), categories: IDS, opener: 2 })
+    while (!draftComplete(duel)) duel = pickCategory(duel, draftChoices(duel)[0]!)
+    expect(openDuel(duel, judge, 0).turn?.player).toBe(2)
+  })
+})
+
+describe('les choix d’office', () => {
+  it('prend la dernière catégorie qui reste plutôt que de la faire choisir', () => {
+    let duel = createDuel({ seed: 1, playerIds: ['me', 'maxitoon'], categories: IDS.slice(0, 3) })
+    expect(onlyChoice(duel)).toBeNull()
+    duel = pickCategory(pickCategory(duel, 'animaux'), 'pays')
+    expect(onlyChoice(duel)).toBe('villes')
+    expect(onlyChoice(pickCategory(duel, 'villes'))).toBeNull()
+  })
+
+  it('dit combien chacun choisit et combien le sort ajoute', () => {
+    expect(draftShape(2, 5)).toEqual({ picks: 2, chosen: 4, drawn: 1 })
+    expect(draftShape(3, 8)).toEqual({ picks: 1, chosen: 3, drawn: 2 })
+    expect(draftShape(4, 8)).toEqual({ picks: 1, chosen: 4, drawn: 1 })
+    expect(draftShape(2, 3)).toEqual({ picks: 2, chosen: 3, drawn: 0 })
+  })
+})
+
+describe('le temps rendu', () => {
+  it('additionne le palier de chaque mot validé', () => {
+    const played = playWord(draft(2), answer(draft(2)), judge, 3)
+    const player = played.duel.players[0]!
+    expect(timeGained(player)).toBe(DUEL_TIME_BONUS[player.words[0]!.tier])
   })
 })
 
@@ -232,7 +278,7 @@ describe('le mot validé', () => {
     expect(DUEL_TIME_BONUS.courant).toBe(0)
     expect(DUEL_TIME_BONUS['peu commun']).toBe(1)
     expect(DUEL_TIME_BONUS.rare).toBe(1.5)
-    expect(DUEL_TIME_BONUS['très rare']).toBe(1.5)
+    expect(DUEL_TIME_BONUS['très rare']).toBe(2)
   })
 
   it('laisse le tour continuer sur un mot refusé', () => {
