@@ -17,6 +17,19 @@ pages="$root/.cache/pages"
 out="$root/.cache/pages-build"
 
 cd "$root"
+
+# Le site est la version livrée du jeu : c'est `main`. Publier depuis une
+# branche en cours y ferait passer pour livré ce qui ne l’est pas — une page
+# Premium, un écran de travail — et personne ne s'en aperçoit avant de
+# l'avoir sous les yeux. Une publication volontaire d'une autre branche se
+# demande : PUBLISH_ANY_BRANCH=1.
+head_branch="$(git rev-parse --abbrev-ref HEAD)"
+if [ "${PUBLISH_ANY_BRANCH:-}" != 1 ] && [ "$head_branch" != "main" ]; then
+  echo "Refusé : ce dépôt est sur « $head_branch », pas sur main." >&2
+  echo "Le site publié est celui de main ; PUBLISH_ANY_BRANCH=1 pour forcer." >&2
+  exit 1
+fi
+
 npx tsc -b
 rm -rf "$out"
 npx vite build --base=/lettre-minute/ --outDir "$out" --emptyOutDir
