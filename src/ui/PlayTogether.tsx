@@ -9,8 +9,9 @@ import { useBackDismiss } from './useBackDismiss'
  * Le choix entre les deux façons de jouer entre amis, derrière le même bouton
  * que la création d'un défi quand le duel est ouvert : le duel en direct, ou
  * le défi de vingt-quatre heures. Chaque carte porte son dessin à côté de son
- * texte, jamais derrière : le duel, une table dont la main fait le tour ; le
- * défi, une journée qui se remplit.
+ * texte, jamais derrière : le duel, quatre places autour d'une table, la main
+ * sur l'une d'elles ; le défi, une journée qui avance. Les deux dessins sont
+ * posés d'aplomb et ne bougent pas : c'est le choix qui doit se lire.
  */
 export function PlayTogether({ challenge, onDuel, onChallenge, onClose }: { challenge: boolean; onDuel(): void; onChallenge(): void; onClose(): void }) {
   const t = useT()
@@ -39,9 +40,9 @@ export function PlayTogether({ challenge, onDuel, onChallenge, onClose }: { chal
           }}
         >
           <span className="together-art together-art--duel" aria-hidden="true">
-            <span className="together-ring" />
+            <span className="together-table" />
             {[0, 1, 2, 3].map((seat) => (
-              <i key={seat} style={{ '--seat': seat } as CSSProperties} />
+              <i key={seat} />
             ))}
           </span>
           <span className="together-text">

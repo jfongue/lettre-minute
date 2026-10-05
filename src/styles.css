@@ -8616,12 +8616,12 @@ body[data-words='board'] .offer-pop-layer {
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
-  animation: slide-from-left 420ms var(--ease-out) both;
+  animation: fade 240ms ease both;
 }
 
 .together-lead {
   margin-top: -0.3rem;
-  animation: fade 420ms ease 120ms both;
+  animation: fade 240ms ease 60ms both;
 }
 
 .together-card {
@@ -8635,8 +8635,8 @@ body[data-words='board'] .offer-pop-layer {
   font: inherit;
   text-align: left;
   cursor: pointer;
-  animation: band-from-left 560ms var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * 140ms + 160ms);
+  animation: fade 260ms ease both;
+  animation-delay: calc(var(--i, 0) * 90ms + 60ms);
   transition: transform 180ms var(--ease-spring);
 }
 
@@ -8653,7 +8653,6 @@ body[data-words='board'] .offer-pop-layer {
 .together-card--challenge {
   background: var(--paper-2);
   color: var(--ink);
-  animation-name: band-from-right;
 }
 
 .together-text {
@@ -8688,102 +8687,72 @@ body[data-words='board'] .offer-pop-layer {
 .together-go {
   font-size: 1.5rem;
   font-weight: 800;
-  animation: nudge 1.6s var(--ease-out) infinite;
 }
 
-/* Le duel : quatre places autour d'une montre, la main qui fait le tour. */
+/* Le duel : quatre places autour d'une table, la main posée sur l'une d'elles. */
 .together-art {
   position: relative;
   display: block;
-  width: 4.6rem;
+  width: 4.2rem;
   aspect-ratio: 1;
   flex: none;
 }
 
-.together-ring {
+.together-table {
   position: absolute;
-  inset: 22%;
-  border-radius: 50%;
+  inset: 27%;
   border: var(--line) solid var(--black);
-  background: conic-gradient(var(--blue) var(--sweep, 0deg), transparent 0);
-  animation: together-sweep 2.4s linear infinite;
-}
-
-@property --sweep {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-
-@keyframes together-sweep {
-  to {
-    --sweep: 360deg;
-  }
+  background: var(--paper);
 }
 
 .together-art--duel i {
   position: absolute;
-  width: 26%;
+  width: 22%;
   aspect-ratio: 1;
-  background: var(--black);
   border-radius: 50%;
-  animation: together-hand 2.4s var(--ease-out) infinite;
-  animation-delay: calc(var(--seat) * 0.6s);
+  background: var(--black);
 }
 
 .together-art--duel i:nth-of-type(1) {
   top: 0;
-  left: 37%;
+  left: 39%;
+  background: var(--red);
 }
 
 .together-art--duel i:nth-of-type(2) {
-  top: 37%;
+  top: 39%;
   right: 0;
 }
 
 .together-art--duel i:nth-of-type(3) {
   bottom: 0;
-  left: 37%;
+  left: 39%;
 }
 
 .together-art--duel i:nth-of-type(4) {
-  top: 37%;
+  top: 39%;
   left: 0;
 }
 
-@keyframes together-hand {
-  0%,
-  25% {
-    background: var(--red);
-    transform: scale(1.25);
-  }
-  35%,
-  100% {
-    background: var(--black);
-    transform: scale(1);
-  }
-}
-
-/* Le défi : une journée qui se remplit, une aiguille qui tourne lentement. */
+/* Le défi : une journée entamée, son aiguille posée dessus. */
 .together-day {
   position: absolute;
-  inset: 8%;
+  inset: 4%;
   border-radius: 50%;
   border: var(--line) solid var(--ink);
-  background: conic-gradient(var(--green) var(--sweep, 0deg), var(--paper) 0);
-  animation: together-sweep 6s var(--ease-out) infinite;
+  background: conic-gradient(var(--green) 0 230deg, var(--paper) 230deg);
 }
 
 .together-hand {
   position: absolute;
   left: 50%;
   top: 14%;
-  width: 4px;
+  width: 3px;
   height: 36%;
-  margin-left: -2px;
+  margin-left: -1.5px;
   background: var(--ink);
+  transform: rotate(36deg);
   transform-origin: 50% 100%;
-  animation: spin 6s linear infinite;
 }
 
 /* -------------------------------------------- une invitation à une table - */
@@ -8866,11 +8835,6 @@ body[data-words='board'] .offer-pop-layer {
 
 @media (prefers-reduced-motion: reduce) {
   .together-card,
-  .together-ring,
-  .together-day,
-  .together-hand,
-  .together-art--duel i,
-  .together-go,
   .duel-invite-card,
   .duel-invite-card__pulse,
   .duel-banner {

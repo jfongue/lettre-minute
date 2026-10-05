@@ -275,6 +275,9 @@ function Draft({ table }: { table: DuelTable }) {
   const mine = table.myPickTurn
   const { chosen: total, drawn } = draftShape(duel.players.length, duel.categories.length)
   const done = !picker
+  // Ce que l'écran a déjà posé : les choix des joueurs, puis les catégories que
+  // le sort a posées une à une — celles qui restent ne sont pas encore tombées.
+  const revealed = total + table.drawnShown
   const forcedLabel = table.forced ? categoryText(t, table.forced).label : ''
 
   // Mon tour de choisir s'annonce ; chaque choix des autres s'entend.
@@ -286,10 +289,13 @@ function Draft({ table }: { table: DuelTable }) {
     if (duel.picks.length > heardPicks.current && !done) sound.tile('glass', duel.picks.length)
     heardPicks.current = duel.picks.length
   }, [done, duel.picks.length])
+  // Chaque catégorie que le sort pose s'entend en tombant, pas toutes ensemble :
+  // c'est la pause entre deux qui fait le tirage.
+  const heardDraw = useRef(table.drawnShown)
   useEffect(() => {
-    if (!done) return
-    duel.picks.slice(total).forEach((_, index) => sound.tile('wood', 3 + index, 0.15 + index * 0.18))
-  }, [done, duel.picks, total])
+    for (let index = heardDraw.current; index < table.drawnShown; index++) sound.tile('wood', 3 + index)
+    heardDraw.current = table.drawnShown
+  }, [table.drawnShown])
 
   const line = done
     ? drawn > 0
@@ -326,7 +332,7 @@ function Draft({ table }: { table: DuelTable }) {
             )
           })}
           {Array.from({ length: drawn }, (_, index) => {
-            const taken = duel.picks[total + index]
+            const taken = index < table.drawnShown ? duel.picks[total + index] : undefined
             const motif = taken ? categoryMotif(taken) : null
             return (
               <li
@@ -356,7 +362,7 @@ function Draft({ table }: { table: DuelTable }) {
         <ul className="dealt dealt--pick">
           {table.pool.map((id, index) => {
             const place = duel.picks.indexOf(id)
-            const taken = place >= 0
+            const taken = place >= 0 && place < revealed
             const luck = taken && place >= total
             const whoIndex = taken && !luck ? (duel.order[place % duel.order.length] ?? 0) : -1
             const who = whoIndex >= 0 ? table.seats[whoIndex] : null

@@ -92,7 +92,8 @@ describe('le rejeu', () => {
   it('met en scène une mort avant que la main reparte', () => {
     const picks = draftMoves()
     const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
-    const dies = opened.turn!.startedAt + DUEL_RESERVE_SECONDS
+    // Les heures du duel ne tombent pas sur des entiers : la réserve est jugée au centième.
+    const dies = opened.turn!.startedAt + DUEL_RESERVE_SECONDS + 0.01
     const timeout: DuelMove = { seq: 5, seat: opened.turn!.player, kind: 'timeout', payload: '', at: dies }
     const after = replay(setup, [...picks, timeout], judge)
     expect(after.facts.at(-1)?.kind).toBe('dead')
@@ -137,7 +138,7 @@ describe('le meneur', () => {
     const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
     const zero = opened.turn!.startedAt + DUEL_RESERVE_SECONDS
     expect(driverMove(opened, judge, zero, {})).toBeNull()
-    expect(driverMove(opened, judge, zero + DUEL_GRACE_SECONDS, {})).toMatchObject({ seat: opened.turn!.player, kind: 'timeout' })
+    expect(driverMove(opened, judge, zero + DUEL_GRACE_SECONDS + 0.01, {})).toMatchObject({ seat: opened.turn!.player, kind: 'timeout' })
   })
 
   it('attend la fin de la mise en scène d’une mort', () => {
