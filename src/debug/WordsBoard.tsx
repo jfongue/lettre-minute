@@ -33,7 +33,10 @@ export type AddWord = (lang: string, categoryId: string, word: string) => Promis
 /** Le retrait d'office : un super modérateur décide seul, sans attendre les autres. */
 export type ForceWord = (lang: string, word: FlagWord, reason: string) => Promise<BanOutcome>
 
-const banDefault: BanWords = (lang, word, reason) => proposeBan(lang, word.categoryId, word.word, word.display, reason)
+// La porte « modération » de cet écran demande vraiment l'avis des autres :
+// `wait` empêche la voix d'un super modérateur de régler la revue seule (0045).
+const banDefault: BanWords = (lang, word, reason) =>
+  proposeBan(lang, word.categoryId, word.word, word.display, reason, true)
 const forceDefault: ForceWord = (lang, word, reason) =>
   forceRemoveWord(lang, word.categoryId, word.word, word.display, reason)
 

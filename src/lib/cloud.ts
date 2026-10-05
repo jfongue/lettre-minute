@@ -545,6 +545,8 @@ export function proposeBan(
   word: string,
   display: string,
   reason: string,
+  /** Le signaleur demande l'avis des autres : sa voix ne règle pas la revue seule (0045). */
+  wait = false,
 ): Promise<BanOutcome> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('propose_ban', {
@@ -552,6 +554,7 @@ export function proposeBan(
       p_word: word,
       p_display: display,
       p_note: reason.trim() || null,
+      p_wait: wait,
     })
     return error ? 'unreachable' : (data as BanOutcome)
   }, 'unreachable')
