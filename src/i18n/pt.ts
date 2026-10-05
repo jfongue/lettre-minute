@@ -370,8 +370,6 @@ export const pt: Messages = {
     superTitle: 'Supermoderador',
     lead: 'Você julga as palavras propostas pelos jogadores: três «correta» fazem uma palavra entrar, duas «incorreta» a bloqueiam.',
     superLead: 'Sua palavra basta: uma palavra que você diz correta entra na hora, e os casos especiais só esperam pelos supermoderadores.',
-    progress: (done, needed) =>
-      `${Math.min(done, needed)} / ${needed} palavras validadas sem contestação para virar supermoderador`,
     start: (size) => `Iniciar uma sessão · ${size} palavras`,
     offer: {
       title: 'Vire moderador!',

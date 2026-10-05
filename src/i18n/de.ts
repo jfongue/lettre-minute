@@ -368,8 +368,6 @@ export const de: Messages = {
     superTitle: 'Supermoderator',
     lead: 'Du beurteilst die Wörter, die Spieler vorschlagen: Drei „richtig“ lassen ein Wort hinein, zwei „falsch“ sperren es.',
     superLead: 'Dein Wort genügt: Ein Wort, das du für richtig hältst, kommt sofort hinein, und Sonderfälle warten nur auf Supermoderatoren.',
-    progress: (done, needed) =>
-      `${Math.min(done, needed)} / ${needed} unbestritten bestätigte Wörter bis zum Supermoderator`,
     start: (size) => `Sitzung starten · ${size} Wörter`,
     offer: {
       title: 'Werde Moderator!',

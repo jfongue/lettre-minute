@@ -52,7 +52,10 @@ signale un mot à retirer, jugé par les autres comme un ajout, et
 [`0045_feature_flags.sql`](migrations/0045_feature_flags.sql) pour les
 fonctionnalités que les super modérateurs ouvrent ou ferment à chaque public,
 et [`0046_duels.sql`](migrations/0046_duels.sql) pour le duel en direct en
-ligne : tables, places, invitations et journal de coups.
+ligne : tables, places, invitations et journal de coups, et
+[`0047_super_moderator_role.sql`](migrations/0047_super_moderator_role.sql) pour
+faire de super modérateur un rôle donné (`moderators.super`) plutôt qu'un rang
+gagné par cinq mots validés.
 
 ## Ce que le serveur détient
 
@@ -66,7 +69,7 @@ ligne : tables, places, invitations et journal de coups.
 | `word_submissions` | Les mots proposés par les joueurs, avec leur statut ; `seen_at` éteint la pastille de « Mes demandes ». |
 | `word_reviews` | Un mot en cours de jugement (catégorie + mot) : un ajout, que rejoignent tous ceux qui l'ont réclamé, ou un ban (`kind`), signalé par un modérateur. |
 | `moderation_votes` | Un vote par modérateur et par mot : `correct`, `unsure`, `incorrect` ou `special`. |
-| `moderators` | Les modérateurs, et l'ami qui les a élus. |
+| `moderators` | Les modérateurs, l'ami qui les a élus, et `super` : le rôle de super modérateur, donné à la main depuis 0047. |
 | `moderation_reserve` | Mots évidents que les dictionnaires ignorent, versés au compte-goutte dans la file (`released_at`). |
 | `moderation_topup` | Une seule ligne : l'heure du dernier versement, qui ferme le renflouage pour une heure, toutes langues confondues. |
 | `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |

@@ -255,7 +255,9 @@ qu'un nouvel arrivant casserait sans le savoir.
   du serveur peuvent l'appeler.
 - **Les règles de modération vivent en SQL** (`settle_review`, 0007), pas dans
   le domaine : trois « correct », deux « incorrect », louche à deux « je ne
-  sais pas ». `src/domain/moderation.ts` ne garde que ce que l'interface doit
+  sais pas ». Super modérateur est un rôle donné à la main
+  (`moderators.super`, 0047), plus un rang gagné : sa voix seule fait entrer ou
+  sortir un mot et règle les fonctionnalités de tous. `src/domain/moderation.ts` ne garde que ce que l'interface doit
   savoir (taille de session, lecture d'un glissement). La modération suit la
   langue de l'interface : un modérateur ne voit que les mots préfixés de la
   sienne.

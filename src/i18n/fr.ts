@@ -406,8 +406,6 @@ export const fr = {
     superTitle: 'Super modérateur',
     lead: 'Tu juges les mots proposés par les joueurs : trois « correct » font entrer un mot, deux « incorrect » le bloquent.',
     superLead: 'Ta parole suffit : un mot que tu dis correct entre aussitôt, et les cas spéciaux n’attendent que les super modérateurs.',
-    progress: (done: number, needed: number) =>
-      `${Math.min(done, needed)} / ${needed} mots validés sans contestation pour devenir super modérateur`,
     start: (size: number) => `Lancer une session · ${size} mots`,
     offer: {
       title: 'Deviens modérateur !',

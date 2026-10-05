@@ -369,8 +369,6 @@ export const nl: Messages = {
     superTitle: 'Supermoderator',
     lead: 'Jij beoordeelt de woorden die spelers voorstellen: drie keer „goed” laat een woord erin, twee keer „fout” blokkeert het.',
     superLead: 'Jouw woord is genoeg: een woord dat jij goed noemt komt er meteen in, en speciale gevallen wachten alleen op supermoderators.',
-    progress: (done, needed) =>
-      `${Math.min(done, needed)} / ${needed} onbetwist goedgekeurde woorden om supermoderator te worden`,
     start: (size) => `Sessie starten · ${size} woorden`,
     offer: {
       title: 'Word moderator!',

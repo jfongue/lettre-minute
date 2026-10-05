@@ -374,8 +374,6 @@ export const en: Messages = {
     superTitle: 'Super moderator',
     lead: 'You judge the words players propose: three “correct” let a word in, two “incorrect” block it.',
     superLead: 'Your word is enough: a word you call correct gets in at once, and special cases wait for super moderators only.',
-    progress: (done, needed) =>
-      `${Math.min(done, needed)} / ${needed} words approved without dispute to become a super moderator`,
     start: (size) => `Start a session · ${size} words`,
     offer: {
       title: 'Become a moderator!',

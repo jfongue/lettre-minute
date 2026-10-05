@@ -1,5 +1,5 @@
-import { Suspense, useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
-import { MODERATION_MIN_QUEUE, MODERATION_SESSION_SIZE, SUPER_MODERATOR_VALIDATIONS } from '../domain/moderation'
+import { Suspense, useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { MODERATION_MIN_QUEUE, MODERATION_SESSION_SIZE } from '../domain/moderation'
 import { SUBMISSION_REWARD_XP } from '../domain/progression'
 import {
   cancelSubmission,
@@ -415,14 +415,6 @@ function ModerationPanel({ status, onModerate }: { status: ModerationStatus; onM
           <p className="note">{status.super ? t.moderation.superLead : t.moderation.lead}</p>
         </div>
       </div>
-      {!status.super && (
-        <div className="stack">
-          <div className="progress">
-            <span style={{ '--ratio': Math.min(1, status.validated / SUPER_MODERATOR_VALIDATIONS) } as CSSProperties} />
-          </div>
-          <p className="note">{t.moderation.progress(status.validated, SUPER_MODERATOR_VALIDATIONS)}</p>
-        </div>
-      )}
       <button type="button" className="btn btn--blue btn--block" onClick={onModerate}>
         {t.moderation.start(Math.min(MODERATION_SESSION_SIZE, status.queue))}
       </button>
