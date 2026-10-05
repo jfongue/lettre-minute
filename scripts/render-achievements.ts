@@ -20,6 +20,12 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const chrome = spawn(CHROME, [
   '--headless=new',
+  // Chrome's own process sandbox cannot nest inside the harness file sandbox:
+  // macOS refuses sandbox_init there, and the GPU process takes Chrome down
+  // with it. Crashpad's default dump directory is outside the workspace too.
+  '--no-sandbox',
+  '--disable-gpu',
+  '--disable-crash-reporter',
   `--remote-debugging-port=${PORT}`,
   `--user-data-dir=${mkdtempSync(join(tmpdir(), 'lettre-minute-achievements-'))}`,
   '--hide-scrollbars',
