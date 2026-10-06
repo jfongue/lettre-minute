@@ -1036,13 +1036,15 @@ function DuelTableScreen({ lang, mode, join, onExit, onBots }: Required<Omit<Due
 
   if (rules) {
     return (
-      <DuelTutorial
-        me={table.seats[table.myIndex]!}
-        onDone={() => {
-          saveDuelRulesSeen()
-          setRules(false)
-        }}
-      />
+      <main className="stage stage--duel">
+        <DuelTutorial
+          me={table.seats[table.myIndex]!}
+          onDone={() => {
+            saveDuelRulesSeen()
+            setRules(false)
+          }}
+        />
+      </main>
     )
   }
 

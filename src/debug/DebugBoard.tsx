@@ -55,6 +55,11 @@ import { DuelScreen } from '../ui/DuelScreen'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
+import { DuelTutorial } from '../ui/DuelTutorial'
+import type { Seat } from '../state/duel'
+// La feuille du duel vit hors du paquet de l'accueil : cette planche est le
+// seul écran de l'app qui la montre, donc elle l'apporte avec elle.
+import '../duel.css'
 
 /*
  * The debug board: every screen a player only meets by luck or by level,
@@ -1271,6 +1276,9 @@ const offerModerator =
     />
   )
 
+/** Ma place au duel : le salon la tire du profil, la planche l’invente. */
+const DUEL_ME: Seat = { id: 'me', name: '', avatar: DEFAULT_AVATAR, bot: false, owned: 7, ready: false }
+
 const SCENARIOS: readonly Scenario[] = [
   {
     id: 'over-classic',
@@ -2036,6 +2044,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Une couleur en R (dans la langue de l’interface), puis la partie',
     phase: 'playing',
     render: (back) => <TutorialScreen lang="fr" onDone={back} />,
+  },
+  {
+    id: 'duel-rules',
+    group: 'Duel',
+    title: 'Règles du duel, au premier lancement',
+    how: 'Les trois vignettes animées que la page du duel montre avant son salon : les puces passent d’une étape à l’autre (sans effet ici)',
+    phase: 'duel',
+    render: (back) => <DuelTutorial me={DUEL_ME} onDone={back} />,
   },
 ]
 
