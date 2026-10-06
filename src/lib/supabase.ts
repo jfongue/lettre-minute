@@ -21,7 +21,11 @@ function slimClient(projectUrl: string, key: string) {
     storage: authStorage(),
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true,
+    // Nothing hands a session back through the address: Google returns
+    // through the plugin's popup and then `signInWithIdToken`, and a reset
+    // is a typed code. Reading a `#access_token=…` link would let anyone
+    // make the device adopt the session they crafted.
+    detectSessionInUrl: false,
     flowType: 'implicit',
   })
   // As supabase-js does: the player's token when signed in, the anon key otherwise.
