@@ -961,6 +961,7 @@ cheerAria: (label: string) => `${label} vorschlagen`,
     challengeCardPlayers: '2 bis 8 Spieler',
     offlineTitle: 'Der Online-Tisch öffnet sich nicht',
     offlineLead: 'Mit Freunden zu spielen braucht ein benanntes Konto und den Server. Du kannst sofort gegen die Hausspieler spielen.',
+    cutLead: 'Der Server antwortet nicht mehr. Wir versuchen es weiter: deine Züge gehen raus, sobald er zurück ist.',
     playBots: 'Gegen die Hausspieler spielen',
   },
 }

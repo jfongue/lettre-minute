@@ -1332,6 +1332,7 @@ const CHEER_TABLE: DuelTable = (() => {
     cheers: activeCheers(facts, at),
     error: false,
     offline: false,
+    joined: false,
     embedded: true,
     fallen: null,
     fallenAt: 0,

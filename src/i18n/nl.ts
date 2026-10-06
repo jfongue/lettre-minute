@@ -962,6 +962,7 @@ cheerAria: (label: string) => `${label} aanraden`,
     challengeCardPlayers: '2 tot 8 spelers',
     offlineTitle: 'De online tafel gaat niet open',
     offlineLead: 'Spelen met vrienden vraagt een account met naam en de server. Je kunt meteen tegen de huisspelers spelen.',
+    cutLead: 'De server antwoordt niet meer. We blijven het proberen: je zetten gaan weg zodra hij terug is.',
     playBots: 'Tegen de huisspelers spelen',
   },
 }

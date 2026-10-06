@@ -104,6 +104,7 @@ function Lobby({ table, onRules }: { table: DuelTable; onRules(): void }) {
 
   return (
     <main className="stage stage--duel">
+      <Cut table={table} />
       <div className="sheet duel-lobby">
         <p className="eyebrow">{table.rematchOpen ? t.duel.revenging : t.duel.title}</p>
         <h1 className="duel-title" key={counting ? 'draft' : 'table'}>
@@ -340,6 +341,7 @@ export function Draft({ table }: { table: DuelTable }) {
 
   return (
     <main className="stage stage--duel">
+      <Cut table={table} />
       <div className="sheet duel-draft">
         <div className="spread">
           <p className="eyebrow">{t.duel.announceTitle}</p>
@@ -491,6 +493,7 @@ function Opening({ table }: { table: DuelTable }) {
   const motif = beat ? BEAT_MOTIFS[beat]! : null
   return (
     <main className="stage stage--duel">
+      <Cut table={table} />
       <div className="sheet duel-opening">
         <ul className="duel-pool" aria-label={t.duel.announceTitle}>
           {duel.picks.map((id, index) => {
@@ -778,6 +781,7 @@ function Play({ table }: { table: DuelTable }) {
     // `data-phase` : la mise en scène d'une mort se joue par-dessus la partie,
     // donc les classes de l'écran ne suffisent pas à dire où en est le duel.
     <main className={`stage stage--playing stage--duel-play${alive ? '' : ' stage--out'}`} data-phase={table.phase}>
+      <Cut table={table} />
       <div className={`sheet run duel-run${urgent ? ' run--urgent' : ''}${critical ? ' run--critical' : ''}`}>
         <TableStrip table={table} at={clockAt} urgent={urgent} resumed={resumed?.player ?? null} />
         <Feed table={table} />
@@ -927,6 +931,7 @@ function Over({ table }: { table: DuelTable }) {
   const someoneElse = table.mode === 'online' && table.rematchOpen
   return (
     <main className="stage stage--duel">
+      <Cut table={table} />
       <div className="sheet reveal duel-over">
         <header className={`duel-poster${win ? ' duel-poster--win' : ''}`}>
           {win ? <Burst /> : null}
@@ -991,6 +996,20 @@ function Over({ table }: { table: DuelTable }) {
 }
 
 /** Un écran d'attente ou d'erreur, dans la feuille du duel. */
+/**
+ * Une coupure ne quitte pas la table : le dernier état connu reste à l'écran,
+ * et le joueur sait pourquoi plus rien ne bouge.
+ */
+function Cut({ table }: { table: DuelTable }) {
+  const t = useT()
+  if (!table.offline || !table.joined) return null
+  return (
+    <p className="duel-cut" role="status">
+      {t.duel.cutLead}
+    </p>
+  )
+}
+
 function Notice({
   title,
   text,
@@ -1075,7 +1094,7 @@ function DuelTableScreen({ lang, mode, join, onExit, onBots }: Required<Omit<Due
     )
   }
 
-  if (table.offline) return <Notice title={t.duel.offlineTitle} text={t.duel.offlineLead} onBots={onBots} onBack={() => onExit?.(null)} />
+  if (table.offline && !table.joined) return <Notice title={t.duel.offlineTitle} text={t.duel.offlineLead} onBots={onBots} onBack={() => onExit?.(null)} />
   if (table.error) return <Notice text={t.duel.loadFailed} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'connecting') return <Notice text={t.duel.connecting} />
   if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />

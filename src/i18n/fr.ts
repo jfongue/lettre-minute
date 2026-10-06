@@ -973,6 +973,7 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     challengeCardPlayers: '2 à 8 joueurs',
     offlineTitle: 'La table en ligne ne s’ouvre pas',
     offlineLead: 'Il faut un compte nommé et le serveur pour jouer avec tes amis. Tu peux jouer tout de suite contre les joueurs maison.',
+    cutLead: 'Le serveur ne répond plus. On réessaie : tes coups partiront dès qu’il revient.',
     playBots: 'Jouer contre les joueurs maison',
   },
 }

@@ -18,7 +18,7 @@ import {
   type BotProfile,
   type Duel,
 } from '../domain/duel'
-import { DUEL_ANNOUNCE_SECONDS, driverMove, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelSetup } from '../domain/duelLog'
+import { DUEL_ANNOUNCE_SECONDS, driverMove, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
 import { createRng } from '../domain/rng'
 import { playableCategoryIds } from '../domain/perks'
 import type { Judge, Prompt, Verdict } from '../domain/run'
@@ -160,6 +160,8 @@ export interface DuelTable {
   error: boolean
   /** La table en ligne n'a pas pu s'ouvrir : pas de compte nommé, ou pas de serveur. */
   offline: boolean
+  /** La table est prise sur le serveur : une coupure se dit alors sans quitter la partie. */
+  joined: boolean
   /** Dans l'app : quitter la table rend l'accueil, au lieu d'en rouvrir une. */
   embedded: boolean
   /** La mise en scène d'une mort : qui est tombé, et quand elle a commencé. */
@@ -316,7 +318,6 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
   const offset = useRef({ value: 0, rtt: Infinity })
   const now = useCallback(() => wall() + (mode === 'online' ? offset.current.value : 0), [mode])
   const pending = useRef('')
-  const posting = useRef(false)
   const readyMarks = useRef<Record<string, number>>({})
   /** Le salon de revanche local garde la table finie pour y revenir. */
   const finished = useRef<TableData | null>(null)
@@ -342,7 +343,11 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     const snapshot = await syncDuel(tableId, after)
     const back = wall()
     syncing.current = false
-    if (snapshot === 'unreachable') return
+    if (snapshot === 'unreachable') {
+      setOffline(true)
+      return
+    }
+    setOffline(false)
     if (snapshot === null) {
       exit.current?.('closed')
       return
@@ -356,6 +361,36 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     journal.current = merged
     setTable((current) => (!current || current.id !== fresh.id ? fresh : { ...fresh, moves: merged.moves }))
   }, [lastSeq, mode, table?.id, tableId])
+
+  // Les coups que la table n'a pas encore pris : une coupure les garde au lieu
+  // de les jeter, et le retour du serveur les emporte dans l'ordre.
+  const outbox = useRef<DuelPost[]>([])
+  const flushing = useRef(false)
+
+  const flush = useCallback(async () => {
+    if (flushing.current || mode !== 'online' || !tableId || outbox.current.length === 0) return
+    flushing.current = true
+    const poster = {
+      lastSeq: () => journal.current.moves.at(-1)?.seq ?? 0,
+      movesAfter: (seq: number) => journal.current.moves.filter((one) => one.seq > seq),
+      post: (one: DuelMove) => postDuelMove(tableId, one),
+      read: () => sync(),
+    }
+    while (outbox.current.length > 0) {
+      const { outcome } = await postMove(poster, outbox.current[0]!)
+      if (outcome === 'unreachable') {
+        setOffline(true)
+        break
+      }
+      outbox.current.shift()
+      if (outcome === 'closed') break
+    }
+    flushing.current = false
+  }, [mode, sync, tableId])
+
+  useEffect(() => {
+    if (!offline) void flush()
+  }, [flush, offline])
 
   // Une table neuve dont je suis l'hôte, ou celle où l'on m'a invité.
   const opened = useRef(false)
@@ -554,30 +589,17 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
 
   const post = useCallback(
     async (move: Omit<DuelMove, 'seq' | 'at'>) => {
-      if (!table || posting.current) return
-      posting.current = true
-      const mark = table.moves.at(-1)?.seq ?? 0
+      if (!table) return
       if (mode === 'local') {
-        setTable((current) => current && { ...current, moves: [...current.moves, { ...move, seq: mark + 1, at: wall() }] })
-        posting.current = false
+        setTable((current) => current && { ...current, moves: [...current.moves, { ...move, seq: (current.moves.at(-1)?.seq ?? 0) + 1, at: wall() }] })
         return
       }
-      const id = table.id
-      if (id) {
-        // Un numéro pris par un autre appareil se renvoie au suivant : le coup
-        // ne se perd plus, il part une fois la table relue.
-        const poster = {
-          lastSeq: () => journal.current.moves.at(-1)?.seq ?? 0,
-          movesAfter: (seq: number) => journal.current.moves.filter((one) => one.seq > seq),
-          post: (one: DuelMove) => postDuelMove(id, one),
-          read: () => sync(),
-        }
-        await postMove(poster, { move, mark })
-      }
-      posting.current = false
-      await sync()
+      // Le coup part par la file : une table injoignable le garde au lieu de le
+      // jeter, et la relecture suivante l'emporte.
+      outbox.current.push({ move, mark: table.moves.at(-1)?.seq ?? 0 })
+      await flush()
     },
-    [mode, sync, table],
+    [flush, mode, table],
   )
 
   // Celui qui mène la table déclare ce que personne d'autre ne déclarera : le
@@ -823,6 +845,7 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     cheers,
     error: failed,
     offline,
+    joined: tableId !== null,
     embedded: !!onExit,
     fallen: phase === 'deaths' && lastDeath ? lastDeath.player : null,
     fallenAt: lastDeath?.at ?? 0,

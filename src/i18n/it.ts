@@ -963,6 +963,7 @@ cheerAria: (label: string) => `Suggerisci ${label}`,
     challengeCardPlayers: 'Da 2 a 8 giocatori',
     offlineTitle: 'Il tavolo online non si apre',
     offlineLead: 'Per giocare con gli amici servono un account con nome e il server. Puoi giocare subito contro i giocatori della casa.',
+    cutLead: 'Il server non risponde più. Continuiamo a provare: le tue mosse partiranno appena torna.',
     playBots: 'Gioca contro i giocatori della casa',
   },
 }

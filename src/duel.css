@@ -190,6 +190,28 @@
   animation: fade 240ms ease both;
 }
 
+/* Une coupure du serveur : une ligne posée hors du flux, dans le bas libre de
+   l'écran pendant la partie, pour ne rien déplacer dans la table — sous elle,
+   la réserve, le champ et ses deux boutons restent lisibles. */
+.duel-cut {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: max(0.5rem, env(safe-area-inset-bottom));
+  z-index: 34;
+  width: fit-content;
+  margin-inline: auto;
+  max-width: min(30rem, calc(100% - 2 * var(--gutter)));
+  margin: 0;
+  padding: 0.45rem 0.7rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.78rem;
+  line-height: 1.3;
+  text-align: center;
+}
+
 /* Qui inviter : une liste courte, une ligne par joueur, un « + » qui s'enfonce. */
 .duel-invite {
   display: grid;
