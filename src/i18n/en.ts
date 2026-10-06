@@ -910,6 +910,28 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
     left: (names: string, count: number) => `${names} ${count > 1 ? 'have' : 'has'} left the rematch.`,
     rematchWaiting: 'A rematch is open: the table is re-forming.',
     joinRematch: 'Join the rematch',
+    /** The first-launch tutorial: one animated vignette per beat of the duel. */
+    tutorial: {
+      label: 'How it works',
+      title: 'The duel, in three beats',
+      stepLabel: (step: number, total: number) => `Step ${step} of ${total}`,
+      next: 'Next',
+      start: 'Let me play',
+      skip: 'Skip',
+      again: 'Read the rules again',
+      seats: {
+        title: 'Build your table',
+        text: 'Invite up to three house players, then declare yourself ready: the duel starts once the whole table is.',
+      },
+      draft: {
+        title: 'Pick the categories',
+        text: 'One at a time, ten seconds per pick. Luck fills in the rest of the list and picks who opens.',
+      },
+      play: {
+        title: 'Last one standing wins',
+        text: 'Write a word with the letter asked: a rare word buys time back, a common one less, and passing costs you. Your reserve only runs on your turn.',
+      },
+    },
     emptySeat: 'Free seat',
     pendingStamp: 'Invitation sent',
     hostStamp: 'Host',

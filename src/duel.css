@@ -1600,3 +1600,307 @@
     opacity: 1;
   }
 }
+
+/* --------------------------------------------------------------- le tuto - */
+
+/* Le duel expliqué au premier lancement : une vignette par temps du jeu, sous
+son texte. Chaque boucle revient sur son état lisible — rien ne reste effacé —
+pour que le mouvement réduit laisse les trois étapes entières. */
+.rules-vignette {
+  display: grid;
+  place-items: center;
+  min-height: 10.5rem;
+  padding: 0.9rem 0.5rem;
+  border: var(--line) solid var(--rule);
+  overflow: hidden;
+}
+
+.rules-text {
+  min-height: 3.4rem;
+  animation: fade 300ms ease both;
+}
+
+.rules-dots {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0;
+  margin: 0;
+}
+
+.rules-dot {
+  appearance: none;
+  width: 2.2rem;
+  height: 0.35rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--rule);
+  transition:
+    background 200ms ease,
+    transform 200ms var(--ease-out);
+}
+
+.rules-dot--on {
+  background: var(--ink);
+  transform: scaleY(1.7);
+}
+
+/* 1 — les quatre places se forment, et chacune se déclare prête. */
+.rules-seats {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.rules-seat {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.15rem 1.1rem;
+  text-align: center;
+  animation: rules-seat-in 7s var(--ease-out) infinite both;
+  animation-delay: calc(var(--i, 0) * 0.5s);
+}
+
+.rules-seat .avatar {
+  width: clamp(2rem, 9vw, 2.7rem);
+}
+
+.rules-seat b {
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.rules-seat__stamp {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0.2rem;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--green);
+  animation: rules-stamp 7s var(--ease-spring) infinite both;
+  animation-delay: calc(var(--i, 0) * 0.5s + 0.3s);
+}
+
+/* 2 — les catégories se prennent à tour de rôle, la dernière au sort. */
+.rules-draft {
+  display: grid;
+  gap: 0.7rem;
+  width: 100%;
+}
+
+.rules-tiles {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.35rem;
+  padding: 0;
+  margin: 0;
+}
+
+.rules-tile {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.2rem;
+  font-size: 0.64rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: center;
+  animation: rules-tile-in 7s var(--ease-out) infinite both;
+  animation-delay: calc(var(--i, 0) * 0.65s);
+}
+
+.rules-tile__icon {
+  width: 1.5rem;
+}
+
+.rules-tile--luck {
+  border: 1px dashed var(--rule);
+  background: var(--paper);
+  color: var(--ink-soft);
+}
+
+.rules-tile--luck b {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.rules-fuse {
+  display: block;
+  height: 0.4rem;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.rules-fuse i {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: left center;
+  animation: rules-fuse 7s var(--ease-out) infinite both;
+}
+
+/* 3 — la partie : le couple, le mot qui s'écrit, le temps qui va et qui vient. */
+.rules-play {
+  display: grid;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.rules-prompt {
+  padding: 0;
+}
+
+.rules-field {
+  display: block;
+  min-height: 2.5rem;
+  padding: 0 0.2rem 0.45rem;
+  border-bottom: var(--line) solid var(--ink);
+  font-size: 1.55rem;
+  font-weight: 700;
+}
+
+.rules-typed {
+  display: inline-block;
+  white-space: nowrap;
+  animation: rules-type 7s steps(6, end) infinite both;
+}
+
+.rules-meter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rules-bar {
+  flex: 1;
+  height: 0.45rem;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.rules-bar i {
+  display: block;
+  height: 100%;
+  background: var(--blue);
+  transform-origin: left center;
+  animation: rules-reserve 7s var(--ease-out) infinite both;
+}
+
+.rules-bonus,
+.rules-cost {
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-style: normal;
+  white-space: nowrap;
+  animation: rules-chip 7s var(--ease-out) infinite both;
+}
+
+.rules-bonus {
+  color: var(--green);
+  animation-delay: 0.1s;
+}
+
+.rules-cost {
+  color: var(--red);
+  animation-delay: 0.7s;
+}
+
+@keyframes rules-seat-in {
+  0% {
+    opacity: 0;
+    transform: translateY(0.6rem) scale(0.9);
+  }
+  10%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rules-stamp {
+  0%,
+  9% {
+    opacity: 0;
+    transform: rotate(-14deg) scale(1.5);
+  }
+  17%,
+  100% {
+    opacity: 1;
+    transform: rotate(-7deg) scale(1);
+  }
+}
+
+@keyframes rules-tile-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.5rem) scale(0.92);
+  }
+  12%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rules-fuse {
+  0% {
+    transform: scaleX(1);
+  }
+  55% {
+    transform: scaleX(0.04);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes rules-type {
+  0%,
+  6% {
+    clip-path: inset(0 100% 0 0);
+  }
+  40%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes rules-reserve {
+  0% {
+    transform: scaleX(0.85);
+  }
+  30% {
+    transform: scaleX(0.3);
+  }
+  38% {
+    transform: scaleX(0.45);
+  }
+  100% {
+    transform: scaleX(0.85);
+  }
+}
+
+@keyframes rules-chip {
+  0%,
+  22% {
+    opacity: 0;
+    transform: translateY(0.4rem);
+  }
+  32%,
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -35,6 +35,8 @@ import { CategoryIcon } from './CategoryIcon'
 import { categoryMotif, onTint, type Motif } from './motifs'
 import { reducedMotion } from './useCountUp'
 import { useLongPress } from './useLongPress'
+import { DuelTutorial } from './DuelTutorial'
+import { loadDuelRulesSeen, saveDuelRulesSeen } from '../state/storage'
 // Le duel ne charge ses styles qu'avec son écran : l'accueil n'en paie rien.
 import '../duel.css'
 
@@ -71,7 +73,7 @@ const reserveOf = (duel: Duel, index: number, at: number): number => Math.max(0,
  * L'hôte retire quelqu'un par un appui long sur sa place, jamais d'une touche :
  * un geste qui renvoie un ami chez lui ne se fait pas par mégarde.
  */
-function Lobby({ table }: { table: DuelTable }) {
+function Lobby({ table, onRules }: { table: DuelTable; onRules(): void }) {
   const t = useT()
   const counting = table.phase === 'announcing'
   const me = table.seats[table.myIndex]
@@ -197,6 +199,18 @@ function Lobby({ table }: { table: DuelTable }) {
                 {t.duel.quit}
               </button>
             ) : null}
+            {locked ? null : (
+              <button
+                type="button"
+                className="btn btn--quiet btn--block"
+                onClick={() => {
+                  armSound()
+                  onRules()
+                }}
+              >
+                {t.duel.tutorial.again}
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -1017,12 +1031,26 @@ function DuelTableScreen({ lang, mode, join, onExit, onBots }: Required<Omit<Due
   const t = useT()
   const table = useDuelTable({ lang, mode, join, onExit })
   const { phase } = table
+  // Les règles s'ouvrent au premier lancement de la table, puis se revoient du salon.
+  const [rules, setRules] = useState(() => !loadDuelRulesSeen())
+
+  if (rules) {
+    return (
+      <DuelTutorial
+        me={table.seats[table.myIndex]!}
+        onDone={() => {
+          saveDuelRulesSeen()
+          setRules(false)
+        }}
+      />
+    )
+  }
 
   if (table.offline) return <Notice title={t.duel.offlineTitle} text={t.duel.offlineLead} onBots={onBots} onBack={() => onExit?.(null)} />
   if (table.error) return <Notice text={t.duel.loadFailed} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'connecting') return <Notice text={t.duel.connecting} />
   if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />
-  if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} />
+  if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} onRules={() => setRules(true)} />
   if (phase === 'draft' && table.duel) return <Draft table={table} />
   if (phase === 'opening' && table.duel) return <Opening table={table} />
   if ((phase === 'play' || phase === 'deaths') && table.duel && table.judge && table.prompt) return <Play table={table} />

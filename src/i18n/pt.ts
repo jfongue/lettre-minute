@@ -907,6 +907,28 @@ flawless: ['Sem erros', 'A cada três palavras válidas digitadas sem erros, gan
     left: (names: string, count: number) => `${names} ${count > 1 ? 'saíram' : 'saiu'} da revanche.`,
     rematchWaiting: 'Uma revanche está aberta: a mesa se refaz.',
     joinRematch: 'Entrar na revanche',
+    /** O tutorial do primeiro arranque: uma vinheta animada por tempo do duelo. */
+    tutorial: {
+      label: 'Como funciona',
+      title: 'O duelo, em três tempos',
+      stepLabel: (step: number, total: number) => `Passo ${step} de ${total}`,
+      next: 'Seguinte',
+      start: 'Vou jogar',
+      skip: 'Saltar',
+      again: 'Ver as regras de novo',
+      seats: {
+        title: 'Forme a sua mesa',
+        text: 'Convide até três jogadores da casa e declare-se pronto: o duelo começa quando a mesa toda estiver.',
+      },
+      draft: {
+        title: 'Escolham as categorias',
+        text: 'Cada um à sua vez, dez segundos por escolha. A sorte completa a lista e decide quem abre.',
+      },
+      play: {
+        title: 'Vence o último de pé',
+        text: 'Escreva uma palavra com a letra pedida: uma palavra rara devolve tempo, uma comum menos, e passar custa. A sua reserva só corre na sua vez.',
+      },
+    },
     emptySeat: 'Lugar livre',
     pendingStamp: 'Convite enviado',
     hostStamp: 'Anfitrião',

@@ -906,6 +906,28 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
     left: (names: string, count: number) => `${names} ${count > 1 ? 'hebben' : 'heeft'} de revanche verlaten.`,
     rematchWaiting: 'Er staat een revanche open: de tafel vormt zich opnieuw.',
     joinRematch: 'Meedoen aan de revanche',
+    /** De tuto bij de eerste start: één geanimeerde vignette per fase van het duel. */
+    tutorial: {
+      label: 'Hoe het werkt',
+      title: 'Het duel in drie stappen',
+      stepLabel: (step: number, total: number) => `Stap ${step} van ${total}`,
+      next: 'Verder',
+      start: 'Ik speel',
+      skip: 'Overslaan',
+      again: 'Bekijk de regels opnieuw',
+      seats: {
+        title: 'Vorm je tafel',
+        text: 'Nodig tot drie huisspelers uit en meld je klaar: het duel begint zodra de hele tafel het is.',
+      },
+      draft: {
+        title: 'Kies de categorieën',
+        text: 'Om de beurt, tien seconden per keuze. Het lot vult de lijst aan en bepaalt wie opent.',
+      },
+      play: {
+        title: 'Wie als laatste overblijft, wint',
+        text: 'Schrijf een woord met de gevraagde letter: een zeldzaam woord geeft tijd terug, een gewoon minder, en passen kost je tijd. Je reserve loopt alleen in je eigen beurt.',
+      },
+    },
     emptySeat: 'Vrije plaats',
     pendingStamp: 'Uitnodiging verstuurd',
     hostStamp: 'Gastheer',

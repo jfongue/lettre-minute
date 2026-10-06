@@ -916,6 +916,28 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     left: (names: string, count: number) => `${names} ${count > 1 ? 'ont' : 'a'} quitté la revanche.`,
     rematchWaiting: 'Une revanche est ouverte : la table se reforme.',
     joinRematch: 'Rejoindre la revanche',
+    /** Le tuto du premier lancement : une vignette animée par temps du duel. */
+    tutorial: {
+      label: 'Comment ça marche',
+      title: 'Le duel, en trois temps',
+      stepLabel: (step: number, total: number) => `Étape ${step} sur ${total}`,
+      next: 'Suivant',
+      start: 'Je joue',
+      skip: 'Passer',
+      again: 'Revoir les règles',
+      seats: {
+        title: 'Forme ta table',
+        text: 'Invite jusqu’à trois joueurs maison, puis déclare-toi prêt : le duel part quand toute la table l’est.',
+      },
+      draft: {
+        title: 'Choisissez les catégories',
+        text: 'Chacun son tour, dix secondes par choix. Le sort complète la liste et désigne qui ouvre.',
+      },
+      play: {
+        title: 'Le dernier debout gagne',
+        text: 'Écris un mot de la lettre demandée : un mot rare rend du temps, un mot courant moins, et passer en coûte. Ta réserve ne coule que pendant ton tour.',
+      },
+    },
     emptySeat: 'Place libre',
     pendingStamp: 'Invitation envoyée',
     hostStamp: 'Hôte',

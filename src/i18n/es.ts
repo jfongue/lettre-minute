@@ -907,6 +907,28 @@ flawless: ['Impecable', 'Cada tres palabras válidas escritas sin errores te dan
     left: (names: string, count: number) => `${names} ${count > 1 ? 'han' : 'ha'} dejado la revancha.`,
     rematchWaiting: 'Hay una revancha abierta: la mesa se rehace.',
     joinRematch: 'Unirse a la revancha',
+    /** El tutorial del primer arranque: una viñeta animada por tiempo del duelo. */
+    tutorial: {
+      label: 'Cómo funciona',
+      title: 'El duelo, en tres tiempos',
+      stepLabel: (step: number, total: number) => `Paso ${step} de ${total}`,
+      next: 'Siguiente',
+      start: 'A jugar',
+      skip: 'Saltar',
+      again: 'Ver las reglas otra vez',
+      seats: {
+        title: 'Forma tu mesa',
+        text: 'Invita hasta a tres jugadores de la casa y declárate listo: el duelo empieza cuando lo está toda la mesa.',
+      },
+      draft: {
+        title: 'Elegid las categorías',
+        text: 'Por turnos, diez segundos por elección. El azar completa la lista y decide quién abre.',
+      },
+      play: {
+        title: 'Gana el último en pie',
+        text: 'Escribe una palabra con la letra pedida: una rara devuelve tiempo, una corriente menos, y pasar te cuesta. Tu reserva solo corre en tu turno.',
+      },
+    },
     emptySeat: 'Sitio libre',
     pendingStamp: 'Invitación enviada',
     hostStamp: 'Anfitrión',

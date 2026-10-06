@@ -907,6 +907,28 @@ flawless: ['Senza errori', 'Ogni tre parole valide digitate senza errori danno s
     left: (names: string, count: number) => `${names} ${count > 1 ? 'hanno' : 'ha'} lasciato la rivincita.`,
     rematchWaiting: 'Una rivincita è aperta: il tavolo si riforma.',
     joinRematch: 'Unisciti alla rivincita',
+    /** Il tutorial al primo avvio: una vignetta animata per tempo del duello. */
+    tutorial: {
+      label: 'Come funziona',
+      title: 'Il duello, in tre tempi',
+      stepLabel: (step: number, total: number) => `Passo ${step} di ${total}`,
+      next: 'Avanti',
+      start: 'Gioco io',
+      skip: 'Salta',
+      again: 'Rivedi le regole',
+      seats: {
+        title: 'Forma il tuo tavolo',
+        text: 'Invita fino a tre giocatori di casa, poi dichiarati pronto: il duello parte quando lo è tutto il tavolo.',
+      },
+      draft: {
+        title: 'Scegliete le categorie',
+        text: 'A turno, dieci secondi per scelta. La sorte completa la lista e decide chi apre.',
+      },
+      play: {
+        title: 'Vince l’ultimo in piedi',
+        text: 'Scrivi una parola con la lettera chiesta: una rara restituisce tempo, una comune meno, e passare costa. La tua riserva scorre solo nel tuo turno.',
+      },
+    },
     emptySeat: 'Posto libero',
     pendingStamp: 'Invito inviato',
     hostStamp: 'Ospite',

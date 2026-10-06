@@ -905,6 +905,28 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
     left: (names: string, count: number) => `${names} ${count > 1 ? 'haben' : 'hat'} die Revanche verlassen.`,
     rematchWaiting: 'Eine Revanche ist offen: Der Tisch bildet sich neu.',
     joinRematch: 'Der Revanche beitreten',
+    /** Das Tut beim ersten Start: eine animierte Vignette pro Zug des Duells. */
+    tutorial: {
+      label: 'So funktioniert’s',
+      title: 'Das Duell in drei Zügen',
+      stepLabel: (step: number, total: number) => `Schritt ${step} von ${total}`,
+      next: 'Weiter',
+      start: 'Los geht’s',
+      skip: 'Überspringen',
+      again: 'Regeln nochmal ansehen',
+      seats: {
+        title: 'Bildet euren Tisch',
+        text: 'Lade bis zu drei Hausspieler ein und melde dich bereit: Das Duell startet, sobald es der ganze Tisch ist.',
+      },
+      draft: {
+        title: 'Wählt die Kategorien',
+        text: 'Reihum, zehn Sekunden pro Wahl. Der Zufall füllt den Rest der Liste und lost aus, wer beginnt.',
+      },
+      play: {
+        title: 'Wer zuletzt steht, gewinnt',
+        text: 'Schreib ein Wort mit dem gesuchten Buchstaben: Ein seltenes Wort bringt Zeit zurück, ein häufiges weniger, und Passen kostet. Deine Reserve läuft nur in deinem Zug.',
+      },
+    },
     emptySeat: 'Freier Platz',
     pendingStamp: 'Einladung gesendet',
     hostStamp: 'Gastgeber',

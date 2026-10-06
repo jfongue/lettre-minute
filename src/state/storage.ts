@@ -17,6 +17,9 @@ const QUIET_SIGN_IN_KEY = 'lettre-minute.quiet-sign-in.v1'
 // The day « Mes demandes » was last opened: its « ! » waits for the next one.
 const QUEUE_SEEN_KEY = 'lettre-minute.queue-seen.v1'
 const SHARE_NEWS_KEY = 'lettre-minute.share-news.v1'
+// Kept by clearLocalData as well: the duel's rules are learnt once, and a
+// player who signs out does not want them explained again.
+const DUEL_RULES_KEY = 'lettre-minute.duel-rules.v1'
 
 /** A word the player proposed while the dictionary did not know it. */
 export interface PendingSubmission {
@@ -87,6 +90,15 @@ export function loadQuietSignInTried(): boolean {
 
 export function saveQuietSignInTried(): void {
   write(QUIET_SIGN_IN_KEY, true)
+}
+
+/** Whether the duel's first-launch tutorial already played on this device. */
+export function loadDuelRulesSeen(): boolean {
+  return parsed(DUEL_RULES_KEY) === true
+}
+
+export function saveDuelRulesSeen(): void {
+  write(DUEL_RULES_KEY, true)
 }
 
 export function loadQueueSeenOn(): string | null {
