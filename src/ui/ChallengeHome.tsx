@@ -18,30 +18,24 @@ import { useBackDismiss } from './useBackDismiss'
 interface ChallengeListProps {
   challenges: readonly ChallengeSummary[]
   onOpen(id: string): void
-  onCreate(): void
   /** To the old challenges, at the bottom of the statistics. */
   onPast(): void
 }
 
-/** Under « Jouer »: the challenges under way and those just over, and the way to start one. */
-export function ChallengeList({ challenges, onOpen, onCreate, onPast }: ChallengeListProps) {
+/** Under « Jouer »: the challenges under way and those just over. */
+export function ChallengeList({ challenges, onOpen, onPast }: ChallengeListProps) {
   const t = useT()
   const hidden = useHiddenChallenges()
   const shown = challenges.filter((challenge) => !isHidden(hidden, challenge))
   return (
     <section className="panel challenges">
-      <div className="spread">
-        {challenges.length > shown.length ? (
-          <button type="button" className="section-title challenge-past" onClick={onPast}>
-            {t.challenge.title}
-          </button>
-        ) : (
-          <p className="section-title">{t.challenge.title}</p>
-        )}
-        <button type="button" className="btn btn--quiet" onClick={onCreate}>
-          {t.challenge.create}
+      {challenges.length > shown.length ? (
+        <button type="button" className="section-title challenge-past" onClick={onPast}>
+          {t.challenge.title}
         </button>
-      </div>
+      ) : (
+        <p className="section-title">{t.challenge.title}</p>
+      )}
       {shown.length > 0 && (
         <ul className="challenge-rows">
           {shown.map((challenge, index) => {

@@ -1826,6 +1826,14 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <DebugHome back={back} boards={LONG_BOARDS} climbed={3} />,
   },
   {
+    id: 'home-multiplayer',
+    group: 'Accueil',
+    title: 'Multijoueur sous « Jouer »',
+    how: 'Le second appel de l’accueil, avec un défi en cours',
+    phase: 'home',
+    render: (back) => <DebugHome back={back} challenges={[summaryOf(challenge('to-play'))]} />,
+  },
+  {
     id: 'leaderboards',
     group: 'Accueil',
     title: 'Page des classements',
@@ -2185,6 +2193,7 @@ function DebugHome({
   climbed = 0,
   categoriesNews = 0,
   waiting = false,
+  challenges = null,
 }: {
   back(): void
   /** Ce que le serveur n'a pas encore rendu : l'accueil s'arrête sous son titre. */
@@ -2195,6 +2204,8 @@ function DebugHome({
   climbed?: number
   /** La pastille de « Catégories », tant que le bannissement n'a pas été lu. */
   categoriesNews?: number
+  /** Des défis en cours : le second appel de l'accueil, sous « Jouer ». */
+  challenges?: readonly ChallengeSummary[] | null
 }) {
   return (
     <HomeScreen
@@ -2209,7 +2220,7 @@ function DebugHome({
       requestsNews={error || newcomer ? 0 : 3}
       categoriesNews={categoriesNews}
       friendRequests={error || newcomer ? 0 : 2}
-      challenges={null}
+      challenges={challenges}
       onChallenge={noop}
       onCreateChallenge={noop}
       onPastChallenges={noop}

@@ -37,6 +37,8 @@ export const fr = {
   home: {
     tagline: (seconds: number) => `Une lettre · un thème · ${seconds} secondes`,
     play: 'Jouer',
+    /** Le second appel à l’action de l’accueil : les défis et le duel. */
+    multiplayer: 'Multijoueur',
     menu: 'Menu : profil, amis, options',
     friendRequests: (count: number) => (count === 1 ? 'une demande d’ami' : `${count} demandes d’ami`),
     level: (level: number) => `Niveau ${level}`,

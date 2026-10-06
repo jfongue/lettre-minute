@@ -140,13 +140,19 @@ export function HomeScreen({
               </span>
             </button>
             {error && <p className="note note--warn">{error}</p>}
+          {/* Le second appel de l’accueil : sous « Jouer », sans aplat, pour ne pas lui disputer le premier rang. */}
+          {challenges !== null && (
+            <button type="button" className="btn btn--ghost btn--block" onClick={onCreateChallenge}>
+              {t.home.multiplayer}
+            </button>
+          )}
             {powers ? <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} /> : null}
           </div>
 
           {invites}
 
-          {challenges && (
-            <ChallengeList challenges={challenges} onOpen={onChallenge} onCreate={onCreateChallenge} onPast={onPastChallenges} />
+          {challenges && challenges.length > 0 && (
+            <ChallengeList challenges={challenges} onOpen={onChallenge} onPast={onPastChallenges} />
           )}
 
           {newcomer ? (

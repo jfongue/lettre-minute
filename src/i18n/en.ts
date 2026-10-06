@@ -20,6 +20,7 @@ export const en: Messages = {
   home: {
     tagline: (seconds) => `One letter · one theme · ${seconds} seconds`,
     play: 'Play',
+    multiplayer: 'Multiplayer',
     menu: 'Menu: profile, friends, options',
     friendRequests: (count) => (count === 1 ? 'one friend request' : `${count} friend requests`),
     level: (level) => `Level ${level}`,
