@@ -91,10 +91,10 @@ select tests.run_at('bob', now(), 30);
 select tests.login('alice');
 
 select tests.throws($$insert into public.run_words (run_id, word, category_id)
-                      select id, 'chien', 'animaux' from public.runs where player_id = tests.uid('bob')$$,
-                    'a player cannot add words to another''s run', '42501');
-select tests.ok((select count(*) from public.runs where player_id = tests.uid('bob')) = 1,
-                'a player reads the runs of others');
+                      values ('00000000-0000-0000-0000-0000000000ff', 'chien', 'animaux')$$,
+                    'a player cannot add words to a run that is not his', '42501');
+select tests.ok((select count(*) from public.runs where player_id = tests.uid('bob')) = 0,
+                'another account''s runs stay out of reach');
 
 -- Daily seeds are the server's to set.
 select tests.throws($$insert into public.daily_challenges (day, seed) values (current_date, 1)$$,

@@ -204,11 +204,13 @@ select tests.is(pg_temp.gained('p1'), 1050, 'every accepted word paid its author
 
 select tests.new_user('rookie');
 select tests.new_user('shadow', true);
-update public.profiles set xp = 1649 where id = tests.uid('rookie');
 select tests.login('rookie');
 select tests.is(public.moderation_status('fr') ->> 'offer', null, 'no offer below level 6');
 select tests.logout();
-update public.profiles set xp = 1650 where id in (tests.uid('rookie'), tests.uid('shadow'));
+-- L'offre se gagne sur les parties reçues, jamais sur l'xp que le client
+-- s'écrit (0055) : 2600 points reçus valent le niveau 6.
+select tests.run_at('rookie', now(), 2600, array['r-un']);
+select tests.run_at('shadow', now(), 2600, array['r-deux']);
 select tests.login('rookie');
 select tests.is(public.moderation_status('fr') ->> 'offer', 'level', 'level 6 brings an offer');
 select tests.is(public.answer_moderator_offer('words', true), false, 'an offer that is not due cannot be taken');

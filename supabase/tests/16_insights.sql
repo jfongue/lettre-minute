@@ -93,6 +93,11 @@ select tests.ok(not exists (select 1 from public.debug_powers() where power = 'j
 select tests.ok(not exists (select 1 from public.debug_pairs('fr') where points = 90),
                 'nor does its word enter a pair');
 
+-- Une graine rapportée doit être une partie reçue (0056) : les trois rapports
+-- qui suivent parlent de parties de `ia`.
+insert into public.runs (player_id, seed, score, words)
+values (tests.uid('ia'), 11, 30, 1), (tests.uid('ia'), 12, 30, 1), (tests.uid('ia'), 13, 30, 1);
+
 -- ------------------------------------------------- what a pair yields --
 
 select tests.is(

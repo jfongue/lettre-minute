@@ -4,6 +4,12 @@
 select tests.new_user('pw');
 select tests.new_user('px');
 
+-- Une graine rapportée doit être une partie reçue (0056) : les parties que les
+-- rapports ci-dessous racontent.
+insert into public.runs (player_id, seed, score, words)
+values (tests.uid('pw'), 11, 20, 1), (tests.uid('pw'), 12, 20, 1), (tests.uid('pw'), 13, 20, 1),
+       (tests.uid('pw'), 14, 20, 1), (tests.uid('px'), 12, 20, 1);
+
 create function pg_temp.report(p_label text, p_seed bigint, p_lang text, p_prompts jsonb) returns boolean
 language plpgsql as $$
 declare
