@@ -26,10 +26,12 @@ import {
 import type { Verdict } from '../domain/run'
 import { categoryText, useT } from '../i18n'
 import { capitalized } from '../domain/text'
+import { loadDuelRulesSeen, saveDuelRulesSeen } from '../state/storage'
 import { armSound, sound, tierSound } from '../lib/sound'
 import { Avatar } from './Avatar'
 import { Burst, LetterMark, Shape, TierTag } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
+import { DuelTutorial } from './DuelTutorial'
 import { categoryMotif, onTint, type Motif } from './motifs'
 import { reducedMotion } from './useCountUp'
 
@@ -64,7 +66,7 @@ const reserveOf = (duel: Duel, index: number, at: number): number => Math.max(0,
  * robots qui se déclarent prêts sous les yeux du joueur, et l'annonce du
  * draft au même endroit. Rien ne change de page tant que la table se forme.
  */
-function Lobby({ table }: { table: DuelTable }) {
+function Lobby({ table, onRules }: { table: DuelTable; onRules(): void }) {
   const t = useT()
   const counting = table.phase === 'announcing'
   const locked = !!table.ready.me || counting
@@ -204,6 +206,18 @@ function Lobby({ table }: { table: DuelTable }) {
                 </button>
               </>
             ) : null}
+            {locked ? null : (
+              <button
+                type="button"
+                className="btn btn--quiet btn--block"
+                onClick={() => {
+                  armSound()
+                  onRules()
+                }}
+              >
+                {t.duel.tutorial.again}
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -866,6 +880,20 @@ export function DuelScreen({ lang }: { lang: string }) {
   const t = useT()
   const table = useDuelTable(lang)
   const { phase } = table
+  // Les règles s'ouvrent au premier lancement de la page, puis se revoient du salon.
+  const [rules, setRules] = useState(() => !loadDuelRulesSeen())
+
+  if (rules) {
+    return (
+      <DuelTutorial
+        me={table.seats[table.myIndex]!}
+        onDone={() => {
+          saveDuelRulesSeen()
+          setRules(false)
+        }}
+      />
+    )
+  }
 
   if (table.error) {
     return (
@@ -880,7 +908,7 @@ export function DuelScreen({ lang }: { lang: string }) {
       </main>
     )
   }
-  if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} />
+  if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} onRules={() => setRules(true)} />
   if (phase === 'draft' && table.duel) return <Draft table={table} />
   if (phase === 'opening' && table.duel) return <Opening table={table} />
   if ((phase === 'play' || phase === 'deaths') && table.duel && table.judge && table.prompt) return <Play table={table} />

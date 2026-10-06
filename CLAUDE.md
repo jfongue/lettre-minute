@@ -341,7 +341,11 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   (`src/state/duel.ts`), qui écrit le fil et met en scène chaque mort, qu'elle
   vienne du temps ou d'un passe. Sous 640 px de haut — le clavier ouvert, que
   l'app rétrécit (`resize: 'native'`) — la partie se resserre (`duel.css`) pour
-  que le couple, le champ et ses boutons restent au-dessus des touches. Ses styles sont dans `src/duel.css`, à fondre dans
+  que le couple, le champ et ses boutons restent au-dessus des touches. Ses
+  règles s'expliquent d'elles-mêmes au premier lancement (`DuelTutorial`,
+  `lettre-minute.duel-rules.v1`, gardée par `clearLocalData`) : trois vignettes
+  animées que le joueur fait défiler, et que le salon rouvre par « Revoir les
+  règles ». Ses styles sont dans `src/duel.css`, à fondre dans
   `styles.css` le jour où le duel rejoint l'accueil.
 
 - **Le téléphone ne demande le droit de notifier qu'après une nouvelle
