@@ -21,6 +21,7 @@ import {
 import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
 import { createRng } from '../domain/rng'
 import { playableCategoryIds } from '../domain/perks'
+import { onAppActive } from '../lib/native'
 import type { Judge, Prompt, Verdict } from '../domain/run'
 import { ownedCategoryIds } from '../domain/unlocks'
 import {
@@ -404,6 +405,14 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     document.addEventListener('visibilitychange', look)
     return () => document.removeEventListener('visibilitychange', look)
   }, [mode, sync])
+
+  // Sur téléphone, l'app dit elle-même qu'elle passe derrière : la WebView ne
+  // transmet pas toujours la page cachée (`onAppActive`). C'est ce qui rend la
+  // règle du meneur vraie sur la plateforme du jeu, pas seulement au navigateur.
+  useEffect(() => {
+    if (mode !== 'online') return
+    onAppActive((active) => setHidden(!active))
+  }, [mode])
 
   // La page s'en va pour de bon : la place se libère tout de suite, et le meneur
   // suivant n'attend pas huit secondes. Une page mise de côté (bfcache) n'est
