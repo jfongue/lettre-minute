@@ -49,6 +49,8 @@ interface HomeScreenProps {
   friendRequests: number
   /** Null without a named account: challenges are played between friends. */
   challenges: readonly ChallengeSummary[] | null
+  /** La pastille du bouton « Multijoueur », tant qu'aucune partie à plusieurs n'a été lancée. */
+  multiplayerNews: boolean
   /** Les invitations à une table de duel qui attendent le joueur, sous « Jouer ». */
   invites?: ReactNode
   onChallenge(id: string): void
@@ -79,6 +81,7 @@ export function HomeScreen({
   categoriesNews = 0,
   friendRequests,
   challenges,
+  multiplayerNews,
   onChallenge,
   onCreateChallenge,
   onPastChallenges,
@@ -142,8 +145,14 @@ export function HomeScreen({
             {error && <p className="note note--warn">{error}</p>}
           {/* Le second appel de l’accueil : sous « Jouer », sans aplat, pour ne pas lui disputer le premier rang. */}
           {challenges !== null && (
-            <button type="button" className="btn btn--ghost btn--block" onClick={onCreateChallenge}>
-              {t.home.multiplayer}
+            <button
+              type="button"
+              className="btn btn--ghost btn--block"
+              onClick={onCreateChallenge}
+              aria-label={multiplayerNews ? `${t.home.multiplayer} · ${t.home.multiplayerNews}` : undefined}
+            >
+              <span>{t.home.multiplayer}</span>
+              {multiplayerNews && <span className="btn-news" aria-hidden="true" />}
             </button>
           )}
             {powers ? <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} /> : null}

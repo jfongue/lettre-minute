@@ -15,6 +15,7 @@ export const it: Messages = {
     tagline: (seconds) => `Una lettera · un tema · ${seconds} secondi`,
     play: 'Gioca',
     multiplayer: 'Multigiocatore',
+    multiplayerNews: 'Lancia il tuo primo duello o sfida',
     menu: 'Menu: profilo, amici, opzioni',
     friendRequests: (count) => (count === 1 ? 'una richiesta di amicizia' : `${count} richieste di amicizia`),
     level: (level) => `Livello ${level}`,

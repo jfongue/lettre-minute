@@ -20,6 +20,9 @@ const SHARE_NEWS_KEY = 'lettre-minute.share-news.v1'
 // Kept by clearLocalData as well: the duel's rules are learnt once, and a
 // player who signs out does not want them explained again.
 const DUEL_RULES_KEY = 'lettre-minute.duel-rules.v1'
+// La pastille du bouton « Multijoueur » : gardée par clearLocalData comme le
+// tutoriel, celui qui se déconnecte a déjà lancé sa partie à plusieurs.
+const MULTIPLAYER_KEY = 'lettre-minute.multiplayer.v1'
 
 /** A word the player proposed while the dictionary did not know it. */
 export interface PendingSubmission {
@@ -99,6 +102,15 @@ export function loadDuelRulesSeen(): boolean {
 
 export function saveDuelRulesSeen(): void {
   write(DUEL_RULES_KEY, true)
+}
+
+/** Vrai tant qu'aucune partie à plusieurs — duel ou défi — n'a été lancée ici. */
+export function loadMultiplayerNews(): boolean {
+  return parsed(MULTIPLAYER_KEY) !== true
+}
+
+export function saveMultiplayerPlayed(): void {
+  write(MULTIPLAYER_KEY, true)
 }
 
 export function loadQueueSeenOn(): string | null {

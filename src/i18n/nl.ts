@@ -15,6 +15,7 @@ export const nl: Messages = {
     tagline: (seconds) => `Eén letter · één thema · ${seconds} seconden`,
     play: 'Spelen',
     multiplayer: 'Multiplayer',
+    multiplayerNews: 'Start je eerste duel of uitdaging',
     menu: 'Menu: profiel, vrienden, opties',
     friendRequests: (count) => (count === 1 ? 'één vriendschapsverzoek' : `${count} vriendschapsverzoeken`),
     level: (level) => `Niveau ${level}`,

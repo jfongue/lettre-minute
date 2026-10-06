@@ -1829,9 +1829,9 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'home-multiplayer',
     group: 'Accueil',
     title: 'Multijoueur sous « Jouer »',
-    how: 'Le second appel de l’accueil, avec un défi en cours',
+    how: 'Le second appel de l’accueil, sa pastille tant qu’aucune partie à plusieurs n’a été lancée',
     phase: 'home',
-    render: (back) => <DebugHome back={back} challenges={[summaryOf(challenge('to-play'))]} />,
+    render: (back) => <DebugHome back={back} challenges={[summaryOf(challenge('to-play'))]} multiplayerNews />,
   },
   {
     id: 'leaderboards',
@@ -2194,6 +2194,7 @@ function DebugHome({
   categoriesNews = 0,
   waiting = false,
   challenges = null,
+  multiplayerNews = false,
 }: {
   back(): void
   /** Ce que le serveur n'a pas encore rendu : l'accueil s'arrête sous son titre. */
@@ -2206,6 +2207,8 @@ function DebugHome({
   categoriesNews?: number
   /** Des défis en cours : le second appel de l'accueil, sous « Jouer ». */
   challenges?: readonly ChallengeSummary[] | null
+  /** Sa pastille, tant qu'aucune partie à plusieurs n'a été lancée. */
+  multiplayerNews?: boolean
 }) {
   return (
     <HomeScreen
@@ -2221,6 +2224,7 @@ function DebugHome({
       categoriesNews={categoriesNews}
       friendRequests={error || newcomer ? 0 : 2}
       challenges={challenges}
+      multiplayerNews={multiplayerNews}
       onChallenge={noop}
       onCreateChallenge={noop}
       onPastChallenges={noop}

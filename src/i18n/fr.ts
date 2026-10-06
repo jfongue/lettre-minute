@@ -39,6 +39,7 @@ export const fr = {
     play: 'Jouer',
     /** Le second appel à l’action de l’accueil : les défis et le duel. */
     multiplayer: 'Multijoueur',
+    multiplayerNews: 'Lance ton premier duel ou défi',
     menu: 'Menu : profil, amis, options',
     friendRequests: (count: number) => (count === 1 ? 'une demande d’ami' : `${count} demandes d’ami`),
     level: (level: number) => `Niveau ${level}`,

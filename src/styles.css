@@ -434,6 +434,17 @@ button.challenge-past::after {
   animation: spin 1.2s linear infinite;
 }
 
+/* La pastille d'un bouton : dans le flux, un bouton pleine largeur n'ayant pas
+   de coin libre où la poser. */
+.btn-news {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex: none;
+  border-radius: 999px;
+  background: var(--red);
+  animation: badge-in 520ms var(--ease-spring) 300ms both;
+}
+
 /* ---------------------------------------------------------------- poster - */
 .poster {
   display: grid;

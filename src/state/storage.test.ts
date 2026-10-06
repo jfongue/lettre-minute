@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { NEW_PROFILE } from '../domain/progression'
 import type { RunRecord } from '../domain/history'
-import { loadAvatar, loadHistory, loadProfile, loadSubmissions, saveHistory, saveProfile } from './storage'
+import { loadAvatar, loadHistory, loadMultiplayerNews, loadProfile, loadSubmissions, saveHistory, saveMultiplayerPlayed, saveProfile } from './storage'
 
 const store = new Map<string, string>()
 const memory = {
@@ -110,6 +110,12 @@ describe('local storage', () => {
     expect(loadSubmissions()).toEqual([fine, old])
     put('submissions', '{"word":"licorne"}')
     expect(loadSubmissions()).toEqual([])
+  })
+
+  it('keeps the multiplayer badge until a first game is launched', () => {
+    expect(loadMultiplayerNews()).toBe(true)
+    saveMultiplayerPlayed()
+    expect(loadMultiplayerNews()).toBe(false)
   })
 
   it('falls back to the default avatar on a corrupted one', () => {

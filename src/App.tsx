@@ -108,6 +108,7 @@ import {
   loadAccount,
   loadAvatar,
   loadHistory,
+  loadMultiplayerNews,
   loadProfile,
   loadQuietSignInTried,
   saveQuietSignInTried,
@@ -118,6 +119,7 @@ import {
   saveAccount,
   saveAvatar,
   saveHistory,
+  saveMultiplayerPlayed,
   saveProfile,
   saveQueueSeenOn,
   saveShareNewsSeen,
@@ -259,6 +261,13 @@ export function App() {
     drawerMoved.current = true
   }, [menuOpen])
   const [shareNewsSeen, setShareNewsSeen] = useState(loadShareNewsSeen)
+  // La pastille du bouton « Multijoueur » : elle tient tant qu'aucune partie à
+  // plusieurs — duel ou défi — n'a été lancée depuis cet appareil.
+  const [multiplayerNews, setMultiplayerNews] = useState(loadMultiplayerNews)
+  const rememberMultiplayer = useCallback(() => {
+    saveMultiplayerPlayed()
+    setMultiplayerNews(false)
+  }, [])
   const [accountMode, setAccountMode] = useState<AccountMode>('register')
   // The very first « Jouer » teaches one word before the clock starts; the
   // lesson then stays up while the run loads.
@@ -991,6 +1000,7 @@ export function App() {
     return () => clearInterval(timer)
   }, [atHome, duelOpen, named, on, refreshDuelInvites])
   const joinDuelInvite = (table: string) => {
+    rememberMultiplayer()
     setDuelInvites((list) => list.filter((invite) => invite.table !== table))
     setMenuPage(null)
     setDuelOpen({ join: table })
@@ -1011,6 +1021,7 @@ export function App() {
 
   const launchChallenge = useCallback(
     async (detail: ChallengeDetail, powers: readonly PowerId[]) => {
+      rememberMultiplayer()
       setPicking(null)
       setChallengeOpen(null)
       setMenuPage(null)
@@ -1034,7 +1045,7 @@ export function App() {
         dispatch({ type: 'load-failed', message: t.loadFailed })
       }
     },
-    [judgeFor, t],
+    [judgeFor, rememberMultiplayer, t],
   )
 
   /** Straight into the run, unless the player has more allowed powers than slots to fill. */
@@ -1538,6 +1549,7 @@ export function App() {
           challenge={on('challenges')}
           onClose={() => setTogether(false)}
           onDuel={() => {
+            rememberMultiplayer()
             setTogether(false)
             setDuelOpen({ join: null })
           }}
@@ -1567,6 +1579,7 @@ export function App() {
           categoriesNews={banNews(session.profile, ownedCategoryIds(session.profile)) ? 1 : 0}
           friendRequests={named && on('friends') ? friendRequests : 0}
           challenges={named && (on('challenges') || on('duel')) ? (on('challenges') ? challenges : []) : null}
+          multiplayerNews={multiplayerNews}
           invites={
             duelInvites[0] ? (
               <DuelInviteCard
