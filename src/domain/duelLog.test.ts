@@ -4,7 +4,6 @@ import { buildWordPack, commonWord, findWord, lettersWithEnough, type WordPack }
 import type { Judge } from './run'
 import {
   duelPrompt,
-  draftComplete,
   pickDeadline,
   reserveSeconds,
   DUEL_DEATH_PAUSE_SECONDS,
@@ -38,16 +37,16 @@ const judge: Judge = {
 const setup: DuelSetup = { seed: 42, playerIds: ['me', 'maxitoon'], categories: IDS, owned: [5, 5], startedAt: 100 }
 const draftOpens = 100 + DUEL_ANNOUNCE_SECONDS
 
-/** Le draft entier, un choix par seconde : l'ordre repart au premier jusqu'au dernier. */
+/** Le draft entier, un choix par seconde, chacun à son tour. */
 function draftMoves(duel: Duel = startDuel(setup)): DuelMove[] {
   const moves: DuelMove[] = []
   let at = draftOpens
   let current = duel
-  while (!draftComplete(current) && moves.length < 12) {
+  for (let seq = 1; seq <= 4; seq++) {
     at += 1
     const seat = current.order[current.picks.length % current.order.length]!
     const payload = IDS.find((id) => !current.picks.includes(id))!
-    const move: DuelMove = { seq: moves.length + 1, seat, kind: 'pick', payload, at }
+    const move: DuelMove = { seq, seat, kind: 'pick', payload, at }
     moves.push(move)
     current = replay(setup, moves, null).duel
   }
@@ -70,20 +69,20 @@ describe('le rejeu', () => {
     const picks = draftMoves()
     const done = replay(setup, picks, null)
     expect(done.duel.picks).toHaveLength(5)
-    expect(done.facts.filter((fact) => fact.kind === 'picked')).toHaveLength(5)
+    expect(done.facts.filter((fact) => fact.kind === 'picked')).toHaveLength(4)
 
     const opened = settle(done.duel, judge, done.duel.draftedAt! + DUEL_OPENING_SECONDS)
-    const word: DuelMove = { seq: picks.length + 1, seat: opened.turn!.player, kind: 'word', payload: answer(opened), at: opened.turn!.startedAt + 2 }
-    expect(replay(setup, [...picks, word], null).applied).toBe(5)
+    const word: DuelMove = { seq: 5, seat: opened.turn!.player, kind: 'word', payload: answer(opened), at: opened.turn!.startedAt + 2 }
+    expect(replay(setup, [...picks, word], null).applied).toBe(4)
     const played = replay(setup, [...picks, word], judge)
-    expect(played.applied).toBe(6)
+    expect(played.applied).toBe(5)
     expect(played.facts.at(-1)?.kind).toBe('solved')
   })
 
   it('donne la même partie à deux appareils, et ignore un coup du mauvais joueur', () => {
     const picks = draftMoves()
     const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
-    const wrong: DuelMove = { seq: picks.length + 1, seat: 1 - opened.turn!.player, kind: 'pass', payload: '', at: opened.turn!.startedAt + 1 }
+    const wrong: DuelMove = { seq: 5, seat: 1 - opened.turn!.player, kind: 'pass', payload: '', at: opened.turn!.startedAt + 1 }
     const one = replay(setup, [...picks, wrong], judge)
     const other = replay(setup, [...picks, wrong], judge)
     expect(one.duel).toEqual(other.duel)
@@ -93,8 +92,9 @@ describe('le rejeu', () => {
   it('met en scène une mort avant que la main reparte', () => {
     const picks = draftMoves()
     const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
-    const dies = opened.turn!.startedAt + DUEL_RESERVE_SECONDS
-    const timeout: DuelMove = { seq: picks.length + 1, seat: opened.turn!.player, kind: 'timeout', payload: '', at: dies }
+    // Les heures du duel ne tombent pas sur des entiers : la réserve est jugée au centième.
+    const dies = opened.turn!.startedAt + DUEL_RESERVE_SECONDS + 0.01
+    const timeout: DuelMove = { seq: 5, seat: opened.turn!.player, kind: 'timeout', payload: '', at: dies }
     const after = replay(setup, [...picks, timeout], judge)
     expect(after.facts.at(-1)?.kind).toBe('dead')
     expect(after.duel.phase).toBe('over')
@@ -138,7 +138,7 @@ describe('le meneur', () => {
     const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
     const zero = opened.turn!.startedAt + DUEL_RESERVE_SECONDS
     expect(driverMove(opened, judge, zero, {})).toBeNull()
-    expect(driverMove(opened, judge, zero + DUEL_GRACE_SECONDS, {})).toMatchObject({ seat: opened.turn!.player, kind: 'timeout' })
+    expect(driverMove(opened, judge, zero + DUEL_GRACE_SECONDS + 0.01, {})).toMatchObject({ seat: opened.turn!.player, kind: 'timeout' })
   })
 
   it('attend la fin de la mise en scène d’une mort', () => {

@@ -4,6 +4,7 @@ import type { AvatarChoice } from '../domain/avatar'
 import {
   draftComplete,
   draftPlayer,
+  drawnShownAt,
   duelPrompt,
   inspectFor,
   onlyChoice,
@@ -161,6 +162,8 @@ export interface DuelTable {
   fallenAt: number
   /** L'heure où le tirage de l'ouvreur commence. */
   openingAt: number
+  /** Combien des catégories tirées au sort sont déjà posées sur le draft. */
+  drawnShown: number
   rematchOpen: boolean
   leavers: readonly string[]
   openRematch(): void
@@ -734,6 +737,7 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
       ? HOUSE_BOTS.filter((bot) => !takenIds.has(bot.id) && !leavers.includes(bot.id)).map((bot) => ({ id: bot.id, name: bot.name, avatar: bot.avatar, bot: true, trait: bot.trait }))
       : candidates.filter((candidate) => !takenIds.has(candidate.id))
   const opensAt = duel ? openingAt(duel) : null
+  const drawnShown = duel ? drawnShownAt(duel, at) : 0
 
   return {
     mode,
@@ -767,6 +771,7 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     fallen: phase === 'deaths' && lastDeath ? lastDeath.player : null,
     fallenAt: lastDeath?.at ?? 0,
     openingAt: opensAt === null ? 0 : opensAt - DUEL_OPENING_SECONDS + DRAFT_HOLD_SECONDS,
+    drawnShown,
     rematchOpen: mode === 'local' ? table?.rematch === 'open' : !!table?.rematch,
     leavers,
     openRematch,

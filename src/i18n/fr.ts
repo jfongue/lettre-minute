@@ -868,8 +868,10 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     back: 'Retour au bilan',
     errorBack: 'Retour',
     announceTitle: 'Sélection des catégories',
-    draftRule: (picks: number, _drawn: number) =>
-      `${picks === 1 ? 'Une catégorie chacun' : `${picks} catégories chacun`} à son tour, dix secondes par choix : l’ordre repart au premier tant qu’il en manque.`,
+    draftRule: (picks: number, drawn: number) =>
+      `Chacun choisit ${picks === 1 ? 'une catégorie' : `${picks} catégories`} à son tour, dix secondes par choix.${
+        drawn === 0 ? '' : drawn === 1 ? ' Le sort ajoute la dernière.' : ` Le sort ajoute les ${drawn} dernières.`
+      }`,
     draftTitle: 'Choisis une catégorie',
     draftTurn: (name: string) => `${name} choisit…`,
     draftStep: (done: number, total: number) => `Choix ${done} sur ${total}`,

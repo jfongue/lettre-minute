@@ -109,7 +109,7 @@ function Lobby({ table }: { table: DuelTable }) {
         </h1>
         {counting || table.rematchOpen ? (
           <p className="note duel-lead" key={counting ? 'rule' : 'lead'}>
-            {counting ? t.duel.draftRule(shape.picks, 0) : t.duel.rematchLead}
+            {counting ? t.duel.draftRule(shape.picks, shape.drawn) : t.duel.rematchLead}
           </p>
         ) : null}
         {counting ? (
@@ -276,8 +276,11 @@ function Draft({ table }: { table: DuelTable }) {
   const duel = table.duel!
   const picker = table.picker
   const mine = table.myPickTurn
-  const { chosen: total } = draftShape(duel.players.length, duel.categories.length)
+  const { chosen: total, drawn } = draftShape(duel.players.length, duel.categories.length)
   const done = !picker
+  // Ce que l'écran a déjà posé : les choix des joueurs, puis les catégories que
+  // le sort a posées une à une — celles qui restent ne sont pas encore tombées.
+  const revealed = total + table.drawnShown
   const forcedLabel = table.forced ? categoryText(t, table.forced).label : ''
 
   // Mon tour de choisir s'annonce ; chaque choix des autres s'entend.
@@ -289,9 +292,18 @@ function Draft({ table }: { table: DuelTable }) {
     if (duel.picks.length > heardPicks.current && !done) sound.tile('glass', duel.picks.length)
     heardPicks.current = duel.picks.length
   }, [done, duel.picks.length])
+  // Chaque catégorie que le sort pose s'entend en tombant, pas toutes ensemble :
+  // c'est la pause entre deux qui fait le tirage.
+  const heardDraw = useRef(table.drawnShown)
+  useEffect(() => {
+    for (let index = heardDraw.current; index < table.drawnShown; index++) sound.tile('wood', 3 + index)
+    heardDraw.current = table.drawnShown
+  }, [table.drawnShown])
 
   const line = done
-    ? t.duel.draftDone
+    ? drawn > 0
+      ? t.duel.drawing
+      : t.duel.draftDone
     : table.forced
       ? t.duel.forced(forcedLabel)
       : mine
@@ -322,6 +334,19 @@ function Draft({ table }: { table: DuelTable }) {
               </li>
             )
           })}
+          {Array.from({ length: drawn }, (_, index) => {
+            const taken = index < table.drawnShown ? duel.picks[total + index] : undefined
+            const motif = taken ? categoryMotif(taken) : null
+            return (
+              <li
+                key={`drawn-${index}`}
+                className={`duel-order__slot duel-order__slot--luck${taken ? ' duel-order__slot--done' : ''}`}
+                style={motif ? ({ background: `var(--${motif.tint})`, color: `var(--${onTint(motif.tint)})` } as CSSProperties) : undefined}
+              >
+                {taken ? <CategoryIcon categoryId={taken} tint={onTint(motif!.tint)} className="duel-order__icon" /> : <span>?</span>}
+              </li>
+            )
+          })}
         </ol>
 
         <p className={`duel-turn${mine && !table.forced ? ' duel-turn--mine' : ''}`} aria-live="polite" key={line}>
@@ -340,7 +365,7 @@ function Draft({ table }: { table: DuelTable }) {
         <ul className="dealt dealt--pick">
           {table.pool.map((id, index) => {
             const place = duel.picks.indexOf(id)
-            const taken = place >= 0
+            const taken = place >= 0 && place < revealed
             const luck = taken && place >= total
             const whoIndex = taken && !luck ? (duel.order[place % duel.order.length] ?? 0) : -1
             const who = whoIndex >= 0 ? table.seats[whoIndex] : null

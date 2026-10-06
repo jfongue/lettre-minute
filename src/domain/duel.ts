@@ -18,7 +18,7 @@
  * découlent : rejouer les mêmes coups aux mêmes heures redonne la même partie
  * sur chaque appareil.
  */
-import { createRng } from './rng'
+import { createRng, shuffled } from './rng'
 import { createRun, inspect, promptKey, submit, type Judge, type KeptWord, type Prompt, type Run, type Verdict } from './run'
 import type { RarityTier } from './rarity'
 
@@ -28,9 +28,9 @@ export const DUEL_MAX_PLAYERS = 4
 export const DUEL_RESERVE_SECONDS = 30
 /** Passer son tour coûte ça, en plus du temps déjà passé à chercher. */
 export const DUEL_PASS_PENALTY_SECONDS = 5
-/** Le pool du draft : cinq catégories, toutes choisies à la main. */
+/** Le pool du draft : cinq catégories, les joueurs en choisissent le plus possible. */
 export const DUEL_POOL_SIZE = 5
-/** Ce qu'un joueur choisit au premier tour : le reste du pool revient au premier, à tour de rôle. */
+/** Les catégories que les joueurs choisissent eux-mêmes, tout compris. */
 export const DUEL_PICKED_SIZE = 4
 /** Ce qu'un mot validé rend à la réserve du joueur, selon son palier : de rien à deux secondes. */
 export const DUEL_TIME_BONUS: Readonly<Record<RarityTier, number>> = {
@@ -43,6 +43,12 @@ export const DUEL_TIME_BONUS: Readonly<Record<RarityTier, number>> = {
 export const DUEL_PICK_SECONDS = 10
 /** Une catégorie qui reste seule se prend d'office, le temps qu'on la voie partir. */
 export const DUEL_FORCED_PICK_SECONDS = 1.1
+/**
+ * Le sort pose une catégorie à la fois : le temps entre deux, pour que le
+ * tirage se voie. Les heures du domaine en découlent, donc chaque appareil
+ * regarde tomber les mêmes, à la même seconde.
+ */
+export const DUEL_DRAW_SECONDS = 0.6
 /**
  * Du dernier choix à la première manche : le draft reste lisible, l'ouvreur
  * est tiré, trois temps sonnent. L'écran découpe ce temps, le domaine le fixe.
@@ -70,17 +76,17 @@ export const DUEL_GRACE_SECONDS = 1
 export const DUEL_DEATH_PAUSE_SECONDS = 2.6
 
 /**
- * Combien de catégories le draft prend à la main : tout le pool. Chacun son
- * tour, dans l'ordre de la table, et l'ordre repart au premier tant qu'il en
- * manque — le dernier tour revient donc à qui a ouvert le draft.
+ * Chaque joueur choisit le même nombre de catégories, le plus grand tel que la
+ * table en choisisse au plus quatre : à deux, deux chacun ; à trois ou quatre,
+ * une chacun. Le reste du pool est tiré au hasard.
  */
-export function humanPicks(): number {
-  return DUEL_POOL_SIZE
-}
-
-/** Ce que chacun choisit au premier tour : la phrase d'annonce du draft s'en sert. */
 export function picksPerPlayer(players: number): number {
   return Math.max(1, Math.floor(DUEL_PICKED_SIZE / Math.max(1, players)))
+}
+
+/** Les catégories que les joueurs choisissent eux-mêmes, tout compris. */
+export function humanPicks(players: number): number {
+  return picksPerPlayer(players) * Math.max(1, players)
 }
 
 export type DuelPhase = 'draft' | 'play' | 'over'
@@ -190,9 +196,11 @@ export function onlyChoice(duel: Duel): string | null {
   return choices.length === 1 ? choices[0]! : null
 }
 
-/** La forme du draft : tout le pool se choisit à la main, à tour de rôle. */
-export function draftShape(players: number, categories: number): { picks: number; chosen: number } {
-  return { picks: picksPerPlayer(players), chosen: Math.min(DUEL_POOL_SIZE, categories) }
+/** Combien de catégories chacun choisit, et combien le sort en ajoute, à cette table. */
+export function draftShape(players: number, categories: number): { picks: number; chosen: number; drawn: number } {
+  const pool = Math.min(DUEL_POOL_SIZE, categories)
+  const chosen = Math.min(humanPicks(players), pool)
+  return { picks: picksPerPlayer(players), chosen, drawn: pool - chosen }
 }
 
 /** L'heure où le choix en cours sera fait d'office : par le sort, ou parce qu'il ne reste qu'une catégorie. */
@@ -206,22 +214,45 @@ export function draftChoices(duel: Duel): readonly string[] {
 }
 
 /**
- * Un choix de catégorie. Le pool se remplit à la main, un joueur après l'autre :
- * quand il est plein — ou que le vivier est épuisé —, `draftedAt` date la fin du
- * draft et `openDuel` ouvrira la première manche, une fois les dictionnaires du
- * pool chargés. Un choix hors du vivier, ou déjà pris, ne compte pas.
+ * Un choix de catégorie. Quand les joueurs ont fini de choisir, le hasard
+ * complète le pool, une catégorie à la fois — le pool n'est complet qu'une fois
+ * la dernière posée, d'où un `draftedAt` reculé de la durée du tirage. `openDuel`
+ * ouvre alors la première manche, une fois les dictionnaires du pool chargés —
+ * le draft n'en a pas besoin. Un choix hors du vivier, ou déjà pris, ne compte
+ * pas.
  */
 export function pickCategory(duel: Duel, categoryId: string, at = duel.pickSince): Duel {
   if (draftComplete(duel) || duel.phase !== 'draft' || duel.picks.includes(categoryId) || !duel.categories.includes(categoryId)) return duel
 
   const picks = [...duel.picks, categoryId]
-  if (picks.length >= DUEL_POOL_SIZE || duel.categories.every((id) => picks.includes(id))) return { ...duel, picks, pickSince: at, draftedAt: at }
-  return { ...duel, picks, pickSince: at }
+  const due = humanPicks(duel.players.length)
+  // Un vivier plus court que le pool (catalogue réduit) joue avec ce qu'il a
+  // plutôt que de rester bloqué au draft.
+  if (picks.length < due && duel.categories.some((id) => !picks.includes(id))) return { ...duel, picks, pickSince: at }
+
+  const rest = duel.categories.filter((id) => !picks.includes(id))
+  const drawn = shuffled(createRng(mix(duel.seed, 0, 0x64726166)), rest).slice(0, Math.max(0, DUEL_POOL_SIZE - picks.length))
+  return { ...duel, picks: [...picks, ...drawn], pickSince: at, draftedAt: at + drawn.length * DUEL_DRAW_SECONDS }
 }
 
 /** Le pool est-il complet ? Il ne reste alors qu'à charger ses dictionnaires. */
 export function draftComplete(duel: Duel): boolean {
   return duel.phase === 'draft' && duel.picks.length >= Math.min(DUEL_POOL_SIZE, duel.categories.length)
+}
+
+/**
+ * Combien des catégories tirées au sort sont déjà posées, à cette heure : la
+ * première tombe une pause après le dernier choix, les suivantes une par pause.
+ * L'écran n'en montre pas plus — un tirage posé d'un coup ne se verrait pas — et
+ * les mêmes tombent au même instant sur chaque appareil.
+ */
+export function drawnShownAt(duel: Duel, at: number): number {
+  if (duel.draftedAt === null) return 0
+  const chosen = Math.min(humanPicks(duel.players.length), duel.picks.length)
+  const drawn = duel.picks.length - chosen
+  let shown = 0
+  for (let index = 0; index < drawn; index++) if (at >= duel.pickSince + (index + 1) * DUEL_DRAW_SECONDS) shown = index + 1
+  return shown
 }
 
 /** L'heure de la première manche, une fois le pool complet. */

@@ -9,8 +9,9 @@ import {
   draftChoices,
   draftComplete,
   draftShape,
-  draftPlayer,
+  drawnShownAt,
   DUEL_DEATH_PAUSE_SECONDS,
+  DUEL_DRAW_SECONDS,
   DUEL_FLOOR_SECONDS,
   DUEL_FORCED_PICK_SECONDS,
   DUEL_GRACE_SECONDS,
@@ -169,10 +170,11 @@ describe('les choix d’office', () => {
     expect(onlyChoice(pickCategory(duel, 'villes'))).toBeNull()
   })
 
-  it('remplit tout le pool à la main, sans tirage', () => {
-    expect(draftShape(2, 5)).toEqual({ picks: 2, chosen: 5 })
-    expect(draftShape(4, 8)).toEqual({ picks: 1, chosen: 5 })
-    expect(draftShape(2, 3)).toEqual({ picks: 2, chosen: 3 })
+  it('dit combien chacun choisit et combien le sort ajoute', () => {
+    expect(draftShape(2, 5)).toEqual({ picks: 2, chosen: 4, drawn: 1 })
+    expect(draftShape(3, 8)).toEqual({ picks: 1, chosen: 3, drawn: 2 })
+    expect(draftShape(4, 8)).toEqual({ picks: 1, chosen: 4, drawn: 1 })
+    expect(draftShape(2, 3)).toEqual({ picks: 2, chosen: 3, drawn: 0 })
   })
 })
 
@@ -279,22 +281,28 @@ describe('les heures du draft', () => {
     expect(pickDeadline(duel)).toBe(8 + DUEL_PICK_SECONDS)
     expect(openingAt(duel)).toBeNull()
     for (const [index, id] of ['pays', 'villes', 'metiers'].entries()) duel = pickCategory(duel, id, 9 + index)
-    // Le cinquième choix revient à qui a ouvert le draft : il ne reste qu'une
-    // catégorie, elle se prend d'office, et c'est elle qui date la fin.
-    expect(draftComplete(duel)).toBe(false)
-    expect(draftPlayer(duel)).toBe(duel.order[0])
-    expect(onlyChoice(duel)).not.toBeNull()
-    duel = pickCategory(duel, 'sports', 12)
     expect(draftComplete(duel)).toBe(true)
-    expect(duel.draftedAt).toBe(12)
-    expect(openingAt(duel)).toBe(12 + DUEL_OPENING_SECONDS)
-    expect(openDuel(duel, judge).turn?.startedAt).toBe(12 + DUEL_OPENING_SECONDS)
+    // La catégorie tirée au sort tombe une pause après le dernier choix : le
+    // pool n'est complet qu'à ce moment-là, et l'ouverture suit.
+    expect(duel.draftedAt).toBe(11 + DUEL_DRAW_SECONDS)
+    expect(openingAt(duel)).toBe(11 + DUEL_DRAW_SECONDS + DUEL_OPENING_SECONDS)
+    expect(openDuel(duel, judge).turn?.startedAt).toBe(11 + DUEL_DRAW_SECONDS + DUEL_OPENING_SECONDS)
   })
 
   it('laisse moins de temps à une catégorie restée seule', () => {
     let duel = createDuel({ seed: 1, playerIds: ['me', 'maxitoon'], categories: IDS.slice(0, 3), at: 0 })
     duel = pickCategory(pickCategory(duel, 'animaux', 1), 'pays', 2)
     expect(pickDeadline(duel)).toBe(2 + DUEL_FORCED_PICK_SECONDS)
+  })
+
+  it('pose les catégories du sort une à une, une pause chacune', () => {
+    // Trois joueurs : trois choix, puis les deux dernières au sort.
+    let duel = createDuel({ seed: 3, playerIds: ['me', 'maxitoon', 'terretciel'], categories: IDS, at: 0 })
+    for (const [index, id] of ['animaux', 'pays', 'villes'].entries()) duel = pickCategory(duel, id, 1 + index)
+    expect(drawnShownAt(duel, 3)).toBe(0)
+    expect(drawnShownAt(duel, 3 + DUEL_DRAW_SECONDS)).toBe(1)
+    expect(drawnShownAt(duel, 3 + 2 * DUEL_DRAW_SECONDS)).toBe(2)
+    expect(duel.draftedAt).toBe(3 + 2 * DUEL_DRAW_SECONDS)
   })
 })
 
