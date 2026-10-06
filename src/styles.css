@@ -10,6 +10,8 @@
 
   --red: #e0402a;
   --blue: #1f48c7;
+  /* Le fond des boutons bleus, seul : --blue sert aussi de couleur de texte. */
+  --blue-action: #1f48c7;
   --yellow: #f4b41a;
   --green: #17614c;
   --pink: #f1a3b3;
@@ -43,7 +45,8 @@
     --rule: rgba(242, 236, 223, 0.16);
 
     --red: #f0553c;
-    --blue: #4468ec;
+    --blue-action: #3b5ad4;
+  --blue: #4468ec;
     --yellow: #f7c230;
     --green: #2c9a78;
     --pink: #f3a9b8;
@@ -60,6 +63,7 @@
   --rule: rgba(242, 236, 223, 0.16);
 
   --red: #f0553c;
+  --blue-action: #3b5ad4;
   --blue: #4468ec;
   --yellow: #f7c230;
   --green: #2c9a78;
@@ -355,15 +359,24 @@ button.challenge-past::after {
 }
 
 .btn--blue {
-  background: var(--blue);
-  border-color: var(--blue);
+  background: var(--blue-action);
+  border-color: var(--blue-action);
   color: var(--cream);
 }
 
 .btn--red {
   background: var(--red);
   border-color: var(--red);
-  color: var(--cream);
+  /* Comme le tag jaune : le crème sur le rouge passait sous le seuil de lisibilité. */
+  color: var(--black);
+}
+
+/* Le bouton de validation quand il n'y a rien à valider : il garde l'air
+   inerte, mais le doigt dessus doit déclencher le refus, pas rien. */
+.btn--idle {
+  background: var(--paper-2);
+  border-color: var(--paper-2);
+  color: var(--ink-faint);
 }
 
 .btn--ghost {
@@ -375,7 +388,8 @@ button.challenge-past::after {
   background: transparent;
   border-color: transparent;
   color: var(--ink);
-  min-height: 2.25rem;
+  /* Cible tactile : ces boutons collent au champ, sous le pouce. */
+  min-height: 2.75rem;
   padding: 0.3rem 0.5rem;
   font-size: 0.85rem;
   font-weight: 600;
@@ -1039,6 +1053,12 @@ animation: clock-bonus 500ms var(--ease-out);
 
 .verdict--valid {
   color: var(--green);
+  font-weight: 700;
+}
+
+/* Un refus se voit : même force qu'une trouvaille, sans en prendre la couleur. */
+.verdict--refused {
+  color: var(--ink);
   font-weight: 700;
 }
 
@@ -8120,7 +8140,7 @@ body[data-words='board'] .offer-pop-layer {
 
 .hidden-answers-toggle {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   align-items: center;
   gap: 0.6rem;
   width: 100%;
@@ -8144,6 +8164,14 @@ body[data-words='board'] .offer-pop-layer {
   color: var(--paper);
   font-weight: 800;
   text-align: center;
+}
+
+/* Ce qu'il reste à révéler, à côté du nombre de mots cachés. */
+.peek-left {
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .hidden-answers-chevron {

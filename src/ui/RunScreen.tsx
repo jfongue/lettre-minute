@@ -16,6 +16,10 @@ import { useFeature } from './features'
 const URGENT_FROM = 10
 /** Célérité waits this long after the last key, so « Chat » does not cut « Chatte » short. */
 const CELERITY_SETTLE_MS = 140
+/** Un refus ne se prononce qu'une fois les doigts arrêtés : juger un mot en cours était faux. */
+const REFUSED_SETTLE_MS = 350
+/** Le gain d'un mot reste lisible ce temps, même si la frappe du suivant a repris. */
+const CHEER_HOLD_MS = 1200
 
 // Tapping a button would blur the field and fold the phone keyboard away, only
 // for the next prompt to open it again: the page would jump on every tap.
@@ -305,9 +309,10 @@ else if (doubleSkip) sound.power('double-skip')
           {run.joker && <span className="joker-card" key={run.joker.key} aria-hidden="true" />}
         </div>
         <Feedback
-flawlessTriggered={flawless && run.flawlessStreak > 0 && run.flawlessStreak % 3 === 0}
+          flawlessTriggered={flawless && run.flawlessStreak > 0 && run.flawlessStreak % 3 === 0}
           live={live}
           cheer={cheer}
+          shaking={shaking}
           letter={run.prompt.letter}
           draft={draft}
           proposed={proposed.includes(normalizeWord(draft))}
@@ -324,7 +329,12 @@ flawlessTriggered={flawless && run.flawlessStreak > 0 && run.flawlessStreak % 3 
           >
             {run.chatter > 0 ? t.powers.chatterLeave : run.freeSkipReady ? t.powers.doubleSkipFree : t.run.skip(skipPenalty(run))}
           </button>
-          <button type="submit" className="btn btn--blue" onPointerDown={keepFocus} disabled={!accepted && !spell}>
+          <button
+            type="submit"
+            className={`btn btn--blue${!accepted && !spell ? ' btn--idle' : ''}`}
+            onPointerDown={keepFocus}
+            aria-disabled={!accepted && !spell}
+          >
             {t.run.submit}
           </button>
         </div>
@@ -337,6 +347,7 @@ function Feedback({
 flawlessTriggered,
   live,
   cheer,
+  shaking,
   letter,
   draft,
   proposed,
@@ -346,6 +357,7 @@ flawlessTriggered,
 flawlessTriggered: boolean
   live: Verdict | null
   cheer: Cheer | null
+  shaking: boolean
   letter: string
   draft: string
   proposed: boolean
@@ -363,29 +375,53 @@ flawlessTriggered: boolean
       {t.run.propose}
     </button>
   )
-  // The last find takes the verdict's line until the player types again: lower
-  // down, the phone keyboard would hide it.
-  // Points and rarity are only revealed here, once the word is validated.
-  if (!live && cheer)
-    return (
-      <p className={`cheer verdict${cheer.auto ? ' cheer--auto' : ''}${cheer.boost > 1 ? ' cheer--boost' : ''}`} key={cheer.display}>
-        {cheer.auto && <PowerBadge id="celerity" className="cheer-power" />}
-        {cheer.joker && <PowerBadge id="joker" className="cheer-power" />}
-        {cheer.approximate && <span aria-hidden="true">≈ </span>}
-        <span className="cheer-word">{capitalized(cheer.display)}</span>
-        {ours(cheer.display) && <MineMark label={t.requests.mine} />}
-        <span className="cheer-points">+{cheer.points + (flawlessTriggered ? 10 : 0)}</span>
-{flawlessTriggered && <PowerBadge id="flawless" className="cheer-power" />}
-        {cheer.joker ? (
-          <span className="note">{t.powers.joker}</span>
-        ) : cheer.approximate ? (
-          <span className="note">{t.run.approximate}</span>
-        ) : (
-          <TierTag tier={cheer.tier} />
-        )}
-        {cheer.boost > 1 && <span className="cheer-boost">{t.powers.boost(cheer.boost)}</span>}
-      </p>
-    )
+  // A refusal only judges what is written: while the fingers move it says
+  // nothing — it used to call every prefix "unknown", and the player learnt to
+  // ignore the only feedback line of the run.
+  const [typing, setTyping] = useState(draft.trim() !== '')
+  useEffect(() => {
+    if (draft.trim() === '') {
+      setTyping(false)
+      return
+    }
+    setTyping(true)
+    const timer = setTimeout(() => setTyping(false), REFUSED_SETTLE_MS)
+    return () => clearTimeout(timer)
+  }, [draft])
+  // The last find holds the line this long, the next word's typing included:
+  // this is the only place the rarity is ever said.
+  const [held, setHeld] = useState<Cheer | null>(cheer)
+  useEffect(() => {
+    if (!cheer) return
+    setHeld(cheer)
+    const timer = setTimeout(() => setHeld(null), CHEER_HOLD_MS)
+    return () => clearTimeout(timer)
+  }, [cheer])
+  const refused = live !== null && (live.kind === 'wrong-letter' || live.kind === 'already' || live.kind === 'unknown')
+  const refusedMark = <span aria-hidden="true">✗ </span>
+  const cheerLine = (shown: Cheer) => (
+    <p className={`cheer verdict${shown.auto ? ' cheer--auto' : ''}${shown.boost > 1 ? ' cheer--boost' : ''}`} key={shown.display}>
+      {shown.auto && <PowerBadge id="celerity" className="cheer-power" />}
+      {shown.joker && <PowerBadge id="joker" className="cheer-power" />}
+      {shown.approximate && <span aria-hidden="true">≈ </span>}
+      <span className="cheer-word">{capitalized(shown.display)}</span>
+      {ours(shown.display) && <MineMark label={t.requests.mine} />}
+      <span className="cheer-points">+{shown.points + (flawlessTriggered ? 10 : 0)}</span>
+      {flawlessTriggered && <PowerBadge id="flawless" className="cheer-power" />}
+      {shown.joker ? (
+        <span className="note">{t.powers.joker}</span>
+      ) : shown.approximate ? (
+        <span className="note">{t.run.approximate}</span>
+      ) : (
+        <TierTag tier={shown.tier} />
+      )}
+      {shown.boost > 1 && <span className="cheer-boost">{t.powers.boost(shown.boost)}</span>}
+    </p>
+  )
+  // The line keeps the find unless a refusal has to take it: lower down, the
+  // phone keyboard would hide it.
+  if (refused && typing && !shaking) return held ? cheerLine(held) : <p className="verdict">&nbsp;</p>
+  if (held && !refused) return cheerLine(held)
   if (!live || live.kind === 'empty') return <p className="verdict">&nbsp;</p>
 
   switch (live.kind) {
@@ -436,12 +472,13 @@ flawlessTriggered: boolean
         </p>
       )
     case 'wrong-letter':
-      return <p className="verdict">{t.run.startsWith(letter)}</p>
+      return <p className="verdict verdict--refused">{refusedMark}{t.run.startsWith(letter)}</p>
     case 'already':
-      return <p className="verdict">{t.run.already}</p>
+      return <p className="verdict verdict--refused">{refusedMark}{t.run.already}</p>
     case 'unknown':
       return (
-        <p className="verdict">
+        <p className="verdict verdict--refused">
+          {refusedMark}
           {t.run.unknown}
           {proposal}
         </p>
