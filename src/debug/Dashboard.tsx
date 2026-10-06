@@ -7,8 +7,8 @@ import { categoryText, useT } from '../i18n'
 import { fetchDashboard, fetchDashboardSlot } from '../lib/cloud'
 import { Avatar } from '../ui/Avatar'
 import { Card, Kpi, Legend, Section, Stat, Table } from './board'
-import { ago, decimal, fmt, pct, share } from './format'
-import type { DayRow, HourRow, Invites, PromptRow, Prompts, SlotEntry, Snapshot } from './snapshot'
+import { ago, decimal, fmt, pct } from './format'
+import type { DayRow, HourRow, Invites, SlotEntry, Snapshot } from './snapshot'
 
 /*
  * Le tableau de bord de l'administrateur : cinq tapes sur « Classements »
@@ -441,25 +441,10 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
               sub={(category) => `${fmt(category.points)} pts`}
             />
           </Card>
-          <Card title="Mots les plus écrits">
-            <Bars
-              items={d.runs.top_words}
-              name={(word) => (
-                <>
-                  <small>{categoryText(t, word.category).label}</small>
-                  {word.word}
-                </>
-              )}
-              value={(word) => word.n}
-              color="var(--green)"
-            />
-          </Card>
         </div>
       </Section>
 
-      {d.prompts && <PromptsSection prompts={d.prompts} />}
-
-      {d.invites && <InvitesSection invites={d.invites} onPick={pick('Invitations', INVITES)} />}
+            {d.invites && <InvitesSection invites={d.invites} onPick={pick('Invitations', INVITES)} />}
 
       <Section title="Joueurs" mark="var(--pink)">
         <div className="dashboard-grid">
@@ -551,82 +536,6 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
 }
 
 /* -------------------------------------------------------------- sections */
-
-function PromptsSection({ prompts }: { prompts: Prompts }) {
-  const t = useT()
-  const [order, setOrder] = useState<'passed' | 'rate'>('passed')
-  const [whole, setWhole] = useState(false)
-  const rows = order === 'passed' ? prompts.most_passed : prompts.worst_rate
-  const shown = whole ? rows : rows.slice(0, 15)
-  const many = prompts.langs.length > 1
-  const pair = (row: PromptRow) => (
-    <>
-      <b className="dashboard-letter">{row.letter}</b> {categoryText(t, row.category).label}
-      {many && <span className="dashboard-tag">{row.lang.toUpperCase()}</span>}
-    </>
-  )
-  return (
-    <Section
-      title="Couples lettre + catégorie"
-      mark="var(--yellow)"
-      aside={
-        <div className="layer-tabs dashboard-range" role="tablist" aria-label="Ordre">
-          {(['passed', 'rate'] as const).map((one) => (
-            <button
-              key={one}
-              type="button"
-              role="tab"
-              aria-selected={order === one}
-              className={`layer-tab${order === one ? ' layer-tab--on' : ''}`}
-              onClick={() => setOrder(one)}
-            >
-              {one === 'passed' ? 'Plus passés' : 'Taux de passe'}
-            </button>
-          ))}
-        </div>
-      }
-    >
-      <div className="dashboard-stats">
-        {prompts.langs.map((lang) => (
-          <Stat
-            key={lang.lang}
-            value={pct(lang.passed, lang.dealt)}
-            label={`passés${many ? ` en ${lang.lang.toUpperCase()}` : ''} · ${fmt(lang.dealt)} tirages, ${fmt(lang.pairs)} couples`}
-          />
-        ))}
-      </div>
-      {rows.length ? (
-        <Table head={['Couple', 'Tirages', 'Apparition', 'Passés', 'Taux de passe', 'Mots / tirage']}>
-          {shown.map((row) => (
-            <tr key={`${row.lang}:${row.category}:${row.letter}`}>
-              <td>{pair(row)}</td>
-              <td className="n">{fmt(row.dealt)}</td>
-              <td className="n">{share(row.dealt, row.lang_dealt)}</td>
-              <td className="n">{fmt(row.passed)}</td>
-              <td className="n">
-                <span className="dashboard-cell" style={{ background: `color-mix(in srgb, var(--red) ${Math.round((row.passed / row.dealt) * 60)}%, transparent)` }}>
-                  {pct(row.passed, row.dealt)}
-                </span>
-              </td>
-              <td className="n">{decimal(Math.round((row.words / row.dealt) * 10) / 10)}</td>
-            </tr>
-          ))}
-        </Table>
-      ) : (
-        <div className="dashboard-empty">Aucun couple assez tiré encore.</div>
-      )}
-      {rows.length > 15 && (
-        <button type="button" className="btn btn--quiet dashboard-more" onClick={() => setWhole(!whole)}>
-          {whole ? 'Voir moins' : `Voir les ${rows.length} couples`}
-        </button>
-      )}
-      <p className="note">
-        Depuis toujours, parties seules seulement : les compteurs du tirage ne savent pas qui a joué. « Apparition » : part des tirages de sa langue.
-        {order === 'rate' && ' Taux de passe classé sur les couples tirés au moins dix fois.'}
-      </p>
-    </Section>
-  )
-}
 
 function InvitesSection({ invites: v, onPick }: { invites: Invites; onPick(row: Day): void }) {
   const sent = v.mails + v.shares
