@@ -4,6 +4,7 @@ import { availableCategoryIds, loadPack } from '../data/packs'
 import { CATALOGUE } from '../domain/catalogue'
 import { letterShares } from '../domain/run'
 import { normalizeWord, initialOf } from '../domain/text'
+import { acceptable } from '../domain/wordShape'
 import type { WordPack } from '../domain/words'
 import { LOCALES, categoryText, useT } from '../i18n'
 import { fetchAdminWords, forceRemoveWord, proposeBan, proposeWord, type BanOutcome } from '../lib/cloud'
@@ -1010,10 +1011,16 @@ function AddWordCard({
   const t = useT()
   const [word, setWord] = useState(EMPTY)
   const [pick, setPick] = useState(category || categories[0] || EMPTY)
-  const [step, setStep] = useState<'ask' | 'busy' | 'sent' | 'kept'>('ask')
+  const [step, setStep] = useState<'ask' | 'busy' | 'sent' | 'kept' | 'invalid'>('ask')
   useBackDismiss(onClose)
 
   const confirm = async () => {
+    // Une forme que l'import jetterait — « M », « C&A » — serait refusée pour
+    // toujours : elle ne doit pas coûter trois votes et 150 XP.
+    if (!acceptable(word.trim())) {
+      setStep('invalid')
+      return
+    }
     setStep('busy')
     setStep((await onAdd(lang, pick, word)) ? 'sent' : 'kept')
   }
@@ -1072,7 +1079,9 @@ function AddWordCard({
             <p>
               {step === 'sent'
                 ? 'Le mot attend les votes des modérateurs dans « Mes demandes » — rien n’est validé depuis cet écran.'
-                : 'Gardé sur cet appareil : il partira à la prochaine connexion, et rejoindra alors la même file.'}
+                : step === 'invalid'
+                  ? 'Ce mot ne peut pas entrer au dictionnaire : deux lettres au moins, puis des lettres, un espace, un tiret ou une apostrophe — pas de chiffre, de parenthèse ni de ponctuation.'
+                  : 'Gardé sur cet appareil : il partira à la prochaine connexion, et rejoindra alors la même file.'}
             </p>
             <button type="button" className="btn btn--ghost btn--block" onClick={onClose}>
               Fermer
