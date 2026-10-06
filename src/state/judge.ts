@@ -4,7 +4,7 @@ import type { Spell } from '../domain/powers'
 import { countOf } from '../domain/progression'
 import { promptKey, type Judge } from '../domain/run'
 import { compactWord } from '../domain/text'
-import { commonWord, findWord, knownByLetter, type WordPack } from '../domain/words'
+import { commonWord, findWord, knownByLetter, mirrorPack, type WordPack } from '../domain/words'
 
 export interface UsageSource {
   /** Times the player answered this word before, from the local profile. */
@@ -29,9 +29,14 @@ export function createJudge(
   spells?: Readonly<Record<Spell, readonly string[]>>,
   records?: Readonly<Record<string, PromptRecord>>,
   damped?: Readonly<Record<string, number>>,
+  edge: 'first' | 'last' = 'first',
 ): Judge {
   const byId = new Map(packs.map((pack) => [pack.categoryId, pack]))
-  const known = new Map(packs.map((pack) => [pack.categoryId, knownByLetter(pack)]))
+  // Un mode renversé juge sur la dernière lettre : son dictionnaire est relu
+  // par la fin une fois, plutôt qu'à chaque frappe, et ses lettres tirées sont
+  // celles qui finissent vraiment un mot — M, parce qu'il y a le Vietnam.
+  const searchById = edge === 'last' ? new Map(packs.map((pack) => [pack.categoryId, mirrorPack(pack)])) : byId
+  const known = new Map(packs.map((pack) => [pack.categoryId, knownByLetter(pack, edge)]))
   const letters = new Map([...known].map(([id, counts]) => [id, [...counts.keys()].sort()]))
   // One pass per category, on the first pair drawn from it: the average every
   // pair of that category is judged against.
@@ -45,8 +50,9 @@ export function createJudge(
       },
     }),
     find(categoryId, word, tolerance) {
-      const pack = byId.get(categoryId)
-      return pack ? findWord(pack, word, tolerance) : null
+      const pack = searchById.get(categoryId)
+      const typed = edge === 'last' ? [...compactWord(word)].reverse().join('') : word
+      return pack ? findWord(pack, typed, tolerance) : null
     },
     common(categoryId, letter, played) {
       const pack = byId.get(categoryId)

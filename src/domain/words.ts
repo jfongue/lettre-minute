@@ -1,4 +1,4 @@
-import { compactWord, initialOf, initialOfNormalized, normalizeWord } from './text'
+import { compactWord, finalOf, initialOf, initialOfNormalized, normalizeWord } from './text'
 import { COMMUNITY_NOTORIETY } from './rarity'
 
 export interface WordEntry {
@@ -311,18 +311,45 @@ export function findWord(pack: WordPack, raw: string, tolerance = 1): WordMatch 
  */
 export const KNOWN_FAME = 0.4
 
-/** Letter → how many base words on it are known (`KNOWN_FAME`): what a prompt's odds are drawn from. */
-export function knownByLetter(pack: WordPack): Map<string, number> {
+/**
+ * Letter → how many base words on it are known (`KNOWN_FAME`): what a prompt's
+ * odds are drawn from. `edge` is the letter a question constrains: a reversed
+ * mode counts its words by their last letter, so M has a Vietnam to answer.
+ */
+export function knownByLetter(pack: WordPack, edge: 'first' | 'last' = 'first'): Map<string, number> {
   const known = new Map<string, number>()
   for (const entry of pack.entries.values()) {
     // Fame first: it is cheap, and turns most of the pack away before a normalization.
     if (rawFame(entry) < KNOWN_FAME) continue
     const normalized = normalizeWord(entry.display)
     if (entry.key !== normalized) continue
-    const letter = initialOfNormalized(normalized)
+    const letter = edge === 'last' ? finalOf(normalized) : initialOfNormalized(normalized)
     if (letter !== '') known.set(letter, (known.get(letter) ?? 0) + 1)
   }
   return known
+}
+
+/**
+ * Le dictionnaire lu par la fin : chaque mot rangé sous sa dernière lettre,
+ * écrit à l'envers. C'est ce que `findWord` et sa tolérance interrogent pour
+ * juger une question renversée — un mot tapé à l'envers s'y cherche comme
+ * n'importe quel autre, et la distance d'édition ne change pas.
+ */
+export function mirrorPack(pack: WordPack): WordPack {
+  const backwards = (word: string) => [...word].reverse().join('')
+  const entries = new Map<string, WordEntry>()
+  const counts = new Map<string, number>()
+  const byLetter = new Map<string, string[]>()
+  for (const [word, entry] of pack.entries) {
+    const mirrored = backwards(word)
+    entries.set(mirrored, entry)
+    const letter = initialOf(mirrored)
+    if (letter === '') continue
+    byLetter.set(letter, [...(byLetter.get(letter) ?? []), mirrored])
+    // Inflected forms are not counted, exactly as in `buildWordPack`.
+    if (entry.key === normalizeWord(entry.display)) counts.set(letter, (counts.get(letter) ?? 0) + 1)
+  }
+  return { categoryId: pack.categoryId, entries, counts, byLetter }
 }
 
 export function lettersWithEnough(pack: WordPack, minimum: number): string[] {

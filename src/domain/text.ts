@@ -50,6 +50,15 @@ export function initialOf(raw: string): string {
   return initialOfNormalized(normalizeWord(raw))
 }
 
+/**
+ * La dernière lettre d'une réponse, sur laquelle un mode renversé la juge :
+ * « Vietnam » répond à un M là où `initialOf` demanderait un V.
+ */
+export function finalOf(raw: string): string {
+  const letters = compactWord(raw).match(/[a-z]/g)
+  return letters ? letters[letters.length - 1]!.toUpperCase() : ''
+}
+
 /** `initialOf`, for a word already through `normalizeWord`. */
 export function initialOfNormalized(normalized: string): string {
   const first = normalized.match(/[a-z]/)
