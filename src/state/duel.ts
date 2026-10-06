@@ -15,6 +15,7 @@ import {
   DUEL_MAX_PLAYERS,
   DUEL_MIN_PLAYERS,
   DUEL_OPENING_SECONDS,
+  DUEL_PASS_PENALTY_SECONDS,
   type BotProfile,
   type Duel,
 } from '../domain/duel'
@@ -800,9 +801,10 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
   )
 
   const pass = useCallback(() => {
-    if (!myTurn) return
+    if (!duel || !myTurn) return
+    if (reserveSeconds(duel, myIndex, at) < DUEL_PASS_PENALTY_SECONDS) return
     void post({ seat: myIndex, kind: 'pass', payload: '' })
-  }, [myIndex, myTurn, post])
+  }, [at, duel, myIndex, myTurn, post])
 
   const hold = useCallback((raw: string) => {
     pending.current = raw

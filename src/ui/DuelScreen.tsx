@@ -677,6 +677,8 @@ function Play({ table }: { table: DuelTable }) {
   const turn = duel.turn
   const clockAt = table.at
   const seconds = reserveOf(duel, me, clockAt)
+  // Le passe se paie 5 s : sous la pénalité, le bouton ne s'offre plus.
+  const canPass = mine && seconds >= DUEL_PASS_PENALTY_SECONDS
   const critical = mine && seconds <= LOW_SECONDS && !frozen
   const urgent = mine && seconds <= 10
   const shown = Math.ceil(seconds)
@@ -826,7 +828,7 @@ function Play({ table }: { table: DuelTable }) {
                 spellCheck={false}
                 enterKeyHint="done"
                 onKeyDown={(event) => {
-                  if (event.key === 'Escape' && !event.repeat && mine) {
+                  if (event.key === 'Escape' && !event.repeat && canPass) {
                     event.preventDefault()
                     sound.skipped()
                     table.pass()
@@ -847,7 +849,7 @@ function Play({ table }: { table: DuelTable }) {
               <button
                 type="button"
                 className="btn btn--ghost"
-                disabled={!mine}
+                disabled={!canPass}
                 onClick={() => {
                   armSound()
                   sound.skipped()

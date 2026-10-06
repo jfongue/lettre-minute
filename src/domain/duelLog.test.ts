@@ -11,6 +11,7 @@ import {
   DUEL_DEATH_PAUSE_SECONDS,
   DUEL_GRACE_SECONDS,
   DUEL_OPENING_SECONDS,
+  DUEL_PASS_PENALTY_SECONDS,
   DUEL_PICK_SECONDS,
   DUEL_RESERVE_SECONDS,
   type BotProfile,
@@ -91,6 +92,15 @@ describe('le rejeu', () => {
     expect(one.facts.some((fact) => fact.kind === 'passed')).toBe(false)
   })
 
+  it('ne paie pas un passe que la réserve ne couvre pas : la main reste', () => {
+    const picks = draftMoves()
+    const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
+    const short: DuelMove = { seq: 5, seat: opened.turn!.player, kind: 'pass', payload: '', at: opened.turn!.startedAt + DUEL_RESERVE_SECONDS - 2 }
+    const after = replay(setup, [...picks, short], judge)
+    expect(after.duel).toEqual(replay(setup, picks, judge).duel)
+    expect(after.facts.some((fact) => fact.kind === 'passed')).toBe(false)
+  })
+
   it('laisse un conseil au draft sans toucher à la table, et refuse celui qui choisit', () => {
     const duel = startDuel(setup)
     const picker = draftPlayer(duel)
@@ -156,6 +166,18 @@ describe('le meneur', () => {
     const bots = { [seat]: { ...bot, id: opened.players[seat]!.id } }
     expect(driverMove(opened, judge, opened.turn!.startedAt + 0.5, bots)).toBeNull()
     expect(driverMove(opened, judge, opened.turn!.startedAt + 4, bots)).toMatchObject({ seat, kind: 'word' })
+  })
+
+  it('n’annonce pas un passe que le joueur maison ne peut pas payer : il meurt à zéro', () => {
+    const picks = draftMoves()
+    const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
+    const seat = opened.turn!.player
+    // Le robot hérite d'une réserve sous la pénalité, et ne trouvera rien.
+    const thin: Duel = { ...opened, players: opened.players.map((player, index) => (index === seat ? { ...player, reserve: DUEL_PASS_PENALTY_SECONDS - 1 } : player)) }
+    const bots = { [seat]: { ...bot, id: thin.players[seat]!.id, answerChance: 0 } }
+    expect(driverMove(thin, judge, thin.turn!.startedAt + 4.5, bots)).toBeNull()
+    const zero = thin.turn!.startedAt + DUEL_PASS_PENALTY_SECONDS - 1
+    expect(driverMove(thin, judge, zero + DUEL_GRACE_SECONDS + 0.01, bots)).toMatchObject({ seat, kind: 'timeout' })
   })
 
   it('ne déclare le temps écoulé d’un absent qu’après la marge', () => {

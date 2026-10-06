@@ -1,7 +1,8 @@
 /**
  * Le duel en direct : deux à quatre joueurs, chacun son tour, une réserve de
- * 30 s qui ne court que pendant le sien. Passer coûte 5 s de plus, un mot
- * validé en rend selon son palier. Le premier dont la réserve tombe à zéro
+ * 30 s qui ne court que pendant le sien. Passer coûte 5 s de plus, qu'il faut
+ * donc avoir en main — et la réserve ne descend jamais sous son plancher. Un
+ * mot validé en rend selon son palier. Le premier dont la réserve tombe à zéro
  * meurt ; le dernier debout gagne, les autres se classent à l'ordre des morts.
  * Le temps est la seule monnaie du duel : les points du solo n'y décident rien,
  * et l'interface ne les montre pas.
@@ -26,7 +27,11 @@ export const DUEL_MIN_PLAYERS = 2
 export const DUEL_MAX_PLAYERS = 4
 /** La réserve de chacun, en secondes, la même à deux comme à quatre. */
 export const DUEL_RESERVE_SECONDS = 30
-/** Passer son tour coûte ça, en plus du temps déjà passé à chercher. */
+/**
+* Passer son tour coûte ça, en plus du temps déjà passé à chercher : il faut
+* donc en avoir au moins autant en réserve, sinon la main se garde pour
+* chercher encore.
+*/
 export const DUEL_PASS_PENALTY_SECONDS = 5
 /** Le pool du draft : cinq catégories, les joueurs en choisissent le plus possible. */
 export const DUEL_POOL_SIZE = 5
@@ -415,19 +420,25 @@ export function playWord(duel: Duel, raw: string, judge: Judge, at: number): Due
 
 /**
  * Passer : 5 s de réserve en moins, et la main s'en va avec le même couple.
+ * Il faut donc avoir de quoi les payer : sous la pénalité, le passe ne prend
+ * pas, et il ne reste qu'à trouver un mot ou à regarder le temps partir. La
+ * réserve ne redescend jamais sous le plancher, donc un passe ne tue plus.
  * Quand tous les vivants l'ont refusé, la manche est échouée et la main
- * revient à l'ouvreur avec un couple neuf. Une réserve qui n'y survit pas
- * emporte le joueur.
+ * revient à l'ouvreur avec un couple neuf.
  */
 export function passTurn(duel: Duel, judge: Judge, at: number): Duel {
   const turn = duel.turn
   if (duel.phase !== 'play' || !turn) return duel
   const player = duel.players[turn.player]
   if (!player) return duel
-  const left = reserveSeconds(duel, turn.player, at) - DUEL_PASS_PENALTY_SECONDS
+  const left = reserveSeconds(duel, turn.player, at)
+  if (left < DUEL_PASS_PENALTY_SECONDS) return duel
   const declined = [...turn.declined, turn.player]
-  if (left <= 0) return eliminate(duel, judge, at, declined)
-  const players = replace(duel.players, turn.player, { ...player, reserve: left, combo: 0 })
+  const players = replace(duel.players, turn.player, {
+    ...player,
+    reserve: Math.max(DUEL_FLOOR_SECONDS, left - DUEL_PASS_PENALTY_SECONDS),
+    combo: 0,
+  })
   return advance({ ...duel, players, turn: { ...turn, declined } }, judge, at, false)
 }
 
@@ -456,7 +467,7 @@ function advance(duel: Duel, judge: Judge, at: number, consumed: boolean): Duel 
   return openRound({ ...duel, turns, dealt: [...duel.dealt, promptKey(turn.prompt)] }, judge, at, turn.player, turn.prompt.categoryId)
 }
 
-function eliminate(duel: Duel, judge: Judge, at: number, declined?: readonly number[]): Duel {
+function eliminate(duel: Duel, judge: Judge, at: number): Duel {
   const turn = duel.turn
   if (!turn) return duel
   const player = duel.players[turn.player]
@@ -466,7 +477,7 @@ function eliminate(duel: Duel, judge: Judge, at: number, declined?: readonly num
     return one.alive ? { ...one, reserve: one.reserve + DUEL_DEATH_BONUS_SECONDS } : one
   })
   const deaths = [...duel.deaths, turn.player]
-  const mid = { ...duel, players, deaths, turn: { ...turn, declined: declined ?? turn.declined } }
+  const mid = { ...duel, players, deaths }
   if (aliveIndexes(mid).length <= 1) return { ...mid, phase: 'over', turn: null }
   // La main ne repart qu'après la mise en scène : la réserve du suivant n'y fond pas.
   return advance(mid, judge, at + DUEL_DEATH_PAUSE_SECONDS, false)

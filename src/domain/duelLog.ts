@@ -166,8 +166,10 @@ export function applyMove(before: Duel, move: DuelMove, judge: Judge | null): { 
   }
   if (move.kind === 'pass') {
     const next = passTurn(duel, judge, move.at)
-    const died = next.deaths.length > duel.deaths.length
-    const facts: DuelFact[] = died ? [] : [{ id, kind: 'passed', player: move.seat, at: move.at, delta: -DUEL_PASS_PENALTY_SECONDS }]
+    // Une réserve trop courte ne paie pas le passe : celui qui l'a tenté garde
+    // sa main, comme s'il n'avait rien fait.
+    if (next === duel) return { duel: before, facts: [] }
+    const facts: DuelFact[] = [{ id, kind: 'passed', player: move.seat, at: move.at, delta: -DUEL_PASS_PENALTY_SECONDS }]
     return { duel: next, facts: [...facts, ...consequences(id, duel, next, move, true)] }
   }
   const next = duelTimeout(duel, judge, move.at)
@@ -219,7 +221,10 @@ export function driverMove(duel: Duel, judge: Judge | null, at: number, bots: Re
   if (bot) {
     const move = botMove(live, judge, bot)
     if (!move || at < turn.startedAt + move.after) return null
-    return move.word ? { seat: turn.player, kind: 'word', payload: move.word } : { seat: turn.player, kind: 'pass', payload: '' }
+    if (move.word) return { seat: turn.player, kind: 'word', payload: move.word }
+    // Sans mot et sans de quoi payer le passe, un joueur maison finit son
+    // temps comme un absent : la table déclare sa mort à zéro.
+    if (reserveSeconds(live, turn.player, at) >= DUEL_PASS_PENALTY_SECONDS) return { seat: turn.player, kind: 'pass', payload: '' }
   }
   return reserveSeconds(live, turn.player, at) <= -DUEL_GRACE_SECONDS ? { seat: turn.player, kind: 'timeout', payload: '' } : null
 }

@@ -250,13 +250,27 @@ describe('la réserve', () => {
 describe('le plancher', () => {
   it('donne toujours au moins une seconde à qui reçoit la main', () => {
     let duel = draft(2)
-    // Le premier joueur passe en ne gardant qu'une demi-seconde.
-    duel = passTurn(duel, judge, DUEL_RESERVE_SECONDS - DUEL_PASS_PENALTY_SECONDS - 0.5)
-    expect(duel.players[0]!.reserve).toBeCloseTo(0.5)
-    duel = passTurn(duel, judge, 30)
-    // La main lui revient : il repart d'une seconde, pas d'une demi.
+    duel = passTurn(duel, judge, 1)
+    // Le premier joueur a fini son tour sur une demi-seconde…
+    duel = { ...duel, players: duel.players.map((player, index) => (index === 0 ? { ...player, reserve: 0.4 } : player)) }
+    duel = passTurn(duel, judge, 2)
+    // …et la main lui revient : il repart du plancher, pas d'une demi.
     expect(duel.turn?.player).toBe(0)
     expect(duel.players[0]!.reserve).toBe(DUEL_FLOOR_SECONDS)
+  })
+})
+
+describe('le passe', () => {
+  it('ne prend pas sous la pénalité, et ne descend jamais sous le plancher', () => {
+    const opening = draft(2)
+    // Une demi-seconde de trop court : la main se garde pour chercher.
+    expect(passTurn(opening, judge, DUEL_RESERVE_SECONDS - DUEL_PASS_PENALTY_SECONDS + 0.5)).toBe(opening)
+
+    // Juste de quoi payer : la réserve s'arrête au plancher plutôt que de mourir.
+    const paid = passTurn(opening, judge, DUEL_RESERVE_SECONDS - DUEL_PASS_PENALTY_SECONDS - 0.5)
+    expect(paid.players[0]!.reserve).toBe(DUEL_FLOOR_SECONDS)
+    expect(paid.players[0]!.alive).toBe(true)
+    expect(paid.turn?.player).toBe(1)
   })
 })
 
