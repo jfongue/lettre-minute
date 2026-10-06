@@ -179,7 +179,7 @@ select tests.throws($$insert into public.runs (player_id, seed, score, created_a
 select tests.throws($$insert into public.runs (player_id, seed, score, created_at)
                       values (tests.uid('early'), 2, 10, now() - interval '1 hour')$$,
                     'nor in the past', '42501');
-select tests.lives($$insert into public.runs (player_id, seed, score) values (tests.uid('early'), 3, 10)$$,
+select tests.lives($$insert into public.runs (player_id, seed, score, words) values (tests.uid('early'), 3, 10, 1)$$,
                    'a run goes in as the app sends it');
 select tests.lives($$insert into public.run_words (run_id, word, category_id)
                      select id, 'sphinx', 'animaux' from public.runs where player_id = tests.uid('early') and seed = 3$$,

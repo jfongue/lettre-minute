@@ -142,8 +142,8 @@ select tests.is((select words from public.debug_pairs('fr') where letter = 'F'),
 
 -- ------------------------------------------------- a run's own powers --
 
-select tests.throws($$insert into public.runs (player_id, seed, score, powers)
-                      values (tests.uid('ia'), 20, 10, array_fill('joker'::text, array[21]))$$,
+select tests.throws($$insert into public.runs (player_id, seed, score, words, powers)
+                      values (tests.uid('ia'), 20, 10, 1, array_fill('joker'::text, array[21]))$$,
                 'a run cannot carry more powers than a challenge admits', '23514');
 
 -- ------------------------------------------- l'histoire des couples --
