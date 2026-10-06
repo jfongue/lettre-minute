@@ -1,5 +1,9 @@
 {
   "fr": {
+    "animaux": [
+      "ecu",
+      "walrus"
+    ],
     "corps-humain": [
       "kiwi",
       "salt potatoes",
@@ -15,6 +19,8 @@
       "viande d agneau",
       "viande d oie",
       "viande de baleine",
+      "viande de brousse",
+      "viande de caille",
       "viande de chauve souris",
       "viande de chevre",
       "viande de dinde",
@@ -23,14 +29,10 @@
       "viande de mouton",
       "viande de pigeonneau",
       "viande de porc",
-      "viande de singe"
-    ],
-    "animaux": [
-      "ecu",
-      "walrus"
-    ],
-    "marques": [
-      "xxxx"
+      "viande de singe",
+      "wagener",
+      "winston",
+      "zone erogene"
     ],
     "couleurs": [
       "diapre",
@@ -49,6 +51,9 @@
       "plumage",
       "ponceau",
       "puce"
+    ],
+    "marques": [
+      "xxxx"
     ]
   }
 }
