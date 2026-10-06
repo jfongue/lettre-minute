@@ -10,6 +10,7 @@ import {
   draftComplete,
   draftShape,
   drawnShownAt,
+  DUEL_DEATH_BONUS_SECONDS,
   DUEL_DEATH_PAUSE_SECONDS,
   DUEL_DRAW_SECONDS,
   DUEL_FLOOR_SECONDS,
@@ -219,9 +220,19 @@ describe('la réserve', () => {
     const died = DUEL_RESERVE_SECONDS + 0.1
     // Le tour du survivant ne s'ouvre qu'après la mise en scène de la mort…
     expect(killed.turn!.startedAt).toBeCloseTo(died + DUEL_DEATH_PAUSE_SECONDS)
-    expect(reserveSeconds(killed, next, died + 1)).toBe(DUEL_RESERVE_SECONDS)
+    expect(reserveSeconds(killed, next, died + 1)).toBe(DUEL_RESERVE_SECONDS + DUEL_DEATH_BONUS_SECONDS)
     // …puis sa réserve court normalement.
-    expect(reserveSeconds(killed, next, died + DUEL_DEATH_PAUSE_SECONDS + 2.5)).toBeCloseTo(DUEL_RESERVE_SECONDS - 2.5)
+    expect(reserveSeconds(killed, next, died + DUEL_DEATH_PAUSE_SECONDS + 2.5)).toBeCloseTo(DUEL_RESERVE_SECONDS + DUEL_DEATH_BONUS_SECONDS - 2.5)
+  })
+
+  it('rend un peu de temps à chaque survivant quand un joueur meurt, pas aux morts', () => {
+    const once = duelTimeout(draft(4), judge, DUEL_RESERVE_SECONDS + 0.1)
+    expect(once.players.map((player) => player.reserve)).toEqual([0, 1, 1, 1].map((alive) => alive * (DUEL_RESERVE_SECONDS + DUEL_DEATH_BONUS_SECONDS)))
+
+    const twice = duelTimeout(once, judge, 100)
+    expect(twice.players[0]!.reserve).toBe(0)
+    expect(twice.players[1]!.reserve).toBe(0)
+    expect(twice.players[2]!.reserve).toBe(DUEL_RESERVE_SECONDS + 2 * DUEL_DEATH_BONUS_SECONDS)
   })
 
   it('laisse la partie continuer sans le mort, en sautant son tour', () => {    let duel = duelTimeout(draft(4), judge, DUEL_RESERVE_SECONDS + 0.1)

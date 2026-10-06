@@ -74,6 +74,11 @@ export function reserveShown(seconds: number): number {
 export const DUEL_GRACE_SECONDS = 1
 /** La mort se joue avant que la main reparte : la réserve du suivant attend la fin de l'animation. */
 export const DUEL_DEATH_PAUSE_SECONDS = 2.6
+/**
+ * Chaque mort rend ce temps à chaque survivant, sans l'annoncer : la réserve
+ * monte, rien ne le dit. Sans ça, une table à court de temps tombe en chaîne.
+ */
+export const DUEL_DEATH_BONUS_SECONDS = 1.5
 
 /**
  * Chaque joueur choisit le même nombre de catégories, le plus grand tel que la
@@ -456,7 +461,10 @@ function eliminate(duel: Duel, judge: Judge, at: number, declined?: readonly num
   if (!turn) return duel
   const player = duel.players[turn.player]
   if (!player) return duel
-  const players = replace(duel.players, turn.player, { ...player, reserve: 0, alive: false })
+  const players = duel.players.map((one, index) => {
+    if (index === turn.player) return { ...one, reserve: 0, alive: false }
+    return one.alive ? { ...one, reserve: one.reserve + DUEL_DEATH_BONUS_SECONDS } : one
+  })
   const deaths = [...duel.deaths, turn.player]
   const mid = { ...duel, players, deaths, turn: { ...turn, declined: declined ?? turn.declined } }
   if (aliveIndexes(mid).length <= 1) return { ...mid, phase: 'over', turn: null }

@@ -6,6 +6,7 @@ import {
   duelPrompt,
   pickDeadline,
   reserveSeconds,
+  DUEL_DEATH_BONUS_SECONDS,
   DUEL_DEATH_PAUSE_SECONDS,
   DUEL_GRACE_SECONDS,
   DUEL_OPENING_SECONDS,
@@ -155,7 +156,7 @@ describe('le meneur', () => {
     moves.push({ seq: moves.length + 1, seat: duel.turn!.player, kind: 'timeout', payload: '', at: dies })
     const after = replay(three, moves, judge).duel
     expect(after.turn!.startedAt).toBeCloseTo(dies + DUEL_DEATH_PAUSE_SECONDS)
-    expect(reserveSeconds(after, after.turn!.player, dies + 1)).toBe(DUEL_RESERVE_SECONDS)
+    expect(reserveSeconds(after, after.turn!.player, dies + 1)).toBe(DUEL_RESERVE_SECONDS + DUEL_DEATH_BONUS_SECONDS)
     expect(driverMove(after, judge, dies + 1, {})).toBeNull()
   })
 })
