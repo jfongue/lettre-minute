@@ -1,4 +1,4 @@
-import { normalizeWord } from './text'
+import { normalizeWord } from './text.ts'
 
 /**
  * Wikidata labels carry disambiguations, catalogue numbers and stray plurals.

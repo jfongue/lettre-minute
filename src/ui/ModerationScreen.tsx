@@ -117,13 +117,18 @@ export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps)
       }
       if (outcome === 'accepted') sound.found(3, 4)
       if (outcome === 'rejected') sound.skipped()
-      setTally((before) => ({
-        ...before,
-        [verdict]: before[verdict] + 1,
-        // Only an addition enters the dictionary: a flagged word that settles
-        // leaves it, which the judgement card's own words say.
-        entered: before.entered + (outcome === 'accepted' && card.kind === 'add' ? 1 : 0),
-      }))
+      // A review settled between the card being dealt and the vote — already
+      // voted, or decided without him — took no verdict: counting it would tell
+      // the moderator he judged a word the server never recorded.
+      if (outcome !== 'gone') {
+        setTally((before) => ({
+          ...before,
+          [verdict]: before[verdict] + 1,
+          // Only an addition enters the dictionary: a flagged word that settles
+          // leaves it, which the judgement card's own words say.
+          entered: before.entered + (outcome === 'accepted' && card.kind === 'add' ? 1 : 0),
+        }))
+      }
       setToast({ key: Date.now(), outcome, ban: card.kind === 'ban' })
       setLeaving(null)
       setMode('judge')

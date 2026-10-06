@@ -49,10 +49,15 @@ export function swipeVerdict(dx: number, dy: number, width: number): Exclude<Ver
   return null
 }
 
-/** More words than this waiting for a moderator, and « Mes demandes » wears a « ! ». */
+/**
+ * This many words waiting for a moderator, and « Mes demandes » wears a « ! ».
+ * The count is the server's own ceiling — `moderation_queue(p_lang, 20)`
+ * (0039) — so « more than this » could never be true, and the « ! » never
+ * showed.
+ */
 export const MODERATION_QUEUE_ALERT = 20
 
 /** Whether the « ! » shows: opening « Mes demandes » quiets it until the next day. */
 export function queueAlertDue(queue: number, seenOn: string | null, today: string): boolean {
-  return queue > MODERATION_QUEUE_ALERT && seenOn !== today
+  return queue >= MODERATION_QUEUE_ALERT && seenOn !== today
 }

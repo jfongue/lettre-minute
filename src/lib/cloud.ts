@@ -13,6 +13,7 @@ import type { Profile } from '../domain/progression'
 import type { PromptRecord } from '../domain/prompts'
 import type { RarityTier } from '../domain/rarity'
 import { promptKey, promptOutcomes, type Run } from '../domain/run'
+import { acceptable } from '../domain/wordShape'
 import { withBotRuns } from '../state/botRuns'
 import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
 import { googleIdToken } from './native'
@@ -368,7 +369,10 @@ export function pushSubmissions(pending: readonly PendingSubmission[]): Promise<
  */
 export function proposeWord(lang: string, categoryId: string, word: string): Promise<boolean> {
   const trimmed = word.trim()
-  if (trimmed.length < 2 || categoryId === '') return Promise.resolve(false)
+  // Une forme qu'aucun dictionnaire ne peut porter — « M », « C&A » — ne part
+  // pas : trois modérateurs la valideraient pour rien, 150 XP seraient versés,
+  // et l'import la jetterait. Le serveur la refuse aussi (`word_shape_ok`, 0051).
+  if (categoryId === '' || !acceptable(trimmed)) return Promise.resolve(false)
 
   const entry: PendingSubmission = { word: trimmed, categoryId, at: Date.now(), lang }
   // La file de l'appareil est une frontière comme le réseau : sans elle, rien
