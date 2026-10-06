@@ -874,6 +874,8 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
       }`,
     draftTitle: 'Choisis une catégorie',
     draftTurn: (name: string) => `${name} choisit…`,
+    cheerHint: 'Touche une catégorie pour souffler ton idée : elle frémit chez toute la table.',
+    cheerAria: (label: string) => `Conseiller ${label}`,
     draftStep: (done: number, total: number) => `Choix ${done} sur ${total}`,
     pickLeft: (seconds: number) => `${seconds} s pour choisir`,
     forced: (label: string) => `${label} : prise d’office`,

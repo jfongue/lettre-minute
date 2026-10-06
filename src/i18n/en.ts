@@ -869,6 +869,8 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
       }`,
     draftTitle: 'Pick a category',
     draftTurn: (name: string) => `${name} is picking…`,
+cheerHint: 'Tap a category to nudge the table: it shakes on every screen.',
+cheerAria: (label: string) => `Suggest ${label}`,
     draftStep: (done: number, total: number) => `Pick ${done} of ${total}`,
     pickLeft: (seconds: number) => `${seconds} s to pick`,
     forced: (label: string) => `${label}: picked for you`,

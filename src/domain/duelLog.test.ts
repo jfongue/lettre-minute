@@ -3,6 +3,7 @@ import { NO_USAGE } from './rarity'
 import { buildWordPack, commonWord, findWord, lettersWithEnough, type WordPack } from './words'
 import type { Judge } from './run'
 import {
+  draftPlayer,
   duelPrompt,
   pickDeadline,
   reserveSeconds,
@@ -88,6 +89,29 @@ describe('le rejeu', () => {
     const other = replay(setup, [...picks, wrong], judge)
     expect(one.duel).toEqual(other.duel)
     expect(one.facts.some((fact) => fact.kind === 'passed')).toBe(false)
+  })
+
+  it('laisse un conseil au draft sans toucher à la table, et refuse celui qui choisit', () => {
+    const duel = startDuel(setup)
+    const picker = draftPlayer(duel)
+    const other = 1 - picker
+    const cheer: DuelMove = { seq: 1, seat: other, kind: 'cheer', payload: IDS[0]!, at: draftOpens + 1 }
+
+    // Le conseil se lit sans dictionnaire, et ne change rien à la table.
+    const heard = replay(setup, [cheer], null)
+    expect(heard.duel).toEqual(duel)
+    expect(heard.facts).toEqual([{ id: '1', kind: 'cheered', player: other, at: draftOpens + 1, cheer: IDS[0] }])
+    expect(heard.applied).toBe(1)
+
+    // Le draft continue après lui : quatre choix par les joueurs, le sort complète.
+    const picks = draftMoves().map((move) => ({ ...move, seq: move.seq + 1 }))
+    expect(replay(setup, [cheer, ...picks], null).duel.picks).toHaveLength(5)
+
+    // Celui qui choisit, une catégorie hors du vivier ou déjà prise : rien.
+    const first = { ...picks[0]!, seq: 1 }
+    expect(replay(setup, [{ ...cheer, seat: picker }], null).facts).toEqual([])
+    expect(replay(setup, [{ ...cheer, payload: 'inconnue' }], null).facts).toEqual([])
+    expect(replay(setup, [first, { ...cheer, seq: 2, at: first.at + 1 }], null).facts.some((fact) => fact.kind === 'cheered')).toBe(false)
   })
 
   it('met en scène une mort avant que la main reparte', () => {

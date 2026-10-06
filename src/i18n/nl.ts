@@ -864,6 +864,8 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
       }`,
     draftTitle: 'Kies een categorie',
     draftTurn: (name: string) => `${name} kiest…`,
+cheerHint: 'Tik op een categorie om een tip te geven: de hele tafel ziet hem trillen.',
+cheerAria: (label: string) => `${label} aanraden`,
     draftStep: (done: number, total: number) => `Keuze ${done} van ${total}`,
     pickLeft: (seconds: number) => `${seconds} s om te kiezen`,
     forced: (label: string) => `${label}: automatisch gekozen`,

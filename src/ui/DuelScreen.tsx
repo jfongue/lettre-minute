@@ -313,6 +313,20 @@ function Draft({ table }: { table: DuelTable }) {
     for (let index = heardDraw.current; index < table.drawnShown; index++) sound.tile('wood', 3 + index)
     heardDraw.current = table.drawnShown
   }, [table.drawnShown])
+  // Un conseil venu d'un autre s'entend, une fois : le mien a déjà sonné sous
+  // le doigt au moment du geste.
+  const heardCheers = useRef<Set<string> | null>(null)
+  useEffect(() => {
+    if (!heardCheers.current) {
+      heardCheers.current = new Set(table.facts.map((fact) => fact.id))
+      return
+    }
+    for (const fact of table.facts) {
+      if (fact.kind !== 'cheered' || heardCheers.current.has(fact.id)) continue
+      heardCheers.current.add(fact.id)
+      if (fact.player !== table.myIndex) sound.tile('marimba', 3)
+    }
+  }, [table.facts, table.myIndex])
 
   const line = done
     ? drawn > 0
@@ -372,6 +386,7 @@ function Draft({ table }: { table: DuelTable }) {
           <b>{line}</b>
           {!done && !table.forced ? <span className="duel-turn__left">{t.duel.pickLeft(Math.ceil(table.pickLeft))}</span> : null}
         </p>
+        {!done && !mine && !table.forced ? <p className="note duel-cheer">{t.duel.cheerHint}</p> : null}
         <span className={`duel-fuse${mine ? ' duel-fuse--mine' : ''}${table.pickLeft <= 3 && !done && !table.forced ? ' duel-fuse--late' : ''}`} aria-hidden="true">
           <i style={{ transform: `scaleX(${done || table.forced ? 0 : Math.max(0, Math.min(1, table.pickLeft / DUEL_PICK_SECONDS))})` } as CSSProperties} />
         </span>
@@ -385,6 +400,12 @@ function Draft({ table }: { table: DuelTable }) {
             const who = whoIndex >= 0 ? table.seats[whoIndex] : null
             const motif = categoryMotif(id)
             const offered = !taken && table.forced === id
+            // Ce n'est pas mon tour : la tuile devient un conseil. Et celle
+            // qu'un autre conseille frémit chez toute la table, celui qui
+            // choisit compris — c'est pour lui qu'on la met en avant.
+            const canPick = mine && !taken && !table.forced
+            const canCheer = !mine && !taken && !table.forced && !done
+            const cheered = taken || table.forced || done ? undefined : table.cheers.find((fact) => fact.cheer === id)
             return (
               <li
                 key={id}
@@ -393,15 +414,21 @@ function Draft({ table }: { table: DuelTable }) {
               >
                 <button
                   type="button"
-                  className={`dealt-tile${taken ? ' dealt-tile--taken' : ''}${mine && !taken ? ' dealt-tile--open' : ''}`}
-                  disabled={!mine || taken || !!table.forced}
+                  className={`dealt-tile${taken ? ' dealt-tile--taken' : ''}${canPick ? ' dealt-tile--open' : ''}${canCheer ? ' dealt-tile--cheer' : ''}${cheered ? ' dealt-tile--cheered' : ''}`}
+                  disabled={!canPick && !canCheer}
+                  aria-label={canCheer ? t.duel.cheerAria(categoryText(t, id).label) : undefined}
                   onClick={() => {
                     armSound()
-                    sound.tile('glass', 2)
-                    table.pick(id)
+                    if (canPick) {
+                      sound.tile('glass', 2)
+                      table.pick(id)
+                      return
+                    }
+                    sound.tile('marimba', 2 + index)
+                    table.cheer(id)
                   }}
                 >
-                  <CategoryIcon categoryId={id} tint={onTint(motif.tint)} className="dealt-shape" />
+                  <CategoryIcon key={cheered?.id ?? 'still'} categoryId={id} tint={onTint(motif.tint)} className="dealt-shape" />
                   <span>{categoryText(t, id).label}</span>
                   {taken ? (
                     <span className="dealt-taken" key={place}>

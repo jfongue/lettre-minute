@@ -863,6 +863,8 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
       }`,
     draftTitle: 'Wähle eine Kategorie',
     draftTurn: (name: string) => `${name} wählt…`,
+cheerHint: 'Tippe eine Kategorie an, um einen Wink zu geben: der ganze Tisch sieht sie wackeln.',
+cheerAria: (label: string) => `${label} vorschlagen`,
     draftStep: (done: number, total: number) => `Wahl ${done} von ${total}`,
     pickLeft: (seconds: number) => `${seconds} s zum Wählen`,
     forced: (label: string) => `${label}: automatisch gewählt`,

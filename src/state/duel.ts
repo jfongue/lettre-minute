@@ -99,6 +99,9 @@ export const BEATS = 3
 const LAST_DEATH_SECONDS = 3.2
 const READY_GAP = 0.6
 const FEED_SIZE = 3
+/** Le temps qu'un conseil de draft fait frémir sa catégorie, et combien s'affichent à la fois. */
+export const CHEER_SECONDS = 2.4
+export const CHEERS_SHOWN = 3
 /** Un appareil qui n'a pas relu la table depuis tant de secondes ne la mène plus. */
 const DRIVER_SILENCE = 8
 
@@ -152,6 +155,8 @@ export interface DuelTable {
   event: DuelFact | null
   feed: readonly DuelFact[]
   facts: readonly DuelFact[]
+  /** Les catégories que d'autres conseillent au draft, la plus fraîche en tête. */
+  cheers: readonly DuelFact[]
   error: boolean
   /** La table en ligne n'a pas pu s'ouvrir : pas de compte nommé, ou pas de serveur. */
   offline: boolean
@@ -173,6 +178,8 @@ export interface DuelTable {
   /** Ce que mon champ tient : à zéro, il se valide tout seul s'il est juste. */
   hold(raw: string): void
   pick(categoryId: string): void
+  /** Conseiller une catégorie à celui qui choisit, quand ce n'est pas mon tour. */
+  cheer(categoryId: string): void
   play(raw: string): void
   pass(): void
   leave(): void
@@ -522,6 +529,18 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
   const duel = replayed ? settle(replayed.duel, judge, at) : null
   const facts = replayed?.facts ?? []
 
+  // Les conseils encore frais : le journal les garde tous, l'écran n'en montre
+  // que les derniers, une catégorie une seule fois — c'est le dernier reçu qui
+  // la fait frémir.
+  const cheers = useMemo(() => {
+    const byCategory = new Map<string, DuelFact>()
+    for (const fact of replayed?.facts ?? []) {
+      if (fact.kind !== 'cheered' || !fact.cheer || at - fact.at >= CHEER_SECONDS) continue
+      byCategory.set(fact.cheer, fact)
+    }
+    return [...byCategory.values()].sort((a, b) => b.at - a.at).slice(0, CHEERS_SHOWN)
+  }, [at, replayed])
+
   const post = useCallback(
     async (move: Omit<DuelMove, 'seq' | 'at'>) => {
       if (!table || posting.current) return
@@ -674,6 +693,20 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     [duel, myIndex, post],
   )
 
+  const lastCheer = useRef({ categoryId: '', at: 0 })
+  const cheer = useCallback(
+    (categoryId: string) => {
+      if (!duel || duel.phase !== 'draft' || draftComplete(duel) || draftPlayer(duel) === myIndex) return
+      if (!duel.categories.includes(categoryId) || duel.picks.includes(categoryId)) return
+      // Le même conseil répété sous le doigt ne part qu'une fois par seconde :
+      // c'est un geste, pas un vote.
+      if (lastCheer.current.categoryId === categoryId && at - lastCheer.current.at < 1) return
+      lastCheer.current = { categoryId, at }
+      void post({ seat: myIndex, kind: 'cheer', payload: categoryId })
+    },
+    [at, duel, myIndex, post],
+  )
+
   const inspect = useCallback(
     (raw: string): Verdict => (duel && judge && myIndex >= 0 ? inspectFor(duel, myIndex, raw, judge) : { kind: 'empty', found: null }),
     [duel, judge, myIndex],
@@ -728,7 +761,7 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
   const lobbySeats: readonly Seat[] = table?.status === 'lobby' ? [...present, ...(table.invites ?? [])] : players
   const drafting = duel && duel.phase === 'draft' && !draftComplete(duel)
   const picker = drafting && phase === 'draft' ? (players[draftPlayer(duel)] ?? null) : null
-  const feed = facts.filter((fact) => fact.kind !== 'picked').slice(-FEED_SIZE).reverse()
+  const feed = facts.filter((fact) => fact.kind !== 'picked' && fact.kind !== 'cheered').slice(-FEED_SIZE).reverse()
   const ready: Record<string, boolean> = {}
   for (const seat of present) ready[seat.id] = seat.ready
   const takenIds = new Set([...present.map((seat) => seat.id), ...(table?.invites ?? []).map((seat) => seat.id)])
@@ -765,6 +798,7 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     event: feed[0] ?? null,
     feed,
     facts,
+    cheers,
     error: failed,
     offline,
     embedded: !!onExit,
@@ -780,6 +814,7 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     inspect,
     hold,
     pick,
+    cheer,
     play,
     pass,
     leave,

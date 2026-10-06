@@ -865,6 +865,8 @@ flawless: ['Impecable', 'Cada tres palabras válidas escritas sin errores te dan
       }`,
     draftTitle: 'Elige una categoría',
     draftTurn: (name: string) => `${name} elige…`,
+cheerHint: 'Toca una categoría para dar una pista: toda la mesa la ve temblar.',
+cheerAria: (label: string) => `Sugerir ${label}`,
     draftStep: (done: number, total: number) => `Elección ${done} de ${total}`,
     pickLeft: (seconds: number) => `${seconds} s para elegir`,
     forced: (label: string) => `${label}: elegida de oficio`,

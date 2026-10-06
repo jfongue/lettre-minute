@@ -38,14 +38,14 @@ import type { Judge, Prompt } from './run'
 /** Le temps de lire la règle du draft avant le premier choix. */
 export const DUEL_ANNOUNCE_SECONDS = 3.2
 
-export type DuelMoveKind = 'pick' | 'word' | 'pass' | 'timeout'
+export type DuelMoveKind = 'pick' | 'word' | 'pass' | 'timeout' | 'cheer'
 
 export interface DuelMove {
   seq: number
   /** La place du joueur que le coup concerne. */
   seat: number
   kind: DuelMoveKind
-  /** La catégorie choisie, ou le mot validé. */
+  /** La catégorie choisie, celle du conseil, ou le mot validé. */
   payload: string
   at: number
 }
@@ -54,7 +54,7 @@ export interface DuelMove {
 export interface DuelFact {
   /** Le numéro du coup qui l'a produit : deux appareils nomment le même fait pareil. */
   id: string
-  kind: 'picked' | 'solved' | 'passed' | 'failed' | 'dead'
+  kind: 'picked' | 'solved' | 'passed' | 'failed' | 'dead' | 'cheered'
   player: number
   at: number
   word?: string
@@ -65,6 +65,8 @@ export interface DuelFact {
   saved?: boolean
   /** La catégorie choisie, ou le couple refusé par toute la table. */
   prompt?: { categoryId: string; letter: string }
+ /** La catégorie qu'un joueur conseille à celui qui choisit. */
+ cheer?: string
 }
 
 export interface DuelSetup {
@@ -119,7 +121,7 @@ export function replay(setup: DuelSetup, moves: readonly DuelMove[], judge: Judg
   let applied = 0
   let lastPrompt: Prompt | null = null
   for (const move of moves) {
-    if (move.kind !== 'pick' && !judge) break
+    if (move.kind !== 'pick' && move.kind !== 'cheer' && !judge) break
     const next = applyMove(duel, move, judge)
     lastPrompt = settle(duel, judge, move.at).turn?.prompt ?? lastPrompt
     facts.push(...next.facts)
@@ -131,6 +133,13 @@ export function replay(setup: DuelSetup, moves: readonly DuelMove[], judge: Judg
 
 export function applyMove(before: Duel, move: DuelMove, judge: Judge | null): { duel: Duel; facts: DuelFact[] } {
   const id = String(move.seq)
+  if (move.kind === 'cheer') {
+    // Un conseil ne change rien à la table : il ne vit que dans le fil, et
+    // seulement tant que le draft attend un autre que lui.
+    if (before.phase !== 'draft' || draftComplete(before) || move.seat === draftPlayer(before)) return { duel: before, facts: [] }
+    if (!before.players[move.seat] || !before.categories.includes(move.payload) || before.picks.includes(move.payload)) return { duel: before, facts: [] }
+    return { duel: before, facts: [{ id, kind: 'cheered', player: move.seat, at: move.at, cheer: move.payload }] }
+  }
   if (move.kind === 'pick') {
     if (before.phase !== 'draft' || draftComplete(before) || draftPlayer(before) !== move.seat) return { duel: before, facts: [] }
     const duel = pickCategory(before, move.payload, move.at)
