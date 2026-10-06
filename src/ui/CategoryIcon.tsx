@@ -110,6 +110,23 @@ const ICONS: Record<string, ReactNode> = {
       <rect x="26" y="90" width="48" height="6" opacity="0.55" />
     </>
   ),
+  ingredients: (
+    <>
+      <path d="M14 38H86V78A14 14 0 0 1 72 92H28A14 14 0 0 1 14 78Z" />
+      <rect x="4" y="46" width="10" height="10" />
+      <rect x="86" y="46" width="10" height="10" />
+      <g opacity="0.6">
+        <rect x="10" y="24" width="80" height="10" />
+        <rect x="44" y="8" width="12" height="16" />
+      </g>
+    </>
+  ),
+  lieux: (
+    <path
+      fillRule="evenodd"
+      d="M50 96C50 96 84 56 84 36A34 34 0 1 0 16 36C16 56 50 96 50 96ZM37 36a13 13 0 1 0 26 0a13 13 0 1 0 -26 0Z"
+    />
+  ),
 }
 
 interface CategoryIconProps {
