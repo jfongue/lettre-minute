@@ -18,7 +18,7 @@ import {
   type BotProfile,
   type Duel,
 } from '../domain/duel'
-import { DUEL_ANNOUNCE_SECONDS, driverMove, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
+import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
 import { createRng } from '../domain/rng'
 import { playableCategoryIds } from '../domain/perks'
 import type { Judge, Prompt, Verdict } from '../domain/run'
@@ -102,8 +102,6 @@ const FEED_SIZE = 3
 /** Le temps qu'un conseil de draft fait frémir sa catégorie, et combien s'affichent à la fois. */
 export const CHEER_SECONDS = 2.4
 export const CHEERS_SHOWN = 3
-/** Un appareil qui n'a pas relu la table depuis tant de secondes ne la mène plus. */
-const DRIVER_SILENCE = 8
 
 export interface Seat {
   id: string
@@ -310,6 +308,8 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
   const [table, setTable] = useState<TableData | null>(() => (mode === 'local' ? freshLocal(lang, meSeat, [HOUSE_BOTS[0]!.id], mine) : null))
   const [failed, setFailed] = useState(false)
   const [offline, setOffline] = useState(false)
+  /** L'onglet est passé derrière : il ne mène plus la table tant qu'on ne le regarde pas. */
+  const [hidden, setHidden] = useState(() => typeof document !== 'undefined' && document.hidden)
   const [leavers, setLeavers] = useState<readonly string[]>([])
   const [candidates, setCandidates] = useState<readonly Candidate[]>([])
   const [judge, setJudge] = useState<Judge | null>(null)
@@ -391,6 +391,31 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
   useEffect(() => {
     if (!offline) void flush()
   }, [flush, offline])
+
+  // Revenir à l'onglet, c'est reprendre la table : ce qu'on a manqué se relit
+  // tout de suite, sans attendre le prochain battement — qui, onglet caché, est
+  // étalé par le navigateur.
+  useEffect(() => {
+    if (mode !== 'online') return
+    const look = () => {
+      setHidden(document.hidden)
+      if (!document.hidden) void sync()
+    }
+    document.addEventListener('visibilitychange', look)
+    return () => document.removeEventListener('visibilitychange', look)
+  }, [mode, sync])
+
+  // La page s'en va pour de bon : la place se libère tout de suite, et le meneur
+  // suivant n'attend pas huit secondes. Une page mise de côté (bfcache) n'est
+  // pas un départ.
+  useEffect(() => {
+    if (mode !== 'online' || !tableId) return
+    const gone = (event: PageTransitionEvent) => {
+      if (!event.persisted) void leaveDuel(tableId)
+    }
+    window.addEventListener('pagehide', gone)
+    return () => window.removeEventListener('pagehide', gone)
+  }, [mode, tableId])
 
   // Une table neuve dont je suis l'hôte, ou celle où l'on m'a invité.
   const opened = useRef(false)
@@ -604,11 +629,10 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
 
   // Celui qui mène la table déclare ce que personne d'autre ne déclarera : le
   // premier joueur présent, dans l'ordre des places, qui relit encore la table.
-  const driver = useMemo(() => {
-    if (mode === 'local') return true
-    const awake = players.filter((seat) => !seat.bot && !seat.gone && at - seat.seen < DRIVER_SILENCE)
-    return awake[0]?.id === myId
-  }, [at, mode, myId, players])
+  const driver = useMemo(
+    () => (mode === 'local' ? true : driverOf(players, at, { id: myId, hidden }) === myId),
+    [at, hidden, mode, myId, players],
+  )
 
   useEffect(() => {
     if (!replayed || !duel || table?.status !== 'playing') return

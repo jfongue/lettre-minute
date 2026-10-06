@@ -967,6 +967,7 @@ cheerAria: (label: string) => `Suggest ${label}`,
     offlineTitle: 'The online table won’t open',
     offlineLead: 'Playing with friends needs a named account and the server. You can play the house players right now.',
     cutLead: 'The server stopped answering. We keep trying: your moves go out as soon as it is back.',
+    quitAsk: 'Leave the table? Your reserve keeps draining without you, until you die.',
     playBots: 'Play the house players',
   },
 }

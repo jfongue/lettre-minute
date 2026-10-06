@@ -16,7 +16,7 @@ import {
   type BotProfile,
   type Duel,
 } from './duel'
-import { driverMove, mergeJournal, postMove, replay, settle, startDuel, DUEL_ANNOUNCE_SECONDS, DUEL_POST_TRIES, type DuelMove, type DuelPostOutcome, type DuelPoster, type DuelSetup } from './duelLog'
+import { driverMove, driverOf, mergeJournal, postMove, replay, settle, startDuel, DUEL_ANNOUNCE_SECONDS, DUEL_POST_TRIES, type DuelMove, type DuelPostOutcome, type DuelPoster, type DuelSetup } from './duelLog'
 
 const IDS = ['animaux', 'pays', 'villes', 'metiers', 'sports']
 
@@ -182,6 +182,43 @@ describe('le meneur', () => {
     expect(after.turn!.startedAt).toBeCloseTo(dies + DUEL_DEATH_PAUSE_SECONDS)
     expect(reserveSeconds(after, after.turn!.player, dies + 1)).toBe(DUEL_RESERVE_SECONDS + DUEL_DEATH_BONUS_SECONDS)
     expect(driverMove(after, judge, dies + 1, {})).toBeNull()
+  })
+})
+
+describe('le meneur', () => {
+  const seat = (id: string, extra: Partial<{ bot: boolean; gone: boolean; seen: number }> = {}) => ({
+    id,
+    bot: false,
+    gone: false,
+    seen: 100,
+    ...extra,
+  })
+  const mine = { id: 'a', hidden: false }
+
+  it('est le premier présent dans l’ordre des places', () => {
+    expect(driverOf([seat('a'), seat('b')], 100, mine)).toBe('a')
+  })
+
+  it('passe au suivant quand le meneur quitte la table', () => {
+    expect(driverOf([seat('a', { gone: true }), seat('b')], 100, mine)).toBe('b')
+  })
+
+  it('passe au suivant quand le meneur se tait plus de huit secondes', () => {
+    expect(driverOf([seat('a', { seen: 91 }), seat('b')], 100, mine)).toBe('b')
+  })
+
+  it('saute les joueurs maison', () => {
+    expect(driverOf([seat('bot', { bot: true }), seat('b')], 100, mine)).toBe('b')
+  })
+
+  it('laisse ma main quand mon onglet est caché', () => {
+    expect(driverOf([seat('a'), seat('b')], 100, { id: 'a', hidden: true })).toBe('b')
+    expect(driverOf([seat('a'), seat('b')], 100, { id: 'b', hidden: true })).toBe('a')
+  })
+
+  it('ne mène personne quand la table est vide de joueurs présents', () => {
+    expect(driverOf([seat('a', { gone: true }), seat('b', { seen: 0 })], 100, mine)).toBeNull()
+    expect(driverOf([], 100, mine)).toBeNull()
   })
 })
 

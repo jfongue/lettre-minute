@@ -974,6 +974,7 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     offlineTitle: 'La table en ligne ne s’ouvre pas',
     offlineLead: 'Il faut un compte nommé et le serveur pour jouer avec tes amis. Tu peux jouer tout de suite contre les joueurs maison.',
     cutLead: 'Le serveur ne répond plus. On réessaie : tes coups partiront dès qu’il revient.',
+    quitAsk: 'Quitter la table ? Ta réserve continue de couler sans toi, jusqu’à ta mort.',
     playBots: 'Jouer contre les joueurs maison',
   },
 }

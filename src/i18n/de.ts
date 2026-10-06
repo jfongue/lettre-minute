@@ -962,6 +962,7 @@ cheerAria: (label: string) => `${label} vorschlagen`,
     offlineTitle: 'Der Online-Tisch öffnet sich nicht',
     offlineLead: 'Mit Freunden zu spielen braucht ein benanntes Konto und den Server. Du kannst sofort gegen die Hausspieler spielen.',
     cutLead: 'Der Server antwortet nicht mehr. Wir versuchen es weiter: deine Züge gehen raus, sobald er zurück ist.',
+    quitAsk: 'Tisch verlassen? Deine Reserve läuft ohne dich weiter ab, bis du stirbst.',
     playBots: 'Gegen die Hausspieler spielen',
   },
 }

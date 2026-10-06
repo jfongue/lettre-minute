@@ -38,6 +38,9 @@ import type { Judge, Prompt } from './run'
 /** Le temps de lire la règle du draft avant le premier choix. */
 export const DUEL_ANNOUNCE_SECONDS = 3.2
 
+/** Le silence au-delà duquel un appareil ne relit plus la table : il ne mène plus. */
+export const DRIVER_SILENCE = 8
+
 export type DuelMoveKind = 'pick' | 'word' | 'pass' | 'timeout' | 'cheer'
 
 export interface DuelMove {
@@ -276,6 +279,24 @@ export async function postMove(poster: DuelPoster, post: DuelPost, tries = DUEL_
 /** Deux coups du même siège, de même sorte et de même charge : le même coup. */
 function sameMove(one: DuelMove, move: Omit<DuelMove, 'seq' | 'at'>): boolean {
   return one.seat === move.seat && one.kind === move.kind && one.payload === move.payload
+}
+
+/**
+ * Le meneur : le premier joueur présent, dans l'ordre des places, qui relit
+ * encore la table. La main passe au suivant dès que celui-ci part (`gone`) ou se
+ * tait depuis `DRIVER_SILENCE` — donc dès que le meneur quitte la table. Un
+ * onglet caché ne mène pas non plus : personne ne le regarde, il ne déclarerait
+ * rien tant que le joueur est ailleurs.
+ */
+export function driverOf(
+  seats: readonly { id: string; bot: boolean; gone: boolean; seen: number }[],
+  at: number,
+  mine: { id: string; hidden: boolean },
+): string | null {
+  const awake = seats.filter(
+    (seat) => !seat.bot && !seat.gone && at - seat.seen < DRIVER_SILENCE && !(mine.hidden && seat.id === mine.id),
+  )
+  return awake[0]?.id ?? null
 }
 
 /**

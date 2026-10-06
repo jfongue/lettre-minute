@@ -69,3 +69,35 @@ begin
   return 'ok';
 end;
 $$;
+
+-- Quitter : la place se libère, et la table se ferme dès qu'il ne reste plus un
+-- humain — au salon comme en partie. Sans ça, une table que tout le monde a
+-- quittée restait ouverte pour toujours, ses joueurs maison compris. En partie,
+-- la place du parti reste au journal (sa réserve coule jusqu'à sa mort) : c'est
+-- `left_at`, et non la disparition de la ligne, qui dit qu'il n'est plus là.
+create or replace function public.duel_leave(p_table uuid) returns void
+language plpgsql security definer set search_path = public as $$
+declare
+  v_table public.duel_tables;
+begin
+  select * into v_table from public.duel_tables where id = p_table for update;
+  if not found then
+    return;
+  end if;
+  update public.duel_seats set left_at = now(), ready = false
+   where table_id = p_table and player = auth.uid() and left_at is null;
+  if not exists (
+    select 1 from public.duel_seats
+     where table_id = p_table and not is_bot and left_at is null and kicked_at is null
+  ) then
+    update public.duel_tables set status = 'closed' where id = p_table;
+    return;
+  end if;
+  if v_table.status = 'lobby' and v_table.host = auth.uid() then
+    update public.duel_tables set status = 'closed' where id = p_table;
+  elsif v_table.status = 'lobby' then
+    update public.duel_seats set ready = false
+     where table_id = p_table and not is_bot and left_at is null and kicked_at is null;
+  end if;
+end;
+$$;

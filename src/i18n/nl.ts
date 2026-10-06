@@ -963,6 +963,7 @@ cheerAria: (label: string) => `${label} aanraden`,
     offlineTitle: 'De online tafel gaat niet open',
     offlineLead: 'Spelen met vrienden vraagt een account met naam en de server. Je kunt meteen tegen de huisspelers spelen.',
     cutLead: 'De server antwoordt niet meer. We blijven het proberen: je zetten gaan weg zodra hij terug is.',
+    quitAsk: 'De tafel verlaten? Je reserve loopt zonder jou verder leeg, tot je dood.',
     playBots: 'Tegen de huisspelers spelen',
   },
 }

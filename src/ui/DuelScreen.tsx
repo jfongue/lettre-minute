@@ -443,6 +443,7 @@ export function Draft({ table }: { table: DuelTable }) {
             )
           })}
         </ul>
+        <Quit table={table} />
       </div>
     </main>
   )
@@ -533,6 +534,7 @@ function Opening({ table }: { table: DuelTable }) {
             </div>
           ) : null}
         </div>
+        <Quit table={table} />
       </div>
     </main>
   )
@@ -862,6 +864,8 @@ function Play({ table }: { table: DuelTable }) {
         ) : null}
       </div>
 
+      <Quit table={table} />
+
       {resumed && !frozen ? (
         <p className="duel-resume" key={resumed.key} aria-live="assertive">
           <Avatar choice={table.seats[resumed.player]!.avatar} size="sm" />
@@ -996,6 +1000,43 @@ function Over({ table }: { table: DuelTable }) {
 }
 
 /** Un écran d'attente ou d'erreur, dans la feuille du duel. */
+/**
+ * Quitter en pleine partie : la porte reste ouverte à tous les moments, mais
+ * elle demande confirmation — sa réserve coule sans lui jusqu'à sa mort.
+ */
+function Quit({ table }: { table: DuelTable }) {
+  const t = useT()
+  const [asking, setAsking] = useState(false)
+  return (
+    <>
+      <button type="button" className="btn btn--quiet duel-quit" onClick={() => setAsking(true)}>
+        {t.duel.quit}
+      </button>
+      {asking ? (
+        <div className="duel-sheet" role="dialog" aria-label={t.duel.quit} onClick={() => setAsking(false)}>
+          <div className="duel-sheet__card" onClick={(event) => event.stopPropagation()}>
+            <b className="duel-quitask">{t.duel.quitAsk}</b>
+            <button
+              type="button"
+              className="btn btn--block duel-kick"
+              onClick={() => {
+                armSound()
+                sound.refused()
+                table.leave()
+              }}
+            >
+              {t.duel.quit}
+            </button>
+            <button type="button" className="btn btn--ghost btn--block" onClick={() => setAsking(false)}>
+              {t.duel.cancel}
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </>
+  )
+}
+
 /**
  * Une coupure ne quitte pas la table : le dernier état connu reste à l'écran,
  * et le joueur sait pourquoi plus rien ne bouge.

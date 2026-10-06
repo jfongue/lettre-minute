@@ -964,6 +964,7 @@ cheerAria: (label: string) => `Sugerir ${label}`,
     offlineTitle: 'La mesa en línea no se abre',
     offlineLead: 'Jugar con amigos requiere una cuenta con nombre y el servidor. Puedes jugar ya contra los jugadores de la casa.',
     cutLead: 'El servidor no responde. Seguimos intentándolo: tus jugadas saldrán en cuanto vuelva.',
+    quitAsk: '¿Salir de la mesa? Tu reserva sigue bajando sin ti, hasta tu muerte.',
     playBots: 'Jugar contra los jugadores de la casa',
   },
 }

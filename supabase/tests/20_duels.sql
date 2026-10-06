@@ -169,3 +169,49 @@ select tests.logout();
 select tests.login('dh');
 select tests.is(public.duel_join((select id from rematch), 1), 'closed', 'and nobody joins a closed table');
 select tests.logout();
+
+-- -------------------------------------------------------------- quitter --
+
+-- Une place libérée en pleine partie laisse la table jouer : les autres
+-- continuent, et le meneur suivant prend la main. Dès qu'il ne reste plus un
+-- humain, la table se ferme (0049).
+select tests.login('dh');
+create temp table abandon as select public.duel_create('fr', array['animaux', 'pays'], 4) as id;
+grant select on abandon to public;
+select public.duel_invite((select id from abandon), tests.bot());
+select public.duel_invite((select id from abandon), tests.uid('df'));
+select public.duel_invite((select id from abandon), tests.uid('dk'));
+select tests.logout();
+
+select tests.login('df');
+select public.duel_join((select id from abandon), 5);
+select public.duel_ready((select id from abandon), true);
+select tests.logout();
+select tests.login('dk');
+select public.duel_join((select id from abandon), 5);
+select public.duel_ready((select id from abandon), true);
+select tests.logout();
+select tests.login('dh');
+select tests.is(public.duel_ready((select id from abandon), true), 'started', 'three players and a house player open the table');
+select tests.logout();
+
+select tests.login('df');
+select public.duel_leave((select id from abandon));
+select tests.is(tests.duel_status((select id from abandon)), 'playing', 'a player leaving the game leaves the table playing');
+select tests.logout();
+select tests.login('dh');
+select tests.is(
+  (select (s ->> 'left')::boolean from jsonb_array_elements(public.duel_sync((select id from abandon), 0) -> 'seats') s
+   where s ->> 'player' = tests.uid('df')::text),
+  true, 'and the table reads that he left'
+);
+select tests.logout();
+
+select tests.login('dk');
+select public.duel_leave((select id from abandon));
+select tests.is(tests.duel_status((select id from abandon)), 'playing', 'the table still has its host');
+select tests.logout();
+select tests.login('dh');
+select public.duel_leave((select id from abandon));
+select tests.is(tests.duel_status((select id from abandon)), 'closed', 'the last player leaving closes it, house player and all');
+select tests.logout();

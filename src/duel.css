@@ -190,6 +190,18 @@
   animation: fade 240ms ease both;
 }
 
+/* La porte de sortie, en bas de la table : discrète, elle ne dispute pas la
+   place aux deux boutons du tour. */
+.duel-quit {
+  justify-self: center;
+  margin-top: 0.2rem;
+}
+
+.duel-quitask {
+  font-size: 1rem;
+  text-align: center;
+}
+
 /* Une coupure du serveur : une ligne posée hors du flux, dans le bas libre de
    l'écran pendant la partie, pour ne rien déplacer dans la table — sous elle,
    la réserve, le champ et ses deux boutons restent lisibles. */
