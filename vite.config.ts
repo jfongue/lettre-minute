@@ -1,6 +1,8 @@
+/// <reference types="vitest/config" />
 import { readFileSync } from 'node:fs'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import { configDefaults } from 'vitest/config'
 
 // The version the Play Store knows, stamped on every tracked event: the
 // dashboard tells which build a crash or a drop came from.
@@ -19,4 +21,7 @@ export default defineConfig({
   // google.html is where the browser's Google popup lands (`googleIdToken`),
   // invite.html the page a shared invitation opens (src/invite.ts).
   build: { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html', 'invite.html', 'duel.html'] } },
+  // Agent worktrees and scratch checkouts live inside the repo: without this,
+  // `vitest run` also runs their copies of the suite (267 of 307 test files).
+  test: { exclude: [...configDefaults.exclude, '.claude/**', '.cache/**'] },
 })
