@@ -20,6 +20,7 @@
     "ban:sync": "node --experimental-strip-types scripts/ban-sync.ts",
     "analytics": "node --experimental-strip-types scripts/analytics.ts",
     "import:names": "node --experimental-strip-types scripts/first-names.ts",
+    "words:drift": "node --experimental-strip-types scripts/words-drift.ts",
     "web:publish": "scripts/publish-web.sh",
     "android:sync": "npm run build && cap sync android",
     "android:open": "cap open android",
@@ -27,6 +28,7 @@
     "android:release": "npm run android:bundle && node --experimental-strip-types scripts/play-release.ts",
     "android:listing": "node --experimental-strip-types scripts/play-listing.ts",
     "check": "oxlint && tsc -b && vitest run",
+    "check:full": "npm run check && npm run test:db",
     "fuzz": "FUZZ_SEED=${FUZZ_SEED:-$(node -p \"Math.floor(Math.random()*2**32)\")} FUZZ_RUNS=${FUZZ_RUNS:-400} sh -c 'echo FUZZ_SEED=$FUZZ_SEED; vitest run src/state/fuzz.test.ts src/domain/profile.fuzz.test.ts src/domain/challenge.fuzz.test.ts'"
   },
   "dependencies": {

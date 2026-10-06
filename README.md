@@ -159,6 +159,7 @@ npm run debug:recent # surligne les planches debug touchées depuis les deux der
 npm run import:words # régénère src/data/words/fr/ (Wikidata, Wiktionnaire, Lexique, wordfreq, Wikipédia)
 npm run import:words -- --lang=de # idem pour une autre langue (en, es, de, it, nl, pt)
 npm run import:names # régénère prenoms, identique dans les sept langues (Wikidata, wordfreq)
+npm run words:drift # compare les mots acceptés en ligne aux dictionnaires embarqués (échoue si un import manque)
 npm run web:publish  # build web et mise en ligne sur https://jfongue.github.io/lettre-minute/
 npm run android:sync # build web puis copie dans le projet Android
 npm run android:bundle # .aab signé pour le Play Store
@@ -172,7 +173,9 @@ L'application Android (et iOS plus tard) est le même jeu emballé par Capacitor
 voir [`docs/publication-android.md`](docs/publication-android.md).
 
 Pas de CI : lancer `npm test`, `npm run lint` et `npm run build` avant de
-considérer un changement terminé.
+considérer un changement terminé. `npm run check:full` ajoute les tests SQL
+(`npm run test:db`, Docker) : à lancer dès qu'une migration ou une fonction du
+serveur change.
 
 ## Le barème
 
