@@ -646,6 +646,10 @@ export function App() {
   /** Starts the device over as a new anonymous player, after a sign-out or an erase. */
   const forget = () => {
     clearLocalData()
+    // The code of whoever invited the player who leaves must not befriend the
+    // next account made on this device.
+    clearInviteRef()
+    setInviteRef(null)
     dispatch({ type: 'profile-loaded', profile: NEW_PROFILE })
     setAvatar(DEFAULT_AVATAR)
     setHistory([])
