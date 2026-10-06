@@ -923,6 +923,7 @@ cheerAria: (label: string) => `Suggest ${label}`,
       start: 'Let me play',
       skip: 'Skip',
       again: 'Read the rules again',
+    next: 'Next',
       seats: {
         title: 'Build your table',
         text: 'Invite up to three house players, then declare yourself ready: the duel starts once the whole table is.',

@@ -1674,10 +1674,11 @@
   .dealt--offered,
   .dealt-tile--open .dealt-shape,
   .dealt-tile--cheered .dealt-shape,
-  .demo-tile,
-  .demo-track i,
-  .demo-caret,
-  .demo-death {
+  .demo-seat__tick,
+  .demo-seat--lit,
+  .demo-pool__tile--taken,
+  .demo-slot__delta,
+  .demo-caret {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -1690,30 +1691,185 @@
 
 /* --------------------------------------------------------------- le tuto - */
 
-/* Le duel s'explique en le jouant : une partie entière tient dans ce cadre et
-s'y rejoue en boucle, accélérée. Le mouvement vient des images qui se succèdent
-et des barres qui coulent — jamais d'un défilement de page : le cadre garde sa
-hauteur d'un temps à l'autre. */
+/* Le duel s'explique en trois saynètes, chacune montrée par les figures du jeu
+ramenées à l'essentiel : des avatars, des tuiles, une lettre. Jamais un nom ni
+un libellé. Le cadre garde sa hauteur d'un temps à l'autre, le mouvement ne fait
+jamais défiler la page, et rien n'y est cliquable — le bouton du bas avance. */
 .demo-stage {
   display: grid;
   align-content: center;
-  gap: 0.7rem;
+  gap: 1.1rem;
   min-width: 0;
-  min-height: 19rem;
-  padding: 0.8rem 0.6rem;
+  min-height: 17rem;
+  padding: 0.9rem 0.6rem;
   border: var(--line) solid var(--rule);
   overflow: hidden;
 }
 
-/* La barre du bas dit où en est la boucle : elle coule d'une image à l'autre. */
-.demo-track {
-  display: block;
+/* 1 — les places se remplissent, puis se cochent. Que des avatars : les noms et
+les profils attendent dans le salon. */
+.demo-seats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.7rem;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.demo-seat {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 3.2rem;
+  height: 3.2rem;
+}
+
+.demo-seat--empty {
+  border: var(--line) dashed var(--rule);
+  border-radius: 50%;
+}
+
+.demo-seat .avatar {
+  width: 2.6rem;
+}
+
+/* Prêt : un point vert, aucun mot à lire. */
+.demo-seat__tick {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: var(--green);
+  color: var(--cream);
+  font-size: 0.66rem;
+  font-weight: 800;
+  animation: demo-pop 320ms var(--ease-spring) both;
+}
+
+/* La place que le sort a désignée : l'anneau reste après le mouvement. */
+.demo-seat--lit {
+  border-radius: 50%;
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+  animation: demo-lit 420ms var(--ease-spring) both;
+}
+
+/* Sous les tuiles, les places sont plus petites qu'elles : la ligne se lit comme
+la table, pas comme une rangée de tuiles de plus. */
+.demo-picks .demo-seat {
+  width: 2.6rem;
+  height: 2.6rem;
+}
+
+.demo-picks .demo-seat .avatar {
+  width: 2.1rem;
+}
+
+/* 2 — les thèmes tombent un à un, la dernière catégorie au sort : des tuiles
+nues, puis leur figure et leur couleur, jamais leur nom. */
+.demo-pool {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.demo-pool__tile {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: var(--line) dashed var(--rule);
+}
+
+.demo-pool__tile--taken {
+  border-style: solid;
+  border-color: transparent;
+  animation: demo-pop 320ms var(--ease-spring) both;
+}
+
+.demo-pool__icon {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+/* Une tuile pas encore prise, et la dernière, que le sort tient encore. */
+.demo-pool__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--rule);
+}
+
+.demo-pool__dot--luck {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  color: var(--ink-faint);
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* 3 — la partie : la table et ses réserves, puis la lettre et le mot. */
+.demo-play {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.demo-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4rem;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.demo-slot {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  opacity: 0.4;
+  transition: opacity 220ms ease;
+}
+
+.demo-slot--active {
+  opacity: 1;
+}
+
+.demo-slot--dead {
+  opacity: 0.22;
+}
+
+.demo-slot .avatar {
+  width: 2rem;
+}
+
+.demo-slot__bar {
+  width: 100%;
   height: 3px;
   background: var(--rule);
   overflow: hidden;
 }
 
-.demo-track i {
+.demo-slot__bar i {
   display: block;
   height: 100%;
   background: var(--ink);
@@ -1721,182 +1877,100 @@ hauteur d'un temps à l'autre. */
   transition: transform 400ms linear;
 }
 
-.rules-text {
-  min-height: 3.4rem;
-  animation: fade 300ms ease both;
+.demo-slot--active .demo-slot__bar i {
+  background: var(--red);
 }
 
-/* 1 — les places se remplissent, puis se tamponnent « Prêt ». Les cartes du
-salon sont reprises telles quelles : le joueur les retrouvera en vrai. */
-.demo-stage .duel-seats {
-  gap: 0.45rem;
-}
-
-.demo-stage .duel-seatcard__face .avatar {
-  width: clamp(1.8rem, 9vw, 2.4rem);
-}
-
-.demo-stage .duel-seatcard__text b {
-  font-size: 0.78rem;
-}
-
-/* 2 — les choix tombent un à un, la dernière catégorie au sort. L'ordre est
-celui du jeu ; les tuiles sont une grille serrée, à l'échelle du cadre. */
-.demo-draft {
-  display: grid;
-  gap: 0.55rem;
-  min-width: 0;
-}
-
-.demo-tiles {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.3rem;
-  padding: 0;
-  margin: 0;
-}
-
-.demo-tile {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.35rem;
-  min-width: 0;
-  overflow: hidden;
-  padding: 0.4rem 0.45rem;
+/* Le temps ne s'écrit que sur la place dont c'est le tour : la réserve ne coule
+que là. Les autres se lisent à leur barre. */
+.demo-slot__clock {
+  min-height: 1rem;
   font-size: 0.68rem;
-  font-weight: 700;
-  line-height: 1.05;
-  animation: pop-in 320ms var(--ease-spring) both;
-}
-
-.demo-tile__icon {
-  width: 1.1rem;
-  height: 1.1rem;
-}
-
-.demo-tile--taken {
-  opacity: 0.55;
-}
-
-.demo-tile__stamp {
-  grid-column: 1 / -1;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  min-width: 0;
-  overflow: hidden;
-  font-size: 0.58rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  animation: duel-stamp 320ms var(--ease-spring) both;
+  font-variant-numeric: tabular-nums;
 }
 
-.demo-tile__stamp .avatar {
-  width: 1.15rem;
-}
-
-/* Le cadre est une grille : sans ces zéros, la plus large ligne d'une scène
-impose sa largeur minimale à toute la feuille, qui déborde alors du téléphone. */
-.demo-stage > *,
-.demo-stage .duel-strip,
-.demo-stage .duel-seats,
-.demo-stage .duel-board,
-.demo-stage .duel-face,
-.demo-stage .duel-pool li,
-.demo-tile__name,
-.demo-tile__who {
-  min-width: 0;
-}
-
-.demo-tile__name,
-.demo-tile__who,
-.demo-stage .duel-pool li {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Le tirage de l'ouvreur, dans le même cadre : les cinq catégories prises en
-tête, les places qui s'allument dessous. */
-.demo-opening {
-  display: grid;
-  gap: 0.7rem;
-  min-width: 0;
-}
-
-/* 3 — la partie : la table, son fil, le couple et le mot qui s'écrit. */
-.demo-play {
-  display: grid;
-  gap: 0.6rem;
-  min-width: 0;
-}
-
-/* La mort prend la place du plateau, pas celle de la table : la bande des
-places et le fil du jeu restent au-dessus, à leur hauteur. */
-.demo-board {
-  position: relative;
-  display: grid;
-  align-content: center;
-  gap: 0.6rem;
-  min-width: 0;
-  min-height: 12.5rem;
-}
-
-.demo-death {
+.demo-slot__delta {
   position: absolute;
-  inset: 0;
+  top: 1.5rem;
+  font-size: 0.66rem;
+  font-style: normal;
+  font-weight: 800;
+  color: var(--green);
+  animation: demo-float 1000ms var(--ease-out) both;
+}
+
+.demo-slot__delta--loss {
+  color: var(--red);
+}
+
+.demo-prompt {
   display: grid;
   place-items: center;
-  padding: 0.3rem;
-  animation: fade 200ms ease both;
+  min-height: 3.5rem;
 }
 
-.demo-death .duel-death__card {
-  gap: 0.3rem;
-  width: 100%;
-  padding: 0.8rem 0.7rem 0.7rem;
-}
-
-.demo-death .duel-death__face,
-.demo-death .duel-death__face .avatar {
-  width: 3rem;
-}
-
-.demo-death .duel-death__cross {
-  font-size: 2.4rem;
-}
-
-.demo-death .duel-death__name {
-  font-size: 1.2rem;
-}
-
-.demo-death .duel-death__winner {
-  font-size: 0.9rem;
-}
-
-/* Le champ du jeu, sans saisie : le mot s'y écrit tout seul. */
-.demo-field {
-  min-height: 2.7rem;
-  padding: 0.4rem 0.1rem;
+/* Le mot s'écrit tout seul : pas de champ, pas de clavier. */
+.demo-word {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.08rem;
+  min-height: 2.6rem;
   border-bottom: 3px solid var(--rule);
-  font-size: clamp(1.7rem, 8vw, 2.2rem);
+  font-size: clamp(1.6rem, 8vw, 2.1rem);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
-.answer--valid .demo-field {
+.demo-word--valid {
   border-bottom-color: var(--green);
 }
 
 .demo-caret {
   display: inline-block;
   width: 2px;
-  height: 1.7rem;
-  margin-left: 2px;
+  height: 1.5rem;
   background: var(--red);
   vertical-align: -0.2rem;
   animation: throb 1.1s var(--ease-out) infinite;
+}
+
+.demo-text {
+  min-height: 3.4rem;
+  animation: fade 300ms ease both;
+}
+
+@keyframes demo-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes demo-lit {
+  from {
+    transform: scale(1.25);
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes demo-float {
+  from {
+    opacity: 0;
+    transform: translateY(0.3rem);
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-0.6rem);
+  }
 }

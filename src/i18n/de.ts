@@ -918,6 +918,7 @@ cheerAria: (label: string) => `${label} vorschlagen`,
       start: 'Los geht’s',
       skip: 'Überspringen',
       again: 'Regeln nochmal ansehen',
+    next: 'Weiter',
       seats: {
         title: 'Bildet euren Tisch',
         text: 'Lade bis zu drei Hausspieler ein und melde dich bereit: Das Duell startet, sobald es der ganze Tisch ist.',

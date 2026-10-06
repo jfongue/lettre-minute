@@ -919,6 +919,7 @@ cheerAria: (label: string) => `${label} aanraden`,
       start: 'Ik speel',
       skip: 'Overslaan',
       again: 'Bekijk de regels opnieuw',
+    next: 'Volgende',
       seats: {
         title: 'Vorm je tafel',
         text: 'Nodig tot drie huisspelers uit en meld je klaar: het duel begint zodra de hele tafel het is.',

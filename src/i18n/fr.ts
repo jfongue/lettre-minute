@@ -930,6 +930,7 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
       start: 'Je joue',
       skip: 'Passer',
       again: 'Revoir les règles',
+    next: 'Suivant',
       seats: {
         title: 'Forme ta table',
         text: 'Invite jusqu’à trois joueurs maison, puis déclare-toi prêt : le duel part quand toute la table l’est.',

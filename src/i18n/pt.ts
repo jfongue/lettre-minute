@@ -920,6 +920,7 @@ cheerAria: (label: string) => `Sugerir ${label}`,
       start: 'Vou jogar',
       skip: 'Saltar',
       again: 'Ver as regras de novo',
+    next: 'Seguinte',
       seats: {
         title: 'Forme a sua mesa',
         text: 'Convide até três jogadores da casa e declare-se pronto: o duelo começa quando a mesa toda estiver.',
