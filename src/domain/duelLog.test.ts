@@ -16,7 +16,7 @@ import {
   type BotProfile,
   type Duel,
 } from './duel'
-import { driverMove, replay, settle, startDuel, DUEL_ANNOUNCE_SECONDS, type DuelMove, type DuelSetup } from './duelLog'
+import { driverMove, mergeJournal, postMove, replay, settle, startDuel, DUEL_ANNOUNCE_SECONDS, DUEL_POST_TRIES, type DuelMove, type DuelPostOutcome, type DuelPoster, type DuelSetup } from './duelLog'
 
 const IDS = ['animaux', 'pays', 'villes', 'metiers', 'sports']
 
@@ -182,5 +182,92 @@ describe('le meneur', () => {
     expect(after.turn!.startedAt).toBeCloseTo(dies + DUEL_DEATH_PAUSE_SECONDS)
     expect(reserveSeconds(after, after.turn!.player, dies + 1)).toBe(DUEL_RESERVE_SECONDS + DUEL_DEATH_BONUS_SECONDS)
     expect(driverMove(after, judge, dies + 1, {})).toBeNull()
+  })
+})
+
+describe('l’envoi d’un coup', () => {
+  const mine = { seat: 0, kind: 'word', payload: 'Aanimaux0' } as const
+
+  /** Un serveur de carton : le journal qu’il tient, les réponses qu’il donne, ce que sa relecture ajoute. */
+  function serverOf(answers: readonly string[], grow: readonly DuelMove[] = []) {
+    const journal: DuelMove[] = []
+    const posted: DuelMove[] = []
+    let reads = 0
+    const poster: DuelPoster = {
+      lastSeq: () => journal.reduce((max, move) => Math.max(max, move.seq), 0),
+      movesAfter: (seq) => journal.filter((move) => move.seq > seq),
+      post: async (move) => {
+        posted.push(move)
+        // La dernière réponse vaut pour les essais suivants : un serveur qui dit
+        // « stale » le dit tant que le numéro reste pris.
+        return (answers[Math.min(posted.length, answers.length) - 1] ?? 'ok') as DuelPostOutcome
+      },
+      read: async () => {
+        reads += 1
+        journal.push(...grow)
+      },
+    }
+    return { poster, posted, reads: () => reads }
+  }
+
+  it('renvoie le coup au numéro suivant quand un autre a pris le sien', async () => {
+    const other: DuelMove = { seq: 1, seat: 1, kind: 'pick', payload: 'pays', at: 4 }
+    const { poster, posted, reads } = serverOf(['stale', 'ok'], [other])
+    const done = await postMove(poster, { move: mine, mark: 0 })
+    expect(done).toEqual({ outcome: 'ok', seq: 2 })
+    expect(posted.map((move) => move.seq)).toEqual([1, 2])
+    expect(reads()).toBe(1)
+  })
+
+  it('ne rejoue pas un coup dont la réponse s’est perdue', async () => {
+    const inscribed: DuelMove = { ...mine, seq: 1, at: 7 }
+    const { poster, posted } = serverOf(['unreachable'], [inscribed])
+    const done = await postMove(poster, { move: mine, mark: 0 })
+    expect(done).toEqual({ outcome: 'ok', seq: 1 })
+    expect(posted).toHaveLength(1)
+  })
+
+  it('laisse le coup à l’appelant quand la table est injoignable', async () => {
+    const { poster, posted } = serverOf(['unreachable'])
+    const done = await postMove(poster, { move: mine, mark: 0 })
+    expect(done.outcome).toBe('unreachable')
+    expect(posted).toHaveLength(1)
+  })
+
+  it('renonce après quelques essais sur un numéro toujours pris', async () => {
+    const { poster, posted } = serverOf(['stale'])
+    const done = await postMove(poster, { move: mine, mark: 0 })
+    expect(done.outcome).toBe('stale')
+    expect(posted).toHaveLength(DUEL_POST_TRIES)
+  })
+
+  it('ne renvoie ni un coup refusé ni un coup dans une table fermée', async () => {
+    for (const outcome of ['forbidden', 'closed'] as const) {
+      const { poster, posted, reads } = serverOf([outcome])
+      expect((await postMove(poster, { move: mine, mark: 0 })).outcome).toBe(outcome)
+      expect(posted).toHaveLength(1)
+      expect(reads()).toBe(0)
+    }
+  })
+})
+
+describe('le journal relu', () => {
+  const one: DuelMove = { seq: 1, seat: 0, kind: 'pick', payload: 'pays', at: 4 }
+  const two: DuelMove = { seq: 2, seat: 1, kind: 'pick', payload: 'animaux', at: 5 }
+  const three: DuelMove = { seq: 3, seat: 0, kind: 'word', payload: 'Aanimaux0', at: 9 }
+
+  it('garde la même référence quand la relecture n’apprend rien', () => {
+    const moves = [one, two]
+    expect(mergeJournal({ id: 't', moves }, { id: 't', moves: [...moves] }).moves).toBe(moves)
+  })
+
+  it('ajoute les coups nouveaux à la suite, sans doublon de numéro', () => {
+    const merged = mergeJournal({ id: 't', moves: [one] }, { id: 't', moves: [two, three, one] })
+    expect(merged.moves.map((move) => move.seq)).toEqual([1, 2, 3])
+  })
+
+  it('repart de zéro sur une autre table', () => {
+    const merged = mergeJournal({ id: 'a', moves: [one, two] }, { id: 'b', moves: [one] })
+    expect(merged).toEqual({ id: 'b', moves: [one] })
   })
 })

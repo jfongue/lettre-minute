@@ -220,3 +220,78 @@ export function driverMove(duel: Duel, judge: Judge | null, at: number, bots: Re
   }
   return reserveSeconds(live, turn.player, at) <= -DUEL_GRACE_SECONDS ? { seat: turn.player, kind: 'timeout', payload: '' } : null
 }
+
+// -------------------------------------------------------- l'envoi d'un coup --
+
+/** Ce que le serveur répond d'un coup : le reste n'est pas de son ressort. */
+export type DuelPostOutcome = 'ok' | 'stale' | 'closed' | 'forbidden' | 'unreachable'
+
+export interface DuelPoster {
+  /** Le dernier numéro du journal que cet appareil connaît. */
+  lastSeq(): number
+  /** Ce qui est inscrit après ce numéro : ce qui dit si un envoi sans réponse est passé. */
+  movesAfter(seq: number): readonly DuelMove[]
+  post(move: DuelMove): Promise<DuelPostOutcome>
+  /** Relit la table : c'est elle qui donne le numéro suivant. */
+  read(): Promise<void>
+}
+
+export interface DuelPost {
+  /** Le coup, sans son numéro ni son heure : le serveur les pose. */
+  move: Omit<DuelMove, 'seq' | 'at'>
+  /** Le dernier numéro connu avant le premier envoi : ce qui vient après lui vient de cet envoi. */
+  mark: number
+}
+
+export interface DuelPosted {
+  outcome: DuelPostOutcome
+  /** Le numéro visé par le dernier essai. */
+  seq: number
+}
+
+/** Combien de fois un coup perdu à la course au numéro se renvoie. */
+export const DUEL_POST_TRIES = 3
+
+/**
+ * Un coup part au numéro que la table attend, et deux appareils peuvent viser
+ * le même : le second répond `stale` — le serveur n'a rien écrit —, on relit et
+ * on renvoie au numéro suivant. Une réponse perdue en chemin, elle, laisse le
+ * coup inscrit : la relecture le retrouve après la marque, et on ne le rejoue
+ * pas. Un `unreachable` rend la main sans rien jeter : c'est à l'appelant de
+ * garder le coup et de le renvoyer avec la même marque.
+ */
+export async function postMove(poster: DuelPoster, post: DuelPost, tries = DUEL_POST_TRIES): Promise<DuelPosted> {
+  let seq = poster.lastSeq() + 1
+  for (let attempt = 0; attempt < tries; attempt += 1) {
+    seq = poster.lastSeq() + 1
+    const outcome = await poster.post({ ...post.move, seq, at: 0 })
+    if (outcome !== 'stale' && outcome !== 'unreachable') return { outcome, seq }
+    await poster.read()
+    if (poster.movesAfter(post.mark).some((one) => sameMove(one, post.move))) return { outcome: 'ok', seq }
+    if (outcome === 'unreachable') return { outcome, seq }
+  }
+  return { outcome: 'stale', seq }
+}
+
+/** Deux coups du même siège, de même sorte et de même charge : le même coup. */
+function sameMove(one: DuelMove, move: Omit<DuelMove, 'seq' | 'at'>): boolean {
+  return one.seat === move.seat && one.kind === move.kind && one.payload === move.payload
+}
+
+/**
+ * Le journal d'un appareil après une relecture : les coups nouveaux à la suite,
+ * sans doublon de numéro, et la même référence quand rien n'est nouveau — c'est
+ * ce qui évite de rejouer la partie à chaque battement de la relecture. Une
+ * autre table (une revanche) rend son journal entier : ses numéros repartent
+ * de un.
+ */
+export function mergeJournal(
+  known: { id: string | null; moves: readonly DuelMove[] },
+  fresh: { id: string | null; moves: readonly DuelMove[] },
+): { id: string | null; moves: readonly DuelMove[] } {
+  const same = known.id === fresh.id
+  const seqs = new Set((same ? known.moves : []).map((move) => move.seq))
+  const added = fresh.moves.filter((move) => !seqs.has(move.seq))
+  if (added.length === 0 && same) return { id: fresh.id, moves: known.moves }
+  return { id: fresh.id, moves: [...(same ? known.moves : []), ...added].sort((a, b) => a.seq - b.seq) }
+}

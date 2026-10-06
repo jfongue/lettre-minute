@@ -18,7 +18,7 @@ import {
   type BotProfile,
   type Duel,
 } from '../domain/duel'
-import { DUEL_ANNOUNCE_SECONDS, driverMove, replay, settle, type DuelFact, type DuelMove, type DuelSetup } from '../domain/duelLog'
+import { DUEL_ANNOUNCE_SECONDS, driverMove, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelSetup } from '../domain/duelLog'
 import { createRng } from '../domain/rng'
 import { playableCategoryIds } from '../domain/perks'
 import type { Judge, Prompt, Verdict } from '../domain/run'
@@ -326,6 +326,13 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
   const [tableId, setTableId] = useState<string | null>(null)
   const syncing = useRef(false)
   const lastSeq = table?.moves.at(-1)?.seq ?? 0
+  // Le journal que l'appareil connaît, lisible hors du rendu : un coup renvoyé
+  // après un `stale` doit partir du journal que la relecture vient d'inscrire,
+  // pas de la copie d'où l'envoi est parti.
+  const journal = useRef<{ id: string | null; moves: readonly DuelMove[] }>({ id: table?.id ?? null, moves: table?.moves ?? [] })
+  useEffect(() => {
+    journal.current = { id: table?.id ?? null, moves: table?.moves ?? [] }
+  }, [table?.id, table?.moves])
 
   const sync = useCallback(async () => {
     if (mode !== 'online' || !tableId || syncing.current) return
@@ -345,12 +352,9 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
       offset.current = { value: snapshot.now - (sent + back) / 2, rtt: Math.min(rtt, offset.current.rtt) }
     }
     const fresh = fromSnapshot(snapshot)
-    setTable((current) => {
-      if (!current || current.id !== fresh.id) return fresh
-      const known = new Set(current.moves.map((move) => move.seq))
-      const moves = [...current.moves, ...fresh.moves.filter((move) => !known.has(move.seq))].sort((a, b) => a.seq - b.seq)
-      return { ...fresh, moves: moves.length === current.moves.length ? current.moves : moves }
-    })
+    const merged = mergeJournal(journal.current, fresh)
+    journal.current = merged
+    setTable((current) => (!current || current.id !== fresh.id ? fresh : { ...fresh, moves: merged.moves }))
   }, [lastSeq, mode, table?.id, tableId])
 
   // Une table neuve dont je suis l'hôte, ou celle où l'on m'a invité.
@@ -552,13 +556,24 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     async (move: Omit<DuelMove, 'seq' | 'at'>) => {
       if (!table || posting.current) return
       posting.current = true
-      const seq = (table.moves.at(-1)?.seq ?? 0) + 1
+      const mark = table.moves.at(-1)?.seq ?? 0
       if (mode === 'local') {
-        setTable((current) => current && { ...current, moves: [...current.moves, { ...move, seq, at: wall() }] })
+        setTable((current) => current && { ...current, moves: [...current.moves, { ...move, seq: mark + 1, at: wall() }] })
         posting.current = false
         return
       }
-      if (table.id) await postDuelMove(table.id, { ...move, seq, at: 0 })
+      const id = table.id
+      if (id) {
+        // Un numéro pris par un autre appareil se renvoie au suivant : le coup
+        // ne se perd plus, il part une fois la table relue.
+        const poster = {
+          lastSeq: () => journal.current.moves.at(-1)?.seq ?? 0,
+          movesAfter: (seq: number) => journal.current.moves.filter((one) => one.seq > seq),
+          post: (one: DuelMove) => postDuelMove(id, one),
+          read: () => sync(),
+        }
+        await postMove(poster, { move, mark })
+      }
       posting.current = false
       await sync()
     },
