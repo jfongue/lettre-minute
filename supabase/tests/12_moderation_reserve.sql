@@ -65,6 +65,9 @@ select tests.ok(not exists (select 1 from public.word_submissions where word = '
 select tests.is((select count(*)::int from public.word_submissions where word = 'couvreur'), 1,
                 'nor one a player already proposed');
 select tests.is(pg_temp.top_up('rm'), 0, 'a full queue is not topped up');
+select tests.ok(
+ not exists (select 1 from public.moderation_reserve where word in ('couvreur', 'vitrier') and released_at is not null),
+ 'a seed the queue cannot use stays in the reserve');
 select tests.is(pg_temp.top_up('rm', 'de'), 0, 'each language keeps its own count');
 
 do $$

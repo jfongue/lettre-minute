@@ -165,7 +165,8 @@ begin
 end;
 $$;
 
--- A proposal made by the player himself, through RLS, as the app does.
+-- A proposal made by the player himself, through RLS, as the app does. The
+-- display never carries the language prefix the app puts on the word itself.
 create function tests.propose(p_label text, p_category text, p_word text) returns uuid
 language plpgsql as $$
 declare
@@ -173,7 +174,7 @@ declare
 begin
   perform tests.login(p_label);
   insert into public.word_submissions (player_id, category_id, word, display)
-  values (tests.uid(p_label), p_category, p_word, initcap(p_word))
+  values (tests.uid(p_label), p_category, p_word, initcap(regexp_replace(p_word, '^[a-z]{2}:', '')))
   returning id into v_id;
   perform tests.logout();
   return v_id;
