@@ -358,7 +358,7 @@ export function Draft({ table }: { table: DuelTable }) {
               <li
                 key={slot}
                 className={`duel-order__slot${current ? ' duel-order__slot--now' : ''}${taken ? ' duel-order__slot--done' : ''}`}
-                style={motif ? ({ background: `var(--${motif.tint})`, color: `var(--${onTint(motif.tint)})` } as CSSProperties) : undefined}
+                style={motif ? ({ '--i': slot, background: `var(--${motif.tint})`, color: `var(--${onTint(motif.tint)})` } as CSSProperties) : undefined}
               >
                 {taken ? <CategoryIcon categoryId={taken} tint={onTint(motif!.tint)} className="duel-order__icon" /> : seat ? <Avatar choice={seat.avatar} size="sm" /> : null}
               </li>
@@ -371,7 +371,7 @@ export function Draft({ table }: { table: DuelTable }) {
               <li
                 key={`drawn-${index}`}
                 className={`duel-order__slot duel-order__slot--luck${taken ? ' duel-order__slot--done' : ''}`}
-                style={motif ? ({ background: `var(--${motif.tint})`, color: `var(--${onTint(motif.tint)})` } as CSSProperties) : undefined}
+                style={motif ? ({ '--i': total + index, background: `var(--${motif.tint})`, color: `var(--${onTint(motif.tint)})` } as CSSProperties) : undefined}
               >
                 {taken ? <CategoryIcon categoryId={taken} tint={onTint(motif!.tint)} className="duel-order__icon" /> : <span>?</span>}
               </li>

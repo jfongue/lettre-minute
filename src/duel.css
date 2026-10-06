@@ -396,6 +396,8 @@
 .duel-order__icon {
   width: 1.1rem;
   height: 1.1rem;
+  animation: tile-bob 3.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.85s);
 }
 
 .duel-turn {
@@ -475,9 +477,17 @@
     transform 200ms var(--ease-spring);
 }
 
-/* À mon tour, les tuiles libres respirent : on comprend qu'elles se touchent. */
+/* Chaque icône flotte à son heure : la rangée vit sans battre à l'unisson. */
+.dealt--pick .dealt-shape {
+  animation: tile-bob 3.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.85s);
+}
+
+/* À mon tour, les tuiles libres respirent plus vite : on comprend qu'elles se
+   touchent. */
 .dealt-tile--open .dealt-shape {
-  animation: bob 1.6s var(--ease-out) infinite;
+  animation: bob 1.6s var(--ease-out) infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.4s);
 }
 
 .dealt-tile--taken {
@@ -495,7 +505,8 @@
 }
 
 /* Le conseil d'un spectateur : la tuile s'entoure, et son icône frémit chez
-   toute la table jusqu'à ce que le conseil ait refroidi. */
+   toute la table jusqu'à ce que le conseil ait refroidi. Chaque conseil frémit
+   à son heure : quatre tuiles qui tremblent ensemble font un seul tremblement. */
 .dealt-tile--cheer {
   cursor: pointer;
 }
@@ -506,6 +517,7 @@
 
 .dealt-tile--cheered .dealt-shape {
   animation: duel-cheer 420ms var(--ease-out) infinite;
+  animation-delay: calc(var(--i, 0) * -0.13s);
 }
 
 .duel-cheer {
@@ -1672,8 +1684,8 @@
   .duel-winner,
   .duel-armed,
   .dealt--offered,
-  .dealt-tile--open .dealt-shape,
-  .dealt-tile--cheered .dealt-shape,
+  .duel-order__icon,
+  .dealt--pick .dealt-shape,
   .demo-seat__tick,
   .demo-seat--lit,
   .demo-pool__tile--taken,
