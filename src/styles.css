@@ -8761,6 +8761,72 @@ body[data-words='board'] .offer-pop-layer {
   fill: var(--blue);
 }
 
+/* Au survol d'une souris, la carte se colore : son fond respire vers la teinte
+de son dessin, mélangée au fond du thème pour que le texte garde son contraste
+en clair comme en sombre, et la flèche avance. Le doigt n'a pas de survol : rien
+de tout cela ne le concerne. */
+@media (hover: hover) and (pointer: fine) {
+  .together-card {
+    transition: transform 180ms var(--ease-spring), background-color 220ms var(--ease-out);
+  }
+
+  .together-card--duel {
+    --together-base: var(--yellow);
+    --together-tint: var(--yellow);
+  }
+
+  .together-card--challenge {
+    --together-base: var(--paper-2);
+    --together-tint: var(--paper-2);
+  }
+
+  .together-card--duel:hover,
+  .together-card--challenge:hover {
+    transform: translate(-2px, -2px);
+    animation: together-tint 2.4s var(--ease-out) infinite alternate;
+  }
+
+  .together-card--duel:hover {
+    --together-tint: color-mix(in srgb, var(--yellow) 60%, var(--red));
+  }
+
+  .together-card--challenge:hover {
+    --together-tint: color-mix(in srgb, var(--paper-2) 62%, var(--blue));
+  }
+
+  .together-card:hover .together-go {
+    animation: together-go 2.4s var(--ease-out) infinite alternate;
+  }
+
+  .together-close {
+    transition: color 160ms var(--ease-out);
+  }
+
+  .together-close:hover {
+    color: var(--ink);
+  }
+}
+
+@keyframes together-tint {
+  from {
+    background-color: var(--together-base);
+  }
+
+  to {
+    background-color: var(--together-tint);
+  }
+}
+
+@keyframes together-go {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(0.4rem);
+  }
+}
+
 /* -------------------------------------------- une invitation à une table - */
 .duel-invite-card {
   display: grid;
