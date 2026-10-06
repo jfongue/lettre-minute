@@ -211,6 +211,7 @@ export const en: Messages = {
     editAvatar: 'Edit avatar',
     signedInAs: (email) => `Signed in as ${email}`,
     logOut: 'Sign out',
+  logOutWarning: 'Your account keeps your games; this device starts over.',
     accountTitle: 'Your account',
     accountLead: 'Your games follow you from one device to another, your name enters the leaderboard and your friends can find you.',
     offline: 'Offline: your progress stays on this device.',
@@ -319,7 +320,7 @@ export const en: Messages = {
   stats: {
     empty: 'Play a game: your statistics start here.',
     partial: 'The details do not go back to all your games.',
-    average: 'recent average',
+    average: 'average of the last 10',
     best: 'best score',
     trend: 'vs the 10 before',
     recent: 'Recent games',
@@ -758,13 +759,14 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
 
   peek: {
     title: 'What you could have written',
+  left: (remaining, total) => `${remaining} reveals of ${total}`,
     reveal: (category: string, letter: string) => `Reveal a word on ${letter}: ${category}`,
   },
 
   checkout: {
     title: 'Secure checkout',
     plan: 'Premium',
-    perkBans: 'Ban as many categories as you like',
+    perkBans: (max) => `Ban up to ${max} categories`,
     perkPeeks: 'Reveal every hidden word',
     perkCategories: 'Exclusive categories',
     perkEvents: 'Event game modes',

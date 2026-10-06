@@ -205,6 +205,7 @@ export const nl: Messages = {
     editAvatar: 'Avatar bewerken',
     signedInAs: (email) => `Ingelogd als ${email}`,
     logOut: 'Uitloggen',
+  logOutWarning: 'Je account houdt je potjes; dit toestel begint opnieuw.',
     accountTitle: 'Je account',
     accountLead: 'Je spellen volgen je van het ene apparaat naar het andere, je naam komt in het klassement en je vrienden kunnen je vinden.',
     offline: 'Offline: je voortgang blijft op dit apparaat.',
@@ -313,7 +314,7 @@ export const nl: Messages = {
   stats: {
     empty: 'Speel een potje: hier beginnen je statistieken.',
     partial: 'De details gaan niet terug tot al je potjes.',
-    average: 'recent gemiddelde',
+    average: 'gemiddelde van de laatste 10',
     best: 'record',
     trend: 'vs de 10 ervoor',
     recent: 'Recente potjes',
@@ -753,13 +754,14 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
 
   peek: {
     title: 'Wat je had kunnen schrijven',
+  left: (remaining, total) => `${remaining} van ${total} onthullingen`,
     reveal: (category: string, letter: string) => `Een woord met ${letter} onthullen: ${category}`,
   },
 
   checkout: {
     title: 'Veilig betalen',
     plan: 'Premium',
-    perkBans: 'Zoveel categorieën weren als je wilt',
+    perkBans: (max) => `Wer tot ${max} categorieën`,
     perkPeeks: 'Alle verborgen woorden onthullen',
     perkCategories: 'Exclusieve categorieën',
     perkEvents: 'Evenement-spelmodi',

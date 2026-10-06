@@ -224,6 +224,8 @@ const PACK_WARM_GAP_MS = 400
 
 /** The drawer's way out, as long as `menu-out` in styles.css. */
 const MENU_LEAVE_MS = 200
+/** A run in progress takes two back presses this close together. */
+const LEAVE_RUN_MS = 2000
 // A card's scrim closes it like its « Plus tard »: the tap clicks the same.
 const TAPPABLE = 'button, a, summary, input[type="checkbox"], .offer-pop-scrim'
 const TYPED = new Set(['text', 'email', 'password', 'search'])
@@ -290,12 +292,14 @@ export function App() {
   const speak = useCallback((next: Locale) => {
     trackFeature('language', { lang: next })
     // A language is loaded before it is shown: rendered first, it would flash French.
+    // The language changes only once its messages are there: a failure keeps
+    // the one on screen, rather than a locale holding French words.
     void loadMessages(next)
-      .catch(() => undefined)
       .then(() => {
         setLocale(next)
         saveLocale(next)
       })
+      .catch(() => undefined)
   }, [])
   useEffect(() => {
     if (locale) applyLocale(locale)
@@ -656,6 +660,8 @@ export function App() {
   phase.current = session.phase
   const menuShown = useRef(menuOpen)
   menuShown.current = menuOpen
+  // When the last back press came in, so a run takes two of them.
+  const leftRun = useRef(0)
   // The challenge screens close one at a time, the way they opened.
   const closeChallengeLayer = useRef<() => boolean>(() => false)
   useEffect(
@@ -664,11 +670,22 @@ export function App() {
         // A pop-up is above whatever screen it covers: it goes first.
         if (dismissTopOverlay()) return true
         if (menuShown.current) {
-          setMenuPage(null)
+          // From a sub-page, back hands the profile back before closing the drawer.
+          setMenuPage((page) => (page === 'stats' || page === 'requests' || page === 'categories' || page === 'boards' ? 'profile' : null))
           return true
         }
         if (closeChallengeLayer.current()) return true
         if (phase.current === 'home' || phase.current === 'loading') return false
+        // A run in progress would be lost by one back press: it takes two.
+        if (phase.current === 'playing' || phase.current === 'countdown') {
+          const now = Date.now()
+          if (now - leftRun.current > LEAVE_RUN_MS) {
+            leftRun.current = now
+            tapFeedback()
+            return true
+          }
+          leftRun.current = 0
+        }
         dispatch({ type: 'home' })
         return true
       }),

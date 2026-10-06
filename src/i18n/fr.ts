@@ -234,6 +234,7 @@ export const fr = {
     editAvatar: 'Modifier l’avatar',
     signedInAs: (email: string) => `Connecté avec ${email}`,
     logOut: 'Se déconnecter',
+  logOutWarning: 'Ton compte garde tes parties ; cet appareil, lui, repart de zéro.',
     accountTitle: 'Ton compte',
     accountLead:
       'Tes parties te suivent d’un appareil à l’autre, ton nom entre au classement et tes amis peuvent te trouver.',
@@ -350,7 +351,7 @@ export const fr = {
   stats: {
     empty: 'Joue une partie : tes statistiques commencent ici.',
     partial: 'Le détail ne remonte pas à toutes tes parties.',
-    average: 'moyenne récente',
+    average: 'moyenne des 10 dernières',
     best: 'record',
     trend: 'vs les 10 d’avant',
     recent: 'Parties récentes',
@@ -800,13 +801,14 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
 
   peek: {
     title: 'Ce que tu aurais pu écrire',
+  left: (remaining: number, total: number) => `${remaining} révélations sur ${total}`,
     reveal: (category: string, letter: string) => `Révéler un mot en ${letter} : ${category}`,
   },
 
   checkout: {
     title: 'Paiement sécurisé',
     plan: 'Premium',
-    perkBans: 'Bannir autant de catégories que tu veux',
+    perkBans: (max: number) => `Bannis jusqu’à ${max} catégories`,
     perkPeeks: 'Révéler tous les mots cachés',
     perkCategories: 'Des catégories exclusives',
     perkEvents: 'Des modes de jeu événements',

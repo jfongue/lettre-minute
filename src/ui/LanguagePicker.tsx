@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import { LOCALES, type Locale } from '../i18n'
+import { fr } from '../i18n/fr'
 import { Shape } from './bauhaus'
 
 /**
@@ -12,8 +13,8 @@ export function LanguagePicker({ onPick }: { onPick(locale: Locale): void }) {
     <div className="sheet cascade language-picker">
       <header className="masthead">
         <h1 className="title">
-          <span>Lettre</span>
-          <span>Minute</span>
+          <span>{fr.appName[0]}</span>
+          <span>{fr.appName[1]}</span>
         </h1>
       </header>
 

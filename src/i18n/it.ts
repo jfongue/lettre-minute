@@ -206,6 +206,7 @@ export const it: Messages = {
     editAvatar: 'Modifica l’avatar',
     signedInAs: (email) => `Connesso con ${email}`,
     logOut: 'Esci',
+  logOutWarning: 'Il tuo account tiene le partite; questo dispositivo riparte da zero.',
     accountTitle: 'Il tuo account',
     accountLead: 'Le tue partite ti seguono da un dispositivo all’altro, il tuo nome entra in classifica e i tuoi amici possono trovarti.',
     offline: 'Offline: i tuoi progressi restano su questo dispositivo.',
@@ -314,7 +315,7 @@ export const it: Messages = {
   stats: {
     empty: 'Gioca una partita: le tue statistiche cominciano qui.',
     partial: 'Il dettaglio non risale a tutte le tue partite.',
-    average: 'media recente',
+    average: 'media delle ultime 10',
     best: 'record',
     trend: 'vs le 10 prima',
     recent: 'Partite recenti',
@@ -754,13 +755,14 @@ flawless: ['Senza errori', 'Ogni tre parole valide digitate senza errori danno s
 
   peek: {
     title: 'Cosa avresti potuto scrivere',
+  left: (remaining, total) => `${remaining} rivelazioni su ${total}`,
     reveal: (category: string, letter: string) => `Rivela una parola con ${letter}: ${category}`,
   },
 
   checkout: {
     title: 'Pagamento sicuro',
     plan: 'Premium',
-    perkBans: 'Escludi tutte le categorie che vuoi',
+    perkBans: (max) => `Escludi fino a ${max} categorie`,
     perkPeeks: 'Rivela tutte le parole nascoste',
     perkCategories: 'Categorie esclusive',
     perkEvents: 'Modalità di gioco eventi',

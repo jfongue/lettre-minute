@@ -61,8 +61,9 @@ function isPane(page: MenuPage): page is MenuPane {
 }
 
 // A published app must link its privacy policy. Inside the phone shell a
-// relative link would navigate the game's own view away, hence a full URL.
-const PRIVACY_URL = import.meta.env.VITE_PRIVACY_URL || '/confidentialite.html'
+// relative link would navigate the game's own view away, so the address must
+// be a full URL: without one, the link is not shown at all.
+const PRIVACY_URL = import.meta.env.VITE_PRIVACY_URL
 
 interface MenuProps {
   /** Where the drawer opens: a tab, or one of the profile's pages. */
@@ -325,6 +326,7 @@ function ProfilePane({
   const named = account && !account.anonymous
   const avatars = useFeature('avatar')
   const support = useFeature('support')
+  const [logOutAsking, setLogOutAsking] = useState(false)
 
   return (
     <div className="profile-pane">
@@ -348,9 +350,21 @@ function ProfilePane({
       {named && (
         <div className="stack">
           {account.email && <p className="note">{t.menu.signedInAs(account.email)}</p>}
-          <button type="button" className="btn btn--quiet btn--muted menu-start" onClick={onLogOut}>
-            {t.menu.logOut}
-          </button>
+          {logOutAsking ? (
+            <p className="erase-confirm">
+              <span className="note">{t.menu.logOutWarning}</span>
+              <button type="button" className="btn btn--quiet" onClick={onLogOut}>
+                {t.menu.logOut}
+              </button>
+              <button type="button" className="btn btn--quiet btn--muted" onClick={() => setLogOutAsking(false)}>
+                {t.cancel}
+              </button>
+            </p>
+          ) : (
+            <button type="button" className="btn btn--quiet btn--muted menu-start" onClick={() => setLogOutAsking(true)}>
+              {t.menu.logOut}
+            </button>
+          )}
         </div>
       )}
 
@@ -638,9 +652,11 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onErase
       ) : null}
 
       <div className="menu-foot">
-        <a className="btn btn--quiet menu-start" href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
-          {t.options.privacy}
-        </a>
+        {PRIVACY_URL ? (
+          <a className="btn btn--quiet menu-start" href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
+            {t.options.privacy}
+          </a>
+        ) : null}
         {adChoices && (
           <button type="button" className="btn btn--quiet menu-start" onClick={showAdPrivacyOptions}>
             {t.options.adPrivacy}

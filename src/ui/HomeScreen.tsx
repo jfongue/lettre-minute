@@ -130,7 +130,7 @@ export function HomeScreen({
         </div>
       )}
 
-      {introDone && settled && (
+      {settled && (
         <div className="home-body cascade">
           <div className="stack">
             <button type="button" className="btn btn--play btn--block" onClick={onPlay} disabled={loading}>

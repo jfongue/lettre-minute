@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { MAX_BANS } from '../domain/perks'
 import { useT } from '../i18n'
 import { tapFeedback } from '../lib/native'
 import { sound } from '../lib/sound'
@@ -64,7 +65,7 @@ export function Checkout({ onPaid, onCancel }: { onPaid(): void; onCancel(): voi
                 <span>{t.checkout.price}</span>
               </div>
               <ul className="checkout-perks">
-                <li>{t.checkout.perkBans}</li>
+                <li>{t.checkout.perkBans(MAX_BANS)}</li>
                 <li>{t.checkout.perkPeeks}</li>
                 <li>{t.checkout.perkCategories}</li>
                 <li>{t.checkout.perkEvents}</li>
