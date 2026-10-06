@@ -215,3 +215,51 @@ select tests.login('dh');
 select public.duel_leave((select id from abandon));
 select tests.is(tests.duel_status((select id from abandon)), 'closed', 'the last player leaving closes it, house player and all');
 select tests.logout();
+
+-- ------------------------------------------ un compte effacé en partie --
+
+-- La place garde son rang quand le compte s'efface : le rejeu adresse la place
+-- et non le joueur, donc une ligne disparue réécrivait l'histoire (0050).
+select tests.login('dh');
+create temp table erased as select public.duel_create('fr', array['animaux', 'pays'], 4) as id;
+grant select on erased to public;
+select public.duel_invite((select id from erased), tests.bot());
+select public.duel_invite((select id from erased), tests.uid('df'));
+select tests.logout();
+
+select tests.login('df');
+select public.duel_join((select id from erased), 5);
+select public.duel_ready((select id from erased), true);
+select tests.logout();
+
+select tests.login('dh');
+select tests.is(public.duel_ready((select id from erased), true), 'started', 'a table opens with a friend and a house player');
+select tests.is(public.duel_move((select id from erased), 1, 0, 'pick', 'animaux'), 'ok', 'the host opens the draft');
+select tests.logout();
+
+select tests.login('df');
+select public.delete_my_account();
+select tests.logout();
+
+select tests.login('dh');
+select tests.is(tests.duel_status((select id from erased)), 'playing', 'a deleted account leaves the table playing');
+select tests.is(
+  (select count(*)::int from jsonb_array_elements(public.duel_sync((select id from erased), 0) -> 'seats') s),
+  3, 'his seat is still read, at its rank'
+);
+select tests.is(
+  (select (s ->> 'seat') is not null from jsonb_array_elements(public.duel_sync((select id from erased), 0) -> 'seats') s
+   where s ->> 'player' is null),
+  true, 'and the seat carries no player any more'
+);
+select tests.is(
+  (select (s ->> 'left')::boolean from jsonb_array_elements(public.duel_sync((select id from erased), 0) -> 'seats') s
+   where s ->> 'player' is null),
+  true, 'and reads as gone'
+);
+select tests.age_seat((select id from erased), (select (s ->> 'seat')::int from jsonb_array_elements(public.duel_sync((select id from erased), 0) -> 'seats') s where s ->> 'player' is null), 10);
+select tests.is(
+  public.duel_move((select id from erased), 2, (select (s ->> 'seat')::int from jsonb_array_elements(public.duel_sync((select id from erased), 0) -> 'seats') s where s ->> 'player' is null), 'timeout', ''),
+  'ok', 'and the driver still buries the seat that left'
+);
+select tests.logout();

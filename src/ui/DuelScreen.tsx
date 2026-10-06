@@ -1137,12 +1137,13 @@ function DuelTableScreen({ lang, mode, join, onExit, onBots }: Required<Omit<Due
 
   if (table.offline && !table.joined) return <Notice title={t.duel.offlineTitle} text={t.duel.offlineLead} onBots={onBots} onBack={() => onExit?.(null)} />
   if (table.error) return <Notice text={t.duel.loadFailed} onBack={() => (onExit ? onExit(null) : table.leave())} />
-  if (phase === 'connecting') return <Notice text={t.duel.connecting} />
+  if (phase === 'connecting') return <Notice text={t.duel.connecting} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} onRules={() => setRules(true)} />
   if (phase === 'draft' && table.duel) return <Draft table={table} />
   if (phase === 'opening' && table.duel) return <Opening table={table} />
   if ((phase === 'play' || phase === 'deaths') && table.duel && table.judge && table.prompt) return <Play table={table} />
   if (phase === 'over' && table.duel) return <Over table={table} />
-  return <Notice text={t.duel.connecting} />
+  // Un état que l'écran n'attendait pas ne doit pas enfermer le joueur.
+  return <Notice text={t.duel.connecting} onBack={() => (onExit ? onExit(null) : table.leave())} />
 }

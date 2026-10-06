@@ -1681,8 +1681,9 @@ export function openDuelRematch(table: string, owned: number): Promise<string | 
 }
 
 export interface DuelSeatRow {
-  player: string
-  name: string
+  /** Vide quand le compte du joueur s'est effacé en pleine partie : la place reste. */
+  player: string | null
+  name: string | null
   avatar: AvatarChoice
   bot: boolean
   owned: number
@@ -1733,8 +1734,8 @@ export function syncDuel(table: string, after: number): Promise<DuelSnapshot | n
         rematch: (info.rematch as string | null) ?? null,
       },
       seats: ((row.seats as Record<string, unknown>[]) ?? []).map((seat) => ({
-        player: seat.player as string,
-        name: seat.name as string,
+        player: (seat.player as string | null) ?? null,
+        name: (seat.name as string | null) ?? null,
         avatar: parseAvatar(seat.avatar),
         bot: seat.bot === true,
         owned: Number(seat.owned) || 0,

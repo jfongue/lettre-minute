@@ -1181,12 +1181,14 @@
 
 /* La partie reste à l'écran, assombrie : la mort se joue par-dessus, jamais à
    la place. Le tombé se barre, trois temps passent, la main revient. */
+/* La mise en scène d'une mort se pose en bas : la table reste entière derrière
+   (frise, couple, champ), la carte occupe la bande libre sous les boutons. */
 .duel-death {
   position: fixed;
   inset: 0;
   z-index: 40;
   display: grid;
-  place-items: center;
+  place-items: end center;
   padding: var(--gutter);
   background: rgb(0 0 0 / 42%);
   backdrop-filter: blur(1.5px);

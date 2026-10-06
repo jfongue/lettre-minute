@@ -257,10 +257,10 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
     startedAt: snapshot.table.startedAt,
     rematch: snapshot.table.rematch,
     seats: snapshot.seats.map((row) => {
-      const house = row.bot ? botByName(row.name) : undefined
+      const house = row.bot && row.name ? botByName(row.name) : undefined
       return {
-        id: row.player,
-        name: row.name,
+        id: row.player ?? '',
+        name: row.name ?? '',
         avatar: row.avatar,
         bot: row.bot,
         trait: house?.trait,
@@ -268,7 +268,8 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
         owned: row.bot ? 999 : row.owned,
         ready: row.ready,
         seat: row.seat,
-        gone: row.left || row.kicked,
+        // La place d'un compte effacé reste à son rang : elle est partie, pas disparue.
+        gone: row.left || row.kicked || row.player === null,
         kicked: row.kicked,
         seen: row.seen,
       }
