@@ -21,11 +21,13 @@ import {
   type RarityTier,
   type WordUsage,
 } from './rarity'
+import { ENDURANCE_TIME_BONUS, MODE_SECONDS, modeEdge, type GameMode } from './modes'
 import { pickWeighted, streamFor, type Rng } from './rng'
-import { compactWord, initialOf, normalizeWord } from './text'
+import { compactWord, finalOf, initialOf, normalizeWord } from './text'
 import { knownByLetter, type WordMatch, type WordPack } from './words'
 
-export const RUN_SECONDS = 60
+/** La durée du solo, sur laquelle l'écran dessine son disque. */
+export const RUN_SECONDS = MODE_SECONDS.solo
 /** A skip costs clock, not points: the player always leaves with what they found. */
 export const SKIP_PENALTY_SECONDS = 5
 /**
@@ -110,6 +112,18 @@ export interface Judge {
 
 export interface Run {
   seed: number
+  /**
+   * Le mode de la réserve qui change une règle du solo, « solo » pour la
+   * partie ordinaire. Il fixe la durée, la lettre jugée et ce qu'un mot rend.
+   */
+  mode: GameMode
+  /**
+   * Le mode retard : la question à laquelle le champ répond vraiment, une
+   * derrière celle qui est affichée. Null partout ailleurs.
+   */
+  answer: Prompt | null
+  /** Le retard attend une première validation à vide : c'est elle qui lance le chrono. */
+  armed: boolean
   categoryIds: readonly string[]
   prompt: Prompt
   /** How many prompts have been drawn, which also seeds the next draw. */
@@ -157,6 +171,8 @@ export interface Run {
   chatter: number
 /** Extra seconds earned by Retardataire. */
 latecomerSeconds: number
+/** Secondes rendues par les mots validés, en endurance. */
+bonusSeconds: number
 /** Correct words in the current streak that count toward Sans faute. */
 flawlessStreak: number
 /** A free follow-up skip from Passe-passe is ready after a paid skip. */
@@ -249,17 +265,33 @@ function advance(
   judge: Judge,
   /** The prompt being left was answered. */
   answered: boolean,
-): Pick<Run, 'prompt' | 'drawn' | 'dealt' | 'seeded' | 'settled' | 'joker'> {
+): Pick<Run, 'prompt' | 'answer' | 'drawn' | 'dealt' | 'seeded' | 'settled' | 'joker'> {
   const prompt = nextPrompt(run, judge)
   const key = promptKey(prompt)
   return {
     prompt,
+    // Le retard garde la question quittée : c'est elle que le champ doit encore satisfaire.
+    answer: run.mode === 'delayed' ? run.prompt : null,
     drawn: run.drawn + 1,
     dealt: run.dealt.includes(key) ? run.dealt : [...run.dealt, key],
     seeded: run.seeded.includes(key) ? run.seeded : [...run.seeded, key],
     settled: [...run.settled, { prompt: run.prompt, passed: !answered }],
     joker: null,
   }
+}
+
+/** La question que le champ doit satisfaire : celle d'avant, en mode retard. */
+export function answerPrompt(run: Run): Prompt {
+  return run.answer ?? run.prompt
+}
+
+/**
+ * Le retard commence : la question affichée s'en va sans réponse — le clic qui
+ * la valide est aussi celui qui lance le chrono — et la suivante prend sa place.
+ */
+export function arm(run: Run, judge: Judge): Run {
+  if (run.armed) return run
+  return { ...run, ...advance(run, judge, false), armed: true }
 }
 
 /**
@@ -291,6 +323,8 @@ function spend(run: Run, power: PowerId): Run['charges'] {
 
 export interface CreateRunInput {
   seed: number
+  /** La réserve : « solo » par défaut, la partie ordinaire. */
+  mode?: GameMode
   categoryIds: readonly string[]
   /** The prompts the previous run dealt. */
   avoid?: readonly string[]
@@ -299,10 +333,14 @@ export interface CreateRunInput {
   shared?: boolean
 }
 
-export function createRun({ seed, categoryIds, avoid = [], powers = [], shared = false }: CreateRunInput, judge: Judge): Run {
+export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers = [], shared = false }: CreateRunInput, judge: Judge): Run {
   const prompt = drawPrompt(seed, 0, categoryIds, judge, new Set(avoid))
   return {
     seed,
+    mode,
+    answer: null,
+    // Le retard attend une première validation à vide : c'est elle qui lance le chrono.
+    armed: mode !== 'delayed',
     categoryIds,
     prompt,
     drawn: 1,
@@ -327,6 +365,7 @@ export function createRun({ seed, categoryIds, avoid = [], powers = [], shared =
     rerolls: 0,
 chatter: 0,
 latecomerSeconds: 0,
+bonusSeconds: 0,
 flawlessStreak: 0,
 freeSkipReady: false,
   }
@@ -354,6 +393,9 @@ function spellOf(run: Run, raw: string, judge: Judge): Spell | undefined {
  * a spell: « Chut » stays an answer wherever a category knows it.
  */
 export function inspect(run: Run, raw: string, judge: Judge): Verdict {
+  // Le retard reste muet avant sa première validation : le champ n'a encore
+  // rien à satisfaire, et c'est le clic qui lance le chrono.
+  if (!run.armed) return { kind: 'empty', found: null }
   const word = normalizeWord(raw)
   if (word === '') return { kind: 'empty', found: null }
   const verdict = judgeWord(run, word, judge)
@@ -369,9 +411,12 @@ export function inspect(run: Run, raw: string, judge: Judge): Verdict {
 }
 
 function judgeWord(run: Run, word: string, judge: Judge): Verdict {
-  if (initialOf(word) !== run.prompt.letter) return { kind: 'wrong-letter', found: null }
+  const prompt = answerPrompt(run)
+  // La question renversée contraint la dernière lettre : « Vietnam » répond à M.
+  const edge = modeEdge(run.mode) === 'last' ? finalOf(word) : initialOf(word)
+  if (edge !== prompt.letter) return { kind: 'wrong-letter', found: null }
 
-  const match = judge.find(run.prompt.categoryId, word, hasPower(run, 'dyslexia') ? 2 : 1)
+  const match = judge.find(prompt.categoryId, word, hasPower(run, 'dyslexia') ? 2 : 1)
   if (!match) return { kind: 'unknown', found: null }
   // Judged on the canonical form: "chats" after "chat" is the same answer.
   if (run.used.includes(match.entry.key)) return { kind: 'already', found: null }
@@ -386,7 +431,7 @@ function judgeWord(run: Run, word: string, judge: Judge): Verdict {
   return {
     kind: 'accepted',
     found: {
-      prompt: run.prompt,
+      prompt,
       word: match.entry.key,
       display: match.entry.display,
       points: flat ? pointsForApproximate(run.combo) : pointsFor(match.entry, usage, run.combo, boost),
@@ -436,6 +481,8 @@ const flawlessBonus = flawlessStreak > 0 && flawlessStreak % FLAWLESS_STREAK ===
   // Bavardage keeps the prompt: cast, it holds for `CHATTER_WORDS` more; under way, it counts one down.
   const chatter = verdict.chatter ? CHATTER_WORDS : Math.max(0, run.chatter - 1)
   const stays = verdict.chatter === true || run.chatter > 0 ? chatter > 0 : false
+  // L'endurance paie ses mots en secondes, selon la rareté qu'ils valent.
+  const bonusSeconds = run.bonusSeconds + (run.mode === 'endurance' ? ENDURANCE_TIME_BONUS[verdict.found.tier] : 0)
   return {
     verdict,
     run: {
@@ -444,6 +491,7 @@ const flawlessBonus = flawlessStreak > 0 && flawlessStreak % FLAWLESS_STREAK ===
       ...release(run, at),
       chatter,
 latecomerSeconds,
+bonusSeconds,
 
 flawlessStreak,
       charges: verdict.chatter ? { ...latecomerCharges, ...spend(run, 'chatter') } : latecomerCharges,
@@ -476,6 +524,8 @@ export function skipPenalty(run: Run): number {
 }
 
 export function skip(run: Run, judge: Judge, at = run.promptAt): Run {
+// Passer avant la première validation du retard ne quitterait aucune question.
+if (!run.armed) return run
 const advanced = advance(run, judge, false)
 if (run.chatter === 0 && run.freeSkipReady) {
 return {
@@ -545,5 +595,8 @@ return hasPower(run, 'latecomer') && chargesLeft(run, 'latecomer') > 0 && remain
 }
 
 export function remainingSeconds(run: Run, elapsedSeconds: number): number {
-  return Math.max(0, RUN_SECONDS - elapsedSeconds - run.penaltySeconds + heldSeconds(run, elapsedSeconds) + run.latecomerSeconds)
+  return Math.max(
+    0,
+    MODE_SECONDS[run.mode] - elapsedSeconds - run.penaltySeconds + heldSeconds(run, elapsedSeconds) + run.latecomerSeconds + run.bonusSeconds,
+  )
 }

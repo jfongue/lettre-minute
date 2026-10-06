@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { NO_USAGE, type WordUsage } from './rarity'
 import { PULL_MAX, PULL_MIN } from './prompts'
 import {
+  arm,
   celerityDue,
   createRun,
   inspect,
@@ -17,7 +18,9 @@ import {
   type Judge,
   type Run,
 } from './run'
-import { buildWordPack, findWord, lettersWithEnough, type WordPack } from './words'
+import { buildWordPack, findWord, lettersWithEnough, mirrorPack, type WordPack } from './words'
+import { ENDURANCE_TIME_BONUS } from './modes'
+import { compactWord } from './text'
 
 /** A pack with enough words per letter that every letter can be prompted. */
 function packOf(categoryId: string, words: readonly string[]): WordPack {
@@ -412,5 +415,61 @@ describe('letterShares', () => {
 
   it('leaves out a letter the draw would never take', () => {
     expect(letterShares(pack).has('D')).toBe(false)
+  })
+})
+
+describe('les modes de la réserve', () => {
+  /** Une catégorie dont chaque lettre finit douze mots : de quoi tirer par la fin. */
+  const endings = packOf(
+    'animaux',
+    LETTERS.flatMap((letter) => Array.from({ length: PER_LETTER }, (_, i) => `Animal${i}${letter}`)),
+  )
+
+  /** Le même dictionnaire jugé sur la dernière lettre, comme le fait `createJudge`. */
+  function reversedJudgeOf(): Judge {
+    const pack = mirrorPack(endings)
+    return {
+      find: (categoryId, word) =>
+        categoryId === 'animaux' ? findWord(pack, [...compactWord(word)].reverse().join('')) : null,
+      usage: () => NO_USAGE,
+      known: () => PER_LETTER,
+      letters: () => lettersWithEnough(pack, PER_LETTER),
+    }
+  }
+
+  it('retard : la question affichée part sans réponse, et c’est elle qu’on joue ensuite', () => {
+    const run = createRun({ seed: 5, mode: 'delayed', categoryIds: ['animaux'] }, judge)
+    expect(run.armed).toBe(false)
+    expect(inspect(run, 'Rien', judge)).toEqual({ kind: 'empty', found: null })
+    expect(skip(run, judge)).toBe(run)
+
+    const started = arm(run, judge)
+    expect(started.armed).toBe(true)
+    expect(started.answer).toEqual(run.prompt)
+    expect(started.drawn).toBe(2)
+    // Le champ répond à la question quittée, pas à celle de l'écran.
+    expect(inspect(started, answerOf(run), judge).kind).toBe('accepted')
+    expect(submit(started, answerOf(run), judge).run.score).toBeGreaterThan(0)
+  })
+
+  it('endurance : un mot rend des secondes selon sa rareté', () => {
+    const run = createRun({ seed: 3, mode: 'endurance', categoryIds: ['animaux'] }, judge)
+    expect(remainingSeconds(run, 0)).toBe(30)
+
+    const played = submit(run, answerOf(run), judge)
+    expect(played.verdict.kind).toBe('accepted')
+    const bonus = played.verdict.found ? ENDURANCE_TIME_BONUS[played.verdict.found.tier] : 0
+    expect(bonus).toBeGreaterThan(0)
+    expect(played.run.bonusSeconds).toBe(bonus)
+    expect(remainingSeconds(played.run, 1)).toBe(29 + bonus)
+  })
+
+  it('renversé : la question contraint la dernière lettre, pas la première', () => {
+    const reversed = reversedJudgeOf()
+    const run = createRun({ seed: 8, mode: 'reversed', categoryIds: ['animaux'] }, reversed)
+    const letter = run.prompt.letter
+
+    expect(inspect(run, `Animal0${letter}`, reversed).kind).toBe('accepted')
+    expect(inspect(run, `${letter}nimal0`, reversed).kind).toBe('wrong-letter')
   })
 })
