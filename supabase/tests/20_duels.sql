@@ -24,6 +24,13 @@ create function tests.seat_of(p_table uuid, p_label text) returns int
 language sql stable security definer set search_path = public as $$
   select seat::int from public.duel_seats where table_id = p_table and player = tests.uid(p_label)
 $$;
+-- Vieillit la dernière lecture d'une place : c'est ce qui fait d'un joueur un
+-- absent, celui dont le meneur déclare le temps écoulé.
+create function tests.age_seat(p_table uuid, p_seat int, p_seconds int) returns void
+language sql security definer set search_path = public as $$
+  update public.duel_seats set last_seen = clock_timestamp() - make_interval(secs => p_seconds)
+   where table_id = p_table and seat = p_seat
+$$;
 select tests.new_user('dn', true);
 select tests.befriend('dh', 'df');
 select tests.befriend('dh', 'dk');
@@ -105,6 +112,9 @@ select tests.is(public.duel_move((select id from duel), 1, 1, 'pick', 'pays'), '
 select tests.is(public.duel_move((select id from duel), 3, 1, 'pick', 'pays'), 'stale', 'so is one that skips a number');
 select tests.is(public.duel_move((select id from duel), 2, 1, 'pick', 'pays'), 'ok', 'anyone seated may play the house player');
 select tests.is(public.duel_move((select id from duel), 3, 2, 'word', 'chat'), 'forbidden', 'but not a word for another player');
+-- Le temps écoulé d'un autre ne se déclare que pour un absent (0049) : le test
+-- vieillit la dernière lecture de sa place avant de le lui faire déclarer.
+select tests.age_seat((select id from duel), 2, 60);
 select tests.is(public.duel_move((select id from duel), 3, 2, 'timeout', ''), 'ok', 'a timeout for an absent player is fine');
 select tests.is(public.duel_move((select id from duel), 4, 2, 'dance', ''), 'forbidden', 'an unknown kind of move is refused');
 select tests.is(
@@ -114,6 +124,15 @@ select tests.is(
   (public.duel_sync((select id from duel), 0) -> 'moves' -> 0 ->> 'payload'), 'animaux', 'in order, with their payload'
 );
 select tests.ok((public.duel_sync((select id from duel), 0) ->> 'now')::numeric > 0, 'with the server clock');
+-- Le mot d'un joueur maison, lui, est déclaré par le meneur (0049) : sans lui,
+-- la table resterait à jamais sur son tour.
+select tests.is(public.duel_move((select id from duel), 4, 1, 'word', 'chat'), 'ok', 'a seated player plays the house player''s word');
+select tests.is(public.duel_move((select id from duel), 5, 1, 'pass', ''), 'ok', 'and his pass');
+select tests.is(public.duel_move((select id from duel), 6, 2, 'cheer', 'animaux'), 'forbidden', 'nobody cheers from another seat');
+select tests.is(public.duel_move((select id from duel), 6, 1, 'cheer', 'animaux'), 'forbidden', 'nor for a house player');
+select tests.is(public.duel_move((select id from duel), 6, 0, 'cheer', 'animaux'), 'ok', 'a player cheers from his own');
+select tests.age_seat((select id from duel), 2, 0);
+select tests.is(public.duel_move((select id from duel), 7, 2, 'timeout', ''), 'forbidden', 'a player still reading his table is not timed out by another');
 select tests.throws($$insert into public.duel_moves (table_id, seq, seat, kind) values ((select id from duel), 9, 0, 'pass')$$,
   'nobody writes the journal directly');
 select tests.logout();

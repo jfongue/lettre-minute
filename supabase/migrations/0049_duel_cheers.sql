@@ -36,8 +36,22 @@ begin
   if not found then
     return 'forbidden';
   end if;
-  -- Un mot, un passe ou un conseil d'un joueur ne vient que de lui.
-  if p_kind in ('word', 'pass', 'cheer') and (v_seat.is_bot or v_seat.player <> auth.uid()) then
+  -- Un mot ou un passe ne vient que de son joueur — sauf celui d'un joueur
+  -- maison, que le meneur de la table déclare à sa place : sans ça, un robot
+  -- resterait à jamais sur son tour.
+  if p_kind in ('word', 'pass') and not (v_seat.is_bot or coalesce(v_seat.player = auth.uid(), false)) then
+    return 'forbidden';
+  end if;
+  -- Un conseil, lui, ne se donne que de son propre siège : un joueur maison n'en
+  -- donne pas, et personne ne conseille à la place d'un autre.
+  if p_kind = 'cheer' and (v_seat.is_bot or v_seat.player is distinct from auth.uid()) then
+    return 'forbidden';
+  end if;
+  -- Le temps écoulé d'un autre ne se déclare que pour un absent : un appareil ne
+  -- brûle pas le numéro du coup d'un joueur qui relit encore sa table. Huit
+  -- secondes, la silence dont le client tire son meneur (`DRIVER_SILENCE`).
+  if p_kind = 'timeout' and not v_seat.is_bot and v_seat.player is distinct from auth.uid()
+    and v_seat.last_seen > clock_timestamp() - interval '8 seconds' then
     return 'forbidden';
   end if;
 
