@@ -1565,7 +1565,7 @@ function main(argv: readonly string[]) {
       // bend to it with it. It goes last: a form added above still names it, and
       // a ban only takes effect here — the game reads embedded files, never a
       // list of banned words.
-      const bannedHere = new Set((banned[category.id] ?? []).map(normalizeWord))
+      const bannedHere = new Set((banned[id] ?? []).map(normalizeWord))
       for (const [key, row] of [...rows]) {
         if (bannedHere.has(key) || (row[3] !== undefined && bannedHere.has(row[3]))) rows.delete(key)
       }
