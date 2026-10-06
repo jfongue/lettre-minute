@@ -201,6 +201,20 @@ interface TableData {
 
 const wall = () => Date.now() / 1000
 
+/**
+ * Les conseils encore frais d'un journal : le dernier reçu par catégorie, le
+ * plus récent en tête, trois au plus. Le journal les garde tous ; c'est ici
+ * que l'écran choisit ce qu'il montre.
+ */
+export function activeCheers(facts: readonly DuelFact[], at: number): readonly DuelFact[] {
+  const byCategory = new Map<string, DuelFact>()
+  for (const fact of facts) {
+    if (fact.kind !== 'cheered' || !fact.cheer || at - fact.at >= CHEER_SECONDS) continue
+    byCategory.set(fact.cheer, fact)
+  }
+  return [...byCategory.values()].sort((a, b) => b.at - a.at).slice(0, CHEERS_SHOWN)
+}
+
 const botByName = (name: string): HouseBot | undefined => HOUSE_BOTS.find((bot) => bot.name.toLowerCase() === name.toLowerCase())
 
 /** Les joueurs qui quittent une revanche locale : jamais tous les robots, sinon il n'y a plus de duel. */
@@ -532,14 +546,7 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
   // Les conseils encore frais : le journal les garde tous, l'écran n'en montre
   // que les derniers, une catégorie une seule fois — c'est le dernier reçu qui
   // la fait frémir.
-  const cheers = useMemo(() => {
-    const byCategory = new Map<string, DuelFact>()
-    for (const fact of replayed?.facts ?? []) {
-      if (fact.kind !== 'cheered' || !fact.cheer || at - fact.at >= CHEER_SECONDS) continue
-      byCategory.set(fact.cheer, fact)
-    }
-    return [...byCategory.values()].sort((a, b) => b.at - a.at).slice(0, CHEERS_SHOWN)
-  }, [at, replayed])
+  const cheers = useMemo(() => activeCheers(replayed?.facts ?? [], at), [at, replayed])
 
   const post = useCallback(
     async (move: Omit<DuelMove, 'seq' | 'at'>) => {

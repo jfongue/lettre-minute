@@ -51,12 +51,14 @@ import { Checkout } from '../ui/Checkout'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
-import { DuelScreen } from '../ui/DuelScreen'
+import { DuelScreen, Draft } from '../ui/DuelScreen'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
 import { DuelTutorial } from '../ui/DuelTutorial'
-import type { Seat } from '../state/duel'
+import { pickCategory } from '../domain/duel'
+import { startDuel, type DuelFact, type DuelSetup } from '../domain/duelLog'
+import { activeCheers, HOUSE_BOTS, type DuelTable, type Seat } from '../state/duel'
 // La feuille du duel vit hors du paquet de l'accueil : cette planche est le
 // seul écran de l'app qui la montre, donc elle l'apporte avec elle.
 import '../duel.css'
@@ -1279,6 +1281,77 @@ const offerModerator =
 /** Ma place au duel : le salon la tire du profil, la planche l’invente. */
 const DUEL_ME: Seat = { id: 'me', name: '', avatar: DEFAULT_AVATAR, bot: false, owned: 7, ready: false }
 
+/**
+ * Le draft vu par celui qui attend son tour : quatre catégories libres, quatre
+ * conseils reçus — le plafond de trois écarte le plus ancien —, et c'est le
+ * joueur maison qui choisit. Les faits passent par la même règle que l'écran
+ * (`activeCheers`), donc la planche montre ce que le jeu montrerait.
+ */
+const CHEER_TABLE: DuelTable = (() => {
+  const categories = ['pays', 'animaux', 'couleurs', 'metiers', 'sports']
+  const seats: readonly Seat[] = [
+    DUEL_ME,
+    { id: 'maxitoon', name: 'Maxitoon', avatar: HOUSE_BOTS[0]!.avatar, bot: true, trait: HOUSE_BOTS[0]!.trait, owned: 999, ready: true },
+    { id: 'terretciel', name: 'Terretciel', avatar: HOUSE_BOTS[1]!.avatar, bot: true, trait: HOUSE_BOTS[1]!.trait, owned: 999, ready: true },
+  ]
+  const setup: DuelSetup = { seed: 9, playerIds: seats.map((seat) => seat.id), categories, owned: [7, 999, 999], startedAt: 0 }
+  const duel = pickCategory(startDuel(setup), 'pays', 10)
+  const at = 14
+  const facts: DuelFact[] = [
+    { id: 'cheer-1', kind: 'cheered', player: 0, at: 12.6, cheer: 'animaux' },
+    { id: 'cheer-2', kind: 'cheered', player: 2, at: 13, cheer: 'couleurs' },
+    { id: 'cheer-3', kind: 'cheered', player: 0, at: 13.4, cheer: 'metiers' },
+    { id: 'cheer-4', kind: 'cheered', player: 2, at: 13.8, cheer: 'sports' },
+  ]
+  return {
+    mode: 'local',
+    phase: 'draft',
+    at,
+    seats,
+    myIndex: 0,
+    host: true,
+    candidates: [],
+    invite: noop,
+    kick: noop,
+    ready: {},
+    markReady: noop,
+    unready: noop,
+    duel,
+    judge: null,
+    pool: categories,
+    prompt: null,
+    picker: seats[1]!,
+    pickLeft: 6.4,
+    forced: null,
+    myTurn: false,
+    myPickTurn: false,
+    watching: false,
+    event: null,
+    feed: [],
+    facts,
+    cheers: activeCheers(facts, at),
+    error: false,
+    offline: false,
+    embedded: true,
+    fallen: null,
+    fallenAt: 0,
+    openingAt: 0,
+    drawnShown: 0,
+    rematchOpen: false,
+    leavers: [],
+    openRematch: noop,
+    joinRematch: noop,
+    backToRecap: noop,
+    inspect: () => ({ kind: 'empty', found: null }),
+    hold: noop,
+    pick: noop,
+    cheer: noop,
+    play: noop,
+    pass: noop,
+    leave: noop,
+  }
+})()
+
 const SCENARIOS: readonly Scenario[] = [
   {
     id: 'over-classic',
@@ -1829,6 +1902,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Une table locale, sans serveur : salon, expulsion par appui long, draft, ouvreur, partie, morts, bilan, revanche',
     phase: 'home',
     render: () => <DuelScreen lang="fr" mode="local" />,
+  },
+  {
+    id: 'duel-cheer',
+    group: 'Duel',
+    title: 'Conseils pendant le draft',
+    how: 'Quatre conseils reçus pendant le tour d’un autre : trois icônes frémissent, les tuiles s’entourent, le plus ancien est écarté par le plafond ; toucher une catégorie conseille à son tour',
+    phase: 'duel',
+    render: () => <Draft table={CHEER_TABLE} />,
   },
   {
     id: 'words-board',

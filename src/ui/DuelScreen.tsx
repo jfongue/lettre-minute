@@ -285,7 +285,7 @@ function InviteList({ table }: { table: DuelTable }) {
 /* -------------------------------------------------------------- le draft - */
 
 /** Le draft : l'ordre des choix en tête, puis une tuile par catégorie jouable. */
-function Draft({ table }: { table: DuelTable }) {
+export function Draft({ table }: { table: DuelTable }) {
   const t = useT()
   const duel = table.duel!
   const picker = table.picker
