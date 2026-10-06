@@ -61,10 +61,7 @@ function DraftArt() {
             </li>
           )
         })}
-        <li
-          className="rules-tile rules-tile--luck"
-          style={{ '--i': DRAFT_TILES.length } as CSSProperties}
-        >
+        <li className="rules-tile rules-tile--luck" style={{ '--i': DRAFT_TILES.length } as CSSProperties}>
           <b>?</b>
           <span>{t.duel.drawn}</span>
         </li>
@@ -117,6 +114,8 @@ interface DuelTutorialProps {
 /**
  * Les règles du duel, montrées plutôt que racontées : chaque étape allume sa
  * vignette, la puce dit où l'on en est, et le bouton porte le pas suivant.
+ * La feuille seule : `DuelScreen` la pose dans la scène du duel, la planche
+ * debug dans la sienne.
  */
 export function DuelTutorial({ me, onDone }: DuelTutorialProps) {
   const t = useT()
@@ -141,52 +140,50 @@ export function DuelTutorial({ me, onDone }: DuelTutorialProps) {
   }
 
   return (
-    <main className="stage stage--duel">
-      <div className="sheet duel-rules">
-        <div className="spread">
-          <p className="eyebrow">{t.duel.tutorial.label}</p>
-          <button type="button" className="btn btn--quiet btn--muted" onClick={done}>
-            {t.duel.tutorial.skip}
-          </button>
-        </div>
-
-        <h1 className="duel-title" key={`title-${step}`}>
-          {text.title}
-        </h1>
-
-        <div className="rules-vignette" key={`art-${step}`} aria-hidden="true">
-          {step === 'seats' ? <SeatsArt me={me} /> : step === 'draft' ? <DraftArt /> : <PlayArt />}
-        </div>
-
-        <p className="note rules-text" key={`text-${step}`}>
-          {text.text}
-        </p>
-
-        <ol className="rules-dots">
-          {STEPS.map((id, place) => (
-            <li key={id}>
-              <button
-                type="button"
-                className={`rules-dot${id === step ? ' rules-dot--on' : ''}`}
-                aria-label={t.duel.tutorial.stepLabel(place + 1, STEPS.length)}
-                aria-current={id === step}
-                onClick={() => setStep(id)}
-              />
-            </li>
-          ))}
-        </ol>
-
-        <button
-          type="button"
-          className="btn btn--play btn--block duel-cta"
-          onClick={() => {
-            if (last) done()
-            else setStep(STEPS[index + 1]!)
-          }}
-        >
-          {last ? t.duel.tutorial.start : t.duel.tutorial.next}
+    <div className="sheet duel-rules">
+      <div className="spread">
+        <p className="eyebrow">{t.duel.tutorial.label}</p>
+        <button type="button" className="btn btn--quiet btn--muted" onClick={done}>
+          {t.duel.tutorial.skip}
         </button>
       </div>
-    </main>
+
+      <h1 className="duel-title" key={`title-${step}`}>
+        {text.title}
+      </h1>
+
+      <div className="rules-vignette" key={`art-${step}`} aria-hidden="true">
+        {step === 'seats' ? <SeatsArt me={me} /> : step === 'draft' ? <DraftArt /> : <PlayArt />}
+      </div>
+
+      <p className="note rules-text" key={`text-${step}`}>
+        {text.text}
+      </p>
+
+      <ol className="rules-dots">
+        {STEPS.map((id, place) => (
+          <li key={id}>
+            <button
+              type="button"
+              className={`rules-dot${id === step ? ' rules-dot--on' : ''}`}
+              aria-label={t.duel.tutorial.stepLabel(place + 1, STEPS.length)}
+              aria-current={id === step}
+              onClick={() => setStep(id)}
+            />
+          </li>
+        ))}
+      </ol>
+
+      <button
+        type="button"
+        className="btn btn--play btn--block duel-cta"
+        onClick={() => {
+          if (last) done()
+          else setStep(STEPS[index + 1]!)
+        }}
+      >
+        {last ? t.duel.tutorial.start : t.duel.tutorial.next}
+      </button>
+    </div>
   )
 }

@@ -885,13 +885,15 @@ export function DuelScreen({ lang }: { lang: string }) {
 
   if (rules) {
     return (
-      <DuelTutorial
-        me={table.seats[table.myIndex]!}
-        onDone={() => {
-          saveDuelRulesSeen()
-          setRules(false)
-        }}
-      />
+      <main className="stage stage--duel">
+        <DuelTutorial
+          me={table.seats[table.myIndex]!}
+          onDone={() => {
+            saveDuelRulesSeen()
+            setRules(false)
+          }}
+        />
+      </main>
     )
   }
 
