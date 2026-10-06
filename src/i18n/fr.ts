@@ -918,12 +918,10 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     left: (names: string, count: number) => `${names} ${count > 1 ? 'ont' : 'a'} quitté la revanche.`,
     rematchWaiting: 'Une revanche est ouverte : la table se reforme.',
     joinRematch: 'Rejoindre la revanche',
-    /** Le tuto du premier lancement : une vignette animée par temps du duel. */
+    /** Le tuto du premier lancement : une partie accélérée, un temps après l'autre. */
     tutorial: {
       label: 'Comment ça marche',
-      title: 'Le duel, en trois temps',
       stepLabel: (step: number, total: number) => `Étape ${step} sur ${total}`,
-      next: 'Suivant',
       start: 'Je joue',
       skip: 'Passer',
       again: 'Revoir les règles',

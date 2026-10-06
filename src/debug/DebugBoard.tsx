@@ -2130,7 +2130,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'duel-rules',
     group: 'Duel',
     title: 'Règles du duel, au premier lancement',
-    how: 'Les trois vignettes animées que la page du duel montre avant son salon : les puces passent d’une étape à l’autre (sans effet ici)',
+    how: 'La partie de duel accélérée que joue la page avant son salon : les places, le draft, le tirage de l’ouvreur, puis la table jusqu’au gagnant, en boucle',
     phase: 'duel',
     render: (back) => <DuelTutorial me={DUEL_ME} onDone={back} />,
   },

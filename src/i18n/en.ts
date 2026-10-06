@@ -912,12 +912,10 @@ cheerAria: (label: string) => `Suggest ${label}`,
     left: (names: string, count: number) => `${names} ${count > 1 ? 'have' : 'has'} left the rematch.`,
     rematchWaiting: 'A rematch is open: the table is re-forming.',
     joinRematch: 'Join the rematch',
-    /** The first-launch tutorial: one animated vignette per beat of the duel. */
+    /** The first-launch tutorial: a sped-up duel, one beat after another. */
     tutorial: {
       label: 'How it works',
-      title: 'The duel, in three beats',
       stepLabel: (step: number, total: number) => `Step ${step} of ${total}`,
-      next: 'Next',
       start: 'Let me play',
       skip: 'Skip',
       again: 'Read the rules again',

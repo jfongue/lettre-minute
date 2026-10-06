@@ -909,12 +909,10 @@ cheerAria: (label: string) => `Sugerir ${label}`,
     left: (names: string, count: number) => `${names} ${count > 1 ? 'han' : 'ha'} dejado la revancha.`,
     rematchWaiting: 'Hay una revancha abierta: la mesa se rehace.',
     joinRematch: 'Unirse a la revancha',
-    /** El tutorial del primer arranque: una viñeta animada por tiempo del duelo. */
+    /** El tutorial del primer arranque: un duelo acelerado, tiempo a tiempo. */
     tutorial: {
       label: 'Cómo funciona',
-      title: 'El duelo, en tres tiempos',
       stepLabel: (step: number, total: number) => `Paso ${step} de ${total}`,
-      next: 'Siguiente',
       start: 'A jugar',
       skip: 'Saltar',
       again: 'Ver las reglas otra vez',

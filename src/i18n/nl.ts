@@ -908,12 +908,10 @@ cheerAria: (label: string) => `${label} aanraden`,
     left: (names: string, count: number) => `${names} ${count > 1 ? 'hebben' : 'heeft'} de revanche verlaten.`,
     rematchWaiting: 'Er staat een revanche open: de tafel vormt zich opnieuw.',
     joinRematch: 'Meedoen aan de revanche',
-    /** De tuto bij de eerste start: één geanimeerde vignette per fase van het duel. */
+    /** De tuto bij de eerste start: een versneld duel, fase na fase. */
     tutorial: {
       label: 'Hoe het werkt',
-      title: 'Het duel in drie stappen',
       stepLabel: (step: number, total: number) => `Stap ${step} van ${total}`,
-      next: 'Verder',
       start: 'Ik speel',
       skip: 'Overslaan',
       again: 'Bekijk de regels opnieuw',

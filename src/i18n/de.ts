@@ -907,12 +907,10 @@ cheerAria: (label: string) => `${label} vorschlagen`,
     left: (names: string, count: number) => `${names} ${count > 1 ? 'haben' : 'hat'} die Revanche verlassen.`,
     rematchWaiting: 'Eine Revanche ist offen: Der Tisch bildet sich neu.',
     joinRematch: 'Der Revanche beitreten',
-    /** Das Tut beim ersten Start: eine animierte Vignette pro Zug des Duells. */
+    /** Das Tut beim ersten Start: ein beschleunigtes Duell, Zug für Zug. */
     tutorial: {
       label: 'So funktioniert’s',
-      title: 'Das Duell in drei Zügen',
       stepLabel: (step: number, total: number) => `Schritt ${step} von ${total}`,
-      next: 'Weiter',
       start: 'Los geht’s',
       skip: 'Überspringen',
       again: 'Regeln nochmal ansehen',

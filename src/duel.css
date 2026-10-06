@@ -1637,7 +1637,11 @@
   .duel-armed,
   .dealt--offered,
   .dealt-tile--open .dealt-shape,
-  .dealt-tile--cheered .dealt-shape {
+  .dealt-tile--cheered .dealt-shape,
+  .demo-tile,
+  .demo-track i,
+  .demo-caret,
+  .demo-death {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -1650,16 +1654,35 @@
 
 /* --------------------------------------------------------------- le tuto - */
 
-/* Le duel expliqué au premier lancement : une vignette par temps du jeu, sous
-son texte. Chaque boucle revient sur son état lisible — rien ne reste effacé —
-pour que le mouvement réduit laisse les trois étapes entières. */
-.rules-vignette {
+/* Le duel s'explique en le jouant : une partie entière tient dans ce cadre et
+s'y rejoue en boucle, accélérée. Le mouvement vient des images qui se succèdent
+et des barres qui coulent — jamais d'un défilement de page : le cadre garde sa
+hauteur d'un temps à l'autre. */
+.demo-stage {
   display: grid;
-  place-items: center;
-  min-height: 10.5rem;
-  padding: 0.9rem 0.5rem;
+  align-content: center;
+  gap: 0.7rem;
+  min-width: 0;
+  min-height: 19rem;
+  padding: 0.8rem 0.6rem;
   border: var(--line) solid var(--rule);
   overflow: hidden;
+}
+
+/* La barre du bas dit où en est la boucle : elle coule d'une image à l'autre. */
+.demo-track {
+  display: block;
+  height: 3px;
+  background: var(--rule);
+  overflow: hidden;
+}
+
+.demo-track i {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  transform-origin: left center;
+  transition: transform 400ms linear;
 }
 
 .rules-text {
@@ -1667,287 +1690,177 @@ pour que le mouvement réduit laisse les trois étapes entières. */
   animation: fade 300ms ease both;
 }
 
-.rules-dots {
-  list-style: none;
-  display: flex;
-  justify-content: center;
+/* 1 — les places se remplissent, puis se tamponnent « Prêt ». Les cartes du
+salon sont reprises telles quelles : le joueur les retrouvera en vrai. */
+.demo-stage .duel-seats {
   gap: 0.45rem;
-  padding: 0;
-  margin: 0;
 }
 
-.rules-dot {
-  appearance: none;
-  width: 2.2rem;
-  height: 0.35rem;
-  padding: 0;
-  border: none;
-  border-radius: 999px;
-  background: var(--rule);
-  transition:
-    background 200ms ease,
-    transform 200ms var(--ease-out);
+.demo-stage .duel-seatcard__face .avatar {
+  width: clamp(1.8rem, 9vw, 2.4rem);
 }
 
-.rules-dot--on {
-  background: var(--ink);
-  transform: scaleY(1.7);
+.demo-stage .duel-seatcard__text b {
+  font-size: 0.78rem;
 }
 
-/* 1 — les quatre places se forment, et chacune se déclare prête. */
-.rules-seats {
+/* 2 — les choix tombent un à un, la dernière catégorie au sort. L'ordre est
+celui du jeu ; les tuiles sont une grille serrée, à l'échelle du cadre. */
+.demo-draft {
+  display: grid;
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.demo-tiles {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.35rem;
-  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.3rem;
   padding: 0;
   margin: 0;
 }
 
-.rules-seat {
-  position: relative;
+.demo-tile {
   display: grid;
-  justify-items: center;
-  gap: 0.2rem;
-  padding: 0.5rem 0.15rem 1.1rem;
-  text-align: center;
-  animation: rules-seat-in 7s var(--ease-out) infinite both;
-  animation-delay: calc(var(--i, 0) * 0.5s);
-}
-
-.rules-seat .avatar {
-  width: clamp(2rem, 9vw, 2.7rem);
-}
-
-.rules-seat b {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0.4rem 0.45rem;
   font-size: 0.68rem;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.05;
+  animation: pop-in 320ms var(--ease-spring) both;
 }
 
-.rules-seat__stamp {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0.2rem;
+.demo-tile__icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.demo-tile--taken {
+  opacity: 0.55;
+}
+
+.demo-tile__stamp {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  overflow: hidden;
   font-size: 0.58rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--green);
-  animation: rules-stamp 7s var(--ease-spring) infinite both;
-  animation-delay: calc(var(--i, 0) * 0.5s + 0.3s);
+  animation: duel-stamp 320ms var(--ease-spring) both;
 }
 
-/* 2 — les catégories se prennent à tour de rôle, la dernière au sort. */
-.rules-draft {
+.demo-tile__stamp .avatar {
+  width: 1.15rem;
+}
+
+/* Le cadre est une grille : sans ces zéros, la plus large ligne d'une scène
+impose sa largeur minimale à toute la feuille, qui déborde alors du téléphone. */
+.demo-stage > *,
+.demo-stage .duel-strip,
+.demo-stage .duel-seats,
+.demo-stage .duel-board,
+.demo-stage .duel-face,
+.demo-stage .duel-pool li,
+.demo-tile__name,
+.demo-tile__who {
+  min-width: 0;
+}
+
+.demo-tile__name,
+.demo-tile__who,
+.demo-stage .duel-pool li {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Le tirage de l'ouvreur, dans le même cadre : les cinq catégories prises en
+tête, les places qui s'allument dessous. */
+.demo-opening {
   display: grid;
   gap: 0.7rem;
+  min-width: 0;
+}
+
+/* 3 — la partie : la table, son fil, le couple et le mot qui s'écrit. */
+.demo-play {
+  display: grid;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+/* La mort prend la place du plateau, pas celle de la table : la bande des
+places et le fil du jeu restent au-dessus, à leur hauteur. */
+.demo-board {
+  position: relative;
+  display: grid;
+  align-content: center;
+  gap: 0.6rem;
+  min-width: 0;
+  min-height: 12.5rem;
+}
+
+.demo-death {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 0.3rem;
+  animation: fade 200ms ease both;
+}
+
+.demo-death .duel-death__card {
+  gap: 0.3rem;
   width: 100%;
+  padding: 0.8rem 0.7rem 0.7rem;
 }
 
-.rules-tiles {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.35rem;
-  padding: 0;
-  margin: 0;
+.demo-death .duel-death__face,
+.demo-death .duel-death__face .avatar {
+  width: 3rem;
 }
 
-.rules-tile {
-  display: grid;
-  justify-items: center;
-  gap: 0.25rem;
-  padding: 0.5rem 0.2rem;
-  font-size: 0.64rem;
-  font-weight: 700;
-  line-height: 1.1;
-  text-align: center;
-  animation: rules-tile-in 7s var(--ease-out) infinite both;
-  animation-delay: calc(var(--i, 0) * 0.65s);
+.demo-death .duel-death__cross {
+  font-size: 2.4rem;
 }
 
-.rules-tile__icon {
-  width: 1.5rem;
+.demo-death .duel-death__name {
+  font-size: 1.2rem;
 }
 
-.rules-tile--luck {
-  border: 1px dashed var(--rule);
-  background: var(--paper);
-  color: var(--ink-soft);
+.demo-death .duel-death__winner {
+  font-size: 0.9rem;
 }
 
-.rules-tile--luck b {
-  font-size: 1.1rem;
-  line-height: 1;
+/* Le champ du jeu, sans saisie : le mot s'y écrit tout seul. */
+.demo-field {
+  min-height: 2.7rem;
+  padding: 0.4rem 0.1rem;
+  border-bottom: 3px solid var(--rule);
+  font-size: clamp(1.7rem, 8vw, 2.2rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
-.rules-fuse {
-  display: block;
-  height: 0.4rem;
-  background: var(--rule);
-  overflow: hidden;
+.answer--valid .demo-field {
+  border-bottom-color: var(--green);
 }
 
-.rules-fuse i {
-  display: block;
-  height: 100%;
-  background: var(--ink);
-  transform-origin: left center;
-  animation: rules-fuse 7s var(--ease-out) infinite both;
-}
-
-/* 3 — la partie : le couple, le mot qui s'écrit, le temps qui va et qui vient. */
-.rules-play {
-  display: grid;
-  gap: 0.5rem;
-  width: 100%;
-}
-
-.rules-prompt {
-  padding: 0;
-}
-
-.rules-field {
-  display: block;
-  min-height: 2.5rem;
-  padding: 0 0.2rem 0.45rem;
-  border-bottom: var(--line) solid var(--ink);
-  font-size: 1.55rem;
-  font-weight: 700;
-}
-
-.rules-typed {
+.demo-caret {
   display: inline-block;
-  white-space: nowrap;
-  animation: rules-type 7s steps(6, end) infinite both;
-}
-
-.rules-meter {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.rules-bar {
-  flex: 1;
-  height: 0.45rem;
-  background: var(--rule);
-  overflow: hidden;
-}
-
-.rules-bar i {
-  display: block;
-  height: 100%;
-  background: var(--blue);
-  transform-origin: left center;
-  animation: rules-reserve 7s var(--ease-out) infinite both;
-}
-
-.rules-bonus,
-.rules-cost {
-  font-size: 0.68rem;
-  font-weight: 700;
-  font-style: normal;
-  white-space: nowrap;
-  animation: rules-chip 7s var(--ease-out) infinite both;
-}
-
-.rules-bonus {
-  color: var(--green);
-  animation-delay: 0.1s;
-}
-
-.rules-cost {
-  color: var(--red);
-  animation-delay: 0.7s;
-}
-
-@keyframes rules-seat-in {
-  0% {
-    opacity: 0;
-    transform: translateY(0.6rem) scale(0.9);
-  }
-  10%,
-  100% {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes rules-stamp {
-  0%,
-  9% {
-    opacity: 0;
-    transform: rotate(-14deg) scale(1.5);
-  }
-  17%,
-  100% {
-    opacity: 1;
-    transform: rotate(-7deg) scale(1);
-  }
-}
-
-@keyframes rules-tile-in {
-  0% {
-    opacity: 0;
-    transform: translateY(-0.5rem) scale(0.92);
-  }
-  12%,
-  100% {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes rules-fuse {
-  0% {
-    transform: scaleX(1);
-  }
-  55% {
-    transform: scaleX(0.04);
-  }
-  100% {
-    transform: scaleX(1);
-  }
-}
-
-@keyframes rules-type {
-  0%,
-  6% {
-    clip-path: inset(0 100% 0 0);
-  }
-  40%,
-  100% {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-@keyframes rules-reserve {
-  0% {
-    transform: scaleX(0.85);
-  }
-  30% {
-    transform: scaleX(0.3);
-  }
-  38% {
-    transform: scaleX(0.45);
-  }
-  100% {
-    transform: scaleX(0.85);
-  }
-}
-
-@keyframes rules-chip {
-  0%,
-  22% {
-    opacity: 0;
-    transform: translateY(0.4rem);
-  }
-  32%,
-  100% {
-    opacity: 1;
-    transform: none;
-  }
+  width: 2px;
+  height: 1.7rem;
+  margin-left: 2px;
+  background: var(--red);
+  vertical-align: -0.2rem;
+  animation: throb 1.1s var(--ease-out) infinite;
 }

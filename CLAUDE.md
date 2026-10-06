@@ -359,9 +359,10 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   prennent le profil local de leur nom. Les styles vivent dans `src/duel.css`,
   chargé avec l'écran. `duel.html#auto` fait jouer une table locale toute seule.
   Ses règles s'expliquent d'elles-mêmes au premier lancement (`DuelTutorial`,
-  `lettre-minute.duel-rules.v1`, gardée par `clearLocalData`) : trois vignettes
-  animées que le joueur fait défiler, et que le salon rouvre par « Revoir les
-  règles ».
+  `lettre-minute.duel-rules.v1`, gardée par `clearLocalData`) : une partie
+  accélérée, jouée avec les vrais éléments de l'écran — les places, le draft, le
+  tirage de l'ouvreur, puis la table jusqu'au gagnant — qui se rejoue en boucle,
+  et que le salon rouvre par « Revoir les règles ».
   Sous 640 px de haut — le clavier ouvert, que l'app rétrécit
   (`resize: 'native'`) — la partie se resserre pour que le couple, le champ et
   ses deux boutons restent au-dessus des touches.

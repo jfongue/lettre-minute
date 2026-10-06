@@ -909,12 +909,10 @@ cheerAria: (label: string) => `Suggerisci ${label}`,
     left: (names: string, count: number) => `${names} ${count > 1 ? 'hanno' : 'ha'} lasciato la rivincita.`,
     rematchWaiting: 'Una rivincita è aperta: il tavolo si riforma.',
     joinRematch: 'Unisciti alla rivincita',
-    /** Il tutorial al primo avvio: una vignetta animata per tempo del duello. */
+    /** Il tutorial al primo avvio: un duello accelerato, tempo dopo tempo. */
     tutorial: {
       label: 'Come funziona',
-      title: 'Il duello, in tre tempi',
       stepLabel: (step: number, total: number) => `Passo ${step} di ${total}`,
-      next: 'Avanti',
       start: 'Gioco io',
       skip: 'Salta',
       again: 'Rivedi le regole',

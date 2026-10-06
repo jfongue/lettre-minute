@@ -909,12 +909,10 @@ cheerAria: (label: string) => `Sugerir ${label}`,
     left: (names: string, count: number) => `${names} ${count > 1 ? 'saíram' : 'saiu'} da revanche.`,
     rematchWaiting: 'Uma revanche está aberta: a mesa se refaz.',
     joinRematch: 'Entrar na revanche',
-    /** O tutorial do primeiro arranque: uma vinheta animada por tempo do duelo. */
+    /** O tutorial do primeiro arranque: um duelo acelerado, tempo a tempo. */
     tutorial: {
       label: 'Como funciona',
-      title: 'O duelo, em três tempos',
       stepLabel: (step: number, total: number) => `Passo ${step} de ${total}`,
-      next: 'Seguinte',
       start: 'Vou jogar',
       skip: 'Saltar',
       again: 'Ver as regras de novo',
