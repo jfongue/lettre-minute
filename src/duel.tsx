@@ -6,8 +6,11 @@ import { detectLocale, loadMessages, MessagesContext, messagesFor, type Locale }
 import { armSound } from './lib/sound'
 import { loadLocale } from './state/locale'
 import { applyTheme, loadTheme } from './state/theme'
-import { DuelScreen } from './ui/DuelScreen'
+// `styles.css` avant `DuelScreen` : l'écran importe `duel.css`, qui doit passer
+// après la feuille du jeu — c'est l'ordre que l'app observe aussi, et l'inverse
+// laissait `.shape` (100 %) écraser la taille des icônes du duel.
 import './styles.css'
+import { DuelScreen } from './ui/DuelScreen'
 
 /**
  * The duel, as its own page (duel.html): the table prototype plays against the
