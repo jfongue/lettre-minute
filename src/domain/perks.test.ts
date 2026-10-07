@@ -133,8 +133,7 @@ describe('hiddenAnswers', () => {
     expect(answers[0]!.display.toLowerCase()).toBe(`${first.letter}chat`.toLowerCase())
   })
 
-  it('names a word whose spelling is its own key, which is what a flag sends', () => {
-    let run = createRun({ seed: 3, categoryIds: ['animaux'] }, judge)
+  it('names a word whose spelling is its own key, which is what a flag sends', () => {    let run = createRun({ seed: 3, categoryIds: ['animaux'] }, judge)
     run = skip(run, judge)
     run = submit(run, `${run.prompt.letter}chat`, judge).run
     // Le récap signale un mot caché par sa clé (`WordEntry.key`, celle d'une
@@ -143,6 +142,22 @@ describe('hiddenAnswers', () => {
     const [answer] = hiddenAnswers(run, judge)
     const entry = [...pack.entries.values()].find((candidate) => candidate.display === answer!.display)
     expect(entry?.key).toBe(normalizeWord(answer!.display))
+  })
+
+  it('asks the judge for a rare word under Professeur', () => {
+    const asked: (boolean | undefined)[] = []
+    const professing: Judge = {
+      ...judge,
+      suggest: (_, letter, played, rare) => {
+        asked.push(rare)
+        return commonWord(pack, letter, played)
+      },
+    }
+    let run = createRun({ seed: 3, categoryIds: ['animaux'], powers: ['professor'] }, professing)
+    run = skip(run, professing)
+    run = submit(run, `${run.prompt.letter}chat`, professing).run
+    expect(hiddenAnswers(run, professing)).toHaveLength(1)
+    expect(asked).toEqual([true])
   })
 
 })

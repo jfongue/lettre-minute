@@ -1,5 +1,5 @@
 import { compactWord, finalOf, initialOf, initialOfNormalized, normalizeWord } from './text'
-import { COMMUNITY_NOTORIETY } from './rarity'
+import { COMMUNITY_NOTORIETY, NO_USAGE, pointsFor, rarityScore, tierOf, type RarityTier, type WordUsage } from './rarity'
 
 export interface WordEntry {
   /**
@@ -150,15 +150,107 @@ export function showcaseWords(pack: WordPack, count: number): string[] {
   return shown
 }
 
-/** The best-known base word on that letter the run has not played yet (by `key`): a debug shortcut's answer. */
-export function commonWord(pack: WordPack, letter: string, played: readonly string[]): string | null {
-  let best: WordEntry | null = null
+/** Les formes de base d'une lettre que la partie n'a pas encore jouées (par `key`). */
+function baseWordsOn(pack: WordPack, letter: string, played: readonly string[]): WordEntry[] {
+  const words: WordEntry[] = []
   for (const word of pack.byLetter.get(letter) ?? []) {
     const entry = pack.entries.get(word)!
     if (entry.key !== normalizeWord(entry.display) || played.includes(entry.key)) continue
+    words.push(entry)
+  }
+  return words
+}
+
+/** Le mieux connu du lot : le mot le plus facile à trouver, et celui qui paye le moins. */
+function bestKnown(entries: readonly WordEntry[]): WordEntry | null {
+  let best: WordEntry | null = null
+  for (const entry of entries) {
     if (!best || entry.notoriety > best.notoriety) best = entry
   }
-  return best?.display ?? null
+  return best
+}
+
+/** The best-known base word on that letter the run has not played yet (by `key`): a debug shortcut's answer. */
+export function commonWord(pack: WordPack, letter: string, played: readonly string[]): string | null {
+  return bestKnown(baseWordsOn(pack, letter, played))?.display ?? null
+}
+
+/** Personne n'a jamais répondu ce mot : ni le joueur, ni la foule. */
+function untouched(usage: WordUsage): boolean {
+  return usage.own === 0 && usage.globalShare === 0
+}
+
+/** La foule d'abord (`globalShare`), l'habitude du joueur ensuite (`own`). */
+function ranksAbove(a: WordUsage, b: WordUsage): boolean {
+  return a.globalShare !== b.globalShare ? a.globalShare > b.globalShare : a.own > b.own
+}
+
+/** Le mot le plus souvent répondu du lot, s'il en reste un que quelqu'un a déjà dit. */
+function mostUsed(candidates: readonly WordEntry[], uses: ReadonlyMap<string, WordUsage>): WordEntry | null {
+  let best: WordEntry | null = null
+  for (const entry of candidates) {
+    const usage = uses.get(entry.key)!
+    if (untouched(usage) || (best && !ranksAbove(usage, uses.get(best.key)!))) continue
+    best = entry
+  }
+  return best
+}
+
+/** Le mot le moins payant, lu sans usage : le coup de pouce ne doit pas valoir plus que le mot qu'il donne. */
+function cheapest(candidates: readonly WordEntry[]): WordEntry | null {
+  let best: WordEntry | null = null
+  for (const entry of candidates) {
+    if (!best || pointsFor(entry, NO_USAGE, 0) < pointsFor(best, NO_USAGE, 0)) best = entry
+  }
+  return best
+}
+
+/** Le Professeur vise le rare une question sur ce nombre ; le reste du temps, du peu commun. */
+export const PROFESSOR_RARE_EVERY = 4
+
+/** Ce que le Professeur essaie d'abord, puis les paliers les plus proches du sien. */
+const TIER_PREFERENCE: Readonly<Record<'peu commun' | 'rare', readonly RarityTier[]>> = {
+  'peu commun': ['peu commun', 'rare', 'courant', 'très rare'],
+  rare: ['rare', 'peu commun', 'très rare', 'courant'],
+}
+
+/**
+ * Le résumé n'a pas de graine : c'est la question elle-même qui décide si le
+ * Professeur vise le rare — même verdict sur chaque appareil, et à chaque
+ * relecture du même couple.
+ */
+function aimsRare(categoryId: string, letter: string, every: number): boolean {
+  let hash = 0
+  for (const char of `${categoryId}:${letter}`) hash = (hash * 33 + char.codePointAt(0)!) % 0x100000000
+  return hash % every === 0
+}
+
+/**
+ * Le mot qu'un bilan propose pour une question passée : le plus souvent
+ * répondu, ou celui qui paye le moins quand personne ne l'a jamais dit. Sous
+ * Professeur (`rare`), il sort des mots rares au lieu du favori de la foule :
+ * du peu commun, jamais dit si l'un d'eux reste, et du rare une question sur
+ * `PROFESSOR_RARE_EVERY`.
+ */
+export function suggestedWord(
+  pack: WordPack,
+  letter: string,
+  played: readonly string[],
+  usage: (entry: WordEntry) => WordUsage,
+  rare = false,
+): string | null {
+  const candidates = baseWordsOn(pack, letter, played)
+  if (candidates.length === 0) return null
+  const uses = new Map(candidates.map((entry) => [entry.key, usage(entry)]))
+  if (!rare) return (mostUsed(candidates, uses) ?? cheapest(candidates))?.display ?? null
+
+  for (const tier of TIER_PREFERENCE[aimsRare(pack.categoryId, letter, PROFESSOR_RARE_EVERY) ? 'rare' : 'peu commun']) {
+    const ofTier = candidates.filter((entry) => tierOf(rarityScore(entry, uses.get(entry.key)!)) === tier)
+    if (ofTier.length === 0) continue
+    const unseen = ofTier.filter((entry) => untouched(uses.get(entry.key)!))
+    return bestKnown(unseen.length > 0 ? unseen : ofTier)!.display
+  }
+  return null
 }
 
 /**

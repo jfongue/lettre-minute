@@ -46,6 +46,7 @@ export const POWER_TINTS: Record<PowerId, Tint> = {
   divination: 'blue',
   complication: 'red',
   celerity: 'yellow',
+  professor: 'green',
   chatter: 'pink',
 latecomer: 'blue',
 'double-skip': 'green',

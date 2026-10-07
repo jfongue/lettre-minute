@@ -113,6 +113,12 @@ export interface Judge {
   spells?: Readonly<Record<Spell, readonly string[]>>
   /** The best-known base word the prompt could take (by key), following the judge's edge: what the Joker writes. */
   common?(categoryId: string, letter: string, played: readonly string[]): string | null
+  /**
+   * Le mot que le bilan montre pour une question passée : le plus souvent
+   * répondu, ou le moins payant quand personne ne l'a jamais dit. `rare`, le
+   * Professeur, sort à la place un mot peu commun.
+   */
+  suggest?(categoryId: string, letter: string, played: readonly string[], rare?: boolean): string | null
 }
 
 export interface Run {

@@ -50,7 +50,8 @@ n'écrit rapportent le plus.
   fautes passent dès six lettres), Divination (la catégorie et la lettre
   suivantes sont affichées), Challenge (peu commun ×1,15, rare et très rare
   ×1,3), Célérité (un mot accepté se valide seul, faute comprise, sauf
-  s'il ne lui manque qu'une lettre) et Bavardage (« ... » après un mot garde la
+  s'il ne lui manque qu'une lettre), Professeur (les mots suggérés au
+  bilan sont peu communs, jamais dits si possible, parfois rares) et Bavardage (« ... » après un mot garde la
   lettre et le thème pour trois mots de plus, qu'on quitte sans pénalité,
   une fois), Retardataire (un mot validé dans les cinq dernières secondes rend
 une seconde, cinq au plus par partie), Passe-passe (après un passage, le

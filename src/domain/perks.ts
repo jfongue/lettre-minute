@@ -1,5 +1,5 @@
 import type { Profile } from './progression'
-import { promptKey, type Judge, type Prompt, type Run, type SettledPrompt } from './run'
+import { hasPower, promptKey, type Judge, type Prompt, type Run, type SettledPrompt } from './run'
 
 /** Owned categories from which one may be banned from the draw. */
 export const BAN_UNLOCK_CATEGORIES = 7
@@ -115,23 +115,32 @@ export interface HiddenAnswer {
 }
 
 /**
- * The prompts the player skipped, each with the best-known word it still
- * had — what the summary hides under a bar. A pair skipped twice is shown
- * once; a pair with nothing left is left out.
+ * The prompts the player skipped, each with the word the game still had — what
+ * the summary hides under a bar. A pair skipped twice is shown once; a pair
+ * with nothing left is left out. Professeur (`rare`) hands over uncommon words
+ * instead of the crowd's favourite.
  */
 export function hiddenAnswers(run: Run, judge: Judge): HiddenAnswer[] {
-  return hiddenAnswersOf(run.settled, run.used, judge)
+  return hiddenAnswersOf(run.settled, run.used, judge, hasPower(run, 'professor'))
 }
 
 /** The same, from what a run left behind: its settled prompts and the keys it played. */
-export function hiddenAnswersOf(settled: readonly SettledPrompt[], used: readonly string[], judge: Judge): HiddenAnswer[] {
+export function hiddenAnswersOf(
+  settled: readonly SettledPrompt[],
+  used: readonly string[],
+  judge: Judge,
+  rare = false,
+): HiddenAnswer[] {
   const seen = new Set<string>()
   const answers: HiddenAnswer[] = []
   for (const { prompt, passed } of settled) {
     const key = promptKey(prompt)
     if (!passed || seen.has(key)) continue
     seen.add(key)
-    const display = judge.common?.(prompt.categoryId, prompt.letter, used) ?? null
+    const display =
+      judge.suggest?.(prompt.categoryId, prompt.letter, used, rare) ??
+      judge.common?.(prompt.categoryId, prompt.letter, used) ??
+      null
     if (display) answers.push({ prompt, display })
   }
   return answers

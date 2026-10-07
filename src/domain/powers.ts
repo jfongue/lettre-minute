@@ -16,6 +16,7 @@ export type PowerId =
   | 'divination'
   | 'complication'
   | 'celerity'
+  | 'professor'
   | 'chatter'
 | 'latecomer'
 | 'double-skip'
@@ -32,6 +33,7 @@ export const POWER_IDS: readonly PowerId[] = [
   'divination',
   'complication',
   'celerity',
+  'professor',
   'chatter',
 'latecomer',
 'double-skip',

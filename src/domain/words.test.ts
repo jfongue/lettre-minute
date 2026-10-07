@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { buildWordPack, commonWord, findWord, knownByLetter, lettersWithEnough, lookup, showcaseWords, spelledExactly, withExtraWords, withinOneEdit, type WordRow } from './words'
-import { rarityScore, tierOf } from './rarity'
+import { buildWordPack, commonWord, findWord, knownByLetter, lettersWithEnough, lookup, showcaseWords, spelledExactly, suggestedWord, withExtraWords, withinOneEdit, type WordEntry, type WordRow } from './words'
+import { NO_USAGE, rarityScore, tierOf } from './rarity'
 
 const rows: WordRow[] = [['Chat', 120, 45.3], ['Chien', 150, 60], ['Écureuil', 60, 3.2], ['Zèbre', 90, 1.4]]
 
@@ -202,6 +202,38 @@ describe('commonWord', () => {
   it('skips what the run already played, inflected forms included', () => {
     expect(commonWord(pack, 'C', ['chien'])).toBe('Chat')
     expect(commonWord(pack, 'C', ['chien', 'chat'])).toBeNull()
+  })
+})
+
+describe('suggestedWord', () => {
+  const pack = buildWordPack('animaux', [
+    ['Chat', 120, 45.3],
+    ['Chien', 150, 60],
+    ['Chamois', 20, 3],
+    ['Chacal', 12, 1.2],
+    ['Chevreuil', 40, 2.5],
+    ['Chouette', 60, 4.1],
+    ['Corbeau', 30, 2.2],
+    ['Couleuvre', 15, 1.1],
+    ['Castor', 35, 2.9],
+    ['Cygne', 55, 3.6],
+  ])
+  const nobody = () => NO_USAGE
+
+  it('proposes the word the players answer most, when one has been said', () => {
+    const said = (entry: WordEntry) => (entry.display === 'Chacal' ? { own: 0, globalShare: 0.4 } : NO_USAGE)
+    expect(suggestedWord(pack, 'C', [], said)).toBe('Chacal')
+  })
+
+  it('falls back on the word that pays the least when nobody ever said one', () => {
+    expect(suggestedWord(pack, 'C', [], nobody)).toBe(commonWord(pack, 'C', []))
+  })
+
+  it('sorts a rare word for the Professor’s lesson', () => {
+    const picked = suggestedWord(pack, 'C', [], nobody, true)
+    expect(picked).not.toBeNull()
+    expect(picked).not.toBe(commonWord(pack, 'C', []))
+    expect(['peu commun', 'rare']).toContain(tierOf(rarityScore(lookup(pack, picked!)!, NO_USAGE)))
   })
 })
 

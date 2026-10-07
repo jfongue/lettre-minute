@@ -4,7 +4,7 @@ import type { Spell } from '../domain/powers'
 import { countOf } from '../domain/progression'
 import { promptKey, type Judge } from '../domain/run'
 import { compactWord } from '../domain/text'
-import { commonWord, findWord, knownByLetter, mirrorPack, type WordPack } from '../domain/words'
+import { commonWord, findWord, knownByLetter, mirrorPack, suggestedWord, type WordPack } from '../domain/words'
 
 export interface UsageSource {
   /** Times the player answered this word before, from the local profile. */
@@ -41,6 +41,14 @@ export function createJudge(
   // One pass per category, on the first pair drawn from it: the average every
   // pair of that category is judged against.
   const baselines = new Map<string, number>()
+  // Ce que la foule et le joueur ont dit d'un mot : le tarif d'une réponse, et
+  // ce que le bilan propose.
+  const wordUsage = (word: string): WordUsage => {
+    const own = countOf(usage.own, word)
+    const crowd = countOf(usage.crowd, word)
+    if (own === 0 && crowd === 0) return NO_USAGE
+    return { own, globalShare: crowd }
+  }
 
   return {
     edge,
@@ -61,12 +69,11 @@ export function createJudge(
       const pack = searchById.get(categoryId)
       return pack ? commonWord(pack, letter, played) : null
     },
-    usage(word): WordUsage {
-      const own = countOf(usage.own, word)
-      const crowd = countOf(usage.crowd, word)
-      if (own === 0 && crowd === 0) return NO_USAGE
-      return { own, globalShare: crowd }
+    suggest(categoryId, letter, played, rare) {
+      const pack = searchById.get(categoryId)
+      return pack ? suggestedWord(pack, letter, played, (entry) => wordUsage(entry.key), rare) : null
     },
+    usage: wordUsage,
     letters(categoryId) {
       return letters.get(categoryId) ?? []
     },
