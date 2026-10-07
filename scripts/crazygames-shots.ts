@@ -12,7 +12,7 @@
  * its flags are the ones an agent's sandbox needs (CLAUDE.md, « Chrome sans tête »).
  */
 import { spawn } from 'node:child_process'
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -20,7 +20,6 @@ const CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const PORT = 9344
 const OUT = 'crazygames/assets'
 const origin = process.argv.slice(2).find((arg) => arg.startsWith('http')) ?? 'http://localhost:5747'
-const LANG = 'en'
 
 /** A player a few evenings in: level 5, seven categories, three powers, a record worth beating. */
 const PROFILE = {
@@ -123,50 +122,6 @@ async function openTab(): Promise<Tab> {
   return tab
 }
 
-type WordRow = readonly [display: string, sitelinks: number, frequency: number, canonical?: string, views?: number]
-
-// The category names the English interface shows, read from its messages:
-// node runs this file without a bundler, so the game's modules stay out of it.
-const LABELS = new Map(
-  [...readFileSync('src/i18n/en.ts', 'utf8').matchAll(/^ {4}'?([a-z-]+)'?: \['([^']+)',/gm)].map(([, id, label]) => [label!.toUpperCase(), id!]),
-)
-const plain = (text: string) => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase()
-
-/** Well-known base words of the prompt's category on its letter, from the dictionary the build ships. */
-function answersFor(label: string, letter: string, used: Set<string>): string[] {
-  const id = LABELS.get(label.toUpperCase())
-  if (!id) return []
-  const rows = JSON.parse(readFileSync(`src/data/words/${LANG}/${id}.json`, 'utf8')) as WordRow[]
-  return rows
-    .filter(([display, , , canonical]) => !canonical && /^[a-z]{4,12}$/i.test(plain(display)) && plain(display).startsWith(letter) && !used.has(display))
-    // Said often and described by many Wikipedias: either alone picks « Blue » for an animal.
-    .sort((a, b) => Math.log1p(b[1]) * Math.log1p(b[2]) - Math.log1p(a[1]) * Math.log1p(a[2]))
-    .slice(0, 1)
-    .map(([display]) => {
-      used.add(display)
-      return display
-    })
-}
-
-async function answer(tab: Tab, used: Set<string>, submit: boolean): Promise<boolean> {
-  const prompt = await tab.eval<{ label: string; letter: string } | null>(`(() => {
-    const label = document.querySelector('.prompt-label')?.textContent
-    const letter = document.querySelector('.prompt .mark-letter')?.textContent?.trim()
-    return label && letter ? { label, letter: letter.slice(0, 1).toUpperCase() } : null
-  })()`)
-  if (!prompt) return false
-  const [word] = answersFor(prompt.label, prompt.letter, used)
-  if (!word) return false
-  await tab.eval(`document.querySelector('.answer-field input')?.focus()`)
-  await tab.type(word.toLowerCase())
-  await sleep(250)
-  if (submit) {
-    await tab.enter()
-    await sleep(500)
-  }
-  return true
-}
-
 async function covers(tab: Tab) {
   const page = pathToFileURL(resolve(`${OUT}/cover.html`)).href
   for (const [format, width, height] of [
@@ -180,27 +135,34 @@ async function covers(tab: Tab) {
   }
 }
 
-async function play(tab: Tab, prefix: string, used: Set<string>) {
-  await tab.click('.btn--play')
+/**
+ * The run the captures show, as in crazygames/video/capture.mjs: a seed whose
+ * first prompts take words everybody knows (Sports F, Countries I, Animals P,
+ * Fruit and vegetables K, Jobs N, for PROFILE with no previous prompts).
+ */
+const SEED = 1002733
+const PLAN = ['Football', 'Italy', 'Penguin', 'Kiwi', 'Nurse']
+
+async function play(tab: Tab, prefix: string) {
+  // The run's seed is Date.now() when Play is pressed: the clock reads SEED for that click only.
+  await tab.eval(`(() => {
+    const real = Date.now
+    Date.now = () => ${SEED}
+    document.querySelector('.btn--play').click()
+    setTimeout(() => { Date.now = real }, 0)
+    return true
+  })()`)
   await sleep(2400)
   await tab.shot(`${prefix}2-announce.png`)
   await sleep(3200 + 3 * 800 + 600)
-  for (let found = 0, tries = 0; found < 3 && tries < 10; tries++) {
-    if (await answer(tab, used, true)) found++
-    else await tab.click('.answer-actions .btn--ghost')
-  }
-  let typed = false
-  for (let tries = 0; !typed && tries < 6; tries++) {
-    typed = await answer(tab, used, false)
-    if (!typed) await tab.click('.answer-actions .btn--ghost')
-  }
-  await sleep(400)
-  await tab.shot(`${prefix}3-run.png`)
-  await tab.enter()
-  await sleep(400)
-  for (let found = 0, tries = 0; found < 4 && tries < 10; tries++) {
-    if (await answer(tab, used, true)) found++
-    else await tab.click('.answer-actions .btn--ghost')
+  for (const [index, word] of PLAN.entries()) {
+    await tab.eval(`document.querySelector('.answer-field input')?.focus(), true`)
+    await tab.type(word.toLowerCase())
+    await sleep(300)
+    // The fourth word, rare and still in the field: the run as a player sees it.
+    if (index === 3) await tab.shot(`${prefix}3-run.png`)
+    await tab.enter()
+    await sleep(600)
   }
   for (let skips = 0; skips < 20; skips++) {
     if (!(await tab.eval<boolean>(`!!document.querySelector('.answer-actions')`))) break
@@ -255,8 +217,7 @@ try {
   })()`)
   await tab.go(`${origin}/`, 3500)
   await tab.shot('shot-1-home.png')
-  const used = new Set<string>()
-  await play(tab, 'shot-', used)
+  await play(tab, 'shot-')
 
   // Past the reveal, « Play again »: the break between runs asks the SDK for a
   // midgame ad, which the local SDK shows as a line of text (see the console).
@@ -266,11 +227,17 @@ try {
   await sleep(1500)
   await sleep(8000)
 
-  // A phone, portrait.
+  // A phone, portrait, with the same player as before the first run: the
+  // prompts a run leaves behind would change the next draw.
   await tab.size(390, 844, 3, true)
+  await tab.eval(`(() => {
+    localStorage.removeItem('lettre-minute.history.v1')
+    localStorage.setItem('lettre-minute.profile.v1', ${JSON.stringify(JSON.stringify(PROFILE))})
+    return true
+  })()`)
   await tab.go(`${origin}/`, 3500)
   await tab.shot('shot-mobile-1-home.png')
-  await play(tab, 'shot-mobile-', used)
+  await play(tab, 'shot-mobile-')
   await tab.send('Page.close').catch(() => undefined)
 } finally {
   chrome.kill()

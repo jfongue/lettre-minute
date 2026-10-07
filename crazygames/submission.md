@@ -102,8 +102,8 @@ running, then `node render.mjs`):
 
 | File | Size | Content |
 |---|---|---|
-| `video-landscape-1920x1080.mp4` | 1920 × 1080 (16:9), 18 s, H.264, no audio, 3.5 MB | cover → a run (eight words, the streak climbing to ×1.6) and its summary, with four short captions beside the game → cover |
-| `video-portrait-1080x1620.mp4` | 1080 × 1620 (2:3), 18 s, H.264, no audio, 4.1 MB | the same, captions under the game |
+| `video-landscape-1920x1080.mp4` | 1920 × 1080 (16:9), 19.5 s, H.264, no audio, 2.9 MB | cover → a run typed at a human pace (Football, Italy, Penguin with a typo put right, then Kiwi, rare: the streak climbs to ×1.4) and its summary, with four short captions beside the game → cover |
+| `video-portrait-1080x1620.mp4` | 1080 × 1620 (2:3), 19.5 s, H.264, no audio, 3.2 MB | the same, captions under the game |
 
 The portal asks for portrait at « 1080p – 2:3 », the cover's own ratio, so the
 portrait video is 1080 × 1620 (not 1080 × 1920): its first frame is the

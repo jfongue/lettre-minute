@@ -1,7 +1,7 @@
 // Renders the two CrazyGames preview videos with HyperFrames, from the run
 // capture.mjs recorded: crazygames/assets/video-landscape-1920x1080.mp4 and
 // video-portrait-1080x1620.mp4 (the portal asks for 1080p at 16:9 and 2:3),
-// 18 s, H.264, no audio track, the cover as first and last frame.
+// 15 to 20 s, H.264, no audio track, the cover as first and last frame.
 //
 //   cd crazygames/video && npm install      (HyperFrames and GSAP, local to this folder)
 //   node capture.mjs && node render.mjs
@@ -57,20 +57,33 @@ async function portraitCover() {
 }
 await portraitCover()
 
-// The cuts: the run from just before its first prompt, the summary from just after the clock stops.
+// The cuts, read from the capture: the run from the moment typing starts to
+// just after the rare word lands, then the summary once its words are up.
 const marks = JSON.parse(readFileSync(join(HERE, 'capture/marks.json'), 'utf8'))
+const round = (value) => Math.round(value * 100) / 100
+const IN_END = 1.4
+const RUN_FROM = marks.run + 0.4
+const RUN_DUR = round(marks.word4 + 0.9 - RUN_FROM)
+const SUM_AT = round(IN_END + RUN_DUR)
+const SUM_DUR = 3
+const OUT_AT = round(SUM_AT + SUM_DUR - 0.1)
+const TOTAL = round(OUT_AT + 1.7)
+// « Rare words pay the most » comes with the rare word itself, and stays over the summary.
+const C4 = round(IN_END + marks.word4 - RUN_FROM - 0.2)
+const T = {
+  TOTAL, IN_END: IN_END + 0.4, RUN_AT: IN_END, RUN_DUR, RUN_FROM: round(RUN_FROM),
+  SUM_AT, SUM_DUR, SUM_FROM: round(marks.timeUp + 3), OUT_AT, OUT_DUR: round(TOTAL - OUT_AT),
+  C1: IN_END + 0.2, C1_DUR: 3.4, C2: round(IN_END + 3.6), C2_DUR: 3.6,
+  C3: round(IN_END + 7.2), C3_DUR: round(C4 - IN_END - 7.2), C4, C4_DUR: round(TOTAL - C4),
+}
+if (TOTAL < 15 || TOTAL > 20) throw new Error(`the cut lasts ${TOTAL} s, outside the portal's 15–20 s`)
+console.log(JSON.stringify(T))
 const template = readFileSync(join(HERE, 'template.html'), 'utf8')
 for (const { format, width, height } of FORMATS) {
   const page = `${format}.html`
-  writeFileSync(
-    join(HERE, page),
-    template
-      .replaceAll('{{W}}', String(width))
-      .replaceAll('{{H}}', String(height))
-      .replaceAll('{{FORMAT}}', format)
-      .replaceAll('{{RUN_FROM}}', String(Math.max(0, marks.run - 0.3).toFixed(2)))
-      .replaceAll('{{SUMMARY_FROM}}', String((marks.timeUp + 3.2).toFixed(2))),
-  )
+  let html = template.replaceAll('{{W}}', String(width)).replaceAll('{{H}}', String(height)).replaceAll('{{FORMAT}}', format).replaceAll('{{TIMES}}', JSON.stringify(T))
+  for (const [slot, value] of Object.entries(T)) html = html.replaceAll(`{{${slot}}}`, String(value))
+  writeFileSync(join(HERE, page), html)
   const raw = join(HERE, `renders/${format}.mp4`)
   execFileSync('npx', ['hyperframes', 'render', '.', '-c', page, '-o', raw, '--fps', '30', '--quality', 'delivery', '--video-frame-format', 'png', '--quiet'], {
     cwd: HERE,

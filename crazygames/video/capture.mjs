@@ -1,16 +1,19 @@
 // Records a real run of the CrazyGames build for the preview videos: headless
 // Chrome plays dist-crazygames/ (served by `npm run crazygames:harness`) in
-// English and the light theme, at a phone's proportions (1080 × 1920), types
-// well-known words letter by letter, keeps a streak going, skips to the end
-// with Tab and opens the summary. Chrome's screencast frames become
-// capture/gameplay.mp4 at a steady 30 fps; capture/marks.json says when each
-// moment happens in it, for the montage (index-*.html) to cut on.
+// English and the light theme, at a phone's proportions (1080 × 1920). The run
+// is dealt from a chosen seed whose first prompts all take a word everybody
+// knows — Football, Italy, Penguin, then Kiwi, rare yet familiar — typed at a
+// human pace (uneven gaps, a hesitation, one typo put right, a beat before
+// Enter, time to watch the score climb); then Tab skips to the end and the
+// summary opens. Chrome's screencast frames become capture/gameplay.mp4 at a
+// steady 30 fps; capture/marks.json says when each moment happens in it, for
+// render.mjs to cut on.
 //
 //   node crazygames/video/capture.mjs [http://localhost:5747]
 //
 // Chrome's flags are the ones an agent's sandbox needs (CLAUDE.md, « Chrome sans tête »).
 import { spawn, execFileSync } from 'node:child_process'
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -29,25 +32,27 @@ const PROFILE = {
   powers: ['joker', 'hush', 'divination'], equipped: [],
 }
 
+/**
+ * The seed and what it deals for PROFILE in English (Sports F, Countries I,
+ * Animals P, Fruit and vegetables K, then Jobs N), found by replaying the
+ * domain's draw over a range of seeds against a list of obvious answers. The
+ * run is checked prompt by prompt: a dictionary or a draw that changed stops
+ * the capture rather than filming a skip.
+ */
+const SEED = 1002733
+const PLAN = [
+  { letter: 'F', word: 'Football' },
+  { letter: 'I', word: 'Italy' },
+  { letter: 'P', word: 'Penguin', typo: { after: 3, wrong: 'h' } },
+  { letter: 'K', word: 'Kiwi' },
+]
+
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms))
-
-// The category names the English interface shows, read from its messages.
-const LABELS = new Map(
-  [...readFileSync(join(ROOT, 'src/i18n/en.ts'), 'utf8').matchAll(/^ {4}'?([a-z-]+)'?: \['([^']+)',/gm)].map(([, id, label]) => [label.toUpperCase(), id]),
-)
-const plain = (text) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase()
-const used = new Set()
-
-/** A well-known base word of the prompt's category on its letter: said often and described by many Wikipedias. */
-function answerFor(label, letter) {
-  const id = LABELS.get(label.toUpperCase())
-  if (!id) return null
-  const rows = JSON.parse(readFileSync(join(ROOT, `src/data/words/en/${id}.json`), 'utf8'))
-  const [best] = rows
-    .filter(([display, , , canonical]) => !canonical && /^[a-z]{4,10}$/i.test(plain(display)) && plain(display).startsWith(letter) && !used.has(display))
-    .sort((a, b) => Math.log1p(b[1]) * Math.log1p(b[2]) - Math.log1p(a[1]) * Math.log1p(a[2]))
-  if (best) used.add(best[0])
-  return best?.[0] ?? null
+// A seeded jitter: the same capture every time, never the same gap twice in a row.
+let jitterState = 7
+const jitter = (low, high) => {
+  jitterState = (jitterState * 1103515245 + 12345) % 2147483648
+  return low + (jitterState / 2147483648) * (high - low)
 }
 
 rmSync(OUT, { recursive: true, force: true })
@@ -86,8 +91,9 @@ function send(method, params = {}) {
   return new Promise((done) => pending.set(id, done))
 }
 const evaluate = async (expression) => (await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }))?.result?.value
-const key = async (keyName, code, keyCode) => {
-  for (const type of ['keyDown', 'keyUp']) await send('Input.dispatchKeyEvent', { type, key: keyName, code, windowsVirtualKeyCode: keyCode })
+const key = async (keyName, code, keyCode, commands) => {
+  await send('Input.dispatchKeyEvent', { type: 'keyDown', key: keyName, code, windowsVirtualKeyCode: keyCode, ...(commands ? { commands } : {}) })
+  await send('Input.dispatchKeyEvent', { type: 'keyUp', key: keyName, code, windowsVirtualKeyCode: keyCode })
 }
 const marks = {}
 const mark = (name) => {
@@ -110,40 +116,53 @@ await sleep(300)
 recording = true
 mark('home')
 await sleep(1200)
-await evaluate(`document.querySelector('.btn--play').click()`)
+// The run's seed is Date.now() when Play is pressed: the clock reads SEED for
+// that click and the microtasks it starts, and is real again right after.
+await evaluate(`(() => {
+  const real = Date.now
+  Date.now = () => ${SEED}
+  document.querySelector('.btn--play').click()
+  setTimeout(() => { Date.now = real }, 0)
+  return true
+})()`)
 mark('play')
 // The announcement, then 3, 2, 1.
 for (let tries = 0; tries < 40 && !(await evaluate(`!!document.querySelector('.answer-field input')`)); tries++) await sleep(150)
 mark('run')
+await sleep(600)
 
-// Eight words at a human pace: typed letter by letter, a breath on each cheer.
-let found = 0
-for (let tries = 0; found < 8 && tries < 16; tries++) {
-  const prompt = await evaluate(`(() => {
-    const label = document.querySelector('.prompt-label')?.textContent
-    const letter = document.querySelector('.prompt .mark-letter')?.textContent?.trim()
-    return label && letter ? { label, letter: letter.slice(0, 1).toUpperCase() } : null
-  })()`)
-  const word = prompt && answerFor(prompt.label, prompt.letter)
+const typeLetter = async (letter) => {
+  await send('Input.insertText', { text: letter })
+  await sleep(jitter(150, 300))
+}
+for (const [index, step] of PLAN.entries()) {
+  const letter = await evaluate(`document.querySelector('.prompt .mark-letter')?.textContent?.trim().slice(0, 1).toUpperCase()`)
+  if (letter !== step.letter) {
+    chrome.kill()
+    throw new Error(`prompt ${index + 1} is ${letter}, not ${step.letter}: the draw changed, search a new SEED`)
+  }
   await evaluate(`document.querySelector('.answer-field input')?.focus(), true`)
-  if (!word) {
-    await key('Tab', 'Tab', 9)
-    await sleep(500)
-    continue
+  for (const [at, char] of [...step.word.toLowerCase()].entries()) {
+    // Now and then a hesitation in the middle of a word.
+    if (at === 2 && index % 2 === 1) await sleep(jitter(250, 400))
+    await typeLetter(char)
+    if (step.typo && at === step.typo.after - 1) {
+      await typeLetter(step.typo.wrong)
+      await sleep(jitter(200, 320))
+      await key('Backspace', 'Backspace', 8, ['deleteBackward'])
+      await sleep(jitter(180, 260))
+    }
   }
-  for (const letter of word.toLowerCase()) {
-    await send('Input.insertText', { text: letter })
-    await sleep(70)
-  }
-  await sleep(250)
+  await sleep(jitter(320, 450))
   await key('Enter', 'Enter', 13)
-  found++
-  await sleep(650)
+  mark(`word${index + 1}`)
+  // Time to read the cheer and watch the score climb.
+  await sleep(jitter(1050, 1300))
 }
 mark('words')
 
 // The rest of the minute goes by in skips.
-for (let skips = 0; skips < 30 && (await evaluate(`!!document.querySelector('.answer-field input')`)); skips++) {
+for (let skips = 0; skips < 40 && (await evaluate(`!!document.querySelector('.answer-field input')`)); skips++) {
   await key('Tab', 'Tab', 9)
   await sleep(120)
 }
