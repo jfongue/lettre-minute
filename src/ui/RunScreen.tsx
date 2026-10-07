@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { CHATTER_WORDS, POWER_CHARGES } from '../domain/powers'
-import { answerPrompt, celerityDue, chargesLeft, hasPower, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
-import { MODE_SECONDS, modeEdge } from '../domain/modes'
+import { answerPrompt, celerityDue, chargesLeft, hasPower, runScore, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
+import { MODE_SECONDS, RECALL_SECONDS, modeEdge } from '../domain/modes'
 import { capitalized, compactWord, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
 import { sound } from '../lib/sound'
@@ -57,6 +57,8 @@ interface RunScreenProps {
   onSubmit(auto?: boolean): void
   onSkip(): void
   onReroll(): void
+  /** Le retard : revoir la question à remplir, contre `RECALL_SECONDS` secondes. */
+  onRecall(): void
   onPropose(word: string): void
 }
 
@@ -76,6 +78,7 @@ export function RunScreen({
   onSubmit,
   onSkip,
   onReroll,
+  onRecall,
   onPropose,
 }: RunScreenProps) {
   const field = useRef<HTMLInputElement>(null)
@@ -85,7 +88,15 @@ export function RunScreen({
   // Le retard remplit la question d'avant, le renversé juge la fin du mot.
   const answer = answerPrompt(run)
   const edge = modeEdge(run.mode)
+  // En endurance, le score est le temps tenu, pas les points.
+  const score = runScore(run)
   const seconds = Math.ceil(remaining)
+  // Le rappel du retard s'affiche une seule fois, à sa première question : il
+  // se rachète ensuite question par question, contre `RECALL_SECONDS` secondes.
+  const firstAnswer = useRef<number | null>(null)
+  if (run.mode === 'delayed' && run.armed && firstAnswer.current === null) firstAnswer.current = run.drawn
+  const [recalled, setRecalled] = useState<number | null>(null)
+  const showsAnswer = run.armed && (firstAnswer.current === run.drawn || recalled === run.drawn)
 const latecomerTriggered = remaining < 5 && hasPower(run, 'latecomer') && chargesLeft(run, 'latecomer') > 0
 const latecomerAnnounced = useRef(false)
 useEffect(() => {
@@ -185,6 +196,13 @@ else if (doubleSkip) sound.power('double-skip')
     onReroll()
   }
 
+  // La question à remplir se rachète pour la question en cours seulement.
+  const recallAnswer = () => {
+    setRecalled(run.drawn)
+    sound.click()
+    onRecall()
+  }
+
   const powers = run.powers.map((id) => ` run--${id}`).join('')
   return (
     <div className={`sheet run${urgent && !hushed ? ' run--urgent' : ''}${hushed ? ' run--hushed' : ''}${powers}`}>
@@ -202,10 +220,12 @@ else if (doubleSkip) sound.power('double-skip')
           {hushed && <span className="timer-hold" aria-hidden="true"><span /><span /></span>}
         </div>
         <div className="score">
-          {run.score > 0 && <Burst key={`burst-${run.score}`} />}
-          <span className="score-value" key={run.score}>
-            {formatNumber(t, run.score)}
+          {score > 0 && <Burst key={`burst-${score}`} />}
+          <span className="score-value" key={score}>
+            {formatNumber(t, score)}
           </span>
+          {/* En endurance le score est un temps : « 47 s », pas « 47 points ». */}
+          {run.mode === 'endurance' && <span className="score-unit">{t.run.secondsUnit}</span>}
           {run.combo > 1 && (
             <span className="combo" key={run.combo}>
               ×{(1 + Math.min(run.combo, 9) * 0.1).toFixed(1)}
@@ -269,14 +289,18 @@ else if (doubleSkip) sound.power('double-skip')
       )}
       {run.mode === 'delayed' && (
         <p className="prompt-next" key={`answer-${run.drawn}`}>
-          {run.armed ? (
+          {!run.armed ? (
+            <span className="note">{t.modes.armNote}</span>
+          ) : showsAnswer ? (
             <>
               <span className="note">{t.modes.answerTo}</span>
               <LetterMark letter={answer.letter} motif={motifAt(run.drawn + run.rerolls)} size="sm" />
               <span>{categoryText(t, answer.categoryId).label}</span>
             </>
           ) : (
-            <span className="note">{t.modes.armNote}</span>
+            <button type="button" className="btn btn--quiet" onPointerDown={keepFocus} onClick={recallAnswer}>
+              {t.modes.recall(RECALL_SECONDS)}
+            </button>
           )}
         </p>
       )}
@@ -439,6 +463,15 @@ flawlessTriggered: boolean
       {shown.boost > 1 && <span className="cheer-boost">{t.powers.boost(shown.boost)}</span>}
     </p>
   )
+  // La question du retard part vide : le texte qui y entre est refusé tout de
+  // suite, sans attendre que les doigts s'arrêtent.
+  if (live?.kind === 'must-empty')
+    return (
+      <p className="verdict verdict--refused">
+        {refusedMark}
+        {t.modes.armNote}
+      </p>
+    )
   // The line keeps the find unless a refusal has to take it: lower down, the
   // phone keyboard would hide it.
   if (refused && typing && !shaking) return held ? cheerLine(held) : <p className="verdict">&nbsp;</p>

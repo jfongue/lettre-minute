@@ -8,8 +8,11 @@ import type { RarityTier } from './rarity'
  */
 export type GameMode = 'solo' | 'delayed' | 'endurance' | 'reversed'
 
+/** Les trois modes de la réserve, ceux qui ont une leçon et pas de progression. */
+export type ArcadeMode = Exclude<GameMode, 'solo'>
+
 /** La réserve, dans l'ordre où l'écran les propose : le solo se choisit à part. */
-export const ARCADE_MODES: readonly GameMode[] = ['delayed', 'endurance', 'reversed']
+export const ARCADE_MODES: readonly ArcadeMode[] = ['delayed', 'endurance', 'reversed']
 
 /** Ce dont chaque mode part : l'endurance se joue sur trente secondes. */
 export const MODE_SECONDS: Record<GameMode, number> = {
@@ -29,6 +32,9 @@ export const ENDURANCE_TIME_BONUS: Record<RarityTier, number> = {
   rare: 3,
   'très rare': 4,
 }
+
+/** Le retard : revoir la question à remplir une fois masquée coûte ces secondes. */
+export const RECALL_SECONDS = 3
 
 /** Sur quelle lettre la question contraint : la première, sauf renversé. */
 export function modeEdge(mode: GameMode): 'first' | 'last' {

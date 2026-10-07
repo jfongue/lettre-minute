@@ -57,9 +57,23 @@ export const es: Messages = {
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'Por rellenar',
     armNote: 'Valida en vacío: ahí arranca el crono.',
-    tutorialHello: 'El retraso es una sola regla: la respuesta pedida es la de la pregunta anterior.',
-    tutorialAskA: 'Pregunta A. No escribas nada y valida: el crono arranca.',
-    tutorialAskB: 'Pregunta B. Ahora responde… a la pregunta A.',
+    recall: (seconds: number) => `Ver la respuesta −${seconds} s`,
+    /** La lección de cada modo de la reserva, jugada cada vez que se elige. */
+    lesson: {
+      delayed: {
+        hello: 'El retraso es una sola regla: la respuesta pedida es la de la pregunta anterior.',
+        askA: 'Pregunta A. No escribas nada y valida: el crono arranca.',
+        askB: 'Pregunta B. Ahora responde… a la pregunta A.',
+      },
+      endurance: {
+        hello: 'Cada palabra te devuelve segundos: cuanto más rara, más te da, y el crono vuelve a arrancar.',
+        ask: (letter: string) => `Escribe un color con ${letter} y valida: te da de 2 a 4 segundos.`,
+      },
+      reversed: {
+        hello: 'La letra manda en el final de la palabra: M acepta Vietnam.',
+        ask: (letter: string) => `Escribe un color que acabe en ${letter}.`,
+      },
+    },
   },
 
   countdown: {
@@ -75,6 +89,7 @@ export const es: Messages = {
     fieldLabel: (letter, category) => `Palabra con ${letter}, categoría ${category}`,
     skip: (seconds) => `Saltar −${seconds} s`,
     submit: 'Validar',
+    secondsUnit: 's',
     approximate: 'ortografía aproximada',
     oneLetterOff: 'a una letra…',
     startsWith: (letter) => `empieza por ${letter}`,
@@ -98,6 +113,8 @@ export const es: Messages = {
   over: {
     timeUp: 'Se acabó el tiempo',
     points: 'puntos',
+    survived: 'segundos de supervivencia',
+    seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Ni una sola palabra. Pasa.',
     next: 'Continuar',
     earned: (count) => plural(count, 'Novedad para tu avatar', 'Novedades para tu avatar'),

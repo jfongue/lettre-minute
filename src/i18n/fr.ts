@@ -81,9 +81,23 @@ export const fr = {
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'À remplir',
     armNote: 'Valide à vide : c’est là que le chrono part.',
-    tutorialHello: 'Le retard tient en une règle : la réponse attendue est celle de la question d’avant.',
-    tutorialAskA: 'Question A. Ne remplis rien et valide : le chrono part.',
-    tutorialAskB: 'Question B. À toi de répondre… à la question A.',
+    recall: (seconds: number) => `Voir à remplir −${seconds} s`,
+    /** La leçon de chaque mode de la réserve, jouée à chaque fois qu'on le choisit. */
+    lesson: {
+      delayed: {
+        hello: 'Le retard tient en une règle : la réponse attendue est celle de la question d’avant.',
+        askA: 'Question A. Ne remplis rien et valide : le chrono part.',
+        askB: 'Question B. À toi de répondre… à la question A.',
+      },
+      endurance: {
+        hello: 'Chaque mot te rend des secondes : plus il est rare, plus il t’en rend, et le chrono repart.',
+        ask: (letter: string) => `Tape une couleur en ${letter} et valide : elle te rend de 2 à 4 secondes.`,
+      },
+      reversed: {
+        hello: 'La lettre contraint la fin du mot : M accepte le Vietnam.',
+        ask: (letter: string) => `Tape une couleur qui finit par ${letter}.`,
+      },
+    },
   },
 
   countdown: {
@@ -99,6 +113,7 @@ export const fr = {
     fieldLabel: (letter: string, category: string) => `Mot en ${letter}, catégorie ${category}`,
     skip: (seconds: number) => `Passer −${seconds} s`,
     submit: 'Valider',
+    secondsUnit: 's',
     approximate: 'orthographe approchée',
     oneLetterOff: 'à une lettre près…',
     startsWith: (letter: string) => `commence par ${letter}`,
@@ -122,6 +137,8 @@ export const fr = {
   over: {
     timeUp: 'Temps écoulé',
     points: 'points',
+    survived: 'secondes de survie',
+    seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Pas un seul mot. Ça arrive.',
     next: 'Continuer',
     earned: (count: number) => plural(count, 'Nouveauté pour ton avatar', 'Nouveautés pour ton avatar'),

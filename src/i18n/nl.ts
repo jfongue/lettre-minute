@@ -57,9 +57,23 @@ export const nl: Messages = {
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'In te vullen',
     armNote: 'Bevestig leeg: dan start de klok.',
-    tutorialHello: 'De vertraging is één regel: het gevraagde antwoord is dat van de vorige vraag.',
-    tutorialAskA: 'Vraag A. Typ niets en bevestig: de klok start.',
-    tutorialAskB: 'Vraag B. Antwoord nu… op vraag A.',
+    recall: (seconds: number) => `Antwoord tonen −${seconds} s`,
+    /** De les van elke reservemodus, gespeeld bij elke keuze. */
+    lesson: {
+      delayed: {
+        hello: 'De vertraging is één regel: het gevraagde antwoord is dat van de vorige vraag.',
+        askA: 'Vraag A. Typ niets en bevestig: de klok start.',
+        askB: 'Vraag B. Antwoord nu… op vraag A.',
+      },
+      endurance: {
+        hello: 'Elk woord geeft je seconden terug: hoe zeldzamer, hoe meer, en de klok loopt weer.',
+        ask: (letter: string) => `Typ een kleur met ${letter} en bevestig: die geeft je 2 tot 4 seconden.`,
+      },
+      reversed: {
+        hello: 'De letter geldt voor het einde van het woord: M neemt Vietnam.',
+        ask: (letter: string) => `Typ een kleur die eindigt op ${letter}.`,
+      },
+    },
   },
 
   countdown: {
@@ -74,6 +88,7 @@ export const nl: Messages = {
     fieldLabel: (letter, category) => `Woord met ${letter}, categorie ${category}`,
     skip: (seconds) => `Overslaan −${seconds} s`,
     submit: 'Bevestigen',
+    secondsUnit: 's',
     approximate: 'bijna goed gespeld',
     oneLetterOff: 'één letter ernaast…',
     startsWith: (letter) => `begint met ${letter}`,
@@ -97,6 +112,8 @@ export const nl: Messages = {
   over: {
     timeUp: 'Tijd is om',
     points: 'punten',
+    survived: 'seconden overleefd',
+    seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Geen enkel woord. Dat gebeurt.',
     next: 'Verder',
     earned: () => 'Nieuw voor je avatar',

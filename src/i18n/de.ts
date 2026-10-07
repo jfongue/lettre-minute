@@ -57,9 +57,23 @@ export const de: Messages = {
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'Ausfüllen',
     armNote: 'Leer bestätigen: da startet die Uhr.',
-    tutorialHello: 'Die Verzögerung ist eine Regel: gesucht ist die Antwort der vorigen Frage.',
-    tutorialAskA: 'Frage A. Schreib nichts und bestätige: die Uhr startet.',
-    tutorialAskB: 'Frage B. Antworte jetzt… auf Frage A.',
+    recall: (seconds: number) => `Antwort zeigen −${seconds} s`,
+    /** Die Lektion jedes Reservemodus, bei jeder Auswahl gespielt. */
+    lesson: {
+      delayed: {
+        hello: 'Die Verzögerung ist eine Regel: gesucht ist die Antwort der vorigen Frage.',
+        askA: 'Frage A. Schreib nichts und bestätige: die Uhr startet.',
+        askB: 'Frage B. Antworte jetzt… auf Frage A.',
+      },
+      endurance: {
+        hello: 'Jedes Wort schenkt dir Sekunden: je seltener, desto mehr, und die Uhr läuft wieder.',
+        ask: (letter: string) => `Schreib eine Farbe mit ${letter} und bestätige: sie gibt dir 2 bis 4 Sekunden.`,
+      },
+      reversed: {
+        hello: 'Der Buchstabe gilt für das Wortende: M nimmt Vietnam.',
+        ask: (letter: string) => `Schreib eine Farbe, die auf ${letter} endet.`,
+      },
+    },
   },
 
   countdown: {
@@ -74,6 +88,7 @@ export const de: Messages = {
     fieldLabel: (letter, category) => `Wort mit ${letter}, Kategorie ${category}`,
     skip: (seconds) => `Überspringen −${seconds} s`,
     submit: 'Bestätigen',
+    secondsUnit: 's',
     approximate: 'fast richtig geschrieben',
     oneLetterOff: 'ein Buchstabe daneben…',
     startsWith: (letter) => `beginnt mit ${letter}`,
@@ -97,6 +112,8 @@ export const de: Messages = {
   over: {
     timeUp: 'Zeit ist um',
     points: 'Punkte',
+    survived: 'Sekunden überlebt',
+    seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Kein einziges Wort. Kommt vor.',
     next: 'Weiter',
     earned: () => 'Neu für deinen Avatar',

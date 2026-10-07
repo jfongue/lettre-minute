@@ -2156,10 +2156,26 @@ const SCENARIOS: readonly Scenario[] = [
   {
     id: 'mode-delay',
     group: 'Accueil',
-    title: 'Tutoriel du mode retard',
+    title: 'Leçon du mode retard',
     how: 'La leçon d’une règle : on valide la question A à vide, puis on répond à A sous la question B',
     phase: 'playing',
-    render: (back) => <ModeTutorial lang="fr" onDone={back} />,
+    render: (back) => <ModeTutorial mode="delayed" lang="fr" onDone={back} />,
+  },
+  {
+    id: 'mode-endurance',
+    group: 'Accueil',
+    title: 'Leçon du mode endurance',
+    how: 'Une seule question : la couleur tapée rend de deux à quatre secondes',
+    phase: 'playing',
+    render: (back) => <ModeTutorial mode="endurance" lang="fr" onDone={back} />,
+  },
+  {
+    id: 'mode-reversed',
+    group: 'Accueil',
+    title: 'Leçon du mode renversé',
+    how: 'La lettre contraint la fin : la couleur tapée doit finir par elle',
+    phase: 'playing',
+    render: (back) => <ModeTutorial mode="reversed" lang="fr" onDone={back} />,
   },
   {
     id: 'duel-rules',

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { loadPack } from '../data/packs'
+import { modeEdge, type ArcadeMode } from '../domain/modes'
 import type { Prompt } from '../domain/run'
-import { capitalized, compactWord, initialOf } from '../domain/text'
+import { capitalized, compactWord, finalOf, initialOf } from '../domain/text'
 import { lookup, type WordPack } from '../domain/words'
-import { categoryText, useT, type Messages } from '../i18n'
+import { categoryText, useT } from '../i18n'
 import { sound } from '../lib/sound'
 import { LetterMark, Shape } from './bauhaus'
 import { categoryMotif } from './motifs'
@@ -23,31 +24,35 @@ const SHAPE_NOTES: readonly { timbre: 'marimba' | 'glass'; step: number; at: num
 ]
 
 /**
- * Les deux questions de la leçon : la A se valide à vide — c'est elle qui lance
- * le chrono —, la B s'affiche quand c'est la A qu'il faut remplir. Les deux
- * thèmes sont des couleurs, et la lettre de la B n'est jamais celle de la A
- * dans les sept langues : la règle se voit, elle ne s'explique pas.
+ * Les questions de la leçon : toutes sur les couleurs de la langue du joueur,
+ * et toujours remplies par la même — celle de la question A. Le retard joue
+ * deux questions, la A se validant à vide : c'est elle qui montre que la B se
+ * remplit avec ce que la A demandait. Son thème à lui est une autre couleur,
+ * pour que la lettre change d'une question à l'autre.
  */
-function delayPrompts(t: Messages): { a: Prompt & { answer: string }; b: Prompt } {
+function lessonPrompts(t: ReturnType<typeof useT>, mode: ArcadeMode): { a: Prompt; b: Prompt | null; answer: string } {
   const answer = t.colours.rouge
+  const letterOf = modeEdge(mode) === 'last' ? finalOf : initialOf
   return {
-    a: { categoryId: 'couleurs', letter: initialOf(answer), answer },
-    b: { categoryId: 'couleurs', letter: initialOf(t.colours.bleu) },
+    a: { categoryId: 'couleurs', letter: letterOf(answer) },
+    b: mode === 'delayed' ? { categoryId: 'couleurs', letter: initialOf(t.colours.bleu) } : null,
+    answer,
   }
 }
 
 /**
- * La leçon du retard, jouée comme la première partie : les mêmes pièces, la
- * même validation. La question A part sans réponse, la B prend sa place, et
- * c'est la A qu'il faut remplir — n'importe quelle couleur du dictionnaire sur
- * sa lettre, pour que la leçon ne soit jamais refusée.
+ * La leçon d'un mode de la réserve, jouée comme la première partie : les mêmes
+ * pièces, la même validation, et n'importe quelle couleur du dictionnaire sur
+ * la lettre demandée — la leçon ne se refuse jamais. Elle s'affiche à chaque
+ * sélection d'un mode de la réserve, et se passe d'un bouton.
  */
-export function ModeTutorial({ lang, onDone }: { lang: string; onDone(): void }) {
+export function ModeTutorial({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; onDone(): void }) {
   const t = useT()
-  const { a, b } = delayPrompts(t)
+  const { a, b, answer } = lessonPrompts(t, mode)
   const category = categoryText(t, a.categoryId)
   const [pack, setPack] = useState<WordPack | null>(null)
-  const [step, setStep] = useState<'a' | 'b'>('a')
+  // Sans seconde question, la leçon s'ouvre directement sur le champ.
+  const [step, setStep] = useState<'a' | 'b'>(b ? 'a' : 'b')
   const [draft, setDraft] = useState('')
   const [missed, setMissed] = useState(false)
   const [shaking, setShaking] = useState(false)
@@ -82,9 +87,10 @@ export function ModeTutorial({ lang, onDone }: { lang: string; onDone(): void })
     return () => clearTimeout(timer)
   }, [solved, onDone])
 
-  // The answer is the one the question A asked for, never the one on screen.
-  const known = pack && initialOf(draft) === a.letter ? lookup(pack, draft) : null
-  const found = compactWord(draft) === compactWord(a.answer) ? a.answer : known ? capitalized(known.display) : null
+  // La question remplie est toujours la A : le renversé la juge par sa fin.
+  const edge = modeEdge(mode)
+  const known = pack && (edge === 'last' ? finalOf(draft) : initialOf(draft)) === a.letter ? lookup(pack, draft) : null
+  const found = compactWord(draft) === compactWord(answer) ? answer : known ? capitalized(known.display) : null
 
   const named = found !== null
   useEffect(() => {
@@ -126,11 +132,17 @@ export function ModeTutorial({ lang, onDone }: { lang: string; onDone(): void })
       </div>
     )
 
-  const shown = step === 'a' ? a.letter : b.letter
+  const shown = step === 'b' && b ? b.letter : a.letter
+  const ask =
+    mode === 'delayed'
+      ? step === 'a'
+        ? t.modes.lesson.delayed.askA
+        : t.modes.lesson.delayed.askB
+      : t.modes.lesson[mode].ask(a.letter)
   return (
     <div className={`sheet tutorial${typing ? ' tutorial--typing' : ''}`}>
       <div className="tutorial-top">
-        <p className="tutorial-hello">{t.modes.tutorialHello}</p>
+        <p className="tutorial-hello">{t.modes.lesson[mode].hello}</p>
         <button type="button" className="btn btn--quiet btn--muted" onClick={onDone}>
           {t.tutorial.skip}
         </button>
@@ -147,9 +159,9 @@ export function ModeTutorial({ lang, onDone }: { lang: string; onDone(): void })
         </div>
       </section>
 
-      <p className="tutorial-ask">{step === 'a' ? t.modes.tutorialAskA : t.modes.tutorialAskB}</p>
+      <p className="tutorial-ask">{ask}</p>
 
-      {step === 'b' && (
+      {step === 'b' && b && (
         <p className="note">
           {t.modes.answerTo} <strong>{a.letter}</strong> · {category.label}
         </p>
@@ -191,7 +203,7 @@ export function ModeTutorial({ lang, onDone }: { lang: string; onDone(): void })
             ✓ {found}
           </p>
         ) : missed ? (
-          <p className="verdict tutorial-hint">{t.tutorial.hint(a.answer)}</p>
+          <p className="verdict tutorial-hint">{t.tutorial.hint(answer)}</p>
         ) : (
           <p className="verdict">&nbsp;</p>
         )}

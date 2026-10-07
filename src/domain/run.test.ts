@@ -7,9 +7,12 @@ import {
   createRun,
   inspect,
   letterShares,
+  letterWeight,
   promptOutcomes,
+  recall,
   remainingSeconds,
   RUN_SECONDS,
+  runScore,
   SKIP_PENALTY_SECONDS,
   reroll,
   skip,
@@ -19,7 +22,7 @@ import {
   type Run,
 } from './run'
 import { buildWordPack, findWord, lettersWithEnough, mirrorPack, type WordPack } from './words'
-import { ENDURANCE_TIME_BONUS } from './modes'
+import { ENDURANCE_TIME_BONUS, RECALL_SECONDS } from './modes'
 import { compactWord } from './text'
 
 /** A pack with enough words per letter that every letter can be prompted. */
@@ -440,7 +443,10 @@ describe('les modes de la réserve', () => {
   it('retard : la question affichée part sans réponse, et c’est elle qu’on joue ensuite', () => {
     const run = createRun({ seed: 5, mode: 'delayed', categoryIds: ['animaux'] }, judge)
     expect(run.armed).toBe(false)
-    expect(inspect(run, 'Rien', judge)).toEqual({ kind: 'empty', found: null })
+    expect(inspect(run, '', judge)).toEqual({ kind: 'empty', found: null })
+    // Le texte ne lance rien : la question part à vide, et le champ le dit.
+    expect(inspect(run, 'Rien', judge)).toEqual({ kind: 'must-empty', found: null })
+    expect(arm(run, judge, 'Rien')).toBe(run)
     expect(skip(run, judge)).toBe(run)
 
     const started = arm(run, judge)
@@ -462,6 +468,35 @@ describe('les modes de la réserve', () => {
     expect(bonus).toBeGreaterThan(0)
     expect(played.run.bonusSeconds).toBe(bonus)
     expect(remainingSeconds(played.run, 1)).toBe(29 + bonus)
+    // Le score du mode est le temps tenu, pas les points des mots.
+    expect(runScore(played.run)).toBe(30 + bonus)
+    expect(runScore(played.run)).not.toBe(played.run.score)
+  })
+
+  it('endurance : le score ne descend jamais sous zéro', () => {
+    const run = { ...createRun({ seed: 4, mode: 'endurance', categoryIds: ['animaux'] }, judge), penaltySeconds: 40 }
+    expect(runScore(run)).toBe(0)
+  })
+
+  it('retard : revoir la question à remplir coûte trois secondes', () => {
+    const run = createRun({ seed: 5, mode: 'delayed', categoryIds: ['animaux'] }, judge)
+    // Rien à rappeler avant le premier mot.
+    expect(recall(run)).toBe(run)
+
+    const started = arm(run, judge)
+    const recalled = recall(started)
+    expect(recalled.penaltySeconds).toBe(RECALL_SECONDS)
+    expect(remainingSeconds(recalled, 0)).toBe(60 - RECALL_SECONDS)
+    // Seul le retard paie ce rappel.
+    const solo: Run = { ...started, mode: 'solo' }
+    expect(recall(solo)).toBe(solo)
+  })
+
+  it('renversé : le tirage pèse ses lettres droit, le mode normal en logarithme', () => {
+    // Le E des pays revient souvent, la lettre qu'un seul mot connaît presque jamais.
+    expect(letterWeight(90, 'last')).toBe(90)
+    expect(letterWeight(90, 'last') / letterWeight(1, 'last')).toBe(90)
+    expect(letterWeight(90) / letterWeight(1)).toBeLessThan(7)
   })
 
   it('renversé : la question contraint la dernière lettre, pas la première', () => {

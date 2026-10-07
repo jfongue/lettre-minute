@@ -57,9 +57,23 @@ export const it: Messages = {
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'Da riempire',
     armNote: 'Valida a vuoto: è lì che parte il cronometro.',
-    tutorialHello: 'Il ritardo è una regola sola: la risposta richiesta è quella della domanda precedente.',
-    tutorialAskA: 'Domanda A. Non scrivere nulla e valida: il cronometro parte.',
-    tutorialAskB: 'Domanda B. Ora rispondi… alla domanda A.',
+    recall: (seconds: number) => `Vedere la risposta −${seconds} s`,
+    /** La lezione di ogni modalità della riserva, giocata a ogni scelta. */
+    lesson: {
+      delayed: {
+        hello: 'Il ritardo è una regola sola: la risposta richiesta è quella della domanda precedente.',
+        askA: 'Domanda A. Non scrivere nulla e valida: il cronometro parte.',
+        askB: 'Domanda B. Ora rispondi… alla domanda A.',
+      },
+      endurance: {
+        hello: 'Ogni parola ti restituisce secondi: più è rara, più te ne dà, e il cronometro riparte.',
+        ask: (letter: string) => `Scrivi un colore con ${letter} e valida: ti dà da 2 a 4 secondi.`,
+      },
+      reversed: {
+        hello: 'La lettera vale per la fine della parola: M accetta il Vietnam.',
+        ask: (letter: string) => `Scrivi un colore che finisce per ${letter}.`,
+      },
+    },
   },
 
   countdown: {
@@ -75,6 +89,7 @@ export const it: Messages = {
     fieldLabel: (letter, category) => `Parola con ${letter}, categoria ${category}`,
     skip: (seconds) => `Salta −${seconds} s`,
     submit: 'Conferma',
+    secondsUnit: 's',
     approximate: 'ortografia approssimata',
     oneLetterOff: 'a una lettera…',
     startsWith: (letter) => `inizia con ${letter}`,
@@ -98,6 +113,8 @@ export const it: Messages = {
   over: {
     timeUp: 'Tempo scaduto',
     points: 'punti',
+    survived: 'secondi di sopravvivenza',
+    seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Nemmeno una parola. Capita.',
     next: 'Continua',
     earned: () => 'Novità per il tuo avatar',

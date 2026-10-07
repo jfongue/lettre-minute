@@ -11,6 +11,7 @@ import {
   arm,
   createRun,
   inspect,
+  recall,
   reroll,
   skip as skipPrompt,
   submit,
@@ -104,6 +105,8 @@ export type SessionAction =
   | { type: 'start' }
   /** Le retard commence : la question à l'écran part sans réponse et le chrono démarre. */
   | { type: 'arm' }
+  /** Le retard : revoir la question à remplir coûte des secondes. */
+  | { type: 'recall' }
   | { type: 'load-failed'; message: string }
   | { type: 'type'; draft: string }
   /** `at`: the run clock in seconds, which the rules do not keep themselves. */
@@ -241,8 +244,15 @@ export function sessionReducer(session: Session, action: SessionAction): Session
 
     case 'arm': {
       if (!session.run || !session.judge) return session
-      const run = arm(session.run, session.judge)
+      // Le champ est passé au domaine : du texte dedans ne lance pas le chrono.
+      const run = arm(session.run, session.judge, session.draft)
       return run === session.run ? session : { ...session, run, draft: '', live: null, cheer: null }
+    }
+
+    case 'recall': {
+      if (!session.run) return session
+      const run = recall(session.run)
+      return run === session.run ? session : { ...session, run }
     }
 
     case 'load-failed':

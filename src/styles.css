@@ -906,6 +906,14 @@ animation: clock-bonus 500ms var(--ease-out);
   animation: bump 460ms var(--ease-spring);
 }
 
+/* En endurance le score est un temps : le « s » reste petit, sous les chiffres. */
+.score-unit {
+  font-size: 1rem;
+  font-weight: 700;
+  align-self: flex-end;
+  padding-bottom: 0.35rem;
+}
+
 .combo {
   display: inline-grid;
   place-items: center;

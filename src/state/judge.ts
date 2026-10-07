@@ -43,6 +43,7 @@ export function createJudge(
   const baselines = new Map<string, number>()
 
   return {
+    edge,
     ...(spells && {
       spells: {
         joker: spells.joker.map(compactWord),
@@ -55,7 +56,9 @@ export function createJudge(
       return pack ? findWord(pack, typed, tolerance) : null
     },
     common(categoryId, letter, played) {
-      const pack = byId.get(categoryId)
+      // Le dictionnaire relu par la fin : le mot proposé doit vraiment finir
+      // par la lettre de la question, pas la commencer.
+      const pack = searchById.get(categoryId)
       return pack ? commonWord(pack, letter, played) : null
     },
     usage(word): WordUsage {

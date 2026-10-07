@@ -63,9 +63,23 @@ export const en: Messages = {
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'To fill in',
     armNote: 'Validate empty: that is when the clock starts.',
-    tutorialHello: 'The delay is one rule: the answer wanted is the one the previous prompt asked for.',
-    tutorialAskA: 'Prompt A. Type nothing and validate: the clock starts.',
-    tutorialAskB: 'Prompt B. Now answer… prompt A.',
+    recall: (seconds: number) => `Show the answer again −${seconds} s`,
+    /** The lesson of each reserve mode, played every time it is picked. */
+    lesson: {
+      delayed: {
+        hello: 'The delay is one rule: the answer wanted is the one the previous prompt asked for.',
+        askA: 'Prompt A. Type nothing and validate: the clock starts.',
+        askB: 'Prompt B. Now answer… prompt A.',
+      },
+      endurance: {
+        hello: 'Every word gives you seconds back: the rarer it is, the more it gives, and the clock restarts.',
+        ask: (letter: string) => `Type a colour in ${letter} and validate: it gives you 2 to 4 seconds.`,
+      },
+      reversed: {
+        hello: 'The letter constrains the end of the word: M accepts Vietnam.',
+        ask: (letter: string) => `Type a colour ending in ${letter}.`,
+      },
+    },
   },
 
   countdown: {
@@ -80,6 +94,7 @@ export const en: Messages = {
     fieldLabel: (letter, category) => `Word starting with ${letter}, category ${category}`,
     skip: (seconds) => `Skip −${seconds} s`,
     submit: 'Enter',
+    secondsUnit: 's',
     approximate: 'close spelling',
     oneLetterOff: 'one letter off…',
     startsWith: (letter) => `starts with ${letter}`,
@@ -103,6 +118,8 @@ export const en: Messages = {
   over: {
     timeUp: 'Time’s up',
     points: 'points',
+    survived: 'seconds survived',
+    seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Not a single word. It happens.',
     next: 'Continue',
     earned: () => 'New for your avatar',

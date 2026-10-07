@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { categoryText, useT } from '../i18n'
 import { sound, type Timbre } from '../lib/sound'
 import type { ShapeKind } from '../domain/avatar'
+import type { GameMode } from '../domain/modes'
 import { Shape } from './bauhaus'
 import { categoryMotif, onTint, type Motif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
@@ -31,6 +32,8 @@ interface CountdownScreenProps {
   reserve: number
   /** Swaps the Permutation power still allows; 0 without it, and nothing can be traded. */
   swaps: number
+  /** Le retard saute le 3, 2, 1 : son chrono part au clic qui valide la première question à vide. */
+  mode: GameMode
   /** A swap is waiting on its dictionary: the count holds until it arrives. */
   swapping: boolean
   onSwap(index: number): void
@@ -38,7 +41,7 @@ interface CountdownScreenProps {
 }
 
 /** Announces the dealt categories, then counts 3, 2, 1 before the clock starts. */
-export function CountdownScreen({ categoryIds, reserve, swaps, swapping, onSwap, onDone }: CountdownScreenProps) {
+export function CountdownScreen({ categoryIds, reserve, swaps, swapping, mode, onSwap, onDone }: CountdownScreenProps) {
   // null while the categories are on screen, then the number being shown.
   const t = useT()
   const [count, setCount] = useState<number | null>(null)
@@ -49,6 +52,7 @@ export function CountdownScreen({ categoryIds, reserve, swaps, swapping, onSwap,
   const [initial] = useState(categoryIds)
   // Read once: spending the last swap must not cut the announcement short under the player's finger.
   const [tradable] = useState(reserve > 0 && swaps > 0)
+  const beats = mode !== 'delayed'
   const announceMs = tradable ? ANNOUNCE_WITH_RESERVE_MS : ANNOUNCE_MS
 
   // The whole lineup sings once; after a swap, only the category that came in.
@@ -65,10 +69,22 @@ export function CountdownScreen({ categoryIds, reserve, swaps, swapping, onSwap,
 
   // Every swap restarts the announcement: the player gets to see what came in.
   useEffect(() => {
-    if (count !== null || swapping) return
+    if (!beats || count !== null || swapping) return
     const timer = setTimeout(() => setCount(COUNT_FROM), announceMs)
     return () => clearTimeout(timer)
-  }, [count, swapping, categoryIds, announceMs])
+  }, [beats, count, swapping, categoryIds, announceMs])
+
+  // Le retard garde son 3, 2, 1 pour lui : sa première question part sur une
+  // validation à vide, et c'est ce clic qui lance le chrono.
+  const fired = useRef(false)
+  useEffect(() => {
+    if (beats || swapping || fired.current) return
+    const timer = setTimeout(() => {
+      fired.current = true
+      done.current()
+    }, announceMs)
+    return () => clearTimeout(timer)
+  }, [beats, swapping, announceMs])
 
   useEffect(() => {
     if (count === null) return

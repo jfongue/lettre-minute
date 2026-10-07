@@ -115,12 +115,10 @@ import {
   loadQueueSeenOn,
   loadShareNewsSeen,
   loadSubmissions,
-  loadModeTutorialDone,
   loadTutorialDone,
   saveAccount,
   saveAvatar,
   saveHistory,
-  saveModeTutorialDone,
   saveMultiplayerPlayed,
   saveProfile,
   saveQueueSeenOn,
@@ -129,7 +127,7 @@ import {
   saveTutorialDone,
 } from './state/storage'
 import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storage'
-import { countsForProgress, modeEdge, type GameMode } from './domain/modes'
+import { countsForProgress, modeEdge, type ArcadeMode, type GameMode } from './domain/modes'
 import { queueAlertDue } from './domain/moderation'
 import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
 import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
@@ -242,8 +240,9 @@ export function App() {
   // relu par la relecture, qui doit rejouer le même.
   const modeNow = useRef<GameMode>('solo')
   const [modesOpen, setModesOpen] = useState(false)
-  // La leçon du retard, jouée une fois par appareil comme celle de la première partie.
-  const [delayTutorial, setDelayTutorial] = useState<'teaching' | 'launching' | null>(null)
+  // La leçon du mode choisi : elle se joue à chaque sélection d'un mode de la
+  // réserve, et `launching` la garde à l'écran le temps que la partie charge.
+  const [modeLesson, setModeLesson] = useState<{ mode: ArcadeMode; launching: boolean } | null>(null)
   const [crowd, setCrowd] = useState<Readonly<Record<string, number>>>({})
   // What the players' runs said of each pair, and the language they said it in:
   // a borrowed dictionary has no such record, and a challenge never reads it.
@@ -747,6 +746,14 @@ export function App() {
     }
   }, [quietTaps])
 
+  // Le retard part à la validation à vide, pas au compte à rebours : c'est ce
+// clic qui met son horloge en marche.
+useEffect(() => {
+if (session.run?.mode !== 'delayed' || !session.run.armed) return
+setStartedAt((at) => at ?? Date.now())
+}, [session.run?.mode, session.run?.armed])
+
+
   const elapsed = useElapsed(session.phase === 'playing' ? startedAt : null)
   const remaining = session.run ? remainingSeconds(session.run, elapsed) : 0
   const pulseStage = Math.min(2, Math.floor(((RUN_SECONDS - remaining) / RUN_SECONDS) * 3))
@@ -918,17 +925,12 @@ export function App() {
         startFirstRun()
         return
       }
-      if (chosen === 'delayed' && !loadModeTutorialDone(chosen) && on('tutorial')) {
-        setDelayTutorial('teaching')
-        return
-      }
-      void play()
+      setModeLesson({ mode: chosen, launching: false })
     },
-    [startFirstRun, play, on],
+    [startFirstRun],
   )
-  const endDelayTutorial = useCallback(() => {
-    saveModeTutorialDone('delayed')
-    setDelayTutorial('launching')
+  const endModeTutorial = useCallback(() => {
+    setModeLesson((current) => (current ? { ...current, launching: true } : current))
     void play()
   }, [play])
   // Dropped only once the run is loaded, or the home screen would flash
@@ -936,8 +938,8 @@ export function App() {
   // error, where it belongs.
   useEffect(() => {
     if (tutorial === 'launching' && session.phase !== 'loading') setTutorial(null)
-    if (delayTutorial === 'launching' && session.phase !== 'loading') setDelayTutorial(null)
-  }, [tutorial, delayTutorial, session.phase])
+    if (modeLesson?.launching && session.phase !== 'loading') setModeLesson(null)
+  }, [tutorial, modeLesson, session.phase])
 
   const refreshChallenges = useCallback(() => {
     if (!named) return setChallenges(null)
@@ -1559,7 +1561,9 @@ export function App() {
     <PlayerActionsContext value={playerActions}>
     <main className={`stage stage--${tutorial ? 'playing' : session.phase}${isNativeApp() ? '' : ' stage--muteable'}`}>
       {tutorial && (session.phase === 'home' || session.phase === 'loading') && <TutorialScreen lang={lang} onDone={endTutorial} />}
-      {delayTutorial && (session.phase === 'home' || session.phase === 'loading') && <ModeTutorial lang={lang} onDone={endDelayTutorial} />}
+      {modeLesson && (session.phase === 'home' || session.phase === 'loading') && (
+<ModeTutorial mode={modeLesson.mode} lang={lang} onDone={endModeTutorial} />
+)}
 
       {editingAvatar && (
         <Suspense fallback={null}>
@@ -1952,6 +1956,7 @@ export function App() {
             reserve={session.reserve.length}
             swaps={session.swapsLeft}
             swapping={swapping}
+            mode={session.run.mode}
             onSwap={swap}
             onDone={() => {
               // Le retard attend sa première validation : son chrono part de là.
@@ -1987,6 +1992,7 @@ export function App() {
             onSubmit={(auto) => (session.run?.armed ? dispatch({ type: 'submit', at: elapsed, auto }) : dispatch({ type: 'arm' }))}
             onSkip={() => dispatch({ type: 'skip', at: elapsed })}
             onReroll={() => dispatch({ type: 'reroll', at: elapsed })}
+            onRecall={() => dispatch({ type: 'recall' })}
             proposed={session.proposals.map((proposal) => normalizeWord(proposal.word))}
             mine={mineWords}
             onPropose={propose}

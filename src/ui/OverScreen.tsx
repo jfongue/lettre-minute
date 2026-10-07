@@ -5,6 +5,8 @@ import { capitalized, compactWord } from '../domain/text'
 import { levelFor, levelProgress, recordBonus, type Profile } from '../domain/progression'
 import { pickShowsAd, picksOwed } from '../domain/unlocks'
 import type { FoundWord, Run } from '../domain/run'
+import { runScore } from '../domain/run'
+import { ENDURANCE_TIME_BONUS } from '../domain/modes'
 import { categoryText, formatNumber, useT } from '../i18n'
 import type { Account, ChallengeDetail, Submission } from '../lib/cloud'
 import type { Proposal } from '../state/session'
@@ -222,7 +224,7 @@ function Reveal({
       onClick={() => (done ? onNext() : setShown(total))}
       role="presentation"
     >
-      {shown >= -1 && <RevealScore score={run.score} previousBest={previousBest} />}
+      {shown >= -1 && <RevealScore score={runScore(run)} previousBest={previousBest} mode={run.mode} />}
 
       {shown >= 0 && (
         <ol className="reveal-words">
@@ -251,7 +253,8 @@ function Reveal({
                 </span>
                 {!found.approximate && found.tier !== 'courant' && <TierTag tier={found.tier} />}
                 <span className="reveal-word-points">
-                  +{found.points}
+                  {/* En endurance le mot rend des secondes : c'est la seule monnaie du mode. */}
+                  {run.mode === 'endurance' ? t.over.seconds(ENDURANCE_TIME_BONUS[found.tier] ?? 0) : `+${found.points}`}
                   {isRare(found) && <Burst />}
                 </span>
               </li>
@@ -290,7 +293,7 @@ function Reveal({
  * lands on screen — not on the summary, a tap later. A first run has no record
  * to beat (null).
  */
-function RevealScore({ score, previousBest }: { score: number; previousBest: number | null }) {
+function RevealScore({ score, previousBest, mode }: { score: number; previousBest: number | null; mode: Run['mode'] }) {
   const t = useT()
   const shown = useCountUp(score, SCORE_MS)
   const beaten = previousBest !== null && shown > previousBest
@@ -308,7 +311,7 @@ function RevealScore({ score, previousBest }: { score: number; previousBest: num
         {formatNumber(t, shown)}
         {beaten && <Burst />}
       </h1>
-      <p className="score-poster-unit">{t.over.points}</p>
+      <p className="score-poster-unit">{mode === 'endurance' ? t.over.survived : t.over.points}</p>
       {previousBest !== null && score > previousBest && (
         <p className="reveal-record" key={beaten ? 'new' : 'old'}>
           {beaten ? t.over.newRecord : `${t.over.record} ${formatNumber(t, previousBest)}`}

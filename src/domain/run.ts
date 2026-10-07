@@ -21,7 +21,7 @@ import {
   type RarityTier,
   type WordUsage,
 } from './rarity'
-import { ENDURANCE_TIME_BONUS, MODE_SECONDS, modeEdge, type GameMode } from './modes'
+import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RECALL_SECONDS, modeEdge, type GameMode } from './modes'
 import { pickWeighted, streamFor, type Rng } from './rng'
 import { compactWord, finalOf, initialOf, normalizeWord } from './text'
 import { knownByLetter, type WordMatch, type WordPack } from './words'
@@ -77,7 +77,7 @@ export interface KeptWord extends FoundWord {
   at: number
 }
 
-export type VerdictKind = 'empty' | 'unknown' | 'wrong-letter' | 'already' | 'accepted' | 'spell'
+export type VerdictKind = 'empty' | 'must-empty' | 'unknown' | 'wrong-letter' | 'already' | 'accepted' | 'spell'
 
 export interface Verdict {
   kind: VerdictKind
@@ -96,6 +96,11 @@ export interface Judge {
   usage(word: string): WordUsage
   /** Letters that category can honestly be prompted on: at least one of its words there is known. */
   letters(categoryId: string): readonly string[]
+  /**
+   * L'axe que son dictionnaire juge : la première lettre, la dernière en
+   * renversé. Le tirage y règle le poids de ses lettres.
+   */
+  edge?: 'first' | 'last'
   /** How many known words the category has on that letter (`KNOWN_FAME`), which sets how often it is drawn. */
   known(categoryId: string, letter: string): number
   /**
@@ -106,7 +111,7 @@ export interface Judge {
   pull?(categoryId: string, letter: string): number
   /** What casts each spell in the dictionary's language, compact (`compactWord`). */
   spells?: Readonly<Record<Spell, readonly string[]>>
-  /** The best-known base word on that letter not yet played (by key): what the Joker writes. */
+  /** The best-known base word the prompt could take (by key), following the judge's edge: what the Joker writes. */
   common?(categoryId: string, letter: string, played: readonly string[]): string | null
 }
 
@@ -186,9 +191,14 @@ export interface SettledPrompt {
   passed: boolean
 }
 
-/** Le poids d'une lettre au tirage : ses mots connus, en logarithme — jamais zéro tant qu'un seul est connu. */
-export function letterWeight(known: number): number {
-  return Math.log2(1 + known)
+/**
+ * Le poids d'une lettre au tirage : ses mots connus, en logarithme — jamais
+ * zéro tant qu'un seul est connu. Le renversé, lui, pèse droit : ses lettres
+ * faciles (le E qui finit la moitié des pays) doivent revenir souvent, là où
+ * le logarithme garde les rares jouables en mode normal.
+ */
+export function letterWeight(known: number, edge: 'first' | 'last' = 'first'): number {
+  return edge === 'last' ? known : Math.log2(1 + known)
 }
 
 /**
@@ -207,15 +217,16 @@ export function letterShares(pack: WordPack): Map<string, number> {
  * A letter the category can be prompted on, preferring those the lock leaves open and not `except`.
  * Its odds grow with the logarithm of its known words: Z still comes up on the
  * countries, only rarer than C, and the dozens of « République de… » do not
- * turn R into the countries' only letter. What players did with the pair bends
- * those odds without ever cancelling them.
+ * turn R into the countries' only letter. A reversed mode weighs them straight
+ * instead (`letterWeight`). What players did with the pair bends those odds
+ * without ever cancelling them.
  */
 function drawLetter(rng: Rng, categoryId: string, judge: Judge, locked: ReadonlySet<string>, except?: string): string {
   const honest = judge.letters(categoryId)
   const open = honest.filter((letter) => !locked.has(promptKey({ categoryId, letter })))
   const tiers = [open.filter((letter) => letter !== except), honest.filter((letter) => letter !== except), open, honest]
   const available = tiers.find((tier) => tier.length > 0) ?? []
-  const weight = (letter: string) => letterWeight(judge.known(categoryId, letter)) * (judge.pull?.(categoryId, letter) ?? 1)
+  const weight = (letter: string) => letterWeight(judge.known(categoryId, letter), judge.edge) * (judge.pull?.(categoryId, letter) ?? 1)
   return pickWeighted(rng, available, weight) ?? available[0] ?? 'A'
 }
 
@@ -288,9 +299,11 @@ export function answerPrompt(run: Run): Prompt {
 /**
  * Le retard commence : la question affichée s'en va sans réponse — le clic qui
  * la valide est aussi celui qui lance le chrono — et la suivante prend sa place.
+ * Du texte dans le champ ne lance rien : la question part à vide, « dit lui
+ * s'il le fait » vivant dans `inspect`.
  */
-export function arm(run: Run, judge: Judge): Run {
-  if (run.armed) return run
+export function arm(run: Run, judge: Judge, raw = ''): Run {
+  if (run.armed || normalizeWord(raw) !== '') return run
   return { ...run, ...advance(run, judge, false), armed: true }
 }
 
@@ -394,8 +407,9 @@ function spellOf(run: Run, raw: string, judge: Judge): Spell | undefined {
  */
 export function inspect(run: Run, raw: string, judge: Judge): Verdict {
   // Le retard reste muet avant sa première validation : le champ n'a encore
-  // rien à satisfaire, et c'est le clic qui lance le chrono.
-  if (!run.armed) return { kind: 'empty', found: null }
+  // rien à satisfaire, et c'est le clic qui lance le chrono. Le texte qui y
+  // entrerait est refusé, et la ligne de refus le dit.
+  if (!run.armed) return normalizeWord(raw) === '' ? { kind: 'empty', found: null } : { kind: 'must-empty', found: null }
   const word = normalizeWord(raw)
   if (word === '') return { kind: 'empty', found: null }
   const verdict = judgeWord(run, word, judge)
@@ -599,4 +613,25 @@ export function remainingSeconds(run: Run, elapsedSeconds: number): number {
     0,
     MODE_SECONDS[run.mode] - elapsedSeconds - run.penaltySeconds + heldSeconds(run, elapsedSeconds) + run.latecomerSeconds + run.bonusSeconds,
   )
+}
+
+/**
+ * Le score d'une partie : les points du solo ; en endurance, les secondes de
+ * survie — le temps que la partie a tenu, mots rendus et pénalités compris.
+ */
+export function runScore(run: Run): number {
+  if (run.mode !== 'endurance') return run.score
+  return Math.max(
+    0,
+    MODE_SECONDS[run.mode] - run.penaltySeconds + run.heldSeconds + run.latecomerSeconds + run.bonusSeconds,
+  )
+}
+
+/**
+ * Le retard : revoir la question à remplir coûte des secondes, comme passer.
+ * Hors de sa première question, il n'a rien à rappeler.
+ */
+export function recall(run: Run): Run {
+  if (run.mode !== 'delayed' || !run.armed) return run
+  return { ...run, penaltySeconds: run.penaltySeconds + RECALL_SECONDS }
 }
