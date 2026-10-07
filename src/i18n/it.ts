@@ -26,7 +26,6 @@ export const it: Messages = {
     myCategories: 'Le mie categorie',
     comingSoon: 'Presto…',
     links: { profile: 'Profilo', stats: 'Statistiche', requests: 'Le mie proposte', categories: 'Categorie' },
-    accountLead: 'Salva i tuoi punteggi e sfida i tuoi amici.',
     news: (count) => `${count} novità`,
     queueWaiting: 'Ci sono parole che aspettano il tuo parere',
   },

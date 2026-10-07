@@ -2289,9 +2289,11 @@ function DebugHome({
   /** Sa pastille, tant qu'aucune partie à plusieurs n'a été lancée. */
   multiplayerNews?: boolean
 }) {
+  // Un profil à trois choix faits : huit catégories, la dernière tuile de
+  // l'accueil est ouverte elle aussi.
   return (
     <HomeScreen
-      profile={newcomer ? NEW_PROFILE : { ...PROFILE, powers: ['joker', 'hush'], equipped: ['joker'] }}
+      profile={newcomer ? NEW_PROFILE : { ...PROFILE, powers: ['joker', 'hush'], equipped: ['joker'], unlocked: [...PROFILE.unlocked, 'sports'] }}
       error={error ? 'Le dictionnaire n’a pas pu être chargé.' : null}
       loading={false}
       settled={!waiting}
@@ -2300,6 +2302,7 @@ function DebugHome({
       climbed={climbed}
       avatar={DEFAULT_AVATAR}
       requestsNews={error || newcomer ? 0 : 3}
+      requestsMade={!newcomer}
       categoriesNews={categoriesNews}
       friendRequests={error || newcomer ? 0 : 2}
       challenges={challenges}

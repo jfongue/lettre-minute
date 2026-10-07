@@ -32,7 +32,6 @@ export const en: Messages = {
     myCategories: 'My categories',
     comingSoon: 'Coming soon…',
     links: { profile: 'Profile', stats: 'Statistics', requests: 'My requests', categories: 'Categories' },
-    accountLead: 'Keep your scores and challenge your friends.',
     news: (count) => `${count} new`,
     queueWaiting: 'Words are waiting for your verdict',
   },

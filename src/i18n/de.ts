@@ -26,7 +26,6 @@ export const de: Messages = {
     myCategories: 'Meine Kategorien',
     comingSoon: 'Bald…',
     links: { profile: 'Profil', stats: 'Statistik', requests: 'Meine Vorschläge', categories: 'Kategorien' },
-    accountLead: 'Behalte deine Punkte und fordere deine Freunde heraus.',
     news: (count) => `${count} neu`,
     queueWaiting: 'Wörter warten auf dein Urteil',
   },

@@ -565,6 +565,13 @@ export function App() {
   // lit les mots que ce joueur a lui-même fait entrer au dictionnaire.
   const [mine, setMine] = useState<readonly Submission[]>([])
   const [acceptedWords, setAcceptedWords] = useState(0)
+  // Une demande existe dès qu'un mot attend sur l'appareil ou vit chez le serveur :
+  // c'est elle qui ouvre « Mes demandes » à l'accueil. La file se relit au retour
+  // à l'accueil, la seule fois où la tuile se décide.
+  const [queued, setQueued] = useState(() => loadSubmissions().length)
+  useEffect(() => {
+  if (session.phase === 'home') setQueued(loadSubmissions().length)
+  }, [session.phase])
   const signedIn = account !== null
   const refreshMine = useCallback(() => {
     fetchMySubmissions().then((found) => found && setMine(found))
@@ -1744,6 +1751,7 @@ setStartedAt((at) => at ?? Date.now())
           me={account && !account.anonymous ? account.name : null}
           climbed={climbed}
           avatar={avatar}
+          requestsMade={queued > 0 || mine.length > 0}
           requestsNews={moderation?.news ?? 0}
           queueAlert={queueAlert}
           categoriesNews={banNews(session.profile, ownedCategoryIds(session.profile)) ? 1 : 0}
