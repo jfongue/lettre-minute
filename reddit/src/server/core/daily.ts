@@ -1,6 +1,7 @@
 import { context, reddit, redis, settings } from '@devvit/web/server'
 import { CATALOGUE } from '../../../../src/domain/catalogue'
 import { dailyLineup, dailyNumber, dayOf } from '../../../../src/domain/daily'
+import { categoryText } from '../../../../src/i18n'
 import { de } from '../../../../src/i18n/de'
 import { en } from '../../../../src/i18n/en'
 import { es } from '../../../../src/i18n/es'
@@ -57,6 +58,8 @@ export async function ensureDailyPost(): Promise<{ postId: string; created: bool
       title: t.daily.postTitle(data.number, day),
       entry: 'default',
       postData: data,
+      // What old Reddit, third-party apps, search and AutoModerator read instead of the game.
+      textFallback: { text: t.daily.fallback(data.categories.map((id) => categoryText(t, id).label).join(', ')) },
     })
   } catch (error) {
     // Released, so the next tap or cron can try again.

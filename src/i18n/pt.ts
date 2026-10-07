@@ -1094,5 +1094,6 @@ cheerAria: (label: string) => `Sugerir ${label}`,
     unmute: 'Ativar som',
     postTitle: (number, day) => `Letter Minute n.º ${number} · ${day}`,
     pinned: 'Sua pontuação do dia vai aqui: responda a este comentário ou toque em “Compartilhar” no fim da partida.',
+    fallback: (lineup) => `Uma letra, uma categoria, sessenta segundos: escreva uma palavra que comece com a letra e passe para a próxima. As palavras que ninguém escreve valem mais.\n\nHoje em jogo: ${lineup}.\n\nO jogo abre neste post, no app do Reddit ou em reddit.com.`,
   },
 }

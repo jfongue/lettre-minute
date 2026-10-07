@@ -1,12 +1,15 @@
 {
   "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
   "name": "lettre-minute-daily",
+  "marketingAssets": {
+    "icon": "assets/icon.png"
+  },
   "post": {
     "dir": "dist/client",
     "entrypoints": {
       "default": {
-        "inline": true,
-        "entry": "splash.html"
+        "entry": "splash.html",
+        "height": "tall"
       },
       "game": {
         "entry": "game.html"
@@ -20,7 +23,11 @@
   "permissions": {
     "redis": true,
     "reddit": {
-      "asUser": ["SUBMIT_COMMENT"]
+      "enable": true,
+      "scope": "user",
+      "asUser": [
+        "SUBMIT_COMMENT"
+      ]
     }
   },
   "settings": {
@@ -29,15 +36,37 @@
         "type": "select",
         "label": "Language of the daily game",
         "options": [
-          { "label": "English", "value": "en" },
-          { "label": "Français", "value": "fr" },
-          { "label": "Español", "value": "es" },
-          { "label": "Deutsch", "value": "de" },
-          { "label": "Italiano", "value": "it" },
-          { "label": "Nederlands", "value": "nl" },
-          { "label": "Português", "value": "pt" }
+          {
+            "label": "English",
+            "value": "en"
+          },
+          {
+            "label": "Français",
+            "value": "fr"
+          },
+          {
+            "label": "Español",
+            "value": "es"
+          },
+          {
+            "label": "Deutsch",
+            "value": "de"
+          },
+          {
+            "label": "Italiano",
+            "value": "it"
+          },
+          {
+            "label": "Nederlands",
+            "value": "nl"
+          },
+          {
+            "label": "Português",
+            "value": "pt"
+          }
         ],
-        "defaultValue": ["en"]
+        "defaultValue": "en",
+        "helpText": "The dictionary and the texts of each daily post. Changing it applies from the next post."
       }
     }
   },

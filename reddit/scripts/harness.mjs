@@ -4,6 +4,7 @@
 import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { extname, join, normalize } from 'node:path'
+import { createGzip } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
 
 const root = fileURLToPath(new URL('../dist/client', import.meta.url))
@@ -53,6 +54,12 @@ createServer((request, response) => {
   response.setHeader('Content-Type', TYPES[extname(file)] ?? 'application/octet-stream')
   if (extname(file) === '.html') {
     response.end(readFileSync(file, 'utf8').replace('<head>', `<head>${mock}`))
+    return
+  }
+  // Compressed as Reddit's CDN serves it, so a Lighthouse run here measures what readers download.
+  if (/\bgzip\b/.test(request.headers['accept-encoding'] ?? '') && extname(file) !== '.woff2') {
+    response.setHeader('Content-Encoding', 'gzip')
+    createReadStream(file).pipe(createGzip()).pipe(response)
     return
   }
   createReadStream(file).pipe(response)

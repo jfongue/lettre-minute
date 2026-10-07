@@ -42,7 +42,9 @@ qui donne la ligne.
   `src/debug/FeaturesBoard.tsx`.
 - **Plateformes** : `src/platform/` (`host`, `PLATFORM`, un hôte par version) ;
   CrazyGames dans `crazygames/`, entrée `crazygames.html` / `src/crazygames.tsx`,
-  styles `src/crazygames.css` ; Reddit dans `reddit/` ; Android dans `android/`.
+  styles `src/crazygames.css` ; Reddit dans `reddit/` (son `README.md`, règle
+  du jour `src/domain/daily.ts`, bilan animé partagé `src/ui/Reveal.tsx`) ;
+  Android dans `android/`.
 - **Serveur** : chaque appel Supabase est dans `src/lib/cloud.ts` ; schéma dans
   `supabase/migrations/NNNN_*.sql`, tests SQL dans `supabase/tests/`.
 - **Dictionnaires** : `src/data/words/<langue>/*.json`, produits par
@@ -616,6 +618,15 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   si le profil, le compte ou les classements tardent — trois formes qui
   sautillent (`home-loader`), puis la page d'un bloc. L'écran de lancement
   natif ne se retire qu'une fois ce premier rendu demandé (`src/main.tsx`).
+
+- **Un écran partagé avec Reddit n'importe rien de lourd à l'exécution**
+  (`reddit/`, `docs/reddit-audit-2026-10-07.md`) : seul `src/lib/native.ts`
+  y est remplacé par des fonctions vides ; un autre module natif, ou
+  `cloud.ts`, importé par un écran de `src/ui/` part dans le post — d'où
+  `Reveal.tsx` sorti d'`OverScreen.tsx`, qui tire la page des statistiques.
+  Le `localStorage` d'un post s'efface à chaque version publiée, et changer
+  le dictionnaire change les parties des jours déjà postés, comme pour les
+  robots.
 
 ## Conventions
 

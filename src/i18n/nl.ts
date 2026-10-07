@@ -1093,5 +1093,6 @@ cheerAria: (label: string) => `${label} aanraden`,
     unmute: 'Geluid aan',
     postTitle: (number, day) => `Letter Minute nr. ${number} · ${day}`,
     pinned: 'Je score van vandaag hoort hier: reageer op deze reactie of tik op ‘Delen’ aan het eind van je spel.',
+    fallback: (lineup) => `Eén letter, één categorie, zestig seconden: typ een woord dat met de letter begint en ga door naar de volgende. Woorden die niemand schrijft, leveren het meest op.\n\nVandaag op het programma: ${lineup}.\n\nHet spel opent in deze post, in de Reddit-app of op reddit.com.`,
   },
 }

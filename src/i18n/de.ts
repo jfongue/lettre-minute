@@ -1092,5 +1092,6 @@ cheerAria: (label: string) => `${label} vorschlagen`,
     unmute: 'Ton an',
     postTitle: (number, day) => `Letter Minute Nr. ${number} · ${day}`,
     pinned: 'Dein Tagesergebnis gehört hierher: Antworte auf diesen Kommentar oder tippe am Ende deines Spiels auf „Teilen“.',
+    fallback: (lineup) => `Ein Buchstabe, eine Kategorie, sechzig Sekunden: Schreib ein Wort mit diesem Anfangsbuchstaben, dann weiter zum nächsten. Wörter, die niemand schreibt, bringen am meisten.\n\nHeute im Spiel: ${lineup}.\n\nDas Spiel öffnet sich in diesem Beitrag, in der Reddit-App oder auf reddit.com.`,
   },
 }

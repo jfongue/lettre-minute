@@ -3,7 +3,7 @@ import '@fontsource-variable/jost/index.css'
 import '../../../src/styles.css'
 import './game.css'
 
-import { StrictMode, useCallback, useEffect, useState } from 'react'
+import { StrictMode, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { challengeWordsOf } from '../../../src/domain/challenge'
 import { createRun, inspect, remainingSeconds, skip, submit, type Judge, type Run, type Verdict } from '../../../src/domain/run'
@@ -78,7 +78,8 @@ type Stage =
   | { kind: 'failed' }
   | { kind: 'countdown' }
   | { kind: 'playing'; startedAt: number }
-  | { kind: 'over'; result: DailyResult; standing: Standing | null; counted: boolean; sent: boolean }
+  /** `run` is the game just played, which the reveal replays; null for a result read back from the server. */
+  | { kind: 'over'; run: Run | null; result: DailyResult; standing: Standing | null; counted: boolean; sent: boolean }
 
 function deal(data: DailyPostData, judge: Judge): Play {
   const run = createRun({ seed: dailySeed(data.day, data.lang), categoryIds: data.categories, shared: true }, judge)
@@ -96,10 +97,11 @@ function Game({ data }: { data: DailyPostData }) {
   const [day, setDay] = useState<DayResponse | null>(null)
   const [board, setBoard] = useState<Pick<PlayResponse, 'top' | 'players'> | null>(null)
   const [attempt, setAttempt] = useState(0)
+  const [state, setState] = useState<Play | null>(null)
+  const [round, setRound] = useState(0)
 
   useEffect(() => {
     let live = true
-    setStage({ kind: 'loading' })
     Promise.all([loadPacks(data.lang, data.categories), fetchDay().catch(() => null)])
       .then(([packs, today]) => {
         if (!live) return
@@ -112,7 +114,7 @@ function Game({ data }: { data: DailyPostData }) {
         const played = today?.played
         setStage(
           played
-            ? { kind: 'over', result: played, standing: played, counted: true, sent: true }
+            ? { kind: 'over', run: null, result: played, standing: played, counted: true, sent: true }
             : { kind: 'countdown' },
         )
       })
@@ -122,17 +124,11 @@ function Game({ data }: { data: DailyPostData }) {
     }
   }, [data, attempt])
 
-  const [state, setState] = useState<Play | null>(null)
-  const [round, setRound] = useState(0)
-
   const startedAt = stage.kind === 'playing' ? stage.startedAt : null
   const elapsed = useElapsed(startedAt)
   const remaining = state ? remainingSeconds(state.run, elapsed) : 0
 
-  const act = useCallback(
-    (action: PlayAction) => setState((previous) => (previous ? playReducer(previous, action) : previous)),
-    [],
-  )
+  const act = (action: PlayAction) => setState((previous) => (previous ? playReducer(previous, action) : previous))
 
   // The word's chime follows the cheer, as in the app (`App.tsx`).
   useEffect(() => {
@@ -144,14 +140,14 @@ function Game({ data }: { data: DailyPostData }) {
     const final = playReducer(state, { type: 'time-up', at: elapsed, judge }).run
     const result = resultOf(final)
     sound.timeUp()
-    setState({ ...state, run: final })
-    setStage({ kind: 'over', result, standing: null, counted: false, sent: false })
+    // The clock decides, as in the app (`time-up`, src/state/session.ts): the run ends here.
+    setStage({ kind: 'over', run: final, result, standing: null, counted: false, sent: false })
     postPlay(result)
       .then((answer) => {
         setBoard({ top: answer.top, players: answer.players })
-        setStage({ kind: 'over', result, standing: answer.standing, counted: answer.counted, sent: true })
+        setStage({ kind: 'over', run: final, result, standing: answer.standing, counted: answer.counted, sent: true })
       })
-      .catch(() => setStage({ kind: 'over', result, standing: null, counted: false, sent: true }))
+      .catch(() => setStage({ kind: 'over', run: final, result, standing: null, counted: false, sent: true }))
   }, [stage.kind, state, judge, remaining, elapsed])
 
   useEffect(() => setMusic(stage.kind === 'playing' ? 'pulse' : null), [stage.kind])
@@ -163,7 +159,14 @@ function Game({ data }: { data: DailyPostData }) {
     return (
       <div className="daily-wait">
         <p>{t.daily.loadFailed}</p>
-        <button type="button" className="btn btn--blue" onClick={() => setAttempt((count) => count + 1)}>
+        <button
+          type="button"
+          className="btn btn--blue"
+          onClick={() => {
+            setStage({ kind: 'loading' })
+            setAttempt((count) => count + 1)
+          }}
+        >
           {t.daily.retry}
         </button>
       </div>
@@ -206,7 +209,9 @@ function Game({ data }: { data: DailyPostData }) {
   if (stage.kind === 'over') {
     return (
       <DailyOver
+        key={round}
         data={data}
+        run={stage.run}
         result={stage.result}
         standing={stage.standing}
         counted={stage.counted}

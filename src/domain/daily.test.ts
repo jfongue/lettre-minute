@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ChallengeWord } from './challenge'
-import { dailyLineup, dailyNumber, dailySeed, dayOf, isDay, plausibleDaily, tierGrid } from './daily'
+import { dailyLineup, dailyNumber, dailySeed, dayBefore, dayOf, isDay, plausibleDaily, tierGrid } from './daily'
 
 const IDS = ['pays', 'animaux', 'couleurs', 'fruits-legumes', 'metiers', 'sports', 'corps-humain', 'matieres']
 
@@ -34,6 +34,12 @@ describe('the daily draw', () => {
     }
     expect(isDay('2026-02-29')).toBe(false)
     expect(isDay('2028-02-29')).toBe(true)
+  })
+
+  it('steps back a day across months, years and leap days', () => {
+    expect(dayBefore('2027-01-01')).toBe('2026-12-31')
+    expect(dayBefore('2028-03-01')).toBe('2028-02-29')
+    expect(dayBefore('2026-03-01')).toBe('2026-02-28')
   })
 
   it('numbers the posts from the first one', () => {

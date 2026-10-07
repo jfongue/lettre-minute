@@ -1,5 +1,6 @@
 import { redis } from '@devvit/web/server'
 import type { ChallengeWord } from '../../../../src/domain/challenge'
+import { dayBefore } from '../../../../src/domain/daily'
 import type { BoardRow, DailyPostData, DailyResult, Standing } from '../../shared/api'
 
 /**
@@ -83,11 +84,6 @@ export async function standingOf(postId: string, result: DailyResult, streak: nu
   }
 }
 
-/** The day before `day`, as `YYYY-MM-DD`. */
-function previousDay(day: string): string {
-  return new Date(Date.parse(day) - 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
-}
-
 /** A game of today's post extends the run of days; any other post leaves it be. */
 export async function touchStreak(userId: string, day: string, today: string): Promise<number> {
   const fields = await redis.hGetAll(keys.streak(userId))
@@ -95,7 +91,7 @@ export async function touchStreak(userId: string, day: string, today: string): P
   const count = Number(fields.count ?? 0)
   if (day !== today) return 0
   if (last === day) return count
-  const next = last === previousDay(day) ? count + 1 : 1
+  const next = last === dayBefore(day) ? count + 1 : 1
   await redis.hSet(keys.streak(userId), {
     last: day,
     count: String(next),
@@ -108,7 +104,7 @@ export async function readStreak(userId: string, today: string): Promise<number>
   const fields = await redis.hGetAll(keys.streak(userId))
   const last = fields.last ?? ''
   // A run is alive until the day after its last game ends.
-  return last === today || last === previousDay(today) ? Number(fields.count ?? 0) : 0
+  return last === today || last === dayBefore(today) ? Number(fields.count ?? 0) : 0
 }
 
 export async function erasePost(postId: string): Promise<void> {

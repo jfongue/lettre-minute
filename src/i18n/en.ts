@@ -1097,5 +1097,6 @@ cheerAria: (label: string) => `Suggest ${label}`,
     unmute: 'Unmute',
     postTitle: (number, day) => `Letter Minute #${number} · ${day}`,
     pinned: 'Your score of the day goes here: reply to this comment, or tap “Share” at the end of your game.',
+    fallback: (lineup) => `One letter, one category, sixty seconds: type a word that starts with the letter, then on to the next. The words nobody writes pay the most.\n\nToday’s lineup: ${lineup}.\n\nThe game opens in this post, in the Reddit app or on reddit.com.`,
   },
 }

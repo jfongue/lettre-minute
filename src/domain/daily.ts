@@ -61,6 +61,11 @@ export function isDay(value: unknown): value is string {
   return typeof value === 'string' && DAY_PATTERN.test(value) && dayOf(startOf(value)) === value
 }
 
+/** The day before, which a run of days in a row must have been played on. */
+export function dayBefore(day: string): string {
+  return dayOf(startOf(day) - DAY_MS)
+}
+
 /** The number a day's post carries, #1 on `DAILY_EPOCH`. */
 export function dailyNumber(day: string): number {
   return Math.round((startOf(day) - startOf(DAILY_EPOCH)) / DAY_MS) + 1

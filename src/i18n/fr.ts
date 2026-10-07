@@ -1114,6 +1114,7 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     unmute: 'Remettre le son',
     postTitle: (number: number, day: string) => `Lettre Minute n° ${number} · ${day}`,
     pinned: 'Ton score du jour, c’est ici : réponds à ce commentaire, ou touche « Partager » à la fin de ta partie.',
+    fallback: (lineup: string) => `Une lettre, une catégorie, soixante secondes : écris un mot qui commence par la lettre, et passe à la suivante. Les mots que personne n’écrit rapportent le plus.\n\nAu programme aujourd’hui : ${lineup}.\n\nLe jeu s’ouvre dans ce post, sur l’app Reddit ou sur reddit.com.`,
   },
 }
 
