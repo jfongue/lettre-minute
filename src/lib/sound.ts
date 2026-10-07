@@ -47,11 +47,14 @@ let ctx: AudioContext | null = null
 let masterNode: GainNode
 let sfx: GainNode
 let keysNode: GainNode
+let previewNode: GainNode
 let music: GainNode
 let duckNode: GainNode
 let hushNode: BiquadFilterNode
 let noise: AudioBuffer
 let musicHeld = false
+/** A context coming back from the background is not running yet: cues wait for it instead of being dropped. */
+let waking = false
 
 function deg(step: number, octave = 0): number {
   const n = SCALE.length
@@ -129,6 +132,9 @@ function context(): AudioContext | null {
   sfx = c.createGain()
   sfx.connect(master)
   sfx.connect(send)
+  previewNode = c.createGain()
+  previewNode.connect(master)
+  previewNode.connect(send)
   keysNode = c.createGain()
   keysNode.connect(master)
   music = c.createGain()
@@ -157,8 +163,29 @@ function applyLevels(): void {
 /** The context, awake, or null: a cue asked for before the first touch is simply dropped. */
 function live(): AudioContext | null {
   const c = ctx
-  if (!c || c.state !== 'running') return null
-  return c
+  if (!c) return null
+  // While it comes back from the background, a cue is scheduled rather than
+  // lost: the context's clock starts again where it stopped.
+  if (c.state === 'running' || waking) return c
+  return null
+}
+
+/** Wakes the context, then puts the music back where the preferences want it. */
+function wakeContext(c: AudioContext): void {
+  if (c.state === 'running') {
+    syncMusic()
+    return
+  }
+  waking = true
+  c.resume().then(
+    () => {
+      waking = false
+      syncMusic()
+    },
+    () => {
+      waking = false
+    },
+  )
 }
 
 function env(param: AudioParam, t: number, attack: number, peak: number, dur: number): void {
@@ -167,7 +194,7 @@ function env(param: AudioParam, t: number, attack: number, peak: number, dur: nu
   param.exponentialRampToValueAtTime(0.0001, t + attack + dur)
 }
 
-function tone(c: AudioContext, type: OscillatorType, f: number, t: number, dur: number, out: Out, peak: number, attack = 0.002, glideTo?: number): void {
+function tone(c: AudioContext, type: OscillatorType, f: number, t: number, dur: number, out: Out, peak: number, attack = 0.002, glideTo?: number, release?: () => void): void {
   const osc = c.createOscillator()
   const gain = c.createGain()
   osc.type = type
@@ -176,6 +203,11 @@ function tone(c: AudioContext, type: OscillatorType, f: number, t: number, dur: 
   env(gain.gain, t, attack, peak, dur)
   osc.connect(gain)
   gain.connect(out)
+  // A node left wired to the graph is never collected: it goes when its voice does.
+  osc.onended = () => {
+    gain.disconnect()
+    if (release) release()
+  }
   osc.start(t)
   osc.stop(t + attack + dur + 0.05)
 }
@@ -193,6 +225,11 @@ function hiss(c: AudioContext, t: number, dur: number, out: Out, peak: number, t
   source.connect(filter)
   filter.connect(gain)
   gain.connect(out)
+  // Same as `tone`: the filter and its gain are let go with the source.
+  source.onended = () => {
+    filter.disconnect()
+    gain.disconnect()
+  }
   source.start(t, Math.random() * 1.5)
   source.stop(t + attack + dur + 0.05)
 }
@@ -223,7 +260,8 @@ function piano(c: AudioContext, f: number, t: number, v: number, out: Out, dur =
   lowpass.frequency.setValueAtTime(2400, t)
   lowpass.frequency.exponentialRampToValueAtTime(500, t + dur)
   lowpass.connect(out)
-  tone(c, 'sine', f, t, dur, lowpass, 0.32 * v, 0.006)
+  // The filter outlives each of its voices: the longest one lets it go.
+  tone(c, 'sine', f, t, dur, lowpass, 0.32 * v, 0.006, undefined, () => lowpass.disconnect())
   tone(c, 'sine', f * 2, t, dur * 0.6, lowpass, 0.12 * v, 0.006)
   tone(c, 'triangle', f * 3, t, dur * 0.3, lowpass, 0.04 * v, 0.006)
   hiss(c, t, 0.03, lowpass, 0.05 * v, 'lowpass', 500, 0.7)
@@ -248,6 +286,10 @@ function bell(c: AudioContext, f: number, t: number, v: number, out: Out, dur = 
   env(gain.gain, t, 0.002, 0.2 * v, dur)
   carrier.connect(gain)
   gain.connect(out)
+  carrier.onended = () => {
+    gain.disconnect()
+    depth.disconnect()
+  }
   carrier.start(t)
   modulator.start(t)
   carrier.stop(t + dur + 0.1)
@@ -261,7 +303,8 @@ function pizz(c: AudioContext, f: number, t: number, v: number, out: Out): void 
   lowpass.frequency.setValueAtTime(f * 8, t)
   lowpass.frequency.exponentialRampToValueAtTime(f * 1.5, t + 0.25)
   lowpass.connect(out)
-  tone(c, 'sawtooth', f, t, 0.42, lowpass, 0.22 * v, 0.004)
+  // Only the sawtooth feeds this filter, so it is let go with it.
+  tone(c, 'sawtooth', f, t, 0.42, lowpass, 0.22 * v, 0.004, undefined, () => lowpass.disconnect())
   tone(c, 'sine', f, t, 0.5, out, 0.3 * v, 0.004)
 }
 
@@ -274,14 +317,14 @@ function duck(t: number): void {
 }
 
 /** A found word's note: the same note at every tier, only richer. */
-function wordNote(c: AudioContext, step: number, t: number, tier: SoundTier, v = 1): void {
+function wordNote(c: AudioContext, step: number, t: number, tier: SoundTier, v = 1, out: Out = sfx): void {
   const f = deg(Math.min(step, TOP_STEP))
-  marimba(c, f, t, 0.85 * v, sfx)
-  if (tier >= 1) bell(c, f * 1.5, t + 0.04, 0.55 * v, sfx, 1.4)
-  if (tier >= 2) glass(c, f * 2, t + 0.08, 0.45 * v, sfx)
+  marimba(c, f, t, 0.85 * v, out)
+  if (tier >= 1) bell(c, f * 1.5, t + 0.04, 0.55 * v, out, 1.4)
+  if (tier >= 2) glass(c, f * 2, t + 0.08, 0.45 * v, out)
   if (tier >= 3) {
     ;[1, 2, 3, 4].forEach((k, i) =>
-      glock(c, f * 2 * 2 ** (SCALE[k % SCALE.length] / 12), t + 0.14 + i * 0.06, (0.5 - i * 0.07) * v, sfx),
+      glock(c, f * 2 * 2 ** (SCALE[k % SCALE.length] / 12), t + 0.14 + i * 0.06, (0.5 - i * 0.07) * v, out),
     )
   }
   duck(t)
@@ -605,6 +648,30 @@ export const sound = {
   },
 }
 
+/**
+ * The options' samples. A channel left at zero would swallow its own sample, so
+ * it is heard at a reference level rather than at the level just set: the ear
+ * learns which sound the channel carries. Master still rules it, a mute is silent.
+ */
+const PREVIEW_LEVEL = 0.55
+
+export function previewSound(channel: 'effects' | 'keys'): void {
+  if (prefs.master <= 0 || prefs.muted) return
+  safely(() => {
+    const c = live()
+    if (!c) return
+    const set = channel === 'keys' ? prefs.keys * CEILING.keys : prefs.effects * CEILING.effects
+    previewNode.gain.setTargetAtTime(set > 0 ? set : PREVIEW_LEVEL, c.currentTime, 0.01)
+    const t = c.currentTime + 0.01
+    if (channel === 'keys') {
+      hiss(c, t, 0.016 + Math.random() * 0.012, previewNode, 0.14, 'bandpass', 2400 + Math.random() * 2000, 1.3)
+      tone(c, 'sine', 1500 + Math.random() * 500, t, 0.012, previewNode, 0.025)
+    } else {
+      wordNote(c, 2, t, 1, 1, previewNode)
+    }
+  })
+}
+
 // ---------- Music ----------
 
 /** Root and third of each chord, two bars each: I – vi – IV – V. */
@@ -760,7 +827,9 @@ function setAway(reason: keyof typeof away, on: boolean): void {
       stopPlaying()
       ctx.suspend().catch(() => {})
     } else {
-      ctx.resume().then(syncMusic, () => {})
+      // Back in front: the context is woken at once, so what plays during the
+      // wake is not lost.
+      wakeContext(ctx)
     }
   })
 }
@@ -782,8 +851,7 @@ export function armSound(): void {
       if (!inForeground()) return
       const c = context()
       if (!c) return
-      if (c.state === 'running') syncMusic()
-      else c.resume().then(syncMusic, () => {})
+      wakeContext(c)
     })
   }
   window.addEventListener('pointerdown', wake, true)
