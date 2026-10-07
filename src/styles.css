@@ -8519,6 +8519,8 @@ body[data-words='board'] .offer-pop-layer {
 }
 
 .together-card {
+  position: relative;
+  z-index: 0;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
@@ -8532,6 +8534,19 @@ body[data-words='board'] .offer-pop-layer {
   animation: fade 260ms ease both;
   animation-delay: calc(var(--i, 0) * 90ms + 60ms);
   transition: transform 180ms var(--ease-spring);
+}
+
+/* Le fond qui respire au survol vit sur son propre calque : la carte garde son
+   animation d’entrée, qu’un retour de survol ne rejoue donc plus. Le calque
+   passe sous le texte par son z-index négatif, la carte le contenant. */
+.together-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--together-tint, transparent);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .together-card:active {
@@ -8648,23 +8663,12 @@ de son dessin, mélangée au fond du thème pour que le texte garde son contrast
 en clair comme en sombre, et la flèche avance. Le doigt n'a pas de survol : rien
 de tout cela ne le concerne. */
 @media (hover: hover) and (pointer: fine) {
-  .together-card {
-    transition: transform 180ms var(--ease-spring), background-color 220ms var(--ease-out);
-  }
-
-  .together-card--duel {
-    --together-base: var(--yellow);
-    --together-tint: var(--yellow);
-  }
-
-  .together-card--challenge {
-    --together-base: var(--paper-2);
-    --together-tint: var(--paper-2);
-  }
-
   .together-card--duel:hover,
   .together-card--challenge:hover {
     transform: translate(-2px, -2px);
+  }
+
+  .together-card:hover::before {
     animation: together-tint 2.4s var(--ease-out) infinite alternate;
   }
 
@@ -8689,13 +8693,15 @@ de tout cela ne le concerne. */
   }
 }
 
+/* Le calque du survol respire : son opacité monte vers la teinte mêlée que la
+   carte survolée lui passe. */
 @keyframes together-tint {
   from {
-    background-color: var(--together-base);
+    opacity: 0;
   }
 
   to {
-    background-color: var(--together-tint);
+    opacity: 1;
   }
 }
 
