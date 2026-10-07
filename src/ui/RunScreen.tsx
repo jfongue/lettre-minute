@@ -5,6 +5,7 @@ import { MODE_SECONDS, RECALL_SECONDS, modeEdge } from '../domain/modes'
 import { capitalized, compactWord, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
 import { sound } from '../lib/sound'
+import { tapFeedback } from '../lib/native'
 import type { Cheer } from '../state/session'
 import type { AvatarChoice } from '../domain/avatar'
 import { Avatar } from './Avatar'
@@ -179,6 +180,7 @@ const flawless = hasPower(run, 'flawless')
     if (!accepted && !spell && draft.trim() !== '') {
       setShaking(true)
       sound.refused()
+      tapFeedback('medium')
     }
     onSubmit()
   }
@@ -349,18 +351,22 @@ else if (doubleSkip) sound.power('double-skip')
           {/* A card flipped over the line, not a remount: the field must keep the keyboard open. */}
           {run.joker && <span className="joker-card" key={run.joker.key} aria-hidden="true" />}
         </div>
-        <Feedback
-          flawlessTriggered={flawless && run.flawlessStreak > 0 && run.flawlessStreak % 3 === 0}
-          live={live}
-          cheer={cheer}
-          shaking={shaking}
-          letter={answer.letter}
-          edge={edge}
-          draft={draft}
-          proposed={proposed.includes(normalizeWord(draft))}
-          mine={mine}
-          onPropose={onPropose}
-        />
+        {/* The verdict is the only line that says what the run just did: it is read
+        out, and its container stays put so the announcement lands. */}
+        <div aria-live="polite">
+          <Feedback
+            flawlessTriggered={flawless && run.flawlessStreak > 0 && run.flawlessStreak % 3 === 0}
+            live={live}
+            cheer={cheer}
+            shaking={shaking}
+            letter={answer.letter}
+            edge={edge}
+            draft={draft}
+            proposed={proposed.includes(normalizeWord(draft))}
+            mine={mine}
+            onPropose={onPropose}
+          />
+        </div>
 
         <div className="answer-actions">
           <button

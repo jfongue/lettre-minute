@@ -663,7 +663,7 @@ export function ChallengeView({
         <h1 className="subpage-title">{detail !== 'loading' && detail ? challengeTitle(t, detail) : t.challenge.title}</h1>
       </div>
 
-      {detail === 'loading' && <p className="note">{t.loading}</p>}
+      {detail === 'loading' && <p className="note" role="status">{t.loading}</p>}
       {detail === null && <p className="note note--warn">{t.challenge.loadFailed}</p>}
 
       {detail !== 'loading' && detail && (

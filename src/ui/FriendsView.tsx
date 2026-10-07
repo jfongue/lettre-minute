@@ -96,7 +96,7 @@ export function FriendsView(props: FriendsViewProps) {
       </button>
       {props.message && <p className="note">{props.message}</p>}
 
-      {props.friends === 'loading' && <p className="note">{t.loading}</p>}
+      {props.friends === 'loading' && <p className="note" role="status">{t.loading}</p>}
       {props.friends === null && <p className="note note--warn">{t.social.loadFailed}</p>}
 
       {incoming.length > 0 && (

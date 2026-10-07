@@ -173,7 +173,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
   return (
     <>
       {moderating && moderation?.moderator && moderation.queue >= MODERATION_MIN_QUEUE && <ModerationPanel status={moderation} onModerate={onModerate} />}
-      {server === 'loading' && <p className="note">{t.loading}</p>}
+      {server === 'loading' && <p className="note" role="status">{t.loading}</p>}
       {server === null && <p className="note">{t.requests.offline}</p>}
       {failed && <p className="note note--warn">{t.requests.failed}</p>}
       {nothing && <p className="note">{t.requests.empty}</p>}

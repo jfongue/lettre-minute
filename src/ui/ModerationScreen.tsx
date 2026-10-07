@@ -199,7 +199,7 @@ export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps)
   if (cards === 'loading') {
     return (
       <div className="sheet moderation">
-        <p className="note">{t.loading}</p>
+        <p className="note" role="status">{t.loading}</p>
       </div>
     )
   }
