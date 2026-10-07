@@ -4,7 +4,9 @@
   --paper-2: #e6ddca;
   --ink: #151515;
   --ink-soft: #4d4943;
-  --ink-faint: #8a8478;
+  --ink-faint: #645f4f;
+  /* Le voile des tiroirs et des cartes : il suit le thème, sinon il ne voile rien. */
+  --scrim: rgba(21, 21, 21, 0.45);
   --grid: rgba(21, 21, 21, 0.055);
   --rule: rgba(21, 21, 21, 0.14);
 
@@ -40,7 +42,9 @@
     --paper-2: #262522;
     --ink: #f2ecdf;
     --ink-soft: #bdb6a8;
-    --ink-faint: #7d776c;
+    --ink-faint: #948d80;
+    /* Le papier sombre est déjà presque noir : le voile n'y peut que descendre. */
+    --scrim: rgba(0, 0, 0, 0.6);
     --grid: rgba(242, 236, 223, 0.045);
     --rule: rgba(242, 236, 223, 0.16);
 
@@ -58,7 +62,9 @@
   --paper-2: #262522;
   --ink: #f2ecdf;
   --ink-soft: #bdb6a8;
-  --ink-faint: #7d776c;
+  --ink-faint: #948d80;
+  /* Le papier sombre est déjà presque noir : le voile n'y peut que descendre. */
+  --scrim: rgba(0, 0, 0, 0.6);
   --grid: rgba(242, 236, 223, 0.045);
   --rule: rgba(242, 236, 223, 0.16);
 
@@ -372,11 +378,12 @@ button.challenge-past::after {
 }
 
 /* Le bouton de validation quand il n'y a rien à valider : il garde l'air
-   inerte, mais le doigt dessus doit déclencher le refus, pas rien. */
+   inerte, mais le doigt dessus doit déclencher le refus, pas rien. Son liseré
+   et son texte lisible le séparent de .btn:disabled, qui ne répond pas. */
 .btn--idle {
   background: var(--paper-2);
-  border-color: var(--paper-2);
-  color: var(--ink-faint);
+  border-color: var(--ink-faint);
+  color: var(--ink-soft);
 }
 
 .btn--ghost {
@@ -1310,12 +1317,12 @@ animation: clock-bonus 500ms var(--ease-out);
   row-gap: 0.35rem;
   padding: 1.1rem 1.25rem;
   background: var(--red);
-  color: var(--cream);
+  /* Comme .btn--red : le crème sur le rouge passait sous le seuil de lisibilité. */
+  color: var(--black);
 }
 
 .unlock .eyebrow {
   color: inherit;
-  opacity: 0.85;
 }
 
 /* Beside the text, never under it. */
@@ -1487,7 +1494,7 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 .boards .layer-tab {
-  min-height: 2.25rem;
+  min-height: 2.5rem;
   font-size: 0.72rem;
 }
 
@@ -1755,7 +1762,7 @@ animation: clock-bonus 500ms var(--ease-out);
 .menu-scrim {
   position: absolute;
   inset: 0;
-  background: rgba(21, 21, 21, 0.45);
+  background: var(--scrim);
   animation: fade 200ms var(--ease-out) both;
 }
 
@@ -3049,7 +3056,9 @@ animation: clock-bonus 500ms var(--ease-out);
 
 .avatar-grid {
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  /* Dix colonnes fixes tombaient à ~31 px par tuile sur un écran de 375 px :
+     le nombre de colonnes suit la largeur du bloc, jamais sous 40 px. */
+  grid-template-columns: repeat(auto-fill, minmax(2.5rem, 1fr));
   gap: 3px;
 }
 
@@ -4958,7 +4967,7 @@ animation: clock-bonus 500ms var(--ease-out);
 .offer-pop-scrim {
   position: absolute;
   inset: 0;
-  background: rgba(21, 21, 21, 0.45);
+  background: var(--scrim);
   animation: fade 200ms var(--ease-out) both;
 }
 
@@ -6751,6 +6760,8 @@ li:has(> .reactable--open),
 
 button.challenge-word {
   width: 100%;
+  /* Le mot du défi se déplie au doigt : 39 px ne suffisaient pas. */
+  min-height: 2.5rem;
   border: 0;
   border-bottom: 1px solid var(--rule);
   background: none;

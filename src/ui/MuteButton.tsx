@@ -1,5 +1,6 @@
 import type { PointerEvent } from 'react'
 import { useT } from '../i18n'
+import { sound } from '../lib/sound'
 
 // Mid-run, a tap here must not take the focus from the answer field.
 const keepFocus = (event: PointerEvent) => event.preventDefault()
@@ -16,7 +17,11 @@ export function MuteButton({ muted, onToggle }: { muted: boolean; onToggle(): vo
       aria-label={label}
       title={label}
       onPointerDown={keepFocus}
-      onClick={onToggle}
+      onClick={() => {
+        // Il joue son clic lui-même : en partie, l'écouteur global est retiré.
+        sound.click()
+        onToggle()
+      }}
     >
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M3 9h4l5-4v14l-5-4H3z" />
