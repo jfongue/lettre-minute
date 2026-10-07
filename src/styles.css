@@ -8873,7 +8873,8 @@ de tout cela ne le concerne. */
 
 .ach-tile {
   flex: none;
-  width: 2.75rem;
+  /* La tuile fait la largeur de l’avatar `md`, qu’elle ne déborde pas dans la ligne. */
+  width: 3.5rem;
 }
 
 .ach-body {

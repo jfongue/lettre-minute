@@ -6,6 +6,7 @@ import {
   draftPlayer,
   drawnShownAt,
   duelPrompt,
+  duelRound,
   inspectFor,
   onlyChoice,
   openingAt,
@@ -23,6 +24,7 @@ import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, re
 import { createRng } from '../domain/rng'
 import { playableCategoryIds } from '../domain/perks'
 import { onAppActive } from '../lib/native'
+import type { Profile } from '../domain/progression'
 import type { Judge, Prompt, Verdict } from '../domain/run'
 import { ownedCategoryIds } from '../domain/unlocks'
 import {
@@ -43,7 +45,7 @@ import {
 } from '../lib/cloud'
 import { setMusic, sound } from '../lib/sound'
 import { createJudge } from './judge'
-import { loadAccount, loadAvatar, loadProfile } from './storage'
+import { loadAccount, loadAvatar, loadProfile, saveProfile } from './storage'
 
 /**
  * La table de duel vue d'un appareil. La partie elle-même n'est qu'un journal
@@ -294,9 +296,11 @@ export interface DuelTableOptions {
   join?: string | null
   /** La table renvoie le joueur : expulsé, table fermée, ou départ de lui-même. */
   onExit?(reason: DuelExit): void
+  /** Le profil vient de gagner un compteur de duel : l'appelant le range à l'écran. */
+  onProfile?(profile: Profile): void
 }
 
-export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptions): DuelTable {
+export function useDuelTable({ lang, mode, join = null, onExit, onProfile }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
@@ -708,6 +712,20 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     if (mode === 'local') setTable((current) => current && { ...current, status: 'over' })
     else if (table.id) void finishDuel(table.id)
   }, [ended, mode, table])
+
+  // Un duel à quatre qui va loin se garde au profil : la table est la seule à
+  // savoir combien de manches elle a tenues, et c'est le plus grand nombre qui
+  // reste. Aucune table de quatre n'a encore été jouée — le barreau est là pour
+  // le jour où la fonctionnalité s'ouvre.
+  useEffect(() => {
+    if (!ended || !duel || !table || table.seats.length < 4) return
+    const rounds = duelRound(duel)
+    const before = loadProfile()
+    if (rounds <= before.duelRounds4) return
+    const after = { ...before, duelRounds4: rounds }
+    saveProfile(after)
+    onProfile?.(after)
+  }, [ended, duel, table, onProfile])
 
   // ------------------------------------------------------ les phases --
 

@@ -8,6 +8,7 @@ LATECOMER_THRESHOLD_SECONDS,
   COMPLICATION_BOOST,
   DODGE_PENALTY_SECONDS,
   HUSH_SECONDS,
+  ALWAYS_ON_POWER_IDS,
   POWER_CHARGES,
   type PowerId,
   type Spell,
@@ -686,7 +687,7 @@ export interface RunMilestones {
   speed: number
   /** La partie n'a laissé passer aucune question, et assez de mots pour compter. */
   clean: boolean
-  /** Les pouvoirs qui y ont servi, dans l'ordre de leur première activation. */
+  /** Les pouvoirs qui y ont servi : ceux qu'un geste a déclenchés, puis ceux qui n'ont pas de geste. */
   powers: readonly PowerId[]
   /** Les catégories où elle a trouvé un mot. */
   categories: readonly string[]
@@ -706,7 +707,12 @@ export function runMilestones(run: Run): RunMilestones {
     longest,
     speed,
     clean,
-    powers: run.usedPowers,
+    powers: [
+      ...run.usedPowers,
+      // Un pouvoir sans charge travaille toute la partie : mené jusqu'au chrono,
+      // il a servi, même si aucun mot n'a eu besoin de lui.
+      ...ALWAYS_ON_POWER_IDS.filter((id) => run.powers.includes(id) && !run.usedPowers.includes(id)),
+    ],
     categories: [...new Set(run.found.map((word) => word.prompt.categoryId))],
   }
 }

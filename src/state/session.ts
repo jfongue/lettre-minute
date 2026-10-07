@@ -14,6 +14,7 @@ import {
   recall,
   markPowerUsed,
   reroll,
+  runMilestones,
   skip as skipPrompt,
   submit,
   type Judge,
@@ -329,6 +330,10 @@ export function sessionReducer(session: Session, action: SessionAction): Session
               words: run.found.map((found) => found.word),
               bestCombo: run.bestCombo,
               prompts: run.dealt,
+              // Ce que la partie seule sait mesurer — mot le plus long, frappe la
+              // plus vive, sans-faute, pouvoirs et catégories — se lit ici, une
+              // fois, plutôt que d'être recopié dans chaque écran de bilan.
+              ...runMilestones(run),
             }),
       }
     }

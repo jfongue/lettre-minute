@@ -62,6 +62,14 @@ latecomer: 5,
 
 /** Words Bavardage keeps the prompt for, after the one that cast it. */
 export const CHATTER_WORDS = 3
+
+/**
+* Les trois pouvoirs qui n'ont ni charge ni geste : ils travaillent du premier
+* au dernier mot une fois portés. Leurs voisins sans charge — Esquive,
+* Dyslexie, Complication, Impeccable — se marquent là où ils agissent vraiment.
+*/
+export const ALWAYS_ON_POWER_IDS: readonly PowerId[] = ['divination', 'celerity', 'professor']
+
 export const LATECOMER_THRESHOLD_SECONDS = 5
 export const LATECOMER_SECONDS = 1
 export const LATECOMER_CAP_SECONDS = 5

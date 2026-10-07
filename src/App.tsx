@@ -47,6 +47,7 @@ import {
   declineDuel,
   fetchDuelInvites,
   fetchFeatureFlags,
+  fetchLeaderboard,
   fetchMyDiscoveries,
   type DuelInvitation,
   fetchProgress,
@@ -82,7 +83,8 @@ import {
   scoreAt,
 } from './domain/challenge'
 import { complicationDue, type PowerId } from './domain/powers'
-import { NEW_PROFILE, type Profile } from './domain/progression'
+import { completeLeaderboard } from './domain/leaderboards'
+import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
 import { DAMPED_WORDS } from './data/damped-words'
@@ -162,6 +164,7 @@ import type { DuelExit } from './state/duel'
 // settled, and a run awaits its own before it starts.
 const DebugBoard = lazyScreen(() => import('./debug/DebugBoard').then((module) => module.DebugBoard))
 const AvatarScreen = lazyScreen(() => import('./ui/AvatarScreen').then((module) => module.AvatarScreen))
+const AchievementsScreen = lazyScreen(() => import('./ui/AchievementsScreen').then((module) => module.AchievementsScreen))
 const ChallengePowers = lazyScreen(() => import('./ui/ChallengePowers').then((module) => module.ChallengePowers))
 const ChallengeSetup = lazyScreen(() => import('./ui/ChallengeSetup').then((module) => module.ChallengeSetup))
 const ChallengeScreen = lazyScreen(() => import('./ui/ChallengeScreen').then((module) => module.ChallengeScreen))
@@ -182,7 +185,7 @@ function preloadRunScreens(): Promise<unknown> {
 
 /** One screen at a time, in the order a player is likely to need them. */
 async function preloadScreens(): Promise<void> {
-  for (const screen of [Menu, CountdownScreen, RunScreen, OverScreen, ChallengeScreen, FriendPicker, ChallengeSetup, ChallengePowers, AvatarScreen, ModerationScreen]) {
+  for (const screen of [Menu, CountdownScreen, RunScreen, OverScreen, ChallengeScreen, FriendPicker, ChallengeSetup, ChallengePowers, AvatarScreen, AchievementsScreen, ModerationScreen]) {
     await screen.preload().catch(() => undefined)
   }
 }
@@ -319,6 +322,10 @@ export function App() {
   const [avatar, setAvatar] = useState<AvatarChoice>(DEFAULT_AVATAR)
   const [account, setAccount] = useState<Account | null>(null)
   const [editingAvatar, setEditingAvatar] = useState(false)
+  const [achievementsOpen, setAchievementsOpen] = useState(false)
+  // Les découvertes ne se comptent que sur le serveur : la page des succès les
+  // demande à son ouverture plutôt que d'afficher une barre à zéro.
+  const [discoveries, setDiscoveries] = useState<number | null>(null)
   const [moderation, setModeration] = useState<ModerationStatus | null>(null)
   const [moderating, setModerating] = useState(false)
   // « Plus tard » holds the offer back until the next launch, without answering it.
@@ -729,7 +736,9 @@ export function App() {
   useEffect(() => {
     if (quietTaps) return
     const click = (event: MouseEvent) => {
-      if (event.target instanceof Element && event.target.closest(TAPPABLE)) sound.click()
+      // Le bouton muet joue son clic lui-même : il sert aussi pendant la partie,
+      // quand cet écouteur-ci est retiré.
+      if (event.target instanceof Element && event.target.closest(TAPPABLE) && !event.target.closest('.mute')) sound.click()
     }
     // A field outside the run types like the run's own; one that plays its keys itself says so.
     const type = (event: Event) => {
@@ -1437,7 +1446,22 @@ setStartedAt((at) => at ?? Date.now())
     // A word proposed during the run may be waiting for a verdict already.
     pushed.then(refreshModeration)
     // Les découvertes ne se comptent que sur le serveur, la partie une fois arrivée.
-    pushed.then(fetchMyDiscoveries).then((count) => count !== null && featuresNow.current.has('playGames') && reportAchievements(session.profile, count))
+    pushed.then(fetchMyDiscoveries).then((count) => {
+      if (count === null) return
+      // La page des succès montre la barre des découvertes, que le serveur compte seul.
+      setDiscoveries(count)
+      if (featuresNow.current.has('playGames')) reportAchievements(session.profile, count)
+    })
+    // Premier du jour : le serveur seul connaît la place, et on ne la relit
+    // qu'une fois la partie arrivée. Le joueur maison compte : passer premier
+    // sans l'avoir battu ne serait pas être premier.
+    pushed
+      .then(() => fetchLeaderboard('best', 'day'))
+      .then((board) => {
+        if (!board || !featuresNow.current.has('achievements')) return
+        if (completeLeaderboard('best', 'day', board).me?.place !== 1) return
+        dispatch({ type: 'profile-loaded', profile: markDailyFirst(profile.current) })
+      })
     pushed
       .then(loadBoards)
       .then((next) => {
@@ -1448,6 +1472,13 @@ setStartedAt((at) => at ?? Date.now())
     // in the same render is the one the score was just added to.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.phase])
+
+  // La page des succès demande ses découvertes la première fois qu'on l'ouvre :
+  // une barre à zéro mentirait jusqu'à la partie suivante.
+  useEffect(() => {
+    if (!achievementsOpen || discoveries !== null) return
+    void fetchMyDiscoveries().then((count) => count !== null && setDiscoveries(count))
+  }, [achievementsOpen, discoveries])
 
   closeChallengeLayer.current = () => {
     // Une table de duel se quitte par son bouton : un geste de retour en pleine
@@ -1505,7 +1536,9 @@ setStartedAt((at) => at ?? Date.now())
 
   const screenName = tutorial
     ? 'tutorial'
-    : editingAvatar
+    : achievementsOpen
+      ? 'achievements'
+      : editingAvatar
       ? 'avatar'
       : moderating
         ? 'moderation'
@@ -1593,10 +1626,21 @@ setStartedAt((at) => at ?? Date.now())
         </Suspense>
       )}
 
+      {achievementsOpen && (
+        <Suspense fallback={null}>
+          <AchievementsScreen
+            profile={session.profile}
+            discoveries={discoveries ?? undefined}
+            onClose={() => setAchievementsOpen(false)}
+          />
+        </Suspense>
+      )}
+
       {moderating && (
         <Suspense fallback={null}>
           <ModerationScreen
             lang={lang}
+            onVerdict={() => dispatch({ type: 'profile-loaded', profile: settleReview(profile.current) })}
             onDone={() => {
               setModerating(false)
               refreshModeration()
@@ -1906,6 +1950,10 @@ setStartedAt((at) => at ?? Date.now())
               setTheme(next)
               saveTheme(next)
               applyTheme(next)
+            }}
+            onAchievements={() => {
+              setMenuPage(null)
+              setAchievementsOpen(true)
             }}
             onAvatar={() => {
               setMenuPage(null)

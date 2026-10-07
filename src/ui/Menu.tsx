@@ -31,7 +31,7 @@ import {
   type PushState,
 } from '../lib/native'
 import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
-import { sound as preview, type SoundPrefs } from '../lib/sound'
+import { previewSound, type SoundPrefs } from '../lib/sound'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions, type AccountMode } from './AccountPanel'
 import { CategoriesPage, type BanActions } from './CategoriesPage'
@@ -98,6 +98,8 @@ interface MenuProps {
   sound: SoundPrefs
   onSound(sound: SoundPrefs): void
   onAvatar(): void
+  /** Ouvre la page des succès — celle du jeu, pas les quinze de Play Games. */
+  onAchievements(): void
   onLogOut(): void
   /** Answers false when the server could not erase the account. */
   onErase(): Promise<boolean>
@@ -294,6 +296,7 @@ function ProfilePane({
   accountActions,
   accountMode,
   onAvatar,
+  onAchievements,
   onLogOut,
   moderation,
   queueAlert,
@@ -324,6 +327,7 @@ function ProfilePane({
   const t = useT()
   const named = account && !account.anonymous
   const avatars = useFeature('avatar')
+  const achievements = useFeature('achievements')
   const [logOutAsking, setLogOutAsking] = useState(false)
 
   return (
@@ -340,6 +344,12 @@ function ProfilePane({
           {avatars ? (
             <button type="button" className="btn btn--quiet" onClick={onAvatar}>
               {t.menu.editAvatar}
+            </button>
+          ) : null}
+
+          {achievements ? (
+            <button type="button" className="btn btn--quiet" onClick={onAchievements}>
+              {t.menu.achievements}
             </button>
           ) : null}
         </div>
@@ -550,8 +560,8 @@ const SOUND_CHANNELS = ['master', 'effects', 'keys', 'music'] as const
 
 /** The music is heard as it plays; the effects and keys need a sample. */
 function previewChannel(id: (typeof SOUND_CHANNELS)[number]): void {
-  if (id === 'effects' || id === 'master') preview.found(1, 2)
-  else if (id === 'keys') preview.key()
+  if (id === 'effects' || id === 'master') previewSound('effects')
+  else if (id === 'keys') previewSound('keys')
 }
 
 interface OptionsPaneProps {

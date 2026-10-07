@@ -978,6 +978,7 @@ function SocialScenario({ back }: { back(): void }) {
       sound={{ master: 1, effects: 0.8, keys: 0.6, music: 0, muted: false }}
       onSound={noop}
       onAvatar={noop}
+      onAchievements={noop}
       onLogOut={noop}
       onErase={() => later(true)}
       moderation={null}

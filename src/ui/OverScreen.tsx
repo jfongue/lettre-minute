@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { newlyEarned, type AvatarChoice } from '../domain/avatar'
+import { achievementIcon, newlyEarnedAchievements } from '../domain/achievements'
 import type { Boards } from '../domain/boards'
 import { capitalized, compactWord } from '../domain/text'
 import { levelFor, levelProgress, recordBonus, type Profile } from '../domain/progression'
@@ -569,10 +570,13 @@ function Earned({
   const t = useT()
   const avatars = useFeature('avatar')
   const earned = newlyEarned(profileBefore, profile)
-  if (earned.designs.length === 0 && earned.colours.length === 0) return null
+  const achievements = newlyEarnedAchievements(profileBefore, profile)
+  if (earned.designs.length === 0 && earned.colours.length === 0 && achievements.length === 0) return null
   return (
     <section className="panel earned">
-      <p className="section-title">{t.over.earned(earned.designs.length + earned.colours.length)}</p>
+      {earned.designs.length + earned.colours.length > 0 ? (
+        <p className="section-title">{t.over.earned(earned.designs.length + earned.colours.length)}</p>
+      ) : null}
       <div className="earned-row">
         {earned.designs.map((design, index) => (
           <span key={design.id} className="earned-item" style={{ '--i': index } as CSSProperties}>
@@ -590,6 +594,23 @@ function Earned({
           </span>
         ))}
       </div>
+        {achievements.length > 0 ? (
+          <>
+            <p className="section-title">{t.over.newAchievement}</p>
+            <div className="earned-row">
+              {achievements.map((achievement, index) => (
+                <span
+                  key={achievement.id}
+                  className="earned-item"
+                  style={{ '--i': earned.designs.length + earned.colours.length + index } as CSSProperties}
+                >
+                  <Avatar choice={achievementIcon(achievement.id)} size="sm" />
+                  {t.ach[achievement.id].name}
+                </span>
+              ))}
+            </div>
+          </>
+        ) : null}
       {avatars ? (
         <button type="button" className="btn btn--ghost" onClick={onAvatar}>
           {t.over.customize}
