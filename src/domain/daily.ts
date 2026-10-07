@@ -16,18 +16,54 @@ export const DAILY_EPOCH = '2026-10-08'
 const DAY_MS = 24 * 60 * 60 * 1000
 const DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
 
+/**
+ * Days since 1970-01-01 to a proleptic Gregorian date and back (Howard
+ * Hinnant's `civil_from_days`): arithmetic only, so the domain never builds a
+ * `Date`, whose zone and parsing belong to the device.
+ */
+function civilFromDays(days: number): [year: number, month: number, day: number] {
+  const z = days + 719468
+  const era = Math.floor(z / 146097)
+  const doe = z - era * 146097
+  const yoe = Math.floor((doe - Math.floor(doe / 1460) + Math.floor(doe / 36524) - Math.floor(doe / 146096)) / 365)
+  const doy = doe - (365 * yoe + Math.floor(yoe / 4) - Math.floor(yoe / 100))
+  const mp = Math.floor((5 * doy + 2) / 153)
+  const month = mp < 10 ? mp + 3 : mp - 9
+  return [yoe + era * 400 + (month <= 2 ? 1 : 0), month, doy - Math.floor((153 * mp + 2) / 5) + 1]
+}
+
+function daysFromCivil(year: number, month: number, day: number): number {
+  const y = month <= 2 ? year - 1 : year
+  const era = Math.floor(y / 400)
+  const yoe = y - era * 400
+  const doy = Math.floor((153 * (month > 2 ? month - 3 : month + 9) + 2) / 5) + day - 1
+  const doe = yoe * 365 + Math.floor(yoe / 4) - Math.floor(yoe / 100) + doy
+  return era * 146097 + doe - 719468
+}
+
+const pad = (value: number, width: number) => String(value).padStart(width, '0')
+
 /** The UTC day an instant falls on, as `YYYY-MM-DD`: the posts turn over at midnight UTC for everyone. */
 export function dayOf(at: number): string {
-  return new Date(at).toISOString().slice(0, 10)
+  const [year, month, day] = civilFromDays(Math.floor(at / DAY_MS))
+  return `${pad(year, 4)}-${pad(month, 2)}-${pad(day, 2)}`
+}
+
+/** Midnight UTC of a `YYYY-MM-DD` day, in milliseconds; NaN for anything else. */
+function startOf(day: string): number {
+  if (!DAY_PATTERN.test(day)) return NaN
+  const [year, month, date] = day.split('-').map(Number) as [number, number, number]
+  return daysFromCivil(year, month, date) * DAY_MS
 }
 
 export function isDay(value: unknown): value is string {
-  return typeof value === 'string' && DAY_PATTERN.test(value) && dayOf(Date.parse(value)) === value
+  // Read back: « 2026-02-30 » lands on 2 March and is refused.
+  return typeof value === 'string' && DAY_PATTERN.test(value) && dayOf(startOf(value)) === value
 }
 
 /** The number a day's post carries, #1 on `DAILY_EPOCH`. */
 export function dailyNumber(day: string): number {
-  return Math.round((Date.parse(day) - Date.parse(DAILY_EPOCH)) / DAY_MS) + 1
+  return Math.round((startOf(day) - startOf(DAILY_EPOCH)) / DAY_MS) + 1
 }
 
 /** FNV-1a over the day and its language: a French and an English post of the same day are two games. */
