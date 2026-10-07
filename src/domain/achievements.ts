@@ -50,6 +50,7 @@ export type AchievementId =
   | 'powers-all'
   | 'clean-run'
   | 'clean-run-10'
+  | 'duel-four'
   | 'duel-round-20'
   | 'day-first'
   | 'categories-12'
@@ -159,7 +160,11 @@ const INGAME_ACHIEVEMENTS: readonly Achievement[] = [
   { id: 'powers-all', goal: { stat: 'powersUsed', at: 14 }, design: 47, family: 'explore' },
   { id: 'clean-run', goal: { stat: 'cleanRuns', at: 1 }, design: 27, family: 'exploit' },
   { id: 'clean-run-10', goal: { stat: 'cleanRuns', at: 10 }, design: 10, family: 'exploit' },
-  { id: 'duel-round-20', goal: { stat: 'duelRounds4', at: 20 }, design: 43, family: 'exploit' },
+  // Aucune table de quatre n'a encore été jouée (`duel_seats` : trois places au
+  // plus) : le premier barreau est de s'y asseoir, le second d'y tenir vingt
+  // manches, ce qu'aucune table n'a jamais approché.
+  { id: 'duel-four', goal: { stat: 'duelRounds4', at: 1 }, design: 43, family: 'exploit' },
+  { id: 'duel-round-20', goal: { stat: 'duelRounds4', at: 20 }, design: 38, family: 'exploit' },
   { id: 'day-first', goal: { stat: 'dailyFirst', at: 1 }, design: 46, family: 'exploit' },
   { id: 'categories-12', goal: { stat: 'playedCategories', at: 12 }, design: 23, family: 'explore' },
   // La modération n'est pas une partie : le compte monte quand un verdict part

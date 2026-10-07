@@ -53,9 +53,11 @@ interface ModerationScreenProps {
   onDone(): void
   /** The words to judge, from the debug board: no call, no server. */
   queue?: readonly ReviewCard[]
+  /** Un verdict rendu, quel qu'il soit : c'est ce que compte le succès de modération. */
+  onVerdict?(): void
 }
 
-export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps) {
+export function ModerationScreen({ lang, onDone, queue, onVerdict }: ModerationScreenProps) {
   const t = useT()
   const [cards, setCards] = useState<ReviewCard[] | null | 'loading'>(() => (queue ? [...queue] : 'loading'))
   const [index, setIndex] = useState(0)
@@ -121,6 +123,7 @@ export function ModerationScreen({ lang, onDone, queue }: ModerationScreenProps)
       // voted, or decided without him — took no verdict: counting it would tell
       // the moderator he judged a word the server never recorded.
       if (outcome !== 'gone') {
+      onVerdict?.()
         setTally((before) => ({
           ...before,
           [verdict]: before[verdict] + 1,

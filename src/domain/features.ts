@@ -52,6 +52,7 @@ export const FEATURES: readonly FeatureDef[] = [
   { id: 'hiddenWords', label: 'Mots cachés du bilan', note: 'Les réponses que la partie aurait acceptées', defaults: open },
   { id: 'premium', label: 'Premium', note: 'Son offre et son paiement', defaults: open },
   { id: 'avatar', label: 'Avatar et couleurs', note: 'L’écran de l’avatar', defaults: open },
+ { id: 'achievements', label: 'Succès', note: 'La page des succès, ses barres, et l’annonce au bilan', defaults: open },
   { id: 'tutorial', label: 'Tutoriel', note: 'La première partie guidée', defaults: open },
   { id: 'gameModes', label: 'Modes de jeu', note: 'La réserve de modes derrière « Jouer » : retard, endurance, renversé, sans pouvoir', defaults: supers },
   // Les mots

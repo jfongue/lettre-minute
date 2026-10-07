@@ -212,3 +212,11 @@ export function rewardSubmission(profile: Profile): Profile {
 export function settleReview(profile: Profile): Profile {
   return { ...profile, wordsReviewed: profile.wordsReviewed + 1 }
 }
+
+/**
+ * Premier du classement du jour : le seul succès que la partie ne peut pas
+ * décider seule, sa place venant du serveur une fois la partie arrivée.
+ */
+export function markDailyFirst(profile: Profile): Profile {
+  return profile.dailyFirst === 1 ? profile : { ...profile, dailyFirst: 1 }
+}
