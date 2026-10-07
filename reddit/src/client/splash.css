@@ -1,0 +1,135 @@
+/* The feed's view of the post: the poster's tokens, without the game's sheet,
+   which the splash has no time to load. No scroll and no gesture of its own:
+   Reddit refuses a post that catches the feed's scroll (`scroll-traps`). */
+:root {
+  --paper: #f2ecdf;
+  --ink: #151515;
+  --ink-soft: #4d4943;
+  --rule: rgba(21, 21, 21, 0.14);
+  --red: #e0402a;
+  --on-red: #151515;
+  --yellow: #f4b41a;
+  --blue: #1f48c7;
+  --font: 'Jost Variable', 'Futura', 'Century Gothic', system-ui, sans-serif;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #151515;
+    --ink: #f2ecdf;
+    --ink-soft: #bdb6a8;
+    --rule: rgba(242, 236, 223, 0.16);
+    --red: #f0553c;
+    --yellow: #f7c230;
+    --blue: #4468ec;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+  overflow: hidden;
+}
+
+.splash {
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem 16px;
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.splash-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.splash-title {
+  margin: 0;
+  font-size: clamp(1.8rem, 8vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.splash-number {
+  font-weight: 600;
+  color: var(--red);
+}
+
+.splash-tagline {
+  margin: 0;
+  color: var(--ink-soft);
+  line-height: 1.35;
+}
+
+.splash-lineup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.splash-chip {
+  border: 2px solid var(--ink);
+  padding: 0.2rem 0.6rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.splash-chip:nth-child(3n + 1) {
+  background: var(--yellow);
+  color: #151515;
+  border-color: var(--yellow);
+}
+
+.splash-crowd {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.splash-best {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.splash-play {
+  align-self: flex-start;
+  min-height: 48px;
+  padding: 0 2rem;
+  border: 0;
+  background: var(--red);
+  color: var(--on-red);
+  font: inherit;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.splash-play:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
+.splash-score {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}

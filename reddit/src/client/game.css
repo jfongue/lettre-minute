@@ -1,0 +1,151 @@
+/* The daily game's own screens, on the app's sheet (`src/styles.css`): only
+   what the run screen and the countdown do not already draw. */
+body {
+  margin: 0;
+  background: var(--paper);
+}
+
+.daily-wait {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  text-align: center;
+  color: var(--ink-soft);
+  align-self: center;
+}
+
+.daily-over {
+  padding-bottom: 2rem;
+}
+
+.daily-score {
+  margin: 0;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.daily-score-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.daily-score-value {
+  font-size: clamp(3rem, 16vw, 5rem);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+}
+
+.daily-rank {
+  margin: 0;
+  font-weight: 600;
+}
+
+.daily-login {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.daily-block {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.daily-block .eyebrow {
+  margin: 0;
+}
+
+.daily-alone {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.daily-words,
+.daily-board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.daily-words li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  grid-template-areas:
+    'word tag points'
+    'category tag points';
+  align-items: center;
+  column-gap: 0.6rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.daily-word {
+  grid-area: word;
+  font-weight: 600;
+}
+
+.daily-word-category {
+  grid-area: category;
+  font-size: var(--font-micro);
+  color: var(--ink-faint);
+}
+
+.daily-words .tag {
+  grid-area: tag;
+}
+
+.daily-word-points {
+  grid-area: points;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  min-width: 2.5rem;
+  text-align: right;
+}
+
+.daily-board li {
+  display: grid;
+  grid-template-columns: 2rem 1fr auto;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.daily-board-me {
+  font-weight: 700;
+}
+
+.daily-board-rank {
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.daily-board-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.daily-board-score {
+  font-variant-numeric: tabular-nums;
+}
+
+.daily-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.daily-grid {
+  margin: 0;
+  font-family: inherit;
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
