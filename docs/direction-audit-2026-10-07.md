@@ -218,6 +218,34 @@ vague B7 ci-dessous.
   de duel » cités ont déjà leur retour (`duel-seatcard--kickable:active`) ; la sortie d'écran
   routée attend `App.tsx`, en cours chez une autre session.
 
-Restent ouverts : A6 (partage de défi, refus à la limite, appui long), A7, A8, B1, B2, B3, B7
-(sortie routée), C5, D3, D6, D7 ; et l'écoute réelle par Jérémy pour A1, A3, A4 et le nouveau
-`recordMiss()`.
+## Exécution (vague 6)
+
+Commit : `ea8d819` — la bande de tuiles distribuées entre à la même vitesse des deux
+côtés (620 ms ; la tuile entrante était à 480 ms), et les trois règles `.tier-*` sont
+parties : aucun `.tsx` ne les nomme, seuls `rarity.test.ts` et le domaine parlent de
+palier.
+
+Revalidées et **infirmées** ce round :
+
+- **C5 (le `stroke-linecap`)** — l'audit annonçait « arrondi partout, le chevron des
+  lignes est carré ». Faux dans les deux sens : cinq chevrons demandent `square`
+  (`.menu-close svg`, `.friend-chevron`, `.friend-answer svg`, `.subpage-back svg`,
+  `.row-chevron`), un seul trait est `round` (`.mute-stroke`), et le chevron des
+  révélations n'écrit rien — il hérite de `butt`, qui se voit comme le carré des
+  autres. C'est un parti pris, pas un oubli. Restent de C5 : les ✓ / ✕ / ★ écrits en
+  texte, quinze endroits dans neuf écrans — un chantier à part.
+- **D6 (seconde moitié)** — la barre de révélations à zéro **ouvre bien** l'offre
+  Premium : `HiddenAnswers.tsx` fait `setAsking(index)` et le `PlusPop` s'affiche sous
+  la seule garde `premium`, qui est le drapeau de la fonctionnalité (« Son offre et son
+  paiement », ouvert par défaut), pas le statut du joueur. Le silence n'arrive que si
+  un super modérateur ferme la fonctionnalité — et il est alors voulu. Reste de D6 :
+  `UnlockScreen` qui avale l'échec de `loadPack`.
+
+Regardé en vrai ce round : `duel.html#auto` en 375 px (le tutoriel s'affiche, badges et
+sièges sans débordement) ; la feuille servie par Vite répond 200 et ne contient plus
+aucune règle `tier-`.
+
+Restent ouverts : A6 (partage de défi, refus à la limite, appui long), A7, A8, B1 (le
+chrono dans `App.tsx`, occupé par une autre session), B2, B3 (jetons de durée), B7
+(sortie d'écran routée), C5 (glyphes ✓/✕/★), D3, D6 (`UnlockScreen`), D7 ; et l'écoute
+réelle par Jérémy pour A1, A3, A4 et le nouveau `recordMiss()`.
