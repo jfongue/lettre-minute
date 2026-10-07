@@ -1,3 +1,4 @@
+import type { AchievementId } from '../domain/achievements'
 import { PALETTE, type Milestone } from '../domain/avatar'
 import { announcedCategories } from '../domain/catalogue'
 import type { TrophyId } from '../domain/challenge'
@@ -142,6 +143,7 @@ export const fr = {
     empty: 'Pas un seul mot. Ça arrive.',
     next: 'Continuer',
     earned: (count: number) => plural(count, 'Nouveauté pour ton avatar', 'Nouveautés pour ton avatar'),
+    newAchievement: 'Nouveau succès',
     customize: 'Personnaliser mon avatar',
     words: (count: number) => plural(count, 'mot', 'mots'),
     bestCombo: 'meilleure série',
@@ -279,6 +281,7 @@ export const fr = {
     offline: 'Hors ligne : ta progression reste sur cet appareil.',
     back: 'Retour',
     pages: { stats: 'Statistiques', requests: 'Mes demandes', categories: 'Mes catégories', boards: 'Classements' },
+    achievements: 'Succès',
     support: 'Soutenir le créateur',
   },
 
@@ -1021,6 +1024,61 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     cutLead: 'Le serveur ne répond plus. On réessaie : tes coups partiront dès qu’il revient.',
     quitAsk: 'Quitter la table ? Ta réserve continue de couler sans toi, jusqu’à ta mort.',
     playBots: 'Jouer contre les joueurs maison',
+  },
+
+  /**
+  * L'écran des succès : un nom et une ligne pour chacun. Les quinze publiés
+  * sur Play Games reprennent mot pour mot `scripts/play-games-achievements.ts`,
+  * pour que la Console et l'écran ne divergent jamais ; les autres sont écrits
+  * ici, courts et vivants.
+  */
+  ach: {
+    title: 'Succès',
+    earned: 'Obtenu',
+    /** La marque portée par les succès publiés sur Play Games. */
+    play: 'Play Games',
+    count: (value: number, goal: number) => `${value.toLocaleString('fr-FR')} / ${goal.toLocaleString('fr-FR')}`,
+    families: {
+      progress: 'Statistiques',
+      exploit: 'Défis',
+      explore: 'Exploration',
+    },
+    // Chaque succès du catalogue est nommé ici : le type refuse d’en oublier un.
+    ...({
+      // Les quinze succès Play Games, dans l'ordre de la Console.
+      'level-4': { name: 'Premiers pas', desc: 'Atteins le niveau 4' },
+      'runs-10': { name: 'Dix minutes', desc: 'Joue 10 parties' },
+      'words-100': { name: 'Cent mots', desc: 'Trouve 100 mots' },
+      'combo-10': { name: 'En série', desc: 'Enchaîne 10 réponses d’affilée' },
+      'discoveries-15': { name: 'Explorateur', desc: 'Sois le premier de la semaine à écrire 15 mots' },
+      'added-10': { name: 'Au dictionnaire', desc: 'Fais entrer 10 mots dans le dictionnaire du jeu' },
+      'level-10': { name: 'Habitué', desc: 'Atteins le niveau 10' },
+      'runs-100': { name: 'Cent parties', desc: 'Joue 100 parties' },
+      'words-1000': { name: 'Mille mots', desc: 'Trouve 1000 mots' },
+      'level-20': { name: 'Vieux routier', desc: 'Atteins le niveau 20' },
+      'combo-24': { name: 'Inarrêtable', desc: 'Enchaîne 24 réponses d’affilée' },
+      'score-900': { name: 'Neuf cents', desc: 'Marque 900 points en une partie' },
+      'runs-400': { name: 'Inépuisable', desc: 'Joue 400 parties' },
+      'words-5000': { name: 'Dictionnaire vivant', desc: 'Trouve 5000 mots' },
+      'level-35': { name: 'Maître de la minute', desc: 'Atteins le niveau 35' },
+      // Ceux du jeu seul, groupés par famille.
+      'runs-25': { name: 'Bonne habitude', desc: 'Joue 25 parties' },
+      'words-250': { name: 'Du vocabulaire', desc: 'Trouve 250 mots' },
+      'score-400': { name: 'Belle partie', desc: 'Marque 400 points en une partie' },
+      'reviews-10': { name: 'Juste arbitre', desc: 'Rends dix verdicts en modération' },
+      'word-long-10': { name: 'Mot fleuve', desc: 'Trouve un mot de dix lettres' },
+      'word-long-15': { name: 'Mot interminable', desc: 'Trouve un mot de quinze lettres' },
+      'speed-25': { name: 'Réflexe vif', desc: 'Trouve un mot à plus de 2,5 lettres par seconde' },
+      'speed-35': { name: 'Réflexe éclair', desc: 'Trouve un mot à plus de 3,5 lettres par seconde' },
+      'clean-run': { name: 'Sans faute', desc: 'Finis une partie sans passer une question' },
+      'clean-run-10': { name: 'Impeccable', desc: 'Finis dix parties sans passer une question' },
+      'duel-four': { name: 'Quatre à table', desc: 'Assieds-toi à une table de quatre' },
+      'duel-round-20': { name: 'Marathon', desc: 'Tiens vingt manches dans une table de quatre' },
+      'day-first': { name: 'Roi du jour', desc: 'Prends la tête du classement du jour' },
+      'powers-7': { name: 'Bricoleur', desc: 'Sers sept pouvoirs différents' },
+      'powers-all': { name: 'Tous les pouvoirs', desc: 'Sers les quatorze pouvoirs' },
+      'categories-12': { name: 'Grand voyageur', desc: 'Trouve un mot dans douze catégories' },
+    } satisfies Record<AchievementId | 'duel-four', { name: string; desc: string }>),
   },
 }
 

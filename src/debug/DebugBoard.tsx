@@ -9,6 +9,7 @@ import type { KeptWord, Run } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
 import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, ReviewCard, Submission, SubmissionStatus } from '../lib/cloud'
 import type { AccountActions } from '../ui/AccountPanel'
+import { AchievementsScreen } from '../ui/AchievementsScreen'
 import { ChallengeNotice } from '../ui/ChallengeHome'
 import { ChallengePowers } from '../ui/ChallengePowers'
 import { ChallengeView } from '../ui/ChallengeScreen'
@@ -775,6 +776,29 @@ function AchievementIcons() {
       ))}
     </div>
   )
+}
+
+/** Un profil d’exemple : des compteurs variés, une partie des succès déjà obtenus. */
+const ACHIEVEMENTS_PROFILE: Profile = {
+  ...NEW_PROFILE,
+  xp: at(12, 40),
+  runs: 30,
+  wordsFound: 260,
+  bestScore: 420,
+  bestCombo: 12,
+  wordsAdded: 3,
+  longestWord: 12,
+  bestSpeed: 27,
+  cleanRuns: 3,
+  powersUsed: ['joker', 'hush', 'dodge'],
+  playedCategories: ['animaux', 'pays', 'capitales', 'metiers', 'fruits', 'sports'],
+  duelRounds4: 22,
+  dailyFirst: 1,
+  wordsReviewed: 4,
+}
+
+function AchievementsScenario() {
+  return <AchievementsScreen profile={ACHIEVEMENTS_PROFILE} discoveries={9} onClose={noop} />
 }
 
 function LeaderboardsScenario({ named, mineAt }: { named: boolean; mineAt?: number }) {
@@ -1948,6 +1972,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Les quinze tuiles que les succès montrent sur Play Games, immobiles et à 512 px : npm run render:achievements les capture',
     phase: 'home',
     render: () => <AchievementIcons />,
+  },
+  {
+    id: 'achievements',
+    group: 'Accueil',
+    title: 'Écran des succès',
+    how: 'Les succès en trois familles : barres de couleur pour les statistiques, tuiles-icônes pour les défis, marque Play Games sur les quinze publiés, un profil d’exemple avec une partie d’entre eux obtenus',
+    phase: 'home',
+    render: () => <AchievementsScenario />,
   },
   {
     id: 'update',
