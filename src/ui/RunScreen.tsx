@@ -250,7 +250,7 @@ else if (doubleSkip) sound.power('double-skip')
       {rivals && rivals.length > 0 && avatar && <Race rivals={rivals} avatar={avatar} score={run.score} />}
       {hushed && <HushVoice lines={t.powers.hushLines} label={t.powers.hushed} />}
 
-      <section className="prompt" key={`${run.drawn}`}>
+      <section className={`prompt${edge === 'last' ? ' prompt--last' : ''}`} key={`${run.drawn}`}>
         {magic > 0 ? (
           <button
             type="button"

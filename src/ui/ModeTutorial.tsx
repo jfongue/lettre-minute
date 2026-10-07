@@ -148,7 +148,7 @@ export function ModeTutorial({ mode, lang, onDone }: { mode: ArcadeMode; lang: s
         </button>
       </div>
 
-      <section className="tutorial-prompt" key={step}>
+      <section className={`tutorial-prompt${edge === 'last' ? ' tutorial-prompt--last' : ''}`} key={step}>
         <div className="tutorial-piece tutorial-piece--letter">
           <LetterMark letter={shown} motif={categoryMotif(a.categoryId)} size="lg" />
           <span className="tutorial-tag">↑ {t.tutorial.letter}</span>

@@ -967,6 +967,18 @@ animation: clock-bonus 500ms var(--ease-out);
   animation: slide-from-right 460ms var(--ease-out) 90ms both;
 }
 
+/* Le renversé contraint la dernière lettre : elle se pose à droite du thème,
+   sinon l'œil la lit comme la première. La colonne du thème peut se réduire
+   sous son mot le plus long (`minmax(0,…)`), sinon un thème long pousse la
+   lettre hors de l'écran. */
+.prompt--last {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.prompt--last .prompt-text {
+  order: -1;
+}
+
 .prompt-label {
   font-size: clamp(1.5rem, 7.5vw, 2.1rem);
   font-weight: 800;
@@ -6831,6 +6843,15 @@ button.challenge-word[aria-expanded='true'] {
   align-items: start;
   gap: 1.1rem;
   padding-top: 0.4rem;
+}
+
+/* Le renversé juge la dernière lettre : la voilà à droite du thème, comme en partie. */
+.tutorial-prompt--last {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.tutorial-prompt--last .tutorial-piece--theme {
+  order: -1;
 }
 
 .tutorial-piece {
