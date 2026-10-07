@@ -1,0 +1,5 @@
+• Le duel en direct : joue maintenant avec tes amis, en live
+• Au bilan, on te propose de voir les mots qui te manquaient
+• Modération : un mot signalé attend l'avis de plusieurs modérateurs
+• Le pouvoir Professeur revient, un peu différent
+• Corrections de bugs et performance
