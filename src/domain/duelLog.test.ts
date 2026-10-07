@@ -180,6 +180,21 @@ describe('le meneur', () => {
     expect(driverMove(thin, judge, zero + DUEL_GRACE_SECONDS + 0.01, bots)).toMatchObject({ seat, kind: 'timeout' })
   })
 
+  it('finit un duel entre deux joueurs maison', () => {
+    const duo: DuelSetup = { ...setup, playerIds: ['maxitoon', 'terretciel'], owned: [5, 5] }
+    const bots = { 0: { ...bot, id: 'maxitoon' }, 1: { ...bot, id: 'terretciel' } }
+    const moves: DuelMove[] = []
+    let duel = startDuel(duo)
+    for (let at = draftOpens; duel.phase !== 'over' && at < 600; at += 0.5) {
+      duel = settle(replay(duo, moves, judge).duel, judge, at)
+      const due = driverMove(duel, judge, at, bots)
+      if (due) moves.push({ ...due, seq: moves.length + 1, at })
+    }
+
+    expect(duel.phase).toBe('over')
+    expect(moves.length).toBeLessThan(120)
+  })
+
   it('ne déclare le temps écoulé d’un absent qu’après la marge', () => {
     const picks = draftMoves()
     const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)

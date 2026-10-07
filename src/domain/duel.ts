@@ -523,12 +523,15 @@ export function botMove(duel: Duel, judge: Judge, bot: BotProfile): BotMove | nu
 
   const rng = createRng((duel.seed ^ hashId(bot.id) ^ Math.imul(duel.dealt.length + 1, 0x27d4eb2f)) >>> 0)
   const [least, most] = bot.think
-  // Jamais plus de temps qu'il n'en a : un robot à bout de réserve agit ou
-  // meurt, comme un joueur.
+  // Sa réflexion ne se raccourcit pas : quand sa réserve ne la couvre plus, le
+  // joueur maison n'a plus le temps de répondre et son tour finit à zéro, comme
+  // un absent. Raccourci au contraire sous le plancher — le temps que la main
+  // rend à chaque tour —, il ne perdrait plus jamais rien, et deux d'entre eux
+  // joueraient sans fin.
   const reserve = reserveSeconds(duel, turn.player, turn.startedAt)
-  const after = Math.min(least + rng.next() * Math.max(0, most - least), Math.max(0.2, reserve - 0.2))
+  const think = least + rng.next() * Math.max(0, most - least)
   const found = rng.next() < bot.answerChance ? judge.common?.(turn.prompt.categoryId, turn.prompt.letter, player.used) : null
-  return { after, word: found ?? null }
+  return think <= reserve ? { after: think, word: found ?? null } : { after: reserve, word: null }
 }
 
 /** La catégorie qu'un joueur maison choisit au draft : une des restantes, au hasard. */

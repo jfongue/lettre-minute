@@ -469,6 +469,17 @@ describe('les joueurs maison', () => {
     expect(botMove(passed, judge, { ...bot, answerChance: 0 })?.word).toBeNull()
   })
 
+  it('ne répond plus quand sa réflexion ne tient plus dans sa réserve', () => {
+    const passed = passTurn(draft(2), judge, 1)
+    const thin: Duel = { ...passed, players: passed.players.map((player, index) => (index === 1 ? { ...player, reserve: DUEL_FLOOR_SECONDS } : player)) }
+    const move = botMove(thin, judge, bot)!
+
+    // Au plancher, ses deux secondes de réflexion ne tiennent plus : il n'agit
+    // pas, et la table déclare sa mort à la fin de sa réserve.
+    expect(move.word).toBeNull()
+    expect(move.after).toBe(DUEL_FLOOR_SECONDS)
+  })
+
   it('rejoue le même coup à graine égale', () => {
     const passed = passTurn(draft(2, 9), judge, 1)
     expect(botMove(passed, judge, bot)).toEqual(botMove(passed, judge, bot))
