@@ -23,6 +23,9 @@ const DUEL_RULES_KEY = 'lettre-minute.duel-rules.v1'
 // La pastille du bouton « Multijoueur » : gardée par clearLocalData comme le
 // tutoriel, celui qui se déconnecte a déjà lancé sa partie à plusieurs.
 const MULTIPLAYER_KEY = 'lettre-minute.multiplayer.v1'
+// La leçon d'un mode de la réserve : gardée par clearLocalData comme le
+// tutoriel, celui qui se déconnecte a déjà appris la règle du mode.
+const MODE_TUTORIAL_KEY = 'lettre-minute.mode-tutorial.v1'
 
 /** A word the player proposed while the dictionary did not know it. */
 export interface PendingSubmission {
@@ -111,6 +114,18 @@ export function loadMultiplayerNews(): boolean {
 
 export function saveMultiplayerPlayed(): void {
   write(MULTIPLAYER_KEY, true)
+}
+
+/** Les modes de la réserve dont la leçon a déjà été jouée sur cet appareil. */
+export function loadModeTutorialDone(mode: string): boolean {
+  const stored = parsed(MODE_TUTORIAL_KEY)
+  return Array.isArray(stored) && stored.includes(mode)
+}
+
+export function saveModeTutorialDone(mode: string): void {
+  const stored = parsed(MODE_TUTORIAL_KEY)
+  const done = Array.isArray(stored) ? stored.filter(isText) : []
+  if (!done.includes(mode)) write(MODE_TUTORIAL_KEY, [...done, mode])
 }
 
 export function loadQueueSeenOn(): string | null {

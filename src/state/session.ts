@@ -6,7 +6,9 @@ import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
 import { markSupportAsked } from '../domain/support'
 import { ban, joinPlus, markBanIntroSeen, markFeedbackAsked, markPlusThanked, spendPeek, unban } from '../domain/perks'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, type PowerId } from '../domain/powers'
+import { countsForProgress, type GameMode } from '../domain/modes'
 import {
+  arm,
   createRun,
   inspect,
   reroll,
@@ -86,6 +88,11 @@ export type SessionAction =
       challenge?: { id: string; powers: readonly PowerId[] }
       /** Les pouvoirs sont fermés à ce joueur : la partie se joue sans, même portés. */
       noPowers?: boolean
+      /**
+       * La réserve : « solo » par défaut. Un mode de la réserve se joue sans
+       * pouvoir et sans progression — son score ne vit qu'à l'écran.
+       */
+      mode?: GameMode
     }
   /** The countdown traded a category: same seed, new lineup, a judge that knows the incoming dictionary. */
   | { type: 'swapped'; judge: Judge; categoryIds: readonly string[]; reserve: readonly string[] }
@@ -95,6 +102,8 @@ export type SessionAction =
   | { type: 'grant-power'; powerId: PowerId }
   | { type: 'equip'; slot: number; powerId: PowerId | null }
   | { type: 'start' }
+  /** Le retard commence : la question à l'écran part sans réponse et le chrono démarre. */
+  | { type: 'arm' }
   | { type: 'load-failed'; message: string }
   | { type: 'type'; draft: string }
   /** `at`: the run clock in seconds, which the rules do not keep themselves. */
@@ -148,15 +157,17 @@ export function sessionReducer(session: Session, action: SessionAction): Session
 
     case 'ready': {
       const { challenge } = action
-      const powers = action.noPowers ? [] : challenge ? challenge.powers : equippedPowers(session.profile)
+      const mode = action.mode ?? 'solo'
+      // Un mode de la réserve ne se joue pas avec un pouvoir.
+      const powers = action.noPowers || !countsForProgress(mode) ? [] : challenge ? challenge.powers : equippedPowers(session.profile)
       // A challenge avoids nothing: every player's draw must follow the seed alone.
       const avoid = challenge ? [] : session.profile.lastPrompts
       return {
         ...session,
         phase: 'countdown',
         judge: action.judge,
-        run: createRun({ seed: action.seed, categoryIds: action.categoryIds, avoid, powers, shared: Boolean(challenge) }, action.judge),
-        reserve: challenge ? [] : action.reserve,
+        run: createRun({ seed: action.seed, mode, categoryIds: action.categoryIds, avoid, powers, shared: Boolean(challenge) }, action.judge),
+        reserve: challenge || !countsForProgress(mode) ? [] : action.reserve,
         swapsLeft: !challenge && powers.includes('permutation') ? (POWER_CHARGES.permutation ?? 0) : 0,
         challengeId: challenge?.id ?? null,
         levelBefore: levelFor(session.profile.xp),
@@ -228,6 +239,12 @@ export function sessionReducer(session: Session, action: SessionAction): Session
     case 'start':
       return session.phase === 'countdown' ? { ...session, phase: 'playing' } : session
 
+    case 'arm': {
+      if (!session.run || !session.judge) return session
+      const run = arm(session.run, session.judge)
+      return run === session.run ? session : { ...session, run, draft: '', live: null, cheer: null }
+    }
+
     case 'load-failed':
       return { ...session, phase: 'home', error: action.message }
 
@@ -292,12 +309,16 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         run,
         draft: '',
         live: null,
-        profile: (session.challengeId ? applyChallengeRun : applyRun)(session.profile, {
-          score: run.score,
-          words: run.found.map((found) => found.word),
-          bestCombo: run.bestCombo,
-          prompts: run.dealt,
-        }),
+        // Un mode de la réserve ne compte pour rien : ni XP, ni record, ni
+        // historique — son score ne vit qu'à l'écran.
+        profile: !countsForProgress(run.mode)
+          ? session.profile
+          : (session.challengeId ? applyChallengeRun : applyRun)(session.profile, {
+              score: run.score,
+              words: run.found.map((found) => found.word),
+              bestCombo: run.bestCombo,
+              prompts: run.dealt,
+            }),
       }
     }
 

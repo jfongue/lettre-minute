@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { CHATTER_WORDS, POWER_CHARGES } from '../domain/powers'
-import { celerityDue, chargesLeft, hasPower, RUN_SECONDS, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
+import { answerPrompt, celerityDue, chargesLeft, hasPower, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
+import { MODE_SECONDS, modeEdge } from '../domain/modes'
 import { capitalized, compactWord, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
 import { sound } from '../lib/sound'
@@ -81,6 +82,9 @@ export function RunScreen({
   const [shaking, setShaking] = useState(false)
   const t = useT()
   const category = categoryText(t, run.prompt.categoryId)
+  // Le retard remplit la question d'avant, le renversé juge la fin du mot.
+  const answer = answerPrompt(run)
+  const edge = modeEdge(run.mode)
   const seconds = Math.ceil(remaining)
 const latecomerTriggered = remaining < 5 && hasPower(run, 'latecomer') && chargesLeft(run, 'latecomer') > 0
 const latecomerAnnounced = useRef(false)
@@ -188,7 +192,7 @@ else if (doubleSkip) sound.power('double-skip')
         <div className="timer">
           <span
             className="timer-disc"
-            style={{ '--ratio': Math.min(1, remaining / RUN_SECONDS) } as CSSProperties}
+            style={{ '--ratio': Math.min(1, remaining / MODE_SECONDS[run.mode]) } as CSSProperties}
             aria-hidden="true"
           />
           {/* Re-keyed every second once urgent, so each second ticks visibly. */}
@@ -263,6 +267,19 @@ else if (doubleSkip) sound.power('double-skip')
           <span>{categoryText(t, next.categoryId).label}</span>
         </p>
       )}
+      {run.mode === 'delayed' && (
+        <p className="prompt-next" key={`answer-${run.drawn}`}>
+          {run.armed ? (
+            <>
+              <span className="note">{t.modes.answerTo}</span>
+              <LetterMark letter={answer.letter} motif={motifAt(run.drawn + run.rerolls)} size="sm" />
+              <span>{categoryText(t, answer.categoryId).label}</span>
+            </>
+          ) : (
+            <span className="note">{t.modes.armNote}</span>
+          )}
+        </p>
+      )}
 
       <form
         className={`answer${exact ? ' answer--valid' : ''}${spell ? ` answer--spell answer--${spell}` : ''}`}
@@ -283,8 +300,8 @@ else if (doubleSkip) sound.power('double-skip')
               sound.key(event.target.value.length < draft.length)
               onType(capitalized(event.target.value))
             }}
-            placeholder={t.run.placeholder(run.prompt.letter)}
-            aria-label={t.run.fieldLabel(run.prompt.letter, category.label)}
+            placeholder={t.run.placeholder(answer.letter)}
+            aria-label={t.run.fieldLabel(answer.letter, category.label)}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="sentences"
@@ -313,7 +330,8 @@ else if (doubleSkip) sound.power('double-skip')
           live={live}
           cheer={cheer}
           shaking={shaking}
-          letter={run.prompt.letter}
+          letter={answer.letter}
+          edge={edge}
           draft={draft}
           proposed={proposed.includes(normalizeWord(draft))}
           mine={mine}
@@ -331,9 +349,9 @@ else if (doubleSkip) sound.power('double-skip')
           </button>
           <button
             type="submit"
-            className={`btn btn--blue${!accepted && !spell ? ' btn--idle' : ''}`}
+            className={`btn btn--blue${!accepted && !spell && run.armed ? ' btn--idle' : ''}`}
             onPointerDown={keepFocus}
-            aria-disabled={!accepted && !spell}
+            aria-disabled={!accepted && !spell && run.armed}
           >
             {t.run.submit}
           </button>
@@ -349,6 +367,7 @@ flawlessTriggered,
   cheer,
   shaking,
   letter,
+  edge,
   draft,
   proposed,
   mine,
@@ -359,6 +378,8 @@ flawlessTriggered: boolean
   cheer: Cheer | null
   shaking: boolean
   letter: string
+  /** Le renversé contraint la dernière lettre : la ligne de refus doit le dire. */
+  edge: 'first' | 'last'
   draft: string
   proposed: boolean
   /** The words the player himself got into the dictionary. */
@@ -472,7 +493,7 @@ flawlessTriggered: boolean
         </p>
       )
     case 'wrong-letter':
-      return <p className="verdict verdict--refused">{refusedMark}{t.run.startsWith(letter)}</p>
+      return <p className="verdict verdict--refused">{refusedMark}{edge === 'last' ? t.run.endsWith(letter) : t.run.startsWith(letter)}</p>
     case 'already':
       return <p className="verdict verdict--refused">{refusedMark}{t.run.already}</p>
     case 'unknown':

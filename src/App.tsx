@@ -115,10 +115,12 @@ import {
   loadQueueSeenOn,
   loadShareNewsSeen,
   loadSubmissions,
+  loadModeTutorialDone,
   loadTutorialDone,
   saveAccount,
   saveAvatar,
   saveHistory,
+  saveModeTutorialDone,
   saveMultiplayerPlayed,
   saveProfile,
   saveQueueSeenOn,
@@ -127,6 +129,7 @@ import {
   saveTutorialDone,
 } from './state/storage'
 import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storage'
+import { countsForProgress, modeEdge, type GameMode } from './domain/modes'
 import { queueAlertDue } from './domain/moderation'
 import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
 import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
@@ -152,6 +155,8 @@ import { TutorialScreen, tutorialPrompt } from './ui/TutorialScreen'
 import { dismissTopOverlay } from './ui/useBackDismiss'
 import { FeaturesContext } from './ui/features'
 import { DuelBanner, DuelInviteCard, PlayTogether } from './ui/PlayTogether'
+import { GameModes } from './ui/GameModes'
+import { ModeTutorial } from './ui/ModeTutorial'
 import type { DuelExit } from './state/duel'
 
 // Everything but the home screen waits in its own chunk: the first paint only
@@ -233,6 +238,12 @@ const TYPED = new Set(['text', 'email', 'password', 'search'])
 export function App() {
   const [session, dispatch] = useReducer(sessionReducer, initialSession(NEW_PROFILE))
   const [startedAt, setStartedAt] = useState<number | null>(null)
+  // Le mode choisi sous « Jouer » : « solo » tant qu'on n'a rien choisi, et
+  // relu par la relecture, qui doit rejouer le même.
+  const modeNow = useRef<GameMode>('solo')
+  const [modesOpen, setModesOpen] = useState(false)
+  // La leçon du retard, jouée une fois par appareil comme celle de la première partie.
+  const [delayTutorial, setDelayTutorial] = useState<'teaching' | 'launching' | null>(null)
   const [crowd, setCrowd] = useState<Readonly<Record<string, number>>>({})
   // What the players' runs said of each pair, and the language they said it in:
   // a borrowed dictionary has no such record, and a challenge never reads it.
@@ -789,7 +800,7 @@ export function App() {
   }, [adsWanted])
 
   const judgeFor = useCallback(
-    async (categoryIds: readonly string[], packLang: string = lang, challenge = false) => {
+    async (categoryIds: readonly string[], packLang: string = lang, challenge = false, edge: 'first' | 'last' = 'first') => {
       const loaded = await loadPacks(packLang, categoryIds)
       // A challenge leaves the community words out: they change which letters
       // a category can be prompted on, and two players who loaded a different
@@ -816,12 +827,13 @@ export function App() {
       // Les freins écrits à la main, et ceux que `ban:sync` calcule pour les
       // couples qu'un ban a vidés : les deux multiplient la cote du tirage.
       const damped = { ...DAMPED_PROMPTS[packLang], ...DAMPED_WORDS[packLang] }
-      return createJudge(packs, usage, t.powers.spells, challenge ? undefined : served, challenge ? undefined : damped)
+      return createJudge(packs, usage, t.powers.spells, challenge ? undefined : served, challenge ? undefined : damped, edge)
     },
     [session.profile.usage, crowd, promptStats, lang, t],
   )
 
   const play = useCallback(async () => {
+    const mode = modeNow.current
     dispatch({ type: 'play' })
     setRunLang(lang)
     setPlayed(null)
@@ -837,8 +849,8 @@ export function App() {
         seed,
         playableCategoryIds(session.profile, ownedCategoryIds(session.profile)).filter((id) => shipped.has(id)),
       )
-      const [judge] = await Promise.all([judgeFor(lineup.dealt), preloadRunScreens()])
-      dispatch({ type: 'ready', judge, seed, categoryIds: lineup.dealt, reserve: lineup.reserve, noPowers: !featuresNow.current.has('powers') })
+      const [judge] = await Promise.all([judgeFor(lineup.dealt, lang, false, modeEdge(mode)), preloadRunScreens()])
+      dispatch({ type: 'ready', judge, seed, categoryIds: lineup.dealt, reserve: lineup.reserve, noPowers: !featuresNow.current.has('powers'), mode })
       // Warmed while the categories are announced, so the first swap is instant.
       if (lineup.reserve[0]) loadPack(lang, lineup.reserve[0]).catch(() => undefined)
     } catch {
@@ -893,12 +905,39 @@ export function App() {
     }
     play()
   }, [play, t])
+
+  /**
+   * Le choix d'un mode : le solo garde son tutoriel de première partie, le
+   * retard a le sien — une fois par appareil —, les autres partent droit.
+   */
+  const pickMode = useCallback(
+    (chosen: GameMode) => {
+      setModesOpen(false)
+      modeNow.current = chosen
+      if (chosen === 'solo') {
+        startFirstRun()
+        return
+      }
+      if (chosen === 'delayed' && !loadModeTutorialDone(chosen) && on('tutorial')) {
+        setDelayTutorial('teaching')
+        return
+      }
+      void play()
+    },
+    [startFirstRun, play, on],
+  )
+  const endDelayTutorial = useCallback(() => {
+    saveModeTutorialDone('delayed')
+    setDelayTutorial('launching')
+    void play()
+  }, [play])
   // Dropped only once the run is loaded, or the home screen would flash
   // between the lesson and the countdown. A failed load lands home with its
   // error, where it belongs.
   useEffect(() => {
     if (tutorial === 'launching' && session.phase !== 'loading') setTutorial(null)
-  }, [tutorial, session.phase])
+    if (delayTutorial === 'launching' && session.phase !== 'loading') setDelayTutorial(null)
+  }, [tutorial, delayTutorial, session.phase])
 
   const refreshChallenges = useCallback(() => {
     if (!named) return setChallenges(null)
@@ -1351,6 +1390,12 @@ export function App() {
       proposed: session.proposals.length,
       lang: playedLang,
     })
+    // Un mode de la réserve ne laisse rien derrière lui : ni historique, ni
+    // serveur, ni succès. Ses mots proposés partent quand même.
+    if (!countsForProgress(session.run.mode)) {
+      void flushSubmissions().then(refreshMine)
+      return
+    }
     const record = recordOf(session.run, Date.now(), playedLang)
     setHistory((previous) => {
       const next = appendRecord(previous, record)
@@ -1514,6 +1559,7 @@ export function App() {
     <PlayerActionsContext value={playerActions}>
     <main className={`stage stage--${tutorial ? 'playing' : session.phase}${isNativeApp() ? '' : ' stage--muteable'}`}>
       {tutorial && (session.phase === 'home' || session.phase === 'loading') && <TutorialScreen lang={lang} onDone={endTutorial} />}
+      {delayTutorial && (session.phase === 'home' || session.phase === 'loading') && <ModeTutorial lang={lang} onDone={endDelayTutorial} />}
 
       {editingAvatar && (
         <Suspense fallback={null}>
@@ -1581,6 +1627,10 @@ export function App() {
         />
       )}
 
+      {modesOpen && session.phase === 'home' && !tutorial && (
+        <GameModes onPick={pickMode} onClose={() => setModesOpen(false)} />
+      )}
+
       {duelBanner && (
         <DuelBanner text={duelBanner === 'kicked' ? t.duel.kickedBanner : t.duel.closedBanner} onDone={clearDuelBanner} />
       )}
@@ -1632,7 +1682,7 @@ export function App() {
                 }
               : undefined
           }
-          onPlay={startFirstRun}
+          onPlay={() => (on('gameModes') ? setModesOpen(true) : startFirstRun())}
           onDebug={on('debugBoard') ? () => setDebugPhase('home') : undefined}
           onEquip={(slot, powerId) => dispatch({ type: 'equip', slot, powerId })}
           onAccount={
@@ -1904,7 +1954,8 @@ export function App() {
             swapping={swapping}
             onSwap={swap}
             onDone={() => {
-              setStartedAt(Date.now())
+              // Le retard attend sa première validation : son chrono part de là.
+              setStartedAt(session.run?.mode === 'delayed' ? null : Date.now())
               dispatch({ type: 'start' })
             }}
           />
@@ -1933,7 +1984,7 @@ export function App() {
               }
               dispatch({ type: 'type', draft })
             }}
-            onSubmit={(auto) => dispatch({ type: 'submit', at: elapsed, auto })}
+            onSubmit={(auto) => (session.run?.armed ? dispatch({ type: 'submit', at: elapsed, auto }) : dispatch({ type: 'arm' }))}
             onSkip={() => dispatch({ type: 'skip', at: elapsed })}
             onReroll={() => dispatch({ type: 'reroll', at: elapsed })}
             proposed={session.proposals.map((proposal) => normalizeWord(proposal.word))}
@@ -1984,7 +2035,8 @@ export function App() {
                 refreshChallenges()
               }
             }}
-            challenge={session.challengeId ? afterRun : undefined}
+            ranked={countsForProgress(session.run.mode)}
+          challenge={session.challengeId ? afterRun : undefined}
             onChallengeChanged={() => {
               if (session.challengeId) fetchChallenge(session.challengeId).then((detail) => detail && setAfterRun(detail))
             }}
