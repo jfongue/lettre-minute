@@ -499,6 +499,15 @@ export const sound = {
       duck(t)
     })
   },
+  /** A player is out: lower and longer than the clock running out, so the two do not blur. */
+  dead(): void {
+    cue((c, t) => {
+      marimba(c, TONIC / 2, t, 0.8, sfx)
+      piano(c, semi(TONIC, -3), t + 0.02, 0.5, sfx, 2.4)
+      bell(c, TONIC * 1.5, t + 0.04, 1, sfx, 3, 2.2)
+      duck(t)
+    })
+  },
   /** The end screen replays each find, lighter than when it was played. */
   recap(tier: SoundTier, step: number): void {
     cue((c, t) => wordNote(c, step, t, tier, 0.75))

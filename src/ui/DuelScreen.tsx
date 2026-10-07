@@ -753,7 +753,7 @@ function Play({ table }: { table: DuelTable }) {
     for (const fact of table.facts) {
       if (heardFacts.current.has(fact.id)) continue
       heardFacts.current.add(fact.id)
-      if (fact.kind === 'dead') sound.timeUp()
+      if (fact.kind === 'dead') sound.dead()
       else if (fact.kind === 'failed') sound.refused()
       else if (fact.kind === 'passed' && fact.player !== me) sound.skipped()
       else if (fact.kind === 'solved' && fact.tier) sound.found(tierSound(fact.tier, false), Math.min(3, fact.player))

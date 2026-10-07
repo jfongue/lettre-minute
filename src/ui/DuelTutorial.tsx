@@ -90,7 +90,7 @@ const PLAY_BEATS: readonly PlayBeat[] = [
   },
   { ms: 440, cue: () => sound.tile('glass', 5), holder: 2, typed: 0, reserves: [26, 22, 25], dead: [] },
   { ms: 440, cue: () => sound.tick(3), holder: 2, typed: 0, reserves: [26, 22, 3], dead: [] },
-  { ms: 760, cue: () => sound.timeUp(), holder: null, typed: 0, reserves: [27, 23, 0], dead: [2] },
+  { ms: 760, cue: () => sound.dead(), holder: null, typed: 0, reserves: [27, 23, 0], dead: [2] },
   { ms: 400, cue: () => sound.tile('glass', 4), holder: 0, typed: 0, reserves: [27, 23, 0], dead: [2] },
   { ms: 200, cue: () => sound.key(), holder: 0, typed: 0.45, reserves: [26.7, 23, 0], dead: [2] },
   { ms: 220, cue: () => sound.key(), holder: 0, typed: 1, reserves: [26.5, 23, 0], dead: [2] },
