@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import type { AvatarChoice } from '../domain/avatar'
 import type { AccountMode } from './AccountPanel'
 import type { Boards as BoardsData } from '../domain/boards'
+import { homePageOpen } from '../domain/home'
 import { levelProgress, type Profile } from '../domain/progression'
 import { RUN_SECONDS } from '../domain/run'
 import { formatNumber, useT } from '../i18n'
@@ -40,6 +41,8 @@ interface HomeScreenProps {
   /** Places the last run won on the day's board, shown climbing once. */
   climbed?: number
   avatar: AvatarChoice
+  /** Un mot proposé : la tuile « Mes demandes » s'ouvre à l'accueil. */
+  requestsMade: boolean
   /** The player's words accepted since they last opened « Mes demandes ». */
   requestsNews: number
   queueAlert?: boolean
@@ -76,6 +79,7 @@ export function HomeScreen({
   me,
   climbed,
   avatar,
+  requestsMade,
   requestsNews,
   queueAlert,
   categoriesNews = 0,
@@ -100,6 +104,8 @@ export function HomeScreen({
   // goes to what would keep their first scores instead.
   const newcomer =
     me === null && profile.runs === 0 && profile.bestScore === 0 && profile.wordsFound === 0 && profile.bestCombo === 0
+  // Chaque tuile s'ouvre à sa condition : un appareil neuf n'en montre aucune.
+  const pages = HOME_LINKS.filter((page) => homePageOpen(page, { profile, named: me !== null, requested: requestsMade }))
   // The drawer lives off the left edge: a flick to the right pulls it in.
   const swipe = useSwipe('right', () => onMenu())
   const [introDone, setIntroDone] = useState(false)
@@ -167,7 +173,6 @@ export function HomeScreen({
           {newcomer ? (
             onAccount && (
               <section className="stack">
-                <p className="note">{t.home.accountLead}</p>
                 <div className="home-account">
                   <button type="button" className="btn btn--blue" onClick={() => onAccount('register')}>
                     {t.account.register}
@@ -204,7 +209,7 @@ export function HomeScreen({
             </>
           )}
 
-          <PageLinks pages={HOME_LINKS} avatar={avatar} badges={{ requests: requestsNews, categories: categoriesNews }} queueAlert={queueAlert} onOpen={onMenu} />
+          <PageLinks pages={pages} avatar={avatar} badges={{ requests: requestsNews, categories: categoriesNews }} queueAlert={queueAlert} onOpen={onMenu} />
         </div>
       )}
     </div>

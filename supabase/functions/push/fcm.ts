@@ -37,7 +37,7 @@ export async function accessToken(account: ServiceAccount): Promise<string> {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      assertion: `${header}.${claims}.${base64url(new Uint8Array(signature))}`,
+      assertion: `${header}.${base64url(new Uint8Array(signature))}`,
     }),
   })
   if (!response.ok) throw new Error(`oauth ${response.status}: ${await response.text()}`)
@@ -54,21 +54,20 @@ export interface Push {
   tag: string
 }
 
+/** A message with nothing to show: `data` is all the phone gets. */
+export interface SilentPush {
+  token: string
+  data: Record<string, string>
+}
+
 /** `sent`, `dead` (the phone is gone: forget its token), or `retry`. */
 export type Outcome = 'sent' | 'dead' | 'retry'
 
-export async function send(account: ServiceAccount, bearer: string, push: Push): Promise<Outcome> {
+async function post(account: ServiceAccount, bearer: string, message: Record<string, unknown>): Promise<Outcome> {
   const response = await fetch(`https://fcm.googleapis.com/v1/projects/${account.project_id}/messages:send`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${bearer}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      message: {
-        token: push.token,
-        notification: { title: push.title, body: push.body },
-        data: push.data,
-        android: { priority: 'high', notification: { channel_id: 'challenges', tag: push.tag } },
-      },
-    }),
+    body: JSON.stringify({ message }),
   })
   if (response.ok) return 'sent'
   const text = await response.text()
@@ -77,4 +76,26 @@ export async function send(account: ServiceAccount, bearer: string, push: Push):
     return 'dead'
   }
   return 'retry'
+}
+
+export async function send(account: ServiceAccount, bearer: string, push: Push): Promise<Outcome> {
+  return post(account, bearer, {
+    token: push.token,
+    notification: { title: push.title, body: push.body },
+    data: push.data,
+    android: { priority: 'high', notification: { channel_id: 'challenges', tag: push.tag } },
+  })
+}
+
+/**
+ * The one way to take a notification back down: FCM never removes what it has
+ * already shown. A silent message carrying the tag the game cancels by reaches
+ * the app's own service (`DuelMessagingService`) — high priority, or a phone
+ * asleep would only get it the next time it wakes.
+ *
+ * Nothing shows if the app has no such service: at worst the notification waits
+ * for the game's next opening, which sweeps it.
+ */
+export async function sendSilent(account: ServiceAccount, bearer: string, push: SilentPush): Promise<Outcome> {
+  return post(account, bearer, { token: push.token, data: push.data, android: { priority: 'high' } })
 }

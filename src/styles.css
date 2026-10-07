@@ -351,6 +351,18 @@ button.challenge-past::after {
   transform: translateY(2px);
 }
 
+/* Le même tassement pour tout ce qui se touche sans porter `.btn` — une seule
+   règle, plutôt qu'un `:active` oublié sur chaque carte, tuile ou pastille. */
+.avatar-cell:active,
+.swatch:active,
+.layer-tab:active,
+.challenge-word:active,
+.friend-pick:active,
+.setup-switch:active,
+.standing-me-link:active {
+  transform: scale(0.96);
+}
+
 .btn:focus-visible {
   outline: 3px solid var(--yellow);
   outline-offset: 3px;
@@ -1145,7 +1157,7 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 .dealt li.dealt-incoming {
-  animation: band-from-right 480ms var(--ease-out) both;
+  animation: band-from-right 620ms var(--ease-out) both;
 }
 
 .dealt-tile {
@@ -1410,19 +1422,6 @@ animation: clock-bonus 500ms var(--ease-out);
   font-variant-numeric: tabular-nums;
   font-size: 0.9rem;
   padding: 0 0.3rem;
-}
-
-.tier-peu-commun {
-  color: var(--blue);
-}
-
-.tier-rare {
-  color: var(--red);
-}
-
-.tier-très-rare {
-  background: var(--yellow);
-  color: var(--black);
 }
 
 /* -------------------------------------------------------------- colophon - */
@@ -6580,6 +6579,11 @@ li:has(> .reactable--open),
 .reaction-pick:hover,
 .reaction-pick:focus-visible {
   transform: scale(1.25) translateY(-3px);
+}
+
+/* Le doigt se pose : la carte se tasse au lieu de grandir, même sous le survol. */
+.reaction-pick:active {
+  transform: scale(1.05);
 }
 
 .reaction-pick--on {

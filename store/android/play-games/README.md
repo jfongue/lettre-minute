@@ -74,22 +74,24 @@ absolu est à 621, et une seule bonne partie le dépasse. Les 2000 mots
 demandent au mieux placé un tiers de mots en plus, quelques semaines de jeu.
 
 Le seuil client est déjà au nouveau chiffre (`src/domain/achievements.ts`,
-`src/lib/playGames.ts`) ; **la Console, elle, porte encore 900 et 5000** tant
-que le texte n'y est pas corrigé à la main. Les treize autres succès ne
+`src/lib/playGames.ts`), et **la Console a reçu les deux textes le 7 octobre
+2026** — sept langues chacun, relus après publication. Les treize autres
+succès ne
 bougent pas : ils sont la mémoire des joueurs, et un seuil qui descend
 redistribue les déblocages vers le bas — un succès Play Games ne se reprend
 jamais.
 
-## Ce qu'il reste à faire dans la Console
+## Ce que la Console a reçu
 
-Pour `score-900` et `words-5000` :
+Le 7 octobre 2026, les deux succès publiés ont été corrigés à la main :
+**Play Games Services › Réussites ›** le succès **› Modifier**, la langue une à
+une, puis « Enregistrer comme brouillon » et « Publier les modifications » —
+avec les textes ci-dessous, dans les sept langues. Relus après publication,
+tous justes.
 
-1. dans la Console, **Play Games Services › Réussites ›** le succès **›
-   Modifier** : corriger le nom et la description dans les sept langues, avec
-   les textes ci-dessous ;
-2. rien à faire pour le déblocage : le prochain lancement ou la prochaine
-   partie renvoie tous les succès atteints, et Play rattrape. Le nouveau seuil
-   est déjà dans l'app.
+Le déblocage n'a rien demandé : le prochain lancement ou la prochaine partie
+renvoie tous les succès atteints, et Play rattrape. Le nouveau seuil est déjà
+dans l'app.
 
 L'identifiant (`CgkI…`) et les points d'un succès publié ne se modifient pas
 dans la Console : le remplacement ne touche donc que le texte. Vérifier au

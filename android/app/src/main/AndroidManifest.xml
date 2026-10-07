@@ -21,6 +21,16 @@
             </intent-filter>
         </activity>
 
+        <!-- Le retrait d'une notification de duel (0060) : le service de Capacitor
+             n'affiche que, celui-ci annule d'abord ce que FCM ne reprend pas. -->
+        <service
+            android:name=".DuelMessagingService"
+            android:exported="false">
+            <intent-filter android:priority="1">
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <!-- Sans elles, une notification reçue app fermée prend l'icône du lanceur,
              qu'Android réduit à une silhouette pleine. -->
         <meta-data

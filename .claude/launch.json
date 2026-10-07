@@ -27,6 +27,14 @@
         "--strictPort"
       ],
       "port": 5299
+    },
+    {
+      "name": "reddit-harness",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "reddit/scripts/harness.mjs"
+      ],
+      "port": 5399
     }
   ]
 }

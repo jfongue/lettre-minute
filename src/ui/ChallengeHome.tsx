@@ -27,6 +27,9 @@ export function ChallengeList({ challenges, onOpen, onPast }: ChallengeListProps
   const t = useT()
   const hidden = useHiddenChallenges()
   const shown = challenges.filter((challenge) => !isHidden(hidden, challenge))
+  // Tout est écarté, ou le bilan lu s'est masqué tout seul : le titre part avec
+  // la liste, les anciens défis restant dans les statistiques.
+  if (shown.length === 0) return null
   return (
     <section className="panel challenges">
       {challenges.length > shown.length ? (

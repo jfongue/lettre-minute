@@ -57,7 +57,9 @@ import { progressOf, withProgress } from './domain/progress'
 import { reportAchievements, reportRun } from './lib/playGames'
 import {
   askPush,
+  clearDuelPushes,
   clearPushes,
+  duelPushTag,
   enablePush,
   isNativeApp,
   onBackButton,
@@ -563,6 +565,13 @@ export function App() {
   // lit les mots que ce joueur a lui-même fait entrer au dictionnaire.
   const [mine, setMine] = useState<readonly Submission[]>([])
   const [acceptedWords, setAcceptedWords] = useState(0)
+  // Une demande existe dès qu'un mot attend sur l'appareil ou vit chez le serveur :
+  // c'est elle qui ouvre « Mes demandes » à l'accueil. La file se relit au retour
+  // à l'accueil, la seule fois où la tuile se décide.
+  const [queued, setQueued] = useState(() => loadSubmissions().length)
+  useEffect(() => {
+  if (session.phase === 'home') setQueued(loadSubmissions().length)
+  }, [session.phase])
   const signedIn = account !== null
   const refreshMine = useCallback(() => {
     fetchMySubmissions().then((found) => found && setMine(found))
@@ -1060,9 +1069,22 @@ setStartedAt((at) => at ?? Date.now())
 
   // Les invitations à une table de duel : relues à l'accueil, plus souvent que
   // les défis — une table attend ses joueurs, pas une journée.
+  // La dernière liste balayée : relire les notifications de la table à chaque
+  // passage coûterait un appel au téléphone toutes les huit secondes.
+  const sweptDuelInvites = useRef<string | null>(null)
   const refreshDuelInvites = useCallback(() => {
     if (!named || !featuresNow.current.has('duel')) return setDuelInvites([])
-    fetchDuelInvites().then((list) => list && setDuelInvites(list))
+    fetchDuelInvites().then((list) => {
+      if (!list) return
+      setDuelInvites(list)
+      // Le serveur retire la notification d'une table qui n'attend plus par un
+      // message muet ; un téléphone éteint l'aurait manqué, on le refait ici.
+      const open = list.map((invite) => invite.table)
+      if (sweptDuelInvites.current !== open.join(',')) {
+        sweptDuelInvites.current = open.join(',')
+        clearDuelPushes(open)
+      }
+    })
   }, [named])
   useEffect(() => {
     if (!atHome || duelOpen || !named || !on('duel')) return
@@ -1073,11 +1095,13 @@ setStartedAt((at) => at ?? Date.now())
   const joinDuelInvite = (table: string) => {
     rememberMultiplayer()
     setDuelInvites((list) => list.filter((invite) => invite.table !== table))
+    clearPushes([duelPushTag(table)])
     setMenuPage(null)
     setDuelOpen({ join: table })
   }
   const dropDuelInvite = (table: string) => {
     setDuelInvites((list) => list.filter((invite) => invite.table !== table))
+    clearPushes([duelPushTag(table)])
     void declineDuel(table)
   }
   const leaveDuel = useCallback(
@@ -1223,17 +1247,42 @@ setStartedAt((at) => at ?? Date.now())
   }, [named, lang, t])
   const refreshNow = useRef(refreshChallenges)
   refreshNow.current = refreshChallenges
-  useEffect(() => onPush(setTapped, () => refreshNow.current()), [])
+  useEffect(
+    () =>
+      onPush(setTapped, (data) => {
+        // Retirer une invitation de duel ne se joue pas : la notification sort
+        // du bandeau, rien d'autre ne bouge.
+        if (data.kind === 'duel_cancel') return clearPushes([duelPushTag(data.table)])
+        refreshNow.current()
+      }),
+    [],
+  )
   // A tap lands wherever the game stands: it waits for the home screen, and
   // for the account that tells whose challenge it is.
   useEffect(() => {
     if (!tapped || !named || session.phase !== 'home') return
     setTapped(null)
-    if (!on('challenges')) return
-    setMenuPage(null)
-    setHeldNotices((held) => [...held, tapped.challenge])
-    // Even an invitation opens on its screen: the player may not want to play right now.
-    setChallengeOpen(tapped.challenge)
+    if (tapped.kind === 'invite' || tapped.kind === 'recap') {
+      const challenge = tapped.challenge
+      if (!on('challenges')) return
+      setMenuPage(null)
+      setHeldNotices((held) => [...held, challenge])
+      // Even an invitation opens on its screen: the player may not want to play right now.
+      setChallengeOpen(challenge)
+      return
+    }
+    if (tapped.kind === 'duel') {
+      const table = tapped.table
+      if (!on('duel')) return
+      clearPushes([duelPushTag(table)])
+      rememberMultiplayer()
+      setDuelInvites((list) => list.filter((invite) => invite.table !== table))
+      setMenuPage(null)
+      setDuelOpen({ join: table })
+      return
+    }
+    // Le retrait d'une invitation : la notification n'a plus rien à dire.
+    if (tapped.kind === 'duel_cancel') clearPushes([duelPushTag(tapped.table)])
   }, [tapped, named, session.phase, on])
 
   const [swapping, setSwapping] = useState(false)
@@ -1702,6 +1751,7 @@ setStartedAt((at) => at ?? Date.now())
           me={account && !account.anonymous ? account.name : null}
           climbed={climbed}
           avatar={avatar}
+          requestsMade={queued > 0 || mine.length > 0}
           requestsNews={moderation?.news ?? 0}
           queueAlert={queueAlert}
           categoriesNews={banNews(session.profile, ownedCategoryIds(session.profile)) ? 1 : 0}

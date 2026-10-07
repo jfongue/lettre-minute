@@ -33,6 +33,8 @@ export function PageLinks({ pages: all, avatar, badges, queueAlert = false, onOp
   const t = useT()
   const features = useContext(FeaturesContext)
   const pages = all.filter((page) => !GATES[page] || features.has(GATES[page]))
+  // Plus rien à ouvrir : la barre et sa ligne partent avec ses tuiles.
+  if (pages.length === 0) return null
   return (
     <nav className="page-links" style={{ '--count': pages.length } as CSSProperties}>
       {pages.map((page, index) => {

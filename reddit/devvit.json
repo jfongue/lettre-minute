@@ -1,0 +1,71 @@
+{
+  "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
+  "name": "lettre-minute-daily",
+  "post": {
+    "dir": "dist/client",
+    "entrypoints": {
+      "default": {
+        "inline": true,
+        "entry": "splash.html"
+      },
+      "game": {
+        "entry": "game.html"
+      }
+    }
+  },
+  "server": {
+    "dir": "dist/server",
+    "entry": "index.cjs"
+  },
+  "permissions": {
+    "redis": true,
+    "reddit": {
+      "asUser": ["SUBMIT_COMMENT"]
+    }
+  },
+  "settings": {
+    "subreddit": {
+      "language": {
+        "type": "select",
+        "label": "Language of the daily game",
+        "options": [
+          { "label": "English", "value": "en" },
+          { "label": "Français", "value": "fr" },
+          { "label": "Español", "value": "es" },
+          { "label": "Deutsch", "value": "de" },
+          { "label": "Italiano", "value": "it" },
+          { "label": "Nederlands", "value": "nl" },
+          { "label": "Português", "value": "pt" }
+        ],
+        "defaultValue": ["en"]
+      }
+    }
+  },
+  "scheduler": {
+    "tasks": {
+      "daily-post": {
+        "endpoint": "/internal/scheduler/daily-post",
+        "cron": "0 0 * * *"
+      }
+    }
+  },
+  "menu": {
+    "items": [
+      {
+        "label": "Post today's game",
+        "description": "Creates today's daily post, or opens it if it exists",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/daily-post"
+      }
+    ]
+  },
+  "triggers": {
+    "onAppInstall": "/internal/triggers/on-app-install",
+    "onPostDelete": "/internal/triggers/on-post-delete"
+  },
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build"
+  }
+}

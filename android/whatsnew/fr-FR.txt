@@ -1,5 +1,6 @@
-• Le duel en direct : joue maintenant avec tes amis, en live
-• Au bilan, on te propose de voir les mots qui te manquaient
-• Modération : un mot signalé attend l'avis de plusieurs modérateurs
-• Le pouvoir Professeur revient, un peu différent
+• Les succès : 30 objectifs à débloquer, et une page pour suivre ta progression
+• Une invitation au duel fait sonner ton téléphone
+• L’accueil s’allège : les pages vides ne s’affichent plus
+• Un joueur éliminé au duel a son propre son, et les plus petits textes se lisent mieux
+• Modération : signale un mot depuis le bilan, et des avis plus justes
 • Corrections de bugs et performance
