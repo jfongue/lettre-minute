@@ -22,7 +22,6 @@ qui donne la ligne.
 - **Styles** : une seule feuille, `src/styles.css` (~8 800 lignes), découpée
   par bannières `/* ---… nom - */` ; trouver la section avec
   `grep -n '^/\* -' src/styles.css`. Le duel a la sienne, `src/duel.css`.
-  `src/styles.base.css` (non suivi, importé par personne) n'est pas la source.
 - **Textes** : `src/i18n/fr.ts` est la référence typée ; une clé ajoutée va
   dans les 7 fichiers (`fr en es de it nl pt`), sinon `tsc -b` échoue.
 - **Pouvoirs** : `src/domain/powers.ts`, `src/ui/PowerSlots.tsx`,
