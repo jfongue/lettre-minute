@@ -4,14 +4,17 @@ import { PULL_MAX, PULL_MIN } from './prompts'
 import {
   arm,
   celerityDue,
+  CLEAN_MIN_WORDS,
   createRun,
   inspect,
   letterShares,
   letterWeight,
+  markPowerUsed,
   promptOutcomes,
   recall,
   remainingSeconds,
   RUN_SECONDS,
+  runMilestones,
   runScore,
   SKIP_PENALTY_SECONDS,
   reroll,
@@ -21,7 +24,8 @@ import {
   type Judge,
   type Run,
 } from './run'
-import { buildWordPack, findWord, lettersWithEnough, mirrorPack, type WordPack } from './words'
+import { FLAWLESS_STREAK, type PowerId } from './powers'
+import { buildWordPack, commonWord, findWord, lettersWithEnough, mirrorPack, type WordPack } from './words'
 import { ENDURANCE_TIME_BONUS, RECALL_SECONDS } from './modes'
 import { compactWord } from './text'
 
@@ -61,6 +65,28 @@ function judgeOf(usage: Record<string, WordUsage> = {}): Judge {
 }
 
 const judge = judgeOf()
+
+/**
+ * Un dictionnaire où chaque lettre a douze mots de plus en plus connus : le
+ * premier est peu commun, le dernier ne se fait jamais remarquer. De quoi faire
+ * servir Complication, et de quoi mesurer une frappe.
+ */
+const rareAnimals = buildWordPack('animaux', [
+  ...LETTERS.flatMap((letter) =>
+    Array.from({ length: PER_LETTER }, (_, i) => [`${letter}nimal${i}`, 10 + i * 20, i] as const),
+  ),
+  ['Hippopotame', 5, 0] as const,
+])
+const rareJudge: Judge = {
+  find: (_, word, tolerance) => findWord(rareAnimals, word, tolerance),
+  usage: () => NO_USAGE,
+  letters: () => lettersWithEnough(rareAnimals, PER_LETTER),
+  known: () => PER_LETTER,
+  spells: { joker: ['joker'], hush: ['chut'] },
+  common: (_, letter, played) => commonWord(rareAnimals, letter, played),
+}
+const runWith = (...powers: PowerId[]): Run => createRun({ seed: 11, categoryIds: ['animaux'], powers }, rareJudge)
+const onLetter = (run: Run, letter: string): Run => ({ ...run, prompt: { ...run.prompt, letter } })
 
 function answerOf(run: Run): string {
   return `${run.prompt.letter}${run.prompt.categoryId === 'pays' ? 'ays' : 'nimal'}0`
@@ -499,7 +525,99 @@ describe('les modes de la réserve', () => {
     expect(letterWeight(90) / letterWeight(1)).toBeLessThan(7)
   })
 
-  it('renversé : la question contraint la dernière lettre, pas la première', () => {
+  describe('markPowerUsed', () => {
+  it('marque un pouvoir une fois, dans l’ordre de sa première activation', () => {
+    const run = runWith('joker', 'magic')
+    const magic = markPowerUsed(run, 'magic')
+
+    expect(markPowerUsed(magic, 'magic')).toBe(magic)
+    expect(markPowerUsed(magic, 'joker').usedPowers).toEqual(['magic', 'joker'])
+  })
+
+  it('suit les pouvoirs qui ont réellement servi pendant la partie', () => {
+    // Magie change la lettre, Esquive et Passe-passe agissent au passage.
+    const magic = reroll(runWith('magic', 'dodge'), rareJudge, 5)
+    expect(magic.usedPowers).toEqual(['magic'])
+    expect(skip(magic, rareJudge, 6).usedPowers).toEqual(['magic', 'dodge'])
+
+    // Silence et Tricherie se lancent depuis le champ.
+    expect(submit(runWith('hush'), 'chut', rareJudge, 20).run.usedPowers).toEqual(['hush'])
+    expect(submit(onLetter(runWith('joker'), 'M'), 'Joker', rareJudge, 3).run.usedPowers).toEqual(['joker'])
+
+    // Bavardage se lance par un mot qui finit en « … », Retardataire sous cinq secondes.
+    expect(submit(onLetter(runWith('chatter'), 'A'), 'Animal0…', rareJudge, 1).run.usedPowers).toEqual(['chatter'])
+    expect(submit(onLetter(runWith('latecomer'), 'A'), 'Animal0', rareJudge, 56).run.usedPowers).toEqual(['latecomer'])
+
+    // Deux lettres corrigées n'existent que sous Dyslexie, un bonus de points que sous Complication.
+    expect(submit(onLetter(runWith('dyslexia'), 'H'), 'Hipopotmae', rareJudge, 1).run.usedPowers).toEqual(['dyslexia'])
+    expect(submit(onLetter(runWith('complication'), 'A'), 'Animal0', rareJudge, 1).run.usedPowers).toEqual(['complication'])
+
+    // Sans faute ne sert qu'au troisième mot exact, celui où il paie.
+    let flawless = onLetter(runWith('flawless'), 'A')
+    for (let index = 0; index < FLAWLESS_STREAK; index++) {
+      flawless = submit(
+        { ...flawless, prompt: { ...flawless.prompt, letter: 'A' }, promptAt: index, used: [] },
+        `Animal${index}`,
+        rareJudge,
+        index + 1,
+      ).run
+    }
+    expect(flawless.usedPowers).toEqual(['flawless'])
+  })
+})
+
+describe('runMilestones', () => {
+  it('retient la plus longue forme et la frappe la plus vive', () => {
+    // Huit lettres en deux secondes : 40 dixièmes de lettre par seconde.
+    const run = onLetter(runWith(), 'A')
+    const eight = submit({ ...run, promptAt: 0 }, 'Animal10', rareJudge, 2)
+
+    expect(runMilestones(eight.run).longest).toBe(8)
+    expect(runMilestones(eight.run).speed).toBe(40)
+
+    // Le mot le plus vif l'emporte : sept lettres en une demi-seconde.
+    const faster = submit(eight.run, `${eight.run.prompt.letter}nimal0`, rareJudge, 2.5)
+    expect(runMilestones(faster.run).speed).toBe(140)
+  })
+
+  it('ne juge la frappe que sur les mots d’au moins cinq lettres trouvés en 0,4 s', () => {
+    const run = onLetter(runWith(), 'A')
+    const brief = submit({ ...run, promptAt: 0 }, 'Animal0', rareJudge, 0.3)
+
+    expect(brief.run.found[0]!.display).toHaveLength(7)
+    expect(runMilestones(brief.run).speed).toBe(0)
+  })
+
+  it('ne compte une partie propre qu’à dix mots trouvés, sans question laissée', () => {
+    let run = runWith()
+    for (let step = 0; step < CLEAN_MIN_WORDS; step++) {
+      run = submit(run, `${run.prompt.letter}nimal${step}`, rareJudge, step + 1).run
+    }
+
+    expect(run.found).toHaveLength(CLEAN_MIN_WORDS)
+    expect(runMilestones(run).clean).toBe(true)
+    // Un mot de moins : la partie peut encore s'être arrêtée en route.
+    expect(runMilestones({ ...run, found: run.found.slice(1) }).clean).toBe(false)
+    // Une passe laisse une question derrière elle.
+    expect(runMilestones(skip(run, rareJudge)).clean).toBe(false)
+    // Le retard abandonne sa première question sans compter de passe.
+    const delayed = createRun({ seed: 12, mode: 'delayed', categoryIds: ['animaux'] }, rareJudge)
+    expect(runMilestones(arm(delayed, rareJudge)).clean).toBe(false)
+    expect(runMilestones({ ...run, settled: [{ prompt: run.prompt, passed: true }] }).clean).toBe(false)
+  })
+
+  it('liste les pouvoirs servis et les catégories distinctes de la partie', () => {
+    expect(runMilestones(reroll(runWith('magic'), rareJudge, 1)).powers).toEqual(['magic'])
+
+    const run = createRun({ seed: 4, categoryIds: ['animaux', 'pays'] }, judge)
+    const first = submit(run, answerOf(run), judge, 1)
+    const second = submit(first.run, answerOf(first.run), judge, 2)
+
+    expect(runMilestones(second.run).categories).toEqual([run.prompt.categoryId, first.run.prompt.categoryId])
+  })
+})
+
+it('renversé : la question contraint la dernière lettre, pas la première', () => {
     const reversed = reversedJudgeOf()
     const run = createRun({ seed: 8, mode: 'reversed', categoryIds: ['animaux'] }, reversed)
     const letter = run.prompt.letter

@@ -35,6 +35,15 @@ export const SKIP_PENALTY_SECONDS = 5
  * time, the one or two answers everyone knows may already be spent.
  */
 export const THIN_PROMPT_WORDS = 10
+/**
+ * Le bilan ne juge la frappe que sur les mots d'au moins cinq lettres trouvés
+ * en au moins quatre dixièmes de seconde : sous ces seuils, le mot dit la
+ * longueur du dictionnaire ou la chance du tirage, pas la vivacité du joueur.
+ */
+export const SPEED_MIN_LETTERS = 5
+export const SPEED_MIN_SECONDS = 0.4
+/** Mots trouvés qu'il faut à une partie propre : une partie abandonnée n'en a pas dix. */
+export const CLEAN_MIN_WORDS = 10
 
 export interface Prompt {
   categoryId: string
@@ -170,6 +179,11 @@ export interface Run {
   powers: readonly PowerId[]
   /** Uses left of the powers that have a count (`POWER_CHARGES`). */
   charges: Readonly<Partial<Record<PowerId, number>>>
+  /**
+   * Les pouvoirs qui ont réellement servi dans la partie, dans l'ordre de leur
+   * première activation : ce que le bilan relit une fois la partie finie.
+   */
+  usedPowers: readonly PowerId[]
   /** The word the Joker wrote for the current prompt, by key, until the prompt changes. */
   joker: { key: string; display: string } | null
   /** Silence holds the clock from this run time, until a word is validated or `HUSH_SECONDS` pass. */
@@ -336,6 +350,15 @@ export function chargesLeft(run: Run, power: PowerId): number {
   return hasPower(run, power) ? (run.charges[power] ?? 0) : 0
 }
 
+/**
+ * Records that a power really served this run, once, in the order it first did.
+ * The screen calls it where a power acts outside `run.ts` — Permutation in
+ * `src/state/session.ts`, Divination and Célérité at the field.
+ */
+export function markPowerUsed(run: Run, power: PowerId): Run {
+  return run.usedPowers.includes(power) ? run : { ...run, usedPowers: [...run.usedPowers, power] }
+}
+
 function spend(run: Run, power: PowerId): Run['charges'] {
   return { ...run.charges, [power]: Math.max(0, (run.charges[power] ?? 0) - 1) }
 }
@@ -378,6 +401,7 @@ export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers
     score: 0,
     powers,
     charges: Object.fromEntries(powers.flatMap((power) => (POWER_CHARGES[power] ? [[power, POWER_CHARGES[power]]] : []))),
+    usedPowers: [],
     joker: null,
     hush: null,
     heldSeconds: 0,
@@ -503,26 +527,31 @@ const flawlessBonus = flawlessStreak > 0 && flawlessStreak % FLAWLESS_STREAK ===
   const stays = verdict.chatter === true || run.chatter > 0 ? chatter > 0 : false
   // L'endurance paie ses mots en secondes, selon la rareté qu'ils valent.
   const bonusSeconds = run.bonusSeconds + (run.mode === 'endurance' ? ENDURANCE_TIME_BONUS[verdict.found.tier] : 0)
-  return {
-    verdict,
-    run: {
-      ...run,
-      ...(stays ? { joker: null } : advance(run, judge, true)),
-      ...release(run, at),
-      chatter,
-latecomerSeconds,
-bonusSeconds,
-
-flawlessStreak,
-      charges: verdict.chatter ? { ...latecomerCharges, ...spend(run, 'chatter') } : latecomerCharges,
-      found: [...run.found, { ...verdict.found, seconds: Math.max(0, at - run.promptAt), at }],
-      promptAt: at,
-      used: [...run.used, verdict.found.word],
-      combo,
-      bestCombo: Math.max(run.bestCombo, combo),
-      score: run.score + verdict.found.points + flawlessBonus,
-    },
+  // Les pouvoirs dont l'effet a vraiment joué : deux lettres corrigées n'existent
+  // que sous Dyslexie, un bonus de points que sous Complication.
+  const served: PowerId[] = []
+  if (latecomerTriggered) served.push('latecomer')
+  if (verdict.chatter) served.push('chatter')
+  if (verdict.found.edits >= 2) served.push('dyslexia')
+  if (verdict.found.boost > 1) served.push('complication')
+  if (flawlessBonus > 0) served.push('flawless')
+  const next: Run = {
+    ...run,
+    ...(stays ? { joker: null } : advance(run, judge, true)),
+    ...release(run, at),
+    chatter,
+    latecomerSeconds,
+    bonusSeconds,
+    flawlessStreak,
+    charges: verdict.chatter ? { ...latecomerCharges, ...spend(run, 'chatter') } : latecomerCharges,
+    found: [...run.found, { ...verdict.found, seconds: Math.max(0, at - run.promptAt), at }],
+    promptAt: at,
+    used: [...run.used, verdict.found.word],
+    combo,
+    bestCombo: Math.max(run.bestCombo, combo),
+    score: run.score + verdict.found.points + flawlessBonus,
   }
+  return { verdict, run: served.reduce(markPowerUsed, next) }
 }
 
 /**
@@ -530,12 +559,14 @@ flawlessStreak,
  * still has to validate; Silence holds the clock. Both are spent on casting.
  */
 function cast(run: Run, spell: Spell, judge: Judge, at: number): Run {
-  if (spell === 'hush') return run.hush ? run : { ...run, hush: { at }, charges: spend(run, 'hush') }
+  if (spell === 'hush') {
+    return run.hush ? run : markPowerUsed({ ...run, hush: { at }, charges: spend(run, 'hush') }, 'hush')
+  }
 
   const display = judge.common?.(run.prompt.categoryId, run.prompt.letter, run.used)
   const match = display ? judge.find(run.prompt.categoryId, display, 0) : null
   if (!display || !match) return run
-  return { ...run, joker: { key: match.entry.key, display }, charges: spend(run, 'joker') }
+  return markPowerUsed({ ...run, joker: { key: match.entry.key, display }, charges: spend(run, 'joker') }, 'joker')
 }
 
 export function skipPenalty(run: Run): number {
@@ -561,20 +592,25 @@ freeSkipReady: false,
 }
 }
 const paid = run.chatter === 0
+const penalty = skipPenalty(run)
 const grantsFreeSkip = hasPower(run, 'double-skip') && paid && !run.freeSkipReady && chargesLeft(run, 'double-skip') > 0
-  return {
+  const served: PowerId[] = []
+  if (penalty > 0 && hasPower(run, 'dodge')) served.push('dodge')
+  if (grantsFreeSkip) served.push('double-skip')
+  const next: Run = {
     ...run,
     ...advanced,
     ...release(run, at),
     promptAt: at,
     // Leaving a Bavardage is free: no skip counted, no seconds, the series kept.
     skips: run.chatter > 0 ? run.skips : run.skips + 1,
-    penaltySeconds: run.penaltySeconds + skipPenalty(run),
+    penaltySeconds: run.penaltySeconds + penalty,
     combo: run.chatter > 0 || grantsFreeSkip ? run.combo : 0,
 freeSkipReady: grantsFreeSkip,
 ...(grantsFreeSkip && { charges: spend(run, 'double-skip') }),
     chatter: 0,
   }
+  return served.reduce(markPowerUsed, next)
 }
 
 /**
@@ -588,7 +624,7 @@ export function reroll(run: Run, judge: Judge, at = run.promptAt): Run {
   if (letter === run.prompt.letter) return run
   const prompt = { categoryId: run.prompt.categoryId, letter }
   const key = promptKey(prompt)
-  return {
+  const next: Run = {
     ...run,
     prompt,
     dealt: run.dealt.includes(key) ? run.dealt : [...run.dealt, key],
@@ -597,6 +633,7 @@ export function reroll(run: Run, judge: Judge, at = run.promptAt): Run {
     rerolls: run.rerolls + 1,
     charges: spend(run, 'magic'),
   }
+  return markPowerUsed(next, 'magic')
 }
 
 /** Seconds Silence has held the clock so far, the one under way included. */
@@ -640,4 +677,36 @@ export function runScore(run: Run): number {
 export function recall(run: Run): Run {
   if (run.mode !== 'delayed' || !run.armed) return run
   return { ...run, penaltySeconds: run.penaltySeconds + RECALL_SECONDS }
+}
+
+export interface RunMilestones {
+  /** La plus longue forme validée, en lettres. */
+  longest: number
+  /** La frappe la plus vive, en dixièmes de lettre par seconde : 0 si aucun mot ne qualifie. */
+  speed: number
+  /** La partie n'a laissé passer aucune question, et assez de mots pour compter. */
+  clean: boolean
+  /** Les pouvoirs qui y ont servi, dans l'ordre de leur première activation. */
+  powers: readonly PowerId[]
+  /** Les catégories où elle a trouvé un mot. */
+  categories: readonly string[]
+}
+
+/** Ce qu'une partie seule sait mesurer, une fois finie : ce que le profil en garde. */
+export function runMilestones(run: Run): RunMilestones {
+  const longest = run.found.reduce((best, word) => Math.max(best, word.display.length), 0)
+  const speed = run.found.reduce((best, word) => {
+    if (word.display.length < SPEED_MIN_LETTERS || word.seconds < SPEED_MIN_SECONDS) return best
+    return Math.max(best, Math.round((10 * word.display.length) / word.seconds))
+  }, 0)
+  // Une partie qui a laissé partir une question n'est pas propre, même sans
+  // passe comptée : le retard abandonne la sienne (`settled.passed`) sans `skips`.
+  const clean = run.skips === 0 && run.found.length >= CLEAN_MIN_WORDS && !run.settled.some((settled) => settled.passed)
+  return {
+    longest,
+    speed,
+    clean,
+    powers: run.usedPowers,
+    categories: [...new Set(run.found.map((word) => word.prompt.categoryId))],
+  }
 }

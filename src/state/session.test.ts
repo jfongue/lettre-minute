@@ -89,6 +89,35 @@ describe('challenge runs', () => {
   })
 })
 
+describe('permutation', () => {
+  const swapper = { ...NEW_PROFILE, powers: ['permutation'], equipped: ['permutation'] }
+  const countdown = sessionReducer(initialSession(swapper), {
+    type: 'ready',
+    judge,
+    seed: 7,
+    categoryIds: ['animaux'],
+    reserve: ['pays'],
+  })
+
+  it('marque Permutation sur la partie qu’elle recrée', () => {
+    expect(countdown.swapsLeft).toBe(2)
+    expect(countdown.run!.usedPowers).toEqual([])
+
+    const traded = sessionReducer(countdown, { type: 'swapped', judge, categoryIds: ['pays'], reserve: ['animaux'] })
+
+    expect(traded.swapsLeft).toBe(1)
+    expect(traded.run!.usedPowers).toEqual(['permutation'])
+    // Un échange ne change pas la graine : c'est la liste de catégories qui bouge.
+    expect(traded.run!.seed).toBe(countdown.run!.seed)
+  })
+
+  it('ne marque rien quand il n’y a plus d’échange', () => {
+    const spent = { ...countdown, swapsLeft: 0 }
+
+    expect(sessionReducer(spent, { type: 'swapped', judge, categoryIds: ['pays'], reserve: ['animaux'] })).toBe(spent)
+  })
+})
+
 describe('proposals', () => {
   const proposal = (word: string, at: number) => ({ word, categoryId: 'animaux', at, lang: 'fr' })
   const proposed = (word: string, at: number) => sessionReducer(playing(), { type: 'propose', proposal: proposal(word, at) })

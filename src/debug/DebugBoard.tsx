@@ -193,6 +193,7 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     seeded: [],
     found,
     used: [],
+    usedPowers: [],
     promptAt: 0,
     skips: 2,
     penaltySeconds: 10,

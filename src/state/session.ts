@@ -12,6 +12,7 @@ import {
   createRun,
   inspect,
   recall,
+  markPowerUsed,
   reroll,
   skip as skipPrompt,
   submit,
@@ -188,7 +189,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       return {
         ...session,
         judge: action.judge,
-        run: createRun({ seed, categoryIds: action.categoryIds, avoid, powers }, action.judge),
+        run: markPowerUsed(createRun({ seed, categoryIds: action.categoryIds, avoid, powers }, action.judge), 'permutation'),
         reserve: action.reserve,
         swapsLeft: session.swapsLeft - 1,
       }
