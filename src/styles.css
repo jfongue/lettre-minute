@@ -21,6 +21,9 @@
   --cream: #f2ecdf;
 
   --font: 'Jost Variable', 'Futura', 'Century Gothic', system-ui, sans-serif;
+  /* Le plancher des mentions minuscules : sous 0,7 rem, elles ne se lisent plus
+     sur un téléphone, et chacune était écrite à la main. */
+  --font-micro: 0.7rem;
 
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -1625,7 +1628,7 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 .leaderboard-podium .podium-word--smaller {
-  font-size: 0.63rem;
+  font-size: var(--font-micro);
 }
 
 /* Le nom est un bouton : c'est lui qui porte la coupure, une boîte atomique
@@ -1656,6 +1659,7 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 .leaderboard-me .standing {
+  min-height: 2.5rem;
   border-bottom: 0;
   text-align: start;
 }
@@ -2025,7 +2029,7 @@ animation: clock-bonus 500ms var(--ease-out);
 .friends-sort .layer-tab {
   min-height: 2rem;
   padding: 0.2rem 0.6rem;
-  font-size: 0.68rem;
+  font-size: var(--font-micro);
 }
 
 .friends--ranked .friend--open {
@@ -2195,7 +2199,7 @@ animation: clock-bonus 500ms var(--ease-out);
   justify-self: end;
   padding: 0.1rem 0.45rem;
   border: 2px solid currentColor;
-  font-size: 0.66rem;
+  font-size: var(--font-micro);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -4363,7 +4367,7 @@ animation: clock-bonus 500ms var(--ease-out);
   padding: 0.12rem 0.45rem;
   background: var(--green);
   color: var(--cream);
-  font-size: 0.66rem;
+  font-size: var(--font-micro);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -4374,7 +4378,7 @@ animation: clock-bonus 500ms var(--ease-out);
   padding: 0.05rem 0.4rem;
   border: 2px solid var(--blue);
   color: var(--blue);
-  font-size: 0.62rem;
+  font-size: var(--font-micro);
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -5602,7 +5606,7 @@ animation: clock-bonus 500ms var(--ease-out);
   align-items: center;
   gap: 0.28rem;
   vertical-align: middle;
-  font-size: 0.66rem;
+  font-size: var(--font-micro);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -6022,7 +6026,7 @@ animation: clock-bonus 500ms var(--ease-out);
 
 .challenge-bonus {
   display: block;
-  font-size: 0.68rem;
+  font-size: var(--font-micro);
   font-weight: 700;
   color: var(--green);
   text-align: right;
@@ -6406,7 +6410,7 @@ animation: clock-bonus 500ms var(--ease-out);
   border-radius: 999px;
   background: var(--red);
   color: var(--cream);
-  font-size: 0.62rem;
+  font-size: var(--font-micro);
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -8000,7 +8004,7 @@ body[data-words='board'] .offer-pop-layer {
   padding: 0 0.3rem;
   background: var(--red);
   color: var(--paper);
-  font-size: 0.65rem;
+  font-size: var(--font-micro);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -8018,7 +8022,7 @@ body[data-words='board'] .offer-pop-layer {
   margin-left: 0.4rem;
   padding: 0 0.3rem;
   border: 1px solid currentcolor;
-  font-size: 0.65rem;
+  font-size: var(--font-micro);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -8513,7 +8517,7 @@ body[data-words='board'] .offer-pop-layer {
 
   .features-cell::before {
     content: attr(data-audience);
-    font-size: 0.58rem;
+    font-size: var(--font-micro);
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -8628,7 +8632,7 @@ body[data-words='board'] .offer-pop-layer {
   margin-top: 0.15rem;
   padding: 0.12rem 0.5rem;
   border: 1px solid currentColor;
-  font-size: 0.68rem;
+  font-size: var(--font-micro);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -8906,7 +8910,7 @@ de tout cela ne le concerne. */
 .ach-play {
   padding: 0 0.35rem;
   border: 1px solid var(--paper-2);
-  font-size: 0.6rem;
+  font-size: var(--font-micro);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -8947,7 +8951,7 @@ de tout cela ne le concerne. */
 
 .ach-earned {
   flex: none;
-  font-size: 0.68rem;
+  font-size: var(--font-micro);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;

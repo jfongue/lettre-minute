@@ -104,7 +104,7 @@
 .duel-seatcard__stamp {
   grid-column: 1 / -1;
   margin-top: 0.35rem;
-  font-size: 0.66rem;
+  font-size: var(--font-micro);
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -855,7 +855,7 @@
 .duel-seat__name {
   max-width: 100%;
   overflow: hidden;
-  font-size: 0.68rem;
+  font-size: var(--font-micro);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -879,7 +879,7 @@
 /* Les secondes des autres, en tout petit au-dessus de leur barre. */
 .duel-seat__secs {
   margin-bottom: -0.15rem;
-  font-size: 0.6rem;
+  font-size: var(--font-micro);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -1020,7 +1020,7 @@
 
 .duel-feed__line .tag {
   flex: none;
-  font-size: 0.6rem;
+  font-size: var(--font-micro);
   padding: 0.05rem 0.35rem;
 }
 
@@ -1045,7 +1045,7 @@
   padding: 0.05rem 0.35rem;
   background: var(--green);
   color: var(--cream);
-  font-size: 0.62rem;
+  font-size: var(--font-micro);
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1120,7 +1120,7 @@
   padding: 0.1rem 0.45rem;
   border: 1px solid currentColor;
   color: var(--ink-soft);
-  font-size: 0.66rem;
+  font-size: var(--font-micro);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1156,7 +1156,7 @@
   padding: 0.05rem 0.4rem;
   border: 1px solid var(--ink-faint);
   color: var(--ink-faint);
-  font-size: 0.68rem;
+  font-size: var(--font-micro);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1760,7 +1760,7 @@ les profils attendent dans le salon. */
   border-radius: 50%;
   background: var(--green);
   color: var(--cream);
-  font-size: 0.66rem;
+  font-size: var(--font-micro);
   font-weight: 800;
   animation: demo-pop 320ms var(--ease-spring) both;
 }
@@ -1895,7 +1895,7 @@ rangée de places qui disait qui ouvrait. */
 que là. Les autres se lisent à leur barre. */
 .demo-slot__clock {
   min-height: 1rem;
-  font-size: 0.68rem;
+  font-size: var(--font-micro);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
@@ -1903,7 +1903,7 @@ que là. Les autres se lisent à leur barre. */
 .demo-slot__delta {
   position: absolute;
   top: 1.5rem;
-  font-size: 0.66rem;
+  font-size: var(--font-micro);
   font-style: normal;
   font-weight: 800;
   color: var(--green);
