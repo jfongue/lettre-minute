@@ -1,4 +1,4 @@
-import { designUnlock, PALETTE, type AvatarChoice, type Milestone } from './avatar'
+import { AVATARS, designUnlock, PALETTE, type AvatarChoice, type Milestone } from './avatar'
 import { levelFor, type Profile } from './progression'
 
 /*
@@ -95,11 +95,14 @@ export interface Achievement {
   play?: number
 }
 
+// Bounded by the grid: a goal no tile unlocks must fail loudly, not hang every
+// screen that loads this module (666 points did, before it took 900's tile).
 const tileOf = (milestone: Milestone): number => {
-  for (let id = 0; ; id++) {
+  for (let id = 0; id < AVATARS.length; id++) {
     const unlock = designUnlock(id)
     if (unlock && unlock.stat === milestone.stat && unlock.at === milestone.at) return id
   }
+  throw new Error(`no avatar tile unlocks at ${milestone.stat} ${milestone.at}`)
 }
 
 const reaching = (id: AchievementId, milestone: Milestone, play?: number, family: Family = 'progress'): Achievement => ({
@@ -133,7 +136,8 @@ const PLAY_ACHIEVEMENTS: readonly Achievement[] = [
   reaching('words-1000', { stat: 'wordsFound', at: 1000 }, 70),
   reaching('level-20', { stat: 'level', at: 20 }, 80),
   reaching('combo-24', { stat: 'bestCombo', at: 24 }, 90),
-  reaching('score-666', { stat: 'bestScore', at: 666 }, 100),
+  // No tile unlocks at 666: the icon Play already shows, 900's, stays.
+  { id: 'score-666', goal: { stat: 'bestScore', at: 666 }, design: tileOf({ stat: 'bestScore', at: 900 }), family: 'progress', play: 100 },
   reaching('runs-400', { stat: 'runs', at: 400 }, 110),
   reaching('words-2000', { stat: 'wordsFound', at: 2000 }, 120),
   reaching('level-35', { stat: 'level', at: 35 }, 145),
@@ -158,7 +162,8 @@ const INGAME_ACHIEVEMENTS: readonly Achievement[] = [
   { id: 'speed-35', goal: { stat: 'bestSpeed', at: 35 }, design: 49, family: 'exploit' },
   { id: 'powers-7', goal: { stat: 'powersUsed', at: 7 }, design: 40, family: 'explore' },
   { id: 'powers-all', goal: { stat: 'powersUsed', at: 14 }, design: 47, family: 'explore' },
-  { id: 'clean-run', goal: { stat: 'cleanRuns', at: 1 }, design: 27, family: 'exploit' },
+  // 27 went to words-2000 when its goal came down to the 2000-word tile.
+  { id: 'clean-run', goal: { stat: 'cleanRuns', at: 1 }, design: 16, family: 'exploit' },
   { id: 'clean-run-10', goal: { stat: 'cleanRuns', at: 10 }, design: 10, family: 'exploit' },
   // Aucune table de quatre n'a encore été jouée (`duel_seats` : trois places au
   // plus) : le premier barreau est de s'y asseoir, le second d'y tenir vingt
