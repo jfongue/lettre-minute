@@ -8585,8 +8585,9 @@ body[data-words='board'] .offer-pop-layer {
 
 /* Le duel : quatre places autour d'une table, la main posée sur l'une d'elles ;
    le défi : un disque jaune cerclé de noir, le quart de la journée en bleu. Les
-   deux dessins sont taillés comme les icônes du jeu — un aplat, un trait épais,
-   rien qui bouge. */
+   modes de jeu : le mot et la cellule de sa lettre, la flèche qui remonte d'une
+   question, le chrono de l’endurance. Tous taillés comme les icônes du jeu —
+   un aplat, un trait épais, rien qui bouge. */
 .together-art {
   display: block;
   width: 4.2rem;
@@ -8614,6 +8615,32 @@ body[data-words='board'] .offer-pop-layer {
 
 .together-slice {
   fill: var(--blue);
+}
+
+/* Le mot que la question contraint, et la cellule de sa lettre posée au bord :
+   le cerne de la cellule dessine la frontière, comme une case de plus. */
+.together-word {
+  fill: var(--paper);
+  stroke: currentColor;
+  stroke-width: 8;
+}
+
+.together-letter {
+  fill: var(--red);
+  stroke: currentColor;
+  stroke-width: 8;
+}
+
+/* La flèche du retard et la couronne de l’endurance sont pleines, sans cerne :
+   à cette taille, un trait de huit les épaissirait trop. */
+.together-mark {
+  fill: var(--red);
+}
+
+/* Les aiguilles du chrono se détachent de son cadran dans les deux thèmes :
+   noires, elles disparaîtraient dedans sur la carte jaune du thème sombre. */
+.together-hand {
+  fill: var(--ink);
 }
 
 /* Au survol d'une souris, la carte se colore : son fond respire vers la teinte

@@ -1,8 +1,42 @@
-import { useEffect, type CSSProperties } from 'react'
+import { useEffect, type CSSProperties, type ReactNode } from 'react'
 import { MODE_SECONDS, type GameMode } from '../domain/modes'
 import { useT } from '../i18n'
 import { armSound, sound } from '../lib/sound'
 import { useBackDismiss } from './useBackDismiss'
+
+/** Ce que chaque mode change à la question : la lettre, ou celle d'avant. */
+type ModeArt = 'first' | 'previous' | 'bonus' | 'last'
+
+/**
+ * Un dessin par mode. Le solo et le renversé montrent le mot et la cellule de sa
+ * lettre, au bord que la question contraint — la première pour l'un, la dernière
+ * pour l'autre ; le retard remonte à la question d'avant ; l'endurance porte le
+ * chrono dont chaque mot repousse l'aiguille. Tous taillés comme les icônes du
+ * jeu : un aplat, un trait épais, rien qui bouge.
+ */
+const ART: Record<ModeArt, ReactNode> = {
+  first: (
+    <>
+      <rect className="together-word" x="22" y="35" width="68" height="30" rx="6" />
+      <rect className="together-letter" x="10" y="35" width="28" height="30" rx="6" />
+    </>
+  ),
+  previous: <path className="together-mark" d="M10 50L42 22V38H90V62H42V78Z" />,
+  bonus: (
+    <>
+      <circle className="together-word" cx="50" cy="54" r="32" />
+      <rect className="together-mark" x="40" y="2" width="20" height="16" rx="6" />
+      <rect x="46" y="30" width="8" height="26" rx="4" className="together-hand" />
+      <rect x="54" y="50" width="22" height="8" rx="4" className="together-hand" />
+    </>
+  ),
+  last: (
+    <>
+      <rect className="together-word" x="10" y="35" width="68" height="30" rx="6" />
+      <rect className="together-letter" x="62" y="35" width="28" height="30" rx="6" />
+    </>
+  ),
+}
 
 /**
  * Le choix du mode, derrière le bouton « Jouer » : la partie normale reste la
@@ -17,11 +51,11 @@ export function GameModes({ onPick, onClose }: { onPick(mode: GameMode): void; o
     sound.pop()
   }, [])
 
-  const cards: readonly { mode: GameMode; title: string; note: string; art: 'table' | 'clock' }[] = [
-    { mode: 'solo', title: t.modes.solo, note: t.modes.soloHint, art: 'table' },
-    { mode: 'delayed', title: t.modes.delayed, note: t.modes.delayedHint, art: 'clock' },
-    { mode: 'endurance', title: t.modes.endurance, note: t.modes.enduranceHint, art: 'clock' },
-    { mode: 'reversed', title: t.modes.reversed, note: t.modes.reversedHint, art: 'clock' },
+  const cards: readonly { mode: GameMode; title: string; note: string; art: ModeArt }[] = [
+    { mode: 'solo', title: t.modes.solo, note: t.modes.soloHint, art: 'first' },
+    { mode: 'delayed', title: t.modes.delayed, note: t.modes.delayedHint, art: 'previous' },
+    { mode: 'endurance', title: t.modes.endurance, note: t.modes.enduranceHint, art: 'bonus' },
+    { mode: 'reversed', title: t.modes.reversed, note: t.modes.reversedHint, art: 'last' },
   ]
 
   return (
@@ -46,20 +80,7 @@ export function GameModes({ onPick, onClose }: { onPick(mode: GameMode): void; o
             }}
           >
             <svg className="together-art" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
-              {card.art === 'table' ? (
-                <>
-                  <rect className="together-table" x="33" y="33" width="34" height="34" />
-                  <circle cx="50" cy="11" r="11" />
-                  <circle cx="89" cy="50" r="11" />
-                  <circle cx="50" cy="89" r="11" />
-                  <circle cx="11" cy="50" r="11" />
-                </>
-              ) : (
-                <>
-                  <circle className="together-disc" cx="50" cy="50" r="42" />
-                  <path className="together-slice" d="M50 50V12A38 38 0 0 1 88 50Z" />
-                </>
-              )}
+              {ART[card.art]}
             </svg>
             <span className="together-text">
               <b>{card.title}</b>
