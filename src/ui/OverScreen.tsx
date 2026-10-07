@@ -346,6 +346,13 @@ function RevealScore({ score, previousBest, mode }: { score: number; previousBes
     sound.record()
   }, [beaten])
 
+  // The counter stops short of the old record: the same run, falling, without
+  // the bell. A first run has nothing to fall short of.
+  useEffect(() => {
+    if (beaten || previousBest === null || shown < score) return
+    sound.recordMiss()
+  }, [beaten, previousBest, score, shown])
+
   return (
     <header className={`reveal-score${beaten ? ' reveal-score--record' : ''}`}>
       <p className="eyebrow">{t.over.timeUp}</p>

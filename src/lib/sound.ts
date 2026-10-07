@@ -547,6 +547,13 @@ export const sound = {
       glass(c, deg(9, 1), t + 0.26, 0.4, sfx)
     })
   },
+  /** The reveal counter runs out short of the old record: two soft notes falling. */
+  recordMiss(): void {
+    cue((c, t) => {
+      marimba(c, deg(4), t, 0.34, sfx)
+      marimba(c, deg(1), t + 0.15, 0.3, sfx)
+    })
+  },
   /** A power's signature; `v` below 1 for the quiet reminders of a power always on. */
   power(id: PowerId, v = 1): void {
     cue((c, t) => {
