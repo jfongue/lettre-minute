@@ -351,6 +351,18 @@ button.challenge-past::after {
   transform: translateY(2px);
 }
 
+/* Le même tassement pour tout ce qui se touche sans porter `.btn` — une seule
+   règle, plutôt qu'un `:active` oublié sur chaque carte, tuile ou pastille. */
+.avatar-cell:active,
+.swatch:active,
+.layer-tab:active,
+.challenge-word:active,
+.friend-pick:active,
+.setup-switch:active,
+.standing-me-link:active {
+  transform: scale(0.96);
+}
+
 .btn:focus-visible {
   outline: 3px solid var(--yellow);
   outline-offset: 3px;
@@ -6580,6 +6592,11 @@ li:has(> .reactable--open),
 .reaction-pick:hover,
 .reaction-pick:focus-visible {
   transform: scale(1.25) translateY(-3px);
+}
+
+/* Le doigt se pose : la carte se tasse au lieu de grandir, même sous le survol. */
+.reaction-pick:active {
+  transform: scale(1.05);
 }
 
 .reaction-pick--on {
