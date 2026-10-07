@@ -1153,12 +1153,16 @@ function DuelTableScreen({ lang, mode, join, onExit, onBots }: Required<Omit<Due
   const { phase } = table
   // Les règles s'ouvrent au premier lancement de la table, puis se revoient du salon.
   const [rules, setRules] = useState(() => !loadDuelRulesSeen())
+  // Elles montrent mon avatar et mon nom : tant que le serveur n'a pas posé ma
+  // place en ligne, elles n'ont rien à montrer. Les ouvrir quand même donnait
+  // une place absente au tutoriel, qui vidait l'écran.
+  const me = table.seats[table.myIndex]
 
-  if (rules) {
+  if (rules && me) {
     return (
       <main className="stage stage--duel">
         <DuelTutorial
-          me={table.seats[table.myIndex]!}
+          me={me}
           onDone={() => {
             saveDuelRulesSeen()
             setRules(false)
