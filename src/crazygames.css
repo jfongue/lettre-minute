@@ -19,3 +19,113 @@ textarea {
   -webkit-user-select: text;
   user-select: text;
 }
+
+/* A landscape frame — the portal's iframe on a laptop, 926 × 476 to
+   1280 × 720 — has no room for the phone's column: every screen keeps its
+   main action in view without scrolling. The poster and the score move to a
+   left column, what follows them to the right, scrolling there if it must. */
+@media (orientation: landscape) and (max-height: 820px) {
+  .stage {
+    padding-block: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .stage--home,
+  .stage--countdown,
+  .stage--playing,
+  .stage--over {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .sheet--home,
+  .stage--over .reveal,
+  .stage--over .sheet.cascade {
+    width: min(60rem, 100%);
+    height: 100%;
+    min-height: 0;
+    align-self: stretch;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  /* Home: poster and title on the left, « Play » first on the right. */
+  .sheet--home {
+    grid-template-rows: auto 1fr;
+  }
+
+  .sheet--home > .poster {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .sheet--home > .masthead {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: start;
+  }
+
+  .sheet--home .title {
+    font-size: min(5.6rem, 13vh, 6.5vw);
+  }
+
+  .sheet--home > .home-body,
+  .sheet--home > .home-loader {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
+  }
+
+  /* The reveal: the score on the left with « Continue » under it, the words on the right. */
+  .stage--over .reveal {
+    padding-top: 0;
+    grid-template-rows: 1fr auto;
+  }
+
+  .reveal > .reveal-score {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+  }
+
+  .reveal-score .score-final {
+    font-size: min(7rem, 24vh);
+  }
+
+  .reveal > .reveal-next {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .reveal > .reveal-words {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
+  }
+
+  .reveal > .hidden-answers {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  /* The summary: what the run earned on the left, « Play again » on the right. */
+  .stage--over .sheet.cascade {
+    grid-auto-flow: row dense;
+    align-content: start;
+    overflow-y: auto;
+  }
+
+  .stage--over .sheet.cascade > * {
+    grid-column: 1;
+  }
+
+  .stage--over .sheet.cascade > .stack:last-child {
+    grid-column: 2;
+    grid-row: 1 / span 12;
+    align-self: center;
+  }
+}
