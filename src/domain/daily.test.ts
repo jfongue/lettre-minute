@@ -25,6 +25,17 @@ describe('the daily draw', () => {
     expect(dayOf(Date.parse('2026-10-09T00:00:00Z'))).toBe('2026-10-09')
   })
 
+  it('names every day of two centuries as the platform calendar does', () => {
+    const DAY = 24 * 60 * 60 * 1000
+    for (let at = Date.parse('1950-01-01T12:00:00Z'); at < Date.parse('2150-01-01Z'); at += DAY) {
+      const day = new Date(at).toISOString().slice(0, 10)
+      expect(dayOf(at)).toBe(day)
+      expect(isDay(day)).toBe(true)
+    }
+    expect(isDay('2026-02-29')).toBe(false)
+    expect(isDay('2028-02-29')).toBe(true)
+  })
+
   it('numbers the posts from the first one', () => {
     expect(dailyNumber('2026-10-08')).toBe(1)
     expect(dailyNumber('2026-11-07')).toBe(31)
