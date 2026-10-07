@@ -32,8 +32,8 @@ export type AchievementId =
   | 'runs-400'
   | 'words-100'
   | 'words-1000'
-  | 'words-5000'
-  | 'score-900'
+  | 'words-2000'
+  | 'score-666'
   | 'combo-10'
   | 'combo-24'
   | 'added-10'
@@ -133,9 +133,9 @@ const PLAY_ACHIEVEMENTS: readonly Achievement[] = [
   reaching('words-1000', { stat: 'wordsFound', at: 1000 }, 70),
   reaching('level-20', { stat: 'level', at: 20 }, 80),
   reaching('combo-24', { stat: 'bestCombo', at: 24 }, 90),
-  reaching('score-900', { stat: 'bestScore', at: 900 }, 100),
+  reaching('score-666', { stat: 'bestScore', at: 666 }, 100),
   reaching('runs-400', { stat: 'runs', at: 400 }, 110),
-  reaching('words-5000', { stat: 'wordsFound', at: 5000 }, 120),
+  reaching('words-2000', { stat: 'wordsFound', at: 2000 }, 120),
   reaching('level-35', { stat: 'level', at: 35 }, 145),
 ]
 

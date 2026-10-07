@@ -25,16 +25,16 @@ déclenche le déblocage vit dans l'app.
   fiche dans l'app vient de `src/i18n/<langue>.ts`, sous `ach.<id>`.
 - L'**identifiant** et les **points** d'un succès publié ne se modifient plus
   (création seulement). Son texte, si — encore faut-il le faire à la main,
-  langue par langue (`store/android/play-games/README.md` § « Ce qu'il reste
-  à faire dans la Console »).
+  langue par langue.
 
 ## Ce que les joueurs atteignent
 
 Relevé du 7 octobre 2026 (`runs` + `profiles`, 40 joueurs ayant au moins une
-partie, 1089 parties). Le tableau donne, pour chaque succès publié, le nombre
-de joueurs qui le détiennent, et le plus haut total atteint.
+partie, 1089 parties), sur les seuils tels qu'ils étaient publiés. Le tableau
+donne, pour chaque succès, le nombre de joueurs qui le détiennent et le plus
+haut total atteint.
 
-| id | seuil | joueurs | plus haut |
+| id | seuil mesuré | joueurs | plus haut |
 | --- | --- | --- | --- |
 | `level-4` | niveau 4 | 20 | niveau 35 |
 | `level-10` | niveau 10 | 10 | — |
@@ -42,55 +42,54 @@ de joueurs qui le détiennent, et le plus haut total atteint.
 | `level-35` | niveau 35 | 1 | — |
 | `runs-10` | 10 parties | 20 | 190 parties |
 | `runs-100` | 100 parties | 4 | — |
-| `runs-400` | 400 parties | **0** | 190 |
+| `runs-400` | 400 parties | 0 | 190 |
 | `words-100` | 100 mots | 17 | 1516 mots |
 | `words-1000` | 1000 mots | 2 | — |
-| `words-5000` | 5000 mots | **0** | 1516 |
+| `words-5000` | 5000 mots | 0 | 1516 |
 | `combo-10` | 10 d'affilée | 13 | 23 |
-| `combo-24` | 24 d'affilée | **0** | 23 |
-| `score-900` | 900 points | **0** | 621 |
+| `combo-24` | 24 d'affilée | 0 | 23 |
+| `score-900` | 900 points | 0 | 621 |
 | `added-10` | 10 mots au dictionnaire | au moins 1 | — |
 | `discoveries-15` | 15 découvertes | au moins 1 | — |
 
-Quatre seuils n'ont donc jamais été atteints, dont deux (400 parties, 5000
-mots) à plus du double du meilleur total : ce ne sont pas des sommets, ce sont
-des murs. Les onze autres tiennent — le niveau 35, les 1000 mots, les 15
-découvertes et les 10 mots ajoutés sont des sommets atteints.
+Trois seuils n'ont jamais été atteints. Deux tiennent comme sommets : le combo
+à 24 est à **une réponse** du meilleur (23), et les 400 parties sont un sommet
+long que le jeu garde. Le troisième, 900 points, est à une fois et demie le
+meilleur score de toutes les parties jamais jouées : ce n'est pas un sommet,
+c'est un mur. Les 5000 mots le sont aussi, à plus du triple des 1516 du mieux
+placé.
 
-## Les quatre murs, et ce qui les remplacerait
+## Les deux murs, remplacés
 
 Mesuré sur les mêmes 40 joueurs : nombre de joueurs au-dessus du seuil
 candidat.
 
-| id | publié | plus haut | candidat | joueurs au candidat |
+| id publié | seuil publié | plus haut | seuil client retenu | joueurs au seuil |
 | --- | --- | --- | --- | --- |
-| `combo-24` | 24 d'affilée | 23 | **20 d'affilée** | 2 |
-| `score-900` | 900 points | 621 | **600 points** | 1 |
-| `runs-400` | 400 parties | 190 | **200 parties** | 0 — le mieux placé est à 190, à dix parties |
-| `words-5000` | 5000 mots | 1516 | **2000 mots** | 0 — le mieux placé est à 1516, à quelques semaines |
+| `score-900` | 900 points | 621 | **`score-666` : 666 points** | 0 — à 45 points du meilleur score |
+| `words-5000` | 5000 mots | 1516 | **`words-2000` : 2000 mots** | 0 — le mieux placé est à 1516 |
 
-Les quatre gardent leur rang dans l'échelle : `combo-10 → combo-20` (13 → 2
-joueurs), `runs-10 → runs-100 → runs-200` (20 → 4 → 0), `words-100 →
-words-1000 → words-2000` (17 → 2 → 0), et `score-600` devient le sommet
-réellement tenu, là où `score-900` restait hors de portée.
+666 n'est pas un sommet atteint, c'est un sommet **à portée** : le record
+absolu est à 621, et une seule bonne partie le dépasse. Les 2000 mots
+demandent au mieux placé un tiers de mots en plus, quelques semaines de jeu.
 
-Les onze seuils atteints ne bougent pas : ils sont la mémoire des joueurs, et
-un seuil qui descend redistribue les déblocages vers le bas — un succès Play
-Games ne se reprend jamais.
+Le seuil client est déjà au nouveau chiffre (`src/domain/achievements.ts`,
+`src/lib/playGames.ts`) ; **la Console, elle, porte encore 900 et 5000** tant
+que le texte n'y est pas corrigé à la main. Les treize autres succès ne
+bougent pas : ils sont la mémoire des joueurs, et un seuil qui descend
+redistribue les déblocages vers le bas — un succès Play Games ne se reprend
+jamais.
 
 ## Ce qu'il reste à faire dans la Console
 
-Si les quatre remplacements sont retenus, pour chacun des quatre :
+Pour `score-900` et `words-5000` :
 
-1. dans le dépôt, `src/domain/achievements.ts` (`goal.at`), pour que l'app
-   débloque au nouveau seuil ;
-2. `scripts/play-games-achievements.ts` (`TEXTS`), pour que le ZIP à venir
-   porte le bon texte ;
-3. dans la Console, **Play Games Services › Réussites ›** le succès **›
-   Modifier** : corriger la description dans les sept langues, et le nom pour
-   `score-900` seul (« Neuf cents » ne décrit plus 600) ;
-4. rien à faire côté app pour le déblocage : le prochain lancement ou la
-   prochaine partie renvoie tous les succès atteints, et Play rattrape.
+1. dans la Console, **Play Games Services › Réussites ›** le succès **›
+   Modifier** : corriger le nom et la description dans les sept langues, avec
+   les textes ci-dessous ;
+2. rien à faire pour le déblocage : le prochain lancement ou la prochaine
+   partie renvoie tous les succès atteints, et Play rattrape. Le nouveau seuil
+   est déjà dans l'app.
 
 L'identifiant (`CgkI…`) et les points d'un succès publié ne se modifient pas
 dans la Console : le remplacement ne touche donc que le texte. Vérifier au
@@ -103,44 +102,19 @@ Noms et descriptions, dans l'ordre `en-US`, `fr-FR`, `de-DE`, `es-ES`,
 `it-IT`, `nl-NL`, `pt-BR`. Aucun champ ne peut porter de virgule : les CSV de
 l'import n'ont pas de guillemets.
 
-**`combo-20` — Inarrêtable / Unstoppable** (seule la description change)
+**`score-666` — 666 points** (nom et description)
 
 | langue | nom | description |
 | --- | --- | --- |
-| en-US | Unstoppable | Chain 20 answers in a row |
-| fr-FR | Inarrêtable | Enchaîne 20 réponses d’affilée |
-| de-DE | Unaufhaltsam | Gib 20 Antworten in Folge |
-| es-ES | Imparable | Encadena 20 respuestas seguidas |
-| it-IT | Inarrestabile | Inanella 20 risposte di fila |
-| nl-NL | Niet te stoppen | Geef 20 antwoorden op rij |
-| pt-BR | Imparável | Emende 20 respostas seguidas |
+| en-US | Three sixes | Score 666 points in one game |
+| fr-FR | Trois six | Marque 666 points en une partie |
+| de-DE | Drei Sechsen | Erziele 666 Punkte in einer Runde |
+| es-ES | Tres seises | Consigue 666 puntos en una partida |
+| it-IT | Tre sei | Fai 666 punti in una partita |
+| nl-NL | Drie zessen | Scoor 666 punten in één potje |
+| pt-BR | Três seis | Marque 666 pontos em uma partida |
 
-**`score-600` — Six cents / Six hundred** (nom et description)
-
-| langue | nom | description |
-| --- | --- | --- |
-| en-US | Six hundred | Score 600 points in one game |
-| fr-FR | Six cents | Marque 600 points en une partie |
-| de-DE | Sechshundert | Erziele 600 Punkte in einer Runde |
-| es-ES | Seiscientos | Consigue 600 puntos en una partida |
-| it-IT | Seicento | Fai 600 punti in una partita |
-| nl-NL | Zeshonderd | Scoor 600 punten in één potje |
-| pt-BR | Seiscentos | Marque 600 pontos em uma partida |
-
-**`runs-200` — Inépuisable / Tireless** (seule la description change)
-
-| langue | nom | description |
-| --- | --- | --- |
-| en-US | Tireless | Play 200 games |
-| fr-FR | Inépuisable | Joue 200 parties |
-| de-DE | Unermüdlich | Spiele 200 Runden |
-| es-ES | Incansable | Juega 200 partidas |
-| it-IT | Instancabile | Gioca 200 partite |
-| nl-NL | Onvermoeibaar | Speel 200 potjes |
-| pt-BR | Incansável | Jogue 200 partidas |
-
-**`words-2000` — Dictionnaire vivant / Walking dictionary** (seule la
-description change)
+**`words-2000` — 2000 mots** (seule la description change)
 
 | langue | nom | description |
 | --- | --- | --- |
@@ -152,9 +126,13 @@ description change)
 | nl-NL | Wandelend woordenboek | Vind 2000 woorden |
 | pt-BR | Dicionário ambulante | Encontre 2000 palavras |
 
-## Où vivent les quatorze autres succès
+Les mêmes textes vivent dans `scripts/play-games-achievements.ts` (`TEXTS`) et
+dans `src/i18n/<langue>.ts` (`ach.<id>`) : les trois doivent dire la même
+chose, et le ZIP à venir les relira.
 
-Le jeu en compte trente-deux : les quinze ci-dessus, et dix-sept qui ne vivent
+## Où vivent les seize autres succès
+
+Le jeu en compte trente et un : les quinze ci-dessus, et seize qui ne vivent
 que dans l'app — leur page, `src/ui/AchievementsScreen.tsx`, ouverte depuis le
 tiroir du profil, avec une barre de progression pour les paliers et la tuile
 d'avatar du défi pour les exploits. Play n'a plus de budget de points à leur

@@ -1057,9 +1057,9 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
       'words-1000': { name: 'Mille mots', desc: 'Trouve 1000 mots' },
       'level-20': { name: 'Vieux routier', desc: 'Atteins le niveau 20' },
       'combo-24': { name: 'Inarrêtable', desc: 'Enchaîne 24 réponses d’affilée' },
-      'score-900': { name: 'Neuf cents', desc: 'Marque 900 points en une partie' },
+      'score-666': { name: 'Trois six', desc: 'Marque 666 points en une partie' },
       'runs-400': { name: 'Inépuisable', desc: 'Joue 400 parties' },
-      'words-5000': { name: 'Dictionnaire vivant', desc: 'Trouve 5000 mots' },
+      'words-2000': { name: 'Dictionnaire vivant', desc: 'Trouve 2000 mots' },
       'level-35': { name: 'Maître de la minute', desc: 'Atteins le niveau 35' },
       // Ceux du jeu seul, groupés par famille.
       'runs-25': { name: 'Bonne habitude', desc: 'Joue 25 parties' },

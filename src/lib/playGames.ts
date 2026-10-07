@@ -27,9 +27,9 @@ const ACHIEVEMENT_IDS: Readonly<Partial<Record<AchievementId, string>>> = {
   'words-1000': 'CgkIpenjuL4GEAIQBg',
   'level-20': 'CgkIpenjuL4GEAIQDg',
   'combo-24': 'CgkIpenjuL4GEAIQAA',
-  'score-900': 'CgkIpenjuL4GEAIQAw',
+  'score-666': 'CgkIpenjuL4GEAIQAw',
   'runs-400': 'CgkIpenjuL4GEAIQDA',
-  'words-5000': 'CgkIpenjuL4GEAIQBw',
+  'words-2000': 'CgkIpenjuL4GEAIQBw',
   'level-35': 'CgkIpenjuL4GEAIQDQ',
 }
 
