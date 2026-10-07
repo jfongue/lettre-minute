@@ -183,5 +183,41 @@ Ratios recalculés (WCAG 2.1) : `--ink-faint` 5,42 sur `--paper`, 4,73 sur `--pa
 sur le fond sombre, 4,66 sur `--paper-2` sombre ; `.unlock` noir sur rouge 4,29 en clair et
 5,28 en sombre, soit la valeur de `.btn--red`, déjà validée.
 
-Restent ouverts : A6, A7, A8, B1–B7, C3, C5, C7, D3, D6, D7, C4 partiel (`.standing--me`,
-`.power-slot`) ; et l'écoute réelle par Jérémy pour A1, A3 et A4.
+## Exécution (vagues 2 à 5)
+
+Commits : `85aa029` (B4, B6) ; `7e36018` (C3, C4) ; `bdf7bba` (C7) ; `dcc2447` (A6) ; la
+vague B7 ci-dessous.
+
+- **B4 fait** : `stamp` ×3 → `stamp-beat` / `stamp-seal` / `stamp-in`, `breathe` ×2 →
+  `breathe-soft` / `breathe-in`. `.motion-stamp` récupère le corps « tap » que la cascade lui
+  volait ; les huit autres usages gardent le corps qu'ils avaient.
+- **B6 fait** : plus de relecture de table ni de battement quand `document.hidden` ; le
+  `visibilitychange` déjà présent relit la table au retour.
+- **B5 écarté** : `.leaderboards-track` reçoit sa hauteur en JS et ne l'anime qu'au changement
+  d'onglet, hors frappe. `height`, `max-height` et `grid-template-rows` coûtent tous un
+  layout ; `scaleY` et `clip-path` déformeraient le tableau. Rien à gagner.
+- **C3 fait** : jeton `--font-micro: 0.7rem`, et les 24 tailles de 0,58 à 0,68 rem remplacées
+  (14 dans `styles.css`, 10 dans `duel.css`). Regardé en vrai : accueil et `duel.html#auto`,
+  375 px, pas de débordement.
+- **C4, corrigé** : `.power-slot` est **déjà** à `min-height: 3.4rem` — l'audit annonçait 34 px,
+  c'est faux ; `.avatar-grid` et `.challenge-word` étaient déjà corrigés. Restait la ligne
+  cliquable des classements, `.leaderboard-me .standing`, passée à `2.5rem`.
+- **C7 fait, avec une correction** : le gris `#8a8478` de la palette n'est pas `--ink-faint`
+  (`#645f4f`) — l'audit confondait deux gris. Les sept vraies teintes partagées sont tenues
+  par un test (`avatar.test.ts`), qui lit la **première** définition des jetons : le thème
+  sombre éclaircit ses boutons sans reprendre les avatars.
+- **A6, presque infirmé** : quatre des cinq emplacements cités sonnaient déjà —
+  `DuelTutorial.tsx:268` `sound.go()`, `:307` `sound.pop()`, `DuelScreen.tsx:886`
+  `sound.skipped()`, et tout `ModeTutorial.tsx` (sa « ligne 268 » n'existe pas, le fichier en
+  fait 217). Seul vrai trou : le bilan jouait `record()` quand le record tombait et rien
+  sinon → `sound.recordMiss()`.
+- **B7 fait en partie** : une règle unique de tassement pour sept cibles qui n'avaient pas de
+  `:active` (tuile d'avatar, pastille de couleur, onglet de couche, mot de défi, choix d'ami,
+  interrupteur de réglage, ligne de classement), plus le cas `.reaction-pick`, où le `:active`
+  doit venir **après** le `:hover` pour ne pas être battu par son `scale(1.25)`. Les « sièges
+  de duel » cités ont déjà leur retour (`duel-seatcard--kickable:active`) ; la sortie d'écran
+  routée attend `App.tsx`, en cours chez une autre session.
+
+Restent ouverts : A6 (partage de défi, refus à la limite, appui long), A7, A8, B1, B2, B3, B7
+(sortie routée), C5, D3, D6, D7 ; et l'écoute réelle par Jérémy pour A1, A3, A4 et le nouveau
+`recordMiss()`.
