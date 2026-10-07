@@ -99,6 +99,25 @@ export interface Profile {
   plusSince: number
   /** 1 once the home screen has thanked the player for going Premium, and asked their opinion. */
   plusThanked: number
+  /**
+   * Les exploits qu'une partie seule sait mesurer, et que le serveur ne
+   * recompte pas depuis ses lignes : la plus longue forme validée, en lettres,
+   * et la plus vive frappe, en dixièmes de lettre par seconde.
+   */
+  longestWord: number
+  bestSpeed: number
+  /** Parties menées sans passer une seule question, ni passe ni trou vide. */
+  cleanRuns: number
+  /** Les pouvoirs qui ont réellement servi, un par un (`PowerId`). */
+  powersUsed: readonly string[]
+  /** Les catégories où un mot a été trouvé, un jour. */
+  playedCategories: readonly string[]
+  /** Le plus grand nombre de manches atteint dans un duel à quatre. */
+  duelRounds4: number
+  /** 1 le jour où le joueur a été premier du classement de la journée. */
+  dailyFirst: number
+  /** Mots jugés en modération, un verdict à la fois. */
+  wordsReviewed: number
 }
 
 export const NEW_PROFILE: Profile = {
@@ -125,6 +144,14 @@ export const NEW_PROFILE: Profile = {
   peeks: 0,
   plusSince: 0,
   plusThanked: 0,
+  longestWord: 0,
+  bestSpeed: 0,
+  cleanRuns: 0,
+  powersUsed: [],
+  playedCategories: [],
+  duelRounds4: 0,
+  dailyFirst: 0,
+  wordsReviewed: 0,
 }
 
 export interface RunOutcome {
@@ -133,6 +160,16 @@ export interface RunOutcome {
   bestCombo: number
   /** Every prompt the run dealt, which the next run will not deal again. */
   prompts?: readonly string[]
+  /** La plus longue forme validée, en lettres. */
+  longest?: number
+  /** Dixièmes de lettre par seconde de la frappe la plus vive de la partie. */
+  speed?: number
+  /** La partie n'a laissé passer aucune question. */
+  clean?: boolean
+  /** Les pouvoirs qui y ont servi. */
+  powers?: readonly string[]
+  /** Les catégories où elle a trouvé un mot. */
+  categories?: readonly string[]
 }
 
 /**
@@ -148,6 +185,7 @@ export function countOf(counts: Readonly<Record<string, number>>, word: string):
 export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
   const usage = { ...profile.usage }
   for (const word of outcome.words) usage[word] = countOf(usage, word) + 1
+  const union = (kept: readonly string[], found?: readonly string[]) => [...new Set([...kept, ...(found ?? [])])]
 
   return {
     ...profile,
@@ -156,6 +194,11 @@ export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
     bestScore: Math.max(profile.bestScore, outcome.score),
     wordsFound: profile.wordsFound + outcome.words.length,
     bestCombo: Math.max(profile.bestCombo, outcome.bestCombo),
+    longestWord: Math.max(profile.longestWord, outcome.longest ?? 0),
+    bestSpeed: Math.max(profile.bestSpeed, outcome.speed ?? 0),
+    cleanRuns: profile.cleanRuns + (outcome.clean ? 1 : 0),
+    powersUsed: union(profile.powersUsed, outcome.powers),
+    playedCategories: union(profile.playedCategories, outcome.categories),
     usage,
     lastPrompts: outcome.prompts ?? profile.lastPrompts,
   }
@@ -163,4 +206,9 @@ export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
 
 export function rewardSubmission(profile: Profile): Profile {
   return { ...profile, xp: profile.xp + SUBMISSION_REWARD_XP }
+}
+
+/** Un verdict rendu en modération : le seul compteur qui ne vient pas d'une partie. */
+export function settleReview(profile: Profile): Profile {
+  return { ...profile, wordsReviewed: profile.wordsReviewed + 1 }
 }

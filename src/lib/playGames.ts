@@ -8,10 +8,14 @@ import { playGamesIncrement, playGamesUnlock } from './native'
  * et trois compteurs de fin de partie (les « événements », d'où Play tire ses
  * statistiques de jeu). Les identifiants viennent de la Play Console
  * (Services de jeux Play › Réussites / Événements › Récupérer les ressources) ;
- * un succès ajouté là-bas s'ajoute ici et dans `ACHIEVEMENTS`.
+ * un succès ajouté là-bas s'ajoute ici, avec ses points dans
+ * `src/domain/achievements.ts`.
+ *
+ * Les succès du jeu seul n'ont pas d'identifiant : Play ne les connaît pas,
+ * faute de points à leur donner (le budget de 1 000 est pris). Ils s'arrêtent
+ * donc ici, et `src/ui/AchievementsScreen.tsx` les montre seul.
  */
-
-const ACHIEVEMENT_IDS: Record<AchievementId, string> = {
+const ACHIEVEMENT_IDS: Readonly<Partial<Record<AchievementId, string>>> = {
   'level-4': 'CgkIpenjuL4GEAIQCA',
   'runs-10': 'CgkIpenjuL4GEAIQCQ',
   'words-100': 'CgkIpenjuL4GEAIQBA',
@@ -41,7 +45,11 @@ const EVENTS = {
  * palier le reçoit ainsi à la partie suivante.
  */
 export function reportAchievements(profile: Profile, discoveries?: number): void {
-  playGamesUnlock(earnedAchievements(profile, discoveries).map((id) => ACHIEVEMENT_IDS[id]))
+  const ids = earnedAchievements(profile, discoveries).flatMap((id) => {
+    const play = ACHIEVEMENT_IDS[id]
+    return play === undefined ? [] : [play]
+  })
+  playGamesUnlock(ids)
 }
 
 /** Les compteurs d'une partie finie, défi compris : c'est du jeu, pas un classement. */

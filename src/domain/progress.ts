@@ -11,9 +11,9 @@ import type { Profile } from './progression'
  * gagné sur un appareil reste gagné sur l'autre.
  */
 
-const OWNED = ['unlocked', 'gifted', 'powers'] as const
+const OWNED = ['unlocked', 'gifted', 'powers', 'powersUsed', 'playedCategories'] as const
 const LATEST = ['offer', 'lastOffer', 'powerOffer', 'lastPowerOffer', 'equipped', 'banned'] as const
-const HIGHEST = ['banIntroSeen', 'peeks', 'plusThanked', 'supportAskedAt', 'feedbackAskedAt'] as const
+const HIGHEST = ['banIntroSeen', 'peeks', 'plusThanked', 'supportAskedAt', 'feedbackAskedAt', 'longestWord', 'bestSpeed', 'cleanRuns', 'duelRounds4', 'dailyFirst', 'wordsReviewed'] as const
 
 type ListField = (typeof OWNED)[number] | (typeof LATEST)[number]
 type CountField = (typeof HIGHEST)[number] | 'plusSince' | 'runs'

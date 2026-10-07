@@ -20,7 +20,13 @@ import { ACHIEVEMENTS, type AchievementId } from '../src/domain/achievements.ts'
 type Text = [name: string, description: string]
 const LOCALES = ['en-US', 'fr-FR', 'de-DE', 'es-ES', 'it-IT', 'nl-NL', 'pt-BR'] as const
 
-const TEXTS: Record<AchievementId, Record<(typeof LOCALES)[number], Text>> = {
+/**
+ * Les textes des seuls succès publiés sur Play : les quatorze du jeu n'ont pas
+ * d'identifiant là-bas et ne s'importent pas. Leurs noms, eux, vivent dans
+ * `src/i18n/<langue>.ts` sous `ach.<id>.name`, avec ceux-ci, écrits un peu
+ * plus long pour la fiche Play.
+ */
+const TEXTS: Readonly<Partial<Record<AchievementId, Record<(typeof LOCALES)[number], Text>>>> = {
   'level-4': {
     'en-US': ['First steps', 'Reach level 4'],
     'fr-FR': ['Premiers pas', 'Atteins le niveau 4'],
@@ -160,17 +166,19 @@ const TEXTS: Record<AchievementId, Record<(typeof LOCALES)[number], Text>> = {
 
 const OUT = 'store/android/play-games'
 const only = process.argv.slice(2)
-const chosen = ACHIEVEMENTS.filter((achievement) => only.length === 0 || only.includes(achievement.id))
+const chosen = ACHIEVEMENTS.filter((achievement) => achievement.play !== undefined).filter(
+  (achievement) => only.length === 0 || only.includes(achievement.id),
+)
 const lines = (rows: string[][]) => rows.map((row) => row.join(',')).join('\n') + '\n'
-for (const text of Object.values(TEXTS).flatMap((byLocale) => Object.values(byLocale).flat())) {
+for (const text of Object.values(TEXTS).flatMap((byLocale) => Object.values(byLocale!).flat())) {
   if (text.includes(',')) throw new Error(`Virgule interdite : ${text}`)
 }
 
 const dir = mkdtempSync(join(tmpdir(), 'play-games-'))
-const english = (id: AchievementId) => TEXTS[id]['en-US']
+const english = (id: AchievementId) => TEXTS[id]!['en-US']
 writeFileSync(
   join(dir, 'AchievementsMetadata.csv'),
-  lines(chosen.map((achievement) => [...english(achievement.id), 'False', '', 'Revealed', String(achievement.points), String(ACHIEVEMENTS.indexOf(achievement) + 1)])),
+  lines(chosen.map((achievement) => [...english(achievement.id), 'False', '', 'Revealed', String(achievement.play), String(ACHIEVEMENTS.indexOf(achievement) + 1)])),
 )
 writeFileSync(
   join(dir, 'AchievementsLocalizations.csv'),
