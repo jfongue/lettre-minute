@@ -1,18 +1,22 @@
--- `cast_vote` and `settle_review`: thresholds, super moderators, special
--- cases, respelling, the queue, a race between two last votes, and
+-- `cast_vote` and `settle_review`: thresholds, the two caps, super moderators,
+-- special cases, respelling, the queue, a race between two last votes, and
 -- recruitment.
 
 select tests.new_user('p1');
 select tests.new_user('p2');
 select tests.new_user('p3');
-select tests.new_user('m' || i) from generate_series(1, 8) i;
-select tests.make_moderator('m' || i) from generate_series(1, 8) i;
-select tests.new_user('s1');
-select tests.make_super_moderator('s1');
+select tests.new_user('m' || i) from generate_series(1, 13) i;
+select tests.make_moderator('m' || i) from generate_series(1, 13) i;
+select tests.new_user('s' || i) from generate_series(1, 4) i;
+select tests.make_super_moderator('s' || i) from generate_series(1, 4) i;
 
 select tests.propose('p1', 'animaux', w)
   from unnest(array['loutre', 'blaireau', 'hermine', 'furet', 'martre', 'vison', 'genette', 'civette',
                     'lynks', 'chakal', 'bellette', 'ours', 'renard']) w;
+-- Trois mots de p2, pour les seuils : leur sort ne pèse pas sur l'xp de p1, que
+-- le harnais compte. « glouton » reste en attente, pour que la file garde de
+-- quoi juger quand l'offre de modération se vérifie plus bas.
+select tests.propose('p2', 'animaux', w) from unnest(array['panthere', 'glouton', 'caribou']) w;
 select tests.propose('m1', 'animaux', 'fouine');
 select tests.propose('p2', 'animaux', 'belette');
 select tests.propose('p2', 'de:tiere', 'de:dachs');
@@ -44,7 +48,9 @@ select tests.logout();
 
 select tests.is(tests.vote('m1', 'animaux', 'loutre', 'correct'), 'pending', 'one « correct » leaves it pending');
 select tests.is(tests.vote('m2', 'animaux', 'loutre', 'correct'), 'pending', 'two leave it pending');
-select tests.is(tests.vote('m3', 'animaux', 'loutre', 'correct'), 'accepted', 'three let it in');
+select tests.is(tests.vote('m3', 'animaux', 'loutre', 'correct'), 'pending', 'three leave it pending');
+select tests.is(tests.vote('m4', 'animaux', 'loutre', 'correct'), 'pending', 'four leave it pending');
+select tests.is(tests.vote('m5', 'animaux', 'loutre', 'correct'), 'accepted', 'five let it in');
 select tests.is(pg_temp.gained('p1'), 150, 'the author is paid 150 XP');
 select tests.ok(exists (select 1 from public.dictionary_words where category_id = 'animaux' and word = 'loutre'),
                 'the word enters the dictionary');
@@ -60,17 +66,35 @@ select tests.ok((select status = 'rejected' and seen_at is not null from public.
 select tests.ok(not exists (select 1 from public.dictionary_words where word = 'blaireau'), 'nothing enters the dictionary');
 select tests.is(pg_temp.gained('p1'), 150, 'a rejection pays nothing');
 
+-- Chaque « je ne sais pas » demande deux « correct » de plus, et une demi-voix
+-- de plus pour bloquer.
 select tests.vote('m1', 'animaux', 'hermine', 'unsure');
-select tests.vote('m2', 'animaux', 'hermine', 'unsure');
-select tests.vote('m' || i, 'animaux', 'hermine', 'correct') from generate_series(3, 7) i;
+select tests.vote('m' || i, 'animaux', 'hermine', 'correct') from generate_series(2, 7) i;
 select tests.is((select status from public.word_reviews where id = tests.review('animaux', 'hermine')), 'pending',
-                'two « unsure » make it doubtful: five « correct » are not enough');
-select tests.is(tests.vote('m8', 'animaux', 'hermine', 'correct'), 'accepted', 'six are');
+                'one « unsure » makes it doubtful: six « correct » are not enough');
+select tests.is(tests.vote('m8', 'animaux', 'hermine', 'correct'), 'accepted', 'seven are');
+
+select tests.vote('m1', 'animaux', 'panthere', 'unsure');
+select tests.vote('m2', 'animaux', 'panthere', 'incorrect');
+select tests.vote('m3', 'animaux', 'panthere', 'incorrect');
+select tests.is((select status from public.word_reviews where id = tests.review('animaux', 'panthere')), 'pending',
+                'the half voice « unsure » adds is not reached: two « incorrect » do not block');
+select tests.is(tests.vote('m4', 'animaux', 'panthere', 'incorrect'), 'rejected', 'a third does');
+
+-- Les deux seuils plafonnent : six doutes demanderaient dix-sept « correct »,
+-- le plafond en réclame quinze.
+select tests.vote('m' || i, 'animaux', 'caribou', 'unsure') from generate_series(1, 6) i;
+select tests.vote('m' || i, 'animaux', 'caribou', 'correct') from generate_series(7, 12) i;
+select tests.vote('s' || i, 'animaux', 'caribou', 'correct') from generate_series(1, 3) i;
+select tests.is((select status from public.word_reviews where id = tests.review('animaux', 'caribou')), 'pending',
+                'twelve, three of them super moderators, are not enough');
+select tests.is(tests.vote('s4', 'animaux', 'caribou', 'correct'), 'pending', 'nor fourteen');
+select tests.is(tests.vote('m13', 'animaux', 'caribou', 'correct'), 'accepted', 'fifteen are: the threshold stopped there');
 
 select tests.vote('m1', 'animaux', 'furet', 'incorrect');
-select tests.vote('m2', 'animaux', 'furet', 'correct');
-select tests.vote('m3', 'animaux', 'furet', 'correct');
-select tests.is(tests.vote('m4', 'animaux', 'furet', 'correct'), 'accepted', 'one « incorrect » does not outweigh three « correct »');
+select tests.is(tests.vote('m2', 'animaux', 'furet', 'correct'), 'pending', 'one « incorrect » does not outweigh one « correct »');
+select tests.vote('m' || i, 'animaux', 'furet', 'correct') from generate_series(3, 5) i;
+select tests.is(tests.vote('m6', 'animaux', 'furet', 'correct'), 'accepted', 'five « correct » outweigh it');
 
 -- -------------------------------------------------------------- own word --
 
@@ -92,8 +116,11 @@ select tests.login('m1');
 select tests.is((public.moderation_status('fr') ->> 'super')::boolean, false, 'an ordinary moderator is not one');
 select tests.logout();
 
-select tests.is(tests.vote('s1', 'animaux', 'martre', 'correct'), 'accepted', 'a super moderator lets a word in alone');
-select tests.is(tests.vote('s1', 'animaux', 'vison', 'incorrect'), 'pending', 'but does not block an ordinary word alone');
+select tests.is(tests.vote('s1', 'animaux', 'martre', 'correct'), 'pending', 'a super moderator no longer lets a word in alone');
+select tests.is(tests.vote('m1', 'animaux', 'martre', 'correct'), 'pending', 'his « correct » weighs two: that is three');
+select tests.is(tests.vote('m2', 'animaux', 'martre', 'correct'), 'pending', 'one short of five');
+select tests.is(tests.vote('m3', 'animaux', 'martre', 'correct'), 'accepted', 'five settle it: three moderators and his double voice');
+select tests.is(tests.vote('s1', 'animaux', 'vison', 'incorrect'), 'rejected', 'his « incorrect » weighs the two voices that block');
 
 -- ------------------------------------------------------------- specials --
 
@@ -128,8 +155,10 @@ select tests.ok(tests.review('animaux', 'lynx') is not null and tests.review('an
 select tests.is((select display from public.word_submissions where player_id = tests.uid('p1') and word = 'lynx'), 'Lynx',
                 'so does the proposal, trimmed');
 select tests.vote('m2', 'animaux', 'lynx', 'correct');
-select tests.is(tests.vote('m3', 'animaux', 'lynx', 'correct'), 'pending', 'a respelled word needs a fourth « correct »');
-select tests.is(tests.vote('m4', 'animaux', 'lynx', 'correct'), 'accepted', 'and gets in with it');
+select tests.vote('m3', 'animaux', 'lynx', 'correct');
+select tests.vote('m4', 'animaux', 'lynx', 'correct');
+select tests.is(tests.vote('m5', 'animaux', 'lynx', 'correct'), 'pending', 'a respelled word needs a sixth « correct »');
+select tests.is(tests.vote('m6', 'animaux', 'lynx', 'correct'), 'accepted', 'and gets in with it');
 
 select tests.vote('m1', 'animaux', 'chakal', 'unsure');
 select tests.login('m2');
@@ -182,12 +211,14 @@ select tests.is((select count(*)::int from public.moderation_votes where review_
 
 -- ------------------------------------------------------------------ race --
 
--- The third and fourth « correct » arrive at once: the row lock makes one of
+-- The fourth and fifth « correct » arrive at once: the row lock makes one of
 -- them settle the review and the other find it gone, and the XP is paid once.
 select tests.vote('m1', 'animaux', 'ours', 'correct');
 select tests.vote('m2', 'animaux', 'ours', 'correct');
-select tests.connect('a', 'm3');
-select tests.connect('b', 'm4');
+select tests.vote('m3', 'animaux', 'ours', 'correct');
+select tests.vote('m4', 'animaux', 'ours', 'correct');
+select tests.connect('a', 'm5');
+select tests.connect('b', 'm6');
 select dblink_exec('a', 'begin');
 select tests.is(tests.remote('a', format('select public.cast_vote(%L, %L)', tests.review('animaux', 'ours'), 'correct')),
                 'accepted', 'the first of two simultaneous last votes settles the review');

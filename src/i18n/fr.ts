@@ -424,7 +424,7 @@ export const fr = {
     empty: 'Aucune demande pour l’instant. En partie, un mot inconnu du dictionnaire se propose d’une touche.',
     added: 'Ajoutés grâce à toi',
     addedNote: (xp: number) => `${xp} XP gagnés pour chacun.`,
-    noneAdded: 'Aucun encore : un mot entre quand trois modérateurs l’ont validé.',
+    noneAdded: 'Aucun encore : un mot entre quand cinq modérateurs l’ont validé.',
     /** « Ajoutés grâce à toi » se replie sur ses dix derniers. */
     more: (count: number) => `Voir plus (${count})`,
     less: 'Voir moins',
@@ -446,8 +446,8 @@ export const fr = {
   moderation: {
     title: 'Modération',
     superTitle: 'Super modérateur',
-    lead: 'Tu juges les mots proposés par les joueurs : trois « correct » font entrer un mot, deux « incorrect » le bloquent.',
-    superLead: 'Ta parole suffit : un mot que tu dis correct entre aussitôt, et les cas spéciaux n’attendent que les super modérateurs.',
+    lead: 'Tu juges les mots proposés par les joueurs : cinq « correct » font entrer un mot, deux « incorrect » le bloquent. Chaque « je ne sais pas » demande deux « correct » de plus, et une demi-voix de plus pour bloquer.',
+    superLead: 'Ta voix compte double : cinq « correct » font entrer un mot, et ton seul « incorrect » le bloque. Les cas spéciaux n’attendent que les super modérateurs.',
     start: (size: number) => `Lancer une session · ${size} mots`,
     offer: {
       title: 'Deviens modérateur !',
@@ -470,7 +470,7 @@ export const fr = {
       hint: 'Modérateur : appui long sur un mot pour le signaler.',
       title: 'Signaler ce mot',
       lead: (word: string, category: string) =>
-        `« ${word} » n’a pas sa place dans « ${category} » ? Les autres modérateurs le jugeront : trois d’accord et il quittera la catégorie à la prochaine version.`,
+        `« ${word} » n’a pas sa place dans « ${category} » ? Les autres modérateurs le jugeront : cinq d’accord et il quittera la catégorie à la prochaine version.`,
       confirm: 'Signaler',
       close: 'Fermer',
       reasonLabel: 'Motif (facultatif)',

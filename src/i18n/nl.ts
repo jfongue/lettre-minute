@@ -387,7 +387,7 @@ export const nl: Messages = {
     empty: 'Nog geen voorstellen. Tijdens het spel stel je een onbekend woord met één tik voor.',
     added: 'Toegevoegd dankzij jou',
     addedNote: (xp) => `${xp} XP verdiend per woord.`,
-    noneAdded: 'Nog geen: een woord komt erin zodra drie moderators het hebben goedgekeurd.',
+    noneAdded: 'Nog geen: een woord komt erin zodra vijf moderators het hebben goedgekeurd.',
     more: (count: number) => `Meer tonen (${count})`,
     less: 'Minder tonen',
     fresh: 'nieuw',
@@ -408,8 +408,8 @@ export const nl: Messages = {
   moderation: {
     title: 'Moderatie',
     superTitle: 'Supermoderator',
-    lead: 'Jij beoordeelt de woorden die spelers voorstellen: drie keer „goed” laat een woord erin, twee keer „fout” blokkeert het.',
-    superLead: 'Jouw woord is genoeg: een woord dat jij goed noemt komt er meteen in, en speciale gevallen wachten alleen op supermoderators.',
+    lead: 'Jij beoordeelt de woorden die spelers voorstellen: vijf keer „goed” laat een woord erin, twee keer „fout” blokkeert het. Elk „weet ik niet” vraagt twee keer „goed” extra en een halve stem meer om te blokkeren.',
+    superLead: 'Jouw stem telt dubbel: vijf keer „goed” laat een woord erin en jouw enkele „fout” blokkeert het. Speciale gevallen wachten alleen op supermoderators.',
     start: (size) => `Sessie starten · ${size} woorden`,
     offer: {
       title: 'Word moderator!',
@@ -432,7 +432,7 @@ export const nl: Messages = {
       hint: 'Moderator: houd een woord ingedrukt om het te melden.',
       title: 'Dit woord melden',
       lead: (word, category) =>
-        `„${word}” hoort niet in „${category}”? De andere moderators beoordelen het: drie eens en het verlaat de categorie in de volgende versie.`,
+        `„${word}” hoort niet in „${category}”? De andere moderators beoordelen het: vijf eens en het verlaat de categorie in de volgende versie.`,
       confirm: 'Melden',
       close: 'Sluiten',
       reasonLabel: 'Reden (optioneel)',

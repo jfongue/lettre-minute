@@ -889,7 +889,7 @@ function RemoveModeCard({
           Retirer « {word.display} »
         </h2>
         <p>
-          Deux façons de le sortir de « {category} » : le signaler aux autres modérateurs — trois d’accord et il part —, ou le retirer
+          Deux façons de le sortir de « {category} » : le signaler aux autres modérateurs — cinq d’accord et il part —, ou le retirer
           d’office, ta voix suffisant.
         </p>
         <div className="offer-pop-actions">

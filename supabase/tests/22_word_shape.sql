@@ -28,9 +28,13 @@ select tests.new_user('ws');
 select tests.new_user('wa');
 select tests.new_user('wb');
 select tests.new_user('wc');
+select tests.new_user('wd');
+select tests.new_user('we');
 select tests.make_moderator('wa');
 select tests.make_moderator('wb');
 select tests.make_moderator('wc');
+select tests.make_moderator('wd');
+select tests.make_moderator('we');
 
 select tests.propose('ws', 'marques', 'H&M');
 select tests.is(
@@ -50,4 +54,6 @@ select tests.is(
  'pending', 'a word the dictionary could hold still waits for votes');
 select tests.is(tests.vote('wa', 'marques', 'Nouvelle-Zélande', 'correct'), 'pending', 'one « correct » is not enough');
 select tests.is(tests.vote('wb', 'marques', 'Nouvelle-Zélande', 'correct'), 'pending', 'nor two');
-select tests.is(tests.vote('wc', 'marques', 'Nouvelle-Zélande', 'correct'), 'accepted', 'three let it in');
+select tests.is(tests.vote('wc', 'marques', 'Nouvelle-Zélande', 'correct'), 'pending', 'nor three');
+select tests.is(tests.vote('wd', 'marques', 'Nouvelle-Zélande', 'correct'), 'pending', 'nor four');
+select tests.is(tests.vote('we', 'marques', 'Nouvelle-Zélande', 'correct'), 'accepted', 'five let it in');

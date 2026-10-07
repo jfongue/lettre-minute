@@ -59,9 +59,9 @@ select tests.logout();
 -- A word accepted by the moderators counts for the one who proposed it.
 select tests.new_user('kadd');
 select tests.propose('kadd', 'animaux', 'k-mot');
-select tests.new_user(n) from unnest(array['km1', 'km2', 'km3']) n;
-select tests.make_moderator(n) from unnest(array['km1', 'km2', 'km3']) n;
-select tests.vote(n, 'animaux', 'k-mot', 'correct') from unnest(array['km1', 'km2', 'km3']) n;
+select tests.new_user(n) from unnest(array['km1', 'km2', 'km3', 'km4', 'km5']) n;
+select tests.make_moderator(n) from unnest(array['km1', 'km2', 'km3', 'km4', 'km5']) n;
+select tests.vote(n, 'animaux', 'k-mot', 'correct') from unnest(array['km1', 'km2', 'km3', 'km4', 'km5']) n;
 select tests.login('ka');
 select tests.is((select value from public.leaderboard_stat('added', 'day') where display_name = 'kadd'), 1, 'added: an accepted word');
 select tests.logout();

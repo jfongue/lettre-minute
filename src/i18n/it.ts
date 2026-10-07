@@ -388,7 +388,7 @@ export const it: Messages = {
     empty: 'Ancora nessuna proposta. In partita, una parola sconosciuta al dizionario si propone con un tocco.',
     added: 'Aggiunte grazie a te',
     addedNote: (xp) => `${xp} XP guadagnati per ognuna.`,
-    noneAdded: 'Nessuna per ora: una parola entra quando tre moderatori l’hanno approvata.',
+    noneAdded: 'Nessuna per ora: una parola entra quando cinque moderatori l’hanno approvata.',
     more: (count: number) => `Mostra altro (${count})`,
     less: 'Mostra meno',
     fresh: 'nuova',
@@ -409,8 +409,8 @@ export const it: Messages = {
   moderation: {
     title: 'Moderazione',
     superTitle: 'Supermoderatore',
-    lead: 'Giudichi le parole proposte dai giocatori: tre «corretta» la fanno entrare, due «sbagliata» la bloccano.',
-    superLead: 'La tua parola basta: una parola che dici corretta entra subito, e i casi speciali aspettano solo i supermoderatori.',
+    lead: 'Giudichi le parole proposte dai giocatori: cinque «corretta» la fanno entrare, due «sbagliata» la bloccano. Ogni «non lo so» chiede due «corretta» in più e mezza voce in più per bloccare.',
+    superLead: 'Il tuo voto conta doppio: cinque «corretta» la fanno entrare e la tua sola «sbagliata» la blocca. I casi speciali aspettano solo i supermoderatori.',
     start: (size) => `Avvia una sessione · ${size} parole`,
     offer: {
       title: 'Diventa moderatore!',
@@ -433,7 +433,7 @@ export const it: Messages = {
       hint: 'Moderatore: tieni premuta una parola per segnalarla.',
       title: 'Segnala questa parola',
       lead: (word, category) =>
-        `«${word}» non ha il suo posto in «${category}»? Gli altri moderatori la giudicheranno: tre d’accordo e lascerà la categoria nella prossima versione.`,
+        `«${word}» non ha il suo posto in «${category}»? Gli altri moderatori la giudicheranno: cinque d’accordo e lascerà la categoria nella prossima versione.`,
       confirm: 'Segnala',
       close: 'Chiudi',
       reasonLabel: 'Motivo (facoltativo)',

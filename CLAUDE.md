@@ -305,11 +305,14 @@ ce n'est pas une raison de renoncer au protocole DevTools.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client — et depuis 0007, seules les fonctions
   du serveur peuvent l'appeler.
-- **Les règles de modération vivent en SQL** (`settle_review`, 0007), pas dans
-  le domaine : trois « correct », deux « incorrect », louche à deux « je ne
-  sais pas ». Super modérateur est un rôle donné à la main
-  (`moderators.super`, 0047), plus un rang gagné : sa voix seule fait entrer ou
-  sortir un mot et règle les fonctionnalités de tous. `src/domain/moderation.ts` ne garde que ce que l'interface doit
+- **Les règles de modération vivent en SQL** (`settle_review`, 0059), pas dans
+  le domaine : cinq « correct », deux « incorrect », chaque « je ne sais pas »
+  demandant deux « correct » de plus (plafond quinze) et une demi-voix de plus
+  pour bloquer (plafond sept), les cas spéciaux restant à un super modérateur
+  seul. Super modérateur est un rôle donné à la main
+  (`moderators.super`, 0047), plus un rang gagné : son vote compte double, sans
+  faire entrer un mot à lui seul, et il règle les fonctionnalités de tous.
+  `src/domain/moderation.ts` ne garde que ce que l'interface doit
   savoir (taille de session, lecture d'un glissement). La modération suit la
   langue de l'interface : un modérateur ne voit que les mots préfixés de la
   sienne.
@@ -631,9 +634,9 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   le poids de `drawLetter` sans la foule) et pour lister tout ce qu'une
   catégorie accepte, usages à zéro compris. Un mot s'y signale par appui long
   (un clic droit sur ordinateur), et le retrait offre alors ses deux portes : la
-  file (`propose_ban`, trois « correct » des autres) ou, pour un super
-  modérateur, le retrait d'office (`force_ban`, 0044) — sa voix règle la revue
-  seule et la copie communautaire quitte le serveur tout de suite, le
+  file (`propose_ban`, cinq « correct » des autres) ou, pour un super
+  modérateur, le retrait d'office (`force_ban`, 0044) — cette porte-là règle la
+  revue seule et la copie communautaire quitte le serveur tout de suite, le
   dictionnaire livré perdant le mot au prochain import comme pour tout ban. Un
   mot s'y ajoute par un bouton, par la file des propositions : rien ne se
   décide sans l'une de ces portes. Outil de développeur, donc libellés français

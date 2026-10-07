@@ -370,7 +370,7 @@ export function pushSubmissions(pending: readonly PendingSubmission[]): Promise<
 export function proposeWord(lang: string, categoryId: string, word: string): Promise<boolean> {
   const trimmed = word.trim()
   // Une forme qu'aucun dictionnaire ne peut porter — « M », « C&A » — ne part
-  // pas : trois modérateurs la valideraient pour rien, 150 XP seraient versés,
+  // pas : cinq modérateurs la valideraient pour rien, 150 XP seraient versés,
   // et l'import la jetterait. Le serveur la refuse aussi (`word_shape_ok`, 0051).
   if (categoryId === '' || !acceptable(trimmed)) return Promise.resolve(false)
 

@@ -58,7 +58,8 @@ faire de super modérateur un rôle donné (`moderators.super`) plutôt qu'un ra
 gagné par cinq mots validés, et
 [`0048_ban_waiting.sql`](migrations/0048_ban_waiting.sql) pour qu'un
 signalement de super modérateur attende vraiment les autres — sa voix compte
-pour une parmi les trois au lieu de régler la revue seule. Le numéro 0045 est
+pour une parmi les trois au lieu de régler la revue seule (0059 ne relit plus ce
+`waiting`, gardé comme trace). Le numéro 0045 est
 pris par `feature_flags` : cette migration-là a été renumérotée, jamais rejouée.
 
 ## Ce que le serveur détient
@@ -169,8 +170,11 @@ remplacés derrière les cinq tapes ; les fonctions restent en base.
 - **Les récompenses passent par une fonction `security definer`**
   (`accept_word`), pas par le client : donner 150 XP est une décision du
   serveur, prise une seule fois, au passage du statut à `accepted`.
-- **Ce sont les modérateurs qui font entrer un mot** (`settle_review`) : trois
-  « correct », ou un seul d'un super modérateur. Depuis 0007, trois joueurs
+- **Ce sont les modérateurs qui font entrer un mot** (`settle_review`) : cinq
+  « correct », deux « incorrect », chaque « je ne sais pas » demandant deux
+  « correct » de plus (plafond quinze) et une demi-voix de plus pour bloquer
+  (plafond sept) ; le vote d'un super modérateur compte double, et les cas
+  spéciaux n'attendent que lui. Depuis 0007, trois joueurs
   qui réclament le même mot ne suffisent plus. Les seuils sont dans la
   fonction, pas dans le client : les changer ne demande pas de redéploiement.
 - **Un modérateur peut aussi signaler un mot à retirer** (0038,

@@ -392,7 +392,7 @@ export const en: Messages = {
     empty: 'No requests yet. During a game, a word the dictionary does not know can be proposed with one tap.',
     added: 'Added thanks to you',
     addedNote: (xp) => `${xp} XP earned for each.`,
-    noneAdded: 'None yet: a word gets in once three moderators have approved it.',
+    noneAdded: 'None yet: a word gets in once five moderators have approved it.',
     more: (count: number) => `Show more (${count})`,
     less: 'Show less',
     fresh: 'new',
@@ -413,8 +413,8 @@ export const en: Messages = {
   moderation: {
     title: 'Moderation',
     superTitle: 'Super moderator',
-    lead: 'You judge the words players propose: three “correct” let a word in, two “incorrect” block it.',
-    superLead: 'Your word is enough: a word you call correct gets in at once, and special cases wait for super moderators only.',
+    lead: 'You judge the words players propose: five “correct” let a word in, two “incorrect” block it. Each “not sure” asks for two more “correct”, and half a voice more to block.',
+    superLead: 'Your vote counts double: five “correct” let a word in, and your single “incorrect” blocks it. Special cases wait for super moderators only.',
     start: (size) => `Start a session · ${size} words`,
     offer: {
       title: 'Become a moderator!',
@@ -437,7 +437,7 @@ export const en: Messages = {
       hint: 'Moderator: press and hold a word to flag it.',
       title: 'Flag this word',
       lead: (word, category) =>
-        `“${word}” does not belong in “${category}”? The other moderators will judge it: three in agreement and it leaves the category in the next version.`,
+        `“${word}” does not belong in “${category}”? The other moderators will judge it: five in agreement and it leaves the category in the next version.`,
       confirm: 'Flag',
       close: 'Close',
       reasonLabel: 'Reason (optional)',

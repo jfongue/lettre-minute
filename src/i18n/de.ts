@@ -386,7 +386,7 @@ export const de: Messages = {
     empty: 'Noch keine Vorschläge. Im Spiel schlägst du ein unbekanntes Wort mit einem Tippen vor.',
     added: 'Dank dir aufgenommen',
     addedNote: (xp) => `${xp} XP für jedes.`,
-    noneAdded: 'Noch keins: Ein Wort kommt hinein, sobald drei Moderatoren es bestätigt haben.',
+    noneAdded: 'Noch keins: Ein Wort kommt hinein, sobald fünf Moderatoren es bestätigt haben.',
     more: (count: number) => `Mehr zeigen (${count})`,
     less: 'Weniger anzeigen',
     fresh: 'neu',
@@ -407,8 +407,8 @@ export const de: Messages = {
   moderation: {
     title: 'Moderation',
     superTitle: 'Supermoderator',
-    lead: 'Du beurteilst die Wörter, die Spieler vorschlagen: Drei „richtig“ lassen ein Wort hinein, zwei „falsch“ sperren es.',
-    superLead: 'Dein Wort genügt: Ein Wort, das du für richtig hältst, kommt sofort hinein, und Sonderfälle warten nur auf Supermoderatoren.',
+    lead: 'Du beurteilst die Wörter, die Spieler vorschlagen: Fünf „richtig“ lassen ein Wort hinein, zwei „falsch“ sperren es. Jedes „weiß nicht“ verlangt zwei „richtig“ mehr und eine halbe Stimme mehr zum Sperren.',
+    superLead: 'Deine Stimme zählt doppelt: Fünf „richtig“ lassen ein Wort hinein, und dein einzelnes „falsch“ sperrt es. Sonderfälle warten nur auf Supermoderatoren.',
     start: (size) => `Sitzung starten · ${size} Wörter`,
     offer: {
       title: 'Werde Moderator!',
@@ -431,7 +431,7 @@ export const de: Messages = {
       hint: 'Moderator: Wort lange drücken, um es zu melden.',
       title: 'Dieses Wort melden',
       lead: (word, category) =>
-        `„${word}“ gehört nicht in „${category}“? Die anderen Moderatoren beurteilen es: drei dafür und es verlässt die Kategorie in der nächsten Version.`,
+        `„${word}“ gehört nicht in „${category}“? Die anderen Moderatoren beurteilen es: fünf dafür und es verlässt die Kategorie in der nächsten Version.`,
       confirm: 'Melden',
       close: 'Schließen',
       reasonLabel: 'Grund (optional)',

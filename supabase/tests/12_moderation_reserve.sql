@@ -98,8 +98,12 @@ select s.word as seed
  limit 1 \gset
 select tests.new_user('rz');
 select tests.make_moderator('rz');
+select tests.new_user(n) from unnest(array['rj', 'rk']) n;
+select tests.make_moderator(n) from unnest(array['rj', 'rk']) n;
 select tests.vote('rq', 'metiers', :'seed', 'correct');
-select tests.is(tests.vote('rz', 'metiers', :'seed', 'correct'), 'accepted', 'a reserve word enters like any other');
+select tests.vote('rz', 'metiers', :'seed', 'correct');
+select tests.vote('rj', 'metiers', :'seed', 'correct');
+select tests.is(tests.vote('rk', 'metiers', :'seed', 'correct'), 'accepted', 'a reserve word enters like any other');
 select tests.ok(exists (select 1 from public.dictionary_words where category_id = 'metiers' and word = :'seed'),
                 'into the dictionary');
 select tests.ok(not exists (select 1 from public.profiles p join xp0 on xp0.id = p.id
@@ -107,4 +111,6 @@ select tests.ok(not exists (select 1 from public.profiles p join xp0 on xp0.id =
                 'the house bot is not paid for it');
 select tests.vote('rq', 'metiers', 'couvreur', 'correct');
 select tests.vote('rz', 'metiers', 'couvreur', 'correct');
+select tests.vote('rj', 'metiers', 'couvreur', 'correct');
+select tests.is(tests.vote('rk', 'metiers', 'couvreur', 'correct'), 'accepted', 'a player’s word enters too');
 select tests.is(tests.xp('rp') - (select xp from xp0 where id = tests.uid('rp')), 150, 'a player still is');

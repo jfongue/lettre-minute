@@ -1,10 +1,11 @@
 import { xpForLevel } from './progression'
 
 /**
- * The thresholds that decide a word — three « correct », two « incorrect »,
- * five clean validations for a super moderator — live in the server
- * (`supabase/migrations/0007_moderation.sql`): changing them needs no release.
- * Only what the interface has to know is here.
+ * The thresholds that decide a word — five « correct », two « incorrect », two
+ * more « correct » per « not sure » (capped at fifteen) and half a voice more
+ * to block (capped at seven), a super moderator's vote weighing two — live in
+ * the server (`settle_review`, 0059): changing them needs no release. Only what
+ * the interface has to know is here.
  */
 
 /** A session hands out this many words; the next one is started from « Mes demandes ». */
