@@ -248,16 +248,20 @@ export function openPushSettings(): void {
   quietly(() => NotificationSettings.open())
 }
 
-/** What a push carries: the challenge, and whether it invites or announces a recap. */
-export interface PushData {
-  kind: 'invite' | 'recap'
-  challenge: string
-}
+/** What a push carries: which challenge, or which duel table, and what it wants. */
+export type PushData =
+  | { kind: 'invite' | 'recap'; challenge: string }
+  | { kind: 'duel' | 'duel_cancel'; table: string }
 
 function pushData(data: unknown): PushData | null {
   const row = (data ?? {}) as Record<string, unknown>
-  if ((row.kind !== 'invite' && row.kind !== 'recap') || typeof row.challenge !== 'string') return null
-  return { kind: row.kind, challenge: row.challenge }
+  if ((row.kind === 'invite' || row.kind === 'recap') && typeof row.challenge === 'string') {
+    return { kind: row.kind, challenge: row.challenge }
+  }
+  if ((row.kind === 'duel' || row.kind === 'duel_cancel') && typeof row.table === 'string') {
+    return { kind: row.kind, table: row.table }
+  }
+  return null
 }
 
 /**
@@ -287,6 +291,28 @@ export function clearPushes(tags: readonly string[]): void {
     const { notifications } = await PushNotifications.getDeliveredNotifications()
     const settled = notifications.filter((notification) => notification.tag && tags.includes(notification.tag))
     if (settled.length > 0) await PushNotifications.removeDeliveredNotifications({ notifications: settled })
+  })
+}
+
+/** The handle Android files a table's invitation under — and cancels it by. */
+export const duelPushTag = (table: string) => `duel:${table}`
+
+/**
+ * Takes down the duel notifications whose table no longer waits. The server
+ * sends a silent message for that (`duel_cancel`), but a phone that was off, or
+ * an app that missed it, would keep a dead invitation in its tray: this redraws
+ * the line every time the game reads its invitations, or wakes up.
+ */
+export function clearDuelPushes(open: readonly string[]): void {
+  if (!pushReady) return
+  const kept = new Set(open.map(duelPushTag))
+  quietly(async () => {
+    const { notifications } = await PushNotifications.getDeliveredNotifications()
+    const stale = notifications.filter((notification) => {
+      const tag = notification.tag
+      return tag !== undefined && tag.startsWith('duel:') && !kept.has(tag)
+    })
+    if (stale.length > 0) await PushNotifications.removeDeliveredNotifications({ notifications: stale })
   })
 }
 
