@@ -1157,7 +1157,7 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 .dealt li.dealt-incoming {
-  animation: band-from-right 480ms var(--ease-out) both;
+  animation: band-from-right 620ms var(--ease-out) both;
 }
 
 .dealt-tile {
@@ -1422,19 +1422,6 @@ animation: clock-bonus 500ms var(--ease-out);
   font-variant-numeric: tabular-nums;
   font-size: 0.9rem;
   padding: 0 0.3rem;
-}
-
-.tier-peu-commun {
-  color: var(--blue);
-}
-
-.tier-rare {
-  color: var(--red);
-}
-
-.tier-très-rare {
-  background: var(--yellow);
-  color: var(--black);
 }
 
 /* -------------------------------------------------------------- colophon - */
