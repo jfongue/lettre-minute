@@ -161,3 +161,27 @@ Deux agents en parallèle : **séparer par fichier**, jamais deux sur `styles.cs
 - A1/A3/A4 : écoute réelle sur téléphone, seule mesure qui vaut pour le son.
 - Un changement de jeton (C1, C2, C6, C7) se vérifie par le recalcul des ratios — la commande est dans
   l'historique de cette session, elle se refait en dix lignes de script.
+
+## Exécution (vague 1)
+
+Commits : `5fda053` feedback solo (D1, D4, D2) et `4c5940b` son test de rendu ; `9516462`
+audio (A1, A2, A5) ; `63fd535` visuel (C1, C2, C6, C4 partiel, D5) et le clic du bouton
+muet ; `db8ec3a` mort au duel (A4).
+
+Hypothèses infirmées en revalidant, rien codé :
+
+- **A3** — il n'y a pas 7 s de silence : `RunScreen.tsx:174` appelle `tick()` dès que
+  `remaining <= 10`, et `sound.tick()` (`sound.ts:488`) joue un tick simple de 10 à 4 puis le
+  double sous 3 s. Les deux paliers existent déjà.
+- **A5 (timers)** — `DuelScreen.tsx:951`, `TutorialScreen.tsx:70`, `ModeTutorial.tsx:80`
+  nettoient déjà leur `setTimeout` au démontage.
+- **A2 (MuteButton)** — le bouton est bien dans `TAPPABLE` (`button` y figure) ; le vrai trou
+  était l'écouteur global retiré pendant `countdown`/`playing`, corrigé dans `App.tsx`.
+- **A2 (MAKEUP_GAIN)** — « +8 dB » est exact (20·log10 2,5 = 7,96) ; le gain n'a pas bougé.
+
+Ratios recalculés (WCAG 2.1) : `--ink-faint` 5,42 sur `--paper`, 4,73 sur `--paper-2`, 5,55
+sur le fond sombre, 4,66 sur `--paper-2` sombre ; `.unlock` noir sur rouge 4,29 en clair et
+5,28 en sombre, soit la valeur de `.btn--red`, déjà validée.
+
+Restent ouverts : A6, A7, A8, B1–B7, C3, C5, C7, D3, D6, D7, C4 partiel (`.standing--me`,
+`.power-slot`) ; et l'écoute réelle par Jérémy pour A1, A3 et A4.
