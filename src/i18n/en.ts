@@ -129,7 +129,7 @@ export const en: Messages = {
 
   support: {
     title: 'A little boost?',
-    lead: 'I’m a small French developer making games with heart. You can support me with a (tiny) donation or a 5-star rating on the store.',
+    lead: 'I’m a small French developer making games with heart. A 5-star rating on the store would help a lot.',
     donate: 'Make a small donation',
     rate: 'Rate 5 stars',
     frameDescription: 'Thanks for supporting Letter Minute!',
@@ -892,6 +892,9 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
       `Everyone picks ${picks === 1 ? 'one category' : `${picks} categories`} in turn, ten seconds a pick.${
         drawn === 0 ? '' : drawn === 1 ? ' Luck adds the last one.' : ` Luck adds the last ${drawn}.`
       }`,
+    lobbyView: 'Back to the lobby',
+    resumeDraft: 'Resume the draft',
+    lobbyNote: 'The draft goes on without you. You are back in when it is your turn.',
     draftTitle: 'Pick a category',
     draftTurn: (name: string) => `${name} is picking…`,
 cheerHint: 'Tap a category to nudge the table: it shakes on every screen.',

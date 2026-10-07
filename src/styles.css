@@ -6410,142 +6410,6 @@ animation: clock-bonus 500ms var(--ease-out);
   background: var(--paper);
 }
 
-/* Le formulaire de Buy Me a Coffee se cadre à 420 px de large, comme son widget. */
-.donation-pop {
-  width: min(28rem, 100%);
-  max-height: calc(100dvh - 2rem);
-  overflow-y: auto;
-  padding: 0.8rem;
-  box-shadow: 8px 8px 0 var(--red);
-}
-
-@media (max-height: 640px) {
-  .donation-pop .creator-photo {
-    width: 3.2rem;
-    height: 3.2rem;
-  }
-}
-
-/* Le créateur parle : sa photo dans un rond qui bouge, sa phrase tapée dans une bulle. */
-.creator {
-  display: grid;
-  justify-items: center;
-  gap: 0.8rem;
-  width: 100%;
-  text-align: left;
-}
-
-.creator-photo {
-  display: block;
-  width: 4.6rem;
-  height: 4.6rem;
-  border: 3px solid var(--ink);
-  border-radius: 50%;
-  overflow: hidden;
-  background: var(--yellow);
-  animation: creator-in 520ms var(--ease-spring) both, creator-sway 3.6s ease-in-out 520ms infinite;
-}
-
-.creator-photo--talking {
-  animation: creator-in 520ms var(--ease-spring) both, creator-talk 460ms ease-in-out 520ms infinite;
-}
-
-.creator-photo img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.creator-bubble {
-  position: relative;
-  box-sizing: border-box;
-  width: 100%;
-  margin: 0;
-  padding: 0.65rem 0.8rem;
-  border: 2px solid var(--ink);
-  border-radius: 1rem;
-  background: var(--paper-2);
-  font-size: 0.92rem;
-  line-height: 1.4;
-  text-align: center;
-  white-space: pre-line;
-  transform-origin: 50% 0;
-  animation: bubble-in 420ms var(--ease-spring) 240ms both;
-}
-
-.creator-bubble::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: -0.9rem;
-  margin-left: -0.45rem;
-  border: 0.45rem solid transparent;
-  border-bottom-color: var(--ink);
-}
-
-.creator-caret {
-  display: inline-block;
-  width: 2px;
-  height: 1em;
-  margin-left: 1px;
-  vertical-align: -0.15em;
-  background: currentColor;
-  animation: caret 800ms steps(1) infinite;
-}
-
-@keyframes creator-in {
-  from {
-    opacity: 0;
-    transform: scale(0.4) rotate(-20deg);
-  }
-}
-
-@keyframes creator-talk {
-  0%,
-  100% {
-    transform: rotate(-3deg) translateY(0);
-  }
-  50% {
-    transform: rotate(3deg) translateY(-2px);
-  }
-}
-
-@keyframes creator-sway {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(-4deg) translateY(-1px);
-  }
-}
-
-@keyframes bubble-in {
-  from {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .creator-photo,
-  .creator-photo--talking,
-  .creator-bubble,
-  .creator-caret {
-    animation: none;
-  }
-}
-
-/* The photo and the note above take some 14rem: on a short window the form
-   keeps a usable height, and the sheet scrolls from the note instead. */
-.donation-frame {
-  width: 100%;
-  height: min(32rem, max(22rem, calc(100dvh - 22rem)));
-  border: 0;
-  background: #fff;
-}
-
 /* Un mot de « Tes mots » se déplie sur ce que les autres ont mis au même couple. */
 .challenge-word-item {
   display: grid;
@@ -6859,19 +6723,10 @@ li:has(> .reactable--open),
   resize: vertical;
 }
 
-/* Le profil occupe toute la hauteur du tiroir : le soutien se plaque en bas. */
-.menu-body:has(> .profile-pane) {
-  align-content: stretch;
-}
-
 .profile-pane {
   display: flex;
   flex-direction: column;
   gap: var(--step);
-}
-
-.menu-support {
-  margin-top: auto;
 }
 
 button.challenge-word {

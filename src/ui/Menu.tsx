@@ -42,7 +42,6 @@ import { StatsPage, type RecapActions } from './StatsPage'
 import { FriendPage } from './FriendPage'
 import { useFriendHistory } from '../state/rivalry'
 import { FriendsView } from './FriendsView'
-import { DonateButton } from './Donate'
 import { useHiddenTaps } from './useHiddenTaps'
 import { useFeature } from './features'
 import { useSwipe } from './useSwipe'
@@ -325,7 +324,6 @@ function ProfilePane({
   const t = useT()
   const named = account && !account.anonymous
   const avatars = useFeature('avatar')
-  const support = useFeature('support')
   const [logOutAsking, setLogOutAsking] = useState(false)
 
   return (
@@ -387,7 +385,7 @@ function ProfilePane({
         onOpen={(next) => next !== 'profile' && onPage(next)}
       />
 
-      {support ? <DonateButton className="btn btn--ghost btn--block menu-support" label={t.menu.support} /> : null}
+      
     </div>
   )
 }

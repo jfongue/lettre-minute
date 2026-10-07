@@ -263,3 +263,58 @@ select tests.is(
   'ok', 'and the driver still buries the seat that left'
 );
 select tests.logout();
+
+-- --------------------------------------- renoncer au départ (0058) --
+
+-- La barre d'annonce court après le lancement de la table : le journal est
+-- encore vide, et n'importe quel joueur assis doit pouvoir ramener tout le
+-- monde au salon. Un choix déjà pris ferme la porte.
+select tests.login('dh');
+create temp table aborted as select public.duel_create('fr', array['animaux', 'pays', 'couleurs'], 3) as id;
+grant select on aborted to public;
+select public.duel_invite((select id from aborted), tests.bot());
+select public.duel_invite((select id from aborted), tests.uid('dg'));
+select tests.logout();
+
+select tests.login('dg');
+select public.duel_join((select id from aborted), 5);
+select public.duel_ready((select id from aborted), true);
+select tests.logout();
+
+select tests.login('dh');
+select tests.is(public.duel_ready((select id from aborted), true), 'started', 'the last ready launches the table');
+select tests.is(
+public.duel_move((select id from aborted), 1, tests.seat_of((select id from aborted), 'dh'), 'cheer', 'pays'),
+'ok', 'the host cheers while the draft waits'
+);
+select tests.is(public.duel_unstart((select id from aborted)), 'back', 'a seated player cancels the start');
+select tests.is(tests.duel_status((select id from aborted)), 'lobby', 'the table is back in the lobby');
+select tests.is(
+(select started_at is null from public.duel_tables where id = (select id from aborted)),
+true, 'its start time is cleared'
+);
+select tests.is(
+(select count(*)::int from public.duel_moves where table_id = (select id from aborted)),
+0, 'the aborted journal is wiped, cheers and all'
+);
+select tests.is(tests.seats((select id from aborted)), 3, 'everybody is still seated');
+select tests.is(tests.seat_numbers((select id from aborted)), null::int[], 'and no seat number is left');
+select tests.logout();
+
+select tests.login('dg');
+select tests.is(public.duel_ready((select id from aborted), true), 'waiting', 'the friend declares himself ready again');
+select tests.logout();
+
+select tests.login('dh');
+select tests.is(public.duel_ready((select id from aborted), true), 'started', 'and the table launches again');
+select tests.is(
+public.duel_move((select id from aborted), 1, tests.seat_of((select id from aborted), 'dh'), 'pick', 'animaux'),
+'ok', 'a first choice is taken'
+);
+select tests.is(public.duel_unstart((select id from aborted)), 'started', 'nobody cancels a start once a choice is made');
+select tests.is(tests.duel_status((select id from aborted)), 'playing', 'the table stays playing');
+select tests.is(
+(select count(*)::int from public.duel_moves where table_id = (select id from aborted)),
+1, 'and its journal keeps the choice'
+);
+select tests.logout();

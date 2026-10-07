@@ -9,7 +9,6 @@ import { categoryText, formatNumber, useT } from '../i18n'
 import type { Account, ChallengeDetail, Submission } from '../lib/cloud'
 import type { Proposal } from '../state/session'
 import { adsSupported, storeUrl, tapFeedback } from '../lib/native'
-import { DonateButton } from './Donate'
 import { supportDue } from '../domain/support'
 import { sound, tierSound } from '../lib/sound'
 import { AccountPanel, type AccountActions } from './AccountPanel'
@@ -80,10 +79,15 @@ interface OverScreenProps {
   /** One hidden word uncovered: spends one of the free ones. */
   onPeek?(): void
   onJoinPlus?(): void
+  /**
+   * Faux pour un mode de la réserve : son score ne bat aucun record et ne
+   * rapporte rien — le bilan le montre sans le comparer à rien.
+   */
+  ranked?: boolean
 }
 
 export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: OverScreenProps) {
-  const { profile, profileBefore, onChoose, onChoosePower } = summary
+  const { profile, profileBefore, onChoose, onChoosePower, ranked = true } = summary
   // Held from the pick to the end of its celebration: the offer is off the
   // table as soon as the pick is kept, and the screen must outlive it.
   const [celebrating, setCelebrating] = useState<'category' | 'power' | null>(null)
@@ -92,7 +96,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
   const powers = useFeature('powers')
 
   // A challenge run beats no record: it does not count for one.
-  const previousBest = profileBefore.runs > 0 && !summary.challenge ? profileBefore.bestScore : null
+  const previousBest = ranked && profileBefore.runs > 0 && !summary.challenge ? profileBefore.bestScore : null
   if (!revealed) {
     return (
       <Reveal
@@ -321,6 +325,7 @@ function Summary({
   run,
   profile,
   profileBefore,
+  ranked = true,
   avatar,
   account,
   accountActions,
@@ -345,8 +350,8 @@ function Summary({
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
-  const record = run.score > profileBefore.bestScore && run.score > 0
-  const bonus = recordBonus(profileBefore, run.score)
+  const record = ranked && run.score > profileBefore.bestScore && run.score > 0
+  const bonus = ranked ? recordBonus(profileBefore, run.score) : 0
   const ours = mine ? run.found.filter((found) => mine.has(compactWord(found.display))).length : 0
   // Decided once: marking the ask makes `supportDue` false, and the panel must stay.
   const [asking] = useState(() => support && supportDue(profileBefore, profile, run.score, false))
@@ -425,21 +430,19 @@ function Summary({
   )
 }
 
-/** A donation or a rating, asked at a happy moment. In a browser the donation stays on the page. */
+/** A rating, asked at a happy moment: with no store page there is nothing to open. */
 function SupportPanel() {
   const t = useT()
   const store = storeUrl()
+  if (!store) return null
   return (
     <section className="panel support">
       <p className="section-title">{t.support.title}</p>
       <p>{t.support.lead}</p>
       <div className="support-actions">
-        <DonateButton className="btn btn--ghost" label={t.support.donate} />
-        {store && (
-          <a className="btn btn--ghost" href={store} target="_blank" rel="noopener noreferrer">
-            {t.support.rate}
-          </a>
-        )}
+        <a className="btn btn--ghost" href={store} target="_blank" rel="noopener noreferrer">
+          {t.support.rate}
+        </a>
       </div>
     </section>
   )

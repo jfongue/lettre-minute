@@ -10,6 +10,52 @@ Repère pour un LLM qui reprend ce dépôt à froid.
 Source de vérité ; ne pas les dupliquer ici, seulement les compléter par ce
 qu'un nouvel arrivant casserait sans le savoir.
 
+## Où chercher
+
+Carte pour aller droit au fichier au lieu de fouiller le dépôt. Les gros
+fichiers se lisent par morceaux (`read` avec offset/limit), après un `grep`
+qui donne la ligne.
+
+- **Écrans** : `src/App.tsx` route entre les écrans et tient l'état global ;
+  un écran = un composant de `src/ui/` (`HomeScreen`, `Menu`, `RunScreen`,
+  `OverScreen`, `StatsPage`, `ChallengeScreen`, `DuelScreen`…).
+- **Styles** : une seule feuille, `src/styles.css` (~8 800 lignes), découpée
+  par bannières `/* ---… nom - */` ; trouver la section avec
+  `grep -n '^/\* -' src/styles.css`. Le duel a la sienne, `src/duel.css`.
+  `src/styles.base.css` (non suivi, importé par personne) n'est pas la source.
+- **Textes** : `src/i18n/fr.ts` est la référence typée ; une clé ajoutée va
+  dans les 7 fichiers (`fr en es de it nl pt`), sinon `tsc -b` échoue.
+- **Pouvoirs** : `src/domain/powers.ts`, `src/ui/PowerSlots.tsx`,
+  `PowerOfferScreen.tsx`, `PowerIcon.tsx`, `ChallengePowers.tsx`.
+- **Avatars** : `src/domain/avatar.ts`, `src/ui/Avatar.tsx`, `AvatarScreen.tsx`.
+- **Défis entre amis** (pas de défi quotidien) : `src/domain/challenge.ts`,
+  `src/state/challenges.ts`, `src/state/botRuns.ts`, `src/ui/Challenge*.tsx`.
+- **Duel** : `src/domain/duel.ts`, `duelLog.ts`, `src/state/duel.ts`,
+  `src/ui/DuelScreen.tsx`, `DuelTutorial.tsx`, entrée `duel.html` / `src/duel.tsx`.
+- **Premium, bans de catégorie** : `src/domain/perks.ts`, `src/ui/Checkout.tsx`,
+  `PlusPop.tsx`, `CategoriesPage.tsx`.
+- **Modération, mots bannis** : `src/domain/moderation.ts`,
+  `src/ui/ModerationScreen.tsx`, `RequestsPage.tsx`, `src/debug/WordsBoard.tsx`,
+  `scripts/ban-*.ts`.
+- **Stats, classements** : `src/ui/StatsPage.tsx`, `src/domain/history.ts`,
+  `standing.ts`, `leaderboards.ts`, `boards.ts`.
+- **Fonctionnalités activables** : `src/domain/features.ts`, `src/ui/features.ts`,
+  `src/debug/FeaturesBoard.tsx`.
+- **Serveur** : chaque appel Supabase est dans `src/lib/cloud.ts` ; schéma dans
+  `supabase/migrations/NNNN_*.sql`, tests SQL dans `supabase/tests/`.
+- **Dictionnaires** : `src/data/words/<langue>/*.json`, produits par
+  `scripts/import-words.ts` ; jamais édités à la main.
+- **Planche debug** : `src/debug/DebugBoard.tsx` (`SCENARIOS`).
+
+Vérifier ce qu'on a touché plutôt que tout relancer :
+
+- un test : `npx vitest run src/domain/powers.test.ts` ; un dossier :
+  `npx vitest run src/i18n`
+- les types : `npx tsc -b` (toute l'app, incrémental) ;
+  le lint d'un fichier : `npx oxlint src/ui/Menu.tsx`
+- `npm run check` (lint + types + toute la suite) une fois, avant de commiter.
+  Ses avertissements oxlint sont anciens : seules les erreurs comptent.
+
 ## Pièges connus
 
 - **Chrome sans tête ne démarre pas depuis une session d'agent** : le sandbox
@@ -212,9 +258,8 @@ ce n'est pas une raison de renoncer au protocole DevTools.
 - **Se connecter doit attendre l'envoi de la partie** (`pushing` dans
   `src/App.tsx`) : la fusion déplace les parties du compte anonyme puis
   l'efface, et une partie encore en vol partirait avec lui.
-- **La pub est éteinte pour l’instant** (`ADS_ENABLED`, `src/domain/unlocks.ts`) :
-  seule la demande de soutien du récapitulatif reste. Le reste de ce point vaut
-  quand on la rallume.
+- **La pub est éteinte pour l’instant** (`ADS_ENABLED`, `src/domain/unlocks.ts`).
+  Le reste de ce point vaut quand on la rallume.
 - **La pub se prépare avant l’offre qui la porte** (`adsDue`,
   `src/domain/unlocks.ts`) : consentement et chargement prennent des secondes,
   et une pub pas encore chargée au moment du choix est sautée plutôt que

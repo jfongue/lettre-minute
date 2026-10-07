@@ -1641,6 +1641,16 @@ export function setDuelReady(table: string, ready: boolean): Promise<DuelReadyOu
   }, 'unreachable')
 }
 
+export type DuelUnstartOutcome = 'back' | 'started' | 'closed' | 'unreachable'
+
+/** Renoncer au départ : la table revient au salon tant que personne n'a choisi. */
+export function unstartDuel(table: string): Promise<DuelUnstartOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_unstart', { p_table: table })
+    return error ? 'unreachable' : (data as DuelUnstartOutcome)
+  }, 'unreachable')
+}
+
 export function kickFromDuel(table: string, player: string): Promise<boolean> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('duel_kick', { p_table: table, p_player: player })

@@ -38,6 +38,7 @@ import {
   postDuelMove,
   setDuelReady,
   syncDuel,
+  unstartDuel,
   type DuelSnapshot,
 } from '../lib/cloud'
 import { setMusic, sound } from '../lib/sound'
@@ -142,6 +143,8 @@ export interface DuelTable {
   ready: Readonly<Record<string, boolean>>
   markReady(): void
   unready(): void
+  /** Renoncer au départ : la table revient au salon tant que personne n'a choisi. */
+  cancelStart(): void
   duel: Duel | null
   judge: Judge | null
   pool: readonly string[]
@@ -151,6 +154,10 @@ export interface DuelTable {
   forced: string | null
   myTurn: boolean
   myPickTurn: boolean
+  /** Le draft se regarde depuis le salon : un aller-retour, pas un départ. */
+  draftLobby: boolean
+  showLobby(): void
+  hideLobby(): void
   watching: boolean
   event: DuelFact | null
   feed: readonly DuelFact[]
@@ -324,11 +331,15 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
   const readyMarks = useRef<Record<string, number>>({})
   /** Le salon de revanche local garde la table finie pour y revenir. */
   const finished = useRef<TableData | null>(null)
+  /** Le draft se regarde depuis le salon : un aller-retour, pas un départ. */
+  const [draftLobby, setDraftLobby] = useState(false)
 
   // -------------------------------------------------- la source en ligne --
 
   const [tableId, setTableId] = useState<string | null>(null)
   const syncing = useRef(false)
+  /** Un renoncement au départ périme la relecture en vol : sa réponse décrit une table qui n'existe plus. */
+  const epoch = useRef(0)
   const lastSeq = table?.moves.at(-1)?.seq ?? 0
   // Le journal que l'appareil connaît, lisible hors du rendu : un coup renvoyé
   // après un `stale` doit partir du journal que la relecture vient d'inscrire,
@@ -343,9 +354,11 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     syncing.current = true
     const sent = wall()
     const after = table?.id === tableId ? lastSeq : 0
+    const seen = epoch.current
     const snapshot = await syncDuel(tableId, after)
     const back = wall()
     syncing.current = false
+    if (seen !== epoch.current) return
     if (snapshot === 'unreachable') {
       setOffline(true)
       return
@@ -569,6 +582,35 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     },
     [mode, myId, sync, table],
   )
+
+  /**
+   * Renoncer au départ : la table revient au salon, personne n'a encore choisi.
+   * Le serveur efface alors son journal (`duel_unstart`), et l'appareil doit
+   * oublier le sien du même coup — une relecture numérotée au-delà des coups
+   * neufs attendrait indéfiniment des choix qui repartent de un.
+   */
+  const cancelStart = useCallback(() => {
+    if (!table || table.status !== 'playing') return
+    if (mode === 'local') {
+      readyMarks.current = {}
+      setTable((current) =>
+        current && { ...current, status: 'lobby', startedAt: null, moves: [], seats: current.seats.map((seat) => ({ ...seat, ready: false, seat: null })) },
+      )
+      return
+    }
+    if (!table.id) return
+    const id = table.id
+    void unstartDuel(id).then((outcome) => {
+      if (outcome !== 'back') {
+        sound.refused()
+        return
+      }
+      epoch.current += 1
+      journal.current = { id, moves: [] }
+      setTable((current) => (current && current.id === id ? { ...current, moves: [] } : current))
+      void sync()
+    })
+  }, [mode, sync, table])
 
   // -------------------------------------------------------- la partie --
 
@@ -841,6 +883,14 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
   const lobbySeats: readonly Seat[] = table?.status === 'lobby' ? [...present, ...(table.invites ?? [])] : players
   const drafting = duel && duel.phase === 'draft' && !draftComplete(duel)
   const picker = drafting && phase === 'draft' ? (players[draftPlayer(duel)] ?? null) : null
+  // Le salon ne retient personne : dès que c'est à moi de choisir, le draft
+  // reprend l'écran — et un draft qui n'est plus là referme la vue.
+  useEffect(() => {
+  if (!draftLobby) return
+  if (phase !== 'draft' || (picker && picker.id === myId)) setDraftLobby(false)
+  }, [draftLobby, myId, phase, picker])
+  const showLobby = useCallback(() => setDraftLobby(true), [])
+  const hideLobby = useCallback(() => setDraftLobby(false), [])
   const feed = facts.filter((fact) => fact.kind !== 'picked' && fact.kind !== 'cheered').slice(-FEED_SIZE).reverse()
   const ready: Record<string, boolean> = {}
   for (const seat of present) ready[seat.id] = seat.ready
@@ -865,6 +915,10 @@ export function useDuelTable({ lang, mode, join = null, onExit }: DuelTableOptio
     ready,
     markReady: () => setMyReady(true),
     unready: () => setMyReady(false),
+    cancelStart,
+    draftLobby,
+    showLobby,
+    hideLobby,
     duel,
     judge,
     pool: table?.categories ?? mine,

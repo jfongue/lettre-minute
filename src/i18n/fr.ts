@@ -150,7 +150,7 @@ export const fr = {
 
   support: {
     title: 'Un petit coup de pouce ?',
-    lead: 'Je suis un petit développeur français qui propose des expériences faites avec le cœur. Tu peux me soutenir avec un (tout petit) don ou un 5 étoiles sur le store.',
+    lead: 'Je suis un petit développeur français qui propose des expériences faites avec le cœur. Un 5 étoiles sur le store m’aiderait beaucoup.',
     donate: 'Faire un petit don',
     rate: 'Mettre 5 étoiles',
     /** Shown atop the Buy Me a Coffee form framed in a browser. */
@@ -898,6 +898,9 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
       `Chacun choisit ${picks === 1 ? 'une catégorie' : `${picks} catégories`} à son tour, dix secondes par choix.${
         drawn === 0 ? '' : drawn === 1 ? ' Le sort ajoute la dernière.' : ` Le sort ajoute les ${drawn} dernières.`
       }`,
+    lobbyView: 'Retour au salon',
+    resumeDraft: 'Reprendre la sélection',
+    lobbyNote: 'La sélection continue sans toi. Tu y reviens à ton tour.',
     draftTitle: 'Choisis une catégorie',
     draftTurn: (name: string) => `${name} choisit…`,
     cheerHint: 'Touche une catégorie pour souffler ton idée : elle frémit chez toute la table.',

@@ -7,7 +7,7 @@ export const SUPPORT_EVERY_RUNS = 10
 export const GREAT_SCORE_RATIO = 0.8
 
 /**
- * Whether the run's summary asks for a donation or a rating. Only at a happy
+ * Whether the run's summary asks for a rating. Only at a happy
  * moment — a great score, a category or a power just kept — and only once
  * every ten runs or so: the count starts over at the ask, and waits for the
  * next happy moment past it, which is where the « or so » comes from.

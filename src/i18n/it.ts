@@ -124,7 +124,7 @@ export const it: Messages = {
 
   support: {
     title: 'Una piccola spinta?',
-    lead: 'Sono un piccolo sviluppatore francese che crea esperienze fatte col cuore. Puoi sostenermi con una (piccolissima) donazione o con 5 stelle nello store.',
+    lead: 'Sono un piccolo sviluppatore francese che crea esperienze fatte col cuore. Cinque stelle nello store mi aiuterebbero molto.',
     donate: 'Fai una piccola donazione',
     rate: 'Dai 5 stelle',
     frameDescription: 'Grazie per sostenere Lettera Minuto!',
@@ -888,6 +888,9 @@ flawless: ['Senza errori', 'Ogni tre parole valide digitate senza errori danno s
       `Ognuno sceglie ${picks === 1 ? 'una categoria' : `${picks} categorie`} a turno, dieci secondi per scelta.${
         drawn === 0 ? '' : drawn === 1 ? ' La sorte aggiunge l’ultima.' : ` La sorte aggiunge le ultime ${drawn}.`
       }`,
+    lobbyView: 'Torna alla sala',
+    resumeDraft: 'Riprendi la selezione',
+    lobbyNote: 'La selezione continua senza di te. Ci torni al tuo turno.',
     draftTitle: 'Scegli una categoria',
     draftTurn: (name: string) => `${name} sceglie…`,
 cheerHint: 'Tocca una categoria per suggerirla: tutto il tavolo la vede tremare.',

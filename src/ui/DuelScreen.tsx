@@ -73,11 +73,11 @@ const reserveOf = (duel: Duel, index: number, at: number): number => Math.max(0,
  * L'hôte retire quelqu'un par un appui long sur sa place, jamais d'une touche :
  * un geste qui renvoie un ami chez lui ne se fait pas par mégarde.
  */
-function Lobby({ table, onRules }: { table: DuelTable; onRules(): void }) {
+function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRules(): void; watching?: boolean; onResume?(): void }) {
   const t = useT()
   const counting = table.phase === 'announcing'
   const me = table.seats[table.myIndex]
-  const locked = !!me?.ready || counting
+  const locked = !!me?.ready || counting || !!watching
   const [kicking, setKicking] = useState<Seat | null>(null)
   const shape = draftShape(table.seats.filter((seat) => !seat.pending).length, table.pool.length)
   const left = table.leavers.map((id) => id.charAt(0).toUpperCase() + id.slice(1))
@@ -170,7 +170,28 @@ function Lobby({ table, onRules }: { table: DuelTable; onRules(): void }) {
 
         {table.pool.length === 0 ? (
           <p className="note note--warn">{t.duel.loadFailed}</p>
-        ) : counting ? null : (
+        ) : watching ? (
+          <div className="stack">
+            <button type="button" className="btn btn--play btn--block" onClick={onResume}>
+              {t.duel.resumeDraft}
+            </button>
+            <p className="note">{t.duel.lobbyNote}</p>
+          </div>
+        ) : counting ? (
+          <div className="stack">
+            <button
+              type="button"
+              className="btn btn--ghost btn--block"
+              onClick={() => {
+                armSound()
+                sound.pop()
+                table.cancelStart()
+              }}
+            >
+              {t.duel.cancel}
+            </button>
+          </div>
+        ) : (
           <div className="stack">
             <button
               type="button"
@@ -443,7 +464,17 @@ export function Draft({ table }: { table: DuelTable }) {
             )
           })}
         </ul>
-        <Quit table={table} />
+        <button
+          type="button"
+          className="btn btn--quiet duel-quit"
+          onClick={() => {
+            armSound()
+            sound.pop()
+            table.showLobby()
+          }}
+        >
+          {t.duel.lobbyView}
+        </button>
       </div>
     </main>
   )
@@ -1142,7 +1173,8 @@ function DuelTableScreen({ lang, mode, join, onExit, onBots }: Required<Omit<Due
   if (phase === 'connecting') return <Notice text={t.duel.connecting} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} onRules={() => setRules(true)} />
-  if (phase === 'draft' && table.duel) return <Draft table={table} />
+  if (phase === 'draft' && table.duel)
+    return table.draftLobby ? <Lobby table={table} watching onRules={() => setRules(true)} onResume={table.hideLobby} /> : <Draft table={table} />
   if (phase === 'opening' && table.duel) return <Opening table={table} />
   if ((phase === 'play' || phase === 'deaths') && table.duel && table.judge && table.prompt) return <Play table={table} />
   if (phase === 'over' && table.duel) return <Over table={table} />

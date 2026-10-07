@@ -123,7 +123,7 @@ export const nl: Messages = {
 
   support: {
     title: 'Een klein duwtje?',
-    lead: 'Ik ben een kleine Franse ontwikkelaar die spellen met hart maakt. Je kunt me steunen met een (piepkleine) donatie of 5 sterren in de store.',
+    lead: 'Ik ben een kleine Franse ontwikkelaar die spellen met hart maakt. Vijf sterren in de store zouden me enorm helpen.',
     donate: 'Doe een kleine donatie',
     rate: 'Geef 5 sterren',
     frameDescription: 'Bedankt dat je Letter Minuut steunt!',
@@ -887,6 +887,9 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
       `Iedereen kiest om de beurt ${picks === 1 ? 'één categorie' : `${picks} categorieën`}, tien seconden per keuze.${
         drawn === 0 ? '' : drawn === 1 ? ' Het lot voegt de laatste toe.' : ` Het lot voegt de laatste ${drawn} toe.`
       }`,
+    lobbyView: 'Terug naar de lobby',
+    resumeDraft: 'Verder met kiezen',
+    lobbyNote: 'De keuze gaat zonder jou verder. Je bent er weer bij als je aan de beurt bent.',
     draftTitle: 'Kies een categorie',
     draftTurn: (name: string) => `${name} kiest…`,
 cheerHint: 'Tik op een categorie om een tip te geven: de hele tafel ziet hem trillen.',

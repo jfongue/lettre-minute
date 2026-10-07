@@ -19,6 +19,8 @@ import { ModeratorOffer } from '../ui/ModeratorOffer'
 import { ModerationScreen } from '../ui/ModerationScreen'
 import { OverScreen, type RunProposal } from '../ui/OverScreen'
 import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
+import { GameModes } from '../ui/GameModes'
+import { ModeTutorial } from '../ui/ModeTutorial'
 import { TutorialScreen } from '../ui/TutorialScreen'
 import { UpdateNotice } from '../ui/UpdateNotice'
 import { PushOffer } from '../ui/PushOffer'
@@ -178,6 +180,9 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
   }))
   return {
     seed: 42,
+    mode: 'solo',
+    answer: null,
+    armed: true,
     categoryIds: ['pays', 'animaux', 'couleurs'],
     prompt: { categoryId: 'pays', letter: 'A' },
     drawn: words.length + 1,
@@ -202,6 +207,7 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     rerolls: 0,
     chatter: 0,
 latecomerSeconds: 0,
+bonusSeconds: 0,
 flawlessStreak: 0,
 freeSkipReady: false,
   }
@@ -1316,6 +1322,10 @@ const CHEER_TABLE: DuelTable = (() => {
     ready: {},
     markReady: noop,
     unready: noop,
+    cancelStart: noop,
+    draftLobby: false,
+    showLobby: noop,
+    hideLobby: noop,
     duel,
     judge: null,
     pool: categories,
@@ -1358,7 +1368,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'over-classic',
     group: 'Fin de partie',
     title: 'Classique, record battu',
-    how: 'Record, mots rares, faute d’une lettre, demande de soutien',
+    how: 'Record, mots rares, faute d’une lettre, demande de note',
     phase: 'over',
     render: (back) => (
       <OverScenario
@@ -2134,6 +2144,22 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Une couleur en R (dans la langue de l’interface), puis la partie',
     phase: 'playing',
     render: (back) => <TutorialScreen lang="fr" onDone={back} />,
+  },
+  {
+    id: 'game-modes',
+    group: 'Accueil',
+    title: 'Les modes de jeu, derrière « Jouer »',
+    how: 'La réserve : le solo normal et les trois modes qui se jouent sans pouvoir',
+    phase: 'home',
+    render: (back) => <GameModes onPick={back} onClose={back} />,
+  },
+  {
+    id: 'mode-delay',
+    group: 'Accueil',
+    title: 'Tutoriel du mode retard',
+    how: 'La leçon d’une règle : on valide la question A à vide, puis on répond à A sous la question B',
+    phase: 'playing',
+    render: (back) => <ModeTutorial lang="fr" onDone={back} />,
   },
   {
     id: 'duel-rules',

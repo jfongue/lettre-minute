@@ -123,7 +123,7 @@ export const de: Messages = {
 
   support: {
     title: 'Ein kleiner Schubs?',
-    lead: 'Ich bin ein kleiner Entwickler aus Frankreich und mache Spiele mit Herz. Du kannst mich mit einer (ganz kleinen) Spende oder fünf Sternen im Store unterstützen.',
+    lead: 'Ich bin ein kleiner Entwickler aus Frankreich und mache Spiele mit Herz. Fünf Sterne im Store würden mir sehr helfen.',
     donate: 'Kleine Spende',
     rate: 'Fünf Sterne geben',
     frameDescription: 'Danke, dass du Letter Minute unterstützt!',
@@ -886,6 +886,9 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
       `Jeder wählt reihum ${picks === 1 ? 'eine Kategorie' : `${picks} Kategorien`}, zehn Sekunden pro Wahl.${
         drawn === 0 ? '' : drawn === 1 ? ' Das Los fügt die letzte hinzu.' : ` Das Los fügt die letzten ${drawn} hinzu.`
       }`,
+    lobbyView: 'Zurück zur Lobby',
+    resumeDraft: 'Auswahl fortsetzen',
+    lobbyNote: 'Die Auswahl läuft ohne dich weiter. Du kommst dran, wenn du an der Reihe bist.',
     draftTitle: 'Wähle eine Kategorie',
     draftTurn: (name: string) => `${name} wählt…`,
 cheerHint: 'Tippe eine Kategorie an, um einen Wink zu geben: der ganze Tisch sieht sie wackeln.',

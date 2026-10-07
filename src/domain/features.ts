@@ -53,6 +53,7 @@ export const FEATURES: readonly FeatureDef[] = [
   { id: 'premium', label: 'Premium', note: 'Son offre et son paiement', defaults: open },
   { id: 'avatar', label: 'Avatar et couleurs', note: 'L’écran de l’avatar', defaults: open },
   { id: 'tutorial', label: 'Tutoriel', note: 'La première partie guidée', defaults: open },
+  { id: 'gameModes', label: 'Modes de jeu', note: 'La réserve de modes derrière « Jouer » : retard, endurance, renversé, sans pouvoir', defaults: supers },
   // Les mots
   { id: 'proposeWord', label: 'Proposer un mot', note: 'Pendant la partie, et la correction au bilan', defaults: open },
   { id: 'myRequests', label: 'Mes demandes', note: 'La page et sa tuile d’accueil', defaults: open },
@@ -64,7 +65,7 @@ export const FEATURES: readonly FeatureDef[] = [
   // Fenêtres et messages
   { id: 'ideasBox', label: 'Boîte à idées', note: 'Au pied de « Mes demandes »', defaults: open },
   { id: 'feedback', label: 'Question d’avis', note: 'Après la dixième partie, puis toutes les trente', defaults: open },
-  { id: 'support', label: 'Soutenir le créateur', note: 'Au bilan et dans le profil', defaults: open },
+  { id: 'support', label: 'Demande de note', note: 'Au bilan, sur un bon score', defaults: open },
   { id: 'pushOffer', label: 'Proposer les notifications', note: 'Après une nouvelle amitié, sur téléphone', defaults: open },
   { id: 'powerGift', label: 'Pouvoir offert', note: 'La fenêtre du pouvoir Complication', defaults: open },
   { id: 'storeUpdate', label: 'Annonce de mise à jour', note: 'Quand le Play Store a une version plus récente', defaults: open },
