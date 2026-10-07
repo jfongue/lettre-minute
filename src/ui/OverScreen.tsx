@@ -8,7 +8,7 @@ import type { FoundWord, Run } from '../domain/run'
 import { runScore } from '../domain/run'
 import { ENDURANCE_TIME_BONUS } from '../domain/modes'
 import { categoryText, formatNumber, useT } from '../i18n'
-import type { Account, ChallengeDetail, Submission } from '../lib/cloud'
+import type { Account, BanOutcome, ChallengeDetail, Submission } from '../lib/cloud'
 import type { Proposal } from '../state/session'
 import { adsSupported, storeUrl, tapFeedback } from '../lib/native'
 import { supportDue } from '../domain/support'
@@ -28,6 +28,8 @@ import { ShareSoon } from './ShareSoon'
 import { RequestRow, type RequestEntry } from './RequestsPage'
 import { peeksLeft, type HiddenAnswer } from '../domain/perks'
 import { HiddenAnswers } from './HiddenAnswers'
+import { FlagWordCard, type FlagWord } from './StatsPage'
+import { useLongPress } from './useLongPress'
 import { useFeature } from './features'
 
 /** A word proposed during the run, and what the server holds of it — nothing while it still waits on the device. */
@@ -82,6 +84,12 @@ interface OverScreenProps {
   onPeek?(): void
   onJoinPlus?(): void
   /**
+  * Signals a word of the run — said, or still hidden — to the other
+  * moderators, as the history's recap does; absent for a player who is not
+  * one, which is what keeps the summary from offering the gesture.
+  */
+  onFlag?(word: FlagWord, reason: string): Promise<BanOutcome>
+  /**
    * Faux pour un mode de la réserve : son score ne bat aucun record et ne
    * rapporte rien — le bilan le montre sans le comparer à rien.
    */
@@ -109,6 +117,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
         peeks={peeksLeft(profile)}
         onPeek={summary.onPeek}
         onJoinPlus={summary.onJoinPlus}
+        onFlag={summary.onFlag}
         onNext={onRevealed}
       />
     )
@@ -181,6 +190,7 @@ function Reveal({
   peeks,
   onPeek,
   onJoinPlus,
+  onFlag,
   onNext,
 }: {
   run: Run
@@ -190,6 +200,7 @@ function Reveal({
   peeks: number
   onPeek?(): void
   onJoinPlus?(): void
+  onFlag?(word: FlagWord, reason: string): Promise<BanOutcome>
   onNext(): void
 }) {
   const t = useT()
@@ -200,6 +211,8 @@ function Reveal({
   const step = Math.min(WORD_MAX_MS, Math.max(WORD_MIN_MS, WORDS_SPAN_MS / Math.max(1, total)))
   const bestPoints = Math.max(0, ...run.found.map((found) => found.points))
   const latest = useRef<HTMLLIElement>(null)
+  const [flagged, setFlagged] = useState<FlagWord | null>(null)
+  const press = useLongPress<FlagWord>((word) => setFlagged(word))
 
   useEffect(() => {
     if (done) return
@@ -221,7 +234,13 @@ function Reveal({
   return (
     <div
       className="sheet reveal"
-      onClick={() => (done ? onNext() : setShown(total))}
+      // Un appui long ouvre la carte du mot : le tape qui suit ne doit pas
+      // passer au bilan dans son dos, ni la refermer.
+      onClick={() => {
+        if (flagged) return
+        if (done) onNext()
+        else setShown(total)
+      }}
       role="presentation"
     >
       {shown >= -1 && <RevealScore score={runScore(run)} previousBest={previousBest} mode={run.mode} />}
@@ -236,6 +255,9 @@ function Reveal({
                 key={found.word}
                 ref={index === shown - 1 ? latest : undefined}
                 className={`reveal-word${isRare(found) ? ' reveal-word--rare' : ''}${best ? ' reveal-word--best' : ''}`}
+                {...(onFlag
+                  ? press({ categoryId: found.prompt.categoryId, word: found.word, display: found.display })
+                  : {})}
               >
                 <LetterMark letter={found.prompt.letter} motif={categoryMotif(found.prompt.categoryId)} size="sm" />
                 <span className="reveal-word-text">
@@ -264,7 +286,17 @@ function Reveal({
         </ol>
       )}
 
-      {done && hidden.length > 0 && <HiddenAnswers hidden={hidden} peeks={peeks} onPeek={onPeek} onJoinPlus={onJoinPlus} />}
+      {onFlag && shown >= 0 && <p className="note">{t.moderation.flag.hint}</p>}
+
+      {done && hidden.length > 0 && (
+        <HiddenAnswers
+          hidden={hidden}
+          peeks={peeks}
+          onPeek={onPeek}
+          onJoinPlus={onJoinPlus}
+          onFlag={onFlag && ((word) => setFlagged(word))}
+        />
+      )}
 
       {done && (
         <button
@@ -283,6 +315,15 @@ function Reveal({
             </span>
           </span>
         </button>
+      )}
+
+      {flagged && onFlag && (
+        <FlagWordCard
+          word={flagged}
+          category={categoryText(t, flagged.categoryId).label}
+          onFlag={(reason) => onFlag(flagged, reason)}
+          onClose={() => setFlagged(null)}
+        />
       )}
     </div>
   )

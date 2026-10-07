@@ -1065,6 +1065,8 @@ function OverScenario({
       hidden={hidden}
       onPeek={() => setProfile((current) => spendPeek(current))}
       onJoinPlus={() => setProfile((current) => joinPlus(current, Date.now()))}
+      // Un signalement de mot ne s'écrit pas depuis la planche : la carte répond seule.
+      onFlag={() => later('sent' as const)}
     />
   )
 }

@@ -142,7 +142,7 @@ import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from
 import { HomeScreen } from './ui/HomeScreen'
 import { LanguagePicker } from './ui/LanguagePicker'
 import type { MenuPage } from './ui/Menu'
-import type { RecapActions } from './ui/StatsPage'
+import type { FlagWord, RecapActions } from './ui/StatsPage'
 import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
 import { NamePrompt } from './ui/NamePrompt'
@@ -1295,6 +1295,15 @@ setStartedAt((at) => at ?? Date.now())
     }),
     [judgeFor, session.profile, peek, joinPlus, moderation, on],
   )
+  // Le bilan de fin de partie signale un mot comme l'historique : même geste,
+  // même carte, et la langue de la partie qui vient de finir.
+  const overFlag = useMemo(
+    () =>
+      moderation?.moderator && on('wordFlag') && session.run
+        ? (word: FlagWord, reason: string) => proposeBan(runLang ?? lang, word.categoryId, word.word, word.display, reason)
+        : undefined,
+    [moderation, on, session.run, runLang, lang],
+  )
   // Read from the run as it ended, with the dictionaries it was judged by.
   const hidden = useMemo(
     () => (session.phase === 'over' && session.run && session.judge ? hiddenAnswers(session.run, session.judge) : []),
@@ -2028,6 +2037,7 @@ setStartedAt((at) => at ?? Date.now())
             hidden={hidden}
             onPeek={peek}
             onJoinPlus={joinPlus}
+            onFlag={overFlag}
             onReplay={play}
             onHome={() => {
               // Asked on the way home, never over the summary: after the tenth run, then every thirty.
