@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   AVATARS,
@@ -100,6 +102,30 @@ describe('avatars', () => {
 
     expect(new Set(goals).size).toBe(goals.length)
   })
+})
+
+// Seven palette inks are the light theme's own tokens, written twice: the
+// domain cannot read a stylesheet, so the two ends are tied here instead. The
+// dark theme brightens its tokens and leaves the palette alone — a red tile is
+// not a red button — so only the first definition counts.
+const SHARED_INKS: readonly [string, string][] = [
+['rouge', '--red'],
+['bleu', '--blue'],
+['jaune', '--yellow'],
+['noir', '--black'],
+['creme', '--cream'],
+['vert', '--green'],
+['rose', '--pink'],
+]
+
+describe('palette inks', () => {
+it('keeps every shared colour on its light theme token', () => {
+const sheet = readFileSync(join(import.meta.dirname, '..', 'styles.css'), 'utf8')
+for (const [id, token] of SHARED_INKS) {
+const ink = sheet.match(new RegExp(`${token}: (#[0-9a-f]{6});`))?.[1]
+expect(PALETTE.find((colour) => colour.id === id)?.hex, token).toBe(ink)
+}
+})
 })
 
 describe('parseAvatar', () => {
