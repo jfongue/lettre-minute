@@ -544,6 +544,10 @@ export type BanOutcome = 'sent' | 'accepted' | 'rejected' | 'known' | 'forbidden
  * for one vote, and the others judge it in « Mes demandes » — with his reason,
  * which they read on the card. The word only leaves the game at the next
  * dictionary build (`scripts/banned-words.ts`).
+ *
+ * `p_wait` est toujours posé : signaler, c'est demander l'avis des autres, même
+ * pour un super modérateur — sa voix ne règle pas la revue seule (0048). Qui
+ * veut trancher sans attendre passe par `forceRemoveWord`.
  */
 export function proposeBan(
   lang: string,
@@ -551,8 +555,6 @@ export function proposeBan(
   word: string,
   display: string,
   reason: string,
-  /** Le signaleur demande l'avis des autres : sa voix ne règle pas la revue seule (0048). */
-  wait = false,
 ): Promise<BanOutcome> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('propose_ban', {
@@ -560,7 +562,7 @@ export function proposeBan(
       p_word: word,
       p_display: display,
       p_note: reason.trim() || null,
-      p_wait: wait,
+      p_wait: true,
     })
     return error ? 'unreachable' : (data as BanOutcome)
   }, 'unreachable')
