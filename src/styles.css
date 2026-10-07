@@ -489,7 +489,7 @@ button.challenge-past::after {
 }
 
 .motion-pulse {
-  animation: breathe 5s ease-in-out infinite alternate;
+  animation: breathe-in 5s ease-in-out infinite alternate;
   animation-delay: calc(var(--i, 0) * -0.8s);
 }
 
@@ -514,7 +514,7 @@ button.challenge-past::after {
 }
 
 .motion-stamp {
-  animation: stamp 2.8s var(--ease-spring) infinite;
+  animation: stamp-beat 2.8s var(--ease-spring) infinite;
   animation-delay: calc(var(--i, 0) * -0.4s);
 }
 
@@ -2867,7 +2867,7 @@ animation: clock-bonus 500ms var(--ease-out);
   animation: caret 1s steps(1) infinite;
 }
 
-@keyframes breathe {
+@keyframes breathe-soft {
   to {
     transform: scale(0.8);
   }
@@ -2902,7 +2902,7 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 /* Le point d'exclamation tape : bref, fort, puis long silence. */
-@keyframes stamp {
+@keyframes stamp-beat {
   0%,
   10%,
   100% {
@@ -3866,7 +3866,7 @@ animation: clock-bonus 500ms var(--ease-out);
   color: var(--paper);
   font-size: 1.6rem;
   font-weight: 800;
-  animation: stamp 520ms var(--ease-spring) 380ms both;
+  animation: stamp-in 520ms var(--ease-spring) 380ms both;
 }
 
 .unlock-seal-stamp > * {
@@ -3912,7 +3912,7 @@ animation: clock-bonus 500ms var(--ease-out);
   }
 }
 
-@keyframes stamp {
+@keyframes stamp-seal {
   from {
     opacity: 0;
     transform: scale(2.6) rotate(-30deg);
@@ -4925,7 +4925,7 @@ animation: clock-bonus 500ms var(--ease-out);
 .moderation-empty-art {
   background: var(--yellow);
   color: var(--black);
-  animation: breathe 3s ease-in-out infinite;
+  animation: breathe-in 3s ease-in-out infinite;
 }
 
 .moderation-done-art {
@@ -5017,7 +5017,7 @@ animation: clock-bonus 500ms var(--ease-out);
 .offer-pop-shape--tick {
   color: var(--black);
   font-size: 2.3rem;
-  animation: stamp 520ms var(--ease-spring) 520ms both;
+  animation: stamp-in 520ms var(--ease-spring) 520ms both;
 }
 
 .offer-pop-title {
@@ -5231,7 +5231,7 @@ animation: clock-bonus 500ms var(--ease-out);
   background: var(--ink);
   color: var(--paper);
   font-weight: 700;
-  animation: stamp 420ms var(--ease-out) both;
+  animation: stamp-in 420ms var(--ease-out) both;
 }
 
 @keyframes power-worn {
@@ -5427,7 +5427,7 @@ animation: clock-bonus 500ms var(--ease-out);
 
 .run--hushed .clock {
   color: var(--ink-faint);
-  animation: breathe 3.2s ease-in-out infinite;
+  animation: breathe-in 3.2s ease-in-out infinite;
 }
 
 .timer-hold {
@@ -5474,7 +5474,7 @@ animation: clock-bonus 500ms var(--ease-out);
   animation: caret 1s steps(1) infinite;
 }
 
-@keyframes breathe {
+@keyframes breathe-in {
   50% {
     transform: scale(0.92);
     opacity: 0.6;
@@ -5575,14 +5575,14 @@ animation: clock-bonus 500ms var(--ease-out);
   font-weight: 800;
   font-size: 0.85rem;
   transform: rotate(-6deg);
-  animation: stamp 480ms var(--ease-spring) 180ms both;
+  animation: stamp-in 480ms var(--ease-spring) 180ms both;
 }
 
 .cheer--boost .cheer-points {
   color: var(--red);
 }
 
-@keyframes stamp {
+@keyframes stamp-in {
   from {
     transform: rotate(-6deg) scale(2.6);
     opacity: 0;
@@ -8364,7 +8364,7 @@ body[data-words='board'] .offer-pop-layer {
   display: grid;
   width: 4.5rem;
   height: 4.5rem;
-  animation: stamp 520ms var(--ease-spring) both;
+  animation: stamp-in 520ms var(--ease-spring) both;
 }
 
 /* -------------------------------------------------- icônes des succès - */

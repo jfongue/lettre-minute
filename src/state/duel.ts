@@ -477,13 +477,19 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile }: Due
     if (mode !== 'online' || !tableId) return
     void sync()
     const every = status === 'playing' ? 450 : status === 'over' ? 2500 : 1000
-    const timer = setInterval(() => void sync(), every)
+    // Rien à relire quand l'écran est caché : le retour relit la table lui-même.
+    const timer = setInterval(() => {
+      if (!document.hidden) void sync()
+    }, every)
     return () => clearInterval(timer)
   }, [mode, status, sync, tableId])
 
   // L'horloge de l'écran : un battement de 100 ms, la finesse de ce que la réserve affiche.
   useEffect(() => {
-    const beat = () => setAt(now())
+    const beat = () => {
+      // Ce battement ne nourrit que l'affichage : caché, ce ne sont que des réveils.
+      if (!document.hidden) setAt(now())
+    }
     beat()
     const timer = setInterval(beat, 100)
     return () => clearInterval(timer)
