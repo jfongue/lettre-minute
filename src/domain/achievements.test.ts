@@ -31,9 +31,9 @@ describe('achievements', () => {
     for (const achievement of ACHIEVEMENTS) {
       const icon = achievementIcon(achievement.id)
       expect(new Set([icon.ground, icon.shape, icon.accent]).size).toBe(3)
-      // Les deux succès dont la tuile est choisie à la main, et ceux du jeu
+      // Les trois succès dont la tuile est choisie à la main, et ceux du jeu
       // seul, qui montrent une voisine libre plutôt qu'un jalon.
-      if (achievement.play !== undefined && achievement.id !== 'added-10' && achievement.id !== 'discoveries-15') {
+      if (achievement.play !== undefined && !['added-10', 'discoveries-15', 'score-666'].includes(achievement.id)) {
         expect(designUnlock(icon.design)).toEqual(achievement.goal)
       }
     }
