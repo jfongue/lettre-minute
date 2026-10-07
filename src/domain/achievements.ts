@@ -120,6 +120,10 @@ const reaching = (id: AchievementId, milestone: Milestone, play?: number, family
  * `discoveries-15` et `added-10` prennent une tuile choisie à la main : le
  * premier montre l'étoile du combo 20, qu'aucun autre succès ne montre, le
  * second la tuile du premier mot ajouté, son jalon d'avatar étant à 15.
+ * `score-666` et `words-2000` gardent celles de 900 points et 5000 mots, les
+ * seuils qu'ils avaient avant : 666 n'est pas un jalon d'avatar (`tileOf`
+ * chercherait sans fin), et la tuile des 2000 mots est déjà celle de
+ * `clean-run`.
  */
 const PLAY_ACHIEVEMENTS: readonly Achievement[] = [
   reaching('level-4', { stat: 'level', at: 4 }, 15),
@@ -133,9 +137,9 @@ const PLAY_ACHIEVEMENTS: readonly Achievement[] = [
   reaching('words-1000', { stat: 'wordsFound', at: 1000 }, 70),
   reaching('level-20', { stat: 'level', at: 20 }, 80),
   reaching('combo-24', { stat: 'bestCombo', at: 24 }, 90),
-  reaching('score-666', { stat: 'bestScore', at: 666 }, 100),
+  { id: 'score-666', goal: { stat: 'bestScore', at: 666 }, design: tileOf({ stat: 'bestScore', at: 900 }), family: 'progress', play: 100 },
   reaching('runs-400', { stat: 'runs', at: 400 }, 110),
-  reaching('words-2000', { stat: 'wordsFound', at: 2000 }, 120),
+  { id: 'words-2000', goal: { stat: 'wordsFound', at: 2000 }, design: tileOf({ stat: 'wordsFound', at: 5000 }), family: 'progress', play: 120 },
   reaching('level-35', { stat: 'level', at: 35 }, 145),
 ]
 
