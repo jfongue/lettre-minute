@@ -8511,8 +8511,11 @@ body[data-words='board'] .offer-pop-layer {
 }
 
 /* ---------------------------------------------------- jouer entre amis - */
-/* Le choix du duel ou du défi : deux grandes cartes, leur dessin à côté du
-   texte, qui arrivent l'une après l'autre. */
+/* Le choix du duel, du défi ou du mode de jeu : de grandes cartes, leur dessin
+   à côté du texte. La feuille arrive opaque — un fondu sur elle laissait voir
+   l'écran d'avant pendant un quart de seconde, ce qui se lisait comme un
+   clignotement —, et ses textes comme ses cartes entrent ensemble : une carte
+   qui arrive après les autres clignote autant. */
 .together {
   position: fixed;
   inset: 0;
@@ -8520,7 +8523,6 @@ body[data-words='board'] .offer-pop-layer {
   overflow-y: auto;
   background: var(--paper);
   padding: max(1.25rem, env(safe-area-inset-top)) var(--gutter) max(1.25rem, env(safe-area-inset-bottom));
-  animation: fade 220ms ease both;
 }
 
 .together-sheet {
@@ -8539,12 +8541,12 @@ body[data-words='board'] .offer-pop-layer {
   font-weight: 800;
   line-height: 1;
   letter-spacing: -0.02em;
-  animation: fade 240ms ease both;
+  animation: fade 160ms ease both;
 }
 
 .together-lead {
   margin-top: -0.3rem;
-  animation: fade 240ms ease 60ms both;
+  animation: fade 160ms ease both;
 }
 
 .together-card {
@@ -8560,8 +8562,7 @@ body[data-words='board'] .offer-pop-layer {
   font: inherit;
   text-align: left;
   cursor: pointer;
-  animation: fade 260ms ease both;
-  animation-delay: calc(var(--i, 0) * 90ms + 60ms);
+  animation: fade 160ms ease both;
   transition: transform 180ms var(--ease-spring);
 }
 
