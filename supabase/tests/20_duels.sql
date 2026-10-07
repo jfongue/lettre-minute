@@ -16,6 +16,10 @@ create function tests.duel_status(p_table uuid) returns text
 language sql stable security definer set search_path = public as $$ select status from public.duel_tables where id = p_table $$;
 create function tests.duel_host(p_table uuid) returns uuid
 language sql stable security definer set search_path = public as $$ select host from public.duel_tables where id = p_table $$;
+create function tests.duel_started(p_table uuid) returns boolean
+language sql stable security definer set search_path = public as $$ select started_at is not null from public.duel_tables where id = p_table $$;
+create function tests.duel_journal(p_table uuid) returns integer
+language sql stable security definer set search_path = public as $$ select count(*)::int from public.duel_moves where table_id = p_table $$;
 create function tests.seat_numbers(p_table uuid) returns int[]
 language sql stable security definer set search_path = public as $$
   select array_agg(seat order by seat)::int[] from public.duel_seats where table_id = p_table and seat is not null
@@ -289,14 +293,8 @@ public.duel_move((select id from aborted), 1, tests.seat_of((select id from abor
 );
 select tests.is(public.duel_unstart((select id from aborted)), 'back', 'a seated player cancels the start');
 select tests.is(tests.duel_status((select id from aborted)), 'lobby', 'the table is back in the lobby');
-select tests.is(
-(select started_at is null from public.duel_tables where id = (select id from aborted)),
-true, 'its start time is cleared'
-);
-select tests.is(
-(select count(*)::int from public.duel_moves where table_id = (select id from aborted)),
-0, 'the aborted journal is wiped, cheers and all'
-);
+select tests.is(tests.duel_started((select id from aborted)), false, 'its start time is cleared');
+select tests.is(tests.duel_journal((select id from aborted)), 0, 'the aborted journal is wiped, cheers and all');
 select tests.is(tests.seats((select id from aborted)), 3, 'everybody is still seated');
 select tests.is(tests.seat_numbers((select id from aborted)), null::int[], 'and no seat number is left');
 select tests.logout();
@@ -313,8 +311,5 @@ public.duel_move((select id from aborted), 1, tests.seat_of((select id from abor
 );
 select tests.is(public.duel_unstart((select id from aborted)), 'started', 'nobody cancels a start once a choice is made');
 select tests.is(tests.duel_status((select id from aborted)), 'playing', 'the table stays playing');
-select tests.is(
-(select count(*)::int from public.duel_moves where table_id = (select id from aborted)),
-1, 'and its journal keeps the choice'
-);
+select tests.is(tests.duel_journal((select id from aborted)), 1, 'and its journal keeps the choice');
 select tests.logout();

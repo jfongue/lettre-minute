@@ -227,6 +227,12 @@ select tests.is(public.answer_moderator_offer('level', false), true, 'he can dec
 select tests.is(public.moderation_status('fr') ->> 'offer', null, 'which ends the offer');
 select tests.logout();
 
+-- L'offre ne sort que si la file a de quoi juger (`pending_reviews` >= 5,
+-- 0013) : trois mots acceptes ne suffisent pas dans une file vide, et ceux du
+-- joueur ne comptent pas. On remplit la file avec les propositions d'un autre.
+select tests.propose('p2', 'animaux', w)
+from unnest(array['sanglier', 'chamois', 'bison', 'herisson', 'orignal']) w;
+
 select tests.login('p1');
 select tests.is(public.moderation_status('fr') ->> 'offer', 'words', 'three accepted words bring an offer');
 select tests.is(public.invite_moderator(tests.uid('p2')), 'forbidden', 'a player cannot invite a moderator');
