@@ -60,7 +60,7 @@ What QA will see:
 
 **Controls:**
 
-> Keyboard: type your answer and press Enter. Escape skips a letter (or use the Skip button).
+> Keyboard: type your answer and press Enter. Tab skips to the next letter (or use the Skip button).
 > Mouse / touch: tap Play, Enter and Skip; the on-screen keyboard types on phones and tablets.
 
 **Category (proposed):** Puzzle

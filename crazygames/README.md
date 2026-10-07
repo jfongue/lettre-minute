@@ -134,12 +134,10 @@ portrait 1080p, sans son, sans écran noir ni texte promotionnel, première imag
 
 **Qualité (recommandé).** Arriver vite dans la partie, onboarding court et
 sautable ; éviter les touches à comportement navigateur (Échap quitte le plein
-écran) ; volume homogène.
+écran) — d'où Tab, et non Échap, pour passer un mot ; volume homogène.
 
 ## Ce qui reste hors de portée
 
 - Pas de vidéo de présentation : à tourner (paysage et portrait 1080p).
-- Échap passe le mot pendant la partie : en plein écran, le navigateur garde la
-  touche pour quitter le plein écran ; le bouton « Passer » reste à l'écran.
 - La notoriété « de la foule » qui module le tirage et la rareté n'existe pas
   hors ligne : le tirage s'appuie sur les dictionnaires seuls, comme un défi.
