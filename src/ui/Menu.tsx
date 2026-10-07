@@ -44,6 +44,7 @@ import { useFriendHistory } from '../state/rivalry'
 import { FriendsView } from './FriendsView'
 import { useHiddenTaps } from './useHiddenTaps'
 import { useFeature } from './features'
+import { ON_CRAZYGAMES } from '../lib/crazygames'
 import { useSwipe } from './useSwipe'
 import { Avatar } from './Avatar'
 
@@ -386,7 +387,8 @@ function ProfilePane({
         />
       )}
 
-      {!account && <p className="note">{t.menu.offline}</p>}
+      {/* On CrazyGames the portal keeps the progress, wherever its player signs in. */}
+      {!account && !ON_CRAZYGAMES && <p className="note">{t.menu.offline}</p>}
 
       <PageLinks
         pages={PROFILE_PAGES}

@@ -11,6 +11,7 @@
 
 import type { PowerId } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
+import { onPlatformMute } from './crazygames'
 import { onAppActive } from './native'
 
 /** Each channel's volume, from 0 (off) to 1. */
@@ -828,10 +829,10 @@ export function configureSound(next: SoundPrefs): void {
 
 let armed = false
 // Each reason the game is out of sight; the music plays only when none holds.
-const away = { hidden: false, blurred: false, native: false }
+const away = { hidden: false, blurred: false, native: false, platform: false }
 
 function inForeground(): boolean {
-  return !away.hidden && !away.blurred && !away.native
+  return !away.hidden && !away.blurred && !away.native && !away.platform
 }
 
 function setAway(reason: keyof typeof away, on: boolean): void {
@@ -878,6 +879,8 @@ export function armSound(): void {
   window.addEventListener('blur', () => setAway('blurred', true))
   window.addEventListener('focus', () => setAway('blurred', false))
   onAppActive((active) => setAway('native', !active))
+  // The CrazyGames portal's mute setting, or its ad on screen, outranks the game's own volume.
+  onPlatformMute((muted) => setAway('platform', muted))
 }
 
 export function tierSound(tier: RarityTier, approximate: boolean): SoundTier {

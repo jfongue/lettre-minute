@@ -1,0 +1,21 @@
+/* The CrazyGames build only (src/crazygames.tsx), after styles.css. */
+
+/* The game scrolls inside its iframe, never the portal's page around it. */
+html,
+body {
+  overscroll-behavior: none;
+}
+
+/* A long press on a phone must not open the magnifier or the context menu
+   (the portal's technical requirements); the answer field still types and selects. */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}

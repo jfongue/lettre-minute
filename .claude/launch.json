@@ -35,6 +35,14 @@
         "reddit/scripts/harness.mjs"
       ],
       "port": 5399
+    },
+    {
+      "name": "crazygames-harness",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "crazygames/harness.mjs"
+      ],
+      "port": 5747
     }
   ]
 }

@@ -31,3 +31,7 @@ android/app/google-services.json
 *.dshpending/
 .dsh-file-claim.audit.jsonl
 .dsh-file-claim.lock
+
+# Version CrazyGames : sortie du build et archive à téléverser (npm run crazygames:build)
+dist-crazygames
+crazygames/*.zip
