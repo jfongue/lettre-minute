@@ -14,6 +14,7 @@ Vite retire le code mort — le build web ne contient ni le SDK ni ses appels.
 | `npm run crazygames:build` | `tsc -b`, `vite build --mode crazygames` dans `dist-crazygames/` (`index.html` à la racine, chemins relatifs), zip dans `crazygames/lettre-minute-crazygames.zip`, puis contrôle des tailles contre les limites du portail |
 | `npm run crazygames:harness` | sert `dist-crazygames/` sur http://localhost:5747 — le SDK y démarre en mode `local` (pubs simulées par un texte, journal dans la console) ; `/frame.html?size=desktop\|small\|phone` montre le jeu dans une iframe aux tailles du portail |
 | `npm run crazygames:dev` | le serveur de dev Vite en mode `crazygames`, sur `/crazygames.html` |
+| `cd crazygames/video && npm install && node capture.mjs && node render.mjs` | (harnais lancé) enregistre une vraie partie en Chrome sans tête puis monte les deux vidéos de présentation avec HyperFrames, installé dans ce dossier seul : `crazygames/assets/video-*.mp4` |
 | `node --experimental-strip-types scripts/crazygames-shots.ts` | (harnais lancé) rend les trois couvertures depuis `assets/cover.html` et joue de vraies parties en Chrome sans tête pour les captures ; imprime la console de la page à la fin |
 
 Le zip et `dist-crazygames/` sont ignorés par git : ils se reconstruisent.
@@ -138,6 +139,5 @@ sautable ; éviter les touches à comportement navigateur (Échap quitte le plei
 
 ## Ce qui reste hors de portée
 
-- Pas de vidéo de présentation : à tourner (paysage et portrait 1080p).
 - La notoriété « de la foule » qui module le tirage et la rareté n'existe pas
   hors ligne : le tirage s'appuie sur les dictionnaires seuls, comme un défi.

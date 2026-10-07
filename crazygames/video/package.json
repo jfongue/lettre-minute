@@ -1,0 +1,14 @@
+{
+  "name": "lettre-minute-crazygames-video",
+  "private": true,
+  "description": "The CrazyGames preview videos, recorded from the build and rendered with HyperFrames (see render.mjs).",
+  "type": "module",
+  "scripts": {
+    "capture": "node capture.mjs",
+    "render": "node render.mjs"
+  },
+  "devDependencies": {
+    "gsap": "^3.13.0",
+    "hyperframes": "^0.8.140"
+  }
+}

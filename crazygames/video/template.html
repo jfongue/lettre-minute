@@ -1,0 +1,70 @@
+<!doctype html>
+<!--
+  The CrazyGames preview video, as a HyperFrames composition. render.mjs fills
+  the {{…}} slots for each format (landscape 1920 × 1080, portrait 1080 × 1620,
+  the portal's 2:3) and the cuts read from capture/marks.json, then renders it.
+  The cover opens and closes the video; the captions stand beside the game,
+  never on a shape. Silent: the portal wants no sound.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  @font-face { font-family: Jost; src: url(media/jost.woff2); font-weight: 100 900; }
+  :root { --paper: #f2ecdf; --ink: #151515; --red: #e0402a; --blue: #1f48c7; --grid: rgba(21, 21, 21, 0.06); }
+  html, body { margin: 0; background: var(--paper); }
+  #root {
+    position: relative; overflow: hidden; width: {{W}}px; height: {{H}}px; font-family: Jost; color: var(--ink);
+    background-color: var(--paper);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .cover { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; }
+  .game { position: absolute; z-index: 1; box-shadow: 0 0 0 3px var(--ink); background: var(--paper); object-fit: cover; }
+  .caption { position: absolute; z-index: 2; margin: 0; font-weight: 800; letter-spacing: -0.02em; line-height: 0.98; text-transform: uppercase; }
+  .caption em { font-style: normal; color: var(--red); }
+
+  [data-format='landscape'] .game { left: 290px; top: 60px; width: 540px; height: 960px; }
+  [data-format='landscape'] .caption { left: 960px; width: 820px; top: 50%; font-size: 96px; }
+
+  [data-format='portrait'] .game { left: 162px; top: 48px; width: 756px; height: 1344px; }
+  [data-format='portrait'] .caption { left: 60px; right: 60px; top: 1416px; text-align: center; font-size: 56px; }
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="root" data-width="{{W}}" data-height="{{H}}" data-format="{{FORMAT}}" data-fps="30" data-start="0" data-duration="18">
+  <img id="cover-in" class="clip cover" src="media/cover-{{FORMAT}}.png" alt="" data-start="0" data-duration="2" />
+
+  <video id="run" class="clip game" src="capture/gameplay.mp4" muted playsinline
+    data-start="1.6" data-duration="10.6" data-media-start="{{RUN_FROM}}"></video>
+  <video id="summary" class="clip game" src="capture/gameplay.mp4" muted playsinline
+    data-start="12.2" data-duration="3.9" data-media-start="{{SUMMARY_FROM}}"></video>
+
+  <p id="c1" class="clip caption" data-start="1.8" data-duration="3.6">One letter.<br /><em>One category.</em></p>
+  <p id="c2" class="clip caption" data-start="5.4" data-duration="3.4">Type a word<br />that fits.<br /><em>Fast.</em></p>
+  <p id="c3" class="clip caption" data-start="8.8" data-duration="3.4">Keep the streak:<br /><em>every word<br />scores more.</em></p>
+  <p id="c4" class="clip caption" data-start="12.2" data-duration="3.9">Rare words<br /><em>pay the most.</em></p>
+
+  <img id="cover-out" class="clip cover" src="media/cover-{{FORMAT}}.png" alt="" data-start="15.7" data-duration="2.3" />
+</div>
+<script src="node_modules/gsap/dist/gsap.min.js"></script>
+<script>
+  const tl = gsap.timeline({ paused: true })
+  // Centred on its own height through GSAP, which owns the captions' transform.
+  if (document.getElementById('root').dataset.format === 'landscape') tl.set('.caption', { yPercent: -50 }, 0)
+  // The first frame is the cover itself, as the portal asks; it gives way to the game.
+  tl.set('#cover-in', { opacity: 1 }, 0)
+  tl.to('#cover-in', { opacity: 0, duration: 0.4, ease: 'power1.inOut' }, 1.6)
+  for (const [id, at] of [['#c1', 1.8], ['#c2', 5.4], ['#c3', 8.8], ['#c4', 12.2]]) {
+    tl.from(id, { opacity: 0, x: 40, duration: 0.45, ease: 'power3.out' }, at)
+  }
+  for (const [id, at] of [['#c1', 5.1], ['#c2', 8.5], ['#c3', 11.9]]) {
+    tl.to(id, { opacity: 0, duration: 0.3, ease: 'power1.in' }, at)
+  }
+  // And it comes back to stay, so the loop on the portal starts where it ends.
+  tl.from('#cover-out', { opacity: 0, duration: 0.4, ease: 'power1.inOut' }, 15.7)
+  window.__timelines = window.__timelines || {}
+  window.__timelines.root = tl
+</script>
+</body>
+</html>

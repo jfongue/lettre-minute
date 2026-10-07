@@ -96,8 +96,18 @@ All in `crazygames/assets/`, rendered by `scripts/crazygames-shots.ts`
 The covers carry the title as their only text, no border, no icon; the
 shapes stand beside the title, never under it. `cover.html` is their source.
 
-**Not provided:** the preview videos (15–20 s, landscape and portrait 1080p,
-no sound, first frame = the cover) — to record from a real run.
+**Preview videos**, rendered with HyperFrames from a real run of the build
+(`crazygames/video/`: `npm install`, then `node capture.mjs` with the harness
+running, then `node render.mjs`):
+
+| File | Size | Content |
+|---|---|---|
+| `video-landscape-1920x1080.mp4` | 1920 × 1080 (16:9), 18 s, H.264, no audio, 3.5 MB | cover → a run (eight words, the streak climbing to ×1.6) and its summary, with four short captions beside the game → cover |
+| `video-portrait-1080x1620.mp4` | 1080 × 1620 (2:3), 18 s, H.264, no audio, 4.1 MB | the same, captions under the game |
+
+The portal asks for portrait at « 1080p – 2:3 », the cover's own ratio, so the
+portrait video is 1080 × 1620 (not 1080 × 1920): its first frame is the
+portrait cover drawn at 1.35×. No fast-forward, no black frames, no cursor.
 
 ## Step 4 — Submit
 
