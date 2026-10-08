@@ -1,6 +1,4 @@
-• Les succès : 30 objectifs à débloquer, et une page pour suivre ta progression
-• Une invitation au duel fait sonner ton téléphone
-• L’accueil s’allège : les pages vides ne s’affichent plus
-• Un joueur éliminé au duel a son propre son, et les plus petits textes se lisent mieux
-• Modération : signale un mot depuis le bilan, et des avis plus justes
+• L’avatar et les succès tiennent maintenant sur une seule page, avec un retour en haut et en bas
+• Mes demandes : un signalement en attente se retire, au lieu de rester dans la file de tout le monde
+• Le tutoriel d’un mode ne s’affiche plus par-dessus l’accueil, et la modération par-dessus le bilan
 • Corrections de bugs et performance
