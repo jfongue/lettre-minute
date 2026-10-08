@@ -83,7 +83,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
     setQueue(loadSubmissions())
     return Promise.all([fetchMySubmissions(), fetchMyRemovals()]).then(([found, bans]) => {
       setServer(found)
-      setRemovals(bans)
+      setRemovals(bans ?? [])
     })
   }, [])
 
@@ -97,7 +97,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
       setFresh(new Set(news.map((submission) => submission.id)))
       markRequestsSeen().then((seen) => seen && onSeen())
     })
-    fetchMyRemovals().then(setRemovals)
+    fetchMyRemovals().then((found) => setRemovals(found ?? []))
   }, [onSeen])
 
   const rewrite = (next: PendingSubmission[]) => {
