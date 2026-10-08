@@ -16,10 +16,17 @@ mort — le build web ne contient ni le SDK ni ses appels.
 | `npm run crazygames:harness` | sert `dist-crazygames/` sur http://localhost:5747 — le SDK y démarre en mode `local` (pubs simulées par un texte, journal dans la console) ; `/frame.html?size=desktop\|laptop\|small\|phone` (ou `?w=926&h=476`) montre le jeu dans une iframe aux tailles du portail |
 | `npm run crazygames:check` | (harnais lancé) à 926×476, 800×450, 1280×720 et 390×844, pour un nouveau venu et un habitué : « Play » dans le cadre et au premier plan (`elementFromPoint`), un vrai clic souris CDP qui lance la leçon ou la partie, champ, Passer et Valider dans le cadre ; avec une adresse du réseau local en second argument, vérifie aussi que le jeu démarre hors du portail, SDK `disabled` |
 | `npm run crazygames:dev` | le serveur de dev Vite en mode `crazygames`, sur `/crazygames.html` |
-| `cd crazygames/video && npm install && node capture.mjs && node render.mjs` | (harnais lancé) enregistre une vraie partie en Chrome sans tête puis monte les deux vidéos de présentation avec HyperFrames, installé dans ce dossier seul : `crazygames/assets/video-*.mp4` |
-| `node --experimental-strip-types scripts/crazygames-shots.ts` | (harnais lancé) rend les trois couvertures depuis `assets/cover.html` et joue de vraies parties en Chrome sans tête pour les captures ; imprime la console de la page à la fin |
+| `npm run crazygames:video` | (harnais lancé) enregistre une vraie partie en Chrome sans tête puis monte les deux vidéos de présentation avec HyperFrames, installé dans ce dossier seul : `crazygames/assets/video-*.mp4` |
+| `npm run crazygames:shots` | (harnais lancé) rend les trois couvertures depuis `assets/cover.html` et joue de vraies parties en Chrome sans tête pour les captures ; imprime la console de la page à la fin |
 
-Le zip et `dist-crazygames/` sont ignorés par git : ils se reconstruisent.
+Le zip et `dist-crazygames/` sont ignorés par git : ils se reconstruisent. Les
+deux vidéos (`assets/video-*.mp4`, 6 Mo) restent commitées : ce sont les
+fichiers soumis, et les refaire demande le harnais, Chrome et HyperFrames sans
+rendu identique ; elles ne se recommitent que pour une nouvelle soumission.
+
+Une soumission se tague `crazygames-vX.Y.Z` sur le commit de son build (local
+d'abord, poussé avec `main`) : `crazygames-v1.0.0` est la Basic Launch envoyée
+le 2026-10-08.
 
 ## Ce que fait le build
 

@@ -40,6 +40,9 @@ qui donne la ligne.
   `standing.ts`, `leaderboards.ts`, `boards.ts`.
 - **Fonctionnalités activables** : `src/domain/features.ts`, `src/ui/features.ts`,
   `src/debug/FeaturesBoard.tsx`.
+- **Plateformes** : `src/platform/` (`host`, `PLATFORM`, un hôte par version) ;
+  CrazyGames dans `crazygames/`, entrée `crazygames.html` / `src/crazygames.tsx`,
+  styles `src/crazygames.css` ; Reddit dans `reddit/` ; Android dans `android/`.
 - **Serveur** : chaque appel Supabase est dans `src/lib/cloud.ts` ; schéma dans
   `supabase/migrations/NNNN_*.sql`, tests SQL dans `supabase/tests/`.
 - **Dictionnaires** : `src/data/words/<langue>/*.json`, produits par
@@ -52,8 +55,63 @@ Vérifier ce qu'on a touché plutôt que tout relancer :
   `npx vitest run src/i18n`
 - les types : `npx tsc -b` (toute l'app, incrémental) ;
   le lint d'un fichier : `npx oxlint src/ui/Menu.tsx`
-- `npm run check` (lint + types + toute la suite) une fois, avant de commiter.
-  Ses avertissements oxlint sont anciens : seules les erreurs comptent.
+- `npm run check` (lint + types + toute la suite + le build de chaque version,
+  `check:platforms`) une fois, avant de commiter. Ses avertissements oxlint sont
+  anciens : seules les erreurs comptent.
+
+## Plateformes
+
+Le même code donne quatre versions. **Toute amélioration du jeu se pense pour
+chacune** : par défaut elle s'applique partout ; si elle ne convient pas à une
+version, elle s'y ferme par la couche plateforme ou les fonctionnalités, jamais
+par une copie de l'écran ; et chaque build touché se vérifie.
+
+| Version | Où | Construire, vérifier | Publier |
+|---|---|---|---|
+| **Android**, la vraie cible | `android/`, entrée `index.html` / `src/main.tsx` | `npm run build`, `android:sync` | `android:release` |
+| **Web**, debug et dépannage seulement | le même build, `dist/` | `npm run build` | `web:publish` |
+| **CrazyGames** (« Letter Minute ») | `crazygames/` ([README](crazygames/README.md)), entrée `crazygames.html` / `src/crazygames.tsx` | `crazygames:build`, `crazygames:harness`, `crazygames:check` | dossier téléversé sur le portail |
+| **Reddit** (un post quotidien, Devvit) | `reddit/`, son propre `package.json` ([README](reddit/README.md)) | `reddit:check`, `reddit:harness`, `reddit:playtest` | `npm --prefix reddit run deploy` |
+
+- **Partagé** : le domaine, les dictionnaires, l'i18n, les écrans de `src/ui/`,
+  `styles.css`, le son. **Pas partagé** : les entrées, la coquille native
+  (`src/lib/native.ts`, Android seul, vide ailleurs ; Reddit la remplace par
+  `reddit/src/client/nativeStub.ts`), le serveur (Supabase pour Android et le
+  web seuls ; Reddit a le sien), et ce que chaque hôte ferme.
+- **`src/platform/`** : `PLATFORM` (`'android' | 'web' | 'crazygames' |
+  'reddit'`) et `host`, l'hôte de la version, choisi au build par
+  `VITE_PLATFORM` (`vite.config.ts`, `reddit/vite.config.ts`) et comparé en
+  littéral pour que le minifieur jette le code des autres — `check:platforms`
+  refuse un bundle qui porte celui d'un autre. Android et le web sont un seul
+  build : seul `isNativeApp()` les sépare, et ce qui est propre au téléphone
+  reste dans `native.ts`. L'interface `Host` (`src/platform/host.ts`) ne porte
+  que ce qui diffère vraiment : fonctionnalités fermées par-dessus la table
+  (`closedFeatures`, `SERVER_FEATURES`, `APP_ONLY_FEATURES`), titre imposé,
+  langues de l'hôte et langue de repli, progression gardée par l'hôte,
+  événements de partie, pause entre deux parties (pub), son coupé par l'hôte.
+  Un écran ne teste jamais la version : il lit `useFeature`, ou `host`. Le
+  domaine n'en sait rien.
+- **Règles qui diffèrent** — Reddit : graine du jour (`dailySeed`), même
+  partie pour tous les lecteurs, pas de pouvoirs, `Judge` sans compteurs
+  d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : hors ligne,
+  sans compte ni serveur (toutes les variables externes vidées au build), SDK
+  du portail (événements, pub midgame, muet, sauvegarde par son module Data,
+  langue), thème clair par défaut, accueil en deux colonnes dans un cadre
+  paysage bas (926×476 sur un portable), Tab passe comme partout. Android :
+  tout, plus la coquille native.
+- **À se demander avant de livrer un changement** : demande-t-il un compte ou
+  le serveur (alors il se ferme hors Android/web : `SERVER_FEATURES`) ? Mène-t-il
+  hors de la page (lien externe, partage, store : refusé sur CrazyGames et
+  Reddit) ? Montre-t-il une pub ou un achat ? Ajoute-t-il un texte (sept
+  langues, y compris pour le portail) ? Tient-il dans le cadre CrazyGames
+  926×476 sans défiler (`crazygames:check`) ? Touche-t-il le tirage, le
+  dictionnaire ou le `Judge` (déterminisme des défis, des robots et du
+  quotidien Reddit) ?
+- **Une version livrée se tague par plateforme**, sur le commit du build
+  envoyé : `android-v1.7.12`, `crazygames-v1.0.0` (la Basic Launch soumise),
+  `reddit-v<numéro que donne devvit upload>`. Chaque plateforme numérote à son
+  rythme ; les commits `Version X.Y.Z (versionCode N)` restent ceux d'Android,
+  que `debug:recent` relit.
 
 ## Pièges connus
 
