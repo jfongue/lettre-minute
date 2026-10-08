@@ -1,20 +1,22 @@
+import { CRAZYGAMES_TITLE } from '../lib/crazygames'
 import { detectLocale, isLocale, messagesFor, type Locale } from '../i18n'
 
 const LOCALE_KEY = 'lettre-minute.locale.v1'
 
 /**
  * The language the player chose, else the first of the device's that the game
- * speaks. Null when neither is known: the game asks before anything else.
+ * speaks — or of the host's, given first (the CrazyGames portal's). Null when
+ * none is known: the game asks before anything else.
  */
-export function loadLocale(): Locale | null {
+export function loadLocale(hostLanguages: readonly string[] = []): Locale | null {
   try {
     const stored = localStorage.getItem(LOCALE_KEY)
     if (isLocale(stored)) return stored
   } catch {
     /* no storage: fall through to the device */
   }
-  if (typeof navigator === 'undefined') return null
-  return detectLocale(navigator.languages?.length ? navigator.languages : [navigator.language])
+  if (typeof navigator === 'undefined') return detectLocale(hostLanguages)
+  return detectLocale([...hostLanguages, ...(navigator.languages?.length ? navigator.languages : [navigator.language])])
 }
 
 export function saveLocale(locale: Locale): void {
@@ -27,5 +29,5 @@ export function saveLocale(locale: Locale): void {
 
 export function applyLocale(locale: Locale): void {
   document.documentElement.lang = locale
-  document.title = messagesFor(locale).appName.join(' ')
+  document.title = (CRAZYGAMES_TITLE ?? messagesFor(locale).appName).join(' ')
 }

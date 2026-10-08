@@ -336,10 +336,12 @@ else if (doubleSkip) sound.power('double-skip')
             onKeyDown={(event) => {
               // Implicit form submission is not guaranteed on mobile keyboards,
               // and Entrée is how the whole game is played.
-              // On a keyboard, Échap skips: the hands never leave the keys.
-              if (event.key === 'Escape' && !event.repeat) {
+              // On a keyboard, Tab skips: the hands never leave the keys, and
+              // the focus stays in the field. Not Échap, which a browser keeps
+              // to leave full screen.
+              if (event.key === 'Tab' && !event.shiftKey) {
                 event.preventDefault()
-                skip()
+                if (!event.repeat) skip()
                 return
               }
               if (event.key !== 'Enter') return

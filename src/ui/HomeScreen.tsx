@@ -6,6 +6,7 @@ import { homePageOpen } from '../domain/home'
 import { levelProgress, type Profile } from '../domain/progression'
 import { RUN_SECONDS } from '../domain/run'
 import { formatNumber, useT } from '../i18n'
+import { CRAZYGAMES_TITLE } from '../lib/crazygames'
 import { Boards } from './Boards'
 import type { ChallengeSummary } from '../lib/cloud'
 import { ChallengeList } from './ChallengeHome'
@@ -120,8 +121,8 @@ export function HomeScreen({
 
       <header className="masthead">
         <h1 className="title">
-          <span>{t.appName[0]}</span>
-          <span>{t.appName[1]}</span>
+          <span>{(CRAZYGAMES_TITLE ?? t.appName)[0]}</span>
+          <span>{(CRAZYGAMES_TITLE ?? t.appName)[1]}</span>
         </h1>
         <p className="eyebrow">{t.home.tagline(RUN_SECONDS)}</p>
       </header>

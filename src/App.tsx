@@ -102,6 +102,8 @@ import { createJudge } from './state/judge'
 import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, isPlus, peeksLeft, playableCategoryIds, plusThanksDue, shareNewsDue } from './domain/perks'
 import { enabledFeatures, type FeatureId, type Roles } from './domain/features'
 import { cloudConfigured } from './lib/supabase'
+import { breakBetweenRuns, ON_CRAZYGAMES, platformFeatures, platformLanguages } from './lib/crazygames'
+import { usePlatformGameplay } from './ui/usePlatformGameplay'
 import { setTrackLang, setTrackScreen, track, trackFeature, trackReady } from './lib/track'
 import { FeedbackPop } from './ui/FeedbackPop'
 import type { BanActions } from './ui/CategoriesPage'
@@ -300,7 +302,9 @@ export function App() {
   useEffect(() => configureSound(soundPrefs), [soundPrefs])
   // Null only when the device speaks none of the game's languages and the
   // player has not picked one yet: the picker then comes before anything else.
-  const [locale, setLocale] = useState<Locale | null>(loadLocale)
+  // On CrazyGames the portal's language comes first, and English stands in for
+  // the picker: a player there must land in the game, not on a question.
+  const [locale, setLocale] = useState<Locale | null>(() => (ON_CRAZYGAMES ? (loadLocale(platformLanguages()) ?? 'en') : loadLocale()))
   const t = messagesFor(locale ?? 'fr')
   // The dictionary follows the interface: a German player answers in German.
   const lang = locale ?? 'fr'
@@ -381,7 +385,7 @@ export function App() {
     premium: isPlus(session.profile),
   }
   const features = useMemo(
-    () => enabledFeatures(storedFeatures.flags, roles),
+    () => platformFeatures(enabledFeatures(storedFeatures.flags, roles)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [storedFeatures, roles.moderator, roles.superModerator, roles.premium],
   )
@@ -772,6 +776,8 @@ setStartedAt((at) => at ?? Date.now())
 }, [session.run?.mode, session.run?.armed])
 
 
+  usePlatformGameplay(session.phase, session.run?.score ?? null, session.profile.bestScore, tutorial === 'teaching')
+
   const elapsed = useElapsed(session.phase === 'playing' ? startedAt : null)
   const remaining = session.run ? remainingSeconds(session.run, elapsed) : 0
   const pulseStage = Math.min(2, Math.floor(((RUN_SECONDS - remaining) / RUN_SECONDS) * 3))
@@ -859,6 +865,8 @@ setStartedAt((at) => at ?? Date.now())
 
   const play = useCallback(async () => {
     const mode = modeNow.current
+    // CrazyGames' midgame ad, between two runs only; a no-op anywhere else.
+    await breakBetweenRuns()
     dispatch({ type: 'play' })
     setRunLang(lang)
     setPlayed(null)

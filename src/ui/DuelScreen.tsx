@@ -859,8 +859,10 @@ function Play({ table }: { table: DuelTable }) {
                 spellCheck={false}
                 enterKeyHint="done"
                 onKeyDown={(event) => {
-                  if (event.key === 'Escape' && !event.repeat && canPass) {
+                  // Tab passes, as it skips in a run; the focus never leaves the field.
+                  if (event.key === 'Tab' && !event.shiftKey) {
                     event.preventDefault()
+                    if (event.repeat || !canPass) return
                     sound.skipped()
                     table.pass()
                     return
