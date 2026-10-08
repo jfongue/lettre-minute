@@ -487,6 +487,9 @@ function replace(players: readonly DuelPlayer[], index: number, player: DuelPlay
   return players.map((one, at) => (at === index ? player : one))
 }
 
+/** Ce qu'un joueur maison qui n'a pas de mot met à le dire : sa réserve survit. */
+export const PASS_FAST_SECONDS = 0.6
+
 /** Ce qui fait qu'un joueur maison ne joue pas comme un autre. */
 export interface BotProfile {
   id: string
@@ -494,6 +497,8 @@ export interface BotProfile {
   think: readonly [number, number]
   /** Sa part de couples où il trouve un mot ; les autres, il passe. */
   answerChance: number
+  /** Sans mot, il passe sans réfléchir au lieu de brûler sa réserve à chercher. */
+  passFast?: boolean
 }
 
 export interface BotMove {
@@ -531,7 +536,10 @@ export function botMove(duel: Duel, judge: Judge, bot: BotProfile): BotMove | nu
   const reserve = reserveSeconds(duel, turn.player, turn.startedAt)
   const think = least + rng.next() * Math.max(0, most - least)
   const found = rng.next() < bot.answerChance ? judge.common?.(turn.prompt.categoryId, turn.prompt.letter, player.used) : null
-  return think <= reserve ? { after: think, word: found ?? null } : { after: reserve, word: null }
+  // Qui passe vite quand il ne sait pas garde sa réserve : réfléchir jusqu'au
+  // bout pour ne rien dire la brûle pour les manches suivantes.
+  const wait = found === null && bot.passFast ? PASS_FAST_SECONDS : think
+  return wait <= reserve ? { after: wait, word: found ?? null } : { after: reserve, word: null }
 }
 
 /** La catégorie qu'un joueur maison choisit au draft : une des restantes, au hasard. */

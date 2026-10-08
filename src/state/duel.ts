@@ -21,6 +21,8 @@ import {
   type Duel,
 } from '../domain/duel'
 import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
+import { HOUSE_BOTS, houseBotsFor, type HouseBot } from '../domain/duelBots'
+import { cloudConfigured } from '../lib/supabase'
 import { createRng } from '../domain/rng'
 import { playableCategoryIds } from '../domain/perks'
 import { onAppActive } from '../lib/native'
@@ -66,21 +68,9 @@ import { loadAccount, loadAvatar, loadProfile, saveProfile } from './storage'
  * à la même table montrent le même écran au même moment.
  */
 
-export interface HouseBot extends BotProfile {
-  name: string
-  avatar: AvatarChoice
-  /** Le trait du joueur, lu dans le salon : le texte vient de l'i18n. */
-  trait: 'fast' | 'steady' | 'sharp'
-}
-
-const avatarOf = (design: number, ground: string, shape: string, accent: string): AvatarChoice => ({ design, ground, shape, accent })
-
-/** Les trois joueurs maison de la table locale ; en ligne, ceux du serveur (`bots`) prennent leur profil par leur nom. */
-export const HOUSE_BOTS: readonly HouseBot[] = [
-  { id: 'maxitoon', name: 'Maxitoon', avatar: avatarOf(47, 'vert', 'creme', 'rose'), trait: 'fast', think: [2.6, 6.5], answerChance: 0.72 },
-  { id: 'terretciel', name: 'Terretciel', avatar: avatarOf(12, 'rouge', 'jaune', 'bleu'), trait: 'steady', think: [3.4, 9], answerChance: 0.8 },
-  { id: 'demontoon', name: 'Demontoon', avatar: avatarOf(73, 'bleu', 'creme', 'jaune'), trait: 'sharp', think: [2.4, 7.5], answerChance: 0.88 },
-]
+/** La réserve des joueurs maison vit dans le domaine (`duelBots.ts`) ; l'écran la relit d'ici. */
+export { HOUSE_BOTS }
+export type { HouseBot }
 
 /** Un joueur maison du serveur qui n'a pas d'homologue local joue posément. */
 const STEADY: Omit<BotProfile, 'id'> = { think: [3, 8], answerChance: 0.8 }
@@ -108,6 +98,12 @@ const FEED_SIZE = 3
 export const CHEER_SECONDS = 2.4
 export const CHEERS_SHOWN = 3
 
+/** Le temps qu'une partie rapide laisse à la file avant d'asseoir des joueurs maison, et combien elle en assoit. */
+const QUICK_WAIT_SECONDS = 15
+/** Sans serveur, personne ne peut entrer : deux secondes de battement au lieu de quinze. */
+const QUICK_GRACE_SECONDS = 2
+const QUICK_BOTS = 2
+
 export interface Seat {
   id: string
   name: string
@@ -131,6 +127,8 @@ export interface Candidate {
 
 export interface DuelTable {
   mode: DuelMode
+  /** La partie rapide cherche encore sa table : deux joueurs maison s'assiéront si personne ne vient. */
+  searching: boolean
   phase: TablePhase
   at: number
   /** Les joueurs de la partie, dans l'ordre des places ; au salon, ceux qui sont assis, puis les invités. */
@@ -294,17 +292,34 @@ export interface DuelTableOptions {
   mode: DuelMode
   /** Une table où l'on a été invité ; sans elle, l'appareil en ouvre une dont il est l'hôte. */
   join?: string | null
+  /** Une partie rapide : elle cherche un adversaire, puis assoit des joueurs maison. */
+  quick?: boolean
   /** La table renvoie le joueur : expulsé, table fermée, ou départ de lui-même. */
   onExit?(reason: DuelExit): void
   /** Le profil vient de gagner un compteur de duel : l'appelant le range à l'écran. */
   onProfile?(profile: Profile): void
 }
 
-export function useDuelTable({ lang, mode, join = null, onExit, onProfile }: DuelTableOptions): DuelTable {
+export function useDuelTable({ lang, mode, join = null, quick = false, onExit, onProfile }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
   const mine = useMemo(() => playableCategoryIds(profile, ownedCategoryIds(profile)).filter((id) => shipped.includes(id)), [profile, shipped])
+  /** La réserve ouverte au joueur : quatre profils au début, la réserve entière vers la trentième partie. */
+  const openBots = useMemo(() => houseBotsFor(profile.runs), [profile.runs])
+  /** Des profils de la réserve ouverte, tirés au sort : deux tables rapides ne se ressemblent pas. */
+  const drawBots = useCallback(
+    (count: number): readonly string[] => {
+      const pool = [...openBots]
+      const drawn: string[] = []
+      while (drawn.length < count && pool.length > 0) {
+        const [bot] = pool.splice(Math.floor(Math.random() * pool.length), 1)
+        if (bot) drawn.push(bot.id)
+      }
+      return drawn
+    },
+    [openBots],
+  )
   const [playerId, setPlayerId] = useState<string | null>(null)
   useEffect(() => {
     if (mode === 'online') void fetchPlayerId().then(setPlayerId)
@@ -319,7 +334,17 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile }: Due
     exit.current = onExit
   })
 
-  const [table, setTable] = useState<TableData | null>(() => (mode === 'local' ? freshLocal(lang, meSeat, [HOUSE_BOTS[0]!.id], mine) : null))
+  const [table, setTable] = useState<TableData | null>(() => (mode === 'local' && !quick ? freshLocal(lang, meSeat, drawBots(1), mine) : null))
+  // Une partie rapide cherche un adversaire, puis assoit deux joueurs maison :
+  // sans serveur personne ne peut entrer, donc le battement ne dure que le
+  // temps que l'écran dise qu'il cherche.
+  const searching = Boolean(quick) && mode === 'local' && table === null
+  useEffect(() => {
+    if (!searching) return
+    const wait = cloudConfigured() ? QUICK_WAIT_SECONDS : QUICK_GRACE_SECONDS
+    const timer = setTimeout(() => setTable(freshLocal(lang, meSeat, drawBots(QUICK_BOTS), mine)), wait * 1000)
+    return () => clearTimeout(timer)
+  }, [searching, lang, meSeat, mine, drawBots])
   const [failed, setFailed] = useState(false)
   const [offline, setOffline] = useState(false)
   /** L'onglet est passé derrière : il ne mène plus la table tant qu'on ne le regarde pas. */
@@ -823,7 +848,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile }: Due
     setLeavers([])
     setJudge(null)
     loadingFor.current = ''
-    setTable(freshLocal(lang, meSeat, [HOUSE_BOTS[0]!.id], mine))
+    setTable(freshLocal(lang, meSeat, drawBots(1), mine))
   }, [currentId, lang, meSeat, mine, mode])
 
   // ------------------------------------------------------ mes gestes --
@@ -883,7 +908,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile }: Due
   useEffect(() => {
     if (!auto || !table) return
     if (table.status === 'lobby' && !me?.ready) {
-      const missing = HOUSE_BOTS.find((bot) => !present.some((seat) => seat.id === bot.id) && !leavers.includes(bot.id))
+      const missing = openBots.find((bot) => !present.some((seat) => seat.id === bot.id) && !leavers.includes(bot.id))
       if (missing && !table.rematch) invite(missing.id)
       else setMyReady(true)
       return
@@ -921,7 +946,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile }: Due
   const takenIds = new Set([...present.map((seat) => seat.id), ...(table?.invites ?? []).map((seat) => seat.id)])
   const offered: readonly Candidate[] =
     mode === 'local'
-      ? HOUSE_BOTS.filter((bot) => !takenIds.has(bot.id) && !leavers.includes(bot.id)).map((bot) => ({ id: bot.id, name: bot.name, avatar: bot.avatar, bot: true, trait: bot.trait }))
+      ? openBots.filter((bot) => !takenIds.has(bot.id) && !leavers.includes(bot.id)).map((bot) => ({ id: bot.id, name: bot.name, avatar: bot.avatar, bot: true, trait: bot.trait }))
       : candidates.filter((candidate) => !takenIds.has(candidate.id))
   const opensAt = duel ? openingAt(duel) : null
   const drawnShown = duel ? drawnShownAt(duel, at) : 0
@@ -932,6 +957,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile }: Due
     at,
     seats: lobbySeats,
     myIndex: table?.status === 'lobby' ? lobbySeats.findIndex((seat) => seat.id === myId) : myIndex,
+    searching,
     host: isHost,
     candidates: offered,
     invite,

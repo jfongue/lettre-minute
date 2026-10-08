@@ -8,7 +8,7 @@ import { DuelScreen } from './DuelScreen'
 // clic sur « Duel » — que l'écran doit traverser sans tomber.
 vi.mock('../state/duel', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../state/duel')>()),
-  useDuelTable: () => ({ phase: 'connecting', seats: [], myIndex: -1, at: 0, mode: 'online' }),
+  useDuelTable: () => ({ phase: 'connecting', searching: false, seats: [], myIndex: -1, at: 0, mode: 'online' }),
 }))
 
 describe('DuelScreen', () => {

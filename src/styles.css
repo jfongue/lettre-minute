@@ -8646,6 +8646,11 @@ body[data-words='board'] .offer-pop-layer {
   color: var(--ink);
 }
 
+.together-card--quick {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 .together-text {
   display: grid;
   gap: 0.3rem;

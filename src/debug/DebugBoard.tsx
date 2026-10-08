@@ -1343,6 +1343,7 @@ const CHEER_TABLE: DuelTable = (() => {
   ]
   return {
     mode: 'local',
+    searching: false,
     phase: 'draft',
     at,
     seats,
@@ -1919,10 +1920,10 @@ const SCENARIOS: readonly Scenario[] = [
   {
     id: 'play-together',
     group: 'Duel',
-    title: 'Choix : duel en direct ou défi 24h',
+    title: 'Choix : duel en direct, partie rapide ou défi 24h',
     how: 'Le bouton « Créer un défi » quand le duel est ouvert au joueur',
     phase: 'home',
-    render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onChallenge={back} />,
+    render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onQuick={back} onChallenge={back} />,
   },
   {
     id: 'duel-invite',

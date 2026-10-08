@@ -30,6 +30,7 @@ import {
   onlyChoice,
   openDuel,
   openingAt,
+  PASS_FAST_SECONDS,
   pickDeadline,
   passTurn,
   pickCategory,
@@ -467,6 +468,16 @@ describe('les joueurs maison', () => {
   it('passe tout le temps s’il ne trouve rien', () => {
     const passed = passTurn(draft(2), judge, 1)
     expect(botMove(passed, judge, { ...bot, answerChance: 0 })?.word).toBeNull()
+  })
+
+  it('dit tout de suite qu’il n’a rien, s’il passe vite', () => {
+    const passed = passTurn(draft(2), judge, 1)
+    const move = botMove(passed, judge, { ...bot, answerChance: 0, passFast: true })!
+
+    // Ses deux secondes de réflexion ne partent pas : il rend la main tout de
+    // suite, sa réserve intacte pour les manches suivantes.
+    expect(move.word).toBeNull()
+    expect(move.after).toBe(PASS_FAST_SECONDS)
   })
 
   it('ne répond plus quand sa réflexion ne tient plus dans sa réserve', () => {

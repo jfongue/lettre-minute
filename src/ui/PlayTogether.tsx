@@ -13,7 +13,7 @@ import { useBackDismiss } from './useBackDismiss'
  * sur l'une d'elles ; le défi, une journée qui avance. Les deux dessins sont
  * posés d'aplomb et ne bougent pas : c'est le choix qui doit se lire.
  */
-export function PlayTogether({ challenge, onDuel, onChallenge, onClose }: { challenge: boolean; onDuel(): void; onChallenge(): void; onClose(): void }) {
+export function PlayTogether({ challenge, onDuel, onQuick, onChallenge, onClose }: { challenge: boolean; onDuel(): void; onQuick(): void; onChallenge(): void; onClose(): void }) {
   const t = useT()
   useBackDismiss(onClose)
   useEffect(() => {
@@ -56,11 +56,36 @@ export function PlayTogether({ challenge, onDuel, onChallenge, onClose }: { chal
           </span>
         </button>
 
+        <button
+          type="button"
+          className="together-card together-card--quick"
+          style={{ '--i': 1 } as CSSProperties}
+          onClick={() => {
+            armSound()
+            sound.go()
+            onQuick()
+          }}
+        >
+          <svg className="together-art together-art--quick" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+            <circle cx="50" cy="50" r="42" opacity="0.22" />
+            <circle cx="50" cy="50" r="26" opacity="0.5" />
+            <circle cx="50" cy="50" r="10" />
+          </svg>
+          <span className="together-text">
+            <b>{t.duel.quickCard}</b>
+            <small>{t.duel.quickCardNote}</small>
+            <span className="together-chip">{t.duel.quickCardPlayers}</span>
+          </span>
+          <span className="together-go" aria-hidden="true">
+            →
+          </span>
+        </button>
+
         {challenge ? (
           <button
             type="button"
             className="together-card together-card--challenge"
-            style={{ '--i': 1 } as CSSProperties}
+            style={{ '--i': 2 } as CSSProperties}
             onClick={() => {
               armSound()
               sound.tile('glass', 4)
