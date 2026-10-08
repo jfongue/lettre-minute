@@ -1614,7 +1614,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => setTrackScreen(screenName), [screenName])
 
   const quietHome =
-    session.phase === 'home' && !tutorial && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !duelOpen
+    session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !duelOpen
   const notice = quietHome && on('challenges') ? challengeNotice(challenges, heldNotices) : null
   const updateDue = update === 'due' && on('storeUpdate')
   const offerDue = !!moderation?.offer && !offerHeld && on('moderatorOffer')
@@ -1723,7 +1723,7 @@ setStartedAt((at) => at ?? Date.now())
         <DuelBanner text={duelBanner === 'kicked' ? t.duel.kickedBanner : t.duel.closedBanner} onDone={clearDuelBanner} />
       )}
 
-      {!tutorial && !moderating && !duelOpen && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
+      {!tutorial && !modeLesson && !moderating && !duelOpen && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
