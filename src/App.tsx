@@ -165,8 +165,6 @@ import type { DuelExit } from './state/duel'
 // parses what it shows. `preloadScreens` fetches them once the home screen has
 // settled, and a run awaits its own before it starts.
 const DebugBoard = lazyScreen(() => import('./debug/DebugBoard').then((module) => module.DebugBoard))
-const AvatarScreen = lazyScreen(() => import('./ui/AvatarScreen').then((module) => module.AvatarScreen))
-const AchievementsScreen = lazyScreen(() => import('./ui/AchievementsScreen').then((module) => module.AchievementsScreen))
 const ChallengePowers = lazyScreen(() => import('./ui/ChallengePowers').then((module) => module.ChallengePowers))
 const ChallengeSetup = lazyScreen(() => import('./ui/ChallengeSetup').then((module) => module.ChallengeSetup))
 const ChallengeScreen = lazyScreen(() => import('./ui/ChallengeScreen').then((module) => module.ChallengeScreen))
@@ -187,7 +185,7 @@ function preloadRunScreens(): Promise<unknown> {
 
 /** One screen at a time, in the order a player is likely to need them. */
 async function preloadScreens(): Promise<void> {
-  for (const screen of [Menu, CountdownScreen, RunScreen, OverScreen, ChallengeScreen, FriendPicker, ChallengeSetup, ChallengePowers, AvatarScreen, AchievementsScreen, ModerationScreen]) {
+  for (const screen of [Menu, CountdownScreen, RunScreen, OverScreen, ChallengeScreen, FriendPicker, ChallengeSetup, ChallengePowers, ModerationScreen]) {
     await screen.preload().catch(() => undefined)
   }
 }
@@ -323,8 +321,6 @@ export function App() {
   const community = useRef<Record<string, CommunityWord[]>>({})
   const [avatar, setAvatar] = useState<AvatarChoice>(DEFAULT_AVATAR)
   const [account, setAccount] = useState<Account | null>(null)
-  const [editingAvatar, setEditingAvatar] = useState(false)
-  const [achievementsOpen, setAchievementsOpen] = useState(false)
   // Les découvertes ne se comptent que sur le serveur : la page des succès les
   // demande à son ouverture plutôt que d'afficher une barre à zéro.
   const [discoveries, setDiscoveries] = useState<number | null>(null)
@@ -457,6 +453,19 @@ export function App() {
     setAvatar(next)
     saveAvatar(next)
   }, [])
+
+  /** La tuile choisie dans le tiroir : portée tout de suite, poussée au compte ensuite. */
+  const saveWornAvatar = useCallback(
+    (next: AvatarChoice) => {
+      trackFeature('avatar_saved', { design: next.design, ground: next.ground })
+      wear(next)
+      // The boards read the avatar from the profile: only a fetch after the write shows it.
+      pushAvatar(next).then((saved) => {
+        if (saved) loadBoards().then(setBoards)
+      })
+    },
+    [wear],
+  )
 
   /** A permanent account is the reference: another device may have played on it since. */
   const adopt = useCallback(
@@ -700,8 +709,14 @@ export function App() {
         // A pop-up is above whatever screen it covers: it goes first.
         if (dismissTopOverlay()) return true
         if (menuShown.current) {
-          // From a sub-page, back hands the profile back before closing the drawer.
-          setMenuPage((page) => (page === 'stats' || page === 'requests' || page === 'categories' || page === 'boards' ? 'profile' : null))
+          // Depuis une sous-page, le retour rend l'onglet avant de fermer le
+          // tiroir — sauf quand rien ne l'attend derrière (le bilan de fin de
+          // partie), où le retour ferme le tiroir d'un coup.
+          setMenuPage((page) =>
+            page !== null && page !== 'profile' && page !== 'social' && page !== 'options' && phase.current !== 'over'
+              ? 'profile'
+              : null,
+          )
           return true
         }
         if (closeChallengeLayer.current()) return true
@@ -1525,9 +1540,9 @@ setStartedAt((at) => at ?? Date.now())
   // La page des succès demande ses découvertes la première fois qu'on l'ouvre :
   // une barre à zéro mentirait jusqu'à la partie suivante.
   useEffect(() => {
-    if (!achievementsOpen || discoveries !== null) return
+    if (menuPage !== 'avatar' || discoveries !== null) return
     void fetchMyDiscoveries().then((count) => count !== null && setDiscoveries(count))
-  }, [achievementsOpen, discoveries])
+  }, [menuPage, discoveries])
 
   closeChallengeLayer.current = () => {
     // Une table de duel se quitte par son bouton : un geste de retour en pleine
@@ -1585,25 +1600,21 @@ setStartedAt((at) => at ?? Date.now())
 
   const screenName = tutorial
     ? 'tutorial'
-    : achievementsOpen
-      ? 'achievements'
-      : editingAvatar
-      ? 'avatar'
-      : moderating
-        ? 'moderation'
-        : picking
-          ? 'challenge-powers'
-          : creating
-            ? 'challenge-create'
-            : challengeOpen && session.phase === 'home'
-              ? 'challenge'
-              : menuPage && (session.phase === 'home' || session.phase === 'loading')
-                ? `menu:${menuPage}`
-                : session.phase
+    : moderating
+      ? 'moderation'
+      : picking
+        ? 'challenge-powers'
+        : creating
+          ? 'challenge-create'
+          : challengeOpen && session.phase === 'home'
+            ? 'challenge'
+            : menuPage && (session.phase === 'home' || session.phase === 'loading' || session.phase === 'over')
+              ? `menu:${menuPage}`
+              : session.phase
   useEffect(() => setTrackScreen(screenName), [screenName])
 
   const quietHome =
-    session.phase === 'home' && !tutorial && !menuOpen && !editingAvatar && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !duelOpen
+    session.phase === 'home' && !tutorial && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !duelOpen
   const notice = quietHome && on('challenges') ? challengeNotice(challenges, heldNotices) : null
   const updateDue = update === 'due' && on('storeUpdate')
   const offerDue = !!moderation?.offer && !offerHeld && on('moderatorOffer')
@@ -1656,35 +1667,6 @@ setStartedAt((at) => at ?? Date.now())
 <ModeTutorial mode={modeLesson.mode} lang={lang} onDone={endModeTutorial} />
 )}
 
-      {editingAvatar && (
-        <Suspense fallback={null}>
-          <AvatarScreen
-            profile={session.profile}
-            avatar={avatar}
-            onSave={(next) => {
-              trackFeature('avatar_saved', { design: next.design, ground: next.ground })
-              wear(next)
-              // The boards read the avatar from the profile: only a fetch after the write shows it.
-              pushAvatar(next).then((saved) => {
-                if (saved) loadBoards().then(setBoards)
-              })
-              setEditingAvatar(false)
-            }}
-            onBack={() => setEditingAvatar(false)}
-          />
-        </Suspense>
-      )}
-
-      {achievementsOpen && (
-        <Suspense fallback={null}>
-          <AchievementsScreen
-            profile={session.profile}
-            discoveries={discoveries ?? undefined}
-            onClose={() => setAchievementsOpen(false)}
-          />
-        </Suspense>
-      )}
-
       {moderating && (
         <Suspense fallback={null}>
           <ModerationScreen
@@ -1699,7 +1681,7 @@ setStartedAt((at) => at ?? Date.now())
         </Suspense>
       )}
 
-      {challengeOpen && !editingAvatar && !moderating && session.phase === 'home' && (
+      {challengeOpen && !moderating && session.phase === 'home' && (
         <Suspense fallback={null}>
           <ChallengeScreen
             key={challengeOpen}
@@ -1741,7 +1723,7 @@ setStartedAt((at) => at ?? Date.now())
         <DuelBanner text={duelBanner === 'kicked' ? t.duel.kickedBanner : t.duel.closedBanner} onDone={clearDuelBanner} />
       )}
 
-      {!tutorial && !editingAvatar && !moderating && !duelOpen && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
+      {!tutorial && !moderating && !duelOpen && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
@@ -1959,11 +1941,12 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {menuLayer.shown !== null && !editingAvatar && !moderating && (session.phase === 'home' || session.phase === 'loading') && (
+      {menuLayer.shown !== null && !moderating && (session.phase === 'home' || session.phase === 'loading' || session.phase === 'over') && (
         <Suspense fallback={null}>
           <Menu
             page={menuLayer.shown}
             leaving={menuLayer.leaving}
+            back={session.phase === 'over' ? 'close' : 'profile'}
             profile={session.profile}
             history={history}
             focusChallenges={menuFocus}
@@ -1987,6 +1970,8 @@ setStartedAt((at) => at ?? Date.now())
                 : undefined
             }
             avatar={avatar}
+            onAvatarSave={saveWornAvatar}
+            discoveries={discoveries ?? undefined}
             account={account}
             accountActions={accountActions}
             accountMode={accountMode}
@@ -2000,14 +1985,6 @@ setStartedAt((at) => at ?? Date.now())
               setTheme(next)
               saveTheme(next)
               applyTheme(next)
-            }}
-            onAchievements={() => {
-              setMenuPage(null)
-              setAchievementsOpen(true)
-            }}
-            onAvatar={() => {
-              setMenuPage(null)
-              setEditingAvatar(true)
             }}
             onLogOut={async () => {
               track('logout')
@@ -2109,7 +2086,7 @@ setStartedAt((at) => at ?? Date.now())
         </Suspense>
       )}
 
-      {!editingAvatar && session.phase === 'over' && session.run && (
+      {session.phase === 'over' && session.run && (
         <Suspense fallback={null}>
           <OverScreen
             run={session.run}
@@ -2121,7 +2098,9 @@ setStartedAt((at) => at ?? Date.now())
             avatar={avatar}
             account={account}
             accountActions={accountActions}
-            onAvatar={() => setEditingAvatar(true)}
+            // La page « Avatar & succès » vit dans le tiroir : elle s'ouvre
+            // par-dessus le bilan, et son retour le rend tel quel.
+            onAvatar={() => setMenuPage('avatar')}
             onChoose={choose}
             onChoosePower={choosePower}
             onSupportAsked={supportAsked}

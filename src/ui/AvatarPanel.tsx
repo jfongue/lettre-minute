@@ -1,37 +1,37 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   AVATARS,
   colourUnlock,
   designUnlock,
   PALETTE,
   reached,
+  sameAvatar,
   type AvatarChoice,
 } from '../domain/avatar'
 import type { Profile } from '../domain/progression'
 import { useT } from '../i18n'
 import { Avatar } from './Avatar'
 
-interface AvatarScreenProps {
+interface AvatarPanelProps {
   profile: Profile
   avatar: AvatarChoice
   onSave(avatar: AvatarChoice): void
-  onBack(): void
 }
 
 type Layer = 'ground' | 'shape' | 'accent'
 
 const LAYERS: readonly Layer[] = ['ground', 'shape', 'accent']
 
-export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenProps) {
+/**
+ * L'éditeur d'avatar, dans la page « Avatar & succès » : l'aperçu, le rayon des
+ * couleurs, puis la grille des tuiles. Il ne se referme pas lui-même — c'est la
+ * page qui porte son bouton retour.
+ */
+export function AvatarPanel({ profile, avatar, onSave }: AvatarPanelProps) {
   const t = useT()
   const [draft, setDraft] = useState(avatar)
   const [layer, setLayer] = useState<Layer>('shape')
   const [hint, setHint] = useState<string | null>(null)
-
-  // Opened from the bottom of a long screen, the editor would start mid-grid.
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
 
   const design = AVATARS[draft.design]
   const ownedDesigns = AVATARS.filter((entry) => reached(profile, designUnlock(entry.id))).length
@@ -41,11 +41,11 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
   const activeLayer = layers.includes(layer) ? layer : 'shape'
 
   return (
-    <div className="sheet cascade">
+    <div className="avatar-editor cascade">
       <header className="avatar-head">
         <Avatar choice={draft} size="lg" />
         <div className="stack">
-          <h1 className="section-title">{t.avatar.title}</h1>
+          <h2 className="section-title">{t.avatar.title}</h2>
           <p className="note">
             {t.avatar.owned(ownedDesigns, AVATARS.length, ownedColours, PALETTE.length)}
           </p>
@@ -125,14 +125,14 @@ export function AvatarScreen({ profile, avatar, onSave, onBack }: AvatarScreenPr
         })}
       </div>
 
-      <div className="stack">
-        <button type="button" className="btn btn--blue btn--block" onClick={() => onSave(draft)}>
-          {t.avatar.save}
-        </button>
-        <button type="button" className="btn btn--ghost btn--block" onClick={onBack}>
-          {t.avatar.back}
-        </button>
-      </div>
+      <button
+        type="button"
+        className="btn btn--blue btn--block"
+        disabled={sameAvatar(draft, avatar)}
+        onClick={() => onSave(draft)}
+      >
+        {t.avatar.save}
+      </button>
     </div>
   )
 }

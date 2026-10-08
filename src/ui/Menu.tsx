@@ -34,6 +34,8 @@ import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
 import { previewSound, type SoundPrefs } from '../lib/sound'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions, type AccountMode } from './AccountPanel'
+import { AchievementsPanel } from './AchievementsPanel'
+import { AvatarPanel } from './AvatarPanel'
 import { CategoriesPage, type BanActions } from './CategoriesPage'
 import { LeaderboardsPage } from './LeaderboardsPage'
 import { PageLinks } from './PageLinks'
@@ -48,12 +50,12 @@ import { useSwipe } from './useSwipe'
 import { Avatar } from './Avatar'
 
 export type MenuPane = 'profile' | 'social' | 'options'
-/** A page opened from the profile, which leads back to it. */
-export type ProfilePage = 'stats' | 'requests' | 'categories' | 'boards'
+/** A page opened from a tab, which leads back to it. */
+export type ProfilePage = 'stats' | 'requests' | 'categories' | 'boards' | 'avatar'
 export type MenuPage = MenuPane | ProfilePage
 
 const PANES: readonly MenuPane[] = ['profile', 'social', 'options']
-const PROFILE_PAGES: readonly Exclude<ProfilePage, 'boards'>[] = ['stats', 'requests', 'categories']
+const PROFILE_PAGES: readonly Exclude<ProfilePage, 'boards' | 'avatar'>[] = ['stats', 'requests', 'categories']
 
 function isPane(page: MenuPage): page is MenuPane {
   return (PANES as readonly string[]).includes(page)
@@ -69,10 +71,20 @@ interface MenuProps {
   page: MenuPage
   /** Closed, and sliding out: it no longer answers the finger. */
   leaving?: boolean
+  /**
+   * Ce que le retour de la page d'ouverture fait : le profil du tiroir, ou le
+   * tiroir entier. Une page ouverte depuis le bilan de fin de partie se ferme,
+   * parce qu'il n'y a pas de profil derrière elle.
+   */
+  back?: 'profile' | 'close'
   profile: Profile
   /** Newest first, for the statistics. */
   history: readonly RunRecord[]
   avatar: AvatarChoice
+  /** Garde l'avatar choisi : l'écran de fin de partie y revient. */
+  onAvatarSave(avatar: AvatarChoice): void
+  /** Les découvertes que seul le serveur compte, pour la barre des succès. */
+  discoveries?: number
   /** Null while the game runs without a server: the player has no account, only an avatar. */
   account: Account | null
   accountActions: AccountActions
@@ -97,9 +109,6 @@ interface MenuProps {
   onLocale(locale: Locale): void
   sound: SoundPrefs
   onSound(sound: SoundPrefs): void
-  onAvatar(): void
-  /** Ouvre la page des succès — celle du jeu, pas les quinze de Play Games. */
-  onAchievements(): void
   onLogOut(): void
   /** Answers false when the server could not erase the account. */
   onErase(): Promise<boolean>
@@ -132,6 +141,8 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
   const t = useT()
   const friends = useFeature('friends')
   const leaderboards = useFeature('leaderboards')
+  const avatars = useFeature('avatar')
+  const achievements = useFeature('achievements')
   const [pane, setPane] = useState<MenuPane>(isPane(page) ? page : 'profile')
   const [sub, setSub] = useState<ProfilePage | null>(isPane(page) ? null : page)
   const body = useRef<HTMLDivElement>(null)
@@ -139,17 +150,26 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
   // classements, ou celui des mots. Le compte survit au tiroir qui s'ouvre et
   // se referme entre deux tapes.
   const tapTitle = useHiddenTaps()
-  // The leaderboards opened from the statistics lead back to them, not to the profile.
-  const [parent, setParent] = useState<ProfilePage | null>(null)
-  const open = (next: MenuPage, from: ProfilePage | null = null) => {
+  // La page d'où l'on vient, pour que le retour y ramène : le profil, ou
+  // l'onglet qui a ouvert l'avatar.
+  const [parent, setParent] = useState<MenuPage | null>(null)
+  const open = (next: MenuPage, from: MenuPage | null = null) => {
     setPane(isPane(next) ? next : 'profile')
     setSub(isPane(next) ? null : next)
     setParent(from)
     body.current?.scrollTo({ top: 0 })
   }
   const drawer = useRef<HTMLElement>(null)
+  // Un retour, par le bouton comme par le geste : la page d'où l'on vient, le
+  // profil à défaut — et le tiroir entier quand rien ne l'a ouvert derrière.
+  const back = () => {
+    if (parent === null && props.back === 'close') onClose()
+    else open(parent ?? 'profile')
+  }
   // The drawer came in from the left: a flick back that way sends it home.
   const swipe = useSwipe('left', onClose)
+  // Un geste vers la droite remonte d'un cran, comme le bouton retour.
+  const backSwipe = useSwipe('right', back)
 
   useEffect(() => {
     drawer.current?.focus()
@@ -199,10 +219,10 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
           </button>
         </div>
 
-        <div className="menu-body" ref={body}>
+        <div className="menu-body" ref={body} {...backSwipe}>
           {sub && (
             <div className="subpage-head">
-              <button type="button" className="subpage-back" onClick={() => open(parent ?? 'profile')} aria-label={t.menu.back}>
+              <button type="button" className="subpage-back" onClick={back} aria-label={t.menu.back}>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M15 5l-7 7 7 7" />
                 </svg>
@@ -254,6 +274,27 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
           {sub === 'categories' && (
             <CategoriesPage profile={props.profile} onHidden={() => props.onWordsBoard?.(true)} {...props.banActions} />
           )}
+          {sub === 'avatar' && (
+            <>
+              {avatars ? (
+                <AvatarPanel profile={props.profile} avatar={props.avatar} onSave={props.onAvatarSave} />
+              ) : null}
+              {achievements ? (
+                <AchievementsPanel
+                  profile={props.profile}
+                  avatar={props.avatar}
+                  discoveries={props.discoveries}
+                />
+              ) : null}
+            </>
+          )}
+          {/* Chaque page se referme aussi par le bas : la liste des succès est
+              longue, et remonter chercher la flèche coûtait un geste. */}
+          {sub && (
+            <button type="button" className="btn btn--ghost btn--block" onClick={back}>
+              {t.menu.back}
+            </button>
+          )}
           {!sub && pane === 'profile' && <ProfilePane {...props} onPage={open} />}
           {pane === 'social' && friends && (
             <SocialPane
@@ -264,7 +305,8 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               accountMode={props.accountMode}
               moderator={props.moderation?.moderator ?? false}
               onProfile={() => open('profile')}
-              onAvatar={props.onAvatar}
+              onAvatar={() => open('avatar', 'social')}
+
               onFriends={props.onFriends}
               onChallenge={props.onChallenge}
               onChallengeFriend={props.onChallengeFriend}
@@ -295,8 +337,6 @@ function ProfilePane({
   account,
   accountActions,
   accountMode,
-  onAvatar,
-  onAchievements,
   onLogOut,
   moderation,
   queueAlert,
@@ -305,6 +345,7 @@ function ProfilePane({
   MenuProps,
   | 'onClose'
   | 'page'
+  | 'back'
   | 'history'
   | 'theme'
   | 'onTheme'
@@ -321,6 +362,8 @@ function ProfilePane({
   | 'friendRequests'
   | 'onFriends'
   | 'onChallengeFriend'
+  | 'discoveries'
+  | 'onAvatarSave'
 > & {
   onPage(page: ProfilePage): void
 }) {
@@ -333,7 +376,13 @@ function ProfilePane({
   return (
     <div className="profile-pane">
       <section className="player">
-        <button type="button" className="player-avatar" onClick={avatars ? onAvatar : undefined} aria-label={t.menu.editAvatarLabel} disabled={!avatars}>
+        <button
+          type="button"
+          className="player-avatar"
+          onClick={avatars ? () => onPage('avatar') : undefined}
+          aria-label={t.menu.editAvatarLabel}
+          disabled={!avatars}
+        >
           <Avatar choice={avatar} size="md" />
         </button>
         <div className="player-id">
@@ -341,15 +390,11 @@ function ProfilePane({
           <span className="note">
             {t.menu.standing(levelProgress(profile.xp).level, formatNumber(t, profile.bestScore))}
           </span>
-          {avatars ? (
-            <button type="button" className="btn btn--quiet" onClick={onAvatar}>
-              {t.menu.editAvatar}
-            </button>
-          ) : null}
-
-          {achievements ? (
-            <button type="button" className="btn btn--quiet" onClick={onAchievements}>
-              {t.menu.achievements}
+          {/* L'avatar et les succès se lisent ensemble : une seule page, qui
+              montre les deux, plutôt que deux écrans superposés au tiroir. */}
+          {avatars || achievements ? (
+            <button type="button" className="btn btn--quiet" onClick={() => onPage('avatar')}>
+              {t.menu.pages.avatar}
             </button>
           ) : null}
         </div>

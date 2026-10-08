@@ -9,7 +9,7 @@ import type { KeptWord, Run } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
 import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, ReviewCard, Submission, SubmissionStatus } from '../lib/cloud'
 import type { AccountActions } from '../ui/AccountPanel'
-import { AchievementsScreen } from '../ui/AchievementsScreen'
+import { AchievementsPanel } from '../ui/AchievementsPanel'
 import { ChallengeNotice } from '../ui/ChallengeHome'
 import { ChallengePowers } from '../ui/ChallengePowers'
 import { ChallengeView } from '../ui/ChallengeScreen'
@@ -798,7 +798,11 @@ const ACHIEVEMENTS_PROFILE: Profile = {
 }
 
 function AchievementsScenario() {
-  return <AchievementsScreen profile={ACHIEVEMENTS_PROFILE} discoveries={9} onClose={noop} />
+  return (
+    <div className="sheet cascade">
+      <AchievementsPanel profile={ACHIEVEMENTS_PROFILE} discoveries={9} avatar={DEFAULT_AVATAR} />
+    </div>
+  )
 }
 
 function LeaderboardsScenario({ named, mineAt }: { named: boolean; mineAt?: number }) {
@@ -977,8 +981,8 @@ function SocialScenario({ back }: { back(): void }) {
       onLocale={noop}
       sound={{ master: 1, effects: 0.8, keys: 0.6, music: 0, muted: false }}
       onSound={noop}
-      onAvatar={noop}
-      onAchievements={noop}
+      onAvatarSave={noop}
+      discoveries={9}
       onLogOut={noop}
       onErase={() => later(true)}
       moderation={null}

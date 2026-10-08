@@ -26,7 +26,9 @@ qui donne la ligne.
   dans les 7 fichiers (`fr en es de it nl pt`), sinon `tsc -b` échoue.
 - **Pouvoirs** : `src/domain/powers.ts`, `src/ui/PowerSlots.tsx`,
   `PowerOfferScreen.tsx`, `PowerIcon.tsx`, `ChallengePowers.tsx`.
-- **Avatars** : `src/domain/avatar.ts`, `src/ui/Avatar.tsx`, `AvatarScreen.tsx`.
+- **Avatars et succès** : `src/domain/avatar.ts`, `achievements.ts`,
+  `src/ui/Avatar.tsx`, `AvatarPanel.tsx`, `AchievementsPanel.tsx` — une seule
+  page du tiroir (`Menu.tsx`, page `avatar`), pas deux écrans superposés.
 - **Défis entre amis** (pas de défi quotidien) : `src/domain/challenge.ts`,
   `src/state/challenges.ts`, `src/state/botRuns.ts`, `src/ui/Challenge*.tsx`.
 - **Duel** : `src/domain/duel.ts`, `duelLog.ts`, `src/state/duel.ts`,

@@ -248,7 +248,7 @@ export const de: Messages = {
     accountLead: 'Deine Partien begleiten dich von Gerät zu Gerät, dein Name kommt in die Rangliste und deine Freunde können dich finden.',
     offline: 'Offline: Dein Fortschritt bleibt auf diesem Gerät.',
     back: 'Zurück',
-    pages: { stats: 'Statistik', requests: 'Meine Vorschläge', categories: 'Meine Kategorien', boards: 'Ranglisten' },
+    pages: { stats: 'Statistik', requests: 'Meine Vorschläge', categories: 'Meine Kategorien', boards: 'Ranglisten', avatar: 'Avatar und Erfolge' },
     achievements: 'Erfolge',
     support: 'Den Entwickler unterstützen',
   },
