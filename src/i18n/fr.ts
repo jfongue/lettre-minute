@@ -1011,7 +1011,7 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     joinTable: 'Rejoindre',
     declineTable: 'Non merci',
     chooseTitle: 'Jouer entre amis',
-    chooseLead: 'Deux façons de se mesurer : en direct, ou chacun quand il veut.',
+    chooseLead: 'Trois façons de se mesurer : en direct, en partie rapide, ou chacun quand il veut.',
     duelCard: 'Duel en direct !',
     duelCardNote: 'Chacun son tour, 30 secondes de réserve, le dernier debout gagne.',
     duelCardPlayers: '2 à 4 joueurs',
