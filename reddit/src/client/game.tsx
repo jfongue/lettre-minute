@@ -19,6 +19,7 @@ import { FeaturesContext } from '../../../src/ui/features'
 import { MuteButton } from '../../../src/ui/MuteButton'
 import { RunScreen } from '../../../src/ui/RunScreen'
 import { ALL_FEATURES } from '../../../src/domain/features'
+import { hostFeatures } from '../../../src/platform'
 import { dailySeed } from '../../../src/domain/daily'
 import type { DailyPostData, DailyResult, DayResponse, PlayResponse, Standing } from '../shared/api'
 import { fetchDay, postPlay } from './api'
@@ -32,8 +33,9 @@ import { useMessages } from './useMessages'
  * for the same word. No powers, no proposals: the post is one game for all.
  */
 
-// The Reddit post has no dictionary proposals: the moderation queue lives in the app.
-const FEATURES = new Set([...ALL_FEATURES].filter((id) => id !== 'proposeWord'))
+// What `redditHost` closes (src/platform/reddit.ts) — dictionary proposals,
+// powers, every server feature — stays closed on the post.
+const FEATURES = hostFeatures(ALL_FEATURES)
 const NO_PROPOSALS: readonly string[] = []
 const NOTHING = () => undefined
 
