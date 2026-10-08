@@ -398,7 +398,7 @@ export function App() {
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null } | null>(null)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
   const [debugPhase, setDebugPhase] = useState<string | null>(() =>
@@ -1703,7 +1703,7 @@ setStartedAt((at) => at ?? Date.now())
 
       {duelOpen && session.phase === 'home' && (
         <Suspense fallback={null}>
-          <DuelScreen lang={lang} mode={cloudConfigured() ? 'online' : 'local'} join={duelOpen.join} quick={duelOpen.quick} onExit={leaveDuel} />
+          <DuelScreen lang={lang} mode="online" join={duelOpen.join} onExit={leaveDuel} />
         </Suspense>
       )}
 
@@ -1715,11 +1715,6 @@ setStartedAt((at) => at ?? Date.now())
             rememberMultiplayer()
             setTogether(false)
             setDuelOpen({ join: null })
-          }}
-          onQuick={() => {
-            rememberMultiplayer()
-            setTogether(false)
-            setDuelOpen({ join: null, quick: true })
           }}
           onChallenge={() => {
             setTogether(false)

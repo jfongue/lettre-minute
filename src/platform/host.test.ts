@@ -23,12 +23,6 @@ describe('les hôtes', () => {
       expect(crazyGamesHost.closedFeatures).not.toContain(id)
     }
   })
-
-  it('laissent à CrazyGames le duel hors ligne, contre les joueurs maison', () => {
-    // Sans serveur, la table en ligne n'existe pas : la partie rapide cherche,
-    // ne trouve personne, et assoit des joueurs maison.
-    expect(crazyGamesHost.closedFeatures).not.toContain('duel')
-  })
 })
 
 describe('le tableau du portail', () => {

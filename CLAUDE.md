@@ -459,15 +459,6 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   d'un absent (`driverMove`, fonction pure : n'importe quel appareil qui
   reprend la main déclare les mêmes coups). Le joueur dont la réserve tombe à
   zéro déclare lui-même son mot ou sa mort.
-- **Une partie rapide se cherche dans une file par langue** (`duel_quick`,
-  0061) : le premier qui attend ouvre une table `quick` où il est déjà prêt, le
-  suivant s'y assoit et la table part d'elle-même. Sans serveur, la table est
-  locale et attend deux secondes avant d'asseoir un ou deux joueurs maison —
-  en ligne, passé quinze secondes sans second joueur, l'appareil leur donne les
-  places du serveur (`duel_invite`), seuls profils qu'une table en ligne puisse
-  montrer à tout le monde ; la réserve ouverte au joueur (`houseBotsFor`) ne
-  sert qu'aux tables locales. Une table rapide sans second joueur depuis deux
-  minutes a perdu son hôte : `duel_quick` n'y assoit plus personne.
 - **Le duel est dans l'app, derrière le bouton des défis** : quand la
   fonctionnalité `duel` est ouverte, « Créer un défi » passe par l'écran de choix
   (`PlayTogether`) entre le duel en direct et le défi 24 h. Une invitation à une

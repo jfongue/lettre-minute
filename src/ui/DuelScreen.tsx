@@ -1140,30 +1140,18 @@ export interface DuelScreenProps {
   mode?: DuelMode
   /** La table où l'on a été invité ; sans elle, l'écran ouvre une table neuve. */
   join?: string | null
-  /** Une partie rapide : elle cherche un adversaire avant d'asseoir des joueurs maison. */
-  quick?: boolean
   onExit?(reason: DuelExit): void
 }
 
-export function DuelScreen({ lang, mode = 'local', join = null, quick = false, onExit }: DuelScreenProps) {
+export function DuelScreen({ lang, mode = 'local', join = null, onExit }: DuelScreenProps) {
   // Hors ligne, la table en ligne cède la place à une table locale, sur le même écran.
   const [local, setLocal] = useState(false)
-  return (
-    <DuelTableScreen
-      key={local ? 'local' : mode}
-      lang={lang}
-      mode={local ? 'local' : mode}
-      join={local ? null : join}
-      quick={quick}
-      onExit={onExit}
-      onBots={() => setLocal(true)}
-    />
-  )
+  return <DuelTableScreen key={local ? 'local' : mode} lang={lang} mode={local ? 'local' : mode} join={local ? null : join} onExit={onExit} onBots={() => setLocal(true)} />
 }
 
-function DuelTableScreen({ lang, mode, join, quick, onExit, onBots }: Required<Omit<DuelScreenProps, 'onExit'>> & Pick<DuelScreenProps, 'onExit'> & { onBots(): void }) {
+function DuelTableScreen({ lang, mode, join, onExit, onBots }: Required<Omit<DuelScreenProps, 'onExit'>> & Pick<DuelScreenProps, 'onExit'> & { onBots(): void }) {
   const t = useT()
-  const table = useDuelTable({ lang, mode, join, quick, onExit })
+  const table = useDuelTable({ lang, mode, join, onExit })
   const { phase } = table
   // Les règles s'ouvrent au premier lancement de la table, puis se revoient du salon.
   const [rules, setRules] = useState(() => !loadDuelRulesSeen())
@@ -1188,7 +1176,6 @@ function DuelTableScreen({ lang, mode, join, quick, onExit, onBots }: Required<O
 
   if (table.offline && !table.joined) return <Notice title={t.duel.offlineTitle} text={t.duel.offlineLead} onBots={onBots} onBack={() => onExit?.(null)} />
   if (table.error) return <Notice text={t.duel.loadFailed} onBack={() => (onExit ? onExit(null) : table.leave())} />
-  if (table.searching) return <Notice title={t.duel.quickTitle} text={t.duel.quickLead} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'connecting') return <Notice text={t.duel.connecting} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} onRules={() => setRules(true)} />

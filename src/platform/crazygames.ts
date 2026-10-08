@@ -354,9 +354,7 @@ export function restoreSavedProgress(): void {
  * there must land in the game, not on a question.
  */
 export const crazyGamesHost: Host = {
-  // Le duel n'a pas de serveur ici : la table rapide s'assoit en local, avec les
-  // joueurs maison — c'est elle que le portail propose.
-  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES].filter((id) => id !== 'duel')),
+  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES]),
   title: ['Letter', 'Minute'],
   languages: platformLanguages,
   fallbackLocale: 'en',
