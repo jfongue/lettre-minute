@@ -2094,7 +2094,7 @@ setStartedAt((at) => at ?? Date.now())
         </Suspense>
       )}
 
-      {session.phase === 'over' && session.run && (
+      {session.phase === 'over' && session.run && !moderating && (
         <Suspense fallback={null}>
           <OverScreen
             run={session.run}
