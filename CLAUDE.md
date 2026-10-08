@@ -100,7 +100,8 @@ par une copie de l'écran ; et chaque build touché se vérifie.
   d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : hors ligne,
   sans compte ni serveur (toutes les variables externes vidées au build), SDK
   du portail (événements, pub midgame, muet, sauvegarde par son module Data,
-  langue), thème clair par défaut, accueil en deux colonnes dans un cadre
+  classement hebdo, langue), thème clair par défaut, accueil en deux colonnes
+  dans un cadre
   paysage bas (926×476 sur un portable), Tab passe comme partout. Android :
   tout, plus la coquille native.
 - **À se demander avant de livrer un changement** : demande-t-il un compte ou
