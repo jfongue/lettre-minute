@@ -3,9 +3,10 @@
 La version du jeu soumise à CrazyGames (https://developer.crazygames.com/submit),
 sous le nom **Letter Minute**. C'est l'app elle-même (`src/App.tsx`), construite
 en mode `crazygames`, sans le téléphone, sans le serveur, derrière le SDK HTML5 v3
-du portail. L'app Android et la version web ne changent pas : chaque ajout est
-gardé par `ON_CRAZYGAMES` (`src/lib/crazygames.ts`), faux hors de ce build, et
-Vite retire le code mort — le build web ne contient ni le SDK ni ses appels.
+du portail. L'app Android et la version web ne changent pas : chaque différence
+passe par l'hôte `crazyGamesHost` (`src/platform/crazygames.ts`), que seul ce
+build choisit (`VITE_PLATFORM`, `src/platform/index.ts`), et Vite retire le code
+mort — le build web ne contient ni le SDK ni ses appels.
 
 ## Commandes
 
@@ -39,22 +40,22 @@ Le zip et `dist-crazygames/` sont ignorés par git : ils se reconstruisent.
   replis. Le prix : pas de classements, de rareté de la foule ni de mots
   proposés — qui demanderaient d'ailleurs, pour une Full Launch, de lier nos
   comptes à ceux de CrazyGames (module User + vérification du JWT côté serveur).
-- **Fonctionnalités fermées** (`CLOSED_FEATURES`) : défis, duel, amis,
+- **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit `SERVER_FEATURES` et `APP_ONLY_FEATURES` de `src/platform/host.ts`) : défis, duel, amis,
   invitations, face-à-face, réactions, classements, Premium (faux paiement),
   modes de jeu, propositions de mots et modération, boîte à idées, question
   d'avis, demande de note, notifications, mise à jour du store, Play Games,
-  pubs AdMob, outils de développeur. Le bouton « Partager — bientôt » (bouton
-  mort) et la note « Hors ligne » du menu disparaissent aussi. Restent : la
+  pubs AdMob, outils de développeur. Le bouton « Partager — bientôt » (bouton mort, fonctionnalité `share`)
+  et la note « Hors ligne » du menu (`keepsProgress`) disparaissent aussi. Restent : la
   partie, le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
   cachés du bilan, l'avatar, les succès, les statistiques, les options.
 - **Langue** : celle du SDK (`user.systemInfo.locale`), puis celle du
   navigateur, sinon l'anglais — jamais le sélecteur de langue au premier
   lancement. Le joueur peut en changer dans les options. Le titre affiché
-  reste **Letter Minute** dans toutes les langues (`CRAZYGAMES_TITLE`), pour
+  reste **Letter Minute** dans toutes les langues (`crazyGamesHost.title`), pour
   correspondre au nom soumis.
 - **Thème clair par défaut** (`data-theme="light"` dès le HTML) ; le thème
   sombre reste au choix dans les options.
-- **Événements** (`src/ui/usePlatformGameplay.ts`) : `gameplayStart` au compte
+- **Événements** (`src/platform/usePlatformGameplay.ts`) : `gameplayStart` au compte
   à rebours, pendant la partie et pendant la leçon du premier lancement ;
   `gameplayStop` dès qu'on en sort. `happytime` quand une partie bat un record
   qui existait déjà.

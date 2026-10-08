@@ -24,6 +24,8 @@ function nativeStub(): Plugin {
 
 export default defineConfig({
   plugins: [nativeStub(), react(), devvit()],
+  // The game's host (`src/platform/index.ts`): the other hosts' code stays out.
+  define: { 'import.meta.env.VITE_PLATFORM': JSON.stringify('reddit') },
   // React and the game's code live one level up (`../node_modules`, `../src`):
   // one copy of React, whichever side imports it.
   resolve: { dedupe: ['react', 'react-dom'] },

@@ -42,6 +42,7 @@ export const FEATURES: readonly FeatureDef[] = [
   { id: 'duel', label: 'Duel en direct', note: 'Tables de deux à quatre, en ligne, avec les joueurs maison', defaults: { ...supers, moderator: 'neutral', premium: 'neutral' } },
   { id: 'friends', label: 'Amis', note: 'L’onglet Social, les demandes, la fiche d’un joueur', defaults: open },
   { id: 'friendInvite', label: 'Inviter un ami', note: 'Lien, e-mail, et la proposition de partager le jeu', defaults: open },
+  { id: 'share', label: 'Partager un bilan', note: 'Le bouton « Partager — bientôt » des bilans de partie et de défi', defaults: open },
   { id: 'rivalry', label: 'Face-à-face', note: 'Victoires et défaites contre chaque ami', defaults: open },
   { id: 'reactions', label: 'Réactions', note: 'Les emojis sur les trophées et les mots d’un bilan de défi', defaults: open },
   // Progresser

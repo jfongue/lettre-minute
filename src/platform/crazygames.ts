@@ -1,59 +1,15 @@
+import { APP_ONLY_FEATURES, SERVER_FEATURES, type Host } from './host'
+
 /**
  * The CrazyGames shell, as `native.ts` is the phone's: everything the portal's
- * SDK (HTML5 v3) is asked goes through here, and nothing here ever throws. On
- * any other build `ON_CRAZYGAMES` is false and every call is a no-op; inside
- * the CrazyGames build, a page served anywhere but the portal or localhost
- * finds the SDK `disabled` (or not loaded at all) and stays quiet too.
+ * SDK (HTML5 v3) is asked goes through here, and nothing here ever throws.
+ * Only the CrazyGames build reaches it (`host`, `src/platform/index.ts`); a
+ * page of that build served anywhere but the portal or localhost finds the SDK
+ * `disabled` (or not loaded at all) and stays quiet.
  *
  * The SDK script is added by `initCrazyGames`, never by a blocking tag; the build is
  * `npm run crazygames:build`, documented in `crazygames/README.md`.
  */
-
-export const ON_CRAZYGAMES = import.meta.env.VITE_PLATFORM === 'crazygames'
-
-/** The portal shows its own name for the game; the poster must say the same in every language. */
-export const CRAZYGAMES_TITLE: [string, string] | null = ON_CRAZYGAMES ? ['Letter', 'Minute'] : null
-
-/**
- * What the portal cannot host or has no use for: anything that needs an
- * account or the game's server (friends, challenges, duels, boards, proposals
- * and their moderation), the fake Premium checkout, the phone's own offers
- * (Play Games, pushes, store update, rating), and the developer's tools.
- */
-const CLOSED_FEATURES: ReadonlySet<string> = new Set([
-  'challenges',
-  'duel',
-  'friends',
-  'friendInvite',
-  'rivalry',
-  'reactions',
-  'leaderboards',
-  'premium',
-  'gameModes',
-  'proposeWord',
-  'myRequests',
-  'wordsNews',
-  'moderation',
-  'moderatorOffer',
-  'electModerator',
-  'wordFlag',
-  'ideasBox',
-  'feedback',
-  'support',
-  'pushOffer',
-  'storeUpdate',
-  'playGames',
-  'ads',
-  'wordsBoard',
-  'dashboard',
-  'ideasAdmin',
-  'debugBoard',
-])
-
-export function platformFeatures(features: ReadonlySet<string>): ReadonlySet<string> {
-  if (!ON_CRAZYGAMES) return features
-  return new Set([...features].filter((id) => !CLOSED_FEATURES.has(id)))
-}
 
 interface AdCallbacks {
   adStarted?(): void
@@ -140,9 +96,9 @@ function loadSdkScript(): Promise<boolean> {
   })
 }
 
-/** Wakes the SDK; resolves in every case, and at once outside the CrazyGames build. */
+/** Wakes the SDK; resolves in every case. */
 export async function initCrazyGames(): Promise<void> {
-  if (!ON_CRAZYGAMES || typeof window === 'undefined') return
+  if (typeof window === 'undefined') return
   try {
     const patience = sdkPatience()
     if ((await within(loadSdkScript(), patience)) !== true) return
@@ -171,7 +127,7 @@ let inGameplay = false
 let endedSinceAd = false
 
 /** In gameplay or not: only the changes reach the SDK, a run's end is remembered for the next break. */
-export function setGameplay(on: boolean): void {
+function setGameplay(on: boolean): void {
   if (on === inGameplay) return
   inGameplay = on
   if (!on) endedSinceAd = true
@@ -179,12 +135,12 @@ export function setGameplay(on: boolean): void {
 }
 
 /** A new record: the portal's celebration, kept for the rare moment it is. */
-export function happytime(): void {
+function happytime(): void {
   safely((s) => s.game.happytime())
 }
 
 /** The portal's language first (`en-US`), then the browser's. */
-export function platformLanguages(): readonly string[] {
+function platformLanguages(): readonly string[] {
   const locale = sdk?.user?.systemInfo?.locale
   return locale ? [locale] : []
 }
@@ -202,8 +158,7 @@ function announceMute(): void {
  * an ad on screen — and false once it lets go. The setting outranks the game's
  * own volume: the in-game mute button cannot bring the sound back.
  */
-export function onPlatformMute(listener: (muted: boolean) => void): void {
-  if (!ON_CRAZYGAMES) return
+function onPlatformMute(listener: (muted: boolean) => void): void {
   muteListeners.add(listener)
   if (!sdk) return
   safely((s) => {
@@ -226,7 +181,7 @@ const AD_TIMEOUT_MS = 60_000
  * Resolves once the ad is over, failed or skipped; the sound is cut only while
  * one actually plays.
  */
-export function breakBetweenRuns(): Promise<void> {
+function breakBetweenRuns(): Promise<void> {
   if (!sdk || !endedSinceAd) return Promise.resolve()
   endedSinceAd = false
   return new Promise((resolve) => {
@@ -348,4 +303,23 @@ export function restoreSavedProgress(): void {
     removeItem.call(this, key)
     if (this === store && saved.has(key)) mirror(key, null)
   }
+}
+
+/**
+ * The portal hosts the game alone: no server, no account, nothing that leads
+ * off its page (it refuses a button that does nothing, such as « share —
+ * soon »), none of the phone's offers. It lists the game as « Letter Minute »
+ * in every language, and English stands in for the language picker: a player
+ * there must land in the game, not on a question.
+ */
+export const crazyGamesHost: Host = {
+  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES]),
+  title: ['Letter', 'Minute'],
+  languages: platformLanguages,
+  fallbackLocale: 'en',
+  keepsProgress: true,
+  setGameplay,
+  celebrate: happytime,
+  breakBetweenRuns,
+  onMute: onPlatformMute,
 }

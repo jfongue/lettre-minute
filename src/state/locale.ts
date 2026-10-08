@@ -1,4 +1,4 @@
-import { CRAZYGAMES_TITLE } from '../lib/crazygames'
+import { host } from '../platform'
 import { detectLocale, isLocale, messagesFor, type Locale } from '../i18n'
 
 const LOCALE_KEY = 'lettre-minute.locale.v1'
@@ -29,5 +29,5 @@ export function saveLocale(locale: Locale): void {
 
 export function applyLocale(locale: Locale): void {
   document.documentElement.lang = locale
-  document.title = (CRAZYGAMES_TITLE ?? messagesFor(locale).appName).join(' ')
+  document.title = (host.title ?? messagesFor(locale).appName).join(' ')
 }

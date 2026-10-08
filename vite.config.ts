@@ -26,12 +26,10 @@ export default defineConfig(({ mode }) => ({
   plugins: [react()],
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
-    ...(mode === 'crazygames'
-      ? {
-          'import.meta.env.VITE_PLATFORM': JSON.stringify('crazygames'),
-          ...Object.fromEntries(CRAZYGAMES_BLANKS.map((name) => [`import.meta.env.${name}`, '""'])),
-        }
-      : {}),
+    // The host the build is for (src/platform/index.ts), a literal the
+    // minifier folds: the other hosts' code never reaches the bundle.
+    'import.meta.env.VITE_PLATFORM': JSON.stringify(mode === 'crazygames' ? 'crazygames' : 'app'),
+    ...(mode === 'crazygames' ? Object.fromEntries(CRAZYGAMES_BLANKS.map((name) => [`import.meta.env.${name}`, '""'])) : {}),
   },
   // Vite does not read PORT on its own; honouring it lets a harness or a second
   // checkout run the dev server on a port it picked.

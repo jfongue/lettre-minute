@@ -7,7 +7,7 @@ launch). The build and its choices are explained in `crazygames/README.md`.
 
 | Field | Answer |
 |---|---|
-| Game name (≤ 35 characters) | **Letter Minute** — the title the game shows on its poster in every language (`CRAZYGAMES_TITLE`) and in the page title |
+| Game name (≤ 35 characters) | **Letter Minute** — the title the game shows on its poster in every language (`crazyGamesHost.title`, `src/platform/crazygames.ts`) and in the page title |
 | Engine | HTML5 |
 | Game files | `crazygames/lettre-minute-crazygames.zip` (3.75 MB; `index.html` at the root, relative paths, 148 files, 13.5 MB unzipped) — rebuild with `npm run crazygames:build` |
 | Game save progress | **Yes, using the Data Module from the CrazyGames SDK** (enables « Progress Save »; without it the SDK answers `dataModuleDisabled` and the game falls back to localStorage) |

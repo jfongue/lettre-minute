@@ -44,7 +44,7 @@ import { useFriendHistory } from '../state/rivalry'
 import { FriendsView } from './FriendsView'
 import { useHiddenTaps } from './useHiddenTaps'
 import { useFeature } from './features'
-import { ON_CRAZYGAMES } from '../lib/crazygames'
+import { host } from '../platform'
 import { useSwipe } from './useSwipe'
 import { Avatar } from './Avatar'
 
@@ -387,8 +387,8 @@ function ProfilePane({
         />
       )}
 
-      {/* On CrazyGames the portal keeps the progress, wherever its player signs in. */}
-      {!account && !ON_CRAZYGAMES && <p className="note">{t.menu.offline}</p>}
+      {/* A host that keeps the progress itself (CrazyGames) has nothing to warn about. */}
+      {!account && !host.keepsProgress && <p className="note">{t.menu.offline}</p>}
 
       <PageLinks
         pages={PROFILE_PAGES}

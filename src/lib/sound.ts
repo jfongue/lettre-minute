@@ -11,7 +11,7 @@
 
 import type { PowerId } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
-import { onPlatformMute } from './crazygames'
+import { host } from '../platform'
 import { onAppActive } from './native'
 
 /** Each channel's volume, from 0 (off) to 1. */
@@ -879,8 +879,8 @@ export function armSound(): void {
   window.addEventListener('blur', () => setAway('blurred', true))
   window.addEventListener('focus', () => setAway('blurred', false))
   onAppActive((active) => setAway('native', !active))
-  // The CrazyGames portal's mute setting, or its ad on screen, outranks the game's own volume.
-  onPlatformMute((muted) => setAway('platform', muted))
+  // The host's mute (the CrazyGames portal's setting, its ad on screen) outranks the game's own volume.
+  host.onMute((muted) => setAway('platform', muted))
 }
 
 export function tierSound(tier: RarityTier, approximate: boolean): SoundTier {

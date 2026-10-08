@@ -4,7 +4,8 @@ import { createRoot } from 'react-dom/client'
 import '@fontsource-variable/jost/index.css'
 import { App } from './App'
 import { loadMessages } from './i18n'
-import { initCrazyGames, loadingStart, loadingStop, platformLanguages, restoreSavedProgress } from './lib/crazygames'
+import { host } from './platform'
+import { initCrazyGames, loadingStart, loadingStop, restoreSavedProgress } from './platform/crazygames'
 import { armSound } from './lib/sound'
 import { loadLocale } from './state/locale'
 import { applyTheme, loadTheme } from './state/theme'
@@ -26,7 +27,7 @@ void (async () => {
   restoreSavedProgress()
   // Before the first paint, so a dark-theme player never sees a light flash.
   applyTheme(loadTheme())
-  await loadMessages(loadLocale(platformLanguages()) ?? 'en').catch(() => undefined)
+  await loadMessages(loadLocale(host.languages()) ?? host.fallbackLocale ?? 'en').catch(() => undefined)
   root.render(
     <StrictMode>
       <App />
