@@ -1,7 +1,7 @@
 // Serves dist-crazygames/ on localhost, where the CrazyGames SDK starts in its
 // `local` mode (demo ads as an overlay text, console logging), and frames it the
 // way the portal does: /  is the game alone, /frame.html the game in an iframe
-// at the portal's sizes (?size=desktop|small|phone).
+// at the portal's sizes (?size=desktop|laptop|small|phone, or ?w=926&h=476).
 //
 //   npm run crazygames:build && node crazygames/harness.mjs   (PORT, default 5747)
 import { createReadStream, existsSync, statSync } from 'node:fs'
@@ -20,10 +20,10 @@ const TYPES = {
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
 }
-const SIZES = { desktop: [1280, 720], small: [800, 450], phone: [375, 667] }
+const SIZES = { desktop: [1280, 720], laptop: [926, 476], small: [800, 450], phone: [375, 667] }
 
-const frame = (size) => {
-  const [width, height] = SIZES[size] ?? SIZES.desktop
+const frame = (size, custom) => {
+  const [width, height] = custom ?? SIZES[size] ?? SIZES.desktop
   return `<!doctype html><meta charset="utf-8"><title>CrazyGames harness</title>
 <style>body{margin:0;background:#202030;display:grid;place-items:center;min-height:100vh;font:14px system-ui;color:#ccc}
 nav{position:fixed;top:8px;left:8px}a{color:#9cf;margin-right:12px}iframe{border:0;background:#000}</style>
@@ -35,7 +35,8 @@ createServer((request, response) => {
   const url = new URL(request.url ?? '/', `http://localhost:${port}`)
   if (url.pathname === '/frame.html') {
     response.writeHead(200, { 'content-type': TYPES['.html'] })
-    response.end(frame(url.searchParams.get('size') ?? 'desktop'))
+    const [w, h] = ['w', 'h'].map((name) => Number(url.searchParams.get(name)))
+    response.end(frame(url.searchParams.get('size') ?? 'desktop', w && h ? [w, h] : null))
     return
   }
   const path = normalize(join(root, url.pathname === '/' ? 'index.html' : url.pathname))

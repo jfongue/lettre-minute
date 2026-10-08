@@ -12,7 +12,8 @@ Vite retire le code mort — le build web ne contient ni le SDK ni ses appels.
 | Commande | Effet |
 |---|---|
 | `npm run crazygames:build` | `tsc -b`, `vite build --mode crazygames` dans `dist-crazygames/` (`index.html` à la racine, chemins relatifs), zip dans `crazygames/lettre-minute-crazygames.zip`, puis contrôle des tailles contre les limites du portail |
-| `npm run crazygames:harness` | sert `dist-crazygames/` sur http://localhost:5747 — le SDK y démarre en mode `local` (pubs simulées par un texte, journal dans la console) ; `/frame.html?size=desktop\|small\|phone` montre le jeu dans une iframe aux tailles du portail |
+| `npm run crazygames:harness` | sert `dist-crazygames/` sur http://localhost:5747 — le SDK y démarre en mode `local` (pubs simulées par un texte, journal dans la console) ; `/frame.html?size=desktop\|laptop\|small\|phone` (ou `?w=926&h=476`) montre le jeu dans une iframe aux tailles du portail |
+| `npm run crazygames:check` | (harnais lancé) à 926×476, 800×450, 1280×720 et 390×844, pour un nouveau venu et un habitué : « Play » dans le cadre et au premier plan (`elementFromPoint`), un vrai clic souris CDP qui lance la leçon ou la partie, champ, Passer et Valider dans le cadre ; avec une adresse du réseau local en second argument, vérifie aussi que le jeu démarre hors du portail, SDK `disabled` |
 | `npm run crazygames:dev` | le serveur de dev Vite en mode `crazygames`, sur `/crazygames.html` |
 | `cd crazygames/video && npm install && node capture.mjs && node render.mjs` | (harnais lancé) enregistre une vraie partie en Chrome sans tête puis monte les deux vidéos de présentation avec HyperFrames, installé dans ce dossier seul : `crazygames/assets/video-*.mp4` |
 | `node --experimental-strip-types scripts/crazygames-shots.ts` | (harnais lancé) rend les trois couvertures depuis `assets/cover.html` et joue de vraies parties en Chrome sans tête pour les captures ; imprime la console de la page à la fin |
@@ -23,7 +24,10 @@ Le zip et `dist-crazygames/` sont ignorés par git : ils se reconstruisent.
 
 - **Entrée** : `crazygames.html` → `src/crazygames.tsx`. Le SDK
   (`https://sdk.crazygames.com/crazygames-sdk-v3.js`) est la seule ressource
-  externe. L'entrée attend `SDK.init()` (5 s au plus), annonce
+  externe, ajoutée par script et jamais par une balise bloquante : un hôte qui
+  ne répond pas laisserait la page blanche. L'entrée attend le script puis
+  `SDK.init()` — 8 s au plus sur le portail ou localhost, 1,5 s ailleurs, où
+  le SDK ne peut que finir `disabled` —, annonce
   `loadingStart`, recopie la progression sauvegardée, rend l'app, puis
   `loadingStop`. Pas de suivi d'usage (`track.ts`), pas de coquille native.
 - **Hors ligne, sans Supabase** : `vite.config.ts` vide toutes les variables

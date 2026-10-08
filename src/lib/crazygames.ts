@@ -5,7 +5,7 @@
  * the CrazyGames build, a page served anywhere but the portal or localhost
  * finds the SDK `disabled` (or not loaded at all) and stays quiet too.
  *
- * The SDK script is the one tag `crazygames.html` loads itself; the build is
+ * The SDK script is added by `initCrazyGames`, never by a blocking tag; the build is
  * `npm run crazygames:build`, documented in `crazygames/README.md`.
  */
 
@@ -100,18 +100,59 @@ function safely(call: (sdk: CrazySdk) => void): void {
   }
 }
 
-// A page whose script never arrives (offline, blocked) must still start the game.
-const INIT_TIMEOUT_MS = 5000
+const SDK_URL = 'https://sdk.crazygames.com/crazygames-sdk-v3.js'
+/**
+ * How long the game waits for the SDK, script and init each, before starting
+ * without it. On the portal (or localhost, where the SDK runs in its local
+ * mode) the SDK holds the saved progress, so the wait is long; anywhere else
+ * — a test server, a mirror — the SDK can only end up `disabled`, after an
+ * init that takes seconds, and a short wait keeps the page from staying blank.
+ */
+function sdkPatience(): number {
+  const hostOf = (address: string) => {
+    try {
+      return new URL(address).hostname
+    } catch {
+      return ''
+    }
+  }
+  const hosts = [location.hostname, hostOf(document.referrer), ...Array.from(location.ancestorOrigins ?? [], hostOf)]
+  return hosts.some((host) => /(^|\.)crazygames\.[a-z.]+$|^localhost$|^127\.0\.0\.1$/.test(host)) ? 8000 : 1500
+}
+
+function within<T>(promise: Promise<T>, ms: number): Promise<T | 'timeout'> {
+  return Promise.race([promise, new Promise<'timeout'>((resolve) => setTimeout(() => resolve('timeout'), ms))])
+}
+
+/**
+ * Added by script rather than written in the page: a blocking `<script>` tag
+ * whose host never answers would leave the page blank for good.
+ */
+function loadSdkScript(): Promise<boolean> {
+  if (window.CrazyGames?.SDK) return Promise.resolve(true)
+  return new Promise((resolve) => {
+    const script = document.createElement('script')
+    script.src = SDK_URL
+    script.async = true
+    script.onload = () => resolve(true)
+    script.onerror = () => resolve(false)
+    document.head.append(script)
+  })
+}
 
 /** Wakes the SDK; resolves in every case, and at once outside the CrazyGames build. */
 export async function initCrazyGames(): Promise<void> {
-  if (!ON_CRAZYGAMES) return
-  const candidate = typeof window === 'undefined' ? undefined : window.CrazyGames?.SDK
-  if (!candidate) return
+  if (!ON_CRAZYGAMES || typeof window === 'undefined') return
   try {
-    const timeout = new Promise<'timeout'>((resolve) => setTimeout(() => resolve('timeout'), INIT_TIMEOUT_MS))
-    if ((await Promise.race([candidate.init().then(() => 'ready' as const), timeout])) !== 'ready') return
-    if (candidate.environment === 'disabled') return
+    const patience = sdkPatience()
+    if ((await within(loadSdkScript(), patience)) !== true) return
+    const candidate = window.CrazyGames?.SDK
+    // Anywhere but the portal and localhost the SDK is `disabled` from the
+    // start, and its init there takes seconds for nothing.
+    if (!candidate || candidate.environment === 'disabled') return
+    if ((await within(candidate.init().then(() => 'ready' as const), patience)) !== 'ready') return
+    // Read again: the SDK settles its environment while it inits.
+    if ((candidate.environment as string) === 'disabled') return
     sdk = candidate
   } catch {
     /* left as null: the game runs as it would anywhere */

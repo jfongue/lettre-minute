@@ -69,8 +69,12 @@ textarea {
     font-size: min(5.6rem, 13vh, 6.5vw);
   }
 
+  /* Its own layer, above the poster's turning tiles and the title's sliding
+     words: nothing from the left column may ever lie over « Play ». */
   .sheet--home > .home-body,
   .sheet--home > .home-loader {
+    position: relative;
+    z-index: 1;
     grid-column: 2;
     grid-row: 1 / 3;
     min-height: 0;
