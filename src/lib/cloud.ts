@@ -1586,6 +1586,14 @@ export function createDuelTable(lang: string, categories: readonly string[], own
   }, null)
 }
 
+/** La file de la partie rapide (0061) : la table qui m'attend, ou celle que j'ouvre. */
+export function searchDuel(lang: string, categories: readonly string[], owned: number): Promise<string | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_quick', { p_lang: lang, p_categories: categories, p_owned: owned })
+    return error ? null : (data as string)
+  }, null)
+}
+
 export type DuelInviteOutcome = 'sent' | 'seated' | 'full' | 'closed' | 'forbidden' | 'unreachable'
 
 export function inviteToDuel(table: string, player: string): Promise<DuelInviteOutcome> {

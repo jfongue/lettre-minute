@@ -22,7 +22,6 @@ import {
 } from '../domain/duel'
 import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
 import { HOUSE_BOTS, houseBotsFor, type HouseBot } from '../domain/duelBots'
-import { cloudConfigured } from '../lib/supabase'
 import { createRng } from '../domain/rng'
 import { playableCategoryIds } from '../domain/perks'
 import { onAppActive } from '../lib/native'
@@ -40,6 +39,7 @@ import {
   leaveDuel,
   openDuelRematch,
   postDuelMove,
+  searchDuel,
   setDuelReady,
   syncDuel,
   unstartDuel,
@@ -100,7 +100,7 @@ export const CHEERS_SHOWN = 3
 
 /** Le temps qu'une partie rapide laisse à la file avant d'asseoir des joueurs maison, et combien elle en assoit. */
 const QUICK_WAIT_SECONDS = 15
-/** Sans serveur, personne ne peut entrer : deux secondes de battement au lieu de quinze. */
+/** Sur une table locale, personne ne peut entrer : deux secondes de battement au lieu de quinze. */
 const QUICK_GRACE_SECONDS = 2
 const QUICK_BOTS = 2
 
@@ -254,6 +254,12 @@ function freshLocal(lang: string, me: Seat, bots: readonly string[], categories:
   }
 }
 
+/** La table rapide locale part tout de suite : personne ne l'attend, les joueurs maison sont déjà là. */
+function startLocal(lang: string, me: Seat, bots: readonly string[], categories: readonly string[]): TableData {
+  const fresh = freshLocal(lang, me, bots, categories)
+  return { ...fresh, status: 'playing', startedAt: wall(), seats: fresh.seats.map((seat, index) => ({ ...seat, ready: true, seat: index })) }
+}
+
 function fromSnapshot(snapshot: DuelSnapshot): TableData {
   return {
     id: snapshot.table.id,
@@ -335,16 +341,6 @@ export function useDuelTable({ lang, mode, join = null, quick = false, onExit, o
   })
 
   const [table, setTable] = useState<TableData | null>(() => (mode === 'local' && !quick ? freshLocal(lang, meSeat, drawBots(1), mine) : null))
-  // Une partie rapide cherche un adversaire, puis assoit deux joueurs maison :
-  // sans serveur personne ne peut entrer, donc le battement ne dure que le
-  // temps que l'écran dise qu'il cherche.
-  const searching = Boolean(quick) && mode === 'local' && table === null
-  useEffect(() => {
-    if (!searching) return
-    const wait = cloudConfigured() ? QUICK_WAIT_SECONDS : QUICK_GRACE_SECONDS
-    const timer = setTimeout(() => setTable(freshLocal(lang, meSeat, drawBots(QUICK_BOTS), mine)), wait * 1000)
-    return () => clearTimeout(timer)
-  }, [searching, lang, meSeat, mine, drawBots])
   const [failed, setFailed] = useState(false)
   const [offline, setOffline] = useState(false)
   /** L'onglet est passé derrière : il ne mène plus la table tant qu'on ne le regarde pas. */
@@ -484,11 +480,14 @@ export function useDuelTable({ lang, mode, join = null, quick = false, onExit, o
       })
       return
     }
-    void createDuelTable(lang, mine, mine.length).then((id) => {
+    // Une partie rapide passe par la file (`duel_quick`) : elle m'assoit à une
+    // table qui attend, ou en ouvre une pour moi.
+    const open = quick ? searchDuel(lang, mine, mine.length) : createDuelTable(lang, mine, mine.length)
+    void open.then((id) => {
       if (id) setTableId(id)
       else setOffline(true)
     })
-  }, [join, lang, mine, mode])
+  }, [join, lang, mine, mode, quick])
 
   useEffect(() => {
     if (mode !== 'online') return
@@ -508,6 +507,33 @@ export function useDuelTable({ lang, mode, join = null, quick = false, onExit, o
     }, every)
     return () => clearInterval(timer)
   }, [mode, status, sync, tableId])
+
+  // Une partie rapide cherche un adversaire, puis assoit un ou deux joueurs
+  // maison : chez moi en local, sur la table du serveur en ligne — là, ce sont
+  // les seuls qu'une table puisse montrer à tout le monde (`duel_invite`).
+  const humans = table ? table.seats.filter((seat) => !seat.gone && !seat.bot).length : 0
+  const searching = Boolean(quick) && (table === null || (table.status === 'lobby' && humans < 2))
+  useEffect(() => {
+    if (!searching) return
+    if (mode === 'local') {
+      // Sans serveur, personne ne peut entrer : le battement ne dure que le
+      // temps que l'écran dise qu'il cherche.
+      const timer = setTimeout(() => setTable(startLocal(lang, meSeat, drawBots(QUICK_BOTS), mine)), QUICK_GRACE_SECONDS * 1000)
+      return () => clearTimeout(timer)
+    }
+    if (!tableId || status !== 'lobby') return
+    const timer = setTimeout(() => {
+      const houses = candidates.filter((seat) => seat.bot).map((seat) => seat.id)
+      const drawn = [...houses].sort(() => Math.random() - 0.5).slice(0, QUICK_BOTS)
+      void (async () => {
+        for (const id of drawn) await inviteToDuel(tableId, id)
+        // Les joueurs maison s'assoient déjà prêts : mon « prêt » lance la table.
+        await setDuelReady(tableId, true)
+        void sync()
+      })()
+    }, QUICK_WAIT_SECONDS * 1000)
+    return () => clearTimeout(timer)
+  }, [candidates, drawBots, lang, meSeat, mine, mode, searching, status, sync, tableId])
 
   // L'horloge de l'écran : un battement de 100 ms, la finesse de ce que la réserve affiche.
   useEffect(() => {
