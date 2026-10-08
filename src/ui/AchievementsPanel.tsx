@@ -1,4 +1,5 @@
-import { achievementIcon, achievementProgress, achievementReward, type Family } from '../domain/achievements'
+import { useState } from 'react'
+import { achievementIcon, achievementProgress, achievementReward, type AchievementId, type Family } from '../domain/achievements'
 import { PALETTE, type AvatarChoice } from '../domain/avatar'
 import type { Profile } from '../domain/progression'
 import { useT } from '../i18n'
@@ -23,6 +24,8 @@ const FAMILIES: readonly Family[] = ['progress', 'exploit', 'explore']
  */
 export function AchievementsPanel({ profile, avatar, discoveries }: AchievementsPanelProps) {
   const t = useT()
+  // Le succès dont la condition est dépliée : la ligne entière l'ouvre.
+  const [open, setOpen] = useState<AchievementId | null>(null)
   // Le rang sert à la fois de couleur de barre et de clé de rendu : la même
   // barre garde la même teinte d'un rendu à l'autre.
   const rows = achievementProgress(profile, discoveries).map((row, rank) => ({ row, rank }))
@@ -47,47 +50,62 @@ export function AchievementsPanel({ profile, avatar, discoveries }: Achievements
                 const { name, desc } = t.ach[achievement.id]
                 const { design, colour } = achievementReward(achievement)
                 return (
-                  <li key={achievement.id} className={`ach-row${done ? ' ach-row--done' : ''}`}>
-                    <span className="ach-reward">
-                      {design !== null ? (
-                        <Avatar choice={{ ...avatar, design }} locked={!done} />
-                      ) : (
-                        <Avatar choice={achievementIcon(achievement.id)} locked={!done} />
-                      )}
-                      {colour && (
-                        <span
-                          className={`ach-colour${done ? '' : ' ach-colour--locked'}`}
-                          style={done ? { background: colour.hex } : undefined}
-                          title={t.colours[colour.id] ?? colour.label}
-                        />
-                      )}
-                    </span>
-                    <div className="ach-body">
-                      <p className="ach-name">
-                        {name}
-                        {achievement.play !== undefined && <span className="ach-play">{t.ach.play}</span>}
-                      </p>
-                      <p className="ach-desc">{desc}</p>
-                      {(achievement.family !== 'exploit' || done) && (
-                        <div className="ach-meter">
-                          {achievement.family !== 'exploit' && !done && (
-                            <span className="ach-bar">
-                              <span
-                                className="ach-fill"
-                                style={{
-                                  width: `${Math.round(ratio * 100)}%`,
-                                  background: PALETTE[rank % PALETTE.length].hex,
-                                }}
-                              />
-                            </span>
-                          )}
-                          {achievement.family !== 'exploit' && (
-                            <span className="ach-count">{t.ach.count(value, achievement.goal.at)}</span>
-                          )}
-                          {done && <span className="ach-earned">{t.ach.earned}</span>}
-                        </div>
-                      )}
-                    </div>
+                  <li key={achievement.id}>
+                    <button
+                      type="button"
+                      className={`ach-row${done ? ' ach-row--done' : ''}`}
+                      aria-expanded={open === achievement.id}
+                      title={`${t.ach.howTitle} · ${t.ach.how(achievement.goal)}`}
+                      onClick={() => setOpen(open === achievement.id ? null : achievement.id)}
+                    >
+                      <span className="ach-reward">
+                        {design !== null ? (
+                          <Avatar choice={{ ...avatar, design }} locked={!done} />
+                        ) : (
+                          <Avatar choice={achievementIcon(achievement.id)} locked={!done} />
+                        )}
+                        {colour && (
+                          <span
+                            className={`ach-colour${done ? '' : ' ach-colour--locked'}`}
+                            style={done ? { background: colour.hex } : undefined}
+                            title={t.colours[colour.id] ?? colour.label}
+                          />
+                        )}
+                      </span>
+                      <span className="ach-body">
+                        <span className="ach-name">
+                          {name}
+                          {achievement.play !== undefined && <span className="ach-play">{t.ach.play}</span>}
+                        </span>
+                        <span className="ach-desc">{desc}</span>
+                        {(achievement.family !== 'exploit' || done) && (
+                          <span className="ach-meter">
+                            {achievement.family !== 'exploit' && !done && (
+                              <span className="ach-bar">
+                                <span
+                                  className="ach-fill"
+                                  style={{
+                                    width: `${Math.round(ratio * 100)}%`,
+                                    background: PALETTE[rank % PALETTE.length].hex,
+                                  }}
+                                />
+                              </span>
+                            )}
+                            {achievement.family !== 'exploit' && (
+                              <span className="ach-count">{t.ach.count(value, achievement.goal.at)}</span>
+                            )}
+                            {done && <span className="ach-earned">{t.ach.earned}</span>}
+                          </span>
+                        )}
+                        {/* La condition, dite avec son unité : ce que la barre ne montre pas. */}
+                        {open === achievement.id && (
+                          <span className="ach-how">
+                            <span className="ach-how-title">{t.ach.howTitle}</span>
+                            {t.ach.how(achievement.goal)}
+                          </span>
+                        )}
+                      </span>
+                    </button>
                   </li>
                 )
               })}

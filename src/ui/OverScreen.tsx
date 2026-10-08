@@ -381,6 +381,8 @@ function Earned({
   const avatars = useFeature('avatar')
   const earned = newlyEarned(profileBefore, profile)
   const achievements = newlyEarnedAchievements(profileBefore, profile)
+  // Le succès touché : il déplie ce qu'il fallait faire pour l'obtenir.
+  const [open, setOpen] = useState<string | null>(null)
   if (earned.designs.length === 0 && earned.colours.length === 0 && achievements.length === 0) return null
   return (
     <section className="panel earned">
@@ -409,14 +411,21 @@ function Earned({
             <p className="section-title">{t.over.newAchievement}</p>
             <div className="earned-row">
               {achievements.map((achievement, index) => (
-                <span
+                <button
                   key={achievement.id}
-                  className="earned-item"
+                  type="button"
+                  className={`earned-item earned-ach${open === achievement.id ? ' earned-ach--open' : ''}`}
                   style={{ '--i': earned.designs.length + earned.colours.length + index } as CSSProperties}
+                  title={`${t.ach.howTitle} · ${t.ach.how(achievement.goal)}`}
+                  onClick={() => setOpen(open === achievement.id ? null : achievement.id)}
                 >
                   <Avatar choice={achievementIcon(achievement.id)} size="sm" />
-                  {t.ach[achievement.id].name}
-                </span>
+                  <span className="earned-ach-name">{t.ach[achievement.id].name}</span>
+                  <span className="earned-how">
+                    <span className="ach-how-title">{t.ach.howTitle}</span>
+                    {t.ach.how(achievement.goal)}
+                  </span>
+                </button>
               ))}
             </div>
           </>

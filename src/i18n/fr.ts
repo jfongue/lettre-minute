@@ -1,4 +1,4 @@
-import type { AchievementId } from '../domain/achievements'
+import type { AchievementId, Goal } from '../domain/achievements'
 import { PALETTE, type Milestone } from '../domain/avatar'
 import { announcedCategories } from '../domain/catalogue'
 import type { TrophyId } from '../domain/challenge'
@@ -1037,6 +1037,43 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     /** La marque portée par les succès publiés sur Play Games. */
     play: 'Play Games',
     count: (value: number, goal: number) => `${value.toLocaleString('fr-FR')} / ${goal.toLocaleString('fr-FR')}`,
+/** Ce qu'un succès demande, dit avec son unité : la barre ne montre qu'un nombre. */
+howTitle: 'Condition',
+how: (goal: Goal): string => {
+const at = goal.at.toLocaleString('fr-FR')
+switch (goal.stat) {
+case 'level':
+return `niveau ${at}`
+case 'runs':
+return `${at} ${plural(goal.at, 'partie jouée', 'parties jouées')}`
+case 'bestScore':
+return `${at} points en une partie`
+case 'wordsFound':
+return `${at} mots trouvés`
+case 'bestCombo':
+return `${at} réponses d’affilée`
+case 'wordsAdded':
+return `${at} ${plural(goal.at, 'mot au dictionnaire', 'mots au dictionnaire')}`
+case 'discoveries':
+return `${at} mots jamais écrits avant`
+case 'longestWord':
+return `un mot de ${at} lettres`
+case 'bestSpeed':
+return `un mot à ${(goal.at / 10).toLocaleString('fr-FR')} lettres par seconde`
+case 'cleanRuns':
+return `${at} ${plural(goal.at, 'partie sans passer', 'parties sans passer')}`
+case 'duelRounds4':
+return `${at} ${plural(goal.at, 'manche à quatre', 'manches à quatre')}`
+case 'dailyFirst':
+return 'la première place du jour'
+case 'wordsReviewed':
+return `${at} ${plural(goal.at, 'verdict rendu', 'verdicts rendus')}`
+case 'powersUsed':
+return `${at} pouvoirs différents`
+case 'playedCategories':
+return `un mot dans ${at} catégories`
+}
+},
     families: {
       progress: 'Statistiques',
       exploit: 'Défis',

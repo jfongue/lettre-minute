@@ -1019,6 +1019,43 @@ cheerAria: (label: string) => `${label} vorschlagen`,
     /** Die Marke der auf Play Games veröffentlichten Erfolge. */
     play: 'Play Games',
     count: (value: number, goal: number) => `${value.toLocaleString('de-DE')} / ${goal.toLocaleString('de-DE')}`,
+/** Was ein Erfolg verlangt, mit seiner Einheit: der Balken zeigt nur eine Zahl. */
+howTitle: 'Bedingung',
+how: (goal) => {
+const at = goal.at.toLocaleString('de-DE')
+switch (goal.stat) {
+case 'level':
+return `Level ${at}`
+case 'runs':
+return `${at} ${plural(goal.at, 'gespielte Runde', 'gespielte Runden')}`
+case 'bestScore':
+return `${at} Punkte in einer Runde`
+case 'wordsFound':
+return `${at} gefundene Wörter`
+case 'bestCombo':
+return `${at} Antworten in Folge`
+case 'wordsAdded':
+return `${at} ${plural(goal.at, 'Wort im Wörterbuch', 'Wörter im Wörterbuch')}`
+case 'discoveries':
+return `${at} nie zuvor geschriebene Wörter`
+case 'longestWord':
+return `ein Wort mit ${at} Buchstaben`
+case 'bestSpeed':
+return `ein Wort mit ${(goal.at / 10).toLocaleString('de-DE')} Buchstaben pro Sekunde`
+case 'cleanRuns':
+return `${at} ${plural(goal.at, 'Runde ohne Überspringen', 'Runden ohne Überspringen')}`
+case 'duelRounds4':
+return `${at} ${plural(goal.at, 'Runde am Vierertisch', 'Runden am Vierertisch')}`
+case 'dailyFirst':
+return 'der erste Platz des Tages'
+case 'wordsReviewed':
+return `${at} ${plural(goal.at, 'Moderationsurteil', 'Moderationsurteile')}`
+case 'powersUsed':
+return `${at} verschiedene Kräfte`
+case 'playedCategories':
+return `ein Wort in ${at} Kategorien`
+}
+},
     families: {
       progress: 'Statistiken',
       exploit: 'Kunststücke',

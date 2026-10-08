@@ -1020,6 +1020,43 @@ cheerAria: (label: string) => `${label} aanraden`,
     /** Het merk van de prestaties die op Play Games staan. */
     play: 'Play Games',
     count: (value: number, goal: number) => `${value.toLocaleString('nl-NL')} / ${goal.toLocaleString('nl-NL')}`,
+/** Wat een prestatie vraagt, met zijn eenheid: de balk toont alleen een getal. */
+howTitle: 'Voorwaarde',
+how: (goal) => {
+const at = goal.at.toLocaleString('nl-NL')
+switch (goal.stat) {
+case 'level':
+return `niveau ${at}`
+case 'runs':
+return `${at} ${plural(goal.at, 'gespeeld potje', 'gespeelde potjes')}`
+case 'bestScore':
+return `${at} punten in één potje`
+case 'wordsFound':
+return `${at} gevonden woorden`
+case 'bestCombo':
+return `${at} antwoorden op rij`
+case 'wordsAdded':
+return `${at} ${plural(goal.at, 'woord in het woordenboek', 'woorden in het woordenboek')}`
+case 'discoveries':
+return `${at} woorden die nooit eerder zijn geschreven`
+case 'longestWord':
+return `een woord van ${at} letters`
+case 'bestSpeed':
+return `een woord met ${(goal.at / 10).toLocaleString('nl-NL')} letters per seconde`
+case 'cleanRuns':
+return `${at} ${plural(goal.at, 'potje zonder over te slaan', 'potjes zonder over te slaan')}`
+case 'duelRounds4':
+return `${at} ${plural(goal.at, 'ronde aan een tafel met vier', 'rondes aan een tafel met vier')}`
+case 'dailyFirst':
+return 'de eerste plaats van de dag'
+case 'wordsReviewed':
+return `${at} ${plural(goal.at, 'moderatieoordeel', 'moderatieoordelen')}`
+case 'powersUsed':
+return `${at} verschillende krachten`
+case 'playedCategories':
+return `een woord in ${at} categorieën`
+}
+},
     families: {
       progress: 'Statistieken',
       exploit: 'Stunts',

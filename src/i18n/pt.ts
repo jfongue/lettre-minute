@@ -1021,6 +1021,43 @@ cheerAria: (label: string) => `Sugerir ${label}`,
     /** A marca das conquistas publicadas no Play Games. */
     play: 'Play Games',
     count: (value: number, goal: number) => `${value.toLocaleString('pt-BR')} / ${goal.toLocaleString('pt-BR')}`,
+/** O que uma conquista pede, dito com a sua unidade: a barra só mostra um número. */
+howTitle: 'Requisito',
+how: (goal) => {
+const at = goal.at.toLocaleString('pt-BR')
+switch (goal.stat) {
+case 'level':
+return `nível ${at}`
+case 'runs':
+return `${at} ${plural(goal.at, 'partida jogada', 'partidas jogadas')}`
+case 'bestScore':
+return `${at} pontos numa partida`
+case 'wordsFound':
+return `${at} palavras encontradas`
+case 'bestCombo':
+return `${at} respostas seguidas`
+case 'wordsAdded':
+return `${at} ${plural(goal.at, 'palavra no dicionário', 'palavras no dicionário')}`
+case 'discoveries':
+return `${at} palavras nunca escritas antes`
+case 'longestWord':
+return `uma palavra de ${at} letras`
+case 'bestSpeed':
+return `uma palavra a ${(goal.at / 10).toLocaleString('pt-BR')} letras por segundo`
+case 'cleanRuns':
+return `${at} ${plural(goal.at, 'partida sem passar', 'partidas sem passar')}`
+case 'duelRounds4':
+return `${at} ${plural(goal.at, 'ronda numa mesa de quatro', 'rondas numa mesa de quatro')}`
+case 'dailyFirst':
+return 'o primeiro lugar do dia'
+case 'wordsReviewed':
+return `${at} ${plural(goal.at, 'veredicto na moderação', 'veredictos na moderação')}`
+case 'powersUsed':
+return `${at} poderes diferentes`
+case 'playedCategories':
+return `uma palavra em ${at} categorias`
+}
+},
     families: {
       progress: 'Estatísticas',
       exploit: 'Façanhas',

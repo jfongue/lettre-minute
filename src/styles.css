@@ -4114,6 +4114,32 @@ animation: clock-bonus 500ms var(--ease-out);
   animation-delay: calc(700ms + var(--i, 0) * 120ms);
 }
 
+/* Le succès du bilan se touche : la condition se déplie à côté de son nom,
+   sans allonger le panneau — le cadre court n'a pas de ligne à donner. */
+.earned-ach {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.earned-how {
+  display: none;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.earned-ach--open .earned-how {
+  display: flex;
+}
+
 .earned .btn--ghost {
   justify-self: start;
 }
@@ -8892,10 +8918,31 @@ de tout cela ne le concerne. */
   padding: 0.6rem 0.7rem;
   border: var(--line) solid var(--paper-2);
   background: var(--paper);
+  /* La ligne entière est le bouton qui déplie la condition du succès. */
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
 }
 
 .ach-row--done {
   border-color: var(--green);
+}
+
+/* Ce qu'il fallait faire pour l'atteindre : la barre ne dit qu'un nombre. */
+.ach-how {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.ach-how-title {
+  font-size: var(--font-micro);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
 }
 
 .ach-reward {

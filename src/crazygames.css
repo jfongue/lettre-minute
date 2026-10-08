@@ -82,10 +82,17 @@ textarea {
     align-content: start;
   }
 
+  /* Rien d'autre à montrer que « Jouer » — un appareil neuf, ici, n'a ni
+     compte ni classement : le bouton se pose au milieu de sa colonne, au lieu
+     de rester en haut. */
+  .sheet--home > .home-body--alone {
+    align-content: center;
+  }
+
   /* The reveal: the score on the left with « Continue » under it, the words on the right. */
   .stage--over .reveal {
     padding-top: 0;
-    grid-template-rows: 1fr auto;
+    grid-template-rows: minmax(0, 1fr) auto;
   }
 
   .reveal > .reveal-score {
@@ -98,9 +105,12 @@ textarea {
     font-size: min(7rem, 24vh);
   }
 
+  /* Le panneau des révélations déplié ne l'étire plus : la barre garde sa
+  hauteur et se pose au bas de la colonne, sous le score. */
   .reveal > .reveal-next {
     grid-column: 1;
     grid-row: 2;
+    align-self: end;
   }
 
   .reveal > .reveal-words {
@@ -111,9 +121,13 @@ textarea {
     align-content: start;
   }
 
+  /* Un panneau déplié peut lister plus de mots que le cadre n'en tient : il
+  défile pour lui-même, et la barre qui le replie reste en tête. */
   .reveal > .hidden-answers {
     grid-column: 2;
     grid-row: 2;
+    min-height: 0;
+    align-content: start;
   }
 
   /* The summary: what the run earned on the left, « Play again » on the right. */
@@ -132,4 +146,19 @@ textarea {
     grid-row: 1 / span 12;
     align-self: center;
   }
+}
+
+/* Un panneau déplié plus long que son cadre défile pour lui-même : la barre
+qui le replie reste en tête, et « Continuer » reste dans le cadre au lieu
+d'être poussé dessous. Vaut dans les deux sens — cadre paysage comme
+téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
+.reveal > .hidden-answers {
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+.reveal > .hidden-answers > .hidden-answers-toggle {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }

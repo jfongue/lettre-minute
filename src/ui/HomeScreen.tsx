@@ -16,7 +16,7 @@ import type { ShapeKind, Tint } from './motifs'
 import { PageLinks, type LinkedPage } from './PageLinks'
 import { PowerSlots } from './PowerSlots'
 import { useFeature } from './features'
-import type { PowerId } from '../domain/powers'
+import { ownedPowers, type PowerId } from '../domain/powers'
 import { useHiddenTaps } from './useHiddenTaps'
 import { useSwipe } from './useSwipe'
 
@@ -107,6 +107,16 @@ export function HomeScreen({
     me === null && profile.runs === 0 && profile.bestScore === 0 && profile.wordsFound === 0 && profile.bestCombo === 0
   // Chaque tuile s'ouvre à sa condition : un appareil neuf n'en montre aucune.
   const pages = HOME_LINKS.filter((page) => homePageOpen(page, { profile, named: me !== null, requested: requestsMade }))
+// Un appareil neuf n'a rien d'autre à montrer que « Jouer » : le cadre
+// paysage le pose au milieu de sa colonne au lieu de le laisser en haut.
+const alone =
+  newcomer &&
+  !error &&
+  challenges === null &&
+  !invites &&
+  !onAccount &&
+  pages.length === 0 &&
+  (!powers || ownedPowers(profile).length === 0)
   // The drawer lives off the left edge: a flick to the right pulls it in.
   const swipe = useSwipe('right', () => onMenu())
   const [introDone, setIntroDone] = useState(false)
@@ -138,7 +148,7 @@ export function HomeScreen({
       )}
 
       {settled && (
-        <div className="home-body cascade">
+        <div className={`home-body cascade${alone ? ' home-body--alone' : ''}`}>
           <div className="stack">
             <button type="button" className="btn btn--play btn--block" onClick={onPlay} disabled={loading}>
               <span>{loading ? t.loading : t.home.play}</span>
