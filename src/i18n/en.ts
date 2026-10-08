@@ -402,6 +402,7 @@ export const en: Messages = {
     mine: 'your word',
     entered: 'entered the dictionary',
     queued: 'not sent yet',
+  removal: 'removal proposed',
     rejected: (count) => `Declined (${count})`,
     correct: 'Correct',
     correctLabel: (word) => `Correct “${word}”`,

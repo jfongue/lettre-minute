@@ -2,12 +2,15 @@ import { Suspense, useCallback, useEffect, useRef, useState, type FormEvent } fr
 import { MODERATION_MIN_QUEUE, MODERATION_SESSION_SIZE } from '../domain/moderation'
 import { SUBMISSION_REWARD_XP } from '../domain/progression'
 import {
+  cancelRemoval,
   cancelSubmission,
   correctSubmission,
+  fetchMyRemovals,
   fetchMySubmissions,
   markRequestsSeen,
   submitIdea,
   type ModerationStatus,
+  type Removal,
   type Submission,
 } from '../lib/cloud'
 import { categoryText, useT } from '../i18n'
@@ -33,8 +36,13 @@ const IdeasAdmin = lazyScreen(() => import('../debug/IdeasAdmin').then((module) 
 export type RequestEntry =
   | { source: 'queued'; key: string; categoryId: string; display: string; queued: PendingSubmission }
   | { source: 'server'; key: string; categoryId: string; display: string; submission: Submission }
+  /** Un retrait encore en attente : il se retire, il ne se corrige pas. */
+  | { source: 'removal'; key: string; categoryId: string; display: string; removal: Removal }
 
 type Entry = RequestEntry
+
+/** Une demande qui nomme un mot à proposer : elle seule se relit dans le pack. */
+type Proposal = Extract<Entry, { source: 'queued' | 'server' }>
 
 // Long enough to read « Déjà existant ! » before the row goes.
 const EXISTS_MS = 1600
@@ -42,7 +50,7 @@ const EXISTS_MS = 1600
 /** Ce que « Ajoutés grâce à toi » montre avant son « Voir plus » : les dix derniers. */
 const ADDED_SHOWN = 10
 
-const langOf = (entry: Entry) => (entry.source === 'queued' ? (entry.queued.lang ?? 'fr') : entry.submission.lang)
+const langOf = (entry: Proposal) => (entry.source === 'queued' ? (entry.queued.lang ?? 'fr') : entry.submission.lang)
 
 interface RequestsPageProps {
   /** Null without a server, or before it answered. */
@@ -59,6 +67,9 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
   const moderating = useFeature('moderation')
   const ideas = useFeature('ideasBox')
   const [server, setServer] = useState<Submission[] | null | 'loading'>('loading')
+  // Les retraits en attente se lisent à part : ils n'entrent ni dans
+  // « Ajoutés grâce à toi » ni dans « Refusées », et ne se corrigent pas.
+  const [removals, setRemovals] = useState<Removal[] | null>(null)
   const [queue, setQueue] = useState<PendingSubmission[]>(loadSubmissions)
   const [failed, setFailed] = useState(false)
   // La liste des mots entrés se replie sur ses dix derniers : la queue de
@@ -70,7 +81,10 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
 
   const refresh = useCallback(() => {
     setQueue(loadSubmissions())
-    return fetchMySubmissions().then(setServer)
+    return Promise.all([fetchMySubmissions(), fetchMyRemovals()]).then(([found, bans]) => {
+      setServer(found)
+      setRemovals(bans)
+    })
   }, [])
 
   useEffect(onOpen, [onOpen])
@@ -83,6 +97,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
       setFresh(new Set(news.map((submission) => submission.id)))
       markRequestsSeen().then((seen) => seen && onSeen())
     })
+    fetchMyRemovals().then(setRemovals)
   }, [onSeen])
 
   const rewrite = (next: PendingSubmission[]) => {
@@ -100,9 +115,11 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
   const withdraw = (entry: Entry) =>
     entry.source === 'queued'
       ? rewrite(queue.filter((item) => item !== entry.queued))
-      : act(cancelSubmission(entry.submission.id))
+      : entry.source === 'server'
+        ? act(cancelSubmission(entry.submission.id))
+        : act(cancelRemoval(entry.removal.id))
 
-  const correct = async (entry: Entry, display: string): Promise<boolean> => {
+  const correct = async (entry: Proposal, display: string): Promise<boolean> => {
     if (entry.source === 'queued') {
       rewrite(queue.map((item) => (item === entry.queued ? { ...item, word: display } : item)))
       return true
@@ -129,16 +146,29 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
       }),
     ),
     ...submissions.filter((submission) => submission.status === 'pending').map(fromServer),
+    ...(removals ?? []).map(
+      (removal): Entry => ({
+        source: 'removal',
+        key: `removal-${removal.id}`,
+        categoryId: removal.categoryId,
+        display: removal.display,
+        removal,
+      }),
+    ),
   ]
   const accepted = submissions.filter((submission) => submission.status === 'accepted').map(fromServer)
   const added = allAdded ? accepted : accepted.slice(0, ADDED_SHOWN)
   const rejected = submissions.filter((submission) => submission.status === 'rejected').map(fromServer)
-  const nothing = server !== 'loading' && pending.length === 0 && accepted.length === 0 && rejected.length === 0
+  const nothing = server !== 'loading' && removals !== null && pending.length === 0 && accepted.length === 0 && rejected.length === 0
 
   // A proposal the dictionary now spells letter for letter asks for nothing:
-  // it says so, then leaves the list on its own.
+  // it says so, then leaves the list on its own. Un retrait vise un mot déjà au
+  // dictionnaire : il ne passe pas par cette sonde.
   const [existing, setExisting] = useState<ReadonlySet<string>>(new Set())
-  const probe = pending.map((entry) => `${entry.key}\u0000${langOf(entry)}\u0000${entry.categoryId}\u0000${entry.display}`).join('\u0001')
+  const probe = pending
+    .filter((entry): entry is Proposal => entry.source !== 'removal')
+    .map((entry) => `${entry.key}\u0000${langOf(entry)}\u0000${entry.categoryId}\u0000${entry.display}`)
+    .join('\u0001')
   const pendingNow = useRef(pending)
   useEffect(() => {
     pendingNow.current = pending
@@ -148,6 +178,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
     const entries = pendingNow.current
     Promise.all(
       entries.map(async (entry) => {
+        if (entry.source === 'removal') return false
         const lang = langOf(entry)
         if (!availableCategoryIds(lang).includes(entry.categoryId)) return false
         return spelledExactly(await loadPack(lang, entry.categoryId), entry.display)
@@ -217,7 +248,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
                 entry={entry}
                 exists={existing.has(entry.key)}
                 onWithdraw={() => withdraw(entry)}
-                onCorrect={(display) => correct(entry, display)}
+                onCorrect={entry.source === 'removal' ? undefined : (display) => correct(entry, display)}
               />
             ))}
           </ul>
@@ -302,22 +333,25 @@ export function RequestRow({ entry, fresh, exists, note, onWithdraw, onCorrect }
             <span className="note">
               {categoryText(t, entry.categoryId).label}
               {entry.source === 'queued' && ` · ${t.requests.queued}`}
+          {entry.source === 'removal' && ` · ${t.requests.removal}`}
               {locked && ` · ${t.requests.locked}`}
               {note && ` · ${note}`}
             </span>
           </span>
           {fresh && <span className="request-fresh">{t.requests.fresh}</span>}
           {exists && <span className="request-exists">{t.requests.exists}</span>}
-          {onWithdraw && onCorrect && !exists && (
+          {(onWithdraw || onCorrect) && !exists && (
             <span className="friend-actions">
-              {!locked && (
+              {onCorrect && !locked && (
                 <button type="button" className="btn btn--quiet" onClick={() => setEditing(true)}>
                   {t.requests.correct}
                 </button>
               )}
-              <button type="button" className="btn btn--quiet btn--muted" onClick={onWithdraw}>
-                {t.requests.withdraw}
-              </button>
+              {onWithdraw && (
+                <button type="button" className="btn btn--quiet btn--muted" onClick={onWithdraw}>
+                  {t.requests.withdraw}
+                </button>
+              )}
             </span>
           )}
         </>

@@ -629,6 +629,45 @@ export function inviteModerator(friend: string): Promise<InviteOutcome> {
   }, 'unreachable')
 }
 
+/**
+ * Un mot que ce joueur a signalé pour retrait, tant que les autres modérateurs
+ * ne l'ont pas jugé : c'est ce que « Mes demandes » liste pour le laisser
+ * annuler son propre signalement.
+ */
+export interface Removal {
+  id: string
+  lang: string
+  categoryId: string
+  display: string
+  at: number
+}
+
+/** Newest first; null without a server, which the page tells apart from an empty list. */
+export function fetchMyRemovals(): Promise<Removal[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('my_removals')
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => {
+      const { lang, value } = split(row.category_id as string)
+      return {
+        id: row.id as string,
+        lang,
+        categoryId: value,
+        display: row.display as string,
+        at: Date.parse(row.created_at as string) || 0,
+      }
+    })
+  }, null)
+}
+
+/** Withdraws a removal still waiting; false once it was settled, or offline. */
+export function cancelRemoval(id: string): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('cancel_removal', { p_review: id })
+    return !error && data === true
+  }, false)
+}
+
 /** Withdraws a word still waiting; false once it was accepted or refused, or offline. */
 export function cancelSubmission(id: string): Promise<boolean> {
   return guard(async () => {

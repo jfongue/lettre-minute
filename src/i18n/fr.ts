@@ -436,6 +436,7 @@ export const fr = {
     mine: 'ton mot',
     entered: 'entré au dictionnaire',
     queued: 'pas encore envoyé',
+  removal: 'retrait proposé',
     rejected: (count: number) => `Refusées (${count})`,
     correct: 'Corriger',
     correctLabel: (word: string) => `Corriger « ${word} »`,
