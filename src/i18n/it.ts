@@ -398,6 +398,7 @@ export const it: Messages = {
     mine: 'la tua parola',
     entered: 'entrata nel dizionario',
     queued: 'non ancora inviata',
+  removal: 'rimozione proposta',
     rejected: (count) => `Rifiutate (${count})`,
     correct: 'Correggi',
     correctLabel: (word) => `Correggi «${word}»`,

@@ -397,6 +397,7 @@ export const nl: Messages = {
     mine: 'jouw woord',
     entered: 'in het woordenboek opgenomen',
     queued: 'nog niet verstuurd',
+  removal: 'verwijdering voorgesteld',
     rejected: (count) => `Afgewezen (${count})`,
     correct: 'Verbeteren',
     correctLabel: (word) => `‘${word}’ verbeteren`,

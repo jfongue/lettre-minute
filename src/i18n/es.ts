@@ -398,6 +398,7 @@ export const es: Messages = {
     mine: 'tu palabra',
     entered: 'entró en el diccionario',
     queued: 'aún sin enviar',
+  removal: 'retirada propuesta',
     rejected: (count) => `Rechazadas (${count})`,
     correct: 'Corregir',
     correctLabel: (word) => `Corregir «${word}»`,
