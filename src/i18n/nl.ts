@@ -248,7 +248,7 @@ export const nl: Messages = {
     accountLead: 'Je spellen volgen je van het ene apparaat naar het andere, je naam komt in het klassement en je vrienden kunnen je vinden.',
     offline: 'Offline: je voortgang blijft op dit apparaat.',
     back: 'Terug',
-    pages: { stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Mijn categorieën', boards: 'Klassementen' },
+    pages: { stats: 'Statistieken', requests: 'Mijn voorstellen', categories: 'Mijn categorieën', boards: 'Klassementen', avatar: 'Avatar en prestaties' },
     achievements: 'Prestaties',
     support: 'Steun de maker',
   },

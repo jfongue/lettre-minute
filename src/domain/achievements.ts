@@ -1,4 +1,4 @@
-import { AVATARS, designUnlock, PALETTE, type AvatarChoice, type Milestone } from './avatar'
+import { AVATARS, colourUnlock, designUnlock, PALETTE, type AvatarChoice, type Colour, type Milestone } from './avatar'
 import { levelFor, type Profile } from './progression'
 
 /*
@@ -211,6 +211,30 @@ export function achievementProgress(profile: Profile, discoveries?: number): Ach
     const value = achievementCount(profile, achievement.goal, discoveries)
     return { achievement, value, ratio: Math.min(1, value / achievement.goal.at) }
   })
+}
+
+/** Ce qu'un succès fait gagner : la tuile et la couleur que son jalon débloque. */
+export interface AchievementReward {
+  /** La tuile d'avatar du jalon, quand la grille en a une. */
+  design: number | null
+  /** La couleur du même jalon, quand la palette en a une. */
+  colour: Colour | null
+}
+
+/**
+ * Un succès de palier offre exactement ce que son jalon débloque : la tuile de
+ * la grille, et la couleur quand la palette pose la même borne. Les exploits
+ * qui se gagnent en une partie ne sont bornés par aucune statistique d'avatar
+ * (`longestWord`, `bestSpeed`, les tables…) : ils n'offrent rien de plus que
+ * leur propre icône, et le rendent ici par deux `null`.
+ */
+export function achievementReward(achievement: Achievement): AchievementReward {
+  const { stat, at } = achievement.goal
+  const same = (milestone: Milestone | null) => milestone !== null && milestone.stat === stat && milestone.at === at
+  return {
+    design: AVATARS.find((design) => same(designUnlock(design.id)))?.id ?? null,
+    colour: PALETTE.find((colour) => same(colourUnlock(colour.id))) ?? null,
+  }
 }
 
 export function hasEarned(profile: Profile, achievement: Achievement, discoveries?: number): boolean {

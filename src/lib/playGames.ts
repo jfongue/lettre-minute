@@ -13,7 +13,7 @@ import { playGamesIncrement, playGamesUnlock } from './native'
  *
  * Les succès du jeu seul n'ont pas d'identifiant : Play ne les connaît pas,
  * faute de points à leur donner (le budget de 1 000 est pris). Ils s'arrêtent
- * donc ici, et `src/ui/AchievementsScreen.tsx` les montre seul.
+ * donc ici, et `src/ui/AchievementsPanel.tsx` les montre seul.
  */
 const ACHIEVEMENT_IDS: Readonly<Partial<Record<AchievementId, string>>> = {
   'level-4': 'CgkIpenjuL4GEAIQCA',

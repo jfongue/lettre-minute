@@ -249,7 +249,7 @@ export const es: Messages = {
     accountLead: 'Tus partidas te siguen de un dispositivo a otro, tu nombre entra en la clasificación y tus amigos pueden encontrarte.',
     offline: 'Sin conexión: tu progreso se queda en este dispositivo.',
     back: 'Volver',
-    pages: { stats: 'Estadísticas', requests: 'Mis propuestas', categories: 'Mis categorías', boards: 'Clasificaciones' },
+    pages: { stats: 'Estadísticas', requests: 'Mis propuestas', categories: 'Mis categorías', boards: 'Clasificaciones', avatar: 'Avatar y logros' },
     achievements: 'Logros',
     support: 'Apoyar al creador',
   },

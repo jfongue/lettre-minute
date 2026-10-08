@@ -4,10 +4,12 @@ import {
   PLAY_ACHIEVEMENTS_ONLY,
   achievementIcon,
   achievementProgress,
+  achievementReward,
   earnedAchievements,
   newlyEarnedAchievements,
+  type AchievementId,
 } from './achievements'
-import { AVATARS, designUnlock } from './avatar'
+import { AVATARS, PALETTE, colourUnlock, designUnlock } from './avatar'
 import { NEW_PROFILE, xpForLevel } from './progression'
 
 describe('achievements', () => {
@@ -42,6 +44,26 @@ describe('achievements', () => {
   it('draws the same icon every time', () => {
     expect(achievementIcon('level-35')).toEqual(achievementIcon('level-35'))
   })
+
+  it('offers each milestone achievement what its own milestone unlocks', () => {
+    const at = (id: AchievementId) => ACHIEVEMENTS.find((achievement) => achievement.id === id)!
+    for (const achievement of ACHIEVEMENTS) {
+      const reward = achievementReward(achievement)
+      if (reward.design !== null) {
+        expect(designUnlock(reward.design)).toEqual(achievement.goal)
+        expect(AVATARS[reward.design]).toBeDefined()
+      }
+      if (reward.colour !== null) {
+        expect(colourUnlock(reward.colour.id)).toEqual(achievement.goal)
+        expect(PALETTE).toContain(reward.colour)
+      }
+    }
+    // Le niveau 4 débloque la tuile et la couleur crème, au même jalon.
+    expect(achievementReward(at('level-4')).colour?.id).toBe('creme')
+    // Un exploit ne se borne à aucune statistique d'avatar : rien à porter.
+    expect(achievementReward(at('word-long-10'))).toEqual({ design: null, colour: null })
+  })
+
 
   it('earns nothing on a new profile, then what the profile reaches', () => {
     expect(earnedAchievements(NEW_PROFILE)).toEqual([])

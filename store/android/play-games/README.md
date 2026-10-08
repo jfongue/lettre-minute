@@ -135,7 +135,7 @@ chose, et le ZIP à venir les relira.
 ## Où vivent les seize autres succès
 
 Le jeu en compte trente et un : les quinze ci-dessus, et seize qui ne vivent
-que dans l'app — leur page, `src/ui/AchievementsScreen.tsx`, ouverte depuis le
+que dans l'app — leur page, `src/ui/AchievementsPanel.tsx`, ouverte depuis le
 tiroir du profil, avec une barre de progression pour les paliers et la tuile
 d'avatar du défi pour les exploits. Play n'a plus de budget de points à leur
 donner (`src/domain/achievements.ts` dit lesquels sont publiés), et un succès

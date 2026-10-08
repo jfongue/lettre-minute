@@ -3051,6 +3051,13 @@ animation: clock-bonus 500ms var(--ease-out);
   animation: none;
 }
 
+/* L'éditeur tient dans la page du tiroir : c'est lui qui porte l'écart que la
+   feuille `.sheet` donnait à ses sections. */
+.avatar-editor {
+  display: grid;
+  gap: var(--step);
+}
+
 .avatar-head {
   display: flex;
   align-items: center;
@@ -8854,7 +8861,8 @@ de tout cela ne le concerne. */
 
 /* ------------------------------------------------------- succès - */
 /* Les statistiques se lisent en couleurs, les défis en icônes : la barre dit
-   où en est le compteur, la tuile montre ce que le succès raconte. */
+   où en est le compteur, la tuile montre ce que le succès fait gagner — la
+   couleur du même palier l'accompagne quand la palette en a une. */
 .ach-head {
   display: grid;
   gap: 0.3rem;
@@ -8890,10 +8898,26 @@ de tout cela ne le concerne. */
   border-color: var(--green);
 }
 
-.ach-tile {
+.ach-reward {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
   flex: none;
   /* La tuile fait la largeur de l’avatar `md`, qu’elle ne déborde pas dans la ligne. */
   width: 3.5rem;
+}
+
+/* Le carré de la couleur gagnée : le damier d’un rayon verrouillé tant qu’on
+   ne l’a pas, la couleur pleine une fois le succès obtenu. */
+.ach-colour {
+  width: 1.4rem;
+  height: 1.4rem;
+  border: 1px solid var(--rule);
+}
+
+.ach-colour--locked {
+  background: repeating-linear-gradient(135deg, var(--paper-2) 0 4px, transparent 4px 8px);
+  border-color: var(--ink-faint);
 }
 
 .ach-body {

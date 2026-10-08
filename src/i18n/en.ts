@@ -254,7 +254,7 @@ export const en: Messages = {
     accountLead: 'Your games follow you from one device to another, your name enters the leaderboard and your friends can find you.',
     offline: 'Offline: your progress stays on this device.',
     back: 'Back',
-    pages: { stats: 'Statistics', requests: 'My requests', categories: 'My categories', boards: 'Leaderboards' },
+    pages: { stats: 'Statistics', requests: 'My requests', categories: 'My categories', boards: 'Leaderboards', avatar: 'Avatar and achievements' },
     achievements: 'Achievements',
     support: 'Support the creator',
   },

@@ -279,7 +279,7 @@ export const fr = {
       'Tes parties te suivent d’un appareil à l’autre, ton nom entre au classement et tes amis peuvent te trouver.',
     offline: 'Hors ligne : ta progression reste sur cet appareil.',
     back: 'Retour',
-    pages: { stats: 'Statistiques', requests: 'Mes demandes', categories: 'Mes catégories', boards: 'Classements' },
+    pages: { stats: 'Statistiques', requests: 'Mes demandes', categories: 'Mes catégories', boards: 'Classements', avatar: 'Avatar et succès' },
     achievements: 'Succès',
     support: 'Soutenir le créateur',
   },
