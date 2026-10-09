@@ -1,4 +1,6 @@
-import { CATALOGUE, categoryMeta } from './catalogue'
+import { bonusLevels } from './bonus'
+import { CATALOGUE } from './catalogue'
+import { ownedCategoryIds, pickedCategories } from './owned'
 import { levelFor, type Profile } from './progression'
 import { powersEarnedAt, unlockEveryPower } from './powers'
 import { createRng, shuffled } from './rng'
@@ -9,34 +11,20 @@ export const OFFER_SIZE = 3
 /** Categories dealt into a run. Past this, the prompts come round too rarely to warm up on any of them. */
 export const MAX_CATEGORIES_PER_RUN = 5
 
-/** The categories every player owns from the first run. */
-export function starterCategoryIds(): string[] {
-  return CATALOGUE.filter((category) => category.unlockLevel <= 1).map((category) => category.id)
-}
-
-/** Starters first, then the picks in the order they were made, then the categories once given as a gift. */
-export function ownedCategoryIds(profile: Profile): string[] {
-  const starters = starterCategoryIds()
-  const picks = picked(profile).filter((id) => !starters.includes(id))
-  const gifts = profile.gifted.filter((id) => !starters.includes(id) && !picks.includes(id))
-  return [...starters, ...picks, ...gifts]
-}
-
-// A category withdrawn from the catalogue no longer counts as a pick made:
-// the player is owed a replacement.
-function picked(profile: Profile): string[] {
-  return profile.unlocked.filter((id) => categoryMeta(id) !== null)
-}
+export { ownedCategoryIds, starterCategoryIds } from './owned'
 
 /**
  * One pick per level above the first that does not bring a power — every
  * level, once the powers run out — minus those already made. Derived rather
  * than stored so that a player who levelled up on another device, whose picks
  * the server does not keep, is simply offered them again here.
+ *
+ * Bonus levels (`bonusLevels`) pay no category either; a level with no bonus
+ * left to give is a category again. `isModerator` only matters at that end.
  */
-export function picksOwed(profile: Profile): number {
+export function picksOwed(profile: Profile, isModerator = false): number {
   const level = levelFor(profile.xp)
-  return Math.max(0, level - 1 - powersEarnedAt(level) - picked(profile).length)
+  return Math.max(0, level - 1 - powersEarnedAt(level) - bonusLevels(profile, isModerator) - pickedCategories(profile).length)
 }
 
 /**
@@ -51,9 +39,9 @@ export function dealOffer(profile: Profile, availableIds: readonly string[], see
   if (profile.offer.length > 0 || picksOwed(profile) === 0) return profile
 
   const owned = new Set(ownedCategoryIds(profile))
-  const candidates = CATALOGUE.map((category) => category.id).filter(
-    (id) => availableIds.includes(id) && !owned.has(id),
-  )
+  const candidates = CATALOGUE.filter((category) => !category.premiere)
+    .map((category) => category.id)
+    .filter((id) => availableIds.includes(id) && !owned.has(id))
   if (candidates.length === 0) return profile
 
   const rng = createRng(seed)
@@ -76,7 +64,7 @@ export const PICKS_BEFORE_ADS = 1
  * offer is dealt, which leaves the ad the time of a whole run to load.
  */
 export function adsDue(profile: Profile): boolean {
-  return ADS_ENABLED && picked(profile).length >= PICKS_BEFORE_ADS
+  return ADS_ENABLED && pickedCategories(profile).length >= PICKS_BEFORE_ADS
 }
 
 /** Whether keeping a category from the offer on the table comes with an ad. */
@@ -90,7 +78,9 @@ export function pickShowsAd(profile: Profile): boolean {
  */
 export function unlockEverything(profile: Profile): Profile {
   const owned = new Set(ownedCategoryIds(profile))
-  const missing = CATALOGUE.map((category) => category.id).filter((id) => !owned.has(id))
+  const missing = CATALOGUE.filter((category) => !category.premiere)
+    .map((category) => category.id)
+    .filter((id) => !owned.has(id))
   const categories = missing.length === 0 && profile.offer.length === 0
     ? profile
     : { ...profile, unlocked: [...profile.unlocked, ...missing], offer: [] }

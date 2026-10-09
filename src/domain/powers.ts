@@ -79,7 +79,14 @@ export const FLAWLESS_POINTS = 10
 /** The powers a player can type into the field, rather than tap. */
 export type Spell = 'joker' | 'hush'
 
+/** The most slots anyone has; a player starts with `BASE_SLOTS` and the « slot » bonus opens the second. */
 export const MAX_EQUIPPED = 2
+export const BASE_SLOTS = 1
+
+/** Slots a player wears powers in: one, two once the second-slot level bonus is taken. */
+export function slotsOf(profile: Profile): number {
+  return profile.bonuses.includes('slot') ? MAX_EQUIPPED : BASE_SLOTS
+}
 export const POWER_OFFER_SIZE = 2
 /**
  * Level 2 brings a category, level 3 the first power, and the rewards
@@ -140,7 +147,7 @@ export function grantPower(profile: Profile, powerId: PowerId): Profile {
     ...profile,
     powers: [...profile.powers, powerId],
     powerOffer: profile.powerOffer.filter((id) => id !== powerId),
-    equipped: equipped.length < MAX_EQUIPPED ? [...equipped, powerId] : equipped,
+    equipped: equipped.length < slotsOf(profile) ? [...equipped, powerId] : equipped,
   }
 }
 
@@ -171,14 +178,14 @@ export function choosePower(profile: Profile, powerId: string): Profile {
     powers: [...profile.powers, powerId],
     powerOffer: [],
     lastPowerOffer: profile.powerOffer,
-    equipped: equipped.length < MAX_EQUIPPED ? [...equipped, powerId] : equipped,
+    equipped: equipped.length < slotsOf(profile) ? [...equipped, powerId] : equipped,
   }
 }
 
 /** What the run will carry: owned powers only, never more than the slots. */
 export function equippedPowers(profile: Profile): PowerId[] {
   const owned = new Set(ownedPowers(profile))
-  return [...new Set(profile.equipped.filter(isPowerId))].filter((id) => owned.has(id)).slice(0, MAX_EQUIPPED)
+  return [...new Set(profile.equipped.filter(isPowerId))].filter((id) => owned.has(id)).slice(0, slotsOf(profile))
 }
 
 /**
@@ -187,10 +194,11 @@ export function equippedPowers(profile: Profile): PowerId[] {
  * power twice.
  */
 export function equipPower(profile: Profile, slot: number, powerId: PowerId | null): Profile {
-  if (slot < 0 || slot >= MAX_EQUIPPED) return profile
+  const count = slotsOf(profile)
+  if (slot < 0 || slot >= count) return profile
   if (powerId !== null && !ownedPowers(profile).includes(powerId)) return profile
 
-  const slots: (PowerId | null)[] = Array.from({ length: MAX_EQUIPPED }, (_, at) => equippedPowers(profile)[at] ?? null)
+  const slots: (PowerId | null)[] = Array.from({ length: count }, (_, at) => equippedPowers(profile)[at] ?? null)
   const other = slots.indexOf(powerId)
   if (powerId !== null && other >= 0 && other !== slot) slots[other] = slots[slot] ?? null
   slots[slot] = powerId

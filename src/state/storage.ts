@@ -1,6 +1,7 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { RunRecord } from '../domain/history'
 import type { FlagRow, FlagValue, Roles } from '../domain/features'
+import { catchUpPerks } from '../domain/bonus'
 import { NEW_PROFILE, type Profile } from '../domain/progression'
 import type { Account } from '../lib/cloud'
 
@@ -61,7 +62,9 @@ function profileOf(stored: unknown): Profile {
   const profile: Record<string, unknown> = { ...NEW_PROFILE }
   for (const [field, fallback] of Object.entries(NEW_PROFILE)) {
     const value = stored[field]
-    if (typeof fallback === 'number') {
+    if (typeof fallback === 'string') {
+      if (isText(value)) profile[field] = value
+    } else if (typeof fallback === 'number') {
       if (isCount(value)) profile[field] = value
     } else if (Array.isArray(fallback)) {
       if (Array.isArray(value)) profile[field] = value.filter(isText)
@@ -69,7 +72,9 @@ function profileOf(stored: unknown): Profile {
       profile[field] = Object.fromEntries(Object.entries(value).filter(([, count]) => isCount(count)))
     }
   }
-  return profile as unknown as Profile
+  // A stored profile without the field predates the rules it is caught up to.
+  if (!isCount(stored.perksVersion)) profile.perksVersion = 0
+  return catchUpPerks(profile as unknown as Profile)
 }
 
 function write(key: string, value: unknown): void {

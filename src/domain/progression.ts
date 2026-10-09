@@ -93,8 +93,22 @@ export interface Profile {
   banned: readonly string[]
   /** 1 once the player has read what a ban does; the categories wear a dot until then. */
   banIntroSeen: number
-  /** Hidden answers of the summary uncovered so far (`FREE_PEEKS`). */
-  peeks: number
+  /** The day (Paris, `YYYY-MM-DD`) `revealsUsed` and `revealAds` count for; they restart with the next one. */
+  revealDay: string
+  /** Hidden answers uncovered on `revealDay` (`revealsLeft`). */
+  revealsUsed: number
+  /** Rewarded ads watched on `revealDay` for one more reveal each. */
+  revealAds: number
+  /** Level bonuses taken (`BonusId`), in the order they were made; a kind repeats up to its cap. */
+  bonuses: readonly string[]
+  /** How many of `bonuses` were given rather than won at a level (`catchUpPerks`): they never spend a level's reward. */
+  bonusGifts: number
+  /** The two bonuses on the table while one is owed; empty otherwise. */
+  bonusOffer: readonly string[]
+  /** The previous bonus offer. */
+  lastBonusOffer: readonly string[]
+  /** The rules the profile has been caught up to (`PERKS_VERSION`); 0 for a profile older than them. */
+  perksVersion: number
   /** When the player went Premium; 0 if they never did. */
   plusSince: number
   /** 1 once the home screen has thanked the player for going Premium, and asked their opinion. */
@@ -120,6 +134,12 @@ export interface Profile {
   wordsReviewed: number
 }
 
+/**
+ * Bumped when a rule changes what an existing profile is owed. A new profile
+ * starts at it; a stored one without the field reads 0, and is caught up once.
+ */
+export const PERKS_VERSION = 1
+
 export const NEW_PROFILE: Profile = {
   xp: 0,
   runs: 0,
@@ -141,7 +161,14 @@ export const NEW_PROFILE: Profile = {
   feedbackAskedAt: 0,
   banned: [],
   banIntroSeen: 0,
-  peeks: 0,
+  revealDay: '',
+  revealsUsed: 0,
+  revealAds: 0,
+  bonuses: [],
+  bonusGifts: 0,
+  bonusOffer: [],
+  lastBonusOffer: [],
+  perksVersion: PERKS_VERSION,
   plusSince: 0,
   plusThanked: 0,
   longestWord: 0,

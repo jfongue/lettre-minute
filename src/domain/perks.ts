@@ -1,20 +1,20 @@
 import type { Profile } from './progression'
 import { hasPower, promptKey, type Judge, type Prompt, type Run, type SettledPrompt } from './run'
 
-/** Owned categories from which one may be banned from the draw. */
-export const BAN_UNLOCK_CATEGORIES = 7
+/** Bans a player holds without Premium at most, each one a « filter » level bonus; none to begin with. */
+export const FREE_BANS_MAX = 2
 
-/** Bans a player keeps without Premium; past it, Premium's own. */
-export const FREE_BANS = 1
-
-/** The most bans anyone holds, Premium included. */
-export const MAX_BANS = 5
+/** Bans Premium holds. */
+export const PLUS_BANS = 6
 
 /** Playable categories a ban never goes under: a run of five still has one to spare. */
 export const MIN_PLAYABLE_CATEGORIES = 6
 
-/** Hidden answers of the summary a player may uncover without Premium, over all their runs. */
-export const FREE_PEEKS = 5
+/** Hidden answers uncovered per day: the base, then what bonuses and ads add, up to `REVEALS_MAX`. */
+export const BASE_REVEALS = 2
+export const REVEAL_BONUS_MAX = 3
+export const REVEAL_ADS_MAX = 3
+export const REVEALS_MAX = BASE_REVEALS + REVEAL_BONUS_MAX + REVEAL_ADS_MAX
 
 /** Runs before the game first asks for the player's opinion, then between two asks. */
 export const FEEDBACK_FIRST_RUNS = 10
@@ -38,24 +38,34 @@ export function markPlusThanked(profile: Profile): Profile {
   return profile.plusThanked > 0 ? profile : { ...profile, plusThanked: 1 }
 }
 
-export function banUnlocked(ownedIds: readonly string[]): boolean {
-  return ownedIds.length >= BAN_UNLOCK_CATEGORIES
+/** Bans the player's bonuses allow, Premium aside. */
+export function freeBans(profile: Profile): number {
+  return Math.min(FREE_BANS_MAX, profile.bonuses.filter((id) => id === 'filter').length)
+}
+
+/** Bans anyone can hold: Premium's, or the bonuses'. */
+export function bansAllowed(profile: Profile): number {
+  return isPlus(profile) ? PLUS_BANS : freeBans(profile)
+}
+
+/** Filtering exists once a ban is possible: a bonus taken, or Premium. */
+export function banUnlocked(profile: Profile): boolean {
+  return bansAllowed(profile) > 0
 }
 
 /**
- * What a ban asks for: `ok` bans at once, `plus` is the free ban already
- * spent, `max` the five bans all held, `floor` would leave fewer than six
- * categories in play.
+ * What a ban asks for: `ok` bans at once, `plus` the bans the bonuses give
+ * all laid (Premium holds more), `max` Premium's all laid, `floor` would
+ * leave fewer than six categories in play, `locked` filtering not earned.
  */
 export type BanVerdict = 'ok' | 'plus' | 'max' | 'floor' | 'locked'
 
 export function banVerdict(profile: Profile, ownedIds: readonly string[], categoryId: string): BanVerdict {
-  if (!banUnlocked(ownedIds) || !ownedIds.includes(categoryId)) return 'locked'
+  if (!banUnlocked(profile) || !ownedIds.includes(categoryId)) return 'locked'
   const banned = bannedOf(profile, ownedIds)
   if (banned.includes(categoryId)) return 'ok'
-  if (banned.length >= MAX_BANS) return 'max'
   if (ownedIds.length - banned.length - 1 < MIN_PLAYABLE_CATEGORIES) return 'floor'
-  if (banned.length >= FREE_BANS && !isPlus(profile)) return 'plus'
+  if (banned.length >= bansAllowed(profile)) return isPlus(profile) ? 'max' : 'plus'
   return 'ok'
 }
 
@@ -71,14 +81,12 @@ export function unban(profile: Profile, categoryId: string): Profile {
 }
 
 /**
- * The bans that still hold: on owned categories, and the free one alone once
- * Premium is gone — the latest ones give way first.
+ * The bans that still hold: on owned categories, within what the bonuses or
+ * Premium allow — the latest ones give way first.
  */
 export function bannedOf(profile: Profile, ownedIds: readonly string[]): string[] {
-  if (!banUnlocked(ownedIds)) return []
   const held = profile.banned.filter((id) => ownedIds.includes(id))
-  const allowed = isPlus(profile) ? MAX_BANS : FREE_BANS
-  return held.slice(0, Math.max(0, Math.min(allowed, ownedIds.length - MIN_PLAYABLE_CATEGORIES)))
+  return held.slice(0, Math.max(0, Math.min(bansAllowed(profile), ownedIds.length - MIN_PLAYABLE_CATEGORIES)))
 }
 
 /**
@@ -91,21 +99,48 @@ export function playableCategoryIds(profile: Profile, ownedIds: readonly string[
 }
 
 /** The ban is there to be learnt: a dot on the categories until the player has read what it does. */
-export function banNews(profile: Profile, ownedIds: readonly string[]): boolean {
-  return banUnlocked(ownedIds) && profile.banIntroSeen === 0
+export function banNews(profile: Profile): boolean {
+  return banUnlocked(profile) && profile.banIntroSeen === 0
 }
 
 export function markBanIntroSeen(profile: Profile): Profile {
   return profile.banIntroSeen > 0 ? profile : { ...profile, banIntroSeen: 1 }
 }
 
-export function peeksLeft(profile: Profile): number {
-  return isPlus(profile) ? Infinity : Math.max(0, FREE_PEEKS - profile.peeks)
+/** The profile's reveal count, restarted if it was kept for another day. */
+function revealsOn(profile: Profile, day: string): Profile {
+  return profile.revealDay === day ? profile : { ...profile, revealDay: day, revealsUsed: 0, revealAds: 0 }
 }
 
-export function spendPeek(profile: Profile): Profile {
-  if (peeksLeft(profile) <= 0) return profile
-  return { ...profile, peeks: profile.peeks + 1 }
+/** Reveals the day allows: the base, the reveal bonuses, the ads watched. Premium has no count. */
+export function revealsAllowed(profile: Profile, day: string): number {
+  const bonus = Math.min(REVEAL_BONUS_MAX, profile.bonuses.filter((id) => id === 'reveal').length)
+  return BASE_REVEALS + bonus + revealsOn(profile, day).revealAds
+}
+
+/** Hidden answers still to uncover on `day` (Paris, `YYYY-MM-DD`); infinite for Premium. */
+export function revealsLeft(profile: Profile, day: string): number {
+  if (isPlus(profile)) return Infinity
+  return Math.max(0, revealsAllowed(profile, day) - revealsOn(profile, day).revealsUsed)
+}
+
+export function spendReveal(profile: Profile, day: string): Profile {
+  if (revealsLeft(profile, day) <= 0 || isPlus(profile)) return profile
+  const today = revealsOn(profile, day)
+  return { ...today, revealsUsed: today.revealsUsed + 1 }
+}
+
+/** Rewarded ads that can still pay a reveal today; none for Premium, who needs none. */
+export function revealAdsLeft(profile: Profile, day: string): number {
+  if (isPlus(profile)) return 0
+  return Math.max(0, REVEAL_ADS_MAX - revealsOn(profile, day).revealAds)
+}
+
+/** One more reveal for a watched ad, up to `REVEAL_ADS_MAX` a day. */
+export function grantRevealAd(profile: Profile, day: string): Profile {
+  if (revealAdsLeft(profile, day) <= 0) return profile
+  const today = revealsOn(profile, day)
+  return { ...today, revealAds: today.revealAds + 1 }
 }
 
 /** A prompt the run left empty, and the word it could have taken. */

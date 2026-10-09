@@ -90,6 +90,7 @@ import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domai
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
 import { DAMPED_WORDS } from './data/damped-words'
+import { sharedCategoryIds } from './domain/catalogue'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { compactWord, normalizeWord } from './domain/text'
 import { commonWord, withExtraWords } from './domain/words'
@@ -99,7 +100,8 @@ import { challengeNotice, settledPushTags } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { clearInviteRef, keepInviteRef, loadInviteRef, refIn, takeAddressRef } from './state/inviteRef'
 import { createJudge } from './state/judge'
-import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, isPlus, peeksLeft, playableCategoryIds, plusThanksDue, shareNewsDue } from './domain/perks'
+import { todayKey } from './lib/today'
+import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, isPlus, playableCategoryIds, plusThanksDue, revealsLeft, shareNewsDue } from './domain/perks'
 import { enabledFeatures, type FeatureId, type Roles } from './domain/features'
 import { cloudConfigured } from './lib/supabase'
 import { host, hostFeatures } from './platform'
@@ -1196,7 +1198,7 @@ setStartedAt((at) => at ?? Date.now())
   const challengeLineup = useCallback(
     (seed: number, challengeLang: string) => {
       const shipped = new Set(availableCategoryIds(challengeLang))
-      return dealLineup(seed, ownedCategoryIds(session.profile).filter((id) => shipped.has(id))).dealt
+      return dealLineup(seed, sharedCategoryIds(ownedCategoryIds(session.profile).filter((id) => shipped.has(id)))).dealt
     },
     [session.profile],
   )
@@ -1204,7 +1206,7 @@ setStartedAt((at) => at ?? Date.now())
   /** The owner's categories a challenge in this language can play. */
   const challengeCategories = useMemo(() => {
     const shipped = new Set(availableCategoryIds(lang))
-    return ownedCategoryIds(session.profile).filter((id) => shipped.has(id))
+    return sharedCategoryIds(ownedCategoryIds(session.profile).filter((id) => shipped.has(id)))
   }, [lang, session.profile])
 
   /** The form opens on a dealt lineup and powers allowed, when the owner has any. */
@@ -1343,7 +1345,7 @@ setStartedAt((at) => at ?? Date.now())
   }, [])
   const peek = useCallback(() => {
     trackFeature('hidden_words_peek')
-    dispatch({ type: 'peek' })
+    dispatch({ type: 'peek', day: todayKey() })
   }, [])
   const banActions = useMemo<BanActions>(
     () => ({
@@ -1365,7 +1367,7 @@ setStartedAt((at) => at ?? Date.now())
     () => ({
       hiddenFor: async (run) =>
         hiddenAnswersOf(run.prompts ?? [], run.words.map((word) => word.word), await judgeFor(run.categoryIds, run.lang)),
-      peeks: peeksLeft(session.profile),
+      peeks: revealsLeft(session.profile, todayKey()),
       onPeek: peek,
       onJoinPlus: joinPlus,
       // Only a moderator flags a word: without the role, the recap says nothing of it.
@@ -1743,7 +1745,7 @@ setStartedAt((at) => at ?? Date.now())
           requestsMade={queued > 0 || mine.length > 0}
           requestsNews={moderation?.news ?? 0}
           queueAlert={queueAlert}
-          categoriesNews={banNews(session.profile, ownedCategoryIds(session.profile)) ? 1 : 0}
+          categoriesNews={banNews(session.profile) ? 1 : 0}
           friendRequests={named && on('friends') ? friendRequests : 0}
           challenges={named && (on('challenges') || on('duel')) ? (on('challenges') ? challenges : []) : null}
           multiplayerNews={multiplayerNews}

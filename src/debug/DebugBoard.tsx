@@ -44,7 +44,8 @@ import type { SlotEntry, Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 import { NEW_SCENARIOS, NEW_SINCE, RECENT_SCENARIOS } from './recent'
-import { ban, joinPlus, markBanIntroSeen, spendPeek, unban, type HiddenAnswer } from '../domain/perks'
+import { todayKey } from '../lib/today'
+import { ban, joinPlus, markBanIntroSeen, spendReveal, unban, type HiddenAnswer } from '../domain/perks'
 import { ownedCategoryIds } from '../domain/unlocks'
 import { CATALOGUE } from '../domain/catalogue'
 import { CategoriesPage } from '../ui/CategoriesPage'
@@ -1093,7 +1094,7 @@ function OverScenario({
       challenge={challengeState}
       onChallengeChanged={noop}
       hidden={hidden}
-      onPeek={() => setProfile((current) => spendPeek(current))}
+      onPeek={() => setProfile((current) => spendReveal(current, todayKey()))}
       onJoinPlus={() => setProfile((current) => joinPlus(current, Date.now()))}
       // Un signalement de mot ne s'écrit pas depuis la planche : la carte répond seule.
       onFlag={() => later('sent' as const)}
@@ -1505,7 +1506,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Mots cachés des invites passées',
     how: 'Repliées sous un bouton ; quatre bandes à arracher, chacune à son rythme : deux gratuites, puis l’offre et le faux paiement',
     phase: 'over',
-    render: (back) => <OverScenario after={afterRun({ ...PROFILE, peeks: 3 }, RUN)} hidden={HIDDEN} onBack={back} />,
+    render: (back) => <OverScenario after={afterRun({ ...PROFILE, bonuses: ['reveal'] }, RUN)} hidden={HIDDEN} onBack={back} />,
   },
   {
     id: 'over-hidden-spent',
@@ -1513,7 +1514,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Mots cachés : plus aucun gratuit',
     how: 'Les cinq révélations gratuites sont passées : la première bande ouvre l’offre Premium',
     phase: 'over',
-    render: (back) => <OverScenario after={afterRun({ ...PROFILE, peeks: 5 }, RUN)} hidden={HIDDEN} onBack={back} />,
+    render: (back) => <OverScenario after={afterRun({ ...PROFILE, bonuses: ['reveal', 'reveal', 'reveal'] }, RUN)} hidden={HIDDEN} onBack={back} />,
   },
   {
     id: 'over-hidden-premium',
@@ -1522,7 +1523,7 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Premium : toutes les bandes s’arrachent, sans compteur',
     phase: 'over',
     render: (back) => (
-      <OverScenario after={afterRun({ ...PROFILE, peeks: 5, plusSince: 1 }, RUN)} hidden={HIDDEN} onBack={back} />
+      <OverScenario after={afterRun({ ...PROFILE, plusSince: 1 }, RUN)} hidden={HIDDEN} onBack={back} />
     ),
   },
   {

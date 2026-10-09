@@ -31,11 +31,11 @@ export function CategoriesPage({
 }: { profile: Profile; /** Cinq tapes rapprochées sur le titre : le tableau des mots, caché comme la planche. */ onHidden(): void } & BanActions) {
   const t = useT()
   const owned = ownedCategoryIds(profile)
-  const banning = useFeature('categoryBans') && banUnlocked(owned)
+  const banning = useFeature('categoryBans') && banUnlocked(profile)
   const premium = useFeature('premium')
   const banned = new Set(bannedOf(profile, owned))
   // Read once, on arrival: the dot goes as soon as the page is seen, the explanation stays until closed.
-  const [intro, setIntro] = useState(() => banNews(profile, owned))
+  const [intro, setIntro] = useState(() => banNews(profile))
   const [plusFor, setPlusFor] = useState<string | null>(null)
   const [warning, setWarning] = useState<'floor' | 'max' | null>(null)
   const tapTitle = useHiddenTaps()

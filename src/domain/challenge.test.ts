@@ -176,7 +176,7 @@ describe('challenge progression', () => {
   })
 
   it('bars Permutation, and asks for a pick only past two allowed powers', () => {
-    const three = { ...NEW_PROFILE, powers: ['permutation', 'joker', 'dodge'], equipped: ['permutation', 'dodge'] }
+    const three = { ...NEW_PROFILE, bonuses: ['slot'], powers: ['permutation', 'joker', 'dodge'], equipped: ['permutation', 'dodge'] }
     expect(needsPowerPick(three)).toBe(false)
     expect(defaultChallengePowers(three)).toEqual(['dodge', 'joker'])
     expect(needsPowerPick({ ...three, powers: [...three.powers, 'magic'] })).toBe(true)

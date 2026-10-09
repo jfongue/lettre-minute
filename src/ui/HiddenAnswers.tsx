@@ -1,5 +1,5 @@
 import { useState, type CSSProperties } from 'react'
-import { FREE_PEEKS, type HiddenAnswer } from '../domain/perks'
+import { REVEALS_MAX, type HiddenAnswer } from '../domain/perks'
 import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, useT } from '../i18n'
 import { tapFeedback } from '../lib/native'
@@ -66,7 +66,7 @@ export function HiddenAnswers({
       >
         <span className="section-title">{t.peek.title}</span>
         <span className="hidden-answers-count">{hidden.length}</span>
-        {canReveal && <span className="peek-left">{t.peek.left(peeks, FREE_PEEKS)}</span>}
+        {canReveal && <span className="peek-left">{t.peek.left(peeks, REVEALS_MAX)}</span>}
         <svg className="hidden-answers-chevron" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M6 9l6 6 6-6" />
         </svg>

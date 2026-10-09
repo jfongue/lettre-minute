@@ -7,21 +7,22 @@ import { compactWord, initialOf, normalizeWord } from '../domain/text'
 import { buildWordPack, findWord, knownByLetter, type WordRow } from '../domain/words'
 
 /**
- * The dictionaries prepared but not shipped (see `DRAFT_SOURCES` in
- * scripts/sources.ts). Nothing loads them and no catalogue entry names them,
- * so nothing else would catch a draft the day it is activated: a row the
- * domain cannot read, an answer the category is about and does not hold, or a
- * category too thin for the draw to deal. Read as the game reads them.
+ * The avant-première dictionaries (`premiere: true` in the catalogue): they
+ * ship like any other, and words.test.ts holds their rows. What only they
+ * need is the check that a category too young for anyone but Premium still
+ * holds the answers a table would shout, and enough letters to be drawn.
+ * Categories prepared but not shipped (`DRAFT_SOURCES`) would go back under
+ * src/data/drafts and be read from there.
  */
-const DIR = join(import.meta.dirname, 'drafts')
-const DRAFTS = ['ingredients', 'lieux']
+const DIR = join(import.meta.dirname, 'words')
+const DRAFTS = CATALOGUE.filter((category) => category.premiere).map((category) => category.id)
 const LANGS = ['de', 'en', 'es', 'fr', 'it', 'nl', 'pt']
 
 const rowsOf = new Map<string, readonly WordRow[]>()
 const packOf = new Map<string, ReturnType<typeof buildWordPack>>()
 for (const lang of readdirSync(DIR)) {
   for (const file of readdirSync(join(DIR, lang))) {
-    if (!file.endsWith('.json')) continue
+    if (!file.endsWith('.json') || !DRAFTS.includes(file.replace('.json', ''))) continue
     const name = `${lang}/${file.replace('.json', '')}`
     const rows = JSON.parse(readFileSync(join(DIR, lang, file), 'utf8')) as WordRow[]
     rowsOf.set(name, rows)
@@ -161,22 +162,19 @@ const hurried = (word: string) =>
     .toLowerCase()
     .replace(/[-’']/g, ' ')
 
-describe('draft dictionaries', () => {
-  it('ships each draft in every language', () => {
+describe('avant-première dictionaries', () => {
+  it('ships each avant-première in every language', () => {
     for (const lang of LANGS) {
       const ids = readdirSync(join(DIR, lang))
         .filter((file) => file.endsWith('.json'))
         .map((file) => file.replace('.json', ''))
-        .sort()
-      expect(ids, lang).toEqual([...DRAFTS].sort())
+      expect(ids.filter((id) => DRAFTS.includes(id)).sort(), lang).toEqual([...DRAFTS].sort())
     }
   })
 
-  it('is exactly what the game announces and cannot deal', () => {
-    // A draft that ships becomes a catalogue entry and leaves this file: the
-    // two lists move together, or the menu promises what no run can play.
-    expect(SOON.map((category) => category.id).sort()).toEqual([...DRAFTS].sort())
-    for (const id of DRAFTS) expect(CATALOGUE.some((category) => category.id === id), id).toBe(false)
+  it('is exactly what the game keeps for Premium', () => {
+    expect([...DRAFTS].sort()).toEqual(['ingredients', 'lieux'])
+    expect(SOON).toEqual([])
   })
 
   for (const [name, rows] of rowsOf) {
