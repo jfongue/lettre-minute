@@ -27,9 +27,10 @@ function clamp(value: number, min: number, max: number): number {
  * field keeps the clamp in one place.
  */
 /**
- * Where a word the players brought in starts: uncommon, whatever Wikipedia
- * thinks of it. Obscure by construction, it would otherwise pay as very rare
- * the word its proposer just asked for.
+ * Where a word the players brought in starts when nothing describes it: no
+ * article, no wordfreq count. Obscure by construction, it would otherwise pay
+ * as very rare the word its proposer just asked for. A word the sources do
+ * describe takes its notoriety from them (`communityNotoriety`).
  */
 export const COMMUNITY_NOTORIETY = 0.6
 

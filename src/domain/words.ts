@@ -452,11 +452,24 @@ export function lettersWithEnough(pack: WordPack, minimum: number): string[] {
 }
 
 /**
+ * What a word the players brought in is worth, having no rank of its own: the
+ * raw signals stand where the rank would. A word nothing describes — no
+ * Wikipedia article, no wordfreq count — keeps the uncommon start of
+ * `COMMUNITY_NOTORIETY` rather than paying the maximum its proposer just
+ * asked for; usage wears it down from there, as it does every word.
+ */
+export function communityNotoriety(entry: Pick<WordEntry, 'sitelinks' | 'frequency' | 'views'>): number {
+const fame = rawFame(entry)
+if (fame <= 0) return COMMUNITY_NOTORIETY
+return Math.min(1, fame)
+}
+
+/**
  * Adds words the community had accepted since the file was built. The pack is
  * rebuilt rather than mutated: a judge holds it for the length of a run and
  * must not see it change under its feet.
  */
-export function withExtraWords(pack: WordPack, extra: readonly WordEntry[]): WordPack {
+export function withExtraWords(pack: WordPack, extra: readonly Omit<WordEntry, 'notoriety'>[]): WordPack {
   if (extra.length === 0) return pack
 
   const entries = new Map(pack.entries)
@@ -469,9 +482,9 @@ export function withExtraWords(pack: WordPack, extra: readonly WordEntry[]): Wor
     entries.set(word, {
       ...entry,
       key: entries.get(compactWord(entry.key))?.key ?? (entry.key === '' ? normalizeWord(entry.display) : entry.key),
-      // A community word joins after the ranking: it starts uncommon, and the
-      // crowd's counts wear it down from there.
-      notoriety: entry.notoriety || COMMUNITY_NOTORIETY,
+      // A community word joins after the ranking: its own signals stand where
+      // the rank would, and the crowd's counts wear the result down from there.
+      notoriety: communityNotoriety(entry),
     })
     const letter = initialOf(entry.display)
     if (letter === '') continue

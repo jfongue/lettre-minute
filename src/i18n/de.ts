@@ -396,6 +396,7 @@ export const de: Messages = {
     mine: 'dein Wort',
     entered: 'ins Wörterbuch aufgenommen',
     queued: 'noch nicht gesendet',
+  removal: 'Entfernung vorgeschlagen',
     rejected: (count) => `Abgelehnt (${count})`,
     correct: 'Korrigieren',
     correctLabel: (word) => `„${word}“ korrigieren`,

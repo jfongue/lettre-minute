@@ -264,7 +264,9 @@ liée les lit et les fige dans `scripts/community-words.json`, à commiter avec
 les dictionnaires. Sans CLI ou hors ligne, l'import relit cet instantané. Un
 mot accepté compte comme attesté par le Wiktionnaire, et le test vérifie
 qu'aucun ne se perd. Entre deux imports, le jeu les recharge du serveur au
-démarrage, hors défis.
+démarrage, hors défis : chacun y prend la notoriété que ses propres signaux
+lui donnent — fréquence wordfreq, sitelinks —, et garde celle d'un mot peu
+commun quand rien ne le décrit.
 
 Une réponse rattrapée par la tolérance n'y a pas droit : elle vaut 10 points,
 et le jeu affiche l'orthographe exacte pour que le joueur la retienne. Le jeu
