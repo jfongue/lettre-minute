@@ -1,4 +1,5 @@
-• « Mes demandes » : un retrait proposé s’annule d’un « Retirer », sans attendre les autres modérateurs
-• L’avatar et les succès tiennent maintenant sur une seule page, et chaque palier montre la couleur qu’il débloque
-• Le tutoriel d’un mode ne s’affiche plus par-dessus l’accueil, et la modération par-dessus le bilan
+• Premium à vie, en un seul paiement : filtre jusqu’à 6 catégories, révélations illimitées, catégories en avant-première, plus aucune pub
+• Deux catégories en avant-première : Ingrédients, Lieux et bâtiments
+• Bonus de niveau : gagne un cadenas de filtrage, un 2e emplacement de pouvoir ou une révélation de plus par jour
+• Le bannissement devient le filtrage, et chaque jour apporte 2 révélations
 • Corrections de bugs et performance
