@@ -29,12 +29,17 @@ qui donne la ligne.
 - **Avatars et succès** : `src/domain/avatar.ts`, `achievements.ts`,
   `src/ui/Avatar.tsx`, `AvatarPanel.tsx`, `AchievementsPanel.tsx` — une seule
   page du tiroir (`Menu.tsx`, page `avatar`), pas deux écrans superposés.
-- **Défis entre amis** (pas de défi quotidien) : `src/domain/challenge.ts`,
+- **Défis entre amis** : `src/domain/challenge.ts`,
   `src/state/challenges.ts`, `src/state/botRuns.ts`, `src/ui/Challenge*.tsx`.
+- **Défi du moment** (hebdomadaire) : `src/domain/weekly.ts`, `src/state/weekly.ts`,
+  `src/ui/WeeklyFlow.tsx` (tout le parcours), `Weekly*.tsx`, `ModeIntro.tsx`,
+  styles `src/weekly*.css`, textes `src/i18n/weekly.<langue>.ts`.
 - **Duel** : `src/domain/duel.ts`, `duelLog.ts`, `src/state/duel.ts`,
   `src/ui/DuelScreen.tsx`, `DuelTutorial.tsx`, entrée `duel.html` / `src/duel.tsx`.
-- **Premium, bans de catégorie** : `src/domain/perks.ts`, `src/ui/Checkout.tsx`,
-  `PlusPop.tsx`, `CategoriesPage.tsx`.
+- **Premium, filtrage, révélations, bonus de niveau** : `src/domain/perks.ts`,
+  `bonus.ts`, `src/lib/billing.ts`, `src/ui/premium.tsx` (sceau et icônes),
+  `PremiumSheet.tsx`, `PremiumPage.tsx`, `premiumContext.ts`,
+  `BonusOfferScreen.tsx`, `CategoriesPage.tsx`.
 - **Modération, mots bannis** : `src/domain/moderation.ts`,
   `src/ui/ModerationScreen.tsx`, `RequestsPage.tsx`, `src/debug/WordsBoard.tsx`,
   `scripts/ban-*.ts`.
@@ -178,12 +183,12 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   aucun *pull* — le français depuis le Wiktionnaire français, les six autres
   langues depuis les thèmes du Wiktionnaire anglais (`TOPICS`,
   `scripts/languages.ts`), dont une entrée nouvelle périme le cache kaikki de
-  chaque langue et fait relire tout son dump. C'est `src/data/drafts.test.ts`
-  qui les garde — lignes bien formées, réponses évidentes trouvées dans chaque
-  langue, assez de lettres connues pour le tirage, et la liste des brouillons
-  exactement celle de `SOON`. La mettre en jeu demande une entrée de
-  `CATALOGUE` et le déplacement de ses dictionnaires vers
-  `src/data/words/<langue>/`.
+  chaque langue et fait relire tout son dump. Il n'y en a aucun pour l'instant
+  (`SOON` est vide) : un brouillon nouveau mérite son test, sur le modèle de
+  `src/data/premieres.test.ts` — lignes bien formées, réponses évidentes
+  trouvées dans chaque langue, assez de lettres connues pour le tirage. La
+  mettre en jeu demande une entrée de `CATALOGUE` et le déplacement de ses
+  dictionnaires vers `src/data/words/<langue>/`.
 - **Le Wiktionnaire est la source des noms communs**, Wikidata celle des
   entités : Wikidata connaît cinquante races de chat mais pas « abeille ». Une
   catégorie de noms communs bâtie sur Wikidata seul laisse dehors les réponses
@@ -629,6 +634,28 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   Le `localStorage` d'un post s'efface à chaque version publiée, et changer
   le dictionnaire change les parties des jours déjà postés, comme pour les
   robots.
+
+- **Les avant-premières (`premiere: true`) n'appartiennent qu'au Premium** :
+  `ownedCategoryIds` les ajoute d'office à qui a `plusSince`, aucune offre de
+  niveau ne les distribue, et tout tirage partagé — défi entre amis, robot,
+  duel, défi du moment — passe par `sharedCategoryIds`, qui les écarte : sans
+  quoi un Premium et un autre ne joueraient plus la même partie.
+- **Le Premium est un achat Google Play que l'appareil garde** (`plusSince`) :
+  `purchases` (0063) n'est que la copie qu'un autre appareil retrouve
+  (`my_premium`), et la fonction Edge `premium-verify` ne la vérifie qu'avec le
+  secret `PLAY_SERVICE_ACCOUNT` — sans lui, l'achat reste `unverified` et
+  compte. Rien ne s'achète ni ne se regarde hors Android (`premiumStoreOpen`,
+  `rewardedAdsOpen`) : ailleurs, un Premium existant garde ses avantages et les
+  autres n'en voient jamais l'offre. Le stub natif de Reddit
+  (`reddit/src/client/nativeStub.ts`) doit suivre chaque export de
+  `native.ts` qu'un écran partagé appelle.
+- **Le défi du moment vit à l'heure de Paris** (`weekly.ts`, arithmétique pure
+  comme `daily.ts`) : la semaine bascule le dimanche à 21 h, les tentatives à
+  minuit et à cette bascule. Son tirage obéit aux règles d'un défi entre amis
+  (graine, catalogue partagé, ni pouvoir, ni filtrage, ni foule) ; le serveur
+  compte les tentatives (`weekly_start`, plafond 5) mais ne connaît pas le
+  Premium, et les huit trophées s'attribuent côté client
+  (`awardWeeklyTrophies`), un seul par joueur.
 
 ## Conventions
 
