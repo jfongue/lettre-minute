@@ -1,4 +1,4 @@
-import { compactWord, finalOf, initialOf, initialOfNormalized, normalizeWord } from './text'
+import { capitalized, compactWord, finalOf, initialOf, initialOfNormalized, normalizeWord } from './text'
 import { COMMUNITY_NOTORIETY, NO_USAGE, pointsFor, rarityScore, tierOf, type RarityTier, type WordUsage } from './rarity'
 
 export interface WordEntry {
@@ -95,7 +95,7 @@ export function buildWordPack(categoryId: string, rows: readonly WordRow[]): Wor
     const key = canonical === '' ? normalized : canonical
     entries.set(word, {
       key,
-      display,
+      display: capitalized(display),
       sitelinks,
       frequency,
       ...(views === undefined ? {} : { views }),
@@ -481,6 +481,7 @@ export function withExtraWords(pack: WordPack, extra: readonly Omit<WordEntry, '
     if (word === '' || entries.has(word)) continue
     entries.set(word, {
       ...entry,
+      display: capitalized(entry.display),
       key: entries.get(compactWord(entry.key))?.key ?? (entry.key === '' ? normalizeWord(entry.display) : entry.key),
       // A community word joins after the ranking: its own signals stand where
       // the rank would, and the crowd's counts wear the result down from there.

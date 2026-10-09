@@ -5,6 +5,11 @@ import { NO_USAGE, rarityScore, tierOf } from './rarity'
 const rows: WordRow[] = [['Chat', 120, 45.3], ['Chien', 150, 60], ['Écureuil', 60, 3.2], ['Zèbre', 90, 1.4]]
 
 describe('buildWordPack', () => {
+  it('shows a word with a capital, whatever the dictionary keeps', () => {
+    const pack = buildWordPack('animaux', [['écureuil', 60, 3.2]])
+    expect(pack.entries.get('ecureuil')?.display).toBe('Écureuil')
+  })
+
   it('reads a word, its fame and its corpus frequency', () => {
     const pack = buildWordPack('animaux', rows)
 
@@ -248,6 +253,13 @@ describe('inflected forms', () => {
 })
 
 describe('withExtraWords', () => {
+  it('shows a community word with a capital too', () => {
+    const pack = withExtraWords(buildWordPack('animaux', rows), [
+      { key: '', display: 'axolotl', sitelinks: 0, frequency: 0 },
+    ])
+    expect(pack.entries.get('axolotl')?.display).toBe('Axolotl')
+  })
+
   it('lets a word the players brought in start uncommon when nothing describes it', () => {
     const pack = withExtraWords(buildWordPack('animaux', rows), [
       { key: '', display: 'Axolotl', sitelinks: 0, frequency: 0 },
