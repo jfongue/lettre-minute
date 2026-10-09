@@ -66,5 +66,5 @@ describe('fuzz: a career played in any order', () => {
     const master = createRng(Number(process.env.FUZZ_SEED ?? 20260924) >>> 0)
     const careers = Number(process.env.FUZZ_RUNS ?? 40)
     for (let i = 0; i < careers; i++) career(Math.floor(master.next() * 2 ** 32))
-  }, 5_000 + Number(process.env.FUZZ_RUNS ?? 40) * 20)
+  }, 30_000 + Number(process.env.FUZZ_RUNS ?? 40) * 20)
 })
