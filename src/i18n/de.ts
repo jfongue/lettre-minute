@@ -231,6 +231,18 @@ export const de: Messages = {
     you: 'Dein Platz',
     absent: 'Du stehst noch nicht darauf: Jetzt bist du dran.',
     anonymous: 'Erstelle ein Konto, um in den Ranglisten zu erscheinen.',
+    runs: 'Partien',
+    weekly: {
+      current: 'Laufende Woche',
+      total: 'Gesamt',
+      currentCaption: 'Das beste Ergebnis aller diese Woche',
+      totalCaption: 'Der Sieger jeder vergangenen Aufgabe · Wochennummer links',
+      week: (n) => `Woche ${n}`,
+      score: 'Pkt.',
+      survival: 's',
+      empty: 'Noch ist keine Aufgabe beendet.',
+      offline: 'Die Aufgabe antwortet gerade nicht.',
+    },
   },
 
   menu: {

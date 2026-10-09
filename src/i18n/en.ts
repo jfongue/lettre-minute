@@ -237,6 +237,18 @@ export const en: Messages = {
     you: 'Your place',
     absent: 'You’re not on it yet: your turn to play.',
     anonymous: 'Create an account to appear on the leaderboards.',
+    runs: 'Runs',
+    weekly: {
+      current: 'Current week',
+      total: 'Total',
+      currentCaption: 'Everyone’s best result this week',
+      totalCaption: 'The winner of every past challenge · week number on the left',
+      week: (n) => `Week ${n}`,
+      score: 'pts',
+      survival: 's',
+      empty: 'No challenge has finished yet.',
+      offline: 'The challenge isn’t answering right now.',
+    },
   },
 
   menu: {

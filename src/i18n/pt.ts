@@ -232,6 +232,18 @@ export const pt: Messages = {
     you: 'Sua posição',
     absent: 'Você ainda não aparece: é sua vez de jogar.',
     anonymous: 'Crie uma conta para aparecer nos rankings.',
+    runs: 'Partidas',
+    weekly: {
+      current: 'Semana em curso',
+      total: 'Total',
+      currentCaption: 'O melhor resultado de cada um esta semana',
+      totalCaption: 'O vencedor de cada desafio passado · n.º da semana à esquerda',
+      week: (n) => `Semana n.º ${n}`,
+      score: 'pts',
+      survival: 's',
+      empty: 'Ainda não terminou nenhum desafio.',
+      offline: 'O desafio não está respondendo agora.',
+    },
   },
 
   menu: {

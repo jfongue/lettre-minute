@@ -1,7 +1,8 @@
 import { Suspense, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { completeLeaderboard, myPlace, PERIODS, STATS, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from '../domain/leaderboards'
+import { metricOf, weekNumber, weekOf, weeklyMode, type WeeklyMetric } from '../domain/weekly'
 import { formatNumber, useT } from '../i18n'
-import { fetchLeaderboard } from '../lib/cloud'
+import { fetchLeaderboard, fetchWeeklyBoard, fetchWeeklyWinners, type WeeklyBoardRow, type WeeklyWinnerRow } from '../lib/cloud'
 import type { LoadDashboard } from '../debug/Dashboard'
 import { lazyScreen } from './lazyScreen'
 import { Avatar } from './Avatar'
@@ -24,6 +25,13 @@ const LOOKS: Record<StatId, { kind: ShapeKind; tint: Tint }> = {
 
 /** Undefined while it is asked for, null when the server did not answer. */
 type Loaded = Leaderboard | null | undefined
+
+/** Les deux familles de la page : les mesures des parties, puis le défi du moment. */
+const FAMILIES = ['runs', 'weekly'] as const
+type FamilyId = (typeof FAMILIES)[number]
+/** Le défi se lit par volet, pas par période : la semaine en cours, ou le total. */
+const WEEK_PANES = ['current', 'total'] as const
+type WeekPane = (typeof WEEK_PANES)[number]
 
 export type LoadLeaderboard = (stat: StatId, period: PeriodId) => Promise<Leaderboard | null>
 
@@ -58,12 +66,21 @@ export function LeaderboardsPage({
   onCloseAdvanced,
 }: LeaderboardsPageProps) {
   const t = useT()
+  // Le défi se range par langue et par semaine : l'interface donne les deux.
+  const lang = t.tag.split('-')[0]!
+  const weekId = weekOf(Date.now()).weekId
+  const weekMetric = metricOf(weeklyMode(weekId))
   const [period, setPeriod] = useState<PeriodId>('day')
   const [active, setActive] = useState(0)
+  const [family, setFamily] = useState<FamilyId>('runs')
+  const [pane, setPane] = useState<WeekPane>('current')
   const [boards, setBoards] = useState<Record<string, Loaded>>({})
+  const [week, setWeek] = useState<WeeklyBoardRow[] | null | undefined>(undefined)
+  const [winners, setWinners] = useState<WeeklyWinnerRow[] | null | undefined>(undefined)
   const track = useRef<HTMLDivElement>(null)
   const chips = useRef<HTMLDivElement>(null)
   const asked = useRef(new Set<string>())
+  const askedWeek = useRef(new Set<WeekPane>())
   // The track is as tall as the board in view: a board of fifty would
   // otherwise leave a short one floating over a long blank.
   const [height, setHeight] = useState<number | undefined>(undefined)
@@ -73,7 +90,8 @@ export function LeaderboardsPage({
     const observer = new ResizeObserver(() => setHeight(panel.offsetHeight))
     observer.observe(panel)
     return () => observer.disconnect()
-  }, [active])
+    // La piste des parties est remontée au retour du défi : on la remesure.
+  }, [active, family])
 
   const ask = (stat: StatId, force = false) => {
     const key = `${stat}:${period}`
@@ -82,6 +100,25 @@ export function LeaderboardsPage({
     setBoards((now) => ({ ...now, [key]: undefined }))
     load(stat, period).then((board) => setBoards((now) => ({ ...now, [key]: board })))
   }
+
+  // Le défi se lit par volets et se garde pour la vie de la page, comme les autres.
+  const askWeek = (view: WeekPane, force = false) => {
+    if (askedWeek.current.has(view) && !force) return
+    askedWeek.current.add(view)
+    if (view === 'current') {
+      setWeek(undefined)
+      fetchWeeklyBoard(weekId, lang).then(setWeek)
+    } else {
+      setWinners(undefined)
+      fetchWeeklyWinners(lang).then(setWinners)
+    }
+  }
+
+  useEffect(() => {
+    if (family === 'weekly') askWeek(pane)
+    // `askWeek` lit la langue et la semaine, toutes deux dans les dépendances.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [family, pane, lang, weekId])
 
   useEffect(() => {
     for (const index of [active, active + 1, active - 1]) {
@@ -97,7 +134,7 @@ export function LeaderboardsPage({
     const row = chips.current
     const chip = row?.children[active] as HTMLElement | undefined
     if (row && chip) row.scrollTo({ left: chip.offsetLeft - (row.clientWidth - chip.offsetWidth) / 2, behavior: 'smooth' })
-  }, [active])
+  }, [active, family])
 
   const show = (index: number) => {
     const element = track.current
@@ -107,60 +144,110 @@ export function LeaderboardsPage({
   return (
     <div className="leaderboards" data-no-swipe>
       <div className="layer-tabs leaderboards-periods" role="tablist">
-        {PERIODS.map((id) => (
+        {FAMILIES.map((id) => (
           <button
             key={id}
             type="button"
             role="tab"
-            aria-selected={period === id}
-            className={`layer-tab${period === id ? ' layer-tab--on' : ''}`}
-            onClick={() => setPeriod(id)}
+            aria-selected={family === id}
+            className={`layer-tab${family === id ? ' layer-tab--on' : ''}`}
+            onClick={() => setFamily(id)}
           >
-            {t.leaderboards.periods[id]}
+            {id === 'runs' ? t.leaderboards.runs : t.weekly.title}
           </button>
         ))}
       </div>
 
-      <div className="leaderboards-chips" ref={chips}>
-        {STATS.map((stat, index) => {
-          const look = LOOKS[stat]
-          const on = index === active
-          return (
-            <button
-              key={stat}
-              type="button"
-              className={`leaderboards-chip${on ? ' leaderboards-chip--on' : ''}`}
-              style={on ? ({ background: `var(--${look.tint})`, color: `var(--${onTint(look.tint)})` } as CSSProperties) : undefined}
-              aria-pressed={on}
-              onClick={() => show(index)}
-            >
-              <span className="leaderboards-chip-art" style={{ color: on ? 'currentColor' : `var(--${look.tint})` }}>
-                <Shape kind={look.kind} tint={on ? onTint(look.tint) : look.tint} />
-              </span>
-              {t.leaderboards.stats[stat].label}
-            </button>
-          )
-        })}
-      </div>
-
       {!named && <p className="note">{t.leaderboards.anonymous}</p>}
 
-      <div
-        className="board-track leaderboards-track"
-        ref={track}
-        style={{ height }}
-        onScroll={(event) => {
-          const element = event.currentTarget
-          setActive(Math.min(STATS.length - 1, Math.max(0, Math.round(element.scrollLeft / element.clientWidth))))
-        }}
-      >
-        {STATS.map((stat) => (
-          <section className="board leaderboard" key={stat} aria-label={t.leaderboards.stats[stat].label}>
-            <p className="note leaderboard-caption">{t.leaderboards.stats[stat].caption}</p>
-            <BoardBody stat={stat} period={period} board={boards[`${stat}:${period}`]} named={named} onRetry={() => ask(stat, true)} />
+      {family === 'runs' ? (
+        <>
+          <div className="layer-tabs leaderboards-periods" role="tablist">
+            {PERIODS.map((id) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={period === id}
+                className={`layer-tab${period === id ? ' layer-tab--on' : ''}`}
+                onClick={() => setPeriod(id)}
+              >
+                {t.leaderboards.periods[id]}
+              </button>
+            ))}
+          </div>
+
+          <div className="leaderboards-chips" ref={chips}>
+            {STATS.map((stat, index) => {
+              const look = LOOKS[stat]
+              const on = index === active
+              return (
+                <button
+                  key={stat}
+                  type="button"
+                  className={`leaderboards-chip${on ? ' leaderboards-chip--on' : ''}`}
+                  style={on ? ({ background: `var(--${look.tint})`, color: `var(--${onTint(look.tint)})` } as CSSProperties) : undefined}
+                  aria-pressed={on}
+                  onClick={() => show(index)}
+                >
+                  <span className="leaderboards-chip-art" style={{ color: on ? 'currentColor' : `var(--${look.tint})` }}>
+                    <Shape kind={look.kind} tint={on ? onTint(look.tint) : look.tint} />
+                  </span>
+                  {t.leaderboards.stats[stat].label}
+                </button>
+              )
+            })}
+          </div>
+
+          <div
+            className="board-track leaderboards-track"
+            ref={track}
+            style={{ height }}
+            onScroll={(event) => {
+              const element = event.currentTarget
+              setActive(Math.min(STATS.length - 1, Math.max(0, Math.round(element.scrollLeft / element.clientWidth))))
+            }}
+          >
+            {STATS.map((stat) => (
+              <section className="board leaderboard" key={stat} aria-label={t.leaderboards.stats[stat].label}>
+                <p className="note leaderboard-caption">{t.leaderboards.stats[stat].caption}</p>
+                <BoardBody stat={stat} period={period} board={boards[`${stat}:${period}`]} named={named} onRetry={() => ask(stat, true)} />
+              </section>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="layer-tabs leaderboards-periods" role="tablist">
+            {WEEK_PANES.map((id) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={pane === id}
+                className={`layer-tab${pane === id ? ' layer-tab--on' : ''}`}
+                onClick={() => setPane(id)}
+              >
+                {id === 'current' ? t.leaderboards.weekly.current : t.leaderboards.weekly.total}
+              </button>
+            ))}
+          </div>
+
+          <section
+            className="board leaderboard"
+            aria-label={pane === 'current' ? t.leaderboards.weekly.current : t.leaderboards.weekly.total}
+          >
+            <p className="note leaderboard-caption">
+              {pane === 'current' ? t.leaderboards.weekly.currentCaption : t.leaderboards.weekly.totalCaption}
+            </p>
+            {pane === 'current' ? (
+              <WeeklyBoardBody board={week} metric={weekMetric} onRetry={() => askWeek('current', true)} />
+            ) : (
+              <WinnersBody rows={winners} onRetry={() => askWeek('total', true)} />
+            )}
           </section>
-        ))}
-      </div>
+        </>
+      )}
 
       {advanced && (
         <Suspense fallback={null}>
@@ -242,6 +329,111 @@ function BoardBody({
         </div>
       )}
     </>
+  )
+}
+
+/**
+ * Le défi de la semaine en cours : le classement que `weekly_board` rend, avec
+ * la carte du podium et la ligne du joueur, comme les autres tableaux. Sa
+ * métrique est celle de la semaine : des points, ou des secondes tenues.
+ */
+function WeeklyBoardBody({
+  board,
+  metric,
+  onRetry,
+}: {
+  board: WeeklyBoardRow[] | null | undefined
+  metric: WeeklyMetric
+  onRetry(): void
+}) {
+  const t = useT()
+  if (board === undefined) return <p className="note board-empty">…</p>
+  if (board === null)
+    return (
+      <div className="board-empty stack">
+        <p className="note">{t.leaderboards.weekly.offline}</p>
+        <button type="button" className="btn btn--quiet" onClick={onRetry}>
+          {t.leaderboards.retry}
+        </button>
+      </div>
+    )
+  if (board.length === 0) return <p className="note board-empty">{t.leaderboards.empty.week}</p>
+
+  const unit = metric === 'survival' ? t.leaderboards.weekly.survival : t.leaderboards.weekly.score
+  const rows: PlacedRow[] = board.map((row) => ({ place: row.rank, name: row.name, avatar: row.avatar, value: row.value, mine: row.me }))
+  const podium = rows.slice(0, 3)
+  const rest = rows.slice(3)
+  return (
+    <>
+      <ol className="podium leaderboard-podium">
+        {podium.map((row, index) => (
+          <li key={`${row.name}-${index}`} className={`podium-step podium-step--${index + 1}${row.mine ? ' leaderboard-step--me' : ''}`}>
+            <Avatar choice={row.avatar} size="sm" />
+            <span className="podium-rank">{row.place}</span>
+            <span className={`podium-word${podiumNameClass(row.name)}`} title={row.name}>
+              <Name row={row} />
+            </span>
+            <span className="note">
+              {formatNumber(t, row.value)} {unit}
+            </span>
+          </li>
+        ))}
+      </ol>
+
+      {rest.length > 0 && (
+        <div className="standings">
+          {rest.map((row, index) => (
+            <Line key={`${row.name}-${index}`} row={row} unit={() => unit} />
+          ))}
+        </div>
+      )}
+    </>
+  )
+}
+
+/**
+ * Le défi passé : le gagnant de chaque semaine close, la plus récente d'abord.
+ * La colonne de gauche est le numéro de la semaine, celle de droite sa valeur
+ * et son unité — les points et les secondes ne se rangent pas ensemble.
+ */
+function WinnersBody({ rows, onRetry }: { rows: WeeklyWinnerRow[] | null | undefined; onRetry(): void }) {
+  const t = useT()
+  if (rows === undefined) return <p className="note board-empty">…</p>
+  if (rows === null)
+    return (
+      <div className="board-empty stack">
+        <p className="note">{t.leaderboards.weekly.offline}</p>
+        <button type="button" className="btn btn--quiet" onClick={onRetry}>
+          {t.leaderboards.retry}
+        </button>
+      </div>
+    )
+  if (rows.length === 0) return <p className="note board-empty">{t.leaderboards.weekly.empty}</p>
+
+  return (
+    <div className="standings">
+      {rows.map((row) => {
+        // Le premier défi joué est la semaine n° 1 : l'époque compte pour zéro.
+        const week = weekNumber(row.weekId) + 1
+        const unit = row.metric === 'survival' ? t.leaderboards.weekly.survival : t.leaderboards.weekly.score
+        return (
+          <div className="standing" key={row.weekId}>
+            <span className="rank" title={t.leaderboards.weekly.week(week)}>
+              {week}
+            </span>
+            <Avatar choice={row.avatar} size="sm" />
+            <span className="name">
+              <PlayerName name={row.name} avatar={row.avatar}>
+                {row.name}
+              </PlayerName>
+            </span>
+            <span className="points">
+              {formatNumber(t, row.value)} <small>{unit}</small>
+            </span>
+          </div>
+        )
+      })}
+    </div>
   )
 }
 

@@ -1913,6 +1913,31 @@ export function fetchWeeklyBoard(weekId: string, lang: string, limit = 50): Prom
   }, null)
 }
 
+export interface WeeklyWinnerRow {
+  /** Le dimanche d'ouverture de la semaine close. */
+  weekId: string
+  name: string
+  avatar: AvatarChoice
+  /** La métrique de cette semaine-là : les points et les secondes ne se mêlent pas. */
+  metric: WeeklyMetric
+  value: number
+}
+
+/** Le gagnant de chaque défi passé, la semaine la plus récente d'abord ; null sans serveur. */
+export function fetchWeeklyWinners(lang: string, limit = 50): Promise<WeeklyWinnerRow[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('weekly_winners', { p_lang: lang, p_lim: limit })
+    if (error) return null
+    return ((data as Record<string, unknown>[]) ?? []).map((row) => ({
+      weekId: row.week_id as string,
+      name: row.display_name as string,
+      avatar: parseAvatar(row.avatar),
+      metric: row.metric === 'survival' ? 'survival' : 'score',
+      value: Number(row.value) || 0,
+    }))
+  }, null)
+}
+
 export interface WeeklyRecapAttempt {
   n: number
   day: string

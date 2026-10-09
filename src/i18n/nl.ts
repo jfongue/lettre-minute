@@ -231,6 +231,18 @@ export const nl: Messages = {
     you: 'Jouw plaats',
     absent: 'Je staat er nog niet op: jij bent aan de beurt.',
     anonymous: 'Maak een account om in de klassementen te komen.',
+    runs: 'Spellen',
+    weekly: {
+      current: 'Deze week',
+      total: 'Totaal',
+      currentCaption: 'Ieders beste resultaat deze week',
+      totalCaption: 'De winnaar van elke afgelopen uitdaging · weeknummer links',
+      week: (n) => `Week ${n}`,
+      score: 'ptn',
+      survival: 's',
+      empty: 'Er is nog geen uitdaging afgelopen.',
+      offline: 'De uitdaging antwoordt nu niet.',
+    },
   },
 
   menu: {

@@ -262,6 +262,18 @@ export const fr = {
     you: 'Ta place',
     absent: 'Tu n’y figures pas encore : à toi de jouer.',
     anonymous: 'Crée un compte pour figurer aux classements.',
+    runs: 'Parties',
+    weekly: {
+      current: 'Semaine en cours',
+      total: 'Total',
+      currentCaption: 'Le meilleur résultat de chacun cette semaine',
+      totalCaption: 'Le gagnant de chaque défi passé · n° de semaine à gauche',
+      week: (n: number) => `Semaine n° ${n}`,
+      score: 'pts',
+      survival: 's',
+      empty: 'Aucun défi terminé pour l’instant.',
+      offline: 'Le défi ne répond pas pour l’instant.',
+    },
   },
 
   menu: {

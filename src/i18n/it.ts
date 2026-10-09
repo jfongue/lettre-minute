@@ -232,6 +232,18 @@ export const it: Messages = {
     you: 'Il tuo posto',
     absent: 'Non ci sei ancora: tocca a te giocare.',
     anonymous: 'Crea un account per comparire nelle classifiche.',
+    runs: 'Partite',
+    weekly: {
+      current: 'Settimana in corso',
+      total: 'Totale',
+      currentCaption: 'Il miglior risultato di ognuno questa settimana',
+      totalCaption: 'Il vincitore di ogni sfida passata · n. di settimana a sinistra',
+      week: (n) => `Settimana n. ${n}`,
+      score: 'pt',
+      survival: 's',
+      empty: 'Nessuna sfida è ancora finita.',
+      offline: 'La sfida non risponde per ora.',
+    },
   },
 
   menu: {
