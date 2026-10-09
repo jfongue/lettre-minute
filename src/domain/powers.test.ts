@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
+  BASE_SLOTS,
+  slotsOf,
   choosePower,
   dealPowerOffer,
   equippedPowers,
@@ -97,7 +99,7 @@ describe('earning powers', () => {
   })
 
   it('wears a new power while a slot is free, and only then', () => {
-    let profile = atLevel(8)
+    let profile = atLevel(8, { bonuses: ['slot'] })
     for (let i = 0; i < 3; i++) {
       const dealt = dealPowerOffer(profile, i)
       profile = choosePower(dealt, dealt.powerOffer[1]!)
@@ -119,7 +121,7 @@ describe('earning powers', () => {
 })
 
 describe('equipping', () => {
-  const owner = atLevel(8, { powers: ['joker', 'hush', 'magic'], equipped: ['joker', 'hush'] })
+  const owner = atLevel(8, { powers: ['joker', 'hush', 'magic'], equipped: ['joker', 'hush'], bonuses: ['slot'] })
 
   it('replaces what a slot held', () => {
     expect(equipPower(owner, 1, 'magic').equipped).toEqual(['joker', 'magic'])
@@ -132,6 +134,16 @@ describe('equipping', () => {
   it('empties a slot, and refuses a power not owned', () => {
     expect(equipPower(owner, 0, null).equipped).toEqual(['hush'])
     expect(equipPower(owner, 0, 'celerity')).toBe(owner)
+  })
+
+  it('has one slot until the second-slot bonus is taken', () => {
+    const single = { ...owner, bonuses: [] }
+    expect(slotsOf(single)).toBe(BASE_SLOTS)
+    expect(slotsOf(owner)).toBe(2)
+    expect(equippedPowers(single)).toEqual(['joker'])
+    expect(equipPower(single, 1, 'magic')).toBe(single)
+    expect(equipPower(single, 0, 'magic').equipped).toEqual(['magic'])
+    expect(grantPower({ ...single, equipped: ['joker'] }, 'magic').equipped).toEqual(['joker'])
   })
 
   it('never carries a power the player does not own', () => {

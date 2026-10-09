@@ -40,6 +40,17 @@ describe('local storage', () => {
     expect(loadHistory()).toEqual([RUN])
   })
 
+  it('catches a profile older than the level bonuses up, once', () => {
+    put('profile', JSON.stringify({ xp: 900, banned: ['pays'], equipped: ['joker', 'hush'], powers: ['joker', 'hush'] }))
+    const caught = loadProfile()
+    expect(caught.bonuses).toEqual(['filter', 'slot'])
+    expect(caught.perksVersion).toBe(1)
+    saveProfile(caught)
+    expect(loadProfile()).toEqual(caught)
+    put('profile', JSON.stringify({ revealDay: '2026-10-09', revealsUsed: 1, revealAds: 'x' }))
+    expect(loadProfile()).toMatchObject({ revealDay: '2026-10-09', revealsUsed: 1, revealAds: 0, bonuses: [] })
+  })
+
   it('falls back to a new profile on anything that is not one', () => {
     for (const raw of ['{', 'null', '42', '"xp"', '[1,2]', 'true']) {
       put('profile', raw)

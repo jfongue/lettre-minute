@@ -1,3 +1,4 @@
+import { BONUS_CAPS, catchUpPerks, isBonusId } from './bonus'
 import type { Profile } from './progression'
 
 /*
@@ -11,9 +12,9 @@ import type { Profile } from './progression'
  * gagné sur un appareil reste gagné sur l'autre.
  */
 
-const OWNED = ['unlocked', 'gifted', 'powers', 'powersUsed', 'playedCategories'] as const
-const LATEST = ['offer', 'lastOffer', 'powerOffer', 'lastPowerOffer', 'equipped', 'banned'] as const
-const HIGHEST = ['banIntroSeen', 'peeks', 'plusThanked', 'supportAskedAt', 'feedbackAskedAt', 'longestWord', 'bestSpeed', 'cleanRuns', 'duelRounds4', 'dailyFirst', 'wordsReviewed'] as const
+const OWNED = ['unlocked', 'gifted', 'powers', 'powersUsed', 'playedCategories', 'bonuses'] as const
+const LATEST = ['offer', 'lastOffer', 'powerOffer', 'lastPowerOffer', 'equipped', 'banned', 'bonusOffer', 'lastBonusOffer'] as const
+const HIGHEST = ['banIntroSeen', 'bonusGifts', 'perksVersion', 'plusThanked', 'supportAskedAt', 'feedbackAskedAt', 'longestWord', 'bestSpeed', 'cleanRuns', 'duelRounds4', 'dailyFirst', 'wordsReviewed'] as const
 
 type ListField = (typeof OWNED)[number] | (typeof LATEST)[number]
 type CountField = (typeof HIGHEST)[number] | 'plusSince' | 'runs'
@@ -41,6 +42,16 @@ export function parseProgress(raw: unknown): Progress | null {
   return progress as Progress
 }
 
+/** Each kind as often as the copy that took it most: a bonus taken on one device is not taken twice by merging. */
+function mostOf(first: readonly string[], second: readonly string[]): string[] {
+  const merged = [...first]
+  for (const id of new Set(second)) {
+    const missing = second.filter((entry) => entry === id).length - merged.filter((entry) => entry === id).length
+    for (let at = 0; at < missing; at++) merged.push(id)
+  }
+  return merged
+}
+
 const union = (first: readonly string[], second: readonly string[]) => [...new Set([...first, ...second])]
 
 /**
@@ -55,19 +66,26 @@ export function withProgress(local: Profile, saved: Progress): Profile {
   const gifted = union(local.gifted, saved.gifted).filter((id) => !unlocked.includes(id))
   const powers = union(local.powers, saved.powers)
   const owned = new Set([...unlocked, ...gifted])
+  // A save older than the bonuses is owed the same catch-up as a stored profile.
+  const savedPerks = catchUpPerks({ ...local, bonuses: saved.bonuses, bonusGifts: saved.bonusGifts, banned: saved.banned, equipped: saved.equipped, perksVersion: saved.perksVersion })
+  const bonuses = mostOf(local.bonuses, savedPerks.bonuses).filter(isBonusId)
   const merged: Profile = {
     ...local,
     unlocked,
     gifted,
     powers,
+    bonuses,
     offer: latest.offer.filter((id) => !owned.has(id)),
     lastOffer: [...latest.lastOffer],
     powerOffer: latest.powerOffer.filter((id) => !powers.includes(id)),
     lastPowerOffer: [...latest.lastPowerOffer],
     equipped: latest.equipped.filter((id) => powers.includes(id)),
     banned: [...latest.banned],
+    bonusOffer: latest.bonusOffer.filter((id) => isBonusId(id) && bonuses.filter((taken) => taken === id).length < BONUS_CAPS[id]),
+    lastBonusOffer: [...latest.lastBonusOffer],
     plusSince: local.plusSince && saved.plusSince ? Math.min(local.plusSince, saved.plusSince) : local.plusSince || saved.plusSince,
   }
   for (const field of HIGHEST) merged[field] = Math.max(local[field], saved[field])
+  merged.bonusGifts = Math.max(local.bonusGifts, savedPerks.bonusGifts)
   return merged
 }

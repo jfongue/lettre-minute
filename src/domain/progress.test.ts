@@ -6,7 +6,7 @@ const profile = (patch: Partial<Profile>): Profile => ({ ...NEW_PROFILE, ...patc
 
 describe('cloud progress', () => {
   it('survives the trip through the server', () => {
-    const local = profile({ runs: 12, unlocked: ['sports'], powers: ['joker'], equipped: ['joker'], banned: ['pays'], peeks: 3, plusSince: 5 })
+    const local = profile({ runs: 12, unlocked: ['sports'], powers: ['joker'], equipped: ['joker'], banned: ['pays'], bonusGifts: 1, plusSince: 5 })
     const saved = parseProgress(JSON.parse(JSON.stringify(progressOf(local))))
     expect(saved).toEqual(progressOf(local))
     expect(withProgress(local, saved!)).toEqual(local)
@@ -15,7 +15,7 @@ describe('cloud progress', () => {
   it('reads nothing from what is not a save', () => {
     expect(parseProgress(null)).toBeNull()
     expect(parseProgress([1, 2])).toBeNull()
-    expect(parseProgress({ unlocked: 'sports', powers: [3, 'hush'], peeks: -2 })).toMatchObject({ unlocked: [], powers: ['hush'], peeks: 0 })
+    expect(parseProgress({ unlocked: 'sports', powers: [3, 'hush'], bonusGifts: -2 })).toMatchObject({ unlocked: [], powers: ['hush'], bonusGifts: 0 })
   })
 
   it('never takes back a pick made on either device', () => {
@@ -37,9 +37,24 @@ describe('cloud progress', () => {
   })
 
   it('dates Premium from the first time, and keeps the highest counters', () => {
-    const merged = withProgress(profile({ plusSince: 900, peeks: 2 }), progressOf(profile({ plusSince: 400, peeks: 7 })))
+    const merged = withProgress(profile({ plusSince: 900, bonusGifts: 2 }), progressOf(profile({ plusSince: 400, bonusGifts: 7 })))
     expect(merged.plusSince).toBe(400)
-    expect(merged.peeks).toBe(7)
+    expect(merged.bonusGifts).toBe(7)
     expect(withProgress(profile({ plusSince: 0 }), progressOf(profile({ plusSince: 400 }))).plusSince).toBe(400)
+  })
+
+  it('adds the bonuses of both copies without taking one twice', () => {
+    const phone = profile({ runs: 3, bonuses: ['reveal', 'filter'] })
+    const tablet = progressOf(profile({ runs: 9, bonuses: ['reveal', 'reveal', 'slot'], bonusOffer: ['filter', 'slot'] }))
+    const merged = withProgress(phone, tablet)
+    expect([...merged.bonuses].sort()).toEqual(['filter', 'reveal', 'reveal', 'slot'])
+    expect(merged.bonusOffer).toEqual(['filter'])
+  })
+
+  it('catches an old save up before it merges', () => {
+    const old = progressOf(profile({ runs: 9, banned: ['pays'], equipped: ['joker', 'hush'], perksVersion: 0 }))
+    const merged = withProgress(profile({}), old)
+    expect([...merged.bonuses].sort()).toEqual(['filter', 'slot'])
+    expect(merged.bonusGifts).toBe(2)
   })
 })

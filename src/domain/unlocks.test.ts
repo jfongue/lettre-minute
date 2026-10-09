@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CATALOGUE } from './catalogue'
+import { CATALOGUE, sharedCategoryIds } from './catalogue'
 import { NEW_PROFILE, xpForLevel, type Profile } from './progression'
 import {
   ADS_ENABLED,
@@ -17,7 +17,7 @@ import {
   unlockEverything,
 } from './unlocks'
 
-const ALL = CATALOGUE.map((category) => category.id)
+const ALL = CATALOGUE.filter((category) => !category.premiere).map((category) => category.id)
 const atLevel = (level: number, profile: Profile = NEW_PROFILE): Profile => ({ ...profile, xp: xpForLevel(level) })
 const NEWEST = ['prenoms', 'objets', 'plantes']
 // Everything but the newest categories, owned — the state of a player who
@@ -197,9 +197,27 @@ describe('unlockEverything', () => {
     const profile: Profile = { ...NEW_PROFILE, xp: xpForLevel(3), offer: ['sports'] }
     const all = unlockEverything(profile)
 
-    expect(ownedCategoryIds(all).sort()).toEqual(CATALOGUE.map((category) => category.id).sort())
+    expect(ownedCategoryIds(all).sort()).toEqual([...ALL].sort())
     expect(all.offer).toEqual([])
     expect(picksOwed(all)).toBe(0)
     expect(unlockEverything(all)).toBe(all)
+  })
+})
+
+describe('avant-premières', () => {
+  const premieres = CATALOGUE.filter((category) => category.premiere).map((category) => category.id)
+
+  it('belong to Premium alone, and are never offered', () => {
+    expect(premieres.length).toBeGreaterThan(0)
+    for (const id of premieres) expect(ownedCategoryIds(NEW_PROFILE)).not.toContain(id)
+    expect(ownedCategoryIds({ ...NEW_PROFILE, plusSince: 5 })).toEqual([...starterCategoryIds(), ...premieres])
+    const dealt = dealOffer(atLevel(30), [...ALL, ...premieres], 1)
+    for (const id of premieres) expect(dealt.offer).not.toContain(id)
+    expect(unlockEverything(NEW_PROFILE).unlocked).not.toContain(premieres[0])
+  })
+
+  it('stay out of what players share', () => {
+    expect(sharedCategoryIds([...ALL, ...premieres])).toEqual(ALL)
+    expect(sharedCategoryIds(['pays', 'animaux'])).toEqual(['pays', 'animaux'])
   })
 })

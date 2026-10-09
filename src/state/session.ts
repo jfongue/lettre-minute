@@ -4,7 +4,7 @@ import type { RarityTier } from '../domain/rarity'
 import { capitalized, normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
 import { markSupportAsked } from '../domain/support'
-import { ban, joinPlus, markBanIntroSeen, markFeedbackAsked, markPlusThanked, spendPeek, unban } from '../domain/perks'
+import { ban, joinPlus, markBanIntroSeen, markFeedbackAsked, markPlusThanked, spendReveal, unban } from '../domain/perks'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, type PowerId } from '../domain/powers'
 import { countsForProgress, type GameMode } from '../domain/modes'
 import {
@@ -127,7 +127,7 @@ export type SessionAction =
   | { type: 'unban'; categoryId: string }
   | { type: 'ban-intro-seen' }
   /** A hidden answer of the summary uncovered. */
-  | { type: 'peek' }
+  | { type: 'peek'; day: string }
   /** `at`: the wall clock, which the rules do not read themselves. */
   | { type: 'join-plus'; at: number }
   | { type: 'plus-thanked' }
@@ -225,7 +225,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
     case 'ban-intro-seen':
       return withProfile(session, markBanIntroSeen(session.profile))
     case 'peek':
-      return withProfile(session, spendPeek(session.profile))
+      return withProfile(session, spendReveal(session.profile, action.day))
     case 'join-plus':
       return withProfile(session, joinPlus(session.profile, action.at))
     case 'plus-thanked':

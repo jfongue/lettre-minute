@@ -24,7 +24,8 @@ import { powerPicksOwed } from '../domain/powers'
 import { reducedMotion, useTween } from './useCountUp'
 import { ShareSoon } from './ShareSoon'
 import { RequestRow, type RequestEntry } from './RequestsPage'
-import { peeksLeft, type HiddenAnswer } from '../domain/perks'
+import { todayKey } from '../lib/today'
+import { revealsLeft, type HiddenAnswer } from '../domain/perks'
 import { FlagWordCard, type FlagWord } from './StatsPage'
 import { Reveal } from './Reveal'
 import { useFeature } from './features'
@@ -112,7 +113,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
         previousBest={previousBest}
         mine={summary.mine}
         hidden={summary.hidden ?? []}
-        peeks={peeksLeft(profile)}
+        peeks={revealsLeft(profile, todayKey())}
         onPeek={summary.onPeek}
         onJoinPlus={summary.onJoinPlus}
         onFlag={summary.onFlag}

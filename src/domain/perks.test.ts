@@ -8,16 +8,22 @@ import {
   banVerdict,
   feedbackDue,
   shareNewsDue,
-  FREE_PEEKS,
+  BASE_REVEALS,
+  REVEAL_ADS_MAX,
+  REVEAL_BONUS_MAX,
+  REVEALS_MAX,
+  banUnlocked,
+  grantRevealAd,
+  revealAdsLeft,
+  revealsLeft,
+  spendReveal,
   hiddenAnswers,
   joinPlus,
   markBanIntroSeen,
   markFeedbackAsked,
   markPlusThanked,
   plusThanksDue,
-  peeksLeft,
   playableCategoryIds,
-  spendPeek,
   unban,
 } from './perks'
 import { createRun, skip, submit, type Judge } from './run'
@@ -25,31 +31,39 @@ import { normalizeWord } from './text'
 import { buildWordPack, commonWord, findWord, lettersWithEnough } from './words'
 
 const SEVEN = ['a', 'b', 'c', 'd', 'e', 'f', 'g']
-const SIX = SEVEN.slice(0, 6)
+
+const filtered = (count: number): Profile => ({ ...NEW_PROFILE, bonuses: Array(count).fill('filter') })
 
 describe('bans', () => {
-  it('open at the seventh category', () => {
-    expect(banVerdict(NEW_PROFILE, SIX, 'a')).toBe('locked')
-    expect(banVerdict(NEW_PROFILE, SEVEN, 'a')).toBe('ok')
-    expect(banNews(NEW_PROFILE, SIX)).toBe(false)
-    expect(banNews(NEW_PROFILE, SEVEN)).toBe(true)
-    expect(banNews(markBanIntroSeen(NEW_PROFILE), SEVEN)).toBe(false)
+  it('are locked until a filter bonus or Premium', () => {
+    expect(banUnlocked(NEW_PROFILE)).toBe(false)
+    expect(banVerdict(NEW_PROFILE, SEVEN, 'a')).toBe('locked')
+    expect(banNews(NEW_PROFILE)).toBe(false)
+    expect(banUnlocked(filtered(1))).toBe(true)
+    expect(banVerdict(filtered(1), SEVEN, 'a')).toBe('ok')
+    expect(banNews(filtered(1))).toBe(true)
+    expect(banNews(markBanIntroSeen(filtered(1)))).toBe(false)
+    expect(banVerdict(joinPlus(NEW_PROFILE, 1), SEVEN, 'a')).toBe('ok')
   })
 
   it('keep the banned category out of the draw', () => {
-    const banned = ban(NEW_PROFILE, SEVEN, 'c')
+    const banned = ban(filtered(1), SEVEN, 'c')
     expect(playableCategoryIds(banned, SEVEN)).toEqual(['a', 'b', 'd', 'e', 'f', 'g'])
     expect(playableCategoryIds(unban(banned, 'c'), SEVEN)).toEqual(SEVEN)
   })
 
-  it('ask for Premium past the free ban', () => {
-    const EIGHT = [...SEVEN, 'h']
-    const one = ban(NEW_PROFILE, EIGHT, 'c')
+  it('give one ban per filter bonus, two at most, then ask for Premium', () => {
+    const EIGHT = [...SEVEN, 'h', 'i']
+    const one = ban(filtered(1), EIGHT, 'c')
     expect(banVerdict(one, EIGHT, 'd')).toBe('plus')
     expect(ban(one, EIGHT, 'd')).toBe(one)
-    const plus = joinPlus(ban(NEW_PROFILE, EIGHT, 'c'), 1)
-    expect(banVerdict(plus, EIGHT, 'd')).toBe('ok')
-    expect(bannedOf(ban(plus, EIGHT, 'd'), EIGHT)).toEqual(['c', 'd'])
+    const two = ban(ban(filtered(2), EIGHT, 'c'), EIGHT, 'd')
+    expect(bannedOf(two, EIGHT)).toEqual(['c', 'd'])
+    expect(banVerdict(two, EIGHT, 'e')).toBe('plus')
+    expect(bannedOf(filtered(3), EIGHT)).toEqual([])
+    expect(bannedOf({ ...filtered(3), banned: ['a', 'b', 'c'] }, EIGHT)).toEqual(['a', 'b'])
+    const plus = joinPlus(two, 1)
+    expect(banVerdict(plus, EIGHT, 'e')).toBe('ok')
   })
 
   it('never leave fewer than six categories in play', () => {
@@ -58,31 +72,72 @@ describe('bans', () => {
     expect(bannedOf({ ...plus, banned: ['a', 'b'] }, SEVEN)).toEqual(['a'])
   })
 
-  it('stop at five bans, Premium included', () => {
-    const owned = 'abcdefghijklm'.split('')
+  it('stop at six bans for Premium', () => {
+    const owned = 'abcdefghijklmn'.split('')
     let plus = joinPlus(NEW_PROFILE, 1)
-    for (const id of 'abcde') plus = ban(plus, owned, id)
-    expect(bannedOf(plus, owned)).toEqual(['a', 'b', 'c', 'd', 'e'])
-    expect(banVerdict(plus, owned, 'f')).toBe('max')
+    for (const id of 'abcdef') plus = ban(plus, owned, id)
+    expect(bannedOf(plus, owned)).toEqual(['a', 'b', 'c', 'd', 'e', 'f'])
+    expect(banVerdict(plus, owned, 'g')).toBe('max')
   })
 
-  it('fall back to the free ban when Premium is gone', () => {
-    const plus: Profile = { ...NEW_PROFILE, plusSince: 1, banned: ['a', 'b'] }
+  it('fall back to the bonuses bans when Premium is gone', () => {
+    const plus: Profile = { ...filtered(1), plusSince: 1, banned: ['a', 'b'] }
     expect(bannedOf({ ...plus, plusSince: 0 }, SEVEN)).toEqual(['a'])
+    expect(bannedOf({ ...NEW_PROFILE, banned: ['a'] }, SEVEN)).toEqual([])
   })
 
   it('forget a category no longer owned', () => {
-    expect(bannedOf({ ...NEW_PROFILE, banned: ['z', 'a'] }, SEVEN)).toEqual(['a'])
+    expect(bannedOf({ ...filtered(1), banned: ['z', 'a'] }, SEVEN)).toEqual(['a'])
   })
 })
 
-describe('peeks', () => {
-  it('stop after five without Premium', () => {
+describe('reveals', () => {
+  const DAY = '2026-10-09'
+  const NEXT = '2026-10-10'
+  const withBonuses = (count: number): Profile => ({ ...NEW_PROFILE, bonuses: Array(count).fill('reveal') })
+
+  it('are two a day to begin with', () => {
+    expect(revealsLeft(NEW_PROFILE, DAY)).toBe(BASE_REVEALS)
     let profile = NEW_PROFILE
-    for (let i = 0; i < FREE_PEEKS + 2; i++) profile = spendPeek(profile)
-    expect(profile.peeks).toBe(FREE_PEEKS)
-    expect(peeksLeft(profile)).toBe(0)
-    expect(peeksLeft(joinPlus(profile, 1))).toBe(Infinity)
+    for (let i = 0; i < BASE_REVEALS + 2; i++) profile = spendReveal(profile, DAY)
+    expect(profile.revealsUsed).toBe(BASE_REVEALS)
+    expect(revealsLeft(profile, DAY)).toBe(0)
+  })
+
+  it('come back with the next day', () => {
+    const spent = spendReveal(spendReveal(NEW_PROFILE, DAY), DAY)
+    expect(revealsLeft(spent, NEXT)).toBe(BASE_REVEALS)
+    expect(spendReveal(spent, NEXT)).toMatchObject({ revealDay: NEXT, revealsUsed: 1 })
+  })
+
+  it('grow by one per reveal bonus, three at most', () => {
+    expect(revealsLeft(withBonuses(2), DAY)).toBe(BASE_REVEALS + 2)
+    expect(revealsLeft(withBonuses(4), DAY)).toBe(BASE_REVEALS + REVEAL_BONUS_MAX)
+  })
+
+  it('grow by one per ad, three a day, and the ads restart with the day', () => {
+    let profile = NEW_PROFILE
+    for (let i = 0; i < REVEAL_ADS_MAX + 2; i++) profile = grantRevealAd(profile, DAY)
+    expect(profile.revealAds).toBe(REVEAL_ADS_MAX)
+    expect(revealAdsLeft(profile, DAY)).toBe(0)
+    expect(revealsLeft(profile, DAY)).toBe(BASE_REVEALS + REVEAL_ADS_MAX)
+    expect(revealAdsLeft(profile, NEXT)).toBe(REVEAL_ADS_MAX)
+    expect(revealsLeft(profile, NEXT)).toBe(BASE_REVEALS)
+  })
+
+  it('top out at eight', () => {
+    let profile = withBonuses(3)
+    for (let i = 0; i < REVEAL_ADS_MAX; i++) profile = grantRevealAd(profile, DAY)
+    expect(revealsLeft(profile, DAY)).toBe(REVEALS_MAX)
+    expect(REVEALS_MAX).toBe(8)
+  })
+
+  it('never run out for Premium, who watches no ad', () => {
+    const plus = joinPlus(NEW_PROFILE, 1)
+    expect(revealsLeft(plus, DAY)).toBe(Infinity)
+    expect(spendReveal(plus, DAY)).toBe(plus)
+    expect(revealAdsLeft(plus, DAY)).toBe(0)
+    expect(grantRevealAd(plus, DAY)).toBe(plus)
   })
 })
 

@@ -3,7 +3,7 @@ import type { ChallengeSummary } from '../lib/cloud'
 import type { AvatarChoice } from '../domain/avatar'
 import type { RunRecord } from '../domain/history'
 import { levelProgress, type Profile } from '../domain/progression'
-import { ADS_ENABLED, ownedCategoryIds } from '../domain/unlocks'
+import { ADS_ENABLED } from '../domain/unlocks'
 import { banNews } from '../domain/perks'
 import {
   fetchBlocks,
@@ -437,7 +437,7 @@ function ProfilePane({
 
       <PageLinks
         pages={PROFILE_PAGES}
-        badges={{ requests: moderation?.news ?? 0, categories: banNews(profile, ownedCategoryIds(profile)) ? 1 : 0 }}
+        badges={{ requests: moderation?.news ?? 0, categories: banNews(profile) ? 1 : 0 }}
         queueAlert={queueAlert}
         onOpen={(next) => next !== 'profile' && onPage(next)}
       />

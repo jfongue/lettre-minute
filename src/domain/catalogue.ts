@@ -5,6 +5,11 @@ export interface CategoryMeta {
   hint: string
   /** Level at which the category joins the draw. Level 1 opens the game. */
   unlockLevel: number
+  /**
+   * An avant-première: Premium owns it from the start, nobody else is offered
+   * it, and challenges, bots and the weekly challenge never deal it.
+   */
+  premiere?: boolean
 }
 
 /**
@@ -28,7 +33,24 @@ export const CATALOGUE: readonly CategoryMeta[] = [
   { id: 'prenoms', label: 'Prénoms', hint: 'D’ici et d’ailleurs', unlockLevel: 9 },
   { id: 'objets', label: 'Objets du quotidien', hint: 'À la maison ou dans le sac', unlockLevel: 10 },
   { id: 'plantes', label: 'Plantes', hint: 'Fleurs, arbres, herbes', unlockLevel: 11 },
+  { id: 'ingredients', label: 'Ingrédients', hint: 'Du sel au chocolat noir', unlockLevel: 99, premiere: true },
+  { id: 'lieux', label: 'Lieux et bâtiments', hint: 'De la mairie à l’usine', unlockLevel: 99, premiere: true },
 ]
+
+/** The avant-premières, Premium's alone. */
+export function premiereCategoryIds(): string[] {
+  return CATALOGUE.filter((category) => category.premiere).map((category) => category.id)
+}
+
+/**
+ * What every player can be dealt alike — challenges, bots, the weekly
+ * challenge: the avant-premières stay out, or Premium would draw other
+ * pairs than their opponents. Order kept, so a seed deals what it always did.
+ */
+export function sharedCategoryIds(available: readonly string[]): string[] {
+  const premieres = new Set(premiereCategoryIds())
+  return available.filter((id) => !premieres.has(id))
+}
 
 export function categoryMeta(id: string): CategoryMeta | null {
   return CATALOGUE.find((category) => category.id === id) ?? null
@@ -47,10 +69,7 @@ export type SoonCategory = Pick<CategoryMeta, 'id' | 'label' | 'hint'>
  * holds them to the answers each of the seven languages will need, and moving
  * one into `CATALOGUE` is what puts it in play.
  */
-export const SOON: readonly SoonCategory[] = [
-  { id: 'ingredients', label: 'Ingrédients', hint: 'Du sel au chocolat noir' },
-  { id: 'lieux', label: 'Lieux et bâtiments', hint: 'De la mairie à l’usine' },
-]
+export const SOON: readonly SoonCategory[] = []
 
 /** Every category the game names, in play or announced — for the menu and the names. */
 export function announcedCategories(): readonly (CategoryMeta | SoonCategory)[] {
