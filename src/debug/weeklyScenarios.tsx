@@ -157,6 +157,7 @@ const ENDURANCE_RUN: Run = {
   categoryIds: ['animaux', 'pays', 'couleurs'],
   prompt: { categoryId: 'animaux', letter: 'M' },
   drawn: 7,
+  rerolls: 0,
   avoid: [],
   dealt: [],
   settled: [],

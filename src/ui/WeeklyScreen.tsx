@@ -151,7 +151,7 @@ export function WeeklyView({
             </p>
           )}
           {next >= 0 && (
-            <button type="button" className="btn btn--play btn--block" disabled={busy !== null} onClick={() => setConfirming(true)}>
+            <button type="button" className="btn btn--play wk-play btn--block" disabled={busy !== null} onClick={() => setConfirming(true)}>
               <span>{busy === 'launch' ? t.loading : t.weekly.screen.launch(next + 1)}</span>
               <span className="play-glyph" aria-hidden="true">
                 <Shape kind="circle" tint="yellow" />

@@ -8064,9 +8064,9 @@ body[data-words='board'] .offer-pop-layer {
   display: grid;
   grid-template-columns: 1fr auto auto auto;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.45rem;
   width: 100%;
-  padding: 0.7rem 0.8rem;
+  padding: 0.7rem 0.7rem;
   border: var(--line) solid var(--ink);
   background: var(--paper);
   color: var(--ink);
@@ -8077,6 +8077,14 @@ body[data-words='board'] .offer-pop-layer {
 
 .hidden-answers-toggle:active {
   transform: translateY(1px);
+}
+
+/* Le titre, le compteur de mots et la pastille d'yeux se partagent 375 px :
+   un titre plus serré tient sur deux lignes au lieu de trois. */
+.hidden-answers-toggle .section-title {
+  min-width: 0;
+  letter-spacing: 0.1em;
+  font-size: 0.78rem;
 }
 
 .hidden-answers-count {

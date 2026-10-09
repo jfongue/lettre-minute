@@ -380,3 +380,17 @@
     transition: none;
   }
 }
+
+/* « Lancer la tentative 3 » tient sur une ligne à 375 px : le texte rétrécit
+   avant de passer à la ligne. */
+.btn--play.wk-play {
+  padding-left: 1rem;
+  font-size: clamp(0.95rem, 4.4vw, 1.2rem);
+  letter-spacing: 0.08em;
+  text-align: left;
+}
+
+.wk-premium-link {
+  text-align: center;
+  line-height: 1.25;
+}
