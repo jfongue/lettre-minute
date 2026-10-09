@@ -2074,6 +2074,7 @@ setStartedAt((at) => at ?? Date.now())
             leaving={menuLayer.leaving}
             back={session.phase === 'over' ? 'close' : 'profile'}
             profile={session.profile}
+            attempts={weeklyFlow.attempts}
             history={history}
             focusChallenges={menuFocus}
             inviteOpen={inviteOpen}
@@ -2220,6 +2221,7 @@ setStartedAt((at) => at ?? Date.now())
             run={session.run}
             profile={session.profile}
             profileBefore={session.profileBefore}
+            attempts={weeklyFlow.attempts}
             revealed={revealed === session.run.seed}
             onRevealed={() => setRevealed(session.run?.seed ?? null)}
             lang={lang}

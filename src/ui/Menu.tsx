@@ -41,6 +41,7 @@ import { PremiumPage } from './PremiumPage'
 import { PlusSeal, PlusLockedSlot } from './premium'
 import { usePremium } from './premiumContext'
 import { isPlus } from '../domain/perks'
+import type { AttemptCount } from '../domain/weekly'
 import { CategoriesPage, type BanActions } from './CategoriesPage'
 import { LeaderboardsPage } from './LeaderboardsPage'
 import { PageLinks } from './PageLinks'
@@ -84,6 +85,8 @@ interface MenuProps {
    */
   back?: 'profile' | 'close'
   profile: Profile
+  /** Les tentatives du défi du moment : la pastille du profil, absente quand il est fermé. */
+  attempts?: AttemptCount | null
   /** Newest first, for the statistics. */
   history: readonly RunRecord[]
   avatar: AvatarChoice
@@ -347,6 +350,7 @@ function ProfilePane({
   onLogOut,
   moderation,
   queueAlert,
+  attempts,
   onPage,
 }: Omit<
   MenuProps,
@@ -409,7 +413,7 @@ function ProfilePane({
         </div>
       </section>
 
-      <CurrencyRow profile={profile} />
+      <CurrencyRow profile={profile} attempts={attempts} />
 
       {named && (
         <div className="stack">
@@ -457,7 +461,6 @@ function ProfilePane({
           <PlusSeal size="md" />
           <span className="premium-entry-text">
             <strong>{t.premium.title}</strong>
-            <span>{t.premium.lifetime}</span>
           </span>
         </button>
       ) : (

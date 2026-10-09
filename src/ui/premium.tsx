@@ -134,11 +134,22 @@ export function ForeverIcon(props: IconProps) {
   )
 }
 
-export type ResourceIcon = 'lock' | 'eye' | 'ticket' | 'slot' | 'premiere' | 'heart' | 'noads' | 'forever'
+/** La case cochée : aucun filtre posé, il n'y a rien à retenir. */
+export function CheckIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <rect className="pi-body" x="4" y="4" width="16" height="16" rx="2" />
+      <path className="pi-detail pi-tick" d="M7.6 12.4l3.2 3.2 5.9-7.2" />
+    </Icon>
+  )
+}
+
+export type ResourceIcon = 'lock' | 'eye' | 'ticket' | 'slot' | 'premiere' | 'heart' | 'noads' | 'forever' | 'check'
 
 const ICONS: Record<ResourceIcon, (props: IconProps) => ReactNode> = {
   lock: LockIcon,
   eye: EyeIcon,
+  check: CheckIcon,
   ticket: TicketIcon,
   slot: SlotIcon,
   premiere: PremiereIcon,

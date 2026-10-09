@@ -209,6 +209,12 @@ export function attemptsLeft(used: number, perks: AttemptPerks): number {
   return Math.max(0, attemptsAllowed(perks) - Math.max(0, Math.floor(used)))
 }
 
+/** Ce qu'une journée de défi ouvre, et ce qu'il en reste : la pastille du profil. */
+export interface AttemptCount {
+  left: number
+  total: number
+}
+
 /**
  * Le record au fil des tentatives, pour la courbe du récap : une tentative
  * non terminée (null) ne change rien, et 0 vaut tant qu'aucune n'a rendu de valeur.

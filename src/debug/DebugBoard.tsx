@@ -1052,6 +1052,7 @@ function OverScenario({
   requests = [],
   failing = false,
   hidden,
+  attempts = { left: 2, total: 3 },
   onBack,
 }: {
   run?: Run
@@ -1067,6 +1068,8 @@ function OverScenario({
   failing?: boolean
   /** Les invites passées, chacune avec un mot caché sous une bande. */
   hidden?: readonly HiddenAnswer[]
+  /** Les tentatives du défi du moment, la troisième pastille du bilan. */
+  attempts?: { left: number; total: number } | null
   onBack(): void
 }) {
   const [profile, setProfile] = useState(after)
@@ -1077,6 +1080,7 @@ function OverScenario({
       run={run}
       profile={profile}
       profileBefore={before}
+      attempts={attempts}
       revealed={revealed}
       onRevealed={() => setRevealed(true)}
       lang="fr"
@@ -1766,7 +1770,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'over-currencies',
     group: 'Fin de partie',
     title: 'Fin de partie : tes avantages',
-    how: 'La rangée de compteurs sous les chiffres : cadenas, œil du jour, emplacements de pouvoir',
+    how: 'La rangée de compteurs sous les chiffres : le cadenas des filtres posé, l’œil du jour, les tentatives du défi',
     phase: 'over',
     render: (back) => (
       <OverScenario
@@ -1779,7 +1783,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'over-currencies-plus',
     group: 'Fin de partie',
     title: 'Fin de partie : avantages Premium',
-    how: 'Les mêmes compteurs pour un membre Premium : cadenas jusqu’à six, révélations ∞, tout en noir et jaune',
+    how: 'Les mêmes compteurs pour un membre Premium : cadenas jusqu’à six, révélations ∞, cinq tentatives, tout en noir et jaune',
     phase: 'over',
     render: (back) => <OverScenario after={afterRun({ ...PROFILE, plusSince: 1, bonuses: ['slot'] }, RUN)} onBack={back} />,
   },

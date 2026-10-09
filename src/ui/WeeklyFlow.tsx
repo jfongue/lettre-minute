@@ -7,6 +7,7 @@ import type { Profile } from '../domain/progression'
 import {
   WEEKLY_FREE_ATTEMPTS,
   attemptsAllowed,
+  attemptsLeft,
   metricOf,
   weekById,
   weekOf,
@@ -14,6 +15,7 @@ import {
   weeklyMode,
   weeklyRunOptions,
   weeklyValue,
+  type AttemptCount,
 } from '../domain/weekly'
 import type { Messages } from '../i18n'
 import { prepareRewardedAd, showRewardedAd } from '../lib/native'
@@ -272,6 +274,11 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
     [recapWeek, plus, lang, session.profile, joinPlus, dispatch],
   )
 
+  // Les tentatives de la journée, telles que la pastille du profil les compte.
+  const attempts: AttemptCount | null = enabled
+    ? { left: attemptsLeft(today.used, { plus, adsWatched: today.ads }), total: attemptsAllowed({ plus, adsWatched: today.ads }) }
+    : null
+
   const card: ReactNode =
     enabled && home ? (
       <WeeklyCard
@@ -374,5 +381,5 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
       </Suspense>
     ) : null
 
-  return { card, covering, overlay, over, preload: [WeeklyScreen, WeeklyResults, WeeklyDone, WeeklyRecap] as const }
+  return { card, covering, overlay, over, attempts, preload: [WeeklyScreen, WeeklyResults, WeeklyDone, WeeklyRecap] as const }
 }
