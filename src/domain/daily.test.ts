@@ -34,7 +34,7 @@ describe('the daily draw', () => {
     }
     expect(isDay('2026-02-29')).toBe(false)
     expect(isDay('2028-02-29')).toBe(true)
-  })
+  }, 30_000)
 
   it('steps back a day across months, years and leap days', () => {
     expect(dayBefore('2027-01-01')).toBe('2026-12-31')

@@ -1,6 +1,7 @@
 import { showLoginPrompt } from '@devvit/web/client'
 import { useState } from 'react'
 import { tierGrid } from '../../../src/domain/daily'
+import type { RevealBudget } from '../../../src/domain/perks'
 import type { Run } from '../../../src/domain/run'
 import { capitalized } from '../../../src/domain/text'
 import { categoryText, formatNumber, useT } from '../../../src/i18n'
@@ -29,6 +30,9 @@ interface DailyOverProps {
   onAgain(): void
 }
 
+// The daily shows no hidden answers, so it never has reveals to spend.
+const NO_REVEALS: RevealBudget = { left: 0, allowed: 0, adsLeft: 0, unlimited: false }
+
 /**
  * The end of the daily game in the app's two beats: the reveal of the score
  * and each word (`Reveal`, the app's own), then the summary — where the reader
@@ -36,7 +40,7 @@ interface DailyOverProps {
  */
 export function DailyOver({ run, ...summary }: DailyOverProps) {
   const [revealed, setRevealed] = useState(run === null)
-  if (run && !revealed) return <Reveal run={run} previousBest={null} hidden={[]} peeks={0} onNext={() => setRevealed(true)} />
+  if (run && !revealed) return <Reveal run={run} previousBest={null} hidden={[]} budget={NO_REVEALS} onNext={() => setRevealed(true)} />
   return <Summary {...summary} />
 }
 

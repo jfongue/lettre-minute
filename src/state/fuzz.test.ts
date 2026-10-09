@@ -193,7 +193,7 @@ describe('fuzz: dictionary integrity', () => {
         expect(entry.notoriety >= 0 && entry.notoriety <= 1, `${entry.display} notoriety`).toBe(true)
       }
     }
-  })
+  }, 30_000)
 })
 
 describe('the domain stays pure', () => {

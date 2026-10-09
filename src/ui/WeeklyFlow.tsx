@@ -16,7 +16,7 @@ import {
   weeklyValue,
 } from '../domain/weekly'
 import type { Messages } from '../i18n'
-import { prepareRewardedAd, showRewardedAd } from '../lib/billing'
+import { prepareRewardedAd, showRewardedAd } from '../lib/native'
 import { weeklyFinish, fetchWeeklyLastPlayed, fetchWeeklyRecap } from '../lib/cloud'
 import { cloudConfigured } from '../lib/supabase'
 import { rewardedAdsOpen } from '../platform'

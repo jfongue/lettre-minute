@@ -19,3 +19,34 @@ export function setStatusBarDark(dark: boolean): void {
 export function tapFeedback(strength: 'light' | 'medium' | 'heavy' = 'light'): void {
   void strength
 }
+
+// Premium and rewarded ads are Android's alone (`premiumStoreOpen`, `rewardedAdsOpen`): Reddit never offers them.
+export interface StorePurchase {
+  token: string
+  orderId: string
+}
+
+export function prepareRewardedAd(): void {}
+
+export async function showRewardedAd(): Promise<'rewarded' | 'skipped' | 'unavailable'> {
+  return 'unavailable'
+}
+
+export async function billingSupported(): Promise<boolean> {
+  return false
+}
+
+export async function storePrice(productId: string): Promise<string | null> {
+  void productId
+  return null
+}
+
+export async function storeBuy(productId: string): Promise<StorePurchase | 'cancel' | 'owned' | 'error'> {
+  void productId
+  return 'error'
+}
+
+export async function storeOwned(productId: string): Promise<StorePurchase[] | null> {
+  void productId
+  return null
+}

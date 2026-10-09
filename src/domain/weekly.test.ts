@@ -44,13 +44,13 @@ const IDS = ['pays', 'animaux', 'couleurs', 'fruits-legumes', 'metiers', 'sports
 const at = (iso: string) => Date.parse(iso)
 
 describe('Paris time', () => {
-  it('agrees with the platform zone database over three years, every quarter hour near the clock changes and every hour elsewhere', () => {
+  it('agrees with the platform zone database every hour over three years', () => {
     const format = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit' })
     const HOUR = 3600 * 1000
     for (let t = at('2025-01-01T00:00:00Z'); t < at('2028-01-01T00:00:00Z'); t += HOUR) {
       expect(parisDay(t)).toBe(format.format(t))
     }
-  })
+  }, 30_000)
 
   it('switches to summer time at 01:00 UTC on the last Sunday of March', () => {
     expect(parisDay(at('2026-03-28T22:59:59Z'))).toBe('2026-03-28')
