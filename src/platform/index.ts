@@ -24,3 +24,9 @@ export function hostFeatures(features: ReadonlySet<string>): ReadonlySet<string>
   if (host.closedFeatures.size === 0) return features
   return new Set([...features].filter((id) => !host.closedFeatures.has(id)))
 }
+
+/** Real-money Premium: Android shell only, never the web page of the same build, CrazyGames or Reddit. */
+export const premiumStoreOpen = host.premiumStore && PLATFORM === 'android'
+
+/** Rewarded ads (AdMob): Android shell only. */
+export const rewardedAdsOpen = host.rewardedAds && PLATFORM === 'android'

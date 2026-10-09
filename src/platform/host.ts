@@ -24,6 +24,12 @@ export interface Host {
   fallbackLocale: Locale | null
   /** The host keeps the progress itself, wherever its player signs in: no « on this device only » note. */
   keepsProgress: boolean
+  /**
+   * The host can sell Premium for real money, and show rewarded ads: the phone
+   * shell alone (`premiumStoreOpen`, `rewardedAdsOpen`, `src/platform/index.ts`).
+   */
+  premiumStore: boolean
+  rewardedAds: boolean
   /** In a run (countdown, clock, first lesson) or not; only the changes matter. */
   setGameplay(on: boolean): void
   /** A run that beats a record the player already had. */

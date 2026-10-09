@@ -1781,3 +1781,34 @@ export function syncDuel(table: string, after: number): Promise<DuelSnapshot | n
 export function fetchPlayerId(): Promise<string | null> {
   return guard(async () => (await connect())?.userId ?? null, null)
 }
+
+/**
+ * Tells the server a store purchase happened (`record_purchase`, 0063), then
+ * has `premium-verify` check its token with Google. The purchase stays valid
+ * if either step fails: the store is the authority, this is only the copy
+ * another device finds through `fetchMyPremium`.
+ */
+export function recordPurchase(product: string, token: string, orderId: string): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('record_purchase', { p_product: product, p_token: token, p_order_id: orderId })
+    if (error) return false
+    const session = (await supabase!.auth.getSession()).data.session
+    const base = import.meta.env.VITE_SUPABASE_URL
+    if (session && base) {
+      await fetch(`${base}/functions/v1/premium-verify`, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${session.access_token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ product, token }),
+      }).catch(() => {})
+    }
+    return true
+  }, false)
+}
+
+/** Whether this account bought Premium on some device (a refused purchase does not count). */
+export function fetchMyPremium(): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('my_premium')
+    return !error && data === true
+  }, false)
+}

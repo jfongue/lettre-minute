@@ -318,6 +318,8 @@ export const crazyGamesHost: Host = {
   languages: platformLanguages,
   fallbackLocale: 'en',
   keepsProgress: true,
+  premiumStore: false,
+  rewardedAds: false,
   setGameplay,
   celebrate: happytime,
   breakBetweenRuns,

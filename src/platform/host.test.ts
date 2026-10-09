@@ -23,4 +23,12 @@ describe('les hôtes', () => {
       expect(crazyGamesHost.closedFeatures).not.toContain(id)
     }
   })
+
+  it('ne vendent Premium et ne passent les pubs récompensées que sur le téléphone', () => {
+    expect(appHost.premiumStore && appHost.rewardedAds).toBe(true)
+    for (const host of [crazyGamesHost, redditHost]) {
+      expect(host.premiumStore).toBe(false)
+      expect(host.rewardedAds).toBe(false)
+    }
+  })
 })

@@ -2,6 +2,7 @@ import {
   AdMob,
   AdmobConsentStatus,
   InterstitialAdPluginEvents,
+  RewardAdPluginEvents,
 } from '@capacitor-community/admob'
 import { AppUpdate, AppUpdateAvailability } from '@capawesome/capacitor-app-update'
 import { App as NativeApp } from '@capacitor/app'
@@ -14,6 +15,7 @@ import { Share } from '@capacitor/share'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { SocialLogin } from '@capgo/capacitor-social-login'
+import { NativePurchases, PURCHASE_TYPE } from '@capgo/native-purchases'
 
 /**
  * The bridge to the phone when the game runs inside the Android or iOS shell.
@@ -51,6 +53,9 @@ export function onAppActive(onChange: (active: boolean) => void): void {
   quietly(() =>
     AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, () => onChange(true))
   )
+  quietly(() => AdMob.addListener(RewardAdPluginEvents.Showed, () => onChange(false)))
+  quietly(() => AdMob.addListener(RewardAdPluginEvents.Dismissed, () => onChange(true)))
+  quietly(() => AdMob.addListener(RewardAdPluginEvents.FailedToShow, () => onChange(true)))
 }
 
 /** Each return of the app to the foreground, until the returned cleanup runs. */
@@ -121,19 +126,151 @@ export function adsSupported(): boolean {
  * and it still leaves the player the time of reading the offer to load one.
  */
 export function prepareAds(): void {
-  if (!native || adsStarted) return
-  adsStarted = (async () => {
+  startAds()
+    .then((ready) => {
+      if (!ready) return
+      return AdMob.addListener(InterstitialAdPluginEvents.Dismissed, loadInterstitial)
+        .then(() => AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, loadInterstitial))
+        .then(() => loadInterstitial())
+    })
+    .catch(() => {})
+}
+
+/** The SDK and the consent, shared by every ad format; resolves whether ads may be requested. */
+function startAds(): Promise<boolean> {
+  if (!native) return Promise.resolve(false)
+  adsStarted ??= (async () => {
     await AdMob.initialize()
     let consent = await AdMob.requestConsentInfo()
     if (consent.status === AdmobConsentStatus.REQUIRED && consent.isConsentFormAvailable) {
       consent = await AdMob.showConsentForm()
     }
-    if (!consent.canRequestAds) return false
-    await AdMob.addListener(InterstitialAdPluginEvents.Dismissed, loadInterstitial)
-    await AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, loadInterstitial)
-    loadInterstitial()
-    return true
+    return consent.canRequestAds
   })().catch(() => false)
+  return adsStarted
+}
+
+const TEST_REWARDED = 'ca-app-pub-3940256099942544/5224354917'
+const rewardedId = import.meta.env.VITE_ADMOB_REWARDED_ID || TEST_REWARDED
+
+let rewardedLoaded = false
+let rewardedLoading = false
+
+/**
+ * Loads a rewarded ad ahead of the offer that shows it: consent and loading
+ * take seconds, and an ad still loading at the tap is `unavailable`, not late.
+ */
+export function prepareRewardedAd(): void {
+  if (!native || rewardedLoaded || rewardedLoading) return
+  rewardedLoading = true
+  startAds()
+    .then(async (ready) => {
+      if (!ready) return
+      await AdMob.prepareRewardVideoAd({ adId: rewardedId, isTesting: rewardedId === TEST_REWARDED })
+      rewardedLoaded = true
+    })
+    .catch(() => {})
+    .finally(() => {
+      rewardedLoading = false
+    })
+}
+
+/**
+ * Plays the loaded rewarded ad. `rewarded` only once the SDK says the player
+ * earned it; closing it early is `skipped`; no loaded ad (or a failure) is
+ * `unavailable`, and the next one is loaded either way.
+ */
+export async function showRewardedAd(): Promise<'rewarded' | 'skipped' | 'unavailable'> {
+  if (!native || !rewardedLoaded) {
+    prepareRewardedAd()
+    return 'unavailable'
+  }
+  rewardedLoaded = false
+  const handles: Promise<{ remove(): Promise<void> }>[] = []
+  try {
+    return await new Promise<'rewarded' | 'skipped' | 'unavailable'>((resolve) => {
+      let earned = false
+      handles.push(
+        AdMob.addListener(RewardAdPluginEvents.Rewarded, () => {
+          earned = true
+        }),
+        AdMob.addListener(RewardAdPluginEvents.Dismissed, () => resolve(earned ? 'rewarded' : 'skipped')),
+        AdMob.addListener(RewardAdPluginEvents.FailedToShow, () => resolve('unavailable')),
+      )
+      AdMob.showRewardVideoAd().then(
+        () => {
+          earned = true
+        },
+        () => resolve(earned ? 'rewarded' : 'unavailable'),
+      )
+    })
+  } catch {
+    return 'unavailable'
+  } finally {
+    for (const handle of handles) handle.then((listener) => listener.remove()).catch(() => {})
+    prepareRewardedAd()
+  }
+}
+
+/** What the store says about a purchase: the token Google's API verifies, and its order. */
+export interface StorePurchase {
+  token: string
+  orderId: string
+}
+
+/** Whether Google Play Billing answers on this phone. */
+export async function billingSupported(): Promise<boolean> {
+  if (!native) return false
+  try {
+    return (await NativePurchases.isBillingSupported()).isBillingSupported
+  } catch {
+    return false
+  }
+}
+
+/** The store's formatted price for a one-time product, in the player's currency. */
+export async function storePrice(productId: string): Promise<string | null> {
+  if (!native) return null
+  try {
+    const { product } = await NativePurchases.getProduct({ productIdentifier: productId, productType: PURCHASE_TYPE.INAPP })
+    return product.priceString || null
+  } catch {
+    return null
+  }
+}
+
+/** Buys a one-time product; the plugin acknowledges it, or Google refunds after three days. */
+export async function storeBuy(productId: string): Promise<StorePurchase | 'cancel' | 'owned' | 'error'> {
+  if (!native) return 'error'
+  try {
+    const transaction = await NativePurchases.purchaseProduct({
+      productIdentifier: productId,
+      productType: PURCHASE_TYPE.INAPP,
+      isConsumable: false,
+      autoAcknowledgePurchases: true,
+    })
+    if (!transaction.purchaseToken) return 'error'
+    return { token: transaction.purchaseToken, orderId: transaction.orderId ?? '' }
+  } catch (failure) {
+    const text = String((failure as { message?: unknown })?.message ?? failure).toLowerCase()
+    // ITEM_ALREADY_OWNED: paid on another install of this Google account; the caller restores.
+    if (text.includes('already_owned') || text.includes('already owned')) return 'owned'
+    return text.includes('cancel') ? 'cancel' : 'error'
+  }
+}
+
+/** The purchases of a product the store still lists for this Google account; null when it cannot say. */
+export async function storeOwned(productId: string): Promise<StorePurchase[] | null> {
+  if (!native) return null
+  try {
+    const { purchases } = await NativePurchases.getPurchases({ productType: PURCHASE_TYPE.INAPP })
+    return purchases
+      .filter((purchase) => purchase.productIdentifier === productId && purchase.purchaseToken)
+      .filter((purchase) => purchase.purchaseState === undefined || purchase.purchaseState === '1')
+      .map((purchase) => ({ token: purchase.purchaseToken!, orderId: purchase.orderId ?? '' }))
+  } catch {
+    return null
+  }
 }
 
 /**
