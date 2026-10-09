@@ -25,6 +25,10 @@ describe('les fonctionnalités', () => {
     expect(enabledFeatures({}, superModerator).has('debugBoard')).toBe(true)
     expect(enabledFeatures({}, superModerator).has('duel')).toBe(true)
     expect(enabledFeatures({}, premium).has('duel')).toBe(false)
+    expect(enabledFeatures({}, player).has('weekly')).toBe(false)
+    expect(enabledFeatures({}, moderator).has('weekly')).toBe(false)
+    expect(enabledFeatures({}, premium).has('weekly')).toBe(false)
+    expect(enabledFeatures({}, superModerator).has('weekly')).toBe(true)
   })
 
   it('ouvrent dès qu’une case du joueur dit dispo', () => {
