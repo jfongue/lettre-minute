@@ -1,3 +1,4 @@
 • « Mes demandes » : un retrait proposé s’annule d’un « Retirer », sans attendre les autres modérateurs
 • L’avatar et les succès tiennent maintenant sur une seule page, et chaque palier montre la couleur qu’il débloque
+• Le tutoriel d’un mode ne s’affiche plus par-dessus l’accueil, et la modération par-dessus le bilan
 • Corrections de bugs et performance

@@ -248,13 +248,22 @@ describe('inflected forms', () => {
 })
 
 describe('withExtraWords', () => {
-  it('lets a word the players brought in start uncommon, however obscure', () => {
+  it('lets a word the players brought in start uncommon when nothing describes it', () => {
     const pack = withExtraWords(buildWordPack('animaux', rows), [
-      { key: '', display: 'Axolotl', sitelinks: 0, frequency: 0, notoriety: 0 },
+      { key: '', display: 'Axolotl', sitelinks: 0, frequency: 0 },
     ])
     const entry = pack.entries.get('axolotl')!
     expect(tierOf(rarityScore(entry))).toBe('peu commun')
     expect(pack.counts.get('A')).toBe(1)
+  })
+
+  it('pays a community word at its own signals, the way the ranking pays the others', () => {
+    const pack = withExtraWords(buildWordPack('animaux', rows), [
+      { key: '', display: 'Pizza', sitelinks: 4000, frequency: 900 },
+      { key: '', display: 'Tarsier', sitelinks: 2, frequency: 0 },
+    ])
+    expect(tierOf(rarityScore(pack.entries.get('pizza')!))).toBe('courant')
+    expect(tierOf(rarityScore(pack.entries.get('tarsier')!))).toBe('très rare')
   })
 })
 
