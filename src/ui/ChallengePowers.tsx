@@ -4,17 +4,20 @@ import { useT } from '../i18n'
 import { sound } from '../lib/sound'
 import { onTint, POWER_TINTS, powerGround } from './motifs'
 import { PowerIcon } from './PowerIcon'
+import { SlotIcon } from './premium'
 
 interface ChallengePowersProps {
   /** The powers the challenge allows, Permutation left out. */
   allowed: readonly PowerId[]
   initial: readonly PowerId[]
+  /** How many the player may take: one, two with the second-slot bonus. */
+  slots: number
   onStart(powers: readonly PowerId[]): void
   onClose(): void
 }
 
 /** Before a challenge, when the player owns more allowed powers than slots: two to take in. */
-export function ChallengePowers({ allowed, initial, onStart, onClose }: ChallengePowersProps) {
+export function ChallengePowers({ allowed, initial, slots, onStart, onClose }: ChallengePowersProps) {
   const t = useT()
   const [picked, setPicked] = useState<readonly PowerId[]>(initial)
   const toggle = (id: PowerId) =>
@@ -22,7 +25,7 @@ export function ChallengePowers({ allowed, initial, onStart, onClose }: Challeng
       current.includes(id)
         ? current.filter((other) => other !== id)
         : // A third tap replaces the oldest pick rather than doing nothing.
-          [...current, id].slice(-MAX_EQUIPPED),
+          [...current, id].slice(-slots),
     )
 
   return (
@@ -32,7 +35,15 @@ export function ChallengePowers({ allowed, initial, onStart, onClose }: Challeng
         <h2 id="challenge-powers-title" className="offer-pop-title">
           {t.challenge.powersTitle}
         </h2>
-        <p className="note">{t.challenge.powersLead(MAX_EQUIPPED)}</p>
+        <p className="note">{t.challenge.powersLead(slots)}</p>
+        {slots < MAX_EQUIPPED && (
+          <p className="slot-locked-note">
+            <SlotIcon className="slot-locked-note-icon" />
+            <span>
+              <strong>{t.powers.slotLocked}</strong> · {t.powers.slotLockedHow}
+            </span>
+          </p>
+        )}
         <ul className="power-list">
           {allowed.map((id, index) => {
             const on = picked.includes(id)

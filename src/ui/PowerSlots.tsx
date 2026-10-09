@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { equippedPowers, MAX_EQUIPPED, ownedPowers, POWER_CHARGES, type PowerId } from '../domain/powers'
+import { equippedPowers, MAX_EQUIPPED, ownedPowers, POWER_CHARGES, slotsOf, type PowerId } from '../domain/powers'
 import type { Profile } from '../domain/progression'
 import { useT } from '../i18n'
 import { sound } from '../lib/sound'
 import { onTint, POWER_TINTS, powerGround } from './motifs'
 import { PowerIcon } from './PowerIcon'
+import { SlotIcon } from './premium'
 import { reducedMotion } from './useCountUp'
 import { useBackDismiss } from './useBackDismiss'
 
@@ -23,6 +24,7 @@ export function PowerSlots({ profile, disabled, onEquip }: PowerSlotsProps) {
   const [open, setOpen] = useState<number | null>(null)
   const owned = ownedPowers(profile)
   const worn = equippedPowers(profile)
+  const slots = slotsOf(profile)
   if (owned.length === 0) return null
 
   return (
@@ -31,6 +33,16 @@ export function PowerSlots({ profile, disabled, onEquip }: PowerSlotsProps) {
       <div className="power-slots-row">
         {Array.from({ length: MAX_EQUIPPED }, (_, slot) => {
           const id = worn[slot] ?? null
+          // The second slot is a level bonus, not Premium's: it says how to win it and opens nothing.
+          if (slot >= slots) {
+            return (
+              <div key={slot} className="power-slot power-slot--locked" role="img" aria-label={`${t.powers.slotLocked} : ${t.powers.slotLockedHow}`}>
+                <SlotIcon className="power-slot-lock" size={28} />
+                <span className="power-slot-name">{t.powers.slotLocked}</span>
+                <span className="power-slot-how">{t.powers.slotLockedHow}</span>
+              </div>
+            )
+          }
           return (
             <button
               key={slot}

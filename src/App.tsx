@@ -7,6 +7,7 @@ import {
   createChallenge,
   deleteAccount,
   fetchAccount,
+  fetchMyPremium,
   fetchChallenge,
   fetchChallenges,
   fetchFriends,
@@ -84,7 +85,7 @@ import {
   needsPowerPick,
   scoreAt,
 } from './domain/challenge'
-import { complicationDue, type PowerId } from './domain/powers'
+import { complicationDue, slotsOf, type PowerId } from './domain/powers'
 import { completeLeaderboard } from './domain/leaderboards'
 import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
@@ -101,10 +102,13 @@ import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { clearInviteRef, keepInviteRef, loadInviteRef, refIn, takeAddressRef } from './state/inviteRef'
 import { createJudge } from './state/judge'
 import { todayKey } from './lib/today'
-import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, isPlus, playableCategoryIds, plusThanksDue, revealsLeft, shareNewsDue } from './domain/perks'
+import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, isPlus, playableCategoryIds, plusThanksDue, revealBudget, shareNewsDue } from './domain/perks'
 import { enabledFeatures, type FeatureId, type Roles } from './domain/features'
 import { cloudConfigured } from './lib/supabase'
-import { host, hostFeatures } from './platform'
+import { host, hostFeatures, premiumStoreOpen, rewardedAdsOpen } from './platform'
+import { buyPremium, ownsPremium, premiumPrice, restorePremium } from './lib/billing'
+import { PremiumSheet, type PremiumReason } from './ui/PremiumSheet'
+import { PremiumContext, type PremiumDoor } from './ui/premiumContext'
 import { usePlatformGameplay } from './platform/usePlatformGameplay'
 import { setTrackLang, setTrackScreen, track, trackFeature, trackReady } from './lib/track'
 import { FeedbackPop } from './ui/FeedbackPop'
@@ -334,6 +338,11 @@ export function App() {
   const [moderating, setModerating] = useState(false)
   // « Plus tard » holds the offer back until the next launch, without answering it.
   const [offerHeld, setOfferHeld] = useState(false)
+  // « Plus tard » on the moderator card a level bonus gave: it comes back at the next launch.
+  const [bonusHeld, setBonusHeld] = useState(false)
+  // The Premium sheet, opened from anywhere through `PremiumContext`, and the store's price once asked.
+  const [premiumFor, setPremiumFor] = useState<PremiumReason | null>(null)
+  const [premiumCost, setPremiumCost] = useState<string | null>(null)
   // Set on the way home once `feedbackDue` says so: asked once, answered or not.
   const [feedbackAsk, setFeedbackAsk] = useState(false)
   // The seed of the run whose reveal has played: leaving for the avatar editor
@@ -836,8 +845,8 @@ setStartedAt((at) => at ?? Date.now())
   // A pick owed and no offer on the table — after a level up, or on a device
   // that has never seen this player's picks — deals three categories to choose from.
   useEffect(() => {
-    dispatch({ type: 'offer', availableIds: availableCategoryIds(lang), seed: Date.now() >>> 0 })
-  }, [session.profile, lang])
+    dispatch({ type: 'offer', availableIds: availableCategoryIds(lang), seed: Date.now() >>> 0, isModerator: moderation?.moderator === true })
+  }, [session.profile, lang, moderation?.moderator])
 
   // Loading an ad takes seconds, consent included: started once the free pick
   // is spent, it is ready by the next offer. Never mid-run, where the consent
@@ -1343,9 +1352,48 @@ setStartedAt((at) => at ?? Date.now())
     trackFeature('premium_joined')
     dispatch({ type: 'join-plus', at: Date.now() })
   }, [])
+  const storeOpen = premiumStoreOpen && on('premium')
+  const openPremium = useCallback(
+    (reason: PremiumReason) => {
+      if (!storeOpen) return
+      trackFeature('premium_opened', { reason })
+      setPremiumFor(reason)
+      void premiumPrice().then((price) => price && setPremiumCost(price))
+    },
+    [storeOpen],
+  )
+  const premiumDoor = useMemo<PremiumDoor>(
+    () => ({ storeOpen, adsOpen: rewardedAdsOpen, open: openPremium }),
+    [storeOpen, openPremium],
+  )
+  const buy = useCallback(async () => {
+    const result = await buyPremium()
+    if (result === 'ok') joinPlus()
+    return result
+  }, [joinPlus])
+  const restore = useCallback(async () => {
+    const found = await restorePremium()
+    if (found) joinPlus()
+    return found
+  }, [joinPlus])
+  // A Premium bought on another device, or before a reinstall, comes back with the Google account.
+  useEffect(() => {
+    if (!premiumStoreOpen || isPlus(profile.current)) return
+    void ownsPremium().then(async (owned) => {
+      if ((owned || (await fetchMyPremium())) && !isPlus(profile.current)) joinPlus()
+    })
+  }, [joinPlus, profile])
   const peek = useCallback(() => {
     trackFeature('hidden_words_peek')
     dispatch({ type: 'peek', day: todayKey() })
+  }, [])
+  const revealAd = useCallback(() => {
+    trackFeature('hidden_words_ad')
+    dispatch({ type: 'reveal-ad', day: todayKey() })
+  }, [])
+  const chooseBonus = useCallback((bonusId: string) => {
+    trackFeature('bonus_chosen', { bonus: bonusId })
+    dispatch({ type: 'choose-bonus', bonusId })
   }, [])
   const banActions = useMemo<BanActions>(
     () => ({
@@ -1358,24 +1406,23 @@ setStartedAt((at) => at ?? Date.now())
         dispatch({ type: 'unban', categoryId })
       },
       onIntroSeen: () => dispatch({ type: 'ban-intro-seen' }),
-      onJoinPlus: joinPlus,
     }),
-    [joinPlus],
+    [],
   )
   // A past run is read with today's dictionaries: its own are gone with it.
   const statsRecap = useMemo<RecapActions>(
     () => ({
       hiddenFor: async (run) =>
         hiddenAnswersOf(run.prompts ?? [], run.words.map((word) => word.word), await judgeFor(run.categoryIds, run.lang)),
-      peeks: revealsLeft(session.profile, todayKey()),
+      budget: revealBudget(session.profile, todayKey()),
       onPeek: peek,
-      onJoinPlus: joinPlus,
+      onAd: revealAd,
       // Only a moderator flags a word: without the role, the recap says nothing of it.
       ...(moderation?.moderator && on('wordFlag') && {
         onFlag: (run, word, reason) => proposeBan(run.lang, word.categoryId, word.word, word.display, reason),
       }),
     }),
-    [judgeFor, session.profile, peek, joinPlus, moderation, on],
+    [judgeFor, session.profile, peek, revealAd, moderation, on],
   )
   // Le bilan de fin de partie signale un mot comme l'historique : même geste,
   // même carte, et la langue de la partie qui vient de finir.
@@ -1626,7 +1673,9 @@ setStartedAt((at) => at ?? Date.now())
     session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !duelOpen
   const notice = quietHome && on('challenges') ? challengeNotice(challenges, heldNotices) : null
   const updateDue = update === 'due' && on('storeUpdate')
-  const offerDue = !!moderation?.offer && !offerHeld && on('moderatorOffer')
+  // The moderator card taken as a level bonus is the offer, asked as soon as the player is home and still no moderator.
+  const bonusOfferDue = session.profile.bonuses.includes('moderator') && moderation !== null && !moderation.moderator && !bonusHeld && !moderation.offer && on('moderatorOffer')
+  const offerDue = bonusOfferDue || !!moderation?.offer && !offerHeld && on('moderatorOffer')
   const wordsNewsDue = wordsNews.length > 0 && on('wordsNews')
   const giftDue = complicationDue(session.profile, acceptedWords) && on('powerGift')
   const popsQuiet = !notice && quietHome && !updateDue && !offerDue && !wordsNewsDue && !giftDue && pushOffer === null
@@ -1670,6 +1719,7 @@ setStartedAt((at) => at ?? Date.now())
     <MessagesContext value={t}>
     <FeaturesContext value={features}>
     <PlayerActionsContext value={playerActions}>
+    <PremiumContext value={premiumDoor}>
     <main className={`stage stage--${tutorial ? 'playing' : session.phase}${isNativeApp() ? '' : ' stage--muteable'}`}>
       {tutorial && (session.phase === 'home' || session.phase === 'loading') && <TutorialScreen lang={lang} onDone={endTutorial} />}
       {modeLesson && (session.phase === 'home' || session.phase === 'loading') && (
@@ -1823,6 +1873,7 @@ setStartedAt((at) => at ?? Date.now())
           <ChallengePowers
             allowed={challengePowers(session.profile)}
             initial={defaultChallengePowers(session.profile)}
+            slots={slotsOf(session.profile)}
             onStart={(powers) => launchChallenge(picking, powers)}
             onClose={() => setPicking(null)}
           />
@@ -1889,17 +1940,24 @@ setStartedAt((at) => at ?? Date.now())
         quietHome &&
         !updateDue &&
         offerDue &&
-        moderation?.offer && (
+        (moderation?.offer || bonusOfferDue) && (
           <ModeratorOffer
-            reason={moderation.offer}
-            invitedBy={moderation.invitedBy}
+            reason={moderation?.offer ?? 'level'}
+            invitedBy={moderation?.offer ? moderation.invitedBy : null}
             anonymous={account?.anonymous !== false}
             onAccount={() => {
               setOfferHeld(true)
+              setBonusHeld(true)
               setMenuPage('profile')
             }}
-            onAnswered={refreshModeration}
-            onLater={() => setOfferHeld(true)}
+            onAnswered={() => {
+              setBonusHeld(true)
+              refreshModeration()
+            }}
+            onLater={() => {
+              setOfferHeld(true)
+              setBonusHeld(true)
+            }}
             onModerate={on('moderation') ? () => setModerating(true) : undefined}
           />
         )}
@@ -1935,6 +1993,16 @@ setStartedAt((at) => at ?? Date.now())
             setInviteOpen(true)
             setMenuPage('social')
           }}
+        />
+      )}
+
+      {premiumFor && (
+        <PremiumSheet
+          reason={premiumFor}
+          price={premiumCost}
+          onBuy={buy}
+          onRestore={restore}
+          onClose={() => setPremiumFor(null)}
         />
       )}
 
@@ -2112,6 +2180,8 @@ setStartedAt((at) => at ?? Date.now())
             onAvatar={() => setMenuPage('avatar')}
             onChoose={choose}
             onChoosePower={choosePower}
+            onChooseBonus={chooseBonus}
+            isModerator={moderation?.moderator === true}
             onSupportAsked={supportAsked}
             boardsBefore={boardsBefore}
             boardsAfter={boardsAfter}
@@ -2122,7 +2192,7 @@ setStartedAt((at) => at ?? Date.now())
             onWithdrawProposal={withdrawProposal}
             hidden={hidden}
             onPeek={peek}
-            onJoinPlus={joinPlus}
+            onAd={revealAd}
             onFlag={overFlag}
             onReplay={play}
             onHome={() => {
@@ -2148,6 +2218,7 @@ setStartedAt((at) => at ?? Date.now())
 
       {!isNativeApp() && <MuteButton muted={soundPrefs.muted} onToggle={() => tune({ ...soundPrefs, muted: !soundPrefs.muted })} />}
     </main>
+    </PremiumContext>
     </PlayerActionsContext>
     </FeaturesContext>
     </MessagesContext>

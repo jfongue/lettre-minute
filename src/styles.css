@@ -7957,19 +7957,6 @@ body[data-words='board'] .offer-pop-layer {
   grid-template-columns: 1fr;
 }
 
-.plus-join {
-  display: grid;
-  gap: 0.1rem;
-}
-
-.plus-free {
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-transform: none;
-  letter-spacing: 0;
-  opacity: 0.85;
-}
-
 .plus-badge {
   margin-left: 0.5rem;
   padding: 0.05rem 0.4rem;
@@ -8064,23 +8051,6 @@ body[data-words='board'] .offer-pop-layer {
   vertical-align: middle;
 }
 
-/* Une catégorie annoncée : pas encore jouable, donc pas de commande — la
-   ligne s'efface sans disparaître, et la mention reste lisible. */
-.categories li.category--soon {
-  color: var(--ink-faint);
-}
-
-.category-soon-tag {
-  display: inline-block;
-  margin-left: 0.4rem;
-  padding: 0 0.3rem;
-  border: 1px solid currentcolor;
-  font-size: var(--font-micro);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  vertical-align: middle;
-}
 
 /* Les invites passées du récap : un mot sous une bande noire, qu'une tape arrache. */
 .hidden-answers {
@@ -8317,111 +8287,10 @@ body[data-words='board'] .offer-pop-layer {
   overflow-wrap: anywhere;
 }
 
-/* Le faux paiement Premium : une commande à 0 €, sans carte. */
-.checkout-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  padding: var(--gutter);
-  background: color-mix(in srgb, var(--ink) 55%, transparent);
-  animation: fade 200ms var(--ease-out) both;
-}
-
-.checkout {
-  width: min(24rem, 100%);
-  display: grid;
-  gap: 0.9rem;
-  padding: 1.2rem;
-  border: 3px solid var(--ink);
-  background: var(--paper);
-  box-shadow: 8px 8px 0 var(--yellow);
-  animation: pop-rise 480ms var(--ease-spring) both;
-}
-
-.checkout-head {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding-bottom: 0.7rem;
-  border-bottom: 1px solid var(--rule);
-}
-
-.checkout-head h2 {
-  font-size: 1rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.checkout-lock {
-  width: 1.1rem;
-  height: 1.1rem;
-  fill: none;
-  stroke: var(--green, currentColor);
-  stroke-width: 2.2;
-}
-
-.checkout-order {
-  display: grid;
-  gap: 0.4rem;
-  padding: 0.8rem;
-  border: var(--line) solid var(--ink);
-}
-
-.checkout-plan {
-  font-size: 1.15rem;
-  font-weight: 800;
-}
-
-.checkout-perks {
-  margin: 0;
-  padding-left: 1.1rem;
-  font-size: 0.92rem;
-}
-
-.checkout-total {
-  font-size: 1.1rem;
-  padding-top: 0.2rem;
-  border-top: 2px solid var(--ink);
-}
-
-.checkout-pay {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-}
-
-.checkout-spinner {
-  width: 1rem;
-  height: 1rem;
-  border: 2px solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: checkout-spin 700ms linear infinite;
-}
-
-@keyframes checkout-spin {
+@keyframes premium-spin {
   to {
     transform: rotate(360deg);
   }
-}
-
-.checkout-done {
-  display: grid;
-  justify-items: center;
-  gap: 0.6rem;
-  padding: 1rem 0;
-  text-align: center;
-}
-
-.checkout-done-art {
-  display: grid;
-  width: 4.5rem;
-  height: 4.5rem;
-  animation: stamp-in 520ms var(--ease-spring) both;
 }
 
 /* -------------------------------------------------- icônes des succès - */
@@ -9428,7 +9297,7 @@ de tout cela ne le concerne. */
   border: 2px solid currentcolor;
   border-top-color: transparent;
   border-radius: 50%;
-  animation: checkout-spin 700ms linear infinite;
+  animation: premium-spin 700ms linear infinite;
 }
 
 .psheet-links {
@@ -9552,4 +9421,273 @@ de tout cela ne le concerne. */
   padding-inline: 0.8rem;
   letter-spacing: 0.06em;
   white-space: nowrap;
+}
+
+/* ------------------------------------------- Premium branché dans les écrans - */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.filter-note {
+  min-width: 0;
+}
+
+.filter-locked {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.8rem;
+  border: var(--line) dashed var(--ink-faint);
+  color: var(--ink-soft);
+}
+
+.filter-locked-icon {
+  width: 28px;
+  height: 28px;
+  opacity: 0.7;
+}
+
+.filter-locked-text {
+  display: grid;
+  gap: 0.1rem;
+  line-height: 1.25;
+}
+
+.category-lock {
+  appearance: none;
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink-faint);
+  cursor: pointer;
+}
+
+.category-lock--on {
+  color: var(--ink);
+}
+
+.category-lock:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.category-premiere-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.45rem;
+  vertical-align: middle;
+}
+
+.categories li.category--premiere-locked {
+  display: block;
+  padding: 0.5rem 0;
+}
+
+.reveal-budget {
+  margin: 0;
+}
+
+.reveal-spent {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.currency-row {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.currency-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.power-slot--locked {
+  flex-wrap: wrap;
+  align-content: center;
+  border: 2px dashed var(--ink-faint);
+  color: var(--ink-soft);
+  cursor: default;
+}
+
+.power-slot-how {
+  flex-basis: 100%;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-weight: 600;
+}
+
+.slot-locked-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.bonus-card-art {
+  color: var(--ink);
+}
+
+.bonus-card-art .pi {
+  width: 100%;
+  height: 100%;
+}
+
+.bonus-seal-icon {
+  display: grid;
+  place-items: center;
+  width: 5rem;
+  height: 5rem;
+  padding: 1rem;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.bonus-seal-icon .pi {
+  width: 100%;
+  height: 100%;
+}
+
+.premium-entry {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 3px solid var(--plus-edge);
+  background: var(--plus-bg);
+  box-shadow: 4px 4px 0 var(--plus-ink);
+  color: var(--plus-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.premium-entry-text {
+  display: grid;
+  line-height: 1.2;
+}
+
+.premium-entry-text strong {
+  color: var(--plus-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ppage {
+  display: grid;
+  gap: 1rem;
+  padding: 1.2rem 1rem;
+  border: 3px solid var(--plus-edge);
+  background: var(--plus-bg);
+  box-shadow: 6px 6px 0 var(--plus-ink);
+  color: var(--plus-text);
+}
+
+.ppage .note {
+  color: color-mix(in srgb, var(--plus-text) 75%, transparent);
+}
+
+.ppage-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ppage-heading {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.ppage-heading h2 {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--plus-ink);
+}
+
+.ppage-since {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.ppage-counters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+}
+
+.ppage-counter {
+  display: grid;
+  align-content: start;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  border: var(--line) solid var(--plus-ink);
+  animation: pop-in 420ms var(--ease-spring) both;
+  animation-delay: calc(var(--i) * 90ms);
+}
+
+.ppage-counter:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+.ppage-count {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--plus-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.ppage-label {
+  font-size: 0.8rem;
+  line-height: 1.25;
+}
+
+.ppage-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.ppage-lines li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ppage-counter {
+    animation: none;
+  }
+}
+
+.ppage .pi--plus .pi-body,
+.premium-entry .pi--plus .pi-body {
+  stroke: var(--plus-ink);
 }

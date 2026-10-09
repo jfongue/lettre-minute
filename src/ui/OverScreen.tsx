@@ -20,12 +20,15 @@ import { Figure, Shape } from './bauhaus'
 import { RankMove } from './RankMove'
 import { UnlockScreen } from './UnlockScreen'
 import { PowerOfferScreen } from './PowerOfferScreen'
+import { BonusOfferScreen } from './BonusOfferScreen'
+import { CurrencyRow } from './CurrencyRow'
 import { powerPicksOwed } from '../domain/powers'
+import { bonusesOwed } from '../domain/bonus'
 import { reducedMotion, useTween } from './useCountUp'
 import { ShareSoon } from './ShareSoon'
 import { RequestRow, type RequestEntry } from './RequestsPage'
 import { todayKey } from '../lib/today'
-import { revealsLeft, type HiddenAnswer } from '../domain/perks'
+import { revealBudget, type HiddenAnswer } from '../domain/perks'
 import { FlagWordCard, type FlagWord } from './StatsPage'
 import { Reveal } from './Reveal'
 import { useFeature } from './features'
@@ -66,6 +69,9 @@ interface OverScreenProps {
   onAvatar(): void
   onChoose(categoryId: string): void
   onChoosePower(powerId: string): void
+  onChooseBonus(bonusId: string): void
+  /** A moderator is not offered the moderator card: it would give nothing. */
+  isModerator?: boolean
   /** The summary asked for support: the next ask waits ten runs from here. */
   onSupportAsked(): void
   onReplay(): void
@@ -78,9 +84,10 @@ interface OverScreenProps {
   onChallengeChanged?(): void
   /** The prompts the run skipped, each hiding a word it could have taken. */
   hidden?: readonly HiddenAnswer[]
-  /** One hidden word uncovered: spends one of the free ones. */
+  /** One hidden word uncovered: spends one of the day's reveals. */
   onPeek?(): void
-  onJoinPlus?(): void
+  /** A rewarded ad watched through: one more reveal today. */
+  onAd?(): void
   /**
   * Signals a word of the run — said, or still hidden — to the other
   * moderators, as the history's recap does; absent for a player who is not
@@ -95,10 +102,10 @@ interface OverScreenProps {
 }
 
 export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: OverScreenProps) {
-  const { profile, profileBefore, onChoose, onChoosePower, ranked = true } = summary
+  const { profile, profileBefore, onChoose, onChoosePower, onChooseBonus, ranked = true } = summary
   // Held from the pick to the end of its celebration: the offer is off the
   // table as soon as the pick is kept, and the screen must outlive it.
-  const [celebrating, setCelebrating] = useState<'category' | 'power' | null>(null)
+  const [celebrating, setCelebrating] = useState<'category' | 'power' | 'bonus' | null>(null)
   // Each offer gets a fresh screen: a second pick owed deals the next one.
   const [round, setRound] = useState(0)
   const powers = useFeature('powers')
@@ -113,9 +120,9 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
         previousBest={previousBest}
         mine={summary.mine}
         hidden={summary.hidden ?? []}
-        peeks={revealsLeft(profile, todayKey())}
+        budget={revealBudget(profile, todayKey())}
         onPeek={summary.onPeek}
-        onJoinPlus={summary.onJoinPlus}
+        onAd={summary.onAd}
         onFlag={summary.onFlag}
         flagCard={(word, close) =>
           summary.onFlag && (
@@ -133,13 +140,13 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
   }
   const levelled = levelFor(profile.xp) > levelFor(profileBefore.xp)
   // Categories first, then powers: the sixth category and the first power come on the same level.
-  if ((profile.offer.length > 0 && celebrating !== 'power') || celebrating === 'category') {
+  if ((profile.offer.length > 0 && celebrating !== 'power' && celebrating !== 'bonus') || celebrating === 'category') {
     return (
       <UnlockScreen
         key={round}
         offer={profile.offer}
         lang={lang}
-        owed={picksOwed(profile)}
+        owed={picksOwed(profile, summary.isModerator)}
         level={levelled ? levelFor(profile.xp) : null}
         withAd={adsSupported() && pickShowsAd(profile)}
         onChoose={(id) => {
@@ -153,7 +160,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
       />
     )
   }
-  if ((powers && profile.powerOffer.length > 0) || celebrating === 'power') {
+  if ((powers && profile.powerOffer.length > 0 && celebrating !== 'bonus') || celebrating === 'power') {
     return (
       <PowerOfferScreen
         key={`power-${round}`}
@@ -163,6 +170,25 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
         onChoose={(id) => {
           setCelebrating('power')
           onChoosePower(id)
+        }}
+        onDone={() => {
+          setCelebrating(null)
+          setRound(round + 1)
+        }}
+      />
+    )
+  }
+  if (profile.bonusOffer.length > 0 || celebrating === 'bonus') {
+    return (
+      <BonusOfferScreen
+        key={`bonus-${round}`}
+        offer={profile.bonusOffer}
+        owed={bonusesOwed(profile, summary.isModerator)}
+        level={levelled ? levelFor(profile.xp) : null}
+        profile={profile}
+        onChoose={(id) => {
+          setCelebrating('bonus')
+          onChooseBonus(id)
         }}
         onDone={() => {
           setCelebrating(null)
@@ -231,6 +257,8 @@ function Summary({
           label={record ? t.over.newRecord : t.over.record}
         />
       </div>
+
+      <CurrencyRow profile={profile} />
 
       {ours > 0 && <p className="note mine-note">{t.over.mineNote(ours)}</p>}
 

@@ -1,12 +1,14 @@
-import { useState, type CSSProperties } from 'react'
-import { REVEALS_MAX, type HiddenAnswer } from '../domain/perks'
+import { useEffect, useState, type CSSProperties } from 'react'
+import { BASE_REVEALS, type HiddenAnswer, type RevealBudget } from '../domain/perks'
 import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, useT } from '../i18n'
 import { tapFeedback } from '../lib/native'
+import { prepareRewardedAd, showRewardedAd } from '../lib/billing'
 import { sound } from '../lib/sound'
 import { LetterMark } from './bauhaus'
 import { categoryMotif } from './motifs'
-import { PlusPop } from './PlusPop'
+import { PlusLockedSlot, ResourceChip } from './premium'
+import { usePremium } from './premiumContext'
 import { useLongPress } from './useLongPress'
 import type { FlagWord } from './StatsPage'
 import { useFeature } from './features'
@@ -17,39 +19,57 @@ const SHARDS = Array.from({ length: 10 }, (_, i) => ({ angle: (i / 10) * 360 + (
 /**
  * The prompts the player skipped, folded under one toggle; opened, each shows
  * a word it could have taken under a black bar — close enough to tempt, too
- * dark to read. A tap tears the bar off: five times free, then Premium.
+ * dark to read. A tap tears the bar off: a few a day, then an ad or Premium.
  *
  * A torn-off word is one a moderator can flag like any other: what the game
  * still had to give is exactly what does not belong there.
  */
 export function HiddenAnswers({
   hidden,
-  peeks,
+  budget,
   onPeek,
-  onJoinPlus,
+  onAd,
   onFlag,
 }: {
   hidden: readonly HiddenAnswer[]
-  peeks: number
+  /** The day's reveals: what is left, what the day allows, the ads still to watch. */
+  budget: RevealBudget
   onPeek?(): void
-  onJoinPlus?(): void
+  /** A rewarded ad was watched to the end: one more reveal today. */
+  onAd?(): void
   /** Signals a word the run never took, uncovered: `WordEntry.key` is its display. */
   onFlag?(word: FlagWord): void
 }) {
   const t = useT()
   const shown = useFeature('hiddenWords')
-  const premium = useFeature('premium')
-  // The count speaks only to a player who can still reveal: at zero, the bar opens the offer.
-  const canReveal = Number.isFinite(peeks) && peeks > 0
+  const door = usePremium()
+  const canReveal = budget.unlimited || budget.left > 0
   const [unfolded, setUnfolded] = useState(false)
   const [open, setOpen] = useState<ReadonlySet<number>>(() => new Set())
-  const [asking, setAsking] = useState<number | null>(null)
+  const [watching, setWatching] = useState(false)
+  const [noAd, setNoAd] = useState(false)
+  // Loading an ad takes seconds: started as the summary opens, it is ready by the time the reveals run out.
+  useEffect(() => {
+    if (door.adsOpen) prepareRewardedAd()
+  }, [door.adsOpen])
   const press = useLongPress<FlagWord>((word) => onFlag?.(word))
 
   const tear = (index: number) => {
     setOpen((current) => new Set(current).add(index))
     tapFeedback('medium')
     sound.found(2, index + 3)
+  }
+
+  const watch = async () => {
+    if (watching) return
+    setWatching(true)
+    setNoAd(false)
+    const result = await showRewardedAd()
+    setWatching(false)
+    if (result === 'rewarded') {
+      tapFeedback('medium')
+      onAd?.()
+    } else if (result === 'unavailable') setNoAd(true)
   }
 
   if (!shown) return null
@@ -66,11 +86,21 @@ export function HiddenAnswers({
       >
         <span className="section-title">{t.peek.title}</span>
         <span className="hidden-answers-count">{hidden.length}</span>
-        {canReveal && <span className="peek-left">{t.peek.left(peeks, REVEALS_MAX)}</span>}
+        <span className="peek-left">
+          <ResourceChip
+            icon="eye"
+            count={budget.left}
+            max={budget.allowed}
+            unlimited={budget.unlimited}
+            state={canReveal ? 'normal' : 'spent'}
+            label={budget.unlimited ? t.peek.unlimited : t.peek.chip(budget.left, budget.allowed)}
+          />
+        </span>
         <svg className="hidden-answers-chevron" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
+      {unfolded && !budget.unlimited && <p className="note reveal-budget">{canReveal ? t.peek.rule(BASE_REVEALS) : t.peek.spent}</p>}
       {unfolded && (
         <ol className="reveal-words">
           {hidden.map((answer, index) => {
@@ -113,7 +143,7 @@ export function HiddenAnswers({
                       style={{ '--beat': `${-((index * 1.37) % 2.8).toFixed(2)}s`, '--tempo': `${2.6 + (index % 3) * 0.35}s` } as CSSProperties}
                       aria-label={t.peek.reveal(category, answer.prompt.letter)}
                       onClick={() => {
-                        if (peeks <= 0) return setAsking(index)
+                        if (!canReveal) return tapFeedback('light')
                         onPeek?.()
                         tear(index)
                       }}
@@ -130,16 +160,20 @@ export function HiddenAnswers({
           })}
         </ol>
       )}
-      {asking !== null && premium && (
-        <PlusPop
-          reason="peek"
-          onClose={() => setAsking(null)}
-          onJoin={() => {
-            onJoinPlus?.()
-            tear(asking)
-            setAsking(null)
-          }}
-        />
+      {unfolded && !canReveal && (
+        <div className="reveal-spent">
+          {door.adsOpen && budget.adsLeft > 0 && (
+            <button type="button" className="btn btn--blue reveal-ad" disabled={watching} onClick={watch}>
+              {watching ? t.peek.adBusy : t.peek.ad}
+            </button>
+          )}
+          {noAd && (
+            <p className="note note--warn" role="alert">
+              {t.peek.adFailed}
+            </p>
+          )}
+          {door.storeOpen && <PlusLockedSlot icon="eye" label={t.peek.unlimited} onOpen={() => door.open('reveal')} />}
+        </div>
       )}
     </section>
   )

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type Ref } from 'react'
 import { createPortal } from 'react-dom'
 import { listedHistory, mergeHistory, summarize, type RunRecord } from '../domain/history'
-import type { HiddenAnswer } from '../domain/perks'
+import type { HiddenAnswer, RevealBudget } from '../domain/perks'
 import { capitalized, normalizeWord } from '../domain/text'
 import type { Profile } from '../domain/progression'
 import { categoryText, formatNumber, useT, type Messages } from '../i18n'
@@ -53,9 +53,9 @@ interface StatsPageProps {
 export interface RecapActions {
   /** The words the run's skipped prompts still had, read from its dictionaries. */
   hiddenFor(run: RunRecord): Promise<readonly HiddenAnswer[]>
-  peeks: number
+  budget: RevealBudget
   onPeek(): void
-  onJoinPlus(): void
+  onAd(): void
   /**
    * Signals one of the run's words — said, or still hidden — to the other
    * moderators, with the reason the card asks for; absent for a player who is
@@ -433,9 +433,9 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
         hidden.length > 0 && (
           <HiddenAnswers
             hidden={hidden}
-            peeks={actions.peeks}
+            budget={actions.budget}
             onPeek={actions.onPeek}
-            onJoinPlus={actions.onJoinPlus}
+            onAd={actions.onAd}
             onFlag={onFlag && ((answer) => setFlagged(answer))}
           />
         )

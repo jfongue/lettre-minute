@@ -9,6 +9,7 @@ import { tapFeedback } from '../lib/native'
 import { sound, tierSound } from '../lib/sound'
 import { Burst, LetterMark, MineMark, Shape, TierTag } from './bauhaus'
 import { HiddenAnswers } from './HiddenAnswers'
+import type { RevealBudget } from '../domain/perks'
 import { categoryMotif } from './motifs'
 import type { FlagWord } from './StatsPage'
 import { reducedMotion, useCountUp } from './useCountUp'
@@ -36,9 +37,9 @@ export function Reveal({
   previousBest,
   mine,
   hidden,
-  peeks,
+  budget,
   onPeek,
-  onJoinPlus,
+  onAd,
   onFlag,
   flagCard,
   onNext,
@@ -47,9 +48,9 @@ export function Reveal({
   previousBest: number | null
   mine?: ReadonlySet<string>
   hidden: readonly HiddenAnswer[]
-  peeks: number
+  budget: RevealBudget
   onPeek?(): void
-  onJoinPlus?(): void
+  onAd?(): void
   onFlag?(word: FlagWord, reason: string): Promise<BanOutcome>
   /**
    * The card a long press opens on a word, drawn by the caller: it lives in
@@ -147,9 +148,9 @@ export function Reveal({
       {done && hidden.length > 0 && (
         <HiddenAnswers
           hidden={hidden}
-          peeks={peeks}
+          budget={budget}
           onPeek={onPeek}
-          onJoinPlus={onJoinPlus}
+          onAd={onAd}
           onFlag={onFlag && ((word) => setFlagged(word))}
         />
       )}
