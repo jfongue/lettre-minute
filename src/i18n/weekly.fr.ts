@@ -32,7 +32,7 @@ export const weeklyFr = {
     solo: 'La partie du jour, la même pour tous.',
     endurance: 'Trente secondes au départ, chaque mot te rend du temps. Tiens le plus longtemps possible.',
     delayed: 'La réponse attendue est celle de la question d’avant.',
-    reversed: 'La lettre contraint la fin du mot : M accepte le Vietnam.',
+    reversed: 'Un mot qui se termine par cette lettre. Pays qui se termine en M ? Vietnam !',
   },
   screen: {
     back: 'Retour',
@@ -43,7 +43,7 @@ export const weeklyFr = {
     attempts: 'Tes tentatives',
     intro: (count: number) => `Tu as ${count} tentatives aujourd’hui`,
     introAfter: (count: number) => `${count} tentatives jouées aujourd’hui`,
-    introLeft: (left: number) => `Il t’en reste ${left}`,
+    introLeft: (left: number) => `Il t’en reste ${left} aujourd’hui`,
     allUsed: 'Tu as joué toutes tes tentatives du jour. Reviens demain, elles reviennent à minuit.',
     attempt: (n: number) => `Tentative ${n}`,
     slot: {
@@ -95,7 +95,7 @@ export const weeklyFr = {
     reversed: {
       steps: [
         ['À l’envers', 'La lettre contraint la fin du mot, pas son début.'],
-        ['M, Vietnam', 'Pour un M, un mot qui finit par M convient.'],
+        ['Un mot qui se termine par cette lettre.', 'Pays qui se termine en M ? Vietnam !'],
         ['Soixante secondes', 'Le reste est une partie comme les autres.'],
       ],
       score: 'Ton score se compte en points, comme un solo.',
@@ -111,7 +111,7 @@ export const weeklyFr = {
     yours: 'Cette tentative',
     best: 'Ton record',
     rank: 'Rang provisoire',
-    left: (left: number) => (left > 0 ? `${left} ${plural(left, 'tentative restante', 'tentatives restantes')} aujourd’hui` : 'Plus de tentative aujourd’hui'),
+    left: (left: number) => (left > 0 ? `Il t’en reste ${left} aujourd’hui` : 'Plus de tentative aujourd’hui'),
     again: 'Retour au défi',
     saving: 'Envoi de ta tentative…',
     notSent: 'Ta tentative n’a pas pu être envoyée. Elle ne comptera pas au classement.',

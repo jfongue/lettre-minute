@@ -22,7 +22,7 @@ export const weeklyNl: WeeklyMessages = {
     solo: 'De ronde van de dag, voor iedereen dezelfde.',
     endurance: 'Je start met dertig seconden en elk woord geeft tijd terug. Houd het zo lang mogelijk vol.',
     delayed: 'Het gevraagde antwoord is dat op de vorige vraag.',
-    reversed: 'De letter geldt voor het einde van het woord: M neemt Vietnam.',
+    reversed: 'Een woord dat op deze letter eindigt. Een land dat op M eindigt? Vietnam!',
   },
   screen: {
     back: 'Terug',
@@ -33,7 +33,7 @@ export const weeklyNl: WeeklyMessages = {
     attempts: 'Jouw pogingen',
     intro: (count) => `Je hebt vandaag ${count} pogingen`,
     introAfter: (count) => `${count} pogingen vandaag gespeeld`,
-    introLeft: (left) => `Je hebt er nog ${left}`,
+    introLeft: (left) => `Je hebt er vandaag nog ${left} ${plural(left, 'poging', 'pogingen')}`,
     allUsed: 'Je hebt al je pogingen van vandaag gespeeld. Om middernacht zijn er nieuwe.',
     attempt: (n) => `Poging ${n}`,
     slot: { used: 'Gespeeld', free: 'Beschikbaar', ad: 'Met een advertentie', plus: 'Met Premium', locked: 'Premium' },
@@ -79,7 +79,7 @@ export const weeklyNl: WeeklyMessages = {
     reversed: {
       steps: [
         ['Omgekeerd', 'De letter geldt voor het einde van het woord, niet voor het begin.'],
-        ['M, Vietnam', 'Bij een M past een woord dat op M eindigt.'],
+        ['Een woord dat op deze letter eindigt.', 'Een land dat op M eindigt? Vietnam!'],
         ['Zestig seconden', 'De rest is een ronde als alle andere.'],
       ],
       score: 'Je score telt in punten, zoals bij een gewone ronde.',
@@ -95,7 +95,7 @@ export const weeklyNl: WeeklyMessages = {
     yours: 'Deze poging',
     best: 'Jouw record',
     rank: 'Voorlopige plek',
-    left: (left) => (left > 0 ? `Nog ${left} ${plural(left, 'poging', 'pogingen')} vandaag` : 'Vandaag geen pogingen meer'),
+    left: (left) => (left > 0 ? `Je hebt er vandaag nog ${left} ${plural(left, 'poging', 'pogingen')}` : 'Vandaag geen pogingen meer'),
     again: 'Terug naar de uitdaging',
     saving: 'Je poging wordt verstuurd…',
     notSent: 'Je poging kon niet worden verstuurd. Hij telt niet mee voor de ranglijst.',

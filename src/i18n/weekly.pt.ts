@@ -22,7 +22,7 @@ export const weeklyPt: WeeklyMessages = {
     solo: 'A partida do dia, igual para todos.',
     endurance: 'Começas com trinta segundos e cada palavra devolve-te tempo. Aguenta o mais possível.',
     delayed: 'A resposta pedida é a da pergunta anterior.',
-    reversed: 'A letra manda no fim da palavra: M aceita o Vietname.',
+    reversed: 'Uma palavra que termina nesta letra. Um país que termina em M? Vietname!',
   },
   screen: {
     back: 'Voltar',
@@ -33,7 +33,7 @@ export const weeklyPt: WeeklyMessages = {
     attempts: 'As tuas tentativas',
     intro: (count) => `Hoje tens ${count} tentativas`,
     introAfter: (count) => `${count} tentativas jogadas hoje`,
-    introLeft: (left) => `Restam-te ${left}`,
+    introLeft: (left) => `Restam-te ${left} ${plural(left, 'tentativa', 'tentativas')} hoje`,
     allUsed: 'Já jogaste todas as tentativas de hoje. Voltam à meia-noite.',
     attempt: (n) => `Tentativa ${n}`,
     slot: { used: 'Jogada', free: 'Disponível', ad: 'Com um anúncio', plus: 'Com Premium', locked: 'Premium' },
@@ -79,7 +79,7 @@ export const weeklyPt: WeeklyMessages = {
     reversed: {
       steps: [
         ['Ao contrário', 'A letra manda no fim da palavra, não no início.'],
-        ['M, Vietname', 'Para um M, serve uma palavra que acabe em M.'],
+        ['Uma palavra que termina nesta letra.', 'Um país que termina em M? Vietname!'],
         ['Sessenta segundos', 'O resto é uma partida como as outras.'],
       ],
       score: 'A tua pontuação conta-se em pontos, como numa partida normal.',
@@ -95,7 +95,7 @@ export const weeklyPt: WeeklyMessages = {
     yours: 'Esta tentativa',
     best: 'O teu recorde',
     rank: 'Posição provisória',
-    left: (left) => (left > 0 ? `${left} ${plural(left, 'tentativa restante', 'tentativas restantes')} hoje` : 'Sem tentativas hoje'),
+    left: (left) => (left > 0 ? `Restam-te ${left} ${plural(left, 'tentativa', 'tentativas')} hoje` : 'Sem tentativas hoje'),
     again: 'Voltar ao desafio',
     saving: 'A enviar a tua tentativa…',
     notSent: 'Não foi possível enviar a tua tentativa. Não conta para a classificação.',

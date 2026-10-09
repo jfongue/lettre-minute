@@ -327,20 +327,88 @@
   justify-items: stretch;
 }
 
+/* Au-delà de la prochaine tentative jouable il n'y a que des offres : bordure
+   sourde, pas d'ombre, texte plus petit, et le billet jaune plein reste à
+   cette prochaine. */
+.wk-slot-item--muted .wk-slot {
+  min-height: 2.7rem;
+  padding: 0.35rem 0.7rem;
+  border-width: var(--line);
+  border-color: var(--rule);
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink-soft);
+}
+
+.wk-slot-item--muted .wk-slot--used,
+.wk-slot-item--muted .wk-slot--plus .note {
+  color: var(--ink-faint);
+}
+
+.wk-slot-item--muted .wk-slot--plus {
+  border-color: var(--rule);
+  background: transparent;
+}
+
+.wk-slot-item--muted .wk-slot-text {
+  font-size: 0.86rem;
+}
+
+.wk-slot-item--muted .wk-slot-text strong,
+.wk-slot-item--muted .pslot-label {
+  font-weight: 600;
+}
+
+.wk-slot-item--muted .wk-ticket-body {
+  fill: var(--paper-2);
+  stroke: var(--ink-faint);
+}
+
+.wk-slot-item--muted .wk-ticket-mark {
+  stroke: var(--ink-faint);
+}
+
+.wk-slot-item--muted .wk-slot > .pseal {
+  opacity: 0.6;
+}
+
+.wk-slot-item--muted .pslot {
+  min-height: 2.6rem;
+  padding: 0.35rem 0.7rem;
+  border-style: solid;
+  border-color: var(--rule);
+  background: transparent;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+}
+
+.wk-slot-item--muted .pslot-icon {
+  opacity: 0.55;
+}
+
+/* « Passer Premium : 5 tentatives par jour » reste lisible sans prendre la
+   pleine largeur ni le gras d'un bouton d'action. */
 .wk-premium-link {
   appearance: none;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 2.75rem;
-  padding: 0.3rem 0.8rem;
-  border: var(--line) solid var(--plus-ink);
-  border-radius: 0;
-  background: var(--plus-bg);
-  color: var(--plus-text);
-  font-weight: 700;
+  justify-self: start;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--plus-ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
   cursor: pointer;
+}
+
+.wk-premium-link .pseal {
+  opacity: 0.7;
 }
 
 .wk-premium-link:focus-visible {
@@ -388,9 +456,4 @@
   font-size: clamp(0.95rem, 4.4vw, 1.2rem);
   letter-spacing: 0.08em;
   text-align: left;
-}
-
-.wk-premium-link {
-  text-align: center;
-  line-height: 1.25;
 }

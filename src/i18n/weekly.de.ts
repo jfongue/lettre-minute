@@ -22,7 +22,7 @@ export const weeklyDe: WeeklyMessages = {
     solo: 'Die Runde des Tages, für alle dieselbe.',
     endurance: 'Du startest mit dreißig Sekunden, jedes Wort bringt Zeit zurück. Halte so lange durch wie möglich.',
     delayed: 'Gefragt ist die Antwort auf die vorige Frage.',
-    reversed: 'Der Buchstabe gilt für das Wortende: M nimmt Vietnam.',
+    reversed: 'Ein Wort, das mit diesem Buchstaben endet. Ein Land mit M am Ende? Vietnam!',
   },
   screen: {
     back: 'Zurück',
@@ -33,7 +33,7 @@ export const weeklyDe: WeeklyMessages = {
     attempts: 'Deine Versuche',
     intro: (count) => `Du hast heute ${count} Versuche`,
     introAfter: (count) => `${count} Versuche heute gespielt`,
-    introLeft: (left) => `Noch ${left} übrig`,
+    introLeft: (left) => `Du hast heute noch ${left} ${plural(left, 'Versuch', 'Versuche')}`,
     allUsed: 'Du hast alle Versuche von heute gespielt. Um Mitternacht gibt es neue.',
     attempt: (n) => `Versuch ${n}`,
     slot: { used: 'Gespielt', free: 'Verfügbar', ad: 'Mit Werbung', plus: 'Mit Premium', locked: 'Premium' },
@@ -79,7 +79,7 @@ export const weeklyDe: WeeklyMessages = {
     reversed: {
       steps: [
         ['Rückwärts', 'Der Buchstabe gilt für das Wortende, nicht für den Anfang.'],
-        ['M, Vietnam', 'Für ein M passt ein Wort, das auf M endet.'],
+        ['Ein Wort, das mit diesem Buchstaben endet.', 'Ein Land mit M am Ende? Vietnam!'],
         ['Sechzig Sekunden', 'Der Rest ist eine Runde wie jede andere.'],
       ],
       score: 'Dein Ergebnis zählt in Punkten, wie bei einer normalen Runde.',
@@ -95,7 +95,7 @@ export const weeklyDe: WeeklyMessages = {
     yours: 'Dieser Versuch',
     best: 'Dein Rekord',
     rank: 'Vorläufiger Platz',
-    left: (left) => (left > 0 ? `Heute noch ${left} ${plural(left, 'Versuch', 'Versuche')}` : 'Heute keine Versuche mehr'),
+    left: (left) => (left > 0 ? `Du hast heute noch ${left} ${plural(left, 'Versuch', 'Versuche')}` : 'Heute keine Versuche mehr'),
     again: 'Zurück zur Challenge',
     saving: 'Dein Versuch wird gesendet…',
     notSent: 'Dein Versuch konnte nicht gesendet werden. Er zählt nicht für die Rangliste.',

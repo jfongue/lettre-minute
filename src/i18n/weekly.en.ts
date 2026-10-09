@@ -28,7 +28,7 @@ export const weeklyEn: WeeklyMessages = {
     solo: 'Today’s run, the same for everyone.',
     endurance: 'You start with thirty seconds, and every word gives time back. Last as long as you can.',
     delayed: 'The answer you owe is the one to the previous question.',
-    reversed: 'The letter rules the end of the word: M takes Vietnam.',
+    reversed: 'A word that ends with this letter. A country ending in M? Vietnam!',
   },
   screen: {
     back: 'Back',
@@ -39,7 +39,7 @@ export const weeklyEn: WeeklyMessages = {
     attempts: 'Your attempts',
     intro: (count) => `You have ${count} attempts today`,
     introAfter: (count) => `${count} attempts played today`,
-    introLeft: (left) => `${left} left`,
+    introLeft: (left) => `You have ${left} ${plural(left, 'attempt', 'attempts')} left today`,
     allUsed: 'You have played all of today’s attempts. They come back at midnight.',
     attempt: (n) => `Attempt ${n}`,
     slot: { used: 'Played', free: 'Available', ad: 'With an ad', plus: 'With Premium', locked: 'Premium' },
@@ -85,7 +85,7 @@ export const weeklyEn: WeeklyMessages = {
     reversed: {
       steps: [
         ['Backwards', 'The letter rules the end of the word, not its start.'],
-        ['M, Vietnam', 'For an M, a word ending in M will do.'],
+        ['A word that ends with this letter.', 'A country ending in M? Vietnam!'],
         ['Sixty seconds', 'The rest is a run like any other.'],
       ],
       score: 'Your score is counted in points, like a solo run.',
@@ -101,7 +101,7 @@ export const weeklyEn: WeeklyMessages = {
     yours: 'This attempt',
     best: 'Your record',
     rank: 'Provisional rank',
-    left: (left) => (left > 0 ? `${left} ${plural(left, 'attempt', 'attempts')} left today` : 'No attempts left today'),
+    left: (left) => (left > 0 ? `You have ${left} ${plural(left, 'attempt', 'attempts')} left today` : 'No attempts left today'),
     again: 'Back to the challenge',
     saving: 'Sending your attempt…',
     notSent: 'Your attempt could not be sent. It will not count in the ranking.',

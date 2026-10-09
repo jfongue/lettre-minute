@@ -22,7 +22,7 @@ export const weeklyIt: WeeklyMessages = {
     solo: 'La partita del giorno, uguale per tutti.',
     endurance: 'Parti con trenta secondi e ogni parola ti rende tempo. Resisti il più a lungo possibile.',
     delayed: 'La risposta richiesta è quella della domanda prima.',
-    reversed: 'La lettera vale per la fine della parola: M accetta il Vietnam.',
+    reversed: 'Una parola che finisce con questa lettera. Un paese che finisce per M? Vietnam!',
   },
   screen: {
     back: 'Indietro',
@@ -33,7 +33,7 @@ export const weeklyIt: WeeklyMessages = {
     attempts: 'I tuoi tentativi',
     intro: (count) => `Oggi hai ${count} tentativi`,
     introAfter: (count) => `${count} tentativi giocati oggi`,
-    introLeft: (left) => `Te ne restano ${left}`,
+    introLeft: (left) => `Te ne restano ${left} ${plural(left, 'tentativo', 'tentativi')} oggi`,
     allUsed: 'Hai giocato tutti i tentativi di oggi. Tornano a mezzanotte.',
     attempt: (n) => `Tentativo ${n}`,
     slot: { used: 'Giocato', free: 'Disponibile', ad: 'Con una pubblicità', plus: 'Con Premium', locked: 'Premium' },
@@ -79,7 +79,7 @@ export const weeklyIt: WeeklyMessages = {
     reversed: {
       steps: [
         ['Al contrario', 'La lettera vale per la fine della parola, non per l’inizio.'],
-        ['M, Vietnam', 'Per una M va bene una parola che finisce in M.'],
+        ['Una parola che finisce con questa lettera.', 'Un paese che finisce per M? Vietnam!'],
         ['Sessanta secondi', 'Il resto è una partita come le altre.'],
       ],
       score: 'Il tuo punteggio si conta in punti, come in una partita normale.',
@@ -95,7 +95,7 @@ export const weeklyIt: WeeklyMessages = {
     yours: 'Questo tentativo',
     best: 'Il tuo record',
     rank: 'Posizione provvisoria',
-    left: (left) => (left > 0 ? `${left} ${plural(left, 'tentativo rimasto', 'tentativi rimasti')} oggi` : 'Oggi non hai più tentativi'),
+    left: (left) => (left > 0 ? `Te ne restano ${left} ${plural(left, 'tentativo', 'tentativi')} oggi` : 'Oggi non hai più tentativi'),
     again: 'Torna alla sfida',
     saving: 'Invio del tentativo…',
     notSent: 'Non è stato possibile inviare il tentativo. Non conterà in classifica.',

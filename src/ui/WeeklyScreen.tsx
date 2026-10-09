@@ -129,9 +129,11 @@ export function WeeklyView({
           <p className="wk-heading" role="status">
             {heading}
           </p>
+          {/* Au-delà de la prochaine tentative jouable, la liste ne montre que
+              des offres : elles s'effacent derrière le billet jaune. */}
           <ol className="wk-slots">
             {rows.map(({ slot, place }) => (
-              <li key={place} className={place === next ? 'wk-slot-item wk-slot-item--next' : 'wk-slot-item'}>
+              <li key={place} className={`wk-slot-item${place === next ? ' wk-slot-item--next' : ''}${spent && place !== next ? ' wk-slot-item--muted' : ''}`}>
                 <SlotRow
                   slot={slot}
                   index={place}

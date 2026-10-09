@@ -22,7 +22,7 @@ export const weeklyEs: WeeklyMessages = {
     solo: 'La partida del día, la misma para todos.',
     endurance: 'Empiezas con treinta segundos y cada palabra te devuelve tiempo. Aguanta lo máximo posible.',
     delayed: 'La respuesta que toca es la de la pregunta anterior.',
-    reversed: 'La letra manda en el final de la palabra: M acepta Vietnam.',
+    reversed: 'Una palabra que termina en esta letra. ¿Un país que termina en M? ¡Vietnam!',
   },
   screen: {
     back: 'Volver',
@@ -33,7 +33,7 @@ export const weeklyEs: WeeklyMessages = {
     attempts: 'Tus intentos',
     intro: (count) => `Hoy tienes ${count} intentos`,
     introAfter: (count) => `${count} intentos jugados hoy`,
-    introLeft: (left) => `Te quedan ${left}`,
+    introLeft: (left) => `Te quedan ${left} ${plural(left, 'intento', 'intentos')} hoy`,
     allUsed: 'Has jugado todos tus intentos de hoy. Vuelven a medianoche.',
     attempt: (n) => `Intento ${n}`,
     slot: { used: 'Jugado', free: 'Disponible', ad: 'Con un anuncio', plus: 'Con Premium', locked: 'Premium' },
@@ -79,7 +79,7 @@ export const weeklyEs: WeeklyMessages = {
     reversed: {
       steps: [
         ['Al revés', 'La letra manda en el final de la palabra, no en el principio.'],
-        ['M, Vietnam', 'Para una M, vale una palabra que acabe en M.'],
+        ['Una palabra que termina en esta letra.', '¿Un país que termina en M? ¡Vietnam!'],
         ['Sesenta segundos', 'Lo demás es una partida como las otras.'],
       ],
       score: 'Tu puntuación se cuenta en puntos, como en una partida normal.',
@@ -95,7 +95,7 @@ export const weeklyEs: WeeklyMessages = {
     yours: 'Este intento',
     best: 'Tu récord',
     rank: 'Puesto provisional',
-    left: (left) => (left > 0 ? `${left} ${plural(left, 'intento restante', 'intentos restantes')} hoy` : 'Hoy no quedan intentos'),
+    left: (left) => (left > 0 ? `Te quedan ${left} ${plural(left, 'intento', 'intentos')} hoy` : 'Hoy no quedan intentos'),
     again: 'Volver al reto',
     saving: 'Enviando tu intento…',
     notSent: 'No se pudo enviar tu intento. No contará en la clasificación.',
