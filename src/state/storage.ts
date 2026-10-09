@@ -18,6 +18,12 @@ const QUIET_SIGN_IN_KEY = 'lettre-minute.quiet-sign-in.v1'
 // The day « Mes demandes » was last opened: its « ! » waits for the next one.
 const QUEUE_SEEN_KEY = 'lettre-minute.queue-seen.v1'
 const SHARE_NEWS_KEY = 'lettre-minute.share-news.v1'
+// Les avant-premières déjà annoncées à l'appareil ; gardé par clearLocalData,
+// se déconnecter ne fait pas re-annoncer une catégorie déjà livrée.
+const PREMIERE_NEWS_KEY = 'lettre-minute.premiere-news.v1'
+// Le prix du défi hebdomadaire : le Premium gagné vit au profil (plusSince), ce
+// drapeau-ci garde seulement la pop-up de revenir.
+const WEEKLY_WIN_KEY = 'lettre-minute.weekly-win.v1'
 // Kept by clearLocalData as well: the duel's rules are learnt once, and a
 // player who signs out does not want them explained again.
 const DUEL_RULES_KEY = 'lettre-minute.duel-rules.v1'
@@ -136,6 +142,25 @@ export function loadShareNewsSeen(): boolean {
 
 export function saveShareNewsSeen(): void {
   write(SHARE_NEWS_KEY, true)
+}
+
+/** Les avant-premières déjà annoncées sur cet appareil : une livraison nouvelle relance la pop-up, jamais deux fois la même. */
+export function loadPremiereNewsSeen(): string[] {
+  const stored = parsed(PREMIERE_NEWS_KEY)
+  return Array.isArray(stored) ? stored.filter(isText) : []
+}
+
+export function savePremiereNewsSeen(ids: readonly string[]): void {
+  write(PREMIERE_NEWS_KEY, ids)
+}
+
+/** Vrai une fois que le défi hebdomadaire a offert Premium ici : la pop-up ne revient pas. */
+export function loadWeeklyWinGiven(): boolean {
+  return parsed(WEEKLY_WIN_KEY) === true
+}
+
+export function saveWeeklyWinGiven(): void {
+  write(WEEKLY_WIN_KEY, true)
 }
 
 export function loadProfile(): Profile {

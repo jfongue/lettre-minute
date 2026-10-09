@@ -1,3 +1,4 @@
+import { premiereCategoryIds } from './catalogue'
 import type { Profile } from './progression'
 import { hasPower, promptKey, type Judge, type Prompt, type Run, type SettledPrompt } from './run'
 
@@ -270,4 +271,24 @@ export const SHARE_NEWS_RUNS = 15
 /** The one-time news that friends can now be invited: a named account at once, anyone else after fifteen runs. */
 export function shareNewsDue(profile: Profile, named: boolean, seen: boolean): boolean {
   return !seen && (named || profile.runs >= SHARE_NEWS_RUNS)
+}
+
+/**
+ * Les avant-premières qu'un envoi vient de livrer : celles du catalogue que la
+ * langue courante sait jouer, et que la pop-up n'a pas encore annoncées. Une
+ * catégorie nouvelle les fait toutes repasser, une fois.
+ */
+export function premiereNews(seen: readonly string[], available: readonly string[]): string[] {
+  const premieres = new Set(premiereCategoryIds())
+  return available.filter((id) => premieres.has(id) && !seen.includes(id))
+}
+
+/**
+ * Le prix d'un défi hebdomadaire : finir premier de la semaine offre Premium à
+ * qui ne l'a pas. Le rang ne vient que du serveur (`recap.rank`), et le drapeau
+ * d'appareil empêche la pop-up de revenir — le Premium, lui, reste au profil,
+ * donc le prix ne se donne jamais deux fois.
+ */
+export function weeklyWinPrizeDue(profile: Profile, rank: number | null, given: boolean): boolean {
+  return rank === 1 && !given && !isPlus(profile)
 }

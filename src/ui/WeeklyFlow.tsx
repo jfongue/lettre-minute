@@ -2,7 +2,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type Dispa
 import { availableCategoryIds } from '../data/packs'
 import { sharedCategoryIds } from '../domain/catalogue'
 import { modeEdge, type ArcadeMode, type GameMode } from '../domain/modes'
-import { countPlusAttempt, isPlus } from '../domain/perks'
+import { countPlusAttempt, isPlus, weeklyWinPrizeDue } from '../domain/perks'
 import type { Profile } from '../domain/progression'
 import {
   WEEKLY_FREE_ATTEMPTS,
@@ -23,10 +23,12 @@ import { rewardedAdsOpen } from '../platform'
 import type { Judge } from '../domain/run'
 import type { SessionAction, Session } from '../state/session'
 import { loadLocalAttempts, markRecapSeen, recapDue, recordLocalAd } from '../state/weekly'
+import { loadWeeklyWinGiven, saveWeeklyWinGiven } from '../state/storage'
 import { loadWeeklyStatus, markWeeklyIntroSeen, startWeeklyAttempt, weeklyIntroSeen, windowAt } from '../state/weeklyPlay'
 import { lazyScreen } from './lazyScreen'
 import { ModeIntro } from './ModeIntro'
 import { ModeTutorial } from './ModeTutorial'
+import { PlusPrizePop } from './PlusNewsPop'
 import type { PremiumReason } from './PremiumSheet'
 import { WeeklyCard } from './WeeklyCard'
 
@@ -65,6 +67,8 @@ interface FlowInput {
   dispatch: Dispatch<SessionAction>
   judgeFor(categoryIds: readonly string[], lang: string, challenge: boolean, edge: 'first' | 'last'): Promise<Judge>
   profile: MutableRefObject<Profile>
+  /** Le passage à Premium de `App.tsx` : sa trace, et l'action de session qui l'écrit. */
+  joinPlus(): void
   /** La fiche Premium commune (`App.tsx`), ouverte d'ici pour une tentative. */
   openPremium(reason: PremiumReason): void
   /** Le magasin est ouvert : Android, et la fonctionnalité `premium`. */
@@ -83,7 +87,7 @@ const arcade = (mode: GameMode): ArcadeMode | null => (mode === 'solo' ? null : 
  * fiche Premium qu'il ouvre. `App.tsx` n'en garde qu'un appel, ce qu'il pose
  * à l'accueil et ce qu'il montre en fin de partie.
  */
-export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, profile, openPremium, premiumOpen, preloadRun, home }: FlowInput) {
+export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, profile, joinPlus, openPremium, premiumOpen, preloadRun, home }: FlowInput) {
   const plus = isPlus(session.profile)
   const week = weekOf(Date.now())
   const challenge = useMemo(
@@ -100,6 +104,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
   const [played, setPlayed] = useState(false)
   const [done, setDone] = useState<DoneInfo | null>(null)
   const [recapWeek, setRecapWeek] = useState<string | null>(null)
+  const [prize, setPrize] = useState(false)
   const attempt = useRef<Attempt | null>(null)
   const best = useRef<number | null>(null)
 
@@ -247,11 +252,24 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
 
   const closeRecap = useCallback(
     (then?: View) => {
-      if (recapWeek) markRecapSeen(recapWeek)
+      const week = recapWeek
+      // Le rang final ne se lit que du serveur, et c'est lui qui décide du prix :
+      // sa réponse est demandée avant que le récap ne soit marqué vu.
+      const rank = week && !plus && !loadWeeklyWinGiven() ? fetchWeeklyRecap(week, lang) : null
+      if (week) markRecapSeen(week)
       setRecapWeek(null)
       if (then) setView(then)
+      if (!rank) return
+      void rank.then((recap) => {
+        if (!weeklyWinPrizeDue(session.profile, recap?.rank ?? null, loadWeeklyWinGiven())) return
+        saveWeeklyWinGiven()
+        // La pop-up dit le prix : elle remplace le merci de l'accueil, sinon les deux se poseraient ensemble.
+        joinPlus()
+        dispatch({ type: 'plus-thanked' })
+        setPrize(true)
+      })
     },
-    [recapWeek],
+    [recapWeek, plus, lang, session.profile, joinPlus, dispatch],
   )
 
   const card: ReactNode =
@@ -332,6 +350,8 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
           />
         </Suspense>
       )}
+
+      {prize && home && <PlusPrizePop onClose={() => setPrize(false)} />}
 
     </>
   )

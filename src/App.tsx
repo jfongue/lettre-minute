@@ -95,14 +95,14 @@ import { sharedCategoryIds } from './domain/catalogue'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { compactWord, normalizeWord } from './domain/text'
 import { commonWord, withExtraWords } from './domain/words'
-import { loadMessages, MessagesContext, messagesFor, type Locale } from './i18n'
+import { categoryText, loadMessages, MessagesContext, messagesFor, type Locale } from './i18n'
 import { standingMove } from './domain/standing'
 import { challengeNotice, settledPushTags } from './state/challenges'
 import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { clearInviteRef, keepInviteRef, loadInviteRef, refIn, takeAddressRef } from './state/inviteRef'
 import { createJudge } from './state/judge'
 import { todayKey } from './lib/today'
-import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, isPlus, playableCategoryIds, plusThanksDue, revealBudget, shareNewsDue } from './domain/perks'
+import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, isPlus, playableCategoryIds, plusThanksDue, premiereNews, revealBudget, shareNewsDue } from './domain/perks'
 import { enabledFeatures, type FeatureId, type Roles } from './domain/features'
 import { cloudConfigured } from './lib/supabase'
 import { host, hostFeatures, premiumStoreOpen, rewardedAdsOpen } from './platform'
@@ -121,6 +121,7 @@ import {
   loadAvatar,
   loadHistory,
   loadMultiplayerNews,
+  loadPremiereNewsSeen,
   loadProfile,
   loadQuietSignInTried,
   saveQuietSignInTried,
@@ -132,6 +133,7 @@ import {
   saveAvatar,
   saveHistory,
   saveMultiplayerPlayed,
+  savePremiereNewsSeen,
   saveProfile,
   saveQueueSeenOn,
   saveShareNewsSeen,
@@ -149,6 +151,7 @@ import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
 import { useLeaving } from './ui/useLeaving'
 import { PowerGiftPop, ShareNewsPop, WordsNewsPop } from './ui/WordsNews'
+import { PlusNewsPop } from './ui/PlusNewsPop'
 import type { ChallengeRules } from './ui/ChallengeSetup'
 import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
 import { HomeScreen } from './ui/HomeScreen'
@@ -287,6 +290,9 @@ export function App() {
     drawerMoved.current = true
   }, [menuOpen])
   const [shareNewsSeen, setShareNewsSeen] = useState(loadShareNewsSeen)
+  // Les avant-premières déjà annoncées à cet appareil : une catégorie livrée
+  // relance la pop-up, jamais deux fois la même.
+  const [premiereNewsSeen, setPremiereNewsSeen] = useState(loadPremiereNewsSeen)
   // La pastille du bouton « Multijoueur » : elle tient tant qu'aucune partie à
   // plusieurs — duel ou défi — n'a été lancée depuis cet appareil.
   const [multiplayerNews, setMultiplayerNews] = useState(loadMultiplayerNews)
@@ -1395,6 +1401,7 @@ setStartedAt((at) => at ?? Date.now())
     dispatch,
     judgeFor,
     profile,
+    joinPlus,
     openPremium,
     premiumOpen: storeOpen,
     preloadRun: preloadRunScreens,
@@ -1705,6 +1712,15 @@ setStartedAt((at) => at ?? Date.now())
     saveShareNewsSeen()
     setShareNewsSeen(true)
   }
+  // Les avant-premières qu'un envoi vient de livrer, annoncées au retour à
+  // l'accueil : une catégorie nouvelle les fait toutes repasser, une fois.
+  const freshPremieres = useMemo(() => premiereNews(premiereNewsSeen, availableCategoryIds(lang)), [premiereNewsSeen, lang])
+  const premieresPop = popsQuiet && !thanksPop && !feedbackPop && !shareNewsPop && on('premium') && freshPremieres.length > 0
+  const settlePremieres = () => {
+    const seen = [...new Set([...premiereNewsSeen, ...freshPremieres])]
+    savePremiereNewsSeen(seen)
+    setPremiereNewsSeen(seen)
+  }
 
   if (debugPhase !== null && locale !== null) {
     return (
@@ -2013,6 +2029,19 @@ setStartedAt((at) => at ?? Date.now())
             setInviteOpen(true)
             setMenuPage('social')
           }}
+        />
+      )}
+
+      {/* Premium les joue déjà : la pop-up mène aux catégories, et les autres à sa fiche. */}
+      {premieresPop && (
+        <PlusNewsPop
+          names={freshPremieres.map((id) => categoryText(t, id).label).join(', ')}
+          onOpen={() => {
+            settlePremieres()
+            if (isPlus(session.profile)) setMenuPage('categories')
+            else openPremium('premiere')
+          }}
+          onClose={settlePremieres}
         />
       )}
 

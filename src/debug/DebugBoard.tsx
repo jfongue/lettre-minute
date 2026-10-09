@@ -58,6 +58,7 @@ import { PremiumPage } from '../ui/PremiumPage'
 import { PremiumContext } from '../ui/premiumContext'
 import { PremiumSheet, type PremiumReason, type PremiumStatus } from '../ui/PremiumSheet'
 import { PlusLockedSlot, PlusSeal, RESOURCE_ICONS, ResourceChip, ResourceGlyph, type ResourceState } from '../ui/premium'
+import { PlusNewsPop, PlusPrizePop } from '../ui/PlusNewsPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
@@ -1547,6 +1548,14 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <PremiumGrammarScenario onBack={back} />,
   },
   {
+    id: 'premium-news',
+    group: 'Premium',
+    title: 'Avant-premières livrées',
+    how: 'Deux catégories nouvelles : la pop-up les annonce, et son bouton mène à « Mes catégories »',
+    phase: 'home',
+    render: (back) => <PlusNewsPop names="Ingrédients, Lieux et bâtiments" onOpen={back} onClose={back} />,
+  },
+  {
     id: 'weekly-home-card',
     group: 'Défi du moment',
     title: 'Carte de l’accueil',
@@ -1617,6 +1626,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'La courbe du record, le rang final, le trophée, « Le nouveau défi est ouvert »',
     phase: 'home',
     render: (back) => <WeeklyRecapScenario onBack={back} />,
+  },
+  {
+    id: 'weekly-win-prize',
+    group: 'Défi du moment',
+    title: 'Premier du défi : Premium offert',
+    how: 'Le récap clos sur un rang 1 : la pop-up offre Premium, sans rien écrire au serveur',
+    phase: 'home',
+    render: (back) => <PlusPrizePop onClose={back} />,
   },
   {
     id: 'over-classic',

@@ -30,6 +30,8 @@ import {
   countPlusReveal,
   countPlusRun,
   plusStat,
+  premiereNews,
+  weeklyWinPrizeDue,
 } from './perks'
 import { createRun, skip, submit, type Judge } from './run'
 import { normalizeWord } from './text'
@@ -268,5 +270,24 @@ describe('what Premium brought', () => {
     expect(plusStat(run, 'filterRuns')).toBe(1)
     expect(plusStat(run, 'premiereRuns')).toBe(1)
     expect(countPlusRun(plus, { filtersActive: 2, premiereDealt: false })).toBe(plus)
+  })
+})
+
+describe('the news a delivery brings', () => {
+  it('announces a shipped preview once, and again for every new one', () => {
+    const available = ['pays', 'ingredients', 'lieux']
+    expect(premiereNews([], available)).toEqual(['ingredients', 'lieux'])
+    expect(premiereNews(['ingredients'], available)).toEqual(['lieux'])
+    expect(premiereNews(['ingredients', 'lieux'], available)).toEqual([])
+    // Sans dictionnaire livré pour la langue, rien à annoncer.
+    expect(premiereNews([], ['pays', 'sports'])).toEqual([])
+  })
+
+  it('offers Premium to the week first, once, and never to a member', () => {
+    expect(weeklyWinPrizeDue(NEW_PROFILE, 1, false)).toBe(true)
+    expect(weeklyWinPrizeDue(NEW_PROFILE, 2, false)).toBe(false)
+    expect(weeklyWinPrizeDue(NEW_PROFILE, null, false)).toBe(false)
+    expect(weeklyWinPrizeDue(NEW_PROFILE, 1, true)).toBe(false)
+    expect(weeklyWinPrizeDue(joinPlus(NEW_PROFILE, 1), 1, false)).toBe(false)
   })
 })
