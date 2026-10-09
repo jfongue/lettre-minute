@@ -20,6 +20,12 @@
   --black: #151515;
   --cream: #f2ecdf;
 
+  /* Premium : le jaune sur le noir. Le bord ne sert qu'au sombre, où la carte noire se perdrait. */
+  --plus-bg: #151515;
+  --plus-edge: transparent;
+  --plus-ink: var(--yellow);
+  --plus-text: #f2ecdf;
+
   --font: 'Jost Variable', 'Futura', 'Century Gothic', system-ui, sans-serif;
   /* Le plancher des mentions minuscules : sous 0,7 rem, elles ne se lisent plus
      sur un téléphone, et chacune était écrite à la main. */
@@ -57,6 +63,11 @@
     --yellow: #f7c230;
     --green: #2c9a78;
     --pink: #f3a9b8;
+
+    --plus-bg: #151515;
+    --plus-edge: var(--yellow);
+    --plus-ink: var(--yellow);
+    --plus-text: #f2ecdf;
   }
 }
 
@@ -77,6 +88,11 @@
   --yellow: #f7c230;
   --green: #2c9a78;
   --pink: #f3a9b8;
+
+  --plus-bg: #151515;
+  --plus-edge: var(--yellow);
+  --plus-ink: var(--yellow);
+  --plus-text: #f2ecdf;
   color-scheme: dark;
 }
 
@@ -9037,4 +9053,503 @@ de tout cela ne le concerne. */
   .ach-fill {
     transition: none;
   }
+}
+
+/* --------------------------------------------------------- Premium : le sceau - */
+/* Jaune sur noir, partout où Premium se montre : le sceau, des icônes de
+   ressource au même trait, leurs compteurs, l'emplacement verrouillé et la
+   fiche. Rien ne se pose derrière un texte : tout se range à côté. */
+.pi {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  overflow: visible;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pi-dot,
+.pi-pupil {
+  fill: currentcolor;
+  stroke: none;
+}
+
+.pi-almond {
+  fill: var(--cream);
+}
+
+.pi-iris {
+  fill: var(--blue);
+  stroke: none;
+}
+
+.pi-dash {
+  stroke-dasharray: 3.2 3;
+}
+
+/* La variante pleine : la forme passe à l'encre, ses détails au jaune. */
+.pi--plus .pi-body {
+  fill: var(--plus-bg);
+  stroke: var(--plus-edge);
+}
+
+.pi--plus .pi-detail {
+  stroke: var(--plus-ink);
+}
+
+.pi--plus .pi-dot,
+.pi--plus .pi-iris {
+  fill: var(--plus-ink);
+}
+
+.pi--plus .pi-pupil {
+  fill: var(--plus-bg);
+}
+
+.pi-rings {
+  fill: none;
+}
+
+.pinf {
+  flex: none;
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: none;
+  stroke: var(--plus-ink);
+  stroke-width: 2.4;
+}
+
+.pseal {
+  position: relative;
+  flex: none;
+  display: inline-grid;
+  overflow: hidden;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.pseal svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pseal--sm {
+  width: 14px;
+  height: 14px;
+}
+
+.pseal--md {
+  width: 22px;
+  height: 22px;
+}
+
+.pseal--lg {
+  width: 56px;
+  height: 56px;
+}
+
+.pseal-disc {
+  fill: var(--plus-bg);
+  stroke: var(--plus-edge);
+  stroke-width: 1.5;
+}
+
+.pseal-ring {
+  fill: none;
+  stroke: var(--plus-ink);
+  stroke-width: 2;
+}
+
+.pseal--sm .pseal-ring {
+  stroke-width: 2.6;
+}
+
+/* Un pop, puis un seul reflet qui traverse le disque. */
+.pseal--enter {
+  animation: pseal-pop 260ms var(--ease-spring) both;
+}
+
+.pseal--enter::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.6) 50%, transparent 62%) no-repeat;
+  background-size: 260% 100%;
+  background-position: 130% 0;
+  animation: pseal-shine 600ms var(--ease-out) 260ms both;
+}
+
+@keyframes pseal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
+
+@keyframes pseal-shine {
+  from {
+    background-position: 130% 0;
+  }
+
+  to {
+    background-position: -30% 0;
+  }
+}
+
+.rchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2rem;
+  padding: 0.1rem 0.6rem 0.1rem 0.4rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.rchip .pi {
+  width: 20px;
+  height: 20px;
+}
+
+.rchip-count {
+  display: inline-flex;
+  align-items: center;
+}
+
+.rchip-max {
+  font-weight: 600;
+  opacity: 0.6;
+}
+
+.rchip--spent {
+  border-color: var(--rule);
+  color: var(--ink-faint);
+}
+
+.rchip--spent .pi {
+  opacity: 0.55;
+}
+
+.rchip--locked {
+  border: var(--line) dashed var(--plus-ink);
+  background: color-mix(in srgb, var(--plus-bg) 15%, transparent);
+}
+
+.rchip--plus {
+  border-color: var(--plus-bg);
+  background: var(--plus-bg);
+  color: var(--plus-ink);
+}
+
+.rchip--plus .pinf {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+.pslot {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.5rem 0.8rem;
+  border: var(--line) dashed var(--plus-ink);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--plus-bg) 15%, transparent);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 160ms var(--ease-out);
+}
+
+.pslot:active {
+  transform: scale(0.97);
+}
+
+.pslot:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.pslot-text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  line-height: 1.2;
+}
+
+.pslot-label {
+  font-weight: 700;
+}
+
+.pslot-hint {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+}
+
+/* La fiche : une carte noire au bord jaune, posée sur le voile des offres. */
+.psheet {
+  position: relative;
+  width: min(26rem, 100%);
+  max-height: calc(100dvh - var(--pop-top) - var(--pop-bottom));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.3rem 1.1rem 0.8rem;
+  border: 3px solid var(--plus-edge);
+  background: var(--plus-bg);
+  box-shadow: 8px 8px 0 var(--plus-ink);
+  color: var(--plus-text);
+  animation: pop-rise 560ms var(--ease-spring) both;
+}
+
+.psheet .pi {
+  color: var(--plus-ink);
+}
+
+.psheet-head {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.psheet-heading {
+  display: grid;
+  justify-items: start;
+  gap: 0.35rem;
+}
+
+.psheet-heading h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.psheet-lifetime {
+  padding: 0.1rem 0.55rem;
+  background: var(--plus-ink);
+  color: var(--black);
+  font-size: var(--font-micro);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.psheet-list {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.psheet-benefit {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.55rem;
+  border: var(--line) solid transparent;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.psheet-benefit--lead {
+  border-color: var(--plus-ink);
+  background: color-mix(in srgb, var(--plus-ink) 16%, transparent);
+}
+
+.psheet-value {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.9rem;
+  height: 1.5rem;
+  padding: 0 0.35rem;
+  background: var(--plus-ink);
+  color: var(--black);
+  font-weight: 800;
+}
+
+.psheet-value .pinf {
+  width: 1.3rem;
+  height: 1.3rem;
+  stroke: var(--black);
+}
+
+.psheet-note {
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.88;
+}
+
+.psheet-note--error {
+  color: var(--red);
+  opacity: 1;
+  font-weight: 700;
+}
+
+.psheet .psheet-buy {
+  width: 100%;
+  border-color: var(--plus-ink);
+  background: var(--plus-ink);
+  color: var(--black);
+}
+
+.psheet .psheet-buy:disabled {
+  background: var(--plus-ink);
+  border-color: var(--plus-ink);
+  color: var(--black);
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.psheet .psheet-buy:focus-visible,
+.psheet-link:focus-visible {
+  outline: 3px solid var(--plus-text);
+  outline-offset: 3px;
+}
+
+.psheet-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid currentcolor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: checkout-spin 700ms linear infinite;
+}
+
+.psheet-links {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.psheet-link {
+  appearance: none;
+  min-height: 2.75rem;
+  padding: 0.3rem 0.3rem;
+  border: 0;
+  background: transparent;
+  color: var(--plus-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--plus-ink);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.25em;
+  cursor: pointer;
+}
+
+.psheet-link:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.psheet-done {
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  padding: 0.6rem 0 0.4rem;
+  text-align: center;
+}
+
+.psheet-done-art {
+  position: relative;
+  display: grid;
+  margin-bottom: 0.3rem;
+}
+
+.psheet-welcome {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pseal--enter,
+  .pseal--enter::after,
+  .psheet {
+    animation: none;
+  }
+
+  .pslot {
+    transition: none;
+  }
+}
+
+/* La planche de la grammaire Premium (outil de développeur). */
+.board-premium {
+  display: grid;
+  gap: 0.8rem;
+  padding: var(--gutter);
+}
+
+.board-premium h2 {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.board-premium-row,
+.board-premium-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.board-premium-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.7rem;
+}
+
+.board-premium-grid:has(.board-premium-chips) {
+  grid-template-columns: 1fr;
+}
+
+.board-premium-cell {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--font-micro);
+}
+
+.board-premium-cell > span {
+  flex-basis: 100%;
+}
+
+.board-premium-stack {
+  display: grid;
+  gap: 0.6rem;
+}
+
+/* Sur la carte noire, le bord des icônes pleines se lit toujours en jaune. */
+.psheet .pi--plus .pi-body,
+.rchip--plus .pi--plus .pi-body {
+  stroke: var(--plus-ink);
+}
+
+.psheet .psheet-buy {
+  padding-inline: 0.8rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
 }

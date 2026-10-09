@@ -840,6 +840,33 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     badge: 'Premium',
   },
 
+  premium: {
+    title: 'Premium',
+    lifetime: 'À vie',
+    fallbackPrice: '2,50 €',
+    buy: (price: string) => `Passer Premium — ${price}`,
+    restore: 'Restaurer mes achats',
+    later: 'Plus tard',
+    loading: 'Un instant…',
+    retry: 'Réessayer',
+    welcome: 'Bienvenue',
+    welcomeNote: 'Premium est à toi, pour toujours. Merci de soutenir le jeu !',
+    continue: 'Continuer',
+    error: 'L’achat n’a pas abouti. Tu n’as rien payé : réessaie dans un instant.',
+    cancelled: 'Achat annulé. Tu peux revenir quand tu veux.',
+    locked: 'Réservé à Premium',
+    unlimited: 'illimité',
+    benefits: {
+      filter: (count: number) => `Filtre jusqu’à ${count} catégories`,
+      reveal: 'Révélations illimitées',
+      attempt: (count: number) => `${count} tentatives par jour au défi du moment`,
+      premiere: 'Catégories en avant-première : Ingrédients, Lieux et bâtiments',
+      ads: 'Plus aucune pub',
+      indie: 'Tu aides un petit développeur indé',
+      lifetime: 'À vie : un seul paiement, pas d’abonnement',
+    },
+  },
+
   peek: {
     title: 'Ce que tu aurais pu écrire',
   left: (remaining: number, total: number) => `${remaining} révélations sur ${total}`,

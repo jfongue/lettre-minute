@@ -51,6 +51,8 @@ import { CategoriesPage } from '../ui/CategoriesPage'
 import { FeedbackPop } from '../ui/FeedbackPop'
 import { PlusPop } from '../ui/PlusPop'
 import { Checkout } from '../ui/Checkout'
+import { PremiumSheet, type PremiumReason, type PremiumStatus } from '../ui/PremiumSheet'
+import { PlusLockedSlot, PlusSeal, RESOURCE_ICONS, ResourceChip, ResourceGlyph, type ResourceState } from '../ui/premium'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
@@ -1395,7 +1397,134 @@ const CHEER_TABLE: DuelTable = (() => {
   }
 })()
 
+/** La fiche Premium : un achat factice qui réussit après une seconde, sans toucher au serveur. */
+function PremiumSheetScenario({ reason, status, onBack }: { reason: PremiumReason; status?: PremiumStatus; onBack(): void }) {
+  return (
+    <PremiumSheet
+      reason={reason}
+      price="2,50 €"
+      status={status}
+      onBuy={() => new Promise((resolve) => setTimeout(() => resolve('ok'), 1000))}
+      onRestore={() => undefined}
+      onClose={onBack}
+    />
+  )
+}
+
+/** Toute la grammaire du Premium sur une page : sceaux, icônes, compteurs, emplacement. */
+function PremiumGrammarScenario({ onBack }: { onBack(): void }) {
+  const states: readonly { state: ResourceState; unlimited?: boolean; label: string }[] = [
+    { state: 'normal', label: 'normal' },
+    { state: 'spent', label: 'épuisé' },
+    { state: 'locked', label: 'verrouillé' },
+    { state: 'normal', unlimited: true, label: 'Premium' },
+  ]
+  return (
+    <div className="board-premium">
+      <button type="button" className="btn btn--quiet" onClick={onBack}>
+        ← Retour
+      </button>
+      <h2>Le sceau</h2>
+      <div className="board-premium-row">
+        <PlusSeal size="sm" />
+        <PlusSeal size="md" />
+        <PlusSeal size="lg" animated />
+      </div>
+      <h2>Icônes : normales, puis Premium</h2>
+      <div className="board-premium-grid">
+        {RESOURCE_ICONS.map((icon) => (
+          <div key={icon} className="board-premium-cell">
+            <ResourceGlyph icon={icon} />
+            <ResourceGlyph icon={icon} plus />
+            <span>{icon}</span>
+          </div>
+        ))}
+      </div>
+      <h2>Compteurs</h2>
+      <div className="board-premium-grid">
+        {(['eye', 'ticket', 'lock'] as const).map((icon) => (
+          <div key={icon} className="board-premium-chips">
+            {states.map((entry) => (
+              <ResourceChip
+                key={entry.label}
+                icon={icon}
+                count={entry.state === 'spent' ? 0 : 2}
+                max={icon === 'eye' ? 8 : undefined}
+                unlimited={entry.unlimited}
+                state={entry.state}
+                label={`${icon} ${entry.label}`}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+      <h2>Emplacements verrouillés</h2>
+      <div className="board-premium-stack">
+        <PlusLockedSlot icon="ticket" label="Tentative 4" hint="Réservée à Premium" onOpen={() => undefined} />
+        <PlusLockedSlot icon="premiere" label="Ingrédients" hint="En avant-première" onOpen={() => undefined} />
+        <PlusLockedSlot icon="eye" label="Révéler un mot de plus" onOpen={() => undefined} />
+      </div>
+    </div>
+  )
+}
+
 const SCENARIOS: readonly Scenario[] = [
+  {
+    id: 'premium-sheet',
+    group: 'Premium',
+    title: 'Fiche Premium',
+    how: 'Ouverte par le filtrage : sa ligne en tête, un achat factice qui réussit après une seconde',
+    phase: 'home',
+    render: (back) => <PremiumSheetScenario reason="filter" onBack={back} />,
+  },
+  {
+    id: 'premium-sheet-premiere',
+    group: 'Premium',
+    title: 'Fiche Premium : avant-première',
+    how: 'Ouverte par une catégorie en avant-première',
+    phase: 'home',
+    render: (back) => <PremiumSheetScenario reason="premiere" onBack={back} />,
+  },
+  {
+    id: 'premium-sheet-loading',
+    group: 'Premium',
+    title: 'Fiche Premium : achat en cours',
+    how: 'Le magasin répond : le bouton tourne, rien ne se ferme',
+    phase: 'home',
+    render: (back) => <PremiumSheetScenario reason="menu" status="loading" onBack={back} />,
+  },
+  {
+    id: 'premium-sheet-success',
+    group: 'Premium',
+    title: 'Fiche Premium : bienvenue',
+    how: 'L’achat a réussi : sceau, gerbe de formes, accord de bienvenue',
+    phase: 'home',
+    render: (back) => <PremiumSheetScenario reason="menu" status="success" onBack={back} />,
+  },
+  {
+    id: 'premium-sheet-error',
+    group: 'Premium',
+    title: 'Fiche Premium : échec',
+    how: 'Le paiement a échoué : message et « Réessayer »',
+    phase: 'home',
+    render: (back) => <PremiumSheetScenario reason="reveal" status="error" onBack={back} />,
+  },
+  {
+    id: 'premium-sheet-cancelled',
+    group: 'Premium',
+    title: 'Fiche Premium : annulé',
+    how: 'Le joueur a fermé la fenêtre du magasin',
+    phase: 'home',
+    render: (back) => <PremiumSheetScenario reason="attempt" status="cancelled" onBack={back} />,
+  },
+  {
+    id: 'premium-grammar',
+    group: 'Premium',
+    title: 'Grammaire Premium',
+    how: 'Sceaux, icônes normales et Premium, compteurs dans chaque état, emplacements verrouillés (une tape joue l’accord)',
+    phase: 'home',
+    render: (back) => <PremiumGrammarScenario onBack={back} />,
+  },
   {
     id: 'over-classic',
     group: 'Fin de partie',

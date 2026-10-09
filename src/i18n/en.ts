@@ -797,6 +797,33 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
     badge: 'Premium',
   },
 
+  premium: {
+    title: 'Premium',
+    lifetime: 'For life',
+    fallbackPrice: '€2.50',
+    buy: (price: string) => `Go Premium — ${price}`,
+    restore: 'Restore my purchases',
+    later: 'Later',
+    loading: 'One moment…',
+    retry: 'Try again',
+    welcome: 'Welcome',
+    welcomeNote: 'Premium is yours, for good. Thanks for backing the game!',
+    continue: 'Continue',
+    error: 'The purchase did not go through. You have not been charged: try again in a moment.',
+    cancelled: 'Purchase cancelled. Come back whenever you like.',
+    locked: 'Premium only',
+    unlimited: 'unlimited',
+    benefits: {
+      filter: (count: number) => `Filter up to ${count} categories`,
+      reveal: 'Unlimited reveals',
+      attempt: (count: number) => `${count} attempts a day at the challenge of the moment`,
+      premiere: 'Categories before anyone else: Ingredients, Places and buildings',
+      ads: 'No ads, ever',
+      indie: 'You help a small indie developer',
+      lifetime: 'For life: pay once, no subscription',
+    },
+  },
+
   peek: {
     title: 'What you could have written',
   left: (remaining, total) => `${remaining} reveals of ${total}`,

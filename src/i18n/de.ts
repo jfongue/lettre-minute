@@ -791,6 +791,33 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
     badge: 'Premium',
   },
 
+  premium: {
+    title: 'Premium',
+    lifetime: 'Für immer',
+    fallbackPrice: '2,50 €',
+    buy: (price: string) => `Premium holen — ${price}`,
+    restore: 'Käufe wiederherstellen',
+    later: 'Später',
+    loading: 'Einen Moment…',
+    retry: 'Nochmal versuchen',
+    welcome: 'Willkommen',
+    welcomeNote: 'Premium gehört dir für immer. Danke, dass du das Spiel unterstützt!',
+    continue: 'Weiter',
+    error: 'Der Kauf hat nicht geklappt. Du hast nichts bezahlt: versuch es gleich noch einmal.',
+    cancelled: 'Kauf abgebrochen. Du kannst jederzeit wiederkommen.',
+    locked: 'Nur für Premium',
+    unlimited: 'unbegrenzt',
+    benefits: {
+      filter: (count: number) => `Filtere bis zu ${count} Kategorien`,
+      reveal: 'Unbegrenzte Enthüllungen',
+      attempt: (count: number) => `${count} Versuche pro Tag bei der Aktuellen Challenge`,
+      premiere: 'Kategorien vorab: Zutaten, Orte und Gebäude',
+      ads: 'Nie wieder Werbung',
+      indie: 'Du hilfst einem kleinen Indie-Entwickler',
+      lifetime: 'Für immer: einmal zahlen, kein Abo',
+    },
+  },
+
   peek: {
     title: 'Was du hättest schreiben können',
   left: (remaining, total) => `${remaining} von ${total} Enthüllungen`,
