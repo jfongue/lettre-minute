@@ -525,6 +525,20 @@ export const sound = {
       glass(c, deg(notes), t + delayS + durationS + 0.05, 0.55, sfx)
     })
   },
+  /** Premium's seal: three glass notes climbing a fifth then an octave, C–G–C'. */
+  plus(): void {
+    cue((c, t) => {
+      ;[0, 7, 12].forEach((n, i) => glass(c, semi(TONIC, n), t + i * 0.09, 0.55, sfx))
+    })
+  },
+  /** The same arpeggio carried on to the third above, with a bell under the last note. */
+  plusWelcome(): void {
+    cue((c, t) => {
+      ;[0, 7, 12, 16].forEach((n, i) => glass(c, semi(TONIC, n), t + i * 0.11, 0.7, sfx))
+      glock(c, semi(TONIC, 28), t + 0.33, 0.5, sfx)
+      bell(c, semi(TONIC, 19), t + 0.33, 0.35, sfx, 2.2)
+    })
+  },
   levelUp(): void {
     cue((c, t) => {
       const hit = (f: number, at: number, v: number) => {

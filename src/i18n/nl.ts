@@ -793,6 +793,33 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
     badge: 'Premium',
   },
 
+  premium: {
+    title: 'Premium',
+    lifetime: 'Voor altijd',
+    fallbackPrice: '€ 2,50',
+    buy: (price: string) => `Word Premium — ${price}`,
+    restore: 'Mijn aankopen herstellen',
+    later: 'Later',
+    loading: 'Even geduld…',
+    retry: 'Opnieuw proberen',
+    welcome: 'Welkom',
+    welcomeNote: 'Premium is voor altijd van jou. Bedankt voor je steun aan het spel!',
+    continue: 'Verder',
+    error: 'De aankoop is niet gelukt. Je hebt niets betaald: probeer het zo nog eens.',
+    cancelled: 'Aankoop geannuleerd. Kom terug wanneer je wilt.',
+    locked: 'Alleen voor Premium',
+    unlimited: 'onbeperkt',
+    benefits: {
+      filter: (count: number) => `Filter tot ${count} categorieën`,
+      reveal: 'Onbeperkt onthullen',
+      attempt: (count: number) => `${count} pogingen per dag bij de uitdaging van het moment`,
+      premiere: 'Categorieën als eerste: Ingrediënten, Plaatsen en gebouwen',
+      ads: 'Nooit meer reclame',
+      indie: 'Je helpt een kleine indie-ontwikkelaar',
+      lifetime: 'Voor altijd: één keer betalen, geen abonnement',
+    },
+  },
+
   peek: {
     title: 'Wat je had kunnen schrijven',
   left: (remaining, total) => `${remaining} van ${total} onthullingen`,

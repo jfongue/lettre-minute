@@ -794,6 +794,33 @@ flawless: ['Senza errori', 'Ogni tre parole valide digitate senza errori danno s
     badge: 'Premium',
   },
 
+  premium: {
+    title: 'Premium',
+    lifetime: 'Per sempre',
+    fallbackPrice: '2,50 €',
+    buy: (price: string) => `Passa a Premium — ${price}`,
+    restore: 'Ripristina i miei acquisti',
+    later: 'Più tardi',
+    loading: 'Un attimo…',
+    retry: 'Riprova',
+    welcome: 'Benvenuto',
+    welcomeNote: 'Premium è tuo per sempre. Grazie per sostenere il gioco!',
+    continue: 'Continua',
+    error: 'L’acquisto non è andato a buon fine. Non ti è stato addebitato nulla: riprova tra un momento.',
+    cancelled: 'Acquisto annullato. Torna quando vuoi.',
+    locked: 'Solo per Premium',
+    unlimited: 'illimitato',
+    benefits: {
+      filter: (count: number) => `Filtra fino a ${count} categorie`,
+      reveal: 'Rivelazioni illimitate',
+      attempt: (count: number) => `${count} tentativi al giorno nella sfida del momento`,
+      premiere: 'Categorie in anteprima: Ingredienti, Luoghi ed edifici',
+      ads: 'Mai più pubblicità',
+      indie: 'Aiuti un piccolo sviluppatore indie',
+      lifetime: 'Per sempre: un solo pagamento, nessun abbonamento',
+    },
+  },
+
   peek: {
     title: 'Cosa avresti potuto scrivere',
   left: (remaining, total) => `${remaining} rivelazioni su ${total}`,
