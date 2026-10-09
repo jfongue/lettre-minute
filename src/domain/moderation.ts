@@ -28,8 +28,11 @@ export const MODERATOR_LEVEL_XP = 1650
 
 export type Verdict = 'correct' | 'unsure' | 'incorrect' | 'special'
 
-/** Why the game offers a player to moderate. */
-export type ModeratorOfferReason = 'level' | 'words' | 'friend'
+/**
+ * Why the game offers a player to moderate. « bonus » is the card won at a
+ * bonus level: the client sends it, the server never lists it as due.
+ */
+export type ModeratorOfferReason = 'level' | 'words' | 'friend' | 'bonus'
 
 export function reachesModeratorLevel(xp: number): boolean {
   return xp >= xpForLevel(MODERATOR_LEVEL)

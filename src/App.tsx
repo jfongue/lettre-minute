@@ -1962,7 +1962,7 @@ setStartedAt((at) => at ?? Date.now())
         offerDue &&
         (moderation?.offer || bonusOfferDue) && (
           <ModeratorOffer
-            reason={moderation?.offer ?? 'level'}
+            reason={moderation?.offer ?? 'bonus'}
             invitedBy={moderation?.offer ? moderation.invitedBy : null}
             anonymous={account?.anonymous !== false}
             onAccount={() => {

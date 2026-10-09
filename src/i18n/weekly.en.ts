@@ -142,6 +142,8 @@ export const weeklyEn: WeeklyMessages = {
     kicker: 'Challenge of the moment',
     title: 'The challenge is over',
     curve: 'Your record, attempt after attempt',
+    rankCurve: 'Your rank, day after day',
+    rankDays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'] as readonly string[],
     attempt: (n) => `A${n}`,
     finalRank: 'Final rank',
     rankOf: (rank, players) => `${ordinal(rank)} of ${players}`,

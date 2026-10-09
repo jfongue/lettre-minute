@@ -416,6 +416,7 @@ export const nl: Messages = {
     offer: {
       title: 'Word moderator!',
       level: (level) => `Niveau ${level}: je kent het spel van buiten. Help je ons de voorgestelde woorden te sorteren?`,
+      bonus: 'Je pakte de moderatorkaart: help je ons de woorden te beoordelen die spelers voorstellen?',
       words: 'Drie van jouw woorden staan nu in het woordenboek: je hebt een goed oog. Help je ons die van anderen te beoordelen?',
       friend: (name) => `${name} nodigt je uit om moderator te worden.`,
       how: 'Een sessie is vijf woorden, beoordeeld met één gebaar: goed, weet ik niet, fout.',

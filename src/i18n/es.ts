@@ -417,6 +417,7 @@ export const es: Messages = {
     offer: {
       title: '¡Hazte moderador!',
       level: (level) => `Nivel ${level}: te sabes el juego de memoria. ¿Nos ayudas a ordenar las palabras que proponen los jugadores?`,
+      bonus: 'Has cogido la carta de moderador: ¿nos ayudas a revisar las palabras que proponen los jugadores?',
       words: 'Tres de tus palabras entraron en el diccionario: tienes buen ojo. ¿Nos ayudas a juzgar las de los demás?',
       friend: (name) => `${name} te propone unirte a los moderadores.`,
       how: 'Una sesión son cinco palabras que se juzgan con un gesto: correcta, no lo sé, incorrecta.',

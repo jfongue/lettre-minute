@@ -1927,6 +1927,14 @@ export interface WeeklyRecap {
   /** Mon rang final, null sans tentative terminée. */
   rank: number | null
   players: number
+  /** Mon rang à la fin de chaque jour de Paris où j'ai joué, dans l'ordre. */
+  ranks: WeeklyRecapRank[]
+}
+
+export interface WeeklyRecapRank {
+  day: string
+  rank: number
+  players: number
 }
 
 export function fetchWeeklyRecap(weekId: string, lang: string): Promise<WeeklyRecap | null> {
@@ -1945,6 +1953,11 @@ export function fetchWeeklyRecap(weekId: string, lang: string): Promise<WeeklyRe
       best: row.best === null || row.best === undefined ? null : Number(row.best),
       rank: row.rank === null || row.rank === undefined ? null : Number(row.rank),
       players: Number(row.players) || 0,
+      ranks: ((row.ranks as Record<string, unknown>[] | null) ?? []).map((entry) => ({
+        day: entry.day as string,
+        rank: Number(entry.rank) || 1,
+        players: Number(entry.players) || 1,
+      })),
     }
   }, null)
 }

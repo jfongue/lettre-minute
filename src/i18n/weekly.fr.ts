@@ -152,6 +152,8 @@ export const weeklyFr = {
     kicker: 'Défi du moment',
     title: 'Le défi est clos',
     curve: 'Ton record, tentative après tentative',
+    rankCurve: 'Ton rang, jour après jour',
+    rankDays: ['D', 'L', 'M', 'M', 'J', 'V', 'S'] as readonly string[],
     attempt: (n: number) => `T${n}`,
     finalRank: 'Rang final',
     rankOf: (rank: number, players: number) => `${rank === 1 ? '1er' : `${rank}e`} sur ${players}`,

@@ -136,6 +136,8 @@ export const weeklyNl: WeeklyMessages = {
     kicker: 'Uitdaging van het moment',
     title: 'De uitdaging is afgelopen',
     curve: 'Jouw record, poging na poging',
+    rankCurve: 'Je plaats, dag na dag',
+    rankDays: ['Z', 'M', 'D', 'W', 'D', 'V', 'Z'] as readonly string[],
     attempt: (n) => `P${n}`,
     finalRank: 'Eindplek',
     rankOf: (rank, players) => `${rank}e van ${players}`,

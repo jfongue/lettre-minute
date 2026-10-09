@@ -49,7 +49,9 @@ export function ModeratorOffer({ reason, invitedBy, anonymous, onAccount, onAnsw
       ? t.moderation.offer.friend(invitedBy)
       : reason === 'words'
         ? t.moderation.offer.words
-        : t.moderation.offer.level(MODERATOR_LEVEL)
+        : reason === 'bonus'
+          ? t.moderation.offer.bonus
+          : t.moderation.offer.level(MODERATOR_LEVEL)
 
   // « Plus tard » while the question stands; once welcomed, the gesture is the
   // same door as the button that closes the card.

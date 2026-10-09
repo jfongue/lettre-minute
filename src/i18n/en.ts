@@ -421,6 +421,7 @@ export const en: Messages = {
     offer: {
       title: 'Become a moderator!',
       level: (level) => `Level ${level}: you know the game by heart. Will you help us sort the words players propose?`,
+      bonus: 'You took the moderator card: will you help us sort the words players propose?',
       words: 'Three of your words made it into the dictionary: you have a good eye. Will you help us judge the others?',
       friend: (name) => `${name} invites you to join the moderators.`,
       how: 'A session is five words, judged with one gesture: correct, not sure, incorrect.',

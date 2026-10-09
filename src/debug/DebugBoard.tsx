@@ -1325,7 +1325,7 @@ const levelUp = (from: number, to: number): [Profile, Profile] => {
 
 /** L'offre de modérateur : un seul rendu pour les trois raisons qui l'amènent. */
 const offerModerator =
-  (reason: 'level' | 'words' | 'friend') =>
+  (reason: 'level' | 'words' | 'friend' | 'bonus') =>
   (back: () => void): ReactNode => (
     <ModeratorOffer
       reason={reason}
@@ -2111,6 +2111,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Accepter montre l’accueil, sans rien écrire sur le serveur',
     phase: 'home',
     render: offerModerator('level'),
+  },
+  {
+    id: 'moderator-bonus',
+    group: 'Modération',
+    title: 'Offre de modérateur : carte gagnée en bonus',
+    how: 'La carte prise à un niveau bonus : accepter montre l’accueil, sans rien écrire sur le serveur',
+    phase: 'home',
+    render: offerModerator('bonus'),
   },
   {
     id: 'moderator-words',

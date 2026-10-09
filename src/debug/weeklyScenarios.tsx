@@ -260,6 +260,13 @@ const RECAP: WeeklyRecap = {
   best: 88.2,
   rank: 7,
   players: 342,
+  ranks: [
+    { day: '2026-10-12', rank: 118, players: 140 },
+    { day: '2026-10-13', rank: 64, players: 205 },
+    { day: '2026-10-14', rank: 31, players: 260 },
+    { day: '2026-10-15', rank: 12, players: 310 },
+    { day: '2026-10-16', rank: 7, players: 342 },
+  ],
 }
 
 export function WeeklyRecapScenario({ onBack }: { onBack(): void }) {

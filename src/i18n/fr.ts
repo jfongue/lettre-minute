@@ -456,6 +456,7 @@ export const fr = {
     offer: {
       title: 'Deviens modérateur !',
       level: (level: number) => `Niveau ${level} : tu connais le jeu par cœur. Tu nous aides à trier les mots proposés par les joueurs ?`,
+      bonus: 'Tu as pris la carte de modérateur : tu nous aides à trier les mots proposés par les joueurs ?',
       words: 'Trois de tes mots sont entrés au dictionnaire : tu as l’œil. Tu nous aides à juger ceux des autres ?',
       friend: (name: string) => `${name} te propose de rejoindre les modérateurs.`,
       how: 'Une session, c’est cinq mots à juger d’un geste : correct, je ne sais pas, incorrect.',

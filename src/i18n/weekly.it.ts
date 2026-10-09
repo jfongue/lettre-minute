@@ -136,6 +136,8 @@ export const weeklyIt: WeeklyMessages = {
     kicker: 'Sfida del momento',
     title: 'La sfida è chiusa',
     curve: 'Il tuo record, tentativo dopo tentativo',
+    rankCurve: 'La tua posizione, giorno dopo giorno',
+    rankDays: ['D', 'L', 'M', 'M', 'G', 'V', 'S'] as readonly string[],
     attempt: (n) => `T${n}`,
     finalRank: 'Posizione finale',
     rankOf: (rank, players) => `${rank}º su ${players}`,

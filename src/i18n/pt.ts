@@ -417,6 +417,7 @@ export const pt: Messages = {
     offer: {
       title: 'Vire moderador!',
       level: (level) => `Nível ${level}: você conhece o jogo de cor. Ajuda a gente a triar as palavras propostas pelos jogadores?`,
+      bonus: 'Você pegou a carta de moderador: nos ajuda a avaliar as palavras propostas pelos jogadores?',
       words: 'Três das suas palavras entraram no dicionário: você tem olho bom. Ajuda a gente a julgar as dos outros?',
       friend: (name) => `${name} convida você para entrar nos moderadores.`,
       how: 'Uma sessão são cinco palavras julgadas com um gesto: correta, não sei, incorreta.',

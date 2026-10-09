@@ -3,7 +3,7 @@ import type { GameMode } from '../domain/modes'
 import { awardWeeklyTrophies, metricOf, recordCurve, type WeeklyTrophy } from '../domain/weekly'
 import { capitalized } from '../domain/text'
 import { useT } from '../i18n'
-import { fetchWeeklyBoard, fetchWeeklyMeasures, fetchWeeklyRecap, type WeeklyRecap as RecapData } from '../lib/cloud'
+import { fetchWeeklyBoard, fetchWeeklyMeasures, fetchWeeklyRecap, type WeeklyRecap as RecapData, type WeeklyRecapRank } from '../lib/cloud'
 import { sound } from '../lib/sound'
 import { Burst } from './bauhaus'
 import { onTint } from './motifs'
@@ -46,6 +46,40 @@ function RecordCurve({ values, mode }: { values: readonly (number | null)[]; mod
         </text>
       </svg>
       <figcaption className="note">{t.weekly.recap.curve}</figcaption>
+    </figure>
+  )
+}
+
+/** Le rang à la fin de chaque jour joué : le 1er est en haut du cadre. */
+function RankCurve({ ranks }: { ranks: readonly WeeklyRecapRank[] }) {
+  const t = useT()
+  const width = 300
+  const height = 130
+  const left = 16
+  const right = 20
+  const worst = Math.max(2, ...ranks.map((entry) => entry.rank))
+  const step = ranks.length > 1 ? (width - left - right) / (ranks.length - 1) : 0
+  const x = (index: number) => (ranks.length > 1 ? left + index * step : width / 2)
+  const y = (rank: number) => 24 + ((rank - 1) / (worst - 1)) * (height - 54)
+  const path = ranks.map((entry, index) => `${index === 0 ? 'M' : 'L'}${x(index)} ${y(entry.rank)}`).join(' ')
+  return (
+    <figure className="wk-curve">
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={t.weekly.recap.rankCurve}>
+        <line x1={left - 8} x2={width - right + 6} y1={height - 20} y2={height - 20} className="wk-curve-axis" />
+        {ranks.length > 1 && <path d={path} className="wk-curve-line" />}
+        {ranks.map((entry, index) => (
+          <g key={entry.day}>
+            <circle cx={x(index)} cy={y(entry.rank)} r={index === ranks.length - 1 ? 5.5 : 3.5} className={index === ranks.length - 1 ? 'wk-curve-dot wk-curve-dot--record' : 'wk-curve-dot'} />
+            <text x={x(index)} y={y(entry.rank) - 9} textAnchor="middle" className="wk-curve-top">
+              {entry.rank}
+            </text>
+            <text x={x(index)} y={height - 5} textAnchor="middle" className="wk-curve-label">
+              {t.weekly.recap.rankDays[new Date(`${entry.day}T00:00:00Z`).getUTCDay()]}
+            </text>
+          </g>
+        ))}
+      </svg>
+      <figcaption className="note">{t.weekly.recap.rankCurve}</figcaption>
     </figure>
   )
 }
@@ -103,6 +137,7 @@ export function WeeklyRecapView({ mode, recap, trophy, onGo, onResults, onLater 
               </span>
             </div>
             {values.some((value) => value !== null) && <RecordCurve values={values} mode={mode} />}
+            {recap.ranks.length > 0 && <RankCurve ranks={recap.ranks} />}
             {trophy && (
               <div className="trophy wk-recap-trophy">
                 <span className="trophy-mark" style={{ background: `var(--${WEEKLY_TROPHY_TINTS[trophy.id]})` }} aria-hidden="true">
@@ -150,7 +185,7 @@ export function WeeklyRecap({
   const [trophy, setTrophy] = useState<WeeklyTrophy | null>(null)
   useEffect(() => {
     let live = true
-    fetchWeeklyRecap(weekId, lang).then((next) => live && setRecap(next ?? { attempts: [], best: null, rank: null, players: 0 }))
+    fetchWeeklyRecap(weekId, lang).then((next) => live && setRecap(next ?? { attempts: [], best: null, rank: null, players: 0, ranks: [] }))
     Promise.all([fetchWeeklyBoard(weekId, lang, 200), fetchWeeklyMeasures(weekId, lang)]).then(([board, measures]) => {
       const me = board?.find((row) => row.me)
       if (!live || !me || !measures) return
