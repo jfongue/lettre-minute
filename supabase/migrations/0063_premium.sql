@@ -10,7 +10,7 @@
 
 create table public.purchases (
   id uuid primary key default gen_random_uuid(),
-  account uuid not null references auth.users on delete cascade,
+  account uuid not null references public.profiles on delete cascade,
   product text not null check (product ~ '^[a-z][a-z0-9_]{1,63}$'),
   token text not null check (length(token) between 10 and 2000),
   order_id text not null default '',
@@ -30,7 +30,9 @@ create policy purchases_own on public.purchases for select to authenticated usin
 
 -- The phone reports a purchase the store just completed or listed again. The
 -- same token twice is the same purchase: it stays with the first account that
--- reported it, and the answer is its state.
+-- reported it, and the answer is its state — unless that account was an
+-- anonymous one and a named account now reports it: a player who bought before
+-- signing in carries Premium to the account their other devices will find.
 create function public.record_purchase(p_product text, p_token text, p_order_id text) returns text
 language plpgsql security definer set search_path = public as $$
 declare
@@ -46,6 +48,12 @@ begin
   insert into public.purchases (account, product, token, order_id)
   values (auth.uid(), p_product, p_token, coalesce(p_order_id, ''))
   on conflict (token) do nothing;
+
+  if public.is_named_account() then
+    update public.purchases p set account = auth.uid()
+     where p.token = p_token and p.account <> auth.uid()
+       and exists (select 1 from auth.users u where u.id = p.account and u.is_anonymous);
+  end if;
 
   select state into state_now from public.purchases where token = p_token and account = auth.uid();
   return coalesce(state_now, 'forbidden');
