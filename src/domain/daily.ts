@@ -21,7 +21,7 @@ const DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
  * Hinnant's `civil_from_days`): arithmetic only, so the domain never builds a
  * `Date`, whose zone and parsing belong to the device.
  */
-function civilFromDays(days: number): [year: number, month: number, day: number] {
+export function civilFromDays(days: number): [year: number, month: number, day: number] {
   const z = days + 719468
   const era = Math.floor(z / 146097)
   const doe = z - era * 146097
@@ -32,7 +32,7 @@ function civilFromDays(days: number): [year: number, month: number, day: number]
   return [yoe + era * 400 + (month <= 2 ? 1 : 0), month, doy - Math.floor((153 * mp + 2) / 5) + 1]
 }
 
-function daysFromCivil(year: number, month: number, day: number): number {
+export function daysFromCivil(year: number, month: number, day: number): number {
   const y = month <= 2 ? year - 1 : year
   const era = Math.floor(y / 400)
   const yoe = y - era * 400

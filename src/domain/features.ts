@@ -55,6 +55,7 @@ export const FEATURES: readonly FeatureDef[] = [
   { id: 'avatar', label: 'Avatar et couleurs', note: 'L’écran de l’avatar', defaults: open },
  { id: 'achievements', label: 'Succès', note: 'La page des succès, ses barres, et l’annonce au bilan', defaults: open },
   { id: 'tutorial', label: 'Tutoriel', note: 'La première partie guidée', defaults: open },
+  { id: 'weekly', label: 'Défi du moment', note: 'Le défi hebdomadaire, ses tentatives, son classement et son récap', defaults: supers },
   { id: 'gameModes', label: 'Modes de jeu', note: 'La réserve de modes derrière « Jouer » : retard, endurance, renversé, sans pouvoir', defaults: supers },
   // Les mots
   { id: 'proposeWord', label: 'Proposer un mot', note: 'Pendant la partie, et la correction au bilan', defaults: open },

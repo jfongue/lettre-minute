@@ -14,6 +14,7 @@ import type { PromptRecord } from '../domain/prompts'
 import type { RarityTier } from '../domain/rarity'
 import { promptKey, promptOutcomes, type Run } from '../domain/run'
 import { acceptable } from '../domain/wordShape'
+import { weeklyValue, type WeeklyMeasures, type WeeklyMetric } from '../domain/weekly'
 import { withBotRuns } from '../state/botRuns'
 import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
 import { googleIdToken } from './native'
@@ -1780,4 +1781,166 @@ export function syncDuel(table: string, after: number): Promise<DuelSnapshot | n
 /** L'identifiant du joueur sur le serveur : c'est sous lui que le duel range sa place. */
 export function fetchPlayerId(): Promise<string | null> {
   return guard(async () => (await connect())?.userId ?? null, null)
+}
+
+// --------------------------------------------------------- défi du moment --
+// Les tables du défi portent leur langue dans une colonne : ni mots ni
+// catégories n'y sont préfixés, contrairement au reste de ce fichier.
+
+export type WeeklyStart = { attemptId: string; n: number } | 'refused' | 'unreachable'
+
+/**
+ * Enregistre une tentative au lancement : le serveur fait foi du compte. `refused`
+ * dit un quota atteint ou une fenêtre périmée, `unreachable` qu'il faut se
+ * rabattre sur le compteur local (`src/state/weekly.ts`).
+ */
+export function weeklyStart(weekId: string, lang: string, day: string, quota: number): Promise<WeeklyStart> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('weekly_start', { p_week_id: weekId, p_lang: lang, p_day: day, p_quota: quota })
+    if (error) return 'unreachable'
+    const row = (data as { attempt_id: string; n: number }[] | null)?.[0]
+    return row ? { attemptId: row.attempt_id, n: Number(row.n) } : 'refused'
+  }, 'unreachable' as WeeklyStart)
+}
+
+/** Rend la partie d'une tentative : sa valeur, ses mots et sa plus longue série. */
+export function weeklyFinish(attemptId: string, run: Run, metric: WeeklyMetric): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('weekly_finish', {
+      p_attempt: attemptId,
+      p_value: weeklyValue(run, metric),
+      p_words: challengeWordsOf(run),
+      p_metric: metric,
+      p_combo: run.bestCombo,
+    })
+    return !error && data === true
+  }, false)
+}
+
+export interface WeeklyBoardRow {
+  rank: number
+  playerId: string
+  name: string
+  avatar: AvatarChoice
+  value: number
+  attempts: number
+  me: boolean
+}
+
+export function fetchWeeklyBoard(weekId: string, lang: string, limit = 50): Promise<WeeklyBoardRow[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('weekly_board', { p_week_id: weekId, p_lang: lang, p_lim: limit })
+    if (error) return null
+    return ((data as Record<string, unknown>[]) ?? []).map((row) => ({
+      rank: Number(row.rank),
+      playerId: row.player_id as string,
+      name: row.display_name as string,
+      avatar: parseAvatar(row.avatar),
+      value: Number(row.value),
+      attempts: Number(row.attempts),
+      me: row.me === true,
+    }))
+  }, null)
+}
+
+export interface WeeklyRecapAttempt {
+  n: number
+  day: string
+  value: number | null
+  metric: WeeklyMetric
+  finished: boolean
+}
+
+export interface WeeklyRecap {
+  attempts: WeeklyRecapAttempt[]
+  best: number | null
+  /** Mon rang final, null sans tentative terminée. */
+  rank: number | null
+  players: number
+}
+
+export function fetchWeeklyRecap(weekId: string, lang: string): Promise<WeeklyRecap | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('weekly_recap', { p_week_id: weekId, p_lang: lang })
+    if (error || !data) return null
+    const row = data as Record<string, unknown>
+    return {
+      attempts: ((row.attempts as Record<string, unknown>[]) ?? []).map((attempt) => ({
+        n: Number(attempt.n),
+        day: attempt.day as string,
+        value: attempt.value === null || attempt.value === undefined ? null : Number(attempt.value),
+        metric: attempt.metric === 'survival' ? 'survival' : 'score',
+        finished: attempt.finished === true,
+      })),
+      best: row.best === null || row.best === undefined ? null : Number(row.best),
+      rank: row.rank === null || row.rank === undefined ? null : Number(row.rank),
+      players: Number(row.players) || 0,
+    }
+  }, null)
+}
+
+/** La dernière semaine close où j'ai rendu une partie, pour décider d'un récap. */
+export function fetchWeeklyLastPlayed(lang: string): Promise<string | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('weekly_last_played', { p_lang: lang })
+    return error ? null : ((data as string | null) ?? null)
+  }, null)
+}
+
+/** Une ligne de mesures par joueur : de quoi attribuer les trophées sans lire un mot. */
+export function fetchWeeklyMeasures(weekId: string, lang: string): Promise<WeeklyMeasures[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('weekly_measures', { p_week_id: weekId, p_lang: lang })
+    if (error) return null
+    const maybe = (value: unknown) => (value === null || value === undefined ? null : Number(value))
+    return ((data as Record<string, unknown>[]) ?? []).map((row) => ({
+      playerId: row.player_id as string,
+      reachedAt: Date.parse(row.reached_at as string) || 0,
+      attempts: Number(row.attempts) || 0,
+      climb: Number(row.climb) || 0,
+      bestCombo: Number(row.best_combo) || 0,
+      original: Number(row.original) || 0,
+      sheep: Number(row.sheep) || 0,
+      rarestTier: Number(row.rarest_tier) || 0,
+      rarestPoints: Number(row.rarest_points) || 0,
+      rarestWord: (row.rarest_word as string | null) ?? null,
+      fastest: maybe(row.fastest),
+      fastestWord: (row.fastest_word as string | null) ?? null,
+      longest: Number(row.longest) || 0,
+      longestWord: (row.longest_word as string | null) ?? null,
+    }))
+  }, null)
+}
+
+/** Un emoji nul reprend la réaction ; faux si le joueur n'a pas joué la semaine. */
+export function reactInWeekly(weekId: string, lang: string, target: string, emoji: ReactionEmoji | null): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('react_in_weekly', {
+      p_week_id: weekId,
+      p_lang: lang,
+      p_target: target,
+      p_emoji: emoji,
+    })
+    return !error && data === true
+  }, false)
+}
+
+export interface WeeklyReactionCount {
+  target: string
+  emoji: ReactionEmoji
+  count: number
+  mine: boolean
+}
+
+export function fetchWeeklyReactionCounts(weekId: string, lang: string): Promise<WeeklyReactionCount[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('weekly_reaction_counts', { p_week_id: weekId, p_lang: lang })
+    if (error) return null
+    return ((data as Record<string, unknown>[]) ?? []).map((row) => ({
+      target: row.target as string,
+      emoji: row.emoji as ReactionEmoji,
+      count: Number(row.n) || 0,
+      mine: row.mine === true,
+    }))
+  }, null)
 }
