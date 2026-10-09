@@ -855,7 +855,6 @@ setStartedAt((at) => at ?? Date.now())
                 display: word.display,
                 sitelinks: word.sitelinks,
                 frequency: word.frequency,
-                notoriety: 0,
               })),
             ),
           )
