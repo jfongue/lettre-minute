@@ -22,6 +22,7 @@ import {
 } from '../domain/duel'
 import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
 import { createRng } from '../domain/rng'
+import { sharedCategoryIds } from '../domain/catalogue'
 import { playableCategoryIds } from '../domain/perks'
 import { onAppActive } from '../lib/native'
 import type { Profile } from '../domain/progression'
@@ -304,7 +305,8 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile }: Due
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
-  const mine = useMemo(() => playableCategoryIds(profile, ownedCategoryIds(profile)).filter((id) => shipped.includes(id)), [profile, shipped])
+  // A table deals what every seat can: the avant-premières stay out.
+  const mine = useMemo(() => sharedCategoryIds(playableCategoryIds(profile, ownedCategoryIds(profile))).filter((id) => shipped.includes(id)), [profile, shipped])
   const [playerId, setPlayerId] = useState<string | null>(null)
   useEffect(() => {
     if (mode === 'online') void fetchPlayerId().then(setPlayerId)

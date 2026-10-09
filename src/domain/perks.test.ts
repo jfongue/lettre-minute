@@ -25,6 +25,11 @@ import {
   plusThanksDue,
   playableCategoryIds,
   unban,
+  countPlusAdSkipped,
+  countPlusAttempt,
+  countPlusReveal,
+  countPlusRun,
+  plusStat,
 } from './perks'
 import { createRun, skip, submit, type Judge } from './run'
 import { normalizeWord } from './text'
@@ -223,5 +228,45 @@ describe('shareNewsDue', () => {
     expect(shareNewsDue({ ...NEW_PROFILE, runs: 14 }, false, false)).toBe(false)
     expect(shareNewsDue({ ...NEW_PROFILE, runs: 15 }, false, false)).toBe(true)
     expect(shareNewsDue({ ...NEW_PROFILE, runs: 40 }, true, true)).toBe(false)
+  })
+})
+
+describe('what Premium brought', () => {
+  const DAY = '2026-10-09'
+  const NEXT = '2026-10-10'
+  const plus = joinPlus(NEW_PROFILE, 1)
+
+  it('counts nothing for a free player', () => {
+    expect(countPlusReveal(NEW_PROFILE, DAY)).toBe(NEW_PROFILE)
+    expect(countPlusAttempt(NEW_PROFILE, 4)).toBe(NEW_PROFILE)
+    expect(countPlusAdSkipped(NEW_PROFILE)).toBe(NEW_PROFILE)
+    expect(countPlusRun(NEW_PROFILE, { filtersActive: 6, premiereDealt: true })).toBe(NEW_PROFILE)
+  })
+
+  it('counts a reveal only past the free allowance, and an ad skipped while an ad could have paid', () => {
+    let profile = plus
+    for (let i = 0; i < BASE_REVEALS; i++) profile = countPlusReveal(profile, DAY)
+    expect(plusStat(profile, 'reveals')).toBe(0)
+    profile = countPlusReveal(profile, DAY)
+    expect(plusStat(profile, 'reveals')).toBe(1)
+    expect(plusStat(profile, 'adsSkipped')).toBe(1)
+    for (let i = 0; i < REVEAL_ADS_MAX + 1; i++) profile = countPlusReveal(profile, DAY)
+    expect(plusStat(profile, 'adsSkipped')).toBe(REVEAL_ADS_MAX)
+    expect(plusStat(countPlusReveal(profile, NEXT), 'reveals')).toBe(plusStat(profile, 'reveals'))
+  })
+
+  it('counts the weekly attempts from the third, the third sparing an ad', () => {
+    expect(countPlusAttempt(plus, 2)).toBe(plus)
+    const third = countPlusAttempt(plus, 3)
+    expect(plusStat(third, 'attempts')).toBe(1)
+    expect(plusStat(third, 'adsSkipped')).toBe(1)
+    expect(plusStat(countPlusAttempt(third, 4), 'adsSkipped')).toBe(1)
+  })
+
+  it('counts runs with more filters than the free maximum, and runs that dealt a preview', () => {
+    const run = countPlusRun(plus, { filtersActive: 3, premiereDealt: true })
+    expect(plusStat(run, 'filterRuns')).toBe(1)
+    expect(plusStat(run, 'premiereRuns')).toBe(1)
+    expect(countPlusRun(plus, { filtersActive: 2, premiereDealt: false })).toBe(plus)
   })
 })

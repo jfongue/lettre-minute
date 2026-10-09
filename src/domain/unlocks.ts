@@ -35,8 +35,8 @@ export function picksOwed(profile: Profile, isModerator = false): number {
  * `availableIds` is what the build ships a dictionary for — a category without
  * words can be neither offered nor played.
  */
-export function dealOffer(profile: Profile, availableIds: readonly string[], seed: number): Profile {
-  if (profile.offer.length > 0 || picksOwed(profile) === 0) return profile
+export function dealOffer(profile: Profile, availableIds: readonly string[], seed: number, isModerator = false): Profile {
+  if (profile.offer.length > 0 || picksOwed(profile, isModerator) === 0) return profile
 
   const owned = new Set(ownedCategoryIds(profile))
   const candidates = CATALOGUE.filter((category) => !category.premiere)

@@ -19,12 +19,13 @@ const HIGHEST = ['banIntroSeen', 'bonusGifts', 'perksVersion', 'plusThanked', 's
 type ListField = (typeof OWNED)[number] | (typeof LATEST)[number]
 type CountField = (typeof HIGHEST)[number] | 'plusSince' | 'runs'
 
-export type Progress = Pick<Profile, ListField | CountField>
+export type Progress = Pick<Profile, ListField | CountField | 'plusStats'>
 
 export function progressOf(profile: Profile): Progress {
   const progress: Record<string, unknown> = { runs: profile.runs, plusSince: profile.plusSince }
   for (const field of [...OWNED, ...LATEST]) progress[field] = [...profile[field]]
   for (const field of HIGHEST) progress[field] = profile[field]
+  progress.plusStats = { ...profile.plusStats }
   return progress as Progress
 }
 
@@ -39,6 +40,11 @@ export function parseProgress(raw: unknown): Progress | null {
     progress[field] = Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : []
   }
   for (const field of HIGHEST) progress[field] = count(stored[field])
+  const stats = stored.plusStats
+  progress.plusStats =
+    stats && typeof stats === 'object' && !Array.isArray(stats)
+      ? Object.fromEntries(Object.entries(stats).map(([key, value]) => [key, count(value)]))
+      : {}
   return progress as Progress
 }
 
@@ -86,6 +92,9 @@ export function withProgress(local: Profile, saved: Progress): Profile {
     plusSince: local.plusSince && saved.plusSince ? Math.min(local.plusSince, saved.plusSince) : local.plusSince || saved.plusSince,
   }
   for (const field of HIGHEST) merged[field] = Math.max(local[field], saved[field])
+  merged.plusStats = Object.fromEntries(
+    [...new Set([...Object.keys(local.plusStats), ...Object.keys(saved.plusStats)])].map((key) => [key, Math.max(local.plusStats[key] ?? 0, saved.plusStats[key] ?? 0)]),
+  )
   merged.bonusGifts = Math.max(local.bonusGifts, savedPerks.bonusGifts)
   return merged
 }

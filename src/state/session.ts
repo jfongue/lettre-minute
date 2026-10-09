@@ -4,7 +4,9 @@ import type { RarityTier } from '../domain/rarity'
 import { capitalized, normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
 import { markSupportAsked } from '../domain/support'
-import { ban, joinPlus, markBanIntroSeen, markFeedbackAsked, markPlusThanked, spendReveal, unban } from '../domain/perks'
+import { premiereCategoryIds } from '../domain/catalogue'
+import { ban, bannedOf, countPlusReveal, countPlusRun, grantRevealAd, joinPlus, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
+import { chooseBonus, dealBonusOffer } from '../domain/bonus'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, type PowerId } from '../domain/powers'
 import { countsForProgress, type GameMode } from '../domain/modes'
 import {
@@ -99,8 +101,10 @@ export type SessionAction =
     }
   /** The countdown traded a category: same seed, new lineup, a judge that knows the incoming dictionary. */
   | { type: 'swapped'; judge: Judge; categoryIds: readonly string[]; reserve: readonly string[] }
-  | { type: 'offer'; availableIds: readonly string[]; seed: number }
+  /** `isModerator` keeps the moderator card off the bonus table of someone who already is one. */
+  | { type: 'offer'; availableIds: readonly string[]; seed: number; isModerator?: boolean }
   | { type: 'choose'; categoryId: string }
+  | { type: 'choose-bonus'; bonusId: string }
   | { type: 'choose-power'; powerId: string }
   | { type: 'grant-power'; powerId: PowerId }
   | { type: 'equip'; slot: number; powerId: PowerId | null }
@@ -128,6 +132,8 @@ export type SessionAction =
   | { type: 'ban-intro-seen' }
   /** A hidden answer of the summary uncovered. */
   | { type: 'peek'; day: string }
+  /** A rewarded ad watched through: one more reveal on `day`. */
+  | { type: 'reveal-ad'; day: string }
   /** `at`: the wall clock, which the rules do not read themselves. */
   | { type: 'join-plus'; at: number }
   | { type: 'plus-thanked' }
@@ -197,12 +203,22 @@ export function sessionReducer(session: Session, action: SessionAction): Session
     }
 
     case 'offer': {
-      const profile = dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed), action.seed)
+      const isModerator = action.isModerator ?? false
+      const profile = dealBonusOffer(
+        dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed, isModerator), action.seed),
+        action.seed,
+        isModerator,
+      )
       return profile === session.profile ? session : { ...session, profile }
     }
 
     case 'choose': {
       const profile = chooseCategory(session.profile, action.categoryId)
+      return profile === session.profile ? session : { ...session, profile }
+    }
+
+    case 'choose-bonus': {
+      const profile = chooseBonus(session.profile, action.bonusId)
       return profile === session.profile ? session : { ...session, profile }
     }
 
@@ -225,7 +241,12 @@ export function sessionReducer(session: Session, action: SessionAction): Session
     case 'ban-intro-seen':
       return withProfile(session, markBanIntroSeen(session.profile))
     case 'peek':
-      return withProfile(session, spendReveal(session.profile, action.day))
+      return withProfile(
+        session,
+        isPlus(session.profile) ? countPlusReveal(session.profile, action.day) : spendReveal(session.profile, action.day),
+      )
+    case 'reveal-ad':
+      return withProfile(session, grantRevealAd(session.profile, action.day))
     case 'join-plus':
       return withProfile(session, joinPlus(session.profile, action.at))
     case 'plus-thanked':
@@ -325,7 +346,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         // historique — son score ne vit qu'à l'écran.
         profile: !countsForProgress(run.mode)
           ? session.profile
-          : (session.challengeId ? applyChallengeRun : applyRun)(session.profile, {
+          : (session.challengeId ? applyChallengeRun : applyRun)(plusRunCounted(session, run), {
               score: run.score,
               words: run.found.map((found) => found.word),
               bestCombo: run.bestCombo,
@@ -361,6 +382,16 @@ export function sessionReducer(session: Session, action: SessionAction): Session
     case 'home':
       return { ...session, phase: 'home', run: null, draft: '', live: null, cheer: null, proposals: [] }
   }
+}
+
+/** A solo run is what shows Premium's filters and previews at work: a challenge deals its own categories. */
+function plusRunCounted(session: Session, run: Run): Profile {
+  if (session.challengeId) return session.profile
+  const premieres = premiereCategoryIds()
+  return countPlusRun(session.profile, {
+    filtersActive: bannedOf(session.profile, ownedCategoryIds(session.profile)).length,
+    premiereDealt: run.categoryIds.some((id) => premieres.includes(id)),
+  })
 }
 
 function withProfile(session: Session, profile: Profile): Session {
