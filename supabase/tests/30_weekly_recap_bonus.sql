@@ -1,5 +1,6 @@
 -- 0064 : le rang du récap suit les jours joués, et la carte de modérateur
--- gagnée en bonus de niveau se prend sans autre condition qu'un compte nommé.
+-- gagnée en bonus de niveau se prend avec un compte nommé et les XP du
+-- premier niveau de bonus, vus par le serveur.
 
 select tests.new_user(n) from unnest(array['ra', 'rb', 'rc', 'rd', 're']) n;
 select tests.new_user('ran', true);
@@ -52,7 +53,12 @@ select tests.is(public.answer_moderator_offer('level', true), false, 'the level 
 select tests.is(public.answer_moderator_offer('bonus', false), true, 'the bonus card can be declined');
 select tests.is((select count(*)::int from public.moderators where id = tests.uid('rd')), 0, 'declining makes nobody a moderator');
 select tests.is((select count(*)::int from public.moderator_offers where player_id = tests.uid('rd')), 0, 'and closes no offer');
-select tests.is(public.answer_moderator_offer('bonus', true), true, 'a named player takes it with no other condition');
+select tests.is(public.answer_moderator_offer('bonus', true), false, 'without the xp of a bonus level the server saw, no card');
+select tests.logout();
+insert into public.runs (player_id, seed, score, words, created_at)
+values (tests.uid('rd'), 1, 3950, 40, now());
+select tests.login('rd');
+select tests.is(public.answer_moderator_offer('bonus', true), true, 'with them, a named player takes it');
 select tests.logout();
 select tests.is((select count(*)::int from public.moderators where id = tests.uid('rd')), 1, 'and moderates');
 select tests.is((select invited_by from public.moderators where id = tests.uid('rd')), null, 'with nobody to thank');

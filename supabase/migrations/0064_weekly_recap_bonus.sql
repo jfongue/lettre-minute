@@ -4,8 +4,10 @@
 --    passait par la raison 'level', que `moderator_offer_due` refuse à qui n'a
 --    pas les XP vus par le serveur (0055) — ou qui avait déjà décliné l'offre de
 --    niveau. Le bonus est un cadeau que le profil local seul connaît : le
---    serveur ne peut pas le vérifier, il accepte donc la raison 'bonus' de tout
---    compte nommé qui n'est pas déjà modérateur. Elle ne fait que cela — modérer,
+--    serveur ne peut pas le vérifier, il exige donc ce qu'il peut voir — les XP
+--    gagnés comme en 0055, au moins ceux du niveau où un bonus peut sortir
+--    (`xpForLevel(BONUS_FROM_LEVEL + BONUS_EVERY_LEVELS)` = 3950) —, sans quoi
+--    'bonus' rouvrirait la porte que 0055 a fermée. Elle ne fait que cela — modérer,
 --    sans parrain — et ne touche pas à `moderator_offers` : décliner ne ferme
 --    rien, et la raison ne pèse pas sur les offres de niveau, de mots ou d'ami.
 --
@@ -24,6 +26,11 @@ begin
     end if;
     if p_accept then
       if not public.is_named_account() then
+        return false;
+      end if;
+      if (select coalesce((select sum(r.score) from public.runs r where r.player_id = auth.uid()), 0)
+                + 150 * (select count(*) from public.word_submissions s
+                          where s.player_id = auth.uid() and s.status = 'accepted')) < 3950 then
         return false;
       end if;
       insert into public.moderators (id, invited_by) values (auth.uid(), null)
