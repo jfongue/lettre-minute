@@ -8,6 +8,7 @@ import { categoryText, useT } from '../i18n'
 import { sound } from '../lib/sound'
 import { LetterMark, Shape } from './bauhaus'
 import { categoryMotif } from './motifs'
+import { ModeIntro } from './ModeIntro'
 
 /** Long enough to enjoy the find, short enough to keep the pace. */
 const SOLVED_MS = 2000
@@ -46,7 +47,14 @@ function lessonPrompts(t: ReturnType<typeof useT>, mode: ArcadeMode): { a: Promp
  * la lettre demandée — la leçon ne se refuse jamais. Elle s'affiche à chaque
  * sélection d'un mode de la réserve, et se passe d'un bouton.
  */
-export function ModeTutorial({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; onDone(): void }) {
+export function ModeTutorial({ mode, lang, onDone, skipIntro = false }: { mode: ArcadeMode; lang: string; onDone(): void; skipIntro?: boolean }) {
+  // L'image d'abord — ce que le mode change —, puis la leçon qui se joue.
+  const [intro, setIntro] = useState(!skipIntro)
+  if (intro) return <ModeIntro mode={mode} onDone={() => setIntro(false)} />
+  return <ModeLesson mode={mode} lang={lang} onDone={onDone} />
+}
+
+function ModeLesson({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; onDone(): void }) {
   const t = useT()
   const { a, b, answer } = lessonPrompts(t, mode)
   const category = categoryText(t, a.categoryId)

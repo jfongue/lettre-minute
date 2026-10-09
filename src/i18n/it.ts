@@ -1,4 +1,5 @@
 import type { Messages } from './fr'
+import { weeklyIt } from './weekly.it'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
 const seconds = (value: number) => value.toLocaleString('it-IT', { maximumFractionDigits: 1 })
@@ -820,6 +821,8 @@ flawless: ['Senza errori', 'Ogni tre parole valide digitate senza errori danno s
       lifetime: 'Per sempre: un solo pagamento, nessun abbonamento',
     },
   },
+
+  weekly: weeklyIt,
 
   peek: {
     title: 'Cosa avresti potuto scrivere',

@@ -1,4 +1,5 @@
 import type { Messages } from './fr'
+import { weeklyNl } from './weekly.nl'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
 const seconds = (value: number) => value.toLocaleString('nl-NL', { maximumFractionDigits: 1 })
@@ -819,6 +820,8 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
       lifetime: 'Voor altijd: één keer betalen, geen abonnement',
     },
   },
+
+  weekly: weeklyNl,
 
   peek: {
     title: 'Wat je had kunnen schrijven',

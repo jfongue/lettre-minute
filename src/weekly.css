@@ -1,0 +1,382 @@
+@import './weekly-play.css';
+@import './weekly-results.css';
+
+/* ------------------------------------------------------- défi du moment - */
+/* La carte de l'accueil, l'écran du défi, son tutoriel, la fin d'une
+   tentative, les résultats et le récap. Un seul dessin pour les sept : des
+   aplats pleins, le trait --line, le billet de tentative et — dès qu'il est
+   question de Premium — le jaune sur noir du sceau. Rien ne se pose derrière
+   un texte : les formes se rangent à côté. */
+
+.wk-kicker {
+  font-size: var(--font-micro);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+}
+
+.wk-glyph {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentcolor;
+}
+
+/* ---------------------------------------------------------------- carte - */
+.wk-card {
+  appearance: none;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+  width: 100%;
+  padding: 0.7rem 0.8rem 0.7rem 0.7rem;
+  border: var(--line) solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out);
+}
+
+.wk-card:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.wk-card:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.wk-card-mark {
+  display: grid;
+  place-items: center;
+  width: 4.4rem;
+  height: 4.4rem;
+  padding: 0.7rem;
+  border: var(--line) solid var(--ink);
+}
+
+.wk-card-text {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.wk-card-mode {
+  font-size: 1.55rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.wk-card-meta {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.wk-card-tickets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.25rem;
+}
+
+.wk-card-count {
+  white-space: nowrap;
+  margin-left: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.wk-card-go {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: var(--line) solid var(--ink);
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.wk-card-go svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 3;
+  stroke-linecap: square;
+}
+
+/* --------------------------------------------------------------- billet - */
+.wk-ticket {
+  flex: none;
+  overflow: visible;
+}
+
+.wk-ticket-body {
+  fill: var(--yellow);
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.wk-ticket-mark {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wk-ticket-dash {
+  stroke-dasharray: 2 2.4;
+}
+
+.wk-ticket-fill {
+  fill: var(--ink);
+}
+
+.wk-ticket--used .wk-ticket-body {
+  fill: var(--paper-2);
+  stroke: var(--ink-faint);
+}
+
+.wk-ticket--used .wk-ticket-mark {
+  stroke: var(--ink-faint);
+}
+
+.wk-ticket--ad .wk-ticket-body {
+  fill: var(--paper);
+  stroke-dasharray: 3.2 3;
+}
+
+/* ---------------------------------------------------------------- écran - */
+.wk-screen {
+  gap: 1.1rem;
+}
+
+.wk-hero {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+  border: var(--line) solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.wk-hero-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.wk-hero-mark {
+  display: grid;
+  place-items: center;
+  width: 4.6rem;
+  height: 4.6rem;
+  padding: 0.7rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: var(--line) solid var(--ink);
+}
+
+.wk-hero-mode {
+  font-size: clamp(2rem, 11vw, 2.8rem);
+  font-weight: 800;
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.wk-hero-rule {
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.wk-hero-time {
+  padding: 0.12rem 0.55rem;
+  background: var(--black);
+  color: var(--cream);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.wk-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.wk-stat {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.7rem 0.8rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+}
+
+.wk-stat-label {
+  font-size: var(--font-micro);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+}
+
+.wk-stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.wk-none {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink-faint);
+  letter-spacing: 0;
+}
+
+.wk-attempts {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.wk-heading {
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.wk-slots {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wk-slot {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-height: 3.5rem;
+  padding: 0.5rem 0.8rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+}
+
+.wk-slot-text {
+  flex: 1;
+  display: grid;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.wk-slot--used {
+  border-color: var(--rule);
+  background: transparent;
+  color: var(--ink-faint);
+}
+
+.wk-slot-item--next .wk-slot {
+  border-width: 3px;
+  background: color-mix(in srgb, var(--yellow) 24%, var(--paper));
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.wk-slot-item--next .wk-slot--plus {
+  border-color: var(--plus-ink);
+  background: var(--plus-bg);
+}
+
+.wk-slot--plus {
+  border-color: var(--plus-bg);
+  background: var(--plus-bg);
+  color: var(--plus-text);
+}
+
+.wk-slot--plus .note {
+  color: var(--plus-ink);
+}
+
+.wk-slot--ad {
+  flex-wrap: wrap;
+  border-style: dashed;
+}
+
+.wk-slot-actions {
+  display: grid;
+  flex-basis: 100%;
+  gap: 0.4rem;
+  justify-items: stretch;
+}
+
+.wk-premium-link {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.3rem 0.8rem;
+  border: var(--line) solid var(--plus-ink);
+  border-radius: 0;
+  background: var(--plus-bg);
+  color: var(--plus-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.wk-premium-link:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.wk-links {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.wk-confirm {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.7rem;
+  width: min(24rem, 100%);
+  padding: 1.4rem 1.2rem 1.1rem;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 8px 8px 0 var(--yellow);
+  text-align: center;
+  animation: pop-rise 560ms var(--ease-spring) both;
+}
+
+.wk-confirm h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wk-confirm,
+  .wk-card {
+    animation: none;
+    transition: none;
+  }
+}

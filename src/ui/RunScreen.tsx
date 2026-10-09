@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { CHATTER_WORDS, POWER_CHARGES } from '../domain/powers'
 import { answerPrompt, celerityDue, chargesLeft, hasPower, runScore, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
-import { MODE_SECONDS, RECALL_SECONDS, modeEdge } from '../domain/modes'
+import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RECALL_SECONDS, modeEdge } from '../domain/modes'
 import { capitalized, compactWord, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
 import { sound } from '../lib/sound'
@@ -14,6 +14,7 @@ import { motifAt } from './motifs'
 import { PowerBadge } from './PowerIcon'
 import { useFlip } from './useFlip'
 import { useFeature } from './features'
+import '../weekly.css'
 
 const URGENT_FROM = 10
 /** Célérité waits this long after the last key, so « Chat » does not cut « Chatte » short. */
@@ -205,9 +206,38 @@ else if (doubleSkip) sound.power('double-skip')
     onRecall()
   }
 
+  const endurance = run.mode === 'endurance'
+  const lastFound = run.found[run.found.length - 1]
+  const gain = endurance && lastFound ? ENDURANCE_TIME_BONUS[lastFound.tier] : null
   const powers = run.powers.map((id) => ` run--${id}`).join('')
   return (
-    <div className={`sheet run${urgent && !hushed ? ' run--urgent' : ''}${hushed ? ' run--hushed' : ''}${powers}`}>
+    <div className={`sheet run${endurance ? ' run--endurance' : ''}${urgent && !hushed ? ' run--urgent' : ''}${hushed ? ' run--hushed' : ''}${powers}`}>
+      {endurance ? (
+        <div className="run-head run-head--endurance">
+          <div className="timer timer--big">
+            <span
+              className="timer-disc"
+              style={{ '--ratio': Math.min(1, remaining / MODE_SECONDS[run.mode]) } as CSSProperties}
+              aria-hidden="true"
+            />
+            <p className="clock" key={urgent ? seconds : 'calm'}>
+              {seconds}
+            </p>
+            {gain !== null && (
+              <span className="clock-gain" key={run.found.length} aria-hidden="true">
+                {t.weekly.run.bonus(gain)}
+              </span>
+            )}
+          </div>
+          <p className="survival">
+            <span className="wk-kicker">{t.weekly.run.survival}</span>
+            <span className="survival-value" key={Math.floor(score)}>
+              {formatNumber(t, Math.floor(score))}
+              <small>{t.run.secondsUnit}</small>
+            </span>
+          </p>
+        </div>
+      ) : (
       <div className="run-head">
         <div className="timer">
           <span
@@ -235,6 +265,7 @@ else if (doubleSkip) sound.power('double-skip')
           )}
         </div>
       </div>
+      )}
       <div className="run-meta">
         <p className="note">{t.run.meta(run.found.length, run.skips)}</p>
         {run.powers.length > 0 && (
@@ -357,6 +388,7 @@ else if (doubleSkip) sound.power('double-skip')
         out, and its container stays put so the announcement lands. */}
         <div aria-live="polite">
           <Feedback
+            endurance={endurance}
             flawlessTriggered={flawless && run.flawlessStreak > 0 && run.flawlessStreak % 3 === 0}
             live={live}
             cheer={cheer}
@@ -394,6 +426,7 @@ else if (doubleSkip) sound.power('double-skip')
 }
 
 function Feedback({
+  endurance,
 flawlessTriggered,
   live,
   cheer,
@@ -405,6 +438,8 @@ flawlessTriggered,
   mine,
   onPropose,
 }: {
+  /** En endurance un mot rend des secondes, pas des points. */
+  endurance: boolean
 flawlessTriggered: boolean
   live: Verdict | null
   cheer: Cheer | null
@@ -459,7 +494,9 @@ flawlessTriggered: boolean
       {shown.approximate && <span aria-hidden="true">≈ </span>}
       <span className="cheer-word">{capitalized(shown.display)}</span>
       {ours(shown.display) && <MineMark label={t.requests.mine} />}
-      <span className="cheer-points">+{shown.points + (flawlessTriggered ? 10 : 0)}</span>
+      <span className="cheer-points">
+        {endurance ? t.weekly.run.bonus(ENDURANCE_TIME_BONUS[shown.tier]) : `+${shown.points + (flawlessTriggered ? 10 : 0)}`}
+      </span>
       {flawlessTriggered && <PowerBadge id="flawless" className="cheer-power" />}
       {shown.joker ? (
         <span className="note">{t.powers.joker}</span>

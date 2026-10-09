@@ -1,4 +1,5 @@
 import type { Messages } from './fr'
+import { weeklyDe } from './weekly.de'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
 const seconds = (value: number) => value.toLocaleString('de-DE', { maximumFractionDigits: 1 })
@@ -818,6 +819,8 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
       lifetime: 'Für immer: einmal zahlen, kein Abo',
     },
   },
+
+  weekly: weeklyDe,
 
   peek: {
     title: 'Was du hättest schreiben können',

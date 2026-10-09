@@ -1,0 +1,371 @@
+/* ------------------------------------------------------------ tutoriel - */
+.wk-intro {
+  gap: 1.1rem;
+  animation: fade 300ms ease both;
+}
+
+.wk-intro-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: var(--line) solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.wk-intro-mark {
+  display: grid;
+  place-items: center;
+  width: 5rem;
+  height: 5rem;
+  padding: 0.8rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.wk-intro-head .wk-kicker {
+  color: inherit;
+  opacity: 0.85;
+}
+
+.wk-intro-title h1 {
+  font-size: clamp(1.7rem, 8.4vw, 2.3rem);
+  font-weight: 800;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.wk-steps {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wk-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.65rem 0.8rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  animation: pop-rise 520ms var(--ease-spring) both;
+  animation-delay: calc(120ms * var(--i, 0) + 150ms);
+}
+
+.wk-step-n {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: var(--line) solid var(--ink);
+  border-radius: 50%;
+  color: var(--black);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.wk-step-text {
+  display: grid;
+  gap: 0.1rem;
+  line-height: 1.25;
+}
+
+.wk-step-text strong {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.wk-step-text span {
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.wk-table ul {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wk-table li {
+  display: grid;
+  grid-template-columns: 6.2rem minmax(0, 1fr) 3.6rem;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.wk-table li strong {
+  text-align: right;
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.wk-table-bar {
+  display: block;
+  height: 0.9rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+}
+
+.wk-table-bar span {
+  display: block;
+  height: 100%;
+  background: var(--red);
+  transform-origin: left;
+  animation: wk-grow 700ms var(--ease-out) 500ms both;
+}
+
+@keyframes wk-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+.wk-intro-score {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 0.8rem;
+  border: var(--line) solid var(--ink);
+  border-left-width: 8px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.wk-intro-score-mark {
+  flex: none;
+  width: 1.3rem;
+  height: 1.3rem;
+  background: var(--yellow);
+  border: var(--line) solid var(--ink);
+  transform: rotate(45deg);
+}
+
+.wk-intro-title {
+  min-width: 0;
+}
+
+/* Le chrono qui se vide, puis deux mots qui le regonflent. Tout en CSS. */
+@property --wk-ring {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 1;
+}
+
+.wk-demo {
+  position: relative;
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  width: 9rem;
+  height: 9rem;
+}
+
+.wk-demo-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(var(--red) calc(var(--wk-ring) * 360deg), var(--paper-2) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent 66%, #000 67%);
+  mask: radial-gradient(farthest-side, transparent 66%, #000 67%);
+  animation: wk-drain 6s ease-in-out infinite;
+}
+
+@keyframes wk-drain {
+  0% {
+    --wk-ring: 1;
+  }
+
+  35% {
+    --wk-ring: 0.3;
+  }
+
+  45% {
+    --wk-ring: 0.55;
+  }
+
+  75% {
+    --wk-ring: 0.2;
+  }
+
+  85% {
+    --wk-ring: 0.75;
+  }
+
+  100% {
+    --wk-ring: 1;
+  }
+}
+
+.wk-demo-clock {
+  font-size: 3.2rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.wk-demo-gain {
+  position: absolute;
+  top: 12%;
+  right: -1.6rem;
+  padding: 0.05rem 0.45rem;
+  background: var(--yellow);
+  border: var(--line) solid var(--ink);
+  color: var(--black);
+  font-weight: 800;
+  opacity: 0;
+  animation: wk-gain 6s var(--ease-out) infinite;
+}
+
+.wk-demo-gain--a {
+  animation-delay: 2.1s;
+}
+
+.wk-demo-gain--b {
+  top: auto;
+  bottom: 14%;
+  right: auto;
+  left: -1.8rem;
+  animation-delay: 4.5s;
+}
+
+@keyframes wk-gain {
+  0% {
+    opacity: 0;
+    transform: translateY(0.6rem) scale(0.8);
+  }
+
+  8% {
+    opacity: 1;
+    transform: translateY(0) scale(1.1);
+  }
+
+  25% {
+    opacity: 1;
+    transform: translateY(-0.2rem) scale(1);
+  }
+
+  35%,
+  100% {
+    opacity: 0;
+    transform: translateY(-0.8rem);
+  }
+}
+
+/* ------------------------------------------------------ partie : endurance - */
+.run--endurance .run-head--endurance {
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.run--endurance .timer--big {
+  position: relative;
+  display: grid;
+  gap: 0;
+  place-items: center;
+  width: min(11rem, 52vw);
+  height: min(11rem, 52vw);
+}
+
+.run--endurance .timer--big .timer-disc {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border: 0;
+  background: conic-gradient(var(--timer-fill, var(--red)) calc(var(--ratio, 1) * 360deg), var(--paper-2) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent 68%, #000 69%);
+  mask: radial-gradient(farthest-side, transparent 68%, #000 69%);
+}
+
+.run--endurance .timer--big .clock {
+  position: relative;
+  min-width: 0;
+  font-size: min(4.6rem, 22vw);
+  font-weight: 800;
+}
+
+.clock-gain {
+  position: absolute;
+  top: 6%;
+  right: -0.4rem;
+  padding: 0.05rem 0.5rem;
+  border: var(--line) solid var(--ink);
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 1.15rem;
+  font-weight: 800;
+  pointer-events: none;
+  animation: wk-gain-run 1400ms var(--ease-out) both;
+}
+
+@keyframes wk-gain-run {
+  0% {
+    opacity: 0;
+    transform: translateY(0.8rem) scale(0.7);
+  }
+
+  14% {
+    opacity: 1;
+    transform: translateY(0) scale(1.15);
+  }
+
+  30% {
+    transform: scale(1);
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-0.9rem);
+  }
+}
+
+.survival {
+  display: grid;
+  justify-items: center;
+  gap: 0.1rem;
+}
+
+.survival-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  animation: bump 460ms var(--ease-spring);
+}
+
+.survival-value small {
+  margin-left: 0.15rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.run--endurance .run-meta {
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wk-demo-ring,
+  .wk-demo-gain,
+  .clock-gain,
+  .wk-step,
+  .wk-table-bar span {
+    animation: none;
+  }
+
+  .wk-demo-gain {
+    opacity: 1;
+  }
+}

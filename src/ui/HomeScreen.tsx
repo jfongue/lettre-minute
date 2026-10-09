@@ -57,6 +57,8 @@ interface HomeScreenProps {
   multiplayerNews: boolean
   /** Les invitations à une table de duel qui attendent le joueur, sous « Jouer ». */
   invites?: ReactNode
+  /** L'entrée du défi du moment, quand la fonctionnalité est ouverte. */
+  weekly?: ReactNode
   onChallenge(id: string): void
   onCreateChallenge(): void
   onPastChallenges(): void
@@ -97,6 +99,7 @@ export function HomeScreen({
   onDebug,
   onBoardsHidden,
   invites,
+  weekly,
 }: HomeScreenProps) {
   const t = useT()
   const powers = useFeature('powers')
@@ -176,6 +179,8 @@ const alone =
           </div>
 
           {invites}
+
+          {weekly}
 
           {challenges && challenges.length > 0 && (
             <ChallengeList challenges={challenges} onOpen={onChallenge} onPast={onPastChallenges} />

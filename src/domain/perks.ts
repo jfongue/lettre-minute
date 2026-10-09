@@ -1,4 +1,4 @@
-import type { Profile } from './progression'
+import { NEW_PROFILE, type Profile } from './progression'
 import { hasPower, promptKey, type Judge, type Prompt, type Run, type SettledPrompt } from './run'
 
 /** Bans a player holds without Premium at most, each one a « filter » level bonus; none to begin with. */
@@ -27,6 +27,12 @@ export function isPlus(profile: Profile): boolean {
 /** Premium costs nothing for now: joining is a date written down. */
 export function joinPlus(profile: Profile, now: number): Profile {
   return isPlus(profile) ? profile : { ...profile, plusSince: now }
+}
+
+/** A weekly attempt a Premium player started beyond the free ones; `skippedAd` when it is the third, which a free player would have paid with an ad. */
+export function countPlusAttempt(profile: Profile, skippedAd = false): Profile {
+  const stats = profile.plusStats ?? NEW_PROFILE.plusStats
+  return { ...profile, plusStats: { ...stats, attempts: stats.attempts + 1, adsSkipped: stats.adsSkipped + (skippedAd ? 1 : 0) } }
 }
 
 /** The home screen thanks a new Premium member once, and asks what they think of the game. */

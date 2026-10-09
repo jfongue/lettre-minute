@@ -8,6 +8,7 @@ import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
 import type { AuthError, BanOutcome, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
+import { weeklyFr } from './weekly.fr'
 
 interface LeaderboardText {
   label: string
@@ -867,6 +868,8 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
       lifetime: 'À vie : un seul paiement, pas d’abonnement',
     },
   },
+
+  weekly: weeklyFr,
 
   peek: {
     title: 'Ce que tu aurais pu écrire',

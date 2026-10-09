@@ -1,0 +1,493 @@
+/* ---------------------------------------------- fin de tentative, résultats, récap - */
+.wk-done {
+  gap: 1rem;
+}
+
+.wk-done-hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem 1rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.wk-done-hero--record {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.wk-done-mark {
+  display: grid;
+  place-items: center;
+  width: 5rem;
+  height: 5rem;
+  padding: 0.8rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.wk-done-hero--record .wk-kicker {
+  color: inherit;
+}
+
+.wk-done-text {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.wk-done-value {
+  font-size: clamp(2.6rem, 14vw, 3.6rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  animation: bump 560ms var(--ease-spring) 200ms both;
+}
+
+.wk-done-words {
+  font-weight: 700;
+}
+
+.wk-done-verdict {
+  font-size: 1.4rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.wk-done-verdict--record {
+  color: var(--red);
+}
+
+.wk-done-left {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: start;
+}
+
+/* --------------------------------------------------------------- podium - */
+.wk-results {
+  gap: 1.1rem;
+}
+
+.wk-results-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem;
+  border: var(--line) solid var(--ink);
+  box-shadow: 5px 5px 0 var(--ink);
+}
+
+.wk-results-mark {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  padding: 0.6rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.wk-results-text {
+  display: grid;
+  justify-items: start;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+.wk-results-text strong {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.wk-podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wk-podium-slot {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: end;
+  gap: 0.3rem;
+  min-width: 0;
+  animation: pop-rise 560ms var(--ease-spring) both;
+  animation-delay: calc(140ms * var(--i, 0));
+}
+
+.wk-podium-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.wk-podium-value {
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.wk-podium-step {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  border: var(--line) solid var(--ink);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.wk-podium-slot--1 .wk-podium-step {
+  height: 5.5rem;
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.wk-podium-slot--2 .wk-podium-step {
+  height: 4rem;
+  background: var(--paper-2);
+}
+
+.wk-podium-slot--3 .wk-podium-step {
+  height: 3rem;
+  background: var(--pink);
+  color: var(--black);
+}
+
+.wk-me {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.7rem 0.9rem;
+  border: 3px solid var(--ink);
+  background: var(--plus-bg);
+  color: var(--plus-text);
+  box-shadow: 5px 5px 0 var(--plus-ink);
+}
+
+.wk-me .wk-kicker {
+  color: var(--plus-ink);
+}
+
+.wk-me-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.8rem;
+}
+
+.wk-me-rank {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.wk-me-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--plus-ink);
+}
+
+.wk-me .note {
+  color: var(--plus-text);
+  opacity: 0.8;
+}
+
+.wk-board {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wk-board-row {
+  display: grid;
+  grid-template-columns: 2.2rem auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.6rem;
+  border: var(--line) solid var(--rule);
+}
+
+.wk-board-row--me {
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--yellow) 24%, var(--paper));
+}
+
+.wk-board-row .rank {
+  font-weight: 800;
+  text-align: center;
+}
+
+.wk-board-row .name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.wk-board-row .points {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.wk-board-row .wk-react {
+  flex-wrap: nowrap;
+}
+
+.wk-board-row .wk-react:empty {
+  display: none;
+}
+
+.wk-trophy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+/* ------------------------------------------------------------- réactions - */
+.wk-react {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.wk-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 2.2rem;
+  min-height: 2.2rem;
+  padding: 0 0.5rem;
+  border: var(--line) solid var(--rule);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: 700;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.wk-chip small {
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.wk-chip--mine {
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--yellow) 40%, var(--paper));
+}
+
+.wk-chip--add {
+  color: var(--ink-soft);
+}
+
+.wk-chip:disabled {
+  cursor: default;
+}
+
+.wk-chip:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.wk-react-menu {
+  position: absolute;
+  bottom: calc(100% + 0.3rem);
+  left: 0;
+  z-index: 5;
+}
+
+/* --------------------------------------------------------------- récap - */
+.wk-recap {
+  position: relative;
+  display: grid;
+  gap: 0.8rem;
+  width: min(26rem, 100%);
+  max-height: calc(100dvh - var(--pop-top) - var(--pop-bottom));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 0 1rem;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 8px 8px 0 var(--ink);
+  animation: pop-rise 560ms var(--ease-spring) both;
+}
+
+.wk-recap > :not(.wk-recap-head) {
+  margin-inline: 1rem;
+}
+
+.wk-recap > .btn {
+  width: auto;
+}
+
+.wk-recap-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 3px solid var(--ink);
+}
+
+.wk-recap-head h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.wk-recap-head .wk-kicker {
+  color: inherit;
+  opacity: 0.85;
+}
+
+.wk-recap-mark {
+  display: grid;
+  place-items: center;
+  width: 3.6rem;
+  height: 3.6rem;
+  padding: 0.5rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.wk-recap-rank {
+  position: relative;
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--plus-bg);
+  color: var(--plus-text);
+  border: var(--line) solid var(--plus-edge, var(--ink));
+}
+
+.wk-recap-rank .wk-kicker,
+.wk-recap-rank strong {
+  color: var(--plus-ink);
+}
+
+.wk-recap-rank strong {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.wk-recap-rank .note {
+  color: var(--plus-text);
+  opacity: 0.85;
+}
+
+.wk-recap-new {
+  font-size: 1.15rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.wk-recap-links {
+  display: flex;
+  justify-content: space-between;
+}
+
+.wk-recap-trophy {
+  display: flex;
+}
+
+.wk-curve {
+  display: grid;
+  gap: 0.2rem;
+  margin-block: 0;
+}
+
+.wk-curve svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.wk-curve-axis {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.wk-curve-line {
+  fill: none;
+  stroke: var(--red);
+  stroke-width: 4;
+  stroke-linejoin: miter;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: wk-draw 1100ms var(--ease-out) 300ms forwards;
+}
+
+.wk-curve-area {
+  fill: color-mix(in srgb, var(--red) 14%, transparent);
+  stroke: none;
+}
+
+.wk-curve-dot {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.wk-curve-dot--record {
+  fill: var(--yellow);
+}
+
+.wk-curve-label {
+  fill: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wk-curve-top {
+  fill: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+@keyframes wk-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wk-podium-slot,
+  .wk-recap,
+  .wk-done-value {
+    animation: none;
+  }
+
+  .wk-curve-line {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

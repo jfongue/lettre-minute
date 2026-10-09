@@ -36,6 +36,8 @@ export interface Session {
   swapsLeft: number
   /** The challenge this run is played for, or null for a solo run. */
   challengeId: string | null
+  /** The run is an attempt at the challenge of the moment: shared, never pushed, never counted for progress. */
+  weekly: boolean
   /** What is in the field right now, judged on every keystroke. */
   draft: string
   live: Verdict | null
@@ -96,6 +98,8 @@ export type SessionAction =
        * pouvoir et sans progression — son score ne vit qu'à l'écran.
        */
       mode?: GameMode
+      /** Une tentative du défi du moment : la partie de tous, sans pouvoir ni mémoire des questions passées. */
+      weekly?: boolean
     }
   /** The countdown traded a category: same seed, new lineup, a judge that knows the incoming dictionary. */
   | { type: 'swapped'; judge: Judge; categoryIds: readonly string[]; reserve: readonly string[] }
@@ -142,6 +146,7 @@ export function initialSession(profile: Profile): Session {
     reserve: [],
     swapsLeft: 0,
     challengeId: null,
+    weekly: false,
     draft: '',
     live: null,
     cheer: null,
@@ -166,15 +171,17 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       // Un mode de la réserve ne se joue pas avec un pouvoir.
       const powers = action.noPowers || !countsForProgress(mode) ? [] : challenge ? challenge.powers : equippedPowers(session.profile)
       // A challenge avoids nothing: every player's draw must follow the seed alone.
-      const avoid = challenge ? [] : session.profile.lastPrompts
+      const shared = Boolean(challenge) || action.weekly === true
+      const avoid = shared ? [] : session.profile.lastPrompts
       return {
         ...session,
         phase: 'countdown',
         judge: action.judge,
-        run: createRun({ seed: action.seed, mode, categoryIds: action.categoryIds, avoid, powers, shared: Boolean(challenge) }, action.judge),
-        reserve: challenge || !countsForProgress(mode) ? [] : action.reserve,
+        run: createRun({ seed: action.seed, mode, categoryIds: action.categoryIds, avoid, powers, shared }, action.judge),
+        reserve: shared || !countsForProgress(mode) ? [] : action.reserve,
         swapsLeft: !challenge && powers.includes('permutation') ? (POWER_CHARGES.permutation ?? 0) : 0,
         challengeId: challenge?.id ?? null,
+        weekly: action.weekly === true,
         levelBefore: levelFor(session.profile.xp),
         profileBefore: session.profile,
         draft: '',
@@ -323,7 +330,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         live: null,
         // Un mode de la réserve ne compte pour rien : ni XP, ni record, ni
         // historique — son score ne vit qu'à l'écran.
-        profile: !countsForProgress(run.mode)
+        profile: !countsForProgress(run.mode) || session.weekly
           ? session.profile
           : (session.challengeId ? applyChallengeRun : applyRun)(session.profile, {
               score: run.score,
@@ -359,7 +366,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       return { ...session, proposals: session.proposals.filter((proposal) => proposal.at !== action.at) }
 
     case 'home':
-      return { ...session, phase: 'home', run: null, draft: '', live: null, cheer: null, proposals: [] }
+      return { ...session, phase: 'home', weekly: false, run: null, draft: '', live: null, cheer: null, proposals: [] }
   }
 }
 

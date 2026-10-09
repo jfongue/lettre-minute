@@ -43,6 +43,8 @@ import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
 import type { SlotEntry, Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
+import { ModeIntro } from '../ui/ModeIntro'
+import { WeeklyCardScenario, WeeklyDoneScenario, WeeklyRecapScenario, WeeklyResultsScenario, WeeklyRunScenario, WeeklyScreenScenario } from './weeklyScenarios'
 import { NEW_SCENARIOS, NEW_SINCE, RECENT_SCENARIOS } from './recent'
 import { todayKey } from '../lib/today'
 import { ban, joinPlus, markBanIntroSeen, spendReveal, unban, type HiddenAnswer } from '../domain/perks'
@@ -1525,6 +1527,78 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Sceaux, icônes normales et Premium, compteurs dans chaque état, emplacements verrouillés (une tape joue l’accord)',
     phase: 'home',
     render: (back) => <PremiumGrammarScenario onBack={back} />,
+  },
+  {
+    id: 'weekly-home-card',
+    group: 'Défi du moment',
+    title: 'Carte de l’accueil',
+    how: 'Les deux billets du jour pleins, un joué, deux joués, puis Premium ; les trois modes',
+    phase: 'home',
+    render: (back) => <WeeklyCardScenario onBack={back} />,
+  },
+  {
+    id: 'weekly-screen-fresh',
+    group: 'Défi du moment',
+    title: 'Écran du défi : deux tentatives',
+    how: 'Rien de joué : « Tu as 2 tentatives aujourd’hui », le bouton lance après confirmation',
+    phase: 'home',
+    render: (back) => <WeeklyScreenScenario used={0} plus={false} onBack={back} />,
+  },
+  {
+    id: 'weekly-screen-spent',
+    group: 'Défi du moment',
+    title: 'Écran du défi : deux jouées',
+    how: 'Les deux utilisées, la 3e par une pub ou Premium, la 4e et la 5e réservées à Premium',
+    phase: 'home',
+    render: (back) => <WeeklyScreenScenario used={2} plus={false} onBack={back} />,
+  },
+  {
+    id: 'weekly-screen-plus',
+    group: 'Défi du moment',
+    title: 'Écran du défi : Premium',
+    how: 'Cinq tentatives, deux jouées, la 3e directement jouable',
+    phase: 'home',
+    render: (back) => <WeeklyScreenScenario used={2} plus onBack={back} />,
+  },
+  {
+    id: 'weekly-tutorial-endurance',
+    group: 'Défi du moment',
+    title: 'Tutoriel de l’endurance',
+    how: 'Le chrono qui se vide, ce que rend chaque rareté, le temps de survie',
+    phase: 'home',
+    render: (back) => <ModeIntro mode="endurance" onDone={back} onTry={back} />,
+  },
+  {
+    id: 'weekly-run-endurance',
+    group: 'Défi du moment',
+    title: 'Partie en endurance',
+    how: 'Le chrono en grand, +2 s qui s’anime à chaque mot, le temps de survie',
+    phase: 'playing',
+    render: () => <WeeklyRunScenario />,
+  },
+  {
+    id: 'weekly-attempt-done',
+    group: 'Défi du moment',
+    title: 'Fin de tentative : record',
+    how: 'Record battu, tentatives restantes, rang provisoire',
+    phase: 'over',
+    render: (back) => <WeeklyDoneScenario record onBack={back} />,
+  },
+  {
+    id: 'weekly-results',
+    group: 'Défi du moment',
+    title: 'Résultats de la semaine',
+    how: 'Soixante joueurs, podium, mon rang, huit trophées, réactions agrégées (sans serveur)',
+    phase: 'home',
+    render: (back) => <WeeklyResultsScenario closed={false} onBack={back} />,
+  },
+  {
+    id: 'weekly-recap',
+    group: 'Défi du moment',
+    title: 'Récap de fin de défi',
+    how: 'La courbe du record, le rang final, le trophée, « Le nouveau défi est ouvert »',
+    phase: 'home',
+    render: (back) => <WeeklyRecapScenario onBack={back} />,
   },
   {
     id: 'over-classic',

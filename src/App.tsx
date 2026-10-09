@@ -163,6 +163,7 @@ import { FeaturesContext } from './ui/features'
 import { DuelBanner, DuelInviteCard, PlayTogether } from './ui/PlayTogether'
 import { GameModes } from './ui/GameModes'
 import { ModeTutorial } from './ui/ModeTutorial'
+import { WeeklyDone, WeeklyRecap, WeeklyResults, WeeklyScreen, useWeeklyFlow } from './ui/WeeklyFlow'
 import type { DuelExit } from './state/duel'
 
 // Everything but the home screen waits in its own chunk: the first paint only
@@ -187,9 +188,11 @@ function preloadRunScreens(): Promise<unknown> {
   return Promise.all([CountdownScreen.preload(), RunScreen.preload(), OverScreen.preload()])
 }
 
+const WEEKLY_SCREENS = [WeeklyScreen, WeeklyResults, WeeklyDone, WeeklyRecap]
+
 /** One screen at a time, in the order a player is likely to need them. */
 async function preloadScreens(): Promise<void> {
-  for (const screen of [Menu, CountdownScreen, RunScreen, OverScreen, ChallengeScreen, FriendPicker, ChallengeSetup, ChallengePowers, ModerationScreen]) {
+  for (const screen of [Menu, CountdownScreen, RunScreen, OverScreen, ChallengeScreen, FriendPicker, ChallengeSetup, ChallengePowers, ModerationScreen, ...WEEKLY_SCREENS]) {
     await screen.preload().catch(() => undefined)
   }
 }
@@ -1343,6 +1346,19 @@ setStartedAt((at) => at ?? Date.now())
     trackFeature('premium_joined')
     dispatch({ type: 'join-plus', at: Date.now() })
   }, [])
+  // Le défi du moment : ses écrans, sa partie et son récap vivent dans un seul crochet.
+  const weeklyFlow = useWeeklyFlow({
+    enabled: on('weekly'),
+    lang,
+    t,
+    session,
+    dispatch,
+    judgeFor,
+    profile,
+    joinPlus,
+    preloadRun: preloadRunScreens,
+    home: session.phase === 'home' && !tutorial && !modeLesson,
+  })
   const peek = useCallback(() => {
     trackFeature('hidden_words_peek')
     dispatch({ type: 'peek', day: todayKey() })
@@ -1470,7 +1486,7 @@ setStartedAt((at) => at ?? Date.now())
     if (session.phase !== 'over' || !session.run) return
     const playedLang = runLang ?? lang
     track('run_end', {
-      mode: session.challengeId ? 'challenge' : 'solo',
+      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : 'solo',
       score: session.run.score,
       words: session.run.found.length,
       skips: session.run.skips,
@@ -1485,7 +1501,7 @@ setStartedAt((at) => at ?? Date.now())
     })
     // Un mode de la réserve ne laisse rien derrière lui : ni historique, ni
     // serveur, ni succès. Ses mots proposés partent quand même.
-    if (!countsForProgress(session.run.mode)) {
+    if (!countsForProgress(session.run.mode) || session.weekly) {
       void flushSubmissions().then(refreshMine)
       return
     }
@@ -1598,7 +1614,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (session.phase !== 'countdown' || !session.run) return
     track('run_start', {
-      mode: session.challengeId ? 'challenge' : 'solo',
+      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : 'solo',
       categories: session.run.categoryIds,
       powers: session.run.powers,
       first: session.profile.runs === 0,
@@ -1623,7 +1639,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => setTrackScreen(screenName), [screenName])
 
   const quietHome =
-    session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !duelOpen
+    session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !duelOpen && !weeklyFlow.covering
   const notice = quietHome && on('challenges') ? challengeNotice(challenges, heldNotices) : null
   const updateDue = update === 'due' && on('storeUpdate')
   const offerDue = !!moderation?.offer && !offerHeld && on('moderatorOffer')
@@ -1732,7 +1748,9 @@ setStartedAt((at) => at ?? Date.now())
         <DuelBanner text={duelBanner === 'kicked' ? t.duel.kickedBanner : t.duel.closedBanner} onDone={clearDuelBanner} />
       )}
 
-      {!tutorial && !modeLesson && !moderating && !duelOpen && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
+      {weeklyFlow.overlay}
+
+      {!tutorial && !modeLesson && !moderating && !duelOpen && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
@@ -1749,6 +1767,7 @@ setStartedAt((at) => at ?? Date.now())
           friendRequests={named && on('friends') ? friendRequests : 0}
           challenges={named && (on('challenges') || on('duel')) ? (on('challenges') ? challenges : []) : null}
           multiplayerNews={multiplayerNews}
+          weekly={weeklyFlow.card}
           invites={
             duelInvites[0] ? (
               <DuelInviteCard
@@ -2095,7 +2114,9 @@ setStartedAt((at) => at ?? Date.now())
         </Suspense>
       )}
 
-      {session.phase === 'over' && session.run && !moderating && (
+      {weeklyFlow.over}
+
+      {session.phase === 'over' && session.run && !session.weekly && !moderating && (
         <Suspense fallback={null}>
           <OverScreen
             run={session.run}
