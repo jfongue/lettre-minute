@@ -78,7 +78,7 @@ export const fr = {
     endurance: 'Endurance',
     enduranceHint: 'Trente secondes, et chaque mot t’en rend deux à quatre selon sa rareté.',
     reversed: 'Renversé',
-    reversedHint: 'La lettre contraint la fin du mot : M accepte le Vietnam.',
+    reversedHint: 'Un mot qui se termine par cette lettre. Pays qui se termine en M ? Vietnam !',
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'À remplir',
     armNote: 'Valide à vide : c’est là que le chrono part.',
@@ -95,7 +95,7 @@ export const fr = {
         ask: (letter: string) => `Tape une couleur en ${letter} et valide : elle te rend de 2 à 4 secondes.`,
       },
       reversed: {
-        hello: 'La lettre contraint la fin du mot : M accepte le Vietnam.',
+        hello: 'Un mot qui se termine par cette lettre. Pays qui se termine en M ? Vietnam !',
         ask: (letter: string) => `Tape une couleur qui finit par ${letter}.`,
       },
     },
@@ -848,6 +848,14 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
   premium: {
     title: 'Premium',
     menuHint: 'Filtrage, révélations, avant-premières…',
+  news: {
+    title: 'Nouvelles catégories jouables',
+    body: (names: string) => `${names} arrivent en avant-première. Premium les ouvre tout de suite : rien à débloquer.`,
+    cta: 'Voir mes catégories',
+  },
+  winTitle: 'Premier du défi !',
+  winNote: 'Tu gagnes Premium : cinq tentatives par jour au défi du moment, les avant-premières et les révélations illimitées. C’est cadeau, et pour toujours.',
+  winOk: 'Merci !',
     lifetime: 'À vie',
     fallbackPrice: '2,50 €',
     buy: (price: string) => `Passer Premium — ${price}`,
@@ -910,6 +918,9 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     reveals: (left: number, allowed: number) => `Révélations du jour : ${left} sur ${allowed}`,
     revealsPlus: 'Révélations illimitées',
     slots: (count: number, max: number) => `Emplacements de pouvoir : ${count} sur ${max}`,
+  hintFilters: 'Le filtrage écarte une catégorie de tes parties seules.',
+  hintReveals: 'Au récap, révèle un mot que tu aurais pu écrire.',
+  hintSlots: 'Les pouvoirs que tu portes en partie.',
   },
 
   bonus: {

@@ -52,7 +52,7 @@ export const nl: Messages = {
     endurance: 'Uithoudingsvermogen',
     enduranceHint: 'Dertig seconden, en elk woord geeft je er twee tot vier terug, naar zeldzaamheid.',
     reversed: 'Omgekeerd',
-    reversedHint: 'De letter geldt voor het einde van het woord: M neemt Vietnam.',
+    reversedHint: 'Een woord dat op deze letter eindigt. Een land dat op M eindigt? Vietnam!',
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'In te vullen',
     armNote: 'Bevestig leeg: dan start de klok.',
@@ -69,7 +69,7 @@ export const nl: Messages = {
         ask: (letter: string) => `Typ een kleur met ${letter} en bevestig: die geeft je 2 tot 4 seconden.`,
       },
       reversed: {
-        hello: 'De letter geldt voor het einde van het woord: M neemt Vietnam.',
+        hello: 'Een woord dat op deze letter eindigt. Een land dat op M eindigt? Vietnam!',
         ask: (letter: string) => `Typ een kleur die eindigt op ${letter}.`,
       },
     },
@@ -799,6 +799,14 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
   premium: {
     title: 'Premium',
     menuHint: 'Filteren, onthullingen, categorieën als eerste…',
+  news: {
+    title: 'Nieuwe speelbare categorieën',
+    body: (names) => `${names} komen als vooruit-categorieën. Premium opent ze meteen: niets te ontgrendelen.`,
+    cta: 'Mijn categorieën',
+  },
+  winTitle: 'Eerste van de uitdaging!',
+  winNote: 'Je wint Premium: vijf pogingen per dag in de uitdaging van het moment, de vooruit-categorieën en onbeperkte onthullingen. Van het huis, voor altijd.',
+  winOk: 'Bedankt!',
     lifetime: 'Voor altijd',
     fallbackPrice: '€ 2,50',
     buy: (price: string) => `Word Premium — ${price}`,
@@ -861,6 +869,9 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
     reveals: (left, allowed) => `Onthullingen van vandaag: ${left} van ${allowed}`,
     revealsPlus: 'Onbeperkt onthullen',
     slots: (count, max) => `Krachtplekken: ${count} van ${max}`,
+  hintFilters: 'Filteren houdt een categorie buiten je solopartijen.',
+  hintReveals: 'In het overzicht onthul je een woord dat je had kunnen schrijven.',
+  hintSlots: 'De krachten die je meeneemt in een partij.',
   },
 
   bonus: {

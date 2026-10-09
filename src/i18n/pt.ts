@@ -52,7 +52,7 @@ export const pt: Messages = {
     endurance: 'Resistência',
     enduranceHint: 'Trinta segundos, e cada palavra devolve-te de dois a quatro conforme a raridade.',
     reversed: 'Invertido',
-    reversedHint: 'A letra manda no fim da palavra: M aceita o Vietname.',
+    reversedHint: 'Uma palavra que termina nesta letra. Um país que termina em M? Vietname!',
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'A preencher',
     armNote: 'Valida em vazio: é aí que o cronómetro arranca.',
@@ -69,7 +69,7 @@ export const pt: Messages = {
         ask: (letter: string) => `Escreve uma cor com ${letter} e valida: dá-te de 2 a 4 segundos.`,
       },
       reversed: {
-        hello: 'A letra manda no fim da palavra: M aceita o Vietname.',
+        hello: 'Uma palavra que termina nesta letra. Um país que termina em M? Vietname!',
         ask: (letter: string) => `Escreve uma cor que termine em ${letter}.`,
       },
     },
@@ -800,6 +800,14 @@ flawless: ['Sem erros', 'A cada três palavras válidas digitadas sem erros, gan
   premium: {
     title: 'Premium',
     menuHint: 'Filtro, revelações, estreias…',
+  news: {
+    title: 'Novas categorias jogáveis',
+    body: (names) => `${names} chegam em estreia. O Premium abre-as já: nada para desbloquear.`,
+    cta: 'Ver as minhas categorias',
+  },
+  winTitle: 'Primeiro do desafio!',
+  winNote: 'Ganhas Premium: cinco tentativas por dia no desafio do momento, as estreias e revelações ilimitadas. Por conta da casa, para sempre.',
+  winOk: 'Obrigado!',
     lifetime: 'Para sempre',
     fallbackPrice: '2,50 €',
     buy: (price: string) => `Passar a Premium — ${price}`,
@@ -862,6 +870,9 @@ flawless: ['Sem erros', 'A cada três palavras válidas digitadas sem erros, gan
     reveals: (left, allowed) => `Revelações de hoje: ${left} de ${allowed}`,
     revealsPlus: 'Revelações ilimitadas',
     slots: (count, max) => `Espaços de poder: ${count} de ${max}`,
+  hintFilters: 'O filtro deixa uma categoria fora das tuas partidas a solo.',
+  hintReveals: 'No resumo, revela uma palavra que podias ter escrito.',
+  hintSlots: 'Os poderes que levas para a partida.',
   },
 
   bonus: {

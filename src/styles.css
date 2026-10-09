@@ -8472,7 +8472,7 @@ body[data-words='board'] .offer-pop-layer {
 
 .together-sheet {
   display: grid;
-  gap: 0.9rem;
+  gap: 1.1rem;
   width: min(34rem, 100%);
   margin: 0 auto;
 }
@@ -8482,10 +8482,11 @@ body[data-words='board'] .offer-pop-layer {
 }
 
 .together-title {
-  font-size: clamp(1.9rem, 9vw, 2.7rem);
+  font-size: clamp(2rem, 11vw, 2.8rem);
   font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.02em;
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   animation: fade 160ms ease both;
 }
 
@@ -8495,6 +8496,7 @@ body[data-words='board'] .offer-pop-layer {
 }
 
 .together-card {
+  appearance: none;
   position: relative;
   z-index: 0;
   display: grid;
@@ -8504,11 +8506,16 @@ body[data-words='board'] .offer-pop-layer {
   width: 100%;
   padding: 1.1rem 1rem;
   border: var(--line) solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  box-shadow: 5px 5px 0 var(--ink);
   font: inherit;
   text-align: left;
   cursor: pointer;
   animation: fade 160ms ease both;
-  transition: transform 180ms var(--ease-spring);
+  transition:
+    transform 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out);
 }
 
 /* Le fond qui respire au survol vit sur son propre calque : la carte garde son
@@ -8525,7 +8532,13 @@ body[data-words='board'] .offer-pop-layer {
 }
 
 .together-card:active {
-  transform: scale(0.98);
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.together-card:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
 }
 
 .together-card--duel {
@@ -8546,9 +8559,10 @@ body[data-words='board'] .offer-pop-layer {
 }
 
 .together-text b {
-  font-size: clamp(1.25rem, 6vw, 1.6rem);
+  font-size: 1.55rem;
   font-weight: 800;
-  line-height: 1.05;
+  line-height: 1;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
@@ -8560,17 +8574,32 @@ body[data-words='board'] .offer-pop-layer {
 .together-chip {
   justify-self: start;
   margin-top: 0.15rem;
-  padding: 0.12rem 0.5rem;
-  border: 1px solid currentColor;
-  font-size: var(--font-micro);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  padding: 0.12rem 0.55rem;
+  background: var(--black);
+  color: var(--cream);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .together-go {
-  font-size: 1.5rem;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: var(--line) solid var(--ink);
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 1.2rem;
   font-weight: 800;
+}
+
+/* La carte du duel est déjà jaune : sa flèche passe en noir pour rester lue. */
+.together-card--duel .together-go {
+  border-color: var(--black);
+  background: var(--black);
+  color: var(--yellow);
 }
 
 /* Le duel : quatre places autour d'une table, la main posée sur l'une d'elles ;
@@ -9517,6 +9546,34 @@ de tout cela ne le concerne. */
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+/* Une pastille se tape : la bulle dit à quoi elle correspond, au pied de la
+ligne, et se referme par une seconde tape. */
+.currency-chip {
+  appearance: none;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.currency-chip:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.currency-bubble {
+  margin: 0;
+  padding: 0.45rem 0.6rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper-2);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 .power-slot--locked {

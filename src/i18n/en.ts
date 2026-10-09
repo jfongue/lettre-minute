@@ -58,7 +58,7 @@ export const en: Messages = {
     endurance: 'Endurance',
     enduranceHint: 'Thirty seconds, and every word gives you two to four back, by rarity.',
     reversed: 'Reversed',
-    reversedHint: 'The letter constrains the end of the word: M takes Vietnam.',
+    reversedHint: 'A word that ends with this letter. A country ending in M? Vietnam!',
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'To fill in',
     armNote: 'Validate empty: that is when the clock starts.',
@@ -75,7 +75,7 @@ export const en: Messages = {
         ask: (letter: string) => `Type a colour in ${letter} and validate: it gives you 2 to 4 seconds.`,
       },
       reversed: {
-        hello: 'The letter constrains the end of the word: M accepts Vietnam.',
+        hello: 'A word that ends with this letter. A country ending in M? Vietnam!',
         ask: (letter: string) => `Type a colour ending in ${letter}.`,
       },
     },
@@ -804,6 +804,14 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
   premium: {
     title: 'Premium',
     menuHint: 'Filtering, reveals, early categories…',
+  news: {
+    title: 'New playable categories',
+    body: (names) => `${names} arrive as early categories. Premium opens them right away: nothing to unlock.`,
+    cta: 'See my categories',
+  },
+  winTitle: 'Top of the challenge!',
+  winNote: 'You win Premium: five attempts a day in the weekly challenge, early categories and unlimited reveals. On the house, for good.',
+  winOk: 'Thank you!',
     lifetime: 'For life',
     fallbackPrice: '€2.50',
     buy: (price: string) => `Go Premium — ${price}`,
@@ -866,6 +874,9 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
     reveals: (left, allowed) => `Today’s reveals: ${left} of ${allowed}`,
     revealsPlus: 'Unlimited reveals',
     slots: (count, max) => `Power slots: ${count} of ${max}`,
+  hintFilters: 'Filtering keeps a category out of your solo runs.',
+  hintReveals: 'At the summary, reveal a word you could have written.',
+  hintSlots: 'The powers you carry into a run.',
   },
 
   bonus: {

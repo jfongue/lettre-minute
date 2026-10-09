@@ -52,7 +52,7 @@ export const de: Messages = {
     endurance: 'Ausdauer',
     enduranceHint: 'Dreißig Sekunden, und jedes Wort gibt dir zwei bis vier zurück, je nach Seltenheit.',
     reversed: 'Umgekehrt',
-    reversedHint: 'Der Buchstabe gilt für das Wortende: M nimmt Vietnam.',
+    reversedHint: 'Ein Wort, das mit diesem Buchstaben endet. Ein Land mit M am Ende? Vietnam!',
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'Ausfüllen',
     armNote: 'Leer bestätigen: da startet die Uhr.',
@@ -69,7 +69,7 @@ export const de: Messages = {
         ask: (letter: string) => `Schreib eine Farbe mit ${letter} und bestätige: sie gibt dir 2 bis 4 Sekunden.`,
       },
       reversed: {
-        hello: 'Der Buchstabe gilt für das Wortende: M nimmt Vietnam.',
+        hello: 'Ein Wort, das mit diesem Buchstaben endet. Ein Land mit M am Ende? Vietnam!',
         ask: (letter: string) => `Schreib eine Farbe, die auf ${letter} endet.`,
       },
     },
@@ -798,6 +798,14 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
   premium: {
     title: 'Premium',
     menuHint: 'Filtern, Enthüllungen, Kategorien vorab…',
+  news: {
+    title: 'Neue spielbare Kategorien',
+    body: (names) => `${names} kommen als Vorab-Kategorien. Premium öffnet sie sofort: nichts freizuschalten.`,
+    cta: 'Meine Kategorien',
+  },
+  winTitle: 'Erster der Herausforderung!',
+  winNote: 'Du gewinnst Premium: fünf Versuche pro Tag in der Herausforderung, die Vorab-Kategorien und unbegrenzte Enthüllungen. Aufs Haus, für immer.',
+  winOk: 'Danke!',
     lifetime: 'Für immer',
     fallbackPrice: '2,50 €',
     buy: (price: string) => `Premium holen — ${price}`,
@@ -860,6 +868,9 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
     reveals: (left, allowed) => `Heutige Enthüllungen: ${left} von ${allowed}`,
     revealsPlus: 'Unbegrenzte Enthüllungen',
     slots: (count, max) => `Kraft-Plätze: ${count} von ${max}`,
+  hintFilters: 'Filtern hält eine Kategorie aus deinen Solopartien heraus.',
+  hintReveals: 'In der Auswertung deckst du ein Wort auf, das du hättest schreiben können.',
+  hintSlots: 'Die Kräfte, die du ins Spiel nimmst.',
   },
 
   bonus: {

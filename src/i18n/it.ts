@@ -52,7 +52,7 @@ export const it: Messages = {
     endurance: 'Resistenza',
     enduranceHint: 'Trenta secondi, e ogni parola te ne rende da due a quattro secondo la rarità.',
     reversed: 'Rovesciato',
-    reversedHint: 'La lettera vale per la fine della parola: M accetta il Vietnam.',
+    reversedHint: 'Una parola che finisce con questa lettera. Un paese che finisce per M? Vietnam!',
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'Da riempire',
     armNote: 'Valida a vuoto: è lì che parte il cronometro.',
@@ -69,7 +69,7 @@ export const it: Messages = {
         ask: (letter: string) => `Scrivi un colore con ${letter} e valida: ti dà da 2 a 4 secondi.`,
       },
       reversed: {
-        hello: 'La lettera vale per la fine della parola: M accetta il Vietnam.',
+        hello: 'Una parola che finisce con questa lettera. Un paese che finisce per M? Vietnam!',
         ask: (letter: string) => `Scrivi un colore che finisce per ${letter}.`,
       },
     },
@@ -800,6 +800,14 @@ flawless: ['Senza errori', 'Ogni tre parole valide digitate senza errori danno s
   premium: {
     title: 'Premium',
     menuHint: 'Filtro, rivelazioni, anteprime…',
+  news: {
+    title: 'Nuove categorie giocabili',
+    body: (names) => `${names} arrivano in anteprima. Premium le apre subito: niente da sbloccare.`,
+    cta: 'Vedi le mie categorie',
+  },
+  winTitle: 'Primo della sfida!',
+  winNote: 'Vinci Premium: cinque tentativi al giorno nella sfida del momento, le anteprime e rivelazioni illimitate. Offerta della casa, per sempre.',
+  winOk: 'Grazie!',
     lifetime: 'Per sempre',
     fallbackPrice: '2,50 €',
     buy: (price: string) => `Passa a Premium — ${price}`,
@@ -862,6 +870,9 @@ flawless: ['Senza errori', 'Ogni tre parole valide digitate senza errori danno s
     reveals: (left, allowed) => `Rivelazioni di oggi: ${left} su ${allowed}`,
     revealsPlus: 'Rivelazioni illimitate',
     slots: (count, max) => `Slot dei poteri: ${count} su ${max}`,
+  hintFilters: 'Il filtro tiene una categoria fuori dalle tue partite in solitaria.',
+  hintReveals: 'Nel riepilogo, rivela una parola che avresti potuto scrivere.',
+  hintSlots: 'I poteri che porti in partita.',
   },
 
   bonus: {
