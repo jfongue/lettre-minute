@@ -97,17 +97,18 @@ export function CategoriesPage({
           <p className="note filter-note">{t.bans.lead}</p>
         </div>
       )}
-      {filtering && !unlocked && (
+      {filtering && !unlocked && !premium.storeOpen && (
         <div className="filter-locked">
           <LockIcon className="filter-locked-icon" />
           <span className="filter-locked-text">
             <strong>{t.bans.lockedTitle}</strong>
-            <span className="note">{premium.storeOpen ? t.bans.lockedHowPlus : t.bans.lockedHow}</span>
+            <span className="note">{t.bans.lockedHow}</span>
           </span>
         </div>
       )}
+      {/* Une seule porte : la carte Premium dit aussi le chemin gratuit. */}
       {filtering && !unlocked && premium.storeOpen && (
-        <PlusLockedSlot icon="lock" label={t.currencies.filtersPlus(PLUS_BANS)} onOpen={() => premium.open('filter')} />
+        <PlusLockedSlot icon="lock" label={t.bans.lockedTitle} hint={t.bans.lockedHowPlus} onOpen={() => premium.open('filter')} />
       )}
       {warning && <p className="note note--warn">{warning === 'max' ? t.bans.max(PLUS_BANS) : t.bans[warning]}</p>}
       <ul className={`categories${unlocked ? ' categories--bans' : ''}`} data-no-swipe={unlocked || undefined}>
