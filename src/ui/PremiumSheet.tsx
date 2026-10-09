@@ -55,7 +55,8 @@ export function PremiumSheet({
   /** The store's localised price; null while it has not answered. */
   price: string | null
   onBuy(): Promise<'ok' | 'cancel' | 'error'>
-  onRestore(): void
+  /** Whether the store listed a purchase to bring back. */
+  onRestore(): Promise<boolean>
   onClose(): void
   status?: PremiumStatus
 }) {
@@ -90,6 +91,13 @@ export function PremiumSheet({
     const result = await onBuy().catch(() => 'error' as const)
     if (!alive.current) return
     setOwn(result === 'ok' ? 'success' : result === 'cancel' ? 'cancelled' : 'error')
+  }
+
+  const restore = async () => {
+    setOwn('loading')
+    const found = await onRestore().catch(() => false)
+    if (!alive.current) return
+    setOwn(found ? 'success' : 'error')
   }
 
   const lead = LEAD[reason]
@@ -164,7 +172,7 @@ export function PremiumSheet({
               )}
             </button>
             <div className="psheet-links">
-              <button type="button" className="psheet-link" disabled={status === 'loading'} onClick={onRestore}>
+              <button type="button" className="psheet-link" disabled={status === 'loading'} onClick={restore}>
                 {t.premium.restore}
               </button>
               <button type="button" className="psheet-link" disabled={status === 'loading'} onClick={onClose}>

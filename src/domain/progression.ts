@@ -48,14 +48,6 @@ export function levelProgress(xp: number): LevelProgress {
   return { level, into, span, ratio: span > 0 ? into / span : 1 }
 }
 
-export interface PlusStats {
-  reveals: number
-  attempts: number
-  filteredRuns: number
-  premiereRuns: number
-  adsSkipped: number
-}
-
 export interface Profile {
   xp: number
   runs: number
@@ -119,10 +111,10 @@ export interface Profile {
   perksVersion: number
   /** When the player went Premium; 0 if they never did. */
   plusSince: number
+  /** What Premium brought beyond the free limits, by `PlusStat` (`countPlus*`, `src/domain/perks.ts`). */
+  plusStats: Readonly<Record<string, number>>
   /** 1 once the home screen has thanked the player for going Premium, and asked their opinion. */
   plusThanked: number
-  /** What Premium spared the player, for its recap page. */
-  plusStats: PlusStats
   /**
    * Les exploits qu'une partie seule sait mesurer, et que le serveur ne
    * recompte pas depuis ses lignes : la plus longue forme validée, en lettres,
@@ -180,8 +172,8 @@ export const NEW_PROFILE: Profile = {
   lastBonusOffer: [],
   perksVersion: PERKS_VERSION,
   plusSince: 0,
+  plusStats: {},
   plusThanked: 0,
-  plusStats: { reveals: 0, attempts: 0, filteredRuns: 0, premiereRuns: 0, adsSkipped: 0 },
   longestWord: 0,
   bestSpeed: 0,
   cleanRuns: 0,

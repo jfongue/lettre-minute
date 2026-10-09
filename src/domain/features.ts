@@ -49,7 +49,7 @@ export const FEATURES: readonly FeatureDef[] = [
   { id: 'leaderboards', label: 'Classements', note: 'La section de l’accueil et la page des classements', defaults: open },
   { id: 'stats', label: 'Statistiques', note: 'La page des statistiques et les parties passées', defaults: open },
   { id: 'powers', label: 'Pouvoirs', note: 'Leur offre après une partie, le cadeau, leurs emplacements', defaults: open },
-  { id: 'categoryBans', label: 'Bannir une catégorie', note: 'Dans « Mes catégories »', defaults: open },
+  { id: 'categoryBans', label: 'Filtrer une catégorie', note: 'Dans « Mes catégories »', defaults: open },
   { id: 'hiddenWords', label: 'Mots cachés du bilan', note: 'Les réponses que la partie aurait acceptées', defaults: open },
   { id: 'premium', label: 'Premium', note: 'Son offre et son paiement', defaults: open },
   { id: 'avatar', label: 'Avatar et couleurs', note: 'L’écran de l’avatar', defaults: open },

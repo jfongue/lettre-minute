@@ -36,6 +36,11 @@ import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions, type AccountMode } from './AccountPanel'
 import { AchievementsPanel } from './AchievementsPanel'
 import { AvatarPanel } from './AvatarPanel'
+import { CurrencyRow } from './CurrencyRow'
+import { PremiumPage } from './PremiumPage'
+import { PlusSeal, PlusLockedSlot } from './premium'
+import { usePremium } from './premiumContext'
+import { isPlus } from '../domain/perks'
 import { CategoriesPage, type BanActions } from './CategoriesPage'
 import { LeaderboardsPage } from './LeaderboardsPage'
 import { PageLinks } from './PageLinks'
@@ -52,11 +57,11 @@ import { Avatar } from './Avatar'
 
 export type MenuPane = 'profile' | 'social' | 'options'
 /** A page opened from a tab, which leads back to it. */
-export type ProfilePage = 'stats' | 'requests' | 'categories' | 'boards' | 'avatar'
+export type ProfilePage = 'stats' | 'requests' | 'categories' | 'boards' | 'avatar' | 'premium'
 export type MenuPage = MenuPane | ProfilePage
 
 const PANES: readonly MenuPane[] = ['profile', 'social', 'options']
-const PROFILE_PAGES: readonly Exclude<ProfilePage, 'boards' | 'avatar'>[] = ['stats', 'requests', 'categories']
+const PROFILE_PAGES: readonly Exclude<ProfilePage, 'boards' | 'avatar' | 'premium'>[] = ['stats', 'requests', 'categories']
 
 function isPane(page: MenuPage): page is MenuPane {
   return (PANES as readonly string[]).includes(page)
@@ -275,6 +280,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
           {sub === 'categories' && (
             <CategoriesPage profile={props.profile} onHidden={() => props.onWordsBoard?.(true)} {...props.banActions} />
           )}
+          {sub === 'premium' && <PremiumPage profile={props.profile} />}
           {sub === 'avatar' && (
             <>
               {avatars ? (
@@ -373,6 +379,8 @@ function ProfilePane({
   const avatars = useFeature('avatar')
   const achievements = useFeature('achievements')
   const [logOutAsking, setLogOutAsking] = useState(false)
+  const premium = usePremium()
+  const plus = isPlus(profile)
 
   return (
     <div className="profile-pane">
@@ -400,6 +408,8 @@ function ProfilePane({
           ) : null}
         </div>
       </section>
+
+      <CurrencyRow profile={profile} />
 
       {named && (
         <div className="stack">
@@ -442,7 +452,19 @@ function ProfilePane({
         onOpen={(next) => next !== 'profile' && onPage(next)}
       />
 
-      
+      {plus ? (
+        <button type="button" className="premium-entry" data-track="premium-page" onClick={() => onPage('premium')}>
+          <PlusSeal size="md" />
+          <span className="premium-entry-text">
+            <strong>{t.premium.title}</strong>
+            <span>{t.premium.lifetime}</span>
+          </span>
+        </button>
+      ) : (
+        premium.storeOpen && (
+          <PlusLockedSlot icon="forever" label={t.premium.title} hint={t.premium.menuHint} onOpen={() => premium.open('menu')} />
+        )
+      )}
     </div>
   )
 }

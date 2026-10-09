@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
-import { CATALOGUE, SOON } from '../domain/catalogue'
-import { bannedOf, banNews, banUnlocked, banVerdict, isPlus } from '../domain/perks'
+import { CATALOGUE, categoryMeta } from '../domain/catalogue'
+import { bannedOf, banNews, banUnlocked, banVerdict, bansAllowed, isPlus, PLUS_BANS } from '../domain/perks'
+import { ownedPlainCount } from '../domain/owned'
 import type { Profile } from '../domain/progression'
 import { ownedCategoryIds } from '../domain/unlocks'
 import { categoryText, useT } from '../i18n'
@@ -9,7 +10,8 @@ import { sound } from '../lib/sound'
 import { Shape } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
-import { PlusPop } from './PlusPop'
+import { LockIcon, PlusLockedSlot, PlusSeal, PremiereIcon, ResourceChip } from './premium'
+import { usePremium } from './premiumContext'
 import { useBackDismiss } from './useBackDismiss'
 import { useHiddenTaps } from './useHiddenTaps'
 import { useFeature } from './features'
@@ -18,7 +20,6 @@ export interface BanActions {
   onBan(categoryId: string): void
   onUnban(categoryId: string): void
   onIntroSeen(): void
-  onJoinPlus(): void
 }
 
 export function CategoriesPage({
@@ -27,18 +28,21 @@ export function CategoriesPage({
   onBan,
   onUnban,
   onIntroSeen,
-  onJoinPlus,
 }: { profile: Profile; /** Cinq tapes rapprochées sur le titre : le tableau des mots, caché comme la planche. */ onHidden(): void } & BanActions) {
   const t = useT()
+  const premium = usePremium()
   const owned = ownedCategoryIds(profile)
-  const banning = useFeature('categoryBans') && banUnlocked(profile)
-  const premium = useFeature('premium')
+  const filtering = useFeature('categoryBans')
+  const unlocked = filtering && banUnlocked(profile)
+  const plus = isPlus(profile)
   const banned = new Set(bannedOf(profile, owned))
+  const allowed = bansAllowed(profile)
   // Read once, on arrival: the dot goes as soon as the page is seen, the explanation stays until closed.
   const [intro, setIntro] = useState(() => banNews(profile))
-  const [plusFor, setPlusFor] = useState<string | null>(null)
-  const [warning, setWarning] = useState<'floor' | 'max' | null>(null)
+  const [warning, setWarning] = useState<'floor' | 'max' | 'limit' | null>(null)
   const tapTitle = useHiddenTaps()
+  // An avant-première the player does not own is Premium's door; where nothing is sold it is not shown.
+  const premieres = CATALOGUE.filter((category) => category.premiere && !owned.includes(category.id))
 
   useEffect(() => {
     if (intro) onIntroSeen()
@@ -49,7 +53,10 @@ export function CategoriesPage({
     const verdict = banVerdict(profile, owned, id)
     setWarning(verdict === 'floor' || verdict === 'max' ? verdict : null)
     if (verdict === 'ok') onBan(id)
-    else if (verdict === 'plus') setPlusFor(id)
+    else if (verdict === 'plus') {
+      if (premium.storeOpen) premium.open('filter')
+      else setWarning('limit')
+    }
     return verdict === 'ok'
   }
   const toggle = (id: string, out: boolean) => {
@@ -71,19 +78,44 @@ export function CategoriesPage({
           }}
         >
           {t.home.myCategories}
-          {isPlus(profile) && <span className="plus-badge">{t.plus.badge}</span>}
+          {plus && <span className="plus-badge">{t.plus.badge}</span>}
         </p>
         <p className="note">
-          {owned.length} / {CATALOGUE.length}
+          {ownedPlainCount(profile)} / {CATALOGUE.filter((category) => !category.premiere).length}
         </p>
       </div>
-      {banning && <p className="note">{t.bans.lead}</p>}
-      {warning && <p className="note note--warn">{t.bans[warning]}</p>}
-      <ul className={`categories${banning ? ' categories--bans' : ''}`} data-no-swipe={banning || undefined}>
+
+      {unlocked && (
+        <div className="filter-bar">
+          <ResourceChip
+            icon="lock"
+            count={banned.size}
+            max={allowed}
+            premium={plus}
+            label={t.bans.chip(banned.size, allowed)}
+          />
+          <p className="note filter-note">{t.bans.lead}</p>
+        </div>
+      )}
+      {filtering && !unlocked && (
+        <div className="filter-locked">
+          <LockIcon className="filter-locked-icon" />
+          <span className="filter-locked-text">
+            <strong>{t.bans.lockedTitle}</strong>
+            <span className="note">{premium.storeOpen ? t.bans.lockedHowPlus : t.bans.lockedHow}</span>
+          </span>
+        </div>
+      )}
+      {filtering && !unlocked && premium.storeOpen && (
+        <PlusLockedSlot icon="lock" label={t.currencies.filtersPlus(PLUS_BANS)} onOpen={() => premium.open('filter')} />
+      )}
+      {warning && <p className="note note--warn">{warning === 'max' ? t.bans.max(PLUS_BANS) : t.bans[warning]}</p>}
+      <ul className={`categories${unlocked ? ' categories--bans' : ''}`} data-no-swipe={unlocked || undefined}>
         {owned.map((id) => {
           const motif = categoryMotif(id)
           const text = categoryText(t, id)
           const out = banned.has(id)
+          const premiere = categoryMeta(id)?.premiere === true
           const row = (
             <>
               <CategoryIcon categoryId={id} tint={motif.tint} className="category-shape" />
@@ -91,57 +123,49 @@ export function CategoriesPage({
                 <span className="category-label">
                   {text.label}
                   {out && <span className="category-banned-tag">{t.bans.banned}</span>}
+                  {premiere && (
+                    <span className="category-premiere-tag">
+                      <PremiereIcon plus size={16} />
+                      <PlusSeal size="sm" />
+                    </span>
+                  )}
                 </span>
                 <span className="note">{text.hint}</span>
               </span>
-              {banning && (
+              {unlocked && (
                 <button
                   type="button"
-                  className={`btn btn--quiet${out ? '' : ' btn--muted'} category-ban`}
+                  className={`category-lock${out ? ' category-lock--on' : ''}`}
                   onClick={() => toggle(id, out)}
+                  aria-pressed={out}
                   aria-label={`${out ? t.bans.unban : t.bans.ban} : ${text.label}`}
                 >
-                  {out ? t.bans.unban : t.bans.ban}
+                  <LockIcon plus={out} />
                 </button>
               )}
             </>
           )
-          if (!banning) return <li key={id}>{row}</li>
+          if (!unlocked) return <li key={id}>{row}</li>
           return (
             <SwipeRow key={id} out={out} label={out ? t.bans.unban : t.bans.ban} onSwipe={() => toggle(id, out)}>
               {row}
             </SwipeRow>
           )
         })}
-        {SOON.map((category) => {
-          const text = categoryText(t, category.id)
-          return (
-            <li key={category.id} className="category--soon">
-              <CategoryIcon categoryId={category.id} tint={categoryMotif(category.id).tint} className="category-shape" />
-              <span className="category-text">
-                <span className="category-label">
-                  {text.label}
-                  <span className="category-soon-tag">{t.home.comingSoon}</span>
-                </span>
-                <span className="note">{text.hint}</span>
-              </span>
+        {premium.storeOpen &&
+          premieres.map((category) => (
+            <li key={category.id} className="category--premiere-locked">
+              <PlusLockedSlot
+                icon="premiere"
+                label={categoryText(t, category.id).label}
+                hint={`${t.plus.premiere} · ${t.premium.locked}`}
+                onOpen={() => premium.open('premiere')}
+              />
             </li>
-          )
-        })}
+          ))}
       </ul>
 
       {intro && <BanIntro onClose={() => setIntro(false)} />}
-      {plusFor && premium && (
-        <PlusPop
-          reason="ban"
-          onClose={() => setPlusFor(null)}
-          onJoin={() => {
-            onJoinPlus()
-            onBan(plusFor)
-            setPlusFor(null)
-          }}
-        />
-      )}
     </section>
   )
 }

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { DEFAULT_AVATAR, type AvatarChoice } from '../domain/avatar'
 import type { ChallengeWord } from '../domain/challenge'
 import { choosePower } from '../domain/powers'
+import { chooseBonus } from '../domain/bonus'
 import { NEW_PROFILE, xpForLevel, type Profile } from '../domain/progression'
 import type { PlayedWord, RunRecord } from '../domain/history'
 import type { RarityTier } from '../domain/rarity'
@@ -47,13 +48,14 @@ import { ModeIntro } from '../ui/ModeIntro'
 import { WeeklyCardScenario, WeeklyDoneScenario, WeeklyRecapScenario, WeeklyResultsScenario, WeeklyRunScenario, WeeklyScreenScenario } from './weeklyScenarios'
 import { NEW_SCENARIOS, NEW_SINCE, RECENT_SCENARIOS } from './recent'
 import { todayKey } from '../lib/today'
-import { ban, joinPlus, markBanIntroSeen, spendReveal, unban, type HiddenAnswer } from '../domain/perks'
+import { ban, grantRevealAd, markBanIntroSeen, spendReveal, unban, type HiddenAnswer } from '../domain/perks'
 import { ownedCategoryIds } from '../domain/unlocks'
 import { CATALOGUE } from '../domain/catalogue'
 import { CategoriesPage } from '../ui/CategoriesPage'
 import { FeedbackPop } from '../ui/FeedbackPop'
-import { PlusPop } from '../ui/PlusPop'
-import { Checkout } from '../ui/Checkout'
+import { PowerSlots } from '../ui/PowerSlots'
+import { PremiumPage } from '../ui/PremiumPage'
+import { PremiumContext } from '../ui/premiumContext'
 import { PremiumSheet, type PremiumReason, type PremiumStatus } from '../ui/PremiumSheet'
 import { PlusLockedSlot, PlusSeal, RESOURCE_ICONS, ResourceChip, ResourceGlyph, type ResourceState } from '../ui/premium'
 import { useT } from '../i18n'
@@ -224,6 +226,18 @@ const RUN = makeRun(WORDS.reduce((sum, word) => sum + word[3], 0))
 
 const at = (level: number, extra = 0) => xpForLevel(level) + extra
 
+/** Trois pouvoirs, six catégories : le niveau où les bonus commencent. */
+const BONUS_PROFILE: Profile = {
+  ...NEW_PROFILE,
+  xp: xpForLevel(10),
+  runs: 40,
+  bestScore: 290,
+  powers: ['joker', 'dodge', 'hush'],
+  equipped: ['joker', 'dodge'],
+  unlocked: ['fruits-legumes', 'metiers', 'sports'],
+  perksVersion: 1,
+}
+
 const PROFILE: Profile = {
   ...NEW_PROFILE,
   xp: at(3, 150),
@@ -288,9 +302,9 @@ const STATS_RECAP = {
       ],
       500,
     ),
-  peeks: 5,
+  budget: { left: 2, allowed: 2, adsLeft: 3, unlimited: false },
   onPeek: noop,
-  onJoinPlus: noop,
+  onAd: noop,
   // Un signalement de mot ne s'écrit pas depuis la planche : la carte répond seule.
   onFlag: () => later('sent' as const),
 }
@@ -999,7 +1013,7 @@ function SocialScenario({ back }: { back(): void }) {
       advancedBoards={false}
       onAdvancedBoards={noop}
       onWordsBoard={noop}
-      banActions={{ onBan: noop, onUnban: noop, onIntroSeen: noop, onJoinPlus: noop }}
+      banActions={{ onBan: noop, onUnban: noop, onIntroSeen: noop }}
       onClose={back}
     />
   )
@@ -1071,6 +1085,7 @@ function OverScenario({
       onAvatar={noop}
       onChoose={(id) => setProfile((current) => chooseCategory(current, id))}
       onChoosePower={(id) => setProfile((current) => choosePower(current, id))}
+      onChooseBonus={(id) => setProfile((current) => chooseBonus(current, id))}
       onSupportAsked={noop}
       mine={mine}
       proposals={proposals}
@@ -1099,7 +1114,7 @@ function OverScenario({
       onChallengeChanged={noop}
       hidden={hidden}
       onPeek={() => setProfile((current) => spendReveal(current, todayKey()))}
-      onJoinPlus={() => setProfile((current) => joinPlus(current, Date.now()))}
+      onAd={() => setProfile((current) => grantRevealAd(current, todayKey()))}
       // Un signalement de mot ne s'écrit pas depuis la planche : la carte répond seule.
       onFlag={() => later('sent' as const)}
     />
@@ -1119,12 +1134,13 @@ function PremiumThanksScenario({ back }: { back(): void }) {
   return <FeedbackPop intro={t.premiumThanks} onClose={back} send={() => later(true)} />
 }
 
-/** « Mes catégories » à sept catégories : le bannissement s'y ouvre, sur un profil qui ne sort pas de la planche. */
+/** « Mes catégories » à sept catégories : le filtrage s'y ouvre, sur un profil qui ne sort pas de la planche. */
 function BansScenario({
   seen = false,
   plus = false,
   banned = [],
   every = false,
+  bonuses = [],
 }: {
   seen?: boolean
   plus?: boolean
@@ -1132,6 +1148,8 @@ function BansScenario({
   banned?: readonly string[]
   /** Tout le catalogue possédé, au lieu de sept catégories. */
   every?: boolean
+  /** Les bonus de niveau déjà pris : sans « filter », le filtrage est verrouillé. */
+  bonuses?: readonly string[]
 }) {
   const [profile, setProfile] = useState<Profile>(() => ({
     ...PROFILE,
@@ -1141,6 +1159,7 @@ function BansScenario({
     banIntroSeen: seen ? 1 : 0,
     plusSince: plus ? 1 : 0,
     banned,
+    bonuses,
   }))
   const owned = ownedCategoryIds(profile)
   return (
@@ -1151,7 +1170,6 @@ function BansScenario({
         onBan={(id) => setProfile((current) => ban(current, owned, id))}
         onUnban={(id) => setProfile((current) => unban(current, id))}
         onIntroSeen={() => setProfile((current) => markBanIntroSeen(current))}
-        onJoinPlus={() => setProfile((current) => joinPlus(current, Date.now()))}
       />
     </div>
   )
@@ -1408,7 +1426,7 @@ function PremiumSheetScenario({ reason, status, onBack }: { reason: PremiumReaso
       price="2,50 €"
       status={status}
       onBuy={() => new Promise((resolve) => setTimeout(() => resolve('ok'), 1000))}
-      onRestore={() => undefined}
+      onRestore={() => Promise.resolve(true)}
       onClose={onBack}
     />
   )
@@ -1707,17 +1725,46 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'over-hidden',
     group: 'Fin de partie',
     title: 'Mots cachés des invites passées',
-    how: 'Repliées sous un bouton ; quatre bandes à arracher, chacune à son rythme : deux gratuites, puis l’offre et le faux paiement',
+    how: 'Repliées sous un bouton ; quatre bandes à arracher, chacune à son rythme : trois révélations aujourd’hui (deux plus un bonus), le compteur œil les suit',
     phase: 'over',
     render: (back) => <OverScenario after={afterRun({ ...PROFILE, bonuses: ['reveal'] }, RUN)} hidden={HIDDEN} onBack={back} />,
   },
   {
     id: 'over-hidden-spent',
     group: 'Fin de partie',
-    title: 'Mots cachés : plus aucun gratuit',
-    how: 'Les cinq révélations gratuites sont passées : la première bande ouvre l’offre Premium',
+    title: 'Mots cachés : plus aucune du jour',
+    how: 'Les révélations et les trois pubs du jour sont passées : il ne reste que « Révélations illimitées », qui ouvre la fiche Premium',
     phase: 'over',
-    render: (back) => <OverScenario after={afterRun({ ...PROFILE, bonuses: ['reveal', 'reveal', 'reveal'] }, RUN)} hidden={HIDDEN} onBack={back} />,
+    render: (back) => <OverScenario after={afterRun({ ...PROFILE, revealDay: todayKey(), revealsUsed: 5, revealAds: 3 }, RUN)} hidden={HIDDEN} onBack={back} />,
+  },
+  {
+    id: 'reveal-spent-ads',
+    group: 'Fin de partie',
+    title: 'Mots cachés : épuisées, une pub possible',
+    how: 'Les deux révélations du jour sont passées : le bouton « Regarder une pub (+1) » (sans pub dans un navigateur, il le dit), puis « Révélations illimitées » pour Premium',
+    phase: 'over',
+    render: (back) => <OverScenario after={afterRun({ ...PROFILE, revealDay: todayKey(), revealsUsed: 2 }, RUN)} hidden={HIDDEN} onBack={back} />,
+  },
+  {
+    id: 'over-currencies',
+    group: 'Fin de partie',
+    title: 'Fin de partie : tes avantages',
+    how: 'La rangée de compteurs sous les chiffres : cadenas, œil du jour, emplacements de pouvoir',
+    phase: 'over',
+    render: (back) => (
+      <OverScenario
+        after={afterRun({ ...PROFILE, bonuses: ['filter', 'reveal'], revealDay: todayKey(), revealsUsed: 1, banned: ['pays'] }, RUN)}
+        onBack={back}
+      />
+    ),
+  },
+  {
+    id: 'over-currencies-plus',
+    group: 'Fin de partie',
+    title: 'Fin de partie : avantages Premium',
+    how: 'Les mêmes compteurs pour un membre Premium : cadenas jusqu’à six, révélations ∞, tout en noir et jaune',
+    phase: 'over',
+    render: (back) => <OverScenario after={afterRun({ ...PROFILE, plusSince: 1, bonuses: ['slot'] }, RUN)} onBack={back} />,
   },
   {
     id: 'over-hidden-premium',
@@ -1952,13 +1999,107 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <SocialScenario back={back} />,
   },
   {
+    id: 'bonus-offer',
+    group: 'Fin de partie',
+    title: 'Bonus de niveau',
+    how: 'Deux cartes (une révélation, un cadenas) après le déroulé : on en garde une pour toujours',
+    phase: 'over',
+    render: (back) => (
+      <OverScenario
+        before={BONUS_PROFILE}
+        after={afterRun({ ...BONUS_PROFILE, bonusOffer: ['reveal', 'filter'] }, RUN)}
+        onBack={back}
+      />
+    ),
+  },
+  {
+    id: 'bonus-offer-moderator',
+    group: 'Fin de partie',
+    title: 'Bonus de niveau : carte de modérateur',
+    how: 'Une carte de modérateur parmi les deux ; dans le jeu, la garder ouvre l’offre de modérer (compte nommé requis)',
+    phase: 'over',
+    render: (back) => (
+      <OverScenario
+        before={BONUS_PROFILE}
+        after={afterRun({ ...BONUS_PROFILE, bonuses: ['filter'], bonusOffer: ['moderator', 'slot'] }, RUN)}
+        onBack={back}
+      />
+    ),
+  },
+  {
+    id: 'power-slots-locked',
+    group: 'Accueil',
+    title: 'Pouvoirs : second emplacement verrouillé',
+    how: 'Un seul emplacement gagné : le second dit « Gagne-le en bonus de niveau » et n’ouvre rien',
+    phase: 'home',
+    render: () => (
+      <div className="sheet">
+        <PowerSlots profile={{ ...BONUS_PROFILE, equipped: ['joker'] }} disabled={false} onEquip={noop} />
+      </div>
+    ),
+  },
+  {
+    id: 'categories-filter-locked',
+    group: 'Accueil',
+    title: 'Mes catégories : filtrage verrouillé',
+    how: 'Aucun cadenas gagné : le filtrage dit comment en obtenir (bonus de niveau) et propose Premium',
+    phase: 'home',
+    render: () => <BansScenario seen every />,
+  },
+  {
+    id: 'categories-filter-plus',
+    group: 'Accueil',
+    title: 'Mes catégories : filtrage Premium',
+    how: 'Membre Premium : compteur de cadenas noir et jaune, avant-premières possédées et marquées',
+    phase: 'home',
+    render: () => <BansScenario seen plus every banned={['pays']} />,
+  },
+  {
+    id: 'categories-premieres',
+    group: 'Accueil',
+    title: 'Mes catégories : avant-premières',
+    how: 'Un cadenas gagné, sans Premium : Ingrédients et Lieux et bâtiments en emplacements pointillés qui ouvrent la fiche',
+    phase: 'home',
+    render: () => <BansScenario seen every bonuses={['filter']} />,
+  },
+  {
+    id: 'premium-page',
+    group: 'Accueil',
+    title: 'Page Premium',
+    how: 'Le merci d’un membre Premium : sceau, date, cinq compteurs qui montent',
+    phase: 'home',
+    render: () => (
+      <div className="sheet">
+        <PremiumPage
+          profile={{
+            ...PROFILE,
+            plusSince: Date.now() - 40 * 24 * HOUR,
+            plusStats: { reveals: 37, attempts: 12, filterRuns: 58, premiereRuns: 21, adsSkipped: 49 },
+          }}
+        />
+      </div>
+    ),
+  },
+  {
+    id: 'premium-page-fresh',
+    group: 'Accueil',
+    title: 'Page Premium : tout neuf',
+    how: 'Un Premium du jour même : tous les compteurs à zéro, et la phrase qui dit qu’ils se rempliront',
+    phase: 'home',
+    render: () => (
+      <div className="sheet">
+        <PremiumPage profile={{ ...PROFILE, plusSince: Date.now() }} />
+      </div>
+    ),
+  },
+  {
     id: 'challenge-powers',
     group: 'Défi entre amis',
     title: 'Choix des pouvoirs avant un défi',
     how: 'Plus de deux pouvoirs admis',
     phase: 'home',
     render: (back) => (
-      <ChallengePowers allowed={['joker', 'dodge', 'hush', 'divination', 'chatter']} initial={['joker', 'dodge']} onStart={back} onClose={back} />
+      <ChallengePowers allowed={['joker', 'dodge', 'hush', 'divination', 'chatter']} initial={['joker', 'dodge']} slots={2} onStart={back} onClose={back} />
     ),
   },
   // Les identifiants restent littéraux : `npm run debug:recent` les relit dans
@@ -2260,7 +2401,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Mes catégories : bannir',
     how: 'Septième catégorie : explication à l’ouverture, un ban gratuit, par le bouton ou d’un glissement de la ligne',
     phase: 'home',
-    render: () => <BansScenario />,
+    render: () => <BansScenario bonuses={['filter']} />,
   },
   {
     id: 'categories-ban-plus',
@@ -2281,26 +2422,10 @@ const SCENARIOS: readonly Scenario[] = [
   {
     id: 'categories-ban-max',
     group: 'Accueil',
-    title: 'Mes catégories : cinq bans au plus',
-    how: 'Premium, tout le catalogue, cinq bannies : un sixième est refusé ; glisser une ligne la rétablit',
+    title: 'Mes catégories : six filtres au plus',
+    how: 'Premium, tout le catalogue, six filtrées : une septième est refusée ; glisser une ligne la rétablit',
     phase: 'home',
-    render: () => <BansScenario seen plus every banned={['pays', 'animaux', 'couleurs', 'sports', 'marques']} />,
-  },
-  {
-    id: 'plus-pop',
-    group: 'Accueil',
-    title: 'Offre Premium',
-    how: 'Deuxième ban demandé sans être Premium (gratuit pour l’instant)',
-    phase: 'home',
-    render: (back) => <PlusPop reason="ban" onJoin={back} onClose={back} />,
-  },
-  {
-    id: 'checkout',
-    group: 'Accueil',
-    title: 'Faux paiement Premium',
-    how: 'Après « Passer Premium » : la commande à 0 €, « Payer », le paiement qui tourne, puis la bienvenue',
-    phase: 'home',
-    render: (back) => <Checkout onPaid={back} onCancel={back} />,
+    render: () => <BansScenario seen plus every banned={['pays', 'animaux', 'couleurs', 'sports', 'marques', 'prenoms']} />,
   },
   {
     id: 'premium-thanks',
@@ -2309,14 +2434,6 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Premier retour à l’accueil après l’abonnement : le merci, puis la demande d’avis (envoi simulé)',
     phase: 'home',
     render: (back) => <PremiumThanksScenario back={back} />,
-  },
-  {
-    id: 'plus-pop-peek',
-    group: 'Accueil',
-    title: 'Offre Premium : mots cachés',
-    how: 'Sixième mot caché demandé sans être Premium',
-    phase: 'home',
-    render: (back) => <PlusPop reason="peek" onJoin={back} onClose={back} />,
   },
   {
     id: 'ideas-admin',
@@ -2543,6 +2660,8 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
   const [open, setOpen] = useState<Scenario | null>(null)
   // Replaying remounts the screen, its animations and picks with it.
   const [take, setTake] = useState(0)
+  // La fiche Premium, ouverte par n'importe quelle porte des écrans montrés : un achat factice.
+  const [sheet, setSheet] = useState<PremiumReason | null>(null)
   // Où la liste était : y revenir évite de la rescroller à chaque planche vue.
   const listScroll = useRef(0)
 
@@ -2555,9 +2674,12 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
     return (
       <>
         <PlayerActionsContext.Provider value={PLAYER_ACTIONS}>
-          <div key={`${open.id}:${take}`} className="debug-scene">
-            {open.render(() => setOpen(null))}
-          </div>
+          <PremiumContext.Provider value={{ storeOpen: true, adsOpen: true, open: setSheet }}>
+            <div key={`${open.id}:${take}`} className="debug-scene">
+              {open.render(() => setOpen(null))}
+            </div>
+            {sheet && <PremiumSheetScenario reason={sheet} onBack={() => setSheet(null)} />}
+          </PremiumContext.Provider>
         </PlayerActionsContext.Provider>
         <div className="debug-bar">
           <button type="button" className="btn btn--quiet" onClick={() => setOpen(null)}>

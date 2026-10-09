@@ -186,6 +186,7 @@ export function ResourceChip({
   count,
   max,
   unlimited = false,
+  premium = false,
   state = 'normal',
   label,
 }: {
@@ -193,18 +194,20 @@ export function ResourceChip({
   count?: number
   max?: number
   unlimited?: boolean
+  /** Premium's allowance, still a number (« 6 ») rather than ∞: the icon and the chip go black and yellow. */
+  premium?: boolean
   state?: ResourceState
   /** Ce que lit un lecteur d'écran, puisque l'icône et le nombre sont muets. */
   label: string
 }) {
-  const plus = unlimited && state !== 'locked'
+  const plus = (unlimited || premium) && state !== 'locked'
   return (
     <span className={`rchip rchip--${state}${plus ? ' rchip--plus' : ''}`} role="img" aria-label={label}>
       <ResourceGlyph icon={icon} plus={plus} />
       <span className="rchip-count" aria-hidden="true">
         {state === 'locked' ? (
           <PlusSeal size="sm" />
-        ) : plus ? (
+        ) : unlimited ? (
           <InfinityMark />
         ) : (
           <>

@@ -1,4 +1,4 @@
-import { NEW_PROFILE, type Profile } from './progression'
+import type { Profile } from './progression'
 import { hasPower, promptKey, type Judge, type Prompt, type Run, type SettledPrompt } from './run'
 
 /** Bans a player holds without Premium at most, each one a « filter » level bonus; none to begin with. */
@@ -16,6 +16,62 @@ export const REVEAL_BONUS_MAX = 3
 export const REVEAL_ADS_MAX = 3
 export const REVEALS_MAX = BASE_REVEALS + REVEAL_BONUS_MAX + REVEAL_ADS_MAX
 
+/** What Premium gave beyond the free limits, as the Premium page counts it. */
+export type PlusStat = 'reveals' | 'attempts' | 'filterRuns' | 'premiereRuns' | 'adsSkipped'
+
+export const PLUS_STATS: readonly PlusStat[] = ['reveals', 'attempts', 'filterRuns', 'premiereRuns', 'adsSkipped']
+
+export function plusStat(profile: Profile, stat: PlusStat): number {
+  return profile.plusStats[stat] ?? 0
+}
+
+function bumped(profile: Profile, ...stats: PlusStat[]): Profile {
+  const plusStats: Record<string, number> = { ...profile.plusStats }
+  for (const stat of stats) plusStats[stat] = (plusStats[stat] ?? 0) + 1
+  return { ...profile, plusStats }
+}
+
+/** One ad a free player would have watched, and a Premium member did not. */
+export function countPlusAdSkipped(profile: Profile): Profile {
+  return isPlus(profile) ? bumped(profile, 'adsSkipped') : profile
+}
+
+/**
+ * A reveal a Premium member took: counted when it goes beyond what the free
+ * day allows — a reveal an ad would have paid for also skips that ad, one past
+ * the ads' share is simply extra. Free players spend theirs with `spendReveal`.
+ */
+export function countPlusReveal(profile: Profile, day: string): Profile {
+  if (!isPlus(profile)) return profile
+  const today = revealsOn(profile, day)
+  const used = today.revealsUsed + 1
+  const free = BASE_REVEALS + Math.min(REVEAL_BONUS_MAX, profile.bonuses.filter((id) => id === 'reveal').length)
+  const beyond = used - free
+  const next = { ...today, revealsUsed: used }
+  if (beyond <= 0) return next
+  return bumped(next, 'reveals', ...(beyond <= REVEAL_ADS_MAX ? (['adsSkipped'] as const) : []))
+}
+
+/** What a finished run shows of Premium: filters past the free maximum, and an avant-première dealt. */
+export interface PlusRunInfo {
+  filtersActive: number
+  premiereDealt: boolean
+}
+
+export function countPlusRun(profile: Profile, info: PlusRunInfo): Profile {
+  if (!isPlus(profile)) return profile
+  const stats: PlusStat[] = []
+  if (info.filtersActive > FREE_BANS_MAX) stats.push('filterRuns')
+  if (info.premiereDealt) stats.push('premiereRuns')
+  return stats.length === 0 ? profile : bumped(profile, ...stats)
+}
+
+/** Weekly attempt number `n` (1-based) played: from the third on it is Premium's, and the third spares an ad. */
+export function countPlusAttempt(profile: Profile, n: number): Profile {
+  if (!isPlus(profile) || n < 3) return profile
+  return bumped(profile, 'attempts', ...(n === 3 ? (['adsSkipped'] as const) : []))
+}
+
 /** Runs before the game first asks for the player's opinion, then between two asks. */
 export const FEEDBACK_FIRST_RUNS = 10
 export const FEEDBACK_EVERY_RUNS = 30
@@ -27,12 +83,6 @@ export function isPlus(profile: Profile): boolean {
 /** Premium costs nothing for now: joining is a date written down. */
 export function joinPlus(profile: Profile, now: number): Profile {
   return isPlus(profile) ? profile : { ...profile, plusSince: now }
-}
-
-/** A weekly attempt a Premium player started beyond the free ones; `skippedAd` when it is the third, which a free player would have paid with an ad. */
-export function countPlusAttempt(profile: Profile, skippedAd = false): Profile {
-  const stats = profile.plusStats ?? NEW_PROFILE.plusStats
-  return { ...profile, plusStats: { ...stats, attempts: stats.attempts + 1, adsSkipped: stats.adsSkipped + (skippedAd ? 1 : 0) } }
 }
 
 /** The home screen thanks a new Premium member once, and asks what they think of the game. */
@@ -147,6 +197,23 @@ export function grantRevealAd(profile: Profile, day: string): Profile {
   if (revealAdsLeft(profile, day) <= 0) return profile
   const today = revealsOn(profile, day)
   return { ...today, revealAds: today.revealAds + 1 }
+}
+
+/** What a screen shows of the day's reveals: `left` of `allowed`, the ads still to watch, or no count for Premium. */
+export interface RevealBudget {
+  left: number
+  allowed: number
+  adsLeft: number
+  unlimited: boolean
+}
+
+export function revealBudget(profile: Profile, day: string): RevealBudget {
+  return {
+    left: revealsLeft(profile, day),
+    allowed: revealsAllowed(profile, day),
+    adsLeft: revealAdsLeft(profile, day),
+    unlimited: isPlus(profile),
+  }
 }
 
 /** A prompt the run left empty, and the word it could have taken. */

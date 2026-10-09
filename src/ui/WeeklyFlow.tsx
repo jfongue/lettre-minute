@@ -16,10 +16,10 @@ import {
   weeklyValue,
 } from '../domain/weekly'
 import type { Messages } from '../i18n'
-import { buyPremium, premiumPrice, prepareRewardedAd, restorePremium, showRewardedAd } from '../lib/billing'
+import { prepareRewardedAd, showRewardedAd } from '../lib/billing'
 import { weeklyFinish, fetchWeeklyLastPlayed, fetchWeeklyRecap } from '../lib/cloud'
 import { cloudConfigured } from '../lib/supabase'
-import { premiumStoreOpen, rewardedAdsOpen } from '../platform'
+import { rewardedAdsOpen } from '../platform'
 import type { Judge } from '../domain/run'
 import type { SessionAction, Session } from '../state/session'
 import { loadLocalAttempts, markRecapSeen, recapDue, recordLocalAd } from '../state/weekly'
@@ -27,7 +27,7 @@ import { loadWeeklyStatus, markWeeklyIntroSeen, startWeeklyAttempt, weeklyIntroS
 import { lazyScreen } from './lazyScreen'
 import { ModeIntro } from './ModeIntro'
 import { ModeTutorial } from './ModeTutorial'
-import { PremiumSheet, type PremiumReason } from './PremiumSheet'
+import type { PremiumReason } from './PremiumSheet'
 import { WeeklyCard } from './WeeklyCard'
 
 export const WeeklyScreen = lazyScreen(() => import('./WeeklyScreen').then((module) => module.WeeklyScreen))
@@ -65,7 +65,10 @@ interface FlowInput {
   dispatch: Dispatch<SessionAction>
   judgeFor(categoryIds: readonly string[], lang: string, challenge: boolean, edge: 'first' | 'last'): Promise<Judge>
   profile: MutableRefObject<Profile>
-  joinPlus(): void
+  /** La fiche Premium commune (`App.tsx`), ouverte d'ici pour une tentative. */
+  openPremium(reason: PremiumReason): void
+  /** Le magasin est ouvert : Android, et la fonctionnalité `premium`. */
+  premiumOpen: boolean
   preloadRun(): Promise<unknown>
   /** Seul l'accueil montre la carte, et seul lui peut ouvrir le récap. */
   home: boolean
@@ -80,7 +83,7 @@ const arcade = (mode: GameMode): ArcadeMode | null => (mode === 'solo' ? null : 
  * fiche Premium qu'il ouvre. `App.tsx` n'en garde qu'un appel, ce qu'il pose
  * à l'accueil et ce qu'il montre en fin de partie.
  */
-export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, profile, joinPlus, preloadRun, home }: FlowInput) {
+export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, profile, openPremium, premiumOpen, preloadRun, home }: FlowInput) {
   const plus = isPlus(session.profile)
   const week = weekOf(Date.now())
   const challenge = useMemo(
@@ -97,8 +100,6 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
   const [played, setPlayed] = useState(false)
   const [done, setDone] = useState<DoneInfo | null>(null)
   const [recapWeek, setRecapWeek] = useState<string | null>(null)
-  const [premiumFor, setPremiumFor] = useState<PremiumReason | null>(null)
-  const [price, setPrice] = useState<string | null>(null)
   const attempt = useRef<Attempt | null>(null)
   const best = useRef<number | null>(null)
 
@@ -133,11 +134,6 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
     if (view?.kind === 'screen' && rewardedAdsOpen) prepareRewardedAd()
   }, [view?.kind])
 
-  const openPremium = useCallback((reason: PremiumReason) => {
-    setPremiumFor(reason)
-    void premiumPrice().then(setPrice)
-  }, [])
-
   const launch = useCallback(async () => {
     const now = Date.now()
     const window = windowAt(now)
@@ -156,7 +152,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
     if (plus && started.n > WEEKLY_FREE_ATTEMPTS) {
       dispatch({
         type: 'profile-loaded',
-        profile: countPlusAttempt(profile.current, started.n === WEEKLY_FREE_ATTEMPTS + 1 && local.ads === 0),
+        profile: countPlusAttempt(profile.current, started.n),
       })
     }
     const options = weeklyRunOptions(challenge)
@@ -291,7 +287,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
             lang={lang}
             plus={plus}
             adsOpen={rewardedAdsOpen}
-            premiumOpen={premiumStoreOpen}
+            premiumOpen={premiumOpen}
             busy={busy}
             message={message}
             refresh={refresh}
@@ -337,21 +333,6 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
         </Suspense>
       )}
 
-      {premiumFor && (
-        <PremiumSheet
-          reason={premiumFor}
-          price={price}
-          onBuy={async () => {
-            const result = await buyPremium()
-            if (result === 'ok') joinPlus()
-            return result
-          }}
-          onRestore={() => {
-            void restorePremium().then((owned) => owned && joinPlus())
-          }}
-          onClose={() => setPremiumFor(null)}
-        />
-      )}
     </>
   )
 

@@ -1,4 +1,4 @@
-import { MAX_EQUIPPED, equippedPowers, ownedPowers, type PowerId } from './powers'
+import { equippedPowers, ownedPowers, slotsOf, type PowerId } from './powers'
 import { applyRun, XP_PER_POINT, type Profile, type RunOutcome } from './progression'
 import type { RarityTier } from './rarity'
 import type { Run } from './run'
@@ -31,14 +31,14 @@ export function challengePowers(profile: Profile): PowerId[] {
 
 /** More allowed powers than slots: the player picks before the run. */
 export function needsPowerPick(profile: Profile): boolean {
-  return challengePowers(profile).length > MAX_EQUIPPED
+  return challengePowers(profile).length > slotsOf(profile)
 }
 
 /** What the run carries unless the player picks: the worn powers that are allowed, topped up with the others. */
 export function defaultChallengePowers(profile: Profile): PowerId[] {
   const allowed = challengePowers(profile)
   const worn = equippedPowers(profile).filter((id) => allowed.includes(id))
-  return [...worn, ...allowed.filter((id) => !worn.includes(id))].slice(0, MAX_EQUIPPED)
+  return [...worn, ...allowed.filter((id) => !worn.includes(id))].slice(0, slotsOf(profile))
 }
 
 /** A word as a challenge keeps it: enough to settle, rank and replay a run, nothing of the player's history. */

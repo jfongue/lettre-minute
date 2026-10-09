@@ -6,6 +6,7 @@ import type { FaceOff } from '../domain/rivalry'
 import type { StatId } from '../domain/leaderboards'
 import type { PowerId, Spell } from '../domain/powers'
 import type { RarityTier } from '../domain/rarity'
+import type { BonusId } from '../domain/bonus'
 import type { AuthError, BanOutcome, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
 import { weeklyFr } from './weekly.fr'
@@ -50,7 +51,6 @@ export const fr = {
     wordsFound: 'mots trouvés',
     bestCombo: 'meilleure série',
     myCategories: 'Mes catégories',
-    comingSoon: 'Bientôt…',
     links: { profile: 'Profil', stats: 'Statistiques', requests: 'Mes demandes', categories: 'Catégories' },
     news: (count: number) => `${count} ${plural(count, 'nouveauté', 'nouveautés')}`,
     queueWaiting: 'Des mots attendent ton avis',
@@ -280,7 +280,7 @@ export const fr = {
       'Tes parties te suivent d’un appareil à l’autre, ton nom entre au classement et tes amis peuvent te trouver.',
     offline: 'Hors ligne : ta progression reste sur cet appareil.',
     back: 'Retour',
-    pages: { stats: 'Statistiques', requests: 'Mes demandes', categories: 'Mes catégories', boards: 'Classements', avatar: 'Avatar et succès' },
+    pages: { stats: 'Statistiques', requests: 'Mes demandes', categories: 'Mes catégories', boards: 'Classements', avatar: 'Avatar et succès', premium: 'Premium' },
     achievements: 'Succès',
     support: 'Soutenir le créateur',
   },
@@ -633,6 +633,8 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     title: 'Pouvoirs',
     empty: 'Libre',
     slot: (index: number, name: string | null) => `Pouvoir ${index} : ${name ?? 'libre'}`,
+    slotLocked: 'Emplacement verrouillé',
+    slotLockedHow: 'Gagne-le en bonus de niveau',
     pickTitle: 'Choisis un pouvoir',
     pickLead: 'Ces deux pouvoirs s’ajoutent à ton choix. Tu peux changer ceux que tu portes quand tu veux, avant une partie.',
     remove: 'Retirer',
@@ -821,29 +823,30 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
   },
 
   bans: {
-    introTitle: 'Nouveau : bannir une catégorie',
-    introLead: 'Tu as sept catégories. Il y en a une qui t’ennuie ? Bannis-la : elle ne sortira plus dans tes parties. Tu peux changer d’avis quand tu veux, ici même.',
+    introTitle: 'Nouveau : filtrer une catégorie',
+    introLead: 'Une catégorie t’ennuie ? Filtre-la : elle ne sortira plus dans tes parties. Tu peux changer d’avis quand tu veux, ici même.',
     introOk: 'Compris',
-    lead: 'Une catégorie bannie ne sort plus dans tes parties (les défis gardent les leurs). Glisse-la pour la bannir ou la rétablir.',
-    ban: 'Bannir',
+    lead: 'Une catégorie filtrée ne sort plus dans tes parties (les défis gardent les leurs). Glisse-la pour la filtrer ou la rétablir.',
+    ban: 'Filtrer',
     unban: 'Rétablir',
-    banned: 'Bannie',
+    banned: 'Filtrée',
     floor: 'Il faut garder au moins six catégories en jeu.',
-    max: 'Cinq catégories bannies au plus.',
+    max: (count: number) => `${count} catégories filtrées au plus.`,
+    limit: 'Tous tes cadenas sont posés. Un bonus de niveau t’en donnera un autre.',
+    lockedTitle: 'Filtrage verrouillé',
+    lockedHow: 'Gagne ton premier cadenas avec un bonus de niveau.',
+    lockedHowPlus: 'Gagne ton premier cadenas avec un bonus de niveau, ou passe Premium pour en avoir six.',
+    chip: (used: number, max: number) => `${used} catégories filtrées sur ${max}`,
   },
 
   plus: {
-    title: 'Réservé aux membres Premium',
-    ban: 'Bannir plus d’une catégorie est réservé aux membres Premium.',
-    peek: 'Révéler plus de mots est réservé aux membres Premium.',
-    join: 'Passer Premium pour 0 €',
-    free: '(pour l’instant c’est gratuit !)',
-    later: 'Plus tard',
     badge: 'Premium',
+    premiere: 'Avant-première',
   },
 
   premium: {
     title: 'Premium',
+    menuHint: 'Filtrage, révélations, avant-premières…',
     lifetime: 'À vie',
     fallbackPrice: '2,50 €',
     buy: (price: string) => `Passer Premium — ${price}`,
@@ -871,32 +874,61 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
 
   weekly: weeklyFr,
 
-  peek: {
-    title: 'Ce que tu aurais pu écrire',
-  left: (remaining: number, total: number) => `${remaining} révélations sur ${total}`,
-    reveal: (category: string, letter: string) => `Révéler un mot en ${letter} : ${category}`,
+  premiumPage: {
+    lead: 'Ce que Premium t’a apporté, au-delà des limites gratuites.',
+    since: (date: string) => `Premium depuis le ${date}`,
+    counters: {
+      reveals: 'révélations en plus',
+      attempts: 'tentatives en plus au défi du moment',
+      filterRuns: 'parties avec plus de filtres',
+      premiereRuns: 'parties avec une avant-première',
+      adsSkipped: 'pubs que tu n’as pas eu à regarder',
+    },
+    empty: 'Ça se remplira dès tes prochaines parties.',
+    indie: 'Tu aides un petit développeur indé. Merci !',
+    forever: 'À vie : un seul paiement, aucun abonnement.',
   },
 
-  checkout: {
-    title: 'Paiement sécurisé',
-    plan: 'Premium',
-    perkBans: (max: number) => `Bannis jusqu’à ${max} catégories`,
-    perkPeeks: 'Révéler tous les mots cachés',
-    perkCategories: 'Des catégories exclusives',
-    perkEvents: 'Des modes de jeu événements',
-    price: '0,00 €',
-    period: 'sans engagement',
-    total: 'Total',
-    pay: 'Payer 0,00 €',
-    paying: 'Paiement en cours…',
-    done: 'Bienvenue en Premium !',
-    note: 'Aucune carte demandée : pour l’instant, c’est gratuit.',
-    cancel: 'Annuler',
+  peek: {
+    title: 'Ce que tu aurais pu écrire',
+    reveal: (category: string, letter: string) => `Révéler un mot en ${letter} : ${category}`,
+    rule: (count: number) => `${count} révélations par jour, de nouveau demain`,
+    chip: (left: number, allowed: number) => `${left} révélations restantes sur ${allowed}`,
+    unlimited: 'Révélations illimitées',
+    spent: 'Tu as utilisé tes révélations du jour.',
+    ad: 'Regarder une pub (+1)',
+    adBusy: 'Un instant…',
+    adFailed: 'Pas de pub pour l’instant. Réessaie un peu plus tard.',
   },
+
+  currencies: {
+    title: 'Tes avantages',
+    filters: (used: number, max: number) => `Filtrages : ${used} sur ${max}`,
+    filtersLocked: 'Filtrage : pas encore gagné',
+    filtersPlus: (max: number) => `Filtrage : jusqu’à ${max} catégories`,
+    reveals: (left: number, allowed: number) => `Révélations du jour : ${left} sur ${allowed}`,
+    revealsPlus: 'Révélations illimitées',
+    slots: (count: number, max: number) => `Emplacements de pouvoir : ${count} sur ${max}`,
+  },
+
+  bonus: {
+    title: 'Bonus de niveau',
+    lead: 'Choisis un avantage : il te reste pour toujours.',
+    /** Name and what it gives, by `BonusId`. */
+    kinds: {
+      filter: ['Un cadenas', 'Filtre une catégorie de plus : elle ne sort plus dans tes parties.'],
+      slot: ['Deuxième emplacement', 'Porte deux pouvoirs en même temps.'],
+      reveal: ['Une révélation de plus', 'Une révélation en plus chaque jour, pour de bon.'],
+      moderator: ['Carte de modérateur', 'Juge les mots que les joueurs proposent et fais grandir le dictionnaire.'],
+    } satisfies Record<BonusId, readonly [string, string]> as Record<BonusId, readonly [name: string, description: string]>,
+    total: (count: number, max: number) => `${count} sur ${max}`,
+    joined: 'rejoint tes avantages',
+  },
+
 
   premiumThanks: {
     title: 'Merci de t’être abonné Premium !',
-    lead: 'Pour l’instant c’est gratuit… En échange, est-ce que tu veux bien me donner ton avis sur cette version du jeu ?',
+    lead: 'Ton soutien compte beaucoup. En échange, est-ce que tu veux bien me donner ton avis sur cette version du jeu ?',
     yes: 'Avec plaisir',
     later: 'Plus tard',
   },
