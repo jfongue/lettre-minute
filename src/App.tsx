@@ -1697,9 +1697,11 @@ setStartedAt((at) => at ?? Date.now())
     session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !duelOpen && !weeklyFlow.covering
   const notice = quietHome && on('challenges') ? challengeNotice(challenges, heldNotices) : null
   const updateDue = update === 'due' && on('storeUpdate')
-  // The moderator card taken as a level bonus is the offer, asked as soon as the player is home and still no moderator.
-  const bonusOfferDue = session.profile.bonuses.includes('moderator') && moderation !== null && !moderation.moderator && !bonusHeld && !moderation.offer && on('moderatorOffer')
-  const offerDue = bonusOfferDue || !!moderation?.offer && !offerHeld && on('moderatorOffer')
+  // The moderator card never reaches someone who already moderates: `moderator`
+  // alone let the super role through, and its bonus stayed in the profile.
+  const alreadyModerating = moderation?.moderator === true || moderation?.super === true
+  const bonusOfferDue = session.profile.bonuses.includes('moderator') && moderation !== null && !alreadyModerating && !bonusHeld && !moderation.offer && on('moderatorOffer')
+  const offerDue = !alreadyModerating && (bonusOfferDue || !!moderation?.offer && !offerHeld && on('moderatorOffer'))
   const wordsNewsDue = wordsNews.length > 0 && on('wordsNews')
   const giftDue = complicationDue(session.profile, acceptedWords) && on('powerGift')
   const popsQuiet = !notice && quietHome && !updateDue && !offerDue && !wordsNewsDue && !giftDue && pushOffer === null
@@ -2221,7 +2223,6 @@ setStartedAt((at) => at ?? Date.now())
             run={session.run}
             profile={session.profile}
             profileBefore={session.profileBefore}
-            attempts={weeklyFlow.attempts}
             revealed={revealed === session.run.seed}
             onRevealed={() => setRevealed(session.run?.seed ?? null)}
             lang={lang}

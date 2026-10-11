@@ -213,7 +213,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
       {nothing && <p className="note">{t.requests.empty}</p>}
 
       {server !== 'loading' && (
-        <div className="figures">
+        <div className="figures figures--three">
           <Figure tint="green" value={accepted.length} label={t.requests.added} />
           <Figure tint="yellow" value={pending.length} label={t.requests.pending} />
           <Figure tint="blue" value={sessions} label={t.requests.sessions} />

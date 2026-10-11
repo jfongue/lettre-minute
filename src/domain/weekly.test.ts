@@ -163,9 +163,14 @@ describe('the weekly challenge', () => {
   it('starts with endurance and cycles through the schedule', () => {
     expect(WEEKLY_SCHEDULE[0]).toBe('endurance')
     expect(weeklyMode(WEEKLY_EPOCH)).toBe('endurance')
-    expect(WEEKLY_SCHEDULE.map((_, i) => weeklyMode(['2026-10-11', '2026-10-18', '2026-10-25'][i]!))).toEqual([...WEEKLY_SCHEDULE])
+    expect(weeklyMode('2026-10-25')).toBe('reversed')
     expect(weeklyMode('2026-11-01')).toBe('endurance')
     expect(weeklyMode('2026-10-04')).toBe(WEEKLY_SCHEDULE[WEEKLY_SCHEDULE.length - 1])
+  })
+
+  it('lets one week be forced out of the cycle, the cycle resuming after it', () => {
+    expect(weeklyMode('2026-10-18')).toBe('endurance')
+    expect(weeklyMode('2026-10-25')).toBe('reversed')
   })
 
   it('ranks endurance in seconds survived and the other modes in points', () => {
@@ -173,7 +178,7 @@ describe('the weekly challenge', () => {
     expect(metricOf('delayed')).toBe('score')
     expect(metricOf('reversed')).toBe('score')
     expect(weeklyChallenge('2026-10-11', 'fr', IDS).metric).toBe('survival')
-    expect(weeklyChallenge('2026-10-18', 'fr', IDS).metric).toBe('score')
+    expect(weeklyChallenge('2026-11-08', 'fr', IDS).metric).toBe('score')
   })
 
   it('is the same game for everyone, in whatever order the categories come', () => {

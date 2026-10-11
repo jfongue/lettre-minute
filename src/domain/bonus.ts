@@ -1,3 +1,4 @@
+import { isPlus } from './perks'
 import { levelFor, PERKS_VERSION, type Profile } from './progression'
 import { ownedPlainCount } from './owned'
 import { ownedPowers } from './powers'
@@ -13,6 +14,9 @@ export const BONUS_CAPS: Readonly<Record<BonusId, number>> = { filter: 2, slot: 
 
 /** Reveals are the likeliest on the table: they are what the game runs out of first. */
 export const BONUS_WEIGHTS: Readonly<Record<BonusId, number>> = { filter: 1, slot: 1, reveal: 3, moderator: 1 }
+
+/** Bans and reveals are already unlimited for Premium: those picks would spend themselves. */
+export const USELESS_FOR_PLUS: readonly BonusId[] = ['filter', 'reveal']
 
 export const BONUS_OFFER_SIZE = 2
 
@@ -39,7 +43,12 @@ export function bonusCount(profile: Profile, id: BonusId): number {
 /** The kinds still on offer: below their cap, and no moderator offer for someone who already is one. */
 export function bonusPool(profile: Profile, isModerator: boolean): BonusId[] {
   return BONUS_IDS.filter(
-    (id) => bonusCount(profile, id) < BONUS_CAPS[id] && !(id === 'moderator' && isModerator),
+    (id) => {
+  const belowCap = bonusCount(profile, id) < BONUS_CAPS[id]
+  if (!belowCap) return false
+  if (id === 'moderator' && isModerator) return false
+  return !(isPlus(profile) && USELESS_FOR_PLUS.includes(id))
+},
   )
 }
 

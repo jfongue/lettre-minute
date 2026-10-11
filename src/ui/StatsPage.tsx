@@ -409,7 +409,6 @@ function RunRecap({ run, actions, onBack }: { run: RunRecord; actions: RecapActi
         </strong>
         <span className="note">{t.stats.runLine(run.words.length, run.bestCombo)}</span>
       </header>
-      {onFlag && <p className="note">{t.moderation.flag.hint}</p>}
       {run.words.length > 0 && (
         <section className="stack">
           <p className="section-title">{t.stats.recapWords}</p>

@@ -21,6 +21,12 @@ export const WEEKLY_EPOCH = '2026-10-11'
 /** Le mode de chaque semaine, en boucle ; la première est l'endurance. */
 export const WEEKLY_SCHEDULE: readonly GameMode[] = ['endurance', 'delayed', 'reversed']
 
+/**
+ * Une semaine sortie de la boucle, choisie à la main : la rotation de trois
+ * modes ne sait pas qu'on veut montrer l'endurance deux semaines de suite.
+ */
+export const WEEKLY_EXCEPTIONS: Readonly<Record<string, GameMode>> = { '2026-10-18': 'endurance' }
+
 /** 0 pour un dimanche : les jours depuis 1970-01-01, un jeudi, comptent à partir de 4. */
 const sundayIndexOf = (days: number) => (((days + 4) % 7) + 7) % 7
 
@@ -119,6 +125,8 @@ export interface WeeklyChallenge {
 }
 
 export function weeklyMode(weekId: string): GameMode {
+  const forced = WEEKLY_EXCEPTIONS[weekId]
+  if (forced) return forced
   const length = WEEKLY_SCHEDULE.length
   return WEEKLY_SCHEDULE[((weekNumber(weekId) % length) + length) % length]!
 }

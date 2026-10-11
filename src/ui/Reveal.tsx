@@ -143,7 +143,6 @@ export function Reveal({
         </ol>
       )}
 
-      {onFlag && shown >= 0 && <p className="note">{t.moderation.flag.hint}</p>}
 
       {done && hidden.length > 0 && (
         <HiddenAnswers

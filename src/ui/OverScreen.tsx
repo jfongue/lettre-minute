@@ -21,8 +21,6 @@ import { RankMove } from './RankMove'
 import { UnlockScreen } from './UnlockScreen'
 import { PowerOfferScreen } from './PowerOfferScreen'
 import { BonusOfferScreen } from './BonusOfferScreen'
-import { CurrencyRow } from './CurrencyRow'
-import type { AttemptCount } from '../domain/weekly'
 import { powerPicksOwed } from '../domain/powers'
 import { bonusesOwed } from '../domain/bonus'
 import { reducedMotion, useTween } from './useCountUp'
@@ -44,8 +42,6 @@ interface OverScreenProps {
   run: Run
   profile: Profile
   profileBefore: Profile
-  /** Les tentatives du défi du moment, quand la fonctionnalité est ouverte. */
-  attempts?: AttemptCount | null
   /** The reveal has played once: coming back from the avatar editor lands on the summary. */
   revealed: boolean
   onRevealed(): void
@@ -210,7 +206,6 @@ function Summary({
   run,
   profile,
   profileBefore,
-  attempts = null,
   ranked = true,
   avatar,
   account,
@@ -262,7 +257,6 @@ function Summary({
         />
       </div>
 
-      <CurrencyRow profile={profile} attempts={attempts} />
 
       {ours > 0 && <p className="note mine-note">{t.over.mineNote(ours)}</p>}
 
