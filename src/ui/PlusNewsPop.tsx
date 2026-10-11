@@ -58,7 +58,8 @@ export function PlusPrizePop({ onClose }: { onClose(): void }) {
             {t.premium.winTitle}
           </h2>
           <p className="psheet-note">{t.premium.winNote}</p>
-          <PremiumBenefits />
+          {/* Le prix remercie le gagnant : ni le paiement unique, ni l'appel au développeur indé. */}
+          <PremiumBenefits omit={['indie', 'lifetime']} />
           <button type="button" className="btn psheet-buy" onClick={onClose}>
             {t.premium.winOk}
           </button>

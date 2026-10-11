@@ -31,9 +31,10 @@ const BENEFITS: readonly { id: BenefitId; icon: ResourceIcon; value: 'filters' |
  * Premium's allowances, the list the sheet promises; the one the player
  * reached for leads it.
  */
-export function PremiumBenefits({ lead }: { lead?: BenefitId }) {
+export function PremiumBenefits({ lead, omit }: { lead?: BenefitId; omit?: readonly BenefitId[] }) {
   const t = useT()
-  const benefits = lead ? [...BENEFITS].sort((a, b) => Number(b.id === lead) - Number(a.id === lead)) : BENEFITS
+  const ordered = lead ? [...BENEFITS].sort((a, b) => Number(b.id === lead) - Number(a.id === lead)) : BENEFITS
+  const benefits = omit ? ordered.filter((benefit) => !omit.includes(benefit.id)) : ordered
   const text = t.premium.benefits
   const line = (id: BenefitId): string =>
     id === 'filter'
