@@ -1,4 +1,5 @@
-• « Mes demandes » : un retrait proposé s’annule d’un « Retirer », sans attendre les autres modérateurs
-• L’avatar et les succès tiennent maintenant sur une seule page, et chaque palier montre la couleur qu’il débloque
-• Le tutoriel d’un mode ne s’affiche plus par-dessus l’accueil, et la modération par-dessus le bilan
+• Le défi du moment : une lettre et une catégorie pour la semaine, trois essais par jour, un classement qui se referme le dimanche
+• « Défi du moment » rejoint les classements : le tableau de la semaine et le palmarès de chaque semaine passée, avec son gagnant
+• Les compteurs du profil expliquent d’une tape ce qu’ils comptent, et la pastille du défi dit combien d’essais il te reste
+• Une catégorie en avant-première s’annonce une fois sur l’accueil
 • Corrections de bugs et performance
