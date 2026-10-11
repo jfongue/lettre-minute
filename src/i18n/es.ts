@@ -116,8 +116,7 @@ export const es: Messages = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Ni una sola palabra. Pasa.',
     next: 'Continuar',
-    earned: (count) => plural(count, 'Novedad para tu avatar', 'Novedades para tu avatar'),
-    newAchievement: 'Nuevo logro',
+    earned: (count) => plural(count, 'Desbloqueado', 'Desbloqueados'),
     customize: 'Personalizar mi avatar',
     words: (count) => plural(count, 'palabra', 'palabras'),
     bestCombo: 'mejor racha',
@@ -882,6 +881,7 @@ flawless: ['Impecable', 'Cada tres palabras válidas escritas sin errores te dan
     prune: 'Ciruela',
     gris: 'Gris',
     anthracite: 'Antracita',
+    fuchsia: 'Fucsia',
   },
 
   duel: {

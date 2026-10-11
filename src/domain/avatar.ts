@@ -1,5 +1,3 @@
-import { levelFor, type Profile } from './progression'
-
 export type ShapeKind =
   | 'circle'
   | 'square'
@@ -169,119 +167,55 @@ export const AVATARS: readonly AvatarDesign[] = LOOKS.map(([shape, turn, accent,
   motion,
 }))
 
-/** Designs every player owns from the first run. */
-const FREE_DESIGNS = 5
-
-// One goal per track in turn, so the grid mixes levels with feats instead of
-// hiding every feat behind the last level. Every first goal lies past what a
-// first run can reach — a run nears 1 000 points only when it is enormous —
-// so a tile is earned, not handed out with the tutorial.
-const TRACKS: readonly Milestone[][] = [
-  [4, 6, 8, 10, 13, 16, 20, 25, 30, 35].map((at) => ({ stat: 'level' as const, at })),
-  // Runs 3 to 10 are where a new player drifts off: a tile at each of the first few keeps them coming.
-  [3, 5, 7, 10, 25, 50, 100, 200, 400].map((at) => ({ stat: 'runs' as const, at })),
-  [100, 250, 500, 1000, 2000, 3500, 5000].map((at) => ({ stat: 'wordsFound' as const, at })),
-  [400, 500, 600, 700, 800, 900].map((at) => ({ stat: 'bestScore' as const, at })),
-  [10, 13, 16, 20, 24, 28].map((at) => ({ stat: 'bestCombo' as const, at })),
-]
-
-function interleave<T>(tracks: readonly T[][]): T[] {
-  const out: T[] = []
-  for (let i = 0; tracks.some((track) => i < track.length); i++) {
-    for (const track of tracks) if (i < track.length) out.push(track[i])
-  }
-  return out
-}
-
 /**
- * The seven tiles the dictionary pays for: one per word the player got into it,
- * from the very first, since nobody has one before the moderators have voted.
- *
- * Appended after the interleaved tracks rather than given a sixth track: a new
- * track takes its turn among the others and pushes every later goal down one
- * tile, which would have moved the goal of all forty-three tiles already in the
- * grid — the wiki warns that changing a threshold redistributes everyone's
- * unlocks, and the first version of this very list did exactly that.
+ * Les cinq tuiles que le joueur porte dès la première partie. Les autres se
+ * gagnent case par case par les succès : c'est `achievements.ts` qui tient la
+ * grille des jalons, pas ce catalogue.
  */
-const ADDED_GOALS: readonly Milestone[] = [1, 15, 50, 100, 300, 500, 1000].map((at) => ({
-  stat: 'wordsAdded' as const,
-  at,
-}))
-
-const DESIGN_GOALS: readonly Milestone[] = [...interleave(TRACKS), ...ADDED_GOALS]
-
-export function designUnlock(id: number): Milestone | null {
-  return id < FREE_DESIGNS ? null : DESIGN_GOALS[id - FREE_DESIGNS]
-}
+export const FREE_DESIGNS = 5
 
 // A palette printed from the same inks as the game — primaries first, then
 // earths, greens and blues that still sit beside them on a poster.
-const COLOURS: readonly [id: string, label: string, hex: string, unlock: Milestone | null][] = [
-  ['rouge', 'Rouge', '#e0402a', null],
-  ['bleu', 'Bleu', '#1f48c7', null],
-  ['jaune', 'Jaune', '#f4b41a', null],
-  ['noir', 'Noir', '#151515', { stat: 'runs', at: 3 }],
-  ['creme', 'Crème', '#f2ecdf', { stat: 'level', at: 4 }],
-  ['vert', 'Vert', '#17614c', { stat: 'wordsFound', at: 50 }],
-  ['rose', 'Rose', '#f1a3b3', { stat: 'runs', at: 10 }],
-  ['orange', 'Orange', '#ee7a22', { stat: 'level', at: 6 }],
-  ['ciel', 'Ciel', '#8fc1e3', { stat: 'bestCombo', at: 10 }],
-  ['brique', 'Brique', '#a83a2a', { stat: 'level', at: 8 }],
-  ['citron', 'Citron', '#efd64a', { stat: 'bestScore', at: 450 }],
-  ['marine', 'Marine', '#172a4f', { stat: 'runs', at: 25 }],
-  ['corail', 'Corail', '#f07a63', { stat: 'wordsFound', at: 250 }],
-  ['sauge', 'Sauge', '#9bb08f', { stat: 'level', at: 10 }],
-  ['moutarde', 'Moutarde', '#c99a17', { stat: 'bestCombo', at: 14 }],
-  ['violet', 'Violet', '#5b3a8c', { stat: 'level', at: 12 }],
-  ['turquoise', 'Turquoise', '#3aa6b0', { stat: 'wordsFound', at: 600 }],
-  ['ocre', 'Ocre', '#b8782b', { stat: 'runs', at: 60 }],
-  ['lavande', 'Lavande', '#b3a6d9', { stat: 'bestScore', at: 650 }],
-  ['olive', 'Olive', '#6f7a2e', { stat: 'level', at: 15 }],
-  ['saumon', 'Saumon', '#f4b49a', { stat: 'bestCombo', at: 18 }],
-  ['canard', 'Canard', '#16606e', { stat: 'wordsFound', at: 1200 }],
-  ['menthe', 'Menthe', '#7fc8a9', { stat: 'level', at: 18 }],
-  ['bordeaux', 'Bordeaux', '#6e1f2a', { stat: 'runs', at: 150 }],
-  ['sable', 'Sable', '#e3cf9f', { stat: 'bestScore', at: 800 }],
-  ['outremer', 'Outremer', '#2d2f9a', { stat: 'level', at: 22 }],
-  ['emeraude', 'Émeraude', '#1f8a5b', { stat: 'wordsFound', at: 3000 }],
-  ['prune', 'Prune', '#7a2f5a', { stat: 'bestCombo', at: 24 }],
-  ['gris', 'Gris', '#8a8478', { stat: 'runs', at: 300 }],
-  ['anthracite', 'Anthracite', '#3a3834', { stat: 'level', at: 30 }],
+const COLOURS: readonly [id: string, label: string, hex: string][] = [
+  ['rouge', 'Rouge', '#e0402a'],
+  ['bleu', 'Bleu', '#1f48c7'],
+  ['jaune', 'Jaune', '#f4b41a'],
+  ['noir', 'Noir', '#151515'],
+  ['creme', 'Crème', '#f2ecdf'],
+  ['vert', 'Vert', '#17614c'],
+  ['rose', 'Rose', '#f1a3b3'],
+  ['orange', 'Orange', '#ee7a22'],
+  ['ciel', 'Ciel', '#8fc1e3'],
+  ['brique', 'Brique', '#a83a2a'],
+  ['citron', 'Citron', '#efd64a'],
+  ['marine', 'Marine', '#172a4f'],
+  ['corail', 'Corail', '#f07a63'],
+  ['sauge', 'Sauge', '#9bb08f'],
+  ['moutarde', 'Moutarde', '#c99a17'],
+  ['violet', 'Violet', '#5b3a8c'],
+  ['turquoise', 'Turquoise', '#3aa6b0'],
+  ['ocre', 'Ocre', '#b8782b'],
+  ['lavande', 'Lavande', '#b3a6d9'],
+  ['olive', 'Olive', '#6f7a2e'],
+  ['saumon', 'Saumon', '#f4b49a'],
+  ['canard', 'Canard', '#16606e'],
+  ['menthe', 'Menthe', '#7fc8a9'],
+  ['bordeaux', 'Bordeaux', '#6e1f2a'],
+  ['sable', 'Sable', '#e3cf9f'],
+  ['outremer', 'Outremer', '#2d2f9a'],
+  ['emeraude', 'Émeraude', '#1f8a5b'],
+  ['prune', 'Prune', '#7a2f5a'],
+  ['gris', 'Gris', '#8a8478'],
+  ['anthracite', 'Anthracite', '#3a3834'],
+  ['fuchsia', 'Fuchsia', '#c2447e'],
 ]
+
+/** Les trois couleurs de départ : les primaires, que l'avatar d'origine porte. */
+export const FREE_COLOURS = 3
 
 export const PALETTE: readonly Colour[] = COLOURS.map(([id, label, hex]) => ({ id, label, hex }))
 
-export function colourUnlock(id: string): Milestone | null {
-  return COLOURS.find((colour) => colour[0] === id)?.[3] ?? null
-}
-
 export const DEFAULT_AVATAR: AvatarChoice = { design: 0, ground: 'bleu', shape: 'jaune', accent: 'rouge' }
-
-function statOf(profile: Profile, stat: Stat): number {
-  return stat === 'level' ? levelFor(profile.xp) : profile[stat]
-}
-
-export function reached(profile: Profile, milestone: Milestone | null): boolean {
-  return milestone === null || statOf(profile, milestone.stat) >= milestone.at
-}
-
-export function ownedDesigns(profile: Profile): AvatarDesign[] {
-  return AVATARS.filter((design) => reached(profile, designUnlock(design.id)))
-}
-
-export function ownedColours(profile: Profile): Colour[] {
-  return PALETTE.filter((colour) => reached(profile, colourUnlock(colour.id)))
-}
-
-/** What a run earned — the end screen shows it next to the level. */
-export function newlyEarned(before: Profile, after: Profile): { designs: AvatarDesign[]; colours: Colour[] } {
-  const had = new Set(ownedDesigns(before).map((design) => design.id))
-  const hadColours = new Set(ownedColours(before).map((colour) => colour.id))
-  return {
-    designs: ownedDesigns(after).filter((design) => !had.has(design.id)),
-    colours: ownedColours(after).filter((colour) => !hadColours.has(colour.id)),
-  }
-}
 
 export function colourHex(id: string): string {
   return (PALETTE.find((colour) => colour.id === id) ?? PALETTE[0]).hex

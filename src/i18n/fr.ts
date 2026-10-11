@@ -1,4 +1,4 @@
-import type { AchievementId } from '../domain/achievements'
+import type { NamedAchievementId } from '../domain/achievements'
 import { PALETTE, type Milestone } from '../domain/avatar'
 import { announcedCategories } from '../domain/catalogue'
 import type { TrophyId } from '../domain/challenge'
@@ -141,8 +141,7 @@ export const fr = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Pas un seul mot. Ça arrive.',
     next: 'Continuer',
-    earned: (count: number) => plural(count, 'Nouveauté pour ton avatar', 'Nouveautés pour ton avatar'),
-    newAchievement: 'Nouveau succès',
+    earned: (count: number) => plural(count, 'Débloqué', 'Débloqués'),
     customize: 'Personnaliser mon avatar',
     words: (count: number) => plural(count, 'mot', 'mots'),
     bestCombo: 'meilleure série',
@@ -1078,7 +1077,7 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
       'powers-7': { name: 'Bricoleur', desc: 'Sers sept pouvoirs différents' },
       'powers-all': { name: 'Tous les pouvoirs', desc: 'Sers les quatorze pouvoirs' },
       'categories-12': { name: 'Grand voyageur', desc: 'Trouve un mot dans douze catégories' },
-    } satisfies Record<AchievementId | 'duel-four', { name: string; desc: string }>),
+    } satisfies Record<NamedAchievementId, { name: string; desc: string }>),
   },
 
   /** Le puzzle quotidien de la version Reddit (`reddit/`). */

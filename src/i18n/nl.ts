@@ -115,8 +115,7 @@ export const nl: Messages = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Geen enkel woord. Dat gebeurt.',
     next: 'Verder',
-    earned: () => 'Nieuw voor je avatar',
-    newAchievement: 'Nieuwe prestatie',
+    earned: () => 'Vrijgespeeld',
     customize: 'Mijn avatar aanpassen',
     words: (count) => plural(count, 'woord', 'woorden'),
     bestCombo: 'beste reeks',
@@ -881,6 +880,7 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
     prune: 'Pruim',
     gris: 'Grijs',
     anthracite: 'Antraciet',
+    fuchsia: 'Fuchsia',
   },
 
   duel: {

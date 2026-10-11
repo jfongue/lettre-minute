@@ -116,8 +116,7 @@ export const pt: Messages = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Nenhuma palavra. Acontece.',
     next: 'Continuar',
-    earned: (count) => plural(count, 'Novidade para o seu avatar', 'Novidades para o seu avatar'),
-    newAchievement: 'Nova conquista',
+    earned: (count) => plural(count, 'Desbloqueado', 'Desbloqueados'),
     customize: 'Personalizar meu avatar',
     words: (count) => plural(count, 'palavra', 'palavras'),
     bestCombo: 'melhor sequência',
@@ -882,6 +881,7 @@ flawless: ['Sem erros', 'A cada três palavras válidas digitadas sem erros, gan
     prune: 'Ameixa',
     gris: 'Cinza',
     anthracite: 'Antracito',
+    fuchsia: 'Fúcsia',
   },
 
   duel: {

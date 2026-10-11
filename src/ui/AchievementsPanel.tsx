@@ -1,8 +1,9 @@
-import { achievementIcon, achievementProgress, achievementReward, type Family } from '../domain/achievements'
+import { achievementProgress, achievementReward, type Family } from '../domain/achievements'
 import { PALETTE, type AvatarChoice } from '../domain/avatar'
 import type { Profile } from '../domain/progression'
 import { useT } from '../i18n'
 import { Avatar } from './Avatar'
+import { achievementText } from './achievementText'
 
 interface AchievementsPanelProps {
   profile: Profile
@@ -16,10 +17,10 @@ interface AchievementsPanelProps {
 const FAMILIES: readonly Family[] = ['progress', 'exploit', 'explore']
 
 /**
- * Les succès du joueur. Chaque succès de palier montre ce que son jalon
- * débloque — la tuile de la grille, et la couleur quand la palette pose la même
- * borne. Un exploit ne débloque rien de tel : il garde son icône, qui raconte
- * ce qu'il est, et sa barre se remplit comme les autres.
+ * Les succès du joueur. Chacun montre ce qu'il débloque, et c'est tout ce qu'il
+ * y a à gagner : la case de la grille qu'il ouvre, ou la couleur qu'il pose sur
+ * la palette. Un barreau de la grille porte son jalon pour nom — l'i18n de
+ * l'avatar sait déjà le dire —, les autres ont le leur dans celle des succès.
  */
 export function AchievementsPanel({ profile, avatar, discoveries }: AchievementsPanelProps) {
   const t = useT()
@@ -44,20 +45,22 @@ export function AchievementsPanel({ profile, avatar, discoveries }: Achievements
               .map(({ row, rank }) => {
                 const { achievement, value, ratio } = row
                 const done = ratio >= 1
-                const { name, desc } = t.ach[achievement.id]
+                const { name, desc } = achievementText(t, achievement)
                 const { design, colour } = achievementReward(achievement)
+                // Un exploit n'a pas de case à lui : sa couleur tient la place
+                // de l'icône, en plus grand.
+                const solo = design === null
                 return (
                   <li key={achievement.id} className={`ach-row${done ? ' ach-row--done' : ''}`}>
                     <span className="ach-reward">
-                      {design !== null ? (
-                        <Avatar choice={{ ...avatar, design }} locked={!done} />
-                      ) : (
-                        <Avatar choice={achievementIcon(achievement.id)} locked={!done} />
-                      )}
+                      {design !== null && <Avatar choice={{ ...avatar, design }} locked={!done} />}
                       {colour && (
                         <span
                           className={`ach-colour${done ? '' : ' ach-colour--locked'}`}
-                          style={done ? { background: colour.hex } : undefined}
+                          style={{
+                            ...(done ? { background: colour.hex } : {}),
+                            ...(solo ? { width: '2.4rem', height: '2.4rem' } : {}),
+                          }}
                           title={t.colours[colour.id] ?? colour.label}
                         />
                       )}

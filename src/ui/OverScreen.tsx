@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { newlyEarned, type AvatarChoice } from '../domain/avatar'
-import { achievementIcon, newlyEarnedAchievements } from '../domain/achievements'
+import type { AvatarChoice } from '../domain/avatar'
+import { achievementReward, newlyEarnedAchievements } from '../domain/achievements'
 import type { Boards } from '../domain/boards'
 import { capitalized, compactWord } from '../domain/text'
 import { levelFor, levelProgress, recordBonus, type Profile } from '../domain/progression'
@@ -17,6 +17,7 @@ import { AccountPanel, type AccountActions } from './AccountPanel'
 import { CHALLENGE_XP_BONUS } from '../domain/challenge'
 import { ChallengeBoard } from './ChallengeScreen'
 import { Avatar } from './Avatar'
+import { achievementText } from './achievementText'
 import { Burst, Figure, LetterMark, MineMark, Shape, TierTag } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { RankMove } from './RankMove'
@@ -539,7 +540,7 @@ function RunRequests({
   )
 }
 
-/** The avatar tiles and colours the run just earned, if any. */
+/** The successes the run just earned — one row, each with the tile and the ink it opened. */
 function Earned({
   profileBefore,
   profile,
@@ -548,48 +549,23 @@ function Earned({
 }: Pick<OverScreenProps, 'profileBefore' | 'profile' | 'avatar' | 'onAvatar'>) {
   const t = useT()
   const avatars = useFeature('avatar')
-  const earned = newlyEarned(profileBefore, profile)
   const achievements = newlyEarnedAchievements(profileBefore, profile)
-  if (earned.designs.length === 0 && earned.colours.length === 0 && achievements.length === 0) return null
+  if (achievements.length === 0) return null
   return (
     <section className="panel earned">
-      {earned.designs.length + earned.colours.length > 0 ? (
-        <p className="section-title">{t.over.earned(earned.designs.length + earned.colours.length)}</p>
-      ) : null}
+      <p className="section-title">{t.over.earned(achievements.length)}</p>
       <div className="earned-row">
-        {earned.designs.map((design, index) => (
-          <span key={design.id} className="earned-item" style={{ '--i': index } as CSSProperties}>
-            <Avatar choice={{ ...avatar, design: design.id }} size="md" />
-          </span>
-        ))}
-        {earned.colours.map((colour, index) => (
-          <span
-            key={colour.id}
-            className="earned-item earned-colour"
-            style={{ '--i': earned.designs.length + index } as CSSProperties}
-          >
-            <span className="swatch-dot" style={{ background: colour.hex }} />
-            {t.colours[colour.id] ?? colour.label}
-          </span>
-        ))}
+        {achievements.map((achievement, index) => {
+          const { design, colour } = achievementReward(achievement)
+          return (
+            <span key={achievement.id} className="earned-item" style={{ '--i': index } as CSSProperties}>
+              {design !== null && <Avatar choice={{ ...avatar, design }} size="sm" />}
+              {colour && <span className="swatch-dot" style={{ background: colour.hex }} />}
+              {achievementText(t, achievement).name}
+            </span>
+          )
+        })}
       </div>
-        {achievements.length > 0 ? (
-          <>
-            <p className="section-title">{t.over.newAchievement}</p>
-            <div className="earned-row">
-              {achievements.map((achievement, index) => (
-                <span
-                  key={achievement.id}
-                  className="earned-item"
-                  style={{ '--i': earned.designs.length + earned.colours.length + index } as CSSProperties}
-                >
-                  <Avatar choice={achievementIcon(achievement.id)} size="sm" />
-                  {t.ach[achievement.id].name}
-                </span>
-              ))}
-            </div>
-          </>
-        ) : null}
       {avatars ? (
         <button type="button" className="btn btn--ghost" onClick={onAvatar}>
           {t.over.customize}

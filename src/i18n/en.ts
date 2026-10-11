@@ -121,8 +121,7 @@ export const en: Messages = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Not a single word. It happens.',
     next: 'Continue',
-    earned: () => 'New for your avatar',
-    newAchievement: 'New achievement',
+    earned: () => 'Unlocked',
     customize: 'Customise my avatar',
     words: (count) => plural(count, 'word', 'words'),
     bestCombo: 'best streak',
@@ -886,6 +885,7 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
     prune: 'Plum',
     gris: 'Grey',
     anthracite: 'Charcoal',
+    fuchsia: 'Fuchsia',
   },
 
   duel: {

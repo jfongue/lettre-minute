@@ -1,15 +1,16 @@
 import { describe, expect, it } from 'vitest'
-import { designUnlock, type Milestone } from './avatar'
+import { designGoal } from './achievements'
+import type { Milestone } from './avatar'
 
 /**
  * Les 43 tuiles livrées, jalon par jalon, tels qu'ils étaient avant l'ajout des
  * sept tuiles des mots ajoutés. Le commentaire de `LOOKS` promet qu'un
  * identifiant ne bouge pas, et les seuils sont ce qui décide de ce que chaque
- * joueur possède : `interleave` répartit les pistes par position, donc une piste
- * de plus décale tout ce qui suit — ce que la première version de cette liste a
- * fait, en donnant à la tuile 10 (soleil) le jalon du tout premier mot ajouté.
- * Un jalon déplacé redistribue les déblocages de tout le monde, y compris vers
- * le bas. C'est ce test qui doit le refuser.
+ * joueur possède : les barreaux de la grille se répartissent par position, donc
+ * une piste de plus décale tout ce qui suit — ce que la première version de
+ * cette liste a fait, en donnant à la tuile 10 (soleil) le jalon du tout
+ * premier mot ajouté. Un jalon déplacé redistribue les déblocages de tout le
+ * monde, y compris vers le bas. C'est ce test qui doit le refuser.
  */
 const SHIPPED: readonly string[] = [
   'aucun',
@@ -61,7 +62,7 @@ const label = (goal: Milestone | null) => (goal ? `${goal.stat}:${goal.at}` : 'a
 
 describe('les jalons d’avatar déjà livrés', () => {
   it('ne bougent pas quand on ajoute des tuiles', () => {
-    const now = SHIPPED.map((_, index) => label(designUnlock(index)))
+    const now = SHIPPED.map((_, index) => label(designGoal(index)))
 
     expect(now).toEqual(SHIPPED)
   })
@@ -69,7 +70,7 @@ describe('les jalons d’avatar déjà livrés', () => {
   // Les sept tuiles des mots ajoutés : leur jalon est le seul que cette liste
   // introduit, il vient après les 43 autres et suit les seuils demandés.
   it('laissent les sept derniers jalons aux mots ajoutés, dans l’ordre', () => {
-    const added = Array.from({ length: 7 }, (_, index) => designUnlock(43 + index))
+    const added = Array.from({ length: 7 }, (_, index) => designGoal(43 + index))
 
     expect(added.map(label)).toEqual([
       'wordsAdded:1',

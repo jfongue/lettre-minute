@@ -115,8 +115,7 @@ export const de: Messages = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Kein einziges Wort. Kommt vor.',
     next: 'Weiter',
-    earned: () => 'Neu für deinen Avatar',
-    newAchievement: 'Neuer Erfolg',
+    earned: () => 'Freigeschaltet',
     customize: 'Meinen Avatar anpassen',
     words: (count) => plural(count, 'Wort', 'Wörter'),
     bestCombo: 'beste Serie',
@@ -880,6 +879,7 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
     prune: 'Pflaume',
     gris: 'Grau',
     anthracite: 'Anthrazit',
+    fuchsia: 'Fuchsia',
   },
 
   duel: {

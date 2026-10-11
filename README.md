@@ -61,13 +61,15 @@ faute de frappe rendent aussitôt 10 points, toute la partie). Chacun a sa coule
 - **Fin de partie en deux temps** : le score, puis chaque mot trouvé, un par
   un — un mot que le joueur a lui-même fait entrer au dictionnaire s'y signale
   d'une marque discrète, comme dans le champ à la validation ; ensuite l'XP qui
-  monte, la catégorie puis le pouvoir à choisir, les nouveautés d'avatar et le
+  monte, la catégorie puis le pouvoir à choisir, les succès débloqués et le
   résumé, qui relit les mots proposés pendant la partie pour les corriger ou
   retirer la demande tant qu'elle attend.
 - **Compte et avatar** : après une partie, le joueur anonyme peut créer un
   compte (nom, adresse, mot de passe) ou se connecter, et la partie y entre
-  aussitôt. L'avatar est une tuile de l'affiche — cent formes animées, trente
-  couleurs, trois au départ — que les niveaux et les exploits débloquent.
+  aussitôt. L'avatar est une tuile de l'affiche — cinquante formes animées, trente
+  et une couleurs, cinq tuiles et trois couleurs au départ — que les succès
+  débloquent case par case : chaque succès ouvre la sienne, et le récap de fin de
+  partie les liste toutes ensemble.
 - **Classements** : meilleure partie du jour, de la semaine, et mots découverts
   cette semaine — un mot que personne n'avait écrit dans la catégorie depuis
   sept jours. On passe de l'un à l'autre d'un glissement du doigt. Seuls les

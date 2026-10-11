@@ -277,7 +277,12 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
           {sub === 'avatar' && (
             <>
               {avatars ? (
-                <AvatarPanel profile={props.profile} avatar={props.avatar} onSave={props.onAvatarSave} />
+                <AvatarPanel
+              profile={props.profile}
+              avatar={props.avatar}
+              discoveries={props.discoveries}
+              onSave={props.onAvatarSave}
+            />
               ) : null}
               {achievements ? (
                 <AchievementsPanel
