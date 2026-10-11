@@ -731,13 +731,13 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   **théorique** d'un couple lettre + catégorie (`letterShares`, `src/domain/run.ts`,
   le poids de `drawLetter` sans la foule) et pour lister tout ce qu'une
   catégorie accepte, usages à zéro compris. Un mot s'y signale par appui long
-  (un clic droit sur ordinateur), et le retrait offre alors ses deux portes : la
-  file (`propose_ban`, cinq « correct » des autres) ou, pour un super
-  modérateur, le retrait d'office (`force_ban`, 0044) — cette porte-là règle la
-  revue seule et la copie communautaire quitte le serveur tout de suite, le
-  dictionnaire livré perdant le mot au prochain import comme pour tout ban. Un
+  (un clic droit sur ordinateur) et rejoint la file :
+  `propose_ban`, cinq « correct » des autres — personne ne tranche seul, super
+  modérateur compris. La porte d'office (`force_ban`, 0044) reste en base, aucun
+  écran ne l'appelle ; le dictionnaire livré perd le mot au prochain import, comme
+  pour tout ban. Un
   mot s'y ajoute par un bouton, par la file des propositions : rien ne se
-  décide sans l'une de ces portes. Outil de développeur, donc libellés français
+  décide sans cette file. Outil de développeur, donc libellés français
   hors de l'i18n ; son scénario est `words-board` dans la planche.
 - **Les planches touchées depuis la dernière version livrée sont surlignées
   en rouge, celles qu'elle n'avait pas en bleu** (`npm run debug:recent`) : le script relit les commits

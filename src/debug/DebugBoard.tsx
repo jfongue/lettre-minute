@@ -759,10 +759,8 @@ function WordsScenario() {
     <div className="dashboard">
       <WordsBoardView
         lang="fr"
-        superModerator
         load={(_lang, category) => later(wordsReportOf(category), 300)}
         onBan={() => later('sent' as const)}
-        onForce={() => later('accepted' as const)}
         onAdd={() => later(true)}
       />
     </div>

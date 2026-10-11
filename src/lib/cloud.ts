@@ -547,8 +547,8 @@ export type BanOutcome = 'sent' | 'accepted' | 'rejected' | 'known' | 'forbidden
  * dictionary build (`scripts/banned-words.ts`).
  *
  * `p_wait` est toujours posé : signaler, c'est demander l'avis des autres, même
- * pour un super modérateur — sa voix ne règle pas la revue seule (0048). Qui
- * veut trancher sans attendre passe par `forceRemoveWord`.
+ * pour un super modérateur — sa voix ne règle pas la revue seule (0048). Le
+ * retrait d'office n'a plus d'écran : la file seule décide.
  */
 export function proposeBan(
   lang: string,
@@ -564,30 +564,6 @@ export function proposeBan(
       p_display: display,
       p_note: reason.trim() || null,
       p_wait: true,
-    })
-    return error ? 'unreachable' : (data as BanOutcome)
-  }, 'unreachable')
-}
-
-/**
- * Un super modérateur retire un mot d'office, depuis l'écran des mots : sa
- * voix règle le signalement seule, et la copie communautaire quitte le serveur
- * tout de suite — le dictionnaire livré, lui, ne bouge qu'au prochain import.
- * `forbidden` à qui n'est pas super modérateur : le serveur le vérifie aussi.
- */
-export function forceRemoveWord(
-  lang: string,
-  categoryId: string,
-  word: string,
-  display: string,
-  reason: string,
-): Promise<BanOutcome> {
-  return guard(async () => {
-    const { data, error } = await supabase!.rpc('force_ban', {
-      p_category: scoped(lang, categoryId),
-      p_word: word,
-      p_display: display,
-      p_note: reason.trim() || null,
     })
     return error ? 'unreachable' : (data as BanOutcome)
   }, 'unreachable')
