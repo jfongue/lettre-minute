@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useT } from '../i18n'
 import { sound } from '../lib/sound'
 import { Burst } from './bauhaus'
+import { PremiumBenefits } from './PremiumSheet'
 import { PlusSeal } from './premium'
 import { useBackDismiss } from './useBackDismiss'
 
@@ -57,6 +58,7 @@ export function PlusPrizePop({ onClose }: { onClose(): void }) {
             {t.premium.winTitle}
           </h2>
           <p className="psheet-note">{t.premium.winNote}</p>
+          <PremiumBenefits />
           <button type="button" className="btn psheet-buy" onClick={onClose}>
             {t.premium.winOk}
           </button>

@@ -27,6 +27,37 @@ const BENEFITS: readonly { id: BenefitId; icon: ResourceIcon; value: 'filters' |
   { id: 'lifetime', icon: 'forever', value: null },
 ]
 
+/**
+ * Premium's allowances, the list the sheet promises; the one the player
+ * reached for leads it.
+ */
+export function PremiumBenefits({ lead }: { lead?: BenefitId }) {
+  const t = useT()
+  const benefits = lead ? [...BENEFITS].sort((a, b) => Number(b.id === lead) - Number(a.id === lead)) : BENEFITS
+  const text = t.premium.benefits
+  const line = (id: BenefitId): string =>
+    id === 'filter'
+      ? text.filter(FILTERS)
+      : id === 'attempt'
+        ? text.attempt(ATTEMPTS)
+        : text[id]
+  return (
+    <ul className="psheet-list">
+      {benefits.map((benefit) => (
+        <li key={benefit.id} className={benefit.id === lead ? 'psheet-benefit psheet-benefit--lead' : 'psheet-benefit'}>
+          <ResourceGlyph icon={benefit.icon} plus />
+          <span className="psheet-benefit-text">{line(benefit.id)}</span>
+          {benefit.value && (
+            <span className="psheet-value">
+              {benefit.value === 'filters' ? FILTERS : benefit.value === 'attempts' ? ATTEMPTS : <InfinityMark />}
+            </span>
+          )}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
 const LEAD: Partial<Record<PremiumReason, BenefitId>> = {
   filter: 'filter',
   reveal: 'reveal',
@@ -101,14 +132,6 @@ export function PremiumSheet({
   }
 
   const lead = LEAD[reason]
-  const benefits = [...BENEFITS].sort((a, b) => Number(b.id === lead) - Number(a.id === lead))
-  const text = t.premium.benefits
-  const line = (id: BenefitId): string =>
-    id === 'filter'
-      ? text.filter(FILTERS)
-      : id === 'attempt'
-        ? text.attempt(ATTEMPTS)
-        : text[id]
 
   return (
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="premium-title">
@@ -138,19 +161,7 @@ export function PremiumSheet({
               </div>
             </header>
 
-            <ul className="psheet-list">
-              {benefits.map((benefit) => (
-                <li key={benefit.id} className={benefit.id === lead ? 'psheet-benefit psheet-benefit--lead' : 'psheet-benefit'}>
-                  <ResourceGlyph icon={benefit.icon} plus />
-                  <span className="psheet-benefit-text">{line(benefit.id)}</span>
-                  {benefit.value && (
-                    <span className="psheet-value">
-                      {benefit.value === 'filters' ? FILTERS : benefit.value === 'attempts' ? ATTEMPTS : <InfinityMark />}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <PremiumBenefits lead={lead} />
 
             {status === 'error' && (
               <p className="psheet-note psheet-note--error" role="alert">
