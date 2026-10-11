@@ -232,6 +232,8 @@ export const nl: Messages = {
     absent: 'Je staat er nog niet op: jij bent aan de beurt.',
     anonymous: 'Maak een account om in de klassementen te komen.',
     runs: 'Spellen',
+    solo: 'Solo',
+    challenge: 'Uitdaging',
     weekly: {
       current: 'Deze week',
       total: 'Totaal',

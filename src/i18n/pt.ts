@@ -233,6 +233,8 @@ export const pt: Messages = {
     absent: 'Você ainda não aparece: é sua vez de jogar.',
     anonymous: 'Crie uma conta para aparecer nos rankings.',
     runs: 'Partidas',
+    solo: 'Solo',
+    challenge: 'Desafio',
     weekly: {
       current: 'Semana em curso',
       total: 'Total',

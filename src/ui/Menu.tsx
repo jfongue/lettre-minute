@@ -42,6 +42,7 @@ import { PlusSeal, PlusLockedSlot } from './premium'
 import { usePremium } from './premiumContext'
 import { isPlus } from '../domain/perks'
 import type { AttemptCount } from '../domain/weekly'
+import { BoardSwitch, type BoardFamily } from './BoardSwitch'
 import { CategoriesPage, type BanActions } from './CategoriesPage'
 import { LeaderboardsPage } from './LeaderboardsPage'
 import { PageLinks } from './PageLinks'
@@ -153,6 +154,9 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
   const avatars = useFeature('avatar')
   const achievements = useFeature('achievements')
   const [pane, setPane] = useState<MenuPane>(isPane(page) ? page : 'profile')
+  // La famille de classement vit ici : son commutateur est sur la ligne du
+  // titre, qui appartient au tiroir, pas à la page.
+  const [boardFamily, setBoardFamily] = useState<BoardFamily>('runs')
   const [sub, setSub] = useState<ProfilePage | null>(isPane(page) ? null : page)
   const body = useRef<HTMLDivElement>(null)
   // Cinq tapes rapprochées sur le titre de la page : le mode débug des
@@ -230,7 +234,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
 
         <div className="menu-body" ref={body} {...backSwipe}>
           {sub && (
-            <div className="subpage-head">
+            <div className={`subpage-head${sub === 'boards' ? ' subpage-head--switch' : ''}`}>
               <button type="button" className="subpage-back" onClick={back} aria-label={t.menu.back}>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M15 5l-7 7 7 7" />
@@ -250,6 +254,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               >
                 {t.menu.pages[sub]}
               </h2>
+              {sub === 'boards' && <BoardSwitch family={boardFamily} onFamily={setBoardFamily} />}
             </div>
           )}
           {sub === 'stats' && (
@@ -268,6 +273,8 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
           {sub === 'boards' && (
             <LeaderboardsPage
               named={Boolean(props.account && !props.account.anonymous)}
+              family={boardFamily}
+              onFamily={setBoardFamily}
               advanced={props.advancedBoards}
               onCloseAdvanced={() => props.onAdvancedBoards?.(false)}
             />

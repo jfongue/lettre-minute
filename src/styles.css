@@ -1548,6 +1548,102 @@ animation: clock-bonus 500ms var(--ease-out);
   min-height: 2.5rem;
 }
 
+/* Le commutateur des classements, sur la ligne de son titre : deux cases, un
+   curseur jaune qui glisse sous celle qui est ouverte et une flèche noire qui
+   se retourne en passant du solo au défi. */
+.board-switch {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  border: 2px solid var(--ink);
+  background: var(--paper);
+}
+
+.board-switch-rail {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+.board-switch-tab {
+  appearance: none;
+  position: relative;
+  z-index: 1;
+  min-height: 2.1rem;
+  padding: 0.2rem 0.3rem;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.board-switch-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: var(--yellow);
+  transition: transform 340ms var(--ease-spring);
+}
+
+.board-switch[data-family='weekly'] .board-switch-thumb {
+  transform: translateX(100%);
+}
+
+.board-switch-arrow {
+  display: grid;
+  place-items: center;
+  width: 1.4rem;
+  border-left: 2px solid var(--ink);
+  background: var(--ink);
+}
+
+.board-switch-arrow svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  fill: none;
+  stroke: var(--paper);
+  stroke-width: 3;
+  stroke-linecap: square;
+  transition: transform 340ms var(--ease-spring);
+}
+
+.board-switch[data-family='weekly'] .board-switch-arrow svg {
+  transform: rotate(180deg);
+}
+
+/* Le classement nouveau arrive au lieu de sauter : la page se pose, et la
+   piste des mesures se remet sur celle qui était ouverte (voir la page). */
+.board-swap {
+  display: grid;
+  gap: 0.9rem;
+  min-width: 0;
+  animation: board-swap-in 300ms var(--ease-out) both;
+}
+
+@keyframes board-swap-in {
+  0% {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board-swap {
+    animation: none;
+  }
+}
+
 /* The measures scroll sideways under the thumb, the chosen one kept centred. */
 .leaderboards-chips {
   display: flex;
@@ -2340,7 +2436,9 @@ animation: clock-bonus 500ms var(--ease-out);
 /* ------------------------------------------------------------- subpages - */
 .subpage-head {
   display: grid;
-  grid-template-columns: auto 1fr;
+  /* Trois colonnes : la flèche, le titre, et le commutateur des classements
+     quand la page en a un — les autres pages laissent la dernière vide. */
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 0.75rem;
 }
@@ -2381,6 +2479,22 @@ animation: clock-bonus 500ms var(--ease-out);
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+/* La ligne du titre porte le commutateur des classements : elle se serre et le
+   mot cède un peu de sa taille, pour que « Solo » et « Défi » tiennent à côté
+   sur un téléphone. */
+.subpage-head--switch {
+  gap: 0.5rem;
+}
+
+.subpage-head--switch .subpage-title {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+  font-size: clamp(0.92rem, 4vw, 1.5rem);
 }
 
 .run-list {

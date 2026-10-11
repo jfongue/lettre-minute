@@ -232,6 +232,8 @@ export const de: Messages = {
     absent: 'Du stehst noch nicht darauf: Jetzt bist du dran.',
     anonymous: 'Erstelle ein Konto, um in den Ranglisten zu erscheinen.',
     runs: 'Partien',
+    solo: 'Solo',
+    challenge: 'Challenge',
     weekly: {
       current: 'Laufende Woche',
       total: 'Gesamt',

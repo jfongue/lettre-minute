@@ -238,6 +238,8 @@ export const en: Messages = {
     absent: 'You’re not on it yet: your turn to play.',
     anonymous: 'Create an account to appear on the leaderboards.',
     runs: 'Runs',
+    solo: 'Solo',
+    challenge: 'Challenge',
     weekly: {
       current: 'Current week',
       total: 'Total',

@@ -6,6 +6,7 @@ import { fetchLeaderboard, fetchWeeklyBoard, fetchWeeklyWinners, type WeeklyBoar
 import type { LoadDashboard } from '../debug/Dashboard'
 import { lazyScreen } from './lazyScreen'
 import { Avatar } from './Avatar'
+import { BoardSwitch, type BoardFamily } from './BoardSwitch'
 import { Shape } from './bauhaus'
 import { onTint, type ShapeKind, type Tint } from './motifs'
 import { PlayerName } from './PlayerSheet'
@@ -27,8 +28,7 @@ const LOOKS: Record<StatId, { kind: ShapeKind; tint: Tint }> = {
 type Loaded = Leaderboard | null | undefined
 
 /** Les deux familles de la page : les mesures des parties, puis le défi du moment. */
-const FAMILIES = ['runs', 'weekly'] as const
-type FamilyId = (typeof FAMILIES)[number]
+type FamilyId = BoardFamily
 /** Le défi se lit par volet, pas par période : la semaine en cours, ou le total. */
 const WEEK_PANES = ['current', 'total'] as const
 type WeekPane = (typeof WEEK_PANES)[number]
@@ -43,6 +43,9 @@ async function loadFromServer(stat: StatId, period: PeriodId): Promise<Leaderboa
 interface LeaderboardsPageProps {
   /** An anonymous player reads the boards but stands on none of them. */
   named: boolean
+  /** Le tiroir tient la famille : son commutateur est sur la ligne du titre. */
+  family?: FamilyId
+  onFamily?(next: FamilyId): void
   /** The debug board passes its own made-up boards. */
   load?: LoadLeaderboard
   /** Cinq tapes sur « Classements » : le tableau de bord, par-dessus la page. */
@@ -60,6 +63,8 @@ interface LeaderboardsPageProps {
  */
 export function LeaderboardsPage({
   named,
+  family: familyProp,
+  onFamily,
   load = loadFromServer,
   advanced = false,
   loadDashboard,
@@ -72,7 +77,11 @@ export function LeaderboardsPage({
   const weekMetric = metricOf(weeklyMode(weekId))
   const [period, setPeriod] = useState<PeriodId>('day')
   const [active, setActive] = useState(0)
-  const [family, setFamily] = useState<FamilyId>('runs')
+  const [ownFamily, setOwnFamily] = useState<FamilyId>('runs')
+  // Le commutateur vit sur la ligne du titre, dans le tiroir : la page suit ce
+  // qu'on lui donne, et décide seule ailleurs (planche debug).
+  const family = familyProp ?? ownFamily
+  const setFamily = onFamily ?? setOwnFamily
   const [pane, setPane] = useState<WeekPane>('current')
   const [boards, setBoards] = useState<Record<string, Loaded>>({})
   const [week, setWeek] = useState<WeeklyBoardRow[] | null | undefined>(undefined)
@@ -141,27 +150,21 @@ export function LeaderboardsPage({
     if (element) element.scrollTo({ left: index * element.clientWidth, behavior: 'smooth' })
   }
 
+  // La piste des parties est recréée au retour du défi : elle se remet sur la
+  // mesure en vue, sans glisser, sinon elle rouvrirait sur la première.
+  useEffect(() => {
+    const element = track.current
+    if (element) element.scrollLeft = active * element.clientWidth
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [family])
+
   return (
     <div className="leaderboards" data-no-swipe>
-      <div className="layer-tabs leaderboards-periods" role="tablist">
-        {FAMILIES.map((id) => (
-          <button
-            key={id}
-            type="button"
-            role="tab"
-            aria-selected={family === id}
-            className={`layer-tab${family === id ? ' layer-tab--on' : ''}`}
-            onClick={() => setFamily(id)}
-          >
-            {id === 'runs' ? t.leaderboards.runs : t.weekly.title}
-          </button>
-        ))}
-      </div>
-
+      {!familyProp && <BoardSwitch family={family} onFamily={setFamily} />}
       {!named && <p className="note">{t.leaderboards.anonymous}</p>}
 
       {family === 'runs' ? (
-        <>
+        <div className="board-swap" key="runs">
           <div className="layer-tabs leaderboards-periods" role="tablist">
             {PERIODS.map((id) => (
               <button
@@ -215,9 +218,9 @@ export function LeaderboardsPage({
               </section>
             ))}
           </div>
-        </>
+        </div>
       ) : (
-        <>
+        <div className="board-swap" key="weekly">
           <div className="layer-tabs leaderboards-periods" role="tablist">
             {WEEK_PANES.map((id) => (
               <button
@@ -246,7 +249,7 @@ export function LeaderboardsPage({
               <WinnersBody rows={winners} onRetry={() => askWeek('total', true)} />
             )}
           </section>
-        </>
+        </div>
       )}
 
       {advanced && (

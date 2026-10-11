@@ -263,6 +263,8 @@ export const fr = {
     absent: 'Tu n’y figures pas encore : à toi de jouer.',
     anonymous: 'Crée un compte pour figurer aux classements.',
     runs: 'Parties',
+    solo: 'Solo',
+    challenge: 'Défi',
     weekly: {
       current: 'Semaine en cours',
       total: 'Total',

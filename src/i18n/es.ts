@@ -233,6 +233,8 @@ export const es: Messages = {
     absent: 'Aún no figuras: te toca jugar.',
     anonymous: 'Crea una cuenta para aparecer en las clasificaciones.',
     runs: 'Partidas',
+    solo: 'Solo',
+    challenge: 'Reto',
     weekly: {
       current: 'Semana en curso',
       total: 'Total',
