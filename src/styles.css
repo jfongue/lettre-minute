@@ -8386,6 +8386,23 @@ body[data-words='board'] .offer-pop-layer {
   white-space: nowrap;
 }
 
+/* Une révélation partie fait tressauter le carré : le compte se lit d'un regard. */
+.peek-left--beat .rchip {
+  animation: peek-count 420ms var(--ease-spring);
+}
+
+@keyframes peek-count {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.16);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .hidden-answers-chevron {
   width: 1.2rem;
   height: 1.2rem;
@@ -8541,6 +8558,7 @@ body[data-words='board'] .offer-pop-layer {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .peek-left--beat .rchip,
   .peek-bar,
   .peek-bar::after,
   .peek-word--torn,

@@ -87,13 +87,16 @@ label={text}
 })
 }
 
-const shown = chips.find((entry) => entry.id === hint)
+// Le filtrage ne se compte qu'une fois débloqué, Premium compris : tant qu'il
+// ne l'est pas, la pastille n'aurait qu'un zéro et un check à montrer.
+const visible = chips.filter((entry) => entry.id !== 'filters' || allowed > 0)
+const shown = visible.find((entry) => entry.id === hint)
 
 return (
 <section className="currency-row" aria-label={t.currencies.title}>
 {title && <p className="section-title">{t.currencies.title}</p>}
 <div className="currency-chips">
-{chips.map((entry) => (
+{visible.map((entry) => (
 <button
 key={`${entry.id}-${entry.look ?? 'plain'}`}
 type="button"

@@ -47,6 +47,8 @@ export function HiddenAnswers({
   const [open, setOpen] = useState<ReadonlySet<number>>(() => new Set())
   const [watching, setWatching] = useState(false)
   const [noAd, setNoAd] = useState(false)
+  // Le carré de l'œil tressaute à chaque révélation : remonter sa clé rejoue l'animation.
+  const [beat, setBeat] = useState(0)
   // Loading an ad takes seconds: started as the summary opens, it is ready by the time the reveals run out.
   useEffect(() => {
     if (door.adsOpen) prepareRewardedAd()
@@ -57,6 +59,7 @@ export function HiddenAnswers({
     setOpen((current) => new Set(current).add(index))
     tapFeedback('medium')
     sound.found(2, index + 3)
+    setBeat((count) => count + 1)
   }
 
   const watch = async () => {
@@ -68,6 +71,7 @@ export function HiddenAnswers({
     if (result === 'rewarded') {
       tapFeedback('medium')
       onAd?.()
+      setBeat((count) => count + 1)
     } else if (result === 'unavailable') setNoAd(true)
   }
 
@@ -85,7 +89,7 @@ export function HiddenAnswers({
       >
         <span className="section-title">{t.peek.title}</span>
         <span className="hidden-answers-count">{hidden.length}</span>
-        <span className="peek-left">
+        <span className={`peek-left${beat > 0 ? ' peek-left--beat' : ''}`} key={beat}>
           <ResourceChip
             icon="eye"
             count={budget.left}
@@ -142,7 +146,12 @@ export function HiddenAnswers({
                       style={{ '--beat': `${-((index * 1.37) % 2.8).toFixed(2)}s`, '--tempo': `${2.6 + (index % 3) * 0.35}s` } as CSSProperties}
                       aria-label={t.peek.reveal(category, answer.prompt.letter)}
                       onClick={() => {
-                        if (!canReveal) return tapFeedback('light')
+                        if (!canReveal) {
+                          tapFeedback('light')
+                          // Plus rien à arracher : la bande ouvre la fiche, seule porte qui reste.
+                          door.open('reveal')
+                          return
+                        }
                         onPeek?.()
                         tear(index)
                       }}
