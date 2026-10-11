@@ -116,8 +116,7 @@ export const nl: Messages = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Geen enkel woord. Dat gebeurt.',
     next: 'Verder',
-    earned: () => 'Nieuw voor je avatar',
-    newAchievement: 'Nieuwe prestatie',
+    earned: () => 'Vrijgespeeld',
     customize: 'Mijn avatar aanpassen',
     words: (count) => plural(count, 'woord', 'woorden'),
     bestCombo: 'beste reeks',
@@ -139,9 +138,9 @@ export const nl: Messages = {
 
   support: {
     title: 'Een klein duwtje?',
-    lead: 'Ik ben een kleine Franse ontwikkelaar die spellen met hart maakt. Vijf sterren in de store zouden me enorm helpen.',
-    donate: 'Doe een kleine donatie',
-    rate: 'Geef 5 sterren',
+    lead: 'Bedankt voor het spelen! Ik ben een kleine Franse ontwikkelaar… Om me aan te moedigen, vertel over het spel en geef het 5 sterren!',
+    later: 'Later',
+    ok: 'Oké!',
     frameDescription: 'Bedankt dat je Letter Minuut steunt!',
     close: 'Sluiten',
     hello:
@@ -969,6 +968,7 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
     prune: 'Pruim',
     gris: 'Grijs',
     anthracite: 'Antraciet',
+    fuchsia: 'Fuchsia',
   },
 
   duel: {

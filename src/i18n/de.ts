@@ -116,8 +116,7 @@ export const de: Messages = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Kein einziges Wort. Kommt vor.',
     next: 'Weiter',
-    earned: () => 'Neu für deinen Avatar',
-    newAchievement: 'Neuer Erfolg',
+    earned: () => 'Freigeschaltet',
     customize: 'Meinen Avatar anpassen',
     words: (count) => plural(count, 'Wort', 'Wörter'),
     bestCombo: 'beste Serie',
@@ -139,9 +138,9 @@ export const de: Messages = {
 
   support: {
     title: 'Ein kleiner Schubs?',
-    lead: 'Ich bin ein kleiner Entwickler aus Frankreich und mache Spiele mit Herz. Fünf Sterne im Store würden mir sehr helfen.',
-    donate: 'Kleine Spende',
-    rate: 'Fünf Sterne geben',
+    lead: 'Danke fürs Spielen! Ich bin ein kleiner Entwickler aus Frankreich… Um mich zu unterstützen, erzähl von dem Spiel und gib ihm 5 Sterne!',
+    later: 'Später',
+    ok: 'Okay!',
     frameDescription: 'Danke, dass du Letter Minute unterstützt!',
     close: 'Schließen',
     hello:
@@ -968,6 +967,7 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
     prune: 'Pflaume',
     gris: 'Grau',
     anthracite: 'Anthrazit',
+    fuchsia: 'Fuchsia',
   },
 
   duel: {

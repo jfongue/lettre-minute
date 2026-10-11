@@ -60,6 +60,7 @@ import { PremiumContext } from '../ui/premiumContext'
 import { PremiumSheet, type PremiumReason, type PremiumStatus } from '../ui/PremiumSheet'
 import { PlusLockedSlot, PlusSeal, RESOURCE_ICONS, ResourceChip, ResourceGlyph, type ResourceState } from '../ui/premium'
 import { PlusNewsPop, PlusPrizePop } from '../ui/PlusNewsPop'
+import { RatingPop } from '../ui/RatingPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
@@ -248,7 +249,7 @@ const PROFILE: Profile = {
   wordsFound: 120,
   bestCombo: 5,
   unlocked: ['fruits-legumes', 'metiers'],
-  supportAskedAt: 14,
+  ratingAskedAt: 14,
 }
 
 /**
@@ -1097,7 +1098,6 @@ function OverScenario({
       onChoose={(id) => setProfile((current) => chooseCategory(current, id))}
       onChoosePower={(id) => setProfile((current) => choosePower(current, id))}
       onChooseBonus={(id) => setProfile((current) => chooseBonus(current, id))}
-      onSupportAsked={noop}
       mine={mine}
       proposals={proposals}
       onCorrectProposal={async (proposal, display) => {
@@ -2390,6 +2390,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le serveur ne répond pas : le texte reste, l’avis le dit',
     phase: 'home',
     render: (back) => <FeedbackPop onClose={back} send={() => later(false)} />,
+  },
+  {
+    id: 'rating-pop',
+    group: 'Accueil',
+    title: 'Demande de 5 étoiles',
+    how: 'Au retour d’une partie, après la dixième puis vingt après « Plus tard »',
+    phase: 'home',
+    render: (back) => <RatingPop onLater={back} onRate={back} />,
   },
   {
     id: 'home-categories-news',

@@ -1,23 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
-import {
-  AVATARS,
-  colourUnlock,
-  designUnlock,
-  ownedDesigns,
-  PALETTE,
-  reached,
-  sameAvatar,
-  unseenDesigns,
-  type AvatarChoice,
-} from '../domain/avatar'
+import { colourWinner, designWinner, ownedColours, ownedDesigns, unseenDesigns } from '../domain/achievements'
+import { AVATARS, PALETTE, sameAvatar, type AvatarChoice } from '../domain/avatar'
 import type { Profile } from '../domain/progression'
 import { loadSeenDesigns, saveSeenDesigns } from '../state/storage'
 import { useT } from '../i18n'
 import { Avatar } from './Avatar'
+import { achievementText } from './achievementText'
 
 interface AvatarPanelProps {
   profile: Profile
   avatar: AvatarChoice
+  /** Ce que le serveur a compté comme découvertes, s'il a répondu. */
+  discoveries?: number
   onSave(avatar: AvatarChoice): void
   /** Le design touché au bilan : l'éditeur ouvre dessus, sa tuile secoue. */
   focus?: number | null
@@ -29,10 +23,11 @@ const LAYERS: readonly Layer[] = ['ground', 'shape', 'accent']
 
 /**
  * L'éditeur d'avatar, dans la page « Avatar & succès » : l'aperçu, le rayon des
- * couleurs, puis la grille des tuiles. Il ne se referme pas lui-même — c'est la
- * page qui porte son bouton retour.
+ * couleurs, puis la grille des tuiles. Chaque case et chaque couleur porte le
+ * succès qui l'ouvre, et c'est lui qui dit comment la gagner. Il ne se referme
+ * pas lui-même — c'est la page qui porte son bouton retour.
  */
-export function AvatarPanel({ profile, avatar, onSave, focus = null }: AvatarPanelProps) {
+export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null }: AvatarPanelProps) {
   const t = useT()
   const [draft, setDraft] = useState(() => (focus === null ? avatar : { ...avatar, design: focus }))
   const [layer, setLayer] = useState<Layer>('shape')
@@ -57,10 +52,11 @@ export function AvatarPanel({ profile, avatar, onSave, focus = null }: AvatarPan
   }, [focus])
 
   const design = AVATARS[draft.design]
-  const ownedIds = ownedDesigns(profile).map((entry) => entry.id)
-  const ownedColours = PALETTE.filter((colour) => reached(profile, colourUnlock(colour.id))).length
-  const news = unseenDesigns(profile, seen)
-  // Without an accent the third layer paints nothing: offering it would look broken.
+  const ownedIds = ownedDesigns(profile, discoveries).map((entry) => entry.id)
+  const tiles = new Set(ownedIds)
+  const inks = new Set(ownedColours(profile, discoveries).map((colour) => colour.id))
+  const news = unseenDesigns(profile, seen, discoveries)
+  // Sans accent, la troisième couche ne peint rien : l'offrir aurait l'air cassé.
   const layers = design.accent ? LAYERS : LAYERS.filter((id) => id !== 'accent')
   const activeLayer = layers.includes(layer) ? layer : 'shape'
 
@@ -71,7 +67,7 @@ export function AvatarPanel({ profile, avatar, onSave, focus = null }: AvatarPan
         <div className="stack">
           <h2 className="section-title">{t.avatar.title}</h2>
           <p className="note">
-            {t.avatar.owned(ownedIds.length, AVATARS.length, ownedColours, PALETTE.length)}
+            {t.avatar.owned(tiles.size, AVATARS.length, inks.size, PALETTE.length)}
           </p>
           <p className="note">{t.avatar.lead}</p>
         </div>
@@ -96,8 +92,9 @@ export function AvatarPanel({ profile, avatar, onSave, focus = null }: AvatarPan
 
         <div className="swatches">
           {PALETTE.map((colour) => {
-            const goal = colourUnlock(colour.id)
-            const owned = reached(profile, goal)
+            const owned = inks.has(colour.id)
+            const winner = colourWinner(colour.id)
+            const how = winner === null ? null : achievementText(t, winner).name
             const label = t.colours[colour.id] ?? colour.label
             return (
               <button
@@ -109,9 +106,9 @@ export function AvatarPanel({ profile, avatar, onSave, focus = null }: AvatarPan
                 onClick={() => {
                   if (owned) {
                     setDraft({ ...draft, [activeLayer]: colour.id })
-                    setHint(goal ? t.avatar.earnedHint(label, t.avatar.milestone(goal)) : null)
-                  } else if (goal) {
-                    setHint(t.avatar.unlockHint(label, t.avatar.milestone(goal)))
+                    setHint(how ? t.avatar.earnedHint(label, how) : null)
+                  } else if (how) {
+                    setHint(t.avatar.unlockHint(label, how))
                   }
                 }}
               />
@@ -126,9 +123,11 @@ export function AvatarPanel({ profile, avatar, onSave, focus = null }: AvatarPan
 
       <div className="avatar-grid">
         {AVATARS.map((entry) => {
-          const goal = designUnlock(entry.id)
-          const owned = reached(profile, goal)
+          const owned = tiles.has(entry.id)
           const isNew = news.includes(entry.id)
+          const winner = designWinner(entry.id)
+          const how = winner === null ? null : achievementText(t, winner).name
+          const name = t.avatar.design(entry.id + 1)
           return (
             <button
               key={entry.id}
@@ -137,14 +136,14 @@ export function AvatarPanel({ profile, avatar, onSave, focus = null }: AvatarPan
               className={`avatar-cell${draft.design === entry.id ? ' avatar-cell--on' : ''}${
                 shaking === entry.id ? ' avatar-cell--shake' : ''
               }`}
-              aria-label={owned ? t.avatar.design(entry.id + 1) : t.avatar.lockedDesign(entry.id + 1)}
+              aria-label={owned ? name : t.avatar.lockedDesign(entry.id + 1)}
               onClick={() => {
                 if (isNew) setSeen((current) => [...current, entry.id])
                 if (owned) {
                   setDraft({ ...draft, design: entry.id })
-                  setHint(goal ? t.avatar.earnedHint(t.avatar.design(entry.id + 1), t.avatar.milestone(goal)) : null)
-                } else if (goal) {
-                  setHint(t.avatar.unlockHint(t.avatar.design(entry.id + 1), t.avatar.milestone(goal)))
+                  setHint(how ? t.avatar.earnedHint(name, how) : null)
+                } else if (how) {
+                  setHint(t.avatar.unlockHint(name, how))
                 }
               }}
             >

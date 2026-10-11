@@ -14,7 +14,7 @@ import type { Profile } from './progression'
 
 const OWNED = ['unlocked', 'gifted', 'powers', 'powersUsed', 'playedCategories', 'bonuses'] as const
 const LATEST = ['offer', 'lastOffer', 'powerOffer', 'lastPowerOffer', 'equipped', 'banned', 'bonusOffer', 'lastBonusOffer'] as const
-const HIGHEST = ['banIntroSeen', 'bonusGifts', 'perksVersion', 'plusThanked', 'supportAskedAt', 'feedbackAskedAt', 'longestWord', 'bestSpeed', 'cleanRuns', 'duelRounds4', 'dailyFirst', 'wordsReviewed'] as const
+const HIGHEST = ['banIntroSeen', 'bonusGifts', 'perksVersion', 'plusThanked', 'ratingAskedAt', 'ratingDone', 'feedbackAskedAt', 'longestWord', 'bestSpeed', 'cleanRuns', 'duelRounds4', 'dailyFirst', 'wordsReviewed'] as const
 
 type ListField = (typeof OWNED)[number] | (typeof LATEST)[number]
 type CountField = (typeof HIGHEST)[number] | 'plusSince' | 'runs'

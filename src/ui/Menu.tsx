@@ -297,11 +297,12 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
             <>
               {avatars ? (
                 <AvatarPanel
-profile={props.profile}
-avatar={props.avatar}
-focus={props.avatarFocus}
-onSave={props.onAvatarSave}
-/>
+              profile={props.profile}
+              avatar={props.avatar}
+              focus={props.avatarFocus}
+              discoveries={props.discoveries}
+              onSave={props.onAvatarSave}
+            />
               ) : null}
               {achievements ? (
                 <AchievementsPanel

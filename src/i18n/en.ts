@@ -122,8 +122,7 @@ export const en: Messages = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Not a single word. It happens.',
     next: 'Continue',
-    earned: () => 'New for your avatar',
-    newAchievement: 'New achievement',
+    earned: () => 'Unlocked',
     customize: 'Customise my avatar',
     words: (count) => plural(count, 'word', 'words'),
     bestCombo: 'best streak',
@@ -145,9 +144,9 @@ export const en: Messages = {
 
   support: {
     title: 'A little boost?',
-    lead: 'I’m a small French developer making games with heart. A 5-star rating on the store would help a lot.',
-    donate: 'Make a small donation',
-    rate: 'Rate 5 stars',
+    lead: 'Thanks for playing! I’m a small French developer… To encourage me, tell people about the game and give it 5 stars!',
+    later: 'Later',
+    ok: 'Okay!',
     frameDescription: 'Thanks for supporting Letter Minute!',
     close: 'Close',
     hello:
@@ -974,6 +973,7 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
     prune: 'Plum',
     gris: 'Grey',
     anthracite: 'Charcoal',
+    fuchsia: 'Fuchsia',
   },
 
   duel: {

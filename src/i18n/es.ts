@@ -117,8 +117,7 @@ export const es: Messages = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Ni una sola palabra. Pasa.',
     next: 'Continuar',
-    earned: (count) => plural(count, 'Novedad para tu avatar', 'Novedades para tu avatar'),
-    newAchievement: 'Nuevo logro',
+    earned: (count) => plural(count, 'Desbloqueado', 'Desbloqueados'),
     customize: 'Personalizar mi avatar',
     words: (count) => plural(count, 'palabra', 'palabras'),
     bestCombo: 'mejor racha',
@@ -140,9 +139,9 @@ export const es: Messages = {
 
   support: {
     title: '¿Un empujoncito?',
-    lead: 'Soy un pequeño desarrollador francés que crea experiencias hechas con el corazón. Cinco estrellas en la tienda me ayudarían mucho.',
-    donate: 'Hacer una pequeña donación',
-    rate: 'Dar 5 estrellas',
+    lead: '¡Gracias por jugar! Soy un pequeño desarrollador francés… Para animarme, habla del juego a quienes te rodean y dale 5 estrellas.',
+    later: 'Más tarde',
+    ok: '¡Vale!',
     frameDescription: '¡Gracias por apoyar Letra Minuto!',
     close: 'Cerrar',
     hello:
@@ -970,6 +969,7 @@ flawless: ['Impecable', 'Cada tres palabras válidas escritas sin errores te dan
     prune: 'Ciruela',
     gris: 'Gris',
     anthracite: 'Antracita',
+    fuchsia: 'Fucsia',
   },
 
   duel: {

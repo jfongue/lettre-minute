@@ -3,7 +3,7 @@ import { applyRun, levelFor, type Profile } from '../domain/progression'
 import type { RarityTier } from '../domain/rarity'
 import { capitalized, normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
-import { markSupportAsked } from '../domain/support'
+import { markRatingAsked, markRatingDone } from '../domain/rating'
 import { premiereCategoryIds } from '../domain/catalogue'
 import { ban, bannedOf, countPlusReveal, countPlusRun, grantRevealAd, joinPlus, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
 import { chooseBonus, dealBonusOffer } from '../domain/bonus'
@@ -129,7 +129,9 @@ export type SessionAction =
   /** The last screen respelled a request still waiting, or took it back. */
   | { type: 'proposal-amended'; at: number; display: string }
   | { type: 'proposal-withdrawn'; at: number }
-  | { type: 'support-asked' }
+  | { type: 'rating-asked' }
+/** The player opened the store page: no rating ask comes back. */
+| { type: 'rating-done' }
   | { type: 'feedback-asked' }
   | { type: 'ban'; categoryId: string }
   | { type: 'unban'; categoryId: string }
@@ -259,8 +261,13 @@ export function sessionReducer(session: Session, action: SessionAction): Session
     case 'plus-thanked':
       return withProfile(session, markPlusThanked(session.profile))
 
-    case 'support-asked': {
-      const profile = markSupportAsked(session.profile)
+    case 'rating-done': {
+const profile = markRatingDone(session.profile)
+return profile === session.profile ? session : { ...session, profile }
+}
+
+case 'rating-asked': {
+      const profile = markRatingAsked(session.profile)
       return profile === session.profile ? session : { ...session, profile }
     }
 

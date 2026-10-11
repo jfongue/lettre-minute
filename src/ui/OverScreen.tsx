@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react'
-import { newlyEarned, type AvatarChoice } from '../domain/avatar'
-import { achievementIcon, newlyEarnedAchievements } from '../domain/achievements'
+import type { AvatarChoice } from '../domain/avatar'
+import { achievementIcon, achievementReward, newlyEarnedAchievements } from '../domain/achievements'
 import type { Boards } from '../domain/boards'
 import { compactWord } from '../domain/text'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
@@ -9,14 +9,14 @@ import type { Run } from '../domain/run'
 import { categoryText, formatNumber, useT } from '../i18n'
 import type { Account, BanOutcome, ChallengeDetail, Submission } from '../lib/cloud'
 import type { Proposal } from '../state/session'
-import { adsSupported, storeUrl } from '../lib/native'
-import { supportDue } from '../domain/support'
+import { adsSupported } from '../lib/native'
 import { sound } from '../lib/sound'
 import { AccountPanel, type AccountActions } from './AccountPanel'
 import { CHALLENGE_XP_BONUS } from '../domain/challenge'
 import { ChallengeBoard } from './ChallengeScreen'
 import { Avatar } from './Avatar'
 import { Figure, Shape } from './bauhaus'
+import { achievementText } from './achievementText'
 import { RankMove } from './RankMove'
 import { UnlockScreen } from './UnlockScreen'
 import { PowerOfferScreen } from './PowerOfferScreen'
@@ -72,8 +72,6 @@ onAvatar(design?: number): void
   onChooseBonus(bonusId: string): void
   /** A moderator is not offered the moderator card: it would give nothing. */
   isModerator?: boolean
-  /** The summary asked for support: the next ask waits ten runs from here. */
-  onSupportAsked(): void
   onReplay(): void
   onHome(): void
   /**
@@ -219,12 +217,10 @@ function Summary({
   onCorrectProposal,
   onWithdrawProposal,
   onAvatar,
-  onSupportAsked,
   onReplay,
   onHome,
 }: SummaryProps) {
   const t = useT()
-  const support = useFeature('support')
   const leaderboards = useFeature('leaderboards')
   // The reveal may have scrolled down its list: the summary reads from the top.
   // Braced: recent Chrome returns a promise from scrollTo, which React would
@@ -234,11 +230,6 @@ function Summary({
   }, [])
   const record = ranked && run.score > profileBefore.bestScore && run.score > 0
   const ours = mine ? run.found.filter((found) => mine.has(compactWord(found.display))).length : 0
-  // Decided once: marking the ask makes `supportDue` false, and the panel must stay.
-  const [asking] = useState(() => support && supportDue(profileBefore, profile, run.score, false))
-  useEffect(() => {
-    if (asking) onSupportAsked()
-  }, [asking, onSupportAsked])
 
   return (
     <div className="sheet cascade">
@@ -259,7 +250,6 @@ function Summary({
 
       {ours > 0 && <p className="note mine-note">{t.over.mineNote(ours)}</p>}
 
-      {asking && <SupportPanel />}
 
 
       <RunRequests
@@ -300,23 +290,6 @@ function Summary({
   )
 }
 
-/** A rating, asked at a happy moment: with no store page there is nothing to open. */
-function SupportPanel() {
-  const t = useT()
-  const store = storeUrl()
-  if (!store) return null
-  return (
-    <section className="panel support">
-      <p className="section-title">{t.support.title}</p>
-      <p>{t.support.lead}</p>
-      <div className="support-actions">
-        <a className="btn btn--ghost" href={store} target="_blank" rel="noopener noreferrer">
-          {t.support.rate}
-        </a>
-      </div>
-    </section>
-  )
-}
 
 /**
  * Les mots proposés pendant la partie, sur le dernier écran : tant qu'ils
@@ -385,7 +358,7 @@ function RunRequests({
   )
 }
 
-/** The avatar tiles and colours the run just earned, if any. */
+/** The successes the run just earned — one clickable line each: the tile or the ink it opened, and what it asked. */
 function Earned({
   profileBefore,
   profile,
@@ -394,53 +367,32 @@ function Earned({
 }: Pick<OverScreenProps, 'profileBefore' | 'profile' | 'avatar' | 'onAvatar'>) {
   const t = useT()
   const avatars = useFeature('avatar')
-  const earned = newlyEarned(profileBefore, profile)
   const achievements = newlyEarnedAchievements(profileBefore, profile)
-  if (earned.designs.length === 0 && earned.colours.length === 0 && achievements.length === 0) return null
+  if (achievements.length === 0) return null
   return (
     <section className="panel earned">
-      {earned.designs.length + earned.colours.length > 0 ? (
-        <p className="section-title">{t.over.earned(earned.designs.length + earned.colours.length)}</p>
-      ) : null}
-      <div className="earned-row">
-        {earned.designs.map((design, index) => (
-          <span key={design.id} className="earned-item" style={{ '--i': index } as CSSProperties}>
-            <Avatar choice={{ ...avatar, design: design.id }} size="md" />
-          </span>
-        ))}
-        {earned.colours.map((colour, index) => (
-          <span
-            key={colour.id}
-            className="earned-item earned-colour"
-            style={{ '--i': earned.designs.length + index } as CSSProperties}
-          >
-            <span className="swatch-dot" style={{ background: colour.hex }} />
-            {t.colours[colour.id] ?? colour.label}
-          </span>
-        ))}
-      </div>
-        {achievements.length > 0 ? (
-          <>
-            <p className="section-title">{t.over.newAchievement}</p>
-            <ul className="earned-list">
-              {achievements.map((achievement, index) => (
-                <li key={achievement.id}>
-                <button
-                  key={achievement.id}
-                  type="button"
-                  className="earned-line"
-                  style={{ '--i': earned.designs.length + earned.colours.length + index } as CSSProperties}
-                  onClick={() => onAvatar(achievementIcon(achievement.id).design)}
-                >
-                  <Avatar choice={achievementIcon(achievement.id)} size="sm" />
-                  <span className="earned-line-name">{t.ach[achievement.id].name}</span>
-                  <span className="earned-line-how">{t.ach.how(achievement.goal)}</span>
-                </button>
-                </li>
-              ))}
-            </ul>
-          </>
-        ) : null}
+      <p className="section-title">{t.over.earned(achievements.length)}</p>
+      <ul className="earned-list">
+        {achievements.map((achievement, index) => {
+          const { design, colour } = achievementReward(achievement)
+          const tile = design !== null ? { ...avatar, design } : achievementIcon(achievement.id)
+          return (
+            <li key={achievement.id}>
+              <button
+                type="button"
+                className="earned-line"
+                style={{ '--i': index } as CSSProperties}
+                onClick={() => onAvatar(design ?? undefined)}
+              >
+                <Avatar choice={tile} size="sm" />
+                {colour && <span className="swatch-dot" style={{ background: colour.hex }} />}
+                <span className="earned-line-name">{achievementText(t, achievement).name}</span>
+                <span className="earned-line-how">{t.ach.how(achievement.goal)}</span>
+              </button>
+            </li>
+          )
+        })}
+      </ul>
       {avatars ? (
         <button type="button" className="btn btn--ghost" onClick={() => onAvatar()}>
           {t.over.customize}

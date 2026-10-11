@@ -2,18 +2,20 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
-  AVATARS,
-  DEFAULT_AVATAR,
-  designUnlock,
-  isDefaultAvatar,
-  newlyEarned,
+  ACHIEVEMENTS,
+  designGoal,
+  newlyEarnedAchievements,
   ownedColours,
   ownedDesigns,
+  unseenDesigns,
+} from './achievements'
+import {
+  AVATARS,
+  DEFAULT_AVATAR,
+  isDefaultAvatar,
   PALETTE,
   parseAvatar,
-  reached,
   sameAvatar,
-  unseenDesigns,
   type AvatarDesign,
 } from './avatar'
 import { applyRun, NEW_PROFILE, xpForLevel } from './progression'
@@ -45,14 +47,14 @@ describe('avatars', () => {
     expect(turned.every((design) => orientations(design) === 1)).toBe(true)
   })
 
-  it('gives every tile a goal past the free ones', () => {
-    expect(AVATARS.every((design) => design.id < 5 || designUnlock(design.id))).toBe(true)
+  it('gives every tile past the free ones a success to open it', () => {
+    expect(AVATARS.every((design) => design.id < 5 || designGoal(design.id) !== null)).toBe(true)
   })
 
   it('starts a player with a few tiles and the three primaries', () => {
     expect(ownedDesigns(NEW_PROFILE)).toHaveLength(5)
     expect(ownedColours(NEW_PROFILE).map((colour) => colour.id)).toEqual(['rouge', 'bleu', 'jaune'])
-    expect(reached(NEW_PROFILE, designUnlock(DEFAULT_AVATAR.design))).toBe(true)
+    expect(ownedDesigns(NEW_PROFILE).map((design) => design.id)).toContain(DEFAULT_AVATAR.design)
   })
 
   it('badges a tile the editor has not shown, and forgets the ones it has', () => {
@@ -67,7 +69,7 @@ it('earns nothing on a first run, even a very good one', () => {
     const words = Array.from({ length: 25 }, (_, index) => `mot${index}`)
     const after = applyRun(NEW_PROFILE, { score: 380, words, bestCombo: 9 })
 
-    expect(newlyEarned(NEW_PROFILE, after)).toEqual({ designs: [], colours: [] })
+    expect(newlyEarnedAchievements(NEW_PROFILE, after)).toEqual([])
   })
 
   it('pays out a first colour after a few runs', () => {
@@ -77,11 +79,19 @@ it('earns nothing on a first run, even a very good one', () => {
     expect(ownedColours(profile).map((colour) => colour.id)).toContain('noir')
   })
 
-  it('opens the whole palette and every tile to a long career', () => {
+  it('opens every tile to a long career, and the colours the rungs carry', () => {
     const veteran = { ...NEW_PROFILE, xp: xpForLevel(35), runs: 500, bestScore: 1000, wordsFound: 5000, bestCombo: 30, wordsAdded: 1000 }
+    const rungInks = ACHIEVEMENTS.filter(
+      (achievement) => achievement.reward.design !== undefined && achievement.reward.colour !== undefined,
+    )
 
-    expect(ownedColours(veteran)).toHaveLength(PALETTE.length)
     expect(ownedDesigns(veteran)).toHaveLength(AVATARS.length)
+    // Douze couleurs sont posées sur un barreau de la grille ; les seize autres
+    // tiennent à un exploit, qui a ses propres compteurs.
+    expect(rungInks).toHaveLength(12)
+    for (const rung of rungInks) {
+      expect(ownedColours(veteran).map((colour) => colour.id)).toContain(rung.reward.colour)
+    }
   })
 
   it('never hands a tile to a player who has not played or added a word', () => {
@@ -104,7 +114,7 @@ it('earns nothing on a first run, even a very good one', () => {
 
   it('keeps every tile past the free ones on a goal of its own', () => {
     const goals = AVATARS.slice(5).map((design) => {
-      const goal = designUnlock(design.id)
+      const goal = designGoal(design.id)
       expect(goal).not.toBeNull()
       return `${goal!.stat}:${goal!.at}`
     })
@@ -118,29 +128,29 @@ it('earns nothing on a first run, even a very good one', () => {
 // dark theme brightens its tokens and leaves the palette alone — a red tile is
 // not a red button — so only the first definition counts.
 const SHARED_INKS: readonly [string, string][] = [
-['rouge', '--red'],
-['bleu', '--blue'],
-['jaune', '--yellow'],
-['noir', '--black'],
-['creme', '--cream'],
-['vert', '--green'],
-['rose', '--pink'],
+  ['rouge', '--red'],
+  ['bleu', '--blue'],
+  ['jaune', '--yellow'],
+  ['noir', '--black'],
+  ['creme', '--cream'],
+  ['vert', '--green'],
+  ['rose', '--pink'],
 ]
 
 describe('palette inks', () => {
-it('keeps every shared colour on its light theme token', () => {
-const sheet = readFileSync(join(import.meta.dirname, '..', 'styles.css'), 'utf8')
-for (const [id, token] of SHARED_INKS) {
-const ink = sheet.match(new RegExp(`${token}: (#[0-9a-f]{6});`))?.[1]
-expect(PALETTE.find((colour) => colour.id === id)?.hex, token).toBe(ink)
-}
-})
+  it('keeps every shared colour on its light theme token', () => {
+    const sheet = readFileSync(join(import.meta.dirname, '..', 'styles.css'), 'utf8')
+    for (const [id, token] of SHARED_INKS) {
+      const ink = sheet.match(new RegExp(`${token}: (#[0-9a-f]{6});`))?.[1]
+      expect(PALETTE.find((colour) => colour.id === id)?.hex, token).toBe(ink)
+    }
+  })
 })
 
 describe('parseAvatar', () => {
   it('falls back on anything it does not recognise', () => {
     expect(parseAvatar(null)).toEqual(DEFAULT_AVATAR)
-    expect(parseAvatar({ design: 999, ground: 'fuchsia', shape: 'noir' })).toEqual({
+    expect(parseAvatar({ design: 999, ground: 'chartreuse', shape: 'noir' })).toEqual({
       ...DEFAULT_AVATAR,
       shape: 'noir',
     })

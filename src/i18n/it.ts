@@ -117,8 +117,7 @@ export const it: Messages = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Nemmeno una parola. Capita.',
     next: 'Continua',
-    earned: () => 'Novità per il tuo avatar',
-    newAchievement: 'Nuovo obiettivo',
+    earned: () => 'Sbloccato',
     customize: 'Personalizza il mio avatar',
     words: (count) => plural(count, 'parola', 'parole'),
     bestCombo: 'serie migliore',
@@ -140,9 +139,9 @@ export const it: Messages = {
 
   support: {
     title: 'Una piccola spinta?',
-    lead: 'Sono un piccolo sviluppatore francese che crea esperienze fatte col cuore. Cinque stelle nello store mi aiuterebbero molto.',
-    donate: 'Fai una piccola donazione',
-    rate: 'Dai 5 stelle',
+    lead: 'Grazie per aver giocato! Sono un piccolo sviluppatore francese… Per incoraggiarmi, parla del gioco in giro e dagli 5 stelle!',
+    later: 'Più tardi',
+    ok: 'Okay!',
     frameDescription: 'Grazie per sostenere Lettera Minuto!',
     close: 'Chiudi',
     hello:
@@ -970,6 +969,7 @@ flawless: ['Senza errori', 'Ogni tre parole valide digitate senza errori danno s
     prune: 'Prugna',
     gris: 'Grigio',
     anthracite: 'Antracite',
+    fuchsia: 'Fucsia',
   },
 
   duel: {

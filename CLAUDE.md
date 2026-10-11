@@ -312,7 +312,7 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   quitter le jeu à la WebView sans retour possible. D'où `VITE_PRIVACY_URL`,
   une adresse complète ouverte hors de l'app.
 - **Les avatars et couleurs gagnés ne sont stockés nulle part** : ils se
-  déduisent du profil (`src/domain/avatar.ts`). Changer un seuil redistribue
+  déduisent du profil (`src/domain/achievements.ts`). Changer un seuil redistribue
   donc les déblocages de tout le monde, y compris vers le bas ; l'avatar porté
   reste valide même s'il redevient verrouillé.
 - **Le compte connecté survit hors ligne** : `fetchAccount` rend
@@ -581,8 +581,12 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   demi-heure. La Play Console l'ajoute d'elle-même à chaque bundle.
 
 - **Un succès Play Games ne se reprend jamais** (`src/domain/achievements.ts`) :
-  ses quinze seuils sont écrits en dur, pas lus dans les paliers de l'avatar,
-  qui peuvent bouger. Mots ajoutés et découvertes restent bas (10 et 15) :
+  il n'y a qu'une source de déblocages, et c'est lui : chaque succès porte ce
+  qu'il ouvre (`reward`), une tuile de la grille, une couleur de la palette, ou
+  les deux, et rien d'autre n'en ouvre. Les quinze publiés sur Play gardent
+  leurs seuils écrits en dur ; les barreaux de la grille vivent dans `RUNGS`,
+  un par tuile non offerte, et n'existent que dans l'app. Mots ajoutés et
+  découvertes restent bas (10 et 15) :
   plus le dictionnaire grossit, plus ils se font rares. Les découvertes ne
   se comptent que sur le serveur (`fetchMyDiscoveries`), une fois la partie
   envoyée ; un anonyme n'en a pas. Le téléphone renvoie tous les succès
@@ -591,7 +595,9 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   identifiants Play vivent dans `src/lib/playGames.ts`, les icônes et le
   ZIP d'import sous `store/android/play-games/` (`npm run render:achievements`,
   `scripts/play-games-achievements.ts`) : la Console importe des succès
-  nouveaux, elle ne met jamais à jour ceux qu'elle a.
+  nouveaux, elle ne met jamais à jour ceux qu'elle a. Seuls les quinze et les
+  exploits ont un nom dans `fr.ts` (`NamedAchievementId`) ; un barreau se nomme
+  par son jalon (`t.avatar.milestone`), que les sept langues traduisent déjà.
 
 - **Le suivi d'usage ne lève jamais et ne bloque rien** (`src/lib/track.ts`,
   0029) : les événements s'empilent dans une file de l'appareil, partent par
@@ -665,7 +671,10 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   Pour en tirer un backlog, les idées à traiter se lisent avec
   `supabase db query --linked "select body, lang, source, created_at from ideas where archived_at is null order by created_at"`.
   La question d'avis (`feedbackDue`, `src/domain/perks.ts`) tombe au retour à
-  l'accueil après la dixième partie, puis toutes les trente.
+  l'accueil après la dixième partie, puis toutes les trente. La demande de
+  5 étoiles (`ratingDue`, `src/domain/rating.ts`) tombe au même moment, revient
+  vingt parties après un « Plus tard », et ne revient plus dès que le joueur a
+  ouvert la page du store.
 - **Bannir une catégorie et Premium vivent dans le profil, sur l'appareil**
   (`src/domain/perks.ts`) : un ban dès sept catégories, les suivants et plus
   de cinq mots cachés révélés au récap réservés à Premium, gratuit pour

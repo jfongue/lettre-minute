@@ -5,11 +5,16 @@ import {
   achievementIcon,
   achievementProgress,
   achievementReward,
+  colourWinner,
+  designGoal,
+  designWinner,
   earnedAchievements,
+  isNamed,
   newlyEarnedAchievements,
-  type AchievementId,
+  ownedColours,
+  ownedDesigns,
 } from './achievements'
-import { AVATARS, PALETTE, colourUnlock, designUnlock } from './avatar'
+import { AVATARS, FREE_COLOURS, FREE_DESIGNS, PALETTE } from './avatar'
 import { NEW_PROFILE, xpForLevel } from './progression'
 
 describe('achievements', () => {
@@ -23,20 +28,59 @@ describe('achievements', () => {
     expect(PLAY_ACHIEVEMENTS_ONLY.reduce((total, achievement) => total + achievement.play!, 0)).toBe(1000)
   })
 
-  it('names every achievement once, on a tile of its own', () => {
+  it('names every achievement once, on a tile that exists', () => {
     expect(new Set(ACHIEVEMENTS.map((achievement) => achievement.id)).size).toBe(ACHIEVEMENTS.length)
-    expect(new Set(ACHIEVEMENTS.map((achievement) => achievement.design)).size).toBe(ACHIEVEMENTS.length)
     for (const achievement of ACHIEVEMENTS) expect(AVATARS[achievement.design]).toBeDefined()
+  })
+
+  it('opens every tile and every colour of the catalogue, and each of them once', () => {
+    const tiles = ACHIEVEMENTS.flatMap((achievement) => achievement.reward.design ?? [])
+    const inks = ACHIEVEMENTS.flatMap((achievement) =>
+      achievement.reward.colour === undefined ? [] : [achievement.reward.colour],
+    )
+
+    expect(new Set(tiles).size).toBe(tiles.length)
+    expect(new Set(inks).size).toBe(inks.length)
+    expect([...tiles].sort((left, right) => left - right)).toEqual(AVATARS.slice(FREE_DESIGNS).map((design) => design.id))
+    expect([...inks].sort()).toEqual(PALETTE.slice(FREE_COLOURS).map((colour) => colour.id).sort())
+  })
+
+  it('poses each tile on the milestone of the success that opens it', () => {
+    for (const achievement of ACHIEVEMENTS) {
+      expect(achievement.reward.design !== undefined || achievement.reward.colour !== undefined).toBe(true)
+      if (achievement.reward.design === undefined) continue
+      expect(designGoal(achievement.reward.design)).toEqual(achievement.goal)
+      expect(designWinner(achievement.reward.design)?.id).toBe(achievement.id)
+    }
+  })
+
+  it('gives every colour the milestone of the success that carries it', () => {
+    for (const achievement of ACHIEVEMENTS) {
+      if (achievement.reward.colour === undefined) continue
+      expect(colourWinner(achievement.reward.colour)?.id).toBe(achievement.id)
+    }
+    // Le niveau 4 débloque la tuile et la couleur crème, au même jalon.
+    expect(colourWinner('creme')?.id).toBe('level-4')
+  })
+
+  it('names only the successes the i18n carries, the others take their milestone', () => {
+    const named = ACHIEVEMENTS.filter((achievement) => isNamed(achievement.id))
+
+    expect(named).toHaveLength(31)
+    for (const achievement of PLAY_ACHIEVEMENTS_ONLY) expect(isNamed(achievement.id)).toBe(true)
+    for (const achievement of ACHIEVEMENTS) {
+      if (isNamed(achievement.id)) continue
+      expect(achievement.reward.design).toBeDefined()
+    }
   })
 
   it('shows a tile of its own, the one its goal unlocks when the grid has it', () => {
     for (const achievement of ACHIEVEMENTS) {
       const icon = achievementIcon(achievement.id)
       expect(new Set([icon.ground, icon.shape, icon.accent]).size).toBe(3)
-      // Les trois succès dont la tuile est choisie à la main, et ceux du jeu
-      // seul, qui montrent une voisine libre plutôt qu'un jalon.
+      // Les succès du jeu seul montrent une voisine libre plutôt qu'un jalon.
       if (achievement.play !== undefined && !['added-10', 'discoveries-15', 'score-666'].includes(achievement.id)) {
-        expect(designUnlock(icon.design)).toEqual(achievement.goal)
+        expect(designGoal(icon.design)).toEqual(achievement.goal)
       }
     }
   })
@@ -46,29 +90,36 @@ describe('achievements', () => {
   })
 
   it('offers each milestone achievement what its own milestone unlocks', () => {
-    const at = (id: AchievementId) => ACHIEVEMENTS.find((achievement) => achievement.id === id)!
+    const at = (id: string) => ACHIEVEMENTS.find((achievement) => achievement.id === id)!
     for (const achievement of ACHIEVEMENTS) {
       const reward = achievementReward(achievement)
-      if (reward.design !== null) {
-        expect(designUnlock(reward.design)).toEqual(achievement.goal)
-        expect(AVATARS[reward.design]).toBeDefined()
-      }
-      if (reward.colour !== null) {
-        expect(colourUnlock(reward.colour.id)).toEqual(achievement.goal)
-        expect(PALETTE).toContain(reward.colour)
-      }
+      if (reward.design !== null) expect(AVATARS[reward.design]).toBeDefined()
+      if (reward.colour !== null) expect(PALETTE).toContain(reward.colour)
     }
-    // Le niveau 4 débloque la tuile et la couleur crème, au même jalon.
-    expect(achievementReward(at('level-4')).colour?.id).toBe('creme')
-    // Un exploit ne se borne à aucune statistique d'avatar : rien à porter.
-    expect(achievementReward(at('word-long-10'))).toEqual({ design: null, colour: null })
+    expect(achievementReward(at('level-4'))).toEqual({ design: 5, colour: PALETTE.find((colour) => colour.id === 'creme') })
+    // Un exploit ne se borne à aucune statistique d'avatar : il paie sa couleur.
+    expect(achievementReward(at('word-long-10')).design).toBeNull()
+    expect(achievementReward(at('word-long-10')).colour?.id).toBe('vert')
   })
-
 
   it('earns nothing on a new profile, then what the profile reaches', () => {
     expect(earnedAchievements(NEW_PROFILE)).toEqual([])
     const profile = { ...NEW_PROFILE, xp: xpForLevel(10), runs: 12, bestScore: 520, wordsAdded: 10 }
-    expect(earnedAchievements(profile).sort()).toEqual(['added-10', 'level-10', 'level-4', 'runs-10', 'score-400'])
+
+    expect(earnedAchievements(profile).sort()).toEqual([
+      'added-1',
+      'added-10',
+      'level-10',
+      'level-4',
+      'level-6',
+      'level-8',
+      'runs-10',
+      'runs-3',
+      'runs-5',
+      'runs-7',
+      'score-400',
+      'score-500',
+    ])
     expect(earnedAchievements(profile, 14)).not.toContain('discoveries-15')
     expect(earnedAchievements(profile, 15)).toContain('discoveries-15')
   })
@@ -104,5 +155,26 @@ describe('achievements', () => {
     expect(words.ratio).toBeCloseTo(0.5)
     const full = achievementProgress({ ...NEW_PROFILE, wordsFound: 9_999 }).find((entry) => entry.achievement.id === 'words-250')!
     expect(full.ratio).toBe(1)
+  })
+
+  it('owns the whole grid, and the colours the rungs carry, once a career reaches every rung', () => {
+    const veteran = {
+      ...NEW_PROFILE,
+      xp: xpForLevel(40),
+      runs: 500,
+      bestScore: 1000,
+      wordsFound: 5000,
+      bestCombo: 30,
+      wordsAdded: 1100,
+    }
+    const rungInks = ACHIEVEMENTS.filter(
+      (achievement) => achievement.reward.design !== undefined && achievement.reward.colour !== undefined,
+    )
+
+    expect(ownedDesigns(veteran)).toHaveLength(AVATARS.length)
+    expect(rungInks).toHaveLength(12)
+    for (const rung of rungInks) {
+      expect(ownedColours(veteran).map((colour) => colour.id)).toContain(rung.reward.colour)
+    }
   })
 })

@@ -1,4 +1,4 @@
-import type { AchievementId, Goal } from '../domain/achievements'
+import type { Goal, NamedAchievementId } from '../domain/achievements'
 import { PALETTE, type Milestone } from '../domain/avatar'
 import { announcedCategories } from '../domain/catalogue'
 import type { TrophyId } from '../domain/challenge'
@@ -143,8 +143,7 @@ export const fr = {
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Pas un seul mot. Ça arrive.',
     next: 'Continuer',
-    earned: (count: number) => plural(count, 'Nouveauté pour ton avatar', 'Nouveautés pour ton avatar'),
-    newAchievement: 'Nouveau succès',
+    earned: (count: number) => plural(count, 'Débloqué', 'Débloqués'),
     customize: 'Personnaliser mon avatar',
     words: (count: number) => plural(count, 'mot', 'mots'),
     bestCombo: 'meilleure série',
@@ -167,9 +166,9 @@ export const fr = {
 
   support: {
     title: 'Un petit coup de pouce ?',
-    lead: 'Je suis un petit développeur français qui propose des expériences faites avec le cœur. Un 5 étoiles sur le store m’aiderait beaucoup.',
-    donate: 'Faire un petit don',
-    rate: 'Mettre 5 étoiles',
+    lead: 'Merci d’avoir joué ! Je suis un petit développeur français… Pour m’encourager, tu peux parler du jeu autour de toi et mettre 5 étoiles !',
+    later: 'Plus tard',
+    ok: 'Okay !',
     /** Shown atop the Buy Me a Coffee form framed in a browser. */
     frameDescription: 'Merci de soutenir Lettre Minute !',
     close: 'Fermer',
@@ -1203,7 +1202,7 @@ return `un mot dans ${at} catégories`
       'powers-7': { name: 'Bricoleur', desc: 'Sers sept pouvoirs différents' },
       'powers-all': { name: 'Tous les pouvoirs', desc: 'Sers les quatorze pouvoirs' },
       'categories-12': { name: 'Grand voyageur', desc: 'Trouve un mot dans douze catégories' },
-    } satisfies Record<AchievementId | 'duel-four', { name: string; desc: string }>),
+    } satisfies Record<NamedAchievementId, { name: string; desc: string }>),
   },
 
   /** Le puzzle quotidien de la version Reddit (`reddit/`). */
