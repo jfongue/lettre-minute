@@ -9544,6 +9544,12 @@ de tout cela ne le concerne. */
   list-style: none;
 }
 
+/* Le récap du gagnant porte la liste entière : elle prend la largeur de la fiche. */
+.psheet-done .psheet-list {
+  justify-self: stretch;
+  text-align: left;
+}
+
 .psheet-benefit {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr) auto;
