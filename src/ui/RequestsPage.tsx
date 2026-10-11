@@ -15,7 +15,8 @@ import {
 } from '../lib/cloud'
 import { categoryText, useT } from '../i18n'
 import { sound } from '../lib/sound'
-import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
+import { loadModerationSessions, loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
+import { Figure } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
 import { VerdictMark } from './VerdictMark'
@@ -160,6 +161,8 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
   const added = allAdded ? accepted : accepted.slice(0, ADDED_SHOWN)
   const rejected = submissions.filter((submission) => submission.status === 'rejected').map(fromServer)
   const nothing = server !== 'loading' && removals !== null && pending.length === 0 && accepted.length === 0 && rejected.length === 0
+  // Le serveur garde les votes, pas les sessions : ce compte-là vit sur l'appareil.
+  const sessions = loadModerationSessions()
 
   // A proposal the dictionary now spells letter for letter asks for nothing:
   // it says so, then leaves the list on its own. Un retrait vise un mot déjà au
@@ -209,12 +212,17 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
       {failed && <p className="note note--warn">{t.requests.failed}</p>}
       {nothing && <p className="note">{t.requests.empty}</p>}
 
+      {server !== 'loading' && (
+        <div className="figures">
+          <Figure tint="green" value={accepted.length} label={t.requests.added} />
+          <Figure tint="yellow" value={pending.length} label={t.requests.pending} />
+          <Figure tint="blue" value={sessions} label={t.requests.sessions} />
+        </div>
+      )}
+
       {server !== 'loading' && !nothing && (
         <section className="stack">
-          <div className="spread">
-            <p className="section-title">{t.requests.added}</p>
-            <p className="note">{accepted.length}</p>
-          </div>
+          <p className="section-title">{t.requests.added}</p>
           {accepted.length === 0 ? (
             <p className="note">{t.requests.noneAdded}</p>
           ) : (
@@ -237,10 +245,7 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
 
       {pending.length > 0 && (
         <section className="stack">
-          <div className="spread">
-            <p className="section-title">{t.requests.pending}</p>
-            <p className="note">{pending.length}</p>
-          </div>
+          <p className="section-title">{t.requests.pending}</p>
           <ul className="requests">
             {pending.map((entry) => (
               <RequestRow

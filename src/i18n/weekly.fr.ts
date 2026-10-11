@@ -43,7 +43,7 @@ export const weeklyFr = {
     attempts: 'Tes tentatives',
     intro: (count: number) => `Tu as ${count} tentatives aujourd’hui`,
     introAfter: (count: number) => `${count} tentatives jouées aujourd’hui`,
-    introLeft: (left: number) => `Il t’en reste ${left} aujourd’hui`,
+    introLeft: (left: number) => `${left} ${plural(left, 'tentative', 'tentatives')} du défi du moment`,
     allUsed: 'Tu as joué toutes tes tentatives du jour. Reviens demain, elles reviennent à minuit.',
     attempt: (n: number) => `Tentative ${n}`,
     slot: {

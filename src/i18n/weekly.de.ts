@@ -33,7 +33,7 @@ export const weeklyDe: WeeklyMessages = {
     attempts: 'Deine Versuche',
     intro: (count) => `Du hast heute ${count} Versuche`,
     introAfter: (count) => `${count} Versuche heute gespielt`,
-    introLeft: (left) => `Du hast heute noch ${left} ${plural(left, 'Versuch', 'Versuche')}`,
+    introLeft: (left) => `${left} ${plural(left, 'Versuch', 'Versuche')} in der Challenge der Woche`,
     allUsed: 'Du hast alle Versuche von heute gespielt. Um Mitternacht gibt es neue.',
     attempt: (n) => `Versuch ${n}`,
     slot: { used: 'Gespielt', free: 'Verfügbar', ad: 'Mit Werbung', plus: 'Mit Premium', locked: 'Premium' },

@@ -33,7 +33,7 @@ export const weeklyNl: WeeklyMessages = {
     attempts: 'Jouw pogingen',
     intro: (count) => `Je hebt vandaag ${count} pogingen`,
     introAfter: (count) => `${count} pogingen vandaag gespeeld`,
-    introLeft: (left) => `Je hebt er vandaag nog ${left} ${plural(left, 'poging', 'pogingen')}`,
+    introLeft: (left) => `${left} ${plural(left, 'poging', 'pogingen')} in de uitdaging van het moment`,
     allUsed: 'Je hebt al je pogingen van vandaag gespeeld. Om middernacht zijn er nieuwe.',
     attempt: (n) => `Poging ${n}`,
     slot: { used: 'Gespeeld', free: 'Beschikbaar', ad: 'Met een advertentie', plus: 'Met Premium', locked: 'Premium' },

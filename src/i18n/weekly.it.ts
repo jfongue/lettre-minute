@@ -33,7 +33,7 @@ export const weeklyIt: WeeklyMessages = {
     attempts: 'I tuoi tentativi',
     intro: (count) => `Oggi hai ${count} tentativi`,
     introAfter: (count) => `${count} tentativi giocati oggi`,
-    introLeft: (left) => `Te ne restano ${left} ${plural(left, 'tentativo', 'tentativi')} oggi`,
+    introLeft: (left) => `${left} ${plural(left, 'tentativo', 'tentativi')} nella sfida del momento`,
     allUsed: 'Hai giocato tutti i tentativi di oggi. Tornano a mezzanotte.',
     attempt: (n) => `Tentativo ${n}`,
     slot: { used: 'Giocato', free: 'Disponibile', ad: 'Con una pubblicità', plus: 'Con Premium', locked: 'Premium' },

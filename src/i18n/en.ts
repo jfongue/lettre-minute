@@ -411,6 +411,7 @@ export const en: Messages = {
     fresh: 'new',
     locked: 'under review',
     pending: 'Waiting',
+    sessions: 'Moderation sessions',
     mine: 'your word',
     entered: 'entered the dictionary',
     queued: 'not sent yet',

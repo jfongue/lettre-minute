@@ -285,6 +285,22 @@ export function saveHistory(history: readonly RunRecord[]): void {
   )
 }
 
+/**
+ * Les sessions de modération terminées sur cet appareil : le serveur garde les
+ * votes, pas les sessions, et « Mes demandes » en montre le compte. Effacé avec
+ * le profil, comme tout ce qui appartient au compte.
+ */
+const MODERATION_SESSIONS_KEY = 'lettre-minute.moderation-sessions.v1'
+
+export function loadModerationSessions(): number {
+  const value = parsed(MODERATION_SESSIONS_KEY)
+  return isCount(value) ? value : 0
+}
+
+export function countModerationSession(): void {
+  write(MODERATION_SESSIONS_KEY, loadModerationSessions() + 1)
+}
+
 export function clearLocalData(): void {
   try {
     localStorage.removeItem(PROFILE_KEY)
@@ -292,6 +308,7 @@ export function clearLocalData(): void {
     localStorage.removeItem(SUBMISSIONS_KEY)
     localStorage.removeItem(AVATAR_KEY)
     localStorage.removeItem(ACCOUNT_KEY)
+    localStorage.removeItem(MODERATION_SESSIONS_KEY)
   } catch {
     /* nothing stored, nothing to clear */
   }

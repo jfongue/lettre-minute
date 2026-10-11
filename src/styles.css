@@ -6815,6 +6815,110 @@ li:has(> .reactable--open),
   gap: var(--step);
 }
 
+/* FriendsView n'a pas de conteneur à lui : le tiroir lui en donne un, pour
+   qu'il entre par blocs comme le profil. */
+.social-pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--step);
+}
+
+/* Le profil et le social entrent par blocs, du haut vers le bas : chacun monte
+   et se pose, l'un après l'autre, du même geste que les pastilles de la ligne
+   du haut — prémium compris, qui n'est qu'un bloc de plus. */
+.profile-pane > *,
+.social-pane > * {
+  animation: pane-block-in 460ms var(--ease-out) both;
+}
+
+.profile-pane > *:nth-child(2),
+.social-pane > *:nth-child(2) {
+  animation-delay: 60ms;
+}
+
+.profile-pane > *:nth-child(3),
+.social-pane > *:nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.profile-pane > *:nth-child(4),
+.social-pane > *:nth-child(4) {
+  animation-delay: 180ms;
+}
+
+.profile-pane > *:nth-child(5),
+.social-pane > *:nth-child(5) {
+  animation-delay: 240ms;
+}
+
+.profile-pane > *:nth-child(n + 6),
+.social-pane > *:nth-child(n + 6) {
+  animation-delay: 300ms;
+}
+
+@keyframes pane-block-in {
+  0% {
+    opacity: 0;
+    transform: translateY(0.6rem);
+  }
+  62% {
+    opacity: 1;
+    transform: translateY(-0.12rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Les amis se posent en cascade, comme une donne. */
+.friends > .friend {
+  animation: friend-in 400ms var(--ease-out) both;
+}
+
+.friends > .friend:nth-child(2) {
+  animation-delay: 45ms;
+}
+
+.friends > .friend:nth-child(3) {
+  animation-delay: 90ms;
+}
+
+.friends > .friend:nth-child(4) {
+  animation-delay: 135ms;
+}
+
+.friends > .friend:nth-child(5) {
+  animation-delay: 180ms;
+}
+
+.friends > .friend:nth-child(n + 6) {
+  animation-delay: 225ms;
+}
+
+@keyframes friend-in {
+  0% {
+    opacity: 0;
+    transform: translateY(0.4rem);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-0.08rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-pane > *,
+  .social-pane > *,
+  .friends > .friend {
+    animation: none;
+  }
+}
+
 button.challenge-word {
   width: 100%;
   /* Le mot du défi se déplie au doigt : 39 px ne suffisaient pas. */

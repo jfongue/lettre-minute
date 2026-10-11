@@ -307,20 +307,22 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
           )}
           {!sub && pane === 'profile' && <ProfilePane {...props} onPage={open} />}
           {pane === 'social' && friends && (
-            <SocialPane
-              account={props.account}
-              avatar={props.avatar}
-              inviteOpen={props.inviteOpen}
-              accountActions={props.accountActions}
-              accountMode={props.accountMode}
-              moderator={props.moderation?.moderator ?? false}
-              onProfile={() => open('profile')}
-              onAvatar={() => open('avatar', 'social')}
+            <div className="social-pane">
+              <SocialPane
+                account={props.account}
+                avatar={props.avatar}
+                inviteOpen={props.inviteOpen}
+                accountActions={props.accountActions}
+                accountMode={props.accountMode}
+                moderator={props.moderation?.moderator ?? false}
+                onProfile={() => open('profile')}
+                onAvatar={() => open('avatar', 'social')}
 
-              onFriends={props.onFriends}
-              onChallenge={props.onChallenge}
-              onChallengeFriend={props.onChallengeFriend}
-            />
+                onFriends={props.onFriends}
+                onChallenge={props.onChallenge}
+                onChallengeFriend={props.onChallengeFriend}
+              />
+            </div>
           )}
           {pane === 'options' && (
             <OptionsPane

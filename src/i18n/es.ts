@@ -407,6 +407,7 @@ export const es: Messages = {
     fresh: 'nueva',
     locked: 'en moderación',
     pending: 'En espera',
+    sessions: 'Sesiones de moderación',
     mine: 'tu palabra',
     entered: 'entró en el diccionario',
     queued: 'aún sin enviar',

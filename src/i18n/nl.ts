@@ -406,6 +406,7 @@ export const nl: Messages = {
     fresh: 'nieuw',
     locked: 'wordt beoordeeld',
     pending: 'In afwachting',
+    sessions: 'Moderatiesessies',
     mine: 'jouw woord',
     entered: 'in het woordenboek opgenomen',
     queued: 'nog niet verstuurd',

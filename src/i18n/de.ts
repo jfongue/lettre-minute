@@ -405,6 +405,7 @@ export const de: Messages = {
     fresh: 'neu',
     locked: 'wird geprüft',
     pending: 'Ausstehend',
+    sessions: 'Moderationssitzungen',
     mine: 'dein Wort',
     entered: 'ins Wörterbuch aufgenommen',
     queued: 'noch nicht gesendet',
