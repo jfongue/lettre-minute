@@ -8,7 +8,7 @@
 -- Les anonymes et les joueurs maison sont écartés comme sur `weekly_board` :
 -- par leur compte, jamais par leur nom.
 --
--- Écrite, non appliquée : Jérémy doit dire oui avant `supabase db push`.
+-- Appliquée avec la 1.7.14 (versionCode 38).
 
 create function public.weekly_winners(p_lang text, p_lim integer default 50)
 returns table (week_id date, player_id uuid, display_name text, avatar jsonb, metric text, value numeric)
