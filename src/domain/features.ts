@@ -76,7 +76,7 @@ export const FEATURES: readonly FeatureDef[] = [
   { id: 'ads', label: 'Publicités', note: 'Aussi éteintes dans le code (ADS_ENABLED)', defaults: closed },
   // Outils
   { id: 'wordsBoard', label: 'Tableau des mots', note: 'Cinq tapes sur « Mes catégories »', defaults: supers },
-  { id: 'dashboard', label: 'Tableau de bord', note: 'Cinq tapes sur « Classement »', defaults: supers },
+  { id: 'dashboard', label: 'Tableau de bord', note: 'Cinq tapes sur « Classement »', defaults: open },
   { id: 'ideasAdmin', label: 'Idées reçues', note: 'Cinq tapes sur « Boîte à idées »', defaults: supers },
   { id: 'debugBoard', label: 'Planche debug', note: 'Cinq tapes sur la tuile de l’affiche, ou #debug', defaults: supers },
 ]

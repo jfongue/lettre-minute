@@ -19,6 +19,7 @@ describe('les fonctionnalités', () => {
 
   it('suivent les valeurs du code sans réglage', () => {
     expect(enabledFeatures({}, player).has('challenges')).toBe(true)
+    expect(enabledFeatures({}, player).has('dashboard')).toBe(true)
     expect(enabledFeatures({}, player).has('moderation')).toBe(false)
     expect(enabledFeatures({}, moderator).has('moderation')).toBe(true)
     expect(enabledFeatures({}, moderator).has('debugBoard')).toBe(false)

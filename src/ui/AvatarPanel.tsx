@@ -1,14 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   AVATARS,
   colourUnlock,
   designUnlock,
+  ownedDesigns,
   PALETTE,
   reached,
   sameAvatar,
+  unseenDesigns,
   type AvatarChoice,
 } from '../domain/avatar'
 import type { Profile } from '../domain/progression'
+import { loadSeenDesigns, saveSeenDesigns } from '../state/storage'
 import { useT } from '../i18n'
 import { Avatar } from './Avatar'
 
@@ -16,6 +19,8 @@ interface AvatarPanelProps {
   profile: Profile
   avatar: AvatarChoice
   onSave(avatar: AvatarChoice): void
+  /** Le design touché au bilan : l'éditeur ouvre dessus, sa tuile secoue. */
+  focus?: number | null
 }
 
 type Layer = 'ground' | 'shape' | 'accent'
@@ -27,15 +32,34 @@ const LAYERS: readonly Layer[] = ['ground', 'shape', 'accent']
  * couleurs, puis la grille des tuiles. Il ne se referme pas lui-même — c'est la
  * page qui porte son bouton retour.
  */
-export function AvatarPanel({ profile, avatar, onSave }: AvatarPanelProps) {
+export function AvatarPanel({ profile, avatar, onSave, focus = null }: AvatarPanelProps) {
   const t = useT()
-  const [draft, setDraft] = useState(avatar)
+  const [draft, setDraft] = useState(() => (focus === null ? avatar : { ...avatar, design: focus }))
   const [layer, setLayer] = useState<Layer>('shape')
   const [hint, setHint] = useState<string | null>(null)
+  // Ce que l'éditeur a déjà montré : un gagné porte « nouveau » jusqu'à ce
+  // qu'on le touche, et sortir de la page range la liste — un badge vu, même
+  // sans être touché, ne revient pas à l'ouverture suivante.
+  const [seen, setSeen] = useState<readonly number[]>(loadSeenDesigns)
+  const [shaking, setShaking] = useState<number | null>(focus)
+  const cell = useRef<HTMLButtonElement>(null)
+
+  useEffect(
+    () => () => saveSeenDesigns(ownedDesigns(profile).map((design) => design.id)),
+    [profile],
+  )
+
+  useEffect(() => {
+    if (focus === null) return
+    cell.current?.scrollIntoView({ block: 'center' })
+    const timer = setTimeout(() => setShaking(null), 700)
+    return () => clearTimeout(timer)
+  }, [focus])
 
   const design = AVATARS[draft.design]
-  const ownedDesigns = AVATARS.filter((entry) => reached(profile, designUnlock(entry.id))).length
+  const ownedIds = ownedDesigns(profile).map((entry) => entry.id)
   const ownedColours = PALETTE.filter((colour) => reached(profile, colourUnlock(colour.id))).length
+  const news = unseenDesigns(profile, seen)
   // Without an accent the third layer paints nothing: offering it would look broken.
   const layers = design.accent ? LAYERS : LAYERS.filter((id) => id !== 'accent')
   const activeLayer = layers.includes(layer) ? layer : 'shape'
@@ -47,7 +71,7 @@ export function AvatarPanel({ profile, avatar, onSave }: AvatarPanelProps) {
         <div className="stack">
           <h2 className="section-title">{t.avatar.title}</h2>
           <p className="note">
-            {t.avatar.owned(ownedDesigns, AVATARS.length, ownedColours, PALETTE.length)}
+            {t.avatar.owned(ownedIds.length, AVATARS.length, ownedColours, PALETTE.length)}
           </p>
           <p className="note">{t.avatar.lead}</p>
         </div>
@@ -104,13 +128,18 @@ export function AvatarPanel({ profile, avatar, onSave }: AvatarPanelProps) {
         {AVATARS.map((entry) => {
           const goal = designUnlock(entry.id)
           const owned = reached(profile, goal)
+          const isNew = news.includes(entry.id)
           return (
             <button
               key={entry.id}
+              ref={entry.id === focus ? cell : undefined}
               type="button"
-              className={`avatar-cell${draft.design === entry.id ? ' avatar-cell--on' : ''}`}
+              className={`avatar-cell${draft.design === entry.id ? ' avatar-cell--on' : ''}${
+                shaking === entry.id ? ' avatar-cell--shake' : ''
+              }`}
               aria-label={owned ? t.avatar.design(entry.id + 1) : t.avatar.lockedDesign(entry.id + 1)}
               onClick={() => {
+                if (isNew) setSeen((current) => [...current, entry.id])
                 if (owned) {
                   setDraft({ ...draft, design: entry.id })
                   setHint(goal ? t.avatar.earnedHint(t.avatar.design(entry.id + 1), t.avatar.milestone(goal)) : null)
@@ -120,6 +149,7 @@ export function AvatarPanel({ profile, avatar, onSave }: AvatarPanelProps) {
               }}
             >
               <Avatar choice={{ ...draft, design: entry.id }} size="fill" locked={!owned} />
+              {isNew ? <span className="avatar-new">{t.avatar.new}</span> : null}
             </button>
           )
         })}

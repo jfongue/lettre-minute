@@ -556,6 +556,7 @@ export const en: Messages = {
     lockedColour: (colour) => `${colour}, locked`,
     design: (number) => `Avatar ${number}`,
     lockedDesign: (number) => `Avatar ${number}, locked`,
+  new: 'New',
     unlockHint: (item, how) => `${item}: ${how}`,
     earnedHint: (item, how) => `${item} · earned with: ${how}`,
     idle: 'Tap a tile to see how it is earned.',

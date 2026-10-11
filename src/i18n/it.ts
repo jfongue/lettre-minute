@@ -552,6 +552,7 @@ export const it: Messages = {
     lockedColour: (colour) => `${colour}, bloccato`,
     design: (number) => `Avatar ${number}`,
     lockedDesign: (number) => `Avatar ${number}, bloccato`,
+  new: 'Nuovo',
     unlockHint: (item, how) => `${item}: ${how}`,
     earnedHint: (item, how) => `${item} · ottenuto con: ${how}`,
     idle: 'Tocca una casella per vedere come si ottiene.',

@@ -93,6 +93,8 @@ interface MenuProps {
   avatar: AvatarChoice
   /** Garde l'avatar choisi : l'écran de fin de partie y revient. */
   onAvatarSave(avatar: AvatarChoice): void
+/** Le design touché au bilan : la page avatar s'ouvre dessus, sa tuile secoue. */
+avatarFocus?: number | null
   /** Les découvertes que seul le serveur compte, pour la barre des succès. */
   discoveries?: number
   /** Null while the game runs without a server: the player has no account, only an avatar. */
@@ -294,7 +296,12 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
           {sub === 'avatar' && (
             <>
               {avatars ? (
-                <AvatarPanel profile={props.profile} avatar={props.avatar} onSave={props.onAvatarSave} />
+                <AvatarPanel
+profile={props.profile}
+avatar={props.avatar}
+focus={props.avatarFocus}
+onSave={props.onAvatarSave}
+/>
               ) : null}
               {achievements ? (
                 <AchievementsPanel

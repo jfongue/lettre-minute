@@ -349,3 +349,16 @@ export function saveFeatureFlags(flags: Record<string, FlagRow>): void {
 export function saveFeatureRoles(roles: StoredFeatures['roles']): void {
   write(FEATURES_KEY, { ...loadFeatures(), roles })
 }
+
+// Les designs d'avatar que l'éditeur a déjà montrés : la tuile d'un gagné
+// porte un badge « nouveau » tant qu'on ne l'a pas touchée.
+const AVATAR_SEEN_KEY = 'lettre-minute.avatar-seen.v1'
+
+export function loadSeenDesigns(): number[] {
+  const raw = parsed(AVATAR_SEEN_KEY)
+  return Array.isArray(raw) ? raw.filter((id): id is number => typeof id === 'number') : []
+}
+
+export function saveSeenDesigns(designs: readonly number[]): void {
+  write(AVATAR_SEEN_KEY, [...designs])
+}

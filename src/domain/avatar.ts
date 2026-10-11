@@ -283,6 +283,17 @@ export function newlyEarned(before: Profile, after: Profile): { designs: AvatarD
   }
 }
 
+/**
+ * Les designs gagnés que l'éditeur n'a pas encore montrés : ce sont les tuiles
+ * à badger « nouveau ». La liste des vus vit sur l'appareil, pas au profil.
+ */
+export function unseenDesigns(profile: Profile, seen: readonly number[]): number[] {
+  const known = new Set(seen)
+  return ownedDesigns(profile)
+    .map((design) => design.id)
+    .filter((id) => !known.has(id))
+}
+
 export function colourHex(id: string): string {
   return (PALETTE.find((colour) => colour.id === id) ?? PALETTE[0]).hex
 }

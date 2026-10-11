@@ -304,7 +304,12 @@ export function App() {
   // The very first « Jouer » teaches one word before the clock starts; the
   // lesson then stays up while the run loads.
   const [tutorial, setTutorial] = useState<'teaching' | 'launching' | null>(null)
-  const closeMenu = useCallback(() => setMenuPage(null), [])
+  // Le succès touché au bilan : l'éditeur s'ouvre sur son avatar et le secoue.
+const [avatarFocus, setAvatarFocus] = useState<number | null>(null)
+const closeMenu = useCallback(() => {
+setAvatarFocus(null)
+setMenuPage(null)
+}, [])
   const [history, setHistory] = useState<RunRecord[]>([])
   const [theme, setTheme] = useState<Theme>(loadTheme)
   const [soundPrefs, setSoundPrefs] = useState<SoundPrefs>(loadSoundPrefs)
@@ -1856,6 +1861,7 @@ setStartedAt((at) => at ?? Date.now())
             setMenuPage('stats')
           }}
           onMenu={(page = 'profile') => {
+            setAvatarFocus(null)
             setAccountMode('register')
             setMenuFocus(false)
             setMenuPage(page)
@@ -2100,6 +2106,7 @@ setStartedAt((at) => at ?? Date.now())
             }
             avatar={avatar}
             onAvatarSave={saveWornAvatar}
+avatarFocus={avatarFocus}
             discoveries={discoveries ?? undefined}
             account={account}
             accountActions={accountActions}
@@ -2231,7 +2238,10 @@ setStartedAt((at) => at ?? Date.now())
             accountActions={accountActions}
             // La page « Avatar & succès » vit dans le tiroir : elle s'ouvre
             // par-dessus le bilan, et son retour le rend tel quel.
-            onAvatar={() => setMenuPage('avatar')}
+            onAvatar={(design) => {
+setAvatarFocus(design ?? null)
+setMenuPage('avatar')
+}}
             onChoose={choose}
             onChoosePower={choosePower}
             onChooseBonus={chooseBonus}

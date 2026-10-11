@@ -551,6 +551,7 @@ export const nl: Messages = {
     lockedColour: (colour) => `${colour}, vergrendeld`,
     design: (number) => `Avatar ${number}`,
     lockedDesign: (number) => `Avatar ${number}, vergrendeld`,
+  new: 'Nieuw',
     unlockHint: (item, how) => `${item}: ${how}`,
     earnedHint: (item, how) => `${item} · verdiend met: ${how}`,
     idle: 'Tik op een vakje om te zien hoe je het verdient.',

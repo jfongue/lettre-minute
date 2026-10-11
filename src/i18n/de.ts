@@ -550,6 +550,7 @@ export const de: Messages = {
     lockedColour: (colour) => `${colour}, gesperrt`,
     design: (number) => `Avatar ${number}`,
     lockedDesign: (number) => `Avatar ${number}, gesperrt`,
+  new: 'Neu',
     unlockHint: (item, how) => `${item}: ${how}`,
     earnedHint: (item, how) => `${item} · verdient mit: ${how}`,
     idle: 'Tippe auf ein Feld, um zu sehen, wie man es gewinnt.',

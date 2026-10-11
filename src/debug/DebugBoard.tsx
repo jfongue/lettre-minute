@@ -16,6 +16,7 @@ import { ChallengePowers } from '../ui/ChallengePowers'
 import { ChallengeView } from '../ui/ChallengeScreen'
 import { PowerGiftPop, ShareNewsPop, WordsNewsPop } from '../ui/WordsNews'
 import { HomeScreen, POSTER } from '../ui/HomeScreen'
+import { AvatarPanel } from '../ui/AvatarPanel'
 import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
 import { ModerationScreen } from '../ui/ModerationScreen'
@@ -821,6 +822,15 @@ function AchievementsScenario() {
   return (
     <div className="sheet cascade">
       <AchievementsPanel profile={ACHIEVEMENTS_PROFILE} discoveries={9} avatar={DEFAULT_AVATAR} />
+    </div>
+  )
+}
+
+function AvatarScenario() {
+  const [avatar, setAvatar] = useState(DEFAULT_AVATAR)
+  return (
+    <div className="sheet">
+      <AvatarPanel profile={PROFILE} avatar={avatar} focus={18} onSave={setAvatar} />
     </div>
   )
 }
@@ -1652,6 +1662,20 @@ const SCENARIOS: readonly Scenario[] = [
     ),
   },
   {
+    id: 'over-achievements',
+    group: 'Fin de partie',
+    title: 'Nouveaux succès au bilan',
+    how: 'Deux succès d’un coup, leur condition écrite à côté du nom : la ligne amène à l’avatar qu’elle a valu',
+    phase: 'over',
+    render: (back) => (
+      <OverScenario
+        before={{ ...PROFILE, runs: 9, bestCombo: 9 }}
+        after={{ ...PROFILE, runs: 11, bestCombo: 12 }}
+        onBack={back}
+      />
+    ),
+  },
+  {
     id: 'over-proposals',
     group: 'Fin de partie',
     title: 'Mots proposés au bilan',
@@ -2336,6 +2360,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Les succès en trois familles : barres de couleur pour les statistiques, tuiles-icônes pour les défis, marque Play Games sur les quinze publiés, un profil d’exemple avec une partie d’entre eux obtenus',
     phase: 'home',
     render: () => <AchievementsScenario />,
+  },
+  {
+    id: 'avatar-editor',
+    group: 'Accueil',
+    title: 'Éditeur d’avatar',
+    how: 'Les tuiles gagnées, dont celles que l’éditeur n’a pas encore montrées : « nouveau » s’éteint au toucher, et le design touché au bilan est secoué',
+    phase: 'home',
+    render: () => <AvatarScenario />,
   },
   {
     id: 'update',

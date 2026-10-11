@@ -65,7 +65,8 @@ interface OverScreenProps {
   proposals?: readonly RunProposal[]
   onCorrectProposal?(proposal: Proposal, display: string): Promise<boolean>
   onWithdrawProposal?(proposal: Proposal): Promise<boolean>
-  onAvatar(): void
+  /** Ouvre l'éditeur, sur le design touché quand le succès qui l'a valu dit lequel. */
+onAvatar(design?: number): void
   onChoose(categoryId: string): void
   onChoosePower(powerId: string): void
   onChooseBonus(bonusId: string): void
@@ -395,8 +396,6 @@ function Earned({
   const avatars = useFeature('avatar')
   const earned = newlyEarned(profileBefore, profile)
   const achievements = newlyEarnedAchievements(profileBefore, profile)
-  // Le succès touché : il déplie ce qu'il fallait faire pour l'obtenir.
-  const [open, setOpen] = useState<string | null>(null)
   if (earned.designs.length === 0 && earned.colours.length === 0 && achievements.length === 0) return null
   return (
     <section className="panel earned">
@@ -423,29 +422,27 @@ function Earned({
         {achievements.length > 0 ? (
           <>
             <p className="section-title">{t.over.newAchievement}</p>
-            <div className="earned-row">
+            <ul className="earned-list">
               {achievements.map((achievement, index) => (
+                <li key={achievement.id}>
                 <button
                   key={achievement.id}
                   type="button"
-                  className={`earned-item earned-ach${open === achievement.id ? ' earned-ach--open' : ''}`}
+                  className="earned-line"
                   style={{ '--i': earned.designs.length + earned.colours.length + index } as CSSProperties}
-                  title={`${t.ach.howTitle} · ${t.ach.how(achievement.goal)}`}
-                  onClick={() => setOpen(open === achievement.id ? null : achievement.id)}
+                  onClick={() => onAvatar(achievementIcon(achievement.id).design)}
                 >
                   <Avatar choice={achievementIcon(achievement.id)} size="sm" />
-                  <span className="earned-ach-name">{t.ach[achievement.id].name}</span>
-                  <span className="earned-how">
-                    <span className="ach-how-title">{t.ach.howTitle}</span>
-                    {t.ach.how(achievement.goal)}
-                  </span>
+                  <span className="earned-line-name">{t.ach[achievement.id].name}</span>
+                  <span className="earned-line-how">{t.ach.how(achievement.goal)}</span>
                 </button>
+                </li>
               ))}
-            </div>
+            </ul>
           </>
         ) : null}
       {avatars ? (
-        <button type="button" className="btn btn--ghost" onClick={onAvatar}>
+        <button type="button" className="btn btn--ghost" onClick={() => onAvatar()}>
           {t.over.customize}
         </button>
       ) : null}

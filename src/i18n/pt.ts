@@ -552,6 +552,7 @@ export const pt: Messages = {
     lockedColour: (colour) => `${colour}, bloqueada`,
     design: (number) => `Avatar ${number}`,
     lockedDesign: (number) => `Avatar ${number}, bloqueado`,
+  new: 'Novo',
     unlockHint: (item, how) => `${item}: ${how}`,
     earnedHint: (item, how) => `${item} · ganho com: ${how}`,
     idle: 'Toca numa casa para ver como se ganha.',

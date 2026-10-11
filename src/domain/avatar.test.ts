@@ -13,6 +13,7 @@ import {
   parseAvatar,
   reached,
   sameAvatar,
+  unseenDesigns,
   type AvatarDesign,
 } from './avatar'
 import { applyRun, NEW_PROFILE, xpForLevel } from './progression'
@@ -54,7 +55,15 @@ describe('avatars', () => {
     expect(reached(NEW_PROFILE, designUnlock(DEFAULT_AVATAR.design))).toBe(true)
   })
 
-  it('earns nothing on a first run, even a very good one', () => {
+  it('badges a tile the editor has not shown, and forgets the ones it has', () => {
+  const owned = ownedDesigns(NEW_PROFILE).map((design) => design.id)
+
+  expect(unseenDesigns(NEW_PROFILE, [])).toEqual(owned)
+  expect(unseenDesigns(NEW_PROFILE, owned)).toEqual([])
+  expect(unseenDesigns(NEW_PROFILE, owned.slice(0, 2))).toEqual(owned.slice(2))
+})
+
+it('earns nothing on a first run, even a very good one', () => {
     const words = Array.from({ length: 25 }, (_, index) => `mot${index}`)
     const after = applyRun(NEW_PROFILE, { score: 380, words, bestCombo: 9 })
 

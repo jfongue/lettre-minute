@@ -592,6 +592,7 @@ export const fr = {
     lockedColour: (colour: string) => `${colour}, verrouillée`,
     design: (number: number) => `Avatar ${number}`,
     lockedDesign: (number: number) => `Avatar ${number}, verrouillé`,
+new: 'Nouveau',
     unlockHint: (item: string, how: string) => `${item} : ${how}`,
     earnedHint: (item: string, how: string) => `${item} · gagné avec : ${how}`,
     idle: 'Touche une case pour savoir comment elle se gagne.',
