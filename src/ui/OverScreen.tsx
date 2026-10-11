@@ -3,7 +3,7 @@ import { newlyEarned, type AvatarChoice } from '../domain/avatar'
 import { achievementIcon, newlyEarnedAchievements } from '../domain/achievements'
 import type { Boards } from '../domain/boards'
 import { compactWord } from '../domain/text'
-import { levelFor, levelProgress, recordBonus, type Profile } from '../domain/progression'
+import { levelFor, levelProgress, type Profile } from '../domain/progression'
 import { pickShowsAd, picksOwed } from '../domain/unlocks'
 import type { Run } from '../domain/run'
 import { categoryText, formatNumber, useT } from '../i18n'
@@ -232,7 +232,6 @@ function Summary({
     window.scrollTo(0, 0)
   }, [])
   const record = ranked && run.score > profileBefore.bestScore && run.score > 0
-  const bonus = ranked ? recordBonus(profileBefore, run.score) : 0
   const ours = mine ? run.found.filter((found) => mine.has(compactWord(found.display))).length : 0
   // Decided once: marking the ask makes `supportDue` false, and the panel must stay.
   const [asking] = useState(() => support && supportDue(profileBefore, profile, run.score, false))
@@ -243,7 +242,6 @@ function Summary({
   return (
     <div className="sheet cascade">
       <XpGain from={profileBefore.xp} to={profile.xp} />
-      {bonus > 0 && <p className="note challenge-xp-note">{t.over.recordBonus(bonus)}</p>}
 
       <Earned profileBefore={profileBefore} profile={profile} avatar={avatar} onAvatar={onAvatar} />
 
@@ -281,17 +279,6 @@ function Summary({
           {...accountActions}
         />
       )}
-      {account && !account.anonymous && !account.needsName && (
-        <p className="account-saved">
-          <Avatar choice={avatar} size="sm" />
-          <span>
-            {t.over.savedTo[0]}
-            <strong>{account.name}</strong>
-            {t.over.savedTo[1]}
-          </span>
-        </p>
-      )}
-
       <ShareSoon />
 
       <div className="stack">

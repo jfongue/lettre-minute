@@ -32,6 +32,7 @@ export const fr = {
   tag: 'fr-FR',
   /** Stacked in two lines on the home screen, hence two words. */
   appName: ['Lettre', 'Minute'] as [string, string],
+  language: { confirm: 'Valider' },
   loading: 'Chargement…',
   wait: 'Un instant…',
   cancel: 'Annuler',
@@ -156,13 +157,10 @@ export const fr = {
     proposalsLead: 'Tu les as proposés pendant cette partie : tant qu’ils attendent, tu peux corriger leur orthographe ou retirer la demande.',
     keepTitle: 'Garde cette partie',
     keepLead: 'Crée un compte ou connecte-toi : cette partie et toute ta progression y entrent tout de suite.',
-    /** Around the account name, which is set in bold. */
-    savedTo: ['Partie enregistrée sur le compte ', ''] as readonly [string, string],
     replay: 'Rejouer',
     home: 'Accueil',
     level: (level: number) => `Niveau ${level}`,
     towards: (into: number, span: number, next: number) => `${into} / ${span} XP vers le niveau ${next}`,
-    recordBonus: (xp: number) => `dont +${xp} XP pour ton record`,
     levelUp: 'Niveau supérieur',
     levelReached: (level: number) => `Niveau ${level} atteint`,
   },
