@@ -168,9 +168,9 @@ export const fr = {
 
   support: {
     title: 'Un petit coup de pouce ?',
-    lead: 'Je suis un petit développeur français qui propose des expériences faites avec le cœur. Un 5 étoiles sur le store m’aiderait beaucoup.',
-    donate: 'Faire un petit don',
-    rate: 'Mettre 5 étoiles',
+    lead: 'Merci d’avoir joué ! Je suis un petit développeur français… Pour m’encourager, tu peux parler du jeu autour de toi et mettre 5 étoiles !',
+    later: 'Plus tard',
+    ok: 'Okay !',
     /** Shown atop the Buy Me a Coffee form framed in a browser. */
     frameDescription: 'Merci de soutenir Lettre Minute !',
     close: 'Fermer',

@@ -49,6 +49,7 @@ import { ownedCategoryIds } from '../domain/unlocks'
 import { CATALOGUE } from '../domain/catalogue'
 import { CategoriesPage } from '../ui/CategoriesPage'
 import { FeedbackPop } from '../ui/FeedbackPop'
+import { RatingPop } from '../ui/RatingPop'
 import { PlusPop } from '../ui/PlusPop'
 import { Checkout } from '../ui/Checkout'
 import { useT } from '../i18n'
@@ -227,7 +228,7 @@ const PROFILE: Profile = {
   wordsFound: 120,
   bestCombo: 5,
   unlocked: ['fruits-legumes', 'metiers'],
-  supportAskedAt: 14,
+  ratingAskedAt: 14,
 }
 
 /**
@@ -1066,7 +1067,6 @@ function OverScenario({
       onAvatar={noop}
       onChoose={(id) => setProfile((current) => chooseCategory(current, id))}
       onChoosePower={(id) => setProfile((current) => choosePower(current, id))}
-      onSupportAsked={noop}
       mine={mine}
       proposals={proposals}
       onCorrectProposal={async (proposal, display) => {
@@ -2009,6 +2009,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le serveur ne répond pas : le texte reste, l’avis le dit',
     phase: 'home',
     render: (back) => <FeedbackPop onClose={back} send={() => later(false)} />,
+  },
+  {
+    id: 'rating-pop',
+    group: 'Accueil',
+    title: 'Demande de 5 étoiles',
+    how: 'Au retour d’une partie, après la dixième puis vingt après « Plus tard »',
+    phase: 'home',
+    render: (back) => <RatingPop onLater={back} onRate={back} />,
   },
   {
     id: 'home-categories-news',

@@ -85,8 +85,10 @@ export interface Profile {
   lastPowerOffer: readonly string[]
   /** The powers the player takes into a run, at most two. */
   equipped: readonly string[]
-  /** `runs` when the game last asked for support (`supportDue`); 0 before it ever did. */
-  supportAskedAt: number
+  /** `runs` when the game last asked for a five-star rating (`ratingDue`); 0 before it ever did. */
+  ratingAskedAt: number
+  /** 1 once the player opened the store page from the ask: the asks stop for good. */
+  ratingDone: number
   /** `runs` when the game last asked for an opinion (`feedbackDue`); 0 before it ever did. */
   feedbackAskedAt: number
   /** Owned categories the player keeps out of their solo runs (`bannedOf`), oldest first. */
@@ -137,7 +139,8 @@ export const NEW_PROFILE: Profile = {
   powerOffer: [],
   lastPowerOffer: [],
   equipped: [],
-  supportAskedAt: 0,
+  ratingAskedAt: 0,
+  ratingDone: 0,
   feedbackAskedAt: 0,
   banned: [],
   banIntroSeen: 0,

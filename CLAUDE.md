@@ -569,7 +569,10 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   Pour en tirer un backlog, les idées à traiter se lisent avec
   `supabase db query --linked "select body, lang, source, created_at from ideas where archived_at is null order by created_at"`.
   La question d'avis (`feedbackDue`, `src/domain/perks.ts`) tombe au retour à
-  l'accueil après la dixième partie, puis toutes les trente.
+  l'accueil après la dixième partie, puis toutes les trente. La demande de
+  5 étoiles (`ratingDue`, `src/domain/rating.ts`) tombe au même moment, revient
+  vingt parties après un « Plus tard », et ne revient plus dès que le joueur a
+  ouvert la page du store.
 - **Bannir une catégorie et Premium vivent dans le profil, sur l'appareil**
   (`src/domain/perks.ts`) : un ban dès sept catégories, les suivants et plus
   de cinq mots cachés révélés au récap réservés à Premium, gratuit pour

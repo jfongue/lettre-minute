@@ -11,8 +11,7 @@ import { ENDURANCE_TIME_BONUS } from '../domain/modes'
 import { categoryText, formatNumber, useT } from '../i18n'
 import type { Account, BanOutcome, ChallengeDetail, Submission } from '../lib/cloud'
 import type { Proposal } from '../state/session'
-import { adsSupported, storeUrl, tapFeedback } from '../lib/native'
-import { supportDue } from '../domain/support'
+import { adsSupported, tapFeedback } from '../lib/native'
 import { sound, tierSound } from '../lib/sound'
 import { AccountPanel, type AccountActions } from './AccountPanel'
 import { CHALLENGE_XP_BONUS } from '../domain/challenge'
@@ -69,8 +68,6 @@ interface OverScreenProps {
   onAvatar(): void
   onChoose(categoryId: string): void
   onChoosePower(powerId: string): void
-  /** The summary asked for support: the next ask waits ten runs from here. */
-  onSupportAsked(): void
   onReplay(): void
   onHome(): void
   /**
@@ -389,12 +386,10 @@ function Summary({
   onCorrectProposal,
   onWithdrawProposal,
   onAvatar,
-  onSupportAsked,
   onReplay,
   onHome,
 }: SummaryProps) {
   const t = useT()
-  const support = useFeature('support')
   const leaderboards = useFeature('leaderboards')
   // The reveal may have scrolled down its list: the summary reads from the top.
   // Braced: recent Chrome returns a promise from scrollTo, which React would
@@ -405,11 +400,6 @@ function Summary({
   const record = ranked && run.score > profileBefore.bestScore && run.score > 0
   const bonus = ranked ? recordBonus(profileBefore, run.score) : 0
   const ours = mine ? run.found.filter((found) => mine.has(compactWord(found.display))).length : 0
-  // Decided once: marking the ask makes `supportDue` false, and the panel must stay.
-  const [asking] = useState(() => support && supportDue(profileBefore, profile, run.score, false))
-  useEffect(() => {
-    if (asking) onSupportAsked()
-  }, [asking, onSupportAsked])
 
   return (
     <div className="sheet cascade">
@@ -430,7 +420,6 @@ function Summary({
 
       {ours > 0 && <p className="note mine-note">{t.over.mineNote(ours)}</p>}
 
-      {asking && <SupportPanel />}
 
 
       <RunRequests
@@ -482,23 +471,6 @@ function Summary({
   )
 }
 
-/** A rating, asked at a happy moment: with no store page there is nothing to open. */
-function SupportPanel() {
-  const t = useT()
-  const store = storeUrl()
-  if (!store) return null
-  return (
-    <section className="panel support">
-      <p className="section-title">{t.support.title}</p>
-      <p>{t.support.lead}</p>
-      <div className="support-actions">
-        <a className="btn btn--ghost" href={store} target="_blank" rel="noopener noreferrer">
-          {t.support.rate}
-        </a>
-      </div>
-    </section>
-  )
-}
 
 /**
  * Les mots proposés pendant la partie, sur le dernier écran : tant qu'ils

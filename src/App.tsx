@@ -101,9 +101,11 @@ import { clearInviteRef, keepInviteRef, loadInviteRef, refIn, takeAddressRef } f
 import { createJudge } from './state/judge'
 import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, isPlus, peeksLeft, playableCategoryIds, plusThanksDue, shareNewsDue } from './domain/perks'
 import { enabledFeatures, type FeatureId, type Roles } from './domain/features'
+import { ratingDue } from './domain/rating'
 import { cloudConfigured } from './lib/supabase'
 import { setTrackLang, setTrackScreen, track, trackFeature, trackReady } from './lib/track'
 import { FeedbackPop } from './ui/FeedbackPop'
+import { RatingPop } from './ui/RatingPop'
 import type { BanActions } from './ui/CategoriesPage'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
 import { initialSession, sessionReducer, type Proposal } from './state/session'
@@ -330,6 +332,8 @@ export function App() {
   const [offerHeld, setOfferHeld] = useState(false)
   // Set on the way home once `feedbackDue` says so: asked once, answered or not.
   const [feedbackAsk, setFeedbackAsk] = useState(false)
+  // Set the same way once `ratingDue` says so; « Okay » answers it for good.
+  const [ratingAsk, setRatingAsk] = useState(false)
   // The seed of the run whose reveal has played: leaving for the avatar editor
   // and coming back must not replay it.
   const [revealed, setRevealed] = useState<number | null>(null)
@@ -1328,7 +1332,6 @@ setStartedAt((at) => at ?? Date.now())
     trackFeature('power_chosen', { power: powerId })
     dispatch({ type: 'choose-power', powerId })
   }, [])
-  const supportAsked = useCallback(() => dispatch({ type: 'support-asked' }), [])
   const joinPlus = useCallback(() => {
     trackFeature('premium_joined')
     dispatch({ type: 'join-plus', at: Date.now() })
@@ -1625,6 +1628,7 @@ setStartedAt((at) => at ?? Date.now())
   const thanksPop = popsQuiet && cloudConfigured() && plusThanksDue(session.profile)
   const feedbackPop = popsQuiet && feedbackAsk && !thanksPop && on('feedback')
   const shareNewsPop = popsQuiet && !thanksPop && !feedbackPop && on('friendInvite') && shareNewsDue(session.profile, named, shareNewsSeen)
+  const ratingPop = popsQuiet && ratingAsk && !thanksPop && !feedbackPop && !shareNewsPop && on('support')
   const settleShareNews = () => {
     saveShareNewsSeen()
     setShareNewsSeen(true)
@@ -1930,6 +1934,10 @@ setStartedAt((at) => at ?? Date.now())
 
       {feedbackPop && <FeedbackPop onClose={() => setFeedbackAsk(false)} />}
 
+      {ratingPop && (
+        <RatingPop onLater={() => setRatingAsk(false)} onRate={() => { dispatch({ type: 'rating-done' }); setRatingAsk(false) }} />
+      )}
+
       {thanksPop && (
         <FeedbackPop
           intro={t.premiumThanks}
@@ -2102,7 +2110,6 @@ setStartedAt((at) => at ?? Date.now())
             onAvatar={() => setMenuPage('avatar')}
             onChoose={choose}
             onChoosePower={choosePower}
-            onSupportAsked={supportAsked}
             boardsBefore={boardsBefore}
             boardsAfter={boardsAfter}
             me={account && !account.anonymous ? account.name : null}
@@ -2120,6 +2127,9 @@ setStartedAt((at) => at ?? Date.now())
               if (cloudConfigured() && feedbackDue(session.profile) && on('feedback')) {
                 dispatch({ type: 'feedback-asked' })
                 setFeedbackAsk(true)
+              } else if (on('support') && ratingDue(session.profile) && !plusThanksDue(session.profile)) {
+                dispatch({ type: 'rating-asked' })
+                setRatingAsk(true)
               }
               dispatch({ type: 'home' })
               if (session.challengeId) {

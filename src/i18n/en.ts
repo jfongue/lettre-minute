@@ -146,9 +146,9 @@ export const en: Messages = {
 
   support: {
     title: 'A little boost?',
-    lead: 'I’m a small French developer making games with heart. A 5-star rating on the store would help a lot.',
-    donate: 'Make a small donation',
-    rate: 'Rate 5 stars',
+    lead: 'Thanks for playing! I’m a small French developer… To encourage me, tell people about the game and give it 5 stars!',
+    later: 'Later',
+    ok: 'Okay!',
     frameDescription: 'Thanks for supporting Letter Minute!',
     close: 'Close',
     hello:

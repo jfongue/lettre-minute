@@ -45,7 +45,7 @@ import { unlockEverything } from './domain/unlocks'
 
 if (import.meta.env.VITE_PROMO) {
   if (!localStorage.getItem('lettre-minute.profile.v1')) {
-    const profile = unlockEverything({ ...NEW_PROFILE, xp: xpForLevel(14) + 120, runs: 57, bestScore: 2480, wordsFound: 1310, bestCombo: 9, equipped: [], banIntroSeen: 1, supportAskedAt: 57, feedbackAskedAt: 57 })
+    const profile = unlockEverything({ ...NEW_PROFILE, xp: xpForLevel(14) + 120, runs: 57, bestScore: 2480, wordsFound: 1310, bestCombo: 9, equipped: [], banIntroSeen: 1, ratingAskedAt: 57, feedbackAskedAt: 57 })
     localStorage.setItem('lettre-minute.profile.v1', JSON.stringify(profile))
     localStorage.setItem('lettre-minute.tutorial.v1', 'true')
     localStorage.setItem('lettre-minute.quiet-sign-in.v1', 'true')

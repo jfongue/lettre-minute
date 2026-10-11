@@ -66,7 +66,7 @@ export const FEATURES: readonly FeatureDef[] = [
   // Fenêtres et messages
   { id: 'ideasBox', label: 'Boîte à idées', note: 'Au pied de « Mes demandes »', defaults: open },
   { id: 'feedback', label: 'Question d’avis', note: 'Après la dixième partie, puis toutes les trente', defaults: open },
-  { id: 'support', label: 'Demande de note', note: 'Au bilan, sur un bon score', defaults: open },
+  { id: 'support', label: 'Demande de note', note: 'La fenêtre du retour à l’accueil après la dixième partie', defaults: open },
   { id: 'pushOffer', label: 'Proposer les notifications', note: 'Après une nouvelle amitié, sur téléphone', defaults: open },
   { id: 'powerGift', label: 'Pouvoir offert', note: 'La fenêtre du pouvoir Complication', defaults: open },
   { id: 'storeUpdate', label: 'Annonce de mise à jour', note: 'Quand le Play Store a une version plus récente', defaults: open },

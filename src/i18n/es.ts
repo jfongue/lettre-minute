@@ -141,9 +141,9 @@ export const es: Messages = {
 
   support: {
     title: '¿Un empujoncito?',
-    lead: 'Soy un pequeño desarrollador francés que crea experiencias hechas con el corazón. Cinco estrellas en la tienda me ayudarían mucho.',
-    donate: 'Hacer una pequeña donación',
-    rate: 'Dar 5 estrellas',
+    lead: '¡Gracias por jugar! Soy un pequeño desarrollador francés… Para animarme, habla del juego a quienes te rodean y dale 5 estrellas.',
+    later: 'Más tarde',
+    ok: '¡Vale!',
     frameDescription: '¡Gracias por apoyar Letra Minuto!',
     close: 'Cerrar',
     hello:
