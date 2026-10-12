@@ -351,7 +351,8 @@ export function saveFeatureRoles(roles: StoredFeatures['roles']): void {
 }
 
 // Les designs d'avatar que l'éditeur a déjà montrés : la tuile d'un gagné
-// porte un badge « nouveau » tant qu'on ne l'a pas touchée.
+// porte un cadre rouge tant qu'on ne l'a pas vue, et sortir de la page les
+// range toutes — un cadre vu, même sans être touché, ne revient pas.
 const AVATAR_SEEN_KEY = 'lettre-minute.avatar-seen.v1'
 
 export function loadSeenDesigns(): number[] {
@@ -361,4 +362,16 @@ export function loadSeenDesigns(): number[] {
 
 export function saveSeenDesigns(designs: readonly number[]): void {
   write(AVATAR_SEEN_KEY, [...designs])
+}
+
+// Les couleurs gagnées que l'éditeur a déjà montrées, sous la même règle.
+const AVATAR_SEEN_COLOURS_KEY = 'lettre-minute.avatar-seen-colours.v1'
+
+export function loadSeenColours(): string[] {
+  const raw = parsed(AVATAR_SEEN_COLOURS_KEY)
+  return Array.isArray(raw) ? raw.filter((id): id is string => typeof id === 'string') : []
+}
+
+export function saveSeenColours(colours: readonly string[]): void {
+  write(AVATAR_SEEN_COLOURS_KEY, [...colours])
 }

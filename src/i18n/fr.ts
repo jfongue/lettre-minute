@@ -1156,6 +1156,14 @@ case 'dailyFirst':
 return 'la première place du jour'
 case 'wordsReviewed':
 return `${at} ${plural(goal.at, 'verdict rendu', 'verdicts rendus')}`
+case 'weeklyAttempts':
+return `${at} ${plural(goal.at, 'tentative du défi du moment', 'tentatives du défi du moment')}`
+case 'challengesFinished':
+return `${at} ${plural(goal.at, 'défi entre amis terminé', 'défis entre amis terminés')}`
+case 'shortStreak':
+return `${at} ${plural(goal.at, 'mot de moins de cinq lettres d’affilée', 'mots de moins de cinq lettres d’affilée')}`
+case 'noPassStreak':
+return `${at} ${plural(goal.at, 'mot d’affilée sans passer', 'mots d’affilée sans passer')}`
 case 'powersUsed':
 return `${at} pouvoirs différents`
 case 'playedCategories':
@@ -1185,20 +1193,24 @@ return `un mot dans ${at} catégories`
       'runs-400': { name: 'Inépuisable', desc: 'Joue 400 parties' },
       'words-2000': { name: 'Dictionnaire vivant', desc: 'Trouve 2000 mots' },
       'level-35': { name: 'Maître de la minute', desc: 'Atteins le niveau 35' },
-      // Ceux du jeu seul, groupés par famille.
-      'runs-25': { name: 'Bonne habitude', desc: 'Joue 25 parties' },
-      'words-250': { name: 'Du vocabulaire', desc: 'Trouve 250 mots' },
-      'score-400': { name: 'Belle partie', desc: 'Marque 400 points en une partie' },
+      // Les pistes que la grille ne compte pas : le défi du moment, les défis
+      // entre amis, la modération, les mots courts d’affilée et la suite sans
+      // passer. Chacune a sa tuile, et son nom ici.
+      'weekly-5': { name: 'Assidu', desc: 'Joue le défi du moment cinq fois' },
+      'weekly-30': { name: 'Pilier du moment', desc: 'Joue le défi du moment trente fois' },
+      'friends-5': { name: 'Entre amis', desc: 'Termine cinq défis entre amis' },
+      'friends-25': { name: 'Toujours partant', desc: 'Termine vingt-cinq défis entre amis' },
+      'moderation-10': { name: 'Coup d’œil', desc: 'Rends cinquante verdicts en modération' },
+      'moderation-30': { name: 'Œil de lynx', desc: 'Rends cent cinquante verdicts en modération' },
+      'moderation-60': { name: 'Le tribunal', desc: 'Rends trois cents verdicts en modération' },
+      'short-streak-10': { name: 'Petits mots', desc: 'Sors dix mots de moins de cinq lettres d’affilée' },
+      'no-pass-50': { name: 'Marathon', desc: 'Trouve cinquante mots d’affilée sans passer une question' },
       'reviews-10': { name: 'Juste arbitre', desc: 'Rends dix verdicts en modération' },
       'word-long-10': { name: 'Mot fleuve', desc: 'Trouve un mot de dix lettres' },
       'word-long-15': { name: 'Mot interminable', desc: 'Trouve un mot de quinze lettres' },
       'speed-25': { name: 'Réflexe vif', desc: 'Trouve un mot à plus de 2,5 lettres par seconde' },
       'speed-35': { name: 'Réflexe éclair', desc: 'Trouve un mot à plus de 3,5 lettres par seconde' },
-      'clean-run': { name: 'Sans faute', desc: 'Finis une partie sans passer une question' },
       'clean-run-10': { name: 'Impeccable', desc: 'Finis dix parties sans passer une question' },
-      'duel-four': { name: 'Quatre à table', desc: 'Assieds-toi à une table de quatre' },
-      'duel-round-20': { name: 'Marathon', desc: 'Tiens vingt manches dans une table de quatre' },
-      'day-first': { name: 'Roi du jour', desc: 'Prends la tête du classement du jour' },
       'powers-7': { name: 'Bricoleur', desc: 'Sers sept pouvoirs différents' },
       'powers-all': { name: 'Tous les pouvoirs', desc: 'Sers les quatorze pouvoirs' },
       'categories-12': { name: 'Grand voyageur', desc: 'Trouve un mot dans douze catégories' },

@@ -152,7 +152,8 @@
   min-width: 0;
 }
 
-/* Le chrono qui se vide, puis deux mots qui le regonflent. Tout en CSS. */
+/* Le chrono qui se vide, puis deux mots qui le regonflent : ModeIntro tient la
+   valeur, l'anneau et le chiffre ensemble. */
 @property --wk-ring {
   syntax: '<number>';
   inherits: false;
@@ -175,33 +176,6 @@
   background: conic-gradient(var(--red) calc(var(--wk-ring) * 360deg), var(--paper-2) 0);
   -webkit-mask: radial-gradient(farthest-side, transparent 66%, #000 67%);
   mask: radial-gradient(farthest-side, transparent 66%, #000 67%);
-  animation: wk-drain 6s ease-in-out infinite;
-}
-
-@keyframes wk-drain {
-  0% {
-    --wk-ring: 1;
-  }
-
-  35% {
-    --wk-ring: 0.3;
-  }
-
-  45% {
-    --wk-ring: 0.55;
-  }
-
-  75% {
-    --wk-ring: 0.2;
-  }
-
-  85% {
-    --wk-ring: 0.75;
-  }
-
-  100% {
-    --wk-ring: 1;
-  }
 }
 
 .wk-demo-clock {
@@ -211,51 +185,44 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Le mot tombe : la pastille saute à cet instant — ModeIntro la monte avec le
+   gain — et reste là jusqu'au tour suivant. */
 .wk-demo-gain {
   position: absolute;
-  top: 12%;
-  right: -1.6rem;
   padding: 0.05rem 0.45rem;
   background: var(--yellow);
   border: var(--line) solid var(--ink);
   color: var(--black);
   font-weight: 800;
   opacity: 0;
-  animation: wk-gain 6s var(--ease-out) infinite;
+  animation: wk-demo-gain 1600ms var(--ease-out) both;
 }
 
 .wk-demo-gain--a {
-  animation-delay: 2.1s;
+  top: 12%;
+  right: -1.6rem;
 }
 
 .wk-demo-gain--b {
-  top: auto;
   bottom: 14%;
-  right: auto;
   left: -1.8rem;
-  animation-delay: 4.5s;
 }
 
-@keyframes wk-gain {
+@keyframes wk-demo-gain {
   0% {
     opacity: 0;
     transform: translateY(0.6rem) scale(0.8);
   }
 
-  8% {
+  20% {
     opacity: 1;
     transform: translateY(0) scale(1.1);
   }
 
-  25% {
+  45%,
+  100% {
     opacity: 1;
     transform: translateY(-0.2rem) scale(1);
-  }
-
-  35%,
-  100% {
-    opacity: 0;
-    transform: translateY(-0.8rem);
   }
 }
 
@@ -357,7 +324,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wk-demo-ring,
   .wk-demo-gain,
   .clock-gain,
   .wk-step,

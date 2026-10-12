@@ -36,7 +36,58 @@ export type ShapeKind =
   | 'bloom'
   | 'archway'
   | 'dial'
+  | 'six'
+  | 'card'
+  | 'ribbon'
+  // Les figures relevées sur la planche bauhaus : la grille en tire la
+  // vocabulaire de ses tuiles, et garde les dernières en réserve.
+  | 'stairs'
+  | 'tents'
+  | 'gong'
+  | 'chevrons'
+  | 'slats'
+  | 'barcode'
+  | 'stripes'
+  | 'stripedDisc'
+  | 'field'
+  | 'grid'
+  | 'checker3'
+  | 'diamonds'
+  | 'noise'
+  | 'burst'
+  | 'threeQuarter'
+  | 'spark'
+  | 'eye'
+  | 'links'
+  | 'pinwheel'
+  | 'butterfly'
+  | 'twoMoons'
+  | 'frameDiamond'
+  | 'roundedFrame'
+  | 'cushion'
+  | 'squareBite'
+  | 'split'
+  | 'spiral'
+  | 'rays'
+  | 'corners'
+  | 'duo'
+  | 'slab'
+  | 'dropCut'
+  | 'keyhole'
+  | 'gate'
+  | 'halfBars'
+  | 'bands'
+  | 'peaks'
 
+/**
+ * Ce que fait une tuile sur la grille : chacune a le sien, choisi pour sa
+ * figure — le gong sonne, l'œil cligne, la porte bat sur ses gonds. Tous ne
+ * touchent que la transformation et l'opacité, sur un seul élément : cinquante
+ * tuiles qui bougent ensemble doivent rester au compositeur, jamais au layout.
+ * `spin`, `turn` et `roll` font le tour de la figure : seules les formes qu'un
+ * quart de tour ne change pas les prennent, sinon la case se lirait comme une
+ * autre.
+ */
 export type Motion =
   | 'still'
   | 'turn'
@@ -51,6 +102,35 @@ export type Motion =
   | 'swing'
   | 'breathe'
   | 'nod'
+  | 'march'
+  | 'slide'
+  | 'count'
+  | 'roll'
+  | 'tilt'
+  | 'ripple'
+  | 'hinge'
+  | 'drift'
+  | 'open'
+  | 'coin'
+  | 'blink'
+  | 'lock'
+  | 'wane'
+  | 'flutter'
+  | 'swirl'
+  | 'chime'
+  | 'scan'
+  | 'press'
+  | 'dart'
+  | 'shiver'
+  | 'climb'
+  | 'seesaw'
+  | 'flare'
+  | 'hop'
+  | 'twinkle'
+  | 'tick'
+  | 'coil'
+  | 'flip'
+  | 'squish'
 
 /** One tile of the poster: a shape, turned by quarters, with an optional small accent in a corner. */
 export interface AvatarDesign {
@@ -84,66 +164,78 @@ export interface AvatarChoice {
 
 type Look = [shape: ShapeKind, turn: AvatarDesign['turn'], accent: ShapeKind | null, motion: Motion]
 
-// Written out rather than crossed from lists: a circle, a ring or a sun looks
-// the same at any turn, and a small accent is too faint to tell two tiles apart
-// on its own, so a generated grid showed the same tile over and over. Here no
-// shape comes back merely turned — the turned quarters and arches read as one
-// tile shown four times — only once with an accent that makes a picture of it.
-// Shapes whose look rests on their turn never get the turning motions, which
-// would cycle them through their siblings. Ids stay put: a player wears one.
+// Écrites une par une plutôt que croisées depuis des listes : un cercle, un
+// anneau ou un soleil se ressemblent à tout quart de tour, et un petit accent
+// de coin ne suffisait pas à distinguer deux cases — une grille engendrée
+// montrait la même tuile en boucle. Ici chaque case a sa figure, toutes
+// d'aplomb (retourner une figure teintée désalignerait sa part), et l'accent ne
+// pose plus un motif de coin : il colorie une part de la figure (`TINTED`), ce
+// qui tient deux cases distinctes là où l'ancien accent les confondait. Les
+// mouvements sont choisis un par un pour leur figure : le gong sonne, l'œil
+// cligne, la porte bat sur ses gonds. Les identifiants sont ceux du catalogue :
+// un joueur en porte un, et aucune case ne bouge de place.
 const LOOKS: readonly Look[] = [
   ['circle', 0, null, 'pulse'],
   ['square', 0, null, 'turn'],
   ['quarter', 0, null, 'still'],
-  ['arch', 0, null, 'bob'],
+  ['arch', 0, null, 'hover'],
   ['half', 0, null, 'sway'],
-  ['triangle', 0, null, 'pulse'],
-  ['corner', 0, null, 'still'],
-  ['ring', 0, null, 'pulse'],
-  ['diamond', 0, null, 'turn'],
-  ['bars', 0, null, 'sway'],
+  ['steps', 0, null, 'march'],
+  ['slab', 0, null, 'slide'],
+  ['dots', 0, null, 'count'],
+  ['ring', 0, null, 'roll'],
+  ['zigzag', 0, null, 'wiggle'],
+  ['tents', 0, null, 'tilt'],
+  ['bars', 0, null, 'breathe'],
+  ['checker', 0, null, 'nod'],
+  ['burst', 0, null, 'scatter'],
+  ['wave', 0, null, 'ripple'],
+  ['gate', 0, null, 'hinge'],
+  ['slats', 0, null, 'drift'],
+  ['flower', 0, null, 'open'],
+  ['threeQuarter', 0, null, 'coin'],
+  ['twoMoons', 0, null, 'wane'],
+  ['domes', 0, null, 'hover'],
+  ['stripes', 0, null, 'wiggle'],
+  ['field', 0, null, 'pulse'],
+  ['eye', 0, null, 'blink'],
+  ['pinwheel', 0, null, 'spin'],
+  ['gong', 0, null, 'chime'],
+  ['barcode', 0, null, 'scan'],
+  ['grid', 0, null, 'drift'],
   ['sun', 0, null, 'spin'],
-  ['cross', 0, null, 'spin'],
-  ['lens', 0, null, 'sway'],
-  ['moon', 0, null, 'bob'],
-  ['pill', 0, null, 'pulse'],
-  ['hexagon', 0, null, 'sway'],
-  ['steps', 0, null, 'still'],
-  ['wave', 0, null, 'sway'],
-  ['zigzag', 0, null, 'bob'],
-  ['chevron', 0, null, 'bob'],
-  ['hourglass', 0, null, 'still'],
-  ['flower', 0, null, 'spin'],
-  ['dots', 0, null, 'pulse'],
-  ['checker', 0, null, 'still'],
-  ['star', 0, null, 'pulse'],
-  ['drop', 0, null, 'sway'],
-  ['frame', 0, null, 'turn'],
-  ['square', 0, 'circle', 'still'],
-  ['diamond', 0, 'circle', 'pulse'],
-  ['ring', 0, 'square', 'spin'],
+  ['butterfly', 0, null, 'flutter'],
+  // La tuile du niveau 16, gardée telle quelle : la seule qui porte encore un
+  // motif en coin, celui que Jérémy ne voulait pas perdre.
   ['half', 0, 'circle', 'bob'],
-  ['bars', 0, 'triangle', 'still'],
-  ['quarter', 0, 'circle', 'sway'],
-  ['sun', 0, 'square', 'pulse'],
-  ['arch', 0, 'square', 'still'],
-  ['triangle', 0, 'circle', 'bob'],
-  ['corner', 0, 'square', 'pulse'],
-  ['half', 2, 'sun', 'sway'],
-  ['triangle', 0, 'sun', 'still'],
-  ['circle', 0, 'sun', 'spin'],
-  ['target', 0, null, 'pulse'],
-  ['heart', 0, null, 'pulse'],
-  ['domes', 0, null, 'bob'],
-  // Les sept tuiles des mots ajoutés, dans l'ordre de leurs jalons : chacune a
-  // son mouvement propre, et aucune n'est un simple quart de tour d'une autre.
-  ['ringbroken', 0, null, 'scatter'],
-  ['comma', 0, null, 'wiggle'],
+  ['stripedDisc', 0, null, 'roll'],
+  ['checker3', 0, null, 'breathe'],
+  ['target', 0, null, 'lock'],
+  ['bloom', 0, null, 'swirl'],
+  ['chevrons', 0, null, 'dart'],
+  ['halfBars', 0, null, 'press'],
+  ['noise', 0, null, 'shiver'],
+  ['stairs', 0, null, 'climb'],
+  ['bands', 0, null, 'seesaw'],
+  ['rays', 0, null, 'flare'],
+  ['peaks', 0, null, 'hop'],
+  ['spark', 0, null, 'twinkle'],
+  // Les sept tuiles des mots ajoutés, dans l'ordre de leurs jalons : le trait
+  // qui tape, le cadre qui tourne, le losange qui se balance, le cadre arrondi
+  // qui presse, le coussin qui tremble, le carré mordu qui se retourne, et le
+  // disque dont l'aiguille avance d'un cran.
   ['bang', 0, null, 'stamp'],
-  ['eclipse', 0, null, 'hover'],
-  ['bloom', 0, null, 'breathe'],
-  ['archway', 0, null, 'spin'],
-  ['dial', 0, null, 'nod'],
+  ['frame', 0, null, 'turn'],
+  ['frameDiamond', 0, null, 'swing'],
+  ['roundedFrame', 0, null, 'press'],
+  ['cushion', 0, null, 'squish'],
+  ['squareBite', 0, null, 'flip'],
+  ['dial', 0, null, 'tick'],
+  // Les trois tuiles que la grille ouvre par un exploit plutôt que par un
+  // barreau, à la fin pour ne déplacer aucune case déjà portée par un joueur.
+  ['spiral', 0, null, 'coil'],
+  ['split', 0, null, 'slide'],
+  ['links', 0, null, 'swing'],
 ]
 
 /**
@@ -152,11 +244,108 @@ const LOOKS: readonly Look[] = [
  * never a tile of its own — and never turned with the shape, or the hand would
  * lie about the hour.
  */
-export type DetailKind = 'bangDot' | 'dialHand'
+export type DetailKind =
+| 'bangDot'
+| 'dialHand'
+| 'gongDisc'
+| 'tentsSmall'
+| 'stepsMiddle'
+| 'gateCrown'
+| 'domesLower'
+| 'chevronsFirst'
+| 'stairsMiddle'
+| 'raysCardinal'
+| 'fieldRow'
+| 'dotsRow'
+| 'checkerOne'
+| 'checker3Centre'
+| 'gridMid'
+| 'noiseSecond'
+| 'flowerPetal'
+| 'burstSpark'
+| 'eyeIris'
+| 'sunDisc'
+| 'targetCore'
+| 'ringHalf'
+| 'zigzagFirst'
+| 'moonLeft'
+| 'pinwheelBlade'
+| 'butterflyWing'
+| 'bloomDisc'
+| 'barsMiddle'
+| 'slatsTop'
+| 'stripesFirst'
+| 'barcodeWidest'
+| 'stripedDiscMid'
+| 'framePanel'
+| 'frameDiamondInner'
+| 'roundedFrameInner'
+| 'squareBiteBite'
+| 'splitBand'
+| 'linksLoop'
+| 'spiralTail'
+| 'halfBarsBand'
+| 'bandsTop'
+| 'peaksRow'
 
+/**
+ * La part de chaque figure que l'accent colorie : le rond du gong, la ligne du
+ * bas du champ de points, la première flèche des chevrons, le carré du milieu
+ * de l'escalier. Une forme absente d'ici n'a rien à teinter — un carré, une
+ * arche, un coussin sont d'un seul tenant — et une figure teintée garde son
+ * quart de tour à zéro dans `LOOKS` : la part est dessinée à part, droite, donc
+ * la tourner avec la forme la ferait mentir.
+ */
 export const TINTED: Partial<Record<ShapeKind, DetailKind>> = {
   bang: 'bangDot',
   dial: 'dialHand',
+  // Les barreaux de niveau, la piste qui monte.
+  steps: 'stepsMiddle',
+  tents: 'tentsSmall',
+  gate: 'gateCrown',
+  domes: 'domesLower',
+  gong: 'gongDisc',
+  chevrons: 'chevronsFirst',
+  stairs: 'stairsMiddle',
+  rays: 'raysCardinal',
+  // Les parties jouées, ce qui s'aligne et se compte.
+  bars: 'barsMiddle',
+  slats: 'slatsTop',
+  stripes: 'stripesFirst',
+  barcode: 'barcodeWidest',
+  stripedDisc: 'stripedDiscMid',
+  halfBars: 'halfBarsBand',
+  bands: 'bandsTop',
+  peaks: 'peaksRow',
+  // Les mots trouvés, l'abondance.
+  dots: 'dotsRow',
+  checker: 'checkerOne',
+  flower: 'flowerPetal',
+  field: 'fieldRow',
+  grid: 'gridMid',
+  checker3: 'checker3Centre',
+  noise: 'noiseSecond',
+  // Le score, le coup marqué.
+  ring: 'ringHalf',
+  burst: 'burstSpark',
+  eye: 'eyeIris',
+  sun: 'sunDisc',
+  target: 'targetCore',
+  // La série, la chaîne.
+  zigzag: 'zigzagFirst',
+  twoMoons: 'moonLeft',
+  pinwheel: 'pinwheelBlade',
+  butterfly: 'butterflyWing',
+  bloom: 'bloomDisc',
+  // Les mots ajoutés, le dictionnaire qui se remplit.
+  frame: 'framePanel',
+  frameDiamond: 'frameDiamondInner',
+  roundedFrame: 'roundedFrameInner',
+  squareBite: 'squareBiteBite',
+  // Les trois exploits.
+  spiral: 'spiralTail',
+  split: 'splitBand',
+  links: 'linksLoop',
 }
 
 export const AVATARS: readonly AvatarDesign[] = LOOKS.map(([shape, turn, accent, motion], id) => ({

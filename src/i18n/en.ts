@@ -1144,6 +1144,14 @@ case 'dailyFirst':
 return 'first place of the day'
 case 'wordsReviewed':
 return `${at} ${plural(goal.at, 'moderation verdict', 'moderation verdicts')}`
+case 'weeklyAttempts':
+return `${at} ${plural(goal.at, 'attempt at the challenge of the moment', 'attempts at the challenge of the moment')}`
+case 'challengesFinished':
+return `${at} ${plural(goal.at, 'friend challenge finished', 'friend challenges finished')}`
+case 'shortStreak':
+return `${at} ${plural(goal.at, 'word under five letters in a row', 'words under five letters in a row')}`
+case 'noPassStreak':
+return `${at} ${plural(goal.at, 'word in a row without passing', 'words in a row without passing')}`
 case 'powersUsed':
 return `${at} different powers`
 case 'playedCategories':
@@ -1171,19 +1179,24 @@ return `a word in ${at} categories`
       'runs-400': { name: 'Tireless', desc: 'Play 400 games' },
       'words-2000': { name: 'Walking dictionary', desc: 'Find 2000 words' },
       'level-35': { name: 'Master of the minute', desc: 'Reach level 35' },
-      'runs-25': { name: 'A good habit', desc: 'Play 25 games' },
-      'words-250': { name: 'A wider vocabulary', desc: 'Find 250 words' },
-      'score-400': { name: 'A fine game', desc: 'Score 400 points in one game' },
+      // The tracks the grid does not count: the challenge of the moment,
+      // friend challenges, moderation, short words in a row and the run
+      // without a pass. Each has its tile, and its name here.
+      'weekly-5': { name: 'Steady', desc: 'Play the challenge of the moment five times' },
+      'weekly-30': { name: 'Pillar of the moment', desc: 'Play the challenge of the moment thirty times' },
+      'friends-5': { name: 'Among friends', desc: 'Finish five friend challenges' },
+      'friends-25': { name: 'Always game', desc: 'Finish twenty-five friend challenges' },
+      'moderation-10': { name: 'A good eye', desc: 'Give fifty moderation verdicts' },
+      'moderation-30': { name: 'Eagle eye', desc: 'Give one hundred and fifty moderation verdicts' },
+      'moderation-60': { name: 'The bench', desc: 'Give three hundred moderation verdicts' },
+      'short-streak-10': { name: 'Small words', desc: 'Land ten words under five letters in a row' },
+      'no-pass-50': { name: 'Marathon', desc: 'Find fifty words in a row without passing a prompt' },
       'reviews-10': { name: 'Fair judge', desc: 'Give ten moderation verdicts' },
       'word-long-10': { name: 'River word', desc: 'Find a ten-letter word' },
       'word-long-15': { name: 'Endless word', desc: 'Find a fifteen-letter word' },
       'speed-25': { name: 'Quick reflex', desc: 'Find a word at over 2.5 letters a second' },
       'speed-35': { name: 'Lightning reflex', desc: 'Find a word at over 3.5 letters a second' },
-      'clean-run': { name: 'Flawless', desc: 'Finish a game without skipping a prompt' },
       'clean-run-10': { name: 'Spotless', desc: 'Finish ten games without skipping a prompt' },
-      'duel-four': { name: 'Four at the table', desc: 'Sit down at a four-player table' },
-      'duel-round-20': { name: 'Marathon', desc: 'Hold twenty rounds at a four-player table' },
-      'day-first': { name: 'King of the day', desc: 'Lead the day’s leaderboard' },
       'powers-7': { name: 'Tinkerer', desc: 'Serve seven different powers' },
       'powers-all': { name: 'Every power', desc: 'Serve all fourteen powers' },
       'categories-12': { name: 'Globetrotter', desc: 'Find a word in twelve categories' },

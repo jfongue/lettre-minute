@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { colourWinner, designWinner, ownedColours, ownedDesigns, unseenDesigns } from '../domain/achievements'
+import {
+  colourWinner,
+  designWinner,
+  ownedColours,
+  ownedDesigns,
+  unseenColours,
+  unseenDesigns,
+} from '../domain/achievements'
 import { AVATARS, PALETTE, sameAvatar, type AvatarChoice } from '../domain/avatar'
 import type { Profile } from '../domain/progression'
-import { loadSeenDesigns, saveSeenDesigns } from '../state/storage'
+import { loadSeenColours, loadSeenDesigns, saveSeenColours, saveSeenDesigns } from '../state/storage'
 import { useT } from '../i18n'
 import { Avatar } from './Avatar'
 import { achievementText } from './achievementText'
@@ -32,16 +39,20 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
   const [draft, setDraft] = useState(() => (focus === null ? avatar : { ...avatar, design: focus }))
   const [layer, setLayer] = useState<Layer>('shape')
   const [hint, setHint] = useState<string | null>(null)
-  // Ce que l'éditeur a déjà montré : un gagné porte « nouveau » jusqu'à ce
-  // qu'on le touche, et sortir de la page range la liste — un badge vu, même
-  // sans être touché, ne revient pas à l'ouverture suivante.
+  // Ce que l'éditeur a déjà montré : un gagné porte un cadre rouge jusqu'à ce
+  // qu'on le touche, et sortir de la page range les deux listes — un cadre vu,
+  // même sans être touché, ne revient pas à l'ouverture suivante.
   const [seen, setSeen] = useState<readonly number[]>(loadSeenDesigns)
+  const [seenInks, setSeenInks] = useState<readonly string[]>(loadSeenColours)
   const [shaking, setShaking] = useState<number | null>(focus)
   const cell = useRef<HTMLButtonElement>(null)
 
   useEffect(
-    () => () => saveSeenDesigns(ownedDesigns(profile).map((design) => design.id)),
-    [profile],
+    () => () => {
+      saveSeenDesigns(ownedDesigns(profile, discoveries).map((design) => design.id))
+      saveSeenColours(ownedColours(profile, discoveries).map((colour) => colour.id))
+    },
+    [profile, discoveries],
   )
 
   useEffect(() => {
@@ -56,6 +67,7 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
   const tiles = new Set(ownedIds)
   const inks = new Set(ownedColours(profile, discoveries).map((colour) => colour.id))
   const news = unseenDesigns(profile, seen, discoveries)
+  const fresh = new Set(unseenColours(profile, seenInks, discoveries))
   // Sans accent, la troisième couche ne peint rien : l'offrir aurait l'air cassé.
   const layers = design.accent ? LAYERS : LAYERS.filter((id) => id !== 'accent')
   const activeLayer = layers.includes(layer) ? layer : 'shape'
@@ -100,10 +112,13 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
               <button
                 key={colour.id}
                 type="button"
-                className={`swatch${owned ? '' : ' swatch--locked'}${draft[activeLayer] === colour.id ? ' swatch--on' : ''}`}
+                className={`swatch${owned ? '' : ' swatch--locked'}${
+                  draft[activeLayer] === colour.id ? ' swatch--on' : ''
+                }${fresh.has(colour.id) ? ' swatch--new' : ''}`}
                 style={owned ? { background: colour.hex } : undefined}
                 aria-label={owned ? label : t.avatar.lockedColour(label)}
                 onClick={() => {
+                  if (fresh.has(colour.id)) setSeenInks((current) => [...current, colour.id])
                   if (owned) {
                     setDraft({ ...draft, [activeLayer]: colour.id })
                     setHint(how ? t.avatar.earnedHint(label, how) : null)
@@ -135,7 +150,7 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
               type="button"
               className={`avatar-cell${draft.design === entry.id ? ' avatar-cell--on' : ''}${
                 shaking === entry.id ? ' avatar-cell--shake' : ''
-              }`}
+              }${isNew ? ' avatar-cell--new' : ''}`}
               aria-label={owned ? name : t.avatar.lockedDesign(entry.id + 1)}
               onClick={() => {
                 if (isNew) setSeen((current) => [...current, entry.id])
@@ -148,7 +163,6 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
               }}
             >
               <Avatar choice={{ ...draft, design: entry.id }} size="fill" locked={!owned} />
-              {isNew ? <span className="avatar-new">{t.avatar.new}</span> : null}
             </button>
           )
         })}

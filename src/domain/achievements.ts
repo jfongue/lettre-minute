@@ -56,20 +56,22 @@ export type PlayAchievementId =
 
 /** Les succès du jeu seul qui racontent un exploit, jamais un barreau. */
 export type ExploitId =
-  | 'runs-25'
-  | 'words-250'
-  | 'score-400'
+  | 'weekly-5'
+  | 'weekly-30'
+  | 'friends-5'
+  | 'friends-25'
+  | 'moderation-10'
+  | 'moderation-30'
+  | 'moderation-60'
+  | 'short-streak-10'
+  | 'no-pass-50'
   | 'word-long-10'
   | 'word-long-15'
   | 'speed-25'
   | 'speed-35'
   | 'powers-7'
   | 'powers-all'
-  | 'clean-run'
   | 'clean-run-10'
-  | 'duel-four'
-  | 'duel-round-20'
-  | 'day-first'
   | 'categories-12'
   | 'reviews-10'
 
@@ -79,36 +81,30 @@ export type ExploitId =
  * l'avatar — la grille sait déjà nommer un jalon dans les sept langues.
  */
 export type LadderId =
-  | 'level-6'
-  | 'level-8'
-  | 'level-13'
-  | 'level-16'
-  | 'level-25'
-  | 'level-30'
+  | 'level-7'
+  | 'level-14'
+  | 'level-27'
+  | 'level-50'
   | 'runs-3'
-  | 'runs-5'
-  | 'runs-7'
-  | 'runs-50'
-  | 'runs-200'
-  | 'words-500'
-  | 'words-3500'
-  | 'words-5000'
-  | 'score-500'
-  | 'score-600'
-  | 'score-700'
-  | 'score-800'
+  | 'runs-30'
+  | 'runs-250'
+  | 'runs-1200'
+  | 'words-300'
+  | 'words-600'
+  | 'words-4000'
+  | 'words-8000'
+  | 'score-350'
+  | 'score-450'
+  | 'score-550'
+  | 'score-750'
   | 'score-900'
-  | 'combo-13'
-  | 'combo-16'
+  | 'combo-15'
   | 'combo-20'
-  | 'combo-28'
-  | 'added-1'
-  | 'added-15'
-  | 'added-50'
-  | 'added-100'
-  | 'added-300'
+  | 'combo-30'
+  | 'added-5'
+  | 'added-40'
+  | 'added-150'
   | 'added-500'
-  | 'added-1000'
 
 export type AchievementId = PlayAchievementId | ExploitId | LadderId
 
@@ -131,6 +127,10 @@ type CountedStat =
   | 'duelRounds4'
   | 'dailyFirst'
   | 'wordsReviewed'
+| 'weeklyAttempts'
+| 'challengesFinished'
+| 'shortStreak'
+| 'noPassStreak'
 /** Ceux qui se comptent par leur longueur, ou par le niveau, ou par le serveur. */
 type ListedStat = 'powersUsed' | 'playedCategories'
 export type Counter = CountedStat | ListedStat | 'level' | 'discoveries'
@@ -167,91 +167,106 @@ export interface Achievement {
 
 /**
  * La grille d'avatar, dans l'ordre de ses cases : `[tuile, statistique, seuil]`.
- * C'est ici, et nulle part ailleurs, que se lit le seuil d'une case ; l'ordre
- * des tuiles ne bouge pas, un joueur en porte une.
+ * Avec `EXPLOIT_TILES`, juste après, c'est ici que se lit le seuil d'une case ;
+ * l'ordre des tuiles ne bouge pas, un joueur en porte une.
  *
- * Un tour de rôle entre les cinq pistes, pour que la grille mêle les niveaux
- * aux exploits au lieu de cacher chaque exploit derrière le dernier niveau.
- * Chaque premier seuil est au-delà d'une première partie — une partie
- * n'approche 1 000 points que lorsqu'elle est énorme —, donc une tuile se
- * gagne, elle ne tombe pas avec le tutoriel.
+ * Un tour de rôle entre les six pistes, pour que la grille mêle les niveaux
+ * aux exploits au lieu de cacher chaque exploit derrière le dernier niveau :
+ * les seuils d'une piste montent avec les tuiles, et les quinze succès Play
+ * gardent la case qu'ils avaient.
  *
- * Les sept tuiles du dictionnaire viennent après le tour de rôle : une
- * sixième piste prendrait son tour chez les autres et pousserait d'une case
- * le seuil de toutes les tuiles déjà en place, ce qui redistribuerait les
- * déblocages de tout le monde.
+ * Les seuils se lisent dans ce que les joueurs font vraiment : à l'automne
+ * 2026, sur 349 profils et 888 parties, un joueur sur cinq dépassait dix
+ * parties, deux seulement les mille mots, et la meilleure partie de tous les
+ * temps valait 621 points. Six pistes montent donc bien plus haut qu'avant —
+ * la dernière case demande 1 200 parties, 8 000 mots ou le niveau 50 — et le
+ * score garde son plafond de 900, son 666 restant au succès Play qui le nomme.
  */
 const RUNGS: readonly [design: number, stat: Stat, at: number][] = [
   [5, 'level', 4],
   [6, 'runs', 3],
   [7, 'wordsFound', 100],
-  [8, 'bestScore', 400],
+  [8, 'level', 7],
   [9, 'bestCombo', 10],
-  [10, 'level', 6],
-  [11, 'runs', 5],
-  [12, 'wordsFound', 250],
-  [13, 'bestScore', 500],
-  [14, 'bestCombo', 13],
-  [15, 'level', 8],
-  [16, 'runs', 7],
-  [17, 'wordsFound', 500],
-  [18, 'bestScore', 600],
-  [19, 'bestCombo', 16],
+  [10, 'wordsAdded', 5],
+  [11, 'wordsFound', 300],
+  [13, 'bestCombo', 15],
+  [16, 'bestScore', 350],
+  [18, 'wordsFound', 600],
+  [19, 'bestScore', 450],
   [20, 'level', 10],
   [21, 'runs', 10],
   [22, 'wordsFound', 1000],
-  [23, 'bestScore', 700],
-  [24, 'bestCombo', 20],
-  [25, 'level', 13],
-  [26, 'runs', 25],
+  [23, 'bestCombo', 20],
+  [25, 'bestScore', 550],
   [27, 'wordsFound', 2000],
-  [28, 'bestScore', 800],
   [29, 'bestCombo', 24],
-  [30, 'level', 16],
-  [31, 'runs', 50],
-  [32, 'wordsFound', 3500],
-  [33, 'bestScore', 900],
-  [34, 'bestCombo', 28],
+  [30, 'level', 14],
+  [31, 'runs', 30],
+  [32, 'wordsFound', 4000],
+  [34, 'bestScore', 750],
   [35, 'level', 20],
   [36, 'runs', 100],
-  [37, 'wordsFound', 5000],
-  [38, 'level', 25],
-  [39, 'runs', 200],
-  [40, 'level', 30],
+  [37, 'runs', 250],
+  [38, 'level', 27],
+  [39, 'bestScore', 900],
+  [40, 'wordsFound', 8000],
   [41, 'runs', 400],
   [42, 'level', 35],
-  [43, 'wordsAdded', 1],
-  [44, 'wordsAdded', 15],
-  [45, 'wordsAdded', 50],
-  [46, 'wordsAdded', 100],
-  [47, 'wordsAdded', 300],
-  [48, 'wordsAdded', 500],
-  [49, 'wordsAdded', 1000],
+  [43, 'bestCombo', 30],
+  [44, 'wordsAdded', 10],
+  [45, 'wordsAdded', 40],
+  [46, 'wordsAdded', 150],
+  [47, 'wordsAdded', 500],
+  [48, 'level', 50],
+  [49, 'runs', 1200],
+]
+
+/**
+ * Les tuiles que la grille ouvre par un exploit, sans barreau : « Trois six »,
+ * « Juste arbitre », « Marathon », et les huit seuils des pistes que la grille
+ * ne compte pas — le défi du moment, les défis entre amis, la modération, les
+ * mots courts d'affilée et la suite sans passer. Leur jalon n'est pas une
+ * piste de `RUNGS`, raison pour laquelle il vit ici — mais chaque tuile a bien
+ * son seuil, et un seul.
+ */
+const EXPLOIT_TILES: readonly [design: number, stat: Counter, at: number][] = [
+  [12, 'wordsReviewed', 50],
+  [14, 'weeklyAttempts', 5],
+  [15, 'challengesFinished', 5],
+  [17, 'shortStreak', 10],
+  [24, 'weeklyAttempts', 30],
+  [26, 'challengesFinished', 25],
+  [28, 'wordsReviewed', 150],
+  [33, 'wordsReviewed', 300],
+  [50, 'bestScore', 666],
+  [51, 'wordsReviewed', 10],
+  [52, 'noPassStreak', 50],
 ]
 
 /**
  * Les douze couleurs que la palette pose sur le seuil d'un barreau : elles se
- * gagnent avec lui. Les quinze autres n'ont pas de barreau — elles s'attachent
- * à un exploit, et `fuchsia` est arrivée avec cette règle : la palette en
- * comptait trente, il en fallait seize pour les seize exploits.
+ * gagnent avec lui. Les treize autres n'ont pas de barreau — elles
+ * s'attachent à un exploit, et trois d'entre elles ont suivi les pistes
+ * neuves du défi du moment, des défis entre amis et de la modération.
  */
 const RUNG_COLOURS: readonly [colour: string, stat: Stat, at: number][] = [
   ['noir', 'runs', 3],
   ['creme', 'level', 4],
-  ['orange', 'level', 6],
-  ['brique', 'level', 8],
+  ['orange', 'level', 7],
+  ['brique', 'level', 14],
   ['ciel', 'bestCombo', 10],
   ['sauge', 'level', 10],
   ['rose', 'runs', 10],
-  ['marine', 'runs', 25],
-  ['corail', 'wordsFound', 250],
+  ['marine', 'runs', 30],
+  ['corail', 'wordsFound', 300],
   ['prune', 'bestCombo', 24],
-  ['sable', 'bestScore', 800],
-  ['anthracite', 'level', 30],
+  ['sable', 'bestScore', 900],
+  ['anthracite', 'level', 50],
 ]
 
 // Bounded by the grid: a goal no tile unlocks must fail loudly, not hang every
-// screen that loads this module (666 points did, before it took 900's tile).
+// screen that loads this module.
 const tileOf = (milestone: Milestone): number => {
   const rung = RUNGS.find(([, stat, at]) => stat === milestone.stat && at === milestone.at)
   if (!rung) throw new Error(`no avatar tile unlocks at ${milestone.stat} ${milestone.at}`)
@@ -283,18 +298,19 @@ const PLAY_ACHIEVEMENTS: readonly Achievement[] = [
   reaching('runs-10', { stat: 'runs', at: 10 }, 20),
   reaching('words-100', { stat: 'wordsFound', at: 100 }, 20),
   reaching('combo-10', { stat: 'bestCombo', at: 10 }, 30),
-  // `discoveries-15` et `added-10` prennent une tuile choisie à la main : le
-  // premier montre l'étoile du combo 20, qu'aucun autre succès ne montre, le
-  // second la tuile du premier mot ajouté, son jalon d'avatar étant à 15.
+  // `discoveries-15` prend une icône choisie à la main — l'étoile du combo 20,
+  // qu'aucun autre succès ne montre — et ne paie qu'une couleur. `added-10`
+  // ouvre le barreau des dix mots ajoutés, que son icône montre déjà.
   { id: 'discoveries-15', goal: { stat: 'discoveries', at: 15 }, design: 24, family: 'explore', play: 40, reward: { colour: 'lavande' } },
-  { id: 'added-10', goal: { stat: 'wordsAdded', at: 10 }, design: 44, family: 'explore', play: 50, reward: { colour: 'olive' } },
+  { id: 'added-10', goal: { stat: 'wordsAdded', at: 10 }, design: 44, family: 'explore', play: 50, reward: { design: 44, colour: 'olive' } },
   reaching('level-10', { stat: 'level', at: 10 }, 50),
   reaching('runs-100', { stat: 'runs', at: 100 }, 60),
   reaching('words-1000', { stat: 'wordsFound', at: 1000 }, 70),
   reaching('level-20', { stat: 'level', at: 20 }, 80),
   reaching('combo-24', { stat: 'bestCombo', at: 24 }, 90),
-  // No tile unlocks at 666: the icon Play already shows, 900's, stays.
-  { id: 'score-666', goal: { stat: 'bestScore', at: 666 }, design: 33, family: 'progress', play: 100, reward: { colour: 'moutarde' } },
+  // 666 ouvre sa propre tuile (50, le six) sans que son icône Play bouge : la
+  // Console montre déjà celle du barreau de 900, et ne se met jamais à jour.
+  { id: 'score-666', goal: { stat: 'bestScore', at: 666 }, design: 33, family: 'progress', play: 100, reward: { design: 50, colour: 'moutarde' } },
   reaching('runs-400', { stat: 'runs', at: 400 }, 110),
   reaching('words-2000', { stat: 'wordsFound', at: 2000 }, 120),
   reaching('level-35', { stat: 'level', at: 35 }, 145),
@@ -302,39 +318,41 @@ const PLAY_ACHIEVEMENTS: readonly Achievement[] = [
 
 /*
  * Les succès du jeu seul. Leurs seuils se lisent dans ce que les joueurs font
- * vraiment : à l'automne 2026, sur 301 profils, la moitié des parties passées
- * s'arrêtaient sous 95 points, la meilleure de tous les temps valait 621, le
- * plus long mot 18 lettres et la frappe la plus vive 4,17 lettres par seconde.
- * Les paliers « barre à remplir » et les trente barreaux comblent les trous de
- * l'échelle Play, les exploits se gagnent en une partie, et l'exploration
- * demande d'avoir touché à douze catégories.
+ * vraiment : à l'automne 2026, sur 349 profils et 888 parties, la moitié des
+ * parties passées s'arrêtaient sous 95 points, la meilleure de tous les temps
+ * valait 621, le plus long mot 25 lettres et la frappe la plus vive 4,17
+ * lettres par seconde. Les barreaux comblent les trous de l'échelle Play, les
+ * exploits se gagnent en une partie ou sur une piste que la grille ne compte
+ * pas, et l'exploration demande d'avoir touché à douze catégories.
  *
- * Un exploit ne se borne à aucune statistique d'avatar : il n'a pas de case à
- * lui, et sa récompense est la couleur qu'il porte.
+ * Dix exploits portent une tuile que `RUNGS` n'ouvre pas — les pistes du défi
+ * du moment, des défis entre amis, de la modération, des mots courts d'affilée
+ * et de la suite sans passer ; les huit autres n'ont pas de case à eux, et
+ * leur récompense est la couleur qu'ils portent.
  */
 const INGAME_ACHIEVEMENTS: readonly Achievement[] = [
-  reaching('runs-25', { stat: 'runs', at: 25 }),
-  reaching('words-250', { stat: 'wordsFound', at: 250 }),
-  reaching('score-400', { stat: 'bestScore', at: 400 }),
-  { id: 'word-long-10', goal: { stat: 'longestWord', at: 10 }, design: 14, family: 'exploit', reward: { colour: 'vert' } },
+  // Les pistes que la grille ne compte pas : chacune sur sa tuile, hors du tour
+  // de rôle de `RUNGS`, et son nom vient de l'i18n comme celui d'un exploit.
+  { id: 'weekly-5', goal: { stat: 'weeklyAttempts', at: 5 }, design: 14, family: 'exploit', reward: { design: 14 } },
+  { id: 'weekly-30', goal: { stat: 'weeklyAttempts', at: 30 }, design: 24, family: 'exploit', reward: { design: 24, colour: 'citron' } },
+  { id: 'friends-5', goal: { stat: 'challengesFinished', at: 5 }, design: 15, family: 'exploit', reward: { design: 15 } },
+  { id: 'friends-25', goal: { stat: 'challengesFinished', at: 25 }, design: 26, family: 'exploit', reward: { design: 26, colour: 'bordeaux' } },
+  { id: 'moderation-10', goal: { stat: 'wordsReviewed', at: 50 }, design: 12, family: 'exploit', reward: { design: 12 } },
+  { id: 'moderation-30', goal: { stat: 'wordsReviewed', at: 150 }, design: 28, family: 'exploit', reward: { design: 28 } },
+  { id: 'moderation-60', goal: { stat: 'wordsReviewed', at: 300 }, design: 33, family: 'exploit', reward: { design: 33, colour: 'gris' } },
+  { id: 'short-streak-10', goal: { stat: 'shortStreak', at: 10 }, design: 17, family: 'exploit', reward: { design: 17 } },
+  { id: 'no-pass-50', goal: { stat: 'noPassStreak', at: 50 }, design: 52, family: 'exploit', reward: { design: 52, colour: 'menthe' } },
+  { id: 'word-long-10', goal: { stat: 'longestWord', at: 10 }, design: 6, family: 'exploit', reward: { colour: 'vert' } },
   { id: 'word-long-15', goal: { stat: 'longestWord', at: 15 }, design: 45, family: 'exploit', reward: { colour: 'canard' } },
   { id: 'speed-25', goal: { stat: 'bestSpeed', at: 25 }, design: 19, family: 'exploit', reward: { colour: 'ocre' } },
   { id: 'speed-35', goal: { stat: 'bestSpeed', at: 35 }, design: 49, family: 'exploit', reward: { colour: 'saumon' } },
+  { id: 'clean-run-10', goal: { stat: 'cleanRuns', at: 10 }, design: 10, family: 'exploit', reward: { colour: 'emeraude' } },
   { id: 'powers-7', goal: { stat: 'powersUsed', at: 7 }, design: 40, family: 'explore', reward: { colour: 'violet' } },
   { id: 'powers-all', goal: { stat: 'powersUsed', at: 14 }, design: 47, family: 'explore', reward: { colour: 'fuchsia' } },
-  // 27 went to words-2000 when its goal came down to the 2000-word tile.
-  { id: 'clean-run', goal: { stat: 'cleanRuns', at: 1 }, design: 16, family: 'exploit', reward: { colour: 'menthe' } },
-  { id: 'clean-run-10', goal: { stat: 'cleanRuns', at: 10 }, design: 10, family: 'exploit', reward: { colour: 'emeraude' } },
-  // Aucune table de quatre n'a encore été jouée (`duel_seats` : trois places au
-  // plus) : le premier barreau est de s'y asseoir, le second d'y tenir vingt
-  // manches, ce qu'aucune table n'a jamais approché.
-  { id: 'duel-four', goal: { stat: 'duelRounds4', at: 1 }, design: 43, family: 'exploit', reward: { colour: 'bordeaux' } },
-  { id: 'duel-round-20', goal: { stat: 'duelRounds4', at: 20 }, design: 38, family: 'exploit', reward: { colour: 'gris' } },
-  { id: 'day-first', goal: { stat: 'dailyFirst', at: 1 }, design: 46, family: 'exploit', reward: { colour: 'citron' } },
   { id: 'categories-12', goal: { stat: 'playedCategories', at: 12 }, design: 23, family: 'explore', reward: { colour: 'turquoise' } },
   // La modération n'est pas une partie : le compte monte quand un verdict part
   // (`src/ui/ModerationScreen.tsx`), jamais à la fin d'un run.
-  { id: 'reviews-10', goal: { stat: 'wordsReviewed', at: 10 }, design: 31, family: 'progress', reward: { colour: 'outremer' } },
+  { id: 'reviews-10', goal: { stat: 'wordsReviewed', at: 10 }, design: 31, family: 'progress', reward: { design: 51, colour: 'outremer' } },
 ]
 
 /** Ceux dont l'i18n écrit le nom, dans l'ordre du catalogue. */
@@ -442,14 +460,22 @@ export function unseenDesigns(profile: Profile, seen: readonly number[], discove
     .filter((id) => !known.has(id))
 }
 
+/** Les couleurs gagnées que l'éditeur n'a pas encore montrées, comme les tuiles. */
+export function unseenColours(profile: Profile, seen: readonly string[], discoveries?: number): string[] {
+  const known = new Set(seen)
+  return ownedColours(profile, discoveries)
+    .map((colour) => colour.id)
+    .filter((id) => !known.has(id))
+}
+
 /** Le succès qui ouvre cette case de la grille, pour dire au joueur comment elle se gagne. */
 export function designWinner(design: number): Achievement | null {
   return ACHIEVEMENTS.find((achievement) => achievement.reward.design === design) ?? null
 }
 
 /** Le jalon d'une case de la grille : ce que son succès demande, et rien d'autre. */
-export function designGoal(design: number): Milestone | null {
-  const rung = RUNGS.find(([tile]) => tile === design)
+export function designGoal(design: number): Goal | null {
+  const rung = [...RUNGS, ...EXPLOIT_TILES].find(([tile]) => tile === design)
   return rung === undefined ? null : { stat: rung[1], at: rung[2] }
 }
 

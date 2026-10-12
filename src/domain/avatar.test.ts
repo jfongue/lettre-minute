@@ -7,6 +7,7 @@ import {
   newlyEarnedAchievements,
   ownedColours,
   ownedDesigns,
+  unseenColours,
   unseenDesigns,
 } from './achievements'
 import {
@@ -24,6 +25,7 @@ describe('avatars', () => {
   // How many turns a shape takes before it looks the same again.
   const ORIENTATIONS: Record<string, number> = {
     circle: 1, square: 1, ring: 1, diamond: 1, sun: 1, cross: 1, flower: 1, dots: 1, frame: 1, target: 1,
+  pinwheel: 1,
     bars: 2, checker: 2, hexagon: 2, lens: 2, pill: 2, hourglass: 2,
     // Deux quarts de tour rendent l'anneau brisé, l'éclipse et le point
     // d'exclamation à l'identique ; la fleur, elle, en demande cinq, et l'arche
@@ -57,17 +59,21 @@ describe('avatars', () => {
     expect(ownedDesigns(NEW_PROFILE).map((design) => design.id)).toContain(DEFAULT_AVATAR.design)
   })
 
-  it('badges a tile the editor has not shown, and forgets the ones it has', () => {
+it('frames the tiles and the colours the editor has not shown, and forgets the ones it has', () => {
   const owned = ownedDesigns(NEW_PROFILE).map((design) => design.id)
+  const inks = ownedColours(NEW_PROFILE).map((colour) => colour.id)
 
   expect(unseenDesigns(NEW_PROFILE, [])).toEqual(owned)
   expect(unseenDesigns(NEW_PROFILE, owned)).toEqual([])
   expect(unseenDesigns(NEW_PROFILE, owned.slice(0, 2))).toEqual(owned.slice(2))
+  expect(unseenColours(NEW_PROFILE, [])).toEqual(inks)
+  expect(unseenColours(NEW_PROFILE, inks)).toEqual([])
+  expect(unseenColours(NEW_PROFILE, inks.slice(0, 1))).toEqual(inks.slice(1))
 })
 
 it('earns nothing on a first run, even a very good one', () => {
     const words = Array.from({ length: 25 }, (_, index) => `mot${index}`)
-    const after = applyRun(NEW_PROFILE, { score: 380, words, bestCombo: 9 })
+    const after = applyRun(NEW_PROFILE, { score: 300, words, bestCombo: 9 })
 
     expect(newlyEarnedAchievements(NEW_PROFILE, after)).toEqual([])
   })
@@ -80,15 +86,15 @@ it('earns nothing on a first run, even a very good one', () => {
   })
 
   it('opens every tile to a long career, and the colours the rungs carry', () => {
-    const veteran = { ...NEW_PROFILE, xp: xpForLevel(35), runs: 500, bestScore: 1000, wordsFound: 5000, bestCombo: 30, wordsAdded: 1000 }
+    const veteran = { ...NEW_PROFILE, xp: xpForLevel(50), runs: 1200, bestScore: 900, wordsFound: 8000, bestCombo: 30, wordsAdded: 500, wordsReviewed: 300, weeklyAttempts: 30, challengesFinished: 25, shortStreak: 10, noPassStreak: 50 }
     const rungInks = ACHIEVEMENTS.filter(
       (achievement) => achievement.reward.design !== undefined && achievement.reward.colour !== undefined,
     )
 
     expect(ownedDesigns(veteran)).toHaveLength(AVATARS.length)
-    // Douze couleurs sont posées sur un barreau de la grille ; les seize autres
-    // tiennent à un exploit, qui a ses propres compteurs.
-    expect(rungInks).toHaveLength(12)
+    // Dix-neuf succès donnent les deux : les douze couleurs de barreau, et les
+    // sept exploits à qui la grille laisse une case.
+    expect(rungInks).toHaveLength(19)
     for (const rung of rungInks) {
       expect(ownedColours(veteran).map((colour) => colour.id)).toContain(rung.reward.colour)
     }
@@ -98,18 +104,23 @@ it('earns nothing on a first run, even a very good one', () => {
     expect(ownedDesigns(NEW_PROFILE)).toHaveLength(5)
   })
 
-  // Les sept tuiles des mots ajoutés : la première dès le premier mot accepté
-  // — nul n'en a un avant que les modérateurs aient voté —, la dernière à mille.
+  // Les cinq tuiles des mots ajoutés : la première dès cinq mots acceptés —
+  // nul n'en a un avant que les modérateurs aient voté —, la dernière à cinq cents.
   it('pays a tile at each word the player got into the dictionary', () => {
     const withWords = (wordsAdded: number) => ownedDesigns({ ...NEW_PROFILE, wordsAdded })
 
     expect(withWords(0)).toHaveLength(5)
-    expect(withWords(1)).toHaveLength(6)
-    expect(withWords(14)).toHaveLength(6)
-    expect(withWords(15)).toHaveLength(7)
-    expect(withWords(999)).toHaveLength(11)
-    expect(withWords(1000)).toHaveLength(12)
-    expect(withWords(100000)).toHaveLength(12)
+    expect(withWords(4)).toHaveLength(5)
+    expect(withWords(5)).toHaveLength(6)
+    expect(withWords(9)).toHaveLength(6)
+    expect(withWords(10)).toHaveLength(7)
+    expect(withWords(39)).toHaveLength(7)
+    expect(withWords(40)).toHaveLength(8)
+    expect(withWords(149)).toHaveLength(8)
+    expect(withWords(150)).toHaveLength(9)
+    expect(withWords(499)).toHaveLength(9)
+    expect(withWords(500)).toHaveLength(10)
+    expect(withWords(100000)).toHaveLength(10)
   })
 
   it('keeps every tile past the free ones on a goal of its own', () => {
@@ -154,6 +165,27 @@ describe('parseAvatar', () => {
       ...DEFAULT_AVATAR,
       shape: 'noir',
     })
+  })
+})
+
+// Chaque figure a son mouvement, et un nom de classe sans images clés laisse
+// une tuile immobile sans le dire : les deux bouts sont noués ici, comme pour
+// les encres de la palette, parce que le domaine ne lit pas de feuille de
+// style. « still » n'en a pas, c'est justement celui qui ne bouge pas.
+describe('motions', () => {
+  it('gives every motion its class and its keyframes', () => {
+    const sheet = readFileSync(join(import.meta.dirname, '..', 'styles.css'), 'utf8')
+    const motions = new Set(AVATARS.map((design) => design.motion))
+    motions.delete('still')
+
+    expect(motions.size).toBeGreaterThan(30)
+    for (const motion of motions) {
+      const rule = sheet.match(new RegExp(`\\.motion-${motion} \\{([^}]*)\\}`))?.[1]
+      expect(rule, `.motion-${motion}`).toBeDefined()
+      const name = rule?.match(/animation:\s*([\w-]+)/)?.[1]
+      expect(name, motion).toBeTruthy()
+      expect(sheet, name).toContain(`@keyframes ${name} {`)
+    }
   })
 })
 

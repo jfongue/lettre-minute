@@ -569,6 +569,164 @@ button.challenge-past::after {
   animation-delay: calc(var(--i, 0) * -0.55s);
 }
 
+/* Un mouvement par figure : la marche monte, la porte bat sur ses gonds, le
+   gong sonne, l'aiguille du cadran avance d'un cran. Tous ne touchent que
+   `transform` — et l'opacité de `twinkle` — sur le seul élément de la tuile :
+   la grille en montre cinquante d'un coup, elles doivent rester au compositeur
+   et jamais au layout. Le délai négatif les désynchronise, chacune au pas de
+   son propre mouvement ; les durées longues portent les figures calmes, les
+   courtes les nerveuses, et aucune ne fait le tour de la figure si un quart de
+   tour la change. */
+.motion-march {
+  animation: march 7.4s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.45s);
+}
+
+.motion-slide {
+  animation: slide 5.5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.6s);
+}
+
+.motion-count {
+  animation: count 4.4s var(--ease-out) infinite;
+  animation-delay: calc(var(--i, 0) * -0.35s);
+}
+
+.motion-roll {
+  animation: roll 12s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.9s);
+}
+
+.motion-tilt {
+  animation: tilt 5.6s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+  transform-origin: 50% 92%;
+}
+
+.motion-ripple {
+  animation: ripple 5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.55s);
+}
+
+.motion-hinge {
+  animation: hinge 6.6s var(--ease-snap) infinite;
+  animation-delay: calc(var(--i, 0) * -0.7s);
+  transform-origin: 8% 96%;
+}
+
+.motion-drift {
+  animation: drift 8s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.75s);
+}
+
+.motion-open {
+  animation: open 5.2s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.4s);
+}
+
+.motion-coin {
+  animation: coin 6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.65s);
+}
+
+.motion-blink {
+  animation: blink 5.5s linear infinite;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+}
+
+.motion-lock {
+  animation: lock 5s var(--ease-out) infinite;
+  animation-delay: calc(var(--i, 0) * -0.3s);
+}
+
+.motion-wane {
+  animation: wane 5.6s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.65s);
+}
+
+.motion-flutter {
+  animation: flutter 1.5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.2s);
+}
+
+.motion-swirl {
+  animation: swirl 7s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.85s);
+}
+
+.motion-chime {
+  animation: chime 9s var(--ease-out) infinite;
+  animation-delay: calc(var(--i, 0) * -0.4s);
+}
+
+.motion-scan {
+  animation: scan 6s var(--ease-snap) infinite;
+  animation-delay: calc(var(--i, 0) * -0.6s);
+}
+
+.motion-press {
+  animation: press 4.6s var(--ease-spring) infinite;
+  animation-delay: calc(var(--i, 0) * -0.45s);
+}
+
+.motion-dart {
+  animation: dart 5s var(--ease-snap) infinite;
+  animation-delay: calc(var(--i, 0) * -0.55s);
+}
+
+.motion-shiver {
+  animation: shiver 2.6s linear infinite;
+  animation-delay: calc(var(--i, 0) * -0.3s);
+}
+
+.motion-climb {
+  animation: climb 8s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+}
+
+.motion-seesaw {
+  animation: seesaw 5.4s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.8s);
+  transform-origin: 50% 95%;
+}
+
+.motion-flare {
+  animation: flare 6s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.35s);
+}
+
+.motion-hop {
+  animation: hop 4.2s var(--ease-snap) infinite;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+}
+
+.motion-twinkle {
+  animation: twinkle 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.25s);
+}
+
+/* L'aiguille avance par crans, sur huit : un tour en seize secondes, et la
+   boucle repart exactement où elle s'est arrêtée. */
+.motion-tick {
+  animation: dial-tick 16s steps(8) infinite;
+  animation-delay: calc(var(--i, 0) * -2s);
+}
+
+.motion-coil {
+  animation: coil 10s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.7s);
+}
+
+.motion-flip {
+  animation: flip 5.2s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.6s);
+}
+
+.motion-squish {
+  animation: squish 4s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i, 0) * -0.45s);
+}
+
 /* ---------------------------------------------------------------- blocks - */
 .panel {
   display: grid;
@@ -3085,6 +3243,367 @@ animation: clock-bonus 500ms var(--ease-out);
   }
 }
 
+/* Les mouvements propres aux figures de la nouvelle grille. Ceux qui montent
+   (march, climb) gardent une pause à chaque palier : l'escalier se lit marche
+   par marche au lieu de glisser. */
+@keyframes march {
+  0%,
+  100% {
+    transform: none;
+  }
+  18%,
+  26% {
+    transform: translateY(-6%);
+  }
+  42%,
+  50% {
+    transform: translateY(-12%);
+  }
+  66%,
+  80% {
+    transform: translateY(-18%);
+  }
+  92% {
+    transform: none;
+  }
+}
+
+@keyframes climb {
+  0%,
+  100% {
+    transform: none;
+  }
+  20%,
+  28% {
+    transform: translate(4%, -4%);
+  }
+  44%,
+  52% {
+    transform: translate(8%, -8%);
+  }
+  68%,
+  78% {
+    transform: translate(12%, -12%);
+  }
+  92% {
+    transform: none;
+  }
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(-5%);
+  }
+  to {
+    transform: translateX(5%);
+  }
+}
+
+/* Trois coups comptés, puis la tuile se tait jusqu'au prochain tour. */
+@keyframes count {
+  0%,
+  30%,
+  100% {
+    transform: scale(1);
+  }
+  8% {
+    transform: scale(1.09);
+  }
+  16% {
+    transform: scale(1.05);
+  }
+  24% {
+    transform: scale(1.07);
+  }
+}
+
+/* Une roue qui roule : le quart de tour s'accompagne d'un léger balancement
+   dans l'axe tourné, ce qui la fait tanguer plutôt que pivoter net. */
+@keyframes roll {
+  0% {
+    transform: rotate(0) translateY(0);
+  }
+  25% {
+    transform: rotate(90deg) translateY(-3%);
+  }
+  50% {
+    transform: rotate(180deg) translateY(0);
+  }
+  75% {
+    transform: rotate(270deg) translateY(3%);
+  }
+  100% {
+    transform: rotate(360deg) translateY(0);
+  }
+}
+
+@keyframes tilt {
+  from {
+    transform: rotate(-5deg);
+  }
+  to {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes ripple {
+  from {
+    transform: translateY(-2.5%) skewY(2.5deg);
+  }
+  to {
+    transform: translateY(2.5%) skewY(-2.5deg);
+  }
+}
+
+/* La porte s'ouvre, revient en butée, se referme. */
+@keyframes hinge {
+  0%,
+  12%,
+  100% {
+    transform: rotate(0);
+  }
+  45% {
+    transform: rotate(-10deg);
+  }
+  65% {
+    transform: rotate(3deg);
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-3.5%);
+  }
+  to {
+    transform: translateX(3.5%);
+  }
+}
+
+@keyframes open {
+  from {
+    transform: scale(0.9) rotate(-4deg);
+  }
+  to {
+    transform: scale(1.07) rotate(4deg);
+  }
+}
+
+/* Le disque se pose : trois oscillations qui s'éteignent. */
+@keyframes coin {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  18% {
+    transform: rotate(13deg);
+  }
+  36% {
+    transform: rotate(-9deg);
+  }
+  54% {
+    transform: rotate(5deg);
+  }
+  70% {
+    transform: rotate(-2deg);
+  }
+}
+
+@keyframes lock {
+  0% {
+    transform: scale(1.16);
+  }
+  14%,
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes wane {
+  from {
+    transform: scaleX(0.88);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes flutter {
+  from {
+    transform: skewX(-7deg) rotate(-5deg) translateY(-3%);
+  }
+  to {
+    transform: skewX(7deg) rotate(5deg) translateY(3%);
+  }
+}
+
+@keyframes swirl {
+  from {
+    transform: rotate(-16deg) scale(0.94);
+  }
+  to {
+    transform: rotate(16deg) scale(1.06);
+  }
+}
+
+/* Le gong sonne une fois, vibre, puis se tait longtemps. */
+@keyframes chime {
+  0%,
+  8%,
+  100% {
+    transform: rotate(0);
+  }
+  14% {
+    transform: rotate(9deg);
+  }
+  22% {
+    transform: rotate(-6deg);
+  }
+  30% {
+    transform: rotate(4deg);
+  }
+  38% {
+    transform: rotate(-2deg);
+  }
+  46% {
+    transform: rotate(1deg);
+  }
+}
+
+@keyframes scan {
+  0%,
+  100% {
+    transform: translateX(-6%);
+  }
+  45%,
+  55% {
+    transform: translateX(6%);
+  }
+}
+
+@keyframes press {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  40% {
+    transform: scale(1.05, 0.9);
+  }
+}
+
+@keyframes dart {
+  0%,
+  100% {
+    transform: none;
+  }
+  30%,
+  42% {
+    transform: translateX(8%);
+  }
+}
+
+/* Un frisson bref, jamais deux fois au même endroit. */
+@keyframes shiver {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  12% {
+    transform: translateX(-1.5%);
+  }
+  26% {
+    transform: translateX(1.2%);
+  }
+  38% {
+    transform: translateX(-0.8%);
+  }
+  54% {
+    transform: translateX(1.6%);
+  }
+  70% {
+    transform: translateX(-1.1%);
+  }
+  86% {
+    transform: translateX(0.7%);
+  }
+}
+
+@keyframes seesaw {
+  from {
+    transform: rotate(-6deg);
+  }
+  to {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes flare {
+  from {
+    transform: scale(0.94) rotate(-7deg);
+  }
+  to {
+    transform: scale(1.08) rotate(7deg);
+  }
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  26% {
+    transform: translateY(-11%) scale(0.97, 1.04);
+  }
+  52% {
+    transform: translateY(0) scale(1.06, 0.94);
+  }
+  70% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+
+/* La spirale s'enroule, tient, se déroule. */
+@keyframes coil {
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+  45%,
+  60% {
+    transform: rotate(180deg) scale(0.92);
+  }
+}
+
+/* Le carré montre sa face, puis l'autre, avec une tenue à chaque bout. */
+@keyframes flip {
+  0%,
+  30% {
+    transform: scaleX(1);
+  }
+  45%,
+  80% {
+    transform: scaleX(-1);
+  }
+  95%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes squish {
+  from {
+    transform: scale(1.05, 0.94);
+  }
+  to {
+    transform: scale(0.96, 1.05);
+  }
+}
+
+@keyframes dial-tick {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes nudge {
   0%,
   70%,
@@ -3218,6 +3737,15 @@ animation: clock-bonus 500ms var(--ease-out);
   position: relative;
 }
 
+/* Le gagné que l'éditeur n'a pas encore montré : un cadre rouge à l'intérieur,
+ * pour que le dessin de la tuile comme la pastille de couleur restent entiers.
+ * Il cède devant la tuile portée et le focus, qui en disent plus. */
+.avatar-cell--new,
+.swatch--new {
+  outline: 2px solid var(--red);
+  outline-offset: -2px;
+}
+
 .avatar-cell--on {
   z-index: 1;
   outline: 3px solid var(--ink);
@@ -3252,18 +3780,6 @@ animation: clock-bonus 500ms var(--ease-out);
   80% {
     transform: rotate(2deg);
   }
-}
-
-/* Le gagné que l'éditeur n'a pas encore montré : le coin s'éteint au toucher. */
-.avatar-new {
-  position: absolute;
-  top: 0.1rem;
-  right: 0.1rem;
-  padding: 0 0.2rem;
-  font-size: 0.5rem;
-  font-weight: 700;
-  color: var(--paper);
-  background: var(--red);
 }
 
 .avatar-hint {

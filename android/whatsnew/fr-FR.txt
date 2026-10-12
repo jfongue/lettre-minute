@@ -1,6 +1,5 @@
-• Les succès ouvrent les formes et les couleurs de l’avatar : le bilan les liste un par un
-• La fin de partie s’allège, et la langue se choisit en la lisant
-• Les classements tiennent sur un seul interrupteur Solo / Défi
-• Le chrono d’endurance dit la vérité : sa leçon compte ses trente secondes et les rend au mot trouvé, et la partie tient au-dessus du clavier
-• Le gagnant du défi du moment voit tout ce que son prix donne
+• Les avatars sont redessinés : cinquante-trois figures, chacune animée
+• Les succès s’étalent : deux ne tombent plus ensemble au début, et les niveaux, les parties, les mots trouvés et les mots ajoutés montent bien plus haut
+• Cinq pistes arrivent — défi du moment, défis entre amis, modération, mots courts d’affilée, mots sans passer — chacune avec ses avatars
+• Une forme ou une couleur gagnée s’encadre de rouge dans l’éditeur jusqu’à ce que tu en sortes
 • Corrections de bugs et performance

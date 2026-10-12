@@ -54,6 +54,12 @@ describe('achievements', () => {
     }
   })
 
+  it('opens each exploit tile on the exploit that earned them', () => {
+    expect(designWinner(50)?.id).toBe('score-666')
+    expect(designWinner(51)?.id).toBe('reviews-10')
+    expect(designWinner(52)?.id).toBe('no-pass-50')
+  })
+
   it('gives every colour the milestone of the success that carries it', () => {
     for (const achievement of ACHIEVEMENTS) {
       if (achievement.reward.colour === undefined) continue
@@ -66,7 +72,7 @@ describe('achievements', () => {
   it('names only the successes the i18n carries, the others take their milestone', () => {
     const named = ACHIEVEMENTS.filter((achievement) => isNamed(achievement.id))
 
-    expect(named).toHaveLength(31)
+    expect(named).toHaveLength(33)
     for (const achievement of PLAY_ACHIEVEMENTS_ONLY) expect(isNamed(achievement.id)).toBe(true)
     for (const achievement of ACHIEVEMENTS) {
       if (isNamed(achievement.id)) continue
@@ -107,72 +113,77 @@ describe('achievements', () => {
     const profile = { ...NEW_PROFILE, xp: xpForLevel(10), runs: 12, bestScore: 520, wordsAdded: 10 }
 
     expect(earnedAchievements(profile).sort()).toEqual([
-      'added-1',
       'added-10',
+      'added-5',
       'level-10',
       'level-4',
-      'level-6',
-      'level-8',
+      'level-7',
       'runs-10',
       'runs-3',
-      'runs-5',
-      'runs-7',
-      'score-400',
-      'score-500',
+      'score-350',
+      'score-450',
     ])
     expect(earnedAchievements(profile, 14)).not.toContain('discoveries-15')
     expect(earnedAchievements(profile, 15)).toContain('discoveries-15')
   })
 
   it('earns the game-only ones on the run that bears them', () => {
-    const before = { ...NEW_PROFILE, runs: 24, wordsFound: 249, bestScore: 399 }
+    const before = { ...NEW_PROFILE, runs: 9, wordsFound: 599, bestScore: 449, longestWord: 9, bestCombo: 29, wordsAdded: 4, cleanRuns: 9 }
     const after = {
       ...before,
-      runs: 25,
-      wordsFound: 257,
-      bestScore: 404,
+      runs: 10,
+      wordsFound: 600,
+      bestScore: 450,
+      bestCombo: 30,
+      wordsAdded: 5,
       longestWord: 11,
-      powersUsed: ['joker', 'hush'],
-      cleanRuns: 1,
+      cleanRuns: 10,
+      powersUsed: ['joker', 'hush', 'magic', 'swap', 'peek', 'shuffle', 'double'],
     }
-    expect(newlyEarnedAchievements(before, after).map((achievement) => achievement.id)).toEqual([
-      'runs-25',
-      'words-250',
-      'score-400',
-      'word-long-10',
-      'clean-run',
-    ])
-    expect(earnedAchievements({ ...after, duelRounds4: 20, dailyFirst: 1, longestWord: 15, bestSpeed: 40 })).toContain(
-      'duel-round-20',
-    )
-    expect(earnedAchievements({ ...after, powersUsed: [] })).not.toContain('powers-all')
+    expect(
+      newlyEarnedAchievements(before, after)
+        .map((achievement) => achievement.id)
+        .sort(),
+    ).toEqual(['added-5', 'clean-run-10', 'combo-30', 'powers-7', 'runs-10', 'score-450', 'word-long-10', 'words-600'])
+    expect(
+      newlyEarnedAchievements(before, { ...after, shortStreak: 10 }).map((achievement) => achievement.id),
+    ).toContain('short-streak-10')
+    expect(earnedAchievements(after)).not.toContain('powers-all')
   })
 
   it('fills a bar up to the goal and no further', () => {
     const half = achievementProgress({ ...NEW_PROFILE, wordsFound: 125 })
-    const words = half.find((entry) => entry.achievement.id === 'words-250')!
+    const words = half.find((entry) => entry.achievement.id === 'words-600')!
     expect(words.value).toBe(125)
-    expect(words.ratio).toBeCloseTo(0.5)
-    const full = achievementProgress({ ...NEW_PROFILE, wordsFound: 9_999 }).find((entry) => entry.achievement.id === 'words-250')!
+    expect(words.ratio).toBeCloseTo(125 / 600)
+    const full = achievementProgress({ ...NEW_PROFILE, wordsFound: 9_999 }).find((entry) => entry.achievement.id === 'words-600')!
     expect(full.ratio).toBe(1)
   })
 
   it('owns the whole grid, and the colours the rungs carry, once a career reaches every rung', () => {
     const veteran = {
       ...NEW_PROFILE,
-      xp: xpForLevel(40),
-      runs: 500,
-      bestScore: 1000,
-      wordsFound: 5000,
+      xp: xpForLevel(50),
+      runs: 1200,
+      bestScore: 900,
+      wordsFound: 8000,
       bestCombo: 30,
-      wordsAdded: 1100,
+      wordsAdded: 500,
+      wordsReviewed: 300,
+      weeklyAttempts: 30,
+      challengesFinished: 25,
+      shortStreak: 10,
+      noPassStreak: 50,
     }
     const rungInks = ACHIEVEMENTS.filter(
       (achievement) => achievement.reward.design !== undefined && achievement.reward.colour !== undefined,
     )
 
     expect(ownedDesigns(veteran)).toHaveLength(AVATARS.length)
-    expect(rungInks).toHaveLength(12)
+    // Dix-neuf succès donnent les deux : les douze couleurs de barreau, et les
+    // sept exploits à qui la grille laisse une case — les pistes neuves, la
+    // modération, les six cents et le 666.
+    expect(rungInks).toHaveLength(19)
     for (const rung of rungInks) {
       expect(ownedColours(veteran).map((colour) => colour.id)).toContain(rung.reward.colour)
     }

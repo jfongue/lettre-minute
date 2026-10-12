@@ -3,7 +3,7 @@ import { availableCategoryIds } from '../data/packs'
 import { sharedCategoryIds } from '../domain/catalogue'
 import { modeEdge, type ArcadeMode, type GameMode } from '../domain/modes'
 import { countPlusAttempt, isPlus, weeklyWinPrizeDue } from '../domain/perks'
-import type { Profile } from '../domain/progression'
+import { recordWeeklyAttempt, type Profile } from '../domain/progression'
 import {
   WEEKLY_FREE_ATTEMPTS,
   attemptsAllowed,
@@ -155,13 +155,10 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
       return
     }
     attempt.current = { attemptId: started.attemptId, weekId: challenge.weekId, lang, plus, window }
-    // Une tentative de Premium au-delà des gratuites, et la troisième sans la pub qu'un autre aurait regardée.
-    if (plus && started.n > WEEKLY_FREE_ATTEMPTS) {
-      dispatch({
-        type: 'profile-loaded',
-        profile: countPlusAttempt(profile.current, started.n),
-      })
-    }
+    // Chaque tentative lancée compte pour la grille d'avatar, celle du
+    // Premium comme la gratuite ; une troisième sans la pub en est une de plus.
+    const counted = plus && started.n > WEEKLY_FREE_ATTEMPTS ? countPlusAttempt(profile.current, started.n) : profile.current
+    dispatch({ type: 'profile-loaded', profile: recordWeeklyAttempt(counted) })
     const options = weeklyRunOptions(challenge)
     dispatch({ type: 'play' })
     setView(null)
