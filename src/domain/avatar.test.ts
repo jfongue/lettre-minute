@@ -24,6 +24,7 @@ describe('avatars', () => {
   // How many turns a shape takes before it looks the same again.
   const ORIENTATIONS: Record<string, number> = {
     circle: 1, square: 1, ring: 1, diamond: 1, sun: 1, cross: 1, flower: 1, dots: 1, frame: 1, target: 1,
+  pinwheel: 1,
     bars: 2, checker: 2, hexagon: 2, lens: 2, pill: 2, hourglass: 2,
     // Deux quarts de tour rendent l'anneau brisé, l'éclipse et le point
     // d'exclamation à l'identique ; la fleur, elle, en demande cinq, et l'arche
@@ -154,6 +155,27 @@ describe('parseAvatar', () => {
       ...DEFAULT_AVATAR,
       shape: 'noir',
     })
+  })
+})
+
+// Chaque figure a son mouvement, et un nom de classe sans images clés laisse
+// une tuile immobile sans le dire : les deux bouts sont noués ici, comme pour
+// les encres de la palette, parce que le domaine ne lit pas de feuille de
+// style. « still » n'en a pas, c'est justement celui qui ne bouge pas.
+describe('motions', () => {
+  it('gives every motion its class and its keyframes', () => {
+    const sheet = readFileSync(join(import.meta.dirname, '..', 'styles.css'), 'utf8')
+    const motions = new Set(AVATARS.map((design) => design.motion))
+    motions.delete('still')
+
+    expect(motions.size).toBeGreaterThan(30)
+    for (const motion of motions) {
+      const rule = sheet.match(new RegExp(`\\.motion-${motion} \\{([^}]*)\\}`))?.[1]
+      expect(rule, `.motion-${motion}`).toBeDefined()
+      const name = rule?.match(/animation:\s*([\w-]+)/)?.[1]
+      expect(name, motion).toBeTruthy()
+      expect(sheet, name).toContain(`@keyframes ${name} {`)
+    }
   })
 })
 
