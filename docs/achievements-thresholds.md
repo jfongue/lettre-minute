@@ -290,3 +290,19 @@ ne donne à personne.
 - Les tests : l'invariant « une tuile, un seul jalon » tient ; l'inventaire des
   quinze Play ne bouge pas ; `ownedDesigns(vétéran)` et les seuils des tests
   d'exploits se réécrivent.
+
+## Livré en 1.7.16 (versionCode 40)
+
+Livré comme ci-dessus, sauf deux points :
+
+- La modération se compte en **verdicts**, sur le compteur qui existe depuis
+  toujours (`wordsReviewed`), pas en séances : 50, 150 et 300 verdicts — une
+  séance en vaut cinq à dix. Rien à recopier pour elle, donc, et le seuil se
+  cale sur les 300 verdicts du plus actif.
+- Les **recopies depuis le serveur n'ont pas été écrites** : `weekly_attempts`
+  et `challenge_players` n'ont pas de requête qui les rende au client, et en
+  ajouter une demandait une migration. `weeklyAttempts` et
+  `challengesFinished` partent donc de zéro pour tout le monde : six profils
+  avaient déjà joué cinq défis entre amis, et les tentatives du défi du moment
+  ne datent que de la 1.7.14. Les deux séries, elles, ne se recopient pas par
+  construction.
