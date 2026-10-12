@@ -456,6 +456,14 @@ export function unseenDesigns(profile: Profile, seen: readonly number[], discove
     .filter((id) => !known.has(id))
 }
 
+/** Les couleurs gagnées que l'éditeur n'a pas encore montrées, comme les tuiles. */
+export function unseenColours(profile: Profile, seen: readonly string[], discoveries?: number): string[] {
+  const known = new Set(seen)
+  return ownedColours(profile, discoveries)
+    .map((colour) => colour.id)
+    .filter((id) => !known.has(id))
+}
+
 /** Le succès qui ouvre cette case de la grille, pour dire au joueur comment elle se gagne. */
 export function designWinner(design: number): Achievement | null {
   return ACHIEVEMENTS.find((achievement) => achievement.reward.design === design) ?? null

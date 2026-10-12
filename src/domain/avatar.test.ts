@@ -7,6 +7,7 @@ import {
   newlyEarnedAchievements,
   ownedColours,
   ownedDesigns,
+  unseenColours,
   unseenDesigns,
 } from './achievements'
 import {
@@ -58,12 +59,16 @@ describe('avatars', () => {
     expect(ownedDesigns(NEW_PROFILE).map((design) => design.id)).toContain(DEFAULT_AVATAR.design)
   })
 
-  it('badges a tile the editor has not shown, and forgets the ones it has', () => {
+it('frames the tiles and the colours the editor has not shown, and forgets the ones it has', () => {
   const owned = ownedDesigns(NEW_PROFILE).map((design) => design.id)
+  const inks = ownedColours(NEW_PROFILE).map((colour) => colour.id)
 
   expect(unseenDesigns(NEW_PROFILE, [])).toEqual(owned)
   expect(unseenDesigns(NEW_PROFILE, owned)).toEqual([])
   expect(unseenDesigns(NEW_PROFILE, owned.slice(0, 2))).toEqual(owned.slice(2))
+  expect(unseenColours(NEW_PROFILE, [])).toEqual(inks)
+  expect(unseenColours(NEW_PROFILE, inks)).toEqual([])
+  expect(unseenColours(NEW_PROFILE, inks.slice(0, 1))).toEqual(inks.slice(1))
 })
 
 it('earns nothing on a first run, even a very good one', () => {

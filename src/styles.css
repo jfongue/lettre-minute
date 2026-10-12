@@ -3737,6 +3737,15 @@ animation: clock-bonus 500ms var(--ease-out);
   position: relative;
 }
 
+/* Le gagné que l'éditeur n'a pas encore montré : un cadre rouge à l'intérieur,
+ * pour que le dessin de la tuile comme la pastille de couleur restent entiers.
+ * Il cède devant la tuile portée et le focus, qui en disent plus. */
+.avatar-cell--new,
+.swatch--new {
+  outline: 2px solid var(--red);
+  outline-offset: -2px;
+}
+
 .avatar-cell--on {
   z-index: 1;
   outline: 3px solid var(--ink);
@@ -3771,18 +3780,6 @@ animation: clock-bonus 500ms var(--ease-out);
   80% {
     transform: rotate(2deg);
   }
-}
-
-/* Le gagné que l'éditeur n'a pas encore montré : le coin s'éteint au toucher. */
-.avatar-new {
-  position: absolute;
-  top: 0.1rem;
-  right: 0.1rem;
-  padding: 0 0.2rem;
-  font-size: 0.5rem;
-  font-weight: 700;
-  color: var(--paper);
-  background: var(--red);
 }
 
 .avatar-hint {
