@@ -1,5 +1,5 @@
-• Les succès se débloquent plus progressivement : deux succès ne tombent plus en même temps au début, et les niveaux, les parties jouées, les mots trouvés et les mots ajoutés montent bien plus haut qu’avant
-• Cinq pistes de succès arrivent : le défi du moment, les défis entre amis, les verdicts de modération, dix mots courts d’affilée et cinquante mots sans passer une question — chacune avec ses formes d’avatar
-• Dans l’éditeur d’avatar, ce qui vient d’être gagné est encadré de rouge jusqu’à ce que tu quittes l’écran, une fois pour toutes
-• L’annonce du mode endurance compte les secondes et te les rend au mot trouvé
+• Les avatars sont redessinés : cinquante-trois figures, chacune animée
+• Les succès s’étalent : deux ne tombent plus ensemble au début, et les niveaux, les parties, les mots trouvés et les mots ajoutés montent bien plus haut
+• Cinq pistes arrivent — défi du moment, défis entre amis, modération, mots courts d’affilée, mots sans passer — chacune avec ses avatars
+• Une forme ou une couleur gagnée s’encadre de rouge dans l’éditeur jusqu’à ce que tu en sortes
 • Corrections de bugs et performance
