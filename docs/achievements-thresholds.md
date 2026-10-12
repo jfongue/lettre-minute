@@ -299,10 +299,14 @@ Livré comme ci-dessus, sauf deux points :
   toujours (`wordsReviewed`), pas en séances : 50, 150 et 300 verdicts — une
   séance en vaut cinq à dix. Rien à recopier pour elle, donc, et le seuil se
   cale sur les 300 verdicts du plus actif.
-- Les **recopies depuis le serveur n'ont pas été écrites** : `weekly_attempts`
-  et `challenge_players` n'ont pas de requête qui les rende au client, et en
-  ajouter une demandait une migration. `weeklyAttempts` et
-  `challengesFinished` partent donc de zéro pour tout le monde : six profils
-  avaient déjà joué cinq défis entre amis, et les tentatives du défi du moment
-  ne datent que de la 1.7.14. Les deux séries, elles, ne se recopient pas par
-  construction.
+- La **recopie depuis le serveur** est écrite avec la livraison : la migration
+  `0066_achievement_counters.sql` — **écrite, pas encore poussée** — ouvre
+  `my_achievement_counters`, qui rend les tentatives du défi du moment
+  (`weekly_attempts`) et les défis entre amis joués
+  (`challenge_players.played_at`). `fetchProgress` la lit avec la sauvegarde du
+  compte, et `withProgress` garde le plus haut des deux : un joueur qui avait
+  joué ses défis entre amis avant la piste ne repart pas de zéro, et rien ne
+  redescend jamais. Tant que la migration n'est pas poussée, la requête échoue
+  et la sauvegarde reste telle quelle. Les deux séries (`shortStreak`,
+  `noPassStreak`), elles, ne se recopient pas par construction : l'ordre des
+  mots d'une partie n'est pas en base.

@@ -274,6 +274,22 @@ export function settleReview(profile: Profile): Profile {
  * les plafonne (`weekly_start`) ; celui-ci les suit pour la grille d'avatar, où
  * une tentative refusée ne compte pas.
  */
+/**
+* Ce que le serveur comptait déjà des deux pistes nées en 1.7.16 : le joueur
+* qui a lancé son défi du moment ou terminé ses défis entre amis avant elles ne
+* repart pas de zéro. La copie ne redescend jamais — un compteur plus haut sur
+* l'appareil dit ce qu'il a fait depuis, et les deux ne font que monter.
+*/
+export function backfillCounters(
+profile: Pick<Profile, 'weeklyAttempts' | 'challengesFinished'>,
+counters: Partial<Pick<Profile, 'weeklyAttempts' | 'challengesFinished'>>,
+): Pick<Profile, 'weeklyAttempts' | 'challengesFinished'> {
+return {
+weeklyAttempts: Math.max(profile.weeklyAttempts, counters.weeklyAttempts ?? 0),
+challengesFinished: Math.max(profile.challengesFinished, counters.challengesFinished ?? 0),
+}
+}
+
 export function recordWeeklyAttempt(profile: Profile): Profile {
   return { ...profile, weeklyAttempts: profile.weeklyAttempts + 1 }
 }
