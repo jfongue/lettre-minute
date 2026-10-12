@@ -1,10 +1,11 @@
-import { useEffect, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { ENDURANCE_TIME_BONUS, MODE_SECONDS, type ArcadeMode } from '../domain/modes'
 import type { RarityTier } from '../domain/rarity'
 import { useT } from '../i18n'
 import { sound } from '../lib/sound'
 import { TierTag } from './bauhaus'
 import { onTint } from './motifs'
+import { reducedMotion } from './useCountUp'
 import { MODE_TINTS, ModeGlyph } from './WeeklyParts'
 
 const TIERS: readonly RarityTier[] = ['courant', 'peu commun', 'rare', 'très rare']
@@ -99,17 +100,45 @@ export function ModeIntro({
 }
 
 /**
- * Un chrono à trente secondes qui se vide, puis un mot qui le regonfle : la
- * boucle tient en dix secondes de CSS, sans minuterie.
+ * Le chrono de la démonstration joue ses trente secondes à deux fois et demie,
+ * et deux mots tombent en route : l'anneau et le chiffre sortent de la même
+ * valeur, à la seconde près, plutôt que de se contredire.
  */
+const DEMO_RATE = 2.5
+const DEMO_LOOP_SECONDS = 12
+const DEMO_GAINS = [
+  { at: 4, side: 'a', seconds: ENDURANCE_TIME_BONUS.courant },
+  { at: 8, side: 'b', seconds: ENDURANCE_TIME_BONUS['très rare'] },
+] as const
+
 function EnduranceDemo() {
   const t = useT()
+  const still = reducedMotion()
+  const [atSeconds, setAtSeconds] = useState(0)
+
+  useEffect(() => {
+    if (still) return
+    const start = performance.now()
+    const timer = setInterval(() => setAtSeconds(((performance.now() - start) / 1000) % DEMO_LOOP_SECONDS), 100)
+    return () => clearInterval(timer)
+  }, [still])
+
+  const gained = DEMO_GAINS.reduce((sum, gain) => (atSeconds >= gain.at ? sum + gain.seconds : sum), 0)
+  const left = MODE_SECONDS.endurance + gained - DEMO_RATE * atSeconds
+  const remaining = Math.min(MODE_SECONDS.endurance, Math.max(0, left))
+  // Chaque pastille arrive à l'instant où son mot tombe : le chiffre monte de
+  // ce qu'elle annonce, et l'anneau avec lui.
+  const shown = still ? DEMO_GAINS : DEMO_GAINS.filter((gain) => atSeconds >= gain.at)
+
   return (
     <div className="wk-demo" aria-hidden="true">
-      <span className="wk-demo-ring" />
-      <span className="wk-demo-clock">{MODE_SECONDS.endurance}</span>
-      <span className="wk-demo-gain wk-demo-gain--a">{t.weekly.run.bonus(2)}</span>
-      <span className="wk-demo-gain wk-demo-gain--b">{t.weekly.run.bonus(4)}</span>
+      <span className="wk-demo-ring" style={{ '--wk-ring': remaining / MODE_SECONDS.endurance } as CSSProperties} />
+      <span className="wk-demo-clock">{Math.ceil(remaining)}</span>
+      {shown.map((gain) => (
+        <span key={gain.at} className={`wk-demo-gain wk-demo-gain--${gain.side}`}>
+          {t.weekly.run.bonus(gain.seconds)}
+        </span>
+      ))}
     </div>
   )
 }
