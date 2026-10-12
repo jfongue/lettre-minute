@@ -89,8 +89,13 @@ export function RunScreen({
   // Le retard remplit la question d'avant, le renversé juge la fin du mot.
   const answer = answerPrompt(run)
   const edge = modeEdge(run.mode)
-  // En endurance, le score est le temps tenu, pas les points.
+  // En endurance, le score est le temps à tenir, pas les points : le camembert
+  // se vide donc sur lui, sinon il resterait plein dès que le chrono le dépasse.
   const score = runScore(run)
+  const total = run.mode === 'endurance' ? Math.max(score, 1) : MODE_SECONDS[run.mode]
+  // Les confettis saluent une trouvaille, jamais le temps qui passe : en
+  // endurance le score part à trente, et il ne fête pas le départ.
+  const celebration = run.mode === 'endurance' ? run.found.length : score
   const seconds = Math.ceil(remaining)
   // Le rappel du retard s'affiche une seule fois, à sa première question : il
   // se rachète ensuite question par question, contre `RECALL_SECONDS` secondes.
@@ -212,7 +217,7 @@ else if (doubleSkip) sound.power('double-skip')
         <div className="timer">
           <span
             className="timer-disc"
-            style={{ '--ratio': Math.min(1, remaining / MODE_SECONDS[run.mode]) } as CSSProperties}
+            style={{ '--ratio': Math.min(1, remaining / total) } as CSSProperties}
             aria-hidden="true"
           />
           {/* Re-keyed every second once urgent, so each second ticks visibly. */}
@@ -222,8 +227,8 @@ else if (doubleSkip) sound.power('double-skip')
           {hushed && <span className="timer-hold" aria-hidden="true"><span /><span /></span>}
         </div>
         <div className="score">
-          {score > 0 && <Burst key={`burst-${score}`} />}
-          <span className="score-value" key={score}>
+          {celebration > 0 && <Burst key={`burst-${celebration}`} />}
+          <span className="score-value" key={celebration}>
             {formatNumber(t, score)}
           </span>
           {/* En endurance le score est un temps : « 47 s », pas « 47 points ». */}
