@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { loadPack } from '../data/packs'
-import { modeEdge, type ArcadeMode } from '../domain/modes'
+import { ENDURANCE_TIME_BONUS, MODE_SECONDS, modeEdge, type ArcadeMode } from '../domain/modes'
+import { rarityScore, tierOf } from '../domain/rarity'
 import type { Prompt } from '../domain/run'
 import { capitalized, compactWord, finalOf, initialOf } from '../domain/text'
 import { lookup, type WordPack } from '../domain/words'
@@ -100,6 +101,21 @@ function ModeLesson({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; on
   const known = pack && (edge === 'last' ? finalOf(draft) : initialOf(draft)) === a.letter ? lookup(pack, draft) : null
   const found = compactWord(draft) === compactWord(answer) ? answer : known ? capitalized(known.display) : null
 
+  // Le chrono de la leçon d'endurance part au premier caractère tapé — le temps
+  // de lire la règle — puis remonte du bonus du mot trouvé, comme en partie : la
+  // règle se voit au lieu de se lire.
+  const [clockStart, setClockStart] = useState<number | null>(null)
+  const [now, setNow] = useState(0)
+  const [bonus, setBonus] = useState(0)
+  useEffect(() => {
+    if (clockStart === null || solved) return
+    setNow(Date.now())
+    const timer = setInterval(() => setNow(Date.now()), 100)
+    return () => clearInterval(timer)
+  }, [clockStart, solved])
+  const held = clockStart === null ? 0 : Math.max(0, (now - clockStart) / 1000)
+  const clock = Math.max(0, Math.ceil(MODE_SECONDS.endurance + bonus - held))
+
   const named = found !== null
   useEffect(() => {
     if (named && !solved) sound.recognized()
@@ -116,6 +132,8 @@ function ModeLesson({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; on
     if (found) {
       sound.found(3, 0)
       SHAPE_NOTES.forEach((note) => sound.tile(note.timbre, note.step, note.at))
+      // Le même bonus qu'en partie, la rareté mesurée sans les compteurs du joueur.
+      setBonus(known ? ENDURANCE_TIME_BONUS[tierOf(rarityScore(known))] : ENDURANCE_TIME_BONUS.courant)
       setSolved(found)
       return
     }
@@ -125,9 +143,27 @@ function ModeLesson({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; on
     setMissed(true)
   }
 
+  // La leçon d'endurance montre le chrono de la partie, camembert compris.
+  const clockRow =
+    mode === 'endurance' ? (
+      <div className="run-head">
+        <div className="timer">
+          <span
+            className="timer-disc"
+            style={{ '--ratio': Math.min(1, clock / Math.max(MODE_SECONDS.endurance + bonus, 1)) } as CSSProperties}
+            aria-hidden="true"
+          />
+          <p className={`clock${bonus > 0 ? ' clock--bonus' : ''}`} key={clock}>
+            {clock}
+          </p>
+        </div>
+      </div>
+    ) : null
+
   if (solved)
     return (
       <div className="sheet tutorial tutorial--solved" role="status">
+        {clockRow}
         <p className="tutorial-bravo">{t.tutorial.solved}</p>
         <p className="tutorial-found">✓ {solved}</p>
         <span className="tutorial-shapes" aria-hidden="true">
@@ -149,6 +185,7 @@ function ModeLesson({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; on
       : t.modes.lesson[mode].ask(a.letter)
   return (
     <div className={`sheet tutorial${typing ? ' tutorial--typing' : ''}`}>
+      {clockRow}
       <div className="tutorial-top">
         <p className="tutorial-hello">{t.modes.lesson[mode].hello}</p>
         <button type="button" className="btn btn--quiet btn--muted" onClick={onDone}>
@@ -193,6 +230,8 @@ function ModeLesson({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; on
             readOnly={step === 'a'}
             onChange={(event) => {
               sound.key(event.target.value.length < draft.length)
+              // Le chrono de l'endurance part à la première frappe.
+              if (mode === 'endurance' && clockStart === null) setClockStart(Date.now())
               setDraft(capitalized(event.target.value))
             }}
             placeholder={step === 'a' ? t.modes.armNote : t.run.placeholder(a.letter)}

@@ -143,7 +143,7 @@ import {
   saveTutorialDone,
 } from './state/storage'
 import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storage'
-import { countsForProgress, modeEdge, type ArcadeMode, type GameMode } from './domain/modes'
+import { countsForProgress, modeEdge, MODE_SECONDS, type ArcadeMode, type GameMode } from './domain/modes'
 import { queueAlertDue } from './domain/moderation'
 import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
 import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
@@ -824,7 +824,10 @@ setStartedAt((at) => at ?? Date.now())
 
   const elapsed = useElapsed(session.phase === 'playing' ? startedAt : null)
   const remaining = session.run ? remainingSeconds(session.run, elapsed) : 0
-  const pulseStage = Math.min(2, Math.floor(((RUN_SECONDS - remaining) / RUN_SECONDS) * 3))
+  // La musique se tend sur le temps écoulé du mode joué : l'endurance n'a que
+  // trente secondes, elle n'entre donc pas déjà au deuxième palier.
+  const stageSeconds = session.run ? MODE_SECONDS[session.run.mode] : RUN_SECONDS
+  const pulseStage = Math.min(2, Math.floor(((stageSeconds - remaining) / stageSeconds) * 3))
   useEffect(() => setPulseStage(pulseStage), [pulseStage])
 
   // Silence muffles the whole game, music included, and the room opens back up when it lets go.
@@ -1764,7 +1767,7 @@ setStartedAt((at) => at ?? Date.now())
     <FeaturesContext value={features}>
     <PlayerActionsContext value={playerActions}>
     <PremiumContext value={premiumDoor}>
-    <main className={`stage stage--${tutorial ? 'playing' : session.phase}${isNativeApp() ? '' : ' stage--muteable'}`}>
+    <main className={`stage stage--${tutorial ? 'playing' : session.phase}${modeLesson ? ' stage--lesson' : ''}${isNativeApp() ? '' : ' stage--muteable'}`}>
       {tutorial && (session.phase === 'home' || session.phase === 'loading') && <TutorialScreen lang={lang} onDone={endTutorial} />}
       {modeLesson && (session.phase === 'home' || session.phase === 'loading') && (
 <ModeTutorial mode={modeLesson.mode} lang={lang} onDone={endModeTutorial} />
