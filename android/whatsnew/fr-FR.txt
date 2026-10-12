@@ -1,5 +1,6 @@
-• Le défi du moment : une lettre et une catégorie pour la semaine, trois essais par jour, un classement qui se referme le dimanche
-• « Défi du moment » rejoint les classements : le tableau de la semaine et le palmarès de chaque semaine passée, avec son gagnant
-• Les compteurs du profil expliquent d’une tape ce qu’ils comptent, et la pastille du défi dit combien d’essais il te reste
-• Une catégorie en avant-première s’annonce une fois sur l’accueil
+• Les succès ouvrent les formes et les couleurs de l’avatar : le bilan de fin de partie les liste un par un, et une tape ouvre l’éditeur sur la forme gagnée
+• La fin de partie s’allège : plus de compteurs ni de lignes techniques, et la langue se choisit en la lisant avant de valider
+• Les classements tiennent sur un seul interrupteur Solo / Défi, sous le titre
+• Le chrono d’endurance dit la vérité : sa leçon compte les trente secondes et te les rend au mot trouvé, et la partie tient au-dessus du clavier du téléphone
+• Le gagnant du défi du moment voit tout ce que son prix donne, et une révélation fait sauter la pastille de l’œil
 • Corrections de bugs et performance
