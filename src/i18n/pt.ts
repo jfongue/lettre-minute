@@ -1141,6 +1141,14 @@ case 'dailyFirst':
 return 'o primeiro lugar do dia'
 case 'wordsReviewed':
 return `${at} ${plural(goal.at, 'veredicto na moderação', 'veredictos na moderação')}`
+case 'weeklyAttempts':
+return `${at} ${plural(goal.at, 'tentativa do desafio do momento', 'tentativas do desafio do momento')}`
+case 'challengesFinished':
+return `${at} ${plural(goal.at, 'desafio entre amigos terminado', 'desafios entre amigos terminados')}`
+case 'shortStreak':
+return `${at} ${plural(goal.at, 'palavra curta seguida', 'palavras curtas seguidas')}`
+case 'noPassStreak':
+return `${at} ${plural(goal.at, 'palavra seguida sem passar', 'palavras seguidas sem passar')}`
 case 'powersUsed':
 return `${at} poderes diferentes`
 case 'playedCategories':
@@ -1168,19 +1176,24 @@ return `uma palavra em ${at} categorias`
       'runs-400': { name: 'Incansável', desc: 'Jogue 400 partidas' },
       'words-2000': { name: 'Dicionário ambulante', desc: 'Encontre 2000 palavras' },
       'level-35': { name: 'Mestre do minuto', desc: 'Chegue ao nível 35' },
-      'runs-25': { name: 'Bom hábito', desc: 'Joga 25 partidas' },
-      'words-250': { name: 'Mais vocabulário', desc: 'Encontra 250 palavras' },
-      'score-400': { name: 'Bela partida', desc: 'Marca 400 pontos numa partida' },
+      // As pistas que a grelha não conta: o desafio do momento, os desafios
+      // entre amigos, a moderação, as palavras curtas seguidas e a série sem
+      // passar. Cada uma tem a sua casa, e aqui o seu nome.
+      'weekly-5': { name: 'Assíduo', desc: 'Joga cinco vezes o desafio do momento' },
+      'weekly-30': { name: 'Pilar do momento', desc: 'Joga trinta vezes o desafio do momento' },
+      'friends-5': { name: 'Entre amigos', desc: 'Termina cinco desafios entre amigos' },
+      'friends-25': { name: 'Sempre pronto', desc: 'Termina vinte e cinco desafios entre amigos' },
+      'moderation-10': { name: 'Bom olho', desc: 'Dá cinquenta veredictos na moderação' },
+      'moderation-30': { name: 'Olho de lince', desc: 'Dá cento e cinquenta veredictos na moderação' },
+      'moderation-60': { name: 'O tribunal', desc: 'Dá trezentos veredictos na moderação' },
+      'short-streak-10': { name: 'Palavras curtas', desc: 'Encontra dez palavras de menos de cinco letras seguidas' },
+      'no-pass-50': { name: 'Maratona', desc: 'Encontra cinquenta palavras seguidas sem passar nenhuma pergunta' },
       'reviews-10': { name: 'Juiz justo', desc: 'Dá dez veredictos na moderação' },
       'word-long-10': { name: 'Palavra rio', desc: 'Encontra uma palavra de dez letras' },
       'word-long-15': { name: 'Palavra sem fim', desc: 'Encontra uma palavra de quinze letras' },
       'speed-25': { name: 'Reflexo rápido', desc: 'Encontra uma palavra a mais de 2,5 letras por segundo' },
       'speed-35': { name: 'Reflexo relâmpago', desc: 'Encontra uma palavra a mais de 3,5 letras por segundo' },
-      'clean-run': { name: 'Sem falhas', desc: 'Termina uma partida sem passar nenhuma pergunta' },
       'clean-run-10': { name: 'Impecável', desc: 'Termina dez partidas sem passar nenhuma pergunta' },
-      'duel-four': { name: 'Quatro à mesa', desc: 'Senta-te a uma mesa de quatro' },
-      'duel-round-20': { name: 'Maratona', desc: 'Aguenta vinte rondas numa mesa de quatro' },
-      'day-first': { name: 'Rei do dia', desc: 'Lidera a classificação do dia' },
       'powers-7': { name: 'Faz-tudo', desc: 'Usa sete poderes diferentes' },
       'powers-all': { name: 'Todos os poderes', desc: 'Usa os catorze poderes' },
       'categories-12': { name: 'Andarilho', desc: 'Encontra uma palavra em doze categorias' },

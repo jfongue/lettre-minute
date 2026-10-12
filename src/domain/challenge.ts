@@ -301,5 +301,12 @@ export function challengeXp(score: number): number {
  */
 export function applyChallengeRun(profile: Profile, outcome: RunOutcome): Profile {
   const after = applyRun(profile, { ...outcome, prompts: undefined })
-  return { ...after, xp: profile.xp + challengeXp(outcome.score), bestScore: profile.bestScore }
+  // Un défi terminé compte même s'il ne compte pas pour le record : c'est la
+  // piste que la grille d'avatar demande pour les défis entre amis.
+  return {
+    ...after,
+    xp: profile.xp + challengeXp(outcome.score),
+    bestScore: profile.bestScore,
+    challengesFinished: profile.challengesFinished + 1,
+  }
 }

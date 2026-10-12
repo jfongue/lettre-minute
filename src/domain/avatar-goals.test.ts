@@ -2,14 +2,18 @@ import { describe, expect, it } from 'vitest'
 import { designGoal, type Goal } from './achievements'
 
 /**
- * Les 43 tuiles livrées, jalon par jalon, tels qu'ils étaient avant l'ajout des
- * sept tuiles des mots ajoutés. Le commentaire de `LOOKS` promet qu'un
- * identifiant ne bouge pas, et les seuils sont ce qui décide de ce que chaque
- * joueur possède : les barreaux de la grille se répartissent par position, donc
- * une piste de plus décale tout ce qui suit — ce que la première version de
- * cette liste a fait, en donnant à la tuile 10 (soleil) le jalon du tout
- * premier mot ajouté. Un jalon déplacé redistribue les déblocages de tout le
- * monde, y compris vers le bas. C'est ce test qui doit le refuser.
+ * Les 53 tuiles, jalon par jalon, telles qu'elles sont livrées. Le commentaire
+ * de `LOOKS` promet qu'un identifiant ne bouge pas, et les seuils décident de
+ * ce que chaque joueur possède : les barreaux de la grille se répartissent par
+ * position, donc une piste de plus ou un seuil déplacé redistribue les
+ * déblocages de tout le monde, y compris vers le bas. C'est ce test qui doit
+ * le refuser.
+ *
+ * Réécrit une fois, exprès : les seuils ont été retaillés sur ce que les
+ * joueurs font vraiment (`docs/achievements-thresholds.md`), et les pistes du
+ * défi du moment, des défis entre amis, de la modération, des mots courts
+ * d'affilée et de la suite sans passer ont pris leurs cases. Toute autre
+ * modification se refuse ici.
  */
 const SHIPPED: readonly string[] = [
   'aucun',
@@ -20,65 +24,59 @@ const SHIPPED: readonly string[] = [
   'level:4',
   'runs:3',
   'wordsFound:100',
-  'bestScore:400',
+  'level:7',
   'bestCombo:10',
-  'level:6',
-  'runs:5',
-  'wordsFound:250',
-  'bestScore:500',
-  'bestCombo:13',
-  'level:8',
-  'runs:7',
-  'wordsFound:500',
-  'bestScore:600',
-  'bestCombo:16',
+  'wordsAdded:5',
+  'wordsFound:300',
+  'wordsReviewed:50',
+  'bestCombo:15',
+  'weeklyAttempts:5',
+  'challengesFinished:5',
+  'bestScore:350',
+  'shortStreak:10',
+  'wordsFound:600',
+  'bestScore:450',
   'level:10',
   'runs:10',
   'wordsFound:1000',
-  'bestScore:700',
   'bestCombo:20',
-  'level:13',
-  'runs:25',
+  'weeklyAttempts:30',
+  'bestScore:550',
+  'challengesFinished:25',
   'wordsFound:2000',
-  'bestScore:800',
+  'wordsReviewed:150',
   'bestCombo:24',
-  'level:16',
-  'runs:50',
-  'wordsFound:3500',
-  'bestScore:900',
-  'bestCombo:28',
+  'level:14',
+  'runs:30',
+  'wordsFound:4000',
+  'wordsReviewed:300',
+  'bestScore:750',
   'level:20',
   'runs:100',
-  'wordsFound:5000',
-  'level:25',
-  'runs:200',
-  'level:30',
+  'runs:250',
+  'level:27',
+  'bestScore:900',
+  'wordsFound:8000',
   'runs:400',
   'level:35',
+  'bestCombo:30',
+  'wordsAdded:10',
+  'wordsAdded:40',
+  'wordsAdded:150',
+  'wordsAdded:500',
+  'level:50',
+  'runs:1200',
+  'bestScore:666',
+  'wordsReviewed:10',
+  'noPassStreak:50',
 ]
 
 const label = (goal: Goal | null) => (goal ? `${goal.stat}:${goal.at}` : 'aucun')
 
-describe('les jalons d’avatar déjà livrés', () => {
-  it('ne bougent pas quand on ajoute des tuiles', () => {
+describe('les jalons d’avatar livrés', () => {
+  it('ne bougent plus', () => {
     const now = SHIPPED.map((_, index) => label(designGoal(index)))
 
     expect(now).toEqual(SHIPPED)
-  })
-
-  // Les sept tuiles des mots ajoutés : leur jalon est le seul que cette liste
-  // introduit, il vient après les 43 autres et suit les seuils demandés.
-  it('laissent les sept derniers jalons aux mots ajoutés, dans l’ordre', () => {
-    const added = Array.from({ length: 7 }, (_, index) => designGoal(43 + index))
-
-    expect(added.map(label)).toEqual([
-      'wordsAdded:1',
-      'wordsAdded:15',
-      'wordsAdded:50',
-      'wordsAdded:100',
-      'wordsAdded:300',
-      'wordsAdded:500',
-      'wordsAdded:1000',
-    ])
   })
 })

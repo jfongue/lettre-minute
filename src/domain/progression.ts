@@ -136,6 +136,14 @@ export interface Profile {
   dailyFirst: number
   /** Mots jugés en modération, un verdict à la fois. */
   wordsReviewed: number
+  /** Tentatives du défi du moment, que le serveur plafonne à cinq par semaine. */
+  weeklyAttempts: number
+  /** Défis entre amis dont la partie a été jouée. */
+  challengesFinished: number
+  /** Le plus de mots de moins de cinq lettres trouvés d'affilée dans une partie. */
+  shortStreak: number
+  /** Mots trouvés d'affilée sans passer une question, d'une partie à l'autre. */
+  noPassStreak: number
 }
 
 /**
@@ -185,6 +193,10 @@ export const NEW_PROFILE: Profile = {
   duelRounds4: 0,
   dailyFirst: 0,
   wordsReviewed: 0,
+  weeklyAttempts: 0,
+  challengesFinished: 0,
+  shortStreak: 0,
+  noPassStreak: 0,
 }
 
 export interface RunOutcome {
@@ -203,6 +215,10 @@ export interface RunOutcome {
   powers?: readonly string[]
   /** Les catégories où elle a trouvé un mot. */
   categories?: readonly string[]
+  /** Le plus de mots courts trouvés d'affilée dans la partie. */
+  shortStreak?: number
+  /** La partie n'a laissé passer aucune question ; `false` remet la suite à zéro. */
+  noPass?: boolean
 }
 
 /**
@@ -230,6 +246,13 @@ export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
     longestWord: Math.max(profile.longestWord, outcome.longest ?? 0),
     bestSpeed: Math.max(profile.bestSpeed, outcome.speed ?? 0),
     cleanRuns: profile.cleanRuns + (outcome.clean ? 1 : 0),
+  shortStreak: Math.max(profile.shortStreak, outcome.shortStreak ?? 0),
+  // Une partie qui passe une question remet la suite à zéro ; celle qui n'en
+  // passe aucune ajoute ses mots à celle des parties d'avant.
+  noPassStreak:
+    outcome.noPass === false
+      ? 0
+      : profile.noPassStreak + (outcome.noPass === true ? outcome.words.length : 0),
     powersUsed: union(profile.powersUsed, outcome.powers),
     playedCategories: union(profile.playedCategories, outcome.categories),
     usage,
@@ -244,6 +267,15 @@ export function rewardSubmission(profile: Profile): Profile {
 /** Un verdict rendu en modération : le seul compteur qui ne vient pas d'une partie. */
 export function settleReview(profile: Profile): Profile {
   return { ...profile, wordsReviewed: profile.wordsReviewed + 1 }
+}
+
+/**
+ * Une tentative du défi du moment lancée. Le serveur les compte pour de bon et
+ * les plafonne (`weekly_start`) ; celui-ci les suit pour la grille d'avatar, où
+ * une tentative refusée ne compte pas.
+ */
+export function recordWeeklyAttempt(profile: Profile): Profile {
+  return { ...profile, weeklyAttempts: profile.weeklyAttempts + 1 }
 }
 
 /**

@@ -1139,6 +1139,14 @@ case 'dailyFirst':
 return 'der erste Platz des Tages'
 case 'wordsReviewed':
 return `${at} ${plural(goal.at, 'Moderationsurteil', 'Moderationsurteile')}`
+case 'weeklyAttempts':
+return `${at} ${plural(goal.at, 'Versuch der Herausforderung des Moments', 'Versuche der Herausforderung des Moments')}`
+case 'challengesFinished':
+return `${at} ${plural(goal.at, 'beendetes Freundesduell', 'beendete Freundesduelle')}`
+case 'shortStreak':
+return `${at} ${plural(goal.at, 'kurzes Wort in Folge', 'kurze Wörter in Folge')}`
+case 'noPassStreak':
+return `${at} ${plural(goal.at, 'Wort in Folge ohne Überspringen', 'Wörter in Folge ohne Überspringen')}`
 case 'powersUsed':
 return `${at} verschiedene Kräfte`
 case 'playedCategories':
@@ -1166,19 +1174,24 @@ return `ein Wort in ${at} Kategorien`
       'runs-400': { name: 'Unermüdlich', desc: 'Spiele 400 Runden' },
       'words-2000': { name: 'Wandelndes Wörterbuch', desc: 'Finde 2000 Wörter' },
       'level-35': { name: 'Meister der Minute', desc: 'Erreiche Level 35' },
-      'runs-25': { name: 'Gute Gewohnheit', desc: 'Spiele 25 Runden' },
-      'words-250': { name: 'Größerer Wortschatz', desc: 'Finde 250 Wörter' },
-      'score-400': { name: 'Starke Runde', desc: 'Erziele 400 Punkte in einer Runde' },
+      // Die Spuren, die das Raster nicht zählt: die Herausforderung des
+      // Moments, Freundesduelle, die Moderation, kurze Wörter in Folge und die
+      // Reihe ohne Überspringen. Jede hat ihr Feld, und hier ihren Namen.
+      'weekly-5': { name: 'Verlässlich', desc: 'Spiele die Herausforderung des Moments fünfmal' },
+      'weekly-30': { name: 'Stütze des Moments', desc: 'Spiele die Herausforderung des Moments dreißigmal' },
+      'friends-5': { name: 'Unter Freunden', desc: 'Beende fünf Freundesduelle' },
+      'friends-25': { name: 'Immer dabei', desc: 'Beende fünfundzwanzig Freundesduelle' },
+      'moderation-10': { name: 'Guter Blick', desc: 'Gib fünfzig Urteile in der Moderation ab' },
+      'moderation-30': { name: 'Adlerauge', desc: 'Gib hundertfünfzig Urteile in der Moderation ab' },
+      'moderation-60': { name: 'Das Gericht', desc: 'Gib dreihundert Urteile in der Moderation ab' },
+      'short-streak-10': { name: 'Kurze Wörter', desc: 'Finde zehn Wörter mit weniger als fünf Buchstaben in Folge' },
+      'no-pass-50': { name: 'Marathon', desc: 'Finde fünfzig Wörter in Folge, ohne eine Frage zu überspringen' },
       'reviews-10': { name: 'Gerechter Richter', desc: 'Gib zehn Urteile in der Moderation ab' },
       'word-long-10': { name: 'Wortfluss', desc: 'Finde ein Wort mit zehn Buchstaben' },
       'word-long-15': { name: 'Endloses Wort', desc: 'Finde ein Wort mit fünfzehn Buchstaben' },
       'speed-25': { name: 'Schneller Reflex', desc: 'Finde ein Wort mit über 2,5 Buchstaben pro Sekunde' },
       'speed-35': { name: 'Blitzreflex', desc: 'Finde ein Wort mit über 3,5 Buchstaben pro Sekunde' },
-      'clean-run': { name: 'Fehlerfrei', desc: 'Beende eine Runde, ohne eine Frage zu überspringen' },
       'clean-run-10': { name: 'Makellos', desc: 'Beende zehn Runden, ohne eine Frage zu überspringen' },
-      'duel-four': { name: 'Vier am Tisch', desc: 'Setz dich an einen Tisch mit vier Spielern' },
-      'duel-round-20': { name: 'Marathon', desc: 'Halte zwanzig Runden an einem Tisch mit vier aus' },
-      'day-first': { name: 'König des Tages', desc: 'Führe die Tagesrangliste an' },
       'powers-7': { name: 'Bastler', desc: 'Setze sieben verschiedene Kräfte ein' },
       'powers-all': { name: 'Alle Kräfte', desc: 'Setze alle vierzehn Kräfte ein' },
       'categories-12': { name: 'Weltenbummler', desc: 'Finde ein Wort in zwölf Kategorien' },

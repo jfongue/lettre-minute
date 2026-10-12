@@ -687,6 +687,10 @@ export interface RunMilestones {
   speed: number
   /** La partie n'a laissé passer aucune question, et assez de mots pour compter. */
   clean: boolean
+  /** La partie n'a laissé passer aucune question du tout, même sans assez de mots. */
+  noPass: boolean
+  /** Le plus de mots de moins de cinq lettres trouvés d'affilée. */
+  shortStreak: number
   /** Les pouvoirs qui y ont servi : ceux qu'un geste a déclenchés, puis ceux qui n'ont pas de geste. */
   powers: readonly PowerId[]
   /** Les catégories où elle a trouvé un mot. */
@@ -700,13 +704,25 @@ export function runMilestones(run: Run): RunMilestones {
     if (word.display.length < SPEED_MIN_LETTERS || word.seconds < SPEED_MIN_SECONDS) return best
     return Math.max(best, Math.round((10 * word.display.length) / word.seconds))
   }, 0)
-  // Une partie qui a laissé partir une question n'est pas propre, même sans
-  // passe comptée : le retard abandonne la sienne (`settled.passed`) sans `skips`.
-  const clean = run.skips === 0 && run.found.length >= CLEAN_MIN_WORDS && !run.settled.some((settled) => settled.passed)
+  // Une partie qui a laissé partir une question n'a pas passé personne, même
+  // sans passe comptée : le retard abandonne la sienne (`settled.passed`) sans
+  // `skips`.
+  const noPass = run.skips === 0 && !run.settled.some((settled) => settled.passed)
+  const clean = noPass && run.found.length >= CLEAN_MIN_WORDS
+  // Une suite de mots courts se casse au premier mot de cinq lettres ou plus.
+  const shortStreak = run.found.reduce(
+    (streak, word) => {
+      const chain = word.display.length < 5 ? streak.chain + 1 : 0
+      return { best: Math.max(streak.best, chain), chain }
+    },
+    { best: 0, chain: 0 },
+  ).best
   return {
     longest,
     speed,
     clean,
+    noPass,
+    shortStreak,
     powers: [
       ...run.usedPowers,
       // Un pouvoir sans charge travaille toute la partie : mené jusqu'au chrono,

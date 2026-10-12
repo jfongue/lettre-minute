@@ -1140,6 +1140,14 @@ case 'dailyFirst':
 return 'de eerste plaats van de dag'
 case 'wordsReviewed':
 return `${at} ${plural(goal.at, 'moderatieoordeel', 'moderatieoordelen')}`
+case 'weeklyAttempts':
+return `${at} ${plural(goal.at, 'poging voor de uitdaging van het moment', 'pogingen voor de uitdaging van het moment')}`
+case 'challengesFinished':
+return `${at} ${plural(goal.at, 'vriendenuitdaging uitgespeeld', 'vriendenuitdagingen uitgespeeld')}`
+case 'shortStreak':
+return `${at} ${plural(goal.at, 'kort woord op rij', 'korte woorden op rij')}`
+case 'noPassStreak':
+return `${at} ${plural(goal.at, 'woord op rij zonder over te slaan', 'woorden op rij zonder over te slaan')}`
 case 'powersUsed':
 return `${at} verschillende krachten`
 case 'playedCategories':
@@ -1167,19 +1175,24 @@ return `een woord in ${at} categorieën`
       'runs-400': { name: 'Onvermoeibaar', desc: 'Speel 400 potjes' },
       'words-2000': { name: 'Wandelend woordenboek', desc: 'Vind 2000 woorden' },
       'level-35': { name: 'Meester van de minuut', desc: 'Bereik level 35' },
-      'runs-25': { name: 'Goede gewoonte', desc: 'Speel 25 potjes' },
-      'words-250': { name: 'Ruimere woordenschat', desc: 'Vind 250 woorden' },
-      'score-400': { name: 'Sterk potje', desc: 'Scoor 400 punten in één potje' },
+      // De sporen die het rooster niet telt: de uitdaging van het moment,
+      // vriendenuitdagingen, de moderatie, korte woorden op rij en de reeks
+      // zonder over te slaan. Elk heeft zijn vak, en hier zijn naam.
+      'weekly-5': { name: 'Trouw', desc: 'Speel de uitdaging van het moment vijf keer' },
+      'weekly-30': { name: 'Pijler van het moment', desc: 'Speel de uitdaging van het moment dertig keer' },
+      'friends-5': { name: 'Onder vrienden', desc: 'Speel vijf vriendenuitdagingen uit' },
+      'friends-25': { name: 'Altijd in', desc: 'Speel vijfentwintig vriendenuitdagingen uit' },
+      'moderation-10': { name: 'Goed oog', desc: 'Geef vijftig oordelen in de moderatie' },
+      'moderation-30': { name: 'Adelaarsoog', desc: 'Geef honderdvijftig oordelen in de moderatie' },
+      'moderation-60': { name: 'De rechtbank', desc: 'Geef driehonderd oordelen in de moderatie' },
+      'short-streak-10': { name: 'Korte woorden', desc: 'Vind tien woorden van minder dan vijf letters op rij' },
+      'no-pass-50': { name: 'Marathon', desc: 'Vind vijftig woorden op rij zonder een vraag over te slaan' },
       'reviews-10': { name: 'Rechtvaardige rechter', desc: 'Geef tien oordelen in de moderatie' },
       'word-long-10': { name: 'Woordrivier', desc: 'Vind een woord van tien letters' },
       'word-long-15': { name: 'Eindeloos woord', desc: 'Vind een woord van vijftien letters' },
       'speed-25': { name: 'Snelle reflex', desc: 'Vind een woord met meer dan 2,5 letters per seconde' },
       'speed-35': { name: 'Bliksemreflex', desc: 'Vind een woord met meer dan 3,5 letters per seconde' },
-      'clean-run': { name: 'Foutloos', desc: 'Speel een potje uit zonder een vraag over te slaan' },
       'clean-run-10': { name: 'Onberispelijk', desc: 'Speel tien potjes uit zonder een vraag over te slaan' },
-      'duel-four': { name: 'Vier aan tafel', desc: 'Neem plaats aan een tafel met vier spelers' },
-      'duel-round-20': { name: 'Marathon', desc: 'Houd twintig rondes vol aan een tafel met vier' },
-      'day-first': { name: 'Koning van de dag', desc: 'Leid de ranglijst van de dag' },
       'powers-7': { name: 'Knutselaar', desc: 'Zet zeven verschillende krachten in' },
       'powers-all': { name: 'Alle krachten', desc: 'Zet alle veertien krachten in' },
       'categories-12': { name: 'Wereldreiziger', desc: 'Vind een woord in twaalf categorieën' },
