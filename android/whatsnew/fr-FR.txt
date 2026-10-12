@@ -1,6 +1,6 @@
-• Les succès ouvrent les formes et les couleurs de l’avatar : le bilan de fin de partie les liste un par un, et une tape ouvre l’éditeur sur la forme gagnée
-• La fin de partie s’allège : plus de compteurs ni de lignes techniques, et la langue se choisit en la lisant avant de valider
-• Les classements tiennent sur un seul interrupteur Solo / Défi, sous le titre
-• Le chrono d’endurance dit la vérité : sa leçon compte les trente secondes et te les rend au mot trouvé, et la partie tient au-dessus du clavier du téléphone
-• Le gagnant du défi du moment voit tout ce que son prix donne, et une révélation fait sauter la pastille de l’œil
+• Les succès ouvrent les formes et les couleurs de l’avatar : le bilan les liste un par un
+• La fin de partie s’allège, et la langue se choisit en la lisant
+• Les classements tiennent sur un seul interrupteur Solo / Défi
+• Le chrono d’endurance dit la vérité : sa leçon compte ses trente secondes et les rend au mot trouvé, et la partie tient au-dessus du clavier
+• Le gagnant du défi du moment voit tout ce que son prix donne
 • Corrections de bugs et performance
