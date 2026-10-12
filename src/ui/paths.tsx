@@ -257,6 +257,92 @@ keyhole: (
 <rect x="14" y="40" width="20" height="20" />
 </>
 ),
+gate: <path d="M10 100V50A40 40 0 0 1 90 50V100" fill="none" stroke="currentColor" strokeWidth="20" />,
+halfBars: <path fillRule="evenodd" d="M0 0H100V100H0Z M6 54H94V64H6Z M6 70H94V80H6Z M6 86H94V96H6Z" />,
+bands: (
+<g fill="none" stroke="currentColor" strokeWidth="14">
+<path d="M0 4L50 22L100 4" />
+<path d="M0 30L50 48L100 30" />
+<path d="M0 56L50 74L100 56" />
+<path d="M0 82L50 100L100 82" />
+</g>
+),
+peaks: (
+<>
+{[4, 38, 72].flatMap((cy) => [0, 25, 50, 75].map((cx) => <path key={`${cx}-${cy}`} d={`M${cx} ${cy + 22}L${cx + 12.5} ${cy}L${cx + 25} ${cy + 22}Z`} />))}
+</>
+),
 bangDot: <circle cx="50" cy="86" r="12" />,
   dialHand: <rect x="47" y="6" width="6" height="44" rx="3" transform="rotate(45 50 50)" />,
+// Les parts qu'un accent peut colorer : la pièce que la figure porte déjà,
+// redessinée par-dessus dans la couleur d'accent — le disque du gong, la ligne
+// du bas d'un champ de points, la première flèche de trois. Prominent, et
+// pourtant la même figure : c'est ce qui distingue une tuile sans lui ajouter
+// un motif dans un coin.
+gongDisc: <circle cx="50" cy="24" r="20" />,
+tentsSmall: <path d="M50 4L76 44H24Z" />,
+stepsMiddle: <rect x="33" y="33" width="34" height="67" />,
+gateCrown: <path d="M10 50A40 40 0 0 1 90 50" fill="none" stroke="currentColor" strokeWidth="20" />,
+domesLower: <path d="M0 100A50 50 0 0 1 100 100Z" />,
+chevronsFirst: <path d="M4 8L40 50L4 92" fill="none" stroke="currentColor" strokeWidth="18" />,
+stairsMiddle: <rect x="33" y="33" width="34" height="34" />,
+raysCardinal: (
+<g stroke="currentColor" strokeWidth="4">
+{[0, 4, 8, 12].map((i) => (
+<line key={i} x1="50" y1="0" x2="50" y2="32" transform={`rotate(${i * 22.5} 50 50)`} />
+))}
+</g>
+),
+fieldRow: (
+<>
+{[9, 25, 41, 57, 73, 89].map((cx) => <circle key={cx} cx={cx} cy="85" r="6" />)}
+</>
+),
+dotsRow: (
+<>
+{[18, 50, 82].map((cx) => <circle key={cx} cx={cx} cy="82" r="13" />)}
+</>
+),
+checkerOne: <rect x="50" y="50" width="50" height="50" />,
+checker3Centre: <rect x="33" y="33" width="34" height="34" />,
+gridMid: <rect y="48" width="100" height="4" />,
+noiseSecond: (
+<>
+{Array.from({ length: 64 }, (_, index) => {
+const x = index % 8
+const y = Math.floor(index / 8)
+return (x * 3 + y * 5) % 7 === 3 ? <rect key={index} x={x * 12.5} y={y * 12.5} width="12.5" height="12.5" /> : null
+})}
+</>
+),
+flowerPetal: <circle cx="30" cy="30" r="28" />,
+burstSpark: <path d="M50 16Q57 43 84 50Q57 57 50 84Q43 57 16 50Q43 43 50 16Z" />,
+eyeIris: <circle cx="50" cy="50" r="11" />,
+sunDisc: <circle cx="50" cy="50" r="20" />,
+targetCore: <circle cx="50" cy="50" r="14" />,
+ringHalf: <path d="M50 14A36 36 0 0 0 50 86" fill="none" stroke="currentColor" strokeWidth="28" />,
+zigzagFirst: <path d="M0 25L25 50L50 25V60L25 85L0 60Z" />,
+moonLeft: <path d="M62 2A50 50 0 1 0 62 98A40 48 0 0 1 62 2Z" transform="translate(8 5) scale(0.55 0.9)" />,
+pinwheelBlade: <path d="M50 50Q12 46 6 6Q46 12 50 50Z" />,
+butterflyWing: <path d="M0 0A50 50 0 0 1 0 100Z" />,
+bloomDisc: <circle cx="50" cy="23" r="19" />,
+barsMiddle: <rect y="40" width="100" height="20" />,
+slatsTop: <ellipse cx="50" cy="10" rx="50" ry="11" />,
+stripesFirst: <g transform="rotate(-45 50 50)"><rect y="-20" width="100" height="14" /></g>,
+barcodeWidest: <rect x="72" width="13" height="100" />,
+stripedDiscMid: <rect x="8" y="46" width="84" height="9" />,
+framePanel: <rect x="24" y="24" width="52" height="52" />,
+frameDiamondInner: <path d="M50 20L80 50L50 80L20 50Z" />,
+roundedFrameInner: <rect x="28" y="28" width="44" height="44" rx="8" />,
+squareBiteBite: <path d="M0 26A24 24 0 0 1 0 74Z" />,
+splitBand: <path d="M2 60L60 2H98V40L40 98H2Z" />,
+linksLoop: <path d="M22 36A14 14 0 0 0 22 64" fill="none" stroke="currentColor" strokeWidth="15" />,
+spiralTail: <path d="M28 62A26 26 0 1 0 54 36" fill="none" stroke="currentColor" strokeWidth="18" />,
+halfBarsBand: <rect x="6" y="86" width="88" height="10" />,
+bandsTop: <path d="M0 4L50 22L100 4" fill="none" stroke="currentColor" strokeWidth="14" />,
+peaksRow: (
+<>
+{[0, 25, 50, 75].map((cx) => <path key={cx} d={`M${cx} 94L${cx + 12.5} 72L${cx + 25} 94Z`} />)}
+</>
+),
 }
