@@ -1,6 +1,7 @@
 import { premiereCategoryIds } from './catalogue'
 import type { Profile } from './progression'
 import { hasPower, promptKey, type Judge, type Prompt, type Run, type SettledPrompt } from './run'
+import { WEEKLY_FREE_ATTEMPTS } from './weekly'
 
 /** Bans a player holds without Premium at most, each one a « filter » level bonus; none to begin with. */
 export const FREE_BANS_MAX = 2
@@ -67,10 +68,10 @@ export function countPlusRun(profile: Profile, info: PlusRunInfo): Profile {
   return stats.length === 0 ? profile : bumped(profile, ...stats)
 }
 
-/** Weekly attempt number `n` (1-based) played: from the third on it is Premium's, and the third spares an ad. */
+/** Weekly attempt number `n` (1-based) played: past the free one it is Premium's, and the second spares the ad. */
 export function countPlusAttempt(profile: Profile, n: number): Profile {
-  if (!isPlus(profile) || n < 3) return profile
-  return bumped(profile, 'attempts', ...(n === 3 ? (['adsSkipped'] as const) : []))
+  if (!isPlus(profile) || n <= WEEKLY_FREE_ATTEMPTS) return profile
+  return bumped(profile, 'attempts', ...(n === WEEKLY_FREE_ATTEMPTS + 1 ? (['adsSkipped'] as const) : []))
 }
 
 /** Runs before the game first asks for the player's opinion, then between two asks. */

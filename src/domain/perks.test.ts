@@ -257,12 +257,13 @@ describe('what Premium brought', () => {
     expect(plusStat(countPlusReveal(profile, NEXT), 'reveals')).toBe(plusStat(profile, 'reveals'))
   })
 
-  it('counts the weekly attempts from the third, the third sparing an ad', () => {
-    expect(countPlusAttempt(plus, 2)).toBe(plus)
-    const third = countPlusAttempt(plus, 3)
-    expect(plusStat(third, 'attempts')).toBe(1)
-    expect(plusStat(third, 'adsSkipped')).toBe(1)
-    expect(plusStat(countPlusAttempt(third, 4), 'adsSkipped')).toBe(1)
+  it('counts the weekly attempts past the free one, the second sparing an ad', () => {
+    expect(countPlusAttempt(plus, 1)).toBe(plus)
+    const second = countPlusAttempt(plus, 2)
+    expect(plusStat(second, 'attempts')).toBe(1)
+    expect(plusStat(second, 'adsSkipped')).toBe(1)
+    expect(plusStat(countPlusAttempt(second, 3), 'adsSkipped')).toBe(1)
+    expect(plusStat(countPlusAttempt(second, 3), 'attempts')).toBe(2)
   })
 
   it('counts runs with more filters than the free maximum, and runs that dealt a preview', () => {

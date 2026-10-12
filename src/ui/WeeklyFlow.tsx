@@ -156,10 +156,10 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
     }
     attempt.current = { attemptId: started.attemptId, weekId: challenge.weekId, lang, plus, window }
     // Chaque tentative lancée compte pour la grille d'avatar, celle du
-    // Premium comme la gratuite ; une troisième sans la pub en est une de plus.
+    // Premium comme la gratuite ; la seconde en est une de plus, sans la pub.
     const counted = plus && started.n > WEEKLY_FREE_ATTEMPTS ? countPlusAttempt(profile.current, started.n) : profile.current
     dispatch({ type: 'profile-loaded', profile: recordWeeklyAttempt(counted) })
-    const options = weeklyRunOptions(challenge)
+    const options = weeklyRunOptions(challenge, window.day, started.n)
     dispatch({ type: 'play' })
     setView(null)
     try {

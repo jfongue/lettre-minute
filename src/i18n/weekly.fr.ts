@@ -25,8 +25,6 @@ export const weeklyFr = {
   card: {
     play: 'Jouer',
     attempts: (left: number) => (left > 0 ? `${left} ${plural(left, 'tentative', 'tentatives')} aujourd’hui` : 'Plus de tentative aujourd’hui'),
-    attemptLabel: (state: 'used' | 'free' | 'locked'): string =>
-      state === 'used' ? 'Tentative utilisée' : state === 'free' ? 'Tentative disponible' : 'Tentative verrouillée',
   },
   rules: {
     solo: 'La partie du jour, la même pour tous.',
@@ -40,12 +38,8 @@ export const weeklyFr = {
     rank: 'Mon rang',
     rankOf: (rank: number, players: number) => `${rank === 1 ? '1er' : `${rank}e`} sur ${players}`,
     noBest: 'Pas encore joué',
-    attempts: 'Tes tentatives',
-    intro: (count: number) => `Tu as ${count} tentatives aujourd’hui`,
-    introAfter: (count: number) => `${count} tentatives jouées aujourd’hui`,
     introLeft: (left: number) => `${left} ${plural(left, 'tentative', 'tentatives')} du défi du moment`,
     allUsed: 'Tu as joué toutes tes tentatives du jour. Reviens demain, elles reviennent à minuit.',
-    attempt: (n: number) => `Tentative ${n}`,
     slot: {
       used: 'Jouée',
       free: 'Disponible',
@@ -53,7 +47,6 @@ export const weeklyFr = {
       plus: 'Avec Premium',
       locked: 'Premium',
     },
-    launch: (n: number) => `Lancer la tentative ${n}`,
     confirmTitle: (n: number) => `Lancer la tentative ${n} ?`,
     confirmBody: 'Une tentative sera utilisée, même si tu quittes en cours de route.',
     confirmGo: 'C’est parti',
@@ -61,13 +54,12 @@ export const weeklyFr = {
     watchAd: 'Regarder une pub pour une tentative de plus',
     adBusy: 'La pub arrive…',
     adFailed: 'Pas de pub pour l’instant, réessaie dans un instant.',
-    goPremium: 'Passer Premium : 5 tentatives par jour',
+    goPremium: 'Passer Premium : 3 tentatives par jour',
     tutorial: 'Revoir le tutoriel',
     results: 'Classement de la semaine',
     refused: 'Plus de tentative disponible pour aujourd’hui.',
     offline: 'Hors ligne : tes tentatives sont comptées sur cet appareil.',
     loading: 'Le défi arrive…',
-    ready: 'Prêt ?',
     lineup: 'Au programme',
   },
   intro: {
