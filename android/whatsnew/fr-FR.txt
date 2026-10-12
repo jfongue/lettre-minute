@@ -1,6 +1,5 @@
-• Les succès ouvrent les formes et les couleurs de l’avatar : le bilan de fin de partie les liste un par un, et une tape ouvre l’éditeur sur la forme gagnée
-• La fin de partie s’allège : plus de compteurs ni de lignes techniques, et la langue se choisit en la lisant avant de valider
-• Les classements tiennent sur un seul interrupteur Solo / Défi, sous le titre
-• Le chrono d’endurance dit la vérité : sa leçon compte les trente secondes et te les rend au mot trouvé, et la partie tient au-dessus du clavier du téléphone
-• Le gagnant du défi du moment voit tout ce que son prix donne, et une révélation fait sauter la pastille de l’œil
+• Les succès se débloquent plus progressivement : deux succès ne tombent plus en même temps au début, et les niveaux, les parties jouées, les mots trouvés et les mots ajoutés montent bien plus haut qu’avant
+• Cinq pistes de succès arrivent : le défi du moment, les défis entre amis, les verdicts de modération, dix mots courts d’affilée et cinquante mots sans passer une question — chacune avec ses formes d’avatar
+• Dans l’éditeur d’avatar, ce qui vient d’être gagné est encadré de rouge jusqu’à ce que tu quittes l’écran, une fois pour toutes
+• L’annonce du mode endurance compte les secondes et te les rend au mot trouvé
 • Corrections de bugs et performance
