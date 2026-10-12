@@ -36,6 +36,9 @@ export type ShapeKind =
   | 'bloom'
   | 'archway'
   | 'dial'
+  | 'six'
+  | 'card'
+  | 'ribbon'
 
 export type Motion =
   | 'still'
@@ -144,6 +147,11 @@ const LOOKS: readonly Look[] = [
   ['bloom', 0, null, 'breathe'],
   ['archway', 0, null, 'spin'],
   ['dial', 0, null, 'nod'],
+// Les trois tuiles que la grille ouvre par un exploit plutôt que par un
+// barreau, à la fin pour ne déplacer aucune case déjà portée par un joueur.
+['six', 0, null, 'stamp'],
+['card', 0, null, 'sway'],
+['ribbon', 0, null, 'sway'],
 ]
 
 /**

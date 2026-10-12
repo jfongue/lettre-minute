@@ -167,8 +167,8 @@ export interface Achievement {
 
 /**
  * La grille d'avatar, dans l'ordre de ses cases : `[tuile, statistique, seuil]`.
- * C'est ici, et nulle part ailleurs, que se lit le seuil d'une case ; l'ordre
- * des tuiles ne bouge pas, un joueur en porte une.
+ * Avec `EXPLOIT_TILES`, juste après, c'est ici que se lit le seuil d'une case ;
+ * l'ordre des tuiles ne bouge pas, un joueur en porte une.
  *
  * Un tour de rôle entre les cinq pistes, pour que la grille mêle les niveaux
  * aux exploits au lieu de cacher chaque exploit derrière le dernier niveau.
@@ -230,6 +230,19 @@ const RUNGS: readonly [design: number, stat: Stat, at: number][] = [
 ]
 
 /**
+ * Les trois tuiles que la grille ouvre par un exploit, sans barreau : « Trois
+ * six », « Juste arbitre » et « Marathon » montraient la tuile d'un autre
+ * succès, l'exploit n'ayant qu'une couleur à donner. Leur jalon n'est pas une
+ * piste que la grille compte, raison pour laquelle il vit hors de `RUNGS` —
+ * mais chaque tuile a bien son seuil, et un seul.
+ */
+const EXPLOIT_TILES: readonly [design: number, stat: Counter, at: number][] = [
+  [50, 'bestScore', 666],
+  [51, 'wordsReviewed', 10],
+  [52, 'duelRounds4', 20],
+]
+
+/**
  * Les douze couleurs que la palette pose sur le seuil d'un barreau : elles se
  * gagnent avec lui. Les quinze autres n'ont pas de barreau — elles s'attachent
  * à un exploit, et `fuchsia` est arrivée avec cette règle : la palette en
@@ -251,7 +264,7 @@ const RUNG_COLOURS: readonly [colour: string, stat: Stat, at: number][] = [
 ]
 
 // Bounded by the grid: a goal no tile unlocks must fail loudly, not hang every
-// screen that loads this module (666 points did, before it took 900's tile).
+// screen that loads this module.
 const tileOf = (milestone: Milestone): number => {
   const rung = RUNGS.find(([, stat, at]) => stat === milestone.stat && at === milestone.at)
   if (!rung) throw new Error(`no avatar tile unlocks at ${milestone.stat} ${milestone.at}`)
@@ -293,8 +306,9 @@ const PLAY_ACHIEVEMENTS: readonly Achievement[] = [
   reaching('words-1000', { stat: 'wordsFound', at: 1000 }, 70),
   reaching('level-20', { stat: 'level', at: 20 }, 80),
   reaching('combo-24', { stat: 'bestCombo', at: 24 }, 90),
-  // No tile unlocks at 666: the icon Play already shows, 900's, stays.
-  { id: 'score-666', goal: { stat: 'bestScore', at: 666 }, design: 33, family: 'progress', play: 100, reward: { colour: 'moutarde' } },
+  // 666 ouvre sa propre tuile (50, le six) sans que son icône Play bouge : la
+  // Console montre déjà celle du barreau de 900, et ne se met jamais à jour.
+  { id: 'score-666', goal: { stat: 'bestScore', at: 666 }, design: 33, family: 'progress', play: 100, reward: { design: 50, colour: 'moutarde' } },
   reaching('runs-400', { stat: 'runs', at: 400 }, 110),
   reaching('words-2000', { stat: 'wordsFound', at: 2000 }, 120),
   reaching('level-35', { stat: 'level', at: 35 }, 145),
@@ -329,12 +343,12 @@ const INGAME_ACHIEVEMENTS: readonly Achievement[] = [
   // plus) : le premier barreau est de s'y asseoir, le second d'y tenir vingt
   // manches, ce qu'aucune table n'a jamais approché.
   { id: 'duel-four', goal: { stat: 'duelRounds4', at: 1 }, design: 43, family: 'exploit', reward: { colour: 'bordeaux' } },
-  { id: 'duel-round-20', goal: { stat: 'duelRounds4', at: 20 }, design: 38, family: 'exploit', reward: { colour: 'gris' } },
+  { id: 'duel-round-20', goal: { stat: 'duelRounds4', at: 20 }, design: 38, family: 'exploit', reward: { design: 52, colour: 'gris' } },
   { id: 'day-first', goal: { stat: 'dailyFirst', at: 1 }, design: 46, family: 'exploit', reward: { colour: 'citron' } },
   { id: 'categories-12', goal: { stat: 'playedCategories', at: 12 }, design: 23, family: 'explore', reward: { colour: 'turquoise' } },
   // La modération n'est pas une partie : le compte monte quand un verdict part
   // (`src/ui/ModerationScreen.tsx`), jamais à la fin d'un run.
-  { id: 'reviews-10', goal: { stat: 'wordsReviewed', at: 10 }, design: 31, family: 'progress', reward: { colour: 'outremer' } },
+  { id: 'reviews-10', goal: { stat: 'wordsReviewed', at: 10 }, design: 31, family: 'progress', reward: { design: 51, colour: 'outremer' } },
 ]
 
 /** Ceux dont l'i18n écrit le nom, dans l'ordre du catalogue. */
@@ -448,8 +462,8 @@ export function designWinner(design: number): Achievement | null {
 }
 
 /** Le jalon d'une case de la grille : ce que son succès demande, et rien d'autre. */
-export function designGoal(design: number): Milestone | null {
-  const rung = RUNGS.find(([tile]) => tile === design)
+export function designGoal(design: number): Goal | null {
+  const rung = [...RUNGS, ...EXPLOIT_TILES].find(([tile]) => tile === design)
   return rung === undefined ? null : { stat: rung[1], at: rung[2] }
 }
 

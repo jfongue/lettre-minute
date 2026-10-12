@@ -54,6 +54,12 @@ describe('achievements', () => {
     }
   })
 
+  it('opens the three exploit tiles on the exploit that earned them', () => {
+    expect(designWinner(50)?.id).toBe('score-666')
+    expect(designWinner(51)?.id).toBe('reviews-10')
+    expect(designWinner(52)?.id).toBe('duel-round-20')
+  })
+
   it('gives every colour the milestone of the success that carries it', () => {
     for (const achievement of ACHIEVEMENTS) {
       if (achievement.reward.colour === undefined) continue
@@ -166,13 +172,15 @@ describe('achievements', () => {
       wordsFound: 5000,
       bestCombo: 30,
       wordsAdded: 1100,
+      wordsReviewed: 10,
+      duelRounds4: 20,
     }
     const rungInks = ACHIEVEMENTS.filter(
       (achievement) => achievement.reward.design !== undefined && achievement.reward.colour !== undefined,
     )
 
     expect(ownedDesigns(veteran)).toHaveLength(AVATARS.length)
-    expect(rungInks).toHaveLength(12)
+    expect(rungInks).toHaveLength(15)
     for (const rung of rungInks) {
       expect(ownedColours(veteran).map((colour) => colour.id)).toContain(rung.reward.colour)
     }

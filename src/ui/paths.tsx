@@ -81,6 +81,24 @@ export const PATHS: Record<ShapeKind | DetailKind, ReactNode> = {
   ),
   archway: <path d="M0 52A52 52 0 0 1 100 52V100H66V80A16 16 0 0 0 34 80V100H0Z" />,
   dial: <circle cx="50" cy="50" r="40" />,
+// Les trois tuiles qu'un exploit ouvre sans barreau : le 6 de « Trois six », la
+// carte de biais de « Juste arbitre », le faisceau de lignes de « Marathon ».
+six: (
+  <path
+    d="M74 10A42 42 0 0 0 28 62A26 26 0 1 0 54 36"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="18"
+  />
+),
+card: <rect x="24" y="9" width="52" height="82" transform="rotate(-20 50 50)" />,
+ribbon: (
+  <g fill="none" stroke="currentColor" strokeWidth="10">
+    <path d="M0 40H50A10 10 0 0 1 50 60H0" />
+    <path d="M0 24H50A26 26 0 0 1 50 76H0" />
+    <path d="M0 8H50A42 42 0 0 1 50 92H0" />
+  </g>
+),
   bangDot: <circle cx="50" cy="86" r="12" />,
   dialHand: <rect x="47" y="6" width="6" height="44" rx="3" transform="rotate(45 50 50)" />,
 }

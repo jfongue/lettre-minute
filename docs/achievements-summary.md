@@ -9,11 +9,16 @@ nombre de joueurs qui l'ont obtenu.
   écartés), dont **40** portent au moins une partie.
 - **61 succès** : 15 publiés sur Play Games,
   16 écrits dans le jeu, 30 barreaux de la grille.
-- **45 barreaux** découpent la grille : 15 d'entre eux sont
-  aussi des succès Play Games, 30 n'existent que dans l'app.
-- **50 avatars** (les 5 premiers sont offerts) et
+- **48 barreaux** découpent la grille : 15 d'entre eux sont
+  aussi des succès Play Games, 30 n'existent que dans l'app, et 3 sont ouverts
+par un exploit — « Trois six », « Juste arbitre », « Marathon » —, qui ne
+donnait jusque-là qu'une couleur.
+- **53 avatars** (les 5 premiers sont offerts) et
   **31 couleurs** (3 offertes, 12 gagnées avec un barreau,
   16 avec un défi ou une exploration).
+- Les trois tuiles nouvelles sont les avatars 51 (six), 52 (carte) et 53
+(faisceau) ; les tableaux et l'aperçu ci-dessous les ignorent encore, et
+seront refaits quand leurs dessins définitifs seront choisis.
 - Un avatar se numérote comme dans l'éditeur : « Avatar *n* » est la tuile
   `n - 1` du code. Un succès qui n'ouvre pas de tuile montre pourtant une
   tuile : son **icône réemploie** celle d'un autre succès (partie 5).

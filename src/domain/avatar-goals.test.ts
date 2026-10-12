@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { designGoal } from './achievements'
-import type { Milestone } from './avatar'
+import { designGoal, type Goal } from './achievements'
 
 /**
  * Les 43 tuiles livrées, jalon par jalon, tels qu'ils étaient avant l'ajout des
@@ -58,7 +57,7 @@ const SHIPPED: readonly string[] = [
   'level:35',
 ]
 
-const label = (goal: Milestone | null) => (goal ? `${goal.stat}:${goal.at}` : 'aucun')
+const label = (goal: Goal | null) => (goal ? `${goal.stat}:${goal.at}` : 'aucun')
 
 describe('les jalons d’avatar déjà livrés', () => {
   it('ne bougent pas quand on ajoute des tuiles', () => {

@@ -80,15 +80,15 @@ it('earns nothing on a first run, even a very good one', () => {
   })
 
   it('opens every tile to a long career, and the colours the rungs carry', () => {
-    const veteran = { ...NEW_PROFILE, xp: xpForLevel(35), runs: 500, bestScore: 1000, wordsFound: 5000, bestCombo: 30, wordsAdded: 1000 }
+    const veteran = { ...NEW_PROFILE, xp: xpForLevel(35), runs: 500, bestScore: 1000, wordsFound: 5000, bestCombo: 30, wordsAdded: 1000, wordsReviewed: 10, duelRounds4: 20 }
     const rungInks = ACHIEVEMENTS.filter(
       (achievement) => achievement.reward.design !== undefined && achievement.reward.colour !== undefined,
     )
 
     expect(ownedDesigns(veteran)).toHaveLength(AVATARS.length)
-    // Douze couleurs sont posées sur un barreau de la grille ; les seize autres
-    // tiennent à un exploit, qui a ses propres compteurs.
-    expect(rungInks).toHaveLength(12)
+    // Quinze couleurs sont posées sur une tuile de la grille ; les treize autres
+    // tiennent à un exploit, qui n'a qu'une couleur à donner.
+    expect(rungInks).toHaveLength(15)
     for (const rung of rungInks) {
       expect(ownedColours(veteran).map((colour) => colour.id)).toContain(rung.reward.colour)
     }
