@@ -19,9 +19,10 @@ donnait jusque-là qu'une couleur.
 - Les trois tuiles nouvelles sont les avatars 51 (six), 52 (carte) et 53
 (faisceau) ; les tableaux et l'aperçu ci-dessous les ignorent encore, et
 seront refaits quand leurs dessins définitifs seront choisis.
-- Un avatar se numérote comme dans l'éditeur : « Avatar *n* » est la tuile
-  `n - 1` du code. Un succès qui n'ouvre pas de tuile montre pourtant une
-  tuile : son **icône réemploie** celle d'un autre succès (partie 5).
+- Un avatar se numérote par sa tuile : « Avatar *n* » est la tuile `n - 1` du
+code — un numéro de ce document, l'éditeur ne nomme plus les tuiles. Un succès
+qui n'ouvre pas de tuile montre pourtant une tuile : son **icône réemploie**
+celle d'un autre succès (partie 5).
 
 Aperçu visuel : [`achievements-summary.html`](achievements-summary.html) dessine
 chaque succès avec la tuile de son icône et la couleur qu'il ouvre ;
