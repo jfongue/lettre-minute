@@ -2,10 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import {
   colourWinner,
   designWinner,
+  isNamed,
   ownedColours,
   ownedDesigns,
   unseenColours,
   unseenDesigns,
+  type Achievement,
 } from '../domain/achievements'
 import { AVATARS, PALETTE, sameAvatar, type AvatarChoice } from '../domain/avatar'
 import type { Profile } from '../domain/progression'
@@ -72,6 +74,19 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
   const layers = design.accent ? LAYERS : LAYERS.filter((id) => id !== 'accent')
   const activeLayer = layers.includes(layer) ? layer : 'shape'
 
+  /**
+   * Ce qu'une case ou une couleur dit quand on la touche : le succès qui
+   * l'ouvre — son nom quand il en a un, comme « Coup d'œil » —, puis ce qu'il
+   * demande. Une case ne se nomme pas elle-même ; une couleur met la sienne
+   * devant.
+   */
+  const tell = (item: string | null, winner: Achievement | null): string | null => {
+    if (winner === null) return null
+    const how = t.ach.how(winner.goal)
+    const earned = isNamed(winner.id) ? t.avatar.hint(achievementText(t, winner).name, how) : how
+    return item === null ? earned : t.avatar.hint(item, earned)
+  }
+
   return (
     <div className="avatar-editor cascade">
       <header className="avatar-head">
@@ -105,9 +120,8 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
         <div className="swatches">
           {PALETTE.map((colour) => {
             const owned = inks.has(colour.id)
-            const winner = colourWinner(colour.id)
-            const how = winner === null ? null : achievementText(t, winner).name
             const label = t.colours[colour.id] ?? colour.label
+            const how = tell(label, colourWinner(colour.id))
             return (
               <button
                 key={colour.id}
@@ -119,12 +133,8 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
                 aria-label={owned ? label : t.avatar.lockedColour(label)}
                 onClick={() => {
                   if (fresh.has(colour.id)) setSeenInks((current) => [...current, colour.id])
-                  if (owned) {
-                    setDraft({ ...draft, [activeLayer]: colour.id })
-                    setHint(how ? t.avatar.earnedHint(label, how) : null)
-                  } else if (how) {
-                    setHint(t.avatar.unlockHint(label, how))
-                  }
+                  if (owned) setDraft({ ...draft, [activeLayer]: colour.id })
+                  setHint(how)
                 }}
               />
             )
@@ -140,9 +150,7 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
         {AVATARS.map((entry) => {
           const owned = tiles.has(entry.id)
           const isNew = news.includes(entry.id)
-          const winner = designWinner(entry.id)
-          const how = winner === null ? null : achievementText(t, winner).name
-          const name = t.avatar.design(entry.id + 1)
+          const how = tell(null, designWinner(entry.id))
           return (
             <button
               key={entry.id}
@@ -151,15 +159,11 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
               className={`avatar-cell${draft.design === entry.id ? ' avatar-cell--on' : ''}${
                 shaking === entry.id ? ' avatar-cell--shake' : ''
               }${isNew ? ' avatar-cell--new' : ''}`}
-              aria-label={owned ? name : t.avatar.lockedDesign(entry.id + 1)}
+              aria-label={how === null ? t.avatar.offered : owned ? how : t.avatar.lockedTile(how)}
               onClick={() => {
                 if (isNew) setSeen((current) => [...current, entry.id])
-                if (owned) {
-                  setDraft({ ...draft, design: entry.id })
-                  setHint(how ? t.avatar.earnedHint(name, how) : null)
-                } else if (how) {
-                  setHint(t.avatar.unlockHint(name, how))
-                }
+                if (owned) setDraft({ ...draft, design: entry.id })
+                setHint(how)
               }}
             >
               <Avatar choice={{ ...draft, design: entry.id }} size="fill" locked={!owned} />

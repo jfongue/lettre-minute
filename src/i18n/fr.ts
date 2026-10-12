@@ -589,11 +589,12 @@ export const fr = {
     lead: 'Les parties, les séries et les niveaux en débloquent d’autres.',
     layers: { ground: 'Fond', shape: 'Forme', accent: 'Accent' },
     lockedColour: (colour: string) => `${colour}, verrouillée`,
-    design: (number: number) => `Avatar ${number}`,
-    lockedDesign: (number: number) => `Avatar ${number}, verrouillé`,
-new: 'Nouveau',
-    unlockHint: (item: string, how: string) => `${item} : ${how}`,
-    earnedHint: (item: string, how: string) => `${item} · gagné avec : ${how}`,
+    /** Une case que le joueur porte depuis sa première partie : aucun succès ne l'ouvre. */
+    offered: 'Forme de départ',
+    lockedTile: (item: string) => `${item}, verrouillée`,
+    new: 'Nouveau',
+    /** L'infobulle d'une case ou d'une couleur : ce qu'elle est, puis ce qu'elle demande. */
+    hint: (item: string, how: string) => `${item} · ${how}`,
     idle: 'Touche une case pour savoir comment elle se gagne.',
     save: 'Garder cet avatar',
     back: 'Retour',
