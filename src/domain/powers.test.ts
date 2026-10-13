@@ -188,7 +188,7 @@ expect(submit(run, 'Animal0', judge, 0).run.latecomerSeconds).toBe(0)
 })
 
 describe('Passe-passe', () => {
-it('grants one free follow-up skip and keeps the streak through both', () => {
+it('grants a free follow-up skip after every skip, without a limit', () => {
 const run = { ...runWith('double-skip'), combo: 4 }
 const first = skip(run, judge, 1)
 expect(first.penaltySeconds).toBe(5)
@@ -201,6 +201,13 @@ expect(second.penaltySeconds).toBe(5)
 expect(second.freeSkipReady).toBe(false)
 expect(second.combo).toBe(4)
 expect(second.skips).toBe(2)
+// Sans limite : le passage payé suivant rouvre un passage gratuit.
+const third = skip(second, judge, 3)
+expect(third.penaltySeconds).toBe(10)
+expect(third.freeSkipReady).toBe(true)
+expect(third.combo).toBe(4)
+expect(skipPenalty(third)).toBe(0)
+expect(chargesLeft(third, 'double-skip')).toBe(0)
 })
 
 it('does not grant a free skip after Bavardage’s free change', () => {
@@ -212,7 +219,7 @@ expect(changed.penaltySeconds).toBe(0)
 })
 
 describe('Sans faute', () => {
-it('pays ten points immediately after every three exact words', () => {
+it('pays thirty points immediately after every six exact words', () => {
 let run = onLetter(runWith('flawless'), 'A')
 for (let index = 0; index < FLAWLESS_STREAK; index++) {
 run = submit({ ...run, prompt: { ...run.prompt, letter: 'A' }, promptAt: index, used: [] }, `Animal${index}`, judge, index + 1).run

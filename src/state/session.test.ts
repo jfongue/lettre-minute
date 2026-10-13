@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { NEW_PROFILE } from '../domain/progression'
 import { NO_USAGE } from '../domain/rarity'
-import type { Judge } from '../domain/run'
+import { chargesLeft, type Judge } from '../domain/run'
 import { buildWordPack, findWord, lettersWithEnough } from '../domain/words'
 import { initialSession, sessionReducer, type Session } from './session'
 
@@ -186,9 +186,79 @@ describe('proposals', () => {
   })
 
   it('ignores an empty word, and a respelling of no proposal at all', () => {
-    expect(proposed('   ', 1).proposals).toEqual([])
+    expect(proposed(' ', 1).proposals).toEqual([])
     expect(sessionReducer(proposed('axolotl', 1), { type: 'proposal-amended', at: 9, display: 'x' }).proposals).toEqual([
       proposal('axolotl', 1),
     ])
   })
 })
+
+describe('Tricherie', () => {
+  const spelling: Judge = { ...judge, spells: { joker: ['joker'], hush: ['chut'] }, common: (_, letter) => `${letter}nimal0` }
+  const ready = () =>
+    sessionReducer(initialSession({ ...NEW_PROFILE, powers: ['joker'], equipped: ['joker'] }), {
+      type: 'ready',
+      judge: spelling,
+      seed: 7,
+      categoryIds: ['animaux'],
+      reserve: [],
+    })
+
+    it('écrit son mot dès que « Joker » est reconnu, sans valider', () => {
+      const started = sessionReducer(ready(), { type: 'start' })
+      const typed = sessionReducer(started, { type: 'type', draft: 'Joker' })
+
+      expect(typed.run!.joker?.display).toBe(`${started.run!.prompt.letter}nimal0`)
+      expect(typed.draft).toBe(typed.run!.joker!.display)
+      expect(typed.live!.found?.joker).toBe(true)
+      expect(chargesLeft(typed.run!, 'joker')).toBe(0)
+    })
+
+    it('ne se déclenche pas sans le pouvoir, ni sur un autre mot', () => {
+      const starting = sessionReducer(
+        sessionReducer(initialSession(NEW_PROFILE), { type: 'ready', judge: spelling, seed: 7, categoryIds: ['animaux'], reserve: [] }),
+        { type: 'start' },
+      )
+      const typed = sessionReducer(starting, { type: 'type', draft: 'Joker' })
+      expect(typed.run!.joker).toBeNull()
+      expect(typed.live!.kind).not.toBe('spell')
+    })
+  })
+
+  describe('le mot du Professeur', () => {
+    const suggesting: Judge = { ...judge, suggest: (_, letter) => `${letter}nimal0` }
+    const professing = { ...NEW_PROFILE, powers: ['professor'], equipped: ['professor'] }
+    const ready = (profile = professing) =>
+      sessionReducer(initialSession(profile), { type: 'ready', judge: suggesting, seed: 7, categoryIds: ['animaux'], reserve: [] })
+
+      it('retient les mots proposés, puis marque leur première écriture une fois', () => {
+        const started = sessionReducer(ready(), { type: 'start' })
+        const proposed = `${started.run!.prompt.letter}nimal0`
+        const skipped = sessionReducer(started, { type: 'skip', at: 5 })
+        const over = sessionReducer(skipped, { type: 'time-up', at: 60 })
+        expect(over.profile.professorWords).toEqual([proposed.toLowerCase()])
+        expect(over.profile.professorWordsPlayed).toBe(0)
+
+        const next = sessionReducer(ready({ ...professing, professorWords: over.profile.professorWords }), { type: 'start' })
+        expect(next.run!.taught).toEqual([proposed.toLowerCase()])
+
+        const typed = sessionReducer(next, { type: 'type', draft: proposed })
+        expect(typed.live!.kind).toBe('accepted')
+        const submitted = sessionReducer(typed, { type: 'submit', at: 10 })
+        expect(submitted.cheer?.taught).toBe(true)
+
+        const done = sessionReducer(submitted, { type: 'time-up', at: 60 })
+        expect(done.profile.professorWordsPlayed).toBe(1)
+        expect(done.profile.professorWords).toEqual([])
+      })
+
+      it('ne retient rien ni ne marque rien sans le pouvoir', () => {
+        const plain = sessionReducer(initialSession(NEW_PROFILE), { type: 'ready', judge: suggesting, seed: 7, categoryIds: ['animaux'], reserve: [] })
+        const skipped = sessionReducer(sessionReducer(plain, { type: 'start' }), { type: 'skip', at: 5 })
+        const over = sessionReducer(skipped, { type: 'time-up', at: 60 })
+
+        expect(over.profile.professorWords).toEqual([])
+        expect(over.profile.professorWordsPlayed).toBe(0)
+        expect(over.run!.taught).toEqual([])
+      })
+    })

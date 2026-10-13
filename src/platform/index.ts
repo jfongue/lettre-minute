@@ -25,8 +25,14 @@ export function hostFeatures(features: ReadonlySet<string>): ReadonlySet<string>
   return new Set([...features, ...host.openedFeatures].filter((id) => !host.closedFeatures.has(id)))
 }
 
-/** Real-money Premium: Android shell only, never the web page of the same build, CrazyGames or Reddit. */
-export const premiumStoreOpen = host.premiumStore && PLATFORM === 'android'
+/**
+ * Real-money Premium: the phone's shell through Play Billing, or the web page
+ * through its own merchant (`VITE_PREMIUM_WEB`, off unless the merchant is
+ * ready — a debug publication must never ask for money by accident).
+ * CrazyGames and Reddit sell nothing.
+ */
+export const premiumStoreOpen =
+  host.premiumStore && (PLATFORM === 'android' || (PLATFORM === 'web' && import.meta.env.VITE_PREMIUM_WEB === 'true'))
 
 /** Rewarded ads (AdMob): Android shell only. */
 export const rewardedAdsOpen = host.rewardedAds && PLATFORM === 'android'

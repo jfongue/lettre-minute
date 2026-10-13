@@ -1854,6 +1854,46 @@ export function fetchMyPremium(): Promise<boolean> {
   }, false)
 }
 
+/**
+ * Whether the web page's merchant is configured and can take an order: the
+ * Edge function holds the keys, so only it knows. Asked before the Premium
+ * sheet offers its price, as `billingSupported` answers on the phone.
+ */
+export function webCheckoutReady(): Promise<boolean> {
+  return guard(async () => {
+    const session = (await supabase!.auth.getSession()).data.session
+    const base = import.meta.env.VITE_SUPABASE_URL
+    if (!session || !base) return false
+    const response = await fetch(`${base}/functions/v1/premium-checkout`, {
+      headers: { authorization: `Bearer ${session.access_token}` },
+    })
+    if (!response.ok) return false
+    return (await response.json()).ready === true
+  }, false)
+}
+
+/**
+ * Opens a checkout at the merchant for this account and hands back the page to
+ * send the player to. The account rides in the order's custom data, which is
+ * how `premium-webhook` knows whom to credit (0069). Null without a session or
+ * an answer: a purchase nobody could be credited for is worse than none.
+ */
+export function openWebCheckout(product: string): Promise<string | null> {
+  return guard(async () => {
+    const session = (await supabase!.auth.getSession()).data.session
+    const base = import.meta.env.VITE_SUPABASE_URL
+    if (!session || !base) return null
+    const response = await fetch(`${base}/functions/v1/premium-checkout`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${session.access_token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ product }),
+    })
+    if (!response.ok) return null
+    const { url } = await response.json()
+    return typeof url === 'string' && url.startsWith('https://') ? url : null
+  }, null)
+}
+
 // --------------------------------------------------------- défi du moment --
 // Les tables du défi portent leur langue dans une colonne : ni mots ni
 // catégories n'y sont préfixés, contrairement au reste de ce fichier.

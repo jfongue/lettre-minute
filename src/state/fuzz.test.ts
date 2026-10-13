@@ -127,7 +127,8 @@ function playOne(seed: number, lang: string): void {
       const before = run
       run = skip(run, judge, step)
       expect(run.skips, context()).toBe(before.skips + 1)
-      if (!before.freeSkipReady && before.chatter === 0) expect(run.combo, context()).toBe(before.powers.includes('double-skip') && before.charges['double-skip'] === 1 ? before.combo : 0)
+      // Passe-passe ne coûte jamais la série : chaque passage payé rouvre un passage gratuit.
+if (!before.freeSkipReady && before.chatter === 0) expect(run.combo, context()).toBe(before.powers.includes('double-skip') ? before.combo : 0)
       continue
     }
 

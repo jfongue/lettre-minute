@@ -6413,6 +6413,26 @@ referment d'un coup : `--way` donne le sens de chacune. */
   }
 }
 
+/* Le Joker écrit son mot dans le champ dès qu'il est reconnu : le mot s'y pose
+d'un coup, la carte se retournant au-dessus. */
+.answer-field--joker input {
+  animation: joker-write 620ms var(--ease-out) both;
+}
+
+@keyframes joker-write {
+  0% {
+    transform: scale(0.78) translateY(0.35rem);
+    opacity: 0.15;
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 /* Esquive : le bouton passe au vert, et la lettre suivante arrive plus vite. */
 .btn--dodge {
   color: var(--green);
@@ -6461,6 +6481,36 @@ referment d'un coup : `--way` donne le sens de chacune. */
   from {
     transform: rotate(-6deg) scale(2.6);
     opacity: 0;
+  }
+}
+
+/* Le mot du Professeur, écrit pour la première fois : il s’allume une fois, et
+rien d’autre — aucun point, aucune rareté ne bouge. */
+.cheer--taught .cheer-word,
+.verdict--taught {
+  animation: taught-spark 1100ms var(--ease-out) both;
+}
+
+.cheer--taught .cheer-word {
+  display: inline-block;
+}
+
+@keyframes taught-spark {
+  0% {
+    transform: scale(1);
+    text-shadow: none;
+  }
+  30% {
+    transform: scale(1.16);
+    text-shadow: 0 0 0.7em var(--yellow);
+  }
+  65% {
+    transform: scale(1.02);
+    text-shadow: 0 0 0.3em var(--yellow);
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: none;
   }
 }
 

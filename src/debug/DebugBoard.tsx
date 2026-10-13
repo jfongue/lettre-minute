@@ -6,7 +6,7 @@ import { chooseBonus } from '../domain/bonus'
 import { NEW_PROFILE, xpForLevel, type Profile } from '../domain/progression'
 import type { PlayedWord, RunRecord } from '../domain/history'
 import type { RarityTier } from '../domain/rarity'
-import type { KeptWord, Run } from '../domain/run'
+import type { KeptWord, Run, Verdict } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
 import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, ReviewCard, Submission, SubmissionStatus } from '../lib/cloud'
 import type { AccountActions } from '../ui/AccountPanel'
@@ -21,6 +21,8 @@ import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
 import { ModerationScreen } from '../ui/ModerationScreen'
 import { OverScreen, type RunProposal } from '../ui/OverScreen'
+import { RunScreen } from '../ui/RunScreen'
+import type { Cheer } from '../state/session'
 import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
 import { GameModes } from '../ui/GameModes'
 import { ModeTutorial } from '../ui/ModeTutorial'
@@ -203,6 +205,7 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     approximate,
     edits: approximate ? 1 : 0,
     joker: false,
+    taught: false,
     boost: 1,
     seconds: 3 + (index % 4),
     at: 5 + index * 6,
@@ -219,6 +222,7 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     dealt: [],
     settled: [],
     shared: false,
+    taught: [],
     seeded: [],
     found,
     used: [],
@@ -1353,6 +1357,52 @@ interface Scenario {
 const levelUp = (from: number, to: number): [Profile, Profile] => {
   const before = { ...PROFILE, xp: at(from, 80) }
   return [before, afterRun(before, RUN, { xp: at(to, 40) })]
+}
+
+/** Le champ de la partie, dans les deux états qu'on ne voit qu'en jouant. */
+function RunEffets(props: { run: Run; draft: string; live: Verdict | null; cheer: Cheer | null }) {
+  return (
+    <RunScreen
+      run={props.run}
+      draft={props.draft}
+      live={props.live}
+      cheer={props.cheer}
+      remaining={32}
+      hushed={false}
+      next={null}
+      proposed={[]}
+      onType={noop}
+      onSubmit={noop}
+      onSkip={noop}
+      onReroll={noop}
+      onRecall={noop}
+      onPropose={noop}
+    />
+  )
+}
+
+/** Le mot repris au Professeur : l'étoile s'allume une fois, sans rien changer au barème. */
+function ProfessorWordScenario() {
+  const run: Run = {
+    ...makeRun(120, WORDS.slice(0, 3)),
+    powers: ['professor'],
+    prompt: { categoryId: 'animaux', letter: 'O' },
+    taught: ['ornithorynque'],
+  }
+  const found = { ...run.found[1]!, taught: true }
+  const cheer: Cheer = { display: found.display, points: found.points, tier: found.tier, approximate: false, edits: 0, joker: false, taught: true, boost: 1, auto: false }
+  return <RunEffets run={run} draft={found.display} live={{ kind: 'accepted', found }} cheer={cheer} />
+}
+
+/** Le Joker reconnu à la frappe : son mot s'écrit d'un coup, la carte se retourne. */
+function JokerWriteScenario() {
+  const run: Run = {
+    ...makeRun(64, WORDS.slice(0, 2)),
+    powers: ['joker'],
+    prompt: { categoryId: 'animaux', letter: 'L' },
+    joker: { key: 'Lama', display: 'Lama' },
+  }
+  return <RunEffets run={run} draft="Lama" live={null} cheer={null} />
 }
 
 /** L'offre de modérateur : un seul rendu pour les trois raisons qui l'amènent. */
@@ -2661,6 +2711,22 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'La partie de duel accélérée que joue la page avant son salon : les places, le draft, le tirage de l’ouvreur, puis la table jusqu’au gagnant, en boucle',
     phase: 'duel',
     render: (back) => <DuelTutorial me={DUEL_ME} onDone={back} />,
+  },
+  {
+    id: 'run-professor-word',
+    group: 'Partie',
+    title: 'Le mot du Professeur',
+    how: 'Le mot écrit avait été proposé à la partie précédente : l’étoile s’allume dessus, une fois',
+    phase: 'playing',
+    render: () => <ProfessorWordScenario />,
+  },
+  {
+    id: 'run-joker-write',
+    group: 'Partie',
+    title: 'Le Joker écrit son mot',
+    how: '« Joker » reconnu à la frappe : le mot s’écrit d’un coup dans le champ, la carte se retourne',
+    phase: 'playing',
+    render: () => <JokerWriteScenario />,
   },
 ]
 

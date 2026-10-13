@@ -75,6 +75,7 @@ export type ExploitId =
   | 'clean-run-10'
   | 'categories-12'
   | 'reviews-10'
+  | 'professor-word'
 
 /**
  * Les trente barreaux qui manquaient aux quarante-cinq cases de la grille :
@@ -132,6 +133,7 @@ type CountedStat =
 | 'challengesFinished'
 | 'shortStreak'
 | 'noPassStreak'
+| 'professorWordsPlayed'
 /** Ceux qui se comptent par leur longueur, ou par le niveau, ou par le serveur. */
 type ListedStat = 'powersUsed' | 'playedCategories'
 export type Counter = CountedStat | ListedStat | 'level' | 'discoveries'
@@ -243,6 +245,7 @@ const EXPLOIT_TILES: readonly [design: number, stat: Counter, at: number][] = [
   [50, 'bestScore', 666],
   [51, 'wordsReviewed', 10],
   [52, 'noPassStreak', 50],
+  [53, 'professorWordsPlayed', 1],
 ]
 
 /**
@@ -354,6 +357,9 @@ const INGAME_ACHIEVEMENTS: readonly Achievement[] = [
   // La modération n'est pas une partie : le compte monte quand un verdict part
   // (`src/ui/ModerationScreen.tsx`), jamais à la fin d'un run.
   { id: 'reviews-10', goal: { stat: 'wordsReviewed', at: 10 }, design: 31, family: 'progress', reward: { design: 51, colour: 'outremer' } },
+// Le mot du Professeur : sa tuile neuve (53) ne paie qu'elle-même, toutes les
+// couleurs du catalogue étant déjà gagnées.
+{ id: 'professor-word', goal: { stat: 'professorWordsPlayed', at: 1 }, design: 53, family: 'exploit', reward: { design: 53 } },
 ]
 
 /** Ceux dont l'i18n écrit le nom, dans l'ordre du catalogue. */

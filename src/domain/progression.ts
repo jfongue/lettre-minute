@@ -150,6 +150,14 @@ export interface Profile {
   shortStreak: number
   /** Mots trouvés d'affilée sans passer une question, d'une partie à l'autre. */
   noPassStreak: number
+  /**
+  * Les mots que le Professeur a proposés au bilan et que le joueur n'a pas
+  * encore repris (`compactWord`) : le premier qui est écrit se marque d'un
+  * effet, puis sort de la mémoire.
+  */
+  professorWords: readonly string[]
+  /** Mots du Professeur repris, un par un : ce que le succès « Élève » compte. */
+  professorWordsPlayed: number
 }
 
 /**
@@ -204,6 +212,8 @@ export const NEW_PROFILE: Profile = {
   challengesFinished: 0,
   shortStreak: 0,
   noPassStreak: 0,
+  professorWords: [],
+  professorWordsPlayed: 0,
 }
 
 export interface RunOutcome {

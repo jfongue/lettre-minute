@@ -86,7 +86,7 @@ it('earns nothing on a first run, even a very good one', () => {
   })
 
   it('opens every tile to a long career, and the colours the rungs carry', () => {
-    const veteran = { ...NEW_PROFILE, xp: xpForLevel(50), runs: 1200, bestScore: 900, wordsFound: 8000, bestCombo: 30, wordsAdded: 500, wordsReviewed: 300, weeklyAttempts: 30, challengesFinished: 25, shortStreak: 10, noPassStreak: 50 }
+    const veteran = { ...NEW_PROFILE, xp: xpForLevel(50), runs: 1200, bestScore: 900, wordsFound: 8000, bestCombo: 30, wordsAdded: 500, wordsReviewed: 300, weeklyAttempts: 30, challengesFinished: 25, shortStreak: 10, noPassStreak: 50, professorWordsPlayed: 1 }
     const rungInks = ACHIEVEMENTS.filter(
       (achievement) => achievement.reward.design !== undefined && achievement.reward.colour !== undefined,
     )

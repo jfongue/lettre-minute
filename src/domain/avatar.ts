@@ -236,11 +236,13 @@ const LOOKS: readonly Look[] = [
   ['cushion', 0, null, 'squish'],
   ['squareBite', 0, null, 'flip'],
   ['dial', 0, null, 'tick'],
-  // Les trois tuiles que la grille ouvre par un exploit plutôt que par un
-  // barreau, à la fin pour ne déplacer aucune case déjà portée par un joueur.
+  // Les tuiles que la grille ouvre par un exploit plutôt que par un barreau, à
+  // la fin pour ne déplacer aucune case déjà portée par un joueur.
   ['spiral', 0, null, 'coil'],
   ['split', 0, null, 'part'],
   ['links', 0, null, 'swing'],
+  // La tuile du mot du Professeur : une étoile, comme un mot retenu.
+  ['star', 0, null, 'bob'],
 ]
 
 /**

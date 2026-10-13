@@ -595,19 +595,19 @@ doubleSkipFree: 'Doble salto · pase gratis',
     giftOk: '¡Gracias!',
     names: {
       permutation: ['Cambio', 'Al empezar, toca un tema para cambiarlo por uno de tu reserva. Dos veces.'],
-      joker: ['Trampa', 'Una vez por partida, escribe «Joker» y valida: el juego escribe por ti una palabra correcta.'],
+      joker: ['Trampa', 'Una vez por partida, escribe «Joker»: el juego escribe por ti una palabra correcta.'],
       dodge: ['Esquiva', 'Pasar solo cuesta 3 segundos en vez de 5.'],
-      magic: ['Magia', 'Dos veces por partida, toca la letra para sacar otra.'],
+      magic: ['Magia', 'Dos veces por partida, toca la letra para ignorarla.'],
       hush: ['Silencio', 'Una vez por partida, escribe «chis»: el reloj se para hasta tu próxima palabra, diez segundos como mucho.'],
-      dyslexia: ['Dislexia', 'Dos faltas pasan en palabras de seis letras o más.'],
+      dyslexia: ['Dislexia', 'Más margen con las faltas de ortografía.'],
       divination: ['Adivinación', 'Ves el tema y la letra que vienen después.'],
-      complication: ['Riesgo', 'Las palabras poco comunes valen ×1,15; las raras, ×1,3.'],
-      celerity: ['Celeridad', 'Una palabra se valida sola, sin pulsar Intro, incluso con una errata.'],
-      professor: ['Profesor', 'Las palabras sugeridas al final son poco comunes: nunca dichas a ser posible, a veces raras.'],
+      complication: ['Riesgo', 'Las palabras poco comunes valen más; las raras, aún más.'],
+      celerity: ['Celeridad', 'Una palabra se valida rápido y sola, sin pulsar Intro. Incluso con una errata.'],
+      professor: ['Profesor', 'Las palabras sugeridas al final son (muy) raras.'],
       chatter: ['Cháchara', 'Una vez por partida, añade «...» a una palabra: la letra y el tema se quedan tres palabras más.'],
 latecomer: ['A última hora', 'Valida una palabra en los últimos 5 segundos: ganas 1 segundo, hasta 5 por partida.'],
-'double-skip': ['Doble salto', 'Tras pasar normalmente, pasa de inmediato al siguiente tema sin perder tiempo ni racha. Una vez por partida.'],
-flawless: ['Impecable', 'Cada tres palabras válidas escritas sin errores te dan 10 puntos extra al instante.'],
+'double-skip': ['Doble salto', 'Tras pasar, pasa de inmediato sin coste.'],
+flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan 30 puntos extra al instante.'],
 
     },
     spells: { joker: ['joker', 'comodín'], hush: ['chis', 'shh', 'silencio'] },
@@ -1172,6 +1172,8 @@ case 'powersUsed':
 return `${at} poderes distintos`
 case 'playedCategories':
 return `una palabra en ${at} categorías`
+case 'professorWordsPlayed':
+return `${at} ${plural(goal.at, 'palabra del Profesor jugada', 'palabras del Profesor jugadas')}`
 }
 },
     families: {
@@ -1216,6 +1218,7 @@ return `una palabra en ${at} categorías`
       'powers-7': { name: 'Manitas', desc: 'Usa siete poderes distintos' },
       'powers-all': { name: 'Todos los poderes', desc: 'Usa los catorce poderes' },
       'categories-12': { name: 'Trotamundos', desc: 'Encuentra una palabra en doce categorías' },
+      'professor-word': { name: 'Empollón', desc: 'Juega una palabra sugerida por el Profesor' },
     } satisfies Record<string, { name: string; desc: string }>),
   },
 

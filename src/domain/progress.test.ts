@@ -51,7 +51,13 @@ describe('cloud progress', () => {
     expect(merged.bonusOffer).toEqual(['filter'])
   })
 
-  it('catches an old save up before it merges', () => {
+  it('garde les mots du Professeur des deux appareils', () => {
+const phone = profile({ runs: 9, professorWords: ['lama', 'narval'] })
+const tablet = progressOf(profile({ runs: 4, professorWords: ['narval', 'okapi'] }))
+expect(withProgress(phone, tablet).professorWords).toEqual(['lama', 'narval', 'okapi'])
+})
+
+it('catches an old save up before it merges', () => {
     const old = progressOf(profile({ runs: 9, banned: ['pays'], equipped: ['joker', 'hush'], perksVersion: 0 }))
     const merged = withProgress(profile({}), old)
     expect([...merged.bonuses].sort()).toEqual(['filter', 'slot'])

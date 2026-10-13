@@ -599,19 +599,19 @@ doubleSkipFree: 'Double skip · free pass',
     giftOk: 'Thanks!',
     names: {
       permutation: ['Swap', 'At the start, tap a theme to swap it for one from your reserve. Twice.'],
-      joker: ['Cheat', 'Once a game, type “Joker” and validate: the game writes a right word for you.'],
+      joker: ['Cheat', 'Once a game, type “Joker”: the game writes a right word for you.'],
       dodge: ['Dodge', 'Skipping costs only 3 seconds instead of 5.'],
-      magic: ['Magic', 'Twice a game, tap the letter to draw another one.'],
+      magic: ['Magic', 'Twice a game, tap the letter to ignore it.'],
       hush: ['Silence', 'Once a game, type “shh”: the clock stops until your next word, ten seconds at most.'],
-      dyslexia: ['Dyslexia', 'Two mistakes pass on words of six letters or more.'],
+      dyslexia: ['Dyslexia', 'More room for spelling mistakes.'],
       divination: ['Divination', 'You see the theme and letter coming next.'],
-      complication: ['High stakes', 'Uncommon words are worth ×1.15, rare ones ×1.3.'],
-      celerity: ['Celerity', 'A word validates itself, no need to press Enter — even with a typo.'],
-      professor: ['Professor', 'The words suggested at the end of the game are uncommon: never said if possible, sometimes rare.'],
+      complication: ['High stakes', 'Uncommon words are worth more, rare ones even more.'],
+      celerity: ['Celerity', 'A word validates itself quickly, with no Enter press. Even with a typo.'],
+      professor: ['Professor', 'The words suggested at the end of the game are (very) rare.'],
       chatter: ['Chatter', 'Once a game, add “...” to a word: the letter and topic stay for three more words.'],
 latecomer: ['Last-minute', 'Validate a word in the final 5 seconds: gain 1 second, up to 5 seconds per game.'],
-'double-skip': ['Double skip', 'Once a game, after skipping a prompt, skip the next one for free.'],
-flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 bonus points immediately.'],
+'double-skip': ['Double skip', 'After a skip, skip again straight away for free.'],
+flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bonus points immediately.'],
 
     },
     spells: { joker: ['joker'], hush: ['shh', 'hush', 'shhh'] },
@@ -1175,6 +1175,8 @@ case 'powersUsed':
 return `${at} different powers`
 case 'playedCategories':
 return `a word in ${at} categories`
+case 'professorWordsPlayed':
+return `${at} ${plural(goal.at, 'word taken from the Professor', 'words taken from the Professor')}`
 }
 },
     families: {
@@ -1219,6 +1221,7 @@ return `a word in ${at} categories`
       'powers-7': { name: 'Tinkerer', desc: 'Serve seven different powers' },
       'powers-all': { name: 'Every power', desc: 'Serve all fourteen powers' },
       'categories-12': { name: 'Globetrotter', desc: 'Find a word in twelve categories' },
+      'professor-word': { name: 'Teacher’s pet', desc: 'Play a word suggested by the Professor' },
     } satisfies Record<string, { name: string; desc: string }>),
   },
 

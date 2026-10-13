@@ -594,19 +594,19 @@ doubleSkipFree: 'Dubbel overslaan · gratis beurt',
     giftOk: 'Bedankt!',
     names: {
       permutation: ['Ruil', 'Tik bij de start op een thema om het te ruilen voor een uit je reserve. Twee keer.'],
-      joker: ['Valsspelen', 'Eén keer per spel: typ „Joker” en bevestig, en het spel schrijft een goed woord voor je.'],
+      joker: ['Valsspelen', 'Eén keer per spel: typ „Joker”, en het spel schrijft een goed woord voor je.'],
       dodge: ['Ontwijken', 'Overslaan kost maar 3 seconden in plaats van 5.'],
-      magic: ['Magie', 'Twee keer per spel: tik op de letter om een andere te trekken.'],
+      magic: ['Magie', 'Twee keer per spel: tik op de letter om hem te negeren.'],
       hush: ['Stilte', 'Eén keer per spel: typ „sst” en de klok staat stil tot je volgende woord, hooguit tien seconden.'],
-      dyslexia: ['Dyslexie', 'Twee fouten mogen bij woorden van zes letters of meer.'],
+      dyslexia: ['Dyslexie', 'Meer ruimte voor spelfouten.'],
       divination: ['Waarzeggerij', 'Je ziet het volgende thema en de volgende letter.'],
-      complication: ['Risico', 'Ongewone woorden tellen ×1,15, zeldzame ×1,3.'],
-      celerity: ['Snelheid', 'Een woord bevestigt zichzelf, zonder Enter, ook met een tikfout.'],
-      professor: ['Professor', 'De woorden die aan het eind worden gesuggereerd zijn ongewoon: liefst nooit gezegd, soms zeldzaam.'],
+      complication: ['Risico', 'Ongewone woorden tellen meer, zeldzame nog meer.'],
+      celerity: ['Snelheid', 'Een woord bevestigt zich snel vanzelf, zonder Enter. Ook met een tikfout.'],
+      professor: ['Professor', 'De woorden die aan het eind worden gesuggereerd zijn (heel) zeldzaam.'],
       chatter: ['Gekwebbel', 'Eén keer per spel: zet „...” achter een woord, en letter en thema blijven voor nog drie woorden.'],
 latecomer: ['Op het nippertje', 'Bevestig een woord in de laatste 5 seconden: krijg 1 seconde, tot 5 per spel.'],
-'double-skip': ['Dubbel overslaan', 'Sla na een normale beurt meteen het volgende thema over zonder tijd of reeks te verliezen. Eén keer per spel.'],
-flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonuspunten op.'],
+'double-skip': ['Dubbel overslaan', 'Sla na een beurt meteen over, zonder kosten.'],
+flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspunten op.'],
 
     },
     spells: { joker: ['joker'], hush: ['sst', 'ssst', 'stil'] },
@@ -1171,6 +1171,8 @@ case 'powersUsed':
 return `${at} verschillende krachten`
 case 'playedCategories':
 return `een woord in ${at} categorieën`
+case 'professorWordsPlayed':
+return `${at} ${plural(goal.at, 'woord van de Professor gespeeld', 'woorden van de Professor gespeeld')}`
 }
 },
     families: {
@@ -1215,6 +1217,7 @@ return `een woord in ${at} categorieën`
       'powers-7': { name: 'Knutselaar', desc: 'Zet zeven verschillende krachten in' },
       'powers-all': { name: 'Alle krachten', desc: 'Zet alle veertien krachten in' },
       'categories-12': { name: 'Wereldreiziger', desc: 'Vind een woord in twaalf categorieën' },
+      'professor-word': { name: 'Studiebol', desc: 'Speel een woord dat de Professor voorstelde' },
     } satisfies Record<string, { name: string; desc: string }>),
   },
 

@@ -86,7 +86,8 @@ export function PremiumSheet({
   reason: PremiumReason
   /** The store's localised price; null while it has not answered. */
   price: string | null
-  onBuy(): Promise<'ok' | 'cancel' | 'error'>
+  /** `redirect` leaves for the merchant's own page: there is no outcome to show yet. */
+  onBuy(): Promise<'ok' | 'cancel' | 'error' | 'redirect'>
   /** Whether the store listed a purchase to bring back. */
   onRestore(): Promise<boolean>
   onClose(): void
@@ -122,6 +123,9 @@ export function PremiumSheet({
     setOwn('loading')
     const result = await onBuy().catch(() => 'error' as const)
     if (!alive.current) return
+    // The web leaves for the merchant here; the page goes with the spinner up,
+    // and the player comes back to a sheet that reads the server again.
+    if (result === 'redirect') return
     setOwn(result === 'ok' ? 'success' : result === 'cancel' ? 'cancelled' : 'error')
   }
 

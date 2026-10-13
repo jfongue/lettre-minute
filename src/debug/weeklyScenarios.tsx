@@ -195,7 +195,7 @@ const ENDURANCE_RUN: Run = {
   bonusSeconds: 17.5,
 } as unknown as Run
 
-const CHEER: Cheer = { display: 'Lama', points: 10, tier: 'courant', approximate: false, edits: 0, joker: false, boost: 1, auto: false }
+const CHEER: Cheer = { display: 'Lama', points: 10, tier: 'courant', approximate: false, edits: 0, joker: false, taught: false, boost: 1, auto: false }
 
 export function WeeklyRunScenario({ remaining = 21.4, urgent = false }: { remaining?: number; urgent?: boolean }) {
   const noop = () => undefined

@@ -1,6 +1,7 @@
 import { premiereCategoryIds } from './catalogue'
 import type { Profile } from './progression'
 import { hasPower, promptKey, type Judge, type Prompt, type Run, type SettledPrompt } from './run'
+import { compactWord } from './text'
 import { WEEKLY_FREE_ATTEMPTS } from './weekly'
 
 /** Bans a player holds without Premium at most, each one a « filter » level bonus; none to begin with. */
@@ -266,6 +267,29 @@ export function hiddenAnswersOf(
     if (display) answers.push({ prompt, display })
   }
   return answers
+}
+
+/** Les mots du Professeur qu'un profil garde en tête d'une partie à l'autre. */
+export const PROFESSOR_MEMORY = 40
+
+/**
+ * Ce qu'une partie finie retient du Professeur : les mots qu'il vient de
+ * proposer restent en mémoire pour la prochaine fois, et ceux que le joueur a
+ * réellement repris en sortent — leur première écriture a porté son effet.
+ */
+export function learnFromProfessor(profile: Profile, run: Run, judge: Judge): Profile {
+  const played = new Set(run.found.filter((word) => word.taught).map((word) => compactWord(word.word)))
+  const proposed = hasPower(run, 'professor')
+    ? hiddenAnswers(run, judge).map((answer) => compactWord(answer.display))
+    : []
+  if (played.size === 0 && proposed.length === 0) return profile
+  const kept = profile.professorWords.filter((word) => !played.has(word))
+  const remembered = [...new Set([...kept, ...proposed.filter((word) => !played.has(word))])]
+  return {
+    ...profile,
+    professorWords: remembered.slice(-PROFESSOR_MEMORY),
+    professorWordsPlayed: profile.professorWordsPlayed + played.size,
+  }
 }
 
 /** Whether the next return home asks for the player's opinion: after ten runs, then every thirty. */

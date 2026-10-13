@@ -638,20 +638,20 @@ doubleSkipFree: 'Passe-passe · passage gratuit',
     /** Name and what the power does, by `PowerId`. */
     names: {
       permutation: ['Échange', 'Au lancement, touche un thème pour l’échanger contre un de ta réserve. Deux fois.'],
-      joker: ['Tricherie', 'Une fois par partie, écris « Joker » et valide : le jeu écrit un mot juste à ta place.'],
+      joker: ['Tricherie', 'Une fois par partie, écris « Joker » : le jeu écrit un mot juste à ta place.'],
       dodge: ['Esquive', 'Passer ne coûte que 3 secondes au lieu de 5.'],
-      magic: ['Magie', 'Deux fois par partie, touche la lettre proposée pour en tirer une autre.'],
+      magic: ['Magie', 'Deux fois par partie, touche la lettre proposée pour pouvoir l’ignorer.'],
       hush: ['Silence', 'Une fois par partie, écris « chut » : le chrono s’arrête jusqu’à ton prochain mot, dix secondes au plus.'],
-      dyslexia: ['Dyslexie', 'Deux fautes passent sur les mots de six lettres et plus.'],
+      dyslexia: ['Dyslexie', 'Plus de tolérance sur les fautes d’orthographe.'],
       divination: ['Divination', 'Tu vois la catégorie et la lettre qui viennent ensuite.'],
-      complication: ['Challenge', 'Les mots peu communs valent ×1,15, les rares ×1,3.'],
-      celerity: ['Célérité', 'Un mot se valide tout seul, sans appuyer sur Entrée, même avec une faute de frappe.'],
-      professor: ['Professeur', 'Les mots suggérés en fin de partie sont rares : du peu commun, jamais dit si possible, parfois du rare.'],
+      complication: ['Challenge', 'Les mots peu communs valent plus, les rares encore plus.'],
+      celerity: ['Célérité', 'Un mot se valide rapidement et tout seul, sans valider. Même avec une faute de frappe.'],
+      professor: ['Professeur', 'Les mots suggérés en fin de partie sont (très) rares.'],
       chatter: ['Bavardage', 'Une fois par partie, ajoute « ... » à un mot : la lettre et le thème restent pour trois mots de plus.'],
 latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 seconde, jusqu’à 5 secondes gagnées par partie.'],
-'double-skip': ['Passe-passe', 'Une fois par partie, après un passage, passe immédiatement au thème suivant sans coût.'],
+'double-skip': ['Passe-passe', 'Après un passage, passe immédiatement sans coût.'],
 
-flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frappe, gagne immédiatement 10 points bonus.'],
+      flawless: ['Sans faute', 'Tous les six mots validés sans faute de frappe, gagne immédiatement 30 points bonus.'],
 
     } satisfies Record<PowerId, readonly [string, string]> as Record<PowerId, readonly [name: string, description: string]>,
     /** What the player types to cast a spell; the first is the one the descriptions name. */
@@ -1189,6 +1189,8 @@ case 'powersUsed':
 return `${at} pouvoirs différents`
 case 'playedCategories':
 return `un mot dans ${at} catégories`
+case 'professorWordsPlayed':
+return `${at} ${plural(goal.at, 'mot du Professeur repris', 'mots du Professeur repris')}`
 }
 },
     families: {
@@ -1235,6 +1237,7 @@ return `un mot dans ${at} catégories`
       'powers-7': { name: 'Bricoleur', desc: 'Sers sept pouvoirs différents' },
       'powers-all': { name: 'Tous les pouvoirs', desc: 'Sers les quatorze pouvoirs' },
       'categories-12': { name: 'Grand voyageur', desc: 'Trouve un mot dans douze catégories' },
+      'professor-word': { name: 'Élève', desc: 'Joue un mot proposé par le Professeur' },
     } satisfies Record<NamedAchievementId, { name: string; desc: string }>),
   },
 
