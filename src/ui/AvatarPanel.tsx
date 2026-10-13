@@ -24,6 +24,8 @@ interface AvatarPanelProps {
   onSave(avatar: AvatarChoice): void
   /** Le design touché au bilan : l'éditeur ouvre dessus, sa tuile secoue. */
   focus?: number | null
+  /** Le compte maison : toute la grille est ouverte, rien n'y est « nouveau ». */
+  all?: boolean
 }
 
 type Layer = 'ground' | 'shape' | 'accent'
@@ -36,7 +38,7 @@ const LAYERS: readonly Layer[] = ['ground', 'shape', 'accent']
  * succès qui l'ouvre, et c'est lui qui dit comment la gagner. Il ne se referme
  * pas lui-même — c'est la page qui porte son bouton retour.
  */
-export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null }: AvatarPanelProps) {
+export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null, all = false }: AvatarPanelProps) {
   const t = useT()
   const [draft, setDraft] = useState(() => (focus === null ? avatar : { ...avatar, design: focus }))
   const [layer, setLayer] = useState<Layer>('shape')
@@ -51,10 +53,10 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
 
   useEffect(
     () => () => {
-      saveSeenDesigns(ownedDesigns(profile, discoveries).map((design) => design.id))
+      saveSeenDesigns(ownedDesigns(profile, discoveries, all).map((design) => design.id))
       saveSeenColours(ownedColours(profile, discoveries).map((colour) => colour.id))
     },
-    [profile, discoveries],
+    [profile, discoveries, all],
   )
 
   useEffect(() => {
@@ -65,10 +67,11 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
   }, [focus])
 
   const design = AVATARS[draft.design]
-  const ownedIds = ownedDesigns(profile, discoveries).map((entry) => entry.id)
+  const ownedIds = ownedDesigns(profile, discoveries, all).map((entry) => entry.id)
   const tiles = new Set(ownedIds)
   const inks = new Set(ownedColours(profile, discoveries).map((colour) => colour.id))
-  const news = unseenDesigns(profile, seen, discoveries)
+  // Rien n'est « nouveau » pour le compte maison : il n'a rien gagné, tout est à lui.
+  const news = all ? [] : unseenDesigns(profile, seen, discoveries)
   const fresh = new Set(unseenColours(profile, seenInks, discoveries))
   // Sans accent, la troisième couche ne peint rien : l'offrir aurait l'air cassé.
   const layers = design.accent ? LAYERS : LAYERS.filter((id) => id !== 'accent')

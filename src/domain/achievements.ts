@@ -9,6 +9,7 @@ import {
   type Milestone,
   type Stat,
 } from './avatar'
+import { HOUSE_PLAYER } from './boards'
 import { levelFor, type Profile } from './progression'
 
 /*
@@ -437,8 +438,21 @@ export function achievementReward(achievement: Achievement): AchievementReward {
   }
 }
 
-/** Les tuiles que le joueur porte : les cinq de départ et celles de ses succès. */
-export function ownedDesigns(profile: Profile, discoveries?: number): AvatarDesign[] {
+/**
+ * Le compte maison : son nom suffit à lui ouvrir toute la grille d'avatars, à
+ * lui seul. C'est le même que celui du joueur maison des classements
+ * (`HOUSE_PLAYER`) — l'éditeur regarde ce que les autres gagnent.
+ */
+export function ownsEveryDesign(name: string | null | undefined): boolean {
+  return name?.toLowerCase() === HOUSE_PLAYER.name.toLowerCase()
+}
+
+/**
+ * Les tuiles que le joueur porte : les cinq de départ et celles de ses succès.
+ * Le compte maison les a toutes, gagnées ou non, et n'en a aucune « nouvelle ».
+ */
+export function ownedDesigns(profile: Profile, discoveries?: number, all = false): AvatarDesign[] {
+  if (all) return [...AVATARS]
   const won = new Set(earnedAchievements(profile, discoveries).map((id) => BY_ID.get(id)!.reward.design))
   return AVATARS.filter((design) => design.id < FREE_DESIGNS || won.has(design.id))
 }

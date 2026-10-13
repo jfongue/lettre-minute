@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ChallengeSummary } from '../lib/cloud'
 import type { AvatarChoice } from '../domain/avatar'
+import { ownsEveryDesign } from '../domain/achievements'
 import type { RunRecord } from '../domain/history'
 import { levelProgress, type Profile } from '../domain/progression'
 import { ADS_ENABLED } from '../domain/unlocks'
@@ -301,6 +302,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               avatar={props.avatar}
               focus={props.avatarFocus}
               discoveries={props.discoveries}
+              all={ownsEveryDesign(props.account?.name)}
               onSave={props.onAvatarSave}
             />
               ) : null}
