@@ -920,9 +920,17 @@ flawless: ['Sans faute', 'Tous les trois mots valides écrits sans faute de frap
     chip: (left: number, allowed: number) => `${left} révélations restantes sur ${allowed}`,
     unlimited: 'Révélations illimitées',
     spent: 'Tu as utilisé tes révélations du jour.',
-    ad: 'Regarder une pub (+1)',
+    ad: (count: number) => `Regarder une pub (+${count})`,
     adBusy: 'Un instant…',
     adFailed: 'Pas de pub pour l’instant. Réessaie un peu plus tard.',
+    adTitle: 'Une petite pub ?',
+    adBody: (count: number) => `Regarde une pub pour débloquer ${count} révélations : ça aide les développeurs du jeu !`,
+    adCta: 'Regarder',
+    plusTitle: 'Passer Premium ?',
+    plusBody: 'Révélations illimitées, filtres en plus, et trois tentatives au défi du moment.',
+    plusAd: (count: number) => `Voir une pub (+${count})`,
+    plusCta: 'Devenir Premium',
+    later: 'Plus tard',
   },
 
   currencies: {

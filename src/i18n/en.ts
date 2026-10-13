@@ -875,9 +875,17 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
     chip: (left, allowed) => `${left} of ${allowed} reveals left`,
     unlimited: 'Unlimited reveals',
     spent: 'You have used today’s reveals.',
-    ad: 'Watch an ad (+1)',
+    ad: (count: number) => `Watch an ad (+${count})`,
     adBusy: 'One moment…',
     adFailed: 'No ad right now. Try again a little later.',
+    adTitle: 'A little ad?',
+    adBody: (count: number) => `Watch an ad to unlock ${count} reveals — it helps the game’s developers!`,
+    adCta: 'Watch',
+    plusTitle: 'Go Premium?',
+    plusBody: 'Unlimited reveals, more filters, and three attempts at the challenge of the moment.',
+    plusAd: (count: number) => `Watch an ad (+${count})`,
+    plusCta: 'Go Premium',
+    later: 'Later',
   },
 
   currencies: {

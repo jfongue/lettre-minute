@@ -12,6 +12,7 @@ import {
   REVEAL_ADS_MAX,
   REVEAL_BONUS_MAX,
   REVEALS_MAX,
+  REVEALS_PER_AD,
   banUnlocked,
   grantRevealAd,
   grantPlus,
@@ -124,21 +125,21 @@ describe('reveals', () => {
     expect(revealsLeft(withBonuses(4), DAY)).toBe(BASE_REVEALS + REVEAL_BONUS_MAX)
   })
 
-  it('grow by one per ad, three a day, and the ads restart with the day', () => {
+  it('grow by two per ad, three a day, and the ads restart with the day', () => {
     let profile = NEW_PROFILE
     for (let i = 0; i < REVEAL_ADS_MAX + 2; i++) profile = grantRevealAd(profile, DAY)
     expect(profile.revealAds).toBe(REVEAL_ADS_MAX)
     expect(revealAdsLeft(profile, DAY)).toBe(0)
-    expect(revealsLeft(profile, DAY)).toBe(BASE_REVEALS + REVEAL_ADS_MAX)
+    expect(revealsLeft(profile, DAY)).toBe(BASE_REVEALS + REVEALS_PER_AD * REVEAL_ADS_MAX)
     expect(revealAdsLeft(profile, NEXT)).toBe(REVEAL_ADS_MAX)
     expect(revealsLeft(profile, NEXT)).toBe(BASE_REVEALS)
   })
 
-  it('top out at eight', () => {
+  it('top out at eleven', () => {
     let profile = withBonuses(3)
     for (let i = 0; i < REVEAL_ADS_MAX; i++) profile = grantRevealAd(profile, DAY)
     expect(revealsLeft(profile, DAY)).toBe(REVEALS_MAX)
-    expect(REVEALS_MAX).toBe(8)
+    expect(REVEALS_MAX).toBe(11)
   })
 
   it('never run out for Premium, who watches no ad', () => {

@@ -15,8 +15,10 @@ export const MIN_PLAYABLE_CATEGORIES = 6
 /** Hidden answers uncovered per day: the base, then what bonuses and ads add, up to `REVEALS_MAX`. */
 export const BASE_REVEALS = 2
 export const REVEAL_BONUS_MAX = 3
+/** Ads a free player may watch for reveals, and what each one pays: two at a time. */
 export const REVEAL_ADS_MAX = 3
-export const REVEALS_MAX = BASE_REVEALS + REVEAL_BONUS_MAX + REVEAL_ADS_MAX
+export const REVEALS_PER_AD = 2
+export const REVEALS_MAX = BASE_REVEALS + REVEAL_BONUS_MAX + REVEAL_ADS_MAX * REVEALS_PER_AD
 
 /** What Premium gave beyond the free limits, as the Premium page counts it. */
 export type PlusStat = 'reveals' | 'attempts' | 'filterRuns' | 'premiereRuns' | 'adsSkipped'
@@ -180,10 +182,10 @@ function revealsOn(profile: Profile, day: string): Profile {
   return profile.revealDay === day ? profile : { ...profile, revealDay: day, revealsUsed: 0, revealAds: 0 }
 }
 
-/** Reveals the day allows: the base, the reveal bonuses, the ads watched. Premium has no count. */
+/** Reveals the day allows: the base, the reveal bonuses, what the ads paid. Premium has no count. */
 export function revealsAllowed(profile: Profile, day: string): number {
   const bonus = Math.min(REVEAL_BONUS_MAX, profile.bonuses.filter((id) => id === 'reveal').length)
-  return BASE_REVEALS + bonus + revealsOn(profile, day).revealAds
+  return BASE_REVEALS + bonus + REVEALS_PER_AD * revealsOn(profile, day).revealAds
 }
 
 /** Hidden answers still to uncover on `day` (Paris, `YYYY-MM-DD`); infinite for Premium. */
@@ -204,7 +206,7 @@ export function revealAdsLeft(profile: Profile, day: string): number {
   return Math.max(0, REVEAL_ADS_MAX - revealsOn(profile, day).revealAds)
 }
 
-/** One more reveal for a watched ad, up to `REVEAL_ADS_MAX` a day. */
+/** Two more reveals for a watched ad, up to `REVEAL_ADS_MAX` a day. */
 export function grantRevealAd(profile: Profile, day: string): Profile {
   if (revealAdsLeft(profile, day) <= 0) return profile
   const today = revealsOn(profile, day)

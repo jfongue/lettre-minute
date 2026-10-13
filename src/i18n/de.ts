@@ -869,9 +869,17 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
     chip: (left, allowed) => `Noch ${left} von ${allowed} Enthüllungen`,
     unlimited: 'Unbegrenzte Enthüllungen',
     spent: 'Du hast die heutigen Enthüllungen verbraucht.',
-    ad: 'Werbung ansehen (+1)',
+    ad: (count: number) => `Werbung ansehen (+${count})`,
     adBusy: 'Einen Moment…',
     adFailed: 'Gerade keine Werbung. Versuch es später noch einmal.',
+    adTitle: 'Eine kleine Werbung?',
+    adBody: (count: number) => `Sieh dir eine Werbung an und schalte ${count} Enthüllungen frei — das hilft den Entwicklern des Spiels!`,
+    adCta: 'Ansehen',
+    plusTitle: 'Premium werden?',
+    plusBody: 'Unbegrenzte Enthüllungen, mehr Filter und drei Versuche bei der Aktuellen Challenge.',
+    plusAd: (count: number) => `Werbung ansehen (+${count})`,
+    plusCta: 'Premium werden',
+    later: 'Später',
   },
 
   currencies: {

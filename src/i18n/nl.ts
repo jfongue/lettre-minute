@@ -870,9 +870,17 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
     chip: (left, allowed) => `Nog ${left} van ${allowed} onthullingen`,
     unlimited: 'Onbeperkt onthullen',
     spent: 'Je onthullingen van vandaag zijn op.',
-    ad: 'Bekijk een advertentie (+1)',
+    ad: (count: number) => `Bekijk een advertentie (+${count})`,
     adBusy: 'Even geduld…',
     adFailed: 'Nu even geen advertentie. Probeer het straks opnieuw.',
+    adTitle: 'Een kleine advertentie?',
+    adBody: (count: number) => `Bekijk een advertentie om ${count} onthullingen te openen — dat helpt de makers van het spel!`,
+    adCta: 'Bekijken',
+    plusTitle: 'Premium worden?',
+    plusBody: 'Onbeperkt onthullingen, meer filters en drie pogingen bij de uitdaging van het moment.',
+    plusAd: (count: number) => `Bekijk een advertentie (+${count})`,
+    plusCta: 'Premium worden',
+    later: 'Later',
   },
 
   currencies: {

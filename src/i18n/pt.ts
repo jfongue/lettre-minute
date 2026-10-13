@@ -871,9 +871,17 @@ flawless: ['Sem erros', 'A cada três palavras válidas digitadas sem erros, gan
     chip: (left, allowed) => `Faltam ${left} de ${allowed} revelações`,
     unlimited: 'Revelações ilimitadas',
     spent: 'Já usaste as revelações de hoje.',
-    ad: 'Ver um anúncio (+1)',
+    ad: (count: number) => `Ver um anúncio (+${count})`,
     adBusy: 'Um momento…',
     adFailed: 'Sem anúncios de momento. Tenta daqui a pouco.',
+    adTitle: 'Um anúncio?',
+    adBody: (count: number) => `Vê um anúncio para desbloquear ${count} revelações: ajuda os programadores do jogo!`,
+    adCta: 'Ver',
+    plusTitle: 'Passar a Premium?',
+    plusBody: 'Revelações ilimitadas, mais filtros e três tentativas no desafio do momento.',
+    plusAd: (count: number) => `Ver um anúncio (+${count})`,
+    plusCta: 'Passar a Premium',
+    later: 'Mais tarde',
   },
 
   currencies: {

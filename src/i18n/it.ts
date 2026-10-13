@@ -871,9 +871,17 @@ flawless: ['Senza errori', 'Ogni tre parole valide digitate senza errori danno s
     chip: (left, allowed) => `Restano ${left} rivelazioni su ${allowed}`,
     unlimited: 'Rivelazioni illimitate',
     spent: 'Hai usato le rivelazioni di oggi.',
-    ad: 'Guarda una pubblicità (+1)',
+    ad: (count: number) => `Guarda una pubblicità (+${count})`,
     adBusy: 'Un attimo…',
     adFailed: 'Nessuna pubblicità per ora. Riprova tra poco.',
+    adTitle: 'Una piccola pubblicità?',
+    adBody: (count: number) => `Guarda una pubblicità per sbloccare ${count} rivelazioni: aiuta gli sviluppatori del gioco!`,
+    adCta: 'Guarda',
+    plusTitle: 'Passare a Premium?',
+    plusBody: 'Rivelazioni illimitate, più filtri e tre tentativi nella sfida del momento.',
+    plusAd: (count: number) => `Guarda una pubblicità (+${count})`,
+    plusCta: 'Passa a Premium',
+    later: 'Più tardi',
   },
 
   currencies: {

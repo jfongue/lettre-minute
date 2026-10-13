@@ -871,9 +871,17 @@ flawless: ['Impecable', 'Cada tres palabras válidas escritas sin errores te dan
     chip: (left, allowed) => `Quedan ${left} de ${allowed} revelaciones`,
     unlimited: 'Revelaciones ilimitadas',
     spent: 'Has usado las revelaciones de hoy.',
-    ad: 'Ver un anuncio (+1)',
+    ad: (count: number) => `Ver un anuncio (+${count})`,
     adBusy: 'Un momento…',
     adFailed: 'Ahora no hay anuncios. Inténtalo un poco más tarde.',
+    adTitle: '¿Un anuncio?',
+    adBody: (count: number) => `Mira un anuncio para desbloquear ${count} revelaciones: ¡ayuda a los desarrolladores del juego!`,
+    adCta: 'Ver',
+    plusTitle: '¿Pasar a Premium?',
+    plusBody: 'Revelaciones ilimitadas, más filtros y tres intentos en el desafío del momento.',
+    plusAd: (count: number) => `Ver un anuncio (+${count})`,
+    plusCta: 'Pasar a Premium',
+    later: 'Más tarde',
   },
 
   currencies: {
