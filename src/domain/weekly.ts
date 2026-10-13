@@ -1,5 +1,6 @@
 import { civilFromDays, daysFromCivil, dayOf, isDay } from './daily'
 import type { GameMode } from './modes'
+import { levelFor } from './progression'
 import { runScore, type CreateRunInput, type Run } from './run'
 import { MAX_CATEGORIES_PER_RUN, dealLineup } from './unlocks'
 
@@ -14,6 +15,13 @@ import { MAX_CATEGORIES_PER_RUN, dealLineup } from './unlocks'
 const HOUR_MS = 60 * 60 * 1000
 const DAY_MS = 24 * HOUR_MS
 const WEEK_MS = 7 * DAY_MS
+
+/** Le niveau qui ouvre le défi : avant, le joueur apprend encore la partie seule. */
+export const WEEKLY_MIN_LEVEL = 4
+
+export function weeklyUnlocked(xp: number): boolean {
+  return levelFor(xp) >= WEEKLY_MIN_LEVEL
+}
 
 /** Le premier dimanche d'ouverture : la semaine #0 du calendrier. */
 export const WEEKLY_EPOCH = '2026-10-11'
