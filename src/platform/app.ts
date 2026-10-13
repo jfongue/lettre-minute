@@ -8,6 +8,7 @@ import { quiet, type Host } from './host'
  */
 export const appHost: Host = {
   closedFeatures: new Set(),
+  openedFeatures: new Set(),
   title: null,
   languages: () => [],
   fallbackLocale: null,

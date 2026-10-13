@@ -16,6 +16,11 @@ export interface Host {
    * cannot carry — a server, an account, a link off its page — or forbids.
    */
   closedFeatures: ReadonlySet<FeatureId>
+  /**
+   * Opened whatever the table's defaults say: what this host is built around
+   * while the phone still tries it out. Never one of `closedFeatures`.
+   */
+  openedFeatures: ReadonlySet<FeatureId>
   /** The name the host lists the game under, shown in every language; null: the interface's own. */
   title: readonly [string, string] | null
   /** The host's languages, given before the device's (`loadLocale`). */

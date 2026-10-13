@@ -227,6 +227,9 @@ const SAVED_KEYS = [
   'lettre-minute.theme.v1',
   'lettre-minute.sound.v1',
   'lettre-minute.locale.v1',
+  'lettre-minute.daily.v1',
+  'lettre-minute.weekly-attempts.v1',
+  'lettre-minute.weekly-intro.v1',
 ]
 const HISTORY_KEY = 'lettre-minute.history.v1'
 // The Data module refuses past 1 MiB, all keys together: the history, the one
@@ -314,6 +317,11 @@ export function restoreSavedProgress(): void {
  */
 export const crazyGamesHost: Host = {
   closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES]),
+  // A portal game lives on players coming back: the day's run and its streak,
+  // and the challenge of the moment the app opens to everyone, need no
+  // server — attempts are counted on the device, the progress they pay is
+  // saved by the Data module.
+  openedFeatures: new Set(['daily', 'weekly']),
   title: ['Letter', 'Minute'],
   languages: platformLanguages,
   fallbackLocale: 'en',

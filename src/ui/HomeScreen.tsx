@@ -59,6 +59,8 @@ interface HomeScreenProps {
   invites?: ReactNode
   /** L'entrée du défi du moment, quand la fonctionnalité est ouverte. */
   weekly?: ReactNode
+  /** L'entrée du défi du jour, quand la fonctionnalité est ouverte. */
+  daily?: ReactNode
   onChallenge(id: string): void
   onCreateChallenge(): void
   onPastChallenges(): void
@@ -100,6 +102,7 @@ export function HomeScreen({
   onBoardsHidden,
   invites,
   weekly,
+  daily,
 }: HomeScreenProps) {
   const t = useT()
   const powers = useFeature('powers')
@@ -179,6 +182,8 @@ const alone =
           </div>
 
           {invites}
+
+          {daily}
 
           {weekly}
 

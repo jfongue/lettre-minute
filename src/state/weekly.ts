@@ -8,6 +8,7 @@
 
 const ATTEMPTS_KEY = 'lettre-minute.weekly-attempts.v1'
 const RECAP_KEY = 'lettre-minute.weekly-recap.v1'
+const BEST_KEY = 'lettre-minute.weekly-best.v1'
 
 export interface WeeklyWindow {
   weekId: string
@@ -92,4 +93,29 @@ export function recapDue(currentWeekId: string, playedWeek: string | null): bool
   if (playedWeek === null || playedWeek >= currentWeekId) return false
   const seen = lastRecapSeen()
   return seen === null || seen < playedWeek
+}
+
+/**
+ * Le meilleur résultat de la semaine sur l'appareil, par langue : le serveur
+ * le garde pour de bon, mais sans lui (CrazyGames, hors ligne) c'est le seul
+ * record que l'écran du défi puisse montrer.
+ */
+export function loadLocalBest(weekId: string, lang: string): number | null {
+  try {
+    const value: unknown = JSON.parse(localStorage.getItem(BEST_KEY) ?? 'null')
+    if (typeof value !== 'object' || value === null) return null
+    const { weekId: week, lang: language, best } = value as Record<string, unknown>
+    return week === weekId && language === lang && typeof best === 'number' && Number.isFinite(best) && best >= 0 ? best : null
+  } catch {
+    return null
+  }
+}
+
+export function saveLocalBest(weekId: string, lang: string, value: number): void {
+  const best = Math.max(value, loadLocalBest(weekId, lang) ?? 0)
+  try {
+    localStorage.setItem(BEST_KEY, JSON.stringify({ weekId, lang, best }))
+  } catch {
+    /* le serveur reste la référence */
+  }
 }

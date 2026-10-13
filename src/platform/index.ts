@@ -19,10 +19,10 @@ export const PLATFORM: Platform =
 
 export const host: Host = BUILD === 'crazygames' ? crazyGamesHost : BUILD === 'reddit' ? redditHost : appHost
 
-/** What the feature table opened, minus what this host cannot carry. */
+/** What the feature table opened, plus what this host opens itself, minus what it cannot carry. */
 export function hostFeatures(features: ReadonlySet<string>): ReadonlySet<string> {
-  if (host.closedFeatures.size === 0) return features
-  return new Set([...features].filter((id) => !host.closedFeatures.has(id)))
+  if (host.closedFeatures.size === 0 && host.openedFeatures.size === 0) return features
+  return new Set([...features, ...host.openedFeatures].filter((id) => !host.closedFeatures.has(id)))
 }
 
 /** Real-money Premium: Android shell only, never the web page of the same build, CrazyGames or Reddit. */

@@ -11,7 +11,16 @@ describe('les hôtes', () => {
     // Un identifiant mal écrit ne fermerait rien, sans erreur.
     for (const host of [appHost, crazyGamesHost, redditHost]) {
       for (const id of host.closedFeatures) expect(ids).toContain(id)
+      for (const id of host.openedFeatures) {
+        expect(ids).toContain(id)
+        expect(host.closedFeatures).not.toContain(id)
+      }
     }
+  })
+
+  it('ouvrent à CrazyGames le défi du jour, qui fait revenir sans serveur', () => {
+    expect(crazyGamesHost.openedFeatures).toContain('daily')
+    expect(redditHost.openedFeatures).not.toContain('daily')
   })
 
   it('laissent toute la partie à Android et au web', () => {

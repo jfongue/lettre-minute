@@ -24,7 +24,7 @@ import { cloudConfigured } from '../lib/supabase'
 import { rewardedAdsOpen } from '../platform'
 import type { Judge } from '../domain/run'
 import type { SessionAction, Session } from '../state/session'
-import { loadLocalAttempts, markRecapSeen, recapDue, recordLocalAd } from '../state/weekly'
+import { loadLocalAttempts, markRecapSeen, recapDue, recordLocalAd, saveLocalBest } from '../state/weekly'
 import { loadWeeklyWinGiven, saveWeeklyWinGiven } from '../state/storage'
 import { loadWeeklyStatus, markWeeklyIntroSeen, startWeeklyAttempt, weeklyIntroSeen, windowAt } from '../state/weeklyPlay'
 import { lazyScreen } from './lazyScreen'
@@ -223,9 +223,13 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
       total,
       rank: null,
       players: 0,
-      sending: 'sending',
+      sending: cloudConfigured() ? 'sending' : 'sent',
     }
+    saveLocalBest(current.weekId, current.lang, base.value)
+    best.current = Math.max(best.current ?? 0, base.value)
     setDone(base)
+    // Sans serveur, rien ne part : le bilan s'arrête au record de l'appareil.
+    if (!cloudConfigured()) return
     let live = true
     const sent = current.attemptId ? weeklyFinish(current.attemptId, run, metric) : Promise.resolve(false)
     void sent.then(async (ok) => {
@@ -309,6 +313,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
             plus={plus}
             adsOpen={rewardedAdsOpen}
             premiumOpen={premiumOpen}
+            ranked={cloudConfigured()}
             busy={busy}
             message={message}
             refresh={refresh}
@@ -372,6 +377,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
           rank={done.rank}
           players={done.players}
           sending={done.sending}
+          ranked={cloudConfigured()}
           onBack={backFromDone}
         />
       </Suspense>

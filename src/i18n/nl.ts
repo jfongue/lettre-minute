@@ -1209,6 +1209,20 @@ return `een woord in ${at} categorieën`
   },
 
   daily: {
+    app: {
+      kicker: 'Dagopdracht',
+      same: 'Vandaag hetzelfde spel voor iedereen',
+      bonus: (xp) => `+${xp} XP`,
+      streak: (days) => `${days} ${plural(days, 'dag', 'dagen')} op rij`,
+      keep: 'Speel vandaag om je reeks te houden',
+      done: (score) => `Klaar: ${score} ${plural(score, 'punt', 'punten')}`,
+      next: (time) => `De volgende over ${time}`,
+      time: (hours, minutes) => (hours > 0 ? `${hours} u ${String(minutes).padStart(2, '0')}` : `${minutes} min`),
+      over: (number) => `Dagopdracht nr. ${number}: klaar`,
+      overStreak: (days, xp) => `Reeks: ${days} ${plural(days, 'dag', 'dagen')} · +${xp} bonus-XP`,
+      overNext: 'Kom morgen terug om je reeks te verlengen.',
+      best: (days) => `Record: ${days} ${plural(days, 'dag', 'dagen')}`,
+    },
     title: 'Letter Minute',
     number: (number) => `nr. ${number}`,
     tagline: 'Eén letter, één categorie, zestig seconden. Vandaag hetzelfde spel voor iedereen.',

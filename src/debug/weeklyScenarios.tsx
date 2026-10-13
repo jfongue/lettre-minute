@@ -120,15 +120,17 @@ export function WeeklyCardScenario({ onBack }: { onBack(): void }) {
   )
 }
 
-export function WeeklyScreenScenario({ used, plus, onBack, ads = 0 }: { used: number; plus: boolean; onBack(): void; ads?: number }) {
+export function WeeklyScreenScenario({ used, plus, onBack, ads = 0, portal = false }: { used: number; plus: boolean; onBack(): void; ads?: number; portal?: boolean }) {
   const props: WeeklyViewProps = {
     mode: 'endurance',
     closesAt: WEEK.closesAt,
     now: NOW,
-    status: { used, ads, best: used === 0 ? null : 64.5, rank: used === 0 ? null : 12, players: 342, online: true },
+    status: { used, ads, best: used === 0 ? null : 64.5, rank: used === 0 || portal ? null : 12, players: portal ? 0 : 342, online: !portal },
     plus,
-    adsOpen: true,
-    premiumOpen: true,
+    // CrazyGames : ni pub récompensée, ni boutique, ni serveur pour classer.
+    adsOpen: !portal,
+    premiumOpen: !portal,
+    ranked: !portal,
     onLaunch: onBack,
     onWatchAd: () => undefined,
     onPremium: () => undefined,
@@ -229,6 +231,7 @@ export function WeeklyDoneScenario({ record, onBack }: { record: boolean; onBack
       rank={record ? 9 : 12}
       players={342}
       sending="sent"
+      ranked
       onBack={onBack}
     />
   )

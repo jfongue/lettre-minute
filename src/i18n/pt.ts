@@ -1210,6 +1210,20 @@ return `uma palavra em ${at} categorias`
   },
 
   daily: {
+    app: {
+      kicker: 'Desafio do dia',
+      same: 'A mesma partida para todos hoje',
+      bonus: (xp) => `+${xp} XP`,
+      streak: (days) => `${days} ${plural(days, 'dia', 'dias')} seguidos`,
+      keep: 'Joga hoje para manter a tua sequência',
+      done: (score) => `Feito: ${score} ${plural(score, 'ponto', 'pontos')}`,
+      next: (time) => `O próximo em ${time}`,
+      time: (hours, minutes) => (hours > 0 ? `${hours} h ${String(minutes).padStart(2, '0')}` : `${minutes} min`),
+      over: (number) => `Desafio do dia n.º ${number}: feito`,
+      overStreak: (days, xp) => `Sequência: ${days} ${plural(days, 'dia', 'dias')} · +${xp} XP de bónus`,
+      overNext: 'Volta amanhã para aumentar a tua sequência.',
+      best: (days) => `Recorde: ${days} ${plural(days, 'dia', 'dias')}`,
+    },
     title: 'Letter Minute',
     number: (number) => `n.º ${number}`,
     tagline: 'Uma letra, uma categoria, sessenta segundos. Hoje, a mesma partida para todos.',

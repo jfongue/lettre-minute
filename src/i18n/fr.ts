@@ -1230,6 +1230,21 @@ return `un mot dans ${at} catégories`
 
   /** Le puzzle quotidien de la version Reddit (`reddit/`). */
   daily: {
+    /** Le défi du jour dans l'app, là où un hôte l'ouvre (CrazyGames) : la carte de l'accueil et la ligne du bilan. */
+    app: {
+      kicker: 'Défi du jour',
+      same: 'La même partie pour tout le monde aujourd’hui',
+      bonus: (xp: number) => `+${xp} XP`,
+      streak: (days: number) => `${days} ${plural(days, 'jour', 'jours')} d’affilée`,
+      keep: 'Joue aujourd’hui pour garder ta série',
+      done: (score: number) => `Fait : ${score} ${plural(score, 'point', 'points')}`,
+      next: (time: string) => `Le prochain dans ${time}`,
+      time: (hours: number, minutes: number) => (hours > 0 ? `${hours} h ${String(minutes).padStart(2, '0')}` : `${minutes} min`),
+      over: (number: number) => `Défi du jour n° ${number} : fait`,
+      overStreak: (days: number, xp: number) => `Série : ${days} ${plural(days, 'jour', 'jours')} · +${xp} XP de bonus`,
+      overNext: 'Reviens demain pour allonger ta série.',
+      best: (days: number) => `Record : ${days} ${plural(days, 'jour', 'jours')}`,
+    },
     title: 'Lettre Minute',
     number: (number: number) => `n° ${number}`,
     tagline: 'Une lettre, une catégorie, soixante secondes. Aujourd’hui, la même partie pour tout le monde.',
