@@ -18,10 +18,9 @@ import {
   type AttemptCount,
 } from '../domain/weekly'
 import type { Messages } from '../i18n'
-import { prepareRewardedAd, showRewardedAd } from '../lib/native'
 import { weeklyFinish, fetchWeeklyLastPlayed, fetchWeeklyRecap } from '../lib/cloud'
 import { cloudConfigured } from '../lib/supabase'
-import { rewardedAdsOpen } from '../platform'
+import { host, rewardedAdsOpen } from '../platform'
 import type { Judge } from '../domain/run'
 import type { SessionAction, Session } from '../state/session'
 import { loadLocalAttempts, markRecapSeen, recapDue, recordLocalAd, saveLocalBest } from '../state/weekly'
@@ -138,7 +137,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
   }, [enabled, home, lang])
 
   useEffect(() => {
-    if (view?.kind === 'screen' && rewardedAdsOpen) prepareRewardedAd()
+    if (view?.kind === 'screen' && rewardedAdsOpen) host.prepareRewarded()
   }, [view?.kind])
 
   const launch = useCallback(async () => {
@@ -198,7 +197,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
   const watchAd = useCallback(async () => {
     setBusy('ad')
     setMessage(null)
-    const result = await showRewardedAd()
+    const result = await host.showRewarded()
     if (result === 'rewarded') {
       recordLocalAd(windowAt(Date.now()))
       setRefresh((count) => count + 1)

@@ -34,5 +34,5 @@ export function hostFeatures(features: ReadonlySet<string>): ReadonlySet<string>
 export const premiumStoreOpen =
   host.premiumStore && (PLATFORM === 'android' || (PLATFORM === 'web' && import.meta.env.VITE_PREMIUM_WEB === 'true'))
 
-/** Rewarded ads (AdMob): Android shell only. */
-export const rewardedAdsOpen = host.rewardedAds && PLATFORM === 'android'
+/** Rewarded ads: AdMob in the Android shell, the portal's SDK on CrazyGames once its build allows them; never the web page. */
+export const rewardedAdsOpen = host.rewardedAds && (PLATFORM === 'android' || PLATFORM === 'crazygames')

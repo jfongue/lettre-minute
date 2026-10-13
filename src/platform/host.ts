@@ -35,17 +35,25 @@ export interface Host {
    */
   premiumStore: boolean
   rewardedAds: boolean
+  /** Every hidden answer of the summary can be uncovered: neither an ad nor Premium pays for more here. */
+  unlimitedReveals: boolean
   /** In a run (countdown, clock, first lesson) or not; only the changes matter. */
   setGameplay(on: boolean): void
   /** A run that beats a record the player already had. */
   celebrate(): void
   /** A run's points, for the host's own board (the portal's weekly one); nothing on Android, the web or Reddit. */
   submitScore(score: number): void
+  /** Loads a rewarded ad ahead of the offer that carries it: one shown late is skipped. */
+  prepareRewarded(): void
+  /** A rewarded ad: `rewarded` only once watched to the end, never on an error or a skip. */
+  showRewarded(): Promise<RewardedResult>
   /** The host's break before a new run (an ad); resolves once it is over, failed or skipped. */
   breakBetweenRuns(): Promise<void>
   /** Called with true while the host wants silence — its own mute, an ad — and false once it lets go. */
   onMute(listener: (muted: boolean) => void): void
 }
+
+export type RewardedResult = 'rewarded' | 'skipped' | 'unavailable'
 
 /** Everything that needs the game's server or a named account. */
 export const SERVER_FEATURES: readonly FeatureId[] = [
@@ -87,6 +95,8 @@ export const quiet = {
   setGameplay(): void {},
   celebrate(): void {},
   submitScore(): void {},
+  prepareRewarded(): void {},
+  showRewarded: (): Promise<RewardedResult> => Promise.resolve('unavailable'),
   breakBetweenRuns: (): Promise<void> => Promise.resolve(),
   onMute(): void {},
 }

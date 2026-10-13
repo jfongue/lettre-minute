@@ -1,4 +1,4 @@
-import { APP_ONLY_FEATURES, SERVER_FEATURES, type Host } from './host'
+import { APP_ONLY_FEATURES, SERVER_FEATURES, type Host, type RewardedResult } from './host'
 
 /**
  * The CrazyGames shell, as `native.ts` is the phone's: everything the portal's
@@ -253,6 +253,48 @@ function breakBetweenRuns(): Promise<void> {
 }
 
 /**
+ * A rewarded ad from the portal: the reward only on `adFinished`, nothing on
+ * `adError` (an ad blocker included, which must never cost more than the
+ * reward) and nothing for an ad that never answers. The sound is cut only
+ * while it plays, as for the midgame.
+ */
+function showRewarded(): Promise<RewardedResult> {
+  if (!sdk) return Promise.resolve('unavailable')
+  return new Promise((resolve) => {
+    let done = false
+    const finish = (result: RewardedResult) => {
+      if (done) return
+      done = true
+      clearTimeout(timer)
+      if (adPlaying) {
+        adPlaying = false
+        announceMute()
+      }
+      resolve(result)
+    }
+    const timer = setTimeout(() => finish('unavailable'), AD_TIMEOUT_MS)
+    safely((s) =>
+      s.ad.requestAd('rewarded', {
+        adStarted: () => {
+          adPlaying = true
+          announceMute()
+        },
+        adFinished: () => finish('rewarded'),
+        adError: () => finish('unavailable'),
+      }),
+    )
+    if (!sdk) finish('unavailable')
+  })
+}
+
+/**
+ * Rewarded ads are refused during a Basic Launch, and a rewarded button that
+ * pays nothing would be refused with them: the build turns them on once the
+ * portal allows ads (`VITE_CRAZYGAMES_REWARDED=true npm run crazygames:build`).
+ */
+const REWARDED = import.meta.env.VITE_CRAZYGAMES_REWARDED === 'true'
+
+/**
  * What the game keeps between visits: the profile (level, categories, powers,
  * records), its history, avatar and settings. The portal's Data module syncs
  * them to a signed-in player's account; a guest's stay in the browser, as they
@@ -370,10 +412,14 @@ export const crazyGamesHost: Host = {
   fallbackLocale: 'en',
   keepsProgress: true,
   premiumStore: false,
-  rewardedAds: false,
+  rewardedAds: REWARDED,
+  // Until the portal allows the ad that pays for them, the reveals are free.
+  unlimitedReveals: !REWARDED,
   setGameplay,
   celebrate: happytime,
   submitScore,
+  prepareRewarded(): void {},
+  showRewarded,
   breakBetweenRuns,
   onMute: onPlatformMute,
 }

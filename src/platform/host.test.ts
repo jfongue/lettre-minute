@@ -42,6 +42,15 @@ describe('les hôtes', () => {
   })
 })
 
+describe('la pub récompensée', () => {
+  it('ne récompense rien sans SDK, et ne lève jamais', async () => {
+    // Hors du portail, ou un SDK qui ne répond pas : la récompense ne vient
+    // qu'au bout d'une pub vue, jamais d'une erreur.
+    await expect(crazyGamesHost.showRewarded()).resolves.toBe('unavailable')
+    await expect(redditHost.showRewarded()).resolves.toBe('unavailable')
+  })
+})
+
 describe('le tableau du portail', () => {
   it('chiffre un score que le portail sait relire', async () => {
     // 32 octets en base64, comme le portail les génère ; le déchiffrement suit

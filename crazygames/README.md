@@ -95,9 +95,14 @@ le 2026-10-08.
   la pub, ou son erreur (y compris bloqueur de pub), au plus 60 s. Le son est
   coupé seulement pendant que la pub joue (`adStarted` → `adFinished`/`adError`).
   En Basic Launch, le portail n'affiche aucune pub : l'appel ne coûte rien.
-- **Pas de pub rewarded** : aucun pouvoir ne s'y prête sans une règle de domaine
-  nouvelle (charge en plus, reroll payé…), et une Basic Launch interdit un
-  bouton rewarded qui ne ferait rien. À reconsidérer pour une Full Launch.
+- **Pub récompensée** (`showRewarded`, `src/platform/crazygames.ts`) : celle du
+  SDK, qui paie deux révélations de plus au bilan et la seconde tentative du
+  défi du moment, comme AdMob sur Android — la récompense sur `adFinished`
+  seulement, rien sur `adError` (bloqueur compris), le son coupé le temps de la
+  pub. Une Basic Launch n'autorise aucune pub : elle reste éteinte tant que le
+  build n'est pas fait avec `VITE_CRAZYGAMES_REWARDED=true`, et d'ici là les
+  révélations du bilan sont illimitées (`unlimitedReveals`), aucune pub ni
+  Premium ne pouvant en payer davantage.
 - **Son** : `game.settings.muteAudio` et son écouteur coupent tout le jeu
   (`setAway('platform')` dans `src/lib/sound.ts`, qui suspend le contexte
   audio) ; le bouton muet du jeu ne peut pas le rallumer.

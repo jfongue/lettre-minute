@@ -1501,7 +1501,7 @@ setStartedAt((at) => at ?? Date.now())
     () => ({
       hiddenFor: async (run) =>
         hiddenAnswersOf(run.prompts ?? [], run.words.map((word) => word.word), await judgeFor(run.categoryIds, run.lang)),
-      budget: revealBudget(session.profile, todayKey()),
+      budget: revealBudget(session.profile, todayKey(), host.unlimitedReveals),
       onPeek: peek,
       onAd: revealAd,
       // Only a moderator flags a word: without the role, the recap says nothing of it.

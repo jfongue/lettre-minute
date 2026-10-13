@@ -31,6 +31,7 @@ import { revealBudget, type HiddenAnswer } from '../domain/perks'
 import { FlagWordCard, type FlagWord } from './StatsPage'
 import { Reveal } from './Reveal'
 import { useFeature } from './features'
+import { host } from '../platform'
 
 /** A word proposed during the run, and what the server holds of it — nothing while it still waits on the device. */
 export interface RunProposal {
@@ -126,7 +127,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
         previousBest={previousBest}
         mine={summary.mine}
         hidden={summary.hidden ?? []}
-        budget={revealBudget(profile, todayKey())}
+        budget={revealBudget(profile, todayKey(), host.unlimitedReveals)}
         onPeek={summary.onPeek}
         onAd={summary.onAd}
         onFlag={summary.onFlag}

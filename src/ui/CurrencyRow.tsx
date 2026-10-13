@@ -6,6 +6,7 @@ import { ownedCategoryIds } from '../domain/unlocks'
 import { useT } from '../i18n'
 import { todayKey } from '../lib/today'
 import { ResourceChip } from './premium'
+import { host } from '../platform'
 
 /** Les pastilles du profil, celles qu'une tape explique. */
 type CurrencyHint = 'filters' | 'reveals' | 'attempts'
@@ -33,7 +34,7 @@ const t = useT()
 const plus = isPlus(profile)
 const allowed = bansAllowed(profile)
 const used = bannedOf(profile, ownedCategoryIds(profile)).length
-const reveals = revealBudget(profile, day)
+const reveals = revealBudget(profile, day, host.unlimitedReveals)
 const [hint, setHint] = useState<CurrencyHint | null>(null)
 
 /** Une pastille, ce qu'elle compte, ce qu'une tape en dit, et sa forme animée. */

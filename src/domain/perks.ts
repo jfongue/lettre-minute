@@ -222,12 +222,16 @@ export interface RevealBudget {
   unlimited: boolean
 }
 
-export function revealBudget(profile: Profile, day: string): RevealBudget {
+/**
+ * `open`: the version gives every reveal away — a host where neither the ad
+ * nor Premium can pay for more (`Host.unlimitedReveals`).
+ */
+export function revealBudget(profile: Profile, day: string, open = false): RevealBudget {
   return {
     left: revealsLeft(profile, day),
     allowed: revealsAllowed(profile, day),
     adsLeft: revealAdsLeft(profile, day),
-    unlimited: isPlus(profile),
+    unlimited: open || isPlus(profile),
   }
 }
 
