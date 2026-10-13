@@ -271,20 +271,26 @@ else if (doubleSkip) sound.power('double-skip')
         </div>
       </div>
       )}
-      <div className="run-meta">
-        <p className="note">{t.run.meta(run.found.length, run.skips)}</p>
-        {run.powers.length > 0 && (
-          <span className="run-powers">
-            {run.powers.map((id) => (
-              <PowerBadge
-                key={id}
-                id={id}
-                left={POWER_CHARGES[id] && id !== 'permutation' ? chargesLeft(run, id) : undefined}
-              />
-            ))}
-          </span>
-        )}
-      </div>
+      {/* L'endurance tient son compte dans le temps de survie : le compte des
+          mots et des passés n'y ajoute rien, et sa ligne poussait le champ sous
+          le clavier. Un mode de la réserve ne se joue pas avec un pouvoir
+          (`countsForProgress`), il n'y porte donc rien non plus. */}
+      {!endurance && (
+        <div className="run-meta">
+          <p className="note">{t.run.meta(run.found.length, run.skips)}</p>
+          {run.powers.length > 0 && (
+            <span className="run-powers">
+              {run.powers.map((id) => (
+                <PowerBadge
+                  key={id}
+                  id={id}
+                  left={POWER_CHARGES[id] && id !== 'permutation' ? chargesLeft(run, id) : undefined}
+                />
+              ))}
+            </span>
+          )}
+        </div>
+      )}
       {rivals && rivals.length > 0 && avatar && <Race rivals={rivals} avatar={avatar} score={run.score} />}
       {hushed && <HushVoice lines={t.powers.hushLines} label={t.powers.hushed} />}
 
