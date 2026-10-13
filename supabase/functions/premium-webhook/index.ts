@@ -59,7 +59,9 @@ Deno.serve(async (request) => {
   if (name !== 'order_created' && name !== 'order_refunded') return Response.json({ ignored: true })
 
   const refunded = name === 'order_refunded'
-  const paid = order?.attributes?.status === 'paid'
+  // `my_premium` counts every state but `refused`: an unpaid order must leave
+  // no row at all, and no `order_updated` is listened to for a later payment.
+  if (!refunded && order?.attributes?.status !== 'paid') return Response.json({ ignored: true })
   const supabase = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
   const { error } = await supabase.from('purchases').upsert(
     {
@@ -72,8 +74,8 @@ Deno.serve(async (request) => {
       token: `lemonsqueezy:${orderId}`,
       order_id: String(order?.attributes?.order_number ?? ''),
       email: String(order?.attributes?.user_email ?? ''),
-      state: refunded ? 'refused' : paid ? 'verified' : 'pending',
-      verified_at: !refunded && paid ? new Date().toISOString() : null,
+      state: refunded ? 'refused' : 'verified',
+      verified_at: refunded ? null : new Date().toISOString(),
     },
     { onConflict: 'token' },
   )

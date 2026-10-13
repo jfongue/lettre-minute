@@ -21,7 +21,22 @@ function configured(): boolean {
   )
 }
 
+// The page lives on another origin (GitHub Pages): without these the browser
+// drops the answer, and its authorization header first asks with an OPTIONS.
+const CORS = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-headers': 'authorization, apikey, content-type, x-client-info',
+  'access-control-allow-methods': 'GET, POST, OPTIONS',
+}
+
 Deno.serve(async (request) => {
+  if (request.method === 'OPTIONS') return new Response(null, { headers: CORS })
+  const response = await checkout(request)
+  for (const [name, value] of Object.entries(CORS)) response.headers.set(name, value)
+  return response
+})
+
+async function checkout(request: Request): Promise<Response> {
   if (request.method === 'GET') return Response.json({ ready: configured() })
   if (request.method !== 'POST') return new Response('method not allowed', { status: 405 })
   if (!configured()) return new Response('not configured', { status: 503 })
@@ -77,4 +92,4 @@ Deno.serve(async (request) => {
     return Response.json({ error: 'no checkout url' }, { status: 502 })
   }
   return Response.json({ url })
-})
+}

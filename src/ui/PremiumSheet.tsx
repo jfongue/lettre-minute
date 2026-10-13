@@ -87,7 +87,7 @@ export function PremiumSheet({
   /** The store's localised price; null while it has not answered. */
   price: string | null
   /** `redirect` leaves for the merchant's own page: there is no outcome to show yet. */
- onBuy(): Promise<'ok' | 'cancel' | 'error' | 'redirect'>
+  onBuy(): Promise<'ok' | 'cancel' | 'error' | 'redirect'>
   /** Whether the store listed a purchase to bring back. */
   onRestore(): Promise<boolean>
   onClose(): void

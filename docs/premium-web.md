@@ -32,6 +32,12 @@ transpose à son API, pas au code écrit ici.
    validation du compte : `public/confidentialite.html` existe, il manque des
    CGU et une mention de remboursement (voir « Ce qui reste à faire »).
 
+**État au 2026-10-13** : store « Lettre Minute » (496748), produit « Premium à
+vie » à 2,50 € (1435858, variant 2242116), clé API et webhook créés, secrets
+posés — le tout en **mode test**. Le passage en mode réel (« Copy to live
+mode ») donne d'autres identifiants, une autre clé et un autre webhook : refaire
+les étapes 2 et 4 avec eux.
+
 ## 2. Les secrets Supabase
 
 ```
@@ -69,9 +75,10 @@ Lemon Squeezy > **Settings > Webhooks > Add webhook** :
   `LEMONSQUEEZY_WEBHOOK_SECRET` (étape 2).
 - Événements : `order_created` et `order_refunded` seulement.
 
-Un remboursement refusé par la carte, une commande impayée ou une commande
-sans nos données (`custom.account`) ne sont pas comptés : la première reste
-`pending` ou `refused`, les autres sont ignorées.
+Une commande impayée ou sans nos données (`custom.account`) est ignorée et
+n'écrit aucune ligne : `my_premium` compte tout état sauf `refused`, et le
+webhook n'écoute pas `order_updated`. Un remboursement passe la ligne en
+`refused`.
 
 ## 5. Le build web
 
