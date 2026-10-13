@@ -686,7 +686,7 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   d'un glissement, sous `data-no-swipe` pour ne pas refermer le tiroir.
   Passer Premium traverse un faux paiement (`src/ui/Checkout.tsx`) qui ne
   demande aucune carte ; le retour suivant à l'accueil remercie le joueur
-  une fois (`plusThanked`) et ouvre la demande d'avis.
+  une fois (`plusThanked`, `PlusThanksPop`), sans rien lui demander.
 - **Le son part fort et la limite le tient** (`MAKEUP_GAIN`, `src/lib/sound.ts`) :
   le téléphone baisse le volume sur des échantillons 16 bits, et un mixage
   discret y devenait robotique. Ne pas rabaisser le bus maître pour « calmer »

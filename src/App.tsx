@@ -152,7 +152,7 @@ import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
 import { useLeaving } from './ui/useLeaving'
 import { PowerGiftPop, ShareNewsPop, WordsNewsPop } from './ui/WordsNews'
-import { PlusNewsPop } from './ui/PlusNewsPop'
+import { PlusNewsPop, PlusThanksPop } from './ui/PlusNewsPop'
 import type { ChallengeRules } from './ui/ChallengeSetup'
 import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
 import { HomeScreen } from './ui/HomeScreen'
@@ -162,6 +162,8 @@ import type { FlagWord, RecapActions } from './ui/StatsPage'
 import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
 import { NamePrompt } from './ui/NamePrompt'
+import { usePopQueue } from './ui/usePopQueue'
+import { UPDATE_WAIT_MS } from './domain/popups'
 import { PushOffer } from './ui/PushOffer'
 import type { Racer } from './ui/RunScreen'
 import { lazyScreen } from './ui/lazyScreen'
@@ -384,6 +386,8 @@ setMenuPage(null)
   const [heldNotices, setHeldNotices] = useState<readonly string[]>([])
   // 'later' holds until the app is launched again: one nudge per launch is enough.
   const [update, setUpdate] = useState<'none' | 'due' | 'later'>('none')
+  // The other pop-ups wait for the store's first answer: the update comes first.
+  const [updateKnown, setUpdateKnown] = useState(false)
   // The dictionary the run plays: the interface's, or the challenge's own.
   const [runLang, setRunLang] = useState<string | null>(null)
   // Signing in must wait for the run to reach the server: the merge moves the
@@ -1036,10 +1040,18 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     const check = () =>
       document.visibilityState === 'visible' &&
-      storeUpdateAvailable().then((due) => due && setUpdate((current) => (current === 'none' ? 'due' : current)))
+      storeUpdateAvailable().then((due) => {
+        if (due) setUpdate((current) => (current === 'none' ? 'due' : current))
+        setUpdateKnown(true)
+      })
     check()
+    // A store that never answers must not hold every other pop-up back.
+    const timer = setTimeout(() => setUpdateKnown(true), UPDATE_WAIT_MS)
     document.addEventListener('visibilitychange', check)
-    return () => document.removeEventListener('visibilitychange', check)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener('visibilitychange', check)
+    }
   }, [])
   // Once shown, the home screen stays shown: later answers update it in place.
   // A slow server gets two seconds and a half, not the player's whole wait.
@@ -1724,13 +1736,9 @@ setStartedAt((at) => at ?? Date.now())
   const offerDue = !alreadyModerating && (bonusOfferDue || !!moderation?.offer && !offerHeld && on('moderatorOffer'))
   const wordsNewsDue = wordsNews.length > 0 && on('wordsNews')
   const giftDue = complicationDue(session.profile, acceptedWords) && on('powerGift')
-  const popsQuiet = !notice && quietHome && !updateDue && !offerDue && !wordsNewsDue && !giftDue && pushOffer === null
   // Premium thanks its new member once, back home, and asks for an opinion in
   // exchange: that ask stands in for the regular one if both are due.
-  const thanksPop = popsQuiet && cloudConfigured() && plusThanksDue(session.profile)
-  const feedbackPop = popsQuiet && feedbackAsk && !thanksPop && on('feedback')
-  const shareNewsPop = popsQuiet && !thanksPop && !feedbackPop && on('friendInvite') && shareNewsDue(session.profile, named, shareNewsSeen)
-  const ratingPop = popsQuiet && ratingAsk && !thanksPop && !feedbackPop && !shareNewsPop && on('support')
+  const thanksDue = cloudConfigured() && plusThanksDue(session.profile)
   const settleShareNews = () => {
     saveShareNewsSeen()
     setShareNewsSeen(true)
@@ -1738,7 +1746,27 @@ setStartedAt((at) => at ?? Date.now())
   // Les avant-premières qu'un envoi vient de livrer, annoncées au retour à
   // l'accueil : une catégorie nouvelle les fait toutes repasser, une fois.
   const freshPremieres = useMemo(() => premiereNews(premiereNewsSeen, availableCategoryIds(lang)), [premiereNewsSeen, lang])
-  const premieresPop = popsQuiet && !thanksPop && !feedbackPop && !shareNewsPop && on('premium') && freshPremieres.length > 0
+  const pop = usePopQueue(
+    {
+      update: quietHome && updateDue,
+      // One notice per challenge: the next one closes and opens like any other pop-up.
+      challenge: notice?.challenge.id ?? false,
+      weeklyRecap: quietHome && weeklyFlow.recap !== null,
+      weeklyPrize: quietHome && weeklyFlow.prizePop !== null,
+      name: atHome && nameAsk !== null,
+      // Over the menu too: the friendship is often made there, and the offer follows it at once.
+      push: atHome && pushOffer !== null && on('pushOffer'),
+      moderator: quietHome && offerDue && (!!moderation?.offer || bonusOfferDue),
+      wordsNews: quietHome && wordsNewsDue,
+      gift: quietHome && giftDue,
+      thanks: quietHome && thanksDue,
+      feedback: quietHome && feedbackAsk && !thanksDue && on('feedback'),
+      shareNews: quietHome && on('friendInvite') && shareNewsDue(session.profile, named, shareNewsSeen),
+      premieres: quietHome && on('premium') && freshPremieres.length > 0,
+      rating: quietHome && ratingAsk && on('support'),
+    },
+    updateKnown,
+  )
   const settlePremieres = () => {
     const seen = [...new Set([...premiereNewsSeen, ...freshPremieres])]
     savePremiereNewsSeen(seen)
@@ -1940,7 +1968,7 @@ setStartedAt((at) => at ?? Date.now())
         </Suspense>
       )}
 
-      {nameAsk !== null && session.phase === 'home' && !notice && (
+      {pop === 'name' && nameAsk !== null && (
         <NamePrompt
           suggestion={nameAsk}
           onChoose={async (name) => {
@@ -1952,8 +1980,7 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {pushOffer !== null && session.phase === 'home' && !notice && on('pushOffer') && (
-        // Over the menu too: the friendship is often made there, and the offer follows it at once.
+      {pop === 'push' && pushOffer !== null && (
         <PushOffer
           onNo={() => {
             markPushOffered(pushOffer)
@@ -1968,7 +1995,7 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {notice && (
+      {pop === 'challenge' && notice && (
         <ChallengeNotice
           challenge={notice.challenge}
           kind={notice.kind}
@@ -1985,7 +2012,10 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {!notice && quietHome && updateDue && (
+      {pop === 'weeklyRecap' && weeklyFlow.recap}
+      {pop === 'weeklyPrize' && weeklyFlow.prizePop}
+
+      {pop === 'update' && (
         <UpdateNotice
           onLater={() => setUpdate('later')}
           onUpdate={() => {
@@ -1996,11 +2026,7 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {!notice &&
-        quietHome &&
-        !updateDue &&
-        offerDue &&
-        (moderation?.offer || bonusOfferDue) && (
+      {pop === 'moderator' && (
           <ModeratorOffer
             reason={moderation?.offer ?? 'bonus'}
             invitedBy={moderation?.offer ? moderation.invitedBy : null}
@@ -2022,7 +2048,7 @@ setStartedAt((at) => at ?? Date.now())
           />
         )}
 
-      {!notice && quietHome && !updateDue && !offerDue && wordsNewsDue && (
+      {pop === 'wordsNews' && (
         <WordsNewsPop
           words={wordsNews}
           onClose={() => {
@@ -2041,11 +2067,11 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {!notice && quietHome && !updateDue && !offerDue && !wordsNewsDue && giftDue && (
+      {pop === 'gift' && (
           <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
         )}
 
-      {shareNewsPop && (
+      {pop === 'shareNews' && (
         <ShareNewsPop
           onLater={settleShareNews}
           onOpen={() => {
@@ -2057,7 +2083,7 @@ setStartedAt((at) => at ?? Date.now())
       )}
 
       {/* Premium les joue déjà : la pop-up mène aux catégories, et les autres à sa fiche. */}
-      {premieresPop && (
+      {pop === 'premieres' && (
         <PlusNewsPop
           names={freshPremieres.map((id) => categoryText(t, id).label).join(', ')}
           onOpen={() => {
@@ -2079,15 +2105,14 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {feedbackPop && <FeedbackPop onClose={() => setFeedbackAsk(false)} />}
+      {pop === 'feedback' && <FeedbackPop onClose={() => setFeedbackAsk(false)} />}
 
-      {ratingPop && (
+      {pop === 'rating' && (
         <RatingPop onLater={() => setRatingAsk(false)} onRate={() => { dispatch({ type: 'rating-done' }); setRatingAsk(false) }} />
       )}
 
-      {thanksPop && (
-        <FeedbackPop
-          intro={t.premiumThanks}
+      {pop === 'thanks' && (
+        <PlusThanksPop
           onClose={() => {
             setFeedbackAsk(false)
             dispatch({ type: 'plus-thanked' })

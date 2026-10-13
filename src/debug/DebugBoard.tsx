@@ -61,7 +61,7 @@ import { PremiumPage } from '../ui/PremiumPage'
 import { PremiumContext } from '../ui/premiumContext'
 import { PremiumSheet, type PremiumReason, type PremiumStatus } from '../ui/PremiumSheet'
 import { PlusLockedSlot, PlusSeal, RESOURCE_ICONS, ResourceChip, ResourceGlyph, type ResourceState } from '../ui/premium'
-import { PlusNewsPop, PlusPrizePop } from '../ui/PlusNewsPop'
+import { PlusNewsPop, PlusPrizePop, PlusThanksPop } from '../ui/PlusNewsPop'
 import { RatingPop } from '../ui/RatingPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
@@ -1142,12 +1142,6 @@ const HIDDEN: HiddenAnswer[] = [
   { prompt: { categoryId: 'couleurs', letter: 'M' }, display: 'marron' },
   { prompt: { categoryId: 'animaux', letter: 'O' }, display: 'ours' },
 ]
-
-/** Les écrans parlent la langue de l'interface : le merci aussi. */
-function PremiumThanksScenario({ back }: { back(): void }) {
-  const t = useT()
-  return <FeedbackPop intro={t.premiumThanks} onClose={back} send={() => later(true)} />
-}
 
 /** « Mes catégories » à sept catégories : le filtrage s'y ouvre, sur un profil qui ne sort pas de la planche. */
 function BansScenario({
@@ -2533,9 +2527,9 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'premium-thanks',
     group: 'Accueil',
     title: 'Merci d’être Premium',
-    how: 'Premier retour à l’accueil après l’abonnement : le merci, puis la demande d’avis (envoi simulé)',
+    how: 'Premier retour à l’accueil après l’achat : le merci et ce que Premium ouvre, sans rien demander',
     phase: 'home',
-    render: (back) => <PremiumThanksScenario back={back} />,
+    render: (back) => <PlusThanksPop onClose={back} />,
   },
   {
     id: 'ideas-admin',

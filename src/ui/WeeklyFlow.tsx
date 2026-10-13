@@ -288,7 +288,24 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
     ) : null
 
   /** Un écran du défi couvre l'accueil, qui ne se montre alors ni ne se notifie. */
-  const covering = enabled && (view !== null || intro !== null || recapWeek !== null)
+  const covering = enabled && (view !== null || intro !== null)
+
+  // Le récap et le prix sont des pop-ups de l'accueil : la file de `App.tsx`
+  // décide quand ils passent, pour qu'aucun ne se pose sur un autre.
+  const recap: ReactNode =
+    enabled && recapWeek && home && !view && !intro ? (
+      <Suspense fallback={null}>
+        <WeeklyRecap
+          weekId={recapWeek}
+          lang={lang}
+          mode={weeklyMode(recapWeek)}
+          onGo={() => closeRecap({ kind: 'screen' })}
+          onResults={() => closeRecap({ kind: 'results', weekId: recapWeek, closed: true })}
+          onLater={() => closeRecap()}
+        />
+      </Suspense>
+    ) : null
+  const prizePop: ReactNode = enabled && prize && home ? <PlusPrizePop onClose={() => setPrize(false)} /> : null
 
   const overlay: ReactNode = !enabled ? null : (
     <>
@@ -340,22 +357,6 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
           />
         </Suspense>
       )}
-
-      {recapWeek && home && !view && !intro && (
-        <Suspense fallback={null}>
-          <WeeklyRecap
-            weekId={recapWeek}
-            lang={lang}
-            mode={weeklyMode(recapWeek)}
-            onGo={() => closeRecap({ kind: 'screen' })}
-            onResults={() => closeRecap({ kind: 'results', weekId: recapWeek, closed: true })}
-            onLater={() => closeRecap()}
-          />
-        </Suspense>
-      )}
-
-      {prize && home && <PlusPrizePop onClose={() => setPrize(false)} />}
-
     </>
   )
 
@@ -377,5 +378,5 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
       </Suspense>
     ) : null
 
-  return { card, covering, overlay, over, attempts, preload: [WeeklyScreen, WeeklyResults, WeeklyDone, WeeklyRecap] as const }
+  return { card, covering, overlay, recap, prizePop, over, attempts, preload: [WeeklyScreen, WeeklyResults, WeeklyDone, WeeklyRecap] as const }
 }
