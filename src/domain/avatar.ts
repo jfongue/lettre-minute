@@ -188,7 +188,10 @@ const LOOKS: readonly Look[] = [
   ['ring', 0, null, 'roll'],
   ['zigzag', 0, null, 'wiggle'],
   ['tents', 0, null, 'tilt'],
-  ['bars', 0, null, 'breathe'],
+  // La croix qui tourne reste à cet identifiant : le joueur « Nanou » la porte
+// depuis avant le redessin, et une figure ne change pas sous les pieds de qui
+// la porte.
+['cross', 0, null, 'spin'],
   ['checker', 0, null, 'nod'],
   ['burst', 0, null, 'scatter'],
   ['wave', 0, null, 'ripple'],
