@@ -7,7 +7,6 @@ import {
   createChallenge,
   deleteAccount,
   fetchAccount,
-  fetchMyPremium,
   fetchChallenge,
   fetchChallenges,
   fetchFriends,
@@ -107,7 +106,7 @@ import { enabledFeatures, type FeatureId, type Roles } from './domain/features'
 import { ratingDue } from './domain/rating'
 import { cloudConfigured } from './lib/supabase'
 import { host, hostFeatures, premiumStoreOpen, rewardedAdsOpen } from './platform'
-import { buyPremium, ownsPremium, premiumPrice, restorePremium } from './lib/billing'
+import { buyPremium, premiumOwned, premiumPrice, restorePremium } from './lib/billing'
 import { PremiumSheet, type PremiumReason } from './ui/PremiumSheet'
 import { PremiumContext, type PremiumDoor } from './ui/premiumContext'
 import { usePlatformGameplay } from './platform/usePlatformGameplay'
@@ -1404,11 +1403,13 @@ setStartedAt((at) => at ?? Date.now())
     if (found) joinPlus()
     return found
   }, [joinPlus])
-  // A Premium bought on another device, or before a reinstall, comes back with the Google account.
+  // A Premium bought on another device, or before a reinstall, comes back with
+  // the Google account or the merchant's order; on the web's own return the
+  // server is given a few seconds to hear from the webhook.
   useEffect(() => {
     if (!premiumStoreOpen || isPlus(profile.current)) return
-    void ownsPremium().then(async (owned) => {
-      if ((owned || (await fetchMyPremium())) && !isPlus(profile.current)) joinPlus()
+    void premiumOwned().then((owned) => {
+      if (owned && !isPlus(profile.current)) joinPlus()
     })
   }, [joinPlus, profile])
   // Le défi du moment : ses écrans, sa partie et son récap vivent dans un seul crochet.
