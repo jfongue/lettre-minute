@@ -912,10 +912,9 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
 
 
   premiumThanks: {
-    title: 'Danke, dass du Premium bist!',
-    lead: 'Deine Unterstützung bedeutet mir viel. Magst du mir dafür sagen, was du von dieser Version des Spiels hältst?',
-    yes: 'Gern',
-    later: 'Später',
+    title: 'Willkommen bei Premium!',
+    lead: 'Danke für deine Unterstützung. Alles ist freigeschaltet, für immer – viel Spaß!',
+    ok: 'Los geht’s',
   },
 
   update: {

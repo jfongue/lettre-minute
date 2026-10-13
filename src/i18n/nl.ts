@@ -913,10 +913,9 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
 
 
   premiumThanks: {
-    title: 'Bedankt dat je Premium bent geworden!',
-    lead: 'Je steun betekent veel. Wil je me in ruil daarvoor vertellen wat je van deze versie van het spel vindt?',
-    yes: 'Graag',
-    later: 'Later',
+    title: 'Welkom bij Premium!',
+    lead: 'Bedankt voor je steun. Alles is ontgrendeld, voorgoed: veel speelplezier!',
+    ok: 'Aan de slag',
   },
 
   update: {

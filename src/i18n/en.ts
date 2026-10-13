@@ -918,10 +918,9 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
 
 
   premiumThanks: {
-    title: 'Thanks for going Premium!',
-    lead: 'Your support means a lot. In return, would you mind telling me what you think of this version of the game?',
-    yes: 'Happy to',
-    later: 'Later',
+    title: 'Welcome to Premium!',
+    lead: 'Thanks for your support. Everything is open, for good — enjoy the game!',
+    ok: 'Let’s play',
   },
 
   update: {

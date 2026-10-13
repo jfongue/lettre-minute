@@ -963,10 +963,9 @@ latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 s
 
 
   premiumThanks: {
-    title: 'Merci de t’être abonné Premium !',
-    lead: 'Ton soutien compte beaucoup. En échange, est-ce que tu veux bien me donner ton avis sur cette version du jeu ?',
-    yes: 'Avec plaisir',
-    later: 'Plus tard',
+    title: 'Bienvenue dans Premium !',
+    lead: 'Merci pour ton soutien. Tout est ouvert, pour de bon : bon jeu !',
+    ok: 'C’est parti',
   },
 
   update: {

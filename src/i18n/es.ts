@@ -914,10 +914,9 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
 
 
   premiumThanks: {
-    title: '¡Gracias por hacerte Premium!',
-    lead: 'Tu apoyo cuenta mucho. A cambio, ¿me darías tu opinión sobre esta versión del juego?',
-    yes: 'Con gusto',
-    later: 'Más tarde',
+    title: '¡Bienvenido a Premium!',
+    lead: 'Gracias por tu apoyo. Todo está abierto, para siempre: ¡a jugar!',
+    ok: '¡A jugar!',
   },
 
   update: {

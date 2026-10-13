@@ -68,3 +68,32 @@ export function PlusPrizePop({ onClose }: { onClose(): void }) {
     </div>
   )
 }
+
+/** Au retour à l'accueil après l'achat : un merci, ce que Premium ouvre, et rien à demander. */
+export function PlusThanksPop({ onClose }: { onClose(): void }) {
+  const t = useT()
+  useBackDismiss(onClose)
+  useEffect(() => sound.news(), [])
+  return (
+    <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="plus-thanks-title">
+      <div className="offer-pop-scrim" onClick={onClose} />
+      <div className="psheet">
+        <div className="psheet-done">
+          <span className="psheet-done-art">
+            <PlusSeal size="lg" animated />
+            <Burst />
+          </span>
+          <h2 id="plus-thanks-title" className="psheet-welcome">
+            {t.premiumThanks.title}
+          </h2>
+          <p className="psheet-note">{t.premiumThanks.lead}</p>
+          {/* Déjà acheté : ni le paiement unique, ni l'appel au développeur indé. */}
+          <PremiumBenefits omit={['indie', 'lifetime']} />
+          <button type="button" className="btn psheet-buy" onClick={onClose}>
+            {t.premiumThanks.ok}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

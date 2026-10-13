@@ -152,7 +152,7 @@ import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
 import { useLeaving } from './ui/useLeaving'
 import { PowerGiftPop, ShareNewsPop, WordsNewsPop } from './ui/WordsNews'
-import { PlusNewsPop } from './ui/PlusNewsPop'
+import { PlusNewsPop, PlusThanksPop } from './ui/PlusNewsPop'
 import type { ChallengeRules } from './ui/ChallengeSetup'
 import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
 import { HomeScreen } from './ui/HomeScreen'
@@ -2112,8 +2112,7 @@ setStartedAt((at) => at ?? Date.now())
       )}
 
       {pop === 'thanks' && (
-        <FeedbackPop
-          intro={t.premiumThanks}
+        <PlusThanksPop
           onClose={() => {
             setFeedbackAsk(false)
             dispatch({ type: 'plus-thanked' })
