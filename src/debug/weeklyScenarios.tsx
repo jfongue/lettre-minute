@@ -101,10 +101,10 @@ function useStandIn(initial: readonly WeeklyReactionCount[]) {
 
 export function WeeklyCardScenario({ onBack }: { onBack(): void }) {
   const states = [
-    { used: 0, free: 2 },
+    { used: 0, free: 1 },
+    { used: 1, free: 1 },
     { used: 1, free: 2 },
-    { used: 2, free: 2 },
-    { used: 3, free: 5 },
+    { used: 3, free: 3 },
   ]
   return (
     <div className="sheet" style={{ gap: '1.4rem' }}>
@@ -114,7 +114,7 @@ export function WeeklyCardScenario({ onBack }: { onBack(): void }) {
       {states.map((state) => (
         <WeeklyCard key={state.used} mode="endurance" closesAt={WEEK.closesAt} now={NOW} used={state.used} free={state.free} onOpen={onBack} />
       ))}
-      <WeeklyCard mode="delayed" closesAt={WEEK.closesAt} now={NOW} used={0} free={2} onOpen={onBack} />
+      <WeeklyCard mode="delayed" closesAt={WEEK.closesAt} now={NOW} used={0} free={1} onOpen={onBack} />
       <WeeklyCard mode="reversed" closesAt={WEEK.closesAt} now={NOW} used={1} free={2} onOpen={onBack} />
     </div>
   )
@@ -125,7 +125,6 @@ export function WeeklyScreenScenario({ used, plus, onBack, ads = 0 }: { used: nu
     mode: 'endurance',
     closesAt: WEEK.closesAt,
     now: NOW,
-    lineup: ['animaux', 'pays', 'couleurs', 'metiers', 'sports'],
     status: { used, ads, best: used === 0 ? null : 64.5, rank: used === 0 ? null : 12, players: 342, online: true },
     plus,
     adsOpen: true,

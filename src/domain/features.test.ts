@@ -30,6 +30,20 @@ describe('les fonctionnalités', () => {
     expect(enabledFeatures({}, moderator).has('weekly')).toBe(false)
     expect(enabledFeatures({}, premium).has('weekly')).toBe(false)
     expect(enabledFeatures({}, superModerator).has('weekly')).toBe(true)
+    expect(enabledFeatures({}, player).has('premiumGrant')).toBe(false)
+    expect(enabledFeatures({}, moderator).has('premiumGrant')).toBe(false)
+    expect(enabledFeatures({}, premium).has('premiumGrant')).toBe(false)
+    expect(enabledFeatures({}, superModerator).has('premiumGrant')).toBe(true)
+  })
+
+  it('ouvrent et ferment Premium au super modérateur qui règle la ligne', () => {
+    const closed: FlagRow = { everyone: 'off', moderator: 'off', premium: 'off', superModerator: 'off' }
+    const open: FlagRow = { everyone: 'off', moderator: 'off', premium: 'off', superModerator: 'on' }
+
+    expect(enabledFeatures({ premiumGrant: closed }, superModerator).has('premiumGrant')).toBe(false)
+    expect(enabledFeatures({ premiumGrant: open }, superModerator).has('premiumGrant')).toBe(true)
+    // Le modérateur simple n'y a pas droit : la ligne ne parle qu'au super.
+    expect(enabledFeatures({ premiumGrant: open }, moderator).has('premiumGrant')).toBe(false)
   })
 
   it('ouvrent dès qu’une case du joueur dit dispo', () => {

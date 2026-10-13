@@ -118,7 +118,9 @@ export type WeeklyMetric = 'score' | 'survival'
 
 export interface WeeklyChallenge {
   weekId: string
+  lang: string
   mode: GameMode
+  /** La graine de la semaine : elle fixe le programme, pas le tirage de chaque tentative. */
   seed: number
   lineup: string[]
   metric: WeeklyMetric
@@ -138,7 +140,22 @@ export function metricOf(mode: GameMode): WeeklyMetric {
 
 /** FNV-1a sur la semaine et la langue : un défi français et un anglais sont deux parties. */
 export function weeklySeed(weekId: string, lang: string): number {
-  const text = `lettre-minute:weekly:${lang}:${weekId}`
+  return seedOf(`lettre-minute:weekly:${lang}:${weekId}`)
+}
+
+/**
+* La graine d'une tentative : la semaine, la langue, le jour de Paris et son
+* numéro. Tous ceux qui lancent la même tentative du même jour rejouent la
+* même partie ; la tentative suivante, ou celle du lendemain, en tire une
+* autre. Rien ici ne dépend du joueur : la liste de ses propres questions ne
+* la ferait plus jouer la partie des autres.
+*/
+export function weeklyAttemptSeed(weekId: string, lang: string, day: string, attempt: number): number {
+  const n = Number.isInteger(attempt) && attempt > 0 ? attempt : 1
+  return seedOf(`lettre-minute:weekly:${lang}:${weekId}:${day}:${n}`)
+}
+
+function seedOf(text: string): number {
   let hash = 0x811c9dc5
   for (let i = 0; i < text.length; i++) hash = Math.imul(hash ^ text.charCodeAt(i), 0x01000193)
   return hash >>> 0
@@ -147,13 +164,16 @@ export function weeklySeed(weekId: string, lang: string): number {
 /**
  * Le défi d'une semaine. `available` est la liste que l'appelant tient pour
  * jouable par tous — sans les avant-premières, que seul un Premium possède —,
- * triée ici : l'ordre d'un bundler ne doit pas changer la partie.
+ * triée ici : l'ordre d'un bundler ne doit pas changer la partie. Le programme
+ * qu'elle distribue tient la semaine ; chaque tentative en tire sa partie par
+ * `weeklyRunOptions`.
  */
 export function weeklyChallenge(weekId: string, lang: string, available: readonly string[]): WeeklyChallenge {
   const mode = weeklyMode(weekId)
   const seed = weeklySeed(weekId, lang)
   return {
     weekId,
+    lang,
     mode,
     seed,
     lineup: [...dealLineup(seed, [...available].sort()).dealt].slice(0, MAX_CATEGORIES_PER_RUN),
@@ -163,11 +183,19 @@ export function weeklyChallenge(weekId: string, lang: string, available: readonl
 
 /**
  * Ce qui rend la partie la même pour tous : aucun pouvoir, aucune question à
- * éviter, et `shared` pour que la foule ne pèse pas. Le `Judge` qui la joue ne
- * doit porter ni mots de la communauté ni compteurs d'usage.
+ * éviter, `shared` pour que la foule ne pèse pas, et la graine de la tentative
+ * — son jour et son numéro, jamais le joueur. Le `Judge` qui la joue ne doit
+ * porter ni mots de la communauté ni compteurs d'usage.
  */
-export function weeklyRunOptions(challenge: WeeklyChallenge): CreateRunInput {
-  return { seed: challenge.seed, mode: challenge.mode, categoryIds: challenge.lineup, avoid: [], powers: [], shared: true }
+export function weeklyRunOptions(challenge: WeeklyChallenge, day: string, attempt: number): CreateRunInput {
+  return {
+    seed: weeklyAttemptSeed(challenge.weekId, challenge.lang, day, attempt),
+    mode: challenge.mode,
+    categoryIds: challenge.lineup,
+    avoid: [],
+    powers: [],
+    shared: true,
+  }
 }
 
 /** Ce que la partie rapporte au classement : des points, ou des secondes tenues, au dixième. */
@@ -177,9 +205,9 @@ export function weeklyValue(run: Run, metric: WeeklyMetric): number {
 
 // ---------------------------------------------------------------- tentatives
 
-export const WEEKLY_FREE_ATTEMPTS = 2
+export const WEEKLY_FREE_ATTEMPTS = 1
 export const WEEKLY_AD_ATTEMPTS = 1
-export const WEEKLY_PLUS_ATTEMPTS = 5
+export const WEEKLY_PLUS_ATTEMPTS = 3
 /** Le plafond dur que le serveur applique, quoi que le client lui dise de Premium. */
 export const WEEKLY_MAX_ATTEMPTS = WEEKLY_PLUS_ATTEMPTS
 
@@ -197,19 +225,19 @@ export function attemptsAllowed({ plus, adsWatched }: AttemptPerks): number {
 export type AttemptSlot = 'used' | 'free' | 'ad' | 'plus' | 'locked'
 
 /**
- * Les cinq places du jour. `free` se joue d'un tap ; `ad` se débloque par une
- * pub ; `plus` est une place de Premium, jouable ; `locked` en est une qu'un
- * joueur sans Premium voit verrouillée.
+ * Les trois places du jour. `free` se joue d'un tap ; `ad` s'achète d'une pub ;
+ * `plus` est la place de Premium, jouable ; `locked` en est une qu'un joueur
+ * sans Premium voit derrière le sceau.
  */
 export function attemptState(used: number, plus: boolean, adsWatched: number): AttemptSlot[] {
   const taken = Math.max(0, Math.floor(used))
-  const allowed = attemptsAllowed({ plus, adsWatched })
+  const watched = Math.floor(adsWatched) >= WEEKLY_AD_ATTEMPTS
   return Array.from({ length: WEEKLY_MAX_ATTEMPTS }, (_, place): AttemptSlot => {
     if (place < taken) return 'used'
     if (place < WEEKLY_FREE_ATTEMPTS) return 'free'
     if (plus) return 'plus'
-    if (place < allowed) return 'free'
-    return place < WEEKLY_FREE_ATTEMPTS + WEEKLY_AD_ATTEMPTS ? 'ad' : 'locked'
+    if (place < WEEKLY_FREE_ATTEMPTS + WEEKLY_AD_ATTEMPTS) return watched ? 'free' : 'ad'
+    return 'locked'
   })
 }
 

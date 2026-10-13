@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
-import { completeLeaderboard, myPlace, PERIODS, STATS, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from '../domain/leaderboards'
+import { completeLeaderboard, myPlace, OPEN_STATS, PERIODS, STATS, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from '../domain/leaderboards'
 import { metricOf, weekNumber, weekOf, weeklyMode, type WeeklyMetric } from '../domain/weekly'
 import { formatNumber, useT } from '../i18n'
 import { fetchLeaderboard, fetchWeeklyBoard, fetchWeeklyWinners, type WeeklyBoardRow, type WeeklyWinnerRow } from '../lib/cloud'
@@ -22,6 +22,7 @@ const LOOKS: Record<StatId, { kind: ShapeKind; tint: Tint }> = {
   discoveries: { kind: 'sun', tint: 'pink' },
   combo: { kind: 'zigzag', tint: 'red' },
   added: { kind: 'cross', tint: 'blue' },
+  moderation: { kind: 'lens', tint: 'green' },
 }
 
 /** Undefined while it is asked for, null when the server did not answer. */
@@ -43,6 +44,8 @@ async function loadFromServer(stat: StatId, period: PeriodId): Promise<Leaderboa
 interface LeaderboardsPageProps {
   /** An anonymous player reads the boards but stands on none of them. */
   named: boolean
+  /** Le joueur juge des mots : il voit en plus le classement des sessions de modération. */
+  moderator?: boolean
   /** Le tiroir tient la famille : son commutateur est sur la ligne du titre. */
   family?: FamilyId
   onFamily?(next: FamilyId): void
@@ -63,6 +66,7 @@ interface LeaderboardsPageProps {
  */
 export function LeaderboardsPage({
   named,
+  moderator = false,
   family: familyProp,
   onFamily,
   load = loadFromServer,
@@ -71,6 +75,9 @@ export function LeaderboardsPage({
   onCloseAdvanced,
 }: LeaderboardsPageProps) {
   const t = useT()
+  // Les sessions de modération ne se montrent qu'à qui juge : la piste en porte
+  // une de moins pour tout le monde.
+  const stats: readonly StatId[] = moderator ? STATS : OPEN_STATS
   // Le défi se range par langue et par semaine : l'interface donne les deux.
   const lang = t.tag.split('-')[0]!
   const weekId = weekOf(Date.now()).weekId
@@ -131,12 +138,12 @@ export function LeaderboardsPage({
 
   useEffect(() => {
     for (const index of [active, active + 1, active - 1]) {
-      const stat = STATS[index]
+      const stat = stats[index]
       if (stat) ask(stat)
     }
     // `ask` reads `period` and `load`, both among the dependencies.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, period, load])
+  }, [active, period, load, moderator])
 
   useEffect(() => {
     // Not `scrollIntoView`, which would also slide the drawer around it.
@@ -181,7 +188,7 @@ export function LeaderboardsPage({
           </div>
 
           <div className="leaderboards-chips" ref={chips}>
-            {STATS.map((stat, index) => {
+            {stats.map((stat, index) => {
               const look = LOOKS[stat]
               const on = index === active
               return (
@@ -208,10 +215,10 @@ export function LeaderboardsPage({
             style={{ height }}
             onScroll={(event) => {
               const element = event.currentTarget
-              setActive(Math.min(STATS.length - 1, Math.max(0, Math.round(element.scrollLeft / element.clientWidth))))
+              setActive(Math.min(stats.length - 1, Math.max(0, Math.round(element.scrollLeft / element.clientWidth))))
             }}
           >
-            {STATS.map((stat) => (
+            {stats.map((stat) => (
               <section className="board leaderboard" key={stat} aria-label={t.leaderboards.stats[stat].label}>
                 <p className="note leaderboard-caption">{t.leaderboards.stats[stat].caption}</p>
                 <BoardBody stat={stat} period={period} board={boards[`${stat}:${period}`]} named={named} onRetry={() => ask(stat, true)} />

@@ -103,7 +103,6 @@ export type Motion =
   | 'breathe'
   | 'nod'
   | 'march'
-  | 'slide'
   | 'count'
   | 'roll'
   | 'tilt'
@@ -131,6 +130,9 @@ export type Motion =
   | 'coil'
   | 'flip'
   | 'squish'
+  | 'bounce'
+  | 'squeeze'
+  | 'part'
 
 /** One tile of the poster: a shape, turned by quarters, with an optional small accent in a corner. */
 export interface AvatarDesign {
@@ -181,12 +183,15 @@ const LOOKS: readonly Look[] = [
   ['arch', 0, null, 'hover'],
   ['half', 0, null, 'sway'],
   ['steps', 0, null, 'march'],
-  ['slab', 0, null, 'slide'],
+  ['slab', 0, null, 'squeeze'],
   ['dots', 0, null, 'count'],
   ['ring', 0, null, 'roll'],
   ['zigzag', 0, null, 'wiggle'],
   ['tents', 0, null, 'tilt'],
-  ['bars', 0, null, 'breathe'],
+  // La croix qui tourne reste à cet identifiant : le joueur « Nanou » la porte
+// depuis avant le redessin, et une figure ne change pas sous les pieds de qui
+// la porte.
+['cross', 0, null, 'spin'],
   ['checker', 0, null, 'nod'],
   ['burst', 0, null, 'scatter'],
   ['wave', 0, null, 'ripple'],
@@ -207,7 +212,7 @@ const LOOKS: readonly Look[] = [
   ['butterfly', 0, null, 'flutter'],
   // La tuile du niveau 16, gardée telle quelle : la seule qui porte encore un
   // motif en coin, celui que Jérémy ne voulait pas perdre.
-  ['half', 0, 'circle', 'bob'],
+  ['half', 0, 'circle', 'bounce'],
   ['stripedDisc', 0, null, 'roll'],
   ['checker3', 0, null, 'breathe'],
   ['target', 0, null, 'lock'],
@@ -234,7 +239,7 @@ const LOOKS: readonly Look[] = [
   // Les trois tuiles que la grille ouvre par un exploit plutôt que par un
   // barreau, à la fin pour ne déplacer aucune case déjà portée par un joueur.
   ['spiral', 0, null, 'coil'],
-  ['split', 0, null, 'slide'],
+  ['split', 0, null, 'part'],
   ['links', 0, null, 'swing'],
 ]
 
@@ -274,7 +279,7 @@ export type DetailKind =
 | 'bloomDisc'
 | 'barsMiddle'
 | 'slatsTop'
-| 'stripesFirst'
+| 'stripesMiddle'
 | 'barcodeWidest'
 | 'stripedDiscMid'
 | 'framePanel'
@@ -311,7 +316,7 @@ export const TINTED: Partial<Record<ShapeKind, DetailKind>> = {
   // Les parties jouées, ce qui s'aligne et se compte.
   bars: 'barsMiddle',
   slats: 'slatsTop',
-  stripes: 'stripesFirst',
+  stripes: 'stripesMiddle',
   barcode: 'barcodeWidest',
   stripedDisc: 'stripedDiscMid',
   halfBars: 'halfBarsBand',

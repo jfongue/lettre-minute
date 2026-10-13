@@ -1,8 +1,11 @@
 import { HOUSE_PLAYER, type BoardRow } from './boards'
 
-/** What a leaderboard measures: the order is the page's. */
-export const STATS = ['best', 'points', 'runs', 'words', 'discoveries', 'combo', 'added'] as const
+/** What a leaderboard measures: the order is the page's. « Sessions de modération » n'est lue que par un modérateur. */
+export const STATS = ['best', 'points', 'runs', 'words', 'discoveries', 'combo', 'added', 'moderation'] as const
 export type StatId = (typeof STATS)[number]
+
+/** Les mesures qu'un joueur qui n'est pas modérateur voit : les sessions disent qui juge, pas qui joue. */
+export const OPEN_STATS: readonly StatId[] = STATS.filter((stat) => stat !== 'moderation')
 
 export const PERIODS = ['day', 'week', 'all'] as const
 export type PeriodId = (typeof PERIODS)[number]

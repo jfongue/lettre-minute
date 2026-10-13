@@ -113,6 +113,12 @@ export interface Profile {
   perksVersion: number
   /** When the player went Premium; 0 if they never did. */
   plusSince: number
+  /**
+   * Premium offert par la table des fonctionnalités (`premiumGrant`) : il tient
+   * tant que la ligne est ouverte, et se reprend en la fermant. Sur l'appareil
+   * seulement — un achat, lui, se retrouve par `plusSince`.
+   */
+  plusGranted: boolean
   /** What Premium brought beyond the free limits, by `PlusStat` (`countPlus*`, `src/domain/perks.ts`). */
   plusStats: Readonly<Record<string, number>>
   /** 1 once the home screen has thanked the player for going Premium, and asked their opinion. */
@@ -183,6 +189,7 @@ export const NEW_PROFILE: Profile = {
   lastBonusOffer: [],
   perksVersion: PERKS_VERSION,
   plusSince: 0,
+  plusGranted: false,
   plusStats: {},
   plusThanked: 0,
   longestWord: 0,
@@ -274,6 +281,22 @@ export function settleReview(profile: Profile): Profile {
  * les plafonne (`weekly_start`) ; celui-ci les suit pour la grille d'avatar, où
  * une tentative refusée ne compte pas.
  */
+/**
+* Ce que le serveur comptait déjà des deux pistes nées en 1.7.16 : le joueur
+* qui a lancé son défi du moment ou terminé ses défis entre amis avant elles ne
+* repart pas de zéro. La copie ne redescend jamais — un compteur plus haut sur
+* l'appareil dit ce qu'il a fait depuis, et les deux ne font que monter.
+*/
+export function backfillCounters(
+profile: Pick<Profile, 'weeklyAttempts' | 'challengesFinished'>,
+counters: Partial<Pick<Profile, 'weeklyAttempts' | 'challengesFinished'>>,
+): Pick<Profile, 'weeklyAttempts' | 'challengesFinished'> {
+return {
+weeklyAttempts: Math.max(profile.weeklyAttempts, counters.weeklyAttempts ?? 0),
+challengesFinished: Math.max(profile.challengesFinished, counters.challengesFinished ?? 0),
+}
+}
+
 export function recordWeeklyAttempt(profile: Profile): Profile {
   return { ...profile, weeklyAttempts: profile.weeklyAttempts + 1 }
 }

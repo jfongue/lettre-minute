@@ -13,6 +13,7 @@ import {
   newlyEarnedAchievements,
   ownedColours,
   ownedDesigns,
+  ownsEveryDesign,
 } from './achievements'
 import { AVATARS, FREE_COLOURS, FREE_DESIGNS, PALETTE } from './avatar'
 import { NEW_PROFILE, xpForLevel } from './progression'
@@ -187,5 +188,20 @@ describe('achievements', () => {
     for (const rung of rungInks) {
       expect(ownedColours(veteran).map((colour) => colour.id)).toContain(rung.reward.colour)
     }
+  })
+})
+
+describe('le compte maison', () => {
+  it('se reconnaît à son nom, sans casse', () => {
+    expect(ownsEveryDesign('Demontoon')).toBe(true)
+    expect(ownsEveryDesign('demontoon')).toBe(true)
+    expect(ownsEveryDesign('Ada')).toBe(false)
+    expect(ownsEveryDesign(null)).toBe(false)
+    expect(ownsEveryDesign(undefined)).toBe(false)
+  })
+
+  it('porte toute la grille sans avoir rien gagné', () => {
+    expect(ownedDesigns(NEW_PROFILE, 0)).toHaveLength(FREE_DESIGNS)
+    expect(ownedDesigns(NEW_PROFILE, 0, true)).toHaveLength(AVATARS.length)
   })
 })

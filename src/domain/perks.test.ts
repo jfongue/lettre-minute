@@ -12,8 +12,11 @@ import {
   REVEAL_ADS_MAX,
   REVEAL_BONUS_MAX,
   REVEALS_MAX,
+  REVEALS_PER_AD,
   banUnlocked,
   grantRevealAd,
+  grantPlus,
+  isPlus,
   revealAdsLeft,
   revealsLeft,
   spendReveal,
@@ -122,21 +125,21 @@ describe('reveals', () => {
     expect(revealsLeft(withBonuses(4), DAY)).toBe(BASE_REVEALS + REVEAL_BONUS_MAX)
   })
 
-  it('grow by one per ad, three a day, and the ads restart with the day', () => {
+  it('grow by two per ad, three a day, and the ads restart with the day', () => {
     let profile = NEW_PROFILE
     for (let i = 0; i < REVEAL_ADS_MAX + 2; i++) profile = grantRevealAd(profile, DAY)
     expect(profile.revealAds).toBe(REVEAL_ADS_MAX)
     expect(revealAdsLeft(profile, DAY)).toBe(0)
-    expect(revealsLeft(profile, DAY)).toBe(BASE_REVEALS + REVEAL_ADS_MAX)
+    expect(revealsLeft(profile, DAY)).toBe(BASE_REVEALS + REVEALS_PER_AD * REVEAL_ADS_MAX)
     expect(revealAdsLeft(profile, NEXT)).toBe(REVEAL_ADS_MAX)
     expect(revealsLeft(profile, NEXT)).toBe(BASE_REVEALS)
   })
 
-  it('top out at eight', () => {
+  it('top out at eleven', () => {
     let profile = withBonuses(3)
     for (let i = 0; i < REVEAL_ADS_MAX; i++) profile = grantRevealAd(profile, DAY)
     expect(revealsLeft(profile, DAY)).toBe(REVEALS_MAX)
-    expect(REVEALS_MAX).toBe(8)
+    expect(REVEALS_MAX).toBe(11)
   })
 
   it('never run out for Premium, who watches no ad', () => {
@@ -154,6 +157,27 @@ describe('plusThanksDue', () => {
     const plus = joinPlus(NEW_PROFILE, 1)
     expect(plusThanksDue(plus)).toBe(true)
     expect(plusThanksDue(markPlusThanked(plus))).toBe(false)
+  })
+
+  it('ne remercie pas un compte servi par la table des fonctionnalités', () => {
+    // Il n'a rien acheté : la page dit « offert », l'accueil ne le remercie pas.
+    expect(plusThanksDue(grantPlus(NEW_PROFILE, true))).toBe(false)
+  })
+})
+
+describe('grantPlus', () => {
+  it('ouvre les avantages sans dater un achat', () => {
+    expect(isPlus(NEW_PROFILE)).toBe(false)
+    const granted = grantPlus(NEW_PROFILE, true)
+    expect(isPlus(granted)).toBe(true)
+    expect(granted.plusSince).toBe(0)
+  })
+
+  it('se reprend, et ne touche pas un profil déjà dans cet état', () => {
+    const granted = grantPlus(NEW_PROFILE, true)
+    expect(isPlus(grantPlus(granted, false))).toBe(false)
+    expect(grantPlus(NEW_PROFILE, false)).toBe(NEW_PROFILE)
+    expect(grantPlus(granted, true)).toBe(granted)
   })
 })
 
@@ -257,12 +281,13 @@ describe('what Premium brought', () => {
     expect(plusStat(countPlusReveal(profile, NEXT), 'reveals')).toBe(plusStat(profile, 'reveals'))
   })
 
-  it('counts the weekly attempts from the third, the third sparing an ad', () => {
-    expect(countPlusAttempt(plus, 2)).toBe(plus)
-    const third = countPlusAttempt(plus, 3)
-    expect(plusStat(third, 'attempts')).toBe(1)
-    expect(plusStat(third, 'adsSkipped')).toBe(1)
-    expect(plusStat(countPlusAttempt(third, 4), 'adsSkipped')).toBe(1)
+  it('counts the weekly attempts past the free one, the second sparing an ad', () => {
+    expect(countPlusAttempt(plus, 1)).toBe(plus)
+    const second = countPlusAttempt(plus, 2)
+    expect(plusStat(second, 'attempts')).toBe(1)
+    expect(plusStat(second, 'adsSkipped')).toBe(1)
+    expect(plusStat(countPlusAttempt(second, 3), 'adsSkipped')).toBe(1)
+    expect(plusStat(countPlusAttempt(second, 3), 'attempts')).toBe(2)
   })
 
   it('counts runs with more filters than the free maximum, and runs that dealt a preview', () => {

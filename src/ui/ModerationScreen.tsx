@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent, type ReactNode } from 'react'
 import { SWIPE_THRESHOLD, swipeVerdict, type Verdict } from '../domain/moderation'
-import { castVote, fetchModerationQueue, type ReviewCard, type VoteOutcome } from '../lib/cloud'
+import { castVote, fetchModerationQueue, reportModerationSession, type ReviewCard, type VoteOutcome } from '../lib/cloud'
 import { sound } from '../lib/sound'
 import { categoryText, useT } from '../i18n'
 import { countModerationSession } from '../state/storage'
@@ -93,6 +93,9 @@ export function ModerationScreen({ lang, onDone, queue, onVerdict }: ModerationS
   useEffect(() => {
     if (!finished) return
     countModerationSession()
+    // La file vidée compte aussi pour le serveur : c'est lui que lit le classement
+    // des sessions de modération.
+    void reportModerationSession()
     const timer = setTimeout(sound.news, 450)
     return () => clearTimeout(timer)
   }, [finished])

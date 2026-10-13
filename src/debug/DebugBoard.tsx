@@ -432,7 +432,7 @@ function summaryOf(detail: ChallengeDetail): ChallengeSummary {
 // ------------------------------------------------------------ scenarios --
 
 /** Rows per measure: long, past fifty with the player far down, short, empty, and one that does not answer. */
-const LEADERBOARD_SIZES: Record<StatId, number> = { best: 24, points: 60, runs: 5, words: 24, discoveries: 2, combo: 12, added: 0 }
+const LEADERBOARD_SIZES: Record<StatId, number> = { best: 24, points: 60, runs: 5, words: 24, discoveries: 2, combo: 12, added: 0, moderation: 4 }
 
 /** A name past the podium's width: the top 3 must trim it rather than grow a step. */
 const LONG_PLAYER = 'MaximilienDeRobespierre'
@@ -834,10 +834,10 @@ function AvatarScenario() {
   )
 }
 
-function LeaderboardsScenario({ named, mineAt }: { named: boolean; mineAt?: number }) {
+function LeaderboardsScenario({ named, moderator = false, mineAt }: { named: boolean; moderator?: boolean; mineAt?: number }) {
   return (
     <div className="sheet">
-      <LeaderboardsPage named={named} load={(stat, period) => fakeLeaderboard(stat, period, mineAt)} />
+      <LeaderboardsPage named={named} moderator={moderator} load={(stat, period) => fakeLeaderboard(stat, period, mineAt)} />
     </div>
   )
 }
@@ -1569,33 +1569,41 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'weekly-home-card',
     group: 'Défi du moment',
     title: 'Carte de l’accueil',
-    how: 'Les deux billets du jour pleins, un joué, deux joués, puis Premium ; les trois modes',
+    how: 'Le billet du jour, le même une fois joué, puis la seconde ouverte par une pub et les trois de Premium ; les trois modes',
     phase: 'home',
     render: (back) => <WeeklyCardScenario onBack={back} />,
   },
   {
     id: 'weekly-screen-fresh',
     group: 'Défi du moment',
-    title: 'Écran du défi : deux tentatives',
-    how: 'Rien de joué : « Tu as 2 tentatives aujourd’hui », le bouton lance après confirmation',
+    title: 'Écran du défi : rien de joué',
+    how: 'Un billet plein : le bouton lance après confirmation, la pub et Premium ne s’offrent qu’une fois la tentative gratuite jouée',
     phase: 'home',
     render: (back) => <WeeklyScreenScenario used={0} plus={false} onBack={back} />,
   },
   {
+    id: 'weekly-screen-ad',
+    group: 'Défi du moment',
+    title: 'Écran du défi : la pub',
+    how: 'La gratuite jouée : le bouton cède sa place à « Regarder une pub », et Premium se propose sous lui',
+    phase: 'home',
+    render: (back) => <WeeklyScreenScenario used={1} plus={false} onBack={back} />,
+  },
+  {
     id: 'weekly-screen-spent',
     group: 'Défi du moment',
-    title: 'Écran du défi : deux jouées',
-    how: 'Les deux utilisées, la 3e par une pub ou Premium, la 4e et la 5e réservées à Premium',
+    title: 'Écran du défi : plus rien',
+    how: 'La pub regardée et jouée : plus de tentative, seul Premium reste possible',
     phase: 'home',
-    render: (back) => <WeeklyScreenScenario used={2} plus={false} onBack={back} />,
+    render: (back) => <WeeklyScreenScenario used={2} ads={1} plus={false} onBack={back} />,
   },
   {
     id: 'weekly-screen-plus',
     group: 'Défi du moment',
     title: 'Écran du défi : Premium',
-    how: 'Cinq tentatives, deux jouées, la 3e directement jouable',
+    how: 'Trois tentatives, une jouée, les deux autres directement jouables',
     phase: 'home',
-    render: (back) => <WeeklyScreenScenario used={2} plus onBack={back} />,
+    render: (back) => <WeeklyScreenScenario used={1} plus onBack={back} />,
   },
   {
     id: 'weekly-tutorial-endurance',
@@ -1774,7 +1782,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'over-hidden-spent',
     group: 'Fin de partie',
     title: 'Mots cachés : plus aucune du jour',
-    how: 'Les révélations et les trois pubs du jour sont passées : il ne reste que « Révélations illimitées », qui ouvre la fiche Premium',
+    how: 'Les révélations et les trois pubs du jour sont passées : un tap sur une bande ouvre l’offre Premium (plus rien à regarder), et la ligne garde « Révélations illimitées »',
     phase: 'over',
     render: (back) => <OverScenario after={afterRun({ ...PROFILE, revealDay: todayKey(), revealsUsed: 5, revealAds: 3 }, RUN)} hidden={HIDDEN} onBack={back} />,
   },
@@ -1782,7 +1790,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'reveal-spent-ads',
     group: 'Fin de partie',
     title: 'Mots cachés : épuisées, une pub possible',
-    how: 'Les deux révélations du jour sont passées : le bouton « Regarder une pub (+1) » (sans pub dans un navigateur, il le dit), puis « Révélations illimitées » pour Premium',
+    how: 'Les deux révélations du jour sont passées : un tap ouvre la petite pub — deux révélations d’un coup —, le suivant l’offre Premium, qui répond « voir une pub » ou « devenir Premium » ; sans pub (navigateur), elle se dit indisponible',
     phase: 'over',
     render: (back) => <OverScenario after={afterRun({ ...PROFILE, revealDay: todayKey(), revealsUsed: 2 }, RUN)} hidden={HIDDEN} onBack={back} />,
   },
@@ -2253,9 +2261,9 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'leaderboards',
     group: 'Accueil',
     title: 'Page des classements',
-    how: 'Sept mesures, jour / semaine / total : « Points » dépasse cinquante (ta place en bas), « Mots ajoutés » vide, « Série » semaine hors ligne',
+    how: 'Huit mesures, jour / semaine / total : « Points » dépasse cinquante (ta place en bas), « Mots ajoutés » vide, « Série » semaine hors ligne, « Sessions de modération » en dernier (modérateur)',
     phase: 'home',
-    render: () => <LeaderboardsScenario named />,
+    render: () => <LeaderboardsScenario named moderator />,
   },
   {
     id: 'leaderboards-podium',
