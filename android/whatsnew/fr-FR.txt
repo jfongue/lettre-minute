@@ -1,5 +1,5 @@
-• Les avatars sont redessinés : cinquante-trois figures, chacune animée
-• Les succès s’étalent : deux ne tombent plus ensemble au début, et les niveaux, les parties, les mots trouvés et les mots ajoutés montent bien plus haut
-• Cinq pistes arrivent — défi du moment, défis entre amis, modération, mots courts d’affilée, mots sans passer — chacune avec ses avatars
-• Une forme ou une couleur gagnée s’encadre de rouge dans l’éditeur jusqu’à ce que tu en sortes
+• Le défi du moment se joue en trois tentatives au plus — une gratuite, une en regardant une pub, trois pour Premium
+• Quand tes révélations du jour sont épuisées, une pub t’en rend deux — ou Premium les ouvre sans compter
+• L’écran d’endurance tient au-dessus du clavier du téléphone, et son compte de mots et de questions passées disparaît
+• L’éditeur d’avatar dit ce qu’un succès demande, et l’avis aux cinq étoiles a redessiné ses étoiles
 • Corrections de bugs et performance
