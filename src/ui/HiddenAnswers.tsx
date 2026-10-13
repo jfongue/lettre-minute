@@ -1,12 +1,12 @@
 import { useEffect, useState, type CSSProperties } from 'react'
-import { BASE_REVEALS, type HiddenAnswer, type RevealBudget } from '../domain/perks'
+import { BASE_REVEALS, REVEALS_PER_AD, type HiddenAnswer, type RevealBudget } from '../domain/perks'
 import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, useT } from '../i18n'
 import { prepareRewardedAd, showRewardedAd, tapFeedback } from '../lib/native'
 import { sound } from '../lib/sound'
 import { LetterMark } from './bauhaus'
 import { categoryMotif } from './motifs'
-import { PlusLockedSlot, ResourceChip } from './premium'
+import { PlusLockedSlot, PlusSeal, ResourceChip, ResourceGlyph } from './premium'
 import { usePremium } from './premiumContext'
 import { useLongPress } from './useLongPress'
 import type { FlagWord } from './StatsPage'
@@ -19,6 +19,10 @@ const SHARDS = Array.from({ length: 10 }, (_, i) => ({ angle: (i / 10) * 360 + (
  * The prompts the player skipped, folded under one toggle; opened, each shows
  * a word it could have taken under a black bar — close enough to tempt, too
  * dark to read. A tap tears the bar off: a few a day, then an ad or Premium.
+ *
+ * La bande qui ne peut plus rien arracher ne part pas dans le vide : le premier
+ * appui propose la pub — elle paie deux révélations et fait vivre le jeu —, les
+ * suivants proposent Premium, qui répond « voir une pub » ou « le devenir ».
  *
  * A torn-off word is one a moderator can flag like any other: what the game
  * still had to give is exactly what does not belong there.
@@ -47,6 +51,10 @@ export function HiddenAnswers({
   const [open, setOpen] = useState<ReadonlySet<number>>(() => new Set())
   const [watching, setWatching] = useState(false)
   const [noAd, setNoAd] = useState(false)
+  // Ce que la bande vide propose : la pub la première fois, Premium ensuite.
+  const [offer, setOffer] = useState<'ad' | 'premium' | null>(null)
+  const [walls, setWalls] = useState(0)
+  const adPossible = door.adsOpen && budget.adsLeft > 0
   // Le carré de l'œil tressaute à chaque révélation : remonter sa clé rejoue l'animation.
   const [beat, setBeat] = useState(0)
   // Loading an ad takes seconds: started as the summary opens, it is ready by the time the reveals run out.
@@ -71,8 +79,23 @@ export function HiddenAnswers({
     if (result === 'rewarded') {
       tapFeedback('medium')
       onAd?.()
+      setOffer(null)
       setBeat((count) => count + 1)
     } else if (result === 'unavailable') setNoAd(true)
+  }
+
+  /**
+   * Plus rien à arracher : la première fois, la pub (deux révélations d'un coup) ;
+   * ensuite Premium, qui offre les deux réponses. Sans boutique ni pub, la bande
+   * ne dit rien, comme avant.
+   */
+  const ask = () => {
+    tapFeedback('light')
+    const hit = walls + 1
+    setWalls(hit)
+    if (hit === 1 && adPossible) setOffer('ad')
+    else if (door.storeOpen) setOffer('premium')
+    else if (adPossible) setOffer('ad')
   }
 
   if (!shown) return null
@@ -147,9 +170,7 @@ export function HiddenAnswers({
                       aria-label={t.peek.reveal(category, answer.prompt.letter)}
                       onClick={() => {
                         if (!canReveal) {
-                          tapFeedback('light')
-                          // Plus rien à arracher : la bande ouvre la fiche, seule porte qui reste.
-                          door.open('reveal')
+                          ask()
                           return
                         }
                         onPeek?.()
@@ -170,9 +191,9 @@ export function HiddenAnswers({
       )}
       {unfolded && !canReveal && (
         <div className="reveal-spent">
-          {door.adsOpen && budget.adsLeft > 0 && (
+          {adPossible && (
             <button type="button" className="btn btn--blue reveal-ad" disabled={watching} onClick={watch}>
-              {watching ? t.peek.adBusy : t.peek.ad}
+              {watching ? t.peek.adBusy : t.peek.ad(REVEALS_PER_AD)}
             </button>
           )}
           {noAd && (
@@ -181,6 +202,55 @@ export function HiddenAnswers({
             </p>
           )}
           {door.storeOpen && <PlusLockedSlot icon="eye" label={t.peek.unlimited} onOpen={() => door.open('reveal')} />}
+        </div>
+      )}
+      {offer !== null && (
+        <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="peek-offer-title">
+          <div className="offer-pop-scrim" onClick={() => setOffer(null)} />
+          <div className="offer-pop">
+            <span className="offer-pop-art" aria-hidden="true">
+              <span className="offer-pop-shape offer-pop-shape--circle">
+                {offer === 'ad' ? <ResourceGlyph icon="eye" plus size={44} /> : <PlusSeal size="lg" animated />}
+              </span>
+            </span>
+            <h2 className="offer-pop-title" id="peek-offer-title">
+              {offer === 'ad' ? t.peek.adTitle : t.peek.plusTitle}
+            </h2>
+            <p className="note">{offer === 'ad' ? t.peek.adBody(REVEALS_PER_AD) : t.peek.plusBody}</p>
+            {noAd && (
+              <p className="note note--warn" role="alert">
+                {t.peek.adFailed}
+              </p>
+            )}
+            <div className="offer-pop-actions">
+              {offer === 'premium' && (
+                <button type="button" className="btn btn--ghost" disabled={watching} onClick={watch}>
+                  {watching ? t.peek.adBusy : t.peek.plusAd(REVEALS_PER_AD)}
+                </button>
+              )}
+              {offer === 'premium' ? (
+                <button
+                  type="button"
+                  className="btn btn--blue"
+                  onClick={() => {
+                    setOffer(null)
+                    door.open('reveal')
+                  }}
+                >
+                  {t.peek.plusCta}
+                </button>
+              ) : (
+                <>
+                  <button type="button" className="btn btn--ghost" onClick={() => setOffer(null)}>
+                    {t.peek.later}
+                  </button>
+                  <button type="button" className="btn btn--blue" disabled={watching} onClick={watch}>
+                    {watching ? t.peek.adBusy : t.peek.adCta}
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </section>

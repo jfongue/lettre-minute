@@ -29,16 +29,18 @@ export function Avatar({ choice, size = 'md', locked = false }: AvatarProps) {
             <g fill="currentColor" style={{ color: shape }}>
               {PATHS[design.shape]}
             </g>
+            {/* Le coin teinté porte sa propre pièce : un mouvement peut ainsi ne
+                déplacer que lui, sans emmener la figure. */}
             {design.accent && (
               <g fill="currentColor" style={{ color: accent }} transform="translate(66 4) scale(0.3)">
-                {PATHS[design.accent]}
+                <g className="avatar-accent">{PATHS[design.accent]}</g>
               </g>
             )}
           </g>
           {/* Le détail teinté reste droit : tourné avec la forme, l'aiguille du
               cadran annoncerait une autre heure à chaque quart de tour. */}
           {detail && (
-            <g fill="currentColor" style={{ color: accent }}>
+            <g className="avatar-detail" fill="currentColor" style={{ color: accent }}>
               {PATHS[detail]}
             </g>
           )}

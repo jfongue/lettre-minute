@@ -19,6 +19,7 @@ import {
   weekById,
   weekNumber,
   weekOf,
+  weeklyAttemptSeed,
   weeklyChallenge,
   weeklyMode,
   weeklyRunOptions,
@@ -181,7 +182,7 @@ describe('the weekly challenge', () => {
     expect(weeklyChallenge('2026-11-08', 'fr', IDS).metric).toBe('score')
   })
 
-  it('is the same game for everyone, in whatever order the categories come', () => {
+  it('is the same programme for everyone, in whatever order the categories come', () => {
     const a = weeklyChallenge('2026-10-11', 'fr', IDS)
     const b = weeklyChallenge('2026-10-11', 'fr', [...IDS].reverse())
     expect(b).toEqual(a)
@@ -190,11 +191,25 @@ describe('the weekly challenge', () => {
     for (const id of a.lineup) expect(IDS).toContain(id)
   })
 
-  it('draws another game per week and per language', () => {
+  it('draws another programme per week and per language', () => {
     expect(weeklySeed('2026-10-11', 'fr')).not.toBe(weeklySeed('2026-10-18', 'fr'))
     expect(weeklySeed('2026-10-11', 'fr')).not.toBe(weeklySeed('2026-10-11', 'en'))
     expect(weeklySeed('2026-10-11', 'fr')).toBe(weeklySeed('2026-10-11', 'fr'))
     expect(weeklySeed('2026-10-11', 'fr')).not.toBe(weeklySeed('2026-10-11', 'fr') + 1)
+  })
+
+  it('gives every attempt its own game, the same for a whole day and number', () => {
+    const seeds = [
+      weeklyAttemptSeed('2026-10-11', 'fr', '2026-10-13', 1),
+      weeklyAttemptSeed('2026-10-11', 'fr', '2026-10-13', 2),
+      weeklyAttemptSeed('2026-10-11', 'fr', '2026-10-14', 1),
+    ]
+    expect(new Set(seeds).size).toBe(3)
+    expect(weeklyAttemptSeed('2026-10-11', 'fr', '2026-10-13', 2)).toBe(seeds[1])
+    expect(weeklyAttemptSeed('2026-10-11', 'fr', '2026-10-13', 2)).not.toBe(weeklyAttemptSeed('2026-10-11', 'en', '2026-10-13', 2))
+    expect(weeklyAttemptSeed('2026-10-11', 'fr', '2026-10-13', 2)).not.toBe(weeklyAttemptSeed('2026-10-18', 'fr', '2026-10-20', 2))
+    // Un numéro absent ou absurde ne change pas la partie du jour.
+    expect(weeklyAttemptSeed('2026-10-11', 'fr', '2026-10-13', 0)).toBe(weeklyAttemptSeed('2026-10-11', 'fr', '2026-10-13', 1))
   })
 
   it('never deals a category it was not given, and deals them all when fewer than five', () => {
@@ -203,8 +218,15 @@ describe('the weekly challenge', () => {
 
   it('builds a run with no power, nothing to avoid and no crowd', () => {
     const challenge = weeklyChallenge('2026-10-11', 'fr', IDS)
-    const options = weeklyRunOptions(challenge)
-    expect(options).toEqual({ seed: challenge.seed, mode: 'endurance', categoryIds: challenge.lineup, avoid: [], powers: [], shared: true })
+    const options = weeklyRunOptions(challenge, '2026-10-13', 2)
+    expect(options).toEqual({
+      seed: weeklyAttemptSeed('2026-10-11', 'fr', '2026-10-13', 2),
+      mode: 'endurance',
+      categoryIds: challenge.lineup,
+      avoid: [],
+      powers: [],
+      shared: true,
+    })
     const run = createRun(options, EMPTY_JUDGE)
     expect(run.mode).toBe('endurance')
     expect(run.powers).toEqual([])
@@ -212,8 +234,17 @@ describe('the weekly challenge', () => {
     expect(run.avoid).toEqual([])
   })
 
+  it('plays another game on the next attempt, on the same programme', () => {
+    const challenge = weeklyChallenge('2026-10-11', 'fr', IDS)
+    const first = createRun(weeklyRunOptions(challenge, '2026-10-13', 1), EMPTY_JUDGE)
+    const second = createRun(weeklyRunOptions(challenge, '2026-10-13', 2), EMPTY_JUDGE)
+    expect(first.categoryIds).toEqual(second.categoryIds)
+    expect(second.seed).not.toBe(first.seed)
+    expect(second.prompt).not.toEqual(first.prompt)
+  })
+
   it('reads the value to rank: points, or seconds survived to the tenth', () => {
-    const run = createRun(weeklyRunOptions(weeklyChallenge('2026-10-11', 'fr', IDS)), EMPTY_JUDGE)
+    const run = createRun(weeklyRunOptions(weeklyChallenge('2026-10-11', 'fr', IDS), '2026-10-13', 1), EMPTY_JUDGE)
     expect(weeklyValue(run, 'survival')).toBe(30)
     expect(weeklyValue({ ...run, bonusSeconds: 12.5, penaltySeconds: 3 }, 'survival')).toBe(39.5)
     expect(weeklyValue({ ...run, score: 42 }, 'score')).toBe(42)
@@ -221,39 +252,38 @@ describe('the weekly challenge', () => {
 })
 
 describe('the attempts', () => {
-  it('gives two, a third for one ad, and five to Premium', () => {
-    expect(attemptsAllowed({ plus: false, adsWatched: 0 })).toBe(2)
-    expect(attemptsAllowed({ plus: false, adsWatched: 1 })).toBe(3)
-    expect(attemptsAllowed({ plus: false, adsWatched: 9 })).toBe(3)
-    expect(attemptsAllowed({ plus: false, adsWatched: -1 })).toBe(2)
-    expect(attemptsAllowed({ plus: true, adsWatched: 0 })).toBe(5)
-    expect(attemptsAllowed({ plus: true, adsWatched: 3 })).toBe(5)
+  it('gives one, a second for one ad, and three to Premium', () => {
+    expect(attemptsAllowed({ plus: false, adsWatched: 0 })).toBe(1)
+    expect(attemptsAllowed({ plus: false, adsWatched: 1 })).toBe(2)
+    expect(attemptsAllowed({ plus: false, adsWatched: 9 })).toBe(2)
+    expect(attemptsAllowed({ plus: false, adsWatched: -1 })).toBe(1)
+    expect(attemptsAllowed({ plus: true, adsWatched: 0 })).toBe(3)
+    expect(attemptsAllowed({ plus: true, adsWatched: 3 })).toBe(3)
   })
 
   it('counts what is left', () => {
-    expect(attemptsLeft(0, { plus: false, adsWatched: 0 })).toBe(2)
-    expect(attemptsLeft(2, { plus: false, adsWatched: 0 })).toBe(0)
-    expect(attemptsLeft(2, { plus: false, adsWatched: 1 })).toBe(1)
+    expect(attemptsLeft(0, { plus: false, adsWatched: 0 })).toBe(1)
+    expect(attemptsLeft(1, { plus: false, adsWatched: 0 })).toBe(0)
+    expect(attemptsLeft(1, { plus: false, adsWatched: 1 })).toBe(1)
     expect(attemptsLeft(7, { plus: true, adsWatched: 0 })).toBe(0)
   })
 
-  it('lays the five places out for a free player', () => {
-    expect(attemptState(0, false, 0)).toEqual(['free', 'free', 'ad', 'locked', 'locked'])
-    expect(attemptState(1, false, 0)).toEqual(['used', 'free', 'ad', 'locked', 'locked'])
-    expect(attemptState(2, false, 0)).toEqual(['used', 'used', 'ad', 'locked', 'locked'])
-    expect(attemptState(2, false, 1)).toEqual(['used', 'used', 'free', 'locked', 'locked'])
-    expect(attemptState(3, false, 1)).toEqual(['used', 'used', 'used', 'locked', 'locked'])
+  it('lays the three places out for a free player', () => {
+    expect(attemptState(0, false, 0)).toEqual(['free', 'ad', 'locked'])
+    expect(attemptState(1, false, 0)).toEqual(['used', 'ad', 'locked'])
+    expect(attemptState(1, false, 1)).toEqual(['used', 'free', 'locked'])
+    expect(attemptState(2, false, 1)).toEqual(['used', 'used', 'locked'])
   })
 
-  it('lays them out for Premium, whose places 3 to 5 are direct', () => {
-    expect(attemptState(0, true, 0)).toEqual(['free', 'free', 'plus', 'plus', 'plus'])
-    expect(attemptState(3, true, 0)).toEqual(['used', 'used', 'used', 'plus', 'plus'])
-    expect(attemptState(5, true, 0)).toEqual(['used', 'used', 'used', 'used', 'used'])
+  it('lays them out for Premium, whose second and third are direct', () => {
+    expect(attemptState(0, true, 0)).toEqual(['free', 'plus', 'plus'])
+    expect(attemptState(1, true, 0)).toEqual(['used', 'plus', 'plus'])
+    expect(attemptState(3, true, 0)).toEqual(['used', 'used', 'used'])
   })
 
   it('keeps a lapsed Premium player’s spent places spent', () => {
-    expect(attemptState(4, false, 0)).toEqual(['used', 'used', 'used', 'used', 'locked'])
-    expect(attemptState(9, true, 0)).toEqual(['used', 'used', 'used', 'used', 'used'])
+    expect(attemptState(2, false, 0)).toEqual(['used', 'used', 'locked'])
+    expect(attemptState(9, true, 0)).toEqual(['used', 'used', 'used'])
   })
 })
 

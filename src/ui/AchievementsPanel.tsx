@@ -48,6 +48,9 @@ export function AchievementsPanel({ profile, avatar, discoveries }: Achievements
               .map(({ row, rank }) => {
                 const { achievement, value, ratio } = row
                 const done = ratio >= 1
+                // Le compteur s'arrête à l'objectif : 553 mots trouvés sur 100 se
+                // lit 100 / 100, la barre étant déjà pleine.
+                const reached = Math.min(value, achievement.goal.at)
                 const { name, desc } = achievementText(t, achievement)
                 const { design, colour } = achievementReward(achievement)
                 // Un exploit n'a pas de case à lui : sa couleur tient la place
@@ -99,7 +102,7 @@ export function AchievementsPanel({ profile, avatar, discoveries }: Achievements
                               </span>
                             )}
                             {achievement.family !== 'exploit' && (
-                              <span className="ach-count">{t.ach.count(value, achievement.goal.at)}</span>
+                              <span className="ach-count">{t.ach.count(reached, achievement.goal.at)}</span>
                             )}
                             {done && <span className="ach-earned">{t.ach.earned}</span>}
                           </span>

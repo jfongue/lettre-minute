@@ -76,6 +76,11 @@ export interface FoundWord {
   edits: number
   /** Put in the field by the Joker: paid the flat rate, like a corrected answer. */
   joker: boolean
+  /**
+  * Un mot que le Professeur avait proposé au bilan précédent : sa première
+  * écriture le marque, sans rien changer à ce qu'il paie.
+  */
+  taught: boolean
   /** Complication's multiplier, 1 when it did not apply. */
   boost: number
 }
@@ -169,6 +174,11 @@ export interface Run {
   seeded: readonly string[]
   found: readonly KeptWord[]
   used: readonly string[]
+  /**
+  * Les mots que le Professeur a proposés à une partie passée et que le joueur
+  * n'a pas encore repris (`compactWord`) : écrits, ils se marquent une fois.
+  */
+  taught: readonly string[]
   /** The run clock, in seconds, when the current prompt appeared. */
   promptAt: number
   skips: number
@@ -372,11 +382,13 @@ export interface CreateRunInput {
   /** The prompts the previous run dealt. */
   avoid?: readonly string[]
   powers?: readonly PowerId[]
+  /** Les mots du Professeur que le joueur n'a pas encore repris (`Profile.professorWords`). */
+  taught?: readonly string[]
   /** A challenge run: see `Run.shared`. */
   shared?: boolean
 }
 
-export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers = [], shared = false }: CreateRunInput, judge: Judge): Run {
+export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers = [], taught = [], shared = false }: CreateRunInput, judge: Judge): Run {
   const prompt = drawPrompt(seed, 0, categoryIds, judge, new Set(avoid))
   return {
     seed,
@@ -394,6 +406,7 @@ export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers
     seeded: [promptKey(prompt)],
     found: [],
     used: [],
+    taught,
     promptAt: 0,
     skips: 0,
     penaltySeconds: 0,
@@ -467,6 +480,7 @@ function judgeWord(run: Run, word: string, judge: Judge): Verdict {
   if (run.used.includes(match.entry.key)) return { kind: 'already', found: null }
 
   const joker = run.joker?.key === match.entry.key
+  const taught = run.taught.includes(compactWord(match.entry.key))
   // The bonus rewards knowing a word: not almost spelling it, nor being handed it.
   const flat = match.approximate || joker
   const usage = judge.usage(match.entry.key) ?? NO_USAGE
@@ -485,6 +499,7 @@ function judgeWord(run: Run, word: string, judge: Judge): Verdict {
       approximate: match.approximate,
       edits: match.edits,
       joker,
+      taught,
       boost,
     },
   }
@@ -594,7 +609,7 @@ freeSkipReady: false,
 }
 const paid = run.chatter === 0
 const penalty = skipPenalty(run)
-const grantsFreeSkip = hasPower(run, 'double-skip') && paid && !run.freeSkipReady && chargesLeft(run, 'double-skip') > 0
+const grantsFreeSkip = hasPower(run, 'double-skip') && paid && !run.freeSkipReady
   const served: PowerId[] = []
   if (penalty > 0 && hasPower(run, 'dodge')) served.push('dodge')
   if (grantsFreeSkip) served.push('double-skip')
@@ -608,7 +623,6 @@ const grantsFreeSkip = hasPower(run, 'double-skip') && paid && !run.freeSkipRead
     penaltySeconds: run.penaltySeconds + penalty,
     combo: run.chatter > 0 || grantsFreeSkip ? run.combo : 0,
 freeSkipReady: grantsFreeSkip,
-...(grantsFreeSkip && { charges: spend(run, 'double-skip') }),
     chatter: 0,
   }
   return served.reduce(markPowerUsed, next)

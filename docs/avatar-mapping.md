@@ -36,8 +36,8 @@ seul tenant : les cinq offertes, `slab`, `wave`, `threeQuarter`, `spark` et
 Chaque figure a le sien, choisi pour elle : la marche monte par paliers, la
 porte bat sur ses gonds, le gong sonne une fois puis se tait, l'aiguille du
 cadran avance d'un cran toutes les deux secondes, l'œil cligne, le carré mordu
-se retourne, le bruit frissonne. Quarante et un mouvements pour cinquante-trois
-tuiles : douze reviennent une seconde fois, jamais sur deux figures de la même
+se retourne, le bruit frissonne. Quarante-deux mouvements pour cinquante-trois
+tuiles : onze reviennent une seconde fois, jamais sur deux figures de la même
 famille.
 
 - **Ce qu'ils touchent** : la transformation, et l'opacité pour le seul
@@ -93,12 +93,12 @@ succès. La part est ce que l'accent colore, le mouvement ce que fait la figure.
 |---:|---|---|---|---|
 | 1 à 5 | offertes | `circle` `square` `quarter` `arch` `half` (inchangées) | — | souffle, quarts de tour, immobile, flotte, balance |
 | 6 | Niveau 4 | `steps` | la marche du milieu | `march`, monte par paliers |
-| 7 | 3 parties | `slab` | — | `slide`, glisse de côté |
+| 7 | 3 parties | `slab` | — | `squeeze`, s'écrase et repart plus haut |
 | 8 | 100 mots trouvés | `dots` | la ligne du bas | `count`, compte trois coups |
 | 9 | Score 400 | `ring` | la moitié gauche | `roll`, roule en tanguant |
 | 10 | Série 10 | `zigzag` | le premier pli | `wiggle`, frétille |
 | 11 | Niveau 6 | `tents` | la petite tente | `tilt`, penche sur sa base |
-| 12 | 5 parties | `bars` | la barre du milieu | `breathe`, se tasse |
+| 12 | 5 parties | `cross` | — | `spin`, tourne |
 | 13 | 250 mots trouvés | `checker` | un des deux carrés | `nod`, hoche |
 | 14 | Score 500 | `burst` | l'étoile du milieu | `scatter`, éclate |
 | 15 | Série 13 | `wave` | — | `ripple`, ondule |
@@ -108,7 +108,7 @@ succès. La part est ce que l'accent colore, le mouvement ce que fait la figure.
 | 19 | Score 600 | `threeQuarter` | — | `coin`, se pose en oscillant |
 | 20 | Série 16 | `twoMoons` | la lune de gauche | `wane`, s'amincit |
 | 21 | Niveau 10 | `domes` | le dôme du bas | `hover`, se soulève |
-| 22 | 10 parties | `stripes` | une bande | `wiggle`, frémit |
+| 22 | 10 parties | `stripes` | la bande du milieu | `wiggle`, frémit |
 | 23 | 1 000 mots trouvés | `field` | la ligne du bas | `pulse`, respire |
 | 24 | Score 700 | `eye` | l'iris | `blink`, cligne |
 | 25 | Série 20 | `pinwheel` | une pale | `spin`, tourne |
@@ -117,7 +117,7 @@ succès. La part est ce que l'accent colore, le mouvement ce que fait la figure.
 | 28 | 2 000 mots trouvés | `grid` | la ligne du milieu | `drift`, défile |
 | 29 | Score 800 | `sun` | le disque | `spin`, tourne |
 | 30 | Série 24 | `butterfly` | l'aile gauche | `flutter`, bat des ailes |
-| 31 | Niveau 16 | `half` + son rond en coin (sa tuile d'avant) | le rond, en coin | `bob`, sautille |
+| 31 | Niveau 16 | `half` + son rond en coin (sa tuile d'avant) | le rond, en coin | `bounce`, la boule tombe et rebondit, le demi-cercle immobile |
 | 32 | 50 parties | `stripedDisc` | la bande du milieu | `roll`, roule en tanguant |
 | 33 | 3 500 mots trouvés | `checker3` | le carré du centre | `breathe`, se tasse |
 | 34 | Score 900 | `target` | le centre | `lock`, se verrouille |
@@ -138,7 +138,7 @@ succès. La part est ce que l'accent colore, le mouvement ce que fait la figure.
 | 49 | 500 mots ajoutés | `squareBite` | la bouchée | `flip`, se retourne |
 | 50 | 1 000 mots ajoutés | `dial` | l'aiguille | `tick`, avance d'un cran |
 | 51 | Trois six (score 666) | `spiral` | le tour intérieur | `coil`, s'enroule |
-| 52 | Juste arbitre (10 verdicts) | `split` | la bande | `slide`, glisse de côté |
+| 52 | Juste arbitre (10 verdicts) | `split` | la bande | `part`, les deux parts s'écartent |
 | 53 | Marathon (20 manches de duel) | `links` | la boucle | `swing`, pendule |
 
 ## Les cinq gardées en réserve
@@ -153,8 +153,10 @@ prochain barreau ou le prochain exploit sans rien redessiner :
 La grille ne montre plus vingt figures du catalogue : `six`, `card`, `ribbon`
 (les trois tuiles d'exploit d'avant, remplacées par la spirale, le partage et
 le méandre), `archway` (l'ancien Niveau 16, rendu à `half`), `star`, `heart`,
-`moon`, `hourglass`, `lens`, `cross`, `corner`, `drop`, `pill`, `hexagon`,
-`triangle`, `chevron`, `diamond`, `ringbroken`, `comma`, `eclipse`. Elles
+`moon`, `hourglass`, `lens`, `bars`, `corner`, `drop`, `pill`, `hexagon`,
+`triangle`, `chevron`, `diamond`, `ringbroken`, `comma`, `eclipse`. `cross` en
+est sortie puis revenue : c'est la figure qu'un joueur porte depuis avant la
+planche, et une figure ne change pas sous les pieds de qui la porte. Les autres
 restent dessinées, mais plus aucune tuile ne les porte : dis-moi si tu en veux
 une, c'est le seul endroit où je peux me tromper.
 

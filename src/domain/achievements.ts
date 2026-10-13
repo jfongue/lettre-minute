@@ -9,6 +9,7 @@ import {
   type Milestone,
   type Stat,
 } from './avatar'
+import { HOUSE_PLAYER } from './boards'
 import { levelFor, type Profile } from './progression'
 
 /*
@@ -74,6 +75,7 @@ export type ExploitId =
   | 'clean-run-10'
   | 'categories-12'
   | 'reviews-10'
+  | 'professor-word'
 
 /**
  * Les trente barreaux qui manquaient aux quarante-cinq cases de la grille :
@@ -131,6 +133,7 @@ type CountedStat =
 | 'challengesFinished'
 | 'shortStreak'
 | 'noPassStreak'
+| 'professorWordsPlayed'
 /** Ceux qui se comptent par leur longueur, ou par le niveau, ou par le serveur. */
 type ListedStat = 'powersUsed' | 'playedCategories'
 export type Counter = CountedStat | ListedStat | 'level' | 'discoveries'
@@ -242,6 +245,7 @@ const EXPLOIT_TILES: readonly [design: number, stat: Counter, at: number][] = [
   [50, 'bestScore', 666],
   [51, 'wordsReviewed', 10],
   [52, 'noPassStreak', 50],
+  [53, 'professorWordsPlayed', 1],
 ]
 
 /**
@@ -353,6 +357,9 @@ const INGAME_ACHIEVEMENTS: readonly Achievement[] = [
   // La modération n'est pas une partie : le compte monte quand un verdict part
   // (`src/ui/ModerationScreen.tsx`), jamais à la fin d'un run.
   { id: 'reviews-10', goal: { stat: 'wordsReviewed', at: 10 }, design: 31, family: 'progress', reward: { design: 51, colour: 'outremer' } },
+// Le mot du Professeur : sa tuile neuve (53) ne paie qu'elle-même, toutes les
+// couleurs du catalogue étant déjà gagnées.
+{ id: 'professor-word', goal: { stat: 'professorWordsPlayed', at: 1 }, design: 53, family: 'exploit', reward: { design: 53 } },
 ]
 
 /** Ceux dont l'i18n écrit le nom, dans l'ordre du catalogue. */
@@ -437,8 +444,21 @@ export function achievementReward(achievement: Achievement): AchievementReward {
   }
 }
 
-/** Les tuiles que le joueur porte : les cinq de départ et celles de ses succès. */
-export function ownedDesigns(profile: Profile, discoveries?: number): AvatarDesign[] {
+/**
+ * Le compte maison : son nom suffit à lui ouvrir toute la grille d'avatars, à
+ * lui seul. C'est le même que celui du joueur maison des classements
+ * (`HOUSE_PLAYER`) — l'éditeur regarde ce que les autres gagnent.
+ */
+export function ownsEveryDesign(name: string | null | undefined): boolean {
+  return name?.toLowerCase() === HOUSE_PLAYER.name.toLowerCase()
+}
+
+/**
+ * Les tuiles que le joueur porte : les cinq de départ et celles de ses succès.
+ * Le compte maison les a toutes, gagnées ou non, et n'en a aucune « nouvelle ».
+ */
+export function ownedDesigns(profile: Profile, discoveries?: number, all = false): AvatarDesign[] {
+  if (all) return [...AVATARS]
   const won = new Set(earnedAchievements(profile, discoveries).map((id) => BY_ID.get(id)!.reward.design))
   return AVATARS.filter((design) => design.id < FREE_DESIGNS || won.has(design.id))
 }

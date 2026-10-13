@@ -86,7 +86,7 @@ it('earns nothing on a first run, even a very good one', () => {
   })
 
   it('opens every tile to a long career, and the colours the rungs carry', () => {
-    const veteran = { ...NEW_PROFILE, xp: xpForLevel(50), runs: 1200, bestScore: 900, wordsFound: 8000, bestCombo: 30, wordsAdded: 500, wordsReviewed: 300, weeklyAttempts: 30, challengesFinished: 25, shortStreak: 10, noPassStreak: 50 }
+    const veteran = { ...NEW_PROFILE, xp: xpForLevel(50), runs: 1200, bestScore: 900, wordsFound: 8000, bestCombo: 30, wordsAdded: 500, wordsReviewed: 300, weeklyAttempts: 30, challengesFinished: 25, shortStreak: 10, noPassStreak: 50, professorWordsPlayed: 1 }
     const rungInks = ACHIEVEMENTS.filter(
       (achievement) => achievement.reward.design !== undefined && achievement.reward.colour !== undefined,
     )
@@ -171,7 +171,9 @@ describe('parseAvatar', () => {
 // Chaque figure a son mouvement, et un nom de classe sans images clés laisse
 // une tuile immobile sans le dire : les deux bouts sont noués ici, comme pour
 // les encres de la palette, parce que le domaine ne lit pas de feuille de
-// style. « still » n'en a pas, c'est justement celui qui ne bouge pas.
+// style. Deux mouvements n'animent qu'une pièce de la tuile — la boule de
+// « half », les deux parts de « split » — et se lisent sur la règle de celle-ci.
+// « still » n'en a pas, c'est justement celui qui ne bouge pas.
 describe('motions', () => {
   it('gives every motion its class and its keyframes', () => {
     const sheet = readFileSync(join(import.meta.dirname, '..', 'styles.css'), 'utf8')
@@ -180,7 +182,11 @@ describe('motions', () => {
 
     expect(motions.size).toBeGreaterThan(30)
     for (const motion of motions) {
-      const rule = sheet.match(new RegExp(`\\.motion-${motion} \\{([^}]*)\\}`))?.[1]
+      // Le mouvement est porté par la tuile, ou par la pièce qu'elle anime seule —
+      // la boule de « half », les deux parts de « split » : les deux se lisent ici.
+      const rule =
+        sheet.match(new RegExp(`\\.motion-${motion} \\{([^}]*)\\}`))?.[1] ??
+        sheet.match(new RegExp(`\\.motion-${motion} [^{}]*\\{([^}]*)\\}`))?.[1]
       expect(rule, `.motion-${motion}`).toBeDefined()
       const name = rule?.match(/animation:\s*([\w-]+)/)?.[1]
       expect(name, motion).toBeTruthy()

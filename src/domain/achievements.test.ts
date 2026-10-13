@@ -13,6 +13,7 @@ import {
   newlyEarnedAchievements,
   ownedColours,
   ownedDesigns,
+  ownsEveryDesign,
 } from './achievements'
 import { AVATARS, FREE_COLOURS, FREE_DESIGNS, PALETTE } from './avatar'
 import { NEW_PROFILE, xpForLevel } from './progression'
@@ -72,7 +73,7 @@ describe('achievements', () => {
   it('names only the successes the i18n carries, the others take their milestone', () => {
     const named = ACHIEVEMENTS.filter((achievement) => isNamed(achievement.id))
 
-    expect(named).toHaveLength(33)
+    expect(named).toHaveLength(34)
     for (const achievement of PLAY_ACHIEVEMENTS_ONLY) expect(isNamed(achievement.id)).toBe(true)
     for (const achievement of ACHIEVEMENTS) {
       if (isNamed(achievement.id)) continue
@@ -139,12 +140,13 @@ describe('achievements', () => {
       longestWord: 11,
       cleanRuns: 10,
       powersUsed: ['joker', 'hush', 'magic', 'swap', 'peek', 'shuffle', 'double'],
+      professorWordsPlayed: 1,
     }
     expect(
       newlyEarnedAchievements(before, after)
         .map((achievement) => achievement.id)
         .sort(),
-    ).toEqual(['added-5', 'clean-run-10', 'combo-30', 'powers-7', 'runs-10', 'score-450', 'word-long-10', 'words-600'])
+      ).toEqual(['added-5', 'clean-run-10', 'combo-30', 'powers-7', 'professor-word', 'runs-10', 'score-450', 'word-long-10', 'words-600'])
     expect(
       newlyEarnedAchievements(before, { ...after, shortStreak: 10 }).map((achievement) => achievement.id),
     ).toContain('short-streak-10')
@@ -174,6 +176,7 @@ describe('achievements', () => {
       challengesFinished: 25,
       shortStreak: 10,
       noPassStreak: 50,
+      professorWordsPlayed: 1,
     }
     const rungInks = ACHIEVEMENTS.filter(
       (achievement) => achievement.reward.design !== undefined && achievement.reward.colour !== undefined,
@@ -187,5 +190,20 @@ describe('achievements', () => {
     for (const rung of rungInks) {
       expect(ownedColours(veteran).map((colour) => colour.id)).toContain(rung.reward.colour)
     }
+  })
+})
+
+describe('le compte maison', () => {
+  it('se reconnaît à son nom, sans casse', () => {
+    expect(ownsEveryDesign('Demontoon')).toBe(true)
+    expect(ownsEveryDesign('demontoon')).toBe(true)
+    expect(ownsEveryDesign('Ada')).toBe(false)
+    expect(ownsEveryDesign(null)).toBe(false)
+    expect(ownsEveryDesign(undefined)).toBe(false)
+  })
+
+  it('porte toute la grille sans avoir rien gagné', () => {
+    expect(ownedDesigns(NEW_PROFILE, 0)).toHaveLength(FREE_DESIGNS)
+    expect(ownedDesigns(NEW_PROFILE, 0, true)).toHaveLength(AVATARS.length)
   })
 })

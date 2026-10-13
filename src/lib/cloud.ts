@@ -9,7 +9,7 @@ import { challengeWordsOf, type ChallengeEntry, type ChallengeWord } from '../do
 import type { DuelMove } from '../domain/duelLog'
 import type { Audience, FlagRow, FlagValue } from '../domain/features'
 import { MODERATION_SESSION_SIZE, type ModeratorOfferReason, type Verdict } from '../domain/moderation'
-import type { Profile } from '../domain/progression'
+import { backfillCounters, type Profile } from '../domain/progression'
 import type { PromptRecord } from '../domain/prompts'
 import type { RarityTier } from '../domain/rarity'
 import { promptKey, promptOutcomes, type Run } from '../domain/run'
@@ -588,6 +588,14 @@ export function castVote(
   }, 'unreachable')
 }
 
+/** Une session de modération terminée (0068) : le classement des sessions la compte. */
+export function reportModerationSession(): Promise<void> {
+  return guard(async () => {
+    await supabase!.rpc('report_moderation_session')
+    return undefined
+  }, undefined)
+}
+
 /** False when the offer had expired, or when an anonymous player tried to accept it. */
 export function answerModeratorOffer(reason: ModeratorOfferReason, accept: boolean): Promise<boolean> {
   return guard(async () => {
@@ -714,12 +722,29 @@ export function fetchLeaderboard(stat: StatId, period: PeriodId): Promise<Leader
  * sauvegarde encore, ou quand le serveur ne répond pas — le profil de
  * l'appareil reste alors tel quel.
  */
+
 export function fetchProgress(): Promise<Progress | null> {
   return guard(async () => {
     const identity = await connect()
     const { data, error } = await supabase!.from('player_progress').select('progress').eq('id', identity!.userId).maybeSingle()
     if (error || !data) return null
-    return parseProgress(data.progress)
+    const saved = parseProgress(data.progress)
+    if (!saved) return null
+    // Les deux pistes nées en 1.7.16 comptent ce que le serveur tenait déjà
+    // (0066) : `withProgress` garde le plus haut des deux, donc un joueur qui
+    // avait joué ses défis entre amis avant elles ne repart pas de zéro. Sans
+    // la migration, l'appel échoue et la sauvegarde reste telle quelle.
+    const { data: counted } = await supabase!.rpc('my_achievement_counters')
+    const row = (Array.isArray(counted) ? counted[0] : counted) as Record<string, unknown> | undefined
+    return row
+      ? {
+          ...saved,
+          ...backfillCounters(saved, {
+            weeklyAttempts: Number(row.weekly_attempts ?? 0),
+            challengesFinished: Number(row.challenges_finished ?? 0),
+          }),
+        }
+      : saved
   }, null)
 }
 
@@ -1827,6 +1852,46 @@ export function fetchMyPremium(): Promise<boolean> {
     const { data, error } = await supabase!.rpc('my_premium')
     return !error && data === true
   }, false)
+}
+
+/**
+ * Whether the web page's merchant is configured and can take an order: the
+ * Edge function holds the keys, so only it knows. Asked before the Premium
+ * sheet offers its price, as `billingSupported` answers on the phone.
+ */
+export function webCheckoutReady(): Promise<boolean> {
+  return guard(async () => {
+    const session = (await supabase!.auth.getSession()).data.session
+    const base = import.meta.env.VITE_SUPABASE_URL
+    if (!session || !base) return false
+    const response = await fetch(`${base}/functions/v1/premium-checkout`, {
+      headers: { authorization: `Bearer ${session.access_token}` },
+    })
+    if (!response.ok) return false
+    return (await response.json()).ready === true
+  }, false)
+}
+
+/**
+ * Opens a checkout at the merchant for this account and hands back the page to
+ * send the player to. The account rides in the order's custom data, which is
+ * how `premium-webhook` knows whom to credit (0069). Null without a session or
+ * an answer: a purchase nobody could be credited for is worse than none.
+ */
+export function openWebCheckout(product: string): Promise<string | null> {
+  return guard(async () => {
+    const session = (await supabase!.auth.getSession()).data.session
+    const base = import.meta.env.VITE_SUPABASE_URL
+    if (!session || !base) return null
+    const response = await fetch(`${base}/functions/v1/premium-checkout`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${session.access_token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ product }),
+    })
+    if (!response.ok) return null
+    const { url } = await response.json()
+    return typeof url === 'string' && url.startsWith('https://') ? url : null
+  }, null)
 }
 
 // --------------------------------------------------------- défi du moment --

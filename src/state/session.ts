@@ -5,7 +5,7 @@ import { capitalized, normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
 import { markRatingAsked, markRatingDone } from '../domain/rating'
 import { premiereCategoryIds } from '../domain/catalogue'
-import { ban, bannedOf, countPlusReveal, countPlusRun, grantRevealAd, joinPlus, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
+import { ban, bannedOf, countPlusReveal, countPlusRun, grantRevealAd, joinPlus, learnFromProfessor, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
 import { chooseBonus, dealBonusOffer } from '../domain/bonus'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, type PowerId } from '../domain/powers'
 import { countsForProgress, type GameMode } from '../domain/modes'
@@ -77,6 +77,8 @@ export interface Cheer {
   approximate: boolean
   edits: number
   joker: boolean
+  /** Un mot que le Professeur avait proposé : marqué une fois, sans rien changer. */
+  taught: boolean
   boost: number
   /** Validated by Célérité, without a tap. */
   auto: boolean
@@ -181,11 +183,14 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       // A challenge avoids nothing: every player's draw must follow the seed alone.
       const shared = Boolean(challenge) || action.weekly === true
       const avoid = shared ? [] : session.profile.lastPrompts
+      // Un mode de la réserve ne compte pour rien : la mémoire du Professeur
+      // ne s'y joue ni ne s'y consomme.
+      const learn = countsForProgress(mode) && !action.weekly
       return {
         ...session,
         phase: 'countdown',
         judge: action.judge,
-        run: createRun({ seed: action.seed, mode, categoryIds: action.categoryIds, avoid, powers, shared }, action.judge),
+        run: createRun({ seed: action.seed, mode, categoryIds: action.categoryIds, avoid, powers, taught: learn ? session.profile.professorWords : [], shared }, action.judge),
         reserve: shared || !countsForProgress(mode) ? [] : action.reserve,
         swapsLeft: !challenge && powers.includes('permutation') ? (POWER_CHARGES.permutation ?? 0) : 0,
         challengeId: challenge?.id ?? null,
@@ -205,7 +210,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       return {
         ...session,
         judge: action.judge,
-        run: markPowerUsed(createRun({ seed, categoryIds: action.categoryIds, avoid, powers }, action.judge), 'permutation'),
+        run: markPowerUsed(createRun({ seed, categoryIds: action.categoryIds, avoid, powers, taught: session.run.taught }, action.judge), 'permutation'),
         reserve: action.reserve,
         swapsLeft: session.swapsLeft - 1,
       }
@@ -297,10 +302,20 @@ case 'rating-asked': {
 
     case 'type': {
       if (!session.run || !session.judge) return session
+      const live = inspect(session.run, action.draft, session.judge)
+      // Le Joker se reconnaît à la frappe : il écrit son mot tout de suite,
+      // sans attendre la validation.
+      if (live.kind === 'spell' && live.spell === 'joker') {
+        const cast = submit(session.run, action.draft, session.judge, session.run.promptAt)
+        if (cast.run !== session.run) {
+          const draft = capitalized(cast.run.joker?.display ?? '')
+          return { ...session, run: cast.run, draft, live: draft ? inspect(cast.run, draft, session.judge) : null, cheer: null }
+        }
+      }
       return {
         ...session,
         draft: action.draft,
-        live: inspect(session.run, action.draft, session.judge),
+        live,
       }
     }
 
@@ -328,6 +343,7 @@ case 'rating-asked': {
           approximate: found.approximate,
           edits: found.edits,
           joker: found.joker,
+          taught: found.taught,
           boost: found.boost,
           auto: action.auto === true,
         },
@@ -358,7 +374,7 @@ case 'rating-asked': {
         live: null,
         // Un mode de la réserve ne compte pour rien : ni XP, ni record, ni
         // historique — son score ne vit qu'à l'écran.
-        profile: !countsForProgress(run.mode) || session.weekly
+        profile: professorLearned(session, run, !countsForProgress(run.mode) || session.weekly
           ? session.profile
           : (session.challengeId ? applyChallengeRun : applyRun)(plusRunCounted(session, run), {
               score: run.score,
@@ -369,7 +385,7 @@ case 'rating-asked': {
               // plus vive, sans-faute, pouvoirs et catégories — se lit ici, une
               // fois, plutôt que d'être recopié dans chaque écran de bilan.
               ...runMilestones(run),
-            }),
+            })),
       }
     }
 
@@ -396,6 +412,11 @@ case 'rating-asked': {
     case 'home':
       return { ...session, phase: 'home', weekly: false, run: null, draft: '', live: null, cheer: null, proposals: [] }
   }
+}
+
+/** Ce que la partie qui vient de finir apprend du Professeur, une fois le barème appliqué. */
+function professorLearned(session: Session, run: Run, profile: Profile): Profile {
+  return session.judge ? learnFromProfessor(profile, run, session.judge) : profile
 }
 
 /** A solo run is what shows Premium's filters and previews at work: a challenge deals its own categories. */

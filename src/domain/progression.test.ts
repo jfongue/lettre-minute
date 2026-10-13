@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   applyRun,
+  backfillCounters,
   countOf,
   levelFor,
   levelProgress,
@@ -11,6 +12,16 @@ import {
   SUBMISSION_REWARD_XP,
   xpForLevel,
 } from './progression'
+
+describe('counters', () => {
+  it('copies what the server already counted, and never downwards', () => {
+    const profile = { ...NEW_PROFILE, weeklyAttempts: 1, challengesFinished: 4 }
+    const filled = backfillCounters(profile, { weeklyAttempts: 0, challengesFinished: 6 })
+
+    expect(filled.weeklyAttempts).toBe(1)
+    expect(filled.challengesFinished).toBe(6)
+  })
+})
 
 describe('levels', () => {
   it('starts every player at level 1', () => {

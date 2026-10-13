@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { designGoal, type Goal } from './achievements'
 
 /**
- * Les 53 tuiles, jalon par jalon, telles qu'elles sont livrées. Le commentaire
+ * Les 54 tuiles, jalon par jalon, telles qu'elles sont livrées. Le commentaire
  * de `LOOKS` promet qu'un identifiant ne bouge pas, et les seuils décident de
  * ce que chaque joueur possède : les barreaux de la grille se répartissent par
  * position, donc une piste de plus ou un seuil déplacé redistribue les
@@ -12,8 +12,9 @@ import { designGoal, type Goal } from './achievements'
  * Réécrit une fois, exprès : les seuils ont été retaillés sur ce que les
  * joueurs font vraiment (`docs/achievements-thresholds.md`), et les pistes du
  * défi du moment, des défis entre amis, de la modération, des mots courts
- * d'affilée et de la suite sans passer ont pris leurs cases. Toute autre
- * modification se refuse ici.
+ * d'affilée et de la suite sans passer ont pris leurs cases. La tuile du mot
+ * repris au Professeur (53) est la seule ajoutée depuis, et rien d'autre ne
+ * bouge : c'est ce test qui le refuse.
  */
 const SHIPPED: readonly string[] = [
   'aucun',
@@ -69,6 +70,7 @@ const SHIPPED: readonly string[] = [
   'bestScore:666',
   'wordsReviewed:10',
   'noPassStreak:50',
+  'professorWordsPlayed:1',
 ]
 
 const label = (goal: Goal | null) => (goal ? `${goal.stat}:${goal.at}` : 'aucun')

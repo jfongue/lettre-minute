@@ -93,6 +93,15 @@ Le déblocage n'a rien demandé : le prochain lancement ou la prochaine partie
 renvoie tous les succès atteints, et Play rattrape. Le nouveau seuil est déjà
 dans l'app.
 
+La **1.7.16 (versionCode 40)** n'a rien demandé non plus : la réécriture des
+seuils n'a touché que la grille d'avatars — un succès Play ne s'y reprend
+jamais, et les quinze gardent leur identifiant, leurs points, leur icône et
+leur texte. `src/lib/playGames.ts` et ce dossier sont inchangés depuis la
+1.7.15, et le ZIP d'import avec eux : rien à éditer à la main, rien à
+importer. Les pistes neuves (défi du moment, défis entre amis, modération,
+mots courts, marathon) vivent hors de Play, sous `ach.<id>` dans les sept
+langues.
+
 L'identifiant (`CgkI…`) et les points d'un succès publié ne se modifient pas
 dans la Console : le remplacement ne touche donc que le texte. Vérifier au
 moment de l'édition que le nom reste modifiable ; sinon, garder le nom publié
@@ -134,10 +143,12 @@ chose, et le ZIP à venir les relira.
 
 ## Où vivent les seize autres succès
 
-Le jeu en compte trente et un : les quinze ci-dessus, et seize qui ne vivent
-que dans l'app — leur page, `src/ui/AchievementsPanel.tsx`, ouverte depuis le
-tiroir du profil, avec une barre de progression pour les paliers et la tuile
-d'avatar du défi pour les exploits. Play n'a plus de budget de points à leur
+Le jeu en compte cinquante-sept : les quinze ci-dessus, et quarante-deux qui ne
+vivent que dans l'app — dix-huit exploits nommés et vingt-quatre barreaux de
+grille, les deux derniers arrivés en 1.7.16. Leur page,
+`src/ui/AchievementsPanel.tsx`, ouverte depuis le tiroir du profil, porte une
+barre de progression pour les paliers et la tuile d'avatar du défi pour les
+exploits. Play n'a plus de budget de points à leur
 donner (`src/domain/achievements.ts` dit lesquels sont publiés), et un succès
 de jeu n'a pas besoin de la Console pour exister : il se débloque au bilan et
 s'annonce à l'écran.

@@ -57,7 +57,6 @@ export const POWER_CHARGES: Readonly<Partial<Record<PowerId, number>>> = {
   hush: 1,
   chatter: 1,
 latecomer: 5,
-'double-skip': 1,
 }
 
 /** Words Bavardage keeps the prompt for, after the one that cast it. */
@@ -73,8 +72,8 @@ export const ALWAYS_ON_POWER_IDS: readonly PowerId[] = ['divination', 'celerity'
 export const LATECOMER_THRESHOLD_SECONDS = 5
 export const LATECOMER_SECONDS = 1
 export const LATECOMER_CAP_SECONDS = 5
-export const FLAWLESS_STREAK = 3
-export const FLAWLESS_POINTS = 10
+export const FLAWLESS_STREAK = 6
+export const FLAWLESS_POINTS = 30
 
 /** The powers a player can type into the field, rather than tap. */
 export type Spell = 'joker' | 'hush'

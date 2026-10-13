@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState, type CSSProperties } from 'react'
-import { categoryText, useT } from '../i18n'
+import { useT } from '../i18n'
 import type { GameMode } from '../domain/modes'
-import { attemptState, attemptsAllowed, metricOf, WEEKLY_FREE_ATTEMPTS, type AttemptSlot, type WeeklyMetric } from '../domain/weekly'
+import { attemptState, attemptsAllowed, metricOf, type AttemptSlot, type WeeklyMetric } from '../domain/weekly'
 import { sound } from '../lib/sound'
 import { tapFeedback } from '../lib/native'
 import { loadWeeklyStatus, type WeeklyStatus } from '../state/weeklyPlay'
 import { Shape } from './bauhaus'
 import { onTint } from './motifs'
-import { PlusLockedSlot, PlusSeal } from './premium'
-import { MODE_TINTS, ModeGlyph, Ticket, WeeklyStat, timeLeft, useNow, valueText } from './WeeklyParts'
+import { PlusSeal } from './premium'
+import { MODE_TINTS, ModeGlyph, Ticket, WeeklyStat, timeLeft, useNow, valueText, type SlotLook } from './WeeklyParts'
 import { useBackDismiss } from './useBackDismiss'
 
 export interface WeeklyViewProps {
@@ -16,7 +16,6 @@ export interface WeeklyViewProps {
   closesAt: number
   /** Fixée par la planche debug ; sinon l'horloge. */
   now?: number
-  lineup: readonly string[]
   /** Null tant que le serveur n'a pas répondu. */
   status: Pick<WeeklyStatus, 'used' | 'ads' | 'best' | 'rank' | 'players' | 'online'> | null
   plus: boolean
@@ -34,12 +33,20 @@ export interface WeeklyViewProps {
   onBack(): void
 }
 
-/** L'écran du défi, lu : la planche debug le montre sans serveur. */
+/** Le billet d'une place : jouée, à jouer, à ouvrir par une pub, ou derrière Premium. */
+const ticketLook = (slot: AttemptSlot): SlotLook | 'ad' | 'locked' =>
+  slot === 'used' ? 'used' : slot === 'ad' ? 'ad' : slot === 'locked' ? 'locked' : 'free'
+
+/**
+ * L'écran du défi, lu : la planche debug le montre sans serveur. Trois billets
+ * disent les tentatives, un seul bouton dit quoi faire — jouer, regarder une
+ * pub, ou passer Premium —, les offres ne se montrant que lorsqu'il ne reste
+ * rien à jouer.
+ */
 export function WeeklyView({
   mode,
   closesAt,
   now,
-  lineup,
   status,
   plus,
   adsOpen,
@@ -66,17 +73,9 @@ export function WeeklyView({
   const total = attemptsAllowed({ plus, adsWatched: ads })
   const left = Math.max(0, total - used)
   const next = slots.findIndex((slot) => slot === 'free' || slot === 'plus')
-  const spent = used >= WEEKLY_FREE_ATTEMPTS || plus
-  // Avant les deux premières tentatives, seules les deux gratuites se montrent :
-  // le reste n'est pas une offre tant qu'il reste de quoi jouer.
-  const shown = spent ? slots : slots.slice(0, WEEKLY_FREE_ATTEMPTS)
-  const rows = shown
-    .map((slot, place) => ({ slot, place }))
-    .filter(({ slot }) => (slot === 'ad' ? adsOpen || premiumOpen : slot === 'locked' ? premiumOpen : true))
-  const offers = rows.some(({ slot }) => slot === 'ad' || slot === 'locked')
-
-  const heading =
-    used === 0 ? t.weekly.screen.intro(total) : left > 0 ? t.weekly.screen.introLeft(left) : offers ? t.weekly.screen.introAfter(used) : t.weekly.screen.allUsed
+  // La pub est le seul chemin qui reste : elle prend la place du bouton de jeu.
+  const adNext = next < 0 && adsOpen && slots.includes('ad')
+  const outOfTries = status !== null && next < 0 && !adNext
 
   const launch = () => {
     sound.go()
@@ -107,7 +106,7 @@ export function WeeklyView({
         <p className="wk-hero-rule">{t.weekly.rules[mode]}</p>
       </section>
 
-      <div className="wk-stats">
+      <div className="wk-stats wk-stats--line">
         <WeeklyStat label={t.weekly.screen.best}>
           {status === null ? '…' : status.best === null ? <span className="wk-none">{t.weekly.screen.noBest}</span> : valueText(t, status.best, metric)}
         </WeeklyStat>
@@ -121,40 +120,26 @@ export function WeeklyView({
           {t.weekly.screen.loading}
         </p>
       ) : (
-        <section className="wk-attempts">
-          <div className="spread">
-            <p className="section-title">{t.weekly.screen.attempts}</p>
+        <section className="wk-play">
+          <div className="wk-tickets">
+            <span className="wk-card-tickets">
+              {slots.map((slot, place) => (
+                <span key={place} role="img" aria-label={t.weekly.screen.slot[slot]}>
+                  <Ticket look={ticketLook(slot)} size={30} />
+                </span>
+              ))}
+            </span>
+            {next >= 0 && (
+              <p className="wk-heading" role="status">
+                {t.weekly.card.attempts(left)}
+              </p>
+            )}
             {plus && <PlusSeal size="md" />}
           </div>
-          <p className="wk-heading" role="status">
-            {heading}
-          </p>
-          {/* Au-delà de la prochaine tentative jouable, la liste ne montre que
-              des offres : elles s'effacent derrière le billet jaune. */}
-          <ol className="wk-slots">
-            {rows.map(({ slot, place }) => (
-              <li key={place} className={`wk-slot-item${place === next ? ' wk-slot-item--next' : ''}${spent && place !== next ? ' wk-slot-item--muted' : ''}`}>
-                <SlotRow
-                  slot={slot}
-                  index={place}
-                  adsOpen={adsOpen}
-                  premiumOpen={premiumOpen}
-                  busy={busy === 'ad'}
-                  onWatchAd={onWatchAd}
-                  onPremium={onPremium}
-                />
-              </li>
-            ))}
-          </ol>
-          {!status.online && <p className="note">{t.weekly.screen.offline}</p>}
-          {message && (
-            <p className="note note--warn" role="alert">
-              {message}
-            </p>
-          )}
+
           {next >= 0 && (
-            <button type="button" className="btn btn--play wk-play btn--block" disabled={busy !== null} onClick={() => setConfirming(true)}>
-              <span>{busy === 'launch' ? t.loading : t.weekly.screen.launch(next + 1)}</span>
+            <button type="button" className="btn btn--play wk-play-button btn--block" disabled={busy !== null} onClick={() => setConfirming(true)}>
+              <span>{busy === 'launch' ? t.loading : t.weekly.card.play}</span>
               <span className="play-glyph" aria-hidden="true">
                 <Shape kind="circle" tint="yellow" />
                 <span className="motion play-triangle">
@@ -163,19 +148,26 @@ export function WeeklyView({
               </span>
             </button>
           )}
-        </section>
-      )}
 
-      {lineup.length > 0 && (
-        <section className="stack">
-          <p className="section-title">{t.weekly.screen.lineup}</p>
-          <p className="challenge-lineup">
-            {lineup.map((id) => (
-              <span key={id} className="tag tag--plain">
-                {categoryText(t, id).label}
-              </span>
-            ))}
-          </p>
+          {adNext && (
+            <button type="button" className="btn btn--blue btn--block" disabled={busy === 'ad'} onClick={onWatchAd}>
+              {busy === 'ad' ? t.weekly.screen.adBusy : t.weekly.screen.watchAd}
+            </button>
+          )}
+
+          {outOfTries && <p className="note">{t.weekly.screen.allUsed}</p>}
+          {!plus && premiumOpen && (adNext || outOfTries) && (
+            <button type="button" className="wk-premium-link" onClick={onPremium}>
+              <PlusSeal size="sm" />
+              {t.weekly.screen.goPremium}
+            </button>
+          )}
+          {!status.online && <p className="note">{t.weekly.screen.offline}</p>}
+          {message && (
+            <p className="note note--warn" role="alert">
+              {message}
+            </p>
+          )}
         </section>
       )}
 
@@ -208,68 +200,10 @@ export function WeeklyView({
   )
 }
 
-function SlotRow({
-  slot,
-  index,
-  adsOpen,
-  premiumOpen,
-  busy,
-  onWatchAd,
-  onPremium,
-}: {
-  slot: AttemptSlot
-  index: number
-  adsOpen: boolean
-  premiumOpen: boolean
-  busy: boolean
-  onWatchAd(): void
-  onPremium(): void
-}) {
-  const t = useT()
-  const label = t.weekly.screen.attempt(index + 1)
-  if (slot === 'locked')
-    return <PlusLockedSlot icon="ticket" label={label} hint={t.weekly.screen.slot.locked} onOpen={onPremium} />
-  if (slot === 'ad')
-    return (
-      <div className="wk-slot wk-slot--ad">
-        <Ticket look="ad" />
-        <span className="wk-slot-text">
-          <strong>{label}</strong>
-          <span className="note">{t.weekly.screen.slot.ad}</span>
-        </span>
-        <span className="wk-slot-actions">
-          {adsOpen && (
-            <button type="button" className="btn btn--blue" disabled={busy} onClick={onWatchAd}>
-              {busy ? t.weekly.screen.adBusy : t.weekly.screen.watchAd}
-            </button>
-          )}
-          {premiumOpen && (
-            <button type="button" className="wk-premium-link" onClick={onPremium}>
-              <PlusSeal size="sm" />
-              {t.weekly.screen.goPremium}
-            </button>
-          )}
-        </span>
-      </div>
-    )
-  const look = slot === 'used' ? 'used' : 'free'
-  return (
-    <div className={`wk-slot wk-slot--${slot}`}>
-      <Ticket look={look} />
-      <span className="wk-slot-text">
-        <strong>{label}</strong>
-        <span className="note">{slot === 'used' ? t.weekly.screen.slot.used : slot === 'plus' ? t.weekly.screen.slot.plus : t.weekly.screen.slot.free}</span>
-      </span>
-      {slot === 'plus' && <PlusSeal size="sm" />}
-    </div>
-  )
-}
-
 /** Le défi, chargé : ce que le joueur en a déjà fait vient du serveur, et à défaut de l'appareil. */
 export function WeeklyScreen({
   mode,
   closesAt,
-  lineup,
   lang,
   plus,
   adsOpen,
@@ -304,7 +238,6 @@ export function WeeklyScreen({
     <WeeklyView
       mode={mode}
       closesAt={closesAt}
-      lineup={lineup}
       status={status}
       plus={plus}
       adsOpen={adsOpen}
