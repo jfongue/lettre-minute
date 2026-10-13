@@ -102,7 +102,7 @@ import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { clearInviteRef, keepInviteRef, loadInviteRef, refIn, takeAddressRef } from './state/inviteRef'
 import { createJudge } from './state/judge'
 import { todayKey } from './lib/today'
-import { banNews, feedbackDue, hiddenAnswers, hiddenAnswersOf, isPlus, playableCategoryIds, plusThanksDue, premiereNews, revealBudget, shareNewsDue } from './domain/perks'
+import { banNews, feedbackDue, grantPlus, hiddenAnswers, hiddenAnswersOf, isPlus, playableCategoryIds, plusThanksDue, premiereNews, revealBudget, shareNewsDue } from './domain/perks'
 import { enabledFeatures, type FeatureId, type Roles } from './domain/features'
 import { ratingDue } from './domain/rating'
 import { cloudConfigured } from './lib/supabase'
@@ -423,6 +423,14 @@ setMenuPage(null)
   useEffect(() => {
     if (moderation) saveFeatureRoles({ moderator: moderation.moderator, superModerator: moderation.super })
   }, [moderation])
+  // Premium offert : la table l'ouvre au super modérateur tant que la ligne est
+  // ouverte, et le lui reprend quand elle se ferme. Le profil s'en souvient, pour
+  // que tout ce qui lit `isPlus` — révélations, filtres, tentatives — le voie.
+  const grantedPlus = roles.superModerator && features.has('premiumGrant')
+  useEffect(() => {
+    const next = grantPlus(profile.current, grantedPlus)
+    if (next !== profile.current) dispatch({ type: 'profile-loaded', profile: next })
+  }, [grantedPlus])
   const [featuresBoard, setFeaturesBoard] = useState(false)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.

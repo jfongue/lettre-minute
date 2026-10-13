@@ -826,6 +826,7 @@ flawless: ['Flawless', 'Every three valid words typed without a mistake earn 10 
   winNote: 'You get a lifetime Premium subscription — thanks for playing.',
   winOk: 'Thank you!',
     lifetime: 'For life',
+    offered: 'Given, for the help you bring to the game.',
     fallbackPrice: '€2.50',
     buy: (price: string) => `Go Premium — ${price}`,
     restore: 'Restore my purchases',

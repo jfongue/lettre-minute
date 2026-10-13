@@ -113,6 +113,12 @@ export interface Profile {
   perksVersion: number
   /** When the player went Premium; 0 if they never did. */
   plusSince: number
+  /**
+   * Premium offert par la table des fonctionnalités (`premiumGrant`) : il tient
+   * tant que la ligne est ouverte, et se reprend en la fermant. Sur l'appareil
+   * seulement — un achat, lui, se retrouve par `plusSince`.
+   */
+  plusGranted: boolean
   /** What Premium brought beyond the free limits, by `PlusStat` (`countPlus*`, `src/domain/perks.ts`). */
   plusStats: Readonly<Record<string, number>>
   /** 1 once the home screen has thanked the player for going Premium, and asked their opinion. */
@@ -183,6 +189,7 @@ export const NEW_PROFILE: Profile = {
   lastBonusOffer: [],
   perksVersion: PERKS_VERSION,
   plusSince: 0,
+  plusGranted: false,
   plusStats: {},
   plusThanked: 0,
   longestWord: 0,

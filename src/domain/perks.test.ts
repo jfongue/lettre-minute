@@ -14,6 +14,8 @@ import {
   REVEALS_MAX,
   banUnlocked,
   grantRevealAd,
+  grantPlus,
+  isPlus,
   revealAdsLeft,
   revealsLeft,
   spendReveal,
@@ -154,6 +156,27 @@ describe('plusThanksDue', () => {
     const plus = joinPlus(NEW_PROFILE, 1)
     expect(plusThanksDue(plus)).toBe(true)
     expect(plusThanksDue(markPlusThanked(plus))).toBe(false)
+  })
+
+  it('ne remercie pas un compte servi par la table des fonctionnalités', () => {
+    // Il n'a rien acheté : la page dit « offert », l'accueil ne le remercie pas.
+    expect(plusThanksDue(grantPlus(NEW_PROFILE, true))).toBe(false)
+  })
+})
+
+describe('grantPlus', () => {
+  it('ouvre les avantages sans dater un achat', () => {
+    expect(isPlus(NEW_PROFILE)).toBe(false)
+    const granted = grantPlus(NEW_PROFILE, true)
+    expect(isPlus(granted)).toBe(true)
+    expect(granted.plusSince).toBe(0)
+  })
+
+  it('se reprend, et ne touche pas un profil déjà dans cet état', () => {
+    const granted = grantPlus(NEW_PROFILE, true)
+    expect(isPlus(grantPlus(granted, false))).toBe(false)
+    expect(grantPlus(NEW_PROFILE, false)).toBe(NEW_PROFILE)
+    expect(grantPlus(granted, true)).toBe(granted)
   })
 })
 

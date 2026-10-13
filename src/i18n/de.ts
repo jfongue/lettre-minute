@@ -820,6 +820,7 @@ flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 
   winNote: 'Du bekommst ein Premium-Abo auf Lebenszeit — danke fürs Mitspielen.',
   winOk: 'Danke!',
     lifetime: 'Für immer',
+    offered: 'Geschenkt, für deine Hilfe am Spiel.',
     fallbackPrice: '2,50 €',
     buy: (price: string) => `Premium holen — ${price}`,
     restore: 'Käufe wiederherstellen',

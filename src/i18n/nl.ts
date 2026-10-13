@@ -821,6 +821,7 @@ flawless: ['Foutloos', 'Elke drie goed gespelde woorden leveren meteen 10 bonusp
   winNote: 'Je krijgt een levenslang Premium-abonnement — bedankt voor het meedoen.',
   winOk: 'Bedankt!',
     lifetime: 'Voor altijd',
+    offered: 'Cadeau, voor je hulp bij het spel.',
     fallbackPrice: '€ 2,50',
     buy: (price: string) => `Word Premium — ${price}`,
     restore: 'Mijn aankopen herstellen',

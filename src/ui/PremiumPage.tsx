@@ -31,6 +31,10 @@ export function PremiumPage({ profile }: { profile: Profile }) {
   const t = useT()
   useEffect(() => sound.plus(), [])
   const date = new Date(profile.plusSince).toLocaleDateString(t.tag, { day: 'numeric', month: 'long', year: 'numeric' })
+  // Un compte servi par la table a Premium sans achat : la page le dit, plutôt
+  // que de dater un paiement qui n'a pas eu lieu.
+  const since =
+    profile.plusSince > 0 ? t.premiumPage.since(date) : profile.plusGranted ? t.premium.offered : t.premium.lifetime
   const empty = PLUS_STATS.every((stat) => plusStat(profile, stat) === 0)
 
   return (
@@ -39,7 +43,7 @@ export function PremiumPage({ profile }: { profile: Profile }) {
         <PlusSeal size="lg" animated />
         <div className="ppage-heading">
           <h2>{t.premium.title}</h2>
-          <p className="ppage-since">{profile.plusSince > 0 ? t.premiumPage.since(date) : t.premium.lifetime}</p>
+          <p className="ppage-since">{since}</p>
         </div>
       </header>
       <p className="note">{t.premiumPage.lead}</p>

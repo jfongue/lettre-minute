@@ -79,7 +79,17 @@ export const FEEDBACK_FIRST_RUNS = 10
 export const FEEDBACK_EVERY_RUNS = 30
 
 export function isPlus(profile: Profile): boolean {
-  return profile.plusSince > 0
+  return profile.plusSince > 0 || profile.plusGranted
+}
+
+/**
+ * Ouvre Premium à un compte sans achat, ou le lui retire : le super modérateur
+ * que la table des fonctionnalités sert porte les avantages tant que la ligne
+ * `premiumGrant` est ouverte, et les rend en la fermant. Un achat déjà fait, lui,
+ * ne se reprend pas.
+ */
+export function grantPlus(profile: Profile, granted: boolean): Profile {
+  return profile.plusGranted === granted ? profile : { ...profile, plusGranted: granted }
 }
 
 /** Premium costs nothing for now: joining is a date written down. */
@@ -89,7 +99,7 @@ export function joinPlus(profile: Profile, now: number): Profile {
 
 /** The home screen thanks a new Premium member once, and asks what they think of the game. */
 export function plusThanksDue(profile: Profile): boolean {
-  return isPlus(profile) && profile.plusThanked === 0
+  return profile.plusSince > 0 && profile.plusThanked === 0
 }
 
 export function markPlusThanked(profile: Profile): Profile {

@@ -822,6 +822,7 @@ flawless: ['Impecable', 'Cada tres palabras válidas escritas sin errores te dan
   winNote: 'Te regalamos una suscripción Premium de por vida. ¡Gracias por participar!',
   winOk: '¡Gracias!',
     lifetime: 'De por vida',
+    offered: 'Regalado, por la ayuda que aportas al juego.',
     fallbackPrice: '2,50 €',
     buy: (price: string) => `Pasarte a Premium — ${price}`,
     restore: 'Restaurar mis compras',
