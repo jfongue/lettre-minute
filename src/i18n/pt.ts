@@ -576,6 +576,16 @@ export const pt: Messages = {
   },
 
   powers: {
+    loadout: {
+      kicker: 'Antes da partida',
+      title: 'Os teus poderes',
+      lead: (slots) => (slots > 1 ? 'Toca nos dois poderes que vais levar.' : 'Toca no poder que vais levar.'),
+      slot: (index) => `Espaço ${index}`,
+      play: 'Jogar',
+      playBare: 'Jogar sem poderes',
+      back: 'Voltar',
+      hint: 'Enter para jogar',
+    },
     castChatter: 'Tagarela! A letra fica',
 doubleSkipFree: 'Pular em dobro · passe grátis',
     chatterLeft: (left) => `Tagarela · mais ${left} ${plural(left, 'palavra', 'palavras')}`,

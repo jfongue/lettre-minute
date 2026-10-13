@@ -7,7 +7,7 @@ import { markRatingAsked, markRatingDone } from '../domain/rating'
 import { premiereCategoryIds } from '../domain/catalogue'
 import { ban, bannedOf, countPlusReveal, countPlusRun, grantRevealAd, joinPlus, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
 import { chooseBonus, dealBonusOffer } from '../domain/bonus'
-import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, type PowerId } from '../domain/powers'
+import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, wearOrDrop, type PowerId } from '../domain/powers'
 import { countsForProgress, type GameMode } from '../domain/modes'
 import {
   arm,
@@ -126,6 +126,8 @@ export type SessionAction =
   | { type: 'choose-power'; powerId: string }
   | { type: 'grant-power'; powerId: PowerId }
   | { type: 'equip'; slot: number; powerId: PowerId | null }
+  /** The pre-run loadout: a tap takes a power up or puts it down. */
+  | { type: 'wear'; powerId: PowerId }
   | { type: 'start' }
   /** Le retard commence : la question à l'écran part sans réponse et le chrono démarre. */
   | { type: 'arm' }
@@ -286,6 +288,9 @@ case 'rating-asked': {
       const profile = markRatingAsked(session.profile)
       return profile === session.profile ? session : { ...session, profile }
     }
+
+    case 'wear':
+      return withProfile(session, wearOrDrop(session.profile, action.powerId))
 
     case 'equip': {
       const profile = equipPower(session.profile, action.slot, action.powerId)

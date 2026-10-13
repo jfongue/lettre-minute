@@ -85,7 +85,7 @@ import {
   needsPowerPick,
   scoreAt,
 } from './domain/challenge'
-import { complicationDue, slotsOf, type PowerId } from './domain/powers'
+import { complicationDue, ownedPowers, slotsOf, type PowerId } from './domain/powers'
 import { completeLeaderboard } from './domain/leaderboards'
 import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
@@ -176,6 +176,7 @@ import { GameModes } from './ui/GameModes'
 import { ModeTutorial } from './ui/ModeTutorial'
 import { WeeklyDone, WeeklyRecap, WeeklyResults, WeeklyScreen, useWeeklyFlow } from './ui/WeeklyFlow'
 import { DailyCard } from './ui/DailyCard'
+import { PowerLoadout } from './ui/PowerLoadout'
 import type { DuelExit } from './state/duel'
 
 // Everything but the home screen waits in its own chunk: the first paint only
@@ -262,6 +263,8 @@ export function App() {
   // relu par la relecture, qui doit rejouer le même.
   const modeNow = useRef<GameMode>('solo')
   const [modesOpen, setModesOpen] = useState(false)
+  // Le choix des pouvoirs avant une partie seule, là où la fonctionnalité l'ouvre.
+  const [loadout, setLoadout] = useState(false)
   // La leçon du mode choisi : elle se joue à chaque sélection d'un mode de la
   // réserve, et `launching` la garde à l'écran le temps que la partie charge.
   const [modeLesson, setModeLesson] = useState<{ mode: ArcadeMode; launching: boolean } | null>(null)
@@ -1008,11 +1011,17 @@ setStartedAt((at) => at ?? Date.now())
     }
   }, [idleHome, ownedShipped, lang])
 
+  /** Une partie seule : d'abord le choix des pouvoirs pour qui en a, quand la fonctionnalité l'ouvre. */
+  const playSolo = useCallback(() => {
+    if (on('powerLoadout') && on('powers') && modeNow.current === 'solo' && ownedPowers(session.profile).length > 0) setLoadout(true)
+    else void play()
+  }, [on, session.profile, play])
+
   const startFirstRun = useCallback(() => {
-    if (session.profile.runs > 0 || loadTutorialDone() || !on('tutorial')) return play()
+    if (session.profile.runs > 0 || loadTutorialDone() || !on('tutorial')) return playSolo()
     setMenuPage(null)
     setTutorial('teaching')
-  }, [session.profile.runs, play, on])
+  }, [session.profile.runs, playSolo, on])
   // The answer was just handed over: the run that follows must not deal the
   // same pair. `lastPrompts` already keeps it out, and the run's own prompts
   // replace it once it ends.
@@ -1748,7 +1757,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => setTrackScreen(screenName), [screenName])
 
   const quietHome =
-    session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !duelOpen && !weeklyFlow.covering
+    session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !loadout && !duelOpen && !weeklyFlow.covering
   const notice = quietHome && on('challenges') ? challengeNotice(challenges, heldNotices) : null
   const updateDue = update === 'due' && on('storeUpdate')
   // The moderator card never reaches someone who already moderates: `moderator`
@@ -1864,6 +1873,18 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
+      {loadout && (session.phase === 'home' || session.phase === 'over') && !tutorial && (
+        <PowerLoadout
+          profile={session.profile}
+          onWear={(powerId) => dispatch({ type: 'wear', powerId })}
+          onPlay={() => {
+            setLoadout(false)
+            void play()
+          }}
+          onBack={() => setLoadout(false)}
+        />
+      )}
+
       {modesOpen && session.phase === 'home' && !tutorial && (
         <GameModes onPick={pickMode} onClose={() => setModesOpen(false)} />
       )}
@@ -1874,7 +1895,7 @@ setStartedAt((at) => at ?? Date.now())
 
       {weeklyFlow.overlay}
 
-      {!tutorial && !modeLesson && !moderating && !duelOpen && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
+      {!tutorial && !modeLesson && !loadout && !moderating && !duelOpen && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
@@ -2284,7 +2305,7 @@ avatarFocus={avatarFocus}
 
       {weeklyFlow.over}
 
-      {session.phase === 'over' && session.run && !session.weekly && !moderating && (
+      {session.phase === 'over' && session.run && !session.weekly && !moderating && !loadout && (
         <Suspense fallback={null}>
           <OverScreen
             run={session.run}
@@ -2317,7 +2338,7 @@ setMenuPage('avatar')
             onPeek={peek}
             onAd={revealAd}
             onFlag={overFlag}
-            onReplay={play}
+            onReplay={session.challengeId ? play : playSolo}
             onHome={() => {
               // Asked on the way home, never over the summary: after the tenth run, then every thirty.
               if (cloudConfigured() && feedbackDue(session.profile) && on('feedback')) {

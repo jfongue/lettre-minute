@@ -321,7 +321,9 @@ export const crazyGamesHost: Host = {
   // and the challenge of the moment the app opens to everyone, need no
   // server — attempts are counted on the device, the progress they pay is
   // saved by the Data module.
-  openedFeatures: new Set(['daily', 'weekly']),
+  // Its players come back between two runs rather than to a menu: the powers
+  // are picked on a screen of their own before each run, not under « Play ».
+  openedFeatures: new Set(['daily', 'weekly', 'powerLoadout']),
   title: ['Letter', 'Minute'],
   languages: platformLanguages,
   fallbackLocale: 'en',

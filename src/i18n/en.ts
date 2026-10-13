@@ -580,6 +580,16 @@ export const en: Messages = {
   },
 
   powers: {
+    loadout: {
+      kicker: 'Before the game',
+      title: 'Your powers',
+      lead: (slots) => (slots > 1 ? 'Tap the two powers to take along.' : 'Tap the power to take along.'),
+      slot: (index) => `Slot ${index}`,
+      play: 'Play',
+      playBare: 'Play without powers',
+      back: 'Back',
+      hint: 'Enter to play',
+    },
     castChatter: 'Chatter! The letter stays',
 doubleSkipFree: 'Double skip · free pass',
     chatterLeft: (left) => `Chatter · ${left} more ${plural(left, 'word', 'words')}`,

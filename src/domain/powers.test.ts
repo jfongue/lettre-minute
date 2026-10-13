@@ -6,6 +6,7 @@ import {
   dealPowerOffer,
   equippedPowers,
   equipPower,
+  wearOrDrop,
   HUSH_SECONDS,
   nextPowerLevel,
   POWER_IDS,
@@ -117,6 +118,26 @@ describe('earning powers', () => {
 
   it('gives the house account every power', () => {
     expect(unlockEveryPower(NEW_PROFILE).powers).toEqual(POWER_IDS)
+  })
+})
+
+describe('the pre-run loadout', () => {
+  const owner = atLevel(8, { powers: ['joker', 'hush', 'magic'], equipped: ['joker'], bonuses: ['slot'] })
+
+  it('takes a power into a free slot and puts a worn one down', () => {
+    expect(wearOrDrop(owner, 'magic').equipped).toEqual(['joker', 'magic'])
+    expect(wearOrDrop(owner, 'joker').equipped).toEqual([])
+  })
+
+  it('pushes out the power worn longest when every slot is full', () => {
+    const full = wearOrDrop(owner, 'magic')
+    expect(wearOrDrop(full, 'hush').equipped).toEqual(['magic', 'hush'])
+  })
+
+  it('swaps the only slot without the bonus, and ignores a power not owned', () => {
+    const single = atLevel(8, { powers: ['joker', 'hush'], equipped: ['joker'] })
+    expect(wearOrDrop(single, 'hush').equipped).toEqual(['hush'])
+    expect(wearOrDrop(single, 'magic')).toBe(single)
   })
 })
 

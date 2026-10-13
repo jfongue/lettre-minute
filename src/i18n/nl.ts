@@ -575,6 +575,16 @@ export const nl: Messages = {
   },
 
   powers: {
+    loadout: {
+      kicker: 'Voor het spel',
+      title: 'Je krachten',
+      lead: (slots) => (slots > 1 ? 'Tik de twee krachten aan die je meeneemt.' : 'Tik de kracht aan die je meeneemt.'),
+      slot: (index) => `Plek ${index}`,
+      play: 'Spelen',
+      playBare: 'Spelen zonder krachten',
+      back: 'Terug',
+      hint: 'Enter om te spelen',
+    },
     castChatter: 'Gekwebbel! De letter blijft',
 doubleSkipFree: 'Dubbel overslaan · gratis beurt',
     chatterLeft: (left) => `Gekwebbel · nog ${left} ${plural(left, 'woord', 'woorden')}`,

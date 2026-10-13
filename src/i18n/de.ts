@@ -574,6 +574,16 @@ export const de: Messages = {
   },
 
   powers: {
+    loadout: {
+      kicker: 'Vor der Partie',
+      title: 'Deine Kräfte',
+      lead: (slots) => (slots > 1 ? 'Tippe die zwei Kräfte an, die du mitnimmst.' : 'Tippe die Kraft an, die du mitnimmst.'),
+      slot: (index) => `Platz ${index}`,
+      play: 'Spielen',
+      playBare: 'Ohne Kräfte spielen',
+      back: 'Zurück',
+      hint: 'Eingabe zum Spielen',
+    },
     castChatter: 'Geplapper! Der Buchstabe bleibt',
 doubleSkipFree: 'Doppelsprung · kostenlos überspringen',
     chatterLeft: (left) => `Geplapper · noch ${left} ${plural(left, 'Wort', 'Wörter')}`,

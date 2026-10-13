@@ -576,6 +576,16 @@ export const it: Messages = {
   },
 
   powers: {
+    loadout: {
+      kicker: 'Prima della partita',
+      title: 'I tuoi poteri',
+      lead: (slots) => (slots > 1 ? 'Tocca i due poteri da portare con te.' : 'Tocca il potere da portare con te.'),
+      slot: (index) => `Slot ${index}`,
+      play: 'Gioca',
+      playBare: 'Gioca senza poteri',
+      back: 'Indietro',
+      hint: 'Invio per giocare',
+    },
     castChatter: 'Chiacchiera! La lettera resta',
 doubleSkipFree: 'Doppio salto · passaggio gratuito',
     chatterLeft: (left) => `Chiacchiera · ancora ${left} ${plural(left, 'parola', 'parole')}`,

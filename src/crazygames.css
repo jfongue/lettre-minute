@@ -168,6 +168,39 @@ textarea {
   .sheet.wk-screen > :not(.subpage-head, .wk-hero) {
     grid-column: 2;
   }
+  /* Le choix des pouvoirs : les emplacements et « Jouer » à gauche, tous les
+     pouvoirs à droite, qui défilent seuls s'ils dépassent le cadre. */
+  .sheet.loadout {
+    width: min(60rem, 100%);
+    height: 100%;
+    min-height: 0;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .sheet.loadout > .loadout-head {
+    grid-column: 1 / -1;
+  }
+
+  .sheet.loadout > .loadout-side {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .sheet.loadout .loadout-slot {
+    min-height: 7.5rem;
+  }
+
+  .sheet.loadout > .loadout-grid {
+    grid-column: 2;
+    grid-row: 2;
+    min-height: 0;
+    overflow-y: auto;
+    align-content: start;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 0 6px 6px 0;
+  }
 }
 
 /* Un panneau déplié plus long que son cadre défile pour lui-même : la barre

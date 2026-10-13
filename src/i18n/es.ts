@@ -576,6 +576,16 @@ export const es: Messages = {
   },
 
   powers: {
+    loadout: {
+      kicker: 'Antes de la partida',
+      title: 'Tus poderes',
+      lead: (slots) => (slots > 1 ? 'Toca los dos poderes que llevarás.' : 'Toca el poder que llevarás.'),
+      slot: (index) => `Ranura ${index}`,
+      play: 'Jugar',
+      playBare: 'Jugar sin poderes',
+      back: 'Volver',
+      hint: 'Intro para jugar',
+    },
     castChatter: '¡Cháchara! La letra se queda',
 doubleSkipFree: 'Doble salto · pase gratis',
     chatterLeft: (left) => `Cháchara · ${left} ${plural(left, 'palabra', 'palabras')} más`,

@@ -76,8 +76,20 @@ import { activeCheers, HOUSE_BOTS, type DuelTable, type Seat } from '../state/du
 // seul écran de l'app qui la montre, donc elle l'apporte avec elle.
 import '../duel.css'
 import { DailyCard } from '../ui/DailyCard'
+import { PowerLoadout } from '../ui/PowerLoadout'
+import { wearOrDrop } from '../domain/powers'
 import { NO_DAILY } from '../domain/daily'
 import type { DailyOutcome } from '../ui/OverScreen'
+
+function LoadoutScenario({ onBack }: { onBack(): void }) {
+  const [profile, setProfile] = useState<Profile>(() => ({
+    ...PROFILE,
+    powers: ['joker', 'hush', 'magic', 'permutation', 'dodge', 'dyslexia', 'divination', 'chatter'],
+    equipped: ['joker'],
+    bonuses: [...PROFILE.bonuses, 'slot'],
+  }))
+  return <PowerLoadout profile={profile} onWear={(id) => setProfile((current) => wearOrDrop(current, id))} onPlay={onBack} onBack={onBack} />
+}
 
 // Le 13 octobre 2026 à 15 h, heure de l'appareil : la carte jouée dit neuf heures avant la suivante.
 const DAILY_NOW = new Date(2026, 9, 13, 15, 0).getTime()
@@ -1669,6 +1681,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le récap clos sur un rang 1 : la pop-up offre Premium, sans rien écrire au serveur',
     phase: 'home',
     render: (back) => <PlusPrizePop onClose={back} />,
+  },
+  {
+    id: 'power-loadout',
+    group: 'Pouvoirs',
+    title: 'Choix des pouvoirs avant la partie',
+    how: 'Huit pouvoirs, deux emplacements : une touche prend ou repose, le troisième pris chasse le plus ancien ; Entrée joue, Échap revient',
+    phase: 'home',
+    render: (back) => <LoadoutScenario onBack={back} />,
   },
   {
     id: 'daily-home-card',

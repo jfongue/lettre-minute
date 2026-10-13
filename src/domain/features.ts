@@ -53,6 +53,7 @@ export const FEATURES: readonly FeatureDef[] = [
   { id: 'hiddenWords', label: 'Mots cachés du bilan', note: 'Les réponses que la partie aurait acceptées', defaults: open },
   { id: 'premium', label: 'Premium', note: 'Son offre et son paiement', defaults: open },
 { id: 'premiumGrant', label: 'Premium offert', note: 'Les avantages Premium sans achat, au super modérateur qui ouvre cette ligne — il les rend en la fermant', defaults: { everyone: 'off', moderator: 'off', premium: 'neutral', superModerator: 'on' } },
+  { id: 'powerLoadout', label: 'Choix des pouvoirs avant la partie', note: 'Un écran entre « Jouer » et la partie, pour qui a des pouvoirs ; il remplace les emplacements de l’accueil', defaults: supers },
   { id: 'avatar', label: 'Avatar et couleurs', note: 'L’écran de l’avatar', defaults: open },
  { id: 'achievements', label: 'Succès', note: 'La page des succès, ses barres, et l’annonce au bilan', defaults: open },
   { id: 'tutorial', label: 'Tutoriel', note: 'La première partie guidée', defaults: open },

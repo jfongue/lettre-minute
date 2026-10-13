@@ -55,6 +55,20 @@ le 2026-10-08.
   et la note « Hors ligne » du menu (`keepsProgress`) disparaissent aussi. Restent : la
   partie, le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
   cachés du bilan, l'avatar, les succès, les statistiques, les options.
+- **Fonctionnalités ouvertes** (`crazyGamesHost.openedFeatures`), quoi que
+  disent les valeurs du code, encore réservées aux super modérateurs sur
+  Android : le **défi du jour** (`daily`, `src/domain/daily.ts`) — même graine
+  et mêmes catégories pour tous à la date du joueur, une partie comptée par
+  jour, et une série qui paie 40 XP de plus par jour, cinq au plus —, le
+  **défi du moment** (`weekly`), que l'app ouvre à tout le monde et qui tient
+  sans serveur (tentatives comptées sur l'appareil, record de la semaine
+  gardé localement, une seule par jour faute de pub récompensée et de
+  boutique ; ni rang ni classement), et le **choix des pouvoirs avant la
+  partie** (`powerLoadout`, `src/ui/PowerLoadout.tsx`) : pour qui a des
+  pouvoirs, « Play » et « Play again » passent par un écran qui les montre
+  tous, une touche en prend ou en repose un (`wearOrDrop`), Entrée joue ;
+  l'accueil perd alors ses emplacements. Série, tentatives et record
+  passent par le module Data comme le reste (`SAVED_KEYS`).
 - **Langue** : celle du SDK (`user.systemInfo.locale`), puis celle du
   navigateur, sinon l'anglais — jamais le sélecteur de langue au premier
   lancement. Le joueur peut en changer dans les options. Le titre affiché
