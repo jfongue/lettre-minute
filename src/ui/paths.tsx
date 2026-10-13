@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import type { DetailKind, ShapeKind } from './motifs'
 
 export const PATHS: Record<ShapeKind | DetailKind, ReactNode> = {
@@ -23,7 +23,10 @@ export const PATHS: Record<ShapeKind | DetailKind, ReactNode> = {
   moon: <path d="M62 2A50 50 0 1 0 62 98A40 48 0 0 1 62 2Z" />,
   pill: <rect x="20" width="60" height="100" rx="30" />,
   hexagon: <path d="M25 6H75L100 50L75 94H25L0 50Z" />,
-  steps: <path d="M0 100V67H33V33H67V0H100V100Z" />,
+  // La marche hisse la tuile de 18 % : le bas de l'escalier descend donc sous
+  // le cadre, où il est coupé au repos et d'où il remonte pendant l'animation.
+  // Sans ce débord, la dernière barre laisserait voir le fond.
+  steps: <path d="M0 120V67H33V33H67V0H100V120Z" />,
   wave: <path d="M0 38Q25 8 50 38T100 38V68Q75 98 50 68T0 68Z" />,
   zigzag: <path d="M0 25L25 50L50 25L75 50L100 25V60L75 85L50 60L25 85L0 60Z" />,
   chevron: <path d="M0 15L50 55L100 15V50L50 90L0 50Z" />,
@@ -144,10 +147,12 @@ barcode: (
 ))}
 </>
 ),
+// Les rayures s'allongent bien au-delà du cadre : le va-et-vient les tourne de
+// sept degrés, et aucun bout de barre ne doit entrer dans la tuile.
 stripes: (
 <g transform="rotate(-45 50 50)">
 {[-20, 12, 44, 76].map((y) => (
-<rect key={y} y={y} width="100" height="14" />
+<rect key={y} x="-60" y={y} width="220" height="14" />
 ))}
 </g>
 ),
@@ -217,7 +222,19 @@ frameDiamond: <path fillRule="evenodd" d="M0 0H100V100H0Z M50 20L80 50L50 80L20 
 roundedFrame: <path fillRule="evenodd" d="M20 0H80A20 20 0 0 1 100 20V80A20 20 0 0 1 80 100H20A20 20 0 0 1 0 80V20A20 20 0 0 1 20 0Z M36 28H64A8 8 0 0 1 72 36V64A8 8 0 0 1 64 72H36A8 8 0 0 1 28 64V36A8 8 0 0 1 36 28Z" />,
 cushion: <path d="M0 0Q50 50 100 0Q50 50 100 100Q50 50 0 100Q50 50 0 0Z" />,
 squareBite: <path fillRule="evenodd" d="M0 0H100V100H0Z M0 26A24 24 0 0 1 0 74Z" />,
-split: <path fillRule="evenodd" d="M0 0H100V100H0Z M2 60L60 2H98V40L40 98H2Z" />,
+// Les deux parts de la fente, chacune de son côté — `--way` dit lequel —, et la
+// bande teintée s'écarte avec celle du haut. Ensemble, elles font le carré
+// plein que `splitBand` fend en diagonale.
+split: (
+<>
+<g className="avatar-piece" style={{ '--way': -1 } as CSSProperties}>
+<path d="M0 0H62L0 62Z" />
+</g>
+<g className="avatar-piece" style={{ '--way': 1 } as CSSProperties}>
+<path d="M100 38V100H38Z" />
+</g>
+</>
+),
 spiral: (
 <path
 d="M74 10A42 42 0 0 0 28 62A26 26 0 1 0 54 36"
@@ -249,7 +266,9 @@ duo: (
 <rect x="54" y="54" width="46" height="46" />
 </>
 ),
-slab: <rect y="34" width="100" height="32" />,
+// La barre déborde de chaque côté : l'écrasement vertical l'étire d'autant en
+// largeur, et ses bouts restent dehors.
+slab: <rect x="-8" width="116" y="34" height="32" />,
 dropCut: <path fillRule="evenodd" d="M50 0A50 50 0 1 1 50 100A50 50 0 1 1 50 0Z M68 20C74 30 86 37 86 46A18 18 0 0 1 50 46C50 37 62 30 68 20Z" />,
 keyhole: (
 <>
@@ -281,7 +300,9 @@ bangDot: <circle cx="50" cy="86" r="12" />,
 // un motif dans un coin.
 gongDisc: <circle cx="50" cy="24" r="20" />,
 tentsSmall: <path d="M50 4L76 44H24Z" />,
-stepsMiddle: <rect x="33" y="33" width="34" height="67" />,
+// Le bas de la marche teintée descend sous le cadre avec celui de la forme :
+// hissée, elle laisserait sinon une barre sombre sous l'accent.
+stepsMiddle: <rect x="33" y="33" width="34" height="87" />,
 gateCrown: <path d="M10 50A40 40 0 0 1 90 50" fill="none" stroke="currentColor" strokeWidth="20" />,
 domesLower: <path d="M0 100A50 50 0 0 1 100 100Z" />,
 chevronsFirst: <path d="M4 8L40 50L4 92" fill="none" stroke="currentColor" strokeWidth="18" />,
@@ -328,14 +349,16 @@ butterflyWing: <path d="M0 0A50 50 0 0 1 0 100Z" />,
 bloomDisc: <circle cx="50" cy="23" r="19" />,
 barsMiddle: <rect y="40" width="100" height="20" />,
 slatsTop: <ellipse cx="50" cy="10" rx="50" ry="11" />,
-stripesFirst: <g transform="rotate(-45 50 50)"><rect y="-20" width="100" height="14" /></g>,
+// La rayure du milieu, celle qui traverse la tuile : c'est elle que l'accent
+// colore.
+stripesMiddle: <g transform="rotate(-45 50 50)"><rect x="-60" y="44" width="220" height="14" /></g>,
 barcodeWidest: <rect x="72" width="13" height="100" />,
 stripedDiscMid: <rect x="8" y="46" width="84" height="9" />,
 framePanel: <rect x="24" y="24" width="52" height="52" />,
 frameDiamondInner: <path d="M50 20L80 50L50 80L20 50Z" />,
 roundedFrameInner: <rect x="28" y="28" width="44" height="44" rx="8" />,
 squareBiteBite: <path d="M0 26A24 24 0 0 1 0 74Z" />,
-splitBand: <path d="M2 60L60 2H98V40L40 98H2Z" />,
+splitBand: <path d="M0 62L62 0H100V38L38 100H0Z" />,
 linksLoop: <path d="M22 36A14 14 0 0 0 22 64" fill="none" stroke="currentColor" strokeWidth="15" />,
 spiralTail: <path d="M28 62A26 26 0 1 0 54 36" fill="none" stroke="currentColor" strokeWidth="18" />,
 halfBarsBand: <rect x="6" y="86" width="88" height="10" />,
