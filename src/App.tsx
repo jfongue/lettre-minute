@@ -1749,7 +1749,10 @@ setStartedAt((at) => at ?? Date.now())
   const pop = usePopQueue(
     {
       update: quietHome && updateDue,
-      challenge: notice !== null,
+      // One notice per challenge: the next one closes and opens like any other pop-up.
+      challenge: notice?.challenge.id ?? false,
+      weeklyRecap: quietHome && weeklyFlow.recap !== null,
+      weeklyPrize: quietHome && weeklyFlow.prizePop !== null,
       name: atHome && nameAsk !== null,
       // Over the menu too: the friendship is often made there, and the offer follows it at once.
       push: atHome && pushOffer !== null && on('pushOffer'),
@@ -2008,6 +2011,9 @@ setStartedAt((at) => at ?? Date.now())
           }}
         />
       )}
+
+      {pop === 'weeklyRecap' && weeklyFlow.recap}
+      {pop === 'weeklyPrize' && weeklyFlow.prizePop}
 
       {pop === 'update' && (
         <UpdateNotice

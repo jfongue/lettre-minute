@@ -6,6 +6,8 @@
 export const POP_ORDER = [
   'update',
   'challenge',
+  'weeklyRecap',
+  'weeklyPrize',
   'name',
   'push',
   'moderator',
