@@ -104,6 +104,7 @@ import { todayKey } from './lib/today'
 import { banNews, feedbackDue, grantPlus, hiddenAnswers, hiddenAnswersOf, isPlus, playableCategoryIds, plusThanksDue, premiereNews, revealBudget, shareNewsDue } from './domain/perks'
 import { enabledFeatures, type FeatureId, type Roles } from './domain/features'
 import { ratingDue } from './domain/rating'
+import { weeklyUnlocked } from './domain/weekly'
 import { cloudConfigured } from './lib/supabase'
 import { host, hostFeatures, premiumStoreOpen, rewardedAdsOpen } from './platform'
 import { buyPremium, premiumOwned, premiumPrice, restorePremium } from './lib/billing'
@@ -1426,7 +1427,7 @@ setStartedAt((at) => at ?? Date.now())
   }, [joinPlus, profile])
   // Le défi du moment : ses écrans, sa partie et son récap vivent dans un seul crochet.
   const weeklyFlow = useWeeklyFlow({
-    enabled: on('weekly'),
+    enabled: on('weekly') && weeklyUnlocked(session.profile.xp),
     lang,
     t,
     session,
