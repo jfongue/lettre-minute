@@ -122,7 +122,8 @@ export type SessionAction =
   /** The countdown traded a category: same seed, new lineup, a judge that knows the incoming dictionary. */
   | { type: 'swapped'; judge: Judge; categoryIds: readonly string[]; reserve: readonly string[] }
   /** `isModerator` keeps the moderator card off the bonus table of someone who already is one. */
-  | { type: 'offer'; availableIds: readonly string[]; seed: number; isModerator?: boolean }
+  /** `bonuses` false: every level pays a power or a category (`Host.levelBonuses`). */
+  | { type: 'offer'; availableIds: readonly string[]; seed: number; isModerator?: boolean; bonuses?: boolean }
   | { type: 'choose'; categoryId: string }
   | { type: 'choose-bonus'; bonusId: string }
   | { type: 'choose-power'; powerId: string }
@@ -236,10 +237,12 @@ export function sessionReducer(session: Session, action: SessionAction): Session
 
     case 'offer': {
       const isModerator = action.isModerator ?? false
+      const bonuses = action.bonuses ?? true
       const profile = dealBonusOffer(
-        dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed, isModerator), action.seed),
+        dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed, isModerator, bonuses), action.seed),
         action.seed,
         isModerator,
+        bonuses,
       )
       return profile === session.profile ? session : { ...session, profile }
     }

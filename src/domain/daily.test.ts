@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { ChallengeWord } from './challenge'
+import { xpForLevel } from './progression'
 import {
+  DAILY_MIN_LEVEL,
   DAILY_XP_DAYS,
+  dailyOpen,
   DAILY_XP_PER_DAY,
   NO_DAILY,
   dailyBonusXp,
@@ -159,5 +162,12 @@ describe('the daily streak', () => {
     expect(parseDailyRecord(null)).toBe(NO_DAILY)
     expect(parseDailyRecord({ day: '2026-02-30', streak: 4 })).toBe(NO_DAILY)
     expect(parseDailyRecord({ day: '2026-10-13', streak: -3, best: 'x' })).toMatchObject({ streak: 1, best: 1 })
+  })
+})
+
+describe('the daily on the home screen', () => {
+  it('waits for level five', () => {
+    expect(dailyOpen({ xp: xpForLevel(DAILY_MIN_LEVEL) - 1 })).toBe(false)
+    expect(dailyOpen({ xp: xpForLevel(DAILY_MIN_LEVEL) })).toBe(true)
   })
 })

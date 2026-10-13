@@ -153,7 +153,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
         key={round}
         offer={profile.offer}
         lang={lang}
-        owed={picksOwed(profile, summary.isModerator)}
+        owed={picksOwed(profile, summary.isModerator, host.levelBonuses)}
         level={levelled ? levelFor(profile.xp) : null}
         withAd={adsSupported() && pickShowsAd(profile)}
         onChoose={(id) => {
@@ -185,12 +185,12 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
       />
     )
   }
-  if (profile.bonusOffer.length > 0 || celebrating === 'bonus') {
+  if ((host.levelBonuses && profile.bonusOffer.length > 0) || celebrating === 'bonus') {
     return (
       <BonusOfferScreen
         key={`bonus-${round}`}
         offer={profile.bonusOffer}
-        owed={bonusesOwed(profile, summary.isModerator)}
+        owed={bonusesOwed(profile, summary.isModerator, host.levelBonuses)}
         level={levelled ? levelFor(profile.xp) : null}
         profile={profile}
         onChoose={(id) => {

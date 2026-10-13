@@ -35,6 +35,8 @@ export interface Host {
    */
   premiumStore: boolean
   rewardedAds: boolean
+  /** Some levels pay a bonus (`src/domain/bonus.ts`); false: every level pays a power or a category. */
+  levelBonuses: boolean
   /** Every hidden answer of the summary can be uncovered: neither an ad nor Premium pays for more here. */
   unlimitedReveals: boolean
   /** In a run (countdown, clock, first lesson) or not; only the changes matter. */

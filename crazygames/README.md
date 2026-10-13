@@ -57,7 +57,8 @@ le 2026-10-08.
   cachés du bilan, l'avatar, les succès, les statistiques, les options.
 - **Fonctionnalités ouvertes** (`crazyGamesHost.openedFeatures`), quoi que
   disent les valeurs du code, encore réservées aux super modérateurs sur
-  Android : le **défi du jour** (`daily`, `src/domain/daily.ts`) — même graine
+  Android : le **défi du jour** (`daily`, `src/domain/daily.ts`), à partir du
+  niveau 5 (`dailyOpen`) — même graine
   et mêmes catégories pour tous à la date du joueur, une partie comptée par
   jour, et une série qui paie 40 XP de plus par jour, cinq au plus —, le
   **défi du moment** (`weekly`), que l'app ouvre à tout le monde et qui tient
@@ -95,6 +96,10 @@ le 2026-10-08.
   la pub, ou son erreur (y compris bloqueur de pub), au plus 60 s. Le son est
   coupé seulement pendant que la pub joue (`adStarted` → `adFinished`/`adError`).
   En Basic Launch, le portail n'affiche aucune pub : l'appel ne coûte rien.
+- **Un pouvoir ou une catégorie à chaque niveau** (`crazyGamesHost.levelBonuses`
+  à false) : les niveaux qui paient un bonus ailleurs (`bonusLevels`) paient
+  ici une catégorie, et le second emplacement de pouvoir, qui ne se gagne
+  qu'en bonus, ne s'affiche pas. Les bonus déjà pris restent.
 - **Pub récompensée** (`showRewarded`, `src/platform/crazygames.ts`) : celle du
   SDK, qui paie deux révélations de plus au bilan et la seconde tentative du
   défi du moment, comme AdMob sur Android — la récompense sur `adFinished`

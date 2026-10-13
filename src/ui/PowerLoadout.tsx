@@ -9,6 +9,7 @@ import { onTint, POWER_TINTS, powerGround } from './motifs'
 import { PowerIcon } from './PowerIcon'
 import { SlotIcon } from './premium'
 import { useBackDismiss } from './useBackDismiss'
+import { host } from '../platform'
 
 /**
  * Entre « Jouer » et la partie, pour qui a des pouvoirs : les emplacements en
@@ -86,7 +87,8 @@ export function PowerLoadout({
       <div className="loadout-side">
         <p className="loadout-lead">{text.lead(slots)}</p>
         <div className="loadout-slots">
-          {Array.from({ length: MAX_EQUIPPED }, (_, slot) => {
+          {/* Sans bonus de niveau, l'emplacement verrouillé ne promettrait rien : il ne se montre pas. */}
+          {Array.from({ length: host.levelBonuses ? MAX_EQUIPPED : slots }, (_, slot) => {
             const id = worn[slot] ?? null
             if (slot >= slots) {
               return (

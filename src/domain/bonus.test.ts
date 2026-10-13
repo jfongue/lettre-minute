@@ -64,6 +64,15 @@ describe('bonus levels', () => {
     expect(picksOwed(short)).toBe(FIRST_BONUS - 1 - powersEarnedAt(FIRST_BONUS) - 2)
   })
 
+  it('turn back into categories where the version pays no bonus', () => {
+    // Every level pays something the player plays with: the bonus level owes its category.
+    const first = diligent(FIRST_BONUS)
+    expect(bonusesOwed(first, false, false)).toBe(0)
+    expect(picksOwed(first, false, false)).toBe(1)
+    // A bonus already taken keeps the level it paid.
+    expect(picksOwed({ ...first, bonuses: ['filter'] }, false, false)).toBe(0)
+  })
+
   it('count two bonus levels three levels later', () => {
     const level = FIRST_BONUS + BONUS_EVERY_LEVELS
     expect(bonusLevels(diligent(level))).toBe(2)

@@ -413,6 +413,9 @@ export const crazyGamesHost: Host = {
   keepsProgress: true,
   premiumStore: false,
   rewardedAds: REWARDED,
+  // Each level of a portal game pays something the player plays with: a
+  // power or a category, never a bonus to read about.
+  levelBonuses: false,
   // Until the portal allows the ad that pays for them, the reveals are free.
   unlimitedReveals: !REWARDED,
   setGameplay,

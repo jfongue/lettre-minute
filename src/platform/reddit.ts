@@ -15,6 +15,7 @@ export const redditHost: Host = {
   keepsProgress: true,
   premiumStore: false,
   rewardedAds: false,
+  levelBonuses: true,
   unlimitedReveals: false,
   ...quiet,
 }

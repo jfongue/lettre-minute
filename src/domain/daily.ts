@@ -2,6 +2,7 @@ import type { ChallengeWord } from './challenge'
 import type { RarityTier } from './rarity'
 import { RUN_SECONDS } from './run'
 import { MAX_CATEGORIES_PER_RUN, dealLineup } from './unlocks'
+import { levelFor, type Profile } from './progression'
 
 /**
  * The daily puzzle, as a Reddit post plays it: one seed per calendar day, the
@@ -158,6 +159,16 @@ export interface DailyRecord {
   score: number
   /** Days played, in a row or not. */
   played: number
+}
+
+/**
+ * The daily waits for a player who knows the game: before this level the
+ * home screen keeps « Play » to itself, and the first levels come from runs.
+ */
+export const DAILY_MIN_LEVEL = 5
+
+export function dailyOpen(profile: Pick<Profile, 'xp'>): boolean {
+  return levelFor(profile.xp) >= DAILY_MIN_LEVEL
 }
 
 export const NO_DAILY: DailyRecord = { day: null, streak: 0, best: 0, score: 0, played: 0 }

@@ -91,7 +91,7 @@ import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSecond
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
 import { DAMPED_WORDS } from './data/damped-words'
 import { sharedCategoryIds } from './domain/catalogue'
-import { dailyBonusXp, dailyLineup, dailyNumber, dailySeed, streakAfter } from './domain/daily'
+import { dailyBonusXp, dailyLineup, dailyNumber, dailyOpen, dailySeed, streakAfter } from './domain/daily'
 import { loadDaily, localDay, saveDailyRun } from './state/daily'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { compactWord, normalizeWord } from './domain/text'
@@ -880,7 +880,7 @@ setStartedAt((at) => at ?? Date.now())
   // A pick owed and no offer on the table — after a level up, or on a device
   // that has never seen this player's picks — deals three categories to choose from.
   useEffect(() => {
-    dispatch({ type: 'offer', availableIds: availableCategoryIds(lang), seed: Date.now() >>> 0, isModerator: moderation?.moderator === true })
+    dispatch({ type: 'offer', availableIds: availableCategoryIds(lang), seed: Date.now() >>> 0, isModerator: moderation?.moderator === true, bonuses: host.levelBonuses })
   }, [session.profile, lang, moderation?.moderator])
 
   // Loading an ad takes seconds, consent included: started once the free pick
@@ -1915,8 +1915,8 @@ setStartedAt((at) => at ?? Date.now())
           multiplayerNews={multiplayerNews}
           weekly={weeklyFlow.card}
           daily={
-            // Après la première partie seulement : un nouveau venu n'a que « Jouer » devant lui.
-            on('daily') && session.profile.runs > 0 ? (
+            // À partir du niveau 5 seulement (`dailyOpen`) : avant, l'accueil n'a que « Jouer ».
+            on('daily') && dailyOpen(session.profile) ? (
               <DailyCard record={daily} disabled={session.phase === 'loading'} onPlay={() => void playDaily()} />
             ) : null
           }
