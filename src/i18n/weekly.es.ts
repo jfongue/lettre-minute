@@ -45,7 +45,6 @@ export const weeklyEs: WeeklyMessages = {
     refused: 'Hoy no quedan intentos.',
     offline: 'Sin conexión: tus intentos se cuentan en este dispositivo.',
     loading: 'El reto está cargando…',
-    lineup: 'En el programa',
   },
   intro: {
     kicker: 'Este reto',

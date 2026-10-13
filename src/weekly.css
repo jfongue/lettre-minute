@@ -303,17 +303,6 @@
   stroke: var(--ink-faint);
 }
 
-/* « Au programme » et ses catégories, sur une ligne qui se replie. */
-.wk-lineup-label {
-  align-self: center;
-  margin-right: 0.2rem;
-  font-size: var(--font-micro);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--ink-soft);
-}
-
 .wk-heading {
   font-size: 1.3rem;
   font-weight: 800;

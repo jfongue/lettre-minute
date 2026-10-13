@@ -305,7 +305,6 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
           <WeeklyScreen
             mode={challenge.mode}
             closesAt={week.closesAt}
-            lineup={challenge.lineup}
             lang={lang}
             plus={plus}
             adsOpen={rewardedAdsOpen}

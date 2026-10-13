@@ -125,7 +125,6 @@ export function WeeklyScreenScenario({ used, plus, onBack, ads = 0 }: { used: nu
     mode: 'endurance',
     closesAt: WEEK.closesAt,
     now: NOW,
-    lineup: ['animaux', 'pays', 'couleurs', 'metiers', 'sports'],
     status: { used, ads, best: used === 0 ? null : 64.5, rank: used === 0 ? null : 12, players: 342, online: true },
     plus,
     adsOpen: true,

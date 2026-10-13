@@ -45,7 +45,6 @@ export const weeklyPt: WeeklyMessages = {
     refused: 'Hoje já não tens tentativas.',
     offline: 'Sem ligação: as tuas tentativas contam-se neste dispositivo.',
     loading: 'O desafio está a carregar…',
-    lineup: 'No programa',
   },
   intro: {
     kicker: 'Este desafio',

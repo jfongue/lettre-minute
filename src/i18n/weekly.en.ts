@@ -51,7 +51,6 @@ export const weeklyEn: WeeklyMessages = {
     refused: 'No attempts left for today.',
     offline: 'Offline: your attempts are counted on this device.',
     loading: 'The challenge is loading…',
-    lineup: 'On the menu',
   },
   intro: {
     kicker: 'This challenge',

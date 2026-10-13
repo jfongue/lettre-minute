@@ -60,7 +60,6 @@ export const weeklyFr = {
     refused: 'Plus de tentative disponible pour aujourd’hui.',
     offline: 'Hors ligne : tes tentatives sont comptées sur cet appareil.',
     loading: 'Le défi arrive…',
-    lineup: 'Au programme',
   },
   intro: {
     kicker: 'Ce défi',

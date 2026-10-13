@@ -45,7 +45,6 @@ export const weeklyNl: WeeklyMessages = {
     refused: 'Vandaag geen pogingen meer.',
     offline: 'Offline: je pogingen worden op dit apparaat geteld.',
     loading: 'De uitdaging laadt…',
-    lineup: 'Op het programma',
   },
   intro: {
     kicker: 'Deze uitdaging',

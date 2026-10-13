@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type CSSProperties } from 'react'
-import { categoryText, useT } from '../i18n'
+import { useT } from '../i18n'
 import type { GameMode } from '../domain/modes'
 import { attemptState, attemptsAllowed, metricOf, type AttemptSlot, type WeeklyMetric } from '../domain/weekly'
 import { sound } from '../lib/sound'
@@ -16,7 +16,6 @@ export interface WeeklyViewProps {
   closesAt: number
   /** Fixée par la planche debug ; sinon l'horloge. */
   now?: number
-  lineup: readonly string[]
   /** Null tant que le serveur n'a pas répondu. */
   status: Pick<WeeklyStatus, 'used' | 'ads' | 'best' | 'rank' | 'players' | 'online'> | null
   plus: boolean
@@ -48,7 +47,6 @@ export function WeeklyView({
   mode,
   closesAt,
   now,
-  lineup,
   status,
   plus,
   adsOpen,
@@ -173,17 +171,6 @@ export function WeeklyView({
         </section>
       )}
 
-      {lineup.length > 0 && (
-        <p className="challenge-lineup">
-          <span className="wk-lineup-label">{t.weekly.screen.lineup}</span>
-          {lineup.map((id) => (
-            <span key={id} className="tag tag--plain">
-              {categoryText(t, id).label}
-            </span>
-          ))}
-        </p>
-      )}
-
       <div className="wk-links">
         <button type="button" className="btn btn--ghost btn--block" onClick={onResults}>
           {t.weekly.screen.results}
@@ -217,7 +204,6 @@ export function WeeklyView({
 export function WeeklyScreen({
   mode,
   closesAt,
-  lineup,
   lang,
   plus,
   adsOpen,
@@ -252,7 +238,6 @@ export function WeeklyScreen({
     <WeeklyView
       mode={mode}
       closesAt={closesAt}
-      lineup={lineup}
       status={status}
       plus={plus}
       adsOpen={adsOpen}

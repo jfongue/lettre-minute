@@ -45,7 +45,6 @@ export const weeklyIt: WeeklyMessages = {
     refused: 'Oggi non hai più tentativi.',
     offline: 'Offline: i tuoi tentativi sono contati su questo dispositivo.',
     loading: 'La sfida si sta caricando…',
-    lineup: 'In programma',
   },
   intro: {
     kicker: 'Questa sfida',
