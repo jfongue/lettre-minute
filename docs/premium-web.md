@@ -2,7 +2,7 @@
 
 Le code est prêt : la page web ouvre le paiement du marchand
 (`premium-checkout`), le marchand rappelle le serveur (`premium-webhook`), et
-l'achat se range dans `purchases` (0066) sous le compte du joueur. Rien ne
+l'achat se range dans `purchases` (0069) sous le compte du joueur. Rien ne
 facture tant que les secrets et `VITE_PREMIUM_WEB` ne sont pas posés : sans
 eux, la feuille Premium reste celle du téléphone et le web garde le Premium
 gratuit actuel.
@@ -50,7 +50,7 @@ l'étape 4 et recopié ici à l'identique.
 ## 3. Base et fonctions (rien n'est appliqué)
 
 ```
-supabase db push --linked --dry-run   # doit lister 0066
+supabase db push --linked --dry-run   # doit lister 0069
 supabase db push --linked --yes
 supabase functions deploy premium-checkout
 supabase functions deploy premium-webhook --no-verify-jwt

@@ -1850,7 +1850,7 @@ export function webCheckoutReady(): Promise<boolean> {
 /**
  * Opens a checkout at the merchant for this account and hands back the page to
  * send the player to. The account rides in the order's custom data, which is
- * how `premium-webhook` knows whom to credit (0066). Null without a session or
+ * how `premium-webhook` knows whom to credit (0069). Null without a session or
  * an answer: a purchase nobody could be credited for is worse than none.
  */
 export function openWebCheckout(product: string): Promise<string | null> {

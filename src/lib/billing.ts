@@ -5,7 +5,7 @@ import { billingSupported, prepareRewardedAd, showRewardedAd, storeBuy, storeOwn
 /**
  * Premium's real purchase and the rewarded ads. The phone buys through Play
  * Billing; the web page, which has no store, opens the merchant's own checkout
- * and lets its webhook credit the account (0066, `docs/premium-web.md`). Like
+ * and lets its webhook credit the account (0069, `docs/premium-web.md`). Like
  * `native.ts` and `cloud.ts`, nothing here throws: a store that fails costs the
  * offer, never a run. The game keeps no entitlement of its own — the caller
  * stores `plusSince` on a `true`/`'ok'`, and the server's copy (`my_premium`)

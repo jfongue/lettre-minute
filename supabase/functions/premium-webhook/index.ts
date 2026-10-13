@@ -1,5 +1,5 @@
 // Where Lemon Squeezy's orders land. A signed `order_created` records the
-// purchase in `purchases` (0066) for the account the checkout put in its
+// purchase in `purchases` (0069) for the account the checkout put in its
 // custom data; a signed `order_refunded` marks it refused, and the account
 // loses Premium on its next read of `my_premium`.
 //
