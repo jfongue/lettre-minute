@@ -399,6 +399,7 @@ describe('celerityDue', () => {
       approximate: edits > 0,
       edits,
       joker: false,
+      taught: false,
       boost: 1,
     },
   })

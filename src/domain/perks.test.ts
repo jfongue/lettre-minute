@@ -21,6 +21,7 @@ import {
   revealsLeft,
   spendReveal,
   hiddenAnswers,
+  learnFromProfessor,
   joinPlus,
   markBanIntroSeen,
   markFeedbackAsked,
@@ -246,6 +247,42 @@ describe('hiddenAnswers', () => {
     expect(asked).toEqual([true])
   })
 
+})
+
+describe('learnFromProfessor', () => {
+const pack = buildWordPack(
+'animaux',
+[['Achat', 90, 1] as const],
+)
+const judge: Judge = {
+find: (_, word) => findWord(pack, word),
+usage: () => NO_USAGE,
+known: () => 2,
+letters: () => lettersWithEnough(pack, 1),
+common: (_, letter, played) => commonWord(pack, letter, played),
+}
+const professing = createRun({ seed: 1, categoryIds: ['animaux'], powers: ['professor'] }, judge)
+
+it('marque le mot repris, qui compte une fois, sans changer ce qu’il paie', () => {
+const plain = submit(professing, 'Achat', judge, 3)
+const marked = submit({ ...professing, taught: ['achat'] }, 'Achat', judge, 3)
+
+expect(marked.verdict.found!.taught).toBe(true)
+expect(plain.verdict.found!.taught).toBe(false)
+expect(marked.verdict.found!.points).toBe(plain.verdict.found!.points)
+
+const learned = learnFromProfessor(NEW_PROFILE, marked.run, judge)
+expect(learned.professorWordsPlayed).toBe(1)
+expect(learned.professorWords).toEqual([])
+})
+
+it('ne retient que ce que le Professeur a proposé', () => {
+const without = createRun({ seed: 1, categoryIds: ['animaux'] }, judge)
+const learned = learnFromProfessor(NEW_PROFILE, skip(without, judge), judge)
+
+expect(learned.professorWords).toEqual([])
+expect(learned.professorWordsPlayed).toBe(0)
+})
 })
 
 describe('shareNewsDue', () => {

@@ -583,19 +583,19 @@ doubleSkipFree: 'Doppelsprung · kostenlos überspringen',
     giftOk: 'Danke!',
     names: {
       permutation: ['Tausch', 'Beim Start tippst du auf ein Thema, um es gegen eines aus deiner Reserve zu tauschen. Zweimal.'],
-      joker: ['Schummeln', 'Einmal pro Partie „Joker“ tippen und bestätigen: Das Spiel schreibt ein richtiges Wort für dich.'],
+      joker: ['Schummeln', 'Einmal pro Partie „Joker“ tippen: Das Spiel schreibt ein richtiges Wort für dich.'],
       dodge: ['Ausweichen', 'Überspringen kostet nur 3 statt 5 Sekunden.'],
-      magic: ['Magie', 'Zweimal pro Partie auf den Buchstaben tippen, um einen anderen zu ziehen.'],
+      magic: ['Magie', 'Zweimal pro Partie auf den Buchstaben tippen, um ihn zu übergehen.'],
       hush: ['Stille', 'Einmal pro Partie „pst“ tippen: Die Uhr steht bis zu deinem nächsten Wort, höchstens zehn Sekunden.'],
-      dyslexia: ['Legasthenie', 'Zwei Fehler gehen durch bei Wörtern ab sechs Buchstaben.'],
+      dyslexia: ['Legasthenie', 'Mehr Spielraum bei Rechtschreibfehlern.'],
       divination: ['Weissagung', 'Du siehst das nächste Thema und den nächsten Buchstaben.'],
-      complication: ['Risiko', 'Ungewöhnliche Wörter zählen ×1,15, seltene ×1,3.'],
-      celerity: ['Schnelligkeit', 'Ein Wort bestätigt sich selbst, ohne Enter – auch mit einem Tippfehler.'],
-      professor: ['Professor', 'Die am Ende vorgeschlagenen Wörter sind ungewöhnlich: möglichst noch nie gesagt, manchmal selten.'],
+      complication: ['Risiko', 'Ungewöhnliche Wörter zählen mehr, seltene noch mehr.'],
+      celerity: ['Schnelligkeit', 'Ein Wort bestätigt sich schnell von selbst, ohne Enter. Auch mit einem Tippfehler.'],
+      professor: ['Professor', 'Die am Ende vorgeschlagenen Wörter sind (sehr) selten.'],
       chatter: ['Geplapper', 'Einmal pro Partie „...“ an ein Wort hängen: Buchstabe und Thema bleiben für drei weitere Wörter.'],
 latecomer: ['Auf den letzten Drücker', 'In den letzten 5 Sekunden ein Wort bestätigen: 1 Sekunde dazu, bis zu 5 Sekunden pro Partie.'],
-'double-skip': ['Doppelsprung', 'Nach einem normalen Überspringen sofort das nächste Thema überspringen, ohne Zeit oder Serie zu verlieren. Einmal pro Partie.'],
-flawless: ['Fehlerfrei', 'Je drei fehlerfrei eingegebene Wörter bringen sofort 10 Bonuspunkte.'],
+'double-skip': ['Doppelsprung', 'Nach dem Überspringen sofort weiter, ohne Kosten.'],
+flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort 30 Bonuspunkte.'],
 
     },
     spells: { joker: ['joker'], hush: ['pst', 'psst', 'pscht'] },
@@ -1160,6 +1160,8 @@ case 'powersUsed':
 return `${at} verschiedene Kräfte`
 case 'playedCategories':
 return `ein Wort in ${at} Kategorien`
+case 'professorWordsPlayed':
+return `${at} ${plural(goal.at, 'vom Professor übernommenes Wort', 'vom Professor übernommene Wörter')}`
 }
 },
     families: {
@@ -1204,6 +1206,7 @@ return `ein Wort in ${at} Kategorien`
       'powers-7': { name: 'Bastler', desc: 'Setze sieben verschiedene Kräfte ein' },
       'powers-all': { name: 'Alle Kräfte', desc: 'Setze alle vierzehn Kräfte ein' },
       'categories-12': { name: 'Weltenbummler', desc: 'Finde ein Wort in zwölf Kategorien' },
+      'professor-word': { name: 'Musterschüler', desc: 'Spiele ein vom Professor vorgeschlagenes Wort' },
     } satisfies Record<string, { name: string; desc: string }>),
   },
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { CHATTER_WORDS, POWER_CHARGES } from '../domain/powers'
+import { CHATTER_WORDS, FLAWLESS_POINTS, FLAWLESS_STREAK, POWER_CHARGES } from '../domain/powers'
 import { answerPrompt, celerityDue, chargesLeft, hasPower, runScore, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
 import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RECALL_SECONDS, modeEdge } from '../domain/modes'
 import { capitalized, compactWord, normalizeWord } from '../domain/text'
@@ -400,7 +400,7 @@ else if (doubleSkip) sound.power('double-skip')
         <div aria-live="polite">
           <Feedback
             endurance={endurance}
-            flawlessTriggered={flawless && run.flawlessStreak > 0 && run.flawlessStreak % 3 === 0}
+            flawlessTriggered={flawless && run.flawlessStreak > 0 && run.flawlessStreak % FLAWLESS_STREAK === 0}
             live={live}
             cheer={cheer}
             shaking={shaking}
@@ -499,14 +499,15 @@ flawlessTriggered: boolean
   const refused = live !== null && (live.kind === 'wrong-letter' || live.kind === 'already' || live.kind === 'unknown')
   const refusedMark = <span aria-hidden="true">✗ </span>
   const cheerLine = (shown: Cheer) => (
-    <p className={`cheer verdict${shown.auto ? ' cheer--auto' : ''}${shown.boost > 1 ? ' cheer--boost' : ''}`} key={shown.display}>
+    <p className={`cheer verdict${shown.auto ? ' cheer--auto' : ''}${shown.boost > 1 ? ' cheer--boost' : ''}${shown.taught ? ' cheer--taught' : ''}`} key={shown.display}>
       {shown.auto && <PowerBadge id="celerity" className="cheer-power" />}
       {shown.joker && <PowerBadge id="joker" className="cheer-power" />}
+      {shown.taught && <PowerBadge id="professor" className="cheer-power" />}
       {shown.approximate && <span aria-hidden="true">≈ </span>}
       <span className="cheer-word">{capitalized(shown.display)}</span>
       {ours(shown.display) && <MineMark label={t.requests.mine} />}
       <span className="cheer-points">
-        {endurance ? t.weekly.run.bonus(ENDURANCE_TIME_BONUS[shown.tier]) : `+${shown.points + (flawlessTriggered ? 10 : 0)}`}
+        {endurance ? t.weekly.run.bonus(ENDURANCE_TIME_BONUS[shown.tier]) : `+${shown.points + (flawlessTriggered ? FLAWLESS_POINTS : 0)}`}
       </span>
       {flawlessTriggered && <PowerBadge id="flawless" className="cheer-power" />}
       {shown.joker ? (
@@ -573,6 +574,13 @@ flawlessTriggered: boolean
           <p className="verdict verdict--valid verdict--chatter">
             <PowerBadge id="chatter" /> {capitalized(live.found?.display ?? '')} · {t.powers.castChatter}
             {ours(live.found?.display) && <MineMark label={t.requests.mine} />}
+          </p>
+        )
+      if (live.found?.taught)
+        return (
+          <p className="verdict verdict--valid verdict--taught">
+            <PowerBadge id="professor" /> {capitalized(live.found.display)}
+            {ours(live.found.display) && <MineMark label={t.requests.mine} />}
           </p>
         )
       return (

@@ -585,19 +585,19 @@ doubleSkipFree: 'Doppio salto · passaggio gratuito',
     giftOk: 'Grazie!',
     names: {
       permutation: ['Scambio', 'Alla partenza, tocca un tema per scambiarlo con uno della tua riserva. Due volte.'],
-      joker: ['Imbroglio', 'Una volta per partita, scrivi «Joker» e conferma: il gioco scrive per te una parola giusta.'],
+      joker: ['Imbroglio', 'Una volta per partita, scrivi «Joker»: il gioco scrive per te una parola giusta.'],
       dodge: ['Schivata', 'Passare costa solo 3 secondi invece di 5.'],
-      magic: ['Magia', 'Due volte per partita, tocca la lettera per pescarne un’altra.'],
+      magic: ['Magia', 'Due volte per partita, tocca la lettera per ignorarla.'],
       hush: ['Silenzio', 'Una volta per partita, scrivi «zitto»: il cronometro si ferma fino alla tua prossima parola, dieci secondi al massimo.'],
-      dyslexia: ['Dislessia', 'Due errori passano sulle parole di sei lettere o più.'],
+      dyslexia: ['Dislessia', 'Più margine sugli errori di ortografia.'],
       divination: ['Divinazione', 'Vedi il tema e la lettera che vengono dopo.'],
-      complication: ['Rischio', 'Le parole poco comuni valgono ×1,15, le rare ×1,3.'],
-      celerity: ['Celerità', 'Una parola si conferma da sola, senza premere Invio, anche con un refuso.'],
-      professor: ['Professore', 'Le parole suggerite a fine partita sono poco comuni: mai dette se possibile, a volte rare.'],
+      complication: ['Rischio', 'Le parole poco comuni valgono di più, le rare ancora di più.'],
+      celerity: ['Celerità', 'Una parola si conferma in fretta da sola, senza premere Invio. Anche con un refuso.'],
+      professor: ['Professore', 'Le parole suggerite a fine partita sono (molto) rare.'],
       chatter: ['Chiacchiera', 'Una volta per partita, aggiungi «...» a una parola: lettera e tema restano per altre tre parole.'],
 latecomer: ['All’ultimo secondo', 'Convalida una parola negli ultimi 5 secondi: guadagni 1 secondo, fino a 5 a partita.'],
-'double-skip': ['Doppio salto', 'Dopo un normale salto, salta subito il tema successivo senza perdere tempo o serie. Una volta a partita.'],
-flawless: ['Senza errori', 'Ogni tre parole valide digitate senza errori danno subito 10 punti bonus.'],
+'double-skip': ['Doppio salto', 'Dopo un salto, salta subito senza costo.'],
+flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno subito 30 punti bonus.'],
 
     },
     spells: { joker: ['joker', 'jolly'], hush: ['zitto', 'shh', 'ssst'] },
@@ -1162,6 +1162,8 @@ case 'powersUsed':
 return `${at} poteri diversi`
 case 'playedCategories':
 return `una parola in ${at} categorie`
+case 'professorWordsPlayed':
+return `${at} ${plural(goal.at, 'parola del Professore giocata', 'parole del Professore giocate')}`
 }
 },
     families: {
@@ -1206,6 +1208,7 @@ return `una parola in ${at} categorie`
       'powers-7': { name: 'Mani abili', desc: 'Usa sette poteri diversi' },
       'powers-all': { name: 'Tutti i poteri', desc: 'Usa i quattordici poteri' },
       'categories-12': { name: 'Giramondo', desc: 'Trova una parola in dodici categorie' },
+      'professor-word': { name: 'Secchione', desc: 'Gioca una parola suggerita dal Professore' },
     } satisfies Record<string, { name: string; desc: string }>),
   },
 
