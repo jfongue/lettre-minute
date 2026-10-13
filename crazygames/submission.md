@@ -77,6 +77,7 @@ Brain, Vocabulary, Educational, Casual, Time Management, 1 Player, Mobile
 | In-game purchases | None |
 | Ads | Midgame only, through the SDK (inactive in Basic Launch); no rewarded ads |
 | Uses accounts / username | No |
+| Leaderboards | One weekly POINTS board through the SDK (`user.submitScore`, score encrypted client-side, ranked by CrazyGames' back-end) — the portal opens leaderboards to invited games only |
 | Release date / previously published | Not yet released as a web game on another portal |
 | Developer / contact | Demontoon — fongue.jeremy@gmail.com |
 
@@ -112,4 +113,5 @@ portrait cover drawn at 1.35×. No fast-forward, no black frames, no cursor.
 ## Step 4 — Submit
 
 Nothing else to prepare. After a Basic Launch, a Full Launch would only need
-the Data module confirmed and, if wanted, rewarded ads (none are offered yet).
+the Data module confirmed, the weekly leaderboard enabled (invitation-only on
+CrazyGames' side) and, if wanted, rewarded ads (none are offered yet).

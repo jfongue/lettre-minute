@@ -35,7 +35,12 @@ interface CrazySdk {
     setItem(key: string, value: string): void
     removeItem(key: string): void
   }
-  user?: { systemInfo?: { locale?: string } }
+  user?: {
+    systemInfo?: { locale?: string }
+    /** False where the page is embedded by anyone but the portal. */
+    isUserAccountAvailable?: boolean
+    submitScore?(score: { encryptedScore: string; score: number }): void
+  }
 }
 
 declare global {
@@ -137,6 +142,42 @@ function setGameplay(on: boolean): void {
 /** A new record: the portal's celebration, kept for the rare moment it is. */
 function happytime(): void {
   safely((s) => s.game.happytime())
+}
+
+/**
+ * The portal's leaderboard wants the score encrypted with a key its own
+ * settings generate: AES-GCM, the IV in front of the ciphertext, the whole
+ * thing base64. Kept as the portal's snippet writes it, so a score it decrypts
+ * is a score it ranks.
+ */
+export async function encryptScore(score: number, key: string): Promise<string> {
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const algorithm = { name: 'AES-GCM', iv }
+  const keyBytes = Uint8Array.from(atob(key), (character) => character.charCodeAt(0))
+  const cryptoKey = await crypto.subtle.importKey('raw', keyBytes, algorithm, false, ['encrypt'])
+  const cipher = new Uint8Array(await crypto.subtle.encrypt(algorithm, cryptoKey, new TextEncoder().encode(String(score))))
+  const combined = new Uint8Array(iv.length + cipher.length)
+  combined.set(iv)
+  combined.set(cipher, iv.length)
+  return btoa(String.fromCharCode(...combined))
+}
+
+/**
+ * A run's points, for the portal's own board — one per game, a weekly season,
+ * ranked by the portal (`crazygames/README.md`). Nothing without the key its
+ * settings generated (`VITE_CRAZYGAMES_LEADERBOARD_KEY`), nothing for a player
+ * the portal does not rank, and a refusal costs a rank rather than a run.
+ */
+function submitScore(score: number): void {
+  const key = import.meta.env.VITE_CRAZYGAMES_LEADERBOARD_KEY
+  const portal = sdk?.user
+  if (!portal?.submitScore || portal.isUserAccountAvailable === false || !key) return
+  const submit = portal.submitScore.bind(portal)
+  encryptScore(score, key)
+    .then((encryptedScore) => submit({ encryptedScore, score }))
+    .catch(() => {
+      /* a score the portal refuses costs a rank, never the run that made it */
+    })
 }
 
 /** The portal's language first (`en-US`), then the browser's. */
@@ -332,6 +373,7 @@ export const crazyGamesHost: Host = {
   rewardedAds: false,
   setGameplay,
   celebrate: happytime,
+  submitScore,
   breakBetweenRuns,
   onMute: onPlatformMute,
 }

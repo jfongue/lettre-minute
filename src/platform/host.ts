@@ -39,6 +39,8 @@ export interface Host {
   setGameplay(on: boolean): void
   /** A run that beats a record the player already had. */
   celebrate(): void
+  /** A run's points, for the host's own board (the portal's weekly one); nothing on Android, the web or Reddit. */
+  submitScore(score: number): void
   /** The host's break before a new run (an ad); resolves once it is over, failed or skipped. */
   breakBetweenRuns(): Promise<void>
   /** Called with true while the host wants silence — its own mute, an ad — and false once it lets go. */
@@ -84,6 +86,7 @@ export const APP_ONLY_FEATURES: readonly FeatureId[] = [
 export const quiet = {
   setGameplay(): void {},
   celebrate(): void {},
+  submitScore(): void {},
   breakBetweenRuns: (): Promise<void> => Promise.resolve(),
   onMute(): void {},
 }

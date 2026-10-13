@@ -44,11 +44,11 @@ le 2026-10-08.
   formulaire, aucune donnée personnelle envoyée hors du SDK (donc pas de
   politique de confidentialité à afficher), aucun appel réseau qui pourrait
   échouer ou ralentir le jeu dans l'iframe. `cloud.ts` répond déjà par ses
-  replis. Le prix : pas de classements, de rareté de la foule ni de mots
+  replis. Le prix : pas de classements du jeu, de rareté de la foule ni de mots
   proposés — qui demanderaient d'ailleurs, pour une Full Launch, de lier nos
   comptes à ceux de CrazyGames (module User + vérification du JWT côté serveur).
 - **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit `SERVER_FEATURES` et `APP_ONLY_FEATURES` de `src/platform/host.ts`) : défis, duel, amis,
-  invitations, face-à-face, réactions, classements, Premium (faux paiement),
+  invitations, face-à-face, réactions, classements du jeu, Premium (faux paiement),
   modes de jeu, propositions de mots et modération, boîte à idées, question
   d'avis, demande de note, notifications, mise à jour du store, Play Games,
   pubs AdMob, outils de développeur. Le bouton « Partager — bientôt » (bouton mort, fonctionnalité `share`)
@@ -80,6 +80,15 @@ le 2026-10-08.
   à rebours, pendant la partie et pendant la leçon du premier lancement ;
   `gameplayStop` dès qu'on en sort. `happytime` quand une partie bat un record
   qui existait déjà.
+- **Classement du portail** : à la fin de chaque partie, `user.submitScore`
+  envoie les points, en clair et chiffrés (AES-GCM, IV de 12 octets devant,
+  base64 ; `encryptScore`, `src/platform/crazygames.ts`), avec la clé que les
+  réglages du classement génèrent (`VITE_CRAZYGAMES_LEADERBOARD_KEY`). Sans
+  cette clé, ou pour un joueur que le portail ne classe pas, rien ne part, et un
+  refus ne coûte qu'un rang. Le portail tient un seul tableau par jeu, une
+  saison lundi → lundi 9 h UTC, et valide les scores de son côté. La
+  fonctionnalité est réservée aux jeux invités : à demander sur le portail
+  développeur. Les tableaux du jeu (jour, semaine, rareté) restent fermés ici.
 - **Pub midgame** : demandée à « Rejouer » / « Jouer » s'il s'est terminé une
   partie depuis la précédente (`breakBetweenRuns`) ; le SDK refuse lui-même
   une pub à moins de 3 min de la dernière. La partie suivante attend la fin de
