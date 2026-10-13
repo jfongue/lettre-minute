@@ -59,7 +59,6 @@ async function checkout(request: Request): Promise<Response> {
         },
         product_options: {
           redirect_url: Deno.env.get('PREMIUM_REDIRECT_URL') ?? DEFAULT_REDIRECT,
-          enabled: true,
         },
         checkout_options: { embed: false, media: false, logo: true },
         expires_at: null,
@@ -82,8 +81,12 @@ async function checkout(request: Request): Promise<Response> {
     body: JSON.stringify(body),
   })
   if (!response.ok) {
-    console.warn(`checkout ${response.status}`)
-    return Response.json({ error: 'checkout failed' }, { status: 502 })
+    // The merchant's own reason (a refused field, a variant not on sale) is the
+    // only clue the page can show; it names nothing of the account.
+    const refusal = await response.json().catch(() => null)
+    const detail = refusal?.errors?.[0]?.detail ?? `status ${response.status}`
+    console.warn(`checkout ${response.status}: ${detail}`)
+    return Response.json({ error: 'checkout failed', detail }, { status: 502 })
   }
 
   const checkout = await response.json().catch(() => null)
