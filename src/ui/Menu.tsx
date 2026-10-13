@@ -276,6 +276,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
           {sub === 'boards' && (
             <LeaderboardsPage
               named={Boolean(props.account && !props.account.anonymous)}
+              moderator={props.moderation?.moderator ?? false}
               family={boardFamily}
               onFamily={setBoardFamily}
               advanced={props.advancedBoards}

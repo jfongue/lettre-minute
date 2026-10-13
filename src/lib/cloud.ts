@@ -588,6 +588,14 @@ export function castVote(
   }, 'unreachable')
 }
 
+/** Une session de modération terminée (0068) : le classement des sessions la compte. */
+export function reportModerationSession(): Promise<void> {
+  return guard(async () => {
+    await supabase!.rpc('report_moderation_session')
+    return undefined
+  }, undefined)
+}
+
 /** False when the offer had expired, or when an anonymous player tried to accept it. */
 export function answerModeratorOffer(reason: ModeratorOfferReason, accept: boolean): Promise<boolean> {
   return guard(async () => {

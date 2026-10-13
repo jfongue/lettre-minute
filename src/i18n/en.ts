@@ -228,6 +228,7 @@ export const en: Messages = {
       discoveries: { label: 'Discoveries', caption: 'Words nobody had written for a week', unit: (count) => plural(count, 'word', 'words') },
       combo: { label: 'Streak', caption: 'The longest string of words in a row', unit: (count) => plural(count, 'word', 'words') },
       added: { label: 'Words added', caption: 'Words proposed, then approved by the moderators', unit: (count) => plural(count, 'word', 'words') },
+      moderation: { label: 'Moderation sessions', caption: 'Queues judged to the end', unit: (count) => plural(count, 'session', 'sessions') },
     },
     empty: { day: 'Nobody on it yet today.', week: 'Nobody on it yet this week.', all: 'Nobody on it yet.' },
     offline: 'The leaderboard isn’t answering right now.',

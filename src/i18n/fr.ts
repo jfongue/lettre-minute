@@ -252,6 +252,7 @@ export const fr = {
       discoveries: { label: 'Découvertes', caption: 'Mots que personne n’avait écrits depuis une semaine', unit: (count: number) => plural(count, 'mot', 'mots') },
       combo: { label: 'Série', caption: 'La plus longue série de mots d’affilée', unit: (count: number) => plural(count, 'mot', 'mots') },
       added: { label: 'Mots ajoutés', caption: 'Mots proposés, puis validés par les modérateurs', unit: (count: number) => plural(count, 'mot', 'mots') },
+      moderation: { label: 'Sessions de modération', caption: 'Files de mots jugées jusqu’au bout', unit: (count: number) => plural(count, 'session', 'sessions') },
     } satisfies Record<StatId, LeaderboardText> as Record<StatId, LeaderboardText>,
     empty: { day: 'Personne n’y figure encore aujourd’hui.', week: 'Personne n’y figure encore cette semaine.', all: 'Personne n’y figure encore.' },
     offline: 'Le classement ne répond pas pour l’instant.',

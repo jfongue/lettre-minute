@@ -222,6 +222,7 @@ export const de: Messages = {
       discoveries: { label: 'Entdeckungen', caption: 'Wörter, die seit einer Woche niemand geschrieben hatte', unit: (count) => plural(count, 'Wort', 'Wörter') },
       combo: { label: 'Serie', caption: 'Die längste Serie von Wörtern am Stück', unit: (count) => plural(count, 'Wort', 'Wörter') },
       added: { label: 'Neue Wörter', caption: 'Vorgeschlagen und von den Moderatoren bestätigt', unit: (count) => plural(count, 'Wort', 'Wörter') },
+      moderation: { label: 'Moderationssitzungen', caption: 'Warteschlangen bis zum Ende durchgesehen', unit: (count) => plural(count, 'Sitzung', 'Sitzungen') },
     },
     empty: { day: 'Heute steht noch niemand darauf.', week: 'Diese Woche steht noch niemand darauf.', all: 'Noch steht niemand darauf.' },
     offline: 'Die Rangliste antwortet gerade nicht.',

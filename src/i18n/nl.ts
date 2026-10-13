@@ -222,6 +222,7 @@ export const nl: Messages = {
       discoveries: { label: 'Ontdekkingen', caption: 'Woorden die een week lang niemand had geschreven', unit: (count) => plural(count, 'woord', 'woorden') },
       combo: { label: 'Reeks', caption: 'De langste reeks woorden achter elkaar', unit: (count) => plural(count, 'woord', 'woorden') },
       added: { label: 'Toegevoegde woorden', caption: 'Voorgesteld en goedgekeurd door de moderatoren', unit: (count) => plural(count, 'woord', 'woorden') },
+      moderation: { label: 'Moderatiesessies', caption: 'Wachtrijen helemaal beoordeeld', unit: (count) => plural(count, 'sessie', 'sessies') },
     },
     empty: { day: 'Vandaag staat er nog niemand op.', week: 'Deze week staat er nog niemand op.', all: 'Er staat nog niemand op.' },
     offline: 'Het klassement antwoordt nu niet.',

@@ -432,7 +432,7 @@ function summaryOf(detail: ChallengeDetail): ChallengeSummary {
 // ------------------------------------------------------------ scenarios --
 
 /** Rows per measure: long, past fifty with the player far down, short, empty, and one that does not answer. */
-const LEADERBOARD_SIZES: Record<StatId, number> = { best: 24, points: 60, runs: 5, words: 24, discoveries: 2, combo: 12, added: 0 }
+const LEADERBOARD_SIZES: Record<StatId, number> = { best: 24, points: 60, runs: 5, words: 24, discoveries: 2, combo: 12, added: 0, moderation: 4 }
 
 /** A name past the podium's width: the top 3 must trim it rather than grow a step. */
 const LONG_PLAYER = 'MaximilienDeRobespierre'
@@ -834,10 +834,10 @@ function AvatarScenario() {
   )
 }
 
-function LeaderboardsScenario({ named, mineAt }: { named: boolean; mineAt?: number }) {
+function LeaderboardsScenario({ named, moderator = false, mineAt }: { named: boolean; moderator?: boolean; mineAt?: number }) {
   return (
     <div className="sheet">
-      <LeaderboardsPage named={named} load={(stat, period) => fakeLeaderboard(stat, period, mineAt)} />
+      <LeaderboardsPage named={named} moderator={moderator} load={(stat, period) => fakeLeaderboard(stat, period, mineAt)} />
     </div>
   )
 }
@@ -2261,9 +2261,9 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'leaderboards',
     group: 'Accueil',
     title: 'Page des classements',
-    how: 'Sept mesures, jour / semaine / total : « Points » dépasse cinquante (ta place en bas), « Mots ajoutés » vide, « Série » semaine hors ligne',
+    how: 'Huit mesures, jour / semaine / total : « Points » dépasse cinquante (ta place en bas), « Mots ajoutés » vide, « Série » semaine hors ligne, « Sessions de modération » en dernier (modérateur)',
     phase: 'home',
-    render: () => <LeaderboardsScenario named />,
+    render: () => <LeaderboardsScenario named moderator />,
   },
   {
     id: 'leaderboards-podium',

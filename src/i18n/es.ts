@@ -223,6 +223,7 @@ export const es: Messages = {
       discoveries: { label: 'Hallazgos', caption: 'Palabras que nadie había escrito en una semana', unit: (count) => plural(count, 'palabra', 'palabras') },
       combo: { label: 'Racha', caption: 'La racha más larga de palabras seguidas', unit: (count) => plural(count, 'palabra', 'palabras') },
       added: { label: 'Palabras añadidas', caption: 'Propuestas y validadas por los moderadores', unit: (count) => plural(count, 'palabra', 'palabras') },
+      moderation: { label: 'Sesiones de moderación', caption: 'Colas juzgadas hasta el final', unit: (count) => plural(count, 'sesión', 'sesiones') },
     },
     empty: { day: 'Aún no figura nadie hoy.', week: 'Aún no figura nadie esta semana.', all: 'Aún no figura nadie.' },
     offline: 'La clasificación no responde por ahora.',
