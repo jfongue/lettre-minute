@@ -17,6 +17,7 @@ import { acceptable } from '../domain/wordShape'
 import { weeklyValue, type WeeklyMeasures, type WeeklyMetric } from '../domain/weekly'
 import { withBotRuns } from '../state/botRuns'
 import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
+import { host } from '../platform'
 import { googleIdToken } from './native'
 import { connect, forgetSession, supabase } from './supabase'
 import { testClient } from './testClient'
@@ -1052,7 +1053,16 @@ export interface Account {
  * is not the same answer: the player is still signed in, and the interface
  * keeps showing the account it knew.
  */
-export function fetchAccount(): Promise<Account | null | 'unreachable'> {
+export async function fetchAccount(): Promise<Account | null | 'unreachable'> {
+  // A guest of a host without anonymous accounts has no session to connect
+  // with, which `guard` would read as a server out of reach.
+  if (supabase && !host.anonymousAccounts) {
+    try {
+      if (!(await supabase.auth.getSession()).data.session) return null
+    } catch {
+      return 'unreachable'
+    }
+  }
   return guard(async (): Promise<Account | null | 'unreachable'> => {
     const { data, error } = await supabase!.auth.getSession()
     if (error) return 'unreachable'

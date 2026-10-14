@@ -608,7 +608,12 @@ setMenuPage(null)
       // Unreachable keeps the cached account: the session is still on the device.
       if (found === 'unreachable') return
       if (found) adopt(found)
-      else setAccount(null)
+      else {
+        // Batched with the cached account read just before, the null would
+        // leave the account's own effect unrun and the cache in place.
+        setAccount(null)
+        saveAccount(null)
+      }
     })
     flushSubmissions()
   }, [adopt, answer])
