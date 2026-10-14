@@ -194,6 +194,7 @@ const RunScreen = lazyScreen(() => import('./ui/RunScreen').then((module) => mod
 const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) => module.WordsBoard))
 const FeaturesBoard = lazyScreen(() => import('./debug/FeaturesBoard').then((module) => module.FeaturesBoard))
 const DuelScreen = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelScreen))
+const DuelMatchmaking = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelMatchmaking))
 
 /** The run's own screens: awaited with its dictionaries, so the countdown never opens on a blank frame. */
 function preloadRunScreens(): Promise<unknown> {
@@ -445,7 +446,8 @@ setMenuPage(null)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean } | null>(null)
+  const [matching, setMatching] = useState(false)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
   const [debugPhase, setDebugPhase] = useState<string | null>(() =>
@@ -1667,7 +1669,10 @@ setStartedAt((at) => at ?? Date.now())
     // Une table de duel se quitte par son bouton : un geste de retour en pleine
     // partie abandonnerait sa réserve sans le dire.
     if (duelOpen) return true
-    if (together) setTogether(false)
+    if (matching) {
+      setMatching(false)
+      setTogether(true)
+    } else if (together) setTogether(false)
     else if (picking) setPicking(null)
     else if (creating) setCreating(null)
     else if (challengeOpen) setChallengeOpen(null)
@@ -1733,7 +1738,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => setTrackScreen(screenName), [screenName])
 
   const quietHome =
-    session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !duelOpen && !weeklyFlow.covering
+    session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !matching && !modesOpen && !duelOpen && !weeklyFlow.covering
   const notice = quietHome && on('challenges') ? challengeNotice(challenges, heldNotices) : null
   const updateDue = update === 'due' && on('storeUpdate')
   // The moderator card never reaches someone who already moderates: `moderator`
@@ -1845,7 +1850,7 @@ setStartedAt((at) => at ?? Date.now())
 
       {duelOpen && session.phase === 'home' && (
         <Suspense fallback={null}>
-          <DuelScreen lang={lang} mode="online" join={duelOpen.join} onExit={leaveDuel} />
+          <DuelScreen lang={lang} mode="online" join={duelOpen.join} quick={duelOpen.quick} onExit={leaveDuel} />
         </Suspense>
       )}
 
@@ -1858,11 +1863,36 @@ setStartedAt((at) => at ?? Date.now())
             setTogether(false)
             setDuelOpen({ join: null })
           }}
+          onMatch={() => {
+            rememberMultiplayer()
+            setTogether(false)
+            setMatching(true)
+          }}
           onChallenge={() => {
             setTogether(false)
             openCreate()
           }}
         />
+      )}
+
+      {matching && session.phase === 'home' && !duelOpen && (
+        <Suspense fallback={null}>
+          <DuelMatchmaking
+            lang={lang}
+            onMatched={(table) => {
+              setMatching(false)
+              setDuelOpen({ join: table, quick: true })
+            }}
+            onCancel={() => {
+              setMatching(false)
+              setTogether(true)
+            }}
+            onBots={() => {
+              setMatching(false)
+              setDuelOpen({ join: null })
+            }}
+          />
+        </Suspense>
       )}
 
       {modesOpen && session.phase === 'home' && !tutorial && (

@@ -66,7 +66,7 @@ import { RatingPop } from '../ui/RatingPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
-import { DuelScreen, Draft } from '../ui/DuelScreen'
+import { DuelScreen, Draft, DuelMatchmaking } from '../ui/DuelScreen'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
@@ -2347,7 +2347,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Choix : duel en direct ou défi 24h',
     how: 'Le bouton « Créer un défi » quand le duel est ouvert au joueur',
     phase: 'home',
-    render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onChallenge={back} />,
+    render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onMatch={back} onChallenge={back} />,
   },
   {
     id: 'duel-invite',
@@ -2370,6 +2370,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'L’hôte a expulsé le joueur du salon : l’accueil le lui dit',
     phase: 'home',
     render: (back) => <DuelBanner text="L’hôte t’a retiré de la table." onDone={back} />,
+  },
+  {
+    id: 'duel-matchmaking',
+    group: 'Duel',
+    title: 'Matchmaking : recherche d’un adversaire',
+    how: 'Après « Trouver un adversaire » : la file, relue toutes les deux secondes ; les joueurs maison s’offrent au bout de quinze secondes ; ici la file ne répond jamais',
+    phase: 'home',
+    render: (back) => <DuelMatchmaking lang="fr" onMatched={back} onCancel={back} onBots={back} ask={async () => ({ status: 'waiting' })} leave={async () => true} />,
   },
   {
     id: 'duel-table',

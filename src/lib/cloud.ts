@@ -1630,6 +1630,30 @@ export function createDuelTable(lang: string, categories: readonly string[], own
   }, null)
 }
 
+/** Where a player stands in the matchmaking queue: still waiting, or seated at a table opened for them. */
+export type DuelMatch = { status: 'waiting' } | { status: 'matched'; table: string }
+
+/**
+ * Queues for a duel against whoever of the same language is waiting, and reads
+ * the answer on every call. Null without a server or for an anonymous player.
+ */
+export function duelMatchmake(lang: string, categories: readonly string[], owned: number): Promise<DuelMatch | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_matchmake', { p_lang: lang, p_categories: categories, p_owned: owned })
+    if (error || !data) return null
+    const answer = data as { status?: string; table?: string }
+    if (answer.status === 'matched' && typeof answer.table === 'string') return { status: 'matched', table: answer.table }
+    return answer.status === 'waiting' ? { status: 'waiting' } : null
+  }, null)
+}
+
+export function cancelDuelMatchmaking(): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('duel_matchmake_cancel')
+    return !error
+  }, false)
+}
+
 export type DuelInviteOutcome = 'sent' | 'seated' | 'full' | 'closed' | 'forbidden' | 'unreachable'
 
 export function inviteToDuel(table: string, player: string): Promise<DuelInviteOutcome> {

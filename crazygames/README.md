@@ -65,6 +65,15 @@ le 2026-10-08.
   joueur ni joueur maison, donc aucune fiche de joueur qui appellerait le
   serveur. Une vraie comparaison entre joueurs demande les comptes CrazyGames
   (Full Launch, module User).
+- **Ce qui attend un compte** : le serveur commun (Supabase, étiquette
+  `platform=crazygames` sur chaque donnée, migration 0072) pourrait servir
+  CrazyGames, mais défis, amis, duel, matchmaking et classements entre joueurs
+  exigent un compte *nommé* (`is_named_account`, e-mail ou Google). La doc du
+  portail interdit toute connexion externe (Account integration : « Disable any
+  external login options », invité par défaut, « Login with CrazyGames » seul en
+  Full Launch). Le pont est le module User : `getUserToken()`, jeton vérifié par
+  une fonction Edge qui ouvre une session nommée du nom CrazyGames. Tant qu'il
+  n'existe pas, ces fonctionnalités restent fermées ici.
 - **Langue** : celle du SDK (`user.systemInfo.locale`), puis celle du
   navigateur, sinon l'anglais — jamais le sélecteur de langue au premier
   lancement. Le joueur peut en changer dans les options. Le titre affiché

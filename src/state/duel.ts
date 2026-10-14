@@ -299,9 +299,18 @@ export interface DuelTableOptions {
   onExit?(reason: DuelExit): void
   /** Le profil vient de gagner un compteur de duel : l'appelant le range à l'écran. */
   onProfile?(profile: Profile): void
+  /** Table ouverte par le matchmaking : les deux joueurs sont assis, chacun se déclare prêt dès qu'il la voit. */
+  quick?: boolean
 }
 
-export function useDuelTable({ lang, mode, join = null, onExit, onProfile }: DuelTableOptions): DuelTable {
+/** Les catégories qu'une table peut distribuer à ce joueur : celles qu'il a, sans les avant-premières. */
+export function duelPool(lang: string): string[] {
+  const profile = loadProfile()
+  const shipped = availableCategoryIds(lang)
+  return sharedCategoryIds(playableCategoryIds(profile, ownedCategoryIds(profile))).filter((id) => shipped.includes(id))
+}
+
+export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
@@ -594,6 +603,15 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile }: Due
     },
     [mode, myId, sync, table],
   )
+
+  // Un adversaire trouvé par le matchmaking attend déjà : pas de salon à régler, chacun se déclare prêt une fois.
+  const quickReady = useRef(false)
+  useEffect(() => {
+    if (!quick || mode !== 'online' || quickReady.current) return
+    if (!table || table.status !== 'lobby' || !me || me.ready || present.length < MIN_TABLE) return
+    quickReady.current = true
+    setMyReady(true)
+  }, [me, mode, present.length, quick, setMyReady, table])
 
   /**
    * Renoncer au départ : la table revient au salon, personne n'a encore choisi.
