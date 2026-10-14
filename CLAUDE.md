@@ -102,8 +102,13 @@ par une copie de l'écran ; et chaque build touché se vérifie.
   domaine n'en sait rien.
 - **Règles qui diffèrent** — Reddit : graine du jour (`dailySeed`), même
   partie pour tous les lecteurs, pas de pouvoirs, `Judge` sans compteurs
-  d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : hors ligne,
-  sans compte ni serveur (toutes les variables externes vidées au build), SDK
+  d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : le serveur
+  pour les classements seuls — un invité n'a aucun compte, pas même anonyme
+  (`host.anonymousAccounts`), et les lit sous le rôle `anon` avec sa ligne
+  « Moi » comptée sur l'appareil ; un joueur connecté au portail joue sous le
+  compte que `crazygames-auth` lie à son identifiant CrazyGames (0073) —, ni
+  défi du jour ni autre fonctionnalité serveur, les autres variables externes
+  vidées au build, SDK
   du portail (événements, pub midgame, muet, sauvegarde par son module Data,
   classement hebdo, langue), thème clair par défaut, accueil en deux colonnes
   dans un cadre

@@ -38,57 +38,59 @@ le 2026-10-08.
   le SDK ne peut que finir `disabled` —, annonce
   `loadingStart`, recopie la progression sauvegardée, rend l'app, puis
   `loadingStop`. Pas de suivi d'usage (`track.ts`), pas de coquille native.
-- **Hors ligne, sans Supabase** : `vite.config.ts` vide toutes les variables
-  externes (`VITE_SUPABASE_*`, AdMob, Google, push, confidentialité) quel que
-  soit `.env.local`. Choix le plus sûr pour la soumission : aucun compte, aucun
-  formulaire, aucune donnée personnelle envoyée hors du SDK (donc pas de
-  politique de confidentialité à afficher), aucun appel réseau qui pourrait
-  échouer ou ralentir le jeu dans l'iframe. `cloud.ts` répond déjà par ses
-  replis. Le prix : pas de classements entre joueurs, de rareté de la foule ni de mots
-  proposés — qui demanderaient d'ailleurs, pour une Full Launch, de lier nos
-  comptes à ceux de CrazyGames (module User + vérification du JWT côté serveur).
-- **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit `SERVER_FEATURES` et `APP_ONLY_FEATURES` de `src/platform/host.ts`) : défis, duel, amis,
+- **Le serveur pour les classements seuls** : `vite.config.ts` vide les
+  variables externes (AdMob, Google, push, groupe de testeurs) quel que soit
+  `.env.local`, mais garde `VITE_SUPABASE_*` et la page de confidentialité.
+  Un invité n'a jamais de compte, même anonyme (`host.anonymousAccounts`,
+  `connect()` dans `src/lib/supabase.ts`) : rien de lui ne s'écrit, `guard`
+  répond par ses replis, et seuls les classements se lisent sous le rôle
+  `anon` (`openGuard`, migration 0073). `cloudConfigured()` reste faux ici :
+  le défi du moment et le reste de ce que garde le jeu restent sur l'appareil.
+- **Comptes CrazyGames** (`host.account`, module User) : un joueur connecté au
+  portail donne son jeton (`getUserToken`, RS256), que la fonction Edge
+  `crazygames-auth` vérifie contre la clé publiée (PKCS#1) ; elle crée ou
+  retrouve le compte du jeu lié à son identifiant (`crazygames_accounts`,
+  `crazygames_link`, 0073), lui donne son nom du portail (suffixé d'un numéro
+  s'il est pris) et rend un lien magique que le client échange contre une
+  session (`followHostAccount`, `src/lib/cloud.ts`). Ses parties partent alors
+  comme sur Android (`pushRun`, étiquette `platform=crazygames`) et il figure
+  aux classements communs sous ce nom. Une déconnexion du portail recharge la
+  page : sans jeton, la session restée sur l'appareil est oubliée. Les jetons
+  du mode local du SDK (`gameId` « yourGameId ») sont signés par la vraie clé
+  et rejouables par n'importe qui : la fonction les refuse, sauf secret
+  `CRAZYGAMES_ALLOW_MOCK=true` posé le temps d'un test. Déploiement :
+  `supabase functions deploy crazygames-auth --no-verify-jwt --use-api`. Ces
+  données personnelles hors SDK expliquent le lien « Confidentialité » du menu
+  (paragraphe CrazyGames dans les sept `public/confidentialite*.html`).
+- **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit `SERVER_FEATURES` et `APP_ONLY_FEATURES` de `src/platform/host.ts`, moins les classements, plus le défi du jour) : défis, duel, amis,
   invitations, face-à-face, réactions, Premium (faux paiement),
   modes de jeu, propositions de mots et modération, boîte à idées, question
   d'avis, demande de note, notifications, mise à jour du store, Play Games,
-  pubs AdMob, outils de développeur. Le bouton « Partager — bientôt » (bouton mort, fonctionnalité `share`)
-  et la note « Hors ligne » du menu (`keepsProgress`) disparaissent aussi. Restent : la
-  partie, les classements (en local), le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
+  pubs AdMob, outils de développeur, et le **défi du jour** (`daily`) : le défi
+  du moment est le seul défi du portail. Le bouton « Partager — bientôt » (bouton mort, fonctionnalité `share`),
+  l'adresse et « Se déconnecter » d'un compte du portail, et la note « Hors ligne » du menu (`keepsProgress`) disparaissent aussi. Restent : la
+  partie, les classements, le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
   cachés du bilan, l'avatar, les succès, les statistiques, les options.
 - **Fonctionnalités ouvertes** (`crazyGamesHost.openedFeatures`), quoi que
-  disent les valeurs du code, encore réservées aux super modérateurs sur
-  Android : le **défi du jour** (`daily`, `src/domain/daily.ts`), à partir du
-  niveau 5 (`dailyOpen`) — même graine
-  et mêmes catégories pour tous à la date du joueur, une partie comptée par
-  jour, et une série qui paie 40 XP de plus par jour, cinq au plus —, le
-  **défi du moment** (`weekly`), que l'app ouvre à tout le monde et qui tient
-  sans serveur (tentatives comptées sur l'appareil, record de la semaine
-  gardé localement, une seule par jour faute de pub récompensée et de
-  boutique ; ni rang ni classement), et le **choix des pouvoirs avant la
-  partie** (`powerLoadout`, `src/ui/PowerLoadout.tsx`) : pour qui a des
-  pouvoirs, « Play » et « Play again » passent par un écran qui les montre
-  tous, une touche en prend ou en repose un (`wearOrDrop`), Entrée joue ;
-  l'accueil perd alors ses emplacements. Série, tentatives et record
+  disent les valeurs du code : le **défi du moment** (`weekly`), que l'app
+  ouvre à tout le monde et qui tient sans serveur (tentatives comptées sur
+  l'appareil, record de la semaine gardé localement, une seule par jour faute
+  de pub récompensée et de boutique ; ni rang ni classement), et le **choix
+  des pouvoirs avant la partie** (`powerLoadout`, `src/ui/PowerLoadout.tsx`) :
+  pour qui a des pouvoirs, « Play » et « Play again » passent par un écran
+  qui les montre tous, une touche en prend ou en repose un (`wearOrDrop`),
+  Entrée joue ; l'accueil perd alors ses emplacements. Tentatives et record
   passent par le module Data comme le reste (`SAVED_KEYS`).
-- **Classements en local** (`host.localBoards`, `src/domain/localBoards.ts`,
-  `src/ui/localBoards.ts`) : ni serveur, ni compte, donc rien qui change le type
-  de soumission. L'accueil et la page des classements rangent les meilleures
-  parties *du joueur* sur cet appareil (jour, semaine depuis le lundi, total),
-  lues dans l'historique que le module Data sauvegarde déjà, et seulement sur les
-  mesures qu'une partie porte (meilleure partie, série, mots trouvés) : pas de
-  découvertes, de mots ajoutés, de modération ni de défi du moment. Aucun autre
-  joueur ni joueur maison, donc aucune fiche de joueur qui appellerait le
-  serveur. Une vraie comparaison entre joueurs demande les comptes CrazyGames
-  (Full Launch, module User).
-- **Ce qui attend un compte** : le serveur commun (Supabase, étiquette
-  `platform=crazygames` sur chaque donnée, migration 0072) pourrait servir
-  CrazyGames, mais défis, amis, duel, matchmaking et classements entre joueurs
-  exigent un compte *nommé* (`is_named_account`, e-mail ou Google). La doc du
-  portail interdit toute connexion externe (Account integration : « Disable any
-  external login options », invité par défaut, « Login with CrazyGames » seul en
-  Full Launch). Le pont est le module User : `getUserToken()`, jeton vérifié par
-  une fonction Edge qui ouvre une session nommée du nom CrazyGames. Tant qu'il
-  n'existe pas, ces fonctionnalités restent fermées ici.
+- **Classements de l'invité** (`host.guestBoards`, `src/ui/guestBoards.ts`,
+  `guestValue` / `placeGuest` dans `src/domain/localBoards.ts`) : l'accueil et
+  la page des classements montrent les tableaux du serveur, avec la ligne
+  « Moi » de l'invité, comptée sur l'appareil comme le serveur compte un
+  joueur (périodes à l'heure de Paris, `parisPeriodStart`) ; au-delà des
+  cinquante lignes, `leaderboard_rank` donne sa place. Rien n'est envoyé :
+  pour figurer au classement de tous, « Se connecter » ouvre la connexion du
+  portail (`showAuthPrompt`). Serveur injoignable : ses seules parties
+  (`src/ui/localBoards.ts`). Une fiche de joueur sans la fonctionnalité
+  `friends` n'est qu'un nom (`PlayerName`).
 - **Langue** : celle du SDK (`user.systemInfo.locale`), puis celle du
   navigateur, sinon l'anglais — jamais le sélecteur de langue au premier
   lancement. Le joueur peut en changer dans les options. Le titre affiché

@@ -18,8 +18,9 @@ describe('les hôtes', () => {
     }
   })
 
-  it('ouvrent à CrazyGames le défi du jour, qui fait revenir sans serveur', () => {
-    expect(crazyGamesHost.openedFeatures).toContain('daily')
+  it('ne gardent à CrazyGames que le défi du moment, sans le défi du jour', () => {
+    expect(crazyGamesHost.openedFeatures).toContain('weekly')
+    expect(crazyGamesHost.closedFeatures).toContain('daily')
     expect(redditHost.openedFeatures).not.toContain('daily')
   })
 
