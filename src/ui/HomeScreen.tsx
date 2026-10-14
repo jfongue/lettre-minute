@@ -134,7 +134,7 @@ const alone =
   }, [])
 
   return (
-    <div className="sheet sheet--home" {...swipe}>
+    <div className={`sheet sheet--home${alone ? ' sheet--home-alone' : ''}`} {...swipe}>
       <Poster requests={friendRequests} onMenu={() => onMenu(friendRequests > 0 ? 'social' : undefined)} onDebug={onDebug} />
 
       <header className="masthead">

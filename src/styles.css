@@ -4281,6 +4281,31 @@ referment d'un coup : `--way` donne le sens de chacune. */
 .cascade > :nth-child(6) { animation-delay: 350ms; }
 .cascade > :nth-child(n + 7) { animation-delay: 420ms; }
 
+/* Le bilan se range en deux volets pour le cadre paysage de CrazyGames
+   (crazygames.css) ; ici ils ne font pas de boîte, et l'ordre rend celui du
+   téléphone : la partie, ce qu'elle a débloqué, ses chiffres, le reste, puis
+   « Rejouer ». */
+.over-pane {
+  display: contents;
+}
+
+.over-pane--more > * {
+  order: 3;
+}
+
+.over-pane--more > .earned {
+  order: 1;
+}
+
+.over-pane--run > .figures,
+.over-pane--run > .mine-note {
+  order: 2;
+}
+
+.over-actions {
+  order: 4;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

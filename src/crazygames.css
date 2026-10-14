@@ -39,8 +39,7 @@ textarea {
   }
 
   .sheet--home,
-  .stage--over .reveal,
-  .stage--over .sheet.cascade {
+  .stage--over .reveal {
     width: min(60rem, 100%);
     height: 100%;
     min-height: 0;
@@ -82,11 +81,42 @@ textarea {
     align-content: start;
   }
 
-  /* Rien d'autre à montrer que « Jouer » — un appareil neuf, ici, n'a ni
-     compte ni classement : le bouton se pose au milieu de sa colonne, au lieu
-     de rester en haut. */
-  .sheet--home > .home-body--alone {
-    align-content: center;
+  /* Rien d'autre à montrer que « Jouer » — un appareil neuf : une seule
+     colonne au milieu, l'affiche, le titre, puis « Jouer » dessous, plutôt
+     qu'une colonne de droite presque vide. */
+  .sheet--home.sheet--home-alone {
+    width: min(30rem, 100%);
+    height: auto;
+    max-height: 100%;
+    align-self: center;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    row-gap: min(1.2rem, 3vh);
+  }
+
+  .sheet--home.sheet--home-alone > .poster {
+    width: min(100%, 95vh);
+    justify-self: center;
+  }
+
+  .sheet--home.sheet--home-alone > .masthead {
+    grid-row: 2;
+  }
+
+  .sheet--home.sheet--home-alone .masthead .eyebrow {
+    justify-self: center;
+  }
+
+  .sheet--home.sheet--home-alone .title {
+    justify-self: center;
+    font-size: min(4.8rem, 13vh);
+  }
+
+  .sheet--home.sheet--home-alone > .home-body,
+  .sheet--home.sheet--home-alone > .home-loader {
+    grid-column: 1;
+    grid-row: 3;
+    overflow: visible;
   }
 
   /* The reveal: the score on the left with « Continue » under it, the words on the right. */
@@ -130,76 +160,198 @@ textarea {
     align-content: start;
   }
 
-  /* The summary: what the run earned on the left, « Play again » on the right. */
+  /* Le bilan : la partie et « Rejouer » à gauche, ce qu'elle a rapporté en
+     plus (succès, classement, mots proposés) à droite, qui défile s'il le
+     faut. Rien en plus : une seule colonne, au milieu. */
   .stage--over .sheet.cascade {
-    grid-auto-flow: row dense;
+    max-height: 100%;
+    min-height: 0;
     align-content: start;
     overflow-y: auto;
   }
 
-  .stage--over .sheet.cascade > * {
-    grid-column: 1;
+  .stage--over .sheet.over-sheet {
+    width: min(34rem, 100%);
+    height: auto;
+    max-height: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
   }
 
-  .stage--over .sheet.cascade > .stack:last-child {
-    grid-column: 2;
-    grid-row: 1 / span 12;
-    align-self: center;
-  }
-  /* Le défi du moment : le mode de la semaine à gauche, le record, les
-     billets et « Jouer » à droite, dans le cadre sans défiler. */
-  .sheet.wk-screen {
-    width: min(60rem, 100%);
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: clamp(1.5rem, 4vw, 3rem);
-    align-content: start;
-  }
-
-  .sheet.wk-screen > .subpage-head {
-    grid-column: 1 / -1;
-  }
-
-  .sheet.wk-screen > .wk-hero {
-    grid-column: 1;
-    grid-row: 2 / span 3;
-    align-self: start;
-  }
-
-  .sheet.wk-screen > :not(.subpage-head, .wk-hero) {
-    grid-column: 2;
-  }
-  /* Le choix des pouvoirs : les emplacements et « Jouer » à gauche, tous les
-     pouvoirs à droite, qui défilent seuls s'ils dépassent le cadre. */
-  .sheet.loadout {
+  .stage--over .sheet.over-sheet:has(> .over-pane--more > *) {
     width: min(60rem, 100%);
     height: 100%;
-    min-height: 0;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
     column-gap: clamp(1.5rem, 4vw, 3rem);
+    overflow: hidden;
   }
 
-  .sheet.loadout > .loadout-head {
-    grid-column: 1 / -1;
+  .stage--over .sheet.over-sheet:has(> .over-pane--more > *) > .over-pane {
+    display: grid;
+    gap: var(--step);
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    align-content: safe center;
   }
 
-  .sheet.loadout > .loadout-side {
+  .stage--over .sheet.over-sheet:has(> .over-pane--more > *) > .over-pane--run {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .stage--over .sheet.over-sheet:has(> .over-pane--more > *) > .over-pane--more {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    padding-right: 6px;
+  }
+
+  .stage--over .sheet.over-sheet:has(> .over-pane--more > *) > .over-actions {
     grid-column: 1;
     grid-row: 2;
   }
 
-  .sheet.loadout .loadout-slot {
-    min-height: 7.5rem;
+  /* Dans un volet qui défile, l'ordre du téléphone ne sert plus. */
+  .stage--over .sheet.over-sheet:has(> .over-pane--more > *) .over-pane > * {
+    order: 0;
   }
+}
 
-  .sheet.loadout > .loadout-grid {
-    grid-column: 2;
-    grid-row: 2;
+/* Tout écran posé sur l'accueil (défi du moment, pouvoirs, catégories…) tient
+   dans le cadre qu'il fige : plus haut, il défile pour lui-même plutôt que de
+   cacher son bouton sous le bord. */
+@media (orientation: landscape) and (max-height: 820px) {
+  .stage--home > .sheet:not(.sheet--home) {
+    max-height: 100%;
     min-height: 0;
     overflow-y: auto;
-    align-content: start;
-    grid-template-columns: minmax(0, 1fr);
+    overscroll-behavior: contain;
+  }
+
+  /* Le tutoriel du défi du moment : le titre, l'image, ce qui compte et
+     « Suivant » à gauche ; les règles à droite, qui défilent s'il le faut.
+     Préfixé de .stage : weekly-play.css arrive après cette feuille. */
+  .stage .wk-intro {
+    width: min(60rem, 100%);
+    height: 100%;
+    max-height: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+    row-gap: 0.8rem;
+    overflow: hidden;
+  }
+
+  .stage .wk-intro > * {
+    grid-column: 1;
+  }
+
+  /* L'anneau prend la hauteur que la colonne lui laisse, rond quoi qu'il arrive. */
+  .stage .wk-intro > .wk-demo {
+    align-self: center;
+    width: auto;
+    height: 100%;
+    max-height: 9rem;
+    min-height: 5.5rem;
+    aspect-ratio: 1;
+  }
+
+  .stage .wk-intro .wk-demo-clock {
+    font-size: min(3.2rem, 9vh);
+  }
+
+  .stage .wk-intro > .wk-intro-rules {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    align-content: safe center;
     padding: 0 6px 6px 0;
+  }
+
+  .stage .wk-intro-rules {
+    gap: 0.7rem;
+  }
+
+  .stage .wk-intro .wk-steps {
+    gap: 0.45rem;
+  }
+
+  .stage .wk-intro .wk-step {
+    padding: 0.4rem 0.7rem;
+  }
+
+  .stage .wk-intro .wk-step-n {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+
+  .stage .wk-intro .wk-table ul {
+    gap: 0.3rem;
+  }
+
+  .stage .wk-intro > .wk-intro-score {
+    align-self: end;
+  }
+
+  .stage .wk-intro-head {
+    padding: 0.7rem;
+  }
+
+  .stage .wk-intro-mark {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
+/* Les offres de niveau (catégorie, pouvoir, bonus) : le titre, le nom qui se
+   tape et le bouton à gauche, les cartes à droite. Une seule colonne y
+   poussait le bouton sous le bord du cadre, sans défilement. */
+@media (orientation: landscape) and (max-height: 820px) {
+  .stage--over > .sheet:not(.reveal):not(.cascade),
+  .stage--countdown > .sheet {
+    max-height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .stage .unlock-screen {
+    width: min(60rem, 100%);
+    min-height: 0;
+    padding-block: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-auto-flow: row dense;
+    align-content: center;
+    align-items: center;
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+    row-gap: 0.9rem;
+  }
+
+  .stage .unlock-screen > * {
+    grid-column: 1;
+  }
+
+  .stage .unlock-screen > .unlock-cards,
+  .stage .unlock-screen > .unlock-seal {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+  }
+
+  .stage .unlock-screen .unlock-head-sun {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+
+  .stage .unlock-screen .unlock-title {
+    font-size: min(3.4rem, 10vh);
+  }
+
+  .stage .unlock-screen .unlock-typer {
+    min-height: 3.2rem;
   }
 }
 

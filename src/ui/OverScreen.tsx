@@ -242,62 +242,67 @@ function Summary({
   const ours = mine ? run.found.filter((found) => mine.has(compactWord(found.display))).length : 0
 
   return (
-    <div className="sheet cascade">
-      <XpGain from={profileBefore.xp} to={profile.xp} />
+    <div className="sheet cascade over-sheet">
+      {/* Deux volets que le téléphone ne voit pas (`display: contents`) : le
+          cadre paysage de CrazyGames pose la partie et « Rejouer » à gauche, ce
+          qu'elle a rapporté en plus à droite, et une seule colonne quand il
+          n'y a rien en plus. */}
+      <div className="over-pane over-pane--run cascade">
+        <XpGain from={profileBefore.xp} to={profile.xp} />
 
-      {daily && (
-        <div className="daily-over">
-          <span className="daily-card-mark daily-card-mark--lit" aria-hidden="true">
-            <strong>{daily.streak}</strong>
-          </span>
-          <span className="daily-card-text">
-            <strong className="daily-card-main">{t.daily.app.over(daily.number)}</strong>
-            <span className="daily-card-meta">
-              <span>{t.daily.app.overStreak(daily.streak, daily.bonus)}</span>
-              <span>{t.daily.app.overNext}</span>
+        {daily && (
+          <div className="daily-over">
+            <span className="daily-card-mark daily-card-mark--lit" aria-hidden="true">
+              <strong>{daily.streak}</strong>
             </span>
-          </span>
+            <span className="daily-card-text">
+              <strong className="daily-card-main">{t.daily.app.over(daily.number)}</strong>
+              <span className="daily-card-meta">
+                <span>{t.daily.app.overStreak(daily.streak, daily.bonus)}</span>
+                <span>{t.daily.app.overNext}</span>
+              </span>
+            </span>
+          </div>
+        )}
+
+        <div className="figures figures--three">
+          <Figure tint="yellow" value={run.found.length} label={t.over.words(run.found.length)} />
+          <Figure tint="red" value={run.bestCombo} label={t.over.bestCombo} />
+          <Figure
+            tint="blue"
+            value={formatNumber(t, profile.bestScore)}
+            label={record ? t.over.newRecord : t.over.record}
+          />
         </div>
-      )}
 
-      <Earned profileBefore={profileBefore} profile={profile} avatar={avatar} onAvatar={onAvatar} />
-
-      <div className="figures figures--three">
-        <Figure tint="yellow" value={run.found.length} label={t.over.words(run.found.length)} />
-        <Figure tint="red" value={run.bestCombo} label={t.over.bestCombo} />
-        <Figure
-          tint="blue"
-          value={formatNumber(t, profile.bestScore)}
-          label={record ? t.over.newRecord : t.over.record}
-        />
+        {ours > 0 && <p className="note mine-note">{t.over.mineNote(ours)}</p>}
       </div>
 
+      <div className="over-pane over-pane--more cascade">
+        <Earned profileBefore={profileBefore} profile={profile} avatar={avatar} onAvatar={onAvatar} />
 
-      {ours > 0 && <p className="note mine-note">{t.over.mineNote(ours)}</p>}
-
-
-
-      <RunRequests
-        proposals={proposals ?? []}
-        onCorrect={onCorrectProposal}
-        onWithdraw={onWithdrawProposal}
-      />
-
-      {me && leaderboards && boardsBefore && boardsAfter && (
-        <RankMove title={t.over.dayBoard} before={boardsBefore.day} after={boardsAfter.day} me={me} />
-      )}
-
-      {(account?.anonymous || account?.needsName) && (
-        <AccountPanel
-          title={t.over.keepTitle}
-          lead={t.over.keepLead}
-          needsName={account.needsName}
-          {...accountActions}
+        <RunRequests
+          proposals={proposals ?? []}
+          onCorrect={onCorrectProposal}
+          onWithdraw={onWithdrawProposal}
         />
-      )}
-      <ShareSoon />
 
-      <div className="stack">
+        {me && leaderboards && boardsBefore && boardsAfter && (
+          <RankMove title={t.over.dayBoard} before={boardsBefore.day} after={boardsAfter.day} me={me} />
+        )}
+
+        {(account?.anonymous || account?.needsName) && (
+          <AccountPanel
+            title={t.over.keepTitle}
+            lead={t.over.keepLead}
+            needsName={account.needsName}
+            {...accountActions}
+          />
+        )}
+        <ShareSoon />
+      </div>
+
+      <div className="stack over-actions">
         <button type="button" className="btn btn--play btn--block" onClick={onReplay}>
           <span>{t.over.replay}</span>
           <span className="play-glyph" aria-hidden="true">

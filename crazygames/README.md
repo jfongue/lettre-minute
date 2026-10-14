@@ -73,6 +73,12 @@ le 2026-10-08.
   l'adresse et « Se déconnecter » d'un compte du portail, et la note « Hors ligne » du menu (`keepsProgress`) disparaissent aussi. Restent : la
   partie, les classements, le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
   cachés du bilan, l'avatar, les succès, les statistiques, les options.
+- **Super modérateur** (`crazyGamesHost.superModeratorFeatures`) : un compte
+  du portail que le serveur a fait super modérateur (`moderators.super`, à la
+  main, comme Crazytonno, le compte de Jérémy) retrouve ce que l'hôte ferme aux
+  joueurs et qu'il peut porter : planche debug, tableau de bord, tableau des
+  mots, idées reçues, modes de jeu, modération et mots proposés
+  (`SUPER_MODERATOR_FEATURES`). Jamais un achat ni un lien hors de la page.
 - **Fonctionnalités ouvertes** (`crazyGamesHost.openedFeatures`), quoi que
   disent les valeurs du code : le **défi du moment** (`weekly`), que l'app
   ouvre à tout le monde et qui tient sans serveur (tentatives comptées sur
@@ -145,7 +151,14 @@ le 2026-10-08.
   recopie et le jeu garde `localStorage` seul.
 - **CSS** (`src/crazygames.css`) : `user-select: none` et pas de menu au long
   appui sur `body` (le champ de réponse reste sélectionnable), pas de
-  défilement qui se propage à la page du portail.
+  défilement qui se propage à la page du portail. Dans le cadre paysage, deux
+  colonnes seulement quand une seule ne tient pas : l'accueil d'un nouveau
+  venu (`sheet--home-alone`) et un bilan sans rien en plus (`over-pane--more`
+  vide) restent sur une colonne centrée ; le bilan chargé met la partie et
+  « Rejouer » à gauche, succès et classement à droite ; le tutoriel du défi du
+  moment et les offres de niveau rangent titre et bouton à gauche, règles ou
+  cartes à droite. Tout autre écran posé sur l'accueil ou la fin de partie
+  défile pour lui-même au lieu de cacher son bouton sous le bord du cadre.
 
 ## Exigences CrazyGames (relevées le 7 octobre 2026)
 
