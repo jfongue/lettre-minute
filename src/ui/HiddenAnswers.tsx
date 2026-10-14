@@ -2,7 +2,8 @@ import { useEffect, useState, type CSSProperties } from 'react'
 import { BASE_REVEALS, REVEALS_PER_AD, type HiddenAnswer, type RevealBudget } from '../domain/perks'
 import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, useT } from '../i18n'
-import { prepareRewardedAd, showRewardedAd, tapFeedback } from '../lib/native'
+import { tapFeedback } from '../lib/native'
+import { host } from '../platform'
 import { sound } from '../lib/sound'
 import { LetterMark } from './bauhaus'
 import { categoryMotif } from './motifs'
@@ -59,7 +60,7 @@ export function HiddenAnswers({
   const [beat, setBeat] = useState(0)
   // Loading an ad takes seconds: started as the summary opens, it is ready by the time the reveals run out.
   useEffect(() => {
-    if (door.adsOpen) prepareRewardedAd()
+    if (door.adsOpen) host.prepareRewarded()
   }, [door.adsOpen])
   const press = useLongPress<FlagWord>((word) => onFlag?.(word))
 
@@ -74,7 +75,7 @@ export function HiddenAnswers({
     if (watching) return
     setWatching(true)
     setNoAd(false)
-    const result = await showRewardedAd()
+    const result = await host.showRewarded()
     setWatching(false)
     if (result === 'rewarded') {
       tapFeedback('medium')

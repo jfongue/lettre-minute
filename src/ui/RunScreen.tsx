@@ -23,10 +23,28 @@ const CELERITY_SETTLE_MS = 140
 const REFUSED_SETTLE_MS = 350
 /** Le gain d'un mot reste lisible ce temps, même si la frappe du suivant a repris. */
 const CHEER_HOLD_MS = 1200
+/** Sans une frappe ni un mot juste pendant ce temps, le joueur hésite : Tab remue pour lui rappeler la passe. */
+const HESITATION_MS = 4000
 
 // Tapping a button would blur the field and fold the phone keyboard away, only
 // for the next prompt to open it again: the page would jump on every tap.
 const keepFocus = (event: PointerEvent) => event.preventDefault()
+
+/** The key that answers a button, drawn on it; hidden off a desktop pointer (`.keycap`, styles.css). */
+function KeyCap({ name }: { name: 'tab' | 'enter' }) {
+  return (
+    <kbd className="keycap" aria-hidden="true">
+      {name === 'tab' ? (
+        'Tab'
+      ) : (
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 10 4 15l5 5" />
+          <path d="M20 4v7a4 4 0 0 1-4 4H4" />
+        </svg>
+      )}
+    </kbd>
+  )
+}
 
 /** A challenge rival, replayed at this second of their own run. */
 export interface Racer {
@@ -131,6 +149,19 @@ const flawless = hasPower(run, 'flawless')
   useEffect(() => {
     field.current?.focus()
   }, [run.prompt])
+
+  // Hesitation: no key for a while and no word yet. Every key restarts the wait.
+  // The timer marks the exact draft it waited on: a new prompt or a new key
+  // changes the key, so the mark goes stale without a reset.
+  const ready = accepted || spell !== undefined
+  const draftKey = `${run.drawn}:${draft}`
+  const [pausedOn, setPausedOn] = useState<string | null>(null)
+  useEffect(() => {
+    if (ready || !run.armed) return
+    const timer = setTimeout(() => setPausedOn(draftKey), HESITATION_MS)
+    return () => clearTimeout(timer)
+  }, [draftKey, ready, run.armed])
+  const hesitating = !ready && run.armed && pausedOn === draftKey
 
   // What the field says, heard: named, or some letters off — never how rare.
   const heard = !accepted ? null : exact ? 'named' : (live?.found?.edits ?? 1) > 1 ? 'far' : 'close'
@@ -416,19 +447,21 @@ else if (doubleSkip) sound.power('double-skip')
         <div className="answer-actions">
           <button
             type="button"
-            className={`btn btn--ghost${dodge ? ' btn--dodge' : ''}`}
+            className={`btn btn--ghost${dodge ? ' btn--dodge' : ''}${hesitating ? ' btn--nudge' : ''}`}
             onPointerDown={keepFocus}
             onClick={skip}
           >
             {run.chatter > 0 ? t.powers.chatterLeave : run.freeSkipReady ? t.powers.doubleSkipFree : t.run.skip(skipPenalty(run))}
+            <KeyCap name="tab" />
           </button>
           <button
             type="submit"
-            className={`btn btn--blue${!accepted && !spell && run.armed ? ' btn--idle' : ''}`}
+            className={`btn btn--blue${!accepted && !spell && run.armed ? ' btn--idle' : ''}${ready ? ' btn--ready' : ''}`}
             onPointerDown={keepFocus}
             aria-disabled={!accepted && !spell && run.armed}
           >
             {t.run.submit}
+            <KeyCap name="enter" />
           </button>
         </div>
       </form>

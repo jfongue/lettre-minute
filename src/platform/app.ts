@@ -1,3 +1,4 @@
+import { prepareRewardedAd, showRewardedAd } from '../lib/native'
 import { quiet, type Host } from './host'
 
 /**
@@ -8,6 +9,7 @@ import { quiet, type Host } from './host'
  */
 export const appHost: Host = {
   closedFeatures: new Set(),
+  openedFeatures: new Set(),
   title: null,
   languages: () => [],
   fallbackLocale: null,
@@ -15,6 +17,11 @@ export const appHost: Host = {
   // The web shares this host but has no store: `PLATFORM` tells it apart.
   premiumStore: true,
   rewardedAds: true,
-  localBoards: false,
+  levelBonuses: true,
+  unlimitedReveals: false,
+  anonymousAccounts: true,
+  guestBoards: false,
   ...quiet,
+  prepareRewarded: prepareRewardedAd,
+  showRewarded: showRewardedAd,
 }

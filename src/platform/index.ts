@@ -19,10 +19,10 @@ export const PLATFORM: Platform =
 
 export const host: Host = BUILD === 'crazygames' ? crazyGamesHost : BUILD === 'reddit' ? redditHost : appHost
 
-/** What the feature table opened, minus what this host cannot carry. */
+/** What the feature table opened, plus what this host opens itself, minus what it cannot carry. */
 export function hostFeatures(features: ReadonlySet<string>): ReadonlySet<string> {
-  if (host.closedFeatures.size === 0) return features
-  return new Set([...features].filter((id) => !host.closedFeatures.has(id)))
+  if (host.closedFeatures.size === 0 && host.openedFeatures.size === 0) return features
+  return new Set([...features, ...host.openedFeatures].filter((id) => !host.closedFeatures.has(id)))
 }
 
 /**
@@ -34,5 +34,5 @@ export function hostFeatures(features: ReadonlySet<string>): ReadonlySet<string>
 export const premiumStoreOpen =
   host.premiumStore && (PLATFORM === 'android' || (PLATFORM === 'web' && import.meta.env.VITE_PREMIUM_WEB === 'true'))
 
-/** Rewarded ads (AdMob): Android shell only. */
-export const rewardedAdsOpen = host.rewardedAds && PLATFORM === 'android'
+/** Rewarded ads: AdMob in the Android shell, the portal's SDK on CrazyGames once its build allows them; never the web page. */
+export const rewardedAdsOpen = host.rewardedAds && (PLATFORM === 'android' || PLATFORM === 'crazygames')

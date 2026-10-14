@@ -6,6 +6,7 @@ import {
   MAX_TABLE,
   OPENING_LAND_SECONDS,
   OPENING_SPIN_SECONDS,
+  duelPool,
   useDuelTable,
   type Candidate,
   type DuelExit,
@@ -27,6 +28,7 @@ import {
 import type { DuelFact } from '../domain/duelLog'
 import type { Verdict } from '../domain/run'
 import { categoryText, useT } from '../i18n'
+import { cancelDuelMatchmaking, duelMatchmake } from '../lib/cloud'
 import { capitalized } from '../domain/text'
 import { armSound, sound, tierSound } from '../lib/sound'
 import { Avatar } from './Avatar'
@@ -1135,23 +1137,82 @@ function Notice({
   )
 }
 
+/**
+ * La file du matchmaking : relue toutes les deux secondes jusqu'à ce que le
+ * serveur ait ouvert une table. Au bout d'un quart de minute sans adversaire,
+ * les joueurs maison restent une autre façon de jouer, sans quitter la file
+ * tant qu'on n'a pas choisi.
+ */
+export function DuelMatchmaking({
+  lang,
+  onMatched,
+  onCancel,
+  onBots,
+  ask = duelMatchmake,
+  leave = cancelDuelMatchmaking,
+}: {
+  lang: string
+  onMatched(table: string): void
+  onCancel(): void
+  onBots(): void
+  /** La planche debug passe des doublures : elle n'écrit jamais dans la file du serveur. */
+  ask?: typeof duelMatchmake
+  leave?: typeof cancelDuelMatchmaking
+}) {
+  const t = useT()
+  const [offline, setOffline] = useState(false)
+  const [patient, setPatient] = useState(true)
+  const callbacks = useRef({ onMatched })
+  useEffect(() => {
+    callbacks.current = { onMatched }
+  })
+  useEffect(() => {
+    let live = true
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const pool = duelPool(lang)
+    const poll = async () => {
+      const answer = await ask(lang, pool, pool.length)
+      if (!live) return
+      setOffline(answer === null)
+      if (answer?.status === 'matched') return callbacks.current.onMatched(answer.table)
+      timer = setTimeout(() => void poll(), MATCH_POLL_MS)
+    }
+    void poll()
+    const impatient = setTimeout(() => live && setPatient(false), MATCH_PATIENCE_MS)
+    return () => {
+      live = false
+      clearTimeout(timer)
+      clearTimeout(impatient)
+      void leave()
+    }
+    // Les doublures de la planche ne changent pas pendant la file.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang])
+  return <Notice title={t.duel.matchTitle} text={offline ? t.duel.matchOffline : t.duel.matchLead} back={t.duel.matchCancel} onBack={onCancel} onBots={patient ? undefined : onBots} />
+}
+
+const MATCH_POLL_MS = 2000
+const MATCH_PATIENCE_MS = 15_000
+
 export interface DuelScreenProps {
   lang: string
   mode?: DuelMode
   /** La table où l'on a été invité ; sans elle, l'écran ouvre une table neuve. */
   join?: string | null
+  /** La table vient du matchmaking : chacun s'y déclare prêt dès qu'il y est assis. */
+  quick?: boolean
   onExit?(reason: DuelExit): void
 }
 
-export function DuelScreen({ lang, mode = 'local', join = null, onExit }: DuelScreenProps) {
+export function DuelScreen({ lang, mode = 'local', join = null, quick = false, onExit }: DuelScreenProps) {
   // Hors ligne, la table en ligne cède la place à une table locale, sur le même écran.
   const [local, setLocal] = useState(false)
-  return <DuelTableScreen key={local ? 'local' : mode} lang={lang} mode={local ? 'local' : mode} join={local ? null : join} onExit={onExit} onBots={() => setLocal(true)} />
+  return <DuelTableScreen key={local ? 'local' : mode} lang={lang} mode={local ? 'local' : mode} join={local ? null : join} quick={quick && !local} onExit={onExit} onBots={() => setLocal(true)} />
 }
 
-function DuelTableScreen({ lang, mode, join, onExit, onBots }: Required<Omit<DuelScreenProps, 'onExit'>> & Pick<DuelScreenProps, 'onExit'> & { onBots(): void }) {
+function DuelTableScreen({ lang, mode, join, quick, onExit, onBots }: Required<Omit<DuelScreenProps, 'onExit'>> & Pick<DuelScreenProps, 'onExit'> & { onBots(): void }) {
   const t = useT()
-  const table = useDuelTable({ lang, mode, join, onExit })
+  const table = useDuelTable({ lang, mode, join, quick, onExit })
   const { phase } = table
   // Les règles s'ouvrent au premier lancement de la table, puis se revoient du salon.
   const [rules, setRules] = useState(() => !loadDuelRulesSeen())

@@ -46,6 +46,7 @@ import type { WordsReport } from './words'
 import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
 import type { SlotEntry, Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
+import { guestFits, placeGuest } from '../domain/localBoards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 import { ModeIntro } from '../ui/ModeIntro'
 import { WeeklyCardScenario, WeeklyDoneScenario, WeeklyRecapScenario, WeeklyResultsScenario, WeeklyRunScenario, WeeklyScreenScenario } from './weeklyScenarios'
@@ -66,7 +67,7 @@ import { RatingPop } from '../ui/RatingPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
-import { DuelScreen, Draft } from '../ui/DuelScreen'
+import { DuelScreen, Draft, DuelMatchmaking } from '../ui/DuelScreen'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
@@ -77,6 +78,24 @@ import { activeCheers, HOUSE_BOTS, type DuelTable, type Seat } from '../state/du
 // La feuille du duel vit hors du paquet de l'accueil : cette planche est le
 // seul écran de l'app qui la montre, donc elle l'apporte avec elle.
 import '../duel.css'
+import { DailyCard } from '../ui/DailyCard'
+import { PowerLoadout } from '../ui/PowerLoadout'
+import { wearOrDrop } from '../domain/powers'
+import { NO_DAILY } from '../domain/daily'
+import type { DailyOutcome } from '../ui/OverScreen'
+
+function LoadoutScenario({ onBack }: { onBack(): void }) {
+  const [profile, setProfile] = useState<Profile>(() => ({
+    ...PROFILE,
+    powers: ['joker', 'hush', 'magic', 'permutation', 'dodge', 'dyslexia', 'divination', 'chatter'],
+    equipped: ['joker'],
+    bonuses: [...PROFILE.bonuses, 'slot'],
+  }))
+  return <PowerLoadout profile={profile} onWear={(id) => setProfile((current) => wearOrDrop(current, id))} onPlay={onBack} onBack={onBack} />
+}
+
+// Le 13 octobre 2026 à 15 h, heure de l'appareil : la carte jouée dit neuf heures avant la suivante.
+const DAILY_NOW = new Date(2026, 9, 13, 15, 0).getTime()
 
 /*
  * The debug board: every screen a player only meets by luck or by level,
@@ -846,6 +865,25 @@ function LeaderboardsScenario({ named, moderator = false, mineAt }: { named: boo
   )
 }
 
+/** Un invité de CrazyGames : sa meilleure valeur glissée sur le tableau, ou sous lui à la 63e place. */
+const GUEST_VALUES: Partial<Record<StatId, number>> = { best: 250, points: 20, runs: 3, words: 40, combo: 9 }
+
+async function fakeGuestLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | null> {
+  const board = await fakeLeaderboard(stat, period, -1)
+  if (!board) return null
+  const value = (GUEST_VALUES[stat] ?? 0) * (period === 'day' ? 1 : period === 'week' ? 4 : 20)
+  const open = { rows: board.rows, me: null }
+  return placeGuest(open, { name: 'Moi', avatar: DEFAULT_AVATAR, value }, guestFits(open, value) ? null : 63)
+}
+
+function GuestLeaderboardsScenario() {
+  return (
+    <div className="sheet">
+      <LeaderboardsPage named={false} guest onSignIn={() => {}} load={fakeGuestLeaderboard} />
+    </div>
+  )
+}
+
 const FRIEND_LEA = {
   id: 'lea',
   name: 'Léa',
@@ -1065,6 +1103,7 @@ function OverScenario({
   requests = [],
   failing = false,
   hidden,
+  daily,
 
   onBack,
 }: {
@@ -1081,6 +1120,7 @@ function OverScenario({
   failing?: boolean
   /** Les invites passées, chacune avec un mot caché sous une bande. */
   hidden?: readonly HiddenAnswer[]
+  daily?: DailyOutcome
 
   onBack(): void
 }) {
@@ -1095,6 +1135,7 @@ function OverScenario({
       revealed={revealed}
       onRevealed={() => setRevealed(true)}
       lang="fr"
+      daily={daily}
       avatar={DEFAULT_AVATAR}
       account={account}
       accountActions={quietAccount}
@@ -1626,6 +1667,14 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <WeeklyScreenScenario used={0} plus={false} onBack={back} />,
   },
   {
+    id: 'weekly-screen-portal',
+    group: 'Défi du moment',
+    title: 'Écran du défi : CrazyGames',
+    how: 'Sans serveur, pub ni boutique : un seul billet par jour, le record de l’appareil, ni rang ni classement',
+    phase: 'home',
+    render: (back) => <WeeklyScreenScenario used={0} plus={false} portal onBack={back} />,
+  },
+  {
     id: 'weekly-screen-ad',
     group: 'Défi du moment',
     title: 'Écran du défi : la pub',
@@ -1696,6 +1745,41 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le récap clos sur un rang 1 : la pop-up offre Premium, sans rien écrire au serveur',
     phase: 'home',
     render: (back) => <PlusPrizePop onClose={back} />,
+  },
+  {
+    id: 'power-loadout',
+    group: 'Pouvoirs',
+    title: 'Choix des pouvoirs avant la partie',
+    how: 'Huit pouvoirs, deux emplacements : une touche prend ou repose, le troisième pris chasse le plus ancien ; Entrée joue, Échap revient',
+    phase: 'home',
+    render: (back) => <LoadoutScenario onBack={back} />,
+  },
+  {
+    id: 'daily-home-card',
+    group: 'Défi du jour',
+    title: 'Carte de l’accueil',
+    how: 'Aucune série, une série de trois jours à garder, puis la partie du jour jouée avec le temps avant la suivante',
+    phase: 'home',
+    render: (back) => (
+      <div className="sheet" style={{ gap: '1.4rem' }}>
+        <button type="button" className="btn btn--quiet" onClick={back}>
+          ← Retour
+        </button>
+        <DailyCard record={NO_DAILY} now={DAILY_NOW} onPlay={back} />
+        <DailyCard record={{ day: '2026-10-12', streak: 3, best: 3, score: 140, played: 5 }} now={DAILY_NOW} onPlay={back} />
+        <DailyCard record={{ day: '2026-10-13', streak: 4, best: 6, score: 182, played: 9 }} now={DAILY_NOW} onPlay={back} />
+      </div>
+    ),
+  },
+  {
+    id: 'over-daily',
+    group: 'Défi du jour',
+    title: 'Bilan de la partie du jour',
+    how: 'Le bilan d’une partie du jour : la série de quatre jours et l’XP qu’elle a payée en plus',
+    phase: 'over',
+    render: (back) => (
+      <OverScenario after={afterRun(PROFILE, RUN, { xp: PROFILE.xp + RUN.score + 160 })} daily={{ number: 6, streak: 4, bonus: 160 }} onBack={back} />
+    ),
   },
   {
     id: 'over-classic',
@@ -2326,6 +2410,14 @@ const SCENARIOS: readonly Scenario[] = [
     render: () => <LeaderboardsScenario named={false} />,
   },
   {
+    id: 'leaderboards-guest',
+    group: 'Accueil',
+    title: 'Page des classements, invité de CrazyGames',
+    how: 'Sans compte : le classement du serveur avec la ligne « Moi » comptée sur l’appareil — parmi les lignes en « Meilleure partie », sous elles à la 63e place en « Points », absente en « Découvertes » — et le bouton qui ouvre la connexion du portail',
+    phase: 'home',
+    render: () => <GuestLeaderboardsScenario />,
+  },
+  {
     id: 'leaderboards-advanced',
     group: 'Accueil',
     title: 'Tableau de bord de l’administrateur',
@@ -2347,7 +2439,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Choix : duel en direct ou défi 24h',
     how: 'Le bouton « Créer un défi » quand le duel est ouvert au joueur',
     phase: 'home',
-    render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onChallenge={back} />,
+    render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onMatch={back} onChallenge={back} />,
   },
   {
     id: 'duel-invite',
@@ -2370,6 +2462,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'L’hôte a expulsé le joueur du salon : l’accueil le lui dit',
     phase: 'home',
     render: (back) => <DuelBanner text="L’hôte t’a retiré de la table." onDone={back} />,
+  },
+  {
+    id: 'duel-matchmaking',
+    group: 'Duel',
+    title: 'Matchmaking : recherche d’un adversaire',
+    how: 'Après « Trouver un adversaire » : la file, relue toutes les deux secondes ; les joueurs maison s’offrent au bout de quinze secondes ; ici la file ne répond jamais',
+    phase: 'home',
+    render: (back) => <DuelMatchmaking lang="fr" onMatched={back} onCancel={back} onBots={back} ask={async () => ({ status: 'waiting' })} leave={async () => true} />,
   },
   {
     id: 'duel-table',

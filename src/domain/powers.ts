@@ -204,6 +204,19 @@ export function equipPower(profile: Profile, slot: number, powerId: PowerId | nu
   return { ...profile, equipped: slots.filter((id): id is PowerId => id !== null) }
 }
 
+/**
+ * The pre-run loadout's one gesture: a worn power is put down, another is
+ * taken up — into a free slot, or in place of the one worn longest when
+ * every slot is full, so a tap always does what it shows.
+ */
+export function wearOrDrop(profile: Profile, powerId: PowerId): Profile {
+  if (!ownedPowers(profile).includes(powerId)) return profile
+  const worn = equippedPowers(profile)
+  if (worn.includes(powerId)) return { ...profile, equipped: worn.filter((id) => id !== powerId) }
+  const kept = worn.length < slotsOf(profile) ? worn : worn.slice(1)
+  return { ...profile, equipped: [...kept, powerId] }
+}
+
 /** Every power, owned without a pick — for the house account, which plays to test them all. */
 export function unlockEveryPower(profile: Profile): Profile {
   const owned = new Set(ownedPowers(profile))

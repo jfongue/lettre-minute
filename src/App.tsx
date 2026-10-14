@@ -7,6 +7,7 @@ import {
   createChallenge,
   deleteAccount,
   fetchAccount,
+  followHostAccount,
   fetchChallenge,
   fetchChallenges,
   fetchFriends,
@@ -84,14 +85,17 @@ import {
   needsPowerPick,
   scoreAt,
 } from './domain/challenge'
-import { complicationDue, slotsOf, type PowerId } from './domain/powers'
+import { complicationDue, ownedPowers, slotsOf, type PowerId } from './domain/powers'
 import { completeLeaderboard } from './domain/leaderboards'
+import { withGuest } from './ui/guestBoards'
 import { localBoards } from './ui/localBoards'
 import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
 import { DAMPED_WORDS } from './data/damped-words'
 import { sharedCategoryIds } from './domain/catalogue'
+import { dailyBonusXp, dailyLineup, dailyNumber, dailyOpen, dailySeed, streakAfter } from './domain/daily'
+import { loadDaily, localDay, saveDailyRun } from './state/daily'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { compactWord, normalizeWord } from './domain/text'
 import { commonWord, withExtraWords } from './domain/words'
@@ -176,6 +180,8 @@ import { DuelBanner, DuelInviteCard, PlayTogether } from './ui/PlayTogether'
 import { GameModes } from './ui/GameModes'
 import { ModeTutorial } from './ui/ModeTutorial'
 import { WeeklyDone, WeeklyRecap, WeeklyResults, WeeklyScreen, useWeeklyFlow } from './ui/WeeklyFlow'
+import { DailyCard } from './ui/DailyCard'
+import { PowerLoadout } from './ui/PowerLoadout'
 import type { DuelExit } from './state/duel'
 
 // Everything but the home screen waits in its own chunk: the first paint only
@@ -194,6 +200,7 @@ const RunScreen = lazyScreen(() => import('./ui/RunScreen').then((module) => mod
 const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) => module.WordsBoard))
 const FeaturesBoard = lazyScreen(() => import('./debug/FeaturesBoard').then((module) => module.FeaturesBoard))
 const DuelScreen = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelScreen))
+const DuelMatchmaking = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelMatchmaking))
 
 /** The run's own screens: awaited with its dictionaries, so the countdown never opens on a blank frame. */
 function preloadRunScreens(): Promise<unknown> {
@@ -262,6 +269,8 @@ export function App() {
   // relu par la relecture, qui doit rejouer le même.
   const modeNow = useRef<GameMode>('solo')
   const [modesOpen, setModesOpen] = useState(false)
+  // Le choix des pouvoirs avant une partie seule, là où la fonctionnalité l'ouvre.
+  const [loadout, setLoadout] = useState(false)
   // La leçon du mode choisi : elle se joue à chaque sélection d'un mode de la
   // réserve, et `launching` la garde à l'écran le temps que la partie charge.
   const [modeLesson, setModeLesson] = useState<{ mode: ArcadeMode; launching: boolean } | null>(null)
@@ -392,6 +401,7 @@ setMenuPage(null)
   const [updateKnown, setUpdateKnown] = useState(false)
   // The dictionary the run plays: the interface's, or the challenge's own.
   const [runLang, setRunLang] = useState<string | null>(null)
+  const [daily, setDaily] = useState(loadDaily)
   // Signing in must wait for the run to reach the server: the merge moves the
   // anonymous player's runs, and a run still in flight would be left behind.
   const pushing = useRef<Promise<unknown>>(Promise.resolve())
@@ -414,11 +424,14 @@ setMenuPage(null)
     superModerator: moderation ? moderation.super : storedFeatures.roles.superModerator,
     premium: isPlus(session.profile),
   }
-  // Without a server the home boards rank the player's own runs.
-  const ownBoards = useMemo(
-    () => (host.localBoards ? localBoards(history, avatar, t.tag) : null),
-    [history, avatar, t.tag],
-  )
+  // A guest of a host that gives no anonymous account (CrazyGames) finds
+  // their own best on the server's boards, or their runs alone while the
+  // server is out of reach.
+  const guest = host.guestBoards && (account === null || account.anonymous)
+  const homeBoards = useMemo(() => {
+    if (!guest) return boards
+    return boards ? withGuest(boards, { history, avatar, name: t.boards.me, tag: t.tag }) : localBoards(history, avatar, t.tag)
+  }, [guest, boards, history, avatar, t])
   const features = useMemo(
     () => hostFeatures(enabledFeatures(storedFeatures.flags, roles)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -445,7 +458,8 @@ setMenuPage(null)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean } | null>(null)
+  const [matching, setMatching] = useState(false)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
   const [debugPhase, setDebugPhase] = useState<string | null>(() =>
@@ -594,10 +608,36 @@ setMenuPage(null)
       // Unreachable keeps the cached account: the session is still on the device.
       if (found === 'unreachable') return
       if (found) adopt(found)
-      else setAccount(null)
+      else {
+        // Batched with the cached account read just before, the null would
+        // leave the account's own effect unrun and the cache in place.
+        setAccount(null)
+        saveAccount(null)
+      }
     })
     flushSubmissions()
   }, [adopt, answer])
+
+  // The host's own account (CrazyGames): its signed-in player plays under the
+  // game account linked to it, a guest under none.
+  useEffect(() => {
+    if (!host.account) return
+    const follow = () =>
+      host
+        .account!()
+        .then(followHostAccount)
+        .then((changed) => {
+          if (!changed) return
+          fetchAccount().then((found) => {
+            if (found === 'unreachable') return
+            if (found) adopt(found)
+            else setAccount(null)
+          })
+          loadBoards().then(setBoards)
+        })
+    follow()
+    host.onAccount?.(follow)
+  }, [adopt])
 
   const refreshModeration = useCallback(() => {
     fetchModerationStatus(lang).then(setModeration)
@@ -884,7 +924,7 @@ setStartedAt((at) => at ?? Date.now())
   // A pick owed and no offer on the table — after a level up, or on a device
   // that has never seen this player's picks — deals three categories to choose from.
   useEffect(() => {
-    dispatch({ type: 'offer', availableIds: availableCategoryIds(lang), seed: Date.now() >>> 0, isModerator: moderation?.moderator === true })
+    dispatch({ type: 'offer', availableIds: availableCategoryIds(lang), seed: Date.now() >>> 0, isModerator: moderation?.moderator === true, bonuses: host.levelBonuses })
   }, [session.profile, lang, moderation?.moderator])
 
   // Loading an ad takes seconds, consent included: started once the free pick
@@ -955,6 +995,36 @@ setStartedAt((at) => at ?? Date.now())
     }
   }, [session.profile, judgeFor, t, lang])
 
+  /**
+   * La partie du jour : la graine et les catégories du jour pour tout le monde
+   * (`dailyLineup`), sans pouvoir ni filtre, et la série qui paie son XP.
+   */
+  const playDaily = useCallback(async () => {
+    const now = Date.now()
+    const day = localDay(now)
+    await host.breakBetweenRuns()
+    dispatch({ type: 'play' })
+    setRunLang(lang)
+    setPlayed(null)
+    setBoardsBefore(boardsNow.current)
+    setBoardsAfter(null)
+    try {
+      const lineup = dailyLineup(day, lang, sharedCategoryIds(availableCategoryIds(lang)))
+      const [judge] = await Promise.all([judgeFor(lineup, lang, true), preloadRunScreens()])
+      dispatch({
+        type: 'ready',
+        judge,
+        seed: dailySeed(day, lang),
+        categoryIds: lineup,
+        reserve: [],
+        noPowers: true,
+        daily: { day, bonus: dailyBonusXp(streakAfter(loadDaily(), day)) },
+      })
+    } catch {
+      dispatch({ type: 'load-failed', message: t.loadFailed })
+    }
+  }, [judgeFor, t, lang])
+
   // The player's dictionaries, parsed one by one while the home screen idles:
   // parsed at the countdown instead, they stalled the page as the sound played,
   // and the phone crackled.
@@ -984,11 +1054,17 @@ setStartedAt((at) => at ?? Date.now())
     }
   }, [idleHome, ownedShipped, lang])
 
+  /** Une partie seule : d'abord le choix des pouvoirs pour qui en a, quand la fonctionnalité l'ouvre. */
+  const playSolo = useCallback(() => {
+    if (on('powerLoadout') && on('powers') && modeNow.current === 'solo' && ownedPowers(session.profile).length > 0) setLoadout(true)
+    else void play()
+  }, [on, session.profile, play])
+
   const startFirstRun = useCallback(() => {
-    if (session.profile.runs > 0 || loadTutorialDone() || !on('tutorial')) return play()
+    if (session.profile.runs > 0 || loadTutorialDone() || !on('tutorial')) return playSolo()
     setMenuPage(null)
     setTutorial('teaching')
-  }, [session.profile.runs, play, on])
+  }, [session.profile.runs, playSolo, on])
   // The answer was just handed over: the run that follows must not deal the
   // same pair. `lastPrompts` already keeps it out, and the run's own prompts
   // replace it once it ends.
@@ -1477,7 +1553,7 @@ setStartedAt((at) => at ?? Date.now())
     () => ({
       hiddenFor: async (run) =>
         hiddenAnswersOf(run.prompts ?? [], run.words.map((word) => word.word), await judgeFor(run.categoryIds, run.lang)),
-      budget: revealBudget(session.profile, todayKey()),
+      budget: revealBudget(session.profile, todayKey(), host.unlimitedReveals),
       onPeek: peek,
       onAd: revealAd,
       // Only a moderator flags a word: without the role, the recap says nothing of it.
@@ -1580,7 +1656,7 @@ setStartedAt((at) => at ?? Date.now())
     if (session.phase !== 'over' || !session.run) return
     const playedLang = runLang ?? lang
     track('run_end', {
-      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : 'solo',
+      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : session.daily ? 'daily' : 'solo',
       score: session.run.score,
       words: session.run.found.length,
       skips: session.run.skips,
@@ -1600,6 +1676,7 @@ setStartedAt((at) => at ?? Date.now())
       return
     }
     const record = recordOf(session.run, Date.now(), playedLang)
+    if (session.daily) setDaily(saveDailyRun(session.daily.day, session.run.score))
     setHistory((previous) => {
       const next = appendRecord(previous, record)
       saveHistory(next)
@@ -1667,7 +1744,10 @@ setStartedAt((at) => at ?? Date.now())
     // Une table de duel se quitte par son bouton : un geste de retour en pleine
     // partie abandonnerait sa réserve sans le dire.
     if (duelOpen) return true
-    if (together) setTogether(false)
+    if (matching) {
+      setMatching(false)
+      setTogether(true)
+    } else if (together) setTogether(false)
     else if (picking) setPicking(null)
     else if (creating) setCreating(null)
     else if (challengeOpen) setChallengeOpen(null)
@@ -1708,7 +1788,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (session.phase !== 'countdown' || !session.run) return
     track('run_start', {
-      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : 'solo',
+      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : session.daily ? 'daily' : 'solo',
       categories: session.run.categoryIds,
       powers: session.run.powers,
       first: session.profile.runs === 0,
@@ -1733,7 +1813,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => setTrackScreen(screenName), [screenName])
 
   const quietHome =
-    session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !duelOpen && !weeklyFlow.covering
+    session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !matching && !modesOpen && !loadout && !duelOpen && !weeklyFlow.covering
   const notice = quietHome && on('challenges') ? challengeNotice(challenges, heldNotices) : null
   const updateDue = update === 'due' && on('storeUpdate')
   // The moderator card never reaches someone who already moderates: `moderator`
@@ -1845,7 +1925,7 @@ setStartedAt((at) => at ?? Date.now())
 
       {duelOpen && session.phase === 'home' && (
         <Suspense fallback={null}>
-          <DuelScreen lang={lang} mode="online" join={duelOpen.join} onExit={leaveDuel} />
+          <DuelScreen lang={lang} mode="online" join={duelOpen.join} quick={duelOpen.quick} onExit={leaveDuel} />
         </Suspense>
       )}
 
@@ -1858,11 +1938,48 @@ setStartedAt((at) => at ?? Date.now())
             setTogether(false)
             setDuelOpen({ join: null })
           }}
+          onMatch={() => {
+            rememberMultiplayer()
+            setTogether(false)
+            setMatching(true)
+          }}
           onChallenge={() => {
             setTogether(false)
             openCreate()
           }}
         />
+      )}
+
+      {loadout && (session.phase === 'home' || session.phase === 'over') && !tutorial && (
+        <PowerLoadout
+          profile={session.profile}
+          onWear={(powerId) => dispatch({ type: 'wear', powerId })}
+          onPlay={() => {
+            setLoadout(false)
+            void play()
+          }}
+          onBack={() => setLoadout(false)}
+        />
+      )}
+
+      {matching && session.phase === 'home' && !duelOpen && (
+        <Suspense fallback={null}>
+          <DuelMatchmaking
+            lang={lang}
+            onMatched={(table) => {
+              setMatching(false)
+              setDuelOpen({ join: table, quick: true })
+            }}
+            onCancel={() => {
+              setMatching(false)
+              setTogether(true)
+            }}
+            onBots={() => {
+              setMatching(false)
+              setDuelOpen({ join: null })
+            }}
+          />
+        </Suspense>
       )}
 
       {modesOpen && session.phase === 'home' && !tutorial && (
@@ -1875,13 +1992,13 @@ setStartedAt((at) => at ?? Date.now())
 
       {weeklyFlow.overlay}
 
-      {!tutorial && !modeLesson && !moderating && !duelOpen && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
+      {!tutorial && !modeLesson && !loadout && !moderating && !duelOpen && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
           loading={session.phase === 'loading'}
           settled={homeSettled}
-          boards={on('leaderboards') ? (host.localBoards ? ownBoards : boards) : null}
+          boards={on('leaderboards') ? homeBoards : null}
           me={account && !account.anonymous ? account.name : null}
           climbed={climbed}
           avatar={avatar}
@@ -1893,6 +2010,12 @@ setStartedAt((at) => at ?? Date.now())
           challenges={named && (on('challenges') || on('duel')) ? (on('challenges') ? challenges : []) : null}
           multiplayerNews={multiplayerNews}
           weekly={weeklyFlow.card}
+          daily={
+            // À partir du niveau 5 seulement (`dailyOpen`) : avant, l'accueil n'a que « Jouer ».
+            on('daily') && dailyOpen(session.profile) ? (
+              <DailyCard record={daily} disabled={session.phase === 'loading'} onPlay={() => void playDaily()} />
+            ) : null
+          }
           invites={
             duelInvites[0] ? (
               <DuelInviteCard
@@ -2276,7 +2399,7 @@ avatarFocus={avatarFocus}
 
       {weeklyFlow.over}
 
-      {session.phase === 'over' && session.run && !session.weekly && !moderating && (
+      {session.phase === 'over' && session.run && !session.weekly && !moderating && !loadout && (
         <Suspense fallback={null}>
           <OverScreen
             run={session.run}
@@ -2309,7 +2432,7 @@ setMenuPage('avatar')
             onPeek={peek}
             onAd={revealAd}
             onFlag={overFlag}
-            onReplay={play}
+            onReplay={session.challengeId ? play : playSolo}
             onHome={() => {
               // Asked on the way home, never over the summary: after the tenth run, then every thirty.
               if (cloudConfigured() && feedbackDue(session.profile) && on('feedback')) {
@@ -2326,6 +2449,11 @@ setMenuPage('avatar')
               }
             }}
             ranked={countsForProgress(session.run.mode)}
+            daily={
+              session.daily && daily.day === session.daily.day
+                ? { number: dailyNumber(session.daily.day), streak: daily.streak, bonus: session.daily.bonus }
+                : undefined
+            }
           challenge={session.challengeId ? afterRun : undefined}
             onChallengeChanged={() => {
               if (session.challengeId) fetchChallenge(session.challengeId).then((detail) => detail && setAfterRun(detail))

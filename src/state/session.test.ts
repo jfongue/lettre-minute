@@ -89,6 +89,47 @@ describe('challenge runs', () => {
   })
 })
 
+describe('the day\'s run', () => {
+  const veteran = { ...NEW_PROFILE, lastPrompts: ['animaux:A'], powers: ['permutation'], equipped: ['permutation'] }
+  const ready = () =>
+    sessionReducer(initialSession(veteran), {
+      type: 'ready',
+      judge,
+      seed: 7,
+      categoryIds: ['animaux'],
+      reserve: ['pays'],
+      noPowers: true,
+      daily: { day: '2026-10-13', bonus: 80 },
+    })
+
+  it('draws from the seed alone, without powers or swaps', () => {
+    const session = ready()
+    expect(session.run!.avoid).toEqual([])
+    expect(session.run!.powers).toEqual([])
+    expect(session.swapsLeft).toBe(0)
+    expect(session.reserve).toEqual([])
+    expect(session.daily).toEqual({ day: '2026-10-13', bonus: 80 })
+  })
+
+  it('counts like a solo run and pays the streak on top', () => {
+    const started = sessionReducer(ready(), { type: 'start' })
+    const typed = sessionReducer(started, { type: 'type', draft: `${started.run!.prompt.letter}nimal0` })
+    const over = sessionReducer(typed, { type: 'time-up', at: 60 })
+
+    expect(over.profile.runs).toBe(1)
+    expect(over.profile.bestScore).toBe(over.run!.score)
+    const unpaid = sessionReducer(
+      sessionReducer(sessionReducer({ ...ready(), daily: { day: '2026-10-13', bonus: 0 } }, { type: 'start' }), {
+        type: 'type',
+        draft: `${started.run!.prompt.letter}nimal0`,
+      }),
+      { type: 'time-up', at: 60 },
+    )
+    expect(over.profile.xp - unpaid.profile.xp).toBe(80)
+    expect(sessionReducer(over, { type: 'home' }).daily).toBeNull()
+  })
+})
+
 describe('permutation', () => {
   const swapper = { ...NEW_PROFILE, powers: ['permutation'], equipped: ['permutation'] }
   const countdown = sessionReducer(initialSession(swapper), {

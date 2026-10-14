@@ -70,22 +70,26 @@ export function bonusUnlocked(profile: Profile): boolean {
  * third from `BONUS_FROM_LEVEL` once the conditions hold, as many as the
  * bonuses left to take — a level with nothing left in the pool is a category
  * again (`picksOwed`). Derived from the level like the picks, never stored.
+ *
+ * `bonuses` false — a version that pays a power or a category at every level
+ * (`Host.levelBonuses`) — counts only those already taken, so the picks made
+ * before keep their place and every level to come is a category.
  */
-export function bonusLevels(profile: Profile, isModerator = false): number {
+export function bonusLevels(profile: Profile, isModerator = false, bonuses = true): number {
   const taken = won(profile)
-  if (!bonusUnlocked(profile)) return taken
+  if (!bonuses || !bonusUnlocked(profile)) return taken
   const reached = Math.max(0, Math.floor((levelFor(profile.xp) - BONUS_FROM_LEVEL) / BONUS_EVERY_LEVELS))
   return Math.max(taken, Math.min(reached, taken + poolRoom(profile, isModerator)))
 }
 
 /** Bonuses the player has earned and not yet picked. */
-export function bonusesOwed(profile: Profile, isModerator = false): number {
-  return Math.max(0, bonusLevels(profile, isModerator) - won(profile))
+export function bonusesOwed(profile: Profile, isModerator = false, bonuses = true): number {
+  return Math.max(0, bonusLevels(profile, isModerator, bonuses) - won(profile))
 }
 
 /** Two bonuses, weighted by kind, if one is owed and none is on the table. */
-export function dealBonusOffer(profile: Profile, seed: number, isModerator = false): Profile {
-  if (profile.bonusOffer.length > 0 || bonusesOwed(profile, isModerator) === 0) return profile
+export function dealBonusOffer(profile: Profile, seed: number, isModerator = false, bonuses = true): Profile {
+  if (profile.bonusOffer.length > 0 || bonusesOwed(profile, isModerator, bonuses) === 0) return profile
 
   const rng = createRng(seed)
   const left = bonusPool(profile, isModerator)

@@ -18,6 +18,7 @@ import {
   isWeekId,
   metricOf,
   parisDay,
+  parisPeriodStart,
   recordCurve,
   weekById,
   weekNumber,
@@ -63,6 +64,18 @@ describe('Paris time', () => {
     expect(parisDay(at('2026-03-29T21:59:59Z'))).toBe('2026-03-29')
     // Summer time: 22:00Z is midnight.
     expect(parisDay(at('2026-03-29T22:00:00Z'))).toBe('2026-03-30')
+  })
+
+  it('opens the boards’ day and week at Paris midnight, as period_start does', () => {
+    // Wednesday 2026-10-14, summer time: midnight is 22:00Z the day before, Monday the 12th.
+    expect(parisPeriodStart('day', at('2026-10-14T10:00:00Z'))).toBe(at('2026-10-13T22:00:00Z'))
+    expect(parisPeriodStart('week', at('2026-10-14T10:00:00Z'))).toBe(at('2026-10-11T22:00:00Z'))
+    // A Monday just after midnight opens its own week.
+    expect(parisPeriodStart('week', at('2026-10-11T22:30:00Z'))).toBe(at('2026-10-11T22:00:00Z'))
+    // The Sunday of the switch to winter time began in summer time.
+    expect(parisPeriodStart('day', at('2026-10-25T12:00:00Z'))).toBe(at('2026-10-24T22:00:00Z'))
+    expect(parisPeriodStart('day', at('2026-10-26T12:00:00Z'))).toBe(at('2026-10-25T23:00:00Z'))
+    expect(parisPeriodStart('week', at('2026-10-28T12:00:00Z'))).toBe(at('2026-10-25T23:00:00Z'))
   })
 
   it('switches back at 01:00 UTC on the last Sunday of October', () => {

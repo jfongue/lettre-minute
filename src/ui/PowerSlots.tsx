@@ -8,6 +8,7 @@ import { PowerIcon } from './PowerIcon'
 import { SlotIcon } from './premium'
 import { reducedMotion } from './useCountUp'
 import { useBackDismiss } from './useBackDismiss'
+import { host } from '../platform'
 
 /** Long enough to see and hear the power land in its slot, short enough not to wait for it. */
 const WEAR_MS = 650
@@ -31,7 +32,8 @@ export function PowerSlots({ profile, disabled, onEquip }: PowerSlotsProps) {
     <section className="power-slots" aria-label={t.powers.title}>
       <p className="section-title">{t.powers.title}</p>
       <div className="power-slots-row">
-        {Array.from({ length: MAX_EQUIPPED }, (_, slot) => {
+        {/* Sans bonus de niveau, l'emplacement verrouillé ne promettrait rien : il ne se montre pas. */}
+          {Array.from({ length: host.levelBonuses ? MAX_EQUIPPED : slots }, (_, slot) => {
           const id = worn[slot] ?? null
           // The second slot is a level bonus, not Premium's: it says how to win it and opens nothing.
           if (slot >= slots) {

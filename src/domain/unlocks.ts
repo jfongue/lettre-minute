@@ -22,9 +22,9 @@ export { ownedCategoryIds, starterCategoryIds } from './owned'
  * Bonus levels (`bonusLevels`) pay no category either; a level with no bonus
  * left to give is a category again. `isModerator` only matters at that end.
  */
-export function picksOwed(profile: Profile, isModerator = false): number {
+export function picksOwed(profile: Profile, isModerator = false, bonuses = true): number {
   const level = levelFor(profile.xp)
-  return Math.max(0, level - 1 - powersEarnedAt(level) - bonusLevels(profile, isModerator) - pickedCategories(profile).length)
+  return Math.max(0, level - 1 - powersEarnedAt(level) - bonusLevels(profile, isModerator, bonuses) - pickedCategories(profile).length)
 }
 
 /**
@@ -35,8 +35,8 @@ export function picksOwed(profile: Profile, isModerator = false): number {
  * `availableIds` is what the build ships a dictionary for — a category without
  * words can be neither offered nor played.
  */
-export function dealOffer(profile: Profile, availableIds: readonly string[], seed: number, isModerator = false): Profile {
-  if (profile.offer.length > 0 || picksOwed(profile, isModerator) === 0) return profile
+export function dealOffer(profile: Profile, availableIds: readonly string[], seed: number, isModerator = false, bonuses = true): Profile {
+  if (profile.offer.length > 0 || picksOwed(profile, isModerator, bonuses) === 0) return profile
 
   const owned = new Set(ownedCategoryIds(profile))
   const candidates = CATALOGUE.filter((category) => !category.premiere)

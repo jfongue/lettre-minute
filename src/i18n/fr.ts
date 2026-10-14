@@ -240,6 +240,7 @@ export const fr = {
     less: 'Voir moins',
     all: 'Tous les classements',
     plus: 'Plus…',
+    me: 'Moi',
   },
 
   leaderboards: {
@@ -260,6 +261,8 @@ export const fr = {
     you: 'Ta place',
     absent: 'Tu n’y figures pas encore : à toi de jouer.',
     anonymous: 'Crée un compte pour figurer aux classements.',
+    guest: 'Ta ligne « Moi » est comptée sur cet appareil. Connecte-toi pour figurer au classement de tous.',
+    signIn: 'Se connecter',
     runs: 'Parties',
     solo: 'Solo',
     challenge: 'Défi',
@@ -618,6 +621,16 @@ export const fr = {
   },
 
   powers: {
+    loadout: {
+      kicker: 'Avant la partie',
+      title: 'Tes pouvoirs',
+      lead: (slots: number): string => (slots > 1 ? 'Touche les deux pouvoirs à emporter.' : 'Touche le pouvoir à emporter.'),
+      slot: (index: number) => `Emplacement ${index}`,
+      play: 'Jouer',
+      playBare: 'Jouer sans pouvoir',
+      back: 'Retour',
+      hint: 'Entrée pour jouer',
+    },
     castChatter: 'Bavardage ! La lettre reste',
 doubleSkipFree: 'Passe-passe · passage gratuit',
     chatterLeft: (left: number) => `Bavardage · encore ${left} ${plural(left, 'mot', 'mots')}`,
@@ -1113,6 +1126,13 @@ latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 s
     duelCard: 'Duel en direct !',
     duelCardNote: 'Chacun son tour, 30 secondes de réserve, le dernier debout gagne.',
     duelCardPlayers: '2 à 4 joueurs',
+    matchCard: 'Trouver un adversaire',
+    matchCardNote: 'Un joueur au hasard, tout de suite',
+    matchCardPlayers: '2 joueurs',
+    matchTitle: 'Recherche d’un adversaire…',
+    matchLead: 'On t’associe à un joueur qui cherche aussi une partie, dans ta langue.',
+    matchCancel: 'Annuler',
+    matchOffline: 'Le serveur ne répond pas pour l’instant.',
     challengeCard: 'Défi 24h',
     challengeCardNote: 'La même partie pour tous, à jouer dans la journée.',
     challengeCardPlayers: '2 à 8 joueurs',
@@ -1232,6 +1252,21 @@ return `${at} ${plural(goal.at, 'mot du Professeur repris', 'mots du Professeur 
 
   /** Le puzzle quotidien de la version Reddit (`reddit/`). */
   daily: {
+    /** Le défi du jour dans l'app, là où un hôte l'ouvre (CrazyGames) : la carte de l'accueil et la ligne du bilan. */
+    app: {
+      kicker: 'Défi du jour',
+      same: 'La même partie pour tout le monde aujourd’hui',
+      bonus: (xp: number) => `+${xp} XP`,
+      streak: (days: number) => `${days} ${plural(days, 'jour', 'jours')} d’affilée`,
+      keep: 'Joue aujourd’hui pour garder ta série',
+      done: (score: number) => `Fait : ${score} ${plural(score, 'point', 'points')}`,
+      next: (time: string) => `Le prochain dans ${time}`,
+      time: (hours: number, minutes: number) => (hours > 0 ? `${hours} h ${String(minutes).padStart(2, '0')}` : `${minutes} min`),
+      over: (number: number) => `Défi du jour n° ${number} : fait`,
+      overStreak: (days: number, xp: number) => `Série : ${days} ${plural(days, 'jour', 'jours')} · +${xp} XP de bonus`,
+      overNext: 'Reviens demain pour allonger ta série.',
+      best: (days: number) => `Record : ${days} ${plural(days, 'jour', 'jours')}`,
+    },
     title: 'Lettre Minute',
     number: (number: number) => `n° ${number}`,
     tagline: 'Une lettre, une catégorie, soixante secondes. Aujourd’hui, la même partie pour tout le monde.',

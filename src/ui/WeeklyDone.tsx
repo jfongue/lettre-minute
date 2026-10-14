@@ -20,6 +20,7 @@ export function WeeklyDone({
   rank,
   players,
   sending,
+  ranked,
   onBack,
 }: {
   mode: GameMode
@@ -34,6 +35,8 @@ export function WeeklyDone({
   rank: number | null
   players: number
   sending: 'sending' | 'sent' | 'failed'
+  /** Un serveur classe les tentatives ; sans lui, pas de rang à attendre. */
+  ranked: boolean
   onBack(): void
 }) {
   const t = useT()
@@ -65,9 +68,11 @@ export function WeeklyDone({
 
       <div className="wk-stats">
         <WeeklyStat label={t.weekly.done.best}>{valueText(t, best, metric)}</WeeklyStat>
-        <WeeklyStat label={t.weekly.done.rank}>
-          {rank === null ? <span className="wk-none">{sending === 'failed' ? '—' : '…'}</span> : t.weekly.screen.rankOf(rank, Math.max(players, rank))}
-        </WeeklyStat>
+        {ranked && (
+          <WeeklyStat label={t.weekly.done.rank}>
+            {rank === null ? <span className="wk-none">{sending === 'failed' ? '—' : '…'}</span> : t.weekly.screen.rankOf(rank, Math.max(players, rank))}
+          </WeeklyStat>
+        )}
       </div>
 
       <div className="wk-done-left">

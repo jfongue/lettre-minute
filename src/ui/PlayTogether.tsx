@@ -13,7 +13,20 @@ import { useBackDismiss } from './useBackDismiss'
  * sur l'une d'elles ; le défi, une journée qui avance. Les deux dessins sont
  * posés d'aplomb et ne bougent pas : c'est le choix qui doit se lire.
  */
-export function PlayTogether({ challenge, onDuel, onChallenge, onClose }: { challenge: boolean; onDuel(): void; onChallenge(): void; onClose(): void }) {
+export function PlayTogether({
+  challenge,
+  onDuel,
+  onMatch,
+  onChallenge,
+  onClose,
+}: {
+  challenge: boolean
+  onDuel(): void
+  /** Le matchmaking : un adversaire inconnu, trouvé par le serveur. */
+  onMatch?(): void
+  onChallenge(): void
+  onClose(): void
+}) {
   const t = useT()
   useBackDismiss(onClose)
   useEffect(() => {
@@ -56,11 +69,38 @@ export function PlayTogether({ challenge, onDuel, onChallenge, onClose }: { chal
           </span>
         </button>
 
+        {onMatch ? (
+          <button
+            type="button"
+            className="together-card together-card--duel"
+            style={{ '--i': 1 } as CSSProperties}
+            onClick={() => {
+              armSound()
+              sound.go()
+              onMatch()
+            }}
+          >
+            <svg className="together-art together-art--duel" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+              <rect className="together-table" x="33" y="33" width="34" height="34" />
+              <circle className="together-seat--hand" cx="50" cy="11" r="11" />
+              <circle cx="50" cy="89" r="11" />
+            </svg>
+            <span className="together-text">
+              <b>{t.duel.matchCard}</b>
+              <small>{t.duel.matchCardNote}</small>
+              <span className="together-chip">{t.duel.matchCardPlayers}</span>
+            </span>
+            <span className="together-go" aria-hidden="true">
+              →
+            </span>
+          </button>
+        ) : null}
+
         {challenge ? (
           <button
             type="button"
             className="together-card together-card--challenge"
-            style={{ '--i': 1 } as CSSProperties}
+            style={{ '--i': 2 } as CSSProperties}
             onClick={() => {
               armSound()
               sound.tile('glass', 4)

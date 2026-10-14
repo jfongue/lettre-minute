@@ -31,6 +31,7 @@ import { revealBudget, type HiddenAnswer } from '../domain/perks'
 import { FlagWordCard, type FlagWord } from './StatsPage'
 import { Reveal } from './Reveal'
 import { useFeature } from './features'
+import { host } from '../platform'
 
 /** A word proposed during the run, and what the server holds of it — nothing while it still waits on the device. */
 export interface RunProposal {
@@ -97,6 +98,14 @@ onAvatar(design?: number): void
    * rapporte rien — le bilan le montre sans le comparer à rien.
    */
   ranked?: boolean
+  /** La partie du jour : son numéro, la série qu'elle tient et l'XP qu'elle a payée en plus. */
+  daily?: DailyOutcome
+}
+
+export interface DailyOutcome {
+  number: number
+  streak: number
+  bonus: number
 }
 
 export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: OverScreenProps) {
@@ -118,7 +127,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
         previousBest={previousBest}
         mine={summary.mine}
         hidden={summary.hidden ?? []}
-        budget={revealBudget(profile, todayKey())}
+        budget={revealBudget(profile, todayKey(), host.unlimitedReveals)}
         onPeek={summary.onPeek}
         onAd={summary.onAd}
         onFlag={summary.onFlag}
@@ -144,7 +153,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
         key={round}
         offer={profile.offer}
         lang={lang}
-        owed={picksOwed(profile, summary.isModerator)}
+        owed={picksOwed(profile, summary.isModerator, host.levelBonuses)}
         level={levelled ? levelFor(profile.xp) : null}
         withAd={adsSupported() && pickShowsAd(profile)}
         onChoose={(id) => {
@@ -176,12 +185,12 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
       />
     )
   }
-  if (profile.bonusOffer.length > 0 || celebrating === 'bonus') {
+  if ((host.levelBonuses && profile.bonusOffer.length > 0) || celebrating === 'bonus') {
     return (
       <BonusOfferScreen
         key={`bonus-${round}`}
         offer={profile.bonusOffer}
-        owed={bonusesOwed(profile, summary.isModerator)}
+        owed={bonusesOwed(profile, summary.isModerator, host.levelBonuses)}
         level={levelled ? levelFor(profile.xp) : null}
         profile={profile}
         onChoose={(id) => {
@@ -219,6 +228,7 @@ function Summary({
   onAvatar,
   onReplay,
   onHome,
+  daily,
 }: SummaryProps) {
   const t = useT()
   const leaderboards = useFeature('leaderboards')
@@ -234,6 +244,21 @@ function Summary({
   return (
     <div className="sheet cascade">
       <XpGain from={profileBefore.xp} to={profile.xp} />
+
+      {daily && (
+        <div className="daily-over">
+          <span className="daily-card-mark daily-card-mark--lit" aria-hidden="true">
+            <strong>{daily.streak}</strong>
+          </span>
+          <span className="daily-card-text">
+            <strong className="daily-card-main">{t.daily.app.over(daily.number)}</strong>
+            <span className="daily-card-meta">
+              <span>{t.daily.app.overStreak(daily.streak, daily.bonus)}</span>
+              <span>{t.daily.app.overNext}</span>
+            </span>
+          </span>
+        </div>
+      )}
 
       <Earned profileBefore={profileBefore} profile={profile} avatar={avatar} onAvatar={onAvatar} />
 

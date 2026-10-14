@@ -7,7 +7,7 @@ import { markRatingAsked, markRatingDone } from '../domain/rating'
 import { premiereCategoryIds } from '../domain/catalogue'
 import { ban, bannedOf, countPlusReveal, countPlusRun, grantRevealAd, joinPlus, learnFromProfessor, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
 import { chooseBonus, dealBonusOffer } from '../domain/bonus'
-import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, type PowerId } from '../domain/powers'
+import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, wearOrDrop, type PowerId } from '../domain/powers'
 import { countsForProgress, type GameMode } from '../domain/modes'
 import {
   arm,
@@ -40,6 +40,11 @@ export interface Session {
   challengeId: string | null
   /** The run is an attempt at the challenge of the moment: shared, never pushed, never counted for progress. */
   weekly: boolean
+  /**
+   * The run is the day's (`src/domain/daily.ts`): shared like a challenge, but
+   * counted like a solo run, with the streak's XP on top once it ends.
+   */
+  daily: DailyRun | null
   /** What is in the field right now, judged on every keystroke. */
   draft: string
   live: Verdict | null
@@ -68,6 +73,13 @@ export interface Proposal {
   categoryId: string
   at: number
   lang: string
+}
+
+export interface DailyRun {
+  /** The player's calendar day the run is played for. */
+  day: string
+  /** XP the streak pays on top of the run's own. */
+  bonus: number
 }
 
 export interface Cheer {
@@ -104,16 +116,21 @@ export type SessionAction =
       mode?: GameMode
       /** Une tentative du défi du moment : la partie de tous, sans pouvoir ni mémoire des questions passées. */
       weekly?: boolean
+      /** La partie du jour : partagée, sans pouvoir, comptée, et payée de sa série. */
+      daily?: DailyRun
     }
   /** The countdown traded a category: same seed, new lineup, a judge that knows the incoming dictionary. */
   | { type: 'swapped'; judge: Judge; categoryIds: readonly string[]; reserve: readonly string[] }
   /** `isModerator` keeps the moderator card off the bonus table of someone who already is one. */
-  | { type: 'offer'; availableIds: readonly string[]; seed: number; isModerator?: boolean }
+  /** `bonuses` false: every level pays a power or a category (`Host.levelBonuses`). */
+  | { type: 'offer'; availableIds: readonly string[]; seed: number; isModerator?: boolean; bonuses?: boolean }
   | { type: 'choose'; categoryId: string }
   | { type: 'choose-bonus'; bonusId: string }
   | { type: 'choose-power'; powerId: string }
   | { type: 'grant-power'; powerId: PowerId }
   | { type: 'equip'; slot: number; powerId: PowerId | null }
+  /** The pre-run loadout: a tap takes a power up or puts it down. */
+  | { type: 'wear'; powerId: PowerId }
   | { type: 'start' }
   /** Le retard commence : la question à l'écran part sans réponse et le chrono démarre. */
   | { type: 'arm' }
@@ -157,6 +174,7 @@ export function initialSession(profile: Profile): Session {
     swapsLeft: 0,
     challengeId: null,
     weekly: false,
+    daily: null,
     draft: '',
     live: null,
     cheer: null,
@@ -181,7 +199,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       // Un mode de la réserve ne se joue pas avec un pouvoir.
       const powers = action.noPowers || !countsForProgress(mode) ? [] : challenge ? challenge.powers : equippedPowers(session.profile)
       // A challenge avoids nothing: every player's draw must follow the seed alone.
-      const shared = Boolean(challenge) || action.weekly === true
+      const shared = Boolean(challenge) || action.weekly === true || Boolean(action.daily)
       const avoid = shared ? [] : session.profile.lastPrompts
       // Un mode de la réserve ne compte pour rien : la mémoire du Professeur
       // ne s'y joue ni ne s'y consomme.
@@ -195,6 +213,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         swapsLeft: !challenge && powers.includes('permutation') ? (POWER_CHARGES.permutation ?? 0) : 0,
         challengeId: challenge?.id ?? null,
         weekly: action.weekly === true,
+        daily: action.daily ?? null,
         levelBefore: levelFor(session.profile.xp),
         profileBefore: session.profile,
         draft: '',
@@ -218,10 +237,12 @@ export function sessionReducer(session: Session, action: SessionAction): Session
 
     case 'offer': {
       const isModerator = action.isModerator ?? false
+      const bonuses = action.bonuses ?? true
       const profile = dealBonusOffer(
-        dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed, isModerator), action.seed),
+        dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed, isModerator, bonuses), action.seed),
         action.seed,
         isModerator,
+        bonuses,
       )
       return profile === session.profile ? session : { ...session, profile }
     }
@@ -275,6 +296,9 @@ case 'rating-asked': {
       const profile = markRatingAsked(session.profile)
       return profile === session.profile ? session : { ...session, profile }
     }
+
+    case 'wear':
+      return withProfile(session, wearOrDrop(session.profile, action.powerId))
 
     case 'equip': {
       const profile = equipPower(session.profile, action.slot, action.powerId)
@@ -376,7 +400,7 @@ case 'rating-asked': {
         // historique — son score ne vit qu'à l'écran.
         profile: professorLearned(session, run, !countsForProgress(run.mode) || session.weekly
           ? session.profile
-          : (session.challengeId ? applyChallengeRun : applyRun)(plusRunCounted(session, run), {
+          : withDailyBonus(session, (session.challengeId ? applyChallengeRun : applyRun)(plusRunCounted(session, run), {
               score: run.score,
               words: run.found.map((found) => found.word),
               bestCombo: run.bestCombo,
@@ -385,7 +409,7 @@ case 'rating-asked': {
               // plus vive, sans-faute, pouvoirs et catégories — se lit ici, une
               // fois, plutôt que d'être recopié dans chaque écran de bilan.
               ...runMilestones(run),
-            })),
+            }))),
       }
     }
 
@@ -410,8 +434,12 @@ case 'rating-asked': {
       return { ...session, proposals: session.proposals.filter((proposal) => proposal.at !== action.at) }
 
     case 'home':
-      return { ...session, phase: 'home', weekly: false, run: null, draft: '', live: null, cheer: null, proposals: [] }
+      return { ...session, phase: 'home', weekly: false, daily: null, run: null, draft: '', live: null, cheer: null, proposals: [] }
   }
+}
+
+function withDailyBonus(session: Session, profile: Profile): Profile {
+  return session.daily && session.daily.bonus > 0 ? { ...profile, xp: profile.xp + session.daily.bonus } : profile
 }
 
 /** Ce que la partie qui vient de finir apprend du Professeur, une fois le barème appliqué. */
@@ -419,9 +447,9 @@ function professorLearned(session: Session, run: Run, profile: Profile): Profile
   return session.judge ? learnFromProfessor(profile, run, session.judge) : profile
 }
 
-/** A solo run is what shows Premium's filters and previews at work: a challenge deals its own categories. */
+/** A solo run is what shows Premium's filters and previews at work: a challenge or the day's run deals its own categories. */
 function plusRunCounted(session: Session, run: Run): Profile {
-  if (session.challengeId) return session.profile
+  if (session.challengeId || session.daily) return session.profile
   const premieres = premiereCategoryIds()
   return countPlusRun(session.profile, {
     filtersActive: bannedOf(session.profile, ownedCategoryIds(session.profile)).length,

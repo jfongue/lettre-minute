@@ -8,12 +8,16 @@ import { APP_ONLY_FEATURES, quiet, SERVER_FEATURES, type Host } from './host'
  */
 export const redditHost: Host = {
   closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES, 'powers', 'powerGift']),
+  openedFeatures: new Set(),
   title: null,
   languages: () => [],
   fallbackLocale: 'en',
   keepsProgress: true,
   premiumStore: false,
   rewardedAds: false,
-  localBoards: false,
+  levelBonuses: true,
+  unlimitedReveals: false,
+  anonymousAccounts: true,
+  guestBoards: false,
   ...quiet,
 }

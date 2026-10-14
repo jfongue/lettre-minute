@@ -1,6 +1,6 @@
 import { attemptsAllowed, attemptWindow, weekOf, type Week } from '../domain/weekly'
 import { fetchWeeklyRecap, weeklyStart } from '../lib/cloud'
-import { loadLocalAttempts, recordLocalAttempt, type WeeklyWindow } from './weekly'
+import { loadLocalAttempts, loadLocalBest, recordLocalAttempt, type WeeklyWindow } from './weekly'
 
 /**
  * Ce que l'écran du défi sait du joueur : ses tentatives du jour, son
@@ -29,6 +29,12 @@ export function mergeUsed(local: number, server: number | null): number {
   return Math.max(local, server ?? 0)
 }
 
+/** Le meilleur des deux records : celui du serveur, et celui de l'appareil qui a pu jouer sans lui. */
+export function bestOf(server: number | null, local: number | null): number | null {
+  if (server === null) return local
+  return local === null ? server : Math.max(server, local)
+}
+
 export async function loadWeeklyStatus(lang: string, now: number): Promise<WeeklyStatus> {
   const week = weekOf(now)
   const window = windowAt(now)
@@ -40,7 +46,7 @@ export async function loadWeeklyStatus(lang: string, now: number): Promise<Weekl
     window,
     used: mergeUsed(local.used, today),
     ads: local.ads,
-    best: recap?.best ?? null,
+    best: bestOf(recap?.best ?? null, loadLocalBest(week.weekId, lang)),
     rank: recap?.rank ?? null,
     players: recap?.players ?? 0,
     online: recap !== null,

@@ -71,6 +71,17 @@ export function parisDay(at: number): string {
   return dayOf(at + parisOffset(at))
 }
 
+/**
+ * Le début d'une période des classements, minuit du jour ou du lundi à Paris,
+ * comme `period_start` le calcule côté serveur.
+ */
+export function parisPeriodStart(period: 'day' | 'week', at: number): number {
+  const [year, month, date] = parisDay(at).split('-').map(Number) as [number, number, number]
+  let days = daysFromCivil(year, month, date)
+  if (period === 'week') days -= (sundayIndexOf(days) + 6) % 7
+  return utcOfParis(days * DAY_MS)
+}
+
 export interface Week {
   /** La date du dimanche d'ouverture, `YYYY-MM-DD`. */
   weekId: string

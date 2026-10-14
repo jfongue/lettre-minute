@@ -67,6 +67,7 @@ select tests.is((select value from public.leaderboard_stat('added', 'day') where
 select tests.logout();
 
 select tests.login_anon();
-select tests.throws($$select * from public.leaderboard_stat('best', 'day')$$, 'a request with no session reads nothing', '42501');
+-- Depuis 0073, un invité du portail CrazyGames lit les classements, jamais les valeurs brutes.
+select tests.lives($$select * from public.leaderboard_stat('best', 'day')$$, 'a request with no session reads a board');
 select tests.throws($$select * from public.leaderboard_values('best', now())$$, 'nor the raw values', '42501');
 select tests.logout();

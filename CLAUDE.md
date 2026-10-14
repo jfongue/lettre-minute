@@ -102,10 +102,16 @@ par une copie de l'écran ; et chaque build touché se vérifie.
   domaine n'en sait rien.
 - **Règles qui diffèrent** — Reddit : graine du jour (`dailySeed`), même
   partie pour tous les lecteurs, pas de pouvoirs, `Judge` sans compteurs
-  d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : hors ligne,
-  sans compte ni serveur (toutes les variables externes vidées au build), SDK
+  d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : le serveur
+  pour les classements seuls — un invité n'a aucun compte, pas même anonyme
+  (`host.anonymousAccounts`), et les lit sous le rôle `anon` avec sa ligne
+  « Moi » comptée sur l'appareil ; un joueur connecté au portail joue sous le
+  compte que `crazygames-auth` lie à son identifiant CrazyGames (0073) —, ni
+  défi du jour ni autre fonctionnalité serveur, les autres variables externes
+  vidées au build, SDK
   du portail (événements, pub midgame, muet, sauvegarde par son module Data,
-  langue), thème clair par défaut, accueil en deux colonnes dans un cadre
+  classement hebdo, langue), thème clair par défaut, accueil en deux colonnes
+  dans un cadre
   paysage bas (926×476 sur un portable), Tab passe comme partout. Android :
   tout, plus la coquille native.
 - **À se demander avant de livrer un changement** : demande-t-il un compte ou
@@ -480,6 +486,21 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   Sous 640 px de haut — le clavier ouvert, que l'app rétrécit
   (`resize: 'native'`) — la partie se resserre pour que le couple, le champ et
   ses deux boutons restent au-dessus des touches.
+- **Le matchmaking du duel est une file serveur** (`duel_matchmake`, 0072) :
+  un joueur nommé s'y met, le suivant de sa langue l'apparie, le serveur ouvre
+  la table (l'hôte est celui qui attendait) et assoit les deux ; chacun la
+  retrouve à sa lecture suivante et se déclare prêt tout seul (`quick`). Un
+  joueur qui ne relit plus la file en sort au bout de 20 s, un blocage dans un
+  sens ou l'autre empêche l'appariement. Il vit derrière la fonctionnalité
+  `duel`, comme le reste du duel, et se joue sur toutes les versions qui ont
+  le serveur — pas encore CrazyGames, dont les joueurs n'ont pas de compte
+  nommé (voir `crazygames/README.md`).
+- **Chaque donnée dit d'où elle vient** (0072) : le client ajoute
+  `platform=<android|web|crazygames|reddit>` à `X-Client-Info`
+  (`src/lib/supabase.ts`), et un déclencheur range cette valeur dans
+  `runs.platform` et `duel_tables.platform`. Une ligne écrite par un client
+  plus ancien reste `null`. Pour séparer les versions un jour, c'est cette
+  colonne qu'on filtre — les classements et les rangs, eux, sont communs.
 - **Chaque fonctionnalité est un interrupteur** (`src/domain/features.ts`,
   0045) : quatre publics — tout le monde, modérateur, Premium, super
   modérateur —, une case dispo, bloquée ou neutre. Une case dispo parmi les
