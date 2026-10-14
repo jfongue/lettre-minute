@@ -50,8 +50,10 @@ le 2026-10-08.
   portail donne son jeton (`getUserToken`, RS256), que la fonction Edge
   `crazygames-auth` vérifie contre la clé publiée (PKCS#1) ; elle crée ou
   retrouve le compte du jeu lié à son identifiant (`crazygames_accounts`,
-  `crazygames_link`, 0073), lui donne son nom du portail (suffixé d'un numéro
-  s'il est pris) et rend un lien magique que le client échange contre une
+  `crazygames_link`, 0073), lui donne son nom du portail sans
+  l'extension qui suit le point (« FieryGoat.qrfj » → « FieryGoat »), suffixé
+  d'un numéro s'il est pris, et le renomme quand le pseudo change sur le portail
+  (`portal_name`, 0074) et rend un lien magique que le client échange contre une
   session (`followHostAccount`, `src/lib/cloud.ts`). Ses parties partent alors
   comme sur Android (`pushRun`, étiquette `platform=crazygames`) et il figure
   aux classements communs sous ce nom. Une déconnexion du portail recharge la
