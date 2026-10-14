@@ -15,7 +15,7 @@ import {
 } from '../lib/cloud'
 import { categoryText, useT } from '../i18n'
 import { sound } from '../lib/sound'
-import { loadModerationSessions, loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
+import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
 import { Figure } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
@@ -161,8 +161,9 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
   const added = allAdded ? accepted : accepted.slice(0, ADDED_SHOWN)
   const rejected = submissions.filter((submission) => submission.status === 'rejected').map(fromServer)
   const nothing = server !== 'loading' && removals !== null && pending.length === 0 && accepted.length === 0 && rejected.length === 0
-  // Le serveur garde les votes, pas les sessions : ce compte-là vit sur l'appareil.
-  const sessions = loadModerationSessions()
+  // Le serveur garde l'historique des sessions jugées (0068) : le compte vient de
+  // lui, comme le classement, pour qu'une déconnexion ne le remette pas à zéro.
+  const sessions = moderation?.sessions ?? 0
 
   // A proposal the dictionary now spells letter for letter asks for nothing:
   // it says so, then leaves the list on its own. Un retrait vise un mot déjà au

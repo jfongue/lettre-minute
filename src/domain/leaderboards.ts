@@ -23,7 +23,7 @@ export interface Leaderboard {
 }
 
 /** Places from the order of the values, as SQL's `rank()` gives them. */
-function placed(rows: readonly PlacedRow[]): PlacedRow[] {
+export function placed(rows: readonly PlacedRow[]): PlacedRow[] {
   const out: PlacedRow[] = []
   rows.forEach((row, index) => {
     const previous = out[index - 1]

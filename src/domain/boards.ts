@@ -7,6 +7,8 @@ export interface BoardRow {
   avatar: AvatarChoice
   /** A score on the day and week boards, a count of words on the discoveries board. */
   value: number
+  /** One of the player's own runs, on a board the device draws from its own history. */
+  own?: boolean
 }
 
 export type Boards = Readonly<Record<BoardId, readonly BoardRow[]>>

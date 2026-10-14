@@ -15,5 +15,6 @@ export const appHost: Host = {
   // The web shares this host but has no store: `PLATFORM` tells it apart.
   premiumStore: true,
   rewardedAds: true,
+  localBoards: false,
   ...quiet,
 }

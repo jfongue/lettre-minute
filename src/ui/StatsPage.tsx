@@ -11,7 +11,6 @@ import { categoryMotif } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
 import { fetchChallenge, type BanOutcome, type ChallengeSummary } from '../lib/cloud'
 import { challengeTitle, isHidden, loadWinners, rememberWinner, winnerOf, type ChallengeWinner } from '../state/challenges'
-import { loadModerationSessions } from '../state/storage'
 import { useHiddenChallenges } from '../state/useHiddenChallenges'
 import { useBackDismiss } from './useBackDismiss'
 import { useLongPress } from './useLongPress'
@@ -247,9 +246,6 @@ function RunStats({
   const older = all.slice(listed.length)
   // The profile's record may predate the history, and a merged account's may come from elsewhere.
   const best = Math.max(profile.bestScore, ...history.map((run) => run.score))
-  // Les sessions de modération jugées sur cet appareil : le serveur les compte
-  // pour son classement (0068), la page les montre ici.
-  const sessions = loadModerationSessions()
 
   const more = () => {
     const next = shown + PAGE
@@ -276,7 +272,6 @@ function RunStats({
         {trend !== null && (
           <Figure tint={trend >= 0 ? 'green' : 'red'} value={`${trend >= 0 ? '+' : '−'}${formatNumber(t, Math.abs(trend))}`} label={t.stats.trend} />
         )}
-        {sessions > 0 && <Figure tint="pink" value={formatNumber(t, sessions)} label={t.requests.sessions} />}
       </div>
 
       <section className="stack">

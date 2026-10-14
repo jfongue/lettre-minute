@@ -86,6 +86,7 @@ import {
 } from './domain/challenge'
 import { complicationDue, slotsOf, type PowerId } from './domain/powers'
 import { completeLeaderboard } from './domain/leaderboards'
+import { localBoards } from './ui/localBoards'
 import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
@@ -413,6 +414,11 @@ setMenuPage(null)
     superModerator: moderation ? moderation.super : storedFeatures.roles.superModerator,
     premium: isPlus(session.profile),
   }
+  // Without a server the home boards rank the player's own runs.
+  const ownBoards = useMemo(
+    () => (host.localBoards ? localBoards(history, avatar, t.tag) : null),
+    [history, avatar, t.tag],
+  )
   const features = useMemo(
     () => hostFeatures(enabledFeatures(storedFeatures.flags, roles)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1875,7 +1881,7 @@ setStartedAt((at) => at ?? Date.now())
           error={session.error}
           loading={session.phase === 'loading'}
           settled={homeSettled}
-          boards={on('leaderboards') ? boards : null}
+          boards={on('leaderboards') ? (host.localBoards ? ownBoards : boards) : null}
           me={account && !account.anonymous ? account.name : null}
           climbed={climbed}
           avatar={avatar}

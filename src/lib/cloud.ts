@@ -460,6 +460,8 @@ export interface ModerationStatus {
   validated: number
   /** Words waiting for them in the interface's language. */
   queue: number
+  /** Les sessions de modération terminées, gardées par le serveur (0068, 0071) : le compte ne repart pas de zéro d'un appareil à l'autre. */
+  sessions: number
   /** What to offer this player, if anything: the reason picks the wording. */
   offer: ModeratorOfferReason | null
   /** The friend who asked, for an offer made by a friend. */
@@ -479,6 +481,7 @@ export function fetchModerationStatus(lang: string): Promise<ModerationStatus | 
       super: row.super === true,
       validated: Number(row.validated) || 0,
       queue: Number(row.queue) || 0,
+      sessions: Number(row.sessions) || 0,
       offer: (row.offer as ModeratorOfferReason | null) ?? null,
       invitedBy: (row.invited_by as string | null) ?? null,
       news: Number(row.news) || 0,
