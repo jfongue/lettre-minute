@@ -9,9 +9,15 @@
 // Deployed with `--no-verify-jwt`: a guest of the portal has no session to
 // prove, the CrazyGames token is the credential.
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { importSPKI, jwtVerify } from 'npm:jose@5'
+import { createPublicKey, createVerify, type KeyObject } from 'node:crypto'
 
 const PUBLIC_KEY_URL = 'https://sdk.crazygames.com/publicKey.json'
+/**
+ * The SDK's local mode hands out tokens for two made-up players, signed with
+ * the real key and valid for a century: anyone can replay them. They carry
+ * this placeholder for a game id, which no real token does.
+ */
+const MOCK_GAME_ID = 'yourGameId'
 
 const CORS = {
   'access-control-allow-origin': '*',
@@ -19,29 +25,55 @@ const CORS = {
   'access-control-allow-methods': 'POST, OPTIONS',
 }
 
-let cachedKey: CryptoKey | null = null
+let cachedKey: KeyObject | null = null
 
-async function portalKey(fresh: boolean): Promise<CryptoKey> {
+// A PKCS#1 key (« BEGIN RSA PUBLIC KEY »), which WebCrypto cannot import.
+async function portalKey(fresh: boolean): Promise<KeyObject> {
   if (cachedKey && !fresh) return cachedKey
   const response = await fetch(PUBLIC_KEY_URL)
   if (!response.ok) throw new Error(`public key ${response.status}`)
   const { publicKey } = await response.json()
-  cachedKey = await importSPKI(publicKey, 'RS256')
+  cachedKey = createPublicKey(publicKey)
   return cachedKey
+}
+
+function decodePart(part: string): Record<string, unknown> {
+  return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(part.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0))))
+}
+
+function signedBy(key: KeyObject, token: string): boolean {
+  const [header, payload, signature] = token.split('.')
+  if (!header || !payload || !signature) return false
+  const verifier = createVerify('RSA-SHA256')
+  verifier.update(`${header}.${payload}`)
+  return verifier.verify(key, signature, 'base64url')
 }
 
 /** The token's claims, or null; the key may have turned, so a failure fetches it once more. */
 async function verify(token: string): Promise<{ userId: string; username: string } | null> {
+  let valid = false
   for (const fresh of [false, true]) {
     try {
-      const { payload } = await jwtVerify(token, await portalKey(fresh), { algorithms: ['RS256'] })
-      if (typeof payload.userId !== 'string' || payload.userId === '') return null
-      return { userId: payload.userId, username: typeof payload.username === 'string' ? payload.username : '' }
+      if (signedBy(await portalKey(fresh), token)) {
+        valid = true
+        break
+      }
     } catch {
       /* try again with the published key */
     }
   }
-  return null
+  if (!valid) return null
+  try {
+    const header = decodePart(token.split('.')[0]!)
+    const claims = decodePart(token.split('.')[1]!)
+    if (header.alg !== 'RS256') return null
+    if (typeof claims.exp !== 'number' || claims.exp * 1000 < Date.now()) return null
+    if (claims.gameId === MOCK_GAME_ID && Deno.env.get('CRAZYGAMES_ALLOW_MOCK') !== 'true') return null
+    if (typeof claims.userId !== 'string' || claims.userId === '') return null
+    return { userId: claims.userId, username: typeof claims.username === 'string' ? claims.username : '' }
+  } catch {
+    return null
+  }
 }
 
 const reply = (body: unknown, status = 200) =>
