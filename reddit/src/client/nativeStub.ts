@@ -28,6 +28,10 @@ export interface StorePurchase {
 
 export function prepareRewardedAd(): void {}
 
+export function rewardedAdsConfigured(): boolean {
+  return false
+}
+
 export async function showRewardedAd(): Promise<'rewarded' | 'skipped' | 'unavailable'> {
   return 'unavailable'
 }

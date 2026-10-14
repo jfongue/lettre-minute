@@ -332,15 +332,21 @@ ce n'est pas une raison de renoncer au protocole DevTools.
 - **Se connecter doit attendre l'envoi de la partie** (`pushing` dans
   `src/App.tsx`) : la fusion déplace les parties du compte anonyme puis
   l'efface, et une partie encore en vol partirait avec lui.
-- **La pub est éteinte pour l’instant** (`ADS_ENABLED`, `src/domain/unlocks.ts`).
-  Le reste de ce point vaut quand on la rallume.
+- **Les interstitiels sont éteints, les pubs récompensées vivent** : `ADS_ENABLED`
+(`src/domain/unlocks.ts`) ne coupe que l'interstitiel d'une offre de catégorie ;
+la récompense du bilan et la tentative de plus au défi du moment passent par
+`rewardedAdsOpen` (`src/platform/index.ts`), que la fonctionnalité `ads` ne
+ferme pas.
 - **La pub se prépare avant l’offre qui la porte** (`adsDue`,
-  `src/domain/unlocks.ts`) : consentement et chargement prennent des secondes,
-  et une pub pas encore chargée au moment du choix est sautée plutôt que
-  montrée en retard. Le choix est encaissé avant la pub : fermer l’app pendant
-  qu’elle joue ne coûte pas la catégorie. Sans `VITE_ADMOB_INTERSTITIAL_ID` ni
-  `admobAppId` (`android/gradle.properties`), le build sert les pubs de test de
-  Google — ne jamais cliquer sur les vraies depuis son propre téléphone.
+`src/domain/unlocks.ts`) : consentement et chargement prennent des secondes,
+et une pub pas encore chargée au moment du choix est sautée plutôt que
+montrée en retard. Le choix est encaissé avant la pub : fermer l’app pendant
+qu’elle joue ne coûte pas la catégorie. Les blocs de test de Google ne servent
+qu'en développement (`TESTING_UNITS`, `src/lib/native.ts`) : un build de
+release sans `VITE_ADMOB_REWARDED_ID` ne montre aucune pub plutôt que d'en
+servir une de test à un joueur. `admobAppId`
+(`android/gradle.properties`) reste obligatoire, sinon le SDK plante au
+lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphone.
 - **Demontoon est ajouté côté client** (`completeBoards`, `src/domain/boards.ts`,
   et `completeLeaderboard` pour la page des classements, qui recompte les
   rangs), pas en base : il ne figure qu'aux classements de meilleure partie du

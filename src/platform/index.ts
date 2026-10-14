@@ -1,4 +1,4 @@
-import { isNativeApp } from '../lib/native'
+import { isNativeApp, rewardedAdsConfigured } from '../lib/native'
 import { appHost } from './app'
 import { crazyGamesHost } from './crazygames'
 import type { Host, Platform } from './host'
@@ -38,5 +38,10 @@ export function hostFeatures(features: ReadonlySet<string>, superModerator = fal
 export const premiumStoreOpen =
   host.premiumStore && (PLATFORM === 'android' || (PLATFORM === 'web' && import.meta.env.VITE_PREMIUM_WEB === 'true'))
 
-/** Rewarded ads: AdMob in the Android shell, the portal's SDK on CrazyGames once its build allows them; never the web page. */
-export const rewardedAdsOpen = host.rewardedAds && (PLATFORM === 'android' || PLATFORM === 'crazygames')
+/**
+* Rewarded ads: AdMob in the Android shell, the portal's SDK on CrazyGames once
+* its build allows them; never the web page. The phone also needs a real AdMob
+* unit: without one a release build shows no ad, so nothing is offered.
+*/
+export const rewardedAdsOpen =
+  host.rewardedAds && ((PLATFORM === 'android' && rewardedAdsConfigured()) || PLATFORM === 'crazygames')

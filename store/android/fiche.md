@@ -53,7 +53,7 @@ https://jfongue.github.io/lettre-minute/confidentialite.html, soit
 | Rubrique | Réponse |
 | --- | --- |
 | Accès à l’application | Aucune restriction : tout est accessible sans connexion |
-| Annonces | **Non** : la pub est éteinte (`ADS_ENABLED`, `src/domain/unlocks.ts`). Le SDK AdMob reste dans le build sans jamais démarrer ; repasser à **Oui** le jour où on la rallume |
+| Annonces | **Oui** : des publicités récompensées s’affichent sur Android — regarder une pub rend une révélation de plus au bilan, ou une tentative de plus au défi du moment. Les interstitiels, eux, sont éteints (`ADS_ENABLED`, `src/domain/unlocks.ts`). Le SDK AdMob démarre à la première offre qui porte une pub, après le consentement UMP là où la loi l’exige, et le menu garde l’entrée des options de confidentialité |
 | Classification du contenu (IARC) | Catégorie « Jeu » ; non à toutes les questions (violence, peur, sexualité, jeux d’argent, langage, drogues, achats numériques) ; **interactions entre utilisateurs : oui** (nom de joueur, avatar et scores visibles aux classements, entre amis et dans les défis ; aucune messagerie, aucun texte libre échangé hormis le nom). Résultat attendu : PEGI 3 / Tout public, avec la mention « Interactions entre utilisateurs » |
 | Public cible | 13 ans et plus. Choisir une tranche de moins de 13 ans fait entrer l’app dans le programme Familles et ses exigences supplémentaires |
 | Application d’actualités | Non |
@@ -82,6 +82,7 @@ de l’aide AdMob, à relire à chaque mise à jour du SDK.
 | Appareil ou autres ID | Jeton de notification Firebase (défis) | Oui | Non | Non | Non (le joueur accepte les notifications) | Fonctionnement de l’app |
 | Activité dans l’app › Autres actions | Parties, scores, mots joués, XP | Oui | Non | Non | Oui | Fonctionnement de l’app |
 | Activité dans l’app › Autre contenu généré par l’utilisateur | Mots proposés au dictionnaire | Oui | Non | Non | Non (le joueur choisit de proposer) | Fonctionnement de l’app |
+| Infos financières › Historique des achats | Le produit acheté, son jeton et son numéro de commande, gardés par le serveur pour retrouver l’achat sur un autre appareil | Oui | Non | Non | Oui (pour qui achète) | Fonctionnement de l’app, gestion du compte |
 | Position › Position approximative | Déduite de l’adresse IP par AdMob | Oui | Oui | Non | Oui | Publicité, analyse, prévention de la fraude |
 | Appareil ou autres ID | Identifiant publicitaire (AdMob) | Oui | Oui | Non | Oui | Publicité, analyse, prévention de la fraude |
 | Activité dans l’app › Interactions avec l’app | Affichages et clics sur la pub (AdMob) | Oui | Oui | Non | Oui | Publicité, analyse, prévention de la fraude |
