@@ -37,7 +37,7 @@ export async function accessToken(account: ServiceAccount): Promise<string> {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      assertion: `${header}.${base64url(new Uint8Array(signature))}`,
+      assertion: `${header}.${claims}.${base64url(new Uint8Array(signature))}`,
     }),
   })
   if (!response.ok) throw new Error(`oauth ${response.status}: ${await response.text()}`)

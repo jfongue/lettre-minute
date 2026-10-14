@@ -79,6 +79,7 @@ export const FEATURES: readonly FeatureDef[] = [
   // Outils
   { id: 'wordsBoard', label: 'Tableau des mots', note: 'Cinq tapes sur « Mes catégories »', defaults: supers },
   { id: 'dashboard', label: 'Tableau de bord', note: 'Cinq tapes sur « Classement »', defaults: open },
+  { id: 'spyHistory', label: 'Espionner l’historique', note: 'Sur la fiche d’un joueur et au tableau de bord : ses parties et leurs mots ; le serveur ne répond qu’aux super modérateurs', defaults: supers },
   { id: 'ideasAdmin', label: 'Idées reçues', note: 'Cinq tapes sur « Boîte à idées »', defaults: supers },
   { id: 'debugBoard', label: 'Planche debug', note: 'Cinq tapes sur la tuile de l’affiche, ou #debug', defaults: supers },
 ]

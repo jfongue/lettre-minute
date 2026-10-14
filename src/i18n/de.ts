@@ -764,6 +764,10 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
       unreachable: () => 'Server nicht erreichbar. Versuch es noch einmal.',
     },
     close: 'Schließen',
+    spy: 'Verlauf ausspähen',
+    spyTitle: (name: string) => `Verlauf von ${name}`,
+    spyMissing: 'Verlauf nicht gefunden: nur für Super-Moderatoren, oder der Server ist nicht erreichbar.',
+    spyEmpty: 'Keine Runde gespeichert.',
   },
 
   ideas: {

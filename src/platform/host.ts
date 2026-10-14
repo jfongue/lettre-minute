@@ -104,6 +104,7 @@ export const SERVER_FEATURES: readonly FeatureId[] = [
   'wordFlag',
   'ideasBox',
   'feedback',
+  'spyHistory',
 ]
 
 /** The phone's own offers and the developer's tools, which a web portal has no use for. */
@@ -126,6 +127,7 @@ export const APP_ONLY_FEATURES: readonly FeatureId[] = [
 export const SUPER_MODERATOR_FEATURES: readonly FeatureId[] = [
   'debugBoard',
   'dashboard',
+  'spyHistory',
   'wordsBoard',
   'ideasAdmin',
   'gameModes',

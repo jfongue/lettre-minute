@@ -24,6 +24,7 @@ import { OverScreen, type RunProposal } from '../ui/OverScreen'
 import { RunScreen } from '../ui/RunScreen'
 import type { Cheer } from '../state/session'
 import { PlayerActionsContext, type PlayerActions } from '../ui/PlayerSheet'
+import { SpyHistory, type SpyActions } from '../ui/SpyHistory'
 import { GameModes } from '../ui/GameModes'
 import { ModeTutorial } from '../ui/ModeTutorial'
 import { TutorialScreen } from '../ui/TutorialScreen'
@@ -119,6 +120,10 @@ const PLAYER_ACTIONS: PlayerActions = {
       200,
     ),
   challenge: () => undefined,
+  // Défini plus bas, avec l'historique inventé qu'il montre.
+  get spy() {
+    return SPY_ACTIONS
+  },
 }
 
 
@@ -217,6 +222,7 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     dealt: [],
     settled: [],
     shared: false,
+    bonusWeight: 1,
     taught: [],
     seeded: [],
     found,
@@ -327,6 +333,17 @@ const STATS_RECAP = {
   onAd: noop,
   // Un signalement de mot ne s'écrit pas depuis la planche : la carte répond seule.
   onFlag: () => later('sent' as const),
+}
+
+/** L'historique espionné d'un joueur : le même que la page des statistiques, sauf pour « Anonyme », que personne ne porte. */
+const SPY_ACTIONS: SpyActions = {
+  load: (player, before, limit) =>
+    player === 'Anonyme'
+      ? later(null)
+      : before === null
+        ? later({ id: player, name: player, avatar: DEFAULT_AVATAR, runsCount: 95, best: 312, runs: STATS_HISTORY.slice(0, limit) })
+        : olderStatsRuns(before, limit).then((runs) => runs && { id: player, name: player, avatar: DEFAULT_AVATAR, runsCount: 95, best: 312, runs }),
+  recap: { ...STATS_RECAP, budget: { ...STATS_RECAP.budget, unlimited: true } },
 }
 
 /** The profile before and after the run: the gap is what the end screen celebrates. */
@@ -579,6 +596,15 @@ function dashboardSnapshot(): Snapshot {
         { name: 'Léa', anonymous: false, mails: 3, shares: 8, joins: 4, played: 3 },
         { name: 'Hugo', anonymous: false, mails: 5, shares: 2, joins: 1, played: 1 },
         { name: 'Anonyme 3f2a', anonymous: true, mails: 0, shares: 4, joins: 0, played: 0 },
+      ],
+    },
+    moderation_by_lang: {
+      days: 30,
+      langs: [
+        { lang: 'fr', moderators: 14, supers: 1, active: 9, thin: false, reserve_left: 62, reserve_released: 38, pending_add: 7, pending_ban: 2, sessions: 41, sessions_total: 230, votes: 512, added: 33, added_reserve: 12, added_total: 410, removed: 4, removed_total: 19, rejected: 11 },
+        { lang: 'en', moderators: 3, supers: 0, active: 2, thin: true, reserve_left: 88, reserve_released: 12, pending_add: 4, pending_ban: 0, sessions: 6, sessions_total: 9, votes: 40, added: 8, added_reserve: 6, added_total: 8, removed: 0, removed_total: 0, rejected: 2 },
+        { lang: 'de', moderators: 1, supers: 0, active: 0, thin: true, reserve_left: 100, reserve_released: 0, pending_add: 5, pending_ban: 0, sessions: 0, sessions_total: 1, votes: 0, added: 0, added_reserve: 0, added_total: 2, removed: 0, removed_total: 0, rejected: 0 },
+        { lang: 'pt', moderators: 0, supers: 0, active: 0, thin: true, reserve_left: 100, reserve_released: 0, pending_add: 0, pending_ban: 0, sessions: 0, sessions_total: 0, votes: 0, added: 0, added_reserve: 0, added_total: 0, removed: 0, removed_total: 0, rejected: 0 },
       ],
     },
     revenue: {
@@ -2583,6 +2609,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Vingt-cinq parties sur l’appareil, soixante-dix de plus au compte : « Voir plus » en charge trente à la fois ; une partie touchée ouvre son récap (mots dits, mots cachés) ; top des mots dits trois fois, taux de passe par catégorie',
     phase: 'home',
     render: () => <StatsScenario />,
+  },
+  {
+    id: 'spy-history',
+    group: 'Accueil',
+    title: 'Espionner l’historique d’un joueur',
+    how: 'Super modérateur : « Espionner l’historique » sur la fiche d’un joueur, ou une tape sur un nom du tableau de bord — ses parties, « Voir plus », et le récap de chacune avec tous ses mots cachés',
+    phase: 'home',
+    render: () => <SpyHistory player="Léa" name="Léa" actions={SPY_ACTIONS} onClose={noop} />,
   },
   {
     id: 'categories-ban',

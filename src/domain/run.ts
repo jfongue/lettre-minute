@@ -170,6 +170,12 @@ export interface Run {
    * letter Magie brought.
    */
   shared: boolean
+  /**
+   * The share of the rarity and chain bonuses this run pays (`bonusWeight`):
+   * less than whole only for a newcomer's solo run. A shared run always pays
+   * it whole, so every player of a seed scores alike.
+   */
+  bonusWeight: number
   /** The prompts the seed itself dealt, Magie's letters left out. */
   seeded: readonly string[]
   found: readonly KeptWord[]
@@ -386,9 +392,11 @@ export interface CreateRunInput {
   taught?: readonly string[]
   /** A challenge run: see `Run.shared`. */
   shared?: boolean
+  /** See `Run.bonusWeight`. */
+  bonusWeight?: number
 }
 
-export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers = [], taught = [], shared = false }: CreateRunInput, judge: Judge): Run {
+export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers = [], taught = [], shared = false, bonusWeight = 1 }: CreateRunInput, judge: Judge): Run {
   const prompt = drawPrompt(seed, 0, categoryIds, judge, new Set(avoid))
   return {
     seed,
@@ -403,6 +411,7 @@ export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers
     dealt: [promptKey(prompt)],
     settled: [],
     shared,
+    bonusWeight,
     seeded: [promptKey(prompt)],
     found: [],
     used: [],
@@ -493,7 +502,7 @@ function judgeWord(run: Run, word: string, judge: Judge): Verdict {
       prompt,
       word: match.entry.key,
       display: match.entry.display,
-      points: flat ? pointsForApproximate(run.combo) : pointsFor(match.entry, usage, run.combo, boost),
+      points: flat ? pointsForApproximate(run.combo, run.bonusWeight) : pointsFor(match.entry, usage, run.combo, boost, run.bonusWeight),
       rarity,
       tier,
       approximate: match.approximate,

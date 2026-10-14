@@ -766,6 +766,10 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
       unreachable: () => 'Servidor inaccesible. Vuelve a intentarlo.',
     },
     close: 'Cerrar',
+    spy: 'Espiar el historial',
+    spyTitle: (name: string) => `Historial de ${name}`,
+    spyMissing: 'Historial no encontrado: solo para supermoderadores, o el servidor no responde.',
+    spyEmpty: 'Ninguna partida registrada.',
   },
 
   ideas: {

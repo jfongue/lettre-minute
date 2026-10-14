@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } fr
 import { CHATTER_WORDS, FLAWLESS_POINTS, FLAWLESS_STREAK, POWER_CHARGES } from '../domain/powers'
 import { answerPrompt, celerityDue, chargesLeft, hasPower, runScore, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
 import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RECALL_SECONDS, modeEdge } from '../domain/modes'
+import { comboMultiplier } from '../domain/rarity'
 import { capitalized, compactWord, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
 import { sound } from '../lib/sound'
@@ -296,7 +297,7 @@ else if (doubleSkip) sound.power('double-skip')
           {run.mode === 'endurance' && <span className="score-unit">{t.run.secondsUnit}</span>}
           {run.combo > 1 && (
             <span className="combo" key={run.combo}>
-              ×{(1 + Math.min(run.combo, 9) * 0.1).toFixed(1)}
+              ×{comboMultiplier(run.combo, run.bonusWeight).toFixed(1)}
             </span>
           )}
         </div>

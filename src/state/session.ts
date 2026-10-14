@@ -1,6 +1,6 @@
 import { applyChallengeRun } from '../domain/challenge'
 import { applyRun, levelFor, type Profile } from '../domain/progression'
-import type { RarityTier } from '../domain/rarity'
+import { bonusWeight, type RarityTier } from '../domain/rarity'
 import { capitalized, normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
 import { markRatingAsked, markRatingDone } from '../domain/rating'
@@ -193,7 +193,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         ...session,
         phase: 'countdown',
         judge: action.judge,
-        run: createRun({ seed: action.seed, mode, categoryIds: action.categoryIds, avoid, powers, taught: learn ? session.profile.professorWords : [], shared }, action.judge),
+        run: createRun({ seed: action.seed, mode, categoryIds: action.categoryIds, avoid, powers, taught: learn ? session.profile.professorWords : [], shared, bonusWeight: shared ? 1 : bonusWeight(action.categoryIds.length) }, action.judge),
         reserve: shared || !countsForProgress(mode) ? [] : action.reserve,
         swapsLeft: !challenge && powers.includes('permutation') ? (POWER_CHARGES.permutation ?? 0) : 0,
         challengeId: challenge?.id ?? null,
@@ -213,7 +213,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       return {
         ...session,
         judge: action.judge,
-        run: markPowerUsed(createRun({ seed, categoryIds: action.categoryIds, avoid, powers, taught: session.run.taught }, action.judge), 'permutation'),
+        run: markPowerUsed(createRun({ seed, categoryIds: action.categoryIds, avoid, powers, taught: session.run.taught, bonusWeight: session.run.bonusWeight }, action.judge), 'permutation'),
         reserve: action.reserve,
         swapsLeft: session.swapsLeft - 1,
       }

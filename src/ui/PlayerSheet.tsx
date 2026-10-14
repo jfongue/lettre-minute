@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, Suspense, useContext, useEffect, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import type { AvatarChoice } from '../domain/avatar'
 import { useT } from '../i18n'
@@ -11,8 +11,13 @@ import {
   type FriendRequestOutcome,
 } from '../lib/cloud'
 import { Avatar } from './Avatar'
+import { lazyScreen } from './lazyScreen'
+import type { SpyActions } from './SpyHistory'
 import { useBackDismiss } from './useBackDismiss'
 import { useFeature } from './features'
+
+// Un outil de super modérateur : il n'a rien à faire dans le premier bundle.
+export const SpyHistory = lazyScreen(() => import('./SpyHistory').then((module) => module.SpyHistory))
 
 /** What that name already is to this player, and its id when a challenge needs one. */
 export interface PlayerRelation {
@@ -27,6 +32,8 @@ export interface PlayerActions {
   relation(name: string): Promise<PlayerRelation | null>
   /** Opens a new challenge with that friend ticked; absent where none can start. */
   challenge?(friendId: string): void
+  /** Another player's history, for a super moderator (`spyHistory`); absent for everyone else. */
+  spy?: SpyActions
 }
 
 async function relationOf(name: string): Promise<PlayerRelation | null> {
@@ -78,6 +85,7 @@ function PlayerSheet({ name, avatar, onClose }: { name: string; avatar: AvatarCh
   const t = useT()
   const actions = useContext(PlayerActionsContext)
   const [step, setStep] = useState<Step>('idle')
+  const [spying, setSpying] = useState(false)
   // Asked on opening: a friend is offered a challenge, one who already asked is not asked again.
   const [relation, setRelation] = useState<PlayerRelation | null | 'loading'>('loading')
   useEffect(() => {
@@ -94,6 +102,14 @@ function PlayerSheet({ name, avatar, onClose }: { name: string; avatar: AvatarCh
     return () => window.removeEventListener('keydown', escape)
   }, [onClose])
   useBackDismiss(onClose)
+
+  if (spying && actions.spy) {
+    return (
+      <Suspense fallback={null}>
+        <SpyHistory player={name} name={name} actions={actions.spy} onClose={onClose} />
+      </Suspense>
+    )
+  }
 
   const befriend = async () => {
     setStep('busy')
@@ -163,6 +179,11 @@ function PlayerSheet({ name, avatar, onClose }: { name: string; avatar: AvatarCh
                 onClick={befriend}
               >
                 {step === 'busy' ? t.wait : relation?.relation === 'incoming' ? t.social.accept : t.player.befriend}
+              </button>
+            )}
+            {actions.spy && (
+              <button type="button" className="btn btn--ghost btn--block" onClick={() => setSpying(true)}>
+                {t.player.spy}
               </button>
             )}
             <button

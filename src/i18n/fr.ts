@@ -815,6 +815,10 @@ latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 s
       unreachable: () => 'Serveur injoignable. Réessaie.',
     } satisfies Record<BlockOutcome, (name: string) => string>,
     close: 'Fermer',
+    spy: 'Espionner l’historique',
+    spyTitle: (name: string) => `Historique de ${name}`,
+    spyMissing: 'Historique introuvable : réservé aux super modérateurs, ou serveur injoignable.',
+    spyEmpty: 'Aucune partie enregistrée.',
   },
 
   ideas: {

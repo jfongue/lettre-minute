@@ -19,6 +19,7 @@ import {
   fetchModerationStatus,
   fetchMyRuns,
   fetchRunsBefore,
+  fetchSpiedRuns,
   fetchMySubmissions,
   markRequestsSeen,
   topUpModeration,
@@ -1330,23 +1331,6 @@ setStartedAt((at) => at ?? Date.now())
     },
     [challengeLineup, lang, session.profile],
   )
-  const playerActions = useMemo<PlayerActions>(
-    () => ({
-      ...DEFAULT_PLAYER_ACTIONS,
-      ...(on('challenges') && { challenge: (friendId: string) => openCreate([friendId]) }),
-      // Un invité du portail (CrazyGames) n'a pas de session : demander un ami
-      // n'aurait que la réponse d'un serveur qui n'a rien reçu. Le geste ouvre la
-      // connexion du portail, la seule qui donnerait un nom au compte.
-      ...(account === null &&
-      host.promptAccount && {
-        befriend: () => {
-          void host.promptAccount!()
-          return Promise.resolve('anonymous' as const)
-        },
-      }),
-    }),
-    [on, openCreate, account],
-  )
 
   const create = useCallback(
     async (friends: readonly string[], rules: ChallengeRules) => {
@@ -1553,6 +1537,30 @@ setStartedAt((at) => at ?? Date.now())
       }),
     }),
     [judgeFor, session.profile, peek, revealAd, moderation, on],
+  )
+  // Un autre joueur se lit tout entier : ses mots cachés ne coûtent aucune
+  // révélation à qui l'espionne.
+  const spyRecap = useMemo<RecapActions>(
+    () => ({ ...statsRecap, budget: { ...statsRecap.budget, unlimited: true }, onPeek: () => {}, onAd: () => {} }),
+    [statsRecap],
+  )
+  const playerActions = useMemo<PlayerActions>(
+    () => ({
+      ...DEFAULT_PLAYER_ACTIONS,
+      ...(on('challenges') && { challenge: (friendId: string) => openCreate([friendId]) }),
+      ...(on('spyHistory') && { spy: { load: fetchSpiedRuns, recap: spyRecap } }),
+      // Un invité du portail (CrazyGames) n'a pas de session : demander un ami
+      // n'aurait que la réponse d'un serveur qui n'a rien reçu. Le geste ouvre la
+      // connexion du portail, la seule qui donnerait un nom au compte.
+      ...(account === null &&
+      host.promptAccount && {
+        befriend: () => {
+          void host.promptAccount!()
+          return Promise.resolve('anonymous' as const)
+        },
+      }),
+    }),
+    [on, openCreate, account, spyRecap],
   )
   // Le bilan de fin de partie signale un mot comme l'historique : même geste,
   // même carte, et la langue de la partie qui vient de finir.
