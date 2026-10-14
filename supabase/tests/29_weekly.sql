@@ -121,7 +121,7 @@ select tests.is((select count(*)::int from public.weekly_board(tests.week(), 'fr
 select tests.is((select count(*)::int from public.weekly_board(tests.week(), 'en', 50)), 0, 'another language has its own board');
 select tests.logout();
 
--- Les joueurs maison jouent ailleurs : jamais ici, même s'ils y entraient.
+-- Les joueurs ordinateur jouent ailleurs : jamais ici, même s'ils y entraient.
 create function tests.bot_plays() returns void
 language plpgsql security definer set search_path = public as $$
 begin

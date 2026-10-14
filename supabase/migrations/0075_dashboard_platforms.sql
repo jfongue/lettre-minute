@@ -14,7 +14,7 @@
 --    compte les parties qui portaient vraiment l'étiquette.
 --    `analytics_snapshot` y ajoute cette section sous `by_platform`, sans
 --    toucher à `analytics_core` ni à `analytics_extras`. Mêmes exclusions que
---    le relevé : comptes de l'administration, joueurs maison, clients de test.
+--    le relevé : comptes de l'administration, joueurs ordinateur, clients de test.
 
 alter table public.weekly_attempts
   add column platform text check (platform in ('android', 'web', 'crazygames', 'reddit'));

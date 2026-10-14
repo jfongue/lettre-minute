@@ -6,7 +6,7 @@ d'un compte depuis l'application, [`0003_accounts.sql`](migrations/0003_accounts
 pour les comptes nommés et l'avatar, [`0004_boards_friends.sql`](migrations/0004_boards_friends.sql)
 pour les classements par période et les amis, [`0005_my_submissions.sql`](migrations/0005_my_submissions.sql)
 pour retirer ou corriger un mot proposé tant qu'il attend, [`0006_house_bots.sql`](migrations/0006_house_bots.sql)
-pour les deux joueurs maison, [`0007_moderation.sql`](migrations/0007_moderation.sql)
+pour les deux joueurs ordinateur, [`0007_moderation.sql`](migrations/0007_moderation.sql)
 pour la modération des mots proposés, [`0008_challenges.sql`](migrations/0008_challenges.sql)
 pour les défis entre amis, [`0009_push.sql`](migrations/0009_push.sql) et
 [`0010_push_config.sql`](migrations/0010_push_config.sql) pour leurs notifications push,
@@ -14,7 +14,7 @@ pour les défis entre amis, [`0009_push.sql`](migrations/0009_push.sql) et
 tests a trouvé ouvert : propositions et dates de parties falsifiables, votes
 contournables, demandes d’ami croisées, bilan perdu, arguments invalides qui levaient,
 [`0012_bots_in_challenges.sql`](migrations/0012_bots_in_challenges.sql) pour inviter
-les joueurs maison aux défis, [`0013_moderation_friends.sql`](migrations/0013_moderation_friends.sql)
+les joueurs ordinateur aux défis, [`0013_moderation_friends.sql`](migrations/0013_moderation_friends.sql)
 pour faire remonter les mots proposés par des amis dans la file de modération,
 [`0014_blocks_reactions.sql`](migrations/0014_blocks_reactions.sql) pour bloquer un
 joueur et réagir au bilan d'un défi, [`0015_ideas.sql`](migrations/0015_ideas.sql)
@@ -30,12 +30,12 @@ pour les couples lettre + catégorie que les parties des joueurs effacent ou ram
 et [`0023_moderation_topup_cooldown.sql`](migrations/0023_moderation_topup_cooldown.sql)
 pour le renflouage de la file limité à un versement par heure,
 [`0024_bots_off_leaderboards.sql`](migrations/0024_bots_off_leaderboards.sql)
-pour sortir les joueurs maison des classements, et
+pour sortir les joueurs ordinateur des classements, et
 [`0025_insights.sql`](migrations/0025_insights.sql) pour les classements
 avancés du mode débug (pouvoirs joués, rythme des parties et des comptes,
 couples les plus rentables ou les plus quittés), et
 [`0026_insights_history.sql`](migrations/0026_insights_history.sql) pour en
-sortir les joueurs maison et y lire les mots joués des parties qui n'ont rien
+sortir les joueurs ordinateur et y lire les mots joués des parties qui n'ont rien
 rapporté, [`0027_friend_challenges.sql`](migrations/0027_friend_challenges.sql)
 pour l'historique des défis joués avec chaque ami, et
 [`0028_ideas_admin.sql`](migrations/0028_ideas_admin.sql) pour lire, archiver
@@ -79,7 +79,7 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `moderation_topup` | Une seule ligne : l'heure du dernier versement, qui ferme le renflouage pour une heure, toutes langues confondues. |
 | `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |
 | `friendships` | Une ligne par demande d'ami (`pending` puis `accepted`), lue dans les deux sens. |
-| `bots` | Les joueurs maison (Maxitoon, Terretciel), hors classements, et les bornes de leurs scores. |
+| `bots` | Les joueurs ordinateur (Maxitoon, Terretciel), hors classements, et les bornes de leurs scores. |
 | `challenges` | Un défi entre amis : langue, graine, catégories, chef, et la revanche qui lui fait suite. |
 | `challenge_players` | Un invité par ligne, puis sa partie : score, passes, série, mots en JSON ; ce qu'il a vu (invitation, bilan). |
 | `push_tokens` | Le jeton FCM de chaque téléphone, le compte qui s'y est connecté en dernier, et la langue de ses messages. |
@@ -94,7 +94,7 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `prompt_reports` | Les graines qui ont déjà parlé, pour qu'une partie ne compte qu'une fois. Aucune politique : jamais relu. |
 | `feature_flags` | Une ligne par fonctionnalité : `on`, `off` ou `neutral` pour tout le monde, les modérateurs, Premium et les super modérateurs. Lue par tous au démarrage, écrite par le seul `set_feature_flag`, réservé aux super modérateurs (0045). |
 | `duel_tables` | Une table de duel : hôte, langue, graine, vivier du draft, statut (`lobby`, `playing`, `over`, `closed`), heure de lancement, revanche. Une invitation vaut un quart d'heure. |
-| `duel_seats` | Une place par joueur (ou joueur maison) : prêt, place numérotée au lancement, parti, expulsé, dernière lecture — c'est elle qui désigne le meneur. |
+| `duel_seats` | Une place par joueur (ou joueur ordinateur) : prêt, place numérotée au lancement, parti, expulsé, dernière lecture — c'est elle qui désigne le meneur. |
 | `duel_invites` | Qui l'hôte a invité, et quand l'invité a répondu. Un blocage tait l'invitation, comme une demande d'ami. |
 | `duel_moves` | Le journal d'une table : un coup par numéro (`seq`), daté par le serveur. Les quatre tables du duel n'ont aucune politique : tout passe par les fonctions `duel_*`. |
 | `events` | Ce que les joueurs font de l'app, par lots de `track` : ouvertures, écrans, boutons touchés, fonctions, parties, erreurs. Un appareil, une ouverture, et le compte en plus (effacé avec lui). Aucune politique : jamais relu par le jeu, seulement par `analytics_snapshot`, que le propriétaire du projet exécute, et `admin_analytics`, qui ne la rend qu'à un administrateur. |
@@ -118,7 +118,7 @@ chaque mot, ajouts, retraits et file de modération, réservé à l'administrate
 communautaire du mot quitte le serveur aussitôt, le dictionnaire livré ne le perdant qu'au
 prochain import (0044).
 
-Vues : `leaderboard` (record de chaque compte nommé, joueurs maison écartés), `word_popularity` (part des parties où un mot
+Vues : `leaderboard` (record de chaque compte nommé, joueurs ordinateur écartés), `word_popularity` (part des parties où un mot
 apparaît), `submission_tally` (combien de joueurs réclament un mot).
 
 ## Classements avancés
@@ -139,7 +139,7 @@ remplacés derrière les cinq tapes ; les fonctions restent en base.
   (0022) ne disaient que « tiré » et « quitté » ; `report_prompts` y ajoute
   les points et les mots de ses réponses. Un couple tiré deux fois dans la
   même partie ne les compte qu'une fois, sur son premier passage.
-- **Les joueurs maison ne sont pas la foule** (0026) : leurs parties tournent
+- **Les joueurs ordinateur ne sont pas la foule** (0026) : leurs parties tournent
   toutes les heures par `pg_cron` — elles gonflaient le rythme du jeu comme si
   les joueurs veillaient la nuit. Les trois fonctions les écartent par leur
   compte (`bots`), jamais par leur nom.
@@ -192,7 +192,7 @@ remplacés derrière les cinq tapes ; les fonctions restent en base.
 - **La file ne se vide jamais pour de bon** (`top_up_moderation`, 0019,
   0037) : un modérateur, super modérateur compris, qui ouvre « Mes demandes »
   avec moins de cinq mots à juger la voit complétée à cinq depuis
-  `moderation_reserve`. Un joueur maison propose ces mots, sans en toucher
+  `moderation_reserve`. Un joueur ordinateur propose ces mots, sans en toucher
   d'XP : le reste — votes, dictionnaire, import — ne les distingue pas d'un mot
   de joueur. La réserve se charge par `npm run seed:moderation`
   (`scripts/moderation-reserve.json`), qui écarte ce que les dictionnaires
@@ -255,7 +255,7 @@ remplacés derrière les cinq tapes ; les fonctions restent en base.
   rejouer la course sans rien à recopier.
 - **Une seule revanche par défi** : `rematch_challenge` verrouille la ligne ;
   le second à la demander reçoit celle du premier.
-- **Les joueurs maison ne se défient pas** (`challengeable`) : ils ne joueraient
+- **Les joueurs ordinateur ne se défient pas** (`challengeable`) : ils ne joueraient
   jamais, et le défi attendrait un jour entier.
 
 ## Notifications push
@@ -294,7 +294,7 @@ remplacés derrière les cinq tapes ; les fonctions restent en base.
   `IDEAS_FROM` et `IDEAS_TO` ont des valeurs par défaut (expéditeur de test
   Resend, `fongue.jeremy@gmail.com`) ; les changer est optionnel.
 
-## Joueurs maison
+## Joueurs ordinateur
 
 - **Maxitoon et Terretciel jouent par `pg_cron`** (`house-bots`, à la minute 17
   de chaque heure, pas la nuit) : une partie modeste, pas à chaque passage.

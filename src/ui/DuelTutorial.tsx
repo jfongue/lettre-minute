@@ -22,7 +22,7 @@ import { categoryMotif, onTint } from './motifs'
 
 /** Les trois temps du tuto, dans l'ordre : la puce du haut les numérote. */
 const STEPS = 3
-/** La table de la démonstration : moi et deux joueurs maison, pas plus. */
+/** La table de la démonstration : moi et deux joueurs ordinateur, pas plus. */
 const BOTS = HOUSE_BOTS.slice(0, 2)
 /** Le vivier du draft, dont les joueurs prennent les `PICKS` premières tuiles. */
 const POOL = ['couleurs', 'pays', 'animaux', 'metiers', 'fruits-legumes'] as const

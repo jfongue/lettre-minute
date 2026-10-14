@@ -446,7 +446,7 @@ export function achievementReward(achievement: Achievement): AchievementReward {
 
 /**
  * Le compte maison : son nom suffit à lui ouvrir toute la grille d'avatars, à
- * lui seul. C'est le même que celui du joueur maison des classements
+ * lui seul. C'est le même que celui du joueur ordinateur des classements
  * (`HOUSE_PLAYER`) — l'éditeur regarde ce que les autres gagnent.
  */
 export function ownsEveryDesign(name: string | null | undefined): boolean {

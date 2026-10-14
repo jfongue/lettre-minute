@@ -9,7 +9,7 @@
 -- les coups d'un départ avorté se rejoueraient dans la partie suivante.
 --
 -- La table revient donc au salon, ses places désarmées : il faut se redéclarer
--- prêt. Les joueurs maison gardent leur « prêt » — personne ne peut le poser
+-- prêt. Les joueurs ordinateur gardent leur « prêt » — personne ne peut le poser
 -- pour eux. Répond 'back', 'started' (un choix est déjà pris), 'closed' ou
 -- 'forbidden'.
 create function public.duel_unstart(p_table uuid) returns text

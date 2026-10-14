@@ -143,7 +143,7 @@ describe('le rejeu', () => {
 describe('le meneur', () => {
   const bot: BotProfile = { id: 'maxitoon', think: [2, 4], answerChance: 1 }
 
-  it('choisit pour le joueur maison quand il a fini de réfléchir, jamais avant', () => {
+  it('choisit pour le joueur ordinateur quand il a fini de réfléchir, jamais avant', () => {
     let duel = startDuel(setup)
     const seat = duel.order[0]!
     const bots = { [seat]: { ...bot, id: duel.players[seat]!.id } }
@@ -159,7 +159,7 @@ describe('le meneur', () => {
     expect(driverMove(duel, null, draftOpens + DUEL_PICK_SECONDS, {})).toMatchObject({ kind: 'pick' })
   })
 
-  it('fait jouer le joueur maison à l’heure de son coup', () => {
+  it('fait jouer le joueur ordinateur à l’heure de son coup', () => {
     const picks = draftMoves()
     const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
     const seat = opened.turn!.player
@@ -168,7 +168,7 @@ describe('le meneur', () => {
     expect(driverMove(opened, judge, opened.turn!.startedAt + 4, bots)).toMatchObject({ seat, kind: 'word' })
   })
 
-  it('n’annonce pas un passe que le joueur maison ne peut pas payer : il meurt à zéro', () => {
+  it('n’annonce pas un passe que le joueur ordinateur ne peut pas payer : il meurt à zéro', () => {
     const picks = draftMoves()
     const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
     const seat = opened.turn!.player
@@ -180,7 +180,7 @@ describe('le meneur', () => {
     expect(driverMove(thin, judge, zero + DUEL_GRACE_SECONDS + 0.01, bots)).toMatchObject({ seat, kind: 'timeout' })
   })
 
-  it('finit un duel entre deux joueurs maison', () => {
+  it('finit un duel entre deux joueurs ordinateur', () => {
     const duo: DuelSetup = { ...setup, playerIds: ['maxitoon', 'terretciel'], owned: [5, 5] }
     const bots = { 0: { ...bot, id: 'maxitoon' }, 1: { ...bot, id: 'terretciel' } }
     const moves: DuelMove[] = []
@@ -244,7 +244,7 @@ describe('le meneur', () => {
     expect(driverOf([seat('a', { seen: 91 }), seat('b')], 100, mine)).toBe('b')
   })
 
-  it('saute les joueurs maison', () => {
+  it('saute les joueurs ordinateur', () => {
     expect(driverOf([seat('bot', { bot: true }), seat('b')], 100, mine)).toBe('b')
   })
 

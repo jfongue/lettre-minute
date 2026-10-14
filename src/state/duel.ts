@@ -53,12 +53,12 @@ import { loadAccount, loadAvatar, loadProfile, saveProfile } from './storage'
  * de coups que le domaine rejoue (`src/domain/duelLog.ts`) : ce fichier tient
  * ce journal, l'horloge de la table et ce que l'appareil doit déclarer de
  * lui-même — ses propres coups, le temps écoulé de son tour, et, quand il mène
- * la table, les coups des joueurs maison et les choix que le temps tranche.
+ * la table, les coups des joueurs ordinateur et les choix que le temps tranche.
  *
  * Deux sources pour le même déroulé :
  * - `online` : la table vit sur le serveur (0046), relue plusieurs fois par
  *   seconde, l'horloge est la sienne ;
- * - `local` : la table vit ici, contre les joueurs maison, sans serveur — la
+ * - `local` : la table vit ici, contre les joueurs ordinateur, sans serveur — la
  *   page `duel.html`, et le repli de l'app hors ligne. Le serveur y est
  *   simulé au plus près : les robots se déclarent prêts, partent d'une
  *   revanche, le journal se numérote.
@@ -76,14 +76,14 @@ export interface HouseBot extends BotProfile {
 
 const avatarOf = (design: number, ground: string, shape: string, accent: string): AvatarChoice => ({ design, ground, shape, accent })
 
-/** Les trois joueurs maison de la table locale ; en ligne, ceux du serveur (`bots`) prennent leur profil par leur nom. */
+/** Les trois joueurs ordinateur de la table locale ; en ligne, ceux du serveur (`bots`) prennent leur profil par leur nom. */
 export const HOUSE_BOTS: readonly HouseBot[] = [
   { id: 'maxitoon', name: 'Maxitoon', avatar: avatarOf(47, 'vert', 'creme', 'rose'), trait: 'fast', think: [2.6, 6.5], answerChance: 0.72 },
   { id: 'terretciel', name: 'Terretciel', avatar: avatarOf(12, 'rouge', 'jaune', 'bleu'), trait: 'steady', think: [3.4, 9], answerChance: 0.8 },
   { id: 'demontoon', name: 'Demontoon', avatar: avatarOf(73, 'bleu', 'creme', 'jaune'), trait: 'sharp', think: [2.4, 7.5], answerChance: 0.88 },
 ]
 
-/** Un joueur maison du serveur qui n'a pas d'homologue local joue posément. */
+/** Un joueur ordinateur du serveur qui n'a pas d'homologue local joue posément. */
 const STEADY: Omit<BotProfile, 'id'> = { think: [3, 8], answerChance: 0.8 }
 
 export const MIN_TABLE = DUEL_MIN_PLAYERS
@@ -141,7 +141,7 @@ export interface DuelTable {
   /** Qui l'hôte peut encore inviter. */
   candidates: readonly Candidate[]
   invite(id: string): void
-  /** L'hôte retire quelqu'un du salon : joueur, joueur maison ou invitation. */
+  /** L'hôte retire quelqu'un du salon : joueur, joueur ordinateur ou invitation. */
   kick(id: string): void
   ready: Readonly<Record<string, boolean>>
   markReady(): void
@@ -275,7 +275,7 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
         avatar: row.avatar,
         bot: row.bot,
         trait: house?.trait,
-        // Un joueur maison n'a pas de catalogue : il choisit après les joueurs.
+        // Un joueur ordinateur n'a pas de catalogue : il choisit après les joueurs.
         owned: row.bot ? 999 : row.owned,
         ready: row.ready,
         seat: row.seat,
@@ -519,7 +519,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     else if (table.status === 'closed') exit.current?.('closed')
   }, [me?.kicked, mode, table])
 
-  // Le serveur local : les joueurs maison se déclarent prêts l'un après
+  // Le serveur local : les joueurs ordinateur se déclarent prêts l'un après
   // l'autre — après mon « prêt » à une table neuve, dès l'ouverture d'une
   // revanche —, et la partie part quand toute la table présente est prête.
   useEffect(() => {
@@ -897,7 +897,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   }, [])
 
   // Le raccourci de développement `#auto` (table locale) : la table s'ouvre
-  // avec les trois joueurs maison, je me déclare prêt, je choisis et je valide
+  // avec les trois joueurs ordinateur, je me déclare prêt, je choisis et je valide
   // comme un robot — de quoi regarder chaque écran sans jouer trois minutes.
   const auto = useMemo(() => mode === 'local' && typeof location !== 'undefined' && /auto/.test(location.hash), [mode])
   useEffect(() => {

@@ -73,7 +73,7 @@ faute de frappe rendent aussitôt 10 points, toute la partie). Chacun a sa coule
 - **Classements** : meilleure partie du jour, de la semaine, et mots découverts
   cette semaine — un mot que personne n'avait écrit dans la catégorie depuis
   sept jours. On passe de l'un à l'autre d'un glissement du doigt. Seuls les
-  comptes nommés y figurent, et jamais les joueurs maison du serveur
+  comptes nommés y figurent, et jamais les joueurs ordinateur du serveur
   (Maxitoon, Terretciel) ; Demontoon y tient 94 points chaque jour tant
   qu'il n'a pas joué. Le titre, un glissement après le troisième tableau ou
   le lien des statistiques ouvrent la page des classements : meilleure

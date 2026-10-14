@@ -1,7 +1,7 @@
 -- L'historique des défis joués avec chaque ami, pour sa fiche dans « Mes
 -- amis ». Le serveur ne dit que qui a partagé quel défi : le bilan, lui, se
 -- règle sur l'appareil. Le score d'un défi dépend des mots de tous (bonus du
--- mot unique), et ceux des joueurs maison n'existent que rejoués depuis la
+-- mot unique), et ceux des joueurs ordinateur n'existent que rejoués depuis la
 -- graine (`withBotRuns`) — aucun classement calculé ici ne serait juste.
 --
 -- Contrairement à `my_challenges`, pas de fenêtre de trois jours : c'est

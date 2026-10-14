@@ -1,6 +1,6 @@
 -- Les classements avancés, corrigés sur deux points.
 --
--- D'abord les joueurs maison : leurs parties tournent toutes les heures par
+-- D'abord les joueurs ordinateur : leurs parties tournent toutes les heures par
 -- pg_cron, et elles gonflaient le rythme du jeu comme si la foule jouait la
 -- nuit. Les trois fonctions les écartent maintenant par leur compte (`bots`),
 -- jamais par leur nom, qu'un vrai joueur peut porter — la même règle que les
@@ -39,7 +39,7 @@ revoke execute on function public.prompt_letter(text) from public, anon, authent
 -- Le rythme du jeu : les parties jouées et les comptes créés, par heure sur les
 -- dernières vingt-quatre (vue du jour), par jour sur la semaine, ou par semaine
 -- sur les douze dernières (vue totale). L'heure de Paris, comme les périodes
--- des classements ; les cases vides sortent à zéro. Les joueurs maison n'y
+-- des classements ; les cases vides sortent à zéro. Les joueurs ordinateur n'y
 -- comptent pas : ni leurs parties, ni leurs comptes.
 create or replace function public.debug_activity(p_bucket text)
 returns table (bucket timestamptz, runs integer, accounts integer)

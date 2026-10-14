@@ -444,7 +444,7 @@ describe('la reproductibilité', () => {
   })
 })
 
-describe('les joueurs maison', () => {
+describe('les joueurs ordinateur', () => {
   const bot: BotProfile = { id: 'maxitoon', think: [2, 6], answerChance: 1 }
 
   it('ne joue que pendant son tour', () => {

@@ -1,4 +1,4 @@
--- Les joueurs maison entrent dans les défis : invités, ils acceptent d'office
+-- Les joueurs ordinateur entrent dans les défis : invités, ils acceptent d'office
 -- et jouent entre une et cinq minutes plus tard, de jour comme de nuit.
 --
 -- Le serveur ne fait que les marquer « joué » à l'heure dite : il n'a pas les

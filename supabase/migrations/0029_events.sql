@@ -81,7 +81,7 @@ grant execute on function public.track(jsonb) to authenticated;
 
 -- Le tableau de bord de l'administrateur, d'un bloc : tout ce que la page
 -- affiche, calculé ici pour qu'elle n'ait qu'un document à lire. L'heure de
--- Paris, comme les classements ; jamais les joueurs maison (`bots`), ni par
+-- Paris, comme les classements ; jamais les joueurs ordinateur (`bots`), ni par
 -- leurs parties ni par leurs comptes. Personne n'y a droit depuis l'app :
 -- `npm run analytics` la lit par `supabase db query --linked`.
 create function public.analytics_snapshot(p_days integer default 30) returns jsonb

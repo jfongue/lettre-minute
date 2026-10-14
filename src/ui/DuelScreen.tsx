@@ -268,7 +268,7 @@ function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRul
   )
 }
 
-/** Qui l'hôte peut asseoir à sa table : les joueurs maison, et ses amis en ligne. */
+/** Qui l'hôte peut asseoir à sa table : les joueurs ordinateur, et ses amis en ligne. */
 function InviteList({ table }: { table: DuelTable }) {
   const t = useT()
   return (
@@ -1140,7 +1140,7 @@ function Notice({
 /**
  * La file du matchmaking : relue toutes les deux secondes jusqu'à ce que le
  * serveur ait ouvert une table. Au bout d'un quart de minute sans adversaire,
- * les joueurs maison restent une autre façon de jouer, sans quitter la file
+ * les joueurs ordinateur restent une autre façon de jouer, sans quitter la file
  * tant qu'on n'a pas choisi.
  */
 export function DuelMatchmaking({

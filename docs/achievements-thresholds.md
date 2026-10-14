@@ -1,7 +1,7 @@
 # Réétalement des succès — proposition
 
 Relevé fait le 5 novembre 2026 sur la base liée : 349 profils hors joueurs
-maison, 888 parties réelles jouées par 35 d'entre eux, 15 mots proposés
+ordinateur, 888 parties réelles jouées par 35 d'entre eux, 15 mots proposés
 acceptés, 13 joueurs de défis entre amis, 11 modérateurs. Rien n'est appliqué :
 ce document propose, il ne change pas `RUNGS`.
 

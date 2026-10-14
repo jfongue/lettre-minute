@@ -5,7 +5,7 @@ appartenance à Google Play Games, l'avatar et la couleur qu'il ouvre, et le
 nombre de joueurs qui l'ont obtenu.
 
 - Source du catalogue : `src/domain/achievements.ts`. Comptes lus sur la base
-  en ligne le 2026-10-12 : **347 profils** (les deux joueurs maison sont
+  en ligne le 2026-10-12 : **347 profils** (les deux joueurs ordinateur sont
   écartés), dont **40** portent au moins une partie.
 - **61 succès** : 15 publiés sur Play Games,
   16 écrits dans le jeu, 30 barreaux de la grille.

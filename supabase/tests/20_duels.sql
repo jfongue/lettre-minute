@@ -128,7 +128,7 @@ select tests.is(
   (public.duel_sync((select id from duel), 0) -> 'moves' -> 0 ->> 'payload'), 'animaux', 'in order, with their payload'
 );
 select tests.ok((public.duel_sync((select id from duel), 0) ->> 'now')::numeric > 0, 'with the server clock');
--- Le mot d'un joueur maison, lui, est déclaré par le meneur (0049) : sans lui,
+-- Le mot d'un joueur ordinateur, lui, est déclaré par le meneur (0049) : sans lui,
 -- la table resterait à jamais sur son tour.
 select tests.is(public.duel_move((select id from duel), 4, 1, 'word', 'chat'), 'ok', 'a seated player plays the house player''s word');
 select tests.is(public.duel_move((select id from duel), 5, 1, 'pass', ''), 'ok', 'and his pass');

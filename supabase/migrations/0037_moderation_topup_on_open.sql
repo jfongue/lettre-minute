@@ -7,7 +7,7 @@
 -- personne, restait courte une visite de plus.
 --
 -- L'heure ne se referme plus sur un versement vide (réserve à sec, aucun
--- joueur maison) : elle attend le premier mot réellement versé.
+-- joueur ordinateur) : elle attend le premier mot réellement versé.
 --
 -- Le marqueur ne sert plus à rien : son déclencheur et sa table s'en vont.
 

@@ -1680,7 +1680,7 @@ export interface DuelCandidate {
   bot: boolean
 }
 
-/** Qui l'hôte peut inviter : ses amis, et les joueurs maison. */
+/** Qui l'hôte peut inviter : ses amis, et les joueurs ordinateur. */
 export function fetchDuelCandidates(): Promise<DuelCandidate[] | null> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('duel_candidates')

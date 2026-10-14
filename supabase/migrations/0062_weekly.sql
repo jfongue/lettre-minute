@@ -115,7 +115,7 @@ end;
 $$;
 
 -- Le classement : la meilleure tentative terminée de chaque joueur nommé, ex
--- aequo au même rang. Les joueurs maison jouent ailleurs, jamais ici, et sont
+-- aequo au même rang. Les joueurs ordinateur jouent ailleurs, jamais ici, et sont
 -- écartés par leur compte comme sur les autres tableaux (0024).
 create function public.weekly_board(p_week_id date, p_lang text, p_lim integer)
 returns table (rank integer, player_id uuid, display_name text, avatar jsonb, value numeric, attempts integer, me boolean)
