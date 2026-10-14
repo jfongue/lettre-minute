@@ -2,11 +2,10 @@ import '@fontsource-variable/jost/index.css'
 
 /**
  * The page a shared link or the invitation mail opens (invite.html), outside
- * the game: it says who invites and how to get the game. Android is a closed
- * test on Play, open to whoever joins its public Google group
- * (VITE_TESTER_GROUP_URL); until that group exists, the page only offers the
- * web version, since the Play links answer « application unavailable » to
- * anyone who is not a tester.
+ * the game: it says who invites and how to get the game. Android is on the
+ * Play Store for everyone now, so one button leads there, straight to the
+ * game's page: the testers' group and the « become a tester » step it needed
+ * while the game was a closed test are gone.
  */
 
 interface PageText {
@@ -17,16 +16,12 @@ interface PageText {
   /** Around the letter, set in red: the game's own way of asking. */
   find: readonly [string, string]
   android: string
-  join: string
-  tester: string
   install: string
   /**
-   * Under the step to take next, since each leaves for a Google page of its
-   * own: which button to press there, and to come back to this tab.
+  * Under the step to take next, since it leaves for a page of Google's own:
+  * what to do there, and to come back to this tab.
    */
-  hints: { join: string; tester: string; install: string }
-  /** Above the steps when the mail came after the group took the address. */
-  joined: string
+   hints: { install: string }
   /** A quiet line under the steps: the web version, for everyone not on Android. */
   iphone: readonly [string, string]
   /** What the buttons leave on the clipboard, for the app to read at its first launch. */
@@ -41,15 +36,10 @@ const TEXTS: Record<string, PageText> = {
     category: 'Couleurs',
     find: ['Trouve une couleur en ', ''],
     android: 'Sur Android',
-    join: 'Rejoindre les testeurs',
-    tester: 'Devenir testeur',
     install: 'Installer le jeu',
     hints: {
-      join: 'Sur la page Google, touche « Rejoindre le groupe » avec le compte Google de ton téléphone, puis reviens sur cet onglet.',
-      tester: 'Touche « Devenir testeur », puis reviens sur cet onglet.',
       install: 'Installe le jeu depuis le Play Store, puis ouvre-le.',
     },
-    joined: 'Tu es déjà dans le groupe des testeurs.',
     iphone: ['Tu as un iPhone ? ', 'Clique ici'],
     clip: (inviter, code) => `Invitation Lettre Minute${inviter ? ` de ${inviter}` : ''} : ${code}`,
   },
@@ -60,15 +50,10 @@ const TEXTS: Record<string, PageText> = {
     category: 'Colours',
     find: ['Find a colour starting with ', ''],
     android: 'On Android',
-    join: 'Join the testers',
-    tester: 'Become a tester',
     install: 'Install the game',
     hints: {
-      join: 'On the Google page, tap “Join group” with your phone’s Google account, then come back to this tab.',
-      tester: 'Tap “Become a tester”, then come back to this tab.',
       install: 'Install the game from the Play Store, then open it.',
     },
-    joined: 'You are already in the testers’ group.',
     iphone: ['Got an iPhone? ', 'Tap here'],
     clip: (inviter, code) => `Letter Minute invitation${inviter ? ` from ${inviter}` : ''}: ${code}`,
   },
@@ -79,15 +64,10 @@ const TEXTS: Record<string, PageText> = {
     category: 'Farben',
     find: ['Finde eine Farbe mit ', ''],
     android: 'Auf Android',
-    join: 'Testergruppe beitreten',
-    tester: 'Tester werden',
     install: 'Spiel installieren',
     hints: {
-      join: 'Tippe auf der Google-Seite mit dem Google-Konto deines Handys auf „Gruppe beitreten“ und komm dann zu diesem Tab zurück.',
-      tester: 'Tippe auf „Tester werden“ und komm dann zu diesem Tab zurück.',
       install: 'Installiere das Spiel aus dem Play Store und öffne es.',
     },
-    joined: 'Du bist schon in der Testergruppe.',
     iphone: ['Du hast ein iPhone? ', 'Hier tippen'],
     clip: (inviter, code) => `Letter-Minute-Einladung${inviter ? ` von ${inviter}` : ''}: ${code}`,
   },
@@ -98,15 +78,10 @@ const TEXTS: Record<string, PageText> = {
     category: 'Colores',
     find: ['Encuentra un color con ', ''],
     android: 'En Android',
-    join: 'Unirme a los testers',
-    tester: 'Hacerme tester',
     install: 'Instalar el juego',
     hints: {
-      join: 'En la página de Google, pulsa «Unirse al grupo» con la cuenta de Google de tu móvil y vuelve a esta pestaña.',
-      tester: 'Pulsa «Convertirme en tester» y vuelve a esta pestaña.',
       install: 'Instala el juego desde Play Store y ábrelo.',
     },
-    joined: 'Ya estás en el grupo de testers.',
     iphone: ['¿Tienes un iPhone? ', 'Pulsa aquí'],
     clip: (inviter, code) => `Invitación a Letra Minuto${inviter ? ` de ${inviter}` : ''}: ${code}`,
   },
@@ -117,15 +92,10 @@ const TEXTS: Record<string, PageText> = {
     category: 'Colori',
     find: ['Trova un colore con la ', ''],
     android: 'Su Android',
-    join: 'Entra tra i tester',
-    tester: 'Diventa tester',
     install: 'Installa il gioco',
     hints: {
-      join: 'Nella pagina Google, tocca «Iscriviti al gruppo» con l’account Google del telefono, poi torna su questa scheda.',
-      tester: 'Tocca «Diventa un tester», poi torna su questa scheda.',
       install: 'Installa il gioco dal Play Store, poi aprilo.',
     },
-    joined: 'Sei già nel gruppo dei tester.',
     iphone: ['Hai un iPhone? ', 'Tocca qui'],
     clip: (inviter, code) => `Invito a Lettera Minuto${inviter ? ` di ${inviter}` : ''}: ${code}`,
   },
@@ -136,15 +106,10 @@ const TEXTS: Record<string, PageText> = {
     category: 'Kleuren',
     find: ['Vind een kleur met een ', ''],
     android: 'Op Android',
-    join: 'Word lid van de testers',
-    tester: 'Word tester',
     install: 'Spel installeren',
     hints: {
-      join: 'Tik op de Google-pagina op ‘Lid worden van groep’ met het Google-account van je telefoon en kom dan terug naar dit tabblad.',
-      tester: 'Tik op ‘Tester worden’ en kom dan terug naar dit tabblad.',
       install: 'Installeer het spel via de Play Store en open het.',
     },
-    joined: 'Je zit al in de testersgroep.',
     iphone: ['Heb je een iPhone? ', 'Tik hier'],
     clip: (inviter, code) => `Uitnodiging voor Letter Minuut${inviter ? ` van ${inviter}` : ''}: ${code}`,
   },
@@ -155,21 +120,15 @@ const TEXTS: Record<string, PageText> = {
     category: 'Cores',
     find: ['Encontra uma cor com ', ''],
     android: 'No Android',
-    join: 'Entrar nos testadores',
-    tester: 'Virar testador',
     install: 'Instalar o jogo',
     hints: {
-      join: 'Na página do Google, toque em “Participar do grupo” com a conta Google do seu celular e volte para esta aba.',
-      tester: 'Toque em “Quero ser testador” e volte para esta aba.',
       install: 'Instale o jogo pela Play Store e abra.',
     },
-    joined: 'Você já está no grupo de testadores.',
     iphone: ['Tem um iPhone? ', 'Toque aqui'],
     clip: (inviter, code) => `Convite para Letra Minuto${inviter ? ` de ${inviter}` : ''}: ${code}`,
   },
 }
 
-const TESTING_URL = 'https://play.google.com/apps/testing/fr.lettreminute.app'
 const STORE_URL = 'https://play.google.com/store/apps/details?id=fr.lettreminute.app'
 
 function escapeHtml(text: string): string {
@@ -185,9 +144,6 @@ const inviter = (query.get('from') ?? '').trim().slice(0, 24)
 // way in: Play's install referrer, the web version's address, the clipboard.
 // Whichever arrives, the account made next befriends the inviter.
 const ref = /^[0-9a-f]{12}$/.test(query.get('ref') ?? '') ? query.get('ref')! : null
-const group = import.meta.env.VITE_TESTER_GROUP_URL || null
-// Mailed once `npm run group:invites` had put the address in the group (0035).
-const inGroup = query.get('in') === '1'
 
 const gameUrl = ref ? `./?ref=${ref}` : './'
 const storeUrl = ref ? `${STORE_URL}&referrer=${encodeURIComponent(`ref=${ref}`)}` : STORE_URL
@@ -225,19 +181,13 @@ function markDone(id: string) {
   }
 }
 
-const STEPS = [
-  ...(inGroup ? [] : [{ id: 'join', href: group ?? '', label: t.join } as const]),
-  { id: 'tester', href: TESTING_URL, label: t.tester } as const,
-  { id: 'install', href: storeUrl, label: t.install } as const,
-]
+const STEPS = [{ id: 'install', href: storeUrl, label: t.install } as const]
 
 function androidSteps(): string {
-  if (!group) return ''
   const done = loadDone()
   const next = STEPS.find((step) => !done.has(step.id))?.id
   return `<section class="steps">
       <p class="label">${escapeHtml(t.android)}</p>
-      ${inGroup ? `<p class="joined">✓ ${escapeHtml(t.joined)}</p>` : ''}
       ${STEPS.map(
         (step) =>
           `<a class="btn${step.id === next ? ' btn--main' : ''}${done.has(step.id) ? ' btn--done' : ''}" href="${step.href}" target="_blank" rel="noopener" data-step="${step.id}">${escapeHtml(step.label)}</a>${

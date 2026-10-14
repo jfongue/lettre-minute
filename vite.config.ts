@@ -17,7 +17,6 @@ const CRAZYGAMES_BLANKS = [
   'VITE_ADMOB_INTERSTITIAL_ID',
   'VITE_PUSH_ENABLED',
   'VITE_GOOGLE_WEB_CLIENT_ID',
-  'VITE_TESTER_GROUP_URL',
 ]
 
 export default defineConfig(({ mode }) => ({

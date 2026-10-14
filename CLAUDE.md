@@ -556,10 +556,11 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   `src/ui/FriendsView.tsx`). Le lien mène à `invite.html` (`src/invite.ts`,
   entrée Vite à part), dont les balises Open Graph et `invite-card.png`
   font l'aperçu dans WhatsApp ou Discord : ils ne lisent aucun script, ces
-  balises restent donc statiques. Sur Android, la page envoie au groupe
-  Google public qui sert de liste de testeurs au test fermé
-  (`VITE_TESTER_GROUP_URL`) ; sans lui, elle ne propose que le web, un lien
-  Play répondant « application indisponible » à qui n'est pas testeur.
+  balises restent donc statiques. Sur Android, la page envoie à la fiche Play
+  du jeu, ouverte à tout le monde depuis la 1.8.0 : un seul bouton, plus de
+  groupe de testeurs à rejoindre ni de « devenir testeur » — le groupe public
+  et `npm run group:invites` ne servent plus qu'à l'attente de l'e-mail
+  ci-dessous, que la prochaine migration pourra retirer.
   L'e-mail (`invite_tester`, 0034) attend que l'adresse soit dans le groupe
   (ou une heure, 0035), puis part par la fonction Edge
   `invite`, depuis la boîte Gmail du jeu (`GMAIL_USER`,
