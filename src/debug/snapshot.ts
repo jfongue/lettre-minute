@@ -80,7 +80,6 @@ export interface Snapshot {
     scores: { from: number; n: number }[]
     powers: { power: string; runs: number; avg_score: number }[]
     categories: { category: string; words: number; points: number }[]
-    top_words: { word: string; category: string; n: number }[]
   }
   funnel: { new_players: number; played_1: number; played_3: number; played_10: number; named: number }
   retention: { week: string; size: number; d1: number; w1: number; later: number }[]
@@ -90,7 +89,8 @@ export interface Snapshot {
   challenges: { created: number; avg_players: number | null; played_share: number | null }
   /** Absent d'un serveur antérieur à 0036, comme `prompts`. */
   invites?: Invites
-  prompts?: Prompts
+  /** Absent d'un serveur antérieur à 0073. */
+  revenue?: Revenue
 }
 
 /**
@@ -112,24 +112,42 @@ export interface Invites {
   top: { name: string; anonymous: boolean; mails: number; shares: number; joins: number; played: number }[]
 }
 
-export interface PromptRow {
-  lang: string
-  category: string
-  letter: string
-  dealt: number
-  passed: number
-  words: number
-  points: number
-  /** Tous les tirages de sa langue. */
-  lang_dealt: number
+/** Une ligne par jour de `revenue.daily` : ce que l'écran filtre et dessine. */
+export interface RevenueDay {
+  day: string
+  offers: number
+  activations: number
+  ads: number
+  subscribed: number
 }
 
-/** Les compteurs du tirage (0022), depuis toujours. */
-export interface Prompts {
-  langs: { lang: string; dealt: number; passed: number; pairs: number }[]
-  most_passed: PromptRow[]
-  /** Au moins dix tirages. */
-  worst_rate: PromptRow[]
+/**
+* La part « revenu » du relevé (0073) : ce que le client a vu — les offres
+* Premium ouvertes avec leur motif, les activations avec leur origine, les
+* publicités avec leur emplacement et leur résultat —, et ce que `purchases`
+* dit avoir été payé. Les répartitions portent sur toute la fenêtre du relevé,
+* les lignes du jour sur ce que l'écran filtre.
+*/
+export interface Revenue {
+  premium: {
+    offers: number
+    offer_devices: number
+    activations: number
+    /** Comptes avec un achat `premium_lifetime` non refusé, depuis toujours. */
+    subscribers: number
+    refused: number
+    reasons: { reason: string; n: number; devices: number }[]
+    sources: { source: string; n: number; devices: number }[]
+    providers: { provider: string; n: number; accounts: number }[]
+  }
+  ads: {
+    shown: number
+    devices: number
+    unavailable: number
+    sources: { source: string; n: number; devices: number; rewarded: number; unavailable: number }[]
+    results: { result: string; n: number }[]
+  }
+  daily: RevenueDay[]
 }
 
 /** Qui une barre compte (`admin_slot`, 0036) : un joueur, ou un appareil sans compte. */

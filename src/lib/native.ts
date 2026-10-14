@@ -276,12 +276,14 @@ export async function storeOwned(productId: string): Promise<StorePurchase[] | n
 /**
  * Shows the loaded interstitial, if there is one. Never waits for one: an ad
  * still loading when the player taps is skipped, not shown late over whatever
- * screen came next.
+ * screen came next. Answers whether one actually played, which the dashboard's
+ * ad count needs — a request with no ad ready is not an opening.
  */
-export function showInterstitial(): void {
-  if (!interstitialLoaded) return
+ export function showInterstitial(): boolean {
+   if (!interstitialLoaded) return false
   interstitialLoaded = false
   quietly(() => AdMob.showInterstitial())
+  return true
 }
 
 /**

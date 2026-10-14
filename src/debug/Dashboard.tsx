@@ -7,8 +7,8 @@ import { categoryText, useT } from '../i18n'
 import { fetchDashboard, fetchDashboardSlot } from '../lib/cloud'
 import { Avatar } from '../ui/Avatar'
 import { Card, Kpi, Legend, Section, Stat, Table } from './board'
-import { ago, decimal, fmt, pct, share } from './format'
-import type { DayRow, HourRow, Invites, PromptRow, Prompts, SlotEntry, Snapshot } from './snapshot'
+import { ago, decimal, fmt, pct } from './format'
+import type { DayRow, HourRow, Invites, Revenue, RevenueDay, SlotEntry, Snapshot } from './snapshot'
 
 /*
  * Le tableau de bord de l'administrateur : cinq tapes sur « Classements »
@@ -121,7 +121,9 @@ const FEATURES: Record<string, string> = {
   swap: 'Échange de catégorie',
   category_chosen: 'Catégorie choisie',
   power_chosen: 'Pouvoir choisi',
-  premium_joined: 'Premium',
+  premium_opened: 'Offre Premium ouverte',
+  premium_joined: 'Premium activé',
+  ad: 'Pub ouverte',
   hidden_words_peek: 'Mots cachés révélés',
   category_ban: 'Catégorie bannie',
   category_unban: 'Catégorie rétablie',
@@ -154,6 +156,8 @@ const screenName = (screen: string) =>
   SCREENS[screen] ?? (screen.startsWith('menu:') ? `Menu · ${screen.slice(5)}` : screen || '?')
 
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1).replace('.', ',')} s`
+/** « 1 offre », « 2 offres » : les étiquettes du revenu s'accordent. */
+const plural = (n: number, word: string) => `${fmt(n)} ${word}${n > 1 ? 's' : ''}`
 const dayLabel = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
 
 /* ------------------------------------------------------------------ la vue */
@@ -441,25 +445,12 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
               sub={(category) => `${fmt(category.points)} pts`}
             />
           </Card>
-          <Card title="Mots les plus écrits">
-            <Bars
-              items={d.runs.top_words}
-              name={(word) => (
-                <>
-                  <small>{categoryText(t, word.category).label}</small>
-                  {word.word}
-                </>
-              )}
-              value={(word) => word.n}
-              color="var(--green)"
-            />
-          </Card>
         </div>
       </Section>
 
-      {d.prompts && <PromptsSection prompts={d.prompts} />}
+      {d.revenue && <RevenueSection revenue={d.revenue} />}
 
-      {d.invites && <InvitesSection invites={d.invites} onPick={pick('Invitations', INVITES)} />}
+{d.invites && <InvitesSection invites={d.invites} onPick={pick('Invitations', INVITES)} />}
 
       <Section title="Joueurs" mark="var(--pink)">
         <div className="dashboard-grid">
@@ -552,78 +543,140 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
 
 /* -------------------------------------------------------------- sections */
 
-function PromptsSection({ prompts }: { prompts: Prompts }) {
-  const t = useT()
-  const [order, setOrder] = useState<'passed' | 'rate'>('passed')
-  const [whole, setWhole] = useState(false)
-  const rows = order === 'passed' ? prompts.most_passed : prompts.worst_rate
-  const shown = whole ? rows : rows.slice(0, 15)
-  const many = prompts.langs.length > 1
-  const pair = (row: PromptRow) => (
-    <>
-      <b className="dashboard-letter">{row.letter}</b> {categoryText(t, row.category).label}
-      {many && <span className="dashboard-tag">{row.lang.toUpperCase()}</span>}
-    </>
-  )
+/* --------------------------------------------------------------- revenu */
+
+const PREMIUM_REASONS: Record<string, string> = {
+  filter: 'Filtres et catégories',
+  reveal: 'Révélations illimitées',
+  attempt: 'Essai du défi du moment',
+  premiere: 'Avant-premières',
+  ads: 'Sans publicité',
+  slot: 'Emplacement verrouillé',
+  menu: 'Menu',
+  '?': 'Sans motif (relevé antérieur)',
+}
+const PREMIUM_SOURCES: Record<string, string> = {
+  buy: 'Achat',
+  restore: 'Restauré sur l’appareil',
+  owned: 'Retrouvé sur un autre appareil',
+  win: 'Prix du défi du moment',
+  '?': 'Sans origine (relevé antérieur)',
+}
+const AD_SOURCES: Record<string, string> = {
+  reveal: 'Mots cachés du bilan',
+  attempt: 'Essai du défi du moment',
+  offer: 'Catégorie gardée',
+  '?': 'Sans provenance (relevé antérieur)',
+}
+const AD_RESULTS: Record<string, string> = {
+  rewarded: 'vue jusqu’au bout',
+  skipped: 'fermée trop tôt',
+  unavailable: 'aucune pub prête',
+  shown: 'affichée',
+  '?': 'résultat non relevé',
+}
+const STORES: Record<string, string> = {
+  play: 'Google Play',
+  lemonsqueezy: 'Web (Lemon Squeezy)',
+}
+
+/**
+* Ce que le jeu rapporte : les offres Premium ouvertes et ce qui les ouvre,
+* les abonnements et les abonnés, les publicités et leur provenance.
+*
+* Les compteurs et les courbes suivent le filtre de période ; les
+* répartitions portent sur toute la fenêtre du relevé, ce que chaque carte
+* dit. « Abonné » et « refusé » se lisent dans `purchases`, seule vérité de
+* l'achat ; « activé » ne dit que ce que le client a relevé, une restauration
+* comprise.
+*/
+function RevenueSection({ revenue: r }: { revenue: Revenue }) {
+  const [range, setRange] = useState<RevenueRange>(7)
+  const rows = r.daily.slice(-range)
+  const per = range === 1 ? 'aujourd’hui' : `sur ${range} jours`
+  const sum = (key: keyof RevenueDay) => rows.reduce((total, row) => total + (Number(row[key]) || 0), 0)
+  const offers = sum('offers')
+  const activations = sum('activations')
+  const subscribed = sum('subscribed')
+  const ads = sum('ads')
+  const window = `${r.daily.length} derniers jours`
+  const p = r.premium
   return (
-    <Section
-      title="Couples lettre + catégorie"
-      mark="var(--yellow)"
-      aside={
-        <div className="layer-tabs dashboard-range" role="tablist" aria-label="Ordre">
-          {(['passed', 'rate'] as const).map((one) => (
-            <button
-              key={one}
-              type="button"
-              role="tab"
-              aria-selected={order === one}
-              className={`layer-tab${order === one ? ' layer-tab--on' : ''}`}
-              onClick={() => setOrder(one)}
-            >
-              {one === 'passed' ? 'Plus passés' : 'Taux de passe'}
-            </button>
-          ))}
-        </div>
-      }
-    >
-      <div className="dashboard-stats">
-        {prompts.langs.map((lang) => (
-          <Stat
-            key={lang.lang}
-            value={pct(lang.passed, lang.dealt)}
-            label={`passés${many ? ` en ${lang.lang.toUpperCase()}` : ''} · ${fmt(lang.dealt)} tirages, ${fmt(lang.pairs)} couples`}
-          />
+    <Section title="Revenu" mark="var(--yellow)" aside={
+      <div className="layer-tabs dashboard-range" role="tablist" aria-label="Période">
+        {REVENUE_RANGES.map((days) => (
+          <button
+            key={days}
+            type="button"
+            role="tab"
+            aria-selected={range === days}
+            className={`layer-tab${range === days ? ' layer-tab--on' : ''}`}
+            onClick={() => setRange(days)}
+          >
+            {days} j
+          </button>
         ))}
       </div>
-      {rows.length ? (
-        <Table head={['Couple', 'Tirages', 'Apparition', 'Passés', 'Taux de passe', 'Mots / tirage']}>
-          {shown.map((row) => (
-            <tr key={`${row.lang}:${row.category}:${row.letter}`}>
-              <td>{pair(row)}</td>
-              <td className="n">{fmt(row.dealt)}</td>
-              <td className="n">{share(row.dealt, row.lang_dealt)}</td>
-              <td className="n">{fmt(row.passed)}</td>
-              <td className="n">
-                <span className="dashboard-cell" style={{ background: `color-mix(in srgb, var(--red) ${Math.round((row.passed / row.dealt) * 60)}%, transparent)` }}>
-                  {pct(row.passed, row.dealt)}
-                </span>
-              </td>
-              <td className="n">{decimal(Math.round((row.words / row.dealt) * 10) / 10)}</td>
-            </tr>
-          ))}
-        </Table>
-      ) : (
-        <div className="dashboard-empty">Aucun couple assez tiré encore.</div>
-      )}
-      {rows.length > 15 && (
-        <button type="button" className="btn btn--quiet dashboard-more" onClick={() => setWhole(!whole)}>
-          {whole ? 'Voir moins' : `Voir les ${rows.length} couples`}
-        </button>
-      )}
+    }>
+      <div className="dashboard-stats">
+        <Stat value={fmt(offers)} label={`offres Premium ouvertes · ${per}`} />
+        <Stat value={pct(subscribed, offers)} label={`converties · ${plural(subscribed, 'abonnement')}`} />
+        <Stat value={fmt(activations)} label={`Premium activés · ${per}`} />
+        <Stat value={fmt(p.subscribers)} label="abonnés Premium · depuis toujours" />
+        <Stat value={fmt(p.refused)} label="achats remboursés" />
+        <Stat value={fmt(ads)} label={`pubs ouvertes · ${per}`} />
+      </div>
       <p className="note">
-        Depuis toujours, parties seules seulement : les compteurs du tirage ne savent pas qui a joué. « Apparition » : part des tirages de sa langue.
-        {order === 'rate' && ' Taux de passe classé sur les couples tirés au moins dix fois.'}
+        « Abonnés » et « remboursés » se comptent depuis toujours, sur <code>purchases</code> : un achat rapporté par un autre appareil n’y compte
+        qu’une fois, un remboursement n’est plus un abonné. « Activés » n’est que ce que le client a relevé, restauration comprise.
       </p>
+      <div className="dashboard-grid">
+        <Card title="Premium par jour" tag={`${plural(offers, 'offre')} · ${plural(subscribed, 'abonnement')}`}>
+          <Legend items={PLUS_DAYS.map(({ label, color }) => ({ label, color }))} />
+          <DayBars rows={rows} series={PLUS_DAYS} />
+        </Card>
+        <Card title="Pubs par jour" note="Une pub ouverte : une récompense regardée jusqu’au bout, ou un plein écran affiché. Une pub demandée sans qu’aucune soit prête ne compte pas.">
+          <DayBars rows={rows} series={AD_DAYS} />
+        </Card>
+        <Card title="D’où l’offre s’ouvre" note={`Sur les ${window}.`}>
+          <Bars
+            items={p.reasons}
+            name={(one) => PREMIUM_REASONS[one.reason] ?? one.reason}
+            value={(one) => one.n}
+            sub={(one) => plural(one.devices, 'appareil')}
+            color="var(--blue)"
+          />
+        </Card>
+        <Card title="D’où viennent les pubs" note={`Sur les ${window}.`}>
+          <Bars
+            items={r.ads.sources}
+            name={(one) => AD_SOURCES[one.source] ?? one.source}
+            value={(one) => one.n}
+            sub={(one) => `${plural(one.rewarded, 'récompensée')} · ${fmt(one.unavailable)} sans pub`}
+            color="var(--red)"
+          />
+          <h3>Comment elles finissent</h3>
+          <Bars items={r.ads.results} name={(one) => AD_RESULTS[one.result] ?? one.result} value={(one) => one.n} color="var(--red)" limit={4} />
+        </Card>
+        <Card title="Abonnements par boutique" note={`Achats relevés sur les ${window}.`}>
+          <Bars
+            items={p.providers}
+            name={(one) => STORES[one.provider] ?? one.provider}
+            value={(one) => one.n}
+            sub={(one) => plural(one.accounts, 'compte')}
+            color="var(--green)"
+          />
+        </Card>
+        <Card title="Premium activés, par origine" note={`Sur les ${window}.`}>
+          <Bars
+            items={p.sources}
+            name={(one) => PREMIUM_SOURCES[one.source] ?? one.source}
+            value={(one) => one.n}
+            sub={(one) => plural(one.devices, 'appareil')}
+            color="var(--yellow)"
+          />
+        </Card>
+      </div>
     </Section>
   )
 }
@@ -701,9 +754,17 @@ const INVITES: Series[] = [
   { key: 'mails', label: 'Mails', color: 'var(--blue)' },
   { key: 'shares', label: 'Liens partagés', color: 'var(--yellow)' },
 ]
+/** Le revenu suit son propre filtre : 1, 7, 15 ou 30 jours, pas 14. */
+const REVENUE_RANGES = [1, 7, 15, 30] as const
+type RevenueRange = (typeof REVENUE_RANGES)[number]
+const PLUS_DAYS: Series[] = [
+  { key: 'offers', label: 'Offres ouvertes', color: 'var(--blue)' },
+  { key: 'subscribed', label: 'Abonnements', color: 'var(--green)' },
+]
+const AD_DAYS: Series[] = [{ key: 'ads', label: 'Pubs ouvertes', color: 'var(--red)' }]
 
-/** Qui une série compte : la même règle que la barre, joueur par joueur. */
-const COUNTS: Record<Series['key'], (entry: SlotEntry) => boolean> = {
+/** Qui une série compte : la même règle que la barre, joueur par joueur. Le revenu n'a pas de détail par joueur. */
+const COUNTS: Partial<Record<Series['key'], (entry: SlotEntry) => boolean>> = {
   runs: (entry) => !entry.device && entry.runs > 0,
   players: (entry) => !entry.device && entry.active,
   signups: (entry) => !entry.device && entry.signed,
@@ -736,7 +797,7 @@ function SlotSheet({ picked, load, onClose }: { picked: Picked; load: LoadSlot; 
     return () => window.removeEventListener('keydown', close, true)
   }, [onClose])
 
-  const counted = entries?.filter((entry) => series.some((one) => COUNTS[one.key](entry))) ?? []
+  const counted = entries?.filter((entry) => series.some((one) => COUNTS[one.key]?.(entry))) ?? []
   const when = row.hour == null ? dayLabel(row.day) : `${dayLabel(row.day)}, ${row.hour} h–${row.hour + 1} h`
   return createPortal(
     <div className="dashboard dashboard-slot" data-no-swipe role="dialog" aria-label={`${title}, ${when}`}>
@@ -785,7 +846,7 @@ function SlotSheet({ picked, load, onClose }: { picked: Picked; load: LoadSlot; 
 }
 
 function SlotLine({ entry, series }: { entry: SlotEntry; series: Series[] }) {
-  const marks = series.filter((one) => COUNTS[one.key](entry))
+  const marks = series.filter((one) => COUNTS[one.key]?.(entry))
   const sessions = (entry.sessions_with_run || entry.sessions_without_run) && series.some((one) => one.key.startsWith('sessions'))
     ? `${fmt(entry.sessions_with_run)} ouverture${entry.sessions_with_run > 1 ? 's' : ''} avec partie, ${fmt(entry.sessions_without_run)} sans`
     : null
@@ -914,7 +975,10 @@ function roundedTop(x: number, base: number, width: number, height: number): str
 }
 
 interface Series {
-  key: 'runs' | 'players' | 'signups' | 'anon' | 'sessions_with_run' | 'sessions_without_run' | 'mails' | 'shares' | 'joins'
+  key:
+  | 'runs' | 'players' | 'signups' | 'anon' | 'sessions_with_run' | 'sessions_without_run'
+  | 'mails' | 'shares' | 'joins'
+  | 'offers' | 'subscribed' | 'ads'
   label: string
   color: string
 }

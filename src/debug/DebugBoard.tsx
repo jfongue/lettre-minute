@@ -536,7 +536,6 @@ function dashboardSnapshot(): Snapshot {
       scores: [2, 5, 9, 14, 22, 30, 34, 31, 26, 19, 12, 8, 5, 3, 2].map((n, index) => ({ from: index * 50, n: n * 10 })),
       powers: [{ power: 'joker', runs: 640, avg_score: 690 }, { power: 'hush', runs: 410, avg_score: 655 }, { power: 'magic', runs: 220, avg_score: 610 }],
       categories: [{ category: 'animaux', words: 9_800, points: 88_000 }, { category: 'pays', words: 7_200, points: 61_000 }, { category: 'capitales', words: 5_100, points: 49_000 }],
-      top_words: [{ word: 'chat', category: 'animaux', n: 410 }, { word: 'france', category: 'pays', n: 380 }, { word: 'paris', category: 'capitales', n: 350 }],
     },
     funnel: { new_players: 160, played_1: 131, played_3: 88, played_10: 41, named: 52 },
     retention: Array.from({ length: 6 }, (_, index) => {
@@ -569,25 +568,41 @@ function dashboardSnapshot(): Snapshot {
         { name: 'Anonyme 3f2a', anonymous: true, mails: 0, shares: 4, joins: 0, played: 0 },
       ],
     },
-    prompts: {
-      langs: [{ lang: 'fr', dealt: 14_380, passed: 2_210, pairs: 612 }, { lang: 'en', dealt: 1_240, passed: 260, pairs: 188 }],
-      most_passed: (
-        [
-          ['metiers', 'Y', 88, 61], ['pays', 'W', 140, 58], ['animaux', 'X', 95, 55], ['capitales', 'Q', 72, 49], ['fruits-legumes', 'K', 60, 41],
-          ['sports', 'U', 81, 37], ['pays', 'K', 150, 30], ['marques', 'Z', 34, 28], ['animaux', 'Q', 70, 26], ['metiers', 'W', 22, 20],
-          ['capitales', 'Y', 48, 19], ['pays', 'Z', 60, 18], ['fruits-legumes', 'H', 90, 17], ['sports', 'N', 110, 16], ['animaux', 'U', 75, 15],
-          ['metiers', 'O', 66, 14],
-        ] as const
-      ).map(([category, letter, dealt, passed]) => ({
-        lang: 'fr', category, letter, dealt, passed, words: Math.round((dealt - passed) * 1.4), points: (dealt - passed) * 60, lang_dealt: 14_380,
-      })),
-      worst_rate: (
-        [
-          ['metiers', 'W', 22, 20], ['marques', 'Z', 34, 28], ['metiers', 'Y', 88, 61], ['capitales', 'Q', 72, 49], ['fruits-legumes', 'K', 60, 41],
-          ['animaux', 'X', 95, 55], ['pays', 'W', 140, 58],
-        ] as const
-      ).map(([category, letter, dealt, passed]) => ({
-        lang: 'fr', category, letter, dealt, passed, words: Math.round((dealt - passed) * 1.4), points: (dealt - passed) * 60, lang_dealt: 14_380,
+    revenue: {
+      premium: {
+        offers: 318, offer_devices: 96, activations: 27, subscribers: 41, refused: 3,
+        reasons: [
+          { reason: 'filter', n: 96, devices: 44 },
+          { reason: 'reveal', n: 78, devices: 39 },
+          { reason: 'attempt', n: 61, devices: 31 },
+          { reason: 'menu', n: 43, devices: 29 },
+          { reason: 'premiere', n: 40, devices: 26 },
+        ],
+        sources: [
+          { source: 'buy', n: 18, devices: 18 },
+          { source: 'win', n: 5, devices: 5 },
+          { source: 'restore', n: 3, devices: 3 },
+          { source: 'owned', n: 1, devices: 1 },
+        ],
+        providers: [{ provider: 'play', n: 17, accounts: 17 }, { provider: 'lemonsqueezy', n: 1, accounts: 1 }],
+      },
+      ads: {
+        shown: 1_210, devices: 180, unavailable: 96,
+        sources: [
+          { source: 'reveal', n: 860, devices: 150, rewarded: 790, unavailable: 40 },
+          { source: 'attempt', n: 372, devices: 88, rewarded: 330, unavailable: 42 },
+          { source: 'offer', n: 74, devices: 41, rewarded: 0, unavailable: 14 },
+        ],
+        results: [
+          { result: 'rewarded', n: 1_120 }, { result: 'shown', n: 60 }, { result: 'skipped', n: 30 }, { result: 'unavailable', n: 96 },
+        ],
+      },
+      daily: daily.map((row, index) => ({
+        day: row.day,
+        offers: 8 + (index % 5),
+        activations: index % 3,
+        ads: 30 + (index % 9) * 3,
+        subscribed: index % 4 === 0 ? 1 : 0,
       })),
     },
   }

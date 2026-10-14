@@ -4,6 +4,7 @@ import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, useT } from '../i18n'
 import { prepareRewardedAd, showRewardedAd, tapFeedback } from '../lib/native'
 import { sound } from '../lib/sound'
+import { trackFeature } from '../lib/track'
 import { LetterMark } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { PlusLockedSlot, PlusSeal, ResourceChip, ResourceGlyph } from './premium'
@@ -75,6 +76,7 @@ export function HiddenAnswers({
     setWatching(true)
     setNoAd(false)
     const result = await showRewardedAd()
+    trackFeature('ad', { source: 'reveal', result })
     setWatching(false)
     if (result === 'rewarded') {
       tapFeedback('medium')

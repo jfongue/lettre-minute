@@ -1396,10 +1396,13 @@ setStartedAt((at) => at ?? Date.now())
     trackFeature('power_chosen', { power: powerId })
     dispatch({ type: 'choose-power', powerId })
   }, [])
-  const joinPlus = useCallback(() => {
-    trackFeature('premium_joined')
+  /** D'où le Premium arrive : l'achat, une restauration, un autre appareil, ou le défi du moment gagné. */
+  type PlusSource = 'buy' | 'restore' | 'owned' | 'win'
+  const joinPlus = useCallback((source: PlusSource) => {
+    trackFeature('premium_joined', { source })
     dispatch({ type: 'join-plus', at: Date.now() })
   }, [])
+  const winPlus = useCallback(() => joinPlus('win'), [joinPlus])
   const storeOpen = premiumStoreOpen && on('premium')
   const openPremium = useCallback(
     (reason: PremiumReason) => {
@@ -1416,12 +1419,12 @@ setStartedAt((at) => at ?? Date.now())
   )
   const buy = useCallback(async () => {
     const result = await buyPremium()
-    if (result === 'ok') joinPlus()
+    if (result === 'ok') joinPlus('buy')
     return result
   }, [joinPlus])
   const restore = useCallback(async () => {
     const found = await restorePremium()
-    if (found) joinPlus()
+    if (found) joinPlus('restore')
     return found
   }, [joinPlus])
   // A Premium bought on another device, or before a reinstall, comes back with
@@ -1430,7 +1433,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (!premiumStoreOpen || isPlus(profile.current)) return
     void premiumOwned().then((owned) => {
-      if (owned && !isPlus(profile.current)) joinPlus()
+      if (owned && !isPlus(profile.current)) joinPlus('owned')
     })
   }, [joinPlus, profile])
   // Le défi du moment : ses écrans, sa partie et son récap vivent dans un seul crochet.
@@ -1442,7 +1445,7 @@ setStartedAt((at) => at ?? Date.now())
     dispatch,
     judgeFor,
     profile,
-    joinPlus,
+    joinPlus: winPlus,
     openPremium,
     premiumOpen: storeOpen,
     preloadRun: preloadRunScreens,
