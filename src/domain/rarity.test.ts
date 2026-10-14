@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { comboMultiplier, NO_USAGE, notoriety, pointsFor, rarityScore, tierOf } from './rarity'
+import { comboMultiplier, NO_USAGE, notoriety, pointsFor, rarityScore, rarityWeight, tierOf } from './rarity'
 import type { WordEntry } from './words'
 
 const common: WordEntry = { key: 'chat', display: 'Chat', sitelinks: 150, frequency: 120, notoriety: 0.95 }
@@ -46,6 +46,20 @@ describe('pointsFor', () => {
   it('multiplies a chain of answers, up to a ceiling', () => {
     expect(pointsFor(common, NO_USAGE, 3)).toBeGreaterThan(pointsFor(common, NO_USAGE, 0))
     expect(comboMultiplier(20)).toBe(comboMultiplier(9))
+  })
+
+  it('pays a newcomer less for rarity, never less than the base', () => {
+    expect(pointsFor(obscure, NO_USAGE, 0, 1, rarityWeight(3))).toBeLessThan(pointsFor(obscure, NO_USAGE, 0))
+    expect(pointsFor(obscure, NO_USAGE, 0, 1, 0)).toBe(10)
+  })
+})
+
+describe('rarityWeight', () => {
+  it('grows back with each category, whole from five', () => {
+    expect(rarityWeight(3)).toBeLessThan(rarityWeight(4))
+    expect(rarityWeight(4)).toBeLessThan(1)
+    expect(rarityWeight(5)).toBe(1)
+    expect(rarityWeight(14)).toBe(1)
   })
 })
 
