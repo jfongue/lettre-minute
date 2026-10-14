@@ -30,6 +30,11 @@ export interface Host {
    */
   premiumStore: boolean
   rewardedAds: boolean
+  /**
+   * No server to rank against: the boards are the player's own best runs, drawn
+   * from the device's history (`src/ui/localBoards.ts`), and stay on the solo measures.
+   */
+  localBoards: boolean
   /** In a run (countdown, clock, first lesson) or not; only the changes matter. */
   setGameplay(on: boolean): void
   /** A run that beats a record the player already had. */

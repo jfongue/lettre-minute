@@ -44,17 +44,27 @@ le 2026-10-08.
   formulaire, aucune donnée personnelle envoyée hors du SDK (donc pas de
   politique de confidentialité à afficher), aucun appel réseau qui pourrait
   échouer ou ralentir le jeu dans l'iframe. `cloud.ts` répond déjà par ses
-  replis. Le prix : pas de classements, de rareté de la foule ni de mots
+  replis. Le prix : pas de classements entre joueurs, de rareté de la foule ni de mots
   proposés — qui demanderaient d'ailleurs, pour une Full Launch, de lier nos
   comptes à ceux de CrazyGames (module User + vérification du JWT côté serveur).
 - **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit `SERVER_FEATURES` et `APP_ONLY_FEATURES` de `src/platform/host.ts`) : défis, duel, amis,
-  invitations, face-à-face, réactions, classements, Premium (faux paiement),
+  invitations, face-à-face, réactions, Premium (faux paiement),
   modes de jeu, propositions de mots et modération, boîte à idées, question
   d'avis, demande de note, notifications, mise à jour du store, Play Games,
   pubs AdMob, outils de développeur. Le bouton « Partager — bientôt » (bouton mort, fonctionnalité `share`)
   et la note « Hors ligne » du menu (`keepsProgress`) disparaissent aussi. Restent : la
-  partie, le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
+  partie, les classements (en local), le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
   cachés du bilan, l'avatar, les succès, les statistiques, les options.
+- **Classements en local** (`host.localBoards`, `src/domain/localBoards.ts`,
+  `src/ui/localBoards.ts`) : ni serveur, ni compte, donc rien qui change le type
+  de soumission. L'accueil et la page des classements rangent les meilleures
+  parties *du joueur* sur cet appareil (jour, semaine depuis le lundi, total),
+  lues dans l'historique que le module Data sauvegarde déjà, et seulement sur les
+  mesures qu'une partie porte (meilleure partie, série, mots trouvés) : pas de
+  découvertes, de mots ajoutés, de modération ni de défi du moment. Aucun autre
+  joueur ni joueur maison, donc aucune fiche de joueur qui appellerait le
+  serveur. Une vraie comparaison entre joueurs demande les comptes CrazyGames
+  (Full Launch, module User).
 - **Langue** : celle du SDK (`user.systemInfo.locale`), puis celle du
   navigateur, sinon l'anglais — jamais le sélecteur de langue au premier
   lancement. Le joueur peut en changer dans les options. Le titre affiché

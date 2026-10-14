@@ -313,13 +313,15 @@ export function restoreSavedProgress(): void {
  * there must land in the game, not on a question.
  */
 export const crazyGamesHost: Host = {
-  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES]),
+  // The boards stay open: they rank the player's own runs, with no server or account.
+  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES].filter((id) => id !== 'leaderboards')),
   title: ['Letter', 'Minute'],
   languages: platformLanguages,
   fallbackLocale: 'en',
   keepsProgress: true,
   premiumStore: false,
   rewardedAds: false,
+  localBoards: true,
   setGameplay,
   celebrate: happytime,
   breakBetweenRuns,
