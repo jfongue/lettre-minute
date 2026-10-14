@@ -75,8 +75,8 @@ demandent au mieux placé un tiers de mots en plus, quelques semaines de jeu.
 
 Le seuil client est déjà au nouveau chiffre (`src/domain/achievements.ts`,
 `src/lib/playGames.ts`), et **la Console a reçu les deux textes le 7 octobre
-2026** — sept langues chacun, relus après publication. Les treize autres
-succès ne
+2026** — sept langues chacun, laissés en brouillon jusqu'au 14 octobre, puis
+relus langue par langue et publiés. Les treize autres succès ne
 bougent pas : ils sont la mémoire des joueurs, et un seuil qui descend
 redistribue les déblocages vers le bas — un succès Play Games ne se reprend
 jamais.
@@ -85,9 +85,12 @@ jamais.
 
 Le 7 octobre 2026, les deux succès publiés ont été corrigés à la main :
 **Play Games Services › Réussites ›** le succès **› Modifier**, la langue une à
-une, puis « Enregistrer comme brouillon » et « Publier les modifications » —
-avec les textes ci-dessous, dans les sept langues. Relus après publication,
-tous justes.
+une, puis « Enregistrer comme brouillon » — les textes ci-dessous, dans les
+sept langues. La publication a attendu le 14 octobre 2026 : les deux sont
+restés en brouillon (« Modifications prêtes à être publiées ») jusque-là, puis
+leurs quatorze champs — nom et description de chaque langue — ont été relus un
+à un dans la Console, tous conformes au tableau ci-dessous, avant « Publier les
+modifications ».
 
 Le déblocage n'a rien demandé : le prochain lancement ou la prochaine partie
 renvoie tous les succès atteints, et Play rattrape. Le nouveau seuil est déjà
