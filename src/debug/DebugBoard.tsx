@@ -609,6 +609,20 @@ function dashboardSnapshot(): Snapshot {
         lang: 'fr', category, letter, dealt, passed, words: Math.round((dealt - passed) * 1.4), points: (dealt - passed) * 60, lang_dealt: 14_380,
       })),
     },
+    by_platform: {
+      rows: [
+        { platform: 'android', runs: 1_910, tagged: 640, players: 118, runs_today: 64, players_today: 21, avg_score: 182, best: 1_240, new_accounts: 96, duels: 31, weekly_attempts: 210, weekly_players: 74 },
+        { platform: 'crazygames', runs: 640, tagged: 640, players: 212, runs_today: 41, players_today: 30, avg_score: 121, best: 760, new_accounts: 58, duels: 0, weekly_attempts: 95, weekly_players: 61 },
+        { platform: 'web', runs: 120, tagged: 40, players: 14, runs_today: 3, players_today: 2, avg_score: 204, best: 910, new_accounts: 6, duels: 2, weekly_attempts: 9, weekly_players: 4 },
+        { platform: 'inconnu', runs: 48, tagged: 0, players: 11, runs_today: 0, players_today: 0, avg_score: 90, best: 445, new_accounts: 40, duels: 0, weekly_attempts: 0, weekly_players: 0 },
+      ],
+      daily: daily.flatMap((row, index) => [
+        { day: row.day, platform: 'android' as const, runs: 40 + ((index * 13) % 35) },
+        { day: row.day, platform: 'crazygames' as const, runs: index < 10 ? 0 : 12 + ((index * 7) % 30) },
+        { day: row.day, platform: 'web' as const, runs: index % 3 },
+        { day: row.day, platform: 'inconnu' as const, runs: index < 8 ? 4 : 0 },
+      ]),
+    },
   }
 }
 

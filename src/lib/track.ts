@@ -1,4 +1,4 @@
-import { isNativeApp } from './native'
+import { PLATFORM } from '../platform'
 import { connect, supabase } from './supabase'
 import { testClient } from './testClient'
 
@@ -85,7 +85,7 @@ let started = false
 let flushing: Promise<void> | null = null
 // Kept in memory as well: localStorage is read once, not at every tap.
 let queue: QueuedEvent[] = []
-const platform = isNativeApp() ? 'android' : 'web'
+const platform = PLATFORM
 const version = import.meta.env.DEV ? 'dev' : (import.meta.env.VITE_APP_VERSION ?? 'dev')
 // The dev server talks to the real project: its events stay queued on the
 // machine unless asked for, or every test session would count as a player.
