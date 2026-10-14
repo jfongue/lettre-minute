@@ -1,9 +1,9 @@
 /**
  * Une table de duel se résume à un journal de coups datés : chaque appareil le
  * rejoue par les règles de `duel.ts` et obtient la même partie, qu'il soit en
- * ligne ou seul contre les joueurs maison. Ce fichier dit comment un coup se
+ * ligne ou seul contre les joueurs ordinateur. Ce fichier dit comment un coup se
  * rejoue, ce qu'il a fait (le fil de la table), et quel coup un appareil doit
- * déclarer de lui-même — pour un joueur maison, un choix que le temps a
+ * déclarer de lui-même — pour un joueur ordinateur, un choix que le temps a
  * tranché, ou un absent dont la réserve est vide.
  *
  * Les heures sont celles de l'horloge de la table, en secondes : celle du
@@ -191,8 +191,8 @@ export type DriverMove = Omit<DuelMove, 'seq' | 'at'>
 
 /**
  * Le coup que la table attend de son meneur à cette heure, s'il y en a un : un
- * choix de joueur maison, un choix que le temps a tranché, le coup d'un
- * joueur maison quand il a fini de chercher, ou le temps écoulé d'un joueur
+ * choix de joueur ordinateur, un choix que le temps a tranché, le coup d'un
+ * joueur ordinateur quand il a fini de chercher, ou le temps écoulé d'un joueur
  * qui ne répond plus — après la marge, pour que son propre appareil ait pu
  * valider le mot de son champ. Fonction pure de la table : n'importe quel
  * appareil qui reprend la main de meneur déclare les mêmes coups.
@@ -222,7 +222,7 @@ export function driverMove(duel: Duel, judge: Judge | null, at: number, bots: Re
     const move = botMove(live, judge, bot)
     if (!move || at < turn.startedAt + move.after) return null
     if (move.word) return { seat: turn.player, kind: 'word', payload: move.word }
-    // Sans mot et sans de quoi payer le passe, un joueur maison finit son
+    // Sans mot et sans de quoi payer le passe, un joueur ordinateur finit son
     // temps comme un absent : la table déclare sa mort à zéro.
     if (reserveSeconds(live, turn.player, at) >= DUEL_PASS_PENALTY_SECONDS) return { seat: turn.player, kind: 'pass', payload: '' }
   }

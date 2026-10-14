@@ -58,7 +58,7 @@ $$;
 -- avant de savoir s'il versait quelque chose : `released_at` était posé avant
 -- le test « déjà en revue ou au dictionnaire », donc un mot écarté là quittait
 -- la réserve sans jamais entrer dans la file. Même chose quand le joueur
--- maison tiré au sort avait déjà proposé ce mot (`on conflict do nothing` :
+-- ordinateur tiré au sort avait déjà proposé ce mot (`on conflict do nothing` :
 -- rien n'était versé, mais le mot était compté et brûlé). La réserve ne
 -- s'épuise plus sans verser.
 create or replace function public.top_up_moderation(p_lang text) returns integer
@@ -118,7 +118,7 @@ begin
   insert into public.word_submissions (player_id, category_id, word, display)
   values (v_bots[1 + floor(random() * array_length(v_bots, 1))::integer], v_seed.category_id, v_seed.word, v_seed.display)
   on conflict do nothing;
-  -- Le joueur maison tiré au sort avait déjà proposé ce mot : rien n'est
+  -- Le joueur ordinateur tiré au sort avait déjà proposé ce mot : rien n'est
   -- entré, donc rien n'est versé ni brûlé.
   continue when not found;
 

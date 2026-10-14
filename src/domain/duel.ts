@@ -487,7 +487,7 @@ function replace(players: readonly DuelPlayer[], index: number, player: DuelPlay
   return players.map((one, at) => (at === index ? player : one))
 }
 
-/** Ce qui fait qu'un joueur maison ne joue pas comme un autre. */
+/** Ce qui fait qu'un joueur ordinateur ne joue pas comme un autre. */
 export interface BotProfile {
   id: string
   /** Secondes qu'il met à répondre, au plus et au moins. */
@@ -511,7 +511,7 @@ function hashId(id: string): number {
 }
 
 /**
- * Le coup d'un joueur maison : quand il agit, et avec quoi. Fonction pure de
+ * Le coup d'un joueur ordinateur : quand il agit, et avec quoi. Fonction pure de
  * la graine, de la manche et de son profil, donc rejouable à l'identique —
  * c'est ce qui laisse un duel tenir sans serveur.
  */
@@ -524,7 +524,7 @@ export function botMove(duel: Duel, judge: Judge, bot: BotProfile): BotMove | nu
   const rng = createRng((duel.seed ^ hashId(bot.id) ^ Math.imul(duel.dealt.length + 1, 0x27d4eb2f)) >>> 0)
   const [least, most] = bot.think
   // Sa réflexion ne se raccourcit pas : quand sa réserve ne la couvre plus, le
-  // joueur maison n'a plus le temps de répondre et son tour finit à zéro, comme
+  // joueur ordinateur n'a plus le temps de répondre et son tour finit à zéro, comme
   // un absent. Raccourci au contraire sous le plancher — le temps que la main
   // rend à chaque tour —, il ne perdrait plus jamais rien, et deux d'entre eux
   // joueraient sans fin.
@@ -534,7 +534,7 @@ export function botMove(duel: Duel, judge: Judge, bot: BotProfile): BotMove | nu
   return think <= reserve ? { after: think, word: found ?? null } : { after: reserve, word: null }
 }
 
-/** La catégorie qu'un joueur maison choisit au draft : une des restantes, au hasard. */
+/** La catégorie qu'un joueur ordinateur choisit au draft : une des restantes, au hasard. */
 export function botPick(duel: Duel, bot: BotProfile): string | null {
   if (duel.phase !== 'draft' || duel.players[draftPlayer(duel)]?.id !== bot.id) return null
   const choices = draftChoices(duel)

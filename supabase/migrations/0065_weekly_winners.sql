@@ -5,7 +5,7 @@
 --
 -- Le gagnant est la meilleure tentative terminée de la semaine, départagée par
 -- l'heure du rendu la plus tôt, puis par le joueur pour rester déterministe.
--- Les anonymes et les joueurs maison sont écartés comme sur `weekly_board` :
+-- Les anonymes et les joueurs ordinateur sont écartés comme sur `weekly_board` :
 -- par leur compte, jamais par leur nom.
 --
 -- Appliquée avec la 1.7.14 (versionCode 38).

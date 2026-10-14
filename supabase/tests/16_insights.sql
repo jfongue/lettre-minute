@@ -4,7 +4,7 @@
 -- blind to the house bots (0026) — which also read the words of the runs that
 -- were never reported.
 
--- La base porte déjà les joueurs maison de 0006 et leurs parties : le test
+-- La base porte déjà les joueurs ordinateur de 0006 et leurs parties : le test
 -- compte à partir de ce qu'elle avait, robots exclus.
 create temp table baseline as
   select (select count(*)::int from public.runs r

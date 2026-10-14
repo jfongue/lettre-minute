@@ -12,7 +12,7 @@
 -- Le serveur fait confiance aux joueurs assis pour la règle — qui a la main,
 -- quel mot est juste : il n'a ni dictionnaire ni domaine. Il vérifie en
 -- revanche qui parle : un mot ou un passe d'un joueur ne vient que de lui ; un
--- choix forcé, le coup d'un joueur maison ou le temps écoulé d'un absent, de
+-- choix forcé, le coup d'un joueur ordinateur ou le temps écoulé d'un absent, de
 -- n'importe quel joueur assis — c'est le meneur de la table qui les déclare.
 
 create table public.duel_tables (
@@ -117,7 +117,7 @@ begin
 end;
 $$;
 
--- Qui l'hôte peut inviter : ses amis, et les joueurs maison, qui s'assoient
+-- Qui l'hôte peut inviter : ses amis, et les joueurs ordinateur, qui s'assoient
 -- aussitôt invités.
 create function public.duel_candidates()
 returns table (id uuid, display_name text, avatar jsonb, bot boolean)
@@ -135,7 +135,7 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 -- 'sent' (invitation écrite, ou tue pour un joueur qui a bloqué l'hôte),
--- 'seated' (un joueur maison s'assoit), 'full', 'closed', 'forbidden'.
+-- 'seated' (un joueur ordinateur s'assoit), 'full', 'closed', 'forbidden'.
 create function public.duel_invite(p_table uuid, p_player uuid) returns text
 language plpgsql security definer set search_path = public as $$
 declare
@@ -279,7 +279,7 @@ end;
 $$;
 
 -- L'hôte retire quelqu'un du salon : un joueur assis (qui l'apprend à sa
--- prochaine lecture), un joueur maison, ou une invitation en suspens.
+-- prochaine lecture), un joueur ordinateur, ou une invitation en suspens.
 create function public.duel_kick(p_table uuid, p_player uuid) returns text
 language plpgsql security definer set search_path = public as $$
 declare
@@ -436,7 +436,7 @@ end;
 $$;
 
 -- La revanche : une table neuve, une seule par table finie. Les joueurs
--- maison s'y rassoient, les autres y sont invités ; qui l'ouvre en est l'hôte.
+-- ordinateur s'y rassoient, les autres y sont invités ; qui l'ouvre en est l'hôte.
 create function public.duel_rematch(p_table uuid, p_owned integer) returns uuid
 language plpgsql security definer set search_path = public as $$
 declare

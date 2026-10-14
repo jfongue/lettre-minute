@@ -1,6 +1,6 @@
 -- Les gagnants du défi du moment (0065) : une semaine close par ligne, le
 -- meilleur résultat d'abord, départagé par l'heure du rendu, anonymes et
--- joueurs maison écartés, et la métrique de la semaine qui voyage avec elle.
+-- joueurs ordinateur écartés, et la métrique de la semaine qui voyage avec elle.
 
 select tests.new_user(n) from unnest(array['wga', 'wgb', 'wgc']) n;
 select tests.new_user('wx', true);
@@ -28,7 +28,7 @@ select tests.win('wga', tests.week() - 7, 'fr', 1, 70, now() - interval '10 hour
 select tests.win('wgb', tests.week() - 7, 'fr', 1, 70, now() - interval '11 hours');
 -- Une tentative non terminée, plus grosse, ne gagne rien.
 select tests.win('wga', tests.week() - 7, 'fr', 2, 100, null);
--- Un anonyme et un joueur maison, plus gros encore : écartés.
+-- Un anonyme et un joueur ordinateur, plus gros encore : écartés.
 select tests.win('wx', tests.week() - 7, 'fr', 1, 9999, now() - interval '9 hours');
 create function tests.bot_wins() returns void
 language sql security definer set search_path = public as $$

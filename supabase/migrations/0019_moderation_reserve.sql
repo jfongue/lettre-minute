@@ -1,7 +1,7 @@
 -- Une réserve de mots évidents que les dictionnaires ignorent, versée au
 -- compte-goutte dans la file de modération : un modérateur qui a fini la
 -- sienne en retrouve une session entière à sa visite suivante de « Mes
--- demandes ». Un joueur maison les propose, pour que tout le reste — la
+-- demandes ». Un joueur ordinateur les propose, pour que tout le reste — la
 -- revue, les votes, l'entrée au dictionnaire, l'import suivant — se passe
 -- comme pour le mot d'un joueur. La réserve se remplit hors migration
 -- (`npm run seed:moderation`, scripts/moderation-reserve.ts).

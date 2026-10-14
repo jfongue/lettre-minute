@@ -357,7 +357,7 @@ lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphon
   rangs), pas en base : il ne figure qu'aux classements de meilleure partie du
   jour et de la semaine, et disparaît dès que le compte de ce nom a une vraie
   partie sur la période.
-- **Les joueurs maison sont hors classements** (0024, `bots`) : Maxitoon et
+- **Les joueurs ordinateur sont hors classements** (0024, `bots`) : Maxitoon et
   Terretciel jouent toujours — la liste d'amis et les défis les lisent —, mais
   `leaderboard_board`, `leaderboard_stat` et la vue `leaderboard` les écartent
   par leur compte, jamais par leur nom, qu'un vrai joueur peut porter. Le seul
@@ -411,7 +411,7 @@ lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphon
 - **Une file de modération courte se remplit toute seule** (`top_up_moderation`,
   0019, 0037, 0052) : ouvrir « Mes demandes » avec moins de cinq mots à juger
   complète la file à cinq depuis la réserve, super modérateur compris,
-  proposés par un joueur maison — c'est aussi l'ouverture qui dit au serveur
+  proposés par un joueur ordinateur — c'est aussi l'ouverture qui dit au serveur
   dans quelle langue ce modérateur juge (`moderators.lang`, 0078). Ses mots
   (`scripts/moderation-reserve.json`) doivent manquer aux dictionnaires : un
   mot déjà connu ferait voter les modérateurs pour rien, le script le jette.
@@ -479,12 +479,12 @@ lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphon
 - **Deux sources pour la même table** (`src/state/duel.ts`) : `online`, la
   table du serveur (0046), relue toutes les 450 ms en partie — il n'y a pas de
   Realtime dans le client, et c'est voulu (`src/lib/supabase.ts`) —, et `local`,
-  contre les joueurs maison sans serveur, celle de `duel.html` et du repli hors
+  contre les joueurs ordinateur sans serveur, celle de `duel.html` et du repli hors
   ligne. Deux coups concurrents se départagent par leur numéro (`stale`, puis
   relecture). Le serveur ne juge rien : il vérifie seulement qu'un mot ou un
   passe vient du joueur lui-même. Le « meneur » — le premier joueur présent qui
   relit encore la table — déclare ce que personne d'autre ne déclarerait : les
-  coups des joueurs maison, les choix que le temps tranche, le temps écoulé
+  coups des joueurs ordinateur, les choix que le temps tranche, le temps écoulé
   d'un absent (`driverMove`, fonction pure : n'importe quel appareil qui
   reprend la main déclare les mêmes coups). Le joueur dont la réserve tombe à
   zéro déclare lui-même son mot ou sa mort.
@@ -494,7 +494,7 @@ lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphon
   table attend sur l'accueil (`DuelInviteCard`, relue toutes les 8 s). L'hôte
   retire quelqu'un du salon par un appui long et une confirmation, jamais d'une
   touche ; l'expulsé rentre à l'accueil, qui le lui dit (`DuelBanner`). Les
-  joueurs maison du serveur (`bots`) s'assoient dès qu'ils sont invités et
+  joueurs ordinateur du serveur (`bots`) s'assoient dès qu'ils sont invités et
   prennent le profil local de leur nom. Les styles vivent dans `src/duel.css`,
   chargé avec l'écran. `duel.html#auto` fait jouer une table locale toute seule.
   Ses règles s'expliquent d'elles-mêmes au premier lancement (`DuelTutorial`,

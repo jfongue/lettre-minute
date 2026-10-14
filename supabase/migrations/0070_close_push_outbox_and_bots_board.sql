@@ -7,7 +7,7 @@
 -- la clé de service, la réclame.
 --
 -- 0068 a réécrit `leaderboard_values` pour les sessions de modération et y a
--- perdu le filtre des joueurs maison sur les parties (0024) : Maxitoon et
+-- perdu le filtre des joueurs ordinateur sur les parties (0024) : Maxitoon et
 -- Terretciel revenaient sur la meilleure partie, les points, les parties, les
 -- mots et le combo. Le corps est celui de 0068, filtre rendu.
 

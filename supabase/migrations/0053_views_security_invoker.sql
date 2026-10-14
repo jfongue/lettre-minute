@@ -9,7 +9,7 @@
 -- d'`auth.users` : la vue ne la référence plus, et le linter « Exposed Auth
 -- Users » ne la voit plus.
 
--- Le classement des records : un compte nommé, et pas un joueur maison (0024),
+-- Le classement des records : un compte nommé, et pas un joueur ordinateur (0024),
 -- sans laisser `auth.users` ni `bots` à la portée de la vue.
 create function public.is_listed_player(p_id uuid) returns boolean
 language sql stable security definer set search_path = public as $$

@@ -2,7 +2,7 @@
 -- navigateur piloté (`navigator.webdriver`), un serveur de développement ou un
 -- client que le développeur a marqué comme test (`src/lib/testClient.ts`)
 -- étiquette ses parties et ses événements : le relevé les écarte, comme il
--- écarte déjà les joueurs maison (0024) et l'administrateur (0031).
+-- écarte déjà les joueurs ordinateur (0024) et l'administrateur (0031).
 --
 -- Sans cela, chaque test créait un compte anonyme neuf — une nouvelle
 -- installation ne réutilise aucun identifiant — et comptait comme un joueur,

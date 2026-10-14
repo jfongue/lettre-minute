@@ -1089,7 +1089,7 @@ latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 s
     next: 'Suivant',
       seats: {
         title: 'Forme ta table',
-        text: 'Invite jusqu’à trois joueurs maison, puis déclare-toi prêt : le duel part quand toute la table l’est.',
+        text: 'Invite jusqu’à trois joueurs ordinateur, puis déclare-toi prêt : le duel part quand toute la table l’est.',
       },
       draft: {
         title: 'Choisissez les catégories',
@@ -1108,7 +1108,7 @@ latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 s
     kickInvite: 'Retirer l’invitation',
     inviteTitle: 'Inviter à la table',
     inviteEmpty: 'Ajoute des amis pour les inviter ici.',
-    houseBot: 'Joueur maison',
+    houseBot: 'Joueur ordinateur',
     friend: 'Ami',
     secondsLeft: (seconds: number) => `${seconds} secondes`,
     saved: 'Sauvé !',
@@ -1138,10 +1138,10 @@ latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 s
     challengeCardNote: 'La même partie pour tous, à jouer dans la journée.',
     challengeCardPlayers: '2 à 8 joueurs',
     offlineTitle: 'La table en ligne ne s’ouvre pas',
-    offlineLead: 'Il faut un compte nommé et le serveur pour jouer avec tes amis. Tu peux jouer tout de suite contre les joueurs maison.',
+    offlineLead: 'Il faut un compte nommé et le serveur pour jouer avec tes amis. Tu peux jouer tout de suite contre les joueurs ordinateur.',
     cutLead: 'Le serveur ne répond plus. On réessaie : tes coups partiront dès qu’il revient.',
     quitAsk: 'Quitter la table ? Ta réserve continue de couler sans toi, jusqu’à ta mort.',
-    playBots: 'Jouer contre les joueurs maison',
+    playBots: 'Jouer contre les joueurs ordinateur',
   },
 
   /**

@@ -6,7 +6,7 @@
 -- Realtime, les appareils relisent `duel_sync` et rejouent le même journal.
 --
 -- Il se glisse donc dans `duel_moves` comme une sorte de coup de plus, et
--- `duel_move` n'en accepte qu'un : le sien. Un joueur maison n'en donne pas,
+-- `duel_move` n'en accepte qu'un : le sien. Un joueur ordinateur n'en donne pas,
 -- et personne ne conseille à la place d'un autre.
 
 alter table public.duel_moves drop constraint duel_moves_kind_check;
@@ -37,12 +37,12 @@ begin
     return 'forbidden';
   end if;
   -- Un mot ou un passe ne vient que de son joueur — sauf celui d'un joueur
-  -- maison, que le meneur de la table déclare à sa place : sans ça, un robot
+  -- ordinateur, que le meneur de la table déclare à sa place : sans ça, un robot
   -- resterait à jamais sur son tour.
   if p_kind in ('word', 'pass') and not (v_seat.is_bot or coalesce(v_seat.player = auth.uid(), false)) then
     return 'forbidden';
   end if;
-  -- Un conseil, lui, ne se donne que de son propre siège : un joueur maison n'en
+  -- Un conseil, lui, ne se donne que de son propre siège : un joueur ordinateur n'en
   -- donne pas, et personne ne conseille à la place d'un autre.
   if p_kind = 'cheer' and (v_seat.is_bot or v_seat.player is distinct from auth.uid()) then
     return 'forbidden';
@@ -72,7 +72,7 @@ $$;
 
 -- Quitter : la place se libère, et la table se ferme dès qu'il ne reste plus un
 -- humain — au salon comme en partie. Sans ça, une table que tout le monde a
--- quittée restait ouverte pour toujours, ses joueurs maison compris. En partie,
+-- quittée restait ouverte pour toujours, ses joueurs ordinateur compris. En partie,
 -- la place du parti reste au journal (sa réserve coule jusqu'à sa mort) : c'est
 -- `left_at`, et non la disparition de la ligne, qui dit qu'il n'est plus là.
 create or replace function public.duel_leave(p_table uuid) returns void

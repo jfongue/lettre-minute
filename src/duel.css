@@ -33,7 +33,7 @@
 
 /* ------------------------------------------------------------- le salon - */
 
-/* Les quatre places de la table : moi, puis les trois joueurs maison. */
+/* Les quatre places de la table : moi, puis les trois joueurs ordinateur. */
 .duel-seats {
   list-style: none;
   padding: 0;

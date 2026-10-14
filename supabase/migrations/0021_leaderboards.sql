@@ -2,7 +2,7 @@
 -- de toujours. `leaderboard_board` reste pour les trois tableaux de l'accueil.
 --
 -- Les parties de défi n'y entrent pas plus qu'ailleurs : elles ne sont pas
--- dans `runs`. Les joueurs maison figurent aux mesures de parties, jamais aux
+-- dans `runs`. Les joueurs ordinateur figurent aux mesures de parties, jamais aux
 -- découvertes (leurs parties n'ont pas de mots) ni aux mots ajoutés (ils
 -- proposent la réserve de modération, qu'ils n'ont pas trouvée).
 

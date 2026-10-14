@@ -1461,7 +1461,7 @@ const DUEL_ME: Seat = { id: 'me', name: '', avatar: DEFAULT_AVATAR, bot: false, 
 /**
  * Le draft vu par celui qui attend son tour : quatre catégories libres, quatre
  * conseils reçus — le plafond de trois écarte le plus ancien —, et c'est le
- * joueur maison qui choisit. Les faits passent par la même règle que l'écran
+ * joueur ordinateur qui choisit. Les faits passent par la même règle que l'écran
  * (`activeCheers`), donc la planche montre ce que le jeu montrerait.
  */
 const CHEER_TABLE: DuelTable = (() => {
@@ -2460,14 +2460,14 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'duel-matchmaking',
     group: 'Duel',
     title: 'Matchmaking : recherche d’un adversaire',
-    how: 'Après « Trouver un adversaire » : la file, relue toutes les deux secondes ; les joueurs maison s’offrent au bout de quinze secondes ; ici la file ne répond jamais',
+    how: 'Après « Trouver un adversaire » : la file, relue toutes les deux secondes ; les joueurs ordinateur s’offrent au bout de quinze secondes ; ici la file ne répond jamais',
     phase: 'home',
     render: (back) => <DuelMatchmaking lang="fr" onMatched={back} onCancel={back} onBots={back} ask={async () => ({ status: 'waiting' })} leave={async () => true} />,
   },
   {
     id: 'duel-table',
     group: 'Duel',
-    title: 'Table contre les joueurs maison',
+    title: 'Table contre les joueurs ordinateur',
     how: 'Une table locale, sans serveur : salon, expulsion par appui long, draft, ouvreur, partie, morts, bilan, revanche',
     phase: 'home',
     render: () => <DuelScreen lang="fr" mode="local" />,

@@ -1703,7 +1703,7 @@ setStartedAt((at) => at ?? Date.now())
       if (featuresNow.current.has('playGames')) reportAchievements(session.profile, count)
     })
     // Premier du jour : le serveur seul connaît la place, et on ne la relit
-    // qu'une fois la partie arrivée. Le joueur maison compte : passer premier
+    // qu'une fois la partie arrivée. Le joueur ordinateur compte : passer premier
     // sans l'avoir battu ne serait pas être premier.
     pushed
       .then(() => fetchLeaderboard('best', 'day'))

@@ -67,7 +67,7 @@ language sql stable security definer set search_path = public as $$
       or now() >= public.challenge_expires_at(p_challenge);
 $$;
 
--- Un ami, avec un compte nommé, qui n'est pas un joueur maison : un robot
+-- Un ami, avec un compte nommé, qui n'est pas un joueur ordinateur : un robot
 -- invité ne jouerait jamais, et ferait attendre tout le monde un jour entier.
 create function public.challengeable(p_friend uuid) returns boolean
 language sql stable security definer set search_path = public as $$

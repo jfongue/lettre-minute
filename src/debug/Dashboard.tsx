@@ -535,7 +535,7 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
       </Section>
 
       <p className="note">
-        « app. » compte les appareils distincts. Les joueurs maison (Maxitoon, Terretciel) et l’administrateur, appareils compris, sont exclus partout. Chiffres
+        « app. » compte les appareils distincts. Les joueurs ordinateur (Maxitoon, Terretciel) et l’administrateur, appareils compris, sont exclus partout. Chiffres
         calculés par <code>analytics_snapshot</code> à l’ouverture.
       </p>
       {picked && <SlotSheet key={`${picked.title}:${picked.row.day}:${picked.row.hour}`} picked={picked} load={loadSlot} onClose={() => setPicked(null)} />}
@@ -766,7 +766,7 @@ function PlatformsSection({ data, days }: { data: ByPlatform; days: readonly str
           <Legend items={shown.map(({ label, color }) => ({ label, color }))} />
           <DayBars rows={columns} series={shown} />
         </Card>
-        <Card title="Par version" note="Sur la période, hors administration, joueurs maison et clients de test.">
+        <Card title="Par version" note="Sur la période, hors administration, joueurs ordinateur et clients de test.">
           <Table head={['Version', 'Parties', 'Étiquetées', 'Joueurs', 'Auj.', 'Score moy.', 'Comptes', 'Duels', 'Défi']}>
             {data.rows.map((row) => (
               <tr key={row.platform}>

@@ -1,4 +1,4 @@
--- Deux joueurs maison, Maxitoon et Terretciel, pour que les classements et la
+-- Deux joueurs ordinateur, Maxitoon et Terretciel, pour que les classements et la
 -- liste d'amis ne soient jamais vides.
 --
 -- Ils jouent côté serveur, par pg_cron : aucune machine à garder allumée.

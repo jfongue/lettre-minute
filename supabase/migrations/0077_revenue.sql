@@ -15,7 +15,7 @@
 --     (`refused`) n'est plus un abonné.
 --
 -- Les mêmes exclusions que le reste du relevé : les clients de test (0040),
--- les comptes sans la moindre trace (0042), les joueurs maison (0024) et
+-- les comptes sans la moindre trace (0042), les joueurs ordinateur (0024) et
 -- l'administrateur (0031).
 --
 -- Les lignes du jour ne portent que les quatre compteurs qui suivent le filtre
