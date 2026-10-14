@@ -1,0 +1,4 @@
+• Duel: “Find an opponent” pairs you with a player of your language
+• A longer menu tune, and the summary’s words play their own melody
+• An achievement that pays only a colour shows your avatar in that colour
+• Bug fixes and performance

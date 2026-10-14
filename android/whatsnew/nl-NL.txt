@@ -1,0 +1,4 @@
+• Duel: ‘Zoek een tegenstander’ koppelt je aan een speler in jouw taal
+• Een langere menumuziek, en de woorden van de samenvatting spelen hun melodie
+• Een prestatie die alleen een kleur geeft, toont je avatar in die kleur
+• Bugfixes en prestaties

@@ -1,0 +1,4 @@
+• Duelo: «Buscar rival» te empareja con un jugador de tu idioma
+• Una música de menú más larga, y las palabras del resumen tocan su melodía
+• Un logro que solo da un color muestra tu avatar en ese color
+• Corrección de errores y rendimiento
