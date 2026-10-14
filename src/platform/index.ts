@@ -19,10 +19,14 @@ export const PLATFORM: Platform =
 
 export const host: Host = BUILD === 'crazygames' ? crazyGamesHost : BUILD === 'reddit' ? redditHost : appHost
 
-/** What the feature table opened, plus what this host opens itself, minus what it cannot carry. */
-export function hostFeatures(features: ReadonlySet<string>): ReadonlySet<string> {
+/**
+ * What the feature table opened, plus what this host opens itself, minus what
+ * it cannot carry — save, for a super moderator, the tools it keeps for them.
+ */
+export function hostFeatures(features: ReadonlySet<string>, superModerator = false): ReadonlySet<string> {
   if (host.closedFeatures.size === 0 && host.openedFeatures.size === 0) return features
-  return new Set([...features, ...host.openedFeatures].filter((id) => !host.closedFeatures.has(id)))
+  const kept = superModerator ? host.superModeratorFeatures : new Set<string>()
+  return new Set([...features, ...host.openedFeatures].filter((id) => !host.closedFeatures.has(id) || kept.has(id)))
 }
 
 /**

@@ -21,6 +21,12 @@ export interface Host {
    * while the phone still tries it out. Never one of `closedFeatures`.
    */
   openedFeatures: ReadonlySet<FeatureId>
+  /**
+   * Closed to players but open to a super moderator: the developer's tools and
+   * the moderation, which this host can carry once its player is signed in to
+   * the server. Never what leads off the page or asks for money.
+   */
+  superModeratorFeatures: ReadonlySet<FeatureId>
   /** The name the host lists the game under, shown in every language; null: the interface's own. */
   title: readonly [string, string] | null
   /** The host's languages, given before the device's (`loadLocale`). */
@@ -114,6 +120,19 @@ export const APP_ONLY_FEATURES: readonly FeatureId[] = [
   'dashboard',
   'ideasAdmin',
   'debugBoard',
+]
+
+/** The developer's tools and the word moderation: what a super moderator needs on any host with the server. */
+export const SUPER_MODERATOR_FEATURES: readonly FeatureId[] = [
+  'debugBoard',
+  'dashboard',
+  'wordsBoard',
+  'ideasAdmin',
+  'gameModes',
+  'moderation',
+  'myRequests',
+  'proposeWord',
+  'wordFlag',
 ]
 
 export const quiet = {

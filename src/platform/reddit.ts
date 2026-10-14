@@ -9,6 +9,8 @@ import { APP_ONLY_FEATURES, quiet, SERVER_FEATURES, type Host } from './host'
 export const redditHost: Host = {
   closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES, 'powers', 'powerGift']),
   openedFeatures: new Set(),
+  // No server for the game's accounts: no role to read.
+  superModeratorFeatures: new Set(),
   title: null,
   languages: () => [],
   fallbackLocale: 'en',

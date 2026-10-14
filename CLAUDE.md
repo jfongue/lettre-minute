@@ -99,7 +99,9 @@ par une copie de l'écran ; et chaque build touché se vérifie.
   langues de l'hôte et langue de repli, progression gardée par l'hôte,
   événements de partie, pause entre deux parties (pub), son coupé par l'hôte.
   Un écran ne teste jamais la version : il lit `useFeature`, ou `host`. Le
-  domaine n'en sait rien.
+  domaine n'en sait rien. Un super modérateur garde sur un hôte ce que
+  `host.superModeratorFeatures` y laisse (outils de développeur, modération) :
+  `hostFeatures` reçoit le rôle.
 - **Règles qui diffèrent** — Reddit : graine du jour (`dailySeed`), même
   partie pour tous les lecteurs, pas de pouvoirs, `Judge` sans compteurs
   d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : le serveur

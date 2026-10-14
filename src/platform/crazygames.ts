@@ -1,4 +1,4 @@
-import { APP_ONLY_FEATURES, SERVER_FEATURES, type Host, type RewardedResult } from './host'
+import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type Host, type RewardedResult } from './host'
 
 /**
  * The CrazyGames shell, as `native.ts` is the phone's: everything the portal's
@@ -457,6 +457,8 @@ export const crazyGamesHost: Host = {
   // Its players come back between two runs rather than to a menu: the powers
   // are picked on a screen of their own before each run, not under « Play ».
   openedFeatures: new Set(['weekly', 'powerLoadout']),
+  // The developer plays here too, under a CrazyGames account the server made a super moderator.
+  superModeratorFeatures: new Set(SUPER_MODERATOR_FEATURES),
   title: ['Letter', 'Minute'],
   languages: platformLanguages,
   fallbackLocale: 'en',

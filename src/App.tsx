@@ -433,7 +433,7 @@ setMenuPage(null)
     return boards ? withGuest(boards, { history, avatar, name: t.boards.me, tag: t.tag }) : localBoards(history, avatar, t.tag)
   }, [guest, boards, history, avatar, t])
   const features = useMemo(
-    () => hostFeatures(enabledFeatures(storedFeatures.flags, roles)),
+    () => hostFeatures(enabledFeatures(storedFeatures.flags, roles), roles.superModerator),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [storedFeatures, roles.moderator, roles.superModerator, roles.premium],
   )
@@ -463,7 +463,7 @@ setMenuPage(null)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
   const [debugPhase, setDebugPhase] = useState<string | null>(() =>
-    window.location.hash === '#debug' && hostFeatures(enabledFeatures(storedFeatures.flags, { ...storedFeatures.roles, premium: false })).has('debugBoard') ? 'home' : null,
+    window.location.hash === '#debug' && hostFeatures(enabledFeatures(storedFeatures.flags, { ...storedFeatures.roles, premium: false }), storedFeatures.roles.superModerator).has('debugBoard') ? 'home' : null,
   )
   // Les classements avancés : le mode débug caché derrière cinq tapes sur
   // « Classement ». Il ne survit pas au rechargement, comme la planche.

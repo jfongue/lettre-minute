@@ -11,6 +11,7 @@ describe('les hôtes', () => {
     // Un identifiant mal écrit ne fermerait rien, sans erreur.
     for (const host of [appHost, crazyGamesHost, redditHost]) {
       for (const id of host.closedFeatures) expect(ids).toContain(id)
+      for (const id of host.superModeratorFeatures) expect(ids).toContain(id)
       for (const id of host.openedFeatures) {
         expect(ids).toContain(id)
         expect(host.closedFeatures).not.toContain(id)
@@ -22,6 +23,16 @@ describe('les hôtes', () => {
     expect(crazyGamesHost.openedFeatures).toContain('weekly')
     expect(crazyGamesHost.closedFeatures).toContain('daily')
     expect(redditHost.openedFeatures).not.toContain('daily')
+  })
+
+  it('rendent au super modérateur de CrazyGames ses outils et la modération, jamais un achat ni un lien hors de la page', () => {
+    for (const id of ['debugBoard', 'dashboard', 'wordsBoard', 'moderation', 'myRequests']) {
+      expect(crazyGamesHost.superModeratorFeatures).toContain(id)
+    }
+    for (const id of ['premium', 'share', 'support', 'storeUpdate', 'ads', 'playGames']) {
+      expect(crazyGamesHost.superModeratorFeatures).not.toContain(id)
+    }
+    expect(redditHost.superModeratorFeatures.size).toBe(0)
   })
 
   it('laissent toute la partie à Android et au web', () => {
