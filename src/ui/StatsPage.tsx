@@ -32,7 +32,8 @@ function formatDate(t: Messages, at: number): string {
 
 interface StatsPageProps {
   history: readonly RunRecord[]
-  profile: Profile
+  /** Only its record and its run count: a spied player's come from the server. */
+  profile: Pick<Profile, 'bestScore' | 'runs'>
   /** Null without an account: no challenge was ever set aside. */
   challenges: readonly ChallengeSummary[] | null
   /** Opened from the home screen's challenges: the old ones show, unfolded. */
@@ -225,7 +226,7 @@ function RunStats({
   onOpen,
 }: {
   history: readonly RunRecord[]
-  profile: Profile
+  profile: StatsPageProps['profile']
   loadOlder?: StatsPageProps['loadOlder']
   onOpen(run: RunRecord): void
 }) {

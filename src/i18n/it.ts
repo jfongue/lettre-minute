@@ -766,6 +766,10 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
       unreachable: () => 'Server non raggiungibile. Riprova.',
     },
     close: 'Chiudi',
+    spy: 'Spia la cronologia',
+    spyTitle: (name: string) => `Cronologia di ${name}`,
+    spyMissing: 'Cronologia non trovata: riservata ai super moderatori, o server irraggiungibile.',
+    spyEmpty: 'Nessuna partita registrata.',
   },
 
   ideas: {

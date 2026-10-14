@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { createContext, Suspense, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { parseAvatar } from '../domain/avatar'
 import { isPowerId } from '../domain/powers'
@@ -6,6 +6,7 @@ import { levelFor } from '../domain/progression'
 import { categoryText, useT } from '../i18n'
 import { fetchDashboard, fetchDashboardSlot } from '../lib/cloud'
 import { Avatar } from '../ui/Avatar'
+import { PlayerActionsContext, SpyHistory } from '../ui/PlayerSheet'
 import { Card, Kpi, Legend, Section, Stat, Table } from './board'
 import { ago, decimal, fmt, pct } from './format'
 import type { ByPlatform, DayRow, HourRow, Invites, PlatformName, Revenue, RevenueDay, SlotEntry, Snapshot } from './snapshot'
@@ -461,7 +462,7 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
               {d.top_players.map((player, index) => (
                 <tr key={index}>
                   <td>
-                    {player.name}
+                    <Who player={player.anonymous ? null : player.name} name={player.name} />
                     {player.anonymous && <span className="dashboard-tag">anonyme</span>}
                   </td>
                   <td className="n">{fmt(player.runs)}</td>
@@ -474,7 +475,7 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
             <Table head={['Nom', 'Inscrit', 'Parties', 'Record']}>
               {d.recent_signups.map((player, index) => (
                 <tr key={index}>
-                  <td>{player.name ?? '—'}</td>
+                  <td>{player.name ? <Who player={player.name} name={player.name} /> : '—'}</td>
                   <td>{ago(player.at)}</td>
                   <td className="n">{fmt(player.runs)}</td>
                   <td className="n">{fmt(player.best)}</td>
@@ -707,7 +708,7 @@ function InvitesSection({ invites: v, onPick }: { invites: Invites; onPick(row: 
               {v.top.map((player, index) => (
                 <tr key={index}>
                   <td>
-                    {player.name}
+                    <Who player={player.anonymous ? null : player.name} name={player.name} />
                     {player.anonymous && <span className="dashboard-tag">anonyme</span>}
                   </td>
                   <td className="n">{fmt(player.mails)}</td>
@@ -959,7 +960,9 @@ function SlotLine({ entry, series }: { entry: SlotEntry; series: Series[] }) {
     <li className="dashboard-person">
       <Avatar choice={parseAvatar(entry.avatar)} size="sm" />
       <div>
-        <b>{entry.name}</b>
+        <b>
+          <Who player={entry.key} name={entry.name} />
+        </b>
         {entry.anonymous && <span className="dashboard-tag">anonyme</span>}
         {entry.moderator && <span className="dashboard-tag">modérateur</span>}
         {entry.arrived && <span className="dashboard-tag">nouveau</span>}
@@ -969,6 +972,30 @@ function SlotLine({ entry, series }: { entry: SlotEntry; series: Series[] }) {
         <p className="note">{profile.join(' · ')}</p>
       </div>
     </li>
+  )
+}
+
+/**
+ * Un nom de joueur : pour un super modérateur (`spyHistory`), une tape ouvre
+ * son historique. `player` est son compte quand le relevé le donne, sinon son
+ * nom ; null pour un anonyme sans compte nommé — son « Anonyme 3f2a » ne garde
+ * que quatre caractères de l'identifiant, et « Anonyme » est à tout le monde.
+ */
+function Who({ player, name }: { player: string | null; name: string }) {
+  const spy = useContext(PlayerActionsContext).spy
+  const [open, setOpen] = useState(false)
+  if (!spy || !player) return <>{name}</>
+  return (
+    <>
+      <button type="button" className="dashboard-who" onClick={() => setOpen(true)}>
+        {name}
+      </button>
+      {open && (
+        <Suspense fallback={null}>
+          <SpyHistory player={player} name={name} actions={spy} onClose={() => setOpen(false)} />
+        </Suspense>
+      )}
+    </>
   )
 }
 

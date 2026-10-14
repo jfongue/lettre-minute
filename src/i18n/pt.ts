@@ -766,6 +766,10 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
       unreachable: () => 'Servidor inacessível. Tente de novo.',
     },
     close: 'Fechar',
+    spy: 'Espiar o histórico',
+    spyTitle: (name: string) => `Histórico de ${name}`,
+    spyMissing: 'Histórico não encontrado: só para supermoderadores, ou o servidor não responde.',
+    spyEmpty: 'Nenhuma partida registrada.',
   },
 
   ideas: {

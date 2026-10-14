@@ -323,6 +323,43 @@ export function fetchRunsBefore(before: number, limit: number): Promise<RunRecor
   }, null)
 }
 
+/** Another player's runs, as a super moderator reads them (`spy_runs`, 0079). */
+export interface SpiedRuns {
+  id: string
+  name: string
+  avatar: AvatarChoice
+  /** All the runs the account ever pushed, and its record: the page holds only some. */
+  runsCount: number
+  best: number
+  runs: RunRecord[]
+}
+
+/**
+ * One page of another player's runs older than `before`, newest first —
+ * `player` is an account id or a name. Null for anyone but a super moderator,
+ * for a name nobody holds, and without a server.
+ */
+export function fetchSpiedRuns(player: string, before: number | null, limit: number): Promise<SpiedRuns | null> {
+  return guard(async () => {
+    if (!(await connect())) return null
+    const { data, error } = await supabase!.rpc('spy_runs', {
+      p_player: player,
+      p_before: before === null ? null : new Date(before).toISOString(),
+      p_limit: limit,
+    })
+    if (error || !data) return null
+    const found = data as { id: string; name: string; avatar: unknown; runs_count: number; best: number; runs: StoredRun[] }
+    return {
+      id: found.id,
+      name: found.name,
+      avatar: parseAvatar(found.avatar),
+      runsCount: Number(found.runs_count) || 0,
+      best: Number(found.best) || 0,
+      runs: (found.runs ?? []).map(recordOfRow).filter((record): record is RunRecord => record !== null),
+    }
+  }, null)
+}
+
 /**
  * Les parties du joueur telles que le serveur les garde : au moins les vingt
  * dernières ou les trois derniers jours, la plus large des deux, pour que la

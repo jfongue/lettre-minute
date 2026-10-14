@@ -24,7 +24,7 @@ describe('les hôtes', () => {
   })
 
   it('rendent au super modérateur de CrazyGames ses outils et la modération, jamais un achat ni un lien hors de la page', () => {
-    for (const id of ['debugBoard', 'dashboard', 'wordsBoard', 'moderation', 'myRequests']) {
+    for (const id of ['debugBoard', 'dashboard', 'wordsBoard', 'spyHistory', 'moderation', 'myRequests']) {
       expect(crazyGamesHost.superModeratorFeatures).toContain(id)
     }
     for (const id of ['premium', 'share', 'support', 'storeUpdate', 'ads', 'playGames']) {

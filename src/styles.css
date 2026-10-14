@@ -7762,6 +7762,45 @@ li:has(> .reactable--open),
   width: 100%;
 }
 
+/* L'historique d'un autre joueur, pour un super modérateur : plein écran,
+   au-dessus du tableau de bord et du détail d'une de ses barres. */
+.spy-history {
+  position: fixed;
+  inset: 0;
+  z-index: 68;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--paper);
+  color: var(--ink);
+  padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
+}
+
+.spy-history-page {
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.spy-history-head {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+}
+
+.spy-history-who {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.spy-history-who h2 {
+  margin: 0;
+}
+
+/* La carte de signalement d'un mot se pose sur `body` : elle passe au-dessus. */
+body[data-spy='open'] .offer-pop-layer {
+  z-index: 70;
+}
+
 .standing--gap {
   border-top: 2px dashed var(--rule);
 }
@@ -8608,6 +8647,20 @@ button.challenge-word[aria-expanded='true'] {
   gap: 0.5rem;
   align-content: start;
   min-width: 0;
+}
+
+/* Un nom qui ouvre l'historique du joueur, pour un super modérateur. */
+.dashboard-who {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
 }
 
 .dashboard-tag {

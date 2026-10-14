@@ -765,6 +765,10 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
       unreachable: () => 'Server onbereikbaar. Probeer opnieuw.',
     },
     close: 'Sluiten',
+    spy: 'Geschiedenis bespieden',
+    spyTitle: (name: string) => `Geschiedenis van ${name}`,
+    spyMissing: 'Geschiedenis niet gevonden: alleen voor supermoderators, of de server is onbereikbaar.',
+    spyEmpty: 'Geen potjes opgeslagen.',
   },
 
   ideas: {

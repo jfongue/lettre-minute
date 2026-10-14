@@ -770,6 +770,10 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
       unreachable: () => 'Server unreachable. Try again.',
     },
     close: 'Close',
+    spy: 'Spy on history',
+    spyTitle: (name: string) => `${name}’s history`,
+    spyMissing: 'History not found: super moderators only, or the server is unreachable.',
+    spyEmpty: 'No runs recorded.',
   },
 
   ideas: {
