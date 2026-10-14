@@ -26,7 +26,7 @@ rendu identique ; elles ne se recommitent que pour une nouvelle soumission.
 
 Une soumission se tague `crazygames-vX.Y.Z` sur le commit de son build (local
 d'abord, poussé avec `main`) : `crazygames-v1.0.0` est la Basic Launch envoyée
-le 2026-10-08.
+le 2026-10-08 ; `git tag -l 'crazygames-*'` liste les mises à jour qui ont suivi.
 
 ## Ce que fait le build
 

@@ -19,7 +19,7 @@ import {
 } from '../domain/weekly'
 import type { Messages } from '../i18n'
 import { weeklyFinish, fetchWeeklyLastPlayed, fetchWeeklyRecap } from '../lib/cloud'
-import { trackFeature } from '../lib/track'
+import { trackFeature } from '../lib/feature'
 import { cloudConfigured } from '../lib/supabase'
 import { host, rewardedAdsOpen } from '../platform'
 import type { Judge } from '../domain/run'

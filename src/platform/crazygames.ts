@@ -446,7 +446,10 @@ export function restoreSavedProgress(): void {
  */
 export const crazyGamesHost: Host = {
   // The boards stay open: a guest reads them, a portal account stands on them.
-  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES].filter((id) => id !== 'leaderboards')),
+  // Filtering is earned by a level bonus or Premium, neither of which the
+  // portal has: left open, « Mes catégories » would promise a padlock no
+  // player can win.
+  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES, 'categoryBans'].filter((id) => id !== 'leaderboards')),
   // A portal game lives on players coming back: the challenge of the moment,
   // which the app opens to everyone, needs no server — attempts are counted
   // on the device, the progress they pay is saved by the Data module.

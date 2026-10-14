@@ -1,4 +1,5 @@
 import { PLATFORM } from '../platform'
+import { setFeatureSink } from './feature'
 import { connect, supabase } from './supabase'
 import { testClient } from './testClient'
 
@@ -101,7 +102,9 @@ function readFlag(key: string): boolean {
 
 /** Records one event. Cheap: a push and, at most once a frame, a write. */
 export function track(kind: string, props: Props = {}): void {
-  if (!supabase) return
+  // Before `startTracking`, or on a host that never calls it, nothing is ever
+  // sent: queuing would only fill the device's storage.
+  if (!started) return
   if (kind === 'run_start') sessionRuns += 1
   queue.push({ device, session, kind, props, lang, platform, version, at: new Date().toISOString(), test: testClient() })
   scheduleSave()
@@ -170,6 +173,7 @@ export function startTracking(): void {
   if (started || !supabase) return
   started = true
   queue = readQueue()
+  setFeatureSink(trackFeature)
   track('open', { cold: true, runs: 0 })
 
   document.addEventListener(

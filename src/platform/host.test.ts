@@ -38,9 +38,14 @@ describe('les hôtes', () => {
   })
 
   it('laissent à CrazyGames toute la progression qui vit sur l’appareil', () => {
-    for (const id of ['powers', 'tutorial', 'stats', 'avatar', 'achievements', 'categoryBans', 'hiddenWords']) {
+    for (const id of ['powers', 'tutorial', 'stats', 'avatar', 'achievements', 'hiddenWords']) {
       expect(crazyGamesHost.closedFeatures).not.toContain(id)
     }
+  })
+
+  it('ferment le filtrage sur CrazyGames, où ni bonus de niveau ni Premium ne l’ouvrent', () => {
+    expect(crazyGamesHost.levelBonuses).toBe(false)
+    expect(crazyGamesHost.closedFeatures).toContain('categoryBans')
   })
 
   it('ouvrent à l’invité de CrazyGames les classements du serveur, sans lui donner de compte anonyme', () => {

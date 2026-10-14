@@ -9,18 +9,18 @@ launch). The build and its choices are explained in `crazygames/README.md`.
 |---|---|
 | Game name (≤ 35 characters) | **Letter Minute** — the title the game shows on its poster in every language (`crazyGamesHost.title`, `src/platform/crazygames.ts`) and in the page title |
 | Engine | HTML5 |
-| Game files | `crazygames/lettre-minute-crazygames.zip` (3.75 MB; `index.html` at the root, relative paths, 148 files, 13.5 MB unzipped) — rebuild with `npm run crazygames:build` |
+| Game files | `crazygames/lettre-minute-crazygames.zip` (4.06 MB; `index.html` at the root, relative paths, 169 files, 14.65 MB unzipped) — rebuild with `npm run crazygames:build` |
 | Game save progress | **Yes, using the Data Module from the CrazyGames SDK** (enables « Progress Save »; without it the SDK answers `dataModuleDisabled` and the game falls back to localStorage) |
 | Supports mobile | **Yes** |
-| Online / multiplayer | **No** — single player, plays offline once loaded |
+| Online / multiplayer | **No** — single player; the weekly leaderboards are read online, the game itself plays offline once loaded |
 | Supports CrazyGames muting audio through the SDK | **Yes** — `game.settings.muteAudio` and its change listener suspend all game audio, music included; the in-game mute button cannot override it |
 | Orientation (mobile) | **Portrait** (desktop plays in a centred column inside the 16:9 frame) |
-| SDK integration | HTML5 SDK v3: `init`, `loadingStart/Stop`, `gameplayStart/Stop`, `happytime` (new record), `requestAd('midgame')` between runs, Data module, `systemInfo.locale` |
+| SDK integration | HTML5 SDK v3: `init`, `loadingStart/Stop`, `gameplayStart/Stop`, `happytime` (new record), `requestAd('midgame')` between runs, Data module, User module (`getUserToken`, `showAuthPrompt`, `submitScore` for the leaderboards), `systemInfo.locale` |
 
-Weight against the limits (from the build script): 1.26 MB of code, styles
+Weight against the limits (from the build script): 1.63 MB of code, styles
 and fonts; dictionaries load per category when a run deals them, so the worst
-case before the first `gameplayStart` is 6.9 MB (limit 50 MB, mobile home page
-20 MB). Total 13.5 MB (limit 250 MB), 148 files (limit 1,500).
+case before the first `gameplayStart` is 7.28 MB (limit 50 MB, mobile home page
+20 MB). Total 14.65 MB (limit 250 MB), 169 files (limit 1,500).
 
 ## Step 2 — QA
 
