@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react'
-import type { AvatarChoice } from '../domain/avatar'
 import { achievementIcon, achievementReward, newlyEarnedAchievements } from '../domain/achievements'
+import { inGround, type AvatarChoice } from '../domain/avatar'
 import type { Boards } from '../domain/boards'
 import { compactWord } from '../domain/text'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
@@ -375,7 +375,14 @@ function Earned({
       <ul className="earned-list">
         {achievements.map((achievement, index) => {
           const { design, colour } = achievementReward(achievement)
-          const tile = design !== null ? { ...avatar, design } : achievementIcon(achievement.id)
+          // Une couleur seule se montre sur l'avatar porté : l'icône d'un succès
+          // est une tuile qu'il n'ouvre pas, et s'y lirait comme gagnée.
+          const tile =
+            design !== null
+              ? { ...avatar, design }
+              : colour
+                ? inGround(avatar, colour.id)
+                : achievementIcon(achievement.id)
           return (
             <li key={achievement.id}>
               <button

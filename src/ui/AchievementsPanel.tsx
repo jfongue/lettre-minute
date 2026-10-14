@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { achievementIcon, achievementProgress, achievementReward, type AchievementId, type Family } from '../domain/achievements'
-import { PALETTE, type AvatarChoice } from '../domain/avatar'
+import { PALETTE, inGround, type AvatarChoice } from '../domain/avatar'
 import type { Profile } from '../domain/progression'
 import { useT } from '../i18n'
 import { Avatar } from './Avatar'
@@ -53,9 +53,15 @@ export function AchievementsPanel({ profile, avatar, discoveries }: Achievements
                 const reached = Math.min(value, achievement.goal.at)
                 const { name, desc } = achievementText(t, achievement)
                 const { design, colour } = achievementReward(achievement)
-                // Un exploit n'a pas de case à lui : sa couleur tient la place
-                // de l'icône, en plus grand.
-                const solo = design === null
+                // Un exploit sans case à lui se montre sur l'avatar porté, peint
+                // de sa couleur : l'icône du succès est une tuile qu'il n'ouvre
+                // pas, et s'y lirait comme gagnée.
+                const tile =
+                  design !== null
+                    ? { ...avatar, design }
+                    : colour
+                      ? inGround(avatar, colour.id)
+                      : achievementIcon(achievement.id)
                 return (
                   <li key={achievement.id}>
                     <button
@@ -66,18 +72,11 @@ export function AchievementsPanel({ profile, avatar, discoveries }: Achievements
                       onClick={() => setOpen(open === achievement.id ? null : achievement.id)}
                     >
                       <span className="ach-reward">
-                        {design !== null ? (
-                          <Avatar choice={{ ...avatar, design }} locked={!done} />
-                        ) : (
-                          <Avatar choice={achievementIcon(achievement.id)} locked={!done} />
-                        )}
+                        <Avatar choice={tile} locked={!done} />
                         {colour && (
                           <span
                             className={`ach-colour${done ? '' : ' ach-colour--locked'}`}
-                            style={{
-                              ...(done ? { background: colour.hex } : {}),
-                              ...(solo ? { width: '2.4rem', height: '2.4rem' } : {}),
-                            }}
+                            style={done ? { background: colour.hex } : undefined}
                             title={t.colours[colour.id] ?? colour.label}
                           />
                         )}
