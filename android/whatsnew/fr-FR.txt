@@ -1,6 +1,4 @@
-• Le Joker écrit son mot dès que tu tapes « Joker », et les mots soufflés par le Professeur brillent la première fois que tu les écris
-• Passe-passe passe tout de suite, sans limite, et Sans faute rapporte 30 points toutes les six bonnes réponses
-• À l’accueil, les annonces arrivent une à une au lieu de se cacher les unes les autres
-• Passer Premium t’accueille d’un simple merci
-• Le défi du moment s’ouvre au niveau 4
+• Duel : « Trouver un adversaire » t’apparie avec un joueur de ta langue
+• Une musique de menu plus longue, et les mots du bilan jouent leur mélodie
+• Un succès qui offre une couleur montre ton avatar dans cette couleur
 • Corrections de bugs et performance
