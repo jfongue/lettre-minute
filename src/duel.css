@@ -33,6 +33,14 @@
 
 /* ------------------------------------------------------------- le salon - */
 
+/* La table d'un côté, qui inviter et « Je suis prêt » de l'autre : deux
+   groupes que seul le cadre paysage de CrazyGames sépare en colonnes
+   (crazygames.css) ; ailleurs, leurs enfants restent ceux de la feuille. */
+.duel-lobby__table,
+.duel-lobby__side {
+  display: contents;
+}
+
 /* Les quatre places de la table : moi, puis les trois joueurs ordinateur. */
 .duel-seats {
   list-style: none;

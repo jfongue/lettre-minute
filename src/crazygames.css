@@ -369,3 +369,134 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
   top: 0;
   z-index: 1;
 }
+
+/* Le duel, dans le même cadre : chaque écran garde son bouton dans le cadre,
+   sans défiler. duel.css arrive avec l'écran, après cette feuille : chaque
+   règle passe donc par `.stage.stage--duel`, plus précis que les siennes. La
+   partie elle-même tient déjà (`max-height: 640px`, duel.css). */
+@media (orientation: landscape) and (max-height: 820px) {
+  .stage.stage--duel {
+    height: 100dvh;
+    min-height: 0;
+  }
+
+  .stage.stage--duel > .sheet {
+    width: min(56rem, 100%);
+    max-height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    row-gap: min(var(--step), 3.4vh);
+  }
+
+  /* Les règles : le titre, le texte et « Suivant » à gauche, la saynète à droite. */
+  .stage.stage--duel .duel-rules {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
+    grid-auto-flow: row dense;
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: end;
+  }
+
+  .stage.stage--duel .duel-rules > * {
+    grid-column: 1;
+  }
+
+  .stage.stage--duel .duel-rules > .spread {
+    align-self: start;
+  }
+
+  .stage.stage--duel .duel-rules > .demo-stage {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    align-self: center;
+  }
+
+  /* Le salon : la table à gauche ; « Je suis prêt » en tête de droite, puis
+     qui inviter, qui défile s'il le faut. */
+  .stage.stage--duel .duel-lobby {
+    height: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+    overflow: hidden;
+  }
+
+  .stage.stage--duel .duel-lobby__table,
+  .stage.stage--duel .duel-lobby__side {
+    display: grid;
+    gap: min(var(--step), 3.4vh);
+    min-height: 0;
+    align-content: safe center;
+    overflow: hidden auto;
+    overscroll-behavior: contain;
+    padding: 0 6px 6px 0;
+  }
+
+  .stage.stage--duel .duel-lobby__side > .stack {
+    order: -1;
+  }
+
+  /* Le draft : les tuiles sur deux colonnes, sous l'ordre des choix. */
+  .stage.stage--duel .duel-draft .dealt--pick {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Le tirage de l'ouvreur : le programme et la roue à gauche, son nom puis le
+     compte à rebours à droite, en grand. */
+  .stage.stage--duel .duel-opening {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-auto-flow: row dense;
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .stage.stage--duel .duel-opening > * {
+    grid-column: 1;
+  }
+
+  .stage.stage--duel .duel-opening > .duel-opening__stage {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    min-height: 0;
+  }
+
+  .stage.stage--duel .duel-opening .duel-beat .countdown-number {
+    font-size: min(8rem, 26vh);
+  }
+
+  /* Le bilan : l'affiche du gagnant et la revanche à gauche, le classement à
+     droite, qui défile s'il le faut. */
+  .stage.stage--duel .duel-over {
+    height: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+    padding-top: 0;
+    overflow: hidden;
+  }
+
+  .stage.stage--duel .duel-over > .duel-poster {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    padding-block: 1rem;
+  }
+
+  .stage.stage--duel .duel-over .duel-poster__face .avatar {
+    width: min(5.5rem, 16vh);
+  }
+
+  .stage.stage--duel .duel-over > .duel-actions {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .stage.stage--duel .duel-over > .duel-ranking {
+    grid-column: 2;
+    grid-row: 1 / -1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    align-content: safe center;
+  }
+}
