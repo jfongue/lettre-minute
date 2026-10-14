@@ -2,8 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { createRun, type Judge } from './run'
 import { NO_USAGE } from './rarity'
 import { buildWordPack, commonWord, findWord, lettersWithEnough, type WordRow } from './words'
+import { xpForLevel } from './progression'
 import {
   WEEKLY_EPOCH,
+  WEEKLY_MIN_LEVEL,
+  weeklyUnlocked,
   WEEKLY_TROPHY_IDS,
   awardWeeklyTrophies,
   type WeeklyMeasures,
@@ -384,5 +387,15 @@ describe('the record curve', () => {
   it('carries the record over an unfinished attempt and starts at zero', () => {
     expect(recordCurve([null, 18, null, 25])).toEqual([0, 18, 18, 25])
     expect(recordCurve([])).toEqual([])
+  })
+})
+
+describe('weeklyUnlocked', () => {
+  it('stays shut below level 4 and opens on reaching it', () => {
+    expect(WEEKLY_MIN_LEVEL).toBe(4)
+    expect(weeklyUnlocked(0)).toBe(false)
+    expect(weeklyUnlocked(xpForLevel(4) - 1)).toBe(false)
+    expect(weeklyUnlocked(xpForLevel(4))).toBe(true)
+    expect(weeklyUnlocked(xpForLevel(12))).toBe(true)
   })
 })

@@ -928,10 +928,9 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
 
 
   premiumThanks: {
-    title: 'Thanks for going Premium!',
-    lead: 'Your support means a lot. In return, would you mind telling me what you think of this version of the game?',
-    yes: 'Happy to',
-    later: 'Later',
+    title: 'Welcome to Premium!',
+    lead: 'Thanks for your support. Everything is open, for good — enjoy the game!',
+    ok: 'Let’s play',
   },
 
   update: {
@@ -1115,6 +1114,13 @@ cheerAria: (label: string) => `Suggest ${label}`,
     duelCard: 'Live duel!',
     duelCardNote: 'One turn each, a 30-second reserve, last one standing wins.',
     duelCardPlayers: '2 to 4 players',
+    matchCard: 'Find an opponent',
+    matchCardNote: 'A random player, right away',
+    matchCardPlayers: '2 players',
+    matchTitle: 'Looking for an opponent…',
+    matchLead: 'We pair you with another player who is looking for a game, in your language.',
+    matchCancel: 'Cancel',
+    matchOffline: 'The server is not answering right now.',
     challengeCard: '24h challenge',
     challengeCardNote: 'The same game for everyone, to play within the day.',
     challengeCardPlayers: '2 to 8 players',

@@ -399,7 +399,8 @@ export function restoreSavedProgress(): void {
  * there must land in the game, not on a question.
  */
 export const crazyGamesHost: Host = {
-  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES]),
+  // The boards stay open: they rank the player's own runs, with no server or account.
+  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES].filter((id) => id !== 'leaderboards')),
   // A portal game lives on players coming back: the day's run and its streak,
   // and the challenge of the moment the app opens to everyone, need no
   // server — attempts are counted on the device, the progress they pay is
@@ -418,6 +419,7 @@ export const crazyGamesHost: Host = {
   levelBonuses: false,
   // Until the portal allows the ad that pays for them, the reveals are free.
   unlimitedReveals: !REWARDED,
+  localBoards: true,
   setGameplay,
   celebrate: happytime,
   submitScore,

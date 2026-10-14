@@ -924,10 +924,9 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
 
 
   premiumThanks: {
-    title: 'Grazie per essere passato a Premium!',
-    lead: 'Il tuo sostegno conta molto. In cambio, mi daresti la tua opinione su questa versione del gioco?',
-    yes: 'Volentieri',
-    later: 'Più tardi',
+    title: 'Benvenuto in Premium!',
+    lead: 'Grazie per il tuo supporto. È tutto sbloccato, per sempre: buon divertimento!',
+    ok: 'Si gioca',
   },
 
   update: {
@@ -1112,6 +1111,13 @@ cheerAria: (label: string) => `Suggerisci ${label}`,
     duelCard: 'Duello dal vivo!',
     duelCardNote: 'Un turno a testa, 30 secondi di riserva, vince l’ultimo in piedi.',
     duelCardPlayers: 'Da 2 a 4 giocatori',
+    matchCard: 'Trova un avversario',
+    matchCardNote: 'Un giocatore a caso, subito',
+    matchCardPlayers: '2 giocatori',
+    matchTitle: 'Ricerca di un avversario…',
+    matchLead: 'Ti abbiniamo a un giocatore che cerca una partita, nella tua lingua.',
+    matchCancel: 'Annulla',
+    matchOffline: 'Il server non risponde per ora.',
     challengeCard: 'Sfida 24 ore',
     challengeCardNote: 'La stessa partita per tutti, da giocare in giornata.',
     challengeCardPlayers: 'Da 2 a 8 giocatori',

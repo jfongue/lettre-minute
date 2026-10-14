@@ -61,12 +61,12 @@ import { PremiumPage } from '../ui/PremiumPage'
 import { PremiumContext } from '../ui/premiumContext'
 import { PremiumSheet, type PremiumReason, type PremiumStatus } from '../ui/PremiumSheet'
 import { PlusLockedSlot, PlusSeal, RESOURCE_ICONS, ResourceChip, ResourceGlyph, type ResourceState } from '../ui/premium'
-import { PlusNewsPop, PlusPrizePop } from '../ui/PlusNewsPop'
+import { PlusNewsPop, PlusPrizePop, PlusThanksPop } from '../ui/PlusNewsPop'
 import { RatingPop } from '../ui/RatingPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
-import { DuelScreen, Draft } from '../ui/DuelScreen'
+import { DuelScreen, Draft, DuelMatchmaking } from '../ui/DuelScreen'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
@@ -1163,12 +1163,6 @@ const HIDDEN: HiddenAnswer[] = [
   { prompt: { categoryId: 'couleurs', letter: 'M' }, display: 'marron' },
   { prompt: { categoryId: 'animaux', letter: 'O' }, display: 'ours' },
 ]
-
-/** Les écrans parlent la langue de l'interface : le merci aussi. */
-function PremiumThanksScenario({ back }: { back(): void }) {
-  const t = useT()
-  return <FeedbackPop intro={t.premiumThanks} onClose={back} send={() => later(true)} />
-}
 
 /** « Mes catégories » à sept catégories : le filtrage s'y ouvre, sur un profil qui ne sort pas de la planche. */
 function BansScenario({
@@ -2417,7 +2411,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Choix : duel en direct ou défi 24h',
     how: 'Le bouton « Créer un défi » quand le duel est ouvert au joueur',
     phase: 'home',
-    render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onChallenge={back} />,
+    render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onMatch={back} onChallenge={back} />,
   },
   {
     id: 'duel-invite',
@@ -2440,6 +2434,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'L’hôte a expulsé le joueur du salon : l’accueil le lui dit',
     phase: 'home',
     render: (back) => <DuelBanner text="L’hôte t’a retiré de la table." onDone={back} />,
+  },
+  {
+    id: 'duel-matchmaking',
+    group: 'Duel',
+    title: 'Matchmaking : recherche d’un adversaire',
+    how: 'Après « Trouver un adversaire » : la file, relue toutes les deux secondes ; les joueurs maison s’offrent au bout de quinze secondes ; ici la file ne répond jamais',
+    phase: 'home',
+    render: (back) => <DuelMatchmaking lang="fr" onMatched={back} onCancel={back} onBots={back} ask={async () => ({ status: 'waiting' })} leave={async () => true} />,
   },
   {
     id: 'duel-table',
@@ -2597,9 +2599,9 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'premium-thanks',
     group: 'Accueil',
     title: 'Merci d’être Premium',
-    how: 'Premier retour à l’accueil après l’abonnement : le merci, puis la demande d’avis (envoi simulé)',
+    how: 'Premier retour à l’accueil après l’achat : le merci et ce que Premium ouvre, sans rien demander',
     phase: 'home',
-    render: (back) => <PremiumThanksScenario back={back} />,
+    render: (back) => <PlusThanksPop onClose={back} />,
   },
   {
     id: 'ideas-admin',

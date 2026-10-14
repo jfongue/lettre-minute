@@ -923,10 +923,9 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
 
 
   premiumThanks: {
-    title: 'Bedankt dat je Premium bent geworden!',
-    lead: 'Je steun betekent veel. Wil je me in ruil daarvoor vertellen wat je van deze versie van het spel vindt?',
-    yes: 'Graag',
-    later: 'Later',
+    title: 'Welkom bij Premium!',
+    lead: 'Bedankt voor je steun. Alles is ontgrendeld, voorgoed: veel speelplezier!',
+    ok: 'Aan de slag',
   },
 
   update: {
@@ -1111,6 +1110,13 @@ cheerAria: (label: string) => `${label} aanraden`,
     duelCard: 'Live duel!',
     duelCardNote: 'Ieder om de beurt, 30 seconden reserve, wie als laatste overblijft wint.',
     duelCardPlayers: '2 tot 4 spelers',
+    matchCard: 'Zoek een tegenstander',
+    matchCardNote: 'Een willekeurige speler, meteen',
+    matchCardPlayers: '2 spelers',
+    matchTitle: 'Tegenstander zoeken…',
+    matchLead: 'We koppelen je aan een speler die ook een spel zoekt, in jouw taal.',
+    matchCancel: 'Annuleren',
+    matchOffline: 'De server antwoordt nu even niet.',
     challengeCard: '24-uursuitdaging',
     challengeCardNote: 'Hetzelfde spel voor iedereen, binnen een dag te spelen.',
     challengeCardPlayers: '2 tot 8 spelers',

@@ -147,7 +147,7 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
               ) : (
                 <div className="standings">
                   {rows.map(({ row, rank }, index) => {
-                    const mine = me !== null && row.name.toLowerCase() === me.toLowerCase()
+                    const mine = row.own === true || (me !== null && row.name.toLowerCase() === me.toLowerCase())
                     // A gap in the ranks says rows were left out between them.
                     const gap = index > 0 && rank - rows[index - 1]!.rank > 1
                     const climbing = mine && board === 'day' && climbed > 0

@@ -460,6 +460,8 @@ export interface ModerationStatus {
   validated: number
   /** Words waiting for them in the interface's language. */
   queue: number
+  /** Les sessions de modération terminées, gardées par le serveur (0068, 0071) : le compte ne repart pas de zéro d'un appareil à l'autre. */
+  sessions: number
   /** What to offer this player, if anything: the reason picks the wording. */
   offer: ModeratorOfferReason | null
   /** The friend who asked, for an offer made by a friend. */
@@ -479,6 +481,7 @@ export function fetchModerationStatus(lang: string): Promise<ModerationStatus | 
       super: row.super === true,
       validated: Number(row.validated) || 0,
       queue: Number(row.queue) || 0,
+      sessions: Number(row.sessions) || 0,
       offer: (row.offer as ModeratorOfferReason | null) ?? null,
       invitedBy: (row.invited_by as string | null) ?? null,
       news: Number(row.news) || 0,
@@ -1625,6 +1628,30 @@ export function createDuelTable(lang: string, categories: readonly string[], own
     const { data, error } = await supabase!.rpc('duel_create', { p_lang: lang, p_categories: categories, p_owned: owned })
     return error ? null : (data as string)
   }, null)
+}
+
+/** Where a player stands in the matchmaking queue: still waiting, or seated at a table opened for them. */
+export type DuelMatch = { status: 'waiting' } | { status: 'matched'; table: string }
+
+/**
+ * Queues for a duel against whoever of the same language is waiting, and reads
+ * the answer on every call. Null without a server or for an anonymous player.
+ */
+export function duelMatchmake(lang: string, categories: readonly string[], owned: number): Promise<DuelMatch | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_matchmake', { p_lang: lang, p_categories: categories, p_owned: owned })
+    if (error || !data) return null
+    const answer = data as { status?: string; table?: string }
+    if (answer.status === 'matched' && typeof answer.table === 'string') return { status: 'matched', table: answer.table }
+    return answer.status === 'waiting' ? { status: 'waiting' } : null
+  }, null)
+}
+
+export function cancelDuelMatchmaking(): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('duel_matchmake_cancel')
+    return !error
+  }, false)
 }
 
 export type DuelInviteOutcome = 'sent' | 'seated' | 'full' | 'closed' | 'forbidden' | 'unreachable'

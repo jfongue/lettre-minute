@@ -17,5 +17,6 @@ export const redditHost: Host = {
   rewardedAds: false,
   levelBonuses: true,
   unlimitedReveals: false,
+  localBoards: false,
   ...quiet,
 }

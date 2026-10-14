@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChallengeSummary } from '../lib/cloud'
 import type { AvatarChoice } from '../domain/avatar'
 import { ownsEveryDesign } from '../domain/achievements'
@@ -46,6 +46,8 @@ import type { AttemptCount } from '../domain/weekly'
 import { BoardSwitch, type BoardFamily } from './BoardSwitch'
 import { CategoriesPage, type BanActions } from './CategoriesPage'
 import { LeaderboardsPage } from './LeaderboardsPage'
+import { localLoader } from './localBoards'
+import { LOCAL_STATS } from '../domain/localBoards'
 import { PageLinks } from './PageLinks'
 import { RequestsPage } from './RequestsPage'
 import { StatsPage, type RecapActions } from './StatsPage'
@@ -160,6 +162,11 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
   // La famille de classement vit ici : son commutateur est sur la ligne du
   // titre, qui appartient au tiroir, pas à la page.
   const [boardFamily, setBoardFamily] = useState<BoardFamily>('runs')
+  // Without a server the boards rank the player's own runs.
+  const localLoad = useMemo(
+    () => (host.localBoards ? localLoader(props.history, props.avatar, t.tag) : undefined),
+    [props.history, props.avatar, t.tag],
+  )
   const [sub, setSub] = useState<ProfilePage | null>(isPane(page) ? null : page)
   const body = useRef<HTMLDivElement>(null)
   // Cinq tapes rapprochées sur le titre de la page : le mode débug des
@@ -257,7 +264,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               >
                 {t.menu.pages[sub]}
               </h2>
-              {sub === 'boards' && <BoardSwitch family={boardFamily} onFamily={setBoardFamily} />}
+              {sub === 'boards' && !host.localBoards && <BoardSwitch family={boardFamily} onFamily={setBoardFamily} />}
             </div>
           )}
           {sub === 'stats' && (
@@ -270,14 +277,17 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               onRefresh={props.onStatsRefresh}
               loadOlder={props.onStatsOlder}
               recap={props.statsRecap}
-              onBoards={props.account && leaderboards ? () => open('boards', 'stats') : undefined}
+              onBoards={(props.account || host.localBoards) && leaderboards ? () => open('boards', 'stats') : undefined}
             />
           )}
           {sub === 'boards' && (
             <LeaderboardsPage
               named={Boolean(props.account && !props.account.anonymous)}
+              own={host.localBoards}
+              only={host.localBoards ? LOCAL_STATS : undefined}
+              load={localLoad}
               moderator={props.moderation?.moderator ?? false}
-              family={boardFamily}
+              family={host.localBoards ? 'runs' : boardFamily}
               onFamily={setBoardFamily}
               advanced={props.advancedBoards}
               onCloseAdvanced={() => props.onAdvancedBoards?.(false)}

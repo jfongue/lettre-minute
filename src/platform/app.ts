@@ -19,6 +19,7 @@ export const appHost: Host = {
   rewardedAds: true,
   levelBonuses: true,
   unlimitedReveals: false,
+  localBoards: false,
   ...quiet,
   prepareRewarded: prepareRewardedAd,
   showRewarded: showRewardedAd,

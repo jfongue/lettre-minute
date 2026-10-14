@@ -1,5 +1,6 @@
-• Le défi du moment se joue en trois tentatives au plus — une gratuite, une en regardant une pub, trois pour Premium
-• Quand tes révélations du jour sont épuisées, une pub t’en rend deux — ou Premium les ouvre sans compter
-• L’écran d’endurance tient au-dessus du clavier du téléphone, et son compte de mots et de questions passées disparaît
-• L’éditeur d’avatar dit ce qu’un succès demande, et l’avis aux cinq étoiles a redessiné ses étoiles
+• Le Joker écrit son mot dès que tu tapes « Joker », et les mots soufflés par le Professeur brillent la première fois que tu les écris
+• Passe-passe passe tout de suite, sans limite, et Sans faute rapporte 30 points toutes les six bonnes réponses
+• À l’accueil, les annonces arrivent une à une au lieu de se cacher les unes les autres
+• Passer Premium t’accueille d’un simple merci
+• Le défi du moment s’ouvre au niveau 4
 • Corrections de bugs et performance

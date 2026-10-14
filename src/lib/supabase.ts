@@ -1,9 +1,13 @@
 import { AuthClient } from '@supabase/auth-js'
 import { PostgrestClient } from '@supabase/postgrest-js'
+import { PLATFORM } from '../platform'
 import { authStorage } from './native'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+/** Says which version of the game speaks: the server tags runs and duel tables with it (0072). */
+const CLIENT_INFO = `supabase-js/2.117.0; runtime=web; platform=${PLATFORM}`
 
 /**
  * The two parts of supabase-js the game uses, assembled the way `createClient`
@@ -16,7 +20,7 @@ function slimClient(projectUrl: string, key: string) {
   const base = new URL(projectUrl.endsWith('/') ? projectUrl : `${projectUrl}/`)
   const auth = new AuthClient({
     url: new URL('auth/v1', base).href,
-    headers: { Authorization: `Bearer ${key}`, apikey: key, 'X-Client-Info': 'supabase-js/2.117.0; runtime=web' },
+    headers: { Authorization: `Bearer ${key}`, apikey: key, 'X-Client-Info': CLIENT_INFO },
     storageKey: `sb-${base.hostname.split('.')[0]}-auth-token`,
     storage: authStorage(),
     autoRefreshToken: true,
@@ -37,7 +41,7 @@ function slimClient(projectUrl: string, key: string) {
     return fetch(input, { ...init, headers })
   }
   const rest = new PostgrestClient(new URL('rest/v1', base).href, {
-    headers: { 'X-Client-Info': 'supabase-js/2.117.0; runtime=web' },
+    headers: { 'X-Client-Info': CLIENT_INFO },
     schema: 'public',
     fetch: fetchWithAuth,
   })

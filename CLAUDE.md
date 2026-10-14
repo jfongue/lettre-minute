@@ -481,6 +481,21 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   Sous 640 px de haut — le clavier ouvert, que l'app rétrécit
   (`resize: 'native'`) — la partie se resserre pour que le couple, le champ et
   ses deux boutons restent au-dessus des touches.
+- **Le matchmaking du duel est une file serveur** (`duel_matchmake`, 0072) :
+  un joueur nommé s'y met, le suivant de sa langue l'apparie, le serveur ouvre
+  la table (l'hôte est celui qui attendait) et assoit les deux ; chacun la
+  retrouve à sa lecture suivante et se déclare prêt tout seul (`quick`). Un
+  joueur qui ne relit plus la file en sort au bout de 20 s, un blocage dans un
+  sens ou l'autre empêche l'appariement. Il vit derrière la fonctionnalité
+  `duel`, comme le reste du duel, et se joue sur toutes les versions qui ont
+  le serveur — pas encore CrazyGames, dont les joueurs n'ont pas de compte
+  nommé (voir `crazygames/README.md`).
+- **Chaque donnée dit d'où elle vient** (0072) : le client ajoute
+  `platform=<android|web|crazygames|reddit>` à `X-Client-Info`
+  (`src/lib/supabase.ts`), et un déclencheur range cette valeur dans
+  `runs.platform` et `duel_tables.platform`. Une ligne écrite par un client
+  plus ancien reste `null`. Pour séparer les versions un jour, c'est cette
+  colonne qu'on filtre — les classements et les rangs, eux, sont communs.
 - **Chaque fonctionnalité est un interrupteur** (`src/domain/features.ts`,
   0045) : quatre publics — tout le monde, modérateur, Premium, super
   modérateur —, une case dispo, bloquée ou neutre. Une case dispo parmi les
@@ -687,7 +702,7 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   d'un glissement, sous `data-no-swipe` pour ne pas refermer le tiroir.
   Passer Premium traverse un faux paiement (`src/ui/Checkout.tsx`) qui ne
   demande aucune carte ; le retour suivant à l'accueil remercie le joueur
-  une fois (`plusThanked`) et ouvre la demande d'avis.
+  une fois (`plusThanked`, `PlusThanksPop`), sans rien lui demander.
 - **Le son part fort et la limite le tient** (`MAKEUP_GAIN`, `src/lib/sound.ts`) :
   le téléphone baisse le volume sur des échantillons 16 bits, et un mixage
   discret y devenait robotique. Ne pas rabaisser le bus maître pour « calmer »

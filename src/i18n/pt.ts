@@ -924,10 +924,9 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
 
 
   premiumThanks: {
-    title: 'Obrigado por te tornares Premium!',
-    lead: 'O teu apoio conta muito. Em troca, dás-me a tua opinião sobre esta versão do jogo?',
-    yes: 'Com gosto',
-    later: 'Mais tarde',
+    title: 'Bem-vindo ao Premium!',
+    lead: 'Obrigado pelo teu apoio. Está tudo desbloqueado, para sempre: bom jogo!',
+    ok: 'Vamos jogar',
   },
 
   update: {
@@ -1112,6 +1111,13 @@ cheerAria: (label: string) => `Sugerir ${label}`,
     duelCard: 'Duelo ao vivo!',
     duelCardNote: 'Cada um na sua vez, 30 segundos de reserva, vence o último de pé.',
     duelCardPlayers: '2 a 4 jogadores',
+    matchCard: 'Encontrar um adversário',
+    matchCardNote: 'Um jogador ao acaso, já',
+    matchCardPlayers: '2 jogadores',
+    matchTitle: 'À procura de um adversário…',
+    matchLead: 'Emparelhamos-te com outro jogador que procura uma partida, na tua língua.',
+    matchCancel: 'Cancelar',
+    matchOffline: 'O servidor não responde de momento.',
     challengeCard: 'Desafio 24h',
     challengeCardNote: 'A mesma partida para todos, para jogar no dia.',
     challengeCardPlayers: '2 a 8 jogadores',

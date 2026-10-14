@@ -973,10 +973,9 @@ latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 s
 
 
   premiumThanks: {
-    title: 'Merci de t’être abonné Premium !',
-    lead: 'Ton soutien compte beaucoup. En échange, est-ce que tu veux bien me donner ton avis sur cette version du jeu ?',
-    yes: 'Avec plaisir',
-    later: 'Plus tard',
+    title: 'Bienvenue dans Premium !',
+    lead: 'Merci pour ton soutien. Tout est ouvert, pour de bon : bon jeu !',
+    ok: 'C’est parti',
   },
 
   update: {
@@ -1124,6 +1123,13 @@ latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 s
     duelCard: 'Duel en direct !',
     duelCardNote: 'Chacun son tour, 30 secondes de réserve, le dernier debout gagne.',
     duelCardPlayers: '2 à 4 joueurs',
+    matchCard: 'Trouver un adversaire',
+    matchCardNote: 'Un joueur au hasard, tout de suite',
+    matchCardPlayers: '2 joueurs',
+    matchTitle: 'Recherche d’un adversaire…',
+    matchLead: 'On t’associe à un joueur qui cherche aussi une partie, dans ta langue.',
+    matchCancel: 'Annuler',
+    matchOffline: 'Le serveur ne répond pas pour l’instant.',
     challengeCard: 'Défi 24h',
     challengeCardNote: 'La même partie pour tous, à jouer dans la journée.',
     challengeCardPlayers: '2 à 8 joueurs',

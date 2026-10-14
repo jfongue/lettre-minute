@@ -44,6 +44,10 @@ async function loadFromServer(stat: StatId, period: PeriodId): Promise<Leaderboa
 interface LeaderboardsPageProps {
   /** An anonymous player reads the boards but stands on none of them. */
   named: boolean
+  /** The boards are the player's own runs (a host with no server): no account to ask for, no place among others. */
+  own?: boolean
+  /** The measures, in the page's order; every one the player may read when absent. */
+  only?: readonly StatId[]
   /** Le joueur juge des mots : il voit en plus le classement des sessions de modération. */
   moderator?: boolean
   /** Le tiroir tient la famille : son commutateur est sur la ligne du titre. */
@@ -66,6 +70,8 @@ interface LeaderboardsPageProps {
  */
 export function LeaderboardsPage({
   named,
+  own = false,
+  only,
   moderator = false,
   family: familyProp,
   onFamily,
@@ -77,7 +83,7 @@ export function LeaderboardsPage({
   const t = useT()
   // Les sessions de modération ne se montrent qu'à qui juge : la piste en porte
   // une de moins pour tout le monde.
-  const stats: readonly StatId[] = moderator ? STATS : OPEN_STATS
+  const stats: readonly StatId[] = only ?? (moderator ? STATS : OPEN_STATS)
   // Le défi se range par langue et par semaine : l'interface donne les deux.
   const lang = t.tag.split('-')[0]!
   const weekId = weekOf(Date.now()).weekId
@@ -168,7 +174,7 @@ export function LeaderboardsPage({
   return (
     <div className="leaderboards" data-no-swipe>
       {!familyProp && <BoardSwitch family={family} onFamily={setFamily} />}
-      {!named && <p className="note">{t.leaderboards.anonymous}</p>}
+      {!named && !own && <p className="note">{t.leaderboards.anonymous}</p>}
 
       {family === 'runs' ? (
         <div className="board-swap" key="runs">
@@ -221,7 +227,7 @@ export function LeaderboardsPage({
             {stats.map((stat) => (
               <section className="board leaderboard" key={stat} aria-label={t.leaderboards.stats[stat].label}>
                 <p className="note leaderboard-caption">{t.leaderboards.stats[stat].caption}</p>
-                <BoardBody stat={stat} period={period} board={boards[`${stat}:${period}`]} named={named} onRetry={() => ask(stat, true)} />
+                <BoardBody stat={stat} period={period} board={boards[`${stat}:${period}`]} named={named && !own} own={own} onRetry={() => ask(stat, true)} />
               </section>
             ))}
           </div>
@@ -273,12 +279,14 @@ function BoardBody({
   period,
   board,
   named,
+  own,
   onRetry,
 }: {
   stat: StatId
   period: PeriodId
   board: Loaded
   named: boolean
+  own: boolean
   onRetry(): void
 }) {
   const t = useT()
@@ -292,7 +300,7 @@ function BoardBody({
         </button>
       </div>
     )
-  if (board.rows.length === 0) return <p className="note board-empty">{t.leaderboards.empty[period]}</p>
+  if (board.rows.length === 0) return <p className="note board-empty">{own ? t.leaderboards.absent : t.leaderboards.empty[period]}</p>
 
   const podium = board.rows.slice(0, 3)
   const rest = board.rows.slice(3)

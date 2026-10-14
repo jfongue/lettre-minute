@@ -352,3 +352,17 @@ $$;
 select tests.login('s9');
 select tests.is((public.moderation_status('fr') ->> 'super')::boolean, false, 'six validated words no longer make a super moderator');
 select tests.logout();
+
+-- 0068/0071 : les sessions de modération vivent au serveur, pas sur l'appareil.
+select tests.login('p2');
+select tests.is((public.moderation_status('fr') ->> 'sessions')::int, 0, 'a player counts no moderation session');
+select public.report_moderation_session();
+select tests.is((select count(*)::int from public.moderation_sessions), 0, 'and reporting one records nothing');
+select tests.logout();
+select tests.login('m1');
+select tests.is((public.moderation_status('fr') ->> 'sessions')::int, 0, 'a moderator starts at zero');
+select public.report_moderation_session();
+select tests.is((public.moderation_status('fr') ->> 'sessions')::int, 1, 'a finished queue counts one session');
+select public.report_moderation_session();
+select tests.is((public.moderation_status('fr') ->> 'sessions')::int, 1, 'a second report within the minute adds nothing');
+select tests.logout();

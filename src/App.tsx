@@ -86,6 +86,7 @@ import {
 } from './domain/challenge'
 import { complicationDue, ownedPowers, slotsOf, type PowerId } from './domain/powers'
 import { completeLeaderboard } from './domain/leaderboards'
+import { localBoards } from './ui/localBoards'
 import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
@@ -106,6 +107,7 @@ import { todayKey } from './lib/today'
 import { banNews, feedbackDue, grantPlus, hiddenAnswers, hiddenAnswersOf, isPlus, playableCategoryIds, plusThanksDue, premiereNews, revealBudget, shareNewsDue } from './domain/perks'
 import { enabledFeatures, type FeatureId, type Roles } from './domain/features'
 import { ratingDue } from './domain/rating'
+import { weeklyUnlocked } from './domain/weekly'
 import { cloudConfigured } from './lib/supabase'
 import { host, hostFeatures, premiumStoreOpen, rewardedAdsOpen } from './platform'
 import { buyPremium, premiumOwned, premiumPrice, restorePremium } from './lib/billing'
@@ -154,7 +156,7 @@ import { ChallengeNotice } from './ui/ChallengeHome'
 import { UpdateNotice } from './ui/UpdateNotice'
 import { useLeaving } from './ui/useLeaving'
 import { PowerGiftPop, ShareNewsPop, WordsNewsPop } from './ui/WordsNews'
-import { PlusNewsPop } from './ui/PlusNewsPop'
+import { PlusNewsPop, PlusThanksPop } from './ui/PlusNewsPop'
 import type { ChallengeRules } from './ui/ChallengeSetup'
 import { DEFAULT_PLAYER_ACTIONS, PlayerActionsContext, type PlayerActions } from './ui/PlayerSheet'
 import { HomeScreen } from './ui/HomeScreen'
@@ -164,6 +166,8 @@ import type { FlagWord, RecapActions } from './ui/StatsPage'
 import { ModeratorOffer } from './ui/ModeratorOffer'
 import { MuteButton } from './ui/MuteButton'
 import { NamePrompt } from './ui/NamePrompt'
+import { usePopQueue } from './ui/usePopQueue'
+import { UPDATE_WAIT_MS } from './domain/popups'
 import { PushOffer } from './ui/PushOffer'
 import type { Racer } from './ui/RunScreen'
 import { lazyScreen } from './ui/lazyScreen'
@@ -194,6 +198,7 @@ const RunScreen = lazyScreen(() => import('./ui/RunScreen').then((module) => mod
 const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) => module.WordsBoard))
 const FeaturesBoard = lazyScreen(() => import('./debug/FeaturesBoard').then((module) => module.FeaturesBoard))
 const DuelScreen = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelScreen))
+const DuelMatchmaking = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelMatchmaking))
 
 /** The run's own screens: awaited with its dictionaries, so the countdown never opens on a blank frame. */
 function preloadRunScreens(): Promise<unknown> {
@@ -390,6 +395,8 @@ setMenuPage(null)
   const [heldNotices, setHeldNotices] = useState<readonly string[]>([])
   // 'later' holds until the app is launched again: one nudge per launch is enough.
   const [update, setUpdate] = useState<'none' | 'due' | 'later'>('none')
+  // The other pop-ups wait for the store's first answer: the update comes first.
+  const [updateKnown, setUpdateKnown] = useState(false)
   // The dictionary the run plays: the interface's, or the challenge's own.
   const [runLang, setRunLang] = useState<string | null>(null)
   const [daily, setDaily] = useState(loadDaily)
@@ -415,6 +422,11 @@ setMenuPage(null)
     superModerator: moderation ? moderation.super : storedFeatures.roles.superModerator,
     premium: isPlus(session.profile),
   }
+  // Without a server the home boards rank the player's own runs.
+  const ownBoards = useMemo(
+    () => (host.localBoards ? localBoards(history, avatar, t.tag) : null),
+    [history, avatar, t.tag],
+  )
   const features = useMemo(
     () => hostFeatures(enabledFeatures(storedFeatures.flags, roles)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -441,7 +453,8 @@ setMenuPage(null)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean } | null>(null)
+  const [matching, setMatching] = useState(false)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
   const [debugPhase, setDebugPhase] = useState<string | null>(() =>
@@ -1079,10 +1092,18 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     const check = () =>
       document.visibilityState === 'visible' &&
-      storeUpdateAvailable().then((due) => due && setUpdate((current) => (current === 'none' ? 'due' : current)))
+      storeUpdateAvailable().then((due) => {
+        if (due) setUpdate((current) => (current === 'none' ? 'due' : current))
+        setUpdateKnown(true)
+      })
     check()
+    // A store that never answers must not hold every other pop-up back.
+    const timer = setTimeout(() => setUpdateKnown(true), UPDATE_WAIT_MS)
     document.addEventListener('visibilitychange', check)
-    return () => document.removeEventListener('visibilitychange', check)
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener('visibilitychange', check)
+    }
   }, [])
   // Once shown, the home screen stays shown: later answers update it in place.
   // A slow server gets two seconds and a half, not the player's whole wait.
@@ -1457,7 +1478,7 @@ setStartedAt((at) => at ?? Date.now())
   }, [joinPlus, profile])
   // Le défi du moment : ses écrans, sa partie et son récap vivent dans un seul crochet.
   const weeklyFlow = useWeeklyFlow({
-    enabled: on('weekly'),
+    enabled: on('weekly') && weeklyUnlocked(session.profile.xp),
     lang,
     t,
     session,
@@ -1692,7 +1713,10 @@ setStartedAt((at) => at ?? Date.now())
     // Une table de duel se quitte par son bouton : un geste de retour en pleine
     // partie abandonnerait sa réserve sans le dire.
     if (duelOpen) return true
-    if (together) setTogether(false)
+    if (matching) {
+      setMatching(false)
+      setTogether(true)
+    } else if (together) setTogether(false)
     else if (picking) setPicking(null)
     else if (creating) setCreating(null)
     else if (challengeOpen) setChallengeOpen(null)
@@ -1758,7 +1782,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => setTrackScreen(screenName), [screenName])
 
   const quietHome =
-    session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !modesOpen && !loadout && !duelOpen && !weeklyFlow.covering
+    session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !matching && !modesOpen && !loadout && !duelOpen && !weeklyFlow.covering
   const notice = quietHome && on('challenges') ? challengeNotice(challenges, heldNotices) : null
   const updateDue = update === 'due' && on('storeUpdate')
   // The moderator card never reaches someone who already moderates: `moderator`
@@ -1768,13 +1792,9 @@ setStartedAt((at) => at ?? Date.now())
   const offerDue = !alreadyModerating && (bonusOfferDue || !!moderation?.offer && !offerHeld && on('moderatorOffer'))
   const wordsNewsDue = wordsNews.length > 0 && on('wordsNews')
   const giftDue = complicationDue(session.profile, acceptedWords) && on('powerGift')
-  const popsQuiet = !notice && quietHome && !updateDue && !offerDue && !wordsNewsDue && !giftDue && pushOffer === null
   // Premium thanks its new member once, back home, and asks for an opinion in
   // exchange: that ask stands in for the regular one if both are due.
-  const thanksPop = popsQuiet && cloudConfigured() && plusThanksDue(session.profile)
-  const feedbackPop = popsQuiet && feedbackAsk && !thanksPop && on('feedback')
-  const shareNewsPop = popsQuiet && !thanksPop && !feedbackPop && on('friendInvite') && shareNewsDue(session.profile, named, shareNewsSeen)
-  const ratingPop = popsQuiet && ratingAsk && !thanksPop && !feedbackPop && !shareNewsPop && on('support')
+  const thanksDue = cloudConfigured() && plusThanksDue(session.profile)
   const settleShareNews = () => {
     saveShareNewsSeen()
     setShareNewsSeen(true)
@@ -1782,7 +1802,27 @@ setStartedAt((at) => at ?? Date.now())
   // Les avant-premières qu'un envoi vient de livrer, annoncées au retour à
   // l'accueil : une catégorie nouvelle les fait toutes repasser, une fois.
   const freshPremieres = useMemo(() => premiereNews(premiereNewsSeen, availableCategoryIds(lang)), [premiereNewsSeen, lang])
-  const premieresPop = popsQuiet && !thanksPop && !feedbackPop && !shareNewsPop && on('premium') && freshPremieres.length > 0
+  const pop = usePopQueue(
+    {
+      update: quietHome && updateDue,
+      // One notice per challenge: the next one closes and opens like any other pop-up.
+      challenge: notice?.challenge.id ?? false,
+      weeklyRecap: quietHome && weeklyFlow.recap !== null,
+      weeklyPrize: quietHome && weeklyFlow.prizePop !== null,
+      name: atHome && nameAsk !== null,
+      // Over the menu too: the friendship is often made there, and the offer follows it at once.
+      push: atHome && pushOffer !== null && on('pushOffer'),
+      moderator: quietHome && offerDue && (!!moderation?.offer || bonusOfferDue),
+      wordsNews: quietHome && wordsNewsDue,
+      gift: quietHome && giftDue,
+      thanks: quietHome && thanksDue,
+      feedback: quietHome && feedbackAsk && !thanksDue && on('feedback'),
+      shareNews: quietHome && on('friendInvite') && shareNewsDue(session.profile, named, shareNewsSeen),
+      premieres: quietHome && on('premium') && freshPremieres.length > 0,
+      rating: quietHome && ratingAsk && on('support'),
+    },
+    updateKnown,
+  )
   const settlePremieres = () => {
     const seen = [...new Set([...premiereNewsSeen, ...freshPremieres])]
     savePremiereNewsSeen(seen)
@@ -1854,7 +1894,7 @@ setStartedAt((at) => at ?? Date.now())
 
       {duelOpen && session.phase === 'home' && (
         <Suspense fallback={null}>
-          <DuelScreen lang={lang} mode="online" join={duelOpen.join} onExit={leaveDuel} />
+          <DuelScreen lang={lang} mode="online" join={duelOpen.join} quick={duelOpen.quick} onExit={leaveDuel} />
         </Suspense>
       )}
 
@@ -1866,6 +1906,11 @@ setStartedAt((at) => at ?? Date.now())
             rememberMultiplayer()
             setTogether(false)
             setDuelOpen({ join: null })
+          }}
+          onMatch={() => {
+            rememberMultiplayer()
+            setTogether(false)
+            setMatching(true)
           }}
           onChallenge={() => {
             setTogether(false)
@@ -1886,6 +1931,26 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
+      {matching && session.phase === 'home' && !duelOpen && (
+        <Suspense fallback={null}>
+          <DuelMatchmaking
+            lang={lang}
+            onMatched={(table) => {
+              setMatching(false)
+              setDuelOpen({ join: table, quick: true })
+            }}
+            onCancel={() => {
+              setMatching(false)
+              setTogether(true)
+            }}
+            onBots={() => {
+              setMatching(false)
+              setDuelOpen({ join: null })
+            }}
+          />
+        </Suspense>
+      )}
+
       {modesOpen && session.phase === 'home' && !tutorial && (
         <GameModes onPick={pickMode} onClose={() => setModesOpen(false)} />
       )}
@@ -1902,7 +1967,7 @@ setStartedAt((at) => at ?? Date.now())
           error={session.error}
           loading={session.phase === 'loading'}
           settled={homeSettled}
-          boards={on('leaderboards') ? boards : null}
+          boards={on('leaderboards') ? (host.localBoards ? ownBoards : boards) : null}
           me={account && !account.anonymous ? account.name : null}
           climbed={climbed}
           avatar={avatar}
@@ -2002,7 +2067,7 @@ setStartedAt((at) => at ?? Date.now())
         </Suspense>
       )}
 
-      {nameAsk !== null && session.phase === 'home' && !notice && (
+      {pop === 'name' && nameAsk !== null && (
         <NamePrompt
           suggestion={nameAsk}
           onChoose={async (name) => {
@@ -2014,8 +2079,7 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {pushOffer !== null && session.phase === 'home' && !notice && on('pushOffer') && (
-        // Over the menu too: the friendship is often made there, and the offer follows it at once.
+      {pop === 'push' && pushOffer !== null && (
         <PushOffer
           onNo={() => {
             markPushOffered(pushOffer)
@@ -2030,7 +2094,7 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {notice && (
+      {pop === 'challenge' && notice && (
         <ChallengeNotice
           challenge={notice.challenge}
           kind={notice.kind}
@@ -2047,7 +2111,10 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {!notice && quietHome && updateDue && (
+      {pop === 'weeklyRecap' && weeklyFlow.recap}
+      {pop === 'weeklyPrize' && weeklyFlow.prizePop}
+
+      {pop === 'update' && (
         <UpdateNotice
           onLater={() => setUpdate('later')}
           onUpdate={() => {
@@ -2058,11 +2125,7 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {!notice &&
-        quietHome &&
-        !updateDue &&
-        offerDue &&
-        (moderation?.offer || bonusOfferDue) && (
+      {pop === 'moderator' && (
           <ModeratorOffer
             reason={moderation?.offer ?? 'bonus'}
             invitedBy={moderation?.offer ? moderation.invitedBy : null}
@@ -2084,7 +2147,7 @@ setStartedAt((at) => at ?? Date.now())
           />
         )}
 
-      {!notice && quietHome && !updateDue && !offerDue && wordsNewsDue && (
+      {pop === 'wordsNews' && (
         <WordsNewsPop
           words={wordsNews}
           onClose={() => {
@@ -2103,11 +2166,11 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {!notice && quietHome && !updateDue && !offerDue && !wordsNewsDue && giftDue && (
+      {pop === 'gift' && (
           <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
         )}
 
-      {shareNewsPop && (
+      {pop === 'shareNews' && (
         <ShareNewsPop
           onLater={settleShareNews}
           onOpen={() => {
@@ -2119,7 +2182,7 @@ setStartedAt((at) => at ?? Date.now())
       )}
 
       {/* Premium les joue déjà : la pop-up mène aux catégories, et les autres à sa fiche. */}
-      {premieresPop && (
+      {pop === 'premieres' && (
         <PlusNewsPop
           names={freshPremieres.map((id) => categoryText(t, id).label).join(', ')}
           onOpen={() => {
@@ -2141,15 +2204,14 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {feedbackPop && <FeedbackPop onClose={() => setFeedbackAsk(false)} />}
+      {pop === 'feedback' && <FeedbackPop onClose={() => setFeedbackAsk(false)} />}
 
-      {ratingPop && (
+      {pop === 'rating' && (
         <RatingPop onLater={() => setRatingAsk(false)} onRate={() => { dispatch({ type: 'rating-done' }); setRatingAsk(false) }} />
       )}
 
-      {thanksPop && (
-        <FeedbackPop
-          intro={t.premiumThanks}
+      {pop === 'thanks' && (
+        <PlusThanksPop
           onClose={() => {
             setFeedbackAsk(false)
             dispatch({ type: 'plus-thanked' })
