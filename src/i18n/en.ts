@@ -286,6 +286,7 @@ export const en: Messages = {
       unreachable: () => 'The server is not answering. Try again in a moment.',
     },
     noServer: 'Friends need a connection to the game server, which is missing for now.',
+    hostSignIn: 'Friends go through your account: sign in to find the players you meet on the leaderboards.',
     needAccount: 'A friend finds you by your account name: create it first, the games you have played come along.',
     createAccount: 'Create my account',
     add: 'Add a friend',

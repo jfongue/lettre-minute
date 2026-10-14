@@ -281,6 +281,7 @@ export const pt: Messages = {
       unreachable: () => 'O servidor não responde. Tente de novo daqui a pouco.',
     },
     noServer: 'Os amigos precisam de uma conexão com o servidor do jogo, ausente por enquanto.',
+    hostSignIn: 'Os amigos passam pela tua conta: liga-te para reencontrar os jogadores que vês nas classificações.',
     needAccount: 'Um amigo encontra você pelo nome da conta: crie-a primeiro, as partidas já jogadas vão junto.',
     createAccount: 'Criar minha conta',
     add: 'Adicionar um amigo',

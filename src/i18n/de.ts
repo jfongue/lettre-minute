@@ -280,6 +280,7 @@ export const de: Messages = {
       unreachable: () => 'Der Server antwortet nicht. Versuch es gleich noch einmal.',
     },
     noServer: 'Freunde brauchen eine Verbindung zum Spielserver, die gerade fehlt.',
+    hostSignIn: 'Freunde laufen über dein Konto: melde dich an, um die Spieler aus den Bestenlisten wiederzufinden.',
     needAccount: 'Ein Freund findet dich über deinen Kontonamen: Erstelle ihn zuerst, deine gespielten Partien kommen mit.',
     createAccount: 'Mein Konto erstellen',
     add: 'Freund hinzufügen',

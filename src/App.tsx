@@ -1322,8 +1322,21 @@ setStartedAt((at) => at ?? Date.now())
     [challengeLineup, lang, session.profile],
   )
   const playerActions = useMemo<PlayerActions>(
-    () => ({ ...DEFAULT_PLAYER_ACTIONS, ...(on('challenges') && { challenge: (friendId: string) => openCreate([friendId]) }) }),
-    [on, openCreate],
+    () => ({
+      ...DEFAULT_PLAYER_ACTIONS,
+      ...(on('challenges') && { challenge: (friendId: string) => openCreate([friendId]) }),
+      // Un invité du portail (CrazyGames) n'a pas de session : demander un ami
+      // n'aurait que la réponse d'un serveur qui n'a rien reçu. Le geste ouvre la
+      // connexion du portail, la seule qui donnerait un nom au compte.
+      ...(account === null &&
+      host.promptAccount && {
+        befriend: () => {
+          void host.promptAccount!()
+          return Promise.resolve('anonymous' as const)
+        },
+      }),
+    }),
+    [on, openCreate, account],
   )
 
   const create = useCallback(
@@ -1903,11 +1916,17 @@ setStartedAt((at) => at ?? Date.now())
             setTogether(false)
             setDuelOpen({ join: null })
           }}
-          onMatch={() => {
+          onMatch={
+            // La file du matchmaking assoit deux comptes nommés (`duel_matchmake`) :
+            // un anonyme sans nom, ou un invité du portail, ne s'y met pas.
+            named
+            ? () => {
             rememberMultiplayer()
             setTogether(false)
             setMatching(true)
-          }}
+          }
+          : undefined
+        }
           onChallenge={() => {
             setTogether(false)
             openCreate()

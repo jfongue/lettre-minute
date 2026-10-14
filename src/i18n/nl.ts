@@ -280,6 +280,7 @@ export const nl: Messages = {
       unreachable: () => 'De server reageert niet. Probeer het zo opnieuw.',
     },
     noServer: 'Vrienden vragen een verbinding met de spelserver, die er nu niet is.',
+    hostSignIn: 'Vrienden gaan via je account: meld je aan om de spelers van de klassementen terug te vinden.',
     needAccount: 'Een vriend vindt je via je accountnaam: maak die eerst, je gespeelde spellen gaan mee.',
     createAccount: 'Mijn account maken',
     add: 'Vriend toevoegen',

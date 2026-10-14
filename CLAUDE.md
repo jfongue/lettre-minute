@@ -105,11 +105,16 @@ par une copie de l'écran ; et chaque build touché se vérifie.
 - **Règles qui diffèrent** — Reddit : graine du jour (`dailySeed`), même
   partie pour tous les lecteurs, pas de pouvoirs, `Judge` sans compteurs
   d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : le serveur
-  pour les classements seuls — un invité n'a aucun compte, pas même anonyme
-  (`host.anonymousAccounts`), et les lit sous le rôle `anon` avec sa ligne
-  « Moi » comptée sur l'appareil ; un joueur connecté au portail joue sous le
-  compte que `crazygames-auth` lie à son identifiant CrazyGames (0073) —, aucune
-  autre fonctionnalité serveur, les autres variables externes
+  pour les classements, les amis et le duel — un invité n'a aucun compte, pas
+  même anonyme
+  (`host.anonymousAccounts`), et lit les classements sous le rôle `anon` avec sa
+  ligne « Moi » comptée sur l'appareil, l'écran des amis lui proposant la
+  connexion du portail ; un joueur connecté au portail joue sous le
+  compte que `crazygames-auth` lie à son identifiant CrazyGames (0073), nommé
+  d'après son pseudo (0074), et a donc les amis, le face-à-face et le duel,
+  matchmaking compris —, ni défi de 24 h, ni invitation hors de la page, ni
+  aucune autre
+  fonctionnalité serveur, les autres variables externes
   vidées au build, SDK
   du portail (événements, pub midgame, muet, sauvegarde par son module Data,
   classement hebdo, langue), thème clair par défaut, accueil en deux colonnes
@@ -500,9 +505,9 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   retrouve à sa lecture suivante et se déclare prêt tout seul (`quick`). Un
   joueur qui ne relit plus la file en sort au bout de 20 s, un blocage dans un
   sens ou l'autre empêche l'appariement. Il vit derrière la fonctionnalité
-  `duel`, comme le reste du duel, et se joue sur toutes les versions qui ont
-  le serveur — pas encore CrazyGames, dont les joueurs n'ont pas de compte
-  nommé (voir `crazygames/README.md`).
+  `duel`, comme le reste du duel, et demande un compte nommé sur chaque version
+  qui l'ouvre : CrazyGames le propose à son joueur connecté (0073), et n'offre
+  pas la carte à son invité, qui joue la table des joueurs maison.
 - **Chaque donnée dit d'où elle vient** (0072) : le client ajoute
   `platform=<android|web|crazygames|reddit>` à `X-Client-Info`
   (`src/lib/supabase.ts`), et un déclencheur range cette valeur dans

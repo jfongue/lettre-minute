@@ -314,6 +314,7 @@ export const fr = {
       (name: string) => string
     >,
     noServer: 'Les amis demandent une connexion au serveur du jeu, absente pour l’instant.',
+hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les joueurs que tu croises au classement.',
     needAccount: 'Un ami te trouve par ton nom de compte : crée-le d’abord, tes parties déjà jouées te suivent.',
     createAccount: 'Créer mon compte',
     add: 'Ajouter un ami',

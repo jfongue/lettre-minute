@@ -55,6 +55,17 @@ describe('les hôtes', () => {
     expect(redditHost.guestBoards).toBe(false)
   })
 
+  it('ouvrent à CrazyGames les amis et le duel qu’un compte nommé du portail porte, jamais ce qui mène hors de la page', () => {
+    // Le compte que `crazygames-auth` (0073) ouvre au joueur connecté est nommé :
+    // les amis, le face-à-face et le duel — matchmaking compris — le lisent.
+    for (const id of ['friends', 'rivalry', 'duel']) expect(crazyGamesHost.closedFeatures).not.toContain(id)
+    // Le défi de 24 h, l'invitation par e-mail ou par lien, les réactions qui
+    // s'y accrochent, et tout ce qui demande plus que le serveur du portail.
+    for (const id of ['challenges', 'friendInvite', 'reactions', 'moderation', 'proposeWord']) {
+      expect(crazyGamesHost.closedFeatures).toContain(id)
+    }
+  })
+
   it('ne vendent Premium et ne passent les pubs récompensées que sur le téléphone', () => {
     expect(appHost.premiumStore && appHost.rewardedAds).toBe(true)
     for (const host of [crazyGamesHost, redditHost]) {
