@@ -502,6 +502,65 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
 }
 
 
+/* La modération (super modérateurs) : la carte à juger à gauche, toute la
+   hauteur ; le titre, la progression et les trois votes à droite. */
+@media (orientation: landscape) and (max-height: 820px) {
+  .stage .sheet.moderation:not(.cascade) {
+    width: min(56rem, 100%);
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    grid-template-rows: repeat(6, auto) minmax(0, 1fr);
+    grid-auto-flow: row dense;
+    align-content: center;
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+    row-gap: 0;
+  }
+
+  /* Une correction ou un cas spécial s'écrit dans la carte : elle prend la
+     place qu'il faut à ses deux boutons pour tenir sur une ligne. */
+  .stage .sheet.moderation:not(.cascade):has(.moderation-form) {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  }
+
+  /* Pas d'écart de rangée : les votes et leurs boutons n'existent qu'au
+     jugement, et une rangée vide garderait le sien. */
+  .stage .sheet.moderation:not(.cascade) > * {
+    grid-column: 2;
+    margin-bottom: min(0.9rem, 2.4vh);
+  }
+
+  .stage .sheet.moderation:not(.cascade) > .moderation-deck {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    min-height: min(21rem, calc(100dvh - 2rem));
+    margin-bottom: 0;
+    align-self: center;
+  }
+
+  /* Le formulaire de correction ou de cas spécial allonge la carte : elle se
+     resserre pour qu'il tienne dans le cadre avec elle. */
+  .stage .moderation .word-card {
+    gap: 0.35rem;
+    padding-bottom: 0.8rem;
+  }
+
+  .stage .moderation .word-card-word {
+    font-size: min(3rem, 9vh);
+  }
+
+  .stage .moderation .word-card-category {
+    padding-block: 0.4rem;
+  }
+
+  .stage .moderation .word-card:has(.moderation-form) .word-card-question {
+    display: none;
+  }
+
+  .stage .moderation .word-card-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
 /* Sur un téléphone, le portail ne rétrécit pas son iframe sous le clavier : il
    se pose par-dessus le jeu, et `max-height: 640px` — qui resserre la partie
    au-dessus des touches dans l'app Android — ne s'allume jamais. Tant qu'un
