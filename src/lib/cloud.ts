@@ -1315,7 +1315,8 @@ export async function logOut(): Promise<void> {
  * account linked to it (`crazygames-auth`, 0073), and no token — a guest, or a
  * player who signed out of the portal, which reloads the page — drops the
  * session left on the device, so a guest never plays under someone else's
- * name. True when the session changed.
+ * name. True once a session is opened or dropped: the account is read again,
+ * its name following the portal's (0074).
  */
 export async function followHostAccount(token: string | null): Promise<boolean> {
   if (!supabase) return false
@@ -1339,7 +1340,7 @@ export async function followHostAccount(token: string | null): Promise<boolean> 
     const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'magiclink' })
     if (error || !data.session) return false
     forgetSession()
-    return held?.user.id !== data.session.user.id
+    return true
   } catch {
     return false
   }

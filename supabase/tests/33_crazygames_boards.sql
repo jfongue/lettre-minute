@@ -57,12 +57,17 @@ select tests.is(public.crazygames_link('portal-2', tests.uid('cgp2'), 'CGA'), te
 select tests.is(public.crazygames_link('portal-3', tests.uid('cgp3'), 'cga'), tests.uid('cgp3'), 'a third one too');
 select tests.logout();
 
-select tests.is(tests.name_of('cgp1'), 'Singing.Cheese', 'the portal name becomes the account''s');
+select tests.is(tests.name_of('cgp1'), 'Singing', 'the portal name, without its extension, becomes the account''s');
 select tests.is(tests.name_of('cgp2'), 'CGA_2', 'a taken name takes the first free number');
 select tests.is(tests.name_of('cgp3'), 'cga_3', 'and the next one the number after');
 
--- Un nom déjà choisi n'est plus remplacé.
+-- Le même pseudo ne renomme rien ; un pseudo changé sur le portail renomme.
+update public.profiles set display_name = 'Elsewhere' where id = tests.uid('cgp2');
 select tests.login_service();
-select public.crazygames_link('portal-2', tests.uid('cgp2'), 'Other');
+select public.crazygames_link('portal-2', tests.uid('cgp2'), 'CGA');
 select tests.logout();
-select tests.is(tests.name_of('cgp2'), 'CGA_2', 'a later sign-in keeps the name');
+select tests.is(tests.name_of('cgp2'), 'Elsewhere', 'the same portal name renames nothing');
+select tests.login_service();
+select public.crazygames_link('portal-2', tests.uid('cgp2'), 'Crazytonno.ab12');
+select tests.logout();
+select tests.is(tests.name_of('cgp2'), 'Crazytonno', 'a portal name changed on the portal renames the account');
