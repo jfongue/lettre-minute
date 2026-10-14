@@ -76,6 +76,11 @@ function isPane(page: MenuPage): page is MenuPane {
 // be a full URL: without one, the link is not shown at all.
 const PRIVACY_URL = import.meta.env.VITE_PRIVACY_URL
 
+/** The policy in the interface's language: each one sits beside the French page, `confidentialite.en.html`. */
+function privacyUrl(locale: Locale): string {
+  return locale === 'fr' ? PRIVACY_URL : PRIVACY_URL.replace(/\.html$/, `.${locale}.html`)
+}
+
 interface MenuProps {
   /** Where the drawer opens: a tab, or one of the profile's pages. */
   page: MenuPage
@@ -771,7 +776,7 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onErase
 
       <div className="menu-foot">
         {PRIVACY_URL ? (
-          <a className="btn btn--quiet menu-start" href={PRIVACY_URL} target="_blank" rel="noopener noreferrer">
+          <a className="btn btn--quiet menu-start" href={privacyUrl(locale)} target="_blank" rel="noopener noreferrer">
             {t.options.privacy}
           </a>
         ) : null}

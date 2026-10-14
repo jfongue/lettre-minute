@@ -36,7 +36,10 @@ What QA will see:
   a **Play** button; the very first Play opens a one-word lesson, then the run.
 - English by default; the SDK's locale picks French, Spanish, German, Italian,
   Dutch or Portuguese when it is one of them. Light theme by default.
-- No external links of any kind, no store or app mentions, no account.
+- No store or app mentions, no account of the game's own: a guest plays
+  everything, and « Sign in » (leaderboards page, profile) opens the portal's
+  own login (`showAuthPrompt`). The only external link is the privacy policy,
+  in the options.
 
 ## Step 3 — Details
 
@@ -76,9 +79,10 @@ Brain, Vocabulary, Educational, Casual, Time Management, 1 Player, Mobile
 | Age rating | PEGI 12 compliant (no violence, no chat, no user-generated content shown to others) |
 | In-game purchases | None |
 | Ads | Midgame only, through the SDK (inactive in Basic Launch); no rewarded ads |
-| Uses accounts / username | No |
-| Leaderboards | One weekly POINTS board through the SDK (`user.submitScore`, score encrypted client-side, ranked by CrazyGames' back-end) — the portal opens leaderboards to invited games only |
+| Uses accounts / username | CrazyGames accounts only, optional (User module: `getUserToken`, verified server-side against the portal's public key); a signed-in player appears on the leaderboards under their CrazyGames username |
+| Leaderboards | The game's own boards (day / week / all time), shared with its other players: a guest reads them with their own best shown as « Me », counted on the device and never sent; a signed-in CrazyGames player is ranked. Plus one weekly POINTS board through the SDK (`user.submitScore`), once the portal opens leaderboards to the game |
 | Release date / previously published | Not yet released as a web game on another portal |
+| Privacy policy | https://jfongue.github.io/lettre-minute/confidentialite.en.html (CrazyGames ID and username kept for a signed-in player only) |
 | Developer / contact | Demontoon — fongue.jeremy@gmail.com |
 
 ## Assets
