@@ -19,6 +19,7 @@ import {
 } from '../domain/weekly'
 import type { Messages } from '../i18n'
 import { weeklyFinish, fetchWeeklyLastPlayed, fetchWeeklyRecap } from '../lib/cloud'
+import { trackFeature } from '../lib/track'
 import { cloudConfigured } from '../lib/supabase'
 import { host, rewardedAdsOpen } from '../platform'
 import type { Judge } from '../domain/run'
@@ -198,6 +199,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
     setBusy('ad')
     setMessage(null)
     const result = await host.showRewarded()
+    trackFeature('ad', { source: 'attempt', result })
     if (result === 'rewarded') {
       recordLocalAd(windowAt(Date.now()))
       setRefresh((count) => count + 1)
