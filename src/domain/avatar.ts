@@ -355,6 +355,15 @@ export const TINTED: Partial<Record<ShapeKind, DetailKind>> = {
   links: 'linksLoop',
 }
 
+/**
+ * Une figure dont l'accent peint quelque chose : un motif en coin, ou la part
+ * de la figure que `TINTED` lui confie. Les autres n'offrent pas la troisième
+ * couche, qui n'y changerait rien.
+ */
+export function paintsAccent(design: AvatarDesign): boolean {
+  return design.accent !== null || TINTED[design.shape] !== undefined
+}
+
 export const AVATARS: readonly AvatarDesign[] = LOOKS.map(([shape, turn, accent, motion], id) => ({
   id,
   shape,
