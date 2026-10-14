@@ -9,7 +9,7 @@ import { Avatar } from '../ui/Avatar'
 import { PlayerActionsContext, SpyHistory } from '../ui/PlayerSheet'
 import { Card, Kpi, Legend, Section, Stat, Table } from './board'
 import { ago, decimal, fmt, pct } from './format'
-import type { ByPlatform, DayRow, HourRow, Invites, PlatformName, Revenue, RevenueDay, SlotEntry, Snapshot } from './snapshot'
+import type { ByPlatform, DayRow, HourRow, Invites, ModerationByLang, PlatformName, Revenue, RevenueDay, SlotEntry, Snapshot } from './snapshot'
 
 /*
  * Le tableau de bord de l'administrateur : cinq tapes sur « Classements »
@@ -486,6 +486,8 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
         </div>
       </Section>
 
+      {d.moderation_by_lang && <ModerationSection data={d.moderation_by_lang} />}
+
       <Section title="Communauté et appareils" mark="var(--blue)" round>
         <div className="dashboard-stats">
           <Stat value={fmt(d.challenges.created)} label={`défis créés · ${decimal(d.challenges.avg_players)} joueurs moy.`} />
@@ -680,6 +682,76 @@ function RevenueSection({ revenue: r }: { revenue: Revenue }) {
           />
         </Card>
       </div>
+    </Section>
+  )
+}
+
+/** Une case qui dit la période, puis ce qui s'est cumulé depuis toujours. */
+function Since({ value, total }: { value: number; total: number }) {
+  return (
+    <>
+      {fmt(value)}
+      {total > value && <small className="dashboard-total"> / {fmt(total)}</small>}
+    </>
+  )
+}
+
+function ModerationSection({ data }: { data: ModerationByLang }) {
+  const all = (key: Exclude<keyof ModerationByLang['langs'][number], 'lang' | 'thin'>) =>
+    data.langs.reduce((total, one) => total + one[key], 0)
+  const per = `sur ${data.days} jours`
+  return (
+    <Section title="Modération par langue" mark="var(--green)">
+      <div className="dashboard-stats">
+        <Stat value={fmt(all('moderators'))} label={`modérateurs · ${fmt(all('active'))} ont voté ${per}`} />
+        <Stat value={fmt(all('reserve_left'))} label={`mots en réserve · ${fmt(all('reserve_released'))} versés ${per}`} />
+        <Stat value={fmt(all('pending_add') + all('pending_ban'))} label={`à juger · ${fmt(all('pending_ban'))} retraits`} />
+        <Stat value={fmt(all('sessions'))} label={`sessions menées au bout · ${per}`} />
+        <Stat value={fmt(all('added'))} label={`mots ajoutés · ${fmt(all('added_reserve'))} de la réserve`} />
+        <Stat value={fmt(all('removed'))} label={`mots retirés · ${fmt(all('rejected'))} refusés`} />
+      </div>
+      <Table head={['Langue', 'Modérateurs', 'Réserve', 'À juger', 'Sessions', 'Votes', 'Ajoutés', 'Retirés', 'Refusés']}>
+        {data.langs.map((one) => (
+          <tr key={one.lang}>
+            <td>
+              {one.lang.toUpperCase()}
+              {one.thin && <span className="dashboard-tag">2 « correct »</span>}
+            </td>
+            <td className="n">
+              {fmt(one.moderators)}
+              <small className="dashboard-total">
+                {' '}
+                · {fmt(one.active)} actif{one.active > 1 ? 's' : ''}
+                {one.supers > 0 && `, ${fmt(one.supers)} super`}
+              </small>
+            </td>
+            <td className="n">
+              {fmt(one.reserve_left)}
+              {one.reserve_released > 0 && <small className="dashboard-total"> · {fmt(one.reserve_released)} versés</small>}
+            </td>
+            <td className="n">
+              {fmt(one.pending_add)}
+              {one.pending_ban > 0 && <small className="dashboard-total"> + {fmt(one.pending_ban)} retraits</small>}
+            </td>
+            <td className="n">
+              <Since value={one.sessions} total={one.sessions_total} />
+            </td>
+            <td className="n">{fmt(one.votes)}</td>
+            <td className="n">
+              <Since value={one.added} total={one.added_total} />
+              {one.added_reserve > 0 && <small className="dashboard-total"> · {fmt(one.added_reserve)} réserve</small>}
+            </td>
+            <td className="n">
+              <Since value={one.removed} total={one.removed_total} />
+            </td>
+            <td className="n">{fmt(one.rejected)}</td>
+          </tr>
+        ))}
+      </Table>
+      <p className="note">
+        Chiffres {per}, puis « / » ce qui s’est cumulé depuis toujours. La réserve et ce qui attend se comptent à l’instant. La langue d’un
+        modérateur est la file qu’il a ouverte en dernier ; une langue sous dix juges fait entrer un mot sur deux « correct ».
+      </p>
     </Section>
   )
 }

@@ -597,6 +597,15 @@ function dashboardSnapshot(): Snapshot {
         { name: 'Anonyme 3f2a', anonymous: true, mails: 0, shares: 4, joins: 0, played: 0 },
       ],
     },
+    moderation_by_lang: {
+      days: 30,
+      langs: [
+        { lang: 'fr', moderators: 14, supers: 1, active: 9, thin: false, reserve_left: 62, reserve_released: 38, pending_add: 7, pending_ban: 2, sessions: 41, sessions_total: 230, votes: 512, added: 33, added_reserve: 12, added_total: 410, removed: 4, removed_total: 19, rejected: 11 },
+        { lang: 'en', moderators: 3, supers: 0, active: 2, thin: true, reserve_left: 88, reserve_released: 12, pending_add: 4, pending_ban: 0, sessions: 6, sessions_total: 9, votes: 40, added: 8, added_reserve: 6, added_total: 8, removed: 0, removed_total: 0, rejected: 2 },
+        { lang: 'de', moderators: 1, supers: 0, active: 0, thin: true, reserve_left: 100, reserve_released: 0, pending_add: 5, pending_ban: 0, sessions: 0, sessions_total: 1, votes: 0, added: 0, added_reserve: 0, added_total: 2, removed: 0, removed_total: 0, rejected: 0 },
+        { lang: 'pt', moderators: 0, supers: 0, active: 0, thin: true, reserve_left: 100, reserve_released: 0, pending_add: 0, pending_ban: 0, sessions: 0, sessions_total: 0, votes: 0, added: 0, added_reserve: 0, added_total: 0, removed: 0, removed_total: 0, rejected: 0 },
+      ],
+    },
     revenue: {
       premium: {
         offers: 318, offer_devices: 96, activations: 27, subscribers: 41, refused: 3,

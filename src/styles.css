@@ -8649,6 +8649,13 @@ button.challenge-word[aria-expanded='true'] {
   min-width: 0;
 }
 
+/* Ce qui suit un chiffre dans une case : le cumul, le détail. */
+.dashboard-total {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
 /* Un nom qui ouvre l'historique du joueur, pour un super modérateur. */
 .dashboard-who {
   appearance: none;

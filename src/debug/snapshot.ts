@@ -94,6 +94,8 @@ export interface Snapshot {
   by_platform?: ByPlatform
   /** Absent d'un serveur antérieur à 0077. */
   revenue?: Revenue
+  /** Absent d'un serveur antérieur à 0080. */
+  moderation_by_lang?: ModerationByLang
 }
 
 /** Une version du jeu, comme les lignes la portent (0072, 0075), ou « inconnu » quand rien ne la dit. */
@@ -177,6 +179,40 @@ export interface Revenue {
     results: { result: string; n: number }[]
   }
   daily: RevenueDay[]
+}
+
+/**
+ * La modération langue par langue (`analytics_moderation`, 0080). « Sur la
+ * période » se lit sur les `days` derniers jours ; `_total`, la réserve qui
+ * reste et ce qui attend, depuis toujours.
+ */
+export interface ModerationByLang {
+  days: number
+  langs: ModerationLang[]
+}
+
+export interface ModerationLang {
+  lang: string
+  moderators: number
+  supers: number
+  /** Ont voté sur la période. */
+  active: number
+  /** Sous dix juges : deux « correct » font entrer un mot (0078). */
+  thin: boolean
+  reserve_left: number
+  reserve_released: number
+  pending_add: number
+  pending_ban: number
+  sessions: number
+  sessions_total: number
+  votes: number
+  added: number
+  /** Parmi `added`, ceux que la réserve avait versés. */
+  added_reserve: number
+  added_total: number
+  removed: number
+  removed_total: number
+  rejected: number
 }
 
 /** Qui une barre compte (`admin_slot`, 0036) : un joueur, ou un appareil sans compte. */
