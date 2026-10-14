@@ -23,6 +23,11 @@ export interface WeeklyViewProps {
   adsOpen: boolean
   /** L'achat Premium existe sur cet appareil (Android seul). */
   premiumOpen: boolean
+  /**
+   * Un serveur classe les tentatives. Sans lui (CrazyGames), l'écran ne montre
+   * ni rang, ni classement, ni la note « hors ligne », qui serait de toujours.
+   */
+  ranked: boolean
   busy?: 'ad' | 'launch' | null
   message?: string | null
   onLaunch(): void
@@ -51,6 +56,7 @@ export function WeeklyView({
   plus,
   adsOpen,
   premiumOpen,
+  ranked,
   busy = null,
   message = null,
   onLaunch,
@@ -69,7 +75,9 @@ export function WeeklyView({
 
   const used = status?.used ?? 0
   const ads = status?.ads ?? 0
-  const slots = attemptState(used, plus, ads)
+  // Un billet que cette version ne peut pas ouvrir — pas de pub, pas de
+  // boutique — ne se montre pas : il promettrait ce qui n'existe pas ici.
+  const slots = attemptState(used, plus, ads).filter((slot) => (slot !== 'ad' || adsOpen) && (slot !== 'locked' || premiumOpen))
   const total = attemptsAllowed({ plus, adsWatched: ads })
   const left = Math.max(0, total - used)
   const next = slots.findIndex((slot) => slot === 'free' || slot === 'plus')
@@ -110,9 +118,11 @@ export function WeeklyView({
         <WeeklyStat label={t.weekly.screen.best}>
           {status === null ? '…' : status.best === null ? <span className="wk-none">{t.weekly.screen.noBest}</span> : valueText(t, status.best, metric)}
         </WeeklyStat>
-        <WeeklyStat label={t.weekly.screen.rank}>
-          {status === null ? '…' : status.rank === null ? <span className="wk-none">—</span> : t.weekly.screen.rankOf(status.rank, Math.max(status.players, status.rank))}
-        </WeeklyStat>
+        {ranked && (
+          <WeeklyStat label={t.weekly.screen.rank}>
+            {status === null ? '…' : status.rank === null ? <span className="wk-none">—</span> : t.weekly.screen.rankOf(status.rank, Math.max(status.players, status.rank))}
+          </WeeklyStat>
+        )}
       </div>
 
       {status === null ? (
@@ -162,7 +172,7 @@ export function WeeklyView({
               {t.weekly.screen.goPremium}
             </button>
           )}
-          {!status.online && <p className="note">{t.weekly.screen.offline}</p>}
+          {ranked && !status.online && <p className="note">{t.weekly.screen.offline}</p>}
           {message && (
             <p className="note note--warn" role="alert">
               {message}
@@ -172,9 +182,11 @@ export function WeeklyView({
       )}
 
       <div className="wk-links">
-        <button type="button" className="btn btn--ghost btn--block" onClick={onResults}>
-          {t.weekly.screen.results}
-        </button>
+        {ranked && (
+          <button type="button" className="btn btn--ghost btn--block" onClick={onResults}>
+            {t.weekly.screen.results}
+          </button>
+        )}
         <button type="button" className="btn btn--quiet btn--block" onClick={onTutorial}>
           {t.weekly.screen.tutorial}
         </button>
@@ -208,6 +220,7 @@ export function WeeklyScreen({
   plus,
   adsOpen,
   premiumOpen,
+  ranked,
   busy,
   message,
   refresh,
@@ -242,6 +255,7 @@ export function WeeklyScreen({
       plus={plus}
       adsOpen={adsOpen}
       premiumOpen={premiumOpen}
+      ranked={ranked}
       busy={busy}
       message={message}
       onLaunch={onLaunch}

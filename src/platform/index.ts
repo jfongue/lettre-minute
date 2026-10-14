@@ -1,4 +1,4 @@
-import { isNativeApp } from '../lib/native'
+import { isNativeApp, rewardedAdsConfigured } from '../lib/native'
 import { appHost } from './app'
 import { crazyGamesHost } from './crazygames'
 import type { Host, Platform } from './host'
@@ -19,10 +19,14 @@ export const PLATFORM: Platform =
 
 export const host: Host = BUILD === 'crazygames' ? crazyGamesHost : BUILD === 'reddit' ? redditHost : appHost
 
-/** What the feature table opened, minus what this host cannot carry. */
-export function hostFeatures(features: ReadonlySet<string>): ReadonlySet<string> {
-  if (host.closedFeatures.size === 0) return features
-  return new Set([...features].filter((id) => !host.closedFeatures.has(id)))
+/**
+ * What the feature table opened, plus what this host opens itself, minus what
+ * it cannot carry — save, for a super moderator, the tools it keeps for them.
+ */
+export function hostFeatures(features: ReadonlySet<string>, superModerator = false): ReadonlySet<string> {
+  if (host.closedFeatures.size === 0 && host.openedFeatures.size === 0) return features
+  const kept = superModerator ? host.superModeratorFeatures : new Set<string>()
+  return new Set([...features, ...host.openedFeatures].filter((id) => !host.closedFeatures.has(id) || kept.has(id)))
 }
 
 /**
@@ -34,5 +38,10 @@ export function hostFeatures(features: ReadonlySet<string>): ReadonlySet<string>
 export const premiumStoreOpen =
   host.premiumStore && (PLATFORM === 'android' || (PLATFORM === 'web' && import.meta.env.VITE_PREMIUM_WEB === 'true'))
 
-/** Rewarded ads (AdMob): Android shell only. */
-export const rewardedAdsOpen = host.rewardedAds && PLATFORM === 'android'
+/**
+* Rewarded ads: AdMob in the Android shell, the portal's SDK on CrazyGames once
+* its build allows them; never the web page. The phone also needs a real AdMob
+* unit: without one a release build shows no ad, so nothing is offered.
+*/
+export const rewardedAdsOpen =
+  host.rewardedAds && ((PLATFORM === 'android' && rewardedAdsConfigured()) || PLATFORM === 'crazygames')

@@ -12,6 +12,7 @@ import {
 } from '../lib/cloud'
 import { Avatar } from './Avatar'
 import { useBackDismiss } from './useBackDismiss'
+import { useFeature } from './features'
 
 /** What that name already is to this player, and its id when a challenge needs one. */
 export interface PlayerRelation {
@@ -51,6 +52,9 @@ interface PlayerNameProps {
 export function PlayerName({ name, avatar, className, children }: PlayerNameProps) {
   const t = useT()
   const [open, setOpen] = useState(false)
+  const friends = useFeature('friends')
+  // Without friends (CrazyGames) the sheet would offer only what cannot be done.
+  if (!friends) return <>{children}</>
   return (
     <>
       <button

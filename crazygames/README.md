@@ -38,42 +38,67 @@ le 2026-10-08.
   le SDK ne peut que finir `disabled` —, annonce
   `loadingStart`, recopie la progression sauvegardée, rend l'app, puis
   `loadingStop`. Pas de suivi d'usage (`track.ts`), pas de coquille native.
-- **Hors ligne, sans Supabase** : `vite.config.ts` vide toutes les variables
-  externes (`VITE_SUPABASE_*`, AdMob, Google, push, confidentialité) quel que
-  soit `.env.local`. Choix le plus sûr pour la soumission : aucun compte, aucun
-  formulaire, aucune donnée personnelle envoyée hors du SDK (donc pas de
-  politique de confidentialité à afficher), aucun appel réseau qui pourrait
-  échouer ou ralentir le jeu dans l'iframe. `cloud.ts` répond déjà par ses
-  replis. Le prix : pas de classements entre joueurs, de rareté de la foule ni de mots
-  proposés — qui demanderaient d'ailleurs, pour une Full Launch, de lier nos
-  comptes à ceux de CrazyGames (module User + vérification du JWT côté serveur).
-- **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit `SERVER_FEATURES` et `APP_ONLY_FEATURES` de `src/platform/host.ts`) : défis, duel, amis,
+- **Le serveur pour les classements seuls** : `vite.config.ts` vide les
+  variables externes (AdMob, Google, push, groupe de testeurs) quel que soit
+  `.env.local`, mais garde `VITE_SUPABASE_*` et la page de confidentialité.
+  Un invité n'a jamais de compte, même anonyme (`host.anonymousAccounts`,
+  `connect()` dans `src/lib/supabase.ts`) : rien de lui ne s'écrit, `guard`
+  répond par ses replis, et seuls les classements se lisent sous le rôle
+  `anon` (`openGuard`, migration 0073). `cloudConfigured()` reste faux ici :
+  le défi du moment et le reste de ce que garde le jeu restent sur l'appareil.
+- **Comptes CrazyGames** (`host.account`, module User) : un joueur connecté au
+  portail donne son jeton (`getUserToken`, RS256), que la fonction Edge
+  `crazygames-auth` vérifie contre la clé publiée (PKCS#1) ; elle crée ou
+  retrouve le compte du jeu lié à son identifiant (`crazygames_accounts`,
+  `crazygames_link`, 0073), lui donne son nom du portail sans
+  l'extension qui suit le point (« FieryGoat.qrfj » → « FieryGoat »), suffixé
+  d'un numéro s'il est pris, et le renomme quand le pseudo change sur le portail
+  (`portal_name`, 0074) et rend un lien magique que le client échange contre une
+  session (`followHostAccount`, `src/lib/cloud.ts`). Ses parties partent alors
+  comme sur Android (`pushRun`, étiquette `platform=crazygames`) et il figure
+  aux classements communs sous ce nom. Une déconnexion du portail recharge la
+  page : sans jeton, la session restée sur l'appareil est oubliée. Les jetons
+  du mode local du SDK (`gameId` « yourGameId ») sont signés par la vraie clé
+  et rejouables par n'importe qui : la fonction les refuse, sauf secret
+  `CRAZYGAMES_ALLOW_MOCK=true` posé le temps d'un test. Déploiement :
+  `supabase functions deploy crazygames-auth --no-verify-jwt --use-api`. Ces
+  données personnelles hors SDK expliquent le lien « Confidentialité » du menu
+  (paragraphe CrazyGames dans les sept `public/confidentialite*.html`).
+- **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit `SERVER_FEATURES` et `APP_ONLY_FEATURES` de `src/platform/host.ts`, moins les classements) : défis, duel, amis,
   invitations, face-à-face, réactions, Premium (faux paiement),
   modes de jeu, propositions de mots et modération, boîte à idées, question
   d'avis, demande de note, notifications, mise à jour du store, Play Games,
-  pubs AdMob, outils de développeur. Le bouton « Partager — bientôt » (bouton mort, fonctionnalité `share`)
-  et la note « Hors ligne » du menu (`keepsProgress`) disparaissent aussi. Restent : la
-  partie, les classements (en local), le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
+  pubs AdMob, outils de développeur. Le défi du moment est le seul défi du
+  portail. Le bouton « Partager — bientôt » (bouton mort, fonctionnalité `share`),
+  l'adresse et « Se déconnecter » d'un compte du portail, et la note « Hors ligne » du menu (`keepsProgress`) disparaissent aussi. Restent : la
+  partie, les classements, le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
   cachés du bilan, l'avatar, les succès, les statistiques, les options.
-- **Classements en local** (`host.localBoards`, `src/domain/localBoards.ts`,
-  `src/ui/localBoards.ts`) : ni serveur, ni compte, donc rien qui change le type
-  de soumission. L'accueil et la page des classements rangent les meilleures
-  parties *du joueur* sur cet appareil (jour, semaine depuis le lundi, total),
-  lues dans l'historique que le module Data sauvegarde déjà, et seulement sur les
-  mesures qu'une partie porte (meilleure partie, série, mots trouvés) : pas de
-  découvertes, de mots ajoutés, de modération ni de défi du moment. Aucun autre
-  joueur ni joueur maison, donc aucune fiche de joueur qui appellerait le
-  serveur. Une vraie comparaison entre joueurs demande les comptes CrazyGames
-  (Full Launch, module User).
-- **Ce qui attend un compte** : le serveur commun (Supabase, étiquette
-  `platform=crazygames` sur chaque donnée, migration 0072) pourrait servir
-  CrazyGames, mais défis, amis, duel, matchmaking et classements entre joueurs
-  exigent un compte *nommé* (`is_named_account`, e-mail ou Google). La doc du
-  portail interdit toute connexion externe (Account integration : « Disable any
-  external login options », invité par défaut, « Login with CrazyGames » seul en
-  Full Launch). Le pont est le module User : `getUserToken()`, jeton vérifié par
-  une fonction Edge qui ouvre une session nommée du nom CrazyGames. Tant qu'il
-  n'existe pas, ces fonctionnalités restent fermées ici.
+- **Super modérateur** (`crazyGamesHost.superModeratorFeatures`) : un compte
+  du portail que le serveur a fait super modérateur (`moderators.super`, à la
+  main, comme Crazytonno, le compte de Jérémy) retrouve ce que l'hôte ferme aux
+  joueurs et qu'il peut porter : planche debug, tableau de bord, tableau des
+  mots, idées reçues, modes de jeu, modération et mots proposés
+  (`SUPER_MODERATOR_FEATURES`). Jamais un achat ni un lien hors de la page.
+- **Fonctionnalités ouvertes** (`crazyGamesHost.openedFeatures`), quoi que
+  disent les valeurs du code : le **défi du moment** (`weekly`), que l'app
+  ouvre à tout le monde et qui tient sans serveur (tentatives comptées sur
+  l'appareil, record de la semaine gardé localement, une seule par jour faute
+  de pub récompensée et de boutique ; ni rang ni classement), et le **choix
+  des pouvoirs avant la partie** (`powerLoadout`, `src/ui/PowerLoadout.tsx`) :
+  pour qui a des pouvoirs, « Play » et « Play again » passent par un écran
+  qui les montre tous, une touche en prend ou en repose un (`wearOrDrop`),
+  Entrée joue ; l'accueil perd alors ses emplacements. Tentatives et record
+  passent par le module Data comme le reste (`SAVED_KEYS`).
+- **Classements de l'invité** (`host.guestBoards`, `src/ui/guestBoards.ts`,
+  `guestValue` / `placeGuest` dans `src/domain/localBoards.ts`) : l'accueil et
+  la page des classements montrent les tableaux du serveur, avec la ligne
+  « Moi » de l'invité, comptée sur l'appareil comme le serveur compte un
+  joueur (périodes à l'heure de Paris, `parisPeriodStart`) ; au-delà des
+  cinquante lignes, `leaderboard_rank` donne sa place. Rien n'est envoyé :
+  pour figurer au classement de tous, « Se connecter » ouvre la connexion du
+  portail (`showAuthPrompt`). Serveur injoignable : ses seules parties
+  (`src/ui/localBoards.ts`). Une fiche de joueur sans la fonctionnalité
+  `friends` n'est qu'un nom (`PlayerName`).
 - **Langue** : celle du SDK (`user.systemInfo.locale`), puis celle du
   navigateur, sinon l'anglais — jamais le sélecteur de langue au premier
   lancement. Le joueur peut en changer dans les options. Le titre affiché
@@ -85,15 +110,33 @@ le 2026-10-08.
   à rebours, pendant la partie et pendant la leçon du premier lancement ;
   `gameplayStop` dès qu'on en sort. `happytime` quand une partie bat un record
   qui existait déjà.
+- **Classement du portail** : à la fin de chaque partie, `user.submitScore`
+  envoie les points, en clair et chiffrés (AES-GCM, IV de 12 octets devant,
+  base64 ; `encryptScore`, `src/platform/crazygames.ts`), avec la clé que les
+  réglages du classement génèrent (`VITE_CRAZYGAMES_LEADERBOARD_KEY`). Sans
+  cette clé, ou pour un joueur que le portail ne classe pas, rien ne part, et un
+  refus ne coûte qu'un rang. Le portail tient un seul tableau par jeu, une
+  saison lundi → lundi 9 h UTC, et valide les scores de son côté. La
+  fonctionnalité est réservée aux jeux invités : à demander sur le portail
+  développeur. Les tableaux du jeu (jour, semaine, rareté) restent fermés ici.
 - **Pub midgame** : demandée à « Rejouer » / « Jouer » s'il s'est terminé une
   partie depuis la précédente (`breakBetweenRuns`) ; le SDK refuse lui-même
   une pub à moins de 3 min de la dernière. La partie suivante attend la fin de
   la pub, ou son erreur (y compris bloqueur de pub), au plus 60 s. Le son est
   coupé seulement pendant que la pub joue (`adStarted` → `adFinished`/`adError`).
   En Basic Launch, le portail n'affiche aucune pub : l'appel ne coûte rien.
-- **Pas de pub rewarded** : aucun pouvoir ne s'y prête sans une règle de domaine
-  nouvelle (charge en plus, reroll payé…), et une Basic Launch interdit un
-  bouton rewarded qui ne ferait rien. À reconsidérer pour une Full Launch.
+- **Un pouvoir ou une catégorie à chaque niveau** (`crazyGamesHost.levelBonuses`
+  à false) : les niveaux qui paient un bonus ailleurs (`bonusLevels`) paient
+  ici une catégorie, et le second emplacement de pouvoir, qui ne se gagne
+  qu'en bonus, ne s'affiche pas. Les bonus déjà pris restent.
+- **Pub récompensée** (`showRewarded`, `src/platform/crazygames.ts`) : celle du
+  SDK, qui paie deux révélations de plus au bilan et la seconde tentative du
+  défi du moment, comme AdMob sur Android — la récompense sur `adFinished`
+  seulement, rien sur `adError` (bloqueur compris), le son coupé le temps de la
+  pub. Une Basic Launch n'autorise aucune pub : elle reste éteinte tant que le
+  build n'est pas fait avec `VITE_CRAZYGAMES_REWARDED=true`, et d'ici là les
+  révélations du bilan sont illimitées (`unlimitedReveals`), aucune pub ni
+  Premium ne pouvant en payer davantage.
 - **Son** : `game.settings.muteAudio` et son écouteur coupent tout le jeu
   (`setAway('platform')` dans `src/lib/sound.ts`, qui suspend le contexte
   audio) ; le bouton muet du jeu ne peut pas le rallumer.
@@ -108,7 +151,14 @@ le 2026-10-08.
   recopie et le jeu garde `localStorage` seul.
 - **CSS** (`src/crazygames.css`) : `user-select: none` et pas de menu au long
   appui sur `body` (le champ de réponse reste sélectionnable), pas de
-  défilement qui se propage à la page du portail.
+  défilement qui se propage à la page du portail. Dans le cadre paysage, deux
+  colonnes seulement quand une seule ne tient pas : l'accueil d'un nouveau
+  venu (`sheet--home-alone`) et un bilan sans rien en plus (`over-pane--more`
+  vide) restent sur une colonne centrée ; le bilan chargé met la partie et
+  « Rejouer » à gauche, succès et classement à droite ; le tutoriel du défi du
+  moment et les offres de niveau rangent titre et bouton à gauche, règles ou
+  cartes à droite. Tout autre écran posé sur l'accueil ou la fin de partie
+  défile pour lui-même au lieu de cacher son bouton sous le bord du cadre.
 
 ## Exigences CrazyGames (relevées le 7 octobre 2026)
 

@@ -99,13 +99,21 @@ par une copie de l'écran ; et chaque build touché se vérifie.
   langues de l'hôte et langue de repli, progression gardée par l'hôte,
   événements de partie, pause entre deux parties (pub), son coupé par l'hôte.
   Un écran ne teste jamais la version : il lit `useFeature`, ou `host`. Le
-  domaine n'en sait rien.
+  domaine n'en sait rien. Un super modérateur garde sur un hôte ce que
+  `host.superModeratorFeatures` y laisse (outils de développeur, modération) :
+  `hostFeatures` reçoit le rôle.
 - **Règles qui diffèrent** — Reddit : graine du jour (`dailySeed`), même
   partie pour tous les lecteurs, pas de pouvoirs, `Judge` sans compteurs
-  d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : hors ligne,
-  sans compte ni serveur (toutes les variables externes vidées au build), SDK
+  d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : le serveur
+  pour les classements seuls — un invité n'a aucun compte, pas même anonyme
+  (`host.anonymousAccounts`), et les lit sous le rôle `anon` avec sa ligne
+  « Moi » comptée sur l'appareil ; un joueur connecté au portail joue sous le
+  compte que `crazygames-auth` lie à son identifiant CrazyGames (0073) —, aucune
+  autre fonctionnalité serveur, les autres variables externes
+  vidées au build, SDK
   du portail (événements, pub midgame, muet, sauvegarde par son module Data,
-  langue), thème clair par défaut, accueil en deux colonnes dans un cadre
+  classement hebdo, langue), thème clair par défaut, accueil en deux colonnes
+  dans un cadre
   paysage bas (926×476 sur un portable), Tab passe comme partout. Android :
   tout, plus la coquille native.
 - **À se demander avant de livrer un changement** : demande-t-il un compte ou
@@ -324,15 +332,21 @@ ce n'est pas une raison de renoncer au protocole DevTools.
 - **Se connecter doit attendre l'envoi de la partie** (`pushing` dans
   `src/App.tsx`) : la fusion déplace les parties du compte anonyme puis
   l'efface, et une partie encore en vol partirait avec lui.
-- **La pub est éteinte pour l’instant** (`ADS_ENABLED`, `src/domain/unlocks.ts`).
-  Le reste de ce point vaut quand on la rallume.
+- **Les interstitiels sont éteints, les pubs récompensées vivent** : `ADS_ENABLED`
+(`src/domain/unlocks.ts`) ne coupe que l'interstitiel d'une offre de catégorie ;
+la récompense du bilan et la tentative de plus au défi du moment passent par
+`rewardedAdsOpen` (`src/platform/index.ts`), que la fonctionnalité `ads` ne
+ferme pas.
 - **La pub se prépare avant l’offre qui la porte** (`adsDue`,
-  `src/domain/unlocks.ts`) : consentement et chargement prennent des secondes,
-  et une pub pas encore chargée au moment du choix est sautée plutôt que
-  montrée en retard. Le choix est encaissé avant la pub : fermer l’app pendant
-  qu’elle joue ne coûte pas la catégorie. Sans `VITE_ADMOB_INTERSTITIAL_ID` ni
-  `admobAppId` (`android/gradle.properties`), le build sert les pubs de test de
-  Google — ne jamais cliquer sur les vraies depuis son propre téléphone.
+`src/domain/unlocks.ts`) : consentement et chargement prennent des secondes,
+et une pub pas encore chargée au moment du choix est sautée plutôt que
+montrée en retard. Le choix est encaissé avant la pub : fermer l’app pendant
+qu’elle joue ne coûte pas la catégorie. Les blocs de test de Google ne servent
+qu'en développement (`TESTING_UNITS`, `src/lib/native.ts`) : un build de
+release sans `VITE_ADMOB_REWARDED_ID` ne montre aucune pub plutôt que d'en
+servir une de test à un joueur. `admobAppId`
+(`android/gradle.properties`) reste obligatoire, sinon le SDK plante au
+lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphone.
 - **Demontoon est ajouté côté client** (`completeBoards`, `src/domain/boards.ts`,
   et `completeLeaderboard` pour la page des classements, qui recompte les
   rangs), pas en base : il ne figure qu'aux classements de meilleure partie du
@@ -548,12 +562,12 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   `src/ui/FriendsView.tsx`). Le lien mène à `invite.html` (`src/invite.ts`,
   entrée Vite à part), dont les balises Open Graph et `invite-card.png`
   font l'aperçu dans WhatsApp ou Discord : ils ne lisent aucun script, ces
-  balises restent donc statiques. Sur Android, la page envoie au groupe
-  Google public qui sert de liste de testeurs au test fermé
-  (`VITE_TESTER_GROUP_URL`) ; sans lui, elle ne propose que le web, un lien
-  Play répondant « application indisponible » à qui n'est pas testeur.
-  L'e-mail (`invite_tester`, 0034) attend que l'adresse soit dans le groupe
-  (ou une heure, 0035), puis part par la fonction Edge
+  balises restent donc statiques. La page envoie à la fiche Play, ouverte à tout
+  le monde depuis la 1.8.0 : un seul bouton, plus de groupe de testeurs à
+  rejoindre ni de « devenir testeur ».
+  L'e-mail (`invite_tester`, 0034) part dès que l'invitation est enregistrée —
+  0076 a retiré l'attente du groupe qu'imposait 0035 —, relevé tous les quarts
+  d'heure par la fonction Edge
   `invite`, depuis la boîte Gmail du jeu (`GMAIL_USER`,
   `GMAIL_APP_PASSWORD`, un mot de passe d'application) au nom de
   l'inviteur, une réponse allant à l'inviteur : aucun service ne laisse un
@@ -567,12 +581,12 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   Une adresse qui joue déjà reçoit une demande
   ordinaire, et l'inviteur lit `sent` dans les deux cas, pour que le champ
   ne dise jamais qui joue. Un nom de compte en forme d'adresse reste refusé
-  (`checkName`). Un groupe Google grand public n'a pas d'API : c'est
-  `npm run group:invites` (`scripts/group-invites.ts`), lancé toutes les dix
-  minutes par launchd sur le poste du développeur (`--install`), qui ajoute
-  les adresses invitées au groupe dans un Chrome sans tête connecté une fois
-  par `--login`, et les marque `listed_at`. Mac éteint, l'invité rejoint le
-  groupe lui-même depuis la page.
+  (`checkName`). Un groupe Google grand public n'a pas d'API : `npm run
+  group:invites` (`scripts/group-invites.ts`, `--install` / `--login` /
+  `--uninstall`) y ajoutait les adresses invitées depuis un Chrome sans tête
+  connecté une fois, la tâche launchd toutes les dix minutes — retirée le
+  14 octobre 2026 avec l'attente du groupe (0076), plus rien n'en dépendant. Le
+  script reste là pour tenir un groupe à la main.
 - **La boîte à idées part par Resend** (fonction Edge `ideas`, 0015) : sans
   `RESEND_API_KEY` dans les secrets, les idées s'accumulent en base sans
   mail.

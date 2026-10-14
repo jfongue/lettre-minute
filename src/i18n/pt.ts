@@ -211,6 +211,7 @@ export const pt: Messages = {
     less: 'Ver menos',
     all: 'Todos os rankings',
     plus: 'Mais…',
+    me: 'Eu',
   },
 
   leaderboards: {
@@ -231,6 +232,8 @@ export const pt: Messages = {
     you: 'Sua posição',
     absent: 'Você ainda não aparece: é sua vez de jogar.',
     anonymous: 'Crie uma conta para aparecer nos rankings.',
+    guest: 'Sua linha “Eu” é contada neste aparelho. Entre para aparecer no ranking de todos.',
+    signIn: 'Entrar',
     runs: 'Partidas',
     solo: 'Solo',
     challenge: 'Desafio',
@@ -576,6 +579,16 @@ export const pt: Messages = {
   },
 
   powers: {
+    loadout: {
+      kicker: 'Antes da partida',
+      title: 'Os teus poderes',
+      lead: (slots) => (slots > 1 ? 'Toca nos dois poderes que vais levar.' : 'Toca no poder que vais levar.'),
+      slot: (index) => `Espaço ${index}`,
+      play: 'Jogar',
+      playBare: 'Jogar sem poderes',
+      back: 'Voltar',
+      hint: 'Enter para jogar',
+    },
     castChatter: 'Tagarela! A letra fica',
 doubleSkipFree: 'Pular em dobro · passe grátis',
     chatterLeft: (left) => `Tagarela · mais ${left} ${plural(left, 'palavra', 'palavras')}`,

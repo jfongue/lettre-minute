@@ -16,6 +16,7 @@ import {
   inGround,
   isDefaultAvatar,
   PALETTE,
+  paintsAccent,
   parseAvatar,
   sameAvatar,
   type AvatarDesign,
@@ -148,6 +149,15 @@ const SHARED_INKS: readonly [string, string][] = [
   ['vert', '--green'],
   ['rose', '--pink'],
 ]
+
+describe('accent layer', () => {
+  it('is offered by every tile whose figure has a part the accent paints', () => {
+    expect(paintsAccent(AVATARS.find((design) => design.shape === 'steps')!)).toBe(true)
+    expect(paintsAccent(AVATARS.find((design) => design.accent === 'circle')!)).toBe(true)
+    expect(paintsAccent(AVATARS[0])).toBe(false)
+    expect(AVATARS.filter(paintsAccent).length).toBeGreaterThan(AVATARS.filter((design) => design.accent).length)
+  })
+})
 
 describe('palette inks', () => {
   it('keeps every shared colour on its light theme token', () => {

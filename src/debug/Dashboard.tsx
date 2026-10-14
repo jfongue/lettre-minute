@@ -8,7 +8,7 @@ import { fetchDashboard, fetchDashboardSlot } from '../lib/cloud'
 import { Avatar } from '../ui/Avatar'
 import { Card, Kpi, Legend, Section, Stat, Table } from './board'
 import { ago, decimal, fmt, pct } from './format'
-import type { DayRow, HourRow, Invites, Revenue, RevenueDay, SlotEntry, Snapshot } from './snapshot'
+import type { ByPlatform, DayRow, HourRow, Invites, PlatformName, Revenue, RevenueDay, SlotEntry, Snapshot } from './snapshot'
 
 /*
  * Le tableau de bord de l'administrateur : cinq tapes sur « Classements »
@@ -452,6 +452,8 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
 
 {d.invites && <InvitesSection invites={d.invites} onPick={pick('Invitations', INVITES)} />}
 
+      {d.by_platform && <PlatformsSection data={d.by_platform} days={d.daily.map((row) => row.day)} />}
+
       <Section title="Joueurs" mark="var(--pink)">
         <div className="dashboard-grid">
           <Card title="Les plus assidus">
@@ -731,6 +733,69 @@ function InvitesSection({ invites: v, onPick }: { invites: Invites; onPick(row: 
   )
 }
 
+const PLATFORM_SERIES: Series[] = [
+  { key: 'android', label: 'Android', color: 'var(--green)' },
+  { key: 'web', label: 'Web', color: 'var(--blue)' },
+  { key: 'crazygames', label: 'CrazyGames', color: 'var(--yellow)' },
+  { key: 'reddit', label: 'Reddit', color: 'var(--red)' },
+  { key: 'inconnu', label: 'Inconnu', color: 'var(--grid)' },
+]
+const platformLabel = (platform: PlatformName) => PLATFORM_SERIES.find((one) => one.key === platform)?.label ?? platform
+
+function PlatformsSection({ data, days }: { data: ByPlatform; days: readonly string[] }) {
+  const columns: Day[] = days.map((day) => ({ day }))
+  for (const entry of data.daily) {
+    const column = columns.find((row) => row.day === entry.day)
+    if (column) column[entry.platform] = (column[entry.platform] ?? 0) + entry.runs
+  }
+  const shown = PLATFORM_SERIES.filter((one) => data.rows.some((row) => row.platform === one.key))
+  const runs = data.rows.reduce((total, row) => total + row.runs, 0)
+  return (
+    <Section title="Versions du jeu" mark="var(--yellow)">
+      <div className="dashboard-stats">
+        {data.rows.map((row) => (
+          <Stat
+            key={row.platform}
+            value={pct(row.runs, runs)}
+            label={`${platformLabel(row.platform)} · ${fmt(row.runs)} parties, ${fmt(row.players)} joueurs`}
+          />
+        ))}
+      </div>
+      <div className="dashboard-grid">
+        <Card title="Parties par jour et par version" tag={fmt(runs)}>
+          <Legend items={shown.map(({ label, color }) => ({ label, color }))} />
+          <DayBars rows={columns} series={shown} />
+        </Card>
+        <Card title="Par version" note="Sur la période, hors administration, joueurs maison et clients de test.">
+          <Table head={['Version', 'Parties', 'Étiquetées', 'Joueurs', 'Auj.', 'Score moy.', 'Comptes', 'Duels', 'Défi']}>
+            {data.rows.map((row) => (
+              <tr key={row.platform}>
+                <td>{platformLabel(row.platform)}</td>
+                <td className="n">{fmt(row.runs)}</td>
+                <td className="n">{pct(row.tagged, row.runs)}</td>
+                <td className="n">{fmt(row.players)}</td>
+                <td className="n">
+                  {fmt(row.runs_today)} · {fmt(row.players_today)}
+                </td>
+                <td className="n">{row.avg_score == null ? '—' : fmt(row.avg_score)}</td>
+                <td className="n">{fmt(row.new_accounts)}</td>
+                <td className="n">{fmt(row.duels)}</td>
+                <td className="n">
+                  {fmt(row.weekly_attempts)} · {fmt(row.weekly_players)} j.
+                </td>
+              </tr>
+            ))}
+          </Table>
+        </Card>
+      </div>
+      <p className="note">
+        Une partie porte sa version depuis 0072 (« Étiquetées ») ; avant, ou depuis une app qui ne l’envoie pas encore, elle prend celle de son joueur : compte
+        CrazyGames, sinon la version que disent ses événements, sinon « Inconnu ». Reddit garde ses parties sur son propre serveur : il n’apparaît pas ici.
+      </p>
+    </Section>
+  )
+}
+
 /* -------------------------------------------------- le détail d'une barre */
 
 interface Picked {
@@ -764,7 +829,7 @@ const PLUS_DAYS: Series[] = [
 const AD_DAYS: Series[] = [{ key: 'ads', label: 'Pubs ouvertes', color: 'var(--red)' }]
 
 /** Qui une série compte : la même règle que la barre, joueur par joueur. Le revenu n'a pas de détail par joueur. */
-const COUNTS: Partial<Record<Series['key'], (entry: SlotEntry) => boolean>> = {
+const COUNTS: Record<Series['key'], (entry: SlotEntry) => boolean> = {
   runs: (entry) => !entry.device && entry.runs > 0,
   players: (entry) => !entry.device && entry.active,
   signups: (entry) => !entry.device && entry.signed,
@@ -774,6 +839,16 @@ const COUNTS: Partial<Record<Series['key'], (entry: SlotEntry) => boolean>> = {
   mails: (entry) => !entry.device && entry.mails > 0,
   shares: (entry) => !entry.device && entry.shares > 0,
   joins: (entry) => !entry.device && entry.invited_by != null,
+  // Le revenu ne s'ouvre pas joueur par joueur non plus.
+  offers: () => false,
+  subscribed: () => false,
+  ads: () => false,
+  // Les parties par version ne s'ouvrent pas joueur par joueur.
+  android: () => false,
+  web: () => false,
+  crazygames: () => false,
+  reddit: () => false,
+  inconnu: () => false,
 }
 
 function SlotSheet({ picked, load, onClose }: { picked: Picked; load: LoadSlot; onClose(): void }) {
@@ -797,7 +872,7 @@ function SlotSheet({ picked, load, onClose }: { picked: Picked; load: LoadSlot; 
     return () => window.removeEventListener('keydown', close, true)
   }, [onClose])
 
-  const counted = entries?.filter((entry) => series.some((one) => COUNTS[one.key]?.(entry))) ?? []
+  const counted = entries?.filter((entry) => series.some((one) => COUNTS[one.key](entry))) ?? []
   const when = row.hour == null ? dayLabel(row.day) : `${dayLabel(row.day)}, ${row.hour} h–${row.hour + 1} h`
   return createPortal(
     <div className="dashboard dashboard-slot" data-no-swipe role="dialog" aria-label={`${title}, ${when}`}>
@@ -846,7 +921,7 @@ function SlotSheet({ picked, load, onClose }: { picked: Picked; load: LoadSlot; 
 }
 
 function SlotLine({ entry, series }: { entry: SlotEntry; series: Series[] }) {
-  const marks = series.filter((one) => COUNTS[one.key]?.(entry))
+  const marks = series.filter((one) => COUNTS[one.key](entry))
   const sessions = (entry.sessions_with_run || entry.sessions_without_run) && series.some((one) => one.key.startsWith('sessions'))
     ? `${fmt(entry.sessions_with_run)} ouverture${entry.sessions_with_run > 1 ? 's' : ''} avec partie, ${fmt(entry.sessions_without_run)} sans`
     : null
@@ -975,10 +1050,7 @@ function roundedTop(x: number, base: number, width: number, height: number): str
 }
 
 interface Series {
-  key:
-  | 'runs' | 'players' | 'signups' | 'anon' | 'sessions_with_run' | 'sessions_without_run'
-  | 'mails' | 'shares' | 'joins'
-  | 'offers' | 'subscribed' | 'ads'
+key: 'runs' | 'players' | 'signups' | 'anon' | 'sessions_with_run' | 'sessions_without_run' | 'mails' | 'shares' | 'joins' | 'offers' | 'subscribed' | 'ads' | PlatformName
   label: string
   color: string
 }

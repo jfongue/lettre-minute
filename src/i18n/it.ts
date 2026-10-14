@@ -211,6 +211,7 @@ export const it: Messages = {
     less: 'Vedi meno',
     all: 'Tutte le classifiche',
     plus: 'Altro…',
+    me: 'Io',
   },
 
   leaderboards: {
@@ -231,6 +232,8 @@ export const it: Messages = {
     you: 'Il tuo posto',
     absent: 'Non ci sei ancora: tocca a te giocare.',
     anonymous: 'Crea un account per comparire nelle classifiche.',
+    guest: 'La tua riga «Io» è calcolata su questo dispositivo. Accedi per comparire nella classifica di tutti.',
+    signIn: 'Accedi',
     runs: 'Partite',
     solo: 'Solo',
     challenge: 'Sfida',
@@ -576,6 +579,16 @@ export const it: Messages = {
   },
 
   powers: {
+    loadout: {
+      kicker: 'Prima della partita',
+      title: 'I tuoi poteri',
+      lead: (slots) => (slots > 1 ? 'Tocca i due poteri da portare con te.' : 'Tocca il potere da portare con te.'),
+      slot: (index) => `Slot ${index}`,
+      play: 'Gioca',
+      playBare: 'Gioca senza poteri',
+      back: 'Indietro',
+      hint: 'Invio per giocare',
+    },
     castChatter: 'Chiacchiera! La lettera resta',
 doubleSkipFree: 'Doppio salto · passaggio gratuito',
     chatterLeft: (left) => `Chiacchiera · ancora ${left} ${plural(left, 'parola', 'parole')}`,

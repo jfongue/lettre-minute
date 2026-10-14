@@ -16,6 +16,17 @@ export interface Host {
    * cannot carry — a server, an account, a link off its page — or forbids.
    */
   closedFeatures: ReadonlySet<FeatureId>
+  /**
+   * Opened whatever the table's defaults say: what this host is built around
+   * while the phone still tries it out. Never one of `closedFeatures`.
+   */
+  openedFeatures: ReadonlySet<FeatureId>
+  /**
+   * Closed to players but open to a super moderator: the developer's tools and
+   * the moderation, which this host can carry once its player is signed in to
+   * the server. Never what leads off the page or asks for money.
+   */
+  superModeratorFeatures: ReadonlySet<FeatureId>
   /** The name the host lists the game under, shown in every language; null: the interface's own. */
   title: readonly [string, string] | null
   /** The host's languages, given before the device's (`loadLocale`). */
@@ -30,20 +41,50 @@ export interface Host {
    */
   premiumStore: boolean
   rewardedAds: boolean
+  /** Some levels pay a bonus (`src/domain/bonus.ts`); false: every level pays a power or a category. */
+  levelBonuses: boolean
+  /** Every hidden answer of the summary can be uncovered: neither an ad nor Premium pays for more here. */
+  unlimitedReveals: boolean
   /**
-   * No server to rank against: the boards are the player's own best runs, drawn
-   * from the device's history (`src/ui/localBoards.ts`), and stay on the solo measures.
+   * The server never hands this host's guests an anonymous account: a player
+   * with no account of the host's own writes nothing, and reads the boards
+   * with the public key alone.
    */
-  localBoards: boolean
+  anonymousAccounts: boolean
+  /**
+   * A player without an account reads the server's boards with their own best
+   * placed on them as « Moi », counted from the device's history
+   * (`src/ui/guestBoards.ts`); with the server out of reach, the boards are
+   * those runs alone (`src/ui/localBoards.ts`).
+   */
+  guestBoards: boolean
+  /**
+   * The host's own signed-in player, as a token the server checks
+   * (`crazygames-auth`): null for a guest. Absent where accounts are the
+   * game's own (Android, the web) or there are none (Reddit).
+   */
+  account?(): Promise<string | null>
+  /** Called when the player signs in to the host without the page reloading. */
+  onAccount?(listener: () => void): void
+  /** The host's own sign-in prompt; true once the player is signed in. */
+  promptAccount?(): Promise<boolean>
   /** In a run (countdown, clock, first lesson) or not; only the changes matter. */
   setGameplay(on: boolean): void
   /** A run that beats a record the player already had. */
   celebrate(): void
+  /** A run's points, for the host's own board (the portal's weekly one); nothing on Android, the web or Reddit. */
+  submitScore(score: number): void
+  /** Loads a rewarded ad ahead of the offer that carries it: one shown late is skipped. */
+  prepareRewarded(): void
+  /** A rewarded ad: `rewarded` only once watched to the end, never on an error or a skip. */
+  showRewarded(): Promise<RewardedResult>
   /** The host's break before a new run (an ad); resolves once it is over, failed or skipped. */
   breakBetweenRuns(): Promise<void>
   /** Called with true while the host wants silence — its own mute, an ad — and false once it lets go. */
   onMute(listener: (muted: boolean) => void): void
 }
+
+export type RewardedResult = 'rewarded' | 'skipped' | 'unavailable'
 
 /** Everything that needs the game's server or a named account. */
 export const SERVER_FEATURES: readonly FeatureId[] = [
@@ -81,9 +122,25 @@ export const APP_ONLY_FEATURES: readonly FeatureId[] = [
   'debugBoard',
 ]
 
+/** The developer's tools and the word moderation: what a super moderator needs on any host with the server. */
+export const SUPER_MODERATOR_FEATURES: readonly FeatureId[] = [
+  'debugBoard',
+  'dashboard',
+  'wordsBoard',
+  'ideasAdmin',
+  'gameModes',
+  'moderation',
+  'myRequests',
+  'proposeWord',
+  'wordFlag',
+]
+
 export const quiet = {
   setGameplay(): void {},
   celebrate(): void {},
+  submitScore(): void {},
+  prepareRewarded(): void {},
+  showRewarded: (): Promise<RewardedResult> => Promise.resolve('unavailable'),
   breakBetweenRuns: (): Promise<void> => Promise.resolve(),
   onMute(): void {},
 }

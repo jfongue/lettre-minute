@@ -1,6 +1,3 @@
-• Le Joker écrit son mot dès que tu tapes « Joker », et les mots soufflés par le Professeur brillent la première fois que tu les écris
-• Passe-passe passe tout de suite, sans limite, et Sans faute rapporte 30 points toutes les six bonnes réponses
-• À l’accueil, les annonces arrivent une à une au lieu de se cacher les unes les autres
-• Passer Premium t’accueille d’un simple merci
-• Le défi du moment s’ouvre au niveau 4
+• Les invitations par e-mail partent tout de suite
+• Premium s’achète dans l’app : un seul paiement, à vie
 • Corrections de bugs et performance

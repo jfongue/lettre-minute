@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { NO_USAGE } from './rarity'
 import { NEW_PROFILE, type Profile } from './progression'
 import {
+  revealBudget,
   ban,
   banNews,
   bannedOf,
@@ -351,5 +352,13 @@ describe('the news a delivery brings', () => {
     expect(weeklyWinPrizeDue(NEW_PROFILE, null, false)).toBe(false)
     expect(weeklyWinPrizeDue(NEW_PROFILE, 1, true)).toBe(false)
     expect(weeklyWinPrizeDue(joinPlus(NEW_PROFILE, 1), 1, false)).toBe(false)
+  })
+})
+
+describe('reveals a version gives away', () => {
+  it('opens every reveal where the host says so, without touching the counters', () => {
+    const budget = revealBudget(NEW_PROFILE, '2026-10-13', true)
+    expect(budget.unlimited).toBe(true)
+    expect(revealBudget(NEW_PROFILE, '2026-10-13').unlimited).toBe(false)
   })
 })

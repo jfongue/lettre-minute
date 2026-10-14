@@ -43,9 +43,10 @@ import { NamePrompt } from '../ui/NamePrompt'
 import { DashboardView } from './Dashboard'
 import { WordsBoardView } from './WordsBoard'
 import type { WordsReport } from './words'
-import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
+import { PLAY_ACHIEVEMENTS_ONLY, achievementIcon } from '../domain/achievements'
 import type { SlotEntry, Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
+import { guestFits, placeGuest } from '../domain/localBoards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 import { ModeIntro } from '../ui/ModeIntro'
 import { WeeklyCardScenario, WeeklyDoneScenario, WeeklyRecapScenario, WeeklyResultsScenario, WeeklyRunScenario, WeeklyScreenScenario } from './weeklyScenarios'
@@ -77,6 +78,18 @@ import { activeCheers, HOUSE_BOTS, type DuelTable, type Seat } from '../state/du
 // La feuille du duel vit hors du paquet de l'accueil : cette planche est le
 // seul écran de l'app qui la montre, donc elle l'apporte avec elle.
 import '../duel.css'
+import { PowerLoadout } from '../ui/PowerLoadout'
+import { wearOrDrop } from '../domain/powers'
+
+function LoadoutScenario({ onBack }: { onBack(): void }) {
+  const [profile, setProfile] = useState<Profile>(() => ({
+    ...PROFILE,
+    powers: ['joker', 'hush', 'magic', 'permutation', 'dodge', 'dyslexia', 'divination', 'chatter'],
+    equipped: ['joker'],
+    bonuses: [...PROFILE.bonuses, 'slot'],
+  }))
+  return <PowerLoadout profile={profile} onWear={(id) => setProfile((current) => wearOrDrop(current, id))} onPlay={onBack} onBack={onBack} />
+}
 
 /*
  * The debug board: every screen a player only meets by luck or by level,
@@ -605,6 +618,20 @@ function dashboardSnapshot(): Snapshot {
         subscribed: index % 4 === 0 ? 1 : 0,
       })),
     },
+    by_platform: {
+      rows: [
+        { platform: 'android', runs: 1_910, tagged: 640, players: 118, runs_today: 64, players_today: 21, avg_score: 182, best: 1_240, new_accounts: 96, duels: 31, weekly_attempts: 210, weekly_players: 74 },
+        { platform: 'crazygames', runs: 640, tagged: 640, players: 212, runs_today: 41, players_today: 30, avg_score: 121, best: 760, new_accounts: 58, duels: 0, weekly_attempts: 95, weekly_players: 61 },
+        { platform: 'web', runs: 120, tagged: 40, players: 14, runs_today: 3, players_today: 2, avg_score: 204, best: 910, new_accounts: 6, duels: 2, weekly_attempts: 9, weekly_players: 4 },
+        { platform: 'inconnu', runs: 48, tagged: 0, players: 11, runs_today: 0, players_today: 0, avg_score: 90, best: 445, new_accounts: 40, duels: 0, weekly_attempts: 0, weekly_players: 0 },
+      ],
+      daily: daily.flatMap((row, index) => [
+        { day: row.day, platform: 'android' as const, runs: 40 + ((index * 13) % 35) },
+        { day: row.day, platform: 'crazygames' as const, runs: index < 10 ? 0 : 12 + ((index * 7) % 30) },
+        { day: row.day, platform: 'web' as const, runs: index % 3 },
+        { day: row.day, platform: 'inconnu' as const, runs: index < 8 ? 4 : 0 },
+      ]),
+    },
   }
 }
 
@@ -808,7 +835,7 @@ function FeaturesScenario() {
 function AchievementIcons() {
   return (
     <div className="achievement-icons">
-      {ACHIEVEMENTS.map((achievement) => (
+      {PLAY_ACHIEVEMENTS_ONLY.map((achievement) => (
         <div key={achievement.id} className="achievement-icon" data-achievement={achievement.id}>
           <Avatar choice={achievementIcon(achievement.id)} size="fill" />
         </div>
@@ -857,6 +884,25 @@ function LeaderboardsScenario({ named, moderator = false, mineAt }: { named: boo
   return (
     <div className="sheet">
       <LeaderboardsPage named={named} moderator={moderator} load={(stat, period) => fakeLeaderboard(stat, period, mineAt)} />
+    </div>
+  )
+}
+
+/** Un invité de CrazyGames : sa meilleure valeur glissée sur le tableau, ou sous lui à la 63e place. */
+const GUEST_VALUES: Partial<Record<StatId, number>> = { best: 250, points: 20, runs: 3, words: 40, combo: 9 }
+
+async function fakeGuestLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | null> {
+  const board = await fakeLeaderboard(stat, period, -1)
+  if (!board) return null
+  const value = (GUEST_VALUES[stat] ?? 0) * (period === 'day' ? 1 : period === 'week' ? 4 : 20)
+  const open = { rows: board.rows, me: null }
+  return placeGuest(open, { name: 'Moi', avatar: DEFAULT_AVATAR, value }, guestFits(open, value) ? null : 63)
+}
+
+function GuestLeaderboardsScenario() {
+  return (
+    <div className="sheet">
+      <LeaderboardsPage named={false} guest onSignIn={() => {}} load={fakeGuestLeaderboard} />
     </div>
   )
 }
@@ -1641,6 +1687,14 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <WeeklyScreenScenario used={0} plus={false} onBack={back} />,
   },
   {
+    id: 'weekly-screen-portal',
+    group: 'Défi du moment',
+    title: 'Écran du défi : CrazyGames',
+    how: 'Sans serveur, pub ni boutique : un seul billet par jour, le record de l’appareil, ni rang ni classement',
+    phase: 'home',
+    render: (back) => <WeeklyScreenScenario used={0} plus={false} portal onBack={back} />,
+  },
+  {
     id: 'weekly-screen-ad',
     group: 'Défi du moment',
     title: 'Écran du défi : la pub',
@@ -1711,6 +1765,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le récap clos sur un rang 1 : la pop-up offre Premium, sans rien écrire au serveur',
     phase: 'home',
     render: (back) => <PlusPrizePop onClose={back} />,
+  },
+  {
+    id: 'power-loadout',
+    group: 'Pouvoirs',
+    title: 'Choix des pouvoirs avant la partie',
+    how: 'Huit pouvoirs, deux emplacements : une touche prend ou repose, le troisième pris chasse le plus ancien ; Entrée joue, Échap revient',
+    phase: 'home',
+    render: (back) => <LoadoutScenario onBack={back} />,
   },
   {
     id: 'over-classic',
@@ -2339,6 +2401,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Les classements se lisent, avec l’invitation à créer un compte',
     phase: 'home',
     render: () => <LeaderboardsScenario named={false} />,
+  },
+  {
+    id: 'leaderboards-guest',
+    group: 'Accueil',
+    title: 'Page des classements, invité de CrazyGames',
+    how: 'Sans compte : le classement du serveur avec la ligne « Moi » comptée sur l’appareil — parmi les lignes en « Meilleure partie », sous elles à la 63e place en « Points », absente en « Découvertes » — et le bouton qui ouvre la connexion du portail',
+    phase: 'home',
+    render: () => <GuestLeaderboardsScenario />,
   },
   {
     id: 'leaderboards-advanced',

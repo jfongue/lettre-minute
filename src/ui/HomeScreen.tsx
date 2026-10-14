@@ -102,7 +102,9 @@ export function HomeScreen({
   weekly,
 }: HomeScreenProps) {
   const t = useT()
-  const powers = useFeature('powers')
+  // Le choix des pouvoirs a son écran avant la partie : l'accueil ne garde plus leurs emplacements.
+  const loadoutScreen = useFeature('powerLoadout')
+  const powers = useFeature('powers') && !loadoutScreen
   const progress = levelProgress(profile.xp)
   // A row of zeros and an empty board say nothing to a newcomer: the space
   // goes to what would keep their first scores instead.
@@ -129,7 +131,7 @@ const alone =
   }, [])
 
   return (
-    <div className="sheet sheet--home" {...swipe}>
+    <div className={`sheet sheet--home${alone ? ' sheet--home-alone' : ''}`} {...swipe}>
       <Poster requests={friendRequests} onMenu={() => onMenu(friendRequests > 0 ? 'social' : undefined)} onDebug={onDebug} />
 
       <header className="masthead">

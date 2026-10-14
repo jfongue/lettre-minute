@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_AVATAR } from './avatar'
 import type { RunRecord } from './history'
-import { localBoards, localLeaderboard, LOCAL_BOARD_SIZE } from './localBoards'
+import type { Leaderboard, PlacedRow } from './leaderboards'
+import { guestFits, guestValue, localBoards, localLeaderboard, LOCAL_BOARD_SIZE, placeGuest, placeGuestRow, SERVER_BOARD_SIZE } from './localBoards'
 
 const run = (at: number, score: number, bestCombo = 0, words = 0): RunRecord => ({
   at,
@@ -58,5 +59,57 @@ describe('les classements de l’accueil, en local', () => {
     expect(boards.week.map((row) => row.value)).toEqual([60, 40])
     expect(boards.discoveries).toEqual([])
     expect(boards.day[0]!.own).toBe(true)
+  })
+})
+
+const other = (name: string, value: number, place: number): PlacedRow => ({ name, avatar: DEFAULT_AVATAR, value, place, mine: false })
+const me = { name: 'Moi', avatar: DEFAULT_AVATAR }
+
+describe('l’invité sur un classement du serveur', () => {
+  const history = [run(at(14, 8), 40, 3, 5), run(at(14, 10), 70, 6, 8), run(at(13, 10), 90, 9, 2)]
+
+  it('compte ses parties de la période comme le serveur compte celles d’un joueur', () => {
+    expect(guestValue('best', history, DAY, NOW)).toBe(70)
+    expect(guestValue('combo', history, DAY, NOW)).toBe(6)
+    expect(guestValue('points', history, DAY, NOW)).toBe(110)
+    expect(guestValue('words', history, DAY, NOW)).toBe(13)
+    expect(guestValue('runs', history, DAY, NOW)).toBe(2)
+    expect(guestValue('best', history, 0, NOW)).toBe(90)
+    expect(guestValue('discoveries', history, 0, NOW)).toBe(0)
+    expect(guestValue('best', [], DAY, NOW)).toBe(0)
+  })
+
+  it('se glisse parmi les lignes, après les égalités, et les places se recomptent', () => {
+    const board: Leaderboard = { rows: [other('a', 90, 1), other('b', 70, 2), other('c', 40, 3)], me: null }
+    const placed = placeGuest(board, { ...me, value: 70 }, null)
+    expect(placed.rows.map((row) => [row.name, row.place])).toEqual([['a', 1], ['b', 2], ['Moi', 2], ['c', 4]])
+    expect(placed.rows[2]!.mine).toBe(true)
+    expect(placed.me).toBeNull()
+  })
+
+  it('se range en dernier sur un tableau court, sans demander de rang au serveur', () => {
+    const board: Leaderboard = { rows: [other('a', 90, 1)], me: null }
+    expect(guestFits(board, 5)).toBe(true)
+    expect(placeGuest(board, { ...me, value: 5 }, null).rows.map((row) => row.place)).toEqual([1, 2])
+  })
+
+  it('passe sous un tableau plein à la place que le serveur lui donne', () => {
+    const full: Leaderboard = { rows: Array.from({ length: SERVER_BOARD_SIZE }, (_, index) => other(`p${index}`, 100 - index, index + 1)), me: null }
+    expect(guestFits(full, 40)).toBe(false)
+    expect(guestFits(full, 60)).toBe(true)
+    expect(placeGuest(full, { ...me, value: 40 }, 63).me).toMatchObject({ name: 'Moi', place: 63, mine: true })
+    expect(placeGuest(full, { ...me, value: 40 }, null)).toBe(full)
+  })
+
+  it('ne se montre pas sans valeur', () => {
+    const board: Leaderboard = { rows: [other('a', 90, 1)], me: null }
+    expect(placeGuest(board, { ...me, value: 0 }, 2)).toBe(board)
+  })
+
+  it('prend sa place sur un tableau de l’accueil', () => {
+    const rows = [{ name: 'a', avatar: DEFAULT_AVATAR, value: 90 }, { name: 'b', avatar: DEFAULT_AVATAR, value: 30 }]
+    expect(placeGuestRow(rows, { ...me, value: 50 }).map((row) => row.name)).toEqual(['a', 'Moi', 'b'])
+    expect(placeGuestRow(rows, { ...me, value: 50 })[1]!.own).toBe(true)
+    expect(placeGuestRow(rows, { ...me, value: 0 })).toEqual(rows)
   })
 })

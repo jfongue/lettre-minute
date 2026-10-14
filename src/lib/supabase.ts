@@ -1,6 +1,6 @@
 import { AuthClient } from '@supabase/auth-js'
 import { PostgrestClient } from '@supabase/postgrest-js'
-import { PLATFORM } from '../platform'
+import { host, PLATFORM } from '../platform'
 import { authStorage } from './native'
 
 const url = import.meta.env.VITE_SUPABASE_URL
@@ -64,11 +64,20 @@ export const supabase: Cloud | null = url && anonKey ? slimClient(url, anonKey) 
 let session: { userId: string } | null = null
 let probing: Promise<{ userId: string } | null> | null = null
 
+/**
+ * The server carries the whole game, every player having an account on it.
+ * A host whose guests stay without one (CrazyGames) only reads the boards
+ * there: what it keeps — the challenge of the moment included — stays local.
+ */
 export function cloudConfigured(): boolean {
-  return supabase !== null
+  return supabase !== null && host.anonymousAccounts
 }
 
-/** Signs the player in anonymously — a solo game should not open on a form. */
+/**
+ * Signs the player in anonymously — a solo game should not open on a form —
+ * except on a host whose guests stay without any account (CrazyGames): there
+ * only a session already on the device answers.
+ */
 export function connect(): Promise<{ userId: string } | null> {
   if (!supabase) return Promise.resolve(null)
   if (session) return Promise.resolve(session)
@@ -76,7 +85,8 @@ export function connect(): Promise<{ userId: string } | null> {
 
   probing = (async () => {
     const existing = await supabase.auth.getSession()
-    const user = existing.data.session?.user ?? (await supabase.auth.signInAnonymously()).data.user
+    const user =
+      existing.data.session?.user ?? (host.anonymousAccounts ? (await supabase.auth.signInAnonymously()).data.user : null)
     session = user ? { userId: user.id } : null
     return session
   })().catch(() => null)

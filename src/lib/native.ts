@@ -98,25 +98,29 @@ export function tapFeedback(strength: keyof typeof IMPACT = 'light'): void {
   quietly(() => Haptics.impact({ style: IMPACT[strength] }))
 }
 
-// Google's sample unit: it serves test ads only, so a build without a real
-// unit can never earn, nor get the account flagged for invalid traffic.
+// Google's sample units serve test ads only and earn nothing: a development
+// build falls back to them so the flow can still be tried, a release build
+// without a real unit shows no ad at all rather than serving test ads to
+// players in production.
+const TESTING_UNITS = !import.meta.env.PROD
 const TEST_INTERSTITIAL = 'ca-app-pub-3940256099942544/1033173712'
-const interstitialId = import.meta.env.VITE_ADMOB_INTERSTITIAL_ID || TEST_INTERSTITIAL
+const interstitialId = import.meta.env.VITE_ADMOB_INTERSTITIAL_ID || (TESTING_UNITS ? TEST_INTERSTITIAL : '')
 
 let adsStarted: Promise<boolean> | null = null
 let interstitialLoaded = false
 
 function loadInterstitial(): void {
   interstitialLoaded = false
+  if (!interstitialId) return
   quietly(async () => {
     await AdMob.prepareInterstitial({ adId: interstitialId, isTesting: interstitialId === TEST_INTERSTITIAL })
     interstitialLoaded = true
   })
 }
 
-/** Whether this build can show ads at all: the phone shell only. */
+/** Whether this build can show the pick's interstitial: the phone shell, with a real unit. */
 export function adsSupported(): boolean {
-  return native
+  return native && Boolean(interstitialId)
 }
 
 /**
@@ -151,7 +155,16 @@ function startAds(): Promise<boolean> {
 }
 
 const TEST_REWARDED = 'ca-app-pub-3940256099942544/5224354917'
-const rewardedId = import.meta.env.VITE_ADMOB_REWARDED_ID || TEST_REWARDED
+const rewardedId = import.meta.env.VITE_ADMOB_REWARDED_ID || (TESTING_UNITS ? TEST_REWARDED : '')
+
+/**
+* Whether this build carries a rewarded unit. Without one, the offer shows no
+* ad at all: `rewardedAdsOpen` (`src/platform/index.ts`) leaves the button out
+* rather than serving Google's sample ad to a player.
+*/
+export function rewardedAdsConfigured(): boolean {
+  return Boolean(rewardedId)
+}
 
 let rewardedLoaded = false
 let rewardedLoading = false
@@ -161,7 +174,7 @@ let rewardedLoading = false
  * take seconds, and an ad still loading at the tap is `unavailable`, not late.
  */
 export function prepareRewardedAd(): void {
-  if (!native || rewardedLoaded || rewardedLoading) return
+  if (!native || !rewardedId || rewardedLoaded || rewardedLoading) return
   rewardedLoading = true
   startAds()
     .then(async (ready) => {
@@ -181,7 +194,7 @@ export function prepareRewardedAd(): void {
  * `unavailable`, and the next one is loaded either way.
  */
 export async function showRewardedAd(): Promise<'rewarded' | 'skipped' | 'unavailable'> {
-  if (!native || !rewardedLoaded) {
+  if (!native || !rewardedId || !rewardedLoaded) {
     prepareRewardedAd()
     return 'unavailable'
   }

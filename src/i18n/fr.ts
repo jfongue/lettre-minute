@@ -240,6 +240,7 @@ export const fr = {
     less: 'Voir moins',
     all: 'Tous les classements',
     plus: 'Plus…',
+    me: 'Moi',
   },
 
   leaderboards: {
@@ -260,6 +261,8 @@ export const fr = {
     you: 'Ta place',
     absent: 'Tu n’y figures pas encore : à toi de jouer.',
     anonymous: 'Crée un compte pour figurer aux classements.',
+    guest: 'Ta ligne « Moi » est comptée sur cet appareil. Connecte-toi pour figurer au classement de tous.',
+    signIn: 'Se connecter',
     runs: 'Parties',
     solo: 'Solo',
     challenge: 'Défi',
@@ -618,6 +621,16 @@ export const fr = {
   },
 
   powers: {
+    loadout: {
+      kicker: 'Avant la partie',
+      title: 'Tes pouvoirs',
+      lead: (slots: number): string => (slots > 1 ? 'Touche les deux pouvoirs à emporter.' : 'Touche le pouvoir à emporter.'),
+      slot: (index: number) => `Emplacement ${index}`,
+      play: 'Jouer',
+      playBare: 'Jouer sans pouvoir',
+      back: 'Retour',
+      hint: 'Entrée pour jouer',
+    },
     castChatter: 'Bavardage ! La lettre reste',
 doubleSkipFree: 'Passe-passe · passage gratuit',
     chatterLeft: (left: number) => `Bavardage · encore ${left} ${plural(left, 'mot', 'mots')}`,

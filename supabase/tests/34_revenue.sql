@@ -1,4 +1,4 @@
--- 0073 : la part « revenu » du tableau de bord — les offres Premium ouvertes
+-- 0077 : la part « revenu » du tableau de bord — les offres Premium ouvertes
 -- et leur motif, les abonnements et les abonnés, les publicités et leur
 -- provenance.
 --

@@ -87,10 +87,39 @@ export interface Snapshot {
   top_players: { name: string; runs: number; best: number; anonymous: boolean }[]
   moderation: { votes: number; submitted: number; accepted: number; rejected: number }
   challenges: { created: number; avg_players: number | null; played_share: number | null }
-  /** Absent d'un serveur antérieur à 0036, comme `prompts`. */
+  /** Absent d'un serveur antérieur à 0036. */
   invites?: Invites
-  /** Absent d'un serveur antérieur à 0073. */
+
+  /** Absent d'un serveur antérieur à 0075. */
+  by_platform?: ByPlatform
+  /** Absent d'un serveur antérieur à 0077. */
   revenue?: Revenue
+}
+
+/** Une version du jeu, comme les lignes la portent (0072, 0075), ou « inconnu » quand rien ne la dit. */
+export type PlatformName = 'android' | 'web' | 'crazygames' | 'reddit' | 'inconnu'
+
+/**
+ * Par version : une ligne d'avant l'étiquette prend celle de son joueur
+ * (compte CrazyGames, sinon ses événements) ; `tagged` compte les parties qui
+ * la portaient vraiment.
+ */
+export interface ByPlatform {
+  rows: {
+    platform: PlatformName
+    runs: number
+    tagged: number
+    players: number
+    runs_today: number
+    players_today: number
+    avg_score: number | null
+    best: number | null
+    new_accounts: number
+    duels: number
+    weekly_attempts: number
+    weekly_players: number
+  }[]
+  daily: { day: string; platform: PlatformName; runs: number }[]
 }
 
 /**
@@ -122,7 +151,7 @@ export interface RevenueDay {
 }
 
 /**
-* La part « revenu » du relevé (0073) : ce que le client a vu — les offres
+* La part « revenu » du relevé (0077) : ce que le client a vu — les offres
 * Premium ouvertes avec leur motif, les activations avec leur origine, les
 * publicités avec leur emplacement et leur résultat —, et ce que `purchases`
 * dit avoir été payé. Les répartitions portent sur toute la fenêtre du relevé,

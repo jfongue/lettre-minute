@@ -7,7 +7,7 @@ import { markRatingAsked, markRatingDone } from '../domain/rating'
 import { premiereCategoryIds } from '../domain/catalogue'
 import { ban, bannedOf, countPlusReveal, countPlusRun, grantRevealAd, joinPlus, learnFromProfessor, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
 import { chooseBonus, dealBonusOffer } from '../domain/bonus'
-import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, type PowerId } from '../domain/powers'
+import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, wearOrDrop, type PowerId } from '../domain/powers'
 import { countsForProgress, type GameMode } from '../domain/modes'
 import {
   arm,
@@ -108,12 +108,15 @@ export type SessionAction =
   /** The countdown traded a category: same seed, new lineup, a judge that knows the incoming dictionary. */
   | { type: 'swapped'; judge: Judge; categoryIds: readonly string[]; reserve: readonly string[] }
   /** `isModerator` keeps the moderator card off the bonus table of someone who already is one. */
-  | { type: 'offer'; availableIds: readonly string[]; seed: number; isModerator?: boolean }
+  /** `bonuses` false: every level pays a power or a category (`Host.levelBonuses`). */
+  | { type: 'offer'; availableIds: readonly string[]; seed: number; isModerator?: boolean; bonuses?: boolean }
   | { type: 'choose'; categoryId: string }
   | { type: 'choose-bonus'; bonusId: string }
   | { type: 'choose-power'; powerId: string }
   | { type: 'grant-power'; powerId: PowerId }
   | { type: 'equip'; slot: number; powerId: PowerId | null }
+  /** The pre-run loadout: a tap takes a power up or puts it down. */
+  | { type: 'wear'; powerId: PowerId }
   | { type: 'start' }
   /** Le retard commence : la question à l'écran part sans réponse et le chrono démarre. */
   | { type: 'arm' }
@@ -218,10 +221,12 @@ export function sessionReducer(session: Session, action: SessionAction): Session
 
     case 'offer': {
       const isModerator = action.isModerator ?? false
+      const bonuses = action.bonuses ?? true
       const profile = dealBonusOffer(
-        dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed, isModerator), action.seed),
+        dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed, isModerator, bonuses), action.seed),
         action.seed,
         isModerator,
+        bonuses,
       )
       return profile === session.profile ? session : { ...session, profile }
     }
@@ -275,6 +280,9 @@ case 'rating-asked': {
       const profile = markRatingAsked(session.profile)
       return profile === session.profile ? session : { ...session, profile }
     }
+
+    case 'wear':
+      return withProfile(session, wearOrDrop(session.profile, action.powerId))
 
     case 'equip': {
       const profile = equipPower(session.profile, action.slot, action.powerId)

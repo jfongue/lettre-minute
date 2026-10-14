@@ -1,4 +1,4 @@
-import { APP_ONLY_FEATURES, SERVER_FEATURES, type Host } from './host'
+import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type Host, type RewardedResult } from './host'
 
 /**
  * The CrazyGames shell, as `native.ts` is the phone's: everything the portal's
@@ -35,7 +35,16 @@ interface CrazySdk {
     setItem(key: string, value: string): void
     removeItem(key: string): void
   }
-  user?: { systemInfo?: { locale?: string } }
+  user?: {
+    systemInfo?: { locale?: string }
+    /** False where the page is embedded by anyone but the portal. */
+    isUserAccountAvailable?: boolean
+    submitScore?(score: { encryptedScore: string; score: number }): void
+    getUser?(): Promise<{ username: string } | null>
+    getUserToken?(): Promise<string>
+    addAuthListener?(listener: (user: unknown) => void): void
+    showAuthPrompt?(): Promise<unknown>
+  }
 }
 
 declare global {
@@ -139,6 +148,85 @@ function happytime(): void {
   safely((s) => s.game.happytime())
 }
 
+/**
+ * The portal's leaderboard wants the score encrypted with a key its own
+ * settings generate: AES-GCM, the IV in front of the ciphertext, the whole
+ * thing base64. Kept as the portal's snippet writes it, so a score it decrypts
+ * is a score it ranks.
+ */
+export async function encryptScore(score: number, key: string): Promise<string> {
+  const iv = crypto.getRandomValues(new Uint8Array(12))
+  const algorithm = { name: 'AES-GCM', iv }
+  const keyBytes = Uint8Array.from(atob(key), (character) => character.charCodeAt(0))
+  const cryptoKey = await crypto.subtle.importKey('raw', keyBytes, algorithm, false, ['encrypt'])
+  const cipher = new Uint8Array(await crypto.subtle.encrypt(algorithm, cryptoKey, new TextEncoder().encode(String(score))))
+  const combined = new Uint8Array(iv.length + cipher.length)
+  combined.set(iv)
+  combined.set(cipher, iv.length)
+  return btoa(String.fromCharCode(...combined))
+}
+
+/**
+ * A run's points, for the portal's own board — one per game, a weekly season,
+ * ranked by the portal (`crazygames/README.md`). Nothing without the key its
+ * settings generated (`VITE_CRAZYGAMES_LEADERBOARD_KEY`), nothing for a player
+ * the portal does not rank, and a refusal costs a rank rather than a run.
+ */
+function submitScore(score: number): void {
+  const key = import.meta.env.VITE_CRAZYGAMES_LEADERBOARD_KEY
+  const portal = sdk?.user
+  if (!portal?.submitScore || portal.isUserAccountAvailable === false || !key) return
+  const submit = portal.submitScore.bind(portal)
+  encryptScore(score, key)
+    .then((encryptedScore) => submit({ encryptedScore, score }))
+    .catch(() => {
+      /* a score the portal refuses costs a rank, never the run that made it */
+    })
+}
+
+/** The portal's account, where it has one: the page embedded anywhere else plays as a guest. */
+function portalUser(): NonNullable<CrazySdk['user']> | null {
+  const user = sdk?.user
+  return user && user.isUserAccountAvailable !== false ? user : null
+}
+
+// The SDK answers fast on the portal; one that hangs must not hold the boards.
+const ACCOUNT_TIMEOUT_MS = 5000
+
+/**
+ * The signed-in player's token, for `crazygames-auth` to check: null for a
+ * guest, for a page off the portal, and for an SDK that refuses or hangs. The
+ * SDK refreshes the token itself, so it is asked for each time, never kept.
+ */
+async function portalAccount(): Promise<string | null> {
+  const user = portalUser()
+  if (!user?.getUser || !user.getUserToken) return null
+  try {
+    const signedIn = await within(user.getUser(), ACCOUNT_TIMEOUT_MS)
+    if (!signedIn || signedIn === 'timeout') return null
+    const token = await within(user.getUserToken(), ACCOUNT_TIMEOUT_MS)
+    return typeof token === 'string' && token !== 'timeout' ? token : null
+  } catch {
+    return null
+  }
+}
+
+/** A sign-in on the portal: with the Data module on, the portal reloads the page instead. */
+function onPortalAccount(listener: () => void): void {
+  safely(() => portalUser()?.addAuthListener?.(() => listener()))
+}
+
+/** The portal's own sign-in window; false once closed without signing in, or anywhere it cannot open. */
+async function promptPortalAccount(): Promise<boolean> {
+  const user = portalUser()
+  if (!user?.showAuthPrompt) return false
+  try {
+    return Boolean(await user.showAuthPrompt())
+  } catch {
+    return false
+  }
+}
+
 /** The portal's language first (`en-US`), then the browser's. */
 function platformLanguages(): readonly string[] {
   const locale = sdk?.user?.systemInfo?.locale
@@ -212,6 +300,48 @@ function breakBetweenRuns(): Promise<void> {
 }
 
 /**
+ * A rewarded ad from the portal: the reward only on `adFinished`, nothing on
+ * `adError` (an ad blocker included, which must never cost more than the
+ * reward) and nothing for an ad that never answers. The sound is cut only
+ * while it plays, as for the midgame.
+ */
+function showRewarded(): Promise<RewardedResult> {
+  if (!sdk) return Promise.resolve('unavailable')
+  return new Promise((resolve) => {
+    let done = false
+    const finish = (result: RewardedResult) => {
+      if (done) return
+      done = true
+      clearTimeout(timer)
+      if (adPlaying) {
+        adPlaying = false
+        announceMute()
+      }
+      resolve(result)
+    }
+    const timer = setTimeout(() => finish('unavailable'), AD_TIMEOUT_MS)
+    safely((s) =>
+      s.ad.requestAd('rewarded', {
+        adStarted: () => {
+          adPlaying = true
+          announceMute()
+        },
+        adFinished: () => finish('rewarded'),
+        adError: () => finish('unavailable'),
+      }),
+    )
+    if (!sdk) finish('unavailable')
+  })
+}
+
+/**
+ * Rewarded ads are refused during a Basic Launch, and a rewarded button that
+ * pays nothing would be refused with them: the build turns them on once the
+ * portal allows ads (`VITE_CRAZYGAMES_REWARDED=true npm run crazygames:build`).
+ */
+const REWARDED = import.meta.env.VITE_CRAZYGAMES_REWARDED === 'true'
+
+/**
  * What the game keeps between visits: the profile (level, categories, powers,
  * records), its history, avatar and settings. The portal's Data module syncs
  * them to a signed-in player's account; a guest's stay in the browser, as they
@@ -227,6 +357,8 @@ const SAVED_KEYS = [
   'lettre-minute.theme.v1',
   'lettre-minute.sound.v1',
   'lettre-minute.locale.v1',
+  'lettre-minute.weekly-attempts.v1',
+  'lettre-minute.weekly-intro.v1',
 ]
 const HISTORY_KEY = 'lettre-minute.history.v1'
 // The Data module refuses past 1 MiB, all keys together: the history, the one
@@ -306,24 +438,46 @@ export function restoreSavedProgress(): void {
 }
 
 /**
- * The portal hosts the game alone: no server, no account, nothing that leads
- * off its page (it refuses a button that does nothing, such as « share —
+ * The portal hosts the game nearly alone: the server only for the boards, the
+ * portal's own account as the only one, nothing that leads off its page (it refuses a button that does nothing, such as « share —
  * soon »), none of the phone's offers. It lists the game as « Letter Minute »
  * in every language, and English stands in for the language picker: a player
  * there must land in the game, not on a question.
  */
 export const crazyGamesHost: Host = {
-  // The boards stay open: they rank the player's own runs, with no server or account.
+  // The boards stay open: a guest reads them, a portal account stands on them.
   closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES].filter((id) => id !== 'leaderboards')),
+  // A portal game lives on players coming back: the challenge of the moment,
+  // which the app opens to everyone, needs no server — attempts are counted
+  // on the device, the progress they pay is saved by the Data module.
+  // Its players come back between two runs rather than to a menu: the powers
+  // are picked on a screen of their own before each run, not under « Play ».
+  openedFeatures: new Set(['weekly', 'powerLoadout']),
+  // The developer plays here too, under a CrazyGames account the server made a super moderator.
+  superModeratorFeatures: new Set(SUPER_MODERATOR_FEATURES),
   title: ['Letter', 'Minute'],
   languages: platformLanguages,
   fallbackLocale: 'en',
   keepsProgress: true,
   premiumStore: false,
-  rewardedAds: false,
-  localBoards: true,
+  rewardedAds: REWARDED,
+  // Each level of a portal game pays something the player plays with: a
+  // power or a category, never a bonus to read about.
+  levelBonuses: false,
+  // Until the portal allows the ad that pays for them, the reveals are free.
+  unlimitedReveals: !REWARDED,
+  // A guest of the portal plays without any account: nothing of theirs
+  // reaches the server, which they read as anyone may.
+  anonymousAccounts: false,
+  guestBoards: true,
+  account: portalAccount,
+  onAccount: onPortalAccount,
+  promptAccount: promptPortalAccount,
   setGameplay,
   celebrate: happytime,
+  submitScore,
+  prepareRewarded(): void {},
+  showRewarded,
   breakBetweenRuns,
   onMute: onPlatformMute,
 }

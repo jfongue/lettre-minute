@@ -3,7 +3,7 @@
 // loaded in an iframe (the harness's /frame.html), « Play » must be on screen
 // and on top (document.elementFromPoint at its centre), and a real mouse click
 // (Input.dispatchMouseEvent, not a scripted .click()) must start the lesson
-// or the run. A regular player's run must then keep its field, Skip and Enter
+// or the run — through the powers' screen for a player who owns some. A regular player's run must then keep its field, Skip and Enter
 // inside the frame. Last, the page served from another host than localhost —
 // where the SDK can only end up `disabled` — must still show « Play » quickly.
 //
@@ -98,6 +98,19 @@ for (const [width, height] of SIZES) {
       await send('Input.dispatchMouseEvent', { type, x: play.x, y: play.y, button: 'left', clickCount: 1 })
     }
     await sleep(1500)
+    // A player who owns powers picks them first (`PowerLoadout`): its « Play »
+    // must sit in the frame too, and one more real click starts the run.
+    if (await evaluate(`!!${game}.querySelector('.loadout')`)) {
+      const go = await locate('.loadout .btn--play')
+      check(go && go.bottom <= go.height, `${label}: the powers' Play inside the frame`, go && `${Math.round(go.top)}..${Math.round(go.bottom)} of ${go.height}`)
+      check(go?.onTop, `${label}: the powers' Play on top at its centre`, go?.hit)
+      if (go) {
+        for (const type of ['mouseMoved', 'mousePressed', 'mouseReleased']) {
+          await send('Input.dispatchMouseEvent', { type, x: go.x, y: go.y, button: 'left', clickCount: 1 })
+        }
+        await sleep(1500)
+      }
+    }
     const stage = await evaluate(`${game}.querySelector('main')?.className ?? ''`)
     check(!/stage--home/.test(stage), `${label}: a real click on Play starts the ${player === 'newcomer' ? 'lesson' : 'run'}`, stage)
     if (player === 'regular') {

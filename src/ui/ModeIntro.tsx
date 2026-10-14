@@ -49,36 +49,40 @@ export function ModeIntro({
 
       {mode === 'endurance' && <EnduranceDemo />}
 
-      <ol className="wk-steps">
-        {text.steps.map(([head, body], index) => (
-          <li key={head} className="wk-step" style={{ '--i': index } as CSSProperties}>
-            <span className="wk-step-n" style={{ background: `var(--${STEP_TINTS[index % STEP_TINTS.length]})` }}>
-              {index + 1}
-            </span>
-            <span className="wk-step-text">
-              <strong>{head}</strong>
-              <span>{body}</span>
-            </span>
-          </li>
-        ))}
-      </ol>
+      {/* Les règles se lisent ensemble : le cadre paysage de CrazyGames les range
+          dans une colonne qui défile, à côté du titre et de « Suivant ». */}
+      <div className="wk-intro-rules">
+        <ol className="wk-steps">
+          {text.steps.map(([head, body], index) => (
+            <li key={head} className="wk-step" style={{ '--i': index } as CSSProperties}>
+              <span className="wk-step-n" style={{ background: `var(--${STEP_TINTS[index % STEP_TINTS.length]})` }}>
+                {index + 1}
+              </span>
+              <span className="wk-step-text">
+                <strong>{head}</strong>
+                <span>{body}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
 
-      {mode === 'endurance' && (
-        <section className="wk-table" aria-label={t.weekly.intro.endurance.table}>
-          <p className="section-title">{t.weekly.intro.endurance.table}</p>
-          <ul>
-            {TIERS.map((tier) => (
-              <li key={tier}>
-                <TierTag tier={tier} />
-                <span className="wk-table-bar" aria-hidden="true">
-                  <span style={{ width: `${(ENDURANCE_TIME_BONUS[tier] / 4) * 100}%` }} />
-                </span>
-                <strong>+{t.weekly.run.bonus(ENDURANCE_TIME_BONUS[tier]).slice(1)}</strong>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+        {mode === 'endurance' && (
+          <section className="wk-table" aria-label={t.weekly.intro.endurance.table}>
+            <p className="section-title">{t.weekly.intro.endurance.table}</p>
+            <ul>
+              {TIERS.map((tier) => (
+                <li key={tier}>
+                  <TierTag tier={tier} />
+                  <span className="wk-table-bar" aria-hidden="true">
+                    <span style={{ width: `${(ENDURANCE_TIME_BONUS[tier] / 4) * 100}%` }} />
+                  </span>
+                  <strong>+{t.weekly.run.bonus(ENDURANCE_TIME_BONUS[tier]).slice(1)}</strong>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
 
       <p className="wk-intro-score">
         <span className="wk-intro-score-mark" aria-hidden="true" />

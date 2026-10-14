@@ -121,7 +121,8 @@ select tests.is((select count(*)::int from public.leaderboard_board(null)), (sel
 select tests.ok(exists (select 1 from public.leaderboard where display_name = 'la'), 'the record board shows named players');
 select tests.ok(not exists (select 1 from public.leaderboard where id = tests.uid('lanon')), 'and hides anonymous ones');
 select tests.login_anon();
-select tests.throws($$select * from public.leaderboard_board('day')$$, 'a request with no session reads no board', '42501');
+-- Depuis 0073, un invité du portail CrazyGames lit les tableaux sans session.
+select tests.ok((select count(*) from public.leaderboard_board('day')) > 0, 'a request with no session reads the board');
 select tests.logout();
 
 -- --------------------------------------------------------- house bots --

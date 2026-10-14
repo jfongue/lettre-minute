@@ -40,9 +40,12 @@ Play Console (compte `/u/1/`), app 4975182793225983707 :
   (achats gratuits, remboursés d'office). Installer l'app depuis la piste de
   test, jamais depuis un APK local.
 
-## 2. Compte de service pour la vérification serveur (optionnel mais conseillé)
+## 2. Compte de service pour la vérification serveur (à faire)
 
-Sans lui, un achat est enregistré `unverified` (il compte quand même).
+Sans lui, un achat est enregistré `unverified` (il compte quand même), et
+`record_purchase` croit le jeton que l'app lui rapporte : **rien ne vérifie un
+achat aujourd'hui**. Le secret `PLAY_SERVICE_ACCOUNT` n'est pas posé sur le
+projet lié.
 
 1. Google Cloud, projet « LettreMinute » (222920504485) : activer l'API
    **Google Play Android Developer API**.
@@ -55,7 +58,11 @@ Sans lui, un achat est enregistré `unverified` (il compte quand même).
 4. Le secret : `supabase secrets set --project-ref <ref> PLAY_SERVICE_ACCOUNT="$(cat clé.json)"`
    (avec `SUPABASE_HOME="$PWD/.cache/supabase-home"`, voir `CLAUDE.local.md`).
 
-## 3. Côté Supabase (à faire, rien n'est appliqué)
+## 3. Côté Supabase (fait)
+
+0063 (achats), 0069 (achats du marchand web) et 0072 sont appliquées en base,
+et `premium-verify`, `premium-checkout` et `premium-webhook` sont déployées.
+Les commandes ci-dessous restent celles d'un projet neuf :
 
 ```
 supabase db push --linked --dry-run      # doit lister 0062 (défi du moment) puis 0063
@@ -69,10 +76,11 @@ supabase functions deploy premium-verify  # JWT vérifié (défaut) : l'app envo
    récompense**. Nom : « Récompense » ; récompense : 1 « bonus » (la valeur est
    ignorée, le jeu décide ce qu'elle rapporte).
 2. Copie l'ID du bloc (`ca-app-pub-XXXX/YYYY`) dans `.env.local` :
-   `VITE_ADMOB_REWARDED_ID=ca-app-pub-XXXX/YYYY`.
-   Sans cette variable, le build sert l'identifiant de test de Google (jamais de
-   revenu, jamais de risque) ; ne jamais cliquer sur les vraies pubs depuis son
-   propre téléphone.
+`VITE_ADMOB_REWARDED_ID=ca-app-pub-XXXX/YYYY`, puis reconstruis. **Sans cette
+variable, un build de release ne montre aucune pub** : les blocs de test de
+Google ne servent qu'en développement (`TESTING_UNITS`, `src/lib/native.ts`),
+jamais à un joueur ; ne jamais cliquer sur les vraies pubs depuis son propre
+téléphone.
 3. Les interstitiels restent éteints (`ADS_ENABLED`) ; seul le consentement UMP
    existant sert aussi aux pubs récompensées.
 
@@ -83,5 +91,7 @@ npm install            # le plugin @capgo/native-purchases est dans package.json
 npx cap sync android   # ajoute le module de facturation à android/ ; pas lancé ici
 ```
 
-Ensuite `npm run android:release` comme d'habitude. Aucune capture ni note de
+Le sync est fait depuis longtemps (`android/capacitor.settings.gradle` porte
+`:capgo-native-purchases`) ; en pratique il ne reste que `npm run android:release`.
+Aucune capture ni note de
 version ne doit citer le web.

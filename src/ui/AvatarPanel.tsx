@@ -9,7 +9,7 @@ import {
   unseenDesigns,
   type Achievement,
 } from '../domain/achievements'
-import { AVATARS, PALETTE, sameAvatar, type AvatarChoice } from '../domain/avatar'
+import { AVATARS, PALETTE, paintsAccent, sameAvatar, type AvatarChoice } from '../domain/avatar'
 import type { Profile } from '../domain/progression'
 import { loadSeenColours, loadSeenDesigns, saveSeenColours, saveSeenDesigns } from '../state/storage'
 import { useT } from '../i18n'
@@ -74,7 +74,7 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
   const news = all ? [] : unseenDesigns(profile, seen, discoveries)
   const fresh = new Set(unseenColours(profile, seenInks, discoveries))
   // Sans accent, la troisième couche ne peint rien : l'offrir aurait l'air cassé.
-  const layers = design.accent ? LAYERS : LAYERS.filter((id) => id !== 'accent')
+  const layers = paintsAccent(design) ? LAYERS : LAYERS.filter((id) => id !== 'accent')
   const activeLayer = layers.includes(layer) ? layer : 'shape'
 
   /**

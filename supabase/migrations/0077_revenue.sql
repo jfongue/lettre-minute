@@ -1,8 +1,8 @@
 -- Le tableau de bord gagne sa part « revenu » : les offres Premium ouvertes,
 -- les abonnements et les abonnés, les publicités regardées et d'où elles
--- viennent. `analytics_core` (0042) et `analytics_extras` (0040) gardent leurs
--- corps ; `analytics_snapshot` les recolle aux trois, comme 0036 l'avait fait
--- de deux.
+-- viennent. `analytics_core` (0042), `analytics_extras` (0040) et
+-- `analytics_platforms` (0075) gardent leurs corps ; `analytics_snapshot` les
+-- recolle aux quatre, comme 0036 l'avait fait de deux, puis 0075 de trois.
 --
 -- Deux sources, qui ne disent pas la même chose :
 --   * les événements du client — `premium_opened` (avec son motif),
@@ -155,7 +155,8 @@ $$;
 
 create or replace function public.analytics_snapshot(p_days integer default 30) returns jsonb
 language sql stable security definer set search_path = public as $$
-  select public.analytics_core(p_days) || public.analytics_extras(p_days) || public.analytics_revenue(p_days);
+  select public.analytics_core(p_days) || public.analytics_extras(p_days)
+    || public.analytics_platforms(p_days) || public.analytics_revenue(p_days);
 $$;
 
 revoke execute on function public.analytics_revenue(integer), public.analytics_snapshot(integer)

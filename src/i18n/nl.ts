@@ -210,6 +210,7 @@ export const nl: Messages = {
     less: 'Minder tonen',
     all: 'Alle klassementen',
     plus: 'Meer…',
+    me: 'Ik',
   },
 
   leaderboards: {
@@ -230,6 +231,8 @@ export const nl: Messages = {
     you: 'Jouw plaats',
     absent: 'Je staat er nog niet op: jij bent aan de beurt.',
     anonymous: 'Maak een account om in de klassementen te komen.',
+    guest: 'Je regel ‘Ik’ wordt op dit apparaat geteld. Log in om voor iedereen in het klassement te staan.',
+    signIn: 'Inloggen',
     runs: 'Spellen',
     solo: 'Solo',
     challenge: 'Uitdaging',
@@ -575,6 +578,16 @@ export const nl: Messages = {
   },
 
   powers: {
+    loadout: {
+      kicker: 'Voor het spel',
+      title: 'Je krachten',
+      lead: (slots) => (slots > 1 ? 'Tik de twee krachten aan die je meeneemt.' : 'Tik de kracht aan die je meeneemt.'),
+      slot: (index) => `Plek ${index}`,
+      play: 'Spelen',
+      playBare: 'Spelen zonder krachten',
+      back: 'Terug',
+      hint: 'Enter om te spelen',
+    },
     castChatter: 'Gekwebbel! De letter blijft',
 doubleSkipFree: 'Dubbel overslaan · gratis beurt',
     chatterLeft: (left) => `Gekwebbel · nog ${left} ${plural(left, 'woord', 'woorden')}`,

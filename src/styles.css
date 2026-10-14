@@ -422,6 +422,78 @@ button.challenge-past::after {
   color: var(--ink);
 }
 
+/* Sur ordinateur, chaque bouton de la partie montre la touche qui le commande
+   (Tab pour passer, Entrée pour valider) et s'agite quand le joueur en a
+   besoin : Tab quand il hésite, Entrée quand le mot est prêt. Au doigt, ni
+   touche ni secousse : le geste suffit. */
+.keycap {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.45rem;
+  padding: 0 0.3rem;
+  border: 2px solid currentColor;
+  border-radius: 0.35rem;
+  box-shadow: 0 2px 0 currentColor;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  line-height: 1;
+  opacity: 0.7;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .keycap {
+    display: inline-flex;
+  }
+
+  .btn--ready .keycap {
+    opacity: 1;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .btn--nudge,
+  .btn--ready {
+    animation: key-shake 1.8s ease-in-out infinite;
+  }
+
+  .btn--ready {
+    animation-duration: 1.1s;
+  }
+
+  .btn--nudge:active,
+  .btn--ready:active {
+    animation: none;
+  }
+}
+
+@keyframes key-shake {
+  0%,
+  55%,
+  100% {
+    transform: translateX(0);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  66% {
+    transform: translateX(4px);
+  }
+  72% {
+    transform: translateX(-3px);
+  }
+  78% {
+    transform: translateX(2px);
+  }
+  84% {
+    transform: translateX(0);
+  }
+}
+
 .btn--quiet {
   background: transparent;
   border-color: transparent;
@@ -1730,6 +1802,20 @@ animation: clock-bonus 500ms var(--ease-out);
   display: grid;
   gap: 0.9rem;
   min-width: 0;
+}
+
+/* A guest's note and the host's sign-in, side by side while they fit. */
+.leaderboards-guest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.leaderboards-guest .note {
+  flex: 1 1 220px;
+  margin: 0;
 }
 
 .leaderboards-periods .layer-tab {
@@ -4194,6 +4280,31 @@ referment d'un coup : `--way` donne le sens de chacune. */
 .cascade > :nth-child(5) { animation-delay: 280ms; }
 .cascade > :nth-child(6) { animation-delay: 350ms; }
 .cascade > :nth-child(n + 7) { animation-delay: 420ms; }
+
+/* Le bilan se range en deux volets pour le cadre paysage de CrazyGames
+   (crazygames.css) ; ici ils ne font pas de boîte, et l'ordre rend celui du
+   téléphone : la partie, ce qu'elle a débloqué, ses chiffres, le reste, puis
+   « Rejouer ». */
+.over-pane {
+  display: contents;
+}
+
+.over-pane--more > * {
+  order: 3;
+}
+
+.over-pane--more > .earned {
+  order: 1;
+}
+
+.over-pane--run > .figures,
+.over-pane--run > .mine-note {
+  order: 2;
+}
+
+.over-actions {
+  order: 4;
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -10928,3 +11039,250 @@ ligne, et se referme par une seconde tape. */
   }
 }
 
+
+/* ---------------------------------------------------- choix des pouvoirs - */
+
+.loadout {
+  width: min(40rem, 100%);
+  gap: 1.1rem;
+  align-content: start;
+}
+
+.loadout-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.loadout-heading .eyebrow {
+  margin: 0;
+  text-align: left;
+}
+
+.loadout-title {
+  margin: 0;
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  font-weight: 800;
+  line-height: 0.95;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.loadout-side {
+  display: grid;
+  gap: 0.9rem;
+  align-content: start;
+}
+
+.loadout-lead {
+  margin: 0;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.loadout-slots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.loadout-slot {
+  appearance: none;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0.3rem;
+  min-height: 9.5rem;
+  padding: 0.8rem 0.6rem;
+  border: var(--line) solid var(--ink);
+  border-radius: 0;
+  box-shadow: 5px 5px 0 var(--ink);
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out);
+}
+
+.loadout-slot:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.loadout-slot-icon {
+  width: 3.6rem;
+  height: 3.6rem;
+}
+
+.loadout-slot--landed .loadout-slot-icon {
+  animation: loadout-land 420ms var(--ease-spring, cubic-bezier(0.3, 1.4, 0.5, 1));
+}
+
+@keyframes loadout-land {
+  0% {
+    transform: scale(0.4) rotate(-25deg);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.loadout-slot-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.loadout-slot-uses {
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.loadout-slot--empty {
+  border-style: dashed;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink-soft);
+  cursor: default;
+}
+
+.loadout-slot-plus {
+  font-size: 2.6rem;
+  font-weight: 300;
+  line-height: 1;
+}
+
+.loadout-slot--locked {
+  border-style: dashed;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink-soft);
+  cursor: default;
+}
+
+.loadout-slot-how {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.loadout-actions {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.loadout-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+/* Un écran tactile n'a pas de touche Entrée à proposer. */
+@media (hover: none) {
+  .loadout-hint {
+    display: none;
+  }
+}
+
+.loadout-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.loadout-grid > li {
+  animation: rise 360ms var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 40ms);
+}
+
+.loadout-tile {
+  appearance: none;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  height: 100%;
+  padding: 0.5rem 2rem 0.5rem 0.5rem;
+  border: var(--line) solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out);
+}
+
+.loadout-tile:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.loadout-tile:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.loadout-tile--on {
+  box-shadow: 4px 4px 0 var(--ink);
+  border-width: 3px;
+}
+
+.loadout-tile-icon {
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  padding: 0.45rem;
+  border: var(--line) solid var(--ink);
+}
+
+.loadout-tile-text {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.loadout-tile-text strong {
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.loadout-tile-text span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 0.8rem;
+  line-height: 1.25;
+  color: var(--ink-soft);
+}
+
+.loadout-tile-check {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.45rem;
+  display: grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
