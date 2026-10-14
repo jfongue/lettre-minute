@@ -3,7 +3,6 @@ import { SWIPE_THRESHOLD, swipeVerdict, type Verdict } from '../domain/moderatio
 import { castVote, fetchModerationQueue, reportModerationSession, type ReviewCard, type VoteOutcome } from '../lib/cloud'
 import { sound } from '../lib/sound'
 import { categoryText, useT } from '../i18n'
-import { countModerationSession } from '../state/storage'
 import { Burst, Figure } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
 import { Pencil, VerdictMark } from './VerdictMark'
@@ -92,9 +91,8 @@ export function ModerationScreen({ lang, onDone, queue, onVerdict }: ModerationS
   // The last card's verdict sounds first; the confetti of a queue cleared come just after.
   useEffect(() => {
     if (!finished) return
-    countModerationSession()
-    // La file vidée compte aussi pour le serveur : c'est lui que lit le classement
-    // des sessions de modération.
+    // La file vidée se rapporte au serveur : c'est lui qui garde les sessions, et
+    // « Mes demandes » comme le classement y lisent le même compte.
     void reportModerationSession()
     const timer = setTimeout(sound.news, 450)
     return () => clearTimeout(timer)
