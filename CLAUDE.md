@@ -556,13 +556,12 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   `src/ui/FriendsView.tsx`). Le lien mène à `invite.html` (`src/invite.ts`,
   entrée Vite à part), dont les balises Open Graph et `invite-card.png`
   font l'aperçu dans WhatsApp ou Discord : ils ne lisent aucun script, ces
-  balises restent donc statiques. Sur Android, la page envoie à la fiche Play
-  du jeu, ouverte à tout le monde depuis la 1.8.0 : un seul bouton, plus de
-  groupe de testeurs à rejoindre ni de « devenir testeur » — le groupe public
-  et `npm run group:invites` ne servent plus qu'à l'attente de l'e-mail
-  ci-dessous, que la prochaine migration pourra retirer.
-  L'e-mail (`invite_tester`, 0034) attend que l'adresse soit dans le groupe
-  (ou une heure, 0035), puis part par la fonction Edge
+  balises restent donc statiques. La page envoie à la fiche Play, ouverte à tout
+  le monde depuis la 1.8.0 : un seul bouton, plus de groupe de testeurs à
+  rejoindre ni de « devenir testeur ».
+  L'e-mail (`invite_tester`, 0034) part dès que l'invitation est enregistrée —
+  0076 a retiré l'attente du groupe qu'imposait 0035 —, relevé tous les quarts
+  d'heure par la fonction Edge
   `invite`, depuis la boîte Gmail du jeu (`GMAIL_USER`,
   `GMAIL_APP_PASSWORD`, un mot de passe d'application) au nom de
   l'inviteur, une réponse allant à l'inviteur : aucun service ne laisse un
@@ -576,12 +575,12 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   Une adresse qui joue déjà reçoit une demande
   ordinaire, et l'inviteur lit `sent` dans les deux cas, pour que le champ
   ne dise jamais qui joue. Un nom de compte en forme d'adresse reste refusé
-  (`checkName`). Un groupe Google grand public n'a pas d'API : c'est
-  `npm run group:invites` (`scripts/group-invites.ts`), lancé toutes les dix
-  minutes par launchd sur le poste du développeur (`--install`), qui ajoute
-  les adresses invitées au groupe dans un Chrome sans tête connecté une fois
-  par `--login`, et les marque `listed_at`. Mac éteint, l'invité rejoint le
-  groupe lui-même depuis la page.
+  (`checkName`). Un groupe Google grand public n'a pas d'API : `npm run
+  group:invites` (`scripts/group-invites.ts`, `--install` / `--login` /
+  `--uninstall`) y ajoutait les adresses invitées depuis un Chrome sans tête
+  connecté une fois, la tâche launchd toutes les dix minutes — retirée le
+  14 octobre 2026 avec l'attente du groupe (0076), plus rien n'en dépendant. Le
+  script reste là pour tenir un groupe à la main.
 - **La boîte à idées part par Resend** (fonction Edge `ideas`, 0015) : sans
   `RESEND_API_KEY` dans les secrets, les idées s'accumulent en base sans
   mail.
