@@ -211,6 +211,7 @@ export const it: Messages = {
     less: 'Vedi meno',
     all: 'Tutte le classifiche',
     plus: 'Altro…',
+    me: 'Io',
   },
 
   leaderboards: {
@@ -231,6 +232,8 @@ export const it: Messages = {
     you: 'Il tuo posto',
     absent: 'Non ci sei ancora: tocca a te giocare.',
     anonymous: 'Crea un account per comparire nelle classifiche.',
+    guest: 'La tua riga «Io» è calcolata su questo dispositivo. Accedi per comparire nella classifica di tutti.',
+    signIn: 'Accedi',
     runs: 'Partite',
     solo: 'Solo',
     challenge: 'Sfida',

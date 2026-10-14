@@ -211,6 +211,7 @@ export const es: Messages = {
     less: 'Ver menos',
     all: 'Todas las clasificaciones',
     plus: 'Más…',
+    me: 'Yo',
   },
 
   leaderboards: {
@@ -231,6 +232,8 @@ export const es: Messages = {
     you: 'Tu puesto',
     absent: 'Aún no figuras: te toca jugar.',
     anonymous: 'Crea una cuenta para aparecer en las clasificaciones.',
+    guest: 'Tu línea «Yo» se cuenta en este dispositivo. Inicia sesión para aparecer en la clasificación de todos.',
+    signIn: 'Iniciar sesión',
     runs: 'Partidas',
     solo: 'Solo',
     challenge: 'Reto',

@@ -10,12 +10,10 @@ const appVersion = /versionName "([^"]+)"/.exec(readFileSync('android/app/build.
 
 // `vite build --mode crazygames` (npm run crazygames:build): the portal's own
 // page, relative paths, no public/ folder (privacy pages, invite art), and
-// every outside service blanked whatever .env.local says — the game runs on
-// the device, its progress kept by the portal's SDK (crazygames/README.md).
+// every outside service blanked whatever .env.local says but the server, for
+// the leaderboards, and the privacy page it calls for — the game runs on the
+// device, its progress kept by the portal's SDK (crazygames/README.md).
 const CRAZYGAMES_BLANKS = [
-  'VITE_SUPABASE_URL',
-  'VITE_SUPABASE_ANON_KEY',
-  'VITE_PRIVACY_URL',
   'VITE_ADMOB_INTERSTITIAL_ID',
   'VITE_PUSH_ENABLED',
   'VITE_GOOGLE_WEB_CLIENT_ID',

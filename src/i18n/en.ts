@@ -216,6 +216,7 @@ export const en: Messages = {
     less: 'See less',
     all: 'All leaderboards',
     plus: 'More…',
+    me: 'Me',
   },
 
   leaderboards: {
@@ -236,6 +237,8 @@ export const en: Messages = {
     you: 'Your place',
     absent: 'You’re not on it yet: your turn to play.',
     anonymous: 'Create an account to appear on the leaderboards.',
+    guest: 'Your “Me” line is counted on this device. Sign in to stand on the board for everyone.',
+    signIn: 'Sign in',
     runs: 'Runs',
     solo: 'Solo',
     challenge: 'Challenge',

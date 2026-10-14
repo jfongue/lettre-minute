@@ -7,6 +7,7 @@ import {
   createChallenge,
   deleteAccount,
   fetchAccount,
+  followHostAccount,
   fetchChallenge,
   fetchChallenges,
   fetchFriends,
@@ -86,6 +87,7 @@ import {
 } from './domain/challenge'
 import { complicationDue, ownedPowers, slotsOf, type PowerId } from './domain/powers'
 import { completeLeaderboard } from './domain/leaderboards'
+import { withGuest } from './ui/guestBoards'
 import { localBoards } from './ui/localBoards'
 import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
@@ -422,11 +424,14 @@ setMenuPage(null)
     superModerator: moderation ? moderation.super : storedFeatures.roles.superModerator,
     premium: isPlus(session.profile),
   }
-  // Without a server the home boards rank the player's own runs.
-  const ownBoards = useMemo(
-    () => (host.localBoards ? localBoards(history, avatar, t.tag) : null),
-    [history, avatar, t.tag],
-  )
+  // A guest of a host that gives no anonymous account (CrazyGames) finds
+  // their own best on the server's boards, or their runs alone while the
+  // server is out of reach.
+  const guest = host.guestBoards && (account === null || account.anonymous)
+  const homeBoards = useMemo(() => {
+    if (!guest) return boards
+    return boards ? withGuest(boards, { history, avatar, name: t.boards.me, tag: t.tag }) : localBoards(history, avatar, t.tag)
+  }, [guest, boards, history, avatar, t])
   const features = useMemo(
     () => hostFeatures(enabledFeatures(storedFeatures.flags, roles)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -607,6 +612,27 @@ setMenuPage(null)
     })
     flushSubmissions()
   }, [adopt, answer])
+
+  // The host's own account (CrazyGames): its signed-in player plays under the
+  // game account linked to it, a guest under none.
+  useEffect(() => {
+    if (!host.account) return
+    const follow = () =>
+      host
+        .account!()
+        .then(followHostAccount)
+        .then((changed) => {
+          if (!changed) return
+          fetchAccount().then((found) => {
+            if (found === 'unreachable') return
+            if (found) adopt(found)
+            else setAccount(null)
+          })
+          loadBoards().then(setBoards)
+        })
+    follow()
+    host.onAccount?.(follow)
+  }, [adopt])
 
   const refreshModeration = useCallback(() => {
     fetchModerationStatus(lang).then(setModeration)
@@ -1967,7 +1993,7 @@ setStartedAt((at) => at ?? Date.now())
           error={session.error}
           loading={session.phase === 'loading'}
           settled={homeSettled}
-          boards={on('leaderboards') ? (host.localBoards ? ownBoards : boards) : null}
+          boards={on('leaderboards') ? homeBoards : null}
           me={account && !account.anonymous ? account.name : null}
           climbed={climbed}
           avatar={avatar}

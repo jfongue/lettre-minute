@@ -40,10 +40,28 @@ export interface Host {
   /** Every hidden answer of the summary can be uncovered: neither an ad nor Premium pays for more here. */
   unlimitedReveals: boolean
   /**
-   * No server to rank against: the boards are the player's own best runs, drawn
-   * from the device's history (`src/ui/localBoards.ts`), and stay on the solo measures.
+   * The server never hands this host's guests an anonymous account: a player
+   * with no account of the host's own writes nothing, and reads the boards
+   * with the public key alone.
    */
-  localBoards: boolean
+  anonymousAccounts: boolean
+  /**
+   * A player without an account reads the server's boards with their own best
+   * placed on them as « Moi », counted from the device's history
+   * (`src/ui/guestBoards.ts`); with the server out of reach, the boards are
+   * those runs alone (`src/ui/localBoards.ts`).
+   */
+  guestBoards: boolean
+  /**
+   * The host's own signed-in player, as a token the server checks
+   * (`crazygames-auth`): null for a guest. Absent where accounts are the
+   * game's own (Android, the web) or there are none (Reddit).
+   */
+  account?(): Promise<string | null>
+  /** Called when the player signs in to the host without the page reloading. */
+  onAccount?(listener: () => void): void
+  /** The host's own sign-in prompt; true once the player is signed in. */
+  promptAccount?(): Promise<boolean>
   /** In a run (countdown, clock, first lesson) or not; only the changes matter. */
   setGameplay(on: boolean): void
   /** A run that beats a record the player already had. */

@@ -40,6 +40,10 @@ interface CrazySdk {
     /** False where the page is embedded by anyone but the portal. */
     isUserAccountAvailable?: boolean
     submitScore?(score: { encryptedScore: string; score: number }): void
+    getUser?(): Promise<{ username: string } | null>
+    getUserToken?(): Promise<string>
+    addAuthListener?(listener: (user: unknown) => void): void
+    showAuthPrompt?(): Promise<unknown>
   }
 }
 
@@ -178,6 +182,49 @@ function submitScore(score: number): void {
     .catch(() => {
       /* a score the portal refuses costs a rank, never the run that made it */
     })
+}
+
+/** The portal's account, where it has one: the page embedded anywhere else plays as a guest. */
+function portalUser(): NonNullable<CrazySdk['user']> | null {
+  const user = sdk?.user
+  return user && user.isUserAccountAvailable !== false ? user : null
+}
+
+// The SDK answers fast on the portal; one that hangs must not hold the boards.
+const ACCOUNT_TIMEOUT_MS = 5000
+
+/**
+ * The signed-in player's token, for `crazygames-auth` to check: null for a
+ * guest, for a page off the portal, and for an SDK that refuses or hangs. The
+ * SDK refreshes the token itself, so it is asked for each time, never kept.
+ */
+async function portalAccount(): Promise<string | null> {
+  const user = portalUser()
+  if (!user?.getUser || !user.getUserToken) return null
+  try {
+    const signedIn = await within(user.getUser(), ACCOUNT_TIMEOUT_MS)
+    if (!signedIn || signedIn === 'timeout') return null
+    const token = await within(user.getUserToken(), ACCOUNT_TIMEOUT_MS)
+    return typeof token === 'string' && token !== 'timeout' ? token : null
+  } catch {
+    return null
+  }
+}
+
+/** A sign-in on the portal: with the Data module on, the portal reloads the page instead. */
+function onPortalAccount(listener: () => void): void {
+  safely(() => portalUser()?.addAuthListener?.(() => listener()))
+}
+
+/** The portal's own sign-in window; false once closed without signing in, or anywhere it cannot open. */
+async function promptPortalAccount(): Promise<boolean> {
+  const user = portalUser()
+  if (!user?.showAuthPrompt) return false
+  try {
+    return Boolean(await user.showAuthPrompt())
+  } catch {
+    return false
+  }
 }
 
 /** The portal's language first (`en-US`), then the browser's. */
@@ -392,14 +439,14 @@ export function restoreSavedProgress(): void {
 }
 
 /**
- * The portal hosts the game alone: no server, no account, nothing that leads
- * off its page (it refuses a button that does nothing, such as « share —
+ * The portal hosts the game nearly alone: the server only for the boards, the
+ * portal's own account as the only one, nothing that leads off its page (it refuses a button that does nothing, such as « share —
  * soon »), none of the phone's offers. It lists the game as « Letter Minute »
  * in every language, and English stands in for the language picker: a player
  * there must land in the game, not on a question.
  */
 export const crazyGamesHost: Host = {
-  // The boards stay open: they rank the player's own runs, with no server or account.
+  // The boards stay open: a guest reads them, a portal account stands on them.
   closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES].filter((id) => id !== 'leaderboards')),
   // A portal game lives on players coming back: the day's run and its streak,
   // and the challenge of the moment the app opens to everyone, need no
@@ -419,7 +466,13 @@ export const crazyGamesHost: Host = {
   levelBonuses: false,
   // Until the portal allows the ad that pays for them, the reveals are free.
   unlimitedReveals: !REWARDED,
-  localBoards: true,
+  // A guest of the portal plays without any account: nothing of theirs
+  // reaches the server, which they read as anyone may.
+  anonymousAccounts: false,
+  guestBoards: true,
+  account: portalAccount,
+  onAccount: onPortalAccount,
+  promptAccount: promptPortalAccount,
   setGameplay,
   celebrate: happytime,
   submitScore,

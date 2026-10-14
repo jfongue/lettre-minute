@@ -46,6 +46,7 @@ import type { WordsReport } from './words'
 import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
 import type { SlotEntry, Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
+import { guestFits, placeGuest } from '../domain/localBoards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 import { ModeIntro } from '../ui/ModeIntro'
 import { WeeklyCardScenario, WeeklyDoneScenario, WeeklyRecapScenario, WeeklyResultsScenario, WeeklyRunScenario, WeeklyScreenScenario } from './weeklyScenarios'
@@ -860,6 +861,25 @@ function LeaderboardsScenario({ named, moderator = false, mineAt }: { named: boo
   return (
     <div className="sheet">
       <LeaderboardsPage named={named} moderator={moderator} load={(stat, period) => fakeLeaderboard(stat, period, mineAt)} />
+    </div>
+  )
+}
+
+/** Un invité de CrazyGames : sa meilleure valeur glissée sur le tableau, ou sous lui à la 63e place. */
+const GUEST_VALUES: Partial<Record<StatId, number>> = { best: 250, points: 20, runs: 3, words: 40, combo: 9 }
+
+async function fakeGuestLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | null> {
+  const board = await fakeLeaderboard(stat, period, -1)
+  if (!board) return null
+  const value = (GUEST_VALUES[stat] ?? 0) * (period === 'day' ? 1 : period === 'week' ? 4 : 20)
+  const open = { rows: board.rows, me: null }
+  return placeGuest(open, { name: 'Moi', avatar: DEFAULT_AVATAR, value }, guestFits(open, value) ? null : 63)
+}
+
+function GuestLeaderboardsScenario() {
+  return (
+    <div className="sheet">
+      <LeaderboardsPage named={false} guest onSignIn={() => {}} load={fakeGuestLeaderboard} />
     </div>
   )
 }
@@ -2388,6 +2408,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Les classements se lisent, avec l’invitation à créer un compte',
     phase: 'home',
     render: () => <LeaderboardsScenario named={false} />,
+  },
+  {
+    id: 'leaderboards-guest',
+    group: 'Accueil',
+    title: 'Page des classements, invité de CrazyGames',
+    how: 'Sans compte : le classement du serveur avec la ligne « Moi » comptée sur l’appareil — parmi les lignes en « Meilleure partie », sous elles à la 63e place en « Points », absente en « Découvertes » — et le bouton qui ouvre la connexion du portail',
+    phase: 'home',
+    render: () => <GuestLeaderboardsScenario />,
   },
   {
     id: 'leaderboards-advanced',

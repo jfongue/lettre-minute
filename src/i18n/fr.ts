@@ -240,6 +240,7 @@ export const fr = {
     less: 'Voir moins',
     all: 'Tous les classements',
     plus: 'Plus…',
+    me: 'Moi',
   },
 
   leaderboards: {
@@ -260,6 +261,8 @@ export const fr = {
     you: 'Ta place',
     absent: 'Tu n’y figures pas encore : à toi de jouer.',
     anonymous: 'Crée un compte pour figurer aux classements.',
+    guest: 'Ta ligne « Moi » est comptée sur cet appareil. Connecte-toi pour figurer au classement de tous.',
+    signIn: 'Se connecter',
     runs: 'Parties',
     solo: 'Solo',
     challenge: 'Défi',

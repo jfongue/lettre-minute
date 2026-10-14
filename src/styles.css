@@ -1804,6 +1804,20 @@ animation: clock-bonus 500ms var(--ease-out);
   min-width: 0;
 }
 
+/* A guest's note and the host's sign-in, side by side while they fit. */
+.leaderboards-guest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.leaderboards-guest .note {
+  flex: 1 1 220px;
+  margin: 0;
+}
+
 .leaderboards-periods .layer-tab {
   min-height: 2.5rem;
 }

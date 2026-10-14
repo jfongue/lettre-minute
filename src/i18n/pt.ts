@@ -211,6 +211,7 @@ export const pt: Messages = {
     less: 'Ver menos',
     all: 'Todos os rankings',
     plus: 'Mais…',
+    me: 'Eu',
   },
 
   leaderboards: {
@@ -231,6 +232,8 @@ export const pt: Messages = {
     you: 'Sua posição',
     absent: 'Você ainda não aparece: é sua vez de jogar.',
     anonymous: 'Crie uma conta para aparecer nos rankings.',
+    guest: 'Sua linha “Eu” é contada neste aparelho. Entre para aparecer no ranking de todos.',
+    signIn: 'Entrar',
     runs: 'Partidas',
     solo: 'Solo',
     challenge: 'Desafio',

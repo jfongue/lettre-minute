@@ -33,13 +33,16 @@ describe('les hôtes', () => {
     }
   })
 
-  it('ne classent que les parties du joueur sur CrazyGames, où les classements restent ouverts sans serveur', () => {
+  it('ouvrent à l’invité de CrazyGames les classements du serveur, sans lui donner de compte anonyme', () => {
     expect(crazyGamesHost.closedFeatures).not.toContain('leaderboards')
-    expect(crazyGamesHost.localBoards).toBe(true)
-    expect(appHost.localBoards).toBe(false)
+    expect(crazyGamesHost.guestBoards).toBe(true)
+    expect(crazyGamesHost.anonymousAccounts).toBe(false)
+    expect(appHost.guestBoards).toBe(false)
+    expect(appHost.anonymousAccounts).toBe(true)
+    expect(appHost.account).toBeUndefined()
     // Reddit n'a pas de classement : il ne se classe pas tout seul.
     expect(redditHost.closedFeatures).toContain('leaderboards')
-    expect(redditHost.localBoards).toBe(false)
+    expect(redditHost.guestBoards).toBe(false)
   })
 
   it('ne vendent Premium et ne passent les pubs récompensées que sur le téléphone', () => {

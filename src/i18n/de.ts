@@ -210,6 +210,7 @@ export const de: Messages = {
     less: 'Weniger anzeigen',
     all: 'Alle Ranglisten',
     plus: 'Mehr…',
+    me: 'Ich',
   },
 
   leaderboards: {
@@ -230,6 +231,8 @@ export const de: Messages = {
     you: 'Dein Platz',
     absent: 'Du stehst noch nicht darauf: Jetzt bist du dran.',
     anonymous: 'Erstelle ein Konto, um in den Ranglisten zu erscheinen.',
+    guest: 'Deine Zeile „Ich“ wird auf diesem Gerät gezählt. Melde dich an, um für alle in der Rangliste zu stehen.',
+    signIn: 'Anmelden',
     runs: 'Partien',
     solo: 'Solo',
     challenge: 'Challenge',

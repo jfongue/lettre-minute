@@ -65,6 +65,20 @@ async function guard<T>(work: () => Promise<T>, fallback: T): Promise<T> {
   }
 }
 
+/**
+ * For what anyone may read, the boards: a guest of a host that gives no
+ * anonymous account (CrazyGames) asks with the public key alone.
+ */
+async function openGuard<T>(work: () => Promise<T>, fallback: T): Promise<T> {
+  if (!supabase) return fallback
+  try {
+    await connect()
+    return await work()
+  } catch {
+    return fallback
+  }
+}
+
 export function fetchCrowdUsage(lang: string): Promise<CrowdUsage> {
   return guard(async () => {
     const { data } = await supabase!.from('word_popularity').select('word, share').limit(5000)
@@ -683,7 +697,7 @@ export function correctSubmission(submission: Submission, display: string): Prom
 
 /** Null without a server, which hides the boards rather than showing them empty. */
 export function fetchBoards(): Promise<Boards | null> {
-  return guard(async () => {
+  return openGuard(async () => {
     const board = async (id: BoardId): Promise<BoardRow[]> => {
       const { data, error } = await supabase!.rpc('leaderboard_board', { p_board: id })
       if (error) throw error
@@ -700,7 +714,7 @@ export function fetchBoards(): Promise<Boards | null> {
 
 /** Null without a server or when it does not answer: the page says so rather than showing it empty. */
 export function fetchLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | null> {
-  return guard(async () => {
+  return openGuard(async () => {
     const { data, error } = await supabase!.rpc('leaderboard_stat', { p_stat: stat, p_period: period })
     if (error) return null
     const rows = ((data ?? []) as Record<string, unknown>[]).map((row) => ({
@@ -717,6 +731,18 @@ export function fetchLeaderboard(stat: StatId, period: PeriodId): Promise<Leader
       rows: rows.filter((entry) => !entry.extra).map((entry) => entry.row),
       me: rows.find((entry) => entry.extra)?.row ?? null,
     }
+  }, null)
+}
+
+/**
+ * The place a value of the player's own would take among the named accounts
+ * (`leaderboard_rank`, 0073): a guest's best, past the rows of the board.
+ * Null when the server does not answer, or for a measure it does not place.
+ */
+export function fetchLeaderboardRank(stat: StatId, period: PeriodId, value: number): Promise<number | null> {
+  return openGuard(async () => {
+    const { data, error } = await supabase!.rpc('leaderboard_rank', { p_stat: stat, p_period: period, p_value: value })
+    return error || typeof data !== 'number' ? null : data
   }, null)
 }
 
@@ -1272,6 +1298,41 @@ export async function logOut(): Promise<void> {
     /* the local session is dropped either way */
   }
   forgetSession()
+}
+
+/**
+ * Follows the host's own account (CrazyGames): its token opens the game
+ * account linked to it (`crazygames-auth`, 0073), and no token — a guest, or a
+ * player who signed out of the portal, which reloads the page — drops the
+ * session left on the device, so a guest never plays under someone else's
+ * name. True when the session changed.
+ */
+export async function followHostAccount(token: string | null): Promise<boolean> {
+  if (!supabase) return false
+  try {
+    const held = (await supabase.auth.getSession()).data.session
+    if (!token) {
+      if (!held) return false
+      await logOut()
+      return true
+    }
+    const base = import.meta.env.VITE_SUPABASE_URL
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY
+    const response = await fetch(`${base}/functions/v1/crazygames-auth`, {
+      method: 'POST',
+      headers: { apikey: key, authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ token }),
+    })
+    if (!response.ok) return false
+    const { tokenHash } = await response.json()
+    if (typeof tokenHash !== 'string') return false
+    const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'magiclink' })
+    if (error || !data.session) return false
+    forgetSession()
+    return held?.user.id !== data.session.user.id
+  } catch {
+    return false
+  }
 }
 
 export function pushAvatar(avatar: AvatarChoice): Promise<boolean> {

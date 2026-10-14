@@ -1,5 +1,5 @@
 import type { AvatarChoice } from './avatar'
-import type { Boards } from './boards'
+import type { BoardRow, Boards } from './boards'
 import type { RunRecord } from './history'
 import { placed, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from './leaderboards'
 
@@ -50,4 +50,64 @@ export function localBoards(
   const rows = (period: PeriodId) =>
     localLeaderboard('best', since(period), history, now, avatar, label(period)).rows.map(({ name, avatar, value, own }) => ({ name, avatar, value, own }))
   return { day: rows('day'), week: rows('week'), discoveries: [] }
+}
+
+/** The rows a server board lists before the player's own line (`leaderboard_stat`). */
+export const SERVER_BOARD_SIZE = 50
+
+/**
+ * A guest's value on a server board, from the device's runs since `since`,
+ * counted as `leaderboard_values` counts a player's: 0 on a measure the
+ * device cannot count (discoveries, added words, moderation).
+ */
+export function guestValue(stat: StatId, history: readonly RunRecord[], since: number, now: number): number {
+  const runs = history.filter((run) => run.at >= since && run.at <= now)
+  switch (stat) {
+    case 'best':
+      return Math.max(0, ...runs.map((run) => run.score))
+    case 'combo':
+      return Math.max(0, ...runs.map((run) => run.bestCombo))
+    case 'points':
+      return runs.reduce((sum, run) => sum + run.score, 0)
+    case 'words':
+      return runs.reduce((sum, run) => sum + run.words.length, 0)
+    case 'runs':
+      return runs.length
+    default:
+      return 0
+  }
+}
+
+/** Where a guest's value goes among rows best first: after every row at least as good. */
+function slotOf(rows: readonly { value: number }[], value: number): number {
+  const at = rows.findIndex((row) => row.value < value)
+  return at === -1 ? rows.length : at
+}
+
+/** The guest's value falls among the board's rows, so no server rank is needed to place it. */
+export function guestFits(board: Leaderboard, value: number): boolean {
+  return value > 0 && (board.rows.length < SERVER_BOARD_SIZE || slotOf(board.rows, value) < board.rows.length)
+}
+
+/**
+ * A server board with the guest's line on it: among its rows when it fits,
+ * past them at `rank` (the server's `leaderboard_rank`) otherwise, and left as
+ * it is with no value or no rank.
+ */
+export function placeGuest(board: Leaderboard, guest: BoardRow, rank: number | null): Leaderboard {
+  if (guestFits(board, guest.value)) {
+    const at = slotOf(board.rows, guest.value)
+    const line: PlacedRow = { ...guest, own: true, place: 0, mine: true }
+    return { rows: placed([...board.rows.slice(0, at), line, ...board.rows.slice(at)]), me: null }
+  }
+  if (guest.value <= 0 || rank === null) return board
+  return { rows: board.rows, me: { ...guest, own: true, place: rank, mine: true } }
+}
+
+/** A home board with the guest's best on it, where it ranks among the rows the server sent. */
+export function placeGuestRow(rows: readonly BoardRow[], guest: BoardRow): BoardRow[] {
+  if (guest.value <= 0) return [...rows]
+  const at = slotOf(rows, guest.value)
+  if (at >= SERVER_BOARD_SIZE) return [...rows]
+  return [...rows.slice(0, at), { ...guest, own: true }, ...rows.slice(at)]
 }

@@ -61,6 +61,6 @@ export function focusedRows(rows: readonly BoardRow[], names: readonly string[])
   const ranked = rows.map((row, index) => ({ row, rank: index + 1 }))
   if (rows.length <= BOARD_FOCUS_LIMIT) return { rows: ranked, more: false }
   const circle = new Set(names.map((name) => name.toLowerCase()))
-  const kept = ranked.filter(({ row, rank }) => rank <= PODIUM || circle.has(row.name.toLowerCase()))
+  const kept = ranked.filter(({ row, rank }) => rank <= PODIUM || row.own === true || circle.has(row.name.toLowerCase()))
   return { rows: kept, more: kept.length < ranked.length }
 }
