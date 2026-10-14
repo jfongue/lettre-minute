@@ -24,6 +24,8 @@ select tests.ok(not public.word_shape_ok(repeat('a', 29)), 'a card has no room p
 
 -- ------------------------------------------------ la proposition est close --
 
+-- Une langue ordinaire : ce fichier éprouve la forme des mots, pas le seuil de 0077.
+select tests.full_french();
 select tests.new_user('ws');
 select tests.new_user('wa');
 select tests.new_user('wb');

@@ -105,11 +105,16 @@ par une copie de l'écran ; et chaque build touché se vérifie.
 - **Règles qui diffèrent** — Reddit : graine du jour (`dailySeed`), même
   partie pour tous les lecteurs, pas de pouvoirs, `Judge` sans compteurs
   d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : le serveur
-  pour les classements seuls — un invité n'a aucun compte, pas même anonyme
-  (`host.anonymousAccounts`), et les lit sous le rôle `anon` avec sa ligne
-  « Moi » comptée sur l'appareil ; un joueur connecté au portail joue sous le
-  compte que `crazygames-auth` lie à son identifiant CrazyGames (0073) —, aucune
-  autre fonctionnalité serveur, les autres variables externes
+  pour les classements, les amis et le duel — un invité n'a aucun compte, pas
+  même anonyme
+  (`host.anonymousAccounts`), et lit les classements sous le rôle `anon` avec sa
+  ligne « Moi » comptée sur l'appareil, l'écran des amis lui proposant la
+  connexion du portail ; un joueur connecté au portail joue sous le
+  compte que `crazygames-auth` lie à son identifiant CrazyGames (0073), nommé
+  d'après son pseudo (0074), et a donc les amis, le face-à-face et le duel,
+  matchmaking compris —, ni défi de 24 h, ni invitation hors de la page, ni
+  aucune autre
+  fonctionnalité serveur, les autres variables externes
   vidées au build, SDK
   du portail (événements, pub midgame, muet, sauvegarde par son module Data,
   classement hebdo, langue), thème clair par défaut, accueil en deux colonnes
@@ -386,22 +391,28 @@ lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphon
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client — et depuis 0007, seules les fonctions
   du serveur peuvent l'appeler.
-- **Les règles de modération vivent en SQL** (`settle_review`, 0059), pas dans
-  le domaine : cinq « correct », deux « incorrect », chaque « je ne sais pas »
+- **Les règles de modération vivent en SQL** (`settle_review`, 0059, 0078), pas
+  dans le domaine : cinq « correct », deux « incorrect », chaque « je ne sais pas »
   demandant deux « correct » de plus (plafond quinze) et une demi-voix de plus
   pour bloquer (plafond sept), les cas spéciaux restant à un super modérateur
-  seul. Super modérateur est un rôle donné à la main
+  seul. **Une langue de moins de dix modérateurs se contente de deux
+  « correct »** (`thin_language`, 0078) : `moderators.lang` dit la langue de
+  chaque juge — « fr » tant qu'il n'a rien ouvert, celle de la file qu'il ouvre
+  ensuite (`top_up_moderation`) —, et le seuil se lit sur la langue de la revue.
+  Super modérateur est un rôle donné à la main
   (`moderators.super`, 0047), plus un rang gagné : son vote compte double, sans
-  faire entrer un mot à lui seul, et il règle les fonctionnalités de tous.
+  faire entrer un mot à lui seul — deux personnes sont toujours nécessaires,
+  même à deux voix —, et il règle les fonctionnalités de tous.
   `src/domain/moderation.ts` ne garde que ce que l'interface doit
   savoir (taille de session, lecture d'un glissement). La modération suit la
   langue de l'interface : un modérateur ne voit que les mots préfixés de la
   sienne.
 
 - **Une file de modération courte se remplit toute seule** (`top_up_moderation`,
-  0019, 0037) : ouvrir « Mes demandes » avec moins de cinq mots à juger
+  0019, 0037, 0052) : ouvrir « Mes demandes » avec moins de cinq mots à juger
   complète la file à cinq depuis la réserve, super modérateur compris,
-  proposés par un joueur maison. Ses mots
+  proposés par un joueur maison — c'est aussi l'ouverture qui dit au serveur
+  dans quelle langue ce modérateur juge (`moderators.lang`, 0078). Ses mots
   (`scripts/moderation-reserve.json`) doivent manquer aux dictionnaires : un
   mot déjà connu ferait voter les modérateurs pour rien, le script le jette.
   **Un seul versement par heure, toutes langues confondues** (0023,
@@ -500,9 +511,9 @@ lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphon
   retrouve à sa lecture suivante et se déclare prêt tout seul (`quick`). Un
   joueur qui ne relit plus la file en sort au bout de 20 s, un blocage dans un
   sens ou l'autre empêche l'appariement. Il vit derrière la fonctionnalité
-  `duel`, comme le reste du duel, et se joue sur toutes les versions qui ont
-  le serveur — pas encore CrazyGames, dont les joueurs n'ont pas de compte
-  nommé (voir `crazygames/README.md`).
+  `duel`, comme le reste du duel, et demande un compte nommé sur chaque version
+  qui l'ouvre : CrazyGames le propose à son joueur connecté (0073), et n'offre
+  pas la carte à son invité, qui joue la table des joueurs maison.
 - **Chaque donnée dit d'où elle vient** (0072) : le client ajoute
   `platform=<android|web|crazygames|reddit>` à `X-Client-Info`
   (`src/lib/supabase.ts`), et un déclencheur range cette valeur dans

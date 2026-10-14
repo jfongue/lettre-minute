@@ -280,6 +280,7 @@ export const nl: Messages = {
       unreachable: () => 'De server reageert niet. Probeer het zo opnieuw.',
     },
     noServer: 'Vrienden vragen een verbinding met de spelserver, die er nu niet is.',
+    hostSignIn: 'Vrienden gaan via je account: meld je aan om de spelers van de klassementen terug te vinden.',
     needAccount: 'Een vriend vindt je via je accountnaam: maak die eerst, je gespeelde spellen gaan mee.',
     createAccount: 'Mijn account maken',
     add: 'Vriend toevoegen',
@@ -427,8 +428,8 @@ export const nl: Messages = {
   moderation: {
     title: 'Moderatie',
     superTitle: 'Supermoderator',
-    lead: 'Jij beoordeelt de woorden die spelers voorstellen: vijf keer „goed” laat een woord erin, twee keer „fout” blokkeert het. Elk „weet ik niet” vraagt twee keer „goed” extra en een halve stem meer om te blokkeren.',
-    superLead: 'Jouw stem telt dubbel: vijf keer „goed” laat een woord erin en jouw enkele „fout” blokkeert het. Speciale gevallen wachten alleen op supermoderators.',
+    lead: 'Jij beoordeelt de woorden die spelers voorstellen: twee keer „goed” laat een woord erin waar weinig juryleden zijn, vijf waar het er veel zijn; twee keer „fout” blokkeert het. Elk „weet ik niet” vraagt twee keer „goed” extra en een halve stem meer om te blokkeren.',
+    superLead: 'Jouw stem telt dubbel, maar nooit alleen: twee keer „goed” laat een woord erin waar weinig juryleden zijn, vijf waar het er veel zijn, en jouw enkele „fout” blokkeert het. Speciale gevallen wachten alleen op supermoderators.',
     start: (size) => `Sessie starten · ${size} woorden`,
     offer: {
       title: 'Word moderator!',
@@ -452,7 +453,7 @@ export const nl: Messages = {
       hint: 'Moderator: houd een woord ingedrukt om het te melden.',
       title: 'Dit woord melden',
       lead: (word, category) =>
-        `„${word}” hoort niet in „${category}”? De andere moderators beoordelen het: vijf eens en het verlaat de categorie in de volgende versie.`,
+        `„${word}” hoort niet in „${category}”? De andere moderators beoordelen het: twee eens waar weinig juryleden zijn, vijf elders, en het verlaat de categorie in de volgende versie.`,
       confirm: 'Melden',
       close: 'Sluiten',
       reasonLabel: 'Reden (optioneel)',

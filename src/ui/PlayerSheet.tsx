@@ -53,7 +53,8 @@ export function PlayerName({ name, avatar, className, children }: PlayerNameProp
   const t = useT()
   const [open, setOpen] = useState(false)
   const friends = useFeature('friends')
-  // Without friends (CrazyGames) the sheet would offer only what cannot be done.
+  // Without friends (Reddit, where the post has no server) the sheet would
+  // offer only what cannot be done.
   if (!friends) return <>{children}</>
   return (
     <>

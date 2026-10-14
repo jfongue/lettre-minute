@@ -280,6 +280,7 @@ export const de: Messages = {
       unreachable: () => 'Der Server antwortet nicht. Versuch es gleich noch einmal.',
     },
     noServer: 'Freunde brauchen eine Verbindung zum Spielserver, die gerade fehlt.',
+    hostSignIn: 'Freunde laufen über dein Konto: melde dich an, um die Spieler aus den Bestenlisten wiederzufinden.',
     needAccount: 'Ein Freund findet dich über deinen Kontonamen: Erstelle ihn zuerst, deine gespielten Partien kommen mit.',
     createAccount: 'Mein Konto erstellen',
     add: 'Freund hinzufügen',
@@ -426,8 +427,8 @@ export const de: Messages = {
   moderation: {
     title: 'Moderation',
     superTitle: 'Supermoderator',
-    lead: 'Du beurteilst die Wörter, die Spieler vorschlagen: Fünf „richtig“ lassen ein Wort hinein, zwei „falsch“ sperren es. Jedes „weiß nicht“ verlangt zwei „richtig“ mehr und eine halbe Stimme mehr zum Sperren.',
-    superLead: 'Deine Stimme zählt doppelt: Fünf „richtig“ lassen ein Wort hinein, und dein einzelnes „falsch“ sperrt es. Sonderfälle warten nur auf Supermoderatoren.',
+    lead: 'Du beurteilst die Wörter, die Spieler vorschlagen: Zwei „richtig“ lassen ein Wort hinein, wo es wenige Richter gibt, fünf, wo es viele gibt; zwei „falsch“ sperren es. Jedes „weiß nicht“ verlangt zwei „richtig“ mehr und eine halbe Stimme mehr zum Sperren.',
+    superLead: 'Deine Stimme zählt doppelt, aber nie allein: Zwei „richtig“ lassen ein Wort hinein, wo es wenige Richter gibt, fünf, wo es viele gibt, und dein einzelnes „falsch“ sperrt es. Sonderfälle warten nur auf Supermoderatoren.',
     start: (size) => `Sitzung starten · ${size} Wörter`,
     offer: {
       title: 'Werde Moderator!',
@@ -451,7 +452,7 @@ export const de: Messages = {
       hint: 'Moderator: Wort lange drücken, um es zu melden.',
       title: 'Dieses Wort melden',
       lead: (word, category) =>
-        `„${word}“ gehört nicht in „${category}“? Die anderen Moderatoren beurteilen es: fünf dafür und es verlässt die Kategorie in der nächsten Version.`,
+        `„${word}“ gehört nicht in „${category}“? Die anderen Moderatoren beurteilen es: zwei dafür, wo es wenige Richter gibt, fünf sonst, und es verlässt die Kategorie in der nächsten Version.`,
       confirm: 'Melden',
       close: 'Schließen',
       reasonLabel: 'Grund (optional)',

@@ -7,6 +7,8 @@
 -- Les revues et les votes se lisent après `tests.logout()` : la RLS les cache
 -- au rôle `authenticated`, seules les fonctions les rendent.
 
+-- Une langue ordinaire : ce fichier éprouve les retraits, pas le seuil de 0077.
+select tests.full_french();
 select tests.new_user(n) from unnest(array['ma', 'mb', 'mc', 'md', 'me']) n;
 select tests.make_moderator(n) from unnest(array['ma', 'mb', 'mc', 'md', 'me']) n;
 

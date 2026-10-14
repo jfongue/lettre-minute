@@ -5,6 +5,8 @@
 -- une revue à lui seul — `force_ban` (0044) reste la porte qui décide
 -- sur-le-champ, et sa voix compte double (0059).
 
+-- Une langue ordinaire : le seuil de 0077 n'est pas ce que ce fichier éprouve.
+select tests.full_french();
 select tests.new_user(n) from unnest(array['ba', 'bb', 'bc', 'bd', 'be', 'bs']) n;
 select tests.make_super_moderator('bs');
 select tests.make_moderator(n) from unnest(array['ba', 'bb', 'bc', 'bd', 'be']) n;

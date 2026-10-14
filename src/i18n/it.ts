@@ -281,6 +281,7 @@ export const it: Messages = {
       unreachable: () => 'Il server non risponde. Riprova tra un attimo.',
     },
     noServer: 'Gli amici richiedono una connessione al server del gioco, per ora assente.',
+    hostSignIn: 'Gli amici passano dal tuo account: accedi per ritrovare i giocatori che incontri nelle classifiche.',
     needAccount: 'Un amico ti trova dal nome dell’account: crealo prima, le partite già giocate ti seguono.',
     createAccount: 'Crea il mio account',
     add: 'Aggiungi un amico',
@@ -428,8 +429,8 @@ export const it: Messages = {
   moderation: {
     title: 'Moderazione',
     superTitle: 'Supermoderatore',
-    lead: 'Giudichi le parole proposte dai giocatori: cinque «corretta» la fanno entrare, due «sbagliata» la bloccano. Ogni «non lo so» chiede due «corretta» in più e mezza voce in più per bloccare.',
-    superLead: 'Il tuo voto conta doppio: cinque «corretta» la fanno entrare e la tua sola «sbagliata» la blocca. I casi speciali aspettano solo i supermoderatori.',
+    lead: 'Giudichi le parole proposte dai giocatori: due «corretta» la fanno entrare dove i giudici sono pochi, cinque dove sono molti; due «sbagliata» la bloccano. Ogni «non lo so» chiede due «corretta» in più e mezza voce in più per bloccare.',
+    superLead: 'Il tuo voto conta doppio, ma mai da solo: due «corretta» la fanno entrare dove i giudici sono pochi, cinque dove sono molti, e la tua sola «sbagliata» la blocca. I casi speciali aspettano solo i supermoderatori.',
     start: (size) => `Avvia una sessione · ${size} parole`,
     offer: {
       title: 'Diventa moderatore!',
@@ -453,7 +454,7 @@ export const it: Messages = {
       hint: 'Moderatore: tieni premuta una parola per segnalarla.',
       title: 'Segnala questa parola',
       lead: (word, category) =>
-        `«${word}» non ha il suo posto in «${category}»? Gli altri moderatori la giudicheranno: cinque d’accordo e lascerà la categoria nella prossima versione.`,
+        `«${word}» non ha il suo posto in «${category}»? Gli altri moderatori la giudicheranno: due d’accordo dove i giudici sono pochi, cinque altrove, e lascerà la categoria nella prossima versione.`,
       confirm: 'Segnala',
       close: 'Chiudi',
       reasonLabel: 'Motivo (facoltativo)',

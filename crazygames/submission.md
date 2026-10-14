@@ -12,7 +12,7 @@ launch). The build and its choices are explained in `crazygames/README.md`.
 | Game files | `crazygames/lettre-minute-crazygames.zip` (4.06 MB; `index.html` at the root, relative paths, 169 files, 14.65 MB unzipped) — rebuild with `npm run crazygames:build` |
 | Game save progress | **Yes, using the Data Module from the CrazyGames SDK** (enables « Progress Save »; without it the SDK answers `dataModuleDisabled` and the game falls back to localStorage) |
 | Supports mobile | **Yes** |
-| Online / multiplayer | **No** — single player; the weekly leaderboards are read online, the game itself plays offline once loaded |
+| Online / multiplayer | **Yes** — the shared leaderboards, and, for a player signed in to CrazyGames, the friends, the head-to-head tally with them, and a live duel with matchmaking inside the game's own language pool. A guest (not signed in) still plays everything solo, and the duel falls back to the house players |
 | Supports CrazyGames muting audio through the SDK | **Yes** — `game.settings.muteAudio` and its change listener suspend all game audio, music included; the in-game mute button cannot override it |
 | Orientation (mobile) | **Portrait** (desktop plays in a centred column inside the 16:9 frame) |
 | SDK integration | HTML5 SDK v3: `init`, `loadingStart/Stop`, `gameplayStart/Stop`, `happytime` (new record), `requestAd('midgame')` between runs, Data module, User module (`getUserToken`, `showAuthPrompt`, `submitScore` for the leaderboards), `systemInfo.locale` |
@@ -37,9 +37,13 @@ What QA will see:
 - English by default; the SDK's locale picks French, Spanish, German, Italian,
   Dutch or Portuguese when it is one of them. Light theme by default.
 - No store or app mentions, no account of the game's own: a guest plays
-  everything, and « Sign in » (leaderboards page, profile) opens the portal's
-  own login (`showAuthPrompt`). The only external link is the privacy policy,
-  in the options.
+  everything solo, and « Sign in » (leaderboards, profile, friends) opens the
+  portal's own login (`showAuthPrompt`). The only external link is the privacy
+  policy, in the options.
+- Signed in to CrazyGames, the player gets the shared leaderboards, a friends
+  tab (add by player name, a friend's line is kept at the top of the boards),
+  the head-to-head tally, and the duel: create a table and invite friends, or
+  let the matchmaking pair them with a player of their language.
 
 ## Step 3 — Details
 
@@ -76,10 +80,10 @@ Brain, Vocabulary, Educational, Casual, Time Management, 1 Player, Mobile
 | Field | Answer |
 |---|---|
 | Languages | English, French, Spanish, German, Italian, Dutch, Portuguese |
-| Age rating | PEGI 12 compliant (no violence, no chat, no user-generated content shown to others) |
+| Age rating | PEGI 12 compliant (no violence, no free chat: a duel shows only the words the game's own dictionaries accept) |
 | In-game purchases | None |
 | Ads | Midgame only, through the SDK (inactive in Basic Launch); no rewarded ads |
-| Uses accounts / username | CrazyGames accounts only, optional (User module: `getUserToken`, verified server-side against the portal's public key); a signed-in player appears on the leaderboards under their CrazyGames username |
+| Uses accounts / username | CrazyGames accounts only, optional (User module: `getUserToken`, verified server-side against the portal's public key); a signed-in player appears on the leaderboards under their CrazyGames username, and gets the friends tab, the head-to-head tally and the duel — a guest keeps playing solo, with the duel against the house players |
 | Leaderboards | The game's own boards (day / week / all time), shared with its other players: a guest reads them with their own best shown as « Me », counted on the device and never sent; a signed-in CrazyGames player is ranked. Plus one weekly POINTS board through the SDK (`user.submitScore`), once the portal opens leaderboards to the game |
 | Release date / previously published | Not yet released as a web game on another portal |
 | Privacy policy | https://jfongue.github.io/lettre-minute/confidentialite.en.html (CrazyGames ID and username kept for a signed-in player only) |

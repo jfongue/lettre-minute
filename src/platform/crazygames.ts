@@ -438,18 +438,33 @@ export function restoreSavedProgress(): void {
 }
 
 /**
+ * The server a portal player may reach: the boards a guest reads, and — since
+ * `crazygames-auth` (0073) gives a named account to whoever is signed in to the
+ * portal — the friends, the face-off with them and the duel, matchmaking
+ * included. A guest of the portal has no session, so the friends tab offers
+ * the portal's own sign-in and the duel falls back on the house players.
+ * What stays closed: the twenty-four-hour challenge (the duel's own screen
+ * would open a game a friend cannot be invited to), inviting a friend by
+ * e-mail or by a shared link (both lead off the portal's page), and the
+ * reactions that ride on a challenge.
+ */
+const OPEN_FEATURES = new Set(['leaderboards', 'friends', 'rivalry', 'duel'])
+
+/**
  * The portal hosts the game nearly alone: the server only for the boards, the
- * portal's own account as the only one, nothing that leads off its page (it refuses a button that does nothing, such as « share —
+ * friends and the duel, the portal's own account as the only one, nothing that
+ * leads off its page (it refuses a button that does nothing, such as « share —
  * soon »), none of the phone's offers. It lists the game as « Letter Minute »
  * in every language, and English stands in for the language picker: a player
  * there must land in the game, not on a question.
  */
 export const crazyGamesHost: Host = {
-  // The boards stay open: a guest reads them, a portal account stands on them.
   // Filtering is earned by a level bonus or Premium, neither of which the
   // portal has: left open, « Mes catégories » would promise a padlock no
   // player can win.
-  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES, 'categoryBans'].filter((id) => id !== 'leaderboards')),
+  closedFeatures: new Set(
+    [...SERVER_FEATURES, ...APP_ONLY_FEATURES, 'categoryBans'].filter((id) => !OPEN_FEATURES.has(id)),
+  ),
   // A portal game lives on players coming back: the challenge of the moment,
   // which the app opens to everyone, needs no server — attempts are counted
   // on the device, the progress they pay is saved by the Data module.

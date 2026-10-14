@@ -281,6 +281,7 @@ export const es: Messages = {
       unreachable: () => 'El servidor no responde. Vuelve a intentarlo en un momento.',
     },
     noServer: 'Los amigos necesitan conexión con el servidor del juego, que falta por ahora.',
+    hostSignIn: 'Los amigos van con tu cuenta: inicia sesión para encontrar a los jugadores que ves en las clasificaciones.',
     needAccount: 'Un amigo te encuentra por tu nombre de cuenta: créala primero, tus partidas jugadas te siguen.',
     createAccount: 'Crear mi cuenta',
     add: 'Añadir un amigo',
@@ -428,8 +429,8 @@ export const es: Messages = {
   moderation: {
     title: 'Moderación',
     superTitle: 'Supermoderador',
-    lead: 'Juzgas las palabras que proponen los jugadores: cinco «correcta» la hacen entrar, dos «incorrecta» la bloquean. Cada «no lo sé» pide dos «correcta» más, y media voz más para bloquear.',
-    superLead: 'Tu voto cuenta doble: cinco «correcta» la hacen entrar y tu única «incorrecta» la bloquea. Los casos especiales solo esperan a los supermoderadores.',
+    lead: 'Juzgas las palabras que proponen los jugadores: dos «correcta» la hacen entrar donde hay pocos jueces, cinco donde son muchos; dos «incorrecta» la bloquean. Cada «no lo sé» pide dos «correcta» más, y media voz más para bloquear.',
+    superLead: 'Tu voto cuenta doble, pero nunca solo: dos «correcta» la hacen entrar donde hay pocos jueces, cinco donde son muchos, y tu única «incorrecta» la bloquea. Los casos especiales solo esperan a los supermoderadores.',
     start: (size) => `Empezar una sesión · ${size} palabras`,
     offer: {
       title: '¡Hazte moderador!',
@@ -453,7 +454,7 @@ export const es: Messages = {
       hint: 'Moderador: mantén pulsada una palabra para señalarla.',
       title: 'Señalar esta palabra',
       lead: (word, category) =>
-        `¿«${word}» no tiene su lugar en «${category}»? Los demás moderadores la juzgarán: cinco de acuerdo y saldrá de la categoría en la próxima versión.`,
+        `¿«${word}» no tiene su lugar en «${category}»? Los demás moderadores la juzgarán: dos de acuerdo donde hay pocos jueces, cinco en el resto, y saldrá de la categoría en la próxima versión.`,
       confirm: 'Señalar',
       close: 'Cerrar',
       reasonLabel: 'Motivo (opcional)',

@@ -38,13 +38,16 @@ le 2026-10-08 ; `git tag -l 'crazygames-*'` liste les mises à jour qui ont suiv
   le SDK ne peut que finir `disabled` —, annonce
   `loadingStart`, recopie la progression sauvegardée, rend l'app, puis
   `loadingStop`. Pas de suivi d'usage (`track.ts`), pas de coquille native.
-- **Le serveur pour les classements seuls** : `vite.config.ts` vide les
+- **Le serveur pour les classements, les amis et le duel** : `vite.config.ts`
+vide les
   variables externes (AdMob, Google, push, groupe de testeurs) quel que soit
   `.env.local`, mais garde `VITE_SUPABASE_*` et la page de confidentialité.
   Un invité n'a jamais de compte, même anonyme (`host.anonymousAccounts`,
   `connect()` dans `src/lib/supabase.ts`) : rien de lui ne s'écrit, `guard`
-  répond par ses replis, et seuls les classements se lisent sous le rôle
-  `anon` (`openGuard`, migration 0073). `cloudConfigured()` reste faux ici :
+  répond par ses replis, les classements se lisent sous le rôle `anon`
+  (`openGuard`, migration 0073), l'écran des amis lui offre la connexion du
+  portail (`host.promptAccount`) et le duel, qui demande un compte nommé, lui
+  ouvre la table des joueurs maison. `cloudConfigured()` reste faux ici :
   le défi du moment et le reste de ce que garde le jeu restent sur l'appareil.
 - **Comptes CrazyGames** (`host.account`, module User) : un joueur connecté au
   portail donne son jeton (`getUserToken`, RS256), que la fonction Edge
@@ -64,8 +67,16 @@ le 2026-10-08 ; `git tag -l 'crazygames-*'` liste les mises à jour qui ont suiv
   `supabase functions deploy crazygames-auth --no-verify-jwt --use-api`. Ces
   données personnelles hors SDK expliquent le lien « Confidentialité » du menu
   (paragraphe CrazyGames dans les sept `public/confidentialite*.html`).
-- **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit `SERVER_FEATURES` et `APP_ONLY_FEATURES` de `src/platform/host.ts`, moins les classements) : défis, duel, amis,
-  invitations, face-à-face, réactions, Premium (faux paiement),
+- **Fonctionnalités ouvertes par-dessus la table** (`OPEN_FEATURES` de
+  `src/platform/crazygames.ts`) : les classements, les amis, le face-à-face et
+  le duel, matchmaking compris — un joueur connecté au portail a le compte
+  nommé que `crazygames-auth` lui ouvre (0073, 0074) ; le défi du moment et les
+  pouvoirs choisis restent les deux seules cases d’`openedFeatures`.
+- **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit
+  `SERVER_FEATURES` et `APP_ONLY_FEATURES` de `src/platform/host.ts`, moins
+  `OPEN_FEATURES`) : le défi de 24 h, l’invitation par e-mail ou par lien (elle
+  mène hors de la page du portail), les réactions qui s’accrochent à un défi,
+ Premium (faux paiement),
   modes de jeu, propositions de mots et modération, boîte à idées, question
   d'avis, demande de note, notifications, mise à jour du store, Play Games,
   pubs AdMob, outils de développeur. Le défi du moment est le seul défi du
@@ -97,8 +108,9 @@ le 2026-10-08 ; `git tag -l 'crazygames-*'` liste les mises à jour qui ont suiv
   cinquante lignes, `leaderboard_rank` donne sa place. Rien n'est envoyé :
   pour figurer au classement de tous, « Se connecter » ouvre la connexion du
   portail (`showAuthPrompt`). Serveur injoignable : ses seules parties
-  (`src/ui/localBoards.ts`). Une fiche de joueur sans la fonctionnalité
-  `friends` n'est qu'un nom (`PlayerName`).
+  (`src/ui/localBoards.ts`). Une fiche de joueur y ouvre les actions d'amitié
+  et de blocage (`PlayerName`, `PlayerSheet`) depuis que la fonctionnalité
+  `friends` est ouverte — à l'invité, le geste demande la connexion du portail.
 - **Langue** : celle du SDK (`user.systemInfo.locale`), puis celle du
   navigateur, sinon l'anglais — jamais le sélecteur de langue au premier
   lancement. Le joueur peut en changer dans les options. Le titre affiché

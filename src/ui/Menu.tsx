@@ -568,7 +568,19 @@ function SocialPane({
   }, [named])
 
   if (!account) {
-    return <p className="note">{t.social.noServer}</p>
+    // Un invité d'un hôte à compte propre (CrazyGames) n'a pas de session : ses
+    // amis passent par le compte du portail, qu'il ouvre d'un geste. Ailleurs,
+    // aucune session ne veut dire aucun serveur, et la note suffit.
+    if (!host.promptAccount) return <p className="note">{t.social.noServer}</p>
+    const prompt = host.promptAccount
+    return (
+      <div className="stack">
+        <p className="note">{t.social.hostSignIn}</p>
+        <button type="button" className="btn btn--block" data-track="host-sign-in" onClick={() => void prompt()}>
+          {t.leaderboards.signIn}
+        </button>
+      </div>
+    )
   }
 
   if (!named) {
