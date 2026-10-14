@@ -1,4 +1,3 @@
-• Duel : « Trouver un adversaire » t’apparie avec un joueur de ta langue
-• Une musique de menu plus longue, et les mots du bilan jouent leur mélodie
-• Un succès qui offre une couleur montre ton avatar dans cette couleur
+• Les invitations par e-mail partent tout de suite
+• Premium s’achète dans l’app : un seul paiement, à vie
 • Corrections de bugs et performance

@@ -1,4 +1,3 @@
-• Duel: “Find an opponent” pairs you with a player of your language
-• A longer menu tune, and the summary’s words play their own melody
-• An achievement that pays only a colour shows your avatar in that colour
+• Invitations by e-mail go out right away
+• Premium can be bought in the app: for life, one payment
 • Bug fixes and performance
