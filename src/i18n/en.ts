@@ -1235,20 +1235,6 @@ return `${at} ${plural(goal.at, 'word taken from the Professor', 'words taken fr
   },
 
   daily: {
-    app: {
-      kicker: 'Daily challenge',
-      same: 'The same game for everyone today',
-      bonus: (xp) => `+${xp} XP`,
-      streak: (days) => `${days} ${plural(days, 'day', 'days')} in a row`,
-      keep: 'Play today to keep your streak',
-      done: (score) => `Done: ${score} ${plural(score, 'point', 'points')}`,
-      next: (time) => `Next one in ${time}`,
-      time: (hours, minutes) => (hours > 0 ? `${hours}h ${String(minutes).padStart(2, '0')}m` : `${minutes} min`),
-      over: (number) => `Daily challenge #${number}: done`,
-      overStreak: (days, xp) => `Streak: ${days} ${plural(days, 'day', 'days')} · +${xp} bonus XP`,
-      overNext: 'Come back tomorrow to grow your streak.',
-      best: (days) => `Best: ${days} ${plural(days, 'day', 'days')}`,
-    },
     title: 'Letter Minute',
     number: (number) => `#${number}`,
     tagline: 'One letter, one category, sixty seconds. Today, the same game for everyone.',

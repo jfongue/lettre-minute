@@ -18,10 +18,8 @@ describe('les hôtes', () => {
     }
   })
 
-  it('ne gardent à CrazyGames que le défi du moment, sans le défi du jour', () => {
+  it('ouvrent à CrazyGames le défi du moment, qui fait revenir sans serveur', () => {
     expect(crazyGamesHost.openedFeatures).toContain('weekly')
-    expect(crazyGamesHost.closedFeatures).toContain('daily')
-    expect(redditHost.openedFeatures).not.toContain('daily')
   })
 
   it('laissent toute la partie à Android et au web', () => {

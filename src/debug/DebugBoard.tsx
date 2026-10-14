@@ -78,11 +78,8 @@ import { activeCheers, HOUSE_BOTS, type DuelTable, type Seat } from '../state/du
 // La feuille du duel vit hors du paquet de l'accueil : cette planche est le
 // seul écran de l'app qui la montre, donc elle l'apporte avec elle.
 import '../duel.css'
-import { DailyCard } from '../ui/DailyCard'
 import { PowerLoadout } from '../ui/PowerLoadout'
 import { wearOrDrop } from '../domain/powers'
-import { NO_DAILY } from '../domain/daily'
-import type { DailyOutcome } from '../ui/OverScreen'
 
 function LoadoutScenario({ onBack }: { onBack(): void }) {
   const [profile, setProfile] = useState<Profile>(() => ({
@@ -93,9 +90,6 @@ function LoadoutScenario({ onBack }: { onBack(): void }) {
   }))
   return <PowerLoadout profile={profile} onWear={(id) => setProfile((current) => wearOrDrop(current, id))} onPlay={onBack} onBack={onBack} />
 }
-
-// Le 13 octobre 2026 à 15 h, heure de l'appareil : la carte jouée dit neuf heures avant la suivante.
-const DAILY_NOW = new Date(2026, 9, 13, 15, 0).getTime()
 
 /*
  * The debug board: every screen a player only meets by luck or by level,
@@ -1103,7 +1097,6 @@ function OverScenario({
   requests = [],
   failing = false,
   hidden,
-  daily,
 
   onBack,
 }: {
@@ -1120,7 +1113,6 @@ function OverScenario({
   failing?: boolean
   /** Les invites passées, chacune avec un mot caché sous une bande. */
   hidden?: readonly HiddenAnswer[]
-  daily?: DailyOutcome
 
   onBack(): void
 }) {
@@ -1135,7 +1127,6 @@ function OverScenario({
       revealed={revealed}
       onRevealed={() => setRevealed(true)}
       lang="fr"
-      daily={daily}
       avatar={DEFAULT_AVATAR}
       account={account}
       accountActions={quietAccount}
@@ -1753,33 +1744,6 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Huit pouvoirs, deux emplacements : une touche prend ou repose, le troisième pris chasse le plus ancien ; Entrée joue, Échap revient',
     phase: 'home',
     render: (back) => <LoadoutScenario onBack={back} />,
-  },
-  {
-    id: 'daily-home-card',
-    group: 'Défi du jour',
-    title: 'Carte de l’accueil',
-    how: 'Aucune série, une série de trois jours à garder, puis la partie du jour jouée avec le temps avant la suivante',
-    phase: 'home',
-    render: (back) => (
-      <div className="sheet" style={{ gap: '1.4rem' }}>
-        <button type="button" className="btn btn--quiet" onClick={back}>
-          ← Retour
-        </button>
-        <DailyCard record={NO_DAILY} now={DAILY_NOW} onPlay={back} />
-        <DailyCard record={{ day: '2026-10-12', streak: 3, best: 3, score: 140, played: 5 }} now={DAILY_NOW} onPlay={back} />
-        <DailyCard record={{ day: '2026-10-13', streak: 4, best: 6, score: 182, played: 9 }} now={DAILY_NOW} onPlay={back} />
-      </div>
-    ),
-  },
-  {
-    id: 'over-daily',
-    group: 'Défi du jour',
-    title: 'Bilan de la partie du jour',
-    how: 'Le bilan d’une partie du jour : la série de quatre jours et l’XP qu’elle a payée en plus',
-    phase: 'over',
-    render: (back) => (
-      <OverScenario after={afterRun(PROFILE, RUN, { xp: PROFILE.xp + RUN.score + 160 })} daily={{ number: 6, streak: 4, bonus: 160 }} onBack={back} />
-    ),
   },
   {
     id: 'over-classic',

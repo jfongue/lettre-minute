@@ -64,12 +64,12 @@ le 2026-10-08.
   `supabase functions deploy crazygames-auth --no-verify-jwt --use-api`. Ces
   données personnelles hors SDK expliquent le lien « Confidentialité » du menu
   (paragraphe CrazyGames dans les sept `public/confidentialite*.html`).
-- **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit `SERVER_FEATURES` et `APP_ONLY_FEATURES` de `src/platform/host.ts`, moins les classements, plus le défi du jour) : défis, duel, amis,
+- **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit `SERVER_FEATURES` et `APP_ONLY_FEATURES` de `src/platform/host.ts`, moins les classements) : défis, duel, amis,
   invitations, face-à-face, réactions, Premium (faux paiement),
   modes de jeu, propositions de mots et modération, boîte à idées, question
   d'avis, demande de note, notifications, mise à jour du store, Play Games,
-  pubs AdMob, outils de développeur, et le **défi du jour** (`daily`) : le défi
-  du moment est le seul défi du portail. Le bouton « Partager — bientôt » (bouton mort, fonctionnalité `share`),
+  pubs AdMob, outils de développeur. Le défi du moment est le seul défi du
+  portail. Le bouton « Partager — bientôt » (bouton mort, fonctionnalité `share`),
   l'adresse et « Se déconnecter » d'un compte du portail, et la note « Hors ligne » du menu (`keepsProgress`) disparaissent aussi. Restent : la
   partie, les classements, le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
   cachés du bilan, l'avatar, les succès, les statistiques, les options.

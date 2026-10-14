@@ -1230,20 +1230,6 @@ return `${at} ${plural(goal.at, 'vom Professor übernommenes Wort', 'vom Profess
   },
 
   daily: {
-    app: {
-      kicker: 'Tagesaufgabe',
-      same: 'Heute dieselbe Partie für alle',
-      bonus: (xp) => `+${xp} XP`,
-      streak: (days) => `${days} ${plural(days, 'Tag', 'Tage')} am Stück`,
-      keep: 'Spiel heute, um deine Serie zu halten',
-      done: (score) => `Geschafft: ${score} ${plural(score, 'Punkt', 'Punkte')}`,
-      next: (time) => `Die nächste in ${time}`,
-      time: (hours, minutes) => (hours > 0 ? `${hours} Std. ${String(minutes).padStart(2, '0')} Min.` : `${minutes} Min.`),
-      over: (number) => `Tagesaufgabe Nr. ${number}: geschafft`,
-      overStreak: (days, xp) => `Serie: ${days} ${plural(days, 'Tag', 'Tage')} · +${xp} Bonus-XP`,
-      overNext: 'Komm morgen wieder und verlängere deine Serie.',
-      best: (days) => `Rekord: ${days} ${plural(days, 'Tag', 'Tage')}`,
-    },
     title: 'Letter Minute',
     number: (number) => `Nr. ${number}`,
     tagline: 'Ein Buchstabe, eine Kategorie, sechzig Sekunden. Heute dasselbe Spiel für alle.',

@@ -94,8 +94,6 @@ import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSecond
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
 import { DAMPED_WORDS } from './data/damped-words'
 import { sharedCategoryIds } from './domain/catalogue'
-import { dailyBonusXp, dailyLineup, dailyNumber, dailyOpen, dailySeed, streakAfter } from './domain/daily'
-import { loadDaily, localDay, saveDailyRun } from './state/daily'
 import { adsDue, dealLineup, ownedCategoryIds, swapCategory, unlockEverything } from './domain/unlocks'
 import { compactWord, normalizeWord } from './domain/text'
 import { commonWord, withExtraWords } from './domain/words'
@@ -180,7 +178,6 @@ import { DuelBanner, DuelInviteCard, PlayTogether } from './ui/PlayTogether'
 import { GameModes } from './ui/GameModes'
 import { ModeTutorial } from './ui/ModeTutorial'
 import { WeeklyDone, WeeklyRecap, WeeklyResults, WeeklyScreen, useWeeklyFlow } from './ui/WeeklyFlow'
-import { DailyCard } from './ui/DailyCard'
 import { PowerLoadout } from './ui/PowerLoadout'
 import type { DuelExit } from './state/duel'
 
@@ -401,7 +398,6 @@ setMenuPage(null)
   const [updateKnown, setUpdateKnown] = useState(false)
   // The dictionary the run plays: the interface's, or the challenge's own.
   const [runLang, setRunLang] = useState<string | null>(null)
-  const [daily, setDaily] = useState(loadDaily)
   // Signing in must wait for the run to reach the server: the merge moves the
   // anonymous player's runs, and a run still in flight would be left behind.
   const pushing = useRef<Promise<unknown>>(Promise.resolve())
@@ -994,36 +990,6 @@ setStartedAt((at) => at ?? Date.now())
       dispatch({ type: 'load-failed', message: t.loadFailed })
     }
   }, [session.profile, judgeFor, t, lang])
-
-  /**
-   * La partie du jour : la graine et les catégories du jour pour tout le monde
-   * (`dailyLineup`), sans pouvoir ni filtre, et la série qui paie son XP.
-   */
-  const playDaily = useCallback(async () => {
-    const now = Date.now()
-    const day = localDay(now)
-    await host.breakBetweenRuns()
-    dispatch({ type: 'play' })
-    setRunLang(lang)
-    setPlayed(null)
-    setBoardsBefore(boardsNow.current)
-    setBoardsAfter(null)
-    try {
-      const lineup = dailyLineup(day, lang, sharedCategoryIds(availableCategoryIds(lang)))
-      const [judge] = await Promise.all([judgeFor(lineup, lang, true), preloadRunScreens()])
-      dispatch({
-        type: 'ready',
-        judge,
-        seed: dailySeed(day, lang),
-        categoryIds: lineup,
-        reserve: [],
-        noPowers: true,
-        daily: { day, bonus: dailyBonusXp(streakAfter(loadDaily(), day)) },
-      })
-    } catch {
-      dispatch({ type: 'load-failed', message: t.loadFailed })
-    }
-  }, [judgeFor, t, lang])
 
   // The player's dictionaries, parsed one by one while the home screen idles:
   // parsed at the countdown instead, they stalled the page as the sound played,
@@ -1656,7 +1622,7 @@ setStartedAt((at) => at ?? Date.now())
     if (session.phase !== 'over' || !session.run) return
     const playedLang = runLang ?? lang
     track('run_end', {
-      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : session.daily ? 'daily' : 'solo',
+      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : 'solo',
       score: session.run.score,
       words: session.run.found.length,
       skips: session.run.skips,
@@ -1676,7 +1642,6 @@ setStartedAt((at) => at ?? Date.now())
       return
     }
     const record = recordOf(session.run, Date.now(), playedLang)
-    if (session.daily) setDaily(saveDailyRun(session.daily.day, session.run.score))
     setHistory((previous) => {
       const next = appendRecord(previous, record)
       saveHistory(next)
@@ -1788,7 +1753,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (session.phase !== 'countdown' || !session.run) return
     track('run_start', {
-      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : session.daily ? 'daily' : 'solo',
+      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : 'solo',
       categories: session.run.categoryIds,
       powers: session.run.powers,
       first: session.profile.runs === 0,
@@ -2010,12 +1975,6 @@ setStartedAt((at) => at ?? Date.now())
           challenges={named && (on('challenges') || on('duel')) ? (on('challenges') ? challenges : []) : null}
           multiplayerNews={multiplayerNews}
           weekly={weeklyFlow.card}
-          daily={
-            // À partir du niveau 5 seulement (`dailyOpen`) : avant, l'accueil n'a que « Jouer ».
-            on('daily') && dailyOpen(session.profile) ? (
-              <DailyCard record={daily} disabled={session.phase === 'loading'} onPlay={() => void playDaily()} />
-            ) : null
-          }
           invites={
             duelInvites[0] ? (
               <DuelInviteCard
@@ -2449,11 +2408,6 @@ setMenuPage('avatar')
               }
             }}
             ranked={countsForProgress(session.run.mode)}
-            daily={
-              session.daily && daily.day === session.daily.day
-                ? { number: dailyNumber(session.daily.day), streak: daily.streak, bonus: session.daily.bonus }
-                : undefined
-            }
           challenge={session.challengeId ? afterRun : undefined}
             onChallengeChanged={() => {
               if (session.challengeId) fetchChallenge(session.challengeId).then((detail) => detail && setAfterRun(detail))

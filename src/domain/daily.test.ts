@@ -1,26 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ChallengeWord } from './challenge'
-import { xpForLevel } from './progression'
-import {
-  DAILY_MIN_LEVEL,
-  DAILY_XP_DAYS,
-  dailyOpen,
-  DAILY_XP_PER_DAY,
-  NO_DAILY,
-  dailyBonusXp,
-  dailyLineup,
-  dailyNumber,
-  dailySeed,
-  dayBefore,
-  dayOf,
-  isDay,
-  liveStreak,
-  parseDailyRecord,
-  plausibleDaily,
-  recordDaily,
-  streakAfter,
-  tierGrid,
-} from './daily'
+import { dailyLineup, dailyNumber, dailySeed, dayBefore, dayOf, isDay, plausibleDaily, tierGrid } from './daily'
 
 const IDS = ['pays', 'animaux', 'couleurs', 'fruits-legumes', 'metiers', 'sports', 'corps-humain', 'matieres']
 
@@ -118,56 +98,5 @@ describe('a result the server takes', () => {
     expect(plausibleDaily(20, [word('chat', 10), word('chat', 10)], lineup)).toBe(false)
     expect(plausibleDaily(20, [word('chat', 10, { at: 9 }), word('zebre', 10, { at: 2 })], lineup)).toBe(false)
     expect(plausibleDaily(10, [word('chat', 10, { at: 90 })], lineup)).toBe(false)
-  })
-})
-
-describe('the daily streak', () => {
-  it('starts at one, grows day after day and starts over after a gap', () => {
-    const first = recordDaily(NO_DAILY, '2026-10-12', 120)
-    expect(first).toEqual({ day: '2026-10-12', streak: 1, best: 1, score: 120, played: 1 })
-    const second = recordDaily(first, '2026-10-13', 90)
-    expect(second.streak).toBe(2)
-    const gap = recordDaily(second, '2026-10-15', 200)
-    expect(gap).toEqual({ day: '2026-10-15', streak: 1, best: 2, score: 200, played: 3 })
-  })
-
-  it('counts only the first run of the day', () => {
-    const once = recordDaily(NO_DAILY, '2026-10-13', 80)
-    expect(recordDaily(once, '2026-10-13', 300)).toBe(once)
-  })
-
-  it('keeps a streak alive through the next day only', () => {
-    const record = recordDaily(recordDaily(NO_DAILY, '2026-10-12', 1), '2026-10-13', 1)
-    expect(liveStreak(record, '2026-10-13')).toBe(2)
-    expect(liveStreak(record, '2026-10-14')).toBe(2)
-    expect(liveStreak(record, '2026-10-15')).toBe(0)
-    expect(streakAfter(record, '2026-10-14')).toBe(3)
-    expect(streakAfter(record, '2026-10-15')).toBe(1)
-  })
-
-  it('crosses the end of a month and a leap day', () => {
-    const record = recordDaily(NO_DAILY, '2028-02-29', 1)
-    expect(streakAfter(record, '2028-03-01')).toBe(2)
-  })
-
-  it('pays more each day, up to a cap', () => {
-    expect(dailyBonusXp(0)).toBe(0)
-    expect(dailyBonusXp(1)).toBe(DAILY_XP_PER_DAY)
-    expect(dailyBonusXp(DAILY_XP_DAYS + 10)).toBe(DAILY_XP_PER_DAY * DAILY_XP_DAYS)
-  })
-
-  it('reads back only what it wrote', () => {
-    const record = recordDaily(NO_DAILY, '2026-10-13', 42)
-    expect(parseDailyRecord(JSON.parse(JSON.stringify(record)))).toEqual(record)
-    expect(parseDailyRecord(null)).toBe(NO_DAILY)
-    expect(parseDailyRecord({ day: '2026-02-30', streak: 4 })).toBe(NO_DAILY)
-    expect(parseDailyRecord({ day: '2026-10-13', streak: -3, best: 'x' })).toMatchObject({ streak: 1, best: 1 })
-  })
-})
-
-describe('the daily on the home screen', () => {
-  it('waits for level five', () => {
-    expect(dailyOpen({ xp: xpForLevel(DAILY_MIN_LEVEL) - 1 })).toBe(false)
-    expect(dailyOpen({ xp: xpForLevel(DAILY_MIN_LEVEL) })).toBe(true)
   })
 })

@@ -357,7 +357,6 @@ const SAVED_KEYS = [
   'lettre-minute.theme.v1',
   'lettre-minute.sound.v1',
   'lettre-minute.locale.v1',
-  'lettre-minute.daily.v1',
   'lettre-minute.weekly-attempts.v1',
   'lettre-minute.weekly-intro.v1',
 ]
@@ -447,10 +446,7 @@ export function restoreSavedProgress(): void {
  */
 export const crazyGamesHost: Host = {
   // The boards stay open: a guest reads them, a portal account stands on them.
-  // The daily challenge stays shut whatever the table says: the challenge of
-  // the moment is the portal's one challenge, and two cards under « Play »
-  // were one too many.
-  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES, 'daily'].filter((id) => id !== 'leaderboards')),
+  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES].filter((id) => id !== 'leaderboards')),
   // A portal game lives on players coming back: the challenge of the moment,
   // which the app opens to everyone, needs no server — attempts are counted
   // on the device, the progress they pay is saved by the Data module.
