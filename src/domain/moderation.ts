@@ -15,6 +15,9 @@ export const MODERATION_SESSION_SIZE = 5
 /**
  * Fewer words than this waiting, and moderation is not offered: neither the
  * panel nor the invitation to become a moderator (`moderation_status`, 0013).
+ * Waiting counts what the queue holds for that language plus what the reserve
+ * still has to pour into it (0082): a language with two words to judge and a
+ * hundred in reserve has a session's worth.
  */
 export const MODERATION_MIN_QUEUE = 5
 
