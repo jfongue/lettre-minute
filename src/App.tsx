@@ -1957,7 +1957,7 @@ setStartedAt((at) => at ?? Date.now())
 
       {weeklyFlow.overlay}
 
-      {!tutorial && !modeLesson && !loadout && !moderating && !duelOpen && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
+      {!tutorial && !modeLesson && !loadout && !moderating && !duelOpen && !(matching && session.phase === 'home') && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
