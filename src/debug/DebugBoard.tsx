@@ -43,7 +43,7 @@ import { NamePrompt } from '../ui/NamePrompt'
 import { DashboardView } from './Dashboard'
 import { WordsBoardView } from './WordsBoard'
 import type { WordsReport } from './words'
-import { ACHIEVEMENTS, achievementIcon } from '../domain/achievements'
+import { PLAY_ACHIEVEMENTS_ONLY, achievementIcon } from '../domain/achievements'
 import type { SlotEntry, Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { guestFits, placeGuest } from '../domain/localBoards'
@@ -820,7 +820,7 @@ function FeaturesScenario() {
 function AchievementIcons() {
   return (
     <div className="achievement-icons">
-      {ACHIEVEMENTS.map((achievement) => (
+      {PLAY_ACHIEVEMENTS_ONLY.map((achievement) => (
         <div key={achievement.id} className="achievement-icon" data-achievement={achievement.id}>
           <Avatar choice={achievementIcon(achievement.id)} size="fill" />
         </div>

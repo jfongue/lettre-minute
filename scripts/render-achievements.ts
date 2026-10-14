@@ -63,9 +63,18 @@ try {
   const evaluate = async <T,>(expression: string) =>
     (await send<{ result: { value: T } }>('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true })).result.value
 
+  // La planche n'est ouverte qu'aux super modérateurs : un profil neuf n'a aucun
+  // rôle, et #debug ne l'ouvre donc pas. On pose le rôle comme le ferait le
+  // serveur, puis on recharge — un changement de hash ne rejoue pas le premier
+  // rendu, qui seul lit le hash.
   await send('Page.navigate', { url: `${origin}/#debug` })
-  await sleep(3000)
-  await evaluate(`[...document.querySelectorAll('.debug-item')].find((item) => item.querySelector('strong')?.textContent === 'Icônes des succès Play Games')?.click()`)
+  await sleep(2500)
+  await evaluate(`localStorage.setItem('lettre-minute.features.v1', JSON.stringify({ flags: {}, roles: { moderator: true, superModerator: true } }))`)
+  await send('Page.reload', {})
+  await sleep(3500)
+  // Le titre porte « nouveau » ou « récent » quand la planche a bougé : comparer
+// le texte entier fait manquer l'item et rend une planche vide.
+await evaluate(`[...document.querySelectorAll('.debug-item')].find((item) => item.querySelector('strong')?.textContent?.startsWith('Icônes des succès Play Games'))?.click()`)
   await sleep(2000)
   await evaluate(`document.head.append(Object.assign(document.createElement('style'), { textContent: '.debug-bar { display: none !important }' }))`)
   const boxes = await evaluate<{ id: string; x: number; y: number }[]>(`[...document.querySelectorAll('[data-achievement]')].map((element) => {
