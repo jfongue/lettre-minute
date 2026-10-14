@@ -59,3 +59,8 @@ select tests.is(
 select tests.is(
   (select count(*) from jsonb_array_elements(public.analytics_revenue(30) -> 'daily'))::integer,
   30, 'and the window has one row per day');
+
+-- Le relevé range la part revenu sous sa clé : sa série du jour n'écrase pas
+-- celle des parties (0081).
+select tests.is(public.analytics_snapshot(30) #>> '{revenue,premium,offers}', '2', 'the snapshot keeps the revenue under its own key');
+select tests.ok(public.analytics_snapshot(30) -> 'daily' -> 0 ? 'runs', 'and its daily rows are still the runs');
