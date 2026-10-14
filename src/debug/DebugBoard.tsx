@@ -222,7 +222,7 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     dealt: [],
     settled: [],
     shared: false,
-    rarityWeight: 1,
+    bonusWeight: 1,
     taught: [],
     seeded: [],
     found,

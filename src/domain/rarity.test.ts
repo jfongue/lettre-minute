@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { comboMultiplier, NO_USAGE, notoriety, pointsFor, rarityScore, rarityWeight, tierOf } from './rarity'
+import { comboMultiplier, NO_USAGE, notoriety, pointsFor, rarityScore, bonusWeight, tierOf } from './rarity'
 import type { WordEntry } from './words'
 
 const common: WordEntry = { key: 'chat', display: 'Chat', sitelinks: 150, frequency: 120, notoriety: 0.95 }
@@ -49,17 +49,22 @@ describe('pointsFor', () => {
   })
 
   it('pays a newcomer less for rarity, never less than the base', () => {
-    expect(pointsFor(obscure, NO_USAGE, 0, 1, rarityWeight(3))).toBeLessThan(pointsFor(obscure, NO_USAGE, 0))
+    expect(pointsFor(obscure, NO_USAGE, 0, 1, bonusWeight(3))).toBeLessThan(pointsFor(obscure, NO_USAGE, 0))
     expect(pointsFor(obscure, NO_USAGE, 0, 1, 0)).toBe(10)
+  })
+
+  it('pays a newcomer less for a chain too', () => {
+    expect(pointsFor(common, NO_USAGE, 9, 1, bonusWeight(3))).toBeLessThan(pointsFor(common, NO_USAGE, 9))
+    expect(comboMultiplier(9, 0)).toBe(1)
   })
 })
 
-describe('rarityWeight', () => {
+describe('bonusWeight', () => {
   it('grows back with each category, whole from five', () => {
-    expect(rarityWeight(3)).toBeLessThan(rarityWeight(4))
-    expect(rarityWeight(4)).toBeLessThan(1)
-    expect(rarityWeight(5)).toBe(1)
-    expect(rarityWeight(14)).toBe(1)
+    expect(bonusWeight(3)).toBeLessThan(bonusWeight(4))
+    expect(bonusWeight(4)).toBeLessThan(1)
+    expect(bonusWeight(5)).toBe(1)
+    expect(bonusWeight(14)).toBe(1)
   })
 })
 
