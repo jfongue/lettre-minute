@@ -165,6 +165,22 @@ begin
 end;
 $$;
 
+-- Ten more French moderators, for the files that test something other than the
+-- threshold: since 0077 a language under ten moderators settles a word on two
+-- « correct », and those files still expect the five voices of an ordinary
+-- language. `moderators.lang` defaults to the bare French.
+create function tests.full_french() returns void
+language plpgsql security definer set search_path = public as $$
+declare
+v_id uuid;
+begin
+for i in 1..10 loop
+v_id := tests.new_user('full' || i);
+insert into public.moderators (id) values (v_id) on conflict do nothing;
+end loop;
+end;
+$$;
+
 -- A proposal made by the player himself, through RLS, as the app does. The
 -- display never carries the language prefix the app puts on the word itself.
 create function tests.propose(p_label text, p_category text, p_word text) returns uuid

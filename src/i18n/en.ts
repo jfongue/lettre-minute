@@ -432,8 +432,8 @@ export const en: Messages = {
   moderation: {
     title: 'Moderation',
     superTitle: 'Super moderator',
-    lead: 'You judge the words players propose: five “correct” let a word in, two “incorrect” block it. Each “not sure” asks for two more “correct”, and half a voice more to block.',
-    superLead: 'Your vote counts double: five “correct” let a word in, and your single “incorrect” blocks it. Special cases wait for super moderators only.',
+    lead: 'You judge the words players propose: two “correct” let a word in where judges are few, five where they are many; two “incorrect” block it. Each “not sure” asks for two more “correct”, and half a voice more to block.',
+    superLead: 'Your vote counts double, but never alone: two “correct” let a word in where judges are few, five where they are many, and your single “incorrect” blocks it. Special cases wait for super moderators only.',
     start: (size) => `Start a session · ${size} words`,
     offer: {
       title: 'Become a moderator!',
@@ -457,7 +457,7 @@ export const en: Messages = {
       hint: 'Moderator: press and hold a word to flag it.',
       title: 'Flag this word',
       lead: (word, category) =>
-        `“${word}” does not belong in “${category}”? The other moderators will judge it: five in agreement and it leaves the category in the next version.`,
+        `“${word}” does not belong in “${category}”? The other moderators will judge it: two in agreement where judges are few, five elsewhere, and it leaves the category in the next version.`,
       confirm: 'Flag',
       close: 'Close',
       reasonLabel: 'Reason (optional)',

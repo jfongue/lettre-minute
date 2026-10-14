@@ -466,8 +466,8 @@ export const fr = {
   moderation: {
     title: 'Modération',
     superTitle: 'Super modérateur',
-    lead: 'Tu juges les mots proposés par les joueurs : cinq « correct » font entrer un mot, deux « incorrect » le bloquent. Chaque « je ne sais pas » demande deux « correct » de plus, et une demi-voix de plus pour bloquer.',
-    superLead: 'Ta voix compte double : cinq « correct » font entrer un mot, et ton seul « incorrect » le bloque. Les cas spéciaux n’attendent que les super modérateurs.',
+    lead: 'Tu juges les mots proposés par les joueurs : deux « correct » font entrer un mot dans une langue qui compte peu de juges, cinq là où ils sont assez nombreux ; deux « incorrect » le bloquent. Chaque « je ne sais pas » demande deux « correct » de plus, et une demi-voix de plus pour bloquer.',
+    superLead: 'Ta voix compte double, mais jamais seule : deux « correct » font entrer un mot là où les juges sont rares, cinq là où ils sont assez nombreux, et ton seul « incorrect » le bloque. Les cas spéciaux n’attendent que les super modérateurs.',
     start: (size: number) => `Lancer une session · ${size} mots`,
     offer: {
       title: 'Deviens modérateur !',
@@ -491,7 +491,7 @@ export const fr = {
       hint: 'Modérateur : appui long sur un mot pour le signaler.',
       title: 'Signaler ce mot',
       lead: (word: string, category: string) =>
-        `« ${word} » n’a pas sa place dans « ${category} » ? Les autres modérateurs le jugeront : cinq d’accord et il quittera la catégorie à la prochaine version.`,
+        `« ${word} » n’a pas sa place dans « ${category} » ? Les autres modérateurs le jugeront : deux « correct » là où les juges sont rares, cinq ailleurs, et il quittera la catégorie à la prochaine version.`,
       confirm: 'Signaler',
       close: 'Fermer',
       reasonLabel: 'Motif (facultatif)',

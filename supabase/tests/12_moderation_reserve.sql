@@ -8,6 +8,8 @@ select tests.make_moderator('rm');
 select tests.new_user('rq');
 select tests.make_moderator('rq');
 select tests.new_user('rx');
+-- Une langue ordinaire : ce fichier éprouve la réserve, pas le seuil de 0077.
+select tests.full_french();
 
 insert into public.moderation_reserve (category_id, word, display)
 select 'metiers', w, w

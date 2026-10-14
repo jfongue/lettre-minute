@@ -380,22 +380,28 @@ ce n'est pas une raison de renoncer au protocole DevTools.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client — et depuis 0007, seules les fonctions
   du serveur peuvent l'appeler.
-- **Les règles de modération vivent en SQL** (`settle_review`, 0059), pas dans
-  le domaine : cinq « correct », deux « incorrect », chaque « je ne sais pas »
+- **Les règles de modération vivent en SQL** (`settle_review`, 0059, 0077), pas
+  dans le domaine : cinq « correct », deux « incorrect », chaque « je ne sais pas »
   demandant deux « correct » de plus (plafond quinze) et une demi-voix de plus
   pour bloquer (plafond sept), les cas spéciaux restant à un super modérateur
-  seul. Super modérateur est un rôle donné à la main
+  seul. **Une langue de moins de dix modérateurs se contente de deux
+  « correct »** (`thin_language`, 0077) : `moderators.lang` dit la langue de
+  chaque juge — « fr » tant qu'il n'a rien ouvert, celle de la file qu'il ouvre
+  ensuite (`top_up_moderation`) —, et le seuil se lit sur la langue de la revue.
+  Super modérateur est un rôle donné à la main
   (`moderators.super`, 0047), plus un rang gagné : son vote compte double, sans
-  faire entrer un mot à lui seul, et il règle les fonctionnalités de tous.
+  faire entrer un mot à lui seul — deux personnes sont toujours nécessaires,
+  même à deux voix —, et il règle les fonctionnalités de tous.
   `src/domain/moderation.ts` ne garde que ce que l'interface doit
   savoir (taille de session, lecture d'un glissement). La modération suit la
   langue de l'interface : un modérateur ne voit que les mots préfixés de la
   sienne.
 
 - **Une file de modération courte se remplit toute seule** (`top_up_moderation`,
-  0019, 0037) : ouvrir « Mes demandes » avec moins de cinq mots à juger
+  0019, 0037, 0052) : ouvrir « Mes demandes » avec moins de cinq mots à juger
   complète la file à cinq depuis la réserve, super modérateur compris,
-  proposés par un joueur maison. Ses mots
+  proposés par un joueur maison — c'est aussi l'ouverture qui dit au serveur
+  dans quelle langue ce modérateur juge (`moderators.lang`, 0077). Ses mots
   (`scripts/moderation-reserve.json`) doivent manquer aux dictionnaires : un
   mot déjà connu ferait voter les modérateurs pour rien, le script le jette.
   **Un seul versement par heure, toutes langues confondues** (0023,
