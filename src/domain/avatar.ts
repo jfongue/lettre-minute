@@ -450,6 +450,16 @@ export function sameAvatar(one: AvatarChoice, other: AvatarChoice): boolean {
 }
 
 /**
+ * The worn tile painted in a newly won ink, as its ground: what a success that
+ * pays only a colour shows. The layer already in that ink takes the old ground,
+ * so the figure never vanishes into its field.
+ */
+export function inGround(choice: AvatarChoice, colour: string): AvatarChoice {
+  const swap = (layer: string) => (layer === colour ? choice.ground : layer)
+  return { ...choice, ground: colour, shape: swap(choice.shape), accent: swap(choice.accent) }
+}
+
+/**
  * The tile every player starts on. Wearing it says nothing was ever chosen —
  * a device that signs in without one leaves the account on it.
  */

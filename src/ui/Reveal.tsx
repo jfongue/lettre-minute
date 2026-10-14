@@ -85,8 +85,9 @@ export function Reveal({
     if (!found) return
     tapFeedback(isRare(found) ? 'medium' : 'light')
     sound.recap(tierSound(found.tier, found.approximate), shown - 1)
+    if (shown === total) sound.recapEnd(total, (step * (TIER_WEIGHT[found.tier] ?? 1)) / 1000)
     latest.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-  }, [shown, run.found])
+  }, [shown, run.found, total, step])
 
   return (
     <div

@@ -1777,12 +1777,12 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'over-achievements',
     group: 'Fin de partie',
     title: 'Nouveaux succès au bilan',
-    how: 'Deux succès d’un coup, leur condition écrite à côté du nom : la ligne amène à l’avatar qu’elle a valu',
+    how: 'Quatre succès d’un coup, leur condition écrite à côté du nom : une tuile se montre telle quelle, une couleur seule (les mots longs) sur l’avatar porté, peint de cette couleur',
     phase: 'over',
     render: (back) => (
       <OverScenario
-        before={{ ...PROFILE, runs: 9, bestCombo: 9 }}
-        after={{ ...PROFILE, runs: 11, bestCombo: 12 }}
+        before={{ ...PROFILE, runs: 9, bestCombo: 9, longestWord: 9 }}
+        after={{ ...PROFILE, runs: 11, bestCombo: 12, longestWord: 15 }}
         onBack={back}
       />
     ),

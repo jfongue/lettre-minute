@@ -30,6 +30,8 @@ export interface SoundPrefs {
 export type MusicMode = 'menu' | 'pulse' | null
 export type SoundTier = 0 | 1 | 2 | 3
 type Out = AudioNode
+/** Root and third of each chord, in semitones from the tonic. */
+type Progression = readonly (readonly [number, number])[]
 
 const TONIC = 261.63
 const SCALE = [0, 2, 4, 7, 9]
@@ -319,7 +321,10 @@ function duck(t: number): void {
 
 /** A found word's note: the same note at every tier, only richer. */
 function wordNote(c: AudioContext, step: number, t: number, tier: SoundTier, v = 1, out: Out = sfx): void {
-  const f = deg(Math.min(step, TOP_STEP))
+  wordVoice(c, deg(Math.min(step, TOP_STEP)), t, tier, v, out)
+}
+
+function wordVoice(c: AudioContext, f: number, t: number, tier: SoundTier, v: number, out: Out): void {
   marimba(c, f, t, 0.85 * v, out)
   if (tier >= 1) bell(c, f * 1.5, t + 0.04, 0.55 * v, out, 1.4)
   if (tier >= 2) glass(c, f * 2, t + 0.08, 0.45 * v, out)
@@ -327,6 +332,57 @@ function wordNote(c: AudioContext, step: number, t: number, tier: SoundTier, v =
     ;[1, 2, 3, 4].forEach((k, i) =>
       glock(c, f * 2 * 2 ** (SCALE[k % SCALE.length] / 12), t + 0.14 + i * 0.06, (0.5 - i * 0.07) * v, out),
     )
+  }
+  duck(t)
+}
+
+/** The recap climbs the scale for this many words, as the run does, before it turns into a tune. */
+const RECAP_CLIMB = 8
+/** Past the climb, eight words to a chord, round the loop's own I – vi – IV – V from IV. */
+const RECAP_CHORDS: Progression = [[-7, 4], [-5, 4], [-3, 3], [0, 4]]
+/** Up the chord and back down: a phrase that never hits a ceiling. */
+const RECAP_ARPEGGIO = [0, 1, 2, 3, 4, 3, 2, 1]
+
+/**
+ * The recap's `index`th word. The first ones climb like the run; after that a
+ * long list would hold one top note, so it becomes a tune instead — each eight
+ * words an arpeggio on the next chord, a bass under its first note, and a layer
+ * more every chord: a sparkle above, then air, then the bass on every fourth word.
+ */
+function recapNote(c: AudioContext, index: number, t: number, tier: SoundTier, v: number): void {
+  if (index < RECAP_CLIMB) return wordNote(c, index, t, tier, v)
+  const phrase = Math.floor((index - RECAP_CLIMB) / RECAP_ARPEGGIO.length)
+  const inPhrase = (index - RECAP_CLIMB) % RECAP_ARPEGGIO.length
+  const [root, third] = RECAP_CHORDS[phrase % RECAP_CHORDS.length]
+  const tones = [0, third, 7, 12, 12 + third]
+  const f = semi(TONIC, root + 12 + tones[RECAP_ARPEGGIO[inPhrase]])
+  const accent = inPhrase === 0 ? 1.15 : 1
+  wordVoice(c, f, t, tier, v * accent, sfx)
+  const bass = semi(TONIC, root - 12)
+  if (inPhrase === 0) {
+    pizz(c, bass, t, 0.7 * v, sfx)
+    triad(semi(TONIC, root), third).forEach((n, i) => piano(c, n, t + i * 0.02, 0.22 * v, sfx, 1.6))
+  } else if (phrase >= 3 && inPhrase === 4) {
+    pizz(c, bass * 2, t, 0.45 * v, sfx)
+  }
+  if (phrase >= 1) glock(c, f * 2, t + 0.03, 0.22 * v, sfx)
+  if (phrase >= 2) hiss(c, t, 0.05, sfx, (inPhrase % 2 ? 0.05 : 0.08) * v, 'highpass', 7000, 0.8)
+}
+
+/**
+ * The list is over: a long one lands on a chord, home again, as big as the
+ * list was long. A short one needs none, its last note is its end.
+ */
+function recapCadence(c: AudioContext, words: number, t: number): void {
+  if (words < RECAP_CLIMB) return
+  triad(TONIC).forEach((f, i) => marimba(c, f * 2, t + i * 0.015, 0.6, sfx))
+  piano(c, TONIC / 2, t, 0.8, sfx, 2.4)
+  bell(c, TONIC * 4, t + 0.02, 0.5, sfx, 2.2)
+  if (words >= 16) [0, 2, 4, 5].forEach((step, i) => glock(c, deg(step, 1), t + 0.06 + i * 0.05, 0.45, sfx))
+  if (words >= 24) {
+    glass(c, deg(0, 2), t + 0.28, 0.45, sfx)
+    glass(c, deg(2, 2), t + 0.3, 0.3, sfx)
+    hiss(c, t, 0.9, sfx, 0.08, 'highpass', 3000, 0.7, 9000, 0.05)
   }
   duck(t)
 }
@@ -509,9 +565,13 @@ export const sound = {
       duck(t)
     })
   },
-  /** The end screen replays each find, lighter than when it was played. */
-  recap(tier: SoundTier, step: number): void {
-    cue((c, t) => wordNote(c, step, t, tier, 0.75))
+  /** The end screen replays each find, lighter than when it was played; `index` counts from the first. */
+  recap(tier: SoundTier, index: number): void {
+    cue((c, t) => recapNote(c, index, t, tier, 0.75))
+  },
+  /** The recap's last word was `words`, `delayS` seconds ago at most: the list lands. */
+  recapEnd(words: number, delayS: number): void {
+    cue((c, t) => recapCadence(c, words, t + delayS))
   },
   /** An arpeggio that follows the XP counter's ease-out, note for note. */
   xp(durationS: number, delayS: number): void {
@@ -705,9 +765,25 @@ export function previewSound(channel: 'effects' | 'keys'): void {
 
 // ---------- Music ----------
 
-/** Root and third of each chord, two bars each: I – vi – IV – V. */
-const PROGRESSION: readonly (readonly [number, number])[] = [[0, 4], [-3, 3], [-7, 4], [-5, 4]]
+/** I – vi – IV – V. */
+const PROGRESSION: Progression = [[0, 4], [-3, 3], [-7, 4], [-5, 4]]
 const OSTINATO = [0, 2, 4, 2, 5, 4, 2, 4, 0, 2, 4, 2, 6, 4, 3, 4]
+/** The same figure, its second bar reaching higher before it comes home. */
+const OSTINATO_HIGH = [0, 2, 4, 2, 5, 4, 2, 4, 0, 2, 4, 5, 7, 5, 4, 2]
+
+/**
+ * The loop's form, eight bars a section, all on the same chords: the theme,
+ * the theme with its second voice, the theme reaching higher under a bell
+ * tune, then a lighter pass on held piano chords that fills back out for its
+ * last two bars. A minute and a half before it comes round, where a single
+ * section repeated every twenty seconds.
+ */
+const FORM: readonly { ostinato: readonly number[]; echo: boolean; bells: boolean; light: boolean }[] = [
+  { ostinato: OSTINATO, echo: false, bells: false, light: false },
+  { ostinato: OSTINATO, echo: true, bells: false, light: false },
+  { ostinato: OSTINATO_HIGH, echo: false, bells: true, light: false },
+  { ostinato: OSTINATO, echo: false, bells: false, light: true },
+]
 const MENU_STEP_S = 60 / 92 / 2
 const PULSE_STEP_S = 60 / 120 / 4
 // Scheduled this far ahead, the music rides out the stall of a dictionary being parsed.
@@ -720,25 +796,38 @@ let timer: ReturnType<typeof setInterval> | null = null
 let step = 0
 let next = 0
 let pulseStage = 0
+let startStep = 0
 
 function menuStep(c: AudioContext, n: number, t: number, out: Out): void {
   const bar = Math.floor(n / 8)
   const inBar = n % 8
-  const [root, third] = PROGRESSION[Math.floor(bar / 2) % PROGRESSION.length]
+  const section = FORM[Math.floor(bar / 8) % FORM.length]
+  const inSection = bar % 8
+  const [root, third] = PROGRESSION[Math.floor(inSection / 2)]
   const bass = semi(TONIC, root - 24)
+  // The light pass keeps its pulse but lets the bass breathe, and gets it all back for its last two bars.
+  const light = section.light && inSection < 6
   if (inBar === 0) pizz(c, bass, t, 0.8, out)
-  if (inBar === 3) pizz(c, semi(bass, 7), t, 0.5, out)
-  if (inBar === 6) pizz(c, bass * 2, t, 0.4, out)
-  if (Math.random() > 0.12) marimba(c, deg(OSTINATO[n % 16]), t, inBar % 2 ? 0.26 : 0.36, out)
-  // A second voice, an octave up and three steps behind, drifts in every other phrase.
-  if (bar % 8 >= 4) marimba(c, deg(OSTINATO[(n + 3) % 16], 1), t, 0.14, out)
-  if (n % 16 === 0) triad(semi(TONIC, root), third).forEach((f, i) => piano(c, f, t + i * 0.025, 0.28, out, 2.4))
-  if (n % 32 === 12) piano(c, deg(7), t, 0.22, out)
+  if (!light && inBar === 3) pizz(c, semi(bass, 7), t, 0.5, out)
+  if (inBar === 6) pizz(c, bass * 2, t, light ? 0.3 : 0.4, out)
+  if (Math.random() > 0.12) marimba(c, deg(section.ostinato[n % 16]), t, (inBar % 2 ? 0.26 : 0.36) * (light ? 0.8 : 1), out)
+  // A second voice, an octave up and three steps behind.
+  if (section.echo && inSection >= 4) marimba(c, deg(section.ostinato[(n + 3) % 16], 1), t, 0.14, out)
+  if (section.bells && (inBar === 0 || inBar === 5)) {
+    glock(c, semi(TONIC, root + (inBar === 0 ? 24 : 24 + third)), t, 0.26, out)
+  }
+  if (light && inBar === 4) glass(c, semi(TONIC, root + 19), t, 0.2, out)
+  if (n % 16 === 0 || (light && inBar === 0)) {
+    triad(semi(TONIC, root), third).forEach((f, i) => piano(c, f, t + i * 0.025, light ? 0.34 : 0.28, out, 2.4))
+  }
+  if (n % 32 === 12 && !section.bells) piano(c, deg(7), t, 0.22, out)
 }
 
 function pulseStep(c: AudioContext, n: number, t: number, out: Out): void {
   const quarter = n % 4
-  const bass = semi(TONIC, [0, 0, -5, -3][Math.floor(n / 16) % 4] - 24)
+  // Every other four bars the bass turns to the minor side, so the minute does not hear one loop eight times.
+  const line = Math.floor(n / 64) % 2 ? [-3, -3, -7, -5] : [0, 0, -5, -3]
+  const bass = semi(TONIC, line[Math.floor(n / 16) % 4] - 24)
   if (quarter === 0) pizz(c, bass, t, 0.7, out)
   if (pulseStage >= 1) {
     if (n % 8 === 7) pizz(c, bass, t, 0.4, out)
@@ -795,7 +884,7 @@ function syncMusic(): void {
     if (!target || !c) return
     playing = target
     applyLevels()
-    step = 0
+    step = startStep
     next = c.currentTime + 0.1
     bus = c.createGain()
     bus.connect(music)
@@ -803,8 +892,11 @@ function syncMusic(): void {
   })
 }
 
-export function setMusic(mode: MusicMode): void {
+/** `fromBar` starts the loop further in, for the debug's sound lab to reach each section of the form. */
+export function setMusic(mode: MusicMode, fromBar = 0): void {
+  if (fromBar > 0) stopPlaying()
   wanted = mode
+  startStep = fromBar * 8
   syncMusic()
 }
 

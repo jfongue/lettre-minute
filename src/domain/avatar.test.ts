@@ -13,6 +13,7 @@ import {
 import {
   AVATARS,
   DEFAULT_AVATAR,
+  inGround,
   isDefaultAvatar,
   PALETTE,
   paintsAccent,
@@ -215,5 +216,22 @@ describe('worn tiles', () => {
   it('tells two tiles apart on any of their four layers', () => {
     expect(sameAvatar(DEFAULT_AVATAR, { ...DEFAULT_AVATAR })).toBe(true)
     expect(sameAvatar(DEFAULT_AVATAR, { ...DEFAULT_AVATAR, accent: 'violet' })).toBe(false)
+  })
+})
+
+describe('a success that pays only an ink', () => {
+  it('opens the ink in the palette and no tile, the fifteen-letter word for one', () => {
+    const before = { ...NEW_PROFILE, longestWord: 14 }
+    const after = { ...before, longestWord: 15 }
+
+    expect(newlyEarnedAchievements(before, after).map((achievement) => achievement.id)).toEqual(['word-long-15'])
+    expect(ownedColours(after).map((colour) => colour.id)).toContain('canard')
+    expect(ownedColours(before).map((colour) => colour.id)).not.toContain('canard')
+    expect(ownedDesigns(after)).toEqual(ownedDesigns(before))
+  })
+
+  it('shows on the worn tile, painted in that ink, its figure never lost in the field', () => {
+    expect(inGround(DEFAULT_AVATAR, 'canard')).toEqual({ ...DEFAULT_AVATAR, ground: 'canard' })
+    expect(inGround(DEFAULT_AVATAR, 'jaune')).toEqual({ design: 0, ground: 'jaune', shape: 'bleu', accent: 'rouge' })
   })
 })

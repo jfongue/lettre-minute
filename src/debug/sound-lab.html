@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Labo son</title>
+    <style>
+      body { font: 16px system-ui, sans-serif; background: #f6f1e7; color: #1d1d1b; margin: 0; padding: 16px; }
+      h2 { font-size: 15px; margin: 20px 0 8px; }
+      button { font: inherit; padding: 10px 14px; margin: 0 8px 8px 0; border: 2px solid #1d1d1b; background: #fff; border-radius: 8px; cursor: pointer; }
+      #now { margin-top: 16px; color: #555; }
+    </style>
+  </head>
+  <body>
+    <h1>Labo son</h1>
+    <h2>Musique du menu (32 mesures, ~84 s)</h2>
+    <div id="menu"></div>
+    <h2>Pulsation de partie</h2>
+    <div id="pulse"></div>
+    <h2>Bilan : un mot après l’autre</h2>
+    <div id="recap"></div>
+    <div><button id="stop">Stop</button></div>
+    <p id="now"></p>
+    <script type="module" src="./soundLab.ts"></script>
+  </body>
+</html>
