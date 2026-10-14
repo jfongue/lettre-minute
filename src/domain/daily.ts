@@ -2,7 +2,6 @@ import type { ChallengeWord } from './challenge'
 import type { RarityTier } from './rarity'
 import { RUN_SECONDS } from './run'
 import { MAX_CATEGORIES_PER_RUN, dealLineup } from './unlocks'
-import { levelFor, type Profile } from './progression'
 
 /**
  * The daily puzzle, as a Reddit post plays it: one seed per calendar day, the
@@ -137,79 +136,4 @@ export function plausibleDaily(score: number, words: readonly ChallengeWord[], l
     total += word.points
   }
   return total === score
-}
-
-// ---------------------------------------------------------------- the day's run in the app
-
-/**
- * The app's daily, offered on the home screen where a host opens it
- * (`daily`): the same seed and lineup as the post, one counted run a day,
- * and a run of days in a row that pays XP on top. The day is the player's
- * own calendar day, handed in by the interface: a streak that broke at
- * midnight UTC would break in the middle of an American evening.
- */
-export interface DailyRecord {
-  /** The last day a daily was played on; null before the first. */
-  day: string | null
-  /** Days in a row up to `day`. */
-  streak: number
-  /** The longest streak ever held. */
-  best: number
-  /** What the run of `day` scored. */
-  score: number
-  /** Days played, in a row or not. */
-  played: number
-}
-
-/**
- * The daily waits for a player who knows the game: before this level the
- * home screen keeps « Play » to itself, and the first levels come from runs.
- */
-export const DAILY_MIN_LEVEL = 5
-
-export function dailyOpen(profile: Pick<Profile, 'xp'>): boolean {
-  return levelFor(profile.xp) >= DAILY_MIN_LEVEL
-}
-
-export const NO_DAILY: DailyRecord = { day: null, streak: 0, best: 0, score: 0, played: 0 }
-
-/** The streak still alive on `today`: kept through yesterday's run, lost past it. */
-export function liveStreak(record: DailyRecord, today: string): number {
-  return record.day === today || record.day === dayBefore(today) ? record.streak : 0
-}
-
-export function playedOn(record: DailyRecord, today: string): boolean {
-  return record.day === today
-}
-
-/** The streak a run on `day` would make: one more after yesterday, one again after a gap. */
-export function streakAfter(record: DailyRecord, day: string): number {
-  if (record.day === day) return record.streak
-  return record.day === dayBefore(day) ? record.streak + 1 : 1
-}
-
-/** Only the day's first run counts: replaying it again changes nothing. */
-export function recordDaily(record: DailyRecord, day: string, score: number): DailyRecord {
-  if (record.day === day) return record
-  const streak = streakAfter(record, day)
-  return { day, streak, best: Math.max(record.best, streak), score, played: record.played + 1 }
-}
-
-/** XP on top of the run's own, per day of the streak. */
-export const DAILY_XP_PER_DAY = 40
-/** Past five days the bonus stops growing: missing a day must cost something, never everything. */
-export const DAILY_XP_DAYS = 5
-
-export function dailyBonusXp(streak: number): number {
-  return DAILY_XP_PER_DAY * Math.min(Math.max(0, Math.floor(streak)), DAILY_XP_DAYS)
-}
-
-/** Anything read back from storage: a broken or foreign value starts over rather than failing. */
-export function parseDailyRecord(raw: unknown): DailyRecord {
-  if (typeof raw !== 'object' || raw === null) return NO_DAILY
-  const { day, streak, best, score, played } = raw as Record<string, unknown>
-  const count = (value: unknown) => (typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : 0)
-  if (!isDay(day)) return NO_DAILY
-  const kept = Math.max(1, count(streak))
-  return { day, streak: kept, best: Math.max(kept, count(best)), score: count(score), played: Math.max(1, count(played)) }
 }

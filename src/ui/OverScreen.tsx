@@ -98,14 +98,6 @@ onAvatar(design?: number): void
    * rapporte rien — le bilan le montre sans le comparer à rien.
    */
   ranked?: boolean
-  /** La partie du jour : son numéro, la série qu'elle tient et l'XP qu'elle a payée en plus. */
-  daily?: DailyOutcome
-}
-
-export interface DailyOutcome {
-  number: number
-  streak: number
-  bonus: number
 }
 
 export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: OverScreenProps) {
@@ -228,7 +220,6 @@ function Summary({
   onAvatar,
   onReplay,
   onHome,
-  daily,
 }: SummaryProps) {
   const t = useT()
   const leaderboards = useFeature('leaderboards')
@@ -249,21 +240,6 @@ function Summary({
           n'y a rien en plus. */}
       <div className="over-pane over-pane--run cascade">
         <XpGain from={profileBefore.xp} to={profile.xp} />
-
-        {daily && (
-          <div className="daily-over">
-            <span className="daily-card-mark daily-card-mark--lit" aria-hidden="true">
-              <strong>{daily.streak}</strong>
-            </span>
-            <span className="daily-card-text">
-              <strong className="daily-card-main">{t.daily.app.over(daily.number)}</strong>
-              <span className="daily-card-meta">
-                <span>{t.daily.app.overStreak(daily.streak, daily.bonus)}</span>
-                <span>{t.daily.app.overNext}</span>
-              </span>
-            </span>
-          </div>
-        )}
 
         <div className="figures figures--three">
           <Figure tint="yellow" value={run.found.length} label={t.over.words(run.found.length)} />

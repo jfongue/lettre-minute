@@ -59,8 +59,6 @@ interface HomeScreenProps {
   invites?: ReactNode
   /** L'entrée du défi du moment, quand la fonctionnalité est ouverte. */
   weekly?: ReactNode
-  /** L'entrée du défi du jour, quand la fonctionnalité est ouverte. */
-  daily?: ReactNode
   onChallenge(id: string): void
   onCreateChallenge(): void
   onPastChallenges(): void
@@ -102,7 +100,6 @@ export function HomeScreen({
   onBoardsHidden,
   invites,
   weekly,
-  daily,
 }: HomeScreenProps) {
   const t = useT()
   // Le choix des pouvoirs a son écran avant la partie : l'accueil ne garde plus leurs emplacements.
@@ -184,8 +181,6 @@ const alone =
           </div>
 
           {invites}
-
-          {daily}
 
           {weekly}
 
