@@ -2,7 +2,7 @@
 
 La version du jeu soumise à CrazyGames (https://developer.crazygames.com/submit),
 sous le nom **Letter Minute**. C'est l'app elle-même (`src/App.tsx`), construite
-en mode `crazygames`, sans le téléphone, sans le serveur, derrière le SDK HTML5 v3
+en mode `crazygames`, sans le téléphone ni ses offres, derrière le SDK HTML5 v3
 du portail. L'app Android et la version web ne changent pas : chaque différence
 passe par l'hôte `crazyGamesHost` (`src/platform/crazygames.ts`), que seul ce
 build choisit (`VITE_PLATFORM`, `src/platform/index.ts`), et Vite retire le code
@@ -38,17 +38,18 @@ le 2026-10-08 ; `git tag -l 'crazygames-*'` liste les mises à jour qui ont suiv
   le SDK ne peut que finir `disabled` —, annonce
   `loadingStart`, recopie la progression sauvegardée, rend l'app, puis
   `loadingStop`. Pas de suivi d'usage (`track.ts`), pas de coquille native.
-- **Le serveur pour les classements, les amis et le duel** : `vite.config.ts`
-vide les
+- **Le serveur pour les classements, les amis, le duel et la modération** :
+`vite.config.ts` vide les
   variables externes (AdMob, Google, push, groupe de testeurs) quel que soit
   `.env.local`, mais garde `VITE_SUPABASE_*` et la page de confidentialité.
   Un invité n'a jamais de compte, même anonyme (`host.anonymousAccounts`,
   `connect()` dans `src/lib/supabase.ts`) : rien de lui ne s'écrit, `guard`
   répond par ses replis, les classements se lisent sous le rôle `anon`
   (`openGuard`, migration 0073), l'écran des amis lui offre la connexion du
-  portail (`host.promptAccount`) et le duel, qui demande un compte nommé, lui
-  ouvre la table des joueurs maison. `cloudConfigured()` reste faux ici :
-  le défi du moment et le reste de ce que garde le jeu restent sur l'appareil.
+  portail (`host.promptAccount`), le duel, qui demande un compte nommé, lui
+  ouvre la table des joueurs maison, et proposer un mot ne fait rien.
+  `cloudConfigured()` reste faux ici : le défi du moment et le reste de ce que
+  garde le jeu restent sur l'appareil.
 - **Comptes CrazyGames** (`host.account`, module User) : un joueur connecté au
   portail donne son jeton (`getUserToken`, RS256), que la fonction Edge
   `crazygames-auth` vérifie contre la clé publiée (PKCS#1) ; elle crée ou
@@ -68,8 +69,11 @@ vide les
   données personnelles hors SDK expliquent le lien « Confidentialité » du menu
   (paragraphe CrazyGames dans les sept `public/confidentialite*.html`).
 - **Fonctionnalités ouvertes par-dessus la table** (`OPEN_FEATURES` de
-  `src/platform/crazygames.ts`) : les classements, les amis, le face-à-face et
-  le duel, matchmaking compris — un joueur connecté au portail a le compte
+`src/platform/crazygames.ts`) : les classements, les amis, le face-à-face, le
+duel — matchmaking compris — et la modération avec les mots qu'un joueur y
+propose (proposer un mot, « Mes demandes », l'annonce des mots acceptés,
+l'offre de modérer, la file à juger, le signalement d'un mot, l'élection d'un
+ami modérateur) — un joueur connecté au portail a le compte
   nommé que `crazygames-auth` lui ouvre (0073, 0074) ; le défi du moment et les
   pouvoirs choisis restent les deux seules cases d’`openedFeatures`.
 - **Fonctionnalités fermées** (`crazyGamesHost.closedFeatures`, soit
@@ -77,18 +81,20 @@ vide les
   `OPEN_FEATURES`) : le défi de 24 h, l’invitation par e-mail ou par lien (elle
   mène hors de la page du portail), les réactions qui s’accrochent à un défi,
  Premium (faux paiement),
-  modes de jeu, propositions de mots et modération, boîte à idées, question
+ modes de jeu, boîte à idées, question
   d'avis, demande de note, notifications, mise à jour du store, Play Games,
   pubs AdMob, outils de développeur. Le défi du moment est le seul défi du
   portail. Le bouton « Partager — bientôt » (bouton mort, fonctionnalité `share`),
   l'adresse et « Se déconnecter » d'un compte du portail, et la note « Hors ligne » du menu (`keepsProgress`) disparaissent aussi. Restent : la
-  partie, les classements, le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
+  partie, les classements, les amis et le duel, la modération et les mots
+  proposés, le tutoriel, les pouvoirs, les catégories et leurs bans, les mots
   cachés du bilan, l'avatar, les succès, les statistiques, les options.
 - **Super modérateur** (`crazyGamesHost.superModeratorFeatures`) : un compte
   du portail que le serveur a fait super modérateur (`moderators.super`, à la
   main, comme Crazytonno, le compte de Jérémy) retrouve ce que l'hôte ferme aux
   joueurs et qu'il peut porter : planche debug, tableau de bord, tableau des
-  mots, idées reçues, modes de jeu, modération et mots proposés
+  mots, idées reçues, modes de jeu, et le reste de la modération que l'hôte
+  ouvre désormais à tout compte nommé
   (`SUPER_MODERATOR_FEATURES`). Jamais un achat ni un lien hors de la page.
 - **Fonctionnalités ouvertes** (`crazyGamesHost.openedFeatures`), quoi que
   disent les valeurs du code : le **défi du moment** (`weekly`), que l'app

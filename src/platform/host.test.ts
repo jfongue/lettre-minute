@@ -60,13 +60,28 @@ describe('les hôtes', () => {
     expect(redditHost.guestBoards).toBe(false)
   })
 
-  it('ouvrent à CrazyGames les amis et le duel qu’un compte nommé du portail porte, jamais ce qui mène hors de la page', () => {
+  it('ouvrent à CrazyGames les amis, le duel et la modération qu’un compte nommé du portail porte, jamais ce qui mène hors de la page', () => {
     // Le compte que `crazygames-auth` (0073) ouvre au joueur connecté est nommé :
-    // les amis, le face-à-face et le duel — matchmaking compris — le lisent.
-    for (const id of ['friends', 'rivalry', 'duel']) expect(crazyGamesHost.closedFeatures).not.toContain(id)
+    // les amis, le face-à-face, le duel — matchmaking compris — et la modération
+    // avec les mots qu'il propose le lisent.
+    for (const id of [
+      'friends',
+      'rivalry',
+      'duel',
+      'proposeWord',
+      'myRequests',
+      'wordsNews',
+      'moderation',
+      'moderatorOffer',
+      'electModerator',
+      'wordFlag',
+    ]) {
+      expect(crazyGamesHost.closedFeatures).not.toContain(id)
+    }
     // Le défi de 24 h, l'invitation par e-mail ou par lien, les réactions qui
-    // s'y accrochent, et tout ce qui demande plus que le serveur du portail.
-    for (const id of ['challenges', 'friendInvite', 'reactions', 'moderation', 'proposeWord']) {
+    // s'y accrochent, la boîte à idées et tout ce qui demande plus que le serveur
+    // du portail.
+    for (const id of ['challenges', 'friendInvite', 'reactions', 'ideasBox']) {
       expect(crazyGamesHost.closedFeatures).toContain(id)
     }
   })

@@ -441,22 +441,38 @@ export function restoreSavedProgress(): void {
  * The server a portal player may reach: the boards a guest reads, and — since
  * `crazygames-auth` (0073) gives a named account to whoever is signed in to the
  * portal — the friends, the face-off with them and the duel, matchmaking
- * included. A guest of the portal has no session, so the friends tab offers
- * the portal's own sign-in and the duel falls back on the house players.
- * What stays closed: the twenty-four-hour challenge (the duel's own screen
- * would open a game a friend cannot be invited to), inviting a friend by
- * e-mail or by a shared link (both lead off the portal's page), and the
- * reactions that ride on a challenge.
+ * included, plus the words he proposes and the moderation those words feed: the
+ * offer to become a moderator, the queue of words to judge, his own requests,
+ * the words a moderator flags and the election of a friend moderator. A guest
+ * of the portal has no session, so the friends tab offers the portal's own
+ * sign-in, the duel falls back on the house players, and proposing a word does
+ * nothing. What stays closed: the twenty-four-hour challenge (the duel's own
+ * screen would open a game a friend cannot be invited to), inviting a friend by
+ * e-mail or by a shared link (both lead off the portal's page), the reactions
+ * that ride on a challenge, and the ideas box, which is not moderation.
  */
-const OPEN_FEATURES = new Set(['leaderboards', 'friends', 'rivalry', 'duel'])
+const OPEN_FEATURES = new Set([
+  'leaderboards',
+  'friends',
+  'rivalry',
+  'duel',
+  'proposeWord',
+  'myRequests',
+  'wordsNews',
+  'moderation',
+  'moderatorOffer',
+  'electModerator',
+  'wordFlag',
+])
 
 /**
- * The portal hosts the game nearly alone: the server only for the boards, the
- * friends and the duel, the portal's own account as the only one, nothing that
- * leads off its page (it refuses a button that does nothing, such as « share —
- * soon »), none of the phone's offers. It lists the game as « Letter Minute »
- * in every language, and English stands in for the language picker: a player
- * there must land in the game, not on a question.
+ * The portal hosts the game nearly alone: the server for the boards, the
+ * friends, the duel and the words a signed-in player brings to the moderation,
+ * the portal's own account as the only one, nothing that leads off its page (it
+ * refuses a button that does nothing, such as « share — soon »), none of the
+ * phone's offers. It lists the game as « Letter Minute » in every language, and
+ * English stands in for the language picker: a player there must land in the
+ * game, not on a question.
  */
 export const crazyGamesHost: Host = {
   // Filtering is earned by a level bonus or Premium, neither of which the
