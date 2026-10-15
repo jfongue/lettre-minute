@@ -488,6 +488,22 @@ export function unseenColours(profile: Profile, seen: readonly string[], discove
     .filter((id) => !known.has(id))
 }
 
+/** Les tuiles gagnées qui allument la pastille de l'avatar : une seule tant que l'éditeur n'a jamais été ouvert. */
+export const AVATAR_NEWS_FIRST = 1
+/** Puis trois de plus depuis sa dernière ouverture : une pastille à chaque tuile lasserait. */
+export const AVATAR_NEWS_AFTER = 3
+
+/**
+ * Faut-il une pastille rouge vers l'éditeur d'avatar (menu, onglet Profil,
+ * « Avatar et succès ») ? `seen` est ce que l'éditeur a montré à sa dernière
+ * sortie, `null` s'il n'a jamais été ouvert. Les formes de départ ne comptent
+ * pas : personne ne les a gagnées.
+ */
+export function avatarNewsDue(profile: Profile, seen: readonly number[] | null, discoveries?: number): boolean {
+  const earned = unseenDesigns(profile, seen ?? [], discoveries).filter((id) => designWinner(id) !== null)
+  return earned.length >= (seen === null ? AVATAR_NEWS_FIRST : AVATAR_NEWS_AFTER)
+}
+
 /** Le succès qui ouvre cette case de la grille, pour dire au joueur comment elle se gagne. */
 export function designWinner(design: number): Achievement | null {
   return ACHIEVEMENTS.find((achievement) => achievement.reward.design === design) ?? null

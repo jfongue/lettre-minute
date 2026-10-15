@@ -7,6 +7,7 @@ import { loadMessages } from './i18n'
 import { host } from './platform'
 import { initCrazyGames, loadingStart, loadingStop, restoreSavedProgress } from './platform/crazygames'
 import { armSound } from './lib/sound'
+import { startTracking } from './lib/track'
 import { loadLocale } from './state/locale'
 import { applyTheme, loadTheme } from './state/theme'
 import './styles.css'
@@ -14,8 +15,7 @@ import './crazygames.css'
 
 /**
  * The CrazyGames build's entry (`crazygames.html`, `npm run crazygames:build`):
- * the app itself, minus the phone's shell and usage tracking, behind the
- * portal's SDK. The SDK answers first — the saved progress it holds must be
+ * the app itself, minus the phone's shell, behind the portal's SDK. The SDK answers first — the saved progress it holds must be
  * in localStorage before the profile is read, and its language decides the
  * first screen's.
  */
@@ -43,6 +43,8 @@ document.addEventListener('focusout', () => {
 void (async () => {
   await initCrazyGames()
   loadingStart()
+  // The guest's opens and runs reach the dashboard without an account (0084).
+  startTracking()
   restoreSavedProgress()
   // Before the first paint, so a dark-theme player never sees a light flash.
   applyTheme(loadTheme())

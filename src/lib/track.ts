@@ -1,4 +1,4 @@
-import { PLATFORM } from '../platform'
+import { host, PLATFORM } from '../platform'
 import { setFeatureSink } from './feature'
 import { connect, supabase } from './supabase'
 import { testClient } from './testClient'
@@ -15,6 +15,12 @@ import { testClient } from './testClient'
 // rather than sent, or the server's not-null column would refuse the batch.
 const QUEUE_KEY = 'lettre-minute.events.v2'
 const DEVICE_KEY = 'lettre-minute.device.v1'
+// Set while the app is on screen, cleared when it hides: still there at the
+// next launch, the last session ended in the foreground — a crash, or the
+// system killing the app in front of the player.
+const ALIVE_KEY = 'lettre-minute.alive.v1'
+// A main-thread task this long is a freeze the player feels, not a slow frame.
+const FREEZE_MS = 500
 const FLUSH_MS = 20_000
 const BATCH = 100
 // Past this, the oldest go: a device offline for weeks must not fill its storage.
@@ -82,6 +88,12 @@ let screen = 'home'
 let sessionStart = Date.now()
 let sessionRuns = 0
 let hiddenAt: number | null = null
+// Main-thread tasks over 50 ms since the session's last report (`longtask`,
+// where the WebView knows it): how often the game stutters, and how badly.
+let longTasks = 0
+let longMs = 0
+let longMax = 0
+let freezes = 0
 let started = false
 let flushing: Promise<void> | null = null
 // Kept in memory as well: localStorage is read once, not at every tap.
@@ -131,7 +143,9 @@ function flush(): Promise<void> {
   const batch = queue.slice(0, BATCH)
   flushing = (async () => {
     try {
-      if (!(await connect())) return
+      // A portal guest has no account (CrazyGames): its events go under the
+      // `anon` role, which `track` accepts for that host alone (0084).
+      if (!(await connect()) && host.anonymousAccounts) return
       const { error } = await client.rpc('track', { p_events: batch })
       // Refused or not deployed yet: dropped all the same, or the queue would only grow.
       if (error && error.code !== 'PGRST202') console.warn('track', error.message)
@@ -165,6 +179,40 @@ function labelOf(target: Element): string {
   return text.slice(0, 48) || target.className.toString().split(' ')[0] || target.tagName.toLowerCase()
 }
 
+function setAlive(on: boolean): void {
+  try {
+    if (on) localStorage.setItem(ALIVE_KEY, '1')
+    else localStorage.removeItem(ALIVE_KEY)
+  } catch {
+    /* no storage: abrupt exits go uncounted */
+  }
+}
+
+function watchLongTasks(): void {
+  try {
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        longTasks += 1
+        longMs += entry.duration
+        longMax = Math.max(longMax, entry.duration)
+        if (entry.duration >= FREEZE_MS) freezes += 1
+      }
+    }).observe({ type: 'longtask', buffered: true })
+  } catch {
+    /* not supported: the session reports no long task */
+  }
+}
+
+/** The stutters since the last report, then a fresh count. */
+function takeLongTasks(): Props {
+  const props = { long_tasks: longTasks, long_ms: Math.round(longMs), long_max: Math.round(longMax), freezes }
+  longTasks = 0
+  longMs = 0
+  longMax = 0
+  freezes = 0
+  return props
+}
+
 /**
  * Starts the session: one `open`, every tap on a button or link, errors, and
  * the session's end when the page hides. Called once, before the first render.
@@ -174,7 +222,9 @@ export function startTracking(): void {
   started = true
   queue = readQueue()
   setFeatureSink(trackFeature)
-  track('open', { cold: true, runs: 0 })
+  track('open', { cold: true, runs: 0, unclean: readFlag(ALIVE_KEY) })
+  setAlive(true)
+  watchLongTasks()
 
   document.addEventListener(
     'click',
@@ -186,17 +236,18 @@ export function startTracking(): void {
   )
 
   window.addEventListener('error', (event) => {
-    track('error', { message: String(event.message).slice(0, 200), source: `${event.filename ?? ''}:${event.lineno ?? ''}` })
+    track('error', { message: String(event.message).slice(0, 200), source: `${event.filename ?? ''}:${event.lineno ?? ''}`, screen })
   })
   window.addEventListener('unhandledrejection', (event) => {
     const reason: unknown = event.reason
-    track('error', { message: String(reason instanceof Error ? reason.message : reason).slice(0, 200), source: 'promise' })
+    track('error', { message: String(reason instanceof Error ? reason.message : reason).slice(0, 200), source: 'promise', screen })
   })
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
       hiddenAt = Date.now()
-      track('hide', { seconds: Math.round((hiddenAt - sessionStart) / 1000), runs: sessionRuns, screen })
+      track('hide', { seconds: Math.round((hiddenAt - sessionStart) / 1000), runs: sessionRuns, screen, ...takeLongTasks() })
+      setAlive(false)
       writeQueue(queue)
       void flush()
       return
@@ -208,6 +259,7 @@ export function startTracking(): void {
       track('open', { cold: false, runs: 0 })
     }
     hiddenAt = null
+    setAlive(true)
     void flush()
   })
 

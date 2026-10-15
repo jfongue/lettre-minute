@@ -1,5 +1,13 @@
 # Premium payant sur le web : marche à suivre
 
+> **Abandonné le 2026-10-15.** Lemon Squeezy a refusé le store « Lettre
+> Minute » le 2026-10-14, sans motif, et la vente sur le web s'arrête là : le
+> web reste un canal de debug, et le Premium ne s'achète que sur Android (Play
+> Billing). `VITE_PREMIUM_WEB` reste vide, donc le web garde son Premium
+> gratuit, comme les portails. Le code (`premium-checkout`,
+> `premium-webhook`, 0069) reste en place, inerte : `purchases` porte son
+> `provider`, et un autre marchand y reprendrait la suite ci-dessous.
+
 Le code est prêt : la page web ouvre le paiement du marchand
 (`premium-checkout`), le marchand rappelle le serveur (`premium-webhook`), et
 l'achat se range dans `purchases` (0069) sous le compte du joueur. Rien ne

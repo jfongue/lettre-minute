@@ -343,6 +343,11 @@ export function loadSeenDesigns(): number[] {
   return Array.isArray(raw) ? raw.filter((id): id is number => typeof id === 'number') : []
 }
 
+/** Null tant que l'éditeur n'a jamais été ouvert : la première tuile gagnée suffit alors à l'annoncer. */
+export function loadSeenDesignsOrNull(): number[] | null {
+  return parsed(AVATAR_SEEN_KEY) === null ? null : loadSeenDesigns()
+}
+
 export function saveSeenDesigns(designs: readonly number[]): void {
   write(AVATAR_SEEN_KEY, [...designs])
 }

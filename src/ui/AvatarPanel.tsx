@@ -26,6 +26,10 @@ interface AvatarPanelProps {
   focus?: number | null
   /** Le compte maison : toute la grille est ouverte, rien n'y est « nouveau ». */
   all?: boolean
+  /** Chaque brouillon : la page demande à le garder si on la quitte sans l'enregistrer. */
+  onDraft?(draft: AvatarChoice): void
+  /** Les tuiles vues viennent d'être rangées, à la sortie de l'éditeur. */
+  onSeen?(): void
 }
 
 type Layer = 'ground' | 'shape' | 'accent'
@@ -38,7 +42,7 @@ const LAYERS: readonly Layer[] = ['ground', 'shape', 'accent']
  * succès qui l'ouvre, et c'est lui qui dit comment la gagner. Il ne se referme
  * pas lui-même — c'est la page qui porte son bouton retour.
  */
-export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null, all = false }: AvatarPanelProps) {
+export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null, all = false, onDraft, onSeen }: AvatarPanelProps) {
   const t = useT()
   const [draft, setDraft] = useState(() => (focus === null ? avatar : { ...avatar, design: focus }))
   const [layer, setLayer] = useState<Layer>('shape')
@@ -50,14 +54,19 @@ export function AvatarPanel({ profile, avatar, discoveries, onSave, focus = null
   const [seenInks, setSeenInks] = useState<readonly string[]>(loadSeenColours)
   const [shaking, setShaking] = useState<number | null>(focus)
   const cell = useRef<HTMLButtonElement>(null)
+  const seenLatest = useRef(onSeen)
+  seenLatest.current = onSeen
 
   useEffect(
     () => () => {
       saveSeenDesigns(ownedDesigns(profile, discoveries, all).map((design) => design.id))
       saveSeenColours(ownedColours(profile, discoveries).map((colour) => colour.id))
+      seenLatest.current?.()
     },
     [profile, discoveries, all],
   )
+
+  useEffect(() => onDraft?.(draft), [draft, onDraft])
 
   useEffect(() => {
     if (focus === null) return

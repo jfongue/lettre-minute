@@ -51,6 +51,8 @@ interface HomeScreenProps {
   categoriesNews?: number
   /** Friend requests waiting for an answer: a dot on the menu tile. */
   friendRequests: number
+  /** Des tuiles d'avatar gagnées à essayer : une pastille sur le menu aussi. */
+  avatarNews?: boolean
   /** Null without a named account: challenges are played between friends. */
   challenges: readonly ChallengeSummary[] | null
   /** La pastille du bouton « Multijoueur », tant qu'aucune partie à plusieurs n'a été lancée. */
@@ -87,6 +89,7 @@ export function HomeScreen({
   queueAlert,
   categoriesNews = 0,
   friendRequests,
+  avatarNews = false,
   challenges,
   multiplayerNews,
   onChallenge,
@@ -132,7 +135,7 @@ const alone =
 
   return (
     <div className={`sheet sheet--home${alone ? ' sheet--home-alone' : ''}`} {...swipe}>
-      <Poster requests={friendRequests} onMenu={() => onMenu(friendRequests > 0 ? 'social' : undefined)} onDebug={onDebug} />
+      <Poster requests={friendRequests} avatarNews={avatarNews} onMenu={() => onMenu(friendRequests > 0 ? 'social' : undefined)} onDebug={onDebug} />
 
       <header className="masthead">
         <h1 className="title">
@@ -254,7 +257,7 @@ export const POSTER: readonly Cell[] = [
 const DEBUG_TILE = 4
 
 /** The top-left tile doubles as the menu button: three bars where the quarter used to turn. */
-function Poster({ requests, onMenu, onDebug }: { requests: number; onMenu(): void; onDebug?(): void }) {
+function Poster({ requests, avatarNews, onMenu, onDebug }: { requests: number; avatarNews: boolean; onMenu(): void; onDebug?(): void }) {
   const t = useT()
   const tapTile = useHiddenTaps()
   return (
@@ -267,9 +270,9 @@ function Poster({ requests, onMenu, onDebug }: { requests: number; onMenu(): voi
             className="poster-cell poster-menu"
             style={{ background: `var(--${ground})`, '--i': index } as CSSProperties}
             onClick={onMenu}
-            aria-label={requests > 0 ? `${t.home.menu} · ${t.home.friendRequests(requests)}` : t.home.menu}
+            aria-label={[t.home.menu, requests > 0 && t.home.friendRequests(requests), avatarNews && t.home.avatarNews].filter(Boolean).join(' · ')}
           >
-            {requests > 0 && <span className="badge-dot poster-menu-dot" aria-hidden="true" />}
+            {(requests > 0 || avatarNews) && <span className="badge-dot poster-menu-dot" aria-hidden="true" />}
             <span className="poster-menu-bars" style={{ color: `var(--${tint})` }} aria-hidden="true">
               <span />
               <span />

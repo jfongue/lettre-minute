@@ -5,6 +5,7 @@ import {
   achievementIcon,
   achievementProgress,
   achievementReward,
+  avatarNewsDue,
   colourWinner,
   designGoal,
   designWinner,
@@ -205,5 +206,18 @@ describe('le compte maison', () => {
   it('porte toute la grille sans avoir rien gagné', () => {
     expect(ownedDesigns(NEW_PROFILE, 0)).toHaveLength(FREE_DESIGNS)
     expect(ownedDesigns(NEW_PROFILE, 0, true)).toHaveLength(AVATARS.length)
+  })
+
+  it('calls the player to the avatar editor at their first won tile, then every three', () => {
+    expect(avatarNewsDue(NEW_PROFILE, null)).toBe(false)
+    const rich = { ...NEW_PROFILE, xp: xpForLevel(30), runs: 400, bestScore: 900, wordsFound: 2_000, bestCombo: 40 }
+    const owned = ownedDesigns(rich).map((design) => design.id)
+    const earned = owned.filter((id) => designWinner(id) !== null)
+    expect(earned.length).toBeGreaterThanOrEqual(3)
+    expect(avatarNewsDue(rich, null)).toBe(true)
+    expect(avatarNewsDue(rich, owned)).toBe(false)
+    const without = (count: number) => owned.filter((id) => !earned.slice(0, count).includes(id))
+    expect(avatarNewsDue(rich, without(2))).toBe(false)
+    expect(avatarNewsDue(rich, without(3))).toBe(true)
   })
 })

@@ -1,6 +1,7 @@
 import { createContext, Suspense, useContext, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { parseAvatar } from '../domain/avatar'
+import { isBonusId } from '../domain/bonus'
 import { isPowerId } from '../domain/powers'
 import { levelFor } from '../domain/progression'
 import { categoryText, useT } from '../i18n'
@@ -9,7 +10,7 @@ import { Avatar } from '../ui/Avatar'
 import { PlayerActionsContext, SpyHistory } from '../ui/PlayerSheet'
 import { Card, Kpi, Legend, Section, Stat, Table } from './board'
 import { ago, decimal, fmt, pct } from './format'
-import type { ByPlatform, DayRow, HourRow, Invites, ModerationByLang, PlatformName, Revenue, RevenueDay, SlotEntry, Snapshot } from './snapshot'
+import type { ByPlatform, ChoiceKind, DayRow, HourRow, Insights, Invites, ModerationByLang, PlatformName, Quality, Revenue, RevenueDay, SlotEntry, Snapshot } from './snapshot'
 
 /*
  * Le tableau de bord de l'administrateur : cinq tapes sur « Classements »
@@ -160,6 +161,40 @@ const seconds = (ms: number) => `${(ms / 1000).toFixed(1).replace('.', ',')} s`
 /** « 1 offre », « 2 offres » : les étiquettes du revenu s'accordent. */
 const plural = (n: number, word: string) => `${fmt(n)} ${word}${n > 1 ? 's' : ''}`
 const dayLabel = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+const minutes = (value: number | null) => (value != null ? `${decimal(Math.round((value / 60) * 10) / 10)} min` : '—')
+/** Une version telle qu'un événement la dit, « android », « crazygames »… */
+const platformName = (platform: string) => PLATFORM_SERIES.find((one) => one.key === platform)?.label ?? platform
+
+/** La langue de jeu d'un joueur, à côté de son nom. */
+function LangTag({ lang }: { lang?: string | null }) {
+  return lang && lang !== '?' ? <span className="dashboard-tag dashboard-tag--lang">{lang.toUpperCase()}</span> : null
+}
+
+/** Un jour (ou une heure d'aujourd'hui) avec ses arrivés du jour et ses revenants (0084). */
+function withSplit(row: DayRow | HourRow, insights: Insights | undefined): Day {
+  if (!insights) return row
+  const hour = 'hour' in row ? row.hour : undefined
+  const split = hour == null ? insights.split.find((one) => one.day === row.day) : insights.today_split.find((one) => one.hour === hour)
+  const runsNew = split?.runs_new ?? 0
+  const playersNew = split?.players_new ?? 0
+  return {
+    ...row,
+    runs_new: runsNew,
+    runs_back: Math.max(0, row.runs - runsNew),
+    players_new: playersNew,
+    players_back: Math.max(0, row.players - playersNew),
+  }
+}
+
+/** Les ouvertures d'une seule version, à la place de celles de toutes. */
+function opensOf(row: Day, platform: PlatformName, insights: Insights): Day {
+  const by = insights.sessions_by_platform
+  const found =
+    row.hour == null
+      ? by.daily.find((one) => one.day === row.day && one.platform === platform)
+      : by.today_hourly.find((one) => one.hour === row.hour && one.platform === platform)
+  return { ...row, sessions_with_run: found?.with_run ?? 0, sessions_without_run: found?.without_run ?? 0 }
+}
 
 /* ------------------------------------------------------------------ la vue */
 
@@ -254,11 +289,15 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
   const t = useT()
   const [range, setRange] = useState<Range>(14)
   const [picked, setPicked] = useState<Picked | null>(null)
-  const pick = (title: string, series: Series[]) => (row: Day) => setPicked({ title, row, series })
+  const [opensOn, setOpensOn] = useState<PlatformName | null>(null)
+  const pick = (title: string, series: Series[], platform?: PlatformName) => (row: Day) => setPicked({ title, row, series, platform })
+  const ins = d.insights
   // « 1 j » : aujourd'hui heure par heure, et non une seule barre.
-  const daily: (DayRow | HourRow)[] = range === 1 ? (d.today_hourly ?? []) : d.daily.slice(-range)
+  const daily: Day[] = (range === 1 ? (d.today_hourly ?? []) : d.daily.slice(-range)).map((row) => withSplit(row, ins))
+  const opens = opensOn && ins ? daily.map((row) => opensOf(row, opensOn, ins)) : daily
+  const opensPlatforms = ins?.sessions_by_platform.totals.map((row) => row.platform) ?? []
   const per = range === 1 ? 'par heure' : 'par jour'
-  const sum = (key: keyof DayRow) => daily.reduce((total, row) => total + (Number(row[key]) || 0), 0)
+  const sum = (key: Series['key']) => daily.reduce((total, row) => total + read(row, key), 0)
   const tracked = Boolean(d.tracking_since)
   const s = d.sessions
   const noTrack = (
@@ -309,16 +348,19 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
         </div>
       }>
         <div className="dashboard-grid">
-          <Card title={`Parties ${per}`} tag={fmt(sum('runs'))}>
-            <DayBars rows={daily} series={RUNS} onPick={pick('Parties', RUNS)} />
+          <Card title={`Parties ${per}`} tag={ins ? `${fmt(sum('runs'))} · ${fmt(sum('runs_new'))} par des arrivés du jour` : fmt(sum('runs'))}>
+            {ins && <Legend items={RUNS_SPLIT.map(({ label, color }) => ({ label, color }))} />}
+            <DayBars rows={daily} series={ins ? RUNS_SPLIT : RUNS} onPick={pick('Parties', ins ? RUNS_SPLIT : RUNS)} />
           </Card>
           <Card title={`Joueurs actifs ${per}`}>
-            <DayBars rows={daily} series={PLAYERS} onPick={pick('Joueurs actifs', PLAYERS)} />
+            {ins && <Legend items={PLAYERS_SPLIT.map(({ label, color }) => ({ label, color }))} />}
+            <DayBars rows={daily} series={ins ? PLAYERS_SPLIT : PLAYERS} onPick={pick('Joueurs actifs', ins ? PLAYERS_SPLIT : PLAYERS)} />
+            {ins && <p className="note">Arrivé du jour : son compte est né ce jour-là. Les autres reviennent.</p>}
           </Card>
           <Card title="Arrivées et inscriptions" tag={`${fmt(sum('new_players'))} arrivées · ${fmt(sum('signups'))} inscrits`}>
             <Legend items={[{ label: 'Restés anonymes', color: 'var(--blue)' }, { label: 'Comptes nommés', color: 'var(--red)' }]} />
             <DayBars
-              rows={daily.map((row) => ({ ...row, anon: Math.max(0, row.new_players - row.signups) }))}
+              rows={daily.map((row) => ({ ...row, anon: Math.max(0, read(row, 'new_players') - read(row, 'signups')) }))}
               series={ARRIVALS}
               onPick={pick('Arrivées et inscriptions', ARRIVALS)}
             />
@@ -327,8 +369,29 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
           <Card title="Ouvertures de l’app, avec ou sans partie">
             {tracked ? (
               <>
+                {opensPlatforms.length > 1 && (
+                  <div className="layer-tabs dashboard-range dashboard-card-tabs" role="tablist" aria-label="Version">
+                    {[null, ...opensPlatforms].map((platform) => (
+                      <button
+                        key={platform ?? 'all'}
+                        type="button"
+                        role="tab"
+                        aria-selected={opensOn === platform}
+                        className={`layer-tab${opensOn === platform ? ' layer-tab--on' : ''}`}
+                        onClick={() => setOpensOn(platform)}
+                      >
+                        {platform ? platformLabel(platform) : 'Toutes'}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <Legend items={[{ label: 'Avec partie', color: 'var(--green)' }, { label: 'Sans partie', color: 'var(--yellow)' }]} />
-                <DayBars rows={daily} series={SESSIONS} onPick={pick('Ouvertures de l’app', SESSIONS)} />
+                <DayBars
+                  rows={opens}
+                  series={SESSIONS}
+                  onPick={pick(opensOn ? `Ouvertures ${platformLabel(opensOn)}` : 'Ouvertures de l’app', SESSIONS, opensOn ?? undefined)}
+                />
+                {opensOn === 'crazygames' && <p className="note">Un invité CrazyGames n’envoie ses ouvertures que depuis 0084 : avant, rien.</p>}
               </>
             ) : (
               noTrack
@@ -345,7 +408,7 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
             <Stat value={fmt(s.with_run)} label={`avec partie · ${pct(s.with_run, s.total)}`} />
             <Stat value={fmt(s.without_run)} label={`sans partie · ${pct(s.without_run, s.total)}`} />
             <Stat value={decimal(s.runs_per_session)} label="parties par session jouée" />
-            <Stat value={s.median_seconds != null ? `${decimal(Math.round((s.median_seconds / 60) * 10) / 10)} min` : '—'} label="durée médiane" />
+            <Stat value={minutes(s.median_seconds)} label="durée médiane" />
             <Stat value={fmt(s.cold_opens)} label={`lancements · ${fmt(s.resumes)} retours`} />
           </div>
         ) : (
@@ -371,10 +434,31 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
             />
           </Card>
         </div>
-        <Card title="Rétention par semaine d’arrivée" note="Part des joueurs revenus jouer ou ouvrir l’app.">
-          <Retention rows={d.retention} />
-        </Card>
+        {ins && ins.sessions_by_platform.totals.length > 0 && (
+          <Card title="Sessions par version" note={`Sur les ${d.days} derniers jours.`}>
+            <Table head={['Version', 'Ouvertures', 'Avec partie', 'Parties / session', 'Durée médiane']}>
+              {ins.sessions_by_platform.totals.map((row) => (
+                <tr key={row.platform}>
+                  <td>{platformLabel(row.platform)}</td>
+                  <td className="n">{fmt(row.total)}</td>
+                  <td className="n">{pct(row.with_run, row.total)}</td>
+                  <td className="n">{decimal(row.runs_per_session)}</td>
+                  <td className="n">{minutes(row.median_seconds)}</td>
+                </tr>
+              ))}
+            </Table>
+          </Card>
+        )}
+        {!ins && (
+          <Card title="Rétention par semaine d’arrivée" note="Part des joueurs revenus jouer ou ouvrir l’app.">
+            <Retention rows={d.retention} />
+          </Card>
+        )}
       </Section>
+
+      {ins && <RetentionSection insights={ins} retention={d.retention} />}
+
+      {ins && <ChoicesSection choices={ins.choices} />}
 
       <Section title="Ce que les joueurs touchent" mark="var(--red)" aside={tracked && <p className="note">boutons et liens, écran par écran</p>}>
         {tracked ? (
@@ -462,7 +546,8 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
               {d.top_players.map((player, index) => (
                 <tr key={index}>
                   <td>
-                    <Who player={player.anonymous ? null : player.name} name={player.name} />
+                    <Who player={player.key ?? (player.anonymous ? null : player.name)} name={player.name} />
+                    <LangTag lang={player.lang} />
                     {player.anonymous && <span className="dashboard-tag">anonyme</span>}
                   </td>
                   <td className="n">{fmt(player.runs)}</td>
@@ -475,7 +560,10 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
             <Table head={['Nom', 'Inscrit', 'Parties', 'Record']}>
               {d.recent_signups.map((player, index) => (
                 <tr key={index}>
-                  <td>{player.name ? <Who player={player.name} name={player.name} /> : '—'}</td>
+                  <td>
+                    {player.name ? <Who player={player.key ?? player.name} name={player.name} /> : '—'}
+                    <LangTag lang={player.lang} />
+                  </td>
                   <td>{ago(player.at)}</td>
                   <td className="n">{fmt(player.runs)}</td>
                   <td className="n">{fmt(player.best)}</td>
@@ -517,7 +605,7 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
             <Card title="Langues">
               <Bars items={d.langs} name={(lang) => lang.lang.toUpperCase()} value={(lang) => lang.devices} sub={() => 'app.'} color="var(--green)" />
             </Card>
-            <Card title="Erreurs">
+            {!d.quality && <Card title="Erreurs">
               {d.errors.length ? (
                 <Table head={['Message', 'Fois', 'App.', 'Dernière']}>
                   {d.errors.map((error, index) => (
@@ -532,10 +620,12 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
               ) : (
                 <div className="dashboard-empty">Aucune erreur remontée.</div>
               )}
-            </Card>
+            </Card>}
           </div>
         )}
       </Section>
+
+      {d.quality && <QualitySection quality={d.quality} />}
 
       <p className="note">
         « app. » compte les appareils distincts. Les joueurs ordinateur (Maxitoon, Terretciel) et l’administrateur, appareils compris, sont exclus partout. Chiffres
@@ -780,7 +870,8 @@ function InvitesSection({ invites: v, onPick }: { invites: Invites; onPick(row: 
               {v.top.map((player, index) => (
                 <tr key={index}>
                   <td>
-                    <Who player={player.anonymous ? null : player.name} name={player.name} />
+                    <Who player={player.key ?? (player.anonymous ? null : player.name)} name={player.name} />
+                    <LangTag lang={player.lang} />
                     {player.anonymous && <span className="dashboard-tag">anonyme</span>}
                   </td>
                   <td className="n">{fmt(player.mails)}</td>
@@ -869,16 +960,300 @@ function PlatformsSection({ data, days }: { data: ByPlatform; days: readonly str
   )
 }
 
+/* ------------------------------------------------------------- rétention */
+
+function RetentionSection({ insights: ins, retention }: { insights: Insights; retention: Snapshot['retention'] }) {
+  const curve = ins.retention_curve
+  const at = (day: number) => curve.find((one) => one.day === day)
+  const stat = (day: number, kind: 'exact' | 'rolling') => {
+    const point = at(day)
+    return point ? pct(point[kind], point.eligible) : '—'
+  }
+  const last = ins.stickiness[ins.stickiness.length - 1]
+  const weeks = Math.max(0, ...ins.cohorts.map((row) => row.cells.findLastIndex((cell) => cell.eligible > 0) + 1))
+  const byWeek = new Map(retention.map((row) => [row.week, row]))
+  return (
+    <Section title="Rétention" mark="var(--green)" aside={<p className="note">arrivés des 90 derniers jours</p>}>
+      <div className="dashboard-stats">
+        <Stat value={stat(1, 'exact')} label={`revenus le lendemain · ${fmt(at(1)?.eligible ?? 0)} arrivés`} />
+        <Stat value={stat(7, 'exact')} label="revenus le 7ᵉ jour" />
+        <Stat value={stat(7, 'rolling')} label="revenus au 7ᵉ jour ou après" />
+        <Stat value={stat(30, 'rolling')} label="revenus au 30ᵉ jour ou après" />
+        <Stat value={last ? pct(last.dau, last.mau) : '—'} label="actifs du jour sur actifs du mois" />
+        <Stat value={last ? pct(last.wau, last.mau) : '—'} label="actifs de la semaine sur actifs du mois" />
+      </div>
+      <div className="dashboard-grid">
+        <Card
+          title="Courbe de rétention"
+          note="Parmi les joueurs arrivés, la part revenue jouer ou ouvrir l’app au jour dit (plein), ou ce jour-là ou plus tard (pointillé). Un jour ne compte qu’une fois fini."
+        >
+          <Legend items={CURVE.map(({ label, color }) => ({ label, color }))} />
+          <LineChart
+            rows={curve}
+            series={CURVE.map((one) => ({ ...one, value: (point: Insights['retention_curve'][number]) => (point.eligible ? point[one.key] / point.eligible : null) }))}
+            label={(point) => `J${point.day}`}
+            tip={(point) => `${fmt(point.eligible)} arrivés comptés`}
+            format={(value) => `${Math.round(value * 100)} %`}
+            max={1}
+          />
+        </Card>
+        <Card title="Actifs du jour, de la semaine, du mois" note="Joueurs avec une partie ou une ouverture sur 1, 7 ou 30 jours glissants.">
+          <Legend items={STICKY.map(({ label, color }) => ({ label, color }))} />
+          <LineChart
+            rows={ins.stickiness}
+            series={STICKY.map((one) => ({ ...one, value: (row: Insights['stickiness'][number]) => row[one.key] }))}
+            label={(row) => dayLabel(row.day)}
+            tip={(row) => `${pct(row.dau, row.mau)} du mois actifs ce jour`}
+            format={(value) => fmt(value)}
+          />
+        </Card>
+      </div>
+      <Card title="Cohortes, semaine après semaine" note="Par semaine d’arrivée : la part revenue le lendemain, puis dans chaque semaine qui suit (S1 = jours 1 à 7, S2 = jours 8 à 14…). Une case ne compte que les joueurs dont la semaine a commencé.">
+        <Table head={['Semaine d’arrivée', 'Joueurs', 'Lendemain', ...Array.from({ length: weeks }, (_, index) => `S${index + 1}`)]}>
+          {ins.cohorts
+            .slice()
+            .reverse()
+            .map((row) => {
+              const old = byWeek.get(row.week)
+              return (
+                <tr key={row.week}>
+                  <td>{dayLabel(row.week)}</td>
+                  <td className="n">{fmt(row.size)}</td>
+                  <RateCell count={old?.d1 ?? 0} size={old?.size ?? 0} />
+                  {row.cells.slice(0, weeks).map((cell, index) =>
+                    cell.eligible ? <RateCell key={index} count={cell.back} size={cell.eligible} /> : <td key={index} />,
+                  )}
+                </tr>
+              )
+            })}
+        </Table>
+      </Card>
+      <div className="dashboard-grid">
+        {(['platform', 'lang'] as const).map((by) => (
+          <Card key={by} title={by === 'platform' ? 'Rétention par version' : 'Rétention par langue'} note="Lendemain, dans les 7 jours, puis entre le 8ᵉ et le 30ᵉ jour.">
+            <Table head={[by === 'platform' ? 'Version' : 'Langue', 'Arrivés', 'Lendemain', '7 jours', 'J8–J30']}>
+              {ins.retention_by
+                .filter((row) => row.by === by)
+                .map((row) => (
+                  <tr key={row.value}>
+                    <td>{by === 'platform' ? platformName(row.value) : row.value.toUpperCase()}</td>
+                    <td className="n">{fmt(row.size)}</td>
+                    <RateCell count={row.d1} size={row.d1_eligible} />
+                    <RateCell count={row.w1} size={row.w1_eligible} />
+                    <RateCell count={row.m1} size={row.m1_eligible} />
+                  </tr>
+                ))}
+            </Table>
+          </Card>
+        ))}
+      </div>
+    </Section>
+  )
+}
+
+const CURVE: { key: 'exact' | 'rolling'; label: string; color: string; dashed?: boolean }[] = [
+  { key: 'exact', label: 'Revenus ce jour-là', color: 'var(--blue)' },
+  { key: 'rolling', label: 'Ce jour-là ou après', color: 'var(--green)', dashed: true },
+]
+const STICKY: { key: 'dau' | 'wau' | 'mau'; label: string; color: string }[] = [
+  { key: 'mau', label: '30 jours', color: 'var(--yellow)' },
+  { key: 'wau', label: '7 jours', color: 'var(--green)' },
+  { key: 'dau', label: 'Le jour', color: 'var(--blue)' },
+]
+
+/* ------------------------------------------------- choix de montée de niveau */
+
+const CHOICE_TITLES: Record<ChoiceKind, string> = { category: 'Catégories', power: 'Pouvoirs', bonus: 'Bonus' }
+
+function ChoicesSection({ choices }: { choices: Insights['choices'] }) {
+  const t = useT()
+  const name = (kind: ChoiceKind, item: string) =>
+    kind === 'category'
+      ? categoryText(t, item).label
+      : kind === 'power'
+        ? isPowerId(item)
+          ? t.powers.names[item][0]
+          : item
+        : isBonusId(item)
+          ? t.bonus.kinds[item][0]
+          : item
+  const rate = (item: Insights['choices']['items'][number]) => (item.offered ? item.picked / item.offered : -1)
+  return (
+    <Section title="Choix de montée de niveau" mark="var(--yellow)" aside={<p className="note">ce que les joueurs prennent quand on le leur propose</p>}>
+      <div className="dashboard-stats">
+        {(['category', 'power', 'bonus'] as const).map((kind) => {
+          const row = choices.kinds.find((one) => one.kind === kind)
+          return <Stat key={kind} value={fmt(row?.n ?? 0)} label={`${CHOICE_TITLES[kind].toLowerCase()} choisis · ${fmt(row?.devices ?? 0)} app.`} />
+        })}
+      </div>
+      <div className="dashboard-grid">
+        {(['category', 'power', 'bonus'] as const).map((kind) => (
+          <Card key={kind} title={CHOICE_TITLES[kind]}>
+            <Bars
+              items={choices.items.filter((item) => item.kind === kind).sort((a, b) => rate(b) - rate(a) || b.chosen - a.chosen)}
+              name={(item) => name(kind, item.item)}
+              value={(item) => item.chosen}
+              fill={(item) => Math.max(0, rate(item))}
+              sub={(item) => (item.offered ? `pris dans ${pct(item.picked, item.offered)} de ses ${fmt(item.offered)} offres` : 'offre inconnue')}
+              color="var(--yellow)"
+              limit={12}
+            />
+          </Card>
+        ))}
+      </div>
+      <p className="note">
+        La barre dit la part de fois où la carte est prise quand elle sort ; le nombre, combien de fois elle a été choisie. Un choix ne dit son offre que depuis
+        0084 : les plus anciens comptent dans le nombre, pas dans la part.
+      </p>
+    </Section>
+  )
+}
+
+/* --------------------------------------------------------------- qualité */
+
+/** Chaque part sur les sessions qui la mesuraient : rien avant 0084 plutôt qu'un faux zéro. */
+const QUALITY_RATES: { key: 'error_sessions' | 'unclean' | 'frozen'; of: 'sessions' | 'watched' | 'measured'; label: string; color: string }[] = [
+  { key: 'error_sessions', of: 'sessions', label: 'Avec une erreur', color: 'var(--red)' },
+  { key: 'unclean', of: 'watched', label: 'Fermeture brutale', color: 'var(--pink)' },
+  { key: 'frozen', of: 'measured', label: 'Avec un gel', color: 'var(--yellow)' },
+]
+const dailyRate = (row: Quality['daily'][number], one: (typeof QUALITY_RATES)[number]) => (row[one.of] ? row[one.key] / row[one.of] : null)
+const READY_LINES: { key: 'ready_p50' | 'ready_p90'; label: string; color: string; dashed?: boolean }[] = [
+  { key: 'ready_p50', label: 'Médiane', color: 'var(--blue)' },
+  { key: 'ready_p90', label: '9ᵉ décile', color: 'var(--blue)', dashed: true },
+]
+const sinceLabel = (iso: string | null) =>
+  iso ? `depuis le ${new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}` : 'mesuré depuis 0084, rien encore'
+/** Le haut d'un axe de parts : la plus petite borne ronde au-dessus du maximum. */
+const shareTop = (values: readonly number[]) => [0.05, 0.1, 0.2, 0.25, 0.5, 1].find((top) => top >= Math.max(0, ...values)) ?? 1
+const msLabel = (ms: number | null) => (ms == null ? '—' : ms >= 1000 ? seconds(ms) : `${Math.round(ms)} ms`)
+
+function QualitySection({ quality: q }: { quality: Quality }) {
+  const t = q.totals
+  const recent = Date.now() - 2 * 24 * 3600_000
+  return (
+    <Section title="Qualité" mark="var(--red)" aside={<p className="note">chargement, erreurs, fermetures brutales, gels</p>}>
+      <div className="dashboard-stats">
+        <Stat value={pct(t.sessions - t.error_sessions, t.sessions)} label={`des sessions sans erreur · ${fmt(t.errors)} erreurs`} />
+        <Stat value={pct(t.unclean, t.watched)} label={`fermetures brutales · ${fmt(t.unclean)} sur ${fmt(t.watched)}, ${sinceLabel(q.since.unclean)}`} />
+        <Stat value={msLabel(t.ready_p50)} label={`accueil prêt, médiane · ${msLabel(t.ready_p90)} au 9ᵉ décile, ${msLabel(t.ready_p99)} au 99ᵉ`} />
+        <Stat value={fmt(t.slow_starts)} label="lancements de plus de 5 s" />
+        <Stat value={pct(t.frozen, t.measured)} label={`des sessions ont gelé (½ s et plus) · ${sinceLabel(q.since.freezes)}`} />
+        <Stat value={t.long_per_minute == null ? '—' : `${fmt(t.long_per_minute)} ms`} label={`bloquées par minute de jeu · pire gel ${msLabel(t.long_max_p90)} au 9ᵉ décile`} />
+      </div>
+      <div className="dashboard-grid">
+        <Card title="Sessions touchées, jour par jour" note="Part des sessions du jour avec une erreur, après une fermeture brutale, ou avec un gel — chacune sur les sessions qui la mesuraient.">
+          <Legend items={QUALITY_RATES.map(({ label, color }) => ({ label, color }))} />
+          <LineChart
+            rows={q.daily}
+            series={QUALITY_RATES.map((one) => ({ ...one, value: (row: Quality['daily'][number]) => dailyRate(row, one) }))}
+            label={(row) => dayLabel(row.day)}
+            tip={(row) => `${fmt(row.sessions)} sessions · ${fmt(row.errors)} erreurs`}
+            format={(value) => `${Math.round(value * 100)} %`}
+            max={shareTop(q.daily.flatMap((row) => QUALITY_RATES.map((one) => dailyRate(row, one) ?? 0)))}
+          />
+        </Card>
+        <Card title="Temps de chargement, jour par jour" note="Du lancement à l’accueil prêt.">
+          <Legend items={READY_LINES.map(({ label, color }) => ({ label, color }))} />
+          <LineChart
+            rows={q.daily}
+            series={READY_LINES.map((one) => ({ ...one, value: (row: Quality['daily'][number]) => row[one.key] }))}
+            label={(row) => dayLabel(row.day)}
+            format={(value) => seconds(value)}
+          />
+        </Card>
+      </div>
+      <Card title="Par version" note="Les versions les plus ouvertes sur la période. Une case vide : la version ne mesurait pas encore.">
+        <Table head={['Version', 'Sessions', 'App.', 'Avec erreur', 'Ferm. brutales', 'Gels', 'Accueil', '9ᵉ décile']}>
+          {q.by_version.map((row) => (
+            <tr key={`${row.platform}:${row.version}`}>
+              <td>
+                {platformName(row.platform)} <small>{row.version}</small>
+              </td>
+              <td className="n">{fmt(row.sessions)}</td>
+              <td className="n">{fmt(row.devices)}</td>
+              <BadCell count={row.error_sessions} size={row.sessions} />
+              {row.watched ? <BadCell count={row.unclean} size={row.watched} /> : <td />}
+              {row.measured ? <BadCell count={row.frozen} size={row.measured} /> : <td />}
+              <td className="n">{msLabel(row.ready_p50)}</td>
+              <td className="n">{msLabel(row.ready_p90)}</td>
+            </tr>
+          ))}
+        </Table>
+      </Card>
+      <div className="dashboard-grid">
+        <Card title="Erreurs" note="Les plus fréquentes sur la période, avec leur dernière source et les versions qui les lèvent.">
+          {q.errors.length ? (
+            <Table head={['Message', 'Fois', 'Sessions', 'App.', 'Dernière']}>
+              {q.errors.map((error, index) => (
+                <tr key={index}>
+                  <td className="dashboard-error">
+                    {error.message}
+                    {Date.parse(error.first) > recent && <span className="dashboard-tag">nouvelle</span>}
+                    <small>
+                      {[error.screen && screenName(error.screen), error.source, error.versions.join(', ')].filter(Boolean).join(' · ')}
+                    </small>
+                  </td>
+                  <td className="n">{fmt(error.n)}</td>
+                  <td className="n">{fmt(error.sessions)}</td>
+                  <td className="n">{fmt(error.devices)}</td>
+                  <td>{ago(error.last)}</td>
+                </tr>
+              ))}
+            </Table>
+          ) : (
+            <div className="dashboard-empty">Aucune erreur remontée.</div>
+          )}
+        </Card>
+        <Card title="Où les erreurs tombent" note="Écran ouvert au moment de l’erreur, depuis 0084.">
+          <Bars items={q.screens} name={(row) => (row.screen === '?' ? 'Écran inconnu' : screenName(row.screen))} value={(row) => row.n} sub={(row) => `${fmt(row.devices)} app.`} color="var(--red)" />
+        </Card>
+      </div>
+      <p className="note">
+        Une fermeture brutale est une session finie sans être passée en arrière-plan : un crash du jeu, ou le système qui le tue au premier plan. Les crashs
+        natifs d’Android, qui n’atteignent jamais le jeu, restent dans les « Android vitals » de la Play Console. Un gel est une tâche qui bloque l’écran une
+        demi-seconde ou plus, là où la WebView sait la mesurer.
+      </p>
+    </Section>
+  )
+}
+
+/** Une part qui devrait rester basse : plus elle monte, plus elle rougit. */
+function BadCell({ count, size }: { count: number; size: number }) {
+  const ratio = size ? count / size : 0
+  return (
+    <td className="n">
+      <span
+        className="dashboard-cell"
+        style={{ background: `color-mix(in srgb, var(--red) ${Math.round(Math.min(1, ratio * 4) * 70)}%, transparent)`, color: ratio > 0.16 ? 'var(--cream)' : undefined }}
+        title={`${fmt(count)} sur ${fmt(size)}`}
+      >
+        {pct(count, size)}
+      </span>
+    </td>
+  )
+}
+
 /* -------------------------------------------------- le détail d'une barre */
 
 interface Picked {
   title: string
   row: Day
   series: Series[]
+  /** Les ouvertures d'une seule version : le détail ne garde que ses joueurs. */
+  platform?: PlatformName
 }
 
 const RUNS: Series[] = [{ key: 'runs', label: 'Parties', color: 'var(--blue)' }]
 const PLAYERS: Series[] = [{ key: 'players', label: 'Joueurs actifs', color: 'var(--green)' }]
+const RUNS_SPLIT: Series[] = [
+  { key: 'runs_back', label: 'Revenants', color: 'var(--blue)' },
+  { key: 'runs_new', label: 'Arrivés du jour', color: 'var(--yellow)' },
+]
+const PLAYERS_SPLIT: Series[] = [
+  { key: 'players_back', label: 'Revenants', color: 'var(--green)' },
+  { key: 'players_new', label: 'Arrivés du jour', color: 'var(--yellow)' },
+]
 const ARRIVALS: Series[] = [
   { key: 'signups', label: 'Comptes nommés', color: 'var(--red)' },
   { key: 'anon', label: 'Restés anonymes', color: 'var(--blue)' },
@@ -901,11 +1276,20 @@ const PLUS_DAYS: Series[] = [
 ]
 const AD_DAYS: Series[] = [{ key: 'ads', label: 'Pubs ouvertes', color: 'var(--red)' }]
 
+/** Le jour de Paris où un compte est né : celui que `split` compare. */
+const parisDay = (iso: string) => new Date(iso).toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' })
+const arrivedOn = (entry: SlotEntry, row: Day) => !entry.device && parisDay(entry.created_at) === row.day
+
 /** Qui une série compte : la même règle que la barre, joueur par joueur. Le revenu n'a pas de détail par joueur. */
-const COUNTS: Record<Series['key'], (entry: SlotEntry) => boolean> = {
+const COUNTS: Record<Series['key'], (entry: SlotEntry, row: Day) => boolean> = {
   runs: (entry) => !entry.device && entry.runs > 0,
   players: (entry) => !entry.device && entry.active,
+  runs_new: (entry, row) => !entry.device && entry.runs > 0 && arrivedOn(entry, row),
+  runs_back: (entry, row) => !entry.device && entry.runs > 0 && !arrivedOn(entry, row),
+  players_new: (entry, row) => !entry.device && entry.active && arrivedOn(entry, row),
+  players_back: (entry, row) => !entry.device && entry.active && !arrivedOn(entry, row),
   signups: (entry) => !entry.device && entry.signed,
+  new_players: (entry) => !entry.device && entry.arrived,
   anon: (entry) => !entry.device && entry.arrived && !entry.signed,
   sessions_with_run: (entry) => entry.sessions_with_run > 0,
   sessions_without_run: (entry) => entry.sessions_without_run > 0,
@@ -925,7 +1309,7 @@ const COUNTS: Record<Series['key'], (entry: SlotEntry) => boolean> = {
 }
 
 function SlotSheet({ picked, load, onClose }: { picked: Picked; load: LoadSlot; onClose(): void }) {
-  const { row, series, title } = picked
+  const { row, series, title, platform } = picked
   const [entries, setEntries] = useState<SlotEntry[] | null | undefined>(undefined)
   useEffect(() => {
     let live = true
@@ -945,7 +1329,8 @@ function SlotSheet({ picked, load, onClose }: { picked: Picked; load: LoadSlot; 
     return () => window.removeEventListener('keydown', close, true)
   }, [onClose])
 
-  const counted = entries?.filter((entry) => series.some((one) => COUNTS[one.key](entry))) ?? []
+  const counted =
+    entries?.filter((entry) => (!platform || entry.platform === platform) && series.some((one) => COUNTS[one.key](entry, row))) ?? []
   const when = row.hour == null ? dayLabel(row.day) : `${dayLabel(row.day)}, ${row.hour} h–${row.hour + 1} h`
   return createPortal(
     <div className="dashboard dashboard-slot" data-no-swipe role="dialog" aria-label={`${title}, ${when}`}>
@@ -983,7 +1368,7 @@ function SlotSheet({ picked, load, onClose }: { picked: Picked; load: LoadSlot; 
         ) : (
           <ul className="dashboard-people">
             {counted.map((entry) => (
-              <SlotLine key={entry.key} entry={entry} series={series} />
+              <SlotLine key={entry.key} entry={entry} series={series} row={row} />
             ))}
           </ul>
         )}
@@ -993,8 +1378,8 @@ function SlotSheet({ picked, load, onClose }: { picked: Picked; load: LoadSlot; 
   )
 }
 
-function SlotLine({ entry, series }: { entry: SlotEntry; series: Series[] }) {
-  const marks = series.filter((one) => COUNTS[one.key](entry))
+function SlotLine({ entry, series, row }: { entry: SlotEntry; series: Series[]; row: Day }) {
+  const marks = series.filter((one) => COUNTS[one.key](entry, row))
   const sessions = (entry.sessions_with_run || entry.sessions_without_run) && series.some((one) => one.key.startsWith('sessions'))
     ? `${fmt(entry.sessions_with_run)} ouverture${entry.sessions_with_run > 1 ? 's' : ''} avec partie, ${fmt(entry.sessions_without_run)} sans`
     : null
@@ -1003,7 +1388,9 @@ function SlotLine({ entry, series }: { entry: SlotEntry; series: Series[] }) {
       <li className="dashboard-person">
         <span className="dashboard-person-blank" aria-hidden="true" />
         <div>
-          <b>{entry.name}</b> <span className="dashboard-tag">sans compte</span>
+          <b>{entry.name}</b> <LangTag lang={entry.lang} />
+          <span className="dashboard-tag">sans compte</span>
+          {entry.platform && <span className="dashboard-tag">{platformName(entry.platform)}</span>}
           {series.length > 1 && <Marks marks={marks} />}
           {sessions && <p className="note">{sessions}</p>}
         </div>
@@ -1025,8 +1412,7 @@ function SlotLine({ entry, series }: { entry: SlotEntry; series: Series[] }) {
     `${fmt(entry.friends)} ami${entry.friends > 1 ? 's' : ''}`,
     `arrivé ${ago(entry.created_at)}`,
     entry.named_at && !entry.signed && `nommé ${ago(entry.named_at)}`,
-    entry.platform && `${entry.platform === 'android' ? 'Android' : entry.platform === 'web' ? 'Web' : entry.platform} ${entry.version ?? ''}`.trim(),
-    entry.lang?.toUpperCase(),
+    entry.platform && `${platformName(entry.platform)} ${entry.version ?? ''}`.trim(),
   ].filter(Boolean)
   return (
     <li className="dashboard-person">
@@ -1035,6 +1421,7 @@ function SlotLine({ entry, series }: { entry: SlotEntry; series: Series[] }) {
         <b>
           <Who player={entry.key} name={entry.name} />
         </b>
+        <LangTag lang={entry.lang} />
         {entry.anonymous && <span className="dashboard-tag">anonyme</span>}
         {entry.moderator && <span className="dashboard-tag">modérateur</span>}
         {entry.arrived && <span className="dashboard-tag">nouveau</span>}
@@ -1092,6 +1479,7 @@ function Bars<T>({
   color = 'var(--blue)',
   limit = 10,
   max,
+  fill,
 }: {
   items: readonly T[]
   name(item: T): ReactNode
@@ -1100,6 +1488,8 @@ function Bars<T>({
   color?: string
   limit?: number
   max?: number
+  /** La longueur de la barre, de 0 à 1, quand elle ne suit pas `value`. */
+  fill?(item: T): number
 }) {
   const [whole, setWhole] = useState(false)
   if (items.length === 0) return <div className="dashboard-empty">Rien encore sur la période.</div>
@@ -1116,7 +1506,7 @@ function Bars<T>({
               {sub && ` · ${sub(item)}`}
             </span>
             <span className="dashboard-bars-track">
-              <span style={{ width: `${(value(item) / top) * 100}%`, background: color }} />
+              <span style={{ width: `${(fill ? fill(item) : value(item) / top) * 100}%`, background: color }} />
             </span>
           </li>
         ))}
@@ -1149,7 +1539,25 @@ function roundedTop(x: number, base: number, width: number, height: number): str
 }
 
 interface Series {
-key: 'runs' | 'players' | 'signups' | 'anon' | 'sessions_with_run' | 'sessions_without_run' | 'mails' | 'shares' | 'joins' | 'offers' | 'subscribed' | 'ads' | PlatformName
+  key:
+    | 'runs'
+    | 'players'
+    | 'runs_new'
+    | 'runs_back'
+    | 'players_new'
+    | 'players_back'
+    | 'signups'
+    | 'anon'
+    | 'new_players'
+    | 'sessions_with_run'
+    | 'sessions_without_run'
+    | 'mails'
+    | 'shares'
+    | 'joins'
+    | 'offers'
+    | 'subscribed'
+    | 'ads'
+    | PlatformName
   label: string
   color: string
 }
@@ -1377,25 +1785,141 @@ function ScoreBar({ row, x, band, y, top, height }: { row: { from: number; n: nu
   )
 }
 
+/** Une part colorée, plus soutenue à mesure qu'elle monte. */
+function RateCell({ count, size }: { count: number; size: number }) {
+  const ratio = size ? count / size : 0
+  return (
+    <td className="n">
+      <span
+        className="dashboard-cell"
+        style={{
+          background: `color-mix(in srgb, var(--blue) ${Math.round(ratio * 70)}%, transparent)`,
+          color: ratio > 0.45 ? 'var(--cream)' : undefined,
+        }}
+        title={`${fmt(count)} sur ${fmt(size)}`}
+      >
+        {pct(count, size)}
+      </span>
+    </td>
+  )
+}
+
+/** Des courbes sur un même axe ; une valeur nulle coupe la ligne. */
+function LineChart<T>({
+  rows,
+  series,
+  label,
+  tip,
+  format,
+  max,
+}: {
+  rows: readonly T[]
+  series: { key: string; label: string; color: string; dashed?: boolean; value(row: T): number | null }[]
+  label(row: T): string
+  tip?(row: T): string
+  format(value: number): string
+  max?: number
+}) {
+  if (rows.length === 0) return <div className="dashboard-empty">Rien encore sur la période.</div>
+  const H = 180
+  const left = 38
+  const bottom = 22
+  const top = 14
+  const values = rows.flatMap((row) => series.map((one) => one.value(row) ?? 0))
+  const top_ = max ?? niceMax(Math.max(1, ...values))
+  const band = (W - left) / rows.length
+  const x = (index: number) => left + index * band + band / 2
+  const y = (value: number) => top + (H - top - bottom) * (1 - value / top_)
+  const every = Math.ceil(rows.length / 7)
+  return (
+    <svg className="dashboard-chart" viewBox={`0 0 ${W} ${H}`} role="img">
+      {[0, 1, 2].map((step) => (
+        <g key={step}>
+          <line x1={left} x2={W} y1={y((top_ / 2) * step)} y2={y((top_ / 2) * step)} stroke="var(--grid)" />
+          <text x={left - 6} y={y((top_ / 2) * step) + 4} textAnchor="end">
+            {format((top_ / 2) * step)}
+          </text>
+        </g>
+      ))}
+      {series.map((one) => {
+        const runs: string[] = []
+        let path = ''
+        rows.forEach((row, index) => {
+          const value = one.value(row)
+          if (value == null) {
+            if (path) runs.push(path)
+            path = ''
+            return
+          }
+          path += `${path ? ' L' : 'M'}${x(index).toFixed(1)},${y(value).toFixed(1)}`
+        })
+        if (path) runs.push(path)
+        return runs.map((d, index) => (
+          <path key={`${one.key}:${index}`} d={d} fill="none" stroke={one.color} strokeWidth={2} strokeDasharray={one.dashed ? '5 4' : undefined} strokeLinejoin="round" />
+        ))
+      })}
+      {rows.map((row, index) =>
+        (index % every === 0 && rows.length - 1 - index >= every * 0.6) || index === rows.length - 1 ? (
+          <text key={index} x={x(index)} y={H - 6} textAnchor="middle">
+            {label(row)}
+          </text>
+        ) : null,
+      )}
+      {rows.map((row, index) => (
+        <LinePoint key={index} row={row} x={x(index)} band={band} top={top} height={H - top - bottom} series={series} label={label} tip={tip} format={format} />
+      ))}
+      <line x1={left} x2={W} y1={y(0)} y2={y(0)} stroke="var(--rule)" />
+    </svg>
+  )
+}
+
+function LinePoint<T>({
+  row,
+  x,
+  band,
+  top,
+  height,
+  series,
+  label,
+  tip,
+  format,
+}: {
+  row: T
+  x: number
+  band: number
+  top: number
+  height: number
+  series: { key: string; label: string; value(row: T): number | null }[]
+  label(row: T): string
+  tip?(row: T): string
+  format(value: number): string
+}) {
+  const bubble = useTip(
+    <>
+      <b>{label(row)}</b>
+      {series.map((one) => {
+        const value = one.value(row)
+        return (
+          <span key={one.key}>
+            <br />
+            {one.label} : <b>{value == null ? '—' : format(value)}</b>
+          </span>
+        )
+      })}
+      {tip && (
+        <>
+          <br />
+          {tip(row)}
+        </>
+      )}
+    </>,
+  )
+  return <rect className="dashboard-hit" x={x - band / 2} y={top} width={band} height={height} {...bubble} />
+}
+
 function Retention({ rows }: { rows: Snapshot['retention'] }) {
   if (rows.length === 0) return <div className="dashboard-empty">Pas encore de cohorte.</div>
-  const cell = (count: number, size: number) => {
-    const ratio = size ? count / size : 0
-    return (
-      <td className="n">
-        <span
-          className="dashboard-cell"
-          style={{
-            background: `color-mix(in srgb, var(--blue) ${Math.round(ratio * 70)}%, transparent)`,
-            color: ratio > 0.45 ? 'var(--cream)' : undefined,
-          }}
-          title={`${fmt(count)} sur ${fmt(size)}`}
-        >
-          {pct(count, size)}
-        </span>
-      </td>
-    )
-  }
+  const cell = (count: number, size: number) => <RateCell count={count} size={size} />
   return (
     <Table head={['Semaine d’arrivée', 'Joueurs', 'Le lendemain', 'Dans la semaine', 'Après 7 j']}>
       {rows
