@@ -55,12 +55,16 @@ export interface RankedRow {
 
 /**
  * The rows a long board shows first: the podium, the player and their friends,
- * each at their real rank. `names` is matched without case, as account names are.
+ * each at their real rank, topped up with the best-ranked strangers until the
+ * board holds `BOARD_FOCUS_LIMIT` rows — a circle of two would otherwise leave
+ * a board of five. `names` is matched without case, as account names are.
  */
 export function focusedRows(rows: readonly BoardRow[], names: readonly string[]): { rows: RankedRow[]; more: boolean } {
   const ranked = rows.map((row, index) => ({ row, rank: index + 1 }))
   if (rows.length <= BOARD_FOCUS_LIMIT) return { rows: ranked, more: false }
   const circle = new Set(names.map((name) => name.toLowerCase()))
-  const kept = ranked.filter(({ row, rank }) => rank <= PODIUM || row.own === true || circle.has(row.name.toLowerCase()))
+  const inCircle = ({ row, rank }: RankedRow) => rank <= PODIUM || row.own === true || circle.has(row.name.toLowerCase())
+  let room = BOARD_FOCUS_LIMIT - ranked.filter(inCircle).length
+  const kept = ranked.filter((entry) => inCircle(entry) || room-- > 0)
   return { rows: kept, more: kept.length < ranked.length }
 }
