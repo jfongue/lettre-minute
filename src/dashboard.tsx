@@ -11,7 +11,7 @@ import './styles.css'
 /**
  * The dashboard as its own page (dashboard/index.html, /lettre-minute/dashboard
  * on the web), open to anyone without an account: `admin_analytics` answers the
- * `anon` role since 0086. Only the slot drill-down, which names players, stays
+ * `anon` role since 0086, from a copy refreshed every ten minutes (0087). Only the slot drill-down, which names players, stays
  * the administrator's — a signed-in admin on the same site still gets it.
  */
 
