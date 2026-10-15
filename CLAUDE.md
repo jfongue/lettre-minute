@@ -705,7 +705,10 @@ lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphon
   (graine, catalogue partagé, ni pouvoir, ni filtrage, ni foule) ; le serveur
   compte les tentatives (`weekly_start`, plafond 5) mais ne connaît pas le
   Premium, et les huit trophées s'attribuent côté client
-  (`awardWeeklyTrophies`), un seul par joueur.
+  (`awardWeeklyTrophies`), un seul par joueur. Chaque langue joue sa partie,
+  mais le classement, le palmarès, les trophées et le compte des tentatives
+  sont communs à toutes (0085). Une semaine se prolonge à la main
+  (`WEEKLY_EXTENDED`), et `weekly_week` côté serveur doit tenir la même liste.
 
 ## Conventions
 

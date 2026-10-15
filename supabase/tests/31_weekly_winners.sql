@@ -36,9 +36,9 @@ language sql security definer set search_path = public as $$
   values (tests.bot(), tests.week() - 7, 'fr', tests.week() - 6, 1, now() - interval '8 hours', 'score', 9999, '[]'::jsonb)
 $$;
 select tests.bot_wins();
--- La semaine en cours et l'autre langue ne comptent pas dans « fr ».
+-- La semaine en cours ne compte pas ; une autre langue joue la même semaine.
 select tests.win('wgc', tests.week(), 'fr', 1, 500, now());
-select tests.win('wgc', tests.week() - 7, 'en', 1, 90, now());
+select tests.win('wgc', tests.week() - 7, 'en', 1, 60, now());
 
 select tests.login_anon();
 select tests.throws($$select * from public.weekly_winners('fr', 50)$$, 'a request with no session is refused', '42501');
@@ -56,6 +56,6 @@ select tests.is((select metric from won where week_id = tests.week() - 7), 'scor
 select tests.is((select metric from won where week_id = tests.week() - 14), 'survival', 'a week in endurance keeps its seconds');
 select tests.is((select display_name from won where week_id = tests.week() - 14), 'wgb', 'each week has its own winner');
 select tests.is((select count(*)::int from public.weekly_winners('fr', 1)), 1, 'the limit applies');
-select tests.is((select count(*)::int from public.weekly_winners('en', 50)), 1, 'another language has its own winners');
-select tests.is((select max(value) from public.weekly_winners('en', 50)), 90.0, 'and its own values');
+select tests.is((select count(*)::int from public.weekly_winners('en', 50)), 2, 'every language reads the same winners');
+select tests.is((select value from public.weekly_winners('en', 50) limit 1), 70.0, 'the best of all languages wins the week');
 select tests.logout();

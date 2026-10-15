@@ -29,11 +29,16 @@ export const WEEKLY_EPOCH = '2026-10-11'
 /** Le mode de chaque semaine, en boucle ; la première est l'endurance. */
 export const WEEKLY_SCHEDULE: readonly GameMode[] = ['endurance', 'delayed', 'reversed']
 
+/** Une semaine sortie de la boucle, choisie à la main : son mode remplace celui de la rotation. */
+export const WEEKLY_EXCEPTIONS: Readonly<Record<string, GameMode>> = {}
+
 /**
- * Une semaine sortie de la boucle, choisie à la main : la rotation de trois
- * modes ne sait pas qu'on veut montrer l'endurance deux semaines de suite.
+ * Une semaine prolongée, en nombre de semaines : elle absorbe les dimanches
+ * qui suivent, qui n'ouvrent alors aucun défi. `weekly_week` (0085) tient la
+ * même liste côté serveur, et c'est elle qui rabat ces dimanches pour un
+ * client plus ancien.
  */
-export const WEEKLY_EXCEPTIONS: Readonly<Record<string, GameMode>> = { '2026-10-18': 'endurance' }
+export const WEEKLY_EXTENDED: Readonly<Record<string, number>> = { '2026-10-11': 2 }
 
 /** 0 pour un dimanche : les jours depuis 1970-01-01, un jeudi, comptent à partir de 4. */
 const sundayIndexOf = (days: number) => (((days + 4) % 7) + 7) % 7
@@ -93,13 +98,28 @@ const pad = (value: number, width: number) => String(value).padStart(width, '0')
 
 const daysOfWeekId = (weekId: string) => daysFromCivil(...(weekId.split('-').map(Number) as [number, number, number]))
 
+const idOfDays = (days: number) => {
+  const [year, month, date] = civilFromDays(days)
+  return `${pad(year, 4)}-${pad(month, 2)}-${pad(date, 2)}`
+}
+
+/** Le dimanche d'ouverture de la semaine qui couvre ce dimanche : lui-même, sauf sous une prolongation. */
+function openingSunday(sunday: number): number {
+  for (const [weekId, weeks] of Object.entries(WEEKLY_EXTENDED)) {
+    const start = daysOfWeekId(weekId)
+    if (sunday > start && sunday < start + 7 * weeks) return start
+  }
+  return sunday
+}
+
 function weekFromSunday(sunday: number): Week {
-  const [year, month, date] = civilFromDays(sunday)
-  const opens = sunday * DAY_MS + 21 * HOUR_MS
+  const start = openingSunday(sunday)
+  const weekId = idOfDays(start)
+  const opens = start * DAY_MS + 21 * HOUR_MS
   return {
-    weekId: `${pad(year, 4)}-${pad(month, 2)}-${pad(date, 2)}`,
+    weekId,
     opensAt: utcOfParis(opens),
-    closesAt: utcOfParis(opens + WEEK_MS),
+    closesAt: utcOfParis(opens + (WEEKLY_EXTENDED[weekId] ?? 1) * WEEK_MS),
   }
 }
 
