@@ -834,14 +834,18 @@ export async function fetchMyDiscoveries(): Promise<number | null> {
 }
 
 /**
- * Le tableau de bord de l'administrateur (0030), d'un bloc. Null pour qui
- * n'est pas administrateur, ou quand le serveur ne répond pas.
+ * Le tableau de bord (0030), d'un bloc : la copie que le serveur refait toutes
+ * les dix minutes (0087, 0088), ouverte à tous. Null quand le serveur ne
+ * répond pas, après une seconde tentative — un réveil de la base ou un réseau
+ * qui hoquette ne doit pas laisser la page vide.
  */
 export function fetchDashboard(days = 30): Promise<Snapshot | null> {
   return guard(async () => {
-    const { data, error } = await supabase!.rpc('admin_analytics', { p_days: days })
-    if (error || !data) return null
-    return data as Snapshot
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const { data, error } = await supabase!.rpc('admin_analytics', { p_days: days })
+      if (!error && data) return data as Snapshot
+    }
+    return null
   }, null)
 }
 

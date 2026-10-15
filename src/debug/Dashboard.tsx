@@ -201,7 +201,7 @@ function opensOf(row: Day, platform: PlatformName, insights: Insights): Day {
 const RANGES = [1, 7, 14, 30] as const
 type Range = (typeof RANGES)[number]
 
-/** `undefined` : le relevé arrive ; `null` : pas administrateur, ou serveur muet. */
+/** `undefined` : le relevé arrive ; `null` : serveur muet. */
 export function DashboardView({
   data,
   loadSlot = fetchDashboardSlot,
@@ -269,7 +269,7 @@ export function DashboardView({
           </div>
         ) : data === null ? (
           <div className="dashboard-state">
-            <p>Réservé à l’administrateur (ou serveur injoignable).</p>
+            <p>Serveur injoignable pour l’instant.</p>
             {onReload && (
               <button type="button" className="btn btn--quiet" onClick={onReload}>
                 Réessayer
