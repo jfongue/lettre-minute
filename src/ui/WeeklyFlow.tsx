@@ -323,7 +323,12 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
         intro.lesson ? (
           <ModeTutorial mode={intro.mode} lang={lang} skipIntro onDone={endIntro} />
         ) : (
-          <ModeIntro mode={intro.mode} onDone={endIntro} onTry={() => setIntro({ ...intro, lesson: true })} />
+          <ModeIntro
+            mode={intro.mode}
+            onDone={endIntro}
+            // L'endurance s'explique assez par sa fiche : sa leçon jouée n'apprenait rien de plus.
+            onTry={intro.mode === 'endurance' ? undefined : () => setIntro({ ...intro, lesson: true })}
+          />
         )
       )}
 

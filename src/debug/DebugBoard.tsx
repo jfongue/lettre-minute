@@ -1750,7 +1750,7 @@ const SCENARIOS: readonly Scenario[] = [
     title: 'Tutoriel de l’endurance',
     how: 'Le chrono qui se vide, ce que rend chaque rareté, le temps de survie',
     phase: 'home',
-    render: (back) => <ModeIntro mode="endurance" onDone={back} onTry={back} />,
+    render: (back) => <ModeIntro mode="endurance" onDone={back} />,
   },
   {
     id: 'weekly-run-endurance',
