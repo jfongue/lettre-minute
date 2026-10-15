@@ -64,6 +64,7 @@ import { PremiumContext } from '../ui/premiumContext'
 import { PremiumSheet, type PremiumReason, type PremiumStatus } from '../ui/PremiumSheet'
 import { PlusLockedSlot, PlusSeal, RESOURCE_ICONS, ResourceChip, ResourceGlyph, type ResourceState } from '../ui/premium'
 import { PlusNewsPop, PlusPrizePop, PlusThanksPop } from '../ui/PlusNewsPop'
+import { AvatarKeepPop } from '../ui/AvatarKeepPop'
 import { RatingPop } from '../ui/RatingPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
@@ -1172,6 +1173,55 @@ function InviteArtScenario({ back }: { back(): void }) {
         Retour
       </button>
     </div>
+  )
+}
+
+/**
+ * Le vrai tiroir, ouvert sur le profil avec des tuiles d'avatar gagnées à
+ * essayer : pastilles sur Profil, sur l'avatar et sur « Avatar et succès ».
+ * L'éditeur quitté sans enregistrer pose la question, avant et après.
+ */
+function AvatarNewsScenario({ back }: { back(): void }) {
+  const [avatar, setAvatar] = useState(DEFAULT_AVATAR)
+  const [news, setNews] = useState(true)
+  return (
+    <Menu
+      page="profile"
+      profile={PROFILE}
+      history={[]}
+      statsRecap={STATS_RECAP}
+      avatar={avatar}
+      avatarNews={news}
+      onAvatarSeen={() => setNews(false)}
+      account={UNNAMED}
+      accountActions={quietAccount}
+      friendRequests={0}
+      onFriends={noop}
+      challenges={null}
+      onChallenge={noop}
+      onChallengeFriend={noop}
+      theme="system"
+      onTheme={noop}
+      locale="fr"
+      onLocale={noop}
+      sound={{ master: 1, effects: 0.8, keys: 0.6, music: 0, muted: false }}
+      onSound={noop}
+      onAvatarSave={setAvatar}
+      discoveries={9}
+      onLogOut={noop}
+      onErase={() => later(true)}
+      moderation={null}
+      onModerate={noop}
+      onRequestsSeen={noop}
+      onRequestsOpen={noop}
+      onStatsRefresh={() => later(undefined)}
+      lang="fr"
+      advancedBoards={false}
+      onAdvancedBoards={noop}
+      onWordsBoard={noop}
+      banActions={{ onBan: noop, onUnban: noop, onIntroSeen: noop }}
+      onClose={back}
+    />
   )
 }
 
@@ -2667,6 +2717,32 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <RatingPop onLater={back} onRate={back} />,
   },
   {
+    id: 'home-avatar-news',
+    group: 'Accueil',
+    title: 'Pastille d’avatar sur le menu',
+    how: 'Première tuile d’avatar gagnée avant toute ouverture de l’éditeur, puis trois de plus depuis la dernière',
+    phase: 'home',
+    render: (back) => <DebugHome back={back} avatarNews />,
+  },
+  {
+    id: 'menu-avatar-news',
+    group: 'Accueil',
+    title: 'Pastilles d’avatar dans le tiroir',
+    how: 'Tuiles gagnées à essayer : Profil, l’avatar et « Avatar et succès » ; ouvrir l’éditeur les éteint',
+    phase: 'home',
+    render: (back) => <AvatarNewsScenario back={back} />,
+  },
+  {
+    id: 'avatar-keep',
+    group: 'Accueil',
+    title: 'Garder ce nouvel avatar ?',
+    how: 'Quitter l’éditeur d’avatar avec un avatar composé mais pas enregistré',
+    phase: 'home',
+    render: (back) => (
+      <AvatarKeepPop before={DEFAULT_AVATAR} after={avatarOf(33, 'vert', 'creme', 'bleu')} onKeep={back} onDrop={back} onStay={back} />
+    ),
+  },
+  {
     id: 'home-categories-news',
     group: 'Accueil',
     title: 'Pastille sur « Catégories »',
@@ -2931,6 +3007,7 @@ function DebugHome({
   boards = null,
   climbed = 0,
   categoriesNews = 0,
+  avatarNews = false,
   waiting = false,
   challenges = null,
   multiplayerNews = false,
@@ -2944,6 +3021,8 @@ function DebugHome({
   climbed?: number
   /** La pastille de « Catégories », tant que le bannissement n'a pas été lu. */
   categoriesNews?: number
+  /** Des tuiles d'avatar gagnées à essayer : la pastille du menu, sans demande d'ami. */
+  avatarNews?: boolean
   /** Des défis en cours : le second appel de l'accueil, sous « Jouer ». */
   challenges?: readonly ChallengeSummary[] | null
   /** Sa pastille, tant qu'aucune partie à plusieurs n'a été lancée. */
@@ -2964,7 +3043,8 @@ function DebugHome({
       requestsNews={error || newcomer ? 0 : 3}
       requestsMade={!newcomer}
       categoriesNews={categoriesNews}
-      friendRequests={error || newcomer ? 0 : 2}
+      avatarNews={avatarNews}
+      friendRequests={error || newcomer || avatarNews ? 0 : 2}
       challenges={challenges}
       multiplayerNews={multiplayerNews}
       onChallenge={noop}

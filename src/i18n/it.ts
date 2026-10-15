@@ -20,6 +20,8 @@ export const it: Messages = {
     multiplayerNews: 'Lancia il tuo primo duello o sfida',
     menu: 'Menu: profilo, amici, opzioni',
     friendRequests: (count) => (count === 1 ? 'una richiesta di amicizia' : `${count} richieste di amicizia`),
+    /** La pastille du menu, lue à voix haute : une tuile d'avatar gagnée à essayer. */
+    avatarNews: 'un nuovo avatar da provare',
     level: (level) => `Livello ${level}`,
     bestScore: 'miglior punteggio',
     runs: (count) => plural(count, 'partita', 'partite'),
@@ -560,6 +562,8 @@ export const it: Messages = {
     hint: (item, how) => `${item} · ${how}`,
     idle: 'Tocca una casella per vedere come si ottiene.',
     save: 'Tieni questo avatar',
+    /** Sortir de l'éditeur sans enregistrer : l'avant et l'après, puis le choix. */
+    keep: { title: 'Tieni questo nuovo avatar?', body: 'L’hai creato senza salvarlo.', before: 'Prima', after: 'Dopo', yes: 'Tienilo', no: 'Scarta' },
     back: 'Indietro',
     milestone: (milestone) => {
       switch (milestone.stat) {

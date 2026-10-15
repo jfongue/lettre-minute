@@ -4101,11 +4101,54 @@ referment d'un coup : `--way` donne le sens de chacune. */
 }
 
 .player-avatar {
+  position: relative;
   appearance: none;
   padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
+}
+
+.player-avatar-dot {
+  top: -0.15rem;
+  right: -0.15rem;
+}
+
+/* À côté du lien, dans le flux : au-dessus, elle mordait sur la ligne du niveau. */
+.badge-dot.badge-dot--inline {
+  position: static;
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-left: 0.4rem;
+  vertical-align: 0.05em;
+}
+
+/* Quitter l'éditeur sans enregistrer : l'avant et l'après, côte à côte. */
+.avatar-keep-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0.4rem 0 0.6rem;
+}
+
+.avatar-keep-side {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  margin: 0;
+}
+
+.avatar-keep-arrow {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+  fill: none;
+  stroke: var(--ink-soft);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .player-id {

@@ -120,6 +120,7 @@ import { FeedbackPop } from './ui/FeedbackPop'
 import { RatingPop } from './ui/RatingPop'
 import type { BanActions } from './ui/CategoriesPage'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
+import { avatarNewsDue, ownsEveryDesign } from './domain/achievements'
 import { initialSession, sessionReducer, type Proposal } from './state/session'
 import {
   clearLocalData,
@@ -132,6 +133,7 @@ import {
   loadQuietSignInTried,
   saveQuietSignInTried,
   loadQueueSeenOn,
+  loadSeenDesignsOrNull,
   loadShareNewsSeen,
   loadSubmissions,
   loadTutorialDone,
@@ -361,6 +363,9 @@ setMenuPage(null)
   // Les découvertes ne se comptent que sur le serveur : la page des succès les
   // demande à son ouverture plutôt que d'afficher une barre à zéro.
   const [discoveries, setDiscoveries] = useState<number | null>(null)
+  // Ce que l'éditeur d'avatar a montré à sa dernière sortie : la pastille du menu en dépend.
+  const [seenDesigns, setSeenDesigns] = useState(loadSeenDesignsOrNull)
+  const refreshSeenDesigns = useCallback(() => setSeenDesigns(loadSeenDesignsOrNull()), [])
   const [moderation, setModeration] = useState<ModerationStatus | null>(null)
   const [moderating, setModerating] = useState(false)
   // « Plus tard » holds the offer back until the next launch, without answering it.
@@ -570,6 +575,8 @@ setMenuPage(null)
   // account only: an anonymous one lives and dies with this device.
   const savedProgress = useRef('')
   const named = account !== null && !account.anonymous
+  const avatarNews =
+    on('avatar') && !ownsEveryDesign(account?.name) && avatarNewsDue(session.profile, seenDesigns, discoveries ?? undefined)
   useEffect(() => {
     if (!named || session.profile === NEW_PROFILE) return
     const next = JSON.stringify(progressOf(session.profile))
@@ -2012,6 +2019,7 @@ setStartedAt((at) => at ?? Date.now())
           requestsNews={moderation?.news ?? 0}
           queueAlert={queueAlert}
           categoriesNews={banNews(session.profile) ? 1 : 0}
+          avatarNews={avatarNews}
           friendRequests={named && on('friends') ? friendRequests : 0}
           challenges={named && (on('challenges') || on('duel')) ? (on('challenges') ? challenges : []) : null}
           multiplayerNews={multiplayerNews}
@@ -2281,6 +2289,8 @@ setStartedAt((at) => at ?? Date.now())
             }
             avatar={avatar}
             onAvatarSave={saveWornAvatar}
+            avatarNews={avatarNews}
+            onAvatarSeen={refreshSeenDesigns}
 avatarFocus={avatarFocus}
             discoveries={discoveries ?? undefined}
             account={account}

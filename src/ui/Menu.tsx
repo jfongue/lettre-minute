@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChallengeSummary } from '../lib/cloud'
-import type { AvatarChoice } from '../domain/avatar'
+import { sameAvatar, type AvatarChoice } from '../domain/avatar'
 import { ownsEveryDesign } from '../domain/achievements'
 import type { RunRecord } from '../domain/history'
 import { levelProgress, type Profile } from '../domain/progression'
@@ -36,6 +36,7 @@ import { previewSound, type SoundPrefs } from '../lib/sound'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions, type AccountMode } from './AccountPanel'
 import { AchievementsPanel } from './AchievementsPanel'
+import { AvatarKeepPop } from './AvatarKeepPop'
 import { AvatarPanel } from './AvatarPanel'
 import { CurrencyRow } from './CurrencyRow'
 import { PremiumPage } from './PremiumPage'
@@ -57,6 +58,8 @@ import { useHiddenTaps } from './useHiddenTaps'
 import { useFeature } from './features'
 import { host } from '../platform'
 import { useSwipe } from './useSwipe'
+import { useBackDismiss } from './useBackDismiss'
+import { trackFeature } from '../lib/feature'
 import { Avatar } from './Avatar'
 
 export type MenuPane = 'profile' | 'social' | 'options'
@@ -120,6 +123,10 @@ avatarFocus?: number | null
   statsRecap: RecapActions
   /** Friend requests waiting: a dot on the social tab. */
   friendRequests: number
+  /** Des tuiles d'avatar gagnées à essayer (`avatarNewsDue`) : une pastille sur Profil et sur « Avatar et succès ». */
+  avatarNews?: boolean
+  /** L'éditeur vient de ranger ce qu'il a montré : la pastille se relit. */
+  onAvatarSeen?(): void
   /** Each fresh friend list, for the home screen's dot and the notifications offer. */
   onFriends(friends: readonly Friend[]): void
   theme: Theme
@@ -191,18 +198,40 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
   const drawer = useRef<HTMLElement>(null)
   // Un retour, par le bouton comme par le geste : la page d'où l'on vient, le
   // profil à défaut — et le tiroir entier quand rien ne l'a ouvert derrière.
-  const back = () => {
+  const goBack = () => {
     if (parent === null && props.back === 'close') onClose()
     else open(parent ?? 'profile')
   }
+  // Un avatar composé mais pas enregistré : toute sortie de l'éditeur passe
+  // d'abord par la question, avec l'avant et l'après.
+  const [avatarDraft, setAvatarDraft] = useState<AvatarChoice | null>(null)
+  const [pendingLeave, setPendingLeave] = useState<(() => void) | null>(null)
+  const unsaved = sub === 'avatar' && avatarDraft !== null && !sameAvatar(avatarDraft, props.avatar)
+  const leave = (action: () => void) => {
+    if (unsaved) setPendingLeave(() => action)
+    else action()
+  }
+  const back = () => leave(goBack)
+  const close = () => leave(onClose)
+  const closeLatest = useRef(close)
+  closeLatest.current = close
+  useBackDismiss(unsaved && !pendingLeave ? back : null)
+  const settleLeave = (kept: boolean) => {
+    const go = pendingLeave
+    trackFeature('avatar_keep_asked', { kept })
+    if (kept && avatarDraft) props.onAvatarSave(avatarDraft)
+    setPendingLeave(null)
+    setAvatarDraft(null)
+    go?.()
+  }
   // The drawer came in from the left: a flick back that way sends it home.
-  const swipe = useSwipe('left', onClose)
+  const swipe = useSwipe('left', close)
   // Un geste vers la droite remonte d'un cran, comme le bouton retour.
   const backSwipe = useSwipe('right', back)
 
   useEffect(() => {
     drawer.current?.focus()
-    const close = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
+    const close = (event: KeyboardEvent) => event.key === 'Escape' && closeLatest.current()
     window.addEventListener('keydown', close)
     // The home screen behind must not scroll under the player's thumb.
     const overflow = document.body.style.overflow
@@ -215,7 +244,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
 
   return (
     <div className={`menu-layer${leaving ? ' menu-layer--leaving' : ''}`}>
-      <div className="menu-scrim" onClick={onClose} />
+      <div className="menu-scrim" onClick={close} />
       <aside
         className="menu"
         role="dialog"
@@ -234,14 +263,15 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
                 role="tab"
                 aria-selected={pane === id}
                 className={`layer-tab${pane === id ? ' layer-tab--on' : ''}`}
-                onClick={() => open(id)}
+                onClick={() => leave(() => open(id))}
               >
                 {t.menu.panes[id]}
                 {id === 'social' && props.friendRequests > 0 && <span className="badge-dot" aria-hidden="true" />}
+                {id === 'profile' && props.avatarNews && sub !== 'avatar' && <span className="badge-dot" aria-hidden="true" />}
               </button>
             ))}
           </div>
-          <button type="button" className="menu-close" aria-label={t.menu.close} title={t.menu.close} onClick={onClose}>
+          <button type="button" className="menu-close" aria-label={t.menu.close} title={t.menu.close} onClick={close}>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M6 6l12 12M18 6L6 18" />
             </svg>
@@ -321,6 +351,8 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               discoveries={props.discoveries}
               all={ownsEveryDesign(props.account?.name)}
               onSave={props.onAvatarSave}
+              onDraft={setAvatarDraft}
+              onSeen={props.onAvatarSeen}
             />
               ) : null}
               {achievements ? (
@@ -373,6 +405,15 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
           )}
         </div>
       </aside>
+      {pendingLeave && avatarDraft && (
+        <AvatarKeepPop
+          before={props.avatar}
+          after={avatarDraft}
+          onKeep={() => settleLeave(true)}
+          onDrop={() => settleLeave(false)}
+          onStay={() => setPendingLeave(null)}
+        />
+      )}
     </div>
   )
 }
@@ -387,6 +428,7 @@ function ProfilePane({
   moderation,
   queueAlert,
   attempts,
+  avatarNews = false,
   onPage,
 }: Omit<
   MenuProps,
@@ -411,6 +453,7 @@ function ProfilePane({
   | 'onChallengeFriend'
   | 'discoveries'
   | 'onAvatarSave'
+  | 'onAvatarSeen'
 > & {
   onPage(page: ProfilePage): void
 }) {
@@ -433,6 +476,7 @@ function ProfilePane({
           disabled={!avatars}
         >
           <Avatar choice={avatar} size="md" />
+          {avatars && avatarNews && <span className="badge-dot player-avatar-dot" aria-hidden="true" />}
         </button>
         <div className="player-id">
           <strong>{named && !account.needsName ? account.name : t.menu.anonymous}</strong>
@@ -444,6 +488,7 @@ function ProfilePane({
           {avatars || achievements ? (
             <button type="button" className="btn btn--quiet" onClick={() => onPage('avatar')}>
               {t.menu.pages.avatar}
+              {avatars && avatarNews && <span className="badge-dot badge-dot--inline" aria-hidden="true" />}
             </button>
           ) : null}
         </div>

@@ -46,6 +46,8 @@ export const fr = {
     multiplayerNews: 'Lance ton premier duel ou défi',
     menu: 'Menu : profil, amis, options',
     friendRequests: (count: number) => (count === 1 ? 'une demande d’ami' : `${count} demandes d’ami`),
+    /** La pastille du menu, lue à voix haute : une tuile d'avatar gagnée à essayer. */
+    avatarNews: 'nouvel avatar à essayer',
     level: (level: number) => `Niveau ${level}`,
     bestScore: 'meilleur score',
     runs: (count: number) => plural(count, 'partie', 'parties'),
@@ -602,6 +604,8 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les j
     hint: (item: string, how: string) => `${item} · ${how}`,
     idle: 'Touche une case pour savoir comment elle se gagne.',
     save: 'Garder cet avatar',
+    /** Sortir de l'éditeur sans enregistrer : l'avant et l'après, puis le choix. */
+    keep: { title: 'Garder ce nouvel avatar ?', body: 'Tu l’as composé sans l’enregistrer.', before: 'Avant', after: 'Après', yes: 'Garder', no: 'Laisser tomber' },
     back: 'Retour',
     milestone: (milestone: Milestone): string => {
       switch (milestone.stat) {
