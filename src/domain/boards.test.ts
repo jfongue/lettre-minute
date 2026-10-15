@@ -43,9 +43,15 @@ describe('focusedRows', () => {
     expect(focusedRows(rows(10), []).more).toBe(false)
   })
 
-  it('opens a long one on the podium, the player and friends, at their real rank', () => {
+  it('opens a long one on the podium, the player and friends, at their real rank, topped up with the best strangers', () => {
     const focused = focusedRows(rows(30), ['P12', 'p25'])
-    expect(focused.rows.map((entry) => entry.rank)).toEqual([1, 2, 3, 12, 25])
+    expect(focused.rows.map((entry) => entry.rank)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 12, 25])
     expect(focused.more).toBe(true)
+  })
+
+  it('keeps every friend when they alone pass ten rows', () => {
+    const friends = Array.from({ length: 12 }, (_, index) => `p${index + 15}`)
+    const focused = focusedRows(rows(30), friends)
+    expect(focused.rows.map((entry) => entry.rank)).toEqual([1, 2, 3, ...Array.from({ length: 12 }, (_, index) => index + 15)])
   })
 })

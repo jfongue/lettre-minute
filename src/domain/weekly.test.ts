@@ -108,12 +108,12 @@ describe('the weekly window', () => {
   })
 
   it('gives a week the instants it opens and closes, whatever the clock change in between', () => {
-    const plain = weekOf(at('2026-10-14T12:00:00Z'))
-    expect(plain).toEqual({ weekId: '2026-10-11', opensAt: at('2026-10-11T19:00:00Z'), closesAt: at('2026-10-18T19:00:00Z') })
+    const plain = weekOf(at('2026-10-28T12:00:00Z'))
+    expect(plain).toEqual({ weekId: '2026-10-25', opensAt: at('2026-10-25T20:00:00Z'), closesAt: at('2026-11-01T20:00:00Z') })
 
-    // The week of 18 October holds the end of summer time: 7 days and one hour long.
-    const autumn = weekOf(at('2026-10-20T12:00:00Z'))
-    expect(autumn).toEqual({ weekId: '2026-10-18', opensAt: at('2026-10-18T19:00:00Z'), closesAt: at('2026-10-25T20:00:00Z') })
+    // The week of 1 November 2026 follows the end of summer time: back to 20:00 UTC.
+    const autumn = weekOf(at('2026-11-04T12:00:00Z'))
+    expect(autumn).toEqual({ weekId: '2026-11-01', opensAt: at('2026-11-01T20:00:00Z'), closesAt: at('2026-11-08T20:00:00Z') })
 
     // The week of 21 March 2027 holds the start of summer time: one hour short.
     const spring = weekOf(at('2027-03-24T12:00:00Z'))
@@ -167,12 +167,22 @@ describe('the attempt window', () => {
   })
 
   it('gives Sunday 21:00–24:00 to the new week, with a window of its own', () => {
-    const before = attemptWindow(at('2026-10-18T18:59:59Z'))
-    const after = attemptWindow(at('2026-10-18T19:00:00Z'))
-    expect(before).toEqual({ weekId: '2026-10-11', day: '2026-10-18' })
-    expect(after).toEqual({ weekId: '2026-10-18', day: '2026-10-18' })
+    const before = attemptWindow(at('2026-11-08T19:59:59Z'))
+    const after = attemptWindow(at('2026-11-08T20:00:00Z'))
+    expect(before).toEqual({ weekId: '2026-11-01', day: '2026-11-08' })
+    expect(after).toEqual({ weekId: '2026-11-08', day: '2026-11-08' })
     // Then Monday, still the same week, a new day.
-    expect(attemptWindow(at('2026-10-18T22:00:00Z'))).toEqual({ weekId: '2026-10-18', day: '2026-10-19' })
+    expect(attemptWindow(at('2026-11-08T23:00:00Z'))).toEqual({ weekId: '2026-11-08', day: '2026-11-09' })
+  })
+
+  it('stretches an extended week over the Sundays it absorbs', () => {
+    const week = { weekId: '2026-10-11', opensAt: at('2026-10-11T19:00:00Z'), closesAt: at('2026-10-25T20:00:00Z') }
+    expect(weekOf(at('2026-10-14T12:00:00Z'))).toEqual(week)
+    expect(weekOf(at('2026-10-18T19:00:00Z'))).toEqual(week)
+    expect(weekOf(at('2026-10-25T19:59:59Z'))).toEqual(week)
+    expect(weekById('2026-10-18')).toEqual(week)
+    expect(attemptWindow(at('2026-10-20T12:00:00Z'))).toEqual({ weekId: '2026-10-11', day: '2026-10-20' })
+    expect(weekOf(at('2026-10-25T20:00:00Z')).weekId).toBe('2026-10-25')
   })
 })
 
@@ -183,11 +193,6 @@ describe('the weekly challenge', () => {
     expect(weeklyMode('2026-10-25')).toBe('reversed')
     expect(weeklyMode('2026-11-01')).toBe('endurance')
     expect(weeklyMode('2026-10-04')).toBe(WEEKLY_SCHEDULE[WEEKLY_SCHEDULE.length - 1])
-  })
-
-  it('lets one week be forced out of the cycle, the cycle resuming after it', () => {
-    expect(weeklyMode('2026-10-18')).toBe('endurance')
-    expect(weeklyMode('2026-10-25')).toBe('reversed')
   })
 
   it('ranks endurance in seconds survived and the other modes in points', () => {

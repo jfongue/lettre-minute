@@ -25,6 +25,11 @@ select tests.is((select week_id from public.weekly_window('2026-11-01 19:59:59+0
 select tests.is((select week_id from public.weekly_window('2026-11-01 20:00:00+00')), date '2026-11-01', 'and at 21:00');
 select tests.is((select day from public.weekly_window('2026-10-14 22:00:00+00')), date '2026-10-15', 'the day turns at Paris midnight');
 select tests.is((select week_id from public.weekly_window('2026-10-14 12:00:00+00')), date '2026-10-11', 'a Wednesday belongs to the week opened the Sunday before');
+-- Une semaine prolongée (0085) absorbe le dimanche qui la suit.
+select tests.is((select week_id from public.weekly_window('2026-10-20 12:00:00+00')), date '2026-10-11', 'the extended week of 11 October covers the next one');
+select tests.is((select week_id from public.weekly_window('2026-10-25 19:59:59+00')), date '2026-10-11', 'until the second Sunday at 21:00');
+select tests.is((select week_id from public.weekly_window('2026-10-25 20:00:00+00')), date '2026-10-25', 'then the cycle resumes');
+select tests.is(public.weekly_week('2026-10-18'), date '2026-10-11', 'an older client’s Sunday falls back on the extended week');
 
 -- ------------------------------------------------------------ tentatives --
 
@@ -47,7 +52,7 @@ select tests.is((select n from a2), 2, 'the second is numbered 2');
 select tests.is((select count(*)::int from public.weekly_start(tests.week(), 'fr', tests.today(), 2)), 0, 'the quota refuses a third');
 select tests.is((select n from public.weekly_start(tests.week(), 'fr', tests.today(), 3)), 3, 'a bigger quota, an ad watched, opens it');
 select tests.is((select count(*)::int from public.weekly_start(tests.week(), 'fr', tests.today(), 99)), 0, 'whatever the client claims, 3 is the hard ceiling: never a fourth');
-select tests.is((select n from public.weekly_start(tests.week(), 'en', tests.today(), 2)), 1, 'another language is another game with its own count');
+select tests.is((select count(*)::int from public.weekly_start(tests.week(), 'en', tests.today(), 3)), 0, 'another language shares the count: no attempt more for switching');
 select tests.is((select count(*)::int from public.weekly_start(tests.week() - 7, 'fr', tests.today(), 2)), 0, 'a stale week is refused');
 select tests.is((select count(*)::int from public.weekly_start(tests.week(), 'fr', tests.today() - 1, 2)), 0, 'a stale day is refused');
 select tests.is((select count(*)::int from public.weekly_start(tests.week() + 1, 'fr', tests.today(), 2)), 0, 'a week that is not a Sunday is refused');
@@ -118,7 +123,7 @@ select tests.is((select value from board where display_name = 'wa'), 44.0, 'wa�
 select tests.is((select attempts from board where display_name = 'wa'), 2, 'counting the attempts that returned a result');
 select tests.is((select me from board where display_name = 'wb'), true, 'the board says which row is mine');
 select tests.is((select count(*)::int from public.weekly_board(tests.week(), 'fr', 1)), 1, 'the limit applies');
-select tests.is((select count(*)::int from public.weekly_board(tests.week(), 'en', 50)), 0, 'another language has its own board');
+select tests.is((select count(*)::int from public.weekly_board(tests.week(), 'en', 50)), 3, 'every language reads the same board');
 select tests.logout();
 
 -- Les joueurs ordinateur jouent ailleurs : jamais ici, même s'ils y entraient.
@@ -159,7 +164,7 @@ $$;
 select tests.shift_week();
 select tests.login('wa');
 select tests.is(public.weekly_last_played('fr'), tests.week() - 7, 'a closed week with a result is the one to recap');
-select tests.is(public.weekly_last_played('en'), null::date, 'in its own language');
+select tests.is(public.weekly_last_played('en'), tests.week() - 7, 'whatever the language');
 select tests.logout();
 -- Revenu à la semaine en cours pour la suite.
 create function tests.unshift_week() returns void
