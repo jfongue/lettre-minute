@@ -36,11 +36,12 @@ export default defineConfig(({ mode }) => ({
   // The dictionaries are data chunks, loaded only when a category is played:
   // a 600 kB "animaux" chunk is the point, not an accident of bundling.
   // google.html is where the browser's Google popup lands (`googleIdToken`),
-  // invite.html the page a shared invitation opens (src/invite.ts).
+  // invite.html the page a shared invitation opens (src/invite.ts), dashboard/
+  // the public dashboard (src/dashboard.tsx), a folder so Pages serves /dashboard.
   build:
     mode === 'crazygames'
       ? { chunkSizeWarningLimit: 1000, outDir: 'dist-crazygames', rollupOptions: { input: ['crazygames.html'] } }
-      : { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html', 'invite.html', 'duel.html'] } },
+      : { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html', 'invite.html', 'duel.html', 'dashboard/index.html'] } },
   ...(mode === 'crazygames' ? { base: './', publicDir: false as const } : {}),
   // Agent worktrees and scratch checkouts live inside the repo: without this,
   // `vitest run` also runs their copies of the suite (267 of 307 test files).
