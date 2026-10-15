@@ -1496,6 +1496,7 @@ setStartedAt((at) => at ?? Date.now())
     premiumOpen: storeOpen,
     preloadRun: preloadRunScreens,
     home: session.phase === 'home' && !tutorial && !modeLesson,
+    online: cloudConfigured() || signedIn,
   })
   const peek = useCallback(() => {
     trackFeature('hidden_words_peek')

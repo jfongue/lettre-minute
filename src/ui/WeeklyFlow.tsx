@@ -20,7 +20,6 @@ import {
 import type { Messages } from '../i18n'
 import { weeklyFinish, fetchWeeklyLastPlayed, fetchWeeklyRecap } from '../lib/cloud'
 import { trackFeature } from '../lib/feature'
-import { cloudConfigured } from '../lib/supabase'
 import { host, rewardedAdsOpen } from '../platform'
 import type { Judge } from '../domain/run'
 import type { SessionAction, Session } from '../state/session'
@@ -78,6 +77,12 @@ interface FlowInput {
   preloadRun(): Promise<unknown>
   /** Seul l'accueil montre la carte, et seul lui peut ouvrir le récap. */
   home: boolean
+  /**
+   * Le joueur a un compte chez le serveur : ses tentatives y sont comptées,
+   * rangées et récapitulées. Sur CrazyGames, seulement une fois connecté au
+   * portail — son invité n'a aucun compte.
+   */
+  online: boolean
 }
 
 /** Pour la planche debug et le tutoriel : les modes que le défi peut prendre sont ceux de la réserve. */
@@ -89,7 +94,7 @@ const arcade = (mode: GameMode): ArcadeMode | null => (mode === 'solo' ? null : 
  * fiche Premium qu'il ouvre. `App.tsx` n'en garde qu'un appel, ce qu'il pose
  * à l'accueil et ce qu'il montre en fin de partie.
  */
-export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, profile, joinPlus, openPremium, premiumOpen, preloadRun, home }: FlowInput) {
+export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, profile, joinPlus, openPremium, premiumOpen, preloadRun, home, online }: FlowInput) {
   const plus = isPlus(session.profile)
   const week = weekOf(Date.now())
   const challenge = useMemo(
@@ -129,13 +134,13 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
   // Le récap d'une semaine jouée qui vient de se clore, une fois par ouverture.
   const recapChecked = useRef(false)
   useEffect(() => {
-    if (!enabled || !home || recapChecked.current || !cloudConfigured()) return
+    if (!enabled || !home || recapChecked.current || !online) return
     recapChecked.current = true
     fetchWeeklyLastPlayed(lang).then((playedWeek) => {
       if (playedWeek && recapDue(week.weekId, playedWeek)) setRecapWeek(playedWeek)
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, home, lang])
+  }, [enabled, home, lang, online])
 
   useEffect(() => {
     if (view?.kind === 'screen' && rewardedAdsOpen) host.prepareRewarded()
@@ -224,13 +229,13 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
       total,
       rank: null,
       players: 0,
-      sending: cloudConfigured() ? 'sending' : 'sent',
+      sending: online ? 'sending' : 'sent',
     }
     saveLocalBest(current.weekId, current.lang, base.value)
     best.current = Math.max(best.current ?? 0, base.value)
     setDone(base)
     // Sans serveur, rien ne part : le bilan s'arrête au record de l'appareil.
-    if (!cloudConfigured()) return
+    if (!online) return
     let live = true
     const sent = current.attemptId ? weeklyFinish(current.attemptId, run, metric) : Promise.resolve(false)
     void sent.then(async (ok) => {
@@ -318,7 +323,12 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
         intro.lesson ? (
           <ModeTutorial mode={intro.mode} lang={lang} skipIntro onDone={endIntro} />
         ) : (
-          <ModeIntro mode={intro.mode} onDone={endIntro} onTry={() => setIntro({ ...intro, lesson: true })} />
+          <ModeIntro
+            mode={intro.mode}
+            onDone={endIntro}
+            // L'endurance s'explique assez par sa fiche : sa leçon jouée n'apprenait rien de plus.
+            onTry={intro.mode === 'endurance' ? undefined : () => setIntro({ ...intro, lesson: true })}
+          />
         )
       )}
 
@@ -331,7 +341,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
             plus={plus}
             adsOpen={rewardedAdsOpen}
             premiumOpen={premiumOpen}
-            ranked={cloudConfigured()}
+            ranked={online}
             busy={busy}
             message={message}
             refresh={refresh}
@@ -379,7 +389,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
           rank={done.rank}
           players={done.players}
           sending={done.sending}
-          ranked={cloudConfigured()}
+          ranked={online}
           onBack={backFromDone}
         />
       </Suspense>
