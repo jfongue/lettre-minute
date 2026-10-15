@@ -644,7 +644,11 @@ lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphon
   lots de cent toutes les vingt secondes et au passage en arrière-plan, et
   une ouverture sans partie se lit dans les sessions sans `run_start`. Un
   bouton touché se nomme par `data-track`, sinon `aria-label`, sinon son
-  texte : un bouton sans mots (icône seule) mérite un `data-track`. Le
+  texte : un bouton sans mots (icône seule) mérite un `data-track`.
+  L'invité CrazyGames, sans compte, envoie les siens sous le rôle `anon`, que
+  `track` n'accepte que pour cette version et par appareil (0084). Une
+  ouverture dit si la précédente a fini sans passer en arrière-plan
+  (`unclean`, crash ou app tuée), un `hide` les gels qu'il a vus. Le
   relevé (`analytics_snapshot`) reste fermé à l'app : elle ne le lit que par
   `admin_analytics` (0030), qui ne rend rien à qui n'est pas dans `admins`,
   et l'artefact par `npm run analytics`.

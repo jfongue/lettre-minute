@@ -8636,6 +8636,11 @@ button.challenge-word[aria-expanded='true'] {
   padding-inline: 0.8rem;
 }
 
+.dashboard-card-tabs {
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+}
+
 .dashboard-grid {
   display: grid;
   gap: 1.1rem 1.75rem;
@@ -8860,6 +8865,18 @@ button.challenge-word[aria-expanded='true'] {
 .dashboard-error {
   white-space: normal !important;
   color: var(--red);
+}
+
+.dashboard-error small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--ink-faint);
+  overflow-wrap: anywhere;
+}
+
+.dashboard-tag--lang {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
 }
 
 .dashboard code {

@@ -83,8 +83,9 @@ export interface Snapshot {
   }
   funnel: { new_players: number; played_1: number; played_3: number; played_10: number; named: number }
   retention: { week: string; size: number; d1: number; w1: number; later: number }[]
-  recent_signups: { name: string | null; at: string; runs: number; best: number }[]
-  top_players: { name: string; runs: number; best: number; anonymous: boolean }[]
+  /** `key` et `lang` : absents d'un serveur antérieur à 0084. */
+  recent_signups: { key?: string; name: string | null; at: string; runs: number; best: number; lang?: string | null }[]
+  top_players: { key?: string; name: string; runs: number; best: number; anonymous: boolean; lang?: string | null }[]
   moderation: { votes: number; submitted: number; accepted: number; rejected: number }
   challenges: { created: number; avg_players: number | null; played_share: number | null }
   /** Absent d'un serveur antérieur à 0036. */
@@ -96,6 +97,110 @@ export interface Snapshot {
   revenue?: Revenue
   /** Absent d'un serveur antérieur à 0080. */
   moderation_by_lang?: ModerationByLang
+  /** Absent d'un serveur antérieur à 0084. */
+  insights?: Insights
+  /** Absent d'un serveur antérieur à 0084. */
+  quality?: Quality
+}
+
+/**
+ * La qualité du jeu (`analytics_quality`, 0084), session par session. Une
+ * fermeture brutale ne se lit que sur les sessions dont l'ouverture le dit
+ * (`watched`), un gel que sur celles dont le `hide` le rapporte (`measured`) :
+ * deux mesures nées avec 0084, que `since` date.
+ */
+export interface Quality {
+  totals: {
+    sessions: number
+    error_sessions: number
+    errors: number
+    watched: number
+    unclean: number
+    ready_p50: number | null
+    ready_p90: number | null
+    ready_p99: number | null
+    slow_starts: number
+    measured: number
+    frozen: number
+    /** Millisecondes de fil principal bloqué par minute de jeu. */
+    long_per_minute: number | null
+    long_max_p90: number | null
+  }
+  since: { unclean: string | null; freezes: string | null }
+  daily: {
+    day: string
+    sessions: number
+    error_sessions: number
+    errors: number
+    watched: number
+    unclean: number
+    measured: number
+    frozen: number
+    ready_p50: number | null
+    ready_p90: number | null
+  }[]
+  by_version: {
+    platform: PlatformName
+    version: string
+    sessions: number
+    devices: number
+    error_sessions: number
+    watched: number
+    unclean: number
+    measured: number
+    frozen: number
+    ready_p50: number | null
+    ready_p90: number | null
+  }[]
+  errors: {
+    message: string
+    source: string | null
+    screen: string | null
+    n: number
+    devices: number
+    sessions: number
+    first: string
+    last: string
+    versions: string[]
+  }[]
+  screens: { screen: string; n: number; devices: number }[]
+}
+
+/** Une carte d'une offre de niveau : catégorie, pouvoir ou bonus. */
+export type ChoiceKind = 'category' | 'power' | 'bonus'
+
+/**
+ * Ce que 0084 ajoute au relevé. Les choix portent leur offre depuis 0084 :
+ * `picked` ne compte que ceux-là, `chosen` tous. Les arrivés du jour (`split`)
+ * se retranchent de `daily` pour donner les revenants. La rétention ne compte
+ * qu'un jour fini, sur les arrivés des quatre-vingt-dix derniers jours.
+ */
+export interface Insights {
+  choices: {
+    kinds: { kind: ChoiceKind; n: number; with_offer: number; devices: number }[]
+    items: { kind: ChoiceKind; item: string; offered: number; chosen: number; picked: number; devices: number }[]
+  }
+  split: { day: string; runs_new: number; players_new: number }[]
+  today_split: { hour: number; runs_new: number; players_new: number }[]
+  sessions_by_platform: {
+    totals: { platform: PlatformName; total: number; with_run: number; runs_per_session: number | null; median_seconds: number | null }[]
+    daily: { day: string; platform: PlatformName; with_run: number; without_run: number }[]
+    today_hourly: { hour: number; platform: PlatformName; with_run: number; without_run: number }[]
+  }
+  retention_curve: { day: number; eligible: number; exact: number; rolling: number }[]
+  cohorts: { week: string; size: number; cells: { eligible: number; back: number }[] }[]
+  stickiness: { day: string; dau: number; wau: number; mau: number }[]
+  retention_by: {
+    by: 'platform' | 'lang'
+    value: string
+    size: number
+    d1_eligible: number
+    d1: number
+    w1_eligible: number
+    w1: number
+    m1_eligible: number
+    m1: number
+  }[]
 }
 
 /** Une version du jeu, comme les lignes la portent (0072, 0075), ou « inconnu » quand rien ne la dit. */
@@ -139,8 +244,8 @@ export interface Invites {
   played: number
   links_since: string | null
   daily: { day: string; mails: number; shares: number; joins: number }[]
-  /** Depuis toujours. */
-  top: { name: string; anonymous: boolean; mails: number; shares: number; joins: number; played: number }[]
+  /** Depuis toujours. `key` et `lang` : absents d'un serveur antérieur à 0084. */
+  top: { key?: string; name: string; anonymous: boolean; lang?: string | null; mails: number; shares: number; joins: number; played: number }[]
 }
 
 /** Une ligne par jour de `revenue.daily` : ce que l'écran filtre et dessine. */
@@ -252,6 +357,9 @@ export interface SlotDevice {
   key: string
   name: string
   device: true
+  /** Absents d'un serveur antérieur à 0084. */
+  lang?: string | null
+  platform?: string | null
   sessions_with_run: number
   sessions_without_run: number
 }

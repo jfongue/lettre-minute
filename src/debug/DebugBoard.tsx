@@ -576,14 +576,14 @@ function dashboardSnapshot(): Snapshot {
       }
     }),
     recent_signups: [
-      { name: 'Léa', at: new Date(Date.now() - 3 * HOUR).toISOString(), runs: 12, best: 880 },
-      { name: 'Hugo', at: new Date(Date.now() - 20 * HOUR).toISOString(), runs: 4, best: 410 },
-      { name: 'Inès', at: new Date(Date.now() - 70 * HOUR).toISOString(), runs: 31, best: 1_240 },
+      { name: 'Léa', at: new Date(Date.now() - 3 * HOUR).toISOString(), runs: 12, best: 880, lang: 'fr' },
+      { name: 'Hugo', at: new Date(Date.now() - 20 * HOUR).toISOString(), runs: 4, best: 410, lang: 'de' },
+      { name: 'Inès', at: new Date(Date.now() - 70 * HOUR).toISOString(), runs: 31, best: 1_240, lang: 'es' },
     ],
     top_players: [
-      { name: 'Inès', runs: 212, best: 1_240, anonymous: false },
-      { name: 'Anonyme 3f2a', runs: 140, best: 760, anonymous: true },
-      { name: 'Léa', runs: 96, best: 880, anonymous: false },
+      { name: 'Inès', runs: 212, best: 1_240, anonymous: false, lang: 'es' },
+      { name: 'Anonyme 3f2a', runs: 140, best: 760, anonymous: true, lang: 'en' },
+      { name: 'Léa', runs: 96, best: 880, anonymous: false, lang: 'fr' },
     ],
     moderation: { votes: 420, submitted: 38, accepted: 21, rejected: 9 },
     challenges: { created: 41, avg_players: 2.7, played_share: 0.86 },
@@ -592,10 +592,10 @@ function dashboardSnapshot(): Snapshot {
       links_since: new Date(Date.now() - 12 * 24 * HOUR).toISOString(),
       daily: daily.map((row, index) => ({ day: row.day, mails: index % 3, shares: (index * 7) % 5, joins: index % 4 === 0 ? 2 : index % 5 === 0 ? 1 : 0 })),
       top: [
-        { name: 'Inès', anonymous: false, mails: 6, shares: 11, joins: 7, played: 6 },
-        { name: 'Léa', anonymous: false, mails: 3, shares: 8, joins: 4, played: 3 },
-        { name: 'Hugo', anonymous: false, mails: 5, shares: 2, joins: 1, played: 1 },
-        { name: 'Anonyme 3f2a', anonymous: true, mails: 0, shares: 4, joins: 0, played: 0 },
+        { name: 'Inès', anonymous: false, lang: 'es', mails: 6, shares: 11, joins: 7, played: 6 },
+        { name: 'Léa', anonymous: false, lang: 'fr', mails: 3, shares: 8, joins: 4, played: 3 },
+        { name: 'Hugo', anonymous: false, lang: 'de', mails: 5, shares: 2, joins: 1, played: 1 },
+        { name: 'Anonyme 3f2a', anonymous: true, lang: 'en', mails: 0, shares: 4, joins: 0, played: 0 },
       ],
     },
     moderation_by_lang: {
@@ -658,6 +658,102 @@ function dashboardSnapshot(): Snapshot {
         { day: row.day, platform: 'inconnu' as const, runs: index < 8 ? 4 : 0 },
       ]),
     },
+    insights: {
+      choices: {
+        kinds: [
+          { kind: 'category', n: 214, with_offer: 120, devices: 130 },
+          { kind: 'power', n: 162, with_offer: 90, devices: 101 },
+          { kind: 'bonus', n: 41, with_offer: 30, devices: 33 },
+        ],
+        items: [
+          { kind: 'category', item: 'pays', offered: 70, chosen: 61, picked: 44, devices: 58 },
+          { kind: 'category', item: 'animaux', offered: 66, chosen: 52, picked: 31, devices: 50 },
+          { kind: 'category', item: 'capitales', offered: 64, chosen: 38, picked: 21, devices: 36 },
+          { kind: 'category', item: 'fruits', offered: 40, chosen: 9, picked: 4, devices: 9 },
+          { kind: 'power', item: 'joker', offered: 60, chosen: 58, picked: 39, devices: 55 },
+          { kind: 'power', item: 'hush', offered: 58, chosen: 40, picked: 24, devices: 38 },
+          { kind: 'power', item: 'magic', offered: 62, chosen: 30, picked: 18, devices: 29 },
+          { kind: 'bonus', item: 'slot', offered: 22, chosen: 19, picked: 15, devices: 19 },
+          { kind: 'bonus', item: 'reveal', offered: 26, chosen: 12, picked: 9, devices: 12 },
+          { kind: 'bonus', item: 'filter', offered: 12, chosen: 6, picked: 3, devices: 6 },
+          { kind: 'bonus', item: 'moderator', offered: 0, chosen: 4, picked: 0, devices: 4 },
+        ],
+      },
+      split: daily.map((row) => ({ day: row.day, runs_new: Math.round(row.new_players * 2.5), players_new: row.new_players })),
+      today_split: todayHourly.map((row) => ({ hour: row.hour, runs_new: row.new_players * 2, players_new: row.new_players })),
+      sessions_by_platform: {
+        totals: [
+          { platform: 'android', total: 920, with_run: 700, runs_per_session: 2.6, median_seconds: 340 },
+          { platform: 'crazygames', total: 380, with_run: 260, runs_per_session: 1.9, median_seconds: 210 },
+          { platform: 'web', total: 120, with_run: 100, runs_per_session: 2.1, median_seconds: 280 },
+        ],
+        daily: daily.flatMap((row, index) => [
+          { day: row.day, platform: 'android' as const, with_run: Math.round(row.sessions_with_run * 0.6), without_run: Math.round(row.sessions_without_run * 0.6) },
+          { day: row.day, platform: 'crazygames' as const, with_run: index < 20 ? 0 : Math.round(row.sessions_with_run * 0.35), without_run: index < 20 ? 0 : Math.round(row.sessions_without_run * 0.5) },
+          { day: row.day, platform: 'web' as const, with_run: Math.round(row.sessions_with_run * 0.05), without_run: 1 },
+        ]),
+        today_hourly: todayHourly.flatMap((row) => [
+          { hour: row.hour, platform: 'android' as const, with_run: Math.round(row.sessions_with_run * 0.6), without_run: Math.round(row.sessions_without_run * 0.6) },
+          { hour: row.hour, platform: 'crazygames' as const, with_run: Math.round(row.sessions_with_run * 0.4), without_run: Math.round(row.sessions_without_run * 0.4) },
+        ]),
+      },
+      retention_curve: Array.from({ length: 30 }, (_, index) => {
+        const day = index + 1
+        const eligible = 160 - index * 3
+        return { day, eligible, exact: Math.round(eligible * (0.38 / Math.sqrt(day))), rolling: Math.round(eligible * (0.62 - 0.012 * index)) }
+      }),
+      cohorts: Array.from({ length: 8 }, (_, index) => {
+        const size = 24 + index * 5
+        const open = 7 - index
+        return {
+          week: new Date(today.getTime() - (7 - index) * 7 * 24 * HOUR).toISOString().slice(0, 10),
+          size,
+          cells: Array.from({ length: 12 }, (_, w) =>
+            w < open ? { eligible: size, back: Math.round(size * (0.55 / (1 + w * 0.45))) } : { eligible: 0, back: 0 },
+          ),
+        }
+      }),
+      stickiness: daily.map((row, index) => ({ day: row.day, dau: row.players, wau: Math.round(row.players * 2.6), mau: 140 + index * 2 })),
+      retention_by: [
+        { by: 'platform', value: 'android', size: 96, d1_eligible: 92, d1: 41, w1_eligible: 80, w1: 47, m1_eligible: 40, m1: 15 },
+        { by: 'platform', value: 'crazygames', size: 140, d1_eligible: 135, d1: 22, w1_eligible: 120, w1: 30, m1_eligible: 30, m1: 3 },
+        { by: 'platform', value: 'web', size: 12, d1_eligible: 12, d1: 4, w1_eligible: 10, w1: 5, m1_eligible: 6, m1: 2 },
+        { by: 'lang', value: 'fr', size: 150, d1_eligible: 146, d1: 52, w1_eligible: 130, w1: 63, m1_eligible: 60, m1: 17 },
+        { by: 'lang', value: 'en', size: 70, d1_eligible: 66, d1: 10, w1_eligible: 58, w1: 14, m1_eligible: 12, m1: 2 },
+        { by: 'lang', value: 'de', size: 28, d1_eligible: 27, d1: 5, w1_eligible: 22, w1: 5, m1_eligible: 4, m1: 1 },
+      ],
+    },
+    quality: {
+      totals: {
+        sessions: 1_420, error_sessions: 31, errors: 44, watched: 610, unclean: 9, ready_p50: 1_380, ready_p90: 3_900, ready_p99: 8_200,
+        slow_starts: 22, measured: 590, frozen: 48, long_per_minute: 140, long_max_p90: 820,
+      },
+      since: { unclean: new Date(Date.now() - 4 * 24 * HOUR).toISOString(), freezes: new Date(Date.now() - 4 * 24 * HOUR).toISOString() },
+      daily: daily.map((row, index) => ({
+        day: row.day,
+        sessions: row.sessions_with_run + row.sessions_without_run,
+        error_sessions: index % 6 === 0 ? 4 : 1,
+        errors: index % 6 === 0 ? 6 : 1,
+        watched: index < 26 ? 0 : 20,
+        unclean: index < 26 ? 0 : index % 2,
+        measured: index < 26 ? 0 : 19,
+        frozen: index < 26 ? 0 : 1 + (index % 3),
+        ready_p50: 1_300 + ((index * 37) % 300),
+        ready_p90: 3_400 + ((index * 91) % 900),
+      })),
+      by_version: [
+        { platform: 'android', version: '1.9.0', sessions: 610, devices: 140, error_sessions: 8, watched: 590, unclean: 7, measured: 580, frozen: 40, ready_p50: 1_420, ready_p90: 4_100 },
+        { platform: 'crazygames', version: '1.0.0', sessions: 380, devices: 260, error_sessions: 14, watched: 0, unclean: 0, measured: 0, frozen: 0, ready_p50: 2_100, ready_p90: 5_300 },
+        { platform: 'android', version: '1.8.3', sessions: 300, devices: 70, error_sessions: 6, watched: 0, unclean: 0, measured: 0, frozen: 0, ready_p50: 1_510, ready_p90: 4_400 },
+        { platform: 'web', version: '1.9.0', sessions: 120, devices: 30, error_sessions: 3, watched: 20, unclean: 2, measured: 10, frozen: 8, ready_p50: 900, ready_p90: 2_200 },
+      ],
+      errors: [
+        { message: 'TypeError: Cannot read properties of undefined (reading \'rows\')', source: 'index-4f2a.js:1', screen: 'over', n: 19, devices: 8, sessions: 12, first: new Date(Date.now() - 20 * 24 * HOUR).toISOString(), last: new Date(Date.now() - 5 * HOUR).toISOString(), versions: ['android 1.9.0', 'android 1.8.3'] },
+        { message: 'Load failed', source: 'promise', screen: 'home', n: 14, devices: 11, sessions: 13, first: new Date(Date.now() - 30 * HOUR).toISOString(), last: new Date(Date.now() - 2 * HOUR).toISOString(), versions: ['crazygames 1.0.0'] },
+        { message: 'ResizeObserver loop completed with undelivered notifications.', source: ':0', screen: null, n: 11, devices: 6, sessions: 7, first: new Date(Date.now() - 12 * 24 * HOUR).toISOString(), last: new Date(Date.now() - 26 * HOUR).toISOString(), versions: ['web 1.9.0'] },
+      ],
+      screens: [{ screen: 'over', n: 19, devices: 8 }, { screen: 'home', n: 14, devices: 11 }, { screen: 'playing', n: 3, devices: 2 }],
+    },
   }
 }
 
@@ -676,7 +772,7 @@ function dashboardSlot(): Promise<SlotEntry[]> {
       player('Hugo', { avatar: avatarOf(33, 'vert', 'creme', 'bleu'), xp: at(3), total_runs: 4, total_best: 410, created_at: new Date(Date.now() - 6 * HOUR).toISOString(), named_at: new Date(Date.now() - 5 * HOUR).toISOString(), friends: 1, runs: 4, best: 410, words: 38, arrived: true, signed: true, sessions_with_run: 1, invited_by: 'Inès' }),
       player('Anonyme 3f2a', { anonymous: true, avatar: DEFAULT_AVATAR, xp: at(1, 20), total_runs: 1, total_best: 90, named_at: null, created_at: new Date(Date.now() - 3 * HOUR).toISOString(), friends: 0, platform: 'web', runs: 1, best: 90, words: 7, arrived: true, sessions_with_run: 1 }),
       player('Tom', { avatar: avatarOf(12, 'jaune', 'bleu', 'rouge'), xp: at(8), total_runs: 51, total_best: 640, sessions_without_run: 2 }),
-      { key: 'device:9c1e', name: 'Appareil 9c1e', device: true as const, sessions_with_run: 0, sessions_without_run: 1 },
+      { key: 'device:9c1e', name: 'Appareil 9c1e', device: true as const, sessions_with_run: 0, sessions_without_run: 1, lang: 'en', platform: 'crazygames' },
     ],
     500,
   )
@@ -2440,7 +2536,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'leaderboards-advanced',
     group: 'Accueil',
     title: 'Tableau de bord de l’administrateur',
-    how: 'Cinq tapes sur « Classements » : joueurs, actifs, parties, sessions, boutons touchés, rétention, erreurs — le relevé d’analytics_snapshot',
+    how: 'Cinq tapes sur « Classements » : joueurs, actifs, parties, sessions, boutons touchés, rétention, choix de niveau, qualité — le relevé d’analytics_snapshot',
     phase: 'home',
     render: () => <AdvancedScenario />,
   },

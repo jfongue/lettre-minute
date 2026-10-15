@@ -1435,11 +1435,12 @@ setStartedAt((at) => at ?? Date.now())
   )
 
   const choose = useCallback((categoryId: string) => {
-    trackFeature('category_chosen', { category: categoryId })
+    // What was on offer goes with the pick: the dashboard reads which cards win when dealt.
+    trackFeature('category_chosen', { category: categoryId, offered: profile.current.offer })
     dispatch({ type: 'choose', categoryId })
   }, [])
   const choosePower = useCallback((powerId: string) => {
-    trackFeature('power_chosen', { power: powerId })
+    trackFeature('power_chosen', { power: powerId, offered: profile.current.powerOffer })
     dispatch({ type: 'choose-power', powerId })
   }, [])
   /** D'où le Premium arrive : l'achat, une restauration, un autre appareil, ou le défi du moment gagné. */
@@ -1507,7 +1508,7 @@ setStartedAt((at) => at ?? Date.now())
     dispatch({ type: 'reveal-ad', day: todayKey() })
   }, [])
   const chooseBonus = useCallback((bonusId: string) => {
-    trackFeature('bonus_chosen', { bonus: bonusId })
+    trackFeature('bonus_chosen', { bonus: bonusId, offered: profile.current.bonusOffer })
     dispatch({ type: 'choose-bonus', bonusId })
   }, [])
   const banActions = useMemo<BanActions>(
