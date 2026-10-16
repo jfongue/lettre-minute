@@ -160,8 +160,12 @@ ami modérateur) — un joueur connecté au portail a le compte
   audio) ; le bouton muet du jeu ne peut pas le rallumer.
 - **Sauvegarde (module Data)** : `restoreSavedProgress` relit au démarrage, dans
   le SDK, profil, historique, avatar, tutoriel, mots révélés, thème, son et
-  langue ; la copie du SDK l'emporte, une clé qu'il n'a pas lui est confiée une
-  fois. Ensuite toute écriture de ces clés dans `localStorage` est recopiée au
+  langue ; la copie du SDK remplace celle du navigateur, y compris pour
+  effacer une clé qu'il n'a pas. Les sauvegardes d'avant le module ne lui sont
+  confiées qu'une fois par navigateur (`lettre-minute.crazygames-data.v1`) :
+  les lui confier à chaque lancement donnait à l'invité, après une
+  déconnexion (qui recharge la page), la progression du compte qui venait de
+  partir — retour de la revue Full Launch. Ensuite toute écriture de ces clés dans `localStorage` est recopiée au
   SDK (patch de `Storage.prototype`, limité à `localStorage` et à ces clés).
   L'historique est rogné à ses parties les plus récentes pour rester sous
   900 Ko (le module refuse au-delà de 1 Mo). Si le module est désactivé

@@ -139,11 +139,19 @@ export function LeaderboardsPage({
     }
   }
 
+  // Kept for the page's life, but not across a sign-in made from the page
+  // itself: the guest's boards would stay, their « Moi » line with them,
+  // until the player left the page. Declared before the effects that ask.
+  useEffect(() => {
+    asked.current.clear()
+    askedWeek.current.clear()
+  }, [named, guest])
+
   useEffect(() => {
     if (family === 'weekly') askWeek(pane)
     // `askWeek` lit la langue et la semaine, toutes deux dans les dépendances.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [family, pane, lang, weekId])
+  }, [family, pane, lang, weekId, named, guest])
 
   useEffect(() => {
     for (const index of [active, active + 1, active - 1]) {
@@ -152,7 +160,7 @@ export function LeaderboardsPage({
     }
     // `ask` reads `period` and `load`, both among the dependencies.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, period, load, moderator])
+  }, [active, period, load, moderator, named, guest])
 
   useEffect(() => {
     // Not `scrollIntoView`, which would also slide the drawer around it.
