@@ -54,7 +54,7 @@ pages link to each other
 | Section | Answer |
 | --- | --- |
 | App access | No restrictions: everything is available without signing in |
-| Ads | **No**: ads are switched off (`ADS_ENABLED`). The AdMob SDK stays in the build but never starts; switch back to **Yes** when ads return |
+| Ads | **Yes**: rewarded ads are shown on Android — watching one gives an extra reveal in the Results, or an extra attempt at the challenge of the moment. Interstitials, for their part, are switched off (`ADS_ENABLED`, `src/domain/unlocks.ts`). The AdMob SDK starts at the first offer that carries an ad, after the UMP consent where the law requires it, and the menu keeps the Ad choices entry |
 | Content rating (IARC) | “Game” category; no to every question (violence, fear, sexuality, gambling, language, drugs, digital purchases); **users can interact: yes** (player name, avatar and scores visible on the leaderboards, between friends and in challenges; no messaging, no free text exchanged apart from the name). Expected result: PEGI 3 / Everyone, with the “Users Interact” notice |
 | Target audience | 13 and over. Choosing an age group under 13 puts the app in the Families programme and its additional requirements |
 | News app | No |

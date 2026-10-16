@@ -57,7 +57,7 @@ Seiten verlinken aufeinander
 | Abschnitt | Antwort |
 | --- | --- |
 | App-Zugriff | Keine Einschränkung: alles ist ohne Anmeldung zugänglich |
-| Anzeigen | **Nein**: Werbung ist abgeschaltet (`ADS_ENABLED`). Das AdMob-SDK bleibt im Build, startet aber nie; wieder **Ja**, sobald Werbung zurückkommt |
+| Anzeigen | **Ja**: Auf Android wird belohnte Werbung gezeigt — wer eine Werbung ansieht, bekommt eine Enthüllung mehr im Ergebnis oder einen Versuch mehr bei der Herausforderung des Moments. Interstitials sind dagegen abgeschaltet (`ADS_ENABLED`, `src/domain/unlocks.ts`). Das AdMob-SDK startet beim ersten Angebot mit Werbung, nach der UMP-Einwilligung, wo das Gesetz sie verlangt, und das Menü behält den Eintrag für die Werbeeinstellungen |
 | Einstufung des Inhalts (IARC) | Kategorie „Spiel“; Nein bei allen Fragen (Gewalt, Angst, Sexualität, Glücksspiel, Sprache, Drogen, digitale Käufe); **Nutzer interagieren: Ja** (Spielername, Avatar und Punktzahlen sind in den Ranglisten, unter Freunden und in Duellen sichtbar; kein Chat, außer dem Namen wird kein freier Text ausgetauscht). Erwartetes Ergebnis: PEGI 3 / USK ab 0, mit dem Hinweis „Nutzer interagieren“ |
 | Zielgruppe | Ab 13 Jahren. Wer eine Altersgruppe unter 13 wählt, bringt die App ins Familienprogramm mit seinen zusätzlichen Anforderungen |
 | Nachrichten-App | Nein |

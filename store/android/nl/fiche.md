@@ -55,7 +55,7 @@ pagina’s verwijzen naar elkaar
 | Onderdeel | Antwoord |
 | --- | --- |
 | App-toegang | Geen beperkingen: alles is toegankelijk zonder in te loggen |
-| Advertenties | **Nee**: advertenties staan uit (`ADS_ENABLED`). De AdMob-SDK blijft in de build maar start nooit; terug naar **Ja** zodra ze terugkomen |
+| Advertenties | **Ja**: op Android worden beloonde advertenties getoond — een advertentie bekijken geeft een extra onthulling in de Uitslag, of een extra poging bij de uitdaging van het moment. Interstitials staan daarentegen uit (`ADS_ENABLED`, `src/domain/unlocks.ts`). De AdMob-SDK start bij het eerste aanbod met een advertentie, na de UMP-toestemming waar de wet het vraagt, en het menu houdt de optie Advertentiekeuzes |
 | Contentclassificatie (IARC) | Categorie ‘Game’; nee op alle vragen (geweld, angst, seksualiteit, gokken, taalgebruik, drugs, digitale aankopen); **interactie tussen gebruikers: ja** (spelersnaam, avatar en scores zichtbaar in het klassement, bij vrienden en in uitdagingen; geen berichten, geen vrije tekst uitgewisseld behalve de naam). Verwacht resultaat: PEGI 3 / Alle leeftijden, met de vermelding ‘Gebruikers hebben interactie’ |
 | Doelgroep | 13 jaar en ouder. Een leeftijdsgroep onder 13 jaar kiezen brengt de app in het Gezinnenprogramma met de extra vereisten daarvan |
 | Nieuwsapp | Nee |

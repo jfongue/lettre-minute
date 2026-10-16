@@ -55,7 +55,7 @@ pagine si rimandano a vicenda
 | Sezione | Risposta |
 | --- | --- |
 | Accesso all’app | Nessuna restrizione: tutto è accessibile senza accedere |
-| Annunci | **No**: la pubblicità è spenta (`ADS_ENABLED`). L’SDK AdMob resta nel build ma non parte mai; tornare a **Sì** quando la si riaccende |
+| Annunci | **Sì**: su Android vengono mostrati annunci con ricompensa — guardare un annuncio dà una rivelazione in più nei Risultati, o un tentativo in più nella sfida del momento. Gli interstitial, invece, sono spenti (`ADS_ENABLED`, `src/domain/unlocks.ts`). L’SDK AdMob parte alla prima offerta che porta un annuncio, dopo il consenso UMP dove la legge lo richiede, e il menu conserva la voce Scelte pubblicitarie |
 | Classificazione dei contenuti (IARC) | Categoria «Gioco»; no a tutte le domande (violenza, paura, sessualità, gioco d’azzardo, linguaggio, droghe, acquisti digitali); **interazione tra utenti: sì** (nome del giocatore, avatar e punteggi visibili in classifica, tra amici e nelle sfide; nessuna messaggistica, nessun testo libero scambiato a parte il nome). Risultato atteso: PEGI 3 / Per tutti, con la dicitura «Interazione tra utenti» |
 | Pubblico di destinazione | 13 anni e oltre. Scegliere una fascia sotto i 13 anni fa entrare l’app nel programma Famiglie e nei suoi requisiti aggiuntivi |
 | App di notizie | No |

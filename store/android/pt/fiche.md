@@ -55,7 +55,7 @@ páginas apontam uma para a outra
 | Seção | Resposta |
 | --- | --- |
 | Acesso ao app | Nenhuma restrição: tudo é acessível sem fazer login |
-| Anúncios | **Não**: os anúncios estão desligados (`ADS_ENABLED`). O SDK do AdMob continua no build, mas nunca inicia; voltar para **Sim** quando voltarem |
+| Anúncios | **Sim**: no Android são mostrados anúncios com recompensa — ver um anúncio dá uma revelação a mais nos Resultados, ou uma tentativa a mais no desafio do momento. Os intersticiais, por sua vez, estão desligados (`ADS_ENABLED`, `src/domain/unlocks.ts`). O SDK do AdMob arranca na primeira oferta que traz um anúncio, depois do consentimento UMP onde a lei o exige, e o menu mantém a entrada de Opções de anúncios |
 | Classificação do conteúdo (IARC) | Categoria “Jogo”; não para todas as perguntas (violência, medo, sexualidade, jogos de azar, linguagem, drogas, compras digitais); **interações entre usuários: sim** (nome de jogador, avatar e pontuações visíveis no ranking, entre amigos e nos desafios; nenhuma troca de mensagens, nenhum texto livre compartilhado além do nome). Resultado esperado: PEGI 3 / Livre, com o aviso “Interação do usuário” |
 | Público-alvo | 13 anos ou mais. Escolher uma faixa abaixo de 13 anos faz o app entrar no programa Famílias e em seus requisitos adicionais |
 | App de notícias | Não |
