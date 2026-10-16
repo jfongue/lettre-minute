@@ -1,3 +1,5 @@
+• Adapté aux tablettes : le jeu prend tout l’écran
+• Défi du moment : un seul classement pour toutes les langues
 • Les notifications de défis et de duel arrivent de nouveau
 • Premières parties mieux équilibrées pour les nouveaux joueurs
 • Corrections de bugs et performance

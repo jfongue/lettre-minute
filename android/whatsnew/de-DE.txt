@@ -1,3 +1,5 @@
+• Für Tablets angepasst: das Spiel füllt den ganzen Bildschirm
+• Aktuelle Herausforderung: eine Rangliste für alle Sprachen
 • Benachrichtigungen für Herausforderungen und Duelle kommen wieder an
 • Ausgewogenere erste Partien für neue Spieler
 • Fehlerbehebungen und Leistung

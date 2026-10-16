@@ -1,3 +1,5 @@
+• Aangepast voor tablets: het spel vult het hele scherm
+• Uitdaging van het moment: één ranglijst voor alle talen
 • Meldingen van uitdagingen en duels komen weer aan
 • Eerlijkere eerste potjes voor nieuwe spelers
 • Bugfixes en prestaties

@@ -1,3 +1,5 @@
+• Adaptado para tablets: o jogo ocupa a tela inteira
+• Desafio do momento: um único ranking para todos os idiomas
 • As notificações de desafios e duelos voltam a chegar
 • Primeiras partidas mais equilibradas para novos jogadores
 • Correções de erros e desempenho

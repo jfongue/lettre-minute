@@ -1,3 +1,5 @@
+• Adaptado a tabletas: el juego ocupa toda la pantalla
+• Reto del momento: una sola clasificación para todos los idiomas
 • Las notificaciones de retos y duelos vuelven a llegar
 • Primeras partidas más equilibradas para los nuevos jugadores
 • Corrección de errores y rendimiento

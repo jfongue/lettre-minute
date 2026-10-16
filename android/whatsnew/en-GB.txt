@@ -1,3 +1,5 @@
+• Made for tablets: the game fills the whole screen
+• Challenge of the moment: one leaderboard for every language
 • Challenge and duel notifications arrive again
 • Fairer first games for new players
 • Bug fixes and performance
