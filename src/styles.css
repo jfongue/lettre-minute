@@ -570,11 +570,11 @@ button.challenge-past::after {
 }
 
 /* ---------------------------------------------------------------- poster - */
-/* Not clipped: the menu tile stands out past the corner; each cell clips its own shape. */
 .poster {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   aspect-ratio: 5 / 2;
+  overflow: hidden;
 }
 
 .poster-cell {
@@ -2060,12 +2060,11 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 /* A tile among tiles read as decoration (CrazyGames' review): outlined and
-   cast like the other buttons, and lifted out of the grid toward the corner,
-   it leaves a lane of paper behind and reads as one. `translate`, not
-   `transform`, which the hover takes over. */
+   cast like the other buttons, and drawn back into its corner, it leaves a
+   lane of paper before its neighbours, which holds its shadow. */
 .poster-menu {
   position: relative;
-  translate: -10px -10px;
+  margin: 0 10px 10px 0;
   border: 3px solid var(--ink);
   box-shadow: 4px 4px 0 var(--ink);
 }
