@@ -2059,8 +2059,14 @@ animation: clock-bonus 500ms var(--ease-out);
   cursor: pointer;
 }
 
+/* A tile among tiles read as decoration (CrazyGames' review): outlined and
+   cast like the other buttons, and drawn back into its corner, it leaves a
+   lane of paper before its neighbours, which holds its shadow. */
 .poster-menu {
   position: relative;
+  margin: 0 10px 10px 0;
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
 }
 
 /* Inside the tile's corner: the poster cells clip what overflows. */

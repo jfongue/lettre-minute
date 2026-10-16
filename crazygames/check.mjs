@@ -1,11 +1,14 @@
 // Plays the CrazyGames build the way a person does, in the portal's frames:
 // for each frame size and for a newcomer and a regular player, the page is
-// loaded in an iframe (the harness's /frame.html), « Play » must be on screen
-// and on top (document.elementFromPoint at its centre), and a real mouse click
-// (Input.dispatchMouseEvent, not a scripted .click()) must start the lesson
-// or the run — through the powers' screen for a player who owns some. A regular player's run must then keep its field, Skip and Enter
+// loaded in an iframe (the harness's /frame.html). A newcomer lands in the
+// first lesson without a click (`host.playFirst`), its answer inside the
+// frame. For a regular player « Play » must be on screen and on top
+// (document.elementFromPoint at its centre), and a real mouse click
+// (Input.dispatchMouseEvent, not a scripted .click()) must start the run —
+// through the powers' screen for a player who owns some. A regular player's run must then keep its field, Skip and Enter
 // inside the frame. Last, the page served from another host than localhost —
-// where the SDK can only end up `disabled` — must still show « Play » quickly.
+// where the SDK can only end up `disabled` — must still show « Play », or a
+// newcomer's lesson, quickly.
 //
 //   npm run crazygames:build && npm run crazygames:harness   (another shell)
 //   node crazygames/check.mjs [http://localhost:5747] [http://<LAN address>:5747]
@@ -90,6 +93,13 @@ for (const [width, height] of SIZES) {
     await evaluate(`localStorage.clear(); ${player === 'regular' ? `localStorage.setItem('lettre-minute.tutorial.v1', 'true'); localStorage.setItem('lettre-minute.profile.v1', ${JSON.stringify(JSON.stringify(REGULAR))});` : ''} true`)
     await send('Page.navigate', { url: `${base}/frame.html?w=${width}&h=${height}` })
     await sleep(3500)
+    if (player === 'newcomer') {
+      const lesson = await locate('.tutorial-answer')
+      check(lesson && lesson.bottom <= lesson.height, `${label}: the first lesson opens by itself, its answer inside the frame`, lesson ? `${Math.round(lesson.top)}..${Math.round(lesson.bottom)} of ${lesson.height}` : 'no lesson')
+      const { data } = await send('Page.captureScreenshot', { format: 'png' })
+      writeFileSync(join(OUT, `${width}x${height}-${player}.png`), Buffer.from(data, 'base64'))
+      continue
+    }
     const play = await locate('.btn--play')
     check(play && play.bottom <= play.height, `${label}: Play inside the frame`, play && `${Math.round(play.top)}..${Math.round(play.bottom)} of ${play.height}`)
     check(play?.onTop, `${label}: Play on top at its centre`, play?.hit)
@@ -112,13 +122,11 @@ for (const [width, height] of SIZES) {
       }
     }
     const stage = await evaluate(`${game}.querySelector('main')?.className ?? ''`)
-    check(!/stage--home/.test(stage), `${label}: a real click on Play starts the ${player === 'newcomer' ? 'lesson' : 'run'}`, stage)
-    if (player === 'regular') {
-      for (let tries = 0; tries < 40 && !(await evaluate(`!!${game}.querySelector('.answer-field input')`)); tries++) await sleep(200)
-      for (const selector of ['.answer-field', '.answer-actions']) {
-        const part = await locate(selector)
-        check(part && part.bottom <= part.height, `${label}: ${selector} inside the frame during the run`, part && `${Math.round(part.top)}..${Math.round(part.bottom)} of ${part.height}`)
-      }
+    check(!/stage--home/.test(stage), `${label}: a real click on Play starts the run`, stage)
+    for (let tries = 0; tries < 40 && !(await evaluate(`!!${game}.querySelector('.answer-field input')`)); tries++) await sleep(200)
+    for (const selector of ['.answer-field', '.answer-actions']) {
+      const part = await locate(selector)
+      check(part && part.bottom <= part.height, `${label}: ${selector} inside the frame during the run`, part && `${Math.round(part.top)}..${Math.round(part.bottom)} of ${part.height}`)
     }
     const { data } = await send('Page.captureScreenshot', { format: 'png' })
     writeFileSync(join(OUT, `${width}x${height}-${player}.png`), Buffer.from(data, 'base64'))
@@ -132,12 +140,12 @@ if (elsewhere) {
   let seconds = null
   for (let tries = 0; tries < 40; tries++) {
     await sleep(250)
-    if (await evaluate(`!!(${game}?.querySelector('.btn--play'))`)) {
+    if (await evaluate(`!!(${game}?.querySelector('.btn--play, .tutorial-answer'))`)) {
       seconds = (Date.now() - started) / 1000
       break
     }
   }
-  check(seconds !== null && seconds < 4, `outside the portal (${elsewhere}): Play shows without the SDK`, seconds === null ? 'never' : `${seconds.toFixed(1)} s`)
+  check(seconds !== null && seconds < 4, `outside the portal (${elsewhere}): Play or the lesson shows without the SDK`, seconds === null ? 'never' : `${seconds.toFixed(1)} s`)
 }
 
 check(errors.length === 0, 'no exception in the page', errors.join(' | '))

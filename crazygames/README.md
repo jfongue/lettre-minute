@@ -117,11 +117,16 @@ ami modérateur) — un joueur connecté au portail a le compte
   (`src/ui/localBoards.ts`). Une fiche de joueur y ouvre les actions d'amitié
   et de blocage (`PlayerName`, `PlayerSheet`) depuis que la fonctionnalité
   `friends` est ouverte — à l'invité, le geste demande la connexion du portail.
-- **Langue** : celle du SDK (`user.systemInfo.locale`), puis celle du
-  navigateur, sinon l'anglais — jamais le sélecteur de langue au premier
-  lancement. Le joueur peut en changer dans les options. Le titre affiché
-  reste **Letter Minute** dans toutes les langues (`crazyGamesHost.title`), pour
-  correspondre au nom soumis.
+- **Langue** : celle déjà choisie, puis celle du SDK (`user.systemInfo.locale`),
+  puis celle du navigateur ; si aucune n'est une langue du jeu, le sélecteur
+  de langue (`fallbackLocale: null`), en deux colonnes dans le cadre paysage.
+  Le joueur peut en changer dans les options. Le titre affiché
+  reste **Letter Minute** dans toutes les langues (`crazyGamesHost.title`),
+  sélecteur compris, pour correspondre au nom soumis.
+- **On joue d'abord** (`host.playFirst`, retour de la revue Full Launch) : un
+  nouveau venu (aucune partie, tutoriel jamais fini) n'arrive pas sur
+  l'accueil mais dans la leçon du premier lancement, qui enchaîne sur sa
+  première partie — une fois la langue fixée, sélecteur compris.
 - **Thème clair par défaut** (`data-theme="light"` dès le HTML) ; le thème
   sombre reste au choix dans les options.
 - **Événements** (`src/platform/usePlatformGameplay.ts`) : `gameplayStart` au compte
@@ -151,17 +156,22 @@ ami modérateur) — un joueur connecté au portail a le compte
   SDK, qui paie deux révélations de plus au bilan et la seconde tentative du
   défi du moment, comme AdMob sur Android — la récompense sur `adFinished`
   seulement, rien sur `adError` (bloqueur compris), le son coupé le temps de la
-  pub. Une Basic Launch n'autorise aucune pub : elle reste éteinte tant que le
-  build n'est pas fait avec `VITE_CRAZYGAMES_REWARDED=true`, et d'ici là les
-  révélations du bilan sont illimitées (`unlimitedReveals`), aucune pub ni
-  Premium ne pouvant en payer davantage.
+  pub. Une Basic Launch n'autorise aucune pub ; la Full Launch les autorise,
+  et le build les allume donc par défaut. `VITE_CRAZYGAMES_REWARDED=false`
+  les éteint, et les révélations du bilan redeviennent alors illimitées
+  (`unlimitedReveals`), aucune pub ni Premium ne pouvant en payer davantage.
 - **Son** : `game.settings.muteAudio` et son écouteur coupent tout le jeu
   (`setAway('platform')` dans `src/lib/sound.ts`, qui suspend le contexte
-  audio) ; le bouton muet du jeu ne peut pas le rallumer.
+  audio). Le jeu ne montre pas son propre bouton muet (`host.ownMute`) : la
+  barre du portail sous le cadre a le sien — retour de la revue Full Launch.
 - **Sauvegarde (module Data)** : `restoreSavedProgress` relit au démarrage, dans
   le SDK, profil, historique, avatar, tutoriel, mots révélés, thème, son et
-  langue ; la copie du SDK l'emporte, une clé qu'il n'a pas lui est confiée une
-  fois. Ensuite toute écriture de ces clés dans `localStorage` est recopiée au
+  langue ; la copie du SDK remplace celle du navigateur, y compris pour
+  effacer une clé qu'il n'a pas. Les sauvegardes d'avant le module ne lui sont
+  confiées qu'une fois par navigateur (`lettre-minute.crazygames-data.v1`) :
+  les lui confier à chaque lancement donnait à l'invité, après une
+  déconnexion (qui recharge la page), la progression du compte qui venait de
+  partir — retour de la revue Full Launch. Ensuite toute écriture de ces clés dans `localStorage` est recopiée au
   SDK (patch de `Storage.prototype`, limité à `localStorage` et à ces clés).
   L'historique est rogné à ses parties les plus récentes pour rester sous
   900 Ko (le module refuse au-delà de 1 Mo). Si le module est désactivé

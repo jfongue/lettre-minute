@@ -85,7 +85,7 @@ Brain, Vocabulary, Educational, Casual, Time Management, 1 Player, Mobile
 | Languages | English, French, Spanish, German, Italian, Dutch, Portuguese |
 | Age rating | PEGI 12 compliant (no violence, no free chat: a duel shows only the words the game's own dictionaries accept) |
 | In-game purchases | None |
-| Ads | Midgame only, through the SDK (inactive in Basic Launch); no rewarded ads |
+| Ads | Midgame between runs, and rewarded (two more hidden answers revealed in the summary, a second attempt at the weekly challenge), all through the SDK |
 | Uses accounts / username | CrazyGames accounts only, optional (User module: `getUserToken`, verified server-side against the portal's public key); a signed-in player appears on the leaderboards under their CrazyGames username, and gets the friends tab, the head-to-head tally, the duel and the word moderation — a guest keeps playing solo, with the duel against the house players |
 | Leaderboards | The game's own boards (day / week / all time), shared with its other players: a guest reads them with their own best shown as « Me », counted on the device and never sent; a signed-in CrazyGames player is ranked. Plus one weekly POINTS board through the SDK (`user.submitScore`), once the portal opens leaderboards to the game |
 | Release date / previously published | Not yet released as a web game on another portal |
@@ -123,6 +123,12 @@ portrait cover drawn at 1.35×. No fast-forward, no black frames, no cursor.
 
 ## Step 4 — Submit
 
-Nothing else to prepare. After a Basic Launch, a Full Launch would only need
-the Data module confirmed, the weekly leaderboard enabled (invitation-only on
-CrazyGames' side) and, if wanted, rewarded ads (none are offered yet).
+Nothing else to prepare. Approved for Full Launch on 16 October 2026; the
+update answers the review: newcomers land in the first lesson, progress
+relies on the Data module alone (a sign-out no longer hands it to the
+guest), a sign-in shows at once, « Play » sits under the title, the home
+screen never scrolls but its right column, the scrollbar takes the game's
+colours, the game's own mute button gives way to the portal's, and rewarded
+ads are on. Left to do on the portal: the weekly leaderboard key
+(`VITE_CRAZYGAMES_LEADERBOARD_KEY`, invitation-only), then the answer about
+`getUserToken` (crazygames/README.md, « Comptes CrazyGames »).

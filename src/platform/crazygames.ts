@@ -336,10 +336,11 @@ function showRewarded(): Promise<RewardedResult> {
 
 /**
  * Rewarded ads are refused during a Basic Launch, and a rewarded button that
- * pays nothing would be refused with them: the build turns them on once the
- * portal allows ads (`VITE_CRAZYGAMES_REWARDED=true npm run crazygames:build`).
+ * pays nothing would be refused with them. The Full Launch allows them, so
+ * they are on unless a build turns them off
+ * (`VITE_CRAZYGAMES_REWARDED=false npm run crazygames:build`).
  */
-const REWARDED = import.meta.env.VITE_CRAZYGAMES_REWARDED === 'true'
+const REWARDED = import.meta.env.VITE_CRAZYGAMES_REWARDED !== 'false'
 
 /**
  * What the game keeps between visits: the profile (level, categories, powers,
@@ -382,17 +383,26 @@ function fitHistory(value: string, others: number): string {
   }
 }
 
+// Set once this browser's saves from before the Data module have been handed
+// to it: from then on a key the module lacks is a key the player lacks.
+const HANDED_OVER_KEY = 'lettre-minute.crazygames-data.v1'
+
 /**
- * Before the first render: the portal's copy wins over the browser's (it is
- * the signed-in player's, whichever device they come from), a key it lacks is
- * handed to it once, and from then on every write to one of these keys is
- * mirrored to it. Without the Data module (not enabled at submission), the
- * first refusal turns the mirror off and the game keeps localStorage alone.
+ * Before the first render, the portal's copy replaces the browser's: it is the
+ * signed-in player's, whichever device they come from, or the guest's once
+ * they sign out — the portal reloads the page on both. The browser's own
+ * saves are handed to it only once, the first time the module answers;
+ * handing them over at every start gave a signed-out guest the progress of
+ * the account that had just left. From then on every write to one of these
+ * keys is mirrored to it. Without the Data module, the first refusal turns the
+ * mirror off and the game keeps localStorage alone, which is never erased.
  */
 export function restoreSavedProgress(): void {
   const data = sdk?.data
   if (!data) return
   let mirroring = true
+  // Only a module that has answered once is trusted to erase what it lacks.
+  let answered = false
   const store = window.localStorage
   const local = (key: string) => {
     try {
@@ -407,19 +417,24 @@ export function restoreSavedProgress(): void {
     try {
       if (value === null) data.removeItem(key)
       else data.setItem(key, key === HISTORY_KEY ? fitHistory(value, othersSize()) : value)
+      answered = true
     } catch {
       mirroring = false
     }
   }
   try {
+    const handingOver = local(HANDED_OVER_KEY) === null
     for (const key of SAVED_KEYS) {
       const saved = data.getItem(key)
-      if (saved !== null) store.setItem(key, saved)
-      else {
+      if (saved !== null) {
+        answered = true
+        store.setItem(key, saved)
+      } else if (handingOver) {
         const found = local(key)
         if (found !== null) mirror(key, found)
-      }
+      } else store.removeItem(key)
     }
+    if (handingOver && answered && mirroring) store.setItem(HANDED_OVER_KEY, '1')
   } catch {
     return
   }
@@ -470,9 +485,10 @@ const OPEN_FEATURES = new Set([
  * friends, the duel and the words a signed-in player brings to the moderation,
  * the portal's own account as the only one, nothing that leads off its page (it
  * refuses a button that does nothing, such as « share — soon »), none of the
- * phone's offers. It lists the game as « Letter Minute » in every language, and
- * English stands in for the language picker: a player there must land in the
- * game, not on a question.
+ * phone's offers. It lists the game as « Letter Minute » in every language.
+ * The portal's language, then the browser's, decide the first screen's; the
+ * language picker comes first only when neither is one of the game's, and the
+ * first lesson follows it (`playFirst`).
  */
 export const crazyGamesHost: Host = {
   // Filtering is earned by a level bonus or Premium, neither of which the
@@ -491,8 +507,13 @@ export const crazyGamesHost: Host = {
   superModeratorFeatures: new Set(SUPER_MODERATOR_FEATURES),
   title: ['Letter', 'Minute'],
   languages: platformLanguages,
-  fallbackLocale: 'en',
+  fallbackLocale: null,
   keepsProgress: true,
+  // The portal's bar under the frame has its mute button, which the game
+  // already obeys (`onMute`): a second one in the corner only duplicated it.
+  ownMute: true,
+  // The portal's review wants a newcomer playing before they meet a menu.
+  playFirst: true,
   premiumStore: false,
   rewardedAds: REWARDED,
   // Each level of a portal game pays something the player plays with: a

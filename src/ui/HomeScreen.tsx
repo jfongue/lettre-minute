@@ -155,8 +155,10 @@ const alone =
         </div>
       )}
 
+      {/* « Jouer » et ce qui l'accompagne, à part du reste : le cadre paysage
+          de CrazyGames le range sous le titre, le téléphone juste au-dessus. */}
       {settled && (
-        <div className={`home-body cascade${alone ? ' home-body--alone' : ''}`}>
+        <div className="home-play cascade">
           <div className="stack">
             <button type="button" className="btn btn--play btn--block" onClick={onPlay} disabled={loading}>
               <span>{loading ? t.loading : t.home.play}</span>
@@ -182,7 +184,11 @@ const alone =
           )}
             {powers ? <PowerSlots profile={profile} disabled={loading} onEquip={onEquip} /> : null}
           </div>
+        </div>
+      )}
 
+      {settled && (
+        <div className={`home-body cascade${alone ? ' home-body--alone' : ''}`}>
           {invites}
 
           {weekly}

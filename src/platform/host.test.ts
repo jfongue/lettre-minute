@@ -86,12 +86,14 @@ describe('les hôtes', () => {
     }
   })
 
-  it('ne vendent Premium et ne passent les pubs récompensées que sur le téléphone', () => {
+  it('ne vendent Premium que sur le téléphone, et ne passent de pubs récompensées que là et sur CrazyGames', () => {
     expect(appHost.premiumStore && appHost.rewardedAds).toBe(true)
-    for (const host of [crazyGamesHost, redditHost]) {
-      expect(host.premiumStore).toBe(false)
-      expect(host.rewardedAds).toBe(false)
-    }
+    for (const host of [crazyGamesHost, redditHost]) expect(host.premiumStore).toBe(false)
+    // La Full Launch du portail les autorise ; une révélation payée qu'on ne
+    // peut pas payer n'y serait plus illimitée pour rien.
+    expect(crazyGamesHost.rewardedAds).toBe(true)
+    expect(crazyGamesHost.unlimitedReveals).toBe(false)
+    expect(redditHost.rewardedAds).toBe(false)
   })
 })
 

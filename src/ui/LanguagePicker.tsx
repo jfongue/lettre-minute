@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties } from 'react'
 import { LOCALES, loadMessages, type Locale, type Messages } from '../i18n'
 import { fr } from '../i18n/fr'
 import { Shape } from './bauhaus'
+import { host } from '../platform'
 
 /**
  * Shown once, before anything else, when the device speaks none of the game's
@@ -29,13 +30,15 @@ export function LanguagePicker({ onPick }: { onPick(locale: Locale): void }) {
 
   // The language's texts are in: the button can speak it too.
   const ready = draft !== null && preview.tag.split('-')[0] === draft
+  // A host that lists the game under one name (CrazyGames) keeps it here too.
+  const title = host.title ?? preview.appName
 
   return (
     <div className="sheet cascade language-picker">
       <header className="masthead">
         <h1 className="title language-title" key={`${draft ?? 'start'}-${preview.tag}`}>
-          <span>{preview.appName[0]}</span>
-          <span>{preview.appName[1]}</span>
+          <span>{title[0]}</span>
+          <span>{title[1]}</span>
         </h1>
       </header>
 

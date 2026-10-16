@@ -261,6 +261,9 @@ const LEAVE_RUN_MS = 2000
 // A card's scrim closes it like its « Plus tard »: the tap clicks the same.
 const TAPPABLE = 'button, a, summary, input[type="checkbox"], .offer-pop-scrim'
 const TYPED = new Set(['text', 'email', 'password', 'search'])
+// The game's own mute button: not on the phone, which has its buttons, nor in
+// a host's frame that brings one (CrazyGames).
+const muteable = !isNativeApp() && !host.ownMute
 
 export function App() {
   const [session, dispatch] = useReducer(sessionReducer, initialSession(NEW_PROFILE))
@@ -1048,6 +1051,15 @@ setStartedAt((at) => at ?? Date.now())
     setMenuPage(null)
     setTutorial('teaching')
   }, [session.profile.runs, playSolo, on])
+  // A host that wants play first (CrazyGames) opens a newcomer's first lesson
+  // by itself, once the stored profile says they are one. Never before the
+  // language is settled: the lesson's letter, theme and dictionary are its own.
+  const playedFirst = useRef(false)
+  useEffect(() => {
+    if (!host.playFirst || playedFirst.current || !answered.profile || locale === null || session.phase !== 'home') return
+    playedFirst.current = true
+    if (session.profile.runs === 0 && !loadTutorialDone() && on('tutorial')) startFirstRun()
+  }, [answered.profile, locale, session.phase, session.profile.runs, on, startFirstRun])
   // The answer was just handed over: the run that follows must not deal the
   // same pair. `lastPrompts` already keeps it out, and the run's own prompts
   // replace it once it ends.
@@ -1870,7 +1882,7 @@ setStartedAt((at) => at ?? Date.now())
   if (debugPhase !== null && locale !== null) {
     return (
       <MessagesContext value={t}>
-        <main className={`stage stage--${debugPhase}${isNativeApp() ? '' : ' stage--muteable'}`}>
+        <main className={`stage stage--${debugPhase}${muteable ? ' stage--muteable' : ''}`}>
           <Suspense fallback={null}>
             <DebugBoard
               onPhase={setDebugPhase}
@@ -1898,7 +1910,7 @@ setStartedAt((at) => at ?? Date.now())
     <FeaturesContext value={features}>
     <PlayerActionsContext value={playerActions}>
     <PremiumContext value={premiumDoor}>
-    <main className={`stage stage--${tutorial ? 'playing' : session.phase}${modeLesson ? ' stage--lesson' : ''}${isNativeApp() ? '' : ' stage--muteable'}`}>
+    <main className={`stage stage--${tutorial ? 'playing' : session.phase}${modeLesson ? ' stage--lesson' : ''}${muteable ? ' stage--muteable' : ''}`}>
       {tutorial && (session.phase === 'home' || session.phase === 'loading') && <TutorialScreen lang={lang} onDone={endTutorial} />}
       {modeLesson && (session.phase === 'home' || session.phase === 'loading') && (
 <ModeTutorial mode={modeLesson.mode} lang={lang} onDone={endModeTutorial} />
@@ -2467,7 +2479,7 @@ setMenuPage('avatar')
         </Suspense>
       )}
 
-      {!isNativeApp() && <MuteButton muted={soundPrefs.muted} onToggle={() => tune({ ...soundPrefs, muted: !soundPrefs.muted })} />}
+      {muteable && <MuteButton muted={soundPrefs.muted} onToggle={() => tune({ ...soundPrefs, muted: !soundPrefs.muted })} />}
     </main>
     </PremiumContext>
     </PlayerActionsContext>
