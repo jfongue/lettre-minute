@@ -484,9 +484,10 @@ const OPEN_FEATURES = new Set([
  * friends, the duel and the words a signed-in player brings to the moderation,
  * the portal's own account as the only one, nothing that leads off its page (it
  * refuses a button that does nothing, such as « share — soon »), none of the
- * phone's offers. It lists the game as « Letter Minute » in every language, and
- * English stands in for the language picker: a player there must land in the
- * game, not on a question.
+ * phone's offers. It lists the game as « Letter Minute » in every language.
+ * The portal's language, then the browser's, decide the first screen's; the
+ * language picker comes first only when neither is one of the game's, and the
+ * first lesson follows it (`playFirst`).
  */
 export const crazyGamesHost: Host = {
   // Filtering is earned by a level bonus or Premium, neither of which the
@@ -505,8 +506,10 @@ export const crazyGamesHost: Host = {
   superModeratorFeatures: new Set(SUPER_MODERATOR_FEATURES),
   title: ['Letter', 'Minute'],
   languages: platformLanguages,
-  fallbackLocale: 'en',
+  fallbackLocale: null,
   keepsProgress: true,
+  // The portal's review wants a newcomer playing before they meet a menu.
+  playFirst: true,
   premiumStore: false,
   rewardedAds: REWARDED,
   // Each level of a portal game pays something the player plays with: a

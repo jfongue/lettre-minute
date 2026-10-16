@@ -369,3 +369,33 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
   top: 0;
   z-index: 1;
 }
+
+/* Le choix de langue, quand ni le portail ni le navigateur n'en parlent une
+   du jeu : le titre et « Valider » à gauche, les sept langues à droite sur
+   deux colonnes. Une seule colonne coupait le titre et la dernière langue. */
+@media (orientation: landscape) and (max-height: 820px) {
+  .stage--home > .language-picker {
+    width: min(60rem, 100%);
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-content: center;
+    align-items: center;
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .language-picker > .masthead,
+  .language-picker > .language-confirm,
+  .language-picker > .language-sun {
+    grid-column: 1;
+  }
+
+  .language-picker > .language-choices {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .language-picker .language-title {
+    font-size: min(4rem, 13vh);
+  }
+}

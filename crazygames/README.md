@@ -117,11 +117,16 @@ ami modérateur) — un joueur connecté au portail a le compte
   (`src/ui/localBoards.ts`). Une fiche de joueur y ouvre les actions d'amitié
   et de blocage (`PlayerName`, `PlayerSheet`) depuis que la fonctionnalité
   `friends` est ouverte — à l'invité, le geste demande la connexion du portail.
-- **Langue** : celle du SDK (`user.systemInfo.locale`), puis celle du
-  navigateur, sinon l'anglais — jamais le sélecteur de langue au premier
-  lancement. Le joueur peut en changer dans les options. Le titre affiché
-  reste **Letter Minute** dans toutes les langues (`crazyGamesHost.title`), pour
-  correspondre au nom soumis.
+- **Langue** : celle déjà choisie, puis celle du SDK (`user.systemInfo.locale`),
+  puis celle du navigateur ; si aucune n'est une langue du jeu, le sélecteur
+  de langue (`fallbackLocale: null`), en deux colonnes dans le cadre paysage.
+  Le joueur peut en changer dans les options. Le titre affiché
+  reste **Letter Minute** dans toutes les langues (`crazyGamesHost.title`),
+  sélecteur compris, pour correspondre au nom soumis.
+- **On joue d'abord** (`host.playFirst`, retour de la revue Full Launch) : un
+  nouveau venu (aucune partie, tutoriel jamais fini) n'arrive pas sur
+  l'accueil mais dans la leçon du premier lancement, qui enchaîne sur sa
+  première partie — une fois la langue fixée, sélecteur compris.
 - **Thème clair par défaut** (`data-theme="light"` dès le HTML) ; le thème
   sombre reste au choix dans les options.
 - **Événements** (`src/platform/usePlatformGameplay.ts`) : `gameplayStart` au compte

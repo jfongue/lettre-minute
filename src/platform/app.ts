@@ -14,6 +14,7 @@ export const appHost: Host = {
   title: null,
   languages: () => [],
   fallbackLocale: null,
+  playFirst: false,
   keepsProgress: false,
   // The web shares this host but has no store: `PLATFORM` tells it apart.
   premiumStore: true,

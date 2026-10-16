@@ -1048,6 +1048,15 @@ setStartedAt((at) => at ?? Date.now())
     setMenuPage(null)
     setTutorial('teaching')
   }, [session.profile.runs, playSolo, on])
+  // A host that wants play first (CrazyGames) opens a newcomer's first lesson
+  // by itself, once the stored profile says they are one. Never before the
+  // language is settled: the lesson's letter, theme and dictionary are its own.
+  const playedFirst = useRef(false)
+  useEffect(() => {
+    if (!host.playFirst || playedFirst.current || !answered.profile || locale === null || session.phase !== 'home') return
+    playedFirst.current = true
+    if (session.profile.runs === 0 && !loadTutorialDone() && on('tutorial')) startFirstRun()
+  }, [answered.profile, locale, session.phase, session.profile.runs, on, startFirstRun])
   // The answer was just handed over: the run that follows must not deal the
   // same pair. `lastPrompts` already keeps it out, and the run's own prompts
   // replace it once it ends.

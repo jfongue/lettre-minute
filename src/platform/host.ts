@@ -35,6 +35,8 @@ export interface Host {
   fallbackLocale: Locale | null
   /** The host keeps the progress itself, wherever its player signs in: no « on this device only » note. */
   keepsProgress: boolean
+  /** A new player lands in the first lesson rather than on the home screen: the host wants play before any menu. */
+  playFirst: boolean
   /**
    * The host can sell Premium for real money, and show rewarded ads: the phone
    * shell alone (`premiumStoreOpen`, `rewardedAdsOpen`, `src/platform/index.ts`).
