@@ -336,10 +336,11 @@ function showRewarded(): Promise<RewardedResult> {
 
 /**
  * Rewarded ads are refused during a Basic Launch, and a rewarded button that
- * pays nothing would be refused with them: the build turns them on once the
- * portal allows ads (`VITE_CRAZYGAMES_REWARDED=true npm run crazygames:build`).
+ * pays nothing would be refused with them. The Full Launch allows them, so
+ * they are on unless a build turns them off
+ * (`VITE_CRAZYGAMES_REWARDED=false npm run crazygames:build`).
  */
-const REWARDED = import.meta.env.VITE_CRAZYGAMES_REWARDED === 'true'
+const REWARDED = import.meta.env.VITE_CRAZYGAMES_REWARDED !== 'false'
 
 /**
  * What the game keeps between visits: the profile (level, categories, powers,
@@ -508,6 +509,9 @@ export const crazyGamesHost: Host = {
   languages: platformLanguages,
   fallbackLocale: null,
   keepsProgress: true,
+  // The portal's bar under the frame has its mute button, which the game
+  // already obeys (`onMute`): a second one in the corner only duplicated it.
+  ownMute: true,
   // The portal's review wants a newcomer playing before they meet a menu.
   playFirst: true,
   premiumStore: false,

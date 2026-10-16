@@ -156,13 +156,14 @@ ami modérateur) — un joueur connecté au portail a le compte
   SDK, qui paie deux révélations de plus au bilan et la seconde tentative du
   défi du moment, comme AdMob sur Android — la récompense sur `adFinished`
   seulement, rien sur `adError` (bloqueur compris), le son coupé le temps de la
-  pub. Une Basic Launch n'autorise aucune pub : elle reste éteinte tant que le
-  build n'est pas fait avec `VITE_CRAZYGAMES_REWARDED=true`, et d'ici là les
-  révélations du bilan sont illimitées (`unlimitedReveals`), aucune pub ni
-  Premium ne pouvant en payer davantage.
+  pub. Une Basic Launch n'autorise aucune pub ; la Full Launch les autorise,
+  et le build les allume donc par défaut. `VITE_CRAZYGAMES_REWARDED=false`
+  les éteint, et les révélations du bilan redeviennent alors illimitées
+  (`unlimitedReveals`), aucune pub ni Premium ne pouvant en payer davantage.
 - **Son** : `game.settings.muteAudio` et son écouteur coupent tout le jeu
   (`setAway('platform')` dans `src/lib/sound.ts`, qui suspend le contexte
-  audio) ; le bouton muet du jeu ne peut pas le rallumer.
+  audio). Le jeu ne montre pas son propre bouton muet (`host.ownMute`) : la
+  barre du portail sous le cadre a le sien — retour de la revue Full Launch.
 - **Sauvegarde (module Data)** : `restoreSavedProgress` relit au démarrage, dans
   le SDK, profil, historique, avatar, tutoriel, mots révélés, thème, son et
   langue ; la copie du SDK remplace celle du navigateur, y compris pour

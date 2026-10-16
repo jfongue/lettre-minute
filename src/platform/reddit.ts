@@ -14,6 +14,7 @@ export const redditHost: Host = {
   title: null,
   languages: () => [],
   fallbackLocale: 'en',
+  ownMute: false,
   playFirst: false,
   keepsProgress: true,
   premiumStore: false,

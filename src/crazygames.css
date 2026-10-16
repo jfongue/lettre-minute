@@ -6,6 +6,14 @@ body {
   overscroll-behavior: none;
 }
 
+/* The browser's own scrollbar, grey and rounded, looked foreign in the
+   frame (Full Launch review): a thin square bar in the game's ink, on
+   nothing. A box that hides its bar (scrollbar-width: none) still does. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink-soft) transparent;
+}
+
 /* A long press on a phone must not open the magnifier or the context menu
    (the portal's technical requirements); the answer field still types and selects. */
 body {
@@ -48,9 +56,11 @@ textarea {
     column-gap: clamp(1.5rem, 4vw, 3rem);
   }
 
-  /* Home: poster and title on the left, « Play » first on the right. */
+  /* Home: poster, title and « Play » on the left, everything else on the
+     right — the review found the right column too full and the left one
+     empty under the title. */
   .sheet--home {
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
   }
 
   .sheet--home > .poster {
@@ -70,12 +80,28 @@ textarea {
 
   /* Its own layer, above the poster's turning tiles and the title's sliding
      words: nothing from the left column may ever lie over « Play ». */
+  /* Hidden is not enough: a focused button or a scrollIntoView still scrolls
+     a hidden box, and the review saw the poster pushed up over a long empty
+     space. Clipped, only the right column ever moves. */
+  .stage--home,
+  .stage--home > .sheet--home {
+    overflow: clip;
+  }
+
+  .sheet--home > .home-play {
+    position: relative;
+    z-index: 1;
+    grid-column: 1;
+    grid-row: 3;
+    align-self: start;
+  }
+
   .sheet--home > .home-body,
   .sheet--home > .home-loader {
     position: relative;
     z-index: 1;
     grid-column: 2;
-    grid-row: 1 / 3;
+    grid-row: 1 / 4;
     min-height: 0;
     overflow-y: auto;
     align-content: start;
@@ -90,7 +116,7 @@ textarea {
     max-height: 100%;
     align-self: center;
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto auto auto;
     row-gap: min(1.2rem, 3vh);
   }
 
@@ -112,11 +138,20 @@ textarea {
     font-size: min(4.8rem, 13vh);
   }
 
-  .sheet--home.sheet--home-alone > .home-body,
+  .sheet--home.sheet--home-alone > .home-play,
   .sheet--home.sheet--home-alone > .home-loader {
     grid-column: 1;
     grid-row: 3;
+  }
+
+  .sheet--home.sheet--home-alone > .home-body {
+    grid-column: 1;
+    grid-row: 4;
     overflow: visible;
+  }
+
+  .sheet--home.sheet--home-alone > .home-body:empty {
+    display: none;
   }
 
   /* The reveal: the score on the left with « Continue » under it, the words on the right. */
