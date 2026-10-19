@@ -72,6 +72,8 @@ const ARGS: Record<string, unknown[]> = {
   pushSubmissions: [[{ word: 'dahu', categoryId: 'animaux', at: 1, lang: 'fr' }]],
   proposeWord: ['fr', 'animaux', 'dahu'],
   fetchAdminWords: ['fr', null],
+  addWordDirect: ['fr', 'animaux', 'dahu'],
+  amendWord: ['fr', 'animaux', 'dahu', 'Dahu', 'Dahut'],
   castVote: ['review-1', 'correct'],
   answerModeratorOffer: ['level', true],
   inviteModerator: ['ami'],

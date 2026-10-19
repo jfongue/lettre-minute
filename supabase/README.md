@@ -71,6 +71,7 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `run_words` | Les mots d'une partie, forme normalisée — la matière du bonus de rareté, et `approximate` quand le dictionnaire a corrigé l'orthographe (0043). |
 | `daily_challenges` | La graine du jour, la même pour tous : base du classement quotidien. |
 | `dictionary_words` | Le dictionnaire vivant, en complément des fichiers embarqués. |
+| `word_amendments` | Les corrections d'orthographe d'un super modérateur (0102), sans politique de lecture : l'import les applique aux dictionnaires livrés. |
 | `word_submissions` | Les mots proposés par les joueurs, avec leur statut ; `seen_at` éteint la pastille de « Mes demandes ». |
 | `word_reviews` | Un mot en cours de jugement (catégorie + mot) : un ajout, que rejoignent tous ceux qui l'ont réclamé, ou un ban (`kind`), signalé par un modérateur. |
 | `moderation_votes` | Un vote par modérateur et par mot : `correct`, `unsure`, `incorrect` ou `special`. |
@@ -116,7 +117,13 @@ chaque mot, ajouts, retraits et file de modération, réservé à l'administrate
 (0043) comme `admin_analytics` l'est au tableau de bord ; `force_ban(catégorie, mot, libellé, motif)`
 — le retrait d'office d'un super modérateur : sa voix règle le signalement seule et la copie
 communautaire du mot quitte le serveur aussitôt, le dictionnaire livré ne le perdant qu'au
-prochain import (0044).
+prochain import (0044). `admin_words` compte désormais les parties de la langue une fois
+pour toutes (0103) : sa sous-requête par mot dépassait les 8 s de `authenticated`, et l'écran
+ne chargeait jamais. Deux autres portes du super modérateur (0102) : `add_word_direct(catégorie,
+mot)`, qui écrit la revue acceptée et le mot au dictionnaire vivant sans vote, et
+`amend_word(catégorie, clé, ancienne graphie, nouvelle)`, qui note la correction dans
+`word_amendments` — relue par `scripts/amended-words.ts` à l'import, qui remplace la ligne et
+ses formes — et sert la nouvelle graphie en attendant comme mot de la communauté.
 
 Vues : `leaderboard` (record de chaque compte nommé, joueurs ordinateur écartés), `word_popularity` (part des parties où un mot
 apparaît), `submission_tally` (combien de joueurs réclament un mot).

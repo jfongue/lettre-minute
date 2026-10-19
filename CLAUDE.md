@@ -799,7 +799,17 @@ lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphon
   écran ne l'appelle ; le dictionnaire livré perd le mot au prochain import, comme
   pour tout ban. Un
   mot s'y ajoute par un bouton, par la file des propositions : rien ne se
-  décide sans cette file. Outil de développeur, donc libellés français
+  décide sans cette file — sauf pour le super modérateur, qui voit aussi
+  « Ajouter d'office » (`add_word_direct`) et « Corriger » (`amend_word`, 0102) :
+  une correction d'orthographe vit dans `word_amendments` et ne touche les
+  dictionnaires livrés qu'à l'import (`scripts/amended-words.ts`, instantané
+  `amended-words.json` à commiter avec les `.json`), jamais par un contournement
+  à l'exécution, qui ferait mentir les défis et les robots ; en attendant, la
+  graphie nouvelle se sert comme un mot de la communauté, en parties seules.
+  `fetchAdminWords` rend `denied` ou `error` (limite de 25 s) plutôt que de
+  laisser l'écran lire pour toujours, et `admin_words` doit rester sous les 8 s
+  du rôle `authenticated` (0103 : plus de sous-requête par mot sur `run_words`,
+  qui n'a pas d'index sur `run_id`). Outil de développeur, donc libellés français
   hors de l'i18n ; son scénario est `words-board` dans la planche.
 - **Les planches touchées depuis la dernière version livrée sont surlignées
   en rouge, celles qu'elle n'avait pas en bleu** (`npm run debug:recent`) : le script relit les commits

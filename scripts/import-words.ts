@@ -24,6 +24,7 @@ import { loadFrequencies } from './wordfreq.ts'
 import { ADDED_ALIASES, ADDED_WORDS, DROPPED_WORDS, PLACEHOLDER_ELEMENT, SHORT_NAMES } from './dropped-words.ts'
 import { loadCommunityWords } from './community-words.ts'
 import { loadBannedWords } from './banned-words.ts'
+import { applyAmendments, loadAmendedWords } from './amended-words.ts'
 import { acceptable } from './word-shape.ts'
 import { CATEGORY_SOURCES, CITIES_PER_COUNTRY, DRAFT_SOURCES, LARGE_COUNTRY_POPULATION, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
 
@@ -1211,6 +1212,7 @@ function main(argv: readonly string[]) {
     const frequencies = await loadFrequencies(lang, paths.wordfreq)
     const community = (await loadCommunityWords())[lang] ?? {}
     const banned = (await loadBannedWords())[lang] ?? {}
+    const amended = (await loadAmendedWords())[lang] ?? {}
 
     const byPull = new Map<string, Row[]>()
     const failed: string[] = []
@@ -1559,6 +1561,16 @@ function main(argv: readonly string[]) {
       for (const [key, row] of rows) {
         const lemma = row[3] ? renamed.get(row[3]) : undefined
         if (lemma !== undefined) rows.set(key, [row[0], row[1], row[2], lemma])
+      }
+
+      // A spelling a super moderator corrected replaces its row, with what the
+      // row knew. Before the bans: a corrected word that was flagged since is
+      // still flagged under its new spelling.
+      const amendments = amended[id] ?? []
+      if (amendments.length > 0) {
+        const { applied, missing } = applyAmendments(rows, amendments)
+        console.log(`  ${lang}/${id}: ${applied} orthographe(s) corrigée(s)`)
+        if (missing.length > 0) console.warn(`! ${lang}/${id}: correction sans mot au dictionnaire : ${missing.join(', ')}`)
       }
 
       // A word the moderators flagged leaves the dictionary, and the forms that
