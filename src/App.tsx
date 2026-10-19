@@ -464,7 +464,7 @@ setMenuPage(null)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean } | null>(null)
   const [matching, setMatching] = useState(false)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
@@ -1264,6 +1264,26 @@ setStartedAt((at) => at ?? Date.now())
     [refreshDuelInvites],
   )
   const clearDuelBanner = useCallback(() => setDuelBanner(null), [])
+  // L'XP d'un duel en ligne, payée par la table : le profil de l'écran la suit.
+  const duelProfile = useCallback((next: Profile) => dispatch({ type: 'profile-loaded', profile: next }), [])
+  // Un joueur sans compte nommé : la connexion du portail (CrazyGames), sinon
+  // la page du compte, la seule qui lui donne un nom. Sans l'un ni l'autre —
+  // aucun serveur —, rien à proposer.
+  const duelSignIn = useMemo(
+    () =>
+      account === null
+        ? host.promptAccount
+          ? () => void host.promptAccount!()
+          : undefined
+        : () => {
+            setTogether(false)
+            setDuelOpen(null)
+            setAccountMode('register')
+            setMenuFocus(false)
+            setMenuPage('profile')
+          },
+    [account],
+  )
 
   const launchChallenge = useCallback(
     async (detail: ChallengeDetail, powers: readonly PowerId[]) => {
@@ -1944,7 +1964,15 @@ setStartedAt((at) => at ?? Date.now())
 
       {duelOpen && session.phase === 'home' && (
         <Suspense fallback={null}>
-          <DuelScreen lang={lang} mode="online" join={duelOpen.join} quick={duelOpen.quick} onExit={leaveDuel} />
+          <DuelScreen
+            lang={lang}
+            mode={duelOpen.local ? 'local' : 'online'}
+            join={duelOpen.join}
+            quick={duelOpen.quick}
+            onExit={leaveDuel}
+            onProfile={duelProfile}
+            onSignIn={duelOpen.local ? duelSignIn : undefined}
+          />
         </Suspense>
       )}
 
@@ -1955,8 +1983,12 @@ setStartedAt((at) => at ?? Date.now())
           onDuel={() => {
             rememberMultiplayer()
             setTogether(false)
-            setDuelOpen({ join: null })
+            // Sans compte nommé, la table en ligne ne s'ouvrirait pas : la table
+            // des joueurs ordinateur, et l'invitation à se connecter.
+            setDuelOpen({ join: null, local: !named })
           }}
+          local={!named}
+          onSignIn={named ? undefined : duelSignIn}
           onMatch={
             // La file du matchmaking assoit deux comptes nommés (`duel_matchmake`) :
             // un anonyme sans nom, ou un invité du portail, ne s'y met pas.

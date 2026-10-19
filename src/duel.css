@@ -31,6 +31,38 @@
   animation: fade 360ms ease both;
 }
 
+/* Le titre d'un écran du duel, comme celui de « Jouer entre amis » : en
+   capitales, serré, d'un seul bloc. */
+.duel-title--poster {
+  font-size: clamp(2rem, 10vw, 2.8rem);
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.duel-head {
+  display: grid;
+  justify-items: start;
+  gap: 0.4rem;
+}
+
+/* Une étiquette pleine, comme le nombre de joueurs d'une carte de l'accueil. */
+.duel-chip {
+  padding: 0.12rem 0.55rem;
+  background: var(--black);
+  color: var(--cream);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  animation: duel-stamp 360ms var(--ease-spring) both;
+}
+
+.duel-chip--public {
+  background: var(--green);
+  color: var(--cream);
+}
+
 /* ------------------------------------------------------------- le salon - */
 
 /* La table d'un côté, qui inviter et « Je suis prêt » de l'autre : deux
@@ -41,13 +73,15 @@
   display: contents;
 }
 
-/* Les quatre places de la table : moi, puis les trois joueurs ordinateur. */
+/* Les quatre places de la table, chacune de sa couleur — jaune, bleu, rouge,
+   vert —, comme les cartes de l'accueil : un aplat franc, un trait noir, et
+   l'ombre portée des cartes qui se touchent. */
 .duel-seats {
   list-style: none;
-  padding: 0;
+  padding: 0 5px 5px 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.6rem;
+  gap: 0.75rem;
 }
 
 .duel-seatcard {
@@ -61,86 +95,102 @@
 .duel-seatcard__button {
   position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-rows: auto auto auto;
-  align-items: center;
-  gap: 0.1rem 0.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto 1fr auto;
+  justify-items: start;
+  align-items: start;
+  gap: 0.35rem;
   width: 100%;
-  min-height: 5.6rem;
-  padding: 0.65rem 0.65rem 0.55rem;
-  border: var(--line) solid var(--rule);
-  background: var(--paper-2);
-  color: var(--ink);
+  height: 100%;
+  min-height: 7.4rem;
+  padding: 0.65rem 0.7rem 0.6rem;
+  border: var(--line) solid var(--ink);
+  background: var(--seat, var(--paper-2));
+  color: var(--seat-ink, var(--ink));
+  box-shadow: 4px 4px 0 var(--ink);
   font: inherit;
   text-align: left;
   transition:
     transform 180ms var(--ease-spring),
-    border-color 220ms ease,
+    box-shadow 180ms var(--ease-out),
     background 220ms ease;
 }
 
 .duel-seatcard__face {
-  grid-row: 1 / span 2;
   display: block;
 }
 
 .duel-seatcard__face .avatar {
-  width: 2.5rem;
+  width: 2.8rem;
+  outline: var(--line) solid var(--black);
 }
 
 .duel-seatcard__text {
   display: grid;
+  width: 100%;
   min-width: 0;
 }
 
 .duel-seatcard__text b {
   overflow: hidden;
-  font-size: 0.95rem;
-  line-height: 1.15;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
   text-overflow: ellipsis;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
 .duel-seatcard__text small {
   overflow: hidden;
-  color: var(--ink-soft);
   font-size: 0.75rem;
+  opacity: 0.8;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+/* L'état d'une place, en bas : une ligne de capitales, puis l'étiquette noire
+   quand le joueur est prêt. */
 .duel-seatcard__stamp {
-  grid-column: 1 / -1;
-  margin-top: 0.35rem;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.1rem 0;
   font-size: var(--font-micro);
-  font-weight: 700;
-  letter-spacing: 0.16em;
+  font-weight: 800;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  opacity: 0.85;
   animation: duel-stamp 360ms var(--ease-spring) both;
 }
 
-/* Une place libre : en pointillé, elle attend un invité. */
+/* Une place libre : en pointillé, sans aplat ni ombre, elle attend un invité. */
 .duel-seatcard--empty .duel-seatcard__button {
   border-style: dashed;
+  border-color: var(--ink-faint);
   background: transparent;
   color: var(--ink-faint);
+  box-shadow: none;
 }
 
 .duel-seatcard__face--empty {
-  width: 2.5rem;
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
   aspect-ratio: 1;
-  border: var(--line) dashed var(--rule);
+  border: var(--line) dashed currentColor;
+  font-size: 1.4rem;
+  font-weight: 800;
 }
 
-.duel-seatcard--seated .duel-seatcard__button {
-  border-color: var(--ink);
-}
-
-/* Invité, pas encore assis : la place est retenue, en pointillé. */
+/* Invité, pas encore assis : la place est retenue, sans sa couleur. */
 .duel-seatcard--pending .duel-seatcard__button {
   border-style: dashed;
-  border-color: var(--ink-soft);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: none;
 }
 
 .duel-seatcard--pending .duel-seatcard__face {
@@ -151,16 +201,23 @@
   color: var(--blue);
 }
 
-.duel-seatcard--ready .duel-seatcard__button {
-  border-color: var(--green);
-}
-
+/* Prêt : l'étiquette passe en noir, la place se pose. */
 .duel-seatcard--ready .duel-seatcard__stamp {
-  color: var(--green);
+  padding: 0.1rem 0.45rem;
+  background: var(--black);
+  color: var(--cream);
+  opacity: 1;
 }
 
 .duel-seatcard--ready .duel-seatcard__face {
   animation: bump 420ms var(--ease-spring);
+}
+
+/* Ma place : son nom souligné, comme au bilan. */
+.duel-seatcard--me .duel-seatcard__text b {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 /* L'hôte retient une place pour la retirer : la carte se remplit pendant l'appui. */
@@ -189,7 +246,8 @@
 }
 
 .duel-seatcard--kickable:active .duel-seatcard__button {
-  transform: scale(0.97);
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--ink);
 }
 
 .duel-hint {
@@ -235,15 +293,15 @@
 /* Qui inviter : une liste courte, une ligne par joueur, un « + » qui s'enfonce. */
 .duel-invite {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.55rem;
   animation: fade 300ms ease both;
 }
 
 .duel-invite__list {
   list-style: none;
-  padding: 0;
+  padding: 0 4px 4px 0;
   display: grid;
-  gap: 0.35rem;
+  gap: 0.5rem;
   max-height: 14rem;
   overflow-y: auto;
 }
@@ -256,24 +314,28 @@
 .duel-invite__row {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.65rem;
   width: 100%;
-  padding: 0.45rem 0.55rem;
-  border: var(--line) solid var(--rule);
-  background: var(--paper-2);
+  padding: 0.5rem 0.55rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  box-shadow: 3px 3px 0 var(--ink);
   color: var(--ink);
   font: inherit;
   text-align: left;
   cursor: pointer;
-  transition: transform 160ms var(--ease-spring);
+  transition:
+    transform 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out);
 }
 
 .duel-invite__row:active {
-  transform: scale(0.98);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
 }
 
 .duel-invite__row .avatar {
-  width: 2rem;
+  width: 2.1rem;
 }
 
 .duel-invite__name {
@@ -284,7 +346,10 @@
 
 .duel-invite__name b {
   overflow: hidden;
+  font-weight: 800;
   text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
@@ -296,12 +361,131 @@
 .duel-invite__plus {
   display: grid;
   place-items: center;
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 2rem;
+  height: 2rem;
   flex: none;
-  background: var(--ink);
-  color: var(--paper);
+  border: var(--line) solid var(--ink);
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 1.2rem;
   font-weight: 800;
+}
+
+/* L'ouverture au public : une ligne qui se touche, l'interrupteur à droite.
+   Ouverte, elle passe au vert et le dit en toutes lettres. */
+.duel-public {
+  appearance: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.8rem;
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  box-shadow: 3px 3px 0 var(--ink);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  animation: fade 300ms ease both;
+  transition:
+    background 220ms ease,
+    color 220ms ease,
+    transform 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out);
+}
+
+.duel-public:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.duel-public:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.duel-public__text {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.duel-public__text b {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.duel-public__text small {
+  font-size: 0.75rem;
+  line-height: 1.25;
+  opacity: 0.8;
+}
+
+.duel-public__state {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+}
+
+.duel-public__state small {
+  font-size: var(--font-micro);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.duel-public__track {
+  position: relative;
+  display: block;
+  width: 3.1rem;
+  height: 1.6rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper-2);
+}
+
+.duel-public__track i {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(1.6rem - 8px);
+  aspect-ratio: 1;
+  background: var(--ink);
+  transition: transform 260ms var(--ease-spring);
+}
+
+.duel-public--on {
+  background: var(--green);
+  color: var(--cream);
+}
+
+.duel-public--on .duel-public__track {
+  border-color: var(--cream);
+  background: var(--black);
+}
+
+.duel-public--on .duel-public__track i {
+  background: var(--yellow);
+  transform: translateX(1.5rem);
+}
+
+/* Sans compte nommé : la table des joueurs ordinateur, et la porte vers les vrais. */
+.duel-signin {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border: var(--line) dashed var(--ink);
+  animation: fade 300ms ease both;
+}
+
+/* Quitter et revoir les règles, côte à côte sous le bouton : deux liens discrets. */
+.duel-lobby__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.2rem 1.2rem;
 }
 
 /* La feuille d'expulsion : par-dessus le salon, un geste qui se confirme. */
@@ -339,15 +523,21 @@
   border-color: var(--red);
 }
 
-/* Le bouton du salon : l'action à gauche, la taille de la table à droite. */
+/* Le bouton du salon : l'action et la taille de la table à gauche, le départ
+   de « Jouer » à droite. */
 .duel-cta {
-  padding-right: 1.5rem;
   font-size: 1.15rem;
   letter-spacing: 0.12em;
+  text-align: left;
+}
+
+.duel-cta__label {
+  display: grid;
+  gap: 0.1rem;
 }
 
 .duel-cta small {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   opacity: 0.7;
@@ -1362,8 +1552,11 @@
   display: grid;
   justify-items: center;
   gap: 0.45rem;
+  margin: 0 5px 5px 0;
   padding: 1.4rem 1rem 1.2rem;
   border: var(--line) solid var(--ink);
+  background: var(--paper-2);
+  box-shadow: 5px 5px 0 var(--ink);
   text-align: center;
   isolation: isolate;
   animation: pop-in 520ms var(--ease-spring) both;
@@ -1455,9 +1648,20 @@
   font-weight: 800;
 }
 
-.duel-rank--first .duel-rank__place {
-  background: var(--yellow);
+/* La place porte la couleur du joueur au salon : la table se retrouve au bilan. */
+.duel-rank__place {
+  border: var(--line) solid var(--ink);
+  background: var(--seat, var(--ink));
   color: var(--black);
+}
+
+.duel-rank--dead .duel-rank__place {
+  background: var(--paper-2);
+  color: var(--ink-soft);
+}
+
+.duel-rank--first .duel-rank__place {
+  background: var(--seat, var(--yellow));
 }
 
 .duel-rank__who {
@@ -1527,6 +1731,153 @@
 .duel-actions--in {
   opacity: 1;
   transform: none;
+}
+
+/* Le côté du bilan : le classement, puis ce que le duel m'a rapporté. Deux
+   blocs de la feuille au téléphone ; la colonne de droite du cadre paysage. */
+.duel-over__side {
+  display: contents;
+}
+
+/* Ce que le duel rapporte : la barre du niveau du bilan solo, sur sa carte. */
+.duel-xp {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 4px 4px 0;
+  padding: 0.85rem 0.9rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  box-shadow: 4px 4px 0 var(--ink);
+  opacity: 0;
+  transform: translateY(0.5rem);
+  transition:
+    opacity 320ms ease,
+    transform 320ms var(--ease-out);
+}
+
+.duel-xp--in {
+  opacity: 1;
+  transform: none;
+}
+
+.duel-xp .xp-gain-amount {
+  font-size: 1.35rem;
+}
+
+.duel-xp__level {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--yellow);
+  color: var(--black);
+  animation: pop-in 480ms var(--ease-spring) both;
+}
+
+.duel-xp__level span {
+  font-size: 0.8rem;
+}
+
+.duel-xp__earned .earned-line {
+  cursor: default;
+  align-items: center;
+}
+
+.duel-noxp {
+  text-align: center;
+  animation: fade 300ms ease both;
+}
+
+/* --------------------------------------------------------- la recherche - */
+
+/* Le matchmaking : ma place, trois temps qui sautent, et en face une place qui
+   change de forme et de couleur tant que personne ne s'y assoit. */
+.duel-search {
+  min-height: 70dvh;
+  align-content: center;
+}
+
+.duel-versus {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0.8rem;
+  padding: 0 5px 5px 0;
+}
+
+.duel-versus__seat {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 1rem 0.5rem 0.8rem;
+  border: var(--line) solid var(--ink);
+  background: var(--yellow);
+  color: var(--black);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.duel-versus__seat b {
+  max-width: 100%;
+  overflow: hidden;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.duel-versus__seat .avatar {
+  width: 4.2rem;
+  outline: var(--line) solid var(--black);
+}
+
+.duel-versus__seat--them {
+  border-style: dashed;
+  background: var(--paper);
+  color: var(--ink-faint);
+  box-shadow: none;
+}
+
+.duel-versus__shape {
+  display: block;
+  width: 4.2rem;
+  aspect-ratio: 1;
+  animation: pop-in 420ms var(--ease-spring) both;
+}
+
+.duel-versus__shape .shape {
+  width: 100%;
+  height: 100%;
+}
+
+.duel-versus__dots {
+  display: flex;
+  align-self: center;
+  gap: 0.35rem;
+}
+
+.duel-versus__dots i {
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--ink);
+  animation: loader-hop 900ms var(--ease-out) infinite;
+}
+
+.duel-versus__dots i:nth-child(2) {
+  border-radius: 50%;
+  background: var(--red);
+  animation-delay: 150ms;
+}
+
+.duel-versus__dots i:nth-child(3) {
+  background: var(--blue);
+  animation-delay: 300ms;
+}
+
+.duel-search__hint {
+  color: var(--ink-soft);
+  font-size: 0.75rem;
 }
 
 /* --------------------------------------------------------- l'attente - */
@@ -1678,6 +2029,13 @@
   .duel-notice__dots i,
   .duel-seatcard__face,
   .duel-seatcard__stamp,
+  .duel-chip,
+  .duel-public,
+  .duel-public__track i,
+  .duel-xp,
+  .duel-xp__level,
+  .duel-versus__shape,
+  .duel-versus__dots i,
   .duel-rank,
   .duel-seat,
   .duel-seat__face,

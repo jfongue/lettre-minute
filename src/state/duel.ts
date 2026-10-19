@@ -17,15 +17,17 @@ import {
   DUEL_MIN_PLAYERS,
   DUEL_OPENING_SECONDS,
   DUEL_PASS_PENALTY_SECONDS,
+  duelReward,
   type BotProfile,
   type Duel,
+  type DuelReward,
 } from '../domain/duel'
 import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
 import { createRng } from '../domain/rng'
 import { sharedCategoryIds } from '../domain/catalogue'
 import { playableCategoryIds } from '../domain/perks'
 import { onAppActive } from '../lib/native'
-import type { Profile } from '../domain/progression'
+import { applyDuel, type Profile } from '../domain/progression'
 import type { Judge, Prompt, Verdict } from '../domain/run'
 import { ownedCategoryIds } from '../domain/unlocks'
 import {
@@ -39,6 +41,8 @@ import {
   leaveDuel,
   openDuelRematch,
   postDuelMove,
+  pushDuelProfile,
+  setDuelPublic,
   setDuelReady,
   syncDuel,
   unstartDuel,
@@ -46,7 +50,7 @@ import {
 } from '../lib/cloud'
 import { setMusic, sound } from '../lib/sound'
 import { createJudge } from './judge'
-import { loadAccount, loadAvatar, loadProfile, saveProfile } from './storage'
+import { duelPaid, loadAccount, loadAvatar, loadProfile, markDuelPaid, saveProfile } from './storage'
 
 /**
  * La table de duel vue d'un appareil. La partie elle-même n'est qu'un journal
@@ -130,6 +134,12 @@ export interface Candidate {
   trait?: HouseBot['trait']
 }
 
+/** Ce que le duel fini vient de rapporter au joueur, et son profil avant et après : le bilan en tire ses succès. */
+export interface DuelPayout extends DuelReward {
+  before: Profile
+  after: Profile
+}
+
 export interface DuelTable {
   mode: DuelMode
   phase: TablePhase
@@ -143,6 +153,13 @@ export interface DuelTable {
   invite(id: string): void
   /** L'hôte retire quelqu'un du salon : joueur, joueur ordinateur ou invitation. */
   kick(id: string): void
+  /** Le salon est ouvert au public : la file du matchmaking peut y asseoir ses joueurs. */
+  isPublic: boolean
+  /** L'hôte peut ouvrir ou refermer son salon : en ligne, au salon, une place libre. */
+  canPublish: boolean
+  setPublic(open: boolean): void
+  /** L'XP que ce duel a payée à la fin, une seule fois par table ; null sinon. */
+  payout: DuelPayout | null
   ready: Readonly<Record<string, boolean>>
   markReady(): void
   unready(): void
@@ -206,6 +223,7 @@ interface TableData {
   status: 'lobby' | 'playing' | 'over' | 'closed'
   startedAt: number | null
   rematch: string | null
+  public: boolean
   seats: readonly (Seat & { seat: number | null; gone: boolean; kicked: boolean; seen: number })[]
   invites: readonly Seat[]
   moves: readonly DuelMove[]
@@ -245,6 +263,7 @@ function freshLocal(lang: string, me: Seat, bots: readonly string[], categories:
     status: 'lobby',
     startedAt: null,
     rematch: null,
+    public: false,
     seats: [
       { ...me, ready: false, seat: null, gone: false, kicked: false, seen: wall() },
       ...bots.map((id) => {
@@ -267,6 +286,7 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
     status: snapshot.table.status,
     startedAt: snapshot.table.startedAt,
     rematch: snapshot.table.rematch,
+    public: snapshot.table.public,
     seats: snapshot.seats.map((row) => {
       const house = row.bot && row.name ? botByName(row.name) : undefined
       return {
@@ -604,6 +624,17 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     [mode, myId, sync, table],
   )
 
+  const canPublish = mode === 'online' && isHost && !!table?.id && table.status === 'lobby' && present.length < MAX_TABLE
+  const setPublic = useCallback(
+    (open: boolean) => {
+      if (!canPublish || !table?.id) return
+      const id = table.id
+      setTable((current) => current && current.id === id ? { ...current, public: open } : current)
+      void setDuelPublic(id, open).then(() => void sync())
+    },
+    [canPublish, sync, table?.id],
+  )
+
   // Un adversaire trouvé par le matchmaking attend déjà : pas de salon à régler, chacun se déclare prêt une fois.
   const quickReady = useRef(false)
   useEffect(() => {
@@ -739,19 +770,36 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     else if (table.id) void finishDuel(table.id)
   }, [ended, mode, table])
 
-  // Un duel à quatre qui va loin se garde au profil : la table est la seule à
-  // savoir combien de manches elle a tenues, et c'est le plus grand nombre qui
-  // reste. Aucune table de quatre n'a encore été jouée — le barreau est là pour
-  // le jour où la fonctionnalité s'ouvre.
+  // La fin d'une table se garde au profil, une fois : le plus grand nombre de
+  // manches tenues à quatre, que la table seule connaît, et l'XP d'un duel en
+  // ligne contre au moins un humain, payée une seule fois par table sur cet
+  // appareil (`duelPaid`) — la fin se relit à chaque battement.
+  const [payout, setPayout] = useState<(DuelPayout & { table: string }) | null>(null)
+  const tableKey = table ? `${table.id ?? 'local'}:${table.seed}` : ''
+  const closedFor = useRef('')
+  const mineAtTable = players[myIndex]
+  const humanRival = players.some((seat, index) => index !== myIndex && !seat.bot)
   useEffect(() => {
-    if (!ended || !duel || !table || table.seats.length < 4) return
-    const rounds = duelRound(duel)
+    if (!ended || !duel || !table || closedFor.current === tableKey) return
+    closedFor.current = tableKey
     const before = loadProfile()
-    if (rounds <= before.duelRounds4) return
-    const after = { ...before, duelRounds4: rounds }
+    let after = before
+    const rounds = duelRound(duel)
+    if (table.seats.length >= 4 && rounds > before.duelRounds4) after = { ...after, duelRounds4: rounds }
+    const earned =
+      table.id && !duelPaid(table.id)
+        ? duelReward(duel, myIndex, { online: mode === 'online', humanRival, present: !!mineAtTable && !mineAtTable.gone })
+        : null
+    if (earned && table.id) {
+      markDuelPaid(table.id)
+      after = applyDuel(after, earned.xp)
+      setPayout({ ...earned, before, after, table: tableKey })
+    }
+    if (after === before) return
     saveProfile(after)
     onProfile?.(after)
-  }, [ended, duel, table, onProfile])
+    if (earned) void pushDuelProfile(after)
+  }, [ended, duel, table, tableKey, myIndex, mode, humanRival, mineAtTable, onProfile])
 
   // ------------------------------------------------------ les phases --
 
@@ -956,6 +1004,10 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     candidates: offered,
     invite,
     kick,
+    isPublic: !!table?.public && table.status === 'lobby',
+    canPublish,
+    setPublic,
+    payout: payout && payout.table === tableKey ? payout : null,
     ready,
     markReady: () => setMyReady(true),
     unready: () => setMyReady(false),

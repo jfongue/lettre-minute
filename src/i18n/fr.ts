@@ -1150,6 +1150,20 @@ latecomer: ['Retardataire', 'Valide un mot dans les 5 dernières secondes : +1 s
     cutLead: 'Le serveur ne répond plus. On réessaie : tes coups partiront dès qu’il revient.',
     quitAsk: 'Quitter la table ? Ta réserve continue de couler sans toi, jusqu’à ta mort.',
     playBots: 'Jouer contre les joueurs ordinateur',
+    botsCardNote: 'Contre les joueurs ordinateur, tout de suite.',
+    signInLead: 'Connecte-toi pour affronter de vrais joueurs : tes amis, un adversaire au hasard, les tables publiques.',
+    signIn: 'Se connecter',
+    publicTitle: 'Table publique',
+    publicNote: 'Les joueurs qui cherchent un adversaire dans ta langue peuvent s’y asseoir.',
+    publicOn: 'Ouverte',
+    publicOff: 'Fermée',
+    publicChip: 'Table publique',
+    matchWait: 'Les tables publiques passent en premier, puis le premier joueur qui cherche.',
+    xpTitle: 'Ce que le duel te rapporte',
+    xpLine: (words: number, points: number, bonus: number) =>
+      `${words} mot${words > 1 ? 's' : ''} · ${points} point${points > 1 ? 's' : ''}, + ${bonus} pour le duel joué jusqu’au bout`,
+    xpLater: 'Ta récompense de niveau t’attend à la fin de ta prochaine partie.',
+    noXp: 'Contre les seuls joueurs ordinateur, le duel ne rapporte pas d’XP.',
   },
 
   /**
