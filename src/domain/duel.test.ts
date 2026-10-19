@@ -21,7 +21,9 @@ import {
   DUEL_PICK_SECONDS,
   DUEL_RESERVE_SECONDS,
   DUEL_TIME_BONUS,
+  DUEL_XP_BONUS,
   duelOver,
+  duelReward,
   duelPrompt,
   duelRanking,
   duelTimeout,
@@ -500,5 +502,37 @@ describe('les joueurs ordinateur', () => {
     expect(forcedPick(duel)).toBe(forced)
     expect(forcedPick(pickCategory(duel, forced!))).not.toBe(forced)
     expect(forcedPick({ ...duel, phase: 'play' })).toBeNull()
+  })
+})
+
+describe('l’XP d’un duel', () => {
+  /** Je trouve un mot, puis mon adversaire laisse filer sa réserve. */
+  function finished(): Duel {
+    let duel = draft(2)
+    duel = playWord(duel, answer(duel), judge, 1).duel
+    return duelTimeout(duel, judge, 1 + duel.players[1]!.reserve + 0.5)
+  }
+  const online = { online: true, humanRival: true, present: true }
+
+  it('paie les points des mots trouvés, au barème du solo, plus le forfait', () => {
+    const duel = finished()
+    const reward = duelReward(duel, 0, online)!
+    const points = duel.players[0]!.words[0]!.points
+
+    expect(duel.phase).toBe('over')
+    expect(points).toBeGreaterThan(0)
+    expect(reward).toEqual({ xp: points + DUEL_XP_BONUS, words: 1, points })
+  })
+
+  it('paie aussi le tombé : le forfait, sans mot', () => {
+    expect(duelReward(finished(), 1, online)).toEqual({ xp: DUEL_XP_BONUS, words: 0, points: 0 })
+  })
+
+  it('ne paie rien hors ligne, contre les seuls joueurs ordinateur, au joueur parti, ou avant la fin', () => {
+    const duel = finished()
+    expect(duelReward(duel, 0, { ...online, online: false })).toBeNull()
+    expect(duelReward(duel, 0, { ...online, humanRival: false })).toBeNull()
+    expect(duelReward(duel, 0, { ...online, present: false })).toBeNull()
+    expect(duelReward(draft(2), 0, online)).toBeNull()
   })
 })

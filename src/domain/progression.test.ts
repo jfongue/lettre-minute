@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  applyDuel,
   applyRun,
   backfillCounters,
   countOf,
@@ -96,6 +97,27 @@ describe('applyRun', () => {
 
     expect(profile.bestScore).toBe(300)
     expect(profile.bestCombo).toBe(7)
+  })
+})
+
+describe('applyDuel', () => {
+  it('adds the duel’s XP alone: no run, no record, no word counted', () => {
+    const after = applyDuel({ ...NEW_PROFILE, runs: 3, bestScore: 80 }, 240)
+    expect(after.xp).toBe(240)
+    expect(after.runs).toBe(3)
+    expect(after.bestScore).toBe(80)
+    expect(after.wordsFound).toBe(0)
+  })
+
+  it('leaves the level-up offers to the next solo summary', () => {
+    const after = applyDuel(NEW_PROFILE, xpForLevel(3))
+    expect(levelFor(after.xp)).toBe(3)
+    expect(after.offer).toEqual([])
+    expect(after.powerOffer).toEqual([])
+  })
+
+  it('keeps the profile as it was when nothing is earned', () => {
+    expect(applyDuel(NEW_PROFILE, 0)).toBe(NEW_PROFILE)
   })
 })
 
