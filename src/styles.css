@@ -7857,6 +7857,97 @@ li:has(> .reactable--open),
   margin: 0;
 }
 
+/* Sa fiche, au-dessus de ses parties : compte, rôles, rythme (`SpyProfile`). */
+.spy-profile {
+  display: grid;
+  gap: 1.1rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.spy-profile h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.spy-profile-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.spy-profile-tags:empty {
+  display: none;
+}
+
+.spy-profile-facts {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.3rem 0.8rem;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.spy-profile-facts dt {
+  color: var(--ink-faint);
+}
+
+.spy-profile-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.spy-profile-roles,
+.spy-profile-block {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.spy-profile-role {
+  display: grid;
+  justify-items: start;
+  gap: 0.15rem;
+}
+
+.spy-profile-span {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.spy-profile-key {
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: 2px;
+  vertical-align: baseline;
+}
+
+.spy-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 71;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  background: color-mix(in srgb, var(--ink) 35%, transparent);
+  padding: var(--gutter) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
+}
+
+.spy-confirm-sheet {
+  width: min(30rem, 100%);
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 1.1rem;
+}
+
+.spy-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
 /* La carte de signalement d'un mot se pose sur `body` : elle passe au-dessus. */
 body[data-spy='open'] .offer-pop-layer {
   z-index: 70;

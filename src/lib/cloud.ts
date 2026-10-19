@@ -9,6 +9,7 @@ import { challengeWordsOf, type ChallengeEntry, type ChallengeWord } from '../do
 import type { DuelMove } from '../domain/duelLog'
 import type { Audience, FlagRow, FlagValue } from '../domain/features'
 import { MODERATION_SESSION_SIZE, type ModeratorOfferReason, type Verdict } from '../domain/moderation'
+import type { PlusOrigin } from '../domain/perks'
 import { backfillCounters, type Profile } from '../domain/progression'
 import type { PromptRecord } from '../domain/prompts'
 import type { RarityTier } from '../domain/rarity'
@@ -358,6 +359,140 @@ export function fetchSpiedRuns(player: string, before: number | null, limit: num
       runs: (found.runs ?? []).map(recordOfRow).filter((record): record is RunRecord => record !== null),
     }
   }, null)
+}
+
+/** A player's whole account, as a super moderator reads it above their runs (`spy_profile`, 0092). */
+export interface SpiedProfile {
+  id: string
+  name: string
+  avatar: AvatarChoice
+  anonymous: boolean
+  /** How the account signs in: `email`, `google`, `anonymous`… */
+  providers: string[]
+  createdAt: string | null
+  xp: number
+  runsCount: number
+  best: number
+  wordsFound: number
+  bestCombo: number
+  bot: boolean
+  lastRunAt: string | null
+  lastOpen: { at: string; platform: string | null; version: string | null; lang: string | null } | null
+  /** Runs (0072) and openings (0029) on each platform, most recent first. */
+  platforms: { platform: string; runs: number; opens: number; last: string | null }[]
+  devices: number
+  premium: {
+    purchases: { provider: string; state: string; at: string }[]
+    grant: { at: string; by: string | null } | null
+    /** `plusSince` in the account's cloud save; 0 without one. */
+    savedSince: number
+  }
+  moderator: { since: string; super: boolean; lang: string; invitedBy: string | null } | null
+  friends: number
+  powers: { power: string; runs: number; points: number }[]
+  withoutPowers: { runs: number; points: number }
+  moderation: {
+    sessions: number
+    lastSession: string | null
+    votes: Record<string, number>
+    lastVote: string | null
+    proposed: Record<string, number>
+  }
+  /** The last ninety days, Paris time, oldest first; `best` and `avg` are null on a day without a run. */
+  daily: { day: string; runs: number; best: number | null; avg: number | null }[]
+  /** `trackFeature` names over the last ninety days. */
+  features: { name: string; n: number; last: string }[]
+}
+
+/** What a super moderator's grant or revoke answered (0091). */
+export type RoleOutcome = 'ok' | 'forbidden' | 'missing' | 'anonymous' | 'super' | 'error'
+
+type Raw = Record<string, unknown>
+const rawOf = (value: unknown): Raw => (value && typeof value === 'object' && !Array.isArray(value) ? (value as Raw) : {})
+const listOf = (value: unknown): Raw[] => (Array.isArray(value) ? value.map(rawOf) : [])
+const countOf = (value: unknown) => Number(value) || 0
+const textOf = (value: unknown) => (typeof value === 'string' ? value : null)
+const tallyOf = (value: unknown) => Object.fromEntries(Object.entries(rawOf(value)).map(([key, n]) => [key, countOf(n)]))
+
+/** What `spy_profile` returned, field by field; null when it is not a profile. */
+export function spiedProfileOf(data: unknown): SpiedProfile | null {
+  const found = rawOf(data)
+  if (typeof found.id !== 'string') return null
+  const premium = rawOf(found.premium)
+  const grant = premium.grant ? rawOf(premium.grant) : null
+  const moderator = found.moderator ? rawOf(found.moderator) : null
+  const lastOpen = found.last_open ? rawOf(found.last_open) : null
+  const moderation = rawOf(found.moderation)
+  const without = rawOf(found.without_powers)
+  return {
+    id: found.id,
+    name: textOf(found.name) ?? '',
+    avatar: parseAvatar(found.avatar),
+    anonymous: found.anonymous === true,
+    providers: Array.isArray(found.providers) ? found.providers.filter((one): one is string => typeof one === 'string') : [],
+    createdAt: textOf(found.created_at),
+    xp: countOf(found.xp),
+    runsCount: countOf(found.runs_count),
+    best: countOf(found.best),
+    wordsFound: countOf(found.words_found),
+    bestCombo: countOf(found.best_combo),
+    bot: found.bot === true,
+    lastRunAt: textOf(found.last_run_at),
+    lastOpen: lastOpen && { at: textOf(lastOpen.at) ?? '', platform: textOf(lastOpen.platform), version: textOf(lastOpen.version), lang: textOf(lastOpen.lang) },
+    platforms: listOf(found.platforms).map((one) => ({ platform: textOf(one.platform) ?? '?', runs: countOf(one.runs), opens: countOf(one.opens), last: textOf(one.last) })),
+    devices: countOf(found.devices),
+    premium: {
+      purchases: listOf(premium.purchases).map((one) => ({ provider: textOf(one.provider) ?? '?', state: textOf(one.state) ?? '?', at: textOf(one.at) ?? '' })),
+      grant: grant && { at: textOf(grant.at) ?? '', by: textOf(grant.by) },
+      savedSince: countOf(premium.saved_since),
+    },
+    moderator: moderator && { since: textOf(moderator.since) ?? '', super: moderator.super === true, lang: textOf(moderator.lang) ?? 'fr', invitedBy: textOf(moderator.invited_by) },
+    friends: countOf(found.friends),
+    powers: listOf(found.powers).map((one) => ({ power: textOf(one.power) ?? '?', runs: countOf(one.runs), points: countOf(one.points) })),
+    withoutPowers: { runs: countOf(without.runs), points: countOf(without.points) },
+    moderation: {
+      sessions: countOf(moderation.sessions),
+      lastSession: textOf(moderation.last_session),
+      votes: tallyOf(moderation.votes),
+      lastVote: textOf(moderation.last_vote),
+      proposed: tallyOf(moderation.proposed),
+    },
+    daily: listOf(found.daily).map((one) => ({
+      day: textOf(one.day) ?? '',
+      runs: countOf(one.runs),
+      best: one.best == null ? null : countOf(one.best),
+      avg: one.avg == null ? null : countOf(one.avg),
+    })),
+    features: listOf(found.features).map((one) => ({ name: textOf(one.name) ?? '?', n: countOf(one.n), last: textOf(one.last) ?? '' })),
+  }
+}
+
+/** Another player's account, for a super moderator; null for anyone else, a name nobody holds, or without a server. */
+export function fetchSpiedProfile(player: string): Promise<SpiedProfile | null> {
+  return guard(async () => {
+    if (!(await connect())) return null
+    const { data, error } = await supabase!.rpc('spy_profile', { p_player: player })
+    return error ? null : spiedProfileOf(data)
+  }, null)
+}
+
+function roleCall(fn: 'grant_premium' | 'set_moderator', player: string, on: boolean): Promise<RoleOutcome> {
+  return guard(async (): Promise<RoleOutcome> => {
+    if (!(await connect())) return 'error'
+    const { data, error } = await supabase!.rpc(fn, { p_player: player, p_on: on })
+    if (error) return 'error'
+    return (['ok', 'forbidden', 'missing', 'anonymous', 'super'] as const).find((known) => known === data) ?? 'error'
+  }, 'error')
+}
+
+/** Offers Premium to an account, or takes the gift back — never a purchase (`grant_premium`, 0091). */
+export function grantPremium(player: string, on: boolean): Promise<RoleOutcome> {
+  return roleCall('grant_premium', player, on)
+}
+
+/** Names an account moderator, or removes it; a super moderator stays one (`set_moderator`, 0091). */
+export function setModerator(player: string, on: boolean): Promise<RoleOutcome> {
+  return roleCall('set_moderator', player, on)
 }
 
 /**
@@ -1984,6 +2119,20 @@ export function recordPurchase(product: string, token: string, orderId: string):
     }
     return true
   }, false)
+}
+
+/**
+ * Where this account's Premium comes from (`my_premium_origin`, 0091): a
+ * purchase, a super moderator's gift, or nothing; undefined when the server
+ * does not answer, so that a gift is never taken back offline.
+ */
+export function fetchPremiumOrigin(): Promise<PlusOrigin | undefined> {
+  return guard(async (): Promise<PlusOrigin | undefined> => {
+    if (!(await connect())) return undefined
+    const { data, error } = await supabase!.rpc('my_premium_origin')
+    if (error) return undefined
+    return data === 'purchase' || data === 'grant' ? data : null
+  }, undefined)
 }
 
 /** Whether this account bought Premium on some device (a refused purchase does not count). */

@@ -17,6 +17,7 @@ import {
   banUnlocked,
   grantRevealAd,
   grantPlus,
+  adoptOfferedPlus,
   isPlus,
   revealAdsLeft,
   revealsLeft,
@@ -180,6 +181,26 @@ describe('grantPlus', () => {
     expect(isPlus(grantPlus(granted, false))).toBe(false)
     expect(grantPlus(NEW_PROFILE, false)).toBe(NEW_PROFILE)
     expect(grantPlus(granted, true)).toBe(granted)
+  })
+})
+
+describe('adoptOfferedPlus', () => {
+  it('ouvre Premium au compte qui en a reçu un, sans dater un achat', () => {
+    const offered = adoptOfferedPlus(NEW_PROFILE, 'grant', 1000)
+    expect(isPlus(offered)).toBe(true)
+    expect(offered.plusSince).toBe(0)
+    expect(offered.plusOffered).toBe(1000)
+    expect(adoptOfferedPlus(offered, 'grant', 2000)).toBe(offered)
+  })
+
+  it('le reprend quand le serveur ne le dit plus, sans toucher à un achat', () => {
+    const offered = adoptOfferedPlus(NEW_PROFILE, 'grant', 1000)
+    expect(isPlus(adoptOfferedPlus(offered, null, 2000))).toBe(false)
+    const bought = { ...offered, plusSince: 500 }
+    const kept = adoptOfferedPlus(bought, 'purchase', 2000)
+    expect(kept.plusOffered).toBe(0)
+    expect(isPlus(kept)).toBe(true)
+    expect(adoptOfferedPlus(NEW_PROFILE, null, 2000)).toBe(NEW_PROFILE)
   })
 })
 

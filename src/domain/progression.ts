@@ -119,6 +119,12 @@ export interface Profile {
    * seulement — un achat, lui, se retrouve par `plusSince`.
    */
   plusGranted: boolean
+  /**
+   * Quand le Premium qu'un super modérateur a offert à ce compte (0091) a été
+   * vu sur l'appareil ; 0 sans cadeau. À part de `plusSince`, que la
+   * sauvegarde cloud recopie et que rien ne reprend : un cadeau se reprend.
+   */
+  plusOffered: number
   /** What Premium brought beyond the free limits, by `PlusStat` (`countPlus*`, `src/domain/perks.ts`). */
   plusStats: Readonly<Record<string, number>>
   /** 1 once the home screen has thanked the player for going Premium, and asked their opinion. */
@@ -198,6 +204,7 @@ export const NEW_PROFILE: Profile = {
   perksVersion: PERKS_VERSION,
   plusSince: 0,
   plusGranted: false,
+  plusOffered: 0,
   plusStats: {},
   plusThanked: 0,
   longestWord: 0,

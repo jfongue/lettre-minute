@@ -82,7 +82,7 @@ export const FEEDBACK_FIRST_RUNS = 10
 export const FEEDBACK_EVERY_RUNS = 30
 
 export function isPlus(profile: Profile): boolean {
-  return profile.plusSince > 0 || profile.plusGranted
+  return profile.plusSince > 0 || profile.plusGranted || profile.plusOffered > 0
 }
 
 /**
@@ -93,6 +93,20 @@ export function isPlus(profile: Profile): boolean {
  */
 export function grantPlus(profile: Profile, granted: boolean): Profile {
   return profile.plusGranted === granted ? profile : { ...profile, plusGranted: granted }
+}
+
+/** D'où le serveur dit que vient le Premium du compte (`my_premium_origin`, 0091). */
+export type PlusOrigin = 'purchase' | 'grant' | null
+
+/**
+ * Le Premium offert par un super modérateur suit le serveur : il s'ouvre quand
+ * le compte en a un, se referme quand il ne l'a plus — sans jamais toucher à
+ * `plusSince`, la trace d'un achat ou d'une victoire. Un achat l'emporte sur le
+ * cadeau, et le cadeau, devenu inutile, s'efface.
+ */
+export function adoptOfferedPlus(profile: Profile, origin: PlusOrigin, now: number): Profile {
+  if (origin === 'grant') return profile.plusOffered > 0 ? profile : { ...profile, plusOffered: now }
+  return profile.plusOffered === 0 ? profile : { ...profile, plusOffered: 0 }
 }
 
 /** Premium costs nothing for now: joining is a date written down. */
