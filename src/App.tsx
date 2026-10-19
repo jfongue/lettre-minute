@@ -20,6 +20,10 @@ import {
   fetchMyRuns,
   fetchRunsBefore,
   fetchSpiedRuns,
+  fetchSpiedProfile,
+  fetchPremiumOrigin,
+  grantPremium,
+  setModerator,
   fetchMySubmissions,
   markRequestsSeen,
   topUpModeration,
@@ -105,7 +109,7 @@ import { markPushOffered, pushOfferDue } from './state/pushOffer'
 import { clearInviteRef, keepInviteRef, loadInviteRef, refIn, takeAddressRef } from './state/inviteRef'
 import { createJudge } from './state/judge'
 import { todayKey } from './lib/today'
-import { banNews, feedbackDue, grantPlus, hiddenAnswers, hiddenAnswersOf, isPlus, playableCategoryIds, plusThanksDue, premiereNews, revealBudget, shareNewsDue } from './domain/perks'
+import { adoptOfferedPlus, banNews, feedbackDue, grantPlus, hiddenAnswers, hiddenAnswersOf, isPlus, playableCategoryIds, plusThanksDue, premiereNews, revealBudget, shareNewsDue } from './domain/perks'
 import { enabledFeatures, type FeatureId, type Roles } from './domain/features'
 import { ratingDue } from './domain/rating'
 import { weeklyUnlocked } from './domain/weekly'
@@ -1507,6 +1511,19 @@ setStartedAt((at) => at ?? Date.now())
       if (owned && !isPlus(profile.current)) joinPlus('owned')
     })
   }, [joinPlus, profile])
+  // Un Premium offert par un super modérateur (0091) suit le serveur à chaque
+  // compte qui se pose sur l'appareil : il s'ouvre, ou se reprend — jamais sans
+  // réponse du serveur, et jamais en touchant à un achat.
+  useEffect(() => {
+    if (!signedIn) return
+    void fetchPremiumOrigin().then((origin) => {
+      if (origin === undefined) return
+      const next = adoptOfferedPlus(profile.current, origin, Date.now())
+      if (next === profile.current) return
+      if (next.plusOffered > 0) trackFeature('premium_offered')
+      dispatch({ type: 'profile-loaded', profile: next })
+    })
+  }, [signedIn, account?.name, profile])
   // Le défi du moment : ses écrans, sa partie et son récap vivent dans un seul crochet.
   const weeklyFlow = useWeeklyFlow({
     enabled: on('weekly') && weeklyUnlocked(session.profile.xp),
@@ -1574,7 +1591,7 @@ setStartedAt((at) => at ?? Date.now())
     () => ({
       ...DEFAULT_PLAYER_ACTIONS,
       ...(on('challenges') && { challenge: (friendId: string) => openCreate([friendId]) }),
-      ...(on('spyHistory') && { spy: { load: fetchSpiedRuns, recap: spyRecap } }),
+      ...(on('spyHistory') && { spy: { load: fetchSpiedRuns, recap: spyRecap, profile: fetchSpiedProfile, grantPremium, setModerator } }),
       // Un invité du portail (CrazyGames) n'a pas de session : demander un ami
       // n'aurait que la réponse d'un serveur qui n'a rien reçu. Le geste ouvre la
       // connexion du portail, la seule qui donnerait un nom au compte.

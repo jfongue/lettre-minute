@@ -98,6 +98,7 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `duel_seats` | Une place par joueur (ou joueur ordinateur) : prêt, place numérotée au lancement, parti, expulsé, dernière lecture — c'est elle qui désigne le meneur. |
 | `duel_invites` | Qui l'hôte a invité, et quand l'invité a répondu. Un blocage tait l'invitation, comme une demande d'ami. |
 | `duel_moves` | Le journal d'une table : un coup par numéro (`seq`), daté par le serveur. Les quatre tables du duel n'ont aucune politique : tout passe par les fonctions `duel_*`. |
+| `premium_grants` | Premium offert par un super modérateur depuis la page d'espionnage (`grant_premium`, 0091) : à part de `purchases`, pour que le revenu ne le compte pas et qu'il se reprenne sans toucher à un achat. Le client le lit par `my_premium_origin`. Aucune politique. |
 | `events` | Ce que les joueurs font de l'app, par lots de `track` : ouvertures, écrans, boutons touchés, fonctions, parties, erreurs. Un appareil, une ouverture, et le compte en plus (effacé avec lui). Aucune politique : jamais relu par le jeu, seulement par `analytics_snapshot`, que le propriétaire du projet exécute, et `admin_analytics`, qui ne la rend qu'à un administrateur. |
 
 Fonctions d'écriture : `report_prompts(graine, langue, couples)` — le rapport

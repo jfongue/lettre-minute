@@ -8,7 +8,7 @@ import type { PlayedWord, RunRecord } from '../domain/history'
 import type { RarityTier } from '../domain/rarity'
 import type { KeptWord, Run, Verdict } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
-import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, ReviewCard, Submission, SubmissionStatus } from '../lib/cloud'
+import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, ReviewCard, SpiedProfile, Submission, SubmissionStatus } from '../lib/cloud'
 import type { AccountActions } from '../ui/AccountPanel'
 import { AchievementsPanel } from '../ui/AchievementsPanel'
 import { ChallengeNotice } from '../ui/ChallengeHome'
@@ -336,8 +336,86 @@ const STATS_RECAP = {
   onFlag: () => later('sent' as const),
 }
 
+/** Quatre-vingt-dix jours inventés, jusqu'à aujourd'hui : des creux, des séries, un score qui monte. */
+function spyDaily(seed: number): SpiedProfile['daily'] {
+  return Array.from({ length: 90 }, (_, index) => {
+    const day = new Date(Date.now() - (89 - index) * 86_400_000).toLocaleDateString('sv-SE', { timeZone: 'Europe/Paris' })
+    const runs = (index * seed) % 7 < 3 ? 0 : ((index * 5 + seed) % 6) + 1
+    const best = runs ? 120 + index * 2 + ((index * seed) % 40) : null
+    return { day, runs, best, avg: best && Math.round(best * 0.62) }
+  })
+}
+
+const daysAgo = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString()
+
+function spyProfileOf(name: string): SpiedProfile {
+  const bought = name === 'Bastien'
+  return {
+    id: `spy-${name}`,
+    name,
+    avatar: DEFAULT_AVATAR,
+    anonymous: false,
+    providers: bought ? ['google'] : ['email'],
+    createdAt: daysAgo(bought ? 210 : 64),
+    xp: bought ? 9_400 : 2_150,
+    runsCount: 95,
+    best: 312,
+    wordsFound: 1_204,
+    bestCombo: 9,
+    bot: false,
+    lastRunAt: daysAgo(0.2),
+    lastOpen: { at: daysAgo(0.1), platform: 'android', version: '1.8.3', lang: 'fr' },
+    platforms: [
+      { platform: 'android', runs: 81, opens: 140, last: daysAgo(0.1) },
+      { platform: 'web', runs: 14, opens: 22, last: daysAgo(12) },
+    ],
+    devices: 2,
+    premium: {
+      purchases: bought ? [{ provider: 'play', state: 'verified', at: daysAgo(40) }] : [],
+      grant: null,
+      savedSince: bought ? Date.parse(daysAgo(40)) : 0,
+    },
+    moderator: bought ? { since: daysAgo(90), super: false, lang: 'fr', invitedBy: 'Demontoon' } : null,
+    friends: bought ? 7 : 3,
+    powers: [
+      { power: 'joker', runs: 31, points: 7_440 },
+      { power: 'hush', runs: 18, points: 4_212 },
+      { power: 'divination', runs: 6, points: 1_090 },
+    ],
+    withoutPowers: { runs: 40, points: 7_600 },
+    moderation: bought
+      ? { sessions: 23, lastSession: daysAgo(2), votes: { correct: 98, incorrect: 21, unsure: 6, special: 1 }, lastVote: daysAgo(2), proposed: { accepted: 9, rejected: 4, pending: 1 } }
+      : { sessions: 0, lastSession: null, votes: {}, lastVote: null, proposed: { accepted: 1, pending: 2 } },
+    daily: spyDaily(bought ? 3 : 5),
+    features: [
+      { name: 'swap', n: 42, last: daysAgo(0.2) },
+      { name: 'hidden_words_peek', n: 17, last: daysAgo(1) },
+      { name: 'theme', n: 2, last: daysAgo(30) },
+    ],
+  }
+}
+
+/** Les fiches inventées, modifiées sur place par les doublures : on voit le geste aboutir sans rien écrire au serveur. */
+const SPIED_PROFILES = new Map<string, SpiedProfile>()
+const spiedProfile = (key: string) => {
+  const name = key.startsWith('spy-') ? key.slice(4) : key
+  if (!SPIED_PROFILES.has(name)) SPIED_PROFILES.set(name, spyProfileOf(name))
+  return SPIED_PROFILES.get(name)!
+}
+
 /** L'historique espionné d'un joueur : le même que la page des statistiques, sauf pour « Anonyme », que personne ne porte. */
 const SPY_ACTIONS: SpyActions = {
+  profile: (player) => later(player === 'Anonyme' ? null : structuredClone(spiedProfile(player))),
+  grantPremium: (id, on) => {
+    const found = spiedProfile(id)
+    found.premium.grant = on ? { at: new Date().toISOString(), by: 'Testeur' } : null
+    return later('ok' as const)
+  },
+  setModerator: (id, on) => {
+    const found = spiedProfile(id)
+    found.moderator = on ? { since: new Date().toISOString(), super: false, lang: 'fr', invitedBy: 'Testeur' } : null
+    return later('ok' as const)
+  },
   load: (player, before, limit) =>
     player === 'Anonyme'
       ? later(null)
@@ -2882,9 +2960,17 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'spy-history',
     group: 'Accueil',
     title: 'Espionner l’historique d’un joueur',
-    how: 'Super modérateur : « Espionner l’historique » sur la fiche d’un joueur, ou une tape sur un nom du tableau de bord — ses parties, « Voir plus », et le récap de chacune avec tous ses mots cachés',
+    how: 'Super modérateur : « Espionner l’historique » sur la fiche d’un joueur, ou une tape sur un nom du tableau de bord — sa fiche (compte, plateformes, Premium, pouvoirs, rythme), « Offrir Premium » et « Nommer modérateur » confirmés, puis ses parties et leur récap',
     phase: 'home',
     render: () => <SpyHistory player="Léa" name="Léa" actions={SPY_ACTIONS} onClose={noop} />,
+  },
+  {
+    id: 'spy-profile-bought',
+    group: 'Accueil',
+    title: 'Espionner un modérateur qui a payé',
+    how: 'Achat Google Play : « Reprendre Premium » grisé avec son explication ; modérateur avec ses votes et sessions, « Retirer le rôle de modérateur » confirmé',
+    phase: 'home',
+    render: () => <SpyHistory player="Bastien" name="Bastien" actions={SPY_ACTIONS} onClose={noop} />,
   },
   {
     id: 'categories-ban',

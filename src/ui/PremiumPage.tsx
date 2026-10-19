@@ -34,7 +34,7 @@ export function PremiumPage({ profile }: { profile: Profile }) {
   // Un compte servi par la table a Premium sans achat : la page le dit, plutôt
   // que de dater un paiement qui n'a pas eu lieu.
   const since =
-    profile.plusSince > 0 ? t.premiumPage.since(date) : profile.plusGranted ? t.premium.offered : t.premium.lifetime
+    profile.plusSince > 0 ? t.premiumPage.since(date) : profile.plusGranted || profile.plusOffered > 0 ? t.premium.offered : t.premium.lifetime
   const empty = PLUS_STATS.every((stat) => plusStat(profile, stat) === 0)
 
   return (

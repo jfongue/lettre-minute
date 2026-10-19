@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { SpyProfile, type SpyProfileActions } from '../debug/SpyProfile'
 import { useT } from '../i18n'
 import type { SpiedRuns } from '../lib/cloud'
 import { Avatar } from './Avatar'
@@ -8,8 +9,12 @@ import { useBackDismiss } from './useBackDismiss'
 
 const PAGE = 30
 
-/** What a super moderator needs to read another player's runs; the debug board swaps in stand-ins. */
-export interface SpyActions {
+/**
+ * What a super moderator needs to read another player's runs, and their
+ * account above them (`SpyProfile`, absent: the runs alone); the debug board
+ * swaps in stand-ins.
+ */
+export interface SpyActions extends Partial<SpyProfileActions> {
   load(player: string, before: number | null, limit: number): Promise<SpiedRuns | null>
   recap: RecapActions
 }
@@ -65,6 +70,9 @@ export function SpyHistory({ player, name, actions, onClose }: { player: string;
             <h2 id="spy-history-title">{t.player.spyTitle(name)}</h2>
           </div>
         </header>
+        {actions.profile && actions.grantPremium && actions.setModerator && (
+          <SpyProfile player={player} actions={{ profile: actions.profile, grantPremium: actions.grantPremium, setModerator: actions.setModerator }} />
+        )}
         {spied === undefined ? (
           <p className="note">{t.loading}</p>
         ) : spied === null ? (
