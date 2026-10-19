@@ -1,3 +1,5 @@
+import { midgameDue } from '../domain/adBreaks'
+import { trackFeature } from '../lib/feature'
 import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type Host, type RewardedResult } from './host'
 
 /**
@@ -133,13 +135,11 @@ export function loadingStop(): void {
 }
 
 let inGameplay = false
-let endedSinceAd = false
 
-/** In gameplay or not: only the changes reach the SDK, a run's end is remembered for the next break. */
+/** In gameplay or not: only the changes reach the SDK. */
 function setGameplay(on: boolean): void {
   if (on === inGameplay) return
   inGameplay = on
-  if (!on) endedSinceAd = true
   safely((s) => (on ? s.game.gameplayStart() : s.game.gameplayStop()))
 }
 
@@ -263,20 +263,32 @@ function onPlatformMute(listener: (muted: boolean) => void): void {
 const AD_TIMEOUT_MS = 60_000
 
 /**
- * The break between two runs: a midgame ad when a run has ended since the
- * last one. The SDK keeps them three minutes apart and answers `adError` to an
- * early request, so asking at every « Play again » is the recommended use.
+ * The break between a run's word recap and its summary: a midgame ad on the
+ * session's schedule (`midgameDue`). The SDK keeps them three minutes apart
+ * and answers `adError` to an early request, which just skips this one.
  * Resolves once the ad is over, failed or skipped; the sound is cut only while
- * one actually plays.
+ * one actually plays. A second tap while the ad is pending joins it.
  */
-function breakBetweenRuns(): Promise<void> {
-  if (!sdk || !endedSinceAd) return Promise.resolve()
-  endedSinceAd = false
+let finishedRuns = 0
+let pendingBreak: Promise<void> | null = null
+function breakAfterRecap(): Promise<void> {
+  if (pendingBreak) return pendingBreak
+  finishedRuns += 1
+  if (!sdk || !midgameDue(finishedRuns)) return Promise.resolve()
+  const asked = requestMidgame().finally(() => {
+    pendingBreak = null
+  })
+  pendingBreak = asked
+  return asked
+}
+
+function requestMidgame(): Promise<void> {
   return new Promise((resolve) => {
     let done = false
-    const finish = () => {
+    const finish = (result: 'shown' | 'unavailable') => {
       if (done) return
       done = true
+      trackFeature('ad', { source: 'midgame', result })
       clearTimeout(timer)
       if (adPlaying) {
         adPlaying = false
@@ -284,18 +296,18 @@ function breakBetweenRuns(): Promise<void> {
       }
       resolve()
     }
-    const timer = setTimeout(finish, AD_TIMEOUT_MS)
+    const timer = setTimeout(() => finish('unavailable'), AD_TIMEOUT_MS)
     safely((s) =>
       s.ad.requestAd('midgame', {
         adStarted: () => {
           adPlaying = true
           announceMute()
         },
-        adFinished: finish,
-        adError: finish,
+        adFinished: () => finish('shown'),
+        adError: () => finish('unavailable'),
       }),
     )
-    if (!sdk) finish()
+    if (!sdk) finish('unavailable')
   })
 }
 
@@ -533,6 +545,6 @@ export const crazyGamesHost: Host = {
   submitScore,
   prepareRewarded(): void {},
   showRewarded,
-  breakBetweenRuns,
+  breakAfterRecap,
   onMute: onPlatformMute,
 }

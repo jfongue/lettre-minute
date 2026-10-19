@@ -77,7 +77,10 @@ export function WeeklyView({
   const ads = status?.ads ?? 0
   // Un billet que cette version ne peut pas ouvrir — pas de pub, pas de
   // boutique — ne se montre pas : il promettrait ce qui n'existe pas ici.
-  const slots = attemptState(used, plus, ads).filter((slot) => (slot !== 'ad' || adsOpen) && (slot !== 'locked' || premiumOpen))
+  // Sans pub ici, une place qu'une pub ouvrirait n'est plus que celle de Premium.
+  const slots = attemptState(used, plus, ads)
+    .map((slot): AttemptSlot => (slot === 'ad' && !adsOpen ? 'locked' : slot))
+    .filter((slot) => slot !== 'locked' || premiumOpen)
   const total = attemptsAllowed({ plus, adsWatched: ads })
   const left = Math.max(0, total - used)
   const next = slots.findIndex((slot) => slot === 'free' || slot === 'plus')

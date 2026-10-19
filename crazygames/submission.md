@@ -15,7 +15,7 @@ launch). The build and its choices are explained in `crazygames/README.md`.
 | Online / multiplayer | **Yes** — the shared leaderboards, and, for a player signed in to CrazyGames, the friends, the head-to-head tally with them, a live duel with matchmaking inside the game's own language pool, and the words he proposes, which the game's moderators judge. A guest (not signed in) still plays everything solo, and the duel falls back to the house players |
 | Supports CrazyGames muting audio through the SDK | **Yes** — `game.settings.muteAudio` and its change listener suspend all game audio, music included; the in-game mute button cannot override it |
 | Orientation (mobile) | **Portrait** (desktop plays in a centred column inside the 16:9 frame) |
-| SDK integration | HTML5 SDK v3: `init`, `loadingStart/Stop`, `gameplayStart/Stop`, `happytime` (new record), `requestAd('midgame')` between runs, Data module, User module (`getUserToken`, `showAuthPrompt`, `submitScore` for the leaderboards), `systemInfo.locale` |
+| SDK integration | HTML5 SDK v3: `init`, `loadingStart/Stop`, `gameplayStart/Stop`, `happytime` (new record), `requestAd('midgame')` after a run's word recap (2nd, 5th, 9th… run), Data module, User module (`getUserToken`, `showAuthPrompt`, `submitScore` for the leaderboards), `systemInfo.locale` |
 
 Weight against the limits (from the build script): 1.65 MB of code, styles
 and fonts; dictionaries load per category when a run deals them, so the worst
@@ -28,7 +28,7 @@ Test it locally before uploading: `npm run crazygames:build`, then
 `npm run crazygames:harness` and open http://localhost:5747/ (or
 `/frame.html?size=phone` for the iframe at phone size). The SDK runs in its
 `local` mode there and logs every call in the console; the midgame ad shows as
-« A midgame ad would appear here » after « Play again ».
+« A midgame ad would appear here » between the word recap and the summary of the 2nd, 5th, 9th… run.
 
 What QA will see:
 

@@ -245,14 +245,14 @@ export function weeklyValue(run: Run, metric: WeeklyMetric): number {
 // ---------------------------------------------------------------- tentatives
 
 export const WEEKLY_FREE_ATTEMPTS = 1
-export const WEEKLY_AD_ATTEMPTS = 1
+export const WEEKLY_AD_ATTEMPTS = 2
 export const WEEKLY_PLUS_ATTEMPTS = 3
 /** Le plafond dur que le serveur applique, quoi que le client lui dise de Premium. */
 export const WEEKLY_MAX_ATTEMPTS = WEEKLY_PLUS_ATTEMPTS
 
 export interface AttemptPerks {
   plus: boolean
-  /** Pubs regardées dans la fenêtre : une seule compte. */
+  /** Pubs regardées dans la fenêtre : chacune ouvre une tentative, deux au plus comptent. */
   adsWatched: number
 }
 
@@ -265,17 +265,18 @@ export type AttemptSlot = 'used' | 'free' | 'ad' | 'plus' | 'locked'
 
 /**
  * Les trois places du jour. `free` se joue d'un tap ; `ad` s'achète d'une pub ;
- * `plus` est la place de Premium, jouable ; `locked` en est une qu'un joueur
- * sans Premium voit derrière le sceau.
+ * `plus` est la place de Premium, jouable ; `locked` en reste pour un plafond
+ * que les pubs ne couvriraient pas (aucun aujourd'hui : 1 gratuite + 2 pubs = 3).
  */
 export function attemptState(used: number, plus: boolean, adsWatched: number): AttemptSlot[] {
   const taken = Math.max(0, Math.floor(used))
-  const watched = Math.floor(adsWatched) >= WEEKLY_AD_ATTEMPTS
+  const watched = Math.max(0, Math.floor(adsWatched))
   return Array.from({ length: WEEKLY_MAX_ATTEMPTS }, (_, place): AttemptSlot => {
     if (place < taken) return 'used'
     if (place < WEEKLY_FREE_ATTEMPTS) return 'free'
     if (plus) return 'plus'
-    if (place < WEEKLY_FREE_ATTEMPTS + WEEKLY_AD_ATTEMPTS) return watched ? 'free' : 'ad'
+    // La place n ouverte par la n-ième pub : les pubs se regardent dans l'ordre.
+    if (place < WEEKLY_FREE_ATTEMPTS + WEEKLY_AD_ATTEMPTS) return watched >= place - WEEKLY_FREE_ATTEMPTS + 1 ? 'free' : 'ad'
     return 'locked'
   })
 }

@@ -133,7 +133,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
             />
           )
         }
-        onNext={onRevealed}
+        onNext={() => void host.breakAfterRecap().then(onRevealed)}
       />
     )
   }

@@ -271,7 +271,6 @@ export function App() {
   // Le mode choisi sous « Jouer » : « solo » tant qu'on n'a rien choisi, et
   // relu par la relecture, qui doit rejouer le même.
   const modeNow = useRef<GameMode>('solo')
-  const starting = useRef(false)
   const [modesOpen, setModesOpen] = useState(false)
   // Le choix des pouvoirs avant une partie seule, là où la fonctionnalité l'ouvre.
   const [loadout, setLoadout] = useState(false)
@@ -976,17 +975,7 @@ setStartedAt((at) => at ?? Date.now())
   )
 
   const play = useCallback(async () => {
-    // A second tap while the host's break is still asking for its ad would
-    // start a second run on another seed.
-    if (starting.current) return
-    starting.current = true
     const mode = modeNow.current
-    // The host's break between two runs (CrazyGames' midgame ad); a no-op anywhere else.
-    try {
-      await host.breakBetweenRuns()
-    } finally {
-      starting.current = false
-    }
     dispatch({ type: 'play' })
     setRunLang(lang)
     setPlayed(null)

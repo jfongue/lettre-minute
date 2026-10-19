@@ -219,8 +219,8 @@ try {
   await tab.shot('shot-1-home.png')
   await play(tab, 'shot-')
 
-  // Past the reveal, « Play again »: the break between runs asks the SDK for a
-  // midgame ad, which the local SDK shows as a line of text (see the console).
+  // Past the reveal, « Play again »: the midgame ad is asked after the recap of
+  // the 2nd run, not here (see the console).
   await tab.eval(`document.querySelector('.reveal-next')?.click(), true`)
   await sleep(1500)
   await tab.eval(`[...document.querySelectorAll('button.btn--play')].find((b) => /again/i.test(b.textContent))?.click(), true`)

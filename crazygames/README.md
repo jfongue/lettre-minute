@@ -142,10 +142,12 @@ ami modérateur) — un joueur connecté au portail a le compte
   saison lundi → lundi 9 h UTC, et valide les scores de son côté. La
   fonctionnalité est réservée aux jeux invités : à demander sur le portail
   développeur. Les tableaux du jeu (jour, semaine, rareté) restent fermés ici.
-- **Pub midgame** : demandée à « Rejouer » / « Jouer » s'il s'est terminé une
-  partie depuis la précédente (`breakBetweenRuns`) ; le SDK refuse lui-même
-  une pub à moins de 3 min de la dernière. La partie suivante attend la fin de
-  la pub, ou son erreur (y compris bloqueur de pub), au plus 60 s. Le son est
+- **Pub midgame** : demandée entre le récap des mots et le bilan de la partie,
+  à la 2e, 5e, 9e, 14e, 20e… partie finie de la session (`midgameDue`,
+  `src/domain/adBreaks.ts` ; `host.breakAfterRecap`), jamais à « Rejouer » ; le
+  SDK refuse lui-même une pub à moins de 3 min de la dernière. Le bilan attend
+  la fin de la pub, ou son erreur (y compris bloqueur de pub), au plus 60 s.
+  Chaque demande est comptée au tableau de bord (`ad`, source `midgame`). Le son est
   coupé seulement pendant que la pub joue (`adStarted` → `adFinished`/`adError`).
   En Basic Launch, le portail n'affiche aucune pub : l'appel ne coûte rien.
 - **Un pouvoir ou une catégorie à chaque niveau** (`crazyGamesHost.levelBonuses`
