@@ -6366,7 +6366,7 @@ referment d'un coup : `--way` donne le sens de chacune. */
   gap: 0.4rem;
 }
 
-/* Magie : la lettre devient un bouton qui scintille ; changée, elle tourne sur elle-même. */
+/* Magie : la lettre devient un bouton qui scintille ; libérée, elle tourne sur elle-même et devient une étoile. */
 .prompt-magic {
   appearance: none;
   position: relative;

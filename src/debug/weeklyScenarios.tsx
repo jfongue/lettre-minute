@@ -158,12 +158,11 @@ const ENDURANCE_RUN: Run = {
   categoryIds: ['animaux', 'pays', 'couleurs'],
   prompt: { categoryId: 'animaux', letter: 'M' },
   drawn: 7,
-  rerolls: 0,
+  letterFreed: false,
   avoid: [],
   dealt: [],
   settled: [],
   shared: true,
-  seeded: [],
   found: RUN_WORDS.map(([categoryId, letter, display, points, tier], index) => ({
     prompt: { categoryId, letter },
     word: display.toLowerCase(),
@@ -212,7 +211,7 @@ export function WeeklyRunScenario({ remaining = 21.4, urgent = false }: { remain
       onType={noop}
       onSubmit={noop}
       onSkip={noop}
-      onReroll={noop}
+      onFreeLetter={noop}
       onRecall={noop}
       onPropose={noop}
     />

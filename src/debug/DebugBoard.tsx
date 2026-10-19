@@ -225,7 +225,6 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     shared: false,
     bonusWeight: 1,
     taught: [],
-    seeded: [],
     found,
     used: [],
     usedPowers: [],
@@ -240,7 +239,7 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     joker: null,
     hush: null,
     heldSeconds: 0,
-    rerolls: 0,
+    letterFreed: false,
     chatter: 0,
 latecomerSeconds: 0,
 bonusSeconds: 0,
@@ -1580,7 +1579,7 @@ function RunEffets(props: { run: Run; draft: string; live: Verdict | null; cheer
       onType={noop}
       onSubmit={noop}
       onSkip={noop}
-      onReroll={noop}
+      onFreeLetter={noop}
       onRecall={noop}
       onPropose={noop}
     />
@@ -1609,6 +1608,20 @@ function JokerWriteScenario() {
     joker: { key: 'Lama', display: 'Lama' },
   }
   return <RunEffets run={run} draft="Lama" live={null} cheer={null} />
+}
+
+/** Magie touchée : la lettre devient une étoile, et un pays d'une autre initiale passe. */
+function MagicFreedScenario() {
+  const run: Run = {
+    ...makeRun(64, WORDS.slice(0, 2)),
+    powers: ['magic'],
+    charges: { magic: 2 },
+    usedPowers: ['magic'],
+    prompt: { categoryId: 'pays', letter: 'Q' },
+    letterFreed: true,
+  }
+  const found = { ...run.found[0]!, prompt: run.prompt, word: 'bresil', display: 'Brésil' }
+  return <RunEffets run={run} draft="Brésil" live={{ kind: 'accepted', found }} cheer={null} />
 }
 
 /** L'offre de modérateur : un seul rendu pour les trois raisons qui l'amènent. */
@@ -2956,6 +2969,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: '« Joker » reconnu à la frappe : le mot s’écrit d’un coup dans le champ, la carte se retourne',
     phase: 'playing',
     render: () => <JokerWriteScenario />,
+  },
+  {
+    id: 'run-magic-freed',
+    group: 'Partie',
+    title: 'Magie libère la lettre',
+    how: 'La lettre touchée devient une étoile : un mot du thème, quelle que soit son initiale, répond à la question',
+    phase: 'playing',
+    render: () => <MagicFreedScenario />,
   },
 ]
 

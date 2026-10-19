@@ -164,11 +164,7 @@ export interface Run {
    * would leave no trace in `dealt`, which never names one twice.
    */
   settled: readonly SettledPrompt[]
-  /**
-   * Played by several on one seed, in a challenge: the draw must not depend
-   * on what this player did, so only `seeded` locks a thin pair, never a
-   * letter Magie brought.
-   */
+  /** Played by several on one seed, in a challenge or a robot's run. */
   shared: boolean
   /**
    * The share of the rarity and chain bonuses this run pays (`bonusWeight`):
@@ -176,8 +172,6 @@ export interface Run {
    * it whole, so every player of a seed scores alike.
    */
   bonusWeight: number
-  /** The prompts the seed itself dealt, Magie's letters left out. */
-  seeded: readonly string[]
   found: readonly KeptWord[]
   used: readonly string[]
   /**
@@ -207,8 +201,11 @@ export interface Run {
   hush: { at: number } | null
   /** Seconds a finished Silence held the clock. */
   heldSeconds: number
-  /** Letters changed by Magie: each one reads from its own stream. */
-  rerolls: number
+  /**
+   * Magie a libéré la lettre de la question en cours : un mot de la catégorie
+   * y répond, quelle que soit sa première lettre, jusqu'à la question suivante.
+   */
+  letterFreed: boolean
   /** Bavardage holds the prompt for this many more words; a skip meanwhile is free. */
   chatter: number
 /** Extra seconds earned by Retardataire. */
@@ -251,18 +248,17 @@ export function letterShares(pack: WordPack): Map<string, number> {
 }
 
 /**
- * A letter the category can be prompted on, preferring those the lock leaves open and not `except`.
+ * A letter the category can be prompted on, preferring those the lock leaves open.
  * Its odds grow with the logarithm of its known words: Z still comes up on the
  * countries, only rarer than C, and the dozens of « République de… » do not
  * turn R into the countries' only letter. A reversed mode weighs them straight
  * instead (`letterWeight`). What players did with the pair bends those odds
  * without ever cancelling them.
  */
-function drawLetter(rng: Rng, categoryId: string, judge: Judge, locked: ReadonlySet<string>, except?: string): string {
+function drawLetter(rng: Rng, categoryId: string, judge: Judge, locked: ReadonlySet<string>): string {
   const honest = judge.letters(categoryId)
   const open = honest.filter((letter) => !locked.has(promptKey({ categoryId, letter })))
-  const tiers = [open.filter((letter) => letter !== except), honest.filter((letter) => letter !== except), open, honest]
-  const available = tiers.find((tier) => tier.length > 0) ?? []
+  const available = open.length > 0 ? open : honest
   const weight = (letter: string) => letterWeight(judge.known(categoryId, letter), judge.edge) * (judge.pull?.(categoryId, letter) ?? 1)
   return pickWeighted(rng, available, weight) ?? available[0] ?? 'A'
 }
@@ -303,8 +299,7 @@ function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[],
  * so Divination can show it and `advance` is bound to deal that very one.
  */
 export function nextPrompt(run: Run, judge: Judge): Prompt {
-  const dealt = run.shared ? run.seeded : run.dealt
-  return drawPrompt(run.seed, run.drawn, run.categoryIds, judge, lockOf(run.avoid, dealt, judge), run.prompt.categoryId)
+  return drawPrompt(run.seed, run.drawn, run.categoryIds, judge, lockOf(run.avoid, run.dealt, judge), run.prompt.categoryId)
 }
 
 /** The run moved on to a new prompt: the one it leaves is settled, and the next is drawn and remembered. */
@@ -313,7 +308,7 @@ function advance(
   judge: Judge,
   /** The prompt being left was answered. */
   answered: boolean,
-): Pick<Run, 'prompt' | 'answer' | 'drawn' | 'dealt' | 'seeded' | 'settled' | 'joker'> {
+): Pick<Run, 'prompt' | 'answer' | 'drawn' | 'dealt' | 'settled' | 'joker' | 'letterFreed'> {
   const prompt = nextPrompt(run, judge)
   const key = promptKey(prompt)
   return {
@@ -322,9 +317,9 @@ function advance(
     answer: run.mode === 'delayed' ? run.prompt : null,
     drawn: run.drawn + 1,
     dealt: run.dealt.includes(key) ? run.dealt : [...run.dealt, key],
-    seeded: run.seeded.includes(key) ? run.seeded : [...run.seeded, key],
     settled: [...run.settled, { prompt: run.prompt, passed: !answered }],
     joker: null,
+    letterFreed: false,
   }
 }
 
@@ -376,6 +371,11 @@ export function markPowerUsed(run: Run, power: PowerId): Run {
   return run.usedPowers.includes(power) ? run : { ...run, usedPowers: [...run.usedPowers, power] }
 }
 
+/** Uses of a power the run has spent so far. */
+export function chargesSpent(run: Run, power: PowerId): number {
+  return hasPower(run, power) ? (POWER_CHARGES[power] ?? 0) - chargesLeft(run, power) : 0
+}
+
 function spend(run: Run, power: PowerId): Run['charges'] {
   return { ...run.charges, [power]: Math.max(0, (run.charges[power] ?? 0) - 1) }
 }
@@ -412,7 +412,6 @@ export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers
     settled: [],
     shared,
     bonusWeight,
-    seeded: [promptKey(prompt)],
     found: [],
     used: [],
     taught,
@@ -428,7 +427,7 @@ export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers
     joker: null,
     hush: null,
     heldSeconds: 0,
-    rerolls: 0,
+    letterFreed: false,
 chatter: 0,
 latecomerSeconds: 0,
 bonusSeconds: 0,
@@ -481,7 +480,9 @@ function judgeWord(run: Run, word: string, judge: Judge): Verdict {
   const prompt = answerPrompt(run)
   // La question renversée contraint la dernière lettre : « Vietnam » répond à M.
   const edge = modeEdge(run.mode) === 'last' ? finalOf(word) : initialOf(word)
-  if (edge !== prompt.letter) return { kind: 'wrong-letter', found: null }
+  // Magie libère l'initiale sans élargir la recherche : `find` ne corrige une
+  // faute que parmi les mots de la lettre tapée, son chemin chaud ordinaire.
+  if (!run.letterFreed && edge !== prompt.letter) return { kind: 'wrong-letter', found: null }
 
   const match = judge.find(prompt.categoryId, word, hasPower(run, 'dyslexia') ? 2 : 1)
   if (!match) return { kind: 'unknown', found: null }
@@ -638,26 +639,13 @@ freeSkipReady: grantsFreeSkip,
 }
 
 /**
- * Magie: a new letter for the same category, never the one it replaces while
- * the category has another. The series is kept — the player did not give up.
+ * Magie : la question en cours accepte un mot de sa catégorie quelle que soit
+ * son initiale. La lettre affichée ne change pas, ni le tirage qui suit : la
+ * Divination montre toujours ce qu'`advance` distribuera.
  */
-export function reroll(run: Run, judge: Judge, at = run.promptAt): Run {
-  if (chargesLeft(run, 'magic') <= 0) return run
-  const rng = streamFor((run.seed ^ 0x6d616769) >>> 0, run.drawn * 8 + run.rerolls)
-  const letter = drawLetter(rng, run.prompt.categoryId, judge, lockOf(run.avoid, run.dealt, judge), run.prompt.letter)
-  if (letter === run.prompt.letter) return run
-  const prompt = { categoryId: run.prompt.categoryId, letter }
-  const key = promptKey(prompt)
-  const next: Run = {
-    ...run,
-    prompt,
-    dealt: run.dealt.includes(key) ? run.dealt : [...run.dealt, key],
-    promptAt: at,
-    joker: null,
-    rerolls: run.rerolls + 1,
-    charges: spend(run, 'magic'),
-  }
-  return markPowerUsed(next, 'magic')
+export function freeLetter(run: Run): Run {
+  if (run.letterFreed || chargesLeft(run, 'magic') <= 0) return run
+  return markPowerUsed({ ...run, letterFreed: true, charges: spend(run, 'magic') }, 'magic')
 }
 
 /** Seconds Silence has held the clock so far, the one under way included. */
@@ -672,7 +660,12 @@ export function isHushed(run: Run, elapsedSeconds: number): boolean {
 }
 
 export function latecomerDue(run: Run, elapsedSeconds: number): boolean {
-return hasPower(run, 'latecomer') && chargesLeft(run, 'latecomer') > 0 && remainingSeconds(run, elapsedSeconds) < LATECOMER_THRESHOLD_SECONDS
+  return latecomerOpen(run, remainingSeconds(run, elapsedSeconds))
+}
+
+/** Retardataire paierait un mot validé maintenant : ce que l'écran annonce, au même seuil. */
+export function latecomerOpen(run: Run, remaining: number): boolean {
+  return chargesLeft(run, 'latecomer') > 0 && remaining < LATECOMER_THRESHOLD_SECONDS
 }
 
 export function remainingSeconds(run: Run, elapsedSeconds: number): number {

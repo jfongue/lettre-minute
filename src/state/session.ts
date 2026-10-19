@@ -15,7 +15,7 @@ import {
   inspect,
   recall,
   markPowerUsed,
-  reroll,
+  freeLetter,
   runMilestones,
   skip as skipPrompt,
   submit,
@@ -127,7 +127,7 @@ export type SessionAction =
   /** `at`: the run clock in seconds, which the rules do not keep themselves. */
   | { type: 'submit'; at: number; auto?: boolean }
   /** Magie: the letter on screen is traded for another. */
-  | { type: 'reroll'; at: number }
+  | { type: 'free-letter' }
   | { type: 'skip'; at: number }
   | { type: 'time-up'; at: number }
   | { type: 'propose'; proposal: Proposal }
@@ -358,10 +358,11 @@ case 'rating-asked': {
       }
     }
 
-    case 'reroll': {
+    case 'free-letter': {
       if (session.phase !== 'playing' || !session.run || !session.judge) return session
-      const run = reroll(session.run, session.judge, action.at)
-      return run === session.run ? session : { ...session, run, draft: '', live: null, cheer: null }
+      const run = freeLetter(session.run)
+      // Le mot déjà tapé reste : refusé pour sa lettre, il peut maintenant passer.
+      return run === session.run ? session : { ...session, run, live: inspect(run, session.draft, session.judge) }
     }
 
     case 'skip': {

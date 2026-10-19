@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { createRng, type Rng } from '../domain/rng'
 import { POWER_IDS } from '../domain/powers'
-import { createRun, inspect, promptKey, remainingSeconds, reroll, skip, submit, THIN_PROMPT_WORDS, type Judge, type Run } from '../domain/run'
+import { createRun, inspect, promptKey, remainingSeconds, freeLetter, skip, submit, THIN_PROMPT_WORDS, type Judge, type Run } from '../domain/run'
 import { compactWord, initialOf } from '../domain/text'
 import { buildWordPack, findWord, knownByLetter, type WordPack, type WordRow } from '../domain/words'
 import { createJudge } from './judge'
@@ -119,7 +119,7 @@ function playOne(seed: number, lang: string): void {
     expect(remainingSeconds(run, step), context()).toBeLessThanOrEqual(60 + 10)
 
     if (rng.next() < 0.05) {
-      run = reroll(run, judge, step)
+      run = freeLetter(run)
       continue
     }
 
@@ -151,16 +151,18 @@ if (!before.freeSkipReady && before.chatter === 0) expect(run.combo, context()).
     }
 
     const found = verdict.found!
-    expect(initialOf(found.display), tag).toBe(letter)
+    // Magie libère l'initiale de la question en cours, et elle seule.
+    if (!run.letterFreed) expect(initialOf(found.display), tag).toBe(letter)
     expect(Number.isFinite(found.points) && found.points >= 0, `${tag} points=${found.points}`).toBe(true)
     expect(found.rarity >= 0 && found.rarity <= 1, `${tag} rarity=${found.rarity}`).toBe(true)
     expect(played.run.score, tag).toBeGreaterThanOrEqual(run.score + found.points)
     expect(played.run.used, tag).toContain(found.word)
     expect(new Set(played.run.used).size, `${tag} — a key was scored twice`).toBe(played.run.used.length)
 
+    const freed = run.letterFreed
     run = played.run
     // The same answer, at the same prompt, must not score again.
-    const again = inspect({ ...run, prompt: found.prompt }, raw, judge)
+    const again = inspect({ ...run, prompt: found.prompt, letterFreed: freed }, raw, judge)
     expect(again.kind, `${tag} — replay scored twice`).toBe('already')
   }
 }

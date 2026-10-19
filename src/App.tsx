@@ -91,7 +91,7 @@ import { completeLeaderboard } from './domain/leaderboards'
 import { withGuest } from './ui/guestBoards'
 import { localBoards } from './ui/localBoards'
 import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
-import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
+import { chargesSpent, hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
 import { DAMPED_WORDS } from './data/damped-words'
 import { sharedCategoryIds } from './domain/catalogue'
@@ -1683,7 +1683,7 @@ setStartedAt((at) => at ?? Date.now())
       combo: session.run.bestCombo,
       prompts: session.run.settled.length,
       empty: session.run.settled.filter((prompt) => prompt.passed).length,
-      rerolls: session.run.rerolls,
+      magic: chargesSpent(session.run, 'magic'),
       categories: session.run.categoryIds,
       powers: session.run.powers,
       proposed: session.proposals.length,
@@ -2408,7 +2408,7 @@ avatarFocus={avatarFocus}
             }}
             onSubmit={(auto) => (session.run?.armed ? dispatch({ type: 'submit', at: elapsed, auto }) : dispatch({ type: 'arm' }))}
             onSkip={() => dispatch({ type: 'skip', at: elapsed })}
-            onReroll={() => dispatch({ type: 'reroll', at: elapsed })}
+            onFreeLetter={() => dispatch({ type: 'free-letter' })}
             onRecall={() => dispatch({ type: 'recall' })}
             proposed={session.proposals.map((proposal) => normalizeWord(proposal.word))}
             mine={mineWords}
