@@ -7,13 +7,22 @@ import { normalizeWord, initialOf } from '../domain/text'
 import { acceptable } from '../domain/wordShape'
 import type { WordPack } from '../domain/words'
 import { LOCALES, categoryText, useT } from '../i18n'
-import { fetchAdminWords, proposeBan, proposeWord, type BanOutcome } from '../lib/cloud'
+import {
+  addWordDirect,
+  amendWord,
+  fetchAdminWords,
+  proposeBan,
+  proposeWord,
+  type AmendOutcome,
+  type BanOutcome,
+  type DirectWordOutcome,
+} from '../lib/cloud'
 import { FlagWordCard, type FlagWord } from '../ui/StatsPage'
 import { useBackDismiss } from '../ui/useBackDismiss'
 import { useLongPress } from '../ui/useLongPress'
 import { Kpi, Section, Table, type HeadCell } from './board'
 import { ago, fmt, share } from './format'
-import type { PairStat, PendingWord, RemovedWord, WordsReport } from './words'
+import type { PairStat, PendingWord, RemovedWord, WordsAnswer, WordsReport } from './words'
 
 /*
  * Le tableau des mots : cinq tapes sur « Mes catégories » l'ouvrent, comme
@@ -25,16 +34,29 @@ import type { PairStat, PendingWord, RemovedWord, WordsReport } from './words'
  * Un outil de développeur : libellés français hors de l'i18n, comme la
  * planche, avec les noms de catégories de l'interface. Les mots s'y bannissent
  * et s'y proposent par les mêmes portes que partout ailleurs — `propose_ban` et
- * la file des propositions —, donc sans rien court-circuiter.
+ * la file des propositions —, donc sans rien court-circuiter. Le super
+ * modérateur a deux portes de plus, qui tranchent seules : ajouter un mot
+ * d'office (`add_word_direct`) et corriger son orthographe (`amend_word`, notée
+ * pour l'import). Le serveur les lui réserve ; l'écran ne fait que les montrer.
  */
 
-export type LoadWords = (lang: string, category: string | null) => Promise<WordsReport | null>
+export type LoadWords = (lang: string, category: string | null) => Promise<WordsAnswer>
 export type BanWords = (lang: string, word: FlagWord, reason: string) => Promise<BanOutcome>
 export type AddWord = (lang: string, categoryId: string, word: string) => Promise<boolean>
+export type AddWordNow = (lang: string, categoryId: string, word: string) => Promise<DirectWordOutcome>
+/** Le mot à corriger : sa catégorie, sa clé nue, l'orthographe qu'il a. */
+export interface AmendTarget {
+  categoryId: string
+  key: string
+  display: string
+}
+export type AmendWords = (lang: string, target: AmendTarget, to: string) => Promise<AmendOutcome>
 // Un signalement rejoint la revue, et c'est la file qui décide (0059) : personne
 // ne tranche seul, super modérateur compris.
 const banDefault: BanWords = (lang, word, reason) =>
   proposeBan(lang, word.categoryId, word.word, word.display, reason)
+const amendDefault: AmendWords = (lang, target, to) =>
+  amendWord(lang, target.categoryId, target.key, target.display, to)
 
 /** Le chargeur, posé sur `body` : le tiroir du menu est trop étroit pour ses tableaux. */
 export function WordsBoard({
@@ -43,12 +65,18 @@ export function WordsBoard({
   load = fetchAdminWords,
   onBan = banDefault,
   onAdd = proposeWord,
+  onAddNow = addWordDirect,
+  onAmend = amendDefault,
+  superModerator = false,
 }: {
   lang: string
   onClose(): void
   load?: LoadWords
   onBan?: BanWords
   onAdd?: AddWord
+  onAddNow?: AddWordNow
+  onAmend?: AmendWords
+  superModerator?: boolean
 }) {
   useEffect(() => {
     const close = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
@@ -58,7 +86,16 @@ export function WordsBoard({
 
   return createPortal(
     <div className="dashboard dashboard--overlay" data-no-swipe role="dialog" aria-label="Tableau des mots">
-      <WordsBoardView lang={lang} load={load} onBan={onBan} onAdd={onAdd} onClose={onClose} />
+      <WordsBoardView
+        lang={lang}
+        load={load}
+        onBan={onBan}
+        onAdd={onAdd}
+        onAddNow={onAddNow}
+        onAmend={onAmend}
+        superModerator={superModerator}
+        onClose={onClose}
+      />
     </div>,
     document.body,
   )
@@ -92,10 +129,11 @@ function useDictionaries(lang: string, category: string | null): Map<string, Wor
   useEffect(() => {
     let live = true
     const ids = category ? [category] : availableCategoryIds(lang)
-    Promise.all(ids.map((id) => loadPack(lang, id).catch(() => null))).then((found) => {
-      if (!live) return
-      setHeld({ key, packs: new Map(found.flatMap((pack) => (pack ? [[pack.categoryId, pack] as const] : []))) })
-    })
+    Promise.all(ids.map((id) => loadPack(lang, id).catch(() => null)))
+      .then((found) => new Map(found.flatMap((pack) => (pack ? [[pack.categoryId, pack] as const] : []))))
+      // Un dictionnaire qui ne vient pas laisse l'écran sans lui, pas à attendre.
+      .catch(() => new Map<string, WordPack>())
+      .then((packs) => live && setHeld({ key, packs }))
     return () => {
       live = false
     }
@@ -114,6 +152,8 @@ interface WordRow {
   last: string | null
   /** Faux pour un mot que les dictionnaires livrés ne portent plus (banni, ou pas encore importé). */
   shipped: boolean
+  /** Corrigé : `display` est la nouvelle orthographe, que l'import n'a pas encore livrée. */
+  amended?: boolean
 }
 
 /** Un trousseau de colonnes : les titres de texte disent leur alignement. */
@@ -126,12 +166,18 @@ export function WordsBoardView({
   load,
   onBan,
   onAdd,
+  onAddNow,
+  onAmend,
+  superModerator = false,
   onClose,
 }: {
   lang: string
   load: LoadWords
   onBan: BanWords
   onAdd: AddWord
+  onAddNow: AddWordNow
+  onAmend: AmendWords
+  superModerator?: boolean
   onClose?(): void
 }) {
   const t = useT()
@@ -142,9 +188,12 @@ export function WordsBoardView({
   const [attempt, setAttempt] = useState(0)
   /** La portée du relevé : sa langue et son filtre. Un rafraîchissement ne la change pas. */
   const scope = `${lang}\u0000${category}`
-  const [answer, setAnswer] = useState<{ scope: string; data: WordsReport | null } | null>(null)
+  const [answer, setAnswer] = useState<{ scope: string; data: WordsAnswer } | null>(null)
   const [flagged, setFlagged] = useState<FlagWord | null>(null)
   const [adding, setAdding] = useState(false)
+  const [amending, setAmending] = useState<AmendTarget | null>(null)
+  /** Le relevé tarde : on le dit au bout d'un moment plutôt que de tourner en silence. */
+  const [slowAt, setSlowAt] = useState<string | null>(null)
   const [wholePairs, setWholePairs] = useState(false)
   /** La section des mots : on y descend en cliquant un couple. */
   const wordsRef = useRef<HTMLDivElement>(null)
@@ -158,9 +207,15 @@ export function WordsBoardView({
 
   useEffect(() => {
     let live = true
-    load(lang, category || null).then((found) => live && setAnswer({ scope, data: found }))
+    const patience = setTimeout(() => live && setSlowAt(`${scope}\u0000${attempt}`), 8_000)
+    // Un relevé qui lève ou qui ne vient pas est une erreur à montrer, avec son
+    // bouton « Réessayer » : jamais un écran qui attend pour toujours.
+    load(lang, category || null)
+      .catch((): WordsAnswer => 'error')
+      .then((found) => live && setAnswer({ scope, data: found }))
     return () => {
       live = false
+      clearTimeout(patience)
     }
   }, [load, lang, category, attempt, scope])
 
@@ -173,8 +228,11 @@ export function WordsBoardView({
     }
   }, [])
 
-  /** `undefined` : le relevé arrive ; `null` : pas administrateur, ou serveur muet. */
-  const report: WordsReport | null | undefined = answer?.scope === scope ? answer.data : undefined
+  /** `undefined` : le relevé arrive ; `null` : il n'est pas venu, `failure` dit pourquoi. */
+  const answered: WordsAnswer | undefined = answer?.scope === scope ? answer.data : undefined
+  const report: WordsReport | null | undefined = answered === undefined ? undefined : typeof answered === 'object' ? answered : null
+  const slow = slowAt === `${scope}\u0000${attempt}`
+  const failure = typeof answered === 'string' ? answered : null
 
   const packs = useDictionaries(lang, category || null)
   const playable = availableCategoryIds(lang).length
@@ -198,7 +256,7 @@ export function WordsBoardView({
 
   const categories = useMemo(() => {
     const ids = new Set<string>(availableCategoryIds(lang))
-    for (const list of [report?.pairs, report?.words, report?.added, report?.removed, report?.pending]) {
+    for (const list of [report?.pairs, report?.words, report?.added, report?.removed, report?.pending, report?.amended]) {
       for (const row of list ?? []) ids.add(row.category)
     }
     return [...ids].sort((one, other) => catalogueRank(one) - catalogueRank(other) || one.localeCompare(other))
@@ -234,6 +292,7 @@ export function WordsBoardView({
   const words = useMemo<WordRow[]>(() => {
     const counted = new Map((report?.words ?? []).map((use) => [`${use.category}\u0000${use.word}`, use]))
     const rows = new Map<string, WordRow>()
+    const fixes = new Map((report?.amended ?? []).map((fix) => [`${fix.category}\u0000${fix.word}`, fix]))
     const pack = category ? packs?.get(category) : null
     if (pack) {
       // Un mot n'entre qu'une fois : ses formes fléchies portent la clé de leur
@@ -241,9 +300,11 @@ export function WordsBoardView({
       for (const entry of pack.entries.values()) {
         if (rows.has(entry.key)) continue
         const use = counted.get(`${category}\u0000${entry.key}`)
+        const fix = fixes.get(`${category}\u0000${entry.key}`)
         rows.set(entry.key, {
           word: entry.key,
-          display: entry.display,
+          display: fix?.display ?? entry.display,
+          amended: fix !== undefined,
           category,
           uses: use?.uses ?? 0,
           approx: use?.approx ?? 0,
@@ -255,9 +316,11 @@ export function WordsBoardView({
     for (const use of report?.words ?? []) {
       if (category && use.category !== category) continue
       if (rows.has(use.word)) continue
+      const fix = fixes.get(`${use.category}\u0000${use.word}`)
       rows.set(use.word, {
         word: use.word,
-        display: use.word,
+        display: fix?.display ?? use.word,
+        amended: fix !== undefined,
         category: use.category,
         uses: use.uses,
         approx: use.approx,
@@ -341,6 +404,10 @@ export function WordsBoardView({
   )
   const shownRemoved = useMemo(
     () => (report?.removed ?? []).filter((row) => wanted(row.word)).sort((one, other) => other.at.localeCompare(one.at)),
+    [report, wanted],
+  )
+  const shownAmended = useMemo(
+    () => (report?.amended ?? []).filter((row) => wanted(row.word)),
     [report, wanted],
   )
   const shownPending = useMemo(
@@ -443,11 +510,19 @@ export function WordsBoardView({
             <span />
             <span />
           </div>
-          <p>Lecture des compteurs du dictionnaire…</p>
+          <p>
+            {slow
+              ? 'Toujours en cours… le serveur est lent, la lecture est abandonnée au bout de 25 secondes.'
+              : 'Lecture des compteurs du dictionnaire…'}
+          </p>
         </div>
       ) : report === null ? (
         <div className="dashboard-state">
-          <p>Réservé à l’administrateur (ou serveur injoignable).</p>
+          <p>
+            {failure === 'denied'
+              ? 'Réservé à l’administrateur.'
+              : 'Le serveur n’a pas répondu, ou trop lentement : le relevé n’est pas venu.'}
+          </p>
           <button type="button" className="btn btn--quiet" onClick={() => setAttempt(attempt + 1)}>
             Réessayer
           </button>
@@ -600,18 +675,40 @@ export function WordsBoardView({
               <div className="dashboard-empty">Lecture des dictionnaires de la langue…</div>
             ))}
           {category && shownWords.length ? (
-              <Table head={['Mot', text('Catégorie'), 'Utilisations', 'Mal écrit', 'Utilisation', text('Dernière')]}>
+              <Table
+                head={[
+                  'Mot',
+                  text('Catégorie'),
+                  'Utilisations',
+                  'Mal écrit',
+                  'Utilisation',
+                  text('Dernière'),
+                  ...(superModerator ? [text('Corriger')] : []),
+                ]}
+              >
                 {shownWords.slice(0, 120).map((row) => (
                   <tr key={`${row.category}:${row.word}`} {...press({ categoryId: row.category, word: row.word, display: row.display })}>
                     <td>
                       {row.display}
                       {!row.shipped && <span className="dashboard-tag">hors dictionnaire</span>}
+                      {row.amended && <span className="dashboard-tag">corrigé, à l’import</span>}
                     </td>
                     <td>{category ? '' : categoryText(t, row.category).label}</td>
                     <td className="n">{fmt(row.uses)}</td>
                     <td className="n">{row.approx ? fmt(row.approx) : '—'}</td>
                     <td className="n">{share(row.uses, pairDealt(report.pairs, row.category, initialOf(row.word)))}</td>
                     <td>{row.last ? ago(row.last) : 'jamais'}</td>
+                    {superModerator && (
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn--quiet"
+                          onClick={() => setAmending({ categoryId: row.category, key: row.word, display: row.display })}
+                        >
+                          Corriger
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </Table>
@@ -632,6 +729,13 @@ export function WordsBoardView({
             <p className="note">
               Le dictionnaire de chaque catégorie, et ce que les joueurs en ont écrit : touchez une catégorie pour son détail mot à
               mot, c’est là que la lettre et la recherche s’appliquent.
+            </p>
+          )}
+          {superModerator && (
+            <p className="note">
+              Super modérateur : « Corriger » change l’orthographe d’un mot sans vote. La correction est gardée sur le serveur et
+              appliquée à l’import suivant, qui remplace la ligne et ses formes ; d’ici là, la nouvelle orthographe se joue comme un mot
+              de la communauté, en partie seule — jamais en défi, ni pour les robots, qui ne lisent que le dictionnaire livré.
             </p>
           )}
           <p className="note">
@@ -710,6 +814,27 @@ export function WordsBoardView({
             </p>
           </Section>
 
+          {shownAmended.length > 0 && (
+            <Section title="Mots corrigés" mark="var(--blue)" round>
+              <Table head={['Mot', text('Avant'), text('Corrigé')]}>
+                {shownAmended.map((row) => (
+                  <tr key={`${row.category}:${row.word}`}>
+                    <td>
+                      {row.display}
+                      {!category && <span className="dashboard-tag">{categoryText(t, row.category).label}</span>}
+                    </td>
+                    <td>{row.old_display}</td>
+                    <td>{row.at ? ago(row.at) : '—'}</td>
+                  </tr>
+                ))}
+              </Table>
+              <p className="note">
+                Orthographes corrigées qui attendent le prochain import : il remplace la ligne du dictionnaire livré et ses formes
+                fléchies (<code>scripts/amended-words.json</code>).
+              </p>
+            </Section>
+          )}
+
           <Section title="En modération" mark="var(--pink)" round>
             {shownPending.length ? (
               <Table head={['Mot', text('Genre'), text('Demandé'), text('Demandé par'), text('Votes')]}>
@@ -759,7 +884,25 @@ export function WordsBoardView({
         />
       )}
       {adding && (
-        <AddWordCard lang={lang} categories={categories} category={category} onAdd={onAdd} onClose={() => setAdding(false)} />
+        <AddWordCard
+          lang={lang}
+          categories={categories}
+          category={category}
+          onAdd={onAdd}
+          onAddNow={superModerator ? onAddNow : undefined}
+          onDone={() => setAttempt(attempt + 1)}
+          onClose={() => setAdding(false)}
+        />
+      )}
+      {amending && (
+        <EditWordCard
+          lang={lang}
+          target={amending}
+          category={categoryText(t, amending.categoryId).label}
+          onAmend={onAmend}
+          onDone={() => setAttempt(attempt + 1)}
+          onClose={() => setAmending(null)}
+        />
       )}
     </div>
   )
@@ -809,26 +952,32 @@ function tally(word: PendingWord): string {
 }
 
 /**
- * Le mot ajouté depuis l'écran des mots : il part à la modération comme une
- * proposition de joueur, sans vote ni passage en force.
+ * Le mot ajouté depuis l'écran des mots. Par la modération, il part comme une
+ * proposition de joueur, sans vote ni passage en force. Le super modérateur a
+ * un second bouton qui l'ajoute d'office : la revue s'écrit acceptée avec sa
+ * voix, et le mot entre au dictionnaire vivant tout de suite.
  */
 function AddWordCard({
   lang,
   category,
   categories,
   onAdd,
+  onAddNow,
+  onDone,
   onClose,
 }: {
   lang: string
   category: string
   categories: readonly string[]
   onAdd: AddWord
+  onAddNow?: AddWordNow
+  onDone(): void
   onClose(): void
 }) {
   const t = useT()
   const [word, setWord] = useState(EMPTY)
   const [pick, setPick] = useState(category || categories[0] || EMPTY)
-  const [step, setStep] = useState<'ask' | 'busy' | 'sent' | 'kept' | 'invalid'>('ask')
+  const [step, setStep] = useState<'ask' | 'busy' | 'sent' | 'kept' | 'invalid' | 'added' | 'known' | 'refused' | 'unreachable'>('ask')
   useBackDismiss(onClose)
 
   const confirm = async () => {
@@ -842,6 +991,40 @@ function AddWordCard({
     setStep((await onAdd(lang, pick, word)) ? 'sent' : 'kept')
   }
 
+  const addNow = async () => {
+    if (!onAddNow) return
+    if (!acceptable(word.trim())) {
+      setStep('invalid')
+      return
+    }
+    setStep('busy')
+    const outcome = await onAddNow(lang, pick, word)
+    if (outcome === 'added') onDone()
+    setStep(
+      outcome === 'added'
+        ? 'added'
+        : outcome === 'known'
+          ? 'known'
+          : outcome === 'invalid'
+            ? 'invalid'
+            : outcome === 'forbidden'
+              ? 'refused'
+              : 'unreachable',
+    )
+  }
+
+  const messages: Record<string, string> = {
+    sent: 'Le mot attend les votes des modérateurs dans « Mes demandes » — rien n’est validé depuis cet écran.',
+    invalid:
+      'Ce mot ne peut pas entrer au dictionnaire : deux lettres au moins, puis des lettres, un espace, un tiret ou une apostrophe — pas de chiffre, de parenthèse ni de ponctuation.',
+    kept: 'Gardé sur cet appareil : il partira à la prochaine connexion, et rejoindra alors la même file.',
+    added:
+      'Le mot est au dictionnaire vivant : il se joue tout de suite en partie seule, et les dictionnaires livrés l’auront à l’import suivant.',
+    known: 'Ce mot est déjà au dictionnaire vivant.',
+    refused: 'Le serveur refuse : seul un super modérateur ajoute d’office.',
+    unreachable: 'Le serveur n’a pas répondu : rien n’a été ajouté, vous pouvez réessayer.',
+  }
+
   return createPortal(
     <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="add-word-title">
       <div className="offer-pop-scrim" onClick={onClose} />
@@ -852,8 +1035,9 @@ function AddWordCard({
         {step === 'ask' || step === 'busy' ? (
           <>
             <p>
-              Le mot entre dans la file de modération comme une proposition de joueur : il faudra les mêmes votes pour qu’il rejoigne le
-              dictionnaire, et son entrée ne vaudra qu’au prochain import.
+              « Proposer » met le mot dans la file de modération comme une proposition de joueur : il faudra les mêmes votes pour
+              qu’il rejoigne le dictionnaire, et son entrée ne vaudra qu’au prochain import.
+              {onAddNow && ' « Ajouter d’office » (super modérateur) l’accepte sans vote.'}
             </p>
             {!category && (
               <label className="flag-reason" htmlFor="add-word-category">
@@ -881,9 +1065,19 @@ function AddWordCard({
               <button type="button" className="btn btn--ghost" onClick={onClose}>
                 Annuler
               </button>
+              {onAddNow && (
+                <button
+                  type="button"
+                  className="btn btn--blue"
+                  onClick={addNow}
+                  disabled={step === 'busy' || !pick || word.trim().length < 2}
+                >
+                  Ajouter d’office
+                </button>
+              )}
               <button
                 type="button"
-                className="btn btn--blue"
+                className={onAddNow ? 'btn btn--ghost' : 'btn btn--blue'}
                 onClick={confirm}
                 disabled={step === 'busy' || !pick || word.trim().length < 2}
               >
@@ -893,13 +1087,96 @@ function AddWordCard({
           </>
         ) : (
           <>
+            <p>{messages[step]}</p>
+            <button type="button" className="btn btn--ghost btn--block" onClick={onClose}>
+              Fermer
+            </button>
+          </>
+        )}
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+/**
+ * La correction d'orthographe d'un mot, réservée au super modérateur : sans
+ * vote, notée sur le serveur pour l'import qui remplacera la ligne.
+ */
+function EditWordCard({
+  lang,
+  target,
+  category,
+  onAmend,
+  onDone,
+  onClose,
+}: {
+  lang: string
+  target: AmendTarget
+  category: string
+  onAmend: AmendWords
+  onDone(): void
+  onClose(): void
+}) {
+  const [word, setWord] = useState(target.display)
+  const [step, setStep] = useState<'ask' | 'busy' | AmendOutcome>('ask')
+  useBackDismiss(onClose)
+
+  const confirm = async () => {
+    if (!acceptable(word.trim())) {
+      setStep('invalid')
+      return
+    }
+    setStep('busy')
+    const outcome = await onAmend(lang, target, word)
+    if (outcome === 'amended') onDone()
+    setStep(outcome)
+  }
+
+  const messages: Record<AmendOutcome, string> = {
+    amended:
+      'Correction notée : le prochain import remplacera le mot et ses formes ; d’ici là, la nouvelle orthographe se joue en partie seule comme un mot de la communauté.',
+    known: 'C’est déjà son orthographe : rien n’a changé.',
+    invalid:
+      'Cette orthographe ne peut pas entrer au dictionnaire : deux lettres au moins, puis des lettres, un espace, un tiret ou une apostrophe — pas de chiffre, de parenthèse ni de ponctuation.',
+    forbidden: 'Le serveur refuse : seul un super modérateur corrige un mot.',
+    unreachable: 'Le serveur n’a pas répondu : rien n’a été changé, vous pouvez réessayer.',
+  }
+
+  return createPortal(
+    <div className="offer-pop-layer" role="dialog" aria-modal="true" aria-labelledby="edit-word-title">
+      <div className="offer-pop-scrim" onClick={onClose} />
+      <div className="offer-pop">
+        <h2 id="edit-word-title" className="offer-pop-title">
+          Corriger « {target.display} »
+        </h2>
+        {step === 'ask' || step === 'busy' ? (
+          <>
             <p>
-              {step === 'sent'
-                ? 'Le mot attend les votes des modérateurs dans « Mes demandes » — rien n’est validé depuis cet écran.'
-                : step === 'invalid'
-                  ? 'Ce mot ne peut pas entrer au dictionnaire : deux lettres au moins, puis des lettres, un espace, un tiret ou une apostrophe — pas de chiffre, de parenthèse ni de ponctuation.'
-                  : 'Gardé sur cet appareil : il partira à la prochaine connexion, et rejoindra alors la même file.'}
+              {category} : l’orthographe change sans vote. Le dictionnaire livré ne la prendra qu’à l’import suivant, qui remplace la
+              ligne et ses formes fléchies.
             </p>
+            <label className="flag-reason" htmlFor="edit-word-text">
+              <span className="note">Nouvelle orthographe</span>
+              <input id="edit-word-text" value={word} onChange={(event) => setWord(event.target.value)} maxLength={60} />
+            </label>
+            <div className="offer-pop-actions">
+              <button type="button" className="btn btn--ghost" onClick={onClose}>
+                Annuler
+              </button>
+              <button
+                type="button"
+                className="btn btn--blue"
+                onClick={confirm}
+                disabled={step === 'busy' || word.trim().length < 2 || word.trim() === target.display}
+              >
+                Corriger
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>{messages[step]}</p>
             <button type="button" className="btn btn--ghost btn--block" onClick={onClose}>
               Fermer
             </button>

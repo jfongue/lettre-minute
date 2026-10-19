@@ -1,7 +1,7 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
 import type { SlotEntry, Snapshot } from '../debug/snapshot'
-import type { WordsReport } from '../debug/words'
+import type { WordsAnswer, WordsReport } from '../debug/words'
 import { parseRecord, RECENT_MIN_DAYS, RECENT_MIN_RUNS, type RunRecord } from '../domain/history'
 import { parseProgress, progressOf, type Progress } from '../domain/progress'
 import type { Leaderboard, PeriodId, PlacedRow, StatId } from '../domain/leaderboards'
@@ -864,12 +864,60 @@ export function fetchDashboardSlot(day: string, hour?: number): Promise<SlotEntr
  * modération a ajouté, retiré ou garde. `null` hors administrateur, comme
  * `fetchDashboard`, ou sans serveur.
  */
-export function fetchAdminWords(lang: string, category: string | null): Promise<WordsReport | null> {
-  return guard(async () => {
+/** Longer than the server's own limit (8 s for a signed-in player): past it, nothing is coming. */
+const ADMIN_WORDS_TIMEOUT_MS = 25_000
+
+export function fetchAdminWords(lang: string, category: string | null): Promise<WordsAnswer> {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const silence = new Promise<WordsAnswer>((resolve) => {
+    timer = setTimeout(() => resolve('error'), ADMIN_WORDS_TIMEOUT_MS)
+  })
+  const answer = guard<WordsAnswer>(async () => {
     const { data, error } = await supabase!.rpc('admin_words', { p_lang: lang, p_category: category })
-    if (error || !data) return null
-    return data as WordsReport
-  }, null)
+    if (error) return 'error'
+    return data ? (data as WordsReport) : 'denied'
+  }, 'error')
+  return Promise.race([answer, silence]).finally(() => clearTimeout(timer))
+}
+
+export type DirectWordOutcome = 'added' | 'known' | 'invalid' | 'forbidden' | 'unreachable'
+
+/**
+ * A super moderator adds a word on the spot (`add_word_direct`, 0102): no
+ * votes, the review is written settled. The embedded dictionaries still only
+ * learn it at the next import.
+ */
+export function addWordDirect(lang: string, categoryId: string, word: string): Promise<DirectWordOutcome> {
+  const trimmed = word.trim()
+  if (categoryId === '' || !acceptable(trimmed)) return Promise.resolve('invalid')
+  return guard<DirectWordOutcome>(async () => {
+    const { data, error } = await supabase!.rpc('add_word_direct', {
+      p_category: scoped(lang, categoryId),
+      p_display: trimmed,
+    })
+    return error ? 'unreachable' : (data as DirectWordOutcome)
+  }, 'unreachable')
+}
+
+export type AmendOutcome = 'amended' | 'known' | 'invalid' | 'forbidden' | 'unreachable'
+
+/**
+ * A super moderator corrects the spelling of a dictionary word
+ * (`amend_word`, 0102): kept for the next import, and served meanwhile as a
+ * community word. `key` is the word's bare key, `from` the spelling it had.
+ */
+export function amendWord(lang: string, categoryId: string, key: string, from: string, to: string): Promise<AmendOutcome> {
+  const trimmed = to.trim()
+  if (categoryId === '' || !acceptable(trimmed)) return Promise.resolve('invalid')
+  return guard<AmendOutcome>(async () => {
+    const { data, error } = await supabase!.rpc('amend_word', {
+      p_category: scoped(lang, categoryId),
+      p_word: key,
+      p_old: from,
+      p_display: trimmed,
+    })
+    return error ? 'unreachable' : (data as AmendOutcome)
+  }, 'unreachable')
 }
 
 export interface Friend {

@@ -85,6 +85,22 @@ export interface PendingWord {
   votes: Vote[]
 }
 
+/** Une correction d'orthographe, notée pour l'import (`word_amendments`, 0102). */
+export interface AmendedWord {
+  word: string
+  category: string
+  display: string
+  old_display: string
+  at: string
+}
+
+/**
+ * La réponse du serveur à l'écran des mots : le relevé, ou pourquoi il n'y en
+ * a pas — `denied` quand ce n'est pas l'administrateur, `error` quand le
+ * serveur n'a pas répondu, ou trop tard.
+ */
+export type WordsAnswer = WordsReport | 'denied' | 'error'
+
 export interface WordsReport {
   generated_at: string
   lang: string
@@ -100,4 +116,5 @@ export interface WordsReport {
   added: AddedWord[]
   removed: RemovedWord[]
   pending: PendingWord[]
+  amended: AmendedWord[]
 }

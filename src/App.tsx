@@ -2355,7 +2355,7 @@ avatarFocus={avatarFocus}
 
       {wordsBoard && on('wordsBoard') && (
         <Suspense fallback={null}>
-          <WordsBoard lang={lang} onClose={() => setWordsBoard(false)} />
+          <WordsBoard lang={lang} superModerator={roles.superModerator} onClose={() => setWordsBoard(false)} />
         </Suspense>
       )}
 

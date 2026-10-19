@@ -872,6 +872,15 @@ const WORDS_REPORT: WordsReport = {
       ],
     },
   ],
+  amended: [
+    {
+      word: 'ecureuil',
+      category: 'animaux',
+      display: 'Écureuil',
+      old_display: 'Ecureuil',
+      at: new Date(Date.now() - 2 * 60 * 60_000).toISOString(),
+    },
+  ],
   pending: [
     {
       id: 'add-taxi',
@@ -921,17 +930,21 @@ function wordsReportOf(category: string | null): WordsReport {
     added: kept(WORDS_REPORT.added),
     removed: kept(WORDS_REPORT.removed),
     pending: kept(WORDS_REPORT.pending),
+    amended: kept(WORDS_REPORT.amended),
   }
 }
 
-function WordsScenario() {
+function WordsScenario({ answer = 'report', superModerator = true }: { answer?: 'report' | 'error' | 'denied'; superModerator?: boolean }) {
   return (
     <div className="dashboard">
       <WordsBoardView
         lang="fr"
-        load={(_lang, category) => later(wordsReportOf(category), 300)}
+        load={(_lang, category) => later(answer === 'report' ? wordsReportOf(category) : answer, 300)}
         onBan={() => later('sent' as const)}
         onAdd={() => later(true)}
+        onAddNow={() => later('added' as const)}
+        onAmend={() => later('amended' as const)}
+        superModerator={superModerator}
       />
     </div>
   )
@@ -2656,9 +2669,17 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'words-board',
     group: 'Accueil',
     title: 'Tableau des mots du dictionnaire',
-    how: 'Cinq tapes sur « Mes catégories » : ce que le tirage donne à chaque couple lettre + catégorie, théorique et réel, les mots écrits, ajoutés, retirés, en modération ; appui long sur une ligne pour signaler un mot, bouton pour en proposer un',
+    how: 'Cinq tapes sur « Mes catégories » : ce que le tirage donne à chaque couple lettre + catégorie, théorique et réel, les mots écrits, ajoutés, retirés, corrigés, en modération ; appui long sur une ligne pour signaler un mot, bouton pour en proposer un. Vu en super modérateur : « Ajouter d’office » et « Corriger » (une catégorie choisie) décident sans vote, envoi simulé',
     phase: 'home',
     render: () => <WordsScenario />,
+  },
+  {
+    id: 'words-board-failed',
+    group: 'Accueil',
+    title: 'Tableau des mots : le serveur ne répond pas',
+    how: 'Le relevé n’est pas venu (limite de temps, erreur serveur) : le message et « Réessayer » au lieu d’une lecture sans fin',
+    phase: 'home',
+    render: () => <WordsScenario answer="error" />,
   },
   {
     id: 'achievement-icons',
