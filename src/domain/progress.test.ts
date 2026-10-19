@@ -57,7 +57,15 @@ const tablet = progressOf(profile({ runs: 4, professorWords: ['narval', 'okapi']
 expect(withProgress(phone, tablet).professorWords).toEqual(['lama', 'narval', 'okapi'])
 })
 
-it('catches an old save up before it merges', () => {
+it('keeps every banked reveal gain and spend across devices', () => {
+    const phone = profile({ runs: 9, revealGifts: ['a', 'b'], revealGiftsUsed: 1 })
+    const tablet = progressOf(profile({ runs: 4, revealGifts: ['b', 'c'], revealGiftsUsed: 0 }))
+    const merged = withProgress(phone, tablet)
+    expect(merged.revealGifts).toEqual(['a', 'b', 'c'])
+    expect(merged.revealGiftsUsed).toBe(1)
+  })
+
+  it('catches an old save up before it merges', () => {
     const old = progressOf(profile({ runs: 9, banned: ['pays'], equipped: ['joker', 'hush'], perksVersion: 0 }))
     const merged = withProgress(profile({}), old)
     expect([...merged.bonuses].sort()).toEqual(['filter', 'slot'])

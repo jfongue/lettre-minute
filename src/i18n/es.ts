@@ -401,6 +401,7 @@ export const es: Messages = {
     exists: '¡Ya existe!',
     newsTitle: (count) => (count === 1 ? '¡Tu palabra ya está en el diccionario!' : `¡${count} de tus palabras ya están en el diccionario!`),
     newsLead: '¡Gracias! Ahora todo el mundo puede jugarlas.',
+    newsReveal: '+1 revelación',
     newsOk: '¡Genial!',
     newsOpen: 'Mis propuestas',
     offline: 'Sin servidor, tus propuestas esperan en este dispositivo.',

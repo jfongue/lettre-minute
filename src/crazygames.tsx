@@ -21,6 +21,25 @@ import './crazygames.css'
  */
 const root = createRoot(document.getElementById('root')!)
 
+// The portal's iframe keeps its height under a phone's keyboard, which covers
+// the bottom of the run instead: while a run's field has the focus on a touch
+// screen, crazygames.css tightens the run above the keys. The class lingers a
+// moment after a blur, so a tap on Skip or Enter that hands the focus back to
+// the field does not make the screen jump twice.
+const touch = window.matchMedia('(pointer: coarse)')
+let loosen: ReturnType<typeof setTimeout> | undefined
+document.addEventListener('focusin', (event) => {
+  if (!touch.matches || !(event.target instanceof HTMLInputElement) || !event.target.hasAttribute('data-keys')) return
+  clearTimeout(loosen)
+  document.documentElement.setAttribute('data-typing', '')
+})
+document.addEventListener('focusout', () => {
+  clearTimeout(loosen)
+  loosen = setTimeout(() => {
+    if (!(document.activeElement instanceof HTMLInputElement && document.activeElement.hasAttribute('data-keys'))) document.documentElement.removeAttribute('data-typing')
+  }, 400)
+})
+
 void (async () => {
   await initCrazyGames()
   loadingStart()

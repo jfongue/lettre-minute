@@ -12,9 +12,9 @@ import type { Profile } from './progression'
  * gagné sur un appareil reste gagné sur l'autre.
  */
 
-const OWNED = ['unlocked', 'gifted', 'powers', 'powersUsed', 'playedCategories', 'bonuses', 'professorWords'] as const
+const OWNED = ['unlocked', 'gifted', 'powers', 'powersUsed', 'playedCategories', 'bonuses', 'professorWords', 'revealGifts'] as const
 const LATEST = ['offer', 'lastOffer', 'powerOffer', 'lastPowerOffer', 'equipped', 'banned', 'bonusOffer', 'lastBonusOffer'] as const
-const HIGHEST = ['banIntroSeen', 'bonusGifts', 'perksVersion', 'plusThanked', 'ratingAskedAt', 'ratingDone', 'feedbackAskedAt', 'longestWord', 'bestSpeed', 'cleanRuns', 'duelRounds4', 'dailyFirst', 'wordsReviewed', 'weeklyAttempts', 'challengesFinished', 'shortStreak', 'noPassStreak', 'professorWordsPlayed'] as const
+const HIGHEST = ['banIntroSeen', 'bonusGifts', 'perksVersion', 'plusThanked', 'ratingAskedAt', 'ratingDone', 'feedbackAskedAt', 'longestWord', 'bestSpeed', 'cleanRuns', 'duelRounds4', 'dailyFirst', 'wordsReviewed', 'weeklyAttempts', 'challengesFinished', 'shortStreak', 'noPassStreak', 'professorWordsPlayed', 'revealGiftsUsed'] as const
 
 type ListField = (typeof OWNED)[number] | (typeof LATEST)[number]
 type CountField = (typeof HIGHEST)[number] | 'plusSince' | 'runs'
@@ -89,6 +89,7 @@ export function withProgress(local: Profile, saved: Progress): Profile {
     // Les mots du Professeur se gardent des deux côtés : écrits sur l'un, ils
     // s'allument encore sur l'autre.
     professorWords: union(local.professorWords, saved.professorWords),
+    revealGifts: union(local.revealGifts, saved.revealGifts),
     banned: [...latest.banned],
     bonusOffer: latest.bonusOffer.filter((id) => isBonusId(id) && bonuses.filter((taken) => taken === id).length < BONUS_CAPS[id]),
     lastBonusOffer: [...latest.lastBonusOffer],

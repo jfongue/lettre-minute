@@ -110,6 +110,18 @@ html {
   text-size-adjust: 100%;
 }
 
+/* Sur une tablette, la page d'un téléphone flottait au milieu d'un écran vide :
+   tout le jeu se mesure en rem, donc grossir la racine agrandit chaque écran
+   d'un bloc, sans en dessiner un second. Réservé au tactile, pour que le cadre
+   CrazyGames d'un ordinateur garde ses mesures ; le clavier ouvert en paysage
+   fait passer la hauteur sous le seuil, et la partie se resserre comme sur un
+   téléphone. */
+@media (pointer: coarse) and (min-width: 700px) and (min-height: 700px) {
+  html {
+    font-size: clamp(16px, 2.5vmin, 22px);
+  }
+}
+
 /* Le quadrillage fin de la planche : il donne à chaque forme une règle à
    laquelle s'aligner sans rien dessiner de plus. */
 body {
@@ -122,7 +134,7 @@ body {
   background-position: center top;
   color: var(--ink);
   font-family: var(--font);
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 450;
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
@@ -8305,6 +8317,12 @@ button.challenge-word[aria-expanded='true'] {
   gap: 0.6rem;
   padding: 0.35rem 0;
   border-bottom: 1px solid var(--rule);
+}
+
+.words-news-reveal {
+  flex: none;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .power-gift-card {

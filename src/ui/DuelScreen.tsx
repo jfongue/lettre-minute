@@ -108,135 +108,139 @@ function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRul
     <main className="stage stage--duel">
       <Cut table={table} />
       <div className="sheet duel-lobby">
-        <p className="eyebrow">{table.rematchOpen ? t.duel.revenging : t.duel.title}</p>
-        <h1 className="duel-title" key={counting ? 'draft' : 'table'}>
-          {counting ? t.duel.announceTitle : table.rematchOpen ? t.duel.rematchTitle : t.duel.leadTitle}
-        </h1>
-        {counting || table.rematchOpen ? (
-          <p className="note duel-lead" key={counting ? 'rule' : 'lead'}>
-            {counting ? t.duel.draftRule(shape.picks, shape.drawn) : t.duel.rematchLead}
-          </p>
-        ) : null}
-        {counting ? (
-          <span className="duel-fuse duel-fuse--announce" aria-hidden="true">
-            <i />
-          </span>
-        ) : null}
+        <div className="duel-lobby__table">
+          <p className="eyebrow">{table.rematchOpen ? t.duel.revenging : t.duel.title}</p>
+          <h1 className="duel-title" key={counting ? 'draft' : 'table'}>
+            {counting ? t.duel.announceTitle : table.rematchOpen ? t.duel.rematchTitle : t.duel.leadTitle}
+          </h1>
+          {counting || table.rematchOpen ? (
+            <p className="note duel-lead" key={counting ? 'rule' : 'lead'}>
+              {counting ? t.duel.draftRule(shape.picks, shape.drawn) : t.duel.rematchLead}
+            </p>
+          ) : null}
+          {counting ? (
+            <span className="duel-fuse duel-fuse--announce" aria-hidden="true">
+              <i />
+            </span>
+          ) : null}
 
-        <ul className="duel-seats" aria-label={t.duel.table}>
-          {slots.map((seat, index) => {
-            if (!seat) {
+          <ul className="duel-seats" aria-label={t.duel.table}>
+            {slots.map((seat, index) => {
+              if (!seat) {
+                return (
+                  <li key={`empty-${index}`} className="duel-seatcard duel-seatcard--empty" style={{ '--i': index } as CSSProperties}>
+                    <div className="duel-seatcard__button">
+                      <span className="duel-seatcard__face duel-seatcard__face--empty" aria-hidden="true" />
+                      <span className="duel-seatcard__text">
+                        <b>{t.duel.emptySeat}</b>
+                      </span>
+                    </div>
+                  </li>
+                )
+              }
+              const mine = index === table.myIndex
+              const state = seat.ready ? 'ready' : seat.pending ? 'pending' : 'seated'
+              const stamp = seat.ready ? t.duel.ready : seat.pending ? t.duel.pendingStamp : seat.bot ? t.duel.invited : t.duel.notReady
+              const kickable = table.host && !locked && !mine
               return (
-                <li key={`empty-${index}`} className="duel-seatcard duel-seatcard--empty" style={{ '--i': index } as CSSProperties}>
+                <li
+                  key={seat.id}
+                  className={`duel-seatcard duel-seatcard--${state}${kickable ? ' duel-seatcard--kickable' : ''}`}
+                  style={{ '--i': index } as CSSProperties}
+                  {...(kickable ? press(seat) : {})}
+                >
                   <div className="duel-seatcard__button">
-                    <span className="duel-seatcard__face duel-seatcard__face--empty" aria-hidden="true" />
+                    <span className="duel-seatcard__face">
+                      <Avatar choice={seat.avatar} size="md" />
+                    </span>
                     <span className="duel-seatcard__text">
-                      <b>{t.duel.emptySeat}</b>
+                      <b>{mine ? seat.name || t.duel.you : seat.name}</b>
+                      <small>{seat.bot && seat.trait ? t.duel.trait[seat.trait] : mine ? t.duel.you : table.mode === 'online' && index === 0 ? t.duel.hostStamp : ' '}</small>
+                    </span>
+                    <span className="duel-seatcard__stamp" key={stamp}>
+                      {stamp}
                     </span>
                   </div>
                 </li>
               )
-            }
-            const mine = index === table.myIndex
-            const state = seat.ready ? 'ready' : seat.pending ? 'pending' : 'seated'
-            const stamp = seat.ready ? t.duel.ready : seat.pending ? t.duel.pendingStamp : seat.bot ? t.duel.invited : t.duel.notReady
-            const kickable = table.host && !locked && !mine
-            return (
-              <li
-                key={seat.id}
-                className={`duel-seatcard duel-seatcard--${state}${kickable ? ' duel-seatcard--kickable' : ''}`}
-                style={{ '--i': index } as CSSProperties}
-                {...(kickable ? press(seat) : {})}
-              >
-                <div className="duel-seatcard__button">
-                  <span className="duel-seatcard__face">
-                    <Avatar choice={seat.avatar} size="md" />
-                  </span>
-                  <span className="duel-seatcard__text">
-                    <b>{mine ? seat.name || t.duel.you : seat.name}</b>
-                    <small>{seat.bot && seat.trait ? t.duel.trait[seat.trait] : mine ? t.duel.you : table.mode === 'online' && index === 0 ? t.duel.hostStamp : ' '}</small>
-                  </span>
-                  <span className="duel-seatcard__stamp" key={stamp}>
-                    {stamp}
-                  </span>
-                </div>
-              </li>
-            )
-          })}
-        </ul>
-        <p className="note duel-hint" aria-live="polite">
-          {left.length > 0 ? t.duel.left(left.join(', '), left.length) : table.host && !locked && table.seats.length > 1 ? t.duel.kickHint : ' '}
-        </p>
+            })}
+          </ul>
+          <p className="note duel-hint" aria-live="polite">
+            {left.length > 0 ? t.duel.left(left.join(', '), left.length) : table.host && !locked && table.seats.length > 1 ? t.duel.kickHint : ' '}
+          </p>
+        </div>
 
-        {table.host && !locked && !full ? <InviteList table={table} /> : null}
+        <div className="duel-lobby__side">
+          {table.host && !locked && !full ? <InviteList table={table} /> : null}
 
-        {table.pool.length === 0 ? (
-          <p className="note note--warn">{t.duel.loadFailed}</p>
-        ) : watching ? (
-          <div className="stack">
-            <button type="button" className="btn btn--play btn--block" onClick={onResume}>
-              {t.duel.resumeDraft}
-            </button>
-            <p className="note">{t.duel.lobbyNote}</p>
-          </div>
-        ) : counting ? (
-          <div className="stack">
-            <button
-              type="button"
-              className="btn btn--ghost btn--block"
-              onClick={() => {
-                armSound()
-                sound.pop()
-                table.cancelStart()
-              }}
-            >
-              {t.duel.cancel}
-            </button>
-          </div>
-        ) : (
-          <div className="stack">
-            <button
-              type="button"
-              className="btn btn--play btn--block duel-cta"
-              disabled={locked || table.seats.filter((seat) => !seat.pending).length < 2}
-              onClick={() => {
-                armSound()
-                sound.go()
-                table.markReady()
-              }}
-            >
-              <span>{locked ? t.duel.waitingOthers : t.duel.readyButton}</span>
-              {locked ? null : <small>{t.duel.tableSize(table.seats.filter((seat) => !seat.pending).length)}</small>}
-            </button>
-            {locked ? (
-              <button type="button" className="btn btn--ghost btn--block" onClick={() => table.unready()}>
-                {t.duel.cancel}
+          {table.pool.length === 0 ? (
+            <p className="note note--warn">{t.duel.loadFailed}</p>
+          ) : watching ? (
+            <div className="stack">
+              <button type="button" className="btn btn--play btn--block" onClick={onResume}>
+                {t.duel.resumeDraft}
               </button>
-            ) : null}
-            {!locked && table.mode === 'local' && table.rematchOpen ? (
-              <button type="button" className="btn btn--ghost btn--block" onClick={() => table.backToRecap()}>
-                {t.duel.back}
-              </button>
-            ) : null}
-            {!locked && (table.mode === 'online' || table.rematchOpen || table.embedded) ? (
-              <button type="button" className="btn btn--quiet btn--block" onClick={() => table.leave()}>
-                {t.duel.quit}
-              </button>
-            ) : null}
-            {locked ? null : (
+              <p className="note">{t.duel.lobbyNote}</p>
+            </div>
+          ) : counting ? (
+            <div className="stack">
               <button
                 type="button"
-                className="btn btn--quiet btn--block"
+                className="btn btn--ghost btn--block"
                 onClick={() => {
                   armSound()
-                  onRules()
+                  sound.pop()
+                  table.cancelStart()
                 }}
               >
-                {t.duel.tutorial.again}
+                {t.duel.cancel}
               </button>
-            )}
-          </div>
-        )}
+            </div>
+          ) : (
+            <div className="stack">
+              <button
+                type="button"
+                className="btn btn--play btn--block duel-cta"
+                disabled={locked || table.seats.filter((seat) => !seat.pending).length < 2}
+                onClick={() => {
+                  armSound()
+                  sound.go()
+                  table.markReady()
+                }}
+              >
+                <span>{locked ? t.duel.waitingOthers : t.duel.readyButton}</span>
+                {locked ? null : <small>{t.duel.tableSize(table.seats.filter((seat) => !seat.pending).length)}</small>}
+              </button>
+              {locked ? (
+                <button type="button" className="btn btn--ghost btn--block" onClick={() => table.unready()}>
+                  {t.duel.cancel}
+                </button>
+              ) : null}
+              {!locked && table.mode === 'local' && table.rematchOpen ? (
+                <button type="button" className="btn btn--ghost btn--block" onClick={() => table.backToRecap()}>
+                  {t.duel.back}
+                </button>
+              ) : null}
+              {!locked && (table.mode === 'online' || table.rematchOpen || table.embedded) ? (
+                <button type="button" className="btn btn--quiet btn--block" onClick={() => table.leave()}>
+                  {t.duel.quit}
+                </button>
+              ) : null}
+              {locked ? null : (
+                <button
+                  type="button"
+                  className="btn btn--quiet btn--block"
+                  onClick={() => {
+                    armSound()
+                    onRules()
+                  }}
+                >
+                  {t.duel.tutorial.again}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {kicking ? (

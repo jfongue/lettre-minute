@@ -25,8 +25,10 @@ export const MODERATION_MIN_QUEUE = 5
 export const MODERATOR_LEVEL = 6
 
 /**
- * The same level in XP, as `moderator_offer_due` checks it: SQL cannot call
- * `xpForLevel`, so a test holds the two together.
+ * The same level in XP, as `moderator_offer_due` checks it (0083: the profile's
+ * XP, or the runs' sum plus 150 per accepted word, reaching 1650; 0082 undid
+ * the stale 2550 that 0055 had put back): SQL cannot call `xpForLevel`,
+ * so a test holds the two together.
  */
 export const MODERATOR_LEVEL_XP = 1650
 
@@ -58,14 +60,11 @@ export function swipeVerdict(dx: number, dy: number, width: number): Exclude<Ver
 }
 
 /**
- * This many words waiting for a moderator, and « Mes demandes » wears a « ! ».
- * The count is the server's own ceiling — `moderation_queue(p_lang, 20)`
- * (0039) — so « more than this » could never be true, and the « ! » never
- * showed.
+ * Whether « Mes demandes » wears its « ! »: a moderator has words to judge, or
+ * the server could pour some in (`moderation_status.topup`, 0100: queue under
+ * five, the hourly top-up open, a reserve left in their language). Opening the
+ * page quiets it until the next day.
  */
-export const MODERATION_QUEUE_ALERT = 20
-
-/** Whether the « ! » shows: opening « Mes demandes » quiets it until the next day. */
-export function queueAlertDue(queue: number, seenOn: string | null, today: string): boolean {
-  return queue >= MODERATION_QUEUE_ALERT && seenOn !== today
+export function queueAlertDue(queue: number, topUpOpen: boolean, seenOn: string | null, today: string): boolean {
+  return (queue > 0 || topUpOpen) && seenOn !== today
 }

@@ -399,6 +399,7 @@ export const de: Messages = {
     exists: 'Gibt es schon!',
     newsTitle: (count) => (count === 1 ? 'Dein Wort ist im Wörterbuch!' : `${count} deiner Wörter sind im Wörterbuch!`),
     newsLead: 'Danke! Jetzt können alle sie spielen.',
+    newsReveal: '+1 Enthüllung',
     newsOk: 'Super!',
     newsOpen: 'Meine Vorschläge',
     offline: 'Ohne Server warten deine Vorschläge auf diesem Gerät.',

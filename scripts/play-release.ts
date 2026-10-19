@@ -4,6 +4,8 @@
  *
  *   npm run android:release              build, upload to closed testing, notes from android/whatsnew/
  *   npm run android:release -- --check   only prove the key works and list the tracks
+ *   node --experimental-strip-types scripts/play-release.ts --track=internal --existing
+ *                                         put the versionCode Play already has on another track, without uploading
  *
  * The key never enters the repository: PLAY_KEY, or ~/cles/lettre-minute-play.json.
  */
@@ -20,6 +22,7 @@ const NOTES = 'android/whatsnew'
 
 const args = process.argv.slice(2)
 const checkOnly = args.includes('--check')
+const existing = args.includes('--existing')
 // Closed testing is the track Play calls « alpha ».
 const track = args.find((arg) => arg.startsWith('--track='))?.slice('--track='.length) ?? 'alpha'
 
@@ -107,20 +110,26 @@ try {
     process.exit(0)
   }
 
-  const shipped = tracks.flatMap((t) => (t.releases ?? []).flatMap((release) => release.versionCodes ?? []).map(Number))
-  const versionCode = localVersionCode()
-  if (shipped.some((code) => code >= versionCode)) {
-    throw new Error(`versionCode ${versionCode} is not above what Play already has (${Math.max(...shipped)}): raise it in android/app/build.gradle`)
-  }
+  let bundle: { versionCode?: number }
+  if (existing) {
+    bundle = { versionCode: localVersionCode() }
+  } else {
+    const shipped = tracks.flatMap((t) => (t.releases ?? []).flatMap((release) => release.versionCodes ?? []).map(Number))
+    const versionCode = localVersionCode()
+    if (shipped.some((code) => code >= versionCode)) {
+      throw new Error(`versionCode ${versionCode} is not above what Play already has (${Math.max(...shipped)}): raise it in android/app/build.gradle`)
+    }
 
-  console.log(`Uploading ${BUNDLE} (${(statSync(BUNDLE).size / 1e6).toFixed(1)} MB)…`)
-  const uploaded = await fetch(`${UPLOAD}/edits/${edit.id}/bundles?uploadType=media`, {
-    method: 'POST',
-    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/octet-stream' },
-    body: readFileSync(BUNDLE),
-  })
-  const bundle = (await uploaded.json()) as { versionCode?: number; error?: { message: string } }
-  if (!bundle.versionCode) throw new Error(`Upload refused: ${bundle.error?.message ?? uploaded.status}`)
+    console.log(`Uploading ${BUNDLE} (${(statSync(BUNDLE).size / 1e6).toFixed(1)} MB)…`)
+    const uploaded = await fetch(`${UPLOAD}/edits/${edit.id}/bundles?uploadType=media`, {
+      method: 'POST',
+      headers: { authorization: `Bearer ${token}`, 'content-type': 'application/octet-stream' },
+      body: readFileSync(BUNDLE),
+    })
+    const sent = (await uploaded.json()) as { versionCode?: number; error?: { message: string } }
+    if (!sent.versionCode) throw new Error(`Upload refused: ${sent.error?.message ?? uploaded.status}`)
+    bundle = sent
+  }
 
   const release = (status: string) =>
     call(token, 'PUT', `${API}/edits/${edit.id}/tracks/${track}`, {
