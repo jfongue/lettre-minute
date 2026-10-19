@@ -3,6 +3,7 @@ import {
   BONUS_CAPS,
   BONUS_EVERY_LEVELS,
   BONUS_FROM_LEVEL,
+  barredBonuses,
   bonusCount,
   bonusLevels,
   bonusPool,
@@ -14,9 +15,9 @@ import {
   type BonusId,
 } from './bonus'
 import { CATALOGUE } from './catalogue'
-import { LEVEL_POWER_IDS, powersEarnedAt } from './powers'
+import { choosePower, dealPowerOffer, LEVEL_POWER_IDS, powersEarnedAt } from './powers'
 import { NEW_PROFILE, PERKS_VERSION, xpForLevel, type Profile } from './progression'
-import { ownedCategoryIds, picksOwed, starterCategoryIds } from './unlocks'
+import { chooseCategory, dealOffer, ownedCategoryIds, picksOwed, starterCategoryIds } from './unlocks'
 
 const EXTRA = CATALOGUE.filter((category) => !category.premiere && !starterCategoryIds().includes(category.id)).map((category) => category.id)
 
@@ -67,10 +68,10 @@ describe('bonus levels', () => {
   it('turn back into categories where the version pays no bonus', () => {
     // Every level pays something the player plays with: the bonus level owes its category.
     const first = diligent(FIRST_BONUS)
-    expect(bonusesOwed(first, false, false)).toBe(0)
-    expect(picksOwed(first, false, false)).toBe(1)
+    expect(bonusesOwed(first, [], false)).toBe(0)
+    expect(picksOwed(first, [], false)).toBe(1)
     // A bonus already taken keeps the level it paid.
-    expect(picksOwed({ ...first, bonuses: ['filter'] }, false, false)).toBe(0)
+    expect(picksOwed({ ...first, bonuses: ['filter'] }, [], false)).toBe(0)
   })
 
   it('count two bonus levels three levels later', () => {
@@ -82,15 +83,15 @@ describe('bonus levels', () => {
 
   it('give a bonus level back to the categories once the pool is empty', () => {
     const everything = diligent(40, { bonuses: ['filter', 'filter', 'slot', 'reveal', 'reveal', 'reveal', 'moderator'] })
-    expect(bonusPool(everything, false)).toEqual([])
+    expect(bonusPool(everything)).toEqual([])
     expect(bonusesOwed(everything)).toBe(0)
     // A moderator is not offered the moderator bonus: with the rest taken, nothing is left.
     const rest = { ...everything, bonuses: ['filter', 'filter', 'slot', 'reveal', 'reveal', 'reveal'] }
-    expect(bonusPool(rest, true)).toEqual([])
-    expect(bonusPool(rest, false)).toEqual(['moderator'])
-    expect(bonusesOwed(rest, true)).toBe(0)
+    expect(bonusPool(rest, ['moderator'])).toEqual([])
+    expect(bonusPool(rest)).toEqual(['moderator'])
+    expect(bonusesOwed(rest, ['moderator'])).toBe(0)
     // The level that found the pool empty is a category again.
-    expect(picksOwed(rest, true)).toBe(picksOwed(rest, false) + 1)
+    expect(picksOwed(rest, ['moderator'])).toBe(picksOwed(rest) + 1)
   })
 
   it('do not spend a level on what the catch-up gave', () => {
@@ -115,9 +116,23 @@ describe('the offer', () => {
     expect(dealBonusOffer(owing, 7).bonusOffer).toEqual(dealBonusOffer(owing, 7).bonusOffer)
   })
 
-  it('favours reveals threefold', () => {
+  it('always opens the second slot on the first table, while it is to take', () => {
+    for (let seed = 0; seed < 200; seed++) {
+      const first = dealBonusOffer(owing, seed).bonusOffer
+      expect(first).toContain('slot')
+      expect(new Set(first).size).toBe(2)
+    }
+    expect(dealBonusOffer(owing, 1, ['slot']).bonusOffer).not.toContain('slot')
+    // Once a bonus was won, the slot is one card among others.
+    const later = diligent(FIRST_BONUS + 2 * BONUS_EVERY_LEVELS, { bonuses: ['reveal'] })
+    const dealt = [...Array(200).keys()].map((seed) => dealBonusOffer(later, seed).bonusOffer)
+    expect(dealt.some((offer) => !offer.includes('slot'))).toBe(true)
+  })
+
+  it('favours reveals threefold, after the first table', () => {
+    const later = diligent(FIRST_BONUS + 2 * BONUS_EVERY_LEVELS, { bonuses: ['filter'] })
     const seen: Record<string, number> = { filter: 0, slot: 0, reveal: 0, moderator: 0 }
-    for (let seed = 0; seed < 3000; seed++) for (const id of dealBonusOffer(owing, seed).bonusOffer) seen[id]!++
+    for (let seed = 0; seed < 3000; seed++) for (const id of dealBonusOffer(later, seed).bonusOffer) seen[id]!++
     expect(seen.reveal!).toBeGreaterThan(seen.filter! * 1.3)
     expect(seen.reveal!).toBeGreaterThan(seen.slot! * 1.3)
     expect(Math.abs(seen.filter! - seen.moderator!)).toBeLessThan(300)
@@ -126,7 +141,7 @@ describe('the offer', () => {
   it('leaves out what is capped, and the moderator offer for a moderator', () => {
     const capped = { ...diligent(22), bonuses: ['slot', 'filter', 'filter'], bonusGifts: 0 }
     for (let seed = 0; seed < 50; seed++) {
-      expect(dealBonusOffer(capped, seed, true).bonusOffer).toEqual(['reveal'])
+      expect(dealBonusOffer(capped, seed, ['moderator']).bonusOffer).toEqual(['reveal'])
     }
   })
 
@@ -148,6 +163,71 @@ describe('the offer', () => {
     }
     for (const [id, cap] of Object.entries(BONUS_CAPS)) expect(bonusCount(profile, id as BonusId)).toBeLessThanOrEqual(cap)
     expect(profile.bonuses.length).toBe(7)
+  })
+})
+
+describe('a player levelling up as the game deals', () => {
+  const available = CATALOGUE.map((category) => category.id)
+
+  /**
+   * Plays the levels one by one as `session.ts` deals them after a run —
+   * categories, then powers, then bonuses — taking the first card of each
+   * table, and returns the bonus tables met on the way, by level.
+   */
+  function climb(to: number, barred: readonly BonusId[] = []): Map<number, readonly string[]> {
+    const tables = new Map<number, readonly string[]>()
+    let profile = NEW_PROFILE
+    for (let level = 1; level <= to; level++) {
+      profile = { ...profile, xp: xpForLevel(level) }
+      for (let round = 0; round < 4; round++) {
+        const seed = level * 31 + round
+        profile = dealBonusOffer(dealPowerOffer(dealOffer(profile, available, seed, barred), seed), seed, barred)
+        if (profile.bonusOffer.length > 0) tables.set(level, profile.bonusOffer)
+        profile = chooseBonus(choosePower(chooseCategory(profile, profile.offer[0] ?? ''), profile.powerOffer[0] ?? ''), profile.bonusOffer[0] ?? '')
+      }
+    }
+    return tables
+  }
+
+  it('meets its first bonus table at the first bonus level, the second slot on it', () => {
+    const tables = climb(FIRST_BONUS + 2 * BONUS_EVERY_LEVELS)
+    expect([...tables.keys()]).toEqual([FIRST_BONUS, FIRST_BONUS + BONUS_EVERY_LEVELS, FIRST_BONUS + 2 * BONUS_EVERY_LEVELS])
+    expect(tables.get(FIRST_BONUS)).toContain('slot')
+    expect(tables.get(FIRST_BONUS)).toHaveLength(2)
+  })
+
+  it('still meets it with the cards a version bars, down to the slot alone', () => {
+    // The portal's guest: no filtering, no account to moderate with, reveals free.
+    const tables = climb(FIRST_BONUS + 2 * BONUS_EVERY_LEVELS, ['filter', 'reveal', 'moderator'])
+    expect([...tables.entries()]).toEqual([[FIRST_BONUS, ['slot']]])
+  })
+})
+
+describe('the cards a player is barred from', () => {
+  const facts = { isModerator: false, canName: true, unlimitedReveals: false, open: () => true }
+
+  it('bar nothing to a player who can use every card', () => {
+    expect(barredBonuses(facts)).toEqual([])
+  })
+
+  it('bar the moderator offer to a moderator, and to a player with no account to take it', () => {
+    expect(barredBonuses({ ...facts, isModerator: true })).toEqual(['moderator'])
+    expect(barredBonuses({ ...facts, canName: false })).toEqual(['moderator'])
+    expect(barredBonuses({ ...facts, open: (id) => id !== 'moderatorOffer' })).toEqual(['moderator'])
+  })
+
+  it('bar a reveal where reveals are free, a filter or a slot where their feature is closed', () => {
+    expect(barredBonuses({ ...facts, unlimitedReveals: true })).toEqual(['reveal'])
+    expect(barredBonuses({ ...facts, open: (id) => id !== 'categoryBans' && id !== 'powers' })).toEqual(['filter', 'slot'])
+  })
+
+  it('take a barred card off a table already dealt, and deal again when none is left', () => {
+    const owing = diligent(FIRST_BONUS)
+    const table = { ...owing, bonusOffer: ['moderator', 'reveal'] }
+    expect(dealBonusOffer(table, 1, ['moderator']).bonusOffer).toEqual(['reveal'])
+    const redealt = dealBonusOffer({ ...owing, bonusOffer: ['moderator'] }, 1, ['moderator'])
+    expect(redealt.bonusOffer).toContain('slot')
+    expect(redealt.bonusOffer).not.toContain('moderator')
   })
 })
 

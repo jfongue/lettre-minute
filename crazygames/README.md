@@ -148,10 +148,12 @@ ami modérateur) — un joueur connecté au portail a le compte
   la pub, ou son erreur (y compris bloqueur de pub), au plus 60 s. Le son est
   coupé seulement pendant que la pub joue (`adStarted` → `adFinished`/`adError`).
   En Basic Launch, le portail n'affiche aucune pub : l'appel ne coûte rien.
-- **Un pouvoir ou une catégorie à chaque niveau** (`crazyGamesHost.levelBonuses`
-  à false) : les niveaux qui paient un bonus ailleurs (`bonusLevels`) paient
-  ici une catégorie, et le second emplacement de pouvoir, qui ne se gagne
-  qu'en bonus, ne s'affiche pas. Les bonus déjà pris restent.
+- **Bonus de niveau** (`crazyGamesHost.levelBonuses`), comme sur Android : le
+  premier propose toujours le second emplacement de pouvoir. Ne se
+  distribuent jamais ici (`barredBonuses`) le cadenas, puisque « Mes
+  catégories » n'offre pas le filtrage, la carte de modérateur à un invité
+  sans compte, ni la révélation tant qu'elles sont illimitées. Un niveau qui
+  n'a plus de carte à offrir redevient une catégorie.
 - **Pub récompensée** (`showRewarded`, `src/platform/crazygames.ts`) : celle du
   SDK, qui paie deux révélations de plus au bilan et la seconde tentative du
   défi du moment, comme AdMob sur Android — la récompense sur `adFinished`

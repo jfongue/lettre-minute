@@ -43,8 +43,8 @@ describe('les hôtes', () => {
     }
   })
 
-  it('ferment le filtrage sur CrazyGames, où ni bonus de niveau ni Premium ne l’ouvrent', () => {
-    expect(crazyGamesHost.levelBonuses).toBe(false)
+  it('ferment le filtrage sur CrazyGames, dont les bonus de niveau ne distribuent donc pas le cadenas', () => {
+    expect(crazyGamesHost.levelBonuses).toBe(true)
     expect(crazyGamesHost.closedFeatures).toContain('categoryBans')
   })
 

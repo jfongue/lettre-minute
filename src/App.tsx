@@ -86,6 +86,7 @@ import {
   needsPowerPick,
   scoreAt,
 } from './domain/challenge'
+import { barredBonuses } from './domain/bonus'
 import { complicationDue, ownedPowers, slotsOf, type PowerId } from './domain/powers'
 import { completeLeaderboard } from './domain/leaderboards'
 import { withGuest } from './ui/guestBoards'
@@ -444,6 +445,18 @@ setMenuPage(null)
     [storedFeatures, roles.moderator, roles.superModerator, roles.premium],
   )
   const on = useCallback((id: FeatureId) => features.has(id), [features])
+  // Une version sans compte anonyme (l'invité du portail) n'a aucun compte où
+  // devenir modérateur : la carte lui serait un bonus perdu.
+  const barred = useMemo(
+    () =>
+      barredBonuses({
+        isModerator: moderation?.moderator === true,
+        canName: account?.anonymous === false || host.anonymousAccounts,
+        unlimitedReveals: host.unlimitedReveals,
+        open: on,
+      }),
+    [moderation?.moderator, account?.anonymous, on],
+  )
   const featuresNow = useRef(features)
   featuresNow.current = features
   useEffect(() => {
@@ -932,8 +945,8 @@ setStartedAt((at) => at ?? Date.now())
   // A pick owed and no offer on the table — after a level up, or on a device
   // that has never seen this player's picks — deals three categories to choose from.
   useEffect(() => {
-    dispatch({ type: 'offer', availableIds: availableCategoryIds(lang), seed: Date.now() >>> 0, isModerator: moderation?.moderator === true, bonuses: host.levelBonuses })
-  }, [session.profile, lang, moderation?.moderator])
+    dispatch({ type: 'offer', availableIds: availableCategoryIds(lang), seed: Date.now() >>> 0, barred, bonuses: host.levelBonuses })
+  }, [session.profile, lang, barred])
 
   // Loading an ad takes seconds, consent included: started once the free pick
   // is spent, it is ready by the next offer. Never mid-run, where the consent
@@ -2442,7 +2455,7 @@ setMenuPage('avatar')
             onChoose={choose}
             onChoosePower={choosePower}
             onChooseBonus={chooseBonus}
-            isModerator={moderation?.moderator === true}
+            barredBonuses={barred}
             boardsBefore={boardsBefore}
             boardsAfter={boardsAfter}
             me={account && !account.anonymous ? account.name : null}

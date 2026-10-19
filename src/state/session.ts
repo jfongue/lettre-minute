@@ -6,7 +6,7 @@ import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
 import { markRatingAsked, markRatingDone } from '../domain/rating'
 import { premiereCategoryIds } from '../domain/catalogue'
 import { ban, bannedOf, countPlusReveal, countPlusRun, grantRevealAd, joinPlus, learnFromProfessor, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
-import { chooseBonus, dealBonusOffer } from '../domain/bonus'
+import { chooseBonus, dealBonusOffer, type BonusId } from '../domain/bonus'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, wearOrDrop, type PowerId } from '../domain/powers'
 import { countsForProgress, type GameMode } from '../domain/modes'
 import {
@@ -107,9 +107,9 @@ export type SessionAction =
     }
   /** The countdown traded a category: same seed, new lineup, a judge that knows the incoming dictionary. */
   | { type: 'swapped'; judge: Judge; categoryIds: readonly string[]; reserve: readonly string[] }
-  /** `isModerator` keeps the moderator card off the bonus table of someone who already is one. */
+  /** `barred`: the bonus cards this player is never dealt (`barredBonuses`). */
   /** `bonuses` false: every level pays a power or a category (`Host.levelBonuses`). */
-  | { type: 'offer'; availableIds: readonly string[]; seed: number; isModerator?: boolean; bonuses?: boolean }
+  | { type: 'offer'; availableIds: readonly string[]; seed: number; barred?: readonly BonusId[]; bonuses?: boolean }
   | { type: 'choose'; categoryId: string }
   | { type: 'choose-bonus'; bonusId: string }
   | { type: 'choose-power'; powerId: string }
@@ -220,12 +220,12 @@ export function sessionReducer(session: Session, action: SessionAction): Session
     }
 
     case 'offer': {
-      const isModerator = action.isModerator ?? false
+      const barred = action.barred ?? []
       const bonuses = action.bonuses ?? true
       const profile = dealBonusOffer(
-        dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed, isModerator, bonuses), action.seed),
+        dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed, barred, bonuses), action.seed),
         action.seed,
-        isModerator,
+        barred,
         bonuses,
       )
       return profile === session.profile ? session : { ...session, profile }

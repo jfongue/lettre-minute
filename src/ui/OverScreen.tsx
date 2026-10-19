@@ -22,7 +22,7 @@ import { UnlockScreen } from './UnlockScreen'
 import { PowerOfferScreen } from './PowerOfferScreen'
 import { BonusOfferScreen } from './BonusOfferScreen'
 import { powerPicksOwed } from '../domain/powers'
-import { bonusesOwed } from '../domain/bonus'
+import { bonusesOwed, type BonusId } from '../domain/bonus'
 import { reducedMotion, useTween } from './useCountUp'
 import { ShareSoon } from './ShareSoon'
 import { RequestRow, type RequestEntry } from './RequestsPage'
@@ -71,8 +71,8 @@ onAvatar(design?: number): void
   onChoose(categoryId: string): void
   onChoosePower(powerId: string): void
   onChooseBonus(bonusId: string): void
-  /** A moderator is not offered the moderator card: it would give nothing. */
-  isModerator?: boolean
+  /** The bonus cards this player is never dealt (`barredBonuses`): they change which levels pay a category. */
+  barredBonuses?: readonly BonusId[]
   onReplay(): void
   onHome(): void
   /**
@@ -145,7 +145,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
         key={round}
         offer={profile.offer}
         lang={lang}
-        owed={picksOwed(profile, summary.isModerator, host.levelBonuses)}
+        owed={picksOwed(profile, summary.barredBonuses, host.levelBonuses)}
         level={levelled ? levelFor(profile.xp) : null}
         withAd={adsSupported() && pickShowsAd(profile)}
         onChoose={(id) => {
@@ -182,7 +182,7 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
       <BonusOfferScreen
         key={`bonus-${round}`}
         offer={profile.bonusOffer}
-        owed={bonusesOwed(profile, summary.isModerator, host.levelBonuses)}
+        owed={bonusesOwed(profile, summary.barredBonuses, host.levelBonuses)}
         level={levelled ? levelFor(profile.xp) : null}
         profile={profile}
         onChoose={(id) => {
