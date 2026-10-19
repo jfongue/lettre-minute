@@ -330,7 +330,11 @@ setMenuPage(null)
   const [history, setHistory] = useState<RunRecord[]>([])
   const [theme, setTheme] = useState<Theme>(loadTheme)
   const [soundPrefs, setSoundPrefs] = useState<SoundPrefs>(loadSoundPrefs)
+  const tuned = useRef(0)
   const tune = useCallback((next: SoundPrefs) => {
+    // A slider fires at every notch: one event per burst of dragging.
+    if (Date.now() - tuned.current > 10_000) trackFeature('sound_changed')
+    tuned.current = Date.now()
     setSoundPrefs(next)
     saveSoundPrefs(next)
   }, [])
@@ -1690,6 +1694,8 @@ setStartedAt((at) => at ?? Date.now())
       proposed: session.proposals.length,
       lang: playedLang,
     })
+    // Which powers really served, one event each: what `run_end` carries is only what was worn.
+    for (const power of session.run.usedPowers) trackFeature('power_used', { power })
     // Un mode de la réserve ne laisse rien derrière lui : ni historique, ni
     // serveur, ni succès. Ses mots proposés partent quand même.
     if (!countsForProgress(session.run.mode) || session.weekly) {
@@ -2074,7 +2080,10 @@ setStartedAt((at) => at ?? Date.now())
           }
           onPlay={() => (on('gameModes') ? setModesOpen(true) : startFirstRun())}
           onDebug={on('debugBoard') ? () => setDebugPhase('home') : undefined}
-          onEquip={(slot, powerId) => dispatch({ type: 'equip', slot, powerId })}
+          onEquip={(slot, powerId) => {
+            trackFeature('power_equipped', { power: powerId ?? 'none', slot })
+            dispatch({ type: 'equip', slot, powerId })
+          }}
           onAccount={
             account?.anonymous
               ? (mode) => {

@@ -101,6 +101,33 @@ export interface Snapshot {
   insights?: Insights
   /** Absent d'un serveur antérieur à 0084. */
   quality?: Quality
+  /** Absent d'un serveur antérieur à 0094. */
+  usage?: Usage
+  /** Absent d'un serveur antérieur à 0094. */
+  moderation_history?: ModerationHistory
+}
+
+/**
+ * L'usage des fonctions (`analytics_usage`, 0094) : par fonction, ses usages
+ * (`n`) et ses utilisateurs (`u`, comptes ou, à défaut, appareils) sur 1, 7,
+ * 14 et 30 jours. Une fonction qui n'a servi à personne n'y figure pas : c'est
+ * l'écran qui connaît la liste. `run_solo`, `run_challenge`… sont les parties
+ * lancées par mode.
+ */
+export type UsageWindow = 1 | 7 | 14 | 30
+export interface Usage {
+  features: ({ name: string } & Record<`n${UsageWindow}` | `u${UsageWindow}`, number>)[]
+}
+
+/**
+ * La modération au fil des jours (0094) : les sessions menées au bout par
+ * langue, et la réserve restante à la fin de chaque jour, reconstruite depuis
+ * les dates d'entrée et de versement des mots.
+ */
+export interface ModerationHistory {
+  sessions_daily: { day: string; lang: string; n: number }[]
+  sessions_today_hourly: { hour: number; lang: string; n: number }[]
+  reserve_daily: { day: string; lang: string; left: number }[]
 }
 
 /**

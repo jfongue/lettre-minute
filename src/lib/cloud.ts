@@ -18,6 +18,7 @@ import { weeklyValue, type WeeklyMeasures, type WeeklyMetric } from '../domain/w
 import { withBotRuns } from '../state/botRuns'
 import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
 import { host } from '../platform'
+import { trackFeature } from './feature'
 import { googleIdToken } from './native'
 import { connect, forgetSession, supabase } from './supabase'
 import { testClient } from './testClient'
@@ -910,6 +911,7 @@ export type FriendRequestOutcome = 'sent' | 'accepted' | 'already' | 'self' | 'u
 export function requestFriend(name: string): Promise<FriendRequestOutcome> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('request_friend', { p_name: name.trim() })
+    if (!error && (data === 'sent' || data === 'accepted')) trackFeature('friend_request', { result: data })
     return error ? 'unreachable' : (data as FriendRequestOutcome)
   }, 'unreachable')
 }
@@ -924,6 +926,7 @@ export type TesterInviteOutcome = 'sent' | 'already' | 'invalid' | 'limit' | 'an
 export function inviteTester(email: string, lang: string): Promise<TesterInviteOutcome> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('invite_tester', { p_email: email.trim(), p_lang: lang })
+    if (!error && data === 'sent') trackFeature('invite_mail')
     return error ? 'unreachable' : (data as TesterInviteOutcome)
   }, 'unreachable')
 }
@@ -943,6 +946,7 @@ export function fetchInviteCode(): Promise<string | null> {
 export function acceptInvite(code: string): Promise<string | null | 'unreachable'> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('accept_invite', { p_code: code })
+    if (!error && typeof data === 'string') trackFeature('invite_accepted')
     return error ? 'unreachable' : typeof data === 'string' ? data : null
   }, 'unreachable')
 }
@@ -950,6 +954,7 @@ export function acceptInvite(code: string): Promise<string | null | 'unreachable
 export function respondFriend(from: string, accept: boolean): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('respond_friend', { p_from: from, p_accept: accept })
+    if (!error) trackFeature(accept ? 'friend_accept' : 'friend_decline')
     return !error
   }, false)
 }
@@ -958,6 +963,7 @@ export function respondFriend(from: string, accept: boolean): Promise<boolean> {
 export function removeFriend(other: string): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('remove_friend', { p_other: other })
+    if (!error) trackFeature('friend_remove')
     return !error
   }, false)
 }
@@ -968,6 +974,7 @@ export type BlockOutcome = 'blocked' | 'self' | 'unknown' | 'anonymous' | 'unrea
 export function blockPlayer(name: string): Promise<BlockOutcome> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('block_player', { p_name: name.trim() })
+    if (!error && data === 'blocked') trackFeature('friend_block')
     return error ? 'unreachable' : (data as BlockOutcome)
   }, 'unreachable')
 }
@@ -975,6 +982,7 @@ export function blockPlayer(name: string): Promise<BlockOutcome> {
 export function unblockPlayer(id: string): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('unblock_player', { p_other: id })
+    if (!error) trackFeature('friend_unblock')
     return !error
   }, false)
 }
@@ -1629,6 +1637,7 @@ export function pushChallengeRun(id: string, run: Run, profile: Profile): Promis
 export function reactInChallenge(id: string, target: string, emoji: ReactionEmoji | null): Promise<boolean> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('react_in_challenge', { p_challenge: id, p_target: target, p_emoji: emoji })
+    if (!error && data === true && emoji) trackFeature('reaction', { where: 'challenge' })
     return !error && data === true
   }, false)
 }
@@ -1742,6 +1751,7 @@ export function fetchDuelCandidates(): Promise<DuelCandidate[] | null> {
 export function createDuelTable(lang: string, categories: readonly string[], owned: number): Promise<string | null> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('duel_create', { p_lang: lang, p_categories: categories, p_owned: owned })
+    if (!error && data) trackFeature('duel_created')
     return error ? null : (data as string)
   }, null)
 }
@@ -1758,7 +1768,10 @@ export function duelMatchmake(lang: string, categories: readonly string[], owned
     const { data, error } = await supabase!.rpc('duel_matchmake', { p_lang: lang, p_categories: categories, p_owned: owned })
     if (error || !data) return null
     const answer = data as { status?: string; table?: string }
-    if (answer.status === 'matched' && typeof answer.table === 'string') return { status: 'matched', table: answer.table }
+    if (answer.status === 'matched' && typeof answer.table === 'string') {
+      trackFeature('duel_matched')
+      return { status: 'matched', table: answer.table }
+    }
     return answer.status === 'waiting' ? { status: 'waiting' } : null
   }, null)
 }
@@ -1807,6 +1820,7 @@ export type DuelJoinOutcome = 'joined' | 'full' | 'closed' | 'kicked' | 'forbidd
 export function joinDuel(table: string, owned: number): Promise<DuelJoinOutcome> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('duel_join', { p_table: table, p_owned: owned })
+    if (!error && data === 'joined') trackFeature('duel_joined')
     return error ? 'unreachable' : (data as DuelJoinOutcome)
   }, 'unreachable')
 }
@@ -2053,6 +2067,7 @@ export function weeklyStart(weekId: string, lang: string, day: string, quota: nu
     const { data, error } = await supabase!.rpc('weekly_start', { p_week_id: weekId, p_lang: lang, p_day: day, p_quota: quota })
     if (error) return 'unreachable'
     const row = (data as { attempt_id: string; n: number }[] | null)?.[0]
+    if (row) trackFeature('weekly_attempt', { n: Number(row.n) })
     return row ? { attemptId: row.attempt_id, n: Number(row.n) } : 'refused'
   }, 'unreachable' as WeeklyStart)
 }
@@ -2213,6 +2228,7 @@ export function reactInWeekly(weekId: string, lang: string, target: string, emoj
       p_target: target,
       p_emoji: emoji,
     })
+    if (!error && data === true && emoji) trackFeature('reaction', { where: 'weekly' })
     return !error && data === true
   }, false)
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent, type ReactNode } from 'react'
 import { SWIPE_THRESHOLD, swipeVerdict, type Verdict } from '../domain/moderation'
 import { castVote, fetchModerationQueue, reportModerationSession, type ReviewCard, type VoteOutcome } from '../lib/cloud'
+import { trackFeature } from '../lib/feature'
 import { sound } from '../lib/sound'
 import { categoryText, useT } from '../i18n'
 import { Burst, Figure } from './bauhaus'
@@ -94,6 +95,7 @@ export function ModerationScreen({ lang, onDone, queue, onVerdict }: ModerationS
     // La file vidée se rapporte au serveur : c'est lui qui garde les sessions, et
     // « Mes demandes » comme le classement y lisent le même compte.
     void reportModerationSession()
+    trackFeature('moderation_session')
     const timer = setTimeout(sound.news, 450)
     return () => clearTimeout(timer)
   }, [finished])
@@ -120,6 +122,7 @@ export function ModerationScreen({ lang, onDone, queue, onVerdict }: ModerationS
         sound.refused()
         return
       }
+      trackFeature('moderation_vote', { verdict, kind: card.kind })
       if (outcome === 'accepted') sound.found(3, 4)
       if (outcome === 'rejected') sound.skipped()
       // A review settled between the card being dealt and the vote — already
