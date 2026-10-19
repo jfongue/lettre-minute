@@ -715,7 +715,10 @@ function SocialPane({
       showModerator={moderator}
       sharedWith={sharedWith}
       message={message}
-      onOpen={setOpened}
+      onOpen={(friendId) => {
+        trackFeature('friend_opened')
+        setOpened(friendId)
+      }}
       onRespond={(friendId, accept) => act(respondFriend(friendId, accept))}
       onCancel={(friendId) => act(removeFriend(friendId))}
       onUnblock={(playerId) => act(unblockPlayer(playerId))}

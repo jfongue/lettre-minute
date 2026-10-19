@@ -776,7 +776,13 @@ lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphon
   à `analytics_extras` (invitations, couples passés) : une section nouvelle
   va dans l'une des deux, sans réécrire l'autre. Toucher une barre
   d'activité ou d'invitations nomme ses joueurs (`admin_slot`), filtrés
-  côté client par la même règle que la série (`COUNTS`). Les fonctions
+  côté client par la même règle que la série (`COUNTS`). « Fonctions utilisées »
+  (0094, `analytics_usage`) lit les événements `feature` (`trackFeature`, via
+  `src/lib/feature.ts` depuis un écran partagé ou `cloud.ts`) sur 1/7/14/30 jours
+  et montre « jamais » pour ce que le relevé ne voit pas : une fonction nouvelle
+  entre dans `FEATURE_GROUPS` (`Dashboard.tsx`), sinon elle tombe sous « Autres ».
+  La réserve de modération au fil des jours se reconstruit de `released_at` et
+  `added_at` (0094), sans tâche planifiée. Les fonctions
   `debug_*` (0025, 0026) restent en base, plus aucun écran ne les lit.
 - **Le tableau des mots dit ce que le dictionnaire est devenu**
   (`src/debug/WordsBoard.tsx`) : cinq tapes rapprochées sur « Mes catégories » —

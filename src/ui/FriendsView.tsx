@@ -4,6 +4,7 @@ import type { AvatarChoice } from '../domain/avatar'
 import { levelFor } from '../domain/progression'
 import { rivalry, type SharedChallenge } from '../domain/rivalry'
 import { formatNumber, useT } from '../i18n'
+import { trackFeature } from '../lib/feature'
 import { sound } from '../lib/sound'
 import type { BlockedPlayer, Friend } from '../lib/cloud'
 import { isNativeApp, shareText, type ShareOutcome } from '../lib/native'
@@ -425,6 +426,7 @@ function InvitePanel({
 
   // Discord has no share link: the text goes to the clipboard, to paste there.
   const discord = async () => {
+    trackFeature('invite_shared', { via: 'discord' })
     try {
       await navigator.clipboard.writeText(text)
       setSaid(t.social.discordCopied)
@@ -456,6 +458,7 @@ function InvitePanel({
             target="_blank"
             rel="noopener noreferrer"
             data-track={`invite-${app.id}`}
+            onClick={() => trackFeature('invite_shared', { via: app.id })}
           >
             {app.label}
           </a>
@@ -463,7 +466,10 @@ function InvitePanel({
         <button type="button" className="chat-app chat-app--discord" onClick={discord} data-track="invite-discord">
           Discord
         </button>
-        <button type="button" className="chat-app chat-app--other" onClick={async () => tell(await shareText(text))}>
+        <button type="button" className="chat-app chat-app--other" onClick={async () => {
+            trackFeature('invite_shared', { via: 'other' })
+            tell(await shareText(text))
+          }}>
           {t.social.otherApps}
         </button>
       </div>

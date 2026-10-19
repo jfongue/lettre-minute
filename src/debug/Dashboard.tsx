@@ -10,7 +10,7 @@ import { Avatar } from '../ui/Avatar'
 import { PlayerActionsContext, SpyHistory } from '../ui/PlayerSheet'
 import { Card, Kpi, Legend, Section, Stat, Table } from './board'
 import { ago, decimal, fmt, pct } from './format'
-import type { ByPlatform, ChoiceKind, DayRow, HourRow, Insights, Invites, ModerationByLang, PlatformName, Quality, Revenue, RevenueDay, SlotEntry, Snapshot } from './snapshot'
+import type { ByPlatform, ChoiceKind, DayRow, HourRow, Insights, Invites, ModerationByLang, ModerationHistory, PlatformName, Quality, Revenue, RevenueDay, SlotEntry, Snapshot, Usage, UsageWindow } from './snapshot'
 
 /*
  * Le tableau de bord de l'administrateur : cinq tapes sur « Classements »
@@ -119,25 +119,93 @@ const SCREENS: Record<string, string> = {
   'challenge-create': 'Créer un défi',
   'challenge-powers': 'Pouvoirs du défi',
 }
-const FEATURES: Record<string, string> = {
-  swap: 'Échange de catégorie',
-  category_chosen: 'Catégorie choisie',
-  power_chosen: 'Pouvoir choisi',
-  premium_opened: 'Offre Premium ouverte',
-  premium_joined: 'Premium activé',
-  ad: 'Pub ouverte',
-  hidden_words_peek: 'Mots cachés révélés',
-  category_ban: 'Catégorie bannie',
-  category_unban: 'Catégorie rétablie',
-  word_proposed: 'Mot proposé',
-  challenge_created: 'Défi créé',
-  challenge_rematch: 'Revanche',
-  theme: 'Thème changé',
-  push_accepted: 'Notifications acceptées',
-  store_update: 'Mise à jour Play',
-  avatar_saved: 'Avatar changé',
-  language: 'Langue choisie',
-}
+/**
+ * Toutes les fonctions que le client sait rapporter (`trackFeature`, plus les
+ * parties par mode), rangées par usage : celles que le relevé ne voit pas sur
+ * la période se lisent « jamais utilisée », ce qui est justement l'information.
+ * Un nom de plus côté client entre ici, sinon il tombe sous « Autres ».
+ */
+const FEATURE_GROUPS: { title: string; items: [name: string, label: string][] }[] = [
+  {
+    title: 'En partie',
+    items: [
+      ['run_solo', 'Partie solo lancée'],
+      ['run_challenge', 'Partie de défi lancée'],
+      ['run_weekly', 'Partie du défi du moment lancée'],
+      ['power_used', 'Pouvoir joué en partie'],
+      ['swap', 'Échange de catégorie'],
+      ['hidden_words_peek', 'Mots cachés révélés'],
+      ['hidden_words_ad', 'Mots cachés par une pub'],
+    ],
+  },
+  {
+    title: 'Progression et réglages de jeu',
+    items: [
+      ['category_chosen', 'Catégorie choisie'],
+      ['power_chosen', 'Pouvoir choisi'],
+      ['bonus_chosen', 'Bonus choisi'],
+      ['power_equipped', 'Pouvoirs portés changés'],
+      ['category_ban', 'Catégorie bannie'],
+      ['category_unban', 'Catégorie rétablie'],
+      ['avatar_saved', 'Avatar changé'],
+      ['avatar_keep_asked', 'Avatar gardé ou non, à la question'],
+    ],
+  },
+  {
+    title: 'Amis et invitations',
+    items: [
+      ['friend_request', 'Demande d’ami envoyée'],
+      ['friend_accept', 'Demande d’ami acceptée'],
+      ['friend_decline', 'Demande d’ami refusée'],
+      ['friend_opened', 'Page d’un ami ouverte'],
+      ['friend_remove', 'Ami retiré'],
+      ['friend_block', 'Joueur bloqué'],
+      ['friend_unblock', 'Joueur débloqué'],
+      ['invite_shared', 'Invitation partagée (lien)'],
+      ['invite_mail', 'Invitation envoyée par e-mail'],
+      ['invite_accepted', 'Invitation d’un ami acceptée'],
+      ['reaction', 'Réaction donnée'],
+    ],
+  },
+  {
+    title: 'Défis, défi du moment et duel',
+    items: [
+      ['challenge_created', 'Défi créé'],
+      ['challenge_rematch', 'Revanche'],
+      ['weekly_attempt', 'Tentative du défi du moment'],
+      ['duel_created', 'Table de duel ouverte'],
+      ['duel_matched', 'Duel apparié (file)'],
+      ['duel_joined', 'Duel rejoint (invitation)'],
+    ],
+  },
+  {
+    title: 'Modération',
+    items: [
+      ['moderation_session', 'Session de modération menée au bout'],
+      ['moderation_vote', 'Vote de modération'],
+      ['word_proposed', 'Mot proposé'],
+    ],
+  },
+  {
+    title: 'Options et système',
+    items: [
+      ['theme', 'Thème changé'],
+      ['language', 'Langue choisie'],
+      ['sound_changed', 'Son réglé'],
+      ['push_accepted', 'Notifications acceptées'],
+      ['store_update', 'Mise à jour Play'],
+    ],
+  },
+  {
+    title: 'Premium et pubs',
+    items: [
+      ['premium_opened', 'Offre Premium ouverte'],
+      ['premium_joined', 'Premium activé'],
+      ['ad', 'Pub ouverte'],
+    ],
+  },
+]
+const FEATURES: Record<string, string> = Object.fromEntries(FEATURE_GROUPS.flatMap((group) => group.items))
 const KINDS: Record<string, string> = {
   open: 'Ouvertures',
   ready: 'Accueil prêt',
@@ -397,6 +465,7 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
               noTrack
             )}
           </Card>
+          {d.moderation_history && <ModerationSessionsCard history={d.moderation_history} rows={daily} per={per} />}
         </div>
         <p className="note">Touche une barre pour voir les joueurs qu’elle compte.</p>
       </Section>
@@ -460,43 +529,7 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
 
       {ins && <ChoicesSection choices={ins.choices} />}
 
-      <Section title="Ce que les joueurs touchent" mark="var(--red)" aside={tracked && <p className="note">boutons et liens, écran par écran</p>}>
-        {tracked ? (
-          <div className="dashboard-grid">
-            <Card title="Boutons les plus touchés">
-              <Bars
-                items={d.taps}
-                name={(tap) => (
-                  <>
-                    <small>{screenName(tap.screen)}</small>
-                    {tap.label}
-                  </>
-                )}
-                value={(tap) => tap.n}
-                sub={(tap) => `${fmt(tap.devices)} app.`}
-                color="var(--red)"
-                limit={12}
-              />
-            </Card>
-            <Card title="Fonctions utilisées">
-              <Bars
-                items={d.features}
-                name={(feature) => FEATURES[feature.name] ?? feature.name}
-                value={(feature) => feature.n}
-                sub={(feature) => `${fmt(feature.devices)} app.`}
-                color="var(--green)"
-              />
-              <h3>Écrans ouverts</h3>
-              <Bars items={d.screens} name={(screen) => screenName(screen.name)} value={(screen) => screen.n} sub={(screen) => `${fmt(screen.devices)} app.`} />
-            </Card>
-            <Card title="Tous les événements">
-              <Bars items={d.kinds} name={(kind) => KINDS[kind.kind] ?? kind.kind} value={(kind) => kind.n} sub={(kind) => `${fmt(kind.devices)} app.`} limit={14} />
-            </Card>
-          </div>
-        ) : (
-          noTrack
-        )}
-      </Section>
+      <UsageSection usage={d.usage} features={d.features} screens={d.screens} kinds={d.kinds} tracked={tracked} noTrack={noTrack} />
 
       <Section
         title="Parties"
@@ -574,7 +607,7 @@ function Body({ data: d, loadSlot }: { data: Snapshot; loadSlot: LoadSlot }) {
         </div>
       </Section>
 
-      {d.moderation_by_lang && <ModerationSection data={d.moderation_by_lang} />}
+      {d.moderation_by_lang && <ModerationSection data={d.moderation_by_lang} history={d.moderation_history} />}
 
       <Section title="Communauté et appareils" mark="var(--blue)" round>
         <div className="dashboard-stats">
@@ -786,7 +819,7 @@ function Since({ value, total }: { value: number; total: number }) {
   )
 }
 
-function ModerationSection({ data }: { data: ModerationByLang }) {
+function ModerationSection({ data, history }: { data: ModerationByLang; history?: ModerationHistory }) {
   const all = (key: Exclude<keyof ModerationByLang['langs'][number], 'lang' | 'thin'>) =>
     data.langs.reduce((total, one) => total + one[key], 0)
   const per = `sur ${data.days} jours`
@@ -838,11 +871,197 @@ function ModerationSection({ data }: { data: ModerationByLang }) {
           </tr>
         ))}
       </Table>
+      {history && <ReserveHistory history={history} />}
       <p className="note">
         Chiffres {per}, puis « / » ce qui s’est cumulé depuis toujours. La réserve et ce qui attend se comptent à l’instant. La langue d’un
         modérateur est la file qu’il a ouverte en dernier ; une langue sous dix juges fait entrer un mot sur deux « correct ».
       </p>
     </Section>
+  )
+}
+
+/* -------------------------------------------------- usage des fonctions */
+
+const USAGE_RANGES: readonly UsageWindow[] = [1, 7, 14, 30]
+
+function UsageSection({
+  usage,
+  features,
+  screens,
+  kinds,
+  tracked,
+  noTrack,
+}: {
+  usage?: Usage
+  features: Snapshot['features']
+  screens: Snapshot['screens']
+  kinds: Snapshot['kinds']
+  tracked: boolean
+  noTrack: ReactNode
+}) {
+  const [range, setRange] = useState<UsageWindow>(7)
+  const per = range === 1 ? 'aujourd’hui' : `sur ${range} jours`
+  const known = new Set(FEATURE_GROUPS.flatMap((group) => group.items.map(([name]) => name)))
+  const seen = new Map((usage?.features ?? []).map((row) => [row.name, row]))
+  const count = (name: string) => ({ n: seen.get(name)?.[`n${range}`] ?? 0, users: seen.get(name)?.[`u${range}`] ?? 0 })
+  const others = (usage?.features ?? []).filter((row) => !known.has(row.name) && row[`n${range}`] > 0)
+  const groups = [
+    ...FEATURE_GROUPS,
+    ...(others.length ? [{ title: 'Autres', items: others.map((row): [string, string] => [row.name, row.name]) }] : []),
+  ]
+  const all = groups.flatMap((group) => group.items.map(([name]) => name))
+  const unused = all.filter((name) => count(name).n === 0)
+  return (
+    <Section
+      title="Fonctions utilisées"
+      mark="var(--red)"
+      aside={
+        tracked &&
+        usage && (
+          <div className="layer-tabs dashboard-range" role="tablist" aria-label="Période">
+            {USAGE_RANGES.map((days) => (
+              <button
+                key={days}
+                type="button"
+                role="tab"
+                aria-selected={range === days}
+                className={`layer-tab${range === days ? ' layer-tab--on' : ''}`}
+                onClick={() => setRange(days)}
+              >
+                {days} j
+              </button>
+            ))}
+          </div>
+        )
+      }
+    >
+      {!tracked ? (
+        noTrack
+      ) : (
+        <>
+          {usage ? (
+            <>
+              <div className="dashboard-stats">
+                <Stat value={fmt(all.length - unused.length)} label={`fonctions utilisées · ${per}`} />
+                <Stat value={fmt(unused.length)} label={`jamais utilisées · sur ${fmt(all.length)} suivies`} />
+              </div>
+              <div className="dashboard-grid">
+                {groups.map((group) => (
+                  <Card key={group.title} title={group.title}>
+                    <Table head={['Fonction', 'Utilisateurs', 'Usages']}>
+                      {group.items.map(([name, label]) => {
+                        const one = count(name)
+                        return (
+                          <tr key={name} style={one.n === 0 ? { opacity: 0.55 } : undefined}>
+                            <td>
+                              {label}
+                              {one.n === 0 && <span className="dashboard-tag">jamais</span>}
+                            </td>
+                            <td className="n">{fmt(one.users)}</td>
+                            <td className="n">{fmt(one.n)}</td>
+                          </tr>
+                        )
+                      })}
+                    </Table>
+                  </Card>
+                ))}
+              </div>
+              <p className="note">
+                Un utilisateur est un compte, ou à défaut un appareil. « Jamais » : aucune trace sur la période, que la fonction ne serve à
+                personne ou que les versions en circulation ne la rapportent pas encore (celles de 0094 sont nouvelles). Les parties par mode
+                viennent des lancements.
+              </p>
+            </>
+          ) : (
+            <Card title="Fonctions utilisées" note="Le détail par période arrive avec 0094 ; en attendant, les 30 derniers jours.">
+              <Bars
+                items={features}
+                name={(feature) => FEATURES[feature.name] ?? feature.name}
+                value={(feature) => feature.n}
+                sub={(feature) => `${fmt(feature.devices)} app.`}
+                color="var(--green)"
+              />
+            </Card>
+          )}
+          <div className="dashboard-grid">
+            <Card title="Écrans ouverts">
+              <Bars items={screens} name={(screen) => screenName(screen.name)} value={(screen) => screen.n} sub={(screen) => `${fmt(screen.devices)} app.`} />
+            </Card>
+            <Card title="Tous les événements">
+              <Bars items={kinds} name={(kind) => KINDS[kind.kind] ?? kind.kind} value={(kind) => kind.n} sub={(kind) => `${fmt(kind.devices)} app.`} limit={14} />
+            </Card>
+          </div>
+        </>
+      )}
+    </Section>
+  )
+}
+
+/* ------------------------------------------- modération au fil du temps */
+
+const MOD_LANGS = ['fr', 'en', 'es', 'de', 'it', 'nl', 'pt'] as const
+type ModLang = (typeof MOD_LANGS)[number]
+const isModLang = (lang: string): lang is ModLang => (MOD_LANGS as readonly string[]).includes(lang)
+const MOD_LANG_COLORS: Record<ModLang, string> = {
+  fr: 'var(--blue)',
+  en: 'var(--red)',
+  es: 'var(--yellow)',
+  de: 'var(--green)',
+  it: 'var(--pink)',
+  nl: 'var(--ink-soft)',
+  pt: 'var(--ink-faint)',
+}
+
+/** Les langues d'une frise, dans l'ordre du jeu, celles qui ont une ligne au moins. */
+function modLangsOf(seen: Iterable<string>): ModLang[] {
+  const set = new Set(seen)
+  const present = MOD_LANGS.filter((lang) => set.has(lang))
+  return present.length ? present : ['fr']
+}
+
+const modSeries = (langs: readonly ModLang[]): Series[] => langs.map((lang) => ({ key: lang, label: lang.toUpperCase(), color: MOD_LANG_COLORS[lang] }))
+
+function ModerationSessionsCard({ history, rows, per }: { history: ModerationHistory; rows: readonly Day[]; per: string }) {
+  const langs = modLangsOf([...history.sessions_daily, ...history.sessions_today_hourly].map((one) => one.lang))
+  const series = modSeries(langs)
+  const columns: Day[] = rows.map((row) => {
+    const column: Day = { day: row.day, hour: row.hour }
+    const found =
+      row.hour == null
+        ? history.sessions_daily.filter((one) => one.day === row.day)
+        : history.sessions_today_hourly.filter((one) => one.hour === row.hour)
+    for (const one of found) if (isModLang(one.lang)) column[one.lang] = (column[one.lang] ?? 0) + one.n
+    return column
+  })
+  const total = columns.reduce((sum, column) => sum + langs.reduce((inner, lang) => inner + (column[lang] ?? 0), 0), 0)
+  return (
+    <Card title={`Sessions de modération ${per}`} tag={fmt(total)}>
+      <Legend items={series.map(({ label, color }) => ({ label, color }))} />
+      <DayBars rows={columns} series={series} />
+      <p className="note">Une session : la file d’un modérateur jugée jusqu’au bout, rangée sous la langue de ce modérateur.</p>
+    </Card>
+  )
+}
+
+function ReserveHistory({ history }: { history: ModerationHistory }) {
+  const days = [...new Set(history.reserve_daily.map((one) => one.day))].sort()
+  const langs = modLangsOf(history.reserve_daily.map((one) => one.lang))
+  const series = modSeries(langs)
+  const left = (day: string, lang: string) => history.reserve_daily.find((one) => one.day === day && one.lang === lang)?.left ?? 0
+  return (
+    <Card title="Réserve de modération au fil des jours" note="Mots qui attendent encore dans la réserve de chaque langue, à la fin de chaque jour de Paris.">
+      <Legend items={series.map(({ label, color }) => ({ label, color }))} />
+      <LineChart
+        rows={days}
+        label={dayLabel}
+        format={(value) => fmt(Math.round(value))}
+        series={series.map((one) => ({ key: one.key, label: one.label, color: one.color, value: (day: string) => left(day, one.key) }))}
+      />
+      <p className="note">
+        Reconstruite depuis les dates de versement ; un mot entré avant 0094 compte comme présent depuis toujours, ce qui surévalue les jours
+        qui précèdent un nouvel ensemencement.
+      </p>
+    </Card>
   )
 }
 
@@ -1306,6 +1525,8 @@ const COUNTS: Record<Series['key'], (entry: SlotEntry, row: Day) => boolean> = {
   crazygames: () => false,
   reddit: () => false,
   inconnu: () => false,
+  // Les sessions de modération ne s'ouvrent pas joueur par joueur (et leurs barres n'ont pas de détail).
+  ...(Object.fromEntries(MOD_LANGS.map((lang) => [lang, () => false])) as Record<ModLang, () => boolean>),
 }
 
 function SlotSheet({ picked, load, onClose }: { picked: Picked; load: LoadSlot; onClose(): void }) {
@@ -1557,6 +1778,7 @@ interface Series {
     | 'offers'
     | 'subscribed'
     | 'ads'
+    | ModLang
     | PlatformName
   label: string
   color: string

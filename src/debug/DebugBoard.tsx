@@ -608,6 +608,40 @@ function dashboardSnapshot(): Snapshot {
         { lang: 'pt', moderators: 0, supers: 0, active: 0, thin: true, reserve_left: 100, reserve_released: 0, pending_add: 0, pending_ban: 0, sessions: 0, sessions_total: 0, votes: 0, added: 0, added_reserve: 0, added_total: 0, removed: 0, removed_total: 0, rejected: 0 },
       ],
     },
+    usage: {
+      features: [
+        ['run_solo', 1_480, 160], ['power_used', 910, 84], ['category_chosen', 310, 120], ['run_challenge', 260, 66], ['power_equipped', 190, 58],
+        ['theme', 24, 19], ['moderation_session', 41, 9], ['friend_request', 38, 25], ['challenge_created', 96, 51], ['invite_shared', 31, 14],
+        ['category_ban', 18, 11], ['weekly_attempt', 140, 52], ['sound_changed', 22, 17], ['swap', 77, 36], ['friend_block', 2, 2],
+      ].map(([name, n, u]) => {
+        const k = Number(n)
+        const users = Number(u)
+        return {
+          name: String(name),
+          n1: Math.round(k / 30), u1: Math.min(users, Math.ceil(users / 6)),
+          n7: Math.round(k / 4), u7: Math.min(users, Math.ceil(users / 2)),
+          n14: Math.round(k / 2), u14: Math.min(users, Math.ceil(users * 0.75)),
+          n30: k, u30: users,
+        }
+      }),
+    },
+    moderation_history: {
+      sessions_daily: daily.flatMap((row, index) => [
+        { day: row.day, lang: 'fr', n: 1 + ((index * 5) % 4) },
+        ...(index % 3 === 0 ? [{ day: row.day, lang: 'en', n: 1 + (index % 2) }] : []),
+        ...(index > 24 ? [{ day: row.day, lang: 'de', n: 1 }] : []),
+      ]),
+      sessions_today_hourly: [
+        { hour: 9, lang: 'fr', n: 1 }, { hour: 12, lang: 'fr', n: 2 }, { hour: 12, lang: 'en', n: 1 }, { hour: 14, lang: 'fr', n: 1 },
+      ],
+      // Une réserve qui se vide au compte-goutte, et que l'ensemencement remplit d'un coup au milieu du mois.
+      reserve_daily: daily.flatMap((row, index) => [
+        { day: row.day, lang: 'fr', left: Math.max(40, 100 - index * 2) + (index > 18 ? 30 : 0) },
+        { day: row.day, lang: 'en', left: 100 - Math.floor(index / 5) * 3 },
+        { day: row.day, lang: 'de', left: 100 },
+        { day: row.day, lang: 'pt', left: index < 12 ? 0 : 100 },
+      ]),
+    },
     revenue: {
       premium: {
         offers: 318, offer_devices: 96, activations: 27, subscribers: 41, refused: 3,
@@ -2586,7 +2620,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'leaderboards-advanced',
     group: 'Accueil',
     title: 'Tableau de bord de l’administrateur',
-    how: 'Cinq tapes sur « Classements » : joueurs, actifs, parties, sessions, boutons touchés, rétention, choix de niveau, qualité — le relevé d’analytics_snapshot',
+    how: 'Cinq tapes sur « Classements » : joueurs, actifs, parties, sessions de modération, fonctions utilisées (dont celles que personne n’utilise), rétention, choix de niveau, réserve de modération, qualité — le relevé d’analytics_snapshot',
     phase: 'home',
     render: () => <AdvancedScenario />,
   },
