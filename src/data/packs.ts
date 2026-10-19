@@ -34,12 +34,20 @@ export function loadPack(lang: string, categoryId: string): Promise<WordPack> {
   const file = FILES[path]
   if (!file) return Promise.reject(new Error(`dictionnaire absent : ${lang}/${categoryId}`))
 
-  const promise = file().then((rows) => {
-    const pack = buildWordPack(categoryId, rows)
-    loaded.set(path, pack)
-    loading.delete(path)
-    return pack
-  })
+  const promise = file().then(
+    (rows) => {
+      const pack = buildWordPack(categoryId, rows)
+      loaded.set(path, pack)
+      loading.delete(path)
+      return pack
+    },
+    (error: unknown) => {
+      // A chunk that failed to load (offline, a stale deploy) must be asked for
+      // again next time, not answered with the same rejection for ever.
+      loading.delete(path)
+      throw error
+    },
+  )
   loading.set(path, promise)
   return promise
 }
