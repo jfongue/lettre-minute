@@ -135,7 +135,7 @@ export function OverScreen({ run, revealed, onRevealed, onSummary, lang, ...summ
             />
           )
         }
-        onNext={onRevealed}
+        onNext={() => void host.breakAfterRecap().then(onRevealed)}
       />
     )
   }

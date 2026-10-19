@@ -661,6 +661,7 @@ const AD_SOURCES: Record<string, string> = {
   reveal: 'Mots cachés du bilan',
   attempt: 'Essai du défi du moment',
   offer: 'Catégorie gardée',
+  midgame: 'Pub entre deux parties (CrazyGames)',
   '?': 'Sans provenance (relevé antérieur)',
 }
 const AD_RESULTS: Record<string, string> = {

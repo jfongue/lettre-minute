@@ -276,7 +276,8 @@ describe('the attempts', () => {
   it('gives one, a second for one ad, and three to Premium', () => {
     expect(attemptsAllowed({ plus: false, adsWatched: 0 })).toBe(1)
     expect(attemptsAllowed({ plus: false, adsWatched: 1 })).toBe(2)
-    expect(attemptsAllowed({ plus: false, adsWatched: 9 })).toBe(2)
+    expect(attemptsAllowed({ plus: false, adsWatched: 2 })).toBe(3)
+    expect(attemptsAllowed({ plus: false, adsWatched: 9 })).toBe(3)
     expect(attemptsAllowed({ plus: false, adsWatched: -1 })).toBe(1)
     expect(attemptsAllowed({ plus: true, adsWatched: 0 })).toBe(3)
     expect(attemptsAllowed({ plus: true, adsWatched: 3 })).toBe(3)
@@ -286,14 +287,18 @@ describe('the attempts', () => {
     expect(attemptsLeft(0, { plus: false, adsWatched: 0 })).toBe(1)
     expect(attemptsLeft(1, { plus: false, adsWatched: 0 })).toBe(0)
     expect(attemptsLeft(1, { plus: false, adsWatched: 1 })).toBe(1)
+    expect(attemptsLeft(2, { plus: false, adsWatched: 1 })).toBe(0)
+    expect(attemptsLeft(2, { plus: false, adsWatched: 2 })).toBe(1)
     expect(attemptsLeft(7, { plus: true, adsWatched: 0 })).toBe(0)
   })
 
   it('lays the three places out for a free player', () => {
-    expect(attemptState(0, false, 0)).toEqual(['free', 'ad', 'locked'])
-    expect(attemptState(1, false, 0)).toEqual(['used', 'ad', 'locked'])
-    expect(attemptState(1, false, 1)).toEqual(['used', 'free', 'locked'])
-    expect(attemptState(2, false, 1)).toEqual(['used', 'used', 'locked'])
+    expect(attemptState(0, false, 0)).toEqual(['free', 'ad', 'ad'])
+    expect(attemptState(1, false, 0)).toEqual(['used', 'ad', 'ad'])
+    expect(attemptState(1, false, 1)).toEqual(['used', 'free', 'ad'])
+    expect(attemptState(2, false, 1)).toEqual(['used', 'used', 'ad'])
+    expect(attemptState(2, false, 2)).toEqual(['used', 'used', 'free'])
+    expect(attemptState(3, false, 2)).toEqual(['used', 'used', 'used'])
   })
 
   it('lays them out for Premium, whose second and third are direct', () => {
@@ -303,7 +308,7 @@ describe('the attempts', () => {
   })
 
   it('keeps a lapsed Premium player’s spent places spent', () => {
-    expect(attemptState(2, false, 0)).toEqual(['used', 'used', 'locked'])
+    expect(attemptState(2, false, 0)).toEqual(['used', 'used', 'ad'])
     expect(attemptState(9, true, 0)).toEqual(['used', 'used', 'used'])
   })
 })

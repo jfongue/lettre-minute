@@ -82,8 +82,12 @@ export interface Host {
   prepareRewarded(): void
   /** A rewarded ad: `rewarded` only once watched to the end, never on an error or a skip. */
   showRewarded(): Promise<RewardedResult>
-  /** The host's break before a new run (an ad); resolves once it is over, failed or skipped. */
-  breakBetweenRuns(): Promise<void>
+  /**
+   * The host's break once a run's word recap is read, before its summary (an
+   * ad, when the session's schedule says so, `midgameDue`); resolves once it
+   * is over, failed or skipped. Each call counts one finished run.
+   */
+  breakAfterRecap(): Promise<void>
   /** Called with true while the host wants silence — its own mute, an ad — and false once it lets go. */
   onMute(listener: (muted: boolean) => void): void
 }
@@ -147,6 +151,6 @@ export const quiet = {
   submitScore(): void {},
   prepareRewarded(): void {},
   showRewarded: (): Promise<RewardedResult> => Promise.resolve('unavailable'),
-  breakBetweenRuns: (): Promise<void> => Promise.resolve(),
+  breakAfterRecap: (): Promise<void> => Promise.resolve(),
   onMute(): void {},
 }
