@@ -1298,7 +1298,7 @@ function OverScenario({
   requests = [],
   failing = false,
   hidden,
-
+  moderatorOffer = false,
   onBack,
 }: {
   run?: Run
@@ -1314,14 +1314,20 @@ function OverScenario({
   failing?: boolean
   /** Les invites passées, chacune avec un mot caché sous une bande. */
   hidden?: readonly HiddenAnswer[]
-
+  /** L'offre de modérateur s'ouvre par-dessus le bilan, une fois le récap révélé, comme à l'écran de fin de partie. */
+  moderatorOffer?: boolean
   onBack(): void
 }) {
   const [profile, setProfile] = useState(after)
   const [revealed, setRevealed] = useState(false)
+  const [summary, setSummary] = useState(false)
+  const [offerOpen, setOfferOpen] = useState(moderatorOffer)
   const [proposals, setProposals] = useState(requests)
   return (
+    <>
+    {moderatorOffer && offerOpen && summary && offerModerator('level', () => setOfferOpen(false))(onBack)}
     <OverScreen
+      onSummary={setSummary}
       run={run}
       profile={profile}
       profileBefore={before}
@@ -1366,6 +1372,7 @@ function OverScenario({
       // Un signalement de mot ne s'écrit pas depuis la planche : la carte répond seule.
       onFlag={() => later('sent' as const)}
     />
+    </>
   )
 }
 
@@ -1613,16 +1620,16 @@ function JokerWriteScenario() {
 
 /** L'offre de modérateur : un seul rendu pour les trois raisons qui l'amènent. */
 const offerModerator =
-  (reason: 'level' | 'words' | 'friend' | 'bonus') =>
+  (reason: 'level' | 'words' | 'friend' | 'bonus', onClosed?: () => void) =>
   (back: () => void): ReactNode => (
     <ModeratorOffer
       reason={reason}
       invitedBy={reason === 'friend' ? 'Léa' : null}
       anonymous={false}
-      onAccount={back}
-      onAnswered={(accepted) => !accepted && back()}
-      onLater={back}
-      onModerate={back}
+      onAccount={onClosed ?? back}
+      onAnswered={(accepted) => !accepted && (onClosed ?? back)()}
+      onLater={onClosed ?? back}
+      onModerate={onClosed ?? back}
       answerOffer={() => later(true)}
     />
   )
@@ -2232,6 +2239,24 @@ const SCENARIOS: readonly Scenario[] = [
     ),
   },
   {
+    id: 'words-news-reveal',
+    group: 'Mots proposés',
+    title: 'Mots entrés au dictionnaire : une révélation par mot',
+    how: 'Joueur gratuit : chaque mot accepté rapporte « +1 révélation », gardée en réserve ; elle ne se dépense qu’après les deux du jour',
+    phase: 'home',
+    render: (back) => (
+      <WordsNewsPop
+        reveal
+        words={[
+          { id: 'a', lang: 'fr', categoryId: 'animaux', display: 'axolotl', status: 'accepted', at: 0, locked: true, fresh: true },
+          { id: 'b', lang: 'fr', categoryId: 'pays', display: 'tuvalu', status: 'accepted', at: 0, locked: true, fresh: true },
+        ]}
+        onClose={back}
+        onOpen={back}
+      />
+    ),
+  },
+  {
     id: 'share-news',
     group: 'Amis',
     title: 'Annonce : inviter ses amis',
@@ -2432,6 +2457,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Accepter montre l’accueil, sans rien écrire sur le serveur',
     phase: 'home',
     render: offerModerator('level'),
+  },
+  {
+    id: 'moderator-over-debrief',
+    group: 'Modération',
+    title: 'Offre de modérateur : par-dessus le bilan',
+    how: 'Après le récap des mots, au bilan lui-même (jamais sur les offres de catégorie ou de pouvoir) : « Plus tard » ou « Non merci » rend le bilan',
+    phase: 'over',
+    render: (back) => <OverScenario after={afterRun(PROFILE, RUN)} moderatorOffer onBack={back} />,
   },
   {
     id: 'moderator-bonus',

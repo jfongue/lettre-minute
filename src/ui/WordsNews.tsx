@@ -11,7 +11,18 @@ import { PowerIcon } from './PowerIcon'
 import { useBackDismiss } from './useBackDismiss'
 
 /** On opening the game: the words of the player's that moderators let in since they last looked. */
-export function WordsNewsPop({ words, onClose, onOpen }: { words: readonly Submission[]; onClose(): void; onOpen?(): void }) {
+export function WordsNewsPop({
+  words,
+  reveal = false,
+  onClose,
+  onOpen,
+}: {
+  words: readonly Submission[]
+  /** Each word also paid a banked reveal (`creditRevealGifts`): a free player's, on a version that counts them. */
+  reveal?: boolean
+  onClose(): void
+  onOpen?(): void
+}) {
   const t = useT()
   useBackDismiss(onClose)
   useEffect(() => sound.news(), [])
@@ -33,6 +44,7 @@ export function WordsNewsPop({ words, onClose, onOpen }: { words: readonly Submi
             <li key={word.id}>
               <strong>{capitalized(word.display)}</strong>
               <span className="note">{categoryText(t, word.categoryId).label}</span>
+              {reveal && <span className="note words-news-reveal">{t.requests.newsReveal}</span>}
             </li>
           ))}
         </ul>

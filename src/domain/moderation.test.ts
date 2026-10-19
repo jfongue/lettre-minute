@@ -36,10 +36,11 @@ describe('swipeVerdict', () => {
 })
 
 describe('queueAlertDue', () => {
-  it('shows a full queue, until opened that day', () => {
-    expect(queueAlertDue(19, null, '2026-09-30')).toBe(false)
-    expect(queueAlertDue(20, null, '2026-09-30')).toBe(true)
-    expect(queueAlertDue(20, '2026-09-30', '2026-09-30')).toBe(false)
-    expect(queueAlertDue(20, '2026-09-30', '2026-10-01')).toBe(true)
+  it('shows when words wait or a top-up could fill the queue, until opened that day', () => {
+    expect(queueAlertDue(0, false, null, '2026-09-30')).toBe(false)
+    expect(queueAlertDue(1, false, null, '2026-09-30')).toBe(true)
+    expect(queueAlertDue(0, true, null, '2026-09-30')).toBe(true)
+    expect(queueAlertDue(3, true, '2026-09-30', '2026-09-30')).toBe(false)
+    expect(queueAlertDue(3, true, '2026-09-30', '2026-10-01')).toBe(true)
   })
 })

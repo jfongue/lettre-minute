@@ -8319,6 +8319,12 @@ button.challenge-word[aria-expanded='true'] {
   border-bottom: 1px solid var(--rule);
 }
 
+.words-news-reveal {
+  flex: none;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
 .power-gift-card {
   width: min(15rem, 100%);
   min-height: 0;

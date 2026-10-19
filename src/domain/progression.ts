@@ -101,6 +101,10 @@ export interface Profile {
   revealsUsed: number
   /** Rewarded ads watched on `revealDay` for one more reveal each. */
   revealAds: number
+  /** Submission ids that already paid a banked reveal (`creditRevealGifts`): a word pays once, on whichever device saw it first. */
+  revealGifts: readonly string[]
+  /** Banked reveals spent: `revealGifts.length - revealGiftsUsed` are left (`bankedReveals`). Both merge across devices without losing a gain or a spend. */
+  revealGiftsUsed: number
   /** Level bonuses taken (`BonusId`), in the order they were made; a kind repeats up to its cap. */
   bonuses: readonly string[]
   /** How many of `bonuses` were given rather than won at a level (`catchUpPerks`): they never spend a level's reward. */
@@ -191,6 +195,8 @@ export const NEW_PROFILE: Profile = {
   revealDay: '',
   revealsUsed: 0,
   revealAds: 0,
+  revealGifts: [],
+  revealGiftsUsed: 0,
   bonuses: [],
   bonusGifts: 0,
   bonusOffer: [],

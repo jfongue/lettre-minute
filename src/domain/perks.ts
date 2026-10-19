@@ -189,16 +189,42 @@ export function revealsAllowed(profile: Profile, day: string): number {
   return BASE_REVEALS + bonus + REVEALS_PER_AD * revealsOn(profile, day).revealAds
 }
 
-/** Hidden answers still to uncover on `day` (Paris, `YYYY-MM-DD`); infinite for Premium. */
-export function revealsLeft(profile: Profile, day: string): number {
-  if (isPlus(profile)) return Infinity
+/** Reveals a proposed word paid that the player has not spent yet. Premium has no use for them. */
+export function bankedReveals(profile: Profile): number {
+  return Math.max(0, profile.revealGifts.length - profile.revealGiftsUsed)
+}
+
+/** The day's reveals still to spend, without the banked ones. */
+function dailyRevealsLeft(profile: Profile, day: string): number {
   return Math.max(0, revealsAllowed(profile, day) - revealsOn(profile, day).revealsUsed)
 }
 
+/**
+ * Hidden answers still to uncover on `day` (Paris, `YYYY-MM-DD`): the day's
+ * share plus the banked ones; infinite for Premium.
+ */
+export function revealsLeft(profile: Profile, day: string): number {
+  if (isPlus(profile)) return Infinity
+  return dailyRevealsLeft(profile, day) + bankedReveals(profile)
+}
+
+/** The day's reveals go first, so a banked one is only ever spent when the day has none left. */
 export function spendReveal(profile: Profile, day: string): Profile {
   if (revealsLeft(profile, day) <= 0 || isPlus(profile)) return profile
   const today = revealsOn(profile, day)
-  return { ...today, revealsUsed: today.revealsUsed + 1 }
+  if (dailyRevealsLeft(profile, day) > 0) return { ...today, revealsUsed: today.revealsUsed + 1 }
+  return { ...today, revealGiftsUsed: today.revealGiftsUsed + 1 }
+}
+
+/**
+ * One banked reveal per word the moderators let in, once per submission id.
+ * Premium takes nothing: its reveals are already unlimited, and an id left
+ * unrecorded costs nothing since Premium is never lost.
+ */
+export function creditRevealGifts(profile: Profile, submissionIds: readonly string[]): Profile {
+  if (isPlus(profile)) return profile
+  const fresh = [...new Set(submissionIds)].filter((id) => !profile.revealGifts.includes(id))
+  return fresh.length === 0 ? profile : { ...profile, revealGifts: [...profile.revealGifts, ...fresh] }
 }
 
 /** Rewarded ads that can still pay a reveal today; none for Premium, who needs none. */
@@ -229,7 +255,8 @@ export interface RevealBudget {
 export function revealBudget(profile: Profile, day: string, open = false): RevealBudget {
   return {
     left: revealsLeft(profile, day),
-    allowed: revealsAllowed(profile, day),
+    // A banked reveal can lift `left` above the day's share: the chip never reads « 7 / 5 ».
+    allowed: Math.max(revealsAllowed(profile, day), revealsLeft(profile, day)),
     adsLeft: revealAdsLeft(profile, day),
     unlimited: open || isPlus(profile),
   }

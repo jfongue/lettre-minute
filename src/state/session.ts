@@ -5,7 +5,7 @@ import { capitalized, normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
 import { markRatingAsked, markRatingDone } from '../domain/rating'
 import { premiereCategoryIds } from '../domain/catalogue'
-import { ban, bannedOf, countPlusReveal, countPlusRun, grantRevealAd, joinPlus, learnFromProfessor, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
+import { ban, bannedOf, countPlusReveal, creditRevealGifts, countPlusRun, grantRevealAd, joinPlus, learnFromProfessor, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
 import { chooseBonus, dealBonusOffer } from '../domain/bonus'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, wearOrDrop, type PowerId } from '../domain/powers'
 import { countsForProgress, type GameMode } from '../domain/modes'
@@ -141,6 +141,7 @@ export type SessionAction =
   | { type: 'ban'; categoryId: string }
   | { type: 'unban'; categoryId: string }
   | { type: 'ban-intro-seen' }
+  | { type: 'credit-reveals'; ids: readonly string[] }
   /** A hidden answer of the summary uncovered. */
   | { type: 'peek'; day: string }
   /** A rewarded ad watched through: one more reveal on `day`. */
@@ -264,6 +265,10 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         session,
         isPlus(session.profile) ? countPlusReveal(session.profile, action.day) : spendReveal(session.profile, action.day),
       )
+    case 'credit-reveals': {
+      const next = creditRevealGifts(session.profile, action.ids)
+      return next === session.profile ? session : withProfile(session, next)
+    }
     case 'reveal-ad':
       return withProfile(session, grantRevealAd(session.profile, action.day))
     case 'join-plus':

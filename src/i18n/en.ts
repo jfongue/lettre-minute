@@ -405,6 +405,7 @@ export const en: Messages = {
     exists: 'Already there!',
     newsTitle: (count) => (count === 1 ? 'Your word made it into the dictionary!' : `${count} of your words made it into the dictionary!`),
     newsLead: 'Thank you! Everyone can now play them.',
+    newsReveal: '+1 reveal',
     newsOk: 'Great!',
     newsOpen: 'My requests',
     offline: 'Without a server, your proposals wait on this device.',

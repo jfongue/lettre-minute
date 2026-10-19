@@ -385,6 +385,8 @@ setMenuPage(null)
   // The seed of the run whose reveal has played: leaving for the avatar editor
   // and coming back must not replay it.
   const [revealed, setRevealed] = useState<number | null>(null)
+  // Set by the end-of-run summary while it is the screen in view (`OverScreen.onSummary`).
+  const [overSummary, setOverSummary] = useState(false)
   // Challenges between friends: the list under « Jouer », the one opened,
   // the friend picker that starts one, and the power pick before a run.
   const [challenges, setChallenges] = useState<ChallengeSummary[] | null>(null)
@@ -655,7 +657,7 @@ setMenuPage(null)
 
   const moderator = moderation?.moderator === true
   const [queueSeenOn, setQueueSeenOn] = useState(loadQueueSeenOn)
-  const queueAlert = moderator && queueAlertDue(moderation?.queue ?? 0, queueSeenOn, new Date().toLocaleDateString('sv'))
+  const queueAlert = moderator && queueAlertDue(moderation?.queue ?? 0, moderation?.topUp === true, queueSeenOn, new Date().toLocaleDateString('sv'))
   const topUpRequests = useCallback(() => {
     const today = new Date().toLocaleDateString('sv')
     saveQueueSeenOn(today)
@@ -681,9 +683,18 @@ setMenuPage(null)
   if (session.phase === 'home') setQueued(loadSubmissions().length)
   }, [session.phase])
   const signedIn = account !== null
-  const refreshMine = useCallback(() => {
-    fetchMySubmissions().then((found) => found && setMine(found))
+  // The words announced as new each pay one banked reveal, once per submission id.
+  const creditNews = useCallback((found: readonly Submission[]) => {
+    const ids = found.filter((submission) => submission.fresh).map((submission) => submission.id)
+    if (ids.length > 0) dispatch({ type: 'credit-reveals', ids })
   }, [])
+  const refreshMine = useCallback(() => {
+    fetchMySubmissions().then((found) => {
+      if (!found) return
+      setMine(found)
+      creditNews(found)
+    })
+  }, [creditNews])
   useEffect(() => {
     if (!signedIn) return
     fetchMySubmissions().then((found) => {
@@ -691,8 +702,9 @@ setMenuPage(null)
       setMine(found)
       setAcceptedWords(found.filter((submission) => submission.status === 'accepted').length)
       setWordsNews(found.filter((submission) => submission.fresh))
+      creditNews(found)
     })
-  }, [signedIn, account?.name, account?.anonymous])
+  }, [signedIn, account?.name, account?.anonymous, creditNews])
 
   // Les mots ajoutés se déduisent des demandes acceptées, et le serveur seul en
   // décide : le profil les reçoit pour que les sept tuiles qu'ils débloquent
@@ -1833,6 +1845,9 @@ setStartedAt((at) => at ?? Date.now())
 
   const quietHome =
     session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !matching && !modesOpen && !loadout && !duelOpen && !weeklyFlow.covering
+  // The moderator card may also open over the summary, once the recap has been
+  // revealed: moderators are scarce, and a run's end is when a player is most inclined.
+  const quietOver = session.phase === 'over' && overSummary && !session.weekly && !menuOpen && !moderating && !loadout
   const notice = quietHome && on('challenges') ? challengeNotice(challenges, heldNotices) : null
   const updateDue = update === 'due' && on('storeUpdate')
   // The moderator card never reaches someone who already moderates: `moderator`
@@ -1862,7 +1877,7 @@ setStartedAt((at) => at ?? Date.now())
       name: atHome && nameAsk !== null,
       // Over the menu too: the friendship is often made there, and the offer follows it at once.
       push: atHome && pushOffer !== null && on('pushOffer'),
-      moderator: quietHome && offerDue && (!!moderation?.offer || bonusOfferDue),
+      moderator: (quietHome || quietOver) && offerDue && (!!moderation?.offer || bonusOfferDue),
       wordsNews: quietHome && wordsNewsDue,
       gift: quietHome && giftDue,
       thanks: quietHome && thanksDue,
@@ -2201,6 +2216,7 @@ setStartedAt((at) => at ?? Date.now())
       {pop === 'wordsNews' && (
         <WordsNewsPop
           words={wordsNews}
+          reveal={!isPlus(session.profile) && !host.unlimitedReveals}
           onClose={() => {
             setWordsNews([])
             markRequestsSeen().then((seen) => seen && refreshModeration())
@@ -2429,6 +2445,7 @@ avatarFocus={avatarFocus}
             profileBefore={session.profileBefore}
             revealed={revealed === session.run.seed}
             onRevealed={() => setRevealed(session.run?.seed ?? null)}
+            onSummary={setOverSummary}
             lang={lang}
             avatar={avatar}
             account={account}

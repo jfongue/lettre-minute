@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { NO_USAGE } from './rarity'
 import { NEW_PROFILE, type Profile } from './progression'
 import {
+  bankedReveals,
+  creditRevealGifts,
   revealBudget,
   ban,
   banNews,
@@ -150,6 +152,27 @@ describe('reveals', () => {
     expect(spendReveal(plus, DAY)).toBe(plus)
     expect(revealAdsLeft(plus, DAY)).toBe(0)
     expect(grantRevealAd(plus, DAY)).toBe(plus)
+  })
+
+  it('are banked once per accepted word, and spent after the day\'s own', () => {
+    const credited = creditRevealGifts(NEW_PROFILE, ['a', 'b', 'a'])
+    expect(bankedReveals(credited)).toBe(2)
+    expect(creditRevealGifts(credited, ['a', 'b'])).toBe(credited)
+    expect(revealsLeft(credited, DAY)).toBe(BASE_REVEALS + 2)
+    let profile = credited
+    for (let i = 0; i < BASE_REVEALS; i++) profile = spendReveal(profile, DAY)
+    expect(bankedReveals(profile)).toBe(2)
+    profile = spendReveal(profile, DAY)
+    expect(profile).toMatchObject({ revealsUsed: BASE_REVEALS, revealGiftsUsed: 1 })
+    expect(bankedReveals(profile)).toBe(1)
+    // The next day restarts the day's share, never the bank.
+    expect(revealsLeft(profile, NEXT)).toBe(BASE_REVEALS + 1)
+    expect(revealBudget(credited, DAY).allowed).toBeGreaterThanOrEqual(revealBudget(credited, DAY).left)
+  })
+
+  it('bank nothing for Premium', () => {
+    const plus = joinPlus(NEW_PROFILE, 1)
+    expect(creditRevealGifts(plus, ['a'])).toBe(plus)
   })
 })
 

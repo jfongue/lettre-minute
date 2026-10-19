@@ -518,6 +518,8 @@ export interface ModerationStatus {
   offer: ModeratorOfferReason | null
   /** The friend who asked, for an offer made by a friend. */
   invitedBy: string | null
+  /** A moderator whose queue is short while the server could still pour reserve words into it (0100). */
+  topUp: boolean
   /** Their words accepted since they last looked. */
   news: number
 }
@@ -536,6 +538,7 @@ export function fetchModerationStatus(lang: string): Promise<ModerationStatus | 
       sessions: Number(row.sessions) || 0,
       offer: (row.offer as ModeratorOfferReason | null) ?? null,
       invitedBy: (row.invited_by as string | null) ?? null,
+      topUp: row.topup === true,
       news: Number(row.news) || 0,
     }
   }, null)

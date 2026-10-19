@@ -46,6 +46,8 @@ interface OverScreenProps {
   /** The reveal has played once: coming back from the avatar editor lands on the summary. */
   revealed: boolean
   onRevealed(): void
+  /** True while the summary itself is up: the recap revealed, no offer screen or its celebration in the way. */
+  onSummary?(shown: boolean): void
   /** The dictionary language, for the words the unlock screen types out. */
   lang: string
   avatar: AvatarChoice
@@ -100,7 +102,7 @@ onAvatar(design?: number): void
   ranked?: boolean
 }
 
-export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: OverScreenProps) {
+export function OverScreen({ run, revealed, onRevealed, onSummary, lang, ...summary }: OverScreenProps) {
   const { profile, profileBefore, onChoose, onChoosePower, onChooseBonus, ranked = true } = summary
   // Held from the pick to the end of its celebration: the offer is off the
   // table as soon as the pick is kept, and the screen must outlive it.
@@ -196,10 +198,24 @@ export function OverScreen({ run, revealed, onRevealed, lang, ...summary }: Over
       />
     )
   }
-  return summary.challenge ? <ChallengeSummary {...summary} challenge={summary.challenge} /> : <Summary run={run} {...summary} />
+  return (
+    <>
+      {summary.challenge ? <ChallengeSummary {...summary} challenge={summary.challenge} /> : <Summary run={run} {...summary} />}
+      {onSummary && <SummaryMark onSummary={onSummary} />}
+    </>
+  )
 }
 
-type SummaryProps = Omit<OverScreenProps, 'revealed' | 'onRevealed' | 'lang'>
+/** Tells the caller, while it is mounted, that the summary is what the player is looking at. */
+function SummaryMark({ onSummary }: { onSummary(shown: boolean): void }) {
+  useEffect(() => {
+    onSummary(true)
+    return () => onSummary(false)
+  }, [onSummary])
+  return null
+}
+
+type SummaryProps = Omit<OverScreenProps, 'revealed' | 'onRevealed' | 'onSummary' | 'lang'>
 
 /** Second screen: what the run was worth beyond its score. */
 function Summary({

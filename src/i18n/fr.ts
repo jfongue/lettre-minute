@@ -438,6 +438,7 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les j
     exists: 'Déjà existant !',
     newsTitle: (count: number) => (count === 1 ? 'Ton mot est entré au dictionnaire !' : `${count} de tes mots sont entrés au dictionnaire !`),
     newsLead: 'Merci ! Tout le monde peut désormais les jouer.',
+    newsReveal: '+1 révélation',
     newsOk: 'Super !',
     newsOpen: 'Mes demandes',
     offline: 'Sans serveur, tes propositions attendent sur cet appareil.',
