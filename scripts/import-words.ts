@@ -236,6 +236,9 @@ const HOMOGRAPH_PRONE = new Set(['animaux', 'fruits-legumes', 'plantes', 'animau
  */
 const STRICT_ATTESTED = new Set(['plantes', 'objets', 'meubles', 'locomotion', 'vetements', 'electronique'])
 
+/** Where a category's proper names wait for a moderator (`namesAside`). */
+const RESERVE = 'scripts/moderation-reserve.json'
+
 const FRENCH_TREE_CACHE = '.cache/wiktionnaire-subcategories.json'
 const FRENCH_TREE_DEPTH = 3
 
@@ -1296,7 +1299,7 @@ function main(argv: readonly string[]) {
     categories.flatMap((category) => [
       ...category.pulls,
       ...(category.exclude ?? []),
-      ...(category.apartFrom ?? []).flatMap((id) => sourceOf(id)?.pulls ?? []),
+      ...[...(category.apartFrom ?? []), ...(category.namesAside?.categories ?? [])].flatMap((id) => sourceOf(id)?.pulls ?? []),
     ]),
   )
   const wanted = PULLS.filter((pull) => needed.has(pull.id) && (only.size === 0 || force || only.has(pull.id)))
@@ -1399,12 +1402,16 @@ function main(argv: readonly string[]) {
      */
     const heldBy = async (categoryId: string): Promise<Set<string>> => {
       const refused = new Set((DROPPED_WORDS[categoryId]?.[lang] ?? []).map(normalizeWord))
-      const labels = (sourceOf(categoryId)?.pulls ?? []).flatMap((id) => (byPull.get(id) ?? []).filter((row) => !row.alias))
+      // As the category reads them: « Ferrari S.p.A. » is the brand Ferrari.
+      const labels = (sourceOf(categoryId)?.pulls ?? []).flatMap((id) => {
+        const corporate = PULLS.find((pull) => pull.id === id)?.corporate === true
+        return (byPull.get(id) ?? []).filter((row) => !row.alias).flatMap((row) => spellings(row, source, corporate).map(({ display }) => display))
+      })
       const words = [
         ...((await attestedWords(categoryId))?.words ?? []),
         ...addedWords(categoryId, lang),
         ...(community[categoryId] ?? []),
-        ...labels.map((row) => row.display),
+        ...labels,
       ]
       return new Set(words.map((word) => normalizeWord(word.trim().replace(/\s+/g, ' '))).filter((key) => key !== '' && !refused.has(key)))
     }
@@ -1570,6 +1577,18 @@ function main(argv: readonly string[]) {
       // no one added on purpose.
       const handPicked = new Set([...added, ...(community[category.id] ?? [])].map((word) => normalizeWord(word.trim().replace(/\s+/g, ' '))))
       const attested = new Set<string>()
+      const setAside = new Set<string>()
+      let properNames: ((display: string, key: string) => boolean) | null = null
+      if (category.namesAside) {
+        const named = new Set<string>()
+        for (const other of category.namesAside.categories) for (const key of await heldBy(other)) named.add(key)
+        const listedNames = new Set((PROPER_NAMES[category.id] ?? []).map(normalizeWord))
+        // A capital reads as a name where nouns take none: « Clio », « Mustang »
+        // — not in German, which capitalizes every noun, nor on an acronym, «
+        // TGV », whose brand, if it is one, the categories above already know.
+        const capitalized = (display: string) => lang !== 'de' && /^\p{Lu}\p{Ll}/u.test(display)
+        properNames = (display, key) => named.has(key) || listedNames.has(key) || capitalized(display)
+      }
       for (const word of [...(listed?.words ?? []), ...added, ...(community[category.id] ?? [])]) {
         const display = word.trim().replace(/\s+/g, ' ')
         if (!acceptable(display)) continue
@@ -1587,6 +1606,12 @@ function main(argv: readonly string[]) {
         // said by anyone: dropped, unless it was vouched for by hand.
         const obscure = STRICT_ATTESTED.has(category.id) && everyday === 0 && !best.has(key) && !handPicked.has(key)
         if (obscure) continue
+        // A proper name — a car's maker, its model — is a moderator's call,
+        // not the import's: set aside for the moderation reserve.
+        if (properNames && !handPicked.has(key) && !moderated.has(key) && properNames(display, key)) {
+          setAside.add(display)
+          continue
+        }
         if (key !== '') attested.add(key)
         // A word a pull already filed keeps its own row — its sitelinks, its
         // spelling, the word it names — rather than being shadowed by a
@@ -1599,6 +1624,14 @@ function main(argv: readonly string[]) {
         best.set(key, { display, sitelinks: 0, alias: false, title: display })
       }
       gathered.push({ id: category.id, best, aliasOf, attested, commonNouns: listed !== null, names: category.names === true })
+      if (category.namesAside) {
+        // Filed in the moderation reserve, which `npm run seed:moderation`
+        // loads: three moderators let in the ones a table would accept.
+        const reserve = JSON.parse(readFileSync(RESERVE, 'utf8')) as Record<string, Record<string, string[]>>
+        ;(reserve[lang] ??= {})[category.id] = [...setAside].sort((a, b) => a.localeCompare(b, lang))
+        writeFileSync(RESERVE, `${JSON.stringify(reserve, null, 2)}\n`)
+        console.log(`· ${lang}/${category.id}: ${setAside.size} noms propres mis de côté pour la modération`)
+      }
     }
 
     // Inflected forms borrow the notoriety of the word they bend, so only the

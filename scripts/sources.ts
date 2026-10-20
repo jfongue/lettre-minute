@@ -457,6 +457,14 @@ export interface CategorySource {
    * dropped here, so each word is in exactly one of them.
    */
   apartFrom?: readonly string[]
+  /**
+   * Proper names a moderator rules on rather than the import: a word these
+   * categories hold — a car's maker is a brand —, a capitalized word outside
+   * German, or one of `PROPER_NAMES` — « Clio », « Mustang » — leaves the
+   * dictionary for the moderation reserve (scripts/moderation-reserve.json),
+   * unless it was added by hand: « Uber » and « TGV » are ways to travel.
+   */
+  namesAside?: { categories: readonly string[] }
 }
 
 export const CATEGORY_SOURCES: readonly CategorySource[] = [
@@ -515,7 +523,7 @@ export const DRAFT_SOURCES: readonly CategorySource[] = [
   { id: 'oiseaux-reptiles', pulls: ['common-birds-reptiles', 'birds', 'reptiles'], exclude: ['common-plants', 'plants-vernacular'] },
   // Every way to get somewhere, from the feet up: the Wiktionary's vehicles,
   // and what it files under none — marche, roller, RER, Uber — by hand.
-  { id: 'locomotion', pulls: ['staple-transport'] },
+  { id: 'locomotion', pulls: ['staple-transport'], namesAside: { categories: ['marques'] } },
   { id: 'vetements', pulls: [] },
   // The Wiktionnaire files no electronic device anywhere: Wikidata names the
   // everyday ones, the English topics and the hand the rest.
