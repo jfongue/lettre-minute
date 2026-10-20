@@ -4,6 +4,7 @@ import { levelFor } from '../domain/progression'
 import { useT } from '../i18n'
 import type { RoleOutcome, SpiedProfile } from '../lib/cloud'
 import { Stat } from './board'
+import { FEATURES } from './featureNames'
 import { ago, fmt } from './format'
 
 /*
@@ -264,7 +265,7 @@ export function SpyProfileView({ profile: p, actions, onChanged }: { profile: Sp
           <ul className="dashboard-bars">
             {p.features.map((one) => (
               <li key={one.name}>
-                <span className="dashboard-bars-name">{one.name}</span>
+                <span className="dashboard-bars-name">{FEATURES[one.name] ?? one.name}</span>
                 <span className="dashboard-bars-num">
                   <b>{fmt(one.n)}</b> · {ago(one.last)}
                 </span>
