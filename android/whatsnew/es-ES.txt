@@ -1,5 +1,5 @@
-• Adaptado a tabletas: el juego ocupa toda la pantalla
-• Reto del momento: una sola clasificación para todos los idiomas
-• Las notificaciones de retos y duelos vuelven a llegar
-• Primeras partidas más equilibradas para los nuevos jugadores
-• Corrección de errores y rendimiento
+• Duelos abiertos a todos: salas públicas y XP contra jugadores reales
+• Magia libera la letra: cualquier palabra del tema vale, tres veces por partida
+• «Animales» pasa a «Mamíferos», «Objetos cotidianos» a «Objeto pequeño»
+• Reto del momento: desbloquea un 3.er intento
+• Nuevas palabras validadas por los moderadores, corrección de errores

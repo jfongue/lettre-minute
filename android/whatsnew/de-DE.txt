@@ -1,5 +1,5 @@
-• Für Tablets angepasst: das Spiel füllt den ganzen Bildschirm
-• Aktuelle Herausforderung: eine Rangliste für alle Sprachen
-• Benachrichtigungen für Herausforderungen und Duelle kommen wieder an
-• Ausgewogenere erste Partien für neue Spieler
-• Fehlerbehebungen und Leistung
+• Duelle für alle: öffentliche Lobbys und XP gegen echte Spieler
+• Magie gibt den Buchstaben frei: jedes Wort des Themas zählt, dreimal pro Partie
+• „Tiere“ heißt jetzt „Säugetiere“, „Alltagsgegenstände“ „Kleiner Gegenstand“
+• Aktuelle Herausforderung: ein 3. Versuch freischaltbar
+• Neue, von Moderatoren geprüfte Wörter, Fehlerbehebungen

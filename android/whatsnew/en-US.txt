@@ -1,5 +1,5 @@
-• Made for tablets: the game fills the whole screen
-• Challenge of the moment: one leaderboard for every language
-• Challenge and duel notifications arrive again
-• Fairer first games for new players
-• Bug fixes and performance
+• Duels open to everyone: public lobbies and XP for beating a real player
+• Magic frees the letter: any word of the theme counts, three times a game
+• “Animals” is now “Mammals”, “Everyday objects” “Small object”
+• Challenge of the moment: unlock a 3rd attempt
+• New words approved by moderators, bug fixes

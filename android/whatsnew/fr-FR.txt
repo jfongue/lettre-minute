@@ -1,5 +1,5 @@
-• Adapté aux tablettes : le jeu prend tout l’écran
-• Défi du moment : un seul classement pour toutes les langues
-• Les notifications de défis et de duel arrivent de nouveau
-• Premières parties mieux équilibrées pour les nouveaux joueurs
-• Corrections de bugs et performance
+• Duel ouvert à tous : salon public et XP gagnée contre un vrai joueur
+• Magie libère la lettre : n’importe quel mot du thème répond, trois fois par partie
+• « Animaux » devient « Mammifères », « Objets du quotidien » « Petit objet »
+• Défi du moment : une 3e tentative à débloquer
+• Nouveaux mots validés par les modérateurs, corrections de bugs

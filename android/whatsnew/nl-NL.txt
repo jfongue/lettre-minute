@@ -1,5 +1,5 @@
-• Aangepast voor tablets: het spel vult het hele scherm
-• Uitdaging van het moment: één ranglijst voor alle talen
-• Meldingen van uitdagingen en duels komen weer aan
-• Eerlijkere eerste potjes voor nieuwe spelers
-• Bugfixes en prestaties
+• Duels voor iedereen: openbare lobby’s en XP tegen echte spelers
+• Magie maakt de letter vrij: elk woord uit het thema telt, drie keer per potje
+• „Dieren” heet nu „Zoogdieren”, „Alledaagse voorwerpen” „Klein voorwerp”
+• Uitdaging van het moment: ontgrendel een 3e poging
+• Nieuwe woorden goedgekeurd door moderators, bugfixes
