@@ -203,7 +203,6 @@ export function Lobby({
 
         <div className="duel-lobby__side">
           {table.canPublish && !locked ? <PublicSwitch table={table} /> : null}
-          {table.host && !locked && !full ? <InviteList table={table} /> : null}
           {onSignIn && !locked ? (
             <section className="duel-signin">
               <p className="note">{t.duel.signInLead}</p>
@@ -212,6 +211,7 @@ export function Lobby({
               </button>
             </section>
           ) : null}
+          {table.host && !locked && !full ? <InviteList table={table} /> : null}
 
           {table.pool.length === 0 ? (
             <p className="note note--warn">{t.duel.loadFailed}</p>
