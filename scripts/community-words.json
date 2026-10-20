@@ -12,6 +12,7 @@
       "Djerba",
       "Francfort",
       "Frankfort",
+      "Fukushima",
       "Grenade",
       "Hendaye",
       "Hiroshima",
@@ -21,9 +22,11 @@
       "Orlando",
       "Quebec",
       "Quimper",
-      "San Francisco"
+      "San Francisco",
+      "Seattle"
     ],
     "corps-humain": [
+      "Antre gastrique",
       "Anus",
       "Biceps",
       "Boîte crânienne",
@@ -32,6 +35,7 @@
       "Cul",
       "Fessier",
       "Grain de beauté",
+      "Grand pectoral",
       "Gros orteil",
       "Jugulaire",
       "Lombaire",
@@ -64,6 +68,7 @@
       "Zygomatique"
     ],
     "couleurs": [
+      "Albatre",
       "Amande",
       "Anthracite",
       "Ardoise",
@@ -84,6 +89,7 @@
       "Coing",
       "Daim",
       "Doré",
+      "Ebene",
       "Émeraude",
       "Figue",
       "Grenat",
@@ -117,6 +123,7 @@
     "fruits-legumes": [
       "Basilic",
       "Blé",
+      "Brunion",
       "Cèpe",
       "Cerfeuil",
       "Champignon",
@@ -153,6 +160,7 @@
       "Arte",
       "Auchan",
       "Balenciaga",
+      "Balibaris",
       "Barbour",
       "BMW",
       "Bonobo",
@@ -179,6 +187,7 @@
       "Evian",
       "Facebook",
       "Figolu",
+      "Fluocaril",
       "Fursac",
       "Hawaii",
       "Hema",
@@ -189,6 +198,7 @@
       "Kalenji",
       "Kalvin klein",
       "KFC",
+      "Kiabi",
       "Kinder",
       "La redoute",
       "Lafuma",
@@ -205,6 +215,7 @@
       "Michelin",
       "Micromania",
       "Milka",
+      "Momma",
       "Monoprix",
       "Nabaji",
       "Naturalia",
@@ -237,6 +248,7 @@
       "Twitter",
       "Twix",
       "Ultima",
+      "Veepee",
       "Velux",
       "Wagamama",
       "WhatsApp",
@@ -271,6 +283,7 @@
       "Grenat",
       "Hêtre",
       "Inox",
+      "Jade",
       "Jute",
       "Kraft",
       "Latex",
@@ -338,6 +351,7 @@
       "Joaillier",
       "Jockey",
       "Laveur de vitres",
+      "Luttier",
       "Manutentionnaire",
       "Marathonien",
       "Mouleur",
@@ -364,12 +378,14 @@
       "Allumette",
       "Ampoule",
       "Appareil photo",
+      "Argent",
       "Bijou",
       "Blouson",
       "Boite",
       "Bonnet",
       "Bouteille",
       "Brumisateur",
+      "Cabas",
       "Cahier",
       "Calendrier",
       "Carnet",
@@ -384,6 +400,7 @@
       "Dictionnaire",
       "Doudou",
       "Drap",
+      "Écharpe",
       "Ecran",
       "Ecrin",
       "Enveloppe",
@@ -392,6 +409,7 @@
       "Fenêtre",
       "Fer a repasser",
       "Feutre",
+      "Ficelle",
       "GameBoy",
       "Gant",
       "Gilet",
@@ -411,6 +429,7 @@
       "Manique",
       "Marque page",
       "Marqueur",
+      "Matelas",
       "Minuteur",
       "Mouchoir",
       "Nappe",
@@ -419,6 +438,7 @@
       "Nounours",
       "Ordinateur",
       "Papier",
+      "Pèse personne",
       "Pièce",
       "Pinceau",
       "Portable",
@@ -473,12 +493,14 @@
       "Eglantine",
       "Eloi",
       "Elois",
+      "Elvire",
       "Francine",
       "Grishka",
       "Gwenaëlle",
       "Kahina",
       "Slimane",
       "Soizic",
+      "Tiana",
       "Tiphaine",
       "Urbain",
       "Xana",
@@ -516,6 +538,46 @@
       "Via ferrata",
       "Yoga",
       "Zumba"
+    ]
+  },
+  "en": {
+    "animaux": [
+      "Hypopotamus"
+    ],
+    "capitales": [
+      "Oslo"
+    ],
+    "corps-humain": [
+      "Belly button",
+      "Fingertip",
+      "Follicle",
+      "Nostril"
+    ],
+    "couleurs": [
+      "Mud brown",
+      "Xanadu"
+    ],
+    "fruits-legumes": [
+      "Squash"
+    ],
+    "metiers": [
+      "Fitness instructor"
+    ],
+    "pays": [
+      "Korea",
+      "Scotland",
+      "Trinidad and trabago"
+    ],
+    "plantes": [
+      "TOMATO"
+    ],
+    "prenoms": [
+      "Buron",
+      "Vivo"
+    ],
+    "sports": [
+      "Hurdles",
+      "Javelin"
     ]
   }
 }
