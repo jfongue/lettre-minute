@@ -1300,7 +1300,9 @@ function main(argv: readonly string[]) {
     categories.flatMap((category) => [
       ...category.pulls,
       ...(category.exclude ?? []),
-      ...[...(category.apartFrom ?? []), ...(category.namesAside?.categories ?? [])].flatMap((id) => sourceOf(id)?.pulls ?? []),
+      ...[...(category.apartFrom ?? []), ...(category.namesAside?.categories ?? []), ...(category.namesAside?.pulls ?? [])].flatMap(
+      (id) => sourceOf(id)?.pulls ?? [id],
+    ),
     ]),
   )
   const wanted = PULLS.filter((pull) => needed.has(pull.id) && (only.size === 0 || force || only.has(pull.id)))
@@ -1398,22 +1400,30 @@ function main(argv: readonly string[]) {
     }
 
     /**
+     * The words a category takes from its pulls alone, as it reads them: «
+     * Ferrari S.p.A. » is the brand Ferrari. Used where only a list of names
+     * is wanted — `namesAside` — rather than the words a category builds.
+     */
+    const heldByPull = (categoryId: string): Set<string> => {
+      const labels = (sourceOf(categoryId)?.pulls ?? []).flatMap((id) => {
+        const corporate = PULLS.find((pull) => pull.id === id)?.corporate === true
+        return (byPull.get(id) ?? []).filter((row) => !row.alias).flatMap((row) => spellings(row, source, corporate).map(({ display }) => display))
+      })
+      return new Set(labels.map((word) => normalizeWord(word.trim().replace(/\s+/g, ' '))).filter((key) => key !== ''))
+    }
+
+    /**
      * Every word a category would take in, before any notoriety is weighed:
      * its Wiktionary listing, its words added by hand or by the moderators,
      * and its pulls' labels — less what it drops by hand.
      */
     const heldBy = async (categoryId: string): Promise<Set<string>> => {
       const refused = new Set((DROPPED_WORDS[categoryId]?.[lang] ?? []).map(normalizeWord))
-      // As the category reads them: « Ferrari S.p.A. » is the brand Ferrari.
-      const labels = (sourceOf(categoryId)?.pulls ?? []).flatMap((id) => {
-        const corporate = PULLS.find((pull) => pull.id === id)?.corporate === true
-        return (byPull.get(id) ?? []).filter((row) => !row.alias).flatMap((row) => spellings(row, source, corporate).map(({ display }) => display))
-      })
       const words = [
         ...((await attestedWords(categoryId))?.words ?? []),
         ...addedWords(categoryId, lang),
         ...(community[categoryId] ?? []),
-        ...labels,
+        ...heldByPull(categoryId),
       ]
       return new Set(words.map((word) => normalizeWord(word.trim().replace(/\s+/g, ' '))).filter((key) => key !== '' && !refused.has(key)))
     }
@@ -1584,12 +1594,11 @@ function main(argv: readonly string[]) {
       if (category.namesAside) {
         const named = new Set<string>()
         for (const other of category.namesAside.categories) for (const key of await heldBy(other)) named.add(key)
-        const listedNames = new Set((PROPER_NAMES[category.id] ?? []).map(normalizeWord))
+        for (const id of category.namesAside.pulls) for (const key of heldByPull(id)) named.add(key)
         // A capital reads as a name where nouns take none: « Clio », « Mustang »
         // — not in German, which capitalizes every noun, nor on an acronym, «
         // TGV », whose brand, if it is one, the categories above already know.
-        const capitalized = (display: string) => lang !== 'de' && /^\p{Lu}\p{Ll}/u.test(display)
-        properNames = (display, key) => named.has(key) || listedNames.has(key) || capitalized(display)
+        properNames = (display, key) => named.has(key) || (lang !== 'de' && /^\p{Lu}\p{Ll}/u.test(display))
       }
       for (const word of [...(listed?.words ?? []), ...added, ...(community[category.id] ?? [])]) {
         const display = word.trim().replace(/\s+/g, ' ')

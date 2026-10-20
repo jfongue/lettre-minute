@@ -166,6 +166,9 @@ const BRAND_CLASSES = [
   'Q3220391', 'Q19967801', 'Q620615', 'Q2462003', 'Q559856', 'Q59152282', 'Q15590336',
 ]
 
+/** "Car model": the class a maker's Clio, Mustang or 208 is an instance of. */
+const CAR_MODEL_CLASS = 'Q3231690'
+
 function brandLabel(scope: Scope): string {
   return `OPTIONAL { ?item rdfs:label ?own . ${scope.inLanguage('?own')} }
   OPTIONAL { ?item rdfs:label ?mul . FILTER(lang(?mul) = "mul") }
@@ -425,6 +428,25 @@ export const PULLS: readonly Pull[] = [
   // the label most languages give it. Moderation stays per language: the
   // server still files each word under its language's prefix.
   { id: 'brands-shared', of: 'Q431289', corporate: true, sharedFrom: ['brand-class', 'brand-product'] },
+  // The models a maker sells, walked down from "car model" — Clio, Mustang,
+  // 208. The brand classes above name the maker (Renault, Ford) but no model,
+  // and a model written in lowercase (« corsa », « beetle ») is the one a
+  // player's table would argue about: `namesAside` on « Moyens de locomotion »
+  // sets both aside for the moderators rather than the dictionaries.
+  {
+    id: 'car-models',
+    of: CAR_MODEL_CLASS,
+    deep: true,
+    aliases: true,
+    raw: (scope) => `SELECT ?label ?alias ?n WHERE {
+      ?item wdt:P31/wdt:P279* wd:${CAR_MODEL_CLASS} ; wikibase:sitelinks ?n . FILTER(?n >= 15)
+      OPTIONAL { ?item rdfs:label ?own . ${scope.inLanguage('?own')} }
+      OPTIONAL { ?item rdfs:label ?mul . FILTER(lang(?mul) = "mul") }
+      FILTER(BOUND(?own) || BOUND(?mul))
+      BIND(COALESCE(?own, ?mul) AS ?label)
+      ${scope.aliases('?item')}
+    }`,
+  },
 ]
 
 export interface CategorySource {
@@ -459,12 +481,13 @@ export interface CategorySource {
   apartFrom?: readonly string[]
   /**
    * Proper names a moderator rules on rather than the import: a word these
-   * categories hold — a car's maker is a brand —, a capitalized word outside
-   * German, or one of `PROPER_NAMES` — « Clio », « Mustang » — leaves the
-   * dictionary for the moderation reserve (scripts/moderation-reserve.json),
-   * unless it was added by hand: « Uber » and « TGV » are ways to travel.
+   * categories hold — a car's maker is a brand —, a word these pulls name —
+   * a maker's model, « Clio », « Mustang » —, or a capitalized word outside
+   * German, which capitalizes every noun, leaves the dictionary for the
+   * moderation reserve (scripts/moderation-reserve.json), unless it was added
+   * by hand: « Uber » and « TGV » are ways to travel.
    */
-  namesAside?: { categories: readonly string[] }
+   namesAside?: { categories: readonly string[]; pulls: readonly string[] }
 }
 
 export const CATEGORY_SOURCES: readonly CategorySource[] = [
@@ -522,8 +545,10 @@ export const DRAFT_SOURCES: readonly CategorySource[] = [
   },
   { id: 'oiseaux-reptiles', pulls: ['common-birds-reptiles', 'birds', 'reptiles'], exclude: ['common-plants', 'plants-vernacular'] },
   // Every way to get somewhere, from the feet up: the Wiktionary's vehicles,
-  // and what it files under none — marche, roller, RER, Uber — by hand.
-  { id: 'locomotion', pulls: ['staple-transport'], namesAside: { categories: ['marques'] } },
+  // and what it files under none — marche, roller, RER, Uber — by hand. A
+  // maker's name and its models are the one thing the Wiktionary's transport
+  // topic keeps that a table would argue over: a moderator settles them.
+  { id: 'locomotion', pulls: ['staple-transport'], namesAside: { categories: ['marques'], pulls: ['car-models'] } },
   { id: 'vetements', pulls: [] },
   // The Wiktionnaire files no electronic device anywhere: Wikidata names the
   // everyday ones, the English topics and the hand the rest.
