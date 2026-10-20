@@ -286,6 +286,19 @@ const COMMUNITY = JSON.parse(
 ) as Record<string, Record<string, string[]>>
 
 /**
+ * The spellings a super moderator corrected (scripts/amended-words.json): the
+ * import renames the row, so the dictionary holds the corrected word while the
+ * accepted list keeps the spelling it came in with — « Hypopotamus » reads
+ * « Hippopotamus ».
+ */
+const AMENDED = JSON.parse(
+  readFileSync(join(import.meta.dirname, '../../scripts/amended-words.json'), 'utf8'),
+) as Record<string, Record<string, { from: string; to: string }[]>>
+
+const corrected = (lang: string, id: string, word: string) =>
+  AMENDED[lang]?.[id]?.find((one) => normalizeWord(one.from) === normalizeWord(word))?.to ?? word
+
+/**
  * Where a category gave words up when it narrowed: « Objets du quotidien »
  * became « Petit objet », and the moderators' « voiture » or « fenêtre » went
  * to the draft « Meubles et gros objets ».
@@ -301,7 +314,9 @@ for (const [lang, categories] of Object.entries(COMMUNITY)) {
   for (const [id, words] of Object.entries(categories)) {
     it(`${lang}/${id} ships the ${words.length} words its moderators accepted`, () => {
       const elsewhere = NARROWED[id] ? draftPack(lang, NARROWED[id]) : null
-      const lost = words.filter((word) => findWord(pack(lang, id), word, 0) === null && (!elsewhere || findWord(elsewhere, word, 0) === null))
+      const lost = words
+        .map((word) => corrected(lang, id, word))
+        .filter((word) => findWord(pack(lang, id), word, 0) === null && (!elsewhere || findWord(elsewhere, word, 0) === null))
       expect(lost).toEqual([])
     })
   }

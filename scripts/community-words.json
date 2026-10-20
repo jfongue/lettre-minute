@@ -68,7 +68,7 @@
       "Zygomatique"
     ],
     "couleurs": [
-      "Albatre",
+      "Albâtre",
       "Amande",
       "Anthracite",
       "Ardoise",
@@ -89,7 +89,7 @@
       "Coing",
       "Daim",
       "Doré",
-      "Ebene",
+      "Ébène",
       "Émeraude",
       "Figue",
       "Grenat",
@@ -123,7 +123,6 @@
     "fruits-legumes": [
       "Basilic",
       "Blé",
-      "Brunion",
       "Cèpe",
       "Cerfeuil",
       "Champignon",
@@ -138,6 +137,7 @@
       "Girolle",
       "Menthe",
       "Morille",
+      "Nectarine",
       "Nèfle",
       "Nigelle",
       "Noix de pécan",
@@ -267,6 +267,7 @@
     "matieres": [
       "Acajou",
       "Albâtre",
+      "Albâtre",
       "Bambou",
       "Benzoate de potassium",
       "Bouleau",
@@ -351,7 +352,7 @@
       "Joaillier",
       "Jockey",
       "Laveur de vitres",
-      "Luttier",
+      "Luthier",
       "Manutentionnaire",
       "Marathonien",
       "Mouleur",
@@ -542,7 +543,8 @@
   },
   "en": {
     "animaux": [
-      "Hypopotamus"
+      "Hypopotamus",
+      "Yguana"
     ],
     "capitales": [
       "Oslo"
@@ -558,10 +560,21 @@
       "Xanadu"
     ],
     "fruits-legumes": [
+      "Mint",
       "Squash"
+    ],
+    "marques": [
+      "Zara"
+    ],
+    "matieres": [
+      "Dust",
+      "Petrol"
     ],
     "metiers": [
       "Fitness instructor"
+    ],
+    "objets": [
+      "Mic"
     ],
     "pays": [
       "Korea",

@@ -1,1 +1,42 @@
-{}
+{
+  "fr": {
+    "couleurs": [
+      {
+        "from": "ebene",
+        "to": "Ébène"
+      }
+    ],
+    "matieres": [
+      {
+        "from": "albatre",
+        "to": "Albâtre"
+      }
+    ],
+    "fruits-legumes": [
+      {
+        "from": "nectarine",
+        "to": "Nectarine"
+      }
+    ],
+    "metiers": [
+      {
+        "from": "luthier",
+        "to": "Luthier"
+      }
+    ]
+  },
+  "en": {
+    "animaux": [
+      {
+        "from": "hypopotamus",
+        "to": "Hippopotamus"
+      }
+    ],
+    "pays": [
+      {
+        "from": "trinidad and trabago",
+        "to": "Trinidad and Tobago"
+      }
+    ]
+  }
+}
