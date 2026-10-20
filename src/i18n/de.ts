@@ -950,7 +950,7 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
 
   categories: {
     pays: ['Länder', 'Staaten unserer Welt'],
-    animaux: ['Tiere', 'Vom Spatz bis zum Walross'],
+    animaux: ['Säugetiere', 'Von der Maus bis zum Wal'],
     couleurs: ['Farben', 'Farbtöne und Nuancen'],
     'fruits-legumes': ['Obst und Gemüse', 'Roh oder gekocht'],
     metiers: ['Berufe', 'Von gestern und heute'],
@@ -960,10 +960,16 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
     capitales: ['Großstädte', 'Die größten ihres Landes'],
     marques: ['Marken', 'Jedermann bekannt'],
     prenoms: ['Vornamen', 'Von hier und anderswo'],
-    objets: ['Alltagsgegenstände', 'Zu Hause oder in der Tasche'],
+    objets: ['Kleiner Gegenstand', 'Passt in einen Rucksack'],
     plantes: ['Pflanzen', 'Blumen, Bäume, Kräuter'],
     ingredients: ['Zutaten', 'Von Salz bis Zartbitterschokolade'],
     lieux: ['Orte und Gebäude', 'Vom Rathaus bis zur Fabrik'],
+    meubles: ['Möbel und große Dinge', 'Vom Bett bis zum Kühlschrank'],
+    'animaux-marins': ['Meerestiere', 'Fische, Wale, Muscheln…'],
+    'oiseaux-reptiles': ['Vögel und Reptilien', 'Vom Spatz bis zum Krokodil'],
+    locomotion: ['Fortbewegungsmittel', 'Vom Gehen bis zum ICE'],
+    vetements: ['Kleidung und Accessoires', 'Vom Pulli bis zur Brille'],
+    electronique: ['Elektronische Geräte', 'Vom Telefon bis zum Drucker'],
   },
 
   colours: {

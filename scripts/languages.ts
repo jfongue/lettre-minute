@@ -62,12 +62,13 @@ export const TOPICS: Record<string, Topics> = {
     // Not "Mushrooms": it files a hedgehog, a sweet tooth and hot lips under
     // the fungi named like them. The mushrooms a cook buys are added by hand.
   },
+  // « Mammifères ». Not "Animals": its own words are every class at once.
   animaux: {
-    topics: ['Animals'],
-    expand: ['Mammals', 'Birds', 'Fish', 'Reptiles', 'Amphibians', 'Insects', 'Mollusks', 'Crustaceans', 'Arachnids'],
+    topics: [],
+    expand: ['Mammals'],
     skip: [
-      'Animal riding', 'Dressage', 'Eggs', 'Equestrianism', 'Farriery', 'Feathers', 'Horse colors', 'Horse racing',
-      'Horse tack', 'Moby-Dick', 'Mosquito-borne diseases', 'My Little Pony', 'Whaling',
+      'Animal riding', 'Dressage', 'Equestrianism', 'Farriery', 'Horse colors', 'Horse racing', 'Horse tack',
+      'Moby-Dick', 'My Little Pony', 'Whaling',
     ],
   },
   metiers: {
@@ -92,10 +93,14 @@ export const TOPICS: Record<string, Topics> = {
       'Roses', 'Alliums', 'Shrubs', 'Grasses', 'Bamboos', 'Grains', 'Maize (plant)', 'Maize (crop)', 'Maize (food)',
     ],
   },
-  // Not expanded: "Tools" also holds weapons, sports and medical equipment,
-  // which are not the everyday objects the category means.
-  objets: { topics: ['Furniture', 'Tools', 'Cutlery', 'Tableware', 'Containers', 'Kitchenware'] },
-  // Drafts (see DRAFT_SOURCES). Not expanded either, and for a sharper reason:
+  // « Petit objet ». Not expanded: "Tools" also holds weapons, sports and
+  // medical equipment, which are not the everyday objects the category means.
+  // Furniture went to « Meubles et gros objets », with whatever the topics
+  // below file that does not fit in a backpack (`apartFrom`).
+  objets: {
+    topics: ['Tools', 'Cutlery', 'Tableware', 'Containers', 'Kitchenware', 'Writing instruments', 'Stationery', 'Toiletries', 'Toys'],
+  },
+  // Avant-premières, born drafts. Not expanded either, and for a sharper reason:
   // "Foods" files the dish a cook makes and the cereal a child asks for beside
   // the ingredients, "Buildings" a plank and a parliament's chamber beside a
   // bakehouse. Topics a reader would expect are left out on purpose —
@@ -114,4 +119,22 @@ export const TOPICS: Record<string, Topics> = {
   lieux: {
     topics: ['Buildings', 'Buildings and structures', 'Shops', 'Restaurants', 'Bars', 'Hotels', 'Schools', 'Places of worship', 'Gardens', 'Bridges'],
   },
+  meubles: { topics: ['Furniture', 'Chairs', 'Home appliances'] },
+  // Every class that lives in water, the taxonomic ones expanded — never
+  // "Mollusks" whole, whose snails crawl on land.
+  'animaux-marins': {
+    topics: [],
+    expand: ['Fish', 'Cetaceans', 'Pinnipeds', 'Cephalopods', 'Bivalves', 'Crustaceans', 'Echinoderms', 'Cnidarians'],
+    skip: ['Moby-Dick', 'Whaling'],
+  },
+  'oiseaux-reptiles': { topics: [], expand: ['Birds', 'Reptiles'], skip: ['Eggs', 'Feathers'] },
+  // Not "Rail transportation" nor "Road transport": their words are the
+  // tracks, the signals and the lanes. The trains, the metro and the feet
+  // come by hand.
+  locomotion: { topics: ['Vehicles', 'Automobiles', 'Bicycle types', 'Motorcycles', 'Aircraft', 'Watercraft', 'Carriages'] },
+  vetements: {
+    topics: ['Clothing', 'Footwear', 'Headwear', 'Handwear', 'Neckwear', 'Eyewear', 'Jewelry', 'Underwear', 'Swimwear', 'Skirts', 'Bags'],
+  },
+  // Not "Telephony": its words are the callee, the robocall and the ringtone.
+  electronique: { topics: ['Consumer electronics', 'Computer hardware', 'Mobile phones'] },
 }

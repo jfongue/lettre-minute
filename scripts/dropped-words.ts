@@ -142,6 +142,72 @@ export const DROPPED_WORDS: Readonly<Record<string, Readonly<Record<string, read
     // and a crude one besides.
     pt: ['merda'],
   },
+  // Drafts (see DRAFT_SOURCES). The furniture lists hold a style named after
+  // its maker — « voltaire », « chippendale » —, a homograph the Wiktionary
+  // filed there for one sense — « voyelle », « crapaud », a German « Kot » —,
+  // and the small appliances and linen that fit in a backpack: dropped here,
+  // they stay in « Petit objet », which takes whatever « Meubles et gros
+  // objets » does not (`apartFrom`) — « Uhr » and « reloj » are watches too.
+  meubles: {
+    fr: [
+      'ceinture', 'voyelle', 'théâtre', 'conversation', 'confident', 'indiscret', 'moine', 'cave', 'épi', 'borne', 'galerie',
+      'guichet', 'traite', 'tablier', 'couche', 'sellerie', 'bât', 'crapaud', 'poire', 'polonais', 'singer', 'téléphone',
+      'radio', 'liseuse', 'fer à repasser', 'compendium', 'cylindre', 'arche', 'orphée', 'paphos', 'tara', 'sanne', 'mette',
+      'montauban', 'rothschild', 'dagobert', 'voltaire', 'chippendale', 'chilienne', 'ganache', 'marquise', 'duchesse',
+      'potière', 'pinchart', 'torchio', 'saucier', 'faisselle', 'bibus', 'barbière', 'ambon', 'fumeuse', 'voyeuse',
+      'dormeuse', 'assise', 'kang', 'magnétophone', 'électrophone', 'bouilloire', 'cafetière', 'mixeur', 'blender',
+      'mélangeur', 'crêpière', 'yaourtière', 'sorbetière', 'pétrisseur', 'billig', 'rafraîchisseur', 'lampe', 'console',
+    ],
+    en: [
+      'boneless', 'starbase', 'Cesca', 'Aeron', 'cricket', 'deuce', 'disk', 'bail', 'litter', 'Empire', 'Shaker', 'shepherdess',
+      'caseworker', 'furni', 'HVAC', 'squab', 'sleeper', 'whatnot', 'rya', 'dooly', 'chowki', 'amud', 'lamp', 'diffuser',
+      'hairdryer', 'oilcloth', 'tablecloth', 'stretchered', 'cornice', 'backrest', 'worktop', 'casework', 'tabletop',
+      'flatpack', 'kneeler', 'drawer', 'buro',
+    ],
+    de: [
+      'Zwei', 'Exkrement', 'Kot', 'Stuhlgang', 'Hirtin', 'Schäferin', 'Leere', 'Streu', 'Stroh', 'Kranz', 'Fries', 'Lager',
+      'Bord', 'Brett', 'Bar', 'Ausrüstung', 'Ausstattung', 'Gerät', 'Festplatte', 'Föhn', 'Haartrockner', 'Lockenstab',
+      'Waschlappen', 'Tischdecke', 'Tischtuch', 'Wachstuch', 'Sicherheitsverschluss', 'Randleiste', 'Sattelzugmaschine',
+      'Fahrstuhl', 'Beifahrersitz', 'Kutschbock', 'Uhr', 'Fernsehen', 'Abwasch', 'Kindersitz', 'Sitzkissen',
+    ],
+    es: [
+      'dos', 'sobre', 'piso', 'paño', 'toallita', 'manopla', 'mantel', 'encendedor', 'reloj', 'cadera', 'paje', 'greca',
+      'colombina', 'comadrita', 'bigotera', 'afeitadora', 'secador', 'tostadora', 'batidora', 'cafetera', 'mezclador',
+      'mezcladora', 'trituradora', 'difusor', 'HVAC', 'haragana', 'perezosa', 'perezoso', 'hogar', 'campana', 'vitro',
+      'cucha', 'piltra', 'secadora',
+    ],
+    it: [
+      'due', 'escremento', 'feci', 'abaco', 'agrippina', 'pastora', 'bussola', 'maniglia', 'Sacco', 'box', 'fon',
+      'arricciacapelli', 'asciugacapelli', 'incerata', 'incerato', 'tovaglia', 'drappo', 'serpa', 'orologio', 'ribalta',
+      'palchetto', 'dondola',
+    ],
+    nl: [
+      'herderin', 'herderinnetje', 'stoelgang', 'strooisel', 'schijf', 'box', 'doek', 'föhn', 'haardroger', 'krultang',
+      'tafelkleed', 'passagiersstoel', 'verhoog',
+    ],
+    pt: [
+      'merda', 'cocô', 'fezes', 'dois', 'vazio', 'disco', 'pastora', 'almofada', 'relógio', 'secador', 'blecaute', 'AVAC',
+      'HVAC', 'parque', 'arquivo', 'coxim', 'tábua', 'secretária',
+    ],
+  },
+  // The vehicle lists file a car by the adjective its model was sold under,
+  // a ship's part beside the ship, and slang beside both.
+  locomotion: {
+    fr: [
+      'chatte', 'chiotte', 'allemande', 'américaine', 'italienne', 'japonaise', 'ancienne', 'automatique', 'manuelle',
+      'électrique', 'familiale', 'intégrale', 'coupante', 'chaise', 'caisse', 'carcasse', 'bâtiment', 'annexe', 'combiné',
+      'lin', 'meule', 'malle', 'litière', 'manivelle', 'hauban', 'lift', 'boot', 'boote', 'drag', 'dragon', 'ape', 'candi',
+      'Axel', 'Dash', 'ID', 'BM', 'coupe', 'dormeuse', 'balancelle', 'jardinière', 'londre', 'bent', 'chasseur', 'éclaireur',
+    ],
+    en: [
+      'blowtorch', 'carpenter', 'cock', 'German', 'fork', 'fly', 'funny', 'petrol', 'axle', 'fuselage', 'empennage',
+      'aircrew', 'abeam', 'basket', 'accelerator', 'butt', 'gill', 'merchant', 'monger', 'ordinary', 'drive', 'combination',
+      'diesel', 'break', 'bier', 'litter', 'beater', 'bolster', 'bounder', 'buzzard', 'caper', 'centipede', 'crummy',
+      'feeder', 'fireball', 'heckler', 'hooker', 'hopper', 'jingle', 'keel', 'newbuild', 'picard', 'PEEP', 'DMS', 'ECM',
+      'EAPC', 'GVWR', 'LWB', 'AV', 'FX', 'MX', 'dooly',
+    ],
+    nl: ['bak', 'beurt', 'bom', 'buis', 'aanrijding', 'as', 'eend', 'jager', 'kraai', 'rij', 'veren'],
+  },
   // A place the Wiktionary files as the speciality that names itself after
   // it — « Strasbourg », « Morteau », « Narbonne » — the brands its fruit and
   // cereal lists carry, and the Latin binomials its seafood list holds. The
@@ -236,12 +302,11 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
       'amígdala', 'pupila', 'tímpano', 'bíceps',
     ],
   },
-  // The English Wiktionary files "shark" under Sports — a card shark — and
-  // never under Sharks; its translations inherit the gaps. Every word here was
-  // a first answer the words test found missing.
+  // « Mammifères ». The Wiktionnaire files the farm's animals deep under
+  // « Bovins » or « Caprins », where the homograph guard takes « vache »
+  // and « chèvre » for the everyday words they also are.
   animaux: {
-    en: ['shark', 'octopus'],
-    pt: ['polvo'],
+    fr: ['vache', 'souris', 'chèvre'],
   },
   metiers: {
     en: ['doctor'],
@@ -306,16 +371,175 @@ export const ADDED_WORDS: Readonly<Record<string, Readonly<Record<string, readon
   // compound one — "téléphone mobile", "Leuchte" — never the bare word a
   // player types first; a ballpoint pen, a wristwatch or a drinking glass
   // the same way leaves the plain "pen", "watch" or "glass" unanswered.
+  // « Petit objet » also holds what fills a pocket, a pencil case or a
+  // toilet bag, which no topic files.
   objets: {
-    en: ['phone', 'telephone', 'pen', 'glass', 'watch'],
-    fr: ['téléphone', 'sac', 'vis', 'montre'],
-    de: ['Telefon', 'Regenschirm', 'Lampe', 'Stift', 'Glas'],
-    es: ['teléfono', 'lámpara'],
-    it: ['telefono', 'lampada', 'penna', 'spazzolino'],
-    nl: ['telefoon', 'lamp', 'pen', 'glas', 'horloge'],
-    pt: ['telefone', 'lâmpada', 'caneta', 'copo'],
+    en: ['phone', 'telephone', 'pen', 'glass', 'watch', 'lamp', 'lighter', 'wallet', 'coin', 'eraser', 'ruler', 'notebook', 'book', 'battery'],
+    fr: ['téléphone', 'sac', 'vis', 'montre', 'briquet', 'gomme', 'règle', 'cahier', 'livre', 'pièce', 'trombone', 'agrafe', 'élastique'],
+    de: [
+      'Telefon', 'Regenschirm', 'Lampe', 'Stift', 'Glas', 'Uhr', 'Feuerzeug', 'Radiergummi', 'Lineal', 'Heft', 'Buch', 'Münze',
+      'Geldbörse', 'Batterie',
+    ],
+    es: ['teléfono', 'lámpara', 'reloj', 'mechero', 'goma', 'regla', 'cuaderno', 'libro', 'moneda', 'cartera', 'pila'],
+    it: ['telefono', 'lampada', 'penna', 'spazzolino', 'orologio', 'accendino', 'gomma', 'righello', 'quaderno', 'libro', 'moneta', 'portafoglio', 'pila'],
+    nl: [
+      'telefoon', 'lamp', 'pen', 'glas', 'horloge', 'aansteker', 'gum', 'liniaal', 'schrift', 'boek', 'munt', 'portemonnee',
+      'batterij', 'kam', 'borstel', 'mes', 'lepel', 'beker', 'fles', 'doos', 'nagelknipper', 'zakdoek', 'tandpasta',
+    ],
+    pt: ['telefone', 'lâmpada', 'caneta', 'copo', 'relógio', 'isqueiro', 'borracha', 'régua', 'caderno', 'livro', 'moeda', 'carteira', 'pilha'],
   },
-  // Draft categories (see DRAFT_SOURCES). The Wiktionnaire's food tree holds
+  // Drafts (see DRAFT_SOURCES). « Meubles et gros objets » holds, beside the
+  // furniture and the appliances, what « Petit objet » gives up because it
+  // fits in no backpack — the moderators' « voiture » and « fenêtre » among
+  // them. Every word here is kept out of « Petit objet » (`apartFrom`).
+  meubles: {
+    fr: [
+      'lave-vaisselle', 'micro-ondes', 'piano', 'baignoire', 'matelas', 'brouette', 'horloge', 'frigo', 'congélateur',
+      'four', 'télévision', 'téléviseur', 'radiateur', 'cheminée', 'sèche-linge', 'climatiseur', 'tonneau', 'citerne',
+      'benne', 'cuve', 'coffre-fort', 'établi', 'enclume', 'tondeuse', 'tronçonneuse', 'charrue', 'cercueil',
+      'aquarium', 'barbecue', 'voiture', 'vélo', 'fenêtre', 'rideau', 'vitre', 'roue', 'totem', 'malle', 'lit superposé',
+    ],
+    en: [
+      'desk', 'fridge', 'piano', 'bathtub', 'mattress', 'wheelbarrow', 'clock', 'freezer', 'oven', 'microwave', 'television',
+      'dishwasher', 'washing machine', 'tumble dryer', 'radiator', 'fireplace', 'barrel', 'dumpster', 'safe', 'workbench',
+      'anvil', 'lawnmower', 'coffin', 'aquarium', 'barbecue', 'trunk', 'wardrobe', 'bookcase', 'cupboard',
+    ],
+    de: [
+      'Bank', 'Spülmaschine', 'Fernseher', 'Klavier', 'Badewanne', 'Matratze', 'Schubkarre', 'Kühlschrank', 'Gefrierschrank',
+      'Waschmaschine', 'Backofen', 'Mikrowelle', 'Staubsauger', 'Schrank', 'Kleiderschrank', 'Bücherregal', 'Heizkörper',
+      'Kamin', 'Fass', 'Tresor', 'Werkbank', 'Amboss', 'Rasenmäher', 'Sarg', 'Aquarium', 'Grill', 'Wäschetrockner',
+    ],
+    es: [
+      'nevera', 'lavavajillas', 'televisor', 'piano', 'bañera', 'colchón', 'escalera', 'carretilla', 'frigorífico',
+      'congelador', 'lavadora', 'horno', 'microondas', 'aspiradora', 'armario', 'estantería', 'radiador', 'chimenea',
+      'barril', 'caja fuerte', 'yunque', 'cortacésped', 'ataúd', 'acuario', 'barbacoa', 'maleta', 'mesita', 'mostrador',
+      'mampara', 'mesa de noche', 'cuna', 'cocina', 'cortina', 'cajonera', 'cabecero', 'camilla', 'coche', 'cofre', 'carro', 'cajón',
+    ],
+    it: [
+      'panca', 'frigo', 'congelatore', 'televisore', 'pianoforte', 'vasca da bagno', 'materasso', 'carriola', 'frigorifero',
+      'lavatrice', 'lavastoviglie', 'forno', 'microonde', 'aspirapolvere', 'armadio', 'divano', 'letto', 'scrivania',
+      'scaffale', 'sgabello', 'termosifone', 'camino', 'botte', 'cassaforte', 'incudine', 'tosaerba', 'bara', 'acquario',
+      'barbecue', 'asciugatrice', 'valigia', 'scala', 'comò', 'poltrona', 'libreria', 'cassettiera', 'comodino', 'cassapanca',
+      'credenza', 'culla', 'caminetto', 'condizionatore', 'cucina', 'caldaia', 'cassaforte', 'guardaroba', 'gazebo', 'mensola',
+      'mobile', 'radiatore', 'ombrellone', 'lampadario', 'dondolo', 'quadro', 'nave', 'tavolino', 'tappeto', 'trono', 'tv',
+      'televisione', 'trattore', 'tavola', 'tenda', 'statua', 'salotto', 'carrello', 'cancello', 'cornice',
+    ],
+    nl: [
+      'commode', 'vriezer', 'vaatwasser', 'piano', 'bad', 'matras', 'kruiwagen', 'koelkast', 'wasmachine', 'oven',
+      'magnetron', 'televisie', 'stofzuiger', 'kast', 'kledingkast', 'boekenkast', 'bureau', 'kruk', 'fauteuil', 'bank',
+      'tafel', 'stoel', 'bed', 'radiator', 'open haard', 'ton', 'kluis', 'werkbank', 'aambeeld', 'grasmaaier', 'doodskist',
+      'aquarium', 'barbecue', 'droger', 'koffer', 'ladder', 'klok', 'wieg', 'sofa', 'aanrecht', 'airco', 'dressoir', 'divan',
+      'fornuis', 'gordijn', 'hangmat', 'haard', 'ladekast', 'vleugel', 'waterbed', 'kachel', 'kinderstoel', 'kapstok', 'kist',
+      'keukenkast', 'auto', 'fiets', 'raam', 'deur', 'wagen', 'tv', 'toilet', 'troon', 'tent', 'trampoline', 'tafeltje',
+      'schilderij', 'standbeeld', 'slaapbank', 'schommel', 'kabinet', 'keuken', 'kar', 'kooi', 'kachel', 'kluis',
+    ],
+    pt: [
+      'congelador', 'máquina de lavar', 'lava-louças', 'micro-ondas', 'piano', 'banheira', 'colchão', 'escada',
+      'carrinho de mão', 'geladeira', 'forno', 'televisão', 'aspirador', 'armário', 'estante', 'escrivaninha', 'cômoda',
+      'poltrona', 'sofá', 'cama', 'mesa', 'cadeira', 'radiador', 'lareira', 'barril', 'cofre', 'bigorna', 'cortador de grama',
+      'caixão', 'aquário', 'churrasqueira', 'secadora', 'mala', 'banco', 'fogão', 'berço', 'cortina', 'cristaleira',
+      'criado-mudo', 'cabideiro', 'carro', 'caldeira', 'divã', 'guarda-roupa', 'penteadeira', 'prateleira', 'rede', 'sofá-cama',
+      'tanque', 'ventilador', 'vaso sanitário', 'bicicleta', 'janela', 'cozinha', 'carrinho',
+    ],
+  },
+  'animaux-marins': {
+    en: ['shark', 'whale', 'octopus', 'squid'],
+    de: ['Delfin', 'Orca'],
+    it: ['balena', 'corallo'],
+    nl: ['oester', 'koraal'],
+    pt: ['polvo'],
+  },
+  'oiseaux-reptiles': {
+    fr: ['poule', 'crocodile'],
+    nl: ['leguaan'],
+    pt: ['píton'],
+  },
+  // What no vehicle topic files: the feet, the skates, the trains by their
+  // names, and the car a phone calls.
+  locomotion: {
+    fr: ['roller', 'patins à roulettes', 'Uber', 'téléphérique', 'RER', 'TGV', 'marche', 'course à pied', 'auto-stop', 'covoiturage'],
+    en: ['bike', 'metro', 'subway', 'motorbike', 'cable car', 'walking', 'Uber', 'underground', 'tube', 'roller skates', 'hitchhiking'],
+    de: ['Pferd', 'Rudern', 'Roller', 'S-Bahn', 'ICE', 'Uber', 'Seilbahn', 'U-Bahn', 'Straßenbahn', 'Rollschuhe', 'Inlineskates', 'Trampen'],
+    es: ['Uber', 'AVE', 'patines', 'caminar', 'autostop'],
+    it: ['cavallo', 'Uber', 'camion', 'pattini', 'autostop'],
+    nl: [
+      'tram', 'Uber', 'lopen', 'fiets', 'step', 'rolschaatsen', 'skeelers', 'liften', 'brommer', 'scooter', 'metro', 'trein',
+      'bus', 'taxi', 'auto', 'motor', 'boot', 'schip', 'vliegtuig', 'helikopter', 'veerboot', 'kano', 'kajak', 'raket',
+      'zeilboot', 'kabelbaan', 'slee', 'paard', 'roeien', 'bakfiets', 'bromfiets', 'bestelwagen', 'binnenvaartschip', 'buggy',
+      'ballon', 'luchtballon', 'bolderkar', 'brandweerwagen', 'bootje', 'truck', 'tank', 'vlot', 'schaatsen', 'wagen', 'tractor', 'voet', 'ski',
+      'sloep', 'stoomtrein', 'sneltrein', 'speedboot', 'sportwagen', 'stadsbus', 'vrachtauto', 'trekker', 'tandem', 'trailer',
+      'wandelen', 'zwemmen', 'motorfiets', 'voertuig',
+    ],
+    pt: ['caminhada', 'Uber', 'skate', 'carona', 'patins'],
+  },
+  vetements: {
+    fr: ['boucle d’oreille', 'lunettes', 't-shirt', 'soutien-gorge', 'montre', 'sac à main', 'sac à dos', 'lunettes de soleil'],
+    en: ['glasses', 't-shirt', 'trainers', 'watch', 'sunglasses', 'backpack'],
+    de: ['T-Shirt', 'Sonnenbrille', 'Rucksack'],
+    es: ['gafas', 'reloj', 'gafas de sol', 'mochila'],
+    it: ['orologio', 'occhiali da sole', 'zaino'],
+    nl: ['bril', 't-shirt', 'horloge', 'zonnebril', 'rugzak'],
+    pt: ['óculos', 'calça', 'jeans', 'relógio', 'óculos de sol', 'mochila'],
+  },
+  // The Wiktionnaire files no device anywhere, and Wikidata names them the
+  // formal way — « téléviseur », « ordinateur personnel ».
+  electronique: {
+    fr: [
+      'casque', 'télévision', 'télé', 'tablette', 'console', 'écouteurs', 'enceinte', 'appareil photo', 'clavier', 'écran',
+      'radio', 'micro', 'chargeur', 'ordinateur', 'ordinateur portable', 'téléphone', 'portable', 'smartphone', 'imprimante',
+      'souris', 'télécommande', 'calculatrice', 'caisse enregistreuse', 'clé USB', 'disque dur', 'box', 'GPS', 'drone',
+      'liseuse', 'manette', 'baladeur', 'montre connectée', 'photocopieuse', 'vidéoprojecteur', 'magnétoscope', 'minitel',
+      'walkman', 'lecteur DVD', 'tablette tactile', 'haut-parleur', 'téléviseur', 'transistor', 'talkie-walkie', 'télécopieur',
+      'tourne-disque', 'terminal', 'thermostat', 'tuner', 'téléphone fixe', 'téléphone mobile', 'tablette graphique', 'moniteur',
+      'mobile', 'modem', 'magnétophone', 'mégaphone', 'amplificateur', 'ampli', 'caméra', 'caméscope', 'carte graphique',
+      'chaîne hi-fi', 'décodeur', 'dictaphone', 'graveur', 'home cinéma', 'lecteur MP3', 'oreillette', 'onduleur', 'PC',
+      'photocopieur', 'projecteur', 'platine', 'processeur', 'répondeur', 'radio-réveil', 'réveil', 'serveur', 'synthétiseur',
+      'scanner', 'webcam', 'routeur', 'fax', 'bip', 'Game Boy', 'jukebox', 'flipper', 'borne d’arcade',
+    ],
+    en: [
+      'headphones', 'phone', 'television', 'TV', 'tablet', 'console', 'earphones', 'speaker', 'mouse', 'monitor', 'screen',
+      'radio', 'remote', 'scanner', 'charger', 'computer', 'laptop', 'printer', 'keyboard', 'camera', 'calculator', 'drone',
+      'smartwatch', 'hard drive', 'joystick', 'e-reader',
+    ],
+    de: [
+      'Laptop', 'Kopfhörer', 'Fernseher', 'Tablet', 'Maus', 'Bildschirm', 'Radio', 'Ladegerät', 'Handy', 'Drucker', 'Navi', 'Festplatte',
+      'Server', 'Stereoanlage', 'Speicherkarte', 'USB-Stick', 'Scanner', 'Smartwatch', 'Spielkonsole', 'Sensor', 'Soundbar',
+      'Subwoofer', 'Synthesizer', 'Smartphone', 'Satellitenschüssel', 'Telefon', 'Tastatur', 'Taschenrechner', 'Touchscreen',
+      'Transistor', 'Taschenlampe', 'Telefax', 'Tonbandgerät', 'Tuner', 'Thermostat', 'Monitor', 'Mikrofon', 'Modem',
+      'Mobiltelefon', 'Funkgerät', 'Fotoapparat', 'Fernbedienung', 'Faxgerät', 'Flachbildschirm', 'Computer', 'Kamera', 'Webcam',
+      'Router', 'Lautsprecher', 'Registrierkasse', 'Kasse', 'Videorekorder', 'Plattenspieler', 'Walkman', 'Drohne', 'Beamer',
+      'Navigationsgerät', 'Anrufbeantworter', 'Gameboy', 'E-Book-Reader', 'Kopierer', 'Rechner', 'Notebook', 'Hi-Fi-Anlage',
+    ],
+    es: [
+      'ordenador', 'auriculares', 'televisión', 'consola', 'ratón', 'pantalla', 'mando', 'escáner', 'webcam', 'router',
+      'cargador', 'móvil', 'portátil', 'impresora', 'tableta', 'altavoz', 'teclado', 'calculadora', 'micrófono', 'disco duro',
+    ],
+    it: [
+      'portatile', 'cuffie', 'televisione', 'console', 'fotocamera', 'schermo', 'caricabatterie', 'cellulare', 'stampante',
+      'tablet', 'altoparlante', 'tastiera', 'mouse', 'telecomando', 'calcolatrice', 'microfono', 'chiavetta', 'tv', 'citofono',
+      'cordless', 'cassa', 'cuffiette', 'centralino', 'chip', 'computer', 'cinepresa', 'casse', 'telecamera', 'telefonino',
+      'termostato', 'televisore', 'telefono', 'trasmettitore', 'tuner', 'transistor', 'smartphone', 'scanner', 'server', 'stereo',
+      'sensore', 'satellitare', 'modem', 'monitor', 'radio', 'router', 'webcam', 'registratore', 'giradischi', 'videoregistratore',
+      'proiettore', 'navigatore', 'drone', 'fax', 'fotocopiatrice', 'lettore DVD', 'amplificatore', 'decoder', 'segreteria telefonica',
+      'gps', 'batteria',
+    ],
+    nl: [
+      'kassa', 'koptelefoon', 'televisie', 'tv', 'tablet', 'beeldscherm', 'radio', 'oplader', 'computer', 'laptop',
+      'telefoon', 'mobiel', 'smartphone', 'printer', 'spelcomputer', 'luidspreker', 'camera', 'toetsenbord', 'muis',
+      'afstandsbediening', 'rekenmachine', 'scanner', 'microfoon', 'webcam', 'router', 'harde schijf', 'oordopjes',
+      'videorecorder', 'dvd-speler', 'fototoestel', 'navigatiesysteem', 'e-reader', 'smartwatch', 'transistor', 'televisietoestel',
+      'telefax', 'tuner', 'thermostaat', 'tv-toestel', 'telefooncentrale', 'speaker', 'server', 'stereo', 'stereo-installatie',
+      'synthesizer', 'satellietschotel', 'spelcomputer', 'modem', 'monitor', 'mp3-speler', 'magnetofoon', 'beamer', 'drone',
+      'fax', 'kopieerapparaat', 'antwoordapparaat', 'versterker', 'decoder', 'gameboy', 'walkman', 'platenspeler', 'processor',
+      'scherm', 'speler', 'satelliet', 'toestel', 'gsm', 'sensor', 'simkaart', 'mobieltje', 'chip', 'console', 'cassettespeler',
+      'computerscherm', 'cd-speler', 'camcorder', 'gameconsole', 'stereotoren',
+    ],
+    pt: [
+      'notebook', 'fone de ouvido', 'televisão', 'console', 'monitor', 'controle remoto', 'scanner', 'carregador',
+      'computador', 'celular', 'impressora', 'tablet', 'teclado', 'mouse', 'câmera', 'calculadora', 'tela', 'rádio', 'TV',
+    ],
+  },
+  // Avant-premières, born drafts. The Wiktionnaire's food tree holds
   // the produce, the cheeses, the seafood and the spices, but files neither
   // the pantry — sel, farine, huile — nor a single meat: the meats hang off the
   // animals and the condiments off the plants, both pruned away there.

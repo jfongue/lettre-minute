@@ -11,8 +11,8 @@ import { buildWordPack, findWord, knownByLetter, type WordRow } from '../domain/
  * ship like any other, and words.test.ts holds their rows. What only they
  * need is the check that a category too young for anyone but Premium still
  * holds the answers a table would shout, and enough letters to be drawn.
- * Categories prepared but not shipped (`DRAFT_SOURCES`) would go back under
- * src/data/drafts and be read from there.
+ * Categories prepared but not shipped (`DRAFT_SOURCES`) live under
+ * src/data/drafts, which drafts.test.ts reads.
  */
 const DIR = join(import.meta.dirname, 'words')
 const DRAFTS = CATALOGUE.filter((category) => category.premiere).map((category) => category.id)
@@ -174,7 +174,8 @@ describe('avant-première dictionaries', () => {
 
   it('is exactly what the game keeps for Premium', () => {
     expect([...DRAFTS].sort()).toEqual(['ingredients', 'lieux'])
-    expect(SOON).toEqual([])
+    // The drafts announced beside them are drafts.test.ts's.
+    expect(SOON.map((category) => category.id).filter((id) => DRAFTS.includes(id))).toEqual([])
   })
 
   for (const [name, rows] of rowsOf) {
