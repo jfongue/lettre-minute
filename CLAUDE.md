@@ -192,16 +192,43 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   `CATALOGUE` ne la liste pas, donc aucun tirage ne la distribue et aucun ban
   ne la vise. Ses dictionnaires sont sous `src/data/drafts/`, que ni `packs.ts`
   ni `words.test.ts` ne lisent, et
-  `npm run import:words -- --lang=de --draft` la construit seule, sans lire
-  aucun *pull* — le français depuis le Wiktionnaire français, les six autres
-  langues depuis les thèmes du Wiktionnaire anglais (`TOPICS`,
+  `npm run import:words -- --lang=de --draft` les construit seuls, avec les
+  *pulls* qu'ils nomment — le français depuis le Wiktionnaire français, les six
+  autres langues depuis les thèmes du Wiktionnaire anglais (`TOPICS`,
   `scripts/languages.ts`), dont une entrée nouvelle périme le cache kaikki de
-  chaque langue et fait relire tout son dump. Il n'y en a aucun pour l'instant
-  (`SOON` est vide) : un brouillon nouveau mérite son test, sur le modèle de
-  `src/data/premieres.test.ts` — lignes bien formées, réponses évidentes
-  trouvées dans chaque langue, assez de lettres connues pour le tirage. La
-  mettre en jeu demande une entrée de `CATALOGUE` et le déplacement de ses
-  dictionnaires vers `src/data/words/<langue>/`.
+  chaque langue et fait relire tout son dump. Six attendent : Meubles et gros
+  objets, Animaux marins, Oiseaux et reptiles, Moyens de locomotion, Vêtements
+  et accessoires, Appareils électroniques ; `src/data/drafts.test.ts` les tient
+  à leurs réponses évidentes dans chaque langue et à assez de lettres connues
+  pour le tirage. En mettre un en jeu demande une entrée de `CATALOGUE` à la
+  place de celle de `SOON`, son passage dans `CATEGORY_SOURCES` et le
+  déplacement de ses dictionnaires vers `src/data/words/<langue>/`.
+  `--category=objets,animaux` ne reconstruit que ces catégories-là : une source
+  qui a dérivé n'entre pas dans un changement qui ne la concerne pas.
+- **« Petit objet » et « Meubles et gros objets » ne partagent aucun mot**
+  (`apartFrom`, `scripts/sources.ts`) : tout ce que le brouillon prendrait —
+  Wiktionnaire, *pull*, `ADDED_WORDS` — sort d'`objets`. Un mot qui doit rester
+  petit (« Uhr », « reloj » : montre autant qu'horloge) se retire donc du
+  brouillon par `DROPPED_WORDS.meubles`. Les identifiants `animaux` (devenu
+  « Mammifères ») et `objets` sont restés : profils et `prompt_stats` les
+  connaissent.
+- **Les marques sont communes aux sept langues** (`brands-shared`,
+  `sharedRows`) : chaque langue reçoit toutes les marques que les *pulls* de
+  marques ont trouvées dans n'importe laquelle, sous son libellé, sinon le
+  `mul`, sinon celui que donnent le plus de langues ; les marques ajoutées à la
+  main (`ADDED_WORDS.marques`) valent pour toutes. La modération reste par
+  langue.
+- **Un nom propre se juge, il ne s'importe pas** (`namesAside`,
+  `scripts/sources.ts`) : sur « Moyens de locomotion », une marque de voiture
+  ou un modèle — « Renault », « Clio », « jeep » écrit en minuscule — part dans
+  la réserve de modération (`scripts/moderation-reserve.json`, catégorie
+  `locomotion`, préfixée par langue comme le reste) au lieu du dictionnaire, et
+  un mot capitalisé hors allemand — « Mustang » — avec eux. Les types de
+  véhicules restent : voiture, taxi, TGV, Uber sont des façons de se déplacer,
+  et `ADDED_WORDS` / les mots acceptés par les modérateurs ne sont jamais mis
+  de côté. La réserve se charge d'un dictionnaire de brouillon aussi
+  (`npm run seed:moderation`), pour qu'un mot jugé entre au dictionnaire avant
+  que la catégorie ne soit jouable.
 - **Le Wiktionnaire est la source des noms communs**, Wikidata celle des
   entités : Wikidata connaît cinquante races de chat mais pas « abeille ». Une
   catégorie de noms communs bâtie sur Wikidata seul laisse dehors les réponses
@@ -233,7 +260,11 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   Chaque pays garde ses cinq plus grandes — dix au-dessus de
   `LARGE_COUNTRY_POPULATION` —, et les dix pays où le jeu se joue
   (`BIG_CITY_COUNTRIES`) gardent en plus toutes celles de `BIG_CITY_POPULATION`
-  et plus : c'est ce qui fait sortir Villeurbanne, Coventry ou Sabadell. Cette
+  et plus : c'est ce qui fait sortir Villeurbanne, Coventry ou Sabadell. Ces
+  dix-là, plus les États-Unis, le Canada et la Suisse
+  (`EXTRA_CITY_COUNTRIES`), gardent encore cinquante villes de plus en
+  descendant le classement, jusqu'aux bourgs de 15 000 habitants où
+  `cities15000` s'arrête — l'Irlande n'en a que quarante. Cette
   extension est son propre *pull* (`big-cities`), pour que le jour où la liste
   des pays ou le seuil bouge, seule cette requête se repaie. La catégorie garde
   l'identifiant `capitales` sous lequel les profils et `prompt_stats` la

@@ -47,6 +47,19 @@ export interface Pull {
    */
   cityCountries?: readonly string[]
   minCityPopulation?: number
+  /**
+   * With `largestCities`: these countries keep `extraCities` more cities
+   * than the rules above give them, the next ones down GeoNames' ranking —
+   * however small, down to the towns of 15 000 that cities15000 ends on.
+   */
+  extraCityCountries?: readonly string[]
+  extraCities?: number
+  /**
+   * Built from these pulls as every language answered them, not from a query
+   * of its own: each language gets the union of their items, named in its
+   * own words when Wikidata has them — `sharedRows` in import-words.ts.
+   */
+  sharedFrom?: readonly string[]
 }
 
 /**
@@ -66,6 +79,16 @@ export const CITIES_PER_COUNTRY = { large: 10, small: 5 }
  */
 export const BIG_CITY_COUNTRIES = ['BE', 'FR', 'DE', 'NL', 'ES', 'BR', 'PT', 'GB', 'IE', 'IT'] as const
 export const BIG_CITY_POPULATION = 100_000
+
+/**
+ * Those ten, and the three big countries a player names cities of next, each
+ * keep fifty cities more than their top list and their floor give them: the
+ * floor alone left Belgium, Portugal and Ireland a handful — Ostend, Aveiro
+ * and Galway are towns of 20 000 to 80 000 —, and the United States, Canada
+ * and Switzerland their ten largest.
+ */
+export const EXTRA_CITY_COUNTRIES = [...BIG_CITY_COUNTRIES, 'US', 'CA', 'CH'] as const
+export const EXTRA_CITIES = 50
 
 /** The language a query reads its labels in, and the Wikipedia it trusts for titles. */
 export interface Scope {
@@ -143,6 +166,9 @@ const BRAND_CLASSES = [
   'Q3220391', 'Q19967801', 'Q620615', 'Q2462003', 'Q559856', 'Q59152282', 'Q15590336',
 ]
 
+/** "Car model": the class a maker's Clio, Mustang or 208 is an instance of. */
+const CAR_MODEL_CLASS = 'Q3231690'
+
 function brandLabel(scope: Scope): string {
   return `OPTIONAL { ?item rdfs:label ?own . ${scope.inLanguage('?own')} }
   OPTIONAL { ?item rdfs:label ?mul . FILTER(lang(?mul) = "mul") }
@@ -152,22 +178,78 @@ function brandLabel(scope: Scope): string {
   ${scope.aliases('?item')}`
 }
 
+/**
+ * Small objects — what fits in a backpack — and the furniture and appliances
+ * that do not, each named one by one: « Petit objet » and its draft «
+ * Meubles et gros objets » share no word (`apartFrom`).
+ */
 const STAPLE_OBJECTS = [
-  // Furniture, and what sits on it.
-  'Q15026', 'Q42177', 'Q131514', 'Q35197', 'Q376',
   // Carried on a person or in a bag.
-  'Q26965868', 'Q132041', 'Q17517', 'Q41607', 'Q134205', 'Q467505', 'Q5843', 'Q131740', 'Q200814', 'Q1642980',
+  'Q26965868', 'Q132041', 'Q17517', 'Q41607', 'Q134205', 'Q467505', 'Q5843', 'Q131740', 'Q1642980',
   'Q23834',
   // Tableware and kitchen.
   'Q81881', 'Q32489', 'Q81895', 'Q57216', 'Q21167379', 'Q81727', 'Q5567094', 'Q153988', 'Q2366864', 'Q127666',
   // Tools.
   'Q40847', 'Q160137', 'Q14674', 'Q142690', 'Q25294', 'Q161071', 'Q154411', 'Q37077', 'Q11022', 'Q172833',
-  'Q47107', 'Q168639',
-  // Soft furnishings and light.
-  'Q131696', 'Q99895', 'Q5852', 'Q191851', 'Q12888135', 'Q1395006',
-  // Appliances and electronics.
-  'Q37828', 'Q124441', 'Q289', 'Q101674', 'Q3962', 'Q250', 'Q7987', 'Q185091', 'Q267298',
+  'Q47107',
+  // Linen, light, a mirror to hold.
+  'Q131696', 'Q99895', 'Q5852', 'Q191851', 'Q12888135', 'Q1395006', 'Q35197',
+  // What runs on a battery, and the battery.
+  'Q3962', 'Q250', 'Q7987', 'Q185091', 'Q267298',
 ]
+
+const STAPLE_FURNITURE = [
+  // Chair, bed, couch, ladder, suitcase. Not the clock: German, Spanish, Italian
+  // and Portuguese call it as they call a watch, which fits in a backpack.
+  'Q15026', 'Q42177', 'Q131514', 'Q168639', 'Q200814',
+  // Refrigerator, washing machine, television, vacuum cleaner.
+  'Q37828', 'Q124441', 'Q289', 'Q101674',
+]
+
+const STAPLE_ELECTRONICS = [
+  // Computer, desktop, personal computer, laptop, tablet, monitor, keyboard,
+  // mouse, printer, scanner, photocopier, fax, router, modem, USB stick, webcam.
+  'Q68', 'Q56155', 'Q16338', 'Q3962', 'Q155972', 'Q5290', 'Q250', 'Q7987', 'Q82', 'Q82744', 'Q185369', 'Q132744',
+  'Q5318', 'Q5607', 'Q1647694', 'Q29576',
+  // Telephone, mobile phone, smartphone, smartwatch, walkie-talkie, answering
+  // machine, cash register, calculator.
+  'Q11035', 'Q17517', 'Q22645', 'Q5362345', 'Q938319', 'Q568717', 'Q235041', 'Q31087',
+  // Television set, remote, games console, projector, DVD player, camera,
+  // digital camera, camcorder, radio, loudspeaker, amplifier, microphone, MP3
+  // player, GPS.
+  'Q8075', 'Q185091', 'Q8076', 'Q275568', 'Q3783103', 'Q15328', 'Q62927', 'Q335234', 'Q159391', 'Q570', 'Q27094',
+  'Q46384', 'Q697434', 'Q1486497',
+]
+
+/** From the feet to the rocket: walking and running are ways to get somewhere too. */
+const STAPLE_TRANSPORT = [
+  'Q6537379', 'Q105674', 'Q214912', 'Q726', 'Q235356', 'Q11442', 'Q924724', 'Q536135', 'Q223924', 'Q502057', 'Q15783',
+  'Q1031639', 'Q181388', 'Q17240', 'Q1420', 'Q188475', 'Q215601', 'Q193468', 'Q43193', 'Q39495', 'Q180481', 'Q34493',
+  'Q193234', 'Q201783', 'Q5638', 'Q12334006', 'Q946479', 'Q5639', 'Q3407658', 'Q5503', 'Q870', 'Q129337', 'Q187934',
+  'Q142031', 'Q13409250', 'Q780442', 'Q182634', 'Q35872', 'Q11446', 'Q25653', 'Q171529', 'Q179246', 'Q159354',
+  'Q1075310', 'Q182916', 'Q185757', 'Q2811', 'Q197', 'Q34486', 'Q1551574', 'Q41291',
+]
+
+const stapleQuery =(items: readonly string[]) => (scope: Scope) => `SELECT ?label ?n WHERE {
+  VALUES ?item { ${items.map((id) => `wd:${id}`).join(' ')} }
+  ?item rdfs:label ?label ; wikibase:sitelinks ?n .
+  ${scope.inLanguage('?label')}
+}`
+
+/**
+ * The everyday names — chat, chien, poulet — hang off "organism known by a
+ * particular common name" (Q55983715), not off the taxon tree, and no
+ * vernacular pull brings them back. Walked from the common name up to its
+ * class: asked of the fish or the molluscs, the same walk times the endpoint
+ * out, so only mammals, birds and reptiles are.
+ */
+const commonNamesUnder = (roots: readonly string[]) => (scope: Scope) => `SELECT DISTINCT ?label ?n WHERE {
+  VALUES ?root { ${roots.map((id) => `wd:${id}`).join(' ')} }
+  ?item wdt:P31 wd:Q55983715 ; wdt:P279+ ?taxon .
+  ?taxon wdt:P171* ?root .
+  ?item rdfs:label ?label ; wikibase:sitelinks ?n .
+  ${scope.inLanguage('?label')}
+}`
 
 export const PULLS: readonly Pull[] = [
   { id: 'countries', of: 'Q6256', aliases: true, version: 2 },
@@ -208,7 +290,9 @@ export const PULLS: readonly Pull[] = [
     largestCities: true,
     cityCountries: BIG_CITY_COUNTRIES,
     minCityPopulation: BIG_CITY_POPULATION,
-    version: 2,
+    extraCityCountries: EXTRA_CITY_COUNTRIES,
+    extraCities: EXTRA_CITIES,
+    version: 3,
   },
   // Iron, copper, bronze, and every alloy. No class of "material" will do:
   // "material" has food as a subclass, "building material" windows and menhirs.
@@ -239,15 +323,10 @@ export const PULLS: readonly Pull[] = [
   // every catalogued model, so the everyday objects are named one by one.
   // The Wiktionary tops this up with what a class could never enumerate —
   // "clé", "parapluie" are objects, not kinds of one.
-  {
-    id: 'staple-objects',
-    of: 'Q15026',
-    raw: (scope) => `SELECT ?label ?n WHERE {
-  VALUES ?item { ${STAPLE_OBJECTS.map((id) => `wd:${id}`).join(' ')} }
-  ?item rdfs:label ?label ; wikibase:sitelinks ?n .
-  ${scope.inLanguage('?label')}
-}`,
-  },
+  { id: 'staple-objects', of: 'Q15026', version: 3, raw: stapleQuery(STAPLE_OBJECTS) },
+  { id: 'staple-furniture', of: 'Q15026', version: 3, raw: stapleQuery(STAPLE_FURNITURE) },
+  { id: 'staple-electronics', of: 'Q68', raw: stapleQuery(STAPLE_ELECTRONICS) },
+  { id: 'staple-transport', of: 'Q1420', raw: stapleQuery(STAPLE_TRANSPORT) },
   // "Anatomical structure" rather than a "part of the human body" query: most
   // everyday words — tête, main, œil — hang off the generic taxon-wide class,
   // not off a link to the specific human-body item. But that class also
@@ -266,12 +345,10 @@ export const PULLS: readonly Pull[] = [
   { id: 'sports-sub', of: 'Q349', subclass: true },
   { id: 'fruits', of: 'Q3314483', subclass: true },
   { id: 'vegetables', of: 'Q11004', subclass: true },
-  // The everyday names — chat, chien, cheval — hang off "organism known by a
-  // particular common name", not off the taxon tree, and no vernacular pull
-  // brings them back.
-  { id: 'common-names', of: 'Q55983715' },
-  // The same class holds the plants known by a common name — tree, grass,
-  // cabbage — which the animals category drops.
+  { id: 'common-mammals', of: 'Q55983715', raw: commonNamesUnder(['Q7377']) },
+  { id: 'common-birds-reptiles', of: 'Q55983715', raw: commonNamesUnder(['Q5113', 'Q10811']) },
+  // "Organism known by a particular common name" also holds the plants known
+  // by one — tree, grass, cabbage — which the animal categories drop.
   {
     id: 'common-plants',
     of: 'Q55983715',
@@ -288,30 +365,22 @@ export const PULLS: readonly Pull[] = [
   { id: 'mammals', of: 'Q7377', vernacular: true },
   { id: 'birds', of: 'Q5113', vernacular: true },
   { id: 'reptiles', of: 'Q10811', vernacular: true },
-  { id: 'amphibians', of: 'Q10908', vernacular: true },
+  // What lives in the sea, class by class: Actinopterygii, Chondrichthyes,
+  // Cetacea, Pinnipedia, Sirenia, Cephalopoda, Bivalvia, Decapoda,
+  // Echinodermata, Cnidaria — never Mollusca whole, mostly snails. The
+  // cartilaginous fish were once asked under Q28425, which is the bats.
+  // (The insects, the spiders and the worms left with « Animaux », when it
+  // became « Mammifères »: their pulls are in git's history.)
   { id: 'fish-ray', of: 'Q127282', vernacular: true },
-  { id: 'fish-cartilaginous', of: 'Q28425', vernacular: true },
-  // Insecta as a whole times the endpoint out, so the class is pulled one
-  // order at a time and the category is rebuilt from whichever orders answered.
-  { id: 'beetles', of: 'Q22671', vernacular: true },
-  { id: 'butterflies', of: 'Q28319', vernacular: true },
-  { id: 'flies', of: 'Q25312', vernacular: true },
-  { id: 'hymenoptera', of: 'Q22651', vernacular: true },
-  { id: 'hemiptera', of: 'Q26371', vernacular: true },
-  { id: 'dragonflies', of: 'Q25375', vernacular: true },
-  { id: 'grasshoppers', of: 'Q167810', vernacular: true },
-  { id: 'molluscs', of: 'Q25326', vernacular: true },
-  { id: 'crustaceans', of: 'Q25364', vernacular: true },
-  { id: 'arachnids', of: 'Q1358', vernacular: true },
-  { id: 'annelids', of: 'Q25522', vernacular: true },
+  { id: 'fish-cartilaginous', of: 'Q25371', vernacular: true, version: 2 },
+  { id: 'cetaceans', of: 'Q160', vernacular: true },
+  { id: 'pinnipeds', of: 'Q30263', vernacular: true },
+  { id: 'sirenians', of: 'Q25431', vernacular: true },
+  { id: 'cephalopods', of: 'Q128257', vernacular: true },
+  { id: 'bivalves', of: 'Q25368', vernacular: true },
+  { id: 'decapods', of: 'Q4610', vernacular: true },
   { id: 'echinoderms', of: 'Q44631', vernacular: true },
-  { id: 'cockroaches', of: 'Q25309', vernacular: true },
-  { id: 'mantises', of: 'Q131250', vernacular: true },
-  { id: 'lacewings', of: 'Q156438', vernacular: true },
-  { id: 'earwigs', of: 'Q13676', vernacular: true },
-  { id: 'mayflies', of: 'Q174273', vernacular: true },
-  { id: 'caddisflies', of: 'Q184616', vernacular: true },
-  { id: 'fleas', of: 'Q388162', vernacular: true },
+  { id: 'cnidarians', of: 'Q25441', vernacular: true },
   // Wikidata's corporate modelling has no single clean class: Nike and Chanel
   // are instances of "brand", Renault of "car manufacturer", Nutella of "food
   // brand", Instagram of "social networking service", Zara of "clothing store
@@ -321,14 +390,15 @@ export const PULLS: readonly Pull[] = [
   // single query misses. Wherever Wikidata gives the item no label of the
   // language, its multilingual one stands in — PlayStation, WhatsApp — and
   // else the Wikipedia article's title — Coca-Cola, Facebook. An item known
-  // only by a label, with no article in the language, is someone else's brand.
-  // The aliases bring the name a player says: « Mercedes », « Ford », « KFC ».
+  // only by a label, with no article in the language, is someone else's brand,
+  // which `brands-shared` brings in from that someone else's pull. The
+  // aliases bring the name a player says: « Mercedes », « Ford », « KFC ».
   {
     id: 'brand-class',
     of: 'Q431289',
     corporate: true,
-    version: 2,
-    raw: (scope) => `SELECT ?label ?alias ?n WHERE {
+    version: 3,
+    raw: (scope) => `SELECT ?item ?label ?alias ?n WHERE {
   VALUES ?class { ${BRAND_CLASSES.map((id) => `wd:${id}`).join(' ')} }
   ?item wdt:P31 ?class ; wikibase:sitelinks ?n . FILTER(?n >= 15)
   ${brandLabel(scope)}
@@ -338,11 +408,11 @@ export const PULLS: readonly Pull[] = [
     id: 'brand-product',
     of: 'Q431289',
     corporate: true,
-    version: 2,
+    version: 3,
     // Reverse of "has brand" on a product — catches a brand entity that
     // carries none of the classes above, as long as one product of it names it.
     // Started from the language's articles: from the products, it times out.
-    raw: (scope) => `SELECT DISTINCT ?label ?alias ?n WHERE {
+    raw: (scope) => `SELECT DISTINCT ?item ?label ?alias ?n WHERE {
   ?article schema:about ?item ; schema:isPartOf <${scope.wikipedia}> ; schema:name ?title .
   ?product wdt:P1716 ?item . ?item wikibase:sitelinks ?n . FILTER(?n >= 15)
   OPTIONAL { ?item rdfs:label ?own . ${scope.inLanguage('?own')} }
@@ -350,6 +420,32 @@ export const PULLS: readonly Pull[] = [
   BIND(COALESCE(?own, ?mul, ?title) AS ?label)
   ${scope.aliases('?item')}
 }`,
+  },
+  // A brand is the same brand in every language: Hema, Esselunga and Natura
+  // are answers in French too, though only their own country's Wikipedia
+  // describes them. Each language gets every brand the two pulls above found
+  // in any of the seven, under its own label, else its multilingual one, else
+  // the label most languages give it. Moderation stays per language: the
+  // server still files each word under its language's prefix.
+  { id: 'brands-shared', of: 'Q431289', corporate: true, sharedFrom: ['brand-class', 'brand-product'] },
+  // The models a maker sells, walked down from "car model" — Clio, Mustang,
+  // 208. The brand classes above name the maker (Renault, Ford) but no model,
+  // and a model written in lowercase (« corsa », « beetle ») is the one a
+  // player's table would argue about: `namesAside` on « Moyens de locomotion »
+  // sets both aside for the moderators rather than the dictionaries.
+  {
+    id: 'car-models',
+    of: CAR_MODEL_CLASS,
+    deep: true,
+    aliases: true,
+    raw: (scope) => `SELECT ?label ?alias ?n WHERE {
+      ?item wdt:P31/wdt:P279* wd:${CAR_MODEL_CLASS} ; wikibase:sitelinks ?n . FILTER(?n >= 15)
+      OPTIONAL { ?item rdfs:label ?own . ${scope.inLanguage('?own')} }
+      OPTIONAL { ?item rdfs:label ?mul . FILTER(lang(?mul) = "mul") }
+      FILTER(BOUND(?own) || BOUND(?mul))
+      BIND(COALESCE(?own, ?mul) AS ?label)
+      ${scope.aliases('?item')}
+    }`,
   },
 ]
 
@@ -377,70 +473,45 @@ export interface CategorySource {
    * named on, or name another.
    */
   strictAliases?: boolean
+  /**
+   * Categories that share no word with this one: whatever they would hold —
+   * their Wiktionary listing, their pulls, their words added by hand — is
+   * dropped here, so each word is in exactly one of them.
+   */
+  apartFrom?: readonly string[]
+  /**
+   * Proper names a moderator rules on rather than the import: a word these
+   * categories hold — a car's maker is a brand —, a word these pulls name —
+   * a maker's model, « Clio », « Mustang » —, or a capitalized word outside
+   * German, which capitalizes every noun, leaves the dictionary for the
+   * moderation reserve (scripts/moderation-reserve.json), unless it was added
+   * by hand: « Uber » and « TGV » are ways to travel.
+   */
+   namesAside?: { categories: readonly string[]; pulls: readonly string[] }
 }
 
 export const CATEGORY_SOURCES: readonly CategorySource[] = [
   { id: 'pays', pulls: ['countries', 'home-nations'], names: true, shortestAlias: 4 },
   { id: 'couleurs', pulls: ['colors', 'colors-sub'] },
   { id: 'fruits-legumes', pulls: ['fruits', 'vegetables'] },
-  {
-    id: 'animaux',
-    pulls: [
-      'common-names',
-      'mammals',
-      'birds',
-      'reptiles',
-      'amphibians',
-      'fish-ray',
-      'fish-cartilaginous',
-      'beetles',
-      'butterflies',
-      'flies',
-      'hymenoptera',
-      'hemiptera',
-      'dragonflies',
-      'grasshoppers',
-      'molluscs',
-      'crustaceans',
-      'arachnids',
-      'annelids',
-      'echinoderms',
-      'cockroaches',
-      'mantises',
-      'lacewings',
-      'earwigs',
-      'mayflies',
-      'caddisflies',
-      'fleas',
-    ],
-    exclude: ['common-plants', 'plants-vernacular'],
-  },
+  // « Mammifères » since the birds, the fish and the insects made it a field
+  // guide; the id stays, under which profiles and prompt_stats know it. The
+  // sea's mammals are both here and in « Animaux marins ».
+  { id: 'animaux', pulls: ['common-mammals', 'mammals'], exclude: ['common-plants', 'plants-vernacular'] },
   { id: 'plantes', pulls: ['common-plants', 'plants-vernacular'] },
-  { id: 'objets', pulls: ['staple-objects'] },
+  // « Petit objet », what fits in a backpack — same id, same reason.
+  { id: 'objets', pulls: ['staple-objects'], apartFrom: ['meubles'] },
   { id: 'metiers', pulls: ['professions', 'professions-sub'] },
   { id: 'sports', pulls: ['sports', 'sports-sub'] },
   // The aliases of a city are IATA and UN/LOCODE codes as often as names.
   { id: 'capitales', pulls: ['capitals', 'largest-cities', 'big-cities'], names: true, shortestAlias: 4, strictAliases: true },
   { id: 'matieres', pulls: ['metals', 'staple-materials', 'chemical-elements'] },
   { id: 'corps-humain', pulls: ['anatomy'], exclude: ['plant-organ'] },
-  { id: 'marques', pulls: ['brand-class', 'brand-product'], names: true, strictAliases: true },
-]
-
-/**
- * Categories prepared but not shipped. Nothing here is drawn: CATALOGUE does
- * not list them, and their dictionaries live under src/data/drafts — outside
- * the glob the app loads and outside the files every language must have.
- * `import-words.ts --draft` builds these and only these.
- *
- * Neither reads a pull: for food and edifices the Wiktionary's own trees are
- * the richer source, French from its own site, the six other languages from
- * the English Wiktionary's topics (`TOPICS`).
- *
- * Activating one costs a CATALOGUE entry and its name in the seven languages:
- * the dictionaries are already there, built by
- * `import-words.ts --lang=<lang> --draft`.
- */
-export const DRAFT_SOURCES: readonly CategorySource[] = [
+  { id: 'marques', pulls: ['brand-class', 'brand-product', 'brands-shared'], names: true, strictAliases: true },
+  // The avant-premières, Premium's alone (`premiere` in the catalogue), born
+  // drafts. Neither reads a pull: for food and edifices the Wiktionary's own
+  // trees are the richer source.
+  //
   // What a recipe calls for. The food tree holds the families — cheeses,
   // spices, meats, cereals, seafood — and the everyday words it files nowhere
   // (sel, poivre, farine) are added by hand.
@@ -448,6 +519,40 @@ export const DRAFT_SOURCES: readonly CategorySource[] = [
   // A city's buildings and public places, which the Wiktionnaire files under
   // « Édifices »: mairie, piscine and parc, filed by no category, come by hand.
   { id: 'lieux', pulls: [] },
+]
+
+/**
+ * Categories prepared but not shipped. Nothing here is drawn: CATALOGUE does
+ * not list them, and their dictionaries live under src/data/drafts — outside
+ * the glob the app loads and outside the files every language must have.
+ * `import-words.ts --draft` builds these and only these, from the pulls they
+ * name and the Wiktionary: French from its own site, the six other languages
+ * from the English Wiktionary's topics (`TOPICS`).
+ *
+ * Activating one costs a CATALOGUE entry in place of its SOON one, moving its
+ * entry to CATEGORY_SOURCES and its dictionaries to src/data/words: its names
+ * in the seven languages are already there.
+ */
+export const DRAFT_SOURCES: readonly CategorySource[] = [
+  // Furniture, appliances and whatever does not fit in a backpack: every word
+  // « Petit objet » gives up (`apartFrom`).
+  { id: 'meubles', pulls: ['staple-furniture'] },
+  // Fish, the sea's mammals, its shellfish and its jellyfish.
+  {
+    id: 'animaux-marins',
+    pulls: ['fish-ray', 'fish-cartilaginous', 'cetaceans', 'pinnipeds', 'sirenians', 'cephalopods', 'bivalves', 'decapods', 'echinoderms', 'cnidarians'],
+    exclude: ['common-plants', 'plants-vernacular'],
+  },
+  { id: 'oiseaux-reptiles', pulls: ['common-birds-reptiles', 'birds', 'reptiles'], exclude: ['common-plants', 'plants-vernacular'] },
+  // Every way to get somewhere, from the feet up: the Wiktionary's vehicles,
+  // and what it files under none — marche, roller, RER, Uber — by hand. A
+  // maker's name and its models are the one thing the Wiktionary's transport
+  // topic keeps that a table would argue over: a moderator settles them.
+  { id: 'locomotion', pulls: ['staple-transport'], namesAside: { categories: ['marques'], pulls: ['car-models'] } },
+  { id: 'vetements', pulls: [] },
+  // The Wiktionnaire files no electronic device anywhere: Wikidata names the
+  // everyday ones, the English topics and the hand the rest.
+  { id: 'electronique', pulls: ['staple-electronics'] },
 ]
 
 export function queryFor(pull: Pull, scope: Scope): string {

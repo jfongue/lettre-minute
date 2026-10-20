@@ -28,8 +28,11 @@ const scoped = (lang: string, value: string) => (lang === 'fr' ? value : `${lang
 const rows: string[] = []
 for (const [lang, categories] of Object.entries(reserve)) {
   for (const [categoryId, words] of Object.entries(categories)) {
-    const path = `src/data/words/${lang}/${categoryId}.json`
-    if (!existsSync(path)) {
+    // A category still prepared but not shipped has its dictionary under
+    // src/data/drafts instead: its reserve is loaded so a moderator settles
+    // the words before the category reaches the catalogue.
+    const path = [`src/data/words/${lang}/${categoryId}.json`, `src/data/drafts/${lang}/${categoryId}.json`].find(existsSync)
+    if (!path) {
       console.warn(`! ${lang}/${categoryId} : pas de dictionnaire, mots écartés`)
       continue
     }

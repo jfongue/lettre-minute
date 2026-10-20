@@ -19,7 +19,9 @@ export interface CategoryMeta {
  */
 export const CATALOGUE: readonly CategoryMeta[] = [
   { id: 'pays', label: 'Pays', hint: 'États de notre monde', unlockLevel: 1 },
-  { id: 'animaux', label: 'Animaux', hint: 'Du moineau au morse', unlockLevel: 1 },
+  // The ids `animaux` and `objets` keep the names the categories were born
+  // with, wider ones: profiles, prompt_stats and the server's rows know them so.
+  { id: 'animaux', label: 'Mammifères', hint: 'De la souris à la baleine', unlockLevel: 1 },
   { id: 'couleurs', label: 'Couleurs', hint: 'Teintes et nuances', unlockLevel: 1 },
   { id: 'fruits-legumes', label: 'Fruits et légumes', hint: 'Crus ou cuits', unlockLevel: 2 },
   { id: 'metiers', label: 'Métiers', hint: 'D’hier et d’aujourd’hui', unlockLevel: 3 },
@@ -31,7 +33,7 @@ export const CATALOGUE: readonly CategoryMeta[] = [
   { id: 'capitales', label: 'Grandes villes', hint: 'Les plus grandes de leur pays', unlockLevel: 7 },
   { id: 'marques', label: 'Marques', hint: 'Connues de tous', unlockLevel: 8 },
   { id: 'prenoms', label: 'Prénoms', hint: 'D’ici et d’ailleurs', unlockLevel: 9 },
-  { id: 'objets', label: 'Objets du quotidien', hint: 'À la maison ou dans le sac', unlockLevel: 10 },
+  { id: 'objets', label: 'Petit objet', hint: 'Qui tient dans un sac à dos', unlockLevel: 10 },
   { id: 'plantes', label: 'Plantes', hint: 'Fleurs, arbres, herbes', unlockLevel: 11 },
   { id: 'ingredients', label: 'Ingrédients', hint: 'Du sel au chocolat noir', unlockLevel: 99, premiere: true },
   { id: 'lieux', label: 'Lieux et bâtiments', hint: 'De la mairie à l’usine', unlockLevel: 99, premiere: true },
@@ -69,7 +71,14 @@ export type SoonCategory = Pick<CategoryMeta, 'id' | 'label' | 'hint'>
  * holds them to the answers each of the seven languages will need, and moving
  * one into `CATALOGUE` is what puts it in play.
  */
-export const SOON: readonly SoonCategory[] = []
+export const SOON: readonly SoonCategory[] = [
+  { id: 'meubles', label: 'Meubles et gros objets', hint: 'Du lit au frigo' },
+  { id: 'animaux-marins', label: 'Animaux marins', hint: 'Poissons, cétacés, coquillages…' },
+  { id: 'oiseaux-reptiles', label: 'Oiseaux et reptiles', hint: 'Du moineau au crocodile' },
+  { id: 'locomotion', label: 'Moyens de locomotion', hint: 'De la marche au TGV' },
+  { id: 'vetements', label: 'Vêtements et accessoires', hint: 'Du pull aux lunettes' },
+  { id: 'electronique', label: 'Appareils électroniques', hint: 'Du téléphone à l’imprimante' },
+]
 
 /** Every category the game names, in play or announced — for the menu and the names. */
 export function announcedCategories(): readonly (CategoryMeta | SoonCategory)[] {

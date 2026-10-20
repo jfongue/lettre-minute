@@ -146,7 +146,7 @@ describe('shipped dictionaries', () => {
 const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
   fr: {
     pays: ['France', 'Allemagne', 'Japon', 'Brésil', 'Canada', 'États-Unis', 'Côte d’Ivoire', 'Maroc', 'Zimbabwe', 'Angleterre', 'Écosse'],
-    animaux: ['chat', 'chien', 'cheval', 'éléphant', 'abeille', 'requin', 'vache', 'lion', 'zèbre'],
+    animaux: ['chat', 'chien', 'cheval', 'éléphant', 'vache', 'lion', 'zèbre', 'souris', 'lapin', 'ours', 'singe', 'baleine', 'dauphin', 'girafe', 'tigre', 'loup', 'renard', 'mouton', 'cochon', 'chèvre', 'hérisson', 'écureuil', 'kangourou', 'chauve-souris'],
     couleurs: ['rouge', 'bleu', 'vert', 'jaune', 'noir', 'blanc', 'orange', 'violet'],
     'fruits-legumes': ['pomme', 'banane', 'carotte', 'tomate', 'fraise', 'poireau', 'kiwi', 'champignon', 'basilic', 'persil', 'thym'],
     metiers: ['boulanger', 'médecin', 'avocat', 'plombier', 'infirmière', 'professeur', 'pompier', 'laboureur'],
@@ -157,11 +157,11 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     marques: ['Nike', 'Apple', 'Renault', 'Peugeot', 'Coca-Cola', 'Google', 'Adidas', 'Samsung', 'Mercedes', 'Instagram', 'Ford', 'Amazon'],
     prenoms: ['Léa', 'Marie', 'Pierre', 'Jean', 'Emma', 'Lucas', 'Mohammed', 'Fatima', 'Karim', 'Yasmine'],
     plantes: ['rose', 'chêne', 'tulipe', 'ortie', 'fougère', 'sapin', 'lavande', 'marguerite', 'pissenlit', 'cactus', 'lierre', 'bambou', 'palmier', 'orchidée', 'tournesol'],
-    objets: ['chaise', 'fourchette', 'clé', 'téléphone', 'parapluie', 'lampe', 'oreiller', 'verre', 'assiette', 'ciseaux', 'stylo', 'miroir', 'brosse à dents', 'montre'],
+    objets: ['fourchette', 'clé', 'téléphone', 'parapluie', 'lampe', 'oreiller', 'verre', 'assiette', 'ciseaux', 'stylo', 'miroir', 'brosse à dents', 'montre', 'crayon', 'cuillère', 'briquet', 'peigne'],
   },
   en: {
     pays: ['France', 'Germany', 'Japan', 'Brazil', 'Canada', 'United States', 'Mexico', 'USA', 'UK', 'England'],
-    animaux: ['cat', 'dog', 'horse', 'elephant', 'bee', 'shark', 'cow', 'lion', 'zebra'],
+    animaux: ['cat', 'dog', 'horse', 'elephant', 'cow', 'lion', 'zebra', 'mouse', 'rabbit', 'bear', 'monkey', 'whale', 'dolphin', 'giraffe', 'tiger', 'wolf', 'fox', 'sheep', 'pig', 'goat', 'hedgehog', 'squirrel', 'kangaroo', 'bat'],
     couleurs: ['red', 'blue', 'green', 'yellow', 'black', 'white', 'purple'],
     'fruits-legumes': ['apple', 'banana', 'carrot', 'tomato', 'strawberry', 'potato', 'mushroom', 'basil', 'parsley', 'thyme'],
     metiers: ['baker', 'doctor', 'lawyer', 'plumber', 'nurse', 'teacher', 'firefighter'],
@@ -172,11 +172,11 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Toyota', 'Samsung', 'Ford', 'Mercedes', 'Amazon', 'Facebook', 'Instagram'],
     prenoms: ['Emma', 'John', 'Mary', 'James', 'Sarah', 'Mohammed', 'Fatima', 'Kevin'],
     plantes: ['rose', 'oak', 'tulip', 'nettle', 'fern', 'fir', 'lavender', 'daisy', 'dandelion', 'cactus', 'ivy', 'bamboo', 'palm', 'orchid', 'sunflower'],
-    objets: ['chair', 'fork', 'key', 'phone', 'umbrella', 'lamp', 'pillow', 'glass', 'plate', 'scissors', 'pen', 'mirror', 'toothbrush', 'watch'],
+    objets: ['fork', 'key', 'phone', 'umbrella', 'lamp', 'pillow', 'glass', 'plate', 'scissors', 'pen', 'mirror', 'toothbrush', 'watch', 'pencil', 'spoon', 'lighter', 'comb'],
   },
   de: {
     pays: ['Frankreich', 'Deutschland', 'Japan', 'Brasilien', 'Kanada', 'Österreich', 'USA'],
-    animaux: ['Katze', 'Hund', 'Pferd', 'Elefant', 'Biene', 'Hai', 'Kuh', 'Löwe'],
+    animaux: ['Katze', 'Hund', 'Pferd', 'Elefant', 'Kuh', 'Löwe', 'Zebra', 'Maus', 'Kaninchen', 'Hase', 'Bär', 'Affe', 'Wal', 'Delfin', 'Giraffe', 'Tiger', 'Wolf', 'Fuchs', 'Schaf', 'Schwein', 'Ziege', 'Igel', 'Eichhörnchen', 'Känguru', 'Fledermaus'],
     couleurs: ['Rot', 'Blau', 'Grün', 'Gelb', 'Schwarz', 'Weiß'],
     'fruits-legumes': ['Apfel', 'Banane', 'Karotte', 'Tomate', 'Erdbeere', 'Kartoffel', 'Pilz', 'Petersilie', 'Basilikum'],
     metiers: ['Bäcker', 'Arzt', 'Anwalt', 'Klempner', 'Lehrer', 'Feuerwehrmann'],
@@ -187,11 +187,11 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Volkswagen', 'Mercedes', 'Amazon', 'Samsung'],
     prenoms: ['Hans', 'Emma', 'Maria', 'Kevin', 'Mohammed'],
     plantes: ['Rose', 'Eiche', 'Tulpe', 'Brennnessel', 'Farn', 'Tanne', 'Lavendel', 'Gänseblümchen', 'Löwenzahn', 'Kaktus', 'Efeu', 'Bambus', 'Palme', 'Orchidee', 'Sonnenblume'],
-    objets: ['Stuhl', 'Gabel', 'Schlüssel', 'Telefon', 'Regenschirm', 'Lampe', 'Kissen', 'Glas', 'Teller', 'Schere', 'Stift', 'Spiegel', 'Zahnbürste', 'Uhr'],
+    objets: ['Gabel', 'Schlüssel', 'Telefon', 'Regenschirm', 'Lampe', 'Kissen', 'Glas', 'Teller', 'Schere', 'Stift', 'Spiegel', 'Zahnbürste', 'Uhr', 'Bleistift', 'Löffel', 'Feuerzeug', 'Kamm'],
   },
   es: {
     pays: ['Francia', 'Alemania', 'Japón', 'Brasil', 'Canadá', 'México'],
-    animaux: ['gato', 'perro', 'caballo', 'elefante', 'abeja', 'tiburón', 'vaca', 'león'],
+    animaux: ['gato', 'perro', 'caballo', 'elefante', 'vaca', 'león', 'cebra', 'ratón', 'conejo', 'oso', 'mono', 'ballena', 'delfín', 'jirafa', 'tigre', 'lobo', 'zorro', 'oveja', 'cerdo', 'cabra', 'erizo', 'ardilla', 'canguro', 'murciélago'],
     couleurs: ['rojo', 'azul', 'verde', 'amarillo', 'negro', 'blanco'],
     'fruits-legumes': ['manzana', 'plátano', 'zanahoria', 'tomate', 'fresa', 'patata', 'champiñón', 'perejil'],
     metiers: ['panadero', 'médico', 'abogado', 'fontanero', 'enfermera', 'profesor', 'bombero'],
@@ -202,11 +202,11 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Zara'],
     prenoms: ['José', 'María', 'Juan', 'Sofía', 'Mohammed', 'Fatima'],
     plantes: ['rosa', 'roble', 'tulipán', 'ortiga', 'helecho', 'abeto', 'lavanda', 'margarita', 'diente de león', 'cactus', 'hiedra', 'bambú', 'palmera', 'orquídea', 'girasol'],
-    objets: ['silla', 'tenedor', 'llave', 'teléfono', 'paraguas', 'lámpara', 'almohada', 'vaso', 'plato', 'tijeras', 'bolígrafo', 'espejo', 'cepillo de dientes', 'reloj'],
+    objets: ['tenedor', 'llave', 'teléfono', 'paraguas', 'lámpara', 'almohada', 'vaso', 'plato', 'tijeras', 'bolígrafo', 'espejo', 'cepillo de dientes', 'reloj', 'lápiz', 'cuchara', 'mechero', 'peine'],
   },
   it: {
     pays: ['Francia', 'Germania', 'Giappone', 'Brasile', 'Canada', 'Messico'],
-    animaux: ['gatto', 'cane', 'cavallo', 'elefante', 'ape', 'squalo', 'mucca', 'leone'],
+    animaux: ['gatto', 'cane', 'cavallo', 'elefante', 'mucca', 'leone', 'zebra', 'topo', 'coniglio', 'orso', 'scimmia', 'balena', 'delfino', 'giraffa', 'tigre', 'lupo', 'volpe', 'pecora', 'maiale', 'capra', 'riccio', 'scoiattolo', 'canguro', 'pipistrello'],
     couleurs: ['rosso', 'blu', 'verde', 'giallo', 'nero', 'bianco'],
     'fruits-legumes': ['mela', 'banana', 'carota', 'pomodoro', 'fragola', 'patata', 'fungo', 'basilico'],
     metiers: ['panettiere', 'medico', 'avvocato', 'idraulico', 'infermiere', 'insegnante', 'pompiere'],
@@ -217,11 +217,11 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Fiat', 'Ducati'],
     prenoms: ['Giulia', 'Marco', 'Maria', 'Giuseppe', 'Mohammed'],
     plantes: ['rosa', 'quercia', 'tulipano', 'ortica', 'felce', 'abete', 'lavanda', 'margherita', 'tarassaco', 'cactus', 'edera', 'bambù', 'palma', 'orchidea', 'girasole'],
-    objets: ['sedia', 'forchetta', 'chiave', 'telefono', 'ombrello', 'lampada', 'cuscino', 'bicchiere', 'piatto', 'forbici', 'penna', 'specchio', 'spazzolino', 'orologio'],
+    objets: ['forchetta', 'chiave', 'telefono', 'ombrello', 'lampada', 'cuscino', 'bicchiere', 'piatto', 'forbici', 'penna', 'specchio', 'spazzolino', 'orologio', 'matita', 'cucchiaio', 'accendino', 'pettine'],
   },
   nl: {
     pays: ['Frankrijk', 'Duitsland', 'Japan', 'Brazilië', 'Canada', 'België'],
-    animaux: ['kat', 'hond', 'paard', 'olifant', 'bij', 'haai', 'koe', 'leeuw'],
+    animaux: ['kat', 'hond', 'paard', 'olifant', 'koe', 'leeuw', 'zebra', 'muis', 'konijn', 'beer', 'aap', 'walvis', 'dolfijn', 'giraf', 'tijger', 'wolf', 'vos', 'schaap', 'varken', 'geit', 'egel', 'eekhoorn', 'kangoeroe', 'vleermuis'],
     couleurs: ['rood', 'blauw', 'groen', 'geel', 'zwart', 'wit'],
     'fruits-legumes': ['appel', 'banaan', 'wortel', 'tomaat', 'aardbei', 'aardappel', 'champignon', 'peterselie'],
     metiers: ['bakker', 'arts', 'advocaat', 'loodgieter', 'verpleegster', 'leraar', 'brandweerman'],
@@ -232,11 +232,11 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Philips'],
     prenoms: ['Emma', 'Jan', 'Sanne', 'Mohammed', 'Fatima'],
     plantes: ['roos', 'eik', 'tulp', 'brandnetel', 'varen', 'spar', 'lavendel', 'madeliefje', 'paardenbloem', 'cactus', 'klimop', 'bamboe', 'palm', 'orchidee', 'zonnebloem'],
-    objets: ['stoel', 'vork', 'sleutel', 'telefoon', 'paraplu', 'lamp', 'kussen', 'glas', 'bord', 'schaar', 'pen', 'spiegel', 'tandenborstel', 'horloge'],
+    objets: ['vork', 'sleutel', 'telefoon', 'paraplu', 'lamp', 'kussen', 'glas', 'bord', 'schaar', 'pen', 'spiegel', 'tandenborstel', 'horloge', 'potlood', 'lepel', 'aansteker', 'kam'],
   },
   pt: {
     pays: ['França', 'Alemanha', 'Japão', 'Brasil', 'Canadá', 'México'],
-    animaux: ['gato', 'cão', 'cavalo', 'elefante', 'abelha', 'tubarão', 'vaca', 'leão'],
+    animaux: ['gato', 'cão', 'cachorro', 'cavalo', 'elefante', 'vaca', 'leão', 'zebra', 'rato', 'coelho', 'urso', 'macaco', 'baleia', 'golfinho', 'girafa', 'tigre', 'lobo', 'raposa', 'ovelha', 'porco', 'cabra', 'ouriço', 'esquilo', 'canguru', 'morcego'],
     couleurs: ['vermelho', 'azul', 'verde', 'amarelo', 'preto', 'branco'],
     'fruits-legumes': ['maçã', 'banana', 'cenoura', 'tomate', 'morango', 'batata', 'cogumelo'],
     metiers: ['padeiro', 'médico', 'advogado', 'encanador', 'enfermeira', 'professor', 'bombeiro'],
@@ -247,7 +247,7 @@ const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
     marques: ['Nike', 'Apple', 'Google', 'Adidas', 'Natura', 'Toyota', 'Ford'],
     prenoms: ['Maria', 'José', 'João', 'Ana', 'Mohammed'],
     plantes: ['rosa', 'carvalho', 'tulipa', 'urtiga', 'samambaia', 'abeto', 'lavanda', 'margarida', 'dente-de-leão', 'cato', 'hera', 'bambu', 'palmeira', 'orquídea', 'girassol'],
-    objets: ['cadeira', 'garfo', 'chave', 'telefone', 'guarda-chuva', 'lâmpada', 'travesseiro', 'copo', 'prato', 'tesoura', 'caneta', 'espelho', 'escova de dentes', 'relógio'],
+    objets: ['garfo', 'chave', 'telefone', 'guarda-chuva', 'lâmpada', 'travesseiro', 'copo', 'prato', 'tesoura', 'caneta', 'espelho', 'escova de dentes', 'relógio', 'lápis', 'colher', 'isqueiro', 'pente'],
   },
 }
 
@@ -257,13 +257,13 @@ const REFUSED: Record<string, Record<string, readonly string[]>> = {
     pays: ['bb', 'ne', 'née', 'bénigne', 'argentins', 'mes', 'suissesse', 'chinée'],
     capitales: ['mâles'],
     marques: ['accolades', 'Adobes'],
-    animaux: ['table', 'voiture'],
+    animaux: ['table', 'voiture', 'abeille', 'moineau', 'requin', 'serpent'],
   },
   en: {
     pays: ['bars', 'bas', 'cans', 'des', 'Canadas', 'chillun', 'fi'],
     capitales: ['Berlins', 'bangkoks'],
     marques: ['acers', 'HPs'],
-    animaux: ['malaria', 'saddle', 'Twilight Sparkle'],
+    animaux: ['malaria', 'saddle', 'Twilight Sparkle', 'bee', 'sparrow', 'snake'],
   },
   de: { pays: ['Polin', 'bs', 'VN'], capitales: ['Havannas'] },
   es: { pays: ['argentinas', 'aw'], capitales: ['berlines'] },
@@ -285,11 +285,24 @@ const COMMUNITY = JSON.parse(
   readFileSync(join(import.meta.dirname, '../../scripts/community-words.json'), 'utf8'),
 ) as Record<string, Record<string, string[]>>
 
+/**
+ * Where a category gave words up when it narrowed: « Objets du quotidien »
+ * became « Petit objet », and the moderators' « voiture » or « fenêtre » went
+ * to the draft « Meubles et gros objets ».
+ */
+const NARROWED: Record<string, string> = { objets: 'meubles' }
+const draftPack = (lang: string, id: string) => {
+  const path = join(import.meta.dirname, 'drafts', lang, `${id}.json`)
+  return buildWordPack(id, JSON.parse(readFileSync(path, 'utf8')) as WordRow[])
+}
+
 // No suite until a word is accepted: vitest fails an empty one.
 for (const [lang, categories] of Object.entries(COMMUNITY)) {
   for (const [id, words] of Object.entries(categories)) {
     it(`${lang}/${id} ships the ${words.length} words its moderators accepted`, () => {
-      expect(words.filter((word) => findWord(pack(lang, id), word, 0) === null)).toEqual([])
+      const elsewhere = NARROWED[id] ? draftPack(lang, NARROWED[id]) : null
+      const lost = words.filter((word) => findWord(pack(lang, id), word, 0) === null && (!elsewhere || findWord(elsewhere, word, 0) === null))
+      expect(lost).toEqual([])
     })
   }
 }

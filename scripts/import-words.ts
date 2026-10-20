@@ -3,14 +3,13 @@
  * Wiktionary, with how much each word is used in that language today: its
  * frequency in wordfreq's corpora and the daily views of its Wikipedia article.
  *
- *   node --experimental-strip-types scripts/import-words.ts [--lang=de] [pullId…]
+ *   node --experimental-strip-types scripts/import-words.ts [--lang=de] [--category=objets,animaux] [pullId…]
  *
  * The pull results are cached under .cache/pulls so a failed run — the taxon
  * queries are slow and time out often — resumes instead of starting over.
  *
  * `--draft` builds the categories prepared but not shipped, and only them,
- * into src/data/drafts/<lang>: nothing under src/data/words is touched, and
- * no pull is fetched.
+ * into src/data/drafts/<lang>: nothing under src/data/words is touched.
  */
 import { execFileSync } from 'node:child_process'
 import { createReadStream, mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
@@ -26,7 +25,18 @@ import { loadCommunityWords } from './community-words.ts'
 import { loadBannedWords } from './banned-words.ts'
 import { applyAmendments, loadAmendedWords } from './amended-words.ts'
 import { acceptable } from './word-shape.ts'
-import { CATEGORY_SOURCES, CITIES_PER_COUNTRY, DRAFT_SOURCES, LARGE_COUNTRY_POPULATION, PULLS, queryFor, scopeFor, type Pull, type Scope } from './sources.ts'
+import {
+  CATEGORY_SOURCES,
+  CITIES_PER_COUNTRY,
+  DRAFT_SOURCES,
+  LARGE_COUNTRY_POPULATION,
+  PULLS,
+  queryFor,
+  scopeFor,
+  type CategorySource,
+  type Pull,
+  type Scope,
+} from './sources.ts'
 
 const ENDPOINT = 'https://query.wikidata.org/sparql'
 const AGENT = 'LettreMinuteWordImport/0.1 (https://github.com/jfongue; jeremy@enaos.com)'
@@ -75,24 +85,31 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
   // (« Champignons en français » files every amanita and a mushroom called
   // « canari »: the edible ones are added by hand.)
   'fruits-legumes': ['Fruits en français', 'Légumes en français', 'Plantes aromatiques en français'],
-  animaux: [
-    'Animaux en français',
-    'Mammifères en français',
-    'Oiseaux en français',
-    'Poissons en français',
-    'Insectes en français',
-    'Reptiles en français',
-    'Amphibiens en français',
-    'Mollusques en français',
-    'Crustacés en français',
-    'Arachnides en français',
-  ],
+  animaux: ['Mammifères en français'],
   metiers: ['Métiers en français'],
   sports: ['Sports en français'],
   matieres: ['Métaux en français', 'Alliages en français', 'Roches en français', 'Textiles en français'],
   plantes: ['Plantes en français'],
-  objets: ['Meubles en français', 'Ustensiles de cuisine en français', 'Outils en français', 'Récipients en français'],
-  // Drafts (see DRAFT_SOURCES). Neither « Ingrédients » nor « Bâtiments » names
+  objets: ['Ustensiles de cuisine en français', 'Outils en français', 'Récipients en français', 'Jouets en français'],
+  // Drafts (see DRAFT_SOURCES). The sea is read class by class, never through
+  // « Mollusques », whose gastropods are mostly snails; and nothing files a
+  // device of the Wiktionnaire's: « Composants électroniques » is resistors.
+  meubles: ['Meubles en français', 'Appareils électroménagers en français'],
+  'animaux-marins': [
+    'Poissons en français',
+    'Cétacés en français',
+    'Mammifères marins en français',
+    'Céphalopodes en français',
+    'Bivalves en français',
+    'Coquillages en français',
+    'Crustacés en français',
+    'Échinodermes en français',
+    'Cnidaires en français',
+  ],
+  'oiseaux-reptiles': ['Oiseaux en français', 'Reptiles en français'],
+  locomotion: ['Véhicules en français'],
+  vetements: ['Vêtements en français', 'Bijoux en français'],
+  // Avant-premières, born drafts. Neither « Ingrédients » nor « Bâtiments » names
   // a category of the Wiktionnaire: the food tree answers for the first and the
   // edifice tree for the second. Meats and spices hang off no food category —
   // « Viandes » is filed with the animals, the condiments with the plants — so
@@ -108,7 +125,10 @@ const FRENCH_WIKTIONARY: Record<string, readonly string[]> = {
  * the tree stays on its subject: Matières would wander into jewellery and
  * shipwrecks.
  */
-const FRENCH_WALKED = new Set(['animaux', 'metiers', 'sports', 'fruits-legumes', 'plantes', 'ingredients', 'lieux'])
+const FRENCH_WALKED = new Set([
+  'animaux', 'metiers', 'sports', 'fruits-legumes', 'plantes', 'ingredients', 'lieux', 'animaux-marins', 'oiseaux-reptiles',
+  'locomotion', 'vetements',
+])
 
 /** Subcategories that are about the subject rather than of it. */
 const FRENCH_SKIPPED = new Set([
@@ -186,7 +206,7 @@ const FRENCH_SKIPPED = new Set([
   'Asphodèlacées en français', 'Dioscoréacées en français', 'Graminées en français', 'Hypoxidacées en français',
   'Iridacées en français', 'Ixioliriacées en français', 'Marantacées en français', 'Cypéracées en koyukon',
   'Fabacées en français',
-  // Drafts. « Aliments » files the dishes a cook makes under « Préparations
+  // Avant-premières. « Aliments » files the dishes a cook makes under « Préparations
   // culinaires » and the wild plants a forager picks under « Plantes
   // comestibles » — neither is what one buys to cook with.
   'Préparations culinaires en français',
@@ -204,7 +224,7 @@ const HOMOGRAPH_FREQUENCY = 10
  * Where subcategories name things after everyday words — breeds, butterflies,
  * apple varieties. A trade filed under Santé is « infirmière » for good.
  */
-const HOMOGRAPH_PRONE = new Set(['animaux', 'fruits-legumes', 'plantes'])
+const HOMOGRAPH_PRONE = new Set(['animaux', 'fruits-legumes', 'plantes', 'animaux-marins', 'oiseaux-reptiles'])
 
 /**
  * Where the Wiktionary's own category listing is a flora or a toolshed
@@ -215,7 +235,10 @@ const HOMOGRAPH_PRONE = new Set(['animaux', 'fruits-legumes', 'plantes'])
  * measured use in the language, came from Wikidata, or was vouched for by
  * hand (`ADDED_WORDS`, a moderator).
  */
-const STRICT_ATTESTED = new Set(['plantes', 'objets'])
+const STRICT_ATTESTED = new Set(['plantes', 'objets', 'meubles', 'locomotion', 'vetements', 'electronique'])
+
+/** Where a category's proper names wait for a moderator (`namesAside`). */
+const RESERVE = 'scripts/moderation-reserve.json'
 
 const FRENCH_TREE_CACHE = '.cache/wiktionnaire-subcategories.json'
 const FRENCH_TREE_DEPTH = 3
@@ -272,6 +295,8 @@ interface Row {
   alias?: boolean
   /** The label of the item an alias names: the word it scores as. */
   of?: string
+  /** The Wikidata item, for the pulls that ask for it — the ones another language shares. */
+  item?: string
 }
 
 /**
@@ -311,19 +336,24 @@ function parseCsv(body: string): string[][] {
   return rows
 }
 
+/** `http://www.wikidata.org/entity/Q312` → `Q312`. */
+function entityId(uri: string): string {
+  return uri.split('/').pop()!
+}
+
 async function sparql(query: string, attempts = 4, attempt = 1): Promise<Row[]> {
   // The JSON answer to the largest taxon queries comes back truncated at a
   // megabyte, every time. CSV says the same thing in half the bytes, so the
   // last attempt asks for that instead of failing the pull.
   const asCsv = attempt >= 3
   try {
-    const response = await fetch(`${ENDPOINT}?query=${encodeURIComponent(query)}`, {
-      headers: {
-        Accept: asCsv ? 'text/csv' : 'application/sparql-results+json',
-        'User-Agent': AGENT,
-      },
-      signal: AbortSignal.timeout(180_000),
-    })
+    const headers = { Accept: asCsv ? 'text/csv' : 'application/sparql-results+json', 'User-Agent': AGENT }
+    // A query naming hundreds of items overflows the longest URL the endpoint
+    // takes (HTTP 400): it is posted instead.
+    const response =
+      query.length > 4_000
+        ? await fetch(ENDPOINT, { method: 'POST', headers, body: new URLSearchParams({ query }), signal: AbortSignal.timeout(180_000) })
+        : await fetch(`${ENDPOINT}?query=${encodeURIComponent(query)}`, { headers, signal: AbortSignal.timeout(180_000) })
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
     if (asCsv) {
@@ -332,11 +362,13 @@ async function sparql(query: string, attempts = 4, attempt = 1): Promise<Row[]> 
       const labelAt = header.indexOf('label')
       const aliasAt = header.indexOf('alias')
       const countAt = header.indexOf('n')
+      const itemAt = header.indexOf('item')
       const rows: Row[] = []
       for (const line of table.slice(1)) {
         const sitelinks = Number(line[countAt] ?? 0) || 0
-        if (labelAt >= 0 && line[labelAt]) rows.push({ display: line[labelAt]!, sitelinks })
-        if (aliasAt >= 0 && line[aliasAt]) rows.push({ display: line[aliasAt]!, sitelinks, alias: true, of: line[labelAt] })
+        const item = itemAt >= 0 && line[itemAt] ? { item: entityId(line[itemAt]!) } : {}
+        if (labelAt >= 0 && line[labelAt]) rows.push({ display: line[labelAt]!, sitelinks, ...item })
+        if (aliasAt >= 0 && line[aliasAt]) rows.push({ display: line[aliasAt]!, sitelinks, alias: true, of: line[labelAt], ...item })
       }
       return rows
     }
@@ -352,10 +384,11 @@ async function sparql(query: string, attempts = 4, attempt = 1): Promise<Row[]> 
     const rows: Row[] = []
     for (const binding of payload.results.bindings) {
       const sitelinks = Number(binding.n?.value ?? 0)
+      const item = binding.item ? { item: entityId(binding.item.value) } : {}
       const label = binding.label?.value
-      if (label) rows.push({ display: label, sitelinks, alias: false })
+      if (label) rows.push({ display: label, sitelinks, alias: false, ...item })
       const alias = binding.alias?.value
-      if (alias) rows.push({ display: alias, sitelinks, alias: true, ...(label ? { of: label } : {}) })
+      if (alias) rows.push({ display: alias, sitelinks, alias: true, ...(label ? { of: label } : {}), ...item })
     }
     return rows
   } catch (error) {
@@ -440,18 +473,81 @@ async function frenchSubcategories(root: string): Promise<string[]> {
   return cache[root]
 }
 
-async function pullRows(pull: Pull, scope: Scope, dir: string, force: boolean, attempts: number): Promise<Row[]> {
+async function pullRows(pull: Pull, lang: Lang, force: boolean, attempts: number): Promise<Row[]> {
+  const dir = pathsFor(lang).pulls
+  mkdirSync(dir, { recursive: true })
   const path = `${dir}/${pull.id}${pull.version ? `-v${pull.version}` : ''}.json`
   if (!force && existsSync(path)) {
     const cached = JSON.parse(readFileSync(path, 'utf8')) as Row[]
-    console.log(`· ${pull.id}: ${cached.length} lignes (cache)`)
+    console.log(`· ${lang}/${pull.id}: ${cached.length} lignes (cache)`)
     return cached
   }
 
   const started = Date.now()
-  const rows = pull.largestCities ? await largestCities(pull, scope, attempts) : await sparql(queryFor(pull, scope), attempts)
+  const scope = scopeFor(LANGUAGES[lang].labels, lang)
+  const rows = pull.sharedFrom
+    ? await sharedRows(pull.sharedFrom, lang, scope, attempts)
+    : pull.largestCities
+      ? await largestCities(pull, scope, attempts)
+      : await sparql(queryFor(pull, scope), attempts)
   writeFileSync(path, JSON.stringify(rows))
-  console.log(`· ${pull.id}: ${rows.length} lignes en ${Math.round((Date.now() - started) / 1000)} s`)
+  console.log(`· ${lang}/${pull.id}: ${rows.length} lignes en ${Math.round((Date.now() - started) / 1000)} s`)
+  return rows
+}
+
+/**
+ * Every item the `from` pulls found in any of the seven languages and not in
+ * this one, named as this language names it — its label, else the
+ * multilingual one — and, where Wikidata has neither, as most languages do.
+ * Each language's own pulls are asked first, and cached for its own import.
+ */
+async function sharedRows(from: readonly string[], lang: Lang, scope: Scope, attempts: number): Promise<Row[]> {
+  const own = new Set<string>()
+  const elsewhere = new Map<string, { labels: Map<string, number>; sitelinks: number }>()
+  for (const code of Object.keys(LANGUAGES) as Lang[]) {
+    for (const id of from) {
+      for (const row of await pullRows(PULLS.find((pull) => pull.id === id)!, code, false, attempts)) {
+        // A product's brand may be an unknown value, a blank node with no id.
+        if (!row.item || !/^Q\d+$/.test(row.item)) continue
+        if (code === lang) own.add(row.item)
+        else if (!row.alias) {
+          const known = elsewhere.get(row.item) ?? { labels: new Map<string, number>(), sitelinks: row.sitelinks }
+          known.labels.set(row.display, (known.labels.get(row.display) ?? 0) + 1)
+          elsewhere.set(row.item, known)
+        }
+      }
+    }
+  }
+
+  const missing = [...elsewhere.keys()].filter((item) => !own.has(item)).sort()
+  const rows: Row[] = []
+  const named = new Set<string>()
+  for (let start = 0; start < missing.length; start += 100) {
+    const found = await sparql(
+      `SELECT ?item ?label ?alias ?n WHERE {
+  VALUES ?item { ${missing
+    .slice(start, start + 100)
+    .map((id) => `wd:${id}`)
+    .join(' ')} }
+  ?item wikibase:sitelinks ?n .
+  ${scope.label('?item')}
+  ${scope.aliases('?item')}
+}`,
+      attempts,
+    )
+    for (const row of found) {
+      rows.push(row)
+      if (row.item) named.add(row.item)
+    }
+  }
+  for (const item of missing) {
+    if (named.has(item)) continue
+    const { labels, sitelinks } = elsewhere.get(item)!
+    // The most languages' label, the shortest of those tied.
+    const [display] = [...labels].sort(([a, x], [b, y]) => y - x || a.length - b.length || (a < b ? -1 : 1))[0]!
+    rows.push({ display, sitelinks, alias: false, item })
+  }
+  console.log(`· ${lang}: ${missing.length} éléments partagés, ${named.size} nommés dans la langue`)
   return rows
 }
 
@@ -516,6 +612,7 @@ async function largestCityList(pull: Pull): Promise<City[]> {
   }
   const extended = new Set(pull.cityCountries ?? [])
   const floor = pull.minCityPopulation ?? 0
+  const more = new Set(pull.extraCityCountries ?? [])
   return [...byCountry].flatMap(([country, cities]) => {
     const ranked = cities.sort((a, b) => b.population - a.population)
     const keep =
@@ -525,7 +622,10 @@ async function largestCityList(pull: Pull): Promise<City[]> {
     // A country the game is played in keeps its largest and every city of the
     // floor and more; elsewhere only the largest, or the category would hold
     // every town of the world.
-    return extended.has(country) ? ranked.filter((city, rank) => rank < keep || city.population >= floor) : ranked.slice(0, keep)
+    const kept = extended.has(country) ? ranked.filter((city, rank) => rank < keep || city.population >= floor).length : keep
+    // The floor is a prefix of the ranking, so the extra cities are the next
+    // ones down it.
+    return ranked.slice(0, kept + (more.has(country) ? (pull.extraCities ?? 0) : 0))
   })
 }
 
@@ -1159,13 +1259,28 @@ interface Entry {
   title: string
 }
 
+/**
+ * Categories whose words added by hand are no language's own: a brand added
+ * because no Wikidata class reached it in Dutch — Hema, Kruidvat — is a
+ * brand in French as well.
+ */
+const SHARED_BY_HAND = new Set(['marques'])
+
+function addedWords(categoryId: string, lang: Lang): string[] {
+  const added = ADDED_WORDS[categoryId] ?? {}
+  return SHARED_BY_HAND.has(categoryId) ? [...new Set(Object.values(added).flat())] : [...(added[lang] ?? [])]
+}
+
+function sourceOf(categoryId: string): CategorySource | undefined {
+  return [...CATEGORY_SOURCES, ...DRAFT_SOURCES].find((category) => category.id === categoryId)
+}
+
 function main(argv: readonly string[]) {
   const langArg = argv.find((arg) => arg.startsWith('--lang='))?.slice('--lang='.length) ?? 'fr'
   if (!(langArg in LANGUAGES)) throw new Error(`langue inconnue : ${langArg}`)
   const lang = langArg as Lang
   const source = LANGUAGES[lang]
   const paths = pathsFor(lang)
-  const scope = scopeFor(source.labels, lang)
 
   mkdirSync(paths.pulls, { recursive: true })
   mkdirSync(WIKT_CACHE, { recursive: true })
@@ -1174,11 +1289,23 @@ function main(argv: readonly string[]) {
   const flags = new Set(argv.filter((arg) => arg.startsWith('--')))
   const only = new Set(argv.filter((arg) => !arg.startsWith('--')))
   const force = flags.has('--force')
-  // A draft reads no pull and is written elsewhere: a plain run must not
-  // rewrite a shipped dictionary, and `--draft` must not fetch anything.
+  // A draft is written elsewhere: a plain run must not rewrite a shipped
+  // dictionary, nor `--draft` one that is not.
   const draft = flags.has('--draft')
-  const wanted = draft ? [] : only.size === 0 || force ? PULLS : PULLS.filter((pull) => only.has(pull.id))
-  const categories = draft ? DRAFT_SOURCES : CATEGORY_SOURCES
+  // `--category=objets,animaux` rebuilds those and leaves every other file as
+  // it is: a source that drifted is not dragged into an unrelated change.
+  const picked = argv.find((arg) => arg.startsWith('--category='))?.slice('--category='.length).split(',')
+  const categories = (draft ? DRAFT_SOURCES : CATEGORY_SOURCES).filter((category) => !picked || picked.includes(category.id))
+  const needed = new Set(
+    categories.flatMap((category) => [
+      ...category.pulls,
+      ...(category.exclude ?? []),
+      ...[...(category.apartFrom ?? []), ...(category.namesAside?.categories ?? []), ...(category.namesAside?.pulls ?? [])].flatMap(
+      (id) => sourceOf(id)?.pulls ?? [id],
+    ),
+    ]),
+  )
+  const wanted = PULLS.filter((pull) => needed.has(pull.id) && (only.size === 0 || force || only.has(pull.id)))
   const out = draft ? draftsFor(lang) : paths.out
   mkdirSync(out, { recursive: true })
 
@@ -1223,7 +1350,7 @@ function main(argv: readonly string[]) {
         // Italian — and the Wiktionary's topics already hold those animals. One
         // try, then the category is built without it.
         const attempts = pull.vernacular && lang !== 'fr' ? 1 : 4
-        byPull.set(pull.id, await pullRows(pull, scope, paths.pulls, force && only.has(pull.id), attempts))
+        byPull.set(pull.id, await pullRows(pull, lang, force && only.has(pull.id), attempts))
       } catch (error) {
         // One dead query must not cost the whole import: the categories built
         // from it keep the file they already have on disk.
@@ -1272,6 +1399,35 @@ function main(argv: readonly string[]) {
       return { words, deep: new Set([...fromBelow].filter((key) => !fromRoots.has(key))) }
     }
 
+    /**
+     * The words a category takes from its pulls alone, as it reads them: «
+     * Ferrari S.p.A. » is the brand Ferrari. Used where only a list of names
+     * is wanted — `namesAside` — rather than the words a category builds.
+     */
+    const heldByPull = (categoryId: string): Set<string> => {
+      const labels = (sourceOf(categoryId)?.pulls ?? []).flatMap((id) => {
+        const corporate = PULLS.find((pull) => pull.id === id)?.corporate === true
+        return (byPull.get(id) ?? []).filter((row) => !row.alias).flatMap((row) => spellings(row, source, corporate).map(({ display }) => display))
+      })
+      return new Set(labels.map((word) => normalizeWord(word.trim().replace(/\s+/g, ' '))).filter((key) => key !== ''))
+    }
+
+    /**
+     * Every word a category would take in, before any notoriety is weighed:
+     * its Wiktionary listing, its words added by hand or by the moderators,
+     * and its pulls' labels — less what it drops by hand.
+     */
+    const heldBy = async (categoryId: string): Promise<Set<string>> => {
+      const refused = new Set((DROPPED_WORDS[categoryId]?.[lang] ?? []).map(normalizeWord))
+      const words = [
+        ...((await attestedWords(categoryId))?.words ?? []),
+        ...addedWords(categoryId, lang),
+        ...(community[categoryId] ?? []),
+        ...heldByPull(categoryId),
+      ]
+      return new Set(words.map((word) => normalizeWord(word.trim().replace(/\s+/g, ' '))).filter((key) => key !== '' && !refused.has(key)))
+    }
+
     // Every category is gathered before any Wikipedia is read: the visits
     // come from one dump, streamed once for all of them.
     const gathered: {
@@ -1308,6 +1464,9 @@ function main(argv: readonly string[]) {
       }
       // Dropped by hand: kept out of the Wiktionary's words too, unlike the pulls.
       const dropped = new Set((DROPPED_WORDS[category.id]?.[lang] ?? []).map(normalizeWord))
+      // Whatever a category kept apart would hold is dropped the same way, so
+      // that each word ends up in exactly one of the two.
+      for (const other of category.apartFrom ?? []) for (const key of await heldBy(other)) dropped.add(key)
       for (const key of dropped) excluded.add(key)
 
       // One entry per normalized word: the shortest spelling wins, and a word
@@ -1364,8 +1523,16 @@ function main(argv: readonly string[]) {
           }
         }
       }
-      for (const [alias, label] of Object.entries(ADDED_ALIASES[category.id]?.[lang] ?? {})) {
-        pending.push({ key: normalizeWord(alias), display: alias, title: alias, sitelinks: 0, lemma: normalizeWord(label), byHand: true })
+      for (const [from, aliases] of Object.entries(ADDED_ALIASES[category.id] ?? {})) {
+        // Another language's brand aliases hold wherever their label is found;
+        // anywhere else, an alias added by hand is the language's own.
+        const borrowed = from !== lang
+        if (borrowed && !SHARED_BY_HAND.has(category.id)) continue
+        for (const [alias, label] of Object.entries(aliases)) {
+          const lemma = normalizeWord(label)
+          if (borrowed && !best.has(lemma)) continue
+          pending.push({ key: normalizeWord(alias), display: alias, title: alias, sitelinks: 0, lemma, byHand: true })
+        }
       }
       const aliasOf = new Map<string, { display: string; lemma: string }>()
       const orphans = new Map<string, Alias[]>()
@@ -1412,9 +1579,9 @@ function main(argv: readonly string[]) {
       // The words the Wiktionary files under this very category: for them, and
       // only them, the corpus frequency measures the right sense.
       const listed = await attestedWords(category.id)
-      const added = ADDED_WORDS[category.id]?.[lang] ?? []
-      // Three moderators vouched for these: they are filed here as surely as a
-      // Wiktionary word, and no homograph guess overrules them.
+      const added = addedWords(category.id, lang)
+      // Three moderators vouched for these, and someone added the hand-picked ones: they are
+      // filed here as surely as a Wiktionary word, and no homograph guess overrules them.
       const moderated = new Set((community[category.id] ?? []).map(normalizeWord))
       // Vetted by hand already: exempt from the STRICT_ATTESTED frequency
       // gate below, or a plant only ever added because no source names it
@@ -1422,6 +1589,17 @@ function main(argv: readonly string[]) {
       // no one added on purpose.
       const handPicked = new Set([...added, ...(community[category.id] ?? [])].map((word) => normalizeWord(word.trim().replace(/\s+/g, ' '))))
       const attested = new Set<string>()
+      const setAside = new Set<string>()
+      let properNames: ((display: string, key: string) => boolean) | null = null
+      if (category.namesAside) {
+        const named = new Set<string>()
+        for (const other of category.namesAside.categories) for (const key of await heldBy(other)) named.add(key)
+        for (const id of category.namesAside.pulls) for (const key of heldByPull(id)) named.add(key)
+        // A capital reads as a name where nouns take none: « Clio », « Mustang »
+        // — not in German, which capitalizes every noun, nor on an acronym, «
+        // TGV », whose brand, if it is one, the categories above already know.
+        properNames = (display, key) => named.has(key) || (lang !== 'de' && /^\p{Lu}\p{Ll}/u.test(display))
+      }
       for (const word of [...(listed?.words ?? []), ...added, ...(community[category.id] ?? [])]) {
         const display = word.trim().replace(/\s+/g, ' ')
         if (!acceptable(display)) continue
@@ -1433,12 +1611,18 @@ function main(argv: readonly string[]) {
         // would all lie.
         const everyday = frequencies.get(display.normalize('NFC').toLowerCase()) ?? 0
         const homograph = HOMOGRAPH_PRONE.has(category.id) && listed?.deep.has(key) && !best.has(key) && everyday >= HOMOGRAPH_FREQUENCY
-        if (homograph && !moderated.has(key)) continue
+        if (homograph && !moderated.has(key) && !handPicked.has(key)) continue
         // A flora or a toolshed word with no measured use at all and no
         // Wikidata entry either is filed by a Wiktionary contributor, not
         // said by anyone: dropped, unless it was vouched for by hand.
         const obscure = STRICT_ATTESTED.has(category.id) && everyday === 0 && !best.has(key) && !handPicked.has(key)
         if (obscure) continue
+        // A proper name — a car's maker, its model — is a moderator's call,
+        // not the import's: set aside for the moderation reserve.
+        if (properNames && !handPicked.has(key) && !moderated.has(key) && properNames(display, key)) {
+          setAside.add(display)
+          continue
+        }
         if (key !== '') attested.add(key)
         // A word a pull already filed keeps its own row — its sitelinks, its
         // spelling, the word it names — rather than being shadowed by a
@@ -1451,6 +1635,14 @@ function main(argv: readonly string[]) {
         best.set(key, { display, sitelinks: 0, alias: false, title: display })
       }
       gathered.push({ id: category.id, best, aliasOf, attested, commonNouns: listed !== null, names: category.names === true })
+      if (category.namesAside) {
+        // Filed in the moderation reserve, which `npm run seed:moderation`
+        // loads: three moderators let in the ones a table would accept.
+        const reserve = JSON.parse(readFileSync(RESERVE, 'utf8')) as Record<string, Record<string, string[]>>
+        ;(reserve[lang] ??= {})[category.id] = [...setAside].sort((a, b) => a.localeCompare(b, lang))
+        writeFileSync(RESERVE, `${JSON.stringify(reserve, null, 2)}\n`)
+        console.log(`· ${lang}/${category.id}: ${setAside.size} noms propres mis de côté pour la modération`)
+      }
     }
 
     // Inflected forms borrow the notoriety of the word they bend, so only the
