@@ -4552,13 +4552,15 @@ referment d'un coup : `--way` donne le sens de chacune. */
     font-size: clamp(2rem, 10vw, 2.8rem);
   }
 
-  .power-cards {
+  /* Deux classes : `.unlock-cards`, plus bas, les remettrait en colonnes. */
+  .unlock-cards.power-cards {
+    grid-auto-flow: row;
     grid-template-columns: 1fr;
     gap: 0.75rem;
     max-width: 28rem;
   }
 
-  .power-card {
+  .unlock-card.power-card {
     min-height: 0;
     display: grid;
     grid-template-columns: auto 1fr;
@@ -4674,11 +4676,13 @@ referment d'un coup : `--way` donne le sens de chacune. */
   }
 }
 
+/* Autant de colonnes que de cartes : une offre de deux, ou d'une seule, tient toute la largeur. */
 .unlock-cards {
   list-style: none;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: 0.6rem;
 }
 
@@ -6366,7 +6370,7 @@ referment d'un coup : `--way` donne le sens de chacune. */
   gap: 0.4rem;
 }
 
-/* Magie : la lettre devient un bouton qui scintille ; changée, elle tourne sur elle-même. */
+/* Magie : la lettre devient un bouton qui scintille ; libérée, elle tourne sur elle-même et devient une étoile. */
 .prompt-magic {
   appearance: none;
   position: relative;
@@ -6781,10 +6785,6 @@ rien d’autre — aucun point, aucune rareté ne bouge. */
 }
 
 /* L'offre : deux cartes, et le geste propre du pouvoir sous le doigt. */
-.power-cards {
-  grid-template-columns: repeat(2, 1fr);
-}
-
 .power-card {
   min-height: 13rem;
 }

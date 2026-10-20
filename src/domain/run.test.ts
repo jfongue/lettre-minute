@@ -17,7 +17,7 @@ import {
   runMilestones,
   runScore,
   SKIP_PENALTY_SECONDS,
-  reroll,
+  freeLetter,
   skip,
   submit,
   THIN_PROMPT_WORDS,
@@ -329,11 +329,11 @@ describe('odds of a pair', () => {
     expect(new Set(run.dealt).size).toBe(4)
   })
 
-  it('keeps a challenge in step whatever letter Magie brought', () => {
+  it('keeps a challenge in step whether Magie freed a letter or not', () => {
     const thin = judgeKnowing({ A: 1, B: 2, C: 3, D: 4, E: 5 })
     const seed = 21
     const plain = createRun({ seed, categoryIds: ['animaux'], powers: ['magic'], shared: true }, thin)
-    const magic = reroll(plain, thin, 1)
+    const magic = freeLetter(plain)
     let [left, right] = [plain, magic]
     const prompts: [string, string][] = []
     for (let i = 0; i < 3; i++) {
@@ -342,7 +342,7 @@ describe('odds of a pair', () => {
       prompts.push([left.prompt.letter, right.prompt.letter])
     }
 
-    expect(magic.prompt.letter).not.toBe(plain.prompt.letter)
+    expect(magic.letterFreed).toBe(true)
     expect(prompts.every(([a, b]) => a === b)).toBe(true)
   })
 
@@ -536,8 +536,8 @@ describe('les modes de la réserve', () => {
   })
 
   it('suit les pouvoirs qui ont réellement servi pendant la partie', () => {
-    // Magie change la lettre, Esquive et Passe-passe agissent au passage.
-    const magic = reroll(runWith('magic', 'dodge'), rareJudge, 5)
+    // Magie libère la lettre, Esquive et Passe-passe agissent au passage.
+    const magic = freeLetter(runWith('magic', 'dodge'))
     expect(magic.usedPowers).toEqual(['magic'])
     expect(skip(magic, rareJudge, 6).usedPowers).toEqual(['magic', 'dodge'])
 
@@ -545,7 +545,7 @@ describe('les modes de la réserve', () => {
     expect(submit(runWith('hush'), 'chut', rareJudge, 20).run.usedPowers).toEqual(['hush'])
     expect(submit(onLetter(runWith('joker'), 'M'), 'Joker', rareJudge, 3).run.usedPowers).toEqual(['joker'])
 
-    // Bavardage se lance par un mot qui finit en « … », Retardataire sous cinq secondes.
+    // Bavardage se lance par un mot qui finit en « … », Retardataire dans les dix dernières secondes.
     expect(submit(onLetter(runWith('chatter'), 'A'), 'Animal0…', rareJudge, 1).run.usedPowers).toEqual(['chatter'])
     expect(submit(onLetter(runWith('latecomer'), 'A'), 'Animal0', rareJudge, 56).run.usedPowers).toEqual(['latecomer'])
 
@@ -608,7 +608,7 @@ describe('runMilestones', () => {
   })
 
   it('liste les pouvoirs servis et les catégories distinctes de la partie', () => {
-    expect(runMilestones(reroll(runWith('magic'), rareJudge, 1)).powers).toEqual(['magic'])
+    expect(runMilestones(freeLetter(runWith('magic'))).powers).toEqual(['magic'])
 
     const run = createRun({ seed: 4, categoryIds: ['animaux', 'pays'] }, judge)
     const first = submit(run, answerOf(run), judge, 1)

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { CHATTER_WORDS, FLAWLESS_POINTS, FLAWLESS_STREAK, POWER_CHARGES } from '../domain/powers'
-import { answerPrompt, celerityDue, chargesLeft, hasPower, runScore, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
+import { answerPrompt, celerityDue, chargesLeft, hasPower, latecomerOpen, runScore, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
 import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RECALL_SECONDS, modeEdge } from '../domain/modes'
 import { comboMultiplier } from '../domain/rarity'
 import { capitalized, compactWord, normalizeWord } from '../domain/text'
@@ -18,6 +18,8 @@ import { useFeature } from './features'
 import '../weekly.css'
 
 const URGENT_FROM = 10
+/** Ce que la lettre devient sous Magie : le joker des recherches, n'importe quelle initiale. */
+const FREE_LETTER = '✱'
 /** Célérité waits this long after the last key, so « Chat » does not cut « Chatte » short. */
 const CELERITY_SETTLE_MS = 140
 /** Un refus ne se prononce qu'une fois les doigts arrêtés : juger un mot en cours était faux. */
@@ -77,7 +79,8 @@ interface RunScreenProps {
   /** `auto`: Célérité validated it, not the player. */
   onSubmit(auto?: boolean): void
   onSkip(): void
-  onReroll(): void
+  /** Magie : la question en cours accepte un mot de n'importe quelle initiale. */
+  onFreeLetter(): void
   /** Le retard : revoir la question à remplir, contre `RECALL_SECONDS` secondes. */
   onRecall(): void
   onPropose(word: string): void
@@ -98,7 +101,7 @@ export function RunScreen({
   onType,
   onSubmit,
   onSkip,
-  onReroll,
+  onFreeLetter,
   onRecall,
   onPropose,
 }: RunScreenProps) {
@@ -123,17 +126,17 @@ export function RunScreen({
   if (run.mode === 'delayed' && run.armed && firstAnswer.current === null) firstAnswer.current = run.drawn
   const [recalled, setRecalled] = useState<number | null>(null)
   const showsAnswer = run.armed && (firstAnswer.current === run.drawn || recalled === run.drawn)
-const latecomerTriggered = remaining < 5 && hasPower(run, 'latecomer') && chargesLeft(run, 'latecomer') > 0
-const latecomerAnnounced = useRef(false)
-useEffect(() => {
-if (!latecomerTriggered) {
-latecomerAnnounced.current = false
-return
-}
-if (latecomerAnnounced.current) return
-latecomerAnnounced.current = true
-sound.power('latecomer')
-}, [latecomerTriggered])
+  const latecomerTriggered = latecomerOpen(run, remaining)
+  const latecomerAnnounced = useRef(false)
+  useEffect(() => {
+    if (!latecomerTriggered) {
+      latecomerAnnounced.current = false
+      return
+    }
+    if (latecomerAnnounced.current) return
+    latecomerAnnounced.current = true
+    sound.power('latecomer')
+  }, [latecomerTriggered])
   const urgent = remaining <= URGENT_FROM
   const accepted = live?.kind === 'accepted'
   const spell = live?.kind === 'spell' ? live.spell : undefined
@@ -230,10 +233,10 @@ else if (doubleSkip) sound.power('double-skip')
     onSkip()
   }
 
-  const reroll = () => {
-    if (magic <= 0) return
+  const freeLetter = () => {
+    if (magic <= 0 || run.letterFreed) return
     sound.power('magic')
-    onReroll()
+    onFreeLetter()
   }
 
   // La question à remplir se rachète pour la question en cours seulement.
@@ -327,26 +330,27 @@ else if (doubleSkip) sound.power('double-skip')
       {hushed && <HushVoice lines={t.powers.hushLines} label={t.powers.hushed} />}
 
       <section className={`prompt${edge === 'last' ? ' prompt--last' : ''}`} key={`${run.drawn}`}>
-        {magic > 0 ? (
+        {run.letterFreed ? (
+          <span className="prompt-magic prompt-magic--spent" role="img" aria-label={t.powers.freed}>
+            <LetterMark letter={FREE_LETTER} motif={motifAt(run.drawn)} size="lg" />
+          </span>
+        ) : magic > 0 ? (
           <button
             type="button"
             className="prompt-magic"
-            key={run.rerolls}
             onPointerDown={keepFocus}
-            onClick={reroll}
-            aria-label={t.powers.reroll(run.prompt.letter, magic)}
+            onClick={freeLetter}
+            aria-label={t.powers.freeLetter(run.prompt.letter, magic)}
           >
-            <LetterMark letter={run.prompt.letter} motif={motifAt(run.drawn + run.rerolls)} size="lg" />
+            <LetterMark letter={run.prompt.letter} motif={motifAt(run.drawn)} size="lg" />
             <span className="prompt-magic-spark" aria-hidden="true" />
           </button>
         ) : (
-          <span className={run.rerolls > 0 ? 'prompt-magic prompt-magic--spent' : undefined} key={run.rerolls}>
-            <LetterMark letter={run.prompt.letter} motif={motifAt(run.drawn + run.rerolls)} size="lg" />
-          </span>
+          <LetterMark letter={run.prompt.letter} motif={motifAt(run.drawn)} size="lg" />
         )}
         <div className="prompt-text">
           <h2 className="prompt-label">{category.label}</h2>
-          <p className="note">{category.hint}</p>
+          <p className="note">{run.letterFreed ? t.powers.freed : category.hint}</p>
         </div>
       </section>
       {run.chatter > 0 && (
@@ -359,7 +363,7 @@ else if (doubleSkip) sound.power('double-skip')
         <p className="prompt-next" key={`next-${run.drawn}`}>
           <span className="prompt-next-eye" aria-hidden="true" />
           <span className="note">{t.powers.next}</span>
-          <LetterMark letter={next.letter} motif={motifAt(run.drawn + 1 + run.rerolls)} size="sm" />
+          <LetterMark letter={next.letter} motif={motifAt(run.drawn + 1)} size="sm" />
           <span>{categoryText(t, next.categoryId).label}</span>
         </p>
       )}
@@ -370,7 +374,7 @@ else if (doubleSkip) sound.power('double-skip')
           ) : showsAnswer ? (
             <>
               <span className="note">{t.modes.answerTo}</span>
-              <LetterMark letter={answer.letter} motif={motifAt(run.drawn + run.rerolls)} size="sm" />
+              <LetterMark letter={answer.letter} motif={motifAt(run.drawn)} size="sm" />
               <span>{categoryText(t, answer.categoryId).label}</span>
             </>
           ) : (

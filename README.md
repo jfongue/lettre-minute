@@ -44,8 +44,8 @@ n'écrit rapportent le plus.
   celle qu'on vient de voir. On en porte deux, choisis sous « Jouer ».
   Échange (deux échanges au lancement), Tricherie (écrire « Joker » :
   le jeu écrit un mot juste, payé au tarif de base, une fois), Esquive
-  (passer coûte 3 s), Magie (toucher la lettre pour en tirer une autre, deux
-  fois), Silence (écrire « chut » : le chrono s'arrête jusqu'au prochain mot,
+  (passer coûte 3 s), Magie (toucher la lettre : un mot du thème, quelle que soit son
+  initiale, répond à la question en cours, trois fois), Silence (écrire « chut » : le chrono s'arrête jusqu'au prochain mot,
   dix secondes au plus, et tout le son est étouffé, une fois), Dyslexie (deux
   fautes passent dès six lettres), Divination (la catégorie et la lettre
   suivantes sont affichées), Challenge (peu commun ×1,15, rare et très rare
@@ -53,7 +53,7 @@ n'écrit rapportent le plus.
   s'il ne lui manque qu'une lettre), Professeur (les mots suggérés au
   bilan sont peu communs, jamais dits si possible, parfois rares) et Bavardage (« ... » après un mot garde la
   lettre et le thème pour trois mots de plus, qu'on quitte sans pénalité,
-  une fois), Retardataire (un mot validé dans les cinq dernières secondes rend
+  une fois), Retardataire (un mot validé dans les dix dernières secondes rend
 une seconde, cinq au plus par partie), Passe-passe (après un passage, le
 suivant est gratuit, une fois) et Sans faute (trois mots justes écrits sans
 faute de frappe rendent aussitôt 10 points, toute la partie). Chacun a sa couleur, son

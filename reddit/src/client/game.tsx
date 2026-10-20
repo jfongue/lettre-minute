@@ -202,7 +202,7 @@ function Game({ data }: { data: DailyPostData }) {
         onType={(draft) => act({ type: 'type', draft, judge })}
         onSubmit={(auto) => act({ type: 'submit', at: elapsed, auto: auto === true, judge })}
         onSkip={() => act({ type: 'skip', at: elapsed, judge })}
-        onReroll={NOTHING}
+        onFreeLetter={NOTHING}
         onRecall={NOTHING}
         onPropose={NOTHING}
       />

@@ -528,9 +528,11 @@ export const crazyGamesHost: Host = {
   playFirst: true,
   premiumStore: false,
   rewardedAds: REWARDED,
-  // Each level of a portal game pays something the player plays with: a
-  // power or a category, never a bonus to read about.
-  levelBonuses: false,
+  // Level bonuses too, the second slot first; the cards that would give a
+  // guest nothing — moderating without an account, a filter « Mes catégories »
+  // does not offer, a reveal while they are free — are never dealt here
+  // (`barredBonuses`).
+  levelBonuses: true,
   // Until the portal allows the ad that pays for them, the reveals are free.
   unlimitedReveals: !REWARDED,
   // A guest of the portal plays without any account: nothing of theirs

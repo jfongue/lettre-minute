@@ -53,7 +53,7 @@ export const WORDS_FOR_COMPLICATION = 3
 export const POWER_CHARGES: Readonly<Partial<Record<PowerId, number>>> = {
   permutation: 2,
   joker: 1,
-  magic: 2,
+  magic: 3,
   hush: 1,
   chatter: 1,
 latecomer: 5,
@@ -69,7 +69,7 @@ export const CHATTER_WORDS = 3
 */
 export const ALWAYS_ON_POWER_IDS: readonly PowerId[] = ['divination', 'celerity', 'professor']
 
-export const LATECOMER_THRESHOLD_SECONDS = 5
+export const LATECOMER_THRESHOLD_SECONDS = 10
 export const LATECOMER_SECONDS = 1
 export const LATECOMER_CAP_SECONDS = 5
 export const FLAWLESS_STREAK = 6

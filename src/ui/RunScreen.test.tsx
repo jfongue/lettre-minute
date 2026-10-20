@@ -40,7 +40,7 @@ function htmlOf(live: Verdict | null): string {
         onType={() => undefined}
         onSubmit={() => undefined}
         onSkip={() => undefined}
-        onReroll={() => undefined}
+        onFreeLetter={() => undefined}
         onRecall={() => undefined}
         onPropose={() => undefined}
       />

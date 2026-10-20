@@ -1,3 +1,4 @@
+import type { FeatureId } from './features'
 import { isPlus } from './perks'
 import { levelFor, PERKS_VERSION, type Profile } from './progression'
 import { ownedPlainCount } from './owned'
@@ -40,20 +41,41 @@ export function bonusCount(profile: Profile, id: BonusId): number {
   return profile.bonuses.filter((taken) => taken === id).length
 }
 
-/** The kinds still on offer: below their cap, and no moderator offer for someone who already is one. */
-export function bonusPool(profile: Profile, isModerator: boolean): BonusId[] {
+/** What the player and the version they play decide about the bonus table. */
+export interface BonusFacts {
+  isModerator: boolean
+  /** The player holds a named account, or can make one from the moderator offer. */
+  canName: boolean
+  /** Reveals cost nothing on this version (`Host.unlimitedReveals`). */
+  unlimitedReveals: boolean
+  open(feature: FeatureId): boolean
+}
+
+/**
+ * The kinds this player is never dealt, for a card that would give nothing:
+ * the moderator offer to someone who is one, or who has no account to take
+ * it with; a reveal where they are free; a filter or a slot where filtering
+ * categories or wearing powers is closed.
+ */
+export function barredBonuses({ isModerator, canName, unlimitedReveals, open }: BonusFacts): BonusId[] {
+  const barred: BonusId[] = []
+  if (!open('categoryBans')) barred.push('filter')
+  if (!open('powers')) barred.push('slot')
+  if (unlimitedReveals) barred.push('reveal')
+  if (isModerator || !canName || !open('moderatorOffer')) barred.push('moderator')
+  return barred
+}
+
+/** The kinds still on offer: below their cap, and not `barred` (`barredBonuses`). */
+export function bonusPool(profile: Profile, barred: readonly BonusId[] = []): BonusId[] {
   return BONUS_IDS.filter(
-    (id) => {
-  const belowCap = bonusCount(profile, id) < BONUS_CAPS[id]
-  if (!belowCap) return false
-  if (id === 'moderator' && isModerator) return false
-  return !(isPlus(profile) && USELESS_FOR_PLUS.includes(id))
-},
+    (id) =>
+      bonusCount(profile, id) < BONUS_CAPS[id] && !barred.includes(id) && !(isPlus(profile) && USELESS_FOR_PLUS.includes(id)),
   )
 }
 
-function poolRoom(profile: Profile, isModerator: boolean): number {
-  return bonusPool(profile, isModerator).reduce((sum, id) => sum + BONUS_CAPS[id] - bonusCount(profile, id), 0)
+function poolRoom(profile: Profile, barred: readonly BonusId[]): number {
+  return bonusPool(profile, barred).reduce((sum, id) => sum + BONUS_CAPS[id] - bonusCount(profile, id), 0)
 }
 
 /** Bonuses won at a level, as against those the catch-up gave. */
@@ -75,32 +97,42 @@ export function bonusUnlocked(profile: Profile): boolean {
  * (`Host.levelBonuses`) — counts only those already taken, so the picks made
  * before keep their place and every level to come is a category.
  */
-export function bonusLevels(profile: Profile, isModerator = false, bonuses = true): number {
+export function bonusLevels(profile: Profile, barred: readonly BonusId[] = [], bonuses = true): number {
   const taken = won(profile)
   if (!bonuses || !bonusUnlocked(profile)) return taken
   const reached = Math.max(0, Math.floor((levelFor(profile.xp) - BONUS_FROM_LEVEL) / BONUS_EVERY_LEVELS))
-  return Math.max(taken, Math.min(reached, taken + poolRoom(profile, isModerator)))
+  return Math.max(taken, Math.min(reached, taken + poolRoom(profile, barred)))
 }
 
 /** Bonuses the player has earned and not yet picked. */
-export function bonusesOwed(profile: Profile, isModerator = false, bonuses = true): number {
-  return Math.max(0, bonusLevels(profile, isModerator, bonuses) - won(profile))
+export function bonusesOwed(profile: Profile, barred: readonly BonusId[] = [], bonuses = true): number {
+  return Math.max(0, bonusLevels(profile, barred, bonuses) - won(profile))
 }
 
-/** Two bonuses, weighted by kind, if one is owed and none is on the table. */
-export function dealBonusOffer(profile: Profile, seed: number, isModerator = false, bonuses = true): Profile {
-  if (profile.bonusOffer.length > 0 || bonusesOwed(profile, isModerator, bonuses) === 0) return profile
+/**
+ * Two bonuses, weighted by kind, if one is owed and none is on the table. The
+ * first table a player is dealt always holds the second slot, while it is to
+ * take: it is the bonus every power worn asks for. A card the player is now
+ * `barred` from — a table dealt on another version, or before an account was
+ * lost — leaves the table, and an empty table is dealt again.
+ */
+export function dealBonusOffer(profile: Profile, seed: number, barred: readonly BonusId[] = [], bonuses = true): Profile {
+  const kept = profile.bonusOffer.filter((id) => isBonusId(id) && !barred.includes(id))
+  if (kept.length > 0) return kept.length === profile.bonusOffer.length ? profile : { ...profile, bonusOffer: kept }
+  const cleared = profile.bonusOffer.length > 0 ? { ...profile, bonusOffer: [] } : profile
+  if (bonusesOwed(cleared, barred, bonuses) === 0) return cleared
 
   const rng = createRng(seed)
-  const left = bonusPool(profile, isModerator)
-  const offer: BonusId[] = []
+  const pool = bonusPool(cleared, barred)
+  const offer: BonusId[] = won(cleared) === 0 && pool.includes('slot') ? ['slot'] : []
+  const left = pool.filter((id) => !offer.includes(id))
   while (offer.length < BONUS_OFFER_SIZE) {
     const next = pickWeighted(rng, left, (id) => BONUS_WEIGHTS[id])
     if (next === null) break
     offer.push(next)
     left.splice(left.indexOf(next), 1)
   }
-  return offer.length === 0 ? profile : { ...profile, bonusOffer: offer }
+  return offer.length === 0 ? cleared : { ...cleared, bonusOffer: offer }
 }
 
 /**

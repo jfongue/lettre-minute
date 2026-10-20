@@ -18,6 +18,7 @@ import {
 FLAWLESS_POINTS,
 FLAWLESS_STREAK,
 LATECOMER_CAP_SECONDS,
+LATECOMER_THRESHOLD_SECONDS,
   grantPower,
   WORDS_FOR_COMPLICATION,
   unlockEveryPower,
@@ -31,8 +32,8 @@ import {
   inspect,
   isHushed,
   nextPrompt,
+  freeLetter,
   remainingSeconds,
-  reroll,
   RUN_SECONDS,
   skip,
 skipPenalty,
@@ -173,7 +174,7 @@ describe('equipping', () => {
 })
 
 describe('Retardataire', () => {
-it('awards one second only below five seconds, up to five bonus seconds', () => {
+it('awards one second only in the last ten seconds, up to five bonus seconds', () => {
 const run = { ...onLetter(runWith('latecomer'), 'A'), latecomerSeconds: LATECOMER_CAP_SECONDS - 1, charges: { latecomer: 1 }, penaltySeconds: RUN_SECONDS }
 const awarded = submit(run, 'Animal0', judge, 0).run
 expect(awarded.latecomerSeconds).toBe(LATECOMER_CAP_SECONDS)
@@ -181,9 +182,10 @@ const atCap = submit({ ...onLetter(runWith('latecomer'), 'A'), latecomerSeconds:
 expect(atCap.latecomerSeconds).toBe(LATECOMER_CAP_SECONDS)
 })
 
-it('does not add time when five seconds remain', () => {
-const run = { ...onLetter(runWith('latecomer'), 'A'), charges: { latecomer: 5 }, penaltySeconds: RUN_SECONDS - 5 }
-expect(submit(run, 'Animal0', judge, 0).run.latecomerSeconds).toBe(0)
+it('starts at ten seconds left, not before', () => {
+const run = (left: number) => ({ ...onLetter(runWith('latecomer'), 'A'), charges: { latecomer: 5 }, penaltySeconds: RUN_SECONDS - left })
+expect(submit(run(LATECOMER_THRESHOLD_SECONDS), 'Animal0', judge, 0).run.latecomerSeconds).toBe(0)
+expect(submit(run(LATECOMER_THRESHOLD_SECONDS - 1), 'Animal0', judge, 0).run.latecomerSeconds).toBe(1)
 })
 })
 
@@ -296,20 +298,44 @@ describe('Tricherie', () => {
 })
 
 describe('Magie', () => {
-  it('changes the letter, twice, and keeps the series', () => {
-    const run = { ...runWith('magic'), combo: 3 }
-    const once = reroll(run, judge, 2)
-    expect(once.prompt.letter).not.toBe(run.prompt.letter)
-    expect(once.prompt.categoryId).toBe(run.prompt.categoryId)
-    expect(once.combo).toBe(3)
-    const twice = reroll(once, judge, 3)
-    expect(chargesLeft(twice, 'magic')).toBe(0)
-    expect(reroll(twice, judge, 4)).toBe(twice)
+  it('lets the current prompt take a word of any initial, three times a run', () => {
+    const run = { ...onLetter(runWith('magic'), 'A'), combo: 3 }
+    expect(inspect(run, 'Bnimal0', judge).kind).toBe('wrong-letter')
+
+    const freed = freeLetter(run)
+    expect(freed.prompt).toEqual(run.prompt)
+    expect(freed.combo).toBe(3)
+    expect(chargesLeft(freed, 'magic')).toBe(2)
+    expect(freeLetter(freed)).toBe(freed)
+    const played = submit(freed, 'Bnimal0', judge, 2)
+    expect(played.verdict).toEqual(inspect(freed, 'Bnimal0', judge))
+    expect(played.verdict.found).toMatchObject({ word: 'bnimal0', approximate: false })
+    expect(played.run.letterFreed).toBe(false)
+
+    let spent = played.run
+    for (let i = 0; i < 2; i++) spent = skip(freeLetter(spent), judge, 3 + i)
+    expect(chargesLeft(spent, 'magic')).toBe(0)
+    expect(freeLetter(spent)).toBe(spent)
+  })
+
+  it('forgives a slip among the words of the typed initial only, and still knows a word already played', () => {
+    const freed = freeLetter(onLetter(runWith('magic'), 'A'))
+    expect(inspect(freed, 'Hipopotame', judge).found).toMatchObject({ display: 'Hippopotame', approximate: true })
+    expect(inspect(freed, 'Xippopotame', judge).kind).toBe('unknown')
+    const played = submit(freed, 'Hippopotame', judge, 1).run
+    expect(inspect(freeLetter({ ...played, prompt: freed.prompt }), 'Hippopotame', judge).kind).toBe('already')
+  })
+
+  it('keeps the letter free while Bavardage holds the prompt', () => {
+    const freed = freeLetter(onLetter(runWith('magic', 'chatter'), 'A'))
+    const held = submit(freed, 'Bnimal1…', judge, 1).run
+    expect(held.prompt).toEqual(freed.prompt)
+    expect(inspect(held, 'Cnimal1', judge).kind).toBe('accepted')
   })
 
   it('does nothing without the power', () => {
     const run = runWith()
-    expect(reroll(run, judge, 1)).toBe(run)
+    expect(freeLetter(run)).toBe(run)
   })
 })
 

@@ -225,7 +225,6 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     shared: false,
     bonusWeight: 1,
     taught: [],
-    seeded: [],
     found,
     used: [],
     usedPowers: [],
@@ -240,7 +239,7 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
     joker: null,
     hush: null,
     heldSeconds: 0,
-    rerolls: 0,
+    letterFreed: false,
     chatter: 0,
 latecomerSeconds: 0,
 bonusSeconds: 0,
@@ -1712,7 +1711,7 @@ function RunEffets(props: { run: Run; draft: string; live: Verdict | null; cheer
       onType={noop}
       onSubmit={noop}
       onSkip={noop}
-      onReroll={noop}
+      onFreeLetter={noop}
       onRecall={noop}
       onPropose={noop}
     />
@@ -1741,6 +1740,20 @@ function JokerWriteScenario() {
     joker: { key: 'Lama', display: 'Lama' },
   }
   return <RunEffets run={run} draft="Lama" live={null} cheer={null} />
+}
+
+/** Magie touchée : la lettre devient une étoile, et un pays d'une autre initiale passe. */
+function MagicFreedScenario() {
+  const run: Run = {
+    ...makeRun(64, WORDS.slice(0, 2)),
+    powers: ['magic'],
+    charges: { magic: 2 },
+    usedPowers: ['magic'],
+    prompt: { categoryId: 'pays', letter: 'Q' },
+    letterFreed: true,
+  }
+  const found = { ...run.found[0]!, prompt: run.prompt, word: 'bresil', display: 'Brésil' }
+  return <RunEffets run={run} draft="Brésil" live={{ kind: 'accepted', found }} cheer={null} />
 }
 
 /** L'offre de modérateur : un seul rendu pour les trois raisons qui l'amènent. */
@@ -2187,6 +2200,28 @@ const SCENARIOS: readonly Scenario[] = [
     },
   },
   {
+    id: 'over-category-few',
+    group: 'Fin de partie',
+    title: 'Proposition de catégorie : deux cartes seulement',
+    how: 'Plus que deux catégories à gagner : les deux cartes prennent toute la largeur, sans trou',
+    phase: 'over',
+    render: (back) => {
+      const [before, after] = levelUp(3, 4)
+      return <OverScenario before={before} after={{ ...after, offer: ['sports', 'capitales'] }} onBack={back} />
+    },
+  },
+  {
+    id: 'over-power-single',
+    group: 'Fin de partie',
+    title: 'Proposition de pouvoir : une seule carte',
+    how: 'Le dernier pouvoir à gagner : une carte, sur toute la largeur',
+    phase: 'over',
+    render: (back) => {
+      const [before, after] = levelUp(4, 5)
+      return <OverScenario before={{ ...before, powers: ['joker'] }} after={{ ...after, powers: ['joker'], powerOffer: ['magic'] }} onBack={back} />
+    },
+  },
+  {
     id: 'over-both',
     group: 'Fin de partie',
     title: 'Catégorie puis pouvoir',
@@ -2489,6 +2524,26 @@ const SCENARIOS: readonly Scenario[] = [
         after={afterRun({ ...BONUS_PROFILE, bonusOffer: ['reveal', 'filter'] }, RUN)}
         onBack={back}
       />
+    ),
+  },
+  {
+    id: 'bonus-offer-first',
+    group: 'Fin de partie',
+    title: 'Premier bonus de niveau : le second emplacement',
+    how: 'Le premier bonus propose toujours le second emplacement de pouvoir, à côté d’une autre carte',
+    phase: 'over',
+    render: (back) => (
+      <OverScenario before={BONUS_PROFILE} after={afterRun({ ...BONUS_PROFILE, bonusOffer: ['slot', 'reveal'] }, RUN)} onBack={back} />
+    ),
+  },
+  {
+    id: 'bonus-offer-single',
+    group: 'Fin de partie',
+    title: 'Bonus de niveau : une seule carte',
+    how: 'Une version qui écarte les autres cartes (l’invité CrazyGames) : le second emplacement seul, sur toute la largeur',
+    phase: 'over',
+    render: (back) => (
+      <OverScenario before={BONUS_PROFILE} after={afterRun({ ...BONUS_PROFILE, bonusOffer: ['slot'] }, RUN)} onBack={back} />
     ),
   },
   {
@@ -3138,6 +3193,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: '« Joker » reconnu à la frappe : le mot s’écrit d’un coup dans le champ, la carte se retourne',
     phase: 'playing',
     render: () => <JokerWriteScenario />,
+  },
+  {
+    id: 'run-magic-freed',
+    group: 'Partie',
+    title: 'Magie libère la lettre',
+    how: 'La lettre touchée devient une étoile : un mot du thème, quelle que soit son initiale, répond à la question',
+    phase: 'playing',
+    render: () => <MagicFreedScenario />,
   },
 ]
 
