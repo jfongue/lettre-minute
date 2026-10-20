@@ -1,6 +1,6 @@
-import { midgameDue } from '../domain/adBreaks'
+import { breakDue, MIDGAME_BREAKS } from '../domain/adBreaks'
 import { trackFeature } from '../lib/feature'
-import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type Host, type RewardedResult } from './host'
+import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type RewardedResult } from './host'
 
 /**
  * The CrazyGames shell, as `native.ts` is the phone's: everything the portal's
@@ -264,17 +264,18 @@ const AD_TIMEOUT_MS = 60_000
 
 /**
  * The break between a run's word recap and its summary: a midgame ad on the
- * session's schedule (`midgameDue`). The SDK keeps them three minutes apart
+ * session's schedule (`MIDGAME_BREAKS`). The SDK keeps them three minutes apart
  * and answers `adError` to an early request, which just skips this one.
  * Resolves once the ad is over, failed or skipped; the sound is cut only while
  * one actually plays. A second tap while the ad is pending joins it.
  */
 let finishedRuns = 0
-let pendingBreak: Promise<void> | null = null
-function breakAfterRecap(): Promise<void> {
+let pendingBreak: Promise<AdBreak> | null = null
+function breakAfterRecap(adFree: boolean): Promise<AdBreak> {
   if (pendingBreak) return pendingBreak
   finishedRuns += 1
-  if (!sdk || !midgameDue(finishedRuns)) return Promise.resolve()
+  if (!sdk || !breakDue(finishedRuns, MIDGAME_BREAKS)) return Promise.resolve('none')
+  if (adFree) return Promise.resolve('spared')
   const asked = requestMidgame().finally(() => {
     pendingBreak = null
   })
@@ -282,7 +283,7 @@ function breakAfterRecap(): Promise<void> {
   return asked
 }
 
-function requestMidgame(): Promise<void> {
+function requestMidgame(): Promise<AdBreak> {
   return new Promise((resolve) => {
     let done = false
     const finish = (result: 'shown' | 'unavailable') => {
@@ -294,7 +295,7 @@ function requestMidgame(): Promise<void> {
         adPlaying = false
         announceMute()
       }
-      resolve()
+      resolve(result)
     }
     const timer = setTimeout(() => finish('unavailable'), AD_TIMEOUT_MS)
     safely((s) =>

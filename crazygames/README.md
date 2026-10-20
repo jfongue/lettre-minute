@@ -143,8 +143,9 @@ ami modérateur) — un joueur connecté au portail a le compte
   fonctionnalité est réservée aux jeux invités : à demander sur le portail
   développeur. Les tableaux du jeu (jour, semaine, rareté) restent fermés ici.
 - **Pub midgame** : demandée entre le récap des mots et le bilan de la partie,
-  à la 2e, 5e, 9e, 14e, 20e… partie finie de la session (`midgameDue`,
-  `src/domain/adBreaks.ts` ; `host.breakAfterRecap`), jamais à « Rejouer » ; le
+  à la 2e, 5e, 9e, 14e, 20e… partie finie de la session (`MIDGAME_BREAKS`,
+  `src/domain/adBreaks.ts` ; `host.breakAfterRecap`), jamais à un Premium ni
+  quand la fonctionnalité `adBreaks` est fermée, jamais à « Rejouer » ; le
   SDK refuse lui-même une pub à moins de 3 min de la dernière. Le bilan attend
   la fin de la pub, ou son erreur (y compris bloqueur de pub), au plus 60 s.
   Chaque demande est comptée au tableau de bord (`ad`, source `midgame`). Le son est

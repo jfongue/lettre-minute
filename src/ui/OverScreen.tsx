@@ -27,7 +27,7 @@ import { reducedMotion, useTween } from './useCountUp'
 import { ShareSoon } from './ShareSoon'
 import { RequestRow, type RequestEntry } from './RequestsPage'
 import { todayKey } from '../lib/today'
-import { revealBudget, type HiddenAnswer } from '../domain/perks'
+import { isPlus, revealBudget, type HiddenAnswer } from '../domain/perks'
 import { FlagWordCard, type FlagWord } from './StatsPage'
 import { Reveal } from './Reveal'
 import { useFeature } from './features'
@@ -89,6 +89,8 @@ onAvatar(design?: number): void
   onPeek?(): void
   /** A rewarded ad watched through: one more reveal today. */
   onAd?(): void
+  /** The break after the recap owed an ad that Premium spared. */
+  onAdSpared?(): void
   /**
   * Signals a word of the run — said, or still hidden — to the other
   * moderators, as the history's recap does; absent for a player who is not
@@ -110,6 +112,7 @@ export function OverScreen({ run, revealed, onRevealed, onSummary, lang, ...summ
   // Each offer gets a fresh screen: a second pick owed deals the next one.
   const [round, setRound] = useState(0)
   const powers = useFeature('powers')
+  const adBreaks = useFeature('adBreaks')
   const t = useT()
 
   // A challenge run beats no record: it does not count for one.
@@ -135,7 +138,12 @@ export function OverScreen({ run, revealed, onRevealed, onSummary, lang, ...summ
             />
           )
         }
-        onNext={() => void host.breakAfterRecap().then(onRevealed)}
+        onNext={() =>
+          void host.breakAfterRecap(isPlus(profile) || !adBreaks).then((done) => {
+            if (done === 'spared') summary.onAdSpared?.()
+            onRevealed()
+          })
+        }
       />
     )
   }

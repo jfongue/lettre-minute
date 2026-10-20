@@ -84,15 +84,20 @@ export interface Host {
   showRewarded(): Promise<RewardedResult>
   /**
    * The host's break once a run's word recap is read, before its summary (an
-   * ad, when the session's schedule says so, `midgameDue`); resolves once it
-   * is over, failed or skipped. Each call counts one finished run.
+   * ad, when the session's schedule says so, `src/domain/adBreaks.ts`);
+   * resolves once it is over, failed or skipped. Each call counts one finished
+   * run. `adFree` (Premium, or the `adBreaks` feature closed) keeps the count
+   * but never shows the ad: `spared` says one was due.
    */
-  breakAfterRecap(): Promise<void>
+  breakAfterRecap(adFree: boolean): Promise<AdBreak>
   /** Called with true while the host wants silence — its own mute, an ad — and false once it lets go. */
   onMute(listener: (muted: boolean) => void): void
 }
 
 export type RewardedResult = 'rewarded' | 'skipped' | 'unavailable'
+
+/** What the break after a recap did: nothing due, due but spared, or an ad asked for. */
+export type AdBreak = 'none' | 'spared' | 'shown' | 'unavailable'
 
 /** Everything that needs the game's server or a named account. */
 export const SERVER_FEATURES: readonly FeatureId[] = [
@@ -151,6 +156,6 @@ export const quiet = {
   submitScore(): void {},
   prepareRewarded(): void {},
   showRewarded: (): Promise<RewardedResult> => Promise.resolve('unavailable'),
-  breakAfterRecap: (): Promise<void> => Promise.resolve(),
+  breakAfterRecap: (): Promise<AdBreak> => Promise.resolve('none'),
   onMute(): void {},
 }

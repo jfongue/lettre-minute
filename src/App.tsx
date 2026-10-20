@@ -72,7 +72,7 @@ import {
   onPush,
   openStoreUpdate,
   playGamesPlayer,
-  prepareAds,
+  prepareInterstitial,
   pushState,
   storeUpdateAvailable,
   tapFeedback,
@@ -959,7 +959,7 @@ setStartedAt((at) => at ?? Date.now())
   // form would cover the clock.
   const adsWanted = on('ads') && adsDue(session.profile) && (session.phase === 'home' || session.phase === 'over')
   useEffect(() => {
-    if (adsWanted) prepareAds()
+    if (adsWanted) prepareInterstitial()
   }, [adsWanted])
 
   const judgeFor = useCallback(
@@ -2485,6 +2485,7 @@ setMenuPage('avatar')
             hidden={hidden}
             onPeek={peek}
             onAd={revealAd}
+            onAdSpared={() => dispatch({ type: 'plus-ad-skipped' })}
             onFlag={overFlag}
             onReplay={session.challengeId ? play : playSolo}
             onHome={() => {

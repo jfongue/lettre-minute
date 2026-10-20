@@ -108,36 +108,33 @@ const interstitialId = import.meta.env.VITE_ADMOB_INTERSTITIAL_ID || (TESTING_UN
 
 let adsStarted: Promise<boolean> | null = null
 let interstitialLoaded = false
+let interstitialLoading = false
 
-function loadInterstitial(): void {
-  interstitialLoaded = false
-  if (!interstitialId) return
-  quietly(async () => {
-    await AdMob.prepareInterstitial({ adId: interstitialId, isTesting: interstitialId === TEST_INTERSTITIAL })
-    interstitialLoaded = true
-  })
-}
-
-/** Whether this build can show the pick's interstitial: the phone shell, with a real unit. */
+/** Whether this build can show an interstitial: the phone shell, with a real unit (a test one in development). */
 export function adsSupported(): boolean {
   return native && Boolean(interstitialId)
 }
 
 /**
- * Starts the ad SDK and asks for consent where the law requires it (the UMP
- * form, in the EU). Started when the first ad-bearing offer comes up rather
- * than at launch, so a player who never gets that far never sees the form —
- * and it still leaves the player the time of reading the offer to load one.
+ * Starts the ad SDK, asks for consent where the law requires it (the UMP
+ * form, in the EU), and loads an interstitial ahead of the break that shows
+ * it: consent and loading take seconds, and one still loading when its break
+ * comes is skipped, never shown late. Called between runs, never mid-run,
+ * where the consent form would cover the clock.
  */
-export function prepareAds(): void {
+export function prepareInterstitial(): void {
+  if (!native || !interstitialId || interstitialLoaded || interstitialLoading) return
+  interstitialLoading = true
   startAds()
-    .then((ready) => {
+    .then(async (ready) => {
       if (!ready) return
-      return AdMob.addListener(InterstitialAdPluginEvents.Dismissed, loadInterstitial)
-        .then(() => AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, loadInterstitial))
-        .then(() => loadInterstitial())
+      await AdMob.prepareInterstitial({ adId: interstitialId, isTesting: interstitialId === TEST_INTERSTITIAL })
+      interstitialLoaded = true
     })
     .catch(() => {})
+    .finally(() => {
+      interstitialLoading = false
+    })
 }
 
 /** The SDK and the consent, shared by every ad format; resolves whether ads may be requested. */
@@ -286,23 +283,54 @@ export async function storeOwned(productId: string): Promise<StorePurchase[] | n
   }
 }
 
+// An interstitial that never calls back must not hold the summary forever.
+const INTERSTITIAL_TIMEOUT_MS = 90_000
+
 /**
- * Shows the loaded interstitial, if there is one. Never waits for one: an ad
- * still loading when the player taps is skipped, not shown late over whatever
- * screen came next. Answers whether one actually played, which the dashboard's
- * ad count needs — a request with no ad ready is not an opening.
+ * Plays the loaded interstitial and resolves once it is closed. Never waits
+ * for one to load: an ad still loading at its break is `unavailable`, not
+ * shown late over whatever screen came next — and a request with no ad ready
+ * is not an opening, which the dashboard's ad count needs.
  */
- export function showInterstitial(): boolean {
-   if (!interstitialLoaded) return false
+export async function playInterstitial(): Promise<'shown' | 'unavailable'> {
+  if (!native || !interstitialLoaded) return 'unavailable'
   interstitialLoaded = false
-  quietly(() => AdMob.showInterstitial())
+  const handles: Promise<{ remove(): Promise<void> }>[] = []
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    return await new Promise<'shown' | 'unavailable'>((resolve) => {
+      let shown = false
+      timer = setTimeout(() => resolve(shown ? 'shown' : 'unavailable'), INTERSTITIAL_TIMEOUT_MS)
+      handles.push(
+        AdMob.addListener(InterstitialAdPluginEvents.Showed, () => {
+          shown = true
+        }),
+        AdMob.addListener(InterstitialAdPluginEvents.Dismissed, () => resolve('shown')),
+        AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, () => resolve('unavailable')),
+      )
+      Promise.all(handles)
+        .then(() => AdMob.showInterstitial())
+        .catch(() => resolve('unavailable'))
+    })
+  } catch {
+    return 'unavailable'
+  } finally {
+    clearTimeout(timer)
+    for (const handle of handles) handle.then((listener) => listener.remove()).catch(() => {})
+  }
+}
+
+/** The category offer's interstitial (`pickShowsAd`, off): shown if loaded, without waiting for it to close. */
+export function showInterstitial(): boolean {
+  if (!interstitialLoaded) return false
+  void playInterstitial()
   return true
 }
 
 /**
  * Whether the player must be able to reopen the consent form (EU law). Asked
  * of the consent SDK, which remembers an answer given in an earlier session —
- * not of `prepareAds`, which may not have run yet in this one.
+ * not of `prepareInterstitial`, which may not have run yet in this one.
  */
 export async function adPrivacyOptionsRequired(): Promise<boolean> {
   if (!native) return false

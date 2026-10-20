@@ -226,7 +226,7 @@ export function HiddenAnswers({
               </p>
             )}
             <div className="offer-pop-actions">
-              {offer === 'premium' && (
+              {offer === 'premium' && adPossible && (
                 <button type="button" className="btn btn--ghost" disabled={watching} onClick={watch}>
                   {watching ? t.peek.adBusy : t.peek.plusAd(REVEALS_PER_AD)}
                 </button>
