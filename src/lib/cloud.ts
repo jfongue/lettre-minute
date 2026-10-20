@@ -2063,6 +2063,26 @@ export function postDuelMove(table: string, move: DuelMove): Promise<DuelMoveOut
   }, 'unreachable')
 }
 
+export type DuelPublicOutcome = 'public' | 'private' | 'full' | 'closed' | 'forbidden' | 'unreachable'
+
+/** L'hôte ouvre son salon au public, ou le referme : la file du matchmaking y assoit ses joueurs (0097). */
+export function setDuelPublic(table: string, open: boolean): Promise<DuelPublicOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_set_public', { p_table: table, p_public: open })
+    return error ? 'unreachable' : (data as DuelPublicOutcome)
+  }, 'unreachable')
+}
+
+/** Le profil après l'XP d'un duel : ses totaux montent comme après une partie, sans partie à envoyer. */
+export function pushDuelProfile(profile: Profile): Promise<boolean> {
+  return guard(async () => {
+    const identity = await connect()
+    if (!identity) return false
+    await pushProfile(identity.userId, profile)
+    return true
+  }, false)
+}
+
 export function finishDuel(table: string): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('duel_finish', { p_table: table })
@@ -2104,6 +2124,8 @@ export interface DuelSnapshot {
     status: 'lobby' | 'playing' | 'over' | 'closed'
     startedAt: number | null
     rematch: string | null
+    /** Le salon est ouvert au public (0097) ; faux pour un serveur d'avant. */
+    public: boolean
   }
   seats: readonly DuelSeatRow[]
   invites: readonly { player: string; name: string; avatar: AvatarChoice }[]
@@ -2129,6 +2151,7 @@ export function syncDuel(table: string, after: number): Promise<DuelSnapshot | n
         status: info.status as DuelSnapshot['table']['status'],
         startedAt: info.started_at === null || info.started_at === undefined ? null : Number(info.started_at),
         rematch: (info.rematch as string | null) ?? null,
+        public: info.public === true,
       },
       seats: ((row.seats as Record<string, unknown>[]) ?? []).map((seat) => ({
         player: (seat.player as string | null) ?? null,

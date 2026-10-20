@@ -471,6 +471,34 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     order: -1;
   }
 
+  /* Le titre et les places se resserrent sur la hauteur du cadre : les quatre
+     places tiennent sous le titre sans faire défiler la colonne. */
+  .stage.stage--duel .duel-title--poster {
+    font-size: min(2.6rem, 8.5vh);
+  }
+
+  .stage.stage--duel .duel-seats {
+    gap: min(0.75rem, 2vh);
+  }
+
+  .stage.stage--duel .duel-seatcard__button {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: 0.55rem;
+    min-height: 0;
+    padding: min(0.6rem, 1.6vh) 0.6rem;
+  }
+
+  .stage.stage--duel .duel-seatcard__face {
+    grid-row: span 2;
+  }
+
+  .stage.stage--duel .duel-seatcard__face .avatar,
+  .stage.stage--duel .duel-seatcard__face--empty {
+    width: min(2.6rem, 8vh);
+  }
+
   /* Le draft : les tuiles sur deux colonnes, sous l'ordre des choix. */
   .stage.stage--duel .duel-draft .dealt--pick {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -526,13 +554,35 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     grid-row: 2;
   }
 
-  .stage.stage--duel .duel-over > .duel-ranking {
+  .stage.stage--duel .duel-over > .duel-over__side {
     grid-column: 2;
     grid-row: 1 / -1;
+    display: grid;
+    gap: 0.8rem;
     min-height: 0;
     overflow-y: auto;
     overscroll-behavior: contain;
     align-content: safe center;
+    padding: 0 6px 6px 0;
+  }
+
+  /* La recherche d'un adversaire : le titre et les boutons à gauche, les deux
+     places face à face à droite. */
+  .stage.stage--duel .duel-search {
+    min-height: 0;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-auto-flow: row dense;
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+  }
+
+  .stage.stage--duel .duel-search > * {
+    grid-column: 1;
+  }
+
+  .stage.stage--duel .duel-search > .duel-versus {
+    grid-column: 2;
+    grid-row: 1 / span 4;
+    align-self: center;
   }
 }
 

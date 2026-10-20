@@ -69,14 +69,14 @@ import { RatingPop } from '../ui/RatingPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
-import { DuelScreen, Draft, DuelMatchmaking } from '../ui/DuelScreen'
+import { DuelScreen, Draft, DuelMatchmaking, Lobby, Over } from '../ui/DuelScreen'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
 import { DuelTutorial } from '../ui/DuelTutorial'
-import { pickCategory } from '../domain/duel'
+import { DUEL_XP_BONUS, pickCategory, type Duel, type DuelPlayer } from '../domain/duel'
 import { startDuel, type DuelFact, type DuelSetup } from '../domain/duelLog'
-import { activeCheers, HOUSE_BOTS, type DuelTable, type Seat } from '../state/duel'
+import { activeCheers, HOUSE_BOTS, type DuelPayout, type DuelTable, type Seat } from '../state/duel'
 // La feuille du duel vit hors du paquet de l'accueil : cette planche est le
 // seul écran de l'app qui la montre, donc elle l'apporte avec elle.
 import '../duel.css'
@@ -1807,6 +1807,10 @@ const CHEER_TABLE: DuelTable = (() => {
     candidates: [],
     invite: noop,
     kick: noop,
+    isPublic: false,
+    canPublish: false,
+    setPublic: noop,
+    payout: null,
     ready: {},
     markReady: noop,
     unready: noop,
@@ -1849,6 +1853,110 @@ const CHEER_TABLE: DuelTable = (() => {
     pass: noop,
     leave: noop,
   }
+})()
+
+/**
+ * Un salon en ligne ouvert au public : l'hôte, un inconnu que la file du
+ * matchmaking vient d'asseoir — prêt tout seul, comme un appariement — et un
+ * joueur ordinateur. L'interrupteur bascule pour de vrai, sans serveur.
+ */
+function PublicLobbyScenario() {
+  const [open, setOpen] = useState(true)
+  const seats: readonly Seat[] = [
+    { ...DUEL_ME, name: 'Jérémy' },
+    { id: 'ondine', name: 'Ondine', avatar: { design: 21, ground: 'bleu', shape: 'jaune', accent: 'rouge' }, bot: false, owned: 9, ready: true },
+    { id: 'maxitoon', name: 'Maxitoon', avatar: HOUSE_BOTS[0]!.avatar, bot: true, trait: HOUSE_BOTS[0]!.trait, owned: 999, ready: true },
+  ]
+  const table: DuelTable = {
+    ...CHEER_TABLE,
+    mode: 'online',
+    phase: 'lobby',
+    seats,
+    myIndex: 0,
+    host: true,
+    duel: null,
+    picker: null,
+    candidates: [
+      { id: 'terretciel', name: 'Terretciel', avatar: HOUSE_BOTS[1]!.avatar, bot: true, trait: HOUSE_BOTS[1]!.trait },
+      { id: 'lucie', name: 'Lucie', avatar: { design: 5, ground: 'rose', shape: 'vert', accent: 'creme' }, bot: false },
+    ],
+    ready: { me: false, ondine: true, maxitoon: true },
+    isPublic: open,
+    canPublish: true,
+    setPublic: setOpen,
+    embedded: true,
+  }
+  return <Lobby table={table} onRules={noop} />
+}
+
+/** Un mot gardé par un joueur du duel : ce que le bilan lit, sans dictionnaire. */
+function duelWord(display: string, categoryId: string, points: number, tier: KeptWord['tier'], rarity: number): KeptWord {
+  return {
+    prompt: { categoryId, letter: display.charAt(0) },
+    word: display.toLowerCase(),
+    display,
+    points,
+    rarity,
+    tier,
+    approximate: false,
+    edits: 0,
+    joker: false,
+    taught: false,
+    boost: 1,
+    seconds: 4,
+    at: 0,
+  }
+}
+
+/**
+ * La fin d'un duel en ligne contre un vrai joueur : le classement, puis l'XP
+ * qu'il paie — les points des mots trouvés et le forfait —, qui franchit un
+ * niveau et fait tomber un succès. L'offre du niveau attend la partie seule.
+ */
+const DUEL_OVER_TABLE: DuelTable = (() => {
+  const seats: readonly Seat[] = [
+    { ...DUEL_ME, name: 'Jérémy' },
+    { id: 'ondine', name: 'Ondine', avatar: { design: 21, ground: 'bleu', shape: 'jaune', accent: 'rouge' }, bot: false, owned: 9, ready: true },
+    { id: 'maxitoon', name: 'Maxitoon', avatar: HOUSE_BOTS[0]!.avatar, bot: true, trait: HOUSE_BOTS[0]!.trait, owned: 999, ready: true },
+  ]
+  const words: KeptWord[] = [
+    duelWord('Ornithorynque', 'animaux', 92, 'très rare', 0.94),
+    duelWord('Bhoutan', 'pays', 64, 'rare', 0.81),
+    duelWord('Vermillon', 'couleurs', 38, 'peu commun', 0.55),
+    duelWord('Chat', 'animaux', 10, 'courant', 0.1),
+  ]
+  const player = (id: string, alive: boolean, kept: KeptWord[]): DuelPlayer => ({
+    id,
+    reserve: alive ? 12 : 0,
+    alive,
+    words: kept,
+    used: kept.map((word) => word.word),
+    score: kept.reduce((sum, word) => sum + word.points, 0),
+    combo: 0,
+  })
+  const duel: Duel = {
+    seed: 4,
+    categories: ['animaux', 'pays', 'couleurs', 'metiers', 'sports'],
+    picks: ['animaux', 'pays', 'couleurs', 'metiers', 'sports'],
+    order: [0, 1, 2],
+    pickSince: 0,
+    draftedAt: 0,
+    opener: 1,
+    dealt: Array.from({ length: 11 }, (_, index) => `animaux:${'ABCDEFGHIJK'[index]}`),
+    turns: 24,
+    phase: 'over',
+    players: [
+      player('me', true, words),
+      player('ondine', false, [duelWord('Canada', 'pays', 12, 'courant', 0.2), duelWord('Lama', 'animaux', 14, 'peu commun', 0.4)]),
+      player('maxitoon', false, [duelWord('Rouge', 'couleurs', 10, 'courant', 0.05)]),
+    ],
+    turn: null,
+    deaths: [2, 1],
+  }
+  const points = words.reduce((sum, word) => sum + word.points, 0)
+  const before: Profile = { ...NEW_PROFILE, xp: xpForLevel(4) - 120 }
+  const payout: DuelPayout = { xp: points + DUEL_XP_BONUS, words: words.length, points, before, after: { ...before, xp: before.xp + points + DUEL_XP_BONUS } }
+  return { ...CHEER_TABLE, mode: 'online', phase: 'over', seats, myIndex: 0, duel, picker: null, payout, rematchOpen: false }
 })()
 
 /** La fiche Premium : un achat factice qui réussit après une seconde, sans toucher au serveur. */
@@ -2828,6 +2936,22 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onMatch={back} onChallenge={back} />,
   },
   {
+    id: 'play-together-guest',
+    group: 'Duel',
+    title: 'Choix sans compte : joueurs ordinateur et connexion',
+    how: 'Un joueur sans compte nommé — l’invité du portail CrazyGames, ou un anonyme sur Android — touche « Créer un défi » : le duel se joue contre les joueurs ordinateur, et la connexion lui ouvre les vrais joueurs',
+    phase: 'home',
+    render: (back) => <PlayTogether challenge={false} local onClose={back} onDuel={back} onChallenge={back} onSignIn={back} />,
+  },
+  {
+    id: 'duel-table-guest',
+    group: 'Duel',
+    title: 'Table des joueurs ordinateur, sans compte',
+    how: 'Le duel d’un joueur sans compte nommé : la table locale, et au salon la porte vers la connexion',
+    phase: 'home',
+    render: (back) => <DuelScreen lang="fr" mode="local" onSignIn={back} />,
+  },
+  {
     id: 'duel-invite',
     group: 'Duel',
     title: 'Invitation à une table, sur l’accueil',
@@ -2864,6 +2988,22 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Une table locale, sans serveur : salon, expulsion par appui long, draft, ouvreur, partie, morts, bilan, revanche',
     phase: 'home',
     render: () => <DuelScreen lang="fr" mode="local" />,
+  },
+  {
+    id: 'duel-public-lobby',
+    group: 'Duel',
+    title: 'Salon ouvert au public',
+    how: 'L’hôte d’une table en ligne a touché « Table publique » : la file du matchmaking y a assis Ondine, prête toute seule ; l’interrupteur bascule pour de vrai',
+    phase: 'duel',
+    render: () => <PublicLobbyScenario />,
+  },
+  {
+    id: 'duel-over-xp',
+    group: 'Duel',
+    title: 'Bilan d’un duel en ligne : l’XP et un succès',
+    how: 'Fin d’un duel contre un vrai joueur, resté jusqu’au bout : les points des mots trouvés et le forfait du duel, un niveau franchi — son offre attend la prochaine partie seule — et un succès débloqué',
+    phase: 'duel',
+    render: () => <Over table={DUEL_OVER_TABLE} />,
   },
   {
     id: 'duel-cheer',

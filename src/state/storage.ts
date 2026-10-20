@@ -30,6 +30,10 @@ const DUEL_RULES_KEY = 'lettre-minute.duel-rules.v1'
 // La pastille du bouton « Multijoueur » : gardée par clearLocalData comme le
 // tutoriel, celui qui se déconnecte a déjà lancé sa partie à plusieurs.
 const MULTIPLAYER_KEY = 'lettre-minute.multiplayer.v1'
+// Les tables de duel qui ont déjà payé leur XP sur cet appareil : la fin d'une
+// table se relit à chaque battement, et un rechargement la remontre.
+const DUEL_PAID_KEY = 'lettre-minute.duel-paid.v1'
+const DUEL_PAID_KEPT = 40
 // La leçon d'un mode de la réserve : gardée par clearLocalData comme le
 // tutoriel, celui qui se déconnecte a déjà appris la règle du mode.
 
@@ -115,6 +119,18 @@ export function loadDuelRulesSeen(): boolean {
 
 export function saveDuelRulesSeen(): void {
   write(DUEL_RULES_KEY, true)
+}
+
+/** Whether this duel table already paid its XP on this device. */
+export function duelPaid(table: string): boolean {
+  const paid = parsed(DUEL_PAID_KEY)
+  return Array.isArray(paid) && paid.includes(table)
+}
+
+export function markDuelPaid(table: string): void {
+  const paid = parsed(DUEL_PAID_KEY)
+  const kept = Array.isArray(paid) ? paid.filter((id): id is string => typeof id === 'string' && id !== table) : []
+  write(DUEL_PAID_KEY, [...kept, table].slice(-DUEL_PAID_KEPT))
 }
 
 /** Vrai tant qu'aucune partie à plusieurs — duel ou défi — n'a été lancée ici. */

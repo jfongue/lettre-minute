@@ -290,6 +290,16 @@ export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
   }
 }
 
+/**
+ * Un duel en ligne fini : son XP seul (`duelReward`). Ni partie, ni record, ni
+ * mot compté — le duel ne se joue pas au score. Un niveau franchi ici n'offre
+ * rien sur le moment : son offre attend le bilan de la partie seule suivante,
+ * qui montre `offer` dès qu'il n'est pas vide.
+ */
+export function applyDuel(profile: Profile, xp: number): Profile {
+  return xp > 0 ? { ...profile, xp: profile.xp + Math.round(xp) } : profile
+}
+
 export function rewardSubmission(profile: Profile): Profile {
   return { ...profile, xp: profile.xp + SUBMISSION_REWARD_XP }
 }

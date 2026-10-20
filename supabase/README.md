@@ -94,7 +94,7 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `prompt_stats` | Par langue, ce que les parties ont dit de chaque couple lettre + catégorie : combien l'ont tiré, combien l'ont laissé vide, ce qu'il a rapporté en points et en mots. Lu par le tirage du client et par les classements avancés, écrit par la seule fonction `report_prompts`. |
 | `prompt_reports` | Les graines qui ont déjà parlé, pour qu'une partie ne compte qu'une fois. Aucune politique : jamais relu. |
 | `feature_flags` | Une ligne par fonctionnalité : `on`, `off` ou `neutral` pour tout le monde, les modérateurs, Premium et les super modérateurs. Lue par tous au démarrage, écrite par le seul `set_feature_flag`, réservé aux super modérateurs (0045). |
-| `duel_tables` | Une table de duel : hôte, langue, graine, vivier du draft, statut (`lobby`, `playing`, `over`, `closed`), heure de lancement, revanche. Une invitation vaut un quart d'heure. |
+| `duel_tables` | Une table de duel : hôte, langue, graine, vivier du draft, statut (`lobby`, `playing`, `over`, `closed`), heure de lancement, revanche, et `listed` : le salon ouvert au public, où la file du matchmaking assoit ses joueurs avant de les apparier (0097). Une invitation vaut un quart d'heure. |
 | `duel_seats` | Une place par joueur (ou joueur ordinateur) : prêt, place numérotée au lancement, parti, expulsé, dernière lecture — c'est elle qui désigne le meneur. |
 | `duel_invites` | Qui l'hôte a invité, et quand l'invité a répondu. Un blocage tait l'invitation, comme une demande d'ami. |
 | `duel_moves` | Le journal d'une table : un coup par numéro (`seq`), daté par le serveur. Les quatre tables du duel n'ont aucune politique : tout passe par les fonctions `duel_*`. |

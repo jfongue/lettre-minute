@@ -9893,6 +9893,21 @@ body[data-words='board'] .offer-pop-layer {
   color: var(--ink);
 }
 
+/* Le matchmaking : un inconnu, en bleu, pour ne pas se confondre avec la table d'amis. */
+.together-card--match {
+  background: var(--blue-action);
+  color: var(--cream);
+}
+
+/* Sans compte nommé : se connecter ouvre les vrais joueurs. */
+.together-signin {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.9rem 1rem;
+  border: var(--line) dashed var(--ink);
+  animation: fade 160ms ease both;
+}
+
 .together-text {
   display: grid;
   gap: 0.3rem;
@@ -10009,6 +10024,7 @@ en clair comme en sombre, et la flèche avance. Le doigt n'a pas de survol : rie
 de tout cela ne le concerne. */
 @media (hover: hover) and (pointer: fine) {
   .together-card--duel:hover,
+  .together-card--match:hover,
   .together-card--challenge:hover {
     transform: translate(-2px, -2px);
   }
@@ -10023,6 +10039,10 @@ de tout cela ne le concerne. */
 
   .together-card--challenge:hover {
     --together-tint: color-mix(in srgb, var(--paper-2) 62%, var(--blue));
+  }
+
+  .together-card--match:hover {
+    --together-tint: color-mix(in srgb, var(--blue-action) 70%, var(--black));
   }
 
   .together-card:hover .together-go {

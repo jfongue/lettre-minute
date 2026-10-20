@@ -15,16 +15,22 @@ import { useBackDismiss } from './useBackDismiss'
  */
 export function PlayTogether({
   challenge,
+  local = false,
   onDuel,
   onMatch,
   onChallenge,
+  onSignIn,
   onClose,
 }: {
   challenge: boolean
+  /** Sans compte nommé : le duel se joue contre les joueurs ordinateur. */
+  local?: boolean
   onDuel(): void
   /** Le matchmaking : un adversaire inconnu, trouvé par le serveur. */
   onMatch?(): void
   onChallenge(): void
+  /** Sans compte nommé : se connecter ouvre les vrais joueurs. */
+  onSignIn?(): void
   onClose(): void
 }) {
   const t = useT()
@@ -61,7 +67,7 @@ export function PlayTogether({
           </svg>
           <span className="together-text">
             <b>{t.duel.duelCard}</b>
-            <small>{t.duel.duelCardNote}</small>
+            <small>{local ? t.duel.botsCardNote : t.duel.duelCardNote}</small>
             <span className="together-chip">{t.duel.duelCardPlayers}</span>
           </span>
           <span className="together-go" aria-hidden="true">
@@ -72,7 +78,7 @@ export function PlayTogether({
         {onMatch ? (
           <button
             type="button"
-            className="together-card together-card--duel"
+            className="together-card together-card--match"
             style={{ '--i': 1 } as CSSProperties}
             onClick={() => {
               armSound()
@@ -94,6 +100,15 @@ export function PlayTogether({
               →
             </span>
           </button>
+        ) : null}
+
+        {onSignIn ? (
+          <section className="together-signin" style={{ '--i': 1 } as CSSProperties}>
+            <p className="note">{t.duel.signInLead}</p>
+            <button type="button" className="btn btn--blue btn--block" data-track="duel-sign-in" onClick={onSignIn}>
+              {t.duel.signIn}
+            </button>
+          </section>
         ) : null}
 
         {challenge ? (

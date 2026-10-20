@@ -11,6 +11,7 @@ import {
   type Candidate,
   type DuelExit,
   type DuelMode,
+  type DuelPayout,
   type DuelTable,
   type Seat,
 } from '../state/duel'
@@ -18,6 +19,7 @@ import {
   DUEL_PASS_PENALTY_SECONDS,
   DUEL_PICK_SECONDS,
   DUEL_RESERVE_SECONDS,
+  DUEL_XP_BONUS,
   draftShape,
   duelRanking,
   reserveSeconds,
@@ -27,18 +29,22 @@ import {
 } from '../domain/duel'
 import type { DuelFact } from '../domain/duelLog'
 import type { Verdict } from '../domain/run'
-import { categoryText, useT } from '../i18n'
+import { achievementIcon, achievementReward, newlyEarnedAchievements } from '../domain/achievements'
+import { inGround, type AvatarChoice } from '../domain/avatar'
+import { levelFor, levelProgress, type Profile } from '../domain/progression'
+import { categoryText, formatNumber, useT } from '../i18n'
 import { cancelDuelMatchmaking, duelMatchmake } from '../lib/cloud'
 import { capitalized } from '../domain/text'
 import { armSound, sound, tierSound } from '../lib/sound'
 import { Avatar } from './Avatar'
 import { Burst, LetterMark, Shape, TierTag } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
-import { categoryMotif, onTint, type Motif } from './motifs'
-import { reducedMotion } from './useCountUp'
+import { achievementText } from './achievementText'
+import { categoryMotif, motifAt, onTint, type Motif, type Tint } from './motifs'
+import { reducedMotion, useTween } from './useCountUp'
 import { useLongPress } from './useLongPress'
 import { DuelTutorial } from './DuelTutorial'
-import { loadDuelRulesSeen, saveDuelRulesSeen } from '../state/storage'
+import { loadAccount, loadAvatar, loadDuelRulesSeen, saveDuelRulesSeen } from '../state/storage'
 // Le duel ne charge ses styles qu'avec son écran : l'accueil n'en paie rien.
 import '../duel.css'
 
@@ -62,6 +68,9 @@ const BEAT_MOTIFS: Record<number, Motif> = {
   1: { kind: 'arch', tint: 'yellow' },
 }
 
+/** La couleur de chaque place, au salon comme au bilan : la table se lit d'un coup d'œil. */
+const SEAT_TINTS: readonly Tint[] = ['yellow', 'blue', 'red', 'green']
+
 const nameOf = (seat: Seat | Candidate | undefined, you: string, mine = false): string => (mine || !seat ? you : seat.name)
 
 /** La réserve à afficher : jamais négative. */
@@ -70,18 +79,33 @@ const reserveOf = (duel: Duel, index: number, at: number): number => Math.max(0,
 /* ------------------------------------------------------------- le salon - */
 
 /**
- * Le salon, en un écran : les quatre places de la table, les joueurs qu'on peut
- * y inviter, le bouton « prêt », puis l'annonce du draft au même endroit.
- * L'hôte retire quelqu'un par un appui long sur sa place, jamais d'une touche :
- * un geste qui renvoie un ami chez lui ne se fait pas par mégarde.
+ * Le salon, en un écran : les quatre places de la table, chacune de sa couleur,
+ * les joueurs qu'on peut y inviter, l'ouverture au public, le bouton « prêt »,
+ * puis l'annonce du draft au même endroit. L'hôte retire quelqu'un par un appui
+ * long sur sa place, jamais d'une touche : un geste qui renvoie un ami chez lui
+ * ne se fait pas par mégarde.
  */
-function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRules(): void; watching?: boolean; onResume?(): void }) {
+export function Lobby({
+  table,
+  onRules,
+  watching,
+  onResume,
+  onSignIn,
+}: {
+  table: DuelTable
+  onRules(): void
+  watching?: boolean
+  onResume?(): void
+  /** Un joueur sans compte nommé, à la table des joueurs ordinateur : la connexion lui ouvre les vrais joueurs. */
+  onSignIn?(): void
+}) {
   const t = useT()
   const counting = table.phase === 'announcing'
   const me = table.seats[table.myIndex]
   const locked = !!me?.ready || counting || !!watching
   const [kicking, setKicking] = useState<Seat | null>(null)
-  const shape = draftShape(table.seats.filter((seat) => !seat.pending).length, table.pool.length)
+  const seated = table.seats.filter((seat) => !seat.pending).length
+  const shape = draftShape(seated, table.pool.length)
   const left = table.leavers.map((id) => id.charAt(0).toUpperCase() + id.slice(1))
   const press = useLongPress<Seat>((seat) => {
     if (!table.host || locked || seat.id === me?.id) return
@@ -109,10 +133,13 @@ function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRul
       <Cut table={table} />
       <div className="sheet duel-lobby">
         <div className="duel-lobby__table">
-          <p className="eyebrow">{table.rematchOpen ? t.duel.revenging : t.duel.title}</p>
-          <h1 className="duel-title" key={counting ? 'draft' : 'table'}>
-            {counting ? t.duel.announceTitle : table.rematchOpen ? t.duel.rematchTitle : t.duel.leadTitle}
-          </h1>
+          <header className="duel-head">
+            <p className="eyebrow">{table.rematchOpen ? t.duel.revenging : t.duel.title}</p>
+            <h1 className="duel-title duel-title--poster" key={counting ? 'draft' : 'table'}>
+              {counting ? t.duel.announceTitle : table.rematchOpen ? t.duel.rematchTitle : t.duel.leadTitle}
+            </h1>
+            {table.isPublic && !counting ? <span className="duel-chip duel-chip--public">{t.duel.publicChip}</span> : null}
+          </header>
           {counting || table.rematchOpen ? (
             <p className="note duel-lead" key={counting ? 'rule' : 'lead'}>
               {counting ? t.duel.draftRule(shape.picks, shape.drawn) : t.duel.rematchLead}
@@ -130,7 +157,9 @@ function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRul
                 return (
                   <li key={`empty-${index}`} className="duel-seatcard duel-seatcard--empty" style={{ '--i': index } as CSSProperties}>
                     <div className="duel-seatcard__button">
-                      <span className="duel-seatcard__face duel-seatcard__face--empty" aria-hidden="true" />
+                      <span className="duel-seatcard__face duel-seatcard__face--empty" aria-hidden="true">
+                        +
+                      </span>
                       <span className="duel-seatcard__text">
                         <b>{t.duel.emptySeat}</b>
                       </span>
@@ -142,11 +171,12 @@ function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRul
               const state = seat.ready ? 'ready' : seat.pending ? 'pending' : 'seated'
               const stamp = seat.ready ? t.duel.ready : seat.pending ? t.duel.pendingStamp : seat.bot ? t.duel.invited : t.duel.notReady
               const kickable = table.host && !locked && !mine
+              const tint = SEAT_TINTS[index % SEAT_TINTS.length]!
               return (
                 <li
                   key={seat.id}
-                  className={`duel-seatcard duel-seatcard--${state}${kickable ? ' duel-seatcard--kickable' : ''}`}
-                  style={{ '--i': index } as CSSProperties}
+                  className={`duel-seatcard duel-seatcard--${state}${mine ? ' duel-seatcard--me' : ''}${kickable ? ' duel-seatcard--kickable' : ''}`}
+                  style={{ '--i': index, '--seat': `var(--${tint})`, '--seat-ink': `var(--${onTint(tint)})` } as CSSProperties}
                   {...(kickable ? press(seat) : {})}
                 >
                   <div className="duel-seatcard__button">
@@ -155,9 +185,10 @@ function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRul
                     </span>
                     <span className="duel-seatcard__text">
                       <b>{mine ? seat.name || t.duel.you : seat.name}</b>
-                      <small>{seat.bot && seat.trait ? t.duel.trait[seat.trait] : mine ? t.duel.you : table.mode === 'online' && index === 0 ? t.duel.hostStamp : ' '}</small>
+                      <small>{seat.bot && seat.trait ? t.duel.trait[seat.trait] : mine ? t.duel.you : table.mode === 'online' && index === 0 ? t.duel.hostStamp : ' '}</small>
                     </span>
                     <span className="duel-seatcard__stamp" key={stamp}>
+                      {seat.ready ? <span aria-hidden="true">✓</span> : null}
                       {stamp}
                     </span>
                   </div>
@@ -166,19 +197,29 @@ function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRul
             })}
           </ul>
           <p className="note duel-hint" aria-live="polite">
-            {left.length > 0 ? t.duel.left(left.join(', '), left.length) : table.host && !locked && table.seats.length > 1 ? t.duel.kickHint : ' '}
+            {left.length > 0 ? t.duel.left(left.join(', '), left.length) : table.host && !locked && table.seats.length > 1 ? t.duel.kickHint : ' '}
           </p>
         </div>
 
         <div className="duel-lobby__side">
+          {table.canPublish && !locked ? <PublicSwitch table={table} /> : null}
+          {onSignIn && !locked ? (
+            <section className="duel-signin">
+              <p className="note">{t.duel.signInLead}</p>
+              <button type="button" className="btn btn--blue btn--block" data-track="duel-sign-in" onClick={onSignIn}>
+                {t.duel.signIn}
+              </button>
+            </section>
+          ) : null}
           {table.host && !locked && !full ? <InviteList table={table} /> : null}
 
           {table.pool.length === 0 ? (
             <p className="note note--warn">{t.duel.loadFailed}</p>
           ) : watching ? (
             <div className="stack">
-              <button type="button" className="btn btn--play btn--block" onClick={onResume}>
-                {t.duel.resumeDraft}
+              <button type="button" className="btn btn--play btn--block duel-cta" onClick={onResume}>
+                <span>{t.duel.resumeDraft}</span>
+                <PlayGlyph />
               </button>
               <p className="note">{t.duel.lobbyNote}</p>
             </div>
@@ -197,19 +238,22 @@ function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRul
               </button>
             </div>
           ) : (
-            <div className="stack">
+            <div className="stack duel-lobby__actions">
               <button
                 type="button"
                 className="btn btn--play btn--block duel-cta"
-                disabled={locked || table.seats.filter((seat) => !seat.pending).length < 2}
+                disabled={locked || seated < 2}
                 onClick={() => {
                   armSound()
                   sound.go()
                   table.markReady()
                 }}
               >
-                <span>{locked ? t.duel.waitingOthers : t.duel.readyButton}</span>
-                {locked ? null : <small>{t.duel.tableSize(table.seats.filter((seat) => !seat.pending).length)}</small>}
+                <span className="duel-cta__label">
+                  {locked ? t.duel.waitingOthers : t.duel.readyButton}
+                  {locked ? null : <small>{t.duel.tableSize(seated)}</small>}
+                </span>
+                <PlayGlyph />
               </button>
               {locked ? (
                 <button type="button" className="btn btn--ghost btn--block" onClick={() => table.unready()}>
@@ -221,22 +265,24 @@ function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRul
                   {t.duel.back}
                 </button>
               ) : null}
-              {!locked && (table.mode === 'online' || table.rematchOpen || table.embedded) ? (
-                <button type="button" className="btn btn--quiet btn--block" onClick={() => table.leave()}>
-                  {t.duel.quit}
-                </button>
-              ) : null}
               {locked ? null : (
-                <button
-                  type="button"
-                  className="btn btn--quiet btn--block"
-                  onClick={() => {
-                    armSound()
-                    onRules()
-                  }}
-                >
-                  {t.duel.tutorial.again}
-                </button>
+                <span className="duel-lobby__links">
+                  {table.mode === 'online' || table.rematchOpen || table.embedded ? (
+                    <button type="button" className="btn btn--quiet" onClick={() => table.leave()}>
+                      {t.duel.quit}
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    className="btn btn--quiet"
+                    onClick={() => {
+                      armSound()
+                      onRules()
+                    }}
+                  >
+                    {t.duel.tutorial.again}
+                  </button>
+                </span>
               )}
             </div>
           )}
@@ -269,6 +315,53 @@ function Lobby({ table, onRules, watching, onResume }: { table: DuelTable; onRul
         </div>
       ) : null}
     </main>
+  )
+}
+
+/** Le rond jaune et son triangle rouge : le même départ que « Jouer » à l'accueil. */
+function PlayGlyph() {
+  return (
+    <span className="play-glyph" aria-hidden="true">
+      <Shape kind="circle" tint="yellow" />
+      <span className="motion play-triangle">
+        <Shape kind="triangle" tint="red" />
+      </span>
+    </span>
+  )
+}
+
+/**
+ * L'ouverture au public : un interrupteur, pour l'hôte d'une table en ligne qui
+ * a encore une place. Ouverte, la file du matchmaking y assoit les joueurs de
+ * sa langue avant de les apparier entre eux.
+ */
+function PublicSwitch({ table }: { table: DuelTable }) {
+  const t = useT()
+  const open = table.isPublic
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={open}
+      className={`duel-public${open ? ' duel-public--on' : ''}`}
+      data-track="duel-public"
+      onClick={() => {
+        armSound()
+        sound.tile('marimba', open ? 2 : 5)
+        table.setPublic(!open)
+      }}
+    >
+      <span className="duel-public__text">
+        <b>{t.duel.publicTitle}</b>
+        <small>{t.duel.publicNote}</small>
+      </span>
+      <span className="duel-public__state">
+        <span className="duel-public__track" aria-hidden="true">
+          <i />
+        </span>
+        <small>{open ? t.duel.publicOn : t.duel.publicOff}</small>
+      </span>
+    </button>
   )
 }
 
@@ -945,8 +1038,8 @@ function Play({ table }: { table: DuelTable }) {
 
 /* ---------------------------------------------------- le récapitulatif - */
 
-/** Le bilan : le gagnant à l'affiche, puis la table révélée de la dernière place à la première. */
-function Over({ table }: { table: DuelTable }) {
+/** Le bilan : le gagnant à l'affiche, la table révélée de la dernière place à la première, puis ce que le duel m'a rapporté. */
+export function Over({ table }: { table: DuelTable }) {
   const t = useT()
   const duel = table.duel!
   const order = duelRanking(duel)
@@ -974,6 +1067,8 @@ function Over({ table }: { table: DuelTable }) {
   const done = shown >= order.length
   const seat = table.seats[champion]
   const someoneElse = table.mode === 'online' && table.rematchOpen
+  const humanRival = table.seats.some((one, index) => index !== table.myIndex && !one.bot)
+  const me = table.seats[table.myIndex]
   return (
     <main className="stage stage--duel">
       <Cut table={table} />
@@ -985,37 +1080,46 @@ function Over({ table }: { table: DuelTable }) {
           <h1 className="duel-winner">{win ? t.duel.youWin : t.duel.overTitle(nameOf(seat, t.duel.you))}</h1>
           <p className="note">{t.duel.overLead(rounds)}</p>
         </header>
-        <ol className="duel-ranking">
-          {order.map((index, place) => {
-            const row = table.seats[index]
-            const player = duel.players[index]
-            if (!row || !player) return null
-            // La place se révèle en montant : la dernière d'abord, le gagnant en dernier.
-            const visible = order.length - 1 - place < shown
-            const best = [...player.words].sort((a, b) => b.rarity - a.rarity).slice(0, 3)
-            return (
-              <li
-                key={row.id}
-                className={`duel-rank${place === 0 ? ' duel-rank--first' : ''}${player.alive ? '' : ' duel-rank--dead'}${visible ? ' duel-rank--in' : ''}${index === table.myIndex ? ' duel-rank--me' : ''}`}
-                aria-hidden={!visible}
-              >
-                <span className="duel-rank__place">{place + 1}</span>
-                <Avatar choice={row.avatar} size="sm" />
-                <span className="duel-rank__who">
-                  <b>{nameOf(row, t.duel.you, index === table.myIndex)}</b>
-                  <small>{t.duel.recapLine(player.words.length, timeGained(player))}</small>
-                </span>
-                <span className="duel-rank__words">
-                  {best.map((word) => (
-                    <em key={word.word} className={word.tier === 'courant' ? '' : 'duel-rank__word--rare'}>
-                      {capitalized(word.display)}
-                    </em>
-                  ))}
-                </span>
-              </li>
-            )
-          })}
-        </ol>
+        <div className="duel-over__side">
+          <ol className="duel-ranking">
+            {order.map((index, place) => {
+              const row = table.seats[index]
+              const player = duel.players[index]
+              if (!row || !player) return null
+              // La place se révèle en montant : la dernière d'abord, le gagnant en dernier.
+              const visible = order.length - 1 - place < shown
+              const best = [...player.words].sort((a, b) => b.rarity - a.rarity).slice(0, 3)
+              const tint = SEAT_TINTS[index % SEAT_TINTS.length]!
+              return (
+                <li
+                  key={row.id}
+                  className={`duel-rank${place === 0 ? ' duel-rank--first' : ''}${player.alive ? '' : ' duel-rank--dead'}${visible ? ' duel-rank--in' : ''}${index === table.myIndex ? ' duel-rank--me' : ''}`}
+                  style={{ '--seat': `var(--${tint})` } as CSSProperties}
+                  aria-hidden={!visible}
+                >
+                  <span className="duel-rank__place">{place + 1}</span>
+                  <Avatar choice={row.avatar} size="sm" />
+                  <span className="duel-rank__who">
+                    <b>{nameOf(row, t.duel.you, index === table.myIndex)}</b>
+                    <small>{t.duel.recapLine(player.words.length, timeGained(player))}</small>
+                  </span>
+                  <span className="duel-rank__words">
+                    {best.map((word) => (
+                      <em key={word.word} className={word.tier === 'courant' ? '' : 'duel-rank__word--rare'}>
+                        {capitalized(word.display)}
+                      </em>
+                    ))}
+                  </span>
+                </li>
+              )
+            })}
+          </ol>
+          {table.payout ? (
+            <DuelXp payout={table.payout} avatar={me?.avatar ?? null} show={done} />
+          ) : !humanRival && done ? (
+            <p className="note duel-noxp">{t.duel.noXp}</p>
+          ) : null}
+        </div>
         <div className={`stack duel-actions${done ? ' duel-actions--in' : ''}`}>
           {someoneElse ? <p className="note">{t.duel.rematchWaiting}</p> : null}
           <button
@@ -1029,7 +1133,8 @@ function Over({ table }: { table: DuelTable }) {
               else table.openRematch()
             }}
           >
-            {someoneElse ? t.duel.joinRematch : t.duel.rematch}
+            <span>{someoneElse ? t.duel.joinRematch : t.duel.rematch}</span>
+            <PlayGlyph />
           </button>
           <button type="button" className="btn btn--ghost btn--block" disabled={!done} onClick={() => table.leave()}>
             {t.duel.quit}
@@ -1037,6 +1142,68 @@ function Over({ table }: { table: DuelTable }) {
         </div>
       </div>
     </main>
+  )
+}
+
+const XP_MS = 1100
+const XP_DELAY_MS = 300
+
+/**
+ * Ce que le duel m'a rapporté, comme au bilan d'une partie seule : l'XP qui
+ * monte dans la barre du niveau, ce qui l'a faite, et les succès qu'elle
+ * débloque. Un niveau franchi le dit, mais son offre attend la prochaine
+ * partie seule : le duel ne s'interrompt pas pour un choix de catégorie.
+ */
+function DuelXp({ payout, avatar, show }: { payout: DuelPayout; avatar: AvatarChoice | null; show: boolean }) {
+  const t = useT()
+  const from = payout.before.xp
+  const to = payout.after.xp
+  const xp = useTween(show ? to : from, XP_MS, from, XP_DELAY_MS)
+  const progress = levelProgress(xp)
+  const levelled = progress.level > levelFor(from)
+  const achievements = useMemo(() => newlyEarnedAchievements(payout.before, payout.after), [payout])
+
+  useEffect(() => {
+    if (show && to > from && !reducedMotion()) sound.xp(XP_MS / 1000, XP_DELAY_MS / 1000)
+  }, [from, show, to])
+  useEffect(() => {
+    if (levelled) sound.levelUp()
+  }, [levelled])
+
+  return (
+    <section className={`duel-xp${show ? ' duel-xp--in' : ''}`} aria-label={t.duel.xpTitle}>
+      <div className="spread">
+        <p className="section-title">{t.over.level(progress.level)}</p>
+        <p className="xp-gain-amount">+{formatNumber(t, payout.xp)} XP</p>
+      </div>
+      <div className="progress">
+        <span style={{ '--ratio': progress.ratio } as CSSProperties} />
+      </div>
+      <p className="note">{t.duel.xpLine(payout.words, payout.points, DUEL_XP_BONUS)}</p>
+      {levelled ? (
+        <p className="duel-xp__level" key={progress.level}>
+          <b>{t.over.levelReached(progress.level)}</b>
+          <span>{t.duel.xpLater}</span>
+        </p>
+      ) : null}
+      {achievements.length > 0 ? (
+        <ul className="earned-list duel-xp__earned" aria-label={t.over.earned(achievements.length)}>
+          {achievements.map((achievement, index) => {
+            const { design, colour } = achievementReward(achievement)
+            const base = avatar ?? achievementIcon(achievement.id)
+            const tile = design !== null ? { ...base, design } : colour ? inGround(base, colour.id) : achievementIcon(achievement.id)
+            return (
+              <li key={achievement.id} className="earned-line" style={{ '--i': index } as CSSProperties}>
+                <Avatar choice={tile} size="sm" />
+                {colour ? <span className="swatch-dot" style={{ background: colour.hex }} /> : null}
+                <span className="earned-line-name">{achievementText(t, achievement).name}</span>
+                <span className="earned-line-how">{t.ach.how(achievement.goal)}</span>
+              </li>
+            )
+          })}
+        </ul>
+      ) : null}
+    </section>
   )
 }
 
@@ -1143,9 +1310,10 @@ function Notice({
 
 /**
  * La file du matchmaking : relue toutes les deux secondes jusqu'à ce que le
- * serveur ait ouvert une table. Au bout d'un quart de minute sans adversaire,
- * les joueurs ordinateur restent une autre façon de jouer, sans quitter la file
- * tant qu'on n'a pas choisi.
+ * serveur m'ait assis — à une table publique d'abord, sinon face au premier
+ * joueur qui cherche. Au bout d'un quart de minute sans adversaire, les joueurs
+ * ordinateur restent une autre façon de jouer, sans quitter la file tant qu'on
+ * n'a pas choisi. Ma place, en face une place qui change de forme : on cherche.
  */
 export function DuelMatchmaking({
   lang,
@@ -1166,6 +1334,8 @@ export function DuelMatchmaking({
   const t = useT()
   const [offline, setOffline] = useState(false)
   const [patient, setPatient] = useState(true)
+  const [beat, setBeat] = useState(0)
+  const me = useMemo(() => ({ avatar: loadAccount()?.avatar ?? loadAvatar(), name: loadAccount()?.name?.trim() || '' }), [])
   const callbacks = useRef({ onMatched })
   useEffect(() => {
     callbacks.current = { onMatched }
@@ -1192,11 +1362,69 @@ export function DuelMatchmaking({
     // Les doublures de la planche ne changent pas pendant la file.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang])
-  return <Notice title={t.duel.matchTitle} text={offline ? t.duel.matchOffline : t.duel.matchLead} back={t.duel.matchCancel} onBack={onCancel} onBots={patient ? undefined : onBots} />
+  // La place d'en face change de forme et de couleur, au pas d'une recherche.
+  useEffect(() => {
+    if (reducedMotion()) return
+    const timer = setInterval(() => setBeat((current) => current + 1), SEARCH_BEAT_MS)
+    return () => clearInterval(timer)
+  }, [])
+  const motif = motifAt(beat)
+
+  return (
+    <main className="stage stage--duel">
+      <div className="sheet duel-search">
+        <header className="duel-head">
+          <p className="eyebrow">{t.duel.title}</p>
+          <h1 className="duel-title duel-title--poster">{t.duel.matchTitle}</h1>
+        </header>
+        <div className="duel-versus" aria-hidden="true">
+          <span className="duel-versus__seat duel-versus__seat--me">
+            <Avatar choice={me.avatar} size="lg" />
+            <b>{me.name || t.duel.you}</b>
+          </span>
+          <span className="duel-versus__dots">
+            <i />
+            <i />
+            <i />
+          </span>
+          <span className="duel-versus__seat duel-versus__seat--them">
+            <span className="duel-versus__shape" key={beat}>
+              <Shape kind={motif.kind} tint={motif.tint} />
+            </span>
+            <b> </b>
+          </span>
+        </div>
+        <p className="note duel-search__lead" aria-live="polite">
+          {offline ? t.duel.matchOffline : t.duel.matchLead}
+        </p>
+        <p className="note duel-search__hint">{t.duel.matchWait}</p>
+        <div className="stack duel-search__actions">
+          {patient ? null : (
+            <button
+              type="button"
+              className="btn btn--play btn--block duel-cta"
+              onClick={() => {
+                armSound()
+                sound.go()
+                onBots()
+              }}
+            >
+              <span>{t.duel.playBots}</span>
+              <PlayGlyph />
+            </button>
+          )}
+          <button type="button" className="btn btn--ghost btn--block" onClick={onCancel}>
+            {t.duel.matchCancel}
+          </button>
+        </div>
+      </div>
+    </main>
+  )
 }
 
 const MATCH_POLL_MS = 2000
 const MATCH_PATIENCE_MS = 15_000
+const SEARCH_BEAT_MS = 650
 
 export interface DuelScreenProps {
   lang: string
@@ -1206,17 +1434,42 @@ export interface DuelScreenProps {
   /** La table vient du matchmaking : chacun s'y déclare prêt dès qu'il y est assis. */
   quick?: boolean
   onExit?(reason: DuelExit): void
+  /** Le profil vient de gagner l'XP du duel, ou un compteur : l'appelant le range à l'écran. */
+  onProfile?(profile: Profile): void
+  /** Sans compte nommé, à la table des joueurs ordinateur : la connexion qui ouvre les vrais joueurs. */
+  onSignIn?(): void
 }
 
-export function DuelScreen({ lang, mode = 'local', join = null, quick = false, onExit }: DuelScreenProps) {
+export function DuelScreen({ lang, mode = 'local', join = null, quick = false, onExit, onProfile, onSignIn }: DuelScreenProps) {
   // Hors ligne, la table en ligne cède la place à une table locale, sur le même écran.
   const [local, setLocal] = useState(false)
-  return <DuelTableScreen key={local ? 'local' : mode} lang={lang} mode={local ? 'local' : mode} join={local ? null : join} quick={quick && !local} onExit={onExit} onBots={() => setLocal(true)} />
+  return (
+    <DuelTableScreen
+      key={local ? 'local' : mode}
+      lang={lang}
+      mode={local ? 'local' : mode}
+      join={local ? null : join}
+      quick={quick && !local}
+      onExit={onExit}
+      onProfile={onProfile}
+      onSignIn={onSignIn}
+      onBots={() => setLocal(true)}
+    />
+  )
 }
 
-function DuelTableScreen({ lang, mode, join, quick, onExit, onBots }: Required<Omit<DuelScreenProps, 'onExit'>> & Pick<DuelScreenProps, 'onExit'> & { onBots(): void }) {
+function DuelTableScreen({
+  lang,
+  mode,
+  join,
+  quick,
+  onExit,
+  onProfile,
+  onSignIn,
+  onBots,
+}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'quick'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn'> & { onBots(): void }) {
   const t = useT()
-  const table = useDuelTable({ lang, mode, join, quick, onExit })
+  const table = useDuelTable({ lang, mode, join, quick, onExit, onProfile })
   const { phase } = table
   // Les règles s'ouvrent au premier lancement de la table, puis se revoient du salon.
   const [rules, setRules] = useState(() => !loadDuelRulesSeen())
@@ -1243,7 +1496,7 @@ function DuelTableScreen({ lang, mode, join, quick, onExit, onBots }: Required<O
   if (table.error) return <Notice text={t.duel.loadFailed} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'connecting') return <Notice text={t.duel.connecting} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />
-  if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} onRules={() => setRules(true)} />
+  if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} onRules={() => setRules(true)} onSignIn={mode === 'local' ? onSignIn : undefined} />
   if (phase === 'draft' && table.duel)
     return table.draftLobby ? <Lobby table={table} watching onRules={() => setRules(true)} onResume={table.hideLobby} /> : <Draft table={table} />
   if (phase === 'opening' && table.duel) return <Opening table={table} />
