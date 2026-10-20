@@ -1,9 +1,25 @@
 {
   "fr": {
+    "animaux": [
+      "banane",
+      "ecu",
+      "mauve",
+      "noir",
+      "trapeze",
+      "walrus"
+    ],
     "corps-humain": [
+      "abdomen de l insecte",
+      "abdomen des arthropodes",
+      "kefta",
       "kiwi",
+      "pie",
       "salt potatoes",
+      "test",
+      "tete costale",
       "tete de veau",
+      "the a la menthe",
+      "the au jasmin",
       "the de ceylan",
       "the en vrac",
       "the noir",
@@ -17,6 +33,8 @@
       "viande de baleine",
       "viande de brousse",
       "viande de caille",
+      "viande de canard",
+      "viande de chat",
       "viande de chauve souris",
       "viande de chevre",
       "viande de dinde",
@@ -30,14 +48,9 @@
       "winston",
       "zone erogene"
     ],
-    "animaux": [
-      "ecu",
-      "walrus"
-    ],
-    "marques": [
-      "xxxx"
-    ],
     "couleurs": [
+      "bis",
+      "couleur des yeux",
       "diapre",
       "glauque",
       "gomme gutte",
@@ -53,11 +66,51 @@
       "plasticite phenotypique",
       "plumage",
       "ponceau",
-      "puce"
+      "puce",
+      "quadrichrome"
+    ],
+    "fruits-legumes": [
+      "ontario"
+    ],
+    "ingredients": [
+      "uru"
+    ],
+    "marques": [
+      "xxxx"
     ],
     "objets": [
+      "dail",
+      "davier",
+      "faisselle",
+      "fillette",
+      "fumeuse",
       "graal",
-      "serieux"
+      "loup",
+      "palmer",
+      "psyche",
+      "serieux",
+      "tour",
+      "voyelle"
+    ]
+  },
+  "en": {
+    "animaux": [
+      "labrador retriever",
+      "unguligrade",
+      "vampire"
+    ],
+    "couleurs": [
+      "or"
+    ],
+    "metiers": [
+      "yakuza"
+    ],
+    "objets": [
+      "enoch",
+      "icepick"
+    ],
+    "plantes": [
+      "chess"
     ]
   }
 }
