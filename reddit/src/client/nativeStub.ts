@@ -36,6 +36,16 @@ export async function showRewardedAd(): Promise<'rewarded' | 'skipped' | 'unavai
   return 'unavailable'
 }
 
+export function adsSupported(): boolean {
+  return false
+}
+
+export function prepareInterstitial(): void {}
+
+export async function playInterstitial(): Promise<'shown' | 'unavailable'> {
+  return 'unavailable'
+}
+
 export async function billingSupported(): Promise<boolean> {
   return false
 }

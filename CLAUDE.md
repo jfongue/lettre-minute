@@ -337,21 +337,32 @@ ce n'est pas une raison de renoncer au protocole DevTools.
 - **Se connecter doit attendre l'envoi de la partie** (`pushing` dans
   `src/App.tsx`) : la fusion déplace les parties du compte anonyme puis
   l'efface, et une partie encore en vol partirait avec lui.
-- **Les interstitiels sont éteints, les pubs récompensées vivent** : `ADS_ENABLED`
-(`src/domain/unlocks.ts`) ne coupe que l'interstitiel d'une offre de catégorie ;
-la récompense du bilan et la tentative de plus au défi du moment passent par
-`rewardedAdsOpen` (`src/platform/index.ts`), que la fonctionnalité `ads` ne
-ferme pas.
-- **La pub se prépare avant l’offre qui la porte** (`adsDue`,
-`src/domain/unlocks.ts`) : consentement et chargement prennent des secondes,
-et une pub pas encore chargée au moment du choix est sautée plutôt que
-montrée en retard. Le choix est encaissé avant la pub : fermer l’app pendant
-qu’elle joue ne coûte pas la catégorie. Les blocs de test de Google ne servent
-qu'en développement (`TESTING_UNITS`, `src/lib/native.ts`) : un build de
-release sans `VITE_ADMOB_REWARDED_ID` ne montre aucune pub plutôt que d'en
-servir une de test à un joueur. `admobAppId`
-(`android/gradle.properties`) reste obligatoire, sinon le SDK plante au
-lancement — ne jamais cliquer sur les vraies pubs depuis son propre téléphone.
+- **Un interstitiel entre deux parties, celui de l'offre de catégorie éteint** :
+sur le téléphone, après le récap des mots et avant le bilan, à la 3e, 7e, 13e,
+21e, 31e… partie finie de la session (`INTERSTITIAL_BREAKS`,
+`src/domain/adBreaks.ts`, la même place et la même règle que le midgame de
+CrazyGames, `MIDGAME_BREAKS`), par `host.breakAfterRecap`
+(`src/platform/app.ts`), jamais pour un Premium (`isPlus` : la pause épargnée
+compte dans `adsSkipped`) ni quand la fonctionnalité `adBreaks` (ouverte par
+défaut) est fermée, et rien dans un navigateur. Chaque pause due est comptée
+au tableau de bord (`ad`, source `midgame`, `shown` ou `unavailable`).
+`ADS_ENABLED` (`src/domain/unlocks.ts`) et la fonctionnalité `ads` ne
+coupent que l'interstitiel d'une offre de catégorie, qui reste éteint ; la
+récompense du bilan et la tentative de plus au défi du moment passent par
+`rewardedAdsOpen` (`src/platform/index.ts`), qu'aucune des deux ne ferme.
+- **La pub se prépare avant la pause qui la porte** : consentement et
+chargement prennent des secondes, et une pub pas encore chargée à sa pause
+est sautée (`unavailable`) plutôt que montrée en retard. L'interstitiel se
+charge deux parties avant sa pause (`nextBreak`, `prepareInterstitial`), la
+pub récompensée dès l'ouverture du bilan (`prepareRewarded`) — jamais en
+partie, où le formulaire de consentement couvrirait le chrono. Les blocs de
+test de Google ne servent qu'en développement (`TESTING_UNITS`,
+`src/lib/native.ts`) : un build de release sans `VITE_ADMOB_REWARDED_ID` ou
+`VITE_ADMOB_INTERSTITIAL_ID` ne montre pas ce format plutôt que d'en servir
+une de test à un joueur — d'où `.env.local` à copier dans tout worktree qui
+publie. `admobAppId` (`android/gradle.properties`) reste obligatoire, sinon le
+SDK plante au lancement — ne jamais cliquer sur les vraies pubs depuis son
+propre téléphone.
 - **Demontoon est ajouté côté client** (`completeBoards`, `src/domain/boards.ts`,
   et `completeLeaderboard` pour la page des classements, qui recompte les
   rangs), pas en base : il ne figure qu'aux classements de meilleure partie du

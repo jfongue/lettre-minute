@@ -5,7 +5,7 @@ import { capitalized, normalizeWord } from '../domain/text'
 import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
 import { markRatingAsked, markRatingDone } from '../domain/rating'
 import { premiereCategoryIds } from '../domain/catalogue'
-import { ban, bannedOf, countPlusReveal, creditRevealGifts, countPlusRun, grantRevealAd, joinPlus, learnFromProfessor, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
+import { ban, bannedOf, countPlusAdSkipped, countPlusReveal, creditRevealGifts, countPlusRun, grantRevealAd, joinPlus, learnFromProfessor, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
 import { chooseBonus, dealBonusOffer, type BonusId } from '../domain/bonus'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, wearOrDrop, type PowerId } from '../domain/powers'
 import { countsForProgress, type GameMode } from '../domain/modes'
@@ -146,6 +146,8 @@ export type SessionAction =
   | { type: 'peek'; day: string }
   /** A rewarded ad watched through: one more reveal on `day`. */
   | { type: 'reveal-ad'; day: string }
+  /** An ad between two runs that Premium spared. */
+  | { type: 'plus-ad-skipped' }
   /** `at`: the wall clock, which the rules do not read themselves. */
   | { type: 'join-plus'; at: number }
   | { type: 'plus-thanked' }
@@ -271,6 +273,8 @@ export function sessionReducer(session: Session, action: SessionAction): Session
     }
     case 'reveal-ad':
       return withProfile(session, grantRevealAd(session.profile, action.day))
+    case 'plus-ad-skipped':
+      return withProfile(session, countPlusAdSkipped(session.profile))
     case 'join-plus':
       return withProfile(session, joinPlus(session.profile, action.at))
     case 'plus-thanked':

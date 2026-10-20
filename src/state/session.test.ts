@@ -221,3 +221,12 @@ describe('Tricherie', () => {
         expect(over.run!.taught).toEqual([])
       })
     })
+
+describe('plus-ad-skipped', () => {
+  it('counts the ad a Premium member was spared, and nothing for a free player', () => {
+    const free = initialSession(NEW_PROFILE)
+    expect(sessionReducer(free, { type: 'plus-ad-skipped' })).toBe(free)
+    const plus = initialSession({ ...NEW_PROFILE, plusSince: 1 })
+    expect(sessionReducer(plus, { type: 'plus-ad-skipped' }).profile.plusStats.adsSkipped).toBe(1)
+  })
+})
