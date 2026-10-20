@@ -954,7 +954,7 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
 
   categories: {
     pays: ['Países', 'Estados de nuestro mundo'],
-    animaux: ['Animales', 'Del gorrión a la morsa'],
+    animaux: ['Mamíferos', 'Del ratón a la ballena'],
     couleurs: ['Colores', 'Tonos y matices'],
     'fruits-legumes': ['Frutas y verduras', 'Crudas o cocidas'],
     metiers: ['Oficios', 'De ayer y de hoy'],
@@ -964,10 +964,16 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
     capitales: ['Grandes ciudades', 'Las más grandes de su país'],
     marques: ['Marcas', 'Conocidas por todos'],
     prenoms: ['Nombres de pila', 'De aquí y de allá'],
-    objets: ['Objetos cotidianos', 'En casa o en el bolso'],
+    objets: ['Objeto pequeño', 'Cabe en una mochila'],
     plantes: ['Plantas', 'Flores, árboles, hierbas'],
     ingredients: ['Ingredientes', 'De la sal al chocolate negro'],
     lieux: ['Lugares y edificios', 'Del ayuntamiento a la fábrica'],
+    meubles: ['Muebles y objetos grandes', 'De la cama a la nevera'],
+    'animaux-marins': ['Animales marinos', 'Peces, cetáceos, mariscos…'],
+    'oiseaux-reptiles': ['Aves y reptiles', 'Del gorrión al cocodrilo'],
+    locomotion: ['Medios de transporte', 'De caminar al tren de alta velocidad'],
+    vetements: ['Ropa y complementos', 'Del jersey a las gafas'],
+    electronique: ['Aparatos electrónicos', 'Del teléfono a la impresora'],
   },
 
   colours: {
