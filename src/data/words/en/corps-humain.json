@@ -2196,6 +2196,8 @@
 ["foam cells",0,0,"foam cell"],
 ["foetus circulation",16,0,"",0],
 ["foliate papilla",0,0,"",218],
+["Follicle",0,0.63],
+["follicles",0,0.85,"follicle"],
 ["follicular adenoma",0,0,"",16],
 ["follicular dendritic cell",13,0,"",13],
 ["follicular dendritic cells",13,0,"follicular dendritic cell"],
