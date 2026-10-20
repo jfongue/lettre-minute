@@ -19,7 +19,7 @@ import '../weekly.css'
 
 const URGENT_FROM = 10
 /** Ce que la lettre devient sous Magie : le joker des recherches, n'importe quelle initiale. */
-const FREE_LETTER = '*'
+const FREE_LETTER = '✱'
 /** Célérité waits this long after the last key, so « Chat » does not cut « Chatte » short. */
 const CELERITY_SETTLE_MS = 140
 /** Un refus ne se prononce qu'une fois les doigts arrêtés : juger un mot en cours était faux. */
