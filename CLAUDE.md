@@ -218,6 +218,17 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   `mul`, sinon celui que donnent le plus de langues ; les marques ajoutées à la
   main (`ADDED_WORDS.marques`) valent pour toutes. La modération reste par
   langue.
+- **Un nom propre se juge, il ne s'importe pas** (`namesAside`,
+  `scripts/sources.ts`) : sur « Moyens de locomotion », une marque de voiture
+  ou un modèle — « Renault », « Clio », « jeep » écrit en minuscule — part dans
+  la réserve de modération (`scripts/moderation-reserve.json`, catégorie
+  `locomotion`, préfixée par langue comme le reste) au lieu du dictionnaire, et
+  un mot capitalisé hors allemand — « Mustang » — avec eux. Les types de
+  véhicules restent : voiture, taxi, TGV, Uber sont des façons de se déplacer,
+  et `ADDED_WORDS` / les mots acceptés par les modérateurs ne sont jamais mis
+  de côté. La réserve se charge d'un dictionnaire de brouillon aussi
+  (`npm run seed:moderation`), pour qu'un mot jugé entre au dictionnaire avant
+  que la catégorie ne soit jouable.
 - **Le Wiktionnaire est la source des noms communs**, Wikidata celle des
   entités : Wikidata connaît cinquante races de chat mais pas « abeille ». Une
   catégorie de noms communs bâtie sur Wikidata seul laisse dehors les réponses
