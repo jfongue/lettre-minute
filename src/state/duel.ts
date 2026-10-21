@@ -27,6 +27,7 @@ import { createRng } from '../domain/rng'
 import { sharedCategoryIds } from '../domain/catalogue'
 import { playableCategoryIds } from '../domain/perks'
 import { onAppActive } from '../lib/native'
+import { host } from '../platform'
 import { applyDuel, type Profile } from '../domain/progression'
 import type { Judge, Prompt, Verdict } from '../domain/run'
 import { ownedCategoryIds } from '../domain/unlocks'
@@ -37,6 +38,7 @@ import {
   finishDuel,
   inviteToDuel,
   joinDuel,
+  joinDuelRoom,
   kickFromDuel,
   leaveDuel,
   openDuelRematch,
@@ -321,6 +323,8 @@ export interface DuelTableOptions {
   onProfile?(profile: Profile): void
   /** Table ouverte par le matchmaking : les deux joueurs sont assis, chacun se déclare prêt dès qu'il la voit. */
   quick?: boolean
+  /** La table vient de la salle d'un hôte (CrazyGames) : on s'y assoit sans invitation. */
+  room?: boolean
 }
 
 /** Les catégories qu'une table peut distribuer à ce joueur : celles qu'il a, sans les avant-premières. */
@@ -330,7 +334,7 @@ export function duelPool(lang: string): string[] {
   return sharedCategoryIds(playableCategoryIds(profile, ownedCategoryIds(profile))).filter((id) => shipped.includes(id))
 }
 
-export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false }: DuelTableOptions): DuelTable {
+export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
@@ -491,7 +495,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     opened.current = true
     if (join) {
       // Une invitation : la place se prend d'abord, la table se lit ensuite.
-      void joinDuel(join, mine.length).then((outcome) => {
+      void (room ? joinDuelRoom : joinDuel)(join, mine.length).then((outcome) => {
         if (outcome === 'joined') setTableId(join)
         else if (outcome === 'unreachable') setOffline(true)
         else exit.current?.(outcome === 'kicked' ? 'kicked' : 'closed')
@@ -502,7 +506,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       if (id) setTableId(id)
       else setOffline(true)
     })
-  }, [join, lang, mine, mode])
+  }, [join, lang, mine, mode, room])
 
   useEffect(() => {
     if (mode !== 'online') return
@@ -539,6 +543,14 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   const me = table?.seats.find((seat) => seat.id === myId)
   const isHost = !!table && table.hostId === myId
   const present = useMemo(() => (table?.seats ?? []).filter((seat) => !seat.gone), [table?.seats])
+
+  // La salle de l'hôte (CrazyGames) : la table où l'on est assis, que ses amis
+  // du portail rejoignent tant que le salon garde une place libre.
+  const roomOpen = !!table && table.id === tableId && table.status === 'lobby' && present.length + table.invites.length < MAX_TABLE
+  useEffect(() => {
+    if (mode === 'online' && tableId) host.rooms?.setRoom({ table: tableId, joinable: roomOpen })
+  }, [mode, roomOpen, tableId])
+  useEffect(() => () => host.rooms?.setRoom(null), [])
 
   // Expulsé, ou table fermée par son hôte : l'appareil rentre à l'accueil.
   useEffect(() => {

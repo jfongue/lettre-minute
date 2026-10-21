@@ -112,7 +112,8 @@ par une copie de l'écran ; et chaque build touché se vérifie.
   connexion du portail ; un joueur connecté au portail joue sous le
   compte que `crazygames-auth` lie à son identifiant CrazyGames (0073), nommé
   d'après son pseudo (0074), et a donc les amis, le face-à-face et le duel,
-  matchmaking compris —, ni défi de 24 h, ni invitation hors de la page, ni
+  matchmaking compris, et sa table est une salle du portail (`host.rooms` :
+  amis du portail qui la rejoignent, instant multiplayer) —, ni défi de 24 h, ni invitation hors de la page, ni
   aucune autre
   fonctionnalité serveur, les autres variables externes
   vidées au build, SDK

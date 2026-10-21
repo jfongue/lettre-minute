@@ -1,6 +1,6 @@
 import { breakDue, MIDGAME_BREAKS } from '../domain/adBreaks'
 import { trackFeature } from '../lib/feature'
-import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type RewardedResult } from './host'
+import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type HostRooms, type RewardedResult } from './host'
 
 /**
  * The CrazyGames shell, as `native.ts` is the phone's: everything the portal's
@@ -30,6 +30,11 @@ interface CrazySdk {
     happytime(): void
     settings?: { muteAudio?: boolean }
     addSettingsChangeListener?(listener: (settings: { muteAudio?: boolean }) => void): void
+    isInstantMultiplayer?: boolean
+    inviteParams?: Record<string, string> | null
+    addJoinRoomListener?(listener: (inviteParams: Record<string, string> | null) => void): void
+    updateRoom?(room: { roomId?: string; isJoinable?: boolean; inviteParams?: Record<string, string> }): void
+    leftRoom?(): void
   }
   ad: { requestAd(type: 'midgame' | 'rewarded', callbacks: AdCallbacks): void }
   data?: {
@@ -465,6 +470,64 @@ export function restoreSavedProgress(): void {
   }
 }
 
+// The one invite parameter the game writes: the duel table, a uuid only the
+// portal passes on (`duel_join_room`, 0104).
+const ROOM_PARAM = 'duel'
+const TABLE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function tableOf(params: Record<string, string> | null | undefined): string | null {
+  const table = params?.[ROOM_PARAM]
+  return typeof table === 'string' && TABLE_ID.test(table) ? table : null
+}
+
+type Room = { table: string; joinable: boolean } | null
+
+// The SDK refuses a room call within 250 ms of the last one, and throws: each
+// change waits for a quiet moment, and only the latest state is sent.
+const ROOM_PAUSE_MS = 300
+let room: Room = null
+let sentRoom: Room = null
+let roomTimer: ReturnType<typeof setTimeout> | null = null
+
+function sendRoom(): void {
+  roomTimer = null
+  const next = room
+  if (next?.table === sentRoom?.table && next?.joinable === sentRoom?.joinable) return
+  const game = sdk?.game
+  if (!game) return
+  try {
+    if (next) game.updateRoom?.({ roomId: next.table, isJoinable: next.joinable, inviteParams: { [ROOM_PARAM]: next.table } })
+    else game.leftRoom?.()
+    sentRoom = next
+  } catch {
+    roomTimer = setTimeout(sendRoom, ROOM_PAUSE_MS)
+  }
+}
+
+/**
+ * The portal's « play with friends » (multiplayer requirements): the table the
+ * player sits at is their room, joinable while its lobby has a free seat;
+ * friends who accept the portal's invitation come in with its id, at launch
+ * (`inviteParams`) or while the game already runs (the join listener).
+ */
+const portalRooms: HostRooms = {
+  instant: () => sdk?.game.isInstantMultiplayer === true,
+  invited: () => tableOf(sdk?.game.inviteParams),
+  onJoin(listener) {
+    safely((s) =>
+      s.game.addJoinRoomListener?.((params) => {
+        const table = tableOf(params)
+        if (table) listener(table)
+      }),
+    )
+  },
+  setRoom(next) {
+    room = next
+    if (roomTimer) clearTimeout(roomTimer)
+    roomTimer = setTimeout(sendRoom, ROOM_PAUSE_MS)
+  },
+}
+
 /**
  * The server a portal player may reach: the boards a guest reads, and — since
  * `crazygames-auth` (0073) gives a named account to whoever is signed in to the
@@ -543,6 +606,7 @@ export const crazyGamesHost: Host = {
   account: portalAccount,
   onAccount: onPortalAccount,
   promptAccount: promptPortalAccount,
+  rooms: portalRooms,
   setGameplay,
   celebrate: happytime,
   submitScore,
