@@ -40,6 +40,11 @@ document.addEventListener('focusout', () => {
   }, 400)
 })
 
+// The likely language's texts are fetched while the SDK wakes, which takes a
+// few hundred milliseconds: the SDK's own answer, read after, usually finds
+// them loaded.
+void loadMessages(loadLocale() ?? 'en').catch(() => undefined)
+
 void (async () => {
   await initCrazyGames()
   loadingStart()

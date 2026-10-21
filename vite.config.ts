@@ -1,7 +1,7 @@
 /// <reference types="vitest/config" />
 import { readFileSync } from 'node:fs'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import { configDefaults } from 'vitest/config'
 
 // The version the Play Store knows, stamped on every tracked event: the
@@ -19,8 +19,42 @@ const CRAZYGAMES_BLANKS = [
   'VITE_GOOGLE_WEB_CLIENT_ID',
 ]
 
+// The phone's plugins that pull code into a browser bundle even though only
+// the Android shell calls them (src/lib/native.ts guards every call by
+// `native` or a blanked variable): on CrazyGames they are no-ops, and the
+// social-login providers alone weighed 40 kB of the first download.
+const PHONE_ONLY_PLUGINS = ['@capgo/capacitor-social-login', '@capgo/native-purchases', '@capacitor-community/admob']
+const PHONE_STUB = '\0phone-plugin-stub'
+
+function crazyGamesLoad(): Plugin {
+  return {
+    name: 'lettre-minute-crazygames-load',
+    enforce: 'pre',
+    resolveId: (source) => (PHONE_ONLY_PLUGINS.includes(source) ? PHONE_STUB : null),
+    load: (id) =>
+      id === PHONE_STUB
+        ? `const plugin = new Proxy({}, { get: () => () => Promise.reject(new Error('phone only')) })
+const names = new Proxy({}, { get: (_, key) => String(key) })
+export { plugin as SocialLogin, plugin as NativePurchases, plugin as AdMob }
+export { names as PURCHASE_TYPE, names as AdmobConsentStatus, names as InterstitialAdPluginEvents, names as RewardAdPluginEvents }`
+        : null,
+    // The SDK and the main font are asked for with the bundle, not once the
+    // bundle has run: the portal's player waits on the slowest of the three.
+    transformIndexHtml: {
+      order: 'post',
+      handler: (_html, context) => {
+        const font = Object.keys(context.bundle ?? {}).find((name) => /jost-latin-wght-normal-.*\.woff2$/.test(name))
+        return [
+          { tag: 'link', attrs: { rel: 'preload', as: 'script', href: 'https://sdk.crazygames.com/crazygames-sdk-v3.js' }, injectTo: 'head' },
+          ...(font ? [{ tag: 'link', attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: `./${font}` }, injectTo: 'head' as const }] : []),
+        ]
+      },
+    },
+  }
+}
+
 export default defineConfig(({ mode }) => ({
-  plugins: [react()],
+  plugins: mode === 'crazygames' ? [crazyGamesLoad(), react()] : [react()],
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
     // The host the build is for (src/platform/index.ts), a literal the

@@ -33,7 +33,12 @@ le 2026-10-08 ; `git tag -l 'crazygames-*'` liste les mises à jour qui ont suiv
 - **Entrée** : `crazygames.html` → `src/crazygames.tsx`. Le SDK
   (`https://sdk.crazygames.com/crazygames-sdk-v3.js`) est la seule ressource
   externe, ajoutée par script et jamais par une balise bloquante : un hôte qui
-  ne répond pas laisserait la page blanche. L'entrée attend le script puis
+  ne répond pas laisserait la page blanche. La page la précharge pourtant
+  (`<link rel="preload">`, `crazyGamesLoad` dans `vite.config.ts`), avec la
+  police, pour que le script arrive avec le bundle et non après lui ; les
+  textes de la langue probable partent pendant le réveil du SDK, et les
+  modules du téléphone (connexion sociale, achats, AdMob) sont remplacés par
+  des coquilles vides, que `native.ts` n'appelle jamais hors d'Android. L'entrée attend le script puis
   `SDK.init()` — 8 s au plus sur le portail ou localhost, 1,5 s ailleurs, où
   le SDK ne peut que finir `disabled` —, annonce
   `loadingStart`, recopie la progression sauvegardée, rend l'app, puis
