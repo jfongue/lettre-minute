@@ -40,6 +40,7 @@ export function Reveal({
   budget,
   onPeek,
   onAd,
+  onAdShown,
   onFlag,
   flagCard,
   onNext,
@@ -51,6 +52,7 @@ export function Reveal({
   budget: RevealBudget
   onPeek?(): void
   onAd?(): void
+  onAdShown?(): void
   onFlag?(word: FlagWord, reason: string): Promise<BanOutcome>
   /**
    * The card a long press opens on a word, drawn by the caller: it lives in
@@ -151,6 +153,7 @@ export function Reveal({
           budget={budget}
           onPeek={onPeek}
           onAd={onAd}
+          onAdShown={onAdShown}
           onFlag={onFlag && ((word) => setFlagged(word))}
         />
       )}

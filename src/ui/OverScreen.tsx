@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { achievementIcon, achievementReward, newlyEarnedAchievements } from '../domain/achievements'
 import { inGround, type AvatarChoice } from '../domain/avatar'
 import type { Boards } from '../domain/boards'
@@ -111,6 +111,8 @@ export function OverScreen({ run, revealed, onRevealed, onSummary, lang, ...summ
   const [celebrating, setCelebrating] = useState<'category' | 'power' | 'bonus' | null>(null)
   // Each offer gets a fresh screen: a second pick owed deals the next one.
   const [round, setRound] = useState(0)
+  // A reveal's ad in the recap stands for the break that follows it.
+  const sawAd = useRef(false)
   const powers = useFeature('powers')
   const adBreaks = useFeature('adBreaks')
   const t = useT()
@@ -127,6 +129,9 @@ export function OverScreen({ run, revealed, onRevealed, onSummary, lang, ...summ
         budget={revealBudget(profile, todayKey(), host.unlimitedReveals)}
         onPeek={summary.onPeek}
         onAd={summary.onAd}
+        onAdShown={() => {
+          sawAd.current = true
+        }}
         onFlag={summary.onFlag}
         flagCard={(word, close) =>
           summary.onFlag && (
@@ -139,7 +144,7 @@ export function OverScreen({ run, revealed, onRevealed, onSummary, lang, ...summ
           )
         }
         onNext={() =>
-          void host.breakAfterRecap(isPlus(profile) || !adBreaks).then((done) => {
+          void host.breakAfterRecap(isPlus(profile) || !adBreaks, sawAd.current).then((done) => {
             if (done === 'spared') summary.onAdSpared?.()
             onRevealed()
           })

@@ -271,11 +271,15 @@ const AD_TIMEOUT_MS = 60_000
  */
 let finishedRuns = 0
 let pendingBreak: Promise<AdBreak> | null = null
-function breakAfterRecap(adFree: boolean): Promise<AdBreak> {
+function breakAfterRecap(adFree: boolean, afterAd = false): Promise<AdBreak> {
   if (pendingBreak) return pendingBreak
   finishedRuns += 1
   if (!sdk || !breakDue(finishedRuns, MIDGAME_BREAKS)) return Promise.resolve('none')
   if (adFree) return Promise.resolve('spared')
+  if (afterAd) {
+    trackFeature('ad', { source: 'midgame', result: 'after-reveal' })
+    return Promise.resolve('none')
+  }
   const asked = requestMidgame().finally(() => {
     pendingBreak = null
   })

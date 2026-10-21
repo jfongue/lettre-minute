@@ -4,7 +4,7 @@ const PROFILE = 'lettre-minute.profile.v1'
 const HANDED_OVER = 'lettre-minute.crazygames-data.v1'
 
 /** A browser of its own per start: its localStorage, and the portal's Data module as it stands. */
-async function start(browser: Map<string, string>, module: Map<string, string> | null) {
+async function start(browser: Map<string, string>, module: Map<string, string> | null, ad: object = {}) {
   vi.resetModules()
   // A class per start: `restoreSavedProgress` patches its prototype.
   class FakeStorage {
@@ -31,7 +31,7 @@ async function start(browser: Map<string, string>, module: Map<string, string> |
     environment: 'local',
     init: () => Promise.resolve(),
     game: {},
-    ad: {},
+    ad,
     data: data ?? { getItem: disabled, setItem: disabled, removeItem: disabled },
   }
   vi.stubGlobal('Storage', FakeStorage)
@@ -42,7 +42,7 @@ async function start(browser: Map<string, string>, module: Map<string, string> |
   const portal = await import('./crazygames')
   await portal.initCrazyGames()
   portal.restoreSavedProgress()
-  return localStorage
+  return { localStorage, portal }
 }
 
 afterEach(() => {
@@ -61,7 +61,7 @@ describe('la sauvegarde du portail', () => {
   it('ne donne pas à l’invité la progression du compte qui vient de se déconnecter', async () => {
     const browser = new Map<string, string>()
     const account = new Map([[PROFILE, 'compte']])
-    const played = await start(browser, account)
+    const { localStorage: played } = await start(browser, account)
     played.setItem(PROFILE, 'compte joué')
     expect(account.get(PROFILE)).toBe('compte joué')
     // La déconnexion recharge la page, et le module rend la copie de l’invité.
@@ -86,5 +86,22 @@ describe('la sauvegarde du portail', () => {
     await start(browser, null)
     expect(browser.get(PROFILE)).toBe('local')
     expect(browser.has(HANDED_OVER)).toBe(false)
+  })
+})
+
+describe('la pause entre deux parties', () => {
+  it('saute la pause due quand le récap vient de montrer une pub de révélation', async () => {
+    const requestAd = vi.fn((_type: string, callbacks: { adFinished?(): void }) => callbacks.adFinished?.())
+    const { portal } = await start(new Map(), null, { requestAd })
+    const host = portal.crazyGamesHost
+    expect(await host.breakAfterRecap(false)).toBe('none')
+    // La 2e partie devait faire sa pause : la pub de révélation en tient lieu.
+    expect(await host.breakAfterRecap(false, true)).toBe('none')
+    expect(requestAd).not.toHaveBeenCalled()
+    await host.breakAfterRecap(false)
+    await host.breakAfterRecap(false)
+    // La suivante, à la 5e, passe comme prévu.
+    expect(await host.breakAfterRecap(false)).toBe('shown')
+    expect(requestAd).toHaveBeenCalledTimes(1)
   })
 })

@@ -15,7 +15,7 @@ const LOAD_AHEAD_RUNS = 2
  */
 let finishedRuns = 0
 let pendingBreak: Promise<AdBreak> | null = null
-function breakAfterRecap(adFree: boolean): Promise<AdBreak> {
+function breakAfterRecap(adFree: boolean, afterAd = false): Promise<AdBreak> {
   if (pendingBreak) return pendingBreak
   finishedRuns += 1
   if (!adsSupported()) return Promise.resolve('none')
@@ -24,7 +24,8 @@ function breakAfterRecap(adFree: boolean): Promise<AdBreak> {
   const loadAhead = () => {
     if (nextBreak(finishedRuns, INTERSTITIAL_BREAKS) - finishedRuns <= LOAD_AHEAD_RUNS) prepareInterstitial()
   }
-  if (!due) {
+  if (!due || afterAd) {
+    if (due) trackFeature('ad', { source: 'midgame', result: 'after-reveal' })
     loadAhead()
     return Promise.resolve('none')
   }
