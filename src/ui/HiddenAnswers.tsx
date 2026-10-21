@@ -34,6 +34,7 @@ export function HiddenAnswers({
   budget,
   onPeek,
   onAd,
+  onAdShown,
   onFlag,
 }: {
   hidden: readonly HiddenAnswer[]
@@ -42,6 +43,8 @@ export function HiddenAnswers({
   onPeek?(): void
   /** A rewarded ad was watched to the end: one more reveal today. */
   onAd?(): void
+  /** An ad played, watched to the end or not: the break after the recap skips its own. */
+  onAdShown?(): void
   /** Signals a word the run never took, uncovered: `WordEntry.key` is its display. */
   onFlag?(word: FlagWord): void
 }) {
@@ -78,6 +81,7 @@ export function HiddenAnswers({
     setNoAd(false)
     const result = await host.showRewarded()
     trackFeature('ad', { source: 'reveal', result })
+    if (result !== 'unavailable') onAdShown?.()
     setWatching(false)
     if (result === 'rewarded') {
       tapFeedback('medium')

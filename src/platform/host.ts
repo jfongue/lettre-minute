@@ -94,9 +94,10 @@ export interface Host {
    * ad, when the session's schedule says so, `src/domain/adBreaks.ts`);
    * resolves once it is over, failed or skipped. Each call counts one finished
    * run. `adFree` (Premium, or the `adBreaks` feature closed) keeps the count
-   * but never shows the ad: `spared` says one was due.
+   * but never shows the ad: `spared` says one was due. `afterAd` (the recap's
+   * rewarded ad just played) skips a due break too: never two ads in a row.
    */
-  breakAfterRecap(adFree: boolean): Promise<AdBreak>
+  breakAfterRecap(adFree: boolean, afterAd?: boolean): Promise<AdBreak>
   /**
    * The host's midgame ad, asked by the button that leads to gameplay (Play,
    * Play again, a duel's rematch or its way out) and by nothing else; the host
