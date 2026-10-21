@@ -124,7 +124,16 @@ export function replay(setup: DuelSetup, moves: readonly DuelMove[], judge: Judg
   let applied = 0
   let lastPrompt: Prompt | null = null
   for (const move of moves) {
-    if (move.kind !== 'pick' && move.kind !== 'cheer' && !judge) break
+    if (move.kind !== 'pick' && move.kind !== 'cheer' && !judge) {
+      // Un mot, un passe ou un temps écoulé pendant le draft ne s'applique à
+      // rien, dictionnaires ou pas : il se saute. S'y arrêter figeait la table
+      // sur le choix en cours, chaque choix suivant attendant derrière lui.
+      if (duel.phase === 'draft' && !draftComplete(duel)) {
+        applied += 1
+        continue
+      }
+      break
+    }
     const next = applyMove(duel, move, judge)
     lastPrompt = settle(duel, judge, move.at).turn?.prompt ?? lastPrompt
     facts.push(...next.facts)
@@ -282,7 +291,7 @@ export async function postMove(poster: DuelPoster, post: DuelPost, tries = DUEL_
 }
 
 /** Deux coups du même siège, de même sorte et de même charge : le même coup. */
-function sameMove(one: DuelMove, move: Omit<DuelMove, 'seq' | 'at'>): boolean {
+export function sameMove(one: Omit<DuelMove, 'seq' | 'at'>, move: Omit<DuelMove, 'seq' | 'at'>): boolean {
   return one.seat === move.seat && one.kind === move.kind && one.payload === move.payload
 }
 

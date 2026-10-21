@@ -82,6 +82,18 @@ describe('le rejeu', () => {
     expect(played.facts.at(-1)?.kind).toBe('solved')
   })
 
+  it('saute un temps écoulé arrivé en plein draft au lieu de s’y figer', () => {
+    // Le journal d'une revanche ouvert par le « temps écoulé » de la partie
+    // d'avant, resté dans la file d'envoi : les choix qui suivent comptent.
+    const stray: DuelMove = { seq: 1, seat: 0, kind: 'timeout', payload: '', at: draftOpens + 0.5 }
+    const picks = draftMoves().map((move) => ({ ...move, seq: move.seq + 1 }))
+    for (const dictionaries of [null, judge]) {
+      const done = replay(setup, [stray, ...picks], dictionaries)
+      expect(done.duel.picks).toEqual(replay(setup, draftMoves(), dictionaries).duel.picks)
+      expect(done.applied).toBe(5)
+    }
+  })
+
   it('donne la même partie à deux appareils, et ignore un coup du mauvais joueur', () => {
     const picks = draftMoves()
     const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)

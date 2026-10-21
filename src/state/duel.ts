@@ -22,7 +22,7 @@ import {
   type Duel,
   type DuelReward,
 } from '../domain/duel'
-import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
+import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, sameMove, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
 import { createRng } from '../domain/rng'
 import { sharedCategoryIds } from '../domain/catalogue'
 import { playableCategoryIds } from '../domain/perks'
@@ -414,12 +414,16 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   }, [lastSeq, mode, table?.id, tableId])
 
   // Les coups que la table n'a pas encore pris : une coupure les garde au lieu
-  // de les jeter, et le retour du serveur les emporte dans l'ordre.
-  const outbox = useRef<DuelPost[]>([])
+  // de les jeter, et le retour du serveur les emporte dans l'ordre. Chacun
+  // reste attaché à sa table : un « temps écoulé » resté là quand la partie
+  // finissait ouvrait le journal de la revanche, en plein draft, et la figeait.
+  const outbox = useRef<{ table: string; post: DuelPost }[]>([])
   const flushing = useRef(false)
 
   const flush = useCallback(async () => {
-    if (flushing.current || mode !== 'online' || !tableId || outbox.current.length === 0) return
+    if (flushing.current || mode !== 'online' || !tableId) return
+    outbox.current = outbox.current.filter((queued) => queued.table === tableId)
+    if (outbox.current.length === 0) return
     flushing.current = true
     const poster = {
       lastSeq: () => journal.current.moves.at(-1)?.seq ?? 0,
@@ -428,13 +432,17 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       read: () => sync(),
     }
     while (outbox.current.length > 0) {
-      const { outcome } = await postMove(poster, outbox.current[0]!)
+      const { outcome } = await postMove(poster, outbox.current[0]!.post)
       if (outcome === 'unreachable') {
         setOffline(true)
         break
       }
       outbox.current.shift()
-      if (outcome === 'closed') break
+      // Une table close ne prendra plus rien : ce qui l'attendait part avec elle.
+      if (outcome === 'closed') {
+        outbox.current = outbox.current.filter((queued) => queued.table !== tableId)
+        break
+      }
     }
     flushing.current = false
   }, [mode, sync, tableId])
@@ -734,11 +742,15 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
         return
       }
       // Le coup part par la file : une table injoignable le garde au lieu de le
-      // jeter, et la relecture suivante l'emporte.
-      outbox.current.push({ move, mark: table.moves.at(-1)?.seq ?? 0 })
+      // jeter, et la relecture suivante l'emporte. Le battement redemande le
+      // même coup tant que la relecture ne l'a pas inscrit : il n'attend qu'une fois.
+      if (!table.id || table.id !== tableId) return
+      const id = table.id
+      if (outbox.current.some((queued) => queued.table === id && sameMove(queued.post.move, move))) return
+      outbox.current.push({ table: id, post: { move, mark: table.moves.at(-1)?.seq ?? 0 } })
       await flush()
     },
-    [flush, mode, table],
+    [flush, mode, table, tableId],
   )
 
   // Celui qui mène la table déclare ce que personne d'autre ne déclarera : le
