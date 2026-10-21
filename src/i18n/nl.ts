@@ -953,7 +953,7 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
 
   categories: {
     pays: ['Landen', 'Staten van onze wereld'],
-    animaux: ['Zoogdieren', 'Van muis tot walvis'],
+    animaux: ['Dieren', 'Van mus tot walrus'],
     couleurs: ['Kleuren', 'Tinten en nuances'],
     'fruits-legumes': ['Groente en fruit', 'Rauw of gekookt'],
     metiers: ['Beroepen', 'Van vroeger en nu'],
@@ -963,7 +963,7 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
     capitales: ['Grote steden', 'De grootste van hun land'],
     marques: ['Merken', 'Bekend bij iedereen'],
     prenoms: ['Voornamen', 'Van hier en elders'],
-    objets: ['Klein voorwerp', 'Past in een rugzak'],
+    objets: ['Alledaagse voorwerpen', 'Thuis of in je tas'],
     plantes: ['Planten', 'Bloemen, bomen, kruiden'],
     ingredients: ['Ingrediënten', 'Van zout tot pure chocolade'],
     lieux: ['Plekken en gebouwen', 'Van stadhuis tot fabriek'],

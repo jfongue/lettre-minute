@@ -954,7 +954,7 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
 
   categories: {
     pays: ['Países', 'Estados de nuestro mundo'],
-    animaux: ['Mamíferos', 'Del ratón a la ballena'],
+    animaux: ['Animales', 'Del gorrión a la morsa'],
     couleurs: ['Colores', 'Tonos y matices'],
     'fruits-legumes': ['Frutas y verduras', 'Crudas o cocidas'],
     metiers: ['Oficios', 'De ayer y de hoy'],
@@ -964,7 +964,7 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
     capitales: ['Grandes ciudades', 'Las más grandes de su país'],
     marques: ['Marcas', 'Conocidas por todos'],
     prenoms: ['Nombres de pila', 'De aquí y de allá'],
-    objets: ['Objeto pequeño', 'Cabe en una mochila'],
+    objets: ['Objetos cotidianos', 'En casa o en el bolso'],
     plantes: ['Plantas', 'Flores, árboles, hierbas'],
     ingredients: ['Ingredientes', 'De la sal al chocolate negro'],
     lieux: ['Lugares y edificios', 'Del ayuntamiento a la fábrica'],

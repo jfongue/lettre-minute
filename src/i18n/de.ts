@@ -952,7 +952,7 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
 
   categories: {
     pays: ['Länder', 'Staaten unserer Welt'],
-    animaux: ['Säugetiere', 'Von der Maus bis zum Wal'],
+    animaux: ['Tiere', 'Vom Spatz bis zum Walross'],
     couleurs: ['Farben', 'Farbtöne und Nuancen'],
     'fruits-legumes': ['Obst und Gemüse', 'Roh oder gekocht'],
     metiers: ['Berufe', 'Von gestern und heute'],
@@ -962,7 +962,7 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
     capitales: ['Großstädte', 'Die größten ihres Landes'],
     marques: ['Marken', 'Jedermann bekannt'],
     prenoms: ['Vornamen', 'Von hier und anderswo'],
-    objets: ['Kleiner Gegenstand', 'Passt in einen Rucksack'],
+    objets: ['Alltagsgegenstände', 'Zu Hause oder in der Tasche'],
     plantes: ['Pflanzen', 'Blumen, Bäume, Kräuter'],
     ingredients: ['Zutaten', 'Von Salz bis Zartbitterschokolade'],
     lieux: ['Orte und Gebäude', 'Vom Rathaus bis zur Fabrik'],

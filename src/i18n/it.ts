@@ -954,7 +954,7 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
 
   categories: {
     pays: ['Paesi', 'Stati del nostro mondo'],
-    animaux: ['Mammiferi', 'Dal topo alla balena'],
+    animaux: ['Animali', 'Dal passero al tricheco'],
     couleurs: ['Colori', 'Tinte e sfumature'],
     'fruits-legumes': ['Frutta e verdura', 'Crudi o cotti'],
     metiers: ['Mestieri', 'Di ieri e di oggi'],
@@ -964,7 +964,7 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
     capitales: ['Grandi città', 'Le più grandi del loro paese'],
     marques: ['Marchi', 'Noti a tutti'],
     prenoms: ['Nomi propri', 'Di qui e d’altrove'],
-    objets: ['Piccolo oggetto', 'Sta in uno zaino'],
+    objets: ['Oggetti di uso quotidiano', 'In casa o nella borsa'],
     plantes: ['Piante', 'Fiori, alberi, erbe'],
     ingredients: ['Ingredienti', 'Dal sale al cioccolato fondente'],
     lieux: ['Luoghi ed edifici', 'Dal municipio alla fabbrica'],

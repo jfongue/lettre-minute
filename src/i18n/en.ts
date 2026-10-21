@@ -958,7 +958,7 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
 
   categories: {
     pays: ['Countries', 'States of our world'],
-    animaux: ['Mammals', 'From mouse to whale'],
+    animaux: ['Animals', 'From sparrow to walrus'],
     couleurs: ['Colours', 'Hues and shades'],
     'fruits-legumes': ['Fruit and vegetables', 'Raw or cooked'],
     metiers: ['Jobs', 'Trades old and new'],
@@ -968,7 +968,7 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
     capitales: ['Large cities', 'The largest of their country'],
     marques: ['Brands', 'Household names'],
     prenoms: ['First names', 'From here and elsewhere'],
-    objets: ['Small object', 'Fits in a backpack'],
+    objets: ['Everyday objects', 'At home or in a bag'],
     plantes: ['Plants', 'Flowers, trees, herbs'],
     ingredients: ['Ingredients', 'From salt to dark chocolate'],
     lieux: ['Places and buildings', 'From the town hall to the factory'],

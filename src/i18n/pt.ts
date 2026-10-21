@@ -954,7 +954,7 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
 
   categories: {
     pays: ['Países', 'Estados do nosso mundo'],
-    animaux: ['Mamíferos', 'Do rato à baleia'],
+    animaux: ['Animais', 'Do pardal à morsa'],
     couleurs: ['Cores', 'Tons e matizes'],
     'fruits-legumes': ['Frutas e legumes', 'Crus ou cozidos'],
     metiers: ['Profissões', 'De ontem e de hoje'],
@@ -964,7 +964,7 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
     capitales: ['Grandes cidades', 'As maiores do seu país'],
     marques: ['Marcas', 'Conhecidas de todos'],
     prenoms: ['Nomes próprios', 'Daqui e de fora'],
-    objets: ['Objeto pequeno', 'Cabe numa mochila'],
+    objets: ['Objetos do dia a dia', 'Em casa ou na mala'],
     plantes: ['Plantas', 'Flores, árvores, ervas'],
     ingredients: ['Ingredientes', 'Do sal ao chocolate preto'],
     lieux: ['Lugares e edifícios', 'Da prefeitura à fábrica'],
