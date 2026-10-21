@@ -1,5 +1,4 @@
 • Duelos abertos a todos: salas públicas e XP contra jogadores reais
 • Magia libera a letra: qualquer palavra do tema vale, três vezes por partida
-• “Animais” vira “Mamíferos”, “Objetos do dia a dia” “Objeto pequeno”
 • Desafio do momento: desbloqueie uma 3ª tentativa
-• Novas palavras aprovadas pelos moderadores, correções de bugs
+• Correções de bugs

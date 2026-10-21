@@ -1,5 +1,4 @@
 • Duels open to everyone: public lobbies and XP for beating a real player
 • Magic frees the letter: any word of the theme counts, three times a game
-• “Animals” is now “Mammals”, “Everyday objects” “Small object”
 • Challenge of the moment: unlock a 3rd attempt
-• New words approved by moderators, bug fixes
+• Bug fixes
