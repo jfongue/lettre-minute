@@ -1433,6 +1433,8 @@ export interface DuelScreenProps {
   join?: string | null
   /** La table vient du matchmaking : chacun s'y déclare prêt dès qu'il y est assis. */
   quick?: boolean
+  /** La table vient de la salle d'un hôte (CrazyGames) : on s'y assoit sans invitation, et sans les règles devant. */
+  room?: boolean
   onExit?(reason: DuelExit): void
   /** Le profil vient de gagner l'XP du duel, ou un compteur : l'appelant le range à l'écran. */
   onProfile?(profile: Profile): void
@@ -1440,7 +1442,7 @@ export interface DuelScreenProps {
   onSignIn?(): void
 }
 
-export function DuelScreen({ lang, mode = 'local', join = null, quick = false, onExit, onProfile, onSignIn }: DuelScreenProps) {
+export function DuelScreen({ lang, mode = 'local', join = null, quick = false, room = false, onExit, onProfile, onSignIn }: DuelScreenProps) {
   // Hors ligne, la table en ligne cède la place à une table locale, sur le même écran.
   const [local, setLocal] = useState(false)
   return (
@@ -1450,6 +1452,7 @@ export function DuelScreen({ lang, mode = 'local', join = null, quick = false, o
       mode={local ? 'local' : mode}
       join={local ? null : join}
       quick={quick && !local}
+      room={room && !local}
       onExit={onExit}
       onProfile={onProfile}
       onSignIn={onSignIn}
@@ -1463,16 +1466,19 @@ function DuelTableScreen({
   mode,
   join,
   quick,
+  room,
   onExit,
   onProfile,
   onSignIn,
   onBots,
-}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'quick'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn'> & { onBots(): void }) {
+}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'quick' | 'room'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn'> & { onBots(): void }) {
   const t = useT()
-  const table = useDuelTable({ lang, mode, join, quick, onExit, onProfile })
+  const table = useDuelTable({ lang, mode, join, quick, room, onExit, onProfile })
   const { phase } = table
-  // Les règles s'ouvrent au premier lancement de la table, puis se revoient du salon.
-  const [rules, setRules] = useState(() => !loadDuelRulesSeen())
+  // Les règles s'ouvrent au premier lancement de la table, puis se revoient du
+  // salon. Pas devant l'ami qu'une salle du portail amène : une table l'attend
+  // déjà, et le portail veut qu'il y arrive sans passer par une leçon.
+  const [rules, setRules] = useState(() => !room && !loadDuelRulesSeen())
   // Elles montrent mon avatar et mon nom : tant que le serveur n'a pas posé ma
   // place en ligne, elles n'ont rien à montrer. Les ouvrir quand même donnait
   // une place absente au tutoriel, qui vidait l'écran.

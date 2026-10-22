@@ -72,6 +72,13 @@ export interface Host {
   onAccount?(listener: () => void): void
   /** The host's own sign-in prompt; true once the player is signed in. */
   promptAccount?(): Promise<boolean>
+  /**
+   * The host's own multiplayer rooms (CrazyGames): it lists the player's duel
+   * table to their friends of the portal, lets them join it from its own
+   * interface, and can launch the game straight into a table. Absent where
+   * friends are the game's own.
+   */
+  rooms?: HostRooms
   /** In a run (countdown, clock, first lesson) or not; only the changes matter. */
   setGameplay(on: boolean): void
   /** A run that beats a record the player already had. */
@@ -93,6 +100,17 @@ export interface Host {
   breakAfterRecap(adFree: boolean, afterAd?: boolean): Promise<AdBreak>
   /** Called with true while the host wants silence — its own mute, an ad — and false once it lets go. */
   onMute(listener: (muted: boolean) => void): void
+}
+
+export interface HostRooms {
+  /** Launched to play together (the portal's multiplayer page): a table opens at once, joinable by friends. */
+  instant(): boolean
+  /** The duel table an invitation launched the game for, read once at start; null otherwise. */
+  invited(): string | null
+  /** Each invitation the player accepts while the game already runs. */
+  onJoin(listener: (table: string) => void): void
+  /** The player's table, and whether friends may still sit at it; null once they leave it. */
+  setRoom(room: { table: string; joinable: boolean } | null): void
 }
 
 export type RewardedResult = 'rewarded' | 'skipped' | 'unavailable'

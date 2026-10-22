@@ -147,6 +147,22 @@ ami modérateur) — un joueur connecté au portail a le compte
   saison lundi → lundi 9 h UTC, et valide les scores de son côté. La
   fonctionnalité est réservée aux jeux invités : à demander sur le portail
   développeur. Les tableaux du jeu (jour, semaine, rareté) restent fermés ici.
+- **Salles multijoueur** (`host.rooms`, `portalRooms` de
+  `src/platform/crazygames.ts`, exigences multijoueur du portail) : la table de
+  duel en ligne où l'on est assis est la salle du joueur (`updateRoom`, son
+  identifiant pour `roomId` et pour le seul paramètre d'invitation, `duel`),
+  ouverte aux amis du portail tant que le salon a une place libre, fermée dès
+  la partie lancée, quittée (`leftRoom`) en sortant de l'écran ; une revanche
+  devient la salle suivante. Le SDK refuse un appel à moins de 250 ms du
+  précédent : chaque changement attend 300 ms et seul le dernier part. Un ami
+  qui accepte l'invitation arrive avec `inviteParams` au lancement, ou par
+  l'écouteur de salle si le jeu tourne déjà : il s'assoit sans invitation du
+  jeu (`duel_join_room`, 0104, blocages respectés) et sans les règles devant ;
+  un invité du portail reçoit d'abord sa connexion. Lancé en « instant
+  multiplayer » (`isInstantMultiplayer`), le jeu ouvre aussitôt une table
+  privée — la table des joueurs ordinateur pour un invité — et saute la leçon
+  du premier lancement. En local : `?instantJoin=true`, ou
+  `?czy_invite=true&duel=<uuid>`. Taille de salle à déclarer au portail : 2 à 4.
 - **Pub midgame** : demandée entre le récap des mots et le bilan de la partie,
   à la 2e, 5e, 9e, 14e, 20e… partie finie de la session (`MIDGAME_BREAKS`,
   `src/domain/adBreaks.ts` ; `host.breakAfterRecap`), jamais à un Premium ni

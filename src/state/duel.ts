@@ -22,11 +22,12 @@ import {
   type Duel,
   type DuelReward,
 } from '../domain/duel'
-import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
+import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, sameMove, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
 import { createRng } from '../domain/rng'
 import { sharedCategoryIds } from '../domain/catalogue'
 import { playableCategoryIds } from '../domain/perks'
 import { onAppActive } from '../lib/native'
+import { host } from '../platform'
 import { applyDuel, type Profile } from '../domain/progression'
 import type { Judge, Prompt, Verdict } from '../domain/run'
 import { ownedCategoryIds } from '../domain/unlocks'
@@ -37,6 +38,7 @@ import {
   finishDuel,
   inviteToDuel,
   joinDuel,
+  joinDuelRoom,
   kickFromDuel,
   leaveDuel,
   openDuelRematch,
@@ -321,6 +323,8 @@ export interface DuelTableOptions {
   onProfile?(profile: Profile): void
   /** Table ouverte par le matchmaking : les deux joueurs sont assis, chacun se déclare prêt dès qu'il la voit. */
   quick?: boolean
+  /** La table vient de la salle d'un hôte (CrazyGames) : on s'y assoit sans invitation. */
+  room?: boolean
 }
 
 /** Les catégories qu'une table peut distribuer à ce joueur : celles qu'il a, sans les avant-premières. */
@@ -330,7 +334,7 @@ export function duelPool(lang: string): string[] {
   return sharedCategoryIds(playableCategoryIds(profile, ownedCategoryIds(profile))).filter((id) => shipped.includes(id))
 }
 
-export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false }: DuelTableOptions): DuelTable {
+export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
@@ -414,12 +418,16 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   }, [lastSeq, mode, table?.id, tableId])
 
   // Les coups que la table n'a pas encore pris : une coupure les garde au lieu
-  // de les jeter, et le retour du serveur les emporte dans l'ordre.
-  const outbox = useRef<DuelPost[]>([])
+  // de les jeter, et le retour du serveur les emporte dans l'ordre. Chacun
+  // reste attaché à sa table : un « temps écoulé » resté là quand la partie
+  // finissait ouvrait le journal de la revanche, en plein draft, et la figeait.
+  const outbox = useRef<{ table: string; post: DuelPost }[]>([])
   const flushing = useRef(false)
 
   const flush = useCallback(async () => {
-    if (flushing.current || mode !== 'online' || !tableId || outbox.current.length === 0) return
+    if (flushing.current || mode !== 'online' || !tableId) return
+    outbox.current = outbox.current.filter((queued) => queued.table === tableId)
+    if (outbox.current.length === 0) return
     flushing.current = true
     const poster = {
       lastSeq: () => journal.current.moves.at(-1)?.seq ?? 0,
@@ -428,13 +436,17 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       read: () => sync(),
     }
     while (outbox.current.length > 0) {
-      const { outcome } = await postMove(poster, outbox.current[0]!)
+      const { outcome } = await postMove(poster, outbox.current[0]!.post)
       if (outcome === 'unreachable') {
         setOffline(true)
         break
       }
       outbox.current.shift()
-      if (outcome === 'closed') break
+      // Une table close ne prendra plus rien : ce qui l'attendait part avec elle.
+      if (outcome === 'closed') {
+        outbox.current = outbox.current.filter((queued) => queued.table !== tableId)
+        break
+      }
     }
     flushing.current = false
   }, [mode, sync, tableId])
@@ -483,7 +495,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     opened.current = true
     if (join) {
       // Une invitation : la place se prend d'abord, la table se lit ensuite.
-      void joinDuel(join, mine.length).then((outcome) => {
+      void (room ? joinDuelRoom : joinDuel)(join, mine.length).then((outcome) => {
         if (outcome === 'joined') setTableId(join)
         else if (outcome === 'unreachable') setOffline(true)
         else exit.current?.(outcome === 'kicked' ? 'kicked' : 'closed')
@@ -494,7 +506,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       if (id) setTableId(id)
       else setOffline(true)
     })
-  }, [join, lang, mine, mode])
+  }, [join, lang, mine, mode, room])
 
   useEffect(() => {
     if (mode !== 'online') return
@@ -531,6 +543,14 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   const me = table?.seats.find((seat) => seat.id === myId)
   const isHost = !!table && table.hostId === myId
   const present = useMemo(() => (table?.seats ?? []).filter((seat) => !seat.gone), [table?.seats])
+
+  // La salle de l'hôte (CrazyGames) : la table où l'on est assis, que ses amis
+  // du portail rejoignent tant que le salon garde une place libre.
+  const roomOpen = !!table && table.id === tableId && table.status === 'lobby' && present.length + table.invites.length < MAX_TABLE
+  useEffect(() => {
+    if (mode === 'online' && tableId) host.rooms?.setRoom({ table: tableId, joinable: roomOpen })
+  }, [mode, roomOpen, tableId])
+  useEffect(() => () => host.rooms?.setRoom(null), [])
 
   // Expulsé, ou table fermée par son hôte : l'appareil rentre à l'accueil.
   useEffect(() => {
@@ -734,11 +754,15 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
         return
       }
       // Le coup part par la file : une table injoignable le garde au lieu de le
-      // jeter, et la relecture suivante l'emporte.
-      outbox.current.push({ move, mark: table.moves.at(-1)?.seq ?? 0 })
+      // jeter, et la relecture suivante l'emporte. Le battement redemande le
+      // même coup tant que la relecture ne l'a pas inscrit : il n'attend qu'une fois.
+      if (!table.id || table.id !== tableId) return
+      const id = table.id
+      if (outbox.current.some((queued) => queued.table === id && sameMove(queued.post.move, move))) return
+      outbox.current.push({ table: id, post: { move, mark: table.moves.at(-1)?.seq ?? 0 } })
       await flush()
     },
-    [flush, mode, table],
+    [flush, mode, table, tableId],
   )
 
   // Celui qui mène la table déclare ce que personne d'autre ne déclarera : le
