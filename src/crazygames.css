@@ -425,6 +425,23 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     padding-block: 0;
   }
 
+  /* La partie elle-même, même chose : posée dans la scène de l'accueil, ses
+  100dvh plus les marges de celle-ci poussaient « Quitter la table » sous le
+  bord (926×476 comme 640×360). Sa feuille se contente de la hauteur qui lui
+  reste, et défile sur elle-même dans le cas qu'on n'a pas prévu plutôt que de
+  laisser un bouton hors du cadre. */
+  .stage .stage--duel-play {
+    height: 100%;
+    padding-block: 0;
+  }
+
+  .stage--duel-play .duel-run {
+    min-height: 0;
+    max-height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
   .stage.stage--duel > .sheet {
     width: min(56rem, 100%);
     max-height: 100%;
@@ -631,6 +648,101 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     width: 2.4rem;
     height: 2.4rem;
   }
+
+  /* La partie elle-même, dans ce cadre bas : le fil ne garde que son dernier
+  fait, les places et le couple se resserrent, pour que le champ, ses deux
+  boutons et « Quitter la table » tiennent sous le bord sans rien faire défiler. */
+  .stage.stage--duel-play {
+    padding-block: 0.4rem;
+}
+
+.stage--duel-play .duel-run {
+  gap: min(0.45rem, 1.2vh);
+}
+
+.stage--duel-play .duel-feed {
+  height: 1.35rem;
+}
+
+.stage--duel-play .duel-feed__line:nth-child(n + 2) {
+  visibility: hidden;
+}
+
+.stage--duel-play .duel-seat {
+  gap: 0.1rem;
+  padding: 0.15rem 0.25rem;
+}
+
+.stage--duel-play .duel-seat__face .avatar {
+  width: 1.3rem;
+}
+
+.stage--duel-play .duel-seat__mine {
+  font-size: 1.5rem;
+}
+
+.stage--duel-play .duel-prompt {
+  gap: 0.6rem;
+}
+
+.stage--duel-play .duel-prompt .mark--lg {
+  width: 2.6rem;
+  height: 2.6rem;
+  font-size: 1.6rem;
+}
+
+.stage--duel-play .duel-prompt .prompt-label {
+  font-size: 1.25rem;
+}
+
+.stage--duel-play .duel-run .answer input {
+  padding-block: 0.15rem;
+  font-size: 1.5rem;
+}
+
+.stage--duel-play .duel-run .verdict {
+  min-height: 0.9rem;
+}
+
+/* Le draft : huit tuiles sur deux colonnes, dans un cadre de 360 px de haut,
+ne laissent pas de place à « Retour au salon ». Elles se resserrent — la
+ligne d'ordre, le tour et la tuile elle-même — plutôt que de faire défiler. */
+.stage.stage--duel .sheet.duel-draft {
+  row-gap: min(0.35rem, 1.4vh);
+}
+
+.stage--duel .duel-draft .duel-order {
+  gap: 0.25rem;
+}
+
+.stage--duel .duel-draft .duel-order__slot {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.stage--duel .duel-draft .duel-order__slot .avatar {
+  width: 1.2rem;
+}
+
+.stage--duel .duel-draft .duel-turn {
+  font-size: 0.95rem;
+}
+
+.stage--duel .duel-draft .dealt--pick {
+  gap: 0.25rem;
+}
+
+.stage--duel .duel-draft .dealt--pick .dealt-tile {
+  font-size: min(1.1rem, 4.2vh);
+  gap: 0.5rem;
+  padding-block: 0.25rem;
+  padding-inline: 0.6rem;
+}
+
+.stage--duel .duel-draft .dealt--pick .dealt-shape {
+  width: 1.1rem;
+  height: 1.1rem;
+}
 }
 
 
