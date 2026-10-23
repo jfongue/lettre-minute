@@ -6,9 +6,11 @@
 // (document.elementFromPoint at its centre), and a real mouse click
 // (Input.dispatchMouseEvent, not a scripted .click()) must start the run —
 // through the powers' screen for a player who owns some. A regular player's run must then keep its field, Skip and Enter
-// inside the frame. Last, the page served from another host than localhost —
-// where the SDK can only end up `disabled` — must still show « Play », or a
-// newcomer's lesson, quickly.
+// inside the frame. Then the duel, in the portal's instant multiplayer, from
+// the rules to the running game — and a page taller than the frame (the
+// stats), which must scroll inside the frame instead of being cut. Last, the
+// page served from another host than localhost — where the SDK can only end up
+// `disabled` — must still show « Play », or a newcomer's lesson, quickly.
 //
 //   npm run crazygames:build && npm run crazygames:harness   (another shell)
 //   node crazygames/check.mjs [http://localhost:5747] [http://<LAN address>:5747]
@@ -25,12 +27,20 @@ const OUT = join(ROOT, '.cache/crazygames-check')
 const base = process.argv[2] ?? 'http://localhost:5747'
 const elsewhere = process.argv[3]
 const PORT = 9433
-const SIZES = [[926, 476], [800, 450], [1280, 720], [390, 844]]
+const SIZES = [[926, 476], [800, 450], [1280, 720], [1920, 1080], [390, 844]]
+const LONG_SIZES = [[926, 476], [1920, 1080]]
 const REGULAR = {
   xp: 2350, runs: 14, bestScore: 412, wordsFound: 186, bestCombo: 9, usage: {},
   unlocked: ['fruits-legumes', 'metiers', 'sports', 'capitales'], offer: [], lastOffer: [],
   powers: ['joker', 'hush', 'divination'], equipped: [],
 }
+// Trente parties jouées : la page des statistiques est alors plus haute que
+// n'importe quel cadre, et c'est là qu'on vérifie qu'elle défile chez elle.
+const HISTORY = Array.from({ length: 30 }, (_, index) => [
+  Date.now() - index * 3600_000, 'fr', 180 + index * 7, 3, 1,
+  ['animaux', 'pays', 'couleurs'],
+  [['animaux', 'chat', 'Chat', 40], ['pays', 'canada', 'Canada', 35], ['couleurs', 'bleu', 'Bleu', 25]],
+])
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms))
 
 mkdirSync(OUT, { recursive: true })
@@ -147,7 +157,7 @@ for (const [width, height] of SIZES) {
 // un invité sans compte. Les règles, le salon, le draft et la partie elle-même
 // — ce que la revue du multijoueur a trouvé hors du cadre — doivent tenir dans
 // le cadre sans rien faire défiler, « Leave the table » compris.
-for (const [width, height] of [[640, 360], [926, 476]]) {
+for (const [width, height] of [[640, 360], [926, 476], [1920, 1080]]) {
 const label = `${width}×${height} duel`
 await send('Emulation.setDeviceMetricsOverride', { width: width + 80, height: height + 80, deviceScaleFactor: 1, mobile: false })
 await send('Page.navigate', { url: `${base}/index.html` })
@@ -166,7 +176,7 @@ if (!(await click('.duel-lobby__side button'))) break
 await sleep(1000)
 }
 const ready = await locate('.duel-cta')
-check(ready?.onTop, `${label}: « ready » on top at its centre`, ready?.hit)
+check(ready?.onTop, `${label}: the ready button on top at its centre`, ready?.hit)
 await click('.duel-cta')
 let measuredDraft = false
 for (let tries = 0; tries < 70; tries++) {
@@ -183,10 +193,64 @@ if (await evaluate(`!!${game}?.querySelector('.stage--duel-play')`)) break
 }
 const quit = await locate('.duel-quit')
 const scrolls = await evaluate(`(() => { const d = ${game}; return d ? d.documentElement.scrollHeight - d.defaultView.innerHeight : 0 })()`)
-check(quit && quit.bottom <= quit.height, `${label}: « Leave the table » inside the frame once the game runs`, quit && `${Math.round(quit.top)}..${Math.round(quit.bottom)} of ${quit.height}`)
+check(quit && quit.bottom <= quit.height, `${label}: the quit button inside the frame once the game runs`, quit && `${Math.round(quit.top)}..${Math.round(quit.bottom)} of ${quit.height}`)
 check(scrolls <= 1, `${label}: nothing scrolls under the frame`, `${scrolls} px`)
 const { data } = await send('Page.captureScreenshot', { format: 'png' })
 writeFileSync(join(OUT, `${width}x${height}-duel.png`), Buffer.from(data, 'base64'))
+}
+
+// Un écran plus haut que le cadre — les statistiques, les classements, les
+// succès, les bilans — défile dans le cadre : le portail ne fait jamais
+// défiler la page, et une page coupée sous le bord ne se lit plus du tout.
+for (const [width, height] of LONG_SIZES) {
+const label = `${width}×${height} long page`
+await send('Emulation.setDeviceMetricsOverride', { width: width + 80, height: height + 80, deviceScaleFactor: 1, mobile: false })
+await send('Page.navigate', { url: `${base}/index.html` })
+await sleep(800)
+await evaluate(`localStorage.clear()
+localStorage.setItem('lettre-minute.tutorial.v1', 'true')
+localStorage.setItem('lettre-minute.profile.v1', ${JSON.stringify(JSON.stringify(REGULAR))})
+localStorage.setItem('lettre-minute.history.v1', ${JSON.stringify(JSON.stringify(HISTORY))})
+true`)
+await send('Page.navigate', { url: `${base}/frame.html?w=${width}&h=${height}` })
+await sleep(3500)
+await click('.poster-menu')
+await sleep(1200)
+const link = await evaluate(`!!${game}?.querySelector('.menu .page-link--stats')`)
+check(link, `${label}: the menu tile opens the drawer`, link ? undefined : 'no page link in the drawer')
+const opened = link ? await click('.menu .page-link--stats') : false
+check(opened, `${label}: the stats page opens from the drawer`, opened ? undefined : 'no page link')
+await sleep(2000)
+const page = await evaluate(`(() => {
+const d = ${game}
+if (!d) return null
+// La page vit dans le tiroir : c'est son corps qui défile, pas le document.
+const pane = d.querySelector('.menu-body') ?? d.querySelector('.stage .sheet:not(.sheet--home)')
+if (!pane) return null
+const frame = d.defaultView.innerHeight
+const box = pane.getBoundingClientRect()
+const overflows = pane.scrollHeight > pane.clientHeight + 2
+const last = [...pane.querySelectorAll('*')].filter((el) => el.getBoundingClientRect().height).pop()
+pane.scrollTop = pane.scrollHeight
+return {
+frame,
+document: d.documentElement.scrollHeight - frame,
+box: [Math.round(box.top), Math.round(box.bottom)],
+overflows,
+scrolled: Math.round(pane.scrollTop),
+lastBottom: last ? Math.round(last.getBoundingClientRect().bottom) : null,
+rows: pane.querySelectorAll('li, tr, .run-line').length,
+}
+})()`)
+check(page, `${label}: the stats page shows`, page ? undefined : 'no sheet')
+if (page) {
+check(page.document <= 1, `${label}: the frame itself never scrolls`, `${page.document} px`)
+check(page.box[0] >= -1 && page.box[1] <= page.frame + 1, `${label}: the page stays inside the frame`, `${page.box.join('..')} of ${page.frame}`)
+check(page.overflows && page.scrolled > 0, `${label}: a page taller than the frame scrolls inside it`, page.overflows ? `${page.scrolled} px scrolled, ${page.rows} rows` : `nothing to scroll — ${page.rows} rows`)
+check(page.lastBottom === null || page.lastBottom <= page.frame + 1, `${label}: its end is reachable`, `the last row ends at ${page.lastBottom} of ${page.frame}`)
+}
+const { data } = await send('Page.captureScreenshot', { format: 'png' })
+writeFileSync(join(OUT, `${width}x${height}-stats.png`), Buffer.from(data, 'base64'))
 }
 
 if (elsewhere) {

@@ -14,7 +14,7 @@ mort — le build web ne contient ni le SDK ni ses appels.
 |---|---|
 | `npm run crazygames:build` | `tsc -b`, `vite build --mode crazygames` dans `dist-crazygames/` (`index.html` à la racine, chemins relatifs), zip dans `crazygames/lettre-minute-crazygames.zip`, puis contrôle des tailles contre les limites du portail |
 | `npm run crazygames:harness` | sert `dist-crazygames/` sur http://localhost:5747 — le SDK y démarre en mode `local` (pubs simulées par un texte, journal dans la console) ; `/frame.html?size=desktop\|laptop\|small\|phone` (ou `?w=926&h=476`) montre le jeu dans une iframe aux tailles du portail, et le reste de la requête passe au jeu (`?instantJoin=true` y ouvre le duel comme une invitation du portail) |
-| `npm run crazygames:check` | (harnais lancé) à 926×476, 800×450, 1280×720 et 390×844, pour un nouveau venu et un habitué : « Play » dans le cadre et au premier plan (`elementFromPoint`), un vrai clic souris CDP qui lance la leçon ou la partie, champ, Passer et Valider dans le cadre ; puis le duel en instant multiplayer à 640×360 et 926×476, des règles à la partie — le draft, « Leave the table » et le document doivent tenir dans le cadre, sans rien faire défiler ; avec une adresse du réseau local en second argument, vérifie aussi que le jeu démarre hors du portail, SDK `disabled` |
+| `npm run crazygames:check` | (harnais lancé) à 926×476, 800×450, 1280×720, 1920×1080 et 390×844, pour un nouveau venu et un habitué : « Play » dans le cadre et au premier plan (`elementFromPoint`), un vrai clic souris CDP qui lance la leçon ou la partie, champ, Passer et Valider dans le cadre ; puis le duel en instant multiplayer à 640×360, 926×476 et 1920×1080, des règles à la partie — le draft, quitter la table et le document doivent tenir dans le cadre, sans rien faire défiler —, et une page plus haute que le cadre (les statistiques, trente parties semées) qui doit défiler chez elle plutôt que d'être coupée ; avec une adresse du réseau local en second argument, vérifie aussi que le jeu démarre hors du portail, SDK `disabled` |
 | `npm run crazygames:dev` | le serveur de dev Vite en mode `crazygames`, sur `/crazygames.html` |
 | `npm run crazygames:video` | (harnais lancé) enregistre une vraie partie en Chrome sans tête puis monte les deux vidéos de présentation avec HyperFrames, installé dans ce dossier seul : `crazygames/assets/video-*.mp4` |
 | `npm run crazygames:shots` | (harnais lancé) rend les trois couvertures depuis `assets/cover.html` et joue de vraies parties en Chrome sans tête pour les captures ; imprime la console de la page à la fin |
@@ -211,8 +211,12 @@ ami modérateur) — un joueur connecté au portail a le compte
   vide) restent sur une colonne centrée ; le bilan chargé met la partie et
   « Rejouer » à gauche, succès et classement à droite ; le tutoriel du défi du
   moment et les offres de niveau rangent titre et bouton à gauche, règles ou
-  cartes à droite. Tout autre écran posé sur l'accueil ou la fin de partie
-  défile pour lui-même au lieu de cacher son bouton sous le bord du cadre.
+  cartes à droite. Le cadre, quelle que soit sa hauteur — le portail donne au jeu
+  la fenêtre entière, et une fenêtre haute retombait sur la colonne du téléphone
+  avant que ces règles ne perdent leur limite de 820 px —, est traité comme
+  l'écran : le document ne défile jamais, et tout écran plus haut que lui
+  (classements, statistiques, succès, bilans) défile dans sa propre feuille au
+  lieu de cacher son bouton sous le bord du cadre.
 
 ## Exigences CrazyGames (relevées le 7 octobre 2026)
 

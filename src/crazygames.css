@@ -28,22 +28,31 @@ textarea {
   user-select: text;
 }
 
-/* A landscape frame — the portal's iframe on a laptop, 926 × 476 to
-   1280 × 720 — has no room for the phone's column: every screen keeps its
-   main action in view without scrolling. The poster and the score move to a
-   left column, what follows them to the right, scrolling there if it must. */
-@media (orientation: landscape) and (max-height: 820px) {
+/* A landscape frame — the portal's iframe, from 640 × 360 to a maximised
+   window on a large screen (the portal gives the game the whole window, and a
+   tall one used to fall back on the phone's column) — has no room for that
+   column: every screen keeps its main action in view. The poster and the score
+   move to a left column, what follows them to the right, scrolling there if it
+   must. */
+@media (orientation: landscape) {
   .stage {
     padding-block: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-bottom));
   }
 
-  .stage--home,
-  .stage--countdown,
-  .stage--playing,
-  .stage--over {
+  /* Le cadre est la fenêtre : le document ne défile pas, et un écran plus haut
+     que lui — classements, succès, statistiques, bilans — défile dans sa
+     feuille plutôt que d'être coupé sous le bord, où rien ne l'atteindrait. */
+  .stage {
     height: 100dvh;
     min-height: 0;
     overflow: hidden;
+  }
+
+  .stage .sheet:not(.sheet--home) {
+    max-height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .sheet--home,
@@ -256,7 +265,7 @@ textarea {
 /* Tout écran posé sur l'accueil (défi du moment, pouvoirs, catégories…) tient
    dans le cadre qu'il fige : plus haut, il défile pour lui-même plutôt que de
    cacher son bouton sous le bord. */
-@media (orientation: landscape) and (max-height: 820px) {
+@media (orientation: landscape) {
   .stage--home > .sheet:not(.sheet--home) {
     max-height: 100%;
     min-height: 0;
@@ -345,7 +354,7 @@ textarea {
 /* Les offres de niveau (catégorie, pouvoir, bonus) : le titre, le nom qui se
    tape et le bouton à gauche, les cartes à droite. Une seule colonne y
    poussait le bouton sous le bord du cadre, sans défilement. */
-@media (orientation: landscape) and (max-height: 820px) {
+@media (orientation: landscape) {
   .stage--over > .sheet:not(.reveal):not(.cascade),
   .stage--countdown > .sheet {
     max-height: 100%;
@@ -748,7 +757,7 @@ ligne d'ordre, le tour et la tuile elle-même — plutôt que de faire défiler.
 
 /* La modération (super modérateurs) : la carte à juger à gauche, toute la
    hauteur ; le titre, la progression et les trois votes à droite. */
-@media (orientation: landscape) and (max-height: 820px) {
+@media (orientation: landscape) {
   .stage .sheet.moderation:not(.cascade) {
     width: min(56rem, 100%);
     grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
@@ -1004,7 +1013,7 @@ ligne d'ordre, le tour et la tuile elle-même — plutôt que de faire défiler.
 /* Le choix de langue, quand ni le portail ni le navigateur n'en parlent une
    du jeu : le titre et « Valider » à gauche, les sept langues à droite sur
    deux colonnes. Une seule colonne coupait le titre et la dernière langue. */
-@media (orientation: landscape) and (max-height: 820px) {
+@media (orientation: landscape) {
   .stage--home > .language-picker {
     width: min(60rem, 100%);
     min-height: 0;
