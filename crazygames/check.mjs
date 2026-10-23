@@ -80,6 +80,16 @@ const locate = (selector) => evaluate(`(() => {
   return { x: frame.left + x, y: frame.top + y, top: box.top, bottom: box.bottom, height: d.defaultView.innerHeight, onTop: !!hit && element.contains(hit), hit: hit ? hit.tagName + '.' + hit.className : null }
 })()`)
 
+/** Un vrai clic de souris, à l'endroit où l'élément se trouve dans le cadre. */
+const click = async (selector) => {
+const spot = await locate(selector)
+if (!spot) return false
+for (const type of ['mouseMoved', 'mousePressed', 'mouseReleased']) {
+await send('Input.dispatchMouseEvent', { type, x: spot.x, y: spot.y, button: 'left', clickCount: 1 })
+}
+return true
+}
+
 await send('Page.enable')
 await send('Runtime.enable')
 await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] })
@@ -131,6 +141,52 @@ for (const [width, height] of SIZES) {
     const { data } = await send('Page.captureScreenshot', { format: 'png' })
     writeFileSync(join(OUT, `${width}x${height}-${player}.png`), Buffer.from(data, 'base64'))
   }
+}
+
+// Le duel, jusqu'à la partie : le portail l'ouvre en instant multiplayer pour
+// un invité sans compte. Les règles, le salon, le draft et la partie elle-même
+// — ce que la revue du multijoueur a trouvé hors du cadre — doivent tenir dans
+// le cadre sans rien faire défiler, « Leave the table » compris.
+for (const [width, height] of [[640, 360], [926, 476]]) {
+const label = `${width}×${height} duel`
+await send('Emulation.setDeviceMetricsOverride', { width: width + 80, height: height + 80, deviceScaleFactor: 1, mobile: false })
+await send('Page.navigate', { url: `${base}/index.html` })
+await sleep(800)
+await evaluate('localStorage.clear(); true')
+await send('Page.navigate', { url: `${base}/frame.html?w=${width}&h=${height}&instantJoin=true` })
+await sleep(4500)
+const rules = await locate('.duel-rules')
+check(rules && rules.bottom <= rules.height, `${label}: the rules open the duel, inside the frame`, rules ? `${Math.round(rules.top)}..${Math.round(rules.bottom)} of ${rules.height}` : 'no rules')
+await click('.duel-rules .btn--quiet')
+await sleep(1500)
+const lobby = await locate('.duel-lobby')
+check(lobby && lobby.bottom <= lobby.height, `${label}: the lobby inside the frame`, lobby && `${Math.round(lobby.top)}..${Math.round(lobby.bottom)} of ${lobby.height}`)
+for (let invited = 0; invited < 2; invited++) {
+if (!(await click('.duel-lobby__side button'))) break
+await sleep(1000)
+}
+const ready = await locate('.duel-cta')
+check(ready?.onTop, `${label}: « ready » on top at its centre`, ready?.hit)
+await click('.duel-cta')
+let measuredDraft = false
+for (let tries = 0; tries < 70; tries++) {
+await sleep(500)
+if (await evaluate(`!!${game}?.querySelector('.dealt--pick')`)) {
+if (!measuredDraft) {
+measuredDraft = true
+const tiles = await locate('.dealt--pick')
+check(tiles && tiles.bottom <= tiles.height, `${label}: the draft's tiles inside the frame`, tiles && `${Math.round(tiles.top)}..${Math.round(tiles.bottom)} of ${tiles.height}`)
+}
+await click('.dealt--pick .dealt-tile--open')
+}
+if (await evaluate(`!!${game}?.querySelector('.stage--duel-play')`)) break
+}
+const quit = await locate('.duel-quit')
+const scrolls = await evaluate(`(() => { const d = ${game}; return d ? d.documentElement.scrollHeight - d.defaultView.innerHeight : 0 })()`)
+check(quit && quit.bottom <= quit.height, `${label}: « Leave the table » inside the frame once the game runs`, quit && `${Math.round(quit.top)}..${Math.round(quit.bottom)} of ${quit.height}`)
+check(scrolls <= 1, `${label}: nothing scrolls under the frame`, `${scrolls} px`)
+const { data } = await send('Page.captureScreenshot', { format: 'png' })
+writeFileSync(join(OUT, `${width}x${height}-duel.png`), Buffer.from(data, 'base64'))
 }
 
 if (elsewhere) {

@@ -22,13 +22,13 @@ const TYPES = {
 }
 const SIZES = { desktop: [1280, 720], laptop: [926, 476], small: [800, 450], phone: [375, 667] }
 
-const frame = (size, custom) => {
+const frame = (size, custom, query = '') => {
   const [width, height] = custom ?? SIZES[size] ?? SIZES.desktop
   return `<!doctype html><meta charset="utf-8"><title>CrazyGames harness</title>
 <style>body{margin:0;background:#202030;display:grid;place-items:center;min-height:100vh;font:14px system-ui;color:#ccc}
 nav{position:fixed;top:8px;left:8px}a{color:#9cf;margin-right:12px}iframe{border:0;background:#000}</style>
 <nav>${Object.keys(SIZES).map((name) => `<a href="?size=${name}">${name}</a>`).join('')}</nav>
-<iframe src="/index.html" width="${width}" height="${height}" allow="autoplay; fullscreen"></iframe>`
+<iframe src="/index.html${query}" width="${width}" height="${height}" allow="autoplay; fullscreen"></iframe>`
 }
 
 createServer((request, response) => {
@@ -36,7 +36,11 @@ createServer((request, response) => {
   if (url.pathname === '/frame.html') {
     response.writeHead(200, { 'content-type': TYPES['.html'] })
     const [w, h] = ['w', 'h'].map((name) => Number(url.searchParams.get(name)))
-    response.end(frame(url.searchParams.get('size') ?? 'desktop', w && h ? [w, h] : null))
+    // Le reste de la requête va au jeu : ?instantJoin=true ouvre le duel comme
+    // le portail le fait pour une invitation.
+    const params = new URLSearchParams(url.search)
+    for (const name of ['size', 'w', 'h']) params.delete(name)
+    response.end(frame(url.searchParams.get('size') ?? 'desktop', w && h ? [w, h] : null, params.size ? `?${params}` : ''))
     return
   }
   const path = normalize(join(root, url.pathname === '/' ? 'index.html' : url.pathname))
