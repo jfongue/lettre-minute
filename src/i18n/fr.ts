@@ -1160,12 +1160,10 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +1 
     publicOn: 'Ouverte',
     publicOff: 'Fermée',
     publicChip: 'Table publique',
-    matchWait: 'Les tables publiques passent en premier, puis le premier joueur qui cherche.',
     xpTitle: 'Ce que le duel te rapporte',
     xpLine: (words: number, points: number, bonus: number) =>
       `${words} mot${words > 1 ? 's' : ''} · ${points} point${points > 1 ? 's' : ''}, + ${bonus} pour le duel joué jusqu’au bout`,
     xpLater: 'Ta récompense de niveau t’attend à la fin de ta prochaine partie.',
-    noXp: 'Contre les seuls joueurs ordinateur, le duel ne rapporte pas d’XP.',
   },
 
   /**

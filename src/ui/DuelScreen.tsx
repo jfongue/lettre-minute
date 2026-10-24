@@ -134,7 +134,16 @@ export function Lobby({
       <div className="sheet duel-lobby">
         <div className="duel-lobby__table">
           <header className="duel-head">
-            <p className="eyebrow">{table.rematchOpen ? t.duel.revenging : t.duel.title}</p>
+            <div className="duel-head__top">
+              {!locked && (table.mode === 'online' || table.rematchOpen || table.embedded) ? (
+                <button type="button" className="subpage-back duel-back" onClick={() => table.leave()} aria-label={t.duel.quit}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M15 5l-7 7 7 7" />
+                  </svg>
+                </button>
+              ) : null}
+              <p className="eyebrow">{table.rematchOpen ? t.duel.revenging : t.duel.title}</p>
+            </div>
             <h1 className="duel-title duel-title--poster" key={counting ? 'draft' : 'table'}>
               {counting ? t.duel.announceTitle : table.rematchOpen ? t.duel.rematchTitle : t.duel.leadTitle}
             </h1>
@@ -267,11 +276,6 @@ export function Lobby({
               ) : null}
               {locked ? null : (
                 <span className="duel-lobby__links">
-                  {table.mode === 'online' || table.rematchOpen || table.embedded ? (
-                    <button type="button" className="btn btn--quiet" onClick={() => table.leave()}>
-                      {t.duel.quit}
-                    </button>
-                  ) : null}
                   <button
                     type="button"
                     className="btn btn--quiet"
@@ -1067,7 +1071,6 @@ export function Over({ table }: { table: DuelTable }) {
   const done = shown >= order.length
   const seat = table.seats[champion]
   const someoneElse = table.mode === 'online' && table.rematchOpen
-  const humanRival = table.seats.some((one, index) => index !== table.myIndex && !one.bot)
   const me = table.seats[table.myIndex]
   return (
     <main className="stage stage--duel">
@@ -1114,11 +1117,7 @@ export function Over({ table }: { table: DuelTable }) {
               )
             })}
           </ol>
-          {table.payout ? (
-            <DuelXp payout={table.payout} avatar={me?.avatar ?? null} show={done} />
-          ) : !humanRival && done ? (
-            <p className="note duel-noxp">{t.duel.noXp}</p>
-          ) : null}
+          {table.payout ? <DuelXp payout={table.payout} avatar={me?.avatar ?? null} show={done} /> : null}
         </div>
         <div className={`stack duel-actions${done ? ' duel-actions--in' : ''}`}>
           {someoneElse ? <p className="note">{t.duel.rematchWaiting}</p> : null}
@@ -1397,7 +1396,6 @@ export function DuelMatchmaking({
         <p className="note duel-search__lead" aria-live="polite">
           {offline ? t.duel.matchOffline : t.duel.matchLead}
         </p>
-        <p className="note duel-search__hint">{t.duel.matchWait}</p>
         <div className="stack duel-search__actions">
           {patient ? null : (
             <button

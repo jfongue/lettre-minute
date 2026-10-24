@@ -1154,12 +1154,10 @@ cheerAria: (label: string) => `Sugerir ${label}`,
     publicOn: 'Aberta',
     publicOff: 'Fechada',
     publicChip: 'Mesa pública',
-    matchWait: 'Primeiro as mesas públicas, depois o primeiro jogador que procura.',
     xpTitle: 'O que o duelo te rende',
     xpLine: (words: number, points: number, bonus: number) =>
       `${words} palavra${words === 1 ? '' : 's'} · ${points} ponto${points === 1 ? '' : 's'}, + ${bonus} por jogar o duelo até ao fim`,
     xpLater: 'A tua recompensa de nível espera-te no fim da próxima partida.',
-    noXp: 'Só contra os jogadores da casa, o duelo não rende XP.',
   },
 
   /** O ecrã das conquistas: um nome e uma linha para cada uma. */

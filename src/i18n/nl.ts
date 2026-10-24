@@ -1153,12 +1153,10 @@ cheerAria: (label: string) => `${label} aanraden`,
     publicOn: 'Open',
     publicOff: 'Dicht',
     publicChip: 'Openbare tafel',
-    matchWait: 'Eerst de openbare tafels, dan de eerste speler die zoekt.',
     xpTitle: 'Wat het duel je oplevert',
     xpLine: (words: number, points: number, bonus: number) =>
       `${words} ${words === 1 ? 'woord' : 'woorden'} · ${points} ${points === 1 ? 'punt' : 'punten'}, + ${bonus} voor het duel tot het eind`,
     xpLater: 'Je niveaubeloning wacht aan het eind van je volgende spel.',
-    noXp: 'Alleen tegen de huisspelers levert het duel geen XP op.',
   },
 
   /** Het prestatiescherm: een naam en een regel voor elk. */

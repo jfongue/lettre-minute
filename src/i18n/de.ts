@@ -1152,12 +1152,10 @@ cheerAria: (label: string) => `${label} vorschlagen`,
     publicOn: 'Offen',
     publicOff: 'Geschlossen',
     publicChip: 'Öffentlicher Tisch',
-    matchWait: 'Zuerst die öffentlichen Tische, dann der erste Spieler, der sucht.',
     xpTitle: 'Was dir das Duell bringt',
     xpLine: (words: number, points: number, bonus: number) =>
       `${words} ${words === 1 ? 'Wort' : 'Wörter'} · ${points} ${points === 1 ? 'Punkt' : 'Punkte'}, + ${bonus} fürs Duell bis zum Ende`,
     xpLater: 'Deine Level-Belohnung wartet am Ende deiner nächsten Runde.',
-    noXp: 'Nur gegen die Hausspieler bringt das Duell keine XP.',
   },
 
   /** Der Erfolgsbildschirm: ein Name und eine Zeile für jeden. */

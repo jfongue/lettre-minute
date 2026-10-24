@@ -1154,12 +1154,10 @@ cheerAria: (label: string) => `Suggerisci ${label}`,
     publicOn: 'Aperto',
     publicOff: 'Chiuso',
     publicChip: 'Tavolo pubblico',
-    matchWait: 'Prima i tavoli pubblici, poi il primo giocatore in cerca.',
     xpTitle: 'Cosa ti frutta il duello',
     xpLine: (words: number, points: number, bonus: number) =>
       `${words} parol${words === 1 ? 'a' : 'e'} · ${points} punt${points === 1 ? 'o' : 'i'}, + ${bonus} per il duello giocato fino in fondo`,
     xpLater: 'La ricompensa di livello ti aspetta alla fine della prossima partita.',
-    noXp: 'Solo contro i giocatori della casa, il duello non dà XP.',
   },
 
   /** La schermata degli obiettivi: un nome e una riga per ognuno. */

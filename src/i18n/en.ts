@@ -1157,12 +1157,10 @@ cheerAria: (label: string) => `Suggest ${label}`,
     publicOn: 'Open',
     publicOff: 'Closed',
     publicChip: 'Public table',
-    matchWait: 'Public tables come first, then the first player who is searching.',
     xpTitle: 'What the duel earns you',
     xpLine: (words: number, points: number, bonus: number) =>
       `${words} word${words === 1 ? '' : 's'} · ${points} point${points === 1 ? '' : 's'}, + ${bonus} for playing the duel to the end`,
     xpLater: 'Your level reward is waiting at the end of your next game.',
-    noXp: 'Against the house players alone, the duel earns no XP.',
   },
 
   /** The achievements screen: a name and a line for each, in the catalogue's order. */

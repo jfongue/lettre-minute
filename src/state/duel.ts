@@ -795,14 +795,13 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   }, [ended, mode, table])
 
   // La fin d'une table se garde au profil, une fois : le plus grand nombre de
-  // manches tenues à quatre, que la table seule connaît, et l'XP d'un duel en
-  // ligne contre au moins un humain, payée une seule fois par table sur cet
-  // appareil (`duelPaid`) — la fin se relit à chaque battement.
+  // manches tenues à quatre, que la table seule connaît, et l'XP d'un duel fini —
+  // joueurs ordinateur et table d'invité comprises —, payée une seule fois par
+  // table sur cet appareil (`duelPaid`) — la fin se relit à chaque battement.
   const [payout, setPayout] = useState<(DuelPayout & { table: string }) | null>(null)
   const tableKey = table ? `${table.id ?? 'local'}:${table.seed}` : ''
   const closedFor = useRef('')
   const mineAtTable = players[myIndex]
-  const humanRival = players.some((seat, index) => index !== myIndex && !seat.bot)
   useEffect(() => {
     if (!ended || !duel || !table || closedFor.current === tableKey) return
     closedFor.current = tableKey
@@ -811,11 +810,11 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     const rounds = duelRound(duel)
     if (table.seats.length >= 4 && rounds > before.duelRounds4) after = { ...after, duelRounds4: rounds }
     const earned =
-      table.id && !duelPaid(table.id)
-        ? duelReward(duel, myIndex, { online: mode === 'online', humanRival, present: !!mineAtTable && !mineAtTable.gone })
+      !duelPaid(tableKey)
+        ? duelReward(duel, myIndex, { present: !!mineAtTable && !mineAtTable.gone })
         : null
-    if (earned && table.id) {
-      markDuelPaid(table.id)
+    if (earned) {
+      markDuelPaid(tableKey)
       after = applyDuel(after, earned.xp)
       setPayout({ ...earned, before, after, table: tableKey })
     }
@@ -823,7 +822,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     saveProfile(after)
     onProfile?.(after)
     if (earned) void pushDuelProfile(after)
-  }, [ended, duel, table, tableKey, myIndex, mode, humanRival, mineAtTable, onProfile])
+  }, [ended, duel, table, tableKey, myIndex, mineAtTable, onProfile])
 
   // ------------------------------------------------------ les phases --
 

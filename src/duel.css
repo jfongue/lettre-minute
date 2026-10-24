@@ -46,6 +46,24 @@
   gap: 0.4rem;
 }
 
+/* La flèche de retour du salon, du même geste que celle d'une sous-page
+   (« Défi du moment ») : à gauche de l'étiquette, en haut du salon. */
+.duel-head__top {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.duel-back {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+
+.duel-back svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
 /* Une étiquette pleine, comme le nombre de joueurs d'une carte de l'accueil. */
 .duel-chip {
   padding: 0.12rem 0.55rem;
@@ -1782,11 +1800,6 @@
   align-items: center;
 }
 
-.duel-noxp {
-  text-align: center;
-  animation: fade 300ms ease both;
-}
-
 /* --------------------------------------------------------- la recherche - */
 
 /* Le matchmaking : ma place, trois temps qui sautent, et en face une place qui
@@ -1873,11 +1886,6 @@
 .duel-versus__dots i:nth-child(3) {
   background: var(--blue);
   animation-delay: 300ms;
-}
-
-.duel-search__hint {
-  color: var(--ink-soft);
-  font-size: 0.75rem;
 }
 
 /* --------------------------------------------------------- l'attente - */
