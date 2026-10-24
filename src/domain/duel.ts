@@ -363,10 +363,6 @@ export interface DuelReward {
 }
 
 export interface DuelRewardTable {
-  /** La table vit sur le serveur ; une table locale se rejoue à volonté, hors ligne. */
-  online: boolean
-  /** Au moins un autre joueur assis n'est pas un joueur ordinateur. */
-  humanRival: boolean
   /** Le joueur était encore à la table quand elle s'est finie, debout ou tombé. */
   present: boolean
 }
@@ -374,13 +370,14 @@ export interface DuelRewardTable {
 /**
  * Ce qu'un duel rapporte à un joueur : le temps y est la seule monnaie, mais
  * les mots qu'il a trouvés gardent leurs points du solo — ceux que la partie a
- * comptés en les encaissant —, et la table paie son forfait. Seulement un duel
- * fini, en ligne, contre au moins un humain, et que le joueur n'a pas quitté :
- * une table de joueurs ordinateur se rejouerait sans fin pour de l'XP.
+ * comptés en les encaissant —, et la table paie son forfait. Un duel fini que
+ * le joueur n'a pas quitté : les joueurs ordinateur comptent comme les autres,
+ * la table se gagne de la même façon contre eux, et une table d'invité, qui ne
+ * vit que sur l'appareil, paie comme celle du serveur.
  */
 export function duelReward(duel: Duel, index: number, table: DuelRewardTable): DuelReward | null {
   const player = duel.players[index]
-  if (duel.phase !== 'over' || !player || !table.online || !table.humanRival || !table.present) return null
+  if (duel.phase !== 'over' || !player || !table.present) return null
   const points = player.words.reduce((sum, word) => sum + word.points, 0)
   return { xp: points + DUEL_XP_BONUS, words: player.words.length, points }
 }

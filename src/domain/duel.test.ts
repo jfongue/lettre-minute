@@ -512,7 +512,7 @@ describe('l’XP d’un duel', () => {
     duel = playWord(duel, answer(duel), judge, 1).duel
     return duelTimeout(duel, judge, 1 + duel.players[1]!.reserve + 0.5)
   }
-  const online = { online: true, humanRival: true, present: true }
+  const online = { present: true }
 
   it('paie les points des mots trouvés, au barème du solo, plus le forfait', () => {
     const duel = finished()
@@ -528,10 +528,13 @@ describe('l’XP d’un duel', () => {
     expect(duelReward(finished(), 1, online)).toEqual({ xp: DUEL_XP_BONUS, words: 0, points: 0 })
   })
 
-  it('ne paie rien hors ligne, contre les seuls joueurs ordinateur, au joueur parti, ou avant la fin', () => {
+  it('paie aussi la table des joueurs ordinateur, celle de l’invité comprise', () => {
     const duel = finished()
-    expect(duelReward(duel, 0, { ...online, online: false })).toBeNull()
-    expect(duelReward(duel, 0, { ...online, humanRival: false })).toBeNull()
+    expect(duelReward(duel, 0, online)?.xp).toBe(duel.players[0]!.words[0]!.points + DUEL_XP_BONUS)
+  })
+
+  it('ne paie rien au joueur parti, ni avant la fin', () => {
+    const duel = finished()
     expect(duelReward(duel, 0, { ...online, present: false })).toBeNull()
     expect(duelReward(draft(2), 0, online)).toBeNull()
   })
