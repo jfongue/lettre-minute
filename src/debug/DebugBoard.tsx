@@ -2160,12 +2160,28 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <ModeIntro mode="endurance" onDone={back} />,
   },
   {
+    id: 'weekly-screen-reversed',
+    group: 'Défi du moment',
+    title: 'Écran du défi : renversé',
+    how: 'Le défi de la semaine prochaine : la lettre à droite du thème, le score en points, le classement du défi',
+    phase: 'home',
+    render: (back) => <WeeklyScreenScenario mode="reversed" used={1} plus={false} onBack={back} />,
+  },
+  {
     id: 'weekly-run-endurance',
     group: 'Défi du moment',
     title: 'Partie en endurance',
     how: 'Le chrono en grand, +2 s qui s’anime à chaque mot, le temps de survie',
     phase: 'playing',
     render: () => <WeeklyRunScenario />,
+  },
+  {
+    id: 'weekly-run-reversed',
+    group: 'Défi du moment',
+    title: 'Partie en renversé',
+    how: 'La lettre contrainte en fin de mot : le champ annonce « qui finit par », le verdict juge la fin',
+    phase: 'playing',
+    render: () => <WeeklyRunScenario mode="reversed" />,
   },
   {
     id: 'weekly-attempt-done',
@@ -2178,7 +2194,7 @@ const SCENARIOS: readonly Scenario[] = [
   {
     id: 'weekly-results',
     group: 'Défi du moment',
-    title: 'Résultats de la semaine',
+    title: 'Classement du défi',
     how: 'Soixante joueurs, podium, mon rang, huit trophées, réactions agrégées (sans serveur)',
     phase: 'home',
     render: (back) => <WeeklyResultsScenario closed={false} onBack={back} />,

@@ -98,6 +98,8 @@ function ModeLesson({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; on
 
   // La question remplie est toujours la A : le renversé la juge par sa fin.
   const edge = modeEdge(mode)
+  const placeholder = edge === 'last' ? t.run.placeholderLast : t.run.placeholder
+  const fieldLabel = edge === 'last' ? t.run.fieldLabelLast : t.run.fieldLabel
   const known = pack && (edge === 'last' ? finalOf(draft) : initialOf(draft)) === a.letter ? lookup(pack, draft) : null
   const found = compactWord(draft) === compactWord(answer) ? answer : known ? capitalized(known.display) : null
 
@@ -234,8 +236,8 @@ function ModeLesson({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; on
               if (mode === 'endurance' && clockStart === null) setClockStart(Date.now())
               setDraft(capitalized(event.target.value))
             }}
-            placeholder={step === 'a' ? t.modes.armNote : t.run.placeholder(a.letter)}
-            aria-label={t.run.fieldLabel(a.letter, category.label)}
+            placeholder={step === 'a' ? t.modes.armNote : placeholder(a.letter)}
+            aria-label={fieldLabel(a.letter, category.label)}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="sentences"

@@ -153,6 +153,14 @@ select tests.login('wb');
 select tests.is(public.weekly_recap(tests.week(), 'fr') -> 'rank', '3'::jsonb, 'another player, another rank');
 select tests.logout();
 
+-- Un joueur que le serveur ne classe pas n'a pas de rang : l'anonyme — l'invité
+-- de CrazyGames, qui joue le défi sur son appareil — n'a aucune ligne à
+-- comparer, et le récap lui rendait 1, donc « 1er sur 3 » avec son record local.
+select tests.login('wn');
+select tests.is(public.weekly_recap(tests.week(), 'fr') -> 'rank', 'null'::jsonb, 'an unranked player has no rank');
+select tests.is(public.weekly_recap(tests.week(), 'fr') -> 'players', '3'::jsonb, 'out of the players ranked');
+select tests.logout();
+
 -- La semaine en cours n'est pas encore « jouée » ; une close l'est.
 select tests.login('wa');
 select tests.is(public.weekly_last_played('fr'), null::date, 'the week under way does not count for a recap');
