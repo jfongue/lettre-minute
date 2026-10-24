@@ -25,7 +25,7 @@ import type { Judge } from '../domain/run'
 import type { SessionAction, Session } from '../state/session'
 import { loadLocalAttempts, markRecapSeen, recapDue, recordLocalAd, saveLocalBest } from '../state/weekly'
 import { loadWeeklyWinGiven, saveWeeklyWinGiven } from '../state/storage'
-import { loadWeeklyStatus, markWeeklyIntroSeen, startWeeklyAttempt, weeklyIntroSeen, windowAt } from '../state/weeklyPlay'
+import { loadWeeklyStatus, markWeeklyIntroSeen, rankFrom, startWeeklyAttempt, weeklyIntroSeen, windowAt } from '../state/weeklyPlay'
 import { lazyScreen } from './lazyScreen'
 import { ModeIntro } from './ModeIntro'
 import { ModeTutorial } from './ModeTutorial'
@@ -244,7 +244,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
       const recap = await fetchWeeklyRecap(current.weekId, current.lang)
       if (!live) return
       best.current = Math.max(best.current ?? 0, base.value)
-      setDone({ ...base, rank: recap?.rank ?? null, players: recap?.players ?? 0, sending: 'sent' })
+      setDone({ ...base, rank: rankFrom(recap), players: recap?.players ?? 0, sending: 'sent' })
     })
     return () => {
       live = false
@@ -270,7 +270,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
       if (then) setView(then)
       if (!rank) return
       void rank.then((recap) => {
-        if (!weeklyWinPrizeDue(session.profile, recap?.rank ?? null, loadWeeklyWinGiven())) return
+        if (!weeklyWinPrizeDue(session.profile, rankFrom(recap), loadWeeklyWinGiven())) return
         saveWeeklyWinGiven()
         // La pop-up dit le prix : elle remplace le merci de l'accueil, sinon les deux se poseraient ensemble.
         joinPlus()
