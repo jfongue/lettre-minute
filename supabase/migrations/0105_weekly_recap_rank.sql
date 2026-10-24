@@ -1,10 +1,10 @@
 -- L'invité de CrazyGames joue le défi du moment sur son appareil : le serveur
 -- ne classe que les comptes nommés, et son récap n'a donc aucune ligne au
 -- classement. `weekly_recap` (0085) lui rendait pourtant le rang 1 — faute de
--- valeur à comparer, `count(*) filter (where b.value > (select value from me))`
--- comptait zéro — si bien que l'écran annonçait « 1er sur 9 » avec son record
--- local de 5 s, et le bandeau « Classement de la semaine » l'envoyait vers une
--- liste où il n'apparaissait pas.
+-- valeur à comparer, `1 + count(*) … where b.value > (select value from me)`
+-- ne comptait personne (`> null` n'est jamais vrai) — si bien que l'écran
+-- annonçait « 1er sur 9 » avec son record local de 5 s, et le bouton
+-- « Classement du défi » l'envoyait vers une liste où il n'apparaissait pas.
 --
 -- Le rang ne se rend plus que sur une valeur classée : sans ligne à comparer,
 -- il est nul et l'écran montre « — ». `players` reste le nombre de joueurs
