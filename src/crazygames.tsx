@@ -21,6 +21,11 @@ import './crazygames.css'
  */
 const root = createRoot(document.getElementById('root')!)
 
+// Le commit dont ce paquet vient, sur le document : la page du portail sert le
+// build qu'elle a revu, pas celui qu'on vient de téléverser, et c'est ce que
+// `npm run crazygames:live` lit pour dire lequel des deux on regarde.
+document.documentElement.dataset.build = import.meta.env.VITE_BUILD ?? 'dev'
+
 // The portal's iframe keeps its height under a phone's keyboard, which covers
 // the bottom of the run instead: while a run's field has the focus on a touch
 // screen, crazygames.css tightens the run above the keys. The class lingers a

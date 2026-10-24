@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
@@ -7,6 +8,19 @@ import { configDefaults } from 'vitest/config'
 // The version the Play Store knows, stamped on every tracked event: the
 // dashboard tells which build a crash or a drop came from.
 const appVersion = /versionName "([^"]+)"/.exec(readFileSync('android/app/build.gradle', 'utf8'))?.[1] ?? 'dev'
+
+// The commit a bundle was built from, readable in the debug board and on the
+// document (data-build): the portal serves the build it has reviewed, not the
+// one just uploaded, and « ça ne va toujours pas » has to be answerable without
+// opening the portal — the page itself says which commit it runs.
+const buildStamp = (() => {
+  const git = (...args: string[]) => execFileSync('git', args, { encoding: 'utf8' }).trim()
+  try {
+    return `${git('rev-parse', '--short', 'HEAD')} · ${git('show', '-s', '--format=%cs', 'HEAD')}`
+  } catch {
+    return 'dev'
+  }
+})()
 
 // `vite build --mode crazygames` (npm run crazygames:build): the portal's own
 // page, relative paths, no public/ folder (privacy pages, invite art), and
@@ -57,6 +71,7 @@ export default defineConfig(({ mode }) => ({
   plugins: mode === 'crazygames' ? [crazyGamesLoad(), react()] : [react()],
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
+    'import.meta.env.VITE_BUILD': JSON.stringify(buildStamp),
     // The host the build is for (src/platform/index.ts), a literal the
     // minifier folds: the other hosts' code never reaches the bundle.
     'import.meta.env.VITE_PLATFORM': JSON.stringify(mode === 'crazygames' ? 'crazygames' : 'app'),
