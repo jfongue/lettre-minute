@@ -3511,6 +3511,12 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
         Chaque écran difficile d’accès, avec des données inventées. Rien n’est envoyé au serveur ; les choix ne
         touchent pas au vrai profil.
       </p>
+      {/* Le portail sert le build qu'il a revu, pas celui qu'on vient de
+          téléverser : cette ligne dit lequel tourne sous les yeux. */}
+      <p className="note">
+        Build {import.meta.env.VITE_BUILD ?? 'dev'} · version {import.meta.env.VITE_APP_VERSION ?? 'dev'} — ce que
+        cette page exécute, à comparer au build envoyé au portail.
+      </p>
       {newCount > 0 && (
         <p className="note debug-note debug-note--new">
           En bleu : {newCount} planches nouvelles, que la {NEW_SINCE} n’avait pas.

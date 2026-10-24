@@ -526,6 +526,15 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     gap: min(0.75rem, 2vh);
   }
 
+  /* Sous 900 px de cadre, deux places par colonne laissent à chacune trop peu
+     de largeur pour son nom (« MAXITO… », « FREE SE… ») : la table se lit en
+     une colonne de quatre, nom, allure et état entiers. */
+  @media (max-width: 900px) {
+    .stage.stage--duel .duel-seats {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
   .stage.stage--duel .duel-seatcard__button {
     grid-template-columns: auto minmax(0, 1fr);
     grid-template-rows: auto auto;

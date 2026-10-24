@@ -17,6 +17,7 @@ mort — le build web ne contient ni le SDK ni ses appels.
 | `npm run crazygames:check` | (harnais lancé) à 926×476, 800×450, 1280×720, 1920×1080 et 390×844, pour un nouveau venu et un habitué : « Play » dans le cadre et au premier plan (`elementFromPoint`), un vrai clic souris CDP qui lance la leçon ou la partie, champ, Passer et Valider dans le cadre ; puis le duel en instant multiplayer à 640×360, 926×476 et 1920×1080, des règles à la partie — le draft, quitter la table et le document doivent tenir dans le cadre, sans rien faire défiler —, et une page plus haute que le cadre (les statistiques, trente parties semées) qui doit défiler chez elle plutôt que d'être coupée ; avec une adresse du réseau local en second argument, vérifie aussi que le jeu démarre hors du portail, SDK `disabled` |
 | `npm run crazygames:scan` | (harnais lancé) passe en revue les ~200 écrans que la planche debug montre avec les vrais composants, à 1920×1080, 2200×1244, 1280×720, 926×476, 800×450 et 640×360 : pour chacun, le document ne défile pas et aucun contrôle ne tombe hors du cadre sans qu'un groupe ne puisse l'y ramener en défilant. Plus lent que `crazygames:check` (~15 min par taille) et complémentaire — celui-ci joue les vrais parcours, celui-là voit tout. `npm run crazygames:scan -- 2200 1244` pour une taille, un mot du titre en troisième argument |
 | `npm run crazygames:dev` | le serveur de dev Vite en mode `crazygames`, sur `/crazygames.html` |
+| `npm run crazygames:live` | ce que le portail sert **en ligne** à l'instant : l'identifiant de son build et le dossier de fichiers qu'il charge. Un build téléversé n'est pas un build publié — le portail ne sert le nouveau qu'après sa revue —, et c'est la première chose à lire quand une correction poussée « ne change rien » |
 | `npm run crazygames:video` | (harnais lancé) enregistre une vraie partie en Chrome sans tête puis monte les deux vidéos de présentation avec HyperFrames, installé dans ce dossier seul : `crazygames/assets/video-*.mp4` |
 | `npm run crazygames:shots` | (harnais lancé) rend les trois couvertures depuis `assets/cover.html` et joue de vraies parties en Chrome sans tête pour les captures ; imprime la console de la page à la fin |
 
@@ -28,6 +29,12 @@ rendu identique ; elles ne se recommitent que pour une nouvelle soumission.
 Une soumission se tague `crazygames-vX.Y.Z` sur le commit de son build (local
 d'abord, poussé avec `main`) : `crazygames-v1.0.0` est la Basic Launch envoyée
 le 2026-10-08 ; `git tag -l 'crazygames-*'` liste les mises à jour qui ont suivi.
+
+Un build dit son commit : `vite.config.ts` le lit dans git (`VITE_BUILD`),
+l'entrée le pose sur `<html data-build>`, et la planche debug l'affiche en tête
+(« Build 7816483 · 2026-10-23 »). Sur la page du portail, c'est ce qui distingue
+le build publié de celui qu'on vient de téléverser — la planche s'ouvre pour un
+super modérateur, qui est aussi celui qui téléverse.
 
 ## Ce que fait le build
 
