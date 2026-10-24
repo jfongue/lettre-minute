@@ -7,9 +7,10 @@ const seconds = (value: number) => value.toLocaleString('fr-FR', { maximumFracti
 type Trophy = readonly [name: string, line: (value: number, word: string, unit: string) => string]
 
 /**
- * Le défi du moment : la même partie pour tous, une semaine durant. Écrit à
- * part de `fr.ts` — qui le reprend sous `weekly` — pour que ses sept langues
- * tiennent dans un seul chantier.
+ * Le défi du moment : la même partie pour tous, le temps d'un défi — une
+ * semaine, ou deux quand il est prolongé (`WEEKLY_EXTENDED`). Écrit à part de
+ * `fr.ts` — qui le reprend sous `weekly` — pour que ses sept langues tiennent
+ * dans un seul chantier.
  */
 export const weeklyFr = {
   title: 'Défi du moment',
@@ -56,7 +57,7 @@ export const weeklyFr = {
     adFailed: 'Pas de pub pour l’instant, réessaie dans un instant.',
     goPremium: 'Passer Premium : 3 tentatives par jour',
     tutorial: 'Revoir le tutoriel',
-    results: 'Classement de la semaine',
+    results: 'Classement du défi',
     refused: 'Plus de tentative disponible pour aujourd’hui.',
     offline: 'Hors ligne : tes tentatives sont comptées sur cet appareil.',
     loading: 'Le défi arrive…',
@@ -110,32 +111,32 @@ export const weeklyFr = {
   },
   results: {
     title: 'Classement',
-    provisional: 'Provisoire : la semaine continue',
+    provisional: 'Provisoire : le défi continue',
     final: 'Résultat final',
     podium: 'Le podium',
     mine: 'Ma place',
     board: 'Tous les joueurs',
-    trophies: 'Les trophées de la semaine',
+    trophies: 'Les trophées du défi',
     trophiesHint: 'Un trophée par joueur, jamais deux. Touche pour réagir.',
     noTrophies: 'Les trophées se décident quand assez de joueurs ont joué.',
-    empty: 'Personne n’a encore joué cette semaine : à toi l’honneur.',
+    empty: 'Personne n’a encore joué ce défi : à toi l’honneur.',
     loadFailed: 'Impossible de charger le classement pour l’instant.',
     retry: 'Réessayer',
     attempts: (count: number) => `${count} ${plural(count, 'tentative', 'tentatives')}`,
     players: (count: number) => `${count} ${plural(count, 'joueur', 'joueurs')}`,
     more: 'Voir plus de joueurs',
     react: 'Réagir',
-    reactOnly: 'Seuls ceux qui ont joué cette semaine réagissent.',
+    reactOnly: 'Seuls ceux qui ont joué ce défi réagissent.',
     back: 'Retour',
     play: 'Jouer',
   },
   trophy: {
-    'weekly-rarest': ['Le dénicheur', (_: number, word: string) => `« ${word} », le mot le plus rare de la semaine`],
+    'weekly-rarest': ['Le dénicheur', (_: number, word: string) => `« ${word} », le mot le plus rare du défi`],
     'weekly-original': ['L’original', (value: number) => `${value} ${plural(value, 'mot que personne d’autre n’a écrit', 'mots que personne d’autre n’a écrits')}`],
     'weekly-climber': ['Le grimpeur', (value: number, _: string, unit: string) => `+${seconds(value)} ${unit} entre sa première tentative et sa meilleure`],
     'weekly-streak': ['L’enchaîneur', (value: number) => `une série de ${value} mots`],
     'weekly-fastest': ['L’éclair', (value: number, word: string) => `« ${word} » en ${seconds(value)} s`],
-    'weekly-persistent': ['Le têtu', (value: number) => `${value} tentatives en une semaine`],
+    'weekly-persistent': ['Le têtu', (value: number) => `${value} tentatives sur le défi`],
     'weekly-longest': ['Le mot-fleuve', (value: number, word: string) => `« ${word} », ${value} lettres`],
     'weekly-sheep': ['Le mouton', (value: number) => `${value} ${plural(value, 'mot', 'mots')} en commun avec la foule`],
   } satisfies Record<WeeklyTrophyId, Trophy> as Record<WeeklyTrophyId, Trophy>,

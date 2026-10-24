@@ -112,6 +112,10 @@ export function RunScreen({
   // Le retard remplit la question d'avant, le renversé juge la fin du mot.
   const answer = answerPrompt(run)
   const edge = modeEdge(run.mode)
+  // Le champ dit la contrainte que le verdict appliquera : « en M » ne vaut que
+  // pour un mot qui commence par la lettre, le renversé cherche sa fin.
+  const placeholder = edge === 'last' ? t.run.placeholderLast : t.run.placeholder
+  const fieldLabel = edge === 'last' ? t.run.fieldLabelLast : t.run.fieldLabel
   // En endurance, le score est le temps à tenir, pas les points : le camembert
   // se vide donc sur lui, sinon il resterait plein dès que le chrono le dépasse.
   const score = runScore(run)
@@ -404,8 +408,8 @@ else if (doubleSkip) sound.power('double-skip')
               sound.key(event.target.value.length < draft.length)
               onType(capitalized(event.target.value))
             }}
-            placeholder={t.run.placeholder(answer.letter)}
-            aria-label={t.run.fieldLabel(answer.letter, category.label)}
+            placeholder={placeholder(answer.letter)}
+            aria-label={fieldLabel(answer.letter, category.label)}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="sentences"

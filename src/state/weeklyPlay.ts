@@ -1,5 +1,5 @@
 import { attemptsAllowed, attemptWindow, weekOf, type Week } from '../domain/weekly'
-import { fetchWeeklyRecap, weeklyStart } from '../lib/cloud'
+import { fetchWeeklyRecap, weeklyStart, type WeeklyRecap } from '../lib/cloud'
 import { loadLocalAttempts, loadLocalBest, recordLocalAttempt, type WeeklyWindow } from './weekly'
 
 /**
@@ -35,6 +35,16 @@ export function bestOf(server: number | null, local: number | null): number | nu
   return local === null ? server : Math.max(server, local)
 }
 
+/**
+ * Le rang n'a de sens qu'avec une tentative que le serveur classe : à qui n'a
+ * aucune ligne au classement — l'invité de CrazyGames, qui joue le défi sur son
+ * appareil — `weekly_recap` rendait 1, faute de valeur à comparer, et l'écran
+ * annonçait « 1er sur 9 ».
+ */
+export function rankFrom(recap: Pick<WeeklyRecap, 'best' | 'rank'> | null): number | null {
+  return recap !== null && recap.best !== null ? recap.rank : null
+}
+
 export async function loadWeeklyStatus(lang: string, now: number): Promise<WeeklyStatus> {
   const week = weekOf(now)
   const window = windowAt(now)
@@ -47,7 +57,7 @@ export async function loadWeeklyStatus(lang: string, now: number): Promise<Weekl
     used: mergeUsed(local.used, today),
     ads: local.ads,
     best: bestOf(recap?.best ?? null, loadLocalBest(week.weekId, lang)),
-    rank: recap?.rank ?? null,
+    rank: rankFrom(recap),
     players: recap?.players ?? 0,
     online: recap !== null,
   }
