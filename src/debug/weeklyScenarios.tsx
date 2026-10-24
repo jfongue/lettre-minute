@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { DEFAULT_AVATAR, type AvatarChoice } from '../domain/avatar'
-import type { KeptWord, Run } from '../domain/run'
+import type { GameMode } from '../domain/modes'
+import type { KeptWord, Prompt, Run } from '../domain/run'
 import { weekOf, type WeeklyMeasures } from '../domain/weekly'
 import type { ReactionEmoji, WeeklyBoardRow, WeeklyReactionCount, WeeklyRecap } from '../lib/cloud'
 import type { Cheer } from '../state/session'
@@ -120,9 +121,23 @@ export function WeeklyCardScenario({ onBack }: { onBack(): void }) {
   )
 }
 
-export function WeeklyScreenScenario({ used, plus, onBack, ads = 0, portal = false }: { used: number; plus: boolean; onBack(): void; ads?: number; portal?: boolean }) {
+export function WeeklyScreenScenario({
+  mode = 'endurance',
+  used,
+  plus,
+  onBack,
+  ads = 0,
+  portal = false,
+}: {
+  mode?: GameMode
+  used: number
+  plus: boolean
+  onBack(): void
+  ads?: number
+  portal?: boolean
+}) {
   const props: WeeklyViewProps = {
-    mode: 'endurance',
+    mode,
     closesAt: WEEK.closesAt,
     now: NOW,
     status: { used, ads, best: used === 0 ? null : 64.5, rank: used === 0 || portal ? null : 12, players: portal ? 0 : 342, online: !portal },
@@ -141,7 +156,9 @@ export function WeeklyScreenScenario({ used, plus, onBack, ads = 0, portal = fal
   return <WeeklyView {...props} />
 }
 
-const RUN_WORDS: [string, string, string, number, KeptWord['tier']][] = [
+type ScenarioWord = [string, string, string, number, KeptWord['tier']]
+
+const RUN_WORDS: ScenarioWord[] = [
   ['animaux', 'A', 'Axolotl', 40, 'très rare'],
   ['pays', 'B', 'Bhoutan', 30, 'rare'],
   ['couleurs', 'V', 'Vermillon', 20, 'peu commun'],
@@ -150,20 +167,30 @@ const RUN_WORDS: [string, string, string, number, KeptWord['tier']][] = [
   ['animaux', 'L', 'Lama', 10, 'courant'],
 ]
 
-const ENDURANCE_RUN: Run = {
+/** Le renversé : chaque mot finit par la lettre de sa question, jamais par le début. */
+const REVERSED_WORDS: ScenarioWord[] = [
+  ['pays', 'M', 'Vietnam', 40, 'rare'],
+  ['animaux', 'E', 'Girafe', 20, 'courant'],
+  ['couleurs', 'E', 'Rouge', 10, 'courant'],
+  ['sports', 'T', 'Basket', 20, 'peu commun'],
+  ['metiers', 'R', 'Boulanger', 20, 'peu commun'],
+  ['animaux', 'N', 'Lion', 10, 'courant'],
+]
+
+const runOf = (mode: GameMode, words: readonly ScenarioWord[], prompt: Prompt, score: number): Run => ({
   seed: 7,
-  mode: 'endurance',
+  mode,
   answer: null,
   armed: true,
   categoryIds: ['animaux', 'pays', 'couleurs'],
-  prompt: { categoryId: 'animaux', letter: 'M' },
+  prompt,
   drawn: 7,
   letterFreed: false,
   avoid: [],
   dealt: [],
   settled: [],
   shared: true,
-  found: RUN_WORDS.map(([categoryId, letter, display, points, tier], index) => ({
+  found: words.map(([categoryId, letter, display, points, tier], index) => ({
     prompt: { categoryId, letter },
     word: display.toLowerCase(),
     display,
@@ -184,7 +211,7 @@ const ENDURANCE_RUN: Run = {
   penaltySeconds: 2,
   combo: 3,
   bestCombo: 4,
-  score: 130,
+  score,
   powers: [],
   charges: {},
   joker: null,
@@ -192,16 +219,20 @@ const ENDURANCE_RUN: Run = {
   heldSeconds: 0,
   latecomerSeconds: 0,
   bonusSeconds: 17.5,
-} as unknown as Run
+} as unknown as Run)
+
+const ENDURANCE_RUN = runOf('endurance', RUN_WORDS, { categoryId: 'animaux', letter: 'M' }, 130)
+const REVERSED_RUN = runOf('reversed', REVERSED_WORDS, { categoryId: 'pays', letter: 'M' }, 120)
 
 const CHEER: Cheer = { display: 'Lama', points: 10, tier: 'courant', approximate: false, edits: 0, joker: false, taught: false, boost: 1, auto: false }
 
-export function WeeklyRunScenario({ remaining = 21.4, urgent = false }: { remaining?: number; urgent?: boolean }) {
+export function WeeklyRunScenario({ mode = 'endurance', remaining = 21.4, urgent = false }: { mode?: GameMode; remaining?: number; urgent?: boolean }) {
   const noop = () => undefined
+  const reversed = mode === 'reversed'
   return (
     <RunScreen
-      run={ENDURANCE_RUN}
-      draft={urgent ? '' : 'Mouf'}
+      run={reversed ? REVERSED_RUN : ENDURANCE_RUN}
+      draft={urgent ? '' : reversed ? 'Vietna' : 'Mouf'}
       live={null}
       cheer={urgent ? null : CHEER}
       remaining={remaining}

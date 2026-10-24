@@ -5,8 +5,9 @@ import { runScore, type CreateRunInput, type Run } from './run'
 import { MAX_CATEGORIES_PER_RUN, dealLineup } from './unlocks'
 
 /**
- * Le défi du moment : une partie par semaine, la même pour tous, ouverte du
- * dimanche 21 h au dimanche suivant 21 h, heure de Paris. L'heure de Paris se
+* Le défi du moment : une partie par défi, la même pour tous, ouverte du
+* dimanche 21 h au dimanche suivant 21 h, heure de Paris — une semaine, ou
+* deux quand le défi est prolongé (`WEEKLY_EXTENDED`). L'heure de Paris se
  * calcule ici en arithmétique pure — le domaine ne construit jamais de `Date`,
  * dont la zone et l'analyse appartiennent à l'appareil — et ne dépend que de
  * l'instant passé par l'interface.

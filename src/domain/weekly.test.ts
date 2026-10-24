@@ -203,6 +203,17 @@ describe('the weekly challenge', () => {
     expect(weeklyChallenge('2026-11-08', 'fr', IDS).metric).toBe('score')
   })
 
+  it('hands over to the reversed challenge the minute the extended one closes', () => {
+    // Le défi de deux semaines ouvert le 11 octobre se ferme le 25 à 21 h : celui
+    // d'après prend sa place aussitôt, et c'est le renversé, la lettre en fin de mot.
+    expect(weekOf(at('2026-10-25T19:59:59Z')).weekId).toBe('2026-10-11')
+    const next = weekOf(at('2026-10-25T20:00:00Z'))
+    expect(next.weekId).toBe('2026-10-25')
+    expect(weeklyMode(next.weekId)).toBe('reversed')
+    expect(weeklyChallenge(next.weekId, 'fr', IDS).mode).toBe('reversed')
+    expect(weeklyChallenge(next.weekId, 'fr', IDS).metric).toBe('score')
+  })
+
   it('is the same programme for everyone, in whatever order the categories come', () => {
     const a = weeklyChallenge('2026-10-11', 'fr', IDS)
     const b = weeklyChallenge('2026-10-11', 'fr', [...IDS].reverse())
