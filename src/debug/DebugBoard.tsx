@@ -50,6 +50,7 @@ import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } fro
 import { guestFits, placeGuest } from '../domain/localBoards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 import { ModeIntro } from '../ui/ModeIntro'
+import { WeeklyCard } from '../ui/WeeklyCard'
 import { WeeklyCardScenario, WeeklyDoneScenario, WeeklyRecapScenario, WeeklyResultsScenario, WeeklyRunScenario, WeeklyScreenScenario } from './weeklyScenarios'
 import { NEW_SCENARIOS, NEW_SINCE, RECENT_SCENARIOS } from './recent'
 import { todayKey } from '../lib/today'
@@ -2896,6 +2897,23 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <DebugHome back={back} challenges={[summaryOf(challenge('to-play'))]} multiplayerNews />,
   },
   {
+    id: 'home-full',
+    group: 'Accueil',
+    title: 'Accueil complet : multijoueur, invitation à un duel, défi du moment et classements',
+    how: 'Tout ce que l’accueil peut porter à la fois : le cadre court de CrazyGames doit le tenir sans défiler, seules les lignes du classement défilent',
+    phase: 'home',
+    render: (back) => (
+      <DebugHome
+        back={back}
+        boards={LONG_BOARDS}
+        challenges={[]}
+        multiplayerNews
+        weekly={<WeeklyCard mode="reversed" closesAt={Date.now() + 6 * 24 * HOUR} used={1} free={2} now={Date.now()} onOpen={back} />}
+        invites={<DuelInviteCard host="Maxitoon" avatar={{ design: 47, ground: 'vert', shape: 'creme', accent: 'rose' }} players={3} onJoin={back} onDecline={back} />}
+      />
+    ),
+  },
+  {
     id: 'leaderboards',
     group: 'Accueil',
     title: 'Page des classements',
@@ -3412,8 +3430,14 @@ function DebugHome({
   waiting = false,
   challenges = null,
   multiplayerNews = false,
+  invites,
+  weekly,
 }: {
   back(): void
+  /** L'entrée du défi du moment, sous l'invitation. */
+  weekly?: ReactNode
+  /** Une invitation à une table de duel, en tête de la colonne de droite. */
+  invites?: ReactNode
   /** Ce que le serveur n'a pas encore rendu : l'accueil s'arrête sous son titre. */
   waiting?: boolean
   error?: boolean
@@ -3448,6 +3472,8 @@ function DebugHome({
       friendRequests={error || newcomer || avatarNews ? 0 : 2}
       challenges={challenges}
       multiplayerNews={multiplayerNews}
+      invites={invites}
+      weekly={weekly}
       onChallenge={noop}
       onCreateChallenge={noop}
       onPastChallenges={noop}

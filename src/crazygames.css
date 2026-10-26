@@ -28,6 +28,17 @@ textarea {
   user-select: text;
 }
 
+/* The run sits in the middle of a big frame, not under its top edge (portal
+   review). Only with a mouse: on a touch screen the portal's keyboard covers
+   the lower half, where a centred run would end up (styles.css keeps it at
+   the top). */
+@media (hover: hover) and (pointer: fine) {
+  .stage--playing,
+  .stage--lesson {
+    place-items: center;
+  }
+}
+
 /* A landscape frame — the portal's iframe, from 640 × 360 to a maximised
    window on a large screen (the portal gives the game the whole window, and a
    tall one used to fall back on the phone's column) — has no room for that
@@ -52,6 +63,7 @@ textarea {
     max-height: 100%;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
   }
 
@@ -112,8 +124,53 @@ textarea {
     grid-column: 2;
     grid-row: 1 / 4;
     min-height: 0;
+    overflow-x: hidden;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    padding-right: 6px;
     align-content: start;
+  }
+
+  .sheet--home > .home-body::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* The main menu never scrolls (portal review): the leaderboard takes what
+     the rest leaves and its rows alone scroll, under a hidden bar. The column
+     keeps its own scroll, bar hidden, only for the day it carries more than
+     any frame holds (a duel invitation above the challenges and the week). */
+  .sheet--home > .home-body:not(.home-body--alone) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sheet--home > .home-body:not(.home-body--alone) > * {
+    flex: none;
+  }
+
+  .sheet--home > .home-body:not(.home-body--alone) > .boards {
+    flex: 1 1 7rem;
+    min-height: 7.5rem;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+
+  .home-body > .boards > .board-track {
+    min-height: 0;
+    overflow-y: hidden;
+  }
+
+  .home-body > .boards .board {
+    min-height: 0;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+
+  .home-body > .boards .board::-webkit-scrollbar {
+    display: none;
   }
 
   /* Rien d'autre à montrer que « Jouer » — un appareil neuf : une seule
@@ -192,6 +249,7 @@ textarea {
     grid-row: 1;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     align-content: start;
   }
 
@@ -212,6 +270,7 @@ textarea {
     min-height: 0;
     align-content: start;
     overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .stage--over .sheet.over-sheet {
@@ -236,6 +295,7 @@ textarea {
     gap: var(--step);
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
     align-content: safe center;
   }
@@ -262,6 +322,181 @@ textarea {
   }
 }
 
+/* Below 820 px of height the right column tightens up: the leaderboard
+   keeps room for rows next to the level, the tiles and the pages' row. */
+@media (orientation: landscape) and (max-height: 820px) {
+  .sheet--home > .home-body:not(.home-body--alone) {
+    gap: min(var(--step), 2.4vh);
+  }
+
+  .home-body .panel {
+    gap: 0.4rem;
+    padding-top: 0.6rem;
+  }
+
+  /* The challenge of the moment on two lines, its counter beside the ends. */
+  .home-body .wk-card {
+    gap: 0.7rem;
+    padding: 0.4rem 0.6rem 0.4rem 0.4rem;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+  .home-body .wk-card-mark {
+    width: 3rem;
+    height: 3rem;
+    padding: 0.5rem;
+  }
+
+  .home-body .wk-card-mode {
+    font-size: 1.25rem;
+  }
+
+  .home-body .wk-card-meta {
+    display: none;
+  }
+
+  .home-body .wk-card-tickets {
+    margin-top: 0;
+  }
+
+  .home-body .figures {
+    gap: 0;
+  }
+
+  .home-body .figure {
+    min-height: 0;
+    gap: 0.15rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .home-body .figure-value {
+    font-size: min(1.6rem, 5vh);
+  }
+
+  .home-body .figure-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+  }
+
+  .home-body .boards .layer-tab {
+    min-height: 2rem;
+  }
+
+  .home-body .board-dots {
+    display: none;
+  }
+
+  .home-body .standing {
+    padding-block: 0.4rem;
+  }
+
+  /* The pages' tiles in one low row, under the leaderboard. */
+  .home-body .page-links {
+    grid-template-columns: repeat(var(--count), minmax(0, 1fr));
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top-width: 2px;
+  }
+
+  .home-body .page-link,
+  .home-body .page-link:last-child:nth-child(odd) {
+    grid-column: auto;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+    min-height: 0;
+    padding: 0.25rem 0.35rem;
+    gap: 0.4rem;
+  }
+
+  .home-body .page-link-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.02em;
+  }
+}
+
+/* A short frame (a Chromebook's 854 × 410): the poster and the title shrink
+   with its height, so « Play » and « Multiplayer » under them never push the
+   title up over the poster, and the right column gives the leaderboard its
+   rows back. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .sheet--home:not(.sheet--home-alone) {
+    row-gap: min(0.6rem, 1.6vh);
+  }
+
+  .sheet--home:not(.sheet--home-alone) > .poster {
+    width: min(100%, 62vh);
+    justify-self: center;
+  }
+
+  .sheet--home:not(.sheet--home-alone) .title {
+    font-size: min(5.6rem, 11vh, 6.5vw);
+  }
+
+  .sheet--home:not(.sheet--home-alone) > .home-play .btn {
+    min-height: 2.9rem;
+  }
+
+  .sheet--home:not(.sheet--home-alone) > .home-play .btn--play {
+    min-height: 3.4rem;
+  }
+
+  .home-body .progress {
+    height: 0.55rem;
+  }
+
+  /* A duel invitation on one low row: the name, then « Join » and « No thanks ». */
+  .home-body .duel-invite-card {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.6rem;
+    padding: 0.45rem 0.6rem;
+  }
+
+  .home-body .duel-invite-card__face {
+    grid-row: auto;
+  }
+
+  .home-body .duel-invite-card__face .avatar {
+    width: 2rem;
+  }
+
+  .home-body .duel-invite-card__text small {
+    display: none;
+  }
+
+  .home-body .duel-invite-card__actions .btn {
+    min-height: 2.2rem;
+    padding-block: 0.2rem;
+  }
+
+  .home-body .page-link-art {
+    display: none;
+  }
+
+  .home-body .page-link,
+  .home-body .page-link:last-child:nth-child(odd) {
+    grid-template-columns: minmax(0, 1fr);
+    text-align: center;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 440px) {
+  .home-body .wk-kicker {
+    display: none;
+  }
+
+  /* With a duel invitation above it, the challenge card gives up its tickets,
+     the invitation its face and the pages' row (the menu tile still opens
+     them): the column still holds without scrolling. */
+  .home-body:has(.duel-invite-card) .wk-card-tickets,
+  .home-body:has(.duel-invite-card) .page-links,
+  .home-body .duel-invite-card__face {
+    display: none;
+  }
+
+  .home-body .duel-invite-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
 /* Tout écran posé sur l'accueil (défi du moment, pouvoirs, catégories…) tient
    dans le cadre qu'il fige : plus haut, il défile pour lui-même plutôt que de
    cacher son bouton sous le bord. */
@@ -270,6 +505,7 @@ textarea {
     max-height: 100%;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
   }
 
@@ -310,6 +546,7 @@ textarea {
     grid-row: 1 / -1;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
     align-content: safe center;
     padding: 0 6px 6px 0;
@@ -360,6 +597,7 @@ textarea {
     max-height: 100%;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
   }
 
@@ -406,6 +644,7 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
 .reveal > .hidden-answers {
   max-height: 45vh;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .reveal > .hidden-answers > .hidden-answers-toggle {
@@ -448,6 +687,7 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     min-height: 0;
     max-height: 100%;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
   }
 
@@ -456,6 +696,7 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     max-height: 100%;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
     row-gap: min(var(--step), 3.4vh);
   }
@@ -615,6 +856,7 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     gap: 0.8rem;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
     align-content: safe center;
     padding: 0 6px 6px 0;

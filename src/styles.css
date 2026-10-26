@@ -2258,6 +2258,7 @@ animation: clock-bonus 500ms var(--ease-out);
   gap: var(--step);
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   margin-inline: calc(-1 * var(--gutter));
   padding-inline: var(--gutter);
@@ -5993,6 +5994,7 @@ referment d'un coup : `--way` donne le sens de chacune. */
      catégories) défile en elle-même : les boutons du bas restent atteignables. */
   max-height: calc(100dvh - var(--pop-top) - var(--pop-bottom));
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   display: grid;
   justify-items: center;
@@ -6235,6 +6237,7 @@ referment d'un coup : `--way` donne le sens de chacune. */
   text-align: left;
   max-height: min(40rem, 86dvh);
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .power-picker .offer-pop-title {
@@ -7155,6 +7158,7 @@ rien d’autre — aucun point, aucune rareté ne bouge. */
 .friend-picker--setup {
   grid-template-rows: none;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .friend-picker--setup .friend-picks {
@@ -7302,6 +7306,7 @@ rien d’autre — aucun point, aucune rareté ne bouge. */
   display: grid;
   gap: 0.4rem;
   overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
 }
 
@@ -7352,6 +7357,7 @@ rien d’autre — aucun point, aucune rareté ne bouge. */
 
 .power-picker .power-list {
   overflow-y: auto;
+  overflow-x: hidden;
   min-height: 0;
 }
 
@@ -7844,6 +7850,7 @@ li:has(> .reactable--open),
   inset: 0;
   z-index: 68;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   background: var(--paper);
   color: var(--ink);
@@ -8406,6 +8413,7 @@ button.challenge-word[aria-expanded='true'] {
 .words-news-list {
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   display: grid;
   gap: 0.35rem;
@@ -8571,6 +8579,7 @@ button.challenge-word[aria-expanded='true'] {
   inset: 0;
   z-index: 60;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   background: var(--paper);
   padding-top: env(safe-area-inset-top, 0px);
@@ -9119,6 +9128,7 @@ button.challenge-word[aria-expanded='true'] {
   width: min(480px, 100%);
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   overscroll-behavior: contain;
   display: grid;
   align-content: start;
@@ -9821,6 +9831,7 @@ body[data-words='board'] .offer-pop-layer {
   inset: 0;
   z-index: 30;
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--paper);
   padding: max(1.25rem, env(safe-area-inset-top)) var(--gutter) max(1.25rem, env(safe-area-inset-bottom));
 }

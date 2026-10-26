@@ -23,7 +23,7 @@ const OUT = join(ROOT, '.cache/cg-sweep')
 const base = process.argv[2]?.startsWith('http') ? process.argv[2] : 'http://localhost:5747'
 const only = process.argv.length >= 4 && !process.argv[2].startsWith('http') ? [[Number(process.argv[2]), Number(process.argv[3])]] : null
 const PORT = 9436
-const SIZES = only ?? [[1920, 1080], [2200, 1244], [1280, 720], [926, 476], [800, 450], [640, 360]]
+const SIZES = only ?? [[1920, 1080], [2200, 1244], [1280, 720], [926, 476], [854, 412], [800, 450], [640, 360]]
 const FILTER = process.argv[4] ?? ''
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms))
 
@@ -104,6 +104,14 @@ if (down || aside) {
 out.push((el.textContent || el.getAttribute('aria-label') || el.tagName).trim().replace(/\\s+/g, ' ').slice(0, 40) + ' [' + Math.round(r.left) + '..' + Math.round(r.right) + ' x ' + Math.round(r.top) + '..' + Math.round(r.bottom) + ']')
 }
 }
+// Une barre horizontale visible : une carte qui glisse hors d'une boîte qui
+// défile en hauteur — jamais voulue, seul le défilement vertical l'est.
+const bars = []
+for (const el of document.querySelectorAll('*')) {
+const style = getComputedStyle(el)
+if (style.display === 'none' || style.scrollbarWidth === 'none') continue
+if (/(auto|scroll)/.test(style.overflowX) && el.scrollWidth > el.clientWidth + 1) bars.push(el.tagName + '.' + (el.getAttribute('class') ?? '').split(' ').slice(0, 2).join('.'))
+}
 const panes = []
 for (const el of document.querySelectorAll('.sheet, .reveal, .poster, .language-picker, .loadout, .moderation, .dealt, .duel-rules, .duel-lobby, .duel-draft, .duel-opening, .duel-over, .duel-search, .duel-run, .duel-board, .answer-field, .answer-actions, .tutorial-answer')) {
 const r = el.getBoundingClientRect()
@@ -115,6 +123,7 @@ vw, vh,
 scrollH: document.documentElement.scrollHeight,
 scrollW: document.documentElement.scrollWidth,
 out,
+bars,
 over: panes.filter((pane) => pane.bottom > vh + 1 || pane.top < -1),
 scene: document.querySelector('.debug-scene > *')?.getAttribute('class')?.split(' ').slice(0, 2).join('.') ?? (document.querySelector('.sheet--home') ? 'home' : '(aucune scène)'),
 }
@@ -125,10 +134,11 @@ const measure = async (label, shotName) => {
   const probe = await evaluate(PROBE)
   if (!probe) return check(false, `${label}: la page répond`, 'aucune mesure')
   const fits = probe.scrollH <= probe.vh + 1 && probe.scrollW <= probe.vw + 1
-  const ok = fits && probe.out.length === 0 && probe.over.length === 0
+  const ok = fits && probe.out.length === 0 && probe.over.length === 0 && probe.bars.length === 0
   check(ok, label, [
     fits ? null : `${probe.scrollW}×${probe.scrollH} pour ${probe.vw}×${probe.vh}`,
     probe.out.length ? `hors cadre : ${probe.out.join(' | ')}` : null,
+    probe.bars.length ? `barre horizontale : ${probe.bars.join(' | ')}` : null,
     probe.over.length ? `sous le bord : ${probe.over.map((pane) => `${pane.cls} ${pane.top}..${pane.bottom}`).join(' | ')}` : null,
   ].filter(Boolean).join(' — '))
   if (!ok && shotName) await shot(`${shotName}-FAIL`)
