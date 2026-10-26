@@ -70,6 +70,7 @@ import { RatingPop } from '../ui/RatingPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
+import { LobbyGate } from '../ui/LobbyGate'
 import { DuelScreen, Draft, DuelMatchmaking, Lobby, Over } from '../ui/DuelScreen'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
@@ -2984,6 +2985,22 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le duel d’un joueur sans compte nommé : la table locale, et au salon la porte vers la connexion',
     phase: 'home',
     render: (back) => <DuelScreen lang="fr" mode="local" onSignIn={back} />,
+  },
+  {
+    id: 'duel-lobby-gate-guest',
+    group: 'Duel',
+    title: 'Table d’un ami ouverte sans compte : « connecte-toi »',
+    how: 'Un invité du portail CrazyGames suit l’invitation d’un ami : le salon lui demande de se connecter (la connexion du portail), ou de retourner à l’accueil',
+    phase: 'home',
+    render: (back) => <LobbyGate onSignIn={back} onHome={back} />,
+  },
+  {
+    id: 'duel-lobby-gate-loading',
+    group: 'Duel',
+    title: 'Table d’un ami : l’attente avant le salon',
+    how: 'Le joueur arrive par l’invitation du portail : le temps que son compte réponde et que la table s’ouvre, ce chargement tient la place de l’accueil',
+    phase: 'home',
+    render: (back) => <LobbyGate loading onHome={back} />,
   },
   {
     id: 'duel-invite',

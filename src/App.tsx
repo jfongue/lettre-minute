@@ -205,6 +205,7 @@ const RunScreen = lazyScreen(() => import('./ui/RunScreen').then((module) => mod
 const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) => module.WordsBoard))
 const FeaturesBoard = lazyScreen(() => import('./debug/FeaturesBoard').then((module) => module.FeaturesBoard))
 const DuelScreen = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelScreen))
+const LobbyGate = lazyScreen(() => import('./ui/LobbyGate').then((module) => module.LobbyGate))
 const DuelMatchmaking = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelMatchmaking))
 
 /** The run's own screens: awaited with its dictionaries, so the countdown never opens on a blank frame. */
@@ -1291,26 +1292,23 @@ setStartedAt((at) => at ?? Date.now())
     const timer = setInterval(() => document.visibilityState === 'visible' && refreshDuelInvites(), 8_000)
     return () => clearInterval(timer)
   }, [atHome, duelOpen, named, on, refreshDuelInvites])
-  // Done here, once the account and the screen allow it.
-  const roomSignIn = useRef<string | null>(null)
+  // Done here, once the account and the screen allow it. A guest with a
+  // friend's table is told to log in (the gate below), not sent to the home.
   useEffect(() => {
     if (!roomCall || !hostAccountSettled || !answered.profile || !answered.account || locale === null) return
     if (session.phase !== 'home' || tutorial || modeLesson) return
-    if (!on('duel')) return setRoomCall(null)
+    if (!on('duel')) {
+      host.rooms?.clearInvite()
+      return setRoomCall(null)
+    }
     if (!named) {
       if (!roomCall.table) {
         setRoomCall(null)
         setDuelOpen({ join: null, local: true })
-        return
       }
-      if (roomSignIn.current === roomCall.table || !host.promptAccount) return
-      roomSignIn.current = roomCall.table
-      // Signed in, the account follows and this runs again, named this time.
-      void host.promptAccount().then((signedIn) => {
-        if (!signedIn) setRoomCall(null)
-      })
       return
     }
+    host.rooms?.clearInvite()
     rememberMultiplayer()
     setRoomCall(null)
     setTogether(false)
@@ -2072,6 +2070,19 @@ setStartedAt((at) => at ?? Date.now())
         </Suspense>
       )}
 
+      {roomCall && !duelOpen && (session.phase === 'home' || session.phase === 'loading') && !tutorial && !modeLesson && (
+        <Suspense fallback={null}>
+          <LobbyGate
+            loading={!(hostAccountSettled && answered.account && on('duel') && !named && roomCall.table)}
+            onSignIn={host.promptAccount ? () => void host.promptAccount!() : undefined}
+            onHome={() => {
+              host.rooms?.clearInvite()
+              setRoomCall(null)
+            }}
+          />
+        </Suspense>
+      )}
+
       {together && session.phase === 'home' && !duelOpen && (
         <PlayTogether
           challenge={on('challenges')}
@@ -2145,7 +2156,7 @@ setStartedAt((at) => at ?? Date.now())
 
       {weeklyFlow.overlay}
 
-      {!tutorial && !modeLesson && !loadout && !moderating && !duelOpen && !(matching && session.phase === 'home') && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
+      {!tutorial && !modeLesson && !loadout && !moderating && !duelOpen && !roomCall && !(matching && session.phase === 'home') && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}

@@ -490,6 +490,31 @@ function tableOf(params: Record<string, string> | null | undefined): string | nu
   return typeof table === 'string' && TABLE_ID.test(table) ? table : null
 }
 
+const INVITE_KEY = 'lettre-minute.crazygames-invite.v1'
+
+function keepInvite(table: string | null): void {
+  try {
+    if (table) sessionStorage.setItem(INVITE_KEY, table)
+    else sessionStorage.removeItem(INVITE_KEY)
+  } catch {
+    /* no storage: the portal's own parameters are all there is */
+  }
+}
+
+function invitedTable(): string | null {
+  const table = tableOf(sdk?.game.inviteParams)
+  if (table) {
+    keepInvite(table)
+    return table
+  }
+  try {
+    const kept = sessionStorage.getItem(INVITE_KEY)
+    return kept && TABLE_ID.test(kept) ? kept : null
+  } catch {
+    return null
+  }
+}
+
 type Room = { table: string; joinable: boolean } | null
 
 // The SDK refuses a room call within 250 ms of the last one, and throws: each
@@ -522,12 +547,15 @@ function sendRoom(): void {
  */
 const portalRooms: HostRooms = {
   instant: () => sdk?.game.isInstantMultiplayer === true,
-  invited: () => tableOf(sdk?.game.inviteParams),
+  invited: invitedTable,
+  clearInvite: () => keepInvite(null),
   onJoin(listener) {
     safely((s) =>
       s.game.addJoinRoomListener?.((params) => {
         const table = tableOf(params)
-        if (table) listener(table)
+        if (!table) return
+        keepInvite(table)
+        listener(table)
       }),
     )
   },

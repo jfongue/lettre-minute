@@ -161,3 +161,62 @@ describe('la pub midgame du portail', () => {
     expect(await second).toBe('shown')
   })
 })
+
+const TABLE = '0b7e1c52-3f55-4a8e-9a43-1f2a6a3c9d10'
+
+/** The portal's room calls, with the page's invite parameters and a tab's session storage. */
+async function startRooms(game: Record<string, unknown>, session = new Map<string, string>()) {
+  vi.resetModules()
+  vi.stubGlobal('sessionStorage', {
+    getItem: (key: string) => session.get(key) ?? null,
+    setItem: (key: string, value: string) => void session.set(key, value),
+    removeItem: (key: string) => void session.delete(key),
+  })
+  vi.stubGlobal('location', { hostname: 'localhost' })
+  vi.stubGlobal('document', { referrer: '' })
+  vi.stubGlobal('window', { CrazyGames: { SDK: { environment: 'local', init: () => Promise.resolve(), game, ad: {} } } })
+  const portal = await import('./crazygames')
+  await portal.initCrazyGames()
+  return { rooms: portal.crazyGamesHost.rooms!, session }
+}
+
+describe('les salles du portail', () => {
+  it('garde l’invitation pour la page que la connexion du portail recharge', async () => {
+    const { rooms, session } = await startRooms({ inviteParams: { duel: TABLE } })
+    expect(rooms.invited()).toBe(TABLE)
+    const { rooms: reloaded } = await startRooms({ inviteParams: null }, session)
+    expect(reloaded.invited()).toBe(TABLE)
+    reloaded.clearInvite()
+    expect(reloaded.invited()).toBeNull()
+  })
+
+  it('ne retient ni un identifiant qui n’est pas une table, ni un démarrage ordinaire', async () => {
+    const { rooms } = await startRooms({ inviteParams: { duel: 'nope' } })
+    expect(rooms.invited()).toBeNull()
+  })
+
+  it('garde l’invitation d’un ami arrivé pendant la partie', async () => {
+    let join: ((params: Record<string, string> | null) => void) | undefined
+    const { rooms, session } = await startRooms({ addJoinRoomListener: (listener: typeof join) => (join = listener) })
+    const heard = vi.fn()
+    rooms.onJoin(heard)
+    join?.({ duel: TABLE })
+    expect(heard).toHaveBeenCalledWith(TABLE)
+    expect([...session.values()]).toEqual([TABLE])
+  })
+
+  it('n’annonce aucune salle tant qu’aucune n’est posée', async () => {
+    vi.useFakeTimers()
+    const updateRoom = vi.fn()
+    const leftRoom = vi.fn()
+    const { rooms } = await startRooms({ updateRoom, leftRoom })
+    rooms.setRoom(null)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(updateRoom).not.toHaveBeenCalled()
+    expect(leftRoom).not.toHaveBeenCalled()
+    rooms.setRoom({ table: TABLE, joinable: true })
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(updateRoom).toHaveBeenCalledWith({ roomId: TABLE, isJoinable: true, inviteParams: { duel: TABLE } })
+    vi.useRealTimers()
+  })
+})

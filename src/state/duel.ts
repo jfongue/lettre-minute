@@ -325,6 +325,12 @@ export interface DuelTableOptions {
   quick?: boolean
   /** La table vient de la salle d'un hôte (CrazyGames) : on s'y assoit sans invitation. */
   room?: boolean
+  /**
+   * Le salon peut s'annoncer à l'hôte comme une salle où inviter des amis ;
+   * faux devant les règles, et pour une table de matchmaking (`quick`), que
+   * personne ne rejoint sur invitation.
+   */
+  invitable?: boolean
 }
 
 /** Les catégories qu'une table peut distribuer à ce joueur : celles qu'il a, sans les avant-premières. */
@@ -334,7 +340,7 @@ export function duelPool(lang: string): string[] {
   return sharedCategoryIds(playableCategoryIds(profile, ownedCategoryIds(profile))).filter((id) => shipped.includes(id))
 }
 
-export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false }: DuelTableOptions): DuelTable {
+export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false, invitable = true }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
@@ -548,8 +554,8 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   // du portail rejoignent tant que le salon garde une place libre.
   const roomOpen = !!table && table.id === tableId && table.status === 'lobby' && present.length + table.invites.length < MAX_TABLE
   useEffect(() => {
-    if (mode === 'online' && tableId) host.rooms?.setRoom({ table: tableId, joinable: roomOpen })
-  }, [mode, roomOpen, tableId])
+    host.rooms?.setRoom(mode === 'online' && tableId && invitable && !quick ? { table: tableId, joinable: roomOpen } : null)
+  }, [mode, roomOpen, tableId, invitable, quick])
   useEffect(() => () => host.rooms?.setRoom(null), [])
 
   // Expulsé, ou table fermée par son hôte : l'appareil rentre à l'accueil.

@@ -111,8 +111,14 @@ export interface Host {
 export interface HostRooms {
   /** Launched to play together (the portal's multiplayer page): a table opens at once, joinable by friends. */
   instant(): boolean
-  /** The duel table an invitation launched the game for, read once at start; null otherwise. */
+  /**
+   * The duel table an invitation launched the game for, read at start; null
+   * otherwise. Kept for the tab until `clearInvite`, since the portal's sign-in
+   * reloads the page and its docs do not promise the invite's parameters survive.
+   */
   invited(): string | null
+  /** The invitation has led to its table, or was given up: a reload no longer replays it. */
+  clearInvite(): void
   /** Each invitation the player accepts while the game already runs. */
   onJoin(listener: (table: string) => void): void
   /** The player's table, and whether friends may still sit at it; null once they leave it. */
