@@ -1,1 +1,0 @@
-import{Kr as e}from"./styles-C-LgGSZP.js";import{h as t}from"./useCountUp-lbNJSwPi.js";function n(n,r){return t(r.id)?n.ach[r.id]:{name:e(n.avatar.milestone(r.goal)),desc:``}}export{n as t};
