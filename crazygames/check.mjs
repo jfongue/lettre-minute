@@ -25,7 +25,7 @@ const OUT = join(ROOT, '.cache/crazygames-check')
 const base = process.argv[2] ?? 'http://localhost:5747'
 const elsewhere = process.argv[3]
 const PORT = 9433
-const SIZES = [[926, 476], [800, 450], [1280, 720], [390, 844]]
+const SIZES = [[926, 476], [854, 412], [800, 450], [1280, 720], [1920, 1050], [390, 844]]
 const REGULAR = {
   xp: 2350, runs: 14, bestScore: 412, wordsFound: 186, bestCombo: 9, usage: {},
   unlocked: ['fruits-legumes', 'metiers', 'sports', 'capitales'], offer: [], lastOffer: [],
@@ -68,6 +68,21 @@ const check = (ok, label, detail) => {
   if (!ok) failed = true
 }
 
+/** The scrollbars a player would see in the game: a horizontal one (never wanted, an animation
+ * leaking out of a box that scrolls vertically) and, on a landscape frame, a scrolling page. */
+const scrollbars = (landscape) => evaluate(`(() => {
+  const d = ${game}
+  const out = []
+  const root = d.scrollingElement
+  if (${landscape} && root.scrollHeight > root.clientHeight + 1) out.push('page ' + root.scrollHeight + ' > ' + root.clientHeight)
+  for (const element of d.querySelectorAll('*')) {
+    const style = d.defaultView.getComputedStyle(element)
+    if (style.display === 'none' || style.scrollbarWidth === 'none') continue
+    if (/auto|scroll/.test(style.overflowX) && element.scrollWidth > element.clientWidth + 1) out.push('x ' + element.tagName + '.' + element.className)
+  }
+  return out
+})()`)
+
 /** Where an element of the game sits in the outer page, and whether it is the one a click there reaches. */
 const locate = (selector) => evaluate(`(() => {
   const d = ${game}
@@ -100,6 +115,8 @@ for (const [width, height] of SIZES) {
       writeFileSync(join(OUT, `${width}x${height}-${player}.png`), Buffer.from(data, 'base64'))
       continue
     }
+    const home = await scrollbars(width > height)
+    check(home?.length === 0, `${label}: the home page shows no scrollbar but the leaderboard's`, home?.join(' | '))
     const play = await locate('.btn--play')
     check(play && play.bottom <= play.height, `${label}: Play inside the frame`, play && `${Math.round(play.top)}..${Math.round(play.bottom)} of ${play.height}`)
     check(play?.onTop, `${label}: Play on top at its centre`, play?.hit)
@@ -128,6 +145,8 @@ for (const [width, height] of SIZES) {
       const part = await locate(selector)
       check(part && part.bottom <= part.height, `${label}: ${selector} inside the frame during the run`, part && `${Math.round(part.top)}..${Math.round(part.bottom)} of ${part.height}`)
     }
+    const running = await scrollbars(width > height)
+    check(running?.length === 0, `${label}: the run shows no scrollbar`, running?.join(' | '))
     const { data } = await send('Page.captureScreenshot', { format: 'png' })
     writeFileSync(join(OUT, `${width}x${height}-${player}.png`), Buffer.from(data, 'base64'))
   }
