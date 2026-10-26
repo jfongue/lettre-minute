@@ -1075,11 +1075,22 @@ setStartedAt((at) => at ?? Date.now())
     }
   }, [idleHome, ownedShipped, lang])
 
-  /** Une partie seule : d'abord le choix des pouvoirs pour qui en a, quand la fonctionnalité l'ouvre. */
-  const playSolo = useCallback(() => {
+  const launchSolo = useCallback(() => {
     if (on('powerLoadout') && on('powers') && modeNow.current === 'solo' && ownedPowers(session.profile).length > 0) setLoadout(true)
     else void play()
   }, [on, session.profile, play])
+  /** Une partie seule : la pause de l'hôte, puis le choix des pouvoirs pour qui en a, quand la fonctionnalité l'ouvre. */
+  const midgamePending = useRef(false)
+  const playSolo = useCallback(() => {
+    // The run waits for the host's midgame; a second press while it plays must
+    // not start a second run.
+    if (midgamePending.current) return
+    midgamePending.current = true
+    void host.midgameBeforePlay(isPlus(session.profile) || !on('adBreaks')).then(() => {
+      midgamePending.current = false
+      launchSolo()
+    })
+  }, [on, session.profile, launchSolo])
 
   const startFirstRun = useCallback(() => {
     if (session.profile.runs > 0 || loadTutorialDone() || !on('tutorial')) return playSolo()
