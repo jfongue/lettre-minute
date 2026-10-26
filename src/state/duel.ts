@@ -142,6 +142,8 @@ export interface DuelPayout extends DuelReward {
 
 export interface DuelTable {
   mode: DuelMode
+  /** La table du serveur où l'on est assis ; null tant qu'elle n'est pas prise, et toujours en local. */
+  tableId: string | null
   phase: TablePhase
   at: number
   /** Les joueurs de la partie, dans l'ordre des places ; au salon, ceux qui sont assis, puis les invités. */
@@ -315,6 +317,8 @@ export interface DuelTableOptions {
   mode: DuelMode
   /** Une table où l'on a été invité ; sans elle, l'appareil en ouvre une dont il est l'hôte. */
   join?: string | null
+  /** L'adresse de la table a été partagée (lien d'invitation du portail) : aucune invitation n'a été envoyée. */
+  link?: boolean
   /** La table renvoie le joueur : expulsé, table fermée, ou départ de lui-même. */
   onExit?(reason: DuelExit): void
   /** Le profil vient de gagner un compteur de duel : l'appelant le range à l'écran. */
@@ -330,7 +334,7 @@ export function duelPool(lang: string): string[] {
   return sharedCategoryIds(playableCategoryIds(profile, ownedCategoryIds(profile))).filter((id) => shipped.includes(id))
 }
 
-export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false }: DuelTableOptions): DuelTable {
+export function useDuelTable({ lang, mode, join = null, link = false, onExit, onProfile, quick = false }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
@@ -483,7 +487,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     opened.current = true
     if (join) {
       // Une invitation : la place se prend d'abord, la table se lit ensuite.
-      void joinDuel(join, mine.length).then((outcome) => {
+      void joinDuel(join, mine.length, link).then((outcome) => {
         if (outcome === 'joined') setTableId(join)
         else if (outcome === 'unreachable') setOffline(true)
         else exit.current?.(outcome === 'kicked' ? 'kicked' : 'closed')
@@ -494,7 +498,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       if (id) setTableId(id)
       else setOffline(true)
     })
-  }, [join, lang, mine, mode])
+  }, [join, lang, link, mine, mode])
 
   useEffect(() => {
     if (mode !== 'online') return
@@ -996,6 +1000,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
 
   return {
     mode,
+    tableId,
     phase,
     at,
     seats: lobbySeats,

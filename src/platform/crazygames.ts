@@ -30,6 +30,14 @@ interface CrazySdk {
     happytime(): void
     settings?: { muteAudio?: boolean }
     addSettingsChangeListener?(listener: (settings: { muteAudio?: boolean }) => void): void
+    /** True when the portal's « Play with friends » launched the game: straight into a joinable lobby. */
+    isInstantMultiplayer?: boolean
+    getInviteParam?(name: string): string | null
+    /** Shows the portal's invite button for this room; the parameters come back to whoever follows the link. */
+    showInviteButton?(params: Record<string, string>): string
+    hideInviteButton?(): void
+    /** A friend joining while the page is already open: no reload. */
+    addJoinRoomListener?(listener: (params: Record<string, string> | null) => void): void
   }
   ad: { requestAd(type: 'midgame' | 'rewarded', callbacks: AdCallbacks): void }
   data?: {
@@ -225,6 +233,73 @@ async function promptPortalAccount(): Promise<boolean> {
   } catch {
     return false
   }
+}
+
+const DUEL_PARAM = 'duel'
+// A sign-in reloads the page, and the link's parameters may not survive it:
+// the arrival is kept for the tab's life until the lobby it leads to is reached.
+const LANDING_KEY = 'lettre-minute.crazygames-landing.v1'
+
+/**
+ * How the player arrived: through a friend's invite link (the duel table it
+ * names) or through the portal's « Play with friends » (`instant`: a table of
+ * their own, joinable at once). Null for a plain start. Read before the first
+ * render, so the lobby is the first screen and the home screen never flashes.
+ */
+export function landing(): { table: string | null; instant: boolean } | null {
+  let found: { table: string | null; instant: boolean } | null = null
+  try {
+    const game = sdk?.game
+    const table = game?.getInviteParam?.(DUEL_PARAM) ?? null
+    const instant = game?.isInstantMultiplayer === true
+    if (table || instant) found = { table, instant: !table && instant }
+  } catch {
+    /* an SDK that refuses is a plain start */
+  }
+  try {
+    if (found) sessionStorage.setItem(LANDING_KEY, JSON.stringify(found))
+    else {
+      const kept: unknown = JSON.parse(sessionStorage.getItem(LANDING_KEY) ?? 'null')
+      if (kept && typeof kept === 'object' && 'instant' in kept) found = kept as { table: string | null; instant: boolean }
+    }
+  } catch {
+    /* no storage: the link's own parameters are all there is */
+  }
+  return found
+}
+
+/** The arrival has led to its lobby, or was given up: a reload no longer replays it. */
+function consumeLanding(): void {
+  try {
+    sessionStorage.removeItem(LANDING_KEY)
+  } catch {
+    /* nothing kept */
+  }
+}
+
+/** A friend following an invite while the game is open: the table they were invited to. */
+function onJoinInvite(listener: (table: string) => void): void {
+  safely((s) =>
+    s.game.addJoinRoomListener?.((params) => {
+      const table = params?.[DUEL_PARAM]
+      if (table) listener(table)
+    }),
+  )
+}
+
+let inviting: string | null = null
+
+/**
+ * The portal's invite button, for the private table whose lobby the player
+ * sits in and a friend can still join; null hides it. Only changes reach the SDK.
+ */
+function inviteFriends(table: string | null): void {
+  if (table === inviting) return
+  inviting = table
+  safely((s) => {
+    if (table) s.game.showInviteButton?.({ [DUEL_PARAM]: table })
+    else s.game.hideInviteButton?.()
+  })
 }
 
 /** The portal's language first (`en-US`), then the browser's. */
@@ -551,6 +626,10 @@ export const crazyGamesHost: Host = {
   account: portalAccount,
   onAccount: onPortalAccount,
   promptAccount: promptPortalAccount,
+  landing,
+  consumeLanding,
+  onJoinInvite,
+  inviteFriends,
   setGameplay,
   celebrate: happytime,
   submitScore,

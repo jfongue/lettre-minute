@@ -1432,6 +1432,10 @@ export interface DuelScreenProps {
   mode?: DuelMode
   /** La table où l'on a été invité ; sans elle, l'écran ouvre une table neuve. */
   join?: string | null
+  /** On arrive par un lien partagé, sans invitation envoyée. */
+  link?: boolean
+  /** Arrivé par un lien ou par « jouer entre amis » : droit au salon, les règles se revoient de là. */
+  skipRules?: boolean
   /** La table vient du matchmaking : chacun s'y déclare prêt dès qu'il y est assis. */
   quick?: boolean
   onExit?(reason: DuelExit): void
@@ -1441,7 +1445,7 @@ export interface DuelScreenProps {
   onSignIn?(): void
 }
 
-export function DuelScreen({ lang, mode = 'local', join = null, quick = false, onExit, onProfile, onSignIn }: DuelScreenProps) {
+export function DuelScreen({ lang, mode = 'local', join = null, link = false, skipRules = false, quick = false, onExit, onProfile, onSignIn }: DuelScreenProps) {
   // Hors ligne, la table en ligne cède la place à une table locale, sur le même écran.
   const [local, setLocal] = useState(false)
   return (
@@ -1450,6 +1454,8 @@ export function DuelScreen({ lang, mode = 'local', join = null, quick = false, o
       lang={lang}
       mode={local ? 'local' : mode}
       join={local ? null : join}
+      link={link}
+      skipRules={skipRules}
       quick={quick && !local}
       onExit={onExit}
       onProfile={onProfile}
@@ -1463,17 +1469,19 @@ function DuelTableScreen({
   lang,
   mode,
   join,
+  link,
+  skipRules,
   quick,
   onExit,
   onProfile,
   onSignIn,
   onBots,
-}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'quick'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn'> & { onBots(): void }) {
+}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'link' | 'skipRules' | 'quick'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn'> & { onBots(): void }) {
   const t = useT()
-  const table = useDuelTable({ lang, mode, join, quick, onExit, onProfile })
+  const table = useDuelTable({ lang, mode, join, link, quick, onExit, onProfile })
   const { phase } = table
   // Les règles s'ouvrent au premier lancement de la table, puis se revoient du salon.
-  const [rules, setRules] = useState(() => !loadDuelRulesSeen())
+  const [rules, setRules] = useState(() => !skipRules && !loadDuelRulesSeen())
   // Elles montrent mon avatar et mon nom : tant que le serveur n'a pas posé ma
   // place en ligne, elles n'ont rien à montrer. Les ouvrir quand même donnait
   // une place absente au tutoriel, qui vidait l'écran.
@@ -1485,6 +1493,15 @@ function DuelTableScreen({
     host.setGameplay(playing)
     return () => host.setGameplay(false)
   }, [playing])
+  // The portal's invite button belongs to a private table's lobby that a friend
+  // can still join: not to the rules, a random match (`quick`), the draft or a run.
+  const inviting =
+    mode === 'online' && !quick && phase === 'lobby' && !(rules && me) && table.seats.filter((seat) => !seat.pending).length < MAX_TABLE
+  const inviteTable = inviting ? table.tableId : null
+  useEffect(() => {
+    host.inviteFriends(inviteTable)
+    return () => host.inviteFriends(null)
+  }, [inviteTable])
 
   if (rules && me) {
     return (

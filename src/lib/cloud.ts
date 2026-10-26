@@ -2000,9 +2000,10 @@ export function fetchDuelInvites(): Promise<DuelInvitation[] | null> {
 
 export type DuelJoinOutcome = 'joined' | 'full' | 'closed' | 'kicked' | 'forbidden' | 'unreachable'
 
-export function joinDuel(table: string, owned: number): Promise<DuelJoinOutcome> {
+/** `link`: the table's address was shared with them, no invitation was sent (`duel_join_link`, 0106). */
+export function joinDuel(table: string, owned: number, link = false): Promise<DuelJoinOutcome> {
   return guard(async () => {
-    const { data, error } = await supabase!.rpc('duel_join', { p_table: table, p_owned: owned })
+    const { data, error } = await supabase!.rpc(link ? 'duel_join_link' : 'duel_join', { p_table: table, p_owned: owned })
     if (!error && data === 'joined') trackFeature('duel_joined')
     return error ? 'unreachable' : (data as DuelJoinOutcome)
   }, 'unreachable')

@@ -72,6 +72,21 @@ export interface Host {
   onAccount?(listener: () => void): void
   /** The host's own sign-in prompt; true once the player is signed in. */
   promptAccount?(): Promise<boolean>
+  /**
+   * How the player arrived when the host brought them to a duel table: the
+   * table an invite link names, or `instant` for a table of their own; null
+   * for a plain start. Read once, before the first screen.
+   */
+  landing(): { table: string | null; instant: boolean } | null
+  /** The arrival has led to its lobby, or was given up. */
+  consumeLanding(): void
+  /** A table invitation followed while the game is already open. */
+  onJoinInvite(listener: (table: string) => void): void
+  /**
+   * The host's invite button for the private table the player sits in, while
+   * friends can join it; null hides it. Never during a random match.
+   */
+  inviteFriends(table: string | null): void
   /** In a run (countdown, clock, first lesson) or not; only the changes matter. */
   setGameplay(on: boolean): void
   /** A run that beats a record the player already had. */
@@ -157,6 +172,10 @@ export const SUPER_MODERATOR_FEATURES: readonly FeatureId[] = [
 ]
 
 export const quiet = {
+  landing: (): { table: string | null; instant: boolean } | null => null,
+  consumeLanding(): void {},
+  onJoinInvite(): void {},
+  inviteFriends(): void {},
   setGameplay(): void {},
   celebrate(): void {},
   submitScore(): void {},

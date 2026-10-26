@@ -205,6 +205,7 @@ const RunScreen = lazyScreen(() => import('./ui/RunScreen').then((module) => mod
 const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) => module.WordsBoard))
 const FeaturesBoard = lazyScreen(() => import('./debug/FeaturesBoard').then((module) => module.FeaturesBoard))
 const DuelScreen = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelScreen))
+const LobbyGate = lazyScreen(() => import('./ui/LobbyGate').then((module) => module.LobbyGate))
 const DuelMatchmaking = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelMatchmaking))
 
 /** The run's own screens: awaited with its dictionaries, so the countdown never opens on a blank frame. */
@@ -486,7 +487,13 @@ setMenuPage(null)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean; link?: boolean; skipRules?: boolean } | null>(null)
+  // Arrivé par le lien d'une table, ou par « jouer entre amis » du portail : le
+  // salon est le premier écran, ni accueil, ni première leçon, ni règles.
+  const [landing, setLanding] = useState(() => host.landing())
+  const arrivedByInvite = useRef(landing !== null)
+  // Le compte du portail a répondu : nommé ou invité pour de bon.
+  const [hostSettled, setHostSettled] = useState(!host.account)
   const [matching, setMatching] = useState(false)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
@@ -656,15 +663,15 @@ setMenuPage(null)
       host
         .account!()
         .then(followHostAccount)
-        .then((changed) => {
+        .then(async (changed) => {
           if (!changed) return
-          fetchAccount().then((found) => {
-            if (found === 'unreachable') return
-            if (found) adopt(found)
-            else setAccount(null)
-          })
           loadBoards().then(setBoards)
+          const found = await fetchAccount()
+          if (found === 'unreachable') return
+          if (found) adopt(found)
+          else setAccount(null)
         })
+        .then(() => setHostSettled(true))
     follow()
     host.onAccount?.(follow)
   }, [adopt])
@@ -1090,9 +1097,11 @@ setStartedAt((at) => at ?? Date.now())
   const playedFirst = useRef(false)
   useEffect(() => {
     if (!host.playFirst || playedFirst.current || !answered.profile || locale === null || session.phase !== 'home') return
+    // A friend's table is waiting: the lobby first, the lesson only if they back out.
+    if (landing || arrivedByInvite.current) return
     playedFirst.current = true
     if (session.profile.runs === 0 && !loadTutorialDone() && on('tutorial')) startFirstRun()
-  }, [answered.profile, locale, session.phase, session.profile.runs, on, startFirstRun])
+  }, [answered.profile, locale, session.phase, session.profile.runs, on, startFirstRun, landing])
   // The answer was just handed over: the run that follows must not deal the
   // same pair. `lastPrompts` already keeps it out, and the run's own prompts
   // replace it once it ends.
@@ -1288,6 +1297,21 @@ setStartedAt((at) => at ?? Date.now())
     clearPushes([duelPushTag(table)])
     void declineDuel(table)
   }
+  useEffect(() => host.onJoinInvite((table) => setLanding({ table, instant: false })), [])
+  useEffect(() => {
+    if (!landing || session.phase !== 'home' || !answered.profile || !answered.account || !hostSettled) return
+    if (!on('duel')) {
+      host.consumeLanding()
+      setLanding(null)
+      return
+    }
+    if (!named) return
+    host.consumeLanding()
+    setLanding(null)
+    setTogether(false)
+    setMatching(false)
+    setDuelOpen({ join: landing.table, link: true, skipRules: true })
+  }, [landing, session.phase, answered.profile, answered.account, hostSettled, on, named])
   const leaveDuel = useCallback(
     (reason: DuelExit) => {
       setDuelOpen(null)
@@ -2018,11 +2042,28 @@ setStartedAt((at) => at ?? Date.now())
           <DuelScreen
             lang={lang}
             mode={duelOpen.local ? 'local' : 'online'}
+            key={duelOpen.join ?? 'own'}
             join={duelOpen.join}
+            link={duelOpen.link}
+            skipRules={duelOpen.skipRules}
             quick={duelOpen.quick}
             onExit={leaveDuel}
             onProfile={duelProfile}
             onSignIn={duelOpen.local ? duelSignIn : undefined}
+          />
+        </Suspense>
+      )}
+
+      {landing && session.phase === 'home' && !duelOpen && (
+        <Suspense fallback={null}>
+          <LobbyGate
+            loading={!(hostSettled && answered.account && !named)}
+            onSignIn={duelSignIn}
+            onHome={() => {
+              host.consumeLanding()
+              arrivedByInvite.current = false
+              setLanding(null)
+            }}
           />
         </Suspense>
       )}
@@ -2100,7 +2141,7 @@ setStartedAt((at) => at ?? Date.now())
 
       {weeklyFlow.overlay}
 
-      {!tutorial && !modeLesson && !loadout && !moderating && !duelOpen && !(matching && session.phase === 'home') && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
+      {!tutorial && !modeLesson && !loadout && !moderating && !duelOpen && !landing && !(matching && session.phase === 'home') && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}

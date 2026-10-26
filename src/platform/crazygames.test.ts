@@ -179,3 +179,68 @@ describe('les événements de jeu du portail', () => {
     expect(game.gameplayStop).toHaveBeenCalledTimes(1)
   })
 })
+
+/** The portal's multiplayer calls, with the page's own parameters and its session storage. */
+async function startMultiplayer(game: Record<string, unknown>, session = new Map<string, string>()) {
+  vi.resetModules()
+  const sessionStorage = {
+    getItem: (key: string) => session.get(key) ?? null,
+    setItem: (key: string, value: string) => void session.set(key, value),
+    removeItem: (key: string) => void session.delete(key),
+  }
+  vi.stubGlobal('location', { hostname: 'localhost' })
+  vi.stubGlobal('document', { referrer: '' })
+  vi.stubGlobal('sessionStorage', sessionStorage)
+  vi.stubGlobal('window', { CrazyGames: { SDK: { environment: 'local', init: () => Promise.resolve(), game, ad: {} } } })
+  const portal = await import('./crazygames')
+  await portal.initCrazyGames()
+  return { portal, session }
+}
+
+describe('le multijoueur du portail', () => {
+  it('lit la table du lien d’invitation et la garde pour la page rechargée par une connexion', async () => {
+    const { portal, session } = await startMultiplayer({ getInviteParam: (name: string) => (name === 'duel' ? 'table-1' : null) })
+    expect(portal.landing()).toEqual({ table: 'table-1', instant: false })
+    expect(session.size).toBe(1)
+    const { portal: reloaded } = await startMultiplayer({ getInviteParam: () => null }, session)
+    expect(reloaded.landing()).toEqual({ table: 'table-1', instant: false })
+    reloaded.crazyGamesHost.consumeLanding()
+    expect(reloaded.landing()).toBeNull()
+  })
+
+  it('ouvre une table à soi pour « jouer entre amis », sans table nommée', async () => {
+    const { portal } = await startMultiplayer({ getInviteParam: () => null, isInstantMultiplayer: true })
+    expect(portal.landing()).toEqual({ table: null, instant: true })
+  })
+
+  it('ne voit aucune arrivée dans un démarrage ordinaire', async () => {
+    const { portal } = await startMultiplayer({ getInviteParam: () => null, isInstantMultiplayer: false })
+    expect(portal.landing()).toBeNull()
+  })
+
+  it('montre le bouton d’invitation une fois par table et le cache quand on le retire', async () => {
+    const showInviteButton = vi.fn(() => 'link')
+    const hideInviteButton = vi.fn()
+    const { portal } = await startMultiplayer({ showInviteButton, hideInviteButton })
+    const { inviteFriends } = portal.crazyGamesHost
+    inviteFriends('t1')
+    inviteFriends('t1')
+    expect(showInviteButton).toHaveBeenCalledTimes(1)
+    expect(showInviteButton).toHaveBeenCalledWith({ duel: 't1' })
+    inviteFriends(null)
+    inviteFriends(null)
+    expect(hideInviteButton).toHaveBeenCalledTimes(1)
+  })
+
+  it('annonce la table d’un ami qui rejoint pendant que la page est ouverte', async () => {
+    let join: ((params: Record<string, string> | null) => void) | undefined
+    const { portal } = await startMultiplayer({ addJoinRoomListener: (listener: typeof join) => (join = listener) })
+    const heard = vi.fn()
+    portal.crazyGamesHost.onJoinInvite(heard)
+    join?.({ other: 'x' })
+    join?.(null)
+    join?.({ duel: 't2' })
+    expect(heard).toHaveBeenCalledOnce()
+    expect(heard).toHaveBeenCalledWith('t2')
+  })
+})

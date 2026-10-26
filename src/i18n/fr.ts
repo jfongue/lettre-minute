@@ -1157,6 +1157,8 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +1 
     botsCardNote: 'Contre les joueurs ordinateur, tout de suite.',
     signInLead: 'Connecte-toi pour affronter de vrais joueurs : tes amis, un adversaire au hasard, les tables publiques.',
     signIn: 'Se connecter',
+    loginLead: 'Pour rejoindre le salon, connecte-toi.',
+    loginHome: 'Retour à l’accueil',
     publicTitle: 'Table publique',
     publicNote: 'Les joueurs qui cherchent un adversaire dans ta langue peuvent s’y asseoir.',
     publicOn: 'Ouverte',
