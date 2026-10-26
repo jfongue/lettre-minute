@@ -371,12 +371,15 @@ ce n'est pas une raison de renoncer au protocole DevTools.
 - **Un interstitiel entre deux parties, celui de l'offre de catégorie éteint** :
 sur le téléphone, après le récap des mots et avant le bilan, à la 3e, 7e, 13e,
 21e, 31e… partie finie de la session (`INTERSTITIAL_BREAKS`,
-`src/domain/adBreaks.ts`, la même place et la même règle que le midgame de
-CrazyGames, `MIDGAME_BREAKS`), par `host.breakAfterRecap`
+`src/domain/adBreaks.ts`), par `host.breakAfterRecap`
 (`src/platform/app.ts`), jamais pour un Premium (`isPlus` : la pause épargnée
 compte dans `adsSkipped`) ni quand la fonctionnalité `adBreaks` (ouverte par
 défaut) est fermée, et rien dans un navigateur. Chaque pause due est comptée
 au tableau de bord (`ad`, source `midgame`, `shown` ou `unavailable`).
+Le midgame de CrazyGames n'est pas là mais sur « Rejouer », comme le portail
+le demande : jamais avant la deuxième partie, puis une partie sur deux
+(`replayBreakDue`, `host.breakBeforeReplay`) ; « Jouer » depuis l'accueil
+n'en montre jamais, le portail refusant une pub sur un bouton de navigation.
 `ADS_ENABLED` (`src/domain/unlocks.ts`) et la fonctionnalité `ads` ne
 coupent que l'interstitiel d'une offre de catégorie, qui reste éteint ; la
 récompense du bilan et la tentative de plus au défi du moment passent par

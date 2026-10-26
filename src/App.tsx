@@ -1062,22 +1062,22 @@ setStartedAt((at) => at ?? Date.now())
     }
   }, [idleHome, ownedShipped, lang])
 
-  const launchSolo = useCallback(() => {
+  /** Une partie seule : d'abord le choix des pouvoirs pour qui en a, quand la fonctionnalité l'ouvre. */
+  const playSolo = useCallback(() => {
     if (on('powerLoadout') && on('powers') && modeNow.current === 'solo' && ownedPowers(session.profile).length > 0) setLoadout(true)
     else void play()
   }, [on, session.profile, play])
-  /** Une partie seule : la pause de l'hôte, puis le choix des pouvoirs pour qui en a, quand la fonctionnalité l'ouvre. */
-  const midgamePending = useRef(false)
-  const playSolo = useCallback(() => {
-    // The run waits for the host's midgame; a second press while it plays must
-    // not start a second run.
-    if (midgamePending.current) return
-    midgamePending.current = true
-    void host.midgameBeforePlay(isPlus(session.profile) || !on('adBreaks')).then(() => {
-      midgamePending.current = false
-      launchSolo()
+  // « Rejouer » attend la pause de l'hôte ; un second appui pendant la pub ne
+  // lance pas une seconde partie.
+  const replayPending = useRef(false)
+  const replaySolo = useCallback(() => {
+    if (replayPending.current) return
+    replayPending.current = true
+    void host.breakBeforeReplay(isPlus(session.profile) || !on('adBreaks')).then(() => {
+      replayPending.current = false
+      playSolo()
     })
-  }, [on, session.profile, launchSolo])
+  }, [on, session.profile, playSolo])
 
   const startFirstRun = useCallback(() => {
     if (session.profile.runs > 0 || loadTutorialDone() || !on('tutorial')) return playSolo()
@@ -2543,7 +2543,7 @@ setMenuPage('avatar')
             onAd={revealAd}
             onAdSpared={() => dispatch({ type: 'plus-ad-skipped' })}
             onFlag={overFlag}
-            onReplay={session.challengeId ? play : playSolo}
+            onReplay={session.challengeId ? play : replaySolo}
             onHome={() => {
               // Asked on the way home, never over the summary: after the tenth run, then every thirty.
               if (cloudConfigured() && feedbackDue(session.profile) && on('feedback')) {

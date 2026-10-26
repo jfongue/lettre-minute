@@ -1,4 +1,4 @@
-import { breakDue, MIDGAME_BREAKS } from '../domain/adBreaks'
+import { replayBreakDue } from '../domain/adBreaks'
 import { trackFeature } from '../lib/feature'
 import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type RewardedResult } from './host'
 
@@ -263,49 +263,41 @@ function onPlatformMute(listener: (muted: boolean) => void): void {
 const AD_TIMEOUT_MS = 60_000
 
 /**
- * The break between a run's word recap and its summary: a midgame ad on the
- * session's schedule (`MIDGAME_BREAKS`). The SDK keeps them three minutes apart
- * and answers `adError` to an early request, which just skips this one.
- * Resolves once the ad is over, failed or skipped; the sound is cut only while
- * one actually plays. A second tap while the ad is pending joins it.
+ * The portal's midgame waits for « Play again » (`breakBeforeReplay`): the
+ * recap only counts the run it closes.
  */
-let finishedRuns = 0
+let runsSinceBreak = 0
 let pendingBreak: Promise<AdBreak> | null = null
-function breakAfterRecap(adFree: boolean): Promise<AdBreak> {
-  if (pendingBreak) return pendingBreak
-  finishedRuns += 1
-  if (!sdk || !breakDue(finishedRuns, MIDGAME_BREAKS)) return Promise.resolve('none')
-  if (adFree) return Promise.resolve('spared')
-  const asked = requestMidgame('midgame').finally(() => {
-    pendingBreak = null
-  })
-  pendingBreak = asked
-  return asked
+function breakAfterRecap(): Promise<AdBreak> {
+  runsSinceBreak += 1
+  return Promise.resolve('none')
 }
 
 /**
- * A midgame when a single-player run is about to start (Play, Play Again): asked
- * on every press, the SDK's own spacing deciding whether an ad comes. Shares the
- * recap break's pending request, so two never stack: a press while one is
- * pending waits for it instead of asking again. Resolves at once without the SDK.
+ * A midgame before the run « Play again » starts, one run in two from the
+ * second (`replayBreakDue`). The SDK keeps them three minutes apart and
+ * answers `adError` to an early request, which just skips this one. A second
+ * press while the ad is pending joins it.
  */
-function midgameBeforePlay(adFree: boolean): Promise<AdBreak> {
+function breakBeforeReplay(adFree: boolean): Promise<AdBreak> {
   if (pendingBreak) return pendingBreak
-  if (!sdk || adFree) return Promise.resolve('none')
-  const asked = requestMidgame('play').finally(() => {
+  if (!sdk || !replayBreakDue(runsSinceBreak)) return Promise.resolve('none')
+  runsSinceBreak = 0
+  if (adFree) return Promise.resolve('spared')
+  const asked = requestMidgame().finally(() => {
     pendingBreak = null
   })
   pendingBreak = asked
   return asked
 }
 
-function requestMidgame(source: 'midgame' | 'play'): Promise<AdBreak> {
+function requestMidgame(): Promise<AdBreak> {
   return new Promise((resolve) => {
     let done = false
     const finish = (result: 'shown' | 'unavailable') => {
       if (done) return
       done = true
-      trackFeature('ad', { source, result })
+      trackFeature('ad', { source: 'midgame', result })
       clearTimeout(timer)
       if (adPlaying) {
         adPlaying = false
@@ -565,6 +557,6 @@ export const crazyGamesHost: Host = {
   prepareRewarded(): void {},
   showRewarded,
   breakAfterRecap,
-  midgameBeforePlay,
+  breakBeforeReplay,
   onMute: onPlatformMute,
 }

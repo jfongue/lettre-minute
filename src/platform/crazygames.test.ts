@@ -109,48 +109,63 @@ async function startWithAds(sdk: boolean) {
 }
 
 describe('les pubs midgame du portail', () => {
-  it('demande une pub à chaque appui sur Jouer et attend sa fin pour rendre la main', async () => {
+  const finish = (host: Awaited<ReturnType<typeof startWithAds>>['host'], runs: number) => {
+    for (let i = 0; i < runs; i++) void host.breakAfterRecap(false)
+  }
+
+  it('ne coupe ni la première partie ni le bilan, puis demande une pub à « Rejouer » une partie sur deux', async () => {
     const { host, requests } = await startWithAds(true)
+    finish(host, 1)
+    expect(await host.breakBeforeReplay(false)).toBe('none')
+    finish(host, 1)
+    expect(requests).toHaveLength(0)
+    const asked = host.breakBeforeReplay(false)
+    expect(requests.map((r) => r.type)).toEqual(['midgame'])
+    requests[0].callbacks.adFinished()
+    expect(await asked).toBe('shown')
+    finish(host, 1)
+    expect(await host.breakBeforeReplay(false)).toBe('none')
+    finish(host, 1)
+    void host.breakBeforeReplay(false)
+    expect(requests).toHaveLength(2)
+  })
+
+  it('attend la fin de la pub pour rendre la main, et la laisse partir quand le portail la refuse', async () => {
+    const { host, requests } = await startWithAds(true)
+    finish(host, 2)
     let over = false
-    const asked = host.midgameBeforePlay(false).then((result) => {
+    const asked = host.breakBeforeReplay(false).then((result) => {
       over = true
       return result
     })
-    expect(requests.map((r) => r.type)).toEqual(['midgame'])
     await Promise.resolve()
     expect(over).toBe(false)
-    requests[0].callbacks.adFinished()
-    expect(await asked).toBe('shown')
-  })
-
-  it('laisse partir la partie quand le portail refuse la pub', async () => {
-    const { host, requests } = await startWithAds(true)
-    const asked = host.midgameBeforePlay(false)
     requests[0].callbacks.adError()
     expect(await asked).toBe('unavailable')
   })
 
-  it('ne montre rien à un Premium', async () => {
+  it('épargne un Premium', async () => {
     const { host, requests } = await startWithAds(true)
-    expect(await host.midgameBeforePlay(true)).toBe('none')
+    finish(host, 2)
+    expect(await host.breakBeforeReplay(true)).toBe('spared')
     expect(requests).toHaveLength(0)
   })
 
   it('rend la main aussitôt sans le SDK', async () => {
     const { host } = await startWithAds(false)
-    expect(await host.midgameBeforePlay(false)).toBe('none')
+    finish(host, 2)
+    expect(await host.breakBeforeReplay(false)).toBe('none')
   })
 
   it('n’empile pas deux pubs : un appui pendant l’attente rejoint la demande en cours', async () => {
     const { host, requests } = await startWithAds(true)
-    const first = host.midgameBeforePlay(false)
-    const second = host.midgameBeforePlay(false)
+    finish(host, 2)
+    const first = host.breakBeforeReplay(false)
+    const second = host.breakBeforeReplay(false)
     expect(requests).toHaveLength(1)
     requests[0].callbacks.adFinished()
     expect(await first).toBe('shown')
     expect(await second).toBe('shown')
-    void host.midgameBeforePlay(false)
-    expect(requests).toHaveLength(2)
   })
 })
 

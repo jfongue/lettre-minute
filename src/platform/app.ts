@@ -9,7 +9,7 @@ const LOAD_AHEAD_RUNS = 2
 
 /**
  * The phone's interstitial between two runs, on the session's schedule
- * (`INTERSTITIAL_BREAKS`), after the word recap like CrazyGames' midgame. In a
+ * (`INTERSTITIAL_BREAKS`), after the word recap. In a
  * browser `adsSupported` is false and nothing is ever due: the web shows no ad.
  * A second tap while the ad plays joins it.
  */
