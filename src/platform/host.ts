@@ -99,11 +99,11 @@ export interface Host {
    */
   breakAfterRecap(adFree: boolean, afterAd?: boolean): Promise<AdBreak>
   /**
-   * The host's break when a single-player run is about to start (Play, Play
-   * Again): resolves once it is over, failed or skipped, and the run starts
-   * only then. Never for an `adFree` player. Not a finished run: it counts none.
+   * The host's break when « Play again » is about to start a single-player
+   * run: resolves once it is over, failed or skipped, and the run starts only
+   * then. An `adFree` player is `spared`. Not a finished run: it counts none.
    */
-  midgameBeforePlay(adFree: boolean): Promise<AdBreak>
+  breakBeforeReplay(adFree: boolean): Promise<AdBreak>
   /** Called with true while the host wants silence — its own mute, an ad — and false once it lets go. */
   onMute(listener: (muted: boolean) => void): void
 }
@@ -182,6 +182,6 @@ export const quiet = {
   prepareRewarded(): void {},
   showRewarded: (): Promise<RewardedResult> => Promise.resolve('unavailable'),
   breakAfterRecap: (): Promise<AdBreak> => Promise.resolve('none'),
-  midgameBeforePlay: (): Promise<AdBreak> => Promise.resolve('none'),
+  breakBeforeReplay: (): Promise<AdBreak> => Promise.resolve('none'),
   onMute(): void {},
 }

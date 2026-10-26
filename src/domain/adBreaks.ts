@@ -10,9 +10,6 @@ export interface BreakSchedule {
   growth: number
 }
 
-/** CrazyGames' midgame ad: the 2nd, 5th, 9th, 14th, 20th… run (gaps 3, 4, 5, 6…). */
-export const MIDGAME_BREAKS: BreakSchedule = { first: 2, gap: 3, growth: 1 }
-
 /** The phone's interstitial: the 3rd, 7th, 13th, 21st, 31st… run (gaps 4, 6, 8, 10…). */
 export const INTERSTITIAL_BREAKS: BreakSchedule = { first: 3, gap: 4, growth: 2 }
 
@@ -31,4 +28,17 @@ export function nextBreak(finishedRuns: number, schedule: BreakSchedule): number
 export function breakDue(finishedRuns: number, schedule: BreakSchedule): boolean {
   if (!Number.isInteger(finishedRuns) || finishedRuns < schedule.first) return false
   return nextBreak(finishedRuns - 1, schedule) === finishedRuns
+}
+
+/**
+ * CrazyGames' midgame comes on « Play again », once this many runs have
+ * finished since the last one: never before the session's second run, then
+ * one run in two. Play from the home screen never asks, as the portal refuses
+ * an ad on a navigational button.
+ */
+export const REPLAY_BREAK_RUNS = 2
+
+/** Whether « Play again » breaks after `runsSinceBreak` finished runs. */
+export function replayBreakDue(runsSinceBreak: number): boolean {
+  return Number.isInteger(runsSinceBreak) && runsSinceBreak >= REPLAY_BREAK_RUNS
 }

@@ -171,11 +171,13 @@ ami modérateur) — un joueur connecté au portail a le compte
   privée — la table des joueurs ordinateur pour un invité — et saute la leçon
   du premier lancement. En local : `?instantJoin=true`, ou
   `?czy_invite=true&duel=<uuid>`. Taille de salle à déclarer au portail : 2 à 4.
-- **Pub midgame** : demandée entre le récap des mots et le bilan de la partie,
-  à la 2e, 5e, 9e, 14e, 20e… partie finie de la session (`MIDGAME_BREAKS`,
-  `src/domain/adBreaks.ts` ; `host.breakAfterRecap`), jamais à un Premium ni
-  quand la fonctionnalité `adBreaks` est fermée, jamais à « Rejouer » ; le
-  SDK refuse lui-même une pub à moins de 3 min de la dernière. Le bilan attend
+- **Pub midgame** : demandée à « Rejouer », avant la partie qu'il lance, dès
+  que deux parties ont fini depuis la dernière pause — jamais avant la
+  deuxième partie de la session, puis une sur deux (`replayBreakDue`,
+  `src/domain/adBreaks.ts` ; `host.breakBeforeReplay`) ; jamais à « Jouer »
+  depuis l'accueil (le portail refuse une pub sur un bouton de navigation),
+  jamais à un Premium ni quand la fonctionnalité `adBreaks` est fermée ; le
+  SDK refuse lui-même une pub à moins de 3 min de la dernière. La partie attend
   la fin de la pub, ou son erreur (y compris bloqueur de pub), au plus 60 s.
   Chaque demande est comptée au tableau de bord (`ad`, source `midgame`). Le son est
   coupé seulement pendant que la pub joue (`adStarted` → `adFinished`/`adError`).

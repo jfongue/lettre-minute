@@ -89,19 +89,75 @@ describe('la sauvegarde du portail', () => {
   })
 })
 
-describe('la pause entre deux parties', () => {
-  it('saute la pause due quand le récap vient de montrer une pub de révélation', async () => {
-    const requestAd = vi.fn((_type: string, callbacks: { adFinished?(): void }) => callbacks.adFinished?.())
-    const { portal } = await start(new Map(), null, { requestAd })
-    const host = portal.crazyGamesHost
-    expect(await host.breakAfterRecap(false)).toBe('none')
-    // La 2e partie devait faire sa pause : la pub de révélation en tient lieu.
-    expect(await host.breakAfterRecap(false, true)).toBe('none')
-    expect(requestAd).not.toHaveBeenCalled()
-    await host.breakAfterRecap(false)
-    await host.breakAfterRecap(false)
-    // La suivante, à la 5e, passe comme prévu.
-    expect(await host.breakAfterRecap(false)).toBe('shown')
-    expect(requestAd).toHaveBeenCalledTimes(1)
+type AdCallbacks = { adFinished(): void; adError(): void }
+
+/** The portal with ads: each midgame asked waits in `requests` until the test answers it. */
+async function startWithAds() {
+  const requests: AdCallbacks[] = []
+  const requestAd = vi.fn((_type: string, callbacks: AdCallbacks) => void requests.push(callbacks))
+  const { portal } = await start(new Map(), null, { requestAd })
+  const host = portal.crazyGamesHost
+  const finish = (runs: number, afterAd = false) => {
+    for (let i = 0; i < runs; i++) void host.breakAfterRecap(false, afterAd)
+  }
+  return { host, requests, finish }
+}
+
+describe('la pub midgame du portail', () => {
+  it('ne coupe ni la première partie ni le récap, puis demande une pub à « Rejouer » une partie sur deux', async () => {
+    const { host, requests, finish } = await startWithAds()
+    finish(1)
+    expect(await host.breakBeforeReplay(false)).toBe('none')
+    finish(1)
+    expect(requests).toHaveLength(0)
+    const asked = host.breakBeforeReplay(false)
+    expect(requests).toHaveLength(1)
+    requests[0].adFinished()
+    expect(await asked).toBe('shown')
+    finish(1)
+    expect(await host.breakBeforeReplay(false)).toBe('none')
+    finish(1)
+    void host.breakBeforeReplay(false)
+    expect(requests).toHaveLength(2)
+  })
+
+  it('compte la pub de révélation du récap comme la pause : jamais deux pubs d’affilée', async () => {
+    const { host, requests, finish } = await startWithAds()
+    finish(1)
+    finish(1, true)
+    expect(await host.breakBeforeReplay(false)).toBe('none')
+    expect(requests).toHaveLength(0)
+  })
+
+  it('attend la fin de la pub, et laisse partir la partie quand le portail la refuse', async () => {
+    const { host, requests, finish } = await startWithAds()
+    finish(2)
+    let over = false
+    const asked = host.breakBeforeReplay(false).then((result) => {
+      over = true
+      return result
+    })
+    await Promise.resolve()
+    expect(over).toBe(false)
+    requests[0].adError()
+    expect(await asked).toBe('unavailable')
+  })
+
+  it('épargne un Premium', async () => {
+    const { host, requests, finish } = await startWithAds()
+    finish(2)
+    expect(await host.breakBeforeReplay(true)).toBe('spared')
+    expect(requests).toHaveLength(0)
+  })
+
+  it('n’empile pas deux pubs : un appui pendant l’attente rejoint la demande en cours', async () => {
+    const { host, requests, finish } = await startWithAds()
+    finish(2)
+    const first = host.breakBeforeReplay(false)
+    const second = host.breakBeforeReplay(false)
+    expect(requests).toHaveLength(1)
+    requests[0].adFinished()
+    expect(await first).toBe('shown')
+    expect(await second).toBe('shown')
   })
 })
