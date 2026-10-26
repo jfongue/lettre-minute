@@ -88,3 +88,79 @@ describe('la sauvegarde du portail', () => {
     expect(browser.has(HANDED_OVER)).toBe(false)
   })
 })
+
+/** A portal whose `requestAd` is the test's: it keeps the callbacks to answer when it wants. */
+async function startWithAds(sdk: boolean) {
+  vi.resetModules()
+  const requests: { type: string; callbacks: { adStarted(): void; adFinished(): void; adError(): void } }[] = []
+  const game = { gameplayStart: vi.fn(), gameplayStop: vi.fn() }
+  const SDK = {
+    environment: 'local',
+    init: () => Promise.resolve(),
+    game,
+    ad: { requestAd: (type: string, callbacks: (typeof requests)[number]['callbacks']) => void requests.push({ type, callbacks }) },
+  }
+  vi.stubGlobal('location', { hostname: 'localhost' })
+  vi.stubGlobal('document', { referrer: '' })
+  vi.stubGlobal('window', sdk ? { CrazyGames: { SDK } } : {})
+  const portal = await import('./crazygames')
+  await portal.initCrazyGames()
+  return { host: portal.crazyGamesHost, requests, game }
+}
+
+describe('les pubs midgame du portail', () => {
+  it('demande une pub à chaque appui sur Jouer et attend sa fin pour rendre la main', async () => {
+    const { host, requests } = await startWithAds(true)
+    let over = false
+    const asked = host.midgameBeforePlay(false).then((result) => {
+      over = true
+      return result
+    })
+    expect(requests.map((r) => r.type)).toEqual(['midgame'])
+    await Promise.resolve()
+    expect(over).toBe(false)
+    requests[0].callbacks.adFinished()
+    expect(await asked).toBe('shown')
+  })
+
+  it('laisse partir la partie quand le portail refuse la pub', async () => {
+    const { host, requests } = await startWithAds(true)
+    const asked = host.midgameBeforePlay(false)
+    requests[0].callbacks.adError()
+    expect(await asked).toBe('unavailable')
+  })
+
+  it('ne montre rien à un Premium', async () => {
+    const { host, requests } = await startWithAds(true)
+    expect(await host.midgameBeforePlay(true)).toBe('none')
+    expect(requests).toHaveLength(0)
+  })
+
+  it('rend la main aussitôt sans le SDK', async () => {
+    const { host } = await startWithAds(false)
+    expect(await host.midgameBeforePlay(false)).toBe('none')
+  })
+
+  it('n’empile pas deux pubs : un appui pendant l’attente rejoint la demande en cours', async () => {
+    const { host, requests } = await startWithAds(true)
+    const first = host.midgameBeforePlay(false)
+    const second = host.midgameBeforePlay(false)
+    expect(requests).toHaveLength(1)
+    requests[0].callbacks.adFinished()
+    expect(await first).toBe('shown')
+    expect(await second).toBe('shown')
+    void host.midgameBeforePlay(false)
+    expect(requests).toHaveLength(2)
+  })
+})
+
+describe('les événements de jeu du portail', () => {
+  it('ne signale que les changements', async () => {
+    const { host, game } = await startWithAds(true)
+    host.setGameplay(true)
+    host.setGameplay(true)
+    host.setGameplay(false)
+    expect(game.gameplayStart).toHaveBeenCalledTimes(1)
+    expect(game.gameplayStop).toHaveBeenCalledTimes(1)
+  })
+})

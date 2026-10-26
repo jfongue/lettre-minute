@@ -276,20 +276,36 @@ function breakAfterRecap(adFree: boolean): Promise<AdBreak> {
   finishedRuns += 1
   if (!sdk || !breakDue(finishedRuns, MIDGAME_BREAKS)) return Promise.resolve('none')
   if (adFree) return Promise.resolve('spared')
-  const asked = requestMidgame().finally(() => {
+  const asked = requestMidgame('midgame').finally(() => {
     pendingBreak = null
   })
   pendingBreak = asked
   return asked
 }
 
-function requestMidgame(): Promise<AdBreak> {
+/**
+ * A midgame when a single-player run is about to start (Play, Play Again): asked
+ * on every press, the SDK's own spacing deciding whether an ad comes. Shares the
+ * recap break's pending request, so two never stack: a press while one is
+ * pending waits for it instead of asking again. Resolves at once without the SDK.
+ */
+function midgameBeforePlay(adFree: boolean): Promise<AdBreak> {
+  if (pendingBreak) return pendingBreak
+  if (!sdk || adFree) return Promise.resolve('none')
+  const asked = requestMidgame('play').finally(() => {
+    pendingBreak = null
+  })
+  pendingBreak = asked
+  return asked
+}
+
+function requestMidgame(source: 'midgame' | 'play'): Promise<AdBreak> {
   return new Promise((resolve) => {
     let done = false
     const finish = (result: 'shown' | 'unavailable') => {
       if (done) return
       done = true
-      trackFeature('ad', { source: 'midgame', result })
+      trackFeature('ad', { source, result })
       clearTimeout(timer)
       if (adPlaying) {
         adPlaying = false
@@ -549,5 +565,6 @@ export const crazyGamesHost: Host = {
   prepareRewarded(): void {},
   showRewarded,
   breakAfterRecap,
+  midgameBeforePlay,
   onMute: onPlatformMute,
 }
