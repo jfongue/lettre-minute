@@ -1,5 +1,4 @@
-• Duels open to everyone: public lobbies and XP for beating a real player
-• Magic frees the letter: any word of the theme counts, three times a game
-• “Animals” is now “Mammals”, “Everyday objects” “Small object”
-• Challenge of the moment: unlock a 3rd attempt
-• New words approved by moderators, bug fixes
+• Current challenge: it now runs two weeks and is called a “challenge” everywhere
+• Challenge leaderboard: your rank only shows once you are ranked
+• Reversed challenge: the field now says “a word ending in…”
+• Bug fixes

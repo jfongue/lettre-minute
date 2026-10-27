@@ -1,5 +1,4 @@
-• Duel ouvert à tous : salon public et XP gagnée contre un vrai joueur
-• Magie libère la lettre : n’importe quel mot du thème répond, trois fois par partie
-• « Animaux » devient « Mammifères », « Objets du quotidien » « Petit objet »
-• Défi du moment : une 3e tentative à débloquer
-• Nouveaux mots validés par les modérateurs, corrections de bugs
+• Défi du moment : il dure deux semaines, il s’appelle désormais « défi » partout
+• Classement du défi : ton rang ne s’affiche que lorsque tu es classé
+• Défi inversé : le champ annonce clairement « un mot qui finit par… »
+• Corrections de bugs

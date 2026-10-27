@@ -1,5 +1,4 @@
-• Duelos abiertos a todos: salas públicas y XP contra jugadores reales
-• Magia libera la letra: cualquier palabra del tema vale, tres veces por partida
-• «Animales» pasa a «Mamíferos», «Objetos cotidianos» a «Objeto pequeño»
-• Reto del momento: desbloquea un 3.er intento
-• Nuevas palabras validadas por los moderadores, corrección de errores
+• Reto del momento: ahora dura dos semanas y se llama « reto » en todas partes
+• Clasificación del reto: tu puesto solo aparece cuando estás clasificado
+• Reto invertido: el campo dice claramente « una palabra que termina en… »
+• Corrección de errores

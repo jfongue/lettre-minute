@@ -1,5 +1,4 @@
-• Duelos abertos a todos: salas públicas e XP contra jogadores reais
-• Magia libera a letra: qualquer palavra do tema vale, três vezes por partida
-• “Animais” vira “Mamíferos”, “Objetos do dia a dia” “Objeto pequeno”
-• Desafio do momento: desbloqueie uma 3ª tentativa
-• Novas palavras aprovadas pelos moderadores, correções de bugs
+• Desafio do momento: agora dura duas semanas e se chama “desafio” em todo lugar
+• Classificação do desafio: sua posição só aparece quando você está classificado
+• Desafio invertido: o campo diz claramente “uma palavra que termina com…”
+• Correções de bugs
