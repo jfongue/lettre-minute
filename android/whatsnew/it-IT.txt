@@ -1,4 +1,5 @@
-• Duelli aperti a tutti: sale pubbliche e XP contro giocatori veri
-• Magia libera la lettera: ogni parola del tema vale, tre volte a partita
-• Sfida del momento: sblocca un 3° tentativo
+• Sfida del momento: ora dura due settimane e si chiama « sfida » ovunque
+• Classifica della sfida: la tua posizione appare solo quando sei in classifica
+• Sfida al contrario: il campo dice chiaramente « una parola che finisce con… »
+• Duello: la rivincita non si blocca più, e mai due pubblicità di fila
 • Correzioni di bug

@@ -1,4 +1,5 @@
-• Duelle für alle: öffentliche Lobbys und XP gegen echte Spieler
-• Magie gibt den Buchstaben frei: jedes Wort des Themas zählt, dreimal pro Partie
-• Aktuelle Herausforderung: ein 3. Versuch freischaltbar
+• Aktuelle Challenge: Sie läuft jetzt zwei Wochen und heißt überall „Challenge“
+• Challenge-Rangliste: Dein Rang erscheint nur, wenn du eingestuft bist
+• Umgekehrte Challenge: Das Feld sagt klar „ein Wort, das auf … endet“
+• Duell: Die Revanche hängt nicht mehr, und nie zwei Werbungen hintereinander
 • Fehlerbehebungen

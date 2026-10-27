@@ -1,4 +1,5 @@
-• Duelos abertos a todos: salas públicas e XP contra jogadores reais
-• Magia libera a letra: qualquer palavra do tema vale, três vezes por partida
-• Desafio do momento: desbloqueie uma 3ª tentativa
+• Desafio do momento: agora dura duas semanas e se chama “desafio” em todo lugar
+• Classificação do desafio: sua posição só aparece quando você está classificado
+• Desafio invertido: o campo diz claramente “uma palavra que termina com…”
+• Duelo: a revanche não trava mais, e nunca dois anúncios seguidos
 • Correções de bugs

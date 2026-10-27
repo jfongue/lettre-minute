@@ -1,4 +1,5 @@
-• Duels voor iedereen: openbare lobby’s en XP tegen echte spelers
-• Magie maakt de letter vrij: elk woord uit het thema telt, drie keer per potje
-• Uitdaging van het moment: ontgrendel een 3e poging
+• Uitdaging van het moment: duurt nu twee weken en heet overal “uitdaging”
+• Klassement van de uitdaging: je plaats verschijnt pas als je geklasseerd bent
+• Omgekeerde uitdaging: het veld zegt duidelijk “een woord dat eindigt op…”
+• Duel: de revanche loopt niet meer vast, en nooit twee advertenties na elkaar
 • Bugfixes
