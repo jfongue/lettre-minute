@@ -219,6 +219,7 @@ export const fr = {
 
   boards: {
     title: 'Classement',
+    locked: 'Connecte-toi pour entrer au classement.',
     day: {
       label: 'Jour',
       caption: 'Meilleure partie d’aujourd’hui',
@@ -244,7 +245,6 @@ export const fr = {
     less: 'Voir moins',
     all: 'Tous les classements',
     plus: 'Plus…',
-    me: 'Moi',
   },
 
   leaderboards: {
@@ -265,7 +265,7 @@ export const fr = {
     you: 'Ta place',
     absent: 'Tu n’y figures pas encore : à toi de jouer.',
     anonymous: 'Crée un compte pour figurer aux classements.',
-    guest: 'Ta ligne « Moi » est comptée sur cet appareil. Connecte-toi pour figurer au classement de tous.',
+    guest: 'Le classement est réservé aux joueurs connectés : connecte-toi pour y voir les meilleurs et y prendre ta place.',
     signIn: 'Se connecter',
     runs: 'Parties',
     solo: 'Solo',
@@ -1043,8 +1043,6 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +1 
         drawn === 0 ? '' : drawn === 1 ? ' Le sort ajoute la dernière.' : ` Le sort ajoute les ${drawn} dernières.`
       }`,
     lobbyView: 'Retour au salon',
-    resumeDraft: 'Reprendre la sélection',
-    lobbyNote: 'La sélection continue sans toi. Tu y reviens à ton tour.',
     draftTitle: 'Choisis une catégorie',
     draftTurn: (name: string) => `${name} choisit…`,
     cheerHint: 'Touche une catégorie pour souffler ton idée : elle frémit chez toute la table.',

@@ -119,17 +119,14 @@ ami modérateur) — un joueur connecté au portail a le compte
   qui les montre tous, une touche en prend ou en repose un (`wearOrDrop`),
   Entrée joue ; l'accueil perd alors ses emplacements. Tentatives et record
   passent par le module Data comme le reste (`SAVED_KEYS`).
-- **Classements de l'invité** (`host.guestBoards`, `src/ui/guestBoards.ts`,
-  `guestValue` / `placeGuest` dans `src/domain/localBoards.ts`) : l'accueil et
-  la page des classements montrent les tableaux du serveur, avec la ligne
-  « Moi » de l'invité, comptée sur l'appareil comme le serveur compte un
-  joueur (périodes à l'heure de Paris, `parisPeriodStart`) ; au-delà des
-  cinquante lignes, `leaderboard_rank` donne sa place. Rien n'est envoyé :
-  pour figurer au classement de tous, « Se connecter » ouvre la connexion du
-  portail (`showAuthPrompt`). Serveur injoignable : ses seules parties
-  (`src/ui/localBoards.ts`). Une fiche de joueur y ouvre les actions d'amitié
-  et de blocage (`PlayerName`, `PlayerSheet`) depuis que la fonctionnalité
-  `friends` est ouverte — à l'invité, le geste demande la connexion du portail.
+- **Classements de l'invité** (`host.guestBoards`, `LockedBoards` dans
+  `src/ui/Boards.tsx`, `LeaderboardsPage`) : verrouillés. L'accueil montre à
+  leur place un cadenas, la phrase qui le dit et « Se connecter », qui ouvre la
+  connexion du portail (`showAuthPrompt`) ; la page des classements, de même.
+  L'invité y lisait sa ligne « Moi » comptée sur l'appareil, mais rien de ce
+  qu'il marque n'est envoyé ni ne suit le compte qu'il ouvre ensuite : la
+  revue a vu sa ligne disparaître à la connexion et demandé de fermer le
+  classement aux invités.
 - **Langue** : celle déjà choisie, puis celle du SDK (`user.systemInfo.locale`),
   puis celle du navigateur ; si aucune n'est une langue du jeu, le sélecteur
   de langue (`fallbackLocale: null`), en deux colonnes dans le cadre paysage.
@@ -161,7 +158,10 @@ ami modérateur) — un joueur connecté au portail a le compte
   identifiant pour `roomId` et pour le seul paramètre d'invitation, `duel`),
   ouverte aux amis du portail tant que le salon a une place libre, fermée dès
   la partie lancée, quittée (`leftRoom`) en sortant de l'écran ; une revanche
-  devient la salle suivante. Le SDK refuse un appel à moins de 250 ms du
+  devient la salle suivante — même celle d'une table de matchmaking, qui
+  ne s'annonce jamais elle-même mais dont la revanche est un salon où
+  inviter ses amis. « Retour au salon » pendant le draft y ramène toute la
+  table (`duel_unstart`, 0106) : les autres ne continuent pas sans lui. Le SDK refuse un appel à moins de 250 ms du
   précédent : chaque changement attend 300 ms et seul le dernier part. Un ami
   qui accepte l'invitation arrive avec `inviteParams` au lancement, ou par
   l'écouteur de salle si le jeu tourne déjà : il s'assoit sans invitation du
@@ -207,7 +207,11 @@ ami modérateur) — un joueur connecté au portail a le compte
   confiées qu'une fois par navigateur (`lettre-minute.crazygames-data.v1`) :
   les lui confier à chaque lancement donnait à l'invité, après une
   déconnexion (qui recharge la page), la progression du compte qui venait de
-  partir — retour de la revue Full Launch. Ensuite toute écriture de ces clés dans `localStorage` est recopiée au
+  partir — retour de la revue Full Launch. Le compte du jeu, lui, ne se lit
+  qu'une fois celui du portail suivi (`readAccount` après `followHostAccount`,
+  `src/App.tsx`) : la session Supabase restée sur l'appareil après une
+  déconnexion fusionnait sinon la progression du compte parti dans le profil
+  de l'invité, que le module Data gardait ensuite. Ensuite toute écriture de ces clés dans `localStorage` est recopiée au
   SDK (patch de `Storage.prototype`, limité à `localStorage` et à ces clés).
   L'historique est rogné à ses parties les plus récentes pour rester sous
   900 Ko (le module refuse au-delà de 1 Mo). Si le module est désactivé
@@ -224,9 +228,16 @@ ami modérateur) — un joueur connecté au portail a le compte
   cartes à droite. Le cadre, quelle que soit sa hauteur — le portail donne au jeu
   la fenêtre entière, et une fenêtre haute retombait sur la colonne du téléphone
   avant que ces règles ne perdent leur limite de 820 px —, est traité comme
-  l'écran : le document ne défile jamais, et tout écran plus haut que lui
-  (classements, statistiques, succès, bilans) défile dans sa propre feuille au
-  lieu de cacher son bouton sous le bord du cadre.
+  l'écran : le document ne défile jamais. Les scènes de jeu ne défilent pas
+  non plus (revue) : le choix des pouvoirs, « Jouer avec des amis », l'écran
+  du défi du moment et la fin d'une tentative passent en deux colonnes ; la
+  leçon du défi, le compte à rebours, le bilan et le classement verrouillé de
+  l'accueil se resserrent dans un cadre bas, jusqu'à 640 × 360. Seules
+  défilent les listes — le menu et ses pages, les lignes du classement sous
+  une barre visible, les mots cachés du bilan. Les blocs d'un écran entrent
+  par le haut (`@keyframes rise` redéfini) : glissés depuis le bas, ils
+  faisaient clignoter une barre le temps de leur entrée. `crazygames:scan`
+  signale tout écran qui défile hors de ces listes.
 
 ## Exigences CrazyGames (relevées le 7 octobre 2026)
 

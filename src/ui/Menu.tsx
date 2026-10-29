@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ChallengeSummary } from '../lib/cloud'
 import { sameAvatar, type AvatarChoice } from '../domain/avatar'
 import { ownsEveryDesign } from '../domain/achievements'
@@ -47,7 +47,6 @@ import type { AttemptCount } from '../domain/weekly'
 import { BoardSwitch, type BoardFamily } from './BoardSwitch'
 import { CategoriesPage, type BanActions } from './CategoriesPage'
 import { LeaderboardsPage } from './LeaderboardsPage'
-import { guestLoader } from './guestBoards'
 import { PageLinks } from './PageLinks'
 import { RequestsPage } from './RequestsPage'
 import { StatsPage, type RecapActions } from './StatsPage'
@@ -173,13 +172,9 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
   // La famille de classement vit ici : son commutateur est sur la ligne du
   // titre, qui appartient au tiroir, pas à la page.
   const [boardFamily, setBoardFamily] = useState<BoardFamily>('runs')
-  // A guest of a host without anonymous accounts (CrazyGames) reads the
-  // server's boards with their own best on them, as « Moi ».
+  // A guest of a host without anonymous accounts (CrazyGames) finds the
+  // boards locked behind the host's sign-in.
   const guest = host.guestBoards && (!props.account || props.account.anonymous)
-  const guestLoad = useMemo(
-    () => (guest ? guestLoader({ history: props.history, avatar: props.avatar, name: t.boards.me, tag: t.tag }) : undefined),
-    [guest, props.history, props.avatar, t],
-  )
   const [sub, setSub] = useState<ProfilePage | null>(isPane(page) ? null : page)
   const body = useRef<HTMLDivElement>(null)
   // Cinq tapes rapprochées sur le titre de la page : le mode débug des
@@ -321,7 +316,6 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               named={Boolean(props.account && !props.account.anonymous)}
               guest={guest}
               onSignIn={guest && host.promptAccount ? () => void host.promptAccount!() : undefined}
-              load={guestLoad}
               moderator={props.moderation?.moderator ?? false}
               family={host.guestBoards ? 'runs' : boardFamily}
               onFamily={setBoardFamily}

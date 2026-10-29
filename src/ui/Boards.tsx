@@ -5,6 +5,7 @@ import { fetchFriends } from '../lib/cloud'
 import { sound } from '../lib/sound'
 import { Avatar } from './Avatar'
 import { PlayerName } from './PlayerSheet'
+import { LockIcon } from './premium'
 import { reducedMotion, useCountUp } from './useCountUp'
 import { useHiddenTaps } from './useHiddenTaps'
 
@@ -199,6 +200,27 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
           <span key={board} className={`board-dot${active === index ? ' board-dot--on' : ''}`} />
         ))}
         {onAll && <span className="board-dot board-dot--onward" />}
+      </div>
+    </section>
+  )
+}
+
+/**
+ * The boards of a guest the host gives no account (CrazyGames): locked behind
+ * its sign-in, since nothing a guest scores follows them to the account they
+ * open later — a « Me » line counted on the device would vanish at sign-in.
+ */
+export function LockedBoards({ onSignIn }: { onSignIn(): void }) {
+  const t = useT()
+  return (
+    <section className="panel boards boards--locked">
+      <p className="section-title">{t.boards.title}</p>
+      <div className="leaderboards-guest">
+        <LockIcon className="boards-lock" />
+        <p className="note">{t.boards.locked}</p>
+        <button type="button" className="btn btn--quiet" data-track="host-sign-in" onClick={onSignIn}>
+          {t.leaderboards.signIn}
+        </button>
       </div>
     </section>
   )

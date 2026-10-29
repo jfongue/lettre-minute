@@ -190,6 +190,7 @@ export const nl: Messages = {
 
   boards: {
     title: 'Klassement',
+    locked: 'Log in om in het klassement te komen.',
     day: {
       label: 'Dag',
       caption: 'Beste spel van vandaag',
@@ -214,7 +215,6 @@ export const nl: Messages = {
     less: 'Minder tonen',
     all: 'Alle klassementen',
     plus: 'Meer…',
-    me: 'Ik',
   },
 
   leaderboards: {
@@ -235,7 +235,7 @@ export const nl: Messages = {
     you: 'Jouw plaats',
     absent: 'Je staat er nog niet op: jij bent aan de beurt.',
     anonymous: 'Maak een account om in de klassementen te komen.',
-    guest: 'Je regel ‘Ik’ wordt op dit apparaat geteld. Log in om voor iedereen in het klassement te staan.',
+    guest: 'Het klassement is alleen voor ingelogde spelers. Log in om de besten te zien en je plek in te nemen.',
     signIn: 'Inloggen',
     runs: 'Spellen',
     solo: 'Solo',
@@ -1036,8 +1036,6 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
         drawn === 0 ? '' : drawn === 1 ? ' Het lot voegt de laatste toe.' : ` Het lot voegt de laatste ${drawn} toe.`
       }`,
     lobbyView: 'Terug naar de lobby',
-    resumeDraft: 'Verder met kiezen',
-    lobbyNote: 'De keuze gaat zonder jou verder. Je bent er weer bij als je aan de beurt bent.',
     draftTitle: 'Kies een categorie',
     draftTurn: (name: string) => `${name} kiest…`,
 cheerHint: 'Tik op een categorie om een tip te geven: de hele tafel ziet hem trillen.',

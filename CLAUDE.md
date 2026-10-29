@@ -107,9 +107,10 @@ par une copie de l'écran ; et chaque build touché se vérifie.
   d'usage, ni Supabase ni lien vers le Play Store. CrazyGames : le serveur
   pour les classements, les amis et le duel — un invité n'a aucun compte, pas
   même anonyme
-  (`host.anonymousAccounts`), et lit les classements sous le rôle `anon` avec sa
-  ligne « Moi » comptée sur l'appareil, l'écran des amis lui proposant la
-  connexion du portail ; un joueur connecté au portail joue sous le
+  (`host.anonymousAccounts`), et trouve les classements verrouillés derrière
+  la connexion du portail (`LockedBoards`) — rien de ce qu'il marque ne suivrait
+  le compte qu'il ouvre ensuite —, l'écran des amis lui proposant la même
+  connexion ; un joueur connecté au portail joue sous le
   compte que `crazygames-auth` lie à son identifiant CrazyGames (0073), nommé
   d'après son pseudo (0074), et a donc les amis, le face-à-face et le duel,
   matchmaking compris, et sa table est une salle du portail (`host.rooms` :

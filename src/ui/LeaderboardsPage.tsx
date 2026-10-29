@@ -10,6 +10,7 @@ import { BoardSwitch, type BoardFamily } from './BoardSwitch'
 import { Shape } from './bauhaus'
 import { onTint, type ShapeKind, type Tint } from './motifs'
 import { PlayerName } from './PlayerSheet'
+import { LockIcon } from './premium'
 
 // A developer's tool behind five taps: no player should download it.
 const Dashboard = lazyScreen(() => import('../debug/Dashboard').then((module) => module.Dashboard))
@@ -45,8 +46,8 @@ interface LeaderboardsPageProps {
   /** An anonymous player reads the boards but stands on none of them. */
   named: boolean
   /**
-   * A guest of a host without anonymous accounts (CrazyGames): their own line,
-   * « Moi », counted on the device, and the host's sign-in rather than an account to create.
+   * A guest of a host without anonymous accounts (CrazyGames): the boards are
+   * locked behind the host's sign-in, since nothing they score would follow them.
    */
   guest?: boolean
   /** The host's own sign-in prompt, offered to a guest. */
@@ -71,10 +72,30 @@ interface LeaderboardsPageProps {
  * home screen: the swipe is the browser's own. Each board is asked for when
  * it is reached, with its neighbours, and kept for the page's life.
  */
-export function LeaderboardsPage({
+export function LeaderboardsPage(props: LeaderboardsPageProps) {
+  if (props.guest) return <GuestLeaderboards onSignIn={props.onSignIn} />
+  return <OpenLeaderboards {...props} />
+}
+
+function GuestLeaderboards({ onSignIn }: { onSignIn?(): void }) {
+  const t = useT()
+  return (
+    <div className="leaderboards" data-no-swipe>
+      <div className="leaderboards-guest">
+        <LockIcon className="boards-lock" />
+        <p className="note">{t.leaderboards.guest}</p>
+        {onSignIn && (
+          <button type="button" className="btn btn--quiet" data-track="host-sign-in" onClick={onSignIn}>
+            {t.leaderboards.signIn}
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function OpenLeaderboards({
   named,
-  guest = false,
-  onSignIn,
   moderator = false,
   family: familyProp,
   onFamily,
@@ -140,18 +161,18 @@ export function LeaderboardsPage({
   }
 
   // Kept for the page's life, but not across a sign-in made from the page
-  // itself: the guest's boards would stay, their « Moi » line with them,
-  // until the player left the page. Declared before the effects that ask.
+  // itself: the anonymous boards would stay until the player left the page.
+  // Declared before the effects that ask.
   useEffect(() => {
     asked.current.clear()
     askedWeek.current.clear()
-  }, [named, guest])
+  }, [named])
 
   useEffect(() => {
     if (family === 'weekly') askWeek(pane)
     // `askWeek` lit la langue et la semaine, toutes deux dans les dépendances.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [family, pane, lang, weekId, named, guest])
+  }, [family, pane, lang, weekId, named])
 
   useEffect(() => {
     for (const index of [active, active + 1, active - 1]) {
@@ -160,7 +181,7 @@ export function LeaderboardsPage({
     }
     // `ask` reads `period` and `load`, both among the dependencies.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, period, load, moderator, named, guest])
+  }, [active, period, load, moderator, named])
 
   useEffect(() => {
     // Not `scrollIntoView`, which would also slide the drawer around it.
@@ -185,18 +206,7 @@ export function LeaderboardsPage({
   return (
     <div className="leaderboards" data-no-swipe>
       {!familyProp && <BoardSwitch family={family} onFamily={setFamily} />}
-      {guest ? (
-        <div className="leaderboards-guest">
-          <p className="note">{t.leaderboards.guest}</p>
-          {onSignIn && (
-            <button type="button" className="btn btn--quiet" data-track="host-sign-in" onClick={onSignIn}>
-              {t.leaderboards.signIn}
-            </button>
-          )}
-        </div>
-      ) : (
-        !named && <p className="note">{t.leaderboards.anonymous}</p>
-      )}
+      {!named && <p className="note">{t.leaderboards.anonymous}</p>}
 
       {family === 'runs' ? (
         <div className="board-swap" key="runs">
@@ -249,7 +259,7 @@ export function LeaderboardsPage({
             {stats.map((stat) => (
               <section className="board leaderboard" key={stat} aria-label={t.leaderboards.stats[stat].label}>
                 <p className="note leaderboard-caption">{t.leaderboards.stats[stat].caption}</p>
-                <BoardBody stat={stat} period={period} board={boards[`${stat}:${period}`]} named={named || guest} onRetry={() => ask(stat, true)} />
+                <BoardBody stat={stat} period={period} board={boards[`${stat}:${period}`]} named={named} onRetry={() => ask(stat, true)} />
               </section>
             ))}
           </div>

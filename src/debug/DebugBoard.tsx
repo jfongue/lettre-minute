@@ -47,7 +47,6 @@ import type { WordsReport } from './words'
 import { PLAY_ACHIEVEMENTS_ONLY, achievementIcon } from '../domain/achievements'
 import type { SlotEntry, Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
-import { guestFits, placeGuest } from '../domain/localBoards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
 import { ModeIntro } from '../ui/ModeIntro'
 import { WeeklyCard } from '../ui/WeeklyCard'
@@ -1137,21 +1136,10 @@ function LeaderboardsScenario({ named, moderator = false, mineAt }: { named: boo
   )
 }
 
-/** Un invité de CrazyGames : sa meilleure valeur glissée sur le tableau, ou sous lui à la 63e place. */
-const GUEST_VALUES: Partial<Record<StatId, number>> = { best: 250, points: 20, runs: 3, words: 40, combo: 9 }
-
-async function fakeGuestLeaderboard(stat: StatId, period: PeriodId): Promise<Leaderboard | null> {
-  const board = await fakeLeaderboard(stat, period, -1)
-  if (!board) return null
-  const value = (GUEST_VALUES[stat] ?? 0) * (period === 'day' ? 1 : period === 'week' ? 4 : 20)
-  const open = { rows: board.rows, me: null }
-  return placeGuest(open, { name: 'Moi', avatar: DEFAULT_AVATAR, value }, guestFits(open, value) ? null : 63)
-}
-
 function GuestLeaderboardsScenario() {
   return (
     <div className="sheet">
-      <LeaderboardsPage named={false} guest onSignIn={() => {}} load={fakeGuestLeaderboard} />
+      <LeaderboardsPage named={false} guest onSignIn={() => {}} />
     </div>
   )
 }
@@ -1817,9 +1805,6 @@ const CHEER_TABLE: DuelTable = (() => {
     markReady: noop,
     unready: noop,
     cancelStart: noop,
-    draftLobby: false,
-    showLobby: noop,
-    hideLobby: noop,
     duel,
     judge: null,
     pool: categories,
@@ -2915,6 +2900,14 @@ const SCENARIOS: readonly Scenario[] = [
     ),
   },
   {
+    id: 'home-guest-boards',
+    group: 'Accueil',
+    title: 'Accueil d’un invité de CrazyGames : classement verrouillé',
+    how: 'À la place du classement, un cadenas et « Se connecter », qui ouvre la connexion du portail',
+    phase: 'home',
+    render: (back) => <DebugHome back={back} guest />,
+  },
+  {
     id: 'leaderboards',
     group: 'Accueil',
     title: 'Page des classements',
@@ -2942,7 +2935,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'leaderboards-guest',
     group: 'Accueil',
     title: 'Page des classements, invité de CrazyGames',
-    how: 'Sans compte : le classement du serveur avec la ligne « Moi » comptée sur l’appareil — parmi les lignes en « Meilleure partie », sous elles à la 63e place en « Points », absente en « Découvertes » — et le bouton qui ouvre la connexion du portail',
+    how: 'Sans compte : le classement est verrouillé, un cadenas, la phrase qui le dit et le bouton qui ouvre la connexion du portail',
     phase: 'home',
     render: () => <GuestLeaderboardsScenario />,
   },
@@ -3449,8 +3442,11 @@ function DebugHome({
   multiplayerNews = false,
   invites,
   weekly,
+  guest = false,
 }: {
   back(): void
+  /** Un invité de CrazyGames : le classement verrouillé derrière la connexion du portail. */
+  guest?: boolean
   /** L'entrée du défi du moment, sous l'invitation. */
   weekly?: ReactNode
   /** Une invitation à une table de duel, en tête de la colonne de droite. */
@@ -3479,7 +3475,8 @@ function DebugHome({
       loading={false}
       settled={!waiting}
       boards={boards}
-      me={newcomer ? null : 'Testeur'}
+      me={newcomer || guest ? null : 'Testeur'}
+      onBoardsSignIn={guest ? back : undefined}
       climbed={climbed}
       avatar={DEFAULT_AVATAR}
       requestsNews={error || newcomer ? 0 : 3}

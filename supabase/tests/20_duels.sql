@@ -272,7 +272,7 @@ select tests.logout();
 
 -- La barre d'annonce court après le lancement de la table : le journal est
 -- encore vide, et n'importe quel joueur assis doit pouvoir ramener tout le
--- monde au salon. Un choix déjà pris ferme la porte.
+-- monde au salon — pendant tout le draft depuis 0106. Un tour joué ferme la porte.
 select tests.login('dh');
 create temp table aborted as select public.duel_create('fr', array['animaux', 'pays', 'couleurs'], 3) as id;
 grant select on aborted to public;
@@ -309,7 +309,22 @@ select tests.is(
 public.duel_move((select id from aborted), 1, tests.seat_of((select id from aborted), 'dh'), 'pick', 'animaux'),
 'ok', 'a first choice is taken'
 );
-select tests.is(public.duel_unstart((select id from aborted)), 'started', 'nobody cancels a start once a choice is made');
+select tests.is(public.duel_unstart((select id from aborted)), 'back', 'the whole table goes back to the lobby in the middle of the draft');
+select tests.is(tests.duel_status((select id from aborted)), 'lobby', 'for everyone');
+select tests.is(tests.duel_journal((select id from aborted)), 0, 'the draft''s choices leave with the journal');
+select tests.is(public.duel_ready((select id from aborted), true), 'waiting', 'the host is ready again');
+select tests.logout();
+
+select tests.login('dg');
+select tests.is(public.duel_ready((select id from aborted), true), 'started', 'and the table launches a third time');
+select tests.logout();
+
+select tests.login('dh');
+select tests.is(
+public.duel_move((select id from aborted), 1, tests.seat_of((select id from aborted), 'dh'), 'pass', ''),
+'ok', 'a turn is played'
+);
+select tests.is(public.duel_unstart((select id from aborted)), 'started', 'nobody cancels a game once a turn is played');
 select tests.is(tests.duel_status((select id from aborted)), 'playing', 'the table stays playing');
-select tests.is(tests.duel_journal((select id from aborted)), 1, 'and its journal keeps the choice');
+select tests.is(tests.duel_journal((select id from aborted)), 1, 'and its journal keeps the turn');
 select tests.logout();

@@ -191,6 +191,7 @@ export const pt: Messages = {
 
   boards: {
     title: 'Ranking',
+    locked: 'Entre para aparecer no ranking.',
     day: {
       label: 'Dia',
       caption: 'Melhor partida de hoje',
@@ -215,7 +216,6 @@ export const pt: Messages = {
     less: 'Ver menos',
     all: 'Todos os rankings',
     plus: 'Mais…',
-    me: 'Eu',
   },
 
   leaderboards: {
@@ -236,7 +236,7 @@ export const pt: Messages = {
     you: 'Sua posição',
     absent: 'Você ainda não aparece: é sua vez de jogar.',
     anonymous: 'Crie uma conta para aparecer nos rankings.',
-    guest: 'Sua linha “Eu” é contada neste aparelho. Entre para aparecer no ranking de todos.',
+    guest: 'O ranking é só para jogadores conectados. Entre para ver os melhores e conquistar o seu lugar.',
     signIn: 'Entrar',
     runs: 'Partidas',
     solo: 'Solo',
@@ -1037,8 +1037,6 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
         drawn === 0 ? '' : drawn === 1 ? ' A sorte acrescenta a última.' : ` A sorte acrescenta as ${drawn} últimas.`
       }`,
     lobbyView: 'Voltar à sala',
-    resumeDraft: 'Retomar a seleção',
-    lobbyNote: 'A seleção continua sem ti. Voltas quando for a tua vez.',
     draftTitle: 'Escolha uma categoria',
     draftTurn: (name: string) => `${name} está escolhendo…`,
 cheerHint: 'Toca numa categoria para dar uma dica: a mesa toda vê-a tremer.',

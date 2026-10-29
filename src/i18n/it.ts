@@ -191,6 +191,7 @@ export const it: Messages = {
 
   boards: {
     title: 'Classifica',
+    locked: 'Accedi per entrare in classifica.',
     day: {
       label: 'Giorno',
       caption: 'Miglior partita di oggi',
@@ -215,7 +216,6 @@ export const it: Messages = {
     less: 'Vedi meno',
     all: 'Tutte le classifiche',
     plus: 'Altro…',
-    me: 'Io',
   },
 
   leaderboards: {
@@ -236,7 +236,7 @@ export const it: Messages = {
     you: 'Il tuo posto',
     absent: 'Non ci sei ancora: tocca a te giocare.',
     anonymous: 'Crea un account per comparire nelle classifiche.',
-    guest: 'La tua riga «Io» è calcolata su questo dispositivo. Accedi per comparire nella classifica di tutti.',
+    guest: 'La classifica è riservata ai giocatori che hanno effettuato l’accesso. Accedi per vedere i migliori e prendere il tuo posto.',
     signIn: 'Accedi',
     runs: 'Partite',
     solo: 'Solo',
@@ -1037,8 +1037,6 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
         drawn === 0 ? '' : drawn === 1 ? ' La sorte aggiunge l’ultima.' : ` La sorte aggiunge le ultime ${drawn}.`
       }`,
     lobbyView: 'Torna alla sala',
-    resumeDraft: 'Riprendi la selezione',
-    lobbyNote: 'La selezione continua senza di te. Ci torni al tuo turno.',
     draftTitle: 'Scegli una categoria',
     draftTurn: (name: string) => `${name} sceglie…`,
 cheerHint: 'Tocca una categoria per suggerirla: tutto il tavolo la vede tremare.',

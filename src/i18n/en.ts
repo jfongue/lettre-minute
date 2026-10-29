@@ -196,6 +196,7 @@ export const en: Messages = {
 
   boards: {
     title: 'Leaderboard',
+    locked: 'Sign in to join the leaderboard.',
     day: {
       label: 'Day',
       caption: 'Best game today',
@@ -220,7 +221,6 @@ export const en: Messages = {
     less: 'See less',
     all: 'All leaderboards',
     plus: 'More…',
-    me: 'Me',
   },
 
   leaderboards: {
@@ -241,7 +241,7 @@ export const en: Messages = {
     you: 'Your place',
     absent: 'You’re not on it yet: your turn to play.',
     anonymous: 'Create an account to appear on the leaderboards.',
-    guest: 'Your “Me” line is counted on this device. Sign in to stand on the board for everyone.',
+    guest: 'The leaderboard is for signed-in players. Sign in to see the best players and take your place among them.',
     signIn: 'Sign in',
     runs: 'Runs',
     solo: 'Solo',
@@ -1041,8 +1041,6 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
         drawn === 0 ? '' : drawn === 1 ? ' Luck adds the last one.' : ` Luck adds the last ${drawn}.`
       }`,
     lobbyView: 'Back to the lobby',
-    resumeDraft: 'Resume the draft',
-    lobbyNote: 'The draft goes on without you. You are back in when it is your turn.',
     draftTitle: 'Pick a category',
     draftTurn: (name: string) => `${name} is picking…`,
 cheerHint: 'Tap a category to nudge the table: it shakes on every screen.',

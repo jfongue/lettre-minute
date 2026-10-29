@@ -93,8 +93,6 @@ import {
 import { barredBonuses } from './domain/bonus'
 import { complicationDue, ownedPowers, slotsOf, type PowerId } from './domain/powers'
 import { completeLeaderboard } from './domain/leaderboards'
-import { withGuest } from './ui/guestBoards'
-import { localBoards } from './ui/localBoards'
 import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
 import { chargesSpent, hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
@@ -441,14 +439,9 @@ setMenuPage(null)
     superModerator: moderation ? moderation.super : storedFeatures.roles.superModerator,
     premium: isPlus(session.profile),
   }
-  // A guest of a host that gives no anonymous account (CrazyGames) finds
-  // their own best on the server's boards, or their runs alone while the
-  // server is out of reach.
+  // A guest of a host that gives no anonymous account (CrazyGames) finds the
+  // boards locked behind its sign-in: nothing they score follows them there.
   const guest = host.guestBoards && (account === null || account.anonymous)
-  const homeBoards = useMemo(() => {
-    if (!guest) return boards
-    return boards ? withGuest(boards, { history, avatar, name: t.boards.me, tag: t.tag }) : localBoards(history, avatar, t.tag)
-  }, [guest, boards, history, avatar, t])
   const features = useMemo(
     () => hostFeatures(enabledFeatures(storedFeatures.flags, roles), roles.superModerator),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -639,25 +632,34 @@ setMenuPage(null)
     })
   }, [lang])
 
+  const readAccount = useCallback(
+    () =>
+      fetchAccount().then((found) => {
+        answer('account')
+        // Unreachable keeps the cached account: the session is still on the device.
+        if (found === 'unreachable') return
+        if (found) adopt(found)
+        else {
+          // Batched with the cached account read just before, the null would
+          // leave the account's own effect unrun and the cache in place.
+          setAccount(null)
+          saveAccount(null)
+        }
+      }),
+    [adopt, answer],
+  )
+
   useEffect(() => {
     loadBoards().then((next) => {
       setBoards(next)
       answer('boards')
     })
-    fetchAccount().then((found) => {
-      answer('account')
-      // Unreachable keeps the cached account: the session is still on the device.
-      if (found === 'unreachable') return
-      if (found) adopt(found)
-      else {
-        // Batched with the cached account read just before, the null would
-        // leave the account's own effect unrun and the cache in place.
-        setAccount(null)
-        saveAccount(null)
-      }
-    })
+    // A host with its own accounts reads the account once it has been
+    // followed: the session on the device may be the one of a player who
+    // signed out of the portal, whose progress would be merged into the guest's.
+    if (!host.account) readAccount()
     flushSubmissions()
-  }, [adopt, answer])
+  }, [readAccount, answer])
 
   // The host's own account (CrazyGames): its signed-in player plays under the
   // game account linked to it, a guest under none.
@@ -670,18 +672,14 @@ setMenuPage(null)
       host
         .account!()
         .then(followHostAccount)
-        .then(async (changed) => {
-          if (!changed) return
-          loadBoards().then(setBoards)
-          const found = await fetchAccount()
-          if (found === 'unreachable') return
-          if (found) adopt(found)
-          else setAccount(null)
+        .then((changed) => {
+          if (changed) loadBoards().then(setBoards)
+          return readAccount()
         })
         .finally(() => setHostAccountSettled(true))
     follow()
     host.onAccount?.(follow)
-  }, [adopt])
+  }, [readAccount])
 
   const refreshModeration = useCallback(() => {
     fetchModerationStatus(lang).then(setModeration)
@@ -2162,8 +2160,9 @@ setStartedAt((at) => at ?? Date.now())
           error={session.error}
           loading={session.phase === 'loading'}
           settled={homeSettled}
-          boards={on('leaderboards') ? homeBoards : null}
+          boards={on('leaderboards') && !guest ? boards : null}
           me={account && !account.anonymous ? account.name : null}
+          onBoardsSignIn={on('leaderboards') && guest && host.promptAccount ? () => void host.promptAccount!() : undefined}
           climbed={climbed}
           avatar={avatar}
           requestsMade={queued > 0 || mine.length > 0}

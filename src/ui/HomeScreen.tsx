@@ -7,7 +7,7 @@ import { levelProgress, type Profile } from '../domain/progression'
 import { RUN_SECONDS } from '../domain/run'
 import { formatNumber, useT } from '../i18n'
 import { host } from '../platform'
-import { Boards } from './Boards'
+import { Boards, LockedBoards } from './Boards'
 import type { ChallengeSummary } from '../lib/cloud'
 import { ChallengeList } from './ChallengeHome'
 import { Figure, Shape } from './bauhaus'
@@ -39,6 +39,8 @@ interface HomeScreenProps {
   boards: BoardsData | null
   /** The player's account name, highlighted on the boards; null for an anonymous player. */
   me: string | null
+  /** A guest's boards are locked behind the host's sign-in: set, it opens it in their place. */
+  onBoardsSignIn?(): void
   /** Places the last run won on the day's board, shown climbing once. */
   climbed?: number
   avatar: AvatarChoice
@@ -82,6 +84,7 @@ export function HomeScreen({
   settled,
   boards,
   me,
+  onBoardsSignIn,
   climbed,
   avatar,
   requestsMade,
@@ -230,8 +233,10 @@ const alone =
                 </div>
               </section>
 
-              {boards && (
+              {boards ? (
                 <Boards boards={boards} me={me} climbed={climbed} onAll={() => onMenu('boards')} onHidden={onBoardsHidden} />
+              ) : (
+                onBoardsSignIn && <LockedBoards onSignIn={onBoardsSignIn} />
               )}
             </>
           )}

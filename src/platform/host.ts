@@ -56,10 +56,9 @@ export interface Host {
    */
   anonymousAccounts: boolean
   /**
-   * A player without an account reads the server's boards with their own best
-   * placed on them as « Moi », counted from the device's history
-   * (`src/ui/guestBoards.ts`); with the server out of reach, the boards are
-   * those runs alone (`src/ui/localBoards.ts`).
+   * A player without an account finds the boards locked behind the host's
+   * sign-in (`LockedBoards`, `LeaderboardsPage`): what a guest scores stays on
+   * the device and would not follow them to the account they open later.
    */
   guestBoards: boolean
   /**

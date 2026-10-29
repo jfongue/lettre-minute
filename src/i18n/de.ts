@@ -190,6 +190,7 @@ export const de: Messages = {
 
   boards: {
     title: 'Rangliste',
+    locked: 'Melde dich an, um in die Rangliste zu kommen.',
     day: {
       label: 'Tag',
       caption: 'Beste Partie von heute',
@@ -214,7 +215,6 @@ export const de: Messages = {
     less: 'Weniger anzeigen',
     all: 'Alle Ranglisten',
     plus: 'Mehr…',
-    me: 'Ich',
   },
 
   leaderboards: {
@@ -235,7 +235,7 @@ export const de: Messages = {
     you: 'Dein Platz',
     absent: 'Du stehst noch nicht darauf: Jetzt bist du dran.',
     anonymous: 'Erstelle ein Konto, um in den Ranglisten zu erscheinen.',
-    guest: 'Deine Zeile „Ich“ wird auf diesem Gerät gezählt. Melde dich an, um für alle in der Rangliste zu stehen.',
+    guest: 'Die Rangliste ist angemeldeten Spielern vorbehalten. Melde dich an, um die Besten zu sehen und dir deinen Platz zu holen.',
     signIn: 'Anmelden',
     runs: 'Partien',
     solo: 'Solo',
@@ -1035,8 +1035,6 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
         drawn === 0 ? '' : drawn === 1 ? ' Das Los fügt die letzte hinzu.' : ` Das Los fügt die letzten ${drawn} hinzu.`
       }`,
     lobbyView: 'Zurück zur Lobby',
-    resumeDraft: 'Auswahl fortsetzen',
-    lobbyNote: 'Die Auswahl läuft ohne dich weiter. Du kommst dran, wenn du an der Reihe bist.',
     draftTitle: 'Wähle eine Kategorie',
     draftTurn: (name: string) => `${name} wählt…`,
 cheerHint: 'Tippe eine Kategorie an, um einen Wink zu geben: der ganze Tisch sieht sie wackeln.',

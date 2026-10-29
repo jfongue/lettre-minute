@@ -89,21 +89,17 @@ const reserveOf = (duel: Duel, index: number, at: number): number => Math.max(0,
 export function Lobby({
   table,
   onRules,
-  watching,
-  onResume,
   onSignIn,
 }: {
   table: DuelTable
   onRules(): void
-  watching?: boolean
-  onResume?(): void
   /** Un joueur sans compte nommé, à la table des joueurs ordinateur : la connexion lui ouvre les vrais joueurs. */
   onSignIn?(): void
 }) {
   const t = useT()
   const counting = table.phase === 'announcing'
   const me = table.seats[table.myIndex]
-  const locked = !!me?.ready || counting || !!watching
+  const locked = !!me?.ready || counting
   const [kicking, setKicking] = useState<Seat | null>(null)
   const seated = table.seats.filter((seat) => !seat.pending).length
   const shape = draftShape(seated, table.pool.length)
@@ -225,14 +221,6 @@ export function Lobby({
 
           {table.pool.length === 0 ? (
             <p className="note note--warn">{t.duel.loadFailed}</p>
-          ) : watching ? (
-            <div className="stack">
-              <button type="button" className="btn btn--play btn--block duel-cta" onClick={onResume}>
-                <span>{t.duel.resumeDraft}</span>
-                <PlayGlyph />
-              </button>
-              <p className="note">{t.duel.lobbyNote}</p>
-            </div>
           ) : counting ? (
             <div className="stack">
               <button
@@ -574,7 +562,7 @@ export function Draft({ table }: { table: DuelTable }) {
           onClick={() => {
             armSound()
             sound.pop()
-            table.showLobby()
+            table.cancelStart()
           }}
         >
           {t.duel.lobbyView}
@@ -1511,7 +1499,7 @@ function DuelTableScreen({
   if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} onRules={() => setRules(true)} onSignIn={mode === 'local' ? onSignIn : undefined} />
   if (phase === 'draft' && table.duel)
-    return table.draftLobby ? <Lobby table={table} watching onRules={() => setRules(true)} onResume={table.hideLobby} /> : <Draft table={table} />
+    return <Draft table={table} />
   if (phase === 'opening' && table.duel) return <Opening table={table} />
   if ((phase === 'play' || phase === 'deaths') && table.duel && table.judge && table.prompt) return <Play table={table} />
   if (phase === 'over' && table.duel) return <Over table={table} />
