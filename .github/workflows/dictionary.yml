@@ -34,7 +34,12 @@ jobs:
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            reddit/package-lock.json
       - run: npm ci
+      # `npm run check` construit aussi la version Reddit, qui a ses propres dépendances.
+      - run: npm --prefix reddit ci
       - name: Retirer les mots signalés
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
