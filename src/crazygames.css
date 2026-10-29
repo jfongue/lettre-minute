@@ -99,15 +99,19 @@ textarea {
     grid-template-rows: auto auto 1fr;
   }
 
+  /* L'affiche ouvre la colonne de gauche sur toute sa largeur, comme en haut
+     de l'accueil du téléphone. */
   .sheet--home > .poster {
     grid-column: 1;
     grid-row: 1;
   }
 
+  /* Le titre passe sous l'affiche, jamais dessus. */
   .sheet--home > .masthead {
     grid-column: 1;
     grid-row: 2;
     align-self: start;
+    margin-top: 0.5rem;
   }
 
   .sheet--home .title {
@@ -431,22 +435,17 @@ textarea {
   }
 }
 
-/* A short frame (a Chromebook's 854 × 410): the poster and the title shrink
-   with its height, so « Play » and « Multiplayer » under them never push the
-   title up over the poster, and the right column gives the leaderboard its
-   rows back. */
+/* A short frame (a Chromebook's 854 × 410): the title shrinks with its
+   height — the poster keeps the column's width —, so « Play » and
+   « Multiplayer » under them never push the title up over the poster, and
+   the right column gives the leaderboard its rows back. */
 @media (orientation: landscape) and (max-height: 520px) {
   .sheet--home:not(.sheet--home-alone) {
     row-gap: min(0.6rem, 1.6vh);
   }
 
-  .sheet--home:not(.sheet--home-alone) > .poster {
-    width: min(100%, 62vh);
-    justify-self: center;
-  }
-
   .sheet--home:not(.sheet--home-alone) .title {
-    font-size: min(5.6rem, 11vh, 6.5vw);
+    font-size: min(5.6rem, 10vh, 6.5vw);
   }
 
   .sheet--home:not(.sheet--home-alone) > .home-play .btn {
