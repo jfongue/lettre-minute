@@ -43,6 +43,19 @@
         "crazygames/harness.mjs"
       ],
       "port": 5747
+    },
+    {
+      "name": "crazygames-dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "vite",
+        "--mode",
+        "crazygames",
+        "--port",
+        "5751",
+        "--strictPort"
+      ],
+      "port": 5751
     }
   ]
 }

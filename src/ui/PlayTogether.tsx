@@ -42,100 +42,104 @@ export function PlayTogether({
   return (
     <div className="together" role="dialog" aria-label={t.duel.chooseTitle} data-no-swipe>
       <div className="together-sheet">
-        <button type="button" className="btn btn--quiet btn--muted together-close" onClick={onClose}>
-          ← {t.duel.errorBack}
-        </button>
-        <h1 className="together-title">{t.duel.chooseTitle}</h1>
-        <p className="note together-lead">{t.duel.chooseLead}</p>
+        <div className="together-head">
+          <button type="button" className="btn btn--quiet btn--muted together-close" onClick={onClose}>
+            ← {t.duel.errorBack}
+          </button>
+          <h1 className="together-title">{t.duel.chooseTitle}</h1>
+          <p className="note together-lead">{t.duel.chooseLead}</p>
+        </div>
 
-        <button
-          type="button"
-          className="together-card together-card--duel"
-          style={{ '--i': 0 } as CSSProperties}
-          onClick={() => {
-            armSound()
-            sound.go()
-            onDuel()
-          }}
-        >
-          <svg className="together-art together-art--duel" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
-            <rect className="together-table" x="33" y="33" width="34" height="34" />
-            <circle className="together-seat--hand" cx="50" cy="11" r="11" />
-            <circle cx="89" cy="50" r="11" />
-            <circle cx="50" cy="89" r="11" />
-            <circle cx="11" cy="50" r="11" />
-          </svg>
-          <span className="together-text">
-            <b>{t.duel.duelCard}</b>
-            <small>{local ? t.duel.botsCardNote : t.duel.duelCardNote}</small>
-            <span className="together-chip">{t.duel.duelCardPlayers}</span>
-          </span>
-          <span className="together-go" aria-hidden="true">
-            →
-          </span>
-        </button>
-
-        {onMatch ? (
+        <div className="together-cards">
           <button
             type="button"
-            className="together-card together-card--match"
-            style={{ '--i': 1 } as CSSProperties}
+            className="together-card together-card--duel"
+            style={{ '--i': 0 } as CSSProperties}
             onClick={() => {
               armSound()
               sound.go()
-              onMatch()
+              onDuel()
             }}
           >
             <svg className="together-art together-art--duel" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
               <rect className="together-table" x="33" y="33" width="34" height="34" />
               <circle className="together-seat--hand" cx="50" cy="11" r="11" />
+              <circle cx="89" cy="50" r="11" />
               <circle cx="50" cy="89" r="11" />
+              <circle cx="11" cy="50" r="11" />
             </svg>
             <span className="together-text">
-              <b>{t.duel.matchCard}</b>
-              <small>{t.duel.matchCardNote}</small>
-              <span className="together-chip">{t.duel.matchCardPlayers}</span>
+              <b>{t.duel.duelCard}</b>
+              <small>{local ? t.duel.botsCardNote : t.duel.duelCardNote}</small>
+              <span className="together-chip">{t.duel.duelCardPlayers}</span>
             </span>
             <span className="together-go" aria-hidden="true">
               →
             </span>
           </button>
-        ) : null}
 
-        {onSignIn ? (
-          <section className="together-signin" style={{ '--i': 1 } as CSSProperties}>
-            <p className="note">{t.duel.signInLead}</p>
-            <button type="button" className="btn btn--blue btn--block" data-track="duel-sign-in" onClick={onSignIn}>
-              {t.duel.signIn}
+          {onMatch ? (
+            <button
+              type="button"
+              className="together-card together-card--match"
+              style={{ '--i': 1 } as CSSProperties}
+              onClick={() => {
+                armSound()
+                sound.go()
+                onMatch()
+              }}
+            >
+              <svg className="together-art together-art--duel" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+                <rect className="together-table" x="33" y="33" width="34" height="34" />
+                <circle className="together-seat--hand" cx="50" cy="11" r="11" />
+                <circle cx="50" cy="89" r="11" />
+              </svg>
+              <span className="together-text">
+                <b>{t.duel.matchCard}</b>
+                <small>{t.duel.matchCardNote}</small>
+                <span className="together-chip">{t.duel.matchCardPlayers}</span>
+              </span>
+              <span className="together-go" aria-hidden="true">
+                →
+              </span>
             </button>
-          </section>
-        ) : null}
+          ) : null}
 
-        {challenge ? (
-          <button
-            type="button"
-            className="together-card together-card--challenge"
-            style={{ '--i': 2 } as CSSProperties}
-            onClick={() => {
-              armSound()
-              sound.tile('glass', 4)
-              onChallenge()
-            }}
-          >
-            <svg className="together-art together-art--challenge" viewBox="0 0 100 100" aria-hidden="true">
-              <circle className="together-disc" cx="50" cy="50" r="42" />
-              <path className="together-slice" d="M50 50V12A38 38 0 0 1 88 50Z" />
-            </svg>
-            <span className="together-text">
-              <b>{t.duel.challengeCard}</b>
-              <small>{t.duel.challengeCardNote}</small>
-              <span className="together-chip">{t.duel.challengeCardPlayers}</span>
-            </span>
-            <span className="together-go" aria-hidden="true">
-              →
-            </span>
-          </button>
-        ) : null}
+          {onSignIn ? (
+            <section className="together-signin" style={{ '--i': 1 } as CSSProperties}>
+              <p className="note">{t.duel.signInLead}</p>
+              <button type="button" className="btn btn--blue btn--block" data-track="duel-sign-in" onClick={onSignIn}>
+                {t.duel.signIn}
+              </button>
+            </section>
+          ) : null}
+
+          {challenge ? (
+            <button
+              type="button"
+              className="together-card together-card--challenge"
+              style={{ '--i': 2 } as CSSProperties}
+              onClick={() => {
+                armSound()
+                sound.tile('glass', 4)
+                onChallenge()
+              }}
+            >
+              <svg className="together-art together-art--challenge" viewBox="0 0 100 100" aria-hidden="true">
+                <circle className="together-disc" cx="50" cy="50" r="42" />
+                <path className="together-slice" d="M50 50V12A38 38 0 0 1 88 50Z" />
+              </svg>
+              <span className="together-text">
+                <b>{t.duel.challengeCard}</b>
+                <small>{t.duel.challengeCardNote}</small>
+                <span className="together-chip">{t.duel.challengeCardPlayers}</span>
+              </span>
+              <span className="together-go" aria-hidden="true">
+                →
+              </span>
+            </button>
+          ) : null}
+        </div>
       </div>
     </div>
   )

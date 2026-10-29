@@ -14,6 +14,21 @@ body {
   scrollbar-color: var(--ink-soft) transparent;
 }
 
+/* Les blocs d'un écran entrent par le haut, pas par le bas : glissés de
+   14 px sous le bord d'une feuille qui défile, ils la faisaient déborder le
+   temps de leur entrée, et une barre de défilement clignotait à chaque écran
+   (revue). Un débordement vers le haut ne se défile pas : il ne montre rien. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* A long press on a phone must not open the magnifier or the context menu
    (the portal's technical requirements); the answer field still types and selects. */
 body {
@@ -137,7 +152,7 @@ textarea {
   }
 
   /* The main menu never scrolls (portal review): the leaderboard takes what
-     the rest leaves and its rows alone scroll, under a hidden bar. The column
+     the rest leaves and its rows alone scroll, under a visible bar. The column
      keeps its own scroll, bar hidden, only for the day it carries more than
      any frame holds (a duel invitation above the challenges and the week). */
   .sheet--home > .home-body:not(.home-body--alone) {
@@ -160,17 +175,18 @@ textarea {
     overflow-y: hidden;
   }
 
+  /* Ses lignes défilent sous une barre visible, toujours là quand elles
+     dépassent : sans elle, rien ne disait qu'il y en avait d'autres (revue). */
   .home-body > .boards .board {
     min-height: 0;
     max-height: 100%;
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-width: none;
-  }
-
-  .home-body > .boards .board::-webkit-scrollbar {
-    display: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink) var(--rule);
+    scrollbar-gutter: stable;
+    padding-right: 4px;
   }
 
   /* Rien d'autre à montrer que « Jouer » — un appareil neuf : une seule
@@ -226,9 +242,11 @@ textarea {
     grid-template-rows: minmax(0, 1fr) auto;
   }
 
+  /* Sur les deux rangées : le panneau des révélations déplié agrandit la
+  seconde, et le score centré sur la première remontait sous le doigt. */
   .reveal > .reveal-score {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 1 / 3;
     align-self: center;
   }
 
@@ -592,13 +610,21 @@ textarea {
    tape et le bouton à gauche, les cartes à droite. Une seule colonne y
    poussait le bouton sous le bord du cadre, sans défilement. */
 @media (orientation: landscape) {
-  .stage--over > .sheet:not(.reveal):not(.cascade),
-  .stage--countdown > .sheet {
+  .stage--over > .sheet:not(.reveal):not(.cascade) {
     max-height: 100%;
     min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
     overscroll-behavior: contain;
+  }
+
+  /* « Coming up » et le compte à rebours ne défilent jamais : le ressort des
+  chiffres qui débordait de deux pixels allumait puis éteignait une barre à
+  chaque battement (revue). */
+  .stage.stage--countdown > .sheet {
+    max-height: 100%;
+    min-height: 0;
+    overflow: clip;
   }
 
   .stage .unlock-screen {
@@ -1288,5 +1314,336 @@ ligne d'ordre, le tour et la tuile elle-même — plutôt que de faire défiler.
 
   .language-picker .language-title {
     font-size: min(4rem, 13vh);
+  }
+}
+
+/* Le choix des pouvoirs, en deux colonnes dans le cadre paysage : le titre,
+   les emplacements et « Jouer » à gauche, les pouvoirs à droite. En colonne,
+   il défilait dans tous les cadres, jusqu'à 1100 × 575 (revue). */
+@media (orientation: landscape) {
+  .stage .sheet.loadout {
+    width: min(60rem, 100%);
+    height: 100%;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: clamp(1.25rem, 3vw, 2.5rem);
+    row-gap: clamp(0.5rem, 2.5vh, 1.1rem);
+    align-content: stretch;
+    overflow: clip;
+  }
+
+  .loadout > .loadout-head {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .loadout > .loadout-side {
+    grid-column: 1;
+    grid-row: 2;
+    gap: clamp(0.4rem, 2vh, 0.9rem);
+  }
+
+  .loadout > .loadout-grid {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.3rem, 1.4vh, 0.6rem);
+  }
+
+  .loadout .loadout-title {
+    font-size: min(2.8rem, 9vh);
+  }
+
+  .loadout .loadout-slot {
+    min-height: min(9.5rem, 26vh);
+    padding-block: 0.4rem;
+  }
+
+  .loadout .loadout-tile {
+    padding: 0.35rem 1.8rem 0.35rem 0.35rem;
+    gap: 0.5rem;
+  }
+
+  .loadout .loadout-tile-text strong {
+    font-size: min(0.95rem, 2.3vw);
+  }
+
+  .loadout .loadout-tile-icon {
+    width: min(2.9rem, 10vh);
+    height: min(2.9rem, 10vh);
+    padding: 0.35rem;
+  }
+}
+
+/* Un cadre bas : le nom du pouvoir seul, sa règle se lit en jeu. */
+@media (orientation: landscape) and (max-height: 620px) {
+  .loadout .loadout-tile-text span {
+    -webkit-line-clamp: 1;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  .loadout .loadout-tile-text span {
+    display: none;
+  }
+
+  .loadout .loadout-lead,
+  .loadout .loadout-hint {
+    display: none;
+  }
+
+  .loadout .loadout-slot-uses {
+    display: none;
+  }
+}
+
+/* « Jouer avec des amis », dans le cadre paysage : le titre à gauche, les
+   cartes à droite, sans défiler — en colonne, la seconde carte passait sous le
+   bord des petits cadres (revue). */
+@media (orientation: landscape) {
+  .together {
+    display: grid;
+    align-items: center;
+    overflow: clip;
+    padding-block: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .together-sheet {
+    width: min(60rem, 100%);
+    max-height: 100%;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    column-gap: clamp(1.25rem, 4vw, 3rem);
+    align-items: center;
+  }
+
+  .together-head,
+  .together-cards {
+    display: grid;
+    gap: clamp(0.5rem, 2.5vh, 1.1rem);
+    align-content: center;
+  }
+
+  .together-title {
+    font-size: min(2.8rem, 10vh, 5vw);
+  }
+
+  .together-card {
+    padding: clamp(0.5rem, 2.5vh, 1.1rem) clamp(0.6rem, 1.5vw, 1rem);
+    gap: clamp(0.5rem, 1.5vw, 1rem);
+  }
+
+  .together-art {
+    width: min(3.5rem, 13vh);
+    height: min(3.5rem, 13vh);
+  }
+
+  .together-text {
+    gap: 0.2rem;
+  }
+
+  .together-text b {
+    font-size: min(1.55rem, 5.5vh, 3vw);
+  }
+}
+
+/* Un cadre bas : la phrase de chaque carte se lit dans son salon. */
+@media (orientation: landscape) and (max-height: 480px) {
+  .together-card .together-text small {
+    display: none;
+  }
+}
+
+
+/* L'écran du défi du moment, dans le cadre paysage : son titre et son
+   affiche à gauche, le record, les tentatives, « Jouer » et les liens à
+   droite — en colonne, il défilait sous le bord (revue). weekly.css arrive
+   avec l'écran, après cette feuille : chaque règle passe par `.stage`. */
+@media (orientation: landscape) {
+  .stage .sheet.wk-screen {
+    width: min(60rem, 100%);
+    max-height: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-auto-flow: row dense;
+    column-gap: clamp(1.25rem, 4vw, 3rem);
+    row-gap: clamp(0.4rem, 2vh, 1.1rem);
+    align-content: safe center;
+    overflow: clip;
+  }
+
+  .stage .wk-screen > .subpage-head {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .stage .wk-screen > .wk-hero {
+    grid-column: 1;
+    grid-row: 2 / span 6;
+    align-self: start;
+  }
+
+  .stage .wk-screen > :not(.subpage-head):not(.wk-hero) {
+    grid-column: 2;
+  }
+
+  .stage .wk-screen .wk-hero-mark {
+    width: min(4.6rem, 15vh);
+    height: min(4.6rem, 15vh);
+  }
+
+  .stage .wk-screen .wk-hero-mode {
+    font-size: min(2.8rem, 10vh, 5vw);
+  }
+
+  .stage .wk-screen .wk-play,
+  .stage .wk-screen .wk-links {
+    gap: clamp(0.3rem, 1.5vh, 0.6rem);
+  }
+
+  .stage .wk-screen .subpage-title {
+    font-size: min(1.6rem, 6vh, 3vw);
+  }
+
+  .stage .wk-screen .wk-stats--line .wk-stat-value {
+    font-size: min(1.35rem, 5vh);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  .stage .wk-screen .wk-hero {
+    gap: 0.4rem;
+    padding: 0.7rem;
+  }
+
+  .stage .wk-screen .wk-hero-rule {
+    font-size: 0.85rem;
+  }
+
+  .stage .wk-screen .btn {
+    min-height: 0;
+    padding-block: 0.55rem;
+  }
+}
+
+/* Le bilan d'un cadre bas tient sans défiler : à 640 × 360, « Accueil »
+   passait de quelques pixels sous le bord, et la feuille défilait. */
+@media (orientation: landscape) and (max-height: 480px) {
+  .stage--over .over-sheet .figure {
+    min-height: 0;
+    gap: 0.3rem;
+    padding-block: 0.5rem;
+  }
+
+  .stage--over .over-sheet .btn--play {
+    min-height: 3.4rem;
+  }
+}
+
+/* Le classement verrouillé de l'invité, dans la colonne de l'accueil : une
+   ligne, le cadenas, la phrase et « Se connecter », sans prendre la place
+   des lignes qu'il remplace. */
+@media (orientation: landscape) {
+  .sheet--home > .home-body:not(.home-body--alone) > .boards.boards--locked {
+    flex: none;
+    min-height: 0;
+    gap: 0.4rem;
+    padding-top: 0.4rem;
+  }
+
+  .home-body > .boards--locked .btn {
+    min-height: 0;
+    padding-block: 0.3rem;
+    white-space: nowrap;
+  }
+
+  .home-body > .boards--locked .leaderboards-guest {
+    flex-wrap: nowrap;
+  }
+
+  .home-body > .boards--locked .note {
+    flex: 1 1 auto;
+  }
+
+  .home-body > .boards--locked .boards-lock {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* Un cadre bas : la phrase nomme déjà le classement, son titre cède sa ligne. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .home-body > .boards--locked > .section-title {
+    display: none;
+  }
+}
+
+/* La fin d'une tentative au défi du moment, en deux colonnes : la tentative
+   et son verdict à gauche, le record, les tentatives qui restent et le
+   bouton à droite — en colonne, le bouton passait sous le bord. */
+@media (orientation: landscape) {
+  .stage .sheet.wk-done {
+    width: min(60rem, 100%);
+    max-height: 100%;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    grid-auto-flow: row dense;
+    column-gap: clamp(1.25rem, 4vw, 3rem);
+    row-gap: clamp(0.4rem, 2vh, 1rem);
+    align-content: safe center;
+    overflow: clip;
+  }
+
+  .stage .wk-done > .wk-done-hero {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: end;
+  }
+
+  .stage .wk-done > .wk-done-verdict {
+    grid-column: 1;
+    grid-row: 3 / span 2;
+    align-self: start;
+  }
+
+  .stage .wk-done > :not(.wk-done-hero):not(.wk-done-verdict) {
+    grid-column: 2;
+  }
+
+  .stage .wk-done .wk-done-value {
+    font-size: min(3.6rem, 12vh, 6vw);
+  }
+
+  .stage .wk-done .wk-done-mark {
+    width: min(5rem, 15vh);
+    height: min(5rem, 15vh);
+  }
+
+  .stage .wk-done .wk-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* La leçon du défi dans un cadre bas : le barème de la rareté se lit en
+   partie ; les trois règles et « Compris » tiennent sans défiler. */
+@media (orientation: landscape) and (max-height: 480px) {
+  .stage .wk-intro .wk-table {
+    display: none;
+  }
+
+  .stage .wk-intro .wk-step {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .stage .wk-intro .wk-step-n {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+}
+
+/* Le nom du mode tient dans son bandeau, quelle que soit la colonne. */
+@media (orientation: landscape) {
+  .stage .wk-intro .wk-intro-title h1 {
+    font-size: min(2.3rem, 3.6vw);
+    overflow-wrap: anywhere;
   }
 }

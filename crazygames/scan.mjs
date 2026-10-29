@@ -112,6 +112,18 @@ const style = getComputedStyle(el)
 if (style.display === 'none' || style.scrollbarWidth === 'none') continue
 if (/(auto|scroll)/.test(style.overflowX) && el.scrollWidth > el.clientWidth + 1) bars.push(el.tagName + '.' + (el.getAttribute('class') ?? '').split(' ').slice(0, 2).join('.'))
 }
+// Un écran qui défile en hauteur : la revue veut des scènes fixes. Seules
+// défilent les listes par nature — le tiroir du menu et ses pages, les lignes
+// d'un classement, les mots cachés du bilan —, et la planche elle-même. Les
+// pages du menu montrées seules par la planche défilent aussi : signalé, pas
+// refusé, chaque ligne se lit à la main.
+const LISTS = '.menu, .board, .board-track, .standings, .hidden-answers, .reveal-words, .over-pane--more, .debug-board'
+const scrolls = []
+for (const el of document.querySelectorAll('*')) {
+const style = getComputedStyle(el)
+if (style.display === 'none' || el.closest(LISTS) || el.closest('.debug-bar')) continue
+if (/(auto|scroll)/.test(style.overflowY) && el.scrollHeight > el.clientHeight + 2) scrolls.push(el.tagName + '.' + (el.getAttribute('class') ?? '').split(' ').slice(0, 2).join('.') + ' ' + el.scrollHeight + '>' + el.clientHeight)
+}
 const panes = []
 for (const el of document.querySelectorAll('.sheet, .reveal, .poster, .language-picker, .loadout, .moderation, .dealt, .duel-rules, .duel-lobby, .duel-draft, .duel-opening, .duel-over, .duel-search, .duel-run, .duel-board, .answer-field, .answer-actions, .tutorial-answer')) {
 const r = el.getBoundingClientRect()
@@ -124,6 +136,7 @@ scrollH: document.documentElement.scrollHeight,
 scrollW: document.documentElement.scrollWidth,
 out,
 bars,
+scrolls,
 over: panes.filter((pane) => pane.bottom > vh + 1 || pane.top < -1),
 scene: document.querySelector('.debug-scene > *')?.getAttribute('class')?.split(' ').slice(0, 2).join('.') ?? (document.querySelector('.sheet--home') ? 'home' : '(aucune scène)'),
 }
@@ -141,6 +154,7 @@ const measure = async (label, shotName) => {
     probe.bars.length ? `barre horizontale : ${probe.bars.join(' | ')}` : null,
     probe.over.length ? `sous le bord : ${probe.over.map((pane) => `${pane.cls} ${pane.top}..${pane.bottom}`).join(' | ')}` : null,
   ].filter(Boolean).join(' — '))
+  if (probe.scrolls.length) console.log(`     ${label} défile : ${probe.scrolls.join(' | ')}`)
   if (!ok && shotName) await shot(`${shotName}-FAIL`)
   return { probe, ok }
 }

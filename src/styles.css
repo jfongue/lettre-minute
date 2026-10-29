@@ -1832,6 +1832,17 @@ animation: clock-bonus 500ms var(--ease-out);
   margin: 0;
 }
 
+.boards-lock {
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
+
+.boards--locked {
+  display: grid;
+  gap: 10px;
+}
+
 .leaderboards-periods .layer-tab {
   min-height: 2.5rem;
 }
@@ -9841,6 +9852,12 @@ body[data-words='board'] .offer-pop-layer {
   gap: 1.1rem;
   width: min(34rem, 100%);
   margin: 0 auto;
+}
+
+/* Deux groupes que le cadre paysage de CrazyGames range en colonnes ; ailleurs, la feuille les lit d'un trait. */
+.together-head,
+.together-cards {
+  display: contents;
 }
 
 .together-close {
