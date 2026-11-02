@@ -1062,11 +1062,18 @@ setStartedAt((at) => at ?? Date.now())
     }
   }, [idleHome, ownedShipped, lang])
 
+  // The host's midgame ad, asked by the button that leads to gameplay: what
+  // follows waits for it to end, fail or be skipped.
+  const afterMidgame = useCallback(
+    (go: () => void) => void host.midgame(isPlus(session.profile) || !on('adBreaks')).then(go),
+    [session.profile, on],
+  )
+
   /** Une partie seule : d'abord le choix des pouvoirs pour qui en a, quand la fonctionnalité l'ouvre. */
   const playSolo = useCallback(() => {
     if (on('powerLoadout') && on('powers') && modeNow.current === 'solo' && ownedPowers(session.profile).length > 0) setLoadout(true)
-    else void play()
-  }, [on, session.profile, play])
+    else afterMidgame(play)
+  }, [on, session.profile, play, afterMidgame])
 
   const startFirstRun = useCallback(() => {
     if (session.profile.runs > 0 || loadTutorialDone() || !on('tutorial')) return playSolo()
@@ -1309,6 +1316,7 @@ setStartedAt((at) => at ?? Date.now())
 
   const launchChallenge = useCallback(
     async (detail: ChallengeDetail, powers: readonly PowerId[]) => {
+      await host.midgame(isPlus(session.profile) || !featuresNow.current.has('adBreaks'))
       rememberMultiplayer()
       setPicking(null)
       setChallengeOpen(null)
@@ -1333,7 +1341,7 @@ setStartedAt((at) => at ?? Date.now())
         dispatch({ type: 'load-failed', message: t.loadFailed })
       }
     },
-    [judgeFor, rememberMultiplayer, t],
+    [judgeFor, rememberMultiplayer, session.profile, t],
   )
 
   /** Straight into the run, unless the player has more allowed powers than slots to fill. */
@@ -2051,10 +2059,12 @@ setStartedAt((at) => at ?? Date.now())
         <PowerLoadout
           profile={session.profile}
           onWear={(powerId) => dispatch({ type: 'wear', powerId })}
-          onPlay={() => {
-            setLoadout(false)
-            void play()
-          }}
+          onPlay={() =>
+            afterMidgame(() => {
+              setLoadout(false)
+              void play()
+            })
+          }
           onBack={() => setLoadout(false)}
         />
       )}
@@ -2532,7 +2542,7 @@ setMenuPage('avatar')
             onAd={revealAd}
             onAdSpared={() => dispatch({ type: 'plus-ad-skipped' })}
             onFlag={overFlag}
-            onReplay={session.challengeId ? play : playSolo}
+            onReplay={session.challengeId ? () => afterMidgame(play) : playSolo}
             onHome={() => {
               // Asked on the way home, never over the summary: after the tenth run, then every thirty.
               if (cloudConfigured() && feedbackDue(session.profile) && on('feedback')) {

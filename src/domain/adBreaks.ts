@@ -10,9 +10,6 @@ export interface BreakSchedule {
   growth: number
 }
 
-/** CrazyGames' midgame ad: the 2nd, 5th, 9th, 14th, 20th… run (gaps 3, 4, 5, 6…). */
-export const MIDGAME_BREAKS: BreakSchedule = { first: 2, gap: 3, growth: 1 }
-
 /** The phone's interstitial: the 3rd, 7th, 13th, 21st, 31st… run (gaps 4, 6, 8, 10…). */
 export const INTERSTITIAL_BREAKS: BreakSchedule = { first: 3, gap: 4, growth: 2 }
 

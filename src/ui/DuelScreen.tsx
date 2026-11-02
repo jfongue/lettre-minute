@@ -36,7 +36,9 @@ import { categoryText, formatNumber, useT } from '../i18n'
 import { cancelDuelMatchmaking, duelMatchmake } from '../lib/cloud'
 import { capitalized } from '../domain/text'
 import { armSound, sound, tierSound } from '../lib/sound'
+import { host } from '../platform'
 import { Avatar } from './Avatar'
+import { useFeature } from './features'
 import { Burst, LetterMark, Shape, TierTag } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
 import { achievementText } from './achievementText'
@@ -125,8 +127,9 @@ export function Lobby({
     if (counting) sound.pop()
   }, [counting])
 
-  const slots = Array.from({ length: MAX_TABLE }, (_, index) => table.seats[index] ?? null)
-  const full = table.seats.length >= MAX_TABLE
+  // A rematch is the same players again: no free seat to show, no one to add.
+  const slots: readonly (Seat | null)[] =table.rematchOpen ? table.seats : Array.from({ length: MAX_TABLE }, (_, index) => table.seats[index] ?? null)
+  const full = table.seats.length >= MAX_TABLE || table.rematchOpen
 
   return (
     <main className="stage stage--duel">
@@ -1040,6 +1043,7 @@ function Play({ table }: { table: DuelTable }) {
 
 /** Le bilan : le gagnant à l'affiche, la table révélée de la dernière place à la première, puis ce que le duel m'a rapporté. */
 export function Over({ table }: { table: DuelTable }) {
+  const adBreaks = useFeature('adBreaks')
   const t = useT()
   const duel = table.duel!
   const order = duelRanking(duel)
@@ -1129,14 +1133,18 @@ export function Over({ table }: { table: DuelTable }) {
             onClick={() => {
               armSound()
               sound.go()
-              if (someoneElse) table.joinRematch()
-              else table.openRematch()
+              void host.midgame(!adBreaks).then(() => (someoneElse ? table.joinRematch() : table.openRematch()))
             }}
           >
             <span>{someoneElse ? t.duel.joinRematch : t.duel.rematch}</span>
             <PlayGlyph />
           </button>
-          <button type="button" className="btn btn--ghost btn--block" disabled={!done} onClick={() => table.leave()}>
+          <button
+            type="button"
+            className="btn btn--ghost btn--block"
+            disabled={!done}
+            onClick={() => void host.midgame(!adBreaks).then(() => table.leave())}
+          >
             {t.duel.quit}
           </button>
         </div>

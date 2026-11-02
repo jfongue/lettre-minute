@@ -6,12 +6,14 @@ body {
   overscroll-behavior: none;
 }
 
-/* The browser's own scrollbar, grey and rounded, looked foreign in the
-   frame (Full Launch review): a thin square bar in the game's ink, on
-   nothing. A box that hides its bar (scrollbar-width: none) still does. */
+/* No scrollbar anywhere, ever: a box still scrolls, it just never draws a bar
+   (see the same rule in styles.css). */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: var(--ink-soft) transparent;
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 /* A long press on a phone must not open the magnifier or the context menu

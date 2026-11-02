@@ -1,4 +1,3 @@
-import { breakDue, MIDGAME_BREAKS } from '../domain/adBreaks'
 import { trackFeature } from '../lib/feature'
 import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type RewardedResult } from './host'
 
@@ -263,19 +262,17 @@ function onPlatformMute(listener: (muted: boolean) => void): void {
 const AD_TIMEOUT_MS = 60_000
 
 /**
- * The break between a run's word recap and its summary: a midgame ad on the
- * session's schedule (`MIDGAME_BREAKS`). The SDK keeps them three minutes apart
- * and answers `adError` to an early request, which just skips this one.
- * Resolves once the ad is over, failed or skipped; the sound is cut only while
- * one actually plays. A second tap while the ad is pending joins it.
+ * The midgame ad, asked by a button that leads to gameplay. The portal paces
+ * its ads itself: the SDK keeps them three minutes apart and answers
+ * `adError` to an early request, which just skips this one — so there is no
+ * schedule here. Resolves once the ad is over, failed or skipped; the sound
+ * is cut only while one actually plays. A second tap while the ad is pending
+ * joins it. The recap itself has no break on this host.
  */
-let finishedRuns = 0
 let pendingBreak: Promise<AdBreak> | null = null
-function breakAfterRecap(adFree: boolean): Promise<AdBreak> {
+function midgame(adFree: boolean): Promise<AdBreak> {
   if (pendingBreak) return pendingBreak
-  finishedRuns += 1
-  if (!sdk || !breakDue(finishedRuns, MIDGAME_BREAKS)) return Promise.resolve('none')
-  if (adFree) return Promise.resolve('spared')
+  if (!sdk || adFree) return Promise.resolve('none')
   const asked = requestMidgame().finally(() => {
     pendingBreak = null
   })
@@ -548,6 +545,7 @@ export const crazyGamesHost: Host = {
   submitScore,
   prepareRewarded(): void {},
   showRewarded,
-  breakAfterRecap,
+  breakAfterRecap: () => Promise.resolve('none'),
+  midgame,
   onMute: onPlatformMute,
 }

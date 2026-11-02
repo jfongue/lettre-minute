@@ -103,6 +103,13 @@
 * {
   box-sizing: border-box;
   margin: 0;
+  /* No scrollbar anywhere, even by accident (Tab skipping a word, a category
+     being revealed): a box still scrolls, it never draws a bar. */
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 html {

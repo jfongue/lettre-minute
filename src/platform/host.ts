@@ -90,6 +90,13 @@ export interface Host {
    * but never shows the ad: `spared` says one was due.
    */
   breakAfterRecap(adFree: boolean): Promise<AdBreak>
+  /**
+   * The host's midgame ad, asked by the button that leads to gameplay (Play,
+   * Play again, a duel's rematch or its way out) and by nothing else; the host
+   * keeps its own pace, so every call may ask. Resolves once it is over,
+   * failed or skipped; `adFree` never shows it.
+   */
+  midgame(adFree: boolean): Promise<AdBreak>
   /** Called with true while the host wants silence — its own mute, an ad — and false once it lets go. */
   onMute(listener: (muted: boolean) => void): void
 }
@@ -157,5 +164,6 @@ export const quiet = {
   prepareRewarded(): void {},
   showRewarded: (): Promise<RewardedResult> => Promise.resolve('unavailable'),
   breakAfterRecap: (): Promise<AdBreak> => Promise.resolve('none'),
+  midgame: (): Promise<AdBreak> => Promise.resolve('none'),
   onMute(): void {},
 }
