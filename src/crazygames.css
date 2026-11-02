@@ -162,9 +162,12 @@ textarea {
     grid-template-rows: minmax(0, 1fr) auto;
   }
 
+  /* Centred over both rows, not the first alone: the unfolded panel grows the
+     second row and shrank the first, so the score slid up as it opened. The
+     frame's height is fixed, so the middle of both rows never moves. */
   .reveal > .reveal-score {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 1 / span 2;
     align-self: center;
   }
 
