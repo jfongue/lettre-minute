@@ -1126,6 +1126,11 @@ setStartedAt((at) => at ?? Date.now())
   // Dropped only once the run is loaded, or the home screen would flash
   // between the lesson and the countdown. A failed load lands home with its
   // error, where it belongs.
+  // The powers screen stays up through the load, or the home screen would
+  // flash between « Play » and the countdown; it goes once the run is dealt.
+  useEffect(() => {
+    if (loadout && session.phase !== 'home' && session.phase !== 'loading' && session.phase !== 'over') setLoadout(false)
+  }, [loadout, session.phase])
   useEffect(() => {
     if (tutorial === 'launching' && session.phase !== 'loading') setTutorial(null)
     if (modeLesson?.launching && session.phase !== 'loading') setModeLesson(null)
@@ -2055,16 +2060,13 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {loadout && (session.phase === 'home' || session.phase === 'over') && !tutorial && (
+      {loadout && (session.phase === 'home' || session.phase === 'loading' || session.phase === 'over') && !tutorial && (
         <PowerLoadout
           profile={session.profile}
           onWear={(powerId) => dispatch({ type: 'wear', powerId })}
-          onPlay={() =>
-            afterMidgame(() => {
-              setLoadout(false)
-              void play()
-            })
-          }
+          onPlay={() => {
+            if (session.phase !== 'loading') afterMidgame(() => void play())
+          }}
           onBack={() => setLoadout(false)}
         />
       )}
