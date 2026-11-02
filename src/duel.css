@@ -544,6 +544,14 @@
   white-space: nowrap;
 }
 
+/* Un bouton grisé du duel attend les autres ou la fin du palmarès : il ne
+   charge rien, le pictogramme ne tourne donc pas (comme sur l'écran des
+   offres, `.unlock-actions`). */
+.stage--duel .btn--play:disabled .play-glyph,
+.duel-cta:disabled .play-glyph {
+  animation: none;
+}
+
 /* La mèche de l'annonce : le draft arrive quand elle est consumée. */
 .duel-fuse--announce i {
   animation: fuse 3.2s linear both;
