@@ -127,9 +127,11 @@ export function Lobby({
     if (counting) sound.pop()
   }, [counting])
 
-  // A rematch is the same players again: no free seat to show, no one to add.
-  const slots: readonly (Seat | null)[] =table.rematchOpen ? table.seats : Array.from({ length: MAX_TABLE }, (_, index) => table.seats[index] ?? null)
-  const full = table.seats.length >= MAX_TABLE || table.rematchOpen
+  // A rematch is the same players again: no free seat to show, no one to add —
+  // through the announcement that follows it too, once its flag is spent.
+  const sameTable = table.rematchOpen || counting
+  const slots: readonly (Seat | null)[] = sameTable ? table.seats : Array.from({ length: MAX_TABLE }, (_, index) => table.seats[index] ?? null)
+  const full = table.seats.length >= MAX_TABLE || sameTable
 
   return (
     <main className="stage stage--duel">
