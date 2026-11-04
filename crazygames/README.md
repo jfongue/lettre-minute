@@ -149,10 +149,22 @@ ami modérateur) — un joueur connecté au portail a le compte
   moment ni à la leçon ; pas de calendrier maison, le SDK refuse lui-même une
   pub à moins de 3 min de la dernière. Jamais à un Premium ni quand la
   fonctionnalité `adBreaks` est fermée. La suite attend
-  la fin de la pub, ou son erreur (y compris bloqueur de pub), au plus 60 s.
-  Chaque demande est comptée au tableau de bord (`ad`, source `midgame`). Le son est
-  coupé seulement pendant que la pub joue (`adStarted` → `adFinished`/`adError`).
-  En Basic Launch, le portail n'affiche aucune pub : l'appel ne coûte rien.
+- **Salles multijoueur** (`host.rooms`, `portalRooms` de
+  `src/platform/crazygames.ts`, exigences multijoueur du portail) : la table de
+  duel en ligne où l'on est assis est la salle du joueur (`updateRoom`, son
+  identifiant pour `roomId` et pour le seul paramètre d'invitation, `duel`),
+  ouverte aux amis du portail tant que le salon a une place libre, fermée dès
+  la partie lancée, quittée (`leftRoom`) en sortant de l'écran ; une revanche
+  devient la salle suivante. Le SDK refuse un appel à moins de 250 ms du
+  précédent : chaque changement attend 300 ms et seul le dernier part. Un ami
+  qui accepte l'invitation arrive avec `inviteParams` au lancement, ou par
+  l'écouteur de salle si le jeu tourne déjà : il s'assoit sans invitation du
+  jeu (`duel_join_room`, 0104, blocages respectés) et sans les règles devant ;
+  un invité du portail reçoit d'abord sa connexion. Lancé en « instant
+  multiplayer » (`isInstantMultiplayer`), le jeu ouvre aussitôt une table
+  privée — la table des joueurs ordinateur pour un invité — et saute la leçon
+  du premier lancement. En local : `?instantJoin=true`, ou
+  `?czy_invite=true&duel=<uuid>`. Taille de salle à déclarer au portail : 2 à 4.
 - **Bonus de niveau** (`crazyGamesHost.levelBonuses`), comme sur Android : le
   premier propose toujours le second emplacement de pouvoir. Ne se
   distribuent jamais ici (`barredBonuses`) le cadenas, puisque « Mes

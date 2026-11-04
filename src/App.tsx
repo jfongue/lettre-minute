@@ -486,7 +486,17 @@ setMenuPage(null)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean; room?: boolean } | null>(null)
+  // The host's rooms (CrazyGames): a friend's table the portal launched the
+  // game for or brings the player to while it runs, or the portal's « play
+  // with friends » that wants a joinable table at once. A guest is first
+  // offered the portal's sign-in for a friend's table — the duel needs a named
+  // account —, and plays the house players when launched to play together.
+  const [roomCall, setRoomCall] = useState<{ table: string | null } | null>(() => {
+    const table = host.rooms?.invited() ?? null
+    return table ? { table } : host.rooms?.instant() ? { table: null } : null
+  })
+  useEffect(() => host.rooms?.onJoin((table) => setRoomCall({ table })), [])
   const [matching, setMatching] = useState(false)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
@@ -650,21 +660,24 @@ setMenuPage(null)
 
   // The host's own account (CrazyGames): its signed-in player plays under the
   // game account linked to it, a guest under none.
+  // Settled once the first follow has answered: until then a portal player
+  // reads as a guest, and a table the portal brought them to must wait for it.
+  const [hostAccountSettled, setHostAccountSettled] = useState(!host.account)
   useEffect(() => {
     if (!host.account) return
     const follow = () =>
       host
         .account!()
         .then(followHostAccount)
-        .then((changed) => {
+        .then(async (changed) => {
           if (!changed) return
-          fetchAccount().then((found) => {
-            if (found === 'unreachable') return
-            if (found) adopt(found)
-            else setAccount(null)
-          })
           loadBoards().then(setBoards)
+          const found = await fetchAccount()
+          if (found === 'unreachable') return
+          if (found) adopt(found)
+          else setAccount(null)
         })
+        .finally(() => setHostAccountSettled(true))
     follow()
     host.onAccount?.(follow)
   }, [adopt])
@@ -1087,8 +1100,10 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (!host.playFirst || playedFirst.current || !answered.profile || locale === null || session.phase !== 'home') return
     playedFirst.current = true
+    // Launched to play with friends: the table comes first, the lesson can wait.
+    if (roomCall) return
     if (session.profile.runs === 0 && !loadTutorialDone() && on('tutorial')) startFirstRun()
-  }, [answered.profile, locale, session.phase, session.profile.runs, on, startFirstRun])
+  }, [answered.profile, locale, session.phase, session.profile.runs, on, startFirstRun, roomCall])
   // The answer was just handed over: the run that follows must not deal the
   // same pair. `lastPrompts` already keeps it out, and the run's own prompts
   // replace it once it ends.
@@ -1277,6 +1292,34 @@ setStartedAt((at) => at ?? Date.now())
     const timer = setInterval(() => document.visibilityState === 'visible' && refreshDuelInvites(), 8_000)
     return () => clearInterval(timer)
   }, [atHome, duelOpen, named, on, refreshDuelInvites])
+  // Done here, once the account and the screen allow it.
+  const roomSignIn = useRef<string | null>(null)
+  useEffect(() => {
+    if (!roomCall || !hostAccountSettled || !answered.profile || !answered.account || locale === null) return
+    if (session.phase !== 'home' || tutorial || modeLesson) return
+    if (!on('duel')) return setRoomCall(null)
+    if (!named) {
+      if (!roomCall.table) {
+        setRoomCall(null)
+        setDuelOpen({ join: null, local: true })
+        return
+      }
+      if (roomSignIn.current === roomCall.table || !host.promptAccount) return
+      roomSignIn.current = roomCall.table
+      // Signed in, the account follows and this runs again, named this time.
+      void host.promptAccount().then((signedIn) => {
+        if (!signedIn) setRoomCall(null)
+      })
+      return
+    }
+    rememberMultiplayer()
+    setRoomCall(null)
+    setTogether(false)
+    setMatching(false)
+    setMenuPage(null)
+    setDuelOpen(roomCall.table ? { join: roomCall.table, room: true } : { join: null })
+  }, [roomCall, hostAccountSettled, answered.profile, answered.account, locale, session.phase, tutorial, modeLesson, on, named, rememberMultiplayer])
+
   const joinDuelInvite = (table: string) => {
     rememberMultiplayer()
     setDuelInvites((list) => list.filter((invite) => invite.table !== table))
@@ -2018,10 +2061,12 @@ setStartedAt((at) => at ?? Date.now())
       {duelOpen && session.phase === 'home' && (
         <Suspense fallback={null}>
           <DuelScreen
+            key={duelOpen.join ?? (duelOpen.local ? 'local' : 'new')}
             lang={lang}
             mode={duelOpen.local ? 'local' : 'online'}
             join={duelOpen.join}
             quick={duelOpen.quick}
+            room={duelOpen.room}
             onExit={leaveDuel}
             onProfile={duelProfile}
             onSignIn={duelOpen.local ? duelSignIn : undefined}

@@ -413,11 +413,21 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
 /* Le duel, dans le même cadre : chaque écran garde son bouton dans le cadre,
    sans défiler. duel.css arrive avec l'écran, après cette feuille : chaque
    règle passe donc par `.stage.stage--duel`, plus précis que les siennes. La
-   partie elle-même tient déjà (`max-height: 640px`, duel.css). */
-@media (orientation: landscape) and (max-height: 820px) {
+   partie elle-même tient déjà (`max-height: 640px`, duel.css). Tout cadre
+   paysage, pas seulement le bas : entre 820 et 1 000 px de haut, la colonne du
+   téléphone faisait défiler le salon et le bilan sous le bord, ce que la revue
+   du multijoueur a refusé. */
+@media (orientation: landscape) {
   .stage.stage--duel {
     height: 100dvh;
     min-height: 0;
+  }
+
+  /* Posé dans la scène de l'accueil, il prend sa hauteur plutôt que celle de
+     l'écran : ses marges en plus le faisaient déborder, rogné haut et bas. */
+  .stage .stage.stage--duel {
+    height: 100%;
+    padding-block: 0;
   }
 
   .stage.stage--duel > .sheet {
@@ -450,6 +460,15 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     grid-column: 2;
     grid-row: 1 / -1;
     align-self: center;
+    min-height: min(17rem, 70vh);
+  }
+
+  .stage.stage--duel .duel-rules > .duel-title {
+    font-size: min(2.6rem, 9vh);
+  }
+
+  .stage.stage--duel .duel-rules > .demo-text {
+    min-height: 0;
   }
 
   /* Le salon : la table à gauche ; « Je suis prêt » en tête de droite, puis
@@ -571,6 +590,10 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     padding: 0 6px 6px 0;
   }
 
+  .stage.stage--duel .duel-over .duel-winner {
+    font-size: min(2.2rem, 9vh);
+  }
+
   /* La recherche d'un adversaire : le titre et les boutons à gauche, les deux
      places face à face à droite. */
   .stage.stage--duel .duel-search {
@@ -588,6 +611,30 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     grid-column: 2;
     grid-row: 1 / span 4;
     align-self: center;
+  }
+}
+
+
+/* Un cadre plus bas encore (640 × 360, la plus petite taille du portail) :
+   l'affiche du bilan et les boutons pleins se resserrent pour que « Quitter
+   la table » reste au-dessus du bord. */
+@media (orientation: landscape) and (max-height: 420px) {
+  .stage.stage--duel .duel-over > .duel-poster {
+    gap: 0.25rem;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .stage.stage--duel .duel-over .duel-poster__face .avatar {
+    width: min(5.5rem, 12vh);
+  }
+
+  .stage.stage--duel .btn--play {
+    min-height: 3.2rem;
+  }
+
+  .stage.stage--duel .btn--play .play-glyph {
+    width: 2.4rem;
+    height: 2.4rem;
   }
 }
 
