@@ -1301,14 +1301,19 @@ setStartedAt((at) => at ?? Date.now())
     if (!named) {
       if (!roomCall.table) {
         setRoomCall(null)
-        setDuelOpen({ join: null, local: true })
+        setDuelOpen({ join: null, local: true, room: true })
         return
       }
       if (roomSignIn.current === roomCall.table || !host.promptAccount) return
       roomSignIn.current = roomCall.table
       // Signed in, the account follows and this runs again, named this time.
       void host.promptAccount().then((signedIn) => {
-        if (!signedIn) setRoomCall(null)
+        // A guest who stays out still lands at a table, not at the lesson: the
+        // house players' one, with no rules in front.
+        if (!signedIn) {
+          setRoomCall(null)
+          setDuelOpen({ join: null, local: true, room: true })
+        }
       })
       return
     }
