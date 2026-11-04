@@ -1441,6 +1441,8 @@ export interface DuelScreenProps {
   mode?: DuelMode
   /** La table où l'on a été invité ; sans elle, l'écran ouvre une table neuve. */
   join?: string | null
+  /** La table vient d'un lien du portail : la place se prend sans invitation écrite. */
+  linked?: boolean
   /** La table vient du matchmaking : chacun s'y déclare prêt dès qu'il y est assis. */
   quick?: boolean
   onExit?(reason: DuelExit): void
@@ -1450,7 +1452,7 @@ export interface DuelScreenProps {
   onSignIn?(): void
 }
 
-export function DuelScreen({ lang, mode = 'local', join = null, quick = false, onExit, onProfile, onSignIn }: DuelScreenProps) {
+export function DuelScreen({ lang, mode = 'local', join = null, linked = false, quick = false, onExit, onProfile, onSignIn }: DuelScreenProps) {
   // Hors ligne, la table en ligne cède la place à une table locale, sur le même écran.
   const [local, setLocal] = useState(false)
   return (
@@ -1459,6 +1461,7 @@ export function DuelScreen({ lang, mode = 'local', join = null, quick = false, o
       lang={lang}
       mode={local ? 'local' : mode}
       join={local ? null : join}
+      linked={linked}
       quick={quick && !local}
       onExit={onExit}
       onProfile={onProfile}
@@ -1472,14 +1475,15 @@ function DuelTableScreen({
   lang,
   mode,
   join,
+  linked,
   quick,
   onExit,
   onProfile,
   onSignIn,
   onBots,
-}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'quick'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn'> & { onBots(): void }) {
+}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'linked' | 'quick'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn'> & { onBots(): void }) {
   const t = useT()
-  const table = useDuelTable({ lang, mode, join, quick, onExit, onProfile })
+  const table = useDuelTable({ lang, mode, join, linked, quick, onExit, onProfile })
   const { phase } = table
   // Les règles s'ouvrent au premier lancement de la table, puis se revoient du salon.
   const [rules, setRules] = useState(() => !loadDuelRulesSeen())

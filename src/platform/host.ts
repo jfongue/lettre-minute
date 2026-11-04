@@ -99,6 +99,14 @@ export interface Host {
   midgame(adFree: boolean): Promise<AdBreak>
   /** Called with true while the host wants silence — its own mute, an ad — and false once it lets go. */
   onMute(listener: (muted: boolean) => void): void
+  /**
+   * The duel table the page was opened for by the host's own invitation link
+   * (the portal's « Invite » button, its friends list), or null: asked once at
+   * start, it sends the player straight to that table.
+   */
+  invitedTable(): string | null
+  /** Offers the host's invite button for this lobby; null takes it away. */
+  inviteToTable(table: string | null): void
 }
 
 export type RewardedResult = 'rewarded' | 'skipped' | 'unavailable'
@@ -166,4 +174,6 @@ export const quiet = {
   breakAfterRecap: (): Promise<AdBreak> => Promise.resolve('none'),
   midgame: (): Promise<AdBreak> => Promise.resolve('none'),
   onMute(): void {},
+  invitedTable: (): string | null => null,
+  inviteToTable(): void {},
 }

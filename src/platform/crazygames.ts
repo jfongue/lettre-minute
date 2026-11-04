@@ -27,6 +27,11 @@ interface CrazySdk {
     loadingStart(): void
     loadingStop(): void
     happytime(): void
+    /** True when the page was opened from an invitation or a friend's « Join » on the portal. */
+    isInstantMultiplayer?: boolean
+    showInviteButton?(params: Record<string, string>): string
+    hideInviteButton?(): void
+    getInviteParam?(key: string): string | null
     settings?: { muteAudio?: boolean }
     addSettingsChangeListener?(listener: (settings: { muteAudio?: boolean }) => void): void
   }
@@ -224,6 +229,28 @@ async function promptPortalAccount(): Promise<boolean> {
   } catch {
     return false
   }
+}
+
+// The key the portal's invitation carries the duel table under.
+const INVITE_TABLE = 'table'
+const TABLE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/** The table the portal's invitation names, or null: anything but a table id is ignored. */
+function invitedTable(): string | null {
+  let found: string | null = null
+  safely((s) => {
+    const value = s.game.getInviteParam?.(INVITE_TABLE)
+    if (typeof value === 'string' && TABLE_ID.test(value)) found = value.toLowerCase()
+  })
+  return found
+}
+
+/** The portal's invite button, shown for the lobby of this table and hidden once it is left. */
+function inviteToTable(table: string | null): void {
+  safely((s) => {
+    if (table) s.game.showInviteButton?.({ [INVITE_TABLE]: table })
+    else s.game.hideInviteButton?.()
+  })
 }
 
 /** The portal's language first (`en-US`), then the browser's. */
@@ -548,4 +575,6 @@ export const crazyGamesHost: Host = {
   breakAfterRecap: () => Promise.resolve('none'),
   midgame,
   onMute: onPlatformMute,
+  invitedTable,
+  inviteToTable,
 }
