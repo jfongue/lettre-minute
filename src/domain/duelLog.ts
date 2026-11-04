@@ -39,7 +39,7 @@ import type { Judge, Prompt } from './run'
 export const DUEL_ANNOUNCE_SECONDS = 3.2
 
 /** Le silence au-delà duquel un appareil ne relit plus la table : il ne mène plus. */
-export const DRIVER_SILENCE = 4
+export const DRIVER_SILENCE = 8
 
 export type DuelMoveKind = 'pick' | 'word' | 'pass' | 'timeout' | 'cheer'
 

@@ -88,32 +88,3 @@ describe('la sauvegarde du portail', () => {
     expect(browser.has(HANDED_OVER)).toBe(false)
   })
 })
-
-describe('l’invitation du portail', () => {
-  async function portalWith(game: Record<string, unknown>) {
-    vi.resetModules()
-    vi.stubGlobal('location', { hostname: 'localhost' })
-    vi.stubGlobal('document', { referrer: '' })
-    vi.stubGlobal('window', { CrazyGames: { SDK: { environment: 'local', init: () => Promise.resolve(), game, ad: {} } } })
-    const portal = await import('./crazygames')
-    await portal.initCrazyGames()
-    return portal.crazyGamesHost
-  }
-
-  it('montre le bouton du portail pour la table du salon, et le retire ensuite', async () => {
-    const shown: Record<string, string>[] = []
-    let hidden = 0
-    const host = await portalWith({ showInviteButton: (p: Record<string, string>) => (shown.push(p), 'link'), hideInviteButton: () => hidden++ })
-    host.inviteToTable('0b6d3a52-1c4e-4f7a-9d21-5a8e7c3b1f00')
-    host.inviteToTable(null)
-    expect(shown).toEqual([{ table: '0b6d3a52-1c4e-4f7a-9d21-5a8e7c3b1f00' }])
-    expect(hidden).toBe(1)
-  })
-
-  it('ne lit comme table que l’identifiant que le lien porte', async () => {
-    const id = '0B6D3A52-1C4E-4F7A-9D21-5A8E7C3B1F00'
-    expect((await portalWith({ getInviteParam: () => id })).invitedTable()).toBe(id.toLowerCase())
-    expect((await portalWith({ getInviteParam: () => '1; drop table' })).invitedTable()).toBeNull()
-    expect((await portalWith({})).invitedTable()).toBeNull()
-  })
-})

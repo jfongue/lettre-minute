@@ -486,7 +486,7 @@ setMenuPage(null)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null; linked?: boolean; quick?: boolean; local?: boolean } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean } | null>(null)
   const [matching, setMatching] = useState(false)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
@@ -1284,28 +1284,6 @@ setStartedAt((at) => at ?? Date.now())
     setMenuPage(null)
     setDuelOpen({ join: table })
   }
-  // Opened from the host's own invitation link (the portal's « Invite » button
-  // or a friend's « Join »): straight to that table, no menu between. A guest
-  // is first offered the portal's sign-in, which the table needs.
-  const linkedTable = useRef<string | null | undefined>(undefined)
-  const linkedPrompted = useRef(false)
-  useEffect(() => {
-    if (!atHome || !homeReady || duelOpen || tutorial || modeLesson) return
-    if (linkedTable.current === undefined) linkedTable.current = on('duel') ? host.invitedTable() : null
-    const table = linkedTable.current
-    if (!table) return
-    if (!named) {
-      if (!linkedPrompted.current && host.promptAccount) {
-        linkedPrompted.current = true
-        void host.promptAccount()
-      }
-      return
-    }
-    linkedTable.current = null
-    rememberMultiplayer()
-    setMenuPage(null)
-    setDuelOpen({ join: table, linked: true })
-  }, [atHome, duelOpen, homeReady, modeLesson, named, on, rememberMultiplayer, tutorial])
   const dropDuelInvite = (table: string) => {
     setDuelInvites((list) => list.filter((invite) => invite.table !== table))
     clearPushes([duelPushTag(table)])
@@ -2043,7 +2021,6 @@ setStartedAt((at) => at ?? Date.now())
             lang={lang}
             mode={duelOpen.local ? 'local' : 'online'}
             join={duelOpen.join}
-            linked={duelOpen.linked}
             quick={duelOpen.quick}
             onExit={leaveDuel}
             onProfile={duelProfile}

@@ -2008,15 +2008,6 @@ export function joinDuel(table: string, owned: number): Promise<DuelJoinOutcome>
   }, 'unreachable')
 }
 
-/** Joins a table from a shared link, which carries no written invitation (0106). */
-export function joinDuelByLink(table: string, owned: number): Promise<DuelJoinOutcome> {
-  return guard(async () => {
-    const { data, error } = await supabase!.rpc('duel_join_link', { p_table: table, p_owned: owned })
-    if (!error && data === 'joined') trackFeature('duel_joined')
-    return error ? 'unreachable' : (data as DuelJoinOutcome)
-  }, 'unreachable')
-}
-
 export function declineDuel(table: string): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('duel_decline', { p_table: table })
