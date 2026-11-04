@@ -31,6 +31,7 @@ interface CrazySdk {
     addSettingsChangeListener?(listener: (settings: { muteAudio?: boolean }) => void): void
     isInstantMultiplayer?: boolean
     inviteParams?: Record<string, string> | null
+    getInviteParam?(key: string): string | null
     addJoinRoomListener?(listener: (inviteParams: Record<string, string> | null) => void): void
     updateRoom?(room: { roomId?: string; isJoinable?: boolean; inviteParams?: Record<string, string> }): void
     leftRoom?(): void
@@ -477,6 +478,38 @@ function tableOf(params: Record<string, string> | null | undefined): string | nu
   return typeof table === 'string' && TABLE_ID.test(table) ? table : null
 }
 
+/**
+ * The table the launch's invitation names. The SDK's `inviteParams` can be
+ * empty where the portal's page still carries the invitation (the QA preview),
+ * so `getInviteParam` and the page's own `czy_invite_params` (`duel=<uuid>`,
+ * on the frame's address or its parent's) are read too.
+ */
+function launchTable(): string | null {
+  const game = sdk?.game
+  let found = tableOf(game?.inviteParams)
+  if (found) return found
+  try {
+    found = tableOf({ [ROOM_PARAM]: String(game?.getInviteParam?.(ROOM_PARAM) ?? '') })
+    if (found) return found
+  } catch {
+    /* the SDK's reading is a guest: the address is still there */
+  }
+  const addresses = [location.search]
+  try {
+    if (window.parent !== window) addresses.push(new URL(document.referrer).search)
+  } catch {
+    /* a referrer the page cannot read */
+  }
+  for (const search of addresses) {
+    const raw = new URLSearchParams(search).get('czy_invite_params')
+    if (raw) {
+      const table = tableOf({ [ROOM_PARAM]: new URLSearchParams(raw).get(ROOM_PARAM) ?? '' })
+      if (table) return table
+    }
+  }
+  return null
+}
+
 type Room = { table: string; joinable: boolean } | null
 
 // The SDK refuses a room call within 250 ms of the last one, and throws: each
@@ -508,8 +541,8 @@ function sendRoom(): void {
  * (`inviteParams`) or while the game already runs (the join listener).
  */
 const portalRooms: HostRooms = {
-  instant: () => sdk?.game.isInstantMultiplayer === true,
-  invited: () => tableOf(sdk?.game.inviteParams),
+  instant: () => sdk?.game.isInstantMultiplayer === true || launchTable() !== null,
+  invited: launchTable,
   onJoin(listener) {
     safely((s) =>
       s.game.addJoinRoomListener?.((params) => {
