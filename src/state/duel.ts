@@ -16,6 +16,7 @@ import {
   DUEL_MAX_PLAYERS,
   DUEL_MIN_PLAYERS,
   DUEL_OPENING_SECONDS,
+  DUEL_PICK_SECONDS,
   DUEL_PASS_PENALTY_SECONDS,
   duelReward,
   type BotProfile,
@@ -102,6 +103,10 @@ export type DuelExit = 'kicked' | 'closed' | null
 
 /** Le draft complet reste à l'écran le temps de lire ce que le sort a ajouté. */
 export const DRAFT_HOLD_SECONDS = 1.8
+/** Combien de fois le chargement des dictionnaires du pool se relance avant de rendre la main au joueur. */
+const DRAFT_LOAD_RETRIES = 2
+/** Un juge qui manque encore ce long après l'heure d'ouverture : le chargement est perdu, on le relance. */
+const OPENING_STALL_SECONDS = 6
 /** Le tirage de l'ouvreur, puis son nom posé, puis trois temps : `DUEL_OPENING_SECONDS` en tout. */
 export const OPENING_SPIN_SECONDS = 2.1
 export const OPENING_LAND_SECONDS = 1.1
@@ -720,23 +725,46 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   // l'ouvreur leur laisse le temps d'arriver.
   const picks = replayed && draftComplete(replayed.duel) ? replayed.duel.picks.join(',') : replayed && replayed.duel.phase !== 'draft' ? replayed.duel.picks.join(',') : ''
   const loadingFor = useRef('')
+  const [loadTry, setLoadTry] = useState(0)
+  const tries = useRef(0)
   useEffect(() => {
-    if (!picks || !table || loadingFor.current === picks) return
-    loadingFor.current = picks
-    let live = true
-    loadPacks(table.lang, picks.split(','))
+    tries.current = loadTry
+  })
+  const packsLang = table?.lang
+  // Pas de nettoyage qui jette la réponse : la table se relit toutes les
+  // secondes, et un chargement un peu long voyait son résultat périmé sans
+  // jamais être relancé — le juge n'arrivait pas, le décompte restait à 1.
+  // La réponse se juge à la clé qu'elle porte, pas à l'effet qui l'a lancée.
+  useEffect(() => {
+    if (!picks || !packsLang) return
+    const key = `${packsLang}:${picks}:${loadTry}`
+    if (loadingFor.current === key) return
+    loadingFor.current = key
+    loadPacks(packsLang, picks.split(','))
       .then((packs) => {
-        if (live) setJudge(createJudge(packs, { own: {}, crowd: {} }))
+        if (loadingFor.current === key) setJudge(createJudge(packs, { own: {}, crowd: {} }))
       })
       .catch(() => {
-        if (!live) return
-        loadingFor.current = ''
-        setFailed(true)
+        if (loadingFor.current !== key) return
+        if (loadTry < DRAFT_LOAD_RETRIES) setLoadTry((n) => n + 1)
+        else setFailed(true)
       })
-    return () => {
-      live = false
-    }
-  }, [picks, table])
+  }, [picks, packsLang, loadTry])
+
+  // Le garde-fou du flux : le pool est complet, l'ouverture est passée de
+  // plusieurs secondes et il n'y a toujours pas de juge — on relance le
+  // chargement, puis on rend la main au joueur plutôt que de le laisser devant
+  // un décompte figé.
+  const stuckSince = replayed && draftComplete(replayed.duel) && !judge && replayed.duel.draftedAt !== null ? openingAt(replayed.duel) : null
+  useEffect(() => {
+    if (stuckSince === null) return
+    const timer = setInterval(() => {
+      if (now() < stuckSince + OPENING_STALL_SECONDS) return
+      if (tries.current >= DRAFT_LOAD_RETRIES) setFailed(true)
+      else setLoadTry(tries.current + 1)
+    }, OPENING_STALL_SECONDS * 1000)
+    return () => clearInterval(timer)
+  }, [now, stuckSince])
 
   const duel = replayed ? settle(replayed.duel, judge, at) : null
   const facts = replayed?.facts ?? []
@@ -833,7 +861,8 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     if (table.status === 'closed') return 'gone'
     if (table.status === 'lobby') return 'lobby'
     if (!duel || table.startedAt === null) return 'connecting'
-    if (at < table.startedAt + DUEL_ANNOUNCE_SECONDS) return 'announcing'
+    // Une table du matchmaking passe l'annonce : le draft est la première chose qu'on y voit.
+    if (!quick && at < table.startedAt + DUEL_ANNOUNCE_SECONDS) return 'announcing'
     if (duel.phase === 'draft') {
       if (!draftComplete(duel) || duel.draftedAt === null || at < duel.draftedAt + DRAFT_HOLD_SECONDS) return 'draft'
       return 'opening'
@@ -852,6 +881,17 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     setMusic(around ? 'menu' : phase === 'play' || phase === 'deaths' ? 'pulse' : null)
     if (phase === 'over') sound.timeUp()
   }, [phase])
+  // Quitter la table, par n'importe quelle sortie, rend la musique du menu : le
+  // pouls de la partie (son tic-tac) ne doit pas survivre à l'écran qui l'a lancé.
+  useEffect(() => () => setMusic('menu'), [])
+
+  // Le portail veut savoir quand on est en partie : dès l'entrée au draft, pas
+  // au décompte, et jusqu'à la fin ou la sortie.
+  const inMatch = phase === 'announcing' || phase === 'draft' || phase === 'opening' || phase === 'play' || phase === 'deaths'
+  useEffect(() => {
+    host.setGameplay(inMatch)
+  }, [inMatch])
+  useEffect(() => () => host.setGameplay(false), [])
 
   // ------------------------------------------------------ la revanche --
 
@@ -1044,7 +1084,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     pool: table?.categories ?? mine,
     prompt: (duel ? duelPrompt(duel) : null) ?? replayed?.lastPrompt ?? null,
     picker,
-    pickLeft: picker && duel ? Math.max(0, pickDeadline(duel) - at) : 0,
+    pickLeft: picker && duel ? Math.max(0, Math.min(pickDeadline(duel) - at, DUEL_PICK_SECONDS)) : 0,
     forced: drafting ? onlyChoice(duel) : null,
     myTurn,
     myPickTurn: !!picker && picker.id === myId,

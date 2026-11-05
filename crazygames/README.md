@@ -131,7 +131,9 @@ ami modérateur) — un joueur connecté au portail a le compte
   sombre reste au choix dans les options.
 - **Événements** (`src/platform/usePlatformGameplay.ts`) : `gameplayStart` au compte
   à rebours, pendant la partie et pendant la leçon du premier lancement ;
-  `gameplayStop` dès qu'on en sort. `happytime` quand une partie bat un record
+  `gameplayStop` dès qu'on en sort. À la table de duel (`useDuelTable`),
+  `gameplayStart` part dès l'entrée au draft — pas au décompte d'ouverture — et
+  `gameplayStop` à la fin de la partie ou à la sortie. `happytime` quand une partie bat un record
   qui existait déjà.
 - **Classement du portail** : à la fin de chaque partie, `user.submitScore`
   envoie les points, en clair et chiffrés (AES-GCM, IV de 12 octets devant,

@@ -1512,6 +1512,9 @@ function DuelTableScreen({
   if (table.error) return <Notice text={t.duel.loadFailed} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'connecting') return <Notice text={t.duel.connecting} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />
+  // Un adversaire trouvé par le matchmaking : pas de salon, la table s'ouvre
+  // sur le draft. Le salon attend, hors de vue, que les deux soient prêts.
+  if (quick && phase === 'lobby') return <Notice text={t.duel.connecting} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} onRules={() => setRules(true)} onSignIn={mode === 'local' ? onSignIn : undefined} />
   if (phase === 'draft' && table.duel)
     return table.draftLobby ? <Lobby table={table} watching onRules={() => setRules(true)} onResume={table.hideLobby} /> : <Draft table={table} />
