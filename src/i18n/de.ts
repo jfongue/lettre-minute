@@ -530,6 +530,7 @@ export const de: Messages = {
     unmute: 'Ton an',
     language: 'Sprache',
     features: 'Funktionen',
+    version: 'Version',
     privacy: 'Datenschutz',
     adPrivacy: 'Werbeeinstellungen',
     erase: 'Meine Daten löschen',

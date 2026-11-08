@@ -531,6 +531,7 @@ export const nl: Messages = {
     unmute: 'Geluid aan',
     language: 'Taal',
     features: 'Functies',
+    version: 'Versie',
     privacy: 'Privacy',
     adPrivacy: 'Advertentiekeuzes',
     erase: 'Mijn gegevens wissen',

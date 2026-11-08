@@ -532,6 +532,7 @@ export const es: Messages = {
     unmute: 'Activar el sonido',
     language: 'Idioma',
     features: 'Funciones',
+    version: 'Versión',
     privacy: 'Privacidad',
     adPrivacy: 'Opciones de anuncios',
     erase: 'Borrar mis datos',
