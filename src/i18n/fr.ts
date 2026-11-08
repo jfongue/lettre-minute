@@ -572,6 +572,7 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les j
     unmute: 'Rétablir le son',
     language: 'Langue',
     features: 'Fonctionnalités',
+    version: 'Version',
     privacy: 'Confidentialité',
     adPrivacy: 'Choix publicitaires',
     erase: 'Effacer mes données',
