@@ -532,6 +532,7 @@ export const it: Messages = {
     unmute: 'Riattiva l’audio',
     language: 'Lingua',
     features: 'Funzionalità',
+    version: 'Versione',
     privacy: 'Privacy',
     adPrivacy: 'Scelte pubblicitarie',
     erase: 'Cancella i miei dati',

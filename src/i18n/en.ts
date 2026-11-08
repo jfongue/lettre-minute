@@ -536,6 +536,7 @@ export const en: Messages = {
     unmute: 'Unmute sound',
     language: 'Language',
     features: 'Features',
+    version: 'Version',
     privacy: 'Privacy',
     adPrivacy: 'Ad choices',
     erase: 'Erase my data',

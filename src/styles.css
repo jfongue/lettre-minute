@@ -2271,6 +2271,13 @@ animation: clock-bonus 500ms var(--ease-out);
   border-top: 1px solid var(--rule);
 }
 
+/* La version du build, sous les réglages : ce que dit le Play Store. */
+.menu-version {
+  margin: 0.75rem 0 0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
 .menu-start {
   justify-self: start;
   padding-left: 0;

@@ -33,6 +33,7 @@ import {
 } from '../lib/native'
 import { formatNumber, LOCALES, useT, type Locale } from '../i18n'
 import { previewSound, type SoundPrefs } from '../lib/sound'
+import { APP_VERSION, PLATFORM_NAME } from '../lib/version'
 import type { Theme } from '../state/theme'
 import { AccountPanel, type AccountActions, type AccountMode } from './AccountPanel'
 import { AchievementsPanel } from './AchievementsPanel'
@@ -846,6 +847,11 @@ function OptionsPane({ theme, onTheme, locale, onLocale, sound, onSound, onErase
           </button>
         )}
         <EraseData onErase={onErase} />
+        {APP_VERSION ? (
+          <p className="note menu-version">
+            {t.options.version} {APP_VERSION} · {PLATFORM_NAME}
+          </p>
+        ) : null}
       </div>
     </>
   )
