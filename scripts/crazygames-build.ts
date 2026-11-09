@@ -10,6 +10,7 @@
 import { execFileSync } from 'node:child_process'
 import { existsSync, readdirSync, renameSync, rmSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { loadEnv } from 'vite'
 
 const OUT = 'dist-crazygames'
 const ZIP = 'crazygames/lettre-minute-crazygames.zip'
@@ -17,6 +18,19 @@ const MB = 1024 * 1024
 const LIMITS = { total: 250 * MB, files: 1500, initial: 50 * MB, mobileInitial: 20 * MB }
 // A run deals five categories: the most the first gameplayStart can wait on.
 const RUN_CATEGORIES = 5
+
+// Le portail n'ouvre les classements, les amis et le duel que par le serveur :
+// sans lui le build part avec un classement vide, comme celui téléversé en QA
+// pour la 1.7.0. Un dossier de travail d'agent n'a pas de .env.local (CLAUDE.md),
+// donc on échoue ici plutôt que de livrer une version sans serveur.
+const env = loadEnv('crazygames', process.cwd(), '')
+const missing = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'].filter((name) => !(env[name] || process.env[name]))
+if (missing.length > 0) {
+  console.error(`Build CrazyGames sans serveur : ${missing.join(', ')} manque.`)
+  console.error('Copier .env.local dans ce dossier de travail (CLAUDE.md) avant de construire :')
+  console.error('les classements, les amis et le duel en ont besoin.')
+  process.exit(1)
+}
 
 const run = (command: string, args: string[]) => execFileSync(command, args, { stdio: 'inherit' })
 

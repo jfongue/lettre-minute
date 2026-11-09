@@ -157,10 +157,13 @@ textarea {
     display: none;
   }
 
-  /* The main menu never scrolls (portal review): the leaderboard takes what
-     the rest leaves and its rows alone scroll, under a visible bar. The column
-     keeps its own scroll, bar hidden, only for the day it carries more than
-     any frame holds (a duel invitation above the challenges and the week). */
+  /* The main menu never scrolls (portal review): the leaderboard keeps its
+     own height and gives rows back only when the column must fit, so the
+     pages' row sits right under it instead of being pushed to the frame's
+     bottom with a blank between them. Its rows alone scroll, under a
+     visible bar. The column keeps its own scroll, bar hidden, only for the
+     day it carries more than any frame holds (a duel invitation above the
+     challenges and the week). */
   .sheet--home > .home-body:not(.home-body--alone) {
     display: flex;
     flex-direction: column;
@@ -171,7 +174,7 @@ textarea {
   }
 
   .sheet--home > .home-body:not(.home-body--alone) > .boards {
-    flex: 1 1 7rem;
+    flex: 0 1 auto;
     min-height: 7.5rem;
     grid-template-rows: auto auto minmax(0, 1fr) auto;
   }
