@@ -9,18 +9,18 @@ launch). The build and its choices are explained in `crazygames/README.md`.
 |---|---|
 | Game name (≤ 35 characters) | **Letter Minute** — the title the game shows on its poster in every language (`crazyGamesHost.title`, `src/platform/crazygames.ts`) and in the page title |
 | Engine | HTML5 |
-| Game files | `crazygames/lettre-minute-crazygames.zip` (4.06 MB; `index.html` at the root, relative paths, 170 files, 14.67 MB unzipped) — rebuild with `npm run crazygames:build` |
+| Game files | `crazygames/lettre-minute-crazygames.zip` (2.84 MB; `index.html` at the root, relative paths, 172 files, 9.49 MB unzipped) — rebuild with `npm run crazygames:build` |
 | Game save progress | **Yes, using the Data Module from the CrazyGames SDK** (enables « Progress Save »; without it the SDK answers `dataModuleDisabled` and the game falls back to localStorage) |
 | Supports mobile | **Yes** |
 | Online / multiplayer | **Yes** — the shared leaderboards, and, for a player signed in to CrazyGames, the friends, the head-to-head tally with them, a live duel with matchmaking inside the game's own language pool, and the words he proposes, which the game's moderators judge. A guest (not signed in) still plays everything solo, and the duel falls back to the house players |
 | Supports CrazyGames muting audio through the SDK | **Yes** — `game.settings.muteAudio` and its change listener suspend all game audio, music included; the in-game mute button cannot override it |
 | Orientation (mobile) | **Portrait** (desktop plays in a centred column inside the 16:9 frame) |
-| SDK integration | HTML5 SDK v3: `init`, `loadingStart/Stop`, `gameplayStart/Stop`, `happytime` (new record), `requestAd('midgame')` after a run's word recap (2nd, 5th, 9th… run), Data module, User module (`getUserToken`, `showAuthPrompt`, `submitScore` for the leaderboards), `systemInfo.locale` |
+| SDK integration | HTML5 SDK v3: `init`, `loadingStart/Stop`, `gameplayStart/Stop` (when the clock runs, and a played hand at a duel table), `happytime` (new record), `requestAd('midgame')` from the buttons that lead to gameplay (Play, Play again, Rematch, Leave the table, a challenge's start), `requestAd('rewarded')` for the hidden words and the challenge's extra attempt, Data module, User module (`getUserToken`, `showAuthPrompt`, `submitScore` for the leaderboards), the multiplayer Room module (`updateRoom`, `inviteLink`, `getInviteParam`) with its `inviteParams`, `systemInfo.locale` |
 
-Weight against the limits (from the build script): 1.65 MB of code, styles
+Weight against the limits (from the build script): 1.64 MB of code, styles
 and fonts; dictionaries load per category when a run deals them, so the worst
-case before the first `gameplayStart` is 7.30 MB (limit 50 MB, mobile home page
-20 MB). Total 14.67 MB (limit 250 MB), 170 files (limit 1,500).
+case before the first `gameplayStart` is 3.10 MB (limit 50 MB, mobile home page
+20 MB). Total 9.49 MB (limit 250 MB), 172 files (limit 1,500).
 
 ## Step 2 — QA
 
@@ -28,7 +28,9 @@ Test it locally before uploading: `npm run crazygames:build`, then
 `npm run crazygames:harness` and open http://localhost:5747/ (or
 `/frame.html?size=phone` for the iframe at phone size). The SDK runs in its
 `local` mode there and logs every call in the console; the midgame ad shows as
-« A midgame ad would appear here » between the word recap and the summary of the 2nd, 5th, 9th… run.
+« A midgame ad would appear here » after « Play » (on the powers screen when
+the player owns some), before the countdown — never between the word recap and
+the summary.
 
 What QA will see:
 
@@ -127,8 +129,14 @@ Nothing else to prepare. Approved for Full Launch on 16 October 2026; the
 update answers the review: newcomers land in the first lesson, progress
 relies on the Data module alone (a sign-out no longer hands it to the
 guest), a sign-in shows at once, « Play » sits under the title, the home
-screen never scrolls but its right column, the scrollbar takes the game's
-colours, the game's own mute button gives way to the portal's, and rewarded
-ads are on. Left to do on the portal: the weekly leaderboard key
-(`VITE_CRAZYGAMES_LEADERBOARD_KEY`, invitation-only), then the answer about
-`getUserToken` (crazygames/README.md, « Comptes CrazyGames »).
+screen never scrolls but its right column, the scrollbar is never drawn, the
+game's own mute button gives way to the portal's, and rewarded ads are on.
+
+The build sent after the review's second pass is **1.7.0**: the midgame ad
+moves to the buttons that lead to gameplay, the duel's table is a CrazyGames
+room with the portal's own invitations, `gameplayStart` waits for the clock
+and for a played hand, and every scene fits the frame (see
+`crazygames/update-notes.md`, the text to paste with the upload). Left to do
+on the portal: the weekly leaderboard key (`VITE_CRAZYGAMES_LEADERBOARD_KEY`,
+invitation-only), then the answer about `getUserToken` (crazygames/README.md,
+« Comptes CrazyGames »).

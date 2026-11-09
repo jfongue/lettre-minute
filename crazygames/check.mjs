@@ -121,9 +121,16 @@ for (const [width, height] of SIZES) {
         await sleep(1500)
       }
     }
+    // The click on « Play » asks the portal for its midgame ad, which the
+    // harness's local SDK plays for a few seconds before the countdown: the
+    // run is what the click started, once the ad is over.
+    let started = false
+    for (let tries = 0; tries < 150 && !started; tries++) {
+      started = await evaluate(`!!${game}.querySelector('.answer-field input')`)
+      if (!started) await sleep(200)
+    }
     const stage = await evaluate(`${game}.querySelector('main')?.className ?? ''`)
     check(!/stage--home/.test(stage), `${label}: a real click on Play starts the run`, stage)
-    for (let tries = 0; tries < 40 && !(await evaluate(`!!${game}.querySelector('.answer-field input')`)); tries++) await sleep(200)
     for (const selector of ['.answer-field', '.answer-actions']) {
       const part = await locate(selector)
       check(part && part.bottom <= part.height, `${label}: ${selector} inside the frame during the run`, part && `${Math.round(part.top)}..${Math.round(part.bottom)} of ${part.height}`)

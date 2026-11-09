@@ -16,6 +16,21 @@ body {
   display: none;
 }
 
+/* Les blocs d'un écran entrent par le haut, pas par le bas : glissés de
+   14 px sous le bord d'une feuille qui défile, ils la faisaient déborder le
+   temps de leur entrée, et une barre de défilement clignotait à chaque écran
+   (revue). Un débordement vers le haut ne se défile pas : il ne montre rien. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* A long press on a phone must not open the magnifier or the context menu
    (the portal's technical requirements); the answer field still types and selects. */
 body {
@@ -30,22 +45,43 @@ textarea {
   user-select: text;
 }
 
-/* A landscape frame — the portal's iframe on a laptop, 926 × 476 to
-   1280 × 720 — has no room for the phone's column: every screen keeps its
-   main action in view without scrolling. The poster and the score move to a
-   left column, what follows them to the right, scrolling there if it must. */
-@media (orientation: landscape) and (max-height: 820px) {
+/* The run sits in the middle of a big frame, not under its top edge (portal
+   review). Only with a mouse: on a touch screen the portal's keyboard covers
+   the lower half, where a centred run would end up (styles.css keeps it at
+   the top). */
+@media (hover: hover) and (pointer: fine) {
+  .stage--playing,
+  .stage--lesson {
+    place-items: center;
+  }
+}
+
+/* A landscape frame — the portal's iframe, from 640 × 360 to a maximised
+   window on a large screen (the portal gives the game the whole window, and a
+   tall one used to fall back on the phone's column) — has no room for that
+   column: every screen keeps its main action in view. The poster and the score
+   move to a left column, what follows them to the right, scrolling there if it
+   must. */
+@media (orientation: landscape) {
   .stage {
     padding-block: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-bottom));
   }
 
-  .stage--home,
-  .stage--countdown,
-  .stage--playing,
-  .stage--over {
+  /* Le cadre est la fenêtre : le document ne défile pas, et un écran plus haut
+     que lui — classements, succès, statistiques, bilans — défile dans sa
+     feuille plutôt que d'être coupé sous le bord, où rien ne l'atteindrait. */
+  .stage {
     height: 100dvh;
     min-height: 0;
     overflow: hidden;
+  }
+
+  .stage .sheet:not(.sheet--home) {
+    max-height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
   }
 
   .sheet--home,
@@ -65,15 +101,19 @@ textarea {
     grid-template-rows: auto auto 1fr;
   }
 
+  /* L'affiche ouvre la colonne de gauche sur toute sa largeur, comme en haut
+     de l'accueil du téléphone. */
   .sheet--home > .poster {
     grid-column: 1;
     grid-row: 1;
   }
 
+  /* Le titre passe sous l'affiche, jamais dessus. */
   .sheet--home > .masthead {
     grid-column: 1;
     grid-row: 2;
     align-self: start;
+    margin-top: 0.5rem;
   }
 
   .sheet--home .title {
@@ -105,8 +145,54 @@ textarea {
     grid-column: 2;
     grid-row: 1 / 4;
     min-height: 0;
+    overflow-x: hidden;
     overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    padding-right: 6px;
     align-content: start;
+  }
+
+  .sheet--home > .home-body::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* The main menu never scrolls (portal review): the leaderboard takes what
+     the rest leaves and its rows alone scroll, under a visible bar. The column
+     keeps its own scroll, bar hidden, only for the day it carries more than
+     any frame holds (a duel invitation above the challenges and the week). */
+  .sheet--home > .home-body:not(.home-body--alone) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sheet--home > .home-body:not(.home-body--alone) > * {
+    flex: none;
+  }
+
+  .sheet--home > .home-body:not(.home-body--alone) > .boards {
+    flex: 1 1 7rem;
+    min-height: 7.5rem;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+  }
+
+  .home-body > .boards > .board-track {
+    min-height: 0;
+    overflow-y: hidden;
+  }
+
+  /* Ses lignes défilent sous une barre visible, toujours là quand elles
+     dépassent : sans elle, rien ne disait qu'il y en avait d'autres (revue). */
+  .home-body > .boards .board {
+    min-height: 0;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink) var(--rule);
+    scrollbar-gutter: stable;
+    padding-right: 4px;
   }
 
   /* Rien d'autre à montrer que « Jouer » — un appareil neuf : une seule
@@ -188,6 +274,7 @@ textarea {
     grid-row: 1;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     align-content: start;
   }
 
@@ -208,6 +295,7 @@ textarea {
     min-height: 0;
     align-content: start;
     overflow-y: auto;
+    overflow-x: hidden;
   }
 
   .stage--over .sheet.over-sheet {
@@ -232,6 +320,7 @@ textarea {
     gap: var(--step);
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
     align-content: safe center;
   }
@@ -258,14 +347,185 @@ textarea {
   }
 }
 
+/* Below 820 px of height the right column tightens up: the leaderboard
+   keeps room for rows next to the level, the tiles and the pages' row. */
+@media (orientation: landscape) and (max-height: 820px) {
+  .sheet--home > .home-body:not(.home-body--alone) {
+    gap: min(var(--step), 2.4vh);
+  }
+
+  .home-body .panel {
+    gap: 0.4rem;
+    padding-top: 0.6rem;
+  }
+
+  /* The challenge of the moment on two lines, its counter beside the ends. */
+  .home-body .wk-card {
+    gap: 0.7rem;
+    padding: 0.4rem 0.6rem 0.4rem 0.4rem;
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+  .home-body .wk-card-mark {
+    width: 3rem;
+    height: 3rem;
+    padding: 0.5rem;
+  }
+
+  .home-body .wk-card-mode {
+    font-size: 1.25rem;
+  }
+
+  .home-body .wk-card-meta {
+    display: none;
+  }
+
+  .home-body .wk-card-tickets {
+    margin-top: 0;
+  }
+
+  .home-body .figures {
+    gap: 0;
+  }
+
+  .home-body .figure {
+    min-height: 0;
+    gap: 0.15rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .home-body .figure-value {
+    font-size: min(1.6rem, 5vh);
+  }
+
+  .home-body .figure-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+  }
+
+  .home-body .boards .layer-tab {
+    min-height: 2rem;
+  }
+
+  .home-body .board-dots {
+    display: none;
+  }
+
+  .home-body .standing {
+    padding-block: 0.4rem;
+  }
+
+  /* The pages' tiles in one low row, under the leaderboard. */
+  .home-body .page-links {
+    grid-template-columns: repeat(var(--count), minmax(0, 1fr));
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+    border-top-width: 2px;
+  }
+
+  .home-body .page-link,
+  .home-body .page-link:last-child:nth-child(odd) {
+    grid-column: auto;
+    grid-template-columns: 1.6rem minmax(0, 1fr);
+    min-height: 0;
+    padding: 0.25rem 0.35rem;
+    gap: 0.4rem;
+  }
+
+  .home-body .page-link-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.02em;
+  }
+}
+
+/* A short frame (a Chromebook's 854 × 410): the title shrinks with its
+   height — the poster keeps the column's width —, so « Play » and
+   « Multiplayer » under them never push the title up over the poster, and
+   the right column gives the leaderboard its rows back. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .sheet--home:not(.sheet--home-alone) {
+    row-gap: min(0.6rem, 1.6vh);
+  }
+
+  .sheet--home:not(.sheet--home-alone) .title {
+    font-size: min(5.6rem, 10vh, 6.5vw);
+  }
+
+  .sheet--home:not(.sheet--home-alone) > .home-play .btn {
+    min-height: 2.9rem;
+  }
+
+  .sheet--home:not(.sheet--home-alone) > .home-play .btn--play {
+    min-height: 3.4rem;
+  }
+
+  .home-body .progress {
+    height: 0.55rem;
+  }
+
+  /* A duel invitation on one low row: the name, then « Join » and « No thanks ». */
+  .home-body .duel-invite-card {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.6rem;
+    padding: 0.45rem 0.6rem;
+  }
+
+  .home-body .duel-invite-card__face {
+    grid-row: auto;
+  }
+
+  .home-body .duel-invite-card__face .avatar {
+    width: 2rem;
+  }
+
+  .home-body .duel-invite-card__text small {
+    display: none;
+  }
+
+  .home-body .duel-invite-card__actions .btn {
+    min-height: 2.2rem;
+    padding-block: 0.2rem;
+  }
+
+  .home-body .page-link-art {
+    display: none;
+  }
+
+  .home-body .page-link,
+  .home-body .page-link:last-child:nth-child(odd) {
+    grid-template-columns: minmax(0, 1fr);
+    text-align: center;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 440px) {
+  .home-body .wk-kicker {
+    display: none;
+  }
+
+  /* With a duel invitation above it, the challenge card gives up its tickets,
+     the invitation its face and the pages' row (the menu tile still opens
+     them): the column still holds without scrolling. */
+  .home-body:has(.duel-invite-card) .wk-card-tickets,
+  .home-body:has(.duel-invite-card) .page-links,
+  .home-body .duel-invite-card__face {
+    display: none;
+  }
+
+  .home-body .duel-invite-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+}
+
 /* Tout écran posé sur l'accueil (défi du moment, pouvoirs, catégories…) tient
    dans le cadre qu'il fige : plus haut, il défile pour lui-même plutôt que de
    cacher son bouton sous le bord. */
-@media (orientation: landscape) and (max-height: 820px) {
+@media (orientation: landscape) {
   .stage--home > .sheet:not(.sheet--home) {
     max-height: 100%;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
   }
 
@@ -306,6 +566,7 @@ textarea {
     grid-row: 1 / -1;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
     align-content: safe center;
     padding: 0 6px 6px 0;
@@ -350,13 +611,22 @@ textarea {
 /* Les offres de niveau (catégorie, pouvoir, bonus) : le titre, le nom qui se
    tape et le bouton à gauche, les cartes à droite. Une seule colonne y
    poussait le bouton sous le bord du cadre, sans défilement. */
-@media (orientation: landscape) and (max-height: 820px) {
-  .stage--over > .sheet:not(.reveal):not(.cascade),
-  .stage--countdown > .sheet {
+@media (orientation: landscape) {
+  .stage--over > .sheet:not(.reveal):not(.cascade) {
     max-height: 100%;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
+  }
+
+  /* « Coming up » et le compte à rebours ne défilent jamais : le ressort des
+  chiffres qui débordait de deux pixels allumait puis éteignait une barre à
+  chaque battement (revue). */
+  .stage.stage--countdown > .sheet {
+    max-height: 100%;
+    min-height: 0;
+    overflow: clip;
   }
 
   .stage .unlock-screen {
@@ -402,6 +672,7 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
 .reveal > .hidden-answers {
   max-height: 45vh;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .reveal > .hidden-answers > .hidden-answers-toggle {
@@ -430,11 +701,30 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     padding-block: 0;
   }
 
+  /* La partie elle-même, même chose : posée dans la scène de l'accueil, ses
+  100dvh plus les marges de celle-ci poussaient « Quitter la table » sous le
+  bord (926×476 comme 640×360). Sa feuille se contente de la hauteur qui lui
+  reste, et défile sur elle-même dans le cas qu'on n'a pas prévu plutôt que de
+  laisser un bouton hors du cadre. */
+  .stage .stage--duel-play {
+    height: 100%;
+    padding-block: 0;
+  }
+
+  .stage--duel-play .duel-run {
+    min-height: 0;
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+  }
+
   .stage.stage--duel > .sheet {
     width: min(56rem, 100%);
     max-height: 100%;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
     row-gap: min(var(--step), 3.4vh);
   }
@@ -503,6 +793,15 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
 
   .stage.stage--duel .duel-seats {
     gap: min(0.75rem, 2vh);
+  }
+
+  /* Sous 900 px de cadre, deux places par colonne laissent à chacune trop peu
+     de largeur pour son nom (« MAXITO… », « FREE SE… ») : la table se lit en
+     une colonne de quatre, nom, allure et état entiers. */
+  @media (max-width: 900px) {
+    .stage.stage--duel .duel-seats {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   .stage.stage--duel .duel-seatcard__button {
@@ -585,6 +884,7 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     gap: 0.8rem;
     min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     overscroll-behavior: contain;
     align-content: safe center;
     padding: 0 6px 6px 0;
@@ -636,12 +936,107 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
     width: 2.4rem;
     height: 2.4rem;
   }
+
+  /* La partie elle-même, dans ce cadre bas : le fil ne garde que son dernier
+  fait, les places et le couple se resserrent, pour que le champ, ses deux
+  boutons et « Quitter la table » tiennent sous le bord sans rien faire défiler. */
+  .stage.stage--duel-play {
+    padding-block: 0.4rem;
+}
+
+.stage--duel-play .duel-run {
+  gap: min(0.45rem, 1.2vh);
+}
+
+.stage--duel-play .duel-feed {
+  height: 1.35rem;
+}
+
+.stage--duel-play .duel-feed__line:nth-child(n + 2) {
+  visibility: hidden;
+}
+
+.stage--duel-play .duel-seat {
+  gap: 0.1rem;
+  padding: 0.15rem 0.25rem;
+}
+
+.stage--duel-play .duel-seat__face .avatar {
+  width: 1.3rem;
+}
+
+.stage--duel-play .duel-seat__mine {
+  font-size: 1.5rem;
+}
+
+.stage--duel-play .duel-prompt {
+  gap: 0.6rem;
+}
+
+.stage--duel-play .duel-prompt .mark--lg {
+  width: 2.6rem;
+  height: 2.6rem;
+  font-size: 1.6rem;
+}
+
+.stage--duel-play .duel-prompt .prompt-label {
+  font-size: 1.25rem;
+}
+
+.stage--duel-play .duel-run .answer input {
+  padding-block: 0.15rem;
+  font-size: 1.5rem;
+}
+
+.stage--duel-play .duel-run .verdict {
+  min-height: 0.9rem;
+}
+
+/* Le draft : huit tuiles sur deux colonnes, dans un cadre de 360 px de haut,
+ne laissent pas de place à « Retour au salon ». Elles se resserrent — la
+ligne d'ordre, le tour et la tuile elle-même — plutôt que de faire défiler. */
+.stage.stage--duel .sheet.duel-draft {
+  row-gap: min(0.35rem, 1.4vh);
+}
+
+.stage--duel .duel-draft .duel-order {
+  gap: 0.25rem;
+}
+
+.stage--duel .duel-draft .duel-order__slot {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.stage--duel .duel-draft .duel-order__slot .avatar {
+  width: 1.2rem;
+}
+
+.stage--duel .duel-draft .duel-turn {
+  font-size: 0.95rem;
+}
+
+.stage--duel .duel-draft .dealt--pick {
+  gap: 0.25rem;
+}
+
+.stage--duel .duel-draft .dealt--pick .dealt-tile {
+  font-size: min(1.1rem, 4.2vh);
+  gap: 0.5rem;
+  padding-block: 0.25rem;
+  padding-inline: 0.6rem;
+}
+
+.stage--duel .duel-draft .dealt--pick .dealt-shape {
+  width: 1.1rem;
+  height: 1.1rem;
+}
 }
 
 
 /* La modération (super modérateurs) : la carte à juger à gauche, toute la
    hauteur ; le titre, la progression et les trois votes à droite. */
-@media (orientation: landscape) and (max-height: 820px) {
+@media (orientation: landscape) {
   .stage .sheet.moderation:not(.cascade) {
     width: min(56rem, 100%);
     grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
@@ -897,7 +1292,7 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
 /* Le choix de langue, quand ni le portail ni le navigateur n'en parlent une
    du jeu : le titre et « Valider » à gauche, les sept langues à droite sur
    deux colonnes. Une seule colonne coupait le titre et la dernière langue. */
-@media (orientation: landscape) and (max-height: 820px) {
+@media (orientation: landscape) {
   .stage--home > .language-picker {
     width: min(60rem, 100%);
     min-height: 0;
@@ -921,5 +1316,298 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
 
   .language-picker .language-title {
     font-size: min(4rem, 13vh);
+  }
+}
+
+/* Le choix des pouvoirs, en deux colonnes dans le cadre paysage : le titre,
+   les emplacements et « Jouer » à gauche, les pouvoirs à droite. En colonne,
+   il défilait dans tous les cadres, jusqu'à 1100 × 575 (revue). */
+@media (orientation: landscape) {
+  .stage .sheet.loadout {
+    width: min(60rem, 100%);
+    height: 100%;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    column-gap: clamp(1.25rem, 3vw, 2.5rem);
+    row-gap: clamp(0.5rem, 2.5vh, 1.1rem);
+    align-content: stretch;
+    overflow: clip;
+  }
+
+  .loadout > .loadout-head {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .loadout > .loadout-side {
+    grid-column: 1;
+    grid-row: 2;
+    gap: clamp(0.4rem, 2vh, 0.9rem);
+  }
+
+  .loadout > .loadout-grid {
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(0.3rem, 1.4vh, 0.6rem);
+  }
+
+  .loadout .loadout-title {
+    font-size: min(2.8rem, 9vh);
+  }
+
+  .loadout .loadout-slot {
+    min-height: min(9.5rem, 26vh);
+    padding-block: 0.4rem;
+  }
+
+  .loadout .loadout-tile {
+    padding: 0.35rem 1.8rem 0.35rem 0.35rem;
+    gap: 0.5rem;
+  }
+
+  .loadout .loadout-tile-text strong {
+    font-size: min(0.95rem, 2.3vw);
+  }
+
+  .loadout .loadout-tile-icon {
+    width: min(2.9rem, 10vh);
+    height: min(2.9rem, 10vh);
+    padding: 0.35rem;
+  }
+}
+
+/* Un cadre bas : le nom du pouvoir seul, sa règle se lit en jeu. */
+@media (orientation: landscape) and (max-height: 620px) {
+  .loadout .loadout-tile-text span {
+    -webkit-line-clamp: 1;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  .loadout .loadout-tile-text span {
+    display: none;
+  }
+
+  .loadout .loadout-lead,
+  .loadout .loadout-hint {
+    display: none;
+  }
+
+  .loadout .loadout-slot-uses {
+    display: none;
+  }
+}
+
+/* « Jouer avec des amis », dans le cadre paysage : le titre à gauche, les
+   cartes à droite, sans défiler — en colonne, la seconde carte passait sous le
+   bord des petits cadres (revue). */
+@media (orientation: landscape) {
+  .together {
+    display: grid;
+    align-items: center;
+    overflow: clip;
+    padding-block: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .together-sheet {
+    width: min(60rem, 100%);
+    max-height: 100%;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    column-gap: clamp(1.25rem, 4vw, 3rem);
+    align-items: center;
+  }
+
+  .together-head,
+  .together-cards {
+    display: grid;
+    gap: clamp(0.5rem, 2.5vh, 1.1rem);
+    align-content: center;
+  }
+
+  .together-title {
+    font-size: min(2.8rem, 10vh, 5vw);
+  }
+
+  .together-card {
+    padding: clamp(0.5rem, 2.5vh, 1.1rem) clamp(0.6rem, 1.5vw, 1rem);
+    gap: clamp(0.5rem, 1.5vw, 1rem);
+  }
+
+  .together-art {
+    width: min(3.5rem, 13vh);
+    height: min(3.5rem, 13vh);
+  }
+
+  .together-text {
+    gap: 0.2rem;
+  }
+
+  .together-text b {
+    font-size: min(1.55rem, 5.5vh, 3vw);
+  }
+}
+
+/* Un cadre bas : la phrase de chaque carte se lit dans son salon. */
+@media (orientation: landscape) and (max-height: 480px) {
+  .together-card .together-text small {
+    display: none;
+  }
+}
+
+
+/* L'écran du défi du moment, dans le cadre paysage : son titre et son
+   affiche à gauche, le record, les tentatives, « Jouer » et les liens à
+   droite — en colonne, il défilait sous le bord (revue). weekly.css arrive
+   avec l'écran, après cette feuille : chaque règle passe par `.stage`. */
+@media (orientation: landscape) {
+  .stage .sheet.wk-screen {
+    width: min(60rem, 100%);
+    max-height: 100%;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-auto-flow: row dense;
+    column-gap: clamp(1.25rem, 4vw, 3rem);
+    row-gap: clamp(0.4rem, 2vh, 1.1rem);
+    align-content: safe center;
+    overflow: clip;
+  }
+
+  .stage .wk-screen > .subpage-head {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .stage .wk-screen > .wk-hero {
+    grid-column: 1;
+    grid-row: 2 / span 6;
+    align-self: start;
+  }
+
+  .stage .wk-screen > :not(.subpage-head):not(.wk-hero) {
+    grid-column: 2;
+  }
+
+  .stage .wk-screen .wk-hero-mark {
+    width: min(4.6rem, 15vh);
+    height: min(4.6rem, 15vh);
+  }
+
+  .stage .wk-screen .wk-hero-mode {
+    font-size: min(2.8rem, 10vh, 5vw);
+  }
+
+  .stage .wk-screen .wk-play,
+  .stage .wk-screen .wk-links {
+    gap: clamp(0.3rem, 1.5vh, 0.6rem);
+  }
+
+  .stage .wk-screen .subpage-title {
+    font-size: min(1.6rem, 6vh, 3vw);
+  }
+
+  .stage .wk-screen .wk-stats--line .wk-stat-value {
+    font-size: min(1.35rem, 5vh);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 480px) {
+  .stage .wk-screen .wk-hero {
+    gap: 0.4rem;
+    padding: 0.7rem;
+  }
+
+  .stage .wk-screen .wk-hero-rule {
+    font-size: 0.85rem;
+  }
+
+  .stage .wk-screen .btn {
+    min-height: 0;
+    padding-block: 0.55rem;
+  }
+}
+
+/* Le bilan d'un cadre bas tient sans défiler : à 640 × 360, « Accueil »
+   passait de quelques pixels sous le bord, et la feuille défilait. */
+@media (orientation: landscape) and (max-height: 480px) {
+  .stage--over .over-sheet .figure {
+    min-height: 0;
+    gap: 0.3rem;
+    padding-block: 0.5rem;
+  }
+
+  .stage--over .over-sheet .btn--play {
+    min-height: 3.4rem;
+  }
+}
+
+/* La fin d'une tentative au défi du moment, en deux colonnes : la tentative
+   et son verdict à gauche, le record, les tentatives qui restent et le
+   bouton à droite — en colonne, le bouton passait sous le bord. */
+@media (orientation: landscape) {
+  .stage .sheet.wk-done {
+    width: min(60rem, 100%);
+    max-height: 100%;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    grid-auto-flow: row dense;
+    column-gap: clamp(1.25rem, 4vw, 3rem);
+    row-gap: clamp(0.4rem, 2vh, 1rem);
+    align-content: safe center;
+    overflow: clip;
+  }
+
+  .stage .wk-done > .wk-done-hero {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: end;
+  }
+
+  .stage .wk-done > .wk-done-verdict {
+    grid-column: 1;
+    grid-row: 3 / span 2;
+    align-self: start;
+  }
+
+  .stage .wk-done > :not(.wk-done-hero):not(.wk-done-verdict) {
+    grid-column: 2;
+  }
+
+  .stage .wk-done .wk-done-value {
+    font-size: min(3.6rem, 12vh, 6vw);
+  }
+
+  .stage .wk-done .wk-done-mark {
+    width: min(5rem, 15vh);
+    height: min(5rem, 15vh);
+  }
+
+  .stage .wk-done .wk-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* La leçon du défi dans un cadre bas : le barème de la rareté se lit en
+   partie ; les trois règles et « Compris » tiennent sans défiler. */
+@media (orientation: landscape) and (max-height: 480px) {
+  .stage .wk-intro .wk-table {
+    display: none;
+  }
+
+  .stage .wk-intro .wk-step {
+    padding: 0.25rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .stage .wk-intro .wk-step-n {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+}
+
+/* Le nom du mode tient dans son bandeau, quelle que soit la colonne. */
+@media (orientation: landscape) {
+  .stage .wk-intro .wk-intro-title h1 {
+    font-size: min(2.3rem, 3.6vw);
+    overflow-wrap: anywhere;
   }
 }
