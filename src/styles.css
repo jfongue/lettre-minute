@@ -9828,6 +9828,12 @@ body[data-words='board'] .offer-pop-layer {
   margin: 0 auto;
 }
 
+/* Deux groupes que le cadre paysage de CrazyGames range en colonnes ; ailleurs, la feuille les lit d'un trait. */
+.together-head,
+.together-cards {
+  display: contents;
+}
+
 .together-close {
   justify-self: start;
 }
