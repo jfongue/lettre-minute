@@ -76,7 +76,7 @@ export const FEATURES: readonly FeatureDef[] = [
   { id: 'storeUpdate', label: 'Annonce de mise à jour', note: 'Quand le Play Store a une version plus récente', defaults: open },
   { id: 'playGames', label: 'Play Games', note: 'Connexion discrète et succès, sur Android', defaults: open },
   { id: 'ads', label: 'Publicités de l’offre de catégorie', note: 'Aussi éteintes dans le code (ADS_ENABLED)', defaults: closed },
-  { id: 'adBreaks', label: 'Pubs entre deux parties', note: 'Après le récap des mots : interstitiel sur Android, midgame sur CrazyGames ; jamais pour Premium', defaults: open },
+  { id: 'adBreaks', label: 'Pubs entre deux parties', note: 'Interstitiel après le récap des mots sur Android ; midgame au départ d’une partie et au bilan du duel sur CrazyGames ; jamais pour Premium', defaults: open },
   // Outils
   { id: 'wordsBoard', label: 'Tableau des mots', note: 'Cinq tapes sur « Mes catégories »', defaults: supers },
   { id: 'dashboard', label: 'Tableau de bord', note: 'Cinq tapes sur « Classement »', defaults: open },

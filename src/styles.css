@@ -103,6 +103,13 @@
 * {
   box-sizing: border-box;
   margin: 0;
+  /* No scrollbar anywhere, even by accident (Tab skipping a word, a category
+     being revealed): a box still scrolls, it never draws a bar. */
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
 }
 
 html {
@@ -1744,6 +1751,9 @@ animation: clock-bonus 500ms var(--ease-out);
   grid-auto-columns: 100%;
   align-items: start;
   overflow-x: auto;
+  /* La hauteur suit la page affichée : la plus longue ne doit pas déborder
+     sous elle, ni laisser de vide sous la plus courte. */
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
   scrollbar-width: none;

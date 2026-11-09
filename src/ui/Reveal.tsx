@@ -69,6 +69,9 @@ export function Reveal({
   const bestPoints = Math.max(0, ...run.found.map((found) => found.points))
   const latest = useRef<HTMLLIElement>(null)
   const [flagged, setFlagged] = useState<FlagWord | null>(null)
+  // A tap that skips the recap lands the score too: left to count up, it kept
+  // climbing under the hidden words the player opens next.
+  const [skipped, setSkipped] = useState(false)
   const press = useLongPress<FlagWord>((word) => setFlagged(word))
 
   useEffect(() => {
@@ -97,11 +100,14 @@ export function Reveal({
       onClick={() => {
         if (flagged) return
         if (done) onNext()
-        else setShown(total)
+        else {
+          setSkipped(true)
+          setShown(total)
+        }
       }}
       role="presentation"
     >
-      {shown >= -1 && <RevealScore score={runScore(run)} previousBest={previousBest} mode={run.mode} />}
+      {shown >= -1 && <RevealScore score={runScore(run)} previousBest={previousBest} mode={run.mode} landed={skipped} />}
 
       {shown >= 0 && (
         <ol className="reveal-words">
@@ -184,9 +190,9 @@ export function Reveal({
  * lands on screen — not on the summary, a tap later. A first run has no record
  * to beat (null).
  */
-function RevealScore({ score, previousBest, mode }: { score: number; previousBest: number | null; mode: Run['mode'] }) {
+function RevealScore({ score, previousBest, mode, landed }: { score: number; previousBest: number | null; mode: Run['mode']; landed: boolean }) {
   const t = useT()
-  const shown = useCountUp(score, SCORE_MS)
+  const shown = useCountUp(score, SCORE_MS, landed ? score : 0)
   const beaten = previousBest !== null && shown > previousBest
 
   useEffect(() => {

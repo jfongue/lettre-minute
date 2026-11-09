@@ -129,10 +129,13 @@ ami modérateur) — un joueur connecté au portail a le compte
   première partie — une fois la langue fixée, sélecteur compris.
 - **Thème clair par défaut** (`data-theme="light"` dès le HTML) ; le thème
   sombre reste au choix dans les options.
-- **Événements** (`src/platform/usePlatformGameplay.ts`) : `gameplayStart` au compte
-  à rebours, pendant la partie et pendant la leçon du premier lancement ;
-  `gameplayStop` dès qu'on en sort. `happytime` quand une partie bat un record
-  qui existait déjà.
+- **Événements** (`src/platform/usePlatformGameplay.ts`) : `gameplayStart` quand
+  le chrono tourne et pendant la leçon du premier lancement, jamais sur le
+  compte à rebours qui ne fait qu'annoncer les catégories ; `gameplayStop` dès
+  qu'on en sort. À la table de duel (`DuelScreen`), `gameplayStart` part à la
+  première manche jouée — ni au draft, ni au décompte d'ouverture — et
+  `gameplayStop` à la fin de la partie ou à la sortie. `happytime` quand une
+  partie bat un record qui existait déjà.
 - **Classement du portail** : à la fin de chaque partie, `user.submitScore`
   envoie les points, en clair et chiffrés (AES-GCM, IV de 12 octets devant,
   base64 ; `encryptScore`, `src/platform/crazygames.ts`), avec la clé que les
@@ -142,15 +145,33 @@ ami modérateur) — un joueur connecté au portail a le compte
   saison lundi → lundi 9 h UTC, et valide les scores de son côté. La
   fonctionnalité est réservée aux jeux invités : à demander sur le portail
   développeur. Les tableaux du jeu (jour, semaine, rareté) restent fermés ici.
-- **Pub midgame** : demandée entre le récap des mots et le bilan de la partie,
-  à la 2e, 5e, 9e, 14e, 20e… partie finie de la session (`MIDGAME_BREAKS`,
-  `src/domain/adBreaks.ts` ; `host.breakAfterRecap`), jamais à un Premium ni
-  quand la fonctionnalité `adBreaks` est fermée, jamais à « Rejouer » ; le
-  SDK refuse lui-même une pub à moins de 3 min de la dernière. Le bilan attend
+- **Pub midgame** : demandée par le bouton qui mène à une partie — « Jouer »
+  des pouvoirs (ou « Jouer » / « Rejouer » quand il n'y a pas cet écran), le
+  départ d'un défi entre amis —, et au bilan du duel par « Revanche » et
+  « Quitter la table » (`host.midgame`), jamais au récap des mots, au défi du
+  moment ni à la leçon ; pas de calendrier maison, le SDK refuse lui-même une
+  pub à moins de 3 min de la dernière. Jamais à un Premium ni quand la
+  fonctionnalité `adBreaks` est fermée. La suite attend
   la fin de la pub, ou son erreur (y compris bloqueur de pub), au plus 60 s.
   Chaque demande est comptée au tableau de bord (`ad`, source `midgame`). Le son est
   coupé seulement pendant que la pub joue (`adStarted` → `adFinished`/`adError`).
   En Basic Launch, le portail n'affiche aucune pub : l'appel ne coûte rien.
+- **Salles multijoueur** (`host.rooms`, `portalRooms` de
+  `src/platform/crazygames.ts`, exigences multijoueur du portail) : la table de
+  duel en ligne où l'on est assis est la salle du joueur (`updateRoom`, son
+  identifiant pour `roomId` et pour le seul paramètre d'invitation, `duel`),
+  ouverte aux amis du portail tant que le salon a une place libre, fermée dès
+  la partie lancée, quittée (`leftRoom`) en sortant de l'écran ; une revanche
+  devient la salle suivante. Le SDK refuse un appel à moins de 250 ms du
+  précédent : chaque changement attend 300 ms et seul le dernier part. Un ami
+  qui accepte l'invitation arrive avec `inviteParams` au lancement, ou par
+  l'écouteur de salle si le jeu tourne déjà : il s'assoit sans invitation du
+  jeu (`duel_join_room`, 0104, blocages respectés) et sans les règles devant ;
+  un invité du portail reçoit d'abord sa connexion. Lancé en « instant
+  multiplayer » (`isInstantMultiplayer`), le jeu ouvre aussitôt une table
+  privée — la table des joueurs ordinateur pour un invité — et saute la leçon
+  du premier lancement. En local : `?instantJoin=true`, ou
+  `?czy_invite=true&duel=<uuid>`. Taille de salle à déclarer au portail : 2 à 4.
 - **Bonus de niveau** (`crazyGamesHost.levelBonuses`), comme sur Android : le
   premier propose toujours le second emplacement de pouvoir. Ne se
   distribuent jamais ici (`barredBonuses`) le cadenas, puisque « Mes

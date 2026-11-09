@@ -16,17 +16,19 @@ import {
   DUEL_MAX_PLAYERS,
   DUEL_MIN_PLAYERS,
   DUEL_OPENING_SECONDS,
+  DUEL_PICK_SECONDS,
   DUEL_PASS_PENALTY_SECONDS,
   duelReward,
   type BotProfile,
   type Duel,
   type DuelReward,
 } from '../domain/duel'
-import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
+import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, sameMove, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
 import { createRng } from '../domain/rng'
 import { sharedCategoryIds } from '../domain/catalogue'
 import { playableCategoryIds } from '../domain/perks'
 import { onAppActive } from '../lib/native'
+import { host } from '../platform'
 import { applyDuel, type Profile } from '../domain/progression'
 import type { Judge, Prompt, Verdict } from '../domain/run'
 import { ownedCategoryIds } from '../domain/unlocks'
@@ -37,6 +39,7 @@ import {
   finishDuel,
   inviteToDuel,
   joinDuel,
+  joinDuelRoom,
   kickFromDuel,
   leaveDuel,
   openDuelRematch,
@@ -100,6 +103,10 @@ export type DuelExit = 'kicked' | 'closed' | null
 
 /** Le draft complet reste à l'écran le temps de lire ce que le sort a ajouté. */
 export const DRAFT_HOLD_SECONDS = 1.8
+/** Combien de fois le chargement des dictionnaires du pool se relance avant de rendre la main au joueur. */
+const DRAFT_LOAD_RETRIES = 2
+/** Un juge qui manque encore ce long après l'heure d'ouverture : le chargement est perdu, on le relance. */
+const OPENING_STALL_SECONDS = 6
 /** Le tirage de l'ouvreur, puis son nom posé, puis trois temps : `DUEL_OPENING_SECONDS` en tout. */
 export const OPENING_SPIN_SECONDS = 2.1
 export const OPENING_LAND_SECONDS = 1.1
@@ -321,6 +328,8 @@ export interface DuelTableOptions {
   onProfile?(profile: Profile): void
   /** Table ouverte par le matchmaking : les deux joueurs sont assis, chacun se déclare prêt dès qu'il la voit. */
   quick?: boolean
+  /** La table vient de la salle d'un hôte (CrazyGames) : on s'y assoit sans invitation. */
+  room?: boolean
 }
 
 /** Les catégories qu'une table peut distribuer à ce joueur : celles qu'il a, sans les avant-premières. */
@@ -330,7 +339,7 @@ export function duelPool(lang: string): string[] {
   return sharedCategoryIds(playableCategoryIds(profile, ownedCategoryIds(profile))).filter((id) => shipped.includes(id))
 }
 
-export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false }: DuelTableOptions): DuelTable {
+export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
@@ -414,12 +423,16 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   }, [lastSeq, mode, table?.id, tableId])
 
   // Les coups que la table n'a pas encore pris : une coupure les garde au lieu
-  // de les jeter, et le retour du serveur les emporte dans l'ordre.
-  const outbox = useRef<DuelPost[]>([])
+  // de les jeter, et le retour du serveur les emporte dans l'ordre. Chacun
+  // reste attaché à sa table : un « temps écoulé » resté là quand la partie
+  // finissait ouvrait le journal de la revanche, en plein draft, et la figeait.
+  const outbox = useRef<{ table: string; post: DuelPost }[]>([])
   const flushing = useRef(false)
 
   const flush = useCallback(async () => {
-    if (flushing.current || mode !== 'online' || !tableId || outbox.current.length === 0) return
+    if (flushing.current || mode !== 'online' || !tableId) return
+    outbox.current = outbox.current.filter((queued) => queued.table === tableId)
+    if (outbox.current.length === 0) return
     flushing.current = true
     const poster = {
       lastSeq: () => journal.current.moves.at(-1)?.seq ?? 0,
@@ -428,13 +441,17 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       read: () => sync(),
     }
     while (outbox.current.length > 0) {
-      const { outcome } = await postMove(poster, outbox.current[0]!)
+      const { outcome } = await postMove(poster, outbox.current[0]!.post)
       if (outcome === 'unreachable') {
         setOffline(true)
         break
       }
       outbox.current.shift()
-      if (outcome === 'closed') break
+      // Une table close ne prendra plus rien : ce qui l'attendait part avec elle.
+      if (outcome === 'closed') {
+        outbox.current = outbox.current.filter((queued) => queued.table !== tableId)
+        break
+      }
     }
     flushing.current = false
   }, [mode, sync, tableId])
@@ -483,7 +500,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     opened.current = true
     if (join) {
       // Une invitation : la place se prend d'abord, la table se lit ensuite.
-      void joinDuel(join, mine.length).then((outcome) => {
+      void (room ? joinDuelRoom : joinDuel)(join, mine.length).then((outcome) => {
         if (outcome === 'joined') setTableId(join)
         else if (outcome === 'unreachable') setOffline(true)
         else exit.current?.(outcome === 'kicked' ? 'kicked' : 'closed')
@@ -494,7 +511,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       if (id) setTableId(id)
       else setOffline(true)
     })
-  }, [join, lang, mine, mode])
+  }, [join, lang, mine, mode, room])
 
   useEffect(() => {
     if (mode !== 'online') return
@@ -531,6 +548,14 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   const me = table?.seats.find((seat) => seat.id === myId)
   const isHost = !!table && table.hostId === myId
   const present = useMemo(() => (table?.seats ?? []).filter((seat) => !seat.gone), [table?.seats])
+
+  // La salle de l'hôte (CrazyGames) : la table où l'on est assis, que ses amis
+  // du portail rejoignent tant que le salon garde une place libre.
+  const roomOpen = !!table && table.id === tableId && table.status === 'lobby' && present.length + table.invites.length < MAX_TABLE
+  useEffect(() => {
+    if (mode === 'online' && tableId) host.rooms?.setRoom({ table: tableId, joinable: roomOpen })
+  }, [mode, roomOpen, tableId])
+  useEffect(() => () => host.rooms?.setRoom(null), [])
 
   // Expulsé, ou table fermée par son hôte : l'appareil rentre à l'accueil.
   useEffect(() => {
@@ -700,23 +725,46 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   // l'ouvreur leur laisse le temps d'arriver.
   const picks = replayed && draftComplete(replayed.duel) ? replayed.duel.picks.join(',') : replayed && replayed.duel.phase !== 'draft' ? replayed.duel.picks.join(',') : ''
   const loadingFor = useRef('')
+  const [loadTry, setLoadTry] = useState(0)
+  const tries = useRef(0)
   useEffect(() => {
-    if (!picks || !table || loadingFor.current === picks) return
-    loadingFor.current = picks
-    let live = true
-    loadPacks(table.lang, picks.split(','))
+    tries.current = loadTry
+  })
+  const packsLang = table?.lang
+  // Pas de nettoyage qui jette la réponse : la table se relit toutes les
+  // secondes, et un chargement un peu long voyait son résultat périmé sans
+  // jamais être relancé — le juge n'arrivait pas, le décompte restait à 1.
+  // La réponse se juge à la clé qu'elle porte, pas à l'effet qui l'a lancée.
+  useEffect(() => {
+    if (!picks || !packsLang) return
+    const key = `${packsLang}:${picks}:${loadTry}`
+    if (loadingFor.current === key) return
+    loadingFor.current = key
+    loadPacks(packsLang, picks.split(','))
       .then((packs) => {
-        if (live) setJudge(createJudge(packs, { own: {}, crowd: {} }))
+        if (loadingFor.current === key) setJudge(createJudge(packs, { own: {}, crowd: {} }))
       })
       .catch(() => {
-        if (!live) return
-        loadingFor.current = ''
-        setFailed(true)
+        if (loadingFor.current !== key) return
+        if (loadTry < DRAFT_LOAD_RETRIES) setLoadTry((n) => n + 1)
+        else setFailed(true)
       })
-    return () => {
-      live = false
-    }
-  }, [picks, table])
+  }, [picks, packsLang, loadTry])
+
+  // Le garde-fou du flux : le pool est complet, l'ouverture est passée de
+  // plusieurs secondes et il n'y a toujours pas de juge — on relance le
+  // chargement, puis on rend la main au joueur plutôt que de le laisser devant
+  // un décompte figé.
+  const stuckSince = replayed && draftComplete(replayed.duel) && !judge && replayed.duel.draftedAt !== null ? openingAt(replayed.duel) : null
+  useEffect(() => {
+    if (stuckSince === null) return
+    const timer = setInterval(() => {
+      if (now() < stuckSince + OPENING_STALL_SECONDS) return
+      if (tries.current >= DRAFT_LOAD_RETRIES) setFailed(true)
+      else setLoadTry(tries.current + 1)
+    }, OPENING_STALL_SECONDS * 1000)
+    return () => clearInterval(timer)
+  }, [now, stuckSince])
 
   const duel = replayed ? settle(replayed.duel, judge, at) : null
   const facts = replayed?.facts ?? []
@@ -734,11 +782,15 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
         return
       }
       // Le coup part par la file : une table injoignable le garde au lieu de le
-      // jeter, et la relecture suivante l'emporte.
-      outbox.current.push({ move, mark: table.moves.at(-1)?.seq ?? 0 })
+      // jeter, et la relecture suivante l'emporte. Le battement redemande le
+      // même coup tant que la relecture ne l'a pas inscrit : il n'attend qu'une fois.
+      if (!table.id || table.id !== tableId) return
+      const id = table.id
+      if (outbox.current.some((queued) => queued.table === id && sameMove(queued.post.move, move))) return
+      outbox.current.push({ table: id, post: { move, mark: table.moves.at(-1)?.seq ?? 0 } })
       await flush()
     },
-    [flush, mode, table],
+    [flush, mode, table, tableId],
   )
 
   // Celui qui mène la table déclare ce que personne d'autre ne déclarera : le
@@ -809,7 +861,8 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     if (table.status === 'closed') return 'gone'
     if (table.status === 'lobby') return 'lobby'
     if (!duel || table.startedAt === null) return 'connecting'
-    if (at < table.startedAt + DUEL_ANNOUNCE_SECONDS) return 'announcing'
+    // Une table du matchmaking passe l'annonce : le draft est la première chose qu'on y voit.
+    if (!quick && at < table.startedAt + DUEL_ANNOUNCE_SECONDS) return 'announcing'
     if (duel.phase === 'draft') {
       if (!draftComplete(duel) || duel.draftedAt === null || at < duel.draftedAt + DRAFT_HOLD_SECONDS) return 'draft'
       return 'opening'
@@ -828,6 +881,9 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     setMusic(around ? 'menu' : phase === 'play' || phase === 'deaths' ? 'pulse' : null)
     if (phase === 'over') sound.timeUp()
   }, [phase])
+  // Quitter la table, par n'importe quelle sortie, rend la musique du menu : le
+  // pouls de la partie (son tic-tac) ne doit pas survivre à l'écran qui l'a lancé.
+  useEffect(() => () => setMusic('menu'), [])
 
   // ------------------------------------------------------ la revanche --
 
@@ -1020,7 +1076,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     pool: table?.categories ?? mine,
     prompt: (duel ? duelPrompt(duel) : null) ?? replayed?.lastPrompt ?? null,
     picker,
-    pickLeft: picker && duel ? Math.max(0, pickDeadline(duel) - at) : 0,
+    pickLeft: picker && duel ? Math.max(0, Math.min(pickDeadline(duel) - at, DUEL_PICK_SECONDS)) : 0,
     forced: drafting ? onlyChoice(duel) : null,
     myTurn,
     myPickTurn: !!picker && picker.id === myId,

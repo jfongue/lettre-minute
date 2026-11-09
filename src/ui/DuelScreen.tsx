@@ -36,7 +36,9 @@ import { categoryText, formatNumber, useT } from '../i18n'
 import { cancelDuelMatchmaking, duelMatchmake } from '../lib/cloud'
 import { capitalized } from '../domain/text'
 import { armSound, sound, tierSound } from '../lib/sound'
+import { host } from '../platform'
 import { Avatar } from './Avatar'
+import { useFeature } from './features'
 import { Burst, LetterMark, Shape, TierTag } from './bauhaus'
 import { CategoryIcon } from './CategoryIcon'
 import { achievementText } from './achievementText'
@@ -125,8 +127,11 @@ export function Lobby({
     if (counting) sound.pop()
   }, [counting])
 
-  const slots = Array.from({ length: MAX_TABLE }, (_, index) => table.seats[index] ?? null)
-  const full = table.seats.length >= MAX_TABLE
+  // A rematch is the same players again: no free seat to show, no one to add —
+  // through the announcement that follows it too, once its flag is spent.
+  const sameTable = table.rematchOpen || counting
+  const slots: readonly (Seat | null)[] = sameTable ? table.seats : Array.from({ length: MAX_TABLE }, (_, index) => table.seats[index] ?? null)
+  const full = table.seats.length >= MAX_TABLE || sameTable
 
   return (
     <main className="stage stage--duel">
@@ -1040,6 +1045,7 @@ function Play({ table }: { table: DuelTable }) {
 
 /** Le bilan : le gagnant à l'affiche, la table révélée de la dernière place à la première, puis ce que le duel m'a rapporté. */
 export function Over({ table }: { table: DuelTable }) {
+  const adBreaks = useFeature('adBreaks')
   const t = useT()
   const duel = table.duel!
   const order = duelRanking(duel)
@@ -1129,14 +1135,18 @@ export function Over({ table }: { table: DuelTable }) {
             onClick={() => {
               armSound()
               sound.go()
-              if (someoneElse) table.joinRematch()
-              else table.openRematch()
+              void host.midgame(!adBreaks).then(() => (someoneElse ? table.joinRematch() : table.openRematch()))
             }}
           >
             <span>{someoneElse ? t.duel.joinRematch : t.duel.rematch}</span>
             <PlayGlyph />
           </button>
-          <button type="button" className="btn btn--ghost btn--block" disabled={!done} onClick={() => table.leave()}>
+          <button
+            type="button"
+            className="btn btn--ghost btn--block"
+            disabled={!done}
+            onClick={() => void host.midgame(!adBreaks).then(() => table.leave())}
+          >
             {t.duel.quit}
           </button>
         </div>
@@ -1433,6 +1443,8 @@ export interface DuelScreenProps {
   join?: string | null
   /** La table vient du matchmaking : chacun s'y déclare prêt dès qu'il y est assis. */
   quick?: boolean
+  /** La table vient de la salle d'un hôte (CrazyGames) : on s'y assoit sans invitation, et sans les règles devant. */
+  room?: boolean
   onExit?(reason: DuelExit): void
   /** Le profil vient de gagner l'XP du duel, ou un compteur : l'appelant le range à l'écran. */
   onProfile?(profile: Profile): void
@@ -1440,7 +1452,7 @@ export interface DuelScreenProps {
   onSignIn?(): void
 }
 
-export function DuelScreen({ lang, mode = 'local', join = null, quick = false, onExit, onProfile, onSignIn }: DuelScreenProps) {
+export function DuelScreen({ lang, mode = 'local', join = null, quick = false, room = false, onExit, onProfile, onSignIn }: DuelScreenProps) {
   // Hors ligne, la table en ligne cède la place à une table locale, sur le même écran.
   const [local, setLocal] = useState(false)
   return (
@@ -1450,6 +1462,7 @@ export function DuelScreen({ lang, mode = 'local', join = null, quick = false, o
       mode={local ? 'local' : mode}
       join={local ? null : join}
       quick={quick && !local}
+      room={room && !local}
       onExit={onExit}
       onProfile={onProfile}
       onSignIn={onSignIn}
@@ -1463,20 +1476,30 @@ function DuelTableScreen({
   mode,
   join,
   quick,
+  room,
   onExit,
   onProfile,
   onSignIn,
   onBots,
-}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'quick'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn'> & { onBots(): void }) {
+}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'quick' | 'room'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn'> & { onBots(): void }) {
   const t = useT()
-  const table = useDuelTable({ lang, mode, join, quick, onExit, onProfile })
+  const table = useDuelTable({ lang, mode, join, quick, room, onExit, onProfile })
   const { phase } = table
-  // Les règles s'ouvrent au premier lancement de la table, puis se revoient du salon.
-  const [rules, setRules] = useState(() => !loadDuelRulesSeen())
+  // Les règles s'ouvrent au premier lancement de la table, puis se revoient du
+  // salon. Pas devant l'ami qu'une salle du portail amène : une table l'attend
+  // déjà, et le portail veut qu'il y arrive sans passer par une leçon.
+  const [rules, setRules] = useState(() => !room && !loadDuelRulesSeen())
   // Elles montrent mon avatar et mon nom : tant que le serveur n'a pas posé ma
   // place en ligne, elles n'ont rien à montrer. Les ouvrir quand même donnait
   // une place absente au tutoriel, qui vidait l'écran.
   const me = table.seats[table.myIndex]
+  // Gameplay is the table where words are typed, not the lobby, the draft, the
+  // rules or the result; leaving the screen ends it as well.
+  const playing = !(rules && me) && (phase === 'play' || phase === 'deaths') && !!table.duel && !!table.judge && !!table.prompt
+  useEffect(() => {
+    host.setGameplay(playing)
+    return () => host.setGameplay(false)
+  }, [playing])
 
   if (rules && me) {
     return (
@@ -1496,6 +1519,9 @@ function DuelTableScreen({
   if (table.error) return <Notice text={t.duel.loadFailed} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'connecting') return <Notice text={t.duel.connecting} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />
+  // Un adversaire trouvé par le matchmaking : pas de salon, la table s'ouvre
+  // sur le draft. Le salon attend, hors de vue, que les deux soient prêts.
+  if (quick && phase === 'lobby') return <Notice text={t.duel.connecting} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} onRules={() => setRules(true)} onSignIn={mode === 'local' ? onSignIn : undefined} />
   if (phase === 'draft' && table.duel)
     return table.draftLobby ? <Lobby table={table} watching onRules={() => setRules(true)} onResume={table.hideLobby} /> : <Draft table={table} />

@@ -1,6 +1,5 @@
-import { breakDue, MIDGAME_BREAKS } from '../domain/adBreaks'
 import { trackFeature } from '../lib/feature'
-import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type RewardedResult } from './host'
+import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type HostRooms, type RewardedResult } from './host'
 
 /**
  * The CrazyGames shell, as `native.ts` is the phone's: everything the portal's
@@ -30,6 +29,12 @@ interface CrazySdk {
     happytime(): void
     settings?: { muteAudio?: boolean }
     addSettingsChangeListener?(listener: (settings: { muteAudio?: boolean }) => void): void
+    isInstantMultiplayer?: boolean
+    inviteParams?: Record<string, string> | null
+    getInviteParam?(key: string): string | null
+    addJoinRoomListener?(listener: (inviteParams: Record<string, string> | null) => void): void
+    updateRoom?(room: { roomId?: string; isJoinable?: boolean; inviteParams?: Record<string, string> }): void
+    leftRoom?(): void
   }
   ad: { requestAd(type: 'midgame' | 'rewarded', callbacks: AdCallbacks): void }
   data?: {
@@ -263,19 +268,17 @@ function onPlatformMute(listener: (muted: boolean) => void): void {
 const AD_TIMEOUT_MS = 60_000
 
 /**
- * The break between a run's word recap and its summary: a midgame ad on the
- * session's schedule (`MIDGAME_BREAKS`). The SDK keeps them three minutes apart
- * and answers `adError` to an early request, which just skips this one.
- * Resolves once the ad is over, failed or skipped; the sound is cut only while
- * one actually plays. A second tap while the ad is pending joins it.
+ * The midgame ad, asked by a button that leads to gameplay. The portal paces
+ * its ads itself: the SDK keeps them three minutes apart and answers
+ * `adError` to an early request, which just skips this one — so there is no
+ * schedule here. Resolves once the ad is over, failed or skipped; the sound
+ * is cut only while one actually plays. A second tap while the ad is pending
+ * joins it. The recap itself has no break on this host.
  */
-let finishedRuns = 0
 let pendingBreak: Promise<AdBreak> | null = null
-function breakAfterRecap(adFree: boolean): Promise<AdBreak> {
+function midgame(adFree: boolean): Promise<AdBreak> {
   if (pendingBreak) return pendingBreak
-  finishedRuns += 1
-  if (!sdk || !breakDue(finishedRuns, MIDGAME_BREAKS)) return Promise.resolve('none')
-  if (adFree) return Promise.resolve('spared')
+  if (!sdk || adFree) return Promise.resolve('none')
   const asked = requestMidgame().finally(() => {
     pendingBreak = null
   })
@@ -465,6 +468,96 @@ export function restoreSavedProgress(): void {
   }
 }
 
+// The one invite parameter the game writes: the duel table, a uuid only the
+// portal passes on (`duel_join_room`, 0104).
+const ROOM_PARAM = 'duel'
+const TABLE_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function tableOf(params: Record<string, string> | null | undefined): string | null {
+  const table = params?.[ROOM_PARAM]
+  return typeof table === 'string' && TABLE_ID.test(table) ? table : null
+}
+
+/**
+ * The table the launch's invitation names. The SDK's `inviteParams` can be
+ * empty where the portal's page still carries the invitation (the QA preview),
+ * so `getInviteParam` and the page's own `czy_invite_params` (`duel=<uuid>`,
+ * on the frame's address or its parent's) are read too.
+ */
+function launchTable(): string | null {
+  const game = sdk?.game
+  let found = tableOf(game?.inviteParams)
+  if (found) return found
+  try {
+    found = tableOf({ [ROOM_PARAM]: String(game?.getInviteParam?.(ROOM_PARAM) ?? '') })
+    if (found) return found
+  } catch {
+    /* the SDK's reading is a guest: the address is still there */
+  }
+  const addresses = [location.search]
+  try {
+    if (window.parent !== window) addresses.push(new URL(document.referrer).search)
+  } catch {
+    /* a referrer the page cannot read */
+  }
+  for (const search of addresses) {
+    const raw = new URLSearchParams(search).get('czy_invite_params')
+    if (raw) {
+      const table = tableOf({ [ROOM_PARAM]: new URLSearchParams(raw).get(ROOM_PARAM) ?? '' })
+      if (table) return table
+    }
+  }
+  return null
+}
+
+type Room = { table: string; joinable: boolean } | null
+
+// The SDK refuses a room call within 250 ms of the last one, and throws: each
+// change waits for a quiet moment, and only the latest state is sent.
+const ROOM_PAUSE_MS = 300
+let room: Room = null
+let sentRoom: Room = null
+let roomTimer: ReturnType<typeof setTimeout> | null = null
+
+function sendRoom(): void {
+  roomTimer = null
+  const next = room
+  if (next?.table === sentRoom?.table && next?.joinable === sentRoom?.joinable) return
+  const game = sdk?.game
+  if (!game) return
+  try {
+    if (next) game.updateRoom?.({ roomId: next.table, isJoinable: next.joinable, inviteParams: { [ROOM_PARAM]: next.table } })
+    else game.leftRoom?.()
+    sentRoom = next
+  } catch {
+    roomTimer = setTimeout(sendRoom, ROOM_PAUSE_MS)
+  }
+}
+
+/**
+ * The portal's « play with friends » (multiplayer requirements): the table the
+ * player sits at is their room, joinable while its lobby has a free seat;
+ * friends who accept the portal's invitation come in with its id, at launch
+ * (`inviteParams`) or while the game already runs (the join listener).
+ */
+const portalRooms: HostRooms = {
+  instant: () => sdk?.game.isInstantMultiplayer === true || launchTable() !== null,
+  invited: launchTable,
+  onJoin(listener) {
+    safely((s) =>
+      s.game.addJoinRoomListener?.((params) => {
+        const table = tableOf(params)
+        if (table) listener(table)
+      }),
+    )
+  },
+  setRoom(next) {
+    room = next
+    if (roomTimer) clearTimeout(roomTimer)
+    roomTimer = setTimeout(sendRoom, ROOM_PAUSE_MS)
+  },
+}
+
 /**
  * The server a portal player may reach: the boards a guest reads, and — since
  * `crazygames-auth` (0073) gives a named account to whoever is signed in to the
@@ -543,11 +636,13 @@ export const crazyGamesHost: Host = {
   account: portalAccount,
   onAccount: onPortalAccount,
   promptAccount: promptPortalAccount,
+  rooms: portalRooms,
   setGameplay,
   celebrate: happytime,
   submitScore,
   prepareRewarded(): void {},
   showRewarded,
-  breakAfterRecap,
+  breakAfterRecap: () => Promise.resolve('none'),
+  midgame,
   onMute: onPlatformMute,
 }

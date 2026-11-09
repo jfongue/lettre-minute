@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { focusedRows, type BoardId, type Boards as BoardsData } from '../domain/boards'
 import { formatNumber, useT } from '../i18n'
 import { fetchFriends } from '../lib/cloud'
@@ -43,6 +43,11 @@ interface BoardsProps {
 export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps) {
   const t = useT()
   const track = useRef<HTMLDivElement>(null)
+  // The track's grid rows are as tall as its tallest page, so a short board
+  // would leave the blank of the long one under it. The height follows the
+  // page on screen instead, and the swipe brings the next one's.
+  const pages = useRef<(HTMLDivElement | null)[]>([])
+  const [height, setHeight] = useState<number | null>(null)
   const [active, setActive] = useState(0)
   const [whole, setWhole] = useState(false)
   // Le mot « Classement » ouvre la page ; cinq tapes rapprochées l'ouvrent en
@@ -59,6 +64,17 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
       live = false
     }
   }, [me])
+
+  useLayoutEffect(() => {
+    const measure = () => {
+      const page = pages.current[active]
+      if (page) setHeight(page.offsetHeight)
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    for (const page of pages.current) if (page) observer.observe(page)
+    return () => observer.disconnect()
+  }, [active, boards, whole])
 
   // Back on the last board for when the page closes over the home screen.
   const settle = (element: HTMLDivElement) => {
@@ -134,14 +150,23 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
       <div
         className="board-track"
         ref={track}
+        style={{ height: height ?? undefined }}
         onScroll={(event) => follow(event.currentTarget)}
         onScrollEnd={(event) => follow(event.currentTarget, true)}
       >
-        {BOARDS.map((board) => {
+        {BOARDS.map((board, index) => {
           const focused = focusedRows(boards[board], me ? [me, ...friends] : friends)
           const rows = whole ? boards[board].map((row, index) => ({ row, rank: index + 1 })) : focused.rows
           return (
-            <div className="board" key={board} role="tabpanel" aria-label={t.boards[board].label}>
+            <div
+              className="board"
+              key={board}
+              role="tabpanel"
+              aria-label={t.boards[board].label}
+              ref={(element) => {
+                pages.current[index] = element
+              }}
+            >
               {rows.length === 0 ? (
                 <p className="note board-empty">{t.boards[board].empty}</p>
               ) : (

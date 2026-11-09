@@ -2008,6 +2008,20 @@ export function joinDuel(table: string, owned: number): Promise<DuelJoinOutcome>
   }, 'unreachable')
 }
 
+/**
+ * Une table rejointe par la salle d'un hôte (CrazyGames) : sans invitation,
+ * sauf blocage (`duel_join_room`, 0104). Un serveur d'avant 0104 répond par
+ * une erreur : l'invitation ordinaire prend le relais.
+ */
+export function joinDuelRoom(table: string, owned: number): Promise<DuelJoinOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_join_room', { p_table: table, p_owned: owned })
+    if (error) return joinDuel(table, owned)
+    if (data === 'joined') trackFeature('duel_joined')
+    return data as DuelJoinOutcome
+  }, 'unreachable')
+}
+
 export function declineDuel(table: string): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('duel_decline', { p_table: table })

@@ -486,7 +486,17 @@ setMenuPage(null)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean; room?: boolean } | null>(null)
+  // The host's rooms (CrazyGames): a friend's table the portal launched the
+  // game for or brings the player to while it runs, or the portal's « play
+  // with friends » that wants a joinable table at once. A guest is first
+  // offered the portal's sign-in for a friend's table — the duel needs a named
+  // account —, and plays the house players when launched to play together.
+  const [roomCall, setRoomCall] = useState<{ table: string | null } | null>(() => {
+    const table = host.rooms?.invited() ?? null
+    return table ? { table } : host.rooms?.instant() ? { table: null } : null
+  })
+  useEffect(() => host.rooms?.onJoin((table) => setRoomCall({ table })), [])
   const [matching, setMatching] = useState(false)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
@@ -628,28 +638,40 @@ setMenuPage(null)
     })
   }, [lang])
 
+  const readAccount = useCallback(
+    () =>
+      fetchAccount().then((found) => {
+        answer('account')
+        // Unreachable keeps the cached account: the session is still on the device.
+        if (found === 'unreachable') return
+        if (found) adopt(found)
+        else {
+          // Batched with the cached account read just before, the null would
+          // leave the account's own effect unrun and the cache in place.
+          setAccount(null)
+          saveAccount(null)
+        }
+      }),
+    [adopt, answer],
+  )
+
   useEffect(() => {
     loadBoards().then((next) => {
       setBoards(next)
       answer('boards')
     })
-    fetchAccount().then((found) => {
-      answer('account')
-      // Unreachable keeps the cached account: the session is still on the device.
-      if (found === 'unreachable') return
-      if (found) adopt(found)
-      else {
-        // Batched with the cached account read just before, the null would
-        // leave the account's own effect unrun and the cache in place.
-        setAccount(null)
-        saveAccount(null)
-      }
-    })
+    // A host with its own accounts reads the account once it has been
+    // followed: the session on the device may be the one of a player who
+    // signed out of the portal, whose progress would be merged into the guest's.
+    if (!host.account) readAccount()
     flushSubmissions()
-  }, [adopt, answer])
+  }, [readAccount, answer])
 
   // The host's own account (CrazyGames): its signed-in player plays under the
   // game account linked to it, a guest under none.
+  // Settled once the first follow has answered: until then a portal player
+  // reads as a guest, and a table the portal brought them to must wait for it.
+  const [hostAccountSettled, setHostAccountSettled] = useState(!host.account)
   useEffect(() => {
     if (!host.account) return
     const follow = () =>
@@ -657,14 +679,10 @@ setMenuPage(null)
         .account!()
         .then(followHostAccount)
         .then((changed) => {
-          if (!changed) return
-          fetchAccount().then((found) => {
-            if (found === 'unreachable') return
-            if (found) adopt(found)
-            else setAccount(null)
-          })
-          loadBoards().then(setBoards)
+          if (changed) loadBoards().then(setBoards)
+          return readAccount()
         })
+        .finally(() => setHostAccountSettled(true))
     follow()
     host.onAccount?.(follow)
   }, [adopt])
@@ -1062,11 +1080,18 @@ setStartedAt((at) => at ?? Date.now())
     }
   }, [idleHome, ownedShipped, lang])
 
+  // The host's midgame ad, asked by the button that leads to gameplay: what
+  // follows waits for it to end, fail or be skipped.
+  const afterMidgame = useCallback(
+    (go: () => void) => void host.midgame(isPlus(session.profile) || !on('adBreaks')).then(go),
+    [session.profile, on],
+  )
+
   /** Une partie seule : d'abord le choix des pouvoirs pour qui en a, quand la fonctionnalité l'ouvre. */
   const playSolo = useCallback(() => {
     if (on('powerLoadout') && on('powers') && modeNow.current === 'solo' && ownedPowers(session.profile).length > 0) setLoadout(true)
-    else void play()
-  }, [on, session.profile, play])
+    else afterMidgame(play)
+  }, [on, session.profile, play, afterMidgame])
 
   const startFirstRun = useCallback(() => {
     if (session.profile.runs > 0 || loadTutorialDone() || !on('tutorial')) return playSolo()
@@ -1080,8 +1105,10 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (!host.playFirst || playedFirst.current || !answered.profile || locale === null || session.phase !== 'home') return
     playedFirst.current = true
+    // Launched to play with friends: the table comes first, the lesson can wait.
+    if (roomCall) return
     if (session.profile.runs === 0 && !loadTutorialDone() && on('tutorial')) startFirstRun()
-  }, [answered.profile, locale, session.phase, session.profile.runs, on, startFirstRun])
+  }, [answered.profile, locale, session.phase, session.profile.runs, on, startFirstRun, roomCall])
   // The answer was just handed over: the run that follows must not deal the
   // same pair. `lastPrompts` already keeps it out, and the run's own prompts
   // replace it once it ends.
@@ -1119,6 +1146,11 @@ setStartedAt((at) => at ?? Date.now())
   // Dropped only once the run is loaded, or the home screen would flash
   // between the lesson and the countdown. A failed load lands home with its
   // error, where it belongs.
+  // The powers screen stays up through the load, or the home screen would
+  // flash between « Play » and the countdown; it goes once the run is dealt.
+  useEffect(() => {
+    if (loadout && session.phase !== 'home' && session.phase !== 'loading' && session.phase !== 'over') setLoadout(false)
+  }, [loadout, session.phase])
   useEffect(() => {
     if (tutorial === 'launching' && session.phase !== 'loading') setTutorial(null)
     if (modeLesson?.launching && session.phase !== 'loading') setModeLesson(null)
@@ -1265,6 +1297,39 @@ setStartedAt((at) => at ?? Date.now())
     const timer = setInterval(() => document.visibilityState === 'visible' && refreshDuelInvites(), 8_000)
     return () => clearInterval(timer)
   }, [atHome, duelOpen, named, on, refreshDuelInvites])
+  // Done here, once the account and the screen allow it.
+  const roomSignIn = useRef<string | null>(null)
+  useEffect(() => {
+    if (!roomCall || !hostAccountSettled || !answered.profile || !answered.account || locale === null) return
+    if (session.phase !== 'home' || tutorial || modeLesson) return
+    if (!on('duel')) return setRoomCall(null)
+    if (!named) {
+      if (!roomCall.table) {
+        setRoomCall(null)
+        setDuelOpen({ join: null, local: true, room: true })
+        return
+      }
+      if (roomSignIn.current === roomCall.table || !host.promptAccount) return
+      roomSignIn.current = roomCall.table
+      // Signed in, the account follows and this runs again, named this time.
+      void host.promptAccount().then((signedIn) => {
+        // A guest who stays out still lands at a table, not at the lesson: the
+        // house players' one, with no rules in front.
+        if (!signedIn) {
+          setRoomCall(null)
+          setDuelOpen({ join: null, local: true, room: true })
+        }
+      })
+      return
+    }
+    rememberMultiplayer()
+    setRoomCall(null)
+    setTogether(false)
+    setMatching(false)
+    setMenuPage(null)
+    setDuelOpen(roomCall.table ? { join: roomCall.table, room: true } : { join: null })
+  }, [roomCall, hostAccountSettled, answered.profile, answered.account, locale, session.phase, tutorial, modeLesson, on, named, rememberMultiplayer])
+
   const joinDuelInvite = (table: string) => {
     rememberMultiplayer()
     setDuelInvites((list) => list.filter((invite) => invite.table !== table))
@@ -1309,6 +1374,7 @@ setStartedAt((at) => at ?? Date.now())
 
   const launchChallenge = useCallback(
     async (detail: ChallengeDetail, powers: readonly PowerId[]) => {
+      await host.midgame(isPlus(session.profile) || !featuresNow.current.has('adBreaks'))
       rememberMultiplayer()
       setPicking(null)
       setChallengeOpen(null)
@@ -1333,7 +1399,7 @@ setStartedAt((at) => at ?? Date.now())
         dispatch({ type: 'load-failed', message: t.loadFailed })
       }
     },
-    [judgeFor, rememberMultiplayer, t],
+    [judgeFor, rememberMultiplayer, session.profile, t],
   )
 
   /** Straight into the run, unless the player has more allowed powers than slots to fill. */
@@ -2005,10 +2071,12 @@ setStartedAt((at) => at ?? Date.now())
       {duelOpen && session.phase === 'home' && (
         <Suspense fallback={null}>
           <DuelScreen
+            key={duelOpen.join ?? (duelOpen.local ? 'local' : 'new')}
             lang={lang}
             mode={duelOpen.local ? 'local' : 'online'}
             join={duelOpen.join}
             quick={duelOpen.quick}
+            room={duelOpen.room}
             onExit={leaveDuel}
             onProfile={duelProfile}
             onSignIn={duelOpen.local ? duelSignIn : undefined}
@@ -2047,13 +2115,12 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {loadout && (session.phase === 'home' || session.phase === 'over') && !tutorial && (
+      {loadout && (session.phase === 'home' || session.phase === 'loading' || session.phase === 'over') && !tutorial && (
         <PowerLoadout
           profile={session.profile}
           onWear={(powerId) => dispatch({ type: 'wear', powerId })}
           onPlay={() => {
-            setLoadout(false)
-            void play()
+            if (session.phase !== 'loading') afterMidgame(() => void play())
           }}
           onBack={() => setLoadout(false)}
         />
@@ -2532,7 +2599,7 @@ setMenuPage('avatar')
             onAd={revealAd}
             onAdSpared={() => dispatch({ type: 'plus-ad-skipped' })}
             onFlag={overFlag}
-            onReplay={session.challengeId ? play : playSolo}
+            onReplay={session.challengeId ? () => afterMidgame(play) : playSolo}
             onHome={() => {
               // Asked on the way home, never over the summary: after the tenth run, then every thirty.
               if (cloudConfigured() && feedbackDue(session.profile) && on('feedback')) {
