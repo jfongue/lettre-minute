@@ -885,14 +885,6 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   // pouls de la partie (son tic-tac) ne doit pas survivre à l'écran qui l'a lancé.
   useEffect(() => () => setMusic('menu'), [])
 
-  // Le portail veut savoir quand on est en partie : dès l'entrée au draft, pas
-  // au décompte, et jusqu'à la fin ou la sortie.
-  const inMatch = phase === 'announcing' || phase === 'draft' || phase === 'opening' || phase === 'play' || phase === 'deaths'
-  useEffect(() => {
-    host.setGameplay(inMatch)
-  }, [inMatch])
-  useEffect(() => () => host.setGameplay(false), [])
-
   // ------------------------------------------------------ la revanche --
 
   const openRematch = useCallback(() => {

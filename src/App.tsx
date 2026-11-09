@@ -638,25 +638,34 @@ setMenuPage(null)
     })
   }, [lang])
 
+  const readAccount = useCallback(
+    () =>
+      fetchAccount().then((found) => {
+        answer('account')
+        // Unreachable keeps the cached account: the session is still on the device.
+        if (found === 'unreachable') return
+        if (found) adopt(found)
+        else {
+          // Batched with the cached account read just before, the null would
+          // leave the account's own effect unrun and the cache in place.
+          setAccount(null)
+          saveAccount(null)
+        }
+      }),
+    [adopt, answer],
+  )
+
   useEffect(() => {
     loadBoards().then((next) => {
       setBoards(next)
       answer('boards')
     })
-    fetchAccount().then((found) => {
-      answer('account')
-      // Unreachable keeps the cached account: the session is still on the device.
-      if (found === 'unreachable') return
-      if (found) adopt(found)
-      else {
-        // Batched with the cached account read just before, the null would
-        // leave the account's own effect unrun and the cache in place.
-        setAccount(null)
-        saveAccount(null)
-      }
-    })
+    // A host with its own accounts reads the account once it has been
+    // followed: the session on the device may be the one of a player who
+    // signed out of the portal, whose progress would be merged into the guest's.
+    if (!host.account) readAccount()
     flushSubmissions()
-  }, [adopt, answer])
+  }, [readAccount, answer])
 
   // The host's own account (CrazyGames): its signed-in player plays under the
   // game account linked to it, a guest under none.
@@ -669,13 +678,9 @@ setMenuPage(null)
       host
         .account!()
         .then(followHostAccount)
-        .then(async (changed) => {
-          if (!changed) return
-          loadBoards().then(setBoards)
-          const found = await fetchAccount()
-          if (found === 'unreachable') return
-          if (found) adopt(found)
-          else setAccount(null)
+        .then((changed) => {
+          if (changed) loadBoards().then(setBoards)
+          return readAccount()
         })
         .finally(() => setHostAccountSettled(true))
     follow()

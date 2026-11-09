@@ -1751,6 +1751,9 @@ animation: clock-bonus 500ms var(--ease-out);
   grid-auto-columns: 100%;
   align-items: start;
   overflow-x: auto;
+  /* La hauteur suit la page affichée : la plus longue ne doit pas déborder
+     sous elle, ni laisser de vide sous la plus courte. */
+  overflow-y: hidden;
   scroll-snap-type: x mandatory;
   overscroll-behavior-x: contain;
   scrollbar-width: none;

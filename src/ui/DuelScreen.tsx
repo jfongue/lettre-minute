@@ -1493,6 +1493,13 @@ function DuelTableScreen({
   // place en ligne, elles n'ont rien à montrer. Les ouvrir quand même donnait
   // une place absente au tutoriel, qui vidait l'écran.
   const me = table.seats[table.myIndex]
+  // Gameplay is the table where words are typed, not the lobby, the draft, the
+  // rules or the result; leaving the screen ends it as well.
+  const playing = !(rules && me) && (phase === 'play' || phase === 'deaths') && !!table.duel && !!table.judge && !!table.prompt
+  useEffect(() => {
+    host.setGameplay(playing)
+    return () => host.setGameplay(false)
+  }, [playing])
 
   if (rules && me) {
     return (

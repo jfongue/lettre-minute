@@ -129,12 +129,13 @@ ami modérateur) — un joueur connecté au portail a le compte
   première partie — une fois la langue fixée, sélecteur compris.
 - **Thème clair par défaut** (`data-theme="light"` dès le HTML) ; le thème
   sombre reste au choix dans les options.
-- **Événements** (`src/platform/usePlatformGameplay.ts`) : `gameplayStart` au compte
-  à rebours, pendant la partie et pendant la leçon du premier lancement ;
-  `gameplayStop` dès qu'on en sort. À la table de duel (`useDuelTable`),
-  `gameplayStart` part dès l'entrée au draft — pas au décompte d'ouverture — et
-  `gameplayStop` à la fin de la partie ou à la sortie. `happytime` quand une partie bat un record
-  qui existait déjà.
+- **Événements** (`src/platform/usePlatformGameplay.ts`) : `gameplayStart` quand
+  le chrono tourne et pendant la leçon du premier lancement, jamais sur le
+  compte à rebours qui ne fait qu'annoncer les catégories ; `gameplayStop` dès
+  qu'on en sort. À la table de duel (`DuelScreen`), `gameplayStart` part à la
+  première manche jouée — ni au draft, ni au décompte d'ouverture — et
+  `gameplayStop` à la fin de la partie ou à la sortie. `happytime` quand une
+  partie bat un record qui existait déjà.
 - **Classement du portail** : à la fin de chaque partie, `user.submitScore`
   envoie les points, en clair et chiffrés (AES-GCM, IV de 12 octets devant,
   base64 ; `encryptScore`, `src/platform/crazygames.ts`), avec la clé que les
