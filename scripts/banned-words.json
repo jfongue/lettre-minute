@@ -1,13 +1,5 @@
 {
   "fr": {
-    "animaux": [
-      "banane",
-      "ecu",
-      "mauve",
-      "noir",
-      "trapeze",
-      "walrus"
-    ],
     "corps-humain": [
       "abdomen de l insecte",
       "abdomen des arthropodes",
@@ -48,6 +40,18 @@
       "winston",
       "zone erogene"
     ],
+    "animaux": [
+      "banane",
+      "ecu",
+      "mauve",
+      "noir",
+      "rouge",
+      "trapeze",
+      "walrus"
+    ],
+    "marques": [
+      "xxxx"
+    ],
     "couleurs": [
       "bis",
       "couleur des yeux",
@@ -69,16 +73,8 @@
       "puce",
       "quadrichrome"
     ],
-    "fruits-legumes": [
-      "ontario"
-    ],
-    "ingredients": [
-      "uru"
-    ],
-    "marques": [
-      "xxxx"
-    ],
     "objets": [
+      "cave",
       "dail",
       "davier",
       "faisselle",
@@ -91,9 +87,21 @@
       "serieux",
       "tour",
       "voyelle"
+    ],
+    "fruits-legumes": [
+      "ontario"
+    ],
+    "ingredients": [
+      "uru"
+    ],
+    "sports": [
+      "othello"
     ]
   },
   "en": {
+    "metiers": [
+      "yakuza"
+    ],
     "animaux": [
       "labrador retriever",
       "unguligrade",
@@ -101,9 +109,6 @@
     ],
     "couleurs": [
       "or"
-    ],
-    "metiers": [
-      "yakuza"
     ],
     "objets": [
       "enoch",
