@@ -35,11 +35,11 @@ export const WEEKLY_EXCEPTIONS: Readonly<Record<string, GameMode>> = {}
 
 /**
  * Une semaine prolongée, en nombre de semaines : elle absorbe les dimanches
- * qui suivent, qui n'ouvrent alors aucun défi. `weekly_week` (0085) tient la
- * même liste côté serveur, et c'est elle qui rabat ces dimanches pour un
- * client plus ancien.
+ * qui suivent, qui n'ouvrent alors aucun défi. `weekly_week` (0085, 0106)
+ * tient la même liste côté serveur, et c'est elle qui rabat ces dimanches
+ * pour un client plus ancien.
  */
-export const WEEKLY_EXTENDED: Readonly<Record<string, number>> = { '2026-10-11': 2 }
+export const WEEKLY_EXTENDED: Readonly<Record<string, number>> = { '2026-10-11': 2, '2026-11-08': 2 }
 
 /** 0 pour un dimanche : les jours depuis 1970-01-01, un jeudi, comptent à partir de 4. */
 const sundayIndexOf = (days: number) => (((days + 4) % 7) + 7) % 7
