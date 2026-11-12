@@ -6,13 +6,61 @@ body {
   overscroll-behavior: none;
 }
 
-/* No scrollbar anywhere, ever: a box still scrolls, it just never draws a bar
-   (see the same rule in styles.css). */
+/* Every box that scrolls says so with a bar (portal review: a scene that
+   scrolls without one hides what lies under the frame's edge). styles.css
+   draws none anywhere; here a box that overflows draws the game's own, in
+   ink, and one that does not draws nothing. Drawn through ::-webkit-scrollbar
+   where it exists: a classic bar that takes its place beside the content on
+   every system, where `scrollbar-width` leaves macOS its overlay bar, unseen
+   until the box moves. */
 * {
-  scrollbar-width: none;
+  scrollbar-width: auto;
 }
 
 *::-webkit-scrollbar {
+  display: block;
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--ink);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink) transparent;
+  }
+}
+
+/* A finger needs no handle: a thinner bar is enough to say there is more. */
+@media (pointer: coarse) {
+  *::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border-width: 1px;
+  }
+}
+
+/* Carousels turn their pages by swipe, tabs and dots: no bar under them. */
+.board-track,
+.leaderboards-chips {
+  scrollbar-width: none;
+}
+
+.board-track::-webkit-scrollbar,
+.leaderboards-chips::-webkit-scrollbar {
   display: none;
 }
 
@@ -82,6 +130,10 @@ textarea {
     overflow-y: auto;
     overflow-x: hidden;
     overscroll-behavior: contain;
+    /* Its bar stands a step away from the column, not against its cards: the
+       box grows to the right by what it pads, the column keeps its place. */
+    padding-right: 10px;
+    margin-right: -10px;
   }
 
   .sheet--home,
@@ -148,18 +200,13 @@ textarea {
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-width: none;
     padding-right: 6px;
     align-content: start;
   }
 
-  .sheet--home > .home-body::-webkit-scrollbar {
-    display: none;
-  }
-
   /* The main menu never scrolls (portal review): the leaderboard takes what
      the rest leaves and its rows alone scroll, under a visible bar. The column
-     keeps its own scroll, bar hidden, only for the day it carries more than
+     keeps its own scroll, and its bar, only for the day it carries more than
      any frame holds (a duel invitation above the challenges and the week). */
   .sheet--home > .home-body:not(.home-body--alone) {
     display: flex;
@@ -189,8 +236,6 @@ textarea {
     overflow-x: hidden;
     overflow-y: auto;
     overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: var(--ink) var(--rule);
     scrollbar-gutter: stable;
     padding-right: 4px;
   }
@@ -432,9 +477,17 @@ textarea {
     gap: 0.4rem;
   }
 
+  /* The label follows its tile's width (a container unit): a word of any
+     language stays whole, whatever the column and the number of tiles. */
+  .home-body .page-link {
+    container-type: inline-size;
+  }
+
   .home-body .page-link-label {
-    font-size: 0.62rem;
-    letter-spacing: 0.02em;
+    font-size: clamp(0.4rem, 11.5cqi, 0.62rem);
+    letter-spacing: 0;
+    overflow-wrap: normal;
+    hyphens: none;
   }
 }
 
@@ -495,6 +548,31 @@ textarea {
   .home-body .page-link:last-child:nth-child(odd) {
     grid-template-columns: minmax(0, 1fr);
     text-align: center;
+  }
+}
+
+/* A narrow column (640 × 360): four tiles in a row would leave their labels
+   a few pixels tall, so they go two by two, readable. */
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 700px) {
+  .home-body .page-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.3rem 0.5rem;
+  }
+
+  .home-body .page-link:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .home-body .page-link-label {
+    font-size: clamp(0.4rem, 11.5cqi, 0.7rem);
+  }
+}
+
+/* The tagline wraps on two lines there and the poster no longer fits above
+   « Play » and « Multiplayer »: it goes, the title says the rest. */
+@media (orientation: landscape) and (max-height: 420px) {
+  .sheet--home .masthead .eyebrow {
+    display: none;
   }
 }
 
@@ -1308,10 +1386,19 @@ ligne d'ordre, le tour et la tuile elle-même — plutôt que de faire défiler.
     grid-column: 1;
   }
 
+  /* Two columns that share the width they are given, whatever the longest
+     name asks for: at 640 px « Nederlands » pushed its column past the sheet's
+     edge, which cut the three languages on the right. */
   .language-picker > .language-choices {
     grid-column: 2;
     grid-row: 1 / span 3;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .language-picker .language-choices .btn {
+    padding-inline: 0.4rem;
+    font-size: min(0.95rem, 2.1vw);
+    letter-spacing: min(0.12em, 0.25vw);
   }
 
   .language-picker .language-title {
@@ -1524,6 +1611,8 @@ ligne d'ordre, le tour et la tuile elle-même — plutôt que de faire défiler.
   .stage .wk-screen .btn {
     min-height: 0;
     padding-block: 0.55rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
   }
 }
 
@@ -1609,5 +1698,102 @@ ligne d'ordre, le tour et la tuile elle-même — plutôt que de faire défiler.
   .stage .wk-intro .wk-intro-title h1 {
     font-size: min(2.3rem, 3.6vw);
     overflow-wrap: anywhere;
+  }
+}
+
+/* Un mot du récap garde sa ligne : `overflow-wrap: anywhere` (feuille
+   commune) le coupait au milieu dans une colonne étroite. La colonne du mot
+   ne descend pas sous le mot lui-même ; les étiquettes passent après, et la
+   police suit la largeur du cadre. */
+.reveal-word {
+  grid-template-columns: 1.75rem minmax(min-content, 1fr) auto auto;
+  gap: 0.5rem;
+}
+
+.reveal-word-text {
+  overflow-wrap: normal;
+  hyphens: none;
+  font-size: clamp(0.9rem, 3.4vw, 1.15rem);
+}
+
+/* Dans une colonne étroite, l'étiquette de rareté passe sous le mot plutôt
+   que d'être rognée au bord (« SEHR S… »). */
+@media (orientation: landscape) and (max-width: 700px) {
+  .reveal-word {
+    grid-template-columns: 1.75rem minmax(min-content, 1fr) auto;
+  }
+
+  .reveal-word > .tag {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+  }
+
+  .reveal-word > .reveal-word-points {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+/* Les cartes d'une offre : le titre suit la largeur de sa carte, jamais
+   coupé au milieu d'un mot. */
+.unlock-cards li {
+  container-type: inline-size;
+}
+
+/* Onze lettres (« Körperteile ») tiennent dans la carte, ses marges ôtées :
+   mesuré sur la rangée entière, le titre débordait sur la carte voisine dès
+   qu'elles étaient trois. */
+.unlock-card strong {
+  overflow-wrap: normal;
+  hyphens: none;
+  font-size: clamp(0.5rem, (100cqi - 1.5rem) / 7.2, 1.15rem);
+}
+
+/* The same tiles in the menu drawer, beside their art: the label follows the
+   tile's width there too, so « Statistics » is never cut in a narrow drawer. */
+.page-link {
+  container-type: inline-size;
+}
+
+.page-link-label {
+  font-size: min(clamp(0.66rem, 3vw, 0.85rem), 7.5cqi);
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+/* A request in a narrow column: its buttons go under the word, which keeps the
+   whole width instead of being squeezed until it breaks in the middle. */
+@media (max-width: 700px) {
+  .request-word {
+    overflow-wrap: normal;
+  }
+
+  .request > :nth-child(n + 3) {
+    grid-column: 2;
+    justify-content: start;
+  }
+}
+
+/* A phone-wide frame (390 px): the run's two buttons share the row whatever
+   their length in German (the grid sized itself on their nowrap text and
+   pushed « Bestätigen » off the edge), and the Premium sheet's longest title
+   words fit their line. */
+@media (max-width: 520px) {
+  .run .answer-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .run .answer-actions .btn {
+    padding-inline: 0.4rem;
+    letter-spacing: 0.04em;
+    white-space: normal;
+  }
+
+  .psheet-heading h2,
+  .psheet-welcome {
+    font-size: min(1.8rem, 5vw);
+    letter-spacing: 0.03em;
+    overflow-wrap: normal;
   }
 }

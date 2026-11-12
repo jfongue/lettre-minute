@@ -1,7 +1,8 @@
 // Serves dist-crazygames/ on localhost, where the CrazyGames SDK starts in its
 // `local` mode (demo ads as an overlay text, console logging), and frames it the
 // way the portal does: /  is the game alone, /frame.html the game in an iframe
-// at the portal's sizes (?size=desktop|laptop|small|phone, or ?w=926&h=476).
+// at the portal's sizes (?size=desktop|laptop|small|phone, or ?w=926&h=476;
+// &at=%23debug opens the frame on index.html#debug).
 //
 //   npm run crazygames:build && node crazygames/harness.mjs   (PORT, default 5747)
 import { createReadStream, existsSync, statSync } from 'node:fs'
@@ -9,7 +10,8 @@ import { createServer } from 'node:http'
 import { extname, join, normalize } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const root = fileURLToPath(new URL('../dist-crazygames/', import.meta.url))
+// DIST serves another copy of the build: a snapshot to check while the build is being redone.
+const root = process.env.DIST ? join(process.cwd(), process.env.DIST, '/') : fileURLToPath(new URL('../dist-crazygames/', import.meta.url))
 const port = Number(process.env.PORT) || 5747
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -22,13 +24,15 @@ const TYPES = {
 }
 const SIZES = { desktop: [1280, 720], laptop: [926, 476], small: [800, 450], phone: [375, 667] }
 
-const frame = (size, custom) => {
+// `at` is what follows index.html in the frame's address: a query the local SDK
+// reads (?user_response=logged_out, a guest) or a hash (#debug, the board).
+const frame = (size, custom, at = '') => {
   const [width, height] = custom ?? SIZES[size] ?? SIZES.desktop
   return `<!doctype html><meta charset="utf-8"><title>CrazyGames harness</title>
 <style>body{margin:0;background:#202030;display:grid;place-items:center;min-height:100vh;font:14px system-ui;color:#ccc}
 nav{position:fixed;top:8px;left:8px}a{color:#9cf;margin-right:12px}iframe{border:0;background:#000}</style>
 <nav>${Object.keys(SIZES).map((name) => `<a href="?size=${name}">${name}</a>`).join('')}</nav>
-<iframe src="/index.html" width="${width}" height="${height}" allow="autoplay; fullscreen"></iframe>`
+<iframe src="/index.html${at.replace(/[^\w?&=#.-]/g, '')}" width="${width}" height="${height}" allow="autoplay; fullscreen"></iframe>`
 }
 
 createServer((request, response) => {
@@ -36,7 +40,7 @@ createServer((request, response) => {
   if (url.pathname === '/frame.html') {
     response.writeHead(200, { 'content-type': TYPES['.html'] })
     const [w, h] = ['w', 'h'].map((name) => Number(url.searchParams.get(name)))
-    response.end(frame(url.searchParams.get('size') ?? 'desktop', w && h ? [w, h] : null))
+    response.end(frame(url.searchParams.get('size') ?? 'desktop', w && h ? [w, h] : null, url.searchParams.get('at') ?? ''))
     return
   }
   const path = normalize(join(root, url.pathname === '/' ? 'index.html' : url.pathname))

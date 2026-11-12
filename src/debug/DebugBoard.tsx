@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
 import { DEFAULT_AVATAR, type AvatarChoice } from '../domain/avatar'
 import type { ChallengeWord } from '../domain/challenge'
 import { choosePower } from '../domain/powers'
@@ -3491,9 +3491,9 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
       <>
         <PlayerActionsContext.Provider value={PLAYER_ACTIONS}>
           <PremiumContext.Provider value={{ storeOpen: true, adsOpen: true, open: setSheet }}>
-            <div key={`${open.id}:${take}`} className="debug-scene">
-              {open.render(() => setOpen(null))}
-            </div>
+            {/* Sans enveloppe : un écran posé dans la scène comme dans le jeu, enfant
+                direct de la scène, reçoit les mêmes styles (« .stage--home > .sheet »). */}
+            <Fragment key={`${open.id}:${take}`}>{open.render(() => setOpen(null))}</Fragment>
             {sheet && <PremiumSheetScenario reason={sheet} onBack={() => setSheet(null)} />}
           </PremiumContext.Provider>
         </PlayerActionsContext.Provider>
@@ -3551,6 +3551,7 @@ export function DebugBoard({ onClose, onPhase }: DebugBoardProps) {
                   <button
                     type="button"
                     className={`debug-item${fresh ? ' debug-item--new' : recent ? ' debug-item--recent' : ''}`}
+                    data-scenario={scenario.id}
                     onClick={() => {
                       listScroll.current = window.scrollY
                       setTake(0)

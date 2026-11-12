@@ -402,24 +402,87 @@ function fitHistory(value: string, others: number): string {
 // Set once this browser's saves from before the Data module have been handed
 // to it: from then on a key the module lacks is a key the player lacks.
 const HANDED_OVER_KEY = 'lettre-minute.crazygames-data.v1'
+// Whose progress this browser holds: the portal's username, or nothing for a
+// guest. A start under anyone else finds it foreign.
+const OWNER_KEY = 'lettre-minute.crazygames-owner.v1'
+// The device's, not the player's: a language, a theme, a lesson already
+// taken stay through a sign-in and a sign-out.
+const DEVICE_KEYS: ReadonlySet<string> = new Set([
+  'lettre-minute.theme.v1',
+  'lettre-minute.sound.v1',
+  'lettre-minute.locale.v1',
+  'lettre-minute.tutorial.v1',
+  'lettre-minute.weekly-intro.v1',
+])
+// What a change of player leaves in the browser, with the device's keys: the
+// two markers above, the lessons already seen and the usage queue, which name
+// no one.
+const KEPT_KEYS: ReadonlySet<string> = new Set([
+  ...DEVICE_KEYS,
+  // The duel's rules, shown once per device like the first lesson.
+  'lettre-minute.duel-rules.v1',
+  HANDED_OVER_KEY,
+  OWNER_KEY,
+  'lettre-minute.device.v1',
+  'lettre-minute.events.v2',
+  'lettre-minute.alive.v1',
+  'lettre-minute.track-dev',
+])
+// The SDK's cache of a signed-in player's save: its presence says an account
+// has played in this browser.
+const CLOUD_CACHE_PREFIX = 'SDK_DATA_CLOUD_CACHE_'
+// The game account's session (`src/lib/supabase.ts`).
+const SESSION_KEY = /^sb-.+-auth-token/
+// The SDK swaps its Data module within seconds of a sign-in (it waits 10 s for
+// the portal's copy at most).
+const SWITCH_PATIENCE_MS = 15_000
+
+/** The portal's signed-in username, '' for a guest, null when the SDK would not say. */
+async function portalOwner(): Promise<string | null> {
+  const user = sdk?.user
+  if (!user || user.isUserAccountAvailable === false || !user.getUser) return ''
+  try {
+    const signedIn = await within(user.getUser(), ACCOUNT_TIMEOUT_MS)
+    if (signedIn === 'timeout') return null
+    return signedIn?.username ?? ''
+  } catch {
+    return null
+  }
+}
 
 /**
  * Before the first render, the portal's copy replaces the browser's: it is the
- * signed-in player's, whichever device they come from, or the guest's once
- * they sign out — the portal reloads the page on both. The browser's own
- * saves are handed to it only once, the first time the module answers;
- * handing them over at every start gave a signed-out guest the progress of
- * the account that had just left. From then on every write to one of these
- * keys is mirrored to it. Without the Data module, the first refusal turns the
- * mirror off and the game keeps localStorage alone, which is never erased.
+ * signed-in player's, whichever device they come from. The browser's own saves
+ * from before the module are handed to it once only.
+ *
+ * A sign-out always leaves a new guest (portal review, twice): the browser
+ * remembers whose progress it holds (`OWNER_KEY`), and a start as a guest
+ * after an account erases what the account left — its progress, its caches,
+ * the game account's session — and the guest's own save, which a sign-in had
+ * already given to the account. A browser from before that marker that has
+ * held an account's save is treated the same, once: its guest may be carrying
+ * an account's progress that earlier builds copied to it.
+ *
+ * From then on every write to one of these keys is mirrored to the module —
+ * the one the SDK holds at that moment: it swaps it on a sign-in without
+ * reloading the page, and writing to the one read at the start put the
+ * account's progress in the guest's save. Without the Data module, the first
+ * refusal turns the mirror off and the game keeps localStorage alone.
  */
-export function restoreSavedProgress(): void {
-  const data = sdk?.data
-  if (!data) return
+export async function restoreSavedProgress(): Promise<void> {
+  // The SDK's own getter throws where the portal gave it nothing to work with.
+  const module = (): NonNullable<CrazySdk['data']> | null => {
+    try {
+      return sdk?.data ?? null
+    } catch {
+      return null
+    }
+  }
+  const atStart = module()
+  if (!atStart) return
   let mirroring = true
-  // Only a module that has answered once is trusted to erase what it lacks.
-  let answered = false
   const store = window.localStorage
+  const { setItem, removeItem } = Storage.prototype
   const local = (key: string) => {
     try {
       return store.getItem(key)
@@ -427,37 +490,103 @@ export function restoreSavedProgress(): void {
       return null
     }
   }
+  const stored = (): string[] => {
+    try {
+      return Array.from({ length: store.length }, (_, index) => store.key(index) ?? '')
+    } catch {
+      return []
+    }
+  }
   const othersSize = () => SAVED_KEYS.reduce((size, key) => size + (key === HISTORY_KEY ? 0 : (local(key)?.length ?? 0)), 0)
   const mirror = (key: string, value: string | null) => {
     if (!mirroring) return
     try {
+      const data = module()
+      if (!data) return
       if (value === null) data.removeItem(key)
       else data.setItem(key, key === HISTORY_KEY ? fitHistory(value, othersSize()) : value)
-      answered = true
     } catch {
       mirroring = false
     }
   }
+  const own = (username: string) => {
+    try {
+      setItem.call(store, OWNER_KEY, username)
+    } catch {
+      /* the next start asks the portal again */
+    }
+  }
+
+  const owner = await portalOwner()
+  const previous = local(OWNER_KEY)
+  const signedOut = owner === '' && (previous === null ? stored().some((key) => key.startsWith(CLOUD_CACHE_PREFIX)) : previous !== '')
+  const changed = owner !== null && (signedOut || (previous !== null && previous !== owner))
+  if (changed) {
+    for (const key of stored()) {
+      if ((key.startsWith('lettre-minute.') && !KEPT_KEYS.has(key)) || SESSION_KEY.test(key)) {
+        try {
+          store.removeItem(key)
+        } catch {
+          /* a storage that refuses keeps the key: the module below still decides the saved ones */
+        }
+      }
+    }
+  }
+  if (owner !== null) own(owner)
+
+  // A sign-in while the game runs: the SDK swaps its module for the account's.
+  // An account that had no save has just been given the guest's by the SDK,
+  // and the game goes on; one that had its own takes the guest's place the way
+  // it does at a start, by starting again — the owner left as it was, so that
+  // start clears what the guest leaves behind.
+  safely(() =>
+    portalUser()?.addAuthListener?.((user) => {
+      const username = (user as { username?: string } | null)?.username
+      if (!username || username === local(OWNER_KEY)) return
+      const since = Date.now()
+      const settle = () => {
+        const data = module()
+        if (data === atStart && Date.now() - since < SWITCH_PATIENCE_MS) {
+          setTimeout(settle, 250)
+          return
+        }
+        try {
+          if (data && data !== atStart && SAVED_KEYS.some((key) => !DEVICE_KEYS.has(key) && data.getItem(key) !== local(key))) {
+            window.location.reload()
+            return
+          }
+        } catch {
+          /* a module that is off holds no save to make way for */
+        }
+        own(username)
+      }
+      settle()
+    }),
+  )
+
   try {
-    const handingOver = local(HANDED_OVER_KEY) === null
+    const handingOver = !changed && local(HANDED_OVER_KEY) === null
     for (const key of SAVED_KEYS) {
-      const saved = data.getItem(key)
-      if (saved !== null) {
-        answered = true
-        store.setItem(key, saved)
-      } else if (handingOver) {
+      const device = DEVICE_KEYS.has(key)
+      if (signedOut && !device) {
+        atStart.removeItem(key)
+        continue
+      }
+      const saved = atStart.getItem(key)
+      if (saved !== null) store.setItem(key, saved)
+      else if (handingOver || device) {
         const found = local(key)
         if (found !== null) mirror(key, found)
       } else store.removeItem(key)
     }
-    if (handingOver && answered && mirroring) store.setItem(HANDED_OVER_KEY, '1')
+    // A module that is off threw at its first answer: nothing is marked.
+    if (mirroring) store.setItem(HANDED_OVER_KEY, '1')
   } catch {
     return
   }
   // Patched on the prototype, not the instance: a property set on
   // localStorage itself would be stored as an item named « setItem ».
   const saved = new Set(SAVED_KEYS)
-  const { setItem, removeItem } = Storage.prototype
   Storage.prototype.setItem = function (this: Storage, key: string, value: string) {
     setItem.call(this, key, value)
     if (this === store && saved.has(key)) mirror(key, String(value))

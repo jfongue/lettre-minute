@@ -15,6 +15,8 @@ mort — le build web ne contient ni le SDK ni ses appels.
 | `npm run crazygames:build` | `tsc -b`, `vite build --mode crazygames` dans `dist-crazygames/` (`index.html` à la racine, chemins relatifs), zip dans `crazygames/lettre-minute-crazygames.zip`, puis contrôle des tailles contre les limites du portail |
 | `npm run crazygames:harness` | sert `dist-crazygames/` sur http://localhost:5747 — le SDK y démarre en mode `local` (pubs simulées par un texte, journal dans la console) ; `/frame.html?size=desktop\|laptop\|small\|phone` (ou `?w=926&h=476`) montre le jeu dans une iframe aux tailles du portail |
 | `npm run crazygames:check` | (harnais lancé) à 926×476, 800×450, 1280×720 et 390×844, pour un nouveau venu et un habitué : « Play » dans le cadre et au premier plan (`elementFromPoint`), un vrai clic souris CDP qui lance la leçon ou la partie, champ, Passer et Valider dans le cadre ; avec une adresse du réseau local en second argument, vérifie aussi que le jeu démarre hors du portail, SDK `disabled` |
+| `npm run crazygames:sweep` | (harnais lancé) ouvre chaque planche debug dans le vrai build, comme un super modérateur, à neuf tailles de cadre (640×360 à 1920×1080, 478×510, 390×844) et refuse : une scène plus large ou plus haute que son cadre, un bouton coupé par une boîte qui ne défile pas, une boîte qui défile sans barre, un mot coupé en son milieu ; `--lang=fr`, `--size=926x476`, `--only=stats`, `--shots` (captures et planches-contact sous `.cache/crazygames-sweep/`) |
+| `npm run crazygames:flows` | (harnais lancé) joue les parcours que la revue a repris : `gameplayStart` seulement quand le champ répond (partie seule et duel contre les joueurs maison, lu dans le journal du SDK), l'invité vide après une déconnexion (`?user_response=logged_out`), le carrousel du classement à la hauteur de sa page, une barre sur le défi du moment et son classement |
 | `npm run crazygames:dev` | le serveur de dev Vite en mode `crazygames`, sur `/crazygames.html` |
 | `npm run crazygames:video` | (harnais lancé) enregistre une vraie partie en Chrome sans tête puis monte les deux vidéos de présentation avec HyperFrames, installé dans ce dossier seul : `crazygames/assets/video-*.mp4` |
 | `npm run crazygames:shots` | (harnais lancé) rend les trois couvertures depuis `assets/cover.html` et joue de vraies parties en Chrome sans tête pour les captures ; imprime la console de la page à la fin |
@@ -194,18 +196,31 @@ ami modérateur) — un joueur connecté au portail a le compte
   le SDK, profil, historique, avatar, tutoriel, mots révélés, thème, son et
   langue ; la copie du SDK remplace celle du navigateur, y compris pour
   effacer une clé qu'il n'a pas. Les sauvegardes d'avant le module ne lui sont
-  confiées qu'une fois par navigateur (`lettre-minute.crazygames-data.v1`) :
-  les lui confier à chaque lancement donnait à l'invité, après une
-  déconnexion (qui recharge la page), la progression du compte qui venait de
-  partir — retour de la revue Full Launch. Ensuite toute écriture de ces clés dans `localStorage` est recopiée au
-  SDK (patch de `Storage.prototype`, limité à `localStorage` et à ces clés).
-  L'historique est rogné à ses parties les plus récentes pour rester sous
-  900 Ko (le module refuse au-delà de 1 Mo). Si le module est désactivé
-  (« Progress Save » non coché à la soumission), le premier refus coupe la
-  recopie et le jeu garde `localStorage` seul.
+  confiées qu'une fois par navigateur (`lettre-minute.crazygames-data.v1`).
+  **Une déconnexion laisse toujours un invité neuf** (revue Full Launch, deux
+  fois) : le navigateur retient à qui est la progression qu'il tient
+  (`lettre-minute.crazygames-owner.v1`, le pseudo du portail, vide pour un
+  invité), et un lancement en invité après un compte efface ce que le compte
+  a laissé — progression, caches, session du compte du jeu — ainsi que la
+  sauvegarde locale de l'invité, qu'une connexion avait déjà donnée au compte.
+  Un navigateur d'avant ce marqueur qui a tenu la sauvegarde d'un compte
+  (`SDK_DATA_CLOUD_CACHE_*`) est traité de même, une fois. Restent à
+  l'appareil : langue, thème, son, leçons déjà vues. Depuis le SDK 3.8 une
+  connexion ne recharge plus la page, le SDK échange son module : chaque
+  écriture va donc au module que le SDK tient à cet instant (jamais à celui
+  lu au lancement, qui est la sauvegarde de l'invité), et un compte qui a déjà
+  sa propre sauvegarde relance le jeu pour la prendre. Toute écriture de ces
+  clés dans `localStorage` est recopiée au SDK (patch de `Storage.prototype`,
+  limité à `localStorage` et à ces clés). L'historique est rogné à ses parties
+  les plus récentes pour rester sous 900 Ko (le module refuse au-delà de
+  1 Mo). Si le module est désactivé (« Progress Save » non coché à la
+  soumission), le premier refus coupe la recopie et le jeu garde
+  `localStorage` seul.
 - **CSS** (`src/crazygames.css`) : `user-select: none` et pas de menu au long
   appui sur `body` (le champ de réponse reste sélectionnable), pas de
-  défilement qui se propage à la page du portail. Dans le cadre paysage, deux
+  défilement qui se propage à la page du portail. Toute boîte qui défile y
+  dessine sa barre (revue : une scène qui défile sans barre cache ce qui est
+  sous le bord) ; les carrousels gardent onglets et points. Dans le cadre paysage, deux
   colonnes seulement quand une seule ne tient pas : l'accueil d'un nouveau
   venu (`sheet--home-alone`) et un bilan sans rien en plus (`over-pane--more`
   vide) restent sur une colonne centrée ; le bilan chargé met la partie et

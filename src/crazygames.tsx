@@ -45,7 +45,7 @@ void (async () => {
   loadingStart()
   // The guest's opens and runs reach the dashboard without an account (0084).
   startTracking()
-  restoreSavedProgress()
+  await restoreSavedProgress()
   // Before the first paint, so a dark-theme player never sees a light flash.
   applyTheme(loadTheme())
   await loadMessages(loadLocale(host.languages()) ?? host.fallbackLocale ?? 'en').catch(() => undefined)

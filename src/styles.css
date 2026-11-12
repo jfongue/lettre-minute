@@ -7530,10 +7530,6 @@ rien d’autre — aucun point, aucune rareté ne bouge. */
   border-left-color: var(--blue);
 }
 
-.debug-scene {
-  display: contents;
-}
-
 /* À gauche : la sourdine du web tient le coin droit. */
 .debug-bar {
   position: fixed;

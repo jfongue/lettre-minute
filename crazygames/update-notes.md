@@ -1,6 +1,6 @@
 # Update notes for CrazyGames review
 
-This build is 1.7.0 (the portal has 1.6.1). Every point below is a change since
+This build is 1.7.1 (the portal has 1.6.1; 1.7.0 was reviewed and sent back). Every point below is a change since
 that build, and each was played in the portal's frames (926×476, 800×450,
 1280×720, 390×844) with `npm run crazygames:check`.
 
@@ -38,20 +38,41 @@ that build, and each was played in the portal's frames (926×476, 800×450,
 - The rematch lobby shows only the players who played, with no free seat and
   no invite list, and a duel no longer freezes on its opening countdown.
 
+## Answers to the latest review
+
+- **Home leaderboard (blank under the board).** The carousel's height follows
+  the board on screen; `npm run crazygames:flows` now measures it at 478×510
+  and 390×844 on Day and Week, so a later build cannot bring the blank back.
+- **Signing out.** A signed-out player is always a new guest. Two causes were
+  found and fixed: a browser whose first start was already signed in never
+  armed the previous guard, and since the SDK swaps its Data module on a
+  sign-in without reloading the page, the game kept writing the account's
+  progress into the guest's local save. The browser now remembers whose
+  progress it holds; a start as a guest after an account erases the account's
+  progress, its caches and its session. A QA browser that held an account's
+  save under an earlier build is reset once. Language, theme, sound and the
+  lessons already seen stay with the device.
+- **gameplayStart.** Never while the categories are picked nor on the opening
+  countdown of a duel, never on « Coming up »: it is sent when the answer
+  field is live. The same script plays a solo run and a duel against the
+  house players and reads the SDK's log.
+- **Scrollbars.** Every box that scrolls draws a bar (the challenge of the
+  moment, its ranking, the leaderboards, the end-of-run panes, the menu…);
+  the page-turning carousels keep their tabs and dots instead.
+
 ## The frame
 
-- The scrollbar is never drawn any more, on any screen: content still scrolls
-  (the leaderboard's rows, the home's right column), it just shows no bar.
-- Every scene fits the frame: the powers' choice and "Play with friends" go
-  two columns in landscape, the home's column scrolls without moving the
-  poster and title, and the end-of-run score stays centred when the hidden
-  words unfold.
-- At 640×360 the powers' screen still shows its slots, its powers and its Play
-  button without scrolling.
+- Every scene is walked in nine frames (640×360 to 1920×1080, plus 478×510
+  and 390×844) in English, French and German by `npm run crazygames:sweep`:
+  nothing wider or taller than its frame, no button cut by a box that does not
+  scroll, no box scrolling without a bar, no word broken in the middle.
+- Fixed on the way: the language picker cut on the right at 640 px, the title
+  over the poster at 640×360, labels and card titles broken mid-word in small
+  frames, the run's buttons off the edge in German on a phone-wide frame.
+- The powers' choice and "Play with friends" go two columns in landscape, the
+  home's column scrolls without moving the poster and title, and the
+  end-of-run score stays centred when the hidden words unfold.
 
 ## Accounts and progress
 
-- A player who signs out of the portal no longer finds the account's progress
-  on the guest: the game account is read only once the portal's own has been
-  followed.
 - The home leaderboard no longer leaves a blank under the shorter board.
