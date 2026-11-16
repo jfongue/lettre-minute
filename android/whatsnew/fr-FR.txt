@@ -1,4 +1,5 @@
-• Défi du moment : il dure deux semaines, il s’appelle désormais « défi » partout
-• Classement du défi : ton rang ne s’affiche que lorsque tu es classé
-• Défi inversé : le champ annonce clairement « un mot qui finit par… »
+• Catégories remaniées : « Animaux » devient « Mammifères » et « Objets du quotidien » devient « Petit objet »
+• Mots signalés retirés des dictionnaires, mots proposés par la communauté ajoutés
+• Duel : le compte à rebours ne se fige plus et la revanche ne bloque plus
+• Plus de deuxième pub d’affilée après une révélation
 • Corrections de bugs

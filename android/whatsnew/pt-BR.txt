@@ -1,4 +1,5 @@
-• Desafio do momento: agora dura duas semanas e se chama “desafio” em todo lugar
-• Classificação do desafio: sua posição só aparece quando você está classificado
-• Desafio invertido: o campo diz claramente “uma palavra que termina com…”
+• Categorias renovadas: “Animais” passa a “Mamíferos” e “Objetos do dia a dia” a “Objeto pequeno”
+• Palavras denunciadas removidas dos dicionários e palavras sugeridas pela comunidade adicionadas
+• Duelo: a contagem regressiva não trava mais e a revanche não emperra mais
+• Chega de segundo anúncio seguido após uma revelação
 • Correções de bugs

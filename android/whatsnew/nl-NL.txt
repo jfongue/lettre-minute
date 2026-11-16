@@ -1,4 +1,5 @@
-• Uitdaging van het moment: duurt nu twee weken en heet overal “uitdaging”
-• Klassement van de uitdaging: je plaats verschijnt pas als je geklasseerd bent
-• Omgekeerde uitdaging: het veld zegt duidelijk “een woord dat eindigt op…”
+• Vernieuwde categorieën: “Dieren” heet nu “Zoogdieren” en “Voorwerpen” “Klein voorwerp”
+• Gemelde woorden uit de woordenboeken gehaald, door de community voorgestelde woorden toegevoegd
+• Duel: de aftelling bevriest niet meer en de revanche loopt niet meer vast
+• Geen tweede advertentie meer direct na een onthulling
 • Bugfixes

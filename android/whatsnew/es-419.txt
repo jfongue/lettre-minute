@@ -1,4 +1,5 @@
-• Reto del momento: ahora dura dos semanas y se llama « reto » en todas partes
-• Clasificación del reto: tu puesto solo aparece cuando estás clasificado
-• Reto invertido: el campo dice claramente « una palabra que termina en… »
+• Categorías renovadas: « Animales » pasa a ser « Mamíferos » y « Objetos cotidianos » « Objeto pequeño »
+• Palabras denunciadas retiradas de los diccionarios y palabras propuestas por la comunidad añadidas
+• Duelo: la cuenta atrás ya no se congela y la revancha ya no se bloquea
+• Se acabó el segundo anuncio seguido tras una revelación
 • Corrección de errores

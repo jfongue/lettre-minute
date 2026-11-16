@@ -1,4 +1,5 @@
-• Sfida del momento: ora dura due settimane e si chiama « sfida » ovunque
-• Classifica della sfida: la tua posizione appare solo quando sei in classifica
-• Sfida al contrario: il campo dice chiaramente « una parola che finisce con… »
+• Categorie rinnovate: « Animali » diventa « Mammiferi » e « Oggetti quotidiani » « Piccolo oggetto »
+• Parole segnalate tolte dai dizionari, parole proposte dalla community aggiunte
+• Duello: il conto alla rovescia non si blocca più e la rivincita non si inceppa più
+• Niente più secondo annuncio di fila dopo una rivelazione
 • Correzioni di bug

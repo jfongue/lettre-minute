@@ -1,4 +1,5 @@
-• Current challenge: it now runs two weeks and is called a “challenge” everywhere
-• Challenge leaderboard: your rank only shows once you are ranked
-• Reversed challenge: the field now says “a word ending in…”
+• Reworked categories: “Animals” is now “Mammals” and “Everyday objects” is now “Small object”
+• Reported words removed from the dictionaries, community-suggested words added
+• Duel: the opening countdown no longer freezes and the rematch no longer gets stuck
+• No more second ad in a row after a reveal
 • Bug fixes

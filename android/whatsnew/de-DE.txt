@@ -1,4 +1,5 @@
-• Aktuelle Challenge: Sie läuft jetzt zwei Wochen und heißt überall „Challenge“
-• Challenge-Rangliste: Dein Rang erscheint nur, wenn du eingestuft bist
-• Umgekehrte Challenge: Das Feld sagt klar „ein Wort, das auf … endet“
+• Überarbeitete Kategorien: „Tiere“ heißt jetzt „Säugetiere“ und „Alltagsgegenstände“ „Kleiner Gegenstand“
+• Gemeldete Wörter aus den Wörterbüchern entfernt, Wörter der Community hinzugefügt
+• Duell: Der Start-Countdown friert nicht mehr ein, die Revanche hängt nicht mehr
+• Keine zweite Werbung mehr direkt nach einer Enthüllung
 • Fehlerbehebungen
