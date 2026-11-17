@@ -1,6 +1,6 @@
 # Update notes for CrazyGames review
 
-This build is 1.7.1 (the portal has 1.6.1; 1.7.0 was reviewed and sent back). Every point below is a change since
+This build is 1.7.2 (the portal has 1.6.1; 1.7.0 and 1.7.1 were reviewed and sent back). Every point below is a change since
 that build, and each was played in the portal's frames (926×476, 800×450,
 1280×720, 390×844) with `npm run crazygames:check`.
 
