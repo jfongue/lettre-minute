@@ -184,6 +184,16 @@ describe('the attempt window', () => {
     expect(attemptWindow(at('2026-10-20T12:00:00Z'))).toEqual({ weekId: '2026-10-11', day: '2026-10-20' })
     expect(weekOf(at('2026-10-25T20:00:00Z')).weekId).toBe('2026-10-25')
   })
+
+  it('keeps the November challenge open one more week, through the 22nd', () => {
+    const week = weekOf(at('2026-11-09T22:00:00Z'))
+    expect(week).toEqual({ weekId: '2026-11-08', opensAt: at('2026-11-08T20:00:00Z'), closesAt: at('2026-11-22T20:00:00Z') })
+    expect(weekOf(at('2026-11-15T20:00:00Z'))).toEqual(week)
+    expect(weekOf(at('2026-11-22T19:59:59Z'))).toEqual(week)
+    expect(weekById('2026-11-15').weekId).toBe('2026-11-08')
+    expect(attemptWindow(at('2026-11-18T12:00:00Z'))).toEqual({ weekId: '2026-11-08', day: '2026-11-18' })
+    expect(weekOf(at('2026-11-22T20:00:00Z')).weekId).toBe('2026-11-22')
+  })
 })
 
 describe('the weekly challenge', () => {
