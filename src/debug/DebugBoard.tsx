@@ -1841,6 +1841,7 @@ const CHEER_TABLE: DuelTable = (() => {
     openingAt: 0,
     drawnShown: 0,
     rematchOpen: false,
+    kept: false,
     leavers: [],
     openRematch: noop,
     joinRematch: noop,

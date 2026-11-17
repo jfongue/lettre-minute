@@ -79,6 +79,30 @@ body {
   }
 }
 
+/* Les mêmes règles pour les entrées qui dépassent au-delà de leur feuille
+   pendant une image ou deux : le ressort de « pop-in » passe au-dessus de sa
+   taille (1,56), et la carte d'invitation au duel, posée au bas de sa feuille,
+   la faisait déborder de 4 px, une barre clignotait au retour à l'accueil
+   (revue). Un ressort ne tient pas dans une feuille qui défile : la carte
+   s'installe sans dépasser. */
+.duel-invite-card {
+  animation-timing-function: var(--ease-out);
+}
+
+/* Le nouveau classement glisse vers le haut, comme les blocs de l'écran : la
+   version qui descend de 0,5 rem poussait l'accueil de 8 px sous son bord le
+   temps de l'entrée, et la barre de la feuille clignotait (revue). */
+@keyframes board-swap-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* A long press on a phone must not open the magnifier or the context menu
    (the portal's technical requirements); the answer field still types and selects. */
 body {
@@ -708,6 +732,17 @@ textarea {
     max-height: 100%;
     min-height: 0;
     overflow: clip;
+  }
+
+  /* La colonne prend la largeur de la feuille, et la liste aussi : la feuille
+     garde 10 px de bordure à droite, et la liste de 34 rem, centrée, débordait
+     de cinq pixels à gauche, où le clip coupait le « C » de « Coming up » (revue). */
+  .stage.stage--countdown > .sheet {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stage.stage--countdown > .sheet > .dealt {
+    width: 100%;
   }
 
   .stage .unlock-screen {

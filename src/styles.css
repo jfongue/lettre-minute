@@ -9824,10 +9824,14 @@ body[data-words='board'] .offer-pop-layer {
   margin: 0 auto;
 }
 
-/* Deux groupes que le cadre paysage de CrazyGames range en colonnes ; ailleurs, la feuille les lit d'un trait. */
+/* Deux groupes que le cadre paysage de CrazyGames range en colonnes. Ce sont de
+   vraies boîtes, pas des `display: contents` : sans la règle paysage, les
+   enfants se rangeraient à deux colonnes au hasard, la carte du milieu
+   descendant sous le texte (revue). Le rythme reste celui de la feuille. */
 .together-head,
 .together-cards {
-  display: contents;
+  display: grid;
+  gap: 1.1rem;
 }
 
 .together-close {

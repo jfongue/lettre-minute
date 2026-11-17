@@ -206,6 +206,8 @@ export interface DuelTable {
   /** Combien des catégories tirées au sort sont déjà posées sur le draft. */
   drawnShown: number
   rematchOpen: boolean
+  /** La table est une revanche (ou un matchmaking) : mêmes joueurs, ni place libre ni invitation. */
+  kept: boolean
   leavers: readonly string[]
   openRematch(): void
   joinRematch(): void
@@ -381,6 +383,9 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   // -------------------------------------------------- la source en ligne --
 
   const [tableId, setTableId] = useState<string | null>(null)
+  /** La table où l'on est passé par une revanche : le serveur ne le dit pas sur la table neuve. */
+  const [rematchId, setRematchId] = useState<string | null>(null)
+  const kept = !!tableId && (rematchId === tableId || quick)
   const syncing = useRef(false)
   /** Un renoncement au départ périme la relecture en vol : sa réponse décrit une table qui n'existe plus. */
   const epoch = useRef(0)
@@ -551,7 +556,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
 
   // La salle de l'hôte (CrazyGames) : la table où l'on est assis, que ses amis
   // du portail rejoignent tant que le salon garde une place libre.
-  const roomOpen = !!table && table.id === tableId && table.status === 'lobby' && present.length + table.invites.length < MAX_TABLE
+  const roomOpen = !!table && table.id === tableId && !kept && table.status === 'lobby' && present.length + table.invites.length < MAX_TABLE
   useEffect(() => {
     if (mode === 'online' && tableId) host.rooms?.setRoom({ table: tableId, joinable: roomOpen })
   }, [mode, roomOpen, tableId])
@@ -661,11 +666,12 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   )
 
   // Un adversaire trouvé par le matchmaking attend déjà : pas de salon à régler, chacun se déclare prêt une fois.
-  const quickReady = useRef(false)
+  // Une revanche de matchmaking est une table neuve : chacune reçoit son « prêt ».
+  const quickReady = useRef<string | null>(null)
   useEffect(() => {
-    if (!quick || mode !== 'online' || quickReady.current) return
-    if (!table || table.status !== 'lobby' || !me || me.ready || present.length < MIN_TABLE) return
-    quickReady.current = true
+    if (!quick || mode !== 'online' || !table?.id || quickReady.current === table.id) return
+    if (table.status !== 'lobby' || !me || me.ready || present.length < MIN_TABLE) return
+    quickReady.current = table.id
     setMyReady(true)
   }, [me, mode, present.length, quick, setMyReady, table])
 
@@ -907,6 +913,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       if (!id || (await joinDuel(id, mine.length)) !== 'joined') return
       setJudge(null)
       loadingFor.current = ''
+      setRematchId(id)
       setTableId(id)
     })
   }, [lang, meSeat, mine, mode, present, table])
@@ -920,6 +927,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       if (outcome !== 'joined') return
       setJudge(null)
       loadingFor.current = ''
+      setRematchId(next)
       setTableId(next)
     })
   }, [mine.length, mode, table])
@@ -1094,6 +1102,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     openingAt: opensAt === null ? 0 : opensAt - DUEL_OPENING_SECONDS + DRAFT_HOLD_SECONDS,
     drawnShown,
     rematchOpen: mode === 'local' ? table?.rematch === 'open' : !!table?.rematch,
+    kept,
     leavers,
     openRematch,
     joinRematch,

@@ -129,7 +129,7 @@ export function Lobby({
 
   // A rematch is the same players again: no free seat to show, no one to add —
   // through the announcement that follows it too, once its flag is spent.
-  const sameTable = table.rematchOpen || counting
+  const sameTable = table.rematchOpen || table.kept || counting
   const slots: readonly (Seat | null)[] = sameTable ? table.seats : Array.from({ length: MAX_TABLE }, (_, index) => table.seats[index] ?? null)
   const full = table.seats.length >= MAX_TABLE || sameTable
 
@@ -571,7 +571,10 @@ export function Draft({ table }: { table: DuelTable }) {
         <button
           type="button"
           className="btn btn--quiet duel-quit"
+          disabled={mine}
           onClick={() => {
+            // Le salon retirerait le choix du tour : il reste à l'écran tant que c'est mon tour.
+            if (mine) return
             armSound()
             sound.pop()
             table.showLobby()
