@@ -30,6 +30,11 @@ select tests.is((select week_id from public.weekly_window('2026-10-20 12:00:00+0
 select tests.is((select week_id from public.weekly_window('2026-10-25 19:59:59+00')), date '2026-10-11', 'until the second Sunday at 21:00');
 select tests.is((select week_id from public.weekly_window('2026-10-25 20:00:00+00')), date '2026-10-25', 'then the cycle resumes');
 select tests.is(public.weekly_week('2026-10-18'), date '2026-10-11', 'an older client’s Sunday falls back on the extended week');
+-- La semaine du 8 novembre est prolongée elle aussi (0106).
+select tests.is((select week_id from public.weekly_window('2026-11-15 20:00:00+00')), date '2026-11-08', 'the extended week of 8 November covers the next Sunday');
+select tests.is((select week_id from public.weekly_window('2026-11-22 19:59:59+00')), date '2026-11-08', 'until the second Sunday at 21:00');
+select tests.is((select week_id from public.weekly_window('2026-11-22 20:00:00+00')), date '2026-11-22', 'then the cycle resumes');
+select tests.is(public.weekly_week('2026-11-15'), date '2026-11-08', 'an older client’s November Sunday falls back on the extended week');
 
 -- ------------------------------------------------------------ tentatives --
 

@@ -101,6 +101,30 @@ body {
   }
 }
 
+/* Les mêmes règles pour les entrées qui dépassent au-delà de leur feuille
+   pendant une image ou deux : le ressort de « pop-in » passe au-dessus de sa
+   taille (1,56), et la carte d'invitation au duel, posée au bas de sa feuille,
+   la faisait déborder de 4 px, une barre clignotait au retour à l'accueil
+   (revue). Un ressort ne tient pas dans une feuille qui défile : la carte
+   s'installe sans dépasser. */
+.duel-invite-card {
+  animation-timing-function: var(--ease-out);
+}
+
+/* Le nouveau classement glisse vers le haut, comme les blocs de l'écran : la
+   version qui descend de 0,5 rem poussait l'accueil de 8 px sous son bord le
+   temps de l'entrée, et la barre de la feuille clignotait (revue). */
+@keyframes board-swap-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* A long press on a phone must not open the magnifier or the context menu
    (the portal's technical requirements); the answer field still types and selects. */
 body {
@@ -226,10 +250,13 @@ textarea {
     align-content: start;
   }
 
-  /* The main menu never scrolls (portal review): the leaderboard takes what
-     the rest leaves and its rows alone scroll, under a visible bar. The column
-     keeps its own scroll, and its bar, only for the day it carries more than
-     any frame holds (a duel invitation above the challenges and the week). */
+  /* The main menu never scrolls (portal review): the leaderboard keeps its
+     own height and gives rows back only when the column must fit, so the
+     pages' row sits right under it instead of being pushed to the frame's
+     bottom with a blank between them. Its rows alone scroll, under a
+     visible bar. The column keeps its own scroll, and its bar, only for the
+     day it carries more than any frame holds (a duel invitation above the
+     challenges and the week). */
   .sheet--home > .home-body:not(.home-body--alone) {
     display: flex;
     flex-direction: column;
@@ -240,16 +267,17 @@ textarea {
   }
 
   .sheet--home > .home-body:not(.home-body--alone) > .boards {
-    flex: 1 1 7rem;
+    flex: 0 1 auto;
     min-height: 7.5rem;
     grid-template-rows: auto auto minmax(0, 1fr) auto;
   }
 
-  /* The track fills its row, whatever height Boards measured: a page measured
-     before its rows had their room set the track to all of them, which then
-     ran under the tiles, cut, with nothing left to scroll (review, Android). */
+  /* The track never outgrows its row, whatever height Boards measured: a page
+     measured before its rows had their room set the track to all of them,
+     which then ran under the tiles, cut, with nothing left to scroll
+     (review, Android). */
   .home-body > .boards > .board-track {
-    height: 100% !important;
+    max-height: 100%;
     min-height: 0;
     overflow-y: hidden;
   }
@@ -731,6 +759,17 @@ textarea {
     max-height: 100%;
     min-height: 0;
     overflow: clip;
+  }
+
+  /* La colonne prend la largeur de la feuille, et la liste aussi : la feuille
+     garde 10 px de bordure à droite, et la liste de 34 rem, centrée, débordait
+     de cinq pixels à gauche, où le clip coupait le « C » de « Coming up » (revue). */
+  .stage.stage--countdown > .sheet {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stage.stage--countdown > .sheet > .dealt {
+    width: 100%;
   }
 
   .stage .unlock-screen {

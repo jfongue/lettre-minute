@@ -2,6 +2,8 @@
 
 ## 1.7.4
 
+1.7.4 is 1.7.2 with the 1.7.3 point below and the following.
+
 - **Saving relies on the Data Module.** A guest who signs in and then signs
   out gets their own guest progress back, as the SDK keeps it; the account's
   progress never stays on the guest.
@@ -24,11 +26,33 @@
   once on an error, and an ad that has not started within 10 s is given up.
   An ad that actually plays still has up to 60 s. Same for rewarded ads.
 
-## 1.7.1
+## 1.7.2
 
-This build is 1.7.1 (the portal has 1.6.1; 1.7.0 was reviewed and sent back). Every point below is a change since
+This build is 1.7.2 (the portal has 1.6.1; 1.7.0 and 1.7.1 were reviewed and sent back). Every point below is a change since
 that build, and each was played in the portal's frames (926×476, 800×450,
 1280×720, 390×844) with `npm run crazygames:check`.
+
+## Answers to the review of 1.7.1
+
+- **"Coming up" cut on the left.** The list of categories was 5 px wider than
+  its sheet and the sheet clips (so the countdown never shows a bar): both now
+  share the sheet's width, and the « C » is whole.
+- **Multiplayer screen.** The staggered layout came from a build older than
+  the fix the review approved: the title and text on the left, the three cards
+  stacked on the right. The two groups are now real boxes, so the cards cannot
+  fall into the left column again.
+- **A bar appearing for a moment.** Two entrance animations pushed the home
+  sheet past its edge for a few frames (the duel invitation card's spring and
+  the leaderboard's swap): they now settle inside it. Boxes that really scroll
+  keep their bar.
+- **"Back to the lobby" during my pick.** Disabled while it is my turn to pick
+  a category.
+- **Rematch stuck on "Opening the table…" after a matchmaking duel.** Each
+  player now declares ready on the rematch table as on the first one, so the
+  draft opens once both agreed.
+- **Invite button active on that screen.** A rematch table and a matchmaking
+  table are never reported as joinable rooms, and the rematch lobby shows no
+  free seat.
 
 ## Ads
 

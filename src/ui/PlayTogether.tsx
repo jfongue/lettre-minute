@@ -42,13 +42,16 @@ export function PlayTogether({
   return (
     <div className="together" role="dialog" aria-label={t.duel.chooseTitle} data-no-swipe>
       <div className="together-sheet">
-        <button type="button" className="btn btn--quiet btn--muted together-close" onClick={onClose}>
-          ← {t.duel.errorBack}
-        </button>
-        <h1 className="together-title">{t.duel.chooseTitle}</h1>
-        <p className="note together-lead">{t.duel.chooseLead}</p>
+        <div className="together-head">
+          <button type="button" className="btn btn--quiet btn--muted together-close" onClick={onClose}>
+            ← {t.duel.errorBack}
+          </button>
+          <h1 className="together-title">{t.duel.chooseTitle}</h1>
+          <p className="note together-lead">{t.duel.chooseLead}</p>
+        </div>
 
-        <button
+        <div className="together-cards">
+          <button
           type="button"
           className="together-card together-card--duel"
           style={{ '--i': 0 } as CSSProperties}
@@ -135,7 +138,8 @@ export function PlayTogether({
               →
             </span>
           </button>
-        ) : null}
+          ) : null}
+        </div>
       </div>
     </div>
   )

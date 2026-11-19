@@ -61,37 +61,41 @@ export function GameModes({ onPick, onClose }: { onPick(mode: GameMode): void; o
   return (
     <div className="together" role="dialog" aria-label={t.modes.title} data-no-swipe>
       <div className="together-sheet">
-        <button type="button" className="btn btn--quiet btn--muted together-close" onClick={onClose}>
-          ← {t.modes.back}
-        </button>
-        <h1 className="together-title">{t.modes.title}</h1>
-        <p className="note together-lead">{t.modes.lead}</p>
-
-        {cards.map((card, index) => (
-          <button
-            key={card.mode}
-            type="button"
-            className={`together-card together-card--${index % 2 === 0 ? 'duel' : 'challenge'}`}
-            style={{ '--i': index } as CSSProperties}
-            onClick={() => {
-              armSound()
-              sound.go()
-              onPick(card.mode)
-            }}
-          >
-            <svg className="together-art" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
-              {ART[card.art]}
-            </svg>
-            <span className="together-text">
-              <b>{card.title}</b>
-              <small>{card.note}</small>
-              <span className="together-chip">{t.modes.seconds(MODE_SECONDS[card.mode])}</span>
-            </span>
-            <span className="together-go" aria-hidden="true">
-              →
-            </span>
+        <div className="together-head">
+          <button type="button" className="btn btn--quiet btn--muted together-close" onClick={onClose}>
+            ← {t.modes.back}
           </button>
-        ))}
+          <h1 className="together-title">{t.modes.title}</h1>
+          <p className="note together-lead">{t.modes.lead}</p>
+        </div>
+
+        <div className="together-cards">
+          {cards.map((card, index) => (
+            <button
+              key={card.mode}
+              type="button"
+              className={`together-card together-card--${index % 2 === 0 ? 'duel' : 'challenge'}`}
+              style={{ '--i': index } as CSSProperties}
+              onClick={() => {
+                armSound()
+                sound.go()
+                onPick(card.mode)
+              }}
+            >
+              <svg className="together-art" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+                {ART[card.art]}
+              </svg>
+              <span className="together-text">
+                <b>{card.title}</b>
+                <small>{card.note}</small>
+                <span className="together-chip">{t.modes.seconds(MODE_SECONDS[card.mode])}</span>
+              </span>
+              <span className="together-go" aria-hidden="true">
+                →
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   )
