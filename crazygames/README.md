@@ -154,7 +154,9 @@ ami modérateur) — un joueur connecté au portail a le compte
   moment ni à la leçon ; pas de calendrier maison, le SDK refuse lui-même une
   pub à moins de 3 min de la dernière. Jamais à un Premium ni quand la
   fonctionnalité `adBreaks` est fermée. La suite attend
-  la fin de la pub, ou son erreur (y compris bloqueur de pub), au plus 60 s.
+  la fin de la pub, ou son erreur (y compris bloqueur de pub) : un SDK qui
+  lève ou rejette rend la main aussitôt, une pub qui ne démarre pas en 10 s
+  est abandonnée, une pub lancée a 60 s.
   Chaque demande est comptée au tableau de bord (`ad`, source `midgame`). Le son est
   coupé seulement pendant que la pub joue (`adStarted` → `adFinished`/`adError`).
   En Basic Launch, le portail n'affiche aucune pub : l'appel ne coûte rien.

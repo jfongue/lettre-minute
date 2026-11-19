@@ -36,7 +36,8 @@ interface CrazySdk {
     updateRoom?(room: { roomId?: string; isJoinable?: boolean; inviteParams?: Record<string, string> }): void
     leftRoom?(): void
   }
-  ad: { requestAd(type: 'midgame' | 'rewarded', callbacks: AdCallbacks): void }
+  // Answers by its callbacks, but may also throw or hand back a rejected promise.
+  ad: { requestAd(type: 'midgame' | 'rewarded', callbacks: AdCallbacks): void | Promise<void> }
   data?: {
     getItem(key: string): string | null
     setItem(key: string, value: string): void
@@ -264,90 +265,91 @@ function onPlatformMute(listener: (muted: boolean) => void): void {
   listener(adPlaying || portalMuted)
 }
 
-// An ad that never calls back must not hold the next run forever.
+/**
+ * An ad that never calls back must not hold the next run forever. A failing
+ * SDK may answer nothing at all, so the wait for the ad to start is short —
+ * the player sees the button do nothing meanwhile —, and only an ad that
+ * actually plays gets the length of one.
+ */
+const AD_START_MS = 10_000
 const AD_TIMEOUT_MS = 60_000
+
+/**
+ * Asks the portal for an ad; true once it was watched to the end, false on
+ * `adError`, a throw, a rejected answer or silence. The sound is cut only
+ * while one actually plays, even one that starts after the game gave up on it.
+ */
+function requestPortalAd(type: 'midgame' | 'rewarded'): Promise<boolean> {
+  return new Promise((resolve) => {
+    let done = false
+    const stopPlaying = () => {
+      if (!adPlaying) return
+      adPlaying = false
+      announceMute()
+    }
+    const finish = (shown: boolean) => {
+      stopPlaying()
+      if (done) return
+      done = true
+      clearTimeout(timer)
+      resolve(shown)
+    }
+    let timer = setTimeout(() => finish(false), AD_START_MS)
+    if (!sdk) return finish(false)
+    try {
+      const answer: unknown = sdk.ad.requestAd(type, {
+        adStarted: () => {
+          adPlaying = true
+          announceMute()
+          if (done) return
+          clearTimeout(timer)
+          timer = setTimeout(() => finish(false), AD_TIMEOUT_MS)
+        },
+        adFinished: () => finish(true),
+        adError: () => finish(false),
+      })
+      if (answer && typeof (answer as Promise<void>).then === 'function') {
+        ;(answer as Promise<void>).then(undefined, () => finish(false))
+      }
+    } catch {
+      finish(false)
+    }
+  })
+}
 
 /**
  * The midgame ad, asked by a button that leads to gameplay. The portal paces
  * its ads itself: the SDK keeps them three minutes apart and answers
  * `adError` to an early request, which just skips this one — so there is no
- * schedule here. Resolves once the ad is over, failed or skipped; the sound
- * is cut only while one actually plays. A second tap while the ad is pending
- * joins it. The recap itself has no break on this host.
+ * schedule here. Resolves once the ad is over, failed or skipped. A second
+ * tap while the ad is pending joins it. The recap itself has no break on this
+ * host.
  */
 let pendingBreak: Promise<AdBreak> | null = null
 function midgame(adFree: boolean): Promise<AdBreak> {
   if (pendingBreak) return pendingBreak
   if (!sdk || adFree) return Promise.resolve('none')
-  const asked = requestMidgame().finally(() => {
-    pendingBreak = null
-  })
+  const asked = requestPortalAd('midgame')
+    .then((shown) => {
+      const result = shown ? 'shown' : 'unavailable'
+      trackFeature('ad', { source: 'midgame', result })
+      return result
+    })
+    .finally(() => {
+      pendingBreak = null
+    })
   pendingBreak = asked
   return asked
-}
-
-function requestMidgame(): Promise<AdBreak> {
-  return new Promise((resolve) => {
-    let done = false
-    const finish = (result: 'shown' | 'unavailable') => {
-      if (done) return
-      done = true
-      trackFeature('ad', { source: 'midgame', result })
-      clearTimeout(timer)
-      if (adPlaying) {
-        adPlaying = false
-        announceMute()
-      }
-      resolve(result)
-    }
-    const timer = setTimeout(() => finish('unavailable'), AD_TIMEOUT_MS)
-    safely((s) =>
-      s.ad.requestAd('midgame', {
-        adStarted: () => {
-          adPlaying = true
-          announceMute()
-        },
-        adFinished: () => finish('shown'),
-        adError: () => finish('unavailable'),
-      }),
-    )
-    if (!sdk) finish('unavailable')
-  })
 }
 
 /**
  * A rewarded ad from the portal: the reward only on `adFinished`, nothing on
  * `adError` (an ad blocker included, which must never cost more than the
- * reward) and nothing for an ad that never answers. The sound is cut only
- * while it plays, as for the midgame.
+ * reward) and nothing for an ad that never answers.
  */
 function showRewarded(): Promise<RewardedResult> {
   if (!sdk) return Promise.resolve('unavailable')
-  return new Promise((resolve) => {
-    let done = false
-    const finish = (result: RewardedResult) => {
-      if (done) return
-      done = true
-      clearTimeout(timer)
-      if (adPlaying) {
-        adPlaying = false
-        announceMute()
-      }
-      resolve(result)
-    }
-    const timer = setTimeout(() => finish('unavailable'), AD_TIMEOUT_MS)
-    safely((s) =>
-      s.ad.requestAd('rewarded', {
-        adStarted: () => {
-          adPlaying = true
-          announceMute()
-        },
-        adFinished: () => finish('rewarded'),
-        adError: () => finish('unavailable'),
-      }),
-    )
-    if (!sdk) finish('unavailable')
-  })
+  return requestPortalAd('rewarded').then((shown) => (shown ? 'rewarded' : 'unavailable'))
 }
 
 /**

@@ -220,3 +220,57 @@ describe('la sauvegarde du portail', () => {
     expect(browser.has(HANDED_OVER)).toBe(false)
   })
 })
+
+/** The portal with nothing but its ads, answered by `requestAd`. */
+async function withAds(requestAd: (type: string, callbacks: Record<string, () => void>) => unknown) {
+  vi.resetModules()
+  const SDK = { environment: 'local', init: () => Promise.resolve(), game: {}, ad: { requestAd } }
+  vi.stubGlobal('location', { hostname: 'localhost' })
+  vi.stubGlobal('document', { referrer: '' })
+  vi.stubGlobal('window', { location: {}, CrazyGames: { SDK } })
+  const portal = await import('./crazygames')
+  await portal.initCrazyGames()
+  return portal.crazyGamesHost
+}
+
+describe('les pubs du portail', () => {
+  it('rend la main tout de suite quand le SDK lève', async () => {
+    const host = await withAds(() => {
+      throw new Error('sdk error')
+    })
+    await expect(host.midgame?.(false)).resolves.toBe('unavailable')
+    await expect(host.showRewarded?.()).resolves.toBe('unavailable')
+  })
+
+  it('rend la main tout de suite quand le SDK rejette', async () => {
+    const host = await withAds(() => Promise.reject(new Error('sdk error')))
+    await expect(host.midgame?.(false)).resolves.toBe('unavailable')
+  })
+
+  it('n’attend qu’un court instant une pub qui ne démarre jamais', async () => {
+    vi.useFakeTimers()
+    const host = await withAds(() => undefined)
+    let result: string | null = null
+    void host.midgame?.(false).then((answer) => (result = answer))
+    await vi.advanceTimersByTimeAsync(9_000)
+    expect(result).toBeNull()
+    await vi.advanceTimersByTimeAsync(1_000)
+    expect(result).toBe('unavailable')
+  })
+
+  it('laisse finir une pub qui a démarré', async () => {
+    vi.useFakeTimers()
+    let callbacks: Record<string, () => void> = {}
+    const host = await withAds((_, given) => {
+      callbacks = given
+      given.adStarted()
+    })
+    let result: string | null = null
+    void host.midgame?.(false).then((answer) => (result = answer))
+    await vi.advanceTimersByTimeAsync(30_000)
+    expect(result).toBeNull()
+    callbacks.adFinished()
+    await vi.advanceTimersByTimeAsync(0)
+    expect(result).toBe('shown')
+  })
+})
