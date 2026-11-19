@@ -53,6 +53,28 @@ body {
   }
 }
 
+/* The page's bar on iOS (src/crazygames.tsx), drawn like the others. */
+.page-bar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  width: 5px;
+  pointer-events: none;
+}
+
+.page-bar[hidden] {
+  display: none;
+}
+
+.page-bar-thumb {
+  width: 3px;
+  margin-left: 1px;
+  background: var(--ink);
+  will-change: transform;
+}
+
 /* Carousels turn their pages by swipe, tabs and dots: no bar under them. */
 .board-track,
 .leaderboards-chips {
@@ -223,7 +245,11 @@ textarea {
     grid-template-rows: auto auto minmax(0, 1fr) auto;
   }
 
+  /* The track fills its row, whatever height Boards measured: a page measured
+     before its rows had their room set the track to all of them, which then
+     ran under the tiles, cut, with nothing left to scroll (review, Android). */
   .home-body > .boards > .board-track {
+    height: 100% !important;
     min-height: 0;
     overflow-y: hidden;
   }

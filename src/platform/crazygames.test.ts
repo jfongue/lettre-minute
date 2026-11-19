@@ -139,10 +139,22 @@ describe('la sauvegarde du portail', () => {
     expect(guest.get(PROFILE)).toBe('invité')
     expect(played.reload).not.toHaveBeenCalled()
     expect(browser.get(OWNER)).toBe('Ana')
-    // Déconnexion : l'invité repart de zéro, sa sauvegarde est passée au compte.
+    // Déconnexion : l'invité retrouve sa propre progression, pas celle du compte.
     await start(browser, guest)
-    expect(browser.has(PROFILE)).toBe(false)
-    expect(guest.has(PROFILE)).toBe(false)
+    expect(browser.get(PROFILE)).toBe('invité')
+    expect(guest.get(PROFILE)).toBe('invité')
+  })
+
+  it('rend à l’invité sa progression après un compte qui avait la sienne', async () => {
+    const browser: Save = new Map()
+    const guest = new Map([[PROFILE, 'invité']])
+    await start(browser, guest)
+    const account = new Map([[PROFILE, 'compte']])
+    const played = await start(browser, account, 'Ana')
+    played.localStorage.setItem(PROFILE, 'compte joué')
+    await start(browser, guest)
+    expect(browser.get(PROFILE)).toBe('invité')
+    expect(account.get(PROFILE)).toBe('compte joué')
   })
 
   it('relance le jeu quand le compte qui se connecte a sa propre sauvegarde', async () => {

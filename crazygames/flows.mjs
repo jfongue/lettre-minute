@@ -1,7 +1,7 @@
 // Four portal-review points that must never regress unnoticed, played in the
 // real CrazyGames build inside the harness's frame (see check.mjs):
 //   1. gameplayStart only when a hand / a run is really played (duel and solo);
-//   2. a portal sign-out leaves a fresh guest, not the account's progress;
+//   2. a portal sign-out gives the guest back their own save, never the account's;
 //   3. no blank under the home leaderboard's carousel;
 //   4. a bar on every scrollable scene (challenge of the moment and ranking).
 //
@@ -23,6 +23,11 @@ const REGULAR = {
   xp: 2350, runs: 14, bestScore: 412, wordsFound: 186, bestCombo: 9, usage: {},
   unlocked: ['fruits-legumes', 'metiers', 'sports', 'capitales'], offer: [], lastOffer: [],
   powers: ['joker', 'hush', 'divination'], equipped: [],
+}
+// What the portal keeps for the guest while an account plays.
+const GUEST = {
+  xp: 120, runs: 3, bestScore: 37, wordsFound: 11, bestCombo: 2, usage: {},
+  unlocked: [], offer: [], lastOffer: [], powers: [], equipped: [],
 }
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms))
 
@@ -171,7 +176,7 @@ if (run(1)) {
 }
 
 if (run(2)) {
-  console.log('\n2. a portal sign-out leaves a fresh guest')
+  console.log('\n2. a portal sign-out gives the guest back their own save')
   const stored = `(() => {
     const read = (key) => { try { return JSON.parse(localStorage.getItem(key) ?? 'null') } catch { return 'unreadable' } }
     const sdk = Object.keys(localStorage).filter((key) => key.startsWith('SDK_DATA_')).map((key) => read(key))
@@ -189,18 +194,27 @@ if (run(2)) {
   check(/412/.test(shownIn) && /186/.test(shownIn), 'signed in: the home shows the best score and words found', shownIn)
   await shot('2-signed-in')
 
-  // What a portal sign-out does: the page reloads and the portal says guest.
+  // What a portal sign-out does: the page reloads, the portal says guest, and
+  // the Data module goes back to the guest's own save. The local SDK keeps one
+  // save for both: the guest's is put in its place, as the portal keeps it.
+  await evaluate(`(() => {
+    const key = Object.keys(localStorage).find((name) => name.startsWith('SDK_DATA_') && !name.startsWith('SDK_DATA_CLOUD'))
+    const save = JSON.parse(localStorage.getItem(key))
+    save.data = { 'lettre-minute.profile.v1': ${JSON.stringify(JSON.stringify(GUEST))} }
+    localStorage.setItem(key, JSON.stringify(save))
+    return true
+  })()`)
   await open({ keep: true, at: '?user_response=logged_out' })
   check(await until(inGame('.btn--play, .tutorial-answer')), 'signed out: the home (or a lesson) shows')
   await sleep(2500)
   const guest = await evaluate(stored)
-  const kept = guest.profile
-  check(!kept || kept.runs === 0 || kept.runs === undefined, 'signed out: the local profile carries no games', JSON.stringify(kept)?.slice(0, 120) ?? 'absent')
-  check(!kept || !kept.xp, 'signed out: the local profile carries no XP', `xp ${kept?.xp ?? 'absent'}`)
-  const leaked = guest.saved.filter((value) => value != null && !/"runs":0\b/.test(String(value)))
-  check(leaked.length === 0, 'signed out: the SDK’s local save holds no profile', leaked.length ? String(leaked[0]).slice(0, 120) : `${guest.sdkKeys} SDK_DATA key(s), none with a profile`)
+  const kept = typeof guest.profile === 'string' ? JSON.parse(guest.profile) : guest.profile
+  check(kept?.runs === GUEST.runs && kept?.xp === GUEST.xp, 'signed out: the local profile is the guest’s own save (3 games, 120 XP)', JSON.stringify(kept)?.slice(0, 120) ?? 'absent')
+  const leaked = guest.saved.filter((value) => value != null && /"runs":14\b/.test(String(value)))
+  check(leaked.length === 0, 'signed out: the SDK’s guest save holds none of the account’s progress', leaked.length ? String(leaked[0]).slice(0, 120) : `${guest.sdkKeys} SDK_DATA key(s)`)
   const shownOut = await evaluate(figures)
   check(!/412|186|\b14\b/.test(shownOut), 'signed out: the home shows none of the account’s figures', shownOut || '(no figures)')
+  check(/\b37\b/.test(shownOut), 'signed out: the home shows the guest’s own best score', shownOut || '(no figures)')
   const level = await evaluate(`${game}.body.innerText`)
   check(!/LEVEL\s*7\b/i.test(level), 'signed out: the home no longer says level 7')
   await shot('2-signed-out')

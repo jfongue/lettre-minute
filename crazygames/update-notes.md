@@ -1,5 +1,22 @@
 # Update notes for CrazyGames review
 
+## 1.7.4
+
+- **Saving relies on the Data Module.** A guest who signs in and then signs
+  out gets their own guest progress back, as the SDK keeps it; the account's
+  progress never stays on the guest.
+- **A scrollbar on iPhone and iPad.** iOS draws no styleable scrollbar, so the
+  game draws its own along the right edge whenever the page (the portrait
+  main menu) is taller than the screen. Android and desktop keep theirs.
+- **The leaderboard scrolls in landscape on Android.** Its rows could take
+  the height of the whole board, run under the buttons below and leave
+  nothing to scroll; the board now keeps to its place and its rows scroll
+  under a bar, checked with touch swipes at 775×380, 926×476 and 1017×498.
+- **iOS portrait with the keyboard open** (the frame shown in the top half of
+  the screen, the portal's page under it): the frame's size and place under
+  the keyboard are the player's. Inside it the run keeps the letter, the
+  field, Skip and Enter in view, as the capture shows.
+
 ## 1.7.3
 
 - When the SDK fails on an ad request (it throws, rejects, or never calls

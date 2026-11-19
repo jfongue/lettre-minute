@@ -457,13 +457,14 @@ async function portalOwner(): Promise<string | null> {
  * signed-in player's, whichever device they come from. The browser's own saves
  * from before the module are handed to it once only.
  *
- * A sign-out always leaves a new guest (portal review, twice): the browser
+ * A sign-out never leaves the account's progress to the guest (portal review,
+ * twice), and gives the guest back their own (review of 1.7.2): the browser
  * remembers whose progress it holds (`OWNER_KEY`), and a start as a guest
  * after an account erases what the account left — its progress, its caches,
- * the game account's session — and the guest's own save, which a sign-in had
- * already given to the account. A browser from before that marker that has
- * held an account's save is treated the same, once: its guest may be carrying
- * an account's progress that earlier builds copied to it.
+ * the game account's session —, then reads the guest's save from the module,
+ * which the SDK kept apart while the account played. A browser from before
+ * that marker that has held an account's save also loses its guest's save,
+ * once: earlier builds may have copied an account's progress into it.
  *
  * From then on every write to one of these keys is mirrored to the module —
  * the one the SDK holds at that moment: it swaps it on a sign-in without
@@ -521,8 +522,11 @@ export async function restoreSavedProgress(): Promise<void> {
 
   const owner = await portalOwner()
   const previous = local(OWNER_KEY)
-  const signedOut = owner === '' && (previous === null ? stored().some((key) => key.startsWith(CLOUD_CACHE_PREFIX)) : previous !== '')
-  const changed = owner !== null && (signedOut || (previous !== null && previous !== owner))
+  const signedOut = owner === '' && previous !== null && previous !== ''
+  // A browser from before the owner marker that has held an account's save:
+  // earlier builds may have written that account's progress into the guest's.
+  const tainted = owner === '' && previous === null && stored().some((key) => key.startsWith(CLOUD_CACHE_PREFIX))
+  const changed = owner !== null && (signedOut || tainted || (previous !== null && previous !== owner))
   if (changed) {
     for (const key of stored()) {
       if ((key.startsWith('lettre-minute.') && !KEPT_KEYS.has(key)) || SESSION_KEY.test(key)) {
@@ -570,7 +574,7 @@ export async function restoreSavedProgress(): Promise<void> {
     const handingOver = !changed && local(HANDED_OVER_KEY) === null
     for (const key of SAVED_KEYS) {
       const device = DEVICE_KEYS.has(key)
-      if (signedOut && !device) {
+      if (tainted && !device) {
         atStart.removeItem(key)
         continue
       }

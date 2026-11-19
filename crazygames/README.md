@@ -199,14 +199,19 @@ ami modérateur) — un joueur connecté au portail a le compte
   langue ; la copie du SDK remplace celle du navigateur, y compris pour
   effacer une clé qu'il n'a pas. Les sauvegardes d'avant le module ne lui sont
   confiées qu'une fois par navigateur (`lettre-minute.crazygames-data.v1`).
-  **Une déconnexion laisse toujours un invité neuf** (revue Full Launch, deux
-  fois) : le navigateur retient à qui est la progression qu'il tient
-  (`lettre-minute.crazygames-owner.v1`, le pseudo du portail, vide pour un
-  invité), et un lancement en invité après un compte efface ce que le compte
-  a laissé — progression, caches, session du compte du jeu — ainsi que la
-  sauvegarde locale de l'invité, qu'une connexion avait déjà donnée au compte.
-  Un navigateur d'avant ce marqueur qui a tenu la sauvegarde d'un compte
-  (`SDK_DATA_CLOUD_CACHE_*`) est traité de même, une fois. Restent à
+  **Une déconnexion rend à l'invité sa propre sauvegarde, jamais celle du
+  compte** (revue Full Launch, deux fois, puis revue de la 1.7.2 : « the SDK
+  will revert back to using the guest game data ») : le navigateur retient à
+  qui est la progression qu'il tient (`lettre-minute.crazygames-owner.v1`, le
+  pseudo du portail, vide pour un invité), et un lancement en invité après un
+  compte efface ce que le compte a laissé — progression, caches, session du
+  compte du jeu —, puis relit la sauvegarde de l'invité dans le module, que le
+  SDK a tenue à part pendant que le compte jouait. Seul un navigateur d'avant
+  ce marqueur qui a tenu la sauvegarde d'un compte (`SDK_DATA_CLOUD_CACHE_*`)
+  perd aussi celle de l'invité, une fois : les builds d'avant ont pu y copier
+  la progression du compte. Le SDK local du harnais ne tient qu'une
+  sauvegarde pour les deux (`SDK_DATA_local`) : `crazygames:flows` y pose
+  celle de l'invité avant la déconnexion. Restent à
   l'appareil : langue, thème, son, leçons déjà vues. Depuis le SDK 3.8 une
   connexion ne recharge plus la page, le SDK échange son module : chaque
   écriture va donc au module que le SDK tient à cet instant (jamais à celui
@@ -222,7 +227,9 @@ ami modérateur) — un joueur connecté au portail a le compte
   appui sur `body` (le champ de réponse reste sélectionnable), pas de
   défilement qui se propage à la page du portail. Toute boîte qui défile y
   dessine sa barre (revue : une scène qui défile sans barre cache ce qui est
-  sous le bord) ; les carrousels gardent onglets et points. Dans le cadre paysage, deux
+  sous le bord) ; iOS n'en dessine aucune qu'une page puisse styler, et la
+  page y reçoit donc une barre à elle (`drawPageBarOnIos`,
+  `src/crazygames.tsx`, `.page-bar`) quand elle dépasse le cadre ; les carrousels gardent onglets et points. Dans le cadre paysage, deux
   colonnes seulement quand une seule ne tient pas : l'accueil d'un nouveau
   venu (`sheet--home-alone`) et un bilan sans rien en plus (`over-pane--more`
   vide) restent sur une colonne centrée ; le bilan chargé met la partie et
