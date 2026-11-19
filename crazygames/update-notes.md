@@ -1,5 +1,14 @@
 # Update notes for CrazyGames review
 
+## 1.7.3
+
+- When the SDK fails on an ad request (it throws, rejects, or never calls
+  back), « Play again » no longer waits a silent minute: the run starts at
+  once on an error, and an ad that has not started within 10 s is given up.
+  An ad that actually plays still has up to 60 s. Same for rewarded ads.
+
+## 1.7.1
+
 This build is 1.7.1 (the portal has 1.6.1; 1.7.0 was reviewed and sent back). Every point below is a change since
 that build, and each was played in the portal's frames (926×476, 800×450,
 1280×720, 390×844) with `npm run crazygames:check`.
