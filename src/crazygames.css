@@ -282,16 +282,28 @@ textarea {
     overflow-y: hidden;
   }
 
-  /* Ses lignes défilent sous une barre visible, toujours là quand elles
-     dépassent : sans elle, rien ne disait qu'il y en avait d'autres (revue). */
+  /* Ses lignes défilent sous une barre visible : sans elle, rien ne disait
+     qu'il y en avait d'autres (revue). La barre est fixe, son rail toujours
+     tracé : en `auto`, elle surgissait à l'arrivée des lignes puis changeait
+     de taille le temps que la piste prenne sa hauteur, et clignotait. */
   .home-body > .boards .board {
     min-height: 0;
     max-height: 100%;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
     overscroll-behavior: contain;
-    scrollbar-gutter: stable;
     padding-right: 4px;
+  }
+
+  .home-body > .boards .board::-webkit-scrollbar-track {
+    background: var(--rule);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* La page « Tous les classements › » n'a rien à faire défiler. */
+  .home-body > .boards .board-onward {
+    overflow-y: hidden;
   }
 
   /* Rien d'autre à montrer que « Jouer » — un appareil neuf : une seule
