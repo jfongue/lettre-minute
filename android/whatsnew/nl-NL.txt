@@ -1,5 +1,4 @@
-• Vernieuwde categorieën: “Dieren” heet nu “Zoogdieren” en “Voorwerpen” “Klein voorwerp”
-• Gemelde woorden uit de woordenboeken gehaald, door de community voorgestelde woorden toegevoegd
-• Duel: de aftelling bevriest niet meer en de revanche loopt niet meer vast
-• Geen tweede advertentie meer direct na een onthulling
+• 6 nieuwe categorieën: Vogels en reptielen, Zeedieren, Kleding en accessoires, Vervoermiddelen, plus Ingrediënten en Plekken en gebouwen, nu voor iedereen
+• Antwoorden van meerdere woorden tellen nog mee zonder de frequentie van letters te vertekenen
+• Snellere, betrouwbaardere ranglijsten
 • Bugfixes

@@ -1,5 +1,4 @@
-• Categorias renovadas: “Animais” passa a “Mamíferos” e “Objetos do dia a dia” a “Objeto pequeno”
-• Palavras denunciadas removidas dos dicionários e palavras sugeridas pela comunidade adicionadas
-• Duelo: a contagem regressiva não trava mais e a revanche não emperra mais
-• Chega de segundo anúncio seguido após uma revelação
+• 6 categorias novas: Aves e répteis, Animais marinhos, Roupas e acessórios, Meios de transporte, além de Ingredientes e Lugares e edifícios, agora para todos
+• Respostas de várias palavras continuam valendo sem distorcer a frequência das letras
+• Rankings mais rápidos e confiáveis
 • Correções de bugs

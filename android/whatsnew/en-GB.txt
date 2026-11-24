@@ -1,5 +1,4 @@
-• Reworked categories: “Animals” is now “Mammals” and “Everyday objects” is now “Small object”
-• Reported words removed from the dictionaries, community-suggested words added
-• Duel: the opening countdown no longer freezes and the rematch no longer gets stuck
-• No more second ad in a row after a reveal
+• 6 new categories: Birds and reptiles, Sea creatures, Clothes and accessories, Ways to get around, plus Ingredients and Places and buildings, now open to everyone
+• Answers of several words still count without skewing how often letters come up
+• Faster, more reliable leaderboards
 • Bug fixes

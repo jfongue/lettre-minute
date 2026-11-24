@@ -1,5 +1,4 @@
-• Catégories remaniées : « Animaux » devient « Mammifères » et « Objets du quotidien » devient « Petit objet »
-• Mots signalés retirés des dictionnaires, mots proposés par la communauté ajoutés
-• Duel : le compte à rebours ne se fige plus et la revanche ne bloque plus
-• Plus de deuxième pub d’affilée après une révélation
+• 6 nouvelles catégories : Oiseaux et reptiles, Animaux marins, Vêtements et accessoires, Moyens de locomotion, puis Ingrédients et Lieux et bâtiments, désormais pour tous
+• Les réponses en plusieurs mots restent acceptées sans fausser la fréquence des lettres
+• Classements plus rapides et plus fiables
 • Corrections de bugs

@@ -1,5 +1,4 @@
-• Überarbeitete Kategorien: „Tiere“ heißt jetzt „Säugetiere“ und „Alltagsgegenstände“ „Kleiner Gegenstand“
-• Gemeldete Wörter aus den Wörterbüchern entfernt, Wörter der Community hinzugefügt
-• Duell: Der Start-Countdown friert nicht mehr ein, die Revanche hängt nicht mehr
-• Keine zweite Werbung mehr direkt nach einer Enthüllung
+• 6 neue Kategorien: Vögel und Reptilien, Meerestiere, Kleidung und Accessoires, Fortbewegungsmittel sowie Zutaten und Orte und Gebäude, jetzt für alle
+• Antworten aus mehreren Wörtern zählen weiter, ohne die Häufigkeit der Buchstaben zu verfälschen
+• Schnellere, zuverlässigere Bestenlisten
 • Fehlerbehebungen

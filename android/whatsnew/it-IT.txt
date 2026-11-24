@@ -1,5 +1,4 @@
-• Categorie rinnovate: « Animali » diventa « Mammiferi » e « Oggetti quotidiani » « Piccolo oggetto »
-• Parole segnalate tolte dai dizionari, parole proposte dalla community aggiunte
-• Duello: il conto alla rovescia non si blocca più e la rivincita non si inceppa più
-• Niente più secondo annuncio di fila dopo una rivelazione
+• 6 nuove categorie: Uccelli e rettili, Animali marini, Vestiti e accessori, Mezzi di trasporto, più Ingredienti e Luoghi ed edifici, ora per tutti
+• Le risposte di più parole restano valide senza falsare la frequenza delle lettere
+• Classifiche più veloci e affidabili
 • Correzioni di bug
