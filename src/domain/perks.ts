@@ -13,13 +13,11 @@ export const PLUS_BANS = 6
 /** Playable categories a ban never goes under: a run of five still has one to spare. */
 export const MIN_PLAYABLE_CATEGORIES = 6
 
-/** Hidden answers uncovered per day: the base, then what bonuses and ads add, up to `REVEALS_MAX`. */
+/** Hidden answers uncovered per day: the base, then what bonuses add, then as many ads as the player will watch. */
 export const BASE_REVEALS = 2
 export const REVEAL_BONUS_MAX = 3
-/** Ads a free player may watch for reveals, and what each one pays: two at a time. */
-export const REVEAL_ADS_MAX = 3
-export const REVEALS_PER_AD = 2
-export const REVEALS_MAX = BASE_REVEALS + REVEAL_BONUS_MAX + REVEAL_ADS_MAX * REVEALS_PER_AD
+/** What each ad pays: three reveals at a time, with no cap on the day's ads. */
+export const REVEALS_PER_AD = 3
 
 /** What Premium gave beyond the free limits, as the Premium page counts it. */
 export type PlusStat = 'reveals' | 'attempts' | 'filterRuns' | 'premiereRuns' | 'adsSkipped'
@@ -43,8 +41,8 @@ export function countPlusAdSkipped(profile: Profile): Profile {
 
 /**
  * A reveal a Premium member took: counted when it goes beyond what the free
- * day allows — a reveal an ad would have paid for also skips that ad, one past
- * the ads' share is simply extra. Free players spend theirs with `spendReveal`.
+ * day allows, and the first of every `REVEALS_PER_AD` beyond it skips the ad
+ * that would have paid for them. Free players spend theirs with `spendReveal`.
  */
 export function countPlusReveal(profile: Profile, day: string): Profile {
   if (!isPlus(profile)) return profile
@@ -54,7 +52,7 @@ export function countPlusReveal(profile: Profile, day: string): Profile {
   const beyond = used - free
   const next = { ...today, revealsUsed: used }
   if (beyond <= 0) return next
-  return bumped(next, 'reveals', ...(beyond <= REVEAL_ADS_MAX ? (['adsSkipped'] as const) : []))
+  return bumped(next, 'reveals', ...((beyond - 1) % REVEALS_PER_AD === 0 ? (['adsSkipped'] as const) : []))
 }
 
 /** What a finished run shows of Premium: filters past the free maximum, and an avant-première dealt. */
@@ -241,15 +239,14 @@ export function creditRevealGifts(profile: Profile, submissionIds: readonly stri
   return fresh.length === 0 ? profile : { ...profile, revealGifts: [...profile.revealGifts, ...fresh] }
 }
 
-/** Rewarded ads that can still pay a reveal today; none for Premium, who needs none. */
-export function revealAdsLeft(profile: Profile, day: string): number {
-  if (isPlus(profile)) return 0
-  return Math.max(0, REVEAL_ADS_MAX - revealsOn(profile, day).revealAds)
+/** Rewarded ads that can still pay a reveal today: no end to them, none for Premium, who needs none. */
+export function revealAdsLeft(profile: Profile): number {
+  return isPlus(profile) ? 0 : Infinity
 }
 
-/** Two more reveals for a watched ad, up to `REVEAL_ADS_MAX` a day. */
+/** `REVEALS_PER_AD` more reveals for a watched ad. */
 export function grantRevealAd(profile: Profile, day: string): Profile {
-  if (revealAdsLeft(profile, day) <= 0) return profile
+  if (revealAdsLeft(profile) <= 0) return profile
   const today = revealsOn(profile, day)
   return { ...today, revealAds: today.revealAds + 1 }
 }
@@ -271,7 +268,7 @@ export function revealBudget(profile: Profile, day: string, open = false): Revea
     left: revealsLeft(profile, day),
     // A banked reveal can lift `left` above the day's share: the chip never reads « 7 / 5 ».
     allowed: Math.max(revealsAllowed(profile, day), revealsLeft(profile, day)),
-    adsLeft: revealAdsLeft(profile, day),
+    adsLeft: revealAdsLeft(profile),
     unlimited: open || isPlus(profile),
   }
 }

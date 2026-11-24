@@ -23,7 +23,7 @@ const SHARDS = Array.from({ length: 10 }, (_, i) => ({ angle: (i / 10) * 360 + (
  * dark to read. A tap tears the bar off: a few a day, then an ad or Premium.
  *
  * La bande qui ne peut plus rien arracher ne part pas dans le vide : le premier
- * appui propose la pub — elle paie deux révélations et fait vivre le jeu —, les
+ * appui propose la pub — elle paie trois révélations et fait vivre le jeu —, les
  * suivants proposent Premium, qui répond « voir une pub » ou « le devenir ».
  *
  * A torn-off word is one a moderator can flag like any other: what the game
@@ -92,7 +92,7 @@ export function HiddenAnswers({
   }
 
   /**
-   * Plus rien à arracher : la première fois, la pub (deux révélations d'un coup) ;
+   * Plus rien à arracher : la première fois, la pub (trois révélations d'un coup) ;
    * ensuite Premium, qui offre les deux réponses. Sans boutique ni pub, la bande
    * ne dit rien, comme avant.
    */

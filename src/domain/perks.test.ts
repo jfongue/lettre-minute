@@ -12,9 +12,7 @@ import {
   feedbackDue,
   shareNewsDue,
   BASE_REVEALS,
-  REVEAL_ADS_MAX,
   REVEAL_BONUS_MAX,
-  REVEALS_MAX,
   REVEALS_PER_AD,
   banUnlocked,
   grantRevealAd,
@@ -130,28 +128,21 @@ describe('reveals', () => {
     expect(revealsLeft(withBonuses(4), DAY)).toBe(BASE_REVEALS + REVEAL_BONUS_MAX)
   })
 
-  it('grow by two per ad, three a day, and the ads restart with the day', () => {
+  it('grow by three per ad, with no cap on the ads, and what they paid ends with the day', () => {
     let profile = NEW_PROFILE
-    for (let i = 0; i < REVEAL_ADS_MAX + 2; i++) profile = grantRevealAd(profile, DAY)
-    expect(profile.revealAds).toBe(REVEAL_ADS_MAX)
-    expect(revealAdsLeft(profile, DAY)).toBe(0)
-    expect(revealsLeft(profile, DAY)).toBe(BASE_REVEALS + REVEALS_PER_AD * REVEAL_ADS_MAX)
-    expect(revealAdsLeft(profile, NEXT)).toBe(REVEAL_ADS_MAX)
+    for (let i = 0; i < 20; i++) profile = grantRevealAd(profile, DAY)
+    expect(REVEALS_PER_AD).toBe(3)
+    expect(profile.revealAds).toBe(20)
+    expect(revealAdsLeft(profile)).toBe(Infinity)
+    expect(revealsLeft(profile, DAY)).toBe(BASE_REVEALS + REVEALS_PER_AD * 20)
     expect(revealsLeft(profile, NEXT)).toBe(BASE_REVEALS)
-  })
-
-  it('top out at eleven', () => {
-    let profile = withBonuses(3)
-    for (let i = 0; i < REVEAL_ADS_MAX; i++) profile = grantRevealAd(profile, DAY)
-    expect(revealsLeft(profile, DAY)).toBe(REVEALS_MAX)
-    expect(REVEALS_MAX).toBe(11)
   })
 
   it('never run out for Premium, who watches no ad', () => {
     const plus = joinPlus(NEW_PROFILE, 1)
     expect(revealsLeft(plus, DAY)).toBe(Infinity)
     expect(spendReveal(plus, DAY)).toBe(plus)
-    expect(revealAdsLeft(plus, DAY)).toBe(0)
+    expect(revealAdsLeft(plus)).toBe(0)
     expect(grantRevealAd(plus, DAY)).toBe(plus)
   })
 
@@ -351,15 +342,18 @@ describe('what Premium brought', () => {
     expect(countPlusRun(NEW_PROFILE, { filtersActive: 6, premiereDealt: true })).toBe(NEW_PROFILE)
   })
 
-  it('counts a reveal only past the free allowance, and an ad skipped while an ad could have paid', () => {
+  it('counts a reveal only past the free allowance, and an ad skipped per pack an ad would have paid', () => {
     let profile = plus
     for (let i = 0; i < BASE_REVEALS; i++) profile = countPlusReveal(profile, DAY)
     expect(plusStat(profile, 'reveals')).toBe(0)
     profile = countPlusReveal(profile, DAY)
     expect(plusStat(profile, 'reveals')).toBe(1)
     expect(plusStat(profile, 'adsSkipped')).toBe(1)
-    for (let i = 0; i < REVEAL_ADS_MAX + 1; i++) profile = countPlusReveal(profile, DAY)
-    expect(plusStat(profile, 'adsSkipped')).toBe(REVEAL_ADS_MAX)
+    for (let i = 1; i < REVEALS_PER_AD; i++) profile = countPlusReveal(profile, DAY)
+    expect(plusStat(profile, 'adsSkipped')).toBe(1)
+    profile = countPlusReveal(profile, DAY)
+    expect(plusStat(profile, 'reveals')).toBe(REVEALS_PER_AD + 1)
+    expect(plusStat(profile, 'adsSkipped')).toBe(2)
     expect(plusStat(countPlusReveal(profile, NEXT), 'reveals')).toBe(plusStat(profile, 'reveals'))
   })
 
