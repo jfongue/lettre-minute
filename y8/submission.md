@@ -35,7 +35,7 @@ The drop zone is a cross-origin frame: the zip is dragged in by hand, then
 | Field | Answer |
 |---|---|
 | Content safety | Neither blood nor casino |
-| Supported platforms | Desktop, Mobile |
+| Supported platforms | Desktop, Mobile (Android & iOS: the CrazyGames page it shares already handles iOS) |
 | Game features | Online Save only (Y8's cloud save, `saveData`). The game's own leaderboards and achievements do not go through Y8's SDK, so those boxes stay empty |
 | AI declaration | « The game was developed with AI assistance ». Not ticked: « primarily created using generative AI », « uses AI-generated graphics, music or other assets » (confirmed: no asset of the game is AI-generated) |
 
