@@ -34,9 +34,11 @@ for (const lang of existsSync(DIR) ? readdirSync(DIR) : []) {
  * corpora rate « koptelefoon » or « bakfiets » too rare to count as known.
  * Not ready to ship as they stand — a run would deal the same few pairs —,
  * and held below the bar here so that the day an import lifts one, this list
- * has to shrink with it.
+ * has to shrink with it. French and Spanish electronics joined them when
+ * answers of several words (« appareil photo », « cámara digital ») stopped
+ * counting toward a letter.
  */
-const THIN_YET = ['nl/electronique', 'nl/meubles']
+const THIN_YET = ['es/electronique', 'fr/electronique', 'nl/electronique', 'nl/meubles']
 
 /** The first answers a table would shout, per language. */
 const OBVIOUS: Record<string, Record<string, readonly string[]>> = {
