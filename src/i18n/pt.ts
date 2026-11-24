@@ -840,7 +840,7 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
 
   premium: {
     title: 'Premium',
-    menuHint: 'Filtro, revelações, estreias…',
+    menuHint: 'Filtro, revelações, sem anúncios…',
   news: {
     title: 'Novas categorias jogáveis',
     body: (names) => `${names} chegam em estreia. O Premium abre-as já: nada para desbloquear.`,
@@ -868,7 +868,6 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
       filter: (count: number) => `Filtra até ${count} categorias`,
       reveal: 'Revelações ilimitadas',
       attempt: (count: number) => `${count} tentativas por dia no desafio do momento`,
-      premiere: 'Categorias em estreia: Ingredientes, Lugares e edifícios',
       ads: 'Nunca mais anúncios',
       indie: 'Ajudas um pequeno programador indie',
       lifetime: 'Para sempre: um só pagamento, sem subscrição',

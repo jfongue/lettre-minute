@@ -15,13 +15,12 @@ export type PremiumStatus = 'idle' | 'loading' | 'success' | 'error' | 'cancelle
 const FILTERS = 6
 const ATTEMPTS = 5
 
-type BenefitId = 'filter' | 'reveal' | 'attempt' | 'premiere' | 'ads' | 'indie' | 'lifetime'
+type BenefitId = 'filter' | 'reveal' | 'attempt' | 'ads' | 'indie' | 'lifetime'
 
 const BENEFITS: readonly { id: BenefitId; icon: ResourceIcon; value: 'filters' | 'infinity' | 'attempts' | null }[] = [
   { id: 'filter', icon: 'lock', value: 'filters' },
   { id: 'reveal', icon: 'eye', value: 'infinity' },
   { id: 'attempt', icon: 'ticket', value: 'attempts' },
-  { id: 'premiere', icon: 'premiere', value: null },
   { id: 'ads', icon: 'noads', value: null },
   { id: 'indie', icon: 'heart', value: null },
   { id: 'lifetime', icon: 'forever', value: null },
@@ -63,7 +62,6 @@ const LEAD: Partial<Record<PremiumReason, BenefitId>> = {
   filter: 'filter',
   reveal: 'reveal',
   attempt: 'attempt',
-  premiere: 'premiere',
   ads: 'ads',
 }
 

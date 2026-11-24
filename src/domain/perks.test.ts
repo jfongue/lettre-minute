@@ -381,12 +381,9 @@ describe('what Premium brought', () => {
 })
 
 describe('the news a delivery brings', () => {
-  it('announces a shipped preview once, and again for every new one', () => {
-    const available = ['pays', 'ingredients', 'lieux']
-    expect(premiereNews([], available)).toEqual(['ingredients', 'lieux'])
-    expect(premiereNews(['ingredients'], available)).toEqual(['lieux'])
-    expect(premiereNews(['ingredients', 'lieux'], available)).toEqual([])
-    // Sans dictionnaire livré pour la langue, rien à annoncer.
+  it('announces no preview while the catalogue holds none', () => {
+    // Ingrédients et Lieux sont ouverts à tous : plus rien à annoncer.
+    expect(premiereNews([], ['pays', 'ingredients', 'lieux'])).toEqual([])
     expect(premiereNews([], ['pays', 'sports'])).toEqual([])
   })
 

@@ -2024,7 +2024,6 @@ function PremiumGrammarScenario({ onBack }: { onBack(): void }) {
       <h2>Emplacements verrouillés</h2>
       <div className="board-premium-stack">
         <PlusLockedSlot icon="ticket" label="Tentative 4" hint="Réservée à Premium" onOpen={() => undefined} />
-        <PlusLockedSlot icon="premiere" label="Ingrédients" hint="En avant-première" onOpen={() => undefined} />
         <PlusLockedSlot icon="eye" label="Révéler un mot de plus" onOpen={() => undefined} />
       </div>
     </div>
@@ -2039,14 +2038,6 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Ouverte par le filtrage : sa ligne en tête, un achat factice qui réussit après une seconde',
     phase: 'home',
     render: (back) => <PremiumSheetScenario reason="filter" onBack={back} />,
-  },
-  {
-    id: 'premium-sheet-premiere',
-    group: 'Premium',
-    title: 'Fiche Premium : avant-première',
-    how: 'Ouverte par une catégorie en avant-première',
-    phase: 'home',
-    render: (back) => <PremiumSheetScenario reason="premiere" onBack={back} />,
   },
   {
     id: 'premium-sheet-loading',
@@ -2709,17 +2700,9 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'categories-filter-plus',
     group: 'Accueil',
     title: 'Mes catégories : filtrage Premium',
-    how: 'Membre Premium : compteur de cadenas noir et jaune, avant-premières possédées et marquées',
+    how: 'Membre Premium : compteur de cadenas noir et jaune, Ingrédients et Lieux et bâtiments gardés d’avant leur ouverture',
     phase: 'home',
     render: () => <BansScenario seen plus every banned={['pays']} />,
-  },
-  {
-    id: 'categories-premieres',
-    group: 'Accueil',
-    title: 'Mes catégories : avant-premières',
-    how: 'Un cadenas gagné, sans Premium : Ingrédients et Lieux et bâtiments en emplacements pointillés qui ouvrent la fiche',
-    phase: 'home',
-    render: () => <BansScenario seen every bonuses={['filter']} />,
   },
   {
     id: 'premium-page',

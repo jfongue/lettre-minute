@@ -840,7 +840,7 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
 
   premium: {
     title: 'Premium',
-    menuHint: 'Filtrado, revelaciones, primicias…',
+    menuHint: 'Filtrado, revelaciones, sin anuncios…',
   news: {
     title: 'Nuevas categorías jugables',
     body: (names) => `${names} llegan en primicia. Premium las abre al momento: nada que desbloquear.`,
@@ -868,7 +868,6 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
       filter: (count: number) => `Filtra hasta ${count} categorías`,
       reveal: 'Revelaciones ilimitadas',
       attempt: (count: number) => `${count} intentos al día en el desafío del momento`,
-      premiere: 'Categorías en primicia: Ingredientes, Lugares y edificios',
       ads: 'Ningún anuncio más',
       indie: 'Ayudas a un pequeño desarrollador indie',
       lifetime: 'De por vida: un solo pago, sin suscripción',

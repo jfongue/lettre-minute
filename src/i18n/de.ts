@@ -838,7 +838,7 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
 
   premium: {
     title: 'Premium',
-    menuHint: 'Filtern, Enthüllungen, Kategorien vorab…',
+    menuHint: 'Filtern, Enthüllungen, keine Werbung…',
   news: {
     title: 'Neue spielbare Kategorien',
     body: (names) => `${names} kommen als Vorab-Kategorien. Premium öffnet sie sofort: nichts freizuschalten.`,
@@ -866,7 +866,6 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
       filter: (count: number) => `Filtere bis zu ${count} Kategorien`,
       reveal: 'Unbegrenzte Enthüllungen',
       attempt: (count: number) => `${count} Versuche pro Tag bei der Aktuellen Challenge`,
-      premiere: 'Kategorien vorab: Zutaten, Orte und Gebäude',
       ads: 'Nie wieder Werbung',
       indie: 'Du hilfst einem kleinen Indie-Entwickler',
       lifetime: 'Für immer: einmal zahlen, kein Abo',

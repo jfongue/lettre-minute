@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { CATALOGUE, sharedCategoryIds } from './catalogue'
+import { FORMER_PREMIERES, ownedPlainCount } from './owned'
 import { NEW_PROFILE, xpForLevel, type Profile } from './progression'
 import {
   ADS_ENABLED,
@@ -204,20 +205,21 @@ describe('unlockEverything', () => {
   })
 })
 
-describe('avant-premières', () => {
-  const premieres = CATALOGUE.filter((category) => category.premiere).map((category) => category.id)
-
-  it('belong to Premium alone, and are never offered', () => {
-    expect(premieres.length).toBeGreaterThan(0)
-    for (const id of premieres) expect(ownedCategoryIds(NEW_PROFILE)).not.toContain(id)
-    expect(ownedCategoryIds({ ...NEW_PROFILE, plusSince: 5 })).toEqual([...starterCategoryIds(), ...premieres])
-    const dealt = dealOffer(atLevel(30), [...ALL, ...premieres], 1)
-    for (const id of premieres) expect(dealt.offer).not.toContain(id)
-    expect(unlockEverything(NEW_PROFILE).unlocked).not.toContain(premieres[0])
+describe('the former avant-premières', () => {
+  it('are ordinary categories now: offered, and dealt to everyone alike', () => {
+    expect(CATALOGUE.filter((category) => category.premiere)).toEqual([])
+    for (const id of FORMER_PREMIERES) expect(ALL).toContain(id)
+    expect(sharedCategoryIds(ALL)).toEqual(ALL)
+    const offered = new Set(Array.from({ length: 40 }, (_, seed) => dealOffer(atLevel(30), ALL, seed).offer).flat())
+    for (const id of FORMER_PREMIERES) expect(offered).toContain(id)
   })
 
-  it('stay out of what players share', () => {
-    expect(sharedCategoryIds([...ALL, ...premieres])).toEqual(ALL)
-    expect(sharedCategoryIds(['pays', 'animaux'])).toEqual(['pays', 'animaux'])
+  it('stay with a Premium member who owned them, whatever the level, and owe no pick', () => {
+    const plus = { ...NEW_PROFILE, plusSince: 5 }
+    expect(ownedCategoryIds(NEW_PROFILE)).toEqual(starterCategoryIds())
+    expect(ownedCategoryIds(plus)).toEqual([...starterCategoryIds(), ...FORMER_PREMIERES])
+    expect(ownedPlainCount(plus)).toBe(starterCategoryIds().length)
+    expect(picksOwed(plus)).toBe(0)
+    for (const id of FORMER_PREMIERES) expect(dealOffer(atLevel(30, plus), ALL, 1).offer).not.toContain(id)
   })
 })
