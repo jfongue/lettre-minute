@@ -17,9 +17,6 @@
 select cron.schedule('push-challenges', '*/2 * * * *', 'select public.push_tick()');
 select cron.schedule('house-bots-challenges', '*/2 * * * *', 'select public.bots_play_challenges()');
 
--- L'index de l'appareil sert aussi les recherches par appareil seul.
-create index events_device_at on public.events (device, at);
-drop index public.events_device;
 
 -- Corps de 0110 ; seul le comptage du plafond change.
 create or replace function public.track(p_events jsonb) returns integer
