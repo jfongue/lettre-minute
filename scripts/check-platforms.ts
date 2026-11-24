@@ -2,8 +2,8 @@
  * The end of `npm run check`: every version builds from the shared screens
  * (CLAUDE.md, « Plateformes »), so a change that breaks one shows before the
  * commit, not at its release. Builds the app (Android and web) and the
- * CrazyGames version into .cache/check/, checks that neither carries the
- * other's host, then type-checks and builds the Reddit daily. Each build takes
+ * CrazyGames and Y8 versions into .cache/check/, checks that none carries
+ * another's host, then type-checks and builds the Reddit daily. Each build takes
  * a second or two and needs no network.
  *
  *   npm run check:platforms
@@ -34,7 +34,11 @@ const build = (mode: string | null, outDir: string) =>
 
 build(null, join(OUT, 'app'))
 build('crazygames', join(OUT, 'crazygames'))
+build('y8', join(OUT, 'y8'))
 refuse('The Android and web build', scripts(join(OUT, 'app')), 'sdk.crazygames.com')
+refuse('The Android and web build', scripts(join(OUT, 'app')), 'cdn.y8.com')
+refuse('The CrazyGames build', scripts(join(OUT, 'crazygames')), 'cdn.y8.com')
+refuse('The Y8 build', scripts(join(OUT, 'y8')), 'sdk.crazygames.com')
 refuse('The CrazyGames build', scripts(join(OUT, 'crazygames')), 'keepsProgress:!1')
 
 if (!existsSync('reddit/node_modules')) {
@@ -44,4 +48,4 @@ if (!existsSync('reddit/node_modules')) {
 run('npm', ['--prefix', 'reddit', '--silent', 'run', 'check'])
 
 if (failed) process.exit(1)
-console.log('ok   app, CrazyGames and Reddit builds')
+console.log('ok   app, CrazyGames, Y8 and Reddit builds')

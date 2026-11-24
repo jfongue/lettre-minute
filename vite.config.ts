@@ -33,6 +33,18 @@ const CRAZYGAMES_BLANKS = [
   'VITE_GOOGLE_WEB_CLIENT_ID',
 ]
 
+// `vite build --mode y8` (npm run y8:build): the CrazyGames page behind Y8's
+// SDK (y8/README.md). Y8 refuses any link off its page, the privacy page's
+// included, and the portal's leaderboard key is the portal's alone.
+const Y8_BLANKS = [...CRAZYGAMES_BLANKS, 'VITE_PRIVACY_URL', 'VITE_CRAZYGAMES_LEADERBOARD_KEY']
+
+// The web portals' builds: one page each, relative paths, no public/ folder.
+const PORTAL_BLANKS: Record<string, string[]> = { crazygames: CRAZYGAMES_BLANKS, y8: Y8_BLANKS }
+const PORTAL_SDKS: Record<string, string> = {
+  crazygames: 'https://sdk.crazygames.com/crazygames-sdk-v3.js',
+  y8: 'https://cdn.y8.com/minimal-sdk/2-0/y8.min.js',
+}
+
 // The phone's plugins that pull code into a browser bundle even though only
 // the Android shell calls them (src/lib/native.ts guards every call by
 // `native` or a blanked variable): on CrazyGames they are no-ops, and the
@@ -40,9 +52,9 @@ const CRAZYGAMES_BLANKS = [
 const PHONE_ONLY_PLUGINS = ['@capgo/capacitor-social-login', '@capgo/native-purchases', '@capacitor-community/admob']
 const PHONE_STUB = '\0phone-plugin-stub'
 
-function crazyGamesLoad(): Plugin {
+function portalLoad(sdk: string): Plugin {
   return {
-    name: 'lettre-minute-crazygames-load',
+    name: 'lettre-minute-portal-load',
     enforce: 'pre',
     resolveId: (source) => (PHONE_ONLY_PLUGINS.includes(source) ? PHONE_STUB : null),
     load: (id) =>
@@ -59,7 +71,7 @@ export { names as PURCHASE_TYPE, names as AdmobConsentStatus, names as Interstit
       handler: (_html, context) => {
         const font = Object.keys(context.bundle ?? {}).find((name) => /jost-latin-wght-normal-.*\.woff2$/.test(name))
         return [
-          { tag: 'link', attrs: { rel: 'preload', as: 'script', href: 'https://sdk.crazygames.com/crazygames-sdk-v3.js' }, injectTo: 'head' },
+          { tag: 'link', attrs: { rel: 'preload', as: 'script', href: sdk }, injectTo: 'head' },
           ...(font ? [{ tag: 'link', attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: `./${font}` }, injectTo: 'head' as const }] : []),
         ]
       },
@@ -68,14 +80,14 @@ export { names as PURCHASE_TYPE, names as AdmobConsentStatus, names as Interstit
 }
 
 export default defineConfig(({ mode }) => ({
-  plugins: mode === 'crazygames' ? [crazyGamesLoad(), react()] : [react()],
+  plugins: mode in PORTAL_BLANKS ? [portalLoad(PORTAL_SDKS[mode]), react()] : [react()],
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
     'import.meta.env.VITE_BUILD': JSON.stringify(buildStamp),
     // The host the build is for (src/platform/index.ts), a literal the
     // minifier folds: the other hosts' code never reaches the bundle.
-    'import.meta.env.VITE_PLATFORM': JSON.stringify(mode === 'crazygames' ? 'crazygames' : 'app'),
-    ...(mode === 'crazygames' ? Object.fromEntries(CRAZYGAMES_BLANKS.map((name) => [`import.meta.env.${name}`, '""'])) : {}),
+    'import.meta.env.VITE_PLATFORM': JSON.stringify(mode in PORTAL_BLANKS ? mode : 'app'),
+    ...(mode in PORTAL_BLANKS ? Object.fromEntries(PORTAL_BLANKS[mode].map((name) => [`import.meta.env.${name}`, '""'])) : {}),
   },
   // Vite does not read PORT on its own; honouring it lets a harness or a second
   // checkout run the dev server on a port it picked.
@@ -88,10 +100,10 @@ export default defineConfig(({ mode }) => ({
   // invite.html the page a shared invitation opens (src/invite.ts), dashboard/
   // the public dashboard (src/dashboard.tsx), a folder so Pages serves /dashboard.
   build:
-    mode === 'crazygames'
-      ? { chunkSizeWarningLimit: 1000, outDir: 'dist-crazygames', rollupOptions: { input: ['crazygames.html'] } }
+    mode in PORTAL_BLANKS
+      ? { chunkSizeWarningLimit: 1000, outDir: `dist-${mode}`, rollupOptions: { input: [`${mode}.html`] } }
       : { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html', 'invite.html', 'duel.html', 'dashboard/index.html'] } },
-  ...(mode === 'crazygames' ? { base: './', publicDir: false as const } : {}),
+  ...(mode in PORTAL_BLANKS ? { base: './', publicDir: false as const } : {}),
   // Agent worktrees and scratch checkouts live inside the repo: without this,
   // `vitest run` also runs their copies of the suite (267 of 307 test files).
   test: { exclude: [...configDefaults.exclude, '.claude/**', '.cache/**'] },

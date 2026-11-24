@@ -3,6 +3,7 @@ import { appHost } from './app'
 import { crazyGamesHost } from './crazygames'
 import type { Host, Platform } from './host'
 import { redditHost } from './reddit'
+import { y8Host } from './y8'
 
 export type { Host, Platform } from './host'
 
@@ -11,13 +12,14 @@ export type { Host, Platform } from './host'
  * and compared as a literal, so the minifier drops the other hosts' code: the
  * Android and web bundle carries no CrazyGames SDK, and the reverse.
  */
-const BUILD = import.meta.env.VITE_PLATFORM as 'app' | 'crazygames' | 'reddit'
+const BUILD = import.meta.env.VITE_PLATFORM as 'app' | 'crazygames' | 'reddit' | 'y8'
 
 /** Android and the web are one build: only the phone's shell tells them apart. */
 export const PLATFORM: Platform =
-  BUILD === 'crazygames' ? 'crazygames' : BUILD === 'reddit' ? 'reddit' : isNativeApp() ? 'android' : 'web'
+  BUILD === 'crazygames' ? 'crazygames' : BUILD === 'reddit' ? 'reddit' : BUILD === 'y8' ? 'y8' : isNativeApp() ? 'android' : 'web'
 
-export const host: Host = BUILD === 'crazygames' ? crazyGamesHost : BUILD === 'reddit' ? redditHost : appHost
+export const host: Host =
+  BUILD === 'crazygames' ? crazyGamesHost : BUILD === 'reddit' ? redditHost : BUILD === 'y8' ? y8Host : appHost
 
 /**
  * What the feature table opened, plus what this host opens itself, minus what
@@ -33,15 +35,15 @@ export function hostFeatures(features: ReadonlySet<string>, superModerator = fal
  * Real-money Premium: the phone's shell through Play Billing, or the web page
  * through its own merchant (`VITE_PREMIUM_WEB`, off unless the merchant is
  * ready — a debug publication must never ask for money by accident).
- * CrazyGames and Reddit sell nothing.
+ * CrazyGames, Reddit and Y8 sell nothing.
  */
 export const premiumStoreOpen =
   host.premiumStore && (PLATFORM === 'android' || (PLATFORM === 'web' && import.meta.env.VITE_PREMIUM_WEB === 'true'))
 
 /**
 * Rewarded ads: AdMob in the Android shell, the portal's SDK on CrazyGames once
-* its build allows them; never the web page. The phone also needs a real AdMob
+* its build allows them, Y8's once its game id is in the build; never the web page. The phone also needs a real AdMob
 * unit: without one a release build shows no ad, so nothing is offered.
 */
 export const rewardedAdsOpen =
-  host.rewardedAds && ((PLATFORM === 'android' && rewardedAdsConfigured()) || PLATFORM === 'crazygames')
+  host.rewardedAds && ((PLATFORM === 'android' && rewardedAdsConfigured()) || PLATFORM === 'crazygames' || PLATFORM === 'y8')

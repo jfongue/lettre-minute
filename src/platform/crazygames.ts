@@ -1,4 +1,5 @@
 import { trackFeature } from '../lib/feature'
+import { fitHistory, HISTORY_KEY, SAVED_KEYS } from './saves'
 import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type HostRooms, type RewardedResult } from './host'
 
 /**
@@ -373,47 +374,6 @@ function showRewarded(): Promise<RewardedResult> {
  * (`VITE_CRAZYGAMES_REWARDED=false npm run crazygames:build`).
  */
 const REWARDED = import.meta.env.VITE_CRAZYGAMES_REWARDED !== 'false'
-
-/**
- * What the game keeps between visits: the profile (level, categories, powers,
- * records), its history, avatar and settings. The portal's Data module syncs
- * them to a signed-in player's account; a guest's stay in the browser, as they
- * would anyway. The rest of localStorage — caches, the device's queues — is
- * left alone.
- */
-const SAVED_KEYS = [
-  'lettre-minute.profile.v1',
-  'lettre-minute.history.v1',
-  'lettre-minute.avatar.v1',
-  'lettre-minute.tutorial.v1',
-  'lettre-minute.revealed-recaps.v1',
-  'lettre-minute.theme.v1',
-  'lettre-minute.sound.v1',
-  'lettre-minute.locale.v1',
-  'lettre-minute.weekly-attempts.v1',
-  'lettre-minute.weekly-intro.v1',
-]
-const HISTORY_KEY = 'lettre-minute.history.v1'
-// The Data module refuses past 1 MiB, all keys together: the history, the one
-// key that grows with every run, is cut to its latest runs to stay well under.
-const DATA_BUDGET = 900_000
-
-function fitHistory(value: string, others: number): string {
-  if (value.length + others <= DATA_BUDGET) return value
-  try {
-    const runs: unknown = JSON.parse(value)
-    if (!Array.isArray(runs)) return '[]'
-    let kept = runs
-    let text = value
-    while (kept.length > 0 && text.length + others > DATA_BUDGET) {
-      kept = kept.slice(0, Math.floor(kept.length * 0.8))
-      text = JSON.stringify(kept)
-    }
-    return text
-  } catch {
-    return '[]'
-  }
-}
 
 // Set once this browser's saves from before the Data module have been handed
 // to it: from then on a key the module lacks is a key the player lacks.

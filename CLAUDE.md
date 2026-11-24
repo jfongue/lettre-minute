@@ -80,6 +80,7 @@ par une copie de l'écran ; et chaque build touché se vérifie.
 | **Android**, la vraie cible | `android/`, entrée `index.html` / `src/main.tsx` | `npm run build`, `android:sync` | `android:release` |
 | **Web**, debug et dépannage seulement | le même build, `dist/` | `npm run build` | `web:publish` |
 | **CrazyGames** (« Letter Minute ») | `crazygames/` ([README](crazygames/README.md)), entrée `crazygames.html` / `src/crazygames.tsx` | `crazygames:build`, `crazygames:harness`, `crazygames:check` | dossier téléversé sur le portail |
+| **Y8** (« Letter Minute », en préparation) | `y8/` ([README](y8/README.md)), entrée `y8.html` / `src/y8.tsx`, hôte `src/platform/y8.ts` | `y8:build`, `y8:dev` | zip téléversé sur developer.y8.com |
 | **Reddit** (un post quotidien, Devvit) | `reddit/`, son propre `package.json` ([README](reddit/README.md)) | `reddit:check`, `reddit:harness`, `reddit:playtest` | `npm --prefix reddit run deploy` |
 
 - **Partagé** : le domaine, les dictionnaires, l'i18n, les écrans de `src/ui/`,

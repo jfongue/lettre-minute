@@ -13,6 +13,7 @@ const PLATFORM_NAMES: Record<Platform, string> = {
   web: 'Web',
   crazygames: 'CrazyGames',
   reddit: 'Reddit',
+  y8: 'Y8',
 }
 
 /** The platform as the player knows it, beside the version they test. */

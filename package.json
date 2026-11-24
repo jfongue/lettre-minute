@@ -31,6 +31,8 @@
     "crazygames:live": "node --experimental-strip-types scripts/crazygames-live.ts",
     "crazygames:shots": "node --experimental-strip-types scripts/crazygames-shots.ts",
     "crazygames:video": "npm --prefix crazygames/video install && node crazygames/video/capture.mjs && node crazygames/video/render.mjs",
+    "y8:build": "node --experimental-strip-types scripts/y8-build.ts",
+    "y8:dev": "vite --mode y8 --open /y8.html",
     "reddit:build": "npm --prefix reddit run build",
     "reddit:check": "npm --prefix reddit run check",
     "reddit:harness": "npm --prefix reddit run harness",
