@@ -103,6 +103,18 @@ describe('knownByLetter', () => {
 
     expect(Object.fromEntries(knownByLetter(pack))).toEqual({ C: 2, E: 1, Z: 1 })
   })
+
+  it('leaves answers of several words out of the count, though they are still accepted', () => {
+    const pack = buildWordPack('couleurs', [
+      ['Bleu', 120, 30],
+      ['Bleu marine', 120, 30],
+      ['Bordeaux', 120, 30],
+      ['Vert d’eau', 120, 30],
+    ])
+
+    expect(Object.fromEntries(knownByLetter(pack))).toEqual({ B: 2 })
+    expect(findWord(pack, 'bleu marine')?.entry.display).toBe('Bleu marine')
+  })
 })
 
 describe('withinOneEdit', () => {

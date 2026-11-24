@@ -161,7 +161,9 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   (`knownByLetter`, célébrité absolue ≥ `KNOWN_FAME`) : un seul suffit pour
   qu'il sorte, et ses chances croissent comme le logarithme de leur nombre —
   Z + Pays sort, rarement ; les « République de… » ne font pas de R la seule
-  lettre des pays. Pas le rang de `notoriety` : parmi 23 000 animaux, il
+  lettre des pays. Une réponse en plusieurs mots (« bleu marine », « Costa
+  Rica ») reste acceptée mais ne compte pas parmi les mots connus de sa
+  lettre. Pas le rang de `notoriety` : parmi 23 000 animaux, il
   sacre les quiscales. Un couple de moins de `THIN_PROMPT_WORDS` mots connus
   ne revient pas dans la même partie, et ce verrou passe avant le changement
   de catégorie. Il n'y a plus de jeu de lettres par langue : c'est le

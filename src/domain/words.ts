@@ -404,8 +404,8 @@ export function findWord(pack: WordPack, raw: string, tolerance = 1): WordMatch 
 export const KNOWN_FAME = 0.4
 
 /**
- * Letter → how many base words on it are known (`KNOWN_FAME`): what a prompt's
- * odds are drawn from. `edge` is the letter a question constrains: a reversed
+ * Letter → how many base words on it are known (`KNOWN_FAME`), single words
+ * only: what a prompt's odds are drawn from. `edge` is the letter a question constrains: a reversed
  * mode counts its words by their last letter, so M has a Vietnam to answer.
  */
 export function knownByLetter(pack: WordPack, edge: 'first' | 'last' = 'first'): Map<string, number> {
@@ -413,6 +413,9 @@ export function knownByLetter(pack: WordPack, edge: 'first' | 'last' = 'first'):
   for (const entry of pack.entries.values()) {
     // Fame first: it is cheap, and turns most of the pack away before a normalization.
     if (rawFame(entry) < KNOWN_FAME) continue
+    // An answer of several words (« bleu marine », « Costa Rica ») is still
+    // accepted, but would make a letter look richer than a player finds it.
+    if (/\s/.test(entry.display.trim())) continue
     const normalized = normalizeWord(entry.display)
     if (entry.key !== normalized) continue
     const letter = edge === 'last' ? finalOf(normalized) : initialOfNormalized(normalized)

@@ -370,12 +370,14 @@ describe('obvious answers', () => {
 
   it('draws the letters a table expects on its best-known categories', () => {
     // Not F: France, Fidji and Finlande are all there is, and the « Fédération
-    // de Russie » that once stocked it is Russia's alias.
+    // de Russie » that once stocked it is Russia's alias. Not D in German:
+    // answers of several words no longer count, which leaves Dänemark and
+    // Deutschland without the Congo and the Dominican Republic.
     for (const [lang, id, letters] of [
       ['fr', 'pays', 'ABCIMP'],
       ['fr', 'animaux', 'ABCHLMPR'],
       ['en', 'pays', 'ABCGIMS'],
-      ['de', 'pays', 'BDIKS'],
+      ['de', 'pays', 'BIKS'],
     ] as const) {
       const known = knownByLetter(pack(lang, id))
       const thin = [...letters].filter((letter) => (known.get(letter) ?? 0) < THIN_PROMPT_WORDS / 2)
