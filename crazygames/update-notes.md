@@ -1,5 +1,24 @@
 # Update notes for CrazyGames review
 
+## 1.7.5
+
+1.7.5 is 1.7.4 with the following.
+
+- **New categories.** Birds and reptiles, Sea animals, Clothes and
+  accessories and Means of transport open at levels 12 to 15, and
+  Ingredients and Places and buildings, until now reserved, at 16 and 17 —
+  in all seven languages.
+- **Signing in.** A player already signed in to CrazyGames whose game account
+  could not be opened when the page loaded (our server was overloaded on
+  23 November, when the game got a hundred times its usual traffic) stayed a
+  guest, and « Sign in » did nothing for them. The game now tries again on
+  its own after 5, 15 and 45 seconds and 2 minutes, and « Sign in » retries it.
+- **Leaderboards load reliably under traffic.** The home reads its boards at
+  most once per half minute, and the server serves them from a cache, so
+  they no longer vanish when many players are on at once.
+- **The leaderboard's scrollbar no longer flashes** as its rows arrive: the
+  rows scroll under a bar whose rail is always drawn.
+
 ## 1.7.4
 
 1.7.4 is 1.7.2 with the 1.7.3 point below and the following.
