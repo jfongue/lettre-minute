@@ -743,6 +743,7 @@ export const crazyGamesHost: Host = {
   anonymousAccounts: false,
   guestBoards: true,
   account: portalAccount,
+  accountService: 'crazygames-auth',
   onAccount: onPortalAccount,
   promptAccount: promptPortalAccount,
   rooms: portalRooms,

@@ -1,5 +1,5 @@
 import { trackFeature } from '../lib/feature'
-import { APP_ONLY_FEATURES, SERVER_FEATURES, type AdBreak, type Host, type RewardedResult } from './host'
+import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type RewardedResult } from './host'
 import { fitHistory, HISTORY_KEY, SAVED_KEYS } from './saves'
 
 /**
@@ -36,6 +36,17 @@ interface Bridge {
     get(keys: string[], tryParseJson?: boolean): Promise<unknown>
     set(keys: string[], values: unknown[]): Promise<void>
     delete(keys: string[]): Promise<void>
+  }
+  player?: {
+    isAuthorizationSupported: boolean
+    isAuthorized: boolean
+    name: string | null
+    extra: unknown
+    authorize(options?: object): Promise<void>
+  }
+  leaderboards?: {
+    type: 'not_available' | 'in_game' | 'native' | 'native_popup'
+    setScore(id: string, score: number): Promise<void>
   }
 }
 
@@ -78,6 +89,77 @@ export async function initPlaygama(): Promise<void> {
   } catch {
     bridge = null
   }
+  // Read before the first render: where the portal has no account the game
+  // can check, no « Sign in » shows that would do nothing.
+  if (!accountsVerifiable()) {
+    delete playgamaHost.account
+    delete playgamaHost.accountService
+    delete playgamaHost.onAccount
+    delete playgamaHost.promptAccount
+  }
+}
+
+/**
+ * The platforms whose sign-in Playgama's API vouches for (`playgama-auth`):
+ * the Bridge runs the game on partners' portals too, where it stays a guest's.
+ */
+const VERIFIABLE_PLATFORMS = new Set(['playgama', 'msn', 'microsoft_store'])
+
+function accountsVerifiable(): boolean {
+  try {
+    return Boolean(bridge?.player?.isAuthorizationSupported && VERIFIABLE_PLATFORMS.has(bridge.platform.id))
+  } catch {
+    return false
+  }
+}
+
+/**
+ * The signed-in player, as the token `playgama-auth` checks: the Bridge's
+ * proof of the authorization (`player.extra`), which Playgama's API verifies,
+ * with the platform it comes from and the portal's name. Null for a guest.
+ */
+async function portalAccount(): Promise<string | null> {
+  try {
+    const player = bridge?.player
+    if (!bridge || !player?.isAuthorized || !accountsVerifiable()) return null
+    return JSON.stringify({ platform: bridge.platform.id, extra: player.extra, name: player.name ?? '' })
+  } catch {
+    return null
+  }
+}
+
+const accountListeners: (() => void)[] = []
+
+function onPortalAccount(listener: () => void): void {
+  accountListeners.push(listener)
+}
+
+/**
+ * The portal's own sign-in, asked by a tap; true once the player is signed
+ * in. The page does not reload: the game account is followed at once.
+ */
+async function promptPortalAccount(): Promise<boolean> {
+  const player = bridge?.player
+  if (!player?.isAuthorizationSupported) return false
+  try {
+    if (!player.isAuthorized) await player.authorize()
+  } catch {
+    return false
+  }
+  if (!player.isAuthorized) return false
+  for (const listener of accountListeners) listener()
+  return true
+}
+
+/** The board the partners' portals keep for the game (`playgama-bridge-config.json`). */
+const BRIDGE_BOARD = 'best_score'
+
+/** A run's points, for a partner portal's own board (MSN, YouTube…); Playgama itself has none. */
+function submitScore(score: number): void {
+  safely((b) => {
+    if (!b.leaderboards || b.leaderboards.type === 'not_available' || score <= 0) return
+    void b.leaderboards.setScore(BRIDGE_BOARD, score).catch(() => undefined)
+  })
 }
 
 /** The first playable screen is up: the one message Playgama requires. */
@@ -267,19 +349,38 @@ export async function restoreSavedProgress(): Promise<void> {
 }
 
 /**
- * The server a Playgama player reaches is the boards alone, read as a guest:
- * the portal's accounts are not linked to the game's (no `crazygames-auth`
- * equivalent), so nothing that needs a named account — friends, the duel, the
- * words proposed and their moderation — opens here, nor anything that leads
- * off the portal's page or sells.
+ * The server a Playgama player reaches, as on CrazyGames: the boards a guest
+ * reads, and — since `playgama-auth` (0114) gives a named account to whoever
+ * is signed in to the portal — the friends, the face-off with them, the duel
+ * with its matchmaking, the twenty-four-hour challenges sent to those friends
+ * and their reactions, the words he proposes and the moderation they feed, and
+ * the ideas box. A guest has no session: the friends tab offers the portal's
+ * sign-in, the duel falls back on the house players. What stays closed leads
+ * off the portal's page (an invitation by link or e-mail, the store) or sells.
  */
-const OPEN_FEATURES = new Set(['leaderboards'])
+const OPEN_FEATURES = new Set([
+  'leaderboards',
+  'friends',
+  'rivalry',
+  'duel',
+  'challenges',
+  'reactions',
+  'proposeWord',
+  'myRequests',
+  'wordsNews',
+  'moderation',
+  'moderatorOffer',
+  'electModerator',
+  'wordFlag',
+  'ideasBox',
+])
 
 /**
- * Playgama hosts the game like a CrazyGames guest: the boards from the server,
- * the progress in the portal's storage, its interstitial between runs and its
- * rewarded ad for the summary's reveals. It lists the game as « Letter
- * Minute » in every language.
+ * Playgama hosts the game like CrazyGames: the server for the boards and,
+ * once the player is signed in to the portal, everything a named account
+ * carries; the progress in the portal's storage, its interstitial between
+ * runs and its rewarded ad for the summary's reveals. It lists the game as
+ * « Letter Minute » in every language.
  */
 export const playgamaHost: Host = {
   // Filtering is earned by a level bonus or Premium: the portal has neither
@@ -288,8 +389,8 @@ export const playgamaHost: Host = {
   // As on CrazyGames: the challenge of the moment needs no account, and the
   // powers are picked on their own screen before each run.
   openedFeatures: new Set(['weekly', 'powerLoadout']),
-  // No game account on this portal: no role to read.
-  superModeratorFeatures: new Set(),
+  // The developer can play here under a Playgama account the server made a super moderator.
+  superModeratorFeatures: new Set(SUPER_MODERATOR_FEATURES),
   title: ['Letter', 'Minute'],
   languages: platformLanguages,
   fallbackLocale: null,
@@ -301,11 +402,17 @@ export const playgamaHost: Host = {
   rewardedAds: true,
   levelBonuses: true,
   unlimitedReveals: false,
+  // A guest of the portal plays without any account: nothing of theirs
+  // reaches the server, which they read as anyone may.
   anonymousAccounts: false,
   guestBoards: true,
+  account: portalAccount,
+  accountService: 'playgama-auth',
+  onAccount: onPortalAccount,
+  promptAccount: promptPortalAccount,
   setGameplay,
   celebrate(): void {},
-  submitScore(): void {},
+  submitScore,
   prepareRewarded(): void {},
   showRewarded,
   breakAfterRecap: () => Promise.resolve('none'),

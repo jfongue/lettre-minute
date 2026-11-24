@@ -718,7 +718,7 @@ setMenuPage(null)
     const follow = (): Promise<unknown> =>
       host
         .account!()
-        .then(followHostAccount)
+        .then((token) => followHostAccount(token, host.accountService ?? 'crazygames-auth'))
         .then((changed) => {
           clearTimeout(retry)
           if (changed === null && tries < HOST_ACCOUNT_RETRIES_MS.length) {

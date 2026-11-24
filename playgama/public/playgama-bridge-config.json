@@ -1,6 +1,16 @@
 {
   "advertisement": {
-    "interstitial": { "preloadOnStart": true },
-    "rewarded": { "preloadOnStart": true }
-  }
+    "interstitial": {
+      "preloadOnStart": true
+    },
+    "rewarded": {
+      "preloadOnStart": true
+    }
+  },
+  "leaderboards": [
+    {
+      "id": "best_score",
+      "isMain": true
+    }
+  ]
 }

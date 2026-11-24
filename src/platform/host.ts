@@ -64,10 +64,12 @@ export interface Host {
   guestBoards: boolean
   /**
    * The host's own signed-in player, as a token the server checks
-   * (`crazygames-auth`): null for a guest. Absent where accounts are the
+   * (`accountService`): null for a guest. Absent where accounts are the
    * game's own (Android, the web) or there are none (Reddit).
    */
   account?(): Promise<string | null>
+  /** The Edge function that checks `account`'s token and opens the game account linked to it. */
+  accountService?: 'crazygames-auth' | 'playgama-auth'
   /** Called when the player signs in to the host without the page reloading. */
   onAccount?(listener: () => void): void
   /** The host's own sign-in prompt; true once the player is signed in. */

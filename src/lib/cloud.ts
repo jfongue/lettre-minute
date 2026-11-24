@@ -1679,15 +1679,15 @@ export async function logOut(): Promise<void> {
 }
 
 /**
- * Follows the host's own account (CrazyGames): its token opens the game
- * account linked to it (`crazygames-auth`, 0073), and no token — a guest, or a
- * player who signed out of the portal, which reloads the page — drops the
- * session left on the device, so a guest never plays under someone else's
- * name. True once a session is opened or dropped: the account is read again,
+ * Follows the host's own account (CrazyGames, Playgama): its token opens the
+ * game account linked to it (`crazygames-auth`, 0073; `playgama-auth`, 0114),
+ * and no token — a guest, or a player who signed out of the portal, which
+ * reloads the page — drops the session left on the device, so a guest never
+ * plays under someone else's name. True once a session is opened or dropped: the account is read again,
  * its name following the portal's (0074). Null when the server could not open
  * it — busy or out of reach —, so the caller can try again.
  */
-export async function followHostAccount(token: string | null): Promise<boolean | null> {
+export async function followHostAccount(token: string | null, service: 'crazygames-auth' | 'playgama-auth'): Promise<boolean | null> {
   if (!supabase) return false
   try {
     const held = (await supabase.auth.getSession()).data.session
@@ -1698,7 +1698,7 @@ export async function followHostAccount(token: string | null): Promise<boolean |
     }
     const base = import.meta.env.VITE_SUPABASE_URL
     const key = import.meta.env.VITE_SUPABASE_ANON_KEY
-    const response = await fetch(`${base}/functions/v1/crazygames-auth`, {
+    const response = await fetch(`${base}/functions/v1/${service}`, {
       method: 'POST',
       headers: { apikey: key, authorization: `Bearer ${key}`, 'content-type': 'application/json' },
       body: JSON.stringify({ token }),
