@@ -1,5 +1,20 @@
 # Update notes for CrazyGames review
 
+## 1.7.6
+
+1.7.6 is 1.7.5 with the following.
+
+- **No run is lost to a busy server any more.** A signed-in player's run that
+  our server could not take (it was overloaded on 23 and 24 November) is kept
+  on the device and sent again with the next run or at the next launch, dated
+  when it was played. Runs lost during those outages are sent once from the
+  device's own history.
+- **The leaderboard climb at the end of a run always shows.** It is drawn from
+  the board read when the run started, with the new score placed where it
+  ranks, instead of waiting for the server; the home keeps showing today's
+  last board when the server does not answer, instead of none.
+- **Rewarded ads pay three reveals each**, with no daily cap.
+
 ## 1.7.5
 
 1.7.5 is 1.7.4 with the following.
