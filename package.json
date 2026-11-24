@@ -30,6 +30,8 @@
     "crazygames:flows": "node crazygames/flows.mjs",
     "crazygames:live": "node --experimental-strip-types scripts/crazygames-live.ts",
     "crazygames:shots": "node --experimental-strip-types scripts/crazygames-shots.ts",
+    "playgama:build": "node --experimental-strip-types scripts/playgama-build.ts",
+    "playgama:dev": "vite --mode playgama --open /playgama.html",
     "crazygames:video": "npm --prefix crazygames/video install && node crazygames/video/capture.mjs && node crazygames/video/render.mjs",
     "reddit:build": "npm --prefix reddit run build",
     "reddit:check": "npm --prefix reddit run check",
@@ -71,6 +73,7 @@
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
     "@capacitor/cli": "^8.5.2",
+    "@playgama/bridge": "^2.4.4",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",

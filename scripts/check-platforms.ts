@@ -1,9 +1,9 @@
 /**
  * The end of `npm run check`: every version builds from the shared screens
  * (CLAUDE.md, « Plateformes »), so a change that breaks one shows before the
- * commit, not at its release. Builds the app (Android and web) and the
- * CrazyGames version into .cache/check/, checks that neither carries the
- * other's host, then type-checks and builds the Reddit daily. Each build takes
+ * commit, not at its release. Builds the app (Android and web), the
+ * CrazyGames and the Playgama versions into .cache/check/, checks that none
+ * carries another's host, then type-checks and builds the Reddit daily. Each build takes
  * a second or two and needs no network.
  *
  *   npm run check:platforms
@@ -34,8 +34,16 @@ const build = (mode: string | null, outDir: string) =>
 
 build(null, join(OUT, 'app'))
 build('crazygames', join(OUT, 'crazygames'))
-refuse('The Android and web build', scripts(join(OUT, 'app')), 'sdk.crazygames.com')
-refuse('The CrazyGames build', scripts(join(OUT, 'crazygames')), 'keepsProgress:!1')
+build('playgama', join(OUT, 'playgama'))
+const app = scripts(join(OUT, 'app'))
+const crazyGames = scripts(join(OUT, 'crazygames'))
+const playgama = scripts(join(OUT, 'playgama/assets'))
+refuse('The Android and web build', app, 'sdk.crazygames.com')
+refuse('The Android and web build', app, 'interstitial_state_changed')
+refuse('The CrazyGames build', crazyGames, 'keepsProgress:!1')
+refuse('The CrazyGames build', crazyGames, 'interstitial_state_changed')
+refuse('The Playgama build', playgama, 'sdk.crazygames.com')
+refuse('The Playgama build', playgama, 'keepsProgress:!1')
 
 if (!existsSync('reddit/node_modules')) {
   console.error('reddit/node_modules is missing: npm --prefix reddit ci (or link the main checkout’s).')
@@ -44,4 +52,4 @@ if (!existsSync('reddit/node_modules')) {
 run('npm', ['--prefix', 'reddit', '--silent', 'run', 'check'])
 
 if (failed) process.exit(1)
-console.log('ok   app, CrazyGames and Reddit builds')
+console.log('ok   app, CrazyGames, Playgama and Reddit builds')

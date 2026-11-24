@@ -1,0 +1,6 @@
+{
+  "advertisement": {
+    "interstitial": { "preloadOnStart": true },
+    "rewarded": { "preloadOnStart": true }
+  }
+}

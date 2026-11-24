@@ -12,6 +12,7 @@ const PLATFORM_NAMES: Record<Platform, string> = {
   android: 'Android',
   web: 'Web',
   crazygames: 'CrazyGames',
+  playgama: 'Playgama',
   reddit: 'Reddit',
 }
 

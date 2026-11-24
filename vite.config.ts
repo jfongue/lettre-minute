@@ -1,8 +1,9 @@
 /// <reference types="vitest/config" />
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
+import playgamaBridge from '@playgama/bridge/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig, type Plugin } from 'vite'
+import { defineConfig, type Plugin, type PluginOption } from 'vite'
 import { configDefaults } from 'vitest/config'
 
 // The version the Play Store knows, stamped on every tracked event: the
@@ -40,7 +41,7 @@ const CRAZYGAMES_BLANKS = [
 const PHONE_ONLY_PLUGINS = ['@capgo/capacitor-social-login', '@capgo/native-purchases', '@capacitor-community/admob']
 const PHONE_STUB = '\0phone-plugin-stub'
 
-function crazyGamesLoad(): Plugin {
+function crazyGamesLoad(sdk: boolean): Plugin {
   return {
     name: 'lettre-minute-crazygames-load',
     enforce: 'pre',
@@ -59,7 +60,7 @@ export { names as PURCHASE_TYPE, names as AdmobConsentStatus, names as Interstit
       handler: (_html, context) => {
         const font = Object.keys(context.bundle ?? {}).find((name) => /jost-latin-wght-normal-.*\.woff2$/.test(name))
         return [
-          { tag: 'link', attrs: { rel: 'preload', as: 'script', href: 'https://sdk.crazygames.com/crazygames-sdk-v3.js' }, injectTo: 'head' },
+          ...(sdk ? [{ tag: 'link', attrs: { rel: 'preload', as: 'script', href: 'https://sdk.crazygames.com/crazygames-sdk-v3.js' }, injectTo: 'head' as const }] : []),
           ...(font ? [{ tag: 'link', attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: `./${font}` }, injectTo: 'head' as const }] : []),
         ]
       },
@@ -67,15 +68,26 @@ export { names as PURCHASE_TYPE, names as AdmobConsentStatus, names as Interstit
   }
 }
 
+// `vite build --mode playgama` (npm run playgama:build): the CrazyGames page
+// behind Playgama's Bridge, which the build carries and loads first, as
+// Playgama requires (playgama/README.md). Same blanks as CrazyGames.
+const PORTAL_MODES = ['crazygames', 'playgama']
+
+function plugins(mode: string): PluginOption[] {
+  if (mode === 'crazygames') return [crazyGamesLoad(true), react()]
+  if (mode === 'playgama') return [crazyGamesLoad(false), playgamaBridge({ mode: 'local' }), react()]
+  return [react()]
+}
+
 export default defineConfig(({ mode }) => ({
-  plugins: mode === 'crazygames' ? [crazyGamesLoad(), react()] : [react()],
+  plugins: plugins(mode),
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
     'import.meta.env.VITE_BUILD': JSON.stringify(buildStamp),
     // The host the build is for (src/platform/index.ts), a literal the
     // minifier folds: the other hosts' code never reaches the bundle.
-    'import.meta.env.VITE_PLATFORM': JSON.stringify(mode === 'crazygames' ? 'crazygames' : 'app'),
-    ...(mode === 'crazygames' ? Object.fromEntries(CRAZYGAMES_BLANKS.map((name) => [`import.meta.env.${name}`, '""'])) : {}),
+    'import.meta.env.VITE_PLATFORM': JSON.stringify(PORTAL_MODES.includes(mode) ? mode : 'app'),
+    ...(PORTAL_MODES.includes(mode) ? Object.fromEntries(CRAZYGAMES_BLANKS.map((name) => [`import.meta.env.${name}`, '""'])) : {}),
   },
   // Vite does not read PORT on its own; honouring it lets a harness or a second
   // checkout run the dev server on a port it picked.
@@ -87,11 +99,12 @@ export default defineConfig(({ mode }) => ({
   // google.html is where the browser's Google popup lands (`googleIdToken`),
   // invite.html the page a shared invitation opens (src/invite.ts), dashboard/
   // the public dashboard (src/dashboard.tsx), a folder so Pages serves /dashboard.
-  build:
-    mode === 'crazygames'
-      ? { chunkSizeWarningLimit: 1000, outDir: 'dist-crazygames', rollupOptions: { input: ['crazygames.html'] } }
-      : { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html', 'invite.html', 'duel.html', 'dashboard/index.html'] } },
+  build: PORTAL_MODES.includes(mode)
+    ? { chunkSizeWarningLimit: 1000, outDir: `dist-${mode}`, rollupOptions: { input: [`${mode}.html`] } }
+    : { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html', 'invite.html', 'duel.html', 'dashboard/index.html'] } },
   ...(mode === 'crazygames' ? { base: './', publicDir: false as const } : {}),
+  // Playgama reads its Bridge config next to the page: playgama/public/ holds it.
+  ...(mode === 'playgama' ? { base: './', publicDir: 'playgama/public' } : {}),
   // Agent worktrees and scratch checkouts live inside the repo: without this,
   // `vitest run` also runs their copies of the suite (267 of 307 test files).
   test: { exclude: [...configDefaults.exclude, '.claude/**', '.cache/**'] },
