@@ -1,4 +1,4 @@
-• 6 categorías nuevas: Aves y reptiles, Animales marinos, Ropa y complementos, Medios de transporte, además de Ingredientes y Lugares y edificios, ahora para todos
-• Las respuestas de varias palabras siguen valiendo sin alterar la frecuencia de las letras
-• Clasificaciones más rápidas y fiables
+• Ya no se pierde ninguna partida cuando el servidor está saturado: se envía más tarde, y las del 23 y 24 de noviembre se recuperan
+• Tu subida en la clasificación se muestra siempre al final de la partida, aunque el servidor vaya lento
+• Los anuncios con recompensa revelan tres palabras cada uno, sin límite diario
 • Corrección de errores

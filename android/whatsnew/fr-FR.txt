@@ -1,4 +1,4 @@
-• 6 nouvelles catégories : Oiseaux et reptiles, Animaux marins, Vêtements et accessoires, Moyens de locomotion, puis Ingrédients et Lieux et bâtiments, désormais pour tous
-• Les réponses en plusieurs mots restent acceptées sans fausser la fréquence des lettres
-• Classements plus rapides et plus fiables
+• Plus aucune partie perdue quand le serveur est surchargé : elle repart toute seule plus tard, et celles des 23 et 24 novembre sont rattrapées
+• Ta montée au classement s'affiche toujours en fin de partie, même quand le serveur traîne
+• Les pubs récompensées révèlent trois mots chacune, sans limite par jour
 • Corrections de bugs

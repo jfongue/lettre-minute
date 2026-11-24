@@ -1,4 +1,4 @@
-• 6 nuove categorie: Uccelli e rettili, Animali marini, Vestiti e accessori, Mezzi di trasporto, più Ingredienti e Luoghi ed edifici, ora per tutti
-• Le risposte di più parole restano valide senza falsare la frequenza delle lettere
-• Classifiche più veloci e affidabili
+• Nessuna partita persa quando il server è sovraccarico: viene inviata più tardi, e quelle del 23 e 24 novembre vengono recuperate
+• La tua salita in classifica appare sempre a fine partita, anche quando il server è lento
+• Gli annunci con premio rivelano tre parole ciascuno, senza limite giornaliero
 • Correzioni di bug

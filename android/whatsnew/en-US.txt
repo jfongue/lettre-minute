@@ -1,4 +1,4 @@
-• 6 new categories: Birds and reptiles, Sea creatures, Clothes and accessories, Ways to get around, plus Ingredients and Places and buildings, now open to everyone
-• Answers of several words still count without skewing how often letters come up
-• Faster, more reliable leaderboards
+• No more runs lost when the server is overloaded: they are sent again later, and those from 23–24 November are caught up
+• Your climb up the leaderboard always shows at the end of a run, even when the server is slow
+• Rewarded ads reveal three words each, with no daily limit
 • Bug fixes

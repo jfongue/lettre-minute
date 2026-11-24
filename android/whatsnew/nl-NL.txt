@@ -1,4 +1,4 @@
-• 6 nieuwe categorieën: Vogels en reptielen, Zeedieren, Kleding en accessoires, Vervoermiddelen, plus Ingrediënten en Plekken en gebouwen, nu voor iedereen
-• Antwoorden van meerdere woorden tellen nog mee zonder de frequentie van letters te vertekenen
-• Snellere, betrouwbaardere ranglijsten
+• Geen verloren potjes meer als de server overbelast is: ze worden later verstuurd, en die van 23 en 24 november worden ingehaald
+• Je klim in de ranglijst is aan het eind van een potje altijd te zien, ook als de server traag is
+• Advertenties met beloning onthullen drie woorden per stuk, zonder daglimiet
 • Bugfixes

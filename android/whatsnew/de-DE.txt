@@ -1,4 +1,4 @@
-• 6 neue Kategorien: Vögel und Reptilien, Meerestiere, Kleidung und Accessoires, Fortbewegungsmittel sowie Zutaten und Orte und Gebäude, jetzt für alle
-• Antworten aus mehreren Wörtern zählen weiter, ohne die Häufigkeit der Buchstaben zu verfälschen
-• Schnellere, zuverlässigere Bestenlisten
+• Keine verlorenen Runden mehr bei überlastetem Server: Sie werden später gesendet, und die vom 23. und 24. November werden nachgeholt
+• Dein Aufstieg in der Bestenliste wird am Ende einer Runde immer angezeigt, auch wenn der Server langsam ist
+• Belohnte Werbung enthüllt drei Wörter pro Video, ohne Tageslimit
 • Fehlerbehebungen
