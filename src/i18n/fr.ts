@@ -889,7 +889,7 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
 
   premium: {
     title: 'Premium',
-    menuHint: 'Filtrage, révélations, avant-premières…',
+    menuHint: 'Filtrage, révélations, sans pub…',
   news: {
     title: 'Nouvelles catégories jouables',
     body: (names: string) => `${names} arrivent en avant-première. Premium les ouvre tout de suite : rien à débloquer.`,
@@ -917,7 +917,6 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
       filter: (count: number) => `Filtre jusqu’à ${count} catégories`,
       reveal: 'Révélations illimitées',
       attempt: (count: number) => `${count} tentatives par jour au défi du moment`,
-      premiere: 'Catégories en avant-première : Ingrédients, Lieux et bâtiments',
       ads: 'Plus aucune pub',
       indie: 'Tu aides un petit développeur indé',
       lifetime: 'À vie : un seul paiement, pas d’abonnement',

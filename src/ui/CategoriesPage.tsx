@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
 import { CATALOGUE, categoryMeta } from '../domain/catalogue'
 import { bannedOf, banNews, banUnlocked, banVerdict, bansAllowed, isPlus, PLUS_BANS } from '../domain/perks'
-import { ownedPlainCount } from '../domain/owned'
 import type { Profile } from '../domain/progression'
 import { ownedCategoryIds } from '../domain/unlocks'
 import { categoryText, useT } from '../i18n'
@@ -81,7 +80,7 @@ export function CategoriesPage({
           {plus && <span className="plus-badge">{t.plus.badge}</span>}
         </p>
         <p className="note">
-          {ownedPlainCount(profile)} / {CATALOGUE.filter((category) => !category.premiere).length}
+          {owned.filter((id) => categoryMeta(id)?.premiere !== true).length} / {CATALOGUE.filter((category) => !category.premiere).length}
         </p>
       </div>
 

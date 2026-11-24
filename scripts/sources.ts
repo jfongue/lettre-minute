@@ -508,9 +508,21 @@ export const CATEGORY_SOURCES: readonly CategorySource[] = [
   { id: 'matieres', pulls: ['metals', 'staple-materials', 'chemical-elements'] },
   { id: 'corps-humain', pulls: ['anatomy'], exclude: ['plant-organ'] },
   { id: 'marques', pulls: ['brand-class', 'brand-product', 'brands-shared'], names: true, strictAliases: true },
-  // The avant-premières, Premium's alone (`premiere` in the catalogue), born
-  // drafts. Neither reads a pull: for food and edifices the Wiktionary's own
-  // trees are the richer source.
+  // Fish, the sea's mammals, its shellfish and its jellyfish.
+  {
+    id: 'animaux-marins',
+    pulls: ['fish-ray', 'fish-cartilaginous', 'cetaceans', 'pinnipeds', 'sirenians', 'cephalopods', 'bivalves', 'decapods', 'echinoderms', 'cnidarians'],
+    exclude: ['common-plants', 'plants-vernacular'],
+  },
+  { id: 'oiseaux-reptiles', pulls: ['common-birds-reptiles', 'birds', 'reptiles'], exclude: ['common-plants', 'plants-vernacular'] },
+  // Every way to get somewhere, from the feet up: the Wiktionary's vehicles,
+  // and what it files under none — marche, roller, RER, Uber — by hand. A
+  // maker's name and its models are the one thing the Wiktionary's transport
+  // topic keeps that a table would argue over: a moderator settles them.
+  { id: 'locomotion', pulls: ['staple-transport'], namesAside: { categories: ['marques'], pulls: ['car-models'] } },
+  { id: 'vetements', pulls: [] },
+  // Born drafts, then avant-premières, now open to all. Neither reads a pull:
+  // for food and edifices the Wiktionary's own trees are the richer source.
   //
   // What a recipe calls for. The food tree holds the families — cheeses,
   // spices, meats, cereals, seafood — and the everyday words it files nowhere
@@ -537,19 +549,6 @@ export const DRAFT_SOURCES: readonly CategorySource[] = [
   // Furniture, appliances and whatever does not fit in a backpack: every word
   // « Petit objet » gives up (`apartFrom`).
   { id: 'meubles', pulls: ['staple-furniture'] },
-  // Fish, the sea's mammals, its shellfish and its jellyfish.
-  {
-    id: 'animaux-marins',
-    pulls: ['fish-ray', 'fish-cartilaginous', 'cetaceans', 'pinnipeds', 'sirenians', 'cephalopods', 'bivalves', 'decapods', 'echinoderms', 'cnidarians'],
-    exclude: ['common-plants', 'plants-vernacular'],
-  },
-  { id: 'oiseaux-reptiles', pulls: ['common-birds-reptiles', 'birds', 'reptiles'], exclude: ['common-plants', 'plants-vernacular'] },
-  // Every way to get somewhere, from the feet up: the Wiktionary's vehicles,
-  // and what it files under none — marche, roller, RER, Uber — by hand. A
-  // maker's name and its models are the one thing the Wiktionary's transport
-  // topic keeps that a table would argue over: a moderator settles them.
-  { id: 'locomotion', pulls: ['staple-transport'], namesAside: { categories: ['marques'], pulls: ['car-models'] } },
-  { id: 'vetements', pulls: [] },
   // The Wiktionnaire files no electronic device anywhere: Wikidata names the
   // everyday ones, the English topics and the hand the rest.
   { id: 'electronique', pulls: ['staple-electronics'] },

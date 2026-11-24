@@ -197,9 +197,8 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   *pulls* qu'ils nomment — le français depuis le Wiktionnaire français, les six
   autres langues depuis les thèmes du Wiktionnaire anglais (`TOPICS`,
   `scripts/languages.ts`), dont une entrée nouvelle périme le cache kaikki de
-  chaque langue et fait relire tout son dump. Six attendent : Meubles et gros
-  objets, Animaux marins, Oiseaux et reptiles, Moyens de locomotion, Vêtements
-  et accessoires, Appareils électroniques ; `src/data/drafts.test.ts` les tient
+  chaque langue et fait relire tout son dump. Deux attendent : Meubles et gros
+  objets, Appareils électroniques ; `src/data/drafts.test.ts` les tient
   à leurs réponses évidentes dans chaque langue et à assez de lettres connues
   pour le tirage. En mettre un en jeu demande une entrée de `CATALOGUE` à la
   place de celle de `SOON`, son passage dans `CATEGORY_SOURCES` et le
@@ -732,7 +731,11 @@ propre téléphone.
   `ownedCategoryIds` les ajoute d'office à qui a `plusSince`, aucune offre de
   niveau ne les distribue, et tout tirage partagé — défi entre amis, robot,
   duel, défi du moment — passe par `sharedCategoryIds`, qui les écarte : sans
-  quoi un Premium et un autre ne joueraient plus la même partie.
+  quoi un Premium et un autre ne joueraient plus la même partie. Aucune
+  catégorie n'en est une aujourd'hui : Ingrédients et Lieux et bâtiments sont
+  ouvertes à tous (niveaux 16 et 17), et un Premium les garde sans choix
+  (`FORMER_PREMIERES`, `src/domain/owned.ts`), hors du compte de
+  `ownedPlainCount`.
 - **Le Premium est un achat Google Play que l'appareil garde** (`plusSince`) :
   `purchases` (0063) n'est que la copie qu'un autre appareil retrouve
   (`my_premium`), et la fonction Edge `premium-verify` ne la vérifie qu'avec le

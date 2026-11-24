@@ -36,6 +36,8 @@ export function PremiumPage({ profile }: { profile: Profile }) {
   const since =
     profile.plusSince > 0 ? t.premiumPage.since(date) : profile.plusGranted || profile.plusOffered > 0 ? t.premium.offered : t.premium.lifetime
   const empty = PLUS_STATS.every((stat) => plusStat(profile, stat) === 0)
+  // No avant-première is sold any more: its counter stays only for who played one.
+  const shown = PLUS_STATS.filter((stat) => stat !== 'premiereRuns' || plusStat(profile, stat) > 0)
 
   return (
     <div className="ppage cascade">
@@ -48,7 +50,7 @@ export function PremiumPage({ profile }: { profile: Profile }) {
       </header>
       <p className="note">{t.premiumPage.lead}</p>
       <ul className="ppage-counters">
-        {PLUS_STATS.map((stat, index) => (
+        {shown.map((stat, index) => (
           <Counter key={stat} stat={stat} value={plusStat(profile, stat)} index={index} />
         ))}
       </ul>

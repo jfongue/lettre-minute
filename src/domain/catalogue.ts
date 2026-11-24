@@ -35,8 +35,14 @@ export const CATALOGUE: readonly CategoryMeta[] = [
   { id: 'prenoms', label: 'Prénoms', hint: 'D’ici et d’ailleurs', unlockLevel: 9 },
   { id: 'objets', label: 'Petit objet', hint: 'Qui tient dans un sac à dos', unlockLevel: 10 },
   { id: 'plantes', label: 'Plantes', hint: 'Fleurs, arbres, herbes', unlockLevel: 11 },
-  { id: 'ingredients', label: 'Ingrédients', hint: 'Du sel au chocolat noir', unlockLevel: 99, premiere: true },
-  { id: 'lieux', label: 'Lieux et bâtiments', hint: 'De la mairie à l’usine', unlockLevel: 99, premiere: true },
+  { id: 'oiseaux-reptiles', label: 'Oiseaux et reptiles', hint: 'Du moineau au crocodile', unlockLevel: 12 },
+  { id: 'animaux-marins', label: 'Animaux marins', hint: 'Poissons, cétacés, coquillages…', unlockLevel: 13 },
+  { id: 'vetements', label: 'Vêtements et accessoires', hint: 'Du pull aux lunettes', unlockLevel: 14 },
+  { id: 'locomotion', label: 'Moyens de locomotion', hint: 'De la marche au TGV', unlockLevel: 15 },
+  // Born avant-premières, Premium's alone; open to everyone since. A Premium
+  // member who owned them then keeps them (`FORMER_PREMIERES`, owned.ts).
+  { id: 'ingredients', label: 'Ingrédients', hint: 'Du sel au chocolat noir', unlockLevel: 16 },
+  { id: 'lieux', label: 'Lieux et bâtiments', hint: 'De la mairie à l’usine', unlockLevel: 17 },
 ]
 
 /** The avant-premières, Premium's alone. */
@@ -73,10 +79,6 @@ export type SoonCategory = Pick<CategoryMeta, 'id' | 'label' | 'hint'>
  */
 export const SOON: readonly SoonCategory[] = [
   { id: 'meubles', label: 'Meubles et gros objets', hint: 'Du lit au frigo' },
-  { id: 'animaux-marins', label: 'Animaux marins', hint: 'Poissons, cétacés, coquillages…' },
-  { id: 'oiseaux-reptiles', label: 'Oiseaux et reptiles', hint: 'Du moineau au crocodile' },
-  { id: 'locomotion', label: 'Moyens de locomotion', hint: 'De la marche au TGV' },
-  { id: 'vetements', label: 'Vêtements et accessoires', hint: 'Du pull aux lunettes' },
   { id: 'electronique', label: 'Appareils électroniques', hint: 'Du téléphone à l’imprimante' },
 ]
 

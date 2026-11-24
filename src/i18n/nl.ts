@@ -839,7 +839,7 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
 
   premium: {
     title: 'Premium',
-    menuHint: 'Filteren, onthullingen, categorieën als eerste…',
+    menuHint: 'Filteren, onthullingen, geen reclame…',
   news: {
     title: 'Nieuwe speelbare categorieën',
     body: (names) => `${names} komen als vooruit-categorieën. Premium opent ze meteen: niets te ontgrendelen.`,
@@ -867,7 +867,6 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
       filter: (count: number) => `Filter tot ${count} categorieën`,
       reveal: 'Onbeperkt onthullen',
       attempt: (count: number) => `${count} pogingen per dag bij de uitdaging van het moment`,
-      premiere: 'Categorieën als eerste: Ingrediënten, Plaatsen en gebouwen',
       ads: 'Nooit meer reclame',
       indie: 'Je helpt een kleine indie-ontwikkelaar',
       lifetime: 'Voor altijd: één keer betalen, geen abonnement',

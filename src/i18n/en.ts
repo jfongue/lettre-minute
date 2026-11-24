@@ -844,7 +844,7 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
 
   premium: {
     title: 'Premium',
-    menuHint: 'Filtering, reveals, early categories…',
+    menuHint: 'Filtering, reveals, no ads…',
   news: {
     title: 'New playable categories',
     body: (names) => `${names} arrive as early categories. Premium opens them right away: nothing to unlock.`,
@@ -872,7 +872,6 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
       filter: (count: number) => `Filter up to ${count} categories`,
       reveal: 'Unlimited reveals',
       attempt: (count: number) => `${count} attempts a day at the challenge of the moment`,
-      premiere: 'Categories before anyone else: Ingredients, Places and buildings',
       ads: 'No ads, ever',
       indie: 'You help a small indie developer',
       lifetime: 'For life: pay once, no subscription',

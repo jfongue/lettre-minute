@@ -840,7 +840,7 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
 
   premium: {
     title: 'Premium',
-    menuHint: 'Filtro, rivelazioni, anteprime…',
+    menuHint: 'Filtro, rivelazioni, niente pubblicità…',
   news: {
     title: 'Nuove categorie giocabili',
     body: (names) => `${names} arrivano in anteprima. Premium le apre subito: niente da sbloccare.`,
@@ -868,7 +868,6 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
       filter: (count: number) => `Filtra fino a ${count} categorie`,
       reveal: 'Rivelazioni illimitate',
       attempt: (count: number) => `${count} tentativi al giorno nella sfida del momento`,
-      premiere: 'Categorie in anteprima: Ingredienti, Luoghi ed edifici',
       ads: 'Mai più pubblicità',
       indie: 'Aiuti un piccolo sviluppatore indie',
       lifetime: 'Per sempre: un solo pagamento, nessun abbonamento',

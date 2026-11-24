@@ -16,18 +16,33 @@ export function pickedCategories(profile: Profile): string[] {
 }
 
 /**
- * Starters first, then the picks in the order they were made, then the
- * categories once given as a gift; a Premium member's avant-premières last.
+ * The avant-premières that opened to everyone: a Premium member owned them
+ * before they could be picked, and keeps them whatever their level.
  */
-export function ownedCategoryIds(profile: Profile): string[] {
+export const FORMER_PREMIERES: readonly string[] = ['ingredients', 'lieux']
+
+/** What Premium owns without a pick: the avant-premières, and those it owned before they opened. */
+function premiumGrants(profile: Profile, held: readonly string[]): string[] {
+  if (profile.plusSince <= 0) return []
+  const premieres = CATALOGUE.filter((category) => category.premiere).map((category) => category.id)
+  return [...premieres, ...FORMER_PREMIERES.filter((id) => categoryMeta(id) !== null)].filter((id) => !held.includes(id))
+}
+
+/** Starters, picks in the order they were made, then the categories once given as a gift. */
+function heldCategoryIds(profile: Profile): string[] {
   const starters = starterCategoryIds()
   const picks = pickedCategories(profile).filter((id) => !starters.includes(id))
   const gifts = profile.gifted.filter((id) => !starters.includes(id) && !picks.includes(id) && categoryMeta(id)?.premiere !== true)
-  const premieres = profile.plusSince > 0 ? CATALOGUE.filter((category) => category.premiere).map((category) => category.id) : []
-  return [...starters, ...picks, ...gifts, ...premieres]
+  return [...starters, ...picks, ...gifts]
 }
 
-/** What counts toward the bonus levels and the free choice: owned without Premium's avant-premières. */
+/** The categories the player owns: what they hold, then what Premium owns without a pick. */
+export function ownedCategoryIds(profile: Profile): string[] {
+  const held = heldCategoryIds(profile)
+  return [...held, ...premiumGrants(profile, held)]
+}
+
+/** What counts toward the bonus levels and the free choice: owned without what Premium owns unpicked. */
 export function ownedPlainCount(profile: Profile): number {
-  return ownedCategoryIds(profile).filter((id) => categoryMeta(id)?.premiere !== true).length
+  return heldCategoryIds(profile).length
 }
