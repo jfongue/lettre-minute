@@ -1551,9 +1551,10 @@ export async function logOut(): Promise<void> {
  * player who signed out of the portal, which reloads the page — drops the
  * session left on the device, so a guest never plays under someone else's
  * name. True once a session is opened or dropped: the account is read again,
- * its name following the portal's (0074).
+ * its name following the portal's (0074). Null when the server could not open
+ * it — busy or out of reach —, so the caller can try again.
  */
-export async function followHostAccount(token: string | null): Promise<boolean> {
+export async function followHostAccount(token: string | null): Promise<boolean | null> {
   if (!supabase) return false
   try {
     const held = (await supabase.auth.getSession()).data.session
@@ -1569,15 +1570,17 @@ export async function followHostAccount(token: string | null): Promise<boolean> 
       headers: { apikey: key, authorization: `Bearer ${key}`, 'content-type': 'application/json' },
       body: JSON.stringify({ token }),
     })
-    if (!response.ok) return false
+    // Null when the server did not open the account: the caller tries again,
+    // where false only says nothing changed.
+    if (!response.ok) return response.status === 401 ? false : null
     const { tokenHash } = await response.json()
-    if (typeof tokenHash !== 'string') return false
+    if (typeof tokenHash !== 'string') return null
     const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'magiclink' })
-    if (error || !data.session) return false
+    if (error || !data.session) return null
     forgetSession()
     return true
   } catch {
-    return false
+    return null
   }
 }
 

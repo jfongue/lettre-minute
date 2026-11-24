@@ -222,9 +222,24 @@ async function preloadScreens(): Promise<void> {
 }
 
 /** The boards as the home screen shows them: without a server, none at all. */
-async function loadBoards(): Promise<Boards | null> {
-  const boards = await fetchBoards()
-  return boards && completeBoards(boards)
+let boardsRead: { at: number; boards: Promise<Boards | null> } | null = null
+
+/**
+ * The home's boards. The server rebuilds them every five minutes (0111), so a
+ * read under half a minute old — or still on its way — is shared by every
+ * screen that asks; `fresh` skips it once the player's own run or name has
+ * just changed what they show.
+ */
+function loadBoards(fresh = false): Promise<Boards | null> {
+  const now = Date.now()
+  if (!fresh && boardsRead && now - boardsRead.at < BOARDS_SHARED_MS) return boardsRead.boards
+  const boards = fetchBoards().then((read) => read && completeBoards(read))
+  boardsRead = { at: now, boards }
+  // A read that failed is not kept: the next screen asks again.
+  boards.then((read) => {
+    if (!read && boardsRead?.boards === boards) boardsRead = null
+  })
+  return boards
 }
 
 /** Sends the words proposed while the game was offline, then clears the queue. */
@@ -253,7 +268,13 @@ function dropQueued(proposal: Proposal): boolean {
 }
 
 /** How often a home screen left open reads the boards again. */
-const BOARDS_REFRESH_MS = 120_000
+// The boards' cache on the server is five minutes old at most (0111).
+const BOARDS_REFRESH_MS = 300_000
+const BOARDS_SHARED_MS = 30_000
+// A table waits minutes for its players, not seconds: thousands of homes
+// asking every eight seconds weighed on the server.
+const DUEL_INVITES_MS = 15_000
+const HOST_ACCOUNT_RETRIES_MS = [5_000, 15_000, 45_000, 120_000]
 
 /** When the home screen starts warming the player's dictionaries, and the pause between two. */
 const PACK_WARM_DELAY_MS = 2500
@@ -564,7 +585,7 @@ setMenuPage(null)
       wear(next)
       // The boards read the avatar from the profile: only a fetch after the write shows it.
       pushAvatar(next).then((saved) => {
-        if (saved) loadBoards().then(setBoards)
+        if (saved) loadBoards(true).then(setBoards)
       })
     },
     [wear],
@@ -587,11 +608,11 @@ setMenuPage(null)
       const held = loadAccount()?.name ?? null
       const server = next.avatar
       if (!server) {
-        if (!isDefaultAvatar(worn.current)) pushAvatar(worn.current).then((saved) => { if (saved) loadBoards().then(setBoards) })
+        if (!isDefaultAvatar(worn.current)) pushAvatar(worn.current).then((saved) => { if (saved) loadBoards(true).then(setBoards) })
       } else if (!isDefaultAvatar(server)) {
         wear(server)
       } else if (held === next.name && !sameAvatar(worn.current, server)) {
-        pushAvatar(worn.current).then((saved) => { if (saved) loadBoards().then(setBoards) })
+        pushAvatar(worn.current).then((saved) => { if (saved) loadBoards(true).then(setBoards) })
       } else if (held !== next.name) {
         wear(server)
       }
@@ -674,17 +695,31 @@ setMenuPage(null)
   const [hostAccountSettled, setHostAccountSettled] = useState(!host.account)
   useEffect(() => {
     if (!host.account) return
-    const follow = () =>
+    // A busy server must not leave a signed-in portal player a guest for the
+    // whole visit: the link is tried again, further apart each time.
+    let retry: ReturnType<typeof setTimeout> | undefined
+    let tries = 0
+    const follow = (): Promise<unknown> =>
       host
         .account!()
         .then(followHostAccount)
         .then((changed) => {
-          if (changed) loadBoards().then(setBoards)
+          clearTimeout(retry)
+          if (changed === null && tries < HOST_ACCOUNT_RETRIES_MS.length) {
+            retry = setTimeout(follow, HOST_ACCOUNT_RETRIES_MS[tries++])
+          } else if (changed !== null) {
+            tries = 0
+          }
+          if (changed) loadBoards(true).then(setBoards)
           return readAccount()
         })
         .finally(() => setHostAccountSettled(true))
     follow()
-    host.onAccount?.(follow)
+    host.onAccount?.(() => {
+      tries = 0
+      void follow()
+    })
+    return () => clearTimeout(retry)
   }, [adopt])
 
   const refreshModeration = useCallback(() => {
@@ -759,7 +794,7 @@ setMenuPage(null)
     // The merge summed both players on the server: its totals are the truth now.
     dispatch({ type: 'profile-loaded', profile: { ...profile.current, ...outcome.account.stats } })
     if (!outcome.account.avatar) pushAvatar(avatar)
-    loadBoards().then(setBoards)
+    loadBoards(true).then(setBoards)
     return outcome.warning ? t.account.errors[outcome.warning] : null
   }
 
@@ -794,7 +829,7 @@ setMenuPage(null)
       track('signup', { method: 'email', runs: profile.current.runs })
       setAccount(outcome.account)
       pushAvatar(avatar)
-      loadBoards().then(setBoards)
+      loadBoards(true).then(setBoards)
       // With email confirmation on, the account stays anonymous until the link is followed.
       return outcome.account.anonymous ? t.account.confirmationSent(email.trim()) : null
     },
@@ -822,7 +857,7 @@ setMenuPage(null)
       if (!outcome.ok) return t.account.errors[outcome.error]
       track('signup', { method: 'name', runs: profile.current.runs })
       setAccount(outcome.account)
-      loadBoards().then(setBoards)
+      loadBoards(true).then(setBoards)
       return null
     },
   }
@@ -839,7 +874,7 @@ setMenuPage(null)
     setHistory([])
     setAccount(null)
     fetchAccount().then((found) => found && found !== 'unreachable' && setAccount(found))
-    loadBoards().then(setBoards)
+    loadBoards(true).then(setBoards)
   }
 
   // Android's back gesture leaves a run for the home screen, and closes the app
@@ -1294,7 +1329,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (!atHome || duelOpen || !named || !on('duel')) return
     refreshDuelInvites()
-    const timer = setInterval(() => document.visibilityState === 'visible' && refreshDuelInvites(), 8_000)
+    const timer = setInterval(() => document.visibilityState === 'visible' && refreshDuelInvites(), DUEL_INVITES_MS)
     return () => clearInterval(timer)
   }, [atHome, duelOpen, named, on, refreshDuelInvites])
   // Done here, once the account and the screen allow it.
@@ -1865,7 +1900,7 @@ setStartedAt((at) => at ?? Date.now())
         dispatch({ type: 'profile-loaded', profile: markDailyFirst(profile.current) })
       })
     pushed
-      .then(loadBoards)
+      .then(() => loadBoards(true))
       .then((next) => {
         setBoards(next)
         setBoardsAfter(next)

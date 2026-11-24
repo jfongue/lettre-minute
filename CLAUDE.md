@@ -534,7 +534,7 @@ propre téléphone.
 - **Le duel est dans l'app, derrière le bouton des défis** : quand la
   fonctionnalité `duel` est ouverte, « Créer un défi » passe par l'écran de choix
   (`PlayTogether`) entre le duel en direct et le défi 24 h. Une invitation à une
-  table attend sur l'accueil (`DuelInviteCard`, relue toutes les 8 s). L'hôte
+  table attend sur l'accueil (`DuelInviteCard`, relue toutes les 15 s). L'hôte
   retire quelqu'un du salon par un appui long et une confirmation, jamais d'une
   touche ; l'expulsé rentre à l'accueil, qui le lui dit (`DuelBanner`). Les
   joueurs ordinateur du serveur (`bots`) s'assoient dès qu'ils sont invités et
@@ -684,10 +684,11 @@ propre téléphone.
 
 - **Le suivi d'usage ne lève jamais et ne bloque rien** (`src/lib/track.ts`,
   0029) : les événements s'empilent dans une file de l'appareil, partent par
-  lots de cent toutes les vingt secondes et au passage en arrière-plan, et
-  une ouverture sans partie se lit dans les sessions sans `run_start`. Un
-  bouton touché se nomme par `data-track`, sinon `aria-label`, sinon son
-  texte : un bouton sans mots (icône seule) mérite un `data-track`.
+  lots de cent toutes les minutes et au passage en arrière-plan, et
+  une ouverture sans partie se lit dans les sessions sans `run_start`. Les
+  touches et les écrans ne se suivent plus (0110, deux tiers des événements
+  pour rien) : seules partent les touches d'invitation, nommées `invite-…`
+  par leur `data-track`, que le tableau de bord compte.
   L'invité CrazyGames, sans compte, envoie les siens sous le rôle `anon`, que
   `track` n'accepte que pour cette version et par appareil (0084). Une
   ouverture dit si la précédente a fini sans passer en arrière-plan

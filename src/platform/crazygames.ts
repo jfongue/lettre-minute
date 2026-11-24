@@ -217,16 +217,30 @@ async function portalAccount(): Promise<string | null> {
   }
 }
 
+const accountListeners: (() => void)[] = []
+
 /** A sign-in on the portal: with the Data module on, the portal reloads the page instead. */
 function onPortalAccount(listener: () => void): void {
+  accountListeners.push(listener)
   safely(() => portalUser()?.addAuthListener?.(() => listener()))
 }
 
-/** The portal's own sign-in window; false once closed without signing in, or anywhere it cannot open. */
+/**
+ * The portal's own sign-in window; false once closed without signing in, or
+ * anywhere it cannot open. A player already signed in to the portal, whose
+ * game account could not be opened when the page loaded (the server did not
+ * answer), gets no window — the portal refuses it — but a second try at
+ * opening the account: before this, « Sign in » did nothing for them.
+ */
 async function promptPortalAccount(): Promise<boolean> {
   const user = portalUser()
   if (!user?.showAuthPrompt) return false
   try {
+    const signedIn = user.getUser ? await within(user.getUser(), ACCOUNT_TIMEOUT_MS) : null
+    if (signedIn && signedIn !== 'timeout') {
+      for (const listener of accountListeners) listener()
+      return true
+    }
     return Boolean(await user.showAuthPrompt())
   } catch {
     return false

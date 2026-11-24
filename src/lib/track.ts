@@ -21,7 +21,8 @@ const DEVICE_KEY = 'lettre-minute.device.v1'
 const ALIVE_KEY = 'lettre-minute.alive.v1'
 // A main-thread task this long is a freeze the player feels, not a slow frame.
 const FREEZE_MS = 500
-const FLUSH_MS = 20_000
+// Once a minute: a busy portal sends thousands of players' batches at once.
+const FLUSH_MS = 60_000
 const BATCH = 100
 // Past this, the oldest go: a device offline for weeks must not fill its storage.
 const MAX_QUEUED = 1000
@@ -165,11 +166,9 @@ export function setTrackLang(next: string): void {
   lang = next
 }
 
-/** The screen taps are attributed to, and a `screen` event when it changes. */
+/** The screen errors and invitation taps are attributed to. */
 export function setTrackScreen(next: string): void {
-  if (next === screen) return
   screen = next
-  track('screen', { name: next })
 }
 
 /** What a tap is called on the dashboard: the button's own words, first. */
@@ -214,7 +213,7 @@ function takeLongTasks(): Props {
 }
 
 /**
- * Starts the session: one `open`, every tap on a button or link, errors, and
+ * Starts the session: one `open`, the invitation taps, errors, and
  * the session's end when the page hides. Called once, before the first render.
  */
 export function startTracking(): void {
@@ -230,7 +229,10 @@ export function startTracking(): void {
     'click',
     (event) => {
       const target = event.target instanceof Element ? event.target.closest('button, a, [role="button"]') : null
-      if (target) track('tap', { label: labelOf(target), screen })
+      // Only the invitation taps, which the dashboard's invitations count: the
+      // others were two thirds of every event and nothing read them (0110).
+      const label = target && labelOf(target)
+      if (label?.startsWith('invite-')) track('tap', { label, screen })
     },
     true,
   )
