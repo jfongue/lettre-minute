@@ -102,8 +102,10 @@ export async function initPlaygama(): Promise<void> {
 /**
  * The platforms whose sign-in Playgama's API vouches for (`playgama-auth`):
  * the Bridge runs the game on partners' portals too, where it stays a guest's.
+ * The sandbox is Playgama's own platform under another name, with the same
+ * players: `playgama-auth` has it verified as `playgama`.
  */
-const VERIFIABLE_PLATFORMS = new Set(['playgama', 'msn', 'microsoft_store'])
+const VERIFIABLE_PLATFORMS = new Set(['playgama', 'playgama_sandbox', 'msn', 'microsoft_store'])
 
 function accountsVerifiable(): boolean {
   try {

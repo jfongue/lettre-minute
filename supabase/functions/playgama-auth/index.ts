@@ -13,8 +13,17 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const VERIFY_URL = 'https://playgama.com/api/bridge/v1/verify'
-/** The platforms whose authorization Playgama's API can verify. */
-const VERIFIABLE = new Set(['playgama', 'msn', 'microsoft_store'])
+/**
+ * The platforms whose authorization Playgama's API can verify, under the name
+ * it knows them by: its API answers « Unknown Platform » to the sandbox, which
+ * runs the same SDK for the same players as Playgama itself.
+ */
+const VERIFIABLE = new Map([
+  ['playgama', 'playgama'],
+  ['playgama_sandbox', 'playgama'],
+  ['msn', 'msn'],
+  ['microsoft_store', 'microsoft_store'],
+])
 const VERIFY_TIMEOUT_MS = 8000
 
 const CORS = {
@@ -53,8 +62,9 @@ Deno.serve(async (request) => {
   } catch {
     return reply({ error: 'invalid' }, 400)
   }
-  const { platform, extra, name } = claimed ?? {}
-  if (typeof platform !== 'string' || !VERIFIABLE.has(platform)) return reply({ error: 'platform' }, 401)
+  const { platform: claimedPlatform, extra, name } = claimed ?? {}
+  const platform = typeof claimedPlatform === 'string' ? VERIFIABLE.get(claimedPlatform) : undefined
+  if (!platform) return reply({ error: 'platform' }, 401)
   if (extra === null || typeof extra !== 'object') return reply({ error: 'invalid' }, 400)
 
   let playerId: string | null
