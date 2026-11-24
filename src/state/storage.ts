@@ -1,4 +1,5 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
+import type { BoardRow, Boards } from '../domain/boards'
 import { parseRecord, type RunRecord } from '../domain/history'
 import type { FlagRow, FlagValue, Roles } from '../domain/features'
 import { catchUpPerks } from '../domain/bonus'
@@ -343,11 +344,36 @@ export function saveRunsBackfilled(): void {
   write(RUNS_BACKFILL_KEY, true)
 }
 
+// Le dernier classement lu, avec son heure : ce que l'accueil montre quand le
+// serveur ne répond pas au lancement (`boardsStillValid` écarte un jour passé).
+const BOARDS_KEY = 'lettre-minute.boards.v1'
+
+export function loadBoardsMemory(): { at: number; boards: Boards } | null {
+  const raw = parsed(BOARDS_KEY) as { at?: unknown; boards?: Record<string, unknown> } | null
+  if (!raw || typeof raw.at !== 'number' || !raw.boards) return null
+  const rows = (value: unknown): BoardRow[] =>
+    Array.isArray(value)
+      ? value.flatMap((row: unknown) => {
+          if (!row || typeof row !== 'object') return []
+          const line = row as Record<string, unknown>
+          return typeof line.name === 'string' && typeof line.value === 'number'
+            ? [{ name: line.name, avatar: parseAvatar(line.avatar), value: line.value }]
+            : []
+        })
+      : []
+  return { at: raw.at, boards: { day: rows(raw.boards.day), week: rows(raw.boards.week), discoveries: rows(raw.boards.discoveries) } }
+}
+
+export function saveBoardsMemory(boards: Boards, at: number): void {
+  write(BOARDS_KEY, { at, boards })
+}
+
 export function clearLocalData(): void {
   try {
     localStorage.removeItem(PROFILE_KEY)
     localStorage.removeItem(HISTORY_KEY)
     localStorage.removeItem(UNSENT_RUNS_KEY)
+    localStorage.removeItem(BOARDS_KEY)
     localStorage.removeItem(SUBMISSIONS_KEY)
     localStorage.removeItem(AVATAR_KEY)
     localStorage.removeItem(ACCOUNT_KEY)

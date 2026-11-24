@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_AVATAR } from './avatar'
-import { completeBoards, focusedRows, HOUSE_PLAYER, withHousePlayer, type BoardRow } from './boards'
+import { boardsStillValid, completeBoards, focusedRows, HOUSE_PLAYER, projectBoards, withHousePlayer, type BoardRow, type Boards } from './boards'
 
 function row(name: string, value: number): BoardRow {
   return { name, avatar: DEFAULT_AVATAR, value }
@@ -53,5 +53,42 @@ describe('focusedRows', () => {
     const friends = Array.from({ length: 12 }, (_, index) => `p${index + 15}`)
     const focused = focusedRows(rows(30), friends)
     expect(focused.rows.map((entry) => entry.rank)).toEqual([1, 2, 3, ...Array.from({ length: 12 }, (_, index) => index + 15)])
+  })
+})
+
+describe('projectBoards', () => {
+  const row = (name: string, value: number): BoardRow => ({ name, avatar: DEFAULT_AVATAR, value })
+  const me = { name: 'Moi', avatar: DEFAULT_AVATAR }
+  const boards = (day: BoardRow[]): Boards => ({ day, week: day, discoveries: [row('Ana', 3)] })
+
+  it('raises the player to the place their new best earns, ahead of a tie on the name', () => {
+    const next = projectBoards(boards([row('Ana', 200), row('Moi', 90), row('Bob', 120), row('Zoé', 150)].sort((a, b) => b.value - a.value)), me, 150)
+    expect(next.day.map((line) => `${line.name} ${line.value}`)).toEqual(['Ana 200', 'Moi 150', 'Zoé 150', 'Bob 120'])
+    expect(next.week).toEqual(next.day)
+    expect(next.discoveries).toEqual([row('Ana', 3)])
+  })
+
+  it('leaves the board alone for a run under the player’s best', () => {
+    const day = [row('Ana', 200), row('Moi', 180)]
+    expect(projectBoards(boards(day), me, 100).day).toEqual(day)
+  })
+
+  it('brings a newcomer in where they rank, but not onto a full board they do not reach', () => {
+    expect(projectBoards(boards([row('Ana', 200)]), me, 50).day.map((line) => line.name)).toEqual(['Ana', 'Moi'])
+    const full = Array.from({ length: 50 }, (_, index) => row(`P${index}`, 500 - index))
+    expect(projectBoards(boards(full), me, 10).day).toEqual(full)
+    expect(projectBoards(boards(full), me, 1000).day[0]?.name).toBe('Moi')
+  })
+})
+
+describe('boardsStillValid', () => {
+  const kept: Boards = { day: [HOUSE_PLAYER], week: [HOUSE_PLAYER], discoveries: [HOUSE_PLAYER] }
+  // Tuesday 24 November 2026, 10:00 in Paris.
+  const tuesday = Date.parse('2026-11-24T10:00:00+01:00')
+
+  it('keeps today’s boards, and empties a day or a week gone by', () => {
+    expect(boardsStillValid(kept, tuesday - 3_600_000, tuesday)).toEqual(kept)
+    expect(boardsStillValid(kept, tuesday - 86_400_000, tuesday)).toEqual({ day: [], week: [HOUSE_PLAYER], discoveries: [HOUSE_PLAYER] })
+    expect(boardsStillValid(kept, tuesday - 3 * 86_400_000, tuesday)).toEqual({ day: [], week: [], discoveries: [] })
   })
 })

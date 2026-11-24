@@ -401,6 +401,13 @@ propre téléphone.
   rangs), pas en base : il ne figure qu'aux classements de meilleure partie du
   jour et de la semaine, et disparaît dès que le compte de ce nom a une vraie
   partie sur la période.
+- **La montée au classement de fin de partie ne dépend pas du serveur**
+  (`projectBoards`, `src/domain/boards.ts`) : elle part du classement lu au
+  lancement de la partie, où le score de la partie prend sa place, et ce que
+  le serveur rend ensuite ne fait que rafraîchir l'accueil. Le dernier
+  classement lu reste sur l'appareil (`saveBoardsMemory`) et s'affiche quand
+  le serveur ne répond pas — ceux du jour et de la semaine en cours
+  seulement (`boardsStillValid`).
 - **Les joueurs ordinateur sont hors classements** (0024, `bots`) : Maxitoon et
   Terretciel jouent toujours — la liste d'amis et les défis les lisent —, mais
   `leaderboard_board`, `leaderboard_stat` et la vue `leaderboard` les écartent

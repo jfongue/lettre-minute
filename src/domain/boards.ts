@@ -1,4 +1,5 @@
 import type { AvatarChoice } from './avatar'
+import { parisPeriodStart } from './weekly'
 
 export type BoardId = 'day' | 'week' | 'discoveries'
 
@@ -67,4 +68,54 @@ export function focusedRows(rows: readonly BoardRow[], names: readonly string[])
   let room = BOARD_FOCUS_LIMIT - ranked.filter(inCircle).length
   const kept = ranked.filter((entry) => inCircle(entry) || room-- > 0)
   return { rows: kept, more: kept.length < ranked.length }
+}
+
+/** The rows the server sends a board: past them, a run off the board stays off. */
+export const BOARD_SERVER_ROWS = 50
+
+const sameName = (a: string, b: string) => a.toLocaleLowerCase('fr-FR') === b.toLocaleLowerCase('fr-FR')
+
+/**
+ * One best-score board with the player's run on it: their line takes the
+ * score if it beats the one they had, at the place the server would give it
+ * (higher first, then the name), and a full board the score does not reach
+ * stays as it was.
+ */
+function withRun(rows: readonly BoardRow[], me: { name: string; avatar: AvatarChoice }, score: number): BoardRow[] {
+  const own = rows.find((row) => sameName(row.name, me.name))
+  if (score <= 0 || (own && own.value >= score)) return [...rows]
+  const others = rows.filter((row) => !sameName(row.name, me.name))
+  const line: BoardRow = { name: own?.name ?? me.name, avatar: own?.avatar ?? me.avatar, value: score }
+  const at = others.findIndex((row) => row.value < score || (row.value === score && row.name.localeCompare(line.name) > 0))
+  const place = at === -1 ? others.length : at
+  if (!own && place >= BOARD_SERVER_ROWS) return [...rows]
+  return [...others.slice(0, place), line, ...others.slice(place)].slice(0, Math.max(rows.length, place + 1))
+}
+
+/**
+ * The boards as a run leaves them, from the last ones read: the day's and the
+ * week's best scores take the run, the discoveries wait for the server. What
+ * the end of a run shows the player climbing, whether or not the server
+ * answers in time — a busy one used to leave the climb unseen.
+ */
+export function projectBoards(boards: Boards, me: { name: string; avatar: AvatarChoice }, score: number): Boards {
+  return {
+    day: withRun(boards.day, me, score),
+    week: withRun(boards.week, me, score),
+    discoveries: boards.discoveries,
+  }
+}
+
+/**
+ * The boards kept from an earlier visit, for a server that does not answer:
+ * a board of a day or a week since gone is emptied, never shown as today's.
+ */
+export function boardsStillValid(boards: Boards, readAt: number, now: number): Boards {
+  const sameDay = parisPeriodStart('day', readAt) === parisPeriodStart('day', now)
+  const sameWeek = parisPeriodStart('week', readAt) === parisPeriodStart('week', now)
+  return {
+    day: sameDay ? boards.day : [],
+    week: sameWeek ? boards.week : [],
+    discoveries: sameWeek ? boards.discoveries : [],
+  }
 }

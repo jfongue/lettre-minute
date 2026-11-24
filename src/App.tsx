@@ -84,7 +84,7 @@ import {
 import { configureSound, setHush, setMusic, setPulseStage, sound, tierSound, type SoundPrefs } from './lib/sound'
 import { DEFAULT_AVATAR, isDefaultAvatar, sameAvatar, type AvatarChoice } from './domain/avatar'
 import { appendRecord, mergeHistory, recordOf, type RunRecord } from './domain/history'
-import { completeBoards, HOUSE_PLAYER, type Boards } from './domain/boards'
+import { boardsStillValid, completeBoards, HOUSE_PLAYER, projectBoards, type Boards } from './domain/boards'
 import {
   challengePowers,
   CHALLENGE_MAX_PLAYERS,
@@ -133,6 +133,7 @@ import {
   clearLocalData,
   loadAccount,
   loadAvatar,
+  loadBoardsMemory,
   loadHistory,
   loadMultiplayerNews,
   loadPremiereNewsSeen,
@@ -146,6 +147,7 @@ import {
   loadTutorialDone,
   saveAccount,
   saveAvatar,
+  saveBoardsMemory,
   saveHistory,
   saveMultiplayerPlayed,
   savePremiereNewsSeen,
@@ -235,11 +237,23 @@ let boardsRead: { at: number; boards: Promise<Boards | null> } | null = null
 function loadBoards(fresh = false): Promise<Boards | null> {
   const now = Date.now()
   if (!fresh && boardsRead && now - boardsRead.at < BOARDS_SHARED_MS) return boardsRead.boards
-  const boards = fetchBoards().then((read) => read && completeBoards(read))
+  let answered = false
+  const boards = fetchBoards().then((read) => {
+    if (read) {
+      answered = true
+      const complete = completeBoards(read)
+      saveBoardsMemory(complete, now)
+      return complete
+    }
+    // A server that does not answer leaves the last boards read on screen,
+    // today's only, rather than none.
+    const kept = loadBoardsMemory()
+    return kept ? boardsStillValid(kept.boards, kept.at, Date.now()) : null
+  })
   boardsRead = { at: now, boards }
   // A read that failed is not kept: the next screen asks again.
-  boards.then((read) => {
-    if (!read && boardsRead?.boards === boards) boardsRead = null
+  boards.then(() => {
+    if (!answered && boardsRead?.boards === boards) boardsRead = null
   })
   return boards
 }
@@ -1909,11 +1923,18 @@ setStartedAt((at) => at ?? Date.now())
         if (completeLeaderboard('best', 'day', board).me?.place !== 1) return
         dispatch({ type: 'profile-loaded', profile: markDailyFirst(profile.current) })
       })
+    // The climb at the end of the run is drawn from the boards the run started
+    // on, with its score placed where it ranks: it shows at once, and the
+    // same, whether the server answers in time or not. What the server says
+    // afterwards only refreshes the home.
+    const runner = account && !account.anonymous ? { name: account.name, avatar } : null
+    const projected = runner && boardsBefore ? projectBoards(boardsBefore, runner, session.run.score) : null
+    if (projected) setBoardsAfter(projected)
     pushed
       .then(() => loadBoards(true))
       .then((next) => {
-        setBoards(next)
-        setBoardsAfter(next)
+        if (next) setBoards(next)
+        if (!projected) setBoardsAfter(next)
       })
     // The run is pushed once, when the clock stops: the profile that follows it
     // in the same render is the one the score was just added to.
