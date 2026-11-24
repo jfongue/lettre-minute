@@ -147,7 +147,10 @@ function flush(): Promise<void> {
       // A portal guest has no account (CrazyGames): its events go under the
       // `anon` role, which `track` accepts for that host alone (0084).
       if (!(await connect()) && host.anonymousAccounts) return
-      const { error } = await client.rpc('track', { p_events: batch })
+      const { error, status } = await client.rpc('track', { p_events: batch })
+      // A server too busy to answer keeps the batch for the next flush: the
+      // outage of 23 November cost every event sent while it lasted.
+      if (error && (status === 0 || status === 408 || status === 429 || status >= 500 || error.code === '57014')) return
       // Refused or not deployed yet: dropped all the same, or the queue would only grow.
       if (error && error.code !== 'PGRST202') console.warn('track', error.message)
       queue = queue.slice(batch.length)

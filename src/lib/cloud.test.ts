@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NEW_PROFILE } from '../domain/progression'
 import type { Run } from '../domain/run'
+import { loadUnsentRuns, saveUnsentRuns } from '../state/storage'
 
 /**
  * `cloud.ts` promises the game never sees a server fail: every export answers
@@ -161,5 +162,23 @@ describe('cloud without a working server', () => {
     mode.current = 'error'
     expect(await cloud.pushSubmissions([{ word: 'dahu', categoryId: 'animaux', at: 1, lang: 'fr' }])).toEqual([])
     expect(await cloud.pushRun(RUN, RECORD, NEW_PROFILE)).toBe(false)
+  })
+
+  it('keeps a run the server could not take on the device, once', async () => {
+    const store = new Map<string, string>()
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: { getItem: (key: string) => store.get(key) ?? null, setItem: (key: string, value: string) => void store.set(key, value) },
+      configurable: true,
+    })
+    saveUnsentRuns([])
+    mode.current = 'reject'
+    const run = { ...RUN, powers: new Set(['hush']) } as unknown as Run
+    expect(await cloud.pushRun(run, RECORD, NEW_PROFILE)).toBe(false)
+    expect(await cloud.pushRun(run, RECORD, NEW_PROFILE)).toBe(false)
+    expect(loadUnsentRuns()).toEqual([{ player: 'player-1', seed: 1, powers: ['hush'], record: expect.objectContaining({ at: RECORD.at }) }])
+    // Still unreachable: the run waits on.
+    expect(await cloud.flushUnsentRuns()).toBe(0)
+    expect(loadUnsentRuns()).toHaveLength(1)
+    Reflect.deleteProperty(globalThis, 'localStorage')
   })
 })

@@ -62,6 +62,23 @@ export function appendRecord(history: readonly RunRecord[], record: RunRecord): 
 }
 
 /**
+ * The runs of the device's history the server never received: played since
+ * `since`, recent enough for the server to take them back (`maxAge`), and
+ * whose moment (`at`) is not among those it holds. Oldest first, the order
+ * they were played in.
+ */
+export function unsentRecords(
+  history: readonly RunRecord[],
+  held: ReadonlySet<number>,
+  since: number,
+  now: number,
+  maxAge: number,
+): RunRecord[] {
+  const from = Math.max(since, now - maxAge)
+  return history.filter((record) => record.at >= from && record.at <= now && !held.has(record.at)).sort((one, other) => one.at - other.at)
+}
+
+/**
  * Reads a run record as the server holds it, where anything may have been
  * written: one malformed run is dropped, not the whole answer.
  */

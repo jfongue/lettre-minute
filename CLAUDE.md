@@ -501,6 +501,17 @@ propre téléphone.
   d'usage. Tout ce que `playBot` lit doit donc être identique sur chaque
   appareil — un changement de dictionnaire change aussi les parties de robot
   déjà jouées.
+- **Une partie jouée n'est jamais perdue pour un serveur qui ne répond pas**
+  (`pushRun`, `flushUnsentRuns`, 0112) : un compte qui n'a pas pu l'envoyer
+  la garde sur l'appareil (`loadUnsentRuns`), avec le compte qui l'a jouée,
+  et elle repart avec la partie suivante qui passe ou au lancement, datée de
+  l'heure où elle a été jouée — quatorze jours au plus, l'envoi se comptant sur
+  `sent_at`, que le serveur pose. Les colonnes facultatives ne tombent que
+  sur un refus de colonne, jamais sur un serveur saturé, qu'un nouvel essai
+  ne faisait que charger. Les parties perdues pendant les pannes des 23 et
+  24 novembre 2026 se rattrapent une fois par appareil depuis l'historique
+  (`catchUpLostRuns`), graine à 0 : l'historique ne la garde pas. Le suivi
+  d'usage garde de même son lot quand le serveur est trop chargé.
 - **Une partie de défi ne passe jamais par `pushRun`** : `pushChallengeRun`
   l'envoie à son défi, hors classements et hors rareté, et
   `applyChallengeRun` ne touche ni au record ni à `lastPrompts`.

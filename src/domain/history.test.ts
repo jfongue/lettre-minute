@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { appendRecord, HISTORY_LIMIT, listedHistory, mergeHistory, parseRecord, summarize, type RunRecord } from './history'
+import { appendRecord, HISTORY_LIMIT, listedHistory, mergeHistory, parseRecord, summarize, unsentRecords, type RunRecord } from './history'
 
 function record(score: number, words: [categoryId: string, word: string, points: number][] = [], lang = 'fr'): RunRecord {
   return {
@@ -147,5 +147,22 @@ describe('mergeHistory', () => {
     expect(mergeHistory([device], [{ ...device, at: 10 * HOUR + 1_000 }])).toHaveLength(1)
     // A different score at the same moment is another run.
     expect(mergeHistory([device], [{ ...device, score: 99 }])).toHaveLength(2)
+  })
+})
+
+describe('unsentRecords', () => {
+  const day = 86_400_000
+  const at = (moment: number) => ({ ...record(10), at: moment })
+
+  it('keeps the runs the server lacks, since the outage and within its window, oldest first', () => {
+    const now = 20 * day
+    const history = [at(19 * day), at(18 * day), at(15 * day), at(12 * day), at(9 * day)]
+    const held = new Set([18 * day])
+
+    expect(unsentRecords(history, held, 10 * day, now, 7 * day).map((run) => run.at)).toEqual([15 * day, 19 * day])
+  })
+
+  it('leaves a run dated ahead of the clock alone', () => {
+    expect(unsentRecords([at(30 * day)], new Set(), 0, 20 * day, 7 * day)).toEqual([])
   })
 })

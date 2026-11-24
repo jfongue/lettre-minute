@@ -2,7 +2,7 @@ import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
 import type { SlotEntry, Snapshot } from '../debug/snapshot'
 import type { WordsAnswer, WordsReport } from '../debug/words'
-import { parseRecord, RECENT_MIN_DAYS, RECENT_MIN_RUNS, type RunRecord } from '../domain/history'
+import { parseRecord, RECENT_MIN_DAYS, RECENT_MIN_RUNS, unsentRecords, type RunRecord } from '../domain/history'
 import { parseProgress, progressOf, type Progress } from '../domain/progress'
 import type { Leaderboard, PeriodId, PlacedRow, StatId } from '../domain/leaderboards'
 import { challengeWordsOf, type ChallengeEntry, type ChallengeWord } from '../domain/challenge'
@@ -17,7 +17,7 @@ import { promptKey, promptOutcomes, type Run } from '../domain/run'
 import { acceptable } from '../domain/wordShape'
 import { weeklyValue, type WeeklyMeasures, type WeeklyMetric } from '../domain/weekly'
 import { withBotRuns } from '../state/botRuns'
-import { loadSubmissions, saveSubmissions, type PendingSubmission } from '../state/storage'
+import { loadRunsBackfilled, loadSubmissions, loadUnsentRuns, saveRunsBackfilled, saveSubmissions, saveUnsentRuns, type PendingSubmission, type UnsentRun } from '../state/storage'
 import { host } from '../platform'
 import { trackFeature } from './feature'
 import { googleIdToken } from './native'
@@ -137,72 +137,129 @@ export function fetchCommunityWords(lang: string): Promise<Record<string, Commun
   }, {})
 }
 
-export function pushRun(run: Run, record: RunRecord, profile: Profile): Promise<boolean> {
-  return guard(async () => {
-    const identity = await connect()
-    // Ce que le profil ne garde pas (les pouvoirs restent sur l'appareil) :
-    // la partie dit avec quoi elle a été jouée, pour les classements avancés
-    // du mode débug. La colonne date de 0025.
-    //
-    // Le compte emporte aussi le relevé de la partie (0033) : c'est lui que la
-    // page des statistiques relit sur un autre appareil, avec l'orthographe de
-    // chaque mot et le temps qu'il a mis.
-    //
-    // Un client d'agent (`testClient`) étiquette enfin sa partie (0040) : le
-    // tableau de bord l'écarte. Aucune de ces trois colonnes n'existe sur un
-    // projet plus ancien, et chacune refusée ferait perdre la partie — elles
-    // tombent donc l'une après l'autre, la partie nue passant toujours.
-    const fields: [string, () => unknown][] = [
-      ['record', () => record],
-      ['powers', () => [...run.powers]],
-      ['test', () => testClient()],
-    ]
-    const payload = () => ({
-      player_id: identity!.userId,
-      seed: run.seed,
-      score: run.score,
-      words: run.found.length,
-      best_combo: run.bestCombo,
-      skips: run.skips,
-      ...Object.fromEntries(fields.map(([name, value]) => [name, value()])),
-    })
+/** Where a run stands once offered to the server. */
+type Shipped = { sent: true; id: string } | { sent: false; again: boolean }
 
-    let data: { id?: string } | null = null
-    let error: unknown = null
-    for (;;) {
-      const answer = await supabase!.from('runs').insert(payload()).select('id').single()
-      data = answer.data
-      error = answer.error
-      if (!error || fields.length === 0) break
+// The column a project too old for it does not know: the run goes without it.
+const MISSING_COLUMN = new Set(['PGRST204', '42703'])
+
+/**
+ * The server did not answer, or answered that it was too busy: the run is
+ * worth sending again. Anything else — a rule refused it — is final.
+ */
+function busy(error: { code?: string } | null, status: number): boolean {
+  return status === 0 || status === 408 || status === 429 || status >= 500 || !error?.code || error.code === '57014'
+}
+
+/**
+ * Sends one run and its words. `dated` sends the moment it was played, for a
+ * run that comes late (0112): a fresh one leaves it to the server's clock, so
+ * a phone whose clock runs ahead never has its run refused.
+ *
+ * Ce que le profil ne garde pas (les pouvoirs restent sur l'appareil) : la
+ * partie dit avec quoi elle a été jouée (0025), emporte son relevé (0033), que
+ * la page des statistiques relit sur un autre appareil, et l'étiquette d'un
+ * client d'agent (0040). Aucune de ces trois colonnes n'existe sur un projet
+ * plus ancien : elles tombent l'une après l'autre quand il les refuse — et
+ * seulement alors : retenter sur une base saturée ne faisait que la charger.
+ */
+async function shipRun(entry: UnsentRun, dated: boolean): Promise<Shipped> {
+  const { record } = entry
+  const fields: [string, () => unknown][] = [
+    ['record', () => record],
+    ['powers', () => [...entry.powers]],
+    ['test', () => testClient()],
+  ]
+  let late = dated
+  const payload = () => ({
+    player_id: entry.player,
+    seed: entry.seed,
+    score: record.score,
+    words: record.words.length,
+    best_combo: record.bestCombo,
+    skips: record.skips,
+    ...(late ? { created_at: new Date(record.at).toISOString() } : {}),
+    ...Object.fromEntries(fields.map(([name, value]) => [name, value()])),
+  })
+  let id: string | undefined
+  for (;;) {
+    const answer = await supabase!.from('runs').insert(payload()).select('id').single()
+    if (!answer.error && answer.data?.id) {
+      id = answer.data.id as string
+      break
+    }
+    if (busy(answer.error, answer.status)) return { sent: false, again: true }
+    if (fields.length > 0 && MISSING_COLUMN.has(answer.error?.code ?? '')) {
       fields.pop()
+      continue
     }
-    if (error || !data) return false
-
-    if (record.words.length > 0) {
-      const shots = record.words.map((found) => ({
-        run_id: data.id,
-        word: scoped(record.lang, found.word),
-        category_id: scoped(record.lang, found.categoryId),
-        points: found.points,
-        // Un mot que le dictionnaire a corrigé : l'écran des mots le compte à
-        // part (0043), la rareté ne le paie déjà pas.
-        approximate: found.approximate === true,
-      }))
-      // La colonne n'existe pas sur un projet d'avant 0043 : la partie passe
-      // sans elle plutôt que d'être perdue.
-      const { error: missed } = await supabase!.from('run_words').insert(shots)
-      if (missed) {
-        await supabase!.from('run_words').insert(
-          shots.map((shot) => ({
-            run_id: shot.run_id,
-            word: shot.word,
-            category_id: shot.category_id,
-            points: shot.points,
-          })),
-        )
-      }
+    // A late run the server will not date (a project before 0112, a clock
+    // that runs ahead): it still counts, dated now.
+    if (late) {
+      late = false
+      continue
     }
+    return { sent: false, again: false }
+  }
 
+  if (record.words.length > 0) {
+    const shots = record.words.map((found) => ({
+      run_id: id,
+      word: scoped(record.lang, found.word),
+      category_id: scoped(record.lang, found.categoryId),
+      points: found.points,
+      // Un mot que le dictionnaire a corrigé : l'écran des mots le compte à
+      // part (0043), la rareté ne le paie déjà pas.
+      approximate: found.approximate === true,
+    }))
+    // La colonne n'existe pas sur un projet d'avant 0043 : la partie passe
+    // sans elle plutôt que d'être perdue.
+    const { error: missed } = await supabase!.from('run_words').insert(shots)
+    if (missed) {
+      await supabase!.from('run_words').insert(
+        shots.map((shot) => ({
+          run_id: shot.run_id,
+          word: shot.word,
+          category_id: shot.category_id,
+          points: shot.points,
+        })),
+      )
+    }
+  }
+  return { sent: true, id }
+}
+
+/** Keeps a run the server could not take, to be sent with the next one. */
+function keepUnsent(entry: UnsentRun): void {
+  const kept = loadUnsentRuns()
+  if (kept.some((run) => run.player === entry.player && run.record.at === entry.record.at)) return
+  saveUnsentRuns([...kept, entry])
+}
+
+/**
+ * The finished run, to the server. Played by an account, it is never lost to
+ * a server that does not answer: it waits on the device (`keepUnsent`) and
+ * leaves with the next run that gets through, or the next launch.
+ */
+export async function pushRun(run: Run, record: RunRecord, profile: Profile): Promise<boolean> {
+  if (!supabase) return false
+  const identity = await connect()
+  if (!identity) return false
+  let entry: UnsentRun | null = null
+  let shipped: Shipped
+  try {
+    entry = { player: identity.userId, seed: run.seed, powers: [...run.powers], record }
+    shipped = await shipRun(entry, false)
+  } catch {
+    if (entry) keepUnsent(entry)
+    return false
+  }
+  if (!shipped.sent) {
+    if (shipped.again) keepUnsent(entry)
+    return false
+  }
+  // The run is in: what follows only adds to it, and never sends it twice.
+  try {
     // What the run says of the pairs it left: the seed never replays server
     // side, so the client is the only one who knows what it was dealt. A
     // challenge reports nothing — its draw follows the seed and the embedded
@@ -240,9 +297,85 @@ export function pushRun(run: Run, record: RunRecord, profile: Profile): Promise<
       })
     }
 
-    await pushProfile(identity!.userId, profile)
+    await pushProfile(identity.userId, profile)
+    void flushUnsentRuns()
     return true
-  }, false)
+  } catch {
+    return true
+  }
+}
+
+let flushingRuns: Promise<number> | null = null
+
+/**
+ * Sends the runs waiting on the device, oldest first, dated when they were
+ * played; stops at the first the server cannot take yet. Those of another
+ * account than the one on the device wait for it. The count sent.
+ */
+export function flushUnsentRuns(): Promise<number> {
+  if (flushingRuns) return flushingRuns
+  flushingRuns = (async () => {
+    if (!supabase) return 0
+    const identity = await connect()
+    if (!identity) return 0
+    let sent = 0
+    for (const entry of loadUnsentRuns()) {
+      if (entry.player !== identity.userId) continue
+      const shipped = await shipRun(entry, true)
+      if (!shipped.sent && shipped.again) break
+      saveUnsentRuns(loadUnsentRuns().filter((run) => !(run.player === entry.player && run.record.at === entry.record.at)))
+      if (shipped.sent) sent += 1
+    }
+    return sent
+  })()
+    .catch(() => 0)
+    .finally(() => {
+      flushingRuns = null
+    })
+  return flushingRuns
+}
+
+/** Since when the device looks for runs the server lost: the outage of 23 November 2026, Paris time. */
+const LOST_RUNS_SINCE = Date.parse('2026-11-23T00:00:00+01:00')
+// A day short of the server's fortnight (0112), so a run on the edge is not refused.
+const LOST_RUNS_MAX_AGE = 13 * 86_400_000
+
+/**
+ * Once per device: the runs of its history played since the outage of
+ * 23 November that the server never received join the waiting ones. Done only
+ * when the server said which runs it holds, so a busy server does not make
+ * every run look lost.
+ */
+export async function catchUpLostRuns(history: readonly RunRecord[]): Promise<number> {
+  if (!supabase || loadRunsBackfilled()) return 0
+  try {
+    const identity = await connect()
+    if (!identity) return 0
+    const now = Date.now()
+    const from = new Date(Math.max(LOST_RUNS_SINCE, now - LOST_RUNS_MAX_AGE) - 86_400_000).toISOString()
+    const { data, error } = await supabase
+      .from('runs')
+      .select('record')
+      .eq('player_id', identity.userId)
+      .gte('created_at', from)
+      .limit(2000)
+    if (error || !data) return 0
+    const held = new Set(
+      data.flatMap((row) => {
+        const at = (row.record as { at?: unknown } | null)?.at
+        return typeof at === 'number' ? [at] : []
+      }),
+    )
+    for (const record of loadUnsentRuns()) held.add(record.record.at)
+    const lost = unsentRecords(history, held, LOST_RUNS_SINCE, now, LOST_RUNS_MAX_AGE)
+    // The history does not keep a run's seed: a run caught up says 0, which no
+    // board reads.
+    for (const record of lost) keepUnsent({ player: identity.userId, seed: 0, powers: [], record })
+    saveRunsBackfilled()
+    return lost.length
+  } catch {
+    return 0
+  }
 }
 
 async function pushProfile(userId: string, profile: Profile): Promise<void> {

@@ -1,5 +1,5 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
-import type { RunRecord } from '../domain/history'
+import { parseRecord, type RunRecord } from '../domain/history'
 import type { FlagRow, FlagValue, Roles } from '../domain/features'
 import { catchUpPerks } from '../domain/bonus'
 import { NEW_PROFILE, type Profile } from '../domain/progression'
@@ -301,10 +301,53 @@ export function saveHistory(history: readonly RunRecord[]): void {
   )
 }
 
+// Les parties que le serveur n'a pas reçues : elles attendent ici, chacune
+// avec le compte qui l'a jouée, qu'il réponde. Gardées par l'appareil comme
+// l'historique, et effacées avec lui.
+const UNSENT_RUNS_KEY = 'lettre-minute.unsent-runs.v1'
+// Fait une fois par appareil : le rattrapage des parties perdues pendant les
+// pannes des 23 et 24 novembre 2026.
+const RUNS_BACKFILL_KEY = 'lettre-minute.runs-backfill.v1'
+/** Beyond this, the oldest wait no more: the server refuses a run two weeks old anyway. */
+export const UNSENT_RUNS_KEPT = 300
+
+export interface UnsentRun {
+  player: string
+  seed: number
+  powers: readonly string[]
+  record: RunRecord
+}
+
+export function loadUnsentRuns(): UnsentRun[] {
+  const stored = parsed(UNSENT_RUNS_KEY)
+  if (!Array.isArray(stored)) return []
+  return stored.flatMap((raw: unknown): UnsentRun[] => {
+    if (!raw || typeof raw !== 'object') return []
+    const entry = raw as Record<string, unknown>
+    const record = parseRecord(entry.record)
+    if (!record || typeof entry.player !== 'string' || typeof entry.seed !== 'number' || !Number.isFinite(entry.seed)) return []
+    const powers = Array.isArray(entry.powers) ? entry.powers.filter((power): power is string => typeof power === 'string') : []
+    return [{ player: entry.player, seed: entry.seed, powers, record }]
+  })
+}
+
+export function saveUnsentRuns(runs: readonly UnsentRun[]): void {
+  write(UNSENT_RUNS_KEY, runs.slice(-UNSENT_RUNS_KEPT))
+}
+
+export function loadRunsBackfilled(): boolean {
+  return parsed(RUNS_BACKFILL_KEY) === true
+}
+
+export function saveRunsBackfilled(): void {
+  write(RUNS_BACKFILL_KEY, true)
+}
+
 export function clearLocalData(): void {
   try {
     localStorage.removeItem(PROFILE_KEY)
     localStorage.removeItem(HISTORY_KEY)
+    localStorage.removeItem(UNSENT_RUNS_KEY)
     localStorage.removeItem(SUBMISSIONS_KEY)
     localStorage.removeItem(AVATAR_KEY)
     localStorage.removeItem(ACCOUNT_KEY)

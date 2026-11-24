@@ -54,7 +54,9 @@ import {
   fetchDuelInvites,
   fetchFeatureFlags,
   fetchLeaderboard,
+  catchUpLostRuns,
   fetchMyDiscoveries,
+  flushUnsentRuns,
   type DuelInvitation,
   fetchProgress,
   pushProgress,
@@ -721,6 +723,14 @@ setMenuPage(null)
     })
     return () => clearTimeout(retry)
   }, [adopt])
+
+  // The runs the server could not take wait on the device (`pushRun`): they
+  // leave once the account is known, with those lost to the outage of
+  // 23 November that the history still holds.
+  useEffect(() => {
+    if (!hostAccountSettled || !answered.account) return
+    void catchUpLostRuns(loadHistory()).finally(() => void flushUnsentRuns())
+  }, [hostAccountSettled, answered.account])
 
   const refreshModeration = useCallback(() => {
     fetchModerationStatus(lang).then(setModeration)
