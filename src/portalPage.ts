@@ -60,3 +60,26 @@ export function drawPageBarOnIos(): void {
   redraw()
 }
 
+// Playgama's iframe is sandboxed without allow-forms: the browser drops every
+// form submission there, Entrée in a field and a submit button alike, and no
+// submit event ever fires — the first lesson's field could not be answered.
+// A handler that already took the key (the run's own Entrée) is left alone;
+// otherwise the native submission is cancelled and the submit event the
+// screens listen to is dispatched by hand, which navigates nowhere.
+export function submitFormsInSandbox(): void {
+  const submit = (event: Event, form: HTMLFormElement | null, submitter: HTMLElement | null) => {
+    if (!form || event.defaultPrevented) return
+    event.preventDefault()
+    if (form.reportValidity()) form.dispatchEvent(new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }))
+  }
+  window.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' || event.isComposing || !(event.target instanceof HTMLInputElement)) return
+    if (['button', 'submit', 'reset', 'checkbox', 'radio', 'file'].includes(event.target.type)) return
+    submit(event, event.target.form, null)
+  })
+  window.addEventListener('click', (event) => {
+    const button = event.target instanceof Element ? event.target.closest('button, input[type="submit"]') : null
+    if (!(button instanceof HTMLButtonElement || button instanceof HTMLInputElement) || button.type !== 'submit' || button.disabled) return
+    submit(event, button.form, button)
+  })
+}
