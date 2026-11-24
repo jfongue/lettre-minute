@@ -39,8 +39,20 @@ The drop zone is a cross-origin frame: the zip is dragged in by hand, then
 | Game features | Online Save only (Y8's cloud save, `saveData`). The game's own leaderboards and achievements do not go through Y8's SDK, so those boxes stay empty |
 | AI declaration | « The game was developed with AI assistance ». Not ticked: « primarily created using generative AI », « uses AI-generated graphics, music or other assets » (confirmed: no asset of the game is AI-generated) |
 
+## Media
+
+Rendered by `sh scripts/y8-media.sh` into `y8/assets/`, uploaded on 2026-11-24:
+
+| Slot | Files |
+|---|---|
+| Standard screenshot 760×570 | `screenshot-1…3-760x570.png`: home, announcement, run (4:3 cut of the CrazyGames captures; the summary is too wide for it) |
+| Widescreen 1280×720 | `widescreen-1…4-1280x720.png`: home, announcement, run, summary |
+| Landscape promo 1920×1080 | `promo-landscape-1920x1080.png` |
+| Portrait promo 1080×1920 | `promo-portrait-1080x1920.png` |
+| Game card promo 760×570 | `promo-card-760x570.png` |
+| Gameplay video | `gameplay-1920x1080.mp4`: 31 s, one continuous real run from the countdown to the summary. Y8 refuses trailers, so not the CrazyGames preview video: `node crazygames/video/capture.mjs <harness> --landscape` films it |
+
 ## Still to do before « Request Review »
 
-- Media: standard screenshots 760×570, widescreen 1280×720, promos 1920×1080,
-  1080×1920 and 760×570, gameplay video 16:9 of at least 15 s (MP4 or MOV, ≤ 50 MB).
 - Y8's QA tab is not working yet (placeholder data, buttons that lead nowhere).
+- « Request Review » sends the game to Y8's team: on Jérémy's word only.
