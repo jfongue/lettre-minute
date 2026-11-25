@@ -1,0 +1,1 @@
+import{Bi as e,et as t}from"./styles-zhn2wl0O.js";function n(n,r){return t(r.id)?n.ach[r.id]:{name:e(n.avatar.milestone(r.goal)),desc:``}}export{n as t};
