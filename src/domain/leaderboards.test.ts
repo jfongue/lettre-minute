@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_AVATAR } from './avatar'
 import { HOUSE_PLAYER } from './boards'
-import { completeLeaderboard, myPlace, type PlacedRow } from './leaderboards'
+import { completeLeaderboard, myPlace, periodStillCurrent, type PlacedRow } from './leaderboards'
 
 function row(name: string, value: number, place: number, mine = false): PlacedRow {
   return { name, avatar: DEFAULT_AVATAR, value, place, mine }
@@ -50,5 +50,19 @@ describe('myPlace', () => {
     expect(myPlace({ rows: [row('Ada', 3, 1), row('Moi', 2, 2, true)], me: null })?.place).toBe(2)
     expect(myPlace({ rows: [row('Ada', 3, 1)], me: row('Moi', 1, 70, true) })?.place).toBe(70)
     expect(myPlace({ rows: [row('Ada', 3, 1)], me: null })).toBeNull()
+  })
+})
+
+describe('periodStillCurrent', () => {
+  // Wednesday 25 November 2026, 10:00 in Paris.
+  const now = Date.UTC(2026, 10, 25, 9)
+  it('keeps a board read earlier the same day, the same week, or ever for all time', () => {
+    expect(periodStillCurrent('day', now - 3600_000, now)).toBe(true)
+    expect(periodStillCurrent('week', now - 2 * 86400_000, now)).toBe(true)
+    expect(periodStillCurrent('all', now - 30 * 86400_000, now)).toBe(true)
+  })
+  it('drops a board of a day or a week since gone', () => {
+    expect(periodStillCurrent('day', now - 12 * 3600_000, now)).toBe(false)
+    expect(periodStillCurrent('week', now - 4 * 86400_000, now)).toBe(false)
   })
 })

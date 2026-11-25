@@ -1,10 +1,25 @@
 import { AuthClient } from '@supabase/auth-js'
 import { PostgrestClient } from '@supabase/postgrest-js'
 import { host, PLATFORM } from '../platform'
+import { loadBackend, refreshBackend } from './backend'
 import { authStorage } from './native'
 
-const url = import.meta.env.VITE_SUPABASE_URL
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const builtUrl: string | undefined = import.meta.env.VITE_SUPABASE_URL
+const builtKey: string | undefined = import.meta.env.VITE_SUPABASE_ANON_KEY
+// A build without a server stays without one: no page can hand it a server.
+const moved = builtUrl && builtKey ? loadBackend() : null
+/** The server this launch talks to: the build's own, unless the game's page said it moved. */
+export const projectUrl = moved?.url ?? builtUrl
+export const anonKey = moved?.anonKey ?? builtKey
+
+/**
+ * The project the device's session is saved under: the Supabase project the
+ * game started on, whatever server it has moved to since, so that a move or
+ * a build carrying the new address keeps every player signed in
+ * (`VITE_SUPABASE_SESSION_REF`, supabase/README.md).
+ */
+const sessionRef =
+  import.meta.env.VITE_SUPABASE_SESSION_REF || (builtUrl ? new URL(builtUrl).hostname.split('.')[0] : 'local')
 
 /** Says which version of the game speaks: the server tags runs and duel tables with it (0072). */
 const CLIENT_INFO = `supabase-js/2.117.0; runtime=web; platform=${PLATFORM}`
@@ -16,12 +31,12 @@ const CLIENT_INFO = `supabase-js/2.117.0; runtime=web; platform=${PLATFORM}`
  * the one `createClient` picks, so a session saved by an older build is read
  * as it is — changing it would sign every player out.
  */
-function slimClient(projectUrl: string, key: string) {
-  const base = new URL(projectUrl.endsWith('/') ? projectUrl : `${projectUrl}/`)
+function slimClient(serverUrl: string, key: string) {
+  const base = new URL(serverUrl.endsWith('/') ? serverUrl : `${serverUrl}/`)
   const auth = new AuthClient({
     url: new URL('auth/v1', base).href,
     headers: { Authorization: `Bearer ${key}`, apikey: key, 'X-Client-Info': CLIENT_INFO },
-    storageKey: `sb-${base.hostname.split('.')[0]}-auth-token`,
+    storageKey: `sb-${sessionRef}-auth-token`,
     storage: authStorage(),
     autoRefreshToken: true,
     persistSession: true,
@@ -59,7 +74,10 @@ export type Cloud = ReturnType<typeof slimClient>
  * migrations, simply means scores and proposals stay on the device. Nothing
  * below may throw into the run loop.
  */
-export const supabase: Cloud | null = url && anonKey ? slimClient(url, anonKey) : null
+export const supabase: Cloud | null = projectUrl && anonKey ? slimClient(projectUrl, anonKey) : null
+
+// After the launch's own calls, not in their way.
+if (supabase) setTimeout(() => void refreshBackend(), 5000)
 
 let session: { userId: string } | null = null
 let probing: Promise<{ userId: string } | null> | null = null

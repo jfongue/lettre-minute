@@ -726,12 +726,24 @@ propre téléphone.
   cacherait l'accueil pendant qu'un menu arrive. Les six langues autres que
   le français viennent aussi à la demande (`loadMessages`), avant le premier
   rendu et avant tout changement de langue.
+- **L'adresse du serveur peut changer sans build** (`src/lib/backend.ts`,
+  supabase/README.md « Changer de serveur ») : chaque lancement prend celle que
+  `public/backend.json`, sur la page web, a donnée au précédent. Tout appel
+  passe donc par `projectUrl` et `anonKey` de `src/lib/supabase.ts`, jamais
+  par `import.meta.env.VITE_SUPABASE_URL`, et la clé de session reste celle du
+  projet d'origine (`VITE_SUPABASE_SESSION_REF`).
 - **Le client Supabase est assemblé à la main** (`src/lib/supabase.ts`) :
   `auth-js` et `postgrest-js` seuls, sans Realtime, Storage ni Functions,
   qu'on n'appelle pas et qui pesaient un tiers du bundle. La clé de stockage
   de la session reprend celle de `createClient` (`sb-<projet>-auth-token`) :
   la changer déconnecterait tout le monde. Une fonction Edge garde
   `supabase-js`, qu'elle importe par `npm:`.
+- **Un classement muet montre le dernier lu de sa période** : l'accueil
+  (`loadBoardsMemory`, `boardsStillValid`) comme la page des classements
+  (`loadLeaderboardMemory`, `periodStillCurrent`), jamais celui d'un jour ou
+  d'une semaine passés. Et un jour où personne d'autre que Demontoon n'a joué
+  s'ouvre sur la semaine (`openingBoard`, `hasPlayers`), une fois, sans
+  tourner sous les doigts à un rafraîchissement ni contre un choix du joueur.
 - **Le chrono ne rend qu'au dixième de seconde** (`useElapsed`) : rien de ce
   que la partie affiche n'est plus fin, et rendre toute l'app à chaque image
   coûtait leur fluidité aux vieux téléphones pendant la frappe.

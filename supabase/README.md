@@ -375,6 +375,34 @@ remplacés derrière les cinq tapes ; les fonctions restent en base.
   5. URI de redirection autorisés : `https://jfongue.github.io/lettre-minute/google.html`
      et `http://localhost:5199/google.html`.
 
+## Changer de serveur
+
+Un build porte l'adresse de son serveur, et ceux déjà installés ou en revue
+(Play, CrazyGames, Playgama) ne se reconstruisent pas. Depuis la préparation
+de ce déménagement, chaque lancement lit l'adresse que le précédent a reçue
+(`src/lib/backend.ts`), puis demande l'actuelle à
+`https://jfongue.github.io/lettre-minute/backend.json`
+(`public/backend.json`, publié par `npm run web:publish`), qui ne vaut qu'au
+lancement suivant. `{}` : le serveur du build. Pour déménager :
+
+1. Le nouveau serveur reprend la base entière, schéma `auth` compris
+   (`pg_dump`), **avec le même secret JWT** : les sessions et les jetons de
+   rafraîchissement des joueurs y restent valides.
+2. Y appliquer les fonctions Edge, leurs secrets, pg_cron, le fournisseur
+   Google, puis vérifier une partie, une connexion et un défi.
+3. Écrire `{ "url": "https://…", "anonKey": "…" }` dans `public/backend.json`
+   et `npm run web:publish` : chaque appareil bascule à son lancement
+   suivant, après lequel l'ancien projet ne reçoit plus que les appareils
+   restés sans réseau. Une adresse en `http:` est refusée.
+4. Les builds suivants portent la nouvelle adresse dans `VITE_SUPABASE_URL`,
+   et `VITE_SUPABASE_SESSION_REF` garde l'identifiant de l'ancien projet : la
+   session de l'appareil est rangée sous `sb-<identifiant>-auth-token`, qu'une
+   autre adresse changerait sinon — tout le monde serait déconnecté.
+
+Un build sans serveur (Reddit, `VITE_SUPABASE_URL` vide) ne lit jamais cette
+page. Qui écrit `backend.json` dirige les jetons de tous les joueurs : il ne
+s'écrit que depuis ce dépôt.
+
 ## Appliquer
 
 ```bash

@@ -2,6 +2,7 @@ import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardRow, Boards } from '../domain/boards'
 import { parseRecord, type RunRecord } from '../domain/history'
 import type { FlagRow, FlagValue, Roles } from '../domain/features'
+import type { Leaderboard, PlacedRow } from '../domain/leaderboards'
 import { catchUpPerks } from '../domain/bonus'
 import { NEW_PROFILE, type Profile } from '../domain/progression'
 import type { Account } from '../lib/cloud'
@@ -368,12 +369,39 @@ export function saveBoardsMemory(boards: Boards, at: number): void {
   write(BOARDS_KEY, { at, boards })
 }
 
+// Le dernier état de chaque tableau de la page des classements, mesure et
+// période, avec son heure : ce que la page montre quand le serveur se tait.
+const LEADERBOARDS_KEY = 'lettre-minute.leaderboards.v1'
+
+type LeaderboardMemory = Record<string, { at: number; board: Leaderboard }>
+
+function placedRow(value: unknown): PlacedRow | null {
+  if (!value || typeof value !== 'object') return null
+  const line = value as Record<string, unknown>
+  if (typeof line.name !== 'string' || typeof line.value !== 'number' || typeof line.place !== 'number') return null
+  return { name: line.name, avatar: parseAvatar(line.avatar), value: line.value, place: line.place, mine: line.mine === true }
+}
+
+export function loadLeaderboardMemory(key: string): { at: number; board: Leaderboard } | null {
+  const all = parsed(LEADERBOARDS_KEY) as Record<string, { at?: unknown; board?: { rows?: unknown; me?: unknown } }> | null
+  const kept = all?.[key]
+  if (!kept || typeof kept.at !== 'number' || !kept.board || !Array.isArray(kept.board.rows)) return null
+  const rows = kept.board.rows.flatMap((row) => placedRow(row) ?? [])
+  return { at: kept.at, board: { rows, me: placedRow(kept.board.me) } }
+}
+
+export function saveLeaderboardMemory(key: string, board: Leaderboard, at: number): void {
+  const all = (parsed(LEADERBOARDS_KEY) ?? {}) as LeaderboardMemory
+  write(LEADERBOARDS_KEY, { ...all, [key]: { at, board } })
+}
+
 export function clearLocalData(): void {
   try {
     localStorage.removeItem(PROFILE_KEY)
     localStorage.removeItem(HISTORY_KEY)
     localStorage.removeItem(UNSENT_RUNS_KEY)
     localStorage.removeItem(BOARDS_KEY)
+    localStorage.removeItem(LEADERBOARDS_KEY)
     localStorage.removeItem(SUBMISSIONS_KEY)
     localStorage.removeItem(AVATAR_KEY)
     localStorage.removeItem(ACCOUNT_KEY)

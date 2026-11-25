@@ -21,7 +21,7 @@ import { loadRunsBackfilled, loadSubmissions, loadUnsentRuns, saveRunsBackfilled
 import { host } from '../platform'
 import { trackFeature } from './feature'
 import { googleIdToken } from './native'
-import { connect, forgetSession, supabase } from './supabase'
+import { anonKey, connect, forgetSession, projectUrl, supabase } from './supabase'
 import { testClient } from './testClient'
 
 export interface CrowdUsage {
@@ -1696,8 +1696,8 @@ export async function followHostAccount(token: string | null): Promise<boolean |
       await logOut()
       return true
     }
-    const base = import.meta.env.VITE_SUPABASE_URL
-    const key = import.meta.env.VITE_SUPABASE_ANON_KEY
+    const base = projectUrl
+    const key = anonKey!
     const response = await fetch(`${base}/functions/v1/crazygames-auth`, {
       method: 'POST',
       headers: { apikey: key, authorization: `Bearer ${key}`, 'content-type': 'application/json' },
@@ -2347,7 +2347,7 @@ export function recordPurchase(product: string, token: string, orderId: string):
     const { error } = await supabase!.rpc('record_purchase', { p_product: product, p_token: token, p_order_id: orderId })
     if (error) return false
     const session = (await supabase!.auth.getSession()).data.session
-    const base = import.meta.env.VITE_SUPABASE_URL
+    const base = projectUrl
     if (session && base) {
       await fetch(`${base}/functions/v1/premium-verify`, {
         method: 'POST',
@@ -2389,7 +2389,7 @@ export function fetchMyPremium(): Promise<boolean> {
 export function webCheckoutReady(): Promise<boolean> {
   return guard(async () => {
     const session = (await supabase!.auth.getSession()).data.session
-    const base = import.meta.env.VITE_SUPABASE_URL
+    const base = projectUrl
     if (!session || !base) return false
     const response = await fetch(`${base}/functions/v1/premium-checkout`, {
       headers: { authorization: `Bearer ${session.access_token}` },
@@ -2408,7 +2408,7 @@ export function webCheckoutReady(): Promise<boolean> {
 export function openWebCheckout(product: string): Promise<string | null> {
   return guard(async () => {
     const session = (await supabase!.auth.getSession()).data.session
-    const base = import.meta.env.VITE_SUPABASE_URL
+    const base = projectUrl
     if (!session || !base) return null
     const response = await fetch(`${base}/functions/v1/premium-checkout`, {
       method: 'POST',

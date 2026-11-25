@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_AVATAR } from './avatar'
-import { boardsStillValid, completeBoards, focusedRows, HOUSE_PLAYER, projectBoards, withHousePlayer, type BoardRow, type Boards } from './boards'
+import { boardsStillValid, completeBoards, focusedRows, hasPlayers, HOUSE_PLAYER, openingBoard, projectBoards, withHousePlayer, type BoardRow, type Boards } from './boards'
 
 function row(name: string, value: number): BoardRow {
   return { name, avatar: DEFAULT_AVATAR, value }
@@ -90,5 +90,21 @@ describe('boardsStillValid', () => {
     expect(boardsStillValid(kept, tuesday - 3_600_000, tuesday)).toEqual(kept)
     expect(boardsStillValid(kept, tuesday - 86_400_000, tuesday)).toEqual({ day: [], week: [HOUSE_PLAYER], discoveries: [HOUSE_PLAYER] })
     expect(boardsStillValid(kept, tuesday - 3 * 86_400_000, tuesday)).toEqual({ day: [], week: [], discoveries: [] })
+  })
+})
+
+describe('openingBoard', () => {
+  const house = { ...HOUSE_PLAYER }
+  it('opens on the week when only the house player stands on the day', () => {
+    expect(openingBoard({ day: [house], week: [row('ana', 80), house], discoveries: [] })).toBe('week')
+    expect(openingBoard({ day: [], week: [row('ana', 80)], discoveries: [] })).toBe('week')
+  })
+  it('stays on the day once someone has played today, or when the week is as empty', () => {
+    expect(openingBoard({ day: [row('ana', 80), house], week: [row('ana', 80), house], discoveries: [] })).toBe('day')
+    expect(openingBoard({ day: [house], week: [house], discoveries: [] })).toBe('day')
+  })
+  it('counts the house player by name, whatever its case', () => {
+    expect(hasPlayers([row('demontoon', 50)])).toBe(false)
+    expect(hasPlayers([row('Moi', 50)])).toBe(true)
   })
 })

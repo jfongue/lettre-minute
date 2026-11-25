@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
-import { focusedRows, type BoardId, type Boards as BoardsData } from '../domain/boards'
+import { focusedRows, openingBoard, type BoardId, type Boards as BoardsData } from '../domain/boards'
 import { formatNumber, useT } from '../i18n'
 import { fetchFriends } from '../lib/cloud'
 import { sound } from '../lib/sound'
@@ -100,6 +100,19 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
       if (!('onscrollend' in window)) setTimeout(() => settle(element), 700)
     }
   }
+
+  // A day nobody has played yet opens on the week, once: a refresh never
+  // turns the board under the player's eyes.
+  const opened = useRef(false)
+  useLayoutEffect(() => {
+    if (opened.current) return
+    opened.current = true
+    const element = track.current
+    const index = BOARDS.indexOf(openingBoard(boards))
+    if (!element || index <= 0) return
+    element.scrollLeft = index * element.clientWidth
+    setActive(index)
+  }, [boards])
 
   const show = (index: number) => {
     const element = track.current
