@@ -8,7 +8,7 @@ The build and its choices are explained in `y8/README.md`.
 
 | Build | Version | Uploaded | Notes |
 |---|---|---|---|
-| 001 | 1.0.0 | 2026-11-24 | First build. Game scaling: adapts to any size or aspect ratio. |
+| 001 | 1.0.0 | 2026-11-24 | First build. Game scaling: adapts to any size or aspect ratio. Sent for review on 2026-11-25 (« In review »), tag `y8-v1.0.0`. |
 
 The drop zone is a cross-origin frame: the zip is dragged in by hand, then
 « Add draft build ».
@@ -52,7 +52,10 @@ Rendered by `sh scripts/y8-media.sh` into `y8/assets/`, uploaded on 2026-11-24:
 | Game card promo 760×570 | `promo-card-760x570.png` |
 | Gameplay video | `gameplay-1920x1080.mp4`: 31 s, one continuous real run from the countdown to the summary. Y8 refuses trailers, so not the CrazyGames preview video: `node crazygames/video/capture.mjs <harness> --landscape` films it |
 
-## Still to do before « Request Review »
+## Review
 
-- Y8's QA tab is not working yet (placeholder data, buttons that lead nowhere).
-- « Request Review » sends the game to Y8's team: on Jérémy's word only.
+Build 001 was sent for review on 2026-11-25, 8:46 (« In review »). Y8's
+answer comes in the game's Feedback tab and by e-mail; the page stays locked
+until then, and « Withdraw Submission » takes it back.
+
+- Y8's QA tab was not working yet (placeholder data, buttons that lead nowhere).
