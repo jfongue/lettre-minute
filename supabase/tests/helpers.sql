@@ -271,3 +271,8 @@ begin
   return v_count;
 end;
 $$;
+
+-- The daily proposal cap (0116) would stop the files that propose a dozen
+-- words in one go; they test something else. `47_moderation_guards.sql` puts
+-- the real cap back.
+update public.proposal_quota set base = 1000, trusted = 1000, low = 1000;
