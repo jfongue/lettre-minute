@@ -1,6 +1,4 @@
 import { isNamed, type AchievementId } from '../domain/achievements'
-import { setFeatureSink, trackFeature } from '../lib/feature'
-import type { Props } from '../lib/track'
 import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type RewardedResult } from './host'
 import { fitHistory, HISTORY_KEY, SAVED_KEYS } from './saves'
 
@@ -40,9 +38,6 @@ interface Bridge {
     hideAdvancedBanners?(): void
     on(event: 'advanced_banners_state_changed', listener: (state: BannerState) => void): void
     on(event: string, listener: (state: AdState) => void): void
-  }
-  analytics?: {
-    send(name: string, data?: Record<string, string | number | boolean>): void
   }
   achievements?: {
     unlock(id: string): Promise<unknown>
@@ -103,7 +98,6 @@ export async function initPlaygama(): Promise<void> {
     candidate.advertisement.on('interstitial_state_changed', (state) => adStateChanged('interstitial', state))
     candidate.advertisement.on('rewarded_state_changed', (state) => adStateChanged('rewarded', state))
     candidate.advertisement.on('advanced_banners_state_changed', reserveBanner)
-    setFeatureSink(sendFeature)
     unlockedRead = readUnlocked()
   } catch {
     bridge = null
@@ -324,11 +318,7 @@ function midgame(adFree: boolean): Promise<AdBreak> {
   if (pendingBreak) return pendingBreak
   if (!bridge || adFree) return Promise.resolve('none')
   const asked = playAd('interstitial')
-    .then((shown): AdBreak => {
-      const result = shown ? 'shown' : 'unavailable'
-      trackFeature('ad', { source: 'midgame', result })
-      return result
-    })
+    .then((shown): AdBreak => (shown ? 'shown' : 'unavailable'))
     .finally(() => {
       pendingBreak = null
     })
@@ -437,21 +427,6 @@ function setBanner(wanted: boolean): void {
     else b.advertisement.hideAdvancedBanners?.()
   })
   if (!wanted) reserveBanner('hidden')
-}
-
-/**
- * Every feature event goes to the Bridge's analytics, Playgama's only way in
- * (it refuses outside analytics), flat as it asks. An ad is left out: the
- * Bridge records its own.
- */
-function sendFeature(name: string, props: Props): void {
-  if (name === 'ad') return
-  const data: Record<string, string | number | boolean> = {}
-  for (const [key, value] of Object.entries(props)) {
-    if (value === null) continue
-    data[key] = Array.isArray(value) ? value.join(',') : (value as string | number | boolean)
-  }
-  safely((b) => b.analytics?.send(name, data))
 }
 
 /**

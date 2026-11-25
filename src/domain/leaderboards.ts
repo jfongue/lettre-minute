@@ -1,4 +1,5 @@
 import { HOUSE_PLAYER, type BoardRow } from './boards'
+import { parisPeriodStart } from './weekly'
 
 /** What a leaderboard measures: the order is the page's. « Sessions de modération » n'est lue que par un modérateur. */
 export const STATS = ['best', 'points', 'runs', 'words', 'discoveries', 'combo', 'added', 'moderation'] as const
@@ -51,4 +52,12 @@ export function completeLeaderboard(stat: StatId, period: PeriodId, board: Leade
 /** The player's place on a board, whether among its rows or past them; null when absent. */
 export function myPlace(board: Leaderboard): PlacedRow | null {
   return board.rows.find((row) => row.mine) ?? board.me
+}
+
+/**
+ * Whether a board read at `readAt` still speaks for its period: the one kept
+ * for a server that does not answer is never shown as a later day's or week's.
+ */
+export function periodStillCurrent(period: PeriodId, readAt: number, now: number): boolean {
+  return period === 'all' || parisPeriodStart(period, readAt) === parisPeriodStart(period, now)
 }

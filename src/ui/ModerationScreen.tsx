@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent, type PointerEvent, type ReactNode } from 'react'
 import { SWIPE_THRESHOLD, swipeVerdict, type Verdict } from '../domain/moderation'
 import { castVote, fetchModerationQueue, reportModerationSession, type ReviewCard, type VoteOutcome } from '../lib/cloud'
-import { trackFeature } from '../lib/feature'
 import { sound } from '../lib/sound'
 import { categoryText, useT } from '../i18n'
 import { Burst, Figure } from './bauhaus'
@@ -11,7 +10,7 @@ import { categoryMotif, onTint } from './motifs'
 import { RespellField, respellValid } from './RespellField'
 
 type Judged = Exclude<Verdict, 'special'>
-type Mode = 'judge' | 'respell' | 'special'
+type Mode = 'judge' | 'respell' | 'special' | 'explain'
 
 /** What a gesture means to a review that proposes the opposite: the green thumb keeps. */
 const OPPOSITE: Record<Verdict, Verdict> = {
@@ -95,7 +94,6 @@ export function ModerationScreen({ lang, onDone, queue, onVerdict }: ModerationS
     // La file vidée se rapporte au serveur : c'est lui qui garde les sessions, et
     // « Mes demandes » comme le classement y lisent le même compte.
     void reportModerationSession()
-    trackFeature('moderation_session')
     const timer = setTimeout(sound.news, 450)
     return () => clearTimeout(timer)
   }, [finished])
@@ -122,7 +120,6 @@ export function ModerationScreen({ lang, onDone, queue, onVerdict }: ModerationS
         sound.refused()
         return
       }
-      trackFeature('moderation_vote', { verdict, kind: card.kind })
       if (outcome === 'accepted') sound.found(3, 4)
       if (outcome === 'rejected') sound.skipped()
       // A review settled between the card being dealt and the vote — already
@@ -193,6 +190,11 @@ export function ModerationScreen({ lang, onDone, queue, onVerdict }: ModerationS
     setMode('special')
   }
 
+  const openExplain = () => {
+    setDraft('')
+    setMode('explain')
+  }
+
   const confirmRespell = (event: FormEvent) => {
     event.preventDefault()
     const next = draft.trim()
@@ -203,6 +205,15 @@ export function ModerationScreen({ lang, onDone, queue, onVerdict }: ModerationS
   const confirmSpecial = (event: FormEvent) => {
     event.preventDefault()
     void vote('special', { note: draft })
+  }
+
+  // The refusal of an addition, or the keeping of a flagged word — the gesture
+  // that says « no » to what the card proposes — with the reason the next
+  // moderators will read.
+  const confirmExplain = (event: FormEvent) => {
+    event.preventDefault()
+    if (!card || draft.trim() === '') return
+    void vote(card.kind === 'ban' ? 'correct' : 'incorrect', { note: draft })
   }
 
   if (cards === 'loading') {
@@ -310,6 +321,36 @@ export function ModerationScreen({ lang, onDone, queue, onVerdict }: ModerationS
                 </div>
               </form>
             )}
+            {mode === 'explain' && (
+              <form className="moderation-form" onSubmit={confirmExplain}>
+                <p className="note">{t.moderation.screen.explainLead}</p>
+                <textarea
+                  value={draft}
+                  onChange={(event) => setDraft(event.target.value)}
+                  placeholder={t.moderation.screen.explainPlaceholder}
+                  aria-label={t.moderation.screen.explainPlaceholder}
+                  autoFocus
+                  maxLength={140}
+                  rows={2}
+                />
+                <div className="moderation-form-actions">
+                  <button type="button" className="btn btn--quiet btn--muted" onClick={() => setMode('judge')}>
+                    {t.moderation.screen.back}
+                  </button>
+                  {card.kind === 'ban' ? (
+                    <button type="submit" className="btn btn--green" disabled={draft.trim() === ''}>
+                      <VerdictMark verdict="correct" />
+                      {labels.correct}
+                    </button>
+                  ) : (
+                    <button type="submit" className="btn btn--red" disabled={draft.trim() === ''}>
+                      <VerdictMark verdict="incorrect" />
+                      {labels.incorrect}
+                    </button>
+                  )}
+                </div>
+              </form>
+            )}
             {mode === 'special' && (
               <form className="moderation-form" onSubmit={confirmSpecial}>
                 <p className="note">{t.moderation.screen.specialLead}</p>
@@ -371,6 +412,10 @@ export function ModerationScreen({ lang, onDone, queue, onVerdict }: ModerationS
                 {t.moderation.screen.respell}
               </button>
             )}
+            <button type="button" className="btn btn--quiet" onClick={openExplain}>
+              <VerdictMark verdict={card.kind === 'ban' ? 'correct' : 'incorrect'} />
+              {card.kind === 'ban' ? t.moderation.screen.explainBan : t.moderation.screen.explain}
+            </button>
             {!card.special && card.kind === 'add' && (
               <button type="button" className="btn btn--quiet" onClick={openSpecial}>
                 <VerdictMark verdict="special" />
@@ -435,6 +480,8 @@ function WordCard({ card, behind, drag, leaving, lean, children, ...pointer }: W
     })
   }
   const state = behind ? ' word-card--behind' : leaving ? ` word-card--leave-${leaving.verdict}` : ''
+  // The note the card already shows — a flag's motive, a special case's — is not said twice.
+  const reasons = card.reasons.filter((reason) => reason.note !== card.note)
 
   return (
     <article className={`word-card${state}`} style={style} aria-hidden={behind} {...(behind ? {} : pointer)}>
@@ -476,6 +523,20 @@ function WordCard({ card, behind, drag, leaving, lean, children, ...pointer }: W
             ? t.moderation.screen.proposedByFriends(card.friends, card.proposals - card.friends.length)
             : t.moderation.screen.proposedBy(card.proposals)}
       </p>
+
+      {reasons.length > 0 && (
+        <div className="word-card-reasons">
+          <p className="note">{t.moderation.screen.reasonsTitle}</p>
+          <ul>
+            {reasons.map((reason, at) => (
+              <li key={at} className={`note word-card-said word-card-said--${reason.verdict}`}>
+                <VerdictMark verdict={card.kind === 'ban' ? OPPOSITE[reason.verdict] : reason.verdict} />
+                <span>{reason.note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {children}
 

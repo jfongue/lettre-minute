@@ -33,7 +33,7 @@ export function WeeklyCard({
   const left = Math.max(0, free - used)
   const tickets = Array.from({ length: free }, (_, index) => (index < used ? 'used' : 'free') as 'used' | 'free')
   return (
-    <button type="button" className="wk-card" onClick={onOpen} data-track="weekly-card">
+    <button type="button" className="wk-card" onClick={onOpen}>
       <span className="wk-card-mark" style={{ background: `var(--${tint})`, color: `var(--${onTint(tint)})` } as CSSProperties}>
         <ModeGlyph mode={mode} />
       </span>

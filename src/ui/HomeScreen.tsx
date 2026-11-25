@@ -71,8 +71,6 @@ interface HomeScreenProps {
   onAccount?(mode: AccountMode): void
   /** Five quick taps on the poster's top-right tile: the debug board, hidden from players. */
   onDebug?(): void
-  /** Cinq tapes rapprochés sur « Classement » : la page des classements, en mode débug. */
-  onBoardsHidden?(): void
 }
 
 export function HomeScreen({
@@ -100,7 +98,6 @@ export function HomeScreen({
   onEquip,
   onAccount,
   onDebug,
-  onBoardsHidden,
   invites,
   weekly,
 }: HomeScreenProps) {
@@ -231,11 +228,18 @@ const alone =
               </section>
 
               {boards && (
-                <Boards boards={boards} me={me} climbed={climbed} onAll={() => onMenu('boards')} onHidden={onBoardsHidden} />
+                <Boards boards={boards} me={me} climbed={climbed} onAll={() => onMenu('boards')} />
               )}
             </>
           )}
+        </div>
+      )}
 
+      {/* Les pages, hors de la colonne de droite : le cadre paysage les range
+          sous « Multijoueur » et laisse au classement toute sa hauteur ; le
+          téléphone les montre toujours en dernier. */}
+      {settled && pages.length > 0 && (
+        <div className="home-links cascade">
           <PageLinks pages={pages} avatar={avatar} badges={{ requests: requestsNews, categories: categoriesNews }} queueAlert={queueAlert} onOpen={onMenu} />
         </div>
       )}

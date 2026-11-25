@@ -5792,6 +5792,106 @@ referment d'un coup : `--way` donne le sens de chacune. */
   font-size: 0.8rem;
 }
 
+/* Ce que les modérateurs précédents ont écrit avec leur vote (0116) : lu avant
+   de trancher, sans leur nom. */
+.word-card-reasons {
+  align-self: stretch;
+  display: grid;
+  gap: 0.3rem;
+  text-align: left;
+}
+
+.word-card-reasons ul {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.word-card-said {
+  display: grid;
+  grid-template-columns: 1.1rem 1fr;
+  align-items: start;
+  gap: 0.4rem;
+  overflow-wrap: anywhere;
+}
+
+.word-card-said > :first-child {
+  margin-top: 0.15em;
+}
+
+.word-card-said--incorrect > :first-child {
+  color: var(--red);
+}
+
+.word-card-said--correct > :first-child {
+  color: var(--green);
+}
+
+/* Le score d'exigence du modérateur, sous sa présentation. */
+.moderation-score {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.moderation-score-value {
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+/* Les profils qu'un super modérateur juge : un joueur, ses derniers mots. */
+.profile-review {
+  user-select: text;
+}
+
+.profile-review-card {
+  padding: 1rem;
+  border: 3px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--yellow);
+}
+
+.profile-review-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.profile-review-name .word-card-word {
+  font-size: clamp(1.6rem, 8vw, 2.2rem);
+}
+
+.profile-review-reason {
+  padding-left: 0.5rem;
+  border-left: 3px solid var(--red);
+}
+
+.profile-review-word--rejected .request-word {
+  color: var(--ink-faint);
+}
+
+.profile-review-mark {
+  display: grid;
+  place-items: center;
+}
+
+.profile-review-mark--accepted {
+  color: var(--green);
+}
+
+.profile-review-mark--rejected {
+  color: var(--red);
+}
+
+.profile-review-mark--pending {
+  color: var(--ink-faint);
+}
+
+.profile-review-actions .btn {
+  flex: 1 1 9rem;
+}
+
 .moderation-toast-slot {
   display: grid;
   place-items: center;
@@ -8721,11 +8821,6 @@ button.challenge-word[aria-expanded='true'] {
   justify-items: center;
 }
 
-.dashboard-body {
-  display: grid;
-  gap: 1.75rem;
-}
-
 .dashboard-kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -8817,47 +8912,11 @@ button.challenge-word[aria-expanded='true'] {
   text-wrap: balance;
 }
 
-.dashboard-range .layer-tab {
-  padding-inline: 0.8rem;
-}
-
-.dashboard-card-tabs {
-  margin-bottom: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.dashboard-grid {
-  display: grid;
-  gap: 1.1rem 1.75rem;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
-}
-
 .dashboard-card {
   display: grid;
   gap: 0.5rem;
   align-content: start;
   min-width: 0;
-}
-
-/* Ce qui suit un chiffre dans une case : le cumul, le détail. */
-.dashboard-total {
-  font-size: 0.75rem;
-  color: var(--ink-soft);
-  white-space: nowrap;
-}
-
-/* Un nom qui ouvre l'historique du joueur, pour un super modérateur. */
-.dashboard-who {
-  appearance: none;
-  background: none;
-  border: 0;
-  padding: 0;
-  font: inherit;
-  color: inherit;
-  text-align: inherit;
-  cursor: pointer;
-  text-decoration: underline dotted;
-  text-underline-offset: 0.2em;
 }
 
 .dashboard-tag {
@@ -8912,25 +8971,8 @@ button.challenge-word[aria-expanded='true'] {
   font-family: inherit;
 }
 
-.dashboard-chart .dashboard-chart-value {
-  fill: var(--ink-soft);
-  font-weight: 600;
-}
-
 .dashboard-hit {
   fill: transparent;
-}
-
-.dashboard-column {
-  transition: opacity 120ms;
-}
-
-.dashboard-chart:hover .dashboard-column {
-  opacity: 0.55;
-}
-
-.dashboard-chart:hover .dashboard-column:hover {
-  opacity: 1;
 }
 
 .dashboard-bars {
@@ -9047,54 +9089,11 @@ button.challenge-word[aria-expanded='true'] {
   border-radius: 4px;
 }
 
-.dashboard-error {
-  white-space: normal !important;
-  color: var(--red);
-}
-
-.dashboard-error small {
-  display: block;
-  margin-top: 0.15rem;
-  color: var(--ink-faint);
-  overflow-wrap: anywhere;
-}
-
-.dashboard-tag--lang {
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.04em;
-}
-
 .dashboard code {
   font-size: 0.85em;
   background: var(--paper-2);
   padding: 0.05rem 0.3rem;
   border-radius: 4px;
-}
-
-.dashboard-tip {
-  position: fixed;
-  z-index: 70;
-  pointer-events: none;
-  background: var(--ink);
-  color: var(--paper);
-  font-size: 0.82rem;
-  padding: 0.4rem 0.65rem;
-  border-radius: 6px;
-  max-width: 260px;
-  opacity: 0;
-  transition: opacity 100ms;
-}
-
-.dashboard-tip--on {
-  opacity: 1;
-}
-
-.dashboard-tip b {
-  font-weight: 600;
-}
-
-.dashboard-hit--pick {
-  cursor: pointer;
 }
 
 .dashboard-letter {
@@ -9107,98 +9106,6 @@ button.challenge-word[aria-expanded='true'] {
   color: var(--paper);
   text-align: center;
   font-weight: 700;
-}
-
-/* Le détail d'une barre : une feuille à droite, plein écran au téléphone. */
-.dashboard-slot {
-  position: fixed;
-  inset: 0;
-  z-index: 65;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.dashboard-slot-backdrop {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  padding: 0;
-  background: color-mix(in srgb, var(--ink) 35%, transparent);
-  cursor: default;
-}
-
-.dashboard-slot-panel {
-  position: relative;
-  width: min(480px, 100%);
-  height: 100%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  display: grid;
-  align-content: start;
-  gap: 0.9rem;
-  padding: calc(env(safe-area-inset-top, 0px) + 1rem) 16px calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
-  background: var(--paper);
-  border-left: var(--line) solid var(--ink);
-}
-
-@media (max-width: 600px) {
-  .dashboard-slot-panel {
-    border-left: 0;
-  }
-}
-
-.dashboard-slot-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
-
-.dashboard-slot-head p {
-  margin: 0.2rem 0 0;
-}
-
-.dashboard-people {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.dashboard-person {
-  display: grid;
-  grid-template-columns: 2rem 1fr;
-  gap: 0.7rem;
-  align-items: start;
-  padding: 0.65rem 0;
-  border-bottom: 1px solid var(--grid);
-}
-
-.dashboard-person p {
-  margin: 0.15rem 0 0;
-}
-
-.dashboard-person-did {
-  font-size: 0.88rem;
-}
-
-.dashboard-person-blank {
-  width: 2rem;
-  aspect-ratio: 1;
-  border-radius: 4px;
-  border: 1px dashed var(--rule);
-}
-
-.dashboard-marks {
-  display: inline-flex;
-  gap: 3px;
-  margin-left: 0.4rem;
-  vertical-align: middle;
-}
-
-.dashboard-marks i {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
 }
 
 /* ------------------------------------------------------- les mots (débug) - */
@@ -9400,7 +9307,6 @@ body[data-words='board'] .offer-pop-layer {
   letter-spacing: 0.04em;
   vertical-align: middle;
 }
-
 
 /* Les invites passées du récap : un mot sous une bande noire, qu'une tape arrache. */
 .hidden-answers {
@@ -11330,7 +11236,6 @@ ligne, et se referme par une seconde tape. */
     font-size: 0.95rem;
   }
 }
-
 
 /* ---------------------------------------------------- choix des pouvoirs - */
 

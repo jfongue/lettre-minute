@@ -1,18 +1,16 @@
-import { Suspense, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
-import { completeLeaderboard, myPlace, OPEN_STATS, PERIODS, STATS, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from '../domain/leaderboards'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { hasPlayers } from '../domain/boards'
+import { completeLeaderboard, myPlace, OPEN_STATS, periodStillCurrent, PERIODS, STATS, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from '../domain/leaderboards'
 import { metricOf, weekNumber, weekOf, weeklyMode, type WeeklyMetric } from '../domain/weekly'
 import { formatNumber, useT } from '../i18n'
 import { fetchLeaderboard, fetchWeeklyBoard, fetchWeeklyWinners, type WeeklyBoardRow, type WeeklyWinnerRow } from '../lib/cloud'
-import type { LoadDashboard } from '../debug/Dashboard'
-import { lazyScreen } from './lazyScreen'
 import { Avatar } from './Avatar'
 import { BoardSwitch, type BoardFamily } from './BoardSwitch'
 import { Shape } from './bauhaus'
 import { onTint, type ShapeKind, type Tint } from './motifs'
 import { PlayerName } from './PlayerSheet'
+import { loadLeaderboardMemory, saveLeaderboardMemory } from '../state/storage'
 
-// A developer's tool behind five taps: no player should download it.
-const Dashboard = lazyScreen(() => import('../debug/Dashboard').then((module) => module.Dashboard))
 
 const LOOKS: Record<StatId, { kind: ShapeKind; tint: Tint }> = {
   best: { kind: 'star', tint: 'yellow' },
@@ -36,9 +34,17 @@ type WeekPane = (typeof WEEK_PANES)[number]
 
 export type LoadLeaderboard = (stat: StatId, period: PeriodId) => Promise<Leaderboard | null>
 
+/** A server that does not answer leaves the last board read for that period, never an earlier period's. */
 async function loadFromServer(stat: StatId, period: PeriodId): Promise<Leaderboard | null> {
+  const key = `${stat}:${period}`
   const board = await fetchLeaderboard(stat, period)
-  return board && completeLeaderboard(stat, period, board)
+  if (board) {
+    const complete = completeLeaderboard(stat, period, board)
+    saveLeaderboardMemory(key, complete, Date.now())
+    return complete
+  }
+  const kept = loadLeaderboardMemory(key)
+  return kept && periodStillCurrent(period, kept.at, Date.now()) ? kept.board : null
 }
 
 interface LeaderboardsPageProps {
@@ -58,12 +64,6 @@ interface LeaderboardsPageProps {
   onFamily?(next: FamilyId): void
   /** The debug board passes its own made-up boards. */
   load?: LoadLeaderboard
-  /** Cinq tapes sur « Classements » : le tableau de bord, par-dessus la page. */
-  advanced?: boolean
-  /** La planche nourrit le tableau de bord de ses propres chiffres. */
-  loadDashboard?: LoadDashboard
-  /** Ferme le tableau de bord. */
-  onCloseAdvanced?(): void
 }
 
 /**
@@ -79,9 +79,6 @@ export function LeaderboardsPage({
   family: familyProp,
   onFamily,
   load = loadFromServer,
-  advanced = false,
-  loadDashboard,
-  onCloseAdvanced,
 }: LeaderboardsPageProps) {
   const t = useT()
   // Les sessions de modération ne se montrent qu'à qui juge : la piste en porte
@@ -93,6 +90,9 @@ export function LeaderboardsPage({
   const weekMetric = metricOf(weeklyMode(weekId))
   const [period, setPeriod] = useState<PeriodId>('day')
   const [active, setActive] = useState(0)
+  // Nobody but the house player on the day's first board read: the page turns
+  // to the week, once, unless the player has picked a period already.
+  const periodPicked = useRef(false)
   const [ownFamily, setOwnFamily] = useState<FamilyId>('runs')
   // Le commutateur vit sur la ligne du titre, dans le tiroir : la page suit ce
   // qu'on lui donne, et décide seule ailleurs (planche debug).
@@ -100,6 +100,7 @@ export function LeaderboardsPage({
   const setFamily = onFamily ?? setOwnFamily
   const [pane, setPane] = useState<WeekPane>('current')
   const [boards, setBoards] = useState<Record<string, Loaded>>({})
+  const firstDay = boards[`${stats[active]}:day`]
   const [week, setWeek] = useState<WeeklyBoardRow[] | null | undefined>(undefined)
   const [winners, setWinners] = useState<WeeklyWinnerRow[] | null | undefined>(undefined)
   const track = useRef<HTMLDivElement>(null)
@@ -117,6 +118,12 @@ export function LeaderboardsPage({
     return () => observer.disconnect()
     // La piste des parties est remontée au retour du défi : on la remesure.
   }, [active, family])
+
+  useEffect(() => {
+    if (periodPicked.current || period !== 'day' || !firstDay) return
+    periodPicked.current = true
+    if (!hasPlayers(firstDay.rows)) setPeriod('week')
+  }, [firstDay, period])
 
   const ask = (stat: StatId, force = false) => {
     const key = `${stat}:${period}`
@@ -189,7 +196,7 @@ export function LeaderboardsPage({
         <div className="leaderboards-guest">
           <p className="note">{t.leaderboards.guest}</p>
           {onSignIn && (
-            <button type="button" className="btn btn--quiet" data-track="host-sign-in" onClick={onSignIn}>
+            <button type="button" className="btn btn--quiet" onClick={onSignIn}>
               {t.leaderboards.signIn}
             </button>
           )}
@@ -208,7 +215,10 @@ export function LeaderboardsPage({
                 role="tab"
                 aria-selected={period === id}
                 className={`layer-tab${period === id ? ' layer-tab--on' : ''}`}
-                onClick={() => setPeriod(id)}
+                onClick={() => {
+                  periodPicked.current = true
+                  setPeriod(id)
+                }}
               >
                 {t.leaderboards.periods[id]}
               </button>
@@ -285,12 +295,6 @@ export function LeaderboardsPage({
             )}
           </section>
         </div>
-      )}
-
-      {advanced && (
-        <Suspense fallback={null}>
-          <Dashboard load={loadDashboard} onClose={onCloseAdvanced ?? (() => {})} />
-        </Suspense>
       )}
     </div>
   )

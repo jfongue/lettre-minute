@@ -119,3 +119,14 @@ export function boardsStillValid(boards: Boards, readAt: number, now: number): B
     discoveries: sameWeek ? boards.discoveries : [],
   }
 }
+
+/** Whether a board holds anyone but the house player, whose standing score alone leaves it empty. */
+export function hasPlayers(rows: readonly { name: string }[], house: BoardRow = HOUSE_PLAYER): boolean {
+  const name = house.name.toLowerCase()
+  return rows.some((row) => row.name.toLowerCase() !== name)
+}
+
+/** The board the home opens on: the week's when nobody has played today yet but someone has this week. */
+export function openingBoard(boards: Boards): 'day' | 'week' {
+  return !hasPlayers(boards.day) && hasPlayers(boards.week) ? 'week' : 'day'
+}

@@ -102,7 +102,6 @@ return (
 key={`${entry.id}-${entry.look ?? 'plain'}`}
 type="button"
 className={`currency-chip currency-chip--${entry.id}${entry.look ? ` currency-chip--${entry.look}` : ''}`}
-data-track={`currency-${entry.id}`}
 aria-expanded={hint === entry.id}
 onClick={() => setHint(hint === entry.id ? null : entry.id)}
 >

@@ -60,7 +60,6 @@ import { useFeature } from './features'
 import { host } from '../platform'
 import { useSwipe } from './useSwipe'
 import { useBackDismiss } from './useBackDismiss'
-import { trackFeature } from '../lib/feature'
 import { Avatar } from './Avatar'
 
 export type MenuPane = 'profile' | 'social' | 'options'
@@ -143,6 +142,8 @@ avatarFocus?: number | null
   moderation: ModerationStatus | null
   queueAlert?: boolean
   onModerate(): void
+  /** A super moderator opens the profiles of players too often refused (0116). */
+  onProfiles?(): void
   /** Null without an account; the statistics list the hidden ones. */
   challenges: readonly ChallengeSummary[] | null
   onChallenge(id: string): void
@@ -152,9 +153,6 @@ avatarFocus?: number | null
   onRequestsOpen(): void
   /** La langue du dictionnaire, comme celle de la partie : celle de l'interface. */
   lang: string
-  /** Les classements avancés : le mode débug, ouvert par cinq tapes sur « Classements ». */
-  advancedBoards: boolean
-  onAdvancedBoards?(open: boolean): void
   /** Le tableau des mots : l'autre mode débug, ouvert par cinq tapes sur « Mes catégories ». */
   onWordsBoard?(open: boolean): void
   /** Le réglage des fonctionnalités, pour un super modérateur seul. */
@@ -219,7 +217,6 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
   useBackDismiss(unsaved && !pendingLeave ? back : null)
   const settleLeave = (kept: boolean) => {
     const go = pendingLeave
-    trackFeature('avatar_keep_asked', { kept })
     if (kept && avatarDraft) props.onAvatarSave(avatarDraft)
     setPendingLeave(null)
     setAvatarDraft(null)
@@ -290,11 +287,9 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               <h2
                 className="subpage-title"
                 onClick={
-                  sub === 'boards' || sub === 'categories'
+                  sub === 'categories'
                     ? () => {
-                        if (!tapTitle()) return
-                        if (sub === 'boards') props.onAdvancedBoards?.(true)
-                        else props.onWordsBoard?.(true)
+                        if (tapTitle()) props.onWordsBoard?.(true)
                       }
                     : undefined
                 }
@@ -326,14 +321,13 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
               moderator={props.moderation?.moderator ?? false}
               family={host.guestBoards ? 'runs' : boardFamily}
               onFamily={setBoardFamily}
-              advanced={props.advancedBoards}
-              onCloseAdvanced={() => props.onAdvancedBoards?.(false)}
             />
           )}
           {sub === 'requests' && (
             <RequestsPage
               moderation={props.moderation}
               onModerate={props.onModerate}
+              onProfiles={props.onProfiles}
               onSeen={props.onRequestsSeen}
               onOpen={props.onRequestsOpen}
             />
@@ -530,7 +524,7 @@ function ProfilePane({
       )}
 
       {!named && host.promptAccount && (
-        <button type="button" className="btn btn--quiet menu-start" data-track="host-sign-in" onClick={() => void host.promptAccount!()}>
+        <button type="button" className="btn btn--quiet menu-start" onClick={() => void host.promptAccount!()}>
           {t.leaderboards.signIn}
         </button>
       )}
@@ -546,7 +540,7 @@ function ProfilePane({
       />
 
       {plus ? (
-        <button type="button" className="premium-entry" data-track="premium-page" onClick={() => onPage('premium')}>
+        <button type="button" className="premium-entry" onClick={() => onPage('premium')}>
           <PlusSeal size="md" />
           <span className="premium-entry-text">
             <strong>{t.premium.title}</strong>
@@ -622,7 +616,7 @@ function SocialPane({
     return (
       <div className="stack">
         <p className="note">{t.social.hostSignIn}</p>
-        <button type="button" className="btn btn--block" data-track="host-sign-in" onClick={() => void prompt()}>
+        <button type="button" className="btn btn--block" onClick={() => void prompt()}>
           {t.leaderboards.signIn}
         </button>
       </div>
@@ -717,7 +711,6 @@ function SocialPane({
       sharedWith={sharedWith}
       message={message}
       onOpen={(friendId) => {
-        trackFeature('friend_opened')
         setOpened(friendId)
       }}
       onRespond={(friendId, accept) => act(respondFriend(friendId, accept))}

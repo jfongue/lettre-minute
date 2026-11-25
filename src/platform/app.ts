@@ -1,5 +1,4 @@
 import { breakDue, INTERSTITIAL_BREAKS, nextBreak } from '../domain/adBreaks'
-import { trackFeature } from '../lib/feature'
 import { adsSupported, playInterstitial, prepareInterstitial, prepareRewardedAd, showRewardedAd } from '../lib/native'
 import { quiet, type AdBreak, type Host } from './host'
 
@@ -25,12 +24,10 @@ function breakAfterRecap(adFree: boolean, afterAd = false): Promise<AdBreak> {
     if (nextBreak(finishedRuns, INTERSTITIAL_BREAKS) - finishedRuns <= LOAD_AHEAD_RUNS) prepareInterstitial()
   }
   if (!due || afterAd) {
-    if (due) trackFeature('ad', { source: 'midgame', result: 'after-reveal' })
     loadAhead()
     return Promise.resolve('none')
   }
   const played = playInterstitial().then((result) => {
-    trackFeature('ad', { source: 'midgame', result })
     pendingBreak = null
     loadAhead()
     return result

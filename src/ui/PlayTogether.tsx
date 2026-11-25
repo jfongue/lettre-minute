@@ -108,7 +108,7 @@ export function PlayTogether({
         {onSignIn ? (
           <section className="together-signin" style={{ '--i': 1 } as CSSProperties}>
             <p className="note">{t.duel.signInLead}</p>
-            <button type="button" className="btn btn--blue btn--block" data-track="duel-sign-in" onClick={onSignIn}>
+            <button type="button" className="btn btn--blue btn--block" onClick={onSignIn}>
               {t.duel.signIn}
             </button>
           </section>

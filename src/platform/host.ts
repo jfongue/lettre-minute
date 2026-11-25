@@ -3,7 +3,7 @@ import type { FeatureId } from '../domain/features'
 import type { Locale } from '../i18n'
 
 /** Where the game runs: the versions built from this one code (CLAUDE.md, « Plateformes »). */
-export type Platform = 'android' | 'web' | 'crazygames' | 'playgama' | 'reddit'
+export type Platform = 'android' | 'web' | 'crazygames' | 'playgama' | 'reddit' | 'y8'
 
 /**
  * What really differs from one version to the next, asked by the shared code
@@ -174,7 +174,6 @@ export const APP_ONLY_FEATURES: readonly FeatureId[] = [
   'ads',
   'share',
   'wordsBoard',
-  'dashboard',
   'ideasAdmin',
   'debugBoard',
 ]
@@ -182,7 +181,6 @@ export const APP_ONLY_FEATURES: readonly FeatureId[] = [
 /** The developer's tools and the word moderation: what a super moderator needs on any host with the server. */
 export const SUPER_MODERATOR_FEATURES: readonly FeatureId[] = [
   'debugBoard',
-  'dashboard',
   'spyHistory',
   'wordsBoard',
   'ideasAdmin',

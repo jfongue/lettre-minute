@@ -1,6 +1,5 @@
 import { parseAvatar, type AvatarChoice } from '../domain/avatar'
 import type { BoardId, BoardRow, Boards } from '../domain/boards'
-import type { SlotEntry, Snapshot } from '../debug/snapshot'
 import type { WordsAnswer, WordsReport } from '../debug/words'
 import { parseRecord, RECENT_MIN_DAYS, RECENT_MIN_RUNS, unsentRecords, type RunRecord } from '../domain/history'
 import { parseProgress, progressOf, type Progress } from '../domain/progress'
@@ -19,9 +18,8 @@ import { weeklyValue, type WeeklyMeasures, type WeeklyMetric } from '../domain/w
 import { withBotRuns } from '../state/botRuns'
 import { loadRunsBackfilled, loadSubmissions, loadUnsentRuns, saveRunsBackfilled, saveSubmissions, saveUnsentRuns, type PendingSubmission, type UnsentRun } from '../state/storage'
 import { host } from '../platform'
-import { trackFeature } from './feature'
 import { googleIdToken } from './native'
-import { connect, forgetSession, supabase } from './supabase'
+import { anonKey, connect, forgetSession, projectUrl, supabase } from './supabase'
 import { testClient } from './testClient'
 
 export interface CrowdUsage {
@@ -511,10 +509,8 @@ export interface SpiedProfile {
   bestCombo: number
   bot: boolean
   lastRunAt: string | null
-  lastOpen: { at: string; platform: string | null; version: string | null; lang: string | null } | null
-  /** Runs (0072) and openings (0029) on each platform, most recent first. */
-  platforms: { platform: string; runs: number; opens: number; last: string | null }[]
-  devices: number
+  /** Runs on each platform (0072), most recent first. */
+  platforms: { platform: string; runs: number; last: string | null }[]
   premium: {
     purchases: { provider: string; state: string; at: string }[]
     grant: { at: string; by: string | null } | null
@@ -534,8 +530,6 @@ export interface SpiedProfile {
   }
   /** The last ninety days, Paris time, oldest first; `best` and `avg` are null on a day without a run. */
   daily: { day: string; runs: number; best: number | null; avg: number | null }[]
-  /** `trackFeature` names over the last ninety days. */
-  features: { name: string; n: number; last: string }[]
 }
 
 /** What a super moderator's grant or revoke answered (0091). */
@@ -555,7 +549,6 @@ export function spiedProfileOf(data: unknown): SpiedProfile | null {
   const premium = rawOf(found.premium)
   const grant = premium.grant ? rawOf(premium.grant) : null
   const moderator = found.moderator ? rawOf(found.moderator) : null
-  const lastOpen = found.last_open ? rawOf(found.last_open) : null
   const moderation = rawOf(found.moderation)
   const without = rawOf(found.without_powers)
   return {
@@ -572,9 +565,7 @@ export function spiedProfileOf(data: unknown): SpiedProfile | null {
     bestCombo: countOf(found.best_combo),
     bot: found.bot === true,
     lastRunAt: textOf(found.last_run_at),
-    lastOpen: lastOpen && { at: textOf(lastOpen.at) ?? '', platform: textOf(lastOpen.platform), version: textOf(lastOpen.version), lang: textOf(lastOpen.lang) },
-    platforms: listOf(found.platforms).map((one) => ({ platform: textOf(one.platform) ?? '?', runs: countOf(one.runs), opens: countOf(one.opens), last: textOf(one.last) })),
-    devices: countOf(found.devices),
+    platforms: listOf(found.platforms).map((one) => ({ platform: textOf(one.platform) ?? '?', runs: countOf(one.runs), last: textOf(one.last) })),
     premium: {
       purchases: listOf(premium.purchases).map((one) => ({ provider: textOf(one.provider) ?? '?', state: textOf(one.state) ?? '?', at: textOf(one.at) ?? '' })),
       grant: grant && { at: textOf(grant.at) ?? '', by: textOf(grant.by) },
@@ -597,7 +588,6 @@ export function spiedProfileOf(data: unknown): SpiedProfile | null {
       best: one.best == null ? null : countOf(one.best),
       avg: one.avg == null ? null : countOf(one.avg),
     })),
-    features: listOf(found.features).map((one) => ({ name: textOf(one.name) ?? '?', n: countOf(one.n), last: textOf(one.last) ?? '' })),
   }
 }
 
@@ -662,14 +652,35 @@ export function fetchMyRuns(): Promise<RunRecord[] | null> {
   }, null)
 }
 
-/** Sends the words proposed while offline; returns those that went through. */
+/**
+ * What the server still takes today (`proposal_room`, 0116): a daily cap set by
+ * how many of the player's words were accepted, and a ban that refuses them
+ * all. Null before 0116 is applied: nothing is capped.
+ */
+async function proposalRoom(): Promise<{ banned: boolean; room: number } | null> {
+  const { data, error } = await supabase!.rpc('proposal_room')
+  if (error || !data) return null
+  const row = data as Record<string, unknown>
+  return { banned: row.banned === true, room: Math.max(0, Number(row.room) || 0) }
+}
+
+/**
+ * Sends the words proposed while offline; returns those the device may forget.
+ * Past the day's cap the newest wait on the device for the next day. A banned
+ * player's words are all returned without being sent: the server would refuse
+ * them on every attempt, and « Mes demandes » says why.
+ */
 export function pushSubmissions(pending: readonly PendingSubmission[]): Promise<PendingSubmission[]> {
   if (pending.length === 0) return Promise.resolve([])
 
   return guard(async () => {
     const identity = await connect()
+    const room = await proposalRoom()
+    if (room?.banned) return [...pending]
+    const sending = room ? [...pending].sort((one, other) => one.at - other.at).slice(0, room.room) : [...pending]
+    if (sending.length === 0) return []
     const { error } = await supabase!.from('word_submissions').upsert(
-      pending.map((submission) => ({
+      sending.map((submission) => ({
         player_id: identity!.userId,
         category_id: scoped(submission.lang ?? 'fr', submission.categoryId),
         word: scoped(submission.lang ?? 'fr', submission.word.trim().toLowerCase()),
@@ -677,7 +688,7 @@ export function pushSubmissions(pending: readonly PendingSubmission[]): Promise<
       })),
       { onConflict: 'player_id, category_id, word', ignoreDuplicates: true },
     )
-    return error ? [] : [...pending]
+    return error ? [] : sending
   }, [])
 }
 
@@ -791,6 +802,18 @@ export interface ModerationStatus {
   topUp: boolean
   /** Their words accepted since they last looked. */
   news: number
+  /**
+   * How often the file's final verdict agreed with theirs, from 0 to 100 (0116):
+   * a shared refusal counts double, a validation the others refused costs
+   * double. Null until one of their votes is settled.
+   */
+  score: number | null
+  /** Their settled « correct » and « incorrect » votes, which the score reads. */
+  judged: number
+  /** For a super moderator: players whose proposals wait for a verdict on their profile. */
+  profiles: number
+  /** This player may no longer propose words. */
+  banned: boolean
 }
 
 /** Null without a server, which hides everything moderation shows. */
@@ -809,6 +832,10 @@ export function fetchModerationStatus(lang: string): Promise<ModerationStatus | 
       invitedBy: (row.invited_by as string | null) ?? null,
       topUp: row.topup === true,
       news: Number(row.news) || 0,
+      score: row.score === null || row.score === undefined ? null : Number(row.score),
+      judged: Number(row.judged) || 0,
+      profiles: Number(row.profiles) || 0,
+      banned: row.banned === true,
     }
   }, null)
 }
@@ -840,6 +867,19 @@ export interface ReviewCard {
   canRespell: boolean
   /** The moderator's friends among those who asked: their words come first. */
   friends: string[]
+  /** What the moderators before them wrote with their vote, oldest first, unsigned (0116). */
+  reasons: { verdict: Verdict; note: string }[]
+}
+
+const VERDICTS: readonly Verdict[] = ['correct', 'unsure', 'incorrect', 'special']
+
+function reasonsOf(raw: unknown): ReviewCard['reasons'] {
+  if (!Array.isArray(raw)) return []
+  return raw.flatMap((item) => {
+    const row = item as Record<string, unknown>
+    const verdict = VERDICTS.find((known) => known === row.verdict)
+    return verdict && typeof row.note === 'string' && row.note.trim() ? [{ verdict, note: row.note }] : []
+  })
 }
 
 /** Null when the server could not be reached, which the screen tells apart from nothing to judge. */
@@ -857,6 +897,7 @@ export function fetchModerationQueue(lang: string): Promise<ReviewCard[] | null>
       note: (row.note as string | null) ?? null,
       canRespell: row.can_respell === true,
       friends: (row.friends as string[] | null) ?? [],
+      reasons: reasonsOf(row.reasons),
     }))
   }, null)
 }
@@ -912,6 +953,67 @@ export function castVote(
       p_display: respell || null,
     })
     return error ? 'unreachable' : (data as VoteOutcome)
+  }, 'unreachable')
+}
+
+/** A proposal of a player whose profile waits for a super moderator. */
+export interface ProfileWord {
+  display: string
+  lang: string
+  categoryId: string
+  status: SubmissionStatus
+  at: number
+  /** The reasons moderators gave when they refused it. */
+  reasons: string[]
+}
+
+/** A player whose proposals were too often refused (0116): banned on the spot, or in doubt. */
+export interface ProfileReview {
+  id: string
+  name: string
+  /** Banned on the spot: the super moderator confirms the ban or lifts it. */
+  banned: boolean
+  accepted: number
+  rejected: number
+  pending: number
+  /** Newest first, at most twenty. */
+  words: ProfileWord[]
+}
+
+/** Null when the server could not be reached; empty for anyone but a super moderator. */
+export function fetchProfileQueue(): Promise<ProfileReview[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('profile_queue')
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      id: row.id as string,
+      name: (row.name as string | null) ?? '',
+      banned: row.banned === true,
+      accepted: Number(row.accepted) || 0,
+      rejected: Number(row.rejected) || 0,
+      pending: Number(row.pending) || 0,
+      words: ((row.words as Record<string, unknown>[] | null) ?? []).map((word) => {
+        const { lang, value } = split(word.category_id as string)
+        return {
+          display: word.display as string,
+          lang,
+          categoryId: value,
+          status: word.status as SubmissionStatus,
+          at: Date.parse(word.at as string) || 0,
+          reasons: ((word.reasons as unknown[] | null) ?? []).filter((note): note is string => typeof note === 'string'),
+        }
+      }),
+    }))
+  }, null)
+}
+
+export type ProfileOutcome = 'banned' | 'cleared' | 'gone' | 'unreachable'
+
+/** A super moderator bans the player from proposing — their waiting words go too — or lets them be. */
+export function judgeProfile(player: string, ban: boolean): Promise<ProfileOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('judge_profile', { p_player: player, p_ban: ban })
+    return error ? 'unreachable' : (data as ProfileOutcome)
   }, 'unreachable')
 }
 
@@ -1106,35 +1208,10 @@ export async function fetchMyDiscoveries(): Promise<number | null> {
 }
 
 /**
- * Le tableau de bord (0030), d'un bloc : la copie que le serveur refait toutes
- * les dix minutes (0087, 0088), ouverte à tous. Null quand le serveur ne
- * répond pas, après une seconde tentative — un réveil de la base ou un réseau
- * qui hoquette ne doit pas laisser la page vide.
- */
-export function fetchDashboard(days = 30): Promise<Snapshot | null> {
-  return guard(async () => {
-    for (let attempt = 0; attempt < 2; attempt++) {
-      const { data, error } = await supabase!.rpc('admin_analytics', { p_days: days })
-      if (!error && data) return data as Snapshot
-    }
-    return null
-  }, null)
-}
-
-/** Les joueurs d'un jour, ou d'une heure (heure de Paris) : `admin_slot`, 0036. */
-export function fetchDashboardSlot(day: string, hour?: number): Promise<SlotEntry[] | null> {
-  return guard(async () => {
-    const { data, error } = await supabase!.rpc('admin_slot', { p_day: day, p_hour: hour ?? null })
-    if (error || !data) return null
-    return data as SlotEntry[]
-  }, null)
-}
-
-/**
  * Le tableau des mots (`admin_words`, 0043) : ce que le tirage a donné à
  * chaque couple lettre + catégorie, ce que les joueurs ont écrit, et ce que la
- * modération a ajouté, retiré ou garde. `null` hors administrateur, comme
- * `fetchDashboard`, ou sans serveur.
+ * modération a ajouté, retiré ou garde. `null` hors administrateur, ou sans
+ * serveur.
  */
 /** Longer than the server's own limit (8 s for a signed-in player): past it, nothing is coming. */
 const ADMIN_WORDS_TIMEOUT_MS = 25_000
@@ -1227,7 +1304,6 @@ export type FriendRequestOutcome = 'sent' | 'accepted' | 'already' | 'self' | 'u
 export function requestFriend(name: string): Promise<FriendRequestOutcome> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('request_friend', { p_name: name.trim() })
-    if (!error && (data === 'sent' || data === 'accepted')) trackFeature('friend_request', { result: data })
     return error ? 'unreachable' : (data as FriendRequestOutcome)
   }, 'unreachable')
 }
@@ -1242,7 +1318,6 @@ export type TesterInviteOutcome = 'sent' | 'already' | 'invalid' | 'limit' | 'an
 export function inviteTester(email: string, lang: string): Promise<TesterInviteOutcome> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('invite_tester', { p_email: email.trim(), p_lang: lang })
-    if (!error && data === 'sent') trackFeature('invite_mail')
     return error ? 'unreachable' : (data as TesterInviteOutcome)
   }, 'unreachable')
 }
@@ -1262,7 +1337,6 @@ export function fetchInviteCode(): Promise<string | null> {
 export function acceptInvite(code: string): Promise<string | null | 'unreachable'> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('accept_invite', { p_code: code })
-    if (!error && typeof data === 'string') trackFeature('invite_accepted')
     return error ? 'unreachable' : typeof data === 'string' ? data : null
   }, 'unreachable')
 }
@@ -1270,7 +1344,6 @@ export function acceptInvite(code: string): Promise<string | null | 'unreachable
 export function respondFriend(from: string, accept: boolean): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('respond_friend', { p_from: from, p_accept: accept })
-    if (!error) trackFeature(accept ? 'friend_accept' : 'friend_decline')
     return !error
   }, false)
 }
@@ -1279,7 +1352,6 @@ export function respondFriend(from: string, accept: boolean): Promise<boolean> {
 export function removeFriend(other: string): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('remove_friend', { p_other: other })
-    if (!error) trackFeature('friend_remove')
     return !error
   }, false)
 }
@@ -1290,7 +1362,6 @@ export type BlockOutcome = 'blocked' | 'self' | 'unknown' | 'anonymous' | 'unrea
 export function blockPlayer(name: string): Promise<BlockOutcome> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('block_player', { p_name: name.trim() })
-    if (!error && data === 'blocked') trackFeature('friend_block')
     return error ? 'unreachable' : (data as BlockOutcome)
   }, 'unreachable')
 }
@@ -1298,7 +1369,6 @@ export function blockPlayer(name: string): Promise<BlockOutcome> {
 export function unblockPlayer(id: string): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('unblock_player', { p_other: id })
-    if (!error) trackFeature('friend_unblock')
     return !error
   }, false)
 }
@@ -1696,8 +1766,8 @@ export async function followHostAccount(token: string | null, service: 'crazygam
       await logOut()
       return true
     }
-    const base = import.meta.env.VITE_SUPABASE_URL
-    const key = import.meta.env.VITE_SUPABASE_ANON_KEY
+    const base = projectUrl
+    const key = anonKey!
     const response = await fetch(`${base}/functions/v1/${service}`, {
       method: 'POST',
       headers: { apikey: key, authorization: `Bearer ${key}`, 'content-type': 'application/json' },
@@ -1956,7 +2026,6 @@ export function pushChallengeRun(id: string, run: Run, profile: Profile): Promis
 export function reactInChallenge(id: string, target: string, emoji: ReactionEmoji | null): Promise<boolean> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('react_in_challenge', { p_challenge: id, p_target: target, p_emoji: emoji })
-    if (!error && data === true && emoji) trackFeature('reaction', { where: 'challenge' })
     return !error && data === true
   }, false)
 }
@@ -2070,7 +2139,6 @@ export function fetchDuelCandidates(): Promise<DuelCandidate[] | null> {
 export function createDuelTable(lang: string, categories: readonly string[], owned: number): Promise<string | null> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('duel_create', { p_lang: lang, p_categories: categories, p_owned: owned })
-    if (!error && data) trackFeature('duel_created')
     return error ? null : (data as string)
   }, null)
 }
@@ -2088,7 +2156,6 @@ export function duelMatchmake(lang: string, categories: readonly string[], owned
     if (error || !data) return null
     const answer = data as { status?: string; table?: string }
     if (answer.status === 'matched' && typeof answer.table === 'string') {
-      trackFeature('duel_matched')
       return { status: 'matched', table: answer.table }
     }
     return answer.status === 'waiting' ? { status: 'waiting' } : null
@@ -2139,7 +2206,6 @@ export type DuelJoinOutcome = 'joined' | 'full' | 'closed' | 'kicked' | 'forbidd
 export function joinDuel(table: string, owned: number): Promise<DuelJoinOutcome> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('duel_join', { p_table: table, p_owned: owned })
-    if (!error && data === 'joined') trackFeature('duel_joined')
     return error ? 'unreachable' : (data as DuelJoinOutcome)
   }, 'unreachable')
 }
@@ -2153,7 +2219,6 @@ export function joinDuelRoom(table: string, owned: number): Promise<DuelJoinOutc
   return guard(async () => {
     const { data, error } = await supabase!.rpc('duel_join_room', { p_table: table, p_owned: owned })
     if (error) return joinDuel(table, owned)
-    if (data === 'joined') trackFeature('duel_joined')
     return data as DuelJoinOutcome
   }, 'unreachable')
 }
@@ -2347,7 +2412,7 @@ export function recordPurchase(product: string, token: string, orderId: string):
     const { error } = await supabase!.rpc('record_purchase', { p_product: product, p_token: token, p_order_id: orderId })
     if (error) return false
     const session = (await supabase!.auth.getSession()).data.session
-    const base = import.meta.env.VITE_SUPABASE_URL
+    const base = projectUrl
     if (session && base) {
       await fetch(`${base}/functions/v1/premium-verify`, {
         method: 'POST',
@@ -2389,7 +2454,7 @@ export function fetchMyPremium(): Promise<boolean> {
 export function webCheckoutReady(): Promise<boolean> {
   return guard(async () => {
     const session = (await supabase!.auth.getSession()).data.session
-    const base = import.meta.env.VITE_SUPABASE_URL
+    const base = projectUrl
     if (!session || !base) return false
     const response = await fetch(`${base}/functions/v1/premium-checkout`, {
       headers: { authorization: `Bearer ${session.access_token}` },
@@ -2408,7 +2473,7 @@ export function webCheckoutReady(): Promise<boolean> {
 export function openWebCheckout(product: string): Promise<string | null> {
   return guard(async () => {
     const session = (await supabase!.auth.getSession()).data.session
-    const base = import.meta.env.VITE_SUPABASE_URL
+    const base = projectUrl
     if (!session || !base) return null
     const response = await fetch(`${base}/functions/v1/premium-checkout`, {
       method: 'POST',
@@ -2437,7 +2502,6 @@ export function weeklyStart(weekId: string, lang: string, day: string, quota: nu
     const { data, error } = await supabase!.rpc('weekly_start', { p_week_id: weekId, p_lang: lang, p_day: day, p_quota: quota })
     if (error) return 'unreachable'
     const row = (data as { attempt_id: string; n: number }[] | null)?.[0]
-    if (row) trackFeature('weekly_attempt', { n: Number(row.n) })
     return row ? { attemptId: row.attempt_id, n: Number(row.n) } : 'refused'
   }, 'unreachable' as WeeklyStart)
 }
@@ -2598,7 +2662,6 @@ export function reactInWeekly(weekId: string, lang: string, target: string, emoj
       p_target: target,
       p_emoji: emoji,
     })
-    if (!error && data === true && emoji) trackFeature('reaction', { where: 'weekly' })
     return !error && data === true
   }, false)
 }

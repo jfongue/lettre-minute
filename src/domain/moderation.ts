@@ -37,8 +37,10 @@ export type Verdict = 'correct' | 'unsure' | 'incorrect' | 'special'
 /**
  * Why the game offers a player to moderate. « bonus » is the card won at a
  * bonus level: the client sends it, the server never lists it as due.
+ * « super » is offered to a moderator whose score is excellent (0116): the
+ * role of super moderator, not that of moderator.
  */
-export type ModeratorOfferReason = 'level' | 'words' | 'friend' | 'bonus'
+export type ModeratorOfferReason = 'level' | 'words' | 'friend' | 'bonus' | 'super'
 
 export function reachesModeratorLevel(xp: number): boolean {
   return xp >= xpForLevel(MODERATOR_LEVEL)

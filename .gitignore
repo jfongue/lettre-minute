@@ -34,6 +34,8 @@ android/app/google-services.json
 
 # Version CrazyGames : sortie du build et archive à téléverser (npm run crazygames:build)
 dist-crazygames
+dist-y8
+y8/lettre-minute-y8.zip
 crazygames/*.zip
 
 # Version Playgama : sortie du build et archive à téléverser (npm run playgama:build)

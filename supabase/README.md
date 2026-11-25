@@ -40,11 +40,10 @@ rapporté, [`0027_friend_challenges.sql`](migrations/0027_friend_challenges.sql)
 pour l'historique des défis joués avec chaque ami, et
 [`0028_ideas_admin.sql`](migrations/0028_ideas_admin.sql) pour lire, archiver
 et effacer les idées reçues depuis l'app, réservé aux administrateurs, et
-[`0029_events.sql`](migrations/0029_events.sql) pour les statistiques d'usage
-(ouvertures, écrans, boutons, fonctions, erreurs) et le tableau de bord
-qui les lit (`analytics_snapshot`, par `npm run analytics`), et
-[`0030_admin_analytics.sql`](migrations/0030_admin_analytics.sql) pour que
-l'app le lise aussi, réservé aux administrateurs (`admin_analytics`), et
+[`0029_events.sql`](migrations/0029_events.sql) et
+[`0030_admin_analytics.sql`](migrations/0030_admin_analytics.sql) pour les
+statistiques d'usage et le tableau de bord, que
+[`0115_no_dashboard.sql`](migrations/0115_no_dashboard.sql) a retirés, et
 [`0037_moderation_topup_on_open.sql`](migrations/0037_moderation_topup_on_open.sql)
 pour renflouer la file dès la visite qui la trouve courte, et
 [`0038_word_bans.sql`](migrations/0038_word_bans.sql) pour qu'un modérateur
@@ -75,7 +74,9 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `word_submissions` | Les mots proposés par les joueurs, avec leur statut ; `seen_at` éteint la pastille de « Mes demandes ». |
 | `word_reviews` | Un mot en cours de jugement (catégorie + mot) : un ajout, que rejoignent tous ceux qui l'ont réclamé, ou un ban (`kind`), signalé par un modérateur. |
 | `moderation_votes` | Un vote par modérateur et par mot : `correct`, `unsure`, `incorrect` ou `special`. |
-| `moderators` | Les modérateurs, l'ami qui les a élus, et `super` : le rôle de super modérateur, donné à la main depuis 0047. |
+| `moderators` | Les modérateurs, l'ami qui les a élus, et `super` : le rôle de super modérateur, donné à la main depuis 0047, ou accepté par un modérateur au score excellent (0116). `score` (0–100) et `judged` : l'accord de ses votes tranchés avec le sort des mots, recalculé quand une revue se règle. |
+| `proposal_quota` | Une seule ligne : le plafond quotidien de propositions — de base, fiable, souvent refusé (0116). |
+| `proposer_reviews` | Les joueurs trop souvent refusés : profil à juger par un super modérateur (`state`), ban de proposition (`banned`), d'office ou non (`auto`). |
 | `moderation_reserve` | Mots évidents que les dictionnaires ignorent, versés au compte-goutte dans la file (`released_at`). |
 | `moderation_topup` | Une seule ligne : l'heure du dernier versement, qui ferme le renflouage pour une heure, toutes langues confondues. |
 | `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |
@@ -99,7 +100,6 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `duel_invites` | Qui l'hôte a invité, et quand l'invité a répondu. Un blocage tait l'invitation, comme une demande d'ami. |
 | `duel_moves` | Le journal d'une table : un coup par numéro (`seq`), daté par le serveur. Les quatre tables du duel n'ont aucune politique : tout passe par les fonctions `duel_*`. |
 | `premium_grants` | Premium offert par un super modérateur depuis la page d'espionnage (`grant_premium`, 0091) : à part de `purchases`, pour que le revenu ne le compte pas et qu'il se reprenne sans toucher à un achat. Le client le lit par `my_premium_origin`. Aucune politique. |
-| `events` | Ce que les joueurs font de l'app, par lots de `track` : ouvertures, écrans, boutons touchés, fonctions, parties, erreurs. Un appareil, une ouverture, et le compte en plus (effacé avec lui). Aucune politique : jamais relu par le jeu, seulement par `analytics_snapshot`, que le propriétaire du projet exécute, et `admin_analytics`, qui ne la rend qu'à un administrateur. |
 
 Fonctions d'écriture : `report_prompts(graine, langue, couples)` — le rapport
 d'une partie terminée, une seule fois par graine, borné à trente couples et
@@ -115,7 +115,7 @@ la page des classements (`best`, `points`, `runs`, `words`, `discoveries`,
 débug, agrégés et sans un nom de joueur ; `admin_words(langue, catégorie?)` — le
 dictionnaire vivant de l'écran des mots : couples lettre + catégorie, usages de
 chaque mot, ajouts, retraits et file de modération, réservé à l'administrateur
-(0043) comme `admin_analytics` l'est au tableau de bord ; `force_ban(catégorie, mot, libellé, motif)`
+(0043) ; `force_ban(catégorie, mot, libellé, motif)`
 — le retrait d'office d'un super modérateur : sa voix règle le signalement seule et la copie
 communautaire du mot quitte le serveur aussitôt, le dictionnaire livré ne le perdant qu'au
 prochain import (0044). `admin_words` compte désormais les parties de la langue une fois
@@ -131,8 +131,7 @@ apparaît), `submission_tally` (combien de joueurs réclament un mot).
 
 ## Classements avancés
 
-Plus aucun écran ne les lit depuis que le tableau de bord (0030) les a
-remplacés derrière les cinq tapes ; les fonctions restent en base.
+Plus aucun écran ne les lit ; les fonctions restent en base.
 
 - **Un mode caché, pas un écran public** : cinq tapes sur le mot
   « Classement » les ouvrent dans l'application. Les trois fonctions ne
@@ -197,6 +196,13 @@ remplacés derrière les cinq tapes ; les fonctions restent en base.
   politique. La fonction refuse un modérateur qui a proposé le mot lui-même,
   un second vote, un cas spécial jugé par un modérateur ordinaire, et une
   correction d'orthographe après le premier vote (`gone`).
+- **Proposer a ses limites** (0116) : `word_submissions_guard` écarte sans
+  erreur le mot d'un joueur banni ou au-delà de son plafond du jour — une
+  version d'avant 0116 envoie sa file d'un bloc, qu'une erreur bloquerait
+  pour toujours —, et `proposal_room` le dit au client avant l'envoi. Un refus repèse son auteur
+  (`weigh_proposer`) : ban d'office ou profil à juger. `amend_submission` ne
+  repasse pas par le plafond. Le poids d'un « correct » tombe à une demi-voix
+  pour un modérateur laxiste (`lax_moderator`) ; ses refus restent entiers.
 - **La file ne se vide jamais pour de bon** (`top_up_moderation`, 0019,
   0037) : un modérateur, super modérateur compris, qui ouvre « Mes demandes »
   avec moins de cinq mots à juger la voit complétée à cinq depuis
@@ -374,6 +380,34 @@ remplacés derrière les cinq tapes ; les fonctions restent en base.
      `http://localhost:5199`.
   5. URI de redirection autorisés : `https://jfongue.github.io/lettre-minute/google.html`
      et `http://localhost:5199/google.html`.
+
+## Changer de serveur
+
+Un build porte l'adresse de son serveur, et ceux déjà installés ou en revue
+(Play, CrazyGames, Playgama) ne se reconstruisent pas. Depuis la préparation
+de ce déménagement, chaque lancement lit l'adresse que le précédent a reçue
+(`src/lib/backend.ts`), puis demande l'actuelle à
+`https://jfongue.github.io/lettre-minute/backend.json`
+(`public/backend.json`, publié par `npm run web:publish`), qui ne vaut qu'au
+lancement suivant. `{}` : le serveur du build. Pour déménager :
+
+1. Le nouveau serveur reprend la base entière, schéma `auth` compris
+   (`pg_dump`), **avec le même secret JWT** : les sessions et les jetons de
+   rafraîchissement des joueurs y restent valides.
+2. Y appliquer les fonctions Edge, leurs secrets, pg_cron, le fournisseur
+   Google, puis vérifier une partie, une connexion et un défi.
+3. Écrire `{ "url": "https://…", "anonKey": "…" }` dans `public/backend.json`
+   et `npm run web:publish` : chaque appareil bascule à son lancement
+   suivant, après lequel l'ancien projet ne reçoit plus que les appareils
+   restés sans réseau. Une adresse en `http:` est refusée.
+4. Les builds suivants portent la nouvelle adresse dans `VITE_SUPABASE_URL`,
+   et `VITE_SUPABASE_SESSION_REF` garde l'identifiant de l'ancien projet : la
+   session de l'appareil est rangée sous `sb-<identifiant>-auth-token`, qu'une
+   autre adresse changerait sinon — tout le monde serait déconnecté.
+
+Un build sans serveur (Reddit, `VITE_SUPABASE_URL` vide) ne lit jamais cette
+page. Qui écrit `backend.json` dirige les jetons de tous les joueurs : il ne
+s'écrit que depuis ce dépôt.
 
 ## Appliquer
 

@@ -1,12 +1,11 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
-import { focusedRows, type BoardId, type Boards as BoardsData } from '../domain/boards'
+import { focusedRows, openingBoard, type BoardId, type Boards as BoardsData } from '../domain/boards'
 import { formatNumber, useT } from '../i18n'
 import { fetchFriends } from '../lib/cloud'
 import { sound } from '../lib/sound'
 import { Avatar } from './Avatar'
 import { PlayerName } from './PlayerSheet'
 import { reducedMotion, useCountUp } from './useCountUp'
-import { useHiddenTaps } from './useHiddenTaps'
 
 // Discoveries live on the leaderboards page, which « Plus… » opens.
 const BOARDS: readonly BoardId[] = ['day', 'week']
@@ -31,8 +30,6 @@ interface BoardsProps {
   climbed?: number
   /** Opens the leaderboards page: from the title, or by swiping past the last board. */
   onAll?(): void
-  /** Cinq tapes rapprochés sur « Classement » : la même page, en mode débug. */
-  onHidden?(): void
 }
 
 /**
@@ -40,7 +37,7 @@ interface BoardsProps {
  * browser's own, with its momentum and its accessibility, and the tabs above
  * scroll it for those who tap rather than swipe.
  */
-export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps) {
+export function Boards({ boards, me, climbed = 0, onAll }: BoardsProps) {
   const t = useT()
   const track = useRef<HTMLDivElement>(null)
   // The track's grid rows are as tall as its tallest page, so a short board
@@ -53,7 +50,6 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
   // Le mot « Classement » ouvre la page ; cinq tapes rapprochées l'ouvrent en
   // mode débug. Le compte survit au tiroir qui s'ouvre et se referme entre
   // deux tapes : la planche passe par le même geste, sans le dire.
-  const tapTitle = useHiddenTaps()
   // Snapping onto the onward page fires several scroll events: it opens once.
   const leaving = useRef(false)
   const [friends, setFriends] = useState<readonly string[]>([])
@@ -101,6 +97,19 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
     }
   }
 
+  // A day nobody has played yet opens on the week, once: a refresh never
+  // turns the board under the player's eyes.
+  const opened = useRef(false)
+  useLayoutEffect(() => {
+    if (opened.current) return
+    opened.current = true
+    const element = track.current
+    const index = BOARDS.indexOf(openingBoard(boards))
+    if (!element || index <= 0) return
+    element.scrollLeft = index * element.clientWidth
+    setActive(index)
+  }, [boards])
+
   const show = (index: number) => {
     const element = track.current
     if (!element) return
@@ -114,10 +123,7 @@ export function Boards({ boards, me, climbed = 0, onAll, onHidden }: BoardsProps
           <button
             type="button"
             className="section-title challenge-past"
-            onClick={() => {
-              if (onHidden && tapTitle()) onHidden()
-              else onAll()
-            }}
+            onClick={onAll}
           >
             {t.boards.title}
           </button>

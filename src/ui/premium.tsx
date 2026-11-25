@@ -251,7 +251,6 @@ export function PlusLockedSlot({
     <button
       type="button"
       className="pslot"
-      data-track="plus-locked-slot"
       onClick={() => {
         sound.plus()
         onOpen()

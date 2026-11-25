@@ -79,8 +79,7 @@ export const FEATURES: readonly FeatureDef[] = [
   { id: 'adBreaks', label: 'Pubs entre deux parties', note: 'Interstitiel après le récap des mots sur Android ; midgame au départ d’une partie et au bilan du duel sur CrazyGames ; jamais pour Premium', defaults: open },
   // Outils
   { id: 'wordsBoard', label: 'Tableau des mots', note: 'Cinq tapes sur « Mes catégories »', defaults: supers },
-  { id: 'dashboard', label: 'Tableau de bord', note: 'Cinq tapes sur « Classement »', defaults: open },
-  { id: 'spyHistory', label: 'Espionner l’historique', note: 'Sur la fiche d’un joueur et au tableau de bord : ses parties et leurs mots ; le serveur ne répond qu’aux super modérateurs', defaults: supers },
+  { id: 'spyHistory', label: 'Espionner l’historique', note: 'Sur la fiche d’un joueur : ses parties et leurs mots ; le serveur ne répond qu’aux super modérateurs', defaults: supers },
   { id: 'ideasAdmin', label: 'Idées reçues', note: 'Cinq tapes sur « Boîte à idées »', defaults: supers },
   { id: 'debugBoard', label: 'Planche debug', note: 'Cinq tapes sur la tuile de l’affiche, ou #debug', defaults: supers },
 ]

@@ -44,8 +44,11 @@ export function ModeratorOffer({ reason, invitedBy, anonymous, onAccount, onAnsw
     else onAnswered(false)
   }
 
+  const promotion = reason === 'super'
   const lead =
-    reason === 'friend' && invitedBy
+    promotion
+      ? t.moderation.offer.super
+      : reason === 'friend' && invitedBy
       ? t.moderation.offer.friend(invitedBy)
       : reason === 'words'
         ? t.moderation.offer.words
@@ -74,14 +77,14 @@ export function ModeratorOffer({ reason, invitedBy, anonymous, onAccount, onAnsw
         {welcomed ? (
           <>
             <h2 id="moderator-offer-title" className="offer-pop-title">
-              {t.moderation.offer.welcome}
+              {promotion ? t.moderation.offer.superWelcome : t.moderation.offer.welcome}
             </h2>
-            <p>{t.moderation.offer.welcomeLead}</p>
+            <p>{promotion ? t.moderation.offer.superWelcomeLead : t.moderation.offer.welcomeLead}</p>
             <div className="offer-pop-actions">
               <button type="button" className="btn btn--ghost" onClick={() => onAnswered(true)}>
                 {t.moderation.offer.close}
               </button>
-              {onModerate ? (
+              {onModerate && !promotion ? (
                 <button
                   type="button"
                   className="btn btn--blue"
@@ -98,10 +101,10 @@ export function ModeratorOffer({ reason, invitedBy, anonymous, onAccount, onAnsw
         ) : (
           <>
             <h2 id="moderator-offer-title" className="offer-pop-title">
-              {t.moderation.offer.title}
+              {promotion ? t.moderation.offer.superTitle : t.moderation.offer.title}
             </h2>
             <p>{lead}</p>
-            <p className="note">{t.moderation.offer.how}</p>
+            {!promotion && <p className="note">{t.moderation.offer.how}</p>}
             {anonymous && <p className="note note--warn">{t.moderation.offer.needAccount}</p>}
             {failed && <p className="note note--warn">{t.moderation.offer.failed}</p>}
             <div className="offer-pop-actions">

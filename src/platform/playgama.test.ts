@@ -30,7 +30,6 @@ async function withBridge(unlocked: string[] = []) {
     platform: { id: 'playgama', language: 'en', isAudioEnabled: true, isPaused: false, sendMessage: () => Promise.resolve(), on() {} },
     advertisement,
     storage: { get: () => Promise.resolve([]), set: () => Promise.resolve(), delete: () => Promise.resolve() },
-    analytics: { send: vi.fn() },
     achievements: {
       unlock: vi.fn(() => Promise.resolve()),
       getAchievements: () => Promise.resolve(unlocked.map((id) => ({ id, unlocked: true }))),
@@ -46,8 +45,7 @@ async function withBridge(unlocked: string[] = []) {
     listeners.get('interstitial_state_changed')?.(state)
   }
   const banner = (state: string) => listeners.get('advanced_banners_state_changed')?.(state)
-  const feature = await import('../lib/feature')
-  return { host: portal.playgamaHost, advertisement, interstitial, banner, root, bridge, trackFeature: feature.trackFeature }
+  return { host: portal.playgamaHost, advertisement, interstitial, banner, root, bridge }
 }
 
 describe('les pubs du Bridge', () => {
@@ -111,16 +109,6 @@ describe('la bannière du Bridge', () => {
     host.setBanner(true)
     banner('failed')
     expect('portalBanner' in root.dataset).toBe(false)
-  })
-})
-
-describe('les événements du jeu', () => {
-  it('partent à l’analytics du Bridge, à plat, sauf les pubs qu’il compte déjà', async () => {
-    const { bridge, trackFeature } = await withBridge()
-    trackFeature('power_used', { power: 'joker', count: 2, tags: ['a', 'b'], none: null })
-    trackFeature('ad', { source: 'midgame' })
-    expect(bridge.analytics.send).toHaveBeenCalledTimes(1)
-    expect(bridge.analytics.send).toHaveBeenCalledWith('power_used', { power: 'joker', count: 2, tags: 'a,b' })
   })
 })
 

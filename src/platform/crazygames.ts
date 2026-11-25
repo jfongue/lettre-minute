@@ -1,4 +1,3 @@
-import { trackFeature } from '../lib/feature'
 import { fitHistory, HISTORY_KEY, SAVED_KEYS } from './saves'
 import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type HostRooms, type RewardedResult } from './host'
 
@@ -358,11 +357,7 @@ function midgame(adFree: boolean): Promise<AdBreak> {
   if (pendingBreak) return pendingBreak
   if (!sdk || adFree) return Promise.resolve('none')
   const asked = requestPortalAd('midgame')
-    .then((shown) => {
-      const result = shown ? 'shown' : 'unavailable'
-      trackFeature('ad', { source: 'midgame', result })
-      return result
-    })
+    .then((shown): AdBreak => (shown ? 'shown' : 'unavailable'))
     .finally(() => {
       pendingBreak = null
     })

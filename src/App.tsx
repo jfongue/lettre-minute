@@ -98,7 +98,7 @@ import { completeLeaderboard } from './domain/leaderboards'
 import { withGuest } from './ui/guestBoards'
 import { localBoards } from './ui/localBoards'
 import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
-import { chargesSpent, hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
+import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
 import { DAMPED_WORDS } from './data/damped-words'
 import { sharedCategoryIds } from './domain/catalogue'
@@ -122,7 +122,6 @@ import { buyPremium, premiumOwned, premiumPrice, restorePremium } from './lib/bi
 import { PremiumSheet, type PremiumReason } from './ui/PremiumSheet'
 import { PremiumContext, type PremiumDoor } from './ui/premiumContext'
 import { usePlatformGameplay } from './platform/usePlatformGameplay'
-import { setTrackLang, setTrackScreen, track, trackFeature, trackReady } from './lib/track'
 import { FeedbackPop } from './ui/FeedbackPop'
 import { RatingPop } from './ui/RatingPop'
 import type { BanActions } from './ui/CategoriesPage'
@@ -155,6 +154,7 @@ import {
   saveQueueSeenOn,
   saveShareNewsSeen,
   saveSubmissions,
+  type PendingSubmission,
   saveTutorialDone,
 } from './state/storage'
 import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storage'
@@ -204,6 +204,7 @@ const FriendPicker = lazyScreen(() => import('./ui/FriendPicker').then((module) 
 const CountdownScreen = lazyScreen(() => import('./ui/CountdownScreen').then((module) => module.CountdownScreen))
 const Menu = lazyScreen(() => import('./ui/Menu').then((module) => module.Menu))
 const ModerationScreen = lazyScreen(() => import('./ui/ModerationScreen').then((module) => module.ModerationScreen))
+const ProfileReviewScreen = lazyScreen(() => import('./ui/ProfileReviewScreen').then((module) => module.ProfileReviewScreen))
 const OverScreen = lazyScreen(() => import('./ui/OverScreen').then((module) => module.OverScreen))
 const RunScreen = lazyScreen(() => import('./ui/RunScreen').then((module) => module.RunScreen))
 const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) => module.WordsBoard))
@@ -220,7 +221,7 @@ const WEEKLY_SCREENS = [WeeklyScreen, WeeklyResults, WeeklyDone, WeeklyRecap]
 
 /** One screen at a time, in the order a player is likely to need them. */
 async function preloadScreens(): Promise<void> {
-  for (const screen of [Menu, CountdownScreen, RunScreen, OverScreen, ChallengeScreen, FriendPicker, ChallengeSetup, ChallengePowers, ModerationScreen, ...WEEKLY_SCREENS]) {
+  for (const screen of [Menu, CountdownScreen, RunScreen, OverScreen, ChallengeScreen, FriendPicker, ChallengeSetup, ChallengePowers, ModerationScreen, ProfileReviewScreen, ...WEEKLY_SCREENS]) {
     await screen.preload().catch(() => undefined)
   }
 }
@@ -258,12 +259,17 @@ function loadBoards(fresh = false): Promise<Boards | null> {
   return boards
 }
 
-/** Sends the words proposed while the game was offline, then clears the queue. */
+/**
+ * Sends the words proposed while the game was offline, and forgets those that
+ * went: past the day's cap (0116) the others wait on the device for tomorrow.
+ */
 function flushSubmissions(): Promise<unknown> {
   const pending = loadSubmissions()
   if (pending.length === 0) return Promise.resolve()
   return pushSubmissions(pending).then((sent) => {
-    if (sent.length > 0) saveSubmissions([])
+    if (sent.length === 0) return
+    const gone = (item: PendingSubmission) => sent.some((done) => done.at === item.at && done.word === item.word)
+    saveSubmissions(loadSubmissions().filter((item) => !gone(item)))
   })
 }
 
@@ -372,11 +378,7 @@ setMenuPage(null)
   const [history, setHistory] = useState<RunRecord[]>([])
   const [theme, setTheme] = useState<Theme>(loadTheme)
   const [soundPrefs, setSoundPrefs] = useState<SoundPrefs>(loadSoundPrefs)
-  const tuned = useRef(0)
   const tune = useCallback((next: SoundPrefs) => {
-    // A slider fires at every notch: one event per burst of dragging.
-    if (Date.now() - tuned.current > 10_000) trackFeature('sound_changed')
-    tuned.current = Date.now()
     setSoundPrefs(next)
     saveSoundPrefs(next)
   }, [])
@@ -390,7 +392,6 @@ setMenuPage(null)
   // The dictionary follows the interface: a German player answers in German.
   const lang = locale ?? 'fr'
   const speak = useCallback((next: Locale) => {
-    trackFeature('language', { lang: next })
     // A language is loaded before it is shown: rendered first, it would flash French.
     // The language changes only once its messages are there: a failure keeps
     // the one on screen, rather than a locale holding French words.
@@ -403,7 +404,6 @@ setMenuPage(null)
   }, [])
   useEffect(() => {
     if (locale) applyLocale(locale)
-    setTrackLang(locale ?? 'none')
   }, [locale])
   const community = useRef<Record<string, CommunityWord[]>>({})
   const [avatar, setAvatar] = useState<AvatarChoice>(DEFAULT_AVATAR)
@@ -415,7 +415,8 @@ setMenuPage(null)
   const [seenDesigns, setSeenDesigns] = useState(loadSeenDesignsOrNull)
   const refreshSeenDesigns = useCallback(() => setSeenDesigns(loadSeenDesignsOrNull()), [])
   const [moderation, setModeration] = useState<ModerationStatus | null>(null)
-  const [moderating, setModerating] = useState(false)
+  // Words to judge, or, for a super moderator, the profiles of players too often refused (0116).
+  const [moderating, setModerating] = useState<false | 'words' | 'profiles'>(false)
   // « Plus tard » holds the offer back until the next launch, without answering it.
   const [offerHeld, setOfferHeld] = useState(false)
   // « Plus tard » on the moderator card a level bonus gave: it comes back at the next launch.
@@ -481,9 +482,12 @@ setMenuPage(null)
   // their own best on the server's boards, or their runs alone while the
   // server is out of reach.
   const guest = host.guestBoards && (account === null || account.anonymous)
+  // A server that does not answer, on a device that has never read the boards
+  // (a reviewer's first launch), leaves the player's own runs rather than no
+  // leaderboard at all — signed in or not (CrazyGames review of 1.7.6).
   const homeBoards = useMemo(() => {
-    if (!guest) return boards
-    return boards ? withGuest(boards, { history, avatar, name: t.boards.me, tag: t.tag }) : localBoards(history, avatar, t.tag)
+    if (!boards) return history.length > 0 || guest ? localBoards(history, avatar, t.tag) : null
+    return guest ? withGuest(boards, { history, avatar, name: t.boards.me, tag: t.tag }) : boards
   }, [guest, boards, history, avatar, t])
   const features = useMemo(
     () => hostFeatures(enabledFeatures(storedFeatures.flags, roles), roles.superModerator),
@@ -542,7 +546,6 @@ setMenuPage(null)
   )
   // Les classements avancés : le mode débug caché derrière cinq tapes sur
   // « Classement ». Il ne survit pas au rechargement, comme la planche.
-  const [advancedBoards, setAdvancedBoards] = useState(false)
   // Le tableau des mots : l'autre mode débug caché, derrière cinq tapes sur
   // « Mes catégories ». Hors du tiroir : il s'affiche même refermé.
   const [wordsBoard, setWordsBoard] = useState(false)
@@ -597,7 +600,6 @@ setMenuPage(null)
   /** La tuile choisie dans le tiroir : portée tout de suite, poussée au compte ensuite. */
   const saveWornAvatar = useCallback(
     (next: AvatarChoice) => {
-      trackFeature('avatar_saved', { design: next.design, ground: next.ground })
       wear(next)
       // The boards read the avatar from the profile: only a fetch after the write shows it.
       pushAvatar(next).then((saved) => {
@@ -837,7 +839,6 @@ setMenuPage(null)
       saveQuietSignInTried()
       const outcome = await logInWithGoogle(pushing.current, true)
       if (!outcome?.ok) return
-      track('login', { method: 'play-games' })
       enter(outcome)
       if (outcome.account.needsName) setNameAsk(gamer)
     })
@@ -850,7 +851,6 @@ setMenuPage(null)
       await pushing.current
       const outcome = await register(name, email, password)
       if (!outcome.ok) return t.account.errors[outcome.error]
-      track('signup', { method: 'email', runs: profile.current.runs })
       setAccount(outcome.account)
       pushAvatar(avatar)
       loadBoards(true).then(setBoards)
@@ -860,12 +860,10 @@ setMenuPage(null)
     async onLogIn(email, password) {
       await pushing.current
       const outcome = await logIn(email, password)
-      if (outcome.ok) track('login', { method: 'email' })
       return enter(outcome)
     },
     async onGoogle() {
       const outcome = await logInWithGoogle(pushing.current)
-      if (outcome?.ok) track('login', { method: 'google' })
       return outcome ? enter(outcome) : null
     },
     async onRequestReset(email) {
@@ -879,7 +877,6 @@ setMenuPage(null)
     async onChooseName(name) {
       const outcome = await chooseName(name)
       if (!outcome.ok) return t.account.errors[outcome.error]
-      track('signup', { method: 'name', runs: profile.current.runs })
       setAccount(outcome.account)
       loadBoards(true).then(setBoards)
       return null
@@ -1289,7 +1286,6 @@ setStartedAt((at) => at ?? Date.now())
   }, [homeReady])
   useEffect(() => {
     if (!homeSettled) return
-    trackReady()
     // After the home screen's own entrance, so its animation keeps the main thread.
     const timer = setTimeout(() => void preloadScreens(), 1200)
     return () => clearTimeout(timer)
@@ -1563,7 +1559,6 @@ setStartedAt((at) => at ?? Date.now())
       const detail = id ? await fetchChallenge(id) : null
       if (!detail) return setCreating({ busy: false, message: t.challenge.createFailed, rules, friends })
       setCreating(null)
-      trackFeature('challenge_created', { friends: friends.length, powers: rules.powers })
       refreshChallenges()
       startChallenge(detail)
     },
@@ -1577,7 +1572,6 @@ setStartedAt((at) => at ?? Date.now())
       const id = detail.nextId ?? (await rematchChallenge(detail.id, Date.now() >>> 0, detail.categoryIds))
       const next = id ? await fetchChallenge(id) : null
       if (!next) return false
-      trackFeature('challenge_rematch')
       refreshChallenges()
       startChallenge(next)
       return true
@@ -1646,7 +1640,6 @@ setStartedAt((at) => at ?? Date.now())
       try {
         const judge = await judgeFor(lineup.dealt)
         dispatch({ type: 'swapped', judge, categoryIds: lineup.dealt, reserve: lineup.reserve })
-        trackFeature('swap')
         if (lineup.reserve[0]) loadPack(lang, lineup.reserve[0]).catch(() => undefined)
       } catch {
         /* the dictionary did not come: the run keeps the category it had */
@@ -1658,26 +1651,18 @@ setStartedAt((at) => at ?? Date.now())
   )
 
   const choose = useCallback((categoryId: string) => {
-    // What was on offer goes with the pick: the dashboard reads which cards win when dealt.
-    trackFeature('category_chosen', { category: categoryId, offered: profile.current.offer })
     dispatch({ type: 'choose', categoryId })
   }, [])
   const choosePower = useCallback((powerId: string) => {
-    trackFeature('power_chosen', { power: powerId, offered: profile.current.powerOffer })
     dispatch({ type: 'choose-power', powerId })
   }, [])
-  /** D'où le Premium arrive : l'achat, une restauration, un autre appareil, ou le défi du moment gagné. */
-  type PlusSource = 'buy' | 'restore' | 'owned' | 'win'
-  const joinPlus = useCallback((source: PlusSource) => {
-    trackFeature('premium_joined', { source })
+  const joinPlus = useCallback(() => {
     dispatch({ type: 'join-plus', at: Date.now() })
   }, [])
-  const winPlus = useCallback(() => joinPlus('win'), [joinPlus])
   const storeOpen = premiumStoreOpen && on('premium')
   const openPremium = useCallback(
     (reason: PremiumReason) => {
       if (!storeOpen) return
-      trackFeature('premium_opened', { reason })
       setPremiumFor(reason)
       void premiumPrice().then((price) => price && setPremiumCost(price))
     },
@@ -1689,12 +1674,12 @@ setStartedAt((at) => at ?? Date.now())
   )
   const buy = useCallback(async () => {
     const result = await buyPremium()
-    if (result === 'ok') joinPlus('buy')
+    if (result === 'ok') joinPlus()
     return result
   }, [joinPlus])
   const restore = useCallback(async () => {
     const found = await restorePremium()
-    if (found) joinPlus('restore')
+    if (found) joinPlus()
     return found
   }, [joinPlus])
   // A Premium bought on another device, or before a reinstall, comes back with
@@ -1703,7 +1688,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (!premiumStoreOpen || isPlus(profile.current)) return
     void premiumOwned().then((owned) => {
-      if (owned && !isPlus(profile.current)) joinPlus('owned')
+      if (owned && !isPlus(profile.current)) joinPlus()
     })
   }, [joinPlus, profile])
   // Un Premium offert par un super modérateur (0091) suit le serveur à chaque
@@ -1715,7 +1700,6 @@ setStartedAt((at) => at ?? Date.now())
       if (origin === undefined) return
       const next = adoptOfferedPlus(profile.current, origin, Date.now())
       if (next === profile.current) return
-      if (next.plusOffered > 0) trackFeature('premium_offered')
       dispatch({ type: 'profile-loaded', profile: next })
     })
   }, [signedIn, account?.name, profile])
@@ -1728,7 +1712,7 @@ setStartedAt((at) => at ?? Date.now())
     dispatch,
     judgeFor,
     profile,
-    joinPlus: winPlus,
+    joinPlus,
     openPremium,
     premiumOpen: storeOpen,
     preloadRun: preloadRunScreens,
@@ -1736,25 +1720,20 @@ setStartedAt((at) => at ?? Date.now())
     online: cloudConfigured() || signedIn,
   })
   const peek = useCallback(() => {
-    trackFeature('hidden_words_peek')
     dispatch({ type: 'peek', day: todayKey() })
   }, [])
   const revealAd = useCallback(() => {
-    trackFeature('hidden_words_ad')
     dispatch({ type: 'reveal-ad', day: todayKey() })
   }, [])
   const chooseBonus = useCallback((bonusId: string) => {
-    trackFeature('bonus_chosen', { bonus: bonusId, offered: profile.current.bonusOffer })
     dispatch({ type: 'choose-bonus', bonusId })
   }, [])
   const banActions = useMemo<BanActions>(
     () => ({
       onBan: (categoryId) => {
-        trackFeature('category_ban', { category: categoryId })
         dispatch({ type: 'ban', categoryId })
       },
       onUnban: (categoryId) => {
-        trackFeature('category_unban', { category: categoryId })
         dispatch({ type: 'unban', categoryId })
       },
       onIntroSeen: () => dispatch({ type: 'ban-intro-seen' }),
@@ -1827,7 +1806,6 @@ setStartedAt((at) => at ?? Date.now())
         lang: runLang ?? lang,
       }
       saveSubmissions([...loadSubmissions(), proposal])
-      trackFeature('word_proposed', { category: proposal.categoryId })
       // The run's taps are silent: the word leaving is the only sign it went.
       sound.sent()
       dispatch({ type: 'propose', proposal })
@@ -1892,22 +1870,6 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (session.phase !== 'over' || !session.run) return
     const playedLang = runLang ?? lang
-    track('run_end', {
-      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : 'solo',
-      score: session.run.score,
-      words: session.run.found.length,
-      skips: session.run.skips,
-      combo: session.run.bestCombo,
-      prompts: session.run.settled.length,
-      empty: session.run.settled.filter((prompt) => prompt.passed).length,
-      magic: chargesSpent(session.run, 'magic'),
-      categories: session.run.categoryIds,
-      powers: session.run.powers,
-      proposed: session.proposals.length,
-      lang: playedLang,
-    })
-    // Which powers really served, one event each: what `run_end` carries is only what was worn.
-    for (const power of session.run.usedPowers) trackFeature('power_used', { power })
     // Un mode de la réserve ne laisse rien derrière lui : ni historique, ni
     // serveur, ni succès. Ses mots proposés partent quand même.
     if (!countsForProgress(session.run.mode) || session.weekly) {
@@ -2028,35 +1990,6 @@ setStartedAt((at) => at ?? Date.now())
     [mine, runLang, lang],
   )
 
-  // One run_start per run, read at its announcement: the lineup, the powers
-  // carried and the mode are all known by then.
-  useEffect(() => {
-    if (session.phase !== 'countdown' || !session.run) return
-    track('run_start', {
-      mode: session.challengeId ? 'challenge' : session.weekly ? 'weekly' : 'solo',
-      categories: session.run.categoryIds,
-      powers: session.run.powers,
-      first: session.profile.runs === 0,
-      lang: runLang ?? lang,
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session.phase])
-
-  const screenName = tutorial
-    ? 'tutorial'
-    : moderating
-      ? 'moderation'
-      : picking
-        ? 'challenge-powers'
-        : creating
-          ? 'challenge-create'
-          : challengeOpen && session.phase === 'home'
-            ? 'challenge'
-            : menuPage && (session.phase === 'home' || session.phase === 'loading' || session.phase === 'over')
-              ? `menu:${menuPage}`
-              : session.phase
-  useEffect(() => setTrackScreen(screenName), [screenName])
-
   const quietHome =
     session.phase === 'home' && !tutorial && !modeLesson && !menuOpen && !moderating && !challengeOpen && !creating && !picking && !together && !matching && !modesOpen && !loadout && !duelOpen && !weeklyFlow.covering
   // The moderator card may also open over the summary, once the recap has been
@@ -2068,7 +2001,9 @@ setStartedAt((at) => at ?? Date.now())
   // alone let the super role through, and its bonus stayed in the profile.
   const alreadyModerating = moderation?.moderator === true || moderation?.super === true
   const bonusOfferDue = session.profile.bonuses.includes('moderator') && moderation !== null && !alreadyModerating && !bonusHeld && !moderation.offer && on('moderatorOffer')
-  const offerDue = !alreadyModerating && (bonusOfferDue || !!moderation?.offer && !offerHeld && on('moderatorOffer'))
+  // The super role is offered to a moderator (0116): the one card that does reach someone who moderates.
+  const superOfferDue = moderation?.offer === 'super' && moderation.moderator && !moderation.super && !offerHeld && on('moderatorOffer')
+  const offerDue = superOfferDue || (!alreadyModerating && moderation?.offer !== 'super' && (bonusOfferDue || (!!moderation?.offer && !offerHeld && on('moderatorOffer'))))
   const wordsNewsDue = wordsNews.length > 0 && on('wordsNews')
   const giftDue = complicationDue(session.profile, acceptedWords) && on('powerGift')
   // Premium thanks its new member once, back home, and asks for an opinion in
@@ -2145,7 +2080,19 @@ setStartedAt((at) => at ?? Date.now())
 <ModeTutorial mode={modeLesson.mode} lang={lang} onDone={endModeTutorial} />
 )}
 
-      {moderating && (
+      {moderating === 'profiles' && (
+        <Suspense fallback={null}>
+          <ProfileReviewScreen
+            onDone={() => {
+              setModerating(false)
+              refreshModeration()
+              setMenuPage('requests')
+            }}
+          />
+        </Suspense>
+      )}
+
+      {moderating === 'words' && (
         <Suspense fallback={null}>
           <ModerationScreen
             lang={lang}
@@ -2302,18 +2249,9 @@ setStartedAt((at) => at ?? Date.now())
             setMenuFocus(false)
             setMenuPage(page)
           }}
-          onBoardsHidden={
-            on('dashboard')
-              ? () => {
-                  setAdvancedBoards(true)
-                  setMenuPage('boards')
-                }
-              : undefined
-          }
           onPlay={() => (on('gameModes') ? setModesOpen(true) : startFirstRun())}
           onDebug={on('debugBoard') ? () => setDebugPhase('home') : undefined}
           onEquip={(slot, powerId) => {
-            trackFeature('power_equipped', { power: powerId ?? 'none', slot })
             dispatch({ type: 'equip', slot, powerId })
           }}
           onAccount={
@@ -2382,7 +2320,6 @@ setStartedAt((at) => at ?? Date.now())
             setPushOffer(null)
           }}
           onYes={() => {
-            trackFeature('push_accepted')
             markPushOffered(pushOffer)
             setPushOffer(null)
             askPush()
@@ -2414,7 +2351,6 @@ setStartedAt((at) => at ?? Date.now())
         <UpdateNotice
           onLater={() => setUpdate('later')}
           onUpdate={() => {
-            trackFeature('store_update')
             setUpdate('later')
             openStoreUpdate()
           }}
@@ -2439,7 +2375,7 @@ setStartedAt((at) => at ?? Date.now())
               setOfferHeld(true)
               setBonusHeld(true)
             }}
-            onModerate={on('moderation') ? () => setModerating(true) : undefined}
+            onModerate={on('moderation') ? () => setModerating('words') : undefined}
           />
         )}
 
@@ -2560,13 +2496,11 @@ avatarFocus={avatarFocus}
             sound={soundPrefs}
             onSound={tune}
             onTheme={(next) => {
-              trackFeature('theme', { theme: next })
               setTheme(next)
               saveTheme(next)
               applyTheme(next)
             }}
             onLogOut={async () => {
-              track('logout')
               if (pushToken.current) await forgetPushToken(pushToken.current)
               await logOut()
               forget()
@@ -2576,13 +2510,16 @@ avatarFocus={avatarFocus}
             onModerate={() => {
               if (!on('moderation')) return
               setMenuPage(null)
-              setModerating(true)
+              setModerating('words')
+            }}
+            onProfiles={() => {
+              if (!on('moderation')) return
+              setMenuPage(null)
+              setModerating('profiles')
             }}
             onRequestsSeen={refreshModeration}
             onRequestsOpen={topUpRequests}
             lang={lang}
-            advancedBoards={advancedBoards && on('dashboard')}
-            onAdvancedBoards={on('dashboard') ? setAdvancedBoards : undefined}
             onWordsBoard={on('wordsBoard') ? setWordsBoard : undefined}
             onFeatures={moderation?.super ? () => setFeaturesBoard(true) : undefined}
             banActions={banActions}
@@ -2590,7 +2527,6 @@ avatarFocus={avatarFocus}
               // The device keeps its copy until the server has let go of its
               // own: a failed erase must not leave the player half-deleted.
               if (!(await deleteAccount())) return false
-              track('erase')
               forget()
               return true
             }}

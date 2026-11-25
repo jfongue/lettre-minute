@@ -18,8 +18,7 @@ import './crazygames.css'
  * CrazyGames version's page — same frame, same styles — behind Playgama's
  * Bridge instead of the CrazyGames SDK. The Bridge answers first: nothing
  * loads before it, the progress it holds must be in localStorage before the
- * profile is read, and its language decides the first screen's. No usage
- * tracking here: Playgama refuses outside analytics.
+ * profile is read, and its language decides the first screen's.
  */
 const root = createRoot(document.getElementById('root')!)
 

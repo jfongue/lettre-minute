@@ -196,7 +196,7 @@ textarea {
      right — the review found the right column too full and the left one
      empty under the title. */
   .sheet--home {
-    grid-template-rows: auto auto 1fr;
+    grid-template-rows: auto auto auto 1fr;
   }
 
   /* L'affiche ouvre la colonne de gauche sur toute sa largeur, comme en haut
@@ -236,12 +236,22 @@ textarea {
     align-self: start;
   }
 
+  /* Les pages sous « Multijoueur » : la colonne de droite n'a plus qu'à
+     tenir le défi, le niveau et le classement, qui descend jusqu'en bas. */
+  .sheet--home > .home-links {
+    position: relative;
+    z-index: 1;
+    grid-column: 1;
+    grid-row: 4;
+    align-self: start;
+  }
+
   .sheet--home > .home-body,
   .sheet--home > .home-loader {
     position: relative;
     z-index: 1;
     grid-column: 2;
-    grid-row: 1 / 4;
+    grid-row: 1 / -1;
     min-height: 0;
     overflow-x: hidden;
     overflow-y: auto;
@@ -251,9 +261,9 @@ textarea {
   }
 
   /* The main menu never scrolls (portal review): the leaderboard keeps its
-     own height and gives rows back only when the column must fit, so the
-     pages' row sits right under it instead of being pushed to the frame's
-     bottom with a blank between them. Its rows alone scroll, under a
+     own height and gives rows back only when the column must fit, down to
+     the frame's bottom now that the pages' row lives in the left column, and
+     no blank stretched under its last row. Its rows alone scroll, under a
      visible bar. The column keeps its own scroll, and its bar, only for the
      day it carries more than any frame holds (a duel invitation above the
      challenges and the week). */
@@ -526,16 +536,16 @@ textarea {
     padding-block: 0.4rem;
   }
 
-  /* The pages' tiles in one low row, under the leaderboard. */
-  .home-body .page-links {
+  /* The pages' tiles in one low row, under « Multiplayer ». */
+  .home-links .page-links {
     grid-template-columns: repeat(var(--count), minmax(0, 1fr));
     gap: 0.5rem;
     padding-top: 0.5rem;
     border-top-width: 2px;
   }
 
-  .home-body .page-link,
-  .home-body .page-link:last-child:nth-child(odd) {
+  .home-links .page-link,
+  .home-links .page-link:last-child:nth-child(odd) {
     grid-column: auto;
     grid-template-columns: 1.6rem minmax(0, 1fr);
     min-height: 0;
@@ -545,11 +555,11 @@ textarea {
 
   /* The label follows its tile's width (a container unit): a word of any
      language stays whole, whatever the column and the number of tiles. */
-  .home-body .page-link {
+  .home-links .page-link {
     container-type: inline-size;
   }
 
-  .home-body .page-link-label {
+  .home-links .page-link-label {
     font-size: clamp(0.4rem, 11.5cqi, 0.62rem);
     letter-spacing: 0;
     overflow-wrap: normal;
@@ -562,12 +572,68 @@ textarea {
    « Multiplayer » under them never push the title up over the poster, and
    the right column gives the leaderboard its rows back. */
 @media (orientation: landscape) and (max-height: 520px) {
+  /* Un cadre bas rend de la place au classement : le défi du moment tient sur
+     une ligne, sans son surtitre, et le classement perd la légende de sa
+     période — l'onglet Jour ou Semaine la dit déjà. */
+  .home-body .wk-card {
+    gap: 0.55rem;
+    padding: 0.25rem 0.45rem 0.25rem 0.25rem;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .home-body .wk-kicker {
+    display: none;
+  }
+
+  .home-body .wk-card-mark {
+    width: 2.2rem;
+    height: 2.2rem;
+    padding: 0.35rem;
+  }
+
+  .home-body .wk-card-text {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .home-body .wk-card-mode {
+    flex: none;
+    font-size: 1.05rem;
+  }
+
+  .home-body .wk-card-tickets {
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .home-body .wk-card-count {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.75rem;
+  }
+
+  .home-body .wk-card-go {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .home-body .boards > .spread > .note {
+    display: none;
+  }
+
   .sheet--home:not(.sheet--home-alone) {
     row-gap: min(0.6rem, 1.6vh);
   }
 
   .sheet--home:not(.sheet--home-alone) .title {
     font-size: min(5.6rem, 10vh, 6.5vw);
+  }
+
+  /* Les pages sous « Multijoueur » prennent sa ligne au slogan : sans quoi la
+     colonne de gauche passe le cadre et le titre remonte sur l'affiche. */
+  .sheet--home:not(.sheet--home-alone) .masthead .eyebrow {
+    display: none;
   }
 
   .sheet--home:not(.sheet--home-alone) > .home-play .btn {
@@ -606,12 +672,12 @@ textarea {
     padding-block: 0.2rem;
   }
 
-  .home-body .page-link-art {
+  .home-links .page-link-art {
     display: none;
   }
 
-  .home-body .page-link,
-  .home-body .page-link:last-child:nth-child(odd) {
+  .home-links .page-link,
+  .home-links .page-link:last-child:nth-child(odd) {
     grid-template-columns: minmax(0, 1fr);
     text-align: center;
   }
@@ -620,16 +686,37 @@ textarea {
 /* A narrow column (640 × 360): four tiles in a row would leave their labels
    a few pixels tall, so they go two by two, readable. */
 @media (orientation: landscape) and (max-height: 520px) and (max-width: 700px) {
-  .home-body .page-links {
+  /* Le défi n'a plus la largeur de dire ses tentatives : le billet suffit,
+     et son libellé reste celui de la carte pour un lecteur d'écran. */
+  .home-body .wk-card .wk-card-count {
+    display: none;
+  }
+
+  /* La colonne de gauche n'a plus la hauteur de les porter sous
+     « Multijoueur » : les pages repassent sous le classement, à droite. */
+  .sheet--home:not(.sheet--home-alone) > .home-play {
+    grid-row: 3 / 5;
+  }
+
+  .sheet--home:not(.sheet--home-alone) > .home-body {
+    grid-row: 1 / 4;
+  }
+
+  .sheet--home:not(.sheet--home-alone) > .home-links {
+    grid-column: 2;
+    grid-row: 4;
+  }
+
+  .home-links .page-links {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.3rem 0.5rem;
   }
 
-  .home-body .page-link:last-child:nth-child(odd) {
+  .home-links .page-link:last-child:nth-child(odd) {
     grid-column: 1 / -1;
   }
 
-  .home-body .page-link-label {
+  .home-links .page-link-label {
     font-size: clamp(0.4rem, 11.5cqi, 0.7rem);
   }
 }
@@ -647,11 +734,20 @@ textarea {
     display: none;
   }
 
-  /* With a duel invitation above it, the challenge card gives up its tickets,
-     the invitation its face and the pages' row (the menu tile still opens
-     them): the column still holds without scrolling. */
+  /* « Jouer » et « Multijoueur » plus bas, pour que les pages tiennent
+     dessous sans que le titre remonte sur l'affiche (854 × 410). */
+  .sheet--home:not(.sheet--home-alone) > .home-play .btn {
+    min-height: 2.5rem;
+    padding-block: 0.4rem;
+  }
+
+  .sheet--home:not(.sheet--home-alone) > .home-play .btn--play {
+    min-height: 3rem;
+  }
+
+  /* With a duel invitation above it, the challenge card gives up its tickets
+     and the invitation its face: the column still holds without scrolling. */
   .home-body:has(.duel-invite-card) .wk-card-tickets,
-  .home-body:has(.duel-invite-card) .page-links,
   .home-body .duel-invite-card__face {
     display: none;
   }

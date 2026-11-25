@@ -41,9 +41,9 @@ Ce que l'hôte fait :
   partie, son récap et son bilan, jamais pour un Premium ; la page ne réserve
   sa bande (`data-portal-banner`, `crazygames.css`) que quand elle s'affiche.
   Prise en charge sur playgama et msn seulement.
-- Les événements `trackFeature` partent à l'analytics du Bridge (sauf `ad`,
-  que le Bridge compte lui-même) ; aucun autre suivi d'usage (Playgama refuse
-  les analytics externes).
+- Aucun suivi d'usage du jeu (retiré partout, a858b712) : seuls comptent les
+  événements que le Bridge enregistre lui-même (initialisation, `game_ready`,
+  `level_started` / `level_completed`, pubs, sessions).
 - Les succès nommés (Play Games et exploits) sont déclarés dans
   `playgama-bridge-config.json` en snake_case et envoyés une fois chacun ;
   natifs seulement sur Y8 et Lagged, suivis localement par le Bridge ailleurs.

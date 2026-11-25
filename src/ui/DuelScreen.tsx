@@ -220,7 +220,7 @@ export function Lobby({
           {onSignIn && !locked ? (
             <section className="duel-signin">
               <p className="note">{t.duel.signInLead}</p>
-              <button type="button" className="btn btn--blue btn--block" data-track="duel-sign-in" onClick={onSignIn}>
+              <button type="button" className="btn btn--blue btn--block" onClick={onSignIn}>
                 {t.duel.signIn}
               </button>
             </section>
@@ -353,7 +353,6 @@ function PublicSwitch({ table }: { table: DuelTable }) {
       role="switch"
       aria-checked={open}
       className={`duel-public${open ? ' duel-public--on' : ''}`}
-      data-track="duel-public"
       onClick={() => {
         armSound()
         sound.tile('marimba', open ? 2 : 5)
