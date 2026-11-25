@@ -1,0 +1,1 @@
+import{Xr as e}from"./styles-Ov5-3zrH.js";import{h as t}from"./useCountUp-BKiG3P81.js";function n(n,r){return t(r.id)?n.ach[r.id]:{name:e(n.avatar.milestone(r.goal)),desc:``}}export{n as t};
