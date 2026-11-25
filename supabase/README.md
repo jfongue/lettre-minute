@@ -196,9 +196,10 @@ Plus aucun écran ne les lit ; les fonctions restent en base.
   politique. La fonction refuse un modérateur qui a proposé le mot lui-même,
   un second vote, un cas spécial jugé par un modérateur ordinaire, et une
   correction d'orthographe après le premier vote (`gone`).
-- **Proposer a ses limites** (0116) : `word_submissions_guard` refuse le mot
-  d'un joueur banni (`42501`) ou au-delà de son plafond du jour (`54000`), que
-  `proposal_room` dit au client avant l'envoi. Un refus repèse son auteur
+- **Proposer a ses limites** (0116) : `word_submissions_guard` écarte sans
+  erreur le mot d'un joueur banni ou au-delà de son plafond du jour — une
+  version d'avant 0116 envoie sa file d'un bloc, qu'une erreur bloquerait
+  pour toujours —, et `proposal_room` le dit au client avant l'envoi. Un refus repèse son auteur
   (`weigh_proposer`) : ban d'office ou profil à juger. `amend_submission` ne
   repasse pas par le plafond. Le poids d'un « correct » tombe à une demi-voix
   pour un modérateur laxiste (`lax_moderator`) ; ses refus restent entiers.

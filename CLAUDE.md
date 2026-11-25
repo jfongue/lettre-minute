@@ -463,8 +463,9 @@ propre téléphone.
   SQL comme le reste) : un joueur propose au plus 10 mots par jour de Paris,
   30 s'il voit 70 % des siens acceptés, 3 s'il en voit 70 % refusés
   (`proposal_quota`, une ligne réglable sans migration) ; le client lit
-  `proposal_room` avant d'envoyer et garde le reste sur l'appareil, le
-  déclencheur `word_submissions_guard` refuse ce qui dépasse. Plus de 80 %
+  `proposal_room` avant d'envoyer et garde le reste sur l'appareil, le déclencheur `word_submissions_guard`
+  écarte sans erreur ce qui dépasse (une erreur bloquerait l'envoi en bloc des
+  versions d'avant). Plus de 80 %
   refusés sur quinze jugés : ban de proposition d'office, propositions en
   attente retirées ; la moitié sur dix : le profil remonte aux super
   modérateurs (`proposer_reviews`, `profile_queue`, `judge_profile`), qui

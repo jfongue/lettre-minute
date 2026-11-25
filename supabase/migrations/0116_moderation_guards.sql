@@ -226,8 +226,12 @@ create trigger word_submissions_weigh_proposer
   execute function public.on_submission_rejected();
 
 -- Le plafond et le ban tiennent au serveur aussi : un client modifié ne les
--- contourne pas. Le client lit `proposal_room` avant d'envoyer, et n'arrive ici
--- qu'en cas de course.
+-- contourne pas. Le surplus est écarté sans erreur plutôt que refusé : une
+-- version d'avant 0116 envoie toute sa file d'un bloc, et une seule ligne
+-- refusée ferait échouer l'envoi entier, jour après jour, sans que rien ne
+-- parte. Elle perd donc les mots en trop d'une journée, et un banni les siens,
+-- sans qu'on le lui dise. Une version à jour lit `proposal_room` et n'envoie
+-- que ce qui passe.
 create function public.guard_submission() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
@@ -235,13 +239,13 @@ begin
     return new;
   end if;
   if public.proposals_banned(new.player_id) then
-    raise exception 'proposals banned' using errcode = '42501';
+    return null;
   end if;
   -- Une correction d'orthographe remplace un mot déjà compté : elle ne
   -- consomme pas le plafond (`amend_submission` pose le drapeau).
   if coalesce(current_setting('lettre_minute.amending', true), '') <> 'on'
      and public.proposed_today(new.player_id) >= public.daily_quota(new.player_id) then
-    raise exception 'daily proposal quota reached' using errcode = '54000';
+    return null;
   end if;
   return new;
 end;

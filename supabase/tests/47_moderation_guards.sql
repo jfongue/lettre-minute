@@ -19,9 +19,9 @@ select tests.propose('q1', 'animaux', 'qq' || chr(96 + i)) from generate_series(
 select tests.login('q1');
 select tests.is((public.proposal_room() ->> 'room')::int, 0, 'ten proposals use up a new player''s day');
 select tests.is((public.proposal_room() ->> 'quota')::int, 10, 'whose cap is ten');
-select tests.throws($$insert into public.word_submissions (player_id, category_id, word, display)
-                      values (tests.uid('q1'), 'animaux', 'qqk', 'Qqk')$$,
-                    'the eleventh is refused by the server', '54000');
+select tests.is(tests.affected($$insert into public.word_submissions (player_id, category_id, word, display)
+                                  values (tests.uid('q1'), 'animaux', 'qqk', 'Qqk')$$), 0,
+                'the eleventh is set aside by the server, without an error an older app would choke on');
 select tests.is(public.amend_submission(tests.submission_id('q1', 'qqa'), 'qqun', 'Qqun'), true,
                 'a correction does not count against the cap');
 select tests.logout();
@@ -70,9 +70,9 @@ select tests.is((select count(*)::int from public.word_submissions where player_
 select tests.is(tests.review('animaux', 'bbq'), null::uuid, 'with their review, which nobody else wanted');
 select tests.login('b1');
 select tests.is((public.proposal_room() ->> 'banned')::boolean, true, 'he is told he is banned');
-select tests.throws($$insert into public.word_submissions (player_id, category_id, word, display)
-                      values (tests.uid('b1'), 'animaux', 'bbr', 'Bbr')$$,
-                    'and the server refuses his next word', '42501');
+select tests.is(tests.affected($$insert into public.word_submissions (player_id, category_id, word, display)
+                                  values (tests.uid('b1'), 'animaux', 'bbr', 'Bbr')$$), 0,
+                'and the server sets his next word aside');
 select tests.logout();
 
 -- ----------------------------------------------------------- le doute --
