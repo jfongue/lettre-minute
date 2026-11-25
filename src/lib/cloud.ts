@@ -19,7 +19,7 @@ import { withBotRuns } from '../state/botRuns'
 import { loadRunsBackfilled, loadSubmissions, loadUnsentRuns, saveRunsBackfilled, saveSubmissions, saveUnsentRuns, type PendingSubmission, type UnsentRun } from '../state/storage'
 import { host } from '../platform'
 import { googleIdToken } from './native'
-import { anonKey, connect, forgetSession, projectUrl, supabase } from './supabase'
+import { anonKey, connect, forgetSession, heldPlayer, projectUrl, supabase } from './supabase'
 import { testClient } from './testClient'
 
 export interface CrowdUsage {
@@ -142,11 +142,12 @@ type Shipped = { sent: true; id: string } | { sent: false; again: boolean }
 const MISSING_COLUMN = new Set(['PGRST204', '42703'])
 
 /**
- * The server did not answer, or answered that it was too busy: the run is
+ * The server did not answer, answered that it was too busy, or did not take
+ * the session it was sent (401, the token lapsed on the way): the run is
  * worth sending again. Anything else — a rule refused it — is final.
  */
 function busy(error: { code?: string } | null, status: number): boolean {
-  return status === 0 || status === 408 || status === 429 || status >= 500 || !error?.code || error.code === '57014'
+  return status === 0 || status === 401 || status === 408 || status === 429 || status >= 500 || !error?.code || error.code === '57014'
 }
 
 /**
@@ -242,11 +243,18 @@ function keepUnsent(entry: UnsentRun): void {
 export async function pushRun(run: Run, record: RunRecord, profile: Profile): Promise<boolean> {
   if (!supabase) return false
   const identity = await connect()
-  if (!identity) return false
+  // A session that lapsed and could not be renewed yet: the run waits for
+  // its account rather than leaving under the public key.
+  const player = identity?.userId ?? heldPlayer()
+  if (!player) return false
   let entry: UnsentRun | null = null
   let shipped: Shipped
   try {
-    entry = { player: identity.userId, seed: run.seed, powers: [...run.powers], record }
+    entry = { player, seed: run.seed, powers: [...run.powers], record }
+    if (!identity) {
+      keepUnsent(entry)
+      return false
+    }
     shipped = await shipRun(entry, false)
   } catch {
     if (entry) keepUnsent(entry)
@@ -313,7 +321,7 @@ let flushingRuns: Promise<number> | null = null
 export function flushUnsentRuns(): Promise<number> {
   if (flushingRuns) return flushingRuns
   flushingRuns = (async () => {
-    if (!supabase) return 0
+    if (!supabase || loadUnsentRuns().length === 0) return 0
     const identity = await connect()
     if (!identity) return 0
     let sent = 0

@@ -11,6 +11,8 @@ import { loadUnsentRuns, saveUnsentRuns } from '../state/storage'
  */
 type Mode = 'throw' | 'reject' | 'error' | 'garbage'
 const mode = vi.hoisted(() => ({ current: 'throw' as Mode }))
+/** A session that lapsed on the device and could not be renewed yet. */
+const lapsed = vi.hoisted(() => ({ current: false }))
 
 vi.mock('./supabase', () => {
   const answer = () => {
@@ -40,7 +42,8 @@ vi.mock('./supabase', () => {
   })
   return {
     supabase: hostile,
-    connect: () => Promise.resolve({ userId: 'player-1' }),
+    connect: () => Promise.resolve(lapsed.current ? null : { userId: 'player-1' }),
+    heldPlayer: () => 'player-1',
     forgetSession: () => {},
     cloudConfigured: () => true,
   }
@@ -179,6 +182,22 @@ describe('cloud without a working server', () => {
     // Still unreachable: the run waits on.
     expect(await cloud.flushUnsentRuns()).toBe(0)
     expect(loadUnsentRuns()).toHaveLength(1)
+    Reflect.deleteProperty(globalThis, 'localStorage')
+  })
+
+  it('keeps a run played while the session lapsed instead of sending it under the public key', async () => {
+    const store = new Map<string, string>()
+    Object.defineProperty(globalThis, 'localStorage', {
+      value: { getItem: (key: string) => store.get(key) ?? null, setItem: (key: string, value: string) => void store.set(key, value) },
+      configurable: true,
+    })
+    saveUnsentRuns([])
+    mode.current = 'garbage'
+    lapsed.current = true
+    const run = { ...RUN, powers: new Set() } as unknown as Run
+    expect(await cloud.pushRun(run, RECORD, NEW_PROFILE)).toBe(false)
+    expect(loadUnsentRuns()).toEqual([expect.objectContaining({ player: 'player-1', seed: 1 })])
+    lapsed.current = false
     Reflect.deleteProperty(globalThis, 'localStorage')
   })
 })

@@ -746,6 +746,13 @@ setMenuPage(null)
   useEffect(() => {
     if (!hostAccountSettled || !answered.account) return
     void catchUpLostRuns(loadHistory()).finally(() => void flushUnsentRuns())
+    // A session that lapsed while the phone slept is renewed on the way back:
+    // what it held back leaves then, without waiting for the next run.
+    const back = () => {
+      if (document.visibilityState === 'visible') void flushUnsentRuns()
+    }
+    document.addEventListener('visibilitychange', back)
+    return () => document.removeEventListener('visibilitychange', back)
   }, [hostAccountSettled, answered.account])
 
   const refreshModeration = useCallback(() => {
