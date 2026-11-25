@@ -74,7 +74,9 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `word_submissions` | Les mots proposés par les joueurs, avec leur statut ; `seen_at` éteint la pastille de « Mes demandes ». |
 | `word_reviews` | Un mot en cours de jugement (catégorie + mot) : un ajout, que rejoignent tous ceux qui l'ont réclamé, ou un ban (`kind`), signalé par un modérateur. |
 | `moderation_votes` | Un vote par modérateur et par mot : `correct`, `unsure`, `incorrect` ou `special`. |
-| `moderators` | Les modérateurs, l'ami qui les a élus, et `super` : le rôle de super modérateur, donné à la main depuis 0047. |
+| `moderators` | Les modérateurs, l'ami qui les a élus, et `super` : le rôle de super modérateur, donné à la main depuis 0047, ou accepté par un modérateur au score excellent (0116). `score` (0–100) et `judged` : l'accord de ses votes tranchés avec le sort des mots, recalculé quand une revue se règle. |
+| `proposal_quota` | Une seule ligne : le plafond quotidien de propositions — de base, fiable, souvent refusé (0116). |
+| `proposer_reviews` | Les joueurs trop souvent refusés : profil à juger par un super modérateur (`state`), ban de proposition (`banned`), d'office ou non (`auto`). |
 | `moderation_reserve` | Mots évidents que les dictionnaires ignorent, versés au compte-goutte dans la file (`released_at`). |
 | `moderation_topup` | Une seule ligne : l'heure du dernier versement, qui ferme le renflouage pour une heure, toutes langues confondues. |
 | `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |
@@ -194,6 +196,12 @@ Plus aucun écran ne les lit ; les fonctions restent en base.
   politique. La fonction refuse un modérateur qui a proposé le mot lui-même,
   un second vote, un cas spécial jugé par un modérateur ordinaire, et une
   correction d'orthographe après le premier vote (`gone`).
+- **Proposer a ses limites** (0116) : `word_submissions_guard` refuse le mot
+  d'un joueur banni (`42501`) ou au-delà de son plafond du jour (`54000`), que
+  `proposal_room` dit au client avant l'envoi. Un refus repèse son auteur
+  (`weigh_proposer`) : ban d'office ou profil à juger. `amend_submission` ne
+  repasse pas par le plafond. Le poids d'un « correct » tombe à une demi-voix
+  pour un modérateur laxiste (`lax_moderator`) ; ses refus restent entiers.
 - **La file ne se vide jamais pour de bon** (`top_up_moderation`, 0019,
   0037) : un modérateur, super modérateur compris, qui ouvre « Mes demandes »
   avec moins de cinq mots à juger la voit complétée à cinq depuis

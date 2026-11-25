@@ -8,7 +8,8 @@ import type { PlayedWord, RunRecord } from '../domain/history'
 import type { RarityTier } from '../domain/rarity'
 import type { KeptWord, Run, Verdict } from '../domain/run'
 import { chooseCategory } from '../domain/unlocks'
-import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, ReviewCard, SpiedProfile, Submission, SubmissionStatus } from '../lib/cloud'
+import type { Account, ChallengeDetail, ChallengePlayer, ChallengeSummary, ModerationStatus, ProfileReview, ReviewCard, SpiedProfile, Submission, SubmissionStatus } from '../lib/cloud'
+import type { ModeratorOfferReason } from '../domain/moderation'
 import type { AccountActions } from '../ui/AccountPanel'
 import { AchievementsPanel } from '../ui/AchievementsPanel'
 import { ChallengeNotice } from '../ui/ChallengeHome'
@@ -20,6 +21,8 @@ import { AvatarPanel } from '../ui/AvatarPanel'
 import { LanguagePicker } from '../ui/LanguagePicker'
 import { ModeratorOffer } from '../ui/ModeratorOffer'
 import { ModerationScreen } from '../ui/ModerationScreen'
+import { ProfileReviewScreen } from '../ui/ProfileReviewScreen'
+import { RequestsPage } from '../ui/RequestsPage'
 import { OverScreen, type RunProposal } from '../ui/OverScreen'
 import { RunScreen } from '../ui/RunScreen'
 import type { Cheer } from '../state/session'
@@ -1211,6 +1214,7 @@ const MODERATION_QUEUE: readonly ReviewCard[] = [
     note: 'Ce n’est pas un animal : c’est le nom d’un genre de passereaux.',
     canRespell: false,
     friends: [],
+    reasons: [{ verdict: 'correct', note: 'Ce n’est pas un animal : c’est le nom d’un genre de passereaux.' }],
   },
   {
     id: 'add-1',
@@ -1222,11 +1226,103 @@ const MODERATION_QUEUE: readonly ReviewCard[] = [
     note: null,
     canRespell: true,
     friends: [],
+    reasons: [],
   },
 ]
 
 function ModerationQueueScenario({ onBack }: { onBack(): void }) {
   return <ModerationScreen lang="fr" queue={MODERATION_QUEUE} onDone={onBack} />
+}
+
+/** Deux mots que d'autres modérateurs ont déjà jugés en laissant leur raison (0116). */
+const REASONED_QUEUE: readonly ReviewCard[] = [
+  {
+    id: 'add-reasons',
+    categoryId: 'animaux',
+    kind: 'add',
+    display: 'Licorne',
+    proposals: 4,
+    special: false,
+    note: null,
+    canRespell: false,
+    friends: [],
+    reasons: [
+      { verdict: 'incorrect', note: 'Animal imaginaire, il n’existe pas.' },
+      { verdict: 'correct', note: 'Le narval est surnommé licorne des mers.' },
+    ],
+  },
+  {
+    id: 'ban-reasons',
+    categoryId: 'pays',
+    kind: 'ban',
+    display: 'Yougoslavie',
+    proposals: 2,
+    special: false,
+    note: 'Ce pays n’existe plus depuis 2003.',
+    canRespell: false,
+    friends: [],
+    reasons: [
+      { verdict: 'correct', note: 'Ce pays n’existe plus depuis 2003.' },
+      { verdict: 'incorrect', note: 'Les joueurs le connaissent, on peut le garder.' },
+    ],
+  },
+]
+
+/** Les profils qu'un super modérateur juge : un banni d'office, un joueur dans le doute. */
+const PROFILE_QUEUE: readonly ProfileReview[] = [
+  {
+    id: 'profile-auto',
+    name: 'Spammeur42',
+    banned: true,
+    accepted: 1,
+    rejected: 16,
+    pending: 0,
+    words: [
+      { display: 'Azerty', lang: 'fr', categoryId: 'animaux', status: 'rejected', at: Date.now() - 0 * 86_400_000, reasons: ['Pas un animal.', 'Ce sont les lettres du clavier.'] },
+      { display: 'Qsdf', lang: 'fr', categoryId: 'pays', status: 'rejected', at: Date.now() - 0 * 86_400_000, reasons: [] },
+      { display: 'Chat', lang: 'fr', categoryId: 'animaux', status: 'accepted', at: Date.now() - 1 * 86_400_000, reasons: [] },
+      { display: 'Lolilol', lang: 'fr', categoryId: 'metiers', status: 'rejected', at: Date.now() - 1 * 86_400_000, reasons: ['Mot inventé.'] },
+    ],
+  },
+  {
+    id: 'profile-doubt',
+    name: 'Camille',
+    banned: false,
+    accepted: 6,
+    rejected: 7,
+    pending: 2,
+    words: [
+      { display: 'Doudou', lang: 'fr', categoryId: 'objets', status: 'pending', at: Date.now() - 0 * 86_400_000, reasons: [] },
+      { display: 'Pokémon', lang: 'fr', categoryId: 'animaux', status: 'rejected', at: Date.now() - 1 * 86_400_000, reasons: ['Personnage de jeu vidéo, pas un animal.'] },
+      { display: 'Ouistiti', lang: 'fr', categoryId: 'animaux', status: 'accepted', at: Date.now() - 2 * 86_400_000, reasons: [] },
+      { display: 'Kebabier', lang: 'fr', categoryId: 'metiers', status: 'rejected', at: Date.now() - 3 * 86_400_000, reasons: ['Pas dans le dictionnaire.'] },
+    ],
+  },
+]
+
+const GUARDED_STATUS: ModerationStatus = {
+  moderator: true,
+  super: true,
+  validated: 12,
+  queue: 7,
+  sessions: 14,
+  offer: null,
+  invitedBy: null,
+  topUp: false,
+  news: 0,
+  score: 87,
+  judged: 64,
+  profiles: 2,
+  banned: false,
+}
+
+/** « Mes demandes » : score d'exigence, session et profils à juger ; ou un joueur banni. */
+function GuardedRequestsScenario({ status }: { status: ModerationStatus }) {
+  return (
+    <div className="sheet">
+      <RequestsPage moderation={status} onModerate={noop} onProfiles={noop} onSeen={noop} onOpen={noop} />
+    </div>
+  )
 }
 
 /** Le mot d'un récap qu'un modérateur peut signaler, la carte ouverte dessus. */
@@ -1409,7 +1505,7 @@ function MagicFreedScenario() {
 
 /** L'offre de modérateur : un seul rendu pour les trois raisons qui l'amènent. */
 const offerModerator =
-  (reason: 'level' | 'words' | 'friend' | 'bonus', onClosed?: () => void) =>
+  (reason: ModeratorOfferReason, onClosed?: () => void) =>
   (back: () => void): ReactNode => (
     <ModeratorOffer
       reason={reason}
@@ -2438,6 +2534,14 @@ const SCENARIOS: readonly Scenario[] = [
     render: offerModerator('friend'),
   },
   {
+    id: 'moderator-super',
+    group: 'Modération',
+    title: 'Offre de super modérateur',
+    how: 'Un modérateur au score d’exigence excellent (90 et plus, soixante votes tranchés) : accepter montre l’accueil, sans rien écrire sur le serveur',
+    phase: 'home',
+    render: offerModerator('super'),
+  },
+  {
     id: 'moderator-anonymous',
     group: 'Modération',
     title: 'Offre de modérateur, joueur anonyme',
@@ -2785,6 +2889,38 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'File de jugement avec un mot signalé et un ajout : « Retirer » à droite, « Garder » à gauche, ni correction ni cas spécial',
     phase: 'home',
     render: (back) => <ModerationQueueScenario onBack={back} />,
+  },
+  {
+    id: 'moderation-reasons',
+    group: 'Modération',
+    title: 'Juger avec les raisons des autres',
+    how: 'Les raisons laissées par les modérateurs précédents s’affichent sur la carte ; « Refuser avec une raison » (ou « Conserver avec une raison » sur un retrait) ouvre le champ',
+    phase: 'home',
+    render: (back) => <ModerationScreen lang="fr" queue={REASONED_QUEUE} onDone={back} />,
+  },
+  {
+    id: 'profile-review',
+    group: 'Modération',
+    title: 'Profils à juger (super modérateur)',
+    how: 'Un joueur banni d’office (lever ou garder le ban), puis un joueur dans le doute (laisser proposer ou bannir, en deux tapes) : rien n’est écrit sur le serveur',
+    phase: 'home',
+    render: (back) => <ProfileReviewScreen profiles={PROFILE_QUEUE} judge={(_, ban) => later(ban ? 'banned' : 'cleared')} onDone={back} />,
+  },
+  {
+    id: 'requests-moderator-score',
+    group: 'Modération',
+    title: 'Mes demandes : score et profils',
+    how: 'Super modérateur au score de 87 : lancer une session et « Profils à juger · 2 » (les deux boutons ne font rien ici)',
+    phase: 'home',
+    render: () => <GuardedRequestsScenario status={GUARDED_STATUS} />,
+  },
+  {
+    id: 'requests-banned',
+    group: 'Modération',
+    title: 'Mes demandes : propositions suspendues',
+    how: 'Un joueur banni de proposition lit pourquoi ses mots ne partent plus',
+    phase: 'home',
+    render: () => <GuardedRequestsScenario status={{ ...GUARDED_STATUS, moderator: false, super: false, score: null, judged: 0, profiles: 0, banned: true }} />,
   },
   {
     id: 'stats',

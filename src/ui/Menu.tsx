@@ -142,6 +142,8 @@ avatarFocus?: number | null
   moderation: ModerationStatus | null
   queueAlert?: boolean
   onModerate(): void
+  /** A super moderator opens the profiles of players too often refused (0116). */
+  onProfiles?(): void
   /** Null without an account; the statistics list the hidden ones. */
   challenges: readonly ChallengeSummary[] | null
   onChallenge(id: string): void
@@ -325,6 +327,7 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
             <RequestsPage
               moderation={props.moderation}
               onModerate={props.onModerate}
+              onProfiles={props.onProfiles}
               onSeen={props.onRequestsSeen}
               onOpen={props.onRequestsOpen}
             />

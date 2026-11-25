@@ -459,6 +459,24 @@ propre téléphone.
   savoir (taille de session, lecture d'un glissement). La modération suit la
   langue de l'interface : un modérateur ne voit que les mots préfixés de la
   sienne.
+- **Les garde-fous de la modération se mesurent au verdict final** (0116, en
+  SQL comme le reste) : un joueur propose au plus 10 mots par jour de Paris,
+  30 s'il voit 70 % des siens acceptés, 3 s'il en voit 70 % refusés
+  (`proposal_quota`, une ligne réglable sans migration) ; le client lit
+  `proposal_room` avant d'envoyer et garde le reste sur l'appareil, le
+  déclencheur `word_submissions_guard` refuse ce qui dépasse. Plus de 80 %
+  refusés sur quinze jugés : ban de proposition d'office, propositions en
+  attente retirées ; la moitié sur dix : le profil remonte aux super
+  modérateurs (`proposer_reviews`, `profile_queue`, `judge_profile`), qui
+  confirment ou lèvent aussi les bans d'office. Le score d'un modérateur
+  (`moderators.score`, 0–100) compare ses votes tranchés au sort du mot — un
+  refus partagé compte double, une validation refusée coûte double — et se
+  recalcule dans `settle_review` ; sous 50 après vingt votes, son « correct »
+  pèse une demi-voix, sans qu'on le lui dise ; à 90 après soixante, le jeu lui
+  offre le rôle de super modérateur (`offer = 'super'`), un refus étant
+  définitif. La file montre les raisons des votes précédents (`reasons`).
+  Les joueurs maison échappent au plafond et au jugement. Les tests SQL
+  lèvent le plafond dans `helpers.sql` : un fichier qui le teste le remet.
 
 - **Une file de modération courte se remplit toute seule** (`top_up_moderation`,
   0019, 0037, 0052) : ouvrir « Mes demandes » avec moins de cinq mots à juger

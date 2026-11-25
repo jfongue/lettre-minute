@@ -154,6 +154,7 @@ import {
   saveQueueSeenOn,
   saveShareNewsSeen,
   saveSubmissions,
+  type PendingSubmission,
   saveTutorialDone,
 } from './state/storage'
 import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storage'
@@ -203,6 +204,7 @@ const FriendPicker = lazyScreen(() => import('./ui/FriendPicker').then((module) 
 const CountdownScreen = lazyScreen(() => import('./ui/CountdownScreen').then((module) => module.CountdownScreen))
 const Menu = lazyScreen(() => import('./ui/Menu').then((module) => module.Menu))
 const ModerationScreen = lazyScreen(() => import('./ui/ModerationScreen').then((module) => module.ModerationScreen))
+const ProfileReviewScreen = lazyScreen(() => import('./ui/ProfileReviewScreen').then((module) => module.ProfileReviewScreen))
 const OverScreen = lazyScreen(() => import('./ui/OverScreen').then((module) => module.OverScreen))
 const RunScreen = lazyScreen(() => import('./ui/RunScreen').then((module) => module.RunScreen))
 const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) => module.WordsBoard))
@@ -219,7 +221,7 @@ const WEEKLY_SCREENS = [WeeklyScreen, WeeklyResults, WeeklyDone, WeeklyRecap]
 
 /** One screen at a time, in the order a player is likely to need them. */
 async function preloadScreens(): Promise<void> {
-  for (const screen of [Menu, CountdownScreen, RunScreen, OverScreen, ChallengeScreen, FriendPicker, ChallengeSetup, ChallengePowers, ModerationScreen, ...WEEKLY_SCREENS]) {
+  for (const screen of [Menu, CountdownScreen, RunScreen, OverScreen, ChallengeScreen, FriendPicker, ChallengeSetup, ChallengePowers, ModerationScreen, ProfileReviewScreen, ...WEEKLY_SCREENS]) {
     await screen.preload().catch(() => undefined)
   }
 }
@@ -257,12 +259,17 @@ function loadBoards(fresh = false): Promise<Boards | null> {
   return boards
 }
 
-/** Sends the words proposed while the game was offline, then clears the queue. */
+/**
+ * Sends the words proposed while the game was offline, and forgets those that
+ * went: past the day's cap (0116) the others wait on the device for tomorrow.
+ */
 function flushSubmissions(): Promise<unknown> {
   const pending = loadSubmissions()
   if (pending.length === 0) return Promise.resolve()
   return pushSubmissions(pending).then((sent) => {
-    if (sent.length > 0) saveSubmissions([])
+    if (sent.length === 0) return
+    const gone = (item: PendingSubmission) => sent.some((done) => done.at === item.at && done.word === item.word)
+    saveSubmissions(loadSubmissions().filter((item) => !gone(item)))
   })
 }
 
@@ -408,7 +415,8 @@ setMenuPage(null)
   const [seenDesigns, setSeenDesigns] = useState(loadSeenDesignsOrNull)
   const refreshSeenDesigns = useCallback(() => setSeenDesigns(loadSeenDesignsOrNull()), [])
   const [moderation, setModeration] = useState<ModerationStatus | null>(null)
-  const [moderating, setModerating] = useState(false)
+  // Words to judge, or, for a super moderator, the profiles of players too often refused (0116).
+  const [moderating, setModerating] = useState<false | 'words' | 'profiles'>(false)
   // « Plus tard » holds the offer back until the next launch, without answering it.
   const [offerHeld, setOfferHeld] = useState(false)
   // « Plus tard » on the moderator card a level bonus gave: it comes back at the next launch.
@@ -1956,7 +1964,9 @@ setStartedAt((at) => at ?? Date.now())
   // alone let the super role through, and its bonus stayed in the profile.
   const alreadyModerating = moderation?.moderator === true || moderation?.super === true
   const bonusOfferDue = session.profile.bonuses.includes('moderator') && moderation !== null && !alreadyModerating && !bonusHeld && !moderation.offer && on('moderatorOffer')
-  const offerDue = !alreadyModerating && (bonusOfferDue || !!moderation?.offer && !offerHeld && on('moderatorOffer'))
+  // The super role is offered to a moderator (0116): the one card that does reach someone who moderates.
+  const superOfferDue = moderation?.offer === 'super' && moderation.moderator && !moderation.super && !offerHeld && on('moderatorOffer')
+  const offerDue = superOfferDue || (!alreadyModerating && moderation?.offer !== 'super' && (bonusOfferDue || (!!moderation?.offer && !offerHeld && on('moderatorOffer'))))
   const wordsNewsDue = wordsNews.length > 0 && on('wordsNews')
   const giftDue = complicationDue(session.profile, acceptedWords) && on('powerGift')
   // Premium thanks its new member once, back home, and asks for an opinion in
@@ -2033,7 +2043,19 @@ setStartedAt((at) => at ?? Date.now())
 <ModeTutorial mode={modeLesson.mode} lang={lang} onDone={endModeTutorial} />
 )}
 
-      {moderating && (
+      {moderating === 'profiles' && (
+        <Suspense fallback={null}>
+          <ProfileReviewScreen
+            onDone={() => {
+              setModerating(false)
+              refreshModeration()
+              setMenuPage('requests')
+            }}
+          />
+        </Suspense>
+      )}
+
+      {moderating === 'words' && (
         <Suspense fallback={null}>
           <ModerationScreen
             lang={lang}
@@ -2316,7 +2338,7 @@ setStartedAt((at) => at ?? Date.now())
               setOfferHeld(true)
               setBonusHeld(true)
             }}
-            onModerate={on('moderation') ? () => setModerating(true) : undefined}
+            onModerate={on('moderation') ? () => setModerating('words') : undefined}
           />
         )}
 
@@ -2451,7 +2473,12 @@ avatarFocus={avatarFocus}
             onModerate={() => {
               if (!on('moderation')) return
               setMenuPage(null)
-              setModerating(true)
+              setModerating('words')
+            }}
+            onProfiles={() => {
+              if (!on('moderation')) return
+              setMenuPage(null)
+              setModerating('profiles')
             }}
             onRequestsSeen={refreshModeration}
             onRequestsOpen={topUpRequests}

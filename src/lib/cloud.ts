@@ -652,14 +652,35 @@ export function fetchMyRuns(): Promise<RunRecord[] | null> {
   }, null)
 }
 
-/** Sends the words proposed while offline; returns those that went through. */
+/**
+ * What the server still takes today (`proposal_room`, 0116): a daily cap set by
+ * how many of the player's words were accepted, and a ban that refuses them
+ * all. Null before 0116 is applied: nothing is capped.
+ */
+async function proposalRoom(): Promise<{ banned: boolean; room: number } | null> {
+  const { data, error } = await supabase!.rpc('proposal_room')
+  if (error || !data) return null
+  const row = data as Record<string, unknown>
+  return { banned: row.banned === true, room: Math.max(0, Number(row.room) || 0) }
+}
+
+/**
+ * Sends the words proposed while offline; returns those the device may forget.
+ * Past the day's cap the newest wait on the device for the next day. A banned
+ * player's words are all returned without being sent: the server would refuse
+ * them on every attempt, and « Mes demandes » says why.
+ */
 export function pushSubmissions(pending: readonly PendingSubmission[]): Promise<PendingSubmission[]> {
   if (pending.length === 0) return Promise.resolve([])
 
   return guard(async () => {
     const identity = await connect()
+    const room = await proposalRoom()
+    if (room?.banned) return [...pending]
+    const sending = room ? [...pending].sort((one, other) => one.at - other.at).slice(0, room.room) : [...pending]
+    if (sending.length === 0) return []
     const { error } = await supabase!.from('word_submissions').upsert(
-      pending.map((submission) => ({
+      sending.map((submission) => ({
         player_id: identity!.userId,
         category_id: scoped(submission.lang ?? 'fr', submission.categoryId),
         word: scoped(submission.lang ?? 'fr', submission.word.trim().toLowerCase()),
@@ -667,7 +688,7 @@ export function pushSubmissions(pending: readonly PendingSubmission[]): Promise<
       })),
       { onConflict: 'player_id, category_id, word', ignoreDuplicates: true },
     )
-    return error ? [] : [...pending]
+    return error ? [] : sending
   }, [])
 }
 
@@ -781,6 +802,18 @@ export interface ModerationStatus {
   topUp: boolean
   /** Their words accepted since they last looked. */
   news: number
+  /**
+   * How often the file's final verdict agreed with theirs, from 0 to 100 (0116):
+   * a shared refusal counts double, a validation the others refused costs
+   * double. Null until one of their votes is settled.
+   */
+  score: number | null
+  /** Their settled « correct » and « incorrect » votes, which the score reads. */
+  judged: number
+  /** For a super moderator: players whose proposals wait for a verdict on their profile. */
+  profiles: number
+  /** This player may no longer propose words. */
+  banned: boolean
 }
 
 /** Null without a server, which hides everything moderation shows. */
@@ -799,6 +832,10 @@ export function fetchModerationStatus(lang: string): Promise<ModerationStatus | 
       invitedBy: (row.invited_by as string | null) ?? null,
       topUp: row.topup === true,
       news: Number(row.news) || 0,
+      score: row.score === null || row.score === undefined ? null : Number(row.score),
+      judged: Number(row.judged) || 0,
+      profiles: Number(row.profiles) || 0,
+      banned: row.banned === true,
     }
   }, null)
 }
@@ -830,6 +867,19 @@ export interface ReviewCard {
   canRespell: boolean
   /** The moderator's friends among those who asked: their words come first. */
   friends: string[]
+  /** What the moderators before them wrote with their vote, oldest first, unsigned (0116). */
+  reasons: { verdict: Verdict; note: string }[]
+}
+
+const VERDICTS: readonly Verdict[] = ['correct', 'unsure', 'incorrect', 'special']
+
+function reasonsOf(raw: unknown): ReviewCard['reasons'] {
+  if (!Array.isArray(raw)) return []
+  return raw.flatMap((item) => {
+    const row = item as Record<string, unknown>
+    const verdict = VERDICTS.find((known) => known === row.verdict)
+    return verdict && typeof row.note === 'string' && row.note.trim() ? [{ verdict, note: row.note }] : []
+  })
 }
 
 /** Null when the server could not be reached, which the screen tells apart from nothing to judge. */
@@ -847,6 +897,7 @@ export function fetchModerationQueue(lang: string): Promise<ReviewCard[] | null>
       note: (row.note as string | null) ?? null,
       canRespell: row.can_respell === true,
       friends: (row.friends as string[] | null) ?? [],
+      reasons: reasonsOf(row.reasons),
     }))
   }, null)
 }
@@ -902,6 +953,67 @@ export function castVote(
       p_display: respell || null,
     })
     return error ? 'unreachable' : (data as VoteOutcome)
+  }, 'unreachable')
+}
+
+/** A proposal of a player whose profile waits for a super moderator. */
+export interface ProfileWord {
+  display: string
+  lang: string
+  categoryId: string
+  status: SubmissionStatus
+  at: number
+  /** The reasons moderators gave when they refused it. */
+  reasons: string[]
+}
+
+/** A player whose proposals were too often refused (0116): banned on the spot, or in doubt. */
+export interface ProfileReview {
+  id: string
+  name: string
+  /** Banned on the spot: the super moderator confirms the ban or lifts it. */
+  banned: boolean
+  accepted: number
+  rejected: number
+  pending: number
+  /** Newest first, at most twenty. */
+  words: ProfileWord[]
+}
+
+/** Null when the server could not be reached; empty for anyone but a super moderator. */
+export function fetchProfileQueue(): Promise<ProfileReview[] | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('profile_queue')
+    if (error) return null
+    return ((data ?? []) as Record<string, unknown>[]).map((row) => ({
+      id: row.id as string,
+      name: (row.name as string | null) ?? '',
+      banned: row.banned === true,
+      accepted: Number(row.accepted) || 0,
+      rejected: Number(row.rejected) || 0,
+      pending: Number(row.pending) || 0,
+      words: ((row.words as Record<string, unknown>[] | null) ?? []).map((word) => {
+        const { lang, value } = split(word.category_id as string)
+        return {
+          display: word.display as string,
+          lang,
+          categoryId: value,
+          status: word.status as SubmissionStatus,
+          at: Date.parse(word.at as string) || 0,
+          reasons: ((word.reasons as unknown[] | null) ?? []).filter((note): note is string => typeof note === 'string'),
+        }
+      }),
+    }))
+  }, null)
+}
+
+export type ProfileOutcome = 'banned' | 'cleared' | 'gone' | 'unreachable'
+
+/** A super moderator bans the player from proposing — their waiting words go too — or lets them be. */
+export function judgeProfile(player: string, ban: boolean): Promise<ProfileOutcome> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('judge_profile', { p_player: player, p_ban: ban })
+    return error ? 'unreachable' : (data as ProfileOutcome)
   }, 'unreachable')
 }
 

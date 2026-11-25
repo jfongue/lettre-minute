@@ -57,13 +57,15 @@ interface RequestsPageProps {
   /** Null without a server, or before it answered. */
   moderation: ModerationStatus | null
   onModerate(): void
+  /** A super moderator opens the profiles waiting for a verdict (0116). */
+  onProfiles?(): void
   /** The accepted words have been seen: the home screen's badge can go. */
   onSeen(): void
   /** Once per visit: the moderation queue may be topped up. */
   onOpen(): void
 }
 
-export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: RequestsPageProps) {
+export function RequestsPage({ moderation, onModerate, onProfiles, onSeen, onOpen }: RequestsPageProps) {
   const t = useT()
   const moderating = useFeature('moderation')
   const ideas = useFeature('ideasBox')
@@ -207,7 +209,10 @@ export function RequestsPage({ moderation, onModerate, onSeen, onOpen }: Request
 
   return (
     <>
-      {moderating && moderation?.moderator && moderation.queue >= MODERATION_MIN_QUEUE && <ModerationPanel status={moderation} onModerate={onModerate} />}
+      {moderating && moderation?.moderator && (moderation.queue >= MODERATION_MIN_QUEUE || (moderation.super && moderation.profiles > 0)) && (
+        <ModerationPanel status={moderation} onModerate={onModerate} onProfiles={onProfiles} />
+      )}
+      {moderation?.banned && <p className="note note--warn">{t.requests.banned}</p>}
       {server === 'loading' && <p className="note" role="status">{t.loading}</p>}
       {server === null && <p className="note">{t.requests.offline}</p>}
       {failed && <p className="note note--warn">{t.requests.failed}</p>}
@@ -441,8 +446,11 @@ function IdeaBox() {
   )
 }
 
-/** The moderator's corner of the page: their standing, and the button that deals the next five words. */
-function ModerationPanel({ status, onModerate }: { status: ModerationStatus; onModerate(): void }) {
+/**
+ * The moderator's corner of the page: their standing, their score, the button
+ * that deals the next five words, and for a super moderator the profiles to judge.
+ */
+function ModerationPanel({ status, onModerate, onProfiles }: { status: ModerationStatus; onModerate(): void; onProfiles?(): void }) {
   const t = useT()
   return (
     <section className={`moderation-panel${status.super ? ' moderation-panel--super' : ''}`}>
@@ -455,9 +463,26 @@ function ModerationPanel({ status, onModerate }: { status: ModerationStatus; onM
           <p className="note">{status.super ? t.moderation.superLead : t.moderation.lead}</p>
         </div>
       </div>
-      <button type="button" className="btn btn--blue btn--block" onClick={onModerate}>
-        {t.moderation.start(Math.min(MODERATION_SESSION_SIZE, status.queue))}
-      </button>
+      <div className="moderation-score">
+        {status.score === null ? (
+          <p className="note">{t.moderation.scoreSoon}</p>
+        ) : (
+          <>
+            <p className="moderation-score-value">{t.moderation.score(status.score)}</p>
+            <p className="note">{t.moderation.scoreLead}</p>
+          </>
+        )}
+      </div>
+      {status.queue >= MODERATION_MIN_QUEUE && (
+        <button type="button" className="btn btn--blue btn--block" onClick={onModerate}>
+          {t.moderation.start(Math.min(MODERATION_SESSION_SIZE, status.queue))}
+        </button>
+      )}
+      {status.super && status.profiles > 0 && onProfiles && (
+        <button type="button" className="btn btn--block" onClick={onProfiles}>
+          {t.moderation.profiles.open(status.profiles)}
+        </button>
+      )}
     </section>
   )
 }
