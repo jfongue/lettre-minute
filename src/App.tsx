@@ -481,9 +481,12 @@ setMenuPage(null)
   // their own best on the server's boards, or their runs alone while the
   // server is out of reach.
   const guest = host.guestBoards && (account === null || account.anonymous)
+  // A server that does not answer, on a device that has never read the boards
+  // (a reviewer's first launch), leaves the player's own runs rather than no
+  // leaderboard at all — signed in or not (CrazyGames review of 1.7.6).
   const homeBoards = useMemo(() => {
-    if (!guest) return boards
-    return boards ? withGuest(boards, { history, avatar, name: t.boards.me, tag: t.tag }) : localBoards(history, avatar, t.tag)
+    if (!boards) return history.length > 0 || guest ? localBoards(history, avatar, t.tag) : null
+    return guest ? withGuest(boards, { history, avatar, name: t.boards.me, tag: t.tag }) : boards
   }, [guest, boards, history, avatar, t])
   const features = useMemo(
     () => hostFeatures(enabledFeatures(storedFeatures.flags, roles), roles.superModerator),
