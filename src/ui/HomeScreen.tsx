@@ -235,7 +235,14 @@ const alone =
               )}
             </>
           )}
+        </div>
+      )}
 
+      {/* Les pages, hors de la colonne de droite : le cadre paysage les range
+          sous « Multijoueur » et laisse au classement toute sa hauteur ; le
+          téléphone les montre toujours en dernier. */}
+      {settled && pages.length > 0 && (
+        <div className="home-links cascade">
           <PageLinks pages={pages} avatar={avatar} badges={{ requests: requestsNews, categories: categoriesNews }} queueAlert={queueAlert} onOpen={onMenu} />
         </div>
       )}
