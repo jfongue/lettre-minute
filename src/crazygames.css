@@ -572,6 +572,56 @@ textarea {
    « Multiplayer » under them never push the title up over the poster, and
    the right column gives the leaderboard its rows back. */
 @media (orientation: landscape) and (max-height: 520px) {
+  /* Un cadre bas rend de la place au classement : le défi du moment tient sur
+     une ligne, sans son surtitre, et le classement perd la légende de sa
+     période — l'onglet Jour ou Semaine la dit déjà. */
+  .home-body .wk-card {
+    gap: 0.55rem;
+    padding: 0.25rem 0.45rem 0.25rem 0.25rem;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+
+  .home-body .wk-kicker {
+    display: none;
+  }
+
+  .home-body .wk-card-mark {
+    width: 2.2rem;
+    height: 2.2rem;
+    padding: 0.35rem;
+  }
+
+  .home-body .wk-card-text {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .home-body .wk-card-mode {
+    flex: none;
+    font-size: 1.05rem;
+  }
+
+  .home-body .wk-card-tickets {
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .home-body .wk-card-count {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.75rem;
+  }
+
+  .home-body .wk-card-go {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+
+  .home-body .boards > .spread > .note {
+    display: none;
+  }
+
   .sheet--home:not(.sheet--home-alone) {
     row-gap: min(0.6rem, 1.6vh);
   }
@@ -636,6 +686,12 @@ textarea {
 /* A narrow column (640 × 360): four tiles in a row would leave their labels
    a few pixels tall, so they go two by two, readable. */
 @media (orientation: landscape) and (max-height: 520px) and (max-width: 700px) {
+  /* Le défi n'a plus la largeur de dire ses tentatives : le billet suffit,
+     et son libellé reste celui de la carte pour un lecteur d'écran. */
+  .home-body .wk-card .wk-card-count {
+    display: none;
+  }
+
   /* La colonne de gauche n'a plus la hauteur de les porter sous
      « Multijoueur » : les pages repassent sous le classement, à droite. */
   .sheet--home:not(.sheet--home-alone) > .home-play {
