@@ -997,7 +997,28 @@ setStartedAt((at) => at ?? Date.now())
 
   usePlatformGameplay(session.phase, session.run?.score ?? null, session.profile.bestScore, tutorial === 'teaching')
 
-  const elapsed = useElapsed(session.phase === 'playing' ? startedAt : null)
+  // A host's full-screen ad over a run — one that opened late, after the run
+  // started — holds its clock: the player cannot play under it. Switching
+  // away from the tab still does not, as `useElapsed` says.
+  const [adOnScreen, setAdOnScreen] = useState(false)
+  useEffect(() => host.onAdBreak(setAdOnScreen), [])
+  const [heldSince, setHeldSince] = useState<number | null>(null)
+  const heldSinceRef = useRef<number | null>(null)
+  const adHolds = adOnScreen && session.phase === 'playing' && startedAt !== null
+  useEffect(() => {
+    if (adHolds) {
+      heldSinceRef.current ??= Date.now()
+      setHeldSince(heldSinceRef.current)
+      return
+    }
+    const since = heldSinceRef.current
+    if (since === null) return
+    heldSinceRef.current = null
+    setStartedAt((at) => (at === null ? at : at + (Date.now() - since)))
+    setHeldSince(null)
+  }, [adHolds])
+
+  const elapsed = useElapsed(session.phase === 'playing' ? startedAt : null, heldSince)
   const remaining = session.run ? remainingSeconds(session.run, elapsed) : 0
   // La musique se tend sur le temps écoulé du mode joué : l'endurance n'a que
   // trente secondes, elle n'entre donc pas déjà au deuxième palier.

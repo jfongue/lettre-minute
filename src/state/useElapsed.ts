@@ -5,15 +5,21 @@ const TICK_MS = 100
 /**
  * Seconds since `startedAt`, read from the wall clock on every frame rather
  * than accumulated: a backgrounded tab suspends requestAnimationFrame but not
- * the clock, so a run cannot be paused by switching away from it.
+ * the clock, so a run cannot be paused by switching away from it. Only a
+ * host's ad holds it (`heldSince`): the reading stops there, and the caller
+ * moves `startedAt` forward by the ad's length once it is gone.
  */
-export function useElapsed(startedAt: number | null): number {
+export function useElapsed(startedAt: number | null, heldSince: number | null = null): number {
   // Tagged with the start it was measured from: on a replay, the previous run's
   // last reading must not leak into the first render of the next one.
   const [reading, setReading] = useState({ from: startedAt, elapsed: 0 })
 
   useEffect(() => {
     if (startedAt === null) return
+    if (heldSince !== null) {
+      setReading({ from: startedAt, elapsed: (Math.floor((heldSince - startedAt) / TICK_MS) * TICK_MS) / 1000 })
+      return
+    }
 
     let frame = 0
     let shown = -1
@@ -30,7 +36,7 @@ export function useElapsed(startedAt: number | null): number {
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [startedAt])
+  }, [startedAt, heldSince])
 
   // Derived rather than reset in the effect: between two runs the hook answers
   // zero without a render pass of its own.

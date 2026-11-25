@@ -258,6 +258,22 @@ const muteListeners = new Set<(muted: boolean) => void>()
 let adPlaying = false
 let portalMuted = false
 
+const adBreakListeners = new Set<(covered: boolean) => void>()
+
+/** An ad starts or ends, even one that started after the game gave up on it. */
+function setAdPlaying(playing: boolean): void {
+  if (playing === adPlaying) return
+  adPlaying = playing
+  announceMute()
+  for (const listener of adBreakListeners) listener(playing)
+}
+
+/** True while a portal ad covers the game: the run's clock holds. */
+function onAdBreak(listener: (covered: boolean) => void): void {
+  adBreakListeners.add(listener)
+  listener(adPlaying)
+}
+
 function announceMute(): void {
   for (const listener of muteListeners) listener(adPlaying || portalMuted)
 }
@@ -298,9 +314,7 @@ function requestPortalAd(type: 'midgame' | 'rewarded'): Promise<boolean> {
   return new Promise((resolve) => {
     let done = false
     const stopPlaying = () => {
-      if (!adPlaying) return
-      adPlaying = false
-      announceMute()
+      setAdPlaying(false)
     }
     const finish = (shown: boolean) => {
       stopPlaying()
@@ -314,8 +328,7 @@ function requestPortalAd(type: 'midgame' | 'rewarded'): Promise<boolean> {
     try {
       const answer: unknown = sdk.ad.requestAd(type, {
         adStarted: () => {
-          adPlaying = true
-          announceMute()
+          setAdPlaying(true)
           if (done) return
           clearTimeout(timer)
           timer = setTimeout(() => finish(false), AD_TIMEOUT_MS)
@@ -755,4 +768,5 @@ export const crazyGamesHost: Host = {
   breakAfterRecap: () => Promise.resolve('none'),
   midgame,
   onMute: onPlatformMute,
+  onAdBreak,
 }

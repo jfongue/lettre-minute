@@ -109,6 +109,12 @@ export interface Host {
   midgame(adFree: boolean): Promise<AdBreak>
   /** Called with true while the host wants silence — its own mute, an ad — and false once it lets go. */
   onMute(listener: (muted: boolean) => void): void
+  /**
+   * Called with true while a full-screen ad covers the game, whenever it came
+   * — one that opens late, after the run started, included — and false once it
+   * is gone: the run's clock holds meanwhile.
+   */
+  onAdBreak(listener: (covered: boolean) => void): void
 }
 
 export interface HostRooms {
@@ -187,4 +193,5 @@ export const quiet = {
   breakAfterRecap: (): Promise<AdBreak> => Promise.resolve('none'),
   midgame: (): Promise<AdBreak> => Promise.resolve('none'),
   onMute(): void {},
+  onAdBreak(): void {},
 }

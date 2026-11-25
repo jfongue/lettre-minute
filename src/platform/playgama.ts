@@ -28,6 +28,8 @@ interface Bridge {
   advertisement: {
     isInterstitialSupported: boolean
     isRewardedSupported: boolean
+    interstitialState?: AdState
+    rewardedState?: AdState
     showInterstitial(placement?: string): void
     showRewarded(placement?: string): void
     on(event: string, listener: (state: AdState) => void): void
@@ -84,8 +86,8 @@ export async function initPlaygama(): Promise<void> {
     }
     candidate.platform.on('audio_state_changed', follow)
     candidate.platform.on('pause_state_changed', follow)
-    candidate.advertisement.on('interstitial_state_changed', (state) => adListener?.('interstitial', state))
-    candidate.advertisement.on('rewarded_state_changed', (state) => adListener?.('rewarded', state))
+    candidate.advertisement.on('interstitial_state_changed', (state) => adStateChanged('interstitial', state))
+    candidate.advertisement.on('rewarded_state_changed', (state) => adStateChanged('rewarded', state))
   } catch {
     bridge = null
   }
@@ -185,11 +187,36 @@ function platformLanguages(): readonly string[] {
 }
 
 const muteListeners = new Set<(muted: boolean) => void>()
-let adPlaying = false
+const adBreakListeners = new Set<(covered: boolean) => void>()
 let platformSilent = false
 
+// Followed for every ad the Bridge reports, not only the one the game waits
+// for: an ad the game gave up on may still open later, over a run.
+const adsOnScreen = new Set<'interstitial' | 'rewarded'>()
+
+function adPlaying(): boolean {
+  return adsOnScreen.size > 0
+}
+
+function adStateChanged(kind: 'interstitial' | 'rewarded', state: AdState): void {
+  const before = adPlaying()
+  if (state === 'opened') adsOnScreen.add(kind)
+  else if (state === 'closed' || state === 'failed') adsOnScreen.delete(kind)
+  if (adPlaying() !== before) {
+    announceMute()
+    for (const listener of adBreakListeners) listener(adPlaying())
+  }
+  adListener?.(kind, state)
+}
+
+/** True while a Bridge ad covers the game: the run's clock holds. */
+function onAdBreak(listener: (covered: boolean) => void): void {
+  adBreakListeners.add(listener)
+  listener(adPlaying())
+}
+
 function announceMute(): void {
-  for (const listener of muteListeners) listener(adPlaying || platformSilent)
+  for (const listener of muteListeners) listener(adPlaying() || platformSilent)
 }
 
 /**
@@ -199,16 +226,22 @@ function announceMute(): void {
  */
 function onPlatformMute(listener: (muted: boolean) => void): void {
   muteListeners.add(listener)
-  listener(adPlaying || platformSilent)
+  listener(adPlaying() || platformSilent)
 }
 
 /**
  * An ad that never calls back must not hold the next run forever. The Bridge
- * answers `failed` at once to an interstitial too close to the last one, so a
- * silent wait is a broken one; an ad that actually plays gets the length of one.
+ * answers `failed` at once to an interstitial too close to the last one, or
+ * `loading` while the portal fetches it, so a silent wait is a broken one. An
+ * ad still loading gets longer: the portal's video ads take more than ten
+ * seconds, and a run started meanwhile had the ad open over it. One that
+ * actually plays gets the length of one.
  */
 const AD_START_MS = 10_000
+const AD_LOAD_MS = 30_000
 const AD_TIMEOUT_MS = 60_000
+
+const BUSY: readonly (AdState | undefined)[] = ['loading', 'opened']
 
 let adListener: ((kind: 'interstitial' | 'rewarded', state: AdState) => void) | null = null
 
@@ -227,19 +260,16 @@ function playAd(kind: 'interstitial' | 'rewarded'): Promise<boolean> {
       done = true
       clearTimeout(timer)
       adListener = null
-      if (adPlaying) {
-        adPlaying = false
-        announceMute()
-      }
       resolve(shown)
     }
     let timer = setTimeout(() => finish(false), AD_START_MS)
     // Set before the call: the Bridge answers a refused ad within it.
     adListener = (asked, state) => {
       if (asked !== kind) return
-      if (state === 'opened') {
-        adPlaying = true
-        announceMute()
+      if (state === 'loading') {
+        clearTimeout(timer)
+        timer = setTimeout(() => finish(false), AD_LOAD_MS)
+      } else if (state === 'opened') {
         clearTimeout(timer)
         timer = setTimeout(() => finish(false), AD_TIMEOUT_MS)
       } else if (state === 'rewarded') paid = true
@@ -247,8 +277,19 @@ function playAd(kind: 'interstitial' | 'rewarded'): Promise<boolean> {
       else if (state === 'failed') finish(false)
     }
     try {
-      if (kind === 'interstitial') bridge.advertisement.showInterstitial()
-      else bridge.advertisement.showRewarded()
+      const { advertisement } = bridge
+      // The Bridge silently drops a request while an ad of either kind is under
+      // way: wait for that one to end instead of asking again.
+      if (BUSY.includes(advertisement.interstitialState) || BUSY.includes(advertisement.rewardedState)) {
+        clearTimeout(timer)
+        timer = setTimeout(() => finish(false), AD_LOAD_MS)
+        const waiting = adListener
+        adListener = (asked, state) => {
+          if (state === 'closed' || state === 'failed') finish(false)
+          else waiting?.(asked, state)
+        }
+      } else if (kind === 'interstitial') advertisement.showInterstitial()
+      else advertisement.showRewarded()
     } catch {
       finish(false)
     }
@@ -420,4 +461,5 @@ export const playgamaHost: Host = {
   breakAfterRecap: () => Promise.resolve('none'),
   midgame,
   onMute: onPlatformMute,
+  onAdBreak,
 }
