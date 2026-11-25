@@ -1,3 +1,4 @@
+import type { AchievementId } from '../domain/achievements'
 import type { FeatureId } from '../domain/features'
 import type { Locale } from '../i18n'
 
@@ -115,6 +116,14 @@ export interface Host {
    * is gone: the run's clock holds meanwhile.
    */
   onAdBreak(listener: (covered: boolean) => void): void
+  /**
+   * Whether the host may show its banner now: the run and the screens that
+   * close it ask for one, every other screen takes it away. A host without
+   * banners ignores both.
+   */
+  setBanner(wanted: boolean): void
+  /** Every achievement the player holds, at launch and after each change; the host sends each new one once. */
+  unlockAchievements(ids: readonly AchievementId[]): void
 }
 
 export interface HostRooms {
@@ -194,4 +203,6 @@ export const quiet = {
   midgame: (): Promise<AdBreak> => Promise.resolve('none'),
   onMute(): void {},
   onAdBreak(): void {},
+  setBanner(): void {},
+  unlockAchievements(): void {},
 }

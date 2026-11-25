@@ -1874,3 +1874,19 @@ ligne d'ordre, le tour et la tuile elle-même — plutôt que de faire défiler.
     overflow-wrap: normal;
   }
 }
+
+/* A partner portal's banner strip (Playgama's advanced banners, `run` in
+   playgama-bridge-config.json) lies over the bottom 12 % of the window: while
+   one shows (`data-portal-banner`, set by src/platform/playgama.ts), every
+   screen keeps that band free, so it never covers a button. */
+:root[data-portal-banner] .stage {
+  padding-bottom: calc(12vh + 0.75rem);
+}
+
+:root[data-portal-banner] .mute {
+  bottom: calc(12vh + 0.75rem);
+}
+
+:root[data-portal-banner] .offer-pop-layer {
+  --pop-bottom: calc(12vh + var(--gutter));
+}

@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import config from '../../playgama/public/playgama-bridge-config.json'
+import { ACHIEVEMENTS, isNamed } from '../domain/achievements'
 
 type AdState = 'loading' | 'opened' | 'closed' | 'rewarded' | 'failed'
 
@@ -8,32 +10,44 @@ afterEach(() => {
 })
 
 /** The Bridge as the portal runs it: each ad request is answered by `answer`, later, by hand. */
-async function withBridge() {
+async function withBridge(unlocked: string[] = []) {
   vi.resetModules()
-  const listeners = new Map<string, (state: AdState) => void>()
+  const listeners = new Map<string, (state: string) => void>()
   const advertisement = {
+    isAdvancedBannersSupported: true,
+    showAdvancedBanners: vi.fn(),
+    hideAdvancedBanners: vi.fn(),
     isInterstitialSupported: true,
     isRewardedSupported: true,
     interstitialState: 'closed' as AdState,
     rewardedState: 'closed' as AdState,
     showInterstitial: vi.fn(),
     showRewarded: vi.fn(),
-    on: (event: string, listener: (state: AdState) => void) => void listeners.set(event, listener),
+    on: (event: string, listener: (state: string) => void) => void listeners.set(event, listener),
   }
   const bridge = {
     initialize: () => Promise.resolve(),
     platform: { id: 'playgama', language: 'en', isAudioEnabled: true, isPaused: false, sendMessage: () => Promise.resolve(), on() {} },
     advertisement,
     storage: { get: () => Promise.resolve([]), set: () => Promise.resolve(), delete: () => Promise.resolve() },
+    analytics: { send: vi.fn() },
+    achievements: {
+      unlock: vi.fn(() => Promise.resolve()),
+      getAchievements: () => Promise.resolve(unlocked.map((id) => ({ id, unlocked: true }))),
+    },
   }
+  const root = { dataset: {} as Record<string, string> }
   vi.stubGlobal('window', { bridge })
+  vi.stubGlobal('document', { documentElement: root })
   const portal = await import('./playgama')
   await portal.initPlaygama()
   const interstitial = (state: AdState) => {
     advertisement.interstitialState = state
     listeners.get('interstitial_state_changed')?.(state)
   }
-  return { host: portal.playgamaHost, advertisement, interstitial }
+  const banner = (state: string) => listeners.get('advanced_banners_state_changed')?.(state)
+  const feature = await import('../lib/feature')
+  return { host: portal.playgamaHost, advertisement, interstitial, banner, root, bridge, trackFeature: feature.trackFeature }
 }
 
 describe('les pubs du Bridge', () => {
@@ -76,5 +90,51 @@ describe('les pubs du Bridge', () => {
     interstitial('opened')
     interstitial('closed')
     expect(covered).toEqual([false, true, false])
+  })
+})
+
+describe('la bannière du Bridge', () => {
+  it('ne réserve sa bande qu’une fois la bannière affichée, et la rend à son retrait', async () => {
+    const { host, advertisement, banner, root } = await withBridge()
+    host.setBanner(true)
+    expect(advertisement.showAdvancedBanners).toHaveBeenCalledWith('run')
+    expect('portalBanner' in root.dataset).toBe(false)
+    banner('shown')
+    expect('portalBanner' in root.dataset).toBe(true)
+    host.setBanner(false)
+    expect(advertisement.hideAdvancedBanners).toHaveBeenCalledTimes(1)
+    expect('portalBanner' in root.dataset).toBe(false)
+  })
+
+  it('ne laisse pas de bande vide pour une bannière qui échoue', async () => {
+    const { host, banner, root } = await withBridge()
+    host.setBanner(true)
+    banner('failed')
+    expect('portalBanner' in root.dataset).toBe(false)
+  })
+})
+
+describe('les événements du jeu', () => {
+  it('partent à l’analytics du Bridge, à plat, sauf les pubs qu’il compte déjà', async () => {
+    const { bridge, trackFeature } = await withBridge()
+    trackFeature('power_used', { power: 'joker', count: 2, tags: ['a', 'b'], none: null })
+    trackFeature('ad', { source: 'midgame' })
+    expect(bridge.analytics.send).toHaveBeenCalledTimes(1)
+    expect(bridge.analytics.send).toHaveBeenCalledWith('power_used', { power: 'joker', count: 2, tags: 'a,b' })
+  })
+})
+
+describe('les succès du Bridge', () => {
+  it('envoie une fois chaque succès nommé qu’il n’a pas déjà', async () => {
+    const { host, bridge } = await withBridge(['level_4'])
+    host.unlockAchievements(['level-4', 'runs-10'])
+    host.unlockAchievements(['runs-10'])
+    await vi.waitFor(() => expect(bridge.achievements.unlock).toHaveBeenCalledTimes(1))
+    expect(bridge.achievements.unlock).toHaveBeenCalledWith('runs_10')
+  })
+
+  it('déclare dans la config exactement les succès nommés du jeu', () => {
+    const named = ACHIEVEMENTS.filter((achievement) => isNamed(achievement.id)).map((achievement) => achievement.id.replace(/-/g, '_'))
+    expect(config.achievements.map((achievement) => achievement.id).sort()).toEqual([...named].sort())
   })
 })

@@ -1,4 +1,6 @@
-import { trackFeature } from '../lib/feature'
+import { isNamed, type AchievementId } from '../domain/achievements'
+import { setFeatureSink, trackFeature } from '../lib/feature'
+import type { Props } from '../lib/track'
 import { APP_ONLY_FEATURES, SERVER_FEATURES, SUPER_MODERATOR_FEATURES, type AdBreak, type Host, type RewardedResult } from './host'
 import { fitHistory, HISTORY_KEY, SAVED_KEYS } from './saves'
 
@@ -14,6 +16,7 @@ import { fitHistory, HISTORY_KEY, SAVED_KEYS } from './saves'
  */
 
 type AdState = 'loading' | 'opened' | 'closed' | 'rewarded' | 'failed'
+type BannerState = 'loading' | 'shown' | 'hidden' | 'failed'
 
 interface Bridge {
   initialize(): Promise<void>
@@ -30,9 +33,20 @@ interface Bridge {
     isRewardedSupported: boolean
     interstitialState?: AdState
     rewardedState?: AdState
+    isAdvancedBannersSupported?: boolean
     showInterstitial(placement?: string): void
     showRewarded(placement?: string): void
+    showAdvancedBanners?(placement?: string): void
+    hideAdvancedBanners?(): void
+    on(event: 'advanced_banners_state_changed', listener: (state: BannerState) => void): void
     on(event: string, listener: (state: AdState) => void): void
+  }
+  analytics?: {
+    send(name: string, data?: Record<string, string | number | boolean>): void
+  }
+  achievements?: {
+    unlock(id: string): Promise<unknown>
+    getAchievements(): Promise<{ id: string; unlocked: boolean }[]>
   }
   storage: {
     get(keys: string[], tryParseJson?: boolean): Promise<unknown>
@@ -88,6 +102,9 @@ export async function initPlaygama(): Promise<void> {
     candidate.platform.on('pause_state_changed', follow)
     candidate.advertisement.on('interstitial_state_changed', (state) => adStateChanged('interstitial', state))
     candidate.advertisement.on('rewarded_state_changed', (state) => adStateChanged('rewarded', state))
+    candidate.advertisement.on('advanced_banners_state_changed', reserveBanner)
+    setFeatureSink(sendFeature)
+    unlockedRead = readUnlocked()
   } catch {
     bridge = null
   }
@@ -392,6 +409,91 @@ export async function restoreSavedProgress(): Promise<void> {
 }
 
 /**
+ * The banner strip along the bottom of the window (`run` in
+ * `playgama-bridge-config.json`, 12 % of its height): the Bridge lays it over
+ * the page, so the page keeps that much free below the game — `crazygames.css`
+ * reads `data-portal-banner` — but only while one actually shows, never an
+ * empty band for a banner that failed. The Bridge hides it under a
+ * full-screen ad and brings it back by itself.
+ */
+const BANNER_PLACEMENT = 'run'
+let bannerWanted = false
+
+function reserveBanner(state: BannerState): void {
+  try {
+    if (state === 'shown') document.documentElement.dataset.portalBanner = ''
+    else if (state === 'hidden' || state === 'failed') delete document.documentElement.dataset.portalBanner
+  } catch {
+    /* no document: nothing to lay out */
+  }
+}
+
+function setBanner(wanted: boolean): void {
+  if (wanted === bannerWanted) return
+  bannerWanted = wanted
+  safely((b) => {
+    if (!b.advertisement.isAdvancedBannersSupported) return
+    if (wanted) b.advertisement.showAdvancedBanners?.(BANNER_PLACEMENT)
+    else b.advertisement.hideAdvancedBanners?.()
+  })
+  if (!wanted) reserveBanner('hidden')
+}
+
+/**
+ * Every feature event goes to the Bridge's analytics, Playgama's only way in
+ * (it refuses outside analytics), flat as it asks. An ad is left out: the
+ * Bridge records its own.
+ */
+function sendFeature(name: string, props: Props): void {
+  if (name === 'ad') return
+  const data: Record<string, string | number | boolean> = {}
+  for (const [key, value] of Object.entries(props)) {
+    if (value === null) continue
+    data[key] = Array.isArray(value) ? value.join(',') : (value as string | number | boolean)
+  }
+  safely((b) => b.analytics?.send(name, data))
+}
+
+/**
+ * The achievements the Bridge knows (`playgama-bridge-config.json`, the named
+ * ones: the ladder's rungs are the grid's alone), each sent once: what it
+ * already holds is read at start, what this session sent is remembered.
+ */
+const sentAchievements = new Set<string>()
+let unlockedRead: Promise<void> = Promise.resolve()
+
+async function readUnlocked(): Promise<void> {
+  try {
+    const held = await bridge?.achievements?.getAchievements()
+    for (const achievement of held ?? []) if (achievement.unlocked) sentAchievements.add(achievement.id)
+  } catch {
+    /* unknown: each one is sent, and the Bridge ignores a repeat */
+  }
+}
+
+/** The Bridge's id for one of the game's: snake_case, as its config wants. */
+export function bridgeAchievementId(id: AchievementId): string {
+  return id.replace(/-/g, '_')
+}
+
+function unlockAchievements(ids: readonly AchievementId[]): void {
+  void unlockedRead.then(() => sendAchievements(ids))
+}
+
+function sendAchievements(ids: readonly AchievementId[]): void {
+  safely((b) => {
+    const achievements = b.achievements
+    if (!achievements) return
+    for (const id of ids) {
+      const bridgeId = bridgeAchievementId(id)
+      if (!isNamed(id) || sentAchievements.has(bridgeId)) continue
+      sentAchievements.add(bridgeId)
+      void achievements.unlock(bridgeId).catch(() => sentAchievements.delete(bridgeId))
+    }
+  })
+}
+
+/**
  * The server a Playgama player reaches, as on CrazyGames: the boards a guest
  * reads, and — since `playgama-auth` (0114) gives a named account to whoever
  * is signed in to the portal — the friends, the face-off with them, the duel
@@ -462,4 +564,6 @@ export const playgamaHost: Host = {
   midgame,
   onMute: onPlatformMute,
   onAdBreak,
+  setBanner,
+  unlockAchievements,
 }

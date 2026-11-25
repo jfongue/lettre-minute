@@ -769,4 +769,8 @@ export const crazyGamesHost: Host = {
   midgame,
   onMute: onPlatformMute,
   onAdBreak,
+  // The portal's banners come through its own SDK, not wired yet; its
+  // achievements are the game's own, shown in the game.
+  setBanner(): void {},
+  unlockAchievements(): void {},
 }

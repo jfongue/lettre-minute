@@ -127,7 +127,7 @@ import { FeedbackPop } from './ui/FeedbackPop'
 import { RatingPop } from './ui/RatingPop'
 import type { BanActions } from './ui/CategoriesPage'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
-import { avatarNewsDue, ownsEveryDesign } from './domain/achievements'
+import { avatarNewsDue, earnedAchievements, ownsEveryDesign } from './domain/achievements'
 import { initialSession, sessionReducer, type Proposal } from './state/session'
 import {
   clearLocalData,
@@ -996,6 +996,22 @@ setStartedAt((at) => at ?? Date.now())
 
 
   usePlatformGameplay(session.phase, session.run?.score ?? null, session.profile.bestScore, tutorial === 'teaching')
+
+  // The host's banner, on the run and the screens that close it: never for
+  // Premium, nor when the ads between runs are closed.
+  const bannerWanted =
+    (session.phase === 'countdown' || session.phase === 'playing' || session.phase === 'over') &&
+    tutorial !== 'teaching' &&
+    !isPlus(session.profile) &&
+    on('adBreaks')
+  useEffect(() => host.setBanner(bannerWanted), [bannerWanted])
+
+  // Every achievement held, for a host that keeps them (Playgama's Bridge): at
+  // launch and after each change, the host sending only the new ones.
+  useEffect(() => {
+    if (!answered.profile) return
+    host.unlockAchievements(earnedAchievements(session.profile, discoveries ?? undefined))
+  }, [answered.profile, session.profile, discoveries])
 
   // A host's full-screen ad over a run — one that opened late, after the run
   // started — holds its clock: the player cannot play under it. Switching

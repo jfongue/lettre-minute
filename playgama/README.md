@@ -37,7 +37,17 @@ Ce que l'hôte fait :
 - Score de chaque partie envoyé au classement du portail partenaire quand il
   en a un (`best_score`, `playgama-bridge-config.json`) ; Playgama lui-même
   n'en a pas, ses classements sont ceux du serveur.
-- Aucun suivi d'usage (Playgama refuse les analytics externes).
+- Bannière avancée du Bridge (`run`, 12 % du bas de la fenêtre) pendant la
+  partie, son récap et son bilan, jamais pour un Premium ; la page ne réserve
+  sa bande (`data-portal-banner`, `crazygames.css`) que quand elle s'affiche.
+  Prise en charge sur playgama et msn seulement.
+- Les événements `trackFeature` partent à l'analytics du Bridge (sauf `ad`,
+  que le Bridge compte lui-même) ; aucun autre suivi d'usage (Playgama refuse
+  les analytics externes).
+- Les succès nommés (Play Games et exploits) sont déclarés dans
+  `playgama-bridge-config.json` en snake_case et envoyés une fois chacun ;
+  natifs seulement sur Y8 et Lagged, suivis localement par le Bridge ailleurs.
+- Une pub plein écran fige le chrono de la partie, même ouverte en retard.
 
 Mise en ligne de la connexion : `supabase db push --linked --yes` (0114), puis
 `supabase functions deploy playgama-auth --no-verify-jwt --use-api`.
