@@ -1,5 +1,22 @@
 # Update notes for CrazyGames review
 
+## 1.7.7
+
+1.7.7 is 1.7.6 with the following.
+
+- **The leaderboard always shows on the home.** In 1.7.6 a signed-in player
+  whose first launch met a server that did not answer saw no leaderboard at
+  all, as in the review's screenshot. The home now shows the last board it
+  read for the current day or week, and on a first launch, the player's own
+  runs, as it already did for guests. The leaderboards page keeps its last
+  boards the same way.
+- **The leaderboard opens on the week** when nobody has played yet today.
+- **A taller leaderboard in landscape.** Profile, Statistics, Requests and
+  Categories now sit under « Multiplayer » in the left column, so the
+  leaderboard runs down to the frame's bottom. In a low frame, the challenge
+  of the moment takes a single line and the board's period caption goes, so
+  the board shows a row more (854 × 410: three rows instead of two).
+
 ## 1.7.6
 
 1.7.6 is 1.7.5 with the following.
