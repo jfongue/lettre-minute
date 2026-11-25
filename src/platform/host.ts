@@ -2,7 +2,7 @@ import type { FeatureId } from '../domain/features'
 import type { Locale } from '../i18n'
 
 /** Where the game runs: the versions built from this one code (CLAUDE.md, « Plateformes »). */
-export type Platform = 'android' | 'web' | 'crazygames' | 'playgama' | 'reddit'
+export type Platform = 'android' | 'web' | 'crazygames' | 'playgama' | 'reddit' | 'y8'
 
 /**
  * What really differs from one version to the next, asked by the shared code

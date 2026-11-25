@@ -21,14 +21,14 @@ export const HISTORY_KEY = 'lettre-minute.history.v1'
 // key that grows with every run, is cut to its latest runs to stay well under.
 const DATA_BUDGET = 900_000
 
-export function fitHistory(value: string, others: number): string {
-  if (value.length + others <= DATA_BUDGET) return value
+export function fitHistory(value: string, others: number, budget = DATA_BUDGET): string {
+  if (value.length + others <= budget) return value
   try {
     const runs: unknown = JSON.parse(value)
     if (!Array.isArray(runs)) return '[]'
     let kept = runs
     let text = value
-    while (kept.length > 0 && text.length + others > DATA_BUDGET) {
+    while (kept.length > 0 && text.length + others > budget) {
       kept = kept.slice(0, Math.floor(kept.length * 0.8))
       text = JSON.stringify(kept)
     }
