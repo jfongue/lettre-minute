@@ -2,7 +2,8 @@
 
 ## 1.7.7
 
-1.7.7 is 1.7.6 with the following.
+Sent for review on 25 November 2026, after 1.7.6 was sent back for a
+leaderboard missing from the home. 1.7.7 is 1.7.6 with the following.
 
 - **The leaderboard always shows on the home.** In 1.7.6 a signed-in player
   whose first launch met a server that did not answer saw no leaderboard at
