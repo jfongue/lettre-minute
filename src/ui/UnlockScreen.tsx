@@ -5,7 +5,6 @@ import { loadPack } from '../data/packs'
 import { categoryText, useT } from '../i18n'
 import { showInterstitial, tapFeedback } from '../lib/native'
 import { sound } from '../lib/sound'
-import { trackFeature } from '../lib/feature'
 import { Burst, Shape } from './bauhaus'
 import { categoryMotif, onTint } from './motifs'
 import { CategoryIcon } from './CategoryIcon'
@@ -83,7 +82,7 @@ export function UnlockScreen({ lang, onChoose, onDone, ...dealt }: UnlockScreenP
   finish.current = onDone
   const done = () => {
     finish.current()
-    if (withAd) trackFeature('ad', { source: 'offer', result: showInterstitial() ? 'shown' : 'unavailable' })
+    if (withAd) showInterstitial()
   }
 
   useEffect(() => {

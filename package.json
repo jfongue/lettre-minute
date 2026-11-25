@@ -18,7 +18,6 @@
     "import:words": "node --experimental-strip-types scripts/import-words.ts",
     "seed:moderation": "node --experimental-strip-types scripts/moderation-reserve.ts",
     "ban:sync": "node --experimental-strip-types scripts/ban-sync.ts",
-    "analytics": "node --experimental-strip-types scripts/analytics.ts",
     "import:names": "node --experimental-strip-types scripts/first-names.ts",
     "words:drift": "node --experimental-strip-types scripts/words-drift.ts",
     "web:publish": "scripts/publish-web.sh",

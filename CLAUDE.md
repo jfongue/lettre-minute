@@ -379,8 +379,7 @@ sur le téléphone, après le récap des mots et avant le bilan, à la 3e, 7e, 1
 CrazyGames, `MIDGAME_BREAKS`), par `host.breakAfterRecap`
 (`src/platform/app.ts`), jamais pour un Premium (`isPlus` : la pause épargnée
 compte dans `adsSkipped`) ni quand la fonctionnalité `adBreaks` (ouverte par
-défaut) est fermée, et rien dans un navigateur. Chaque pause due est comptée
-au tableau de bord (`ad`, source `midgame`, `shown` ou `unavailable`).
+défaut) est fermée, et rien dans un navigateur.
 `ADS_ENABLED` (`src/domain/unlocks.ts`) et la fonctionnalité `ads` ne
 coupent que l'interstitiel d'une offre de catégorie, qui reste éteint ; la
 récompense du bilan et la tentative de plus au défi du moment passent par
@@ -495,8 +494,8 @@ propre téléphone.
   catégories : le serveur ne garde que les totaux. Ils se déduisent du niveau
   (`powerPicksOwed`), donc un autre appareil se les voit simplement reproposer.
   Seule exception, la partie envoyée emporte les pouvoirs qu'elle a joués
-  (`runs.powers`, 0025) : le tableau de bord en tire « quels pouvoirs
-  sortent » et ce qu'ils rapportent, et rien d'autre ne les relit. Une partie de robot ou de défi n'en porte aucun.
+  (`runs.powers`, 0025) : la fiche d'un joueur (`spy_profile`) en tire ce
+  qu'ils rapportent. Une partie de robot ou de défi n'en porte aucun.
 
 - **Un défi n'est équitable que si tout le monde tire les mêmes couples** :
   même graine, mêmes catégories, `avoid` vide, et pas de mots de la
@@ -703,20 +702,14 @@ propre téléphone.
   exploits ont un nom dans `fr.ts` (`NamedAchievementId`) ; un barreau se nomme
   par son jalon (`t.avatar.milestone`), que les sept langues traduisent déjà.
 
-- **Le suivi d'usage ne lève jamais et ne bloque rien** (`src/lib/track.ts`,
-  0029) : les événements s'empilent dans une file de l'appareil, partent par
-  lots de cent toutes les minutes et au passage en arrière-plan, et
-  une ouverture sans partie se lit dans les sessions sans `run_start`. Les
-  touches et les écrans ne se suivent plus (0110, deux tiers des événements
-  pour rien) : seules partent les touches d'invitation, nommées `invite-…`
-  par leur `data-track`, que le tableau de bord compte.
-  L'invité CrazyGames, sans compte, envoie les siens sous le rôle `anon`, que
-  `track` n'accepte que pour cette version et par appareil (0084). Une
-  ouverture dit si la précédente a fini sans passer en arrière-plan
-  (`unclean`, crash ou app tuée), un `hide` les gels qu'il a vus. Le
-  relevé (`analytics_snapshot`) reste fermé à l'app : elle ne le lit que par
-  `admin_analytics` (0030), qui ne rend rien à qui n'est pas dans `admins`,
-  et l'artefact par `npm run analytics`.
+- **Il n'y a plus de tableau de bord ni de suivi d'usage** (0115) : le relevé
+  (`refresh_dashboard`, les `analytics_*`) et la table `events` étaient le
+  premier poste d'entrées-sorties de la base, au point d'épuiser son budget
+  disque et de ralentir classements, notifications et joueurs maison
+  (novembre 2026). Ne pas les rétablir sous une autre forme : une mesure
+  d'usage, si elle revient, se lit dans un outil externe, pas dans la base du
+  jeu. Un client ancien qui envoie encore `track` reçoit PGRST202 et jette son
+  lot.
 
 - **Le premier bundle ne porte que l'accueil** : les autres écrans sont des
   `lazyScreen` (`src/ui/lazyScreen.ts`) préchargés une fois l'accueil posé,
@@ -831,8 +824,7 @@ propre téléphone.
 
 - **Tout écran difficile d'accès a son scénario dans `src/debug/DebugBoard.tsx`**
   (fin de partie avec offre, défi, offre de modérateur, notification…) : dès
-  qu'on en crée un, on l'y ajoute. Le tableau de bord a le sien
-  (`leaderboards-advanced`). On l'ouvre par cinq tapes rapides sur
+  qu'on en crée un, on l'y ajoute. On l'ouvre par cinq tapes rapides sur
   la tuile en haut à droite de l'affiche d'accueil, ou `#debug` sur le web, dans n'importe quel
   build — pour qui la fonctionnalité `debugBoard` est ouverte, les super
   modérateurs par défaut. Elle montre les vrais composants avec des données inventées et
@@ -844,31 +836,12 @@ propre téléphone.
 - **Le bouton quitter reste à gauche** : le coin haut droit de l'affiche est
   celui des cinq tapes qui ouvrent la planche, un bouton au même endroit la
   refermait aussitôt.
-- **Le tableau de bord remplace les classements avancés** (`src/debug/Dashboard.tsx`) :
-  cinq tapes rapprochées sur le mot « Classement » — le titre de l'accueil ou
-  celui de la page des classements — l'ouvrent par-dessus tout, posé sur
-  `body` parce que le tiroir du menu est trop étroit. C'est la page de
-  l'artefact, mêmes sections, lue à l'ouverture (`fetchDashboard`) ; un
-  joueur qui n'est pas administrateur n'y voit que « réservé ». Outil de
-  développeur, donc libellés français hors de l'i18n ; les noms de pouvoirs
-  et de catégories viennent de l'interface. Une section ajoutée au relevé
-  s'ajoute à `src/debug/snapshot.ts`, puis aux deux vues. Depuis 0036,
-  `analytics_snapshot` n'est que `analytics_core` (le corps de 0031) fusionné
-  à `analytics_extras` (invitations, couples passés) : une section nouvelle
-  va dans l'une des deux, sans réécrire l'autre. Toucher une barre
-  d'activité ou d'invitations nomme ses joueurs (`admin_slot`), filtrés
-  côté client par la même règle que la série (`COUNTS`). « Fonctions utilisées »
-  (0094, `analytics_usage`) lit les événements `feature` (`trackFeature`, via
-  `src/lib/feature.ts` depuis un écran partagé ou `cloud.ts`) sur 1/7/14/30 jours
-  et montre « jamais » pour ce que le relevé ne voit pas : une fonction nouvelle
-  entre dans `FEATURE_GROUPS` (`Dashboard.tsx`), sinon elle tombe sous « Autres ».
-  La réserve de modération au fil des jours se reconstruit de `released_at` et
-  `added_at` (0094), sans tâche planifiée. Les fonctions
-  `debug_*` (0025, 0026) restent en base, plus aucun écran ne les lit.
+- **Les fonctions `debug_*` (0025, 0026) restent en base**, plus aucun écran
+  ne les lit.
 - **Le tableau des mots dit ce que le dictionnaire est devenu**
   (`src/debug/WordsBoard.tsx`) : cinq tapes rapprochées sur « Mes catégories » —
-  le titre de la page ou celui de la section — l'ouvrent par-dessus tout, comme
-  le tableau de bord, et `admin_words` (0043) ne rend rien à qui n'est pas
+  le titre de la page ou celui de la section — l'ouvrent par-dessus tout, et
+  `admin_words` (0043) ne rend rien à qui n'est pas
   administrateur. Le serveur ne connaît que les mots déjà écrits ; c'est
   l'écran qui charge les dictionnaires embarqués (`loadPack`) pour dire la part
   **théorique** d'un couple lettre + catégorie (`letterShares`, `src/domain/run.ts`,

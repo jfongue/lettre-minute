@@ -289,8 +289,7 @@ const INTERSTITIAL_TIMEOUT_MS = 90_000
 /**
  * Plays the loaded interstitial and resolves once it is closed. Never waits
  * for one to load: an ad still loading at its break is `unavailable`, not
- * shown late over whatever screen came next — and a request with no ad ready
- * is not an opening, which the dashboard's ad count needs.
+ * shown late over whatever screen came next.
  */
 export async function playInterstitial(): Promise<'shown' | 'unavailable'> {
   if (!native || !interstitialLoaded) return 'unavailable'

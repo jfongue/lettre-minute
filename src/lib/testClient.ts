@@ -1,14 +1,12 @@
 /**
  * Whether this client is a test one — an agent driving the game through a
  * browser, a developer's dev server, or a browser the owner asked to leave out
- * of the figures. The answer travels with the events (`track`) and the runs
- * (`pushRun`) to the `test` column, and `analytics_snapshot` leaves those out:
- * a browser that plays by itself creates a fresh anonymous account every time
- * and would otherwise count as a player.
+ * of the figures. The answer travels with the runs (`pushRun`) to their `test`
+ * column: a browser that plays by itself creates a fresh anonymous account
+ * every time and would otherwise pass for a player.
  *
- * `import.meta.env.DEV` covers the dev server, which talks to the real project
- * while sending no event (`src/lib/track.ts`) — its runs had no opening, no tap
- * and no name to go with them. `navigator.webdriver` is what a browser under
+ * `import.meta.env.DEV` covers the dev server, which talks to the real project.
+ * `navigator.webdriver` is what a browser under
  * automation reports; the flag covers a manual browser the owner wants out of
  * the figures without changing accounts.
  */

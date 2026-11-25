@@ -41,11 +41,9 @@ import type { Boards } from '../domain/boards'
 import { Avatar } from '../ui/Avatar'
 import { Shape } from '../ui/bauhaus'
 import { NamePrompt } from '../ui/NamePrompt'
-import { DashboardView } from './Dashboard'
 import { WordsBoardView } from './WordsBoard'
 import type { WordsReport } from './words'
 import { PLAY_ACHIEVEMENTS_ONLY, achievementIcon } from '../domain/achievements'
-import type { SlotEntry, Snapshot } from './snapshot'
 import { completeLeaderboard, type Leaderboard, type PeriodId, type StatId } from '../domain/leaderboards'
 import { guestFits, placeGuest } from '../domain/localBoards'
 import { LeaderboardsPage } from '../ui/LeaderboardsPage'
@@ -363,12 +361,10 @@ function spyProfileOf(name: string): SpiedProfile {
     bestCombo: 9,
     bot: false,
     lastRunAt: daysAgo(0.2),
-    lastOpen: { at: daysAgo(0.1), platform: 'android', version: '1.8.3', lang: 'fr' },
     platforms: [
-      { platform: 'android', runs: 81, opens: 140, last: daysAgo(0.1) },
-      { platform: 'web', runs: 14, opens: 22, last: daysAgo(12) },
+      { platform: 'android', runs: 81, last: daysAgo(0.2) },
+      { platform: 'web', runs: 14, last: daysAgo(12) },
     ],
-    devices: 2,
     premium: {
       purchases: bought ? [{ provider: 'play', state: 'verified', at: daysAgo(40) }] : [],
       grant: null,
@@ -386,11 +382,6 @@ function spyProfileOf(name: string): SpiedProfile {
       ? { sessions: 23, lastSession: daysAgo(2), votes: { correct: 98, incorrect: 21, unsure: 6, special: 1 }, lastVote: daysAgo(2), proposed: { accepted: 9, rejected: 4, pending: 1 } }
       : { sessions: 0, lastSession: null, votes: {}, lastVote: null, proposed: { accepted: 1, pending: 2 } },
     daily: spyDaily(bought ? 3 : 5),
-    features: [
-      { name: 'swap', n: 42, last: daysAgo(0.2) },
-      { name: 'hidden_words_peek', n: 17, last: daysAgo(1) },
-      { name: 'theme', n: 2, last: daysAgo(30) },
-    ],
   }
 }
 
@@ -564,342 +555,6 @@ function fakeLeaderboard(stat: StatId, period: PeriodId, mineAt = 14): Promise<L
   }))
   const me = far ? { name: 'Testeur', avatar: DEFAULT_AVATAR, value: 3 * scale, place: 73, mine: true } : null
   return later(completeLeaderboard(stat, period, { rows, me }), 500)
-}
-
-/** Un mois de jeu inventé pour le tableau de bord : un creux le week-end, une pente douce. */
-function dashboardSnapshot(): Snapshot {
-  const today = new Date()
-  const daily = Array.from({ length: 30 }, (_, index) => {
-    const day = new Date(today.getTime() - (29 - index) * 24 * HOUR)
-    const weekend = day.getDay() === 0 || day.getDay() === 6
-    const runs = Math.round((40 + index * 3) * (weekend ? 1.3 : 1) + ((index * 7) % 11))
-    const newPlayers = 2 + ((index * 5) % 7)
-    return {
-      day: day.toISOString().slice(0, 10),
-      new_players: newPlayers,
-      signups: Math.floor(newPlayers / 3),
-      runs,
-      players: Math.round(runs / 4),
-      opens: Math.round(runs * 0.9),
-      sessions_with_run: Math.round(runs / 3),
-      sessions_without_run: Math.round(runs / 9),
-      challenges: index % 3,
-      submissions: index % 4,
-      ideas: index % 5 === 0 ? 1 : 0,
-    }
-  })
-  const hourly = [1, 2, 3, 4, 5, 6, 7].flatMap((dow) =>
-    Array.from({ length: 24 }, (_, hour) => ({ dow, hour, runs: hour < 7 ? 0 : Math.round(((hour % 12) + dow) * (hour > 17 ? 2 : 1)) })),
-  )
-  const todayHourly = Array.from({ length: today.getHours() + 1 }, (_, hour) => {
-    const runs = hour < 7 ? 0 : Math.round((hour % 12) * (hour > 17 ? 2 : 1) + ((hour * 5) % 4))
-    return {
-      day: daily[daily.length - 1]!.day,
-      hour,
-      new_players: hour % 5 === 0 ? 1 : 0,
-      signups: hour === 10 ? 1 : 0,
-      runs,
-      players: Math.ceil(runs / 3),
-      opens: Math.round(runs * 0.9),
-      sessions_with_run: Math.round(runs / 3),
-      sessions_without_run: Math.round(runs / 8),
-      challenges: 0,
-      submissions: 0,
-      ideas: 0,
-    }
-  })
-  return {
-    generated_at: new Date(Date.now() - 2 * 60_000).toISOString(),
-    days: 30,
-    tracking_since: new Date(Date.now() - 9 * 24 * HOUR).toISOString(),
-    totals: {
-      players: 412, named: 138, anonymous: 274, runs: 5_318, words: 61_204, challenges: 96, moderators: 7,
-      friendships: 54, submissions_pending: 12, submissions_accepted: 88, ideas_open: 4, push_devices: 31, devices: 260, events: 48_110,
-    },
-    today: { runs: 131, players: 29, new_players: 6, signups: 2, opens: 118 },
-    active: { dau: 29, wau: 84, mau: 203 },
-    daily,
-    today_hourly: todayHourly,
-    hourly,
-    sessions: {
-      total: 1_420, with_run: 1_060, without_run: 360, runs_per_session: 2.4, median_seconds: 312,
-      ready_p50_ms: 1_380, ready_p90_ms: 3_900, cold_opens: 820, resumes: 600,
-    },
-    kinds: [
-      { kind: 'tap', n: 21_400, devices: 240 }, { kind: 'screen', n: 9_800, devices: 250 }, { kind: 'open', n: 1_420, devices: 260 },
-      { kind: 'run_start', n: 3_100, devices: 190 }, { kind: 'run_end', n: 2_950, devices: 188 }, { kind: 'error', n: 14, devices: 6 },
-    ],
-    taps: [
-      { screen: 'home', label: 'Jouer', n: 2_900, devices: 190 }, { screen: 'over', label: 'Rejouer', n: 1_700, devices: 140 },
-      { screen: 'home', label: 'Défis', n: 640, devices: 88 }, { screen: 'menu:boards', label: 'Semaine', n: 210, devices: 61 },
-      { screen: 'playing', label: 'Passer', n: 4_100, devices: 180 },
-    ],
-    screens: [{ name: 'home', n: 3_800, devices: 250 }, { name: 'playing', n: 3_100, devices: 190 }, { name: 'menu:boards', n: 420, devices: 90 }],
-    features: [{ name: 'power_chosen', n: 310, devices: 120 }, { name: 'challenge_created', n: 96, devices: 51 }, { name: 'category_ban', n: 18, devices: 11 }],
-    platforms: [{ platform: 'android', version: '1.6.6', devices: 180 }, { platform: 'web', version: '1.6.6', devices: 70 }, { platform: 'android', version: '1.6.5', devices: 10 }],
-    langs: [{ lang: 'fr', devices: 210 }, { lang: 'en', devices: 30 }, { lang: 'de', devices: 12 }, { lang: 'es', devices: 8 }],
-    errors: [{ message: 'TypeError: Cannot read properties of undefined (reading \'rows\')', n: 9, devices: 4, last: new Date(Date.now() - 5 * HOUR).toISOString() }],
-    runs: {
-      count: 3_020, challenge_runs: 240, avg_score: 612, median_score: 540, avg_words: 11.4, avg_skips: 3.1,
-      scores: [2, 5, 9, 14, 22, 30, 34, 31, 26, 19, 12, 8, 5, 3, 2].map((n, index) => ({ from: index * 50, n: n * 10 })),
-      powers: [{ power: 'joker', runs: 640, avg_score: 690 }, { power: 'hush', runs: 410, avg_score: 655 }, { power: 'magic', runs: 220, avg_score: 610 }],
-      categories: [{ category: 'animaux', words: 9_800, points: 88_000 }, { category: 'pays', words: 7_200, points: 61_000 }, { category: 'capitales', words: 5_100, points: 49_000 }],
-    },
-    funnel: { new_players: 160, played_1: 131, played_3: 88, played_10: 41, named: 52 },
-    retention: Array.from({ length: 6 }, (_, index) => {
-      const size = 30 + index * 6
-      return {
-        week: new Date(today.getTime() - (5 - index) * 7 * 24 * HOUR).toISOString().slice(0, 10),
-        size, d1: Math.round(size * 0.42), w1: Math.round(size * 0.55), later: index < 5 ? Math.round(size * 0.31) : 0,
-      }
-    }),
-    recent_signups: [
-      { name: 'Léa', at: new Date(Date.now() - 3 * HOUR).toISOString(), runs: 12, best: 880, lang: 'fr' },
-      { name: 'Hugo', at: new Date(Date.now() - 20 * HOUR).toISOString(), runs: 4, best: 410, lang: 'de' },
-      { name: 'Inès', at: new Date(Date.now() - 70 * HOUR).toISOString(), runs: 31, best: 1_240, lang: 'es' },
-    ],
-    top_players: [
-      { name: 'Inès', runs: 212, best: 1_240, anonymous: false, lang: 'es' },
-      { name: 'Anonyme 3f2a', runs: 140, best: 760, anonymous: true, lang: 'en' },
-      { name: 'Léa', runs: 96, best: 880, anonymous: false, lang: 'fr' },
-    ],
-    moderation: { votes: 420, submitted: 38, accepted: 21, rejected: 9 },
-    challenges: { created: 41, avg_players: 2.7, played_share: 0.86 },
-    invites: {
-      mails: 23, mails_to_players: 4, mail_joins: 9, shares: 61, sharers: 27, link_joins: 14, played: 19,
-      links_since: new Date(Date.now() - 12 * 24 * HOUR).toISOString(),
-      daily: daily.map((row, index) => ({ day: row.day, mails: index % 3, shares: (index * 7) % 5, joins: index % 4 === 0 ? 2 : index % 5 === 0 ? 1 : 0 })),
-      top: [
-        { name: 'Inès', anonymous: false, lang: 'es', mails: 6, shares: 11, joins: 7, played: 6 },
-        { name: 'Léa', anonymous: false, lang: 'fr', mails: 3, shares: 8, joins: 4, played: 3 },
-        { name: 'Hugo', anonymous: false, lang: 'de', mails: 5, shares: 2, joins: 1, played: 1 },
-        { name: 'Anonyme 3f2a', anonymous: true, lang: 'en', mails: 0, shares: 4, joins: 0, played: 0 },
-      ],
-    },
-    moderation_by_lang: {
-      days: 30,
-      langs: [
-        { lang: 'fr', moderators: 14, supers: 1, active: 9, thin: false, reserve_left: 62, reserve_released: 38, pending_add: 7, pending_ban: 2, sessions: 41, sessions_total: 230, votes: 512, added: 33, added_reserve: 12, added_total: 410, removed: 4, removed_total: 19, rejected: 11 },
-        { lang: 'en', moderators: 3, supers: 0, active: 2, thin: true, reserve_left: 88, reserve_released: 12, pending_add: 4, pending_ban: 0, sessions: 6, sessions_total: 9, votes: 40, added: 8, added_reserve: 6, added_total: 8, removed: 0, removed_total: 0, rejected: 2 },
-        { lang: 'de', moderators: 1, supers: 0, active: 0, thin: true, reserve_left: 100, reserve_released: 0, pending_add: 5, pending_ban: 0, sessions: 0, sessions_total: 1, votes: 0, added: 0, added_reserve: 0, added_total: 2, removed: 0, removed_total: 0, rejected: 0 },
-        { lang: 'pt', moderators: 0, supers: 0, active: 0, thin: true, reserve_left: 100, reserve_released: 0, pending_add: 0, pending_ban: 0, sessions: 0, sessions_total: 0, votes: 0, added: 0, added_reserve: 0, added_total: 0, removed: 0, removed_total: 0, rejected: 0 },
-      ],
-    },
-    usage: {
-      features: [
-        ['run_solo', 1_480, 160], ['power_used', 910, 84], ['category_chosen', 310, 120], ['run_challenge', 260, 66], ['power_equipped', 190, 58],
-        ['theme', 24, 19], ['moderation_session', 41, 9], ['friend_request', 38, 25], ['challenge_created', 96, 51], ['invite_shared', 31, 14],
-        ['category_ban', 18, 11], ['weekly_attempt', 140, 52], ['sound_changed', 22, 17], ['swap', 77, 36], ['friend_block', 2, 2],
-      ].map(([name, n, u]) => {
-        const k = Number(n)
-        const users = Number(u)
-        return {
-          name: String(name),
-          n1: Math.round(k / 30), u1: Math.min(users, Math.ceil(users / 6)),
-          n7: Math.round(k / 4), u7: Math.min(users, Math.ceil(users / 2)),
-          n14: Math.round(k / 2), u14: Math.min(users, Math.ceil(users * 0.75)),
-          n30: k, u30: users,
-        }
-      }),
-    },
-    moderation_history: {
-      sessions_daily: daily.flatMap((row, index) => [
-        { day: row.day, lang: 'fr', n: 1 + ((index * 5) % 4) },
-        ...(index % 3 === 0 ? [{ day: row.day, lang: 'en', n: 1 + (index % 2) }] : []),
-        ...(index > 24 ? [{ day: row.day, lang: 'de', n: 1 }] : []),
-      ]),
-      sessions_today_hourly: [
-        { hour: 9, lang: 'fr', n: 1 }, { hour: 12, lang: 'fr', n: 2 }, { hour: 12, lang: 'en', n: 1 }, { hour: 14, lang: 'fr', n: 1 },
-      ],
-      // Une réserve qui se vide au compte-goutte, et que l'ensemencement remplit d'un coup au milieu du mois.
-      reserve_daily: daily.flatMap((row, index) => [
-        { day: row.day, lang: 'fr', left: Math.max(40, 100 - index * 2) + (index > 18 ? 30 : 0) },
-        { day: row.day, lang: 'en', left: 100 - Math.floor(index / 5) * 3 },
-        { day: row.day, lang: 'de', left: 100 },
-        { day: row.day, lang: 'pt', left: index < 12 ? 0 : 100 },
-      ]),
-    },
-    revenue: {
-      premium: {
-        offers: 318, offer_devices: 96, activations: 27, subscribers: 41, refused: 3,
-        reasons: [
-          { reason: 'filter', n: 96, devices: 44 },
-          { reason: 'reveal', n: 78, devices: 39 },
-          { reason: 'attempt', n: 61, devices: 31 },
-          { reason: 'menu', n: 43, devices: 29 },
-          { reason: 'premiere', n: 40, devices: 26 },
-        ],
-        sources: [
-          { source: 'buy', n: 18, devices: 18 },
-          { source: 'win', n: 5, devices: 5 },
-          { source: 'restore', n: 3, devices: 3 },
-          { source: 'owned', n: 1, devices: 1 },
-        ],
-        providers: [{ provider: 'play', n: 17, accounts: 17 }, { provider: 'lemonsqueezy', n: 1, accounts: 1 }],
-      },
-      ads: {
-        shown: 1_210, devices: 180, unavailable: 96,
-        sources: [
-          { source: 'reveal', n: 860, devices: 150, rewarded: 790, unavailable: 40 },
-          { source: 'attempt', n: 372, devices: 88, rewarded: 330, unavailable: 42 },
-          { source: 'offer', n: 74, devices: 41, rewarded: 0, unavailable: 14 },
-        ],
-        results: [
-          { result: 'rewarded', n: 1_120 }, { result: 'shown', n: 60 }, { result: 'skipped', n: 30 }, { result: 'unavailable', n: 96 },
-        ],
-      },
-      daily: daily.map((row, index) => ({
-        day: row.day,
-        offers: 8 + (index % 5),
-        activations: index % 3,
-        ads: 30 + (index % 9) * 3,
-        subscribed: index % 4 === 0 ? 1 : 0,
-      })),
-    },
-    by_platform: {
-      rows: [
-        { platform: 'android', runs: 1_910, tagged: 640, players: 118, runs_today: 64, players_today: 21, avg_score: 182, best: 1_240, new_accounts: 96, duels: 31, weekly_attempts: 210, weekly_players: 74 },
-        { platform: 'crazygames', runs: 640, tagged: 640, players: 212, runs_today: 41, players_today: 30, avg_score: 121, best: 760, new_accounts: 58, duels: 0, weekly_attempts: 95, weekly_players: 61 },
-        { platform: 'web', runs: 120, tagged: 40, players: 14, runs_today: 3, players_today: 2, avg_score: 204, best: 910, new_accounts: 6, duels: 2, weekly_attempts: 9, weekly_players: 4 },
-        { platform: 'inconnu', runs: 48, tagged: 0, players: 11, runs_today: 0, players_today: 0, avg_score: 90, best: 445, new_accounts: 40, duels: 0, weekly_attempts: 0, weekly_players: 0 },
-      ],
-      daily: daily.flatMap((row, index) => [
-        { day: row.day, platform: 'android' as const, runs: 40 + ((index * 13) % 35) },
-        { day: row.day, platform: 'crazygames' as const, runs: index < 10 ? 0 : 12 + ((index * 7) % 30) },
-        { day: row.day, platform: 'web' as const, runs: index % 3 },
-        { day: row.day, platform: 'inconnu' as const, runs: index < 8 ? 4 : 0 },
-      ]),
-    },
-    insights: {
-      choices: {
-        kinds: [
-          { kind: 'category', n: 214, with_offer: 120, devices: 130 },
-          { kind: 'power', n: 162, with_offer: 90, devices: 101 },
-          { kind: 'bonus', n: 41, with_offer: 30, devices: 33 },
-        ],
-        items: [
-          { kind: 'category', item: 'pays', offered: 70, chosen: 61, picked: 44, devices: 58 },
-          { kind: 'category', item: 'animaux', offered: 66, chosen: 52, picked: 31, devices: 50 },
-          { kind: 'category', item: 'capitales', offered: 64, chosen: 38, picked: 21, devices: 36 },
-          { kind: 'category', item: 'fruits', offered: 40, chosen: 9, picked: 4, devices: 9 },
-          { kind: 'power', item: 'joker', offered: 60, chosen: 58, picked: 39, devices: 55 },
-          { kind: 'power', item: 'hush', offered: 58, chosen: 40, picked: 24, devices: 38 },
-          { kind: 'power', item: 'magic', offered: 62, chosen: 30, picked: 18, devices: 29 },
-          { kind: 'bonus', item: 'slot', offered: 22, chosen: 19, picked: 15, devices: 19 },
-          { kind: 'bonus', item: 'reveal', offered: 26, chosen: 12, picked: 9, devices: 12 },
-          { kind: 'bonus', item: 'filter', offered: 12, chosen: 6, picked: 3, devices: 6 },
-          { kind: 'bonus', item: 'moderator', offered: 0, chosen: 4, picked: 0, devices: 4 },
-        ],
-      },
-      split: daily.map((row) => ({ day: row.day, runs_new: Math.round(row.new_players * 2.5), players_new: row.new_players })),
-      today_split: todayHourly.map((row) => ({ hour: row.hour, runs_new: row.new_players * 2, players_new: row.new_players })),
-      sessions_by_platform: {
-        totals: [
-          { platform: 'android', total: 920, with_run: 700, runs_per_session: 2.6, median_seconds: 340 },
-          { platform: 'crazygames', total: 380, with_run: 260, runs_per_session: 1.9, median_seconds: 210 },
-          { platform: 'web', total: 120, with_run: 100, runs_per_session: 2.1, median_seconds: 280 },
-        ],
-        daily: daily.flatMap((row, index) => [
-          { day: row.day, platform: 'android' as const, with_run: Math.round(row.sessions_with_run * 0.6), without_run: Math.round(row.sessions_without_run * 0.6) },
-          { day: row.day, platform: 'crazygames' as const, with_run: index < 20 ? 0 : Math.round(row.sessions_with_run * 0.35), without_run: index < 20 ? 0 : Math.round(row.sessions_without_run * 0.5) },
-          { day: row.day, platform: 'web' as const, with_run: Math.round(row.sessions_with_run * 0.05), without_run: 1 },
-        ]),
-        today_hourly: todayHourly.flatMap((row) => [
-          { hour: row.hour, platform: 'android' as const, with_run: Math.round(row.sessions_with_run * 0.6), without_run: Math.round(row.sessions_without_run * 0.6) },
-          { hour: row.hour, platform: 'crazygames' as const, with_run: Math.round(row.sessions_with_run * 0.4), without_run: Math.round(row.sessions_without_run * 0.4) },
-        ]),
-      },
-      retention_curve: Array.from({ length: 30 }, (_, index) => {
-        const day = index + 1
-        const eligible = 160 - index * 3
-        return { day, eligible, exact: Math.round(eligible * (0.38 / Math.sqrt(day))), rolling: Math.round(eligible * (0.62 - 0.012 * index)) }
-      }),
-      cohorts: Array.from({ length: 8 }, (_, index) => {
-        const size = 24 + index * 5
-        const open = 7 - index
-        return {
-          week: new Date(today.getTime() - (7 - index) * 7 * 24 * HOUR).toISOString().slice(0, 10),
-          size,
-          cells: Array.from({ length: 12 }, (_, w) =>
-            w < open ? { eligible: size, back: Math.round(size * (0.55 / (1 + w * 0.45))) } : { eligible: 0, back: 0 },
-          ),
-        }
-      }),
-      stickiness: daily.map((row, index) => ({ day: row.day, dau: row.players, wau: Math.round(row.players * 2.6), mau: 140 + index * 2 })),
-      retention_by: [
-        { by: 'platform', value: 'android', size: 96, d1_eligible: 92, d1: 41, w1_eligible: 80, w1: 47, m1_eligible: 40, m1: 15 },
-        { by: 'platform', value: 'crazygames', size: 140, d1_eligible: 135, d1: 22, w1_eligible: 120, w1: 30, m1_eligible: 30, m1: 3 },
-        { by: 'platform', value: 'web', size: 12, d1_eligible: 12, d1: 4, w1_eligible: 10, w1: 5, m1_eligible: 6, m1: 2 },
-        { by: 'lang', value: 'fr', size: 150, d1_eligible: 146, d1: 52, w1_eligible: 130, w1: 63, m1_eligible: 60, m1: 17 },
-        { by: 'lang', value: 'en', size: 70, d1_eligible: 66, d1: 10, w1_eligible: 58, w1: 14, m1_eligible: 12, m1: 2 },
-        { by: 'lang', value: 'de', size: 28, d1_eligible: 27, d1: 5, w1_eligible: 22, w1: 5, m1_eligible: 4, m1: 1 },
-      ],
-    },
-    quality: {
-      totals: {
-        sessions: 1_420, error_sessions: 31, errors: 44, watched: 610, unclean: 9, ready_p50: 1_380, ready_p90: 3_900, ready_p99: 8_200,
-        slow_starts: 22, measured: 590, frozen: 48, long_per_minute: 140, long_max_p90: 820,
-      },
-      since: { unclean: new Date(Date.now() - 4 * 24 * HOUR).toISOString(), freezes: new Date(Date.now() - 4 * 24 * HOUR).toISOString() },
-      daily: daily.map((row, index) => ({
-        day: row.day,
-        sessions: row.sessions_with_run + row.sessions_without_run,
-        error_sessions: index % 6 === 0 ? 4 : 1,
-        errors: index % 6 === 0 ? 6 : 1,
-        watched: index < 26 ? 0 : 20,
-        unclean: index < 26 ? 0 : index % 2,
-        measured: index < 26 ? 0 : 19,
-        frozen: index < 26 ? 0 : 1 + (index % 3),
-        ready_p50: 1_300 + ((index * 37) % 300),
-        ready_p90: 3_400 + ((index * 91) % 900),
-      })),
-      by_version: [
-        { platform: 'android', version: '1.9.0', sessions: 610, devices: 140, error_sessions: 8, watched: 590, unclean: 7, measured: 580, frozen: 40, ready_p50: 1_420, ready_p90: 4_100 },
-        { platform: 'crazygames', version: '1.0.0', sessions: 380, devices: 260, error_sessions: 14, watched: 0, unclean: 0, measured: 0, frozen: 0, ready_p50: 2_100, ready_p90: 5_300 },
-        { platform: 'android', version: '1.8.3', sessions: 300, devices: 70, error_sessions: 6, watched: 0, unclean: 0, measured: 0, frozen: 0, ready_p50: 1_510, ready_p90: 4_400 },
-        { platform: 'web', version: '1.9.0', sessions: 120, devices: 30, error_sessions: 3, watched: 20, unclean: 2, measured: 10, frozen: 8, ready_p50: 900, ready_p90: 2_200 },
-      ],
-      errors: [
-        { message: 'TypeError: Cannot read properties of undefined (reading \'rows\')', source: 'index-4f2a.js:1', screen: 'over', n: 19, devices: 8, sessions: 12, first: new Date(Date.now() - 20 * 24 * HOUR).toISOString(), last: new Date(Date.now() - 5 * HOUR).toISOString(), versions: ['android 1.9.0', 'android 1.8.3'] },
-        { message: 'Load failed', source: 'promise', screen: 'home', n: 14, devices: 11, sessions: 13, first: new Date(Date.now() - 30 * HOUR).toISOString(), last: new Date(Date.now() - 2 * HOUR).toISOString(), versions: ['crazygames 1.0.0'] },
-        { message: 'ResizeObserver loop completed with undelivered notifications.', source: ':0', screen: null, n: 11, devices: 6, sessions: 7, first: new Date(Date.now() - 12 * 24 * HOUR).toISOString(), last: new Date(Date.now() - 26 * HOUR).toISOString(), versions: ['web 1.9.0'] },
-      ],
-      screens: [{ screen: 'over', n: 19, devices: 8 }, { screen: 'home', n: 14, devices: 11 }, { screen: 'playing', n: 3, devices: 2 }],
-    },
-  }
-}
-
-/** Les joueurs d'une barre : quelques profils, un compte arrivé, un appareil sans compte. */
-function dashboardSlot(): Promise<SlotEntry[]> {
-  const player = (name: string, extra: Partial<Extract<SlotEntry, { anonymous: boolean }>>) => ({
-    key: name, name, anonymous: false, avatar: avatarOf(21, 'bleu', 'jaune', 'rouge'), xp: at(12, 40), total_runs: 96, total_best: 880,
-    words_found: 1_120, created_at: new Date(Date.now() - 20 * 24 * HOUR).toISOString(), named_at: new Date(Date.now() - 19 * 24 * HOUR).toISOString(),
-    moderator: false, friends: 3, lang: 'fr', platform: 'android', version: '1.7.1', runs: 0, best: null, words: 0, active: true, arrived: false,
-    signed: false, sessions_with_run: 0, sessions_without_run: 0, mails: 0, shares: 0, invited_by: null, ...extra,
-  })
-  return later(
-    [
-      player('Inès', { avatar: avatarOf(7, 'rouge', 'creme', 'jaune'), xp: at(24), total_runs: 212, total_best: 1_240, moderator: true, friends: 9, runs: 8, best: 1_010, words: 104, sessions_with_run: 3, shares: 2 }),
-      player('Léa', { runs: 5, best: 720, words: 61, sessions_with_run: 2, sessions_without_run: 1, mails: 1 }),
-      player('Hugo', { avatar: avatarOf(33, 'vert', 'creme', 'bleu'), xp: at(3), total_runs: 4, total_best: 410, created_at: new Date(Date.now() - 6 * HOUR).toISOString(), named_at: new Date(Date.now() - 5 * HOUR).toISOString(), friends: 1, runs: 4, best: 410, words: 38, arrived: true, signed: true, sessions_with_run: 1, invited_by: 'Inès' }),
-      player('Anonyme 3f2a', { anonymous: true, avatar: DEFAULT_AVATAR, xp: at(1, 20), total_runs: 1, total_best: 90, named_at: null, created_at: new Date(Date.now() - 3 * HOUR).toISOString(), friends: 0, platform: 'web', runs: 1, best: 90, words: 7, arrived: true, sessions_with_run: 1 }),
-      player('Tom', { avatar: avatarOf(12, 'jaune', 'bleu', 'rouge'), xp: at(8), total_runs: 51, total_best: 640, sessions_without_run: 2 }),
-      { key: 'device:9c1e', name: 'Appareil 9c1e', device: true as const, sessions_with_run: 0, sessions_without_run: 1, lang: 'en', platform: 'crazygames' },
-    ],
-    500,
-  )
-}
-
-function AdvancedScenario() {
-  const [data, setData] = useState<Snapshot | undefined>(undefined)
-  useEffect(() => {
-    later(dashboardSnapshot(), 300).then(setData)
-  }, [])
-  return (
-    <div className="dashboard">
-      <DashboardView data={data} loadSlot={dashboardSlot} />
-    </div>
-  )
 }
 
 /**
@@ -1340,8 +995,6 @@ function AvatarNewsScenario({ back }: { back(): void }) {
       onRequestsOpen={noop}
       onStatsRefresh={() => later(undefined)}
       lang="fr"
-      advancedBoards={false}
-      onAdvancedBoards={noop}
       onWordsBoard={noop}
       banActions={{ onBan: noop, onUnban: noop, onIntroSeen: noop }}
       onClose={back}
@@ -1381,8 +1034,6 @@ function SocialScenario({ back }: { back(): void }) {
       onRequestsOpen={noop}
       onStatsRefresh={() => later(undefined)}
       lang="fr"
-      advancedBoards={false}
-      onAdvancedBoards={noop}
       onWordsBoard={noop}
       banActions={{ onBan: noop, onUnban: noop, onIntroSeen: noop }}
       onClose={back}
@@ -2910,14 +2561,6 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Sans compte : le classement du serveur avec la ligne « Moi » comptée sur l’appareil — parmi les lignes en « Meilleure partie », sous elles à la 63e place en « Points », absente en « Découvertes » — et le bouton qui ouvre la connexion du portail',
     phase: 'home',
     render: () => <GuestLeaderboardsScenario />,
-  },
-  {
-    id: 'leaderboards-advanced',
-    group: 'Accueil',
-    title: 'Tableau de bord de l’administrateur',
-    how: 'Cinq tapes sur « Classements » : joueurs, actifs, parties, sessions de modération, fonctions utilisées (dont celles que personne n’utilise), rétention, choix de niveau, réserve de modération, qualité — le relevé d’analytics_snapshot',
-    phase: 'home',
-    render: () => <AdvancedScenario />,
   },
   {
     id: 'features-board',

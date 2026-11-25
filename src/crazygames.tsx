@@ -7,7 +7,6 @@ import { loadMessages } from './i18n'
 import { host } from './platform'
 import { initCrazyGames, loadingStart, loadingStop, restoreSavedProgress } from './platform/crazygames'
 import { armSound } from './lib/sound'
-import { startTracking } from './lib/track'
 import { loadLocale } from './state/locale'
 import { drawPageBarOnIos, tightenUnderKeyboard } from './portalPage'
 import { applyTheme, loadTheme } from './state/theme'
@@ -38,8 +37,6 @@ void loadMessages(loadLocale() ?? 'en').catch(() => undefined)
 void (async () => {
   await initCrazyGames()
   loadingStart()
-  // The guest's opens and runs reach the dashboard without an account (0084).
-  startTracking()
   await restoreSavedProgress()
   // Before the first paint, so a dark-theme player never sees a light flash.
   applyTheme(loadTheme())

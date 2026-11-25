@@ -6,8 +6,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin, type PluginOption } from 'vite'
 import { configDefaults } from 'vitest/config'
 
-// The version the Play Store knows, stamped on every tracked event: the
-// dashboard tells which build a crash or a drop came from.
+// The version the Play Store knows, shown under the options.
 const appVersion = /versionName "([^"]+)"/.exec(readFileSync('android/app/build.gradle', 'utf8'))?.[1] ?? 'dev'
 
 // The commit a bundle was built from, readable in the debug board and on the
@@ -109,12 +108,11 @@ export default defineConfig(({ mode }) => ({
   // The dictionaries are data chunks, loaded only when a category is played:
   // a 600 kB "animaux" chunk is the point, not an accident of bundling.
   // google.html is where the browser's Google popup lands (`googleIdToken`),
-  // invite.html the page a shared invitation opens (src/invite.ts), dashboard/
-  // the public dashboard (src/dashboard.tsx), a folder so Pages serves /dashboard.
+  // invite.html the page a shared invitation opens (src/invite.ts).
   build:
     mode in PORTAL_BLANKS
       ? { chunkSizeWarningLimit: 1000, outDir: `dist-${mode}`, rollupOptions: { input: [`${mode}.html`] } }
-      : { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html', 'invite.html', 'duel.html', 'dashboard/index.html'] } },
+      : { chunkSizeWarningLimit: 1000, rollupOptions: { input: ['index.html', 'google.html', 'invite.html', 'duel.html'] } },
   // Playgama reads its Bridge config next to the page: playgama/public/ holds it.
   ...(mode in PORTAL_BLANKS ? { base: './', publicDir: mode === 'playgama' ? 'playgama/public' : (false as const) } : {}),
   // Agent worktrees and scratch checkouts live inside the repo: without this,

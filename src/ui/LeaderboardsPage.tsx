@@ -1,11 +1,9 @@
-import { Suspense, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { hasPlayers } from '../domain/boards'
 import { completeLeaderboard, myPlace, OPEN_STATS, periodStillCurrent, PERIODS, STATS, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from '../domain/leaderboards'
 import { metricOf, weekNumber, weekOf, weeklyMode, type WeeklyMetric } from '../domain/weekly'
 import { formatNumber, useT } from '../i18n'
 import { fetchLeaderboard, fetchWeeklyBoard, fetchWeeklyWinners, type WeeklyBoardRow, type WeeklyWinnerRow } from '../lib/cloud'
-import type { LoadDashboard } from '../debug/Dashboard'
-import { lazyScreen } from './lazyScreen'
 import { Avatar } from './Avatar'
 import { BoardSwitch, type BoardFamily } from './BoardSwitch'
 import { Shape } from './bauhaus'
@@ -13,8 +11,6 @@ import { onTint, type ShapeKind, type Tint } from './motifs'
 import { PlayerName } from './PlayerSheet'
 import { loadLeaderboardMemory, saveLeaderboardMemory } from '../state/storage'
 
-// A developer's tool behind five taps: no player should download it.
-const Dashboard = lazyScreen(() => import('../debug/Dashboard').then((module) => module.Dashboard))
 
 const LOOKS: Record<StatId, { kind: ShapeKind; tint: Tint }> = {
   best: { kind: 'star', tint: 'yellow' },
@@ -68,12 +64,6 @@ interface LeaderboardsPageProps {
   onFamily?(next: FamilyId): void
   /** The debug board passes its own made-up boards. */
   load?: LoadLeaderboard
-  /** Cinq tapes sur « Classements » : le tableau de bord, par-dessus la page. */
-  advanced?: boolean
-  /** La planche nourrit le tableau de bord de ses propres chiffres. */
-  loadDashboard?: LoadDashboard
-  /** Ferme le tableau de bord. */
-  onCloseAdvanced?(): void
 }
 
 /**
@@ -89,9 +79,6 @@ export function LeaderboardsPage({
   family: familyProp,
   onFamily,
   load = loadFromServer,
-  advanced = false,
-  loadDashboard,
-  onCloseAdvanced,
 }: LeaderboardsPageProps) {
   const t = useT()
   // Les sessions de modération ne se montrent qu'à qui juge : la piste en porte
@@ -209,7 +196,7 @@ export function LeaderboardsPage({
         <div className="leaderboards-guest">
           <p className="note">{t.leaderboards.guest}</p>
           {onSignIn && (
-            <button type="button" className="btn btn--quiet" data-track="host-sign-in" onClick={onSignIn}>
+            <button type="button" className="btn btn--quiet" onClick={onSignIn}>
               {t.leaderboards.signIn}
             </button>
           )}
@@ -308,12 +295,6 @@ export function LeaderboardsPage({
             )}
           </section>
         </div>
-      )}
-
-      {advanced && (
-        <Suspense fallback={null}>
-          <Dashboard load={loadDashboard} onClose={onCloseAdvanced ?? (() => {})} />
-        </Suspense>
       )}
     </div>
   )

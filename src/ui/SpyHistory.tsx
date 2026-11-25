@@ -21,8 +21,7 @@ export interface SpyActions extends Partial<SpyProfileActions> {
 
 /**
  * Another player's history, as the statistics page shows one's own: its
- * runs, then each run's words. `player` is an account id or a name — the
- * dashboard has the first, a player sheet only the second.
+ * runs, then each run's words. `player` is an account id or a name.
  */
 export function SpyHistory({ player, name, actions, onClose }: { player: string; name: string; actions: SpyActions; onClose(): void }) {
   const t = useT()

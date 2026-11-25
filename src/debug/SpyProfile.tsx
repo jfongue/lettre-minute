@@ -4,7 +4,6 @@ import { levelFor } from '../domain/progression'
 import { useT } from '../i18n'
 import type { RoleOutcome, SpiedProfile } from '../lib/cloud'
 import { Stat } from './board'
-import { FEATURES } from './featureNames'
 import { ago, fmt } from './format'
 
 /*
@@ -153,7 +152,6 @@ export function SpyProfileView({ profile: p, actions, onChanged }: { profile: Sp
         <Stat value={fmt(p.best)} label="record" />
         <Stat value={fmt(p.wordsFound)} label="mots trouvés" />
         <Stat value={fmt(p.friends)} label="amis" />
-        <Stat value={fmt(p.devices)} label={p.devices > 1 ? 'appareils' : 'appareil'} />
       </div>
 
       <dl className="spy-profile-facts">
@@ -164,16 +162,12 @@ export function SpyProfileView({ profile: p, actions, onChanged }: { profile: Sp
         </dd>
         <dt>Vu</dt>
         <dd>
-          {p.lastOpen ? `ouvert ${ago(p.lastOpen.at)}` : 'aucune ouverture relevée'}
-          {p.lastOpen?.platform && ` · ${PLATFORMS[p.lastOpen.platform] ?? p.lastOpen.platform}`}
-          {p.lastOpen?.version && ` ${p.lastOpen.version}`}
-          {p.lastOpen?.lang && ` · ${p.lastOpen.lang.toUpperCase()}`}
-          {p.lastRunAt && ` · dernière partie ${ago(p.lastRunAt)}`}
+          {p.lastRunAt ? `dernière partie ${ago(p.lastRunAt)}` : 'aucune partie'}
         </dd>
         <dt>Plateformes</dt>
         <dd>
           {p.platforms.length
-            ? p.platforms.map((one) => `${PLATFORMS[one.platform] ?? one.platform} : ${fmt(one.runs)} parties, ${fmt(one.opens)} ouvertures`).join(' · ')
+            ? p.platforms.map((one) => `${PLATFORMS[one.platform] ?? one.platform} : ${fmt(one.runs)} parties`).join(' · ')
             : '—'}
         </dd>
         <dt>Premium</dt>
@@ -255,27 +249,6 @@ export function SpyProfileView({ profile: p, actions, onChanged }: { profile: Sp
               .map(([status, n]) => `${fmt(n)} ${PROPOSED[status] ?? status}`)
               .join(', ')}`}
         </p>
-      </div>
-
-      <div className="spy-profile-block">
-        <h3>Fonctions touchées, 90 jours</h3>
-        {p.features.length === 0 ? (
-          <div className="dashboard-empty">Rien de relevé.</div>
-        ) : (
-          <ul className="dashboard-bars">
-            {p.features.map((one) => (
-              <li key={one.name}>
-                <span className="dashboard-bars-name">{FEATURES[one.name] ?? one.name}</span>
-                <span className="dashboard-bars-num">
-                  <b>{fmt(one.n)}</b> · {ago(one.last)}
-                </span>
-                <span className="dashboard-bars-track">
-                  <span style={{ width: `${(one.n / Math.max(1, p.features[0]!.n)) * 100}%`, background: 'var(--green)' }} />
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
       </div>
 
       {asking && (

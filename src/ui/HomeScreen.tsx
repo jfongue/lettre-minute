@@ -71,8 +71,6 @@ interface HomeScreenProps {
   onAccount?(mode: AccountMode): void
   /** Five quick taps on the poster's top-right tile: the debug board, hidden from players. */
   onDebug?(): void
-  /** Cinq tapes rapprochés sur « Classement » : la page des classements, en mode débug. */
-  onBoardsHidden?(): void
 }
 
 export function HomeScreen({
@@ -100,7 +98,6 @@ export function HomeScreen({
   onEquip,
   onAccount,
   onDebug,
-  onBoardsHidden,
   invites,
   weekly,
 }: HomeScreenProps) {
@@ -231,7 +228,7 @@ const alone =
               </section>
 
               {boards && (
-                <Boards boards={boards} me={me} climbed={climbed} onAll={() => onMenu('boards')} onHidden={onBoardsHidden} />
+                <Boards boards={boards} me={me} climbed={climbed} onAll={() => onMenu('boards')} />
               )}
             </>
           )}

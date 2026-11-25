@@ -157,7 +157,6 @@ export const APP_ONLY_FEATURES: readonly FeatureId[] = [
   'ads',
   'share',
   'wordsBoard',
-  'dashboard',
   'ideasAdmin',
   'debugBoard',
 ]
@@ -165,7 +164,6 @@ export const APP_ONLY_FEATURES: readonly FeatureId[] = [
 /** The developer's tools and the word moderation: what a super moderator needs on any host with the server. */
 export const SUPER_MODERATOR_FEATURES: readonly FeatureId[] = [
   'debugBoard',
-  'dashboard',
   'spyHistory',
   'wordsBoard',
   'ideasAdmin',

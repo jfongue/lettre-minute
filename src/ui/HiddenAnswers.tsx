@@ -5,7 +5,6 @@ import { categoryText, useT } from '../i18n'
 import { tapFeedback } from '../lib/native'
 import { host } from '../platform'
 import { sound } from '../lib/sound'
-import { trackFeature } from '../lib/feature'
 import { LetterMark } from './bauhaus'
 import { categoryMotif } from './motifs'
 import { PlusLockedSlot, PlusSeal, ResourceChip, ResourceGlyph } from './premium'
@@ -80,7 +79,6 @@ export function HiddenAnswers({
     setWatching(true)
     setNoAd(false)
     const result = await host.showRewarded()
-    trackFeature('ad', { source: 'reveal', result })
     if (result !== 'unavailable') onAdShown?.()
     setWatching(false)
     if (result === 'rewarded') {

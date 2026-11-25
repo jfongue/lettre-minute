@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
- * Ce qui décide qu'un client est un test (`analytics_snapshot`, 0040) : un
+ * Ce qui décide qu'un client est un test (`runs.test`, 0040) : un
  * navigateur piloté se reconnaît à `navigator.webdriver`, et un développeur
  * peut poser le drapeau à la main. Le choix est mémorisé au premier appel, donc
  * chaque cas repart d'un module frais — et d'un `localStorage` à nous, celui de
