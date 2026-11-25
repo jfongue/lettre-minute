@@ -1,0 +1,77 @@
+// The kit's words, one entry per language: the name and the hook are the Play
+// listing's (store/android/<lang>/fiche.md), the shot captions those of
+// assets/source/shot.html. A plain script so that the pages read it from a
+// <script> tag and the Node scripts by importing it: both find globalThis.COPY.
+// The promo says « on Android », never « web » (CLAUDE.local.md).
+globalThis.COPY = {
+  fr: {
+    name: ['Lettre', 'Minute'],
+    hook: 'Le Petit Bac express',
+    tagline: 'Une lettre · un thème · 60 secondes',
+    cta: 'Gratuit sur Android',
+    video: ['Une lettre.<br /><em>Un thème.</em>', 'Tape un mot<br />qui colle.<br /><em>Vite.</em>', 'Enchaîne :<br /><em>chaque mot<br />rapporte plus.</em>', 'Défie<br /><em>tes amis !</em>'],
+    post: 'Le Petit Bac express : une lettre, un thème, 60 secondes. Défie tes amis ! Gratuit sur Android.',
+    tags: '#PetitBac #JeuDeMots #JeuMobile #LettreMinute',
+    shots: ['Une lettre, un thème, 60 secondes', 'Trouve le plus de mots possible', 'Défie tes amis', 'Des pouvoirs pour tricher un peu', 'Plein de thèmes à découvrir', 'Maîtrise le jeu et deviens expert'],
+  },
+  en: {
+    name: ['Letter', 'Minute'],
+    hook: 'The classic categories game, fast',
+    tagline: 'One letter · one category · 60 seconds',
+    cta: 'Free on Android',
+    video: ['One letter.<br /><em>One category.</em>', 'Type a word<br />that fits.<br /><em>Fast.</em>', 'Keep the streak:<br /><em>every word<br />scores more.</em>', 'Challenge<br /><em>your friends!</em>'],
+    post: 'The classic categories game, fast: one letter, 60 seconds. Challenge your friends! Free on Android.',
+    tags: '#WordGame #CategoriesGame #MobileGame #LetterMinute',
+    shots: ['One letter, one category, 60 seconds', 'Find as many words as you can', 'Challenge your friends', 'Powers to cheat a little', 'Lots of categories to discover', 'Master the game and become an expert'],
+  },
+  de: {
+    name: ['Letter', 'Minute'],
+    hook: 'Stadt-Land-Fluss im Turbogang',
+    tagline: 'Ein Buchstabe · ein Thema · 60 Sekunden',
+    cta: 'Kostenlos für Android',
+    video: ['Ein Buchstabe.<br /><em>Ein Thema.</em>', 'Tipp ein Wort,<br />das passt.<br /><em>Schnell.</em>', 'Bleib dran:<br /><em>jedes Wort<br />bringt mehr.</em>', 'Fordere<br /><em>deine Freunde<br />heraus!</em>'],
+    post: 'Stadt-Land-Fluss im Turbogang: ein Buchstabe, 60 Sekunden. Fordere deine Freunde heraus! Kostenlos für Android.',
+    tags: '#StadtLandFluss #Wortspiel #HandySpiel #LetterMinute',
+    shots: ['Ein Buchstabe, ein Thema, 60 Sekunden', 'Finde so viele Wörter wie möglich', 'Fordere deine Freunde heraus', 'Kräfte zum Schummeln', 'Jede Menge Themen zu entdecken', 'Meistere das Spiel und werde zum Profi'],
+  },
+  es: {
+    name: ['Letra', 'Minuto'],
+    hook: 'El Stop exprés',
+    tagline: 'Una letra · un tema · 60 segundos',
+    cta: 'Gratis en Android',
+    video: ['Una letra.<br /><em>Un tema.</em>', 'Escribe una<br />palabra que encaje.<br /><em>Rápido.</em>', 'Encadena:<br /><em>cada palabra<br />suma más.</em>', '¡Reta<br /><em>a tus amigos!</em>'],
+    post: 'El Stop exprés: una letra, un tema, 60 segundos. ¡Reta a tus amigos! Gratis en Android.',
+    tags: '#Stop #JuegoDePalabras #JuegoMóvil #LetraMinuto',
+    shots: ['Una letra, un tema, 60 segundos', 'Encuentra todas las palabras que puedas', 'Reta a tus amigos', 'Poderes para hacer un poco de trampa', 'Un montón de temas por descubrir', 'Domina el juego y conviértete en experto'],
+  },
+  it: {
+    name: ['Lettera', 'Minuto'],
+    hook: 'Nomi, cose, città in versione lampo',
+    tagline: 'Una lettera · un tema · 60 secondi',
+    cta: 'Gratis su Android',
+    video: ['Una lettera.<br /><em>Un tema.</em>', 'Scrivi una parola<br />che va bene.<br /><em>In fretta.</em>', 'Non fermarti:<br /><em>ogni parola<br />vale di più.</em>', 'Sfida<br /><em>i tuoi amici!</em>'],
+    post: 'Nomi, cose, città in versione lampo: una lettera, 60 secondi. Sfida i tuoi amici! Gratis su Android.',
+    tags: '#NomiCoseCittà #GiocoDiParole #GiocoMobile #LetteraMinuto',
+    shots: ['Una lettera, un tema, 60 secondi', 'Trova più parole che puoi', 'Sfida i tuoi amici', 'Poteri per barare un po’', 'Tanti temi da scoprire', 'Padroneggia il gioco e diventa un esperto'],
+  },
+  nl: {
+    name: ['Letter', 'Minuut'],
+    hook: 'Stad-land-rivier in sneltreinvaart',
+    tagline: 'Eén letter · één thema · 60 seconden',
+    cta: 'Gratis op Android',
+    video: ['Eén letter.<br /><em>Eén thema.</em>', 'Typ een woord<br />dat past.<br /><em>Snel.</em>', 'Ga door:<br /><em>elk woord<br />levert meer op.</em>', 'Daag<br /><em>je vrienden uit!</em>'],
+    post: 'Stad-land-rivier in sneltreinvaart: één letter, 60 seconden. Daag je vrienden uit! Gratis op Android.',
+    tags: '#StadLandRivier #Woordspel #MobieleGame #LetterMinuut',
+    shots: ['Eén letter, één thema, 60 seconden', 'Vind zoveel mogelijk woorden', 'Daag je vrienden uit', 'Krachten om een beetje vals te spelen', 'Heel veel thema’s om te ontdekken', 'Beheers het spel en word een expert'],
+  },
+  pt: {
+    name: ['Letra', 'Minuto'],
+    hook: 'O bom e velho Stop, turbinado',
+    tagline: 'Uma letra · um tema · 60 segundos',
+    cta: 'Grátis no Android',
+    video: ['Uma letra.<br /><em>Um tema.</em>', 'Digite uma<br />palavra que sirva.<br /><em>Rápido.</em>', 'Mantenha o ritmo:<br /><em>cada palavra<br />vale mais.</em>', 'Desafie<br /><em>seus amigos!</em>'],
+    post: 'O bom e velho Stop, turbinado: uma letra, 60 segundos. Desafie seus amigos! Grátis no Android.',
+    tags: '#Stop #Adedonha #JogoDePalavras #LetraMinuto',
+    shots: ['Uma letra, um tema, 60 segundos', 'Encontre o máximo de palavras', 'Desafie seus amigos', 'Poderes para trapacear um pouco', 'Muitos temas para descobrir', 'Domine o jogo e vire especialista'],
+  },
+}

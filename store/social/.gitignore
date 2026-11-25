@@ -1,0 +1,7 @@
+# Made by the scripts: HyperFrames and GSAP, the copied media, the pages filled
+# from video.html, HyperFrames' raw output. The kit itself lands in .cache/social-kit.
+node_modules/
+media/
+pages/
+renders/
+.hyperframes/

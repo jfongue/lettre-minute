@@ -1,0 +1,136 @@
+<!doctype html>
+<!--
+  A still of the social kit, rendered by render-stills.ts:
+  ?lang=fr&format=square&n=0 to 6. n=0 is the title (icon, name, hook, the
+  home screen); 1 to 6 are the Play listing's captioned shots, in its order,
+  with the raw captures of store/android/screenshots/<lang>/. Formats: square
+  1080 × 1080, feed 1080 × 1350, story 1080 × 1920 (text below the apps' top
+  bar), landscape 1920 × 1080, and banner 1500 × 500 (n=0 only, a profile
+  header). The phone runs off the edge rather than shrinking to fit; the text
+  stands beside it, never on a shape.
+-->
+<html>
+<head>
+<meta charset="utf-8" />
+<script src="copy.js"></script>
+<style>
+  @font-face { font-family: Jost; src: url(../../assets/source/jost.woff2); font-weight: 100 900; }
+  html, body { margin: 0; overflow: hidden; }
+  body {
+    --paper: #f2ecdf; --ink: #151515; --red: #e0402a; --grid: rgba(21, 21, 21, 0.06);
+    position: relative; font-family: Jost; color: var(--ink);
+    background-color: var(--paper);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .text { position: absolute; display: flex; flex-direction: column; gap: 28px; }
+  .dot { width: 30px; height: 30px; border-radius: 50%; background: var(--red); }
+  h1 { margin: 0; font-weight: 800; line-height: 0.98; letter-spacing: -0.02em; text-transform: uppercase; text-wrap: balance; }
+  .brand { display: flex; align-items: center; gap: 18px; font-weight: 700; font-size: 30px; }
+  .brand img { width: 64px; height: 64px; border-radius: 14px; }
+  .brand small { display: block; font-weight: 500; font-size: 24px; letter-spacing: 0.04em; }
+  .title img { width: 150px; height: 150px; border-radius: 32px; }
+  .title h1 { display: grid; font-size: 150px; line-height: 0.84; letter-spacing: -0.04em; }
+  .title h1 span:last-child { color: var(--red); }
+  .title p { margin: 0; font-weight: 600; font-size: 34px; letter-spacing: 0.12em; text-transform: uppercase; text-wrap: balance; }
+  .title .cta { align-self: flex-start; padding: 14px 26px; border: 4px solid var(--ink); font-weight: 800; font-size: 32px; letter-spacing: 0.06em; }
+  .phone {
+    position: absolute; overflow: hidden; box-sizing: border-box;
+    border: 8px solid var(--ink); border-bottom: 0; border-radius: 44px 44px 0 0; background: var(--paper);
+  }
+  .phone img { display: block; width: 100%; }
+
+  body[data-format='square'] { width: 1080px; height: 1080px; }
+  body[data-format='square'] .text { left: 70px; width: 440px; top: 0; bottom: 0; justify-content: center; }
+  body[data-format='square'] h1 { font-size: 60px; }
+  body[data-format='square'] .phone { left: 560px; top: 80px; width: 460px; height: 1000px; }
+  body[data-format='square'] .title h1 { font-size: 92px; }
+  body[data-format='square'] .title img { width: 110px; height: 110px; border-radius: 24px; }
+  body[data-format='square'] .title p { font-size: 26px; }
+
+  body[data-format='feed'] { width: 1080px; height: 1350px; }
+  body[data-format='feed'] .text { left: 84px; right: 84px; top: 84px; }
+  body[data-format='feed'] h1 { font-size: 78px; }
+  body[data-format='feed'] .phone { left: 170px; top: 470px; width: 740px; height: 880px; }
+  body[data-format='feed'] .title { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 36px; }
+  body[data-format='feed'] .title h1 { font-size: 112px; }
+  body[data-format='feed'] .title p { flex-basis: 100%; font-size: 30px; }
+
+  body[data-format='story'] { width: 1080px; height: 1920px; }
+  body[data-format='story'] .text { left: 84px; right: 84px; top: 250px; }
+  body[data-format='story'] h1 { font-size: 92px; }
+  body[data-format='story'] .phone { left: 140px; top: 760px; width: 800px; height: 1160px; }
+  body[data-format='story'] .title { align-items: center; text-align: center; }
+  body[data-format='story'] .title .cta { align-self: center; }
+  body[data-format='story'] .title h1 { font-size: 140px; }
+
+  body[data-format='landscape'] { width: 1920px; height: 1080px; }
+  body[data-format='landscape'] .text { left: 130px; width: 900px; top: 0; bottom: 0; justify-content: center; gap: 36px; }
+  body[data-format='landscape'] h1 { font-size: 104px; }
+  body[data-format='landscape'] .phone { left: 1180px; top: 90px; width: 580px; height: 990px; }
+
+  body[data-format='banner'] { width: 1500px; height: 500px; }
+  body[data-format='banner'] .text { left: 90px; width: 700px; top: 0; bottom: 0; justify-content: center; gap: 20px; }
+  body[data-format='banner'] .title img { display: none; }
+  body[data-format='banner'] .title h1 { font-size: 112px; }
+  body[data-format='banner'] .title p { font-size: 24px; }
+  body[data-format='banner'] .title .cta { display: none; }
+  body[data-format='banner'] .phone { top: 70px; width: 300px; height: 430px; border-width: 6px; border-radius: 32px 32px 0 0; }
+</style>
+</head>
+<body>
+<script>
+  // In the Play listing's order, one capture per section of the description.
+  const SHOTS = ['1-accueil', '3-partie', '6-defi', '5-pouvoirs', '2-annonce', '4-bilan']
+  const params = new URLSearchParams(location.search)
+  const lang = params.get('lang') ?? 'fr'
+  const format = params.get('format') ?? 'square'
+  const n = Number(params.get('n') ?? 0)
+  const copy = COPY[lang]
+  document.documentElement.lang = lang
+  document.body.dataset.format = format
+
+  const element = (tag, props = {}, ...children) => {
+    const node = Object.assign(document.createElement(tag), props)
+    node.append(...children)
+    return node
+  }
+  const phone = (shot, left) => {
+    // The run and the scoring screen from the kit's own run (render-stills.ts).
+    const own = { '3-partie': 'partie', '4-bilan': 'bilan' }[shot]
+    const src = own ? `../../.cache/social-kit/work/${lang}/${own}.png` : `../android/screenshots/${lang}/${shot}.png`
+    const frame = element('div', { className: 'phone' }, element('img', { src, alt: '' }))
+    if (left !== undefined) frame.style.left = `${left}px`
+    return frame
+  }
+  const name = () => element('h1', {}, element('span', { textContent: copy.name[0] }), ' ', element('span', { textContent: copy.name[1] }))
+
+  if (n === 0) {
+    document.body.append(element('div', { className: 'text title' },
+      element('img', { src: '../../assets/icon-only.png', alt: '' }),
+      name(),
+      element('p', { textContent: copy.hook }),
+      element('span', { className: 'cta', textContent: copy.cta }),
+    ))
+    if (format === 'banner') document.body.append(phone('3-partie', 830), phone('1-accueil', 1160))
+    else document.body.append(phone('1-accueil'))
+  } else {
+    const title = element('h1', { textContent: copy.shots[n - 1] })
+    document.body.append(element('div', { className: 'text' },
+      element('span', { className: 'dot' }),
+      title,
+      element('div', { className: 'brand' },
+        element('img', { src: '../../assets/icon-only.png', alt: '' }),
+        element('span', {}, `${copy.name[0]} ${copy.name[1]}`, element('small', { textContent: copy.cta })),
+      ),
+    ), phone(SHOTS[n - 1]))
+    // A long caption gets smaller rather than pushing the brand off the page.
+    document.fonts.ready.then(() => {
+      const room = { square: 520, feed: 300, story: 420, landscape: 560 }[format]
+      let size = parseFloat(getComputedStyle(title).fontSize)
+      while (title.offsetHeight > room && size > 40) title.style.fontSize = `${(size -= 4)}px`
+    })
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "lettre-minute-social-kit",
+  "private": true,
+  "description": "The social and store kit, in seven languages: videos filmed from an offline build and rendered with HyperFrames, stills rendered from HTML pages (see README.md).",
+  "type": "module",
+  "devDependencies": {
+    "gsap": "^3.13.0",
+    "hyperframes": "^0.8.140"
+  }
+}
