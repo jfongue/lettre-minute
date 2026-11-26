@@ -11449,11 +11449,11 @@ ligne, et se referme par une seconde tape. */
 
 /* ------------------------------------------------------------ hit areas - */
 /* Small targets keep their drawing and gain an invisible margin to the finger's
-   44 px: a reaction bubble, the board and friend-sort tabs, the reaction and
-   padlock buttons. */
+   44 px: a reaction bubble, the reaction and padlock buttons, the friend-sort
+   tabs. Not the boards' tabs: their rail clips what overflows it, for its
+   sliding thumb, and a margin there would never be reached. */
 .reaction-pick,
 .category-lock,
-.board-switch-tab,
 .friends-sort .layer-tab {
   position: relative;
 }
@@ -11461,7 +11461,6 @@ ligne, et se referme par une seconde tape. */
 .reaction-bubble::after,
 .reaction-pick::after,
 .category-lock::after,
-.board-switch-tab::after,
 .friends-sort .layer-tab::after {
   content: '';
   position: absolute;
@@ -11472,7 +11471,6 @@ ligne, et se referme par une seconde tape. */
   inset: -11px -6px;
 }
 
-.board-switch-tab::after,
 .friends-sort .layer-tab::after {
   inset: -6px 0;
 }

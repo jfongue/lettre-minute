@@ -31,6 +31,7 @@ import { SpyHistory, type SpyActions } from '../ui/SpyHistory'
 import { GameModes } from '../ui/GameModes'
 import { ModeTutorial } from '../ui/ModeTutorial'
 import { TutorialScreen } from '../ui/TutorialScreen'
+import { ScreenBoundary } from '../ui/ScreenBoundary'
 import { UpdateNotice } from '../ui/UpdateNotice'
 import { PushOffer } from '../ui/PushOffer'
 import { FlagWordCard, OldChallengeList, StatsPage } from '../ui/StatsPage'
@@ -1777,6 +1778,11 @@ function PremiumGrammarScenario({ onBack }: { onBack(): void }) {
   )
 }
 
+/** Un écran qui plante à son rendu, comme un morceau du jeu qui n'arrive pas. */
+function BrokenScreen(): never {
+  throw new Error('écran de démonstration')
+}
+
 const SCENARIOS: readonly Scenario[] = [
   {
     id: 'premium-sheet',
@@ -2855,6 +2861,18 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le Play Store a une version plus récente',
     phase: 'home',
     render: (back) => <UpdateNotice onLater={back} onUpdate={back} />,
+  },
+  {
+    id: 'screen-broken',
+    group: 'Accueil',
+    title: 'Écran qui n’a pas chargé',
+    how: 'Un morceau du jeu manque (mise à jour, coupure) ou un écran plante : la page ne blanchit plus, elle propose de recharger',
+    phase: 'home',
+    render: () => (
+      <ScreenBoundary>
+        <BrokenScreen />
+      </ScreenBoundary>
+    ),
   },
   {
     id: 'feedback-pop',
