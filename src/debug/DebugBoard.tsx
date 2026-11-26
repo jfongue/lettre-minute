@@ -1942,7 +1942,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'weekly-screen-race',
     group: 'Défi du moment',
     title: 'Écran du défi : course',
-    how: 'Le défi du 29 novembre : le drapeau à damier, le record lu comme un temps',
+    how: 'Le défi en course, quand une semaine la recevra : le drapeau à damier, le record lu comme un temps',
     phase: 'home',
     render: (back) => <WeeklyScreenScenario mode="race" used={1} plus={false} onBack={back} />,
   },

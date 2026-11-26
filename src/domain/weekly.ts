@@ -32,10 +32,12 @@ export const WEEKLY_SCHEDULE: readonly GameMode[] = ['endurance', 'delayed', 're
 
 /**
  * Une semaine sortie de la boucle, choisie à la main : son mode remplace celui
- * de la rotation. Une course s'y écrit aussi dans `weekly_metric` (0117),
- * qui refuse le résultat d'un client plus ancien jouant le mode de la boucle.
+ * de la rotation. Une course s'y écrit aussi dans `weekly_metric` (0117, 0118),
+ * qui refuse le résultat d'un client plus ancien jouant le mode de la boucle —
+ * d'où une date choisie une fois chaque version livrée avec la course, la
+ * revue de CrazyGames comprise. La course attend la sienne.
  */
-export const WEEKLY_EXCEPTIONS: Readonly<Record<string, GameMode>> = { '2026-11-29': 'race' }
+export const WEEKLY_EXCEPTIONS: Readonly<Record<string, GameMode>> = {}
 
 /**
  * Une semaine prolongée, en nombre de semaines : elle absorbe les dimanches

@@ -242,19 +242,18 @@ select tests.logout();
 
 -- ---------------------------------------------------------------- course --
 
--- La semaine du 29 novembre est une course (0117) : elle ne prend que ce
--- résultat, et la course n'en vaut pas un ailleurs.
+-- Aucune semaine n'impose la course depuis 0118 : un résultat de course est
+-- refusé partout, et le 29 novembre reprend les points de la boucle.
 create function tests.attempt_in(p_label text, p_week date) returns uuid
 language sql security definer set search_path = public as $$
   insert into public.weekly_attempts (player_id, week_id, lang, day, n)
   values (tests.uid(p_label), p_week, 'fr', p_week + 1, 3) returning id
 $$;
-select tests.is(public.weekly_metric('2026-11-29'), 'race', 'the week of 29 November is a race');
-select tests.is(public.weekly_metric('2026-11-22'), null, 'another week leaves the metric to the client');
+select tests.is(public.weekly_metric('2026-11-29'), null, 'the race no longer holds 29 November');
 create temp table races as select tests.attempt_in('wc', '2026-11-29') as race, tests.attempt_in('wc', '2026-11-22') as other;
 grant select on races to public;
 select tests.login('wc');
-select tests.is(public.weekly_finish((select race from races), 40, '[]'::jsonb, 'score'), false, 'an older client’s points are refused in the race week');
-select tests.is(public.weekly_finish((select other from races), 40, '[]'::jsonb, 'race'), false, 'a race result is refused in another week');
-select tests.is(public.weekly_finish((select race from races), 133.7, '[]'::jsonb, 'race'), true, 'a race result is taken in its week');
+select tests.is(public.weekly_finish((select race from races), 133.7, '[]'::jsonb, 'race'), false, 'a race result is refused in a week that is not a race');
+select tests.is(public.weekly_finish((select race from races), 40, '[]'::jsonb, 'score'), true, 'the delayed week of 29 November takes points');
+select tests.is(public.weekly_finish((select other from races), 40, '[]'::jsonb, 'survival'), true, 'an endurance week takes seconds');
 select tests.logout();

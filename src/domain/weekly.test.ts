@@ -215,14 +215,12 @@ describe('the weekly challenge', () => {
     expect(weeklyChallenge('2026-11-08', 'fr', IDS).metric).toBe('score')
   })
 
-  it('runs a race the week of 29 November, ranked by its arrival', () => {
+  it('keeps 29 November on the delayed week every shipped client expects', () => {
+    // La course attend que chaque version la connaisse : un client plus ancien
+    // jouerait le mode de sa boucle, et le serveur refuserait ses résultats.
     expect(weeklyMode('2026-11-22')).toBe('endurance')
-    const race = weekOf(at('2026-11-29T20:00:00Z'))
-    expect(race.weekId).toBe('2026-11-29')
-    expect(weeklyMode(race.weekId)).toBe('race')
-    expect(weeklyChallenge(race.weekId, 'fr', IDS).metric).toBe('race')
-    // La boucle reprend derrière, là où elle en était.
-    expect(weeklyMode('2026-12-06')).toBe(WEEKLY_SCHEDULE[weekNumber('2026-12-06') % WEEKLY_SCHEDULE.length])
+    expect(weeklyMode('2026-11-29')).toBe('delayed')
+    expect(weeklyChallenge('2026-11-29', 'fr', IDS).metric).toBe('score')
   })
 
   it('reads a race time back from its value, and none without an arrival', () => {
