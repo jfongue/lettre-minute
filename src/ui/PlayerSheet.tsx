@@ -96,11 +96,6 @@ function PlayerSheet({ name, avatar, onClose }: { name: string; avatar: AvatarCh
     }
   }, [actions, name])
 
-  useEffect(() => {
-    const escape = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
-    window.addEventListener('keydown', escape)
-    return () => window.removeEventListener('keydown', escape)
-  }, [onClose])
   useBackDismiss(onClose)
 
   if (spying && actions.spy) {

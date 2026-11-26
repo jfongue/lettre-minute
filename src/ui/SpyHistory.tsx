@@ -45,16 +45,6 @@ export function SpyHistory({ player, name, actions, onClose }: { player: string;
       delete document.body.dataset.spy
     }
   }, [])
-  useEffect(() => {
-    const escape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      // Échap ferme l'historique, pas le tableau de bord qui écoute aussi.
-      event.stopImmediatePropagation()
-      onClose()
-    }
-    window.addEventListener('keydown', escape, true)
-    return () => window.removeEventListener('keydown', escape, true)
-  }, [onClose])
   useBackDismiss(onClose)
 
   return createPortal(

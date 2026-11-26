@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
 import type { AvatarChoice } from '../domain/avatar'
 import { levelFor } from '../domain/progression'
@@ -317,11 +317,6 @@ export function AddFriendSheet({
   const [busy, setBusy] = useState(false)
   const [said, setSaid] = useState<string | null>(null)
 
-  useEffect(() => {
-    const escape = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
-    window.addEventListener('keydown', escape)
-    return () => window.removeEventListener('keydown', escape)
-  }, [onClose])
   useBackDismiss(onClose)
 
   const send = async (event: FormEvent) => {

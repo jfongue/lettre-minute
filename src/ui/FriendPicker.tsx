@@ -2,6 +2,7 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from 'react'
 import { fetchFriends, type Friend } from '../lib/cloud'
 import { useT } from '../i18n'
 import { Avatar } from './Avatar'
+import { useBackDismiss } from './useBackDismiss'
 
 interface FriendPickerProps {
   title: string
@@ -30,11 +31,7 @@ export function FriendPicker({ title, lead, exclude, max, busy, message, confirm
     fetchFriends().then(setFriends)
   }, [])
 
-  useEffect(() => {
-    const escape = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
-    window.addEventListener('keydown', escape)
-    return () => window.removeEventListener('keydown', escape)
-  }, [onClose])
+  useBackDismiss(onClose)
 
   const list =
     friends === 'loading' || friends === null

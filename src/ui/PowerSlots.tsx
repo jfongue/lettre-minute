@@ -103,14 +103,7 @@ function PowerPicker({
   // One tap wears the power: its sound and gesture play, then the picker closes on its own.
   const [chosen, setChosen] = useState<PowerId | null>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
-  useEffect(() => {
-    const escape = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
-    window.addEventListener('keydown', escape)
-    return () => {
-      window.removeEventListener('keydown', escape)
-      clearTimeout(timer.current)
-    }
-  }, [onClose])
+  useEffect(() => () => clearTimeout(timer.current), [])
   useBackDismiss(onClose)
 
   const wear = (id: PowerId) => {
