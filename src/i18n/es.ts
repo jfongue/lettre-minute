@@ -987,6 +987,11 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
     later: 'Más tarde',
     go: 'Actualizar',
   },
+  broken: {
+    title: 'No se ha cargado',
+    lead: 'Esta pantalla no ha podido abrirse, seguramente por un corte de conexión. Tu progreso está a salvo.',
+    reload: 'Recargar',
+  },
 
   tiers: { courant: 'común', 'peu commun': 'poco común', rare: 'rara', 'très rare': 'muy rara' },
 

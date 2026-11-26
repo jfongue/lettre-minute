@@ -1,4 +1,5 @@
-import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { ScreenBoundary } from './ui/ScreenBoundary'
 import { availableCategoryIds, loadPack, loadPacks } from './data/packs'
 import {
   acceptInvite,
@@ -670,12 +671,18 @@ setMenuPage(null)
 
   // Everything below is best-effort: the cloud calls answer with a fallback
   // rather than throwing, so a missing project simply leaves the game local.
+  // A quick switch of language must not let the previous one's late answer
+  // seed the new language's dictionaries.
   useEffect(() => {
-    fetchCrowdUsage(lang).then((usage) => setCrowd(usage.shares))
-    fetchPromptStats(lang).then((records) => setPromptStats({ lang, records }))
+    let live = true
+    fetchCrowdUsage(lang).then((usage) => live && setCrowd(usage.shares))
+    fetchPromptStats(lang).then((records) => live && setPromptStats({ lang, records }))
     fetchCommunityWords(lang).then((words) => {
-      community.current = words
+      if (live) community.current = words
     })
+    return () => {
+      live = false
+    }
   }, [lang])
 
   const readAccount = useCallback(
@@ -781,7 +788,7 @@ setMenuPage(null)
   // Toutes ses demandes, et pas seulement les nouvelles : c'est là que le jeu
   // lit les mots que ce joueur a lui-même fait entrer au dictionnaire.
   const [mine, setMine] = useState<readonly Submission[]>([])
-  const [acceptedWords, setAcceptedWords] = useState(0)
+  const [acceptedWords, setAcceptedWords] = useState<number | null>(null)
   // Une demande existe dès qu'un mot attend sur l'appareil ou vit chez le serveur :
   // c'est elle qui ouvre « Mes demandes » à l'accueil. La file se relit au retour
   // à l'accueil, la seule fois où la tuile se décide.
@@ -804,20 +811,26 @@ setMenuPage(null)
   }, [creditNews])
   useEffect(() => {
     if (!signedIn) return
+    // An answer for the account just left must not bank its reveals in the next one.
+    let live = true
     fetchMySubmissions().then((found) => {
-      if (!found) return
+      if (!found || !live) return
       setMine(found)
       setAcceptedWords(found.filter((submission) => submission.status === 'accepted').length)
       setWordsNews(found.filter((submission) => submission.fresh))
       creditNews(found)
     })
+    return () => {
+      live = false
+    }
   }, [signedIn, account?.name, account?.anonymous, creditNews])
 
   // Les mots ajoutés se déduisent des demandes acceptées, et le serveur seul en
   // décide : le profil les reçoit pour que les sept tuiles qu'ils débloquent
   // tiennent hors ligne. Un compte anonyme n'en a aucun, faute de pouvoir proposer.
   useEffect(() => {
-    if (session.profile.wordsAdded === acceptedWords) return
+    // Until the server has answered, the count kept in the profile stands.
+    if (acceptedWords === null || session.profile.wordsAdded === acceptedWords) return
     dispatch({ type: 'profile-loaded', profile: { ...session.profile, wordsAdded: acceptedWords } })
   }, [acceptedWords, session.profile])
 
@@ -2013,7 +2026,7 @@ setStartedAt((at) => at ?? Date.now())
   const superOfferDue = moderation?.offer === 'super' && moderation.moderator && !moderation.super && !offerHeld && on('moderatorOffer')
   const offerDue = superOfferDue || (!alreadyModerating && moderation?.offer !== 'super' && (bonusOfferDue || (!!moderation?.offer && !offerHeld && on('moderatorOffer'))))
   const wordsNewsDue = wordsNews.length > 0 && on('wordsNews')
-  const giftDue = complicationDue(session.profile, acceptedWords) && on('powerGift')
+  const giftDue = complicationDue(session.profile, acceptedWords ?? 0) && on('powerGift')
   // Premium thanks its new member once, back home, and asks for an opinion in
   // exchange: that ask stands in for the regular one if both are due.
   const thanksDue = cloudConfigured() && plusThanksDue(session.profile)
@@ -2055,7 +2068,7 @@ setStartedAt((at) => at ?? Date.now())
     return (
       <MessagesContext value={t}>
         <main className={`stage stage--${debugPhase}${muteable ? ' stage--muteable' : ''}`}>
-          <Suspense fallback={null}>
+          <ScreenBoundary>
             <DebugBoard
               onPhase={setDebugPhase}
               onClose={() => {
@@ -2063,7 +2076,7 @@ setStartedAt((at) => at ?? Date.now())
                 setDebugPhase(null)
               }}
             />
-          </Suspense>
+          </ScreenBoundary>
         </main>
       </MessagesContext>
     )
@@ -2089,7 +2102,7 @@ setStartedAt((at) => at ?? Date.now())
 )}
 
       {moderating === 'profiles' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <ProfileReviewScreen
             onDone={() => {
               setModerating(false)
@@ -2097,11 +2110,11 @@ setStartedAt((at) => at ?? Date.now())
               setMenuPage('requests')
             }}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {moderating === 'words' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <ModerationScreen
             lang={lang}
             onVerdict={() => dispatch({ type: 'profile-loaded', profile: settleReview(profile.current) })}
@@ -2111,11 +2124,11 @@ setStartedAt((at) => at ?? Date.now())
               setMenuPage('requests')
             }}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {challengeOpen && !moderating && session.phase === 'home' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <ChallengeScreen
             key={challengeOpen}
             id={challengeOpen}
@@ -2123,11 +2136,11 @@ setStartedAt((at) => at ?? Date.now())
             onRematch={rematch}
             onBack={leaveChallenge}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {duelOpen && session.phase === 'home' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <DuelScreen
             key={duelOpen.join ?? (duelOpen.local ? 'local' : 'new')}
             lang={lang}
@@ -2139,7 +2152,7 @@ setStartedAt((at) => at ?? Date.now())
             onProfile={duelProfile}
             onSignIn={duelOpen.local ? duelSignIn : undefined}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {together && session.phase === 'home' && !duelOpen && (
@@ -2185,7 +2198,7 @@ setStartedAt((at) => at ?? Date.now())
       )}
 
       {matching && session.phase === 'home' && !duelOpen && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <DuelMatchmaking
             lang={lang}
             onMatched={(table) => {
@@ -2201,7 +2214,7 @@ setStartedAt((at) => at ?? Date.now())
               setDuelOpen({ join: null })
             }}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {modesOpen && session.phase === 'home' && !tutorial && (
@@ -2274,7 +2287,7 @@ setStartedAt((at) => at ?? Date.now())
       )}
 
       {creating && session.phase === 'home' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <FriendPicker
             title={t.challenge.create}
             lead={t.challenge.createLead(CHALLENGE_MAX_PLAYERS - 1)}
@@ -2294,11 +2307,11 @@ setStartedAt((at) => at ?? Date.now())
               onRules={(rules) => setCreating({ ...creating, rules })}
             />
           </FriendPicker>
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {picking && session.phase === 'home' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <ChallengePowers
             allowed={challengePowers(session.profile)}
             initial={defaultChallengePowers(session.profile)}
@@ -2306,7 +2319,7 @@ setStartedAt((at) => at ?? Date.now())
             onStart={(powers) => launchChallenge(picking, powers)}
             onClose={() => setPicking(null)}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {pop === 'name' && nameAsk !== null && (
@@ -2461,7 +2474,7 @@ setStartedAt((at) => at ?? Date.now())
       )}
 
       {menuLayer.shown !== null && !moderating && (session.phase === 'home' || session.phase === 'loading' || session.phase === 'over') && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <Menu
             page={menuLayer.shown}
             leaving={menuLayer.leaving}
@@ -2540,23 +2553,23 @@ avatarFocus={avatarFocus}
             }}
             onClose={closeMenu}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {wordsBoard && on('wordsBoard') && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <WordsBoard lang={lang} superModerator={roles.superModerator} onClose={() => setWordsBoard(false)} />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {featuresBoard && moderation?.super && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <FeaturesBoard roles={roles} onClose={() => setFeaturesBoard(false)} />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {session.phase === 'countdown' && session.run && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <CountdownScreen
             key={session.run.seed}
             categoryIds={session.run.categoryIds}
@@ -2571,11 +2584,11 @@ avatarFocus={avatarFocus}
               dispatch({ type: 'start' })
             }}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {session.phase === 'playing' && session.run && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <RunScreen
             run={session.run}
             draft={session.draft}
@@ -2606,13 +2619,13 @@ avatarFocus={avatarFocus}
             rivals={rivals}
             avatar={avatar}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {weeklyFlow.over}
 
       {session.phase === 'over' && session.run && !session.weekly && !moderating && !loadout && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <OverScreen
             run={session.run}
             profile={session.profile}
@@ -2668,7 +2681,7 @@ setMenuPage('avatar')
               if (session.challengeId) fetchChallenge(session.challengeId).then((detail) => detail && setAfterRun(detail))
             }}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {muteable && <MuteButton muted={soundPrefs.muted} onToggle={() => tune({ ...soundPrefs, muted: !soundPrefs.muted })} />}

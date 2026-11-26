@@ -20,9 +20,11 @@ export function LanguagePicker({ onPick }: { onPick(locale: Locale): void }) {
   useEffect(() => {
     if (!draft) return
     let living = true
-    void loadMessages(draft).then((messages) => {
-      if (living) setPreview(messages)
-    })
+    loadMessages(draft).then(
+      (messages) => living && setPreview(messages),
+      // A language whose texts failed to arrive cannot be previewed: the choice reopens.
+      () => living && setDraft(null),
+    )
     return () => {
       living = false
     }

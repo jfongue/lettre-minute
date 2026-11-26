@@ -991,6 +991,11 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
     later: 'Later',
     go: 'Update',
   },
+  broken: {
+    title: 'That didn’t load',
+    lead: 'This screen couldn’t open, probably a dropped connection. Your progress is safe.',
+    reload: 'Reload',
+  },
 
   tiers: { courant: 'common', 'peu commun': 'uncommon', rare: 'rare', 'très rare': 'very rare' },
 

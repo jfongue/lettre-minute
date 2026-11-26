@@ -987,6 +987,11 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
     later: 'Mais tarde',
     go: 'Atualizar',
   },
+  broken: {
+    title: 'Não carregou',
+    lead: 'Esta tela não abriu, provavelmente por uma queda de conexão. Seu progresso está salvo.',
+    reload: 'Recarregar',
+  },
 
   tiers: { courant: 'comum', 'peu commun': 'incomum', rare: 'rara', 'très rare': 'muito rara' },
 

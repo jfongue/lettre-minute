@@ -985,6 +985,11 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
     later: 'Später',
     go: 'Aktualisieren',
   },
+  broken: {
+    title: 'Das hat nicht geladen',
+    lead: 'Dieser Bildschirm konnte nicht öffnen, wohl wegen einer Verbindungsunterbrechung. Dein Fortschritt bleibt erhalten.',
+    reload: 'Neu laden',
+  },
 
   tiers: { courant: 'gängig', 'peu commun': 'ungewöhnlich', rare: 'selten', 'très rare': 'sehr selten' },
 

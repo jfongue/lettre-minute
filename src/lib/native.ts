@@ -39,23 +39,21 @@ export function isNativeApp(): boolean {
  * the foreground, which the WebView does not always pass on as a hidden page,
  * and an interstitial covers it without hiding it at all.
  */
-export function onAppActive(onChange: (active: boolean) => void): void {
-  if (!native) return
-  quietly(() =>
-    NativeApp.addListener("appStateChange", ({ isActive }) => onChange(isActive))
-  )
-  quietly(() =>
-    AdMob.addListener(InterstitialAdPluginEvents.Showed, () => onChange(false))
-  )
-  quietly(() =>
-    AdMob.addListener(InterstitialAdPluginEvents.Dismissed, () => onChange(true))
-  )
-  quietly(() =>
-    AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, () => onChange(true))
-  )
-  quietly(() => AdMob.addListener(RewardAdPluginEvents.Showed, () => onChange(false)))
-  quietly(() => AdMob.addListener(RewardAdPluginEvents.Dismissed, () => onChange(true)))
-  quietly(() => AdMob.addListener(RewardAdPluginEvents.FailedToShow, () => onChange(true)))
+export function onAppActive(onChange: (active: boolean) => void): () => void {
+  if (!native) return () => {}
+  const handles: Promise<{ remove(): Promise<void> }>[] = [
+    NativeApp.addListener('appStateChange', ({ isActive }) => onChange(isActive)),
+    AdMob.addListener(InterstitialAdPluginEvents.Showed, () => onChange(false)),
+    AdMob.addListener(InterstitialAdPluginEvents.Dismissed, () => onChange(true)),
+    AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, () => onChange(true)),
+    AdMob.addListener(RewardAdPluginEvents.Showed, () => onChange(false)),
+    AdMob.addListener(RewardAdPluginEvents.Dismissed, () => onChange(true)),
+    AdMob.addListener(RewardAdPluginEvents.FailedToShow, () => onChange(true)),
+  ]
+  for (const handle of handles) handle.catch(() => {})
+  return () => {
+    for (const handle of handles) handle.then((listener) => listener.remove()).catch(() => {})
+  }
 }
 
 /** Each return of the app to the foreground, until the returned cleanup runs. */

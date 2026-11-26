@@ -1035,6 +1035,11 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
     later: 'Plus tard',
     go: 'Mettre à jour',
   },
+  broken: {
+    title: 'Ça n’a pas chargé',
+    lead: 'Cet écran n’a pas pu s’ouvrir, sans doute une coupure de connexion. Ta progression est gardée.',
+    reload: 'Recharger',
+  },
 
   tiers: {
     courant: 'courant',

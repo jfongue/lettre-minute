@@ -986,6 +986,11 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
     later: 'Later',
     go: 'Bijwerken',
   },
+  broken: {
+    title: 'Dat laadde niet',
+    lead: 'Dit scherm kon niet openen, waarschijnlijk door een verbroken verbinding. Je voortgang blijft bewaard.',
+    reload: 'Opnieuw laden',
+  },
 
   tiers: { courant: 'gewoon', 'peu commun': 'ongewoon', rare: 'zeldzaam', 'très rare': 'zeer zeldzaam' },
 

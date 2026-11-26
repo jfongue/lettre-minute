@@ -483,7 +483,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   // règle du meneur vraie sur la plateforme du jeu, pas seulement au navigateur.
   useEffect(() => {
     if (mode !== 'online') return
-    onAppActive((active) => setHidden(!active))
+    return onAppActive((active) => setHidden(!active))
   }, [mode])
 
   // La page s'en va pour de bon : la place se libère tout de suite, et le meneur
