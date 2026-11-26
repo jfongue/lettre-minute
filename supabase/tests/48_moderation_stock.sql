@@ -99,3 +99,12 @@ select tests.logout();
 select tests.login('ob');
 select tests.is(public.moderation_status('de') ->> 'offer', 'level', 'but a posed invitation still shows');
 select tests.logout();
+
+-- ------------------------------------------------- revues orphelines --
+
+-- Un ajout dont la proposition a disparu (auteur banni, 0116) ne se montre
+-- plus dans la file : il ne compte pas dans le stock (0120).
+select tests.propose('p2', 'de:tiere', 'de:dachs');
+select tests.is(public.moderation_stock('de'), 13, 'a fresh proposal counts');
+delete from public.word_submissions where category_id = 'de:tiere' and word = 'de:dachs';
+select tests.is(public.moderation_stock('de'), 12, 'an orphan review does not');
