@@ -1553,59 +1553,6 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 /* ------------------------------------------------------------------ over - */
-.score-poster {
-  position: relative;
-  overflow: hidden;
-  display: grid;
-  gap: 0.2rem;
-  padding: 1.4rem 1.4rem 1.6rem;
-  min-height: 14rem;
-  align-content: end;
-  background: var(--blue);
-  color: var(--cream);
-}
-
-.score-poster > :not(.shape) {
-  position: relative;
-}
-
-.score-poster .eyebrow {
-  color: inherit;
-  opacity: 0.8;
-}
-
-.score-poster > .shape {
-  position: absolute;
-}
-
-.score-poster-sun {
-  width: 9.5rem;
-  height: 9.5rem;
-  right: -2.6rem;
-  top: -2.6rem;
-  animation:
-    rise-in 900ms var(--ease-spring) 250ms both,
-    breathe 6s ease-in-out 1.2s infinite alternate;
-}
-
-.score-poster-quarter {
-  width: 6.5rem;
-  height: 6.5rem;
-  right: 0;
-  bottom: 0;
-  transform: rotate(180deg);
-  animation: corner-in 800ms var(--ease-spring) 450ms both;
-}
-
-.score-poster-bars {
-  width: 2.4rem;
-  height: 2.4rem;
-  right: 7.8rem;
-  top: 1.5rem;
-  opacity: 0.9;
-  animation: fade 600ms ease 700ms both;
-}
-
 .score-final {
   font-size: clamp(4.5rem, 25vw, 7rem);
   font-weight: 800;
@@ -1655,12 +1602,6 @@ animation: clock-bonus 500ms var(--ease-out);
   max-width: 80%;
 }
 
-.unlock-text--quiet {
-  font-size: 1rem;
-  font-weight: 600;
-  text-transform: none;
-}
-
 .best {
   display: flex;
   flex-wrap: wrap;
@@ -1681,11 +1622,6 @@ animation: clock-bonus 500ms var(--ease-out);
   font-weight: 800;
 }
 
-.best-points {
-  font-weight: 800;
-  color: var(--green);
-}
-
 .found {
   list-style: none;
   padding: 0;
@@ -1703,13 +1639,6 @@ animation: clock-bonus 500ms var(--ease-out);
   animation-delay: calc(450ms + min(var(--i, 0), 12) * 50ms);
 }
 
-.found-word {
-  font-weight: 600;
-  font-size: 1.05rem;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
 .found .note {
   font-size: 0.75rem;
 }
@@ -1722,19 +1651,6 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 /* -------------------------------------------------------------- colophon - */
-.colophon {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 0.25rem 1rem;
-  padding-top: 0.5rem;
-}
-
-.colophon a {
-  text-decoration-line: underline;
-}
-
 .erase-confirm {
   display: flex;
   flex-wrap: wrap;
@@ -2352,16 +2268,6 @@ animation: clock-bonus 500ms var(--ease-out);
 .friend--open:hover,
 .friend--open:focus-visible {
   background: var(--paper-2);
-}
-
-.friend-chevron {
-  width: 1.1rem;
-  height: 1.1rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.6;
-  stroke-linecap: square;
-  color: var(--ink-faint);
 }
 
 /* What a friend types to find you, set apart from the list it opens. */
@@ -4218,20 +4124,6 @@ referment d'un coup : `--way` donne le sens de chacune. */
   padding-left: 0;
 }
 
-.earned-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.9rem;
-}
-
-.earned-colour {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-weight: 600;
-}
-
 .earned .btn--quiet {
   justify-self: start;
   padding-left: 0;
@@ -4325,18 +4217,6 @@ referment d'un coup : `--way` donne le sens de chacune. */
 .field input:focus {
   outline: 3px solid var(--yellow);
   outline-offset: 0;
-}
-
-.support-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-
-.support-actions .btn {
-  flex: 1 1 12rem;
-  text-align: center;
-  text-decoration: none;
 }
 
 @keyframes sway {
@@ -5093,11 +4973,6 @@ referment d'un coup : `--way` donne le sens de chacune. */
   .figures--three {
     grid-template-columns: repeat(3, 1fr);
   }
-}
-
-.earned-item {
-  animation: pop-in 480ms var(--ease-spring) both;
-  animation-delay: calc(700ms + var(--i, 0) * 120ms);
 }
 
 /* Le succès du bilan se lit ligne à ligne : sa condition est écrite à côté de
@@ -7013,23 +6888,6 @@ rien d’autre — aucun point, aucune rareté ne bouge. */
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.lesson-words {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  gap: 0.45rem;
-}
-
-.lesson-words li {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 0.7rem;
-  font-weight: 700;
-  animation: rise 360ms var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * 70ms + 200ms);
 }
 
 .power-seal-icon {
@@ -9280,10 +9138,6 @@ body[data-words='board'] .offer-pop-layer {
 
 .category-swipe--armed .category-swipe-under {
   opacity: 1;
-}
-
-.category-ban {
-  padding-inline: 0.4rem;
 }
 
 .categories li.category--banned .category-shape {

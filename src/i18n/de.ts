@@ -154,11 +154,9 @@ export const de: Messages = {
     lead: 'Danke fürs Spielen! Ich bin ein kleiner Entwickler aus Frankreich… Um mich zu unterstützen, erzähl von dem Spiel und gib ihm 5 Sterne!',
     later: 'Später',
     ok: 'Okay!',
-    frameDescription: 'Danke, dass du Letter Minute unterstützt!',
     close: 'Schließen',
     hello:
       'Hallo, ich bin Jérémy!\nIch bin ein unabhängiger Entwickler aus Frankreich und baue Lettre Minute in meiner Freizeit.\nWenn dir das Spiel gefällt, hilft mir deine Unterstützung enorm, schon 1 € zählt.\nVon Herzen danke!',
-    photo: 'Jérémy, der Macher des Spiels',
   },
 
   account: {
@@ -269,7 +267,6 @@ export const de: Messages = {
     editAvatarLabel: 'Meinen Avatar bearbeiten',
     anonymous: 'Anonymer Spieler',
     standing: (level, record) => `Level ${level} · Rekord ${record}`,
-    editAvatar: 'Avatar bearbeiten',
     signedInAs: (email) => `Angemeldet als ${email}`,
     logOut: 'Abmelden',
   logOutWarning: 'Dein Konto behält deine Partien; dieses Gerät fängt von vorn an.',
@@ -299,7 +296,6 @@ export const de: Messages = {
     add: 'Freund hinzufügen',
     nameLabel: 'Dein Spielername',
     share: 'Teilen',
-    shareName: (name) => `Füg mich bei Letter Minute als Freund hinzu: Mein Spielername ist ${name}.`,
     incomingCount: (count) => `${count} ${plural(count, 'Anfrage', 'Anfragen')}`,
     wantsFriend: 'möchte mit dir befreundet sein',
     sortLabel: 'Freunde sortieren',
@@ -955,13 +951,11 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
     title: 'Deine Vorteile',
     filters: (used, max) => `Filter: ${used} von ${max}`,
     filtersLocked: 'Filtern: noch nicht gewonnen',
-    filtersPlus: (max) => `Filtern: bis zu ${max} Kategorien`,
     reveals: (left, allowed) => `Heutige Enthüllungen: ${left} von ${allowed}`,
     revealsPlus: 'Unbegrenzte Enthüllungen',
     slots: (count, max) => `Kraft-Plätze: ${count} von ${max}`,
   hintFilters: 'Filtern hält eine Kategorie aus deinen Solopartien heraus.',
   hintReveals: 'In der Auswertung deckst du ein Wort auf, das du hättest schreiben können.',
-  hintSlots: 'Die Kräfte, die du ins Spiel nimmst.',
   },
 
   bonus: {
@@ -1061,9 +1055,6 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
     ready: 'Bereit',
     notReady: 'Noch nicht bereit',
     invited: 'Eingeladen',
-    inviteAction: 'Einladen',
-    leftStamp: 'Gegangen',
-    keepOne: 'Am Tisch braucht es mindestens einen Gegner.',
     readyButton: 'Ich bin bereit',
     tableSize: (players: number) => `${players} Spieler`,
     waitingOthers: 'Die anderen kommen…',

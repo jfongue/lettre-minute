@@ -87,11 +87,3 @@ export function announcedCategories(): readonly (CategoryMeta | SoonCategory)[] 
   return [...CATALOGUE, ...SOON]
 }
 
-export function unlockedCategories(level: number): CategoryMeta[] {
-  return CATALOGUE.filter((category) => category.unlockLevel <= level)
-}
-
-/** What the next level opens, if anything — the carrot shown on the end screen. */
-export function unlockedAt(level: number): CategoryMeta[] {
-  return CATALOGUE.filter((category) => category.unlockLevel === level)
-}

@@ -1278,8 +1278,8 @@ const PROFILE_QUEUE: readonly ProfileReview[] = [
     rejected: 16,
     pending: 0,
     words: [
-      { display: 'Azerty', lang: 'fr', categoryId: 'animaux', status: 'rejected', at: Date.now() - 0 * 86_400_000, reasons: ['Pas un animal.', 'Ce sont les lettres du clavier.'] },
-      { display: 'Qsdf', lang: 'fr', categoryId: 'pays', status: 'rejected', at: Date.now() - 0 * 86_400_000, reasons: [] },
+      { display: 'Azerty', lang: 'fr', categoryId: 'animaux', status: 'rejected', at: Date.now(), reasons: ['Pas un animal.', 'Ce sont les lettres du clavier.'] },
+      { display: 'Qsdf', lang: 'fr', categoryId: 'pays', status: 'rejected', at: Date.now(), reasons: [] },
       { display: 'Chat', lang: 'fr', categoryId: 'animaux', status: 'accepted', at: Date.now() - 1 * 86_400_000, reasons: [] },
       { display: 'Lolilol', lang: 'fr', categoryId: 'metiers', status: 'rejected', at: Date.now() - 1 * 86_400_000, reasons: ['Mot inventé.'] },
     ],
@@ -1292,7 +1292,7 @@ const PROFILE_QUEUE: readonly ProfileReview[] = [
     rejected: 7,
     pending: 2,
     words: [
-      { display: 'Doudou', lang: 'fr', categoryId: 'objets', status: 'pending', at: Date.now() - 0 * 86_400_000, reasons: [] },
+      { display: 'Doudou', lang: 'fr', categoryId: 'objets', status: 'pending', at: Date.now(), reasons: [] },
       { display: 'Pokémon', lang: 'fr', categoryId: 'animaux', status: 'rejected', at: Date.now() - 1 * 86_400_000, reasons: ['Personnage de jeu vidéo, pas un animal.'] },
       { display: 'Ouistiti', lang: 'fr', categoryId: 'animaux', status: 'accepted', at: Date.now() - 2 * 86_400_000, reasons: [] },
       { display: 'Kebabier', lang: 'fr', categoryId: 'metiers', status: 'rejected', at: Date.now() - 3 * 86_400_000, reasons: ['Pas dans le dictionnaire.'] },

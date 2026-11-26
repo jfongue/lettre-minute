@@ -1509,25 +1509,6 @@
   width: 1.6rem;
 }
 
-.duel-death__next {
-  color: var(--cream);
-}
-
-.duel-death__beat {
-  display: grid;
-  place-items: center;
-  margin: 0.2rem 0 0;
-  width: 3.6rem;
-  height: 3.6rem;
-  border-radius: 50%;
-  background: var(--red);
-  color: var(--black);
-  font-size: 2rem;
-  font-weight: 800;
-  line-height: 1;
-  animation: duel-death-beat 800ms var(--ease-out) both;
-}
-
 @keyframes duel-death-beat {
   from {
     transform: scale(0.5);

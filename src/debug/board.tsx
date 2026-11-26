@@ -47,36 +47,11 @@ export function Section({
   )
 }
 
-export function Card({ title, tag, note, children }: { title: string; tag?: string; note?: string; children: ReactNode }) {
-  return (
-    <div className="dashboard-card">
-      <h3>
-        {title} {tag && <span className="dashboard-tag">{tag}</span>}
-      </h3>
-      {note && <p className="note">{note}</p>}
-      {children}
-    </div>
-  )
-}
-
 export function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="dashboard-stat">
       <b>{value}</b>
       <span>{label}</span>
-    </div>
-  )
-}
-
-export function Legend({ items }: { items: { label: string; color: string }[] }) {
-  return (
-    <div className="dashboard-legend">
-      {items.map((item) => (
-        <span key={item.label}>
-          <i style={{ background: item.color }} />
-          {item.label}
-        </span>
-      ))}
     </div>
   )
 }

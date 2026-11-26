@@ -12,8 +12,6 @@ import type { Run } from './run'
  */
 
 export const CHALLENGE_MAX_PLAYERS = 8
-/** A challenge closes this long after its last run, even if some invitees never played. */
-export const CHALLENGE_EXPIRY_HOURS = 24
 /** The XP a challenge run pays on top of its points: playing with friends is worth a little more. */
 export const CHALLENGE_XP_BONUS = 0.25
 /** What a word no other player found is worth, against its points. */

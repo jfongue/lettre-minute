@@ -155,11 +155,9 @@ export const es: Messages = {
     lead: '¡Gracias por jugar! Soy un pequeño desarrollador francés… Para animarme, habla del juego a quienes te rodean y dale 5 estrellas.',
     later: 'Más tarde',
     ok: '¡Vale!',
-    frameDescription: '¡Gracias por apoyar Letra Minuto!',
     close: 'Cerrar',
     hello:
       '¡Hola, soy Jérémy!\nSoy un desarrollador francés independiente y creo Lettre Minute en mi tiempo libre.\nSi te ha gustado el juego, tu apoyo me ayudaría muchísimo, incluso 1 € cuenta.\n¡Gracias de corazón!',
-    photo: 'Jérémy, el creador del juego',
   },
 
   account: {
@@ -270,7 +268,6 @@ export const es: Messages = {
     editAvatarLabel: 'Editar mi avatar',
     anonymous: 'Jugador anónimo',
     standing: (level, record) => `Nivel ${level} · récord ${record}`,
-    editAvatar: 'Editar el avatar',
     signedInAs: (email) => `Conectado con ${email}`,
     logOut: 'Cerrar sesión',
   logOutWarning: 'Tu cuenta conserva tus partidas; este dispositivo empieza de cero.',
@@ -300,7 +297,6 @@ export const es: Messages = {
     add: 'Añadir un amigo',
     nameLabel: 'Tu nombre de jugador',
     share: 'Compartir',
-    shareName: (name) => `Agrégame como amigo en Letra Minuto: mi nombre de jugador es ${name}.`,
     incomingCount: (count) => `${count} ${plural(count, 'solicitud', 'solicitudes')}`,
     wantsFriend: 'quiere ser tu amigo',
     sortLabel: 'Ordenar tus amigos',
@@ -957,13 +953,11 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
     title: 'Tus ventajas',
     filters: (used, max) => `Filtros: ${used} de ${max}`,
     filtersLocked: 'Filtrado: aún sin ganar',
-    filtersPlus: (max) => `Filtrado: hasta ${max} categorías`,
     reveals: (left, allowed) => `Revelaciones de hoy: ${left} de ${allowed}`,
     revealsPlus: 'Revelaciones ilimitadas',
     slots: (count, max) => `Huecos de poder: ${count} de ${max}`,
   hintFilters: 'El filtrado deja una categoría fuera de tus partidas en solitario.',
   hintReveals: 'En el resumen, revela una palabra que podrías haber escrito.',
-  hintSlots: 'Los poderes que llevas a la partida.',
   },
 
   bonus: {
@@ -1063,9 +1057,6 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
     ready: 'Listo',
     notReady: 'Aún no está listo',
     invited: 'Invitado',
-    inviteAction: 'Invitar',
-    leftStamp: 'Se fue',
-    keepOne: 'La mesa necesita al menos un rival.',
     readyButton: 'Estoy listo',
     tableSize: (players: number) => `${players} jugadores`,
     waitingOthers: 'Los demás llegan…',

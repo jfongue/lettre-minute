@@ -56,12 +56,6 @@ export function promptKey(prompt: Prompt): string {
   return `${prompt.categoryId}:${prompt.letter}`
 }
 
-/** The prompt a key stands for, as `promptKey` wrote it. */
-export function promptOf(key: string): Prompt {
-  const cut = key.lastIndexOf(':')
-  return { categoryId: key.slice(0, cut), letter: key.slice(cut + 1) }
-}
-
 export interface FoundWord {
   prompt: Prompt
   /** Canonical form, which is what uniqueness and usage are counted on. */
@@ -382,11 +376,6 @@ export function chargesLeft(run: Run, power: PowerId): number {
  */
 export function markPowerUsed(run: Run, power: PowerId): Run {
   return run.usedPowers.includes(power) ? run : { ...run, usedPowers: [...run.usedPowers, power] }
-}
-
-/** Uses of a power the run has spent so far. */
-export function chargesSpent(run: Run, power: PowerId): number {
-  return hasPower(run, power) ? (POWER_CHARGES[power] ?? 0) - chargesLeft(run, power) : 0
 }
 
 function spend(run: Run, power: PowerId): Run['charges'] {

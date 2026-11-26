@@ -160,11 +160,9 @@ export const en: Messages = {
     lead: 'Thanks for playing! I’m a small French developer… To encourage me, tell people about the game and give it 5 stars!',
     later: 'Later',
     ok: 'Okay!',
-    frameDescription: 'Thanks for supporting Letter Minute!',
     close: 'Close',
     hello:
       'Hi, I’m Jérémy!\nI’m an independent French developer and I make Lettre Minute in my spare time.\nIf you enjoyed the game, your support would mean the world to me, even 1 € counts.\nThank you so much!',
-    photo: 'Jérémy, the game’s creator',
   },
 
   account: {
@@ -275,7 +273,6 @@ export const en: Messages = {
     editAvatarLabel: 'Edit my avatar',
     anonymous: 'Anonymous player',
     standing: (level, record) => `Level ${level} · record ${record}`,
-    editAvatar: 'Edit avatar',
     signedInAs: (email) => `Signed in as ${email}`,
     logOut: 'Sign out',
   logOutWarning: 'Your account keeps your games; this device starts over.',
@@ -305,7 +302,6 @@ export const en: Messages = {
     add: 'Add a friend',
     nameLabel: 'Your player name',
     share: 'Share',
-    shareName: (name) => `Add me as a friend on Letter Minute: my player name is ${name}.`,
     incomingCount: (count) => `${count} ${plural(count, 'request', 'requests')}`,
     wantsFriend: 'wants to be your friend',
     sortLabel: 'Sort your friends',
@@ -961,13 +957,11 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
     title: 'Your perks',
     filters: (used, max) => `Filters: ${used} of ${max}`,
     filtersLocked: 'Filtering: not won yet',
-    filtersPlus: (max) => `Filtering: up to ${max} categories`,
     reveals: (left, allowed) => `Today’s reveals: ${left} of ${allowed}`,
     revealsPlus: 'Unlimited reveals',
     slots: (count, max) => `Power slots: ${count} of ${max}`,
   hintFilters: 'Filtering keeps a category out of your solo runs.',
   hintReveals: 'At the summary, reveal a word you could have written.',
-  hintSlots: 'The powers you carry into a run.',
   },
 
   bonus: {
@@ -1067,9 +1061,6 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
     ready: 'Ready',
     notReady: 'Not ready yet',
     invited: 'Invited',
-    inviteAction: 'Invite',
-    leftStamp: 'Left',
-    keepOne: 'The table needs at least one opponent.',
     readyButton: 'I’m ready',
     tableSize: (players: number) => `${players} players`,
     waitingOthers: 'The others are coming…',

@@ -154,11 +154,9 @@ export const nl: Messages = {
     lead: 'Bedankt voor het spelen! Ik ben een kleine Franse ontwikkelaar… Om me aan te moedigen, vertel over het spel en geef het 5 sterren!',
     later: 'Later',
     ok: 'Oké!',
-    frameDescription: 'Bedankt dat je Letter Minuut steunt!',
     close: 'Sluiten',
     hello:
       'Hoi, ik ben Jérémy!\nIk ben een onafhankelijke Franse ontwikkelaar en maak Lettre Minute in mijn vrije tijd.\nVond je het spel leuk, dan helpt jouw steun me enorm, zelfs 1 € telt.\nHeel erg bedankt!',
-    photo: 'Jérémy, de maker van het spel',
   },
 
   account: {
@@ -269,7 +267,6 @@ export const nl: Messages = {
     editAvatarLabel: 'Mijn avatar bewerken',
     anonymous: 'Anonieme speler',
     standing: (level, record) => `Niveau ${level} · record ${record}`,
-    editAvatar: 'Avatar bewerken',
     signedInAs: (email) => `Ingelogd als ${email}`,
     logOut: 'Uitloggen',
   logOutWarning: 'Je account houdt je potjes; dit toestel begint opnieuw.',
@@ -299,7 +296,6 @@ export const nl: Messages = {
     add: 'Vriend toevoegen',
     nameLabel: 'Jouw spelersnaam',
     share: 'Delen',
-    shareName: (name) => `Voeg me toe als vriend in Letter Minuut: mijn spelersnaam is ${name}.`,
     incomingCount: (count) => `${count} ${plural(count, 'verzoek', 'verzoeken')}`,
     wantsFriend: 'wil je vriend zijn',
     sortLabel: 'Vrienden sorteren',
@@ -956,13 +952,11 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
     title: 'Je voordelen',
     filters: (used, max) => `Filters: ${used} van ${max}`,
     filtersLocked: 'Filteren: nog niet gewonnen',
-    filtersPlus: (max) => `Filteren: tot ${max} categorieën`,
     reveals: (left, allowed) => `Onthullingen van vandaag: ${left} van ${allowed}`,
     revealsPlus: 'Onbeperkt onthullen',
     slots: (count, max) => `Krachtplekken: ${count} van ${max}`,
   hintFilters: 'Filteren houdt een categorie buiten je solopartijen.',
   hintReveals: 'In het overzicht onthul je een woord dat je had kunnen schrijven.',
-  hintSlots: 'De krachten die je meeneemt in een partij.',
   },
 
   bonus: {
@@ -1062,9 +1056,6 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
     ready: 'Klaar',
     notReady: 'Nog niet klaar',
     invited: 'Uitgenodigd',
-    inviteAction: 'Uitnodigen',
-    leftStamp: 'Vertrokken',
-    keepOne: 'Aan tafel is minstens één tegenstander nodig.',
     readyButton: 'Ik ben klaar',
     tableSize: (players: number) => `${players} spelers`,
     waitingOthers: 'De anderen komen eraan…',

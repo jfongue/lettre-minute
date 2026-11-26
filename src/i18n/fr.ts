@@ -182,12 +182,9 @@ export const fr = {
     lead: 'Merci d’avoir joué ! Je suis un petit développeur français… Pour m’encourager, tu peux parler du jeu autour de toi et mettre 5 étoiles !',
     later: 'Plus tard',
     ok: 'Okay !',
-    /** Shown atop the Buy Me a Coffee form framed in a browser. */
-    frameDescription: 'Merci de soutenir Lettre Minute !',
     close: 'Fermer',
     hello:
       'Coucou, moi c’est Jérémy !\nJe suis un développeur français indépendant et je crée Lettre Minute sur mon temps libre.\nSi le jeu t’a plu, ton soutien m’aiderait énormément, même 1 € compte.\nMerci du fond du cœur !',
-    photo: 'Jérémy, le créateur du jeu',
   },
 
   account: {
@@ -299,7 +296,6 @@ export const fr = {
     editAvatarLabel: 'Modifier mon avatar',
     anonymous: 'Joueur anonyme',
     standing: (level: number, record: string) => `Niveau ${level} · record ${record}`,
-    editAvatar: 'Modifier l’avatar',
     signedInAs: (email: string) => `Connecté avec ${email}`,
     logOut: 'Se déconnecter',
   logOutWarning: 'Ton compte garde tes parties ; cet appareil, lui, repart de zéro.',
@@ -334,7 +330,6 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les
     /** The Social tab's card: what a friend types to find you. */
     nameLabel: 'Ton nom de joueur',
     share: 'Partager',
-    shareName: (name: string) => `Ajoute-moi en ami sur Lettre Minute : mon nom de joueur est ${name}.`,
     incomingCount: (count: number) => `${count} ${plural(count, 'demande', 'demandes')}`,
     wantsFriend: 'veut être ton ami',
     sortLabel: 'Trier tes amis',
@@ -1006,13 +1001,11 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
     title: 'Tes avantages',
     filters: (used: number, max: number) => `Filtrages : ${used} sur ${max}`,
     filtersLocked: 'Filtrage : pas encore gagné',
-    filtersPlus: (max: number) => `Filtrage : jusqu’à ${max} catégories`,
     reveals: (left: number, allowed: number) => `Révélations du jour : ${left} sur ${allowed}`,
     revealsPlus: 'Révélations illimitées',
     slots: (count: number, max: number) => `Emplacements de pouvoir : ${count} sur ${max}`,
   hintFilters: 'Le filtrage écarte une catégorie de tes parties solo.',
   hintReveals: 'Au récap, révèle un mot que tu aurais pu écrire.',
-  hintSlots: 'Les pouvoirs que tu portes en partie.',
   },
 
   bonus: {
@@ -1069,9 +1062,6 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
     ready: 'Prêt',
     notReady: 'Pas encore prêt',
     invited: 'Invité',
-    inviteAction: 'Inviter',
-    leftStamp: 'A quitté',
-    keepOne: 'Il faut au moins un adversaire à la table.',
     readyButton: 'Je suis prêt',
     tableSize: (players: number) => `${players} joueurs`,
     waitingOthers: 'Les autres arrivent…',
