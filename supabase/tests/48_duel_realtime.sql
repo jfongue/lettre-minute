@@ -1,4 +1,4 @@
--- Les sonneries Realtime du duel (0119) : chaque écriture qui change ce que la
+-- Les sonneries Realtime du duel (0121) : chaque écriture qui change ce que la
 -- table montre sonne une fois sur son canal privé, sans rien porter de plus que
 -- l'écran, et seuls ceux qui lisent la table par `duel_sync` l'entendent.
 

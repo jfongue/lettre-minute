@@ -447,7 +447,7 @@ propre téléphone.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client — et depuis 0007, seules les fonctions
   du serveur peuvent l'appeler.
-- **Les règles de modération vivent en SQL** (`settle_review`, 0059, 0078, 0119), pas
+- **Les règles de modération vivent en SQL** (`settle_review`, 0059, 0078, 0119, 0120), pas
   dans le domaine : de sept à deux « correct » selon le stock de la langue
   (revues en attente plus réserve, `moderation_stock`) — plus il attend de mots,
   moins il en faut, paliers dans `moderation_stock_steps` —, deux « incorrect »,
@@ -573,7 +573,7 @@ propre téléphone.
   table du serveur (0046), relue toutes les 450 ms en partie — il n'y a pas de
   Realtime dans le client, et c'est voulu (`src/lib/supabase.ts`) ; la relève
   passe par `liveTransport()` (`src/lib/live.ts`), seul point où Realtime se
-  branchera, le relevé restant son filet (`docs/realtime-migration.md`, 0119) —, et `local`,
+  branchera, le relevé restant son filet (`docs/realtime-migration.md`, 0121) —, et `local`,
   contre les joueurs ordinateur sans serveur, celle de `duel.html` et du repli hors
   ligne. Deux coups concurrents se départagent par leur numéro (`stale`, puis
   relecture). Le serveur ne juge rien : il vérifie seulement qu'un mot ou un

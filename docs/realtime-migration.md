@@ -66,7 +66,7 @@ du salon) ou une absence qui ne se voit qu'au temps qui passe.
   (`src/App.tsx`). Aucun changement de comportement : la première lecture reste
   faite par l'écran avant l'abonnement, le garde `syncing` de `sync` absorbe
   toujours les réveils en rafale.
-- **`supabase/migrations/0119_duel_realtime.sql`, écrite, pas appliquée** :
+- **`supabase/migrations/0121_duel_realtime.sql`, écrite, pas appliquée** :
   - `duel_ring(topic, event, payload)` appelle `realtime.send(…, private => true)`
     et avale toute erreur en avertissement — une sonnerie manquée coûte une
     lecture, un coup refusé coûterait la partie ;
@@ -90,7 +90,7 @@ du salon) ou une absence qui ne se voit qu'au temps qui passe.
 ## Les étapes
 
 1. *(ce patch)* Interface, relevé seul, migration écrite.
-2. **Appliquer 0119** (accord de Jérémy) : `supabase db push --linked`. Sans
+2. **Appliquer 0121** (accord de Jérémy) : `supabase db push --linked`. Sans
    abonné, chaque écriture du duel ajoute une ligne à `realtime.messages`
    (partitionnée par jour, purgée par Realtime) : surveiller le volume la
    première semaine. Elle peut partir avant le client, et n'en dépend pas.
@@ -173,6 +173,5 @@ passage à l'accueil d'un compte nommé dont la fonctionnalité est ouverte.
 
 La passe de polissage (`claude/polish-pass`) touche aussi `src/state/duel.ts`
 (mémo de `setup`, nettoyage d'`onAppActive`) : pas les mêmes lignes que l'effet
-de relève remplacé ici, le rebase devrait être mécanique. Le numéro 0119 est
-libre sur toutes les branches au 26 novembre 2026 ; une migration fusionnée
-avant celle-ci le prendrait, il faudrait alors renuméroter.
+de relève remplacé ici, le rebase devrait être mécanique. Elle a été écrite 0119, puis renumérotée 0121 le 26 novembre 2026 : la
+modération selon le stock avait pris 0119 et 0120 en ligne.

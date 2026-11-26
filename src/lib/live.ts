@@ -57,7 +57,7 @@ export function pollingTransport(clock: PollClock = browserClock): LiveTransport
 }
 
 /**
- * Le canal Realtime d'un sujet, celui que les déclencheurs de 0119 nomment et
+ * Le canal Realtime d'un sujet, celui que les déclencheurs de 0121 nomment et
  * que les politiques de `realtime.messages` ouvrent : les deux côtés doivent
  * l'écrire pareil. Null pour les invitations d'un joueur encore inconnu.
  */

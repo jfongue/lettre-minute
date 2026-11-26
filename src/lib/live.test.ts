@@ -61,7 +61,7 @@ describe('pollingTransport', () => {
 })
 
 describe('channelOf', () => {
-  it('names the channels the 0119 triggers broadcast on', () => {
+  it('names the channels the 0121 triggers broadcast on', () => {
     expect(channelOf({ kind: 'duelTable', table: 'abc' }, null)).toBe('duel:abc')
     expect(channelOf({ kind: 'duelInvites' }, 'me')).toBe('duel-invites:me')
     expect(channelOf({ kind: 'duelInvites' }, null)).toBeNull()
