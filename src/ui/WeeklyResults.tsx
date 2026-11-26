@@ -268,6 +268,7 @@ function ReactionBar({
           className={`wk-chip${count.mine ? ' wk-chip--mine' : ''}`}
           disabled={!canReact}
           aria-pressed={count.mine}
+          aria-label={`${count.emoji} ${count.count}`}
           onClick={() => pick(count.emoji)}
         >
           <span aria-hidden="true">{count.emoji}</span>

@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes } from 'react'
+import { useId, type InputHTMLAttributes } from 'react'
 import { initialOf } from '../domain/text'
 import { useT } from '../i18n'
 
@@ -19,11 +19,22 @@ export function respellValid(draft: string, original: string): boolean {
 
 export function RespellField({ value, onChange, original, className, ...input }: RespellFieldProps) {
   const t = useT()
+  const warning = useId()
   const moved = value.trim() !== '' && !respellValid(value, original)
   return (
     <span className={`respell-field${className ? ` ${className}` : ''}`}>
-      <input {...input} value={value} aria-invalid={moved} onChange={(event) => onChange(event.target.value)} />
-      {moved && <span className="note note--warn">{t.requests.sameLetter(initialOf(original))}</span>}
+      <input
+        {...input}
+        value={value}
+        aria-invalid={moved}
+        aria-describedby={moved ? warning : undefined}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      {moved && (
+        <span id={warning} className="note note--warn">
+          {t.requests.sameLetter(initialOf(original))}
+        </span>
+      )}
     </span>
   )
 }

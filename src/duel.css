@@ -420,7 +420,7 @@
 }
 
 .duel-public:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -1425,7 +1425,7 @@
   z-index: 40;
   display: grid;
   place-items: end center;
-  padding: var(--gutter);
+  padding: var(--gutter) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
   background: rgb(0 0 0 / 42%);
   backdrop-filter: blur(1.5px);
   pointer-events: none;

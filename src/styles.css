@@ -30,6 +30,8 @@
   /* Le plancher des mentions minuscules : sous 0,7 rem, elles ne se lisent plus
      sur un téléphone, et chacune était écrite à la main. */
   --font-micro: 0.7rem;
+  /* The keyboard's ring: yellow fades into the cream paper (1.7:1), ink holds. */
+  --focus: var(--ink);
 
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -59,10 +61,11 @@
 
     --red: #f0553c;
     --blue-action: #3b5ad4;
-  --blue: #4468ec;
+    --blue: #4468ec;
     --yellow: #f7c230;
     --green: #2c9a78;
     --pink: #f3a9b8;
+    --focus: var(--yellow);
 
     --plus-bg: #151515;
     --plus-edge: var(--yellow);
@@ -88,6 +91,7 @@
   --yellow: #f7c230;
   --green: #2c9a78;
   --pink: #f3a9b8;
+  --focus: var(--yellow);
 
   --plus-bg: #151515;
   --plus-edge: var(--yellow);
@@ -156,7 +160,9 @@ input {
   color: inherit;
 }
 
-button {
+button,
+a.btn,
+a.chat-app {
   touch-action: manipulation;
 }
 
@@ -394,12 +400,22 @@ button.challenge-past::after {
 .challenge-word:active,
 .friend-pick:active,
 .setup-switch:active,
-.standing-me-link:active {
+.standing-me-link:active,
+.mute:active,
+.subpage-back:active,
+.menu-close:active,
+.loadout-tile:active,
+.power-row:active,
+.category-lock:active,
+.chat-app:active,
+.board-switch-tab:active,
+.currency-chip:active,
+.psheet-link:active {
   transform: scale(0.96);
 }
 
 .btn:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -1789,7 +1805,7 @@ animation: clock-bonus 500ms var(--ease-out);
   background: none;
   color: var(--ink);
   font: inherit;
-  font-size: 0.68rem;
+  font-size: var(--font-micro);
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -2048,7 +2064,6 @@ animation: clock-bonus 500ms var(--ease-out);
     background 200ms var(--ease-out);
 }
 
-.poster-menu:hover,
 .poster-menu:focus-visible {
   z-index: 2;
   transform: scale(1.14) rotate(-4deg);
@@ -2056,9 +2071,23 @@ animation: clock-bonus 500ms var(--ease-out);
   background: var(--red) !important;
 }
 
-.poster-menu:hover .poster-menu-bars,
+@media (hover: hover) {
+  .poster-menu:hover {
+    z-index: 2;
+    transform: scale(1.14) rotate(-4deg);
+    box-shadow: 6px 6px 0 var(--ink);
+    background: var(--red) !important;
+  }
+}
+
 .poster-menu:focus-visible .poster-menu-bars {
   color: var(--cream) !important;
+}
+
+@media (hover: hover) {
+  .poster-menu:hover .poster-menu-bars {
+    color: var(--cream) !important;
+  }
 }
 
 .poster-menu:active {
@@ -2066,20 +2095,36 @@ animation: clock-bonus 500ms var(--ease-out);
   box-shadow: 0 0 0 var(--ink);
 }
 
-.poster-menu:hover .poster-menu-bars span,
 .poster-menu:focus-visible .poster-menu-bars span {
   animation: bars-shake 900ms var(--ease-spring) infinite;
 }
 
-.poster-menu:hover .poster-menu-bars span:nth-child(2),
+@media (hover: hover) {
+  .poster-menu:hover .poster-menu-bars span {
+    animation: bars-shake 900ms var(--ease-spring) infinite;
+  }
+}
+
 .poster-menu:focus-visible .poster-menu-bars span:nth-child(2) {
   animation-delay: 120ms;
   animation-direction: reverse;
 }
 
-.poster-menu:hover .poster-menu-bars span:nth-child(3),
+@media (hover: hover) {
+  .poster-menu:hover .poster-menu-bars span:nth-child(2) {
+    animation-delay: 120ms;
+    animation-direction: reverse;
+  }
+}
+
 .poster-menu:focus-visible .poster-menu-bars span:nth-child(3) {
   animation-delay: 240ms;
+}
+
+@media (hover: hover) {
+  .poster-menu:hover .poster-menu-bars span:nth-child(3) {
+    animation-delay: 240ms;
+  }
 }
 
 @keyframes bars-shake {
@@ -2164,9 +2209,11 @@ animation: clock-bonus 500ms var(--ease-out);
   cursor: pointer;
 }
 
-.menu-close:hover {
-  background: var(--red);
-  color: var(--cream);
+@media (hover: hover) {
+  .menu-close:hover {
+    background: var(--red);
+    color: var(--cream);
+  }
 }
 
 .menu-close svg {
@@ -2265,9 +2312,14 @@ animation: clock-bonus 500ms var(--ease-out);
   cursor: pointer;
 }
 
-.friend--open:hover,
 .friend--open:focus-visible {
   background: var(--paper-2);
+}
+
+@media (hover: hover) {
+  .friend--open:hover {
+    background: var(--paper-2);
+  }
 }
 
 /* What a friend types to find you, set apart from the list it opens. */
@@ -2444,7 +2496,7 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 .chat-app:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -2616,21 +2668,38 @@ animation: clock-bonus 500ms var(--ease-out);
   grid-column: 1 / -1;
 }
 
-.page-link:hover,
 .page-link:focus-visible {
   transform: translate(-4px, -4px) rotate(-1.5deg);
   box-shadow: 6px 6px 0 var(--ink);
   outline: none;
 }
 
-.page-link:nth-child(even):hover,
+@media (hover: hover) {
+  .page-link:hover {
+    transform: translate(-4px, -4px) rotate(-1.5deg);
+    box-shadow: 6px 6px 0 var(--ink);
+    outline: none;
+  }
+}
+
 .page-link:nth-child(even):focus-visible {
   transform: translate(-4px, -4px) rotate(1.5deg);
 }
 
-.page-link:hover .page-link-art > *,
+@media (hover: hover) {
+  .page-link:nth-child(even):hover {
+    transform: translate(-4px, -4px) rotate(1.5deg);
+  }
+}
+
 .page-link:focus-visible .page-link-art > * {
   animation: tile-hop 620ms var(--ease-spring) both;
+}
+
+@media (hover: hover) {
+  .page-link:hover .page-link-art > * {
+    animation: tile-hop 620ms var(--ease-spring) both;
+  }
 }
 
 .page-link:active {
@@ -2674,11 +2743,18 @@ animation: clock-bonus 500ms var(--ease-out);
   transition: transform 200ms var(--ease-spring), background 160ms var(--ease-out);
 }
 
-.subpage-back:hover,
 .subpage-back:focus-visible {
   background: var(--yellow);
   color: var(--black);
   transform: translateX(-3px);
+}
+
+@media (hover: hover) {
+  .subpage-back:hover {
+    background: var(--yellow);
+    color: var(--black);
+    transform: translateX(-3px);
+  }
 }
 
 .subpage-back svg {
@@ -3868,7 +3944,7 @@ referment d'un coup : `--way` donne le sens de chacune. */
 
 .avatar-cell:focus-visible {
   z-index: 1;
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: -3px;
 }
 
@@ -4045,7 +4121,7 @@ referment d'un coup : `--way` donne le sens de chacune. */
 }
 
 .swatch:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -4304,8 +4380,10 @@ referment d'un coup : `--way` donne le sens de chacune. */
   transition: transform 160ms var(--ease-spring);
 }
 
-.offer-card:hover {
-  transform: translateY(-3px);
+@media (hover: hover) {
+  .offer-card:hover {
+    transform: translateY(-3px);
+  }
 }
 
 .offer-card:active {
@@ -4366,8 +4444,10 @@ referment d'un coup : `--way` donne le sens de chacune. */
   transition: transform 240ms var(--ease-spring), opacity 240ms ease, box-shadow 200ms ease;
 }
 
-.power-card:hover {
-  transform: translateY(-3px);
+@media (hover: hover) {
+  .power-card:hover {
+    transform: translateY(-3px);
+  }
 }
 
 .power-card:focus-visible {
@@ -4406,10 +4486,16 @@ referment d'un coup : `--way` donne le sens de chacune. */
   height: 100%;
 }
 
-.power-card.unlock-card--selected,
-.power-card.unlock-card--selected:hover {
+.power-card.unlock-card--selected {
   transform: translateY(-5px) scale(1.025);
   box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--ink), 7px 10px 0 var(--blue);
+}
+
+@media (hover: hover) {
+  .power-card.unlock-card--selected:hover {
+    transform: translateY(-5px) scale(1.025);
+    box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--ink), 7px 10px 0 var(--blue);
+  }
 }
 
 .power-card.unlock-card--selected .power-card-art {
@@ -4633,12 +4719,20 @@ referment d'un coup : `--way` donne le sens de chacune. */
   transform: scale(0.95);
 }
 
-.unlock-card--selected,
-.unlock-card--selected:hover {
+.unlock-card--selected {
   transform: translateY(-8px) scale(1.04);
   box-shadow:
     0 0 0 3px var(--paper),
     0 0 0 6px var(--ink);
+}
+
+@media (hover: hover) {
+  .unlock-card--selected:hover {
+    transform: translateY(-8px) scale(1.04);
+    box-shadow:
+      0 0 0 3px var(--paper),
+      0 0 0 6px var(--ink);
+  }
 }
 
 .unlock-card--selected .unlock-card-shape {
@@ -5099,8 +5193,10 @@ referment d'un coup : `--way` donne le sens de chacune. */
   transition: transform 160ms var(--ease-spring);
 }
 
-.mute:hover {
-  transform: scale(1.06);
+@media (hover: hover) {
+  .mute:hover {
+    transform: scale(1.06);
+  }
 }
 
 .mute:focus-visible {
@@ -5950,7 +6046,7 @@ referment d'un coup : `--way` donne le sens de chacune. */
 .offer-pop-layer {
   /* La carte se borne à ce que la couche laisse : ses deux marges verticales
      sont nommées pour que .offer-pop puisse s'y mesurer. */
-  --pop-top: var(--gutter);
+  --pop-top: max(var(--gutter), env(safe-area-inset-top));
   --pop-bottom: max(var(--gutter), env(safe-area-inset-bottom));
   position: fixed;
   inset: 0;
@@ -6138,8 +6234,10 @@ referment d'un coup : `--way` donne le sens de chacune. */
   transition: transform 160ms var(--ease-spring), box-shadow 160ms ease, border-color 160ms ease;
 }
 
-.power-row:hover {
-  transform: translateX(2px);
+@media (hover: hover) {
+  .power-row:hover {
+    transform: translateX(2px);
+  }
 }
 
 .power-row--here {
@@ -7466,8 +7564,10 @@ rien d’autre — aucun point, aucune rareté ne bouge. */
   cursor: pointer;
 }
 
-.debug-item:hover {
-  background: var(--paper-2);
+@media (hover: hover) {
+  .debug-item:hover {
+    background: var(--paper-2);
+  }
 }
 
 /* Les planches touchées depuis la dernière version livrée : un liseré
@@ -7655,9 +7755,14 @@ li:has(> .reactable--open),
   transition: transform 140ms var(--ease-spring);
 }
 
-.reaction-pick:hover,
 .reaction-pick:focus-visible {
   transform: scale(1.25) translateY(-3px);
+}
+
+@media (hover: hover) {
+  .reaction-pick:hover {
+    transform: scale(1.25) translateY(-3px);
+  }
 }
 
 /* Le doigt se pose : la carte se tasse au lieu de grandir, même sous le survol. */
@@ -9021,8 +9126,10 @@ button.challenge-word[aria-expanded='true'] {
   cursor: pointer;
 }
 
-.words-pair:hover td {
-  background: color-mix(in srgb, var(--blue) 8%, transparent);
+@media (hover: hover) {
+  .words-pair:hover td {
+    background: color-mix(in srgb, var(--blue) 8%, transparent);
+  }
 }
 
 /* Le genre d'une revue, dans la file de modération. */
@@ -9675,7 +9782,7 @@ body[data-words='board'] .offer-pop-layer {
 }
 
 .together-card:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -10340,7 +10447,7 @@ de tout cela ne le concerne. */
 }
 
 .pslot:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -10726,7 +10833,7 @@ ligne, et se referme par une seconde tape. */
 }
 
 .currency-chip:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -10820,7 +10927,7 @@ ligne, et se referme par une seconde tape. */
 
 .power-slot-how {
   flex-basis: 100%;
-  font-size: 0.68rem;
+  font-size: var(--font-micro);
   letter-spacing: 0.02em;
   text-transform: none;
   font-weight: 600;
@@ -11277,13 +11384,15 @@ ligne, et se referme par une seconde tape. */
     box-shadow 160ms var(--ease-out);
 }
 
-.loadout-tile:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0 var(--ink);
+@media (hover: hover) {
+  .loadout-tile:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
 }
 
 .loadout-tile:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -11336,4 +11445,34 @@ ligne, et se referme par une seconde tape. */
   color: var(--paper);
   font-size: 0.8rem;
   font-weight: 800;
+}
+
+/* ------------------------------------------------------------ hit areas - */
+/* Small targets keep their drawing and gain an invisible margin to the finger's
+   44 px: a reaction bubble, the board and friend-sort tabs, the reaction and
+   padlock buttons. */
+.reaction-pick,
+.category-lock,
+.board-switch-tab,
+.friends-sort .layer-tab {
+  position: relative;
+}
+
+.reaction-bubble::after,
+.reaction-pick::after,
+.category-lock::after,
+.board-switch-tab::after,
+.friends-sort .layer-tab::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+}
+
+.reaction-bubble::after {
+  inset: -11px -6px;
+}
+
+.board-switch-tab::after,
+.friends-sort .layer-tab::after {
+  inset: -6px 0;
 }
