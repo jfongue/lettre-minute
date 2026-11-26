@@ -18,6 +18,7 @@ export const weeklyEn: WeeklyMessages = {
   unitSeconds: 's',
   unitPoints: 'points',
   survival: 'Survival time',
+  noFinish: 'Did not finish',
   you: 'you',
   card: {
     play: 'Play',
@@ -28,6 +29,7 @@ export const weeklyEn: WeeklyMessages = {
     endurance: 'You start with thirty seconds, and every word gives time back. Last as long as you can.',
     delayed: 'The answer you owe is the one to the previous question.',
     reversed: 'A word that ends with this letter. A country ending in M? Vietnam!',
+    race: 'Find ten words as fast as you can: the clock counts up and stops at the tenth.',
   },
   screen: {
     back: 'Back',
@@ -81,6 +83,14 @@ export const weeklyEn: WeeklyMessages = {
         ['Sixty seconds', 'The rest is a run like any other.'],
       ],
       score: 'Your score is counted in points, like a solo run.',
+    },
+    race: {
+      steps: [
+        ['10 words', 'Ten right words, on the questions as they come.'],
+        ['The clock counts up', 'It starts at zero and stops at your tenth word.'],
+        ['Skipping costs 5 s', 'Each skipped question adds five seconds. After three minutes, the race stops without a finish.'],
+      ],
+      score: 'Your score is your time: the fastest wins.',
     },
   },
   run: {

@@ -13,9 +13,10 @@ const countries = buildWordPack('pays', [
 
 describe('les modes de la réserve', () => {
   it('garde le solo hors de la réserve et à part de sa durée', () => {
-    expect(ARCADE_MODES).toEqual(['delayed', 'endurance', 'reversed'])
+    expect(ARCADE_MODES).toEqual(['delayed', 'endurance', 'reversed', 'race'])
     expect(MODE_SECONDS.solo).toBe(60)
     expect(MODE_SECONDS.endurance).toBe(30)
+    expect(MODE_SECONDS.race).toBe(180)
   })
 
   it('paie un mot d’endurance selon son palier de rareté', () => {

@@ -802,6 +802,12 @@ propre téléphone.
   mais le classement, le palmarès, les trophées et le compte des tentatives
   sont communs à toutes (0085). Une semaine se prolonge à la main
   (`WEEKLY_EXTENDED`), et `weekly_week` côté serveur doit tenir la même liste.
+  Tout le défi trie « plus grand gagne » : une course (dix mots au plus vite,
+  `WEEKLY_EXCEPTIONS`) se range donc à son avance sur le plafond de trois
+  minutes, zéro sans arrivée, et `raceTime` en tire le temps qu'on affiche.
+  Une semaine de course s'écrit aussi dans `weekly_metric` (0107) : c'est lui
+  qui refuse les points d'un client plus ancien, qui y jouerait le mode de sa
+  boucle.
 
 ## Conventions
 

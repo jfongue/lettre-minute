@@ -70,7 +70,7 @@ export function WeeklyResultsView({
   const me = list.find((row) => row.me)
   const rest = list.slice(3)
   const players = Math.max(total ?? 0, list.length)
-  const unit = metric === 'survival' ? t.weekly.unitSeconds : t.weekly.unitPoints
+  const unit = metric === 'score' ? t.weekly.unitPoints : t.weekly.unitSeconds
 
   const bar = (target: string) => <ReactionBar target={target} counts={counts} canReact={canReact} onReact={onReact} />
 

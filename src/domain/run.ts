@@ -22,7 +22,7 @@ import {
   type RarityTier,
   type WordUsage,
 } from './rarity'
-import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RECALL_SECONDS, modeEdge, type GameMode } from './modes'
+import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RACE_WORDS, RECALL_SECONDS, modeEdge, type GameMode } from './modes'
 import { pickWeighted, streamFor, type Rng } from './rng'
 import { compactWord, finalOf, initialOf, normalizeWord } from './text'
 import { knownByLetter, type WordMatch, type WordPack } from './words'
@@ -669,6 +669,8 @@ export function latecomerOpen(run: Run, remaining: number): boolean {
 }
 
 export function remainingSeconds(run: Run, elapsedSeconds: number): number {
+  // L'arrivée de la course arrête la partie comme un chrono vide : la même fin, le même bilan.
+  if (raceSeconds(run) !== null) return 0
   return Math.max(
     0,
     MODE_SECONDS[run.mode] - elapsedSeconds - run.penaltySeconds + heldSeconds(run, elapsedSeconds) + run.latecomerSeconds + run.bonusSeconds,
@@ -676,10 +678,26 @@ export function remainingSeconds(run: Run, elapsedSeconds: number): number {
 }
 
 /**
+ * Le temps d'une course arrivée : l'heure du dixième mot, plus les secondes
+ * que les passes ont coûtées ; null tant qu'elle n'est pas arrivée, et hors
+ * course.
+ */
+export function raceSeconds(run: Run): number | null {
+  if (run.mode !== 'race' || run.found.length < RACE_WORDS) return null
+  return Math.round((run.found[RACE_WORDS - 1]!.at + run.penaltySeconds) * 10) / 10
+}
+
+/**
  * Le score d'une partie : les points du solo ; en endurance, les secondes de
- * survie — le temps que la partie a tenu, mots rendus et pénalités compris.
+ * survie — le temps que la partie a tenu, mots rendus et pénalités compris ;
+ * en course, les secondes d'avance sur le plafond, zéro sans arrivée. Plus
+ * grand gagne partout : le classement du défi n'a qu'un sens de tri.
  */
 export function runScore(run: Run): number {
+  if (run.mode === 'race') {
+    const time = raceSeconds(run)
+    return time === null ? 0 : Math.max(0, Math.round((MODE_SECONDS.race - time) * 10) / 10)
+  }
   if (run.mode !== 'endurance') return run.score
   return Math.max(
     0,

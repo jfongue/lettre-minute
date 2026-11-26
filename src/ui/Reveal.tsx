@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ENDURANCE_TIME_BONUS } from '../domain/modes'
 import type { HiddenAnswer } from '../domain/perks'
-import { runScore, type FoundWord, type Run } from '../domain/run'
+import { raceSeconds, runScore, type FoundWord, type Run } from '../domain/run'
+import { raceTime } from '../domain/weekly'
 import { capitalized, compactWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
 import type { BanOutcome } from '../lib/cloud'
@@ -109,7 +110,7 @@ export function Reveal({
       }}
       role="presentation"
     >
-      {shown >= -1 && <RevealScore score={runScore(run)} previousBest={previousBest} mode={run.mode} landed={skipped} />}
+      {shown >= -1 && <RevealScore score={runScore(run)} previousBest={previousBest} mode={run.mode} race={raceSeconds(run)} landed={skipped} />}
 
       {shown >= 0 && (
         <ol className="reveal-words">
@@ -193,7 +194,20 @@ export function Reveal({
  * lands on screen — not on the summary, a tap later. A first run has no record
  * to beat (null).
  */
-function RevealScore({ score, previousBest, mode, landed }: { score: number; previousBest: number | null; mode: Run['mode']; landed: boolean }) {
+function RevealScore({
+  score,
+  previousBest,
+  mode,
+  race,
+  landed,
+}: {
+  score: number
+  previousBest: number | null
+  mode: Run['mode']
+  /** Le temps d'une course arrivée : c'est lui qui s'affiche, pas son avance sur le plafond. */
+  race: number | null
+  landed: boolean
+}) {
   const t = useT()
   const shown = useCountUp(score, SCORE_MS, landed ? score : 0)
   const beaten = previousBest !== null && shown > previousBest
@@ -213,15 +227,17 @@ function RevealScore({ score, previousBest, mode, landed }: { score: number; pre
 
   return (
     <header className={`reveal-score${beaten ? ' reveal-score--record' : ''}`}>
-      <p className="eyebrow">{t.over.timeUp}</p>
+      <p className="eyebrow">{race !== null ? t.over.arrived : t.over.timeUp}</p>
       <h1 className="score-final">
-        {formatNumber(t, shown)}
+        {mode !== 'race' ? formatNumber(t, shown) : race === null ? t.over.noFinish : race.toLocaleString(t.tag, { maximumFractionDigits: 1 })}
         {beaten && <Burst />}
       </h1>
-      <p className="score-poster-unit">{mode === 'endurance' ? t.over.survived : t.over.points}</p>
+      {(mode !== 'race' || race !== null) && (
+        <p className="score-poster-unit">{mode === 'endurance' ? t.over.survived : mode === 'race' ? t.over.raceTime : t.over.points}</p>
+      )}
       {previousBest !== null && score > previousBest && (
         <p className="reveal-record" key={beaten ? 'new' : 'old'}>
-          {beaten ? t.over.newRecord : `${t.over.record} ${formatNumber(t, previousBest)}`}
+          {beaten ? t.over.newRecord : `${t.over.record} ${mode === 'race' ? (raceTime(previousBest) ?? 0).toLocaleString(t.tag, { maximumFractionDigits: 1 }) : formatNumber(t, previousBest)}`}
         </p>
       )}
     </header>

@@ -1,8 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { hasPlayers } from '../domain/boards'
 import { completeLeaderboard, myPlace, OPEN_STATS, periodStillCurrent, PERIODS, STATS, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from '../domain/leaderboards'
-import { metricOf, weekNumber, weekOf, weeklyMode, type WeeklyMetric } from '../domain/weekly'
-import { formatNumber, useT } from '../i18n'
+import { metricOf, raceTime, weekNumber, weekOf, weeklyMode, type WeeklyMetric } from '../domain/weekly'
+import { formatNumber, useT, type Messages } from '../i18n'
 import { fetchLeaderboard, fetchWeeklyBoard, fetchWeeklyWinners, type WeeklyBoardRow, type WeeklyWinnerRow } from '../lib/cloud'
 import { Avatar } from './Avatar'
 import { BoardSwitch, type BoardFamily } from './BoardSwitch'
@@ -375,6 +375,13 @@ function BoardBody({
   )
 }
 
+/** Le nombre d'une valeur du défi : le temps d'une course, un tiret sans arrivée. */
+function weeklyNumber(t: Messages, value: number, metric: WeeklyMetric): string {
+  if (metric !== 'race') return formatNumber(t, value)
+  const time = raceTime(value)
+  return time === null ? '—' : time.toLocaleString(t.tag, { maximumFractionDigits: 1 })
+}
+
 /**
  * Le défi de la semaine en cours : le classement que `weekly_board` rend, avec
  * la carte du podium et la ligne du joueur, comme les autres tableaux. Sa
@@ -402,7 +409,8 @@ function WeeklyBoardBody({
     )
   if (board.length === 0) return <p className="note board-empty">{t.leaderboards.empty.week}</p>
 
-  const unit = metric === 'survival' ? t.leaderboards.weekly.survival : t.leaderboards.weekly.score
+  const unit = metric === 'score' ? t.leaderboards.weekly.score : t.leaderboards.weekly.survival
+  const format = (value: number) => weeklyNumber(t, value, metric)
   const rows: PlacedRow[] = board.map((row) => ({ place: row.rank, name: row.name, avatar: row.avatar, value: row.value, mine: row.me }))
   const podium = rows.slice(0, 3)
   const rest = rows.slice(3)
@@ -417,7 +425,7 @@ function WeeklyBoardBody({
               <Name row={row} />
             </span>
             <span className="note">
-              {formatNumber(t, row.value)} {unit}
+              {format(row.value)} {unit}
             </span>
           </li>
         ))}
@@ -426,7 +434,7 @@ function WeeklyBoardBody({
       {rest.length > 0 && (
         <div className="standings">
           {rest.map((row, index) => (
-            <Line key={`${row.name}-${index}`} row={row} unit={() => unit} />
+            <Line key={`${row.name}-${index}`} row={row} unit={() => unit} format={format} />
           ))}
         </div>
       )}
@@ -458,7 +466,7 @@ function WinnersBody({ rows, onRetry }: { rows: WeeklyWinnerRow[] | null | undef
       {rows.map((row) => {
         // Le premier défi joué est la semaine n° 1 : l'époque compte pour zéro.
         const week = weekNumber(row.weekId) + 1
-        const unit = row.metric === 'survival' ? t.leaderboards.weekly.survival : t.leaderboards.weekly.score
+        const unit = row.metric === 'score' ? t.leaderboards.weekly.score : t.leaderboards.weekly.survival
         return (
           <div className="standing" key={row.weekId}>
             <span className="rank" title={t.leaderboards.weekly.week(week)}>
@@ -471,7 +479,7 @@ function WinnersBody({ rows, onRetry }: { rows: WeeklyWinnerRow[] | null | undef
               </PlayerName>
             </span>
             <span className="points">
-              {formatNumber(t, row.value)} <small>{unit}</small>
+              {weeklyNumber(t, row.value, row.metric)} <small>{unit}</small>
             </span>
           </div>
         )
@@ -499,7 +507,7 @@ function Name({ row }: { row: PlacedRow }) {
   )
 }
 
-function Line({ row, unit }: { row: PlacedRow; unit(count: number): string }) {
+function Line({ row, unit, format }: { row: PlacedRow; unit(count: number): string; format?(value: number): string }) {
   const t = useT()
   return (
     <div className={`standing${row.mine ? ' standing--me' : ''}`}>
@@ -509,7 +517,7 @@ function Line({ row, unit }: { row: PlacedRow; unit(count: number): string }) {
         <Name row={row} />
       </span>
       <span className="points">
-        {formatNumber(t, row.value)} <small>{unit(row.value)}</small>
+        {format ? format(row.value) : formatNumber(t, row.value)} <small>{unit(row.value)}</small>
       </span>
     </div>
   )

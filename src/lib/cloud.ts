@@ -14,7 +14,7 @@ import type { PromptRecord } from '../domain/prompts'
 import type { RarityTier } from '../domain/rarity'
 import { promptKey, promptOutcomes, type Run } from '../domain/run'
 import { acceptable } from '../domain/wordShape'
-import { weeklyValue, type WeeklyMeasures, type WeeklyMetric } from '../domain/weekly'
+import { parseMetric, weeklyValue, type WeeklyMeasures, type WeeklyMetric } from '../domain/weekly'
 import { withBotRuns } from '../state/botRuns'
 import { loadRunsBackfilled, loadSubmissions, loadUnsentRuns, saveRunsBackfilled, saveSubmissions, saveUnsentRuns, type PendingSubmission, type UnsentRun } from '../state/storage'
 import { host } from '../platform'
@@ -2573,7 +2573,7 @@ export function fetchWeeklyWinners(lang: string, limit = 50): Promise<WeeklyWinn
       weekId: row.week_id as string,
       name: row.display_name as string,
       avatar: parseAvatar(row.avatar),
-      metric: row.metric === 'survival' ? 'survival' : 'score',
+      metric: parseMetric(row.metric),
       value: Number(row.value) || 0,
     }))
   }, null)
@@ -2613,7 +2613,7 @@ export function fetchWeeklyRecap(weekId: string, lang: string): Promise<WeeklyRe
         n: Number(attempt.n),
         day: attempt.day as string,
         value: attempt.value === null || attempt.value === undefined ? null : Number(attempt.value),
-        metric: attempt.metric === 'survival' ? 'survival' : 'score',
+        metric: parseMetric(attempt.metric),
         finished: attempt.finished === true,
       })),
       best: row.best === null || row.best === undefined ? null : Number(row.best),

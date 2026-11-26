@@ -1,17 +1,17 @@
 import { useEffect, type CSSProperties, type ReactNode } from 'react'
-import { MODE_SECONDS, type GameMode } from '../domain/modes'
+import { MODE_SECONDS, RACE_WORDS, type GameMode } from '../domain/modes'
 import { useT } from '../i18n'
 import { armSound, sound } from '../lib/sound'
 import { useBackDismiss } from './useBackDismiss'
 
 /** Ce que chaque mode change à la question : la lettre, ou celle d'avant. */
-type ModeArt = 'first' | 'previous' | 'bonus' | 'last'
+type ModeArt = 'first' | 'previous' | 'bonus' | 'last' | 'finish'
 
 /**
  * Un dessin par mode. Le solo et le renversé montrent le mot et la cellule de sa
  * lettre, au bord que la question contraint — la première pour l'un, la dernière
  * pour l'autre ; le retard remonte à la question d'avant ; l'endurance porte le
- * chrono dont chaque mot repousse l'aiguille. Tous taillés comme les icônes du
+ * chrono dont chaque mot repousse l'aiguille ; la course, son drapeau à damier. Tous taillés comme les icônes du
  * jeu : un aplat, un trait épais, rien qui bouge.
  */
 const ART: Record<ModeArt, ReactNode> = {
@@ -36,11 +36,18 @@ const ART: Record<ModeArt, ReactNode> = {
       <rect className="together-letter" x="62" y="35" width="28" height="30" rx="6" />
     </>
   ),
+  finish: (
+    <>
+      <rect className="together-hand" x="14" y="8" width="9" height="86" rx="4" />
+      <rect className="together-word" x="23" y="12" width="64" height="48" rx="6" />
+      <path className="together-mark" d="M23 12H44V28H23ZM65 12H87V28H65ZM44 28H65V44H44ZM23 44H44V60H23ZM65 44H87V60H65Z" />
+    </>
+  ),
 }
 
 /**
  * Le choix du mode, derrière le bouton « Jouer » : la partie normale reste la
- * première carte, les trois modes de la réserve suivent. Ils ne se jouent pas
+ * première carte, les modes de la réserve suivent. Ils ne se jouent pas
  * avec un pouvoir et leur score ne quitte pas l'écran — c'est dit une fois, en
  * tête. Chaque carte porte son dessin à côté de son texte, jamais derrière.
  */
@@ -56,6 +63,7 @@ export function GameModes({ onPick, onClose }: { onPick(mode: GameMode): void; o
     { mode: 'delayed', title: t.modes.delayed, note: t.modes.delayedHint, art: 'previous' },
     { mode: 'endurance', title: t.modes.endurance, note: t.modes.enduranceHint, art: 'bonus' },
     { mode: 'reversed', title: t.modes.reversed, note: t.modes.reversedHint, art: 'last' },
+    { mode: 'race', title: t.modes.race, note: t.modes.raceHint, art: 'finish' },
   ]
 
   return (
@@ -88,7 +96,9 @@ export function GameModes({ onPick, onClose }: { onPick(mode: GameMode): void; o
               <span className="together-text">
                 <b>{card.title}</b>
                 <small>{card.note}</small>
-                <span className="together-chip">{t.modes.seconds(MODE_SECONDS[card.mode])}</span>
+                <span className="together-chip">
+                  {card.mode === 'race' ? t.weekly.done.words(RACE_WORDS) : t.modes.seconds(MODE_SECONDS[card.mode])}
+                </span>
               </span>
               <span className="together-go" aria-hidden="true">
                 →

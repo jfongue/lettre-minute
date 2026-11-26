@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
 import { CHATTER_WORDS, FLAWLESS_POINTS, FLAWLESS_STREAK, POWER_CHARGES } from '../domain/powers'
 import { answerPrompt, celerityDue, chargesLeft, hasPower, latecomerOpen, runScore, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
-import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RECALL_SECONDS, modeEdge } from '../domain/modes'
+import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RACE_WORDS, RECALL_SECONDS, modeEdge } from '../domain/modes'
 import { comboMultiplier } from '../domain/rarity'
 import { capitalized, compactWord, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
@@ -122,8 +122,13 @@ export function RunScreen({
   const total = run.mode === 'endurance' ? Math.max(score, 1) : MODE_SECONDS[run.mode]
   // Les confettis saluent une trouvaille, jamais le temps qui passe : en
   // endurance le score part à trente, et il ne fête pas le départ.
-  const celebration = run.mode === 'endurance' ? run.found.length : score
+  const race = run.mode === 'race'
+  const celebration = run.mode === 'endurance' || race ? run.found.length : score
   const seconds = Math.ceil(remaining)
+  // La course montre le temps qui monte, et son disque se remplit des mots
+  // trouvés : c'est l'arrivée qui l'arrête, pas un chrono vide.
+  const clock = race ? Math.floor(MODE_SECONDS.race - remaining) : seconds
+  const filled = race ? run.found.length / RACE_WORDS : Math.min(1, remaining / total)
   // Le rappel du retard s'affiche une seule fois, à sa première question : il
   // se rachète ensuite question par question, contre `RECALL_SECONDS` secondes.
   const firstAnswer = useRef<number | null>(null)
@@ -286,23 +291,23 @@ else if (doubleSkip) sound.power('double-skip')
         <div className="timer">
           <span
             className="timer-disc"
-            style={{ '--ratio': Math.min(1, remaining / total) } as CSSProperties}
+            style={{ '--ratio': filled } as CSSProperties}
             aria-hidden="true"
           />
           {/* Re-keyed every second once urgent, so each second ticks visibly. */}
           <p className={`clock${latecomerTriggered ? ' clock--latecomer' : ''}`} key={hushed ? 'hushed' : urgent ? seconds : 'calm'}>
-            {seconds}
+            {clock}
           </p>
           {hushed && <span className="timer-hold" aria-hidden="true"><span /><span /></span>}
         </div>
         <div className="score">
           {celebration > 0 && <Burst key={`burst-${celebration}`} />}
           <span className="score-value" key={celebration}>
-            {formatNumber(t, score)}
+            {race ? `${run.found.length}/${RACE_WORDS}` : formatNumber(t, score)}
           </span>
           {/* En endurance le score est un temps : « 47 s », pas « 47 points ». */}
           {run.mode === 'endurance' && <span className="score-unit">{t.run.secondsUnit}</span>}
-          {run.combo > 1 && (
+          {run.combo > 1 && !race && (
             <span className="combo" key={run.combo}>
               ×{comboMultiplier(run.combo, run.bonusWeight).toFixed(1)}
             </span>

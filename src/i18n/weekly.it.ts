@@ -12,6 +12,7 @@ export const weeklyIt: WeeklyMessages = {
   unitSeconds: 's',
   unitPoints: 'punti',
   survival: 'Tempo di sopravvivenza',
+  noFinish: 'Non arrivato',
   you: 'tu',
   card: {
     play: 'Gioca',
@@ -22,6 +23,7 @@ export const weeklyIt: WeeklyMessages = {
     endurance: 'Parti con trenta secondi e ogni parola ti rende tempo. Resisti il più a lungo possibile.',
     delayed: 'La risposta richiesta è quella della domanda prima.',
     reversed: 'Una parola che finisce con questa lettera. Un paese che finisce per M? Vietnam!',
+    race: 'Trova dieci parole il più in fretta possibile: il cronometro sale e si ferma alla decima.',
   },
   screen: {
     back: 'Indietro',
@@ -75,6 +77,14 @@ export const weeklyIt: WeeklyMessages = {
         ['Sessanta secondi', 'Il resto è una partita come le altre.'],
       ],
       score: 'Il tuo punteggio si conta in punti, come in una partita normale.',
+    },
+    race: {
+      steps: [
+        ['10 parole', 'Dieci parole giuste, sulle domande che arrivano.'],
+        ['Il cronometro sale', 'Parte da zero e si ferma alla tua decima parola.'],
+        ['Passare costa 5 s', 'Ogni domanda passata aggiunge cinque secondi. Dopo tre minuti, la corsa si ferma senza arrivo.'],
+      ],
+      score: 'Il tuo punteggio è il tuo tempo: vince il più veloce.',
     },
   },
   run: {

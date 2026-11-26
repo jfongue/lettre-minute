@@ -324,8 +324,8 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
           <ModeIntro
             mode={intro.mode}
             onDone={endIntro}
-            // L'endurance s'explique assez par sa fiche : sa leçon jouée n'apprenait rien de plus.
-            onTry={intro.mode === 'endurance' ? undefined : () => setIntro({ ...intro, lesson: true })}
+            // L'endurance et la course s'expliquent assez par leur fiche : une leçon d'un mot n'apprendrait rien de plus.
+            onTry={intro.mode === 'endurance' || intro.mode === 'race' ? undefined : () => setIntro({ ...intro, lesson: true })}
           />
         )
       )}

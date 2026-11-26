@@ -1,5 +1,5 @@
 import { civilFromDays, daysFromCivil, dayOf, isDay } from './daily'
-import type { GameMode } from './modes'
+import { MODE_SECONDS, type GameMode } from './modes'
 import { levelFor } from './progression'
 import { runScore, type CreateRunInput, type Run } from './run'
 import { MAX_CATEGORIES_PER_RUN, dealLineup } from './unlocks'
@@ -30,8 +30,12 @@ export const WEEKLY_EPOCH = '2026-10-11'
 /** Le mode de chaque semaine, en boucle ; la première est l'endurance. */
 export const WEEKLY_SCHEDULE: readonly GameMode[] = ['endurance', 'delayed', 'reversed']
 
-/** Une semaine sortie de la boucle, choisie à la main : son mode remplace celui de la rotation. */
-export const WEEKLY_EXCEPTIONS: Readonly<Record<string, GameMode>> = {}
+/**
+ * Une semaine sortie de la boucle, choisie à la main : son mode remplace celui
+ * de la rotation. Une course s'y écrit aussi dans `weekly_race_week` (0107),
+ * qui refuse le résultat d'un client plus ancien jouant le mode de la boucle.
+ */
+export const WEEKLY_EXCEPTIONS: Readonly<Record<string, GameMode>> = { '2026-11-29': 'race' }
 
 /**
  * Une semaine prolongée, en nombre de semaines : elle absorbe les dimanches
@@ -154,7 +158,12 @@ export function attemptWindow(at: number): { weekId: string; day: string } {
   return { weekId: weekOf(at).weekId, day: parisDay(at) }
 }
 
-export type WeeklyMetric = 'score' | 'survival'
+/**
+ * Ce que le classement range, toujours plus grand d'abord : des points, des
+ * secondes tenues, ou les secondes d'avance d'une course sur son plafond
+ * (`raceTime` en tire le temps qu'on affiche).
+ */
+export type WeeklyMetric = 'score' | 'survival' | 'race'
 
 export interface WeeklyChallenge {
   weekId: string
@@ -173,9 +182,22 @@ export function weeklyMode(weekId: string): GameMode {
   return WEEKLY_SCHEDULE[((weekNumber(weekId) % length) + length) % length]!
 }
 
-/** L'endurance se classe en secondes tenues, les autres en points. */
+/** L'endurance se classe en secondes tenues, la course à l'arrivée, les autres en points. */
 export function metricOf(mode: GameMode): WeeklyMetric {
-  return mode === 'endurance' ? 'survival' : 'score'
+  return mode === 'endurance' ? 'survival' : mode === 'race' ? 'race' : 'score'
+}
+
+/** Ce que le serveur renvoie, lu sans confiance : une valeur inconnue reste des points. */
+export function parseMetric(value: unknown): WeeklyMetric {
+  return value === 'survival' || value === 'race' ? value : 'score'
+}
+
+/**
+ * Le temps d'une course d'après sa valeur au classement, au dixième ; null pour
+ * une course sans arrivée, rangée à zéro derrière toutes les autres.
+ */
+export function raceTime(value: number): number | null {
+  return value > 0 ? Math.round((MODE_SECONDS.race - value) * 10) / 10 : null
 }
 
 /** FNV-1a sur la semaine et la langue : un défi français et un anglais sont deux parties. */
@@ -238,9 +260,9 @@ export function weeklyRunOptions(challenge: WeeklyChallenge, day: string, attemp
   }
 }
 
-/** Ce que la partie rapporte au classement : des points, ou des secondes tenues, au dixième. */
+/** Ce que la partie rapporte au classement : des points, ou des secondes, au dixième. */
 export function weeklyValue(run: Run, metric: WeeklyMetric): number {
-  return metric === 'survival' ? Math.round(runScore(run) * 10) / 10 : run.score
+  return metric === 'score' ? run.score : Math.round(runScore(run) * 10) / 10
 }
 
 // ---------------------------------------------------------------- tentatives
