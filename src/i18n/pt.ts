@@ -2,7 +2,9 @@ import type { Messages } from './fr'
 import { weeklyPt } from './weekly.pt'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
-const seconds = (value: number) => value.toLocaleString('pt-BR', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 export const pt: Messages = {
   tag: 'pt-BR',

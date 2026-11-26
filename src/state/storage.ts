@@ -283,6 +283,7 @@ function runOf(stored: unknown): RunRecord | null {
 }
 
 export function loadHistory(): RunRecord[] {
+  flushHistory()
   const stored = parsed(HISTORY_KEY)
   if (!Array.isArray(stored)) return []
   return stored.flatMap((run) => runOf(run) ?? [])
@@ -301,6 +302,33 @@ export function saveHistory(history: readonly RunRecord[]): void {
       run.words.map((played): StoredWord => [played.categoryId, played.word, played.display, played.points]),
     ]),
   )
+}
+
+// Up to two thousand runs and their words make a long JSON string: written
+// as a run ends, it cost the end screen its first frames on an old phone.
+const HISTORY_SAVE_DELAY = 1500
+let pendingHistory: readonly RunRecord[] | null = null
+let pendingTimer: ReturnType<typeof setTimeout> | undefined
+let flushOnLeave = false
+
+/** Saves the history once the end screen has settled, or as soon as the app leaves the foreground. */
+export function saveHistorySoon(history: readonly RunRecord[]): void {
+  pendingHistory = history
+  if (!flushOnLeave && typeof document !== 'undefined') {
+    flushOnLeave = true
+    document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && flushHistory())
+    addEventListener('pagehide', flushHistory)
+  }
+  if (pendingTimer === undefined) pendingTimer = setTimeout(flushHistory, HISTORY_SAVE_DELAY)
+}
+
+/** Writes a history still waiting in `saveHistorySoon`, now. */
+export function flushHistory(): void {
+  clearTimeout(pendingTimer)
+  pendingTimer = undefined
+  const history = pendingHistory
+  pendingHistory = null
+  if (history) saveHistory(history)
 }
 
 // Les parties que le serveur n'a pas reçues : elles attendent ici, chacune
@@ -396,6 +424,7 @@ export function saveLeaderboardMemory(key: string, board: Leaderboard, at: numbe
 }
 
 export function clearLocalData(): void {
+  pendingHistory = null
   try {
     localStorage.removeItem(PROFILE_KEY)
     localStorage.removeItem(HISTORY_KEY)

@@ -710,10 +710,15 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     () => (table?.status === 'lobby' ? [] : (table?.seats ?? []).filter((seat) => seat.seat !== null).sort((a, b) => a.seat! - b.seat!)),
     [table?.seats, table?.status],
   )
-  const setup: DuelSetup | null = useMemo(() => {
-    if (!table || table.startedAt === null || players.length < MIN_TABLE) return null
-    return { seed: table.seed, playerIds: players.map((seat) => seat.id), categories: table.categories, owned: players.map((seat) => seat.owned), startedAt: table.startedAt }
-  }, [players, table])
+  const fresh: DuelSetup | null =
+    !table || table.startedAt === null || players.length < MIN_TABLE
+      ? null
+      : { seed: table.seed, playerIds: players.map((seat) => seat.id), categories: table.categories, owned: players.map((seat) => seat.owned), startedAt: table.startedAt }
+  // Every poll (450 ms) rebuilds the table and its seats: keyed on what the
+  // setup says, the whole journal is replayed only when a move or a seat changes.
+  const setupKey = fresh && JSON.stringify(fresh)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const setup = useMemo(() => fresh, [setupKey])
   const moves = table?.moves
   const replayed = useMemo(() => (setup && moves ? replay(setup, moves, judge) : null), [judge, moves, setup])
   const myIndex = players.findIndex((seat) => seat.id === myId)

@@ -21,7 +21,9 @@ const plural = (count: number, one: string, many: string) => (count > 1 ? many :
 /** A trophy's name, and its line from the value that won it and the word, when one did. */
 type Trophy = readonly [name: string, line: (value: number, word: string) => string]
 
-const seconds = (value: number) => value.toLocaleString('fr-FR', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 /**
  * The reference wording: every other language is typed against it, so a key

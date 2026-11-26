@@ -149,6 +149,7 @@ import {
   saveAvatar,
   saveBoardsMemory,
   saveHistory,
+  saveHistorySoon,
   saveMultiplayerPlayed,
   savePremiereNewsSeen,
   saveProfile,
@@ -1900,7 +1901,7 @@ setStartedAt((at) => at ?? Date.now())
     const record = recordOf(session.run, Date.now(), playedLang)
     setHistory((previous) => {
       const next = appendRecord(previous, record)
-      saveHistory(next)
+      saveHistorySoon(next)
       return next
     })
     // Les mots proposés partent avec la partie : le bilan les relit aussitôt

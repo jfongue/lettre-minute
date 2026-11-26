@@ -1,7 +1,9 @@
 import type { WeeklyTrophyId } from '../domain/weekly'
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one)
-const seconds = (value: number) => value.toLocaleString('fr-FR', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 /** A weekly trophy's name, and its line from the value that won it, the word when one did, and the unit of the ranking. */
 type Trophy = readonly [name: string, line: (value: number, word: string, unit: string) => string]

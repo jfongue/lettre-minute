@@ -14,7 +14,6 @@ import { PushNotifications } from '@capacitor/push-notifications'
 import { Share } from '@capacitor/share'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { StatusBar, Style } from '@capacitor/status-bar'
-import { SocialLogin } from '@capgo/capacitor-social-login'
 import { NativePurchases, PURCHASE_TYPE } from '@capgo/native-purchases'
 
 /**
@@ -575,6 +574,8 @@ export function googleSignInSupported(): boolean {
 export async function googleIdToken(nonce: string, quiet = false): Promise<string | null> {
   if (!googleSignInSupported()) return null
   try {
+    // Fetched at the first sign-in: its providers weigh 40 kB the home screen never needs.
+    const { SocialLogin } = await import('@capgo/capacitor-social-login')
     googleStarted ??= SocialLogin.initialize({
       google: {
         webClientId: googleClientId,
