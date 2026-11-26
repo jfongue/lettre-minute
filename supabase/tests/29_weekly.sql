@@ -11,7 +11,7 @@ create function tests.today() returns date
 language sql stable security definer set search_path = public as $$ select day from public.weekly_window() $$;
 create function tests.bot() returns uuid
 language sql stable security definer set search_path = public as $$ select id from public.bots order by id limit 1 $$;
--- La métrique que la semaine en cours accepte : la semaine d'une course (0107) n'en prend pas d'autre.
+-- La métrique que la semaine en cours accepte : la semaine d'une course (0117) n'en prend pas d'autre.
 create function tests.metric() returns text
 language sql stable security definer set search_path = public as $$ select coalesce(public.weekly_metric(tests.week()), 'survival') $$;
 create function tests.attempts(p_label text) returns integer
@@ -242,7 +242,7 @@ select tests.logout();
 
 -- ---------------------------------------------------------------- course --
 
--- La semaine du 29 novembre est une course (0107) : elle ne prend que ce
+-- La semaine du 29 novembre est une course (0117) : elle ne prend que ce
 -- résultat, et la course n'en vaut pas un ailleurs.
 create function tests.attempt_in(p_label text, p_week date) returns uuid
 language sql security definer set search_path = public as $$

@@ -32,7 +32,7 @@ export const WEEKLY_SCHEDULE: readonly GameMode[] = ['endurance', 'delayed', 're
 
 /**
  * Une semaine sortie de la boucle, choisie à la main : son mode remplace celui
- * de la rotation. Une course s'y écrit aussi dans `weekly_race_week` (0107),
+ * de la rotation. Une course s'y écrit aussi dans `weekly_metric` (0117),
  * qui refuse le résultat d'un client plus ancien jouant le mode de la boucle.
  */
 export const WEEKLY_EXCEPTIONS: Readonly<Record<string, GameMode>> = { '2026-11-29': 'race' }
