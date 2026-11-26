@@ -1,1 +1,0 @@
-import{Jn as e}from"./jsx-runtime-Bos3lR-8.js";import{ur as t}from"./styles-BDf2xqqM.js";function n(n,r){return t(r.id)?n.ach[r.id]:{name:e(n.avatar.milestone(r.goal)),desc:``}}export{n as t};

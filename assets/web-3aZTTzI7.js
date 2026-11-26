@@ -1,0 +1,1 @@
+import{r as e}from"./tslib.es6-WwXAqvSW.js";var t=class extends e{async show(e){}async hide(e){}};export{t as SplashScreenWeb};
