@@ -1,1 +1,0 @@
-import{qn as e}from"./jsx-runtime-BT2cXSOm.js";import{ur as t}from"./styles-UsiC304J.js";function n(n,r){return t(r.id)?n.ach[r.id]:{name:e(n.avatar.milestone(r.goal)),desc:``}}export{n as t};

@@ -1,0 +1,1 @@
+import{qn as e}from"./jsx-runtime-CKNM_LnZ.js";import{ur as t}from"./styles-BF8iyfVJ.js";function n(n,r){return t(r.id)?n.ach[r.id]:{name:e(n.avatar.milestone(r.goal)),desc:``}}export{n as t};
