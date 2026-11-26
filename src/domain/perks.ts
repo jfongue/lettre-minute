@@ -5,7 +5,10 @@ import { compactWord } from './text'
 import { WEEKLY_FREE_ATTEMPTS } from './weekly'
 
 /** Bans a player holds without Premium at most, each one a « filter » level bonus; none to begin with. */
-export const FREE_BANS_MAX = 2
+export const FREE_BANS_MAX = 3
+
+/** Where Premium is sold, the bonuses stop short of the third: Premium's six are the way past two. */
+export const FREE_BANS_WHERE_SOLD = 2
 
 /** Bans Premium holds. */
 export const PLUS_BANS = 6
@@ -64,7 +67,7 @@ export interface PlusRunInfo {
 export function countPlusRun(profile: Profile, info: PlusRunInfo): Profile {
   if (!isPlus(profile)) return profile
   const stats: PlusStat[] = []
-  if (info.filtersActive > FREE_BANS_MAX) stats.push('filterRuns')
+  if (info.filtersActive > FREE_BANS_WHERE_SOLD) stats.push('filterRuns')
   if (info.premiereDealt) stats.push('premiereRuns')
   return stats.length === 0 ? profile : bumped(profile, ...stats)
 }

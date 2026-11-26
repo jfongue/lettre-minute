@@ -503,9 +503,9 @@ const OPEN_FEATURES = new Set([
  * « Letter Minute » in every language.
  */
 export const playgamaHost: Host = {
-  // Filtering is earned by a level bonus or Premium: the portal has neither
-  // the server account nor the store that would make the padlock winnable.
-  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES, 'categoryBans'].filter((id) => !OPEN_FEATURES.has(id))),
+  // Filtering stays open: with no Premium to sell, the level bonuses give up
+  // to three padlocks, from their own levels (`FILTER_LEVELS`).
+  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES].filter((id) => !OPEN_FEATURES.has(id))),
   // As on CrazyGames: the challenge of the moment needs no account, and the
   // powers are picked on their own screen before each run.
   openedFeatures: new Set(['weekly', 'powerLoadout']),

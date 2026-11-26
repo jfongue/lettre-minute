@@ -868,6 +868,7 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
     floor: 'Tienen que quedar al menos seis categorías en juego.',
     max: (count) => `${count} categorías filtradas como máximo.`,
     limit: 'Ya has puesto todos tus candados. Un bonus de nivel te dará otro.',
+    full: (count: number) => `Tus ${count} candados están puestos: recupera una categoría para filtrar otra.`,
     lockedTitle: 'Filtrado bloqueado',
     lockedHow: 'Gana tu primer candado con un bonus de nivel.',
     lockedHowPlus: 'Gana tu primer candado con un bonus de nivel, o hazte Premium para tener seis.',

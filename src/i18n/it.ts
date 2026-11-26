@@ -868,6 +868,7 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
     floor: 'Devono restare in gioco almeno sei categorie.',
     max: (count) => `Al massimo ${count} categorie filtrate.`,
     limit: 'Hai messo tutti i tuoi lucchetti. Un bonus di livello te ne darà un altro.',
+    full: (count: number) => `Tutti i tuoi ${count} lucchetti sono messi: ripristina una categoria per filtrarne un’altra.`,
     lockedTitle: 'Filtro bloccato',
     lockedHow: 'Vinci il tuo primo lucchetto con un bonus di livello.',
     lockedHowPlus: 'Vinci il tuo primo lucchetto con un bonus di livello, oppure passa a Premium per averne sei.',

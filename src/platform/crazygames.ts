@@ -714,12 +714,9 @@ const OPEN_FEATURES = new Set([
  * first lesson follows it (`playFirst`).
  */
 export const crazyGamesHost: Host = {
-  // Filtering is earned by a level bonus or Premium, neither of which the
-  // portal has: left open, « Mes catégories » would promise a padlock no
-  // player can win.
-  closedFeatures: new Set(
-    [...SERVER_FEATURES, ...APP_ONLY_FEATURES, 'categoryBans'].filter((id) => !OPEN_FEATURES.has(id)),
-  ),
+  // Filtering stays open: with no Premium to sell, the level bonuses give up
+  // to three padlocks, from their own levels (`FILTER_LEVELS`).
+  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES].filter((id) => !OPEN_FEATURES.has(id))),
   // A portal game lives on players coming back: the challenge of the moment,
   // which the app opens to everyone, needs no server — attempts are counted
   // on the device, the progress they pay is saved by the Data module.
@@ -740,8 +737,8 @@ export const crazyGamesHost: Host = {
   premiumStore: false,
   rewardedAds: REWARDED,
   // Level bonuses too, the second slot first; the cards that would give a
-  // guest nothing — moderating without an account, a filter « Mes catégories »
-  // does not offer, a reveal while they are free — are never dealt here
+  // guest nothing — moderating without an account, a reveal while they are
+  // free — are never dealt here
   // (`barredBonuses`).
   levelBonuses: true,
   // Until the portal allows the ad that pays for them, the reveals are free.

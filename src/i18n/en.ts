@@ -872,6 +872,7 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
     floor: 'At least six categories must stay in play.',
     max: (count) => `${count} filtered categories at most.`,
     limit: 'Every padlock is used. A level bonus will give you another.',
+    full: (count: number) => `All ${count} padlocks are used: restore a category to filter another.`,
     lockedTitle: 'Filtering is locked',
     lockedHow: 'Win your first padlock with a level bonus.',
     lockedHowPlus: 'Win your first padlock with a level bonus, or go Premium for six.',

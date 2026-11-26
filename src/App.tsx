@@ -504,8 +504,9 @@ setMenuPage(null)
         canName: account?.anonymous === false || host.anonymousAccounts,
         unlimitedReveals: host.unlimitedReveals,
         open: on,
-      }),
-    [moderation?.moderator, account?.anonymous, on],
+        premiumSold: premiumStoreOpen,
+      }, session.profile),
+    [moderation?.moderator, account?.anonymous, on, session.profile],
   )
   const featuresNow = useRef(features)
   featuresNow.current = features

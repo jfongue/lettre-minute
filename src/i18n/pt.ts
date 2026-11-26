@@ -868,6 +868,7 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
     floor: 'Têm de ficar pelo menos seis categorias em jogo.',
     max: (count) => `No máximo ${count} categorias filtradas.`,
     limit: 'Já pusseste todos os teus cadeados. Um bónus de nível dá-te mais um.',
+    full: (count: number) => `Os teus ${count} cadeados estão postos: repõe uma categoria para filtrar outra.`,
     lockedTitle: 'Filtro bloqueado',
     lockedHow: 'Ganha o teu primeiro cadeado com um bónus de nível.',
     lockedHowPlus: 'Ganha o teu primeiro cadeado com um bónus de nível, ou passa a Premium para teres seis.',

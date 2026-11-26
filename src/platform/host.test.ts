@@ -4,6 +4,7 @@ import { appHost } from './app'
 import { crazyGamesHost, encryptScore } from './crazygames'
 import { playgamaHost } from './playgama'
 import { redditHost } from './reddit'
+import { y8Host } from './y8'
 
 const ids = new Set(FEATURES.map((feature) => feature.id))
 
@@ -44,9 +45,12 @@ describe('les hôtes', () => {
     }
   })
 
-  it('ferment le filtrage sur CrazyGames, dont les bonus de niveau ne distribuent donc pas le cadenas', () => {
-    expect(crazyGamesHost.levelBonuses).toBe(true)
-    expect(crazyGamesHost.closedFeatures).toContain('categoryBans')
+  it('laissent le filtrage aux portails sans Premium, où les bonus de niveau donnent le cadenas', () => {
+    for (const host of [crazyGamesHost, playgamaHost, y8Host]) {
+      expect(host.premiumStore).toBe(false)
+      expect(host.levelBonuses).toBe(true)
+      expect(host.closedFeatures).not.toContain('categoryBans')
+    }
   })
 
   it('ouvrent à l’invité de CrazyGames les classements du serveur, sans lui donner de compte anonyme', () => {

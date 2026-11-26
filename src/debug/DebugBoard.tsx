@@ -3003,6 +3003,19 @@ const SCENARIOS: readonly Scenario[] = [
     render: () => <BansScenario bonuses={['filter']} />,
   },
   {
+    id: 'categories-ban-three',
+    group: 'Accueil',
+    title: 'Mes catégories : trois cadenas gagnés',
+    how: 'Version sans Premium (CrazyGames, Playgama, Y8) : les trois cadenas des niveaux 13, 22 et 31 posés ; un quatrième dit de rétablir une catégorie, sans promettre de bonus',
+    phase: 'home',
+    render: () => (
+      // Comme sur un portail : aucune fiche Premium à ouvrir.
+      <PremiumContext.Provider value={{ storeOpen: false, adsOpen: false, open: noop }}>
+        <BansScenario seen every bonuses={['filter', 'filter', 'filter']} banned={['pays', 'animaux', 'couleurs']} />
+      </PremiumContext.Provider>
+    ),
+  },
+  {
     id: 'categories-ban-plus',
     group: 'Accueil',
     title: 'Mes catégories : Premium',

@@ -1,5 +1,5 @@
 import type { FeatureId } from './features'
-import { isPlus } from './perks'
+import { FREE_BANS_MAX, FREE_BANS_WHERE_SOLD, isPlus } from './perks'
 import { levelFor, PERKS_VERSION, type Profile } from './progression'
 import { ownedPlainCount } from './owned'
 import { ownedPowers } from './powers'
@@ -11,7 +11,7 @@ export type BonusId = 'filter' | 'slot' | 'reveal' | 'moderator'
 export const BONUS_IDS: readonly BonusId[] = ['filter', 'slot', 'reveal', 'moderator']
 
 /** How many times each can be taken. */
-export const BONUS_CAPS: Readonly<Record<BonusId, number>> = { filter: 2, slot: 1, reveal: 3, moderator: 1 }
+export const BONUS_CAPS: Readonly<Record<BonusId, number>> = { filter: FREE_BANS_MAX, slot: 1, reveal: 3, moderator: 1 }
 
 /** Reveals are the likeliest on the table: they are what the game runs out of first. */
 export const BONUS_WEIGHTS: Readonly<Record<BonusId, number>> = { filter: 1, slot: 1, reveal: 3, moderator: 1 }
@@ -49,17 +49,42 @@ export interface BonusFacts {
   /** Reveals cost nothing on this version (`Host.unlimitedReveals`). */
   unlimitedReveals: boolean
   open(feature: FeatureId): boolean
+  /** Premium can be bought on this version (`premiumStoreOpen`): it holds what the bonuses do not. */
+  premiumSold: boolean
 }
 
 /**
- * The kinds this player is never dealt, for a card that would give nothing:
- * the moderator offer to someone who is one, or who has no account to take
- * it with; a reveal where they are free; a filter or a slot where filtering
- * categories or wearing powers is closed.
+ * Where Premium is not sold, the bonuses alone filter categories: a third
+ * padlock, and each one from its level only — never on the first table, and
+ * three bonus levels apart, so the run of categories keeps its surprises.
  */
-export function barredBonuses({ isModerator, canName, unlimitedReveals, open }: BonusFacts): BonusId[] {
+export const FILTER_LEVELS: readonly number[] = [13, 22, 31]
+
+/** Padlocks the level bonuses give on a version: all of them where Premium is not sold. */
+export function filterBonusCap(premiumSold: boolean): number {
+  return premiumSold ? FREE_BANS_WHERE_SOLD : FREE_BANS_MAX
+}
+
+/** The filter card is not yet on the table: all the version gives taken, or its level not reached. */
+function filterHeldBack(profile: Profile, premiumSold: boolean): boolean {
+  const taken = bonusCount(profile, 'filter')
+  if (taken >= filterBonusCap(premiumSold)) return true
+  return !premiumSold && levelFor(profile.xp) < (FILTER_LEVELS[taken] ?? Infinity)
+}
+
+/**
+ * The kinds this player is not dealt, for a card that would give nothing: the
+ * moderator offer to someone who is one, or who has no account to take it
+ * with; a reveal where they are free; a filter or a slot where filtering
+ * categories or wearing powers is closed. A filter also waits for its level
+ * (`FILTER_LEVELS`) — a function of the profile, so recomputed as it climbs.
+ */
+export function barredBonuses(
+  { isModerator, canName, unlimitedReveals, open, premiumSold }: BonusFacts,
+  profile: Profile,
+): BonusId[] {
   const barred: BonusId[] = []
-  if (!open('categoryBans')) barred.push('filter')
+  if (!open('categoryBans') || filterHeldBack(profile, premiumSold)) barred.push('filter')
   if (!open('powers')) barred.push('slot')
   if (unlimitedReveals) barred.push('reveal')
   if (isModerator || !canName || !open('moderatorOffer')) barred.push('moderator')

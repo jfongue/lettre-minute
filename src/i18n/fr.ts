@@ -917,6 +917,7 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
     floor: 'Il faut garder au moins six catégories en jeu.',
     max: (count: number) => `${count} catégories filtrées au plus.`,
     limit: 'Tous tes cadenas sont posés. Un bonus de niveau t’en donnera un autre.',
+    full: (count: number) => `Tes ${count} cadenas sont posés : rétablis une catégorie pour en filtrer une autre.`,
     lockedTitle: 'Filtrage verrouillé',
     lockedHow: 'Gagne ton premier cadenas avec un bonus de niveau.',
     lockedHowPlus: 'Gagne ton premier cadenas avec un bonus de niveau, ou passe Premium pour en avoir six.',

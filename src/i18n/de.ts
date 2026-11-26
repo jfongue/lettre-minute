@@ -866,6 +866,7 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
     floor: 'Mindestens sechs Kategorien müssen im Spiel bleiben.',
     max: (count) => `Höchstens ${count} gefilterte Kategorien.`,
     limit: 'Alle deine Schlösser sind gesetzt. Ein Level-Bonus schenkt dir ein weiteres.',
+    full: (count: number) => `Alle ${count} Schlösser sind gesetzt: Gib eine Kategorie frei, um eine andere zu filtern.`,
     lockedTitle: 'Filtern ist gesperrt',
     lockedHow: 'Gewinne dein erstes Schloss mit einem Level-Bonus.',
     lockedHowPlus: 'Gewinne dein erstes Schloss mit einem Level-Bonus oder werde Premium für sechs.',

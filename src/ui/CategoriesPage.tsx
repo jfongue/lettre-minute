@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react'
+import { bonusCount, filterBonusCap } from '../domain/bonus'
 import { CATALOGUE, categoryMeta } from '../domain/catalogue'
 import { bannedOf, banNews, banUnlocked, banVerdict, bansAllowed, isPlus, PLUS_BANS } from '../domain/perks'
 import type { Profile } from '../domain/progression'
@@ -14,6 +15,7 @@ import { usePremium } from './premiumContext'
 import { useBackDismiss } from './useBackDismiss'
 import { useHiddenTaps } from './useHiddenTaps'
 import { useFeature } from './features'
+import { premiumStoreOpen } from '../platform'
 
 export interface BanActions {
   onBan(categoryId: string): void
@@ -38,7 +40,7 @@ export function CategoriesPage({
   const allowed = bansAllowed(profile)
   // Read once, on arrival: the dot goes as soon as the page is seen, the explanation stays until closed.
   const [intro, setIntro] = useState(() => banNews(profile))
-  const [warning, setWarning] = useState<'floor' | 'max' | 'limit' | null>(null)
+  const [warning, setWarning] = useState<'floor' | 'max' | 'limit' | 'full' | null>(null)
   const tapTitle = useHiddenTaps()
   // An avant-première the player does not own is Premium's door; where nothing is sold it is not shown.
   const premieres = CATALOGUE.filter((category) => category.premiere && !owned.includes(category.id))
@@ -54,7 +56,8 @@ export function CategoriesPage({
     if (verdict === 'ok') onBan(id)
     else if (verdict === 'plus') {
       if (premium.storeOpen) premium.open('filter')
-      else setWarning('limit')
+      // Once the version's last padlock is won, no bonus will bring another.
+      else setWarning(bonusCount(profile, 'filter') >= filterBonusCap(premiumStoreOpen) ? 'full' : 'limit')
     }
     return verdict === 'ok'
   }
@@ -109,7 +112,7 @@ export function CategoriesPage({
       {filtering && !unlocked && premium.storeOpen && (
         <PlusLockedSlot icon="lock" label={t.bans.lockedTitle} hint={t.bans.lockedHowPlus} onOpen={() => premium.open('filter')} />
       )}
-      {warning && <p className="note note--warn">{warning === 'max' ? t.bans.max(PLUS_BANS) : t.bans[warning]}</p>}
+      {warning && <p className="note note--warn">{warning === 'max' ? t.bans.max(PLUS_BANS) : warning === 'full' ? t.bans.full(allowed) : t.bans[warning]}</p>}
       <ul className={`categories${unlocked ? ' categories--bans' : ''}`} data-no-swipe={unlocked || undefined}>
         {owned.map((id) => {
           const motif = categoryMotif(id)

@@ -867,6 +867,7 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
     floor: 'Er moeten minstens zes categorieën in het spel blijven.',
     max: (count) => `Hoogstens ${count} gefilterde categorieën.`,
     limit: 'Al je sloten zijn gebruikt. Een levelbonus geeft je er nog een.',
+    full: (count: number) => `Al je ${count} sloten zijn gebruikt: zet een categorie terug om een andere te filteren.`,
     lockedTitle: 'Filteren is vergrendeld',
     lockedHow: 'Win je eerste slot met een levelbonus.',
     lockedHowPlus: 'Win je eerste slot met een levelbonus, of word Premium voor zes sloten.',
