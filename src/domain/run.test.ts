@@ -22,6 +22,7 @@ import {
   skip,
   submit,
   THIN_PROMPT_WORDS,
+  nextPrompt,
   type Judge,
   type Run,
 } from './run'
@@ -347,9 +348,38 @@ describe('odds of a pair', () => {
     expect(prompts.every(([a, b]) => a === b)).toBe(true)
   })
 
-  it('lets a well-stocked pair come back', () => {
-    const stocked = judgeKnowing({ A: THIN_PROMPT_WORDS, B: THIN_PROMPT_WORDS })
+  it('never deals a passed pair again in a run played alone', () => {
+    const stocked = judgeKnowing({ A: 50, B: 50, C: 50, D: 50, E: 50, F: 50 })
+    for (let seed = 1; seed <= 50; seed++) {
+      let run = createRun({ seed, categoryIds: ['animaux'] }, stocked)
+      const letters = [run.prompt.letter]
+      for (let i = 0; i < 5; i++) letters.push((run = skip(run, stocked)).prompt.letter)
+
+      expect(new Set(letters).size).toBe(6)
+    }
+  })
+
+  it('deals passed pairs again once nothing else is left', () => {
+    const stocked = judgeKnowing({ A: 50, B: 50 })
     let run = createRun({ seed: 9, categoryIds: ['animaux'] }, stocked)
+    for (let i = 0; i < 4; i++) run = skip(run, stocked)
+
+    expect(['A', 'B']).toContain(run.prompt.letter)
+  })
+
+  it('shows through Divination the pair a skip deals', () => {
+    const stocked = judgeKnowing({ A: 50, B: 50, C: 50 })
+    let run = createRun({ seed: 4, categoryIds: ['animaux'] }, stocked)
+    for (let i = 0; i < 4; i++) {
+      const shown = nextPrompt(run, stocked)
+      run = skip(run, stocked)
+      expect(run.prompt).toEqual(shown)
+    }
+  })
+
+  it('lets a well-stocked pair come back in a shared run, passed or not', () => {
+    const stocked = judgeKnowing({ A: THIN_PROMPT_WORDS, B: THIN_PROMPT_WORDS })
+    let run = createRun({ seed: 9, categoryIds: ['animaux'], shared: true }, stocked)
     const letters = [run.prompt.letter]
     for (let i = 0; i < 20; i++) letters.push((run = skip(run, stocked)).prompt.letter)
 

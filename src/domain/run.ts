@@ -263,12 +263,24 @@ function drawLetter(rng: Rng, categoryId: string, judge: Judge, locked: Readonly
   return pickWeighted(rng, available, weight) ?? available[0] ?? 'A'
 }
 
-/** What a run may not deal: the previous run's prompts, and the thin pairs it already dealt. */
-function lockOf(avoid: readonly string[], dealt: readonly string[], judge: Judge): Set<string> {
-  const locked = new Set(avoid)
-  for (const key of dealt) {
+/**
+ * What a run may not deal: the previous run's prompts, the thin pairs it
+ * already dealt, and — in a run played alone — every pair the player left
+ * empty, along with the one on screen. The pair on screen is locked whether it
+ * is answered or passed, so that Divination, which shows the next prompt
+ * before the player chooses, still tells the truth. A shared run keeps to the
+ * seed and the dictionaries alone: what one player passes must not change
+ * what another is dealt.
+ */
+function lockOf(run: Run, judge: Judge): Set<string> {
+  const locked = new Set(run.avoid)
+  for (const key of run.dealt) {
     const cut = key.lastIndexOf(':')
     if (judge.known(key.slice(0, cut), key.slice(cut + 1)) < THIN_PROMPT_WORDS) locked.add(key)
+  }
+  if (!run.shared) {
+    for (const settled of run.settled) if (settled.passed) locked.add(promptKey(settled.prompt))
+    locked.add(promptKey(run.prompt))
   }
   return locked
 }
@@ -276,7 +288,8 @@ function lockOf(avoid: readonly string[], dealt: readonly string[], judge: Judge
 /**
  * A prompt the previous run dealt is off the table for this one, so two runs
  * in a row never open on the same pair. Within a run, only a pair with plenty
- * of known words may come back. When a category has nothing else left, the
+ * of known words may come back, and in a run played alone, never one the
+ * player passed. When a category has nothing else left, the
  * lock gives way rather than leaving it undrawable.
  */
 function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[], judge: Judge, locked: ReadonlySet<string>, skipCategory?: string): Prompt {
@@ -299,7 +312,7 @@ function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[],
  * so Divination can show it and `advance` is bound to deal that very one.
  */
 export function nextPrompt(run: Run, judge: Judge): Prompt {
-  return drawPrompt(run.seed, run.drawn, run.categoryIds, judge, lockOf(run.avoid, run.dealt, judge), run.prompt.categoryId)
+  return drawPrompt(run.seed, run.drawn, run.categoryIds, judge, lockOf(run, judge), run.prompt.categoryId)
 }
 
 /** The run moved on to a new prompt: the one it leaves is settled, and the next is drawn and remembered. */

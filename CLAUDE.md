@@ -168,7 +168,11 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   lettre. Pas le rang de `notoriety` : parmi 23 000 animaux, il
   sacre les quiscales. Un couple de moins de `THIN_PROMPT_WORDS` mots connus
   ne revient pas dans la même partie, et ce verrou passe avant le changement
-  de catégorie. Il n'y a plus de jeu de lettres par langue : c'est le
+  de catégorie. Dans une partie seule (`!Run.shared`), un couple passé ne
+  revient pas non plus, ni celui à l'écran au tirage suivant — même répondu,
+  pour que Divination montre ce que la passe comme le mot distribueront ;
+  un défi, un robot ou le quotidien Reddit n'ont pas ce verrou, qui ferait
+  dépendre leur tirage des choix du joueur. Il n'y a plus de jeu de lettres par langue : c'est le
   dictionnaire qui dit quelles lettres existent.
 - **Le tirage écoute aussi la foule** (`Judge.pull`, `src/domain/prompts.ts`) :
   un couple que les joueurs quittent sans rien écrire s'efface peu à peu, un
