@@ -7,6 +7,9 @@ select tests.new_user('p2');
 select tests.new_user('p3');
 select tests.new_user('m' || i) from generate_series(1, 13) i;
 select tests.make_moderator('m' || i) from generate_series(1, 13) i;
+-- Un seuil fixe de cinq hors langue courte : les paliers du stock (0119)
+-- ont leur propre fichier.
+select tests.flat_five();
 select tests.new_user('s' || i) from generate_series(1, 4) i;
 select tests.make_super_moderator('s' || i) from generate_series(1, 4) i;
 

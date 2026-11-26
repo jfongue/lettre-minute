@@ -419,7 +419,7 @@ export const it: Messages = {
     empty: 'Ancora nessuna proposta. In partita, una parola sconosciuta al dizionario si propone con un tocco.',
     added: 'Aggiunte grazie a te',
     addedNote: (xp) => `${xp} XP guadagnati per ognuna.`,
-    noneAdded: 'Nessuna per ora: una parola entra quando da due a cinque moderatori l’hanno approvata.',
+    noneAdded: 'Nessuna per ora: una parola entra quando da due a sette moderatori l’hanno approvata.',
     more: (count: number) => `Mostra altro (${count})`,
     less: 'Mostra meno',
     fresh: 'nuova',
@@ -442,8 +442,8 @@ export const it: Messages = {
   moderation: {
     title: 'Moderazione',
     superTitle: 'Supermoderatore',
-    lead: 'Giudichi le parole proposte dai giocatori: da due a cinque «corretta» la fanno entrare, meno quante più parole aspettano, e due bastano dove i giudici sono pochi; due «sbagliata» la bloccano. Ogni «non lo so» chiede due «corretta» in più e mezza voce in più per bloccare.',
-    superLead: 'Il tuo voto conta doppio, ma mai da solo: da due a cinque «corretta» la fanno entrare, meno quante più parole aspettano, e la tua sola «sbagliata» la blocca. I casi speciali aspettano solo i supermoderatori.',
+    lead: 'Giudichi le parole proposte dai giocatori: da due a sette «corretta» la fanno entrare, meno quante più parole aspettano, e due bastano dove i giudici sono pochi; due «sbagliata» la bloccano. Ogni «non lo so» chiede due «corretta» in più e mezza voce in più per bloccare.',
+    superLead: 'Il tuo voto conta doppio, ma mai da solo: da due a sette «corretta» la fanno entrare, meno quante più parole aspettano, e la tua sola «sbagliata» la blocca. I casi speciali aspettano solo i supermoderatori.',
     score: (score: number) => `Severità: ${score}/100`,
     scoreLead: 'Il tuo punteggio sale quando gli altri moderatori condividono i tuoi rifiuti, e scende quando rifiutano una parola che hai accettato.',
     scoreSoon: 'Il tuo punteggio di severità apparirà non appena una parola che hai giudicato sarà decisa.',
@@ -493,7 +493,7 @@ export const it: Messages = {
       hint: 'Moderatore: tieni premuta una parola per segnalarla.',
       title: 'Segnala questa parola',
       lead: (word, category) =>
-        `«${word}» non ha il suo posto in «${category}»? Gli altri moderatori la giudicheranno: da due a cinque d’accordo, meno quante più parole aspettano, e lascerà la categoria nella prossima versione.`,
+        `«${word}» non ha il suo posto in «${category}»? Gli altri moderatori la giudicheranno: da due a sette d’accordo, meno quante più parole aspettano, e lascerà la categoria nella prossima versione.`,
       confirm: 'Segnala',
       close: 'Chiudi',
       reasonLabel: 'Motivo (facoltativo)',

@@ -1,9 +1,10 @@
 -- La modération se règle sur son stock : les mots d'une langue qui attendent un
 -- juge, revues en attente et réserve pas encore versée (`moderation_stock`).
 --
--- * Le seuil d'entrée suit le stock à rebours. Une file courte peut se payer
---   cinq « correct » ; une file qui déborde se vide à quatre, trois, puis deux,
---   sans quoi les mots des joueurs y vieillissent des semaines. Les paliers
+-- * Le seuil d'entrée suit le stock à rebours. Une file presque vide se paie
+--   sept « correct », six sous vingt-cinq mots, cinq sous cinquante — les juges
+--   ont le temps d'être sûrs ; une file qui déborde se vide à quatre, trois,
+--   puis deux, sans quoi les mots des joueurs y vieillissent des semaines. Les paliers
 --   vivent dans `moderation_stock_steps`, réglables sans migration. Une langue
 --   de moins de dix juges (0078) reste à deux au plus : elle n'aurait pas assez
 --   de monde pour cinq. Le doute, la correction d'orthographe, le plafond, les
@@ -24,7 +25,7 @@ create table public.moderation_stock_steps (
 );
 
 insert into public.moderation_stock_steps (stock_from, yes_needed)
-values (0, 5), (50, 4), (150, 3), (300, 2);
+values (0, 7), (10, 6), (25, 5), (50, 4), (150, 3), (300, 2);
 
 alter table public.moderation_stock_steps enable row level security;
 

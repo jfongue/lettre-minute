@@ -124,7 +124,7 @@ select tests.is((select count(*)::int from public.word_submissions where player_
 -- ------------------------------------------------ score et poids --
 
 -- Le seuil suit le stock depuis 0119 ; ici, seul le poids des voix compte.
-delete from public.moderation_stock_steps where stock_from > 0;
+select tests.flat_five();
 
 select tests.propose('q1', 'animaux', w) from unnest(array['vrai', 'faux', 'mou', 'tiede']) w;
 

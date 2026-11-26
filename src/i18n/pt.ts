@@ -419,7 +419,7 @@ export const pt: Messages = {
     empty: 'Nenhuma sugestão ainda. Na partida, uma palavra que o dicionário não conhece é sugerida com um toque.',
     added: 'Adicionadas graças a você',
     addedNote: (xp) => `${xp} XP ganhos por cada uma.`,
-    noneAdded: 'Nenhuma ainda: uma palavra entra quando de dois a cinco moderadores a validaram.',
+    noneAdded: 'Nenhuma ainda: uma palavra entra quando de dois a sete moderadores a validaram.',
     more: (count: number) => `Mostrar mais (${count})`,
     less: 'Ver menos',
     fresh: 'nova',
@@ -442,8 +442,8 @@ export const pt: Messages = {
   moderation: {
     title: 'Moderação',
     superTitle: 'Supermoderador',
-    lead: 'Você julga as palavras propostas pelos jogadores: de duas a cinco «correta» fazem uma palavra entrar, menos quanto mais palavras esperam, e duas bastam onde há poucos juízes; duas «incorreta» a bloqueiam. Cada «não sei» pede duas «correta» a mais e meia voz a mais para bloquear.',
-    superLead: 'Seu voto conta dobrado, mas nunca sozinho: de duas a cinco «correta» fazem uma palavra entrar, menos quanto mais palavras esperam, e sua única «incorreta» a bloqueia. Os casos especiais só esperam pelos supermoderadores.',
+    lead: 'Você julga as palavras propostas pelos jogadores: de duas a sete «correta» fazem uma palavra entrar, menos quanto mais palavras esperam, e duas bastam onde há poucos juízes; duas «incorreta» a bloqueiam. Cada «não sei» pede duas «correta» a mais e meia voz a mais para bloquear.',
+    superLead: 'Seu voto conta dobrado, mas nunca sozinho: de duas a sete «correta» fazem uma palavra entrar, menos quanto mais palavras esperam, e sua única «incorreta» a bloqueia. Os casos especiais só esperam pelos supermoderadores.',
     score: (score: number) => `Rigor: ${score}/100`,
     scoreLead: 'Sua pontuação sobe quando os outros moderadores compartilham suas recusas, e cai quando recusam uma palavra que você aceitou.',
     scoreSoon: 'Sua pontuação de rigor aparecerá assim que uma palavra que você julgou for decidida.',
@@ -493,7 +493,7 @@ export const pt: Messages = {
       hint: 'Moderador: segure uma palavra para sinalizá-la.',
       title: 'Sinalizar esta palavra',
       lead: (word, category) =>
-        `«${word}» não tem lugar em «${category}»? Os outros moderadores vão julgá-la: de duas a cinco de acordo, menos quanto mais palavras esperam, e ela sai da categoria na próxima versão.`,
+        `«${word}» não tem lugar em «${category}»? Os outros moderadores vão julgá-la: de duas a sete de acordo, menos quanto mais palavras esperam, e ela sai da categoria na próxima versão.`,
       confirm: 'Sinalizar',
       close: 'Fechar',
       reasonLabel: 'Motivo (opcional)',

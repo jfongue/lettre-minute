@@ -168,12 +168,21 @@ $$;
 -- Ten more French moderators, for the files that test something other than the
 -- threshold: since 0077 a language under ten moderators settles a word on two
 -- « correct », and those files still expect the five voices of an ordinary
--- language. `moderators.lang` defaults to the bare French.
+-- language. `moderators.lang` defaults to the bare French. Since 0119 the
+-- threshold also follows the stock, seven « correct » on a near-empty queue:
+-- those files keep a flat five, and `48_moderation_stock` tests the steps.
+create function tests.flat_five() returns void
+language sql security definer set search_path = public as $$
+  delete from public.moderation_stock_steps;
+  insert into public.moderation_stock_steps (stock_from, yes_needed) values (0, 5);
+$$;
+
 create function tests.full_french() returns void
 language plpgsql security definer set search_path = public as $$
 declare
 v_id uuid;
 begin
+perform tests.flat_five();
 for i in 1..10 loop
 v_id := tests.new_user('full' || i);
 insert into public.moderators (id) values (v_id) on conflict do nothing;

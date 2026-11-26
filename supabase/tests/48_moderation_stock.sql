@@ -2,24 +2,33 @@
 -- attendent, moins il faut de « correct » pour en faire entrer un, et plus il
 -- lui faut de juges avant de cesser d'en recruter.
 
-select tests.full_french();
 select tests.new_user(n) from unnest(array['p1', 'p2', 'oa', 'ob']) n;
 select tests.new_user('m' || i) from generate_series(1, 5) i;
 select tests.make_moderator('m' || i) from generate_series(1, 5) i;
+select tests.new_user('full' || i) from generate_series(1, 10) i;
+select tests.make_moderator('full' || i) from generate_series(1, 10) i;
 
 -- Quinze juges français : la langue n'est pas courte, son seuil suit le stock.
 select tests.is(public.thin_language('animaux'), false, 'fifteen French judges');
 
 -- ------------------------------------------------------------ seuil --
 
+-- Une file presque vide : sept « correct ».
 select tests.propose('p1', 'animaux', 'loutre');
 select tests.is(public.moderation_stock('fr'), 1, 'one word waits in French');
-select tests.is(public.stock_yes_needed('fr'), 5, 'a short stock asks five « correct »');
-select tests.is(tests.vote('m1', 'animaux', 'loutre', 'correct'), 'pending', 'one leaves it pending');
-select tests.is(tests.vote('m2', 'animaux', 'loutre', 'correct'), 'pending', 'two leave it pending');
-select tests.is(tests.vote('m3', 'animaux', 'loutre', 'correct'), 'pending', 'three leave it pending');
-select tests.is(tests.vote('m4', 'animaux', 'loutre', 'correct'), 'pending', 'four leave it pending');
-select tests.is(tests.vote('m5', 'animaux', 'loutre', 'correct'), 'accepted', 'five let it in');
+select tests.is(public.stock_yes_needed('fr'), 7, 'a near-empty stock asks seven « correct »');
+select tests.vote('m' || i, 'animaux', 'loutre', 'correct') from generate_series(1, 5) i;
+select tests.is(tests.vote('full1', 'animaux', 'loutre', 'correct'), 'pending', 'six leave it pending');
+select tests.is(tests.vote('full2', 'animaux', 'loutre', 'correct'), 'accepted', 'seven let it in');
+
+-- Dix mots : six ; vingt-cinq : cinq.
+insert into public.moderation_reserve (category_id, word, display)
+select 'animaux', 'peu' || i, 'Peu' || i from generate_series(1, 10) i;
+select tests.is(public.stock_yes_needed('fr'), 6, 'ten waiting words ask six');
+insert into public.moderation_reserve (category_id, word, display)
+select 'animaux', 'moyen' || i, 'Moyen' || i from generate_series(1, 15) i;
+select tests.is(public.stock_yes_needed('fr'), 5, 'twenty-five ask five');
+delete from public.moderation_reserve where word like 'peu%' or word like 'moyen%';
 
 -- 150 mots en réserve : trois suffisent.
 insert into public.moderation_reserve (category_id, word, display)

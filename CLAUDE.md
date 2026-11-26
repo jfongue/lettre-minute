@@ -448,7 +448,7 @@ propre téléphone.
   (`accept_word`), jamais par le client — et depuis 0007, seules les fonctions
   du serveur peuvent l'appeler.
 - **Les règles de modération vivent en SQL** (`settle_review`, 0059, 0078, 0119), pas
-  dans le domaine : de cinq à deux « correct » selon le stock de la langue
+  dans le domaine : de sept à deux « correct » selon le stock de la langue
   (revues en attente plus réserve, `moderation_stock`) — plus il attend de mots,
   moins il en faut, paliers dans `moderation_stock_steps` —, deux « incorrect »,
   chaque « je ne sais pas »
