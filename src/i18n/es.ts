@@ -419,7 +419,7 @@ export const es: Messages = {
     empty: 'Aún no hay propuestas. En partida, una palabra que el diccionario no conoce se propone con un toque.',
     added: 'Añadidas gracias a ti',
     addedNote: (xp) => `${xp} XP ganados por cada una.`,
-    noneAdded: 'Ninguna aún: una palabra entra cuando cinco moderadores la han validado.',
+    noneAdded: 'Ninguna aún: una palabra entra cuando de dos a cinco moderadores la han validado.',
     more: (count: number) => `Ver más (${count})`,
     less: 'Ver menos',
     fresh: 'nueva',
@@ -442,8 +442,8 @@ export const es: Messages = {
   moderation: {
     title: 'Moderación',
     superTitle: 'Supermoderador',
-    lead: 'Juzgas las palabras que proponen los jugadores: dos «correcta» la hacen entrar donde hay pocos jueces, cinco donde son muchos; dos «incorrecta» la bloquean. Cada «no lo sé» pide dos «correcta» más, y media voz más para bloquear.',
-    superLead: 'Tu voto cuenta doble, pero nunca solo: dos «correcta» la hacen entrar donde hay pocos jueces, cinco donde son muchos, y tu única «incorrecta» la bloquea. Los casos especiales solo esperan a los supermoderadores.',
+    lead: 'Juzgas las palabras que proponen los jugadores: de dos a cinco «correcta» la hacen entrar, menos cuantas más palabras esperan, y dos bastan donde hay pocos jueces; dos «incorrecta» la bloquean. Cada «no lo sé» pide dos «correcta» más, y media voz más para bloquear.',
+    superLead: 'Tu voto cuenta doble, pero nunca solo: de dos a cinco «correcta» la hacen entrar, menos cuantas más palabras esperan, y tu única «incorrecta» la bloquea. Los casos especiales solo esperan a los supermoderadores.',
     score: (score: number) => `Exigencia: ${score}/100`,
     scoreLead: 'Tu puntuación sube cuando los demás moderadores comparten tus rechazos, y baja cuando rechazan una palabra que aceptaste.',
     scoreSoon: 'Tu puntuación de exigencia aparecerá en cuanto se resuelva una palabra que juzgaste.',
@@ -493,7 +493,7 @@ export const es: Messages = {
       hint: 'Moderador: mantén pulsada una palabra para señalarla.',
       title: 'Señalar esta palabra',
       lead: (word, category) =>
-        `¿«${word}» no tiene su lugar en «${category}»? Los demás moderadores la juzgarán: dos de acuerdo donde hay pocos jueces, cinco en el resto, y saldrá de la categoría en la próxima versión.`,
+        `¿«${word}» no tiene su lugar en «${category}»? Los demás moderadores la juzgarán: de dos a cinco de acuerdo, menos cuantas más palabras esperan, y saldrá de la categoría en la próxima versión.`,
       confirm: 'Señalar',
       close: 'Cerrar',
       reasonLabel: 'Motivo (opcional)',

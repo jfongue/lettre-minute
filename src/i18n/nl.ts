@@ -418,7 +418,7 @@ export const nl: Messages = {
     empty: 'Nog geen voorstellen. Tijdens het spel stel je een onbekend woord met één tik voor.',
     added: 'Toegevoegd dankzij jou',
     addedNote: (xp) => `${xp} XP verdiend per woord.`,
-    noneAdded: 'Nog geen: een woord komt erin zodra vijf moderators het hebben goedgekeurd.',
+    noneAdded: 'Nog geen: een woord komt erin zodra twee tot vijf moderators het hebben goedgekeurd.',
     more: (count: number) => `Meer tonen (${count})`,
     less: 'Minder tonen',
     fresh: 'nieuw',
@@ -441,8 +441,8 @@ export const nl: Messages = {
   moderation: {
     title: 'Moderatie',
     superTitle: 'Supermoderator',
-    lead: 'Jij beoordeelt de woorden die spelers voorstellen: twee keer „goed” laat een woord erin waar weinig juryleden zijn, vijf waar het er veel zijn; twee keer „fout” blokkeert het. Elk „weet ik niet” vraagt twee keer „goed” extra en een halve stem meer om te blokkeren.',
-    superLead: 'Jouw stem telt dubbel, maar nooit alleen: twee keer „goed” laat een woord erin waar weinig juryleden zijn, vijf waar het er veel zijn, en jouw enkele „fout” blokkeert het. Speciale gevallen wachten alleen op supermoderators.',
+    lead: 'Jij beoordeelt de woorden die spelers voorstellen: twee tot vijf keer „goed” laat een woord erin, minder naarmate er meer woorden wachten, en twee volstaan waar weinig juryleden zijn; twee keer „fout” blokkeert het. Elk „weet ik niet” vraagt twee keer „goed” extra en een halve stem meer om te blokkeren.',
+    superLead: 'Jouw stem telt dubbel, maar nooit alleen: twee tot vijf keer „goed” laat een woord erin, minder naarmate er meer woorden wachten, en jouw enkele „fout” blokkeert het. Speciale gevallen wachten alleen op supermoderators.',
     score: (score: number) => `Strengheid: ${score}/100`,
     scoreLead: 'Je score stijgt als andere moderators je afwijzingen delen, en daalt als ze een woord afwijzen dat jij goedkeurde.',
     scoreSoon: 'Je strengheidsscore verschijnt zodra een woord dat je beoordeelde beslist is.',
@@ -492,7 +492,7 @@ export const nl: Messages = {
       hint: 'Moderator: houd een woord ingedrukt om het te melden.',
       title: 'Dit woord melden',
       lead: (word, category) =>
-        `„${word}” hoort niet in „${category}”? De andere moderators beoordelen het: twee eens waar weinig juryleden zijn, vijf elders, en het verlaat de categorie in de volgende versie.`,
+        `„${word}” hoort niet in „${category}”? De andere moderators beoordelen het: twee tot vijf eens, minder naarmate er meer woorden wachten, en het verlaat de categorie in de volgende versie.`,
       confirm: 'Melden',
       close: 'Sluiten',
       reasonLabel: 'Reden (optioneel)',

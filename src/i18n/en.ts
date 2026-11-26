@@ -423,7 +423,7 @@ export const en: Messages = {
     empty: 'No requests yet. During a game, a word the dictionary does not know can be proposed with one tap.',
     added: 'Added thanks to you',
     addedNote: (xp) => `${xp} XP earned for each.`,
-    noneAdded: 'None yet: a word gets in once five moderators have approved it.',
+    noneAdded: 'None yet: a word gets in once two to five moderators have approved it.',
     more: (count: number) => `Show more (${count})`,
     less: 'Show less',
     fresh: 'new',
@@ -446,8 +446,8 @@ export const en: Messages = {
   moderation: {
     title: 'Moderation',
     superTitle: 'Super moderator',
-    lead: 'You judge the words players propose: two “correct” let a word in where judges are few, five where they are many; two “incorrect” block it. Each “not sure” asks for two more “correct”, and half a voice more to block.',
-    superLead: 'Your vote counts double, but never alone: two “correct” let a word in where judges are few, five where they are many, and your single “incorrect” blocks it. Special cases wait for super moderators only.',
+    lead: 'You judge the words players propose: two to five “correct” let a word in, fewer the more words wait, and two are enough where judges are few; two “incorrect” block it. Each “not sure” asks for two more “correct”, and half a voice more to block.',
+    superLead: 'Your vote counts double, but never alone: two to five “correct” let a word in, fewer the more words wait, and your single “incorrect” blocks it. Special cases wait for super moderators only.',
     score: (score: number) => `Strictness: ${score}/100`,
     scoreLead: 'Your score rises when other moderators share your refusals, and drops when they refuse a word you accepted.',
     scoreSoon: 'Your strictness score will appear once a word you judged is settled.',
@@ -497,7 +497,7 @@ export const en: Messages = {
       hint: 'Moderator: press and hold a word to flag it.',
       title: 'Flag this word',
       lead: (word, category) =>
-        `“${word}” does not belong in “${category}”? The other moderators will judge it: two in agreement where judges are few, five elsewhere, and it leaves the category in the next version.`,
+        `“${word}” does not belong in “${category}”? The other moderators will judge it: two to five in agreement, fewer the more words wait, and it leaves the category in the next version.`,
       confirm: 'Flag',
       close: 'Close',
       reasonLabel: 'Reason (optional)',

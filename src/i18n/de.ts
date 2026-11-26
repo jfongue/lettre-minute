@@ -417,7 +417,7 @@ export const de: Messages = {
     empty: 'Noch keine Vorschläge. Im Spiel schlägst du ein unbekanntes Wort mit einem Tippen vor.',
     added: 'Dank dir aufgenommen',
     addedNote: (xp) => `${xp} XP für jedes.`,
-    noneAdded: 'Noch keins: Ein Wort kommt hinein, sobald fünf Moderatoren es bestätigt haben.',
+    noneAdded: 'Noch keins: Ein Wort kommt hinein, sobald zwei bis fünf Moderatoren es bestätigt haben.',
     more: (count: number) => `Mehr zeigen (${count})`,
     less: 'Weniger anzeigen',
     fresh: 'neu',
@@ -440,8 +440,8 @@ export const de: Messages = {
   moderation: {
     title: 'Moderation',
     superTitle: 'Supermoderator',
-    lead: 'Du beurteilst die Wörter, die Spieler vorschlagen: Zwei „richtig“ lassen ein Wort hinein, wo es wenige Richter gibt, fünf, wo es viele gibt; zwei „falsch“ sperren es. Jedes „weiß nicht“ verlangt zwei „richtig“ mehr und eine halbe Stimme mehr zum Sperren.',
-    superLead: 'Deine Stimme zählt doppelt, aber nie allein: Zwei „richtig“ lassen ein Wort hinein, wo es wenige Richter gibt, fünf, wo es viele gibt, und dein einzelnes „falsch“ sperrt es. Sonderfälle warten nur auf Supermoderatoren.',
+    lead: 'Du beurteilst die Wörter, die Spieler vorschlagen: Zwei bis fünf „richtig“ lassen ein Wort hinein, umso weniger, je mehr Wörter warten, und zwei reichen, wo es wenige Richter gibt; zwei „falsch“ sperren es. Jedes „weiß nicht“ verlangt zwei „richtig“ mehr und eine halbe Stimme mehr zum Sperren.',
+    superLead: 'Deine Stimme zählt doppelt, aber nie allein: Zwei bis fünf „richtig“ lassen ein Wort hinein, umso weniger, je mehr Wörter warten, und dein einzelnes „falsch“ sperrt es. Sonderfälle warten nur auf Supermoderatoren.',
     score: (score: number) => `Strenge: ${score}/100`,
     scoreLead: 'Dein Wert steigt, wenn andere Moderatoren deine Ablehnungen teilen, und sinkt, wenn sie ein Wort ablehnen, das du angenommen hast.',
     scoreSoon: 'Dein Strenge-Wert erscheint, sobald ein von dir beurteiltes Wort entschieden ist.',
@@ -491,7 +491,7 @@ export const de: Messages = {
       hint: 'Moderator: Wort lange drücken, um es zu melden.',
       title: 'Dieses Wort melden',
       lead: (word, category) =>
-        `„${word}“ gehört nicht in „${category}“? Die anderen Moderatoren beurteilen es: zwei dafür, wo es wenige Richter gibt, fünf sonst, und es verlässt die Kategorie in der nächsten Version.`,
+        `„${word}“ gehört nicht in „${category}“? Die anderen Moderatoren beurteilen es: zwei bis fünf dafür, umso weniger, je mehr Wörter warten, und es verlässt die Kategorie in der nächsten Version.`,
       confirm: 'Melden',
       close: 'Schließen',
       reasonLabel: 'Grund (optional)',

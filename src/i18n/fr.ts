@@ -455,7 +455,7 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les
     empty: 'Aucune demande pour l’instant. En partie, un mot inconnu du dictionnaire se propose d’une touche.',
     added: 'Ajoutés grâce à toi',
     addedNote: (xp: number) => `${xp} XP gagnés pour chacun.`,
-    noneAdded: 'Aucun encore : un mot entre quand cinq modérateurs l’ont validé.',
+    noneAdded: 'Aucun encore : un mot entre quand deux à cinq modérateurs l’ont validé.',
     /** « Ajoutés grâce à toi » se replie sur ses dix derniers. */
     more: (count: number) => `Voir plus (${count})`,
     less: 'Voir moins',
@@ -479,8 +479,8 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les
   moderation: {
     title: 'Modération',
     superTitle: 'Super modérateur',
-    lead: 'Tu juges les mots proposés par les joueurs : deux « correct » font entrer un mot dans une langue qui compte peu de juges, cinq là où ils sont assez nombreux ; deux « incorrect » le bloquent. Chaque « je ne sais pas » demande deux « correct » de plus, et une demi-voix de plus pour bloquer.',
-    superLead: 'Ta voix compte double, mais jamais seule : deux « correct » font entrer un mot là où les juges sont rares, cinq là où ils sont assez nombreux, et ton seul « incorrect » le bloque. Les cas spéciaux n’attendent que les super modérateurs.',
+    lead: 'Tu juges les mots proposés par les joueurs : deux à cinq « correct » font entrer un mot, d’autant moins qu’il y a de mots à juger, et deux suffisent dans une langue qui compte peu de juges ; deux « incorrect » le bloquent. Chaque « je ne sais pas » demande deux « correct » de plus, et une demi-voix de plus pour bloquer.',
+    superLead: 'Ta voix compte double, mais jamais seule : deux à cinq « correct » font entrer un mot, d’autant moins qu’il y a de mots à juger, et ton seul « incorrect » le bloque. Les cas spéciaux n’attendent que les super modérateurs.',
     score: (score: number) => `Exigence : ${score}/100`,
     scoreLead: 'Ton score monte quand les autres modérateurs partagent tes refus, et baisse quand ils refusent un mot que tu as validé.',
     scoreSoon: 'Ton score d’exigence apparaîtra dès qu’un mot que tu as jugé sera tranché.',
@@ -530,7 +530,7 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les
       hint: 'Modérateur : appui long sur un mot pour le signaler.',
       title: 'Signaler ce mot',
       lead: (word: string, category: string) =>
-        `« ${word} » n’a pas sa place dans « ${category} » ? Les autres modérateurs le jugeront : deux « correct » là où les juges sont rares, cinq ailleurs, et il quittera la catégorie à la prochaine version.`,
+        `« ${word} » n’a pas sa place dans « ${category} » ? Les autres modérateurs le jugeront : deux à cinq « correct », d’autant moins qu’il y a de mots à juger, et il quittera la catégorie à la prochaine version.`,
       confirm: 'Signaler',
       close: 'Fermer',
       reasonLabel: 'Motif (facultatif)',

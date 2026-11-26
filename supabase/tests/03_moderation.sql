@@ -235,6 +235,12 @@ select tests.is(pg_temp.gained('p1'), 1050, 'every accepted word paid its author
 
 select tests.new_user('rookie');
 select tests.new_user('shadow', true);
+-- L'offre ne sort que dans une langue qui manque de juges pour son stock
+-- (0119) : un juge par mot, et vingt mots en réserve, sous les cinquante qui
+-- baisseraient le seuil des votes qui suivent.
+update public.moderation_staffing set words_per_moderator = 1;
+insert into public.moderation_reserve (category_id, word, display)
+select 'animaux', 'recrue' || i, 'Recrue' || i from generate_series(1, 20) i;
 select tests.login('rookie');
 select tests.is(public.moderation_status('fr') ->> 'offer', null, 'no offer below level 6');
 select tests.logout();

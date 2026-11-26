@@ -447,14 +447,21 @@ propre téléphone.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client — et depuis 0007, seules les fonctions
   du serveur peuvent l'appeler.
-- **Les règles de modération vivent en SQL** (`settle_review`, 0059, 0078), pas
-  dans le domaine : cinq « correct », deux « incorrect », chaque « je ne sais pas »
+- **Les règles de modération vivent en SQL** (`settle_review`, 0059, 0078, 0119), pas
+  dans le domaine : de cinq à deux « correct » selon le stock de la langue
+  (revues en attente plus réserve, `moderation_stock`) — plus il attend de mots,
+  moins il en faut, paliers dans `moderation_stock_steps` —, deux « incorrect »,
+  chaque « je ne sais pas »
   demandant deux « correct » de plus (plafond quinze) et une demi-voix de plus
   pour bloquer (plafond sept), les cas spéciaux restant à un super modérateur
   seul. **Une langue de moins de dix modérateurs se contente de deux
   « correct »** (`thin_language`, 0078) : `moderators.lang` dit la langue de
   chaque juge — « fr » tant qu'il n'a rien ouvert, celle de la file qu'il ouvre
   ensuite (`top_up_moderation`) —, et le seuil se lit sur la langue de la revue.
+  Le recrutement suit le stock dans l'autre sens : l'offre de niveau ou de mots
+  acceptés ne sort à l'accueil que si la langue a moins d'un juge pour
+  `moderation_staffing.words_per_moderator` mots qui attendent
+  (`moderators_wanted`) ; une invitation posée sort toujours.
   Super modérateur est un rôle donné à la main
   (`moderators.super`, 0047), plus un rang gagné : son vote compte double, sans
   faire entrer un mot à lui seul — deux personnes sont toujours nécessaires,

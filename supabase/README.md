@@ -78,6 +78,8 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `proposal_quota` | Une seule ligne : le plafond quotidien de propositions — de base, fiable, souvent refusé (0116). |
 | `proposer_reviews` | Les joueurs trop souvent refusés : profil à juger par un super modérateur (`state`), ban de proposition (`banned`), d'office ou non (`auto`). |
 | `moderation_reserve` | Mots évidents que les dictionnaires ignorent, versés au compte-goutte dans la file (`released_at`). |
+| `moderation_stock_steps` | Les paliers du seuil d'entrée : à partir de tant de mots qui attendent dans la langue, tant de « correct » (0119 : 5, puis 4 dès 50, 3 dès 150, 2 dès 300). Aucune politique. |
+| `moderation_staffing` | Une seule ligne : combien de mots qui attendent un juge couvre, au-delà desquels l'offre de modération sort encore (0119 : 3). |
 | `moderation_topup` | Une seule ligne : l'heure du dernier versement, qui ferme le renflouage pour une heure, toutes langues confondues. |
 | `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |
 | `friendships` | Une ligne par demande d'ami (`pending` puis `accepted`), lue dans les deux sens. |
