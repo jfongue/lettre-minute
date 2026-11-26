@@ -564,7 +564,9 @@ propre téléphone.
   ne s'affichent nulle part. L'ouvreur se tire de la graine (`Duel.opener`).
 - **Deux sources pour la même table** (`src/state/duel.ts`) : `online`, la
   table du serveur (0046), relue toutes les 450 ms en partie — il n'y a pas de
-  Realtime dans le client, et c'est voulu (`src/lib/supabase.ts`) —, et `local`,
+  Realtime dans le client, et c'est voulu (`src/lib/supabase.ts`) ; la relève
+  passe par `liveTransport()` (`src/lib/live.ts`), seul point où Realtime se
+  branchera, le relevé restant son filet (`docs/realtime-migration.md`, 0119) —, et `local`,
   contre les joueurs ordinateur sans serveur, celle de `duel.html` et du repli hors
   ligne. Deux coups concurrents se départagent par leur numéro (`stale`, puis
   relecture). Le serveur ne juge rien : il vérifie seulement qu'un mot ou un
