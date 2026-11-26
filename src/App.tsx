@@ -63,6 +63,7 @@ import {
 } from './lib/cloud'
 import { progressOf, withProgress } from './domain/progress'
 import { reportAchievements, reportRun } from './lib/playGames'
+import { liveTransport } from './lib/live'
 import {
   askPush,
   clearDuelPushes,
@@ -1394,8 +1395,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (!atHome || duelOpen || !named || !on('duel')) return
     refreshDuelInvites()
-    const timer = setInterval(() => document.visibilityState === 'visible' && refreshDuelInvites(), DUEL_INVITES_MS)
-    return () => clearInterval(timer)
+    return liveTransport().watch({ kind: 'duelInvites' }, refreshDuelInvites, { every: DUEL_INVITES_MS })
   }, [atHome, duelOpen, named, on, refreshDuelInvites])
   // Done here, once the account and the screen allow it.
   const roomSignIn = useRef<string | null>(null)

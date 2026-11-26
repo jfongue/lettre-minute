@@ -27,6 +27,7 @@ import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, re
 import { createRng } from '../domain/rng'
 import { sharedCategoryIds } from '../domain/catalogue'
 import { playableCategoryIds } from '../domain/perks'
+import { liveTransport } from '../lib/live'
 import { onAppActive } from '../lib/native'
 import { host } from '../platform'
 import { applyDuel, type Profile } from '../domain/progression'
@@ -530,11 +531,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     if (mode !== 'online' || !tableId) return
     void sync()
     const every = status === 'playing' ? 450 : status === 'over' ? 2500 : 1000
-    // Rien à relire quand l'écran est caché : le retour relit la table lui-même.
-    const timer = setInterval(() => {
-      if (!document.hidden) void sync()
-    }, every)
-    return () => clearInterval(timer)
+    return liveTransport().watch({ kind: 'duelTable', table: tableId }, () => void sync(), { every })
   }, [mode, status, sync, tableId])
 
   // L'horloge de l'écran : un battement de 100 ms, la finesse de ce que la réserve affiche.
