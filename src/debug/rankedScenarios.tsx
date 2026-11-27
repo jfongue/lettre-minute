@@ -131,7 +131,7 @@ const ladderStub = (view: DuelLadderView) => {
     const tier = league(row)
     if (view === 'top') return true
     if (view === 'master') return tier.kind === 'master'
-    if (view === 'me') return (row.rank ?? 0) >= 31
+    if (view === 'me') return (row.rank ?? 0) >= 31 && (row.rank ?? 0) <= 45
     return tier.kind === 'league' && tier.league === view
   })
   return Promise.resolve({ rows, me: ME_RATING })

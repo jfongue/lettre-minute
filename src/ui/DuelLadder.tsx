@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { LEAGUES, PLACEMENT_GAMES, standing, type LeagueId } from '../domain/ranked'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { LEAGUES, PLACEMENT_GAMES, type LeagueId } from '../domain/ranked'
 import { useT } from '../i18n'
 import { fetchDuelLadderView, type DuelLadderView } from '../lib/cloud'
 import { loadAccount } from '../state/storage'
@@ -96,12 +96,6 @@ export function DuelLadder({ load = fetchDuelLadderView }: { load?: typeof fetch
               {t.ranked.views.me}
             </button>
           ) : null}
-        </div>
-      ) : null}
-      {/* Le rang de chaque ligue se lit d'un coup d'œil : la jauge de ma division. */}
-      {mine && placed && view === 'me' ? (
-        <div className="progress duel-ladder__gauge" aria-hidden="true">
-          <span style={{ '--ratio': standing(mine, mine.rank).progress } as CSSProperties} />
         </div>
       ) : null}
     </section>
