@@ -5,6 +5,7 @@ const plural = (count: number, one: string, many: string) => (count === 1 ? one 
 export const rankedEs: RankedMessages = {
   eyebrow: 'Duelo clasificatorio',
   leagues: { bronze: 'Bronce', silver: 'Plata', gold: 'Oro', platinum: 'Platino', diamond: 'Diamante' },
+  masterShort: 'Maestro',
   master: (spot: number) => `Maestro n.º ${spot}`,
   division: (league: string, roman: string) => `${league} ${roman}`,
   stakesEven: 'De tu nivel',
@@ -37,7 +38,7 @@ export const rankedEs: RankedMessages = {
   publicTable: (seats: number) => `Unirte a una mesa pública (${seats}/4)`,
   publicNote: 'Partida amistosa, sin clasificación.',
   ladder: 'Clasificación del duelo',
-  ladderLead: 'Los jugadores que han terminado sus cinco partidas de clasificación.',
+  ladderLead: 'Los jugadores que han terminado sus tres partidas de clasificación. Los diez primeros son Maestros.',
   ladderEmpty: 'Nadie ha terminado aún sus partidas de clasificación: sé el primero.',
   ladderLoading: 'Cargando la clasificación…',
   ladderFailed: 'La clasificación no se ha podido cargar.',

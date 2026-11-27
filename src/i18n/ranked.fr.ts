@@ -10,6 +10,7 @@ const plural = (count: number, one: string, many: string) => (count > 1 ? many :
 export const rankedFr = {
   eyebrow: 'Duel classé',
   leagues: { bronze: 'Bronze', silver: 'Argent', gold: 'Or', platinum: 'Platine', diamond: 'Diamant' } satisfies Record<LeagueId, string> as Record<LeagueId, string>,
+  masterShort: 'Maître',
   master: (spot: number) => `Maître n° ${spot}`,
   division: (league: string, roman: string) => `${league} ${roman}`,
   stakesEven: 'De ton niveau',
@@ -42,7 +43,7 @@ export const rankedFr = {
   publicTable: (seats: number) => `Rejoindre une table publique (${seats}/4)`,
   publicNote: 'Partie amicale, hors classement.',
   ladder: 'Classement du duel',
-  ladderLead: 'Les joueurs qui ont fini leurs cinq parties de placement.',
+  ladderLead: 'Les joueurs qui ont fini leurs trois parties de placement. Les dix premiers sont Maîtres.',
   ladderEmpty: 'Personne n’a encore fini ses placements : à toi l’honneur.',
   ladderLoading: 'Le classement arrive…',
   ladderFailed: 'Le classement n’a pas pu se charger.',

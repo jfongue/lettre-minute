@@ -34,7 +34,6 @@ import { achievementIcon, achievementReward, newlyEarnedAchievements } from '../
 import { inGround, type AvatarChoice } from '../domain/avatar'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
 import { categoryText, formatNumber, useT } from '../i18n'
-import { fetchDuelLadder } from '../lib/cloud'
 import { botsOfferAfter, overdue, standing, tierOrder, PLACEMENT_GAMES } from '../domain/ranked'
 import { clockOf, estimateText } from './rankedText'
 import type { DuelQueue } from '../state/duelQueue'
@@ -1583,69 +1582,6 @@ export function DuelMatchmaking({
         </div>
       </div>
     </main>
-  )
-}
-
-/**
- * Le classement du duel, par-dessus la recherche : les meilleurs une fois leurs
- * placements joués, et ma place en bas si je n'y suis pas.
- */
-export function DuelLadder({ onClose, load = fetchDuelLadder }: { onClose(): void; load?: typeof fetchDuelLadder }) {
-  const t = useT()
-  const [ladder, setLadder] = useState<Awaited<ReturnType<typeof fetchDuelLadder>> | 'loading'>('loading')
-  const me = useMemo(() => loadAccount(), [])
-  useEffect(() => {
-    let live = true
-    void load(50).then((rows) => live && setLadder(rows))
-    return () => {
-      live = false
-    }
-  }, [load])
-  const close = useRef<HTMLButtonElement>(null)
-  useEffect(() => close.current?.focus(), [])
-  const rows = ladder === 'loading' || !ladder ? [] : ladder.rows
-  const mine = ladder !== 'loading' && ladder?.me ? ladder.me : null
-  const listed = !!me && rows.some((row) => row.name === me.name)
-  return (
-    <div className="duel-sheet duel-ladder" role="dialog" aria-modal="true" aria-label={t.ranked.ladder} onClick={onClose}>
-      <div className="duel-sheet__card duel-ladder__card" onClick={(event) => event.stopPropagation()}>
-        <header className="duel-ladder__head">
-          <b className="duel-ladder__title">{t.ranked.ladder}</b>
-          <p className="note">{t.ranked.ladderLead}</p>
-        </header>
-        {ladder === 'loading' ? (
-          <p className="note">{t.ranked.ladderLoading}</p>
-        ) : !ladder ? (
-          <p className="note">{t.ranked.ladderFailed}</p>
-        ) : rows.length === 0 ? (
-          <p className="note">{t.ranked.ladderEmpty}</p>
-        ) : (
-          <ol className="duel-ladder__rows">
-            {rows.map((row) => {
-              const self = !!me && row.name === me.name
-              return (
-                <li key={row.player} className={`duel-ladder__row${self ? ' duel-ladder__row--me' : ''}`}>
-                  <span className="duel-ladder__rank">{row.rank ?? '–'}</span>
-                  <Avatar choice={row.avatar} size="sm" />
-                  <span className="duel-ladder__name">{self ? t.ranked.ladderYou : row.name}</span>
-                  <LeagueChip rating={row.rating} games={row.games} rank={row.rank} compact />
-                </li>
-              )
-            })}
-          </ol>
-        )}
-        {mine && !listed ? (
-          <p className="duel-ladder__mine">
-            <b>{t.ranked.ladderYou}</b>
-            {mine.rank ? <span>{t.ranked.rank(mine.rank)}</span> : null}
-            <LeagueChip rating={mine.rating} games={mine.games} rank={mine.rank} compact />
-          </p>
-        ) : null}
-        <button ref={close} type="button" className="btn btn--ghost btn--block" onClick={onClose}>
-          {t.ranked.close}
-        </button>
-      </div>
-    </div>
   )
 }
 

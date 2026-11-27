@@ -1791,7 +1791,7 @@ animation: clock-bonus 500ms var(--ease-out);
 .board-switch-rail {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(var(--tabs, 2), 1fr);
   overflow: hidden;
 }
 
@@ -1816,14 +1816,11 @@ animation: clock-bonus 500ms var(--ease-out);
   position: absolute;
   top: 0;
   left: 0;
-  width: 50%;
+  width: calc(100% / var(--tabs, 2));
   height: 100%;
   background: var(--yellow);
+  transform: translateX(calc(var(--at, 0) * 100%));
   transition: transform 340ms var(--ease-spring);
-}
-
-.board-switch[data-family='weekly'] .board-switch-thumb {
-  transform: translateX(100%);
 }
 
 .board-switch-arrow {
@@ -1844,7 +1841,7 @@ animation: clock-bonus 500ms var(--ease-out);
   transition: transform 340ms var(--ease-spring);
 }
 
-.board-switch[data-family='weekly'] .board-switch-arrow svg {
+.board-switch--last .board-switch-arrow svg {
   transform: rotate(180deg);
 }
 
@@ -11517,6 +11514,13 @@ ligne, et se referme par une seconde tape. */
 .league-chip--placement {
   border-style: dashed;
   color: var(--ink-soft);
+}
+
+/* Le Maître : l'étiquette s'inverse, en encre, comme un titre plutôt qu'une ligue. */
+.league-chip--master {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .together-chips {

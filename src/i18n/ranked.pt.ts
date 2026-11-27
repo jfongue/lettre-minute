@@ -5,6 +5,7 @@ const plural = (count: number, one: string, many: string) => (count === 1 ? one 
 export const rankedPt: RankedMessages = {
   eyebrow: 'Duelo ranqueado',
   leagues: { bronze: 'Bronze', silver: 'Prata', gold: 'Ouro', platinum: 'Platina', diamond: 'Diamante' },
+  masterShort: 'Mestre',
   master: (spot: number) => `Mestre nº ${spot}`,
   division: (league: string, roman: string) => `${league} ${roman}`,
   stakesEven: 'Do seu nível',
@@ -37,7 +38,7 @@ export const rankedPt: RankedMessages = {
   publicTable: (seats: number) => `Entrar numa mesa pública (${seats}/4)`,
   publicNote: 'Partida amistosa, fora do ranking.',
   ladder: 'Ranking do duelo',
-  ladderLead: 'Os jogadores que terminaram as cinco partidas de classificação.',
+  ladderLead: 'Os jogadores que terminaram as três partidas de classificação. Os dez primeiros são Mestres.',
   ladderEmpty: 'Ninguém terminou a classificação ainda: seja o primeiro.',
   ladderLoading: 'Carregando o ranking…',
   ladderFailed: 'O ranking não pôde carregar.',

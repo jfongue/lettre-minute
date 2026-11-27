@@ -397,41 +397,56 @@
 
 /* ---------------------------------------------------------- le classement - */
 
-.duel-ladder__card {
-  justify-items: stretch;
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
-  gap: 0.7rem;
-  width: min(28rem, 100%);
-  max-height: calc(100dvh - 2 * var(--gutter));
-  overflow: hidden;
-  box-shadow: 6px 6px 0 var(--ink);
+/* La page des classements : la flèche, le titre, le commutateur, la liste. */
+.stage--boards {
+  align-items: start;
 }
 
-/* La liste défile seule : le titre, ma ligne et « Fermer » restent en vue. */
-.duel-ladder__rows {
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+.boards-page {
+  display: grid;
+  gap: var(--step);
+  width: min(40rem, 100%);
 }
 
-.duel-ladder__title {
-  font-size: 1.4rem;
+.boards-page__head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.boards-page__title {
+  margin: 0;
+  font-size: clamp(2rem, 9vw, 2.8rem);
   font-weight: 800;
-  letter-spacing: 0.02em;
+  line-height: 0.95;
   text-transform: uppercase;
 }
 
-.duel-ladder__head .note {
-  margin: 0.2rem 0 0;
+.duel-ladder {
+  display: grid;
+  gap: 0.7rem;
+  animation: fade 300ms ease both;
+}
+
+.duel-ladder__lead {
+  margin: 0;
+}
+
+.duel-ladder__failed {
+  display: grid;
+  justify-items: start;
+  gap: 0.4rem;
 }
 
 .duel-ladder__rows {
   display: grid;
-  gap: 0;
   margin: 0;
   padding: 0;
   list-style: none;
+  border: var(--line) solid var(--ink);
 }
+
 
 .duel-ladder__row,
 .duel-ladder__mine {
@@ -461,17 +476,12 @@
   white-space: nowrap;
 }
 
-.duel-ladder__rating {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
+.duel-ladder__row:last-child {
+  border-bottom: 0;
 }
 
-.duel-ladder__rating .league-mark {
-  width: 0.9rem;
-  height: 0.9rem;
+.duel-ladder__row--podium .duel-ladder__rank {
+  color: var(--red);
 }
 
 .duel-ladder__row--me {

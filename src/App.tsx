@@ -168,6 +168,7 @@ import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storag
 import { loadActiveDuel, saveActiveDuel } from './state/storage'
 import { useDuelQueue } from './state/duelQueue'
 import { QueuePill } from './ui/QueuePill'
+import type { BoardFamily } from './ui/BoardSwitch'
 import { DuelResumeCard } from './ui/PlayTogether'
 import { countsForProgress, modeEdge, MODE_SECONDS, type ArcadeMode, type GameMode } from './domain/modes'
 import { queueAlertDue } from './domain/moderation'
@@ -222,7 +223,7 @@ const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) =
 const FeaturesBoard = lazyScreen(() => import('./debug/FeaturesBoard').then((module) => module.FeaturesBoard))
 const DuelScreen = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelScreen))
 const DuelMatchmaking = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelMatchmaking))
-const DuelLadder = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelLadder))
+const LeaderboardsScreen = lazyScreen(() => import('./ui/LeaderboardsScreen').then((module) => module.LeaderboardsScreen))
 const MatchFound = lazyScreen(() => import('./ui/MatchFound').then((module) => module.MatchFound))
 
 /** Combien de temps une partie de duel quittée vaut encore d'être reprise : sa réserve coule sans le joueur. */
@@ -569,7 +570,10 @@ setMenuPage(null)
   })
   useEffect(() => host.rooms?.onJoin((table) => setRoomCall({ table })), [])
   const [matching, setMatching] = useState(false)
-  const [ladderOpen, setLadderOpen] = useState(false)
+  // Les classements, en pleine page : la famille ouverte, et la page du tiroir d'où l'on vient.
+  const [boardsOpen, setBoardsOpen] = useState<{ family: BoardFamily; from: MenuPage | null } | null>(null)
+  const ladderOpen = boardsOpen !== null
+  const setLadderOpen = (open: boolean) => setBoardsOpen(open ? { family: 'duel', from: null } : null)
   // La table où l'on est assis, que la file classée fait quitter quand elle trouve un adversaire.
   const seatedTable = useRef<string | null>(null)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
@@ -2342,9 +2346,23 @@ setStartedAt((at) => at ?? Date.now())
         </ScreenBoundary>
       )}
 
-      {ladderOpen && (
+      {boardsOpen && (session.phase === 'home' || session.phase === 'over') && (
         <ScreenBoundary>
-          <DuelLadder onClose={() => setLadderOpen(false)} />
+          <LeaderboardsScreen
+            named={named}
+            guest={host.guestBoards && !named}
+            onSignIn={host.guestBoards && !named && host.promptAccount ? () => void host.promptAccount!() : undefined}
+            history={history}
+            avatar={avatar}
+            moderator={moderation?.moderator ?? false}
+            duel={named && on('duel')}
+            initial={boardsOpen.family}
+            onBack={() => {
+              const from = boardsOpen.from
+              setBoardsOpen(null)
+              if (from) setMenuPage(from)
+            }}
+          />
         </ScreenBoundary>
       )}
 
@@ -2390,6 +2408,10 @@ setStartedAt((at) => at ?? Date.now())
             setMenuPage('stats')
           }}
           onMenu={(page = 'profile') => {
+            if (page === 'boards') {
+              setBoardsOpen({ family: 'runs', from: null })
+              return
+            }
             setAvatarFocus(null)
             setAccountMode('register')
             setMenuFocus(false)
@@ -2602,6 +2624,10 @@ setStartedAt((at) => at ?? Date.now())
         <ScreenBoundary>
           <Menu
             page={menuLayer.shown}
+            onBoards={(from) => {
+              setMenuPage(null)
+              setBoardsOpen({ family: 'runs', from })
+            }}
             leaving={menuLayer.leaving}
             back={session.phase === 'over' ? 'close' : 'profile'}
             profile={session.profile}

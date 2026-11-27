@@ -6,14 +6,16 @@
  */
 import { useEffect, useState, type ReactNode } from 'react'
 import type { AvatarChoice } from '../domain/avatar'
-import { createDuel, openDuel, pickCategory, type Duel } from '../domain/duel'
+import { createDuel, inspectFor, openDuel, pickCategory, type Duel } from '../domain/duel'
+import type { DuelFact } from '../domain/duelLog'
 import { NO_USAGE } from '../domain/rarity'
 import type { Judge } from '../domain/run'
 import { buildWordPack, commonWord, findWord, lettersWithEnough, type WordPack } from '../domain/words'
 import type { DuelLadderRow, DuelOpponent, DuelRatingInfo } from '../lib/cloud'
 import type { DuelTable, Seat } from '../state/duel'
 import type { DuelQueue, QueueState, WaitingInfo } from '../state/duelQueue'
-import { DuelLadder, DuelMatchmaking, Over, Play } from '../ui/DuelScreen'
+import { DuelMatchmaking, Over, Play } from '../ui/DuelScreen'
+import { LeaderboardsScreen } from '../ui/LeaderboardsScreen'
 import { MatchFound } from '../ui/MatchFound'
 import { DuelResumeCard } from '../ui/PlayTogether'
 import { QueuePill } from '../ui/QueuePill'
@@ -49,7 +51,6 @@ export type MatchmakingCase = 'searching' | 'long' | 'cooldown' | 'missed'
 export function MatchmakingScenario({ kind, onBack }: { kind: MatchmakingCase; onBack(): void }) {
   const now = useBoardClock(1000)
   const [stopped, setStopped] = useState(kind === 'missed')
-  const [ladder, setLadder] = useState(false)
   let state: QueueState
   if (stopped) state = { kind: 'idle', notice: kind === 'missed' ? 'missed' : null }
   else if (kind === 'cooldown') state = { kind: 'cooldown', until: 1000 + 4 * 60 + 12 }
@@ -58,8 +59,7 @@ export function MatchmakingScenario({ kind, onBack }: { kind: MatchmakingCase; o
   const queue = boardQueue(state, now, { cancel: () => setStopped(true), start: () => setStopped(false) })
   return (
     <>
-      <DuelMatchmaking queue={queue} onBots={onBack} onPublic={onBack} onHome={onBack} onLadder={() => setLadder(true)} />
-      {ladder ? <DuelLadder onClose={() => setLadder(false)} load={ladderStub} /> : null}
+      <DuelMatchmaking queue={queue} onBots={onBack} onPublic={onBack} onHome={onBack} onLadder={onBack} />
     </>
   )
 }
@@ -100,23 +100,27 @@ export function QueuePillScenario({ onBack, home }: { onBack(): void; home: Reac
 }
 
 const LADDER: readonly DuelLadderRow[] = [
-  { player: 'a', name: 'Gaspard', avatar: { design: 12, ground: 'rouge', shape: 'creme', accent: 'jaune' }, rating: 1486, games: 88, wins: 61, peak: 1502, rank: 1 },
-  { player: 'b', name: 'Inès', avatar: { design: 33, ground: 'vert', shape: 'jaune', accent: 'rouge' }, rating: 1412, games: 64, wins: 40, peak: 1420, rank: 2 },
-  { player: 'c', name: 'Ondine', avatar: ONDINE, rating: 1188, games: 41, wins: 24, peak: 1230, rank: 3 },
-  { player: 'e', name: 'Lucie', avatar: { design: 47, ground: 'jaune', shape: 'bleu', accent: 'rouge' }, rating: 1171, games: 12, wins: 5, peak: 1190, rank: 4 },
-  { player: 'f', name: 'Bastien', avatar: { design: 2, ground: 'bleu', shape: 'creme', accent: 'jaune' }, rating: 1158, games: 9, wins: 2, peak: 1160, rank: 5 },
-  { player: 'g', name: 'Maëlle', avatar: { design: 40, ground: 'rouge', shape: 'bleu', accent: 'creme' }, rating: 1013, games: 30, wins: 14, peak: 1101, rank: 6 },
-  { player: 'h', name: 'Noé', avatar: { design: 9, ground: 'vert', shape: 'rouge', accent: 'jaune' }, rating: 904, games: 7, wins: 2, peak: 1000, rank: 7 },
+  { player: 'p0', name: 'Gaspard', avatar: { design: 12, ground: 'rouge', shape: 'creme', accent: 'jaune' }, rating: 1612, games: 40, wins: 20, peak: 1632, rank: 1 },
+  { player: 'p1', name: 'Inès', avatar: { design: 33, ground: 'vert', shape: 'jaune', accent: 'rouge' }, rating: 1571, games: 43, wins: 21, peak: 1591, rank: 2 },
+  { player: 'p2', name: 'Ondine', avatar: { design: 21, ground: 'bleu', shape: 'jaune', accent: 'rouge' }, rating: 1544, games: 46, wins: 22, peak: 1564, rank: 3 },
+  { player: 'p3', name: 'Lucie', avatar: { design: 47, ground: 'jaune', shape: 'bleu', accent: 'rouge' }, rating: 1503, games: 49, wins: 23, peak: 1523, rank: 4 },
+  { player: 'p4', name: 'Bastien', avatar: { design: 2, ground: 'bleu', shape: 'creme', accent: 'jaune' }, rating: 1488, games: 52, wins: 24, peak: 1508, rank: 5 },
+  { player: 'p5', name: 'Maëlle', avatar: { design: 40, ground: 'rouge', shape: 'bleu', accent: 'creme' }, rating: 1460, games: 55, wins: 25, peak: 1480, rank: 6 },
+  { player: 'p6', name: 'Noé', avatar: { design: 9, ground: 'vert', shape: 'rouge', accent: 'jaune' }, rating: 1441, games: 58, wins: 26, peak: 1461, rank: 7 },
+  { player: 'p7', name: 'Yanis', avatar: { design: 15, ground: 'rose', shape: 'bleu', accent: 'jaune' }, rating: 1430, games: 61, wins: 27, peak: 1450, rank: 8 },
+  { player: 'p8', name: 'Clémence', avatar: { design: 28, ground: 'jaune', shape: 'vert', accent: 'rouge' }, rating: 1412, games: 64, wins: 28, peak: 1432, rank: 9 },
+  { player: 'p9', name: 'Hugo', avatar: { design: 36, ground: 'bleu', shape: 'rouge', accent: 'creme' }, rating: 1398, games: 67, wins: 29, peak: 1418, rank: 10 },
+  { player: 'p10', name: 'Salomé', avatar: { design: 7, ground: 'vert', shape: 'creme', accent: 'bleu' }, rating: 1371, games: 70, wins: 30, peak: 1391, rank: 11 },
+  { player: 'p11', name: 'Arthur', avatar: { design: 44, ground: 'rouge', shape: 'jaune', accent: 'bleu' }, rating: 1342, games: 73, wins: 31, peak: 1362, rank: 12 },
+  { player: 'p12', name: 'Léna', avatar: { design: 19, ground: 'rose', shape: 'vert', accent: 'jaune' }, rating: 1296, games: 76, wins: 32, peak: 1316, rank: 13 },
+  { player: 'p13', name: 'Tom', avatar: { design: 3, ground: 'jaune', shape: 'rouge', accent: 'bleu' }, rating: 1251, games: 79, wins: 33, peak: 1271, rank: 14 },
 ]
 
 const ladderStub = () => Promise.resolve({ rows: [...LADDER], me: ME_RATING })
 
-export function LadderScenario({ onBack }: { onBack(): void }) {
-  return (
-    <div className="stage stage--duel">
-      <DuelLadder onClose={onBack} load={ladderStub} />
-    </div>
-  )
+/** Les classements en pleine page, ouverts sur le duel classé. */
+export function LadderScenario({ onBack, load, initial = 'duel' }: { onBack(): void; load: Parameters<typeof LeaderboardsScreen>[0]['load']; initial?: 'runs' | 'duel' }) {
+  return <LeaderboardsScreen named duel initial={initial} load={load} loadLadder={ladderStub} onBack={onBack} />
 }
 
 /** Le bilan d'un duel classé : réglé (une ligue franchie), en cours de règlement, ou annulé. */
@@ -267,14 +271,21 @@ function flowSeats(): readonly Seat[] {
  * La partie classée, vue de chaque place. `away` : Ondine a perdu sa connexion
  * — Jérémy voit sa place pâlir, Ondine voit « connexion perdue » chez elle.
  */
-export function FlowPlayScenario({ base, side, away = false }: { base: DuelTable; side: Side; away?: boolean }) {
+export function FlowPlayScenario({ base, side, away = false, echo = false }: { base: DuelTable; side: Side; away?: boolean; echo?: boolean }) {
   let duel: Duel = createDuel({ seed: 11, playerIds: ['jeremy', 'ondine'], categories: PLAY_IDS, opener: 1, at: 0 })
   for (const id of PLAY_IDS.slice(0, 4)) duel = pickCategory(duel, id, 1)
   duel = openDuel(duel, BOARD_JUDGE, 2)
   const myIndex = side === 'a' ? 0 : 1
   const holder = duel.turn!.player
   const at = duel.turn!.startedAt + (away ? 11.4 : 4.2)
+  const prompt = duel.turn!.prompt
+  // Jérémy a déjà trouvé un mot pendant le tour d'Ondine : le fil le dit chez elle.
+  const echoed: DuelFact[] = echo && side === 'b' ? [{ id: '6', kind: 'echoed', player: 0, at: at - 1, word: `${prompt.letter}${prompt.categoryId}1`, tier: 'courant', delta: 1 }] : []
+  if (echo && side === 'b') duel = { ...duel, players: duel.players.map((player, index) => (index === 0 ? { ...player, reserve: player.reserve + 1 } : player)), turn: { ...duel.turn!, echoes: [0] } }
   return (
+    <>
+    {/* La réponse que le script des captures tape dans le champ : un mot du juge de planche. */}
+    <span hidden data-board-answer={`${prompt.letter}${prompt.categoryId}2`} />
     <Play
       table={{
         ...base,
@@ -293,12 +304,16 @@ export function FlowPlayScenario({ base, side, away = false }: { base: DuelTable
         away: away && side === 'a' ? [1] : [],
         offline: away && side === 'b',
         joined: true,
-        event: null,
-        feed: [],
-        facts: [],
+        event: echoed[0] ?? null,
+        feed: echoed,
+        facts: echoed,
         fallen: null,
+        echoes: true,
+        echoesLeft: 3,
+        inspect: (raw) => inspectFor(duel, myIndex, raw, BOARD_JUDGE),
       }}
     />
+    </>
   )
 }
 

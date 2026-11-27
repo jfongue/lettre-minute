@@ -43,14 +43,27 @@ export function LeagueMark({ league, className = '' }: { league: LeagueId; class
  * Le rang d'un joueur en une étiquette — jamais son Elo, qui reste le calcul
  * du serveur : « Or II », « Maître n° 3 », ou « Placement 1/3 ».
  */
-export function LeagueChip({ rating, games, rank = null, compact = false }: { rating: number; games: number; rank?: number | null; compact?: boolean }) {
+export function LeagueChip({
+  rating,
+  games,
+  rank = null,
+  compact = false,
+  short = false,
+}: {
+  rating: number
+  games: number
+  rank?: number | null
+  compact?: boolean
+  /** Dans une liste qui dit déjà la place : « Maître » sans son numéro. */
+  short?: boolean
+}) {
   const t = useT()
   const { tier } = standing({ rating, games }, rank)
   const kind = tier.kind === 'league' ? tier.league : tier.kind
   return (
     <span className={`league-chip league-chip--${kind}${compact ? ' league-chip--compact' : ''}`}>
       <TierMark tier={tier} />
-      <b>{tierText(t, tier)}</b>
+      <b>{short && tier.kind === 'master' ? t.ranked.masterShort : tierText(t, tier)}</b>
     </span>
   )
 }
