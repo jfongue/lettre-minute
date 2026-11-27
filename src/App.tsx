@@ -2411,7 +2411,7 @@ setStartedAt((at) => at ?? Date.now())
 
       {weeklyFlow.overlay}
 
-      {!tutorial && !modeLesson && !loadout && !moderating && !duelOpen && !(matching && session.phase === 'home') && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
+      {!tutorial && !modeLesson && !loadout && !moderating && !duelOpen && !ladderOpen && !(matching && session.phase === 'home') && !weeklyFlow.covering && !(challengeOpen && session.phase === 'home') && (session.phase === 'home' || session.phase === 'loading') && (
         <HomeScreen
           profile={session.profile}
           error={session.error}
@@ -2835,7 +2835,7 @@ avatarFocus={avatarFocus}
 
       {weeklyFlow.over}
 
-      {session.phase === 'over' && session.run && !session.weekly && !moderating && !loadout && (
+      {session.phase === 'over' && session.run && !session.weekly && !moderating && !loadout && !ladderOpen && (
         <ScreenBoundary>
           <OverScreen
             run={session.run}
