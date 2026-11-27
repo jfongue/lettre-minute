@@ -1,1 +1,0 @@
-import{Mn as e}from"./bonus-DQbRk6le.js";import{Hr as t}from"./styles-CYcY-DP4.js";function n(n,r){return t(r.id)?n.ach[r.id]:{name:e(n.avatar.milestone(r.goal)),desc:``}}export{n as t};
