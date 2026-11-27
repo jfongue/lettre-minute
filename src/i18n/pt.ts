@@ -608,6 +608,7 @@ export const pt: Messages = {
     save: 'Ficar com este avatar',
     /** Sortir de l'éditeur sans enregistrer : l'avant et l'après, puis le choix. */
     keep: { title: 'Ficar com este avatar novo?', body: 'Você o montou sem salvar.', before: 'Antes', after: 'Depois', yes: 'Ficar com ele', no: 'Descartar' },
+    nudge: { title: 'Seu avatar está esperando', body: (count: number) => `Você desbloqueou ${count} formas e cores. Monte seu avatar: ele aparece nos rankings.`, yes: 'Personalizar', later: 'Depois' },
     back: 'Voltar',
     milestone: (milestone) => {
       switch (milestone.stat) {

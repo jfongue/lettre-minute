@@ -504,6 +504,25 @@ export function avatarNewsDue(profile: Profile, seen: readonly number[] | null, 
   return earned.length >= (seen === null ? AVATAR_NEWS_FIRST : AVATAR_NEWS_AFTER)
 }
 
+/** Le nombre de tuiles et de couleurs gagnées qui fait proposer l'éditeur à qui n'a jamais quitté la tuile de départ. */
+export const AVATAR_NUDGE_AT = 5
+
+/** Les tuiles et couleurs que ses succès ont ouvertes au joueur, celles de départ mises à part. */
+export function wonCosmetics(profile: Profile, discoveries?: number): number {
+  const designs = ownedDesigns(profile, discoveries).filter((design) => design.id >= FREE_DESIGNS).length
+  return designs + ownedColours(profile, discoveries).length - FREE_COLOURS
+}
+
+/**
+ * Faut-il proposer, une fois, de composer son avatar ? À l'automne 2026, un
+ * actif sur cinq seulement avait touché au sien : un joueur qui porte encore
+ * la première tuile alors qu'il en a gagné de quoi choisir ne sait sans doute
+ * pas que l'éditeur existe.
+ */
+export function avatarNudgeDue(profile: Profile, worn: AvatarChoice, seen: boolean, discoveries?: number): boolean {
+  return !seen && worn.design === 0 && wonCosmetics(profile, discoveries) >= AVATAR_NUDGE_AT
+}
+
 /** Le succès qui ouvre cette case de la grille, pour dire au joueur comment elle se gagne. */
 export function designWinner(design: number): Achievement | null {
   return ACHIEVEMENTS.find((achievement) => achievement.reward.design === design) ?? null
