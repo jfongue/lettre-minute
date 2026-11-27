@@ -2472,6 +2472,16 @@ const SCENARIOS: readonly Scenario[] = [
     ),
   },
   {
+    id: 'bonus-offer-ranked',
+    group: 'Duel classé',
+    title: 'Bonus de niveau : la carte de classement',
+    how: 'Le niveau 5 atteint : la carte de classement s’offre seule, en cadeau, et ouvre le duel classé',
+    phase: 'over',
+    render: (back) => (
+      <OverScenario before={BONUS_PROFILE} after={afterRun({ ...BONUS_PROFILE, bonusOffer: ['ranked'] }, RUN)} onBack={back} />
+    ),
+  },
+  {
     id: 'bonus-offer-moderator',
     group: 'Fin de partie',
     title: 'Bonus de niveau : carte de modérateur',
@@ -2743,6 +2753,22 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le bouton « Créer un défi » quand le duel est ouvert au joueur',
     phase: 'home',
     render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onMatch={back} onChallenge={back} />,
+  },
+  {
+    id: 'play-together-locked',
+    group: 'Duel classé',
+    title: 'Choix : duel classé sans la carte',
+    how: 'Un joueur sous le niveau 5 : la carte « Duel classé » se lit mais ne s’ouvre pas, et dit comment obtenir la carte de classement',
+    phase: 'home',
+    render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onMatch={back} onChallenge={back} rankedLocked="level" />,
+  },
+  {
+    id: 'play-together-pending',
+    group: 'Duel classé',
+    title: 'Choix : la carte de classement attend',
+    how: 'Le niveau 5 est atteint, la carte sera offerte au prochain bilan',
+    phase: 'home',
+    render: (back) => <PlayTogether challenge onClose={back} onDuel={back} onMatch={back} onChallenge={back} rankedLocked="pending" />,
   },
   {
     id: 'play-together-guest',

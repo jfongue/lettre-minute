@@ -633,8 +633,12 @@ propre téléphone.
   l'ordre d'arrivée rejoué, et le règlement ne l'accepte que concordant et
   soutenu par le journal (un temps écoulé, un abandon ou une place quittée
   pour chaque perdant). Un désaccord annule la table (`voided`). Elo par
-  paires, sans placements : tout le monde part du Bronze III (800) et monte
-  vite — K 60 sur dix parties, 40 jusqu'à vingt, puis 20 (0123) ; une semaine
+  paires, sans placements, réglé sur la population (0123) : le départ est
+  Argent III (950) tant que moins de 50 joueurs ont atteint l'Or, Bronze III
+  (800) ensuite (`duel_start_rating`) ; K 60 sur dix parties, 40 jusqu'à
+  vingt, puis 20, doublé tant que moins de dix joueurs sont Diamant
+  (`duel_k_boost`) ; les Maîtres n'existent qu'à partir de dix Diamant
+  (`duel_masters_open`, `masterRank` côté client) ; une semaine
   sans partie, puis 5 par jour (150 au plus, jamais sous 950), lu à la volée
   (`duel_effective_rating`) et figé au règlement suivant.
   `src/domain/ranked.ts` en est le double exact — changer l'un sans l'autre
@@ -659,6 +663,12 @@ propre téléphone.
 - **Les classements sont une page entière** (`LeaderboardsScreen`) : le
   tiroir du menu ne les montre plus, `Menu` passe la main à l'app par
   `onBoards`. Solo, Défi et — compte nommé et duel ouvert — Duel.
+- **Le duel classé demande la carte de classement** (`hasRankedCard`,
+  `src/domain/bonus.ts`) : un bonus de niveau offert seul dès le niveau 5
+  (`dealRankedCard`), compté comme un cadeau (`bonusGifts`) pour ne prendre
+  la place ni d'une catégorie ni d'un autre bonus, et jamais tiré de la pioche
+  ordinaire. Sans elle, la carte « Duel classé » du choix reste verrouillée.
+  Le serveur ne la vérifie pas : elle vit dans le profil, comme les catégories.
 - **Partir en pleine partie, c'est abandonner** (`resign`, `duel_resign`) :
   un coup du journal que seul le serveur écrit, et qui tue tout de suite,
   même au draft — l'adversaire n'attend plus qu'une réserve s'épuise. Une
