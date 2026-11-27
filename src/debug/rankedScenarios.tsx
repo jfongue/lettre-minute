@@ -278,18 +278,6 @@ export function FlowFoundScenario({ side, behind }: { side: Side; behind?: React
   )
 }
 
-/** Pendant la recherche, la table des joueurs ordinateur : la pastille de la file en haut. */
-export function BotsWhileQueueScenario({ table }: { table: ReactNode }) {
-  const now = useBoardClock(1000)
-  const state: QueueState = { kind: 'searching', since: 1000 - 38, info: waiting({ estimate: 45, me: JEREMY_RATING }), offline: false, bounced: false }
-  return (
-    <>
-      {table}
-      <QueuePill queue={boardQueue(state, now)} place="top" onOpen={noop} />
-    </>
-  )
-}
-
 function flowSeats(): readonly Seat[] {
   return [
     { id: 'jeremy', name: 'Jérémy', avatar: JEREMY, bot: false, owned: 7, ready: true, rating: JEREMY_RATING.rating, games: JEREMY_RATING.games },

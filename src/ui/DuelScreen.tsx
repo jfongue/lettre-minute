@@ -1593,6 +1593,8 @@ export interface DuelScreenProps {
   room?: boolean
   /** Une partie en cours reprise après une coupure : la place est déjà reprise. */
   resume?: boolean
+  /** La file classée n'a trouvé personne : une partie aussitôt contre un bot de ce niveau (Elo). */
+  levelBot?: number | null
   /** La table où l'on est assis : l'app la quitte quand la file classée trouve un adversaire. */
   onTable?(table: string | null): void
   onExit?(reason: DuelExit): void
@@ -1602,7 +1604,7 @@ export interface DuelScreenProps {
   onSignIn?(): void
 }
 
-export function DuelScreen({ lang, mode = 'local', join = null, quick = false, room = false, resume = false, onExit, onProfile, onSignIn, onTable }: DuelScreenProps) {
+export function DuelScreen({ lang, mode = 'local', join = null, quick = false, room = false, resume = false, levelBot = null, onExit, onProfile, onSignIn, onTable }: DuelScreenProps) {
   // Hors ligne, la table en ligne cède la place à une table locale, sur le même écran.
   const [local, setLocal] = useState(false)
   return (
@@ -1614,6 +1616,7 @@ export function DuelScreen({ lang, mode = 'local', join = null, quick = false, r
       quick={quick && !local}
       room={room && !local}
       resume={resume && !local}
+      levelBot={levelBot}
       onTable={onTable}
       onExit={onExit}
       onProfile={onProfile}
@@ -1630,19 +1633,20 @@ function DuelTableScreen({
   quick,
   room,
   resume,
+  levelBot,
   onExit,
   onProfile,
   onSignIn,
   onTable,
   onBots,
-}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'quick' | 'room' | 'resume'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn' | 'onTable'> & { onBots(): void }) {
+}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'quick' | 'room' | 'resume' | 'levelBot'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn' | 'onTable'> & { onBots(): void }) {
   const t = useT()
-  const table = useDuelTable({ lang, mode, join, quick, room, resume, onExit, onProfile, onTable })
+  const table = useDuelTable({ lang, mode, join, quick, room, resume, levelBot, onExit, onProfile, onTable })
   const { phase } = table
   // Les règles s'ouvrent au premier lancement de la table, puis se revoient du
   // salon. Pas devant l'ami qu'une salle du portail amène : une table l'attend
   // déjà, et le portail veut qu'il y arrive sans passer par une leçon.
-  const [rules, setRules] = useState(() => !room && !resume && !loadDuelRulesSeen())
+  const [rules, setRules] = useState(() => !room && !resume && levelBot === null && !loadDuelRulesSeen())
   // Elles montrent mon avatar et mon nom : tant que le serveur n'a pas posé ma
   // place en ligne, elles n'ont rien à montrer. Les ouvrir quand même donnait
   // une place absente au tutoriel, qui vidait l'écran.
@@ -1675,7 +1679,9 @@ function DuelTableScreen({
   if (phase === 'gone') return <Notice text={t.duel.gone} onBack={() => (onExit ? onExit(null) : table.leave())} />
   // Un adversaire trouvé par le matchmaking : pas de salon, la table s'ouvre
   // sur le draft. Le salon attend, hors de vue, que les deux soient prêts.
-  if (quick && phase === 'lobby') return <Notice text={t.duel.connecting} onBack={() => (onExit ? onExit(null) : table.leave())} />
+  // Le bot de niveau part aussitôt, comme un adversaire de la file : pas de salon à montrer, sauf pour une revanche.
+  if ((quick || (levelBot !== null && !table.rematchOpen)) && phase === 'lobby')
+    return <Notice text={t.duel.connecting} onBack={() => (onExit ? onExit(null) : table.leave())} />
   if (phase === 'lobby' || phase === 'announcing') return <Lobby table={table} onRules={() => setRules(true)} onSignIn={mode === 'local' ? onSignIn : undefined} />
   if (phase === 'draft' && table.duel)
     return table.draftLobby ? <Lobby table={table} watching onRules={() => setRules(true)} onResume={table.hideLobby} /> : <Draft table={table} />

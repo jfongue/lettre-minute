@@ -35,7 +35,6 @@ export const rankedEs: RankedMessages = {
   ladder: 'Clasificación del duelo',
   meUnranked: 'Juega una partida clasificatoria para entrar en la clasificación.',
   botSoon: (clock: string) => `¿Sin rival? Un bot de tu nivel entra en ${clock}.`,
-  botName: 'Bot',
   myPlace: (place: string) => `Mi puesto: ${place}`,
   views: { top: 'Top', master: 'Maestros', me: 'Mi puesto' },
   viewEmpty: 'Nadie en este rango por ahora.',

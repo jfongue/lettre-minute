@@ -28,6 +28,7 @@ import {
 } from '../domain/duel'
 import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, sameMove, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
 import { createRng } from '../domain/rng'
+import { botLevel } from '../domain/ranked'
 import { sharedCategoryIds } from '../domain/catalogue'
 import { playableCategoryIds } from '../domain/perks'
 import { liveTransport } from '../lib/live'
@@ -96,6 +97,20 @@ export const HOUSE_BOTS: readonly HouseBot[] = [
   { id: 'terretciel', name: 'Terretciel', avatar: avatarOf(12, 'rouge', 'jaune', 'bleu'), trait: 'steady', think: [3.4, 9], answerChance: 0.8 },
   { id: 'demontoon', name: 'Demontoon', avatar: avatarOf(73, 'bleu', 'creme', 'jaune'), trait: 'sharp', think: [2.4, 7.5], answerChance: 0.88 },
 ]
+
+/**
+ * Le bot que la file classée lance faute d'adversaire : il ne porte que son
+ * nom de bot, et joue au niveau du joueur (`botLevel`, src/domain/ranked.ts).
+ */
+export const LEVEL_BOT_ID = 'level-bot'
+const LEVEL_BOT = { name: 'Bot', avatar: avatarOf(2, 'bleu', 'creme', 'jaune') }
+
+/** La place d'un joueur ordinateur de la table locale : l'un des trois de la maison, ou le bot de niveau. */
+function localBotSeat(id: string): Seat & { seat: null; gone: false; kicked: false; seen: number } {
+  const house = HOUSE_BOTS.find((one) => one.id === id)
+  const bot = house ?? LEVEL_BOT
+  return { id, name: bot.name, avatar: bot.avatar, bot: true, trait: house?.trait, owned: 999, ready: false, seat: null, gone: false, kicked: false, seen: wall() }
+}
 
 /** Un joueur ordinateur du serveur qui n'a pas d'homologue local joue posément. */
 const STEADY: Omit<BotProfile, 'id'> = { think: [3, 8], answerChance: 0.8 }
@@ -324,10 +339,7 @@ function freshLocal(lang: string, me: Seat, bots: readonly string[], categories:
     ratings: [],
     seats: [
       { ...me, ready: false, seat: null, gone: false, kicked: false, seen: wall() },
-      ...bots.map((id) => {
-        const bot = HOUSE_BOTS.find((one) => one.id === id)!
-        return { id, name: bot.name, avatar: bot.avatar, bot: true, trait: bot.trait, owned: 999, ready: false, seat: null, gone: false, kicked: false, seen: wall() }
-      }),
+      ...bots.map(localBotSeat),
     ],
     invites: [],
     moves: [],
@@ -391,13 +403,15 @@ export interface DuelTableOptions {
   room?: boolean
   /** Une partie en cours qu'on reprend après une coupure : la place est déjà reprise (`duel_rejoin`). */
   resume?: boolean
+  /** La table locale contre le bot de niveau, lancée sans salon : l'Elo du joueur qu'il imite. */
+  levelBot?: number | null
   /** La table où l'on est assis, à chaque changement : l'app la quitte quand la file classée trouve mieux. */
   onTable?(table: string | null): void
 }
 
 export { duelPool } from './duelPool'
 
-export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false, resume = false, onTable }: DuelTableOptions): DuelTable {
+export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false, resume = false, levelBot = null, onTable }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
@@ -417,7 +431,8 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     exit.current = onExit
   })
 
-  const [table, setTable] = useState<TableData | null>(() => (mode === 'local' ? freshLocal(lang, meSeat, [HOUSE_BOTS[0]!.id], mine) : null))
+  const firstBots = levelBot !== null ? [LEVEL_BOT_ID] : [HOUSE_BOTS[0]!.id]
+  const [table, setTable] = useState<TableData | null>(() => (mode === 'local' ? freshLocal(lang, meSeat, firstBots, mine) : null))
   const [failed, setFailed] = useState(false)
   const [offline, setOffline] = useState(false)
   /** L'onglet est passé derrière : il ne mène plus la table tant qu'on ne le regarde pas. */
@@ -733,6 +748,14 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   // Un adversaire trouvé par le matchmaking attend déjà : pas de salon à régler, chacun se déclare prêt une fois.
   // Une revanche de matchmaking est une table neuve : chacune reçoit son « prêt ».
   const quickReady = useRef<string | null>(null)
+  // Le bot de niveau n'a pas de salon : la partie part aussitôt.
+  useEffect(() => {
+    if (levelBot === null || mode !== 'local' || !table || table.status !== 'lobby' || table.rematch || !me || me.ready) return
+    const key = `local:${table.seed}`
+    if (quickReady.current === key) return
+    quickReady.current = key
+    setMyReady(true)
+  }, [levelBot, me, mode, setMyReady, table])
   useEffect(() => {
     if (!quick || mode !== 'online' || !table?.id || quickReady.current === table.id) return
     if (table.status !== 'lobby' || !me || me.ready || present.length < MIN_TABLE) return
@@ -791,11 +814,15 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     const map: Record<number, BotProfile> = {}
     players.forEach((seat, index) => {
       if (!seat.bot) return
+      if (seat.id === LEVEL_BOT_ID) {
+        map[index] = { ...botLevel(levelBot ?? 800), id: seat.id }
+        return
+      }
       const house = mode === 'local' ? HOUSE_BOTS.find((bot) => bot.id === seat.id) : botByName(seat.name)
       map[index] = { ...(house ?? STEADY), id: seat.id }
     })
     return map
-  }, [mode, players])
+  }, [levelBot, mode, players])
 
   // Les dictionnaires du pool, chargés dès qu'il est complet : le tirage de
   // l'ouvreur leur laisse le temps d'arriver.

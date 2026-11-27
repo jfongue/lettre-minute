@@ -40,7 +40,6 @@ export const rankedFr = {
   ladder: 'Classement du duel',
   meUnranked: 'Joue une partie classée pour entrer au classement.',
   botSoon: (clock: string) => `Sans adversaire, un bot de ton niveau prend la place dans ${clock}.`,
-  botName: 'Bot',
   myPlace: (place: string) => `Ma place : ${place}`,
   views: { top: 'Top', master: 'Maîtres', me: 'Ma place' },
   viewEmpty: 'Personne dans ce rang pour l’instant.',

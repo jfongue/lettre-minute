@@ -73,7 +73,7 @@ import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
 import { DuelScreen, Draft, Lobby, Over } from '../ui/DuelScreen'
 import { RankedNewsPop } from '../ui/RankedNewsPop'
-import { badgesStub, AwayScenario, BotsWhileQueueScenario, FlowFoundScenario, FlowOverScenario, FlowPlayScenario, FlowSearchScenario, LadderScenario, MatchFoundScenario, MatchmakingScenario, QueuePillScenario, RankedOverScenario, ResumeScenario } from './rankedScenarios'
+import { badgesStub, AwayScenario, FlowFoundScenario, FlowOverScenario, FlowPlayScenario, FlowSearchScenario, LadderScenario, MatchFoundScenario, MatchmakingScenario, QueuePillScenario, RankedOverScenario, ResumeScenario } from './rankedScenarios'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
@@ -2951,12 +2951,12 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => <FlowSearchScenario side="b" onBack={back} />,
   },
   {
-    id: 'duel-flow-bots-a',
-    group: 'Duel classé : le parcours à deux',
-    title: '2. Jérémy joue les ordinateurs en attendant',
-    how: 'Au bout de quinze secondes Jérémy a pris la table des joueurs ordinateur : la pastille de la file reste en haut',
+    id: 'duel-level-bot',
+    group: 'Duel classé',
+    title: 'Personne en face : un bot de ton niveau',
+    how: 'Dix secondes après l’attente annoncée sans adversaire, la file lance une vraie partie contre « Bot », réglé sur l’Elo du joueur (ici Argent I) : pas de salon, le draft d’abord',
     phase: 'duel',
-    render: () => <BotsWhileQueueScenario table={<DuelScreen lang="fr" mode="local" />} />,
+    render: () => <DuelScreen lang="fr" mode="local" levelBot={1093} />,
   },
   {
     id: 'duel-flow-found-a',

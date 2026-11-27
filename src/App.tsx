@@ -169,7 +169,7 @@ import { loadActiveDuel, loadRankedNewsSeen, saveActiveDuel, saveRankedNewsSeen 
 import { useDuelQueue } from './state/duelQueue'
 import { QueuePill } from './ui/QueuePill'
 import { RankedNewsPop } from './ui/RankedNewsPop'
-import { rankedNewsDue } from './domain/ranked'
+import { botMatchAfter, rankedNewsDue, RATING_START } from './domain/ranked'
 import type { BoardFamily } from './ui/BoardSwitch'
 import { DuelResumeCard } from './ui/PlayTogether'
 import { countsForProgress, modeEdge, MODE_SECONDS, type ArcadeMode, type GameMode } from './domain/modes'
@@ -562,7 +562,7 @@ setMenuPage(null)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean; room?: boolean; resume?: boolean } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean; room?: boolean; resume?: boolean; bot?: number } | null>(null)
   // The host's rooms (CrazyGames): a friend's table the portal launched the
   // game for or brings the player to while it runs, or the portal's « play
   // with friends » that wants a joinable table at once. A guest is first
@@ -1525,6 +1525,24 @@ setStartedAt((at) => at ?? Date.now())
     setDuelOpen({ join: matchedTable, quick: true })
     resetQueue()
   }, [matchedTable, resetQueue, rememberMultiplayer])
+  // Personne en face : dix secondes après l'attente annoncée, la file laisse la
+  // place à une vraie partie contre un bot de ton niveau — seulement depuis
+  // l'écran de recherche, jamais par-dessus ce que le joueur fait ailleurs.
+  const searchingInfo = queueState.kind === 'searching' ? queueState : null
+  const botDue =
+    matching &&
+    session.phase === 'home' &&
+    !!searchingInfo &&
+    !searchingInfo.offline &&
+    duelQueue.now - searchingInfo.since >= botMatchAfter(searchingInfo.info?.estimate ?? null)
+  const botRating = searchingInfo?.info?.me.rating ?? RATING_START
+  useEffect(() => {
+    if (!botDue) return
+    cancelQueue()
+    setMatching(false)
+    setDuelOpen({ join: null, local: true, bot: botRating })
+  }, [botDue, botRating, cancelQueue])
+
   // La carte de l'adversaire trouvé se charge dès qu'on entre dans la file.
   const queueActive = queueState.kind === 'searching' || queueState.kind === 'found'
   useEffect(() => {
@@ -2273,6 +2291,7 @@ setStartedAt((at) => at ?? Date.now())
             quick={duelOpen.quick}
             room={duelOpen.room}
             resume={duelOpen.resume}
+            levelBot={duelOpen.bot ?? null}
             onTable={onSeated}
             onExit={leaveDuel}
             onProfile={duelProfile}

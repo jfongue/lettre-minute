@@ -35,7 +35,6 @@ export const rankedDe: RankedMessages = {
   ladder: 'Duell-Rangliste',
   meUnranked: 'Spiel ein gewertetes Duell, um in die Rangliste zu kommen.',
   botSoon: (clock: string) => `Kein Gegner? In ${clock} springt ein Bot deines Niveaus ein.`,
-  botName: 'Bot',
   myPlace: (place: string) => `Mein Platz: ${place}`,
   views: { top: 'Top', master: 'Meister', me: 'Mein Platz' },
   viewEmpty: 'Noch niemand in diesem Rang.',

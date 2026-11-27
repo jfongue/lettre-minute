@@ -35,7 +35,6 @@ export const rankedNl: RankedMessages = {
   ladder: 'Duelranglijst',
   meUnranked: 'Speel een ranked potje om op de ranglijst te komen.',
   botSoon: (clock: string) => `Geen tegenstander? Over ${clock} neemt een bot van jouw niveau het over.`,
-  botName: 'Bot',
   myPlace: (place: string) => `Mijn plek: ${place}`,
   views: { top: 'Top', master: 'Meesters', me: 'Mijn plek' },
   viewEmpty: 'Nog niemand in deze rang.',
