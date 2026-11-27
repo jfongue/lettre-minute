@@ -627,11 +627,27 @@ propre téléphone.
   l'ordre d'arrivée rejoué, et le règlement ne l'accepte que concordant et
   soutenu par le journal (un temps écoulé, un abandon ou une place quittée
   pour chaque perdant). Un désaccord annule la table (`voided`). Elo par
-  paires, K 40 puis 20 après dix parties, cinq placements avant une ligue :
-  `src/domain/ranked.ts` en est le double exact, que l'écran lit pour annoncer
-  l'enjeu — changer l'un sans l'autre fait mentir la carte « Adversaire
-  trouvé » (`ranked.test.ts` et `supabase/tests/50_ranked_duel.sql` tiennent
-  les mêmes cas). Jamais de joueur ordinateur ni de table d'amis classés.
+  paires : K 80 pendant trois placements — recadrés entre Bronze et Or
+  (`duel_settled_rating`) —, 40 jusqu'à dix parties, puis 20 ; une semaine
+  sans partie, puis 5 par jour (150 au plus, jamais sous 950), lu à la volée
+  (`duel_effective_rating`) et figé au règlement suivant.
+  `src/domain/ranked.ts` en est le double exact — changer l'un sans l'autre
+  fait mentir l'écran (`ranked.test.ts` et `supabase/tests/50_ranked_duel.sql`
+  tiennent les mêmes cas). **L'Elo ne s'affiche jamais** : l'écran montre un
+  rang (`standing`, `LeagueChip`) — Bronze III à Diamant I, et « Maître
+  n° 1 à 10 » pour le top 10 du classement. Jamais de joueur ordinateur ni de
+  table d'amis classés.
+- **Un mot trouvé pendant le tour d'un autre rend du temps** (`echo`,
+  `echoWord`) : +1 s au premier de la table, +0,5 s ensuite, trois par joueur
+  et par tour ; le mot reste caché à celui qui a la main. C'est une règle du
+  rejeu : une version qui ne la connaît pas divergerait. Chaque client dit
+  donc ses règles dans `X-Client-Info` (`duel=`, `DUEL_RULES`), chaque place
+  les garde au salon, et la table joue au lancement les plus anciennes de ses
+  joueurs humains (`duel_tables.rules`) — une règle de duel nouvelle monte
+  `DUEL_RULES` et passe par ce même verrou.
+- **Les classements sont une page entière** (`LeaderboardsScreen`) : le
+  tiroir du menu ne les montre plus, `Menu` passe la main à l'app par
+  `onBoards`. Solo, Défi et — compte nommé et duel ouvert — Duel.
 - **Partir en pleine partie, c'est abandonner** (`resign`, `duel_resign`) :
   un coup du journal que seul le serveur écrit, et qui tue tout de suite,
   même au draft — l'adversaire n'attend plus qu'une réserve s'épuise. Une
