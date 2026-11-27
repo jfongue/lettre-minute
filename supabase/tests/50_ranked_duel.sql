@@ -467,3 +467,27 @@ select tests.is(public.duel_matchmake('fr', array['animaux'], 3) ->> 'status', '
 select public.duel_matchmake_cancel();
 select tests.logout();
 select tests.ok(tests.queued('wa'), 'nor drops them from the queue');
+
+-- ------------------------------------------- les rangs sur les classements --
+
+select tests.new_user('m' || n) from generate_series(1, 12) n;
+select tests.set_rating('m' || n, 1700 - n * 10, 20) from generate_series(1, 12) n;
+
+select tests.login_anon();
+select tests.is((public.duel_badges(array['m1', 'm12', 'nobody']) -> 'm1' ->> 'rank')::int, 1, 'a guest reads the rank of a listed name');
+select tests.is((public.duel_badges(array['m1', 'm12', 'nobody']) -> 'm12' ->> 'rank')::int, 12, 'past the top ten too');
+select tests.ok(not (public.duel_badges(array['m1', 'nobody']) ? 'nobody'), 'an unplaced name has no badge');
+select tests.logout();
+
+select tests.login('rb');
+select tests.is(jsonb_array_length(public.duel_ladder_view('master', 50) -> 'rows'), 10, 'the masters are the top ten');
+select tests.is(public.duel_ladder_view('diamond', 50) -> 'rows' -> 0 ->> 'name', 'm11', 'a league starts after the masters');
+select tests.ok(not exists (
+  select 1 from jsonb_array_elements(public.duel_ladder_view('diamond', 50) -> 'rows') r where (r ->> 'rank')::int <= 10
+), 'and holds no master');
+select tests.is(public.duel_ladder_view('platinum', 50) -> 'rows' -> 0 ->> 'name', 'ra', 'each league lists its own');
+select tests.ok(exists (
+  select 1 from jsonb_array_elements(public.duel_ladder_view('me', 50) -> 'rows') r where r ->> 'name' = 'rb'
+), 'the view around me holds my own line');
+select tests.ok(jsonb_array_length(public.duel_ladder_view('me', 50) -> 'rows') <= 15, 'and seven places on each side at most');
+select tests.logout();

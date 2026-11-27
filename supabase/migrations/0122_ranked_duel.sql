@@ -1109,6 +1109,60 @@ language sql stable security definer set search_path = public as $$
   );
 $$;
 
+-- Les joueurs placés, leur Elo du jour et leur place : la base des deux lectures suivantes.
+create function public.duel_placed() returns table (player uuid, name text, avatar jsonb, rating integer, games integer, wins integer, rk bigint)
+language sql stable security definer set search_path = public as $$
+  select r.player, p.display_name, to_jsonb(p.avatar), e.rating, r.games, r.wins,
+         rank() over (order by e.rating desc)
+    from public.duel_ratings r join public.profiles p on p.id = r.player
+    cross join lateral (select public.duel_effective_rating(r.rating, r.last_played_at) as rating) e
+   where r.games >= 3 and not exists (select 1 from public.bots b where b.id = r.player)
+$$;
+
+-- Le rang des joueurs qu'un classement montre, par leur nom (unique) : de quoi
+-- poser à côté de chacun « Or II » ou « M3 ». Seuls les joueurs placés ont une
+-- entrée ; un invité sans compte lit aussi.
+create function public.duel_badges(p_names text[]) returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce(jsonb_object_agg(d.name, jsonb_build_object('rating', d.rating, 'games', d.games, 'rank', d.rk)), '{}'::jsonb)
+    from public.duel_placed() d
+   where d.name = any(p_names[1:120]);
+$$;
+
+-- Le classement du duel vu d'un rang : `top` (les premiers), `master` (le top
+-- 10), une ligue (`diamond` … `bronze`, Maîtres exclus), ou `me` (les places
+-- autour de la mienne). Bornes des ligues : celles de src/domain/ranked.ts.
+create function public.duel_ladder_view(p_view text, p_limit integer) returns jsonb
+language sql stable security definer set search_path = public as $$
+  with placed as (select * from public.duel_placed()),
+  mine as (select rk from placed where player = auth.uid())
+  select jsonb_build_object(
+    'rows', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'player', d.player, 'name', d.name, 'avatar', d.avatar, 'rating', d.rating,
+        'games', d.games, 'wins', d.wins, 'rank', d.rk
+      ) order by d.rk, d.name)
+        from (
+          select * from placed d
+           where case coalesce(p_view, 'top')
+             when 'top' then true
+             when 'master' then d.rk <= 10
+             when 'diamond' then d.rk > 10 and d.rating >= 1400
+             when 'platinum' then d.rk > 10 and d.rating >= 1250 and d.rating < 1400
+             when 'gold' then d.rk > 10 and d.rating >= 1100 and d.rating < 1250
+             when 'silver' then d.rk > 10 and d.rating >= 950 and d.rating < 1100
+             when 'bronze' then d.rk > 10 and d.rating < 950
+             when 'me' then d.rk between (select rk from mine) - 7 and (select rk from mine) + 7
+             else false
+           end
+           order by d.rk, d.name
+           limit greatest(1, least(coalesce(p_limit, 50), 100))
+        ) d
+    ), '[]'::jsonb),
+    'me', case when auth.uid() is not null then public.duel_rating_json(auth.uid()) end
+  );
+$$;
+
 -- La lecture de 0097, qui dit en plus si la table est classée et ce que son
 -- règlement a changé, et qui règle elle-même une table finie qui attend.
 create or replace function public.duel_sync(p_table uuid, p_after integer) returns jsonb
@@ -1236,8 +1290,13 @@ revoke execute on function
   public.duel_close_abandoned(),
   public.duel_offer_json(uuid, uuid, timestamptz, integer),
   public.duel_offer_unnotify(uuid),
-  public.duel_queue_json(uuid, text, text)
+  public.duel_queue_json(uuid, text, text),
+  public.duel_placed()
   from public, anon, authenticated;
+
+revoke execute on function public.duel_badges(text[]), public.duel_ladder_view(text, integer) from public;
+grant execute on function public.duel_badges(text[]) to anon, authenticated;
+grant execute on function public.duel_ladder_view(text, integer) to authenticated;
 
 revoke execute on function
   public.duel_report(uuid, integer[]),
