@@ -614,7 +614,10 @@ propre téléphone.
   accepter (`duel_offer_answer`, qui n'est que le « prêt » du salon) ; qui
   laisse passer sort de la file, qui avait accepté y revient à sa place.
   L'écart d'Elo accepté s'élargit avec l'attente (`duel_rating_window`, ouvert
-  à 30 s), l'attente estimée sort de `duel_queue_log`. La file vit dans
+  à 30 s), l'attente estimée sort de `duel_queue_log`. Personne en face dix
+  secondes après l'attente annoncée (`botMatchAfter`) : l'app lance une vraie
+  partie locale contre « Bot », réglé sur l'Elo du joueur (`botLevel`,
+  `LEVEL_BOT_ID`), non classée — et seulement depuis l'écran de recherche. La file vit dans
   `src/App.tsx` (`useDuelQueue`, `src/state/duelQueue.ts`), pas dans son
   écran : elle continue à l'accueil (`QueuePill`) et derrière la table des
   joueurs ordinateur, se met en veille hors de l'accueil (`busy`), et toute
@@ -627,8 +630,8 @@ propre téléphone.
   l'ordre d'arrivée rejoué, et le règlement ne l'accepte que concordant et
   soutenu par le journal (un temps écoulé, un abandon ou une place quittée
   pour chaque perdant). Un désaccord annule la table (`voided`). Elo par
-  paires : K 80 pendant trois placements — recadrés entre Bronze et Or
-  (`duel_settled_rating`) —, 40 jusqu'à dix parties, puis 20 ; une semaine
+  paires, sans placements : tout le monde part du Bronze III (800) et monte
+  vite — K 60 sur dix parties, 40 jusqu'à vingt, puis 20 (0123) ; une semaine
   sans partie, puis 5 par jour (150 au plus, jamais sous 950), lu à la volée
   (`duel_effective_rating`) et figé au règlement suivant.
   `src/domain/ranked.ts` en est le double exact — changer l'un sans l'autre
