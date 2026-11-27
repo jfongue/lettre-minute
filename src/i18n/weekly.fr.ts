@@ -1,7 +1,9 @@
 import type { WeeklyTrophyId } from '../domain/weekly'
 
 const plural = (count: number, one: string, many: string) => (count > 1 ? many : one)
-const seconds = (value: number) => value.toLocaleString('fr-FR', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 /** A weekly trophy's name, and its line from the value that won it, the word when one did, and the unit of the ranking. */
 type Trophy = readonly [name: string, line: (value: number, word: string, unit: string) => string]
@@ -22,6 +24,7 @@ export const weeklyFr = {
   unitSeconds: 's',
   unitPoints: 'points',
   survival: 'Temps de survie',
+  noFinish: 'Pas d’arrivée',
   you: 'toi',
   card: {
     play: 'Jouer',
@@ -32,6 +35,7 @@ export const weeklyFr = {
     endurance: 'Trente secondes au départ, chaque mot te rend du temps. Tiens le plus longtemps possible.',
     delayed: 'La réponse attendue est celle de la question d’avant.',
     reversed: 'Un mot qui se termine par cette lettre. Pays qui se termine en M ? Vietnam !',
+    race: 'Trouve dix mots le plus vite possible : le chrono monte et s’arrête au dixième.',
   },
   screen: {
     back: 'Retour',
@@ -91,6 +95,14 @@ export const weeklyFr = {
         ['Soixante secondes', 'Le reste est une partie comme les autres.'],
       ],
       score: 'Ton score se compte en points, comme un solo.',
+    },
+    race: {
+      steps: [
+        ['10 mots', 'Dix mots justes, sur les questions qui défilent.'],
+        ['Le chrono monte', 'Il part de zéro et s’arrête à ton dixième mot.'],
+        ['Passer coûte 5 s', 'Chaque question passée ajoute cinq secondes. Après trois minutes, la course s’arrête sans arrivée.'],
+      ],
+      score: 'Ton score est ton temps : le plus rapide gagne.',
     },
   },
   run: {

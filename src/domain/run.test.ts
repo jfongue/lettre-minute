@@ -11,6 +11,7 @@ import {
   letterWeight,
   markPowerUsed,
   promptOutcomes,
+  raceSeconds,
   recall,
   remainingSeconds,
   RUN_SECONDS,
@@ -21,12 +22,13 @@ import {
   skip,
   submit,
   THIN_PROMPT_WORDS,
+  nextPrompt,
   type Judge,
   type Run,
 } from './run'
 import { FLAWLESS_STREAK, type PowerId } from './powers'
 import { buildWordPack, commonWord, findWord, lettersWithEnough, mirrorPack, type WordPack } from './words'
-import { ENDURANCE_TIME_BONUS, RECALL_SECONDS } from './modes'
+import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RACE_WORDS, RECALL_SECONDS } from './modes'
 import { compactWord } from './text'
 
 /** A pack with enough words per letter that every letter can be prompted. */
@@ -346,9 +348,38 @@ describe('odds of a pair', () => {
     expect(prompts.every(([a, b]) => a === b)).toBe(true)
   })
 
-  it('lets a well-stocked pair come back', () => {
-    const stocked = judgeKnowing({ A: THIN_PROMPT_WORDS, B: THIN_PROMPT_WORDS })
+  it('never deals a passed pair again in a run played alone', () => {
+    const stocked = judgeKnowing({ A: 50, B: 50, C: 50, D: 50, E: 50, F: 50 })
+    for (let seed = 1; seed <= 50; seed++) {
+      let run = createRun({ seed, categoryIds: ['animaux'] }, stocked)
+      const letters = [run.prompt.letter]
+      for (let i = 0; i < 5; i++) letters.push((run = skip(run, stocked)).prompt.letter)
+
+      expect(new Set(letters).size).toBe(6)
+    }
+  })
+
+  it('deals passed pairs again once nothing else is left', () => {
+    const stocked = judgeKnowing({ A: 50, B: 50 })
     let run = createRun({ seed: 9, categoryIds: ['animaux'] }, stocked)
+    for (let i = 0; i < 4; i++) run = skip(run, stocked)
+
+    expect(['A', 'B']).toContain(run.prompt.letter)
+  })
+
+  it('shows through Divination the pair a skip deals', () => {
+    const stocked = judgeKnowing({ A: 50, B: 50, C: 50 })
+    let run = createRun({ seed: 4, categoryIds: ['animaux'] }, stocked)
+    for (let i = 0; i < 4; i++) {
+      const shown = nextPrompt(run, stocked)
+      run = skip(run, stocked)
+      expect(run.prompt).toEqual(shown)
+    }
+  })
+
+  it('lets a well-stocked pair come back in a shared run, passed or not', () => {
+    const stocked = judgeKnowing({ A: THIN_PROMPT_WORDS, B: THIN_PROMPT_WORDS })
+    let run = createRun({ seed: 9, categoryIds: ['animaux'], shared: true }, stocked)
     const letters = [run.prompt.letter]
     for (let i = 0; i < 20; i++) letters.push((run = skip(run, stocked)).prompt.letter)
 
@@ -503,6 +534,37 @@ describe('les modes de la réserve', () => {
   it('endurance : le score ne descend jamais sous zéro', () => {
     const run = { ...createRun({ seed: 4, mode: 'endurance', categoryIds: ['animaux'] }, judge), penaltySeconds: 40 }
     expect(runScore(run)).toBe(0)
+  })
+
+  /** Un mot juste encore jamais joué : la course en demande dix, souvent sur la même lettre. */
+  const freshAnswer = (run: Run) =>
+    Array.from({ length: PER_LETTER }, (_, i) => `${run.prompt.letter}nimal${i}`).find((word) => inspect(run, word, judge).kind === 'accepted')!
+
+  it('course : la partie s’arrête au dixième mot, et son temps compte les passes', () => {
+    let run = createRun({ seed: 6, mode: 'race', categoryIds: ['animaux'] }, judge)
+    expect(remainingSeconds(run, 0)).toBe(MODE_SECONDS.race)
+    run = skip(run, judge, 2)
+    for (let n = 1; n < RACE_WORDS; n++) run = submit(run, freshAnswer(run), judge, 3 * n).run
+    expect(run.found).toHaveLength(RACE_WORDS - 1)
+    expect(raceSeconds(run)).toBeNull()
+    expect(runScore(run)).toBe(0)
+    expect(remainingSeconds(run, 30)).toBe(MODE_SECONDS.race - 30 - SKIP_PENALTY_SECONDS)
+
+    run = submit(run, freshAnswer(run), judge, 41.25).run
+    // Le dixième mot à 41,25 s, une passe à 5 s : 46,3 s, et l'arrivée vide le chrono.
+    expect(raceSeconds(run)).toBe(46.3)
+    expect(remainingSeconds(run, 41.25)).toBe(0)
+    expect(runScore(run)).toBe(Math.round((MODE_SECONDS.race - 46.3) * 10) / 10)
+  })
+
+  it('course : un temps plus court rend un score plus grand', () => {
+    const finish = (at: number) => {
+      let run = createRun({ seed: 7, mode: 'race', categoryIds: ['animaux'] }, judge)
+      for (let n = 1; n <= RACE_WORDS; n++) run = submit(run, freshAnswer(run), judge, (at * n) / RACE_WORDS).run
+      return run
+    }
+    expect(runScore(finish(30))).toBeGreaterThan(runScore(finish(60)))
+    expect(raceSeconds({ ...finish(30), mode: 'solo' })).toBeNull()
   })
 
   it('retard : revoir la question à remplir coûte trois secondes', () => {

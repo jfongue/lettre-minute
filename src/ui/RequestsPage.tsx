@@ -1,4 +1,5 @@
-import { Suspense, useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { ScreenBoundary } from './ScreenBoundary'
 import { MODERATION_MIN_QUEUE, MODERATION_SESSION_SIZE } from '../domain/moderation'
 import { SUBMISSION_REWARD_XP } from '../domain/progression'
 import {
@@ -181,6 +182,7 @@ export function RequestsPage({ moderation, onModerate, onProfiles, onSeen, onOpe
   })
   useEffect(() => {
     let live = true
+    let timer: ReturnType<typeof setTimeout> | undefined
     const entries = pendingNow.current
     Promise.all(
       entries.map(async (entry) => {
@@ -193,7 +195,8 @@ export function RequestsPage({ moderation, onModerate, onProfiles, onSeen, onOpe
       const hits = entries.filter((_, index) => known[index])
       if (!live || hits.length === 0) return
       setExisting(new Set(hits.map((entry) => entry.key)))
-      setTimeout(async () => {
+      timer = setTimeout(async () => {
+        if (!live) return
         const queuedHits = new Set(hits.flatMap((entry) => (entry.source === 'queued' ? [entry.queued] : [])))
         const next = loadSubmissions().filter((item) => ![...queuedHits].some((hit) => hit.at === item.at && hit.word === item.word))
         saveSubmissions(next)
@@ -204,6 +207,7 @@ export function RequestsPage({ moderation, onModerate, onProfiles, onSeen, onOpe
     })
     return () => {
       live = false
+      clearTimeout(timer)
     }
   }, [probe, refresh])
 
@@ -397,9 +401,9 @@ function IdeaBox() {
 
   if (reading)
     return (
-      <Suspense fallback={null}>
+      <ScreenBoundary>
         <IdeasAdmin onClose={() => setReading(false)} />
-      </Suspense>
+      </ScreenBoundary>
     )
   if (!open) {
     return (

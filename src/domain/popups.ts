@@ -16,6 +16,7 @@ export const POP_ORDER = [
   'thanks',
   'feedback',
   'shareNews',
+  'rankedNews',
   'premieres',
   'rating',
 ] as const

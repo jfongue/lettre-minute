@@ -1,7 +1,9 @@
 import type { WeeklyMessages } from './weekly.fr'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
-const seconds = (value: number) => value.toLocaleString('pt-BR', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 export const weeklyPt: WeeklyMessages = {
   title: 'Desafio do momento',
@@ -12,6 +14,7 @@ export const weeklyPt: WeeklyMessages = {
   unitSeconds: 's',
   unitPoints: 'pontos',
   survival: 'Tempo de sobrevivência',
+  noFinish: 'Sem chegada',
   you: 'tu',
   card: {
     play: 'Jogar',
@@ -22,6 +25,7 @@ export const weeklyPt: WeeklyMessages = {
     endurance: 'Começas com trinta segundos e cada palavra devolve-te tempo. Aguenta o mais possível.',
     delayed: 'A resposta pedida é a da pergunta anterior.',
     reversed: 'Uma palavra que termina nesta letra. Um país que termina em M? Vietname!',
+    race: 'Encontra dez palavras o mais depressa possível: o cronómetro sobe e para na décima.',
   },
   screen: {
     back: 'Voltar',
@@ -75,6 +79,14 @@ export const weeklyPt: WeeklyMessages = {
         ['Sessenta segundos', 'O resto é uma partida como as outras.'],
       ],
       score: 'A tua pontuação conta-se em pontos, como numa partida normal.',
+    },
+    race: {
+      steps: [
+        ['10 palavras', 'Dez palavras certas, nas perguntas que vão aparecendo.'],
+        ['O cronómetro sobe', 'Começa em zero e para na tua décima palavra.'],
+        ['Passar custa 5 s', 'Cada pergunta passada soma cinco segundos. Ao fim de três minutos, a corrida para sem chegada.'],
+      ],
+      score: 'A tua pontuação é o teu tempo: ganha o mais rápido.',
     },
   },
   run: {

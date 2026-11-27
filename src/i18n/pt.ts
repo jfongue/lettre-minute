@@ -1,8 +1,11 @@
 import type { Messages } from './fr'
 import { weeklyPt } from './weekly.pt'
+import { rankedPt } from './ranked.pt'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
-const seconds = (value: number) => value.toLocaleString('pt-BR', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 export const pt: Messages = {
   tag: 'pt-BR',
@@ -56,6 +59,8 @@ export const pt: Messages = {
     enduranceHint: 'Trinta segundos, e cada palavra devolve-te de dois a quatro conforme a raridade.',
     reversed: 'Invertido',
     reversedHint: 'Uma palavra que termina nesta letra. Um país que termina em M? Vietname!',
+    race: 'Corrida',
+    raceHint: 'Dez palavras certas, o mais depressa possível.',
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'A preencher',
     armNote: 'Valida em vazio: é aí que o cronómetro arranca.',
@@ -74,6 +79,10 @@ export const pt: Messages = {
       reversed: {
         hello: 'Uma palavra que termina nesta letra. Um país que termina em M? Vietname!',
         ask: (letter: string) => `Escreve uma cor que termine em ${letter}.`,
+      },
+      race: {
+        hello: 'Dez palavras certas, o mais depressa possível: o cronómetro sobe e para na décima.',
+        ask: (letter: string) => `Escreve uma cor começada por ${letter}: é a primeira de dez.`,
       },
     },
   },
@@ -118,6 +127,9 @@ export const pt: Messages = {
     timeUp: 'Tempo esgotado',
     points: 'pontos',
     survived: 'segundos de sobrevivência',
+    raceTime: 'segundos para dez palavras',
+    noFinish: 'Sem chegada',
+    arrived: 'Chegada!',
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Nenhuma palavra. Acontece.',
     next: 'Continuar',
@@ -146,11 +158,9 @@ export const pt: Messages = {
     lead: 'Obrigado por jogar! Sou um pequeno desenvolvedor francês… Para me incentivar, fala do jogo às pessoas à tua volta e dá-lhe 5 estrelas!',
     later: 'Mais tarde',
     ok: 'Beleza!',
-    frameDescription: 'Obrigado por apoiares Letra Minuto!',
     close: 'Fechar',
     hello:
       'Olá, sou o Jérémy!\nSou um programador francês independente e crio o Lettre Minute nos meus tempos livres.\nSe gostaste do jogo, o teu apoio ajudava-me imenso, até 1 € conta.\nObrigado de coração!',
-    photo: 'Jérémy, o criador do jogo',
   },
 
   account: {
@@ -261,7 +271,6 @@ export const pt: Messages = {
     editAvatarLabel: 'Editar meu avatar',
     anonymous: 'Jogador anônimo',
     standing: (level, record) => `Nível ${level} · recorde ${record}`,
-    editAvatar: 'Editar o avatar',
     signedInAs: (email) => `Conectado com ${email}`,
     logOut: 'Sair',
   logOutWarning: 'A tua conta guarda as partidas; este dispositivo começa de novo.',
@@ -291,7 +300,6 @@ export const pt: Messages = {
     add: 'Adicionar um amigo',
     nameLabel: 'Seu nome de jogador',
     share: 'Compartilhar',
-    shareName: (name) => `Me adicione como amigo no Letra Minuto: meu nome de jogador é ${name}.`,
     incomingCount: (count) => `${count} ${plural(count, 'pedido', 'pedidos')}`,
     wantsFriend: 'quer ser seu amigo',
     sortLabel: 'Ordenar seus amigos',
@@ -412,7 +420,7 @@ export const pt: Messages = {
     empty: 'Nenhuma sugestão ainda. Na partida, uma palavra que o dicionário não conhece é sugerida com um toque.',
     added: 'Adicionadas graças a você',
     addedNote: (xp) => `${xp} XP ganhos por cada uma.`,
-    noneAdded: 'Nenhuma ainda: uma palavra entra quando cinco moderadores a validaram.',
+    noneAdded: 'Nenhuma ainda: uma palavra entra quando de dois a sete moderadores a validaram.',
     more: (count: number) => `Mostrar mais (${count})`,
     less: 'Ver menos',
     fresh: 'nova',
@@ -435,8 +443,8 @@ export const pt: Messages = {
   moderation: {
     title: 'Moderação',
     superTitle: 'Supermoderador',
-    lead: 'Você julga as palavras propostas pelos jogadores: duas «correta» fazem uma palavra entrar onde há poucos juízes, cinco onde há muitos; duas «incorreta» a bloqueiam. Cada «não sei» pede duas «correta» a mais e meia voz a mais para bloquear.',
-    superLead: 'Seu voto conta dobrado, mas nunca sozinho: duas «correta» fazem uma palavra entrar onde há poucos juízes, cinco onde há muitos, e sua única «incorreta» a bloqueia. Os casos especiais só esperam pelos supermoderadores.',
+    lead: 'Você julga as palavras propostas pelos jogadores: de duas a sete «correta» fazem uma palavra entrar, menos quanto mais palavras esperam, e duas bastam onde há poucos juízes; duas «incorreta» a bloqueiam. Cada «não sei» pede duas «correta» a mais e meia voz a mais para bloquear.',
+    superLead: 'Seu voto conta dobrado, mas nunca sozinho: de duas a sete «correta» fazem uma palavra entrar, menos quanto mais palavras esperam, e sua única «incorreta» a bloqueia. Os casos especiais só esperam pelos supermoderadores.',
     score: (score: number) => `Rigor: ${score}/100`,
     scoreLead: 'Sua pontuação sobe quando os outros moderadores compartilham suas recusas, e cai quando recusam uma palavra que você aceitou.',
     scoreSoon: 'Sua pontuação de rigor aparecerá assim que uma palavra que você julgou for decidida.',
@@ -486,7 +494,7 @@ export const pt: Messages = {
       hint: 'Moderador: segure uma palavra para sinalizá-la.',
       title: 'Sinalizar esta palavra',
       lead: (word, category) =>
-        `«${word}» não tem lugar em «${category}»? Os outros moderadores vão julgá-la: duas de acordo onde há poucos juízes, cinco no resto, e ela sai da categoria na próxima versão.`,
+        `«${word}» não tem lugar em «${category}»? Os outros moderadores vão julgá-la: de duas a sete de acordo, menos quanto mais palavras esperam, e ela sai da categoria na próxima versão.`,
       confirm: 'Sinalizar',
       close: 'Fechar',
       reasonLabel: 'Motivo (opcional)',
@@ -859,6 +867,7 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
     floor: 'Têm de ficar pelo menos seis categorias em jogo.',
     max: (count) => `No máximo ${count} categorias filtradas.`,
     limit: 'Já pusseste todos os teus cadeados. Um bónus de nível dá-te mais um.',
+    full: (count: number) => `Os teus ${count} cadeados estão postos: repõe uma categoria para filtrar outra.`,
     lockedTitle: 'Filtro bloqueado',
     lockedHow: 'Ganha o teu primeiro cadeado com um bónus de nível.',
     lockedHowPlus: 'Ganha o teu primeiro cadeado com um bónus de nível, ou passa a Premium para teres seis.',
@@ -907,6 +916,7 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
   },
 
   weekly: weeklyPt,
+  ranked: rankedPt,
 
   premiumPage: {
     lead: 'O que o Premium te deu além dos limites gratuitos.',
@@ -947,13 +957,11 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
     title: 'As tuas vantagens',
     filters: (used, max) => `Filtros: ${used} de ${max}`,
     filtersLocked: 'Filtro: ainda não ganho',
-    filtersPlus: (max) => `Filtro: até ${max} categorias`,
     reveals: (left, allowed) => `Revelações de hoje: ${left} de ${allowed}`,
     revealsPlus: 'Revelações ilimitadas',
     slots: (count, max) => `Espaços de poder: ${count} de ${max}`,
   hintFilters: 'O filtro deixa uma categoria fora das tuas partidas a solo.',
   hintReveals: 'No resumo, revela uma palavra que podias ter escrito.',
-  hintSlots: 'Os poderes que levas para a partida.',
   },
 
   bonus: {
@@ -982,6 +990,11 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
     lead: 'Uma versão mais recente do Lettre Minute está à sua espera na Play Store.',
     later: 'Mais tarde',
     go: 'Atualizar',
+  },
+  broken: {
+    title: 'Não carregou',
+    lead: 'Esta tela não abriu, provavelmente por uma queda de conexão. Seu progresso está salvo.',
+    reload: 'Recarregar',
   },
 
   tiers: { courant: 'comum', 'peu commun': 'incomum', rare: 'rara', 'très rare': 'muito rara' },
@@ -1046,16 +1059,13 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
 
   duel: {
     title: 'Duelo',
-    leadTitle: 'Duelo ao vivo',
+    leadTitle: 'Duelo amistoso',
     lead: 'Cada um tem uma reserva de 30 segundos que só corre na sua vez. Uma palavra passa a vez, uma palavra rara devolve tempo. Vence o último de pé.',
     trait: { fast: 'Rápido', steady: 'Calmo', sharp: 'Temível' },
     you: 'Você',
     ready: 'Pronto',
     notReady: 'Ainda não está pronto',
     invited: 'Convidado',
-    inviteAction: 'Convidar',
-    leftStamp: 'Saiu',
-    keepOne: 'A mesa precisa de pelo menos um adversário.',
     readyButton: 'Estou pronto',
     tableSize: (players: number) => `${players} jogadores`,
     waitingOthers: 'Os outros estão chegando…',
@@ -1162,11 +1172,11 @@ cheerAria: (label: string) => `Sugerir ${label}`,
     declineTable: 'Não, obrigado',
     chooseTitle: 'Jogar com amigos',
     chooseLead: 'Duas formas de se enfrentar: ao vivo, ou cada um quando quiser.',
-    duelCard: 'Duelo ao vivo!',
+    duelCard: 'Duelo amistoso',
     duelCardNote: 'Cada um na sua vez, 30 segundos de reserva, vence o último de pé.',
     duelCardPlayers: '2 a 4 jogadores',
-    matchCard: 'Encontrar um adversário',
-    matchCardNote: 'Um jogador ao acaso, já',
+    matchCard: 'Duelo ranqueado',
+    matchCardNote: 'Um jogador do seu nível, já',
     matchCardPlayers: '2 jogadores',
     matchTitle: 'À procura de um adversário…',
     matchLead: 'Emparelhamos-te com outro jogador que procura uma partida, na tua língua.',

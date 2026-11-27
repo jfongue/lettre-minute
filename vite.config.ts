@@ -66,16 +66,25 @@ const names = new Proxy({}, { get: (_, key) => String(key) })
 export { plugin as SocialLogin, plugin as NativePurchases, plugin as AdMob }
 export { names as PURCHASE_TYPE, names as AdmobConsentStatus, names as InterstitialAdPluginEvents, names as RewardAdPluginEvents }`
         : null,
-    // The SDK and the main font are asked for with the bundle, not once the
-    // bundle has run: the portal's player waits on the slowest of the three.
+    // The SDK is asked for with the bundle, not once the bundle has run: the
+    // portal's player waits on the slowest of them.
+    transformIndexHtml: {
+      order: 'post',
+      handler: () => (sdk ? [{ tag: 'link', attrs: { rel: 'preload', as: 'script', href: sdk }, injectTo: 'head' as const }] : []),
+    },
+  }
+}
+
+// The main font is asked for with the bundle too: found only once the CSS is
+// parsed, it arrived after the first paint and the home title swapped and reflowed.
+function fontPreload(): Plugin {
+  return {
+    name: 'lettre-minute-font-preload',
     transformIndexHtml: {
       order: 'post',
       handler: (_html, context) => {
         const font = Object.keys(context.bundle ?? {}).find((name) => /jost-latin-wght-normal-.*\.woff2$/.test(name))
-        return [
-          ...(sdk ? [{ tag: 'link', attrs: { rel: 'preload', as: 'script', href: sdk }, injectTo: 'head' as const }] : []),
-          ...(font ? [{ tag: 'link', attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: `./${font}` }, injectTo: 'head' as const }] : []),
-        ]
+        return font ? [{ tag: 'link', attrs: { rel: 'preload', as: 'font', type: 'font/woff2', crossorigin: '', href: `./${font}` }, injectTo: 'head' as const }] : []
       },
     },
   }
@@ -85,9 +94,9 @@ export { names as PURCHASE_TYPE, names as AdmobConsentStatus, names as Interstit
 // behind Playgama's Bridge, which the build carries and loads first, as
 // Playgama requires (playgama/README.md). Same blanks as CrazyGames.
 function plugins(mode: string): PluginOption[] {
-  if (mode === 'playgama') return [portalLoad(null), playgamaBridge({ mode: 'local' }), react()]
-  if (mode in PORTAL_BLANKS) return [portalLoad(PORTAL_SDKS[mode] ?? null), react()]
-  return [react()]
+  if (mode === 'playgama') return [portalLoad(null), fontPreload(), playgamaBridge({ mode: 'local' }), react()]
+  if (mode in PORTAL_BLANKS) return [portalLoad(PORTAL_SDKS[mode] ?? null), fontPreload(), react()]
+  return [fontPreload(), react()]
 }
 
 export default defineConfig(({ mode }) => ({

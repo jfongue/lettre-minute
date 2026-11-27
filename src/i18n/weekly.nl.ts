@@ -1,7 +1,9 @@
 import type { WeeklyMessages } from './weekly.fr'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
-const seconds = (value: number) => value.toLocaleString('nl-NL', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 export const weeklyNl: WeeklyMessages = {
   title: 'Uitdaging van het moment',
@@ -12,6 +14,7 @@ export const weeklyNl: WeeklyMessages = {
   unitSeconds: 's',
   unitPoints: 'punten',
   survival: 'Overlevingstijd',
+  noFinish: 'Niet gefinisht',
   you: 'jij',
   card: {
     play: 'Spelen',
@@ -22,6 +25,7 @@ export const weeklyNl: WeeklyMessages = {
     endurance: 'Je start met dertig seconden en elk woord geeft tijd terug. Houd het zo lang mogelijk vol.',
     delayed: 'Het gevraagde antwoord is dat op de vorige vraag.',
     reversed: 'Een woord dat op deze letter eindigt. Een land dat op M eindigt? Vietnam!',
+    race: 'Vind tien woorden zo snel als je kunt: de klok loopt op en stopt bij het tiende.',
   },
   screen: {
     back: 'Terug',
@@ -75,6 +79,14 @@ export const weeklyNl: WeeklyMessages = {
         ['Zestig seconden', 'De rest is een ronde als alle andere.'],
       ],
       score: 'Je score telt in punten, zoals bij een gewone ronde.',
+    },
+    race: {
+      steps: [
+        ['10 woorden', 'Tien goede woorden, op de vragen zoals ze komen.'],
+        ['De klok loopt op', 'Hij begint bij nul en stopt bij je tiende woord.'],
+        ['Overslaan kost 5 s', 'Elke overgeslagen vraag telt vijf seconden op. Na drie minuten stopt de race zonder finish.'],
+      ],
+      score: 'Je score is je tijd: de snelste wint.',
     },
   },
   run: {

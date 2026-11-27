@@ -22,11 +22,32 @@ Ce que l'hôte fait :
 - Sauvegarde : les clés de `src/platform/saves.ts` relues du stockage du Bridge
   avant le premier rendu, puis recopiées à chaque écriture.
 - Langue du portail (`bridge.platform.language`) avant celle du navigateur.
-- Comme un invité CrazyGames : classements lus du serveur, rien d'autre de ce
-  qui demande un compte (amis, duel, mots proposés, modération), rien qui
-  quitte la page, aucun suivi d'usage (Playgama refuse les analytics externes).
+- Connexion du portail, comme sur CrazyGames : `bridge.player.authorize()`
+  depuis « Se connecter » (menu, onglet des amis), puis `bridge.player.extra`
+  envoyé à la fonction Edge `playgama-auth`, qui le fait vérifier par l'API de
+  Playgama (`/api/bridge/v1/verify`, plateformes `playgama`, `msn`,
+  `microsoft_store`) et ouvre le compte du jeu lié (`playgama_accounts`,
+  0114), nommé d'après le pseudo du portail. Ailleurs (partenaires sans
+  vérification, mode `mock`), pas de bouton : le joueur reste invité.
+- Un joueur connecté a tout ce qu'un compte nommé porte : amis, face-à-face,
+  duel et matchmaking, défis de 24 h entre amis et leurs réactions, mots
+  proposés, modération, boîte à idées ; un super modérateur, ses outils.
+  Fermé : ce qui mène hors de la page (invitation par lien ou e-mail,
+  partage, store) et ce qui se vend.
+- Score de chaque partie envoyé au classement du portail partenaire quand il
+  en a un (`best_score`, `playgama-bridge-config.json`) ; Playgama lui-même
+  n'en a pas, ses classements sont ceux du serveur.
+- Bannière avancée du Bridge (`run`, 12 % du bas de la fenêtre) pendant la
+  partie, son récap et son bilan, jamais pour un Premium ; la page ne réserve
+  sa bande (`data-portal-banner`, `crazygames.css`) que quand elle s'affiche.
+  Prise en charge sur playgama et msn seulement.
+- Aucun suivi d'usage du jeu (retiré partout, a858b712) : seuls comptent les
+  événements que le Bridge enregistre lui-même (initialisation, `game_ready`,
+  `level_started` / `level_completed`, pubs, sessions).
+- Les succès nommés (Play Games et exploits) sont déclarés dans
+  `playgama-bridge-config.json` en snake_case et envoyés une fois chacun ;
+  natifs seulement sur Y8 et Lagged, suivis localement par le Bridge ailleurs.
+- Une pub plein écran fige le chrono de la partie, même ouverte en retard.
 
-Reste à faire avant une soumission (pas la sandbox) : relier les comptes
-Playgama à ceux du jeu (`bridge.player`, vérification serveur), et la colonne
-`runs.platform` (0072) n'accepte pas encore `playgama` — sans conséquence tant
-qu'un joueur Playgama n'écrit rien sur le serveur.
+Mise en ligne de la connexion : `supabase db push --linked --yes` (0114), puis
+`supabase functions deploy playgama-auth --no-verify-jwt --use-api`.

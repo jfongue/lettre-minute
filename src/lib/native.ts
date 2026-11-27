@@ -14,7 +14,6 @@ import { PushNotifications } from '@capacitor/push-notifications'
 import { Share } from '@capacitor/share'
 import { SplashScreen } from '@capacitor/splash-screen'
 import { StatusBar, Style } from '@capacitor/status-bar'
-import { SocialLogin } from '@capgo/capacitor-social-login'
 import { NativePurchases, PURCHASE_TYPE } from '@capgo/native-purchases'
 
 /**
@@ -39,23 +38,21 @@ export function isNativeApp(): boolean {
  * the foreground, which the WebView does not always pass on as a hidden page,
  * and an interstitial covers it without hiding it at all.
  */
-export function onAppActive(onChange: (active: boolean) => void): void {
-  if (!native) return
-  quietly(() =>
-    NativeApp.addListener("appStateChange", ({ isActive }) => onChange(isActive))
-  )
-  quietly(() =>
-    AdMob.addListener(InterstitialAdPluginEvents.Showed, () => onChange(false))
-  )
-  quietly(() =>
-    AdMob.addListener(InterstitialAdPluginEvents.Dismissed, () => onChange(true))
-  )
-  quietly(() =>
-    AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, () => onChange(true))
-  )
-  quietly(() => AdMob.addListener(RewardAdPluginEvents.Showed, () => onChange(false)))
-  quietly(() => AdMob.addListener(RewardAdPluginEvents.Dismissed, () => onChange(true)))
-  quietly(() => AdMob.addListener(RewardAdPluginEvents.FailedToShow, () => onChange(true)))
+export function onAppActive(onChange: (active: boolean) => void): () => void {
+  if (!native) return () => {}
+  const handles: Promise<{ remove(): Promise<void> }>[] = [
+    NativeApp.addListener('appStateChange', ({ isActive }) => onChange(isActive)),
+    AdMob.addListener(InterstitialAdPluginEvents.Showed, () => onChange(false)),
+    AdMob.addListener(InterstitialAdPluginEvents.Dismissed, () => onChange(true)),
+    AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, () => onChange(true)),
+    AdMob.addListener(RewardAdPluginEvents.Showed, () => onChange(false)),
+    AdMob.addListener(RewardAdPluginEvents.Dismissed, () => onChange(true)),
+    AdMob.addListener(RewardAdPluginEvents.FailedToShow, () => onChange(true)),
+  ]
+  for (const handle of handles) handle.catch(() => {})
+  return () => {
+    for (const handle of handles) handle.then((listener) => listener.remove()).catch(() => {})
+  }
 }
 
 /** Each return of the app to the foreground, until the returned cleanup runs. */
@@ -430,14 +427,14 @@ export function openPushSettings(): void {
 /** What a push carries: which challenge, or which duel table, and what it wants. */
 export type PushData =
   | { kind: 'invite' | 'recap'; challenge: string }
-  | { kind: 'duel' | 'duel_cancel'; table: string }
+  | { kind: 'duel' | 'duel_cancel' | 'match'; table: string }
 
 function pushData(data: unknown): PushData | null {
   const row = (data ?? {}) as Record<string, unknown>
   if ((row.kind === 'invite' || row.kind === 'recap') && typeof row.challenge === 'string') {
     return { kind: row.kind, challenge: row.challenge }
   }
-  if ((row.kind === 'duel' || row.kind === 'duel_cancel') && typeof row.table === 'string') {
+  if ((row.kind === 'duel' || row.kind === 'duel_cancel' || row.kind === 'match') && typeof row.table === 'string') {
     return { kind: row.kind, table: row.table }
   }
   return null
@@ -577,6 +574,8 @@ export function googleSignInSupported(): boolean {
 export async function googleIdToken(nonce: string, quiet = false): Promise<string | null> {
   if (!googleSignInSupported()) return null
   try {
+    // Fetched at the first sign-in: its providers weigh 40 kB the home screen never needs.
+    const { SocialLogin } = await import('@capgo/capacitor-social-login')
     googleStarted ??= SocialLogin.initialize({
       google: {
         webClientId: googleClientId,

@@ -1,5 +1,26 @@
 # Update notes for CrazyGames review
 
+## 1.7.8
+
+Sent for review on 25 November 2026, replacing 1.7.7 in the queue. 1.7.8 is
+1.7.7 with the following.
+
+- **No run is lost to an expired session any more.** A signed-in player whose
+  session expired while the tab slept had their calls refused by our server
+  until the page was reloaded, and their runs lost. The session is now
+  renewed, and a run it could not send waits on the device and leaves when
+  the player comes back to the game.
+- **The clock holds under any portal ad.** A full-screen ad can no longer
+  play over a running run with its clock ticking.
+- **Word moderation for signed-in players.** Moderators read the reasons left
+  by earlier judges and can always refuse with one, proposals have a daily
+  cap that follows each player's acceptance rate, and words flagged by
+  moderators leave the dictionaries.
+
+QA run in the portal's preview: one full run, gameplayStart and gameplayStop
+60 s apart, a midgame ad requested from « Play » (adError with test ads, the
+run started normally), no warning.
+
 ## 1.7.7
 
 Sent for review on 25 November 2026, after 1.7.6 was sent back for a

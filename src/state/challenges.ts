@@ -77,12 +77,6 @@ export function hideChallenge(challenge: Stamped): void {
   globalThis.dispatchEvent?.(new Event(HIDDEN_CHANGED))
 }
 
-export function unhideChallenge(id: string): void {
-  pending[id] = null
-  markChallengeHidden(id, null)
-  globalThis.dispatchEvent?.(new Event(HIDDEN_CHANGED))
-}
-
 /** A recap once read: the detail stamped as the list will read it. */
 export function hideChallengeDetail(detail: {
   id: string

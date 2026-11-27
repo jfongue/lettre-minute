@@ -1,3 +1,4 @@
+import type { AchievementId } from '../domain/achievements'
 import type { FeatureId } from '../domain/features'
 import type { Locale } from '../i18n'
 
@@ -64,10 +65,12 @@ export interface Host {
   guestBoards: boolean
   /**
    * The host's own signed-in player, as a token the server checks
-   * (`crazygames-auth`): null for a guest. Absent where accounts are the
+   * (`accountService`): null for a guest. Absent where accounts are the
    * game's own (Android, the web) or there are none (Reddit).
    */
   account?(): Promise<string | null>
+  /** The Edge function that checks `account`'s token and opens the game account linked to it. */
+  accountService?: 'crazygames-auth' | 'playgama-auth'
   /** Called when the player signs in to the host without the page reloading. */
   onAccount?(listener: () => void): void
   /** The host's own sign-in prompt; true once the player is signed in. */
@@ -107,6 +110,20 @@ export interface Host {
   midgame(adFree: boolean): Promise<AdBreak>
   /** Called with true while the host wants silence — its own mute, an ad — and false once it lets go. */
   onMute(listener: (muted: boolean) => void): void
+  /**
+   * Called with true while a full-screen ad covers the game, whenever it came
+   * — one that opens late, after the run started, included — and false once it
+   * is gone: the run's clock holds meanwhile.
+   */
+  onAdBreak(listener: (covered: boolean) => void): void
+  /**
+   * Whether the host may show its banner now: the run and the screens that
+   * close it ask for one, every other screen takes it away. A host without
+   * banners ignores both.
+   */
+  setBanner(wanted: boolean): void
+  /** Every achievement the player holds, at launch and after each change; the host sends each new one once. */
+  unlockAchievements(ids: readonly AchievementId[]): void
 }
 
 export interface HostRooms {
@@ -183,4 +200,7 @@ export const quiet = {
   breakAfterRecap: (): Promise<AdBreak> => Promise.resolve('none'),
   midgame: (): Promise<AdBreak> => Promise.resolve('none'),
   onMute(): void {},
+  onAdBreak(): void {},
+  setBanner(): void {},
+  unlockAchievements(): void {},
 }

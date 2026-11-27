@@ -78,6 +78,8 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `proposal_quota` | Une seule ligne : le plafond quotidien de propositions — de base, fiable, souvent refusé (0116). |
 | `proposer_reviews` | Les joueurs trop souvent refusés : profil à juger par un super modérateur (`state`), ban de proposition (`banned`), d'office ou non (`auto`). |
 | `moderation_reserve` | Mots évidents que les dictionnaires ignorent, versés au compte-goutte dans la file (`released_at`). |
+| `moderation_stock_steps` | Les paliers du seuil d'entrée : à partir de tant de mots qui attendent dans la langue, tant de « correct » (0119 : 7, puis 6 dès 10, 5 dès 25, 4 dès 50, 3 dès 150, 2 dès 300). Aucune politique. |
+| `moderation_staffing` | Une seule ligne : combien de mots qui attendent un juge couvre, au-delà desquels l'offre de modération sort encore (0119 : 3). |
 | `moderation_topup` | Une seule ligne : l'heure du dernier versement, qui ferme le renflouage pour une heure, toutes langues confondues. |
 | `moderator_offers` | Les propositions de modérer (niveau, mots acceptés, ami) et la réponse du joueur. |
 | `friendships` | Une ligne par demande d'ami (`pending` puis `accepted`), lue dans les deux sens. |
@@ -99,6 +101,10 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `duel_seats` | Une place par joueur (ou joueur ordinateur) : prêt, place numérotée au lancement, parti, expulsé, dernière lecture — c'est elle qui désigne le meneur. |
 | `duel_invites` | Qui l'hôte a invité, et quand l'invité a répondu. Un blocage tait l'invitation, comme une demande d'ami. |
 | `duel_moves` | Le journal d'une table : un coup par numéro (`seq`), daté par le serveur. Les quatre tables du duel n'ont aucune politique : tout passe par les fonctions `duel_*`. |
+| `duel_queue_log` | Un passage dans la file classée (0122) : langue, Elo, plateforme, entrée, sortie et issue (`matched`, `cancelled`, `expired`, `declined`, `missed`). L'attente estimée en sort, et les propositions manquées comptent dans la pause d'une heure. Aucune politique. |
+| `duel_ratings` | L'Elo de duel classé d'un compte : Elo, parties, victoires, record. Créé à 1000 au premier besoin, écrit par le seul `duel_settle`. Aucune politique. |
+| `duel_reports` | L'ordre d'arrivée qu'un appareil a rejoué à la fin d'une table classée (`duel_report`). Aucune politique. |
+| `duel_rating_changes` | Ce que le règlement d'une table a fait à chaque joueur : place, Elo avant et après. `duel_sync` le relit pour le bilan. Aucune politique. |
 | `premium_grants` | Premium offert par un super modérateur depuis la page d'espionnage (`grant_premium`, 0091) : à part de `purchases`, pour que le revenu ne le compte pas et qu'il se reprenne sans toucher à un achat. Le client le lit par `my_premium_origin`. Aucune politique. |
 
 Fonctions d'écriture : `report_prompts(graine, langue, couples)` — le rapport

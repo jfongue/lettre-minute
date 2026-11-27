@@ -1,0 +1,700 @@
+/* Le duel classé : l'attente, l'adversaire trouvé, le classement, le bilan
+   d'Elo et la place hors ligne. Chargé avec l'écran du duel et la carte de
+   l'adversaire trouvé ; la pastille de la file et l'étiquette de ligue, qui
+   s'affichent à l'accueil, sont dans styles.css. */
+
+/* ------------------------------------------------------------ l'attente - */
+
+.duel-search__stage {
+  display: grid;
+  gap: var(--step);
+}
+
+.duel-wait {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.9rem 1rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  animation: fade 360ms ease both;
+}
+
+.duel-wait__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.8rem;
+}
+
+.duel-wait__cell {
+  display: grid;
+  align-content: start;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.duel-wait__cell small {
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.duel-wait__clock.clock {
+  font-size: clamp(2rem, 9vw, 2.6rem);
+}
+
+.duel-wait__cell--estimate {
+  padding-left: 0.8rem;
+  border-left: var(--line) solid var(--rule);
+}
+
+.duel-wait__cell--estimate b {
+  align-self: center;
+  font-size: clamp(1.2rem, 5.5vw, 1.5rem);
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.duel-wait__cell--late small {
+  color: var(--red);
+}
+
+.duel-wait__crowd {
+  margin: 0;
+}
+
+.duel-wait__bounced {
+  margin: 0;
+  padding: 0.45rem 0.6rem;
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.duel-wait--cooldown,
+.duel-wait--stopped {
+  justify-items: start;
+}
+
+.duel-wait__title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.duel-wait--cooldown .duel-wait__clock {
+  color: var(--red);
+}
+
+.duel-versus__seat .league-chip {
+  max-width: 100%;
+  color: var(--black);
+  background: var(--cream);
+  border-color: var(--black);
+}
+
+.duel-search__actions small {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  opacity: 0.75;
+  white-space: normal;
+}
+
+.duel-search__bots .duel-cta__label > span:first-child {
+  font-size: 0.95rem;
+  line-height: 1.15;
+  letter-spacing: 0.06em;
+}
+
+.duel-search__public {
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.duel-search__ladder {
+  display: inline-flex;
+  align-items: center;
+  justify-self: center;
+  gap: 0.45rem;
+}
+
+.duel-search__ladder .league-mark {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ------------------------------------------------- l'adversaire trouvé - */
+
+.match-found {
+  position: fixed;
+  inset: 0;
+  z-index: 72;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  padding-top: max(var(--gutter), env(safe-area-inset-top));
+  padding-bottom: max(var(--gutter), env(safe-area-inset-bottom));
+  overflow-y: auto;
+  background: var(--scrim);
+  animation: fade 200ms ease both;
+}
+
+.match-found__card {
+  display: grid;
+  gap: 0.7rem;
+  width: min(25rem, 100%);
+  padding: 1.1rem 1rem 1rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  animation: rise-in 360ms var(--ease-spring) both;
+}
+
+.match-found__title {
+  margin: 0;
+  font-size: clamp(1.9rem, 9vw, 2.5rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.match-found__versus {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: stretch;
+  gap: 0.5rem;
+}
+
+.match-found__seat {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.4rem;
+  min-width: 0;
+  padding: 0.8rem 0.4rem 0.6rem;
+  border: var(--line) solid var(--black);
+  color: var(--black);
+}
+
+.match-found__seat--me {
+  background: var(--yellow);
+}
+
+.match-found__seat--them {
+  background: var(--pink);
+  animation: pop-in 460ms var(--ease-spring) 120ms both;
+}
+
+.match-found__seat b {
+  max-width: 100%;
+  overflow: hidden;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.match-found__seat .avatar {
+  width: 3.4rem;
+  outline: var(--line) solid var(--black);
+}
+
+.match-found__seat .league-chip {
+  max-width: 100%;
+  background: var(--cream);
+  border-color: var(--black);
+  color: var(--black);
+}
+
+/* « Prêt » : posé sous la place, dans le flux, comme un tampon. */
+.match-found__ready {
+  padding: 0.1rem 0.45rem;
+  background: var(--green);
+  color: var(--cream);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  animation: pop-in 320ms var(--ease-spring) both;
+}
+
+.match-found__vs {
+  align-self: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.match-found__stakes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.match-found__tag {
+  padding: 0.1rem 0.5rem;
+  background: var(--blue-action);
+  color: var(--cream);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.match-found__tag--friendly {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Les vingt secondes, consumées sous les yeux : une mèche, comme l'annonce du draft. */
+.match-found__fuse {
+  height: 0.7rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  overflow: hidden;
+}
+
+.match-found__fuse i {
+  display: block;
+  height: 100%;
+  background: var(--red);
+  transform-origin: left;
+  transform: scaleX(var(--from, 1));
+  animation: match-fuse var(--left, 20s) linear both;
+}
+
+.match-found__fuse i.match-found__fuse--still {
+  animation: none;
+}
+
+@keyframes match-fuse {
+  from {
+    transform: scaleX(var(--from, 1));
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.match-found__count {
+  margin: -0.3rem 0 0;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.match-found__accept-count.clock {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  min-width: 0;
+  flex: none;
+  background: var(--yellow);
+  color: var(--black);
+  font-size: 1.4rem;
+  letter-spacing: 0;
+}
+
+.match-found__waiting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: var(--line) solid var(--ink);
+  font-weight: 800;
+}
+
+.match-found__waiting .duel-notice__dots {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.match-found__waiting .duel-notice__dots i {
+  width: 0.55rem;
+  height: 0.55rem;
+  background: var(--ink);
+  animation: loader-hop 900ms var(--ease-out) infinite;
+}
+
+.match-found__waiting .duel-notice__dots i:nth-child(2) {
+  border-radius: 50%;
+  background: var(--red);
+  animation-delay: 150ms;
+}
+
+.match-found__waiting .duel-notice__dots i:nth-child(3) {
+  background: var(--blue);
+  animation-delay: 300ms;
+}
+
+/* Le cadre bas d'un portail (926 × 476) : la carte se resserre pour tenir
+   entière, boutons compris, sans défiler. */
+@media (max-height: 560px) {
+  .match-found__card {
+    gap: 0.45rem;
+    padding: 0.7rem 0.9rem 0.8rem;
+    width: min(34rem, 100%);
+  }
+
+  .match-found__card > .eyebrow {
+    display: none;
+  }
+
+  .match-found__title {
+    font-size: 1.6rem;
+  }
+
+  .match-found__seat {
+    grid-template-columns: auto minmax(0, 1fr);
+    justify-items: start;
+    align-items: center;
+    padding: 0.45rem;
+    column-gap: 0.5rem;
+    row-gap: 0.2rem;
+  }
+
+  .match-found__seat .avatar {
+    grid-row: span 3;
+    width: 2.6rem;
+  }
+
+  .match-found__actions {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .match-found__actions .btn--play {
+    min-height: 3.2rem;
+    font-size: 1.1rem;
+  }
+
+  .match-found__accept-count.clock {
+    width: 2.3rem;
+    height: 2.3rem;
+    font-size: 1.1rem;
+  }
+}
+
+/* ---------------------------------------------------------- le classement - */
+
+/* La page des classements : la flèche, le titre, le commutateur, la liste. */
+.stage--boards {
+  align-items: start;
+}
+
+.boards-page {
+  display: grid;
+  gap: var(--step);
+  width: min(40rem, 100%);
+}
+
+.boards-page__head {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.boards-page__title {
+  margin: 0;
+  font-size: clamp(2rem, 9vw, 2.8rem);
+  font-weight: 800;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.duel-ladder {
+  display: grid;
+  gap: 0.7rem;
+  animation: fade 300ms ease both;
+}
+
+.duel-ladder__failed {
+  display: grid;
+  justify-items: start;
+  gap: 0.4rem;
+}
+
+/* Les rangs, en onglets : une rangée qui défile sous le doigt, la forme de chaque ligue à côté de son nom. */
+.duel-ladder__views {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0 calc(-1 * var(--gutter));
+  padding: 0 var(--gutter) 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.duel-ladder__view {
+  appearance: none;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.duel-ladder__view--on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.duel-ladder__view:focus-visible,
+.duel-ladder__jump:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.duel-ladder__rows {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: var(--line) solid var(--ink);
+}
+
+
+.duel-ladder__row,
+.duel-ladder__mine {
+  display: grid;
+  grid-template-columns: 2rem auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.9rem;
+  padding: 0.3rem 0.4rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.duel-ladder__row .avatar {
+  width: 2rem;
+}
+
+.duel-ladder__rank {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.duel-ladder__name {
+  overflow: hidden;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.duel-ladder__row:last-child {
+  border-bottom: 0;
+}
+
+.duel-ladder__row--podium .duel-ladder__rank {
+  color: var(--red);
+}
+
+.duel-ladder__row--me {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.duel-ladder__row--me .league-chip {
+  border-color: var(--black);
+}
+
+.duel-ladder__mine {
+  position: sticky;
+  bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+  z-index: 2;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  box-shadow: 4px 4px 0 var(--ink);
+  margin: 0;
+  border: var(--line) solid var(--ink);
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.duel-ladder__jump {
+  appearance: none;
+  min-height: 2.4rem;
+  padding: 0 0.7rem;
+  border: var(--line) solid var(--black);
+  background: var(--black);
+  color: var(--yellow);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.duel-ladder__mine .league-chip {
+  justify-self: end;
+  border-color: var(--black);
+}
+
+/* ------------------------------------------------------- le bilan d'Elo - */
+
+.duel-elo {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 4px 4px 0;
+  padding: 0.85rem 0.9rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  box-shadow: 4px 4px 0 var(--ink);
+  opacity: 0;
+  transform: translateY(0.6rem);
+  transition:
+    opacity 300ms ease,
+    transform 360ms var(--ease-out);
+}
+
+.duel-elo--in {
+  opacity: 1;
+  transform: none;
+}
+
+.duel-elo__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.duel-elo__mark {
+  width: 2rem;
+  height: 2rem;
+}
+
+.duel-elo__value {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.duel-elo__row .league-chip {
+  margin-left: auto;
+}
+
+.duel-elo__delta {
+  margin: 0;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: var(--green);
+  color: var(--cream);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.duel-elo__delta--loss {
+  background: var(--red);
+  color: var(--black);
+}
+
+.duel-elo__bar span {
+  transition: transform 300ms var(--ease-out);
+}
+
+.duel-elo__news {
+  margin: 0;
+  padding: 0.45rem 0.6rem;
+  background: var(--yellow);
+  color: var(--black);
+  animation: pop-in 460ms var(--ease-spring) both;
+}
+
+/* -------------------------------------------------- la place hors ligne - */
+
+.duel-seat--away .duel-seat__face {
+  opacity: 0.55;
+  filter: grayscale(1);
+}
+
+.duel-seat__away {
+  position: absolute;
+  top: -0.55rem;
+  right: -0.55rem;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: var(--line) solid var(--paper);
+  border-radius: 50%;
+  background: var(--red);
+  color: var(--black);
+  animation: throb 1.6s var(--ease-out) infinite;
+}
+
+.duel-seat--away {
+  position: relative;
+}
+
+.duel-seat__away svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .duel-wait,
+  .match-found,
+  .match-found__card,
+  .match-found__seat--them,
+  .match-found__ready,
+  .match-found__waiting .duel-notice__dots i,
+  .duel-elo__news,
+  .duel-seat__away {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  .duel-elo {
+    transition: none;
+  }
+}
+
+/* -------------------------------------------- les mots trouvés hors tour - */
+
+/* Un mot juste pendant le tour d'un autre : l'étiquette du champ annonce le bonus. */
+.duel-ahead--echo {
+  border-color: var(--green);
+  background: var(--green);
+  color: var(--cream);
+}
+
+/* Le fil le dit à toute la table : la ligne d'un bonus, en vert. */
+.duel-feed__line--echoed .duel-feed__text {
+  color: var(--green);
+  font-weight: 700;
+}

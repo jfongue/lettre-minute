@@ -7,6 +7,9 @@ select tests.new_user('p2');
 select tests.new_user('p3');
 select tests.new_user('m' || i) from generate_series(1, 13) i;
 select tests.make_moderator('m' || i) from generate_series(1, 13) i;
+-- Un seuil fixe de cinq hors langue courte : les paliers du stock (0119)
+-- ont leur propre fichier.
+select tests.flat_five();
 select tests.new_user('s' || i) from generate_series(1, 4) i;
 select tests.make_super_moderator('s' || i) from generate_series(1, 4) i;
 
@@ -235,6 +238,12 @@ select tests.is(pg_temp.gained('p1'), 1050, 'every accepted word paid its author
 
 select tests.new_user('rookie');
 select tests.new_user('shadow', true);
+-- L'offre ne sort que dans une langue qui manque de juges pour son stock
+-- (0119) : un juge par mot, et vingt mots en réserve, sous les cinquante qui
+-- baisseraient le seuil des votes qui suivent.
+update public.moderation_staffing set words_per_moderator = 1;
+insert into public.moderation_reserve (category_id, word, display)
+select 'animaux', 'recrue' || i, 'Recrue' || i from generate_series(1, 20) i;
 select tests.login('rookie');
 select tests.is(public.moderation_status('fr') ->> 'offer', null, 'no offer below level 6');
 select tests.logout();

@@ -289,9 +289,9 @@ const OPEN_FEATURES = new Set(['leaderboards'])
  * « Letter Minute » in every language.
  */
 export const y8Host: Host = {
-  // Filtering is earned by a level bonus or Premium: without the game's
-  // account or a store, the padlock could not be won.
-  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES, 'categoryBans'].filter((id) => !OPEN_FEATURES.has(id))),
+  // Filtering stays open: with no Premium to sell, the level bonuses give up
+  // to three padlocks, from their own levels (`FILTER_LEVELS`).
+  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES].filter((id) => !OPEN_FEATURES.has(id))),
   // As on CrazyGames: the challenge of the moment needs no account, and the
   // powers are picked on their own screen before each run.
   openedFeatures: new Set(['weekly', 'powerLoadout']),
@@ -323,4 +323,8 @@ export const y8Host: Host = {
   breakAfterRecap: () => Promise.resolve('none'),
   midgame,
   onMute: onAdMute,
+  // Y8 mutes the game only while an ad plays: the same signal holds the run's clock.
+  onAdBreak: onAdMute,
+  setBanner(): void {},
+  unlockAchievements(): void {},
 }

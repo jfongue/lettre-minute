@@ -17,6 +17,8 @@ import {
   attemptsLeft,
   isWeekId,
   metricOf,
+  parseMetric,
+  raceTime,
   parisDay,
   parisPeriodStart,
   recordCurve,
@@ -213,6 +215,23 @@ describe('the weekly challenge', () => {
     expect(weeklyChallenge('2026-11-08', 'fr', IDS).metric).toBe('score')
   })
 
+  it('keeps 29 November on the delayed week every shipped client expects', () => {
+    // La course attend que chaque version la connaisse : un client plus ancien
+    // jouerait le mode de sa boucle, et le serveur refuserait ses résultats.
+    expect(weeklyMode('2026-11-22')).toBe('endurance')
+    expect(weeklyMode('2026-11-29')).toBe('delayed')
+    expect(weeklyChallenge('2026-11-29', 'fr', IDS).metric).toBe('score')
+  })
+
+  it('reads a race time back from its value, and none without an arrival', () => {
+    expect(metricOf('race')).toBe('race')
+    expect(raceTime(180 - 46.3)).toBe(46.3)
+    expect(raceTime(0)).toBeNull()
+    expect(parseMetric('race')).toBe('race')
+    expect(parseMetric('survival')).toBe('survival')
+    expect(parseMetric('anything')).toBe('score')
+  })
+
   it('hands over to the reversed challenge the minute the extended one closes', () => {
     // Le défi de deux semaines ouvert le 11 octobre se ferme le 25 à 21 h : celui
     // d'après prend sa place aussitôt, et c'est le renversé, la lettre en fin de mot.
@@ -290,6 +309,8 @@ describe('the weekly challenge', () => {
     expect(weeklyValue(run, 'survival')).toBe(30)
     expect(weeklyValue({ ...run, bonusSeconds: 12.5, penaltySeconds: 3 }, 'survival')).toBe(39.5)
     expect(weeklyValue({ ...run, score: 42 }, 'score')).toBe(42)
+    // Une course sans arrivée vaut zéro, quels que soient ses points.
+    expect(weeklyValue({ ...run, mode: 'race', score: 42 }, 'race')).toBe(0)
   })
 })
 

@@ -6,6 +6,7 @@ import {
   draftPlayer,
   drawnShownAt,
   duelPrompt,
+  duelRanking,
   duelRound,
   inspectFor,
   onlyChoice,
@@ -19,14 +20,18 @@ import {
   DUEL_PICK_SECONDS,
   DUEL_PASS_PENALTY_SECONDS,
   duelReward,
+  DUEL_ECHO_MAX,
+  DUEL_RULES,
   type BotProfile,
   type Duel,
   type DuelReward,
 } from '../domain/duel'
 import { DUEL_ANNOUNCE_SECONDS, driverMove, driverOf, mergeJournal, postMove, replay, sameMove, settle, type DuelFact, type DuelMove, type DuelPost, type DuelSetup } from '../domain/duelLog'
 import { createRng } from '../domain/rng'
+import { botLevel } from '../domain/ranked'
 import { sharedCategoryIds } from '../domain/catalogue'
 import { playableCategoryIds } from '../domain/perks'
+import { liveTransport } from '../lib/live'
 import { onAppActive } from '../lib/native'
 import { host } from '../platform'
 import { applyDuel, type Profile } from '../domain/progression'
@@ -37,6 +42,10 @@ import {
   fetchDuelCandidates,
   fetchPlayerId,
   finishDuel,
+  reportBotDuel,
+  reportDuel,
+  resignDuel,
+  type DuelRatingChange,
   inviteToDuel,
   joinDuel,
   joinDuelRoom,
@@ -53,7 +62,7 @@ import {
 } from '../lib/cloud'
 import { setMusic, sound } from '../lib/sound'
 import { createJudge } from './judge'
-import { duelPaid, loadAccount, loadAvatar, loadProfile, markDuelPaid, saveProfile } from './storage'
+import { duelPaid, loadAccount, loadAvatar, loadProfile, markDuelPaid, saveActiveDuel, saveProfile } from './storage'
 
 /**
  * La table de duel vue d'un appareil. La partie elle-même n'est qu'un journal
@@ -89,6 +98,20 @@ export const HOUSE_BOTS: readonly HouseBot[] = [
   { id: 'terretciel', name: 'Terretciel', avatar: avatarOf(12, 'rouge', 'jaune', 'bleu'), trait: 'steady', think: [3.4, 9], answerChance: 0.8 },
   { id: 'demontoon', name: 'Demontoon', avatar: avatarOf(73, 'bleu', 'creme', 'jaune'), trait: 'sharp', think: [2.4, 7.5], answerChance: 0.88 },
 ]
+
+/**
+ * Le bot que la file classée lance faute d'adversaire : il ne porte que son
+ * nom de bot, et joue au niveau du joueur (`botLevel`, src/domain/ranked.ts).
+ */
+export const LEVEL_BOT_ID = 'level-bot'
+const LEVEL_BOT = { name: 'Bot', avatar: avatarOf(2, 'bleu', 'creme', 'jaune') }
+
+/** La place d'un joueur ordinateur de la table locale : l'un des trois de la maison, ou le bot de niveau. */
+function localBotSeat(id: string): Seat & { seat: null; gone: false; kicked: false; seen: number } {
+  const house = HOUSE_BOTS.find((one) => one.id === id)
+  const bot = house ?? LEVEL_BOT
+  return { id, name: bot.name, avatar: bot.avatar, bot: true, trait: house?.trait, owned: 999, ready: false, seat: null, gone: false, kicked: false, seen: wall() }
+}
 
 /** Un joueur ordinateur du serveur qui n'a pas d'homologue local joue posément. */
 const STEADY: Omit<BotProfile, 'id'> = { think: [3, 8], answerChance: 0.8 }
@@ -131,6 +154,10 @@ export interface Seat {
   ready: boolean
   /** Invité, pas encore assis. */
   pending?: boolean
+  /** Son Elo de duel classé et ses parties, quand le serveur les connaît. */
+  rating?: number | null
+  games?: number
+  rank?: number | null
 }
 
 export interface Candidate {
@@ -167,6 +194,20 @@ export interface DuelTable {
   setPublic(open: boolean): void
   /** L'XP que ce duel a payée à la fin, une seule fois par table ; null sinon. */
   payout: DuelPayout | null
+  /** La table compte pour le classement du duel (0122). */
+  ranked: boolean
+  /**
+   * Ce que le classement a fait de moi : null tant que la table n'est pas
+   * réglée, `voided` quand les rapports ne concordaient pas.
+   */
+  rating: DuelRatingResult | null
+  /** Les places, dans l'ordre de la partie, dont l'appareil ne relit plus la table. */
+  away: readonly number[]
+  /** La table joue les mots trouvés hors de son tour, et combien j'en ai encore ce tour-ci. */
+  echoes: boolean
+  echoesLeft: number
+  /** Valider un mot pendant le tour d'un autre. */
+  echo(raw: string): void
   ready: Readonly<Record<string, boolean>>
   markReady(): void
   unready(): void
@@ -223,6 +264,20 @@ export interface DuelTable {
   leave(): void
 }
 
+export interface DuelRatingResult {
+  settled: boolean
+  voided: boolean
+  before: number
+  after: number
+  /** Mes parties classées, celle-ci comprise une fois réglée. */
+  games: number
+  /** Ma place au classement après la table : les dix premiers sont Maîtres. */
+  rank: number | null
+}
+
+/** Une place qui ne relit plus la table depuis ce temps a perdu sa connexion. */
+export const AWAY_SECONDS = 6
+
 interface TableData {
   id: string | null
   hostId: string
@@ -233,6 +288,11 @@ interface TableData {
   startedAt: number | null
   rematch: string | null
   public: boolean
+  ranked: boolean
+  rules: number
+  settled: boolean
+  voided: boolean
+  ratings: readonly DuelRatingChange[]
   seats: readonly (Seat & { seat: number | null; gone: boolean; kicked: boolean; seen: number })[]
   invites: readonly Seat[]
   moves: readonly DuelMove[]
@@ -273,12 +333,14 @@ function freshLocal(lang: string, me: Seat, bots: readonly string[], categories:
     startedAt: null,
     rematch: null,
     public: false,
+    ranked: false,
+    rules: DUEL_RULES,
+    settled: false,
+    voided: false,
+    ratings: [],
     seats: [
       { ...me, ready: false, seat: null, gone: false, kicked: false, seen: wall() },
-      ...bots.map((id) => {
-        const bot = HOUSE_BOTS.find((one) => one.id === id)!
-        return { id, name: bot.name, avatar: bot.avatar, bot: true, trait: bot.trait, owned: 999, ready: false, seat: null, gone: false, kicked: false, seen: wall() }
-      }),
+      ...bots.map(localBotSeat),
     ],
     invites: [],
     moves: [],
@@ -296,6 +358,11 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
     startedAt: snapshot.table.startedAt,
     rematch: snapshot.table.rematch,
     public: snapshot.table.public,
+    ranked: snapshot.table.ranked,
+    rules: snapshot.table.rules,
+    settled: snapshot.table.settled,
+    voided: snapshot.table.voided,
+    ratings: snapshot.table.ratings,
     seats: snapshot.seats.map((row) => {
       const house = row.bot && row.name ? botByName(row.name) : undefined
       return {
@@ -312,6 +379,10 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
         gone: row.left || row.kicked || row.player === null,
         kicked: row.kicked,
         seen: row.seen,
+        rating: row.rating,
+        games: row.games,
+        // Le rang ne fait un Maître que si les Maîtres existent (0123).
+        rank: row.masters ? row.rank : null,
       }
     }),
     invites: snapshot.invites.map((invite) => ({ id: invite.player, name: invite.name, avatar: invite.avatar, bot: false, owned: 0, ready: false, pending: true })),
@@ -332,16 +403,19 @@ export interface DuelTableOptions {
   quick?: boolean
   /** La table vient de la salle d'un hôte (CrazyGames) : on s'y assoit sans invitation. */
   room?: boolean
+  /** Une partie en cours qu'on reprend après une coupure : la place est déjà reprise (`duel_rejoin`). */
+  resume?: boolean
+  /** La table locale contre le bot de niveau, lancée sans salon : l'Elo du joueur qu'il imite. */
+  levelBot?: number | null
+  /** Le temps des tests : la partie contre le bot de niveau compte au classement (`rankedBots`). */
+  rankedBot?: boolean
+  /** La table où l'on est assis, à chaque changement : l'app la quitte quand la file classée trouve mieux. */
+  onTable?(table: string | null): void
 }
 
-/** Les catégories qu'une table peut distribuer à ce joueur : celles qu'il a, sans les avant-premières. */
-export function duelPool(lang: string): string[] {
-  const profile = loadProfile()
-  const shipped = availableCategoryIds(lang)
-  return sharedCategoryIds(playableCategoryIds(profile, ownedCategoryIds(profile))).filter((id) => shipped.includes(id))
-}
+export { duelPool } from './duelPool'
 
-export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false }: DuelTableOptions): DuelTable {
+export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false, resume = false, levelBot = null, rankedBot = false, onTable }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
@@ -361,7 +435,8 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     exit.current = onExit
   })
 
-  const [table, setTable] = useState<TableData | null>(() => (mode === 'local' ? freshLocal(lang, meSeat, [HOUSE_BOTS[0]!.id], mine) : null))
+  const firstBots = levelBot !== null ? [LEVEL_BOT_ID] : [HOUSE_BOTS[0]!.id]
+  const [table, setTable] = useState<TableData | null>(() => (mode === 'local' ? freshLocal(lang, meSeat, firstBots, mine) : null))
   const [failed, setFailed] = useState(false)
   const [offline, setOffline] = useState(false)
   /** L'onglet est passé derrière : il ne mène plus la table tant qu'on ne le regarde pas. */
@@ -483,7 +558,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   // règle du meneur vraie sur la plateforme du jeu, pas seulement au navigateur.
   useEffect(() => {
     if (mode !== 'online') return
-    onAppActive((active) => setHidden(!active))
+    return onAppActive((active) => setHidden(!active))
   }, [mode])
 
   // La page s'en va pour de bon : la place se libère tout de suite, et le meneur
@@ -503,6 +578,10 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   useEffect(() => {
     if (mode !== 'online' || opened.current) return
     opened.current = true
+    if (join && resume) {
+      setTableId(join)
+      return
+    }
     if (join) {
       // Une invitation : la place se prend d'abord, la table se lit ensuite.
       void (room ? joinDuelRoom : joinDuel)(join, mine.length).then((outcome) => {
@@ -516,7 +595,16 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       if (id) setTableId(id)
       else setOffline(true)
     })
-  }, [join, lang, mine, mode, room])
+  }, [join, lang, mine, mode, room, resume])
+
+  const tableReport = useRef(onTable)
+  useEffect(() => {
+    tableReport.current = onTable
+  })
+  useEffect(() => {
+    if (mode === 'online') tableReport.current?.(tableId)
+  }, [mode, tableId])
+  useEffect(() => () => tableReport.current?.(null), [])
 
   useEffect(() => {
     if (mode !== 'online') return
@@ -530,11 +618,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     if (mode !== 'online' || !tableId) return
     void sync()
     const every = status === 'playing' ? 450 : status === 'over' ? 2500 : 1000
-    // Rien à relire quand l'écran est caché : le retour relit la table lui-même.
-    const timer = setInterval(() => {
-      if (!document.hidden) void sync()
-    }, every)
-    return () => clearInterval(timer)
+    return liveTransport().watch({ kind: 'duelTable', table: tableId }, () => void sync(), { every })
   }, [mode, status, sync, tableId])
 
   // L'horloge de l'écran : un battement de 100 ms, la finesse de ce que la réserve affiche.
@@ -668,6 +752,14 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   // Un adversaire trouvé par le matchmaking attend déjà : pas de salon à régler, chacun se déclare prêt une fois.
   // Une revanche de matchmaking est une table neuve : chacune reçoit son « prêt ».
   const quickReady = useRef<string | null>(null)
+  // Le bot de niveau n'a pas de salon : la partie part aussitôt.
+  useEffect(() => {
+    if (levelBot === null || mode !== 'local' || !table || table.status !== 'lobby' || table.rematch || !me || me.ready) return
+    const key = `local:${table.seed}`
+    if (quickReady.current === key) return
+    quickReady.current = key
+    setMyReady(true)
+  }, [levelBot, me, mode, setMyReady, table])
   useEffect(() => {
     if (!quick || mode !== 'online' || !table?.id || quickReady.current === table.id) return
     if (table.status !== 'lobby' || !me || me.ready || present.length < MIN_TABLE) return
@@ -710,10 +802,15 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     () => (table?.status === 'lobby' ? [] : (table?.seats ?? []).filter((seat) => seat.seat !== null).sort((a, b) => a.seat! - b.seat!)),
     [table?.seats, table?.status],
   )
-  const setup: DuelSetup | null = useMemo(() => {
-    if (!table || table.startedAt === null || players.length < MIN_TABLE) return null
-    return { seed: table.seed, playerIds: players.map((seat) => seat.id), categories: table.categories, owned: players.map((seat) => seat.owned), startedAt: table.startedAt }
-  }, [players, table])
+  const fresh: DuelSetup | null =
+    !table || table.startedAt === null || players.length < MIN_TABLE
+      ? null
+      : { seed: table.seed, playerIds: players.map((seat) => seat.id), categories: table.categories, owned: players.map((seat) => seat.owned), startedAt: table.startedAt, rules: table.rules }
+  // Every poll (450 ms) rebuilds the table and its seats: keyed on what the
+  // setup says, the whole journal is replayed only when a move or a seat changes.
+  const setupKey = fresh && JSON.stringify(fresh)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const setup = useMemo(() => fresh, [setupKey])
   const moves = table?.moves
   const replayed = useMemo(() => (setup && moves ? replay(setup, moves, judge) : null), [judge, moves, setup])
   const myIndex = players.findIndex((seat) => seat.id === myId)
@@ -721,11 +818,15 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     const map: Record<number, BotProfile> = {}
     players.forEach((seat, index) => {
       if (!seat.bot) return
+      if (seat.id === LEVEL_BOT_ID) {
+        map[index] = { ...botLevel(levelBot ?? 800), id: seat.id }
+        return
+      }
       const house = mode === 'local' ? HOUSE_BOTS.find((bot) => bot.id === seat.id) : botByName(seat.name)
       map[index] = { ...(house ?? STEADY), id: seat.id }
     })
     return map
-  }, [mode, players])
+  }, [levelBot, mode, players])
 
   // Les dictionnaires du pool, chargés dès qu'il est complet : le tirage de
   // l'ouvreur leur laisse le temps d'arriver.
@@ -825,8 +926,22 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   useEffect(() => {
     if (!ended || !table || table.status !== 'playing') return
     if (mode === 'local') setTable((current) => current && { ...current, status: 'over' })
-    else if (table.id) void finishDuel(table.id)
-  }, [ended, mode, table])
+    else if (table.id && duel) {
+      // L'ordre d'arrivée rejoué part avec la fin : c'est lui que le classement
+      // règle. Un serveur d'avant 0122 ne connaît que la fin seule.
+      const id = table.id
+      void reportDuel(id, duelRanking(duel)).then((sent) => sent || finishDuel(id))
+    }
+  }, [duel, ended, mode, table])
+
+  // La partie où je suis encore vivant se garde sur l'appareil : fermer l'app
+  // en plein duel ne la perd pas, l'accueil propose de la reprendre.
+  const aliveHere = mode === 'online' && table?.status === 'playing' && !!duel && duel.phase !== 'over' && duel.players[myIndex]?.alive === true
+  const activeId = aliveHere ? (table?.id ?? null) : null
+  useEffect(() => {
+    if (mode !== 'online' || !table) return
+    saveActiveDuel(activeId)
+  }, [activeId, mode, table])
 
   // La fin d'une table se garde au profil, une fois : le plus grand nombre de
   // manches tenues à quatre, que la table seule connaît, et l'XP d'un duel fini —
@@ -941,7 +1056,11 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   const currentId = table?.id ?? null
   const leave = useCallback(() => {
     if (mode === 'online') {
-      if (currentId) void leaveDuel(currentId)
+      saveActiveDuel(null)
+      // En pleine partie, partir c'est abandonner : la table le sait tout de
+      // suite et l'adversaire n'attend pas que ma réserve s'épuise.
+      if (currentId && activeId === currentId) void resignDuel(currentId).then((outcome) => outcome === 'unreachable' && leaveDuel(currentId))
+      else if (currentId) void leaveDuel(currentId)
       exit.current?.(null)
       return
     }
@@ -955,7 +1074,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     setJudge(null)
     loadingFor.current = ''
     setTable(freshLocal(lang, meSeat, [HOUSE_BOTS[0]!.id], mine))
-  }, [currentId, lang, meSeat, mine, mode])
+  }, [activeId, currentId, lang, meSeat, mine, mode])
 
   // ------------------------------------------------------ mes gestes --
 
@@ -986,6 +1105,17 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   const inspect = useCallback(
     (raw: string): Verdict => (duel && judge && myIndex >= 0 ? inspectFor(duel, myIndex, raw, judge) : { kind: 'empty', found: null }),
     [duel, judge, myIndex],
+  )
+
+  const echoes = !!table && table.rules >= 2
+  const echoesLeft = duel?.turn ? DUEL_ECHO_MAX - (duel.turn.echoes ?? []).filter((one) => one === myIndex).length : 0
+  const echo = useCallback(
+    (raw: string) => {
+      if (!duel || !judge || !echoes || phase !== 'play' || !duel.turn || duel.turn.player === myIndex || echoesLeft <= 0) return
+      if (duel.players[myIndex]?.alive !== true || inspectFor(duel, myIndex, raw, judge).kind !== 'accepted') return
+      void post({ seat: myIndex, kind: 'echo', payload: raw })
+    },
+    [duel, echoes, echoesLeft, judge, myIndex, phase, post],
   )
 
   const play = useCallback(
@@ -1056,6 +1186,60 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       : candidates.filter((candidate) => !takenIds.has(candidate.id))
   const opensAt = duel ? openingAt(duel) : null
   const drawnShown = duel ? drawnShownAt(duel, at) : 0
+  // La partie contre le bot de niveau : son issue part au classement une fois, à la fin.
+  const botRanked = mode === 'local' && levelBot !== null && rankedBot
+  const [botResult, setBotResult] = useState<{ table: string; rating: DuelRatingResult | null } | null>(null)
+  const botReported = useRef('')
+  const reportBot = useCallback(
+    (won: boolean, key: string) => {
+      if (!botRanked || botReported.current === key) return
+      botReported.current = key
+      setBotResult({ table: key, rating: null })
+      void reportBotDuel(won).then((result) =>
+        setBotResult(
+          result
+            ? { table: key, rating: { settled: true, voided: false, before: result.before, after: result.after, games: result.games, rank: result.masterRank } }
+            : { table: key, rating: { settled: true, voided: true, before: 0, after: 0, games: 0, rank: null } },
+        ),
+      )
+    },
+    [botRanked],
+  )
+  useEffect(() => {
+    if (!botRanked || !ended || !duel) return
+    reportBot(duelRanking(duel)[0] === myIndex, tableKey)
+  }, [botRanked, duel, ended, myIndex, reportBot, tableKey])
+  const botRating = botResult && botResult.table === tableKey ? botResult : null
+  // Quitter la partie contre le bot avant la fin, c'est la perdre : sinon on fuirait chaque défaite.
+  const runningBot = useRef({ playing: false, key: '' })
+  runningBot.current = { playing: botRanked && table?.status === 'playing' && !ended, key: tableKey }
+  useEffect(
+    () => () => {
+      const running = runningBot.current
+      if (running.playing && botReported.current !== running.key) {
+        botReported.current = running.key
+        void reportBotDuel(false)
+      }
+    },
+    [],
+  )
+  const ratingChange = table?.ratings.find((change) => change.player === myId) ?? null
+  const myRow = table?.seats.find((seat) => seat.id === myId)
+  const rating: DuelRatingResult | null =
+    table?.ranked && (table.settled || ratingChange)
+      ? {
+          settled: table.settled,
+          voided: table.voided,
+          before: ratingChange?.before ?? myRow?.rating ?? 1000,
+          after: ratingChange?.after ?? myRow?.rating ?? 1000,
+          games: myRow?.games ?? 0,
+          rank: myRow?.rank ?? null,
+        }
+      : null
+  const away =
+    mode === 'online' && table?.status === 'playing'
+      ? players.flatMap((seat, index) => (!seat.bot && seat.id !== myId && (seat.gone || at - seat.seen > AWAY_SECONDS) ? [index] : []))
+      : []
 
   return {
     mode,
@@ -1071,6 +1255,12 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     canPublish,
     setPublic,
     payout: payout && payout.table === tableKey ? payout : null,
+    ranked: !!table?.ranked || (botRanked && !!botRating && !(botRating.rating?.voided ?? false)),
+    rating: botRating ? botRating.rating : rating,
+    away,
+    echoes,
+    echoesLeft,
+    echo,
     ready,
     markReady: () => setMyReady(true),
     unready: () => setMyReady(false),

@@ -1,8 +1,11 @@
 import type { Messages } from './fr'
 import { weeklyEn } from './weekly.en'
+import { rankedEn } from './ranked.en'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
-const seconds = (value: number) => value.toLocaleString('en-GB', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 function ordinal(rank: number): string {
   const tens = rank % 100
@@ -62,6 +65,8 @@ export const en: Messages = {
     enduranceHint: 'Thirty seconds, and every word gives you two to four back, by rarity.',
     reversed: 'Reversed',
     reversedHint: 'A word that ends with this letter. A country ending in M? Vietnam!',
+    race: 'Race',
+    raceHint: 'Ten right words, as fast as you can.',
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'To fill in',
     armNote: 'Validate empty: that is when the clock starts.',
@@ -80,6 +85,10 @@ export const en: Messages = {
       reversed: {
         hello: 'A word that ends with this letter. A country ending in M? Vietnam!',
         ask: (letter: string) => `Type a colour ending in ${letter}.`,
+      },
+      race: {
+        hello: 'Ten right words, as fast as you can: the clock counts up and stops at the tenth.',
+        ask: (letter: string) => `Type a colour starting with ${letter}: that’s the first of ten.`,
       },
     },
   },
@@ -123,6 +132,9 @@ export const en: Messages = {
     timeUp: 'Time’s up',
     points: 'points',
     survived: 'seconds survived',
+    raceTime: 'seconds for ten words',
+    noFinish: 'Did not finish',
+    arrived: 'Finished!',
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Not a single word. It happens.',
     next: 'Continue',
@@ -151,11 +163,9 @@ export const en: Messages = {
     lead: 'Thanks for playing! I’m a small French developer… To encourage me, tell people about the game and give it 5 stars!',
     later: 'Later',
     ok: 'Okay!',
-    frameDescription: 'Thanks for supporting Letter Minute!',
     close: 'Close',
     hello:
       'Hi, I’m Jérémy!\nI’m an independent French developer and I make Lettre Minute in my spare time.\nIf you enjoyed the game, your support would mean the world to me, even 1 € counts.\nThank you so much!',
-    photo: 'Jérémy, the game’s creator',
   },
 
   account: {
@@ -266,7 +276,6 @@ export const en: Messages = {
     editAvatarLabel: 'Edit my avatar',
     anonymous: 'Anonymous player',
     standing: (level, record) => `Level ${level} · record ${record}`,
-    editAvatar: 'Edit avatar',
     signedInAs: (email) => `Signed in as ${email}`,
     logOut: 'Sign out',
   logOutWarning: 'Your account keeps your games; this device starts over.',
@@ -296,7 +305,6 @@ export const en: Messages = {
     add: 'Add a friend',
     nameLabel: 'Your player name',
     share: 'Share',
-    shareName: (name) => `Add me as a friend on Letter Minute: my player name is ${name}.`,
     incomingCount: (count) => `${count} ${plural(count, 'request', 'requests')}`,
     wantsFriend: 'wants to be your friend',
     sortLabel: 'Sort your friends',
@@ -416,7 +424,7 @@ export const en: Messages = {
     empty: 'No requests yet. During a game, a word the dictionary does not know can be proposed with one tap.',
     added: 'Added thanks to you',
     addedNote: (xp) => `${xp} XP earned for each.`,
-    noneAdded: 'None yet: a word gets in once five moderators have approved it.',
+    noneAdded: 'None yet: a word gets in once two to seven moderators have approved it.',
     more: (count: number) => `Show more (${count})`,
     less: 'Show less',
     fresh: 'new',
@@ -439,8 +447,8 @@ export const en: Messages = {
   moderation: {
     title: 'Moderation',
     superTitle: 'Super moderator',
-    lead: 'You judge the words players propose: two “correct” let a word in where judges are few, five where they are many; two “incorrect” block it. Each “not sure” asks for two more “correct”, and half a voice more to block.',
-    superLead: 'Your vote counts double, but never alone: two “correct” let a word in where judges are few, five where they are many, and your single “incorrect” blocks it. Special cases wait for super moderators only.',
+    lead: 'You judge the words players propose: two to seven “correct” let a word in, fewer the more words wait, and two are enough where judges are few; two “incorrect” block it. Each “not sure” asks for two more “correct”, and half a voice more to block.',
+    superLead: 'Your vote counts double, but never alone: two to seven “correct” let a word in, fewer the more words wait, and your single “incorrect” blocks it. Special cases wait for super moderators only.',
     score: (score: number) => `Strictness: ${score}/100`,
     scoreLead: 'Your score rises when other moderators share your refusals, and drops when they refuse a word you accepted.',
     scoreSoon: 'Your strictness score will appear once a word you judged is settled.',
@@ -490,7 +498,7 @@ export const en: Messages = {
       hint: 'Moderator: press and hold a word to flag it.',
       title: 'Flag this word',
       lead: (word, category) =>
-        `“${word}” does not belong in “${category}”? The other moderators will judge it: two in agreement where judges are few, five elsewhere, and it leaves the category in the next version.`,
+        `“${word}” does not belong in “${category}”? The other moderators will judge it: two to seven in agreement, fewer the more words wait, and it leaves the category in the next version.`,
       confirm: 'Flag',
       close: 'Close',
       reasonLabel: 'Reason (optional)',
@@ -863,6 +871,7 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
     floor: 'At least six categories must stay in play.',
     max: (count) => `${count} filtered categories at most.`,
     limit: 'Every padlock is used. A level bonus will give you another.',
+    full: (count: number) => `All ${count} padlocks are used: restore a category to filter another.`,
     lockedTitle: 'Filtering is locked',
     lockedHow: 'Win your first padlock with a level bonus.',
     lockedHowPlus: 'Win your first padlock with a level bonus, or go Premium for six.',
@@ -911,6 +920,7 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
   },
 
   weekly: weeklyEn,
+  ranked: rankedEn,
 
   premiumPage: {
     lead: 'What Premium has given you beyond the free limits.',
@@ -951,13 +961,11 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
     title: 'Your perks',
     filters: (used, max) => `Filters: ${used} of ${max}`,
     filtersLocked: 'Filtering: not won yet',
-    filtersPlus: (max) => `Filtering: up to ${max} categories`,
     reveals: (left, allowed) => `Today’s reveals: ${left} of ${allowed}`,
     revealsPlus: 'Unlimited reveals',
     slots: (count, max) => `Power slots: ${count} of ${max}`,
   hintFilters: 'Filtering keeps a category out of your solo runs.',
   hintReveals: 'At the summary, reveal a word you could have written.',
-  hintSlots: 'The powers you carry into a run.',
   },
 
   bonus: {
@@ -986,6 +994,11 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
     lead: 'A newer version of Lettre Minute is waiting for you on the Play Store.',
     later: 'Later',
     go: 'Update',
+  },
+  broken: {
+    title: 'That didn’t load',
+    lead: 'This screen couldn’t open, probably a dropped connection. Your progress is safe.',
+    reload: 'Reload',
   },
 
   tiers: { courant: 'common', 'peu commun': 'uncommon', rare: 'rare', 'très rare': 'very rare' },
@@ -1050,16 +1063,13 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
 
   duel: {
     title: 'Duel',
-    leadTitle: 'Live duel',
+    leadTitle: 'Friendly duel',
     lead: 'Everyone gets a 30-second reserve that only runs on their own turn. A word passes the turn, a rare word buys time back. The last one standing wins.',
     trait: { fast: 'Quick', steady: 'Steady', sharp: 'Deadly' },
     you: 'You',
     ready: 'Ready',
     notReady: 'Not ready yet',
     invited: 'Invited',
-    inviteAction: 'Invite',
-    leftStamp: 'Left',
-    keepOne: 'The table needs at least one opponent.',
     readyButton: 'I’m ready',
     tableSize: (players: number) => `${players} players`,
     waitingOthers: 'The others are coming…',
@@ -1165,11 +1175,11 @@ cheerAria: (label: string) => `Suggest ${label}`,
     declineTable: 'No thanks',
     chooseTitle: 'Play with friends',
     chooseLead: 'Two ways to compete: live, or each in your own time.',
-    duelCard: 'Live duel!',
+    duelCard: 'Friendly duel',
     duelCardNote: 'One turn each, a 30-second reserve, last one standing wins.',
     duelCardPlayers: '2 to 4 players',
-    matchCard: 'Find an opponent',
-    matchCardNote: 'A random player, right away',
+    matchCard: 'Ranked duel',
+    matchCardNote: 'A player of your level, right away',
     matchCardPlayers: '2 players',
     matchTitle: 'Looking for an opponent…',
     matchLead: 'We pair you with another player who is looking for a game, in your language.',

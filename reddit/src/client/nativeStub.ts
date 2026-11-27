@@ -8,8 +8,9 @@ export function isNativeApp(): boolean {
   return false
 }
 
-export function onAppActive(onChange: (active: boolean) => void): void {
+export function onAppActive(onChange: (active: boolean) => void): () => void {
   void onChange
+  return () => {}
 }
 
 export function setStatusBarDark(dark: boolean): void {

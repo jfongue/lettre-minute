@@ -11,6 +11,9 @@ create function tests.today() returns date
 language sql stable security definer set search_path = public as $$ select day from public.weekly_window() $$;
 create function tests.bot() returns uuid
 language sql stable security definer set search_path = public as $$ select id from public.bots order by id limit 1 $$;
+-- La métrique que la semaine en cours accepte : la semaine d'une course (0117) n'en prend pas d'autre.
+create function tests.metric() returns text
+language sql stable security definer set search_path = public as $$ select coalesce(public.weekly_metric(tests.week()), 'survival') $$;
 create function tests.attempts(p_label text) returns integer
 language sql stable security definer set search_path = public as $$
   select count(*)::integer from public.weekly_attempts where player_id = tests.uid(p_label)
@@ -75,32 +78,32 @@ select tests.login('wa');
 select tests.is(public.weekly_finish((select attempt_id from a1), 31.5,
   '[{"categoryId":"animaux","key":"chat","display":"Chat","points":10,"tier":"courant","approximate":false,"seconds":2.4,"at":5},
     {"categoryId":"animaux","key":"okapi","display":"Okapi","points":40,"tier":"rare","approximate":false,"seconds":6.1,"at":14}]'::jsonb,
-  'survival', 4), true, 'a result is taken');
-select tests.is(public.weekly_finish((select attempt_id from a1), 99, '[]'::jsonb, 'survival'), false, 'once only');
+  tests.metric(), 4), true, 'a result is taken');
+select tests.is(public.weekly_finish((select attempt_id from a1), 99, '[]'::jsonb, tests.metric()), false, 'once only');
 select tests.is(public.weekly_finish((select attempt_id from a2), 44.0,
   '[{"categoryId":"animaux","key":"chat","display":"Chat","points":10,"tier":"courant","approximate":false,"seconds":1.1,"at":3},
     {"categoryId":"animaux","key":"hippopotame","display":"Hippopotame","points":30,"tier":"peu commun","approximate":false,"seconds":9,"at":20}]'::jsonb,
-  'survival', 7), true, 'a second attempt is taken');
+  tests.metric(), 7), true, 'a second attempt is taken');
 select tests.throws($$select public.weekly_finish(gen_random_uuid(), -1, '[]'::jsonb, 'score')$$, 'a negative value is refused', '22023');
 select tests.throws($$select public.weekly_finish(gen_random_uuid(), 5, '[]'::jsonb, 'speed')$$, 'an unknown metric is refused', '22023');
 select tests.throws($$select public.weekly_finish(gen_random_uuid(), 5, '{}'::jsonb, 'score')$$, 'words must be a list', '22023');
 select tests.logout();
 
 select tests.login('wc');
-select tests.is(public.weekly_finish((select attempt_id from a1), 500, '[]'::jsonb, 'survival'), false, 'nobody finishes another player’s attempt');
+select tests.is(public.weekly_finish((select attempt_id from a1), 500, '[]'::jsonb, tests.metric()), false, 'nobody finishes another player’s attempt');
 select tests.is(tests.week()::text <> '', true, 'the window is readable');
 create temp table c1 as select * from public.weekly_start(tests.week(), 'fr', tests.today(), 2);
 grant select on c1 to public;
 select tests.is(public.weekly_finish((select attempt_id from c1), 20,
   '[{"categoryId":"animaux","key":"chat","display":"Chat","points":10,"tier":"courant","approximate":false,"seconds":1.9,"at":4},
     {"categoryId":"animaux","key":"zebre","display":"Zèbre","points":20,"tier":"courant","approximate":true,"seconds":3,"at":9}]'::jsonb,
-  'survival', 2), true, 'a third player plays');
+  tests.metric(), 2), true, 'a third player plays');
 select tests.logout();
 
 select tests.login('wb');
 create temp table b1 as select * from public.weekly_start(tests.week(), 'fr', tests.today(), 2);
 grant select on b1 to public;
-select tests.is(public.weekly_finish((select attempt_id from b1), 12.0, '[]'::jsonb, 'survival'), true, 'a fourth plays, with no words');
+select tests.is(public.weekly_finish((select attempt_id from b1), 12.0, '[]'::jsonb, tests.metric()), true, 'a fourth plays, with no words');
 select tests.logout();
 
 -- Une tentative lancée il y a plus d'une demi-heure n'est plus une partie.
@@ -114,7 +117,7 @@ language sql security definer set search_path = public as $$
 $$;
 select tests.age_attempt((select attempt_id from a3));
 select tests.login('wa');
-select tests.is(public.weekly_finish((select attempt_id from a3), 60, '[]'::jsonb, 'survival'), false, 'a stale attempt is refused');
+select tests.is(public.weekly_finish((select attempt_id from a3), 60, '[]'::jsonb, tests.metric()), false, 'a stale attempt is refused');
 select tests.logout();
 
 -- ------------------------------------------------------------ classement --
@@ -235,4 +238,22 @@ select tests.logout();
 select tests.login('wb');
 select tests.is((select mine from public.weekly_reaction_counts(tests.week(), 'fr') where target = 'trophy:weekly-rarest'), true, 'mine is per reader');
 select tests.is((select count(*)::int from public.weekly_attempts), 0, 'the table is closed to players: RLS shows them nothing');
+select tests.logout();
+
+-- ---------------------------------------------------------------- course --
+
+-- Aucune semaine n'impose la course depuis 0118 : un résultat de course est
+-- refusé partout, et le 29 novembre reprend les points de la boucle.
+create function tests.attempt_in(p_label text, p_week date) returns uuid
+language sql security definer set search_path = public as $$
+  insert into public.weekly_attempts (player_id, week_id, lang, day, n)
+  values (tests.uid(p_label), p_week, 'fr', p_week + 1, 3) returning id
+$$;
+select tests.is(public.weekly_metric('2026-11-29'), null, 'the race no longer holds 29 November');
+create temp table races as select tests.attempt_in('wc', '2026-11-29') as race, tests.attempt_in('wc', '2026-11-22') as other;
+grant select on races to public;
+select tests.login('wc');
+select tests.is(public.weekly_finish((select race from races), 133.7, '[]'::jsonb, 'race'), false, 'a race result is refused in a week that is not a race');
+select tests.is(public.weekly_finish((select race from races), 40, '[]'::jsonb, 'score'), true, 'the delayed week of 29 November takes points');
+select tests.is(public.weekly_finish((select other from races), 40, '[]'::jsonb, 'survival'), true, 'an endurance week takes seconds');
 select tests.logout();

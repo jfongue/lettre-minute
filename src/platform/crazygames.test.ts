@@ -286,3 +286,22 @@ describe('les pubs du portail', () => {
     expect(result).toBe('shown')
   })
 })
+
+describe('une pub qui démarre après l’abandon', () => {
+  it('fige encore la partie qu’elle couvre', async () => {
+    vi.useFakeTimers()
+    let callbacks: Record<string, () => void> = {}
+    const host = await withAds((_, given) => {
+      callbacks = given
+    })
+    const covered: boolean[] = []
+    host.onAdBreak((on) => covered.push(on))
+    let result: string | null = null
+    void host.midgame?.(false).then((answer) => (result = answer))
+    await vi.advanceTimersByTimeAsync(10_000)
+    expect(result).toBe('unavailable')
+    callbacks.adStarted()
+    callbacks.adFinished()
+    expect(covered).toEqual([false, true, false])
+  })
+})

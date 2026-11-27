@@ -2,14 +2,16 @@ import { describe, expect, it } from 'vitest'
 import { FEATURES } from '../domain/features'
 import { appHost } from './app'
 import { crazyGamesHost, encryptScore } from './crazygames'
+import { playgamaHost } from './playgama'
 import { redditHost } from './reddit'
+import { y8Host } from './y8'
 
 const ids = new Set(FEATURES.map((feature) => feature.id))
 
 describe('les hôtes', () => {
   it('ne ferment que des fonctionnalités qui existent', () => {
     // Un identifiant mal écrit ne fermerait rien, sans erreur.
-    for (const host of [appHost, crazyGamesHost, redditHost]) {
+    for (const host of [appHost, crazyGamesHost, playgamaHost, redditHost]) {
       for (const id of host.closedFeatures) expect(ids).toContain(id)
       for (const id of host.superModeratorFeatures) expect(ids).toContain(id)
       for (const id of host.openedFeatures) {
@@ -43,9 +45,12 @@ describe('les hôtes', () => {
     }
   })
 
-  it('ferment le filtrage sur CrazyGames, dont les bonus de niveau ne distribuent donc pas le cadenas', () => {
-    expect(crazyGamesHost.levelBonuses).toBe(true)
-    expect(crazyGamesHost.closedFeatures).toContain('categoryBans')
+  it('laissent le filtrage aux portails sans Premium, où les bonus de niveau donnent le cadenas', () => {
+    for (const host of [crazyGamesHost, playgamaHost, y8Host]) {
+      expect(host.premiumStore).toBe(false)
+      expect(host.levelBonuses).toBe(true)
+      expect(host.closedFeatures).not.toContain('categoryBans')
+    }
   })
 
   it('ouvrent à l’invité de CrazyGames les classements du serveur, sans lui donner de compte anonyme', () => {
@@ -84,6 +89,42 @@ describe('les hôtes', () => {
     for (const id of ['challenges', 'friendInvite', 'reactions', 'ideasBox']) {
       expect(crazyGamesHost.closedFeatures).toContain(id)
     }
+  })
+
+  it('ouvrent à Playgama tout ce qu’un compte nommé du portail porte, défis de 24 h compris, jamais ce qui mène hors de la page ni ce qui se vend', () => {
+    // `playgama-auth` (0114) ouvre un compte nommé au joueur connecté à
+    // Playgama : ses amis le défient dans le jeu même.
+    for (const id of [
+      'leaderboards',
+      'friends',
+      'rivalry',
+      'duel',
+      'challenges',
+      'reactions',
+      'proposeWord',
+      'myRequests',
+      'wordsNews',
+      'moderation',
+      'moderatorOffer',
+      'electModerator',
+      'wordFlag',
+      'ideasBox',
+    ]) {
+      expect(playgamaHost.closedFeatures).not.toContain(id)
+    }
+    for (const id of ['friendInvite', 'share', 'premium', 'support', 'storeUpdate', 'playGames', 'ads']) {
+      expect(playgamaHost.closedFeatures).toContain(id)
+      expect(playgamaHost.superModeratorFeatures).not.toContain(id)
+    }
+    expect(playgamaHost.accountService).toBe('playgama-auth')
+    expect(playgamaHost.anonymousAccounts).toBe(false)
+    expect(playgamaHost.guestBoards).toBe(true)
+  })
+
+  it('ne donnent pas de compte Playgama sans Bridge, et ne lèvent jamais', async () => {
+    await expect(playgamaHost.account!()).resolves.toBeNull()
+    await expect(playgamaHost.promptAccount!()).resolves.toBe(false)
+    expect(() => playgamaHost.submitScore(120)).not.toThrow()
   })
 
   it('ne vendent Premium que sur le téléphone, et ne passent de pubs récompensées que là et sur CrazyGames', () => {

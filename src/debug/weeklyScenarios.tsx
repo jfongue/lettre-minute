@@ -223,16 +223,19 @@ const runOf = (mode: GameMode, words: readonly ScenarioWord[], prompt: Prompt, s
 
 const ENDURANCE_RUN = runOf('endurance', RUN_WORDS, { categoryId: 'animaux', letter: 'M' }, 130)
 const REVERSED_RUN = runOf('reversed', REVERSED_WORDS, { categoryId: 'pays', letter: 'M' }, 120)
+/** La course à son septième mot : six trouvés, le chrono qui monte. */
+const RACE_RUN = runOf('race', RUN_WORDS, { categoryId: 'pays', letter: 'G' }, 130)
 
 const CHEER: Cheer = { display: 'Lama', points: 10, tier: 'courant', approximate: false, edits: 0, joker: false, taught: false, boost: 1, auto: false }
 
 export function WeeklyRunScenario({ mode = 'endurance', remaining = 21.4, urgent = false }: { mode?: GameMode; remaining?: number; urgent?: boolean }) {
   const noop = () => undefined
   const reversed = mode === 'reversed'
+  const race = mode === 'race'
   return (
     <RunScreen
-      run={reversed ? REVERSED_RUN : ENDURANCE_RUN}
-      draft={urgent ? '' : reversed ? 'Vietna' : 'Mouf'}
+      run={reversed ? REVERSED_RUN : race ? RACE_RUN : ENDURANCE_RUN}
+      draft={urgent ? '' : reversed ? 'Vietna' : race ? 'Gab' : 'Mouf'}
       live={null}
       cheer={urgent ? null : CHEER}
       remaining={remaining}
@@ -249,13 +252,15 @@ export function WeeklyRunScenario({ mode = 'endurance', remaining = 21.4, urgent
   )
 }
 
-export function WeeklyDoneScenario({ record, onBack }: { record: boolean; onBack(): void }) {
+export function WeeklyDoneScenario({ record, mode = 'endurance', onBack }: { record: boolean; mode?: GameMode; onBack(): void }) {
+  // La course se range à son avance sur les trois minutes : 46,3 s, battant 52,8 s.
+  const race = mode === 'race'
   return (
     <WeeklyDone
-      mode="endurance"
-      value={record ? 88.2 : 41.6}
-      previousBest={record ? 71 : 88.2}
-      words={record ? 21 : 9}
+      mode={mode}
+      value={race ? (record ? 133.7 : 0) : record ? 88.2 : 41.6}
+      previousBest={race ? 127.2 : record ? 71 : 88.2}
+      words={race ? (record ? 10 : 7) : record ? 21 : 9}
       left={1}
       total={2}
       rank={record ? 9 : 12}
@@ -267,11 +272,11 @@ export function WeeklyDoneScenario({ record, onBack }: { record: boolean; onBack
   )
 }
 
-export function WeeklyResultsScenario({ closed, onBack }: { closed: boolean; onBack(): void }) {
+export function WeeklyResultsScenario({ closed, mode = 'endurance', onBack }: { closed: boolean; mode?: GameMode; onBack(): void }) {
   const { counts, onReact } = useStandIn(COUNTS)
   return (
     <WeeklyResultsView
-      mode="endurance"
+      mode={mode}
       closed={closed}
       closesAt={WEEK.closesAt}
       now={NOW}

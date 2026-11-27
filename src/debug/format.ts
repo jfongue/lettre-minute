@@ -7,10 +7,6 @@
 
 export const fmt = (value: number | null | undefined) => (value == null ? '—' : Number(value).toLocaleString('fr-FR'))
 
-export const decimal = (value: number | null | undefined) => (value == null ? '—' : String(value).replace('.', ','))
-
-export const pct = (part: number, whole: number) => (whole ? `${Math.round((part / whole) * 100)} %` : '—')
-
 /** Sous le pour cent, deux décimales : « 0,07 % » dit quelque chose, « 0 % » rien. */
 export const share = (part: number, whole: number) => {
   if (!whole) return '—'

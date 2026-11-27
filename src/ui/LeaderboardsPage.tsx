@@ -1,14 +1,17 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { createContext, use, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import { hasPlayers } from '../domain/boards'
 import { completeLeaderboard, myPlace, OPEN_STATS, periodStillCurrent, PERIODS, STATS, type Leaderboard, type PeriodId, type PlacedRow, type StatId } from '../domain/leaderboards'
-import { metricOf, weekNumber, weekOf, weeklyMode, type WeeklyMetric } from '../domain/weekly'
-import { formatNumber, useT } from '../i18n'
+import { metricOf, raceTime, weekNumber, weekOf, weeklyMode, type WeeklyMetric } from '../domain/weekly'
+import { formatNumber, useT, type Messages } from '../i18n'
 import { fetchLeaderboard, fetchWeeklyBoard, fetchWeeklyWinners, type WeeklyBoardRow, type WeeklyWinnerRow } from '../lib/cloud'
 import { Avatar } from './Avatar'
 import { BoardSwitch, type BoardFamily } from './BoardSwitch'
 import { Shape } from './bauhaus'
 import { onTint, type ShapeKind, type Tint } from './motifs'
 import { PlayerName } from './PlayerSheet'
+import { RankBadge } from './League'
+import { useDuelBadges, type BadgeLoader } from './useDuelBadges'
+import type { DuelRatingInfo } from '../lib/cloud'
 import { loadLeaderboardMemory, saveLeaderboardMemory } from '../state/storage'
 
 
@@ -64,6 +67,41 @@ interface LeaderboardsPageProps {
   onFamily?(next: FamilyId): void
   /** The debug board passes its own made-up boards. */
   load?: LoadLeaderboard
+  /** Et ses rangs de duel inventés. */
+  badges?: BadgeLoader
+}
+
+/** Qui charge les rangs de duel des noms montrés : le serveur, ou la planche. */
+const BadgeLoaderContext = createContext<BadgeLoader | undefined>(undefined)
+/** Les rangs connus des noms du tableau en vue. */
+const BadgesContext = createContext<ReadonlyMap<string, DuelRatingInfo>>(new Map())
+
+/** Les rangs de duel des noms d'un tableau, pour que chaque ligne pose le sien. */
+function WithBadges({ names, children }: { names: readonly string[]; children: ReactNode }) {
+  const badges = useDuelBadges(names, use(BadgeLoaderContext))
+  return <BadgesContext value={badges}>{children}</BadgesContext>
+}
+
+/**
+ * « Ma place » : le tableau descend jusqu'à ma ligne et la fait briller, qu'elle
+ * soit dans la liste ou posée sous elle.
+ */
+function MeJump({ place }: { place: number }) {
+  const t = useT()
+  const jump = (event: MouseEvent<HTMLButtonElement>) => {
+    const panel = event.currentTarget.parentElement
+    const line = panel?.querySelector<HTMLElement>('.standing--me, .leaderboard-step--me')
+    if (!line) return
+    line.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' })
+    line.classList.remove('standing--flash')
+    void line.offsetWidth
+    line.classList.add('standing--flash')
+  }
+  return (
+    <button type="button" className="board-me-jump" onClick={jump}>
+      <span aria-hidden="true">↓</span> {t.ranked.myPlace(t.boards.ordinal(place))}
+    </button>
+  )
 }
 
 /**
@@ -79,6 +117,7 @@ export function LeaderboardsPage({
   family: familyProp,
   onFamily,
   load = loadFromServer,
+  badges,
 }: LeaderboardsPageProps) {
   const t = useT()
   // Les sessions de modération ne se montrent qu'à qui juge : la piste en porte
@@ -190,6 +229,7 @@ export function LeaderboardsPage({
   }, [family])
 
   return (
+    <BadgeLoaderContext value={badges}>
     <div className="leaderboards" data-no-swipe>
       {!familyProp && <BoardSwitch family={family} onFamily={setFamily} />}
       {guest ? (
@@ -297,6 +337,7 @@ export function LeaderboardsPage({
         </div>
       )}
     </div>
+    </BadgeLoaderContext>
   )
 }
 
@@ -331,8 +372,10 @@ function BoardBody({
   const rest = board.rows.slice(3)
   const me = myPlace(board)
   const unit = t.leaderboards.stats[stat].unit
+  const names = [...board.rows, ...(board.me ? [board.me] : [])].map((row) => row.name)
   return (
-    <>
+    <WithBadges names={names}>
+      {named && me && me.place > 3 ? <MeJump place={me.place} /> : null}
       <ol className="podium leaderboard-podium">
         {podium.map((row, index) => (
           <li key={`${row.name}-${index}`} className={`podium-step podium-step--${index + 1}${row.mine ? ' leaderboard-step--me' : ''}`}>
@@ -371,8 +414,15 @@ function BoardBody({
           )}
         </div>
       )}
-    </>
+    </WithBadges>
   )
+}
+
+/** Le nombre d'une valeur du défi : le temps d'une course, un tiret sans arrivée. */
+function weeklyNumber(t: Messages, value: number, metric: WeeklyMetric): string {
+  if (metric !== 'race') return formatNumber(t, value)
+  const time = raceTime(value)
+  return time === null ? '—' : time.toLocaleString(t.tag, { maximumFractionDigits: 1 })
 }
 
 /**
@@ -402,12 +452,15 @@ function WeeklyBoardBody({
     )
   if (board.length === 0) return <p className="note board-empty">{t.leaderboards.empty.week}</p>
 
-  const unit = metric === 'survival' ? t.leaderboards.weekly.survival : t.leaderboards.weekly.score
+  const unit = metric === 'score' ? t.leaderboards.weekly.score : t.leaderboards.weekly.survival
+  const format = (value: number) => weeklyNumber(t, value, metric)
   const rows: PlacedRow[] = board.map((row) => ({ place: row.rank, name: row.name, avatar: row.avatar, value: row.value, mine: row.me }))
   const podium = rows.slice(0, 3)
   const rest = rows.slice(3)
+  const mine = rows.find((row) => row.mine)
   return (
-    <>
+    <WithBadges names={rows.map((row) => row.name)}>
+      {mine && mine.place > 3 ? <MeJump place={mine.place} /> : null}
       <ol className="podium leaderboard-podium">
         {podium.map((row, index) => (
           <li key={`${row.name}-${index}`} className={`podium-step podium-step--${index + 1}${row.mine ? ' leaderboard-step--me' : ''}`}>
@@ -417,7 +470,7 @@ function WeeklyBoardBody({
               <Name row={row} />
             </span>
             <span className="note">
-              {formatNumber(t, row.value)} {unit}
+              {format(row.value)} {unit}
             </span>
           </li>
         ))}
@@ -426,11 +479,11 @@ function WeeklyBoardBody({
       {rest.length > 0 && (
         <div className="standings">
           {rest.map((row, index) => (
-            <Line key={`${row.name}-${index}`} row={row} unit={() => unit} />
+            <Line key={`${row.name}-${index}`} row={row} unit={() => unit} format={format} />
           ))}
         </div>
       )}
-    </>
+    </WithBadges>
   )
 }
 
@@ -454,11 +507,12 @@ function WinnersBody({ rows, onRetry }: { rows: WeeklyWinnerRow[] | null | undef
   if (rows.length === 0) return <p className="note board-empty">{t.leaderboards.weekly.empty}</p>
 
   return (
+    <WithBadges names={rows.map((row) => row.name)}>
     <div className="standings">
       {rows.map((row) => {
         // Le premier défi joué est la semaine n° 1 : l'époque compte pour zéro.
         const week = weekNumber(row.weekId) + 1
-        const unit = row.metric === 'survival' ? t.leaderboards.weekly.survival : t.leaderboards.weekly.score
+        const unit = row.metric === 'score' ? t.leaderboards.weekly.score : t.leaderboards.weekly.survival
         return (
           <div className="standing" key={row.weekId}>
             <span className="rank" title={t.leaderboards.weekly.week(week)}>
@@ -466,17 +520,16 @@ function WinnersBody({ rows, onRetry }: { rows: WeeklyWinnerRow[] | null | undef
             </span>
             <Avatar choice={row.avatar} size="sm" />
             <span className="name">
-              <PlayerName name={row.name} avatar={row.avatar}>
-                {row.name}
-              </PlayerName>
+              <Name row={row} />
             </span>
             <span className="points">
-              {formatNumber(t, row.value)} <small>{unit}</small>
+              {weeklyNumber(t, row.value, row.metric)} <small>{unit}</small>
             </span>
           </div>
         )
       })}
     </div>
+    </WithBadges>
   )
 }
 
@@ -489,17 +542,23 @@ function podiumNameClass(name: string): string {
   return name.length > 10 ? ' podium-word--small' : ''
 }
 
-function Name({ row }: { row: PlacedRow }) {
-  return row.mine ? (
-    <>{row.name}</>
-  ) : (
-    <PlayerName name={row.name} avatar={row.avatar}>
-      {row.name}
-    </PlayerName>
+function Name({ row }: { row: { name: string; avatar: PlacedRow['avatar']; mine?: boolean } }) {
+  const badge = use(BadgesContext).get(row.name)
+  return (
+    <>
+      {row.mine ? (
+        <>{row.name}</>
+      ) : (
+        <PlayerName name={row.name} avatar={row.avatar}>
+          {row.name}
+        </PlayerName>
+      )}
+      {badge ? <RankBadge rating={badge.rating} games={badge.games} rank={badge.masterRank} /> : null}
+    </>
   )
 }
 
-function Line({ row, unit }: { row: PlacedRow; unit(count: number): string }) {
+function Line({ row, unit, format }: { row: PlacedRow; unit(count: number): string; format?(value: number): string }) {
   const t = useT()
   return (
     <div className={`standing${row.mine ? ' standing--me' : ''}`}>
@@ -509,7 +568,7 @@ function Line({ row, unit }: { row: PlacedRow; unit(count: number): string }) {
         <Name row={row} />
       </span>
       <span className="points">
-        {formatNumber(t, row.value)} <small>{unit(row.value)}</small>
+        {format ? format(row.value) : formatNumber(t, row.value)} <small>{unit(row.value)}</small>
       </span>
     </div>
   )

@@ -39,6 +39,7 @@ const closed: FlagRow = { everyone: 'off', moderator: 'neutral', premium: 'neutr
 export const FEATURES: readonly FeatureDef[] = [
   // Jouer ensemble
   { id: 'challenges', label: 'Défis 24h entre amis', note: 'La liste de l’accueil, la création, l’écran et le bilan d’un défi', defaults: open },
+  { id: 'rankedBots', label: 'Bot de niveau classé (tests)', note: 'La partie contre le bot que la file lance faute d’adversaire compte au classement ; à fermer une fois l’app et CrazyGames livrées — le serveur la refuse alors aussi', defaults: open },
   { id: 'duel', label: 'Duel en direct', note: 'Tables de deux à quatre, en ligne, avec les joueurs ordinateur, le matchmaking et les tables publiques', defaults: open },
   { id: 'friends', label: 'Amis', note: 'L’onglet Social, les demandes, la fiche d’un joueur', defaults: open },
   { id: 'friendInvite', label: 'Inviter un ami', note: 'Lien, e-mail, et la proposition de partager le jeu', defaults: open },

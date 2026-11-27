@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { NEW_PROFILE } from '../domain/progression'
 import type { RunRecord } from '../domain/history'
-import { loadAvatar, loadHistory, loadMultiplayerNews, loadProfile, loadSubmissions, saveHistory, saveMultiplayerPlayed, saveProfile } from './storage'
+import { clearLocalData, loadAvatar, loadHistory, loadMultiplayerNews, loadProfile, loadSubmissions, saveHistory, saveHistorySoon, saveMultiplayerPlayed, saveProfile } from './storage'
 
 const store = new Map<string, string>()
 const memory = {
@@ -32,6 +32,25 @@ const RUN: RunRecord = {
 }
 
 describe('local storage', () => {
+  it('writes the history after the end screen settles, or at once when read back', () => {
+    vi.useFakeTimers()
+    try {
+      saveHistorySoon([RUN])
+      expect(store.size).toBe(0)
+      vi.advanceTimersByTime(1500)
+      expect(store.size).toBe(1)
+      store.clear()
+      saveHistorySoon([RUN, RUN])
+      expect(loadHistory()).toEqual([RUN, RUN])
+      saveHistorySoon([RUN])
+      clearLocalData()
+      vi.runAllTimers()
+      expect(loadHistory()).toEqual([])
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('reads back what it wrote', () => {
     const profile = { ...NEW_PROFILE, xp: 900, runs: 4, usage: { chat: 2 }, unlocked: ['sports'] }
     saveProfile(profile)

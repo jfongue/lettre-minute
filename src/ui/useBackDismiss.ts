@@ -6,10 +6,17 @@ import { useEffect, useRef } from 'react'
  * category gift) never registers, so the gesture falls through to the screen
  * behind it rather than swallowing the press.
  *
- * The escape key is each overlay's own business (a `keydown` listener where it
- * makes sense); this stack is only what the system gesture reads.
+ * A computer's Escape reads the same stack, caught on the window's capture
+ * phase so that only the newest overlay closes: a drawer's own Escape listener
+ * further down never sees a press that already closed a popup inside it.
  */
 const dismissers: Array<() => void> = []
+
+function escape(event: KeyboardEvent): void {
+  if (event.key !== 'Escape' || event.defaultPrevented || !dismissTopOverlay()) return
+  event.preventDefault()
+  event.stopImmediatePropagation()
+}
 
 /** Closes the topmost overlay; false when there is none to close. */
 export function dismissTopOverlay(): boolean {
@@ -33,10 +40,12 @@ export function useBackDismiss(dismiss: (() => void) | null): void {
   useEffect(() => {
     if (!registered) return
     const entry = () => latest.current?.()
+    if (dismissers.length === 0) window.addEventListener('keydown', escape, true)
     dismissers.push(entry)
     return () => {
       const at = dismissers.lastIndexOf(entry)
       if (at >= 0) dismissers.splice(at, 1)
+      if (dismissers.length === 0) window.removeEventListener('keydown', escape, true)
     }
   }, [registered])
 }

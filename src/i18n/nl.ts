@@ -1,8 +1,11 @@
 import type { Messages } from './fr'
 import { weeklyNl } from './weekly.nl'
+import { rankedNl } from './ranked.nl'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
-const seconds = (value: number) => value.toLocaleString('nl-NL', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 export const nl: Messages = {
   tag: 'nl-NL',
@@ -56,6 +59,8 @@ export const nl: Messages = {
     enduranceHint: 'Dertig seconden, en elk woord geeft je er twee tot vier terug, naar zeldzaamheid.',
     reversed: 'Omgekeerd',
     reversedHint: 'Een woord dat op deze letter eindigt. Een land dat op M eindigt? Vietnam!',
+    race: 'Race',
+    raceHint: 'Tien goede woorden, zo snel als je kunt.',
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'In te vullen',
     armNote: 'Bevestig leeg: dan start de klok.',
@@ -74,6 +79,10 @@ export const nl: Messages = {
       reversed: {
         hello: 'Een woord dat op deze letter eindigt. Een land dat op M eindigt? Vietnam!',
         ask: (letter: string) => `Typ een kleur die eindigt op ${letter}.`,
+      },
+      race: {
+        hello: 'Tien goede woorden, zo snel als je kunt: de klok loopt op en stopt bij het tiende.',
+        ask: (letter: string) => `Typ een kleur met ${letter}: dat is de eerste van tien.`,
       },
     },
   },
@@ -117,6 +126,9 @@ export const nl: Messages = {
     timeUp: 'Tijd is om',
     points: 'punten',
     survived: 'seconden overleefd',
+    raceTime: 'seconden voor tien woorden',
+    noFinish: 'Niet gefinisht',
+    arrived: 'Gefinisht!',
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Geen enkel woord. Dat gebeurt.',
     next: 'Verder',
@@ -145,11 +157,9 @@ export const nl: Messages = {
     lead: 'Bedankt voor het spelen! Ik ben een kleine Franse ontwikkelaar… Om me aan te moedigen, vertel over het spel en geef het 5 sterren!',
     later: 'Later',
     ok: 'Oké!',
-    frameDescription: 'Bedankt dat je Letter Minuut steunt!',
     close: 'Sluiten',
     hello:
       'Hoi, ik ben Jérémy!\nIk ben een onafhankelijke Franse ontwikkelaar en maak Lettre Minute in mijn vrije tijd.\nVond je het spel leuk, dan helpt jouw steun me enorm, zelfs 1 € telt.\nHeel erg bedankt!',
-    photo: 'Jérémy, de maker van het spel',
   },
 
   account: {
@@ -260,7 +270,6 @@ export const nl: Messages = {
     editAvatarLabel: 'Mijn avatar bewerken',
     anonymous: 'Anonieme speler',
     standing: (level, record) => `Niveau ${level} · record ${record}`,
-    editAvatar: 'Avatar bewerken',
     signedInAs: (email) => `Ingelogd als ${email}`,
     logOut: 'Uitloggen',
   logOutWarning: 'Je account houdt je potjes; dit toestel begint opnieuw.',
@@ -290,7 +299,6 @@ export const nl: Messages = {
     add: 'Vriend toevoegen',
     nameLabel: 'Jouw spelersnaam',
     share: 'Delen',
-    shareName: (name) => `Voeg me toe als vriend in Letter Minuut: mijn spelersnaam is ${name}.`,
     incomingCount: (count) => `${count} ${plural(count, 'verzoek', 'verzoeken')}`,
     wantsFriend: 'wil je vriend zijn',
     sortLabel: 'Vrienden sorteren',
@@ -411,7 +419,7 @@ export const nl: Messages = {
     empty: 'Nog geen voorstellen. Tijdens het spel stel je een onbekend woord met één tik voor.',
     added: 'Toegevoegd dankzij jou',
     addedNote: (xp) => `${xp} XP verdiend per woord.`,
-    noneAdded: 'Nog geen: een woord komt erin zodra vijf moderators het hebben goedgekeurd.',
+    noneAdded: 'Nog geen: een woord komt erin zodra twee tot zeven moderators het hebben goedgekeurd.',
     more: (count: number) => `Meer tonen (${count})`,
     less: 'Minder tonen',
     fresh: 'nieuw',
@@ -434,8 +442,8 @@ export const nl: Messages = {
   moderation: {
     title: 'Moderatie',
     superTitle: 'Supermoderator',
-    lead: 'Jij beoordeelt de woorden die spelers voorstellen: twee keer „goed” laat een woord erin waar weinig juryleden zijn, vijf waar het er veel zijn; twee keer „fout” blokkeert het. Elk „weet ik niet” vraagt twee keer „goed” extra en een halve stem meer om te blokkeren.',
-    superLead: 'Jouw stem telt dubbel, maar nooit alleen: twee keer „goed” laat een woord erin waar weinig juryleden zijn, vijf waar het er veel zijn, en jouw enkele „fout” blokkeert het. Speciale gevallen wachten alleen op supermoderators.',
+    lead: 'Jij beoordeelt de woorden die spelers voorstellen: twee tot zeven keer „goed” laat een woord erin, minder naarmate er meer woorden wachten, en twee volstaan waar weinig juryleden zijn; twee keer „fout” blokkeert het. Elk „weet ik niet” vraagt twee keer „goed” extra en een halve stem meer om te blokkeren.',
+    superLead: 'Jouw stem telt dubbel, maar nooit alleen: twee tot zeven keer „goed” laat een woord erin, minder naarmate er meer woorden wachten, en jouw enkele „fout” blokkeert het. Speciale gevallen wachten alleen op supermoderators.',
     score: (score: number) => `Strengheid: ${score}/100`,
     scoreLead: 'Je score stijgt als andere moderators je afwijzingen delen, en daalt als ze een woord afwijzen dat jij goedkeurde.',
     scoreSoon: 'Je strengheidsscore verschijnt zodra een woord dat je beoordeelde beslist is.',
@@ -485,7 +493,7 @@ export const nl: Messages = {
       hint: 'Moderator: houd een woord ingedrukt om het te melden.',
       title: 'Dit woord melden',
       lead: (word, category) =>
-        `„${word}” hoort niet in „${category}”? De andere moderators beoordelen het: twee eens waar weinig juryleden zijn, vijf elders, en het verlaat de categorie in de volgende versie.`,
+        `„${word}” hoort niet in „${category}”? De andere moderators beoordelen het: twee tot zeven eens, minder naarmate er meer woorden wachten, en het verlaat de categorie in de volgende versie.`,
       confirm: 'Melden',
       close: 'Sluiten',
       reasonLabel: 'Reden (optioneel)',
@@ -858,6 +866,7 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
     floor: 'Er moeten minstens zes categorieën in het spel blijven.',
     max: (count) => `Hoogstens ${count} gefilterde categorieën.`,
     limit: 'Al je sloten zijn gebruikt. Een levelbonus geeft je er nog een.',
+    full: (count: number) => `Al je ${count} sloten zijn gebruikt: zet een categorie terug om een andere te filteren.`,
     lockedTitle: 'Filteren is vergrendeld',
     lockedHow: 'Win je eerste slot met een levelbonus.',
     lockedHowPlus: 'Win je eerste slot met een levelbonus, of word Premium voor zes sloten.',
@@ -906,6 +915,7 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
   },
 
   weekly: weeklyNl,
+  ranked: rankedNl,
 
   premiumPage: {
     lead: 'Wat Premium je heeft gebracht boven de gratis grenzen.',
@@ -946,13 +956,11 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
     title: 'Je voordelen',
     filters: (used, max) => `Filters: ${used} van ${max}`,
     filtersLocked: 'Filteren: nog niet gewonnen',
-    filtersPlus: (max) => `Filteren: tot ${max} categorieën`,
     reveals: (left, allowed) => `Onthullingen van vandaag: ${left} van ${allowed}`,
     revealsPlus: 'Onbeperkt onthullen',
     slots: (count, max) => `Krachtplekken: ${count} van ${max}`,
   hintFilters: 'Filteren houdt een categorie buiten je solopartijen.',
   hintReveals: 'In het overzicht onthul je een woord dat je had kunnen schrijven.',
-  hintSlots: 'De krachten die je meeneemt in een partij.',
   },
 
   bonus: {
@@ -981,6 +989,11 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
     lead: 'Een nieuwere versie van Lettre Minute wacht op je in de Play Store.',
     later: 'Later',
     go: 'Bijwerken',
+  },
+  broken: {
+    title: 'Dat laadde niet',
+    lead: 'Dit scherm kon niet openen, waarschijnlijk door een verbroken verbinding. Je voortgang blijft bewaard.',
+    reload: 'Opnieuw laden',
   },
 
   tiers: { courant: 'gewoon', 'peu commun': 'ongewoon', rare: 'zeldzaam', 'très rare': 'zeer zeldzaam' },
@@ -1045,16 +1058,13 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
 
   duel: {
     title: 'Duel',
-    leadTitle: 'Live duel',
+    leadTitle: 'Vriendschappelijk duel',
     lead: 'Iedereen heeft een reserve van 30 seconden die alleen in de eigen beurt loopt. Een woord geeft de beurt door, een zeldzaam woord geeft tijd terug. Wie als laatste overblijft, wint.',
     trait: { fast: 'Snel', steady: 'Rustig', sharp: 'Gevaarlijk' },
     you: 'Jij',
     ready: 'Klaar',
     notReady: 'Nog niet klaar',
     invited: 'Uitgenodigd',
-    inviteAction: 'Uitnodigen',
-    leftStamp: 'Vertrokken',
-    keepOne: 'Aan tafel is minstens één tegenstander nodig.',
     readyButton: 'Ik ben klaar',
     tableSize: (players: number) => `${players} spelers`,
     waitingOthers: 'De anderen komen eraan…',
@@ -1161,11 +1171,11 @@ cheerAria: (label: string) => `${label} aanraden`,
     declineTable: 'Nee, bedankt',
     chooseTitle: 'Spelen met vrienden',
     chooseLead: 'Twee manieren om je te meten: live, of ieder wanneer hij wil.',
-    duelCard: 'Live duel!',
+    duelCard: 'Vriendschappelijk duel',
     duelCardNote: 'Ieder om de beurt, 30 seconden reserve, wie als laatste overblijft wint.',
     duelCardPlayers: '2 tot 4 spelers',
-    matchCard: 'Zoek een tegenstander',
-    matchCardNote: 'Een willekeurige speler, meteen',
+    matchCard: 'Ranked duel',
+    matchCardNote: 'Een speler van jouw niveau, meteen',
     matchCardPlayers: '2 spelers',
     matchTitle: 'Tegenstander zoeken…',
     matchLead: 'We koppelen je aan een speler die ook een spel zoekt, in jouw taal.',

@@ -72,12 +72,9 @@ export function Reactable({
     const away = (event: PointerEvent) => {
       if (!box.current?.contains(event.target as Node)) setOpen(null)
     }
-    const escape = (event: KeyboardEvent) => event.key === 'Escape' && setOpen(null)
     document.addEventListener('pointerdown', away)
-    window.addEventListener('keydown', escape)
     return () => {
       document.removeEventListener('pointerdown', away)
-      window.removeEventListener('keydown', escape)
     }
   }, [open])
 

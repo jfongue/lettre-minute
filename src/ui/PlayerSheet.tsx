@@ -1,4 +1,5 @@
-import { createContext, Suspense, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { ScreenBoundary } from './ScreenBoundary'
 import { createPortal } from 'react-dom'
 import type { AvatarChoice } from '../domain/avatar'
 import { useT } from '../i18n'
@@ -96,18 +97,13 @@ function PlayerSheet({ name, avatar, onClose }: { name: string; avatar: AvatarCh
     }
   }, [actions, name])
 
-  useEffect(() => {
-    const escape = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
-    window.addEventListener('keydown', escape)
-    return () => window.removeEventListener('keydown', escape)
-  }, [onClose])
   useBackDismiss(onClose)
 
   if (spying && actions.spy) {
     return (
-      <Suspense fallback={null}>
+      <ScreenBoundary>
         <SpyHistory player={name} name={name} actions={actions.spy} onClose={onClose} />
-      </Suspense>
+      </ScreenBoundary>
     )
   }
 

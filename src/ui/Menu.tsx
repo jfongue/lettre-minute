@@ -155,6 +155,8 @@ avatarFocus?: number | null
   lang: string
   /** Le tableau des mots : l'autre mode débug, ouvert par cinq tapes sur « Mes catégories ». */
   onWordsBoard?(open: boolean): void
+  /** Les classements s'ouvrent en pleine page, hors du tiroir : `from`, la page d'où l'on vient. */
+  onBoards?(from: MenuPage | null): void
   /** Le réglage des fonctionnalités, pour un super modérateur seul. */
   onFeatures?(): void
   /** Bans and Premium, from « Mes catégories ». */
@@ -189,6 +191,10 @@ export function Menu({ onClose, page, leaving = false, ...props }: MenuProps) {
   // l'onglet qui a ouvert l'avatar.
   const [parent, setParent] = useState<MenuPage | null>(null)
   const open = (next: MenuPage, from: MenuPage | null = null) => {
+    if (next === 'boards' && props.onBoards) {
+      props.onBoards(from)
+      return
+    }
     setPane(isPane(next) ? next : 'profile')
     setSub(isPane(next) ? null : next)
     setParent(from)

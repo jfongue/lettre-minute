@@ -20,6 +20,8 @@ const QUIET_SIGN_IN_KEY = 'lettre-minute.quiet-sign-in.v1'
 // The day « Mes demandes » was last opened: its « ! » waits for the next one.
 const QUEUE_SEEN_KEY = 'lettre-minute.queue-seen.v1'
 const SHARE_NEWS_KEY = 'lettre-minute.share-news.v1'
+// Le duel classé présenté une fois à un joueur qui jouait déjà ; gardé par clearLocalData.
+const RANKED_NEWS_KEY = 'lettre-minute.ranked-news.v1'
 // Les avant-premières déjà annoncées à l'appareil ; gardé par clearLocalData,
 // se déconnecter ne fait pas re-annoncer une catégorie déjà livrée.
 const PREMIERE_NEWS_KEY = 'lettre-minute.premiere-news.v1'
@@ -29,6 +31,7 @@ const WEEKLY_WIN_KEY = 'lettre-minute.weekly-win.v1'
 // Kept by clearLocalData as well: the duel's rules are learnt once, and a
 // player who signs out does not want them explained again.
 const DUEL_RULES_KEY = 'lettre-minute.duel-rules.v1'
+const DUEL_ACTIVE_KEY = 'lettre-minute.duel-active.v1'
 // La pastille du bouton « Multijoueur » : gardée par clearLocalData comme le
 // tutoriel, celui qui se déconnecte a déjà lancé sa partie à plusieurs.
 const MULTIPLAYER_KEY = 'lettre-minute.multiplayer.v1'
@@ -123,6 +126,27 @@ export function saveDuelRulesSeen(): void {
   write(DUEL_RULES_KEY, true)
 }
 
+/**
+ * La partie de duel en ligne où ce joueur est encore vivant : l'app fermée en
+ * plein duel la retrouve à l'accueil (« Ton duel continue »). Elle ne vaut que
+ * le temps que sa réserve tienne sans lui, d'où l'heure gardée avec elle.
+ */
+export function loadActiveDuel(): { table: string; at: number } | null {
+  const raw = parsed(DUEL_ACTIVE_KEY) as { table?: unknown; at?: unknown } | null
+  return raw && typeof raw.table === 'string' && typeof raw.at === 'number' ? { table: raw.table, at: raw.at } : null
+}
+
+export function saveActiveDuel(table: string | null): void {
+  if (table) write(DUEL_ACTIVE_KEY, { table, at: Date.now() })
+  else {
+    try {
+      localStorage.removeItem(DUEL_ACTIVE_KEY)
+    } catch {
+      /* rien de gardé, rien à retirer */
+    }
+  }
+}
+
 /** Whether this duel table already paid its XP on this device. */
 export function duelPaid(table: string): boolean {
   const paid = parsed(DUEL_PAID_KEY)
@@ -160,6 +184,14 @@ export function loadShareNewsSeen(): boolean {
 
 export function saveShareNewsSeen(): void {
   write(SHARE_NEWS_KEY, true)
+}
+
+export function loadRankedNewsSeen(): boolean {
+  return parsed(RANKED_NEWS_KEY) === true
+}
+
+export function saveRankedNewsSeen(): void {
+  write(RANKED_NEWS_KEY, true)
 }
 
 /** Les avant-premières déjà annoncées sur cet appareil : une livraison nouvelle relance la pop-up, jamais deux fois la même. */
@@ -283,6 +315,7 @@ function runOf(stored: unknown): RunRecord | null {
 }
 
 export function loadHistory(): RunRecord[] {
+  flushHistory()
   const stored = parsed(HISTORY_KEY)
   if (!Array.isArray(stored)) return []
   return stored.flatMap((run) => runOf(run) ?? [])
@@ -301,6 +334,33 @@ export function saveHistory(history: readonly RunRecord[]): void {
       run.words.map((played): StoredWord => [played.categoryId, played.word, played.display, played.points]),
     ]),
   )
+}
+
+// Up to two thousand runs and their words make a long JSON string: written
+// as a run ends, it cost the end screen its first frames on an old phone.
+const HISTORY_SAVE_DELAY = 1500
+let pendingHistory: readonly RunRecord[] | null = null
+let pendingTimer: ReturnType<typeof setTimeout> | undefined
+let flushOnLeave = false
+
+/** Saves the history once the end screen has settled, or as soon as the app leaves the foreground. */
+export function saveHistorySoon(history: readonly RunRecord[]): void {
+  pendingHistory = history
+  if (!flushOnLeave && typeof document !== 'undefined') {
+    flushOnLeave = true
+    document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' && flushHistory())
+    addEventListener('pagehide', flushHistory)
+  }
+  if (pendingTimer === undefined) pendingTimer = setTimeout(flushHistory, HISTORY_SAVE_DELAY)
+}
+
+/** Writes a history still waiting in `saveHistorySoon`, now. */
+export function flushHistory(): void {
+  clearTimeout(pendingTimer)
+  pendingTimer = undefined
+  const history = pendingHistory
+  pendingHistory = null
+  if (history) saveHistory(history)
 }
 
 // Les parties que le serveur n'a pas reçues : elles attendent ici, chacune
@@ -396,6 +456,7 @@ export function saveLeaderboardMemory(key: string, board: Leaderboard, at: numbe
 }
 
 export function clearLocalData(): void {
+  pendingHistory = null
   try {
     localStorage.removeItem(PROFILE_KEY)
     localStorage.removeItem(HISTORY_KEY)

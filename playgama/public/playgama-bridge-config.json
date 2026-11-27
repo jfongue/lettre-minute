@@ -1,6 +1,140 @@
 {
   "advertisement": {
-    "interstitial": { "preloadOnStart": true },
-    "rewarded": { "preloadOnStart": true }
-  }
+    "interstitial": {
+      "preloadOnStart": true
+    },
+    "rewarded": {
+      "preloadOnStart": true
+    },
+    "advancedBanners": {
+      "run": {
+        "default": [
+          {
+            "width": "100%",
+            "height": "12%",
+            "bottom": "0%",
+            "left": "0%"
+          }
+        ],
+        "desktop:landscape": [
+          {
+            "width": "60%",
+            "height": "12%",
+            "bottom": "0%",
+            "left": "20%"
+          }
+        ]
+      }
+    }
+  },
+  "leaderboards": [
+    {
+      "id": "best_score",
+      "isMain": true
+    }
+  ],
+  "achievements": [
+    {
+      "id": "level_4"
+    },
+    {
+      "id": "runs_10"
+    },
+    {
+      "id": "words_100"
+    },
+    {
+      "id": "combo_10"
+    },
+    {
+      "id": "discoveries_15"
+    },
+    {
+      "id": "added_10"
+    },
+    {
+      "id": "level_10"
+    },
+    {
+      "id": "runs_100"
+    },
+    {
+      "id": "words_1000"
+    },
+    {
+      "id": "level_20"
+    },
+    {
+      "id": "combo_24"
+    },
+    {
+      "id": "score_666"
+    },
+    {
+      "id": "runs_400"
+    },
+    {
+      "id": "words_2000"
+    },
+    {
+      "id": "level_35"
+    },
+    {
+      "id": "weekly_5"
+    },
+    {
+      "id": "weekly_30"
+    },
+    {
+      "id": "friends_5"
+    },
+    {
+      "id": "friends_25"
+    },
+    {
+      "id": "moderation_10"
+    },
+    {
+      "id": "moderation_30"
+    },
+    {
+      "id": "moderation_60"
+    },
+    {
+      "id": "short_streak_10"
+    },
+    {
+      "id": "no_pass_50"
+    },
+    {
+      "id": "word_long_10"
+    },
+    {
+      "id": "word_long_15"
+    },
+    {
+      "id": "speed_25"
+    },
+    {
+      "id": "speed_35"
+    },
+    {
+      "id": "powers_7"
+    },
+    {
+      "id": "powers_all"
+    },
+    {
+      "id": "clean_run_10"
+    },
+    {
+      "id": "categories_12"
+    },
+    {
+      "id": "reviews_10"
+    },
+    {
+      "id": "professor_word"
+    }
+  ]
 }

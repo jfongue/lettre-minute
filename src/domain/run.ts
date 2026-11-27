@@ -22,7 +22,7 @@ import {
   type RarityTier,
   type WordUsage,
 } from './rarity'
-import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RECALL_SECONDS, modeEdge, type GameMode } from './modes'
+import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RACE_WORDS, RECALL_SECONDS, modeEdge, type GameMode } from './modes'
 import { pickWeighted, streamFor, type Rng } from './rng'
 import { compactWord, finalOf, initialOf, normalizeWord } from './text'
 import { knownByLetter, type WordMatch, type WordPack } from './words'
@@ -54,12 +54,6 @@ export interface Prompt {
 /** A prompt as a single string, which is how a run remembers what it drew. */
 export function promptKey(prompt: Prompt): string {
   return `${prompt.categoryId}:${prompt.letter}`
-}
-
-/** The prompt a key stands for, as `promptKey` wrote it. */
-export function promptOf(key: string): Prompt {
-  const cut = key.lastIndexOf(':')
-  return { categoryId: key.slice(0, cut), letter: key.slice(cut + 1) }
 }
 
 export interface FoundWord {
@@ -263,12 +257,24 @@ function drawLetter(rng: Rng, categoryId: string, judge: Judge, locked: Readonly
   return pickWeighted(rng, available, weight) ?? available[0] ?? 'A'
 }
 
-/** What a run may not deal: the previous run's prompts, and the thin pairs it already dealt. */
-function lockOf(avoid: readonly string[], dealt: readonly string[], judge: Judge): Set<string> {
-  const locked = new Set(avoid)
-  for (const key of dealt) {
+/**
+ * What a run may not deal: the previous run's prompts, the thin pairs it
+ * already dealt, and — in a run played alone — every pair the player left
+ * empty, along with the one on screen. The pair on screen is locked whether it
+ * is answered or passed, so that Divination, which shows the next prompt
+ * before the player chooses, still tells the truth. A shared run keeps to the
+ * seed and the dictionaries alone: what one player passes must not change
+ * what another is dealt.
+ */
+function lockOf(run: Run, judge: Judge): Set<string> {
+  const locked = new Set(run.avoid)
+  for (const key of run.dealt) {
     const cut = key.lastIndexOf(':')
     if (judge.known(key.slice(0, cut), key.slice(cut + 1)) < THIN_PROMPT_WORDS) locked.add(key)
+  }
+  if (!run.shared) {
+    for (const settled of run.settled) if (settled.passed) locked.add(promptKey(settled.prompt))
+    locked.add(promptKey(run.prompt))
   }
   return locked
 }
@@ -276,7 +282,8 @@ function lockOf(avoid: readonly string[], dealt: readonly string[], judge: Judge
 /**
  * A prompt the previous run dealt is off the table for this one, so two runs
  * in a row never open on the same pair. Within a run, only a pair with plenty
- * of known words may come back. When a category has nothing else left, the
+ * of known words may come back, and in a run played alone, never one the
+ * player passed. When a category has nothing else left, the
  * lock gives way rather than leaving it undrawable.
  */
 function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[], judge: Judge, locked: ReadonlySet<string>, skipCategory?: string): Prompt {
@@ -299,7 +306,7 @@ function drawPrompt(seed: number, drawn: number, categoryIds: readonly string[],
  * so Divination can show it and `advance` is bound to deal that very one.
  */
 export function nextPrompt(run: Run, judge: Judge): Prompt {
-  return drawPrompt(run.seed, run.drawn, run.categoryIds, judge, lockOf(run.avoid, run.dealt, judge), run.prompt.categoryId)
+  return drawPrompt(run.seed, run.drawn, run.categoryIds, judge, lockOf(run, judge), run.prompt.categoryId)
 }
 
 /** The run moved on to a new prompt: the one it leaves is settled, and the next is drawn and remembered. */
@@ -369,11 +376,6 @@ export function chargesLeft(run: Run, power: PowerId): number {
  */
 export function markPowerUsed(run: Run, power: PowerId): Run {
   return run.usedPowers.includes(power) ? run : { ...run, usedPowers: [...run.usedPowers, power] }
-}
-
-/** Uses of a power the run has spent so far. */
-export function chargesSpent(run: Run, power: PowerId): number {
-  return hasPower(run, power) ? (POWER_CHARGES[power] ?? 0) - chargesLeft(run, power) : 0
 }
 
 function spend(run: Run, power: PowerId): Run['charges'] {
@@ -669,6 +671,8 @@ export function latecomerOpen(run: Run, remaining: number): boolean {
 }
 
 export function remainingSeconds(run: Run, elapsedSeconds: number): number {
+  // L'arrivée de la course arrête la partie comme un chrono vide : la même fin, le même bilan.
+  if (raceSeconds(run) !== null) return 0
   return Math.max(
     0,
     MODE_SECONDS[run.mode] - elapsedSeconds - run.penaltySeconds + heldSeconds(run, elapsedSeconds) + run.latecomerSeconds + run.bonusSeconds,
@@ -676,10 +680,26 @@ export function remainingSeconds(run: Run, elapsedSeconds: number): number {
 }
 
 /**
+ * Le temps d'une course arrivée : l'heure du dixième mot, plus les secondes
+ * que les passes ont coûtées ; null tant qu'elle n'est pas arrivée, et hors
+ * course.
+ */
+export function raceSeconds(run: Run): number | null {
+  if (run.mode !== 'race' || run.found.length < RACE_WORDS) return null
+  return Math.round((run.found[RACE_WORDS - 1]!.at + run.penaltySeconds) * 10) / 10
+}
+
+/**
  * Le score d'une partie : les points du solo ; en endurance, les secondes de
- * survie — le temps que la partie a tenu, mots rendus et pénalités compris.
+ * survie — le temps que la partie a tenu, mots rendus et pénalités compris ;
+ * en course, les secondes d'avance sur le plafond, zéro sans arrivée. Plus
+ * grand gagne partout : le classement du défi n'a qu'un sens de tri.
  */
 export function runScore(run: Run): number {
+  if (run.mode === 'race') {
+    const time = raceSeconds(run)
+    return time === null ? 0 : Math.max(0, Math.round((MODE_SECONDS.race - time) * 10) / 10)
+  }
   if (run.mode !== 'endurance') return run.score
   return Math.max(
     0,

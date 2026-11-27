@@ -257,6 +257,22 @@ const muteListeners = new Set<(muted: boolean) => void>()
 let adPlaying = false
 let portalMuted = false
 
+const adBreakListeners = new Set<(covered: boolean) => void>()
+
+/** An ad starts or ends, even one that started after the game gave up on it. */
+function setAdPlaying(playing: boolean): void {
+  if (playing === adPlaying) return
+  adPlaying = playing
+  announceMute()
+  for (const listener of adBreakListeners) listener(playing)
+}
+
+/** True while a portal ad covers the game: the run's clock holds. */
+function onAdBreak(listener: (covered: boolean) => void): void {
+  adBreakListeners.add(listener)
+  listener(adPlaying)
+}
+
 function announceMute(): void {
   for (const listener of muteListeners) listener(adPlaying || portalMuted)
 }
@@ -297,9 +313,7 @@ function requestPortalAd(type: 'midgame' | 'rewarded'): Promise<boolean> {
   return new Promise((resolve) => {
     let done = false
     const stopPlaying = () => {
-      if (!adPlaying) return
-      adPlaying = false
-      announceMute()
+      setAdPlaying(false)
     }
     const finish = (shown: boolean) => {
       stopPlaying()
@@ -313,8 +327,7 @@ function requestPortalAd(type: 'midgame' | 'rewarded'): Promise<boolean> {
     try {
       const answer: unknown = sdk.ad.requestAd(type, {
         adStarted: () => {
-          adPlaying = true
-          announceMute()
+          setAdPlaying(true)
           if (done) return
           clearTimeout(timer)
           timer = setTimeout(() => finish(false), AD_TIMEOUT_MS)
@@ -701,12 +714,9 @@ const OPEN_FEATURES = new Set([
  * first lesson follows it (`playFirst`).
  */
 export const crazyGamesHost: Host = {
-  // Filtering is earned by a level bonus or Premium, neither of which the
-  // portal has: left open, « Mes catégories » would promise a padlock no
-  // player can win.
-  closedFeatures: new Set(
-    [...SERVER_FEATURES, ...APP_ONLY_FEATURES, 'categoryBans'].filter((id) => !OPEN_FEATURES.has(id)),
-  ),
+  // Filtering stays open: with no Premium to sell, the level bonuses give up
+  // to three padlocks, from their own levels (`FILTER_LEVELS`).
+  closedFeatures: new Set([...SERVER_FEATURES, ...APP_ONLY_FEATURES].filter((id) => !OPEN_FEATURES.has(id))),
   // A portal game lives on players coming back: the challenge of the moment,
   // which the app opens to everyone, needs no server — attempts are counted
   // on the device, the progress they pay is saved by the Data module.
@@ -727,8 +737,8 @@ export const crazyGamesHost: Host = {
   premiumStore: false,
   rewardedAds: REWARDED,
   // Level bonuses too, the second slot first; the cards that would give a
-  // guest nothing — moderating without an account, a filter « Mes catégories »
-  // does not offer, a reveal while they are free — are never dealt here
+  // guest nothing — moderating without an account, a reveal while they are
+  // free — are never dealt here
   // (`barredBonuses`).
   levelBonuses: true,
   // Until the portal allows the ad that pays for them, the reveals are free.
@@ -738,6 +748,7 @@ export const crazyGamesHost: Host = {
   anonymousAccounts: false,
   guestBoards: true,
   account: portalAccount,
+  accountService: 'crazygames-auth',
   onAccount: onPortalAccount,
   promptAccount: promptPortalAccount,
   rooms: portalRooms,
@@ -749,4 +760,9 @@ export const crazyGamesHost: Host = {
   breakAfterRecap: () => Promise.resolve('none'),
   midgame,
   onMute: onPlatformMute,
+  onAdBreak,
+  // The portal's banners come through its own SDK, not wired yet; its
+  // achievements are the game's own, shown in the game.
+  setBanner(): void {},
+  unlockAchievements(): void {},
 }

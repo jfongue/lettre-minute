@@ -1,4 +1,5 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type MutableRefObject, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type MutableRefObject, type ReactNode } from 'react'
+import { ScreenBoundary } from './ScreenBoundary'
 import { availableCategoryIds } from '../data/packs'
 import { sharedCategoryIds } from '../domain/catalogue'
 import { modeEdge, type ArcadeMode, type GameMode } from '../domain/modes'
@@ -302,7 +303,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
   // décide quand ils passent, pour qu'aucun ne se pose sur un autre.
   const recap: ReactNode =
     enabled && recapWeek && home && !view && !intro ? (
-      <Suspense fallback={null}>
+      <ScreenBoundary>
         <WeeklyRecap
           weekId={recapWeek}
           lang={lang}
@@ -311,7 +312,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
           onResults={() => closeRecap({ kind: 'results', weekId: recapWeek, closed: true })}
           onLater={() => closeRecap()}
         />
-      </Suspense>
+      </ScreenBoundary>
     ) : null
   const prizePop: ReactNode = enabled && prize && home ? <PlusPrizePop onClose={() => setPrize(false)} /> : null
 
@@ -324,14 +325,14 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
           <ModeIntro
             mode={intro.mode}
             onDone={endIntro}
-            // L'endurance s'explique assez par sa fiche : sa leçon jouée n'apprenait rien de plus.
-            onTry={intro.mode === 'endurance' ? undefined : () => setIntro({ ...intro, lesson: true })}
+            // L'endurance et la course s'expliquent assez par leur fiche : une leçon d'un mot n'apprendrait rien de plus.
+            onTry={intro.mode === 'endurance' || intro.mode === 'race' ? undefined : () => setIntro({ ...intro, lesson: true })}
           />
         )
       )}
 
       {!intro && view?.kind === 'screen' && session.phase === 'home' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <WeeklyScreen
             mode={challenge.mode}
             closesAt={week.closesAt}
@@ -353,11 +354,11 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
             onResults={() => setView({ kind: 'results', weekId: challenge.weekId, closed: false })}
             onBack={() => setView(null)}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {!intro && view?.kind === 'results' && session.phase === 'home' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <WeeklyResults
             key={view.weekId}
             weekId={view.weekId}
@@ -369,14 +370,14 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
             onBack={() => setView(view.closed ? null : { kind: 'screen' })}
             onPlay={view.closed ? undefined : () => setView({ kind: 'screen' })}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
     </>
   )
 
   const over: ReactNode =
     enabled && session.phase === 'over' && session.weekly && session.run && done ? (
-      <Suspense fallback={null}>
+      <ScreenBoundary>
         <WeeklyDone
           mode={done.mode}
           value={done.value}
@@ -390,7 +391,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
           ranked={online}
           onBack={backFromDone}
         />
-      </Suspense>
+      </ScreenBoundary>
     ) : null
 
   return { card, covering, overlay, recap, prizePop, over, attempts, preload: [WeeklyScreen, WeeklyResults, WeeklyDone, WeeklyRecap] as const }

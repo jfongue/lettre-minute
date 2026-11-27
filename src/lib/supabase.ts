@@ -1,4 +1,5 @@
-import { AuthClient } from '@supabase/auth-js'
+import { AuthClient, isAuthRetryableFetchError, type Session } from '@supabase/auth-js'
+import { DUEL_RULES } from '../domain/duel'
 import { PostgrestClient } from '@supabase/postgrest-js'
 import { host, PLATFORM } from '../platform'
 import { loadBackend, refreshBackend } from './backend'
@@ -21,8 +22,12 @@ export const anonKey = moved?.anonKey ?? builtKey
 const sessionRef =
   import.meta.env.VITE_SUPABASE_SESSION_REF || (builtUrl ? new URL(builtUrl).hostname.split('.')[0] : 'local')
 
-/** Says which version of the game speaks: the server tags runs and duel tables with it (0072). */
-const CLIENT_INFO = `supabase-js/2.117.0; runtime=web; platform=${PLATFORM}`
+/**
+ * Says which version of the game speaks: the server tags runs and duel tables
+ * with it (0072), and `duel=` names the duel rules this client replays (0122):
+ * a table plays the newest rules every seated player knows.
+ */
+const CLIENT_INFO = `supabase-js/2.117.0; runtime=web; platform=${PLATFORM}; duel=${DUEL_RULES}`
 
 /**
  * The two parts of supabase-js the game uses, assembled the way `createClient`
@@ -79,8 +84,14 @@ export const supabase: Cloud | null = projectUrl && anonKey ? slimClient(project
 // After the launch's own calls, not in their way.
 if (supabase) setTimeout(() => void refreshBackend(), 5000)
 
-let session: { userId: string } | null = null
-let probing: Promise<{ userId: string } | null> | null = null
+interface Identity {
+  userId: string
+  anonymous: boolean
+}
+
+/** The last account the device held a session for, kept while that session lapses. */
+let session: Identity | null = null
+let probing: Promise<Identity | null> | null = null
 
 /**
  * The server carries the whole game, every player having an account on it.
@@ -95,21 +106,53 @@ export function cloudConfigured(): boolean {
  * Signs the player in anonymously — a solo game should not open on a form —
  * except on a host whose guests stay without any account (CrazyGames): there
  * only a session already on the device answers.
+ *
+ * The session is read again at every call, never trusted from the last: a
+ * token that expired while the phone slept, and whose renewal failed, leaves
+ * the client without one, and every request would then go out under the
+ * public key, refused (401). Null while it cannot be renewed: the call falls
+ * back instead of sending.
  */
 export function connect(): Promise<{ userId: string } | null> {
-  if (!supabase) return Promise.resolve(null)
-  if (session) return Promise.resolve(session)
+  const client = supabase
+  if (!client) return Promise.resolve(null)
   if (probing) return probing
+  const probe = identify(client)
+    .catch(() => null)
+    .finally(() => {
+      if (probing === probe) probing = null
+    })
+  probing = probe
+  return probe
+}
 
-  probing = (async () => {
-    const existing = await supabase.auth.getSession()
-    const user =
-      existing.data.session?.user ?? (host.anonymousAccounts ? (await supabase.auth.signInAnonymously()).data.user : null)
-    session = user ? { userId: user.id } : null
-    return session
-  })().catch(() => null)
+async function identify(client: Cloud): Promise<Identity | null> {
+  const live = (await client.auth.getSession()).data.session ?? (await renewed(client))
+  if (live === 'offline') return null
+  if (live) return (session = { userId: live.user.id, anonymous: live.user.is_anonymous === true })
+  // No session on the device: it never had one, or the server refused to
+  // renew it. A named account is never swapped behind the player's back for
+  // a new anonymous one: it waits to be signed in again.
+  if (session && !session.anonymous) return null
+  const user = host.anonymousAccounts ? (await client.auth.signInAnonymously()).data.user : null
+  session = user ? { userId: user.id, anonymous: user.is_anonymous === true } : null
+  return session
+}
 
-  return probing
+/**
+ * One more try at the stored session. 'offline' when the server could not be
+ * reached: the session is still there, only not usable yet, and the account
+ * must not be replaced for a dropped connection.
+ */
+async function renewed(client: Cloud): Promise<Session | null | 'offline'> {
+  const { data, error } = await client.auth.refreshSession()
+  if (data.session) return data.session
+  return isAuthRetryableFetchError(error) ? 'offline' : null
+}
+
+/** The account a run was played under, even while its session lapses: what it sends waits for it. */
+export function heldPlayer(): string | null {
+  return session?.userId ?? null
 }
 
 /** Drops the cached identity, so the next call signs in as a new player. */

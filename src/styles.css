@@ -30,6 +30,8 @@
   /* Le plancher des mentions minuscules : sous 0,7 rem, elles ne se lisent plus
      sur un téléphone, et chacune était écrite à la main. */
   --font-micro: 0.7rem;
+  /* The keyboard's ring: yellow fades into the cream paper (1.7:1), ink holds. */
+  --focus: var(--ink);
 
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -59,10 +61,11 @@
 
     --red: #f0553c;
     --blue-action: #3b5ad4;
-  --blue: #4468ec;
+    --blue: #4468ec;
     --yellow: #f7c230;
     --green: #2c9a78;
     --pink: #f3a9b8;
+    --focus: var(--yellow);
 
     --plus-bg: #151515;
     --plus-edge: var(--yellow);
@@ -88,6 +91,7 @@
   --yellow: #f7c230;
   --green: #2c9a78;
   --pink: #f3a9b8;
+  --focus: var(--yellow);
 
   --plus-bg: #151515;
   --plus-edge: var(--yellow);
@@ -156,7 +160,9 @@ input {
   color: inherit;
 }
 
-button {
+button,
+a.btn,
+a.chat-app {
   touch-action: manipulation;
 }
 
@@ -394,12 +400,22 @@ button.challenge-past::after {
 .challenge-word:active,
 .friend-pick:active,
 .setup-switch:active,
-.standing-me-link:active {
+.standing-me-link:active,
+.mute:active,
+.subpage-back:active,
+.menu-close:active,
+.loadout-tile:active,
+.power-row:active,
+.category-lock:active,
+.chat-app:active,
+.board-switch-tab:active,
+.currency-chip:active,
+.psheet-link:active {
   transform: scale(0.96);
 }
 
 .btn:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -1553,59 +1569,6 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 /* ------------------------------------------------------------------ over - */
-.score-poster {
-  position: relative;
-  overflow: hidden;
-  display: grid;
-  gap: 0.2rem;
-  padding: 1.4rem 1.4rem 1.6rem;
-  min-height: 14rem;
-  align-content: end;
-  background: var(--blue);
-  color: var(--cream);
-}
-
-.score-poster > :not(.shape) {
-  position: relative;
-}
-
-.score-poster .eyebrow {
-  color: inherit;
-  opacity: 0.8;
-}
-
-.score-poster > .shape {
-  position: absolute;
-}
-
-.score-poster-sun {
-  width: 9.5rem;
-  height: 9.5rem;
-  right: -2.6rem;
-  top: -2.6rem;
-  animation:
-    rise-in 900ms var(--ease-spring) 250ms both,
-    breathe 6s ease-in-out 1.2s infinite alternate;
-}
-
-.score-poster-quarter {
-  width: 6.5rem;
-  height: 6.5rem;
-  right: 0;
-  bottom: 0;
-  transform: rotate(180deg);
-  animation: corner-in 800ms var(--ease-spring) 450ms both;
-}
-
-.score-poster-bars {
-  width: 2.4rem;
-  height: 2.4rem;
-  right: 7.8rem;
-  top: 1.5rem;
-  opacity: 0.9;
-  animation: fade 600ms ease 700ms both;
-}
-
 .score-final {
   font-size: clamp(4.5rem, 25vw, 7rem);
   font-weight: 800;
@@ -1655,12 +1618,6 @@ animation: clock-bonus 500ms var(--ease-out);
   max-width: 80%;
 }
 
-.unlock-text--quiet {
-  font-size: 1rem;
-  font-weight: 600;
-  text-transform: none;
-}
-
 .best {
   display: flex;
   flex-wrap: wrap;
@@ -1681,11 +1638,6 @@ animation: clock-bonus 500ms var(--ease-out);
   font-weight: 800;
 }
 
-.best-points {
-  font-weight: 800;
-  color: var(--green);
-}
-
 .found {
   list-style: none;
   padding: 0;
@@ -1703,13 +1655,6 @@ animation: clock-bonus 500ms var(--ease-out);
   animation-delay: calc(450ms + min(var(--i, 0), 12) * 50ms);
 }
 
-.found-word {
-  font-weight: 600;
-  font-size: 1.05rem;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
 .found .note {
   font-size: 0.75rem;
 }
@@ -1722,19 +1667,6 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 /* -------------------------------------------------------------- colophon - */
-.colophon {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 0.25rem 1rem;
-  padding-top: 0.5rem;
-}
-
-.colophon a {
-  text-decoration-line: underline;
-}
-
 .erase-confirm {
   display: flex;
   flex-wrap: wrap;
@@ -1859,7 +1791,7 @@ animation: clock-bonus 500ms var(--ease-out);
 .board-switch-rail {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(var(--tabs, 2), 1fr);
   overflow: hidden;
 }
 
@@ -1873,7 +1805,7 @@ animation: clock-bonus 500ms var(--ease-out);
   background: none;
   color: var(--ink);
   font: inherit;
-  font-size: 0.68rem;
+  font-size: var(--font-micro);
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1884,14 +1816,11 @@ animation: clock-bonus 500ms var(--ease-out);
   position: absolute;
   top: 0;
   left: 0;
-  width: 50%;
+  width: calc(100% / var(--tabs, 2));
   height: 100%;
   background: var(--yellow);
+  transform: translateX(calc(var(--at, 0) * 100%));
   transition: transform 340ms var(--ease-spring);
-}
-
-.board-switch[data-family='weekly'] .board-switch-thumb {
-  transform: translateX(100%);
 }
 
 .board-switch-arrow {
@@ -1912,7 +1841,7 @@ animation: clock-bonus 500ms var(--ease-out);
   transition: transform 340ms var(--ease-spring);
 }
 
-.board-switch[data-family='weekly'] .board-switch-arrow svg {
+.board-switch--last .board-switch-arrow svg {
   transform: rotate(180deg);
 }
 
@@ -2132,7 +2061,6 @@ animation: clock-bonus 500ms var(--ease-out);
     background 200ms var(--ease-out);
 }
 
-.poster-menu:hover,
 .poster-menu:focus-visible {
   z-index: 2;
   transform: scale(1.14) rotate(-4deg);
@@ -2140,9 +2068,23 @@ animation: clock-bonus 500ms var(--ease-out);
   background: var(--red) !important;
 }
 
-.poster-menu:hover .poster-menu-bars,
+@media (hover: hover) {
+  .poster-menu:hover {
+    z-index: 2;
+    transform: scale(1.14) rotate(-4deg);
+    box-shadow: 6px 6px 0 var(--ink);
+    background: var(--red) !important;
+  }
+}
+
 .poster-menu:focus-visible .poster-menu-bars {
   color: var(--cream) !important;
+}
+
+@media (hover: hover) {
+  .poster-menu:hover .poster-menu-bars {
+    color: var(--cream) !important;
+  }
 }
 
 .poster-menu:active {
@@ -2150,20 +2092,36 @@ animation: clock-bonus 500ms var(--ease-out);
   box-shadow: 0 0 0 var(--ink);
 }
 
-.poster-menu:hover .poster-menu-bars span,
 .poster-menu:focus-visible .poster-menu-bars span {
   animation: bars-shake 900ms var(--ease-spring) infinite;
 }
 
-.poster-menu:hover .poster-menu-bars span:nth-child(2),
+@media (hover: hover) {
+  .poster-menu:hover .poster-menu-bars span {
+    animation: bars-shake 900ms var(--ease-spring) infinite;
+  }
+}
+
 .poster-menu:focus-visible .poster-menu-bars span:nth-child(2) {
   animation-delay: 120ms;
   animation-direction: reverse;
 }
 
-.poster-menu:hover .poster-menu-bars span:nth-child(3),
+@media (hover: hover) {
+  .poster-menu:hover .poster-menu-bars span:nth-child(2) {
+    animation-delay: 120ms;
+    animation-direction: reverse;
+  }
+}
+
 .poster-menu:focus-visible .poster-menu-bars span:nth-child(3) {
   animation-delay: 240ms;
+}
+
+@media (hover: hover) {
+  .poster-menu:hover .poster-menu-bars span:nth-child(3) {
+    animation-delay: 240ms;
+  }
 }
 
 @keyframes bars-shake {
@@ -2248,9 +2206,11 @@ animation: clock-bonus 500ms var(--ease-out);
   cursor: pointer;
 }
 
-.menu-close:hover {
-  background: var(--red);
-  color: var(--cream);
+@media (hover: hover) {
+  .menu-close:hover {
+    background: var(--red);
+    color: var(--cream);
+  }
 }
 
 .menu-close svg {
@@ -2349,19 +2309,14 @@ animation: clock-bonus 500ms var(--ease-out);
   cursor: pointer;
 }
 
-.friend--open:hover,
 .friend--open:focus-visible {
   background: var(--paper-2);
 }
 
-.friend-chevron {
-  width: 1.1rem;
-  height: 1.1rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.6;
-  stroke-linecap: square;
-  color: var(--ink-faint);
+@media (hover: hover) {
+  .friend--open:hover {
+    background: var(--paper-2);
+  }
 }
 
 /* What a friend types to find you, set apart from the list it opens. */
@@ -2538,7 +2493,7 @@ animation: clock-bonus 500ms var(--ease-out);
 }
 
 .chat-app:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -2710,21 +2665,38 @@ animation: clock-bonus 500ms var(--ease-out);
   grid-column: 1 / -1;
 }
 
-.page-link:hover,
 .page-link:focus-visible {
   transform: translate(-4px, -4px) rotate(-1.5deg);
   box-shadow: 6px 6px 0 var(--ink);
   outline: none;
 }
 
-.page-link:nth-child(even):hover,
+@media (hover: hover) {
+  .page-link:hover {
+    transform: translate(-4px, -4px) rotate(-1.5deg);
+    box-shadow: 6px 6px 0 var(--ink);
+    outline: none;
+  }
+}
+
 .page-link:nth-child(even):focus-visible {
   transform: translate(-4px, -4px) rotate(1.5deg);
 }
 
-.page-link:hover .page-link-art > *,
+@media (hover: hover) {
+  .page-link:nth-child(even):hover {
+    transform: translate(-4px, -4px) rotate(1.5deg);
+  }
+}
+
 .page-link:focus-visible .page-link-art > * {
   animation: tile-hop 620ms var(--ease-spring) both;
+}
+
+@media (hover: hover) {
+  .page-link:hover .page-link-art > * {
+    animation: tile-hop 620ms var(--ease-spring) both;
+  }
 }
 
 .page-link:active {
@@ -2768,11 +2740,18 @@ animation: clock-bonus 500ms var(--ease-out);
   transition: transform 200ms var(--ease-spring), background 160ms var(--ease-out);
 }
 
-.subpage-back:hover,
 .subpage-back:focus-visible {
   background: var(--yellow);
   color: var(--black);
   transform: translateX(-3px);
+}
+
+@media (hover: hover) {
+  .subpage-back:hover {
+    background: var(--yellow);
+    color: var(--black);
+    transform: translateX(-3px);
+  }
 }
 
 .subpage-back svg {
@@ -3962,7 +3941,7 @@ referment d'un coup : `--way` donne le sens de chacune. */
 
 .avatar-cell:focus-visible {
   z-index: 1;
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: -3px;
 }
 
@@ -4139,7 +4118,7 @@ referment d'un coup : `--way` donne le sens de chacune. */
 }
 
 .swatch:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -4216,20 +4195,6 @@ referment d'un coup : `--way` donne le sens de chacune. */
 
 .player-id .btn--quiet {
   padding-left: 0;
-}
-
-.earned-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 0.9rem;
-}
-
-.earned-colour {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-weight: 600;
 }
 
 .earned .btn--quiet {
@@ -4327,18 +4292,6 @@ referment d'un coup : `--way` donne le sens de chacune. */
   outline-offset: 0;
 }
 
-.support-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-
-.support-actions .btn {
-  flex: 1 1 12rem;
-  text-align: center;
-  text-decoration: none;
-}
-
 @keyframes sway {
   from {
     transform: rotate(-10deg);
@@ -4424,8 +4377,10 @@ referment d'un coup : `--way` donne le sens de chacune. */
   transition: transform 160ms var(--ease-spring);
 }
 
-.offer-card:hover {
-  transform: translateY(-3px);
+@media (hover: hover) {
+  .offer-card:hover {
+    transform: translateY(-3px);
+  }
 }
 
 .offer-card:active {
@@ -4486,8 +4441,10 @@ referment d'un coup : `--way` donne le sens de chacune. */
   transition: transform 240ms var(--ease-spring), opacity 240ms ease, box-shadow 200ms ease;
 }
 
-.power-card:hover {
-  transform: translateY(-3px);
+@media (hover: hover) {
+  .power-card:hover {
+    transform: translateY(-3px);
+  }
 }
 
 .power-card:focus-visible {
@@ -4526,10 +4483,16 @@ referment d'un coup : `--way` donne le sens de chacune. */
   height: 100%;
 }
 
-.power-card.unlock-card--selected,
-.power-card.unlock-card--selected:hover {
+.power-card.unlock-card--selected {
   transform: translateY(-5px) scale(1.025);
   box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--ink), 7px 10px 0 var(--blue);
+}
+
+@media (hover: hover) {
+  .power-card.unlock-card--selected:hover {
+    transform: translateY(-5px) scale(1.025);
+    box-shadow: 0 0 0 3px var(--paper), 0 0 0 6px var(--ink), 7px 10px 0 var(--blue);
+  }
 }
 
 .power-card.unlock-card--selected .power-card-art {
@@ -4753,12 +4716,20 @@ referment d'un coup : `--way` donne le sens de chacune. */
   transform: scale(0.95);
 }
 
-.unlock-card--selected,
-.unlock-card--selected:hover {
+.unlock-card--selected {
   transform: translateY(-8px) scale(1.04);
   box-shadow:
     0 0 0 3px var(--paper),
     0 0 0 6px var(--ink);
+}
+
+@media (hover: hover) {
+  .unlock-card--selected:hover {
+    transform: translateY(-8px) scale(1.04);
+    box-shadow:
+      0 0 0 3px var(--paper),
+      0 0 0 6px var(--ink);
+  }
 }
 
 .unlock-card--selected .unlock-card-shape {
@@ -5095,11 +5066,6 @@ referment d'un coup : `--way` donne le sens de chacune. */
   }
 }
 
-.earned-item {
-  animation: pop-in 480ms var(--ease-spring) both;
-  animation-delay: calc(700ms + var(--i, 0) * 120ms);
-}
-
 /* Le succès du bilan se lit ligne à ligne : sa condition est écrite à côté de
    son nom, sans titre, et la ligne amène à l'avatar qu'elle a valu. */
 .earned-list {
@@ -5224,8 +5190,10 @@ referment d'un coup : `--way` donne le sens de chacune. */
   transition: transform 160ms var(--ease-spring);
 }
 
-.mute:hover {
-  transform: scale(1.06);
+@media (hover: hover) {
+  .mute:hover {
+    transform: scale(1.06);
+  }
 }
 
 .mute:focus-visible {
@@ -6075,7 +6043,7 @@ referment d'un coup : `--way` donne le sens de chacune. */
 .offer-pop-layer {
   /* La carte se borne à ce que la couche laisse : ses deux marges verticales
      sont nommées pour que .offer-pop puisse s'y mesurer. */
-  --pop-top: var(--gutter);
+  --pop-top: max(var(--gutter), env(safe-area-inset-top));
   --pop-bottom: max(var(--gutter), env(safe-area-inset-bottom));
   position: fixed;
   inset: 0;
@@ -6263,8 +6231,10 @@ referment d'un coup : `--way` donne le sens de chacune. */
   transition: transform 160ms var(--ease-spring), box-shadow 160ms ease, border-color 160ms ease;
 }
 
-.power-row:hover {
-  transform: translateX(2px);
+@media (hover: hover) {
+  .power-row:hover {
+    transform: translateX(2px);
+  }
 }
 
 .power-row--here {
@@ -7015,23 +6985,6 @@ rien d’autre — aucun point, aucune rareté ne bouge. */
   gap: 0.5rem;
 }
 
-.lesson-words {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  gap: 0.45rem;
-}
-
-.lesson-words li {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 0.7rem;
-  font-weight: 700;
-  animation: rise 360ms var(--ease-out) both;
-  animation-delay: calc(var(--i, 0) * 70ms + 200ms);
-}
-
 .power-seal-icon {
   animation: var(--power-gesture, pop-in) 1100ms var(--ease-out) 200ms both;
 }
@@ -7608,8 +7561,10 @@ rien d’autre — aucun point, aucune rareté ne bouge. */
   cursor: pointer;
 }
 
-.debug-item:hover {
-  background: var(--paper-2);
+@media (hover: hover) {
+  .debug-item:hover {
+    background: var(--paper-2);
+  }
 }
 
 /* Les planches touchées depuis la dernière version livrée : un liseré
@@ -7797,9 +7752,14 @@ li:has(> .reactable--open),
   transition: transform 140ms var(--ease-spring);
 }
 
-.reaction-pick:hover,
 .reaction-pick:focus-visible {
   transform: scale(1.25) translateY(-3px);
+}
+
+@media (hover: hover) {
+  .reaction-pick:hover {
+    transform: scale(1.25) translateY(-3px);
+  }
 }
 
 /* Le doigt se pose : la carte se tasse au lieu de grandir, même sous le survol. */
@@ -9163,8 +9123,10 @@ button.challenge-word[aria-expanded='true'] {
   cursor: pointer;
 }
 
-.words-pair:hover td {
-  background: color-mix(in srgb, var(--blue) 8%, transparent);
+@media (hover: hover) {
+  .words-pair:hover td {
+    background: color-mix(in srgb, var(--blue) 8%, transparent);
+  }
 }
 
 /* Le genre d'une revue, dans la file de modération. */
@@ -9280,10 +9242,6 @@ body[data-words='board'] .offer-pop-layer {
 
 .category-swipe--armed .category-swipe-under {
   opacity: 1;
-}
-
-.category-ban {
-  padding-inline: 0.4rem;
 }
 
 .categories li.category--banned .category-shape {
@@ -9821,7 +9779,7 @@ body[data-words='board'] .offer-pop-layer {
 }
 
 .together-card:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -10486,7 +10444,7 @@ de tout cela ne le concerne. */
 }
 
 .pslot:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -10872,7 +10830,7 @@ ligne, et se referme par une seconde tape. */
 }
 
 .currency-chip:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 2px;
 }
 
@@ -10966,7 +10924,7 @@ ligne, et se referme par une seconde tape. */
 
 .power-slot-how {
   flex-basis: 100%;
-  font-size: 0.68rem;
+  font-size: var(--font-micro);
   letter-spacing: 0.02em;
   text-transform: none;
   font-weight: 600;
@@ -11423,13 +11381,15 @@ ligne, et se referme par une seconde tape. */
     box-shadow 160ms var(--ease-out);
 }
 
-.loadout-tile:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 4px 4px 0 var(--ink);
+@media (hover: hover) {
+  .loadout-tile:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 var(--ink);
+  }
 }
 
 .loadout-tile:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -11482,4 +11442,373 @@ ligne, et se referme par une seconde tape. */
   color: var(--paper);
   font-size: 0.8rem;
   font-weight: 800;
+}
+
+/* ------------------------------------------------------------ hit areas - */
+/* Small targets keep their drawing and gain an invisible margin to the finger's
+   44 px: a reaction bubble, the reaction and padlock buttons, the friend-sort
+   tabs. Not the boards' tabs: their rail clips what overflows it, for its
+   sliding thumb, and a margin there would never be reached. */
+.reaction-pick,
+.category-lock,
+.friends-sort .layer-tab {
+  position: relative;
+}
+
+.reaction-bubble::after,
+.reaction-pick::after,
+.category-lock::after,
+.friends-sort .layer-tab::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+}
+
+.reaction-bubble::after {
+  inset: -11px -6px;
+}
+
+.friends-sort .layer-tab::after {
+  inset: -6px 0;
+}
+
+/* ------------------------------------------------------- le duel classé - */
+
+/* La ligue : sa forme à côté de son nom, jamais derrière, puis l'Elo. */
+.league-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  padding: 0.15rem 0.5rem 0.15rem 0.3rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.league-chip b {
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.league-chip__points {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.league-chip--compact {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.4rem 0.1rem 0.25rem;
+}
+
+.league-mark {
+  width: 0.95em;
+  height: 0.95em;
+  flex: none;
+}
+
+.league-chip--placement {
+  border-style: dashed;
+  color: var(--ink-soft);
+}
+
+/* Le duel classé présenté : l'échelle des ligues en formes, au-dessus du titre, du Bronze au Maître. */
+.ranked-news__ladder {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin: 0.2rem 0 0.4rem;
+  padding: 0;
+  list-style: none;
+}
+
+.ranked-news__ladder li {
+  width: calc(1.6rem + var(--i) * 0.35rem);
+  aspect-ratio: 1;
+  animation: pop-in 420ms var(--ease-spring) calc(var(--i) * 90ms) both;
+}
+
+.ranked-news__ladder .league-mark {
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ranked-news__ladder li {
+    animation: none;
+  }
+}
+
+/* « Ma place » : en tête d'un tableau, il descend jusqu'à ma ligne et la fait briller. */
+.board-me-jump {
+  appearance: none;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  padding: 0 0.8rem;
+  border: var(--line) solid var(--ink);
+  background: var(--yellow);
+  color: var(--black);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.board-me-jump:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.standing--flash {
+  animation: standing-flash 1.6s var(--ease-out);
+}
+
+@keyframes standing-flash {
+  0%,
+  40% {
+    box-shadow: 0 0 0 3px var(--yellow);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .standing--flash {
+    animation: none;
+    outline: 3px solid var(--yellow);
+  }
+}
+
+/* Le rang en réduit, à côté d'un nom : la division sur la couleur de sa ligue. */
+.rank-badge {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  min-width: 1.45rem;
+  height: 1.1rem;
+  margin-left: 0.35rem;
+  padding: 0 0.25rem;
+  border: 1.5px solid var(--black);
+  font-size: var(--font-micro);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  vertical-align: 0.12em;
+}
+
+.rank-badge--bronze {
+  background: var(--red);
+  color: var(--black);
+}
+
+.rank-badge--silver {
+  background: #b9b3a6;
+  color: var(--black);
+}
+
+.rank-badge--gold {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.rank-badge--platinum {
+  background: var(--green);
+  color: var(--cream);
+}
+
+.rank-badge--diamond {
+  background: var(--blue);
+  color: var(--cream);
+}
+
+.rank-badge--master {
+  background: var(--black);
+  border-color: var(--pink);
+  color: var(--pink);
+}
+
+/* Le Maître : l'étiquette s'inverse, en encre, comme un titre plutôt qu'une ligue. */
+.league-chip--master {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.together-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.together-chips .together-chip {
+  margin-top: 0;
+}
+
+.together-chip--ranked {
+  background: var(--blue-action);
+  color: var(--cream);
+}
+
+/* La file classée, loin de son écran : une barre d'encre, à gauche du bouton
+   du son en bas de l'accueil, en haut d'une table de duel. */
+.queue-pill {
+  position: fixed;
+  left: calc(1rem + env(safe-area-inset-left, 0px));
+  right: calc(1rem + 2.75rem + 0.6rem + env(safe-area-inset-right, 0px));
+  z-index: 58;
+  display: flex;
+  justify-content: flex-start;
+  pointer-events: none;
+  animation: rise-in 320ms var(--ease-spring) both;
+}
+
+.queue-pill--bottom {
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+.queue-pill-top .stage--duel {
+  padding-top: calc(3.6rem + env(safe-area-inset-top, 0px));
+}
+
+.queue-pill--top {
+  top: calc(0.6rem + env(safe-area-inset-top, 0px));
+  right: calc(1rem + env(safe-area-inset-right, 0px));
+  justify-content: center;
+}
+
+.queue-pill > * {
+  pointer-events: auto;
+}
+
+.queue-pill__open,
+.queue-pill__cancel {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  border: var(--line) solid var(--ink);
+  background: var(--black);
+  color: var(--cream);
+  font: inherit;
+  cursor: pointer;
+}
+
+.queue-pill__open {
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0 0.7rem;
+  box-shadow: 3px 3px 0 var(--yellow);
+}
+
+.queue-pill__open b {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.queue-pill__clock.clock {
+  min-width: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  color: var(--yellow);
+}
+
+.queue-pill__open small {
+  overflow: hidden;
+  font-size: 0.74rem;
+  opacity: 0.8;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-pill__cancel {
+  justify-content: center;
+  width: 2.75rem;
+  margin-left: -2px;
+  padding: 0;
+  box-shadow: 3px 3px 0 var(--yellow);
+}
+
+.queue-pill__cancel svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.queue-pill__open:focus-visible,
+.queue-pill__cancel:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.queue-pill__dots {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+
+.queue-pill__dots i {
+  width: 0.4rem;
+  height: 0.4rem;
+  background: var(--cream);
+  animation: loader-hop 900ms var(--ease-out) infinite;
+}
+
+.queue-pill__dots i:nth-child(2) {
+  border-radius: 50%;
+  background: var(--red);
+  animation-delay: 150ms;
+}
+
+.queue-pill__dots i:nth-child(3) {
+  background: var(--yellow);
+  animation-delay: 300ms;
+}
+
+/* Reprendre un duel : la carte d'une invitation, en bleu, pour se lire comme
+   une partie à soi plutôt qu'une table qui attend. */
+.duel-resume-card {
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--blue-action);
+  border-color: var(--ink);
+  color: var(--cream);
+}
+
+.duel-resume-card .btn--blue {
+  background: var(--yellow);
+  border-color: var(--black);
+  color: var(--black);
+}
+
+.duel-resume-card .duel-invite-card__actions .btn--quiet {
+  color: var(--cream);
+}
+
+/* Un téléphone étroit garde le chrono et laisse l'estimation à l'écran de recherche. */
+@media (max-width: 359px) {
+  .queue-pill__open small {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .queue-pill,
+  .queue-pill__dots i {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }

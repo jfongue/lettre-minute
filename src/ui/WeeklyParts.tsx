@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import type { GameMode } from '../domain/modes'
-import type { WeeklyMetric } from '../domain/weekly'
+import { raceTime, type WeeklyMetric } from '../domain/weekly'
 import { formatNumber, type Messages } from '../i18n'
 import type { Tint } from './motifs'
 import '../weekly.css'
@@ -11,6 +11,7 @@ export const MODE_TINTS: Record<GameMode, Tint> = {
   endurance: 'red',
   delayed: 'blue',
   reversed: 'green',
+  race: 'pink',
 }
 
 const MINUTE_MS = 60_000
@@ -31,17 +32,18 @@ export function timeLeft(t: Messages, now: number, closesAt: number): string {
   return t.weekly.duration(Math.floor(minutes / 1440), Math.floor((minutes % 1440) / 60), minutes % 60)
 }
 
-/** Une valeur du classement : des secondes tenues, ou des points. */
+/** Une valeur du classement : des secondes tenues, le temps d'une course, ou des points. */
 export function valueText(t: Messages, value: number, metric: WeeklyMetric): string {
-  return metric === 'survival'
-    ? `${value.toLocaleString(t.tag, { maximumFractionDigits: 1 })} ${t.weekly.unitSeconds}`
-    : formatNumber(t, value)
+  if (metric === 'score') return formatNumber(t, value)
+  const seconds = metric === 'race' ? raceTime(value) : value
+  return seconds === null ? t.weekly.noFinish : `${seconds.toLocaleString(t.tag, { maximumFractionDigits: 1 })} ${t.weekly.unitSeconds}`
 }
 
 /**
  * Le dessin d'un mode, tracé comme les formes de l'affiche : le chrono qui se
  * vide pour l'endurance, deux questions décalées pour le retard, une flèche
- * qui revient sur la lettre pour le renversé.
+ * qui revient sur la lettre pour le renversé, le drapeau d'arrivée pour la
+ * course.
  */
 export function ModeGlyph({ mode, className = '' }: { mode: GameMode; className?: string }) {
   return (
@@ -58,6 +60,12 @@ export function ModeGlyph({ mode, className = '' }: { mode: GameMode; className?
           <rect x="6" y="10" width="52" height="52" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray="12 8" />
           <rect x="38" y="38" width="56" height="56" />
           <path d="M20 34L34 34M30 24L40 34L30 44" fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="square" />
+        </>
+      ) : mode === 'race' ? (
+        <>
+          <rect x="14" y="6" width="10" height="90" />
+          <path d="M24 10H88V58H24Z" fill="none" stroke="currentColor" strokeWidth="8" />
+          <path d="M24 10H45V26H24ZM66 10H88V26H66ZM45 26H66V42H45ZM24 42H45V58H24ZM66 42H88V58H66Z" />
         </>
       ) : mode === 'reversed' ? (
         <>

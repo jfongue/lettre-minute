@@ -3,6 +3,8 @@ import type { AvatarChoice } from '../domain/avatar'
 import { useT } from '../i18n'
 import { armSound, sound } from '../lib/sound'
 import { Avatar } from './Avatar'
+import { LeagueChip } from './League'
+import type { DuelRatingInfo } from '../lib/cloud'
 import { useBackDismiss } from './useBackDismiss'
 
 /**
@@ -21,6 +23,7 @@ export function PlayTogether({
   onChallenge,
   onSignIn,
   onClose,
+  rating = null,
 }: {
   challenge: boolean
   /** Sans compte nommé : le duel se joue contre les joueurs ordinateur. */
@@ -28,6 +31,8 @@ export function PlayTogether({
   onDuel(): void
   /** Le matchmaking : un adversaire inconnu, trouvé par le serveur. */
   onMatch?(): void
+  /** Mon classement au duel, que la carte du matchmaking annonce. */
+  rating?: DuelRatingInfo | null
   onChallenge(): void
   /** Sans compte nommé : se connecter ouvre les vrais joueurs. */
   onSignIn?(): void
@@ -97,7 +102,11 @@ export function PlayTogether({
             <span className="together-text">
               <b>{t.duel.matchCard}</b>
               <small>{t.duel.matchCardNote}</small>
-              <span className="together-chip">{t.duel.matchCardPlayers}</span>
+              <span className="together-chips">
+                <span className="together-chip">{t.duel.matchCardPlayers}</span>
+                <span className="together-chip together-chip--ranked">{t.ranked.ranked}</span>
+                {rating ? <LeagueChip rating={rating.rating} games={rating.games} rank={rating.masterRank} compact /> : null}
+              </span>
             </span>
             <span className="together-go" aria-hidden="true">
               →
@@ -187,6 +196,42 @@ export function DuelInviteCard({
         </button>
         <button type="button" className="btn btn--quiet" onClick={onDecline}>
           {t.duel.declineTable}
+        </button>
+      </span>
+    </section>
+  )
+}
+
+/**
+ * Une partie de duel quittée en cours — l'app fermée, la connexion perdue — et
+ * pas encore jouée jusqu'au bout : l'accueil propose d'y revenir tant que la
+ * réserve du joueur peut encore tenir. L'écarter, c'est abandonner.
+ */
+export function DuelResumeCard({ onResume, onDrop }: { onResume(): void; onDrop(): void }) {
+  const t = useT()
+  useEffect(() => {
+    sound.pop()
+  }, [])
+  return (
+    <section className="duel-invite-card duel-resume-card" aria-live="polite">
+      <span className="duel-invite-card__text">
+        <b>{t.ranked.resumeTitle}</b>
+        <small>{t.ranked.resumeLead}</small>
+      </span>
+      <span className="duel-invite-card__actions">
+        <button
+          type="button"
+          className="btn btn--blue"
+          onClick={() => {
+            armSound()
+            sound.go()
+            onResume()
+          }}
+        >
+          {t.ranked.resume}
+        </button>
+        <button type="button" className="btn btn--quiet" onClick={onDrop}>
+          {t.ranked.resign}
         </button>
       </span>
     </section>

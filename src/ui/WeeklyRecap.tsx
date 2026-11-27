@@ -147,7 +147,7 @@ export function WeeklyRecapView({ mode, recap, trophy, onGo, onResults, onLater 
                   <span className="wk-kicker">{t.weekly.recap.trophy}</span>
                   <strong>{t.weekly.trophy[trophy.id][0]}</strong>
                   <span className="note">
-                    {t.weekly.trophy[trophy.id][1](trophy.value, capitalized(trophy.word ?? ''), metric === 'survival' ? t.weekly.unitSeconds : t.weekly.unitPoints)}
+                    {t.weekly.trophy[trophy.id][1](trophy.value, capitalized(trophy.word ?? ''), metric === 'score' ? t.weekly.unitPoints : t.weekly.unitSeconds)}
                   </span>
                 </span>
               </div>

@@ -420,7 +420,7 @@
 }
 
 .duel-public:focus-visible {
-  outline: 3px solid var(--yellow);
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 
@@ -1425,7 +1425,7 @@
   z-index: 40;
   display: grid;
   place-items: end center;
-  padding: var(--gutter);
+  padding: var(--gutter) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
   background: rgb(0 0 0 / 42%);
   backdrop-filter: blur(1.5px);
   pointer-events: none;
@@ -1507,25 +1507,6 @@
 
 .duel-death__winner .avatar {
   width: 1.6rem;
-}
-
-.duel-death__next {
-  color: var(--cream);
-}
-
-.duel-death__beat {
-  display: grid;
-  place-items: center;
-  margin: 0.2rem 0 0;
-  width: 3.6rem;
-  height: 3.6rem;
-  border-radius: 50%;
-  background: var(--red);
-  color: var(--black);
-  font-size: 2rem;
-  font-weight: 800;
-  line-height: 1;
-  animation: duel-death-beat 800ms var(--ease-out) both;
 }
 
 @keyframes duel-death-beat {

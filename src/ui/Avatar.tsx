@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import { memo, type CSSProperties } from 'react'
 import { AVATARS, colourHex, TINTED, type AvatarChoice } from '../domain/avatar'
 import { PATHS } from './paths'
 
@@ -10,7 +10,7 @@ interface AvatarProps {
 }
 
 /** A poster tile worn as a portrait: a ground, a shape, and sometimes an accent in a corner. */
-export function Avatar({ choice, size = 'md', locked = false }: AvatarProps) {
+function AvatarArt({ choice, size = 'md', locked = false }: AvatarProps) {
   const design = AVATARS[choice.design] ?? AVATARS[0]
   const ground = locked ? 'var(--paper-2)' : colourHex(choice.ground)
   const shape = locked ? 'var(--ink-faint)' : colourHex(choice.shape)
@@ -49,3 +49,14 @@ export function Avatar({ choice, size = 'md', locked = false }: AvatarProps) {
     </span>
   )
 }
+
+const same = (a: AvatarProps, b: AvatarProps) =>
+  a.size === b.size &&
+  a.locked === b.locked &&
+  a.choice.design === b.choice.design &&
+  a.choice.ground === b.choice.ground &&
+  a.choice.shape === b.choice.shape &&
+  a.choice.accent === b.choice.accent
+
+/** Redrawn only when the tile changes: a challenge's race lists one per rival and re-renders ten times a second. */
+export const Avatar = memo(AvatarArt, same)

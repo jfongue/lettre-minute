@@ -1,4 +1,5 @@
-import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { ScreenBoundary } from './ui/ScreenBoundary'
 import { availableCategoryIds, loadPack, loadPacks } from './data/packs'
 import {
   acceptInvite,
@@ -51,6 +52,10 @@ import {
   type ModerationStatus,
   chooseName,
   declineDuel,
+  rejoinDuel,
+  resignDuel,
+  fetchDuelRating,
+  type DuelRatingInfo,
   fetchDuelInvites,
   fetchFeatureFlags,
   fetchLeaderboard,
@@ -63,6 +68,7 @@ import {
 } from './lib/cloud'
 import { progressOf, withProgress } from './domain/progress'
 import { reportAchievements, reportRun } from './lib/playGames'
+import { liveTransport } from './lib/live'
 import {
   askPush,
   clearDuelPushes,
@@ -126,7 +132,7 @@ import { FeedbackPop } from './ui/FeedbackPop'
 import { RatingPop } from './ui/RatingPop'
 import type { BanActions } from './ui/CategoriesPage'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
-import { avatarNewsDue, ownsEveryDesign } from './domain/achievements'
+import { avatarNewsDue, earnedAchievements, ownsEveryDesign } from './domain/achievements'
 import { initialSession, sessionReducer, type Proposal } from './state/session'
 import {
   clearLocalData,
@@ -148,6 +154,7 @@ import {
   saveAvatar,
   saveBoardsMemory,
   saveHistory,
+  saveHistorySoon,
   saveMultiplayerPlayed,
   savePremiereNewsSeen,
   saveProfile,
@@ -158,6 +165,13 @@ import {
   saveTutorialDone,
 } from './state/storage'
 import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storage'
+import { loadActiveDuel, loadRankedNewsSeen, saveActiveDuel, saveRankedNewsSeen } from './state/storage'
+import { useDuelQueue } from './state/duelQueue'
+import { QueuePill } from './ui/QueuePill'
+import { RankedNewsPop } from './ui/RankedNewsPop'
+import { botMatchAfter, rankedNewsDue, EARLY_START } from './domain/ranked'
+import type { BoardFamily } from './ui/BoardSwitch'
+import { DuelResumeCard } from './ui/PlayTogether'
 import { countsForProgress, modeEdge, MODE_SECONDS, type ArcadeMode, type GameMode } from './domain/modes'
 import { queueAlertDue } from './domain/moderation'
 import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
@@ -211,6 +225,11 @@ const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) =
 const FeaturesBoard = lazyScreen(() => import('./debug/FeaturesBoard').then((module) => module.FeaturesBoard))
 const DuelScreen = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelScreen))
 const DuelMatchmaking = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelMatchmaking))
+const LeaderboardsScreen = lazyScreen(() => import('./ui/LeaderboardsScreen').then((module) => module.LeaderboardsScreen))
+const MatchFound = lazyScreen(() => import('./ui/MatchFound').then((module) => module.MatchFound))
+
+/** Combien de temps une partie de duel quittée vaut encore d'être reprise : sa réserve coule sans le joueur. */
+const RESUME_WINDOW_MS = 90_000
 
 /** The run's own screens: awaited with its dictionaries, so the countdown never opens on a blank frame. */
 function preloadRunScreens(): Promise<unknown> {
@@ -355,6 +374,7 @@ export function App() {
     drawerMoved.current = true
   }, [menuOpen])
   const [shareNewsSeen, setShareNewsSeen] = useState(loadShareNewsSeen)
+  const [rankedNewsSeen, setRankedNewsSeen] = useState(loadRankedNewsSeen)
   // Les avant-premières déjà annoncées à cet appareil : une catégorie livrée
   // relance la pop-up, jamais deux fois la même.
   const [premiereNewsSeen, setPremiereNewsSeen] = useState(loadPremiereNewsSeen)
@@ -391,6 +411,20 @@ setMenuPage(null)
   const t = messagesFor(locale ?? 'fr')
   // The dictionary follows the interface: a German player answers in German.
   const lang = locale ?? 'fr'
+  // La file du duel classé vit ici, pas dans son écran : elle continue à
+  // l'accueil et à la table des joueurs ordinateur, et se met en veille dès
+  // qu'une partie seule commence, jusqu'au retour à l'accueil — un adversaire
+  // n'y interrompt ni le chrono ni le bilan.
+  const duelQueue = useDuelQueue({ lang, busy: session.phase !== 'home' })
+  const queueState = duelQueue.state
+  const cancelQueue = duelQueue.cancel
+  const startQueue = duelQueue.start
+  const resetQueue = duelQueue.reset
+  const dismissQueue = duelQueue.dismiss
+  const [activeDuel, setActiveDuel] = useState(() => {
+    const kept = loadActiveDuel()
+    return kept && Date.now() - kept.at < RESUME_WINDOW_MS ? kept : null
+  })
   const speak = useCallback((next: Locale) => {
     // A language is loaded before it is shown: rendered first, it would flash French.
     // The language changes only once its messages are there: a failure keeps
@@ -504,8 +538,9 @@ setMenuPage(null)
         canName: account?.anonymous === false || host.anonymousAccounts,
         unlimitedReveals: host.unlimitedReveals,
         open: on,
-      }),
-    [moderation?.moderator, account?.anonymous, on],
+        premiumSold: premiumStoreOpen,
+      }, session.profile),
+    [moderation?.moderator, account?.anonymous, on, session.profile],
   )
   const featuresNow = useRef(features)
   featuresNow.current = features
@@ -527,7 +562,7 @@ setMenuPage(null)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean; room?: boolean } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean; room?: boolean; resume?: boolean; bot?: number } | null>(null)
   // The host's rooms (CrazyGames): a friend's table the portal launched the
   // game for or brings the player to while it runs, or the portal's « play
   // with friends » that wants a joinable table at once. A guest is first
@@ -539,6 +574,12 @@ setMenuPage(null)
   })
   useEffect(() => host.rooms?.onJoin((table) => setRoomCall({ table })), [])
   const [matching, setMatching] = useState(false)
+  // Les classements, en pleine page : la famille ouverte, et la page du tiroir d'où l'on vient.
+  const [boardsOpen, setBoardsOpen] = useState<{ family: BoardFamily; from: MenuPage | null } | null>(null)
+  const ladderOpen = boardsOpen !== null
+  const setLadderOpen = (open: boolean) => setBoardsOpen(open ? { family: 'duel', from: null } : null)
+  // La table où l'on est assis, que la file classée fait quitter quand elle trouve un adversaire.
+  const seatedTable = useRef<string | null>(null)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
   const [debugPhase, setDebugPhase] = useState<string | null>(() =>
@@ -669,12 +710,18 @@ setMenuPage(null)
 
   // Everything below is best-effort: the cloud calls answer with a fallback
   // rather than throwing, so a missing project simply leaves the game local.
+  // A quick switch of language must not let the previous one's late answer
+  // seed the new language's dictionaries.
   useEffect(() => {
-    fetchCrowdUsage(lang).then((usage) => setCrowd(usage.shares))
-    fetchPromptStats(lang).then((records) => setPromptStats({ lang, records }))
+    let live = true
+    fetchCrowdUsage(lang).then((usage) => live && setCrowd(usage.shares))
+    fetchPromptStats(lang).then((records) => live && setPromptStats({ lang, records }))
     fetchCommunityWords(lang).then((words) => {
-      community.current = words
+      if (live) community.current = words
     })
+    return () => {
+      live = false
+    }
   }, [lang])
 
   const readAccount = useCallback(
@@ -720,7 +767,7 @@ setMenuPage(null)
     const follow = (): Promise<unknown> =>
       host
         .account!()
-        .then(followHostAccount)
+        .then((token) => followHostAccount(token, host.accountService ?? 'crazygames-auth'))
         .then((changed) => {
           clearTimeout(retry)
           if (changed === null && tries < HOST_ACCOUNT_RETRIES_MS.length) {
@@ -746,6 +793,13 @@ setMenuPage(null)
   useEffect(() => {
     if (!hostAccountSettled || !answered.account) return
     void catchUpLostRuns(loadHistory()).finally(() => void flushUnsentRuns())
+    // A session that lapsed while the phone slept is renewed on the way back:
+    // what it held back leaves then, without waiting for the next run.
+    const back = () => {
+      if (document.visibilityState === 'visible') void flushUnsentRuns()
+    }
+    document.addEventListener('visibilitychange', back)
+    return () => document.removeEventListener('visibilitychange', back)
   }, [hostAccountSettled, answered.account])
 
   const refreshModeration = useCallback(() => {
@@ -773,7 +827,7 @@ setMenuPage(null)
   // Toutes ses demandes, et pas seulement les nouvelles : c'est là que le jeu
   // lit les mots que ce joueur a lui-même fait entrer au dictionnaire.
   const [mine, setMine] = useState<readonly Submission[]>([])
-  const [acceptedWords, setAcceptedWords] = useState(0)
+  const [acceptedWords, setAcceptedWords] = useState<number | null>(null)
   // Une demande existe dès qu'un mot attend sur l'appareil ou vit chez le serveur :
   // c'est elle qui ouvre « Mes demandes » à l'accueil. La file se relit au retour
   // à l'accueil, la seule fois où la tuile se décide.
@@ -796,20 +850,26 @@ setMenuPage(null)
   }, [creditNews])
   useEffect(() => {
     if (!signedIn) return
+    // An answer for the account just left must not bank its reveals in the next one.
+    let live = true
     fetchMySubmissions().then((found) => {
-      if (!found) return
+      if (!found || !live) return
       setMine(found)
       setAcceptedWords(found.filter((submission) => submission.status === 'accepted').length)
       setWordsNews(found.filter((submission) => submission.fresh))
       creditNews(found)
     })
+    return () => {
+      live = false
+    }
   }, [signedIn, account?.name, account?.anonymous, creditNews])
 
   // Les mots ajoutés se déduisent des demandes acceptées, et le serveur seul en
   // décide : le profil les reçoit pour que les sept tuiles qu'ils débloquent
   // tiennent hors ligne. Un compte anonyme n'en a aucun, faute de pouvoir proposer.
   useEffect(() => {
-    if (session.profile.wordsAdded === acceptedWords) return
+    // Until the server has answered, the count kept in the profile stands.
+    if (acceptedWords === null || session.profile.wordsAdded === acceptedWords) return
     dispatch({ type: 'profile-loaded', profile: { ...session.profile, wordsAdded: acceptedWords } })
   }, [acceptedWords, session.profile])
 
@@ -994,7 +1054,44 @@ setStartedAt((at) => at ?? Date.now())
 
   usePlatformGameplay(session.phase, session.run?.score ?? null, session.profile.bestScore, tutorial === 'teaching')
 
-  const elapsed = useElapsed(session.phase === 'playing' ? startedAt : null)
+  // The host's banner, on the run and the screens that close it: never for
+  // Premium, nor when the ads between runs are closed.
+  const bannerWanted =
+    (session.phase === 'countdown' || session.phase === 'playing' || session.phase === 'over') &&
+    tutorial !== 'teaching' &&
+    !isPlus(session.profile) &&
+    on('adBreaks')
+  useEffect(() => host.setBanner(bannerWanted), [bannerWanted])
+
+  // Every achievement held, for a host that keeps them (Playgama's Bridge): at
+  // launch and after each change, the host sending only the new ones.
+  useEffect(() => {
+    if (!answered.profile) return
+    host.unlockAchievements(earnedAchievements(session.profile, discoveries ?? undefined))
+  }, [answered.profile, session.profile, discoveries])
+
+  // A host's full-screen ad over a run — one that opened late, after the run
+  // started — holds its clock: the player cannot play under it. Switching
+  // away from the tab still does not, as `useElapsed` says.
+  const [adOnScreen, setAdOnScreen] = useState(false)
+  useEffect(() => host.onAdBreak(setAdOnScreen), [])
+  const [heldSince, setHeldSince] = useState<number | null>(null)
+  const heldSinceRef = useRef<number | null>(null)
+  const adHolds = adOnScreen && session.phase === 'playing' && startedAt !== null
+  useEffect(() => {
+    if (adHolds) {
+      heldSinceRef.current ??= Date.now()
+      setHeldSince(heldSinceRef.current)
+      return
+    }
+    const since = heldSinceRef.current
+    if (since === null) return
+    heldSinceRef.current = null
+    setStartedAt((at) => (at === null ? at : at + (Date.now() - since)))
+    setHeldSince(null)
+  }, [adHolds])
+
+  const elapsed = useElapsed(session.phase === 'playing' ? startedAt : null, heldSince)
   const remaining = session.run ? remainingSeconds(session.run, elapsed) : 0
   // La musique se tend sur le temps écoulé du mode joué : l'endurance n'a que
   // trente secondes, elle n'entre donc pas déjà au deuxième palier.
@@ -1349,8 +1446,7 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (!atHome || duelOpen || !named || !on('duel')) return
     refreshDuelInvites()
-    const timer = setInterval(() => document.visibilityState === 'visible' && refreshDuelInvites(), DUEL_INVITES_MS)
-    return () => clearInterval(timer)
+    return liveTransport().watch({ kind: 'duelInvites' }, refreshDuelInvites, { every: DUEL_INVITES_MS })
   }, [atHome, duelOpen, named, on, refreshDuelInvites])
   // Done here, once the account and the screen allow it.
   const roomSignIn = useRef<string | null>(null)
@@ -1378,15 +1474,18 @@ setStartedAt((at) => at ?? Date.now())
       return
     }
     rememberMultiplayer()
+    // Une table d'amis prend la place de la file : un adversaire trouvé l'en arracherait.
+    cancelQueue()
     setRoomCall(null)
     setTogether(false)
     setMatching(false)
     setMenuPage(null)
     setDuelOpen(roomCall.table ? { join: roomCall.table, room: true } : { join: null })
-  }, [roomCall, hostAccountSettled, answered.profile, answered.account, locale, session.phase, tutorial, modeLesson, on, named, rememberMultiplayer])
+  }, [roomCall, hostAccountSettled, answered.profile, answered.account, locale, session.phase, tutorial, modeLesson, on, named, rememberMultiplayer, cancelQueue])
 
   const joinDuelInvite = (table: string) => {
     rememberMultiplayer()
+    cancelQueue()
     setDuelInvites((list) => list.filter((invite) => invite.table !== table))
     clearPushes([duelPushTag(table)])
     setMenuPage(null)
@@ -1402,9 +1501,89 @@ setStartedAt((at) => at ?? Date.now())
       setDuelOpen(null)
       if (reason) setDuelBanner(reason)
       refreshDuelInvites()
+      const kept = loadActiveDuel()
+      setActiveDuel(kept && Date.now() - kept.at < RESUME_WINDOW_MS ? kept : null)
     },
     [refreshDuelInvites],
   )
+  const onSeated = useCallback((table: string | null) => {
+    seatedTable.current = table
+  }, [])
+
+  // Un adversaire accepté des deux côtés : la table classée s'ouvre, et celle
+  // des joueurs ordinateur, s'il y en avait une, s'abandonne — elle n'a pas d'enjeu.
+  const matchedTable = queueState.kind === 'matched' ? queueState.table : null
+  useEffect(() => {
+    if (!matchedTable) return
+    const previous = seatedTable.current
+    if (previous && previous !== matchedTable) void resignDuel(previous)
+    rememberMultiplayer()
+    setMatching(false)
+    setTogether(false)
+    setLadderOpen(false)
+    setMenuPage(null)
+    setDuelOpen({ join: matchedTable, quick: true })
+    resetQueue()
+  }, [matchedTable, resetQueue, rememberMultiplayer])
+  // Personne en face : dix secondes après l'attente annoncée, la file laisse la
+  // place à une vraie partie contre un bot de ton niveau — seulement depuis
+  // l'écran de recherche, jamais par-dessus ce que le joueur fait ailleurs.
+  const searchingInfo = queueState.kind === 'searching' ? queueState : null
+  const botDue =
+    matching &&
+    session.phase === 'home' &&
+    !!searchingInfo &&
+    !searchingInfo.offline &&
+    duelQueue.now - searchingInfo.since >= botMatchAfter(searchingInfo.info?.estimate ?? null)
+  const botRating = searchingInfo?.info?.me.rating ?? EARLY_START
+  useEffect(() => {
+    if (!botDue) return
+    cancelQueue()
+    setMatching(false)
+    setDuelOpen({ join: null, local: true, bot: botRating })
+  }, [botDue, botRating, cancelQueue])
+
+  // La carte de l'adversaire trouvé se charge dès qu'on entre dans la file.
+  const queueActive = queueState.kind === 'searching' || queueState.kind === 'found'
+  useEffect(() => {
+    if (queueActive) void MatchFound.preload()
+  }, [queueActive])
+  // Une proposition laissée passer loin de l'écran de recherche se dit à l'accueil.
+  const missed = queueState.kind === 'idle' && queueState.notice === 'missed'
+  const [missedBanner, setMissedBanner] = useState(false)
+  const clearMissedBanner = useCallback(() => setMissedBanner(false), [])
+  // Mon classement au duel, que la carte du matchmaking annonce à l'ouverture du choix.
+  const [duelRating, setDuelRating] = useState<DuelRatingInfo | null>(null)
+  useEffect(() => {
+    if (!together || !named) return
+    void fetchDuelRating().then((rating) => rating && setDuelRating(rating))
+  }, [named, together])
+  useEffect(() => {
+    if (!missed || matching) return
+    setMissedBanner(true)
+    dismissQueue()
+  }, [dismissQueue, matching, missed])
+  const resumeDuel = useCallback(() => {
+    const kept = activeDuel
+    if (!kept) return
+    setActiveDuel(null)
+    void rejoinDuel(kept.table).then((outcome) => {
+      if (outcome === 'back') {
+        rememberMultiplayer()
+        cancelQueue()
+        setDuelOpen({ join: kept.table, resume: true })
+      } else {
+        saveActiveDuel(null)
+        setDuelBanner('closed')
+      }
+    })
+  }, [activeDuel, cancelQueue, rememberMultiplayer])
+  const dropResume = useCallback(() => {
+    const kept = activeDuel
+    setActiveDuel(null)
+    saveActiveDuel(null)
+    if (kept) void resignDuel(kept.table)
+  }, [activeDuel])
   const clearDuelBanner = useCallback(() => setDuelBanner(null), [])
   // L'XP d'un duel en ligne, payée par la table : le profil de l'écran la suit.
   const duelProfile = useCallback((next: Profile) => dispatch({ type: 'profile-loaded', profile: next }), [])
@@ -1561,6 +1740,8 @@ setStartedAt((at) => at ?? Date.now())
         // Retirer une invitation de duel ne se joue pas : la notification sort
         // du bandeau, rien d'autre ne bouge.
         if (data.kind === 'duel_cancel') return clearPushes([duelPushTag(data.table)])
+        // Un adversaire trouvé, l'app ouverte : la carte s'affiche déjà, la notification s'efface.
+        if (data.kind === 'match') return clearPushes([duelPushTag(data.table)])
         refreshNow.current()
       }),
     [],
@@ -1584,6 +1765,7 @@ setStartedAt((at) => at ?? Date.now())
       if (!on('duel')) return
       clearPushes([duelPushTag(table)])
       rememberMultiplayer()
+      cancelQueue()
       setDuelInvites((list) => list.filter((invite) => invite.table !== table))
       setMenuPage(null)
       setDuelOpen({ join: table })
@@ -1591,7 +1773,18 @@ setStartedAt((at) => at ?? Date.now())
     }
     // Le retrait d'une invitation : la notification n'a plus rien à dire.
     if (tapped.kind === 'duel_cancel') clearPushes([duelPushTag(tapped.table)])
-  }, [tapped, named, session.phase, on])
+    // L'adversaire trouvé l'app fermée : on revient sur la recherche, qui relit
+    // aussitôt sa place et rouvre la carte à accepter.
+    if (tapped.kind === 'match') {
+      if (!on('duel')) return
+      clearPushes([duelPushTag(tapped.table)])
+      rememberMultiplayer()
+      setMenuPage(null)
+      setTogether(false)
+      startQueue()
+      setMatching(true)
+    }
+  }, [tapped, named, session.phase, on, cancelQueue, startQueue, rememberMultiplayer])
 
   const [swapping, setSwapping] = useState(false)
   const swap = useCallback(
@@ -1842,7 +2035,7 @@ setStartedAt((at) => at ?? Date.now())
     const record = recordOf(session.run, Date.now(), playedLang)
     setHistory((previous) => {
       const next = appendRecord(previous, record)
-      saveHistory(next)
+      saveHistorySoon(next)
       return next
     })
     // Les mots proposés partent avec la partie : le bilan les relit aussitôt
@@ -1914,9 +2107,10 @@ setStartedAt((at) => at ?? Date.now())
     // Une table de duel se quitte par son bouton : un geste de retour en pleine
     // partie abandonnerait sa réserve sans le dire.
     if (duelOpen) return true
-    if (matching) {
+    if (ladderOpen) setLadderOpen(false)
+    else if (matching) {
+      // Revenir ne quitte pas la file : la pastille de l'accueil la garde.
       setMatching(false)
-      setTogether(true)
     } else if (together) setTogether(false)
     else if (picking) setPicking(null)
     else if (creating) setCreating(null)
@@ -1968,10 +2162,14 @@ setStartedAt((at) => at ?? Date.now())
   const superOfferDue = moderation?.offer === 'super' && moderation.moderator && !moderation.super && !offerHeld && on('moderatorOffer')
   const offerDue = superOfferDue || (!alreadyModerating && moderation?.offer !== 'super' && (bonusOfferDue || (!!moderation?.offer && !offerHeld && on('moderatorOffer'))))
   const wordsNewsDue = wordsNews.length > 0 && on('wordsNews')
-  const giftDue = complicationDue(session.profile, acceptedWords) && on('powerGift')
+  const giftDue = complicationDue(session.profile, acceptedWords ?? 0) && on('powerGift')
   // Premium thanks its new member once, back home, and asks for an opinion in
   // exchange: that ask stands in for the regular one if both are due.
   const thanksDue = cloudConfigured() && plusThanksDue(session.profile)
+  const settleRankedNews = () => {
+    saveRankedNewsSeen()
+    setRankedNewsSeen(true)
+  }
   const settleShareNews = () => {
     saveShareNewsSeen()
     setShareNewsSeen(true)
@@ -1995,6 +2193,8 @@ setStartedAt((at) => at ?? Date.now())
       thanks: quietHome && thanksDue,
       feedback: quietHome && feedbackAsk && !thanksDue && on('feedback'),
       shareNews: quietHome && on('friendInvite') && shareNewsDue(session.profile, named, shareNewsSeen),
+      // Le duel classé, présenté une fois à qui jouait déjà : il faut un compte, ou de quoi en ouvrir un.
+      rankedNews: quietHome && on('duel') && rankedNewsDue(session.profile.runs, rankedNewsSeen) && (named || duelSignIn !== undefined),
       premieres: quietHome && on('premium') && freshPremieres.length > 0,
       rating: quietHome && ratingAsk && on('support'),
     },
@@ -2010,7 +2210,7 @@ setStartedAt((at) => at ?? Date.now())
     return (
       <MessagesContext value={t}>
         <main className={`stage stage--${debugPhase}${muteable ? ' stage--muteable' : ''}`}>
-          <Suspense fallback={null}>
+          <ScreenBoundary>
             <DebugBoard
               onPhase={setDebugPhase}
               onClose={() => {
@@ -2018,7 +2218,7 @@ setStartedAt((at) => at ?? Date.now())
                 setDebugPhase(null)
               }}
             />
-          </Suspense>
+          </ScreenBoundary>
         </main>
       </MessagesContext>
     )
@@ -2044,7 +2244,7 @@ setStartedAt((at) => at ?? Date.now())
 )}
 
       {moderating === 'profiles' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <ProfileReviewScreen
             onDone={() => {
               setModerating(false)
@@ -2052,11 +2252,11 @@ setStartedAt((at) => at ?? Date.now())
               setMenuPage('requests')
             }}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {moderating === 'words' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <ModerationScreen
             lang={lang}
             onVerdict={() => dispatch({ type: 'profile-loaded', profile: settleReview(profile.current) })}
@@ -2066,11 +2266,11 @@ setStartedAt((at) => at ?? Date.now())
               setMenuPage('requests')
             }}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {challengeOpen && !moderating && session.phase === 'home' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <ChallengeScreen
             key={challengeOpen}
             id={challengeOpen}
@@ -2078,11 +2278,11 @@ setStartedAt((at) => at ?? Date.now())
             onRematch={rematch}
             onBack={leaveChallenge}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {duelOpen && session.phase === 'home' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <DuelScreen
             key={duelOpen.join ?? (duelOpen.local ? 'local' : 'new')}
             lang={lang}
@@ -2090,11 +2290,15 @@ setStartedAt((at) => at ?? Date.now())
             join={duelOpen.join}
             quick={duelOpen.quick}
             room={duelOpen.room}
+            resume={duelOpen.resume}
+            levelBot={duelOpen.bot ?? null}
+            rankedBot={named && on('rankedBots')}
+            onTable={onSeated}
             onExit={leaveDuel}
             onProfile={duelProfile}
             onSignIn={duelOpen.local ? duelSignIn : undefined}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {together && session.phase === 'home' && !duelOpen && (
@@ -2104,11 +2308,13 @@ setStartedAt((at) => at ?? Date.now())
           onDuel={() => {
             rememberMultiplayer()
             setTogether(false)
+            cancelQueue()
             // Sans compte nommé, la table en ligne ne s'ouvrirait pas : la table
             // des joueurs ordinateur, et l'invitation à se connecter.
             setDuelOpen({ join: null, local: !named })
           }}
           local={!named}
+          rating={duelRating}
           onSignIn={named ? undefined : duelSignIn}
           onMatch={
             // La file du matchmaking assoit deux comptes nommés (`duel_matchmake`) :
@@ -2117,6 +2323,7 @@ setStartedAt((at) => at ?? Date.now())
               ? () => {
                   rememberMultiplayer()
                   setTogether(false)
+                  duelQueue.start()
                   setMatching(true)
                 }
               : undefined
@@ -2140,23 +2347,26 @@ setStartedAt((at) => at ?? Date.now())
       )}
 
       {matching && session.phase === 'home' && !duelOpen && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <DuelMatchmaking
-            lang={lang}
-            onMatched={(table) => {
-              setMatching(false)
-              setDuelOpen({ join: table, quick: true })
-            }}
-            onCancel={() => {
-              setMatching(false)
-              setTogether(true)
-            }}
+            queue={duelQueue}
             onBots={() => {
               setMatching(false)
               setDuelOpen({ join: null })
             }}
+            onPublic={(table) => {
+              cancelQueue()
+              setMatching(false)
+              setDuelOpen({ join: table, room: true })
+            }}
+            onHome={() => {
+              // Une file arrêtée (annulée, manquée) ne laisse rien derrière : retour au choix.
+              if (queueState.kind === 'idle' || queueState.kind === 'cooldown') setTogether(true)
+              setMatching(false)
+            }}
+            onLadder={() => setLadderOpen(true)}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {modesOpen && session.phase === 'home' && !tutorial && (
@@ -2165,6 +2375,38 @@ setStartedAt((at) => at ?? Date.now())
 
       {duelBanner && (
         <DuelBanner text={duelBanner === 'kicked' ? t.duel.kickedBanner : t.duel.closedBanner} onDone={clearDuelBanner} />
+      )}
+
+      {missedBanner && <DuelBanner text={t.ranked.missed} onDone={clearMissedBanner} />}
+
+      {queueState.kind === 'searching' && !matching && session.phase === 'home' && (
+        <QueuePill queue={duelQueue} place={duelOpen ? 'top' : 'bottom'} onOpen={() => setMatching(true)} />
+      )}
+
+      {queueState.kind === 'found' && (
+        <ScreenBoundary>
+          <MatchFound queue={duelQueue} />
+        </ScreenBoundary>
+      )}
+
+      {boardsOpen && (session.phase === 'home' || session.phase === 'over') && (
+        <ScreenBoundary>
+          <LeaderboardsScreen
+            named={named}
+            guest={host.guestBoards && !named}
+            onSignIn={host.guestBoards && !named && host.promptAccount ? () => void host.promptAccount!() : undefined}
+            history={history}
+            avatar={avatar}
+            moderator={moderation?.moderator ?? false}
+            duel={named && on('duel')}
+            initial={boardsOpen.family}
+            onBack={() => {
+              const from = boardsOpen.from
+              setBoardsOpen(null)
+              if (from) setMenuPage(from)
+            }}
+          />
+        </ScreenBoundary>
       )}
 
       {weeklyFlow.overlay}
@@ -2189,7 +2431,9 @@ setStartedAt((at) => at ?? Date.now())
           multiplayerNews={multiplayerNews}
           weekly={weeklyFlow.card}
           invites={
-            duelInvites[0] ? (
+            activeDuel && named && on('duel') ? (
+              <DuelResumeCard onResume={resumeDuel} onDrop={dropResume} />
+            ) : duelInvites[0] ? (
               <DuelInviteCard
                 key={duelInvites[0].table}
                 host={duelInvites[0].host}
@@ -2207,6 +2451,10 @@ setStartedAt((at) => at ?? Date.now())
             setMenuPage('stats')
           }}
           onMenu={(page = 'profile') => {
+            if (page === 'boards') {
+              setBoardsOpen({ family: 'runs', from: null })
+              return
+            }
             setAvatarFocus(null)
             setAccountMode('register')
             setMenuFocus(false)
@@ -2229,7 +2477,7 @@ setStartedAt((at) => at ?? Date.now())
       )}
 
       {creating && session.phase === 'home' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <FriendPicker
             title={t.challenge.create}
             lead={t.challenge.createLead(CHALLENGE_MAX_PLAYERS - 1)}
@@ -2249,11 +2497,11 @@ setStartedAt((at) => at ?? Date.now())
               onRules={(rules) => setCreating({ ...creating, rules })}
             />
           </FriendPicker>
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {picking && session.phase === 'home' && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <ChallengePowers
             allowed={challengePowers(session.profile)}
             initial={defaultChallengePowers(session.profile)}
@@ -2261,7 +2509,7 @@ setStartedAt((at) => at ?? Date.now())
             onStart={(powers) => launchChallenge(picking, powers)}
             onClose={() => setPicking(null)}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {pop === 'name' && nameAsk !== null && (
@@ -2366,6 +2614,23 @@ setStartedAt((at) => at ?? Date.now())
           <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
         )}
 
+      {pop === 'rankedNews' && (
+        <RankedNewsPop
+          named={named}
+          onLater={settleRankedNews}
+          onPlay={() => {
+            settleRankedNews()
+            if (!named) {
+              duelSignIn?.()
+              return
+            }
+            rememberMultiplayer()
+            startQueue()
+            setMatching(true)
+          }}
+        />
+      )}
+
       {pop === 'shareNews' && (
         <ShareNewsPop
           onLater={settleShareNews}
@@ -2416,9 +2681,13 @@ setStartedAt((at) => at ?? Date.now())
       )}
 
       {menuLayer.shown !== null && !moderating && (session.phase === 'home' || session.phase === 'loading' || session.phase === 'over') && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <Menu
             page={menuLayer.shown}
+            onBoards={(from) => {
+              setMenuPage(null)
+              setBoardsOpen({ family: 'runs', from })
+            }}
             leaving={menuLayer.leaving}
             back={session.phase === 'over' ? 'close' : 'profile'}
             profile={session.profile}
@@ -2495,23 +2764,23 @@ avatarFocus={avatarFocus}
             }}
             onClose={closeMenu}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {wordsBoard && on('wordsBoard') && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <WordsBoard lang={lang} superModerator={roles.superModerator} onClose={() => setWordsBoard(false)} />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {featuresBoard && moderation?.super && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <FeaturesBoard roles={roles} onClose={() => setFeaturesBoard(false)} />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {session.phase === 'countdown' && session.run && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <CountdownScreen
             key={session.run.seed}
             categoryIds={session.run.categoryIds}
@@ -2526,11 +2795,11 @@ avatarFocus={avatarFocus}
               dispatch({ type: 'start' })
             }}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {session.phase === 'playing' && session.run && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <RunScreen
             run={session.run}
             draft={session.draft}
@@ -2561,13 +2830,13 @@ avatarFocus={avatarFocus}
             rivals={rivals}
             avatar={avatar}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {weeklyFlow.over}
 
       {session.phase === 'over' && session.run && !session.weekly && !moderating && !loadout && (
-        <Suspense fallback={null}>
+        <ScreenBoundary>
           <OverScreen
             run={session.run}
             profile={session.profile}
@@ -2623,7 +2892,7 @@ setMenuPage('avatar')
               if (session.challengeId) fetchChallenge(session.challengeId).then((detail) => detail && setAfterRun(detail))
             }}
           />
-        </Suspense>
+        </ScreenBoundary>
       )}
 
       {muteable && <MuteButton muted={soundPrefs.muted} onToggle={() => tune({ ...soundPrefs, muted: !soundPrefs.muted })} />}

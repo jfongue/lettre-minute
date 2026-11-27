@@ -10,6 +10,7 @@ import type { BonusId } from '../domain/bonus'
 import type { AuthError, BanOutcome, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
 import { weeklyFr } from './weekly.fr'
+import { rankedFr } from './ranked.fr'
 
 interface LeaderboardText {
   label: string
@@ -21,7 +22,9 @@ const plural = (count: number, one: string, many: string) => (count > 1 ? many :
 /** A trophy's name, and its line from the value that won it and the word, when one did. */
 type Trophy = readonly [name: string, line: (value: number, word: string) => string]
 
-const seconds = (value: number) => value.toLocaleString('fr-FR', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 /**
  * The reference wording: every other language is typed against it, so a key
@@ -82,6 +85,8 @@ export const fr = {
     enduranceHint: 'Trente secondes, et chaque mot t’en rend deux à quatre selon sa rareté.',
     reversed: 'Renversé',
     reversedHint: 'Un mot qui se termine par cette lettre. Pays qui se termine en M ? Vietnam !',
+    race: 'Course',
+    raceHint: 'Dix mots justes, le plus vite possible.',
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'À remplir',
     armNote: 'Valide à vide : c’est là que le chrono part.',
@@ -100,6 +105,10 @@ export const fr = {
       reversed: {
         hello: 'Un mot qui se termine par cette lettre. Pays qui se termine en M ? Vietnam !',
         ask: (letter: string) => `Tape une couleur qui finit par ${letter}.`,
+      },
+      race: {
+        hello: 'Dix mots justes, le plus vite possible : le chrono monte, et il s’arrête au dixième.',
+        ask: (letter: string) => `Tape une couleur en ${letter} : c’est le premier des dix.`,
       },
     },
   },
@@ -144,6 +153,9 @@ export const fr = {
     timeUp: 'Temps écoulé',
     points: 'points',
     survived: 'secondes de survie',
+    raceTime: 'secondes pour dix mots',
+    noFinish: 'Pas d’arrivée',
+    arrived: 'Arrivée !',
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Pas un seul mot. Ça arrive.',
     next: 'Continuer',
@@ -173,12 +185,9 @@ export const fr = {
     lead: 'Merci d’avoir joué ! Je suis un petit développeur français… Pour m’encourager, tu peux parler du jeu autour de toi et mettre 5 étoiles !',
     later: 'Plus tard',
     ok: 'Okay !',
-    /** Shown atop the Buy Me a Coffee form framed in a browser. */
-    frameDescription: 'Merci de soutenir Lettre Minute !',
     close: 'Fermer',
     hello:
       'Coucou, moi c’est Jérémy !\nJe suis un développeur français indépendant et je crée Lettre Minute sur mon temps libre.\nSi le jeu t’a plu, ton soutien m’aiderait énormément, même 1 € compte.\nMerci du fond du cœur !',
-    photo: 'Jérémy, le créateur du jeu',
   },
 
   account: {
@@ -290,7 +299,6 @@ export const fr = {
     editAvatarLabel: 'Modifier mon avatar',
     anonymous: 'Joueur anonyme',
     standing: (level: number, record: string) => `Niveau ${level} · record ${record}`,
-    editAvatar: 'Modifier l’avatar',
     signedInAs: (email: string) => `Connecté avec ${email}`,
     logOut: 'Se déconnecter',
   logOutWarning: 'Ton compte garde tes parties ; cet appareil, lui, repart de zéro.',
@@ -325,7 +333,6 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les
     /** The Social tab's card: what a friend types to find you. */
     nameLabel: 'Ton nom de joueur',
     share: 'Partager',
-    shareName: (name: string) => `Ajoute-moi en ami sur Lettre Minute : mon nom de joueur est ${name}.`,
     incomingCount: (count: number) => `${count} ${plural(count, 'demande', 'demandes')}`,
     wantsFriend: 'veut être ton ami',
     sortLabel: 'Trier tes amis',
@@ -449,7 +456,7 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les
     empty: 'Aucune demande pour l’instant. En partie, un mot inconnu du dictionnaire se propose d’une touche.',
     added: 'Ajoutés grâce à toi',
     addedNote: (xp: number) => `${xp} XP gagnés pour chacun.`,
-    noneAdded: 'Aucun encore : un mot entre quand cinq modérateurs l’ont validé.',
+    noneAdded: 'Aucun encore : un mot entre quand deux à sept modérateurs l’ont validé.',
     /** « Ajoutés grâce à toi » se replie sur ses dix derniers. */
     more: (count: number) => `Voir plus (${count})`,
     less: 'Voir moins',
@@ -473,8 +480,8 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les
   moderation: {
     title: 'Modération',
     superTitle: 'Super modérateur',
-    lead: 'Tu juges les mots proposés par les joueurs : deux « correct » font entrer un mot dans une langue qui compte peu de juges, cinq là où ils sont assez nombreux ; deux « incorrect » le bloquent. Chaque « je ne sais pas » demande deux « correct » de plus, et une demi-voix de plus pour bloquer.',
-    superLead: 'Ta voix compte double, mais jamais seule : deux « correct » font entrer un mot là où les juges sont rares, cinq là où ils sont assez nombreux, et ton seul « incorrect » le bloque. Les cas spéciaux n’attendent que les super modérateurs.',
+    lead: 'Tu juges les mots proposés par les joueurs : deux à sept « correct » font entrer un mot, d’autant moins qu’il y a de mots à juger, et deux suffisent dans une langue qui compte peu de juges ; deux « incorrect » le bloquent. Chaque « je ne sais pas » demande deux « correct » de plus, et une demi-voix de plus pour bloquer.',
+    superLead: 'Ta voix compte double, mais jamais seule : deux à sept « correct » font entrer un mot, d’autant moins qu’il y a de mots à juger, et ton seul « incorrect » le bloque. Les cas spéciaux n’attendent que les super modérateurs.',
     score: (score: number) => `Exigence : ${score}/100`,
     scoreLead: 'Ton score monte quand les autres modérateurs partagent tes refus, et baisse quand ils refusent un mot que tu as validé.',
     scoreSoon: 'Ton score d’exigence apparaîtra dès qu’un mot que tu as jugé sera tranché.',
@@ -524,7 +531,7 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les
       hint: 'Modérateur : appui long sur un mot pour le signaler.',
       title: 'Signaler ce mot',
       lead: (word: string, category: string) =>
-        `« ${word} » n’a pas sa place dans « ${category} » ? Les autres modérateurs le jugeront : deux « correct » là où les juges sont rares, cinq ailleurs, et il quittera la catégorie à la prochaine version.`,
+        `« ${word} » n’a pas sa place dans « ${category} » ? Les autres modérateurs le jugeront : deux à sept « correct », d’autant moins qu’il y a de mots à juger, et il quittera la catégorie à la prochaine version.`,
       confirm: 'Signaler',
       close: 'Fermer',
       reasonLabel: 'Motif (facultatif)',
@@ -908,6 +915,7 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
     floor: 'Il faut garder au moins six catégories en jeu.',
     max: (count: number) => `${count} catégories filtrées au plus.`,
     limit: 'Tous tes cadenas sont posés. Un bonus de niveau t’en donnera un autre.',
+    full: (count: number) => `Tes ${count} cadenas sont posés : rétablis une catégorie pour en filtrer une autre.`,
     lockedTitle: 'Filtrage verrouillé',
     lockedHow: 'Gagne ton premier cadenas avec un bonus de niveau.',
     lockedHowPlus: 'Gagne ton premier cadenas avec un bonus de niveau, ou passe Premium pour en avoir six.',
@@ -956,6 +964,7 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
   },
 
   weekly: weeklyFr,
+  ranked: rankedFr,
 
   premiumPage: {
     lead: 'Ce que Premium t’a apporté, au-delà des limites gratuites.',
@@ -996,13 +1005,11 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
     title: 'Tes avantages',
     filters: (used: number, max: number) => `Filtrages : ${used} sur ${max}`,
     filtersLocked: 'Filtrage : pas encore gagné',
-    filtersPlus: (max: number) => `Filtrage : jusqu’à ${max} catégories`,
     reveals: (left: number, allowed: number) => `Révélations du jour : ${left} sur ${allowed}`,
     revealsPlus: 'Révélations illimitées',
     slots: (count: number, max: number) => `Emplacements de pouvoir : ${count} sur ${max}`,
   hintFilters: 'Le filtrage écarte une catégorie de tes parties solo.',
   hintReveals: 'Au récap, révèle un mot que tu aurais pu écrire.',
-  hintSlots: 'Les pouvoirs que tu portes en partie.',
   },
 
   bonus: {
@@ -1032,6 +1039,11 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
     later: 'Plus tard',
     go: 'Mettre à jour',
   },
+  broken: {
+    title: 'Ça n’a pas chargé',
+    lead: 'Cet écran n’a pas pu s’ouvrir, sans doute une coupure de connexion. Ta progression est gardée.',
+    reload: 'Recharger',
+  },
 
   tiers: {
     courant: 'courant',
@@ -1052,16 +1064,13 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
   /** Le duel en direct : le salon, le draft, la partie, le récapitulatif. */
   duel: {
     title: 'Duel',
-    leadTitle: 'Duel en direct',
+    leadTitle: 'Duel amical',
     lead: 'Chacun sa réserve de 30 secondes, qui ne coule que pendant son tour. Un mot passe la main, un mot rare rend du temps. Le dernier debout gagne.',
     trait: { fast: 'Rapide', steady: 'Posé', sharp: 'Redoutable' },
     you: 'Toi',
     ready: 'Prêt',
     notReady: 'Pas encore prêt',
     invited: 'Invité',
-    inviteAction: 'Inviter',
-    leftStamp: 'A quitté',
-    keepOne: 'Il faut au moins un adversaire à la table.',
     readyButton: 'Je suis prêt',
     tableSize: (players: number) => `${players} joueurs`,
     waitingOthers: 'Les autres arrivent…',
@@ -1168,11 +1177,11 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
     declineTable: 'Non merci',
     chooseTitle: 'Jouer entre amis',
     chooseLead: 'Deux façons de se mesurer : en direct, ou chacun quand il veut.',
-    duelCard: 'Duel en direct !',
+    duelCard: 'Duel amical',
     duelCardNote: 'Chacun son tour, 30 secondes de réserve, le dernier debout gagne.',
     duelCardPlayers: '2 à 4 joueurs',
-    matchCard: 'Trouver un adversaire',
-    matchCardNote: 'Un joueur au hasard, tout de suite',
+    matchCard: 'Duel classé',
+    matchCardNote: 'Un joueur de ton niveau, tout de suite',
     matchCardPlayers: '2 joueurs',
     matchTitle: 'Recherche d’un adversaire…',
     matchLead: 'On t’associe à un joueur qui cherche aussi une partie, dans ta langue.',

@@ -65,18 +65,18 @@ describe('bans', () => {
     expect(playableCategoryIds(unban(banned, 'c'), SEVEN)).toEqual(SEVEN)
   })
 
-  it('give one ban per filter bonus, two at most, then ask for Premium', () => {
-    const EIGHT = [...SEVEN, 'h', 'i']
-    const one = ban(filtered(1), EIGHT, 'c')
-    expect(banVerdict(one, EIGHT, 'd')).toBe('plus')
-    expect(ban(one, EIGHT, 'd')).toBe(one)
-    const two = ban(ban(filtered(2), EIGHT, 'c'), EIGHT, 'd')
-    expect(bannedOf(two, EIGHT)).toEqual(['c', 'd'])
-    expect(banVerdict(two, EIGHT, 'e')).toBe('plus')
-    expect(bannedOf(filtered(3), EIGHT)).toEqual([])
-    expect(bannedOf({ ...filtered(3), banned: ['a', 'b', 'c'] }, EIGHT)).toEqual(['a', 'b'])
+  it('give one ban per filter bonus, three at most, then ask for Premium', () => {
+    const TEN = [...SEVEN, 'h', 'i', 'j']
+    const one = ban(filtered(1), TEN, 'c')
+    expect(banVerdict(one, TEN, 'd')).toBe('plus')
+    expect(ban(one, TEN, 'd')).toBe(one)
+    const two = ban(ban(filtered(2), TEN, 'c'), TEN, 'd')
+    expect(bannedOf(two, TEN)).toEqual(['c', 'd'])
+    expect(banVerdict(two, TEN, 'e')).toBe('plus')
+    expect(bannedOf(filtered(4), TEN)).toEqual([])
+    expect(bannedOf({ ...filtered(4), banned: ['a', 'b', 'c', 'd'] }, TEN)).toEqual(['a', 'b', 'c'])
     const plus = joinPlus(two, 1)
-    expect(banVerdict(plus, EIGHT, 'e')).toBe('ok')
+    expect(banVerdict(plus, TEN, 'e')).toBe('ok')
   })
 
   it('never leave fewer than six categories in play', () => {

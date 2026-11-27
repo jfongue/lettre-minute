@@ -31,6 +31,7 @@ import { SpyHistory, type SpyActions } from '../ui/SpyHistory'
 import { GameModes } from '../ui/GameModes'
 import { ModeTutorial } from '../ui/ModeTutorial'
 import { TutorialScreen } from '../ui/TutorialScreen'
+import { ScreenBoundary } from '../ui/ScreenBoundary'
 import { UpdateNotice } from '../ui/UpdateNotice'
 import { PushOffer } from '../ui/PushOffer'
 import { FlagWordCard, OldChallengeList, StatsPage } from '../ui/StatsPage'
@@ -70,7 +71,9 @@ import { RatingPop } from '../ui/RatingPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
-import { DuelScreen, Draft, DuelMatchmaking, Lobby, Over } from '../ui/DuelScreen'
+import { DuelScreen, Draft, Lobby, Over } from '../ui/DuelScreen'
+import { RankedNewsPop } from '../ui/RankedNewsPop'
+import { badgesStub, AwayScenario, FlowFoundScenario, FlowOverScenario, FlowPlayScenario, FlowSearchScenario, LadderScenario, MatchFoundScenario, MatchmakingScenario, QueuePillScenario, RankedOverScenario, ResumeScenario } from './rankedScenarios'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
@@ -788,7 +791,7 @@ function AvatarScenario() {
 function LeaderboardsScenario({ named, moderator = false, mineAt }: { named: boolean; moderator?: boolean; mineAt?: number }) {
   return (
     <div className="sheet">
-      <LeaderboardsPage named={named} moderator={moderator} load={(stat, period) => fakeLeaderboard(stat, period, mineAt)} />
+      <LeaderboardsPage named={named} moderator={moderator} load={(stat, period) => fakeLeaderboard(stat, period, mineAt)} badges={badgesStub} />
     </div>
   )
 }
@@ -1278,8 +1281,8 @@ const PROFILE_QUEUE: readonly ProfileReview[] = [
     rejected: 16,
     pending: 0,
     words: [
-      { display: 'Azerty', lang: 'fr', categoryId: 'animaux', status: 'rejected', at: Date.now() - 0 * 86_400_000, reasons: ['Pas un animal.', 'Ce sont les lettres du clavier.'] },
-      { display: 'Qsdf', lang: 'fr', categoryId: 'pays', status: 'rejected', at: Date.now() - 0 * 86_400_000, reasons: [] },
+      { display: 'Azerty', lang: 'fr', categoryId: 'animaux', status: 'rejected', at: Date.now(), reasons: ['Pas un animal.', 'Ce sont les lettres du clavier.'] },
+      { display: 'Qsdf', lang: 'fr', categoryId: 'pays', status: 'rejected', at: Date.now(), reasons: [] },
       { display: 'Chat', lang: 'fr', categoryId: 'animaux', status: 'accepted', at: Date.now() - 1 * 86_400_000, reasons: [] },
       { display: 'Lolilol', lang: 'fr', categoryId: 'metiers', status: 'rejected', at: Date.now() - 1 * 86_400_000, reasons: ['Mot inventé.'] },
     ],
@@ -1292,7 +1295,7 @@ const PROFILE_QUEUE: readonly ProfileReview[] = [
     rejected: 7,
     pending: 2,
     words: [
-      { display: 'Doudou', lang: 'fr', categoryId: 'objets', status: 'pending', at: Date.now() - 0 * 86_400_000, reasons: [] },
+      { display: 'Doudou', lang: 'fr', categoryId: 'objets', status: 'pending', at: Date.now(), reasons: [] },
       { display: 'Pokémon', lang: 'fr', categoryId: 'animaux', status: 'rejected', at: Date.now() - 1 * 86_400_000, reasons: ['Personnage de jeu vidéo, pas un animal.'] },
       { display: 'Ouistiti', lang: 'fr', categoryId: 'animaux', status: 'accepted', at: Date.now() - 2 * 86_400_000, reasons: [] },
       { display: 'Kebabier', lang: 'fr', categoryId: 'metiers', status: 'rejected', at: Date.now() - 3 * 86_400_000, reasons: ['Pas dans le dictionnaire.'] },
@@ -1600,6 +1603,12 @@ const CHEER_TABLE: DuelTable = (() => {
     play: noop,
     pass: noop,
     leave: noop,
+    ranked: false,
+    rating: null,
+    away: [],
+    echoes: true,
+    echoesLeft: 3,
+    echo: noop,
   }
 })()
 
@@ -1777,6 +1786,11 @@ function PremiumGrammarScenario({ onBack }: { onBack(): void }) {
   )
 }
 
+/** Un écran qui plante à son rendu, comme un morceau du jeu qui n'arrive pas. */
+function BrokenScreen(): never {
+  throw new Error('écran de démonstration')
+}
+
 const SCENARIOS: readonly Scenario[] = [
   {
     id: 'premium-sheet',
@@ -1929,6 +1943,54 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Record battu, tentatives restantes, rang provisoire',
     phase: 'over',
     render: (back) => <WeeklyDoneScenario record onBack={back} />,
+  },
+  {
+    id: 'weekly-tutorial-race',
+    group: 'Défi du moment',
+    title: 'Tutoriel de la course',
+    how: 'Dix mots le plus vite possible : le chrono qui monte, la passe à 5 s, le plafond de trois minutes',
+    phase: 'home',
+    render: (back) => <ModeIntro mode="race" onDone={back} />,
+  },
+  {
+    id: 'weekly-screen-race',
+    group: 'Défi du moment',
+    title: 'Écran du défi : course',
+    how: 'Le défi en course, quand une semaine la recevra : le drapeau à damier, le record lu comme un temps',
+    phase: 'home',
+    render: (back) => <WeeklyScreenScenario mode="race" used={1} plus={false} onBack={back} />,
+  },
+  {
+    id: 'weekly-run-race',
+    group: 'Défi du moment',
+    title: 'Partie en course',
+    how: 'Le chrono qui monte, le disque qui se remplit des mots, « 6/10 » à la place des points',
+    phase: 'playing',
+    render: () => <WeeklyRunScenario mode="race" remaining={132.7} />,
+  },
+  {
+    id: 'weekly-attempt-done-race',
+    group: 'Défi du moment',
+    title: 'Fin de tentative : course arrivée',
+    how: 'Dix mots en 46,3 s, record battu (52,8 s)',
+    phase: 'over',
+    render: (back) => <WeeklyDoneScenario record mode="race" onBack={back} />,
+  },
+  {
+    id: 'weekly-attempt-done-race-dnf',
+    group: 'Défi du moment',
+    title: 'Fin de tentative : course sans arrivée',
+    how: 'Sept mots en trois minutes : « Pas d’arrivée », le record reste 52,8 s',
+    phase: 'over',
+    render: (back) => <WeeklyDoneScenario record={false} mode="race" onBack={back} />,
+  },
+  {
+    id: 'weekly-results-race',
+    group: 'Défi du moment',
+    title: 'Classement du défi : course',
+    how: 'Les mêmes soixante joueurs, chaque valeur lue comme un temps (sans serveur)',
+    phase: 'home',
+    render: (back) => <WeeklyResultsScenario closed={false} mode="race" onBack={back} />,
   },
   {
     id: 'weekly-results',
@@ -2722,11 +2784,267 @@ const SCENARIOS: readonly Scenario[] = [
   },
   {
     id: 'duel-matchmaking',
-    group: 'Duel',
+    group: 'Duel classé',
     title: 'Matchmaking : recherche d’un adversaire',
-    how: 'Après « Trouver un adversaire » : la file, relue toutes les deux secondes ; les joueurs ordinateur s’offrent au bout de quinze secondes ; ici la file ne répond jamais',
+    how: 'Après « Trouver un adversaire » : ma ligue, l’attente écoulée et l’estimée, combien cherchent et jouent ; « Annuler » arrête la file, le classement s’ouvre en bas',
     phase: 'home',
-    render: (back) => <DuelMatchmaking lang="fr" onMatched={back} onCancel={back} onBots={back} ask={async () => ({ status: 'waiting' })} leave={async () => true} />,
+    render: (back) => <MatchmakingScenario kind="searching" onBack={back} />,
+  },
+  {
+    id: 'duel-matchmaking-long',
+    group: 'Duel classé',
+    title: 'Matchmaking : attente plus longue que prévu',
+    how: 'Plus d’une minute dans la file : l’estimation dépassée en rouge, un adversaire proposé qui n’a pas confirmé, les joueurs ordinateur en attendant et une table publique à rejoindre',
+    phase: 'home',
+    render: (back) => <MatchmakingScenario kind="long" onBack={back} />,
+  },
+  {
+    id: 'duel-matchmaking-cooldown',
+    group: 'Duel classé',
+    title: 'Matchmaking : pause après trop d’abandons',
+    how: 'Les manquements du jour s’accumulent : 5 min, 15 min, 1 h, 4 h puis 24 h hors de la file — ici le palier d’une heure ; les joueurs ordinateur restent ouverts',
+    phase: 'home',
+    render: (back) => <MatchmakingScenario kind="cooldown" onBack={back} />,
+  },
+  {
+    id: 'duel-matchmaking-missed',
+    group: 'Duel classé',
+    title: 'Matchmaking : proposition laissée passer',
+    how: 'Le joueur n’a pas accepté dans les vingt secondes : la file s’est arrêtée, « Relancer » la reprend',
+    phase: 'home',
+    render: (back) => <MatchmakingScenario kind="missed" onBack={back} />,
+  },
+  {
+    id: 'duel-match-found',
+    group: 'Duel classé',
+    title: 'Adversaire trouvé',
+    how: 'La file a trouvé Ondine : les deux places, l’enjeu au classement, vingt secondes qui se consument ; « Accepter » passe à l’attente, Ondine accepte au bout de six secondes',
+    phase: 'duel',
+    render: (back) => <MatchFoundScenario onBack={back} />,
+  },
+  {
+    id: 'duel-match-found-friendly',
+    group: 'Duel classé',
+    title: 'Adversaire trouvé par une version livrée',
+    how: 'Une version d’avant le classement a apparié le joueur : la table n’est pas classée, la carte dit « Partie amicale »',
+    phase: 'duel',
+    render: (back) => <MatchFoundScenario ranked={false} onBack={back} />,
+  },
+  {
+    id: 'duel-queue-pill',
+    group: 'Duel classé',
+    title: 'La file continue à l’accueil',
+    how: 'Le joueur a quitté l’écran de recherche : la pastille dit l’attente et l’estimée ; la toucher rouvre la recherche, la croix l’arrête',
+    phase: 'home',
+    render: (back) => <QueuePillScenario onBack={back} home={<DebugHome back={back} />} />,
+  },
+  {
+    id: 'duel-ladder',
+    group: 'Duel classé',
+    title: 'Classements en pleine page : le duel classé',
+    how: 'Tous les classements sortent du tiroir : Solo, Défi et Duel ; le duel montre les rangs — Maître pour le top 10 —, jamais l’Elo, et ma place en bas',
+    phase: 'duel',
+    render: (back) => <LadderScenario onBack={back} load={(stat, period) => fakeLeaderboard(stat, period)} />,
+  },
+  {
+    id: 'boards-page',
+    group: 'Duel classé',
+    title: 'Classements en pleine page : le solo',
+    how: 'Depuis l’accueil ou les statistiques, les classements s’ouvrent sur une page entière, hors du tiroir, avec Solo, Défi et Duel',
+    phase: 'duel',
+    render: (back) => <LadderScenario onBack={back} initial="runs" load={(stat, period) => fakeLeaderboard(stat, period)} />,
+  },
+  {
+    id: 'duel-over-ranked',
+    group: 'Duel classé',
+    title: 'Bilan d’un duel classé : nouvelle ligue',
+    how: 'Le serveur a réglé la table : l’Elo monte de 1 093 à 1 108 et passe d’Argent à Or',
+    phase: 'duel',
+    render: () => <RankedOverScenario base={DUEL_OVER_TABLE} settle="promoted" />,
+  },
+  {
+    id: 'duel-over-ranked-loss',
+    group: 'Duel classé',
+    title: 'Bilan d’un duel classé : défaite',
+    how: 'Une défaite réglée : l’Elo descend de onze points, la ligue tient',
+    phase: 'duel',
+    render: () => <RankedOverScenario base={{ ...DUEL_OVER_TABLE, myIndex: 1 }} settle="lost" />,
+  },
+  {
+    id: 'duel-over-placed',
+    group: 'Duel classé',
+    title: 'Bilan d’un duel classé : placements finis',
+    how: 'La troisième partie de placement : le joueur est classé, ici en Or III',
+    phase: 'duel',
+    render: () => <RankedOverScenario base={DUEL_OVER_TABLE} settle="placed" />,
+  },
+  {
+    id: 'duel-over-demoted',
+    group: 'Duel classé',
+    title: 'Bilan d’un duel classé : rétrogradation',
+    how: 'Une défaite qui fait repasser d’Or III en Argent I',
+    phase: 'duel',
+    render: () => <RankedOverScenario base={DUEL_OVER_TABLE} settle="demoted" />,
+  },
+  {
+    id: 'duel-over-master',
+    group: 'Duel classé',
+    title: 'Bilan d’un duel classé : Maître',
+    how: 'Un joueur du top 10 : son rang est « Maître n° 7 »',
+    phase: 'duel',
+    render: () => <RankedOverScenario base={DUEL_OVER_TABLE} settle="master" />,
+  },
+  {
+    id: 'duel-over-settling',
+    group: 'Duel classé',
+    title: 'Bilan d’un duel classé : règlement en cours',
+    how: 'La fin vient d’arriver, le rapport de l’autre pas encore : « Le classement se règle… »',
+    phase: 'duel',
+    render: () => <RankedOverScenario base={DUEL_OVER_TABLE} settle="settling" />,
+  },
+  {
+    id: 'duel-over-voided',
+    group: 'Duel classé',
+    title: 'Bilan d’un duel classé : partie annulée',
+    how: 'Les rapports des deux appareils ne concordaient pas : la partie ne compte pas',
+    phase: 'duel',
+    render: () => <RankedOverScenario base={DUEL_OVER_TABLE} settle="voided" />,
+  },
+  {
+    id: 'duel-seat-away',
+    group: 'Duel classé',
+    title: 'Adversaire hors ligne en pleine partie',
+    how: 'Ondine ne relit plus la table depuis six secondes : sa place pâlit et dit « Hors ligne », sa réserve coule',
+    phase: 'duel',
+    render: () => <AwayScenario base={CHEER_TABLE} />,
+  },
+  {
+    id: 'duel-ranked-news',
+    group: 'Duel classé',
+    title: 'Pop-up : le duel classé présenté',
+    how: 'Une fois, à l’accueil, à un joueur qui a déjà joué une partie : les ligues en formes, et « Jouer classé » qui lance la file',
+    phase: 'home',
+    render: (back) => <RankedNewsPop named onPlay={back} onLater={back} />,
+  },
+  {
+    id: 'duel-ranked-news-guest',
+    group: 'Duel classé',
+    title: 'Pop-up : le duel classé présenté, sans compte',
+    how: 'Le même pop-up pour un joueur sans compte nommé (un invité CrazyGames, un anonyme) : le bouton ouvre la connexion',
+    phase: 'home',
+    render: (back) => <RankedNewsPop named={false} onPlay={back} onLater={back} />,
+  },
+  {
+    id: 'duel-flow-search-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '1. Jérémy cherche',
+    how: 'Jérémy est dans la file depuis vingt secondes, seul de sa langue : l’estimée, et quatre joueurs en duel qui vont se libérer',
+    phase: 'home',
+    render: (back) => <FlowSearchScenario side="a" onBack={back} />,
+  },
+  {
+    id: 'duel-flow-search-b',
+    group: 'Duel classé : le parcours à deux',
+    title: '1. Ondine arrive',
+    how: 'Ondine vient d’entrer dans la file : un autre joueur cherche, l’appariement est imminent',
+    phase: 'home',
+    render: (back) => <FlowSearchScenario side="b" onBack={back} />,
+  },
+  {
+    id: 'duel-level-bot',
+    group: 'Duel classé',
+    title: 'Personne en face : un bot de ton niveau',
+    how: 'Dix secondes après l’attente annoncée sans adversaire, la file lance une vraie partie contre « Bot », réglé sur l’Elo du joueur (ici Argent I) : pas de salon, le draft d’abord',
+    phase: 'duel',
+    render: () => <DuelScreen lang="fr" mode="local" levelBot={1093} />,
+  },
+  {
+    id: 'duel-flow-found-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '3. Jérémy : adversaire trouvé, accepté',
+    how: 'La carte s’ouvre par-dessus la table des ordinateurs ; Jérémy a accepté et attend Ondine',
+    phase: 'duel',
+    render: () => <FlowFoundScenario side="a" behind={<DuelScreen lang="fr" mode="local" />} />,
+  },
+  {
+    id: 'duel-flow-found-b',
+    group: 'Duel classé : le parcours à deux',
+    title: '3. Ondine : adversaire trouvé',
+    how: 'Ondine voit Jérémy déjà prêt, l’enjeu et le décompte',
+    phase: 'duel',
+    render: () => <FlowFoundScenario side="b" />,
+  },
+  {
+    id: 'duel-flow-play-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '4. Jérémy en partie',
+    how: 'La table classée, vue de la place de Jérémy',
+    phase: 'duel',
+    render: () => <FlowPlayScenario base={CHEER_TABLE} side="a" />,
+  },
+  {
+    id: 'duel-flow-play-b',
+    group: 'Duel classé : le parcours à deux',
+    title: '4. Ondine en partie',
+    how: 'La même table, vue de la place d’Ondine',
+    phase: 'duel',
+    render: () => <FlowPlayScenario base={CHEER_TABLE} side="b" />,
+  },
+  {
+    id: 'duel-flow-echo-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '4 bis. Jérémy trouve pendant le tour d’Ondine',
+    how: 'Un mot juste tapé pendant le tour de l’autre : l’étiquette annonce « Bonus +1 s », Valider l’envoie',
+    phase: 'duel',
+    render: () => <FlowPlayScenario base={CHEER_TABLE} side="a" echo />,
+  },
+  {
+    id: 'duel-flow-echo-b',
+    group: 'Duel classé : le parcours à deux',
+    title: '4 bis. Ondine voit Jérémy trouver',
+    how: 'Chez celle qui a la main : « Jérémy a trouvé un mot », +1 s sur sa place, le mot reste caché',
+    phase: 'duel',
+    render: () => <FlowPlayScenario base={CHEER_TABLE} side="b" echo />,
+  },
+  {
+    id: 'duel-flow-away-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '5. Jérémy voit Ondine décrocher',
+    how: 'Ondine ne relit plus la table : sa place pâlit, la ligne du tour le dit',
+    phase: 'duel',
+    render: () => <FlowPlayScenario base={CHEER_TABLE} side="a" away />,
+  },
+  {
+    id: 'duel-flow-away-b',
+    group: 'Duel classé : le parcours à deux',
+    title: '5. Ondine a perdu sa connexion',
+    how: 'Chez Ondine : le dernier état reste à l’écran avec « connexion perdue »',
+    phase: 'duel',
+    render: () => <FlowPlayScenario base={CHEER_TABLE} side="b" away />,
+  },
+  {
+    id: 'duel-flow-over-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '6. Jérémy gagne et monte en Or',
+    how: 'Le bilan de Jérémy : +11, l’Elo franchit 1 100 et passe en Or',
+    phase: 'duel',
+    render: () => <FlowOverScenario base={DUEL_OVER_TABLE} side="a" />,
+  },
+  {
+    id: 'duel-flow-over-b',
+    group: 'Duel classé : le parcours à deux',
+    title: '6. Ondine perd',
+    how: 'Le bilan d’Ondine : −11, sa ligue tient',
+    phase: 'duel',
+    render: () => <FlowOverScenario base={DUEL_OVER_TABLE} side="b" />,
+  },
+  {
+    id: 'duel-resume',
+    group: 'Duel classé',
+    title: 'Reprendre un duel quitté',
+    how: 'L’app s’est fermée en plein duel : l’accueil propose d’y revenir tant que la réserve tient, ou d’abandonner',
+    phase: 'home',
+    render: (back) => <ResumeScenario onBack={back} />,
   },
   {
     id: 'duel-table',
@@ -2807,6 +3125,18 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Le Play Store a une version plus récente',
     phase: 'home',
     render: (back) => <UpdateNotice onLater={back} onUpdate={back} />,
+  },
+  {
+    id: 'screen-broken',
+    group: 'Accueil',
+    title: 'Écran qui n’a pas chargé',
+    how: 'Un morceau du jeu manque (mise à jour, coupure) ou un écran plante : la page ne blanchit plus, elle propose de recharger',
+    phase: 'home',
+    render: () => (
+      <ScreenBoundary>
+        <BrokenScreen />
+      </ScreenBoundary>
+    ),
   },
   {
     id: 'feedback-pop',
@@ -2955,6 +3285,19 @@ const SCENARIOS: readonly Scenario[] = [
     render: () => <BansScenario bonuses={['filter']} />,
   },
   {
+    id: 'categories-ban-three',
+    group: 'Accueil',
+    title: 'Mes catégories : trois cadenas gagnés',
+    how: 'Version sans Premium (CrazyGames, Playgama, Y8) : les trois cadenas des niveaux 13, 22 et 31 posés ; un quatrième dit de rétablir une catégorie, sans promettre de bonus',
+    phase: 'home',
+    render: () => (
+      // Comme sur un portail : aucune fiche Premium à ouvrir.
+      <PremiumContext.Provider value={{ storeOpen: false, adsOpen: false, open: noop }}>
+        <BansScenario seen every bonuses={['filter', 'filter', 'filter']} banned={['pays', 'animaux', 'couleurs']} />
+      </PremiumContext.Provider>
+    ),
+  },
+  {
     id: 'categories-ban-plus',
     group: 'Accueil',
     title: 'Mes catégories : Premium',
@@ -3088,6 +3431,14 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'La lettre contraint la fin : la couleur tapée doit finir par elle',
     phase: 'playing',
     render: (back) => <ModeTutorial mode="reversed" lang="fr" onDone={back} />,
+  },
+  {
+    id: 'mode-race',
+    group: 'Accueil',
+    title: 'Leçon du mode course',
+    how: 'La fiche de la course, puis une couleur à taper : le premier des dix mots',
+    phase: 'playing',
+    render: (back) => <ModeTutorial mode="race" lang="fr" onDone={back} />,
   },
   {
     id: 'duel-rules',

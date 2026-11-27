@@ -9,7 +9,7 @@ import { gameReady, initPlaygama, restoreSavedProgress } from './platform/playga
 import { armSound } from './lib/sound'
 import { loadLocale } from './state/locale'
 import { applyTheme, loadTheme } from './state/theme'
-import { drawPageBarOnIos, tightenUnderKeyboard } from './portalPage'
+import { drawPageBarOnIos, submitFormsInSandbox, tightenUnderKeyboard } from './portalPage'
 import './styles.css'
 import './crazygames.css'
 
@@ -26,6 +26,7 @@ document.documentElement.dataset.build = import.meta.env.VITE_BUILD ?? 'dev'
 
 tightenUnderKeyboard()
 drawPageBarOnIos()
+submitFormsInSandbox()
 
 void (async () => {
   await initPlaygama()

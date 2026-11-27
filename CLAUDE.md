@@ -168,7 +168,11 @@ ce n'est pas une raison de renoncer au protocole DevTools.
   lettre. Pas le rang de `notoriety` : parmi 23 000 animaux, il
   sacre les quiscales. Un couple de moins de `THIN_PROMPT_WORDS` mots connus
   ne revient pas dans la même partie, et ce verrou passe avant le changement
-  de catégorie. Il n'y a plus de jeu de lettres par langue : c'est le
+  de catégorie. Dans une partie seule (`!Run.shared`), un couple passé ne
+  revient pas non plus, ni celui à l'écran au tirage suivant — même répondu,
+  pour que Divination montre ce que la passe comme le mot distribueront ;
+  un défi, un robot ou le quotidien Reddit n'ont pas ce verrou, qui ferait
+  dépendre leur tirage des choix du joueur. Il n'y a plus de jeu de lettres par langue : c'est le
   dictionnaire qui dit quelles lettres existent.
 - **Le tirage écoute aussi la foule** (`Judge.pull`, `src/domain/prompts.ts`) :
   un couple que les joueurs quittent sans rien écrire s'efface peu à peu, un
@@ -443,14 +447,21 @@ propre téléphone.
 - **Les récompenses d'XP pour un mot proposé sont décidées côté serveur**
   (`accept_word`), jamais par le client — et depuis 0007, seules les fonctions
   du serveur peuvent l'appeler.
-- **Les règles de modération vivent en SQL** (`settle_review`, 0059, 0078), pas
-  dans le domaine : cinq « correct », deux « incorrect », chaque « je ne sais pas »
+- **Les règles de modération vivent en SQL** (`settle_review`, 0059, 0078, 0119, 0120), pas
+  dans le domaine : de sept à deux « correct » selon le stock de la langue
+  (revues en attente plus réserve, `moderation_stock`) — plus il attend de mots,
+  moins il en faut, paliers dans `moderation_stock_steps` —, deux « incorrect »,
+  chaque « je ne sais pas »
   demandant deux « correct » de plus (plafond quinze) et une demi-voix de plus
   pour bloquer (plafond sept), les cas spéciaux restant à un super modérateur
   seul. **Une langue de moins de dix modérateurs se contente de deux
   « correct »** (`thin_language`, 0078) : `moderators.lang` dit la langue de
   chaque juge — « fr » tant qu'il n'a rien ouvert, celle de la file qu'il ouvre
   ensuite (`top_up_moderation`) —, et le seuil se lit sur la langue de la revue.
+  Le recrutement suit le stock dans l'autre sens : l'offre de niveau ou de mots
+  acceptés ne sort à l'accueil que si la langue a moins d'un juge pour
+  `moderation_staffing.words_per_moderator` mots qui attendent
+  (`moderators_wanted`) ; une invitation posée sort toujours.
   Super modérateur est un rôle donné à la main
   (`moderators.super`, 0047), plus un rang gagné : son vote compte double, sans
   faire entrer un mot à lui seul — deux personnes sont toujours nécessaires,
@@ -560,7 +571,9 @@ propre téléphone.
   ne s'affichent nulle part. L'ouvreur se tire de la graine (`Duel.opener`).
 - **Deux sources pour la même table** (`src/state/duel.ts`) : `online`, la
   table du serveur (0046), relue toutes les 450 ms en partie — il n'y a pas de
-  Realtime dans le client, et c'est voulu (`src/lib/supabase.ts`) —, et `local`,
+  Realtime dans le client, et c'est voulu (`src/lib/supabase.ts`) ; la relève
+  passe par `liveTransport()` (`src/lib/live.ts`), seul point où Realtime se
+  branchera, le relevé restant son filet (`docs/realtime-migration.md`, 0121) —, et `local`,
   contre les joueurs ordinateur sans serveur, celle de `duel.html` et du repli hors
   ligne. Deux coups concurrents se départagent par leur numéro (`stale`, puis
   relecture). Le serveur ne juge rien : il vérifie seulement qu'un mot ou un
@@ -596,6 +609,75 @@ propre téléphone.
   `duel`, comme le reste du duel, et demande un compte nommé sur chaque version
   qui l'ouvre : CrazyGames le propose à son joueur connecté (0073), et n'offre
   pas la carte à son invité, qui joue la table des joueurs maison.
+- **La file classée propose avant d'asseoir** (`duel_queue_poll`, 0122) : un
+  appariement ouvre une table classée (`ranked`) dont chacun a 20 s pour
+  accepter (`duel_offer_answer`, qui n'est que le « prêt » du salon) ; qui
+  laisse passer sort de la file, qui avait accepté y revient à sa place.
+  L'écart d'Elo accepté s'élargit avec l'attente (`duel_rating_window`, ouvert
+  à 30 s), l'attente estimée sort de `duel_queue_log`. Personne en face dix
+  secondes après l'attente annoncée (`botMatchAfter`) : l'app lance une vraie
+  partie locale contre « Bot », réglé sur l'Elo du joueur (`botLevel`,
+  `LEVEL_BOT_ID`) — et seulement depuis l'écran de recherche. Pendant les tests,
+  elle compte au classement (`duel_report_bot`, issue rapportée par le client,
+  une par minute) : la fonctionnalité `rankedBots` la referme, côté serveur
+  aussi, une fois l'app et CrazyGames livrées. La file vit dans
+  `src/App.tsx` (`useDuelQueue`, `src/state/duelQueue.ts`), pas dans son
+  écran : elle continue à l'accueil (`QueuePill`) et derrière la table des
+  joueurs ordinateur, se met en veille hors de l'accueil (`busy`), et toute
+  autre table (amis, invitation, salle du portail, reprise) l'annule.
+  `duel_matchmake`, celui des versions livrées, reste en place et cohabite :
+  il assoit sans proposer, sur une table non classée — et le client retombe
+  dessus quand le serveur n'a pas 0122.
+- **L'Elo se règle sur des rapports, pas sur un jugement** (`duel_report`,
+  `duel_settle`) : le serveur ne juge pas les mots, chaque appareil envoie
+  l'ordre d'arrivée rejoué, et le règlement ne l'accepte que concordant et
+  soutenu par le journal (un temps écoulé, un abandon ou une place quittée
+  pour chaque perdant). Un désaccord annule la table (`voided`). Elo par
+  paires, sans placements, réglé sur la population (0123) : le départ est
+  Argent III (950) tant que moins de 50 joueurs ont atteint l'Or, Bronze III
+  (800) ensuite (`duel_start_rating`) ; K 60 sur dix parties, 40 jusqu'à
+  vingt, puis 20, doublé tant que moins de dix joueurs sont Diamant
+  (`duel_k_boost`) ; les Maîtres n'existent qu'à partir de dix Diamant
+  (`duel_masters_open`, `masterRank` côté client) ; une semaine
+  sans partie, puis 5 par jour (150 au plus, jamais sous 950), lu à la volée
+  (`duel_effective_rating`) et figé au règlement suivant.
+  `src/domain/ranked.ts` en est le double exact — changer l'un sans l'autre
+  fait mentir l'écran (`ranked.test.ts` et `supabase/tests/50_ranked_duel.sql`
+  tiennent les mêmes cas). **L'Elo ne s'affiche jamais** : l'écran montre un
+  rang (`standing`, `LeagueChip`) — Bronze III à Diamant I, et « Maître
+  n° 1 à 10 » pour le top 10 du classement. Jamais de joueur ordinateur ni de
+  table d'amis classés.
+- **Un mot trouvé pendant le tour d'un autre rend du temps** (`echo`,
+  `echoWord`) : +1 s au premier de la table, +0,5 s ensuite, trois par joueur
+  et par tour ; le mot reste caché à celui qui a la main. C'est une règle du
+  rejeu : une version qui ne la connaît pas divergerait. Chaque client dit
+  donc ses règles dans `X-Client-Info` (`duel=`, `DUEL_RULES`), chaque place
+  les garde au salon, et la table joue au lancement les plus anciennes de ses
+  joueurs humains (`duel_tables.rules`) — une règle de duel nouvelle monte
+  `DUEL_RULES` et passe par ce même verrou.
+- **Un duel qui s'éternise s'use, sans le dire** (`timeBonusFactor`) : passé
+  trois minutes de jeu, tout le temps rendu — palier d'un mot, mot bonus,
+  mort — baisse linéairement jusqu'à zéro trois minutes plus tard ; les
+  réserves ne font alors que fondre. Règle du rejeu, donc des tables aux
+  règles 2 seulement (`Duel.rules`, `DuelSetup.rules`).
+- **Les classements sont une page entière** (`LeaderboardsScreen`) : le
+  tiroir du menu ne les montre plus, `Menu` passe la main à l'app par
+  `onBoards`. Solo, Défi et — compte nommé et duel ouvert — Duel.
+- **Partir en pleine partie, c'est abandonner** (`resign`, `duel_resign`) :
+  un coup du journal que seul le serveur écrit, et qui tue tout de suite,
+  même au draft — l'adversaire n'attend plus qu'une réserve s'épuise. Une
+  app fermée sans quitter garde sa place : l'accueil propose de la reprendre
+  quatre-vingt-dix secondes (`loadActiveDuel`, `duel_rejoin`). Les abandons
+  classés et propositions manquées d'une journée coûtent une pause qui
+  s'allonge tous les trois : 5 min, 15 min, 1 h, 4 h, 24 h
+  (`duel_cooldown_length`).
+- **La file survit à l'app fermée, sur Android** (`duel_queue_away`) : passée
+  derrière pendant une recherche, l'app garde sa place dix minutes si le
+  téléphone a un jeton de notification ; l'adversaire trouvé l'appelle d'une
+  notification `match` (texte dans `supabase/functions/push/messages.ts`, à
+  déployer avec la fonction Edge `push`) et la proposition lui laisse une
+  minute. Elle est retirée (`duel_cancel`) dès que l'offre aboutit ou tombe.
+  `duel_matchmake`, celui des versions livrées, ignore un joueur absent.
 - **Chaque donnée dit d'où elle vient** (0072) : le client ajoute
   `platform=<android|web|crazygames|reddit>` à `X-Client-Info`
   (`src/lib/supabase.ts`), et un déclencheur range cette valeur dans
@@ -802,6 +884,12 @@ propre téléphone.
   mais le classement, le palmarès, les trophées et le compte des tentatives
   sont communs à toutes (0085). Une semaine se prolonge à la main
   (`WEEKLY_EXTENDED`), et `weekly_week` côté serveur doit tenir la même liste.
+  Tout le défi trie « plus grand gagne » : une course (dix mots au plus vite,
+  `WEEKLY_EXCEPTIONS`) se range donc à son avance sur le plafond de trois
+  minutes, zéro sans arrivée, et `raceTime` en tire le temps qu'on affiche.
+  Une semaine de course s'écrit aussi dans `weekly_metric` (0117, 0118) : c'est lui
+  qui refuse les points d'un client plus ancien, qui y jouerait le mode de sa
+  boucle.
 
 ## Conventions
 

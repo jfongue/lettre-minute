@@ -1,8 +1,11 @@
 import type { Messages } from './fr'
 import { weeklyIt } from './weekly.it'
+import { rankedIt } from './ranked.it'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
-const seconds = (value: number) => value.toLocaleString('it-IT', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('it-IT', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 export const it: Messages = {
   tag: 'it-IT',
@@ -56,6 +59,8 @@ export const it: Messages = {
     enduranceHint: 'Trenta secondi, e ogni parola te ne rende da due a quattro secondo la rarità.',
     reversed: 'Rovesciato',
     reversedHint: 'Una parola che finisce con questa lettera. Un paese che finisce per M? Vietnam!',
+    race: 'Corsa',
+    raceHint: 'Dieci parole giuste, il più in fretta possibile.',
     seconds: (seconds: number) => `${seconds} s`,
     answerTo: 'Da riempire',
     armNote: 'Valida a vuoto: è lì che parte il cronometro.',
@@ -74,6 +79,10 @@ export const it: Messages = {
       reversed: {
         hello: 'Una parola che finisce con questa lettera. Un paese che finisce per M? Vietnam!',
         ask: (letter: string) => `Scrivi un colore che finisce per ${letter}.`,
+      },
+      race: {
+        hello: 'Dieci parole giuste, il più in fretta possibile: il cronometro sale e si ferma alla decima.',
+        ask: (letter: string) => `Scrivi un colore che inizia per ${letter}: è la prima di dieci.`,
       },
     },
   },
@@ -118,6 +127,9 @@ export const it: Messages = {
     timeUp: 'Tempo scaduto',
     points: 'punti',
     survived: 'secondi di sopravvivenza',
+    raceTime: 'secondi per dieci parole',
+    noFinish: 'Non arrivato',
+    arrived: 'Arrivato!',
     seconds: (seconds: number) => `+${seconds} s`,
     empty: 'Nemmeno una parola. Capita.',
     next: 'Continua',
@@ -146,11 +158,9 @@ export const it: Messages = {
     lead: 'Grazie per aver giocato! Sono un piccolo sviluppatore francese… Per incoraggiarmi, parla del gioco in giro e dagli 5 stelle!',
     later: 'Più tardi',
     ok: 'Okay!',
-    frameDescription: 'Grazie per sostenere Lettera Minuto!',
     close: 'Chiudi',
     hello:
       'Ciao, sono Jérémy!\nSono uno sviluppatore francese indipendente e creo Lettre Minute nel tempo libero.\nSe il gioco ti è piaciuto, il tuo sostegno mi aiuterebbe tantissimo, anche 1 € conta.\nGrazie di cuore!',
-    photo: 'Jérémy, il creatore del gioco',
   },
 
   account: {
@@ -261,7 +271,6 @@ export const it: Messages = {
     editAvatarLabel: 'Modifica il mio avatar',
     anonymous: 'Giocatore anonimo',
     standing: (level, record) => `Livello ${level} · record ${record}`,
-    editAvatar: 'Modifica l’avatar',
     signedInAs: (email) => `Connesso con ${email}`,
     logOut: 'Esci',
   logOutWarning: 'Il tuo account tiene le partite; questo dispositivo riparte da zero.',
@@ -291,7 +300,6 @@ export const it: Messages = {
     add: 'Aggiungi un amico',
     nameLabel: 'Il tuo nome giocatore',
     share: 'Condividi',
-    shareName: (name) => `Aggiungimi come amico su Lettera Minuto: il mio nome giocatore è ${name}.`,
     incomingCount: (count) => `${count} ${plural(count, 'richiesta', 'richieste')}`,
     wantsFriend: 'vuole essere tuo amico',
     sortLabel: 'Ordina i tuoi amici',
@@ -412,7 +420,7 @@ export const it: Messages = {
     empty: 'Ancora nessuna proposta. In partita, una parola sconosciuta al dizionario si propone con un tocco.',
     added: 'Aggiunte grazie a te',
     addedNote: (xp) => `${xp} XP guadagnati per ognuna.`,
-    noneAdded: 'Nessuna per ora: una parola entra quando cinque moderatori l’hanno approvata.',
+    noneAdded: 'Nessuna per ora: una parola entra quando da due a sette moderatori l’hanno approvata.',
     more: (count: number) => `Mostra altro (${count})`,
     less: 'Mostra meno',
     fresh: 'nuova',
@@ -435,8 +443,8 @@ export const it: Messages = {
   moderation: {
     title: 'Moderazione',
     superTitle: 'Supermoderatore',
-    lead: 'Giudichi le parole proposte dai giocatori: due «corretta» la fanno entrare dove i giudici sono pochi, cinque dove sono molti; due «sbagliata» la bloccano. Ogni «non lo so» chiede due «corretta» in più e mezza voce in più per bloccare.',
-    superLead: 'Il tuo voto conta doppio, ma mai da solo: due «corretta» la fanno entrare dove i giudici sono pochi, cinque dove sono molti, e la tua sola «sbagliata» la blocca. I casi speciali aspettano solo i supermoderatori.',
+    lead: 'Giudichi le parole proposte dai giocatori: da due a sette «corretta» la fanno entrare, meno quante più parole aspettano, e due bastano dove i giudici sono pochi; due «sbagliata» la bloccano. Ogni «non lo so» chiede due «corretta» in più e mezza voce in più per bloccare.',
+    superLead: 'Il tuo voto conta doppio, ma mai da solo: da due a sette «corretta» la fanno entrare, meno quante più parole aspettano, e la tua sola «sbagliata» la blocca. I casi speciali aspettano solo i supermoderatori.',
     score: (score: number) => `Severità: ${score}/100`,
     scoreLead: 'Il tuo punteggio sale quando gli altri moderatori condividono i tuoi rifiuti, e scende quando rifiutano una parola che hai accettato.',
     scoreSoon: 'Il tuo punteggio di severità apparirà non appena una parola che hai giudicato sarà decisa.',
@@ -486,7 +494,7 @@ export const it: Messages = {
       hint: 'Moderatore: tieni premuta una parola per segnalarla.',
       title: 'Segnala questa parola',
       lead: (word, category) =>
-        `«${word}» non ha il suo posto in «${category}»? Gli altri moderatori la giudicheranno: due d’accordo dove i giudici sono pochi, cinque altrove, e lascerà la categoria nella prossima versione.`,
+        `«${word}» non ha il suo posto in «${category}»? Gli altri moderatori la giudicheranno: da due a sette d’accordo, meno quante più parole aspettano, e lascerà la categoria nella prossima versione.`,
       confirm: 'Segnala',
       close: 'Chiudi',
       reasonLabel: 'Motivo (facoltativo)',
@@ -859,6 +867,7 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
     floor: 'Devono restare in gioco almeno sei categorie.',
     max: (count) => `Al massimo ${count} categorie filtrate.`,
     limit: 'Hai messo tutti i tuoi lucchetti. Un bonus di livello te ne darà un altro.',
+    full: (count: number) => `Tutti i tuoi ${count} lucchetti sono messi: ripristina una categoria per filtrarne un’altra.`,
     lockedTitle: 'Filtro bloccato',
     lockedHow: 'Vinci il tuo primo lucchetto con un bonus di livello.',
     lockedHowPlus: 'Vinci il tuo primo lucchetto con un bonus di livello, oppure passa a Premium per averne sei.',
@@ -907,6 +916,7 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
   },
 
   weekly: weeklyIt,
+  ranked: rankedIt,
 
   premiumPage: {
     lead: 'Cosa ti ha dato Premium oltre i limiti gratuiti.',
@@ -947,13 +957,11 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
     title: 'I tuoi vantaggi',
     filters: (used, max) => `Filtri: ${used} su ${max}`,
     filtersLocked: 'Filtro: non ancora vinto',
-    filtersPlus: (max) => `Filtro: fino a ${max} categorie`,
     reveals: (left, allowed) => `Rivelazioni di oggi: ${left} su ${allowed}`,
     revealsPlus: 'Rivelazioni illimitate',
     slots: (count, max) => `Slot dei poteri: ${count} su ${max}`,
   hintFilters: 'Il filtro tiene una categoria fuori dalle tue partite in solitaria.',
   hintReveals: 'Nel riepilogo, rivela una parola che avresti potuto scrivere.',
-  hintSlots: 'I poteri che porti in partita.',
   },
 
   bonus: {
@@ -982,6 +990,11 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
     lead: 'Una versione più recente di Lettre Minute ti aspetta sul Play Store.',
     later: 'Più tardi',
     go: 'Aggiorna',
+  },
+  broken: {
+    title: 'Non si è caricato',
+    lead: 'Questa schermata non si è aperta, forse per un calo di connessione. I tuoi progressi sono al sicuro.',
+    reload: 'Ricarica',
   },
 
   tiers: { courant: 'comune', 'peu commun': 'poco comune', rare: 'rara', 'très rare': 'rarissima' },
@@ -1046,16 +1059,13 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
 
   duel: {
     title: 'Duello',
-    leadTitle: 'Duello dal vivo',
+    leadTitle: 'Duello amichevole',
     lead: 'Ognuno ha una riserva di 30 secondi che scorre solo nel proprio turno. Una parola passa la mano, una parola rara restituisce tempo. Vince l’ultimo in piedi.',
     trait: { fast: 'Veloce', steady: 'Calmo', sharp: 'Temibile' },
     you: 'Tu',
     ready: 'Pronto',
     notReady: 'Non ancora pronto',
     invited: 'Invitato',
-    inviteAction: 'Invita',
-    leftStamp: 'Andato via',
-    keepOne: 'Al tavolo serve almeno un avversario.',
     readyButton: 'Sono pronto',
     tableSize: (players: number) => `${players} giocatori`,
     waitingOthers: 'Gli altri arrivano…',
@@ -1162,11 +1172,11 @@ cheerAria: (label: string) => `Suggerisci ${label}`,
     declineTable: 'No, grazie',
     chooseTitle: 'Gioca con gli amici',
     chooseLead: 'Due modi per sfidarsi: dal vivo, o ognuno quando vuole.',
-    duelCard: 'Duello dal vivo!',
+    duelCard: 'Duello amichevole',
     duelCardNote: 'Un turno a testa, 30 secondi di riserva, vince l’ultimo in piedi.',
     duelCardPlayers: 'Da 2 a 4 giocatori',
-    matchCard: 'Trova un avversario',
-    matchCardNote: 'Un giocatore a caso, subito',
+    matchCard: 'Duello classificato',
+    matchCardNote: 'Un giocatore del tuo livello, subito',
     matchCardPlayers: '2 giocatori',
     matchTitle: 'Ricerca di un avversario…',
     matchLead: 'Ti abbiniamo a un giocatore che cerca una partita, nella tua lingua.',

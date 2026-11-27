@@ -110,3 +110,39 @@ $$;
 revoke all on schema vault from public;
 grant usage on schema vault to service_role;
 grant select on vault.decrypted_secrets to service_role;
+
+-- -------------------------------------------------------------- realtime --
+
+-- Broadcast from the database, as a project ships it: `realtime.send` writes
+-- a message, and the Realtime server lets a client join a private channel
+-- only if the select policies of `realtime.messages` pass with `realtime.topic()`
+-- set to that channel. The real table is partitioned by day; one table is enough here.
+create schema realtime;
+grant usage on schema realtime to anon, authenticated, service_role;
+
+create table realtime.messages (
+  id uuid primary key default gen_random_uuid(),
+  topic text not null,
+  extension text not null,
+  payload jsonb,
+  event text,
+  private boolean default false,
+  inserted_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+alter table realtime.messages enable row level security;
+grant select, insert on realtime.messages to anon, authenticated;
+grant all on realtime.messages to service_role;
+
+create function realtime.topic() returns text
+language sql stable as $$ select nullif(current_setting('realtime.topic', true), '')::text $$;
+
+create function realtime.send(payload jsonb, event text, topic text, private boolean default true) returns void
+language plpgsql as $$
+begin
+  insert into realtime.messages (payload, event, topic, private, extension)
+  values (payload, event, topic, private, 'broadcast');
+exception when others then
+  raise warning 'ErrorSendingBroadcastMessage: %', sqlerrm;
+end;
+$$;

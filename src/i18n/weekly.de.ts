@@ -1,7 +1,9 @@
 import type { WeeklyMessages } from './weekly.fr'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
-const seconds = (value: number) => value.toLocaleString('de-DE', { maximumFractionDigits: 1 })
+// One formatter, not one per call: the endurance clock asks ten times a second.
+const secondsFormat = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 })
+const seconds = (value: number) => secondsFormat.format(value)
 
 export const weeklyDe: WeeklyMessages = {
   title: 'Challenge des Moments',
@@ -12,6 +14,7 @@ export const weeklyDe: WeeklyMessages = {
   unitSeconds: 's',
   unitPoints: 'Punkte',
   survival: 'Überlebenszeit',
+  noFinish: 'Nicht im Ziel',
   you: 'du',
   card: {
     play: 'Spielen',
@@ -22,6 +25,7 @@ export const weeklyDe: WeeklyMessages = {
     endurance: 'Du startest mit dreißig Sekunden, jedes Wort bringt Zeit zurück. Halte so lange durch wie möglich.',
     delayed: 'Gefragt ist die Antwort auf die vorige Frage.',
     reversed: 'Ein Wort, das mit diesem Buchstaben endet. Ein Land mit M am Ende? Vietnam!',
+    race: 'Finde zehn Wörter so schnell du kannst: Die Uhr läuft hoch und stoppt beim zehnten.',
   },
   screen: {
     back: 'Zurück',
@@ -75,6 +79,14 @@ export const weeklyDe: WeeklyMessages = {
         ['Sechzig Sekunden', 'Der Rest ist eine Runde wie jede andere.'],
       ],
       score: 'Dein Ergebnis zählt in Punkten, wie bei einer normalen Runde.',
+    },
+    race: {
+      steps: [
+        ['10 Wörter', 'Zehn richtige Wörter, auf die Fragen, wie sie kommen.'],
+        ['Die Uhr läuft hoch', 'Sie startet bei null und stoppt bei deinem zehnten Wort.'],
+        ['Überspringen kostet 5 s', 'Jede übersprungene Frage zählt fünf Sekunden dazu. Nach drei Minuten endet das Rennen ohne Ziel.'],
+      ],
+      score: 'Deine Wertung ist deine Zeit: Die Schnellsten gewinnen.',
     },
   },
   run: {

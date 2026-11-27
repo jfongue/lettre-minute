@@ -4,6 +4,10 @@ import { buildWordPack, commonWord, findWord, lettersWithEnough, type WordPack }
 import type { Judge } from './run'
 import {
   draftPlayer,
+  duelRanking,
+  timeBonusFactor,
+  DUEL_FADE_SECONDS,
+  DUEL_LONG_SECONDS,
   duelPrompt,
   pickDeadline,
   reserveSeconds,
@@ -149,6 +153,124 @@ describe('le rejeu', () => {
     // Un temps écoulé déclaré trop tôt ne tue personne.
     const early = replay(setup, [...picks, { ...timeout, at: dies - 3 }], judge)
     expect(early.duel.deaths).toEqual([])
+  })
+})
+
+describe('les mots trouvés pendant le tour d’un autre', () => {
+  function opened() {
+    const picks = draftMoves()
+    const duel = settle(replay(setup, picks, judge).duel, judge, 1e9)
+    const holder = duel.turn!.player
+    return { picks, duel, holder, watcher: 1 - holder, at: duel.turn!.startedAt }
+  }
+  const word = (duel: Duel, n: number) => `${duelPrompt(duel)!.letter}${duelPrompt(duel)!.categoryId}${n}`
+
+  it('rend une seconde au premier, une demi ensuite, sans toucher au tour de l’autre', () => {
+    const { picks, duel, holder, watcher, at } = opened()
+    const echoes: DuelMove[] = [1, 2].map((n, i) => ({ seq: 5 + i, seat: watcher, kind: 'echo', payload: word(duel, n), at: at + 2 + i }))
+    const after = replay(setup, [...picks, ...echoes], judge)
+    expect(after.duel.players[watcher]!.reserve).toBe(DUEL_RESERVE_SECONDS + 1.5)
+    expect(after.duel.turn!.player).toBe(holder)
+    expect(after.duel.dealt).toEqual(duel.dealt)
+    expect(after.facts.filter((fact) => fact.kind === 'echoed').map((fact) => fact.delta)).toEqual([1, 0.5])
+  })
+
+  it('ne compte ni un mot déjà trouvé, ni plus de trois par tour, ni celui qui a la main', () => {
+    const { picks, duel, holder, watcher, at } = opened()
+    const moves: DuelMove[] = [1, 1, 2, 3, 4].map((n, i) => ({ seq: 5 + i, seat: watcher, kind: 'echo', payload: word(duel, n), at: at + 1 + i * 0.2 }))
+    const own: DuelMove = { seq: 10, seat: holder, kind: 'echo', payload: word(duel, 5), at: at + 3 }
+    const after = replay(setup, [...picks, ...moves, own], judge)
+    expect(after.duel.players[watcher]!.reserve).toBe(DUEL_RESERVE_SECONDS + 1 + 0.5 + 0.5)
+    expect(after.duel.players[holder]!.reserve).toBe(DUEL_RESERVE_SECONDS)
+  })
+
+  it('repart à une seconde au tour suivant, et le mot ne se rejoue plus', () => {
+    const { picks, duel, holder, watcher, at } = opened()
+    const echo: DuelMove = { seq: 5, seat: watcher, kind: 'echo', payload: word(duel, 1), at: at + 1 }
+    const solve: DuelMove = { seq: 6, seat: holder, kind: 'word', payload: word(duel, 2), at: at + 2 }
+    const mid = replay(setup, [...picks, echo, solve], judge)
+    expect(mid.duel.turn!.player).toBe(watcher)
+    expect(mid.duel.turn!.echoes).toEqual([])
+    const back: DuelMove = { seq: 7, seat: holder, kind: 'echo', payload: word(mid.duel, 3), at: mid.duel.turn!.startedAt + 1 }
+    expect(replay(setup, [...picks, echo, solve, back], judge).facts.at(-1)).toMatchObject({ kind: 'echoed', delta: 1 })
+  })
+})
+
+describe('un duel qui s’éternise', () => {
+  it('rend de moins en moins de temps après trois minutes, puis plus rien', () => {
+    const picks = draftMoves()
+    const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
+    const opens = opened.turn!.startedAt
+    expect(timeBonusFactor(opened, opens + 100)).toBe(1)
+    expect(timeBonusFactor(opened, opens + DUEL_LONG_SECONDS + DUEL_FADE_SECONDS / 2)).toBeCloseTo(0.5)
+    expect(timeBonusFactor(opened, opens + DUEL_LONG_SECONDS + DUEL_FADE_SECONDS + 5)).toBe(0)
+  })
+
+  it('ne touche pas une table d’une version d’avant', () => {
+    const old = startDuel({ ...setup, rules: 1 })
+    const opened = settle(replay({ ...setup, rules: 1 }, draftMoves(old), judge).duel, judge, 1e9)
+    expect(timeBonusFactor(opened, opened.turn!.startedAt + 1000)).toBe(1)
+  })
+
+  it('rend moins à un mot trouvé tard', () => {
+    const picks = draftMoves()
+    const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
+    const late = opened.turn!.startedAt + DUEL_LONG_SECONDS + DUEL_FADE_SECONDS
+    // Le joueur qui a la main tient sa réserve jusque-là : on la rejoue sans passer par son tour.
+    const echo: DuelMove = { seq: 5, seat: 1 - opened.turn!.player, kind: 'echo', payload: answer(opened), at: opened.turn!.startedAt + 2 }
+    expect(replay(setup, [...picks, echo], judge).facts.at(-1)?.delta).toBe(1)
+    expect(timeBonusFactor(opened, late)).toBe(0)
+  })
+})
+
+describe('l’abandon', () => {
+  const trio: DuelSetup = { ...setup, playerIds: ['me', 'ondine', 'maxitoon'], owned: [5, 5, 5] }
+
+  it('finit la partie à deux, dès le draft et sans dictionnaires', () => {
+    const resign: DuelMove = { seq: 1, seat: 1, kind: 'resign', payload: '', at: draftOpens + 2 }
+    const done = replay(setup, [resign], null)
+    expect(done.applied).toBe(1)
+    expect(done.duel.phase).toBe('over')
+    expect(duelRanking(done.duel)).toEqual([0, 1])
+    expect(done.facts).toEqual([{ id: '1:dead', kind: 'dead', player: 1, at: draftOpens + 2, resigned: true }])
+  })
+
+  it('tue à son tour comme une mort, et la main repart après la mise en scène', () => {
+    const picks = draftMoves()
+    const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
+    const seat = opened.turn!.player
+    const resign: DuelMove = { seq: 5, seat, kind: 'resign', payload: '', at: opened.turn!.startedAt + 3 }
+    const after = replay(setup, [...picks, resign], judge)
+    expect(after.duel.phase).toBe('over')
+    expect(duelRanking(after.duel)[0]).toBe(1 - seat)
+  })
+
+  it('hors de son tour, laisse jouer celui qui a la main', () => {
+    const picks: DuelMove[] = []
+    let current = startDuel(trio)
+    for (let seq = 1; seq <= 3; seq++) {
+      const seat = current.order[current.picks.length % current.order.length]!
+      picks.push({ seq, seat, kind: 'pick', payload: IDS.find((id) => !current.picks.includes(id))!, at: draftOpens + seq })
+      current = replay(trio, picks, null).duel
+    }
+    const opened = settle(current, judge, 1e9)
+    const other = [0, 1, 2].find((index) => index !== opened.turn!.player)!
+    const resign: DuelMove = { seq: 4, seat: other, kind: 'resign', payload: '', at: opened.turn!.startedAt + 2 }
+    const after = replay(trio, [...picks, resign], judge)
+    expect(after.duel.phase).toBe('play')
+    expect(after.duel.turn!.player).toBe(opened.turn!.player)
+    expect(after.duel.players[other]!.alive).toBe(false)
+    // Un second abandon ne tue pas deux fois.
+    const twice = replay(trio, [...picks, resign, { ...resign, seq: 5 }], judge)
+    expect(twice.duel.deaths).toEqual([other])
+  })
+
+  it('fait choisir d’office, tout de suite, celui qui a abandonné au draft', () => {
+    const duel = startDuel(trio)
+    const seat = duel.order[0]!
+    const gone = replay(trio, [{ seq: 1, seat, kind: 'resign', payload: '', at: draftOpens + 1 }], null).duel
+    expect(gone.phase).toBe('draft')
+    expect(driverMove(gone, null, draftOpens + 1.2, {})).toMatchObject({ seat, kind: 'pick' })
   })
 })
 

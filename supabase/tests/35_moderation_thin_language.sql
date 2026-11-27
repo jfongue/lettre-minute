@@ -10,6 +10,9 @@ select tests.new_user('m' || i) from generate_series(1, 10) i;
 select tests.make_moderator('m' || i) from generate_series(1, 10) i;
 select tests.new_user('s1');
 select tests.make_super_moderator('s1');
+-- Un seuil fixe de cinq hors langue courte : les paliers du stock (0119)
+-- ont leur propre fichier.
+select tests.flat_five();
 
 -- `make_moderator` ne pose pas de langue : le défaut est le français nu.
 select tests.is((select count(*)::int from public.moderators where lang = 'fr'), 11,
