@@ -1,0 +1,320 @@
+-- Le duel classé (0122) : la file qui propose avant d'asseoir, l'attente
+-- estimée, l'Elo réglé sur des rapports concordants, les abandons et le retour.
+
+select tests.new_user(n) from unnest(array['ra', 'rb', 'rc', 'rd', 're', 'rf', 'rg', 'rh']) n;
+
+create function tests.queued(p_label text) returns boolean
+language sql stable security definer set search_path = public as $$
+  select exists (select 1 from public.duel_queue where player = tests.uid(p_label))
+$$;
+create function tests.age_offer(p_label text, p_seconds int) returns void
+language sql security definer set search_path = public as $$
+  update public.duel_queue set offered_at = now() - make_interval(secs => p_seconds) where player = tests.uid(p_label)
+$$;
+create function tests.age_join(p_label text, p_seconds int) returns void
+language sql security definer set search_path = public as $$
+  update public.duel_queue set joined_at = now() - make_interval(secs => p_seconds) where player = tests.uid(p_label)
+$$;
+create function tests.set_rating(p_label text, p_rating int, p_games int) returns void
+language sql security definer set search_path = public as $$
+  insert into public.duel_ratings (player, rating, games) values (tests.uid(p_label), p_rating, p_games)
+  on conflict (player) do update set rating = excluded.rating, games = excluded.games
+$$;
+create function tests.rating(p_label text) returns int
+language sql stable security definer set search_path = public as $$
+  select rating from public.duel_ratings where player = tests.uid(p_label)
+$$;
+create function tests.games(p_label text) returns int
+language sql stable security definer set search_path = public as $$
+  select games from public.duel_ratings where player = tests.uid(p_label)
+$$;
+create function tests.table_of(p_table uuid) returns public.duel_tables
+language sql stable security definer set search_path = public as $$ select * from public.duel_tables where id = p_table $$;
+create function tests.outcomes(p_label text) returns text[]
+language sql stable security definer set search_path = public as $$
+  select array_agg(coalesce(outcome, 'open') order by id) from public.duel_queue_log where player = tests.uid(p_label)
+$$;
+create function tests.seat_index(p_table uuid, p_label text) returns int
+language sql stable security definer set search_path = public as $$
+  select seat::int from public.duel_seats where table_id = p_table and player = tests.uid(p_label)
+$$;
+create function tests.move(p_table uuid, p_label text, p_kind text) returns void
+language sql security definer set search_path = public as $$
+  insert into public.duel_moves (table_id, seq, seat, kind, payload, by)
+  select p_table, coalesce(max(seq), 0) + 1, tests.seat_index(p_table, p_label), p_kind, '', tests.uid(p_label)
+    from public.duel_moves where table_id = p_table
+$$;
+create function tests.age_finish(p_table uuid, p_seconds int) returns void
+language sql security definer set search_path = public as $$
+  update public.duel_tables set finished_at = now() - make_interval(secs => p_seconds) where id = p_table
+$$;
+create function tests.silence(p_table uuid, p_minutes int) returns void
+language sql security definer set search_path = public as $$
+  update public.duel_seats set last_seen = now() - make_interval(mins => p_minutes) where table_id = p_table;
+  update public.duel_tables set started_at = now() - make_interval(mins => p_minutes + 1) where id = p_table;
+$$;
+create function tests.log_wait(p_lang text, p_seconds int, p_count int) returns void
+language sql security definer set search_path = public as $$
+  insert into public.duel_queue_log (lang, joined_at, ended_at, outcome)
+  select p_lang, now() - make_interval(secs => p_seconds), now(), 'matched' from generate_series(1, p_count)
+$$;
+
+-- ------------------------------------------------------------- l'Elo pur --
+
+select tests.is(public.duel_elo_deltas(array[1000, 1000], array[0, 0]), array[20, -20], 'equal newcomers move by half of K 40');
+select tests.is(public.duel_elo_deltas(array[1000, 1000], array[20, 20]), array[10, -10], 'equal veterans move by half of K 20');
+select tests.is(public.duel_elo_deltas(array[1200, 1000], array[20, 20]), array[5, -5], 'the favourite gains little');
+select tests.is(public.duel_elo_deltas(array[1000, 1200], array[20, 20]), array[15, -15], 'the underdog gains much');
+select tests.is(public.duel_elo_deltas(array[1000, 1000, 1000], array[20, 20, 20]), array[10, 0, -10], 'three players split by placement');
+select tests.is(public.duel_rating_window(0), 100, 'the window opens at 100');
+select tests.is(public.duel_rating_window(12), 200, 'it widens by 50 every 5 s');
+select tests.is(public.duel_rating_window(30), 100000, 'after 30 s anyone fits');
+
+-- ---------------------------------------------- l'attente et la proposition --
+
+select tests.login('ra');
+create temp table waiting as select public.duel_queue_poll('fr', array['animaux', 'pays'], 3, false) as answer;
+select tests.is((select answer ->> 'status' from waiting), 'waiting', 'alone, the first player waits');
+select tests.ok((select answer ? 'estimate' from waiting), 'the wait carries an estimate field');
+select tests.is((select (answer -> 'me' ->> 'rating')::int from waiting), 1000, 'a newcomer starts at 1000');
+select tests.logout();
+select tests.is(tests.outcomes('ra'), array['open'], 'the passage is logged');
+
+-- Trop loin en Elo, au début : pas d'appariement.
+select tests.set_rating('rb', 1400, 30);
+select tests.login('rb');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 2, false) ->> 'status', 'waiting', 'a 400 gap does not match at once');
+select tests.logout();
+
+-- Après trente secondes, si.
+select tests.age_join('ra', 31);
+select tests.login('rb');
+create temp table offer as select public.duel_queue_poll('fr', array['animaux'], 2, false) as answer;
+select tests.is((select answer ->> 'status' from offer), 'found', 'a widened window finds the opponent');
+select tests.ok((select (answer ->> 'ranked')::boolean from offer), 'the table is ranked');
+select tests.is((select answer -> 'opponent' ->> 'name' from offer), 'ra', 'the card names the opponent');
+select tests.is((select (answer -> 'opponent' ->> 'rating')::int from offer), 1000, 'and their rating');
+select tests.ok((select (answer ->> 'deadline')::numeric - (answer ->> 'now')::numeric between 18 and 21 from offer), 'twenty seconds to accept');
+select tests.logout();
+select tests.is((tests.table_of((select answer ->> 'table' from offer)::uuid)).status, 'lobby', 'nobody is ready yet');
+
+-- L'autre voit la même proposition.
+select tests.login('ra');
+select tests.is(public.duel_queue_poll('fr', array['animaux', 'pays'], 3, false) ->> 'table', (select answer ->> 'table' from offer), 'the waiting player reads the same offer');
+select tests.is(public.duel_offer_answer(true) ->> 'status', 'found', 'the first to accept waits');
+select tests.logout();
+select tests.login('rb');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 2, false) -> 'opponent' ->> 'accepted', 'true', 'the other sees the acceptance');
+select tests.is(public.duel_offer_answer(true) ->> 'status', 'matched', 'the second acceptance starts the table');
+select tests.logout();
+select tests.is((tests.table_of((select answer ->> 'table' from offer)::uuid)).status, 'playing', 'the table plays');
+select tests.login('ra');
+select tests.is(public.duel_queue_poll('fr', array['animaux', 'pays'], 3, false) ->> 'status', 'matched', 'the first reads the start');
+select tests.logout();
+select tests.ok(not tests.queued('ra') and not tests.queued('rb'), 'both left the queue');
+select tests.is(tests.outcomes('ra'), array['matched'], 'the passage ends matched');
+
+-- ----------------------------------------------------- le règlement --
+
+create temp table ranked as select (answer ->> 'table')::uuid as id from offer;
+grant select on ranked to authenticated;
+select tests.move((select id from ranked), 'ra', 'timeout');
+-- Le perdant rapporte d'abord : on attend l'autre, encore là.
+select tests.login('ra');
+select public.duel_report((select id from ranked), array[tests.seat_index((select id from ranked), 'rb'), tests.seat_index((select id from ranked), 'ra')]);
+select tests.logout();
+select tests.ok((tests.table_of((select id from ranked))).settled_at is null, 'one report waits for the other player still seated');
+select tests.login('rb');
+select public.duel_report((select id from ranked), array[tests.seat_index((select id from ranked), 'rb'), tests.seat_index((select id from ranked), 'ra')]);
+select tests.logout();
+select tests.ok((tests.table_of((select id from ranked))).settled_at is not null, 'two matching reports settle');
+select tests.is(tests.rating('rb'), 1400 + 2, 'the 1400 favourite gains 2');
+select tests.is(tests.rating('ra'), 1000 - 4, 'the newcomer loses 4 (K 40)');
+select tests.is(tests.games('ra'), 1, 'one game counted');
+select tests.login('rb');
+select tests.is(jsonb_array_length(public.duel_sync((select id from ranked), 0) -> 'table' -> 'ratings'), 2, 'the table shows both changes');
+-- Un rapport de plus ne règle pas deux fois.
+select public.duel_report((select id from ranked), array[0, 1]);
+select tests.logout();
+select tests.is(tests.games('rb'), 31, 'a table settles once');
+
+-- ------------------------------------------------- un rapport mensonger --
+
+create function tests.fresh_ranked(p_a text, p_b text) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare v_id uuid;
+begin
+  insert into public.duel_tables (host, lang, seed, categories, status, started_at, ranked)
+  values (tests.uid(p_a), 'fr', 7, array['animaux'], 'playing', now(), true) returning id into v_id;
+  insert into public.duel_seats (table_id, player, ready, seat, joined_at)
+  values (v_id, tests.uid(p_a), true, 0, clock_timestamp()), (v_id, tests.uid(p_b), true, 1, clock_timestamp() + interval '1 ms');
+  return v_id;
+end;
+$$;
+
+-- rc prétend avoir gagné alors que rd n'a ni temps écoulé ni abandon.
+create temp table liar as select tests.fresh_ranked('rc', 'rd') as id;
+grant select on liar to authenticated;
+select tests.login('rc');
+select public.duel_report((select id from liar), array[0, 1]);
+select tests.logout();
+select tests.age_finish((select id from liar), 40);
+select tests.login('rc');
+select public.duel_my_rating();
+select tests.logout();
+select tests.ok((tests.table_of((select id from liar))).voided, 'a ranking the journal does not support is voided');
+select tests.is(tests.rating('rc'), null, 'nobody moves');
+
+-- Deux rapports contradictoires : la partie ne compte pas.
+create temp table clash as select tests.fresh_ranked('rc', 'rd') as id;
+grant select on clash to authenticated;
+select tests.move((select id from clash), 'rc', 'timeout');
+select tests.move((select id from clash), 'rd', 'timeout');
+select tests.login('rc');
+select public.duel_report((select id from clash), array[0, 1]);
+select tests.logout();
+select tests.login('rd');
+select public.duel_report((select id from clash), array[1, 0]);
+select tests.logout();
+select tests.ok((tests.table_of((select id from clash))).voided, 'contradicting reports void the game');
+
+-- Un seul rapport, l'autre parti sans rapporter : réglé trente secondes après la fin.
+create temp table lone as select tests.fresh_ranked('re', 'rf') as id;
+grant select on lone to authenticated;
+select tests.move((select id from lone), 'rf', 'timeout');
+select tests.login('re');
+select public.duel_report((select id from lone), array[0, 1]);
+select tests.logout();
+select tests.ok((tests.table_of((select id from lone))).settled_at is null, 'a lone report waits while the other is seated');
+select tests.age_finish((select id from lone), 40);
+select tests.login('re');
+select public.duel_my_rating();
+select tests.logout();
+select tests.is(tests.rating('re'), 1020, 'after 30 s the lone consistent report settles');
+
+-- ----------------------------------------------------- l'abandon --
+
+create temp table quit as select tests.fresh_ranked('rg', 'rh') as id;
+grant select on quit to authenticated;
+select tests.login('rh');
+select tests.is(public.duel_resign((select id from quit)), 'resigned', 'a player resigns mid-game');
+select tests.is(public.duel_resign((select id from quit)), 'resigned', 'resigning twice is harmless');
+select tests.is(public.duel_rejoin((select id from quit)), 'closed', 'a resigned player cannot come back');
+select tests.logout();
+select tests.is((select count(*)::int from public.duel_moves where table_id = (select id from quit) and kind = 'resign'), 1, 'one resign move in the journal');
+select tests.login('rg');
+select tests.is(public.duel_move((select id from quit), 99, 0, 'resign', ''), 'forbidden', 'a client cannot post a resign move itself');
+select public.duel_report((select id from quit), array[0, 1]);
+select tests.logout();
+select tests.is(tests.rating('rg'), 1020, 'the one who stayed wins at once');
+select tests.is(tests.rating('rh'), 980, 'the one who resigned loses');
+
+-- Revenir après une coupure, tant qu'on n'a pas abandonné.
+create temp table cut as select tests.fresh_ranked('rc', 'rd') as id;
+grant select on cut to authenticated;
+select tests.login('rd');
+select public.duel_leave((select id from cut));
+select tests.is(public.duel_rejoin((select id from cut)), 'back', 'a player who dropped takes the seat back');
+select tests.logout();
+select tests.ok((select left_at is null from public.duel_seats where table_id = (select id from cut) and player = tests.uid('rd')), 'the seat is present again');
+
+-- Une table abandonnée de tous se ferme à la lecture suivante de la file.
+select tests.silence((select id from cut), 4);
+select tests.login('ra');
+select public.duel_queue_poll('fr', array['animaux'], 3, false);
+select public.duel_queue_leave();
+select tests.logout();
+select tests.is((tests.table_of((select id from cut))).status, 'over', 'a silent table closes');
+
+-- ---------------------------------------- refus, oubli et pénalité --
+
+select tests.login('rc');
+select public.duel_queue_poll('fr', array['animaux'], 3, false);
+select tests.logout();
+select tests.login('rd');
+create temp table second as select public.duel_queue_poll('fr', array['animaux'], 3, false) as answer;
+select tests.is((select answer ->> 'status' from second), 'found', 'rc and rd are offered to each other');
+select tests.is(public.duel_offer_answer(false) ->> 'status', 'declined', 'rd declines');
+select tests.logout();
+select tests.ok(not tests.queued('rd'), 'the one who declined leaves the queue');
+select tests.ok(tests.queued('rc'), 'the other keeps their place');
+select tests.login('rc');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'waiting', 'and is told to wait again');
+select tests.logout();
+
+-- rc accepte, re laisse passer : rc reste, re sort et compte un oubli.
+select tests.login('re');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'found', 're is offered rc');
+select tests.logout();
+select tests.login('rc');
+select public.duel_offer_answer(true);
+select tests.logout();
+select tests.age_offer('rc', 25);
+select tests.age_offer('re', 25);
+select tests.login('rc');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'waiting', 'the one who accepted goes back to waiting');
+select tests.logout();
+select tests.ok(not tests.queued('re'), 'the silent one left the queue');
+select tests.is((tests.outcomes('re'))[1], 'missed', 'their passage is a miss');
+select tests.login('rc');
+select public.duel_queue_leave();
+select tests.logout();
+select tests.login('re');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'waiting', 'one miss alone is no penalty');
+select public.duel_queue_leave();
+select tests.logout();
+
+-- Trois manquements en une heure : cinq minutes de pause.
+insert into public.duel_queue_log (player, lang, joined_at, ended_at, outcome)
+select tests.uid('rf'), 'fr', now() - interval '10 minutes', now() - interval '1 minute', 'missed' from generate_series(1, 3);
+select tests.login('rf');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'cooldown', 'three misses cool down');
+select tests.logout();
+select tests.ok(not tests.queued('rf'), 'a cooling player is not queued');
+
+-- Occupé (partie seule) : en file, jamais apparié.
+select tests.login('rg');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, true) ->> 'status', 'waiting', 'a busy player waits');
+select tests.logout();
+select tests.login('rh');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'waiting', 'a busy player is not offered');
+select tests.logout();
+
+-- ------------------------------------------------------- l'estimation --
+
+select tests.log_wait('de', 40, 6);
+select tests.login('rg');
+select tests.is((public.duel_queue_poll('de', array['animaux'], 3, false) ->> 'estimate')::numeric, 40::numeric, 'five recent matches give the median wait');
+select tests.logout();
+select tests.is(public.duel_wait_estimate('it'), null, 'no samples, no estimate');
+
+-- ----------------------------------------------------- le classement --
+
+select tests.set_rating('ra', 1300, 12);
+select tests.login('ra');
+select tests.ok(jsonb_array_length(public.duel_ladder(10) -> 'rows') >= 2, 'the ladder lists placed players');
+select tests.is((public.duel_ladder(10) -> 'rows' -> 0 ->> 'name'), 'rb', 'the best comes first');
+select tests.is((public.duel_ladder(10) -> 'me' ->> 'rank')::int, 2, 'and says my rank');
+select tests.logout();
+
+select tests.login('rg');
+select public.duel_queue_leave();
+select tests.logout();
+select tests.login('rh');
+select public.duel_queue_leave();
+select tests.logout();
+
+-- Les versions livrées appellent encore duel_matchmake : elles s'apparient
+-- avec la file classée sans rien casser.
+select tests.login('rc');
+select public.duel_queue_leave();
+select tests.logout();
+select tests.login('rd');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'waiting', 'a new client waits');
+select tests.logout();
+select tests.login('rc');
+select tests.is(public.duel_matchmake('fr', array['animaux'], 3) ->> 'status', 'matched', 'an old client seats itself against them');
+select tests.logout();
+select tests.login('rd');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'found', 'the new client gets an offer to accept');
+select tests.logout();
