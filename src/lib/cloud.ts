@@ -2333,6 +2333,17 @@ export interface DuelSeatRow {
   kicked: boolean
   /** La dernière lecture de cet appareil, à l'horloge du serveur. */
   seen: number
+  /** Son Elo de duel classé (0122), null s'il n'en a jamais joué ou pour un serveur d'avant. */
+  rating: number | null
+  games: number
+}
+
+/** Ce que le règlement d'une table classée a changé à un joueur. */
+export interface DuelRatingChange {
+  player: string
+  place: number
+  before: number
+  after: number
 }
 
 export interface DuelSnapshot {
@@ -2349,6 +2360,11 @@ export interface DuelSnapshot {
     rematch: string | null
     /** Le salon est ouvert au public (0097) ; faux pour un serveur d'avant. */
     public: boolean
+    /** La table compte pour le classement (0122). */
+    ranked: boolean
+    settled: boolean
+    voided: boolean
+    ratings: readonly DuelRatingChange[]
   }
   seats: readonly DuelSeatRow[]
   invites: readonly { player: string; name: string; avatar: AvatarChoice }[]
@@ -2375,6 +2391,15 @@ export function syncDuel(table: string, after: number): Promise<DuelSnapshot | n
         startedAt: info.started_at === null || info.started_at === undefined ? null : Number(info.started_at),
         rematch: (info.rematch as string | null) ?? null,
         public: info.public === true,
+        ranked: info.ranked === true,
+        settled: info.settled === true,
+        voided: info.voided === true,
+        ratings: ((info.ratings as Record<string, unknown>[] | undefined) ?? []).map((change) => ({
+          player: change.player as string,
+          place: Number(change.place) || 0,
+          before: Number(change.before) || 0,
+          after: Number(change.after) || 0,
+        })),
       },
       seats: ((row.seats as Record<string, unknown>[]) ?? []).map((seat) => ({
         player: (seat.player as string | null) ?? null,
@@ -2387,6 +2412,8 @@ export function syncDuel(table: string, after: number): Promise<DuelSnapshot | n
         left: seat.left === true,
         kicked: seat.kicked === true,
         seen: Number(seat.seen) || 0,
+        rating: seat.rating === null || seat.rating === undefined ? null : Number(seat.rating),
+        games: Number(seat.games) || 0,
       })),
       invites: ((row.invites as Record<string, unknown>[]) ?? []).map((invite) => ({
         player: invite.player as string,
@@ -2402,6 +2429,204 @@ export function syncDuel(table: string, after: number): Promise<DuelSnapshot | n
       })),
     }
   }, 'unreachable')
+}
+
+// ---------------------------------------------------------- duel classé (0122) --
+
+export interface DuelRatingInfo {
+  rating: number
+  games: number
+  wins: number
+  peak: number
+  /** Sa place au classement, une fois les placements joués. */
+  rank: number | null
+}
+
+export interface DuelOpponent extends DuelRatingInfo {
+  player: string
+  name: string
+  avatar: AvatarChoice
+  accepted: boolean
+}
+
+/** Ce que la file classée répond à chaque lecture. Les heures sont celles du serveur, en secondes. */
+export type DuelQueueAnswer =
+  | {
+      status: 'waiting'
+      now: number
+      joined: number | null
+      /** L'attente probable, en secondes ; null faute d'exemples. */
+      estimate: number | null
+      /** Les autres qui cherchent dans cette langue, et ceux qui jouent un duel. */
+      searching: number
+      playing: number
+      /** Une table publique qui attend du monde, à rejoindre d'un geste. */
+      publicTable: { id: string; seats: number } | null
+      me: DuelRatingInfo
+    }
+  | {
+      status: 'found'
+      table: string
+      ranked: boolean
+      deadline: number
+      now: number
+      accepted: boolean
+      me: DuelRatingInfo
+      opponent: DuelOpponent | null
+    }
+  | { status: 'matched'; table: string }
+  | { status: 'missed' }
+  | { status: 'declined' }
+  | { status: 'gone' }
+  | { status: 'cooldown'; until: number; now: number }
+
+const NEW_RATING: DuelRatingInfo = { rating: 1000, games: 0, wins: 0, peak: 1000, rank: null }
+
+export function parseRatingInfo(value: unknown): DuelRatingInfo {
+  if (!value || typeof value !== 'object') return NEW_RATING
+  const row = value as Record<string, unknown>
+  return {
+    rating: Number(row.rating) || NEW_RATING.rating,
+    games: Number(row.games) || 0,
+    wins: Number(row.wins) || 0,
+    peak: Number(row.peak) || NEW_RATING.peak,
+    rank: row.rank === null || row.rank === undefined ? null : Number(row.rank),
+  }
+}
+
+/** Lit une réponse de la file ; null pour ce qu'aucune version du serveur ne répond. */
+export function parseQueueAnswer(data: unknown): DuelQueueAnswer | null {
+  if (!data || typeof data !== 'object') return null
+  const row = data as Record<string, unknown>
+  const num = (value: unknown): number | null => (value === null || value === undefined || !Number.isFinite(Number(value)) ? null : Number(value))
+  switch (row.status) {
+    case 'waiting': {
+      const open = row.publicTable as Record<string, unknown> | null | undefined
+      return {
+        status: 'waiting',
+        now: num(row.now) ?? 0,
+        joined: num(row.joined),
+        estimate: num(row.estimate),
+        searching: num(row.searching) ?? 0,
+        playing: num(row.playing) ?? 0,
+        publicTable: open && typeof open.id === 'string' ? { id: open.id, seats: num(open.seats) ?? 1 } : null,
+        me: parseRatingInfo(row.me),
+      }
+    }
+    case 'found': {
+      if (typeof row.table !== 'string') return null
+      const other = row.opponent as Record<string, unknown> | null | undefined
+      return {
+        status: 'found',
+        table: row.table,
+        ranked: row.ranked === true,
+        deadline: num(row.deadline) ?? 0,
+        now: num(row.now) ?? 0,
+        accepted: row.accepted === true,
+        me: parseRatingInfo(row.me),
+        opponent: other
+          ? {
+              ...parseRatingInfo(other),
+              player: String(other.player ?? ''),
+              name: String(other.name ?? ''),
+              avatar: parseAvatar(other.avatar),
+              accepted: other.accepted === true,
+            }
+          : null,
+      }
+    }
+    case 'matched':
+      return typeof row.table === 'string' ? { status: 'matched', table: row.table } : null
+    case 'cooldown':
+      return { status: 'cooldown', until: num(row.until) ?? 0, now: num(row.now) ?? 0 }
+    case 'missed':
+    case 'declined':
+    case 'gone':
+      return { status: row.status }
+    default:
+      return null
+  }
+}
+
+/**
+ * Relit sa place dans la file classée, y entre au besoin. `busy` : une partie
+ * seule en cours, la place se garde sans être appariée. Null sans serveur.
+ */
+export function duelQueuePoll(lang: string, categories: readonly string[], owned: number, busy: boolean): Promise<DuelQueueAnswer | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_queue_poll', { p_lang: lang, p_categories: categories, p_owned: owned, p_busy: busy })
+    return error ? null : parseQueueAnswer(data)
+  }, null)
+}
+
+/** Accepter ou refuser l'adversaire proposé. */
+export function answerDuelOffer(accept: boolean): Promise<DuelQueueAnswer | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_offer_answer', { p_accept: accept })
+    return error ? null : parseQueueAnswer(data)
+  }, null)
+}
+
+export function leaveDuelQueue(): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('duel_queue_leave')
+    return !error
+  }, false)
+}
+
+/** Abandonner une partie en cours : un coup du journal, puis la place quittée. */
+export function resignDuel(table: string): Promise<'resigned' | 'left' | 'unreachable'> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_resign', { p_table: table })
+    return error ? 'unreachable' : data === 'resigned' ? 'resigned' : 'left'
+  }, 'unreachable' as const)
+}
+
+/** Reprendre sa place à une partie en cours, après une coupure ou une app fermée. */
+export function rejoinDuel(table: string): Promise<'back' | 'over' | 'closed' | 'unreachable'> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_rejoin', { p_table: table })
+    if (error) return 'unreachable'
+    return data === 'back' || data === 'over' ? data : 'closed'
+  }, 'unreachable' as const)
+}
+
+/** La fin d'une partie, avec l'ordre d'arrivée rejoué : c'est lui que le classement règle. */
+export function reportDuel(table: string, ranking: readonly number[]): Promise<boolean> {
+  return guard(async () => {
+    const { error } = await supabase!.rpc('duel_report', { p_table: table, p_ranking: ranking })
+    return !error
+  }, false)
+}
+
+export function fetchDuelRating(): Promise<DuelRatingInfo | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_my_rating')
+    return error || !data ? null : parseRatingInfo(data)
+  }, null)
+}
+
+export interface DuelLadderRow extends DuelRatingInfo {
+  player: string
+  name: string
+  avatar: AvatarChoice
+}
+
+export function fetchDuelLadder(limit = 50): Promise<{ rows: DuelLadderRow[]; me: DuelRatingInfo | null } | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_ladder', { p_limit: limit })
+    if (error || !data) return null
+    const row = data as { rows?: Record<string, unknown>[]; me?: unknown }
+    return {
+      rows: (row.rows ?? []).map((one) => ({
+        ...parseRatingInfo(one),
+        player: String(one.player ?? ''),
+        name: String(one.name ?? ''),
+        avatar: parseAvatar(one.avatar),
+      })),
+      me: row.me ? parseRatingInfo(row.me) : null,
+    }
+  }, null)
 }
 
 /** L'identifiant du joueur sur le serveur : c'est sous lui que le duel range sa place. */

@@ -335,12 +335,7 @@ export interface DuelTableOptions {
   room?: boolean
 }
 
-/** Les catégories qu'une table peut distribuer à ce joueur : celles qu'il a, sans les avant-premières. */
-export function duelPool(lang: string): string[] {
-  const profile = loadProfile()
-  const shipped = availableCategoryIds(lang)
-  return sharedCategoryIds(playableCategoryIds(profile, ownedCategoryIds(profile))).filter((id) => shipped.includes(id))
-}
+export { duelPool } from './duelPool'
 
 export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
