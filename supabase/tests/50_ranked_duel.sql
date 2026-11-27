@@ -85,7 +85,7 @@ select tests.login('ra');
 create temp table waiting as select public.duel_queue_poll('fr', array['animaux', 'pays'], 3, false) as answer;
 select tests.is((select answer ->> 'status' from waiting), 'waiting', 'alone, the first player waits');
 select tests.ok((select answer ? 'estimate' from waiting), 'the wait carries an estimate field');
-select tests.is((select (answer -> 'me' ->> 'rating')::int from waiting), 800, 'a newcomer starts at 800, Bronze III');
+select tests.is((select (answer -> 'me' ->> 'rating')::int from waiting), 950, 'a newcomer starts at Silver III while Gold is nearly empty');
 select tests.logout();
 select tests.is(tests.outcomes('ra'), array['open'], 'the passage is logged');
 
@@ -102,7 +102,7 @@ create temp table offer as select public.duel_queue_poll('fr', array['animaux'],
 select tests.is((select answer ->> 'status' from offer), 'found', 'a widened window finds the opponent');
 select tests.ok((select (answer ->> 'ranked')::boolean from offer), 'the table is ranked');
 select tests.is((select answer -> 'opponent' ->> 'name' from offer), 'ra', 'the card names the opponent');
-select tests.is((select (answer -> 'opponent' ->> 'rating')::int from offer), 800, 'and their rating');
+select tests.is((select (answer -> 'opponent' ->> 'rating')::int from offer), 950, 'and their rating');
 select tests.ok((select (answer ->> 'deadline')::numeric - (answer ->> 'now')::numeric between 18 and 21 from offer), 'twenty seconds to accept');
 select tests.logout();
 select tests.is((tests.table_of((select answer ->> 'table' from offer)::uuid)).status, 'lobby', 'nobody is ready yet');
@@ -137,8 +137,8 @@ select tests.login('rb');
 select public.duel_report((select id from ranked), array[tests.seat_index((select id from ranked), 'rb'), tests.seat_index((select id from ranked), 'ra')]);
 select tests.logout();
 select tests.ok((tests.table_of((select id from ranked))).settled_at is not null, 'two matching reports settle');
-select tests.is(tests.rating('rb'), 1400 + 1, 'the 1400 favourite gains 1');
-select tests.is(tests.rating('ra'), 800 - 2, 'the newcomer loses 2 (K 60)');
+select tests.is(tests.rating('rb'), 1400 + 2, 'the favourite gains 1, doubled while diamonds are few');
+select tests.is(tests.rating('ra'), 950 - 8, 'the newcomer loses 4 (K 60), doubled');
 select tests.is(tests.games('ra'), 1, 'one game counted');
 select tests.login('rb');
 select tests.is(jsonb_array_length(public.duel_sync((select id from ranked), 0) -> 'table' -> 'ratings'), 2, 'the table shows both changes');
@@ -199,7 +199,7 @@ select tests.age_finish((select id from lone), 40);
 select tests.login('re');
 select public.duel_my_rating();
 select tests.logout();
-select tests.is(tests.rating('re'), 830, 'after 30 s the lone consistent report settles');
+select tests.is(tests.rating('re'), 1010, 'after 30 s the lone consistent report settles');
 
 -- L'inactivité se fige au règlement : la partie repart de l'Elo qui restait.
 update public.duel_ratings set rating = 1300, games = 20, last_played_at = now() - interval '27 days' where player = tests.uid('re');
@@ -229,8 +229,8 @@ select tests.login('rg');
 select tests.is(public.duel_move((select id from quit), 99, 0, 'resign', ''), 'forbidden', 'a client cannot post a resign move itself');
 select public.duel_report((select id from quit), array[0, 1]);
 select tests.logout();
-select tests.is(tests.rating('rg'), 830, 'the one who stayed wins at once');
-select tests.is(tests.rating('rh'), 770, 'the one who resigned loses');
+select tests.is(tests.rating('rg'), 1010, 'the one who stayed wins at once');
+select tests.is(tests.rating('rh'), 890, 'the one who resigned loses');
 
 -- Revenir après une coupure, tant qu'on n'a pas abandonné.
 create temp table cut as select tests.fresh_ranked('rc', 'rd') as id;
@@ -470,6 +470,11 @@ select tests.ok(tests.queued('wa'), 'nor drops them from the queue');
 
 -- ------------------------------------------- les rangs sur les classements --
 
+select tests.login('rb');
+select tests.is((public.duel_my_rating() ->> 'masters')::boolean, false, 'no masters while fewer than ten players are diamond');
+select tests.is(jsonb_array_length(public.duel_ladder_view('master', 50) -> 'rows'), 0, 'the masters view is empty');
+select tests.logout();
+
 select tests.new_user('m' || n) from generate_series(1, 12) n;
 select tests.set_rating('m' || n, 1700 - n * 10, 20) from generate_series(1, 12) n;
 
@@ -480,6 +485,7 @@ select tests.ok(not (public.duel_badges(array['m1', 'nobody']) ? 'nobody'), 'an 
 select tests.logout();
 
 select tests.login('rb');
+select tests.is((public.duel_my_rating() ->> 'masters')::boolean, true, 'ten diamonds open the masters');
 select tests.is(jsonb_array_length(public.duel_ladder_view('master', 50) -> 'rows'), 10, 'the masters are the top ten');
 select tests.is(public.duel_ladder_view('diamond', 50) -> 'rows' -> 0 ->> 'name', 'm11', 'a league starts after the masters');
 select tests.ok(not exists (
@@ -498,8 +504,8 @@ select tests.new_user('bq');
 select tests.login('bq');
 create temp table botwin as select public.duel_report_bot(true) as answer;
 select tests.is((select answer ->> 'status' from botwin), 'settled', 'a win against the level bot is ranked');
-select tests.is((select (answer ->> 'before')::int from botwin), 800, 'from Bronze III');
-select tests.is((select (answer ->> 'after')::int from botwin), 830, 'half of K 60');
+select tests.is((select (answer ->> 'before')::int from botwin), 950, 'from the start of the moment');
+select tests.is((select (answer ->> 'after')::int from botwin), 980, 'half of K 60, no longer doubled with ten diamonds');
 select tests.is(public.duel_report_bot(false) ->> 'status', 'too_soon', 'one game a minute at most');
 select tests.logout();
 select tests.login_service();
@@ -509,4 +515,12 @@ select tests.logout();
 update public.duel_ratings set last_played_at = now() - interval '2 minutes' where player = tests.uid('bq');
 select tests.login('bq');
 select tests.is(public.duel_report_bot(true) ->> 'status', 'closed', 'closing the feature closes it on the server too');
+select tests.logout();
+
+-- Cinquante joueurs en Or : les nouveaux repartent du Bronze III.
+select tests.new_user('g' || n) from generate_series(1, 50) n;
+select tests.set_rating('g' || n, 1150, 20) from generate_series(1, 50) n;
+select tests.new_user('late');
+select tests.login('late');
+select tests.is((public.duel_my_rating() ->> 'rating')::int, 800, 'with fifty gold players a newcomer starts at Bronze III');
 select tests.logout();
