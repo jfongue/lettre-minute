@@ -15,6 +15,7 @@ import {
   type Seat,
 } from '../state/duel'
 import {
+  timeBonusFactor,
   DUEL_ECHO_FIRST,
   DUEL_ECHO_NEXT,
   DUEL_PASS_PENALTY_SECONDS,
@@ -917,7 +918,7 @@ export function Play({ table }: { table: DuelTable }) {
   // Ce que le champ dit : les mots du jeu, et le duel en plus.
   // Pendant le tour d'un autre, un mot juste se valide en bonus — s'il en reste.
   const echoing = !mine && watching && alive && table.echoes
-  const echoDelta = (turn?.echoes ?? []).length === 0 ? DUEL_ECHO_FIRST : DUEL_ECHO_NEXT
+  const echoDelta = Math.round(((turn?.echoes ?? []).length === 0 ? DUEL_ECHO_FIRST : DUEL_ECHO_NEXT) * timeBonusFactor(duel, clockAt) * 10) / 10
   const said =
     draft.trim() === ''
       ? mine

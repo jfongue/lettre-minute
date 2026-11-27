@@ -27,6 +27,7 @@ import {
   playWord,
   reserveSeconds,
   resignPlayer,
+  timeBonusFactor,
   DUEL_GRACE_SECONDS,
   DUEL_PASS_PENALTY_SECONDS,
   DUEL_PICK_SECONDS,
@@ -85,6 +86,8 @@ export interface DuelSetup {
   owned: readonly number[]
   /** L'heure où la table s'est lancée. */
   startedAt: number
+  /** Les règles que la table joue ; celles de ce client par défaut (une table locale). */
+  rules?: number
 }
 
 /** La table au lancement : le draft s'ouvre après l'annonce de sa règle. */
@@ -96,6 +99,7 @@ export function startDuel(setup: DuelSetup): Duel {
     categories: setup.categories,
     order,
     at: setup.startedAt + DUEL_ANNOUNCE_SECONDS,
+    rules: setup.rules,
   })
 }
 
@@ -188,7 +192,7 @@ export function applyMove(before: Duel, move: DuelMove, judge: Judge | null): { 
     const found = played.verdict.kind === 'accepted' ? played.verdict.found : null
     if (played.duel === duel) return { duel: before, facts: [] }
     const facts: DuelFact[] = found
-      ? [{ id, kind: 'solved', player: move.seat, at: move.at, word: found.display, tier: found.tier, delta: DUEL_TIME_BONUS[found.tier], saved: played.saved }]
+      ? [{ id, kind: 'solved', player: move.seat, at: move.at, word: found.display, tier: found.tier, delta: DUEL_TIME_BONUS[found.tier] * timeBonusFactor(duel, move.at), saved: played.saved }]
       : []
     return { duel: played.duel, facts: [...facts, ...consequences(id, duel, played.duel, move, false)] }
   }

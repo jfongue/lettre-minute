@@ -99,6 +99,23 @@ export const DUEL_DEATH_PAUSE_SECONDS = 2.6
  * monte, rien ne le dit. Sans ça, une table à court de temps tombe en chaîne.
  */
 export const DUEL_DEATH_BONUS_SECONDS = 1.5
+/**
+ * Un duel qui s'éternise s'use : passé trois minutes de jeu, tout ce qui rend
+ * du temps — le palier d'un mot, un mot trouvé hors de son tour, une mort —
+ * rend de moins en moins, jusqu'à plus rien trois minutes plus tard. Rien ne
+ * l'annonce : les réserves ne font plus que fondre, et la partie finit.
+ */
+export const DUEL_LONG_SECONDS = 180
+export const DUEL_FADE_SECONDS = 180
+
+/** La part du temps rendu qui reste à cette heure : 1, puis vers 0 (règles 2). */
+export function timeBonusFactor(duel: Duel, at: number): number {
+  if ((duel.rules ?? 1) < 2) return 1
+  const opens = openingAt(duel)
+  if (opens === null) return 1
+  const over = at - opens - DUEL_LONG_SECONDS
+  return over <= 0 ? 1 : Math.max(0, 1 - over / DUEL_FADE_SECONDS)
+}
 
 /**
  * Chaque joueur choisit le même nombre de catégories, le plus grand tel que la
@@ -170,6 +187,8 @@ export interface Duel {
   turn: DuelTurn | null
   /** L'ordre des morts : le dernier mort est deuxième, le survivant premier. */
   deaths: readonly number[]
+  /** Les règles que la table joue (`DUEL_RULES`) : 1 pour une table d'une version d'avant. */
+  rules?: number
 }
 
 export interface CreateDuelInput {
@@ -183,9 +202,10 @@ export interface CreateDuelInput {
   opener?: number
   /** L'heure où le draft s'ouvre. */
   at?: number
+  rules?: number
 }
 
-export function createDuel({ seed, playerIds, categories, order, opener, at = 0 }: CreateDuelInput): Duel {
+export function createDuel({ seed, playerIds, categories, order, opener, at = 0, rules = DUEL_RULES }: CreateDuelInput): Duel {
   if (playerIds.length < DUEL_MIN_PLAYERS || playerIds.length > DUEL_MAX_PLAYERS) {
     throw new Error(`duel: ${playerIds.length} players, expected ${DUEL_MIN_PLAYERS} to ${DUEL_MAX_PLAYERS}`)
   }
@@ -203,6 +223,7 @@ export function createDuel({ seed, playerIds, categories, order, opener, at = 0 
     players: playerIds.map((id) => ({ id, reserve: DUEL_RESERVE_SECONDS, alive: true, words: [], used: [], score: 0, combo: 0 })),
     turn: null,
     deaths: [],
+    rules,
   }
 }
 
@@ -452,7 +473,7 @@ export function playWord(duel: Duel, raw: string, judge: Judge, at: number): Due
   }
 
   const saved = left <= 0
-  const earned = Math.max(0, left) + DUEL_TIME_BONUS[played.verdict.found.tier]
+  const earned = Math.max(0, left) + DUEL_TIME_BONUS[played.verdict.found.tier] * timeBonusFactor(duel, at)
   const banked: DuelPlayer = {
     ...player,
     reserve: saved ? Math.max(DUEL_FLOOR_SECONDS, earned) : earned,
@@ -483,7 +504,7 @@ export function echoWord(duel: Duel, index: number, raw: string, judge: Judge, a
   if (echoes.filter((one) => one === index).length >= DUEL_ECHO_MAX) return none
   const played = submit(turnRun(duel, index, judge), raw, judge)
   if (played.verdict.kind !== 'accepted' || !played.verdict.found) return { ...none, verdict: played.verdict }
-  const delta = echoes.length === 0 ? DUEL_ECHO_FIRST : DUEL_ECHO_NEXT
+  const delta = (echoes.length === 0 ? DUEL_ECHO_FIRST : DUEL_ECHO_NEXT) * timeBonusFactor(duel, at)
   const banked: DuelPlayer = { ...player, reserve: player.reserve + delta, words: played.run.found, used: played.run.used, score: played.run.score }
   return { duel: { ...duel, players: replace(duel.players, index, banked), turn: { ...turn, echoes: [...echoes, index] } }, verdict: played.verdict, delta }
 }
@@ -541,7 +562,7 @@ export function resignPlayer(duel: Duel, judge: Judge | null, index: number, at:
   }
   const players = duel.players.map((one, at) => {
     if (at === index) return { ...one, reserve: 0, alive: false }
-    return one.alive ? { ...one, reserve: one.reserve + DUEL_DEATH_BONUS_SECONDS } : one
+    return one.alive ? { ...one, reserve: one.reserve + DUEL_DEATH_BONUS_SECONDS * timeBonusFactor(duel, at) } : one
   })
   const gone = { ...duel, players, deaths: [...duel.deaths, index] }
   return aliveIndexes(gone).length <= 1 ? { ...gone, phase: 'over', turn: null } : gone
@@ -566,7 +587,7 @@ function eliminate(duel: Duel, judge: Judge, at: number): Duel {
   if (!player) return duel
   const players = duel.players.map((one, index) => {
     if (index === turn.player) return { ...one, reserve: 0, alive: false }
-    return one.alive ? { ...one, reserve: one.reserve + DUEL_DEATH_BONUS_SECONDS } : one
+    return one.alive ? { ...one, reserve: one.reserve + DUEL_DEATH_BONUS_SECONDS * timeBonusFactor(duel, at) } : one
   })
   const deaths = [...duel.deaths, turn.player]
   const mid = { ...duel, players, deaths }

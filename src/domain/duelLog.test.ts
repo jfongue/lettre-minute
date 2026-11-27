@@ -5,6 +5,9 @@ import type { Judge } from './run'
 import {
   draftPlayer,
   duelRanking,
+  timeBonusFactor,
+  DUEL_FADE_SECONDS,
+  DUEL_LONG_SECONDS,
   duelPrompt,
   pickDeadline,
   reserveSeconds,
@@ -190,6 +193,33 @@ describe('les mots trouvés pendant le tour d’un autre', () => {
     expect(mid.duel.turn!.echoes).toEqual([])
     const back: DuelMove = { seq: 7, seat: holder, kind: 'echo', payload: word(mid.duel, 3), at: mid.duel.turn!.startedAt + 1 }
     expect(replay(setup, [...picks, echo, solve, back], judge).facts.at(-1)).toMatchObject({ kind: 'echoed', delta: 1 })
+  })
+})
+
+describe('un duel qui s’éternise', () => {
+  it('rend de moins en moins de temps après trois minutes, puis plus rien', () => {
+    const picks = draftMoves()
+    const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
+    const opens = opened.turn!.startedAt
+    expect(timeBonusFactor(opened, opens + 100)).toBe(1)
+    expect(timeBonusFactor(opened, opens + DUEL_LONG_SECONDS + DUEL_FADE_SECONDS / 2)).toBeCloseTo(0.5)
+    expect(timeBonusFactor(opened, opens + DUEL_LONG_SECONDS + DUEL_FADE_SECONDS + 5)).toBe(0)
+  })
+
+  it('ne touche pas une table d’une version d’avant', () => {
+    const old = startDuel({ ...setup, rules: 1 })
+    const opened = settle(replay({ ...setup, rules: 1 }, draftMoves(old), judge).duel, judge, 1e9)
+    expect(timeBonusFactor(opened, opened.turn!.startedAt + 1000)).toBe(1)
+  })
+
+  it('rend moins à un mot trouvé tard', () => {
+    const picks = draftMoves()
+    const opened = settle(replay(setup, picks, judge).duel, judge, 1e9)
+    const late = opened.turn!.startedAt + DUEL_LONG_SECONDS + DUEL_FADE_SECONDS
+    // Le joueur qui a la main tient sa réserve jusque-là : on la rejoue sans passer par son tour.
+    const echo: DuelMove = { seq: 5, seat: 1 - opened.turn!.player, kind: 'echo', payload: answer(opened), at: opened.turn!.startedAt + 2 }
+    expect(replay(setup, [...picks, echo], judge).facts.at(-1)?.delta).toBe(1)
+    expect(timeBonusFactor(opened, late)).toBe(0)
   })
 })
 

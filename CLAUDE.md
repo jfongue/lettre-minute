@@ -645,6 +645,11 @@ propre téléphone.
   les garde au salon, et la table joue au lancement les plus anciennes de ses
   joueurs humains (`duel_tables.rules`) — une règle de duel nouvelle monte
   `DUEL_RULES` et passe par ce même verrou.
+- **Un duel qui s'éternise s'use, sans le dire** (`timeBonusFactor`) : passé
+  trois minutes de jeu, tout le temps rendu — palier d'un mot, mot bonus,
+  mort — baisse linéairement jusqu'à zéro trois minutes plus tard ; les
+  réserves ne font alors que fondre. Règle du rejeu, donc des tables aux
+  règles 2 seulement (`Duel.rules`, `DuelSetup.rules`).
 - **Les classements sont une page entière** (`LeaderboardsScreen`) : le
   tiroir du menu ne les montre plus, `Menu` passe la main à l'app par
   `onBoards`. Solo, Défi et — compte nommé et duel ouvert — Duel.

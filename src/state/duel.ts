@@ -778,7 +778,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   const fresh: DuelSetup | null =
     !table || table.startedAt === null || players.length < MIN_TABLE
       ? null
-      : { seed: table.seed, playerIds: players.map((seat) => seat.id), categories: table.categories, owned: players.map((seat) => seat.owned), startedAt: table.startedAt }
+      : { seed: table.seed, playerIds: players.map((seat) => seat.id), categories: table.categories, owned: players.map((seat) => seat.owned), startedAt: table.startedAt, rules: table.rules }
   // Every poll (450 ms) rebuilds the table and its seats: keyed on what the
   // setup says, the whole journal is replayed only when a move or a seat changes.
   const setupKey = fresh && JSON.stringify(fresh)
