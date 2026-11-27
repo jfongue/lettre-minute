@@ -1,1 +1,0 @@
-import{jn as e}from"./bonus-OZyG32E0.js";import{Gn as t}from"./styles-BGoOdOJd.js";function n(n,r){return t(r.id)?n.ach[r.id]:{name:e(n.avatar.milestone(r.goal)),desc:``}}export{n as t};
