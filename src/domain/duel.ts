@@ -485,6 +485,28 @@ export function duelTimeout(duel: Duel, judge: Judge, at: number): Duel {
   return eliminate(duel, judge, at)
 }
 
+/**
+ * Un joueur abandonne : il meurt tout de suite, à son tour comme à celui d'un
+ * autre, et même au draft. Les survivants reçoivent le temps d'une mort, comme
+ * pour toute autre. À son tour, la main repart après la mise en scène ; sinon
+ * celui qui joue garde la sienne. Au draft, son choix restant se fait d'office
+ * (`driverMove`), sans attendre ses dix secondes.
+ */
+export function resignPlayer(duel: Duel, judge: Judge | null, index: number, at: number): Duel {
+  const player = duel.players[index]
+  if (duel.phase === 'over' || !player?.alive) return duel
+  if (duel.phase === 'play' && duel.turn?.player === index) {
+    if (!judge) return duel
+    return eliminate(duel, judge, at)
+  }
+  const players = duel.players.map((one, at) => {
+    if (at === index) return { ...one, reserve: 0, alive: false }
+    return one.alive ? { ...one, reserve: one.reserve + DUEL_DEATH_BONUS_SECONDS } : one
+  })
+  const gone = { ...duel, players, deaths: [...duel.deaths, index] }
+  return aliveIndexes(gone).length <= 1 ? { ...gone, phase: 'over', turn: null } : gone
+}
+
 /** Fin de tour : la main avance ; le couple neuf n'arrive qu'une manche consommée. */
 function advance(duel: Duel, judge: Judge, at: number, consumed: boolean): Duel {
   const turn = duel.turn

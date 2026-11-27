@@ -25,6 +25,7 @@ import {
   pickDeadline,
   playWord,
   reserveSeconds,
+  resignPlayer,
   DUEL_GRACE_SECONDS,
   DUEL_PASS_PENALTY_SECONDS,
   DUEL_PICK_SECONDS,
@@ -41,7 +42,7 @@ export const DUEL_ANNOUNCE_SECONDS = 3.2
 /** Le silence au-delà duquel un appareil ne relit plus la table : il ne mène plus. */
 export const DRIVER_SILENCE = 4
 
-export type DuelMoveKind = 'pick' | 'word' | 'pass' | 'timeout' | 'cheer'
+export type DuelMoveKind = 'pick' | 'word' | 'pass' | 'timeout' | 'cheer' | 'resign'
 
 export interface DuelMove {
   seq: number
@@ -66,6 +67,8 @@ export interface DuelFact {
   delta?: number
   /** Le mot est arrivé à zéro et a sauvé son joueur. */
   saved?: boolean
+  /** La mort est un abandon : le joueur a quitté la table. */
+  resigned?: boolean
   /** La catégorie choisie, ou le couple refusé par toute la table. */
   prompt?: { categoryId: string; letter: string }
  /** La catégorie qu'un joueur conseille à celui qui choisit. */
@@ -124,7 +127,9 @@ export function replay(setup: DuelSetup, moves: readonly DuelMove[], judge: Judg
   let applied = 0
   let lastPrompt: Prompt | null = null
   for (const move of moves) {
-    if (move.kind !== 'pick' && move.kind !== 'cheer' && !judge) {
+    // Un abandon au draft n'a pas besoin des dictionnaires : personne n'y joue de mot.
+    const draftResign = move.kind === 'resign' && duel.phase === 'draft'
+    if (move.kind !== 'pick' && move.kind !== 'cheer' && !draftResign && !judge) {
       // Un mot, un passe ou un temps écoulé pendant le draft ne s'applique à
       // rien, dictionnaires ou pas : il se saute. S'y arrêter figeait la table
       // sur le choix en cours, chaque choix suivant attendant derrière lui.
@@ -157,6 +162,13 @@ export function applyMove(before: Duel, move: DuelMove, judge: Judge | null): { 
     const duel = pickCategory(before, move.payload, move.at)
     if (duel === before) return { duel, facts: [] }
     return { duel, facts: [{ id, kind: 'picked', player: move.seat, at: move.at, prompt: { categoryId: move.payload, letter: '' } }] }
+  }
+
+  if (move.kind === 'resign') {
+    const live = judge ? settle(before, judge, move.at) : before
+    const next = resignPlayer(live, judge, move.seat, move.at)
+    if (next === live) return { duel: before, facts: [] }
+    return { duel: next, facts: [{ id: `${id}:dead`, kind: 'dead', player: move.seat, at: move.at, resigned: true }] }
   }
 
   if (!judge) return { duel: before, facts: [] }
@@ -211,6 +223,11 @@ export function driverMove(duel: Duel, judge: Judge | null, at: number, bots: Re
     const seat = draftPlayer(duel)
     const bot = bots[seat]
     const only = onlyChoice(duel)
+    // Le choix d'un joueur qui a abandonné se fait tout de suite : personne ne l'attend.
+    if (duel.players[seat]?.alive === false) {
+      const forced = only ?? forcedPick(duel)
+      return forced ? { seat, kind: 'pick', payload: forced } : null
+    }
     if (only) return at >= pickDeadline(duel) ? { seat, kind: 'pick', payload: only } : null
     if (bot) {
       const [least, most] = bot.think
