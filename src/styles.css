@@ -864,6 +864,52 @@ sont donc posées sur la pièce, pas sur la tuile. */
   --way: -1;
 }
 
+/* Les six tuiles du duel classé ne bougent que par leur pièce teintée : le
+   sommet de la pyramide saute, le cœur du tunnel aspire, la pièce est lancée
+   en l'air, l'alvéole du milieu tourne d'un sixième de tour, la face de la
+   gemme scintille, la traînée de la comète file. */
+.motion-summit .avatar-detail {
+  animation: summit 4.8s ease-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.4s);
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.motion-tunnel .avatar-detail {
+  animation: tunnel 4.4s ease-in infinite;
+  animation-delay: calc(var(--i, 0) * -0.3s);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.motion-toss .avatar-detail {
+  animation: toss 4.6s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.5s);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.motion-hive .avatar-detail {
+  animation: hive 6s var(--ease-snap) infinite;
+  animation-delay: calc(var(--i, 0) * -0.6s);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.motion-glint .avatar-detail {
+  animation: glint 3.8s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * -0.35s);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.motion-streak .avatar-detail {
+  animation: streak 2.6s linear infinite;
+  animation-delay: calc(var(--i, 0) * -0.2s);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 /* ---------------------------------------------------------------- blocks - */
 .panel {
   display: grid;
@@ -3476,6 +3522,128 @@ puis se repose. */
 
 /* Les deux parts s'écartent sur la diagonale, tiennent ouvert, puis se
 referment d'un coup : `--way` donne le sens de chacune. */
+@keyframes summit {
+  0%,
+  44%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+  6% {
+    transform: translateY(0) scaleY(0.8);
+  }
+  16% {
+    transform: translateY(-14px) scaleY(1.08);
+  }
+  26% {
+    transform: translateY(0) scaleY(0.88);
+  }
+  32% {
+    transform: translateY(-4px) scaleY(1);
+  }
+  38% {
+    transform: translateY(0) scaleY(0.96);
+  }
+}
+
+@keyframes tunnel {
+  0% {
+    transform: scale(0.15);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1.7);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2.3);
+    opacity: 0;
+  }
+}
+
+@keyframes toss {
+  0%,
+  58%,
+  100% {
+    transform: translateY(0) scaleX(1);
+  }
+  14% {
+    transform: translateY(-9px) scaleX(0.08);
+  }
+  26% {
+    transform: translateY(-12px) scaleX(-1);
+  }
+  38% {
+    transform: translateY(-6px) scaleX(0.08);
+  }
+  48% {
+    transform: translateY(0) scaleX(1);
+  }
+  53% {
+    transform: translateY(0) scaleX(1.1) scaleY(0.9);
+  }
+}
+
+@keyframes hive {
+  0%,
+  30% {
+    transform: rotate(0) scale(1);
+  }
+  42% {
+    transform: rotate(30deg) scale(0.78);
+  }
+  55%,
+  85% {
+    transform: rotate(60deg) scale(1);
+  }
+  100% {
+    transform: rotate(60deg) scale(1);
+  }
+}
+
+@keyframes glint {
+  0%,
+  64%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  72% {
+    transform: scale(0.5);
+    opacity: 0.2;
+  }
+  80% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+  86% {
+    transform: scale(0.92);
+  }
+  92% {
+    transform: scale(1);
+  }
+}
+
+@keyframes streak {
+  0% {
+    transform: translate(12px, -12px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  70% {
+    transform: translate(-4px, 4px);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-14px, 14px);
+    opacity: 0;
+  }
+}
+
 @keyframes part {
   0%,
   100% {

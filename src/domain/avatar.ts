@@ -140,6 +140,12 @@ export type Motion =
   | 'bounce'
   | 'squeeze'
   | 'part'
+  | 'summit'
+  | 'tunnel'
+  | 'toss'
+  | 'hive'
+  | 'glint'
+  | 'streak'
 
 /** One tile of the poster: a shape, turned by quarters, with an optional small accent in a corner. */
 export interface AvatarDesign {
@@ -254,12 +260,15 @@ const LOOKS: readonly Look[] = [
   // (`LEAGUE_MARKS`) : le triangle en pyramide de strates, le carré en tunnel
   // de miroirs, le rond en pile de pièces, l'hexagone en ruche, le losange en
   // gemme taillée, l'étoile en comète. L'accent teinte la pièce maîtresse.
-  ['strata', 0, null, 'climb'],
-  ['mirrors', 0, null, 'breathe'],
-  ['treasure', 0, null, 'bob'],
-  ['honeycomb', 0, null, 'pulse'],
-  ['gem', 0, null, 'twinkle'],
-  ['comet', 0, null, 'dart'],
+  // Chacune a son mouvement, porté par sa pièce teintée : le sommet saute,
+  // le tunnel aspire, la pièce est lancée, l'alvéole tourne, la face
+  // scintille, la traînée file.
+  ['strata', 0, null, 'summit'],
+  ['mirrors', 0, null, 'tunnel'],
+  ['treasure', 0, null, 'toss'],
+  ['honeycomb', 0, null, 'hive'],
+  ['gem', 0, null, 'glint'],
+  ['comet', 0, null, 'streak'],
 ]
 
 /**
