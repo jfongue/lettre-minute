@@ -41,7 +41,15 @@
 --    une coupure (`duel_rejoin`) reprend sa place tant qu'on n'a pas abandonné.
 --    Une table restée `playing` sans personne depuis trois minutes se ferme
 --    à la lecture de la file suivante. Trois abandons de partie classée ou
---    propositions manquées en une heure valent cinq minutes hors de la file.
+--    propositions manquées en 24 h valent cinq minutes hors de la file, six
+--    un quart d'heure, neuf une heure, douze quatre heures, quinze un jour.
+--
+-- 6. La file continue l'app fermée (Android) : un téléphone qui accepte les
+--    notifications garde sa place dix minutes en arrière-plan
+--    (`duel_queue_away`), et l'adversaire trouvé l'appelle d'une notification
+--    (`push_outbox`, genre `match`) ; la proposition lui laisse alors une
+--    minute au lieu de vingt secondes, et sa notification est retirée
+--    (`duel_cancel`) dès que la proposition aboutit ou tombe.
 --
 -- 5. Les mots trouvés hors de son tour (`echo`) : pendant le tour d'un autre,
 --    un mot juste rend du temps (src/domain/duel.ts, `echoWord`). Une version
@@ -125,7 +133,16 @@ alter table public.duel_queue
   add column log_id bigint references public.duel_queue_log on delete set null,
   add column rating integer not null default 1000,
   add column busy boolean not null default false,
-  add column offered_at timestamptz;
+  add column offered_at timestamptz,
+  -- L'app est passée derrière : la place tient sans relecture jusque-là.
+  add column away_until timestamptz,
+  -- Le temps d'accepter la proposition en cours, et si une notification l'a portée.
+  add column offer_window smallint not null default 20,
+  add column notified boolean not null default false;
+
+alter table public.push_outbox drop constraint push_outbox_kind_check;
+alter table public.push_outbox add constraint push_outbox_kind_check
+  check (kind in ('invite', 'recap', 'duel', 'duel_cancel', 'match'));
 
 alter table public.duel_moves drop constraint duel_moves_kind_check;
 alter table public.duel_moves add constraint duel_moves_kind_check
@@ -338,18 +355,33 @@ language sql stable security definer set search_path = public as $$
   left join public.duel_ratings r on r.player = me.player;
 $$;
 
--- Trois abandons de partie classée ou propositions laissées passer en une
--- heure : cinq minutes hors de la file, comptées depuis le dernier.
+-- La pause qu'un nombre de manquements sur 24 h vaut : tous les trois, un
+-- palier de plus — cinq minutes, un quart d'heure, une heure, quatre heures,
+-- puis un jour. `src/domain/ranked.ts` (`cooldownMinutes`) en est le double.
+create function public.duel_cooldown_length(p_strikes integer) returns interval
+language sql immutable as $$
+  select case
+    when p_strikes >= 15 then interval '24 hours'
+    when p_strikes >= 12 then interval '4 hours'
+    when p_strikes >= 9 then interval '1 hour'
+    when p_strikes >= 6 then interval '15 minutes'
+    when p_strikes >= 3 then interval '5 minutes'
+  end
+$$;
+
+-- Les abandons de partie classée et les propositions laissées passer sur
+-- 24 h : à partir de trois, une pause comptée depuis le dernier, plus longue
+-- à chaque palier franchi.
 create function public.duel_cooldown_until(p_player uuid) returns timestamptz
 language sql stable security definer set search_path = public as $$
   with strikes as (
     select ended_at as at from public.duel_queue_log
-     where player = p_player and outcome = 'missed' and ended_at > now() - interval '1 hour'
+     where player = p_player and outcome = 'missed' and ended_at > now() - interval '24 hours'
     union all
     select m.at from public.duel_moves m join public.duel_tables t on t.id = m.table_id
-     where m.by = p_player and m.kind = 'resign' and t.ranked and m.at > now() - interval '1 hour'
+     where m.by = p_player and m.kind = 'resign' and t.ranked and m.at > now() - interval '24 hours'
   )
-  select case when count(*) >= 3 and max(at) + interval '5 minutes' > now() then max(at) + interval '5 minutes' end
+  select case when max(at) + public.duel_cooldown_length(count(*)::int) > now() then max(at) + public.duel_cooldown_length(count(*)::int) end
     from strikes;
 $$;
 
@@ -615,13 +647,13 @@ $$;
 -- --------------------------------------------------------------- la file --
 
 -- La place de l'adversaire proposé, telle que la carte « Adversaire trouvé » la montre.
-create function public.duel_offer_json(p_table uuid, p_player uuid, p_offered timestamptz) returns jsonb
+create function public.duel_offer_json(p_table uuid, p_player uuid, p_offered timestamptz, p_window integer) returns jsonb
 language sql stable security definer set search_path = public as $$
   select jsonb_build_object(
     'status', 'found',
     'table', t.id,
     'ranked', t.ranked,
-    'deadline', extract(epoch from p_offered + make_interval(secs => public.duel_offer_seconds())),
+    'deadline', extract(epoch from p_offered + make_interval(secs => p_window)),
     'now', extract(epoch from clock_timestamp()),
     'accepted', coalesce((select s.ready from public.duel_seats s where s.table_id = t.id and s.player = p_player), false),
     'me', public.duel_rating_json(p_player),
@@ -684,6 +716,7 @@ declare
   v_owned smallint := greatest(0, least(coalesce(p_owned, 0), 999));
   v_log bigint;
   v_has_table boolean;
+  v_away boolean;
 begin
   if not public.is_named_account() then
     raise exception 'named account required' using errcode = '42501';
@@ -696,7 +729,7 @@ begin
   -- Les absents quittent la file, et leur passage se clôt.
   with gone as (
     delete from public.duel_queue
-     where (table_id is null and seen_at < now() - public.duel_queue_patience())
+     where (table_id is null and seen_at < now() - public.duel_queue_patience() and coalesce(away_until, now()) <= now())
         or (table_id is not null and seen_at < now() - interval '2 minutes')
     returning log_id
   )
@@ -723,18 +756,21 @@ begin
       update public.duel_queue set offered_at = now() where player = auth.uid() returning * into v_me;
     end if;
     if v_has_table and v_table.status = 'lobby' and public.duel_lobby_open(v_table)
-       and now() < v_me.offered_at + make_interval(secs => public.duel_offer_seconds())
+       and now() < v_me.offered_at + make_interval(secs => v_me.offer_window)
        and exists (
          select 1 from public.duel_seats where table_id = v_table.id and player = auth.uid() and left_at is null and kicked_at is null
        ) then
       update public.duel_queue set seen_at = now() where player = auth.uid();
-      return public.duel_offer_json(v_table.id, auth.uid(), v_me.offered_at);
+      return public.duel_offer_json(v_table.id, auth.uid(), v_me.offered_at, v_me.offer_window);
     end if;
 
     -- La proposition a échoué : la table se ferme ; qui avait accepté reprend
     -- sa place dans la file, qui n'a pas répondu en sort.
     -- Une table disparue n'est la faute de personne : la place se garde.
     v_mine := not v_has_table or coalesce((select ready from public.duel_seats where table_id = v_me.table_id and player = auth.uid()), false);
+    if v_has_table then
+      perform public.duel_offer_unnotify(v_table.id);
+    end if;
     if v_has_table and v_table.status = 'lobby' then
       update public.duel_tables set status = 'closed' where id = v_table.id;
       update public.duel_queue_log l set outcome = 'missed', ended_at = now()
@@ -750,7 +786,7 @@ begin
       delete from public.duel_queue where player = auth.uid();
       return jsonb_build_object('status', 'missed');
     end if;
-    update public.duel_queue set table_id = null, offered_at = null, seen_at = now()
+    update public.duel_queue set table_id = null, offered_at = null, offer_window = 20, seen_at = now()
      where player = auth.uid() returning * into v_me;
   end if;
 
@@ -773,7 +809,7 @@ begin
   else
     update public.duel_queue
        set lang = p_lang, owned = v_owned, categories = p_categories, seen_at = now(),
-           rating = v_rating.rating, busy = coalesce(p_busy, false)
+           rating = v_rating.rating, busy = coalesce(p_busy, false), away_until = null
      where player = auth.uid() returning * into v_me;
   end if;
   if v_me.busy then
@@ -784,7 +820,7 @@ begin
   -- de l'autre autorise — jamais un joueur occupé ni un blocage.
   select * into v_other from public.duel_queue q
    where q.table_id is null and q.player <> auth.uid() and q.lang = p_lang and not q.busy
-     and q.seen_at > now() - public.duel_queue_patience()
+     and (q.seen_at > now() - public.duel_queue_patience() or q.away_until > now())
      and abs(q.rating - v_me.rating) <= greatest(
        public.duel_rating_window(extract(epoch from now() - v_me.joined_at)),
        public.duel_rating_window(extract(epoch from now() - q.joined_at))
@@ -808,11 +844,20 @@ begin
   insert into public.duel_seats (table_id, player, owned, joined_at)
   values (v_id, v_other.player, v_other.owned, clock_timestamp()),
          (v_id, auth.uid(), v_owned, clock_timestamp() + interval '1 millisecond');
-  update public.duel_queue set table_id = v_id, offered_at = now(), seen_at = now()
+  -- Un adversaire en arrière-plan est appelé d'une notification, et la
+  -- proposition lui laisse le temps de revenir.
+  v_away := coalesce(v_other.away_until > now(), false);
+  update public.duel_queue
+     set table_id = v_id, offered_at = now(), seen_at = now(),
+         offer_window = case when v_away then 60 else public.duel_offer_seconds() end,
+         notified = (player = v_other.player and v_away)
    where player in (v_other.player, auth.uid());
+  if v_away then
+    insert into public.push_outbox (player_id, kind, table_id) values (v_other.player, 'match', v_id);
+  end if;
   update public.duel_queue_log set outcome = 'matched', ended_at = now()
    where id in (v_other.log_id, v_me.log_id) and outcome is null;
-  return public.duel_offer_json(v_id, auth.uid(), now());
+  return public.duel_offer_json(v_id, auth.uid(), now(), case when v_away then 60 else public.duel_offer_seconds() end);
 end;
 $$;
 
@@ -841,25 +886,53 @@ begin
   end if;
 
   if not coalesce(p_accept, false) then
+    perform public.duel_offer_unnotify(v_table.id);
     update public.duel_tables set status = 'closed' where id = v_table.id;
-    update public.duel_queue set table_id = null, offered_at = null, seen_at = now()
+    update public.duel_queue set table_id = null, offered_at = null, offer_window = 20, seen_at = now()
      where table_id = v_table.id and player <> auth.uid();
     update public.duel_queue_log set outcome = 'declined', ended_at = now() where id = v_me.log_id;
     delete from public.duel_queue where player = auth.uid();
     return jsonb_build_object('status', 'declined');
   end if;
 
-  if v_me.offered_at is not null and now() > v_me.offered_at + make_interval(secs => public.duel_offer_seconds() + 2) then
+  if v_me.offered_at is not null and now() > v_me.offered_at + make_interval(secs => v_me.offer_window + 2) then
     return jsonb_build_object('status', 'gone');
   end if;
   v_ready := public.duel_ready(v_table.id, true);
   if v_ready = 'started' then
+    perform public.duel_offer_unnotify(v_table.id);
     -- L'autre garde sa ligne : c'est elle qui lui dit, à sa lecture suivante, que la table part.
     delete from public.duel_queue where player = auth.uid();
     return jsonb_build_object('status', 'matched', 'table', v_table.id);
   end if;
-  update public.duel_queue set seen_at = now() where player = auth.uid();
-  return public.duel_offer_json(v_table.id, auth.uid(), coalesce(v_me.offered_at, now()));
+  update public.duel_queue set seen_at = now(), away_until = null where player = auth.uid();
+  return public.duel_offer_json(v_table.id, auth.uid(), coalesce(v_me.offered_at, now()), v_me.offer_window);
+end;
+$$;
+
+-- La notification d'une proposition n'a plus rien à dire : elle aboutit ou
+-- tombe. Un message muet la retire du téléphone (`duel_cancel`, 0060).
+create function public.duel_offer_unnotify(p_table uuid) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into public.push_outbox (player_id, kind, table_id)
+  select q.player, 'duel_cancel', p_table from public.duel_queue q where q.table_id = p_table and q.notified;
+  update public.duel_queue set notified = false where table_id = p_table and notified;
+end;
+$$;
+
+-- L'app passe derrière pendant la recherche : la place tient dix minutes sans
+-- relecture, si une notification peut rappeler le joueur. Rend vrai quand
+-- c'est le cas ; sinon la place s'éteint comme avant, au bout de 20 s.
+create function public.duel_queue_away() returns boolean
+language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from public.push_tokens where player_id = auth.uid()) then
+    return false;
+  end if;
+  update public.duel_queue set away_until = now() + interval '10 minutes', seen_at = now()
+   where player = auth.uid() and table_id is null;
+  return found;
 end;
 $$;
 
@@ -881,6 +954,121 @@ begin
   delete from public.duel_queue where player = auth.uid();
 end;
 $$;
+
+-- La file des versions livrées (0097), qui ne voit ni les joueurs occupés ni
+-- ceux qui attendent l'app fermée — elle les assiérait sans les appeler — et
+-- ne fait plus sortir ces derniers de la file.
+create or replace function public.duel_matchmake(p_lang text, p_categories text[], p_owned integer) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_me public.duel_queue;
+  v_other public.duel_queue;
+  v_table uuid;
+begin
+  if not public.is_named_account() then
+    raise exception 'named account required' using errcode = '42501';
+  end if;
+  if p_lang !~ '^[a-z]{2}$' or coalesce(cardinality(p_categories), 0) not between 1 and 60 then
+    raise exception 'invalid queue entry' using errcode = '22023';
+  end if;
+
+  delete from public.duel_queue
+   where (table_id is null and seen_at < now() - public.duel_queue_patience() and coalesce(away_until, now()) <= now())
+      or (table_id is not null and seen_at < now() - interval '2 minutes');
+
+  select * into v_me from public.duel_queue where player = auth.uid() for update;
+  if found and v_me.table_id is not null then
+    delete from public.duel_queue where player = auth.uid();
+    if exists (select 1 from public.duel_tables t where t.id = v_me.table_id and public.duel_lobby_open(t)) then
+      return jsonb_build_object('status', 'matched', 'table', v_me.table_id);
+    end if;
+  end if;
+
+  v_table := public.duel_open_table_for(auth.uid(), p_lang);
+  if v_table is not null then
+    perform 1 from public.duel_tables where id = v_table for update;
+    if public.duel_active_seats(v_table) < 4 then
+      insert into public.duel_seats (table_id, player, owned)
+      values (v_table, auth.uid(), greatest(0, least(coalesce(p_owned, 0), 999)));
+      delete from public.duel_queue where player = auth.uid();
+      return jsonb_build_object('status', 'matched', 'table', v_table);
+    end if;
+  end if;
+
+  select * into v_other from public.duel_queue q
+   where q.table_id is null and q.player <> auth.uid() and q.lang = p_lang
+     and not q.busy and coalesce(q.away_until, now()) <= now()
+     and not exists (
+       select 1 from public.blocks b
+        where (b.blocker = auth.uid() and b.blocked = q.player) or (b.blocker = q.player and b.blocked = auth.uid())
+     )
+   order by q.joined_at
+   limit 1
+   for update skip locked;
+
+  if not found then
+    insert into public.duel_queue (player, lang, owned, categories)
+    values (auth.uid(), p_lang, greatest(0, least(coalesce(p_owned, 0), 999)), p_categories)
+    on conflict (player) do update
+      set lang = excluded.lang, owned = excluded.owned, categories = excluded.categories,
+          seen_at = now(), table_id = null;
+    return jsonb_build_object('status', 'waiting');
+  end if;
+
+  insert into public.duel_tables (host, lang, seed, categories)
+  values (v_other.player, v_other.lang, floor(random() * 4294967295)::bigint, v_other.categories)
+  returning id into v_table;
+  insert into public.duel_seats (table_id, player, owned, joined_at)
+  values (v_table, v_other.player, v_other.owned, clock_timestamp()),
+         (v_table, auth.uid(), greatest(0, least(coalesce(p_owned, 0), 999)), clock_timestamp() + interval '1 millisecond');
+  update public.duel_queue set table_id = v_table, seen_at = now() where player = v_other.player;
+  delete from public.duel_queue where player = auth.uid();
+  return jsonb_build_object('status', 'matched', 'table', v_table);
+end;
+$$;
+
+-- Ce que la fonction Edge envoie (0060) : une proposition (`match`) porte le
+-- nom de l'adversaire, pas celui de l'hôte — souvent le joueur lui-même.
+drop function public.claim_push_batch(integer);
+create function public.claim_push_batch(p_limit integer default 200)
+returns table (id bigint, kind text, challenge_id uuid, table_id uuid, token text, lang text, owner_name text, players integer)
+language plpgsql security definer set search_path = public as $$
+begin
+return query
+with claimed as (
+update public.push_outbox o
+set claimed_at = now(), attempts = o.attempts + 1
+where o.id in (
+select q.id from public.push_outbox q
+where q.sent_at is null
+and q.attempts < 5
+and (q.claimed_at is null or q.claimed_at < now() - interval '2 minutes')
+order by q.id
+limit p_limit
+for update skip locked
+)
+returning o.id, o.kind, o.challenge_id, o.table_id, o.player_id
+)
+select c.id, c.kind, c.challenge_id, c.table_id, t.token, coalesce(t.lang, 'fr'),
+case when c.kind = 'match' then coalesce((
+  select p.display_name from public.duel_seats s join public.profiles p on p.id = s.player
+   where s.table_id = c.table_id and s.player <> c.player_id limit 1
+), '')
+else coalesce(host.display_name, owner.display_name, '') end,
+case when c.table_id is null
+then (select count(*) from public.challenge_players a where a.challenge_id = c.challenge_id)::integer
+else public.duel_active_seats(c.table_id)
+end
+from claimed c
+left join public.challenges ch on ch.id = c.challenge_id
+left join public.profiles owner on owner.id = ch.owner
+left join public.duel_tables dt on dt.id = c.table_id
+left join public.profiles host on host.id = dt.host
+left join public.push_tokens t on t.player_id = c.player_id;
+end;
+$$;
+revoke execute on function public.claim_push_batch(integer) from public, anon, authenticated;
+grant execute on function public.claim_push_batch(integer) to service_role;
 
 -- ---------------------------------------------------------- les lectures --
 
@@ -1041,11 +1229,13 @@ revoke execute on function
   public.duel_wait_estimate(text),
   public.duel_rating_of(uuid),
   public.duel_rating_json(uuid),
+  public.duel_cooldown_length(integer),
   public.duel_cooldown_until(uuid),
   public.duel_elo_deltas(integer[], integer[]),
   public.duel_settle(uuid),
   public.duel_close_abandoned(),
-  public.duel_offer_json(uuid, uuid, timestamptz),
+  public.duel_offer_json(uuid, uuid, timestamptz, integer),
+  public.duel_offer_unnotify(uuid),
   public.duel_queue_json(uuid, text, text)
   from public, anon, authenticated;
 
@@ -1056,6 +1246,7 @@ revoke execute on function
   public.duel_queue_poll(text, text[], integer, boolean),
   public.duel_offer_answer(boolean),
   public.duel_queue_leave(),
+  public.duel_queue_away(),
   public.duel_my_rating(),
   public.duel_ladder(integer)
   from public, anon;
@@ -1067,6 +1258,7 @@ grant execute on function
   public.duel_queue_poll(text, text[], integer, boolean),
   public.duel_offer_answer(boolean),
   public.duel_queue_leave(),
+  public.duel_queue_away(),
   public.duel_my_rating(),
   public.duel_ladder(integer)
   to authenticated;

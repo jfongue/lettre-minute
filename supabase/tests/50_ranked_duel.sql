@@ -296,6 +296,18 @@ select tests.login('rf');
 select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'cooldown', 'three misses cool down');
 select tests.logout();
 select tests.ok(not tests.queued('rf'), 'a cooling player is not queued');
+-- La pause s'allonge avec les manquements du jour.
+select tests.is(public.duel_cooldown_length(2), null, 'two misses are free');
+select tests.is(public.duel_cooldown_length(3), interval '5 minutes', 'three: five minutes');
+select tests.is(public.duel_cooldown_length(6), interval '15 minutes', 'six: a quarter of an hour');
+select tests.is(public.duel_cooldown_length(9), interval '1 hour', 'nine: an hour');
+select tests.is(public.duel_cooldown_length(12), interval '4 hours', 'twelve: four hours');
+select tests.is(public.duel_cooldown_length(40), interval '24 hours', 'then a day');
+insert into public.duel_queue_log (player, lang, joined_at, ended_at, outcome)
+select tests.uid('rf'), 'fr', now() - interval '3 hours', now() - interval '20 minutes', 'missed' from generate_series(1, 3);
+select tests.login('rf');
+select tests.ok((public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'until')::numeric - extract(epoch from now()) > 10 * 60, 'six misses in a day: a quarter of an hour from the last');
+select tests.logout();
 
 -- Occupé (partie seule) : en file, jamais apparié.
 select tests.login('rg');
@@ -394,3 +406,64 @@ select tests.login('rc');
 select tests.is(public.duel_move((select id from mixed), 1, 0, 'echo', 'zèbre'), 'forbidden', 'and nobody can echo there');
 select tests.is((public.duel_sync((select id from mixed), 0) -> 'table' ->> 'rules')::int, 1, 'the table tells its rules');
 select tests.logout();
+
+-- ------------------------------------------------ la file, l'app fermée --
+
+select tests.new_user(n) from unnest(array['wa', 'wb', 'wc']) n;
+create function tests.outbox(p_label text, p_kind text) returns integer
+language sql stable security definer set search_path = public as $$
+  select count(*)::int from public.push_outbox where player_id = tests.uid(p_label) and kind = p_kind
+$$;
+create function tests.age_seen(p_label text, p_seconds int) returns void
+language sql security definer set search_path = public as $$
+  update public.duel_queue set seen_at = now() - make_interval(secs => p_seconds) where player = tests.uid(p_label)
+$$;
+insert into public.push_tokens (token, player_id) values ('token-wa', tests.uid('wa'));
+
+-- Sans notifications, l'arrière-plan ne garde pas la place.
+select tests.login('wb');
+select public.duel_queue_poll('fr', array['animaux'], 3, false);
+select tests.is(public.duel_queue_away(), false, 'without a push token the place is not kept');
+select public.duel_queue_leave();
+select tests.logout();
+
+-- Avec : la place tient bien au-delà des vingt secondes.
+select tests.login('wa');
+select public.duel_queue_poll('fr', array['animaux'], 3, false);
+select tests.is(public.duel_queue_away(), true, 'with a push token the place is kept in the background');
+select tests.logout();
+select tests.age_seen('wa', 120);
+select tests.login('wc');
+create temp table called as select public.duel_queue_poll('fr', array['animaux'], 3, false) as answer;
+select tests.is((select answer ->> 'status' from called), 'found', 'a player in the background is still found');
+select tests.ok((select (answer ->> 'deadline')::numeric - (answer ->> 'now')::numeric between 58 and 61 from called), 'the offer gives a minute to come back');
+select tests.logout();
+select tests.is(tests.outbox('wa', 'match'), 1, 'and calls them with a notification');
+select tests.is(tests.outbox('wc', 'match'), 0, 'the one in the app gets none');
+
+-- Revenu par la notification, il accepte ; la notification se retire.
+select tests.login('wa');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'found', 'back in the app, the offer waits');
+select public.duel_offer_answer(true);
+select tests.logout();
+select tests.login('wc');
+select tests.is(public.duel_offer_answer(true) ->> 'status', 'matched', 'both accept, the table starts');
+select tests.logout();
+select tests.is(tests.outbox('wa', 'duel_cancel'), 1, 'the notification is taken down once the offer is settled');
+
+-- La fonction Edge lit le nom de l'adversaire, pas celui de l'hôte.
+select tests.login_service();
+select tests.is((select owner_name from public.claim_push_batch(50) where kind = 'match' limit 1), 'wc', 'a match push names the opponent');
+select tests.logout();
+
+-- Les versions livrées ne voient pas un joueur en arrière-plan.
+select tests.login('wa');
+select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'matched', 'the one who accepted first reads the start');
+select public.duel_queue_poll('fr', array['animaux'], 3, false);
+select public.duel_queue_away();
+select tests.logout();
+select tests.login('wb');
+select tests.is(public.duel_matchmake('fr', array['animaux'], 3) ->> 'status', 'waiting', 'an old client does not seat a player who is away');
+select public.duel_matchmake_cancel();
+select tests.logout();
+select tests.ok(tests.queued('wa'), 'nor drops them from the queue');
