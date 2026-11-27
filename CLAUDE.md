@@ -613,6 +613,11 @@ propre téléphone.
   appariement ouvre une table classée (`ranked`) dont chacun a 20 s pour
   accepter (`duel_offer_answer`, qui n'est que le « prêt » du salon) ; qui
   laisse passer sort de la file, qui avait accepté y revient à sa place.
+  Le premier qui relit la file après l'échec la referme pour tous, mais la
+  ligne d'un silencieux reste accrochée à la table fermée jusqu'à sa propre
+  lecture, qui lui dit « manqué » (0124) — l'effacer le remettait en file sans
+  un mot. Pendant le tour d'un autre, la table se voile (`stage--duel-watching`,
+  jeton `--watch-veil`).
   L'écart d'Elo accepté s'élargit avec l'attente (`duel_rating_window`, ouvert
   à 30 s), l'attente estimée sort de `duel_queue_log`. Personne en face dix
   secondes après l'attente annoncée (`botMatchAfter`) : l'app lance une vraie
