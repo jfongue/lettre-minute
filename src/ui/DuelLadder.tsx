@@ -32,6 +32,11 @@ export function DuelLadder({ load = fetchDuelLadderView }: { load?: typeof fetch
   }, [load, view, take])
 
   const rows = ladder === 'loading' || !ladder ? [] : ladder.rows
+  // Pas de Maîtres avant dix joueurs Diamant : l'onglet n'existe pas encore.
+  const [masters, setMasters] = useState(false)
+  useEffect(() => {
+    if (ladder !== 'loading' && ladder) setMasters(ladder.masters)
+  }, [ladder])
   const mine = ladder !== 'loading' && ladder?.me ? ladder.me : null
   // Ma ligne : mon nom, ou ma place quand l'appareil ne connaît pas mon compte.
   const isMe = (name: string, rank: number | null) => (!!me && name === me.name) || (!me && !!mine?.rank && rank === mine.rank)
@@ -46,7 +51,7 @@ export function DuelLadder({ load = fetchDuelLadderView }: { load?: typeof fetch
   return (
     <section className="duel-ladder" aria-label={t.ranked.ladder}>
       <div className="duel-ladder__views" role="tablist" aria-label={t.ranked.ladder}>
-        {VIEWS.map((id) => (
+        {VIEWS.filter((id) => id !== 'master' || masters).map((id) => (
           <button
             key={id}
             type="button"
@@ -80,7 +85,7 @@ export function DuelLadder({ load = fetchDuelLadderView }: { load?: typeof fetch
                 <span className="duel-ladder__rank">{row.rank ?? '–'}</span>
                 <Avatar choice={row.avatar} size="sm" />
                 <span className="duel-ladder__name">{self ? t.ranked.ladderYou : row.name}</span>
-                <LeagueChip rating={row.rating} games={row.games} rank={row.rank} compact short />
+                <LeagueChip rating={row.rating} games={row.games} rank={row.masterRank} compact short />
               </li>
             )
           })}
@@ -90,7 +95,7 @@ export function DuelLadder({ load = fetchDuelLadderView }: { load?: typeof fetch
         <div className="duel-ladder__mine">
           <b>{t.ranked.ladderYou}</b>
           <span>{placed && mine.rank ? t.ranked.rank(mine.rank) : ''}</span>
-          <LeagueChip rating={mine.rating} games={mine.games} rank={mine.rank} compact />
+          <LeagueChip rating={mine.rating} games={mine.games} rank={mine.masterRank} compact />
           {placed && view !== 'me' ? (
             <button type="button" className="duel-ladder__jump" onClick={() => setView('me')}>
               {t.ranked.views.me}

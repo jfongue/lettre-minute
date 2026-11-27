@@ -169,7 +169,7 @@ import { loadActiveDuel, loadRankedNewsSeen, saveActiveDuel, saveRankedNewsSeen 
 import { useDuelQueue } from './state/duelQueue'
 import { QueuePill } from './ui/QueuePill'
 import { RankedNewsPop } from './ui/RankedNewsPop'
-import { botMatchAfter, rankedNewsDue, RATING_START } from './domain/ranked'
+import { botMatchAfter, rankedNewsDue, EARLY_START } from './domain/ranked'
 import type { BoardFamily } from './ui/BoardSwitch'
 import { DuelResumeCard } from './ui/PlayTogether'
 import { countsForProgress, modeEdge, MODE_SECONDS, type ArcadeMode, type GameMode } from './domain/modes'
@@ -1535,7 +1535,7 @@ setStartedAt((at) => at ?? Date.now())
     !!searchingInfo &&
     !searchingInfo.offline &&
     duelQueue.now - searchingInfo.since >= botMatchAfter(searchingInfo.info?.estimate ?? null)
-  const botRating = searchingInfo?.info?.me.rating ?? RATING_START
+  const botRating = searchingInfo?.info?.me.rating ?? EARLY_START
   useEffect(() => {
     if (!botDue) return
     cancelQueue()

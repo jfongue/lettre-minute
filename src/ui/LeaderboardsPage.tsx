@@ -553,7 +553,7 @@ function Name({ row }: { row: { name: string; avatar: PlacedRow['avatar']; mine?
           {row.name}
         </PlayerName>
       )}
-      {badge ? <RankBadge rating={badge.rating} games={badge.games} rank={badge.rank} /> : null}
+      {badge ? <RankBadge rating={badge.rating} games={badge.games} rank={badge.masterRank} /> : null}
     </>
   )
 }

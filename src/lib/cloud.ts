@@ -2338,6 +2338,8 @@ export interface DuelSeatRow {
   games: number
   /** Sa place au classement du duel, une fois placé : les dix premiers sont Maîtres. */
   rank: number | null
+  /** Les Maîtres existent (0123) : sans eux, le top 10 garde sa ligue. */
+  masters: boolean
 }
 
 /** Ce que le règlement d'une table classée a changé à un joueur. */
@@ -2420,6 +2422,7 @@ export function syncDuel(table: string, after: number): Promise<DuelSnapshot | n
         rating: seat.rating === null || seat.rating === undefined ? null : Number(seat.rating),
         games: Number(seat.games) || 0,
         rank: seat.rank === null || seat.rank === undefined ? null : Number(seat.rank),
+        masters: seat.masters !== false,
       })),
       invites: ((row.invites as Record<string, unknown>[]) ?? []).map((invite) => ({
         player: invite.player as string,
@@ -2444,8 +2447,10 @@ export interface DuelRatingInfo {
   games: number
   wins: number
   peak: number
-  /** Sa place au classement, une fois les placements joués. */
+  /** Sa place au classement, dès une partie classée jouée. */
   rank: number | null
+  /** Sa place quand elle fait de lui un Maître : le top 10, une fois dix joueurs Diamant ; null sinon. */
+  masterRank: number | null
 }
 
 export interface DuelOpponent extends DuelRatingInfo {
@@ -2486,7 +2491,7 @@ export type DuelQueueAnswer =
   | { status: 'gone' }
   | { status: 'cooldown'; until: number; now: number }
 
-const NEW_RATING: DuelRatingInfo = { rating: 1000, games: 0, wins: 0, peak: 1000, rank: null }
+const NEW_RATING: DuelRatingInfo = { rating: 950, games: 0, wins: 0, peak: 950, rank: null, masterRank: null }
 
 export function parseRatingInfo(value: unknown): DuelRatingInfo {
   if (!value || typeof value !== 'object') return NEW_RATING
@@ -2497,6 +2502,8 @@ export function parseRatingInfo(value: unknown): DuelRatingInfo {
     wins: Number(row.wins) || 0,
     peak: Number(row.peak) || NEW_RATING.peak,
     rank: row.rank === null || row.rank === undefined ? null : Number(row.rank),
+    // Le serveur dit si les Maîtres existent (0123) ; un serveur d'avant les ouvrait toujours.
+    masterRank: row.masters === false || row.rank === null || row.rank === undefined ? null : Number(row.rank),
   }
 }
 
@@ -2695,12 +2702,13 @@ export function fetchDuelBadges(names: readonly string[]): Promise<ReadonlyMap<s
 /** Une vue du classement du duel : le haut, les Maîtres, une ligue, ou ma place. */
 export type DuelLadderView = 'top' | 'master' | 'diamond' | 'platinum' | 'gold' | 'silver' | 'bronze' | 'me'
 
-export function fetchDuelLadderView(view: DuelLadderView, limit = 50): Promise<{ rows: DuelLadderRow[]; me: DuelRatingInfo | null } | null> {
+export function fetchDuelLadderView(view: DuelLadderView, limit = 50): Promise<{ rows: DuelLadderRow[]; me: DuelRatingInfo | null; masters: boolean } | null> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('duel_ladder_view', { p_view: view, p_limit: limit })
     if (error || !data) return null
-    const row = data as { rows?: Record<string, unknown>[]; me?: unknown }
+    const row = data as { rows?: Record<string, unknown>[]; me?: unknown; masters?: unknown }
     return {
+      masters: row.masters !== false,
       rows: (row.rows ?? []).map((one) => ({ ...parseRatingInfo(one), player: String(one.player ?? ''), name: String(one.name ?? ''), avatar: parseAvatar(one.avatar) })),
       me: row.me ? parseRatingInfo(row.me) : null,
     }

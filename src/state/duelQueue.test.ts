@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { parseQueueAnswer, type DuelQueueAnswer } from '../lib/cloud'
 import { IDLE, pollEvery, queueStep, type QueueState } from './duelQueue'
 
-const me = { rating: 1000, games: 3, wins: 1, peak: 1010, rank: null }
+const me = { rating: 1000, games: 3, wins: 1, peak: 1010, rank: null, masterRank: null }
 const waiting = (over: Partial<Extract<DuelQueueAnswer, { status: 'waiting' }>> = {}): DuelQueueAnswer => ({
   status: 'waiting',
   now: 5000,
@@ -22,7 +22,7 @@ const found: DuelQueueAnswer = {
   now: 5000,
   accepted: false,
   me,
-  opponent: { player: 'p2', name: 'Ondine', avatar: { design: 0, ground: 0, ink: 0 } as never, accepted: false, rating: 1080, games: 12, wins: 7, peak: 1100, rank: 40 },
+  opponent: { player: 'p2', name: 'Ondine', avatar: { design: 0, ground: 0, ink: 0 } as never, accepted: false, rating: 1080, games: 12, wins: 7, peak: 1100, rank: 40, masterRank: null },
 }
 
 function run(events: Parameters<typeof queueStep>[1][], from: QueueState = IDLE): QueueState {

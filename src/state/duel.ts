@@ -381,7 +381,8 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
         seen: row.seen,
         rating: row.rating,
         games: row.games,
-        rank: row.rank,
+        // Le rang ne fait un Maître que si les Maîtres existent (0123).
+        rank: row.masters ? row.rank : null,
       }
     }),
     invites: snapshot.invites.map((invite) => ({ id: invite.player, name: invite.name, avatar: invite.avatar, bot: false, owned: 0, ready: false, pending: true })),
@@ -1197,7 +1198,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       void reportBotDuel(won).then((result) =>
         setBotResult(
           result
-            ? { table: key, rating: { settled: true, voided: false, before: result.before, after: result.after, games: result.games, rank: result.rank } }
+            ? { table: key, rating: { settled: true, voided: false, before: result.before, after: result.after, games: result.games, rank: result.masterRank } }
             : { table: key, rating: { settled: true, voided: true, before: 0, after: 0, games: 0, rank: null } },
         ),
       )

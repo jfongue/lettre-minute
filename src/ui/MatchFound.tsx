@@ -63,14 +63,14 @@ export function MatchFound({ queue }: { queue: DuelQueue }) {
           <span className={`match-found__seat match-found__seat--me${offer.accepted ? ' match-found__seat--ready' : ''}`}>
             <Avatar choice={me.avatar} size="md" />
             <b>{me.name || t.duel.you}</b>
-            <LeagueChip rating={offer.me.rating} games={offer.me.games} rank={offer.me.rank} compact />
+            <LeagueChip rating={offer.me.rating} games={offer.me.games} rank={offer.me.masterRank} compact />
             {offer.accepted ? <span className="match-found__ready">{t.ranked.accepted}</span> : null}
           </span>
           <span className="match-found__vs">{t.ranked.vs}</span>
           <span className={`match-found__seat match-found__seat--them${them?.accepted ? ' match-found__seat--ready' : ''}`}>
             {them ? <Avatar choice={them.avatar} size="md" /> : null}
             <b>{them?.name ?? '…'}</b>
-            {them ? <LeagueChip rating={them.rating} games={them.games} rank={them.rank} compact /> : null}
+            {them ? <LeagueChip rating={them.rating} games={them.games} rank={them.masterRank} compact /> : null}
             {them?.accepted ? <span className="match-found__ready">{t.ranked.accepted}</span> : null}
           </span>
         </div>

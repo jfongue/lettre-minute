@@ -328,3 +328,78 @@ begin
 end;
 $$;
 
+
+-- La lecture de 0122, qui dit en plus si les Maîtres existent : le bilan ne nomme pas Maître le top 10 d'une échelle sans dix Diamant.
+create or replace function public.duel_sync(p_table uuid, p_after integer) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_table public.duel_tables;
+begin
+  select * into v_table from public.duel_tables where id = p_table;
+  if not found or not exists (select 1 from public.duel_seats where table_id = p_table and player = auth.uid()) then
+    return null;
+  end if;
+  update public.duel_seats set last_seen = now()
+   where table_id = p_table and player = auth.uid() and left_at is null and kicked_at is null
+     and last_seen < clock_timestamp() - interval '2 seconds';
+  if v_table.ranked and v_table.settled_at is null and v_table.status in ('over', 'closed') then
+    perform public.duel_settle(p_table);
+    select * into v_table from public.duel_tables where id = p_table;
+  end if;
+
+  return jsonb_build_object(
+    'now', extract(epoch from clock_timestamp()),
+    'table', jsonb_build_object(
+      'id', v_table.id,
+      'host', v_table.host,
+      'lang', v_table.lang,
+      'seed', v_table.seed,
+      'categories', to_jsonb(v_table.categories),
+      'status', case when v_table.status = 'lobby' and not public.duel_lobby_open(v_table) then 'closed' else v_table.status end,
+      'started_at', extract(epoch from v_table.started_at),
+      'rematch', v_table.rematch,
+      'public', v_table.listed,
+      'ranked', v_table.ranked,
+      'rules', v_table.rules,
+      'settled', v_table.settled_at is not null,
+      'voided', v_table.voided,
+      'ratings', coalesce((
+        select jsonb_agg(jsonb_build_object('player', c.player, 'place', c.place, 'before', c.before, 'after', c.after) order by c.place)
+          from public.duel_rating_changes c where c.table_id = p_table
+      ), '[]'::jsonb)
+    ),
+    'seats', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'player', s.player,
+        'name', p.display_name,
+        'avatar', p.avatar,
+        'bot', s.is_bot,
+        'owned', s.owned,
+        'ready', s.ready,
+        'seat', s.seat,
+        'left', s.left_at is not null,
+        'kicked', s.kicked_at is not null,
+        'seen', extract(epoch from s.last_seen),
+        'rating', (select public.duel_effective_rating(r.rating, r.last_played_at) from public.duel_ratings r where r.player = s.player),
+        'games', (select r.games from public.duel_ratings r where r.player = s.player),
+        'rank', (select (public.duel_rating_json(s.player) ->> 'rank')::int where s.player is not null and not s.is_bot),
+        'masters', public.duel_masters_open()
+      ) order by s.joined_at, s.player)
+      from public.duel_seats s left join public.profiles p on p.id = s.player
+      where s.table_id = p_table
+    ), '[]'::jsonb),
+    'invites', case when v_table.host = auth.uid() then coalesce((
+      select jsonb_agg(jsonb_build_object('player', i.invitee, 'name', p.display_name, 'avatar', p.avatar) order by i.created_at)
+      from public.duel_invites i join public.profiles p on p.id = i.invitee
+      where i.table_id = p_table and i.answered_at is null
+    ), '[]'::jsonb) else '[]'::jsonb end,
+    'moves', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'seq', m.seq, 'seat', m.seat, 'kind', m.kind, 'payload', m.payload, 'at', extract(epoch from m.at)
+      ) order by m.seq)
+      from public.duel_moves m where m.table_id = p_table and m.seq > coalesce(p_after, 0)
+    ), '[]'::jsonb)
+  );
+end;
+$$;
+

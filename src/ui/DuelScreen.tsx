@@ -1488,7 +1488,7 @@ export function DuelMatchmaking({
           <span className="duel-versus__seat duel-versus__seat--me">
             <Avatar choice={me.avatar} size="lg" />
             <b>{me.name || t.duel.you}</b>
-            {rating ? <LeagueChip rating={rating.rating} games={rating.games} rank={rating.rank} compact /> : null}
+            {rating ? <LeagueChip rating={rating.rating} games={rating.games} rank={rating.masterRank} compact /> : null}
           </span>
           <span className="duel-versus__dots">
             <i />

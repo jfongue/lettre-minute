@@ -8,8 +8,20 @@
  * vérifient les mêmes cas.
  */
 
-/** L'Elo d'un compte qui n'a jamais joué de partie classée : le bas du Bronze, Bronze III. */
+/**
+ * Le départ d'un compte qui n'a jamais joué : Argent III tant que moins de
+ * `BRONZE_START_GOLD` joueurs ont atteint l'Or, Bronze III ensuite
+ * (`duel_start_rating`, 0123) — une échelle vide n'envoie pas les premiers au fond.
+ */
 export const RATING_START = 800
+export const EARLY_START = 950
+export const BRONZE_START_GOLD = 50
+/**
+ * Les Maîtres n'existent qu'à partir de dix joueurs Diamant (`duel_masters_open`) ;
+ * d'ici là, le pas de chaque partie est doublé (`duel_k_boost`) pour que les
+ * premiers y montent vite. Le serveur seul règle, et dit `masters` à chaque lecture.
+ */
+export const MASTERS_FROM_DIAMONDS = 10
 /** Le plancher : on ne descend pas plus bas. */
 export const RATING_FLOOR = 100
 /** Le top du classement : un rang « Maître » numéroté, au-dessus des ligues. */

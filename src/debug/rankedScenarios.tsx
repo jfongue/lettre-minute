@@ -24,8 +24,8 @@ import { QueuePill } from '../ui/QueuePill'
 const noop = () => {}
 
 const ONDINE: AvatarChoice = { design: 21, ground: 'bleu', shape: 'jaune', accent: 'rouge' }
-const ME_RATING: DuelRatingInfo = { rating: 1142, games: 23, wins: 13, peak: 1160, rank: 38 }
-const OPPONENT: DuelOpponent = { player: 'ondine', name: 'Ondine', avatar: ONDINE, accepted: false, rating: 1188, games: 41, wins: 24, peak: 1230, rank: 27 }
+const ME_RATING: DuelRatingInfo = { rating: 1142, games: 23, wins: 13, peak: 1160, rank: 38, masterRank: null }
+const OPPONENT: DuelOpponent = { player: 'ondine', name: 'Ondine', avatar: ONDINE, accepted: false, rating: 1188, games: 41, wins: 24, peak: 1230, rank: 27, masterRank: null }
 
 /** Une file de planche : l'état qu'on lui donne, une horloge, et des gestes sans effet ou locaux. */
 export function boardQueue(state: QueueState, now: number, over: Partial<DuelQueue> = {}): DuelQueue {
@@ -101,27 +101,27 @@ export function QueuePillScenario({ onBack, home }: { onBack(): void; home: Reac
 }
 
 const LADDER: readonly DuelLadderRow[] = [
-  { player: 'p0', name: 'Gaspard', avatar: { design: 12, ground: 'rouge', shape: 'creme', accent: 'jaune' }, rating: 1612, games: 40, wins: 20, peak: 1632, rank: 1 },
-  { player: 'p1', name: 'Inès', avatar: { design: 33, ground: 'vert', shape: 'jaune', accent: 'rouge' }, rating: 1571, games: 43, wins: 21, peak: 1591, rank: 2 },
-  { player: 'p2', name: 'Ondine', avatar: { design: 21, ground: 'bleu', shape: 'jaune', accent: 'rouge' }, rating: 1544, games: 46, wins: 22, peak: 1564, rank: 3 },
-  { player: 'p3', name: 'Lucie', avatar: { design: 47, ground: 'jaune', shape: 'bleu', accent: 'rouge' }, rating: 1503, games: 49, wins: 23, peak: 1523, rank: 4 },
-  { player: 'p4', name: 'Bastien', avatar: { design: 2, ground: 'bleu', shape: 'creme', accent: 'jaune' }, rating: 1488, games: 52, wins: 24, peak: 1508, rank: 5 },
-  { player: 'p5', name: 'Maëlle', avatar: { design: 40, ground: 'rouge', shape: 'bleu', accent: 'creme' }, rating: 1460, games: 55, wins: 25, peak: 1480, rank: 6 },
-  { player: 'p6', name: 'Noé', avatar: { design: 9, ground: 'vert', shape: 'rouge', accent: 'jaune' }, rating: 1441, games: 58, wins: 26, peak: 1461, rank: 7 },
-  { player: 'p7', name: 'Yanis', avatar: { design: 15, ground: 'rose', shape: 'bleu', accent: 'jaune' }, rating: 1430, games: 61, wins: 27, peak: 1450, rank: 8 },
-  { player: 'p8', name: 'Clémence', avatar: { design: 28, ground: 'jaune', shape: 'vert', accent: 'rouge' }, rating: 1412, games: 64, wins: 28, peak: 1432, rank: 9 },
-  { player: 'p9', name: 'Hugo', avatar: { design: 36, ground: 'bleu', shape: 'rouge', accent: 'creme' }, rating: 1398, games: 67, wins: 29, peak: 1418, rank: 10 },
-  { player: 'p10', name: 'Salomé', avatar: { design: 7, ground: 'vert', shape: 'creme', accent: 'bleu' }, rating: 1415, games: 70, wins: 30, peak: 1391, rank: 11 },
-  { player: 'p11', name: 'Arthur', avatar: { design: 44, ground: 'rouge', shape: 'jaune', accent: 'bleu' }, rating: 1404, games: 73, wins: 31, peak: 1362, rank: 12 },
-  { player: 'p12', name: 'Léna', avatar: { design: 19, ground: 'rose', shape: 'vert', accent: 'jaune' }, rating: 1296, games: 76, wins: 32, peak: 1316, rank: 13 },
-  { player: 'p13', name: 'Tom', avatar: { design: 3, ground: 'jaune', shape: 'rouge', accent: 'bleu' }, rating: 1251, games: 79, wins: 33, peak: 1271, rank: 14 },
-  { player: 'n1', name: 'Rosalie', avatar: { design: 11, ground: 'vert', shape: 'jaune', accent: 'rouge' }, rating: 1160, games: 40, wins: 20, peak: 1180, rank: 36 },
-  { player: 'n2', name: 'Victor', avatar: { design: 26, ground: 'rouge', shape: 'creme', accent: 'bleu' }, rating: 1151, games: 22, wins: 11, peak: 1170, rank: 37 },
-  { player: 'n3', name: 'Testeur', avatar: { design: 5, ground: 'rose', shape: 'vert', accent: 'creme' }, rating: 1142, games: 23, wins: 13, peak: 1160, rank: 38 },
-  { player: 'n4', name: 'Anouk', avatar: { design: 31, ground: 'jaune', shape: 'bleu', accent: 'rouge' }, rating: 1137, games: 18, wins: 9, peak: 1150, rank: 39 },
-  { player: 'n5', name: 'Mathis', avatar: { design: 14, ground: 'bleu', shape: 'rouge', accent: 'jaune' }, rating: 1128, games: 51, wins: 25, peak: 1200, rank: 40 },
-  { player: 'n6', name: 'Zoé', avatar: { design: 8, ground: 'vert', shape: 'creme', accent: 'rose' }, rating: 1013, games: 12, wins: 5, peak: 1050, rank: 61 },
-  { player: 'n7', name: 'Lou', avatar: { design: 45, ground: 'rouge', shape: 'jaune', accent: 'bleu' }, rating: 905, games: 6, wins: 1, peak: 1000, rank: 88 },
+  { player: 'p0', name: 'Gaspard', avatar: { design: 12, ground: 'rouge', shape: 'creme', accent: 'jaune' }, rating: 1612, games: 40, wins: 20, peak: 1632, rank: 1, masterRank: 1 },
+  { player: 'p1', name: 'Inès', avatar: { design: 33, ground: 'vert', shape: 'jaune', accent: 'rouge' }, rating: 1571, games: 43, wins: 21, peak: 1591, rank: 2, masterRank: 2 },
+  { player: 'p2', name: 'Ondine', avatar: { design: 21, ground: 'bleu', shape: 'jaune', accent: 'rouge' }, rating: 1544, games: 46, wins: 22, peak: 1564, rank: 3, masterRank: 3 },
+  { player: 'p3', name: 'Lucie', avatar: { design: 47, ground: 'jaune', shape: 'bleu', accent: 'rouge' }, rating: 1503, games: 49, wins: 23, peak: 1523, rank: 4, masterRank: 4 },
+  { player: 'p4', name: 'Bastien', avatar: { design: 2, ground: 'bleu', shape: 'creme', accent: 'jaune' }, rating: 1488, games: 52, wins: 24, peak: 1508, rank: 5, masterRank: 5 },
+  { player: 'p5', name: 'Maëlle', avatar: { design: 40, ground: 'rouge', shape: 'bleu', accent: 'creme' }, rating: 1460, games: 55, wins: 25, peak: 1480, rank: 6, masterRank: 6 },
+  { player: 'p6', name: 'Noé', avatar: { design: 9, ground: 'vert', shape: 'rouge', accent: 'jaune' }, rating: 1441, games: 58, wins: 26, peak: 1461, rank: 7, masterRank: 7 },
+  { player: 'p7', name: 'Yanis', avatar: { design: 15, ground: 'rose', shape: 'bleu', accent: 'jaune' }, rating: 1430, games: 61, wins: 27, peak: 1450, rank: 8, masterRank: 8 },
+  { player: 'p8', name: 'Clémence', avatar: { design: 28, ground: 'jaune', shape: 'vert', accent: 'rouge' }, rating: 1412, games: 64, wins: 28, peak: 1432, rank: 9, masterRank: 9 },
+  { player: 'p9', name: 'Hugo', avatar: { design: 36, ground: 'bleu', shape: 'rouge', accent: 'creme' }, rating: 1398, games: 67, wins: 29, peak: 1418, rank: 10, masterRank: 10 },
+  { player: 'p10', name: 'Salomé', avatar: { design: 7, ground: 'vert', shape: 'creme', accent: 'bleu' }, rating: 1415, games: 70, wins: 30, peak: 1391, rank: 11, masterRank: null },
+  { player: 'p11', name: 'Arthur', avatar: { design: 44, ground: 'rouge', shape: 'jaune', accent: 'bleu' }, rating: 1404, games: 73, wins: 31, peak: 1362, rank: 12, masterRank: null },
+  { player: 'p12', name: 'Léna', avatar: { design: 19, ground: 'rose', shape: 'vert', accent: 'jaune' }, rating: 1296, games: 76, wins: 32, peak: 1316, rank: 13, masterRank: null },
+  { player: 'p13', name: 'Tom', avatar: { design: 3, ground: 'jaune', shape: 'rouge', accent: 'bleu' }, rating: 1251, games: 79, wins: 33, peak: 1271, rank: 14, masterRank: null },
+  { player: 'n1', name: 'Rosalie', avatar: { design: 11, ground: 'vert', shape: 'jaune', accent: 'rouge' }, rating: 1160, games: 40, wins: 20, peak: 1180, rank: 36, masterRank: null },
+  { player: 'n2', name: 'Victor', avatar: { design: 26, ground: 'rouge', shape: 'creme', accent: 'bleu' }, rating: 1151, games: 22, wins: 11, peak: 1170, rank: 37, masterRank: null },
+  { player: 'n3', name: 'Testeur', avatar: { design: 5, ground: 'rose', shape: 'vert', accent: 'creme' }, rating: 1142, games: 23, wins: 13, peak: 1160, rank: 38, masterRank: null },
+  { player: 'n4', name: 'Anouk', avatar: { design: 31, ground: 'jaune', shape: 'bleu', accent: 'rouge' }, rating: 1137, games: 18, wins: 9, peak: 1150, rank: 39, masterRank: null },
+  { player: 'n5', name: 'Mathis', avatar: { design: 14, ground: 'bleu', shape: 'rouge', accent: 'jaune' }, rating: 1128, games: 51, wins: 25, peak: 1200, rank: 40, masterRank: null },
+  { player: 'n6', name: 'Zoé', avatar: { design: 8, ground: 'vert', shape: 'creme', accent: 'rose' }, rating: 1013, games: 12, wins: 5, peak: 1050, rank: 61, masterRank: null },
+  { player: 'n7', name: 'Lou', avatar: { design: 45, ground: 'rouge', shape: 'jaune', accent: 'bleu' }, rating: 905, games: 6, wins: 1, peak: 1000, rank: 88, masterRank: null },
 ]
 
 /** Le classement inventé, vu d'un rang : les vues filtrent les mêmes joueurs que le serveur. */
@@ -134,7 +134,7 @@ const ladderStub = (view: DuelLadderView) => {
     if (view === 'me') return (row.rank ?? 0) >= 31 && (row.rank ?? 0) <= 45
     return tier.kind === 'league' && tier.league === view
   })
-  return Promise.resolve({ rows, me: ME_RATING })
+  return Promise.resolve({ rows, me: ME_RATING, masters: true })
 }
 
 /** Les rangs inventés des noms des tableaux de la planche (`fakeLeaderboard`) : un par nom, de tout. */
@@ -143,7 +143,7 @@ export const badgesStub = (names: readonly string[]) =>
     new Map(
       names.map((name, index) => {
         const rating = [1640, 1560, 1470, 1420, 1330, 1290, 1180, 1120, 1060, 990, 900, 820][index % 12]!
-        return [name, { rating, games: index === 5 ? 2 : 30, wins: 10, peak: rating, rank: index < 2 ? index + 1 : 20 + index }] as const
+        return [name, { rating, games: index === 5 ? 2 : 30, wins: 10, peak: rating, rank: index < 2 ? index + 1 : 20 + index, masterRank: index < 2 ? index + 1 : null }] as const
       }),
     ),
   )
@@ -161,7 +161,7 @@ export function RankedOverScenario({ base, settle }: { base: DuelTable; settle: 
       : settle === 'demoted'
         ? { settled: true, voided: false, before: 1104, after: 1093, games: 31, rank: null }
         : settle === 'master'
-          ? { settled: true, voided: false, before: 1468, after: 1479, games: 88, rank: 7 }
+          ? { settled: true, voided: false, before: 1468, after: 1479, games: 88, rank: 7, masterRank: 7 }
           : settle === 'settling'
       ? null
       : settle === 'voided'
@@ -246,8 +246,8 @@ export function ResumeScenario({ onBack }: { onBack(): void }) {
 // ------------------------------------------- le parcours, vu des deux joueurs --
 
 const JEREMY: AvatarChoice = { design: 5, ground: 'rose', shape: 'vert', accent: 'creme' }
-const JEREMY_RATING: DuelRatingInfo = { rating: 1093, games: 23, wins: 12, peak: 1110, rank: 54 }
-const ONDINE_RATING: DuelRatingInfo = { rating: 1121, games: 41, wins: 22, peak: 1160, rank: 47 }
+const JEREMY_RATING: DuelRatingInfo = { rating: 1093, games: 23, wins: 12, peak: 1110, rank: 54, masterRank: null }
+const ONDINE_RATING: DuelRatingInfo = { rating: 1121, games: 41, wins: 22, peak: 1160, rank: 47, masterRank: null }
 
 export type Side = 'a' | 'b'
 

@@ -105,7 +105,7 @@ export function PlayTogether({
               <span className="together-chips">
                 <span className="together-chip">{t.duel.matchCardPlayers}</span>
                 <span className="together-chip together-chip--ranked">{t.ranked.ranked}</span>
-                {rating ? <LeagueChip rating={rating.rating} games={rating.games} rank={rating.rank} compact /> : null}
+                {rating ? <LeagueChip rating={rating.rating} games={rating.games} rank={rating.masterRank} compact /> : null}
               </span>
             </span>
             <span className="together-go" aria-hidden="true">
