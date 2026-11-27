@@ -429,10 +429,6 @@
   animation: fade 300ms ease both;
 }
 
-.duel-ladder__lead {
-  margin: 0;
-}
-
 .duel-ladder__failed {
   display: grid;
   justify-items: start;

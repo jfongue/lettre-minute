@@ -44,7 +44,6 @@ export function DuelLadder({ load = fetchDuelLadderView }: { load?: typeof fetch
 
   return (
     <section className="duel-ladder" aria-label={t.ranked.ladder}>
-      <p className="note duel-ladder__lead">{t.ranked.ladderLead}</p>
       <div className="duel-ladder__views" role="tablist" aria-label={t.ranked.ladder}>
         {VIEWS.map((id) => (
           <button

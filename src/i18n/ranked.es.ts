@@ -48,7 +48,6 @@ export const rankedEs: RankedMessages = {
   promoPlay: 'Jugar clasificatoria',
   promoSignIn: 'Conéctate para jugar',
   promoLater: 'Más tarde',
-  ladderLead: 'Los jugadores que han terminado sus tres partidas de clasificación. Los diez primeros son Maestros.',
   ladderEmpty: 'Nadie ha terminado aún sus partidas de clasificación: sé el primero.',
   ladderLoading: 'Cargando la clasificación…',
   ladderFailed: 'La clasificación no se ha podido cargar.',

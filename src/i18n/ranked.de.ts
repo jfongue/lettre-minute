@@ -48,7 +48,6 @@ export const rankedDe: RankedMessages = {
   promoPlay: 'Gewertet spielen',
   promoSignIn: 'Zum Spielen anmelden',
   promoLater: 'Später',
-  ladderLead: 'Wer seine drei Einstufungsspiele hinter sich hat. Die ersten zehn sind Meister.',
   ladderEmpty: 'Noch hat niemand seine Einstufung beendet: Sei der Erste.',
   ladderLoading: 'Die Rangliste lädt…',
   ladderFailed: 'Die Rangliste konnte nicht geladen werden.',

@@ -48,7 +48,6 @@ export const rankedPt: RankedMessages = {
   promoPlay: 'Jogar ranqueado',
   promoSignIn: 'Entrar para jogar',
   promoLater: 'Mais tarde',
-  ladderLead: 'Os jogadores que terminaram as três partidas de classificação. Os dez primeiros são Mestres.',
   ladderEmpty: 'Ninguém terminou a classificação ainda: seja o primeiro.',
   ladderLoading: 'Carregando o ranking…',
   ladderFailed: 'O ranking não pôde carregar.',

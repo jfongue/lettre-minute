@@ -48,7 +48,6 @@ export const rankedEn: RankedMessages = {
   promoPlay: 'Play ranked',
   promoSignIn: 'Sign in to play',
   promoLater: 'Later',
-  ladderLead: 'Players who have finished their three placement games. The top ten are Masters.',
   ladderEmpty: 'Nobody has finished their placements yet: be the first.',
   ladderLoading: 'Loading the ladder…',
   ladderFailed: 'The ladder couldn’t load.',

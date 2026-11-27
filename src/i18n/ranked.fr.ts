@@ -53,7 +53,6 @@ export const rankedFr = {
   promoPlay: 'Jouer classé',
   promoSignIn: 'Se connecter pour jouer',
   promoLater: 'Plus tard',
-  ladderLead: 'Les joueurs qui ont fini leurs trois parties de placement. Les dix premiers sont Maîtres.',
   ladderEmpty: 'Personne n’a encore fini ses placements : à toi l’honneur.',
   ladderLoading: 'Le classement arrive…',
   ladderFailed: 'Le classement n’a pas pu se charger.',

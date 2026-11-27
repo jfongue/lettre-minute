@@ -48,7 +48,6 @@ export const rankedNl: RankedMessages = {
   promoPlay: 'Ranked spelen',
   promoSignIn: 'Log in om te spelen',
   promoLater: 'Later',
-  ladderLead: 'Spelers die hun drie plaatsingspotjes hebben gespeeld. De eerste tien zijn Meesters.',
   ladderEmpty: 'Nog niemand heeft zijn plaatsing af: wees de eerste.',
   ladderLoading: 'De ranglijst komt eraan…',
   ladderFailed: 'De ranglijst kon niet laden.',
