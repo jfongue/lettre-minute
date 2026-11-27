@@ -120,15 +120,22 @@ export function LadderScenario({ onBack }: { onBack(): void }) {
 }
 
 /** Le bilan d'un duel classé : réglé (une ligue franchie), en cours de règlement, ou annulé. */
-export function RankedOverScenario({ base, settle }: { base: DuelTable; settle: 'promoted' | 'lost' | 'settling' | 'voided' }) {
+export function RankedOverScenario({ base, settle }: { base: DuelTable; settle: 'promoted' | 'lost' | 'settling' | 'voided' | 'placed' | 'demoted' | 'master' }) {
   const rating =
-    settle === 'settling'
+    settle === 'placed'
+      ? { settled: true, voided: false, before: 1062, after: 1131, games: 3, rank: null }
+      : settle === 'demoted'
+        ? { settled: true, voided: false, before: 1104, after: 1093, games: 31, rank: null }
+        : settle === 'master'
+          ? { settled: true, voided: false, before: 1468, after: 1479, games: 88, rank: 7 }
+          : settle === 'settling'
       ? null
       : settle === 'voided'
-        ? { settled: true, voided: true, before: 1093, after: 1093, games: 23 }
+        ? { settled: true, voided: true, before: 1093, after: 1093, games: 23, rank: null }
         : settle === 'lost'
-          ? { settled: true, voided: false, before: 1142, after: 1131, games: 24 }
-          : { settled: true, voided: false, before: 1093, after: 1108, games: 24 }
+          ? { settled: true, voided: false, before: 1142, after: 1131, games: 24, rank: null }
+          : { settled: true, voided: false, before: 1093, after: 1108, games: 24, rank: null }
+  if (settle === 'demoted') return <Over table={{ ...base, myIndex: 1, ranked: true, rating }} />
   return <Over table={{ ...base, ranked: true, rating }} />
 }
 
@@ -305,8 +312,8 @@ export function FlowOverScenario({ base, side }: { base: DuelTable; side: Side }
   const twoPlayers: Duel = { ...duel, players, deaths: [1] }
   const rating =
     side === 'a'
-      ? { settled: true, voided: false, before: 1093, after: 1104, games: 24 }
-      : { settled: true, voided: false, before: 1121, after: 1110, games: 42 }
+      ? { settled: true, voided: false, before: 1093, after: 1104, games: 24, rank: null }
+      : { settled: true, voided: false, before: 1121, after: 1110, games: 42, rank: null }
   return (
     <Over
       table={{

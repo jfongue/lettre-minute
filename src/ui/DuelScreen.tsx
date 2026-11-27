@@ -33,10 +33,10 @@ import { inGround, type AvatarChoice } from '../domain/avatar'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
 import { categoryText, formatNumber, useT } from '../i18n'
 import { fetchDuelLadder } from '../lib/cloud'
-import { botsOfferAfter, overdue, standing } from '../domain/ranked'
+import { botsOfferAfter, overdue, standing, tierOrder, PLACEMENT_GAMES } from '../domain/ranked'
 import { clockOf, estimateText } from './rankedText'
 import type { DuelQueue } from '../state/duelQueue'
-import { LeagueChip, LeagueMark } from './League'
+import { LeagueChip, LeagueMark, TierMark, tierText } from './League'
 import { capitalized } from '../domain/text'
 import { armSound, sound, tierSound } from '../lib/sound'
 import { host } from '../platform'
@@ -1148,7 +1148,7 @@ export function Over({ table }: { table: DuelTable }) {
               )
             })}
           </ol>
-          {table.ranked ? <DuelElo table={table} show={done} /> : null}
+          {table.ranked ? <DuelRank table={table} show={done} /> : null}
           {table.payout ? <DuelXp payout={table.payout} avatar={me?.avatar ?? null} show={done} /> : null}
         </div>
         <div className={`stack duel-actions${done ? ' duel-actions--in' : ''}`}>
@@ -1184,46 +1184,60 @@ const XP_MS = 1100
 const XP_DELAY_MS = 300
 
 /**
- * Ce que le duel classé a fait de mon Elo, au bilan : la ligue, l'Elo qui
- * monte ou descend jusqu'à sa nouvelle valeur, l'écart signé. Le serveur
+ * Ce que le duel classé a fait de mon rang, au bilan — jamais l'Elo, qui reste
+ * le calcul du serveur : le rang atteint, la jauge de sa division qui avance
+ * ou recule, et une promotion ou une rétrogradation dite en clair. Le serveur
  * règle la table un instant après la fin — d'ici là, « le classement se
  * règle » ; une table annulée le dit aussi.
  */
-function DuelElo({ table, show }: { table: DuelTable; show: boolean }) {
+function DuelRank({ table, show }: { table: DuelTable; show: boolean }) {
   const t = useT()
   const rating = table.rating
   const settled = !!rating?.settled && !rating.voided
   const from = rating?.before ?? 0
   const to = settled ? rating!.after : from
+  const games = rating?.games ?? 0
   const value = useTween(show && settled ? to : from, XP_MS, from, XP_DELAY_MS)
-  const delta = to - from
-  const before = standing({ rating: from, games: Math.max(0, (rating?.games ?? 1) - 1) })
-  const after = standing({ rating: to, games: rating?.games ?? 0 })
-  const promoted = settled && after.league !== null && after.league !== before.league
+  const before = standing({ rating: from, games: Math.max(0, games - 1) })
+  const after = standing({ rating: to, games }, rating?.rank ?? null)
+  const moved = tierOrder(after.tier) - tierOrder(before.tier)
+  const placedNow = before.tier.kind === 'placement' && after.tier.kind !== 'placement'
+  const shown = standing({ rating: Math.round(value), games }, rating?.rank ?? null)
   useEffect(() => {
-    if (show && promoted) sound.levelUp()
-  }, [promoted, show])
+    if (show && settled && (moved > 0 || placedNow)) sound.levelUp()
+  }, [moved, placedNow, settled, show])
   return (
     <section className={`duel-elo${show ? ' duel-elo--in' : ''}`} aria-label={t.ranked.overTitle}>
       <div className="spread">
         <p className="section-title">{t.ranked.overTitle}</p>
-        {settled ? (
-          <p className={`duel-elo__delta${delta < 0 ? ' duel-elo__delta--loss' : ''}`}>{delta > 0 ? `+${delta}` : delta < 0 ? `−${Math.abs(delta)}` : '±0'}</p>
+        {settled && to !== from && after.tier.kind !== 'placement' ? (
+          <p className={`duel-elo__delta${to < from ? ' duel-elo__delta--loss' : ''}`}>
+            <span aria-hidden="true">{to > from ? '▲' : '▼'}</span> {to > from ? t.ranked.rising : t.ranked.falling}
+          </p>
         ) : null}
       </div>
       {settled ? (
         <>
           <div className="duel-elo__row">
-            <LeagueMark league={after.league} className="duel-elo__mark" />
-            <b className="duel-elo__value">{formatNumber(t, Math.round(value))}</b>
-            <LeagueChip rating={to} games={rating!.games} compact points={false} />
+            <TierMark tier={shown.tier} className="duel-elo__mark" />
+            <b className="duel-elo__value">{tierText(t, after.tier)}</b>
           </div>
-          <div className="progress duel-elo__bar">
-            <span style={{ '--ratio': standing({ rating: Math.round(value), games: rating!.games }).progress } as CSSProperties} />
+          <div className="progress duel-elo__bar" aria-hidden="true">
+            <span style={{ '--ratio': shown.progress } as CSSProperties} />
           </div>
-          {promoted ? (
+          {after.tier.kind === 'placement' ? (
+            <p className="note">{t.ranked.placementLeft(PLACEMENT_GAMES - after.placed)}</p>
+          ) : placedNow ? (
             <p className="duel-elo__news">
-              <b>{before.league === null ? t.ranked.placementDone(t.ranked.leagues[after.league!]) : t.ranked.leagueUp(t.ranked.leagues[after.league!])}</b>
+              <b>{t.ranked.placed(tierText(t, after.tier))}</b>
+            </p>
+          ) : moved > 0 ? (
+            <p className="duel-elo__news">
+              <b>{t.ranked.promoted(tierText(t, after.tier))}</b>
+            </p>
+          ) : moved < 0 ? (
+            <p className="duel-elo__news duel-elo__news--down">
+              <b>{t.ranked.demoted(tierText(t, after.tier))}</b>
             </p>
           ) : null}
         </>
@@ -1457,7 +1471,7 @@ export function DuelMatchmaking({
           <span className="duel-versus__seat duel-versus__seat--me">
             <Avatar choice={me.avatar} size="lg" />
             <b>{me.name || t.duel.you}</b>
-            {rating ? <LeagueChip rating={rating.rating} games={rating.games} compact /> : null}
+            {rating ? <LeagueChip rating={rating.rating} games={rating.games} rank={rating.rank} compact /> : null}
           </span>
           <span className="duel-versus__dots">
             <i />
@@ -1591,10 +1605,7 @@ export function DuelLadder({ onClose, load = fetchDuelLadder }: { onClose(): voi
                   <span className="duel-ladder__rank">{row.rank ?? '–'}</span>
                   <Avatar choice={row.avatar} size="sm" />
                   <span className="duel-ladder__name">{self ? t.ranked.ladderYou : row.name}</span>
-                  <span className="duel-ladder__rating" aria-label={`${t.ranked.leagues[standing(row).league ?? 'bronze']} · ${formatNumber(t, row.rating)}`}>
-                    <LeagueMark league={standing(row).league} />
-                    {formatNumber(t, row.rating)}
-                  </span>
+                  <LeagueChip rating={row.rating} games={row.games} rank={row.rank} compact />
                 </li>
               )
             })}
@@ -1604,7 +1615,7 @@ export function DuelLadder({ onClose, load = fetchDuelLadder }: { onClose(): voi
           <p className="duel-ladder__mine">
             <b>{t.ranked.ladderYou}</b>
             {mine.rank ? <span>{t.ranked.rank(mine.rank)}</span> : null}
-            <LeagueChip rating={mine.rating} games={mine.games} compact />
+            <LeagueChip rating={mine.rating} games={mine.games} rank={mine.rank} compact />
           </p>
         ) : null}
         <button ref={close} type="button" className="btn btn--ghost btn--block" onClick={onClose}>

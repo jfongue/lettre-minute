@@ -1,39 +1,56 @@
-import type { LeagueId } from '../domain/ranked'
+import type { LeagueId, Tier } from '../domain/ranked'
 import { PLACEMENT_GAMES, standing } from '../domain/ranked'
-import { formatNumber, useT } from '../i18n'
+import { useT, type Messages } from '../i18n'
 import { Shape } from './bauhaus'
 import type { ShapeKind, Tint } from './motifs'
 
 /**
  * Chaque ligue a sa forme, de la plus simple à la plus taillée, et sa couleur
- * de la palette : la forme se lit à côté du nom, jamais derrière.
+ * de la palette : la forme se lit à côté du nom, jamais derrière. Le Maître a
+ * l'étoile.
  */
-export const LEAGUE_MARKS: Readonly<Record<LeagueId, { kind: ShapeKind; tint: Tint }>> = {
+export const LEAGUE_MARKS: Readonly<Record<LeagueId | 'master', { kind: ShapeKind; tint: Tint }>> = {
   bronze: { kind: 'triangle', tint: 'red' },
   silver: { kind: 'square', tint: 'ink' },
   gold: { kind: 'circle', tint: 'yellow' },
   platinum: { kind: 'hexagon', tint: 'green' },
   diamond: { kind: 'diamond', tint: 'blue' },
+  master: { kind: 'star', tint: 'pink' },
 }
 
-/** La forme d'une ligue, ou le cadre vide des placements. */
-export function LeagueMark({ league, className = '' }: { league: LeagueId | null; className?: string }) {
-  const mark = league ? LEAGUE_MARKS[league] : { kind: 'frame' as const, tint: 'ink' as const }
+const ROMAN = ['', 'I', 'II', 'III'] as const
+
+/** Le rang en toutes lettres : « Or II », « Maître n° 3 », « Placement 1/3 ». */
+export function tierText(t: Messages, tier: Tier): string {
+  if (tier.kind === 'placement') return t.ranked.placement(tier.placed, PLACEMENT_GAMES)
+  if (tier.kind === 'master') return t.ranked.master(tier.spot)
+  return t.ranked.division(t.ranked.leagues[tier.league], ROMAN[tier.division])
+}
+
+/** La forme d'un rang, ou le cadre vide des placements. */
+export function TierMark({ tier, className = '' }: { tier: Tier; className?: string }) {
+  const mark = tier.kind === 'placement' ? { kind: 'frame' as const, tint: 'ink' as const } : LEAGUE_MARKS[tier.kind === 'master' ? 'master' : tier.league]
+  return <Shape kind={mark.kind} tint={mark.tint} className={`league-mark ${className}`} />
+}
+
+/** La forme d'une ligue seule, sans division : le lien du classement. */
+export function LeagueMark({ league, className = '' }: { league: LeagueId; className?: string }) {
+  const mark = LEAGUE_MARKS[league]
   return <Shape kind={mark.kind} tint={mark.tint} className={`league-mark ${className}`} />
 }
 
 /**
- * La ligue d'un joueur et son Elo, en une étiquette : « Or · 1 142 », ou
- * « Placement 2/5 » tant qu'elle n'est pas jouée.
+ * Le rang d'un joueur en une étiquette — jamais son Elo, qui reste le calcul
+ * du serveur : « Or II », « Maître n° 3 », ou « Placement 1/3 ».
  */
-export function LeagueChip({ rating, games, compact = false, points = true }: { rating: number; games: number; compact?: boolean; points?: boolean }) {
+export function LeagueChip({ rating, games, rank = null, compact = false }: { rating: number; games: number; rank?: number | null; compact?: boolean }) {
   const t = useT()
-  const { league, placed } = standing({ rating, games })
+  const { tier } = standing({ rating, games }, rank)
+  const kind = tier.kind === 'league' ? tier.league : tier.kind
   return (
-    <span className={`league-chip${league ? ` league-chip--${league}` : ' league-chip--placement'}${compact ? ' league-chip--compact' : ''}`}>
-      <LeagueMark league={league} />
-      <b>{league ? t.ranked.leagues[league] : t.ranked.placement(placed, PLACEMENT_GAMES)}</b>
-      {league && points ? <span className="league-chip__points">{formatNumber(t, rating)}</span> : null}
+    <span className={`league-chip league-chip--${kind}${compact ? ' league-chip--compact' : ''}`}>
+      <TierMark tier={tier} />
+      <b>{tierText(t, tier)}</b>
     </span>
   )
 }

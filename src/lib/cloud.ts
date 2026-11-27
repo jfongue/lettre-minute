@@ -2336,6 +2336,8 @@ export interface DuelSeatRow {
   /** Son Elo de duel classé (0122), null s'il n'en a jamais joué ou pour un serveur d'avant. */
   rating: number | null
   games: number
+  /** Sa place au classement du duel, une fois placé : les dix premiers sont Maîtres. */
+  rank: number | null
 }
 
 /** Ce que le règlement d'une table classée a changé à un joueur. */
@@ -2414,6 +2416,7 @@ export function syncDuel(table: string, after: number): Promise<DuelSnapshot | n
         seen: Number(seat.seen) || 0,
         rating: seat.rating === null || seat.rating === undefined ? null : Number(seat.rating),
         games: Number(seat.games) || 0,
+        rank: seat.rank === null || seat.rank === undefined ? null : Number(seat.rank),
       })),
       invites: ((row.invites as Record<string, unknown>[]) ?? []).map((invite) => ({
         player: invite.player as string,

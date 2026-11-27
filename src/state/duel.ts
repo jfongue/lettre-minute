@@ -139,6 +139,7 @@ export interface Seat {
   /** Son Elo de duel classé et ses parties, quand le serveur les connaît. */
   rating?: number | null
   games?: number
+  rank?: number | null
 }
 
 export interface Candidate {
@@ -247,6 +248,8 @@ export interface DuelRatingResult {
   after: number
   /** Mes parties classées, celle-ci comprise une fois réglée. */
   games: number
+  /** Ma place au classement après la table : les dix premiers sont Maîtres. */
+  rank: number | null
 }
 
 /** Une place qui ne relit plus la table depuis ce temps a perdu sa connexion. */
@@ -355,6 +358,7 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
         seen: row.seen,
         rating: row.rating,
         games: row.games,
+        rank: row.rank,
       }
     }),
     invites: snapshot.invites.map((invite) => ({ id: invite.player, name: invite.name, avatar: invite.avatar, bot: false, owned: 0, ready: false, pending: true })),
@@ -1140,6 +1144,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
           before: ratingChange?.before ?? myRow?.rating ?? 1000,
           after: ratingChange?.after ?? myRow?.rating ?? 1000,
           games: myRow?.games ?? 0,
+          rank: myRow?.rank ?? null,
         }
       : null
   const away =

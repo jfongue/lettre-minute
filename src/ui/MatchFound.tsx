@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, type CSSProperties } from 'react'
-import { OFFER_SECONDS, stakes } from '../domain/ranked'
+import { expectedScore, OFFER_SECONDS } from '../domain/ranked'
 import { useT } from '../i18n'
 import { tapFeedback } from '../lib/native'
 import { armSound, sound } from '../lib/sound'
@@ -47,8 +47,8 @@ export function MatchFound({ queue }: { queue: DuelQueue }) {
   if (!offer) return null
   const left = Math.max(0, deadline - now)
   const them = offer.opponent
-  const stake = them ? stakes(offer.me, them) : null
-  const signed = (value: number) => (value > 0 ? `+${value}` : value < 0 ? `−${Math.abs(value)}` : '0')
+  // L'enjeu se dit sans chiffre : l'Elo reste le calcul du serveur.
+  const odds = them ? expectedScore(offer.me.rating, them.rating) : null
   const still = reducedMotion()
   const fuse = (still ? { '--from': Math.min(1, left / OFFER_SECONDS) } : { '--from': lit.current?.from ?? 1, '--left': `${lit.current?.left ?? OFFER_SECONDS}s` }) as unknown as CSSProperties
 
@@ -63,22 +63,22 @@ export function MatchFound({ queue }: { queue: DuelQueue }) {
           <span className={`match-found__seat match-found__seat--me${offer.accepted ? ' match-found__seat--ready' : ''}`}>
             <Avatar choice={me.avatar} size="md" />
             <b>{me.name || t.duel.you}</b>
-            <LeagueChip rating={offer.me.rating} games={offer.me.games} compact />
+            <LeagueChip rating={offer.me.rating} games={offer.me.games} rank={offer.me.rank} compact />
             {offer.accepted ? <span className="match-found__ready">{t.ranked.accepted}</span> : null}
           </span>
           <span className="match-found__vs">{t.ranked.vs}</span>
           <span className={`match-found__seat match-found__seat--them${them?.accepted ? ' match-found__seat--ready' : ''}`}>
             {them ? <Avatar choice={them.avatar} size="md" /> : null}
             <b>{them?.name ?? '…'}</b>
-            {them ? <LeagueChip rating={them.rating} games={them.games} compact /> : null}
+            {them ? <LeagueChip rating={them.rating} games={them.games} rank={them.rank} compact /> : null}
             {them?.accepted ? <span className="match-found__ready">{t.ranked.accepted}</span> : null}
           </span>
         </div>
         <p id="match-found-stakes" className="match-found__stakes">
-          {offer.ranked && stake ? (
+          {offer.ranked ? (
             <>
               <span className="match-found__tag">{t.ranked.ranked}</span>
-              <span>{t.ranked.stakes(signed(stake.win), signed(stake.loss))}</span>
+              <span>{odds === null ? '' : odds < 0.4 ? t.ranked.stakesUp : odds > 0.6 ? t.ranked.stakesDown : t.ranked.stakesEven}</span>
             </>
           ) : (
             <span className="match-found__tag match-found__tag--friendly">{t.ranked.friendly}</span>
