@@ -2195,7 +2195,9 @@ setStartedAt((at) => at ?? Date.now())
       feedback: quietHome && feedbackAsk && !thanksDue && on('feedback'),
       shareNews: quietHome && on('friendInvite') && shareNewsDue(session.profile, named, shareNewsSeen),
       // Le duel classé, présenté une fois à qui jouait déjà : il faut un compte, ou de quoi en ouvrir un.
-      rankedNews: quietHome && on('duel') && rankedNewsDue(session.profile.runs, rankedNewsSeen) && (named || duelSignIn !== undefined),
+      // Un invité sans compte possible ici (CrazyGames) n'a pas à passer par une
+      // pop-up avant « Jouer » : le portail veut la partie au premier geste.
+      rankedNews: quietHome && on('duel') && rankedNewsDue(session.profile.runs, rankedNewsSeen) && (named || (duelSignIn !== undefined && host.anonymousAccounts)),
       premieres: quietHome && on('premium') && freshPremieres.length > 0,
       rating: quietHome && ratingAsk && on('support'),
     },
