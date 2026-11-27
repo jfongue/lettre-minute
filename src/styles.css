@@ -11557,6 +11557,10 @@ ligne, et se referme par une seconde tape. */
   bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
 }
 
+.queue-pill-top .stage--duel {
+  padding-top: calc(3.6rem + env(safe-area-inset-top, 0px));
+}
+
 .queue-pill--top {
   top: calc(0.6rem + env(safe-area-inset-top, 0px));
   right: calc(1rem + env(safe-area-inset-right, 0px));

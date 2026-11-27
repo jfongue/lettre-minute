@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useT } from '../i18n'
 import type { DuelQueue } from '../state/duelQueue'
 import { clockOf, estimateText } from './rankedText'
@@ -11,6 +12,13 @@ import { clockOf, estimateText } from './rankedText'
 export function QueuePill({ queue, place = 'bottom', onOpen }: { queue: DuelQueue; place?: 'bottom' | 'top'; onOpen(): void }) {
   const t = useT()
   const { state, now } = queue
+  const shown = state.kind === 'searching'
+  // En haut d'une table, la pastille prend la place de son titre : l'écran descend d'autant.
+  useEffect(() => {
+    if (!shown || place !== 'top') return
+    document.documentElement.classList.add('queue-pill-top')
+    return () => document.documentElement.classList.remove('queue-pill-top')
+  }, [place, shown])
   if (state.kind !== 'searching') return null
   const waited = Math.max(0, now - state.since)
   const estimate = state.info?.estimate ?? null
