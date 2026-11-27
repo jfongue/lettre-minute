@@ -609,6 +609,36 @@ propre téléphone.
   `duel`, comme le reste du duel, et demande un compte nommé sur chaque version
   qui l'ouvre : CrazyGames le propose à son joueur connecté (0073), et n'offre
   pas la carte à son invité, qui joue la table des joueurs maison.
+- **La file classée propose avant d'asseoir** (`duel_queue_poll`, 0122) : un
+  appariement ouvre une table classée (`ranked`) dont chacun a 20 s pour
+  accepter (`duel_offer_answer`, qui n'est que le « prêt » du salon) ; qui
+  laisse passer sort de la file, qui avait accepté y revient à sa place.
+  L'écart d'Elo accepté s'élargit avec l'attente (`duel_rating_window`, ouvert
+  à 30 s), l'attente estimée sort de `duel_queue_log`. La file vit dans
+  `src/App.tsx` (`useDuelQueue`, `src/state/duelQueue.ts`), pas dans son
+  écran : elle continue à l'accueil (`QueuePill`) et derrière la table des
+  joueurs ordinateur, se met en veille hors de l'accueil (`busy`), et toute
+  autre table (amis, invitation, salle du portail, reprise) l'annule.
+  `duel_matchmake`, celui des versions livrées, reste en place et cohabite :
+  il assoit sans proposer, sur une table non classée — et le client retombe
+  dessus quand le serveur n'a pas 0122.
+- **L'Elo se règle sur des rapports, pas sur un jugement** (`duel_report`,
+  `duel_settle`) : le serveur ne juge pas les mots, chaque appareil envoie
+  l'ordre d'arrivée rejoué, et le règlement ne l'accepte que concordant et
+  soutenu par le journal (un temps écoulé, un abandon ou une place quittée
+  pour chaque perdant). Un désaccord annule la table (`voided`). Elo par
+  paires, K 40 puis 20 après dix parties, cinq placements avant une ligue :
+  `src/domain/ranked.ts` en est le double exact, que l'écran lit pour annoncer
+  l'enjeu — changer l'un sans l'autre fait mentir la carte « Adversaire
+  trouvé » (`ranked.test.ts` et `supabase/tests/50_ranked_duel.sql` tiennent
+  les mêmes cas). Jamais de joueur ordinateur ni de table d'amis classés.
+- **Partir en pleine partie, c'est abandonner** (`resign`, `duel_resign`) :
+  un coup du journal que seul le serveur écrit, et qui tue tout de suite,
+  même au draft — l'adversaire n'attend plus qu'une réserve s'épuise. Une
+  app fermée sans quitter garde sa place : l'accueil propose de la reprendre
+  quatre-vingt-dix secondes (`loadActiveDuel`, `duel_rejoin`). Trois abandons
+  classés ou propositions manquées en une heure valent cinq minutes hors de
+  la file (`duel_cooldown_until`).
 - **Chaque donnée dit d'où elle vient** (0072) : le client ajoute
   `platform=<android|web|crazygames|reddit>` à `X-Client-Info`
   (`src/lib/supabase.ts`), et un déclencheur range cette valeur dans

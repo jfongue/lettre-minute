@@ -101,6 +101,10 @@ pris par `feature_flags` : cette migration-là a été renumérotée, jamais rej
 | `duel_seats` | Une place par joueur (ou joueur ordinateur) : prêt, place numérotée au lancement, parti, expulsé, dernière lecture — c'est elle qui désigne le meneur. |
 | `duel_invites` | Qui l'hôte a invité, et quand l'invité a répondu. Un blocage tait l'invitation, comme une demande d'ami. |
 | `duel_moves` | Le journal d'une table : un coup par numéro (`seq`), daté par le serveur. Les quatre tables du duel n'ont aucune politique : tout passe par les fonctions `duel_*`. |
+| `duel_queue_log` | Un passage dans la file classée (0122) : langue, Elo, plateforme, entrée, sortie et issue (`matched`, `cancelled`, `expired`, `declined`, `missed`). L'attente estimée en sort, et les propositions manquées comptent dans la pause d'une heure. Aucune politique. |
+| `duel_ratings` | L'Elo de duel classé d'un compte : Elo, parties, victoires, record. Créé à 1000 au premier besoin, écrit par le seul `duel_settle`. Aucune politique. |
+| `duel_reports` | L'ordre d'arrivée qu'un appareil a rejoué à la fin d'une table classée (`duel_report`). Aucune politique. |
+| `duel_rating_changes` | Ce que le règlement d'une table a fait à chaque joueur : place, Elo avant et après. `duel_sync` le relit pour le bilan. Aucune politique. |
 | `premium_grants` | Premium offert par un super modérateur depuis la page d'espionnage (`grant_premium`, 0091) : à part de `purchases`, pour que le revenu ne le compte pas et qu'il se reprenne sans toucher à un achat. Le client le lit par `my_premium_origin`. Aucune politique. |
 
 Fonctions d'écriture : `report_prompts(graine, langue, couples)` — le rapport
