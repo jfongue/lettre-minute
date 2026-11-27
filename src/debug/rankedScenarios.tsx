@@ -201,3 +201,123 @@ export function ResumeScenario({ onBack }: { onBack(): void }) {
     </div>
   )
 }
+
+// ------------------------------------------- le parcours, vu des deux joueurs --
+
+const JEREMY: AvatarChoice = { design: 5, ground: 'rose', shape: 'vert', accent: 'creme' }
+const JEREMY_RATING: DuelRatingInfo = { rating: 1093, games: 23, wins: 12, peak: 1110, rank: 54 }
+const ONDINE_RATING: DuelRatingInfo = { rating: 1121, games: 41, wins: 22, peak: 1160, rank: 47 }
+
+export type Side = 'a' | 'b'
+
+/** La recherche de chacun : Jérémy cherche depuis un moment, Ondine vient d'arriver. */
+export function FlowSearchScenario({ side, onBack }: { side: Side; onBack(): void }) {
+  const now = useBoardClock(1000)
+  const state: QueueState =
+    side === 'a'
+      ? { kind: 'searching', since: 1000 - 21, info: waiting({ estimate: 25, searching: 0, playing: 4, me: JEREMY_RATING }), offline: false, bounced: false }
+      : { kind: 'searching', since: 1000 - 2, info: waiting({ estimate: 25, searching: 1, playing: 4, me: ONDINE_RATING }), offline: false, bounced: false }
+  return <DuelMatchmaking queue={boardQueue(state, now)} onBots={onBack} onPublic={onBack} onHome={onBack} onLadder={noop} />
+}
+
+/** L'adversaire trouvé, de chaque côté : Jérémy a accepté et attend, Ondine décide. */
+export function FlowFoundScenario({ side, behind }: { side: Side; behind?: ReactNode }) {
+  const now = useBoardClock(1006)
+  const mine = side === 'a' ? JEREMY_RATING : ONDINE_RATING
+  const opponent: DuelOpponent =
+    side === 'a'
+      ? { player: 'ondine', name: 'Ondine', avatar: ONDINE, accepted: false, ...ONDINE_RATING }
+      : { player: 'jeremy', name: 'Jérémy', avatar: JEREMY, accepted: true, ...JEREMY_RATING }
+  const state: QueueState = { kind: 'found', since: 960, offer: { table: `flow-${side}`, ranked: true, accepted: side === 'a', me: mine, opponent }, deadline: 1020, sending: false }
+  return (
+    <div className="stage stage--duel">
+      {behind}
+      <MatchFound queue={boardQueue(state, Math.min(now, 1020))} />
+    </div>
+  )
+}
+
+/** Pendant la recherche, la table des joueurs ordinateur : la pastille de la file en haut. */
+export function BotsWhileQueueScenario({ table }: { table: ReactNode }) {
+  const now = useBoardClock(1000)
+  const state: QueueState = { kind: 'searching', since: 1000 - 38, info: waiting({ estimate: 45, me: JEREMY_RATING }), offline: false, bounced: false }
+  return (
+    <>
+      {table}
+      <QueuePill queue={boardQueue(state, now)} place="top" onOpen={noop} />
+    </>
+  )
+}
+
+function flowSeats(): readonly Seat[] {
+  return [
+    { id: 'jeremy', name: 'Jérémy', avatar: JEREMY, bot: false, owned: 7, ready: true, rating: JEREMY_RATING.rating, games: JEREMY_RATING.games },
+    { id: 'ondine', name: 'Ondine', avatar: ONDINE, bot: false, owned: 9, ready: true, rating: ONDINE_RATING.rating, games: ONDINE_RATING.games },
+  ]
+}
+
+/**
+ * La partie classée, vue de chaque place. `away` : Ondine a perdu sa connexion
+ * — Jérémy voit sa place pâlir, Ondine voit « connexion perdue » chez elle.
+ */
+export function FlowPlayScenario({ base, side, away = false }: { base: DuelTable; side: Side; away?: boolean }) {
+  let duel: Duel = createDuel({ seed: 11, playerIds: ['jeremy', 'ondine'], categories: PLAY_IDS, opener: 1, at: 0 })
+  for (const id of PLAY_IDS.slice(0, 4)) duel = pickCategory(duel, id, 1)
+  duel = openDuel(duel, BOARD_JUDGE, 2)
+  const myIndex = side === 'a' ? 0 : 1
+  const holder = duel.turn!.player
+  const at = duel.turn!.startedAt + (away ? 11.4 : 4.2)
+  return (
+    <Play
+      table={{
+        ...base,
+        mode: 'online',
+        phase: 'play',
+        at,
+        seats: flowSeats(),
+        myIndex,
+        duel,
+        judge: BOARD_JUDGE,
+        prompt: duel.turn!.prompt,
+        picker: null,
+        myTurn: holder === myIndex,
+        watching: holder !== myIndex,
+        ranked: true,
+        away: away && side === 'a' ? [1] : [],
+        offline: away && side === 'b',
+        joined: true,
+        event: null,
+        feed: [],
+        facts: [],
+        fallen: null,
+      }}
+    />
+  )
+}
+
+/** La fin, de chaque côté : la réserve d'Ondine est tombée, Jérémy gagne et monte en Or, Ondine perd des points. */
+export function FlowOverScenario({ base, side }: { base: DuelTable; side: Side }) {
+  const duel = base.duel!
+  const players = [
+    { ...duel.players[0]!, id: 'jeremy', alive: true },
+    { ...duel.players[1]!, id: 'ondine', alive: false },
+  ]
+  const twoPlayers: Duel = { ...duel, players, deaths: [1] }
+  const rating =
+    side === 'a'
+      ? { settled: true, voided: false, before: 1093, after: 1104, games: 24 }
+      : { settled: true, voided: false, before: 1121, after: 1110, games: 42 }
+  return (
+    <Over
+      table={{
+        ...base,
+        seats: flowSeats(),
+        myIndex: side === 'a' ? 0 : 1,
+        duel: twoPlayers,
+        ranked: true,
+        rating,
+        payout: side === 'a' ? base.payout : null,
+      }}
+    />
+  )
+}

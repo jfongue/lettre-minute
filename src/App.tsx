@@ -408,10 +408,14 @@ setMenuPage(null)
   // The dictionary follows the interface: a German player answers in German.
   const lang = locale ?? 'fr'
   // La file du duel classé vit ici, pas dans son écran : elle continue à
-  // l'accueil et à la table des joueurs ordinateur, et se met en veille
-  // pendant une partie seule — un adversaire n'y interrompt pas le chrono.
-  const duelQueue = useDuelQueue({ lang, busy: session.phase === 'countdown' || session.phase === 'playing' })
+  // l'accueil et à la table des joueurs ordinateur, et se met en veille dès
+  // qu'une partie seule commence, jusqu'au retour à l'accueil — un adversaire
+  // n'y interrompt ni le chrono ni le bilan.
+  const duelQueue = useDuelQueue({ lang, busy: session.phase !== 'home' })
   const queueState = duelQueue.state
+  const cancelQueue = duelQueue.cancel
+  const resetQueue = duelQueue.reset
+  const dismissQueue = duelQueue.dismiss
   const [activeDuel, setActiveDuel] = useState(() => {
     const kept = loadActiveDuel()
     return kept && Date.now() - kept.at < RESUME_WINDOW_MS ? kept : null
@@ -1462,15 +1466,18 @@ setStartedAt((at) => at ?? Date.now())
       return
     }
     rememberMultiplayer()
+    // Une table d'amis prend la place de la file : un adversaire trouvé l'en arracherait.
+    cancelQueue()
     setRoomCall(null)
     setTogether(false)
     setMatching(false)
     setMenuPage(null)
     setDuelOpen(roomCall.table ? { join: roomCall.table, room: true } : { join: null })
-  }, [roomCall, hostAccountSettled, answered.profile, answered.account, locale, session.phase, tutorial, modeLesson, on, named, rememberMultiplayer])
+  }, [roomCall, hostAccountSettled, answered.profile, answered.account, locale, session.phase, tutorial, modeLesson, on, named, rememberMultiplayer, cancelQueue])
 
   const joinDuelInvite = (table: string) => {
     rememberMultiplayer()
+    cancelQueue()
     setDuelInvites((list) => list.filter((invite) => invite.table !== table))
     clearPushes([duelPushTag(table)])
     setMenuPage(null)
@@ -1508,8 +1515,8 @@ setStartedAt((at) => at ?? Date.now())
     setLadderOpen(false)
     setMenuPage(null)
     setDuelOpen({ join: matchedTable, quick: true })
-    duelQueue.reset()
-  }, [matchedTable, duelQueue, rememberMultiplayer])
+    resetQueue()
+  }, [matchedTable, resetQueue, rememberMultiplayer])
   // La carte de l'adversaire trouvé se charge dès qu'on entre dans la file.
   const queueActive = queueState.kind === 'searching' || queueState.kind === 'found'
   useEffect(() => {
@@ -1528,8 +1535,8 @@ setStartedAt((at) => at ?? Date.now())
   useEffect(() => {
     if (!missed || matching) return
     setMissedBanner(true)
-    duelQueue.dismiss()
-  }, [duelQueue, matching, missed])
+    dismissQueue()
+  }, [dismissQueue, matching, missed])
   const resumeDuel = useCallback(() => {
     const kept = activeDuel
     if (!kept) return
@@ -1537,13 +1544,14 @@ setStartedAt((at) => at ?? Date.now())
     void rejoinDuel(kept.table).then((outcome) => {
       if (outcome === 'back') {
         rememberMultiplayer()
+        cancelQueue()
         setDuelOpen({ join: kept.table, resume: true })
       } else {
         saveActiveDuel(null)
         setDuelBanner('closed')
       }
     })
-  }, [activeDuel, rememberMultiplayer])
+  }, [activeDuel, cancelQueue, rememberMultiplayer])
   const dropResume = useCallback(() => {
     const kept = activeDuel
     setActiveDuel(null)
@@ -1729,6 +1737,7 @@ setStartedAt((at) => at ?? Date.now())
       if (!on('duel')) return
       clearPushes([duelPushTag(table)])
       rememberMultiplayer()
+      cancelQueue()
       setDuelInvites((list) => list.filter((invite) => invite.table !== table))
       setMenuPage(null)
       setDuelOpen({ join: table })
@@ -1736,7 +1745,7 @@ setStartedAt((at) => at ?? Date.now())
     }
     // Le retrait d'une invitation : la notification n'a plus rien à dire.
     if (tapped.kind === 'duel_cancel') clearPushes([duelPushTag(tapped.table)])
-  }, [tapped, named, session.phase, on])
+  }, [tapped, named, session.phase, on, cancelQueue])
 
   const [swapping, setSwapping] = useState(false)
   const swap = useCallback(
@@ -2252,6 +2261,7 @@ setStartedAt((at) => at ?? Date.now())
           onDuel={() => {
             rememberMultiplayer()
             setTogether(false)
+            cancelQueue()
             // Sans compte nommé, la table en ligne ne s'ouvrirait pas : la table
             // des joueurs ordinateur, et l'invitation à se connecter.
             setDuelOpen({ join: null, local: !named })
@@ -2298,7 +2308,7 @@ setStartedAt((at) => at ?? Date.now())
               setDuelOpen({ join: null })
             }}
             onPublic={(table) => {
-              duelQueue.cancel()
+              cancelQueue()
               setMatching(false)
               setDuelOpen({ join: table, room: true })
             }}
@@ -2322,7 +2332,7 @@ setStartedAt((at) => at ?? Date.now())
 
       {missedBanner && <DuelBanner text={t.ranked.missed} onDone={clearMissedBanner} />}
 
-      {queueState.kind === 'searching' && !matching && (session.phase === 'home' || session.phase === 'over') && (
+      {queueState.kind === 'searching' && !matching && session.phase === 'home' && (
         <QueuePill queue={duelQueue} place={duelOpen ? 'top' : 'bottom'} onOpen={() => setMatching(true)} />
       )}
 

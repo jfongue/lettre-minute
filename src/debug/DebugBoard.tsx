@@ -72,7 +72,7 @@ import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
 import { DuelScreen, Draft, Lobby, Over } from '../ui/DuelScreen'
-import { AwayScenario, LadderScenario, MatchFoundScenario, MatchmakingScenario, QueuePillScenario, RankedOverScenario, ResumeScenario } from './rankedScenarios'
+import { AwayScenario, BotsWhileQueueScenario, FlowFoundScenario, FlowOverScenario, FlowPlayScenario, FlowSearchScenario, LadderScenario, MatchFoundScenario, MatchmakingScenario, QueuePillScenario, RankedOverScenario, ResumeScenario } from './rankedScenarios'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
@@ -2881,6 +2881,94 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Ondine ne relit plus la table depuis six secondes : sa place pâlit et dit « Hors ligne », sa réserve coule',
     phase: 'duel',
     render: () => <AwayScenario base={CHEER_TABLE} />,
+  },
+  {
+    id: 'duel-flow-search-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '1. Jérémy cherche',
+    how: 'Jérémy est dans la file depuis vingt secondes, seul de sa langue : l’estimée, et quatre joueurs en duel qui vont se libérer',
+    phase: 'home',
+    render: (back) => <FlowSearchScenario side="a" onBack={back} />,
+  },
+  {
+    id: 'duel-flow-search-b',
+    group: 'Duel classé : le parcours à deux',
+    title: '1. Ondine arrive',
+    how: 'Ondine vient d’entrer dans la file : un autre joueur cherche, l’appariement est imminent',
+    phase: 'home',
+    render: (back) => <FlowSearchScenario side="b" onBack={back} />,
+  },
+  {
+    id: 'duel-flow-bots-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '2. Jérémy joue les ordinateurs en attendant',
+    how: 'Au bout de quinze secondes Jérémy a pris la table des joueurs ordinateur : la pastille de la file reste en haut',
+    phase: 'duel',
+    render: () => <BotsWhileQueueScenario table={<DuelScreen lang="fr" mode="local" />} />,
+  },
+  {
+    id: 'duel-flow-found-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '3. Jérémy : adversaire trouvé, accepté',
+    how: 'La carte s’ouvre par-dessus la table des ordinateurs ; Jérémy a accepté et attend Ondine',
+    phase: 'duel',
+    render: () => <FlowFoundScenario side="a" behind={<DuelScreen lang="fr" mode="local" />} />,
+  },
+  {
+    id: 'duel-flow-found-b',
+    group: 'Duel classé : le parcours à deux',
+    title: '3. Ondine : adversaire trouvé',
+    how: 'Ondine voit Jérémy déjà prêt, l’enjeu et le décompte',
+    phase: 'duel',
+    render: () => <FlowFoundScenario side="b" />,
+  },
+  {
+    id: 'duel-flow-play-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '4. Jérémy en partie',
+    how: 'La table classée, vue de la place de Jérémy',
+    phase: 'duel',
+    render: () => <FlowPlayScenario base={CHEER_TABLE} side="a" />,
+  },
+  {
+    id: 'duel-flow-play-b',
+    group: 'Duel classé : le parcours à deux',
+    title: '4. Ondine en partie',
+    how: 'La même table, vue de la place d’Ondine',
+    phase: 'duel',
+    render: () => <FlowPlayScenario base={CHEER_TABLE} side="b" />,
+  },
+  {
+    id: 'duel-flow-away-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '5. Jérémy voit Ondine décrocher',
+    how: 'Ondine ne relit plus la table : sa place pâlit, la ligne du tour le dit',
+    phase: 'duel',
+    render: () => <FlowPlayScenario base={CHEER_TABLE} side="a" away />,
+  },
+  {
+    id: 'duel-flow-away-b',
+    group: 'Duel classé : le parcours à deux',
+    title: '5. Ondine a perdu sa connexion',
+    how: 'Chez Ondine : le dernier état reste à l’écran avec « connexion perdue »',
+    phase: 'duel',
+    render: () => <FlowPlayScenario base={CHEER_TABLE} side="b" away />,
+  },
+  {
+    id: 'duel-flow-over-a',
+    group: 'Duel classé : le parcours à deux',
+    title: '6. Jérémy gagne et monte en Or',
+    how: 'Le bilan de Jérémy : +11, l’Elo franchit 1 100 et passe en Or',
+    phase: 'duel',
+    render: () => <FlowOverScenario base={DUEL_OVER_TABLE} side="a" />,
+  },
+  {
+    id: 'duel-flow-over-b',
+    group: 'Duel classé : le parcours à deux',
+    title: '6. Ondine perd',
+    how: 'Le bilan d’Ondine : −11, sa ligue tient',
+    phase: 'duel',
+    render: () => <FlowOverScenario base={DUEL_OVER_TABLE} side="b" />,
   },
   {
     id: 'duel-resume',

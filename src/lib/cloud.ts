@@ -2555,8 +2555,30 @@ export function parseQueueAnswer(data: unknown): DuelQueueAnswer | null {
 export function duelQueuePoll(lang: string, categories: readonly string[], owned: number, busy: boolean): Promise<DuelQueueAnswer | null> {
   return guard(async () => {
     const { data, error } = await supabase!.rpc('duel_queue_poll', { p_lang: lang, p_categories: categories, p_owned: owned, p_busy: busy })
+    if (error && missingFunction(error)) return legacyQueuePoll(lang, categories, owned, busy)
     return error ? null : parseQueueAnswer(data)
   }, null)
+}
+
+/** PostgREST ne connaît pas la fonction : un serveur d'avant la migration qui l'apporte. */
+function missingFunction(error: { code?: string }): boolean {
+  return error.code === 'PGRST202' || error.code === '42883'
+}
+
+/**
+ * La file d'avant 0122, pour un serveur qui ne l'a pas encore : elle assoit
+ * sans proposer, sur une table non classée. Une partie seule en cours y reste
+ * hors de la file plutôt que d'y être appariée.
+ */
+async function legacyQueuePoll(lang: string, categories: readonly string[], owned: number, busy: boolean): Promise<DuelQueueAnswer | null> {
+  if (busy) {
+    await supabase!.rpc('duel_matchmake_cancel')
+    return { status: 'waiting', now: Date.now() / 1000, joined: null, estimate: null, searching: 0, playing: 0, publicTable: null, me: NEW_RATING }
+  }
+  const match = await duelMatchmake(lang, categories, owned)
+  if (!match) return null
+  if (match.status === 'matched') return match
+  return { status: 'waiting', now: Date.now() / 1000, joined: null, estimate: null, searching: 0, playing: 0, publicTable: null, me: NEW_RATING }
 }
 
 /** Accepter ou refuser l'adversaire proposé. */
@@ -2570,6 +2592,7 @@ export function answerDuelOffer(accept: boolean): Promise<DuelQueueAnswer | null
 export function leaveDuelQueue(): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('duel_queue_leave')
+    if (error && missingFunction(error)) return cancelDuelMatchmaking()
     return !error
   }, false)
 }
