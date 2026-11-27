@@ -552,7 +552,11 @@
 
 .duel-elo__delta {
   margin: 0;
-  padding: 0.05rem 0.45rem;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
   background: var(--green);
   color: var(--cream);
   font-weight: 800;
