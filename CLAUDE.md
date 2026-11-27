@@ -663,12 +663,6 @@ propre téléphone.
 - **Les classements sont une page entière** (`LeaderboardsScreen`) : le
   tiroir du menu ne les montre plus, `Menu` passe la main à l'app par
   `onBoards`. Solo, Défi et — compte nommé et duel ouvert — Duel.
-- **Le duel classé demande la carte de classement** (`hasRankedCard`,
-  `src/domain/bonus.ts`) : un bonus de niveau offert seul dès le niveau 5
-  (`dealRankedCard`), compté comme un cadeau (`bonusGifts`) pour ne prendre
-  la place ni d'une catégorie ni d'un autre bonus, et jamais tiré de la pioche
-  ordinaire. Sans elle, la carte « Duel classé » du choix reste verrouillée.
-  Le serveur ne la vérifie pas : elle vit dans le profil, comme les catégories.
 - **Partir en pleine partie, c'est abandonner** (`resign`, `duel_resign`) :
   un coup du journal que seul le serveur écrit, et qui tue tout de suite,
   même au draft — l'adversaire n'attend plus qu'une réserve s'épuise. Une
