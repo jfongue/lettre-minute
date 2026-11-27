@@ -972,7 +972,6 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
       slot: ['Tweede plek', 'Draag twee krachten tegelijk.'],
       reveal: ['Nog een onthulling', 'Elke dag een extra onthulling, voorgoed.'],
       moderator: ['Moderatorkaart', 'Beoordeel de woorden die spelers voorstellen en help het woordenboek groeien.'],
-      ranked: ['Ranked-kaart', 'Opent ranked duels: speel tegen spelers van jouw niveau en klim van Brons naar Diamant.'],
     },
     total: (count, max) => `${count} van ${max}`,
     joined: 'hoort bij je voordelen',

@@ -4,7 +4,6 @@ import { useT } from '../i18n'
 import { armSound, sound } from '../lib/sound'
 import { Avatar } from './Avatar'
 import { LeagueChip } from './League'
-import { RANKED_CARD_LEVEL } from '../domain/bonus'
 import type { DuelRatingInfo } from '../lib/cloud'
 import { useBackDismiss } from './useBackDismiss'
 
@@ -25,7 +24,6 @@ export function PlayTogether({
   onSignIn,
   onClose,
   rating = null,
-  rankedLocked = null,
 }: {
   challenge: boolean
   /** Sans compte nommé : le duel se joue contre les joueurs ordinateur. */
@@ -35,11 +33,6 @@ export function PlayTogether({
   onMatch?(): void
   /** Mon classement au duel, que la carte du matchmaking annonce. */
   rating?: DuelRatingInfo | null
-  /**
-   * Le duel classé demande la carte de classement : `level`, elle se gagne au
-   * niveau 5 ; `pending`, elle attend au prochain bilan. Null : la carte est là.
-   */
-  rankedLocked?: 'level' | 'pending' | null
   onChallenge(): void
   /** Sans compte nommé : se connecter ouvre les vrais joueurs. */
   onSignIn?(): void
@@ -90,22 +83,7 @@ export function PlayTogether({
           </span>
         </button>
 
-        {onMatch && rankedLocked ? (
-          <section className="together-card together-card--match together-card--locked" style={{ '--i': 1 } as CSSProperties} aria-label={t.duel.matchCard}>
-            <svg className="together-art together-art--duel" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
-              <rect className="together-table" x="33" y="33" width="34" height="34" />
-              <circle className="together-seat--hand" cx="50" cy="11" r="11" />
-              <circle cx="50" cy="89" r="11" />
-            </svg>
-            <span className="together-text">
-              <b>{t.duel.matchCard}</b>
-              <small>{rankedLocked === 'pending' ? t.ranked.cardPending : t.ranked.cardLocked(RANKED_CARD_LEVEL)}</small>
-              <span className="together-chips">
-                <span className="together-chip together-chip--lock">{t.bonus.kinds.ranked[0]}</span>
-              </span>
-            </span>
-          </section>
-        ) : onMatch ? (
+        {onMatch ? (
           <button
             type="button"
             className="together-card together-card--match"

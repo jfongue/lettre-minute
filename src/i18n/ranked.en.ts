@@ -35,8 +35,6 @@ export const rankedEn: RankedMessages = {
   ladder: 'Duel ladder',
   meUnranked: 'Play a ranked game to join the ladder.',
   botSoon: (clock: string) => `No opponent? A bot of your level steps in in ${clock}.`,
-  cardLocked: (level: number) => `It needs the ranked card, a bonus to pick from level ${level}.`,
-  cardPending: 'Your ranked card is waiting at the end of your next game.',
   myPlace: (place: string) => `My place: ${place}`,
   views: { top: 'Top', master: 'Masters', me: 'My place' },
   viewEmpty: 'Nobody at this rank yet.',

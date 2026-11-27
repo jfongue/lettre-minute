@@ -6,7 +6,7 @@ import { chooseCategory, dealOffer, ownedCategoryIds } from '../domain/unlocks'
 import { markRatingAsked, markRatingDone } from '../domain/rating'
 import { premiereCategoryIds } from '../domain/catalogue'
 import { ban, bannedOf, countPlusAdSkipped, countPlusReveal, creditRevealGifts, countPlusRun, grantRevealAd, joinPlus, learnFromProfessor, markBanIntroSeen, markFeedbackAsked, isPlus, markPlusThanked, spendReveal, unban } from '../domain/perks'
-import { chooseBonus, dealBonusOffer, dealRankedCard, type BonusId } from '../domain/bonus'
+import { chooseBonus, dealBonusOffer, type BonusId } from '../domain/bonus'
 import { choosePower, dealPowerOffer, equippedPowers, equipPower, grantPower, POWER_CHARGES, wearOrDrop, type PowerId } from '../domain/powers'
 import { countsForProgress, type GameMode } from '../domain/modes'
 import {
@@ -226,7 +226,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       const barred = action.barred ?? []
       const bonuses = action.bonuses ?? true
       const profile = dealBonusOffer(
-        dealRankedCard(dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed, barred, bonuses), action.seed), barred),
+        dealPowerOffer(dealOffer(session.profile, action.availableIds, action.seed, barred, bonuses), action.seed),
         action.seed,
         barred,
         bonuses,

@@ -35,8 +35,6 @@ export const rankedPt: RankedMessages = {
   ladder: 'Ranking do duelo',
   meUnranked: 'Jogue uma partida ranqueada para entrar no ranking.',
   botSoon: (clock: string) => `Sem adversário? Em ${clock} um bot do seu nível entra no lugar.`,
-  cardLocked: (level: number) => `Precisa do cartão ranqueado, um bônus para escolher a partir do nível ${level}.`,
-  cardPending: 'Seu cartão ranqueado espera no fim da sua próxima partida.',
   myPlace: (place: string) => `Minha posição: ${place}`,
   views: { top: 'Top', master: 'Mestres', me: 'Minha posição' },
   viewEmpty: 'Ninguém neste nível por enquanto.',

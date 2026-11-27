@@ -98,7 +98,7 @@ import {
   needsPowerPick,
   scoreAt,
 } from './domain/challenge'
-import { barredBonuses, hasRankedCard, rankedCardOwed } from './domain/bonus'
+import { barredBonuses } from './domain/bonus'
 import { complicationDue, ownedPowers, slotsOf, type PowerId } from './domain/powers'
 import { completeLeaderboard } from './domain/leaderboards'
 import { withGuest } from './ui/guestBoards'
@@ -2194,8 +2194,7 @@ setStartedAt((at) => at ?? Date.now())
       feedback: quietHome && feedbackAsk && !thanksDue && on('feedback'),
       shareNews: quietHome && on('friendInvite') && shareNewsDue(session.profile, named, shareNewsSeen),
       // Le duel classé, présenté une fois à qui jouait déjà : il faut un compte, ou de quoi en ouvrir un.
-      // Il présente le classé à qui a sa carte : avant, la carte du choix dit comment l'obtenir.
-      rankedNews: quietHome && on('duel') && hasRankedCard(session.profile) && rankedNewsDue(session.profile.runs, rankedNewsSeen) && (named || duelSignIn !== undefined),
+      rankedNews: quietHome && on('duel') && rankedNewsDue(session.profile.runs, rankedNewsSeen) && (named || duelSignIn !== undefined),
       premieres: quietHome && on('premium') && freshPremieres.length > 0,
       rating: quietHome && ratingAsk && on('support'),
     },
@@ -2316,7 +2315,6 @@ setStartedAt((at) => at ?? Date.now())
           }}
           local={!named}
           rating={duelRating}
-          rankedLocked={hasRankedCard(session.profile) ? null : rankedCardOwed(session.profile, barred) ? 'pending' : 'level'}
           onSignIn={named ? undefined : duelSignIn}
           onMatch={
             // La file du matchmaking assoit deux comptes nommés (`duel_matchmake`) :

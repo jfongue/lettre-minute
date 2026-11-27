@@ -35,8 +35,6 @@ export const rankedDe: RankedMessages = {
   ladder: 'Duell-Rangliste',
   meUnranked: 'Spiel ein gewertetes Duell, um in die Rangliste zu kommen.',
   botSoon: (clock: string) => `Kein Gegner? In ${clock} springt ein Bot deines Niveaus ein.`,
-  cardLocked: (level: number) => `Dafür brauchst du die Ranglisten-Karte, einen Bonus ab Level ${level}.`,
-  cardPending: 'Deine Ranglisten-Karte wartet am Ende deines nächsten Spiels.',
   myPlace: (place: string) => `Mein Platz: ${place}`,
   views: { top: 'Top', master: 'Meister', me: 'Mein Platz' },
   viewEmpty: 'Noch niemand in diesem Rang.',

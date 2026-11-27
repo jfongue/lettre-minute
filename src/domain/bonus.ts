@@ -6,32 +6,15 @@ import { ownedPowers } from './powers'
 import { createRng, pickWeighted } from './rng'
 
 /** What a bonus level gives: identifiers only, the names live in `src/i18n/`. */
-export type BonusId = 'filter' | 'slot' | 'reveal' | 'moderator' | 'ranked'
+export type BonusId = 'filter' | 'slot' | 'reveal' | 'moderator'
 
-export const BONUS_IDS: readonly BonusId[] = ['filter', 'slot', 'reveal', 'moderator', 'ranked']
+export const BONUS_IDS: readonly BonusId[] = ['filter', 'slot', 'reveal', 'moderator']
 
 /** How many times each can be taken. */
-export const BONUS_CAPS: Readonly<Record<BonusId, number>> = { filter: FREE_BANS_MAX, slot: 1, reveal: 3, moderator: 1, ranked: 1 }
+export const BONUS_CAPS: Readonly<Record<BonusId, number>> = { filter: FREE_BANS_MAX, slot: 1, reveal: 3, moderator: 1 }
 
 /** Reveals are the likeliest on the table: they are what the game runs out of first. */
-export const BONUS_WEIGHTS: Readonly<Record<BonusId, number>> = { filter: 1, slot: 1, reveal: 3, moderator: 1, ranked: 0 }
-
-/**
- * La carte de classement ouvre le duel classé. Elle ne se gagne pas à un niveau
- * de bonus : elle s'offre seule, en cadeau, dès ce niveau — elle ne prend la
- * place ni d'une catégorie ni d'un autre bonus, et ne revient jamais dans la
- * pioche ordinaire.
- */
-export const RANKED_CARD_LEVEL = 5
-
-export function hasRankedCard(profile: Profile): boolean {
-  return profile.bonuses.includes('ranked')
-}
-
-/** La carte de classement attend d'être prise : le niveau atteint, la carte pas encore à soi. */
-export function rankedCardOwed(profile: Profile, barred: readonly BonusId[] = []): boolean {
-  return !barred.includes('ranked') && !hasRankedCard(profile) && levelFor(profile.xp) >= RANKED_CARD_LEVEL
-}
+export const BONUS_WEIGHTS: Readonly<Record<BonusId, number>> = { filter: 1, slot: 1, reveal: 3, moderator: 1 }
 
 /** Bans and reveals are already unlimited for Premium: those picks would spend themselves. */
 export const USELESS_FOR_PLUS: readonly BonusId[] = ['filter', 'reveal']
@@ -105,7 +88,6 @@ export function barredBonuses(
   if (!open('powers')) barred.push('slot')
   if (unlimitedReveals) barred.push('reveal')
   if (isModerator || !canName || !open('moderatorOffer')) barred.push('moderator')
-  if (!open('duel')) barred.push('ranked')
   return barred
 }
 
@@ -113,10 +95,7 @@ export function barredBonuses(
 export function bonusPool(profile: Profile, barred: readonly BonusId[] = []): BonusId[] {
   return BONUS_IDS.filter(
     (id) =>
-      id !== 'ranked' &&
-      bonusCount(profile, id) < BONUS_CAPS[id] &&
-      !barred.includes(id) &&
-      !(isPlus(profile) && USELESS_FOR_PLUS.includes(id)),
+      bonusCount(profile, id) < BONUS_CAPS[id] && !barred.includes(id) && !(isPlus(profile) && USELESS_FOR_PLUS.includes(id)),
   )
 }
 
@@ -156,16 +135,6 @@ export function bonusesOwed(profile: Profile, barred: readonly BonusId[] = [], b
 }
 
 /**
- * La carte de classement sur la table, seule, quand elle est due et que rien
- * n'y est posé : elle passe avant les bonus ordinaires, qui attendent qu'elle
- * soit prise (`dealBonusOffer` garde une table déjà posée).
- */
-export function dealRankedCard(profile: Profile, barred: readonly BonusId[] = []): Profile {
-  if (profile.bonusOffer.length > 0 || !rankedCardOwed(profile, barred)) return profile
-  return { ...profile, bonusOffer: ['ranked'] }
-}
-
-/**
  * Two bonuses, weighted by kind, if one is owed and none is on the table. The
  * first table a player is dealt always holds the second slot, while it is to
  * take: it is the bonus every power worn asks for. A card the player is now
@@ -197,9 +166,7 @@ export function dealBonusOffer(profile: Profile, seed: number, barred: readonly 
  */
 export function chooseBonus(profile: Profile, id: string): Profile {
   if (!profile.bonusOffer.includes(id) || !isBonusId(id)) return profile
-  // La carte de classement est un cadeau du niveau 5 : elle ne compte pas parmi les bonus gagnés à un niveau.
-  const gift = id === 'ranked' ? 1 : 0
-  return { ...profile, bonuses: [...profile.bonuses, id], bonusOffer: [], lastBonusOffer: profile.bonusOffer, bonusGifts: profile.bonusGifts + gift }
+  return { ...profile, bonuses: [...profile.bonuses, id], bonusOffer: [], lastBonusOffer: profile.bonusOffer }
 }
 
 /**
