@@ -171,7 +171,7 @@ import { useDuelQueue } from './state/duelQueue'
 import { QueuePill } from './ui/QueuePill'
 import { RankedNewsPop } from './ui/RankedNewsPop'
 import { AvatarNudgePop } from './ui/AvatarNudgePop'
-import { botMatchAfter, rankedNewsDue, EARLY_START } from './domain/ranked'
+import { botMatchAfter, leagueReached, rankedNewsDue, EARLY_START } from './domain/ranked'
 import type { BoardFamily } from './ui/BoardSwitch'
 import { DuelResumeCard } from './ui/PlayTogether'
 import { applyTuning, runTuning } from './domain/tuning'
@@ -1567,10 +1567,27 @@ setStartedAt((at) => at ?? Date.now())
   const clearMissedBanner = useCallback(() => setMissedBanner(false), [])
   // Mon classement au duel, que la carte du matchmaking annonce à l'ouverture du choix.
   const [duelRating, setDuelRating] = useState<DuelRatingInfo | null>(null)
+  // Les tuiles d'avatar du classé : la plus haute marche que le serveur
+  // connaît rejoint le profil, et n'en redescend jamais.
+  const notePeakLeague = useCallback((rating: DuelRatingInfo) => {
+    const reached = leagueReached(rating, rating.masterRank !== null)
+    if (reached > profile.current.peakLeague) dispatch({ type: 'profile-loaded', profile: { ...profile.current, peakLeague: reached } })
+  }, [])
   useEffect(() => {
     if (!together || !named) return
-    void fetchDuelRating().then((rating) => rating && setDuelRating(rating))
-  }, [named, together])
+    void fetchDuelRating().then((rating) => {
+      if (!rating) return
+      setDuelRating(rating)
+      notePeakLeague(rating)
+    })
+  }, [named, together, notePeakLeague])
+  // Relu au lancement et au retour d'un duel, pour qu'une promotion ouvre sa tuile sans passer par l'écran de choix.
+  const duelShown = duelOpen !== null
+  const duelOn = on('duel')
+  useEffect(() => {
+    if (!named || !duelOn || duelShown) return
+    void fetchDuelRating().then((rating) => rating && notePeakLeague(rating))
+  }, [named, duelOn, duelShown, notePeakLeague])
   useEffect(() => {
     if (!missed || matching) return
     setMissedBanner(true)

@@ -1260,6 +1260,8 @@ case 'playedCategories':
 return `a word in ${at} categories`
 case 'professorWordsPlayed':
 return `${at} ${plural(goal.at, 'word taken from the Professor', 'words taken from the Professor')}`
+case 'peakLeague':
+return ['', 'a ranked game', 'the Silver league', 'the Gold league', 'the Platinum league', 'the Diamond league', 'the rank of Master'][goal.at] ?? ''
 }
 },
     families: {
@@ -1305,6 +1307,12 @@ return `${at} ${plural(goal.at, 'word taken from the Professor', 'words taken fr
       'powers-all': { name: 'Every power', desc: 'Serve all fourteen powers' },
       'categories-12': { name: 'Globetrotter', desc: 'Find a word in twelve categories' },
       'professor-word': { name: 'Teacher’s pet', desc: 'Play a word suggested by the Professor' },
+      'league-bronze': { name: 'Foot of the pyramid', desc: 'Play a ranked game' },
+      'league-silver': { name: 'Silver reflections', desc: 'Reach the Silver league' },
+      'league-gold': { name: 'The treasure', desc: 'Reach the Gold league' },
+      'league-platinum': { name: 'The hive', desc: 'Reach the Platinum league' },
+      'league-diamond': { name: 'Precious stone', desc: 'Reach the Diamond league' },
+      'league-master': { name: 'Shooting star', desc: 'Become a Master on the ladder' },
     } satisfies Record<string, { name: string; desc: string }>),
   },
 

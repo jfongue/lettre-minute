@@ -1256,6 +1256,8 @@ case 'playedCategories':
 return `een woord in ${at} categorieën`
 case 'professorWordsPlayed':
 return `${at} ${plural(goal.at, 'woord van de Professor gespeeld', 'woorden van de Professor gespeeld')}`
+case 'peakLeague':
+return ['', 'een gerankt potje', 'de Zilver-liga', 'de Goud-liga', 'de Platina-liga', 'de Diamant-liga', 'de rang van Meester'][goal.at] ?? ''
 }
 },
     families: {
@@ -1301,6 +1303,12 @@ return `${at} ${plural(goal.at, 'woord van de Professor gespeeld', 'woorden van 
       'powers-all': { name: 'Alle krachten', desc: 'Zet alle veertien krachten in' },
       'categories-12': { name: 'Wereldreiziger', desc: 'Vind een woord in twaalf categorieën' },
       'professor-word': { name: 'Studiebol', desc: 'Speel een woord dat de Professor voorstelde' },
+      'league-bronze': { name: 'Aan de voet van de piramide', desc: 'Speel een gerankt potje' },
+      'league-silver': { name: 'Zilveren spiegels', desc: 'Bereik de Zilver-liga' },
+      'league-gold': { name: 'De schat', desc: 'Bereik de Goud-liga' },
+      'league-platinum': { name: 'De bijenkorf', desc: 'Bereik de Platina-liga' },
+      'league-diamond': { name: 'Edelsteen', desc: 'Bereik de Diamant-liga' },
+      'league-master': { name: 'Vallende ster', desc: 'Word Meester in het klassement' },
     } satisfies Record<string, { name: string; desc: string }>),
   },
 

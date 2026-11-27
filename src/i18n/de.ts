@@ -1255,6 +1255,8 @@ case 'playedCategories':
 return `ein Wort in ${at} Kategorien`
 case 'professorWordsPlayed':
 return `${at} ${plural(goal.at, 'vom Professor übernommenes Wort', 'vom Professor übernommene Wörter')}`
+case 'peakLeague':
+return ['', 'ein Ranglistenspiel', 'die Silber-Liga', 'die Gold-Liga', 'die Platin-Liga', 'die Diamant-Liga', 'den Meister-Rang'][goal.at] ?? ''
 }
 },
     families: {
@@ -1300,6 +1302,12 @@ return `${at} ${plural(goal.at, 'vom Professor übernommenes Wort', 'vom Profess
       'powers-all': { name: 'Alle Kräfte', desc: 'Setze alle vierzehn Kräfte ein' },
       'categories-12': { name: 'Weltenbummler', desc: 'Finde ein Wort in zwölf Kategorien' },
       'professor-word': { name: 'Musterschüler', desc: 'Spiele ein vom Professor vorgeschlagenes Wort' },
+      'league-bronze': { name: 'Am Fuß der Pyramide', desc: 'Spiele ein Ranglistenspiel' },
+      'league-silver': { name: 'Silberne Spiegel', desc: 'Erreiche die Silber-Liga' },
+      'league-gold': { name: 'Der Schatz', desc: 'Erreiche die Gold-Liga' },
+      'league-platinum': { name: 'Der Bienenstock', desc: 'Erreiche die Platin-Liga' },
+      'league-diamond': { name: 'Edelstein', desc: 'Erreiche die Diamant-Liga' },
+      'league-master': { name: 'Sternschnuppe', desc: 'Werde Meister in der Rangliste' },
     } satisfies Record<string, { name: string; desc: string }>),
   },
 

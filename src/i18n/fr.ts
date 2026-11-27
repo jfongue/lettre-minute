@@ -1268,6 +1268,8 @@ case 'playedCategories':
 return `un mot dans ${at} catégories`
 case 'professorWordsPlayed':
 return `${at} ${plural(goal.at, 'mot du Professeur repris', 'mots du Professeur repris')}`
+case 'peakLeague':
+return ['', 'une partie classée', 'la ligue Argent', 'la ligue Or', 'la ligue Platine', 'la ligue Diamant', 'le rang de Maître'][goal.at] ?? ''
 }
 },
     families: {
@@ -1315,6 +1317,12 @@ return `${at} ${plural(goal.at, 'mot du Professeur repris', 'mots du Professeur 
       'powers-all': { name: 'Tous les pouvoirs', desc: 'Sers les quatorze pouvoirs' },
       'categories-12': { name: 'Grand voyageur', desc: 'Trouve un mot dans douze catégories' },
       'professor-word': { name: 'Élève', desc: 'Joue un mot proposé par le Professeur' },
+      'league-bronze': { name: 'Au pied de la pyramide', desc: 'Joue une partie classée' },
+      'league-silver': { name: 'Reflets d’argent', desc: 'Atteins la ligue Argent' },
+      'league-gold': { name: 'Le trésor', desc: 'Atteins la ligue Or' },
+      'league-platinum': { name: 'La ruche', desc: 'Atteins la ligue Platine' },
+      'league-diamond': { name: 'Pierre précieuse', desc: 'Atteins la ligue Diamant' },
+      'league-master': { name: 'Étoile filante', desc: 'Deviens Maître au classement' },
     } satisfies Record<NamedAchievementId, { name: string; desc: string }>),
   },
 

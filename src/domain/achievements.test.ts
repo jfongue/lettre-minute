@@ -76,7 +76,7 @@ describe('achievements', () => {
   it('names only the successes the i18n carries, the others take their milestone', () => {
     const named = ACHIEVEMENTS.filter((achievement) => isNamed(achievement.id))
 
-    expect(named).toHaveLength(34)
+    expect(named).toHaveLength(40)
     for (const achievement of PLAY_ACHIEVEMENTS_ONLY) expect(isNamed(achievement.id)).toBe(true)
     for (const achievement of ACHIEVEMENTS) {
       if (isNamed(achievement.id)) continue
@@ -180,6 +180,7 @@ describe('achievements', () => {
       shortStreak: 10,
       noPassStreak: 50,
       professorWordsPlayed: 1,
+      peakLeague: 6,
     }
     const rungInks = ACHIEVEMENTS.filter(
       (achievement) => achievement.reward.design !== undefined && achievement.reward.colour !== undefined,
@@ -237,4 +238,14 @@ describe('le compte maison', () => {
     expect(avatarNudgeDue(five, { ...DEFAULT_AVATAR, design: 6 }, false)).toBe(false)
     expect(avatarNudgeDue(five, DEFAULT_AVATAR, true)).toBe(false)
   })
+
+  it('opens a tile of its own at each ranked league, kept once reached', () => {
+    const leagueTiles = (peakLeague: number) =>
+      ownedDesigns({ ...NEW_PROFILE, peakLeague }).filter((design) => design.id >= 54).map((design) => design.id)
+    expect(leagueTiles(0)).toEqual([])
+    expect(leagueTiles(1)).toEqual([54])
+    expect(leagueTiles(3)).toEqual([54, 55, 56])
+    expect(leagueTiles(6)).toEqual([54, 55, 56, 57, 58, 59])
+  })
 })
+

@@ -145,6 +145,20 @@ export function standing({ rating, games }: Rating, rank: number | null = null):
   return { tier: { kind: 'league', league: here.id, division }, league: here.id, progress }
 }
 
+/** La marche du Maître dans `leagueReached`, juste au-dessus du Diamant. */
+export const MASTER_STEP = LEAGUES.length + 1
+
+/**
+ * La plus haute marche qu'un joueur a touchée au classé, pour les tuiles
+ * d'avatar : 0 tant qu'il n'a pas joué, puis sa ligue au pic d'Elo que garde
+ * le serveur (1 Bronze… 5 Diamant), et `MASTER_STEP` quand il est Maître.
+ */
+export function leagueReached({ peak, games }: { peak: number; games: number }, master: boolean): number {
+  if (games <= 0) return 0
+  if (master) return MASTER_STEP
+  return LEAGUES.findIndex((league) => league.id === standing({ rating: peak, games }).league) + 1
+}
+
 /** Deux rangs se suivent-ils, du plus bas au plus haut ? Pour dire une promotion. */
 export function tierOrder(tier: Tier): number {
   if (tier.kind === 'master') return 1000 - tier.spot

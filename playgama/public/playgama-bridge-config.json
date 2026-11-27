@@ -135,6 +135,24 @@
     },
     {
       "id": "professor_word"
+    },
+    {
+      "id": "league_bronze"
+    },
+    {
+      "id": "league_silver"
+    },
+    {
+      "id": "league_gold"
+    },
+    {
+      "id": "league_platinum"
+    },
+    {
+      "id": "league_diamond"
+    },
+    {
+      "id": "league_master"
     }
   ]
 }

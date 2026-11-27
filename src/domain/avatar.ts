@@ -78,6 +78,13 @@ export type ShapeKind =
   | 'halfBars'
   | 'bands'
   | 'peaks'
+  // Les tuiles du duel classé : chacune joue avec la forme de sa ligue.
+  | 'strata'
+  | 'mirrors'
+  | 'treasure'
+  | 'honeycomb'
+  | 'gem'
+  | 'comet'
 
 /**
  * Ce que fait une tuile sur la grille : chacune a le sien, choisi pour sa
@@ -243,6 +250,16 @@ const LOOKS: readonly Look[] = [
   ['links', 0, null, 'swing'],
   // La tuile du mot du Professeur : une étoile, comme un mot retenu.
   ['star', 0, null, 'bob'],
+  // Une tuile par ligue du duel classé, du Bronze au Maître, tirée de sa forme
+  // (`LEAGUE_MARKS`) : le triangle en pyramide de strates, le carré en tunnel
+  // de miroirs, le rond en pile de pièces, l'hexagone en ruche, le losange en
+  // gemme taillée, l'étoile en comète. L'accent teinte la pièce maîtresse.
+  ['strata', 0, null, 'climb'],
+  ['mirrors', 0, null, 'breathe'],
+  ['treasure', 0, null, 'bob'],
+  ['honeycomb', 0, null, 'pulse'],
+  ['gem', 0, null, 'twinkle'],
+  ['comet', 0, null, 'dart'],
 ]
 
 /**
@@ -294,6 +311,12 @@ export type DetailKind =
 | 'halfBarsBand'
 | 'bandsTop'
 | 'peaksRow'
+| 'strataTip'
+| 'mirrorsCore'
+| 'treasureCoin'
+| 'honeycombHeart'
+| 'gemTable'
+| 'cometTail'
 
 /**
  * La part de chaque figure que l'accent colorie : le rond du gong, la ligne du
@@ -353,6 +376,13 @@ export const TINTED: Partial<Record<ShapeKind, DetailKind>> = {
   spiral: 'spiralTail',
   split: 'splitBand',
   links: 'linksLoop',
+  // Les ligues du classé : le sommet, le cœur du tunnel, la pièce debout, l'alvéole du milieu, la table de la gemme, la traînée.
+  strata: 'strataTip',
+  mirrors: 'mirrorsCore',
+  treasure: 'treasureCoin',
+  honeycomb: 'honeycombHeart',
+  gem: 'gemTable',
+  comet: 'cometTail',
 }
 
 /**

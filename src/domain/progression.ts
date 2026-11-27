@@ -169,6 +169,12 @@ export interface Profile {
   professorWords: readonly string[]
   /** Mots du Professeur repris, un par un : ce que le succès « Élève » compte. */
   professorWordsPlayed: number
+  /**
+   * La plus haute marche jamais atteinte au duel classé (`leagueReached`) :
+   * 0 sans partie classée, 1 Bronze… 5 Diamant, 6 Maître. Gardée ici parce que
+   * le serveur ne retient pas qu'un joueur a été Maître, seulement son pic d'Elo.
+   */
+  peakLeague: number
 }
 
 /**
@@ -228,6 +234,7 @@ export const NEW_PROFILE: Profile = {
   noPassStreak: 0,
   professorWords: [],
   professorWordsPlayed: 0,
+  peakLeague: 0,
 }
 
 export interface RunOutcome {

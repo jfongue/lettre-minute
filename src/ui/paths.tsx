@@ -291,6 +291,27 @@ peaks: (
 {[4, 38, 72].flatMap((cy) => [0, 25, 50, 75].map((cx) => <path key={`${cx}-${cy}`} d={`M${cx} ${cy + 22}L${cx + 12.5} ${cy}L${cx + 25} ${cy + 22}Z`} />))}
 </>
 ),
+// Les ligues du duel classé, chacune tirée de la forme de son rang.
+strata: <path d="M50 0L64 28H36Z M32 36H68L81 62H19Z M15 70H85L100 100H0Z" />,
+mirrors: <path fillRule="evenodd" d="M0 0H100V100H0Z M11 11V89H89V11Z M22 22H78V78H22Z M33 33V67H67V33Z M42 42H58V58H42Z" />,
+treasure: (
+<>
+<rect x="2" y="88" width="78" height="12" rx="6" />
+<rect x="18" y="74" width="78" height="12" rx="6" />
+<rect x="6" y="60" width="78" height="12" rx="6" />
+<rect x="24" y="46" width="70" height="12" rx="6" />
+<circle cx="40" cy="20" r="18" />
+</>
+),
+honeycomb: <path d="M35.0 50.0L42.5 37.0L57.5 37.0L65.0 50.0L57.5 63.0L42.5 63.0Z M35.0 21.0L42.5 8.0L57.5 8.0L65.0 21.0L57.5 34.0L42.5 34.0Z M35.0 79.0L42.5 66.0L57.5 66.0L65.0 79.0L57.5 92.0L42.5 92.0Z M9.9 35.5L17.4 22.5L32.4 22.5L39.9 35.5L32.4 48.5L17.4 48.5Z M60.1 35.5L67.6 22.5L82.6 22.5L90.1 35.5L82.6 48.5L67.6 48.5Z M9.9 64.5L17.4 51.5L32.4 51.5L39.9 64.5L32.4 77.5L17.4 77.5Z M60.1 64.5L67.6 51.5L82.6 51.5L90.1 64.5L82.6 77.5L67.6 77.5Z" />,
+gem: <path d="M24 20H76L96 42H4Z M4 48H96L50 98Z" />,
+comet: <path d="M62 2L70.6 27.9H98L75.7 43.8L84.3 70.4L62 53.8L39.7 70.4L48.3 43.8L26 27.9H53.4Z" />,
+strataTip: <path d="M50 0L64 28H36Z" />,
+mirrorsCore: <rect x="42" y="42" width="16" height="16" />,
+treasureCoin: <circle cx="40" cy="20" r="18" />,
+honeycombHeart: <path d="M35.0 50.0L42.5 37.0L57.5 37.0L65.0 50.0L57.5 63.0L42.5 63.0Z" />,
+gemTable: <path d="M38 20H62L56 42H44Z" />,
+cometTail: <path d="M2 86L30 58L40 68L12 96Z M0 60L14 46L22 54L8 68Z M36 100L50 86L58 94L52 100Z" />,
 bangDot: <circle cx="50" cy="86" r="12" />,
   dialHand: <rect x="47" y="6" width="6" height="44" rx="3" transform="rotate(45 50 50)" />,
 // Les parts qu'un accent peut colorer : la pièce que la figure porte déjà,

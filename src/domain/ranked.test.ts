@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { botLevel, botMatchAfter, decayedRating, eloDeltas, overdue, ratingWindow, settledRating, stakes, standing, tierOrder, waitHint, RATING_START } from './ranked'
+import { botLevel, botMatchAfter, leagueReached, MASTER_STEP, decayedRating, eloDeltas, overdue, ratingWindow, settledRating, stakes, standing, tierOrder, waitHint, RATING_START } from './ranked'
 
 describe('l’Elo', () => {
   // Les mêmes cas que supabase/tests/50_ranked_duel.sql : le serveur règle, l'écran annonce.
@@ -96,3 +96,16 @@ describe('la file', () => {
     expect(overdue(500, null)).toBe(false)
   })
 })
+
+describe('leagueReached', () => {
+  it('reads the highest step a player ever touched, a Master above the Diamond', () => {
+    expect(leagueReached({ peak: 1000, games: 0 }, false)).toBe(0)
+    expect(leagueReached({ peak: 800, games: 1 }, false)).toBe(1)
+    expect(leagueReached({ peak: 960, games: 4 }, false)).toBe(2)
+    expect(leagueReached({ peak: 1120, games: 9 }, false)).toBe(3)
+    expect(leagueReached({ peak: 1300, games: 9 }, false)).toBe(4)
+    expect(leagueReached({ peak: 1500, games: 9 }, false)).toBe(5)
+    expect(leagueReached({ peak: 1500, games: 9 }, true)).toBe(MASTER_STEP)
+  })
+})
+

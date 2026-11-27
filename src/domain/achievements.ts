@@ -76,6 +76,12 @@ export type ExploitId =
   | 'categories-12'
   | 'reviews-10'
   | 'professor-word'
+  | 'league-bronze'
+  | 'league-silver'
+  | 'league-gold'
+  | 'league-platinum'
+  | 'league-diamond'
+  | 'league-master'
 
 /**
  * Les trente barreaux qui manquaient aux quarante-cinq cases de la grille :
@@ -134,6 +140,7 @@ type CountedStat =
 | 'shortStreak'
 | 'noPassStreak'
 | 'professorWordsPlayed'
+| 'peakLeague'
 /** Ceux qui se comptent par leur longueur, ou par le niveau, ou par le serveur. */
 type ListedStat = 'powersUsed' | 'playedCategories'
 export type Counter = CountedStat | ListedStat | 'level' | 'discoveries'
@@ -246,6 +253,12 @@ const EXPLOIT_TILES: readonly [design: number, stat: Counter, at: number][] = [
   [51, 'wordsReviewed', 10],
   [52, 'noPassStreak', 50],
   [53, 'professorWordsPlayed', 1],
+  [54, 'peakLeague', 1],
+  [55, 'peakLeague', 2],
+  [56, 'peakLeague', 3],
+  [57, 'peakLeague', 4],
+  [58, 'peakLeague', 5],
+  [59, 'peakLeague', 6],
 ]
 
 /**
@@ -360,6 +373,14 @@ const INGAME_ACHIEVEMENTS: readonly Achievement[] = [
 // Le mot du Professeur : sa tuile neuve (53) ne paie qu'elle-même, toutes les
 // couleurs du catalogue étant déjà gagnées.
 { id: 'professor-word', goal: { stat: 'professorWordsPlayed', at: 1 }, design: 53, family: 'exploit', reward: { design: 53 } },
+  // Une tuile par ligue du duel classé, gagnée au plus haut qu'on y ait
+  // touché (`leagueReached`) : redescendre ne la reprend pas.
+  { id: 'league-bronze', goal: { stat: 'peakLeague', at: 1 }, design: 54, family: 'exploit', reward: { design: 54 } },
+  { id: 'league-silver', goal: { stat: 'peakLeague', at: 2 }, design: 55, family: 'exploit', reward: { design: 55 } },
+  { id: 'league-gold', goal: { stat: 'peakLeague', at: 3 }, design: 56, family: 'exploit', reward: { design: 56 } },
+  { id: 'league-platinum', goal: { stat: 'peakLeague', at: 4 }, design: 57, family: 'exploit', reward: { design: 57 } },
+  { id: 'league-diamond', goal: { stat: 'peakLeague', at: 5 }, design: 58, family: 'exploit', reward: { design: 58 } },
+  { id: 'league-master', goal: { stat: 'peakLeague', at: 6 }, design: 59, family: 'exploit', reward: { design: 59 } },
 ]
 
 /** Ceux dont l'i18n écrit le nom, dans l'ordre du catalogue. */
