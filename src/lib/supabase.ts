@@ -1,4 +1,5 @@
 import { AuthClient, isAuthRetryableFetchError, type Session } from '@supabase/auth-js'
+import { DUEL_RULES } from '../domain/duel'
 import { PostgrestClient } from '@supabase/postgrest-js'
 import { host, PLATFORM } from '../platform'
 import { loadBackend, refreshBackend } from './backend'
@@ -21,8 +22,12 @@ export const anonKey = moved?.anonKey ?? builtKey
 const sessionRef =
   import.meta.env.VITE_SUPABASE_SESSION_REF || (builtUrl ? new URL(builtUrl).hostname.split('.')[0] : 'local')
 
-/** Says which version of the game speaks: the server tags runs and duel tables with it (0072). */
-const CLIENT_INFO = `supabase-js/2.117.0; runtime=web; platform=${PLATFORM}`
+/**
+ * Says which version of the game speaks: the server tags runs and duel tables
+ * with it (0072), and `duel=` names the duel rules this client replays (0122):
+ * a table plays the newest rules every seated player knows.
+ */
+const CLIENT_INFO = `supabase-js/2.117.0; runtime=web; platform=${PLATFORM}; duel=${DUEL_RULES}`
 
 /**
  * The two parts of supabase-js the game uses, assembled the way `createClient`

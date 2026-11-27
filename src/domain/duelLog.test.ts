@@ -153,6 +153,46 @@ describe('le rejeu', () => {
   })
 })
 
+describe('les mots trouvés pendant le tour d’un autre', () => {
+  function opened() {
+    const picks = draftMoves()
+    const duel = settle(replay(setup, picks, judge).duel, judge, 1e9)
+    const holder = duel.turn!.player
+    return { picks, duel, holder, watcher: 1 - holder, at: duel.turn!.startedAt }
+  }
+  const word = (duel: Duel, n: number) => `${duelPrompt(duel)!.letter}${duelPrompt(duel)!.categoryId}${n}`
+
+  it('rend une seconde au premier, une demi ensuite, sans toucher au tour de l’autre', () => {
+    const { picks, duel, holder, watcher, at } = opened()
+    const echoes: DuelMove[] = [1, 2].map((n, i) => ({ seq: 5 + i, seat: watcher, kind: 'echo', payload: word(duel, n), at: at + 2 + i }))
+    const after = replay(setup, [...picks, ...echoes], judge)
+    expect(after.duel.players[watcher]!.reserve).toBe(DUEL_RESERVE_SECONDS + 1.5)
+    expect(after.duel.turn!.player).toBe(holder)
+    expect(after.duel.dealt).toEqual(duel.dealt)
+    expect(after.facts.filter((fact) => fact.kind === 'echoed').map((fact) => fact.delta)).toEqual([1, 0.5])
+  })
+
+  it('ne compte ni un mot déjà trouvé, ni plus de trois par tour, ni celui qui a la main', () => {
+    const { picks, duel, holder, watcher, at } = opened()
+    const moves: DuelMove[] = [1, 1, 2, 3, 4].map((n, i) => ({ seq: 5 + i, seat: watcher, kind: 'echo', payload: word(duel, n), at: at + 1 + i * 0.2 }))
+    const own: DuelMove = { seq: 10, seat: holder, kind: 'echo', payload: word(duel, 5), at: at + 3 }
+    const after = replay(setup, [...picks, ...moves, own], judge)
+    expect(after.duel.players[watcher]!.reserve).toBe(DUEL_RESERVE_SECONDS + 1 + 0.5 + 0.5)
+    expect(after.duel.players[holder]!.reserve).toBe(DUEL_RESERVE_SECONDS)
+  })
+
+  it('repart à une seconde au tour suivant, et le mot ne se rejoue plus', () => {
+    const { picks, duel, holder, watcher, at } = opened()
+    const echo: DuelMove = { seq: 5, seat: watcher, kind: 'echo', payload: word(duel, 1), at: at + 1 }
+    const solve: DuelMove = { seq: 6, seat: holder, kind: 'word', payload: word(duel, 2), at: at + 2 }
+    const mid = replay(setup, [...picks, echo, solve], judge)
+    expect(mid.duel.turn!.player).toBe(watcher)
+    expect(mid.duel.turn!.echoes).toEqual([])
+    const back: DuelMove = { seq: 7, seat: holder, kind: 'echo', payload: word(mid.duel, 3), at: mid.duel.turn!.startedAt + 1 }
+    expect(replay(setup, [...picks, echo, solve, back], judge).facts.at(-1)).toMatchObject({ kind: 'echoed', delta: 1 })
+  })
+})
+
 describe('l’abandon', () => {
   const trio: DuelSetup = { ...setup, playerIds: ['me', 'ondine', 'maxitoon'], owned: [5, 5, 5] }
 

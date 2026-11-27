@@ -23,6 +23,7 @@ import {
   passTurn,
   pickCategory,
   pickDeadline,
+  echoWord,
   playWord,
   reserveSeconds,
   resignPlayer,
@@ -42,7 +43,7 @@ export const DUEL_ANNOUNCE_SECONDS = 3.2
 /** Le silence au-delà duquel un appareil ne relit plus la table : il ne mène plus. */
 export const DRIVER_SILENCE = 4
 
-export type DuelMoveKind = 'pick' | 'word' | 'pass' | 'timeout' | 'cheer' | 'resign'
+export type DuelMoveKind = 'pick' | 'word' | 'pass' | 'timeout' | 'cheer' | 'resign' | 'echo'
 
 export interface DuelMove {
   seq: number
@@ -58,7 +59,7 @@ export interface DuelMove {
 export interface DuelFact {
   /** Le numéro du coup qui l'a produit : deux appareils nomment le même fait pareil. */
   id: string
-  kind: 'picked' | 'solved' | 'passed' | 'failed' | 'dead' | 'cheered'
+  kind: 'picked' | 'solved' | 'passed' | 'failed' | 'dead' | 'cheered' | 'echoed'
   player: number
   at: number
   word?: string
@@ -173,6 +174,12 @@ export function applyMove(before: Duel, move: DuelMove, judge: Judge | null): { 
 
   if (!judge) return { duel: before, facts: [] }
   const duel = settle(before, judge, move.at)
+  if (move.kind === 'echo') {
+    const echoed = echoWord(duel, move.seat, move.payload, judge, move.at)
+    const found = echoed.verdict.kind === 'accepted' ? echoed.verdict.found : null
+    if (echoed.duel === duel || !found) return { duel: before, facts: [] }
+    return { duel: echoed.duel, facts: [{ id, kind: 'echoed', player: move.seat, at: move.at, word: found.display, tier: found.tier, delta: echoed.delta }] }
+  }
   const turn = duel.turn
   if (duel.phase !== 'play' || !turn || turn.player !== move.seat) return { duel: before, facts: [] }
 

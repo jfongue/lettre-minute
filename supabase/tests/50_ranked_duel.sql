@@ -343,3 +343,54 @@ select tests.logout();
 select tests.login('rd');
 select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'found', 'the new client gets an offer to accept');
 select tests.logout();
+
+-- ------------------------------------------- les mots trouvés hors de son tour --
+
+create function tests.client(p_rules int) returns void
+language sql as $$
+  select set_config('request.headers', json_build_object('x-client-info', 'supabase-js/2; runtime=web; platform=android' || case when p_rules > 1 then '; duel=' || p_rules else '' end)::text, false)
+$$;
+create function tests.lobby(p_a text, p_b text) returns uuid
+language plpgsql security definer set search_path = public as $$
+declare v_id uuid;
+begin
+  insert into public.duel_tables (host, lang, seed, categories) values (tests.uid(p_a), 'fr', 9, array['animaux']) returning id into v_id;
+  insert into public.duel_seats (table_id, player, joined_at)
+  values (v_id, tests.uid(p_a), clock_timestamp()), (v_id, tests.uid(p_b), clock_timestamp() + interval '1 ms');
+  return v_id;
+end;
+$$;
+
+-- Deux clients qui connaissent la règle : la table la joue.
+create temp table echoes as select tests.lobby('rc', 'rd') as id;
+grant select on echoes to authenticated;
+select tests.client(2);
+select tests.login('rc');
+select public.duel_ready((select id from echoes), true);
+select tests.logout();
+select tests.login('rd');
+select tests.is(public.duel_ready((select id from echoes), true), 'started', 'both ready, the table starts');
+select tests.logout();
+select tests.is((tests.table_of((select id from echoes))).rules, 2::smallint, 'two new clients play the echo rules');
+select tests.login('rd');
+select tests.is(public.duel_move((select id from echoes), 1, 1, 'echo', 'zèbre'), 'ok', 'a player echoes from their own seat');
+select tests.is(public.duel_move((select id from echoes), 2, 0, 'echo', 'zébu'), 'forbidden', 'never from another seat');
+select tests.logout();
+
+-- Un client livré avant la règle à la table : elle ne la joue pas.
+create temp table mixed as select tests.lobby('rc', 'rd') as id;
+grant select on mixed to authenticated;
+select tests.client(2);
+select tests.login('rc');
+select public.duel_ready((select id from mixed), true);
+select tests.logout();
+select tests.client(1);
+select tests.login('rd');
+select public.duel_ready((select id from mixed), true);
+select tests.logout();
+select tests.is((tests.table_of((select id from mixed))).rules, 1::smallint, 'an older client keeps the table on the old rules');
+select tests.client(2);
+select tests.login('rc');
+select tests.is(public.duel_move((select id from mixed), 1, 0, 'echo', 'zèbre'), 'forbidden', 'and nobody can echo there');
+select tests.is((public.duel_sync((select id from mixed), 0) -> 'table' ->> 'rules')::int, 1, 'the table tells its rules');
+select tests.logout();

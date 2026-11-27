@@ -77,6 +77,21 @@ export function reserveShown(seconds: number): number {
  * champ le valide tout seul à zéro, et le réseau peut le dater un peu après.
  */
 export const DUEL_GRACE_SECONDS = 1
+/**
+ * Les règles du duel que ce client rejoue : 2 ajoute les mots trouvés hors de
+ * son tour (`echoWord`). Le serveur ne laisse une table les jouer que si
+ * chaque joueur assis les connaît — une version livrée plus ancienne rejouerait
+ * le journal sans eux, et sa partie divergerait.
+ */
+export const DUEL_RULES = 2
+/**
+ * Un mot juste trouvé pendant le tour d'un autre rend du temps : une seconde
+ * au premier de la table, une demi ensuite — trois au plus par joueur et par
+ * tour, sans quoi la frappe d'une liste suffirait à ne jamais mourir.
+ */
+export const DUEL_ECHO_FIRST = 1
+export const DUEL_ECHO_NEXT = 0.5
+export const DUEL_ECHO_MAX = 3
 /** La mort se joue avant que la main reparte : la réserve du suivant attend la fin de l'animation. */
 export const DUEL_DEATH_PAUSE_SECONDS = 2.6
 /**
@@ -124,6 +139,8 @@ export interface DuelTurn {
    * sont, la manche est échouée et un couple neuf est tiré.
    */
   declined: readonly number[]
+  /** Les mots que les autres ont trouvés pendant ce tour, dans l'ordre : le premier rend plus. */
+  echoes?: readonly number[]
 }
 
 export interface Duel {
@@ -302,7 +319,7 @@ function drawPrompt(duel: Duel, judge: Judge, round: number, except?: string): P
 function openRound(duel: Duel, judge: Judge, at: number, from: number, except?: string): Duel {
   const player = nextAlive(duel, from)
   if (player === null) return { ...duel, phase: 'over', turn: null }
-  return handTo({ ...duel, turn: { player, prompt: drawPrompt(duel, judge, duel.dealt.length, except), startedAt: at, declined: [] } })
+  return handTo({ ...duel, turn: { player, prompt: drawPrompt(duel, judge, duel.dealt.length, except), startedAt: at, declined: [], echoes: [] } })
 }
 
 /** La main arrive : jamais avec moins du plancher pour répondre. */
@@ -449,6 +466,29 @@ export function playWord(duel: Duel, raw: string, judge: Judge, at: number): Due
 }
 
 /**
+ * Un mot trouvé pendant le tour d'un autre : juste pour le couple en cours,
+ * pas encore joué par ce joueur, il entre à son récapitulatif et lui rend du
+ * temps — une seconde s'il est le premier de ce tour, une demi sinon. Le tour
+ * de celui qui a la main n'en est pas touché : seul son mot consomme la manche.
+ * Rien avant l'ouverture du tour (la mise en scène d'une mort), rien après sa
+ * marge, rien d'un mort, et trois au plus par joueur et par tour.
+ */
+export function echoWord(duel: Duel, index: number, raw: string, judge: Judge, at: number): DuelPlay & { delta: number } {
+  const turn = duel.turn
+  const none = { duel, verdict: { kind: 'empty', found: null } as Verdict, delta: 0 }
+  if (duel.phase !== 'play' || !turn || turn.player === index || at < turn.startedAt) return none
+  const player = duel.players[index]
+  if (!player?.alive || reserveSeconds(duel, turn.player, at) < -DUEL_GRACE_SECONDS) return none
+  const echoes = turn.echoes ?? []
+  if (echoes.filter((one) => one === index).length >= DUEL_ECHO_MAX) return none
+  const played = submit(turnRun(duel, index, judge), raw, judge)
+  if (played.verdict.kind !== 'accepted' || !played.verdict.found) return { ...none, verdict: played.verdict }
+  const delta = echoes.length === 0 ? DUEL_ECHO_FIRST : DUEL_ECHO_NEXT
+  const banked: DuelPlayer = { ...player, reserve: player.reserve + delta, words: played.run.found, used: played.run.used, score: played.run.score }
+  return { duel: { ...duel, players: replace(duel.players, index, banked), turn: { ...turn, echoes: [...echoes, index] } }, verdict: played.verdict, delta }
+}
+
+/**
  * Passer : 5 s de réserve en moins, et la main s'en va avec le même couple.
  * Il faut donc avoir de quoi les payer : sous la pénalité, le passe ne prend
  * pas, et il ne reste qu'à trouver un mot ou à regarder le temps partir. La
@@ -515,7 +555,7 @@ function advance(duel: Duel, judge: Judge, at: number, consumed: boolean): Duel 
   if (player === null) return { ...duel, phase: 'over', turn: null }
   const turns = duel.turns + 1
   const spent = consumed || aliveIndexes(duel).every((index) => turn.declined.includes(index))
-  if (!spent) return handTo({ ...duel, turns, turn: { ...turn, player, startedAt: at } })
+  if (!spent) return handTo({ ...duel, turns, turn: { ...turn, player, startedAt: at, echoes: [] } })
   return openRound({ ...duel, turns, dealt: [...duel.dealt, promptKey(turn.prompt)] }, judge, at, turn.player, turn.prompt.categoryId)
 }
 

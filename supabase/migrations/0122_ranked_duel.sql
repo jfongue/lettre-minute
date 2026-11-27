@@ -42,6 +42,15 @@
 --    Une table restée `playing` sans personne depuis trois minutes se ferme
 --    à la lecture de la file suivante. Trois abandons de partie classée ou
 --    propositions manquées en une heure valent cinq minutes hors de la file.
+--
+-- 5. Les mots trouvés hors de son tour (`echo`) : pendant le tour d'un autre,
+--    un mot juste rend du temps (src/domain/duel.ts, `echoWord`). Une version
+--    livrée plus ancienne rejouerait le journal sans eux et sa partie
+--    divergerait : chaque client dit les règles qu'il rejoue (`duel=` dans
+--    `X-Client-Info`), chaque place les garde tant que la table est au salon,
+--    et la table joue au lancement les plus anciennes de ses joueurs humains
+--    (`duel_tables.rules`). `duel_move` ne prend un `echo` que d'une table aux
+--    règles 2, et du joueur lui-même.
 
 -- ------------------------------------------------------------ le classement --
 
@@ -120,7 +129,130 @@ alter table public.duel_queue
 
 alter table public.duel_moves drop constraint duel_moves_kind_check;
 alter table public.duel_moves add constraint duel_moves_kind_check
-  check (kind in ('pick', 'word', 'pass', 'timeout', 'cheer', 'resign'));
+  check (kind in ('pick', 'word', 'pass', 'timeout', 'cheer', 'resign', 'echo'));
+
+-- ------------------------------------------------------- les règles --
+
+alter table public.duel_seats add column rules smallint not null default 1;
+alter table public.duel_tables add column rules smallint not null default 1;
+
+-- Les règles du duel que ce client rejoue, dites dans son en-tête ; 1 sans rien.
+create function public.client_duel_rules() returns smallint
+language sql stable as $$
+  select coalesce(substring(
+    coalesce(nullif(current_setting('request.headers', true), '')::json ->> 'x-client-info', '')
+    from 'duel=([0-9]+)'
+  )::smallint, 1::smallint);
+$$;
+
+-- Une place prend les règles du client de son joueur, à chacun de ses gestes au
+-- salon ; lancée, la table ne bouge plus.
+create function public.duel_seat_rules() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.player is not distinct from auth.uid() and not new.is_bot
+     and exists (select 1 from public.duel_tables t where t.id = new.table_id and t.status = 'lobby') then
+    new.rules := public.client_duel_rules();
+  end if;
+  return new;
+end;
+$$;
+
+create trigger duel_seats_rules before insert or update on public.duel_seats
+  for each row execute function public.duel_seat_rules();
+
+-- Le « prêt » de 0046, qui fixe au lancement les règles de la table : les plus
+-- anciennes de ses joueurs humains.
+create or replace function public.duel_ready(p_table uuid, p_ready boolean) returns text
+language plpgsql security definer set search_path = public as $$
+declare
+  v_table public.duel_tables;
+begin
+  select * into v_table from public.duel_tables where id = p_table for update;
+  if not found or not public.duel_seated(p_table) then
+    return 'closed';
+  end if;
+  if v_table.status <> 'lobby' then
+    return case when v_table.status = 'playing' then 'started' else 'closed' end;
+  end if;
+
+  update public.duel_seats set ready = coalesce(p_ready, false), last_seen = now()
+   where table_id = p_table and player = auth.uid();
+
+  if public.duel_active_seats(p_table) >= 2 and not exists (
+    select 1 from public.duel_seats where table_id = p_table and left_at is null and kicked_at is null and not ready
+  ) then
+    update public.duel_seats s set seat = numbered.place
+      from (
+        select player, (row_number() over (order by joined_at, player) - 1)::smallint as place
+          from public.duel_seats where table_id = p_table and left_at is null and kicked_at is null
+      ) numbered
+     where s.table_id = p_table and s.player = numbered.player;
+    update public.duel_tables
+       set status = 'playing', started_at = clock_timestamp(),
+           rules = coalesce((
+             select min(rules) from public.duel_seats
+              where table_id = p_table and not is_bot and left_at is null and kicked_at is null
+           ), 1)
+     where id = p_table;
+    update public.duel_invites set answered_at = now() where table_id = p_table and answered_at is null;
+    return 'started';
+  end if;
+  return 'waiting';
+end;
+$$;
+
+-- Le coup de 0049, qui prend en plus le mot trouvé hors de son tour.
+create or replace function public.duel_move(p_table uuid, p_seq integer, p_seat integer, p_kind text, p_payload text)
+returns text
+language plpgsql security definer set search_path = public as $$
+declare
+  v_table public.duel_tables;
+  v_seat public.duel_seats;
+  v_last integer;
+begin
+  select * into v_table from public.duel_tables where id = p_table;
+  if not found or not public.duel_seated(p_table) then
+    return 'forbidden';
+  end if;
+  if v_table.status <> 'playing' then
+    return 'closed';
+  end if;
+  if p_kind not in ('pick', 'word', 'pass', 'timeout', 'cheer', 'echo') or char_length(coalesce(p_payload, '')) > 80 then
+    return 'forbidden';
+  end if;
+  select * into v_seat from public.duel_seats where table_id = p_table and seat = p_seat;
+  if not found then
+    return 'forbidden';
+  end if;
+  if p_kind in ('word', 'pass') and not (v_seat.is_bot or coalesce(v_seat.player = auth.uid(), false)) then
+    return 'forbidden';
+  end if;
+  if p_kind in ('cheer', 'echo') and (v_seat.is_bot or v_seat.player is distinct from auth.uid()) then
+    return 'forbidden';
+  end if;
+  if p_kind = 'echo' and v_table.rules < 2 then
+    return 'forbidden';
+  end if;
+  if p_kind = 'timeout' and not v_seat.is_bot and v_seat.player is distinct from auth.uid()
+    and v_seat.last_seen > clock_timestamp() - interval '8 seconds' then
+    return 'forbidden';
+  end if;
+
+  select coalesce(max(seq), 0) into v_last from public.duel_moves where table_id = p_table;
+  if p_seq <> v_last + 1 then
+    return 'stale';
+  end if;
+  begin
+    insert into public.duel_moves (table_id, seq, seat, kind, payload, by)
+    values (p_table, p_seq, p_seat, p_kind, coalesce(p_payload, ''), auth.uid());
+  exception when unique_violation then
+    return 'stale';
+  end;
+  update public.duel_seats set last_seen = now() where table_id = p_table and player = auth.uid();
+  return 'ok';
+end;
+$$;
 
 create index duel_moves_resign_idx on public.duel_moves (by, at) where kind = 'resign';
 
@@ -821,6 +953,7 @@ begin
       'rematch', v_table.rematch,
       'public', v_table.listed,
       'ranked', v_table.ranked,
+      'rules', v_table.rules,
       'settled', v_table.settled_at is not null,
       'voided', v_table.voided,
       'ratings', coalesce((
@@ -898,6 +1031,8 @@ end;
 $$;
 
 revoke execute on function
+  public.client_duel_rules(),
+  public.duel_seat_rules(),
   public.duel_offer_seconds(),
   public.duel_rating_window(numeric),
   public.duel_k_factor(integer),
