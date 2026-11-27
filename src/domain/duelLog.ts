@@ -28,7 +28,6 @@ import {
   reserveSeconds,
   resignPlayer,
   timeBonusFactor,
-  DUEL_FRESH_AFTER_PASS,
   DUEL_GRACE_SECONDS,
   DUEL_PASS_PENALTY_SECONDS,
   DUEL_PICK_SECONDS,
@@ -213,7 +212,7 @@ export function applyMove(before: Duel, move: DuelMove, judge: Judge | null): { 
 /** Ce qu'un coup a fait au-delà de lui-même : le couple refusé de tous, les morts. */
 function consequences(id: string, before: Duel, after: Duel, move: DuelMove, mayFail: boolean): DuelFact[] {
   const facts: DuelFact[] = []
-  if (mayFail && (before.rules ?? 1) < DUEL_FRESH_AFTER_PASS && after.dealt.length > before.dealt.length && before.turn) {
+  if (mayFail && after.dealt.length > before.dealt.length && before.turn) {
     facts.push({ id: `${id}:failed`, kind: 'failed', player: move.seat, at: move.at, prompt: before.turn.prompt })
   }
   for (const player of after.deaths.slice(before.deaths.length)) facts.push({ id: `${id}:dead`, kind: 'dead', player, at: move.at })

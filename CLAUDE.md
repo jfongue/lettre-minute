@@ -561,11 +561,9 @@ propre téléphone.
   draft, choix d'office, ouverture, mise en scène d'une mort) sont des heures du
   domaine, jamais des minuteries d'écran. Une règle de duel nouvelle s'écrit
   donc en fonction de la graine, des coups et de leurs heures seules. Les
-  règles : une manche est un couple, la main avance à chaque fin de tour avec
-  un couple neuf — la même question ne revient jamais deux fois de suite
-  (règles 3, `DUEL_FRESH_AFTER_PASS` ; une table qui compte un client plus
-  ancien lègue encore le couple passé jusqu'à ce que tous les vivants l'aient
-  refusé) —, chacun ne brûle sa réserve de 30 s que pendant son tour, et la main n'arrive
+  règles : une manche est un couple, la main avance à chaque fin de tour, le
+  couple est hérité jusqu'à ce qu'il soit validé ou refusé par tous les vivants,
+  chacun ne brûle sa réserve de 30 s que pendant son tour, et la main n'arrive
   jamais avec moins d'une seconde (`DUEL_FLOOR_SECONDS`). Un mot juste resté
   dans le champ à zéro se joue tout seul et sauve son joueur (`hold`, puis
   `DUEL_GRACE_SECONDS` de marge pour le réseau). Le temps est la seule monnaie :

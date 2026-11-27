@@ -79,14 +79,11 @@ export function reserveShown(seconds: number): number {
 export const DUEL_GRACE_SECONDS = 1
 /**
  * Les règles du duel que ce client rejoue : 2 ajoute les mots trouvés hors de
- * son tour (`echoWord`), 3 donne un couple neuf après chaque passe — la même
- * question ne revient jamais deux fois de suite. Le serveur ne laisse une table
- * les jouer que si chaque joueur assis les connaît — une version livrée plus
- * ancienne rejouerait le journal sans eux, et sa partie divergerait.
+ * son tour (`echoWord`). Le serveur ne laisse une table les jouer que si
+ * chaque joueur assis les connaît — une version livrée plus ancienne rejouerait
+ * le journal sans eux, et sa partie divergerait.
  */
-export const DUEL_RULES = 3
-/** À partir de ces règles, un passe use le couple au lieu de le léguer au suivant. */
-export const DUEL_FRESH_AFTER_PASS = 3
+export const DUEL_RULES = 2
 /**
  * Un mot juste trouvé pendant le tour d'un autre rend du temps : une seconde
  * au premier de la table, une demi ensuite — trois au plus par joueur et par
@@ -513,12 +510,12 @@ export function echoWord(duel: Duel, index: number, raw: string, judge: Judge, a
 }
 
 /**
- * Passer : 5 s de réserve en moins, et la main s'en va avec un couple neuf
- * (règles 3). Il faut donc avoir de quoi les payer : sous la pénalité, le passe
- * ne prend pas, et il ne reste qu'à trouver un mot ou à regarder le temps
- * partir. La réserve ne redescend jamais sous le plancher, donc un passe ne
- * tue plus. Sous des règles plus anciennes, la main s'en va avec le même
- * couple, jusqu'à ce que tous les vivants l'aient refusé.
+ * Passer : 5 s de réserve en moins, et la main s'en va avec le même couple.
+ * Il faut donc avoir de quoi les payer : sous la pénalité, le passe ne prend
+ * pas, et il ne reste qu'à trouver un mot ou à regarder le temps partir. La
+ * réserve ne redescend jamais sous le plancher, donc un passe ne tue plus.
+ * Quand tous les vivants l'ont refusé, la manche est échouée et la main
+ * revient à l'ouvreur avec un couple neuf.
  */
 export function passTurn(duel: Duel, judge: Judge, at: number): Duel {
   const turn = duel.turn
@@ -578,9 +575,7 @@ function advance(duel: Duel, judge: Judge, at: number, consumed: boolean): Duel 
   const player = nextAlive(duel, turn.player)
   if (player === null) return { ...duel, phase: 'over', turn: null }
   const turns = duel.turns + 1
-  // Un couple légué revenait aussitôt à qui venait de le voir passer : depuis
-  // les règles 3, toute fin de tour en tire un neuf.
-  const spent = consumed || (duel.rules ?? 1) >= DUEL_FRESH_AFTER_PASS || aliveIndexes(duel).every((index) => turn.declined.includes(index))
+  const spent = consumed || aliveIndexes(duel).every((index) => turn.declined.includes(index))
   if (!spent) return handTo({ ...duel, turns, turn: { ...turn, player, startedAt: at, echoes: [] } })
   return openRound({ ...duel, turns, dealt: [...duel.dealt, promptKey(turn.prompt)] }, judge, at, turn.player, turn.prompt.categoryId)
 }
