@@ -439,6 +439,46 @@
   gap: 0.4rem;
 }
 
+/* Les rangs, en onglets : une rangée qui défile sous le doigt, la forme de chaque ligue à côté de son nom. */
+.duel-ladder__views {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0 calc(-1 * var(--gutter));
+  padding: 0 var(--gutter) 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.duel-ladder__view {
+  appearance: none;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  padding: 0 0.75rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.duel-ladder__view--on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.duel-ladder__view:focus-visible,
+.duel-ladder__jump:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
 .duel-ladder__rows {
   display: grid;
   margin: 0;
@@ -494,11 +534,30 @@
 }
 
 .duel-ladder__mine {
-  grid-template-columns: auto auto minmax(0, 1fr);
+  position: sticky;
+  bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+  z-index: 2;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  box-shadow: 4px 4px 0 var(--ink);
   margin: 0;
   border: var(--line) solid var(--ink);
   background: var(--yellow);
   color: var(--black);
+}
+
+.duel-ladder__jump {
+  appearance: none;
+  min-height: 2.4rem;
+  padding: 0 0.7rem;
+  border: var(--line) solid var(--black);
+  background: var(--black);
+  color: var(--yellow);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
 .duel-ladder__mine .league-chip {

@@ -172,6 +172,14 @@ export function waitHint(estimate: number | null): WaitHint {
   return { kind: 'long' }
 }
 
+/**
+ * Le duel classé se présente une fois, à l'accueil, à qui a déjà joué : un
+ * joueur tout neuf a d'abord son tutoriel et ses premières parties.
+ */
+export function rankedNewsDue(runs: number, seen: boolean): boolean {
+  return !seen && runs >= 1
+}
+
 /** Au-delà de ce temps d'attente annoncé, on propose les joueurs ordinateur tout de suite. */
 export const LONG_WAIT_SECONDS = 60
 

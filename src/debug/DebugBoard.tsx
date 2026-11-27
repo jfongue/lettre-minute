@@ -72,7 +72,8 @@ import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
 import { DuelScreen, Draft, Lobby, Over } from '../ui/DuelScreen'
-import { AwayScenario, BotsWhileQueueScenario, FlowFoundScenario, FlowOverScenario, FlowPlayScenario, FlowSearchScenario, LadderScenario, MatchFoundScenario, MatchmakingScenario, QueuePillScenario, RankedOverScenario, ResumeScenario } from './rankedScenarios'
+import { RankedNewsPop } from '../ui/RankedNewsPop'
+import { badgesStub, AwayScenario, BotsWhileQueueScenario, FlowFoundScenario, FlowOverScenario, FlowPlayScenario, FlowSearchScenario, LadderScenario, MatchFoundScenario, MatchmakingScenario, QueuePillScenario, RankedOverScenario, ResumeScenario } from './rankedScenarios'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
@@ -790,7 +791,7 @@ function AvatarScenario() {
 function LeaderboardsScenario({ named, moderator = false, mineAt }: { named: boolean; moderator?: boolean; mineAt?: number }) {
   return (
     <div className="sheet">
-      <LeaderboardsPage named={named} moderator={moderator} load={(stat, period) => fakeLeaderboard(stat, period, mineAt)} />
+      <LeaderboardsPage named={named} moderator={moderator} load={(stat, period) => fakeLeaderboard(stat, period, mineAt)} badges={badgesStub} />
     </div>
   )
 }
@@ -2916,6 +2917,22 @@ const SCENARIOS: readonly Scenario[] = [
     how: 'Ondine ne relit plus la table depuis six secondes : sa place pâlit et dit « Hors ligne », sa réserve coule',
     phase: 'duel',
     render: () => <AwayScenario base={CHEER_TABLE} />,
+  },
+  {
+    id: 'duel-ranked-news',
+    group: 'Duel classé',
+    title: 'Pop-up : le duel classé présenté',
+    how: 'Une fois, à l’accueil, à un joueur qui a déjà joué une partie : les ligues en formes, et « Jouer classé » qui lance la file',
+    phase: 'home',
+    render: (back) => <RankedNewsPop named onPlay={back} onLater={back} />,
+  },
+  {
+    id: 'duel-ranked-news-guest',
+    group: 'Duel classé',
+    title: 'Pop-up : le duel classé présenté, sans compte',
+    how: 'Le même pop-up pour un joueur sans compte nommé (un invité CrazyGames, un anonyme) : le bouton ouvre la connexion',
+    phase: 'home',
+    render: (back) => <RankedNewsPop named={false} onPlay={back} onLater={back} />,
   },
   {
     id: 'duel-flow-search-a',

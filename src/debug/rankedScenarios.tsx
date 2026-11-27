@@ -11,7 +11,8 @@ import type { DuelFact } from '../domain/duelLog'
 import { NO_USAGE } from '../domain/rarity'
 import type { Judge } from '../domain/run'
 import { buildWordPack, commonWord, findWord, lettersWithEnough, type WordPack } from '../domain/words'
-import type { DuelLadderRow, DuelOpponent, DuelRatingInfo } from '../lib/cloud'
+import type { DuelLadderRow, DuelLadderView, DuelOpponent, DuelRatingInfo } from '../lib/cloud'
+import { standing } from '../domain/ranked'
 import type { DuelTable, Seat } from '../state/duel'
 import type { DuelQueue, QueueState, WaitingInfo } from '../state/duelQueue'
 import { DuelMatchmaking, Over, Play } from '../ui/DuelScreen'
@@ -114,13 +115,42 @@ const LADDER: readonly DuelLadderRow[] = [
   { player: 'p11', name: 'Arthur', avatar: { design: 44, ground: 'rouge', shape: 'jaune', accent: 'bleu' }, rating: 1342, games: 73, wins: 31, peak: 1362, rank: 12 },
   { player: 'p12', name: 'Léna', avatar: { design: 19, ground: 'rose', shape: 'vert', accent: 'jaune' }, rating: 1296, games: 76, wins: 32, peak: 1316, rank: 13 },
   { player: 'p13', name: 'Tom', avatar: { design: 3, ground: 'jaune', shape: 'rouge', accent: 'bleu' }, rating: 1251, games: 79, wins: 33, peak: 1271, rank: 14 },
+  { player: 'n1', name: 'Rosalie', avatar: { design: 11, ground: 'vert', shape: 'jaune', accent: 'rouge' }, rating: 1160, games: 40, wins: 20, peak: 1180, rank: 36 },
+  { player: 'n2', name: 'Victor', avatar: { design: 26, ground: 'rouge', shape: 'creme', accent: 'bleu' }, rating: 1151, games: 22, wins: 11, peak: 1170, rank: 37 },
+  { player: 'n3', name: 'Testeur', avatar: { design: 5, ground: 'rose', shape: 'vert', accent: 'creme' }, rating: 1142, games: 23, wins: 13, peak: 1160, rank: 38 },
+  { player: 'n4', name: 'Anouk', avatar: { design: 31, ground: 'jaune', shape: 'bleu', accent: 'rouge' }, rating: 1137, games: 18, wins: 9, peak: 1150, rank: 39 },
+  { player: 'n5', name: 'Mathis', avatar: { design: 14, ground: 'bleu', shape: 'rouge', accent: 'jaune' }, rating: 1128, games: 51, wins: 25, peak: 1200, rank: 40 },
+  { player: 'n6', name: 'Zoé', avatar: { design: 8, ground: 'vert', shape: 'creme', accent: 'rose' }, rating: 1013, games: 12, wins: 5, peak: 1050, rank: 61 },
+  { player: 'n7', name: 'Lou', avatar: { design: 45, ground: 'rouge', shape: 'jaune', accent: 'bleu' }, rating: 905, games: 6, wins: 1, peak: 1000, rank: 88 },
 ]
 
-const ladderStub = () => Promise.resolve({ rows: [...LADDER], me: ME_RATING })
+/** Le classement inventé, vu d'un rang : les vues filtrent les mêmes joueurs que le serveur. */
+const ladderStub = (view: DuelLadderView) => {
+  const league = (row: DuelLadderRow) => standing(row, row.rank).tier
+  const rows = LADDER.filter((row) => {
+    const tier = league(row)
+    if (view === 'top') return true
+    if (view === 'master') return tier.kind === 'master'
+    if (view === 'me') return (row.rank ?? 0) >= 31
+    return tier.kind === 'league' && tier.league === view
+  })
+  return Promise.resolve({ rows, me: ME_RATING })
+}
+
+/** Les rangs inventés des noms des tableaux de la planche (`fakeLeaderboard`) : un par nom, de tout. */
+export const badgesStub = (names: readonly string[]) =>
+  Promise.resolve(
+    new Map(
+      names.map((name, index) => {
+        const rating = [1640, 1560, 1470, 1420, 1330, 1290, 1180, 1120, 1060, 990, 900, 820][index % 12]!
+        return [name, { rating, games: index === 5 ? 2 : 30, wins: 10, peak: rating, rank: index < 2 ? index + 1 : 20 + index }] as const
+      }),
+    ),
+  )
 
 /** Les classements en pleine page, ouverts sur le duel classé. */
 export function LadderScenario({ onBack, load, initial = 'duel' }: { onBack(): void; load: Parameters<typeof LeaderboardsScreen>[0]['load']; initial?: 'runs' | 'duel' }) {
-  return <LeaderboardsScreen named duel initial={initial} load={load} loadLadder={ladderStub} onBack={onBack} />
+  return <LeaderboardsScreen named duel initial={initial} load={load} loadLadder={ladderStub} badges={badgesStub} onBack={onBack} />
 }
 
 /** Le bilan d'un duel classé : réglé (une ligue franchie), en cours de règlement, ou annulé. */

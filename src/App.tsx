@@ -165,9 +165,11 @@ import {
   saveTutorialDone,
 } from './state/storage'
 import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storage'
-import { loadActiveDuel, saveActiveDuel } from './state/storage'
+import { loadActiveDuel, loadRankedNewsSeen, saveActiveDuel, saveRankedNewsSeen } from './state/storage'
 import { useDuelQueue } from './state/duelQueue'
 import { QueuePill } from './ui/QueuePill'
+import { RankedNewsPop } from './ui/RankedNewsPop'
+import { rankedNewsDue } from './domain/ranked'
 import type { BoardFamily } from './ui/BoardSwitch'
 import { DuelResumeCard } from './ui/PlayTogether'
 import { countsForProgress, modeEdge, MODE_SECONDS, type ArcadeMode, type GameMode } from './domain/modes'
@@ -372,6 +374,7 @@ export function App() {
     drawerMoved.current = true
   }, [menuOpen])
   const [shareNewsSeen, setShareNewsSeen] = useState(loadShareNewsSeen)
+  const [rankedNewsSeen, setRankedNewsSeen] = useState(loadRankedNewsSeen)
   // Les avant-premières déjà annoncées à cet appareil : une catégorie livrée
   // relance la pop-up, jamais deux fois la même.
   const [premiereNewsSeen, setPremiereNewsSeen] = useState(loadPremiereNewsSeen)
@@ -2145,6 +2148,10 @@ setStartedAt((at) => at ?? Date.now())
   // Premium thanks its new member once, back home, and asks for an opinion in
   // exchange: that ask stands in for the regular one if both are due.
   const thanksDue = cloudConfigured() && plusThanksDue(session.profile)
+  const settleRankedNews = () => {
+    saveRankedNewsSeen()
+    setRankedNewsSeen(true)
+  }
   const settleShareNews = () => {
     saveShareNewsSeen()
     setShareNewsSeen(true)
@@ -2168,6 +2175,8 @@ setStartedAt((at) => at ?? Date.now())
       thanks: quietHome && thanksDue,
       feedback: quietHome && feedbackAsk && !thanksDue && on('feedback'),
       shareNews: quietHome && on('friendInvite') && shareNewsDue(session.profile, named, shareNewsSeen),
+      // Le duel classé, présenté une fois à qui jouait déjà : il faut un compte, ou de quoi en ouvrir un.
+      rankedNews: quietHome && on('duel') && rankedNewsDue(session.profile.runs, rankedNewsSeen) && (named || duelSignIn !== undefined),
       premieres: quietHome && on('premium') && freshPremieres.length > 0,
       rating: quietHome && ratingAsk && on('support'),
     },
@@ -2584,6 +2593,23 @@ setStartedAt((at) => at ?? Date.now())
       {pop === 'gift' && (
           <PowerGiftPop powerId="complication" onClose={() => dispatch({ type: 'grant-power', powerId: 'complication' })} />
         )}
+
+      {pop === 'rankedNews' && (
+        <RankedNewsPop
+          named={named}
+          onLater={settleRankedNews}
+          onPlay={() => {
+            settleRankedNews()
+            if (!named) {
+              duelSignIn?.()
+              return
+            }
+            rememberMultiplayer()
+            startQueue()
+            setMatching(true)
+          }}
+        />
+      )}
 
       {pop === 'shareNews' && (
         <ShareNewsPop

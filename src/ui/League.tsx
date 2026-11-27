@@ -67,3 +67,21 @@ export function LeagueChip({
     </span>
   )
 }
+
+/**
+ * Le rang en réduit, à côté d'un nom dans un classement : la division sur la
+ * couleur de sa ligue (« II » sur l'or), « M3 » pour un Maître. Rien pendant
+ * les placements. Le nom entier du rang reste pour la lecture d'écran.
+ */
+export function RankBadge({ rating, games, rank = null }: { rating: number; games: number; rank?: number | null }) {
+  const t = useT()
+  const { tier } = standing({ rating, games }, rank)
+  if (tier.kind === 'placement') return null
+  const kind = tier.kind === 'league' ? tier.league : 'master'
+  const label = tier.kind === 'master' ? `M${tier.spot}` : ROMAN[tier.division]
+  return (
+    <span className={`rank-badge rank-badge--${kind}`} role="img" aria-label={t.ranked.rankAria(tierText(t, tier))} title={tierText(t, tier)}>
+      {label}
+    </span>
+  )
+}

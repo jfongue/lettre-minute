@@ -3,7 +3,8 @@ import type { AvatarChoice } from '../domain/avatar'
 import type { RunRecord } from '../domain/history'
 import { useT } from '../i18n'
 import { guestLoader } from './guestBoards'
-import type { fetchDuelLadder } from '../lib/cloud'
+import type { fetchDuelLadderView } from '../lib/cloud'
+import type { BadgeLoader } from './useDuelBadges'
 import { BoardSwitch, type BoardFamily } from './BoardSwitch'
 import { DuelLadder } from './DuelLadder'
 import { LeaderboardsPage, type LoadLeaderboard } from './LeaderboardsPage'
@@ -25,6 +26,7 @@ export function LeaderboardsScreen({
   avatar,
   load: given,
   loadLadder,
+  badges,
   onBack,
 }: {
   named: boolean
@@ -38,7 +40,8 @@ export function LeaderboardsScreen({
   history?: readonly RunRecord[]
   avatar?: AvatarChoice
   load?: LoadLeaderboard
-  loadLadder?: typeof fetchDuelLadder
+  loadLadder?: typeof fetchDuelLadderView
+  badges?: BadgeLoader
   onBack(): void
 }) {
   const t = useT()
@@ -62,7 +65,7 @@ export function LeaderboardsScreen({
         {family === 'duel' ? (
           <DuelLadder load={loadLadder} />
         ) : (
-          <LeaderboardsPage named={named} guest={guest} onSignIn={onSignIn} load={load} moderator={moderator} family={family} onFamily={setFamily} />
+          <LeaderboardsPage named={named} guest={guest} onSignIn={onSignIn} load={load} badges={badges} moderator={moderator} family={family} onFamily={setFamily} />
         )}
       </div>
     </main>

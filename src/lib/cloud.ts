@@ -2669,6 +2669,30 @@ export function fetchDuelLadder(limit = 50): Promise<{ rows: DuelLadderRow[]; me
   }, null)
 }
 
+/** Le rang de duel classé des noms qu'un classement montre : seuls les joueurs placés y sont. */
+export function fetchDuelBadges(names: readonly string[]): Promise<ReadonlyMap<string, DuelRatingInfo> | null> {
+  return openGuard(async () => {
+    const { data, error } = await supabase!.rpc('duel_badges', { p_names: names.slice(0, 120) })
+    if (error || !data || typeof data !== 'object') return null
+    return new Map(Object.entries(data as Record<string, unknown>).map(([name, row]) => [name, parseRatingInfo(row)]))
+  }, null)
+}
+
+/** Une vue du classement du duel : le haut, les Maîtres, une ligue, ou ma place. */
+export type DuelLadderView = 'top' | 'master' | 'diamond' | 'platinum' | 'gold' | 'silver' | 'bronze' | 'me'
+
+export function fetchDuelLadderView(view: DuelLadderView, limit = 50): Promise<{ rows: DuelLadderRow[]; me: DuelRatingInfo | null } | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_ladder_view', { p_view: view, p_limit: limit })
+    if (error || !data) return null
+    const row = data as { rows?: Record<string, unknown>[]; me?: unknown }
+    return {
+      rows: (row.rows ?? []).map((one) => ({ ...parseRatingInfo(one), player: String(one.player ?? ''), name: String(one.name ?? ''), avatar: parseAvatar(one.avatar) })),
+      me: row.me ? parseRatingInfo(row.me) : null,
+    }
+  }, null)
+}
+
 /** L'identifiant du joueur sur le serveur : c'est sous lui que le duel range sa place. */
 export function fetchPlayerId(): Promise<string | null> {
   return guard(async () => (await connect())?.userId ?? null, null)

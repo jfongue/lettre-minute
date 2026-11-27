@@ -11516,6 +11516,130 @@ ligne, et se referme par une seconde tape. */
   color: var(--ink-soft);
 }
 
+/* Le duel classé présenté : l'échelle des ligues en formes, au-dessus du titre, du Bronze au Maître. */
+.ranked-news__ladder {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin: 0.2rem 0 0.4rem;
+  padding: 0;
+  list-style: none;
+}
+
+.ranked-news__ladder li {
+  width: calc(1.6rem + var(--i) * 0.35rem);
+  aspect-ratio: 1;
+  animation: pop-in 420ms var(--ease-spring) calc(var(--i) * 90ms) both;
+}
+
+.ranked-news__ladder .league-mark {
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ranked-news__ladder li {
+    animation: none;
+  }
+}
+
+/* « Ma place » : en tête d'un tableau, il descend jusqu'à ma ligne et la fait briller. */
+.board-me-jump {
+  appearance: none;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  padding: 0 0.8rem;
+  border: var(--line) solid var(--ink);
+  background: var(--yellow);
+  color: var(--black);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.board-me-jump:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.standing--flash {
+  animation: standing-flash 1.6s var(--ease-out);
+}
+
+@keyframes standing-flash {
+  0%,
+  40% {
+    box-shadow: 0 0 0 3px var(--yellow);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .standing--flash {
+    animation: none;
+    outline: 3px solid var(--yellow);
+  }
+}
+
+/* Le rang en réduit, à côté d'un nom : la division sur la couleur de sa ligue. */
+.rank-badge {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  min-width: 1.45rem;
+  height: 1.1rem;
+  margin-left: 0.35rem;
+  padding: 0 0.25rem;
+  border: 1.5px solid var(--black);
+  font-size: var(--font-micro);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  vertical-align: 0.12em;
+}
+
+.rank-badge--bronze {
+  background: var(--red);
+  color: var(--black);
+}
+
+.rank-badge--silver {
+  background: #b9b3a6;
+  color: var(--black);
+}
+
+.rank-badge--gold {
+  background: var(--yellow);
+  color: var(--black);
+}
+
+.rank-badge--platinum {
+  background: var(--green);
+  color: var(--cream);
+}
+
+.rank-badge--diamond {
+  background: var(--blue);
+  color: var(--cream);
+}
+
+.rank-badge--master {
+  background: var(--black);
+  border-color: var(--pink);
+  color: var(--pink);
+}
+
 /* Le Maître : l'étiquette s'inverse, en encre, comme un titre plutôt qu'une ligue. */
 .league-chip--master {
   border-color: var(--ink);
