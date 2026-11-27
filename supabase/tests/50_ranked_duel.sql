@@ -61,14 +61,14 @@ $$;
 
 -- ------------------------------------------------------------- l'Elo pur --
 
-select tests.is(public.duel_elo_deltas(array[1000, 1000], array[0, 0]), array[40, -40], 'equal newcomers in placement move by half of K 80');
-select tests.is(public.duel_elo_deltas(array[1000, 1000], array[5, 5]), array[20, -20], 'after placement, half of K 40 until ten games');
+select tests.is(public.duel_elo_deltas(array[1000, 1000], array[0, 0]), array[30, -30], 'equal newcomers move by half of K 60 (0123)');
+select tests.is(public.duel_elo_deltas(array[1000, 1000], array[12, 12]), array[20, -20], 'then half of K 40 until twenty games');
 select tests.is(public.duel_elo_deltas(array[1000, 1000], array[20, 20]), array[10, -10], 'equal veterans move by half of K 20');
 select tests.is(public.duel_elo_deltas(array[1200, 1000], array[20, 20]), array[5, -5], 'the favourite gains little');
 select tests.is(public.duel_elo_deltas(array[1000, 1200], array[20, 20]), array[15, -15], 'the underdog gains much');
 select tests.is(public.duel_elo_deltas(array[1000, 1000, 1000], array[20, 20, 20]), array[10, 0, -10], 'three players split by placement');
-select tests.is(public.duel_settled_rating(1400, 3), 1249, 'placements end at Gold at most');
-select tests.is(public.duel_settled_rating(700, 3), 800, 'and at Bronze at least');
+select tests.is(public.duel_settled_rating(1400, 3), 1400, 'no placement ceiling any more (0123)');
+select tests.is(public.duel_settled_rating(40, 3), 100, 'only the floor');
 select tests.is(public.duel_settled_rating(1400, 4), 1400, 'later games are not clamped');
 select tests.is(public.duel_effective_rating(1200, now() - interval '6 days'), 1200, 'a week of rest costs nothing');
 select tests.is(public.duel_effective_rating(1200, now() - interval '10 days'), 1185, 'then 5 a day');
@@ -85,7 +85,7 @@ select tests.login('ra');
 create temp table waiting as select public.duel_queue_poll('fr', array['animaux', 'pays'], 3, false) as answer;
 select tests.is((select answer ->> 'status' from waiting), 'waiting', 'alone, the first player waits');
 select tests.ok((select answer ? 'estimate' from waiting), 'the wait carries an estimate field');
-select tests.is((select (answer -> 'me' ->> 'rating')::int from waiting), 1000, 'a newcomer starts at 1000');
+select tests.is((select (answer -> 'me' ->> 'rating')::int from waiting), 800, 'a newcomer starts at 800, Bronze III');
 select tests.logout();
 select tests.is(tests.outcomes('ra'), array['open'], 'the passage is logged');
 
@@ -102,7 +102,7 @@ create temp table offer as select public.duel_queue_poll('fr', array['animaux'],
 select tests.is((select answer ->> 'status' from offer), 'found', 'a widened window finds the opponent');
 select tests.ok((select (answer ->> 'ranked')::boolean from offer), 'the table is ranked');
 select tests.is((select answer -> 'opponent' ->> 'name' from offer), 'ra', 'the card names the opponent');
-select tests.is((select (answer -> 'opponent' ->> 'rating')::int from offer), 1000, 'and their rating');
+select tests.is((select (answer -> 'opponent' ->> 'rating')::int from offer), 800, 'and their rating');
 select tests.ok((select (answer ->> 'deadline')::numeric - (answer ->> 'now')::numeric between 18 and 21 from offer), 'twenty seconds to accept');
 select tests.logout();
 select tests.is((tests.table_of((select answer ->> 'table' from offer)::uuid)).status, 'lobby', 'nobody is ready yet');
@@ -137,8 +137,8 @@ select tests.login('rb');
 select public.duel_report((select id from ranked), array[tests.seat_index((select id from ranked), 'rb'), tests.seat_index((select id from ranked), 'ra')]);
 select tests.logout();
 select tests.ok((tests.table_of((select id from ranked))).settled_at is not null, 'two matching reports settle');
-select tests.is(tests.rating('rb'), 1400 + 2, 'the 1400 favourite gains 2');
-select tests.is(tests.rating('ra'), 1000 - 7, 'the newcomer in placement loses 7 (K 80)');
+select tests.is(tests.rating('rb'), 1400 + 1, 'the 1400 favourite gains 1');
+select tests.is(tests.rating('ra'), 800 - 2, 'the newcomer loses 2 (K 60)');
 select tests.is(tests.games('ra'), 1, 'one game counted');
 select tests.login('rb');
 select tests.is(jsonb_array_length(public.duel_sync((select id from ranked), 0) -> 'table' -> 'ratings'), 2, 'the table shows both changes');
@@ -199,7 +199,7 @@ select tests.age_finish((select id from lone), 40);
 select tests.login('re');
 select public.duel_my_rating();
 select tests.logout();
-select tests.is(tests.rating('re'), 1040, 'after 30 s the lone consistent report settles');
+select tests.is(tests.rating('re'), 830, 'after 30 s the lone consistent report settles');
 
 -- L'inactivité se fige au règlement : la partie repart de l'Elo qui restait.
 update public.duel_ratings set rating = 1300, games = 20, last_played_at = now() - interval '27 days' where player = tests.uid('re');
@@ -229,8 +229,8 @@ select tests.login('rg');
 select tests.is(public.duel_move((select id from quit), 99, 0, 'resign', ''), 'forbidden', 'a client cannot post a resign move itself');
 select public.duel_report((select id from quit), array[0, 1]);
 select tests.logout();
-select tests.is(tests.rating('rg'), 1040, 'the one who stayed wins at once');
-select tests.is(tests.rating('rh'), 960, 'the one who resigned loses');
+select tests.is(tests.rating('rg'), 830, 'the one who stayed wins at once');
+select tests.is(tests.rating('rh'), 770, 'the one who resigned loses');
 
 -- Revenir après une coupure, tant qu'on n'a pas abandonné.
 create temp table cut as select tests.fresh_ranked('rc', 'rd') as id;

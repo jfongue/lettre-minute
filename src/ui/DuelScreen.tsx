@@ -35,7 +35,7 @@ import { achievementIcon, achievementReward, newlyEarnedAchievements } from '../
 import { inGround, type AvatarChoice } from '../domain/avatar'
 import { levelFor, levelProgress, type Profile } from '../domain/progression'
 import { categoryText, formatNumber, useT } from '../i18n'
-import { botsOfferAfter, overdue, standing, tierOrder, PLACEMENT_GAMES } from '../domain/ranked'
+import { botMatchAfter, overdue, standing, tierOrder } from '../domain/ranked'
 import { clockOf, estimateText } from './rankedText'
 import type { DuelQueue } from '../state/duelQueue'
 import { LeagueChip, LeagueMark, TierMark, tierText } from './League'
@@ -1224,16 +1224,15 @@ function DuelRank({ table, show }: { table: DuelTable; show: boolean }) {
   const before = standing({ rating: from, games: Math.max(0, games - 1) })
   const after = standing({ rating: to, games }, rating?.rank ?? null)
   const moved = tierOrder(after.tier) - tierOrder(before.tier)
-  const placedNow = before.tier.kind === 'placement' && after.tier.kind !== 'placement'
   const shown = standing({ rating: Math.round(value), games }, rating?.rank ?? null)
   useEffect(() => {
-    if (show && settled && (moved > 0 || placedNow)) sound.levelUp()
-  }, [moved, placedNow, settled, show])
+    if (show && settled && moved > 0) sound.levelUp()
+  }, [moved, settled, show])
   return (
     <section className={`duel-elo${show ? ' duel-elo--in' : ''}`} aria-label={t.ranked.overTitle}>
       <div className="spread">
         <p className="section-title">{t.ranked.overTitle}</p>
-        {settled && to !== from && after.tier.kind !== 'placement' ? (
+        {settled && to !== from ? (
           <p className={`duel-elo__delta${to < from ? ' duel-elo__delta--loss' : ''}`}>
             <span aria-hidden="true">{to > from ? '▲' : '▼'}</span> {to > from ? t.ranked.rising : t.ranked.falling}
           </p>
@@ -1248,13 +1247,7 @@ function DuelRank({ table, show }: { table: DuelTable; show: boolean }) {
           <div className="progress duel-elo__bar" aria-hidden="true">
             <span style={{ '--ratio': shown.progress } as CSSProperties} />
           </div>
-          {after.tier.kind === 'placement' ? (
-            <p className="note">{t.ranked.placementLeft(PLACEMENT_GAMES - after.placed)}</p>
-          ) : placedNow ? (
-            <p className="duel-elo__news">
-              <b>{t.ranked.placed(tierText(t, after.tier))}</b>
-            </p>
-          ) : moved > 0 ? (
+          {moved > 0 ? (
             <p className="duel-elo__news">
               <b>{t.ranked.promoted(tierText(t, after.tier))}</b>
             </p>
@@ -1473,7 +1466,8 @@ export function DuelMatchmaking({
   const estimate = info?.estimate ?? null
   const rating = info?.me ?? (state.kind === 'found' ? state.offer.me : null)
   const late = overdue(waited, estimate)
-  const botsReady = !!searching && waited >= botsOfferAfter(estimate)
+  // Sans adversaire, un bot de ton niveau prend la place à cette heure-là.
+  const botIn = Math.max(0, botMatchAfter(estimate) - waited)
 
   return (
     <main className="stage stage--duel">
@@ -1543,12 +1537,13 @@ export function DuelMatchmaking({
                   : t.duel.matchLead}
             </p>
             {state.kind === 'searching' && state.bounced ? <p className="duel-wait__bounced">{t.ranked.bounced}</p> : null}
+            {state.kind === 'searching' && !state.offline ? <p className="note duel-wait__bot">{t.ranked.botSoon(clockOf(botIn))}</p> : null}
           </section>
         )}
         </div>
 
         <div className="stack duel-search__actions">
-          {botsReady || state.kind === 'cooldown' ? (
+          {state.kind === 'cooldown' ? (
             <button
               type="button"
               className="btn btn--play btn--block duel-cta duel-search__bots"
@@ -1559,8 +1554,7 @@ export function DuelMatchmaking({
               }}
             >
               <span className="duel-cta__label">
-                <span>{searching ? t.ranked.botsWhile : t.duel.playBots}</span>
-                {searching ? <small>{t.ranked.botsWhileNote}</small> : null}
+                <span>{t.duel.playBots}</span>
               </span>
               <PlayGlyph />
             </button>

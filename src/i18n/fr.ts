@@ -1064,7 +1064,7 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
   /** Le duel en direct : le salon, le draft, la partie, le récapitulatif. */
   duel: {
     title: 'Duel',
-    leadTitle: 'Duel en direct',
+    leadTitle: 'Duel amical',
     lead: 'Chacun sa réserve de 30 secondes, qui ne coule que pendant son tour. Un mot passe la main, un mot rare rend du temps. Le dernier debout gagne.',
     trait: { fast: 'Rapide', steady: 'Posé', sharp: 'Redoutable' },
     you: 'Toi',
@@ -1177,11 +1177,11 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
     declineTable: 'Non merci',
     chooseTitle: 'Jouer entre amis',
     chooseLead: 'Deux façons de se mesurer : en direct, ou chacun quand il veut.',
-    duelCard: 'Duel en direct !',
+    duelCard: 'Duel amical',
     duelCardNote: 'Chacun son tour, 30 secondes de réserve, le dernier debout gagne.',
     duelCardPlayers: '2 à 4 joueurs',
-    matchCard: 'Trouver un adversaire',
-    matchCardNote: 'Un joueur au hasard, tout de suite',
+    matchCard: 'Duel classé',
+    matchCardNote: 'Un joueur de ton niveau, tout de suite',
     matchCardPlayers: '2 joueurs',
     matchTitle: 'Recherche d’un adversaire…',
     matchLead: 'On t’associe à un joueur qui cherche aussi une partie, dans ta langue.',

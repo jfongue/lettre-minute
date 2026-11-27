@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { LEAGUES, PLACEMENT_GAMES, type LeagueId } from '../domain/ranked'
+import { LEAGUES, type LeagueId } from '../domain/ranked'
 import { useT } from '../i18n'
 import { fetchDuelLadderView, type DuelLadderView } from '../lib/cloud'
 import { loadAccount } from '../state/storage'
@@ -40,7 +40,8 @@ export function DuelLadder({ load = fetchDuelLadderView }: { load?: typeof fetch
     if (view !== 'me') return
     list.current?.querySelector<HTMLElement>('.duel-ladder__row--me')?.scrollIntoView({ block: 'center' })
   }, [rows, view])
-  const placed = !!mine && mine.games >= PLACEMENT_GAMES
+  // Une première partie classée suffit à entrer au classement.
+  const placed = !!mine && mine.games > 0
 
   return (
     <section className="duel-ladder" aria-label={t.ranked.ladder}>
@@ -69,7 +70,7 @@ export function DuelLadder({ load = fetchDuelLadderView }: { load?: typeof fetch
           </button>
         </div>
       ) : rows.length === 0 ? (
-        <p className="note">{view === 'top' ? t.ranked.ladderEmpty : view === 'me' && !placed ? t.ranked.meUnplaced(PLACEMENT_GAMES - (mine?.games ?? 0)) : t.ranked.viewEmpty}</p>
+        <p className="note">{view === 'top' ? t.ranked.ladderEmpty : view === 'me' && !placed ? t.ranked.meUnranked : t.ranked.viewEmpty}</p>
       ) : (
         <ol className="duel-ladder__rows" ref={list}>
           {rows.map((row) => {
@@ -88,7 +89,7 @@ export function DuelLadder({ load = fetchDuelLadderView }: { load?: typeof fetch
       {mine ? (
         <div className="duel-ladder__mine">
           <b>{t.ranked.ladderYou}</b>
-          <span>{placed && mine.rank ? t.ranked.rank(mine.rank) : t.ranked.placement(Math.min(mine.games, PLACEMENT_GAMES), PLACEMENT_GAMES)}</span>
+          <span>{placed && mine.rank ? t.ranked.rank(mine.rank) : ''}</span>
           <LeagueChip rating={mine.rating} games={mine.games} rank={mine.rank} compact />
           {placed && view !== 'me' ? (
             <button type="button" className="duel-ladder__jump" onClick={() => setView('me')}>
