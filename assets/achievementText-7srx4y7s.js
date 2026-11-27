@@ -1,0 +1,1 @@
+import{wn as e}from"./unlocks-Dv8FlzuF.js";import{Qr as t}from"./styles-NuGb548O.js";function n(n,r){return t(r.id)?n.ach[r.id]:{name:e(n.avatar.milestone(r.goal)),desc:``}}export{n as t};
