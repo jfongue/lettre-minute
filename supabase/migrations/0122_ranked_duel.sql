@@ -27,7 +27,12 @@
 --    partie (`voided`) : un client trafiqué ne gagne rien, il prive au plus
 --    la table de son classement. Paires de joueurs : trois parties classées
 --    entre les deux mêmes comptes par 24 h, au-delà la partie ne compte plus.
---    Elo par paires, K 40 pendant dix parties puis 20, plancher 100. Le calcul
+--    Elo par paires : K 80 pendant les trois parties de placement, 40 jusqu'à
+--    la dixième, puis 20 ; les placements finis, l'Elo est ramené entre 800 et
+--    1249 (du Bronze à l'Or) ; plancher 100. Une semaine sans partie classée,
+--    puis l'Elo baisse de 5 par jour, 150 au plus, jamais sous 950 s'il était
+--    au-dessus : calculé à la lecture (`duel_effective_rating`), figé au
+--    règlement suivant. Le calcul
 --    est aussi dans `src/domain/ranked.ts`, que l'écran lit pour annoncer
 --    l'enjeu : les deux doivent rester identiques (supabase/tests/50_ranked_duel.sql).
 --
@@ -46,10 +51,11 @@ create table public.duel_ratings (
   games integer not null default 0 check (games >= 0),
   wins integer not null default 0 check (wins >= 0),
   peak integer not null default 1000,
+  last_played_at timestamptz,
   updated_at timestamptz not null default now()
 );
 
-create index duel_ratings_ladder_idx on public.duel_ratings (rating desc) where games >= 5;
+create index duel_ratings_ladder_idx on public.duel_ratings (rating desc) where games >= 3;
 
 alter table public.duel_tables
   add column ranked boolean not null default false,
@@ -132,7 +138,16 @@ language sql immutable as $$
 $$;
 
 create function public.duel_k_factor(p_games integer) returns integer
-language sql immutable as $$ select case when coalesce(p_games, 0) < 10 then 40 else 20 end $$;
+language sql immutable as $$ select case when coalesce(p_games, 0) < 3 then 80 when coalesce(p_games, 0) < 10 then 40 else 20 end $$;
+
+-- L'Elo qu'un absent garde : `decayedRating` de src/domain/ranked.ts.
+create function public.duel_effective_rating(p_rating integer, p_last timestamptz) returns integer
+language sql stable as $$
+  select greatest(
+    p_rating - least(150, 5 * greatest(0, floor(extract(epoch from now() - coalesce(p_last, now())) / 86400)::int - 7)),
+    least(p_rating, 950)
+  )
+$$;
 
 -- L'attente probable d'une langue, en secondes, ou null faute d'exemples.
 create function public.duel_wait_estimate(p_lang text) returns numeric
@@ -177,12 +192,14 @@ $$;
 create function public.duel_rating_json(p_player uuid) returns jsonb
 language sql stable security definer set search_path = public as $$
   select jsonb_build_object(
-    'rating', coalesce(r.rating, 1000),
+    'rating', coalesce(public.duel_effective_rating(r.rating, r.last_played_at), 1000),
     'games', coalesce(r.games, 0),
     'wins', coalesce(r.wins, 0),
     'peak', coalesce(r.peak, 1000),
-    'rank', case when coalesce(r.games, 0) >= 5 then (
-      select count(*) + 1 from public.duel_ratings o where o.games >= 5 and o.rating > r.rating
+    'rank', case when coalesce(r.games, 0) >= 3 then (
+      select count(*) + 1 from public.duel_ratings o
+       where o.games >= 3
+         and public.duel_effective_rating(o.rating, o.last_played_at) > public.duel_effective_rating(r.rating, r.last_played_at)
     ) end
   )
   from (select p_player as player) me
@@ -231,6 +248,12 @@ begin
 end;
 $$;
 
+-- L'Elo après une partie : `settledRating` de src/domain/ranked.ts.
+create function public.duel_settled_rating(p_rating integer, p_games_after integer) returns integer
+language sql immutable as $$
+  select case when p_games_after = 3 then least(1249, greatest(800, greatest(100, p_rating))) else greatest(100, p_rating) end
+$$;
+
 -- Règle une table classée finie, une seule fois. Attend le rapport de chaque
 -- joueur encore assis, ou trente secondes après la fin.
 create function public.duel_settle(p_table uuid) returns void
@@ -248,6 +271,7 @@ declare
   v_player uuid;
   v_row public.duel_ratings;
   v_valid boolean := true;
+  v_after integer;
 begin
   select * into v_table from public.duel_tables where id = p_table for update;
   if not found or not v_table.ranked or v_table.settled_at is not null or v_table.status not in ('over', 'closed') then
@@ -328,21 +352,24 @@ begin
   perform 1 from public.duel_ratings where player = any(v_players) order by player for update;
   foreach v_player in array v_players loop
     v_row := public.duel_rating_of(v_player);
-    v_ratings := v_ratings || v_row.rating;
+    -- L'inactivité se fige ici : la partie repart de l'Elo qui restait.
+    v_ratings := v_ratings || public.duel_effective_rating(v_row.rating, v_row.last_played_at);
     v_games := v_games || v_row.games;
   end loop;
   v_deltas := public.duel_elo_deltas(v_ratings, v_games);
 
   for i in 1 .. cardinality(v_players) loop
+    v_after := public.duel_settled_rating(v_ratings[i] + v_deltas[i], v_games[i] + 1);
     update public.duel_ratings
-       set rating = greatest(100, rating + v_deltas[i]),
+       set rating = v_after,
            games = games + 1,
            wins = wins + case when i = 1 then 1 else 0 end,
-           peak = greatest(peak, rating + v_deltas[i]),
+           peak = greatest(peak, v_after),
+           last_played_at = now(),
            updated_at = now()
      where player = v_players[i];
     insert into public.duel_rating_changes (table_id, player, place, before, after)
-    values (p_table, v_players[i], i, v_ratings[i], greatest(100, v_ratings[i] + v_deltas[i]));
+    values (p_table, v_players[i], i, v_ratings[i], v_after);
   end loop;
   update public.duel_tables set settled_at = now() where id = p_table;
 end;
@@ -605,6 +632,7 @@ begin
   end if;
 
   v_rating := public.duel_rating_of(auth.uid());
+  v_rating.rating := public.duel_effective_rating(v_rating.rating, v_rating.last_played_at);
   if v_me.player is null then
     insert into public.duel_queue_log (player, lang, rating) values (auth.uid(), p_lang, v_rating.rating) returning id into v_log;
     insert into public.duel_queue (player, lang, owned, categories, log_id, rating, busy)
@@ -747,12 +775,13 @@ language sql stable security definer set search_path = public as $$
         from (
           select jsonb_build_object(
             'player', r.player, 'name', p.display_name, 'avatar', p.avatar,
-            'rating', r.rating, 'games', r.games, 'wins', r.wins,
-            'rank', rank() over (order by r.rating desc)
+            'rating', e.rating, 'games', r.games, 'wins', r.wins,
+            'rank', rank() over (order by e.rating desc)
           ) as row
             from public.duel_ratings r join public.profiles p on p.id = r.player
-           where r.games >= 5 and not exists (select 1 from public.bots b where b.id = r.player)
-           order by r.rating desc
+            cross join lateral (select public.duel_effective_rating(r.rating, r.last_played_at) as rating) e
+           where r.games >= 3 and not exists (select 1 from public.bots b where b.id = r.player)
+           order by e.rating desc
            limit greatest(1, least(coalesce(p_limit, 50), 100))
         ) top
     ), '[]'::jsonb),
@@ -811,8 +840,9 @@ begin
         'left', s.left_at is not null,
         'kicked', s.kicked_at is not null,
         'seen', extract(epoch from s.last_seen),
-        'rating', (select r.rating from public.duel_ratings r where r.player = s.player),
-        'games', (select r.games from public.duel_ratings r where r.player = s.player)
+        'rating', (select public.duel_effective_rating(r.rating, r.last_played_at) from public.duel_ratings r where r.player = s.player),
+        'games', (select r.games from public.duel_ratings r where r.player = s.player),
+        'rank', (select (public.duel_rating_json(s.player) ->> 'rank')::int where s.player is not null and not s.is_bot)
       ) order by s.joined_at, s.player)
       from public.duel_seats s left join public.profiles p on p.id = s.player
       where s.table_id = p_table
@@ -871,6 +901,8 @@ revoke execute on function
   public.duel_offer_seconds(),
   public.duel_rating_window(numeric),
   public.duel_k_factor(integer),
+  public.duel_effective_rating(integer, timestamptz),
+  public.duel_settled_rating(integer, integer),
   public.duel_wait_estimate(text),
   public.duel_rating_of(uuid),
   public.duel_rating_json(uuid),

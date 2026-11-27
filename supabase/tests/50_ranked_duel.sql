@@ -61,11 +61,20 @@ $$;
 
 -- ------------------------------------------------------------- l'Elo pur --
 
-select tests.is(public.duel_elo_deltas(array[1000, 1000], array[0, 0]), array[20, -20], 'equal newcomers move by half of K 40');
+select tests.is(public.duel_elo_deltas(array[1000, 1000], array[0, 0]), array[40, -40], 'equal newcomers in placement move by half of K 80');
+select tests.is(public.duel_elo_deltas(array[1000, 1000], array[5, 5]), array[20, -20], 'after placement, half of K 40 until ten games');
 select tests.is(public.duel_elo_deltas(array[1000, 1000], array[20, 20]), array[10, -10], 'equal veterans move by half of K 20');
 select tests.is(public.duel_elo_deltas(array[1200, 1000], array[20, 20]), array[5, -5], 'the favourite gains little');
 select tests.is(public.duel_elo_deltas(array[1000, 1200], array[20, 20]), array[15, -15], 'the underdog gains much');
 select tests.is(public.duel_elo_deltas(array[1000, 1000, 1000], array[20, 20, 20]), array[10, 0, -10], 'three players split by placement');
+select tests.is(public.duel_settled_rating(1400, 3), 1249, 'placements end at Gold at most');
+select tests.is(public.duel_settled_rating(700, 3), 800, 'and at Bronze at least');
+select tests.is(public.duel_settled_rating(1400, 4), 1400, 'later games are not clamped');
+select tests.is(public.duel_effective_rating(1200, now() - interval '6 days'), 1200, 'a week of rest costs nothing');
+select tests.is(public.duel_effective_rating(1200, now() - interval '10 days'), 1185, 'then 5 a day');
+select tests.is(public.duel_effective_rating(1200, now() - interval '200 days'), 1050, 'at most 150');
+select tests.is(public.duel_effective_rating(980, now() - interval '200 days'), 950, 'never below 950 from above it');
+select tests.is(public.duel_effective_rating(900, now() - interval '200 days'), 900, 'and never lower for those already under');
 select tests.is(public.duel_rating_window(0), 100, 'the window opens at 100');
 select tests.is(public.duel_rating_window(12), 200, 'it widens by 50 every 5 s');
 select tests.is(public.duel_rating_window(30), 100000, 'after 30 s anyone fits');
@@ -129,7 +138,7 @@ select public.duel_report((select id from ranked), array[tests.seat_index((selec
 select tests.logout();
 select tests.ok((tests.table_of((select id from ranked))).settled_at is not null, 'two matching reports settle');
 select tests.is(tests.rating('rb'), 1400 + 2, 'the 1400 favourite gains 2');
-select tests.is(tests.rating('ra'), 1000 - 4, 'the newcomer loses 4 (K 40)');
+select tests.is(tests.rating('ra'), 1000 - 7, 'the newcomer in placement loses 7 (K 80)');
 select tests.is(tests.games('ra'), 1, 'one game counted');
 select tests.login('rb');
 select tests.is(jsonb_array_length(public.duel_sync((select id from ranked), 0) -> 'table' -> 'ratings'), 2, 'the table shows both changes');
@@ -190,7 +199,21 @@ select tests.age_finish((select id from lone), 40);
 select tests.login('re');
 select public.duel_my_rating();
 select tests.logout();
-select tests.is(tests.rating('re'), 1020, 'after 30 s the lone consistent report settles');
+select tests.is(tests.rating('re'), 1040, 'after 30 s the lone consistent report settles');
+
+-- L'inactivité se fige au règlement : la partie repart de l'Elo qui restait.
+update public.duel_ratings set rating = 1300, games = 20, last_played_at = now() - interval '27 days' where player = tests.uid('re');
+create temp table rested as select tests.fresh_ranked('re', 'rf') as id;
+grant select on rested to authenticated;
+select tests.move((select id from rested), 'rf', 'timeout');
+select tests.login('re');
+select tests.is((public.duel_my_rating() ->> 'rating')::int, 1200, 'twenty idle days past the week read 100 lower');
+select public.duel_report((select id from rested), array[0, 1]);
+select tests.logout();
+select tests.login('rf');
+select public.duel_report((select id from rested), array[0, 1]);
+select tests.logout();
+select tests.is((select before from public.duel_rating_changes where table_id = (select id from rested) and player = tests.uid('re')), 1200, 'the game starts from the decayed rating');
 
 -- ----------------------------------------------------- l'abandon --
 
@@ -206,8 +229,8 @@ select tests.login('rg');
 select tests.is(public.duel_move((select id from quit), 99, 0, 'resign', ''), 'forbidden', 'a client cannot post a resign move itself');
 select public.duel_report((select id from quit), array[0, 1]);
 select tests.logout();
-select tests.is(tests.rating('rg'), 1020, 'the one who stayed wins at once');
-select tests.is(tests.rating('rh'), 980, 'the one who resigned loses');
+select tests.is(tests.rating('rg'), 1040, 'the one who stayed wins at once');
+select tests.is(tests.rating('rh'), 960, 'the one who resigned loses');
 
 -- Revenir après une coupure, tant qu'on n'a pas abandonné.
 create temp table cut as select tests.fresh_ranked('rc', 'rd') as id;
@@ -243,6 +266,8 @@ select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'st
 select tests.logout();
 
 -- rc accepte, re laisse passer : rc reste, re sort et compte un oubli.
+-- re a pris de l'avance au classement : rc attend depuis assez longtemps pour l'accepter.
+select tests.age_join('rc', 31);
 select tests.login('re');
 select tests.is(public.duel_queue_poll('fr', array['animaux'], 3, false) ->> 'status', 'found', 're is offered rc');
 select tests.logout();

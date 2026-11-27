@@ -13,13 +13,43 @@ export const RATING_START = 1000
 /** Le plancher : on ne descend pas plus bas. */
 export const RATING_FLOOR = 100
 /** Les parties de placement : jusque-là, ni ligue ni rang. */
-export const PLACEMENT_GAMES = 5
+export const PLACEMENT_GAMES = 3
+/** Les placements classent entre ces deux Elo : du bas du Bronze au haut de l'Or. */
+export const PLACEMENT_FLOOR = 800
+export const PLACEMENT_CEILING = 1249
+/** Le top du classement : un rang « Maître » numéroté, au-dessus des ligues. */
+export const MASTER_SPOTS = 10
+/** Après ce nombre de jours sans partie classée, l'Elo descend chaque jour un peu. */
+export const DECAY_GRACE_DAYS = 7
+export const DECAY_PER_DAY = 5
+/** Ce que l'inactivité peut retirer au plus, et le plancher qu'elle ne franchit pas. */
+export const DECAY_CAP = 150
+export const DECAY_FLOOR = 950
 /** Le temps d'accepter un adversaire trouvé, celui de `duel_offer_seconds()`. */
 export const OFFER_SECONDS = 20
 
-/** Grand pendant les dix premières parties, pour qu'un nouveau trouve vite sa place. */
+/**
+ * Très grand pendant les placements, grand jusqu'à la dixième partie, pour
+ * qu'un nouveau trouve vite sa place ; puis le pas ordinaire.
+ */
 export function kFactor(games: number): number {
-  return games < 10 ? 40 : 20
+  return games < PLACEMENT_GAMES ? 80 : games < 10 ? 40 : 20
+}
+
+/** L'Elo après une partie : les placements finis le ramènent entre Bronze et Or. */
+export function settledRating(rating: number, gamesAfter: number): number {
+  const floored = Math.max(RATING_FLOOR, rating)
+  return gamesAfter === PLACEMENT_GAMES ? Math.min(PLACEMENT_CEILING, Math.max(PLACEMENT_FLOOR, floored)) : floored
+}
+
+/**
+ * L'Elo qu'un joueur absent garde : rien pendant une semaine, puis cinq points
+ * par jour, cent cinquante au plus, et jamais sous 950 s'il était au-dessus.
+ * `idleDays` : les jours entiers depuis sa dernière partie classée.
+ */
+export function decayedRating(rating: number, idleDays: number): number {
+  const loss = Math.min(DECAY_CAP, DECAY_PER_DAY * Math.max(0, Math.floor(idleDays) - DECAY_GRACE_DAYS))
+  return Math.max(rating - loss, Math.min(rating, DECAY_FLOOR))
 }
 
 /** La chance de gagner que l'Elo prête à `rating` contre `other`. */
@@ -68,27 +98,55 @@ export const LEAGUES: readonly { id: LeagueId; from: number }[] = [
   { id: 'diamond', from: 1400 },
 ]
 
+/** Une division d'une ligue : 3 en bas, 1 en haut, comme « Or III » puis « Or I ». */
+export type Division = 1 | 2 | 3
+
+export type Tier =
+  | { kind: 'placement'; placed: number }
+  | { kind: 'league'; league: LeagueId; division: Division }
+  | { kind: 'master'; spot: number }
+
 export interface Standing {
-  /** null tant que les parties de placement ne sont pas jouées. */
+  tier: Tier
+  /** La ligue, null pendant les placements ; celle de l'Elo pour un Maître. */
   league: LeagueId | null
   /** Les placements joués, sur `PLACEMENT_GAMES`. */
   placed: number
-  /** La part de la ligue déjà faite, de 0 à 1 ; 1 en diamant. */
+  /** La part de la division déjà faite, de 0 à 1 ; 1 en Diamant I et en Maître. */
   progress: number
-  /** L'Elo qui ouvre la ligue suivante, null en diamant. */
-  next: number | null
 }
 
-export function standing({ rating, games }: Rating): Standing {
+/** La largeur d'une ligue en Elo, pour la couper en trois divisions. */
+const LEAGUE_SPAN = 150
+
+/**
+ * Le rang d'un joueur : ses placements, puis sa ligue et sa division ; dans les
+ * dix premiers du classement, « Maître » et sa place. `rank` : sa place au
+ * classement, quand le serveur la connaît.
+ */
+export function standing({ rating, games }: Rating, rank: number | null = null): Standing {
   const placed = Math.min(games, PLACEMENT_GAMES)
   let index = 0
   for (let i = 0; i < LEAGUES.length; i++) if (rating >= LEAGUES[i]!.from) index = i
   const here = LEAGUES[index]!
-  const above = LEAGUES[index + 1]
-  // Le bronze n'a pas de plancher qui se lise : sa jauge part de 800.
-  const floor = index === 0 ? 800 : here.from
-  const progress = above ? Math.max(0, Math.min(1, (rating - floor) / (above.from - floor))) : 1
-  return { league: games >= PLACEMENT_GAMES ? here.id : null, placed, progress, next: above?.from ?? null }
+  // Le bronze n'a pas de plancher qui se lise : ses divisions partent de 800.
+  const floor = index === 0 ? PLACEMENT_FLOOR : here.from
+  const into = Math.max(0, rating - floor)
+  const step = LEAGUE_SPAN / 3
+  const climbed = Math.min(2, Math.floor(into / step))
+  const division = (3 - climbed) as Division
+  const top = index === LEAGUES.length - 1 && division === 1
+  const progress = top ? 1 : Math.max(0, Math.min(1, (into - climbed * step) / step))
+  if (games < PLACEMENT_GAMES) return { tier: { kind: 'placement', placed }, league: null, placed, progress: placed / PLACEMENT_GAMES }
+  if (rank !== null && rank >= 1 && rank <= MASTER_SPOTS) return { tier: { kind: 'master', spot: rank }, league: here.id, placed, progress: 1 }
+  return { tier: { kind: 'league', league: here.id, division }, league: here.id, placed, progress }
+}
+
+/** Deux rangs se suivent-ils, du plus bas au plus haut ? Pour dire une promotion. */
+export function tierOrder(tier: Tier): number {
+  if (tier.kind === 'placement') return -1
+  if (tier.kind === 'master') return 1000 - tier.spot
+  return LEAGUES.findIndex((league) => league.id === tier.league) * 3 + (3 - tier.division)
 }
 
 /** L'écart d'Elo qu'on accepte après `seconds` d'attente, celui de `duel_rating_window`. */
