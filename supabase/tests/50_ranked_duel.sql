@@ -491,3 +491,22 @@ select tests.ok(exists (
 ), 'the view around me holds my own line');
 select tests.ok(jsonb_array_length(public.duel_ladder_view('me', 50) -> 'rows') <= 15, 'and seven places on each side at most');
 select tests.logout();
+
+-- ------------------------------------------- le bot de niveau, classé (0123) --
+
+select tests.new_user('bq');
+select tests.login('bq');
+create temp table botwin as select public.duel_report_bot(true) as answer;
+select tests.is((select answer ->> 'status' from botwin), 'settled', 'a win against the level bot is ranked');
+select tests.is((select (answer ->> 'before')::int from botwin), 800, 'from Bronze III');
+select tests.is((select (answer ->> 'after')::int from botwin), 830, 'half of K 60');
+select tests.is(public.duel_report_bot(false) ->> 'status', 'too_soon', 'one game a minute at most');
+select tests.logout();
+select tests.login_service();
+insert into public.feature_flags (feature, everyone) values ('rankedBots', 'off')
+on conflict (feature) do update set everyone = 'off';
+select tests.logout();
+update public.duel_ratings set last_played_at = now() - interval '2 minutes' where player = tests.uid('bq');
+select tests.login('bq');
+select tests.is(public.duel_report_bot(true) ->> 'status', 'closed', 'closing the feature closes it on the server too');
+select tests.logout();

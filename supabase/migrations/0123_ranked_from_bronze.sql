@@ -65,3 +65,44 @@ language sql stable security definer set search_path = public as $$
     cross join lateral (select public.duel_effective_rating(r.rating, r.last_played_at) as rating) e
    where r.games >= 1 and not exists (select 1 from public.bots b where b.id = r.player)
 $$;
+
+-- Le temps des tests : une partie contre le bot de niveau, que la file lance
+-- faute d'adversaire, compte au classement. Elle se joue sur l'appareil, le
+-- serveur n'en connaît que l'issue que le client rapporte — de quoi tricher,
+-- donc une porte provisoire : la fonctionnalité `rankedBots` fermée pour tout
+-- le monde (`feature_flags`) la referme aussi ici, sans nouvelle version. Le
+-- bot a l'Elo du joueur : une victoire rend la moitié du pas, une défaite la
+-- coûte. Une partie par minute au plus, contre les envois répétés.
+-- 'settled' avec l'avant et l'après, 'closed' (porte fermée), 'too_soon' ou 'forbidden'.
+create function public.duel_report_bot(p_won boolean) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare
+  v_row public.duel_ratings;
+  v_before integer;
+  v_after integer;
+  v_delta integer;
+begin
+  if not public.is_named_account() then
+    return jsonb_build_object('status', 'forbidden');
+  end if;
+  if exists (select 1 from public.feature_flags where feature = 'rankedBots' and everyone = 'off') then
+    return jsonb_build_object('status', 'closed');
+  end if;
+  v_row := public.duel_rating_of(auth.uid());
+  if v_row.last_played_at > now() - interval '1 minute' then
+    return jsonb_build_object('status', 'too_soon');
+  end if;
+  perform 1 from public.duel_ratings where player = auth.uid() for update;
+  v_before := public.duel_effective_rating(v_row.rating, v_row.last_played_at);
+  v_delta := round(public.duel_k_factor(v_row.games) * 0.5);
+  v_after := public.duel_settled_rating(v_before + case when coalesce(p_won, false) then v_delta else -v_delta end, v_row.games + 1);
+  update public.duel_ratings
+     set rating = v_after, games = games + 1, wins = wins + case when coalesce(p_won, false) then 1 else 0 end,
+         peak = greatest(peak, v_after), last_played_at = now(), updated_at = now()
+   where player = auth.uid();
+  return jsonb_build_object('status', 'settled', 'before', v_before, 'after', v_after) || public.duel_rating_json(auth.uid());
+end;
+$$;
+
+revoke execute on function public.duel_report_bot(boolean) from public, anon;
+grant execute on function public.duel_report_bot(boolean) to authenticated;

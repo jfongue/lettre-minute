@@ -2622,6 +2622,20 @@ export function resignDuel(table: string): Promise<'resigned' | 'left' | 'unreac
   }, 'unreachable' as const)
 }
 
+/**
+ * L'issue d'une partie contre le bot de niveau, au classement pendant les tests
+ * (0123) : l'avant, l'après et la place. Null quand le serveur la refuse — la
+ * fonctionnalité `rankedBots` fermée, une partie de moins d'une minute — ou se tait.
+ */
+export function reportBotDuel(won: boolean): Promise<(DuelRatingInfo & { before: number; after: number }) | null> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_report_bot', { p_won: won })
+    const row = data as Record<string, unknown> | null
+    if (error || !row || row.status !== 'settled') return null
+    return { ...parseRatingInfo(row), before: Number(row.before) || 0, after: Number(row.after) || 0 }
+  }, null)
+}
+
 /** Reprendre sa place à une partie en cours, après une coupure ou une app fermée. */
 export function rejoinDuel(table: string): Promise<'back' | 'over' | 'closed' | 'unreachable'> {
   return guard(async () => {

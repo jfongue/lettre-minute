@@ -2292,6 +2292,7 @@ setStartedAt((at) => at ?? Date.now())
             room={duelOpen.room}
             resume={duelOpen.resume}
             levelBot={duelOpen.bot ?? null}
+            rankedBot={named && on('rankedBots')}
             onTable={onSeated}
             onExit={leaveDuel}
             onProfile={duelProfile}

@@ -617,7 +617,10 @@ propre téléphone.
   à 30 s), l'attente estimée sort de `duel_queue_log`. Personne en face dix
   secondes après l'attente annoncée (`botMatchAfter`) : l'app lance une vraie
   partie locale contre « Bot », réglé sur l'Elo du joueur (`botLevel`,
-  `LEVEL_BOT_ID`), non classée — et seulement depuis l'écran de recherche. La file vit dans
+  `LEVEL_BOT_ID`) — et seulement depuis l'écran de recherche. Pendant les tests,
+  elle compte au classement (`duel_report_bot`, issue rapportée par le client,
+  une par minute) : la fonctionnalité `rankedBots` la referme, côté serveur
+  aussi, une fois l'app et CrazyGames livrées. La file vit dans
   `src/App.tsx` (`useDuelQueue`, `src/state/duelQueue.ts`), pas dans son
   écran : elle continue à l'accueil (`QueuePill`) et derrière la table des
   joueurs ordinateur, se met en veille hors de l'accueil (`busy`), et toute

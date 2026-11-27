@@ -1595,6 +1595,8 @@ export interface DuelScreenProps {
   resume?: boolean
   /** La file classée n'a trouvé personne : une partie aussitôt contre un bot de ce niveau (Elo). */
   levelBot?: number | null
+  /** Pendant les tests, cette partie contre le bot compte au classement. */
+  rankedBot?: boolean
   /** La table où l'on est assis : l'app la quitte quand la file classée trouve un adversaire. */
   onTable?(table: string | null): void
   onExit?(reason: DuelExit): void
@@ -1604,7 +1606,7 @@ export interface DuelScreenProps {
   onSignIn?(): void
 }
 
-export function DuelScreen({ lang, mode = 'local', join = null, quick = false, room = false, resume = false, levelBot = null, onExit, onProfile, onSignIn, onTable }: DuelScreenProps) {
+export function DuelScreen({ lang, mode = 'local', join = null, quick = false, room = false, resume = false, levelBot = null, rankedBot = false, onExit, onProfile, onSignIn, onTable }: DuelScreenProps) {
   // Hors ligne, la table en ligne cède la place à une table locale, sur le même écran.
   const [local, setLocal] = useState(false)
   return (
@@ -1617,6 +1619,7 @@ export function DuelScreen({ lang, mode = 'local', join = null, quick = false, r
       room={room && !local}
       resume={resume && !local}
       levelBot={levelBot}
+      rankedBot={rankedBot}
       onTable={onTable}
       onExit={onExit}
       onProfile={onProfile}
@@ -1634,14 +1637,15 @@ function DuelTableScreen({
   room,
   resume,
   levelBot,
+  rankedBot,
   onExit,
   onProfile,
   onSignIn,
   onTable,
   onBots,
-}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'quick' | 'room' | 'resume' | 'levelBot'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn' | 'onTable'> & { onBots(): void }) {
+}: Required<Pick<DuelScreenProps, 'lang' | 'mode' | 'join' | 'quick' | 'room' | 'resume' | 'levelBot' | 'rankedBot'>> & Pick<DuelScreenProps, 'onExit' | 'onProfile' | 'onSignIn' | 'onTable'> & { onBots(): void }) {
   const t = useT()
-  const table = useDuelTable({ lang, mode, join, quick, room, resume, levelBot, onExit, onProfile, onTable })
+  const table = useDuelTable({ lang, mode, join, quick, room, resume, levelBot, rankedBot, onExit, onProfile, onTable })
   const { phase } = table
   // Les règles s'ouvrent au premier lancement de la table, puis se revoient du
   // salon. Pas devant l'ami qu'une salle du portail amène : une table l'attend

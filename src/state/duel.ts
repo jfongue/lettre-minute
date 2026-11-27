@@ -42,6 +42,7 @@ import {
   fetchDuelCandidates,
   fetchPlayerId,
   finishDuel,
+  reportBotDuel,
   reportDuel,
   resignDuel,
   type DuelRatingChange,
@@ -405,13 +406,15 @@ export interface DuelTableOptions {
   resume?: boolean
   /** La table locale contre le bot de niveau, lancée sans salon : l'Elo du joueur qu'il imite. */
   levelBot?: number | null
+  /** Le temps des tests : la partie contre le bot de niveau compte au classement (`rankedBots`). */
+  rankedBot?: boolean
   /** La table où l'on est assis, à chaque changement : l'app la quitte quand la file classée trouve mieux. */
   onTable?(table: string | null): void
 }
 
 export { duelPool } from './duelPool'
 
-export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false, resume = false, levelBot = null, onTable }: DuelTableOptions): DuelTable {
+export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false, resume = false, levelBot = null, rankedBot = false, onTable }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
@@ -1182,6 +1185,43 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       : candidates.filter((candidate) => !takenIds.has(candidate.id))
   const opensAt = duel ? openingAt(duel) : null
   const drawnShown = duel ? drawnShownAt(duel, at) : 0
+  // La partie contre le bot de niveau : son issue part au classement une fois, à la fin.
+  const botRanked = mode === 'local' && levelBot !== null && rankedBot
+  const [botResult, setBotResult] = useState<{ table: string; rating: DuelRatingResult | null } | null>(null)
+  const botReported = useRef('')
+  const reportBot = useCallback(
+    (won: boolean, key: string) => {
+      if (!botRanked || botReported.current === key) return
+      botReported.current = key
+      setBotResult({ table: key, rating: null })
+      void reportBotDuel(won).then((result) =>
+        setBotResult(
+          result
+            ? { table: key, rating: { settled: true, voided: false, before: result.before, after: result.after, games: result.games, rank: result.rank } }
+            : { table: key, rating: { settled: true, voided: true, before: 0, after: 0, games: 0, rank: null } },
+        ),
+      )
+    },
+    [botRanked],
+  )
+  useEffect(() => {
+    if (!botRanked || !ended || !duel) return
+    reportBot(duelRanking(duel)[0] === myIndex, tableKey)
+  }, [botRanked, duel, ended, myIndex, reportBot, tableKey])
+  const botRating = botResult && botResult.table === tableKey ? botResult : null
+  // Quitter la partie contre le bot avant la fin, c'est la perdre : sinon on fuirait chaque défaite.
+  const runningBot = useRef({ playing: false, key: '' })
+  runningBot.current = { playing: botRanked && table?.status === 'playing' && !ended, key: tableKey }
+  useEffect(
+    () => () => {
+      const running = runningBot.current
+      if (running.playing && botReported.current !== running.key) {
+        botReported.current = running.key
+        void reportBotDuel(false)
+      }
+    },
+    [],
+  )
   const ratingChange = table?.ratings.find((change) => change.player === myId) ?? null
   const myRow = table?.seats.find((seat) => seat.id === myId)
   const rating: DuelRatingResult | null =
@@ -1214,8 +1254,8 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     canPublish,
     setPublic,
     payout: payout && payout.table === tableKey ? payout : null,
-    ranked: !!table?.ranked,
-    rating,
+    ranked: !!table?.ranked || (botRanked && !!botRating && !(botRating.rating?.voided ?? false)),
+    rating: botRating ? botRating.rating : rating,
     away,
     echoes,
     echoesLeft,
