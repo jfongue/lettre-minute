@@ -29,6 +29,7 @@ const WEEKLY_WIN_KEY = 'lettre-minute.weekly-win.v1'
 // Kept by clearLocalData as well: the duel's rules are learnt once, and a
 // player who signs out does not want them explained again.
 const DUEL_RULES_KEY = 'lettre-minute.duel-rules.v1'
+const DUEL_ACTIVE_KEY = 'lettre-minute.duel-active.v1'
 // La pastille du bouton « Multijoueur » : gardée par clearLocalData comme le
 // tutoriel, celui qui se déconnecte a déjà lancé sa partie à plusieurs.
 const MULTIPLAYER_KEY = 'lettre-minute.multiplayer.v1'
@@ -121,6 +122,27 @@ export function loadDuelRulesSeen(): boolean {
 
 export function saveDuelRulesSeen(): void {
   write(DUEL_RULES_KEY, true)
+}
+
+/**
+ * La partie de duel en ligne où ce joueur est encore vivant : l'app fermée en
+ * plein duel la retrouve à l'accueil (« Ton duel continue »). Elle ne vaut que
+ * le temps que sa réserve tienne sans lui, d'où l'heure gardée avec elle.
+ */
+export function loadActiveDuel(): { table: string; at: number } | null {
+  const raw = parsed(DUEL_ACTIVE_KEY) as { table?: unknown; at?: unknown } | null
+  return raw && typeof raw.table === 'string' && typeof raw.at === 'number' ? { table: raw.table, at: raw.at } : null
+}
+
+export function saveActiveDuel(table: string | null): void {
+  if (table) write(DUEL_ACTIVE_KEY, { table, at: Date.now() })
+  else {
+    try {
+      localStorage.removeItem(DUEL_ACTIVE_KEY)
+    } catch {
+      /* rien de gardé, rien à retirer */
+    }
+  }
 }
 
 /** Whether this duel table already paid its XP on this device. */

@@ -1,5 +1,6 @@
 import type { Messages } from './fr'
 import { weeklyEn } from './weekly.en'
+import { rankedEn } from './ranked.en'
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many)
 // One formatter, not one per call: the endurance clock asks ten times a second.
@@ -919,6 +920,7 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
   },
 
   weekly: weeklyEn,
+  ranked: rankedEn,
 
   premiumPage: {
     lead: 'What Premium has given you beyond the free limits.',

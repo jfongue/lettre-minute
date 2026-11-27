@@ -112,6 +112,8 @@ export interface DuelQueue {
   accept(): void
   decline(): void
   dismiss(): void
+  /** La table trouvée est ouverte : la file revient au repos, sans rien dire au serveur. */
+  reset(): void
 }
 
 export interface DuelQueueOptions {
@@ -187,6 +189,7 @@ export function useDuelQueue({ lang, busy, poll = duelQueuePoll, answer = answer
   const accept = useCallback(() => respond(true), [respond])
   const decline = useCallback(() => respond(false), [respond])
   const dismiss = useCallback(() => dispatch({ type: 'dismiss' }), [])
+  const reset = useCallback(() => dispatch({ type: 'cancel' }), [])
 
-  return { state, now, start, cancel, accept, decline, dismiss }
+  return { state, now, start, cancel, accept, decline, dismiss, reset }
 }

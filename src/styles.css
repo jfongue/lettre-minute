@@ -11474,3 +11474,209 @@ ligne, et se referme par une seconde tape. */
 .friends-sort .layer-tab::after {
   inset: -6px 0;
 }
+
+/* ------------------------------------------------------- le duel classé - */
+
+/* La ligue : sa forme à côté de son nom, jamais derrière, puis l'Elo. */
+.league-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+  padding: 0.15rem 0.5rem 0.15rem 0.3rem;
+  border: var(--line) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.8rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.league-chip b {
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.league-chip__points {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.league-chip--compact {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.4rem 0.1rem 0.25rem;
+}
+
+.league-mark {
+  width: 0.95em;
+  height: 0.95em;
+  flex: none;
+}
+
+.league-chip--placement {
+  border-style: dashed;
+  color: var(--ink-soft);
+}
+
+.together-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.together-chips .together-chip {
+  margin-top: 0;
+}
+
+.together-chip--ranked {
+  background: var(--blue-action);
+  color: var(--cream);
+}
+
+/* La file classée, loin de son écran : une barre d'encre, à gauche du bouton
+   du son en bas de l'accueil, en haut d'une table de duel. */
+.queue-pill {
+  position: fixed;
+  left: calc(1rem + env(safe-area-inset-left, 0px));
+  right: calc(1rem + 2.75rem + 0.6rem + env(safe-area-inset-right, 0px));
+  z-index: 58;
+  display: flex;
+  justify-content: flex-start;
+  pointer-events: none;
+  animation: rise-in 320ms var(--ease-spring) both;
+}
+
+.queue-pill--bottom {
+  bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+.queue-pill--top {
+  top: calc(0.6rem + env(safe-area-inset-top, 0px));
+  right: calc(1rem + env(safe-area-inset-right, 0px));
+  justify-content: center;
+}
+
+.queue-pill > * {
+  pointer-events: auto;
+}
+
+.queue-pill__open,
+.queue-pill__cancel {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  border: var(--line) solid var(--ink);
+  background: var(--black);
+  color: var(--cream);
+  font: inherit;
+  cursor: pointer;
+}
+
+.queue-pill__open {
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0 0.7rem;
+  box-shadow: 3px 3px 0 var(--yellow);
+}
+
+.queue-pill__open b {
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.queue-pill__clock.clock {
+  min-width: 0;
+  font-size: 1.05rem;
+  letter-spacing: 0;
+  color: var(--yellow);
+}
+
+.queue-pill__open small {
+  overflow: hidden;
+  font-size: 0.74rem;
+  opacity: 0.8;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-pill__cancel {
+  justify-content: center;
+  width: 2.75rem;
+  margin-left: -2px;
+  padding: 0;
+  box-shadow: 3px 3px 0 var(--yellow);
+}
+
+.queue-pill__cancel svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.queue-pill__open:focus-visible,
+.queue-pill__cancel:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.queue-pill__dots {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+
+.queue-pill__dots i {
+  width: 0.4rem;
+  height: 0.4rem;
+  background: var(--cream);
+  animation: loader-hop 900ms var(--ease-out) infinite;
+}
+
+.queue-pill__dots i:nth-child(2) {
+  border-radius: 50%;
+  background: var(--red);
+  animation-delay: 150ms;
+}
+
+.queue-pill__dots i:nth-child(3) {
+  background: var(--yellow);
+  animation-delay: 300ms;
+}
+
+/* Reprendre un duel : la carte d'une invitation, en bleu, pour se lire comme
+   une partie à soi plutôt qu'une table qui attend. */
+.duel-resume-card {
+  grid-template-columns: minmax(0, 1fr);
+  background: var(--blue-action);
+  border-color: var(--ink);
+  color: var(--cream);
+}
+
+.duel-resume-card .btn--blue {
+  background: var(--yellow);
+  border-color: var(--black);
+  color: var(--black);
+}
+
+.duel-resume-card .duel-invite-card__actions .btn--quiet {
+  color: var(--cream);
+}
+
+/* Un téléphone étroit garde le chrono et laisse l'estimation à l'écran de recherche. */
+@media (max-width: 359px) {
+  .queue-pill__open small {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .queue-pill,
+  .queue-pill__dots i {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

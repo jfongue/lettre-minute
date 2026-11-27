@@ -1,0 +1,77 @@
+import type { LeagueId } from '../domain/ranked'
+
+const plural = (count: number, one: string, many: string) => (count > 1 ? many : one)
+
+/**
+ * Le duel classé : la file qui dit son attente, l'adversaire à accepter, les
+ * ligues, l'abandon et la reprise. Écrit à part de `fr.ts` — qui le reprend
+ * sous `ranked` — pour que ses sept langues tiennent dans un seul chantier.
+ */
+export const rankedFr = {
+  eyebrow: 'Duel classé',
+  leagues: { bronze: 'Bronze', silver: 'Argent', gold: 'Or', platinum: 'Platine', diamond: 'Diamant' } satisfies Record<LeagueId, string> as Record<LeagueId, string>,
+  placement: (placed: number, total: number) => `Placement ${placed}/${total}`,
+  points: (rating: string) => `${rating} pts`,
+  rank: (rank: number) => (rank === 1 ? '1er' : `${rank}e`),
+  ranked: 'Classée',
+  waited: 'Attente',
+  estimated: 'Estimée',
+  estimateSeconds: (value: number) => `≈ ${value} s`,
+  estimateMinutes: (value: number) => `≈ ${value} min`,
+  estimateLong: 'Plusieurs minutes',
+  estimateUnknown: 'Peu de recul',
+  overdue: 'Plus long que prévu',
+  crowd: (searching: number, playing: number) =>
+    `${searching} ${plural(searching, 'autre joueur cherche', 'autres joueurs cherchent')} · ${playing} en duel`,
+  crowdNone: (playing: number) => (playing > 0 ? `Personne d’autre ne cherche · ${playing} en duel` : 'Personne d’autre ne cherche pour l’instant'),
+  status: (clock: string, estimate: string) => `Recherche depuis ${clock}, attente estimée ${estimate}`,
+  botsWhile: 'Jouer contre les ordinateurs en attendant',
+  botsWhileNote: 'La recherche continue : on te prévient dès qu’un joueur est trouvé.',
+  publicTable: (seats: number) => `Rejoindre une table publique (${seats}/4)`,
+  publicNote: 'Partie amicale, hors classement.',
+  ladder: 'Classement du duel',
+  ladderLead: 'Les joueurs qui ont fini leurs cinq parties de placement.',
+  ladderEmpty: 'Personne n’a encore fini ses placements : à toi l’honneur.',
+  ladderLoading: 'Le classement arrive…',
+  ladderFailed: 'Le classement n’a pas pu se charger.',
+  ladderYou: 'Toi',
+  close: 'Fermer',
+  pill: 'Recherche',
+  pillOpen: 'Voir la recherche d’un adversaire',
+  pillCancel: 'Annuler la recherche',
+  foundEyebrow: 'Adversaire trouvé',
+  foundTitle: 'On y va ?',
+  vs: 'contre',
+  stakes: (win: string, loss: string) => `Victoire ${win} · Défaite ${loss}`,
+  friendly: 'Partie amicale',
+  accept: 'Accepter',
+  decline: 'Pas maintenant',
+  waitingFor: (name: string) => `En attente de ${name}…`,
+  accepted: 'Prêt',
+  countdown: (seconds: number) => `${seconds} s pour répondre`,
+  bounced: 'L’adversaire n’a pas confirmé : la recherche continue.',
+  missed: 'Tu n’as pas répondu à temps : la recherche s’est arrêtée.',
+  retry: 'Relancer',
+  dismiss: 'OK',
+  cooldownTitle: 'Petite pause',
+  cooldownLead: 'Trop de duels quittés ou de propositions laissées passer en une heure. La file te rouvre dans :',
+  overTitle: 'Classement',
+  overSettling: 'Le classement se règle…',
+  overVoided: 'Partie non classée : les résultats ne concordaient pas.',
+  overFriendly: 'Partie amicale : le classement ne bouge pas.',
+  leagueUp: (league: string) => `Nouvelle ligue : ${league} !`,
+  placementDone: (league: string) => `Placements finis : ${league} !`,
+  awayTurn: (name: string) => `${name} ne répond plus : sa réserve coule`,
+  offline: 'Hors ligne',
+  resign: 'Abandonner',
+  resignAsk: 'Abandonner ? Tu sors de la partie tout de suite.',
+  resignAskRanked: 'Abandonner ? Tu perds la partie tout de suite, et des points de classement.',
+  feedResigned: (name: string) => `${name} abandonne`,
+  feedYouResigned: 'Tu abandonnes',
+  resumeTitle: 'Ton duel continue',
+  resumeLead: 'Tu as quitté une partie en cours : reviens avant que ta réserve s’épuise.',
+  resume: 'Reprendre',
+  resumeGone: 'Cette partie est déjà finie.',
+}
+
+export type RankedMessages = typeof rankedFr

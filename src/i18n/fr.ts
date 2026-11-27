@@ -10,6 +10,7 @@ import type { BonusId } from '../domain/bonus'
 import type { AuthError, BanOutcome, BlockOutcome, ChallengeInviteOutcome, FriendRequestOutcome, InviteOutcome, TesterInviteOutcome, VoteOutcome } from '../lib/cloud'
 import type { PushState } from '../lib/native'
 import { weeklyFr } from './weekly.fr'
+import { rankedFr } from './ranked.fr'
 
 interface LeaderboardText {
   label: string
@@ -963,6 +964,7 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
   },
 
   weekly: weeklyFr,
+  ranked: rankedFr,
 
   premiumPage: {
     lead: 'Ce que Premium t’a apporté, au-delà des limites gratuites.',

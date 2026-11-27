@@ -52,6 +52,10 @@ import {
   type ModerationStatus,
   chooseName,
   declineDuel,
+  rejoinDuel,
+  resignDuel,
+  fetchDuelRating,
+  type DuelRatingInfo,
   fetchDuelInvites,
   fetchFeatureFlags,
   fetchLeaderboard,
@@ -161,6 +165,10 @@ import {
   saveTutorialDone,
 } from './state/storage'
 import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storage'
+import { loadActiveDuel, saveActiveDuel } from './state/storage'
+import { useDuelQueue } from './state/duelQueue'
+import { QueuePill } from './ui/QueuePill'
+import { DuelResumeCard } from './ui/PlayTogether'
 import { countsForProgress, modeEdge, MODE_SECONDS, type ArcadeMode, type GameMode } from './domain/modes'
 import { queueAlertDue } from './domain/moderation'
 import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
@@ -214,6 +222,11 @@ const WordsBoard = lazyScreen(() => import('./debug/WordsBoard').then((module) =
 const FeaturesBoard = lazyScreen(() => import('./debug/FeaturesBoard').then((module) => module.FeaturesBoard))
 const DuelScreen = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelScreen))
 const DuelMatchmaking = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelMatchmaking))
+const DuelLadder = lazyScreen(() => import('./ui/DuelScreen').then((module) => module.DuelLadder))
+const MatchFound = lazyScreen(() => import('./ui/MatchFound').then((module) => module.MatchFound))
+
+/** Combien de temps une partie de duel quittée vaut encore d'être reprise : sa réserve coule sans le joueur. */
+const RESUME_WINDOW_MS = 90_000
 
 /** The run's own screens: awaited with its dictionaries, so the countdown never opens on a blank frame. */
 function preloadRunScreens(): Promise<unknown> {
@@ -394,6 +407,15 @@ setMenuPage(null)
   const t = messagesFor(locale ?? 'fr')
   // The dictionary follows the interface: a German player answers in German.
   const lang = locale ?? 'fr'
+  // La file du duel classé vit ici, pas dans son écran : elle continue à
+  // l'accueil et à la table des joueurs ordinateur, et se met en veille
+  // pendant une partie seule — un adversaire n'y interrompt pas le chrono.
+  const duelQueue = useDuelQueue({ lang, busy: session.phase === 'countdown' || session.phase === 'playing' })
+  const queueState = duelQueue.state
+  const [activeDuel, setActiveDuel] = useState(() => {
+    const kept = loadActiveDuel()
+    return kept && Date.now() - kept.at < RESUME_WINDOW_MS ? kept : null
+  })
   const speak = useCallback((next: Locale) => {
     // A language is loaded before it is shown: rendered first, it would flash French.
     // The language changes only once its messages are there: a failure keeps
@@ -531,7 +553,7 @@ setMenuPage(null)
   // Le duel en direct : l'écran de choix, la table ouverte (neuve ou rejointe),
   // les invitations qui attendent, et ce que la table a dit en renvoyant le joueur.
   const [together, setTogether] = useState(false)
-  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean; room?: boolean } | null>(null)
+  const [duelOpen, setDuelOpen] = useState<{ join: string | null; quick?: boolean; local?: boolean; room?: boolean; resume?: boolean } | null>(null)
   // The host's rooms (CrazyGames): a friend's table the portal launched the
   // game for or brings the player to while it runs, or the portal's « play
   // with friends » that wants a joinable table at once. A guest is first
@@ -543,6 +565,9 @@ setMenuPage(null)
   })
   useEffect(() => host.rooms?.onJoin((table) => setRoomCall({ table })), [])
   const [matching, setMatching] = useState(false)
+  const [ladderOpen, setLadderOpen] = useState(false)
+  // La table où l'on est assis, que la file classée fait quitter quand elle trouve un adversaire.
+  const seatedTable = useRef<string | null>(null)
   const [duelInvites, setDuelInvites] = useState<readonly DuelInvitation[]>([])
   const [duelBanner, setDuelBanner] = useState<'kicked' | 'closed' | null>(null)
   const [debugPhase, setDebugPhase] = useState<string | null>(() =>
@@ -1461,9 +1486,70 @@ setStartedAt((at) => at ?? Date.now())
       setDuelOpen(null)
       if (reason) setDuelBanner(reason)
       refreshDuelInvites()
+      const kept = loadActiveDuel()
+      setActiveDuel(kept && Date.now() - kept.at < RESUME_WINDOW_MS ? kept : null)
     },
     [refreshDuelInvites],
   )
+  const onSeated = useCallback((table: string | null) => {
+    seatedTable.current = table
+  }, [])
+
+  // Un adversaire accepté des deux côtés : la table classée s'ouvre, et celle
+  // des joueurs ordinateur, s'il y en avait une, s'abandonne — elle n'a pas d'enjeu.
+  const matchedTable = queueState.kind === 'matched' ? queueState.table : null
+  useEffect(() => {
+    if (!matchedTable) return
+    const previous = seatedTable.current
+    if (previous && previous !== matchedTable) void resignDuel(previous)
+    rememberMultiplayer()
+    setMatching(false)
+    setTogether(false)
+    setLadderOpen(false)
+    setMenuPage(null)
+    setDuelOpen({ join: matchedTable, quick: true })
+    duelQueue.reset()
+  }, [matchedTable, duelQueue, rememberMultiplayer])
+  // La carte de l'adversaire trouvé se charge dès qu'on entre dans la file.
+  const queueActive = queueState.kind === 'searching' || queueState.kind === 'found'
+  useEffect(() => {
+    if (queueActive) void MatchFound.preload()
+  }, [queueActive])
+  // Une proposition laissée passer loin de l'écran de recherche se dit à l'accueil.
+  const missed = queueState.kind === 'idle' && queueState.notice === 'missed'
+  const [missedBanner, setMissedBanner] = useState(false)
+  const clearMissedBanner = useCallback(() => setMissedBanner(false), [])
+  // Mon classement au duel, que la carte du matchmaking annonce à l'ouverture du choix.
+  const [duelRating, setDuelRating] = useState<DuelRatingInfo | null>(null)
+  useEffect(() => {
+    if (!together || !named) return
+    void fetchDuelRating().then((rating) => rating && setDuelRating(rating))
+  }, [named, together])
+  useEffect(() => {
+    if (!missed || matching) return
+    setMissedBanner(true)
+    duelQueue.dismiss()
+  }, [duelQueue, matching, missed])
+  const resumeDuel = useCallback(() => {
+    const kept = activeDuel
+    if (!kept) return
+    setActiveDuel(null)
+    void rejoinDuel(kept.table).then((outcome) => {
+      if (outcome === 'back') {
+        rememberMultiplayer()
+        setDuelOpen({ join: kept.table, resume: true })
+      } else {
+        saveActiveDuel(null)
+        setDuelBanner('closed')
+      }
+    })
+  }, [activeDuel, rememberMultiplayer])
+  const dropResume = useCallback(() => {
+    const kept = activeDuel
+    setActiveDuel(null)
+    saveActiveDuel(null)
+    if (kept) void resignDuel(kept.table)
+  }, [activeDuel])
   const clearDuelBanner = useCallback(() => setDuelBanner(null), [])
   // L'XP d'un duel en ligne, payée par la table : le profil de l'écran la suit.
   const duelProfile = useCallback((next: Profile) => dispatch({ type: 'profile-loaded', profile: next }), [])
@@ -1973,9 +2059,10 @@ setStartedAt((at) => at ?? Date.now())
     // Une table de duel se quitte par son bouton : un geste de retour en pleine
     // partie abandonnerait sa réserve sans le dire.
     if (duelOpen) return true
-    if (matching) {
+    if (ladderOpen) setLadderOpen(false)
+    else if (matching) {
+      // Revenir ne quitte pas la file : la pastille de l'accueil la garde.
       setMatching(false)
-      setTogether(true)
     } else if (together) setTogether(false)
     else if (picking) setPicking(null)
     else if (creating) setCreating(null)
@@ -2149,6 +2236,8 @@ setStartedAt((at) => at ?? Date.now())
             join={duelOpen.join}
             quick={duelOpen.quick}
             room={duelOpen.room}
+            resume={duelOpen.resume}
+            onTable={onSeated}
             onExit={leaveDuel}
             onProfile={duelProfile}
             onSignIn={duelOpen.local ? duelSignIn : undefined}
@@ -2168,6 +2257,7 @@ setStartedAt((at) => at ?? Date.now())
             setDuelOpen({ join: null, local: !named })
           }}
           local={!named}
+          rating={duelRating}
           onSignIn={named ? undefined : duelSignIn}
           onMatch={
             // La file du matchmaking assoit deux comptes nommés (`duel_matchmake`) :
@@ -2176,6 +2266,7 @@ setStartedAt((at) => at ?? Date.now())
               ? () => {
                   rememberMultiplayer()
                   setTogether(false)
+                  duelQueue.start()
                   setMatching(true)
                 }
               : undefined
@@ -2201,19 +2292,22 @@ setStartedAt((at) => at ?? Date.now())
       {matching && session.phase === 'home' && !duelOpen && (
         <ScreenBoundary>
           <DuelMatchmaking
-            lang={lang}
-            onMatched={(table) => {
-              setMatching(false)
-              setDuelOpen({ join: table, quick: true })
-            }}
-            onCancel={() => {
-              setMatching(false)
-              setTogether(true)
-            }}
+            queue={duelQueue}
             onBots={() => {
               setMatching(false)
               setDuelOpen({ join: null })
             }}
+            onPublic={(table) => {
+              duelQueue.cancel()
+              setMatching(false)
+              setDuelOpen({ join: table, room: true })
+            }}
+            onHome={() => {
+              // Une file arrêtée (annulée, manquée) ne laisse rien derrière : retour au choix.
+              if (queueState.kind === 'idle' || queueState.kind === 'cooldown') setTogether(true)
+              setMatching(false)
+            }}
+            onLadder={() => setLadderOpen(true)}
           />
         </ScreenBoundary>
       )}
@@ -2224,6 +2318,24 @@ setStartedAt((at) => at ?? Date.now())
 
       {duelBanner && (
         <DuelBanner text={duelBanner === 'kicked' ? t.duel.kickedBanner : t.duel.closedBanner} onDone={clearDuelBanner} />
+      )}
+
+      {missedBanner && <DuelBanner text={t.ranked.missed} onDone={clearMissedBanner} />}
+
+      {queueState.kind === 'searching' && !matching && (session.phase === 'home' || session.phase === 'over') && (
+        <QueuePill queue={duelQueue} place={duelOpen ? 'top' : 'bottom'} onOpen={() => setMatching(true)} />
+      )}
+
+      {queueState.kind === 'found' && (
+        <ScreenBoundary>
+          <MatchFound queue={duelQueue} />
+        </ScreenBoundary>
+      )}
+
+      {ladderOpen && (
+        <ScreenBoundary>
+          <DuelLadder onClose={() => setLadderOpen(false)} />
+        </ScreenBoundary>
       )}
 
       {weeklyFlow.overlay}
@@ -2248,7 +2360,9 @@ setStartedAt((at) => at ?? Date.now())
           multiplayerNews={multiplayerNews}
           weekly={weeklyFlow.card}
           invites={
-            duelInvites[0] ? (
+            activeDuel && named && on('duel') ? (
+              <DuelResumeCard onResume={resumeDuel} onDrop={dropResume} />
+            ) : duelInvites[0] ? (
               <DuelInviteCard
                 key={duelInvites[0].table}
                 host={duelInvites[0].host}

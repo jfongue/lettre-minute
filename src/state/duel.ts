@@ -6,6 +6,7 @@ import {
   draftPlayer,
   drawnShownAt,
   duelPrompt,
+  duelRanking,
   duelRound,
   inspectFor,
   onlyChoice,
@@ -38,6 +39,9 @@ import {
   fetchDuelCandidates,
   fetchPlayerId,
   finishDuel,
+  reportDuel,
+  resignDuel,
+  type DuelRatingChange,
   inviteToDuel,
   joinDuel,
   joinDuelRoom,
@@ -54,7 +58,7 @@ import {
 } from '../lib/cloud'
 import { setMusic, sound } from '../lib/sound'
 import { createJudge } from './judge'
-import { duelPaid, loadAccount, loadAvatar, loadProfile, markDuelPaid, saveProfile } from './storage'
+import { duelPaid, loadAccount, loadAvatar, loadProfile, markDuelPaid, saveActiveDuel, saveProfile } from './storage'
 
 /**
  * La table de duel vue d'un appareil. La partie elle-même n'est qu'un journal
@@ -132,6 +136,9 @@ export interface Seat {
   ready: boolean
   /** Invité, pas encore assis. */
   pending?: boolean
+  /** Son Elo de duel classé et ses parties, quand le serveur les connaît. */
+  rating?: number | null
+  games?: number
 }
 
 export interface Candidate {
@@ -168,6 +175,15 @@ export interface DuelTable {
   setPublic(open: boolean): void
   /** L'XP que ce duel a payée à la fin, une seule fois par table ; null sinon. */
   payout: DuelPayout | null
+  /** La table compte pour le classement du duel (0122). */
+  ranked: boolean
+  /**
+   * Ce que le classement a fait de moi : null tant que la table n'est pas
+   * réglée, `voided` quand les rapports ne concordaient pas.
+   */
+  rating: DuelRatingResult | null
+  /** Les places, dans l'ordre de la partie, dont l'appareil ne relit plus la table. */
+  away: readonly number[]
   ready: Readonly<Record<string, boolean>>
   markReady(): void
   unready(): void
@@ -224,6 +240,18 @@ export interface DuelTable {
   leave(): void
 }
 
+export interface DuelRatingResult {
+  settled: boolean
+  voided: boolean
+  before: number
+  after: number
+  /** Mes parties classées, celle-ci comprise une fois réglée. */
+  games: number
+}
+
+/** Une place qui ne relit plus la table depuis ce temps a perdu sa connexion. */
+export const AWAY_SECONDS = 6
+
 interface TableData {
   id: string | null
   hostId: string
@@ -234,6 +262,10 @@ interface TableData {
   startedAt: number | null
   rematch: string | null
   public: boolean
+  ranked: boolean
+  settled: boolean
+  voided: boolean
+  ratings: readonly DuelRatingChange[]
   seats: readonly (Seat & { seat: number | null; gone: boolean; kicked: boolean; seen: number })[]
   invites: readonly Seat[]
   moves: readonly DuelMove[]
@@ -274,6 +306,10 @@ function freshLocal(lang: string, me: Seat, bots: readonly string[], categories:
     startedAt: null,
     rematch: null,
     public: false,
+    ranked: false,
+    settled: false,
+    voided: false,
+    ratings: [],
     seats: [
       { ...me, ready: false, seat: null, gone: false, kicked: false, seen: wall() },
       ...bots.map((id) => {
@@ -297,6 +333,10 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
     startedAt: snapshot.table.startedAt,
     rematch: snapshot.table.rematch,
     public: snapshot.table.public,
+    ranked: snapshot.table.ranked,
+    settled: snapshot.table.settled,
+    voided: snapshot.table.voided,
+    ratings: snapshot.table.ratings,
     seats: snapshot.seats.map((row) => {
       const house = row.bot && row.name ? botByName(row.name) : undefined
       return {
@@ -313,6 +353,8 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
         gone: row.left || row.kicked || row.player === null,
         kicked: row.kicked,
         seen: row.seen,
+        rating: row.rating,
+        games: row.games,
       }
     }),
     invites: snapshot.invites.map((invite) => ({ id: invite.player, name: invite.name, avatar: invite.avatar, bot: false, owned: 0, ready: false, pending: true })),
@@ -333,11 +375,15 @@ export interface DuelTableOptions {
   quick?: boolean
   /** La table vient de la salle d'un hôte (CrazyGames) : on s'y assoit sans invitation. */
   room?: boolean
+  /** Une partie en cours qu'on reprend après une coupure : la place est déjà reprise (`duel_rejoin`). */
+  resume?: boolean
+  /** La table où l'on est assis, à chaque changement : l'app la quitte quand la file classée trouve mieux. */
+  onTable?(table: string | null): void
 }
 
 export { duelPool } from './duelPool'
 
-export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false }: DuelTableOptions): DuelTable {
+export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick = false, room = false, resume = false, onTable }: DuelTableOptions): DuelTable {
   const profile = useMemo(() => loadProfile(), [])
   const account = useMemo(() => loadAccount(), [])
   const shipped = useMemo(() => availableCategoryIds(lang), [lang])
@@ -499,6 +545,10 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   useEffect(() => {
     if (mode !== 'online' || opened.current) return
     opened.current = true
+    if (join && resume) {
+      setTableId(join)
+      return
+    }
     if (join) {
       // Une invitation : la place se prend d'abord, la table se lit ensuite.
       void (room ? joinDuelRoom : joinDuel)(join, mine.length).then((outcome) => {
@@ -512,7 +562,16 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       if (id) setTableId(id)
       else setOffline(true)
     })
-  }, [join, lang, mine, mode, room])
+  }, [join, lang, mine, mode, room, resume])
+
+  const tableReport = useRef(onTable)
+  useEffect(() => {
+    tableReport.current = onTable
+  })
+  useEffect(() => {
+    if (mode === 'online') tableReport.current?.(tableId)
+  }, [mode, tableId])
+  useEffect(() => () => tableReport.current?.(null), [])
 
   useEffect(() => {
     if (mode !== 'online') return
@@ -822,8 +881,22 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   useEffect(() => {
     if (!ended || !table || table.status !== 'playing') return
     if (mode === 'local') setTable((current) => current && { ...current, status: 'over' })
-    else if (table.id) void finishDuel(table.id)
-  }, [ended, mode, table])
+    else if (table.id && duel) {
+      // L'ordre d'arrivée rejoué part avec la fin : c'est lui que le classement
+      // règle. Un serveur d'avant 0122 ne connaît que la fin seule.
+      const id = table.id
+      void reportDuel(id, duelRanking(duel)).then((sent) => sent || finishDuel(id))
+    }
+  }, [duel, ended, mode, table])
+
+  // La partie où je suis encore vivant se garde sur l'appareil : fermer l'app
+  // en plein duel ne la perd pas, l'accueil propose de la reprendre.
+  const aliveHere = mode === 'online' && table?.status === 'playing' && !!duel && duel.phase !== 'over' && duel.players[myIndex]?.alive === true
+  const activeId = aliveHere ? (table?.id ?? null) : null
+  useEffect(() => {
+    if (mode !== 'online' || !table) return
+    saveActiveDuel(activeId)
+  }, [activeId, mode, table])
 
   // La fin d'une table se garde au profil, une fois : le plus grand nombre de
   // manches tenues à quatre, que la table seule connaît, et l'XP d'un duel fini —
@@ -938,7 +1011,11 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   const currentId = table?.id ?? null
   const leave = useCallback(() => {
     if (mode === 'online') {
-      if (currentId) void leaveDuel(currentId)
+      saveActiveDuel(null)
+      // En pleine partie, partir c'est abandonner : la table le sait tout de
+      // suite et l'adversaire n'attend pas que ma réserve s'épuise.
+      if (currentId && activeId === currentId) void resignDuel(currentId).then((outcome) => outcome === 'unreachable' && leaveDuel(currentId))
+      else if (currentId) void leaveDuel(currentId)
       exit.current?.(null)
       return
     }
@@ -952,7 +1029,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     setJudge(null)
     loadingFor.current = ''
     setTable(freshLocal(lang, meSeat, [HOUSE_BOTS[0]!.id], mine))
-  }, [currentId, lang, meSeat, mine, mode])
+  }, [activeId, currentId, lang, meSeat, mine, mode])
 
   // ------------------------------------------------------ mes gestes --
 
@@ -1053,6 +1130,22 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
       : candidates.filter((candidate) => !takenIds.has(candidate.id))
   const opensAt = duel ? openingAt(duel) : null
   const drawnShown = duel ? drawnShownAt(duel, at) : 0
+  const ratingChange = table?.ratings.find((change) => change.player === myId) ?? null
+  const myRow = table?.seats.find((seat) => seat.id === myId)
+  const rating: DuelRatingResult | null =
+    table?.ranked && (table.settled || ratingChange)
+      ? {
+          settled: table.settled,
+          voided: table.voided,
+          before: ratingChange?.before ?? myRow?.rating ?? 1000,
+          after: ratingChange?.after ?? myRow?.rating ?? 1000,
+          games: myRow?.games ?? 0,
+        }
+      : null
+  const away =
+    mode === 'online' && table?.status === 'playing'
+      ? players.flatMap((seat, index) => (!seat.bot && seat.id !== myId && (seat.gone || at - seat.seen > AWAY_SECONDS) ? [index] : []))
+      : []
 
   return {
     mode,
@@ -1068,6 +1161,9 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     canPublish,
     setPublic,
     payout: payout && payout.table === tableKey ? payout : null,
+    ranked: !!table?.ranked,
+    rating,
+    away,
     ready,
     markReady: () => setMyReady(true),
     unready: () => setMyReady(false),

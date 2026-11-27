@@ -1146,22 +1146,65 @@ téléphone en portrait, où la page poussait sinon le bouton sous l'écran. */
   }
 
   /* La recherche d'un adversaire : le titre et les boutons à gauche, les deux
-     places face à face à droite. */
+     places face à face et l'attente à droite. */
   .stage.stage--duel .duel-search {
     min-height: 0;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     grid-auto-flow: row dense;
     column-gap: clamp(1.5rem, 4vw, 3rem);
+    row-gap: min(var(--step), 2.6vh);
+    align-content: center;
   }
 
   .stage.stage--duel .duel-search > * {
     grid-column: 1;
   }
 
-  .stage.stage--duel .duel-search > .duel-versus {
+  .stage.stage--duel .duel-search > .duel-search__stage {
     grid-column: 2;
     grid-row: 1 / span 4;
     align-self: center;
+    gap: min(var(--step), 2.6vh);
+  }
+
+  .stage.stage--duel .duel-search .duel-versus__seat {
+    padding-block: min(1rem, 2vh) min(0.8rem, 1.6vh);
+  }
+
+  .stage.stage--duel .duel-search .duel-versus__seat .avatar,
+  .stage.stage--duel .duel-search .duel-versus__shape {
+    width: min(4.2rem, 11vh);
+  }
+
+  .stage.stage--duel .duel-search .duel-wait {
+    gap: min(0.6rem, 1.4vh);
+    padding-block: min(0.9rem, 2vh);
+  }
+
+  .stage.stage--duel .duel-search .duel-search__actions {
+    gap: min(0.75rem, 1.6vh);
+  }
+
+  .stage.stage--duel .duel-search .duel-title--poster {
+    font-size: min(2.2rem, 7vh);
+  }
+
+  /* Le bouton des joueurs ordinateur et celui de la table publique gardent
+     leur seule ligne dans un cadre bas : la recherche qui continue se lit déjà
+     dans le panneau de l'attente. */
+  @media (max-height: 560px) {
+    .stage.stage--duel .duel-search .duel-search__actions small {
+      display: none;
+    }
+
+    .stage.stage--duel .duel-search .btn--play {
+      min-height: 3.2rem;
+    }
+
+    .stage.stage--duel .duel-search .btn--play .play-glyph {
+      width: 2.4rem;
+      height: 2.4rem;
+    }
   }
 }
 

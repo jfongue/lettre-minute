@@ -71,7 +71,8 @@ import { RatingPop } from '../ui/RatingPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
 import { FeaturesBoardView } from './FeaturesBoard'
-import { DuelScreen, Draft, DuelMatchmaking, Lobby, Over } from '../ui/DuelScreen'
+import { DuelScreen, Draft, Lobby, Over } from '../ui/DuelScreen'
+import { AwayScenario, LadderScenario, MatchFoundScenario, MatchmakingScenario, QueuePillScenario, RankedOverScenario, ResumeScenario } from './rankedScenarios'
 import { DuelBanner, DuelInviteCard, PlayTogether } from '../ui/PlayTogether'
 import { FEATURES, type FlagRow } from '../domain/features'
 import type { AdminIdea } from '../lib/cloud'
@@ -1601,6 +1602,9 @@ const CHEER_TABLE: DuelTable = (() => {
     play: noop,
     pass: noop,
     leave: noop,
+    ranked: false,
+    rating: null,
+    away: [],
   }
 })()
 
@@ -2776,11 +2780,115 @@ const SCENARIOS: readonly Scenario[] = [
   },
   {
     id: 'duel-matchmaking',
-    group: 'Duel',
+    group: 'Duel classé',
     title: 'Matchmaking : recherche d’un adversaire',
-    how: 'Après « Trouver un adversaire » : la file, relue toutes les deux secondes ; les joueurs ordinateur s’offrent au bout de quinze secondes ; ici la file ne répond jamais',
+    how: 'Après « Trouver un adversaire » : ma ligue, l’attente écoulée et l’estimée, combien cherchent et jouent ; « Annuler » arrête la file, le classement s’ouvre en bas',
     phase: 'home',
-    render: (back) => <DuelMatchmaking lang="fr" onMatched={back} onCancel={back} onBots={back} ask={async () => ({ status: 'waiting' })} leave={async () => true} />,
+    render: (back) => <MatchmakingScenario kind="searching" onBack={back} />,
+  },
+  {
+    id: 'duel-matchmaking-long',
+    group: 'Duel classé',
+    title: 'Matchmaking : attente plus longue que prévu',
+    how: 'Plus d’une minute dans la file : l’estimation dépassée en rouge, un adversaire proposé qui n’a pas confirmé, les joueurs ordinateur en attendant et une table publique à rejoindre',
+    phase: 'home',
+    render: (back) => <MatchmakingScenario kind="long" onBack={back} />,
+  },
+  {
+    id: 'duel-matchmaking-cooldown',
+    group: 'Duel classé',
+    title: 'Matchmaking : pause après trop d’abandons',
+    how: 'Trois duels classés quittés ou propositions laissées passer en une heure : cinq minutes hors de la file, les joueurs ordinateur restent ouverts',
+    phase: 'home',
+    render: (back) => <MatchmakingScenario kind="cooldown" onBack={back} />,
+  },
+  {
+    id: 'duel-matchmaking-missed',
+    group: 'Duel classé',
+    title: 'Matchmaking : proposition laissée passer',
+    how: 'Le joueur n’a pas accepté dans les vingt secondes : la file s’est arrêtée, « Relancer » la reprend',
+    phase: 'home',
+    render: (back) => <MatchmakingScenario kind="missed" onBack={back} />,
+  },
+  {
+    id: 'duel-match-found',
+    group: 'Duel classé',
+    title: 'Adversaire trouvé',
+    how: 'La file a trouvé Ondine : les deux places, l’enjeu au classement, vingt secondes qui se consument ; « Accepter » passe à l’attente, Ondine accepte au bout de six secondes',
+    phase: 'duel',
+    render: (back) => <MatchFoundScenario onBack={back} />,
+  },
+  {
+    id: 'duel-match-found-friendly',
+    group: 'Duel classé',
+    title: 'Adversaire trouvé par une version livrée',
+    how: 'Une version d’avant le classement a apparié le joueur : la table n’est pas classée, la carte dit « Partie amicale »',
+    phase: 'duel',
+    render: (back) => <MatchFoundScenario ranked={false} onBack={back} />,
+  },
+  {
+    id: 'duel-queue-pill',
+    group: 'Duel classé',
+    title: 'La file continue à l’accueil',
+    how: 'Le joueur a quitté l’écran de recherche : la pastille dit l’attente et l’estimée ; la toucher rouvre la recherche, la croix l’arrête',
+    phase: 'home',
+    render: (back) => <QueuePillScenario onBack={back} home={<DebugHome back={back} />} />,
+  },
+  {
+    id: 'duel-ladder',
+    group: 'Duel classé',
+    title: 'Classement du duel',
+    how: 'Depuis la recherche : les joueurs placés, leur ligue et leur Elo, ma ligne en jaune',
+    phase: 'duel',
+    render: (back) => <LadderScenario onBack={back} />,
+  },
+  {
+    id: 'duel-over-ranked',
+    group: 'Duel classé',
+    title: 'Bilan d’un duel classé : nouvelle ligue',
+    how: 'Le serveur a réglé la table : l’Elo monte de 1 093 à 1 108 et passe d’Argent à Or',
+    phase: 'duel',
+    render: () => <RankedOverScenario base={DUEL_OVER_TABLE} settle="promoted" />,
+  },
+  {
+    id: 'duel-over-ranked-loss',
+    group: 'Duel classé',
+    title: 'Bilan d’un duel classé : défaite',
+    how: 'Une défaite réglée : l’Elo descend de onze points, la ligue tient',
+    phase: 'duel',
+    render: () => <RankedOverScenario base={{ ...DUEL_OVER_TABLE, myIndex: 1 }} settle="lost" />,
+  },
+  {
+    id: 'duel-over-settling',
+    group: 'Duel classé',
+    title: 'Bilan d’un duel classé : règlement en cours',
+    how: 'La fin vient d’arriver, le rapport de l’autre pas encore : « Le classement se règle… »',
+    phase: 'duel',
+    render: () => <RankedOverScenario base={DUEL_OVER_TABLE} settle="settling" />,
+  },
+  {
+    id: 'duel-over-voided',
+    group: 'Duel classé',
+    title: 'Bilan d’un duel classé : partie annulée',
+    how: 'Les rapports des deux appareils ne concordaient pas : la partie ne compte pas',
+    phase: 'duel',
+    render: () => <RankedOverScenario base={DUEL_OVER_TABLE} settle="voided" />,
+  },
+  {
+    id: 'duel-seat-away',
+    group: 'Duel classé',
+    title: 'Adversaire hors ligne en pleine partie',
+    how: 'Ondine ne relit plus la table depuis six secondes : sa place pâlit et dit « Hors ligne », sa réserve coule',
+    phase: 'duel',
+    render: () => <AwayScenario base={CHEER_TABLE} />,
+  },
+  {
+    id: 'duel-resume',
+    group: 'Duel classé',
+    title: 'Reprendre un duel quitté',
+    how: 'L’app s’est fermée en plein duel : l’accueil propose d’y revenir tant que la réserve tient, ou d’abandonner',
+    phase: 'home',
+    render: (back) => <ResumeScenario onBack={back} />,
   },
   {
     id: 'duel-table',
