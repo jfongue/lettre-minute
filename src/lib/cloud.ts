@@ -2364,6 +2364,8 @@ export interface DuelSnapshot {
     public: boolean
     /** La table compte pour le classement (0122). */
     ranked: boolean
+    /** Les règles du duel que la table joue : 2 avec les mots trouvés hors de son tour. */
+    rules: number
     settled: boolean
     voided: boolean
     ratings: readonly DuelRatingChange[]
@@ -2394,6 +2396,7 @@ export function syncDuel(table: string, after: number): Promise<DuelSnapshot | n
         rematch: (info.rematch as string | null) ?? null,
         public: info.public === true,
         ranked: info.ranked === true,
+        rules: Number(info.rules) || 1,
         settled: info.settled === true,
         voided: info.voided === true,
         ratings: ((info.ratings as Record<string, unknown>[] | undefined) ?? []).map((change) => ({

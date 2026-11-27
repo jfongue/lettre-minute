@@ -15,6 +15,8 @@ import {
   type Seat,
 } from '../state/duel'
 import {
+  DUEL_ECHO_FIRST,
+  DUEL_ECHO_NEXT,
   DUEL_PASS_PENALTY_SECONDS,
   DUEL_PICK_SECONDS,
   DUEL_RESERVE_SECONDS,
@@ -781,6 +783,9 @@ function Feed({ table }: { table: DuelTable }) {
         return self ? t.duel.feedYouPassed : t.duel.feedPassed(name)
       case 'failed':
         return t.duel.feedFailed
+      case 'echoed':
+        // Le mot d'un autre reste caché : il pourrait servir à celui qui a la main.
+        return self ? t.ranked.feedYouEcho(capitalized(fact.word ?? '')) : t.ranked.feedEcho(name)
       case 'dead':
         if (fact.resigned) return self ? t.ranked.feedYouResigned : t.ranked.feedResigned(name)
         return self ? t.duel.feedYouDead : t.duel.feedDead(name)
@@ -804,6 +809,7 @@ function Feed({ table }: { table: DuelTable }) {
             <span className="duel-feed__text">{line(fact)}</span>
             {fact.saved ? <span className="duel-feed__saved">{t.duel.saved}</span> : null}
             {fact.kind === 'solved' && fact.tier ? <TierTag tier={fact.tier} /> : null}
+            {fact.kind === 'echoed' && fact.player === me && fact.tier ? <TierTag tier={fact.tier} /> : null}
             {fact.delta ? <em className={`duel-feed__delta${fact.delta < 0 ? ' duel-feed__delta--loss' : ''}`}>{t.duel.seconds(fact.delta)}</em> : null}
           </li>
         )
@@ -881,6 +887,7 @@ export function Play({ table }: { table: DuelTable }) {
       if (fact.kind === 'dead') sound.dead()
       else if (fact.kind === 'failed') sound.refused()
       else if (fact.kind === 'passed' && fact.player !== me) sound.skipped()
+      else if (fact.kind === 'echoed' && fact.player !== me) sound.pop()
       else if (fact.kind === 'solved' && fact.tier) sound.found(tierSound(fact.tier, false), Math.min(3, fact.player))
     }
   }, [me, table.facts])
@@ -909,11 +916,18 @@ export function Play({ table }: { table: DuelTable }) {
   const over = duel.phase === 'over'
 
   // Ce que le champ dit : les mots du jeu, et le duel en plus.
+  // Pendant le tour d'un autre, un mot juste se valide en bonus — s'il en reste.
+  const echoing = !mine && watching && alive && table.echoes
+  const echoDelta = (turn?.echoes ?? []).length === 0 ? DUEL_ECHO_FIRST : DUEL_ECHO_NEXT
   const said =
     draft.trim() === ''
       ? mine
         ? t.duel.yourTurnHint
-        : t.duel.inherited
+        : echoing
+          ? table.echoesLeft > 0
+            ? t.ranked.echoHint
+            : t.ranked.echoSpent
+          : t.duel.inherited
       : live.kind === 'accepted'
         ? exact
           ? `✓ ${capitalized(live.found?.display ?? '')}`
@@ -926,7 +940,8 @@ export function Play({ table }: { table: DuelTable }) {
               ? ''
               : t.run.unknown
 
-  const canValidate = mine && accepted
+  const canEcho = echoing && accepted && table.echoesLeft > 0
+  const canValidate = (mine && accepted) || canEcho
   const submit = (event?: FormEvent) => {
     event?.preventDefault()
     armSound()
@@ -934,7 +949,13 @@ export function Play({ table }: { table: DuelTable }) {
       setShaking(true)
       sound.refused()
     }
-    if (canValidate) table.play(draft)
+    if (mine && accepted) table.play(draft)
+    else if (canEcho) {
+      table.echo(draft)
+      sound.recognized()
+      // Le mot part en bonus : le champ se vide pour en chercher un autre.
+      setTyped({ key: roundKey, text: '' })
+    }
   }
 
   return (
@@ -1008,7 +1029,9 @@ export function Play({ table }: { table: DuelTable }) {
               <span className="answer-line" aria-hidden="true" />
             </div>
             <p className={`verdict${exact ? ' verdict--valid' : ''}${live.kind === 'accepted' && !exact ? ' verdict--approx' : ''}`}>
-              {!mine && draft.trim() !== '' ? <span className="duel-ahead">{t.duel.advance}</span> : null}
+              {!mine && draft.trim() !== '' ? (
+                <span className={`duel-ahead${canEcho ? ' duel-ahead--echo' : ''}`}>{canEcho ? t.ranked.echoBonus(formatNumber(t, echoDelta)) : t.duel.advance}</span>
+              ) : null}
               {said}
             </p>
             <div className="answer-actions">

@@ -20,6 +20,8 @@ import {
   DUEL_PICK_SECONDS,
   DUEL_PASS_PENALTY_SECONDS,
   duelReward,
+  DUEL_ECHO_MAX,
+  DUEL_RULES,
   type BotProfile,
   type Duel,
   type DuelReward,
@@ -185,6 +187,11 @@ export interface DuelTable {
   rating: DuelRatingResult | null
   /** Les places, dans l'ordre de la partie, dont l'appareil ne relit plus la table. */
   away: readonly number[]
+  /** La table joue les mots trouvés hors de son tour, et combien j'en ai encore ce tour-ci. */
+  echoes: boolean
+  echoesLeft: number
+  /** Valider un mot pendant le tour d'un autre. */
+  echo(raw: string): void
   ready: Readonly<Record<string, boolean>>
   markReady(): void
   unready(): void
@@ -266,6 +273,7 @@ interface TableData {
   rematch: string | null
   public: boolean
   ranked: boolean
+  rules: number
   settled: boolean
   voided: boolean
   ratings: readonly DuelRatingChange[]
@@ -310,6 +318,7 @@ function freshLocal(lang: string, me: Seat, bots: readonly string[], categories:
     rematch: null,
     public: false,
     ranked: false,
+    rules: DUEL_RULES,
     settled: false,
     voided: false,
     ratings: [],
@@ -337,6 +346,7 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
     rematch: snapshot.table.rematch,
     public: snapshot.table.public,
     ranked: snapshot.table.ranked,
+    rules: snapshot.table.rules,
     settled: snapshot.table.settled,
     voided: snapshot.table.voided,
     ratings: snapshot.table.ratings,
@@ -1066,6 +1076,17 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     [duel, judge, myIndex],
   )
 
+  const echoes = !!table && table.rules >= 2
+  const echoesLeft = duel?.turn ? DUEL_ECHO_MAX - (duel.turn.echoes ?? []).filter((one) => one === myIndex).length : 0
+  const echo = useCallback(
+    (raw: string) => {
+      if (!duel || !judge || !echoes || phase !== 'play' || !duel.turn || duel.turn.player === myIndex || echoesLeft <= 0) return
+      if (duel.players[myIndex]?.alive !== true || inspectFor(duel, myIndex, raw, judge).kind !== 'accepted') return
+      void post({ seat: myIndex, kind: 'echo', payload: raw })
+    },
+    [duel, echoes, echoesLeft, judge, myIndex, phase, post],
+  )
+
   const play = useCallback(
     (raw: string) => {
       if (!duel || !judge || !myTurn) return
@@ -1169,6 +1190,9 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     ranked: !!table?.ranked,
     rating,
     away,
+    echoes,
+    echoesLeft,
+    echo,
     ready,
     markReady: () => setMyReady(true),
     unready: () => setMyReady(false),

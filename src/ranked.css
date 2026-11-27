@@ -614,3 +614,18 @@
     transition: none;
   }
 }
+
+/* -------------------------------------------- les mots trouvés hors tour - */
+
+/* Un mot juste pendant le tour d'un autre : l'étiquette du champ annonce le bonus. */
+.duel-ahead--echo {
+  border-color: var(--green);
+  background: var(--green);
+  color: var(--cream);
+}
+
+/* Le fil le dit à toute la table : la ligne d'un bonus, en vert. */
+.duel-feed__line--echoed .duel-feed__text {
+  color: var(--green);
+  font-weight: 700;
+}

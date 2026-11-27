@@ -1605,6 +1605,9 @@ const CHEER_TABLE: DuelTable = (() => {
     ranked: false,
     rating: null,
     away: [],
+    echoes: true,
+    echoesLeft: 3,
+    echo: noop,
   }
 })()
 
