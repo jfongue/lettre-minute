@@ -62,7 +62,7 @@ export const rankedEn: RankedMessages = {
   retry: 'Search again',
   dismiss: 'OK',
   cooldownTitle: 'A short break',
-  cooldownLead: 'Too many duels left or offers missed within an hour. The queue reopens in:',
+  cooldownLead: 'Too many duels left or offers missed today. The break grows if it goes on: 5 min, 15 min, 1 h… The queue reopens in:',
   overTitle: 'Ranking',
   overSettling: 'Settling the ranking…',
   overVoided: 'Unranked game: the results didn’t match.',

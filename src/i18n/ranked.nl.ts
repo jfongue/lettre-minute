@@ -62,7 +62,7 @@ export const rankedNl: RankedMessages = {
   retry: 'Opnieuw zoeken',
   dismiss: 'OK',
   cooldownTitle: 'Even pauze',
-  cooldownLead: 'Te veel verlaten duels of gemiste voorstellen binnen een uur. De wachtrij gaat weer open over:',
+  cooldownLead: 'Vandaag te veel verlaten duels of gemiste voorstellen. De pauze wordt langer als het doorgaat: 5 min, 15 min, 1 u… De wachtrij gaat weer open over:',
   overTitle: 'Ranking',
   overSettling: 'De ranking wordt berekend…',
   overVoided: 'Niet meegeteld: de uitslagen kwamen niet overeen.',

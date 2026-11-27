@@ -62,7 +62,7 @@ export const rankedPt: RankedMessages = {
   retry: 'Procurar de novo',
   dismiss: 'OK',
   cooldownTitle: 'Uma pausa',
-  cooldownLead: 'Duelos abandonados ou propostas perdidas demais em uma hora. A fila reabre em:',
+  cooldownLead: 'Duelos abandonados ou propostas perdidas demais hoje. A pausa aumenta se continuar: 5 min, 15 min, 1 h… A fila reabre em:',
   overTitle: 'Ranking',
   overSettling: 'Calculando o ranking…',
   overVoided: 'Partida fora do ranking: os resultados não batiam.',

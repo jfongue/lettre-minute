@@ -53,7 +53,7 @@ export function MatchmakingScenario({ kind, onBack }: { kind: MatchmakingCase; o
   const [stopped, setStopped] = useState(kind === 'missed')
   let state: QueueState
   if (stopped) state = { kind: 'idle', notice: kind === 'missed' ? 'missed' : null }
-  else if (kind === 'cooldown') state = { kind: 'cooldown', until: 1000 + 4 * 60 + 12 }
+  else if (kind === 'cooldown') state = { kind: 'cooldown', until: 1000 + 3870 }
   else if (kind === 'long') state = { kind: 'searching', since: 1000 - 74, info: waiting({ estimate: 40, searching: 0, playing: 3, publicTable: { id: 'public', seats: 2 } }), offline: false, bounced: true }
   else state = { kind: 'searching', since: 1000 - 12, info: waiting(), offline: false, bounced: false }
   const queue = boardQueue(state, now, { cancel: () => setStopped(true), start: () => setStopped(false) })

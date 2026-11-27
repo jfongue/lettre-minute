@@ -1,10 +1,12 @@
 import { waitHint } from '../domain/ranked'
 import type { Messages } from '../i18n'
 
-/** Une attente lue à la minute : « 0:42 », « 3:05 ». */
+/** Une attente lue à la minute : « 0:42 », « 3:05 », et à l'heure au-delà : « 1:04:30 ». */
 export function clockOf(seconds: number): string {
   const whole = Math.max(0, Math.floor(seconds))
-  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`
+  const pad = (value: number) => String(value).padStart(2, '0')
+  if (whole >= 3600) return `${Math.floor(whole / 3600)}:${pad(Math.floor(whole / 60) % 60)}:${pad(whole % 60)}`
+  return `${Math.floor(whole / 60)}:${pad(whole % 60)}`
 }
 
 /** L'attente estimée, dite comme un ordre de grandeur. */

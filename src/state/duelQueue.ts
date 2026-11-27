@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react'
-import { answerDuelOffer, duelQueuePoll, leaveDuelQueue, type DuelOpponent, type DuelQueueAnswer, type DuelRatingInfo } from '../lib/cloud'
+import { answerDuelOffer, awayFromDuelQueue, duelQueuePoll, leaveDuelQueue, type DuelOpponent, type DuelQueueAnswer, type DuelRatingInfo } from '../lib/cloud'
+import { onAppActive } from '../lib/native'
 import { duelPool } from './duelPool'
 
 /**
@@ -124,15 +125,16 @@ export interface DuelQueueOptions {
   poll?: typeof duelQueuePoll
   answer?: typeof answerDuelOffer
   leave?: typeof leaveDuelQueue
+  away?: typeof awayFromDuelQueue
 }
 
-export function useDuelQueue({ lang, busy, poll = duelQueuePoll, answer = answerDuelOffer, leave = leaveDuelQueue }: DuelQueueOptions): DuelQueue {
+export function useDuelQueue({ lang, busy, poll = duelQueuePoll, answer = answerDuelOffer, leave = leaveDuelQueue, away = awayFromDuelQueue }: DuelQueueOptions): DuelQueue {
   const [state, dispatch] = useReducer(queueStep, IDLE)
   const [now, setNow] = useState(wall)
   const current = useRef(state)
   current.current = state
-  const calls = useRef({ poll, answer, leave })
-  calls.current = { poll, answer, leave }
+  const calls = useRef({ poll, answer, leave, away })
+  calls.current = { poll, answer, leave, away }
   const active = state.kind === 'searching' || state.kind === 'found'
 
   const read = useCallback(async () => {
@@ -165,6 +167,17 @@ export function useDuelQueue({ lang, busy, poll = duelQueuePoll, answer = answer
     setNow(wall())
     return () => clearInterval(timer)
   }, [active, state.kind])
+
+  // Le téléphone passe l'app derrière : la place tient sans relecture, et une
+  // notification rappellera le joueur si un adversaire arrive (Android, push
+  // accepté). Au retour, la file se relit tout de suite.
+  useEffect(() => {
+    if (!active) return
+    return onAppActive((open) => {
+      if (!open && current.current.kind === 'searching') void calls.current.away()
+      if (open) void read()
+    })
+  }, [active, read])
 
   // La page s'en va pour de bon : la place se libère tout de suite.
   useEffect(() => {

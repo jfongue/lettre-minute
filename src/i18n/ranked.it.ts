@@ -62,7 +62,7 @@ export const rankedIt: RankedMessages = {
   retry: 'Cerca di nuovo',
   dismiss: 'OK',
   cooldownTitle: 'Una pausa',
-  cooldownLead: 'Troppi duelli lasciati o proposte perse in un’ora. La coda si riapre tra:',
+  cooldownLead: 'Troppi duelli lasciati o proposte perse oggi. La pausa si allunga se continua: 5 min, 15 min, 1 h… La coda si riapre tra:',
   overTitle: 'Classifica',
   overSettling: 'La classifica si aggiorna…',
   overVoided: 'Partita non classificata: i risultati non coincidevano.',

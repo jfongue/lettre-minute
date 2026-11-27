@@ -2801,7 +2801,7 @@ const SCENARIOS: readonly Scenario[] = [
     id: 'duel-matchmaking-cooldown',
     group: 'Duel classé',
     title: 'Matchmaking : pause après trop d’abandons',
-    how: 'Trois duels classés quittés ou propositions laissées passer en une heure : cinq minutes hors de la file, les joueurs ordinateur restent ouverts',
+    how: 'Les manquements du jour s’accumulent : 5 min, 15 min, 1 h, 4 h puis 24 h hors de la file — ici le palier d’une heure ; les joueurs ordinateur restent ouverts',
     phase: 'home',
     render: (back) => <MatchmakingScenario kind="cooldown" onBack={back} />,
   },

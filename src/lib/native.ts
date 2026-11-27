@@ -427,14 +427,14 @@ export function openPushSettings(): void {
 /** What a push carries: which challenge, or which duel table, and what it wants. */
 export type PushData =
   | { kind: 'invite' | 'recap'; challenge: string }
-  | { kind: 'duel' | 'duel_cancel'; table: string }
+  | { kind: 'duel' | 'duel_cancel' | 'match'; table: string }
 
 function pushData(data: unknown): PushData | null {
   const row = (data ?? {}) as Record<string, unknown>
   if ((row.kind === 'invite' || row.kind === 'recap') && typeof row.challenge === 'string') {
     return { kind: row.kind, challenge: row.challenge }
   }
-  if ((row.kind === 'duel' || row.kind === 'duel_cancel') && typeof row.table === 'string') {
+  if ((row.kind === 'duel' || row.kind === 'duel_cancel' || row.kind === 'match') && typeof row.table === 'string') {
     return { kind: row.kind, table: row.table }
   }
   return null

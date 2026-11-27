@@ -415,6 +415,7 @@ setMenuPage(null)
   const duelQueue = useDuelQueue({ lang, busy: session.phase !== 'home' })
   const queueState = duelQueue.state
   const cancelQueue = duelQueue.cancel
+  const startQueue = duelQueue.start
   const resetQueue = duelQueue.reset
   const dismissQueue = duelQueue.dismiss
   const [activeDuel, setActiveDuel] = useState(() => {
@@ -1718,6 +1719,8 @@ setStartedAt((at) => at ?? Date.now())
         // Retirer une invitation de duel ne se joue pas : la notification sort
         // du bandeau, rien d'autre ne bouge.
         if (data.kind === 'duel_cancel') return clearPushes([duelPushTag(data.table)])
+        // Un adversaire trouvé, l'app ouverte : la carte s'affiche déjà, la notification s'efface.
+        if (data.kind === 'match') return clearPushes([duelPushTag(data.table)])
         refreshNow.current()
       }),
     [],
@@ -1749,7 +1752,18 @@ setStartedAt((at) => at ?? Date.now())
     }
     // Le retrait d'une invitation : la notification n'a plus rien à dire.
     if (tapped.kind === 'duel_cancel') clearPushes([duelPushTag(tapped.table)])
-  }, [tapped, named, session.phase, on, cancelQueue])
+    // L'adversaire trouvé l'app fermée : on revient sur la recherche, qui relit
+    // aussitôt sa place et rouvre la carte à accepter.
+    if (tapped.kind === 'match') {
+      if (!on('duel')) return
+      clearPushes([duelPushTag(tapped.table)])
+      rememberMultiplayer()
+      setMenuPage(null)
+      setTogether(false)
+      startQueue()
+      setMatching(true)
+    }
+  }, [tapped, named, session.phase, on, cancelQueue, startQueue, rememberMultiplayer])
 
   const [swapping, setSwapping] = useState(false)
   const swap = useCallback(

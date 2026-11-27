@@ -67,7 +67,7 @@ export const rankedFr = {
   retry: 'Relancer',
   dismiss: 'OK',
   cooldownTitle: 'Petite pause',
-  cooldownLead: 'Trop de duels quittés ou de propositions laissées passer en une heure. La file te rouvre dans :',
+  cooldownLead: 'Trop de duels quittés ou de propositions laissées passer aujourd’hui. La pause s’allonge si ça continue : 5 min, 15 min, 1 h… La file te rouvre dans :',
   overTitle: 'Classement',
   overSettling: 'Le classement se règle…',
   overVoided: 'Partie non classée : les résultats ne concordaient pas.',

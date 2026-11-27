@@ -2595,6 +2595,17 @@ export function answerDuelOffer(accept: boolean): Promise<DuelQueueAnswer | null
   }, null)
 }
 
+/**
+ * L'app passe derrière pendant la recherche : la place tient dix minutes si
+ * une notification peut rappeler le joueur. Faux sinon, ou sans serveur.
+ */
+export function awayFromDuelQueue(): Promise<boolean> {
+  return guard(async () => {
+    const { data, error } = await supabase!.rpc('duel_queue_away')
+    return !error && data === true
+  }, false)
+}
+
 export function leaveDuelQueue(): Promise<boolean> {
   return guard(async () => {
     const { error } = await supabase!.rpc('duel_queue_leave')

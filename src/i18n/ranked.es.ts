@@ -62,7 +62,7 @@ export const rankedEs: RankedMessages = {
   retry: 'Buscar otra vez',
   dismiss: 'OK',
   cooldownTitle: 'Una pausa',
-  cooldownLead: 'Demasiados duelos abandonados o propuestas perdidas en una hora. La cola se reabre en:',
+  cooldownLead: 'Demasiados duelos abandonados o propuestas perdidas hoy. La pausa se alarga si sigue: 5 min, 15 min, 1 h… La cola se reabre en:',
   overTitle: 'Clasificación',
   overSettling: 'Calculando la clasificación…',
   overVoided: 'Partida sin clasificación: los resultados no coincidían.',

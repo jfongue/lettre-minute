@@ -657,9 +657,17 @@ propre téléphone.
   un coup du journal que seul le serveur écrit, et qui tue tout de suite,
   même au draft — l'adversaire n'attend plus qu'une réserve s'épuise. Une
   app fermée sans quitter garde sa place : l'accueil propose de la reprendre
-  quatre-vingt-dix secondes (`loadActiveDuel`, `duel_rejoin`). Trois abandons
-  classés ou propositions manquées en une heure valent cinq minutes hors de
-  la file (`duel_cooldown_until`).
+  quatre-vingt-dix secondes (`loadActiveDuel`, `duel_rejoin`). Les abandons
+  classés et propositions manquées d'une journée coûtent une pause qui
+  s'allonge tous les trois : 5 min, 15 min, 1 h, 4 h, 24 h
+  (`duel_cooldown_length`).
+- **La file survit à l'app fermée, sur Android** (`duel_queue_away`) : passée
+  derrière pendant une recherche, l'app garde sa place dix minutes si le
+  téléphone a un jeton de notification ; l'adversaire trouvé l'appelle d'une
+  notification `match` (texte dans `supabase/functions/push/messages.ts`, à
+  déployer avec la fonction Edge `push`) et la proposition lui laisse une
+  minute. Elle est retirée (`duel_cancel`) dès que l'offre aboutit ou tombe.
+  `duel_matchmake`, celui des versions livrées, ignore un joueur absent.
 - **Chaque donnée dit d'où elle vient** (0072) : le client ajoute
   `platform=<android|web|crazygames|reddit>` à `X-Client-Info`
   (`src/lib/supabase.ts`), et un déclencheur range cette valeur dans

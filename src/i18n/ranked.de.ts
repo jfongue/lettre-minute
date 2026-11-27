@@ -62,7 +62,7 @@ export const rankedDe: RankedMessages = {
   retry: 'Neu suchen',
   dismiss: 'OK',
   cooldownTitle: 'Kurze Pause',
-  cooldownLead: 'Zu viele verlassene Duelle oder verpasste Angebote in einer Stunde. Die Warteschlange öffnet wieder in:',
+  cooldownLead: 'Heute zu viele verlassene Duelle oder verpasste Angebote. Die Pause wird länger, wenn es so weitergeht: 5 Min., 15 Min., 1 Std.… Die Warteschlange öffnet wieder in:',
   overTitle: 'Wertung',
   overSettling: 'Die Wertung wird berechnet…',
   overVoided: 'Ohne Wertung: Die Ergebnisse stimmten nicht überein.',
