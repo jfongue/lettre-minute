@@ -1300,6 +1300,53 @@
   gap: 0.4rem;
 }
 
+/* Le tour d'un autre : un voile assombrit tout l'écran, le couple et le champ
+   passent en retrait — on peut encore y chercher un mot en bonus. La main qui
+   revient lève le voile d'un coup d'œil. */
+.stage--duel-play::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--watch-veil);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms var(--ease-out);
+}
+
+.stage--duel-watching::before {
+  opacity: 1;
+  transition-duration: 520ms;
+}
+
+.stage--duel-watching .duel-prompt,
+.stage--duel-watching .answer {
+  opacity: 0.62;
+  filter: saturate(0.55);
+  transition:
+    opacity 520ms var(--ease-out),
+    filter 520ms var(--ease-out);
+}
+
+.stage--duel-watching .answer:focus-within {
+  opacity: 0.85;
+}
+
+.stage--duel-play .duel-prompt,
+.stage--duel-play .answer {
+  transition:
+    opacity 260ms var(--ease-out),
+    filter 260ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage--duel-play::before,
+  .stage--duel-play .duel-prompt,
+  .stage--duel-play .answer {
+    transition: none;
+  }
+}
+
 /* Qui a la main : une ligne au-dessus du couple. */
 .duel-face {
   display: flex;
@@ -1354,6 +1401,12 @@
 
 .duel-prompt__mark {
   display: block;
+}
+
+/* La grande lettre du duel laisse moins de place au thème : il rapetisse avec
+   l'écran plutôt que de couper « MAMMIFÈRES » avant son S. */
+.duel-prompt .prompt-label {
+  font-size: clamp(1.2rem, 6vw, 2.1rem);
 }
 
 /* La main passe sans couple neuf : la lettre glisse d'un cran, elle a changé de joueur. */

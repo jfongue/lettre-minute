@@ -5,6 +5,8 @@
   --ink: #151515;
   --ink-soft: #4d4943;
   --ink-faint: #645f4f;
+  /* Le voile du duel pendant le tour d'un autre : plus dense sur fond sombre. */
+  --watch-veil: rgb(21 21 21 / 16%);
   /* Le voile des tiroirs et des cartes : il suit le thème, sinon il ne voile rien. */
   --scrim: rgba(21, 21, 21, 0.45);
   --grid: rgba(21, 21, 21, 0.055);
@@ -54,6 +56,8 @@
     --ink: #f2ecdf;
     --ink-soft: #bdb6a8;
     --ink-faint: #948d80;
+  --watch-veil: rgb(0 0 0 / 42%);
+    --watch-veil: rgb(0 0 0 / 42%);
     /* Le papier sombre est déjà presque noir : le voile n'y peut que descendre. */
     --scrim: rgba(0, 0, 0, 0.6);
     --grid: rgba(242, 236, 223, 0.045);

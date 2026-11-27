@@ -961,7 +961,7 @@ export function Play({ table }: { table: DuelTable }) {
   return (
     // `data-phase` : la mise en scène d'une mort se joue par-dessus la partie,
     // donc les classes de l'écran ne suffisent pas à dire où en est le duel.
-    <main className={`stage stage--playing stage--duel-play${alive ? '' : ' stage--out'}`} data-phase={table.phase}>
+    <main className={`stage stage--playing stage--duel-play${alive ? '' : ' stage--out'}${watching && alive ? ' stage--duel-watching' : ''}`} data-phase={table.phase}>
       <Cut table={table} />
       <div className={`sheet run duel-run${urgent ? ' run--urgent' : ''}${critical ? ' run--critical' : ''}`}>
         <TableStrip table={table} at={clockAt} urgent={urgent} resumed={resumed?.player ?? null} />
