@@ -82,8 +82,8 @@ function answer(duel: Duel): string {
 
 const NAMES = ['me', 'maxitoon', 'terretciel', 'demontoon']
 
-function draft(players: number, seed = 7): Duel {
-  let duel = createDuel({ seed, playerIds: NAMES.slice(0, players), categories: IDS, opener: 0 })
+function draft(players: number, seed = 7, rules?: number): Duel {
+  let duel = createDuel({ seed, playerIds: NAMES.slice(0, players), categories: IDS, opener: 0, rules })
   while (duel.phase === 'draft' && !draftComplete(duel)) {
     const choices = draftChoices(duel)
     const picked = choices[duel.picks.length % Math.max(1, choices.length)]
@@ -333,9 +333,41 @@ describe('les heures du draft', () => {
   })
 })
 
-describe('le passe hérite le couple', () => {
-  it('retire cinq secondes et donne la main sans retirer le couple', () => {
+describe('le passe tire un couple neuf', () => {
+  it('retire cinq secondes et donne la main avec une autre catégorie', () => {
     const opening = draft(2)
+    const prompt = duelPrompt(opening)!
+    const passed = passTurn(opening, judge, 4)
+
+    expect(passed.turn?.player).toBe(1)
+    expect(passed.players[0]?.reserve).toBe(DUEL_RESERVE_SECONDS - 4 - DUEL_PASS_PENALTY_SECONDS)
+    expect(passed.turn?.declined).toEqual([])
+    expect(passed.dealt).toEqual([`${prompt.categoryId}:${prompt.letter}`])
+    expect(duelPrompt(passed)?.categoryId).not.toBe(prompt.categoryId)
+  })
+
+  it('ne pose jamais deux fois de suite le même couple, ni deux fois dans la partie', () => {
+    for (let seed = 1; seed <= 30; seed++) {
+      let duel = draft(2, seed)
+      const seen: string[] = []
+      for (let turn = 0; turn < 20 && duel.phase === 'play'; turn++) {
+        const prompt = duelPrompt(duel)!
+        seen.push(`${prompt.categoryId}:${prompt.letter}`)
+        const next = passTurn(duel, judge, turn * 0.5 + 0.5)
+        // Une réserve trop courte ne paie plus le passe : la manche ne bouge pas.
+        if (next === duel) break
+        duel = next
+      }
+      // Trois lettres par catégorie ici : les premiers couples ont toujours de quoi rester neufs.
+      expect(new Set(seen.slice(0, 5)).size).toBe(Math.min(5, seen.length))
+      for (let turn = 1; turn < seen.length; turn++) expect(seen[turn]).not.toBe(seen[turn - 1])
+    }
+  })
+})
+
+describe('le passe hérite le couple, sous les règles 2', () => {
+  it('retire cinq secondes et donne la main sans retirer le couple', () => {
+    const opening = draft(2, 7, 2)
     const prompt = duelPrompt(opening)!
     const passed = passTurn(opening, judge, 4)
 
@@ -347,7 +379,7 @@ describe('le passe hérite le couple', () => {
   })
 
   it('tire un couple neuf quand toute la table a refusé, à l’ouvreur', () => {
-    let duel = draft(2)
+    let duel = draft(2, 7, 2)
     const prompt = duelPrompt(duel)!
 
     duel = passTurn(duel, judge, 4)
@@ -360,7 +392,7 @@ describe('le passe hérite le couple', () => {
   })
 
   it('ne compte que les vivants quand un joueur est mort', () => {
-    let duel = draft(3)
+    let duel = draft(3, 7, 2)
     duel = passTurn(duel, judge, 2)
     duel = passTurn(duel, judge, 3)
     // Le troisième vit encore : le couple n'est pas échoué.
