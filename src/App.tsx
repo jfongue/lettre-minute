@@ -1531,6 +1531,7 @@ setStartedAt((at) => at ?? Date.now())
   const searchingInfo = queueState.kind === 'searching' ? queueState : null
   const botDue =
     matching &&
+    !ladderOpen &&
     session.phase === 'home' &&
     !!searchingInfo &&
     !searchingInfo.offline &&
@@ -2301,7 +2302,7 @@ setStartedAt((at) => at ?? Date.now())
         </ScreenBoundary>
       )}
 
-      {together && session.phase === 'home' && !duelOpen && (
+      {together && session.phase === 'home' && !duelOpen && !ladderOpen && (
         <PlayTogether
           challenge={on('challenges')}
           onClose={() => setTogether(false)}
@@ -2346,7 +2347,7 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
-      {matching && session.phase === 'home' && !duelOpen && (
+      {matching && session.phase === 'home' && !duelOpen && !ladderOpen && (
         <ScreenBoundary>
           <DuelMatchmaking
             queue={duelQueue}
