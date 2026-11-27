@@ -22,6 +22,7 @@ const QUEUE_SEEN_KEY = 'lettre-minute.queue-seen.v1'
 const SHARE_NEWS_KEY = 'lettre-minute.share-news.v1'
 // Le duel classé présenté une fois à un joueur qui jouait déjà ; gardé par clearLocalData.
 const RANKED_NEWS_KEY = 'lettre-minute.ranked-news.v1'
+const AVATAR_NUDGE_KEY = 'lettre-minute.avatar-nudge.v1'
 // Les avant-premières déjà annoncées à l'appareil ; gardé par clearLocalData,
 // se déconnecter ne fait pas re-annoncer une catégorie déjà livrée.
 const PREMIERE_NEWS_KEY = 'lettre-minute.premiere-news.v1'
@@ -192,6 +193,14 @@ export function loadRankedNewsSeen(): boolean {
 
 export function saveRankedNewsSeen(): void {
   write(RANKED_NEWS_KEY, true)
+}
+
+export function loadAvatarNudgeSeen(): boolean {
+  return parsed(AVATAR_NUDGE_KEY) === true
+}
+
+export function saveAvatarNudgeSeen(): void {
+  write(AVATAR_NUDGE_KEY, true)
 }
 
 /** Les avant-premières déjà annoncées sur cet appareil : une livraison nouvelle relance la pop-up, jamais deux fois la même. */

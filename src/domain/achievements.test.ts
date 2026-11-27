@@ -6,6 +6,7 @@ import {
   achievementProgress,
   achievementReward,
   avatarNewsDue,
+  avatarNudgeDue,
   colourWinner,
   designGoal,
   designWinner,
@@ -15,8 +16,9 @@ import {
   ownedColours,
   ownedDesigns,
   ownsEveryDesign,
+  wonCosmetics,
 } from './achievements'
-import { AVATARS, FREE_COLOURS, FREE_DESIGNS, PALETTE } from './avatar'
+import { AVATARS, DEFAULT_AVATAR, FREE_COLOURS, FREE_DESIGNS, PALETTE } from './avatar'
 import { NEW_PROFILE, xpForLevel } from './progression'
 
 describe('achievements', () => {
@@ -219,5 +221,20 @@ describe('le compte maison', () => {
     const without = (count: number) => owned.filter((id) => !earned.slice(0, count).includes(id))
     expect(avatarNewsDue(rich, without(2))).toBe(false)
     expect(avatarNewsDue(rich, without(3))).toBe(true)
+  })
+
+  it('offers the avatar editor once to a player still on the first tile with five things won', () => {
+    expect(wonCosmetics(NEW_PROFILE)).toBe(0)
+    expect(avatarNudgeDue(NEW_PROFILE, DEFAULT_AVATAR, false)).toBe(false)
+    // Trois parties : une tuile et le noir. Niveau 4 : une tuile et le crème. Un mot de dix lettres : le vert.
+    const five = { ...NEW_PROFILE, runs: 3, xp: xpForLevel(4), longestWord: 10 }
+    expect(wonCosmetics(five)).toBe(5)
+    expect(wonCosmetics({ ...five, longestWord: 0 })).toBe(4)
+    expect(avatarNudgeDue({ ...five, longestWord: 0 }, DEFAULT_AVATAR, false)).toBe(false)
+    expect(avatarNudgeDue(five, DEFAULT_AVATAR, false)).toBe(true)
+    // Des couleurs changées ne suffisent pas : c'est la tuile de départ qui trahit l'éditeur jamais ouvert.
+    expect(avatarNudgeDue(five, { ...DEFAULT_AVATAR, ground: 'noir' }, false)).toBe(true)
+    expect(avatarNudgeDue(five, { ...DEFAULT_AVATAR, design: 6 }, false)).toBe(false)
+    expect(avatarNudgeDue(five, DEFAULT_AVATAR, true)).toBe(false)
   })
 })

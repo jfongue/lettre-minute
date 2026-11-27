@@ -606,6 +606,7 @@ export const de: Messages = {
     save: 'Diesen Avatar behalten',
     /** Sortir de l'éditeur sans enregistrer : l'avant et l'après, puis le choix. */
     keep: { title: 'Diesen neuen Avatar behalten?', body: 'Du hast ihn gestaltet, aber nicht gespeichert.', before: 'Vorher', after: 'Nachher', yes: 'Behalten', no: 'Verwerfen' },
+    nudge: { title: 'Dein Avatar wartet', body: (count: number) => `Du hast ${count} Formen und Farben freigeschaltet. Gestalte deinen Avatar: Er erscheint in den Ranglisten.`, yes: 'Gestalten', later: 'Später' },
     back: 'Zurück',
     milestone: (milestone) => {
       switch (milestone.stat) {

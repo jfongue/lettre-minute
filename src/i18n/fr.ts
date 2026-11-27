@@ -649,6 +649,8 @@ hostSignIn: 'Les amis passent par ton compte : connecte-toi pour retrouver les
     save: 'Garder cet avatar',
     /** Sortir de l'éditeur sans enregistrer : l'avant et l'après, puis le choix. */
     keep: { title: 'Garder ce nouvel avatar ?', body: 'Tu l’as composé sans l’enregistrer.', before: 'Avant', after: 'Après', yes: 'Garder', no: 'Laisser tomber' },
+    /** Proposée une fois à qui porte encore la tuile de départ avec cinq tuiles ou couleurs gagnées. */
+    nudge: { title: 'Ton avatar t’attend', body: (count: number) => `Tu as débloqué ${count} formes et couleurs. Compose ton avatar : il s’affiche dans les classements.`, yes: 'Personnaliser', later: 'Plus tard' },
     back: 'Retour',
     milestone: (milestone: Milestone): string => {
       switch (milestone.stat) {

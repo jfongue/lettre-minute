@@ -607,6 +607,7 @@ export const nl: Messages = {
     save: 'Deze avatar houden',
     /** Sortir de l'éditeur sans enregistrer : l'avant et l'après, puis le choix. */
     keep: { title: 'Deze nieuwe avatar houden?', body: 'Je hebt hem gemaakt maar niet bewaard.', before: 'Voor', after: 'Na', yes: 'Houden', no: 'Weggooien' },
+    nudge: { title: 'Je avatar wacht op je', body: (count: number) => `Je hebt ${count} vormen en kleuren vrijgespeeld. Maak je avatar: hij staat in de klassementen.`, yes: 'Aanpassen', later: 'Later' },
     back: 'Terug',
     milestone: (milestone) => {
       switch (milestone.stat) {

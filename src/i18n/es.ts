@@ -608,6 +608,7 @@ export const es: Messages = {
     save: 'Quedarme este avatar',
     /** Sortir de l'éditeur sans enregistrer : l'avant et l'après, puis le choix. */
     keep: { title: '¿Te quedas con este avatar nuevo?', body: 'Lo has creado sin guardarlo.', before: 'Antes', after: 'Después', yes: 'Quedármelo', no: 'Descartar' },
+    nudge: { title: 'Tu avatar te espera', body: (count: number) => `Has desbloqueado ${count} formas y colores. Crea tu avatar: aparece en las clasificaciones.`, yes: 'Personalizar', later: 'Más tarde' },
     back: 'Volver',
     milestone: (milestone) => {
       switch (milestone.stat) {

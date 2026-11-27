@@ -132,7 +132,7 @@ import { FeedbackPop } from './ui/FeedbackPop'
 import { RatingPop } from './ui/RatingPop'
 import type { BanActions } from './ui/CategoriesPage'
 import { applyLocale, loadLocale, saveLocale } from './state/locale'
-import { avatarNewsDue, earnedAchievements, ownsEveryDesign } from './domain/achievements'
+import { avatarNewsDue, avatarNudgeDue, earnedAchievements, ownsEveryDesign, wonCosmetics } from './domain/achievements'
 import { initialSession, sessionReducer, type Proposal } from './state/session'
 import {
   clearLocalData,
@@ -165,10 +165,11 @@ import {
   saveTutorialDone,
 } from './state/storage'
 import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storage'
-import { loadActiveDuel, loadRankedNewsSeen, saveActiveDuel, saveRankedNewsSeen } from './state/storage'
+import { loadActiveDuel, loadAvatarNudgeSeen, loadRankedNewsSeen, saveActiveDuel, saveAvatarNudgeSeen, saveRankedNewsSeen } from './state/storage'
 import { useDuelQueue } from './state/duelQueue'
 import { QueuePill } from './ui/QueuePill'
 import { RankedNewsPop } from './ui/RankedNewsPop'
+import { AvatarNudgePop } from './ui/AvatarNudgePop'
 import { botMatchAfter, rankedNewsDue, EARLY_START } from './domain/ranked'
 import type { BoardFamily } from './ui/BoardSwitch'
 import { DuelResumeCard } from './ui/PlayTogether'
@@ -375,6 +376,9 @@ export function App() {
   }, [menuOpen])
   const [shareNewsSeen, setShareNewsSeen] = useState(loadShareNewsSeen)
   const [rankedNewsSeen, setRankedNewsSeen] = useState(loadRankedNewsSeen)
+  const [avatarNudgeSeen, setAvatarNudgeSeen] = useState(loadAvatarNudgeSeen)
+  // Set on the way home after a run, never at launch: CrazyGames wants « Play » free at the first gesture.
+  const [avatarNudgeAsk, setAvatarNudgeAsk] = useState(false)
   // Les avant-premières déjà annoncées à cet appareil : une catégorie livrée
   // relance la pop-up, jamais deux fois la même.
   const [premiereNewsSeen, setPremiereNewsSeen] = useState(loadPremiereNewsSeen)
@@ -2171,6 +2175,10 @@ setStartedAt((at) => at ?? Date.now())
     saveRankedNewsSeen()
     setRankedNewsSeen(true)
   }
+  const settleAvatarNudge = () => {
+    saveAvatarNudgeSeen()
+    setAvatarNudgeSeen(true)
+  }
   const settleShareNews = () => {
     saveShareNewsSeen()
     setShareNewsSeen(true)
@@ -2198,6 +2206,8 @@ setStartedAt((at) => at ?? Date.now())
       // Un invité sans compte possible ici (CrazyGames) n'a pas à passer par une
       // pop-up avant « Jouer » : le portail veut la partie au premier geste.
       rankedNews: quietHome && on('duel') && rankedNewsDue(session.profile.runs, rankedNewsSeen) && (named || (duelSignIn !== undefined && host.anonymousAccounts)),
+      avatarNudge:
+        quietHome && avatarNudgeAsk && on('avatar') && !ownsEveryDesign(account?.name) && avatarNudgeDue(session.profile, avatar, avatarNudgeSeen, discoveries ?? undefined),
       premieres: quietHome && on('premium') && freshPremieres.length > 0,
       rating: quietHome && ratingAsk && on('support'),
     },
@@ -2634,6 +2644,18 @@ setStartedAt((at) => at ?? Date.now())
         />
       )}
 
+      {pop === 'avatarNudge' && (
+        <AvatarNudgePop
+          count={wonCosmetics(session.profile, discoveries ?? undefined)}
+          onLater={settleAvatarNudge}
+          onOpen={() => {
+            settleAvatarNudge()
+            setAvatarFocus(null)
+            setMenuPage('avatar')
+          }}
+        />
+      )}
+
       {pop === 'shareNews' && (
         <ShareNewsPop
           onLater={settleShareNews}
@@ -2875,6 +2897,7 @@ setMenuPage('avatar')
             onFlag={overFlag}
             onReplay={session.challengeId ? () => afterMidgame(play) : playSolo}
             onHome={() => {
+              setAvatarNudgeAsk(true)
               // Asked on the way home, never over the summary: after the tenth run, then every thirty.
               if (cloudConfigured() && feedbackDue(session.profile) && on('feedback')) {
                 dispatch({ type: 'feedback-asked' })

@@ -67,6 +67,7 @@ import { PremiumSheet, type PremiumReason, type PremiumStatus } from '../ui/Prem
 import { PlusLockedSlot, PlusSeal, RESOURCE_ICONS, ResourceChip, ResourceGlyph, type ResourceState } from '../ui/premium'
 import { PlusNewsPop, PlusPrizePop, PlusThanksPop } from '../ui/PlusNewsPop'
 import { AvatarKeepPop } from '../ui/AvatarKeepPop'
+import { AvatarNudgePop } from '../ui/AvatarNudgePop'
 import { RatingPop } from '../ui/RatingPop'
 import { useT } from '../i18n'
 import { IdeasAdminView } from './IdeasAdmin'
@@ -3187,6 +3188,14 @@ const SCENARIOS: readonly Scenario[] = [
     render: (back) => (
       <AvatarKeepPop before={DEFAULT_AVATAR} after={avatarOf(33, 'vert', 'creme', 'bleu')} onKeep={back} onDrop={back} onStay={back} />
     ),
+  },
+  {
+    id: 'avatar-nudge',
+    group: 'Accueil',
+    title: 'Proposer de composer son avatar',
+    how: 'Une seule fois, au retour à l’accueil : la tuile de départ portée avec cinq tuiles ou couleurs gagnées',
+    phase: 'home',
+    render: (back) => <AvatarNudgePop count={7} onOpen={back} onLater={back} />,
   },
   {
     id: 'home-categories-news',
