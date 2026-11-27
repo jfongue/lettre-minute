@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react'
-import { BASE_REVEALS, REVEALS_PER_AD, type HiddenAnswer, type RevealBudget } from '../domain/perks'
+import type { HiddenAnswer, RevealBudget } from '../domain/perks'
+import { TUNING } from '../domain/tuning'
 import { capitalized, normalizeWord } from '../domain/text'
 import { categoryText, useT } from '../i18n'
 import { tapFeedback } from '../lib/native'
@@ -131,7 +132,7 @@ export function HiddenAnswers({
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
-      {unfolded && !budget.unlimited && <p className="note reveal-budget">{canReveal ? t.peek.rule(BASE_REVEALS) : t.peek.spent}</p>}
+      {unfolded && !budget.unlimited && <p className="note reveal-budget">{canReveal ? t.peek.rule(TUNING['reveals.base']) : t.peek.spent}</p>}
       {unfolded && (
         <ol className="reveal-words">
           {hidden.map((answer, index) => {
@@ -198,7 +199,7 @@ export function HiddenAnswers({
         <div className="reveal-spent">
           {adPossible && (
             <button type="button" className="btn btn--blue reveal-ad" disabled={watching} onClick={watch}>
-              {watching ? t.peek.adBusy : t.peek.ad(REVEALS_PER_AD)}
+              {watching ? t.peek.adBusy : t.peek.ad(TUNING['reveals.perAd'])}
             </button>
           )}
           {noAd && (
@@ -221,7 +222,7 @@ export function HiddenAnswers({
             <h2 className="offer-pop-title" id="peek-offer-title">
               {offer === 'ad' ? t.peek.adTitle : t.peek.plusTitle}
             </h2>
-            <p className="note">{offer === 'ad' ? t.peek.adBody(REVEALS_PER_AD) : t.peek.plusBody}</p>
+            <p className="note">{offer === 'ad' ? t.peek.adBody(TUNING['reveals.perAd']) : t.peek.plusBody}</p>
             {noAd && (
               <p className="note note--warn" role="alert">
                 {t.peek.adFailed}
@@ -230,7 +231,7 @@ export function HiddenAnswers({
             <div className="offer-pop-actions">
               {offer === 'premium' && adPossible && (
                 <button type="button" className="btn btn--ghost" disabled={watching} onClick={watch}>
-                  {watching ? t.peek.adBusy : t.peek.plusAd(REVEALS_PER_AD)}
+                  {watching ? t.peek.adBusy : t.peek.plusAd(TUNING['reveals.perAd'])}
                 </button>
               )}
               {offer === 'premium' ? (

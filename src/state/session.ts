@@ -23,6 +23,7 @@ import {
   type Run,
   type Verdict,
 } from '../domain/run'
+import { DEFAULT_RUN_TUNING, runTuning, type RunTuning } from '../domain/tuning'
 
 /** `countdown` holds a dealt run whose clock has not started: categories announced, then 3, 2, 1. */
 export type Phase = 'home' | 'loading' | 'countdown' | 'playing' | 'over'
@@ -93,8 +94,11 @@ export type SessionAction =
       seed: number
       categoryIds: readonly string[]
       reserve: readonly string[]
-      /** A challenge brings its own lineup and the powers picked for it. */
-      challenge?: { id: string; powers: readonly PowerId[] }
+      /**
+       * A challenge brings its own lineup, the powers picked for it and the
+       * settings the server froze for it (`challenges.tuning`, 0125).
+       */
+      challenge?: { id: string; powers: readonly PowerId[]; tuning?: RunTuning }
       /** Les pouvoirs sont fermés à ce joueur : la partie se joue sans, même portés. */
       noPowers?: boolean
       /**
@@ -196,7 +200,9 @@ export function sessionReducer(session: Session, action: SessionAction): Session
         ...session,
         phase: 'countdown',
         judge: action.judge,
-        run: createRun({ seed: action.seed, mode, categoryIds: action.categoryIds, avoid, powers, taught: learn ? session.profile.professorWords : [], shared, bonusWeight: shared ? 1 : bonusWeight(action.categoryIds.length) }, action.judge),
+        // Une partie partagée ne lit jamais les réglages de l'appareil : son
+        // instantané, sinon ceux par défaut, comme tous ceux qui la jouent.
+        run: createRun({ seed: action.seed, mode, categoryIds: action.categoryIds, avoid, powers, taught: learn ? session.profile.professorWords : [], shared, bonusWeight: shared ? 1 : bonusWeight(action.categoryIds.length), tuning: shared ? (challenge?.tuning ?? DEFAULT_RUN_TUNING) : runTuning() }, action.judge),
         reserve: shared || !countsForProgress(mode) ? [] : action.reserve,
         swapsLeft: !challenge && powers.includes('permutation') ? (POWER_CHARGES.permutation ?? 0) : 0,
         challengeId: challenge?.id ?? null,
@@ -216,7 +222,7 @@ export function sessionReducer(session: Session, action: SessionAction): Session
       return {
         ...session,
         judge: action.judge,
-        run: markPowerUsed(createRun({ seed, categoryIds: action.categoryIds, avoid, powers, taught: session.run.taught, bonusWeight: session.run.bonusWeight }, action.judge), 'permutation'),
+        run: markPowerUsed(createRun({ seed, categoryIds: action.categoryIds, avoid, powers, taught: session.run.taught, bonusWeight: session.run.bonusWeight, tuning: session.run.tuning }, action.judge), 'permutation'),
         reserve: action.reserve,
         swapsLeft: session.swapsLeft - 1,
       }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { loadPack } from '../data/packs'
-import { ENDURANCE_TIME_BONUS, MODE_SECONDS, modeEdge, type ArcadeMode } from '../domain/modes'
+import { enduranceBonus, modeEdge, secondsOf, type ArcadeMode } from '../domain/modes'
 import { rarityScore, tierOf } from '../domain/rarity'
 import type { Prompt } from '../domain/run'
 import { capitalized, compactWord, finalOf, initialOf } from '../domain/text'
@@ -116,7 +116,7 @@ function ModeLesson({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; on
     return () => clearInterval(timer)
   }, [clockStart, solved])
   const held = clockStart === null ? 0 : Math.max(0, (now - clockStart) / 1000)
-  const clock = Math.max(0, Math.ceil(MODE_SECONDS.endurance + bonus - held))
+  const clock = Math.max(0, Math.ceil(secondsOf('endurance') + bonus - held))
 
   const named = found !== null
   useEffect(() => {
@@ -135,7 +135,7 @@ function ModeLesson({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; on
       sound.found(3, 0)
       SHAPE_NOTES.forEach((note) => sound.tile(note.timbre, note.step, note.at))
       // Le même bonus qu'en partie, la rareté mesurée sans les compteurs du joueur.
-      setBonus(known ? ENDURANCE_TIME_BONUS[tierOf(rarityScore(known))] : ENDURANCE_TIME_BONUS.courant)
+      setBonus(known ? enduranceBonus(tierOf(rarityScore(known))) : enduranceBonus('courant'))
       setSolved(found)
       return
     }
@@ -152,7 +152,7 @@ function ModeLesson({ mode, lang, onDone }: { mode: ArcadeMode; lang: string; on
         <div className="timer">
           <span
             className="timer-disc"
-            style={{ '--ratio': Math.min(1, clock / Math.max(MODE_SECONDS.endurance + bonus, 1)) } as CSSProperties}
+            style={{ '--ratio': Math.min(1, clock / Math.max(secondsOf('endurance') + bonus, 1)) } as CSSProperties}
             aria-hidden="true"
           />
           <p className={`clock${bonus > 0 ? ' clock--bonus' : ''}`} key={clock}>

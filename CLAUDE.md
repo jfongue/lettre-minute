@@ -689,6 +689,26 @@ propre téléphone.
   `runs.platform` et `duel_tables.platform`. Une ligne écrite par un client
   plus ancien reste `null`. Pour séparer les versions un jour, c'est cette
   colonne qu'on filtre — les classements et les rangs, eux, sont communs.
+- **Les réglages du jeu se changent par migration** (`game_config`, 0125,
+  `src/domain/tuning.ts`) : durées, pénalités, barème, rythme des pubs et des
+  questions, pouvoirs, bonus, défi du moment, règles du duel, Elo — 88 clés.
+  `update public.game_config set value = 45 where key = 'run.seconds.solo'`
+  suffit, sans version. Chaque clé a dans `tuning.ts` sa valeur par défaut et
+  sa plage : une valeur hors plage est ignorée (par le jeu comme par
+  `game_config_value`). L'appareil lit la table au démarrage et l'applique au
+  lancement suivant, jamais en pleine partie ; sans serveur, Reddit compris,
+  les défauts. Trois familles : `run.*` voyage avec la partie (`Run.tuning`),
+  et un défi le reçoit figé à sa création (`challenges.tuning`), ses robots
+  aussi ; `duel.*` voyage avec le duel (`Duel.tuning`), figé au lancement de
+  la table (`duel_tables.tuning`) seulement si tous ses joueurs ont les règles
+  3 — sinon les défauts, comme pour une version plus ancienne ; le reste vaut
+  pour l'appareil. Le défi du moment garde les défauts : une semaine reste
+  équitable. Le serveur lit les `ranked.*` lui-même. **Une clé nouvelle entre
+  dans `SPEC` et dans une migration qui la sème** (`tuning.test.ts` compare
+  les défauts du code à ceux de 0125) ; une constante qui reste dans le code
+  garde son nom comme valeur par défaut, et le code qui joue lit `TUNING`, la
+  partie ou le duel. La planche des fonctionnalités liste les réglages en
+  vigueur.
 - **Chaque fonctionnalité est un interrupteur** (`src/domain/features.ts`,
   0045) : quatre publics — tout le monde, modérateur, Premium, super
   modérateur —, une case dispo, bloquée ou neutre. Une case dispo parmi les

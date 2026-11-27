@@ -6,7 +6,6 @@ import { modeEdge, type ArcadeMode, type GameMode } from '../domain/modes'
 import { countPlusAttempt, isPlus, weeklyWinPrizeDue } from '../domain/perks'
 import { recordWeeklyAttempt, type Profile } from '../domain/progression'
 import {
-  WEEKLY_FREE_ATTEMPTS,
   attemptsAllowed,
   attemptsLeft,
   metricOf,
@@ -22,6 +21,7 @@ import type { Messages } from '../i18n'
 import { weeklyFinish, fetchWeeklyLastPlayed, fetchWeeklyRecap } from '../lib/cloud'
 import { host, rewardedAdsOpen } from '../platform'
 import type { Judge } from '../domain/run'
+import { TUNING } from '../domain/tuning'
 import type { SessionAction, Session } from '../state/session'
 import { loadLocalAttempts, markRecapSeen, recapDue, recordLocalAd, saveLocalBest } from '../state/weekly'
 import { loadWeeklyWinGiven, saveWeeklyWinGiven } from '../state/storage'
@@ -162,7 +162,7 @@ export function useWeeklyFlow({ enabled, lang, t, session, dispatch, judgeFor, p
     attempt.current = { attemptId: started.attemptId, weekId: challenge.weekId, lang, plus, window }
     // Chaque tentative lancée compte pour la grille d'avatar, celle du
     // Premium comme la gratuite ; la seconde en est une de plus, sans la pub.
-    const counted = plus && started.n > WEEKLY_FREE_ATTEMPTS ? countPlusAttempt(profile.current, started.n) : profile.current
+    const counted = plus && started.n > TUNING['weekly.freeAttempts'] ? countPlusAttempt(profile.current, started.n) : profile.current
     dispatch({ type: 'profile-loaded', profile: recordWeeklyAttempt(counted) })
     const options = weeklyRunOptions(challenge, window.day, started.n)
     dispatch({ type: 'play' })

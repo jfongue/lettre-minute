@@ -1,5 +1,6 @@
 import { equippedPowers, ownedPowers, slotsOf, type PowerId } from './powers'
-import { applyRun, XP_PER_POINT, type Profile, type RunOutcome } from './progression'
+import { applyRun, type Profile, type RunOutcome } from './progression'
+import { DEFAULT_TUNING, TUNING } from './tuning'
 import type { RarityTier } from './rarity'
 import type { Run } from './run'
 
@@ -13,7 +14,7 @@ import type { Run } from './run'
 
 export const CHALLENGE_MAX_PLAYERS = 8
 /** The XP a challenge run pays on top of its points: playing with friends is worth a little more. */
-export const CHALLENGE_XP_BONUS = 0.25
+export const CHALLENGE_XP_BONUS = DEFAULT_TUNING['xp.challengeBonus']
 /** What a word no other player found is worth, against its points. */
 export const UNIQUE_WORD_BONUS = 1.25
 /**
@@ -289,7 +290,7 @@ export function settledScoreAt(words: readonly SettledWord[], seconds: number): 
 }
 
 export function challengeXp(score: number): number {
-  return Math.round(score * XP_PER_POINT * (1 + CHALLENGE_XP_BONUS))
+  return Math.round(score * TUNING['xp.perPoint'] * (1 + TUNING['xp.challengeBonus']))
 }
 
 /**

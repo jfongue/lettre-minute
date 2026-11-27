@@ -16,6 +16,15 @@ export type RarityTier = 'courant' | 'peu commun' | 'rare' | 'très rare'
 const BASE_POINTS = 10
 const RARITY_POINTS = 20
 const MAX_COMBO_STEPS = 9
+
+/** Le barème d'une partie (`Run.tuning`) : ces valeurs-ci tant qu'aucun réglage ne le change. */
+export interface Scale {
+  basePoints: number
+  rarityPoints: number
+  comboStep: number
+  comboMax: number
+}
+export const DEFAULT_SCALE: Scale = { basePoints: BASE_POINTS, rarityPoints: RARITY_POINTS, comboStep: 0.1, comboMax: MAX_COMBO_STEPS }
 // Three starter categories hold the easiest letters of the game: a newcomer's
 // first runs used to pay rarity and long chains in full and post scores a
 // seasoned player takes weeks to reach. Both bonuses grow back with each
@@ -63,8 +72,8 @@ export function tierOf(rarity: number): RarityTier {
 }
 
 /** `weight`, the share of the chain's bonus paid (`bonusWeight`). */
-export function comboMultiplier(combo: number, weight = 1): number {
-  return 1 + Math.min(Math.max(0, combo), MAX_COMBO_STEPS) * 0.1 * weight
+export function comboMultiplier(combo: number, weight = 1, scale: Scale = DEFAULT_SCALE): number {
+  return 1 + Math.min(Math.max(0, combo), scale.comboMax) * scale.comboStep * weight
 }
 
 /** The share of the rarity and chain bonuses a solo run pays, from the number of categories it deals. */
@@ -76,8 +85,8 @@ export function bonusWeight(categoryCount: number): number {
  * `combo` is the number of valid answers already chained before this one;
  * `boost`, a power's multiplier; `weight`, the share of the rarity and chain bonuses paid.
  */
-export function pointsFor(entry: WordEntry, usage: WordUsage, combo: number, boost = 1, weight = 1): number {
-  return Math.round((BASE_POINTS + RARITY_POINTS * weight * rarityScore(entry, usage)) * comboMultiplier(combo, weight) * boost)
+export function pointsFor(entry: WordEntry, usage: WordUsage, combo: number, boost = 1, weight = 1, scale: Scale = DEFAULT_SCALE): number {
+  return Math.round((scale.basePoints + scale.rarityPoints * weight * rarityScore(entry, usage)) * comboMultiplier(combo, weight, scale) * boost)
 }
 
 /**
@@ -85,6 +94,6 @@ export function pointsFor(entry: WordEntry, usage: WordUsage, combo: number, boo
  * the word it corrected to: the bonus rewards knowing a word, not almost
  * spelling it. The chain is not broken — the answer counts.
  */
-export function pointsForApproximate(combo: number, weight = 1): number {
-  return Math.round(BASE_POINTS * comboMultiplier(combo, weight))
+export function pointsForApproximate(combo: number, weight = 1, scale: Scale = DEFAULT_SCALE): number {
+  return Math.round(scale.basePoints * comboMultiplier(combo, weight, scale))
 }

@@ -1,5 +1,5 @@
 import { useEffect, type CSSProperties, type ReactNode } from 'react'
-import { MODE_SECONDS, RACE_WORDS, type GameMode } from '../domain/modes'
+import { raceWordsOf, secondsOf, type GameMode } from '../domain/modes'
 import { useT } from '../i18n'
 import { armSound, sound } from '../lib/sound'
 import { useBackDismiss } from './useBackDismiss'
@@ -97,7 +97,7 @@ export function GameModes({ onPick, onClose }: { onPick(mode: GameMode): void; o
                 <b>{card.title}</b>
                 <small>{card.note}</small>
                 <span className="together-chip">
-                  {card.mode === 'race' ? t.weekly.done.words(RACE_WORDS) : t.modes.seconds(MODE_SECONDS[card.mode])}
+                  {card.mode === 'race' ? t.weekly.done.words(raceWordsOf()) : t.modes.seconds(secondsOf(card.mode))}
                 </span>
               </span>
               <span className="together-go" aria-hidden="true">

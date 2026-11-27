@@ -1,13 +1,6 @@
 import {
   CHATTER_WORDS,
-FLAWLESS_POINTS,
-FLAWLESS_STREAK,
-LATECOMER_CAP_SECONDS,
-LATECOMER_SECONDS,
-LATECOMER_THRESHOLD_SECONDS,
   COMPLICATION_BOOST,
-  DODGE_PENALTY_SECONDS,
-  HUSH_SECONDS,
   ALWAYS_ON_POWER_IDS,
   POWER_CHARGES,
   type PowerId,
@@ -20,9 +13,11 @@ import {
   rarityScore,
   tierOf,
   type RarityTier,
+  type Scale,
   type WordUsage,
 } from './rarity'
-import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RACE_WORDS, RECALL_SECONDS, modeEdge, type GameMode } from './modes'
+import { MODE_SECONDS, enduranceBonus, modeEdge, secondsOf, type GameMode } from './modes'
+import { DEFAULT_RUN_TUNING, runTuning, type RunTuning } from './tuning'
 import { pickWeighted, streamFor, type Rng } from './rng'
 import { compactWord, finalOf, initialOf, normalizeWord } from './text'
 import { knownByLetter, type WordMatch, type WordPack } from './words'
@@ -30,7 +25,19 @@ import { knownByLetter, type WordMatch, type WordPack } from './words'
 /** La durée du solo, sur laquelle l'écran dessine son disque. */
 export const RUN_SECONDS = MODE_SECONDS.solo
 /** A skip costs clock, not points: the player always leaves with what they found. */
-export const SKIP_PENALTY_SECONDS = 5
+export const SKIP_PENALTY_SECONDS = DEFAULT_RUN_TUNING['run.skipPenalty']
+
+/** Ce que dure une partie de ce mode, selon ses réglages. */
+export function modeSeconds(tuning: RunTuning, mode: GameMode): number {
+  return secondsOf(mode, tuning)
+}
+
+/** Le barème que la partie paie, selon ses réglages. */
+export function scaleOf(run: Pick<Run, 'tuning'>): Scale {
+  const t = run.tuning
+  return { basePoints: t['run.basePoints'], rarityPoints: t['run.rarityPoints'], comboStep: t['run.comboStep'], comboMax: t['run.comboMax'] }
+}
+
 /**
  * A pair with fewer known words than this is dealt once per run: the second
  * time, the one or two answers everyone knows may already be spent.
@@ -132,6 +139,12 @@ export interface Judge {
 
 export interface Run {
   seed: number
+  /**
+   * Les réglages que cette partie joue (`src/domain/tuning.ts`) : ceux de
+   * l'appareil au lancement, ou l'instantané d'un défi — chaque appareil
+   * rejoue alors la même partie.
+   */
+  tuning: RunTuning
   /**
    * Le mode de la réserve qui change une règle du solo, « solo » pour la
    * partie ordinaire. Il fixe la durée, la lettre jugée et ce qu'un mot rend.
@@ -358,7 +371,7 @@ export function promptOutcomes(run: Run): readonly SettledPrompt[] {
 /** A validated word or a skip ends Silence: the clock takes back from `at`. */
 function release(run: Run, at: number): Pick<Run, 'hush' | 'heldSeconds'> {
   if (!run.hush) return { hush: null, heldSeconds: run.heldSeconds }
-  return { hush: null, heldSeconds: run.heldSeconds + Math.min(HUSH_SECONDS, Math.max(0, at - run.hush.at)) }
+  return { hush: null, heldSeconds: run.heldSeconds + Math.min(run.tuning['run.hushSeconds'], Math.max(0, at - run.hush.at)) }
 }
 
 export function hasPower(run: Run, power: PowerId): boolean {
@@ -396,12 +409,15 @@ export interface CreateRunInput {
   shared?: boolean
   /** See `Run.bonusWeight`. */
   bonusWeight?: number
+  /** Les réglages figés d'une partie partagée ; ceux de l'appareil sinon. */
+  tuning?: RunTuning
 }
 
-export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers = [], taught = [], shared = false, bonusWeight = 1 }: CreateRunInput, judge: Judge): Run {
+export function createRun({ seed, mode = 'solo', categoryIds, avoid = [], powers = [], taught = [], shared = false, bonusWeight = 1, tuning = runTuning() }: CreateRunInput, judge: Judge): Run {
   const prompt = drawPrompt(seed, 0, categoryIds, judge, new Set(avoid))
   return {
     seed,
+    tuning,
     mode,
     answer: null,
     // Le retard attend une première validation à vide : c'est elle qui lance le chrono.
@@ -505,7 +521,7 @@ function judgeWord(run: Run, word: string, judge: Judge): Verdict {
       prompt,
       word: match.entry.key,
       display: match.entry.display,
-      points: flat ? pointsForApproximate(run.combo, run.bonusWeight) : pointsFor(match.entry, usage, run.combo, boost, run.bonusWeight),
+      points: flat ? pointsForApproximate(run.combo, run.bonusWeight, scaleOf(run)) : pointsFor(match.entry, usage, run.combo, boost, run.bonusWeight, scaleOf(run)),
       rarity,
       tier,
       approximate: match.approximate,
@@ -544,17 +560,17 @@ export function submit(run: Run, raw: string, judge: Judge, at = run.promptAt): 
 const latecomerTriggered = latecomerDue(run, at) && chargesLeft(run, 'latecomer') > 0
 const latecomerCharges = latecomerTriggered ? spend(run, 'latecomer') : run.charges
 const latecomerSeconds = latecomerTriggered
-? Math.min(LATECOMER_CAP_SECONDS, run.latecomerSeconds + LATECOMER_SECONDS)
+? Math.min(run.tuning['run.latecomerCap'], run.latecomerSeconds + run.tuning['run.latecomerSeconds'])
 : run.latecomerSeconds
 const flawlessStreak = hasPower(run, 'flawless') && !verdict.found.approximate && !verdict.found.joker
 ? run.flawlessStreak + 1
 : 0
-const flawlessBonus = flawlessStreak > 0 && flawlessStreak % FLAWLESS_STREAK === 0 ? FLAWLESS_POINTS : 0
+const flawlessBonus = flawlessStreak > 0 && flawlessStreak % run.tuning['run.flawlessStreak'] === 0 ? run.tuning['run.flawlessPoints'] : 0
   // Bavardage keeps the prompt: cast, it holds for `CHATTER_WORDS` more; under way, it counts one down.
   const chatter = verdict.chatter ? CHATTER_WORDS : Math.max(0, run.chatter - 1)
   const stays = verdict.chatter === true || run.chatter > 0 ? chatter > 0 : false
   // L'endurance paie ses mots en secondes, selon la rareté qu'ils valent.
-  const bonusSeconds = run.bonusSeconds + (run.mode === 'endurance' ? ENDURANCE_TIME_BONUS[verdict.found.tier] : 0)
+  const bonusSeconds = run.bonusSeconds + (run.mode === 'endurance' ? enduranceBonus(verdict.found.tier, run.tuning) : 0)
   // Les pouvoirs dont l'effet a vraiment joué : deux lettres corrigées n'existent
   // que sous Dyslexie, un bonus de points que sous Complication.
   const served: PowerId[] = []
@@ -599,7 +615,7 @@ function cast(run: Run, spell: Spell, judge: Judge, at: number): Run {
 
 export function skipPenalty(run: Run): number {
   if (run.chatter > 0 || run.freeSkipReady) return 0
-  return hasPower(run, 'dodge') ? DODGE_PENALTY_SECONDS : SKIP_PENALTY_SECONDS
+  return hasPower(run, 'dodge') ? run.tuning['run.dodgePenalty'] : run.tuning['run.skipPenalty']
 }
 
 export function skip(run: Run, judge: Judge, at = run.promptAt): Run {
@@ -652,13 +668,13 @@ export function freeLetter(run: Run): Run {
 
 /** Seconds Silence has held the clock so far, the one under way included. */
 export function heldSeconds(run: Run, elapsedSeconds: number): number {
-  const current = run.hush ? Math.min(HUSH_SECONDS, Math.max(0, elapsedSeconds - run.hush.at)) : 0
+  const current = run.hush ? Math.min(run.tuning['run.hushSeconds'], Math.max(0, elapsedSeconds - run.hush.at)) : 0
   return run.heldSeconds + current
 }
 
 /** True while Silence holds the clock: cast, not yet released, not yet run out. */
 export function isHushed(run: Run, elapsedSeconds: number): boolean {
-  return run.hush !== null && elapsedSeconds - run.hush.at < HUSH_SECONDS
+  return run.hush !== null && elapsedSeconds - run.hush.at < run.tuning['run.hushSeconds']
 }
 
 export function latecomerDue(run: Run, elapsedSeconds: number): boolean {
@@ -667,7 +683,7 @@ export function latecomerDue(run: Run, elapsedSeconds: number): boolean {
 
 /** Retardataire paierait un mot validé maintenant : ce que l'écran annonce, au même seuil. */
 export function latecomerOpen(run: Run, remaining: number): boolean {
-  return chargesLeft(run, 'latecomer') > 0 && remaining < LATECOMER_THRESHOLD_SECONDS
+  return chargesLeft(run, 'latecomer') > 0 && remaining < run.tuning['run.latecomerThreshold']
 }
 
 export function remainingSeconds(run: Run, elapsedSeconds: number): number {
@@ -675,7 +691,7 @@ export function remainingSeconds(run: Run, elapsedSeconds: number): number {
   if (raceSeconds(run) !== null) return 0
   return Math.max(
     0,
-    MODE_SECONDS[run.mode] - elapsedSeconds - run.penaltySeconds + heldSeconds(run, elapsedSeconds) + run.latecomerSeconds + run.bonusSeconds,
+    modeSeconds(run.tuning, run.mode) - elapsedSeconds - run.penaltySeconds + heldSeconds(run, elapsedSeconds) + run.latecomerSeconds + run.bonusSeconds,
   )
 }
 
@@ -685,8 +701,8 @@ export function remainingSeconds(run: Run, elapsedSeconds: number): number {
  * course.
  */
 export function raceSeconds(run: Run): number | null {
-  if (run.mode !== 'race' || run.found.length < RACE_WORDS) return null
-  return Math.round((run.found[RACE_WORDS - 1]!.at + run.penaltySeconds) * 10) / 10
+  if (run.mode !== 'race' || run.found.length < run.tuning['run.raceWords']) return null
+  return Math.round((run.found[run.tuning['run.raceWords'] - 1]!.at + run.penaltySeconds) * 10) / 10
 }
 
 /**
@@ -698,12 +714,12 @@ export function raceSeconds(run: Run): number | null {
 export function runScore(run: Run): number {
   if (run.mode === 'race') {
     const time = raceSeconds(run)
-    return time === null ? 0 : Math.max(0, Math.round((MODE_SECONDS.race - time) * 10) / 10)
+    return time === null ? 0 : Math.max(0, Math.round((modeSeconds(run.tuning, 'race') - time) * 10) / 10)
   }
   if (run.mode !== 'endurance') return run.score
   return Math.max(
     0,
-    MODE_SECONDS[run.mode] - run.penaltySeconds + run.heldSeconds + run.latecomerSeconds + run.bonusSeconds,
+    modeSeconds(run.tuning, run.mode) - run.penaltySeconds + run.heldSeconds + run.latecomerSeconds + run.bonusSeconds,
   )
 }
 
@@ -713,7 +729,7 @@ export function runScore(run: Run): number {
  */
 export function recall(run: Run): Run {
   if (run.mode !== 'delayed' || !run.armed) return run
-  return { ...run, penaltySeconds: run.penaltySeconds + RECALL_SECONDS }
+  return { ...run, penaltySeconds: run.penaltySeconds + run.tuning['run.recallSeconds'] }
 }
 
 export interface RunMilestones {

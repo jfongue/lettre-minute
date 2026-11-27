@@ -12,7 +12,7 @@ import type { Proposal } from '../state/session'
 import { adsSupported } from '../lib/native'
 import { sound } from '../lib/sound'
 import { AccountPanel, type AccountActions } from './AccountPanel'
-import { CHALLENGE_XP_BONUS } from '../domain/challenge'
+import { TUNING } from '../domain/tuning'
 import { ChallengeBoard } from './ChallengeScreen'
 import { Avatar } from './Avatar'
 import { Figure, Shape } from './bauhaus'
@@ -468,7 +468,7 @@ function ChallengeSummary({
   return (
     <div className="sheet cascade">
       <XpGain from={profileBefore.xp} to={profile.xp} />
-      <p className="note challenge-xp-note">{t.challenge.xpBonus(Math.round(CHALLENGE_XP_BONUS * 100))}</p>
+      <p className="note challenge-xp-note">{t.challenge.xpBonus(Math.round(TUNING['xp.challengeBonus'] * 100))}</p>
       <Earned profileBefore={profileBefore} profile={profile} avatar={avatar} onAvatar={onAvatar} />
 
       {challenge === 'sending' && <p className="note">{t.challenge.sending}</p>}

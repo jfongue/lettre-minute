@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { ENDURANCE_TIME_BONUS } from '../domain/modes'
+import { enduranceBonus } from '../domain/modes'
 import type { HiddenAnswer } from '../domain/perks'
 import { raceSeconds, runScore, type FoundWord, type Run } from '../domain/run'
 import { raceTime } from '../domain/weekly'
@@ -143,7 +143,7 @@ export function Reveal({
                 {!found.approximate && found.tier !== 'courant' && <TierTag tier={found.tier} />}
                 <span className="reveal-word-points">
                   {/* En endurance le mot rend des secondes : c'est la seule monnaie du mode. */}
-                  {run.mode === 'endurance' ? t.over.seconds(ENDURANCE_TIME_BONUS[found.tier] ?? 0) : `+${found.points}`}
+                  {run.mode === 'endurance' ? t.over.seconds(enduranceBonus(found.tier, run.tuning)) : `+${found.points}`}
                   {isRare(found) && <Burst />}
                 </span>
               </li>

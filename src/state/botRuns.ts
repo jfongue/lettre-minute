@@ -3,6 +3,7 @@ import { playBot } from '../domain/bot'
 import { loadPacks } from '../data/packs'
 import type { ChallengeDetail } from '../lib/cloud'
 import { createJudge } from './judge'
+import { runTuning } from '../domain/tuning'
 
 /**
  * The server marks a house bot played but has no words for it: they are
@@ -23,7 +24,7 @@ export async function withBotRuns(detail: ChallengeDetail): Promise<ChallengeDet
     ...detail,
     players: detail.players.map((player) => {
       if (!player.bot || player.playedAt === null) return player
-      const run = playBot(detail.seed, detail.categoryIds, player.playerId, judge)
+      const run = playBot(detail.seed, detail.categoryIds, player.playerId, judge, runTuning(detail.tuning ?? {}))
       const words = challengeWordsOf(run)
       return {
         ...player,

@@ -28,15 +28,14 @@ import {
   reserveSeconds,
   resignPlayer,
   timeBonusFactor,
-  DUEL_GRACE_SECONDS,
-  DUEL_PASS_PENALTY_SECONDS,
-  DUEL_PICK_SECONDS,
-  DUEL_TIME_BONUS,
   type BotProfile,
   type Duel,
+  tierBonus,
+  tuningOf,
 } from './duel'
 import type { RarityTier } from './rarity'
 import type { Judge, Prompt } from './run'
+import type { DuelTuning } from './tuning'
 
 /** Le temps de lire la règle du draft avant le premier choix. */
 export const DUEL_ANNOUNCE_SECONDS = 3.2
@@ -88,6 +87,8 @@ export interface DuelSetup {
   startedAt: number
   /** Les règles que la table joue ; celles de ce client par défaut (une table locale). */
   rules?: number
+  /** Les réglages figés de la table ; ceux de l'appareil pour une table locale. */
+  tuning?: DuelTuning
 }
 
 /** La table au lancement : le draft s'ouvre après l'annonce de sa règle. */
@@ -100,6 +101,7 @@ export function startDuel(setup: DuelSetup): Duel {
     order,
     at: setup.startedAt + DUEL_ANNOUNCE_SECONDS,
     rules: setup.rules,
+    tuning: setup.tuning,
   })
 }
 
@@ -192,7 +194,7 @@ export function applyMove(before: Duel, move: DuelMove, judge: Judge | null): { 
     const found = played.verdict.kind === 'accepted' ? played.verdict.found : null
     if (played.duel === duel) return { duel: before, facts: [] }
     const facts: DuelFact[] = found
-      ? [{ id, kind: 'solved', player: move.seat, at: move.at, word: found.display, tier: found.tier, delta: DUEL_TIME_BONUS[found.tier] * timeBonusFactor(duel, move.at), saved: played.saved }]
+      ? [{ id, kind: 'solved', player: move.seat, at: move.at, word: found.display, tier: found.tier, delta: tierBonus(duel, found.tier) * timeBonusFactor(duel, move.at), saved: played.saved }]
       : []
     return { duel: played.duel, facts: [...facts, ...consequences(id, duel, played.duel, move, false)] }
   }
@@ -201,7 +203,7 @@ export function applyMove(before: Duel, move: DuelMove, judge: Judge | null): { 
     // Une réserve trop courte ne paie pas le passe : celui qui l'a tenté garde
     // sa main, comme s'il n'avait rien fait.
     if (next === duel) return { duel: before, facts: [] }
-    const facts: DuelFact[] = [{ id, kind: 'passed', player: move.seat, at: move.at, delta: -DUEL_PASS_PENALTY_SECONDS }]
+    const facts: DuelFact[] = [{ id, kind: 'passed', player: move.seat, at: move.at, delta: -tuningOf(duel)['duel.passPenalty'] }]
     return { duel: next, facts: [...facts, ...consequences(id, duel, next, move, true)] }
   }
   const next = duelTimeout(duel, judge, move.at)
@@ -242,7 +244,7 @@ export function driverMove(duel: Duel, judge: Judge | null, at: number, bots: Re
     if (only) return at >= pickDeadline(duel) ? { seat, kind: 'pick', payload: only } : null
     if (bot) {
       const [least, most] = bot.think
-      const budget = Math.min(DUEL_PICK_SECONDS - 0.6, least + (most - least) * 0.55)
+      const budget = Math.min(tuningOf(duel)['duel.pickSeconds'] - 0.6, least + (most - least) * 0.55)
       const picked = botPick(duel, bot)
       return picked && at >= duel.pickSince + budget ? { seat, kind: 'pick', payload: picked } : null
     }
@@ -261,9 +263,9 @@ export function driverMove(duel: Duel, judge: Judge | null, at: number, bots: Re
     if (move.word) return { seat: turn.player, kind: 'word', payload: move.word }
     // Sans mot et sans de quoi payer le passe, un joueur ordinateur finit son
     // temps comme un absent : la table déclare sa mort à zéro.
-    if (reserveSeconds(live, turn.player, at) >= DUEL_PASS_PENALTY_SECONDS) return { seat: turn.player, kind: 'pass', payload: '' }
+    if (reserveSeconds(live, turn.player, at) >= tuningOf(live)['duel.passPenalty']) return { seat: turn.player, kind: 'pass', payload: '' }
   }
-  return reserveSeconds(live, turn.player, at) <= -DUEL_GRACE_SECONDS ? { seat: turn.player, kind: 'timeout', payload: '' } : null
+  return reserveSeconds(live, turn.player, at) <= -tuningOf(live)['duel.grace'] ? { seat: turn.player, kind: 'timeout', payload: '' } : null
 }
 
 // -------------------------------------------------------- l'envoi d'un coup --

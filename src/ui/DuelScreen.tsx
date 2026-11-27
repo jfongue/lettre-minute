@@ -16,12 +16,7 @@ import {
 } from '../state/duel'
 import {
   timeBonusFactor,
-  DUEL_ECHO_FIRST,
-  DUEL_ECHO_NEXT,
-  DUEL_PASS_PENALTY_SECONDS,
-  DUEL_PICK_SECONDS,
-  DUEL_RESERVE_SECONDS,
-  DUEL_XP_BONUS,
+  tuningOf,
   draftShape,
   duelRanking,
   reserveSeconds,
@@ -524,7 +519,7 @@ export function Draft({ table }: { table: DuelTable }) {
         </p>
         {!done && !mine && !table.forced ? <p className="note duel-cheer">{t.duel.cheerHint}</p> : null}
         <span className={`duel-fuse${mine ? ' duel-fuse--mine' : ''}${table.pickLeft <= 3 && !done && !table.forced ? ' duel-fuse--late' : ''}`} aria-hidden="true">
-          <i style={{ transform: `scaleX(${done || table.forced ? 0 : Math.max(0, Math.min(1, table.pickLeft / DUEL_PICK_SECONDS))})` } as CSSProperties} />
+          <i style={{ transform: `scaleX(${done || table.forced ? 0 : Math.max(0, Math.min(1, table.pickLeft / tuningOf(duel)['duel.pickSeconds']))})` } as CSSProperties} />
         </span>
 
         <ul className="dealt dealt--pick">
@@ -744,7 +739,7 @@ function TableStrip({ table, at, urgent, resumed }: { table: DuelTable; at: numb
               </span>
             ) : null}
             <span className="duel-seat__bar" aria-hidden="true">
-              <i style={{ transform: `scaleX(${Math.min(1, seconds / DUEL_RESERVE_SECONDS)})` } as CSSProperties} />
+              <i style={{ transform: `scaleX(${Math.min(1, seconds / tuningOf(duel)['duel.reserve'])})` } as CSSProperties} />
             </span>
             {dead ? <span className="duel-seat__clock">{t.duel.out}</span> : null}
             {away ? (
@@ -840,7 +835,7 @@ export function Play({ table }: { table: DuelTable }) {
   const clockAt = table.at
   const seconds = reserveOf(duel, me, clockAt)
   // Le passe se paie 5 s : sous la pénalité, le bouton ne s'offre plus.
-  const canPass = mine && seconds >= DUEL_PASS_PENALTY_SECONDS
+  const canPass = mine && seconds >= tuningOf(duel)['duel.passPenalty']
   const critical = mine && seconds <= LOW_SECONDS && !frozen
   const urgent = mine && seconds <= 10
   const shown = Math.ceil(seconds)
@@ -918,7 +913,7 @@ export function Play({ table }: { table: DuelTable }) {
   // Ce que le champ dit : les mots du jeu, et le duel en plus.
   // Pendant le tour d'un autre, un mot juste se valide en bonus — s'il en reste.
   const echoing = !mine && watching && alive && table.echoes
-  const echoDelta = Math.round(((turn?.echoes ?? []).length === 0 ? DUEL_ECHO_FIRST : DUEL_ECHO_NEXT) * timeBonusFactor(duel, clockAt) * 10) / 10
+  const echoDelta = Math.round(((turn?.echoes ?? []).length === 0 ? tuningOf(duel)['duel.echoFirst'] : tuningOf(duel)['duel.echoNext']) * timeBonusFactor(duel, clockAt) * 10) / 10
   const said =
     draft.trim() === ''
       ? mine
@@ -1045,7 +1040,7 @@ export function Play({ table }: { table: DuelTable }) {
                   table.pass()
                 }}
               >
-                {t.run.skip(DUEL_PASS_PENALTY_SECONDS)}
+                {t.run.skip(tuningOf(duel)['duel.passPenalty'])}
               </button>
               <button type="submit" className={`btn btn--blue${canValidate ? ' duel-armed' : ''}`} disabled={!canValidate}>
                 {t.run.submit}
@@ -1158,7 +1153,7 @@ export function Over({ table }: { table: DuelTable }) {
                   <Avatar choice={row.avatar} size="sm" />
                   <span className="duel-rank__who">
                     <b>{nameOf(row, t.duel.you, index === table.myIndex)}</b>
-                    <small>{t.duel.recapLine(player.words.length, timeGained(player))}</small>
+                    <small>{t.duel.recapLine(player.words.length, timeGained(player, duel))}</small>
                   </span>
                   <span className="duel-rank__words">
                     {best.map((word) => (
@@ -1297,7 +1292,7 @@ function DuelXp({ payout, avatar, show }: { payout: DuelPayout; avatar: AvatarCh
       <div className="progress">
         <span style={{ '--ratio': progress.ratio } as CSSProperties} />
       </div>
-      <p className="note">{t.duel.xpLine(payout.words, payout.points, DUEL_XP_BONUS)}</p>
+      <p className="note">{t.duel.xpLine(payout.words, payout.points, payout.xp - payout.points)}</p>
       {levelled ? (
         <p className="duel-xp__level" key={progress.level}>
           <b>{t.over.levelReached(progress.level)}</b>

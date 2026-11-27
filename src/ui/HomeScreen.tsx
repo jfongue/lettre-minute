@@ -4,7 +4,7 @@ import type { AccountMode } from './AccountPanel'
 import type { Boards as BoardsData } from '../domain/boards'
 import { homePageOpen } from '../domain/home'
 import { levelProgress, type Profile } from '../domain/progression'
-import { RUN_SECONDS } from '../domain/run'
+import { secondsOf } from '../domain/modes'
 import { formatNumber, useT } from '../i18n'
 import { host } from '../platform'
 import { Boards } from './Boards'
@@ -139,7 +139,7 @@ const alone =
           <span>{(host.title ?? t.appName)[0]}</span>
           <span>{(host.title ?? t.appName)[1]}</span>
         </h1>
-        <p className="eyebrow">{t.home.tagline(RUN_SECONDS)}</p>
+        <p className="eyebrow">{t.home.tagline(secondsOf('solo'))}</p>
       </header>
 
       {/* Only once the poster and the title have landed, and only while the

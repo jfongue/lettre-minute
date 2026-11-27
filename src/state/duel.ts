@@ -17,11 +17,10 @@ import {
   DUEL_MAX_PLAYERS,
   DUEL_MIN_PLAYERS,
   DUEL_OPENING_SECONDS,
-  DUEL_PICK_SECONDS,
-  DUEL_PASS_PENALTY_SECONDS,
   duelReward,
-  DUEL_ECHO_MAX,
   DUEL_RULES,
+  DUEL_TUNED_RULES,
+  tuningOf,
   type BotProfile,
   type Duel,
   type DuelReward,
@@ -63,6 +62,7 @@ import {
 import { setMusic, sound } from '../lib/sound'
 import { createJudge } from './judge'
 import { duelPaid, loadAccount, loadAvatar, loadProfile, markDuelPaid, saveActiveDuel, saveProfile } from './storage'
+import { DEFAULT_DUEL_TUNING, duelTuning, type DuelTuning } from '../domain/tuning'
 
 /**
  * La table de duel vue d'un appareil. La partie elle-même n'est qu'un journal
@@ -290,6 +290,8 @@ interface TableData {
   public: boolean
   ranked: boolean
   rules: number
+  /** Les réglages que la table joue, figés au lancement : chaque appareil rejoue les mêmes. */
+  tuning: DuelTuning
   settled: boolean
   voided: boolean
   ratings: readonly DuelRatingChange[]
@@ -335,6 +337,7 @@ function freshLocal(lang: string, me: Seat, bots: readonly string[], categories:
     public: false,
     ranked: false,
     rules: DUEL_RULES,
+    tuning: duelTuning(),
     settled: false,
     voided: false,
     ratings: [],
@@ -360,6 +363,8 @@ function fromSnapshot(snapshot: DuelSnapshot): TableData {
     public: snapshot.table.public,
     ranked: snapshot.table.ranked,
     rules: snapshot.table.rules,
+    // Une table d'avant les règles 3, ou d'un joueur plus ancien, joue les réglages par défaut.
+    tuning: snapshot.table.rules >= DUEL_TUNED_RULES && snapshot.table.tuning ? duelTuning(snapshot.table.tuning) : DEFAULT_DUEL_TUNING,
     settled: snapshot.table.settled,
     voided: snapshot.table.voided,
     ratings: snapshot.table.ratings,
@@ -805,7 +810,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   const fresh: DuelSetup | null =
     !table || table.startedAt === null || players.length < MIN_TABLE
       ? null
-      : { seed: table.seed, playerIds: players.map((seat) => seat.id), categories: table.categories, owned: players.map((seat) => seat.owned), startedAt: table.startedAt, rules: table.rules }
+      : { seed: table.seed, playerIds: players.map((seat) => seat.id), categories: table.categories, owned: players.map((seat) => seat.owned), startedAt: table.startedAt, rules: table.rules, tuning: table.tuning }
   // Every poll (450 ms) rebuilds the table and its seats: keyed on what the
   // setup says, the whole journal is replayed only when a move or a seat changes.
   const setupKey = fresh && JSON.stringify(fresh)
@@ -1108,7 +1113,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
   )
 
   const echoes = !!table && table.rules >= 2
-  const echoesLeft = duel?.turn ? DUEL_ECHO_MAX - (duel.turn.echoes ?? []).filter((one) => one === myIndex).length : 0
+  const echoesLeft = duel?.turn ? tuningOf(duel)['duel.echoMax'] - (duel.turn.echoes ?? []).filter((one) => one === myIndex).length : 0
   const echo = useCallback(
     (raw: string) => {
       if (!duel || !judge || !echoes || phase !== 'play' || !duel.turn || duel.turn.player === myIndex || echoesLeft <= 0) return
@@ -1129,7 +1134,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
 
   const pass = useCallback(() => {
     if (!duel || !myTurn) return
-    if (reserveSeconds(duel, myIndex, at) < DUEL_PASS_PENALTY_SECONDS) return
+    if (reserveSeconds(duel, myIndex, at) < tuningOf(duel)['duel.passPenalty']) return
     void post({ seat: myIndex, kind: 'pass', payload: '' })
   }, [at, duel, myIndex, myTurn, post])
 
@@ -1273,7 +1278,7 @@ export function useDuelTable({ lang, mode, join = null, onExit, onProfile, quick
     pool: table?.categories ?? mine,
     prompt: (duel ? duelPrompt(duel) : null) ?? replayed?.lastPrompt ?? null,
     picker,
-    pickLeft: picker && duel ? Math.max(0, Math.min(pickDeadline(duel) - at, DUEL_PICK_SECONDS)) : 0,
+    pickLeft: picker && duel ? Math.max(0, Math.min(pickDeadline(duel) - at, tuningOf(duel)['duel.pickSeconds'])) : 0,
     forced: drafting ? onlyChoice(duel) : null,
     myTurn,
     myPickTurn: !!picker && picker.id === myId,

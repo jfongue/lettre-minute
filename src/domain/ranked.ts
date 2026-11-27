@@ -8,32 +8,34 @@
  * vérifient les mêmes cas.
  */
 
+import { DEFAULT_TUNING as D, TUNING } from './tuning'
+
 /**
  * Le départ d'un compte qui n'a jamais joué : Argent III tant que moins de
  * `BRONZE_START_GOLD` joueurs ont atteint l'Or, Bronze III ensuite
  * (`duel_start_rating`, 0123) — une échelle vide n'envoie pas les premiers au fond.
  */
-export const RATING_START = 800
-export const EARLY_START = 950
-export const BRONZE_START_GOLD = 50
+export const RATING_START = D['ranked.startLate']
+export const EARLY_START = D['ranked.startEarly']
+export const BRONZE_START_GOLD = D['ranked.bronzeStartGold']
 /**
  * Les Maîtres n'existent qu'à partir de dix joueurs Diamant (`duel_masters_open`) ;
  * d'ici là, le pas de chaque partie est doublé (`duel_k_boost`) pour que les
  * premiers y montent vite. Le serveur seul règle, et dit `masters` à chaque lecture.
  */
-export const MASTERS_FROM_DIAMONDS = 10
+export const MASTERS_FROM_DIAMONDS = D['ranked.mastersFromDiamonds']
 /** Le plancher : on ne descend pas plus bas. */
 export const RATING_FLOOR = 100
 /** Le top du classement : un rang « Maître » numéroté, au-dessus des ligues. */
 export const MASTER_SPOTS = 10
 /** Après ce nombre de jours sans partie classée, l'Elo descend chaque jour un peu. */
-export const DECAY_GRACE_DAYS = 7
-export const DECAY_PER_DAY = 5
+export const DECAY_GRACE_DAYS = D['ranked.decayGraceDays']
+export const DECAY_PER_DAY = D['ranked.decayPerDay']
 /** Ce que l'inactivité peut retirer au plus, et le plancher qu'elle ne franchit pas. */
-export const DECAY_CAP = 150
-export const DECAY_FLOOR = 950
+export const DECAY_CAP = D['ranked.decayCap']
+export const DECAY_FLOOR = D['ranked.decayFloor']
 /** Le temps d'accepter un adversaire trouvé, celui de `duel_offer_seconds()`. */
-export const OFFER_SECONDS = 20
+export const OFFER_SECONDS = D['ranked.offerSeconds']
 
 /**
  * Tout le monde part du Bronze : le pas est grand sur les dix premières
@@ -41,7 +43,7 @@ export const OFFER_SECONDS = 20
  * puis ordinaire.
  */
 export function kFactor(games: number): number {
-  return games < 10 ? 60 : games < 20 ? 40 : 20
+  return games < TUNING['ranked.kEarlyGames'] ? TUNING['ranked.kEarly'] : games < TUNING['ranked.kMidGames'] ? TUNING['ranked.kMid'] : TUNING['ranked.kLate']
 }
 
 /** L'Elo après une partie : jamais sous le plancher. */
@@ -55,8 +57,8 @@ export function settledRating(rating: number): number {
  * `idleDays` : les jours entiers depuis sa dernière partie classée.
  */
 export function decayedRating(rating: number, idleDays: number): number {
-  const loss = Math.min(DECAY_CAP, DECAY_PER_DAY * Math.max(0, Math.floor(idleDays) - DECAY_GRACE_DAYS))
-  return Math.max(rating - loss, Math.min(rating, DECAY_FLOOR))
+  const loss = Math.min(TUNING['ranked.decayCap'], TUNING['ranked.decayPerDay'] * Math.max(0, Math.floor(idleDays) - TUNING['ranked.decayGraceDays']))
+  return Math.max(rating - loss, Math.min(rating, TUNING['ranked.decayFloor']))
 }
 
 /** La chance de gagner que l'Elo prête à `rating` contre `other`. */
@@ -185,9 +187,9 @@ export function rankedNewsDue(runs: number, seen: boolean): boolean {
  * dix secondes après l'attente annoncée — 20 s quand rien ne l'annonce —, et
  * jamais après trois minutes.
  */
-export const BOT_MATCH_GRACE = 10
+export const BOT_MATCH_GRACE = D['ranked.botGrace']
 export function botMatchAfter(estimate: number | null): number {
-  return Math.min(180, (estimate ?? 20) + BOT_MATCH_GRACE)
+  return Math.min(TUNING['ranked.botMaxWait'], (estimate ?? TUNING['ranked.botDefaultWait']) + TUNING['ranked.botGrace'])
 }
 
 /**
@@ -197,7 +199,7 @@ export function botMatchAfter(estimate: number | null): number {
 export function botLevel(rating: number): { think: readonly [number, number]; answerChance: number } {
   const level = Math.max(0, Math.min(1, (rating - 800) / 800))
   const round = (value: number) => Math.round(value * 100) / 100
-  return { think: [round(6 - level * 4), round(11 - level * 6)], answerChance: round(0.55 + level * 0.4) }
+  return { think: [round(6 - level * 4), round(11 - level * 6)], answerChance: round(TUNING['ranked.botAnswerMin'] + level * Math.max(0, TUNING['ranked.botAnswerMax'] - TUNING['ranked.botAnswerMin'])) }
 }
 
 /** L'attente a dépassé l'estimation d'assez pour le dire. */

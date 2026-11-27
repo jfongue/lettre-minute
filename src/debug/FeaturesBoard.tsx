@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { DEFAULT_TUNING, TUNING, TUNING_KEYS, tuningRange } from '../domain/tuning'
 import { createPortal } from 'react-dom'
 import { AUDIENCES, enabledFeatures, FEATURES, type Audience, type FlagRow, type FlagValue, type Roles } from '../domain/features'
 import { fetchFeatureFlags, setFeatureFlag, type FlagOutcome } from '../lib/cloud'
@@ -160,6 +161,39 @@ export function FeaturesBoardView({ load, save, roles, onClose }: { load: LoadFl
           })}
         </div>
       ) : null}
+      <TuningList />
     </div>
+  )
+}
+
+/**
+ * Les réglages que cet appareil joue (`game_config`, 0125), en lecture seule :
+ * ils se changent par une migration, et valent au lancement suivant. Une
+ * valeur qui diffère du code est en gras.
+ */
+function TuningList() {
+  const changed = TUNING_KEYS.filter((key) => TUNING[key] !== DEFAULT_TUNING[key])
+  return (
+    <section className="tuning-list" aria-label="Réglages du jeu">
+      <h2 className="eyebrow">Réglages du jeu · {changed.length === 0 ? 'tous ceux du code' : `${changed.length} changés`}</h2>
+      <p className="note">Lus de game_config au lancement précédent ; un changement vaut au lancement suivant.</p>
+      <dl>
+        {TUNING_KEYS.map((key) => {
+          const { min, max } = tuningRange(key)
+          const differs = TUNING[key] !== DEFAULT_TUNING[key]
+          return (
+            <div key={key} className={differs ? 'tuning-list__row tuning-list__row--changed' : 'tuning-list__row'}>
+              <dt>{key}</dt>
+              <dd>
+                {TUNING[key]}
+                <small>
+                  {differs ? ` · code ${DEFAULT_TUNING[key]}` : ''} · {min}–{max}
+                </small>
+              </dd>
+            </div>
+          )
+        })}
+      </dl>
+    </section>
   )
 }

@@ -1,4 +1,4 @@
-import { breakDue, INTERSTITIAL_BREAKS, nextBreak } from '../domain/adBreaks'
+import { breakDue, interstitialBreaks, nextBreak } from '../domain/adBreaks'
 import { adsSupported, playInterstitial, prepareInterstitial, prepareRewardedAd, showRewardedAd } from '../lib/native'
 import { quiet, type AdBreak, type Host } from './host'
 
@@ -18,10 +18,10 @@ function breakAfterRecap(adFree: boolean, afterAd = false): Promise<AdBreak> {
   if (pendingBreak) return pendingBreak
   finishedRuns += 1
   if (!adsSupported()) return Promise.resolve('none')
-  const due = breakDue(finishedRuns, INTERSTITIAL_BREAKS)
+  const due = breakDue(finishedRuns, interstitialBreaks())
   if (adFree) return Promise.resolve(due ? 'spared' : 'none')
   const loadAhead = () => {
-    if (nextBreak(finishedRuns, INTERSTITIAL_BREAKS) - finishedRuns <= LOAD_AHEAD_RUNS) prepareInterstitial()
+    if (nextBreak(finishedRuns, interstitialBreaks()) - finishedRuns <= LOAD_AHEAD_RUNS) prepareInterstitial()
   }
   if (!due || afterAd) {
     loadAhead()

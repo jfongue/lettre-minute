@@ -1,3 +1,5 @@
+import { DEFAULT_TUNING, TUNING } from './tuning'
+
 /**
  * When a host breaks between two runs for an ad: the `first` finished run of
  * the session, then after a gap of `gap` runs, each gap `growth` longer than
@@ -11,7 +13,12 @@ export interface BreakSchedule {
 }
 
 /** The phone's interstitial: the 3rd, 7th, 13th, 21st, 31st… run (gaps 4, 6, 8, 10…). */
-export const INTERSTITIAL_BREAKS: BreakSchedule = { first: 3, gap: 4, growth: 2 }
+export const INTERSTITIAL_BREAKS: BreakSchedule = { first: DEFAULT_TUNING['ads.first'], gap: DEFAULT_TUNING['ads.gap'], growth: DEFAULT_TUNING['ads.growth'] }
+
+/** The phone's interstitial schedule as this device's settings have it. */
+export function interstitialBreaks(): BreakSchedule {
+  return { first: TUNING['ads.first'], gap: TUNING['ads.gap'], growth: TUNING['ads.growth'] }
+}
 
 /** The first run past `finishedRuns` the schedule breaks after. */
 export function nextBreak(finishedRuns: number, schedule: BreakSchedule): number {

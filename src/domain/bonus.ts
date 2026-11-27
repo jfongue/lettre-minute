@@ -4,6 +4,7 @@ import { levelFor, PERKS_VERSION, type Profile } from './progression'
 import { ownedPlainCount } from './owned'
 import { ownedPowers } from './powers'
 import { createRng, pickWeighted } from './rng'
+import { DEFAULT_TUNING, TUNING } from './tuning'
 
 /** What a bonus level gives: identifiers only, the names live in `src/i18n/`. */
 export type BonusId = 'filter' | 'slot' | 'reveal' | 'moderator'
@@ -19,7 +20,7 @@ export const BONUS_WEIGHTS: Readonly<Record<BonusId, number>> = { filter: 1, slo
 /** Bans and reveals are already unlimited for Premium: those picks would spend themselves. */
 export const USELESS_FOR_PLUS: readonly BonusId[] = ['filter', 'reveal']
 
-export const BONUS_OFFER_SIZE = 2
+export const BONUS_OFFER_SIZE = DEFAULT_TUNING['bonus.offerSize']
 
 /** Powers and categories owned before levels start paying bonuses. */
 export const BONUS_MIN_POWERS = 3
@@ -30,8 +31,8 @@ export const BONUS_MIN_CATEGORIES = 6
  * pick — three powers by level 7, three category picks on top of the three
  * starters — and from which every third level pays a bonus, not a category.
  */
-export const BONUS_FROM_LEVEL = 7
-export const BONUS_EVERY_LEVELS = 3
+export const BONUS_FROM_LEVEL = DEFAULT_TUNING['bonus.fromLevel']
+export const BONUS_EVERY_LEVELS = DEFAULT_TUNING['bonus.everyLevels']
 
 export function isBonusId(value: unknown): value is BonusId {
   return BONUS_IDS.includes(value as BonusId)
@@ -125,7 +126,7 @@ export function bonusUnlocked(profile: Profile): boolean {
 export function bonusLevels(profile: Profile, barred: readonly BonusId[] = [], bonuses = true): number {
   const taken = won(profile)
   if (!bonuses || !bonusUnlocked(profile)) return taken
-  const reached = Math.max(0, Math.floor((levelFor(profile.xp) - BONUS_FROM_LEVEL) / BONUS_EVERY_LEVELS))
+  const reached = Math.max(0, Math.floor((levelFor(profile.xp) - TUNING['bonus.fromLevel']) / TUNING['bonus.everyLevels']))
   return Math.max(taken, Math.min(reached, taken + poolRoom(profile, barred)))
 }
 
@@ -151,7 +152,7 @@ export function dealBonusOffer(profile: Profile, seed: number, barred: readonly 
   const pool = bonusPool(cleared, barred)
   const offer: BonusId[] = won(cleared) === 0 && pool.includes('slot') ? ['slot'] : []
   const left = pool.filter((id) => !offer.includes(id))
-  while (offer.length < BONUS_OFFER_SIZE) {
+  while (offer.length < TUNING['bonus.offerSize']) {
     const next = pickWeighted(rng, left, (id) => BONUS_WEIGHTS[id])
     if (next === null) break
     offer.push(next)

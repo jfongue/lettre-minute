@@ -2,25 +2,25 @@ import { premiereCategoryIds } from './catalogue'
 import type { Profile } from './progression'
 import { hasPower, promptKey, type Judge, type Prompt, type Run, type SettledPrompt } from './run'
 import { compactWord } from './text'
-import { WEEKLY_FREE_ATTEMPTS } from './weekly'
+import { DEFAULT_TUNING, TUNING } from './tuning'
 
 /** Bans a player holds without Premium at most, each one a « filter » level bonus; none to begin with. */
-export const FREE_BANS_MAX = 3
+export const FREE_BANS_MAX = DEFAULT_TUNING['bans.freeMax']
 
 /** Where Premium is sold, the bonuses stop short of the third: Premium's six are the way past two. */
 export const FREE_BANS_WHERE_SOLD = 2
 
 /** Bans Premium holds. */
-export const PLUS_BANS = 6
+export const PLUS_BANS = DEFAULT_TUNING['bans.plus']
 
 /** Playable categories a ban never goes under: a run of five still has one to spare. */
-export const MIN_PLAYABLE_CATEGORIES = 6
+export const MIN_PLAYABLE_CATEGORIES = DEFAULT_TUNING['bans.minPlayable']
 
 /** Hidden answers uncovered per day: the base, then what bonuses add, then as many ads as the player will watch. */
-export const BASE_REVEALS = 2
-export const REVEAL_BONUS_MAX = 3
+export const BASE_REVEALS = DEFAULT_TUNING['reveals.base']
+export const REVEAL_BONUS_MAX = DEFAULT_TUNING['reveals.bonusMax']
 /** What each ad pays: three reveals at a time, with no cap on the day's ads. */
-export const REVEALS_PER_AD = 3
+export const REVEALS_PER_AD = DEFAULT_TUNING['reveals.perAd']
 
 /** What Premium gave beyond the free limits, as the Premium page counts it. */
 export type PlusStat = 'reveals' | 'attempts' | 'filterRuns' | 'premiereRuns' | 'adsSkipped'
@@ -51,11 +51,11 @@ export function countPlusReveal(profile: Profile, day: string): Profile {
   if (!isPlus(profile)) return profile
   const today = revealsOn(profile, day)
   const used = today.revealsUsed + 1
-  const free = BASE_REVEALS + Math.min(REVEAL_BONUS_MAX, profile.bonuses.filter((id) => id === 'reveal').length)
+  const free = TUNING['reveals.base'] + Math.min(TUNING['reveals.bonusMax'], profile.bonuses.filter((id) => id === 'reveal').length)
   const beyond = used - free
   const next = { ...today, revealsUsed: used }
   if (beyond <= 0) return next
-  return bumped(next, 'reveals', ...((beyond - 1) % REVEALS_PER_AD === 0 ? (['adsSkipped'] as const) : []))
+  return bumped(next, 'reveals', ...((beyond - 1) % Math.max(1, TUNING['reveals.perAd']) === 0 ? (['adsSkipped'] as const) : []))
 }
 
 /** What a finished run shows of Premium: filters past the free maximum, and an avant-première dealt. */
@@ -74,13 +74,13 @@ export function countPlusRun(profile: Profile, info: PlusRunInfo): Profile {
 
 /** Weekly attempt number `n` (1-based) played: past the free one it is Premium's, and the second spares the ad. */
 export function countPlusAttempt(profile: Profile, n: number): Profile {
-  if (!isPlus(profile) || n <= WEEKLY_FREE_ATTEMPTS) return profile
-  return bumped(profile, 'attempts', ...(n === WEEKLY_FREE_ATTEMPTS + 1 ? (['adsSkipped'] as const) : []))
+  if (!isPlus(profile) || n <= TUNING['weekly.freeAttempts']) return profile
+  return bumped(profile, 'attempts', ...(n === TUNING['weekly.freeAttempts'] + 1 ? (['adsSkipped'] as const) : []))
 }
 
 /** Runs before the game first asks for the player's opinion, then between two asks. */
-export const FEEDBACK_FIRST_RUNS = 10
-export const FEEDBACK_EVERY_RUNS = 30
+export const FEEDBACK_FIRST_RUNS = DEFAULT_TUNING['asks.feedbackFirst']
+export const FEEDBACK_EVERY_RUNS = DEFAULT_TUNING['asks.feedbackEvery']
 
 export function isPlus(profile: Profile): boolean {
   return profile.plusSince > 0 || profile.plusGranted || profile.plusOffered > 0
@@ -126,12 +126,12 @@ export function markPlusThanked(profile: Profile): Profile {
 
 /** Bans the player's bonuses allow, Premium aside. */
 export function freeBans(profile: Profile): number {
-  return Math.min(FREE_BANS_MAX, profile.bonuses.filter((id) => id === 'filter').length)
+  return Math.min(TUNING['bans.freeMax'], profile.bonuses.filter((id) => id === 'filter').length)
 }
 
 /** Bans anyone can hold: Premium's, or the bonuses'. */
 export function bansAllowed(profile: Profile): number {
-  return isPlus(profile) ? PLUS_BANS : freeBans(profile)
+  return isPlus(profile) ? TUNING['bans.plus'] : freeBans(profile)
 }
 
 /** Filtering exists once a ban is possible: a bonus taken, or Premium. */
@@ -150,7 +150,7 @@ export function banVerdict(profile: Profile, ownedIds: readonly string[], catego
   if (!banUnlocked(profile) || !ownedIds.includes(categoryId)) return 'locked'
   const banned = bannedOf(profile, ownedIds)
   if (banned.includes(categoryId)) return 'ok'
-  if (ownedIds.length - banned.length - 1 < MIN_PLAYABLE_CATEGORIES) return 'floor'
+  if (ownedIds.length - banned.length - 1 < TUNING['bans.minPlayable']) return 'floor'
   if (banned.length >= bansAllowed(profile)) return isPlus(profile) ? 'max' : 'plus'
   return 'ok'
 }
@@ -200,8 +200,8 @@ function revealsOn(profile: Profile, day: string): Profile {
 
 /** Reveals the day allows: the base, the reveal bonuses, what the ads paid. Premium has no count. */
 export function revealsAllowed(profile: Profile, day: string): number {
-  const bonus = Math.min(REVEAL_BONUS_MAX, profile.bonuses.filter((id) => id === 'reveal').length)
-  return BASE_REVEALS + bonus + REVEALS_PER_AD * revealsOn(profile, day).revealAds
+  const bonus = Math.min(TUNING['reveals.bonusMax'], profile.bonuses.filter((id) => id === 'reveal').length)
+  return TUNING['reveals.base'] + bonus + TUNING['reveals.perAd'] * revealsOn(profile, day).revealAds
 }
 
 /** Reveals a proposed word paid that the player has not spent yet. Premium has no use for them. */
@@ -339,8 +339,8 @@ export function learnFromProfessor(profile: Profile, run: Run, judge: Judge): Pr
 
 /** Whether the next return home asks for the player's opinion: after ten runs, then every thirty. */
 export function feedbackDue(profile: Profile): boolean {
-  if (profile.feedbackAskedAt === 0) return profile.runs >= FEEDBACK_FIRST_RUNS
-  return profile.runs - profile.feedbackAskedAt >= FEEDBACK_EVERY_RUNS
+  if (profile.feedbackAskedAt === 0) return profile.runs >= TUNING['asks.feedbackFirst']
+  return profile.runs - profile.feedbackAskedAt >= TUNING['asks.feedbackEvery']
 }
 
 export function markFeedbackAsked(profile: Profile): Profile {
@@ -348,11 +348,11 @@ export function markFeedbackAsked(profile: Profile): Profile {
 }
 
 /** Runs after which even an anonymous player hears that the game can be shared. */
-export const SHARE_NEWS_RUNS = 15
+export const SHARE_NEWS_RUNS = DEFAULT_TUNING['asks.shareNewsRuns']
 
 /** The one-time news that friends can now be invited: a named account at once, anyone else after fifteen runs. */
 export function shareNewsDue(profile: Profile, named: boolean, seen: boolean): boolean {
-  return !seen && (named || profile.runs >= SHARE_NEWS_RUNS)
+  return !seen && (named || profile.runs >= TUNING['asks.shareNewsRuns'])
 }
 
 /**

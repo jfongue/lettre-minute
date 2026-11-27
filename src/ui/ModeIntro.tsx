@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react'
-import { ENDURANCE_TIME_BONUS, MODE_SECONDS, type ArcadeMode } from '../domain/modes'
+import { enduranceBonus, secondsOf, type ArcadeMode } from '../domain/modes'
 import type { RarityTier } from '../domain/rarity'
 import { useT } from '../i18n'
 import { sound } from '../lib/sound'
@@ -74,9 +74,9 @@ export function ModeIntro({
                 <li key={tier}>
                   <TierTag tier={tier} />
                   <span className="wk-table-bar" aria-hidden="true">
-                    <span style={{ width: `${(ENDURANCE_TIME_BONUS[tier] / 4) * 100}%` }} />
+                    <span style={{ width: `${(enduranceBonus(tier) / Math.max(1, enduranceBonus('très rare'))) * 100}%` }} />
                   </span>
-                  <strong>+{t.weekly.run.bonus(ENDURANCE_TIME_BONUS[tier]).slice(1)}</strong>
+                  <strong>+{t.weekly.run.bonus(enduranceBonus(tier)).slice(1)}</strong>
                 </li>
               ))}
             </ul>
@@ -111,8 +111,8 @@ export function ModeIntro({
 const DEMO_RATE = 2.5
 const DEMO_LOOP_SECONDS = 12
 const DEMO_GAINS = [
-  { at: 4, side: 'a', seconds: ENDURANCE_TIME_BONUS.courant },
-  { at: 8, side: 'b', seconds: ENDURANCE_TIME_BONUS['très rare'] },
+  { at: 4, side: 'a', seconds: enduranceBonus('courant') },
+  { at: 8, side: 'b', seconds: enduranceBonus('très rare') },
 ] as const
 
 function EnduranceDemo() {
@@ -128,15 +128,15 @@ function EnduranceDemo() {
   }, [still])
 
   const gained = DEMO_GAINS.reduce((sum, gain) => (atSeconds >= gain.at ? sum + gain.seconds : sum), 0)
-  const left = MODE_SECONDS.endurance + gained - DEMO_RATE * atSeconds
-  const remaining = Math.min(MODE_SECONDS.endurance, Math.max(0, left))
+  const left = secondsOf('endurance') + gained - DEMO_RATE * atSeconds
+  const remaining = Math.min(secondsOf('endurance'), Math.max(0, left))
   // Chaque pastille arrive à l'instant où son mot tombe : le chiffre monte de
   // ce qu'elle annonce, et l'anneau avec lui.
   const shown = still ? DEMO_GAINS : DEMO_GAINS.filter((gain) => atSeconds >= gain.at)
 
   return (
     <div className="wk-demo" aria-hidden="true">
-      <span className="wk-demo-ring" style={{ '--wk-ring': remaining / MODE_SECONDS.endurance } as CSSProperties} />
+      <span className="wk-demo-ring" style={{ '--wk-ring': remaining / secondsOf('endurance') } as CSSProperties} />
       <span className="wk-demo-clock">{Math.ceil(remaining)}</span>
       {shown.map((gain) => (
         <span key={gain.at} className={`wk-demo-gain wk-demo-gain--${gain.side}`}>

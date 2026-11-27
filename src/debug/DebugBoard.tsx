@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react'
+import { DEFAULT_RUN_TUNING } from '../domain/tuning'
 import { DEFAULT_AVATAR, type AvatarChoice } from '../domain/avatar'
 import type { ChallengeWord } from '../domain/challenge'
 import { choosePower } from '../domain/powers'
@@ -217,6 +218,7 @@ function makeRun(score: number, words: readonly Word[] = WORDS): Run {
   }))
   return {
     seed: 42,
+    tuning: DEFAULT_RUN_TUNING,
     mode: 'solo',
     answer: null,
     armed: true,

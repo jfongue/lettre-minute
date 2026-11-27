@@ -1,5 +1,6 @@
 import { createRng } from './rng'
 import { createRun, remainingSeconds, skip, submit, type Judge, type Run } from './run'
+import { DEFAULT_RUN_TUNING, type RunTuning } from './tuning'
 
 /** Seconds a house bot takes on a prompt, at least and at most. */
 const THINK_SECONDS: readonly [number, number] = [3, 9]
@@ -19,9 +20,9 @@ function hashId(id: string): number {
  * judge must be the same everywhere — no usage counts, no community words.
  * It answers with the best-known word left, as anyone who knows it would.
  */
-export function playBot(seed: number, categoryIds: readonly string[], botId: string, judge: Judge): Run {
+export function playBot(seed: number, categoryIds: readonly string[], botId: string, judge: Judge, tuning: RunTuning = DEFAULT_RUN_TUNING): Run {
   const rng = createRng((seed ^ hashId(botId)) >>> 0)
-  let run = createRun({ seed, categoryIds, shared: true }, judge)
+  let run = createRun({ seed, categoryIds, shared: true, tuning }, judge)
   let clock = 0
   for (;;) {
     const at = clock + THINK_SECONDS[0] + rng.next() * (THINK_SECONDS[1] - THINK_SECONDS[0])

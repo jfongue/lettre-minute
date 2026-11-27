@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react'
-import { CHATTER_WORDS, FLAWLESS_POINTS, FLAWLESS_STREAK, POWER_CHARGES } from '../domain/powers'
+import { CHATTER_WORDS, POWER_CHARGES } from '../domain/powers'
 import { answerPrompt, celerityDue, chargesLeft, hasPower, latecomerOpen, runScore, skipPenalty, type Prompt, type Run, type Verdict } from '../domain/run'
-import { ENDURANCE_TIME_BONUS, MODE_SECONDS, RACE_WORDS, RECALL_SECONDS, modeEdge } from '../domain/modes'
+import { enduranceBonus, modeEdge, raceWordsOf, secondsOf } from '../domain/modes'
+import type { RunTuning } from '../domain/tuning'
 import { comboMultiplier } from '../domain/rarity'
 import { capitalized, compactWord, normalizeWord } from '../domain/text'
 import { categoryText, formatNumber, useT } from '../i18n'
@@ -119,7 +120,7 @@ export function RunScreen({
   // En endurance, le score est le temps à tenir, pas les points : le camembert
   // se vide donc sur lui, sinon il resterait plein dès que le chrono le dépasse.
   const score = runScore(run)
-  const total = run.mode === 'endurance' ? Math.max(score, 1) : MODE_SECONDS[run.mode]
+  const total = run.mode === 'endurance' ? Math.max(score, 1) : secondsOf(run.mode, run.tuning)
   // Les confettis saluent une trouvaille, jamais le temps qui passe : en
   // endurance le score part à trente, et il ne fête pas le départ.
   const race = run.mode === 'race'
@@ -127,8 +128,8 @@ export function RunScreen({
   const seconds = Math.ceil(remaining)
   // La course montre le temps qui monte, et son disque se remplit des mots
   // trouvés : c'est l'arrivée qui l'arrête, pas un chrono vide.
-  const clock = race ? Math.floor(MODE_SECONDS.race - remaining) : seconds
-  const filled = race ? run.found.length / RACE_WORDS : Math.min(1, remaining / total)
+  const clock = race ? Math.floor(secondsOf('race', run.tuning) - remaining) : seconds
+  const filled = race ? run.found.length / raceWordsOf(run.tuning) : Math.min(1, remaining / total)
   // Le rappel du retard s'affiche une seule fois, à sa première question : il
   // se rachète ensuite question par question, contre `RECALL_SECONDS` secondes.
   const firstAnswer = useRef<number | null>(null)
@@ -257,7 +258,7 @@ else if (doubleSkip) sound.power('double-skip')
 
   const endurance = run.mode === 'endurance'
   const lastFound = run.found[run.found.length - 1]
-  const gain = endurance && lastFound ? ENDURANCE_TIME_BONUS[lastFound.tier] : null
+  const gain = endurance && lastFound ? enduranceBonus(lastFound.tier, run.tuning) : null
   const powers = run.powers.map((id) => ` run--${id}`).join('')
   return (
     <div className={`sheet run${endurance ? ' run--endurance' : ''}${urgent && !hushed ? ' run--urgent' : ''}${hushed ? ' run--hushed' : ''}${powers}`}>
@@ -266,7 +267,7 @@ else if (doubleSkip) sound.power('double-skip')
           <div className="timer timer--big">
             <span
               className="timer-disc"
-              style={{ '--ratio': Math.min(1, remaining / MODE_SECONDS[run.mode]) } as CSSProperties}
+              style={{ '--ratio': Math.min(1, remaining / secondsOf(run.mode, run.tuning)) } as CSSProperties}
               aria-hidden="true"
             />
             <p className="clock" key={urgent ? seconds : 'calm'}>
@@ -303,7 +304,7 @@ else if (doubleSkip) sound.power('double-skip')
         <div className="score">
           {celebration > 0 && <Burst key={`burst-${celebration}`} />}
           <span className="score-value" key={celebration}>
-            {race ? `${run.found.length}/${RACE_WORDS}` : formatNumber(t, score)}
+            {race ? `${run.found.length}/${raceWordsOf(run.tuning)}` : formatNumber(t, score)}
           </span>
           {/* En endurance le score est un temps : « 47 s », pas « 47 points ». */}
           {run.mode === 'endurance' && <span className="score-unit">{t.run.secondsUnit}</span>}
@@ -388,7 +389,7 @@ else if (doubleSkip) sound.power('double-skip')
             </>
           ) : (
             <button type="button" className="btn btn--quiet" onPointerDown={keepFocus} onClick={recallAnswer}>
-              {t.modes.recall(RECALL_SECONDS)}
+              {t.modes.recall(run.tuning['run.recallSeconds'])}
             </button>
           )}
         </p>
@@ -445,7 +446,8 @@ else if (doubleSkip) sound.power('double-skip')
         <div aria-live="polite">
           <Feedback
             endurance={endurance}
-            flawlessTriggered={flawless && run.flawlessStreak > 0 && run.flawlessStreak % FLAWLESS_STREAK === 0}
+            tuning={run.tuning}
+            flawlessTriggered={flawless && run.flawlessStreak > 0 && run.flawlessStreak % run.tuning['run.flawlessStreak'] === 0}
             live={live}
             cheer={cheer}
             shaking={shaking}
@@ -485,6 +487,7 @@ else if (doubleSkip) sound.power('double-skip')
 
 function Feedback({
   endurance,
+  tuning,
 flawlessTriggered,
   live,
   cheer,
@@ -498,6 +501,7 @@ flawlessTriggered,
 }: {
   /** En endurance un mot rend des secondes, pas des points. */
   endurance: boolean
+  tuning: RunTuning
 flawlessTriggered: boolean
   live: Verdict | null
   cheer: Cheer | null
@@ -554,7 +558,7 @@ flawlessTriggered: boolean
       <span className="cheer-word">{capitalized(shown.display)}</span>
       {ours(shown.display) && <MineMark label={t.requests.mine} />}
       <span className="cheer-points">
-        {endurance ? t.weekly.run.bonus(ENDURANCE_TIME_BONUS[shown.tier]) : `+${shown.points + (flawlessTriggered ? FLAWLESS_POINTS : 0)}`}
+        {endurance ? t.weekly.run.bonus(enduranceBonus(shown.tier, tuning)) : `+${shown.points + (flawlessTriggered ? tuning['run.flawlessPoints'] : 0)}`}
       </span>
       {flawlessTriggered && <PowerBadge id="flawless" className="cheer-power" />}
       {shown.joker ? (

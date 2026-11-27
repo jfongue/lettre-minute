@@ -476,6 +476,18 @@ export function clearLocalData(): void {
 // qu'un réglage ne change jamais un écran sous ses doigts. Gardé par
 // `clearLocalData` : effacer ses parties ne rouvre pas un outil fermé.
 const FEATURES_KEY = 'lettre-minute.features.v1'
+// Les réglages du jeu (`game_config`, 0125) tels que le serveur les a rendus la
+// dernière fois : appliqués au lancement suivant, jamais en pleine partie.
+const TUNING_KEY = 'lettre-minute.tuning.v1'
+
+/** Les réglages gardés, bruts : `applyTuning` en écarte tout ce qui n'est pas valide. */
+export function loadTuning(): unknown {
+  return parsed(TUNING_KEY)
+}
+
+export function saveTuning(values: Record<string, unknown>): void {
+  write(TUNING_KEY, values)
+}
 
 export interface StoredFeatures {
   flags: Record<string, FlagRow>

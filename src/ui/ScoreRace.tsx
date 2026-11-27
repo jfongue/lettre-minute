@@ -1,6 +1,6 @@
 import { useState, type PointerEvent } from 'react'
 import { settledScoreAt, type Standing } from '../domain/challenge'
-import { RUN_SECONDS } from '../domain/run'
+import { secondsOf } from '../domain/modes'
 import { formatNumber, useT } from '../i18n'
 import type { ChallengePlayer } from '../lib/cloud'
 
@@ -19,7 +19,7 @@ export function ScoreRace({ standings, player }: { standings: readonly Standing[
   if (standings.length < 2) return null
 
   // Silence holds the clock: a run can validate past the sixtieth second.
-  const last = Math.ceil(Math.max(RUN_SECONDS, ...standings.flatMap((standing) => standing.words.map((word) => word.at))))
+  const last = Math.ceil(Math.max(secondsOf('solo'), ...standings.flatMap((standing) => standing.words.map((word) => word.at))))
   const top = Math.max(10, ...standings.map((standing) => standing.score))
   const x = (second: number) => PAD.left + (second / last) * (WIDTH - PAD.left - PAD.right)
   const y = (score: number) => HEIGHT - PAD.bottom - (score / top) * (HEIGHT - PAD.top - PAD.bottom)

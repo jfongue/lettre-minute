@@ -1,5 +1,6 @@
 import { levelFor, type Profile } from './progression'
 import type { RarityTier } from './rarity'
+import { DEFAULT_TUNING, TUNING } from './tuning'
 import { createRng, shuffled } from './rng'
 
 /**
@@ -69,11 +70,11 @@ export const CHATTER_WORDS = 3
 */
 export const ALWAYS_ON_POWER_IDS: readonly PowerId[] = ['divination', 'celerity', 'professor']
 
-export const LATECOMER_THRESHOLD_SECONDS = 10
-export const LATECOMER_SECONDS = 1
-export const LATECOMER_CAP_SECONDS = 5
-export const FLAWLESS_STREAK = 6
-export const FLAWLESS_POINTS = 30
+export const LATECOMER_THRESHOLD_SECONDS = DEFAULT_TUNING['run.latecomerThreshold']
+export const LATECOMER_SECONDS = DEFAULT_TUNING['run.latecomerSeconds']
+export const LATECOMER_CAP_SECONDS = DEFAULT_TUNING['run.latecomerCap']
+export const FLAWLESS_STREAK = DEFAULT_TUNING['run.flawlessStreak']
+export const FLAWLESS_POINTS = DEFAULT_TUNING['run.flawlessPoints']
 
 /** The powers a player can type into the field, rather than tap. */
 export type Spell = 'joker' | 'hush'
@@ -86,18 +87,18 @@ export const BASE_SLOTS = 1
 export function slotsOf(profile: Profile): number {
   return profile.bonuses.includes('slot') ? MAX_EQUIPPED : BASE_SLOTS
 }
-export const POWER_OFFER_SIZE = 2
+export const POWER_OFFER_SIZE = DEFAULT_TUNING['powers.offerSize']
 /**
  * Level 2 brings a category, level 3 the first power, and the rewards
  * alternate from there: a power every other level, a category in between.
  */
-export const FIRST_POWER_LEVEL = 3
-export const POWER_LEVEL_STEP = 2
+export const FIRST_POWER_LEVEL = DEFAULT_TUNING['powers.firstLevel']
+export const POWER_LEVEL_STEP = DEFAULT_TUNING['powers.levelStep']
 
 /** What a skip costs under Esquive, against `SKIP_PENALTY_SECONDS`. */
-export const DODGE_PENALTY_SECONDS = 3
+export const DODGE_PENALTY_SECONDS = DEFAULT_TUNING['run.dodgePenalty']
 /** The longest Silence holds the clock, if no word is validated first. */
-export const HUSH_SECONDS = 10
+export const HUSH_SECONDS = DEFAULT_TUNING['run.hushSeconds']
 /** Complication's multiplier on the points of an uncommon or rarer word. */
 export const COMPLICATION_BOOST: Readonly<Partial<Record<RarityTier, number>>> = {
   'peu commun': 1.15,
@@ -111,15 +112,18 @@ export function isPowerId(value: unknown): value is PowerId {
 
 /** Powers the player has earned by `level`: one at the first power level, then one every other level. */
 export function powersEarnedAt(level: number): number {
-  if (level < FIRST_POWER_LEVEL) return 0
-  return Math.min(LEVEL_POWER_IDS.length, Math.floor((level - FIRST_POWER_LEVEL) / POWER_LEVEL_STEP) + 1)
+  const first = TUNING['powers.firstLevel']
+  if (level < first) return 0
+  return Math.min(LEVEL_POWER_IDS.length, Math.floor((level - first) / TUNING['powers.levelStep']) + 1)
 }
 
 /** The next level that brings a power, or null once they are all earned. */
 export function nextPowerLevel(level: number): number | null {
   if (powersEarnedAt(level) >= LEVEL_POWER_IDS.length) return null
-  if (level < FIRST_POWER_LEVEL) return FIRST_POWER_LEVEL
-  return level + POWER_LEVEL_STEP - ((level - FIRST_POWER_LEVEL) % POWER_LEVEL_STEP)
+  const first = TUNING['powers.firstLevel']
+  const step = TUNING['powers.levelStep']
+  if (level < first) return first
+  return level + step - ((level - first) % step)
 }
 
 // A power withdrawn from the game no longer counts as a pick made.
@@ -165,7 +169,7 @@ export function dealPowerOffer(profile: Profile, seed: number): Profile {
   const rng = createRng(seed)
   const fresh = shuffled(rng, candidates.filter((id) => !profile.lastPowerOffer.includes(id)))
   const seen = shuffled(rng, candidates.filter((id) => profile.lastPowerOffer.includes(id)))
-  return { ...profile, powerOffer: [...fresh, ...seen].slice(0, POWER_OFFER_SIZE) }
+  return { ...profile, powerOffer: [...fresh, ...seen].slice(0, TUNING['powers.offerSize']) }
 }
 
 /** Keeps a power from the table, and wears it straight away if a slot is free. */

@@ -1,8 +1,9 @@
 import type { Profile } from './progression'
+import { DEFAULT_TUNING, TUNING } from './tuning'
 
 /** Runs before the game first asks for a five-star rating, and between two asks once put off. */
-export const RATING_FIRST_RUNS = 10
-export const RATING_EVERY_RUNS = 20
+export const RATING_FIRST_RUNS = DEFAULT_TUNING['asks.ratingFirst']
+export const RATING_EVERY_RUNS = DEFAULT_TUNING['asks.ratingEvery']
 
 /**
  * Whether the next return home asks for five stars: after the tenth run, then
@@ -11,8 +12,8 @@ export const RATING_EVERY_RUNS = 20
  */
 export function ratingDue(profile: Profile): boolean {
   if (profile.ratingDone > 0) return false
-  if (profile.ratingAskedAt === 0) return profile.runs >= RATING_FIRST_RUNS
-  return profile.runs - profile.ratingAskedAt >= RATING_EVERY_RUNS
+  if (profile.ratingAskedAt === 0) return profile.runs >= TUNING['asks.ratingFirst']
+  return profile.runs - profile.ratingAskedAt >= TUNING['asks.ratingEvery']
 }
 
 export function markRatingAsked(profile: Profile): Profile {

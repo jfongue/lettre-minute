@@ -1,5 +1,6 @@
+import { DEFAULT_TUNING, TUNING } from './tuning'
 /** A run of 300 points is worth 300 XP — the first levels go by in a few runs. */
-export const XP_PER_POINT = 1
+export const XP_PER_POINT = DEFAULT_TUNING['xp.perPoint']
 /** Paid once a word the player proposed enters the dictionary. */
 export const SUBMISSION_REWARD_XP = 150
 
@@ -18,12 +19,12 @@ export function xpForLevel(level: number): number {
 }
 
 /** Beating one's record under this score pays `RECORD_BONUS_XP` on top: past it, the runs pay enough. */
-export const RECORD_BONUS_BELOW = 250
-export const RECORD_BONUS_XP = 100
+export const RECORD_BONUS_BELOW = DEFAULT_TUNING['xp.recordBonusBelow']
+export const RECORD_BONUS_XP = DEFAULT_TUNING['xp.recordBonus']
 
 /** The bonus a run's score earns by beating the player's record, for a player still scoring low. */
 export function recordBonus(profile: Profile, score: number): number {
-  return profile.bestScore > 0 && score > profile.bestScore && score < RECORD_BONUS_BELOW ? RECORD_BONUS_XP : 0
+  return profile.bestScore > 0 && score > profile.bestScore && score < TUNING['xp.recordBonusBelow'] ? TUNING['xp.recordBonus'] : 0
 }
 
 export function levelFor(xp: number): number {
@@ -268,7 +269,7 @@ export function applyRun(profile: Profile, outcome: RunOutcome): Profile {
 
   return {
     ...profile,
-    xp: profile.xp + Math.round(outcome.score * XP_PER_POINT) + recordBonus(profile, outcome.score),
+    xp: profile.xp + Math.round(outcome.score * TUNING['xp.perPoint']) + recordBonus(profile, outcome.score),
     runs: profile.runs + 1,
     bestScore: Math.max(profile.bestScore, outcome.score),
     wordsFound: profile.wordsFound + outcome.words.length,

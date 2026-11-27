@@ -1869,6 +1869,8 @@ export interface ChallengeDetail {
   name: string | null
   players: readonly ChallengePlayer[]
   reactions: readonly Reaction[]
+  /** The run settings the server froze at creation (0125); null for an older challenge, played on the defaults. */
+  tuning?: Record<string, unknown> | null
 }
 
 const time = (value: unknown) => (typeof value === 'string' ? Date.parse(value) || 0 : 0)
@@ -1965,6 +1967,7 @@ export function fetchChallenge(id: string): Promise<ChallengeDetail | null> {
       finished: row.finished === true,
       nextId: (row.next_id as string | null) ?? null,
       powersAllowed: row.powers_allowed !== false,
+      tuning: row.tuning && typeof row.tuning === 'object' && !Array.isArray(row.tuning) ? (row.tuning as Record<string, unknown>) : null,
       name: text(row.name) || null,
       players: ((row.players ?? []) as Record<string, unknown>[]).map((player) => ({
         playerId: player.id as string,
@@ -2079,6 +2082,23 @@ export function forgetPushToken(token: string): Promise<boolean> {
     const { error } = await supabase!.rpc('forget_push_token', { p_token: token })
     return !error
   }, false)
+}
+
+// --------------------------------------------------- réglages du jeu (0125) --
+
+/**
+ * Les réglages que le serveur tient (`game_config`), lisibles par tous — un
+ * invité du portail compris ; null s'il ne répond pas, et l'appareil garde
+ * alors ceux qu'il avait.
+ */
+export function fetchGameConfig(): Promise<Record<string, unknown> | null> {
+  return openGuard(async () => {
+    const { data, error } = await supabase!.from('game_config').select('key, value')
+    if (error || !data) return null
+    const values: Record<string, unknown> = {}
+    for (const row of data as Record<string, unknown>[]) if (typeof row.key === 'string') values[row.key] = row.value
+    return values
+  }, null)
 }
 
 // -------------------------------------------------- fonctionnalités (0045) --
@@ -2368,6 +2388,8 @@ export interface DuelSnapshot {
     ranked: boolean
     /** Les règles du duel que la table joue : 2 avec les mots trouvés hors de son tour. */
     rules: number
+    /** The duel settings the server froze when the table started (0125); null before rules 3. */
+    tuning: Record<string, unknown> | null
     settled: boolean
     voided: boolean
     ratings: readonly DuelRatingChange[]
@@ -2399,6 +2421,7 @@ export function syncDuel(table: string, after: number): Promise<DuelSnapshot | n
         public: info.public === true,
         ranked: info.ranked === true,
         rules: Number(info.rules) || 1,
+        tuning: info.tuning && typeof info.tuning === 'object' && !Array.isArray(info.tuning) ? (info.tuning as Record<string, unknown>) : null,
         settled: info.settled === true,
         voided: info.voided === true,
         ratings: ((info.ratings as Record<string, unknown>[] | undefined) ?? []).map((change) => ({

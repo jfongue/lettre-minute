@@ -3,6 +3,7 @@ import { MODE_SECONDS, type GameMode } from './modes'
 import { levelFor } from './progression'
 import { runScore, type CreateRunInput, type Run } from './run'
 import { MAX_CATEGORIES_PER_RUN, dealLineup } from './unlocks'
+import { DEFAULT_TUNING, TUNING } from './tuning'
 
 /**
 * Le défi du moment : une partie par défi, la même pour tous, ouverte du
@@ -18,10 +19,10 @@ const DAY_MS = 24 * HOUR_MS
 const WEEK_MS = 7 * DAY_MS
 
 /** Le niveau qui ouvre le défi : avant, le joueur apprend encore la partie seule. */
-export const WEEKLY_MIN_LEVEL = 4
+export const WEEKLY_MIN_LEVEL = DEFAULT_TUNING['weekly.minLevel']
 
 export function weeklyUnlocked(xp: number): boolean {
-  return levelFor(xp) >= WEEKLY_MIN_LEVEL
+  return levelFor(xp) >= TUNING['weekly.minLevel']
 }
 
 /** Le premier dimanche d'ouverture : la semaine #0 du calendrier. */
@@ -269,9 +270,9 @@ export function weeklyValue(run: Run, metric: WeeklyMetric): number {
 
 // ---------------------------------------------------------------- tentatives
 
-export const WEEKLY_FREE_ATTEMPTS = 1
-export const WEEKLY_AD_ATTEMPTS = 2
-export const WEEKLY_PLUS_ATTEMPTS = 3
+export const WEEKLY_FREE_ATTEMPTS = DEFAULT_TUNING['weekly.freeAttempts']
+export const WEEKLY_AD_ATTEMPTS = DEFAULT_TUNING['weekly.adAttempts']
+export const WEEKLY_PLUS_ATTEMPTS = DEFAULT_TUNING['weekly.plusAttempts']
 /** Le plafond dur que le serveur applique, quoi que le client lui dise de Premium. */
 export const WEEKLY_MAX_ATTEMPTS = WEEKLY_PLUS_ATTEMPTS
 
@@ -282,8 +283,8 @@ export interface AttemptPerks {
 }
 
 export function attemptsAllowed({ plus, adsWatched }: AttemptPerks): number {
-  if (plus) return WEEKLY_PLUS_ATTEMPTS
-  return WEEKLY_FREE_ATTEMPTS + Math.min(Math.max(0, Math.floor(adsWatched)), WEEKLY_AD_ATTEMPTS)
+  if (plus) return TUNING['weekly.plusAttempts']
+  return TUNING['weekly.freeAttempts'] + Math.min(Math.max(0, Math.floor(adsWatched)), TUNING['weekly.adAttempts'])
 }
 
 export type AttemptSlot = 'used' | 'free' | 'ad' | 'plus' | 'locked'
@@ -296,12 +297,12 @@ export type AttemptSlot = 'used' | 'free' | 'ad' | 'plus' | 'locked'
 export function attemptState(used: number, plus: boolean, adsWatched: number): AttemptSlot[] {
   const taken = Math.max(0, Math.floor(used))
   const watched = Math.max(0, Math.floor(adsWatched))
-  return Array.from({ length: WEEKLY_MAX_ATTEMPTS }, (_, place): AttemptSlot => {
+  return Array.from({ length: Math.max(TUNING['weekly.plusAttempts'], TUNING['weekly.freeAttempts'] + TUNING['weekly.adAttempts']) }, (_, place): AttemptSlot => {
     if (place < taken) return 'used'
-    if (place < WEEKLY_FREE_ATTEMPTS) return 'free'
+    if (place < TUNING['weekly.freeAttempts']) return 'free'
     if (plus) return 'plus'
     // La place n ouverte par la n-ième pub : les pubs se regardent dans l'ordre.
-    if (place < WEEKLY_FREE_ATTEMPTS + WEEKLY_AD_ATTEMPTS) return watched >= place - WEEKLY_FREE_ATTEMPTS + 1 ? 'free' : 'ad'
+    if (place < TUNING['weekly.freeAttempts'] + TUNING['weekly.adAttempts']) return watched >= place - TUNING['weekly.freeAttempts'] + 1 ? 'free' : 'ad'
     return 'locked'
   })
 }

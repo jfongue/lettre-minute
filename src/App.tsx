@@ -58,6 +58,7 @@ import {
   type DuelRatingInfo,
   fetchDuelInvites,
   fetchFeatureFlags,
+  fetchGameConfig,
   fetchLeaderboard,
   catchUpLostRuns,
   fetchMyDiscoveries,
@@ -104,7 +105,7 @@ import { completeLeaderboard } from './domain/leaderboards'
 import { withGuest } from './ui/guestBoards'
 import { localBoards } from './ui/localBoards'
 import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
-import { hasPower, isHushed, nextPrompt, promptKey, RUN_SECONDS, remainingSeconds } from './domain/run'
+import { hasPower, isHushed, nextPrompt, promptKey, remainingSeconds } from './domain/run'
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
 import { DAMPED_WORDS } from './data/damped-words'
 import { sharedCategoryIds } from './domain/catalogue'
@@ -164,7 +165,7 @@ import {
   type PendingSubmission,
   saveTutorialDone,
 } from './state/storage'
-import { loadFeatures, saveFeatureFlags, saveFeatureRoles } from './state/storage'
+import { loadFeatures, loadTuning, saveFeatureFlags, saveFeatureRoles, saveTuning } from './state/storage'
 import { loadActiveDuel, loadRankedNewsSeen, saveActiveDuel, saveRankedNewsSeen } from './state/storage'
 import { useDuelQueue } from './state/duelQueue'
 import { QueuePill } from './ui/QueuePill'
@@ -172,7 +173,8 @@ import { RankedNewsPop } from './ui/RankedNewsPop'
 import { botMatchAfter, rankedNewsDue, EARLY_START } from './domain/ranked'
 import type { BoardFamily } from './ui/BoardSwitch'
 import { DuelResumeCard } from './ui/PlayTogether'
-import { countsForProgress, modeEdge, MODE_SECONDS, type ArcadeMode, type GameMode } from './domain/modes'
+import { applyTuning, runTuning } from './domain/tuning'
+import { countsForProgress, modeEdge, secondsOf, type ArcadeMode, type GameMode } from './domain/modes'
 import { queueAlertDue } from './domain/moderation'
 import { loadSoundPrefs, saveSoundPrefs } from './state/sound'
 import { applyTheme, loadTheme, saveTheme, type Theme } from './state/theme'
@@ -206,6 +208,9 @@ import { ModeTutorial } from './ui/ModeTutorial'
 import { WeeklyDone, WeeklyRecap, WeeklyResults, WeeklyScreen, useWeeklyFlow } from './ui/WeeklyFlow'
 import { PowerLoadout } from './ui/PowerLoadout'
 import type { DuelExit } from './state/duel'
+
+// Les réglages gardés du lancement précédent, avant le premier rendu (`src/domain/tuning.ts`).
+applyTuning(loadTuning())
 
 // Everything but the home screen waits in its own chunk: the first paint only
 // parses what it shows. `preloadScreens` fetches them once the home screen has
@@ -546,6 +551,9 @@ setMenuPage(null)
   featuresNow.current = features
   useEffect(() => {
     void fetchFeatureFlags().then((flags) => flags && saveFeatureFlags(flags))
+    // Les réglages lus maintenant ne valent qu'au lancement suivant : une
+    // partie ne change pas de règles en cours de session.
+    void fetchGameConfig().then((values) => values && saveTuning(values))
   }, [])
   useEffect(() => {
     if (moderation) saveFeatureRoles({ moderator: moderation.moderator, superModerator: moderation.super })
@@ -1095,7 +1103,7 @@ setStartedAt((at) => at ?? Date.now())
   const remaining = session.run ? remainingSeconds(session.run, elapsed) : 0
   // La musique se tend sur le temps écoulé du mode joué : l'endurance n'a que
   // trente secondes, elle n'entre donc pas déjà au deuxième palier.
-  const stageSeconds = session.run ? MODE_SECONDS[session.run.mode] : RUN_SECONDS
+  const stageSeconds = session.run ? secondsOf(session.run.mode, session.run.tuning) : secondsOf('solo')
   const pulseStage = Math.min(2, Math.floor(((stageSeconds - remaining) / stageSeconds) * 3))
   useEffect(() => setPulseStage(pulseStage), [pulseStage])
 
@@ -1627,7 +1635,7 @@ setStartedAt((at) => at ?? Date.now())
           seed: detail.seed,
           categoryIds: detail.categoryIds,
           reserve: [],
-          challenge: { id: detail.id, powers },
+          challenge: { id: detail.id, powers, tuning: runTuning(detail.tuning ?? {}) },
           noPowers: !featuresNow.current.has('powers'),
         })
       } catch {

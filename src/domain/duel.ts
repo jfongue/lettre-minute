@@ -22,30 +22,42 @@
 import { createRng, shuffled } from './rng'
 import { createRun, inspect, promptKey, submit, type Judge, type KeptWord, type Prompt, type Run, type Verdict } from './run'
 import type { RarityTier } from './rarity'
+import { DEFAULT_DUEL_TUNING as D, duelTuning, type DuelTuning } from './tuning'
 
 export const DUEL_MIN_PLAYERS = 2
 export const DUEL_MAX_PLAYERS = 4
 /** La réserve de chacun, en secondes, la même à deux comme à quatre. */
-export const DUEL_RESERVE_SECONDS = 30
+export const DUEL_RESERVE_SECONDS = D['duel.reserve']
 /**
 * Passer son tour coûte ça, en plus du temps déjà passé à chercher : il faut
 * donc en avoir au moins autant en réserve, sinon la main se garde pour
 * chercher encore.
 */
-export const DUEL_PASS_PENALTY_SECONDS = 5
+export const DUEL_PASS_PENALTY_SECONDS = D['duel.passPenalty']
 /** Le pool du draft : cinq catégories, les joueurs en choisissent le plus possible. */
 export const DUEL_POOL_SIZE = 5
 /** Les catégories que les joueurs choisissent eux-mêmes, tout compris. */
 export const DUEL_PICKED_SIZE = 4
 /** Ce qu'un mot validé rend à la réserve du joueur, selon son palier : de rien à deux secondes. */
 export const DUEL_TIME_BONUS: Readonly<Record<RarityTier, number>> = {
-  courant: 0,
-  'peu commun': 1,
-  rare: 1.5,
-  'très rare': 2,
+  courant: D['duel.bonus.courant'],
+  'peu commun': D['duel.bonus.peuCommun'],
+  rare: D['duel.bonus.rare'],
+  'très rare': D['duel.bonus.tresRare'],
+}
+const BONUS_KEYS = { courant: 'duel.bonus.courant', 'peu commun': 'duel.bonus.peuCommun', rare: 'duel.bonus.rare', 'très rare': 'duel.bonus.tresRare' } as const
+
+/** Les réglages qu'un duel joue : son instantané, ceux par défaut pour un duel d'avant (0125). */
+export function tuningOf(duel: Pick<Duel, 'tuning'>): DuelTuning {
+  return duel.tuning ?? D
+}
+
+/** Ce qu'un mot de ce palier rend, selon les réglages du duel. */
+export function tierBonus(duel: Pick<Duel, 'tuning'>, tier: RarityTier): number {
+  return tuningOf(duel)[BONUS_KEYS[tier]]
 }
 /** Le temps qu'un joueur a pour choisir sa catégorie avant que le sort le fasse. */
-export const DUEL_PICK_SECONDS = 10
+export const DUEL_PICK_SECONDS = D['duel.pickSeconds']
 /** Une catégorie qui reste seule se prend d'office, le temps qu'on la voie partir. */
 export const DUEL_FORCED_PICK_SECONDS = 1.1
 /**
@@ -64,7 +76,7 @@ export const DUEL_OPENING_SECONDS = 7.4
  * répondre. L'écran, lui, en lit une seconde (`reserveShown`) : le doigt et le
  * réseau ont leur part, et le joueur a plus de temps qu'il n'en voit.
  */
-export const DUEL_FLOOR_SECONDS = 1.5
+export const DUEL_FLOOR_SECONDS = D['duel.floor']
 /**
  * Ce que l'écran lit d'une réserve : sous le plancher, il dit « 1 » même s'il en
  * reste une et demie.
@@ -76,45 +88,49 @@ export function reserveShown(seconds: number): number {
  * Un mot juste qui arrive après le zéro compte encore dans cette marge : le
  * champ le valide tout seul à zéro, et le réseau peut le dater un peu après.
  */
-export const DUEL_GRACE_SECONDS = 1
+export const DUEL_GRACE_SECONDS = D['duel.grace']
 /**
  * Les règles du duel que ce client rejoue : 2 ajoute les mots trouvés hors de
- * son tour (`echoWord`). Le serveur ne laisse une table les jouer que si
+ * son tour (`echoWord`), 3 lit les réglages que le serveur fige dans la table
+ * (`duel_tables.tuning`, 0125). Le serveur ne laisse une table les jouer que si
  * chaque joueur assis les connaît — une version livrée plus ancienne rejouerait
  * le journal sans eux, et sa partie divergerait.
  */
-export const DUEL_RULES = 2
+export const DUEL_RULES = 3
+/** Les premières règles qui lisent les réglages figés de la table. */
+export const DUEL_TUNED_RULES = 3
 /**
  * Un mot juste trouvé pendant le tour d'un autre rend du temps : une seconde
  * au premier de la table, une demi ensuite — trois au plus par joueur et par
  * tour, sans quoi la frappe d'une liste suffirait à ne jamais mourir.
  */
-export const DUEL_ECHO_FIRST = 1
-export const DUEL_ECHO_NEXT = 0.5
-export const DUEL_ECHO_MAX = 3
+export const DUEL_ECHO_FIRST = D['duel.echoFirst']
+export const DUEL_ECHO_NEXT = D['duel.echoNext']
+export const DUEL_ECHO_MAX = D['duel.echoMax']
 /** La mort se joue avant que la main reparte : la réserve du suivant attend la fin de l'animation. */
 export const DUEL_DEATH_PAUSE_SECONDS = 2.6
 /**
  * Chaque mort rend ce temps à chaque survivant, sans l'annoncer : la réserve
  * monte, rien ne le dit. Sans ça, une table à court de temps tombe en chaîne.
  */
-export const DUEL_DEATH_BONUS_SECONDS = 1.5
+export const DUEL_DEATH_BONUS_SECONDS = D['duel.deathBonus']
 /**
  * Un duel qui s'éternise s'use : passé trois minutes de jeu, tout ce qui rend
  * du temps — le palier d'un mot, un mot trouvé hors de son tour, une mort —
  * rend de moins en moins, jusqu'à plus rien trois minutes plus tard. Rien ne
  * l'annonce : les réserves ne font plus que fondre, et la partie finit.
  */
-export const DUEL_LONG_SECONDS = 180
-export const DUEL_FADE_SECONDS = 180
+export const DUEL_LONG_SECONDS = D['duel.longSeconds']
+export const DUEL_FADE_SECONDS = D['duel.fadeSeconds']
 
 /** La part du temps rendu qui reste à cette heure : 1, puis vers 0 (règles 2). */
 export function timeBonusFactor(duel: Duel, at: number): number {
   if ((duel.rules ?? 1) < 2) return 1
   const opens = openingAt(duel)
   if (opens === null) return 1
-  const over = at - opens - DUEL_LONG_SECONDS
-  return over <= 0 ? 1 : Math.max(0, 1 - over / DUEL_FADE_SECONDS)
+  const t = tuningOf(duel)
+  const over = at - opens - t['duel.longSeconds']
+  return over <= 0 ? 1 : Math.max(0, 1 - over / t['duel.fadeSeconds'])
 }
 
 /**
@@ -189,6 +205,8 @@ export interface Duel {
   deaths: readonly number[]
   /** Les règles que la table joue (`DUEL_RULES`) : 1 pour une table d'une version d'avant. */
   rules?: number
+  /** Les réglages figés de ce duel (`tuningOf`) ; absents d'un duel gardé par une version d'avant. */
+  tuning?: DuelTuning
 }
 
 export interface CreateDuelInput {
@@ -203,9 +221,11 @@ export interface CreateDuelInput {
   /** L'heure où le draft s'ouvre. */
   at?: number
   rules?: number
+  /** Les réglages figés de la table ; ceux de l'appareil pour une table locale. */
+  tuning?: DuelTuning
 }
 
-export function createDuel({ seed, playerIds, categories, order, opener, at = 0, rules = DUEL_RULES }: CreateDuelInput): Duel {
+export function createDuel({ seed, playerIds, categories, order, opener, at = 0, rules = DUEL_RULES, tuning = duelTuning() }: CreateDuelInput): Duel {
   if (playerIds.length < DUEL_MIN_PLAYERS || playerIds.length > DUEL_MAX_PLAYERS) {
     throw new Error(`duel: ${playerIds.length} players, expected ${DUEL_MIN_PLAYERS} to ${DUEL_MAX_PLAYERS}`)
   }
@@ -220,10 +240,11 @@ export function createDuel({ seed, playerIds, categories, order, opener, at = 0,
     dealt: [],
     turns: 0,
     phase: 'draft',
-    players: playerIds.map((id) => ({ id, reserve: DUEL_RESERVE_SECONDS, alive: true, words: [], used: [], score: 0, combo: 0 })),
+    players: playerIds.map((id) => ({ id, reserve: tuning['duel.reserve'], alive: true, words: [], used: [], score: 0, combo: 0 })),
     turn: null,
     deaths: [],
     rules,
+    tuning,
   }
 }
 
@@ -253,7 +274,7 @@ export function draftShape(players: number, categories: number): { picks: number
 
 /** L'heure où le choix en cours sera fait d'office : par le sort, ou parce qu'il ne reste qu'une catégorie. */
 export function pickDeadline(duel: Duel): number {
-  return duel.pickSince + (onlyChoice(duel) ? DUEL_FORCED_PICK_SECONDS : DUEL_PICK_SECONDS)
+  return duel.pickSince + (onlyChoice(duel) ? DUEL_FORCED_PICK_SECONDS : tuningOf(duel)['duel.pickSeconds'])
 }
 
 /** Ce qu'un joueur peut encore choisir. */
@@ -347,8 +368,9 @@ function openRound(duel: Duel, judge: Judge, at: number, from: number, except?: 
 function handTo(duel: Duel): Duel {
   const turn = duel.turn
   const player = turn ? duel.players[turn.player] : undefined
-  if (!turn || !player || player.reserve >= DUEL_FLOOR_SECONDS) return duel
-  return { ...duel, players: replace(duel.players, turn.player, { ...player, reserve: DUEL_FLOOR_SECONDS }) }
+  const floor = tuningOf(duel)['duel.floor']
+  if (!turn || !player || player.reserve >= floor) return duel
+  return { ...duel, players: replace(duel.players, turn.player, { ...player, reserve: floor }) }
 }
 
 /** Le premier joueur vivant après `index`, dans l'ordre de la table. */
@@ -386,12 +408,12 @@ export function duelRanking(duel: Duel): readonly number[] {
 }
 
 /** Le temps que les mots d'un joueur lui ont rendu, tout le duel. */
-export function timeGained(player: DuelPlayer): number {
-  return player.words.reduce((sum, word) => sum + DUEL_TIME_BONUS[word.tier], 0)
+export function timeGained(player: DuelPlayer, duel: Pick<Duel, 'tuning'> = {}): number {
+  return player.words.reduce((sum, word) => sum + tierBonus(duel, word.tier), 0)
 }
 
 /** Le forfait d'un duel en ligne joué jusqu'au bout, en plus des points de ses mots. */
-export const DUEL_XP_BONUS = 100
+export const DUEL_XP_BONUS = D['duel.xpBonus']
 
 export interface DuelReward {
   xp: number
@@ -417,7 +439,7 @@ export function duelReward(duel: Duel, index: number, table: DuelRewardTable): D
   const player = duel.players[index]
   if (duel.phase !== 'over' || !player || !table.present) return null
   const points = player.words.reduce((sum, word) => sum + word.points, 0)
-  return { xp: points + DUEL_XP_BONUS, words: player.words.length, points }
+  return { xp: points + tuningOf(duel)['duel.xpBonus'], words: player.words.length, points }
 }
 
 /** Le numéro de la manche en cours : celle que les joueurs sont en train de jouer. */
@@ -465,7 +487,7 @@ export function playWord(duel: Duel, raw: string, judge: Judge, at: number): Due
   if (duel.phase !== 'play' || !turn) return { duel, verdict: { kind: 'empty', found: null } }
   const player = duel.players[turn.player]
   const left = reserveSeconds(duel, turn.player, at)
-  if (!player?.alive || left < -DUEL_GRACE_SECONDS) return { duel: eliminate(duel, judge, at), verdict: { kind: 'empty', found: null } }
+  if (!player?.alive || left < -tuningOf(duel)['duel.grace']) return { duel: eliminate(duel, judge, at), verdict: { kind: 'empty', found: null } }
 
   const played = submit(turnRun(duel, turn.player, judge), raw, judge)
   if (played.verdict.kind !== 'accepted' || !played.verdict.found) {
@@ -473,10 +495,10 @@ export function playWord(duel: Duel, raw: string, judge: Judge, at: number): Due
   }
 
   const saved = left <= 0
-  const earned = Math.max(0, left) + DUEL_TIME_BONUS[played.verdict.found.tier] * timeBonusFactor(duel, at)
+  const earned = Math.max(0, left) + tierBonus(duel, played.verdict.found.tier) * timeBonusFactor(duel, at)
   const banked: DuelPlayer = {
     ...player,
-    reserve: saved ? Math.max(DUEL_FLOOR_SECONDS, earned) : earned,
+    reserve: saved ? Math.max(tuningOf(duel)['duel.floor'], earned) : earned,
     words: played.run.found,
     used: played.run.used,
     score: played.run.score,
@@ -499,12 +521,12 @@ export function echoWord(duel: Duel, index: number, raw: string, judge: Judge, a
   const none = { duel, verdict: { kind: 'empty', found: null } as Verdict, delta: 0 }
   if (duel.phase !== 'play' || !turn || turn.player === index || at < turn.startedAt) return none
   const player = duel.players[index]
-  if (!player?.alive || reserveSeconds(duel, turn.player, at) < -DUEL_GRACE_SECONDS) return none
+  if (!player?.alive || reserveSeconds(duel, turn.player, at) < -tuningOf(duel)['duel.grace']) return none
   const echoes = turn.echoes ?? []
-  if (echoes.filter((one) => one === index).length >= DUEL_ECHO_MAX) return none
+  if (echoes.filter((one) => one === index).length >= tuningOf(duel)['duel.echoMax']) return none
   const played = submit(turnRun(duel, index, judge), raw, judge)
   if (played.verdict.kind !== 'accepted' || !played.verdict.found) return { ...none, verdict: played.verdict }
-  const delta = (echoes.length === 0 ? DUEL_ECHO_FIRST : DUEL_ECHO_NEXT) * timeBonusFactor(duel, at)
+  const delta = (echoes.length === 0 ? tuningOf(duel)['duel.echoFirst'] : tuningOf(duel)['duel.echoNext']) * timeBonusFactor(duel, at)
   const banked: DuelPlayer = { ...player, reserve: player.reserve + delta, words: played.run.found, used: played.run.used, score: played.run.score }
   return { duel: { ...duel, players: replace(duel.players, index, banked), turn: { ...turn, echoes: [...echoes, index] } }, verdict: played.verdict, delta }
 }
@@ -523,11 +545,12 @@ export function passTurn(duel: Duel, judge: Judge, at: number): Duel {
   const player = duel.players[turn.player]
   if (!player) return duel
   const left = reserveSeconds(duel, turn.player, at)
-  if (left < DUEL_PASS_PENALTY_SECONDS) return duel
+  const penalty = tuningOf(duel)['duel.passPenalty']
+  if (left < penalty) return duel
   const declined = [...turn.declined, turn.player]
   const players = replace(duel.players, turn.player, {
     ...player,
-    reserve: Math.max(DUEL_FLOOR_SECONDS, left - DUEL_PASS_PENALTY_SECONDS),
+    reserve: Math.max(tuningOf(duel)['duel.floor'], left - penalty),
     combo: 0,
   })
   return advance({ ...duel, players, turn: { ...turn, declined } }, judge, at, false)
@@ -562,7 +585,7 @@ export function resignPlayer(duel: Duel, judge: Judge | null, index: number, at:
   }
   const players = duel.players.map((one, at) => {
     if (at === index) return { ...one, reserve: 0, alive: false }
-    return one.alive ? { ...one, reserve: one.reserve + DUEL_DEATH_BONUS_SECONDS * timeBonusFactor(duel, at) } : one
+    return one.alive ? { ...one, reserve: one.reserve + tuningOf(duel)['duel.deathBonus'] * timeBonusFactor(duel, at) } : one
   })
   const gone = { ...duel, players, deaths: [...duel.deaths, index] }
   return aliveIndexes(gone).length <= 1 ? { ...gone, phase: 'over', turn: null } : gone
@@ -587,7 +610,7 @@ function eliminate(duel: Duel, judge: Judge, at: number): Duel {
   if (!player) return duel
   const players = duel.players.map((one, index) => {
     if (index === turn.player) return { ...one, reserve: 0, alive: false }
-    return one.alive ? { ...one, reserve: one.reserve + DUEL_DEATH_BONUS_SECONDS * timeBonusFactor(duel, at) } : one
+    return one.alive ? { ...one, reserve: one.reserve + tuningOf(duel)['duel.deathBonus'] * timeBonusFactor(duel, at) } : one
   })
   const deaths = [...duel.deaths, turn.player]
   const mid = { ...duel, players, deaths }
