@@ -973,6 +973,7 @@ flawless: ['Senza errori', 'Ogni sei parole valide digitate senza errori danno s
       slot: ['Secondo slot', 'Porta due poteri insieme.'],
       reveal: ['Una rivelazione in più', 'Una rivelazione extra ogni giorno, per sempre.'],
       moderator: ['Carta da moderatore', 'Giudica le parole proposte dai giocatori e aiuta il dizionario a crescere.'],
+      ranked: ['Carta classificata', 'Apre il duello classificato: sfida giocatori del tuo livello e sali dal Bronzo al Diamante.'],
     },
     total: (count, max) => `${count} su ${max}`,
     joined: 'si aggiunge ai tuoi vantaggi',

@@ -1021,6 +1021,7 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
       slot: ['Deuxième emplacement', 'Porte deux pouvoirs en même temps.'],
       reveal: ['Une révélation de plus', 'Une révélation en plus chaque jour, pour de bon.'],
       moderator: ['Carte de modérateur', 'Juge les mots que les joueurs proposent et fais grandir le dictionnaire.'],
+      ranked: ['Carte de classement', 'Ouvre le duel classé : affronte des joueurs de ton niveau et grimpe du Bronze au Diamant.'],
     } satisfies Record<BonusId, readonly [string, string]> as Record<BonusId, readonly [name: string, description: string]>,
     total: (count: number, max: number) => `${count} sur ${max}`,
     joined: 'rejoint tes avantages',

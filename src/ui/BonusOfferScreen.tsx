@@ -27,7 +27,17 @@ const SEALED_MS = 2600
 type Phase = 'choosing' | 'leaving' | 'sealed'
 
 /** Each bonus keeps one colour, as each power does. */
-const TINTS: Record<BonusId, Tint> = { filter: 'red', slot: 'blue', reveal: 'yellow', moderator: 'green' }
+const TINTS: Record<BonusId, Tint> = { filter: 'red', slot: 'blue', reveal: 'yellow', moderator: 'green', ranked: 'pink' }
+
+/** La carte de classement : une carte, et trois marches qui montent dessus. */
+function RankedIcon() {
+  return (
+    <svg className="pi" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <rect className="pi-body" x="4" y="3" width="16" height="18" rx="1.5" />
+      <path className="pi-detail" d="M8 17h3v-3h3v-3h3" />
+    </svg>
+  )
+}
 
 function CheckIcon() {
   return (
@@ -43,6 +53,7 @@ const ICONS: Record<BonusId, ReactNode> = {
   slot: <SlotIcon />,
   reveal: <EyeIcon />,
   moderator: <CheckIcon />,
+  ranked: <RankedIcon />,
 }
 
 function ground(id: BonusId): CSSProperties {

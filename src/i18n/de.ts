@@ -971,6 +971,7 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
       slot: ['Zweiter Platz', 'Trag zwei Kräfte gleichzeitig.'],
       reveal: ['Eine Enthüllung mehr', 'Jeden Tag eine Enthüllung extra, für immer.'],
       moderator: ['Moderatorenkarte', 'Beurteile die Wörter, die Spieler vorschlagen, und hilf dem Wörterbuch beim Wachsen.'],
+      ranked: ['Ranglisten-Karte', 'Öffnet gewertete Duelle: Spiel gegen Gegner deines Niveaus und steig von Bronze bis Diamant auf.'],
     },
     total: (count, max) => `${count} von ${max}`,
     joined: 'gehört zu deinen Vorteilen',

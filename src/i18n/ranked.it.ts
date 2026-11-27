@@ -35,6 +35,8 @@ export const rankedIt: RankedMessages = {
   ladder: 'Classifica del duello',
   meUnranked: 'Gioca una partita classificata per entrare in classifica.',
   botSoon: (clock: string) => `Nessun avversario? Tra ${clock} entra un bot del tuo livello.`,
+  cardLocked: (level: number) => `Serve la carta classificata, un bonus da scegliere dal livello ${level}.`,
+  cardPending: 'La tua carta classificata ti aspetta alla fine della prossima partita.',
   myPlace: (place: string) => `Il mio posto: ${place}`,
   views: { top: 'Top', master: 'Maestri', me: 'Il mio posto' },
   viewEmpty: 'Ancora nessuno in questo grado.',

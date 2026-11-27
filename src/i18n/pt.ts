@@ -973,6 +973,7 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
       slot: ['Segundo espaço', 'Usa dois poderes ao mesmo tempo.'],
       reveal: ['Mais uma revelação', 'Uma revelação extra todos os dias, para sempre.'],
       moderator: ['Carta de moderador', 'Julga as palavras que os jogadores propõem e ajuda o dicionário a crescer.'],
+      ranked: ['Cartão ranqueado', 'Abre o duelo ranqueado: enfrente jogadores do seu nível e suba do Bronze ao Diamante.'],
     },
     total: (count, max) => `${count} de ${max}`,
     joined: 'junta-se às tuas vantagens',

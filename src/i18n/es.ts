@@ -973,6 +973,7 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
       slot: ['Segundo hueco', 'Lleva dos poderes a la vez.'],
       reveal: ['Una revelación más', 'Una revelación extra cada día, para siempre.'],
       moderator: ['Carta de moderador', 'Juzga las palabras que proponen los jugadores y ayuda a crecer al diccionario.'],
+      ranked: ['Carta clasificatoria', 'Abre el duelo clasificatorio: enfréntate a jugadores de tu nivel y sube del Bronce al Diamante.'],
     },
     total: (count, max) => `${count} de ${max}`,
     joined: 'se une a tus ventajas',

@@ -10,6 +10,9 @@ import {
   bonusPool,
   bonusUnlocked,
   bonusesOwed,
+  dealRankedCard,
+  hasRankedCard,
+  RANKED_CARD_LEVEL,
   catchUpPerks,
   chooseBonus,
   dealBonusOffer,
@@ -164,7 +167,28 @@ describe('the offer', () => {
       profile = chooseBonus(dealt, dealt.bonusOffer[0] ?? '')
     }
     for (const [id, cap] of Object.entries(BONUS_CAPS)) expect(bonusCount(profile, id as BonusId)).toBeLessThanOrEqual(cap)
-    expect(profile.bonuses.length).toBe(Object.values(BONUS_CAPS).reduce((sum, cap) => sum + cap, 0))
+    // La carte de classement ne vient pas de la pioche ordinaire (`dealRankedCard`).
+    expect(profile.bonuses.length).toBe(Object.entries(BONUS_CAPS).reduce((sum, [id, cap]) => sum + (id === 'ranked' ? 0 : cap), 0))
+  })
+})
+
+describe('la carte de classement', () => {
+  it('s’offre seule dès le niveau 5, sans prendre la place d’un autre bonus', () => {
+    expect(dealRankedCard(diligent(RANKED_CARD_LEVEL - 1)).bonusOffer).toEqual([])
+    const offered = dealRankedCard(diligent(RANKED_CARD_LEVEL))
+    expect(offered.bonusOffer).toEqual(['ranked'])
+    const taken = chooseBonus(offered, 'ranked')
+    expect(hasRankedCard(taken)).toBe(true)
+    // Un cadeau : les niveaux de bonus et les catégories dues n'en sont pas touchés.
+    expect(bonusesOwed(taken)).toBe(bonusesOwed(diligent(RANKED_CARD_LEVEL)))
+    expect(dealRankedCard(taken).bonusOffer).toEqual([])
+  })
+
+  it('ne sort jamais de la pioche ordinaire, ni là où le duel est fermé', () => {
+    const profile = diligent(60)
+    for (let seed = 0; seed < 30; seed++) expect(dealBonusOffer(profile, seed).bonusOffer).not.toContain('ranked')
+    const barred = barredFor({ isModerator: false, canName: true, unlimitedReveals: false, open: (id) => id !== 'duel', premiumSold: true }, profile)
+    expect(dealRankedCard(profile, barred).bonusOffer).toEqual([])
   })
 })
 

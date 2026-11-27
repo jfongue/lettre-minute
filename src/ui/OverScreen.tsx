@@ -22,7 +22,7 @@ import { UnlockScreen } from './UnlockScreen'
 import { PowerOfferScreen } from './PowerOfferScreen'
 import { BonusOfferScreen } from './BonusOfferScreen'
 import { powerPicksOwed } from '../domain/powers'
-import { bonusesOwed, type BonusId } from '../domain/bonus'
+import { bonusesOwed, rankedCardOwed, type BonusId } from '../domain/bonus'
 import { reducedMotion, useTween } from './useCountUp'
 import { ShareSoon } from './ShareSoon'
 import { RequestRow, type RequestEntry } from './RequestsPage'
@@ -197,7 +197,7 @@ export function OverScreen({ run, revealed, onRevealed, onSummary, lang, ...summ
       <BonusOfferScreen
         key={`bonus-${round}`}
         offer={profile.bonusOffer}
-        owed={bonusesOwed(profile, summary.barredBonuses, host.levelBonuses)}
+        owed={bonusesOwed(profile, summary.barredBonuses, host.levelBonuses) + (rankedCardOwed(profile, summary.barredBonuses) ? 1 : 0)}
         level={levelled ? levelFor(profile.xp) : null}
         profile={profile}
         onChoose={(id) => {

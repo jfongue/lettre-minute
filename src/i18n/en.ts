@@ -977,6 +977,7 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
       slot: ['Second slot', 'Wear two powers at once.'],
       reveal: ['One more reveal', 'One extra reveal every day, for good.'],
       moderator: ['Moderator card', 'Judge the words players propose and help the dictionary grow.'],
+      ranked: ['Ranked card', 'Opens ranked duels: face players of your level and climb from Bronze to Diamond.'],
     },
     total: (count, max) => `${count} of ${max}`,
     joined: 'joins your perks',
