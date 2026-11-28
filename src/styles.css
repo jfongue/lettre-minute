@@ -6373,6 +6373,11 @@ referment d'un coup : `--way` donne le sens de chacune. */
   font-size: 0.82rem;
 }
 
+/* Un seul bouton, quand la carte ne se refuse pas (nom obligatoire) : toute la largeur. */
+.offer-pop-actions > .btn:only-child {
+  grid-column: 1 / -1;
+}
+
 /* Le motif du signalement, dans sa carte : la carte est étroite, le champ suit. */
 .flag-reason {
   justify-self: stretch;

@@ -49,6 +49,17 @@ export function levelProgress(xp: number): LevelProgress {
   return { level, into, span, ratio: span > 0 ? into / span : 1 }
 }
 
+/**
+ * Past this level, an account still called « Anonyme » stands on the boards
+ * under that name: it must choose one before its next run.
+ */
+export const NAME_REQUIRED_LEVEL = 5
+
+/** True when an account without a name of its own has played enough that its next run waits for one. */
+export function nameRequired(xp: number, needsName: boolean): boolean {
+  return needsName && levelFor(xp) >= NAME_REQUIRED_LEVEL
+}
+
 export interface Profile {
   xp: number
   runs: number

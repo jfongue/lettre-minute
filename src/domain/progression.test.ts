@@ -6,6 +6,8 @@ import {
   countOf,
   levelFor,
   levelProgress,
+  NAME_REQUIRED_LEVEL,
+  nameRequired,
   NEW_PROFILE,
   RECORD_BONUS_BELOW,
   RECORD_BONUS_XP,
@@ -52,6 +54,17 @@ describe('levels', () => {
     expect(progress.level).toBe(3)
     expect(progress.into).toBe(0)
     expect(progress.ratio).toBe(0)
+  })
+})
+
+describe('nameRequired', () => {
+  it('waits for the level before asking an unnamed account', () => {
+    expect(nameRequired(xpForLevel(NAME_REQUIRED_LEVEL) - 1, true)).toBe(false)
+    expect(nameRequired(xpForLevel(NAME_REQUIRED_LEVEL), true)).toBe(true)
+  })
+
+  it('never asks an account that already has a name', () => {
+    expect(nameRequired(xpForLevel(20), false)).toBe(false)
   })
 })
 

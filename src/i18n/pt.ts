@@ -844,6 +844,7 @@ flawless: ['Sem erros', 'A cada seis palavras válidas digitadas sem erros, ganh
     title: 'O teu nome de jogador',
     lead: 'A tua conta está pronta graças ao Play Games. Fica com este nome ou escolhe outro: é ele que aparece nos rankings e que os teus amigos procuram.',
     later: 'Mais tarde',
+    required: (level: number) => `Chegaste ao nível ${level}: escolhe o teu nome de jogador para apareceres nos rankings. Sem ele, apareces como «Anonyme».`,
   },
 
 

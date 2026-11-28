@@ -843,6 +843,7 @@ flawless: ['Foutloos', 'Elke zes goed gespelde woorden leveren meteen 30 bonuspu
     title: 'Je spelersnaam',
     lead: 'Je account staat klaar dankzij Play Games. Houd deze naam of kies een andere: die tonen de ranglijsten en daarop zoeken je vrienden je.',
     later: 'Later',
+    required: (level: number) => `Je bent level ${level}: kies je spelersnaam om in de ranglijsten te verschijnen. Zonder naam sta je er als ‘Anonyme’.`,
   },
 
 

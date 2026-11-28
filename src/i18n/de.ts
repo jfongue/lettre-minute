@@ -842,6 +842,7 @@ flawless: ['Fehlerfrei', 'Je sechs fehlerfrei eingegebene Wörter bringen sofort
     title: 'Dein Spielername',
     lead: 'Dein Konto ist dank Play Games bereit. Behalte diesen Namen oder wähle einen anderen: Unter ihm zeigen dich die Bestenlisten, und deine Freunde finden dich.',
     later: 'Später',
+    required: (level: number) => `Du bist jetzt Level ${level}: Wähle deinen Spielernamen, damit du in den Bestenlisten erscheinst. Ohne ihn stehst du dort als „Anonyme“.`,
   },
 
 

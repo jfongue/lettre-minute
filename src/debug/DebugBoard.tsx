@@ -3388,6 +3388,16 @@ const SCENARIOS: readonly Scenario[] = [
     ),
   },
   {
+    id: 'name-required',
+    group: 'Accueil',
+    title: 'Nom obligatoire au niveau 5',
+    how: 'Compte connecté encore nommé « Anonyme », niveau 5 ou plus : aucune partie ne part avant le choix du nom, ni « Plus tard » ni retour (sans effet ici ; un nom valide referme)',
+    phase: 'home',
+    render: (back) => (
+      <NamePrompt suggestion="" required={6} onChoose={async (name) => (name.trim().length < 2 ? 'Nom trop court.' : (back(), null))} onLater={back} />
+    ),
+  },
+  {
     id: 'push-offer',
     group: 'Accueil',
     title: 'Proposition des notifications',

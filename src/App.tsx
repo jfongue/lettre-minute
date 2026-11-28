@@ -104,7 +104,7 @@ import { complicationDue, ownedPowers, slotsOf, type PowerId } from './domain/po
 import { completeLeaderboard } from './domain/leaderboards'
 import { withGuest } from './ui/guestBoards'
 import { localBoards } from './ui/localBoards'
-import { NEW_PROFILE, markDailyFirst, settleReview, type Profile } from './domain/progression'
+import { NEW_PROFILE, levelFor, markDailyFirst, nameRequired, settleReview, type Profile } from './domain/progression'
 import { hasPower, isHushed, nextPrompt, promptKey, remainingSeconds } from './domain/run'
 import { DAMPED_PROMPTS, type PromptRecord } from './domain/prompts'
 import { DAMPED_WORDS } from './data/damped-words'
@@ -451,6 +451,9 @@ setMenuPage(null)
   const community = useRef<Record<string, CommunityWord[]>>({})
   const [avatar, setAvatar] = useState<AvatarChoice>(DEFAULT_AVATAR)
   const [account, setAccount] = useState<Account | null>(null)
+  // The server has answered for this account this session: a cached one
+  // cannot be renamed offline, so it never holds a run for its name.
+  const [accountLive, setAccountLive] = useState(false)
   // Les découvertes ne se comptent que sur le serveur : la page des succès les
   // demande à son ouverture plutôt que d'afficher une barre à zéro.
   const [discoveries, setDiscoveries] = useState<number | null>(null)
@@ -666,6 +669,7 @@ setMenuPage(null)
   const adopt = useCallback(
     (next: Account) => {
       setAccount(next)
+      setAccountLive(true)
       if (next.anonymous) return
       const local: Profile = profile.current
       if (next.stats.runs >= local.runs) {
@@ -2211,7 +2215,12 @@ setStartedAt((at) => at ?? Date.now())
   // Les avant-premières qu'un envoi vient de livrer, annoncées au retour à
   // l'accueil : une catégorie nouvelle les fait toutes repasser, une fois.
   const freshPremieres = useMemo(() => premiereNews(premiereNewsSeen, availableCategoryIds(lang)), [premiereNewsSeen, lang])
-  const pop = usePopQueue(
+  // An account still called « Anonyme » past the level names itself before any
+  // run, from home or from the summary's « play again »: every way into a run
+  // starts from one of the two.
+  const nameGate =
+    accountLive && account !== null && nameRequired(session.profile.xp, account.needsName) && (session.phase === 'home' || (session.phase === 'over' && overSummary))
+  const queuedPop = usePopQueue(
     {
       update: quietHome && updateDue,
       // One notice per challenge: the next one closes and opens like any other pop-up.
@@ -2238,6 +2247,7 @@ setStartedAt((at) => at ?? Date.now())
     },
     updateKnown,
   )
+  const pop = nameGate ? null : queuedPop
   const settlePremieres = () => {
     const seen = [...new Set([...premiereNewsSeen, ...freshPremieres])]
     savePremiereNewsSeen(seen)
@@ -2548,6 +2558,19 @@ setStartedAt((at) => at ?? Date.now())
             onClose={() => setPicking(null)}
           />
         </ScreenBoundary>
+      )}
+
+      {nameGate && (
+        <NamePrompt
+          suggestion={nameAsk ?? ''}
+          required={levelFor(session.profile.xp)}
+          onChoose={async (name) => {
+            const refused = await accountActions.onChooseName(name)
+            if (refused === null) setNameAsk(null)
+            return refused
+          }}
+          onLater={() => undefined}
+        />
       )}
 
       {pop === 'name' && nameAsk !== null && (

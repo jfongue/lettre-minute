@@ -893,6 +893,7 @@ latecomer: ['Retardataire', 'Valide un mot dans les 10 dernières secondes : +
     title: 'Ton nom de joueur',
     lead: 'Ton compte est prêt grâce à Play Games. Garde ce nom ou choisis-en un autre : c’est lui que le classement affiche et que tes amis cherchent.',
     later: 'Plus tard',
+    required: (level: number) => `Tu es niveau ${level} : choisis ton nom de joueur pour apparaître au classement. Sans lui, tu y figures en « Anonyme ».`,
   },
 
 

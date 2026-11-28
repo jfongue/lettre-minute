@@ -848,6 +848,7 @@ flawless: ['Flawless', 'Every six valid words typed without a mistake earn 30 bo
     title: 'Your player name',
     lead: 'Your account is ready, thanks to Play Games. Keep this name or pick another: it is the one the leaderboards show and your friends search for.',
     later: 'Later',
+    required: (level: number) => `You’ve reached level ${level}: choose your player name so you show up on the leaderboards. Without one, you appear there as “Anonyme”.`,
   },
 
 

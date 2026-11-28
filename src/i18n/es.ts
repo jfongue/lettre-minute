@@ -844,6 +844,7 @@ flawless: ['Impecable', 'Cada seis palabras válidas escritas sin errores te dan
     title: 'Tu nombre de jugador',
     lead: 'Tu cuenta está lista gracias a Play Games. Quédate con este nombre o elige otro: es el que muestran las clasificaciones y el que buscan tus amigos.',
     later: 'Más tarde',
+    required: (level: number) => `Ya eres nivel ${level}: elige tu nombre de jugador para aparecer en las clasificaciones. Sin él, apareces como «Anonyme».`,
   },
 
 
