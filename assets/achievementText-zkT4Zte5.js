@@ -1,1 +1,0 @@
-import{wn as e}from"./unlocks-CN3a5xlQ.js";import{$r as t}from"./styles-NTVRxQvw.js";function n(n,r){return t(r.id)?n.ach[r.id]:{name:e(n.avatar.milestone(r.goal)),desc:``}}export{n as t};
