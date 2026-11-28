@@ -43,6 +43,7 @@
     "animaux": [
       "banane",
       "ecu",
+      "ichneumon",
       "mauve",
       "noir",
       "rouge",
@@ -119,9 +120,6 @@
     ],
     "plantes": [
       "chess"
-    ],
-    "sports": [
-      "yellow"
     ]
   }
 }
