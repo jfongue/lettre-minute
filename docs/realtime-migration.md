@@ -66,7 +66,8 @@ du salon) ou une absence qui ne se voit qu'au temps qui passe.
   (`src/App.tsx`). Aucun changement de comportement : la première lecture reste
   faite par l'écran avant l'abonnement, le garde `syncing` de `sync` absorbe
   toujours les réveils en rafale.
-- **`supabase/migrations/0121_duel_realtime.sql`, écrite, pas appliquée** :
+- **`supabase/migrations/0121_duel_realtime.sql`, appliquée le 27 novembre 2026,
+  ses déclencheurs retirés par 0126** (voir l'étape 2) :
   - `duel_ring(topic, event, payload)` appelle `realtime.send(…, private => true)`
     et avale toute erreur en avertissement — une sonnerie manquée coûte une
     lecture, un coup refusé coûterait la partie ;
@@ -90,10 +91,14 @@ du salon) ou une absence qui ne se voit qu'au temps qui passe.
 ## Les étapes
 
 1. *(ce patch)* Interface, relevé seul, migration écrite.
-2. **Appliquer 0121** (accord de Jérémy) : `supabase db push --linked`. Sans
-   abonné, chaque écriture du duel ajoute une ligne à `realtime.messages`
-   (partitionnée par jour, purgée par Realtime) : surveiller le volume la
-   première semaine. Elle peut partir avant le client, et n'en dépend pas.
+2. **Remettre les déclencheurs de 0121**, en même temps que le client qui
+   écoute, pas avant. Appliquée seule le 27 novembre 2026, 0121 a montré que
+   sans service Realtime branché `realtime.messages` n'a aucune partition :
+   chaque `realtime.send` était refusé (« no partition of relation messages »),
+   au prix d'une sous-transaction et d'un avertissement renvoyé au client par
+   coup, quatre cents par heure, sur une instance déjà à court de mémoire.
+   0126 a retiré les neuf déclencheurs et gardé `duel_ring*`, le canal et sa
+   politique : les recréer tels que 0121 les écrit suffit.
 3. **Le transport Realtime**, derrière une fonctionnalité `realtime` de
    `FEATURES` (`supers` d'abord) :
    - `@supabase/realtime-js` à la même version que `auth-js` et `postgrest-js`,

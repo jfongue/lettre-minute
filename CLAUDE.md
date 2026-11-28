@@ -573,7 +573,11 @@ propre téléphone.
   table du serveur (0046), relue toutes les 450 ms en partie — il n'y a pas de
   Realtime dans le client, et c'est voulu (`src/lib/supabase.ts`) ; la relève
   passe par `liveTransport()` (`src/lib/live.ts`), seul point où Realtime se
-  branchera, le relevé restant son filet (`docs/realtime-migration.md`, 0121) —, et `local`,
+  branchera, le relevé restant son filet (`docs/realtime-migration.md`, 0121 ;
+  ses déclencheurs retirés par 0126 tant que personne n'écoute) ; cette relève
+  fait de `duel_sync` l'appel le plus fréquent du serveur, qui ne doit rien
+  recompter par place (0126 : la population du classement, quatre fois par
+  place, saturait l'instance le soir du 27 novembre 2026) —, et `local`,
   contre les joueurs ordinateur sans serveur, celle de `duel.html` et du repli hors
   ligne. Deux coups concurrents se départagent par leur numéro (`stale`, puis
   relecture). Le serveur ne juge rien : il vérifie seulement qu'un mot ou un

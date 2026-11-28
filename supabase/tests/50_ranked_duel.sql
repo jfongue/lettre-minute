@@ -142,10 +142,21 @@ select tests.is(tests.rating('ra'), 950 - 8, 'the newcomer loses 4 (K 60), doubl
 select tests.is(tests.games('ra'), 1, 'one game counted');
 select tests.login('rb');
 select tests.is(jsonb_array_length(public.duel_sync((select id from ranked), 0) -> 'table' -> 'ratings'), 2, 'the table shows both changes');
+-- Les places se lisent de leur ligne (0126), aux mêmes valeurs que `duel_rating_json`.
+create temp table synced_seats as
+  select s ->> 'player' as player, s -> 'rating' as rating, s -> 'games' as games, s -> 'rank' as rank, s -> 'masters' as masters
+    from jsonb_array_elements(public.duel_sync((select id from ranked), 0) -> 'seats') s;
+select tests.is((select rank::int from synced_seats where player = tests.uid('rb')::text), 1, 'the favourite ranks first');
 -- Un rapport de plus ne règle pas deux fois.
 select public.duel_report((select id from ranked), array[0, 1]);
 select tests.logout();
 select tests.is(tests.games('rb'), 31, 'a table settles once');
+select tests.is((select count(*)::int from synced_seats s
+                  where s.rating = public.duel_rating_json(s.player::uuid) -> 'rating'
+                    and s.games = public.duel_rating_json(s.player::uuid) -> 'games'
+                    and s.rank = public.duel_rating_json(s.player::uuid) -> 'rank'
+                    and s.masters = public.duel_rating_json(s.player::uuid) -> 'masters'), 2,
+  'each seat reads the rating, games, rank and masters its player''s rating gives');
 
 -- ------------------------------------------------- un rapport mensonger --
 
